@@ -738,5 +738,110 @@ void main() {
         throwsA(isA<ModifierPriceInvalid>()),
       );
     });
+
+    test('ubah jumlah: grosir + tambahan negatif ditolak', () async {
+      await saveModifierGroup(
+        store,
+        scope,
+        staffId: staff(),
+        draft: const ModifierGroupDraft(
+          name: 'Es',
+          minSelect: 0,
+          maxSelect: 1,
+          options: [
+            ModifierOptionDraft(name: 'Tanpa es', priceDelta: Money(-6000)),
+          ],
+        ),
+      );
+      final es = (await modifierGroupRows(
+        store,
+        scope,
+      )).firstWhere((g) => g.name == 'Es');
+      kopiMod = await product(
+        ProductDraft(
+          id: kopi.id.uuid,
+          name: kopi.name,
+          baseUnit: 'gelas',
+          variants: [
+            VariantDraft(
+              id: kopi.variants.single.id.uuid,
+              costPrice: const Money(3000),
+              sellPrice: const Money(24000),
+              tiers: const [PriceTier(minQty: Qty(3000), price: Money(5000))],
+            ),
+          ],
+          modifierGroupIds: [size.id.uuid, es.id.uuid],
+        ),
+      );
+      var bill = await add(
+        await open(m1),
+        line(kopiMod),
+        modifiers: [opt(size, 'Reguler'), opt(es, 'Tanpa es')],
+      );
+      expect(bill.items.single.lineTotal, 18000);
+      await expectLater(
+        setBillItemQuantity(
+          store,
+          scope,
+          staffId: staff(),
+          itemId: bill.items.single.id,
+          quantity: const Qty(3000),
+        ),
+        throwsA(isA<ModifierPriceInvalid>()),
+      );
+      bill = await loadOpenBill(store, scope, bill.id);
+      expect(bill.items.single.quantityMilli, 1000);
+    });
+
+    test('harga opsi berubah → baris baru, bukan gabung', () async {
+      final big = opt(size, 'Besar');
+      var bill = await add(await open(m1), line(kopiMod), modifiers: [big]);
+      await saveModifierGroup(
+        store,
+        scope,
+        staffId: staff(),
+        id: size.id,
+        draft: ModifierGroupDraft(
+          name: 'Ukuran',
+          minSelect: 1,
+          maxSelect: 1,
+          options: [
+            for (final o in size.options)
+              ModifierOptionDraft(
+                id: o.id.uuid,
+                name: o.name,
+                isDefault: o.isDefault,
+                priceDelta: Money(o.name == 'Besar' ? 5000 : o.priceDelta),
+              ),
+          ],
+        ),
+      );
+      bill = await add(bill, line(kopiMod), modifiers: [big]);
+      expect(bill.items.map((i) => i.modifierDelta), [4000, 5000]);
+      expect(bill.items.map((i) => i.lineTotal), [28000, 29000]);
+    });
+
+    test('hapus item ikut menghapus baris modifier', () async {
+      var bill = await add(
+        await open(m1),
+        line(kopiMod),
+        modifiers: [opt(size, 'Besar'), opt(topping, 'Boba')],
+      );
+      final itemId = bill.items.single.id;
+      bill = await setBillItemQuantity(
+        store,
+        scope,
+        staffId: staff(),
+        itemId: itemId,
+        quantity: Qty.zero,
+      );
+      expect(bill.items, isEmpty);
+      final rows = await SaleItemModifier.db.find(
+        store.session,
+        where: (m) => m.saleItemId.equals(itemId),
+      );
+      expect(rows, hasLength(2));
+      expect(rows.every((m) => m.deletedAt != null), isTrue);
+    });
   });
 }

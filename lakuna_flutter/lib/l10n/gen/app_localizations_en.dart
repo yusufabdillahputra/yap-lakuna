@@ -2986,7 +2986,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Modifier discounts exceed the item price.';
 
   @override
-  String get modifierSheetNoteHint => 'Note for the kitchen (optional)';
+  String get modifierSheetNote => 'Note for the kitchen (optional)';
 
   @override
   String get diningErrorModifierRequired =>

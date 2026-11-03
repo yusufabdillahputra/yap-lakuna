@@ -5132,11 +5132,11 @@ abstract class AppLocalizations {
   /// **'Potongan modifier melebihi harga menu.'**
   String get modifierSheetPriceInvalid;
 
-  /// No description provided for @modifierSheetNoteHint.
+  /// No description provided for @modifierSheetNote.
   ///
   /// In id, this message translates to:
   /// **'Catatan untuk dapur (opsional)'**
-  String get modifierSheetNoteHint;
+  String get modifierSheetNote;
 
   /// No description provided for @diningErrorModifierRequired.
   ///

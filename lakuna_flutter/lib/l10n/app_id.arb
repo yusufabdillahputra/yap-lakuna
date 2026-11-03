@@ -1791,7 +1791,7 @@
   "modifierSheetLess": "Kurangi",
   "modifierSheetMore": "Tambah",
   "modifierSheetPriceInvalid": "Potongan modifier melebihi harga menu.",
-  "modifierSheetNoteHint": "Catatan untuk dapur (opsional)",
+  "modifierSheetNote": "Catatan untuk dapur (opsional)",
   "diningErrorModifierRequired": "Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.",
   "diningErrorModifierSoldOut": "Ada opsi modifier yang habis. Pilih opsi lain.",
   "diningErrorModifierPrice": "Potongan modifier melebihi harga menu."

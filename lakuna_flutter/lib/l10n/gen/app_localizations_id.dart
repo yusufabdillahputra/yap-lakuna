@@ -2893,7 +2893,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Potongan modifier melebihi harga menu.';
 
   @override
-  String get modifierSheetNoteHint => 'Catatan untuk dapur (opsional)';
+  String get modifierSheetNote => 'Catatan untuk dapur (opsional)';
 
   @override
   String get diningErrorModifierRequired =>

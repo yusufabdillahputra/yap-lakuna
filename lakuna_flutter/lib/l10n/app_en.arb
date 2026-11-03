@@ -1257,7 +1257,7 @@
   "modifierSheetLess": "Decrease",
   "modifierSheetMore": "Increase",
   "modifierSheetPriceInvalid": "Modifier discounts exceed the item price.",
-  "modifierSheetNoteHint": "Note for the kitchen (optional)",
+  "modifierSheetNote": "Note for the kitchen (optional)",
   "diningErrorModifierRequired": "Modifier choices are incomplete or invalid. Open the item again.",
   "diningErrorModifierSoldOut": "A modifier option is sold out. Choose another.",
   "diningErrorModifierPrice": "Modifier discounts exceed the item price."

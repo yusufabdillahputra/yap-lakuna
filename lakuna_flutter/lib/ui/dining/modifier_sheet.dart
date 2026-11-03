@@ -127,8 +127,7 @@ class _ModifierSheetState extends State<_ModifierSheet> {
                           ),
                         FTextField(
                           key: const ValueKey('modifier-sheet-note'),
-                          label: Text(l10n.diningNote),
-                          hint: l10n.modifierSheetNoteHint,
+                          label: Text(l10n.modifierSheetNote),
                           maxLength: FnbLimits.itemNote,
                           control: .managed(
                             initial: TextEditingValue(text: _note),

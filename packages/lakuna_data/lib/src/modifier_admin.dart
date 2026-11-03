@@ -80,10 +80,14 @@ int _order(int a, int b) => a.compareTo(b);
 Future<List<ModifierGroup>> _groups(
   DatabaseSession session,
   UuidValue tenantId, {
+  Set<UuidValue>? ids,
   Transaction? transaction,
 }) async => (await ModifierGroup.db.find(
   session,
-  where: (g) => g.tenantId.equals(tenantId) & g.deletedAt.equals(null),
+  where: (g) =>
+      g.tenantId.equals(tenantId) &
+      g.deletedAt.equals(null) &
+      (ids == null ? g.id.notEquals(null) : g.id.inSet(ids)),
   transaction: transaction,
 ))..sort((a, b) => _order(a.sortOrder, b.sortOrder));
 
@@ -105,27 +109,39 @@ Future<List<ModifierOption>> _options(
   ))..sort((a, b) => _order(a.sortOrder, b.sortOrder));
 }
 
-/// Pemasangan grup di produk yang belum dihapus (produk juga belum dihapus).
+/// Pemasangan grup di produk yang belum dihapus (produk juga belum dihapus),
+/// opsional dibatasi ke [productIds] dan/atau [groupIds].
 Future<List<ProductModifierGroup>> productModifierLinks(
   DatabaseSession session,
   UuidValue tenantId, {
   Iterable<UuidValue>? productIds,
+  Iterable<UuidValue>? groupIds,
   Transaction? transaction,
 }) async {
   final ids = productIds?.toSet();
+  final groups = groupIds?.toSet();
   if (ids != null && ids.isEmpty) return const [];
+  if (groups != null && groups.isEmpty) return const [];
   final links = await ProductModifierGroup.db.find(
     session,
     where: (l) =>
         l.tenantId.equals(tenantId) &
         l.deletedAt.equals(null) &
-        (ids == null ? l.id.notEquals(null) : l.productId.inSet(ids)),
+        (ids == null ? l.id.notEquals(null) : l.productId.inSet(ids)) &
+        (groups == null
+            ? l.id.notEquals(null)
+            : l.modifierGroupId.inSet(groups)),
     transaction: transaction,
   );
+  if (links.isEmpty) return const [];
+  final linked = {for (final l in links) l.productId};
   final live = {
     for (final p in await Product.db.find(
       session,
-      where: (p) => p.tenantId.equals(tenantId) & p.deletedAt.equals(null),
+      where: (p) =>
+          p.tenantId.equals(tenantId) &
+          p.deletedAt.equals(null) &
+          p.id.inSet(linked),
       transaction: transaction,
     ))
       p.id,
@@ -136,13 +152,22 @@ Future<List<ProductModifierGroup>> productModifierLinks(
   ]..sort((a, b) => _order(a.sortOrder, b.sortOrder));
 }
 
-/// Semua grup modifier tenant beserta opsi dan jumlah menu pemakai.
+/// Grup modifier tenant (semua, atau hanya [groupIds]) beserta opsi dan
+/// jumlah menu pemakai.
 Future<List<ModifierGroupDetail>> modifierGroupDetails(
   DatabaseSession session,
   UuidValue tenantId, {
+  Iterable<UuidValue>? groupIds,
   Transaction? transaction,
 }) async {
-  final groups = await _groups(session, tenantId, transaction: transaction);
+  final only = groupIds?.toSet();
+  if (only != null && only.isEmpty) return const [];
+  final groups = await _groups(
+    session,
+    tenantId,
+    ids: only,
+    transaction: transaction,
+  );
   final options = await _options(session, tenantId, [
     for (final g in groups) g.id,
   ], transaction: transaction);
@@ -150,6 +175,7 @@ Future<List<ModifierGroupDetail>> modifierGroupDetails(
   for (final l in await productModifierLinks(
     session,
     tenantId,
+    groupIds: only,
     transaction: transaction,
   )) {
     counts[l.modifierGroupId] = (counts[l.modifierGroupId] ?? 0) + 1;

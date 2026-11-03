@@ -704,6 +704,7 @@ Future<(List<(ModifierGroup, ModifierOption)>, Money)> _modifiersFor(
     for (final d in await modifierGroupDetails(
       w.session,
       scope.tenantId,
+      groupIds: [for (final l in links) l.modifierGroupId],
       transaction: w.transaction,
     ))
       d.id: d,
@@ -768,7 +769,8 @@ Future<OpenBill> addBillItem(
               i.variantId == line.variantId &&
               i.productUnitId == line.productUnitId &&
               i.note == cleanNote &&
-              i.modifierKey == key,
+              i.modifierKey == key &&
+              i.modifierDelta == delta.value,
         )
         .firstOrNull;
     final quantity = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -912,6 +914,11 @@ Future<OpenBill> setBillItemQuantity(
           quantity: quantity,
         ),
       ]);
+      final unit = modifiedUnitPrice(
+        priced.line.unitPrice,
+        Money(item.modifierDelta),
+      );
+      if (unit == null) throw ModifierPriceInvalid();
       await w.update(_repriced(item, priced, s, staffId), s);
     } else {
       await w.update(
@@ -925,6 +932,22 @@ Future<OpenBill> setBillItemQuantity(
         ),
         s,
       );
+      final mods = await itemModifiers(w.session, scope.tenantId, [
+        item.id,
+      ], transaction: w.transaction);
+      for (final m in mods[item.id] ?? const <SaleItemModifier>[]) {
+        await w.update(
+          m.copyWith(
+            deletedAt: s.now,
+            version: m.version + 1,
+            updatedAt: s.now,
+            updatedBy: staffId,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      }
     }
     await _refreshTotals(w, scope, sale, s, staffId);
     return sale.id;
