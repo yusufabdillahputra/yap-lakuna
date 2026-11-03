@@ -181,7 +181,13 @@ List<MenuGroup> visibleMenu(Set<Permission> permissions) => [
 
 /// Menu ringkas untuk navigasi bawah di mobile, disaring izin.
 List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
-  for (final key in const ['home', 'cashier', 'products', 'settings'])
+  for (final key in const [
+    'home',
+    'cashier',
+    'cash_session',
+    'products',
+    'settings',
+  ])
     if (allMenuEntries.firstWhere((e) => e.key == key) case final e
         when e.allows(permissions))
       e,

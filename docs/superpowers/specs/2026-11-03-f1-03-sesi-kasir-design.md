@@ -1,7 +1,7 @@
 # F1-03 · Sesi kasir
 
 - **Fase:** 1
-- **Status:** Dikerjakan (target v0.4.0)
+- **Status:** Dirilis di v0.4.0
 - **Layar desain:** 1.3 *Buka / tutup sesi kasir · tablet* dan 1.3b *Kas laci:
   uang masuk/keluar, shift* (terang dan gelap), kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
@@ -28,7 +28,7 @@ Termasuk:
   - Hitung uang fisik per pecahan.
   - Selisih dan catatan selisih.
   - Tombol *Tutup sesi*.
-- Menu *Sesi kasir* di kelompok Penjualan.
+- Menu *Sesi kasir* di kelompok Penjualan dan di navigasi bawah ponsel.
 
 Tidak termasuk (lihat gap):
 
@@ -159,7 +159,8 @@ Migrasi `sesi-kasir`.
 | Uang masuk/keluar | `cash_movements:create` |
 
 - Izin dicek di UI (tombol tersembunyi atau nonaktif) dan di repositori
-  aplikasi (`NotPermitted`).
+  aplikasi `CashDrawerRepository` (`NotPermitted`). Namanya bukan
+  `CashSessionRepository` karena nama itu dipakai kode generate Serverpod.
 - Menu *Sesi kasir* tampil bagi staf dengan `cash_session:open`.
 
 ## Kasus tepi
@@ -204,8 +205,17 @@ Migrasi `sesi-kasir`.
 | Angka penjualan/QRIS/kartu/void/retur | Terisi | 0 sampai modul penjualan ada | F1-04, F1-05, dan F1-11 mengisi rekap |
 | Tab Buka/Tutup sesi | `FTabs` di kepala 1.3 | Keadaan terpisah: tombol *Tutup sesi* dan *Kembali ke kas laci* | Pertahankan, karena tab "Buka sesi" saat sesi terbuka tidak bermakna |
 | Pecahan Rp 2.000 dan 1.000 | Tidak tampak di 1.3 | Ada (sama dengan Storeku) | Kanvas bisa ditambah |
+| Keadaan "belum ada sesi" | Tidak digambar | Kartu *Buka sesi kasir* (saldo awal, catatan) | Tambah artboard di kanvas |
+| Navigasi ponsel | Kanvas 1.3b mobile tidak menggambar navigasi bawah | *Sesi kasir* menjadi item navigasi bawah (Beranda, Kasir, Sesi kasir, Produk, Pengaturan sesuai izin) | Pertahankan; tanpa ini kasir di ponsel tidak bisa membuka sesi |
+| Kartu angka di ponsel | - | Tiga kartu tetap satu baris | Pertahankan |
+| Log masuk/keluar staf | Spec F1-02 menunda ke F1-03 | Belum: sesi mencatat `opened_by`/`closed_by` saja | Tabel log bila laporan F1-16 membutuhkannya |
 
 ## Kriteria selesai
+
+Terpenuhi di v0.4.0: uji manual di Xvfb (buka sesi, uang masuk/keluar,
+tutup dengan selisih dan catatan wajib, selisih pas, sesi tetap terbuka
+setelah aplikasi dibuka ulang, menu tersembunyi untuk staf gudang, ponsel
+gelap). Tangkapan layar `v0.4.0-*.png`.
 
 - Buka sesi, catat uang masuk/keluar, lalu tutup dengan hitung pecahan.
   Selisih dan catatan tersimpan, dan semuanya tercatat di outbox.

@@ -7,6 +7,77 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-03
+
+Sesi kasir (F1-03, layar 1.3 dan 1.3b): kasir membuka laci dengan saldo
+awal, mencatat uang masuk dan keluar, lalu menutup sesi dengan menghitung
+uang fisik per pecahan dan melihat selisihnya.
+
+### Ditambahkan
+
+- **Menu *Sesi kasir*** (rute `/sesi-kasir`) di kelompok Penjualan dan di
+  navigasi bawah ponsel, untuk staf dengan izin `cash_session:open`.
+- **Buka sesi kasir**: kartu dengan baris konteks usaha · cabang · perangkat
+  · staf, *Saldo awal laci* berawalan "Rp" (titik ribuan otomatis saat
+  diketik), dan catatan opsional. Satu sesi terbuka per perangkat.
+- **Kas laci (1.3b)**:
+  - Kartu *Sesi aktif* "Dibuka HH.mm oleh <nama> · <perangkat>" (jam zona
+    cabang) dengan *Perkiraan uang di laci*.
+  - Tabel *Gerakan kas sesi ini* (Jam / Keterangan / Sumber / Jumlah): baris
+    saldo awal tebal, uang masuk hijau dengan "+", uang keluar merah dengan
+    "−". Di layar sempit kolom Sumber dilipat ke bawah Keterangan.
+  - Formulir *Catat uang laci* dengan tab *Uang keluar* / *Uang masuk*,
+    jumlah, keterangan wajib, dan tombol *Simpan* (butuh
+    `cash_movements:create`). Formulir kosong lagi setelah tersimpan.
+- **Tutup sesi (1.3)**:
+  - Kartu *Transaksi*, *Penjualan*, *Void / retur* (masih 0 sampai modul
+    penjualan ada).
+  - *Rekap kas laci*: saldo awal, penjualan tunai, uang masuk lain, uang
+    keluar, **Seharusnya di laci**, dan baris QRIS statis · kartu yang tidak
+    masuk laci.
+  - *Hitung uang fisik*: lembar Rp 100.000 sampai Rp 1.000 dengan subtotal,
+    *Receh* sebagai nominal, *Uang dihitung*, dan pil *Selisih* (kuning bila
+    ada selisih, hijau "Pas").
+  - *Catatan selisih* wajib bila selisih tidak nol; tombol *Tutup sesi*
+    (butuh `cash_session:close`).
+  - Kartu hasil (seharusnya, dihitung, selisih, catatan) dengan tombol
+    *Buka sesi baru*.
+
+### Diubah
+
+- Navigasi bawah ponsel kini memuat *Sesi kasir* di antara Kasir dan
+  Produk (item tetap disaring izin).
+
+### Keamanan
+
+- Izin dicek di UI dan di repositori aplikasi: buka sesi butuh
+  `cash_session:open`, tutup `cash_session:close`, uang masuk/keluar
+  `cash_movements:create`. Tanpa izin, repositori menolak dengan
+  `NotPermitted` sebelum menulis.
+- Semua query sesi kasir dibatasi `tenant_id`, `outlet_id`, dan
+  `device_id`; sesi perangkat atau cabang lain tidak terbaca atau tertutup.
+
+### Catatan teknis
+
+- Model Serverpod baru `CashSession` (`cash_sessions`) dan `CashMovement`
+  (`cash_movements`) dengan enum `CashSessionStatus` dan `CashDirection`
+  (`inflow`/`outflow`, karena `in` kata kunci Dart). Migrasi
+  `sesi-kasir` untuk server dan klien.
+- `lakuna_domain`: `CashDrawer.expectedCash` (saldo awal + penjualan tunai −
+  retur tunai + masuk − keluar), `CashCount` (total pecahan + receh, JSON
+  rincian), dan validasi saldo awal, uang laci, serta catatan selisih.
+- `lakuna_data`: `openCashSession`, `findOpenCashSession`,
+  `recordCashMovement`, `listCashMovements`, `cashDrawerFor`,
+  `closeCashSession`. Semua tulis lewat `LakunaStore.write` dengan aktor
+  staf sehingga tercatat di outbox. Pemeriksaan "masih terbuka" dan
+  pembaruan sesi berada dalam satu transaksi, jadi menutup dua kali ditolak
+  (`CashSessionNotOpen`) tanpa menimpa hasil pertama.
+- Aplikasi: `CashDrawerRepository` (nama `CashSessionRepository` sudah
+  dipakai kode generate Serverpod), `CashSessionViewModel`, formatter
+  `RupiahInputFormatter`, dan `formatClock` (jam zona cabang).
+- Sesi yang dibuka atau ditutup di layar lain memuat ulang layar dengan
+  pesan, bukan galat diam.
+
 ## [0.3.0] - 2026-11-03
 
 Login PIN & ganti kasir (F1-02, layar 1.2): beberapa staf bergantian memakai
@@ -316,7 +387,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...v0.1.1

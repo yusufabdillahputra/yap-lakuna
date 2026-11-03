@@ -10,7 +10,6 @@ import '../../data/repositories/cash_drawer_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
-import '../core/breakpoints.dart';
 import '../core/format.dart';
 import 'cash_session_view_model.dart';
 
@@ -220,7 +219,12 @@ class _Header extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 4,
       children: [
-        Text(title, style: theme.typography.display.xl2),
+        Text(
+          title,
+          style: theme.typography.display.xl2.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         if (subtitle case final s?)
           Text(
             s,
@@ -320,7 +324,12 @@ class _Card extends StatelessWidget {
           spacing: 16,
           children: [
             if (title case final t?)
-              Text(t, style: theme.typography.display.lg),
+              Text(
+                t,
+                style: theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             child,
           ],
         ),
@@ -559,7 +568,12 @@ class _ActiveCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 4,
       children: [
-        Text(l10n.cashActive, style: theme.typography.display.lg),
+        Text(
+          l10n.cashActive,
+          style: theme.typography.display.lg.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         Text(
           l10n.cashOpenedBy(
             formatClock(session.openedAt, store?.outlet.timezone),
@@ -637,7 +651,8 @@ class _MovementsCard extends StatelessWidget {
       title: l10n.cashMovementsTitle,
       child: LayoutBuilder(
         builder: (context, c) {
-          final narrow = LayoutSize.of(c.maxWidth) == LayoutSize.mobile;
+          // Kolom Sumber dilipat ke bawah Keterangan bila kartu sempit.
+          final narrow = c.maxWidth < 440;
           Widget row({
             required String time,
             required String note,
@@ -868,44 +883,56 @@ class _Stats extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
-    Widget stat(String label, String value) => FCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
-          children: [
-            Text(
-              label,
-              style: theme.typography.body.sm.copyWith(
-                color: theme.colors.mutedForeground,
-              ),
-            ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(value, style: theme.typography.display.xl),
-            ),
-          ],
-        ),
-      ),
-    );
-    final cards = [
-      stat(l10n.cashStatTransactions, '0'),
-      stat(l10n.cashStatSales, formatMoney(context, Money.zero)),
-      stat(l10n.cashStatVoids, '0'),
-    ];
     return LayoutBuilder(
-      builder: (context, c) => c.maxWidth < 420
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
-              children: cards,
-            )
-          : Row(
-              spacing: 12,
-              children: [for (final card in cards) Expanded(child: card)],
+      builder: (context, c) {
+        final narrow = c.maxWidth < 420;
+        Widget stat(String label, String value) => FCard(
+          child: Padding(
+            padding: EdgeInsets.all(narrow ? 12 : 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                Text(
+                  label,
+                  style: theme.typography.body.sm.copyWith(
+                    color: theme.colors.mutedForeground,
+                  ),
+                ),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style:
+                        (narrow
+                                ? theme.typography.display.lg
+                                : theme.typography.display.xl)
+                            .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
             ),
+          ),
+        );
+        // Tetap satu baris di ponsel (kanvas 1.3): angkanya pendek.
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: narrow ? 8 : 12,
+            children: [
+              Expanded(child: stat(l10n.cashStatTransactions, '0')),
+              Expanded(
+                child: stat(
+                  l10n.cashStatSales,
+                  formatMoney(context, Money.zero),
+                ),
+              ),
+              Expanded(child: stat(l10n.cashStatVoids, '0')),
+            ],
+          ),
+        );
+      },
     );
   }
 }
