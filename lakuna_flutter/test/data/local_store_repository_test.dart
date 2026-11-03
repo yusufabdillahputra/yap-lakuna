@@ -17,6 +17,7 @@ SetupInput _input() => SetupInput(
   ownerName: 'Ani',
   email: 'ani@contoh.id',
   password: 'rahasia123',
+  passwordConfirm: 'rahasia123',
   pin: '123456',
   pinConfirm: '123456',
 );

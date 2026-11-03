@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/ui/onboarding/onboarding_view_model.dart';
 
+import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_store_repository.dart';
 
 void fillBusiness(OnboardingViewModel vm) {
@@ -17,18 +18,22 @@ void fillOwner(OnboardingViewModel vm) {
     ..setField(SetupField.ownerName, 'Yusuf')
     ..setField(SetupField.email, 'yusuf@contoh.id')
     ..setField(SetupField.password, 'rahasia123')
+    ..setField(SetupField.passwordConfirm, 'rahasia123')
     ..setField(SetupField.pin, '123456')
     ..setField(SetupField.pinConfirm, '123456');
 }
 
 void main() {
   late FakeStoreRepository repository;
+  late FakeSessionRepository session;
   late OnboardingViewModel vm;
 
   setUp(() {
     repository = FakeStoreRepository();
+    session = FakeSessionRepository();
     vm = OnboardingViewModel(
       repository: repository,
+      session: session,
       now: () => DateTime.utc(2026, 11, 3, 3),
     );
   });
@@ -72,6 +77,7 @@ void main() {
   test('tanggal pratinjau nota mengikuti zona waktu yang dipilih', () {
     final late = OnboardingViewModel(
       repository: repository,
+      session: session,
       now: () => DateTime.utc(2026, 11, 3, 16, 30),
     );
     // 23.30 WIB masih tanggal 3; 01.30 WIT sudah tanggal 4.
@@ -111,6 +117,8 @@ void main() {
     expect(input.outletCode, 'PST');
     expect(input.pin, '123456');
     expect(repository.current, isNotNull);
+    // Pemilik langsung bertugas tanpa mengetik PIN.
+    expect(session.current?.isOwner, isTrue);
   });
 
   test('kembali ke langkah sebelumnya tanpa kehilangan isian', () {
@@ -131,6 +139,7 @@ void main() {
     vm.next();
     await vm.finish.execute();
     expect(vm.finish.error, isTrue);
+    expect(session.current, isNull);
     repository.failSetup = false;
     await vm.finish.execute();
     expect(vm.finish.completed, isTrue);

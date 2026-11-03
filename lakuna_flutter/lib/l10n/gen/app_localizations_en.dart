@@ -212,6 +212,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldPassword => 'Password';
 
   @override
+  String get fieldPasswordConfirm => 'Repeat password';
+
+  @override
   String get fieldPin => 'PIN (6 digits)';
 
   @override
@@ -242,6 +245,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPasswordTooShort => 'At least 8 characters';
+
+  @override
+  String get errorPasswordMismatch => 'The passwords do not match';
 
   @override
   String get errorInvalidPin => 'The PIN must be 6 digits';
@@ -292,4 +298,96 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupAlreadyDone =>
       'This device already holds incomplete store data. Restore from a backup or contact support.';
+
+  @override
+  String get loginTitle => 'Who\'s on duty?';
+
+  @override
+  String get loginSelectStaff => 'Choose your name to enter your PIN.';
+
+  @override
+  String loginEnterPinFor(String name) {
+    return 'Enter $name\'s PIN';
+  }
+
+  @override
+  String get loginNoPin => 'No PIN yet';
+
+  @override
+  String get loginPinNote =>
+      'PINs are verified on this device. 5 wrong attempts → locked for 1 minute.';
+
+  @override
+  String get loginOwnerLink => 'Sign in with email & password (owner)';
+
+  @override
+  String get loginOwnerTitle => 'Sign in as owner';
+
+  @override
+  String get loginSubmit => 'Sign in';
+
+  @override
+  String get loginBackToPin => 'Back to PIN';
+
+  @override
+  String get loginBackToStaff => 'Choose someone else';
+
+  @override
+  String get loginKeypadCancel => 'Cancel';
+
+  @override
+  String get loginKeypadDelete => 'Delete one digit';
+
+  @override
+  String loginWrongPin(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong PIN. $count attempts left.',
+      one: 'Wrong PIN. 1 attempt left.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String loginLocked(int seconds) {
+    return 'Too many attempts. Try again in $seconds s.';
+  }
+
+  @override
+  String get loginWrongCredentials => 'Wrong email or password.';
+
+  @override
+  String get loginStaffUnavailable =>
+      'This staff member is no longer active at this branch.';
+
+  @override
+  String get loginFailed => 'Sign-in failed. Try again.';
+
+  @override
+  String get loginLoadFailed => 'Could not load the staff list.';
+
+  @override
+  String get loginRetry => 'Try again';
+
+  @override
+  String get switchCashier => 'Switch cashier';
+
+  @override
+  String get homeStaffLabel => 'On duty';
+
+  @override
+  String get roleOwner => 'Owner';
+
+  @override
+  String get roleManager => 'Manager';
+
+  @override
+  String get roleCashier => 'Cashier';
+
+  @override
+  String get roleWaiter => 'Waiter';
+
+  @override
+  String get roleStockKeeper => 'Stock keeper';
 }

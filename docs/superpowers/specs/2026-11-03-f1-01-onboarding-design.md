@@ -1,8 +1,9 @@
 # F1-01 · Onboarding & setup toko
 
 - **Fase:** 1
-- **Status:** Dirilis di v0.2.0
-- **Layar desain:** 1.1 *Setup toko pertama · tablet* (kanvas
+- **Status:** Dirilis di v0.2.0; kolom ulangi kata sandi di v0.3.0
+- **Layar desain:** 1.1 *Setup toko pertama · tablet* dan 1.1b *Akun pemilik*
+  (kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525))
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-01-onboarding-design.md`
 
@@ -18,7 +19,8 @@ Termasuk:
 - Pilihan bahasa (ID/EN) dan tema (Terang/Gelap/Ikuti sistem).
 - Jenis usaha (Retail, F&B, Campuran), nama usaha, cabang pertama, kode
   cabang dan kode perangkat untuk nomor nota, zona waktu (WIB/WITA/WIT).
-- Akun pemilik: nama, email, kata sandi, dan PIN 6 digit.
+- Akun pemilik: nama, email, kata sandi + ulangi kata sandi, dan PIN 6 digit
+  + ulangi PIN.
 - Ringkasan dan tombol *Mulai jualan*.
 
 Tidak termasuk:
@@ -55,8 +57,10 @@ yang sama.
        berubah saat kode diketik.
      - Kode perangkat ditambahkan dari spec Storeku karena kanvas hanya
        menampilkan kode cabang. Bawaannya `K01`.
-  3. *Akun pemilik & PIN*: nama pemilik, email, kata sandi (minimal 8
-     karakter), PIN 6 digit, dan konfirmasi PIN.
+  3. *Akun pemilik & PIN* (kanvas 1.1b): nama pemilik, email, kata sandi
+     (minimal 8 karakter) dan *Ulangi kata sandi* berdampingan, lalu PIN 6
+     digit dan *Ulangi PIN* berdampingan. Galat kolom ulangi tampil di bawah
+     kolom itu, dan tombol *Lanjut* tetap aktif.
   4. *Siap jualan*: ringkasan usaha, cabang, perangkat, dan pemilik, lalu
      tombol *Mulai jualan*. Data baru ditulis saat tombol ini ditekan.
 - Komponen Forui: `FTextField`, `FSelect`, kartu pilihan memakai
@@ -69,8 +73,13 @@ yang sama.
   huruf besar.
 - **Nama usaha, cabang, dan pemilik:** dipangkas spasinya, 1–60 karakter.
 - **Email:** wajib, format `nama@domain.tld`, disimpan huruf kecil.
-- **Kata sandi:** minimal 8 karakter.
-- **PIN:** tepat 6 angka, dan konfirmasinya harus sama.
+- **Kata sandi:** minimal 8 karakter, dan *Ulangi kata sandi* harus sama
+  ("Kata sandi tidak sama" / "The passwords do not match").
+- **PIN:** tepat 6 angka, dan *Ulangi PIN* harus sama ("PIN tidak sama").
+- **Kolom ulangi kosong:** "Wajib diisi". Setelah langkah diperiksa sekali,
+  kolom ulangi diperiksa ulang setiap kali kolom sumbernya berubah.
+- **Yang disimpan:** hanya hash kolom pertama; kolom ulangi tidak pernah
+  disimpan.
 - **Zona waktu:** `Asia/Jakarta` (WIB), `Asia/Makassar` (WITA),
   `Asia/Jayapura` (WIT).
 - **Validasi:** `SetupInput.validate()` mengembalikan daftar galat per field.
@@ -136,8 +145,9 @@ selesai.
 ## Pengujian (TDD)
 
 - **`lakuna_domain`:**
-  - Validasi `SetupInput` per field (kode, nama, email, kata sandi, PIN,
-    zona waktu).
+  - Validasi `SetupInput` per field (kode, nama, email, kata sandi dan
+    ulangi kata sandi, PIN dan ulangi PIN, kolom ulangi kosong, zona
+    waktu).
   - `CredentialHasher`: verifikasi benar dan salah, salt berbeda per hash,
     format PHC.
 - **`lakuna_data`:**
@@ -168,6 +178,7 @@ selesai.
 | Hash di outbox sync | - | `sync_outbox.payload_json` baris `staff_members` memuat `pin_hash`/`password_hash` (sama dengan isi SQLite) | Sebelum sync Fase 2: putuskan hash ikut sync atau tidak, dan tandai field hash `scope=serverOnly` agar endpoint tidak mengembalikannya ke klien |
 | Fokus saat jendela diubah ukurannya | - | Melewati lebar 560 px, grid field berganti Row/Column sehingga fokus hilang (isian tetap) | Perbaiki bila mengganggu (GlobalKey per field) |
 | Data toko tidak lengkap | - | Bila tenant ada tetapi perangkat/pemilik hilang, setup menampilkan pesan khusus (pulihkan dari backup) | Tangani lewat Data & backup (F1-19) dan sync Fase 2 |
+| Validasi kolom ulangi | Kanvas 1.1b: diperiksa saat fokus keluar, saat simpan, dan saat kolom pertama berubah; fokus pindah ke kolom galat paling atas | Galat langkah tampil setelah *Lanjut* ditekan, lalu diperbarui setiap ketikan (termasuk saat kolom sumber berubah); fokus tidak dipindah | Tambahkan validasi saat fokus keluar dan pemindahan fokus bersama perbaikan fokus (GlobalKey per field) |
 | Tes server Postgres lokal | - | Postgres tertanam menolak jalan sebagai root di lingkungan cloud | Tes server dijalankan CI |
 
 ## Kriteria selesai

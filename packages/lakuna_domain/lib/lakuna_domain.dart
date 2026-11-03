@@ -10,5 +10,7 @@ export 'src/hlc.dart';
 export 'src/ids.dart';
 export 'src/money.dart';
 export 'src/permission.dart';
+export 'src/pin_guard.dart';
 export 'src/qty.dart';
 export 'src/setup.dart';
+export 'src/staff.dart';

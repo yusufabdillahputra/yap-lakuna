@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
@@ -13,12 +14,14 @@ enum OnboardingStep { languageTheme, business, owner, summary }
 class OnboardingViewModel extends ChangeNotifier {
   OnboardingViewModel({
     required this._repository,
+    required this._session,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now {
     finish = Command0(_finish);
   }
 
   final StoreRepository _repository;
+  final SessionRepository _session;
   final DateTime Function() _now;
 
   late final Command0<StoreContext> finish;
@@ -52,6 +55,7 @@ class OnboardingViewModel extends ChangeNotifier {
     ownerName: value(SetupField.ownerName),
     email: value(SetupField.email),
     password: value(SetupField.password),
+    passwordConfirm: value(SetupField.passwordConfirm),
     pin: value(SetupField.pin),
     pinConfirm: value(SetupField.pinConfirm),
   );
@@ -114,7 +118,18 @@ class OnboardingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Result<StoreContext>> _finish() => _repository.setup(input);
+  /// Menyimpan toko lalu langsung memulai sesi pemilik (F1-02), sehingga
+  /// pemilik tidak perlu mengetik PIN tepat setelah setup.
+  ///
+  /// Jangan menyisipkan `await` di antara `setup` dan `startOwnerSession`:
+  /// `setup` memberi tahu router (yang sesaat mengarah ke `/masuk`), dan sesi
+  /// harus dimulai pada giliran microtask yang sama agar layar login tidak
+  /// sempat tampil. Tes alur onboarding memastikan Beranda langsung terbuka.
+  Future<Result<StoreContext>> _finish() async {
+    final result = await _repository.setup(input);
+    if (result case Ok(:final value)) _session.startOwnerSession(value);
+    return result;
+  }
 
   static List<SetupField> _fieldsOf(OnboardingStep step) => switch (step) {
     OnboardingStep.business => SetupField.businessStep,

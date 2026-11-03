@@ -8,6 +8,7 @@ import 'package:lakuna_flutter/ui/settings/app_settings_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'fake_app_settings_repository.dart';
+import 'fake_session_repository.dart';
 import 'fake_store_repository.dart';
 
 /// Menjalankan aplikasi lengkap dengan repositori palsu pada ukuran layar
@@ -18,6 +19,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeAppSettingsRepository? repository,
   String initialLocation = Routes.home,
   FakeStoreRepository? store,
+  FakeSessionRepository? session,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -29,6 +31,12 @@ Future<AppSettingsViewModel> pumpLakuna(
   await settings.load.execute();
   final storeRepository =
       store ?? FakeStoreRepository(current: sampleStoreContext());
+  // Bawaan: toko sudah ada dan pemilik sedang bertugas. Tanpa toko, belum
+  // ada yang bertugas.
+  final sessionRepository =
+      session ??
+      (FakeSessionRepository()
+        ..current = storeRepository.current == null ? null : sampleStaff());
   await tester.pumpWidget(
     MultiProvider(
       providers: [
@@ -45,6 +53,7 @@ Future<AppSettingsViewModel> pumpLakuna(
         router: createRouter(
           settings: settings,
           store: storeRepository,
+          session: sessionRepository,
           initialLocation: initialLocation,
         ),
       ),

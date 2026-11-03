@@ -482,6 +482,12 @@ abstract class AppLocalizations {
   /// **'Kata sandi'**
   String get fieldPassword;
 
+  /// No description provided for @fieldPasswordConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi kata sandi'**
+  String get fieldPasswordConfirm;
+
   /// No description provided for @fieldPin.
   ///
   /// In id, this message translates to:
@@ -541,6 +547,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Minimal 8 karakter'**
   String get errorPasswordTooShort;
+
+  /// No description provided for @errorPasswordMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi tidak sama'**
+  String get errorPasswordMismatch;
 
   /// No description provided for @errorInvalidPin.
   ///
@@ -637,6 +649,162 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan.'**
   String get setupAlreadyDone;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Siapa yang bertugas?'**
+  String get loginTitle;
+
+  /// No description provided for @loginSelectStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih nama Anda untuk memasukkan PIN.'**
+  String get loginSelectStaff;
+
+  /// No description provided for @loginEnterPinFor.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan PIN {name}'**
+  String loginEnterPinFor(String name);
+
+  /// No description provided for @loginNoPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum punya PIN'**
+  String get loginNoPin;
+
+  /// No description provided for @loginPinNote.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN diverifikasi di perangkat ini. 5 kali salah → dikunci 1 menit.'**
+  String get loginPinNote;
+
+  /// No description provided for @loginOwnerLink.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk dengan email & kata sandi (pemilik)'**
+  String get loginOwnerLink;
+
+  /// No description provided for @loginOwnerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk sebagai pemilik'**
+  String get loginOwnerTitle;
+
+  /// No description provided for @loginSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk'**
+  String get loginSubmit;
+
+  /// No description provided for @loginBackToPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke PIN'**
+  String get loginBackToPin;
+
+  /// No description provided for @loginBackToStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih staf lain'**
+  String get loginBackToStaff;
+
+  /// No description provided for @loginKeypadCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get loginKeypadCancel;
+
+  /// No description provided for @loginKeypadDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus satu angka'**
+  String get loginKeypadDelete;
+
+  /// No description provided for @loginWrongPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN salah. Sisa {count} percobaan.'**
+  String loginWrongPin(int count);
+
+  /// No description provided for @loginLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak percobaan. Coba lagi dalam {seconds} detik.'**
+  String loginLocked(int seconds);
+
+  /// No description provided for @loginWrongCredentials.
+  ///
+  /// In id, this message translates to:
+  /// **'Email atau kata sandi salah.'**
+  String get loginWrongCredentials;
+
+  /// No description provided for @loginStaffUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf ini tidak lagi aktif di cabang ini.'**
+  String get loginStaffUnavailable;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal masuk. Coba lagi.'**
+  String get loginFailed;
+
+  /// No description provided for @loginLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar staf gagal dimuat.'**
+  String get loginLoadFailed;
+
+  /// No description provided for @loginRetry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get loginRetry;
+
+  /// No description provided for @switchCashier.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti kasir'**
+  String get switchCashier;
+
+  /// No description provided for @homeStaffLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Bertugas'**
+  String get homeStaffLabel;
+
+  /// No description provided for @roleOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemilik'**
+  String get roleOwner;
+
+  /// No description provided for @roleManager.
+  ///
+  /// In id, this message translates to:
+  /// **'Manajer'**
+  String get roleManager;
+
+  /// No description provided for @roleCashier.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir'**
+  String get roleCashier;
+
+  /// No description provided for @roleWaiter.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelayan'**
+  String get roleWaiter;
+
+  /// No description provided for @roleStockKeeper.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf gudang'**
+  String get roleStockKeeper;
 }
 
 class _AppLocalizationsDelegate

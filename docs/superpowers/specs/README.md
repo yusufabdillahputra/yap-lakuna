@@ -53,8 +53,8 @@ Urutan pengerjaan sama dengan Storeku.
 
 | # | Modul | Layar desain | Status |
 | --- | --- | --- | --- |
-| 1 | [Onboarding & setup toko](2026-11-03-f1-01-onboarding-design.md) | 1.1 | Rilis v0.2.0 (produk pertama di F1-07) |
-| 2 | Login PIN & ganti kasir | 1.2 | Belum |
+| 1 | [Onboarding & setup toko](2026-11-03-f1-01-onboarding-design.md) | 1.1, 1.1b | Rilis v0.2.0, ulangi kata sandi v0.3.0 (produk pertama di F1-07) |
+| 2 | [Login PIN & ganti kasir](2026-11-03-f1-02-login-pin-design.md) | 1.2 | Rilis v0.3.0 (persetujuan PIN manajer menyusul bersama void/diskon) |
 | 3 | Sesi kasir | 1.3 | Belum |
 | 4 | Kasir retail | 1.4, 1.11 | Belum |
 | 5 | Pembayaran: tunai, split, QRIS statis, kredit | 1.5, 1.6 | Belum |
