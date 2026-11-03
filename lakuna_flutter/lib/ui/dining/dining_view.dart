@@ -26,6 +26,7 @@ class DiningScreen extends StatefulWidget {
     required this.repository,
     required this.printer,
     required this.onPay,
+    this.onSplit,
     this.initialBill,
   });
 
@@ -34,6 +35,9 @@ class DiningScreen extends StatefulWidget {
 
   /// *Tutup & bayar*: membuka kasir mode bill.
   final void Function(UuidValue billId) onPay;
+
+  /// *Split bill*: membuka layar split (1.9).
+  final void Function(UuidValue billId)? onSplit;
 
   /// Bill yang langsung dipilih (kembali dari tahap bayar).
   final String? initialBill;
@@ -74,14 +78,18 @@ class _DiningScreenState extends State<DiningScreen> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      DiningView(viewModel: _viewModel, onPay: widget.onPay);
+  Widget build(BuildContext context) => DiningView(
+    viewModel: _viewModel,
+    onPay: widget.onPay,
+    onSplit: widget.onSplit,
+  );
 }
 
 /// Galat aksi bill untuk ditampilkan.
 String diningErrorMessage(AppLocalizations l10n, Exception error) =>
     switch (error) {
       BillItemLocked() => l10n.diningErrorLocked,
+      SplitLocked() => l10n.diningErrorSplitLocked,
       TableOccupied() => l10n.diningErrorOccupied,
       NothingToSend() => l10n.diningErrorNothingToSend,
       BillNotFound() => l10n.diningErrorNotFound,
@@ -185,11 +193,13 @@ class DiningView extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onPay,
+    this.onSplit,
     this.clock = DateTime.now,
   });
 
   final DiningViewModel viewModel;
   final void Function(UuidValue billId) onPay;
+  final void Function(UuidValue billId)? onSplit;
 
   /// Jam untuk lama bill terbuka (bisa diganti di tes).
   final DateTime Function() clock;
@@ -231,6 +241,7 @@ class DiningView extends StatelessWidget {
                   viewModel: vm,
                   bill: selected,
                   onPay: onPay,
+                  onSplit: onSplit,
                   clock: clock,
                   showBack: true,
                   narrow: narrow,
@@ -255,6 +266,7 @@ class DiningView extends StatelessWidget {
                             viewModel: vm,
                             bill: selected,
                             onPay: onPay,
+                            onSplit: onSplit,
                             clock: clock,
                             showBack: false,
                             narrow: false,
@@ -791,6 +803,7 @@ class _BillPanel extends StatelessWidget {
     required this.viewModel,
     required this.bill,
     required this.onPay,
+    required this.onSplit,
     required this.clock,
     required this.showBack,
     required this.narrow,
@@ -799,6 +812,7 @@ class _BillPanel extends StatelessWidget {
   final DiningViewModel viewModel;
   final OpenBill bill;
   final void Function(UuidValue billId) onPay;
+  final void Function(UuidValue billId)? onSplit;
   final DateTime Function() clock;
   final bool showBack;
   final bool narrow;
@@ -822,6 +836,9 @@ class _BillPanel extends StatelessWidget {
     final charges = bill.charges;
     final busy = vm.busy;
     final pad = narrow ? 16.0 : 20.0;
+    final split = bill.split;
+    // Sudah ada pembayaran bagian: item, batal, dan bayar penuh terkunci.
+    final locked = split?.locked ?? false;
 
     final header = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -985,9 +1002,11 @@ class _BillPanel extends StatelessWidget {
               ),
             textAction(
               'dining-split',
-              l10n.diningSplitSoon,
+              l10n.diningSplit,
               TablerIcons.arrowsSplit,
-              null,
+              busy || bill.items.isEmpty || onSplit == null
+                  ? null
+                  : () => onSplit!(bill.id),
             ),
             if (bill.items.isEmpty)
               textAction(
@@ -997,7 +1016,7 @@ class _BillPanel extends StatelessWidget {
                 busy ? null : () => vm.deleteEmpty.execute(bill.id),
                 destructive: true,
               )
-            else if (vm.canVoid)
+            else if (vm.canVoid && !locked)
               textAction(
                 'dining-void',
                 l10n.diningVoid,
@@ -1031,19 +1050,49 @@ class _BillPanel extends StatelessWidget {
             ),
           ),
         ),
-        FButton(
-          key: const ValueKey('dining-pay'),
-          size: .lg,
-          onPress: busy || !vm.canPay || bill.items.isEmpty
-              ? null
-              : () => onPay(bill.id),
-          child: Flexible(
-            child: Text(
-              l10n.diningPay(formatMoney(context, charges.total)),
-              overflow: TextOverflow.ellipsis,
+        if (split != null)
+          Text(
+            l10n.diningSplitStatus(
+              split.parts.where((p) => p.status == SplitPartStatus.paid).length,
+              split.guests,
+            ),
+            key: const ValueKey('dining-split-status'),
+            textAlign: TextAlign.center,
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.mutedForeground,
             ),
           ),
-        ),
+        if (split != null)
+          FButton(
+            key: const ValueKey('dining-pay'),
+            size: .lg,
+            onPress: busy || bill.items.isEmpty || onSplit == null
+                ? null
+                : () => onSplit!(bill.id),
+            child: Flexible(
+              child: Text(
+                // Belum lunas = sisa + QRIS yang masih menunggu.
+                l10n.diningContinueSplit(
+                  formatMoney(context, split.total - split.paid),
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          )
+        else
+          FButton(
+            key: const ValueKey('dining-pay'),
+            size: .lg,
+            onPress: busy || !vm.canPay || bill.items.isEmpty
+                ? null
+                : () => onPay(bill.id),
+            child: Flexible(
+              child: Text(
+                l10n.diningPay(formatMoney(context, charges.total)),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
         if (!vm.canPay)
           Text(
             l10n.diningPayNoPermission,

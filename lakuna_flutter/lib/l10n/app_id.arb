@@ -1456,7 +1456,6 @@
   "diningRequestBill": "Minta bill",
   "diningCancelRequest": "Batal minta bill",
   "diningMove": "Pindah meja",
-  "diningSplitSoon": "Split bill (segera)",
   "diningVoid": "Batalkan bill",
   "diningPay": "Tutup & bayar · {amount}",
   "@diningPay": {
@@ -1794,5 +1793,201 @@
   "modifierSheetNote": "Catatan untuk dapur (opsional)",
   "diningErrorModifierRequired": "Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.",
   "diningErrorModifierSoldOut": "Ada opsi modifier yang habis. Pilih opsi lain.",
-  "diningErrorModifierPrice": "Potongan modifier melebihi harga menu."
+  "diningErrorModifierPrice": "Potongan modifier melebihi harga menu.",
+  "diningSplit": "Split bill",
+  "diningSplitStatus": "Split · {paid} dari {total} tamu lunas",
+  "@diningSplitStatus": {
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "diningContinueSplit": "Lanjutkan split · {amount}",
+  "@diningContinueSplit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "diningErrorSplitLocked": "Bill terkunci karena sudah ada pembayaran bagian. Lanjutkan di layar Split bill.",
+  "paymentPartSubtitle": "{bill} · Bagian tamu {label}",
+  "@paymentPartSubtitle": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartNext": "{bill} · Tamu berikutnya",
+  "@paymentPartNext": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartWait": "Simpan, tunggu konfirmasi",
+  "paymentPartDue": "Bagian tamu {label}",
+  "@paymentPartDue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartBack": "Kembali ke split",
+  "receiptGuestPayment": "Tamu {label} · {method}",
+  "@receiptGuestPayment": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "cashSessionErrorOpenSplit": "Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.",
+  "billSplitTitle": "Split bill · {bill} · {guests} tamu",
+  "@billSplitTitle": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "guests": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitRates": "Service {service} · PB1 {tax}",
+  "@billSplitRates": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "tax": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitRatesOff": "Pajak & service: tidak aktif",
+  "billSplitChooseMode": "Pilih cara membagi tagihan.",
+  "billSplitModeItem": "Per item",
+  "billSplitModeEqual": "Bagi rata",
+  "billSplitModeAmount": "Nominal bebas",
+  "billSplitGuests": "Jumlah tamu",
+  "billSplitGuestLess": "Kurangi tamu",
+  "billSplitGuestMore": "Tambah tamu",
+  "billSplitItems": "Item di bill",
+  "billSplitItemsHint": "Ketuk tamu untuk memberi satu porsi. Item lebih dari 1 dibagi per porsi.",
+  "billSplitPortionPrice": "{price} / porsi",
+  "@billSplitPortionPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitUnassigned": "Belum dibagi",
+  "billSplitUnassignedCount": "{count} porsi belum punya tamu.",
+  "@billSplitUnassignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitGuest": "Tamu {label}",
+  "@billSplitGuest": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitGuestEmpty": "Belum ada porsi.",
+  "billSplitStatusUnpaid": "Belum bayar",
+  "billSplitStatusPaid": "Lunas · {methods}",
+  "@billSplitStatusPaid": {
+    "placeholders": {
+      "methods": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitStatusPending": "QRIS statis · menunggu",
+  "billSplitCancelPayment": "Batalkan",
+  "billSplitPay": "Bayar bagian {label}",
+  "@billSplitPay": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitNextGuest": "Tamu berikutnya ({label})",
+  "@billSplitNextGuest": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitAmount": "Nominal",
+  "billSplitAmountHint": "Maks {amount}",
+  "@billSplitAmountHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitPayAmount": "Bayar",
+  "billSplitTotal": "Total bill",
+  "billSplitPaid": "Sudah dibayar ({labels})",
+  "@billSplitPaid": {
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitPending": "Menunggu konfirmasi ({labels})",
+  "@billSplitPending": {
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitRemaining": "Sisa tagihan",
+  "billSplitNote": "Bill tetap terbuka sampai semua bagian lunas. Tiap bagian dicatat sebagai pembayaran di nota yang sama, jadi laporan & stok tidak terpecah.",
+  "billSplitCancel": "Batalkan split",
+  "billSplitLocked": "Pembagian terkunci karena sudah ada pembayaran bagian. Batalkan bagian QRIS yang menunggu untuk mengubahnya.",
+  "billSplitDone": "Bill lunas",
+  "billSplitDoneBody": "Semua bagian lunas. Nota {number} tersimpan.",
+  "@billSplitDoneBody": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitLoadFailed": "Split bill tidak bisa dimuat.",
+  "billSplitErrorLocked": "Sudah ada pembayaran bagian; pembagian tidak bisa diubah.",
+  "billSplitErrorGuests": "Jumlah tamu 2–8.",
+  "billSplitErrorUnassigned": "Bagikan semua porsi ke tamu dulu.",
+  "billSplitErrorPartPaid": "Tamu ini sudah membayar.",
+  "billSplitErrorAmount": "Nominal harus lebih dari 0 dan tidak melebihi sisa tagihan.",
+  "billSplitErrorNothingDue": "Tamu ini tidak punya tagihan.",
+  "billSplitErrorPending": "Hanya QRIS yang bisa menunggu konfirmasi.",
+  "billSplitErrorGeneric": "Split bill gagal. Coba lagi."
 }

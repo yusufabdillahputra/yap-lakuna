@@ -9,9 +9,12 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/ui/cashier/cashier_view_model.dart';
+import 'package:lakuna_flutter/utils/result.dart';
 
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/fake_dining_repository.dart';
+import '../../testing/qris_seed.dart';
 import '../../testing/fake_receipt_printer.dart';
 
 void main() {
@@ -538,6 +541,101 @@ void main() {
       expect(vm.sharedPath, printer.sharePath);
       vm.newTransaction();
       expect(vm.sharedPath, isNull);
+    });
+  });
+
+  group('bagian split bill', () {
+    late FakeDiningRepository dining;
+    late OpenBill bill;
+    var left = 0;
+
+    Future<T> ok<T>(Future<Result<T>> f) async => switch (await f) {
+      Ok(:final value) => value,
+      Error(:final error) => throw error,
+    };
+
+    setUp(() async {
+      dining = FakeDiningRepository();
+      repo
+        ..dining = dining
+        ..qris = sampleQris();
+      left = 0;
+      final kopi = dining.catalog.products
+          .firstWhere((p) => p.name == 'Kopi Susu Aren')
+          .variants
+          .single
+          .id;
+      bill = await ok(dining.openTable(dining.tables.first.id, 2));
+      bill = await ok(
+        dining.addItem(
+          bill.id,
+          SaleLineRequest(variantId: kopi, quantity: Qty.units(2)),
+        ),
+      );
+      bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
+      vm = CashierViewModel(repository: repo, printer: printer)
+        ..onLeaveBill = (() => left++);
+      await vm.load.execute();
+    });
+
+    test('tagihan = bagian tamu; lunas sebagian kembali ke split', () async {
+      vm.setPart(const BillPart(guest: 'A'));
+      await vm.openBill.execute(bill.id);
+      expect(vm.partMode, isTrue);
+      expect(vm.partLabel, 'A');
+      // 2 × 24.000 + service 5% + PB1 10% = 55.440, dibagi 2.
+      expect(vm.payTotal, const Money(27720));
+      vm.setMode(PayMode.card);
+      await vm.pay.execute();
+      expect(left, 1);
+      expect(vm.stage, CashierStage.pay);
+      expect(repo.paidParts.single.$2, 'A');
+
+      // Tautan lama ke tamu yang sudah bayar ditolak.
+      final again = CashierViewModel(repository: repo, printer: printer)
+        ..setPart(const BillPart(guest: 'A'));
+      await again.load.execute();
+      await again.openBill.execute(bill.id);
+      expect(again.openBill.result, isA<Error<OpenBill>>());
+      expect(again.billMode, isFalse);
+    });
+
+    test('QRIS tunggu konfirmasi lalu tamu terakhir lunas → struk', () async {
+      vm.setPart(const BillPart(guest: 'A'));
+      await vm.openBill.execute(bill.id);
+      vm.setMode(PayMode.qris);
+      expect(vm.canWaitQris, isTrue);
+      await vm.waitQris();
+      expect(left, 1);
+      expect(repo.paidParts.single.$5, isTrue);
+      expect(
+        dining.bill(bill.id).split!.part('A').status,
+        SplitPartStatus.pending,
+      );
+
+      // Tamu B lunas tapi QRIS A masih menunggu: belum ada struk.
+      final b = CashierViewModel(repository: repo, printer: printer)
+        ..onLeaveBill = (() => left++)
+        ..setPart(const BillPart(guest: 'B'));
+      await b.load.execute();
+      await b.openBill.execute(bill.id);
+      b.setMode(PayMode.card);
+      await b.pay.execute();
+      expect(left, 2);
+      expect(b.result, isNull);
+    });
+
+    test('nominal bebas memakai nominal tautan', () async {
+      await ok(dining.setSplit(bill.id, SplitMode.amount, 2));
+      vm.setPart(const BillPart(amount: Money(55440)));
+      await vm.openBill.execute(bill.id);
+      expect(vm.payTotal, const Money(55440));
+      expect(vm.partLabel, 'A');
+      vm.setMode(PayMode.card);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+      expect(vm.result!.payments.single.guestLabel, 'A');
+      expect(repo.paidParts.single.$3, const Money(55440));
     });
   });
 }

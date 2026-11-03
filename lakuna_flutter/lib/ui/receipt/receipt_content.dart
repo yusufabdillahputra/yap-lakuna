@@ -69,7 +69,7 @@ ReceiptContent saleReceiptContent(
       if (orderLabel != null) ReceiptPair(l10n.receiptOrder, orderLabel),
     ],
     items: [
-      for (final item in result.items)
+      for (final item in mergeSplitPortions(result.items))
         ReceiptItem(
           name: '${item.productName} ${item.variantName}'.trim(),
           extras: [
@@ -114,7 +114,13 @@ ReceiptContent saleReceiptContent(
       ),
       for (final payment in result.payments)
         ReceiptPair(
-          paymentMethodLabel(l10n, payment.method),
+          switch (payment.guestLabel) {
+            final label? => l10n.receiptGuestPayment(
+              label,
+              paymentMethodLabel(l10n, payment.method),
+            ),
+            null => paymentMethodLabel(l10n, payment.method),
+          },
           receiptAmount(l10n, payment.amount),
         ),
       if (result.payments.any((p) => p.method == PaymentMethod.cash))
@@ -122,6 +128,24 @@ ReceiptContent saleReceiptContent(
     ],
     footer: _footer(l10n, config),
   );
+}
+
+/// Porsi split bill (F1-10c) digabung kembali ke baris asalnya agar struk
+/// sama dengan pesanan: jumlah dan total baris dijumlahkan, urutan ikut
+/// kemunculan pertama.
+List<SaleItem> mergeSplitPortions(List<SaleItem> items) {
+  final merged = <UuidValue, SaleItem>{};
+  for (final item in items) {
+    final root = item.splitFromItemId ?? item.id;
+    final prev = merged[root];
+    merged[root] = prev == null
+        ? item
+        : prev.copyWith(
+            quantityMilli: prev.quantityMilli + item.quantityMilli,
+            lineTotal: prev.lineTotal + item.lineTotal,
+          );
+  }
+  return merged.values.toList();
 }
 
 /// Struk contoh untuk pratinjau Pengaturan dan *Tes cetak*.

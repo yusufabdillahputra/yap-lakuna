@@ -922,7 +922,6 @@
   "diningRequestBill": "Request bill",
   "diningCancelRequest": "Cancel bill request",
   "diningMove": "Move table",
-  "diningSplitSoon": "Split bill (soon)",
   "diningVoid": "Void bill",
   "diningPay": "Close & pay · {amount}",
   "@diningPay": {
@@ -1260,5 +1259,201 @@
   "modifierSheetNote": "Note for the kitchen (optional)",
   "diningErrorModifierRequired": "Modifier choices are incomplete or invalid. Open the item again.",
   "diningErrorModifierSoldOut": "A modifier option is sold out. Choose another.",
-  "diningErrorModifierPrice": "Modifier discounts exceed the item price."
+  "diningErrorModifierPrice": "Modifier discounts exceed the item price.",
+  "diningSplit": "Split bill",
+  "diningSplitStatus": "Split · {paid} of {total} guests paid",
+  "@diningSplitStatus": {
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "diningContinueSplit": "Continue split · {amount}",
+  "@diningContinueSplit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "diningErrorSplitLocked": "This bill is locked because part of it is paid. Continue on the Split bill screen.",
+  "paymentPartSubtitle": "{bill} · Guest {label}'s part",
+  "@paymentPartSubtitle": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartNext": "{bill} · Next guest",
+  "@paymentPartNext": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartWait": "Save and wait for confirmation",
+  "paymentPartDue": "Guest {label}'s part",
+  "@paymentPartDue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPartBack": "Back to split",
+  "receiptGuestPayment": "Guest {label} · {method}",
+  "@receiptGuestPayment": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "cashSessionErrorOpenSplit": "A split bill is still partly paid. Settle it or cancel waiting parts before closing the session.",
+  "billSplitTitle": "Split bill · {bill} · {guests} guests",
+  "@billSplitTitle": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "guests": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitRates": "Service {service} · Tax {tax}",
+  "@billSplitRates": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "tax": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitRatesOff": "Tax & service: off",
+  "billSplitChooseMode": "Choose how to split the bill.",
+  "billSplitModeItem": "By item",
+  "billSplitModeEqual": "Split evenly",
+  "billSplitModeAmount": "Custom amount",
+  "billSplitGuests": "Guests",
+  "billSplitGuestLess": "Remove a guest",
+  "billSplitGuestMore": "Add a guest",
+  "billSplitItems": "Items on the bill",
+  "billSplitItemsHint": "Tap a guest to give them one portion. Items with more than 1 are split per portion.",
+  "billSplitPortionPrice": "{price} each",
+  "@billSplitPortionPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitUnassigned": "Not assigned",
+  "billSplitUnassignedCount": "{count} portions have no guest yet.",
+  "@billSplitUnassignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitGuest": "Guest {label}",
+  "@billSplitGuest": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitGuestEmpty": "No portions yet.",
+  "billSplitStatusUnpaid": "Unpaid",
+  "billSplitStatusPaid": "Paid · {methods}",
+  "@billSplitStatusPaid": {
+    "placeholders": {
+      "methods": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitStatusPending": "Static QRIS · waiting",
+  "billSplitCancelPayment": "Cancel",
+  "billSplitPay": "Pay part {label}",
+  "@billSplitPay": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitNextGuest": "Next guest ({label})",
+  "@billSplitNextGuest": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitAmount": "Amount",
+  "billSplitAmountHint": "Max {amount}",
+  "@billSplitAmountHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitPayAmount": "Pay",
+  "billSplitTotal": "Bill total",
+  "billSplitPaid": "Paid ({labels})",
+  "@billSplitPaid": {
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitPending": "Awaiting confirmation ({labels})",
+  "@billSplitPending": {
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitRemaining": "Remaining",
+  "billSplitNote": "The bill stays open until every part is paid. Each part is recorded as a payment on the same receipt, so reports and stock stay in one piece.",
+  "billSplitCancel": "Cancel split",
+  "billSplitLocked": "The split is locked because a part is already paid. Cancel waiting QRIS parts to change it.",
+  "billSplitDone": "Bill paid",
+  "billSplitDoneBody": "Every part is paid. Receipt {number} is saved.",
+  "@billSplitDoneBody": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitLoadFailed": "The split bill couldn't be loaded.",
+  "billSplitErrorLocked": "A part is already paid; the split can't be changed.",
+  "billSplitErrorGuests": "Guests must be 2–8.",
+  "billSplitErrorUnassigned": "Assign every portion to a guest first.",
+  "billSplitErrorPartPaid": "This guest has already paid.",
+  "billSplitErrorAmount": "The amount must be above 0 and at most the remaining balance.",
+  "billSplitErrorNothingDue": "This guest has nothing to pay.",
+  "billSplitErrorPending": "Only QRIS can wait for confirmation.",
+  "billSplitErrorGeneric": "The split bill action failed. Try again."
 }

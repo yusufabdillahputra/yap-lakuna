@@ -4190,12 +4190,6 @@ abstract class AppLocalizations {
   /// **'Pindah meja'**
   String get diningMove;
 
-  /// No description provided for @diningSplitSoon.
-  ///
-  /// In id, this message translates to:
-  /// **'Split bill (segera)'**
-  String get diningSplitSoon;
-
   /// No description provided for @diningVoid.
   ///
   /// In id, this message translates to:
@@ -5155,6 +5149,336 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Potongan modifier melebihi harga menu.'**
   String get diningErrorModifierPrice;
+
+  /// No description provided for @diningSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Split bill'**
+  String get diningSplit;
+
+  /// No description provided for @diningSplitStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Split · {paid} dari {total} tamu lunas'**
+  String diningSplitStatus(int paid, int total);
+
+  /// No description provided for @diningContinueSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjutkan split · {amount}'**
+  String diningContinueSplit(String amount);
+
+  /// No description provided for @diningErrorSplitLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill terkunci karena sudah ada pembayaran bagian. Lanjutkan di layar Split bill.'**
+  String get diningErrorSplitLocked;
+
+  /// No description provided for @paymentPartSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{bill} · Bagian tamu {label}'**
+  String paymentPartSubtitle(String bill, String label);
+
+  /// No description provided for @paymentPartNext.
+  ///
+  /// In id, this message translates to:
+  /// **'{bill} · Tamu berikutnya'**
+  String paymentPartNext(String bill);
+
+  /// No description provided for @paymentPartWait.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan, tunggu konfirmasi'**
+  String get paymentPartWait;
+
+  /// No description provided for @paymentPartDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagian tamu {label}'**
+  String paymentPartDue(String label);
+
+  /// No description provided for @paymentPartBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke split'**
+  String get paymentPartBack;
+
+  /// No description provided for @receiptGuestPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu {label} · {method}'**
+  String receiptGuestPayment(String label, String method);
+
+  /// No description provided for @cashSessionErrorOpenSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.'**
+  String get cashSessionErrorOpenSplit;
+
+  /// No description provided for @billSplitTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Split bill · {bill} · {guests} tamu'**
+  String billSplitTitle(String bill, int guests);
+
+  /// No description provided for @billSplitRates.
+  ///
+  /// In id, this message translates to:
+  /// **'Service {service} · PB1 {tax}'**
+  String billSplitRates(String service, String tax);
+
+  /// No description provided for @billSplitRatesOff.
+  ///
+  /// In id, this message translates to:
+  /// **'Pajak & service: tidak aktif'**
+  String get billSplitRatesOff;
+
+  /// No description provided for @billSplitChooseMode.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih cara membagi tagihan.'**
+  String get billSplitChooseMode;
+
+  /// No description provided for @billSplitModeItem.
+  ///
+  /// In id, this message translates to:
+  /// **'Per item'**
+  String get billSplitModeItem;
+
+  /// No description provided for @billSplitModeEqual.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagi rata'**
+  String get billSplitModeEqual;
+
+  /// No description provided for @billSplitModeAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Nominal bebas'**
+  String get billSplitModeAmount;
+
+  /// No description provided for @billSplitGuests.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah tamu'**
+  String get billSplitGuests;
+
+  /// No description provided for @billSplitGuestLess.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurangi tamu'**
+  String get billSplitGuestLess;
+
+  /// No description provided for @billSplitGuestMore.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah tamu'**
+  String get billSplitGuestMore;
+
+  /// No description provided for @billSplitItems.
+  ///
+  /// In id, this message translates to:
+  /// **'Item di bill'**
+  String get billSplitItems;
+
+  /// No description provided for @billSplitItemsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk tamu untuk memberi satu porsi. Item lebih dari 1 dibagi per porsi.'**
+  String get billSplitItemsHint;
+
+  /// No description provided for @billSplitPortionPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'{price} / porsi'**
+  String billSplitPortionPrice(String price);
+
+  /// No description provided for @billSplitUnassigned.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum dibagi'**
+  String get billSplitUnassigned;
+
+  /// No description provided for @billSplitUnassignedCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} porsi belum punya tamu.'**
+  String billSplitUnassignedCount(int count);
+
+  /// No description provided for @billSplitGuest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu {label}'**
+  String billSplitGuest(String label);
+
+  /// No description provided for @billSplitGuestEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada porsi.'**
+  String get billSplitGuestEmpty;
+
+  /// No description provided for @billSplitStatusUnpaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum bayar'**
+  String get billSplitStatusUnpaid;
+
+  /// No description provided for @billSplitStatusPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunas · {methods}'**
+  String billSplitStatusPaid(String methods);
+
+  /// No description provided for @billSplitStatusPending.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis · menunggu'**
+  String get billSplitStatusPending;
+
+  /// No description provided for @billSplitCancelPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan'**
+  String get billSplitCancelPayment;
+
+  /// No description provided for @billSplitPay.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar bagian {label}'**
+  String billSplitPay(String label);
+
+  /// No description provided for @billSplitNextGuest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu berikutnya ({label})'**
+  String billSplitNextGuest(String label);
+
+  /// No description provided for @billSplitAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Nominal'**
+  String get billSplitAmount;
+
+  /// No description provided for @billSplitAmountHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Maks {amount}'**
+  String billSplitAmountHint(String amount);
+
+  /// No description provided for @billSplitPayAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar'**
+  String get billSplitPayAmount;
+
+  /// No description provided for @billSplitTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total bill'**
+  String get billSplitTotal;
+
+  /// No description provided for @billSplitPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah dibayar ({labels})'**
+  String billSplitPaid(String labels);
+
+  /// No description provided for @billSplitPending.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu konfirmasi ({labels})'**
+  String billSplitPending(String labels);
+
+  /// No description provided for @billSplitRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa tagihan'**
+  String get billSplitRemaining;
+
+  /// No description provided for @billSplitNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill tetap terbuka sampai semua bagian lunas. Tiap bagian dicatat sebagai pembayaran di nota yang sama, jadi laporan & stok tidak terpecah.'**
+  String get billSplitNote;
+
+  /// No description provided for @billSplitCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan split'**
+  String get billSplitCancel;
+
+  /// No description provided for @billSplitLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembagian terkunci karena sudah ada pembayaran bagian. Batalkan bagian QRIS yang menunggu untuk mengubahnya.'**
+  String get billSplitLocked;
+
+  /// No description provided for @billSplitDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill lunas'**
+  String get billSplitDone;
+
+  /// No description provided for @billSplitDoneBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua bagian lunas. Nota {number} tersimpan.'**
+  String billSplitDoneBody(String number);
+
+  /// No description provided for @billSplitLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Split bill tidak bisa dimuat.'**
+  String get billSplitLoadFailed;
+
+  /// No description provided for @billSplitErrorLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah ada pembayaran bagian; pembagian tidak bisa diubah.'**
+  String get billSplitErrorLocked;
+
+  /// No description provided for @billSplitErrorGuests.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah tamu 2–8.'**
+  String get billSplitErrorGuests;
+
+  /// No description provided for @billSplitErrorUnassigned.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagikan semua porsi ke tamu dulu.'**
+  String get billSplitErrorUnassigned;
+
+  /// No description provided for @billSplitErrorPartPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu ini sudah membayar.'**
+  String get billSplitErrorPartPaid;
+
+  /// No description provided for @billSplitErrorAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Nominal harus lebih dari 0 dan tidak melebihi sisa tagihan.'**
+  String get billSplitErrorAmount;
+
+  /// No description provided for @billSplitErrorNothingDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu ini tidak punya tagihan.'**
+  String get billSplitErrorNothingDue;
+
+  /// No description provided for @billSplitErrorPending.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya QRIS yang bisa menunggu konfirmasi.'**
+  String get billSplitErrorPending;
+
+  /// No description provided for @billSplitErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Split bill gagal. Coba lagi.'**
+  String get billSplitErrorGeneric;
 }
 
 class _AppLocalizationsDelegate

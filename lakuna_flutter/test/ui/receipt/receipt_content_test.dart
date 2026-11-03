@@ -187,4 +187,18 @@ void main() {
     expect(percentLabel(en, 1050), '10.5%');
     expect(percentLabel(id, 1225), '12,25%');
   });
+
+  test('porsi split bill digabung kembali ke baris asal', () {
+    final kopi = item('Kopi', '', 1000, 24000).copyWith(guestLabel: 'B');
+    final nasi = item('Nasi', '', 1000, 29000);
+    final portion = item('Kopi', '', 1000, 24000).copyWith(
+      id: UuidValue.fromString(newId()),
+      guestLabel: 'A',
+      splitFromItemId: kopi.id,
+    );
+    final merged = mergeSplitPortions([kopi, nasi, portion]);
+    expect(merged.map((i) => i.productName), ['Kopi', 'Nasi']);
+    expect(merged.first.quantityMilli, 2000);
+    expect(merged.first.lineTotal, 48000);
+  });
 }

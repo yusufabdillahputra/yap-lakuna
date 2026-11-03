@@ -278,6 +278,7 @@ class FakeCashierRepository extends CashierRepository {
       return Result.error(e);
     }
     if (bill.items.isEmpty) return Result.error(SaleEmpty());
+    if (bill.payments.isNotEmpty) return Result.error(SplitLocked());
     final total = bill.charges.total;
     final single = payments.length == 1;
     final amounts = [
@@ -334,5 +335,35 @@ class FakeCashierRepository extends CashierRepository {
         negativeStock: const [],
       ),
     );
+  }
+
+  final paidParts =
+      <(UuidValue, String?, Money?, List<SalePaymentRequest>, bool)>[];
+
+  @override
+  Future<Result<SplitPayResult>> payBillPart(
+    UuidValue billId, {
+    String? guest,
+    Money? amount,
+    required List<SalePaymentRequest> payments,
+    bool pending = false,
+  }) async {
+    if (_check() case final e?) return Result.error(e);
+    if (!sessionOpen) return Result.error(CashSessionNotOpen());
+    final d = dining;
+    if (d == null) return Result.error(BillNotFound());
+    try {
+      final result = d.payPart(
+        billId,
+        guest: guest,
+        amount: amount,
+        requests: payments,
+        pending: pending,
+      );
+      paidParts.add((billId, guest, amount, payments, pending));
+      return Result.ok(result);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 }

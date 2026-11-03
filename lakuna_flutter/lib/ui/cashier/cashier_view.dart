@@ -26,7 +26,9 @@ class CashierScreen extends StatefulWidget {
     required this.repository,
     required this.printer,
     this.billId,
+    this.part,
     this.onLeaveBill,
+    this.onBillDone,
   });
 
   final CashierRepository repository;
@@ -35,8 +37,14 @@ class CashierScreen extends StatefulWidget {
   /// Mode bill (F1-10): open bill yang dibayar.
   final String? billId;
 
+  /// Mode bagian split bill (F1-10c): tamu atau nominal yang dibayar.
+  final BillPart? part;
+
   /// Keluar dari mode bill (kembali ke layar Meja).
   final VoidCallback? onLeaveBill;
+
+  /// *Kembali ke meja* setelah bill lunas; bawaan [onLeaveBill].
+  final VoidCallback? onBillDone;
 
   @override
   State<CashierScreen> createState() => _CashierScreenState();
@@ -51,7 +59,10 @@ class _CashierScreenState extends State<CashierScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel.onLeaveBill = widget.onLeaveBill;
+    _viewModel
+      ..onLeaveBill = widget.onLeaveBill
+      ..onBillDone = widget.onBillDone
+      ..setPart(widget.part);
     _load();
   }
 

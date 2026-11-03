@@ -71,6 +71,13 @@ class FakeDiningRepository extends DiningRepository {
   final tickets = <KitchenTicket>[];
   final voided = <UuidValue, String>{};
 
+  /// Pembayaran bagian split (F1-10c).
+  final payments = <Payment>[];
+
+  /// Sesi kasir terbuka (bayar bagian dan *Sudah Terbayar*).
+  var sessionOpen = true;
+  var _receipts = 100;
+
   /// Grup modifier per produk (lihat [attachModifiers]).
   final modifierGroups = <UuidValue, List<ModifierGroupDetail>>{};
 
@@ -138,6 +145,10 @@ class FakeDiningRepository extends DiningRepository {
       table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
       openedByName: 'Dimas',
       modifiers: {for (final i in own) i.id: ?itemModifiers[i.id]},
+      payments: [
+        for (final p in payments)
+          if (p.saleId == id && p.deletedAt == null) p,
+      ],
     );
   }
 
@@ -274,6 +285,7 @@ class FakeDiningRepository extends DiningRepository {
     List<UuidValue> modifierIds = const [],
   }) => _run(() {
     final b = bill(billId);
+    _unlocked(b);
     final clean = note?.trim() ?? '';
     if (clean.length > FnbLimits.itemNote) {
       throw const BillInputInvalid(BillField.note);
@@ -307,7 +319,9 @@ class FakeDiningRepository extends DiningRepository {
               i.kitchenStatus == KitchenStatus.pending &&
               i.variantId == line.variantId &&
               (i.note ?? '') == clean &&
-              i.modifierKey == key,
+              i.modifierKey == key &&
+              i.guestLabel == null &&
+              i.splitFromItemId == null,
         )
         .firstOrNull;
     final qty = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -378,7 +392,7 @@ class FakeDiningRepository extends DiningRepository {
   Future<Result<OpenBill>> setItemQuantity(UuidValue itemId, Qty quantity) =>
       _run(() {
         final item = _item(itemId);
-        bill(item.saleId);
+        _unlocked(bill(item.saleId));
         if (item.kitchenStatus != KitchenStatus.pending) throw BillItemLocked();
         if (quantity.isPositive) {
           _replaceItem(
@@ -474,6 +488,7 @@ class FakeDiningRepository extends DiningRepository {
       throw const BillInputInvalid(BillField.voidReason);
     }
     final b = bill(billId);
+    _unlocked(b);
     voided[billId] = text;
     _replaceSale(b.sale.copyWith(status: SaleStatus.voided));
   });
@@ -490,4 +505,263 @@ class FakeDiningRepository extends DiningRepository {
     final b = bill(billId);
     _replaceSale(b.sale.copyWith(status: SaleStatus.completed));
   }
+
+  // --- Split bill (F1-10c) --------------------------------------------------
+
+  void _unlocked(OpenBill b) {
+    if (b.payments.isNotEmpty) throw SplitLocked();
+  }
+
+  @override
+  Future<Result<SplitBillData>> loadSplit(UuidValue billId) => _run(
+    () => SplitBillData(
+      bill: bill(billId),
+      canPay: _can(Permission.salesCreate),
+      canConfirm: _can(Permission.paymentsConfirm),
+    ),
+  );
+
+  void _move(SaleItem source, Qty qty, String? label) {
+    SaleItem sized(SaleItem row, Qty q) => row.copyWith(
+      quantityMilli: q.milli,
+      lineTotal: Money(row.unitPrice + row.modifierDelta)
+          .timesMilli(q.milli)
+          .value,
+    );
+    final root = source.splitFromItemId ?? source.id;
+    final target = items
+        .where(
+          (i) =>
+              i.deletedAt == null &&
+              i.id != source.id &&
+              (i.splitFromItemId ?? i.id) == root &&
+              i.guestLabel == label &&
+              i.kitchenStatus == source.kitchenStatus,
+        )
+        .firstOrNull;
+    if (target != null) {
+      _replaceItem(sized(target, Qty(target.quantityMilli) + qty));
+    } else {
+      final id = fakeId(_next++);
+      items.add(
+        sized(
+          source,
+          qty,
+        ).copyWith(id: id, guestLabel: label, splitFromItemId: root),
+      );
+      if (itemModifiers[source.id] case final mods?) {
+        itemModifiers[id] = [for (final m in mods) m.copyWith(saleItemId: id)];
+      }
+    }
+    final left = Qty(source.quantityMilli) - qty;
+    _replaceItem(
+      left.isPositive ? sized(source, left) : source.copyWith(deletedAt: now),
+    );
+  }
+
+  @override
+  Future<Result<OpenBill>> setSplit(
+    UuidValue billId,
+    SplitMode? mode,
+    int guests,
+  ) => _run(() {
+    if (mode != null && !SplitLimits.validGuests(guests)) {
+      throw const SplitInvalid(SplitError.guests);
+    }
+    final b = bill(billId);
+    _unlocked(b);
+    final keep = mode == null ? 0 : guests;
+    for (final item in b.items) {
+      final label = item.guestLabel;
+      if (label == null || (guestIndex(label) ?? keep) < keep) continue;
+      final current = _item(item.id);
+      _move(current, Qty(current.quantityMilli), null);
+    }
+    _replaceSale(
+      bill(billId).sale.copyWith(
+        splitMode: mode,
+        splitGuests: mode == null ? null : guests,
+      ),
+    );
+    _sync(billId);
+    return bill(billId);
+  });
+
+  @override
+  Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest) =>
+      _run(() {
+        final item = _item(itemId);
+        final b = bill(item.saleId);
+        _unlocked(b);
+        if (b.sale.splitMode != SplitMode.item) {
+          throw const SplitInvalid(SplitError.mode);
+        }
+        if (guest != null &&
+            (guestIndex(guest) ?? 99) >= (b.sale.splitGuests ?? 0)) {
+          throw const SplitInvalid(SplitError.guest);
+        }
+        if (item.guestLabel != guest) {
+          _move(item, splitPortion(Qty(item.quantityMilli)), guest);
+          _sync(item.saleId);
+        }
+        return bill(item.saleId);
+      });
+
+  /// Bayar bagian (dipakai kasir palsu), aturan sama dengan `paySplitPart`.
+  SplitPayResult payPart(
+    UuidValue billId, {
+    String? guest,
+    Money? amount,
+    required List<SalePaymentRequest> requests,
+    bool pending = false,
+  }) {
+    if (!sessionOpen) throw CashSessionNotOpen();
+    final b = bill(billId);
+    final split = b.split ?? (throw const SplitInvalid(SplitError.notSet));
+    final String label;
+    final Money due;
+    if (split.mode == SplitKind.amount) {
+      final next =
+          split.next ?? (throw const SplitInvalid(SplitError.partPaid));
+      if (amount == null || amount <= Money.zero || amount > split.remaining) {
+        throw const SplitInvalid(SplitError.amount);
+      }
+      label = next.label;
+      due = amount;
+    } else {
+      if (guest == null || (guestIndex(guest) ?? 99) >= split.guests) {
+        throw const SplitInvalid(SplitError.guest);
+      }
+      if (split.mode == SplitKind.item && split.unassigned.isNotEmpty) {
+        throw const SplitInvalid(SplitError.unassigned);
+      }
+      final part = split.part(guest);
+      if (part.payments.isNotEmpty) {
+        throw const SplitInvalid(SplitError.partPaid);
+      }
+      due = part.due ?? Money.zero;
+      if (due <= Money.zero) throw const SplitInvalid(SplitError.nothingDue);
+      label = guest;
+    }
+    if (pending) {
+      if (requests.length != 1 ||
+          requests.single.method != PaymentMethod.qrisStatic) {
+        throw const SplitInvalid(SplitError.pending);
+      }
+      payments.add(_payment(billId, label, PaymentMethod.qrisStatic, due));
+    } else {
+      final single = requests.length == 1;
+      final amounts = [
+        for (final p in requests)
+          p.amount ?? (single && !p.isCash ? due : Money.zero),
+      ];
+      final settlement = settleTender(due, [
+        for (final (i, p) in requests.indexed)
+          TenderPart(amounts[i], isCash: p.isCash),
+      ]);
+      if (!settlement.isSettled) {
+        throw SalePaymentShort(total: due, received: settlement.paid);
+      }
+      for (final (i, p) in requests.indexed) {
+        payments.add(
+          _payment(
+            billId,
+            label,
+            p.method,
+            amounts[i],
+            change: p.isCash ? settlement.change : Money.zero,
+            paid: true,
+          ),
+        );
+      }
+    }
+    return _finish(billId);
+  }
+
+  Payment _payment(
+    UuidValue billId,
+    String label,
+    PaymentMethod method,
+    Money amount, {
+    Money change = Money.zero,
+    bool paid = false,
+  }) => Payment(
+    id: fakeId(_next++),
+    tenantId: _tenant,
+    saleId: billId,
+    method: method,
+    amount: amount.value,
+    changeAmount: change.value,
+    status: paid ? PaymentStatus.paid : PaymentStatus.pending,
+    guestLabel: label,
+    paidAt: now,
+    createdAt: now,
+    hlc: '',
+  );
+
+  SplitPayResult _finish(UuidValue billId) {
+    final b = bill(billId);
+    final split = b.split!;
+    if (split.pending > Money.zero || split.paid < b.charges.total) {
+      return SplitPayResult(bill: b);
+    }
+    markPaid(billId);
+    final own = b.payments;
+    final sale = b.sale.copyWith(
+      number: 'PST-K01-261103-${(_receipts++).toString().padLeft(4, '0')}',
+      status: SaleStatus.completed,
+      subtotal: b.charges.subtotal.value,
+      serviceBp: b.rates.service.value,
+      taxBp: b.rates.tax.value,
+      serviceAmount: b.charges.service.value,
+      taxAmount: b.charges.tax.value,
+      total: b.charges.total.value,
+      paidAmount: own.fold<int>(0, (a, p) => a + p.amount),
+      changeAmount: own.fold<int>(0, (a, p) => a + p.changeAmount),
+      soldAt: now,
+    );
+    return SplitPayResult(
+      receipt: CheckoutResult(
+        sale: sale,
+        items: b.items,
+        modifiers: b.modifiers,
+        payments: own,
+      ),
+    );
+  }
+
+  Payment _pending(UuidValue paymentId) {
+    final p = payments
+        .where((p) => p.id == paymentId && p.deletedAt == null)
+        .firstOrNull;
+    if (p == null) throw BillNotFound();
+    if (p.status != PaymentStatus.pending) {
+      throw const SplitInvalid(SplitError.notPending);
+    }
+    return p;
+  }
+
+  void _replacePayment(Payment p) =>
+      payments[payments.indexWhere((x) => x.id == p.id)] = p;
+
+  @override
+  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId) =>
+      _run(() {
+        for (final p in [Permission.salesCreate, Permission.paymentsConfirm]) {
+          if (!_can(p)) throw NotPermitted(p);
+        }
+        if (!sessionOpen) throw CashSessionNotOpen();
+        final p = _pending(paymentId);
+        _replacePayment(
+          p.copyWith(status: PaymentStatus.paid, confirmedBy: fakeId(4)),
+        );
+        return _finish(p.saleId);
+      });
+
+  @override
+  Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) => _run(() {
+    final p = _pending(paymentId);
+    _replacePayment(p.copyWith(deletedAt: now));
+    return bill(p.saleId);
+  });
 }

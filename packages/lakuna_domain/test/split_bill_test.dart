@@ -85,11 +85,7 @@ void main() {
   group('splitDues', () {
     test('rata: dibagi sama per tamu', () {
       expect(
-        splitDues(
-          mode: SplitKind.equal,
-          total: const Money(100000),
-          guests: 3,
-        ),
+        splitDues(mode: SplitKind.equal, total: const Money(100000), guests: 3),
         [const Money(33334), const Money(33333), const Money(33333)],
       );
     });

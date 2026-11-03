@@ -65,6 +65,7 @@ String cashErrorMessage(AppLocalizations l10n, Exception error) =>
       ),
       CashSessionAlreadyOpen() => l10n.cashErrorAlreadyOpen,
       CashSessionNotOpen() => l10n.cashErrorNotOpen,
+      CashSessionHasOpenSplit() => l10n.cashSessionErrorOpenSplit,
       _ => l10n.cashErrorFailed,
     };
 

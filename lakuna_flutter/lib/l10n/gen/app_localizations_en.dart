@@ -2407,9 +2407,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diningMove => 'Move table';
 
   @override
-  String get diningSplitSoon => 'Split bill (soon)';
-
-  @override
   String get diningVoid => 'Void bill';
 
   @override
@@ -2999,4 +2996,214 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diningErrorModifierPrice =>
       'Modifier discounts exceed the item price.';
+
+  @override
+  String get diningSplit => 'Split bill';
+
+  @override
+  String diningSplitStatus(int paid, int total) {
+    return 'Split · $paid of $total guests paid';
+  }
+
+  @override
+  String diningContinueSplit(String amount) {
+    return 'Continue split · $amount';
+  }
+
+  @override
+  String get diningErrorSplitLocked =>
+      'This bill is locked because part of it is paid. Continue on the Split bill screen.';
+
+  @override
+  String paymentPartSubtitle(String bill, String label) {
+    return '$bill · Guest $label\'s part';
+  }
+
+  @override
+  String paymentPartNext(String bill) {
+    return '$bill · Next guest';
+  }
+
+  @override
+  String get paymentPartWait => 'Save and wait for confirmation';
+
+  @override
+  String paymentPartDue(String label) {
+    return 'Guest $label\'s part';
+  }
+
+  @override
+  String get paymentPartBack => 'Back to split';
+
+  @override
+  String receiptGuestPayment(String label, String method) {
+    return 'Guest $label · $method';
+  }
+
+  @override
+  String get cashSessionErrorOpenSplit =>
+      'A split bill is still partly paid. Settle it or cancel waiting parts before closing the session.';
+
+  @override
+  String billSplitTitle(String bill, int guests) {
+    return 'Split bill · $bill · $guests guests';
+  }
+
+  @override
+  String billSplitRates(String service, String tax) {
+    return 'Service $service · Tax $tax';
+  }
+
+  @override
+  String get billSplitRatesOff => 'Tax & service: off';
+
+  @override
+  String get billSplitChooseMode => 'Choose how to split the bill.';
+
+  @override
+  String get billSplitModeItem => 'By item';
+
+  @override
+  String get billSplitModeEqual => 'Split evenly';
+
+  @override
+  String get billSplitModeAmount => 'Custom amount';
+
+  @override
+  String get billSplitGuests => 'Guests';
+
+  @override
+  String get billSplitGuestLess => 'Remove a guest';
+
+  @override
+  String get billSplitGuestMore => 'Add a guest';
+
+  @override
+  String get billSplitItems => 'Items on the bill';
+
+  @override
+  String get billSplitItemsHint =>
+      'Tap a guest to give them one portion. Items with more than 1 are split per portion.';
+
+  @override
+  String billSplitPortionPrice(String price) {
+    return '$price each';
+  }
+
+  @override
+  String get billSplitUnassigned => 'Not assigned';
+
+  @override
+  String billSplitUnassignedCount(int count) {
+    return '$count portions have no guest yet.';
+  }
+
+  @override
+  String billSplitGuest(String label) {
+    return 'Guest $label';
+  }
+
+  @override
+  String get billSplitGuestEmpty => 'No portions yet.';
+
+  @override
+  String get billSplitStatusUnpaid => 'Unpaid';
+
+  @override
+  String billSplitStatusPaid(String methods) {
+    return 'Paid · $methods';
+  }
+
+  @override
+  String get billSplitStatusPending => 'Static QRIS · waiting';
+
+  @override
+  String get billSplitCancelPayment => 'Cancel';
+
+  @override
+  String billSplitPay(String label) {
+    return 'Pay part $label';
+  }
+
+  @override
+  String billSplitNextGuest(String label) {
+    return 'Next guest ($label)';
+  }
+
+  @override
+  String get billSplitAmount => 'Amount';
+
+  @override
+  String billSplitAmountHint(String amount) {
+    return 'Max $amount';
+  }
+
+  @override
+  String get billSplitPayAmount => 'Pay';
+
+  @override
+  String get billSplitTotal => 'Bill total';
+
+  @override
+  String billSplitPaid(String labels) {
+    return 'Paid ($labels)';
+  }
+
+  @override
+  String billSplitPending(String labels) {
+    return 'Awaiting confirmation ($labels)';
+  }
+
+  @override
+  String get billSplitRemaining => 'Remaining';
+
+  @override
+  String get billSplitNote =>
+      'The bill stays open until every part is paid. Each part is recorded as a payment on the same receipt, so reports and stock stay in one piece.';
+
+  @override
+  String get billSplitCancel => 'Cancel split';
+
+  @override
+  String get billSplitLocked =>
+      'The split is locked because a part is already paid. Cancel waiting QRIS parts to change it.';
+
+  @override
+  String get billSplitDone => 'Bill paid';
+
+  @override
+  String billSplitDoneBody(String number) {
+    return 'Every part is paid. Receipt $number is saved.';
+  }
+
+  @override
+  String get billSplitLoadFailed => 'The split bill couldn\'t be loaded.';
+
+  @override
+  String get billSplitErrorLocked =>
+      'A part is already paid; the split can\'t be changed.';
+
+  @override
+  String get billSplitErrorGuests => 'Guests must be 2–8.';
+
+  @override
+  String get billSplitErrorUnassigned =>
+      'Assign every portion to a guest first.';
+
+  @override
+  String get billSplitErrorPartPaid => 'This guest has already paid.';
+
+  @override
+  String get billSplitErrorAmount =>
+      'The amount must be above 0 and at most the remaining balance.';
+
+  @override
+  String get billSplitErrorNothingDue => 'This guest has nothing to pay.';
+
+  @override
+  String get billSplitErrorPending => 'Only QRIS can wait for confirmation.';
+
+  @override
+  String get billSplitErrorGeneric =>
+      'The split bill action failed. Try again.';
 }
