@@ -1,7 +1,7 @@
 # F1-10 · Meja F&B, open bill, modifier, split bill
 
 - **Fase:** 1
-- **Status:** Berjalan (dipecah empat rilis, mulai v0.11.0)
+- **Status:** Berjalan: v0.11.0 (grid, open bill, take away, pajak & service) dirilis; modifier, split bill, denah menyusul
 - **Layar desain:** 1.7 *Meja & open bill · mode grid* (`Meja-FnB-Tablet`),
   1.7b *Mode denah* (`F1-Meja-Denah`), 1.7c *Unggah denah*
   (`F1-Upload-Denah`), 1.7d *Atur denah* (`F1-Atur-Denah`), 1.7e *Tiket
@@ -227,9 +227,11 @@ mematikan `foreign_keys` selama migrasi); diuji pada data v0.10.0.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Meja grid, open bill, take away, tiket dapur | 1.7, 1.7e | Berjalan (target v0.11.0) | — |
-| Meja & area di Master data | 1.17 | Berjalan (target v0.11.0) | Posisi denah di v0.14.0. |
-| Pajak & service | 1.26 | Berjalan (target v0.11.0) | Retail belum memakai tarif. |
+| Meja grid, open bill, take away, tiket dapur | 1.7, 1.7e | Dirilis v0.11.0 | Tab area: *Semua* + area (tanpa tab *Tanpa area*; meja tanpa area tampil di *Semua*). |
+| Meja & area di Master data | 1.17 | Dirilis v0.11.0 | Posisi denah di v0.14.0. |
+| Pajak & service | 1.26 | Dirilis v0.11.0 | Retail belum memakai tarif. |
+| Tutup & bayar | 1.6 | Dirilis v0.11.0 | Sisi kiri layar Bayar hanya menampilkan subjudul (label · n item), belum daftar item baca-saja. |
+| Catatan dapur | 1.7 | Dirilis v0.11.0 | Kolom catatan di lembar menu berlaku untuk item berikutnya yang ditambahkan, lalu dikosongkan. *Minta bill* hanya untuk dine in. |
 | Modifier | 1.8, 1.16b, 1.17b | Belum | v0.12.0. |
 | Split bill | 1.9 | Belum | v0.13.0. |
 | Denah | 1.7b–d | Belum | v0.14.0. |
