@@ -689,5 +689,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "paymentErrorPermission": "Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer."
 }

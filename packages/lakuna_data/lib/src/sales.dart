@@ -398,7 +398,8 @@ Future<List<_PricedRequest>> _priceLines(
       : {
           for (final m in await MeasureUnit.db.find(
             session,
-            where: (m) => m.id.inSet(measureIds),
+            where: (m) =>
+                m.id.inSet(measureIds) & m.tenantId.equals(scope.tenantId),
             transaction: transaction,
           ))
             m.id: m.name,

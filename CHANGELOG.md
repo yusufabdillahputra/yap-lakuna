@@ -71,11 +71,24 @@ sesi kasir.
 
 ### Diperbaiki
 
+Ditemukan saat uji manual dan review kode, diperbaiki sebelum rilis:
+
 - Kolom cari kasir kehilangan fokus saat produk atau tombol keranjang
   diklik dengan mouse, sehingga scan barcode berikutnya tidak masuk. Di
-  tablet/desktop kolom kini tetap fokus, dan fokus kembali setelah dialog
-  pilihan atau ubah jumlah ditutup.
-- Saat uji manual ditemukan dan diperbaiki sebelum rilis:
+  desktop kolom kini tetap fokus, dan fokus kembali setelah dialog pilihan
+  atau ubah jumlah ditutup. Di tablet/ponsel Android/iOS fokus otomatis
+  sengaja tidak dipakai agar keyboard layar tidak menutupi kasir dan keypad.
+- Tombol kembali sistem Android di tahap bayar bisa menutup aplikasi dan
+  menghilangkan keranjang; kini kembali ke pesanan, dan di layar berhasil
+  sama dengan *Transaksi baru*.
+- Setelah bayar lalu ←, kolom cari kosong tetapi grid masih tersaring kata
+  lama; kolom kini menampilkan kata cari yang sedang dipakai.
+- Struk menentukan nama satuan dari isi satuan, sehingga satuan konversi
+  berisi 1 tampil tanpa nama; kini dari ada/tidaknya satuan konversi.
+- Galat izin saat menyimpan penjualan kini punya pesan sendiri, dan galat
+  data toko yang tidak lengkap tidak lagi membuat layar kasir menunggu
+  tanpa akhir.
+- Lainnya:
   - Dialog pilihan varian gagal tata letak karena baris harga memakai
     `Expanded` langsung di dalam tombol; isi tombol kini dibungkus agar
     lebar terbatas.
@@ -109,8 +122,10 @@ sesi kasir.
   Repositori aplikasi bernama `CashierRepository` karena Serverpod sudah
   membuat `SaleRepository`.
 - Tes baru: 10 tes data penjualan, 4 tes repositori lokal kasir, 17 tes
-  view model, dan 5 alur widget (tablet, desktop, kartu + galat, ponsel,
-  tanpa sesi).
+  view model, dan 8 alur widget (desktop lebar tablet, desktop, kartu +
+  galat, ponsel, tablet Android tanpa fokus otomatis, kata cari setelah
+  kembali, tombol kembali sistem, tanpa sesi).
+- Pencarian satuan ukur di `checkoutSale` kini juga dibatasi `tenant_id`.
 
 ## [0.5.0] - 2026-11-03
 

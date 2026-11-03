@@ -345,5 +345,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "paymentErrorPermission": "You are not allowed to save sales. Ask the owner or a manager."
 }

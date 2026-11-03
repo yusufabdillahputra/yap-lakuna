@@ -52,7 +52,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('tablet: scan, pilih satuan, bayar tunai pakai keypad', (
+  testWidgets('desktop lebar tablet: scan, pilih satuan, bayar tunai', (
     tester,
   ) async {
     final repo = await pump(tester, size: const Size(1024, 768));
@@ -112,7 +112,7 @@ void main() {
 
     await _tap(tester, 'success-new');
     expect(_key('cashier-empty-cart'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('desktop: ketik uang diterima, kembali ke pesanan', (
     tester,
@@ -136,7 +136,7 @@ void main() {
     await _tap(tester, 'payment-quick-0');
     expect(_text(tester, 'payment-change'), 'Rp 0');
     expect(repo.checkouts, isEmpty);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('kartu: no. approval, galat simpan ditampilkan', (tester) async {
     final repo = await pump(tester);
@@ -191,6 +191,62 @@ void main() {
     expect(_key('success-title'), findsOneWidget);
     expect(find.text('Stok jadi minus'), findsOneWidget);
     expect(repo.checkouts.single.$2.method, PaymentMethod.transfer);
+  });
+
+  testWidgets('tablet Android: tanpa fokus otomatis (keyboard tidak muncul)', (
+    tester,
+  ) async {
+    await pump(tester, size: const Size(1024, 768));
+    expect(
+      tester.widget<EditableText>(_input('cashier-search')).focusNode.hasFocus,
+      isFalse,
+    );
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-pay');
+    expect(
+      tester
+          .widget<EditableText>(_input('payment-received'))
+          .focusNode
+          .hasFocus,
+      isFalse,
+    );
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('kolom cari dan saringan tetap selaras setelah kembali', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await tester.enterText(_input('cashier-search'), 'kopi');
+    await tester.pumpAndSettle();
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-back');
+    expect(
+      tester.widget<EditableText>(_input('cashier-search')).controller.text,
+      'kopi',
+    );
+    expect(_key(productKey(repo, 'Beras Premium')), findsNothing);
+  });
+
+  testWidgets('tombol kembali sistem: bayar → pesanan, berhasil → baru', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-pay');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(_key('payment-cash'), findsNothing);
+    expect(_text(tester, 'cashier-total'), 'Rp 2.000');
+
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-quick-0');
+    await _tap(tester, 'payment-finish');
+    expect(_key('success-title'), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(_key('cashier-empty-cart'), findsOneWidget);
+    expect(repo.checkouts, hasLength(1));
   });
 
   testWidgets('tanpa sesi kasir: arahkan ke Sesi kasir', (tester) async {

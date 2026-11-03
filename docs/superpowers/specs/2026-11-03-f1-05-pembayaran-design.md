@@ -38,8 +38,9 @@ kredit (piutang).
   kembali), tombol **Transaksi baru**. Cetak/PDF menyusul F1-06.
 - Ponsel: kolom metode di atas, panel bayar di bawah, satu kolom. Kotak
   **Kembalian** menempel di atas tombol selesai agar selalu terlihat.
-- Desktop/tablet: kolom *Uang diterima* langsung fokus, jadi nominal bisa
-  diketik tanpa keypad.
+- Desktop (lebar ≥ 600 px): kolom *Uang diterima* langsung fokus, jadi
+  nominal bisa diketik tanpa keypad. Tablet/ponsel memakai keypad di layar
+  (tanpa keyboard virtual yang menutupinya).
 
 ## Aturan bisnis (`lakuna_domain`, `payment.dart`)
 
@@ -87,3 +88,4 @@ kredit (piutang).
 | Opsi struk (cetak otomatis, PDF) | 1.5 panel Struk, 1.5c | Pratinjau teks saja | F1-06 |
 | Pembulatan total | Pengaturan 1.26 | Belum | F1-18 |
 | Rekening transfer di tombol | "BCA 123-456-7890" | Belum | Pengaturan metode bayar F1-18 |
+| Scan barcode saat di layar bayar (desktop) | — | Masuk ke *Uang diterima* | Batasi nominal / abaikan input sangat cepat bersama F1-06 |

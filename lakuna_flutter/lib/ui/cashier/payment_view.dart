@@ -8,6 +8,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/repositories/cashier_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import 'cashier_view.dart' show cashierKeepsFocus;
 import 'cashier_view_model.dart';
 
 /// Nama metode bayar untuk layar dan struk.
@@ -25,6 +26,7 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       CashSessionNotOpen() => l10n.paymentErrorSession,
       SaleItemUnavailable() => l10n.paymentErrorUnavailable,
       SalePaymentShort() => l10n.paymentErrorShort,
+      NotPermitted() => l10n.paymentErrorPermission,
       _ => l10n.paymentErrorGeneric,
     };
 
@@ -405,7 +407,7 @@ class _CashPanelState extends State<_CashPanel> {
           FTextField(
             key: const ValueKey('payment-received'),
             label: Text(l10n.paymentReceived),
-            autofocus: !widget.compact,
+            autofocus: cashierKeepsFocus && !widget.compact,
             keyboardType: TextInputType.number,
             inputFormatters: const [RupiahInputFormatter()],
             enabled: !vm.pay.running,
@@ -922,7 +924,7 @@ class _ReceiptPreview extends StatelessWidget {
             ),
             pair(
               '  ${formatQty(context, Qty(item.quantityMilli))}'
-              '${item.factorMilli == 1000 ? '' : ' ${item.unitName}'}'
+              '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
               ' x ${_plain(context, item.unitPrice)}',
               _plain(context, item.lineTotal),
               wideLeft: true,

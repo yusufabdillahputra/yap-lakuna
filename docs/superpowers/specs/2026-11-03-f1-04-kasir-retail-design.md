@@ -31,9 +31,15 @@ Termasuk:
 - Grid produk aktif (`is_active`): kotak inisial, nama, harga ("mulai Rp X"
   bila harga varian berbeda; daftar ponsel menampilkan rentang penuh), stok
   (merah bila ≤ 0, abu-abu "—" untuk jasa/menu).
-- Di tablet/desktop kolom cari **tetap fokus** saat produk atau tombol
-  keranjang diklik, jadi scanner (yang bekerja seperti keyboard) tidak
-  kehilangan input. Setelah dialog ditutup fokus kembali ke kolom cari.
+- Di **desktop** (Windows/Linux/macOS, lebar ≥ 600 px) kolom cari fokus
+  otomatis dan **tetap fokus** saat produk atau tombol keranjang diklik,
+  jadi scanner (yang bekerja seperti keyboard) tidak kehilangan input.
+  Setelah dialog ditutup fokus kembali ke kolom cari. Di tablet/ponsel
+  Android/iOS tidak ada fokus otomatis, karena keyboard layar akan
+  menutupi grid dan tombol *Bayar*.
+- Tombol kembali sistem (Android): di tahap bayar kembali ke pesanan
+  dengan keranjang utuh, di layar berhasil sama dengan *Transaksi baru*,
+  dan diabaikan selama pembayaran disimpan.
 - Ketuk produk: satu varian tanpa satuan lain → langsung masuk keranjang;
   selain itu → dialog pilih varian × satuan dengan harga masing-masing.
 - **Keranjang (panel *Pesanan*)**: "Pelanggan umum · Ambil sendiri", baris
@@ -143,6 +149,9 @@ Migrasi `penjualan`, model di `lakuna_server/lib/src/sales/`.
 | *Wajib buka sesi kasir* | Pengaturan, default aktif | Selalu wajib | F1-18 |
 | Pilihan satuan di dialog | Varian × satuan | Satuan dasar disebut bila produk punya satuan konversi | Cukup |
 | Stok minus di daftar ponsel | Merah | Abu-abu (grid tablet sudah merah) | Rapikan bersama F1-08 Stok |
+| Scanner Bluetooth di tablet | Kolom tetap fokus | Kasir mengetuk kolom cari dulu | Mode scanner tanpa keyboard layar (`TextInputType.none`) bersama F1-06 |
+| Galat simpan | Baris ditandai | Pesan di layar bayar, keranjang utuh; harga tidak diperbarui otomatis bila berubah lewat sinkronisasi | Fase 2 (sinkronisasi) |
+| *Ganti kasir* saat bayar | — | Tidak dikunci; nota tetap tersimpan, layar berhasil terlewat | Kunci di shell bila sering terjadi |
 | Sheet pesanan ponsel | Menutupi layar penuh | Di dalam shell, navigasi bawah tetap terlihat | Cukup |
 
 ## Kriteria selesai

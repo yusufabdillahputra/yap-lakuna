@@ -1152,4 +1152,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String cashierPriceFrom(String price) {
     return 'from $price';
   }
+
+  @override
+  String get paymentErrorPermission =>
+      'You are not allowed to save sales. Ask the owner or a manager.';
 }

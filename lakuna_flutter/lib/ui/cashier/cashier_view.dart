@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -48,6 +49,16 @@ class _CashierScreenState extends State<CashierScreen> {
   );
 }
 
+/// Desktop dengan keyboard fisik: kolom bisa fokus otomatis tanpa
+/// memunculkan keyboard layar. Di tablet/ponsel fokus otomatis akan
+/// menutupi layar kasir dengan keyboard virtual.
+bool get cashierKeepsFocus => switch (defaultTargetPlatform) {
+  TargetPlatform.linux ||
+  TargetPlatform.macOS ||
+  TargetPlatform.windows => true,
+  _ => false,
+};
+
 class CashierView extends StatelessWidget {
   const CashierView({
     super.key,
@@ -61,38 +72,54 @@ class CashierView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: viewModel,
-    builder: (context, _) => LayoutBuilder(
-      builder: (context, constraints) {
-        final vm = viewModel;
-        if (!vm.loaded) {
-          if (vm.load.error) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: LoadFailedAlert(
-                key: const ValueKey('cashier-load-error'),
-                message: AppLocalizations.of(context).cashierLoadFailed,
-                onRetry: vm.load.execute,
-              ),
-            );
-          }
-          return const Center(child: FCircularProgress());
+    builder: (context, _) => PopScope(
+      // Tombol kembali sistem: bayar → pesanan (keranjang utuh), berhasil →
+      // transaksi baru, dan diabaikan selama pembayaran disimpan.
+      canPop: viewModel.stage == CashierStage.browse,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || viewModel.pay.running) return;
+        switch (viewModel.stage) {
+          case CashierStage.pay:
+            viewModel.backToCart();
+          case CashierStage.done:
+            viewModel.newTransaction();
+          case CashierStage.browse:
+            break;
         }
-        if (!vm.hasSession) {
-          return _NoSession(onOpenSession: onOpenSession);
-        }
-        final narrow = constraints.maxWidth < 600;
-        return switch (vm.stage) {
-          CashierStage.pay => PaymentView(viewModel: vm, narrow: narrow),
-          CashierStage.done => SuccessView(viewModel: vm, narrow: narrow),
-          CashierStage.browse =>
-            narrow
-                ? _MobileCashier(viewModel: vm)
-                : _WideCashier(
-                    viewModel: vm,
-                    panelWidth: constraints.maxWidth >= 1000 ? 380 : 320,
-                  ),
-        };
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final vm = viewModel;
+          if (!vm.loaded) {
+            if (vm.load.error) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: LoadFailedAlert(
+                  key: const ValueKey('cashier-load-error'),
+                  message: AppLocalizations.of(context).cashierLoadFailed,
+                  onRetry: vm.load.execute,
+                ),
+              );
+            }
+            return const Center(child: FCircularProgress());
+          }
+          if (!vm.hasSession) {
+            return _NoSession(onOpenSession: onOpenSession);
+          }
+          final narrow = constraints.maxWidth < 600;
+          return switch (vm.stage) {
+            CashierStage.pay => PaymentView(viewModel: vm, narrow: narrow),
+            CashierStage.done => SuccessView(viewModel: vm, narrow: narrow),
+            CashierStage.browse =>
+              narrow
+                  ? _MobileCashier(viewModel: vm)
+                  : _WideCashier(
+                      viewModel: vm,
+                      panelWidth: constraints.maxWidth >= 1000 ? 380 : 320,
+                    ),
+          };
+        },
+      ),
     ),
   );
 }
@@ -209,7 +236,11 @@ class _SearchField extends StatefulWidget {
 }
 
 class _SearchFieldState extends State<_SearchField> {
-  final _controller = TextEditingController();
+  // Isi awal = kata cari di view model, agar kolom dan saringan grid tetap
+  // selaras saat kolom dibuat ulang (kembali dari bayar, ganti lebar layar).
+  late final _controller = TextEditingController(
+    text: widget.viewModel.query,
+  );
   final _focus = FocusNode();
 
   @override
@@ -231,6 +262,7 @@ class _SearchFieldState extends State<_SearchField> {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final unknown = widget.viewModel.unknownCode;
+    final keepFocus = cashierKeepsFocus && !widget.compact;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 6,
@@ -239,10 +271,10 @@ class _SearchFieldState extends State<_SearchField> {
           key: const ValueKey('cashier-search'),
           hint: l10n.cashierSearchHint,
           focusNode: _focus,
-          autofocus: !widget.compact,
-          // Tablet/desktop: kolom tetap fokus saat produk atau tombol
-          // keranjang diklik, agar scanner (keyboard) tidak kehilangan input.
-          onTapOutside: widget.compact ? null : (_) {},
+          autofocus: keepFocus,
+          // Desktop: kolom tetap fokus saat produk atau tombol keranjang
+          // diklik, agar scanner (keyboard) tidak kehilangan input.
+          onTapOutside: keepFocus ? (_) {} : null,
           textInputAction: TextInputAction.done,
           prefixBuilder: (context, style, _) => Padding(
             padding: const EdgeInsetsDirectional.only(start: 12),

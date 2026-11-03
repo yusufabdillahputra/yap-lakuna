@@ -2131,6 +2131,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'mulai {price}'**
   String cashierPriceFrom(String price);
+
+  /// No description provided for @paymentErrorPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer.'**
+  String get paymentErrorPermission;
 }
 
 class _AppLocalizationsDelegate

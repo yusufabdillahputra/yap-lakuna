@@ -84,6 +84,10 @@ class LocalCashierRepository extends CashierRepository {
       return Result.ok(await body(ctx, staff));
     } on Exception catch (e) {
       return Result.error(e);
+    } on StateError catch (e) {
+      // Data toko tidak lengkap (cabang/perangkat/lokasi stok hilang):
+      // tampilkan sebagai galat, jangan biarkan Command menggantung.
+      return Result.error(Exception(e.message));
     }
   }
 }

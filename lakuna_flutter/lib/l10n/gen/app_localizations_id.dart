@@ -1139,4 +1139,8 @@ class AppLocalizationsId extends AppLocalizations {
   String cashierPriceFrom(String price) {
     return 'mulai $price';
   }
+
+  @override
+  String get paymentErrorPermission =>
+      'Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer.';
 }

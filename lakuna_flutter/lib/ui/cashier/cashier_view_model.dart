@@ -108,6 +108,21 @@ class CashierViewModel extends ChangeNotifier {
   CheckoutResult? _result;
   Exception? _error;
 
+  var _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Penyimpanan bisa selesai setelah layar ditutup (mis. *Ganti kasir*
+  /// saat bayar); jangan memberi tahu view model yang sudah dibuang.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
   // --- Data ----------------------------------------------------------------
 
   bool get loaded => _data != null;
