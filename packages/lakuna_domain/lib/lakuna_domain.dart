@@ -24,5 +24,6 @@ export 'src/qty.dart';
 export 'src/receipt.dart';
 export 'src/sale.dart';
 export 'src/setup.dart';
+export 'src/split_bill.dart';
 export 'src/staff.dart';
 export 'src/stock.dart';

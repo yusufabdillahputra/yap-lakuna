@@ -14,6 +14,7 @@ part '20261103133809437-stock/migration.dart';
 part '20261103160755181-master/migration.dart';
 part '20261103164735343-meja/migration.dart';
 part '20261103175303114-modifier/migration.dart';
+part '20261103184928076-split/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -30,6 +31,7 @@ class MigrationRegistry {
     _Migration20261103160755181_master(),
     _Migration20261103164735343_meja(),
     _Migration20261103175303114_modifier(),
+    _Migration20261103184928076_split(),
   ];
 
   /// List of all client-side database migration versions.

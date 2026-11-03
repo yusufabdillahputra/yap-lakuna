@@ -1,0 +1,7 @@
+### Cara membagi open bill (F1-10c): per item, rata, atau nominal bebas.
+enum: SplitMode
+serialized: byName
+values:
+  - item
+  - equal
+  - amount

@@ -31,6 +31,7 @@ abstract class Payment
     this.confirmedBy,
     this.confirmedAt,
     required this.paidAt,
+    this.guestLabel,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -56,6 +57,7 @@ abstract class Payment
     _is.UuidValue? confirmedBy,
     DateTime? confirmedAt,
     required DateTime paidAt,
+    String? guestLabel,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -95,6 +97,7 @@ abstract class Payment
               jsonSerialization['confirmedAt'],
             ),
       paidAt: _is.DateTimeJsonExtension.fromJson(jsonSerialization['paidAt']),
+      guestLabel: jsonSerialization['guestLabel'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -148,6 +151,9 @@ abstract class Payment
 
   DateTime paidAt;
 
+  /// Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
+  String? guestLabel;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -182,6 +188,7 @@ abstract class Payment
     _is.UuidValue? confirmedBy = const _is.$UndefinedUuidValue(),
     DateTime? confirmedAt = const _is.$UndefinedDateTime(),
     DateTime? paidAt,
+    String? guestLabel,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -206,6 +213,7 @@ abstract class Payment
       if (confirmedBy != null) 'confirmedBy': confirmedBy?.toJson(),
       if (confirmedAt != null) 'confirmedAt': confirmedAt?.toJson(),
       'paidAt': paidAt.toJson(),
+      if (guestLabel != null) 'guestLabel': guestLabel,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -232,6 +240,7 @@ abstract class Payment
       if (confirmedBy != null) 'confirmedBy': confirmedBy?.toJson(),
       if (confirmedAt != null) 'confirmedAt': confirmedAt?.toJson(),
       'paidAt': paidAt.toJson(),
+      if (guestLabel != null) 'guestLabel': guestLabel,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -286,6 +295,7 @@ class _PaymentImpl extends Payment {
     _is.UuidValue? confirmedBy,
     DateTime? confirmedAt,
     required DateTime paidAt,
+    String? guestLabel,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -306,6 +316,7 @@ class _PaymentImpl extends Payment {
          confirmedBy: confirmedBy,
          confirmedAt: confirmedAt,
          paidAt: paidAt,
+         guestLabel: guestLabel,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -332,6 +343,7 @@ class _PaymentImpl extends Payment {
     _is.UuidValue? confirmedBy = const _is.$UndefinedUuidValue(),
     DateTime? confirmedAt = const _is.$UndefinedDateTime(),
     DateTime? paidAt,
+    Object? guestLabel = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -357,6 +369,7 @@ class _PaymentImpl extends Payment {
           ? this.confirmedAt
           : confirmedAt,
       paidAt: paidAt ?? this.paidAt,
+      guestLabel: guestLabel is String? ? guestLabel : this.guestLabel,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -436,6 +449,11 @@ class PaymentUpdateTable extends _is.UpdateTable<PaymentTable> {
 
   _is.ColumnValue<DateTime, DateTime> paidAt(DateTime value) => _is.ColumnValue(
     table.paidAt,
+    value,
+  );
+
+  _is.ColumnValue<String, String> guestLabel(String? value) => _is.ColumnValue(
+    table.guestLabel,
     value,
   );
 
@@ -540,6 +558,11 @@ class PaymentTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'paidAt',
     );
+    guestLabel = _is.ColumnString(
+      'guest_label',
+      this,
+      fieldName: 'guestLabel',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -606,6 +629,9 @@ class PaymentTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnDateTime paidAt;
 
+  /// Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
+  late final _is.ColumnString guestLabel;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -635,6 +661,7 @@ class PaymentTable extends _is.Table<_is.UuidValue> {
     confirmedBy,
     confirmedAt,
     paidAt,
+    guestLabel,
     createdAt,
     updatedAt,
     deletedAt,

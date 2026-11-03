@@ -16,6 +16,8 @@ fields:
   confirmedBy: UuidValue?, column=confirmed_by
   confirmedAt: DateTime?, column=confirmed_at
   paidAt: DateTime, column=paid_at
+  ### Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
+  guestLabel: String?, column=guest_label
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at

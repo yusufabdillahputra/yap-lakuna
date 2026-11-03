@@ -40,6 +40,8 @@ abstract class SaleItem
     this.note,
     int? modifierDelta,
     this.modifierKey,
+    this.guestLabel,
+    this.splitFromItemId,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -76,6 +78,8 @@ abstract class SaleItem
     String? note,
     int? modifierDelta,
     String? modifierKey,
+    String? guestLabel,
+    _is.UuidValue? splitFromItemId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -129,6 +133,12 @@ abstract class SaleItem
       note: jsonSerialization['note'] as String?,
       modifierDelta: jsonSerialization['modifierDelta'] as int?,
       modifierKey: jsonSerialization['modifierKey'] as String?,
+      guestLabel: jsonSerialization['guestLabel'] as String?,
+      splitFromItemId: jsonSerialization['splitFromItemId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['splitFromItemId'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -211,6 +221,12 @@ abstract class SaleItem
   /// Id opsi modifier terurut dipisah koma; kunci gabung baris.
   String? modifierKey;
 
+  /// Split bill per item: tamu pemilik porsi (`A`–`H`) dan baris asal
+  /// porsi yang dipecah.
+  String? guestLabel;
+
+  _is.UuidValue? splitFromItemId;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -255,6 +271,8 @@ abstract class SaleItem
     String? note,
     int? modifierDelta,
     String? modifierKey,
+    String? guestLabel,
+    _is.UuidValue? splitFromItemId = const _is.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -289,6 +307,8 @@ abstract class SaleItem
       if (note != null) 'note': note,
       'modifierDelta': modifierDelta,
       if (modifierKey != null) 'modifierKey': modifierKey,
+      if (guestLabel != null) 'guestLabel': guestLabel,
+      if (splitFromItemId != null) 'splitFromItemId': splitFromItemId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -325,6 +345,8 @@ abstract class SaleItem
       if (note != null) 'note': note,
       'modifierDelta': modifierDelta,
       if (modifierKey != null) 'modifierKey': modifierKey,
+      if (guestLabel != null) 'guestLabel': guestLabel,
+      if (splitFromItemId != null) 'splitFromItemId': splitFromItemId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -389,6 +411,8 @@ class _SaleItemImpl extends SaleItem {
     String? note,
     int? modifierDelta,
     String? modifierKey,
+    String? guestLabel,
+    _is.UuidValue? splitFromItemId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -419,6 +443,8 @@ class _SaleItemImpl extends SaleItem {
          note: note,
          modifierDelta: modifierDelta,
          modifierKey: modifierKey,
+         guestLabel: guestLabel,
+         splitFromItemId: splitFromItemId,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -455,6 +481,8 @@ class _SaleItemImpl extends SaleItem {
     Object? note = _Undefined,
     int? modifierDelta,
     Object? modifierKey = _Undefined,
+    Object? guestLabel = _Undefined,
+    _is.UuidValue? splitFromItemId = const _is.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -492,6 +520,10 @@ class _SaleItemImpl extends SaleItem {
       note: note is String? ? note : this.note,
       modifierDelta: modifierDelta ?? this.modifierDelta,
       modifierKey: modifierKey is String? ? modifierKey : this.modifierKey,
+      guestLabel: guestLabel is String? ? guestLabel : this.guestLabel,
+      splitFromItemId: splitFromItemId is _is.UndefinedSentinel
+          ? this.splitFromItemId
+          : splitFromItemId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -621,6 +653,18 @@ class SaleItemUpdateTable extends _is.UpdateTable<SaleItemTable> {
 
   _is.ColumnValue<String, String> modifierKey(String? value) => _is.ColumnValue(
     table.modifierKey,
+    value,
+  );
+
+  _is.ColumnValue<String, String> guestLabel(String? value) => _is.ColumnValue(
+    table.guestLabel,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> splitFromItemId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.splitFromItemId,
     value,
   );
 
@@ -778,6 +822,16 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'modifierKey',
     );
+    guestLabel = _is.ColumnString(
+      'guest_label',
+      this,
+      fieldName: 'guestLabel',
+    );
+    splitFromItemId = _is.ColumnUuid(
+      'split_from_item_id',
+      this,
+      fieldName: 'splitFromItemId',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -873,6 +927,12 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
   /// Id opsi modifier terurut dipisah koma; kunci gabung baris.
   late final _is.ColumnString modifierKey;
 
+  /// Split bill per item: tamu pemilik porsi (`A`–`H`) dan baris asal
+  /// porsi yang dipecah.
+  late final _is.ColumnString guestLabel;
+
+  late final _is.ColumnUuid splitFromItemId;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -912,6 +972,8 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
     note,
     modifierDelta,
     modifierKey,
+    guestLabel,
+    splitFromItemId,
     createdAt,
     updatedAt,
     deletedAt,
