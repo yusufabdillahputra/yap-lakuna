@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Lakuna
+GenericName=Kasir
+Comment=Aplikasi kasir offline-first untuk UMKM
+Exec=/opt/lakuna/lakuna
+Icon=id.lakuna.app
+Terminal=false
+Categories=Office;Finance;
+StartupWMClass=id.lakuna.app

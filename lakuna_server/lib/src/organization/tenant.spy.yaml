@@ -1,0 +1,18 @@
+### Usaha (tenant). Semua data bisnis dibatasi tenant_id.
+class: Tenant
+table: tenants
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  name: String
+  businessType: BusinessType, default=retail, column=business_type
+  plan: TenantPlan, default=free
+  timezone: String, default='Asia/Jakarta'
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id

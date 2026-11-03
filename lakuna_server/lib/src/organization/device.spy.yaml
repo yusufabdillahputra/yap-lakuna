@@ -1,0 +1,26 @@
+### Perangkat kasir. `code` dipakai di nomor nota; penghitung nota direset harian.
+class: Device
+table: devices
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  code: String
+  name: String
+  platform: DevicePlatform
+  receiptCounter: int, default=0, column=receipt_counter
+  ### Tanggal lokal outlet (YYYY-MM-DD) untuk penghitung nota.
+  receiptCounterDate: String?, column=receipt_counter_date
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  devices_outlet_code_idx:
+    fields: outletId, code
+    unique: true

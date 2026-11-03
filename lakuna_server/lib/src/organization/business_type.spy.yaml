@@ -1,0 +1,7 @@
+### Jenis usaha tenant.
+enum: BusinessType
+serialized: byName
+values:
+  - retail
+  - fnb
+  - mixed

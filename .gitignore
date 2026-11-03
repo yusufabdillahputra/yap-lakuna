@@ -1,0 +1,21 @@
+# Files and directories created by pub
+.dart_tool/
+.packages
+
+# Pubspec overrides
+pubspec_overrides.yaml
+
+# Agents
+.dart_skills/
+.agents/
+.gemini/
+.cursor/
+.vscode/mcp.json
+.codex/
+
+# Serverpod Cloud CLI
+.scloud/
+
+# Build
+build/
+coverage/

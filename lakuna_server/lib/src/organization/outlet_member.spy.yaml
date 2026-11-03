@@ -1,0 +1,22 @@
+### Akses staf ke outlet beserta role-nya (kunci role, mis. `cashier`).
+class: OutletMember
+table: outlet_members
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  staffMemberId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_member_id
+  roleName: String, column=role_name
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  outlet_members_staff_outlet_idx:
+    fields: staffMemberId, outletId
+    unique: true

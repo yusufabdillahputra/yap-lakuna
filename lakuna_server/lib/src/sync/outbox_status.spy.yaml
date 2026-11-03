@@ -1,0 +1,7 @@
+enum: OutboxStatus
+serialized: byName
+values:
+  - pending
+  - sent
+  - acked
+  - conflict

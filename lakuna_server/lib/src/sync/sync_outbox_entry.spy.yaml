@@ -1,0 +1,19 @@
+### Satu perubahan baris yang menunggu dikirim ke server. Ditulis dalam
+### transaksi yang sama dengan perubahan datanya. Hanya ada di perangkat.
+class: SyncOutboxEntry
+table: sync_outbox
+database: client
+fields:
+  ### Nama tabel yang berubah.
+  entity: String, column=table_name
+  rowId: UuidValue, column=row_id
+  op: SyncOp
+  payloadJson: String, column=payload_json
+  hlc: String
+  status: OutboxStatus, default=pending
+  attempts: int, default=0
+  lastError: String?, column=last_error
+  createdAt: DateTime, default=now, column=created_at
+indexes:
+  sync_outbox_status_idx:
+    fields: status

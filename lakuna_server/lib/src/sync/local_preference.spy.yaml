@@ -1,0 +1,12 @@
+### Preferensi lokal perangkat yang tidak disinkronkan (mis. tema, bahasa
+### sebelum ada login staf).
+class: LocalPreference
+table: local_preferences
+database: client
+fields:
+  key: String
+  value: String
+indexes:
+  local_preferences_key_idx:
+    fields: key
+    unique: true
