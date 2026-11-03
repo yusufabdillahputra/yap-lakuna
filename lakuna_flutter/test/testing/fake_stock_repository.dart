@@ -26,6 +26,13 @@ class FakeStockRepository extends StockRepository {
       <(UuidValue, StockAdjustmentReason, List<AdjustmentLine>, String?)>[];
   final summaries = <StockAdjustmentSummary>[];
   final cards = <UuidValue, List<StockCardEntry>>{};
+
+  /// Baris per lokasi; lokasi lain memakai [rows].
+  final rowsByLocation = <UuidValue, List<StockRow>>{};
+
+  /// Bila diisi, [stock] / [card] menunggu future ini dulu (uji balapan).
+  Future<void>? stockGate;
+  Future<void>? cardGate;
   var _counter = 0;
 
   Result<T> _result<T>(T Function() value) {
@@ -39,8 +46,10 @@ class FakeStockRepository extends StockRepository {
       _result(() => List.of(locationList));
 
   @override
-  Future<Result<List<StockRow>>> stock({UuidValue? locationId}) async =>
-      _result(() => List.of(rows));
+  Future<Result<List<StockRow>>> stock({UuidValue? locationId}) async {
+    if (stockGate case final gate?) await gate;
+    return _result(() => List.of(rowsByLocation[locationId] ?? rows));
+  }
 
   @override
   Future<Result<List<StockRow>>> belowMinimum({UuidValue? locationId}) async =>
@@ -55,8 +64,9 @@ class FakeStockRepository extends StockRepository {
   Future<Result<StockCard>> card({
     required UuidValue variantId,
     UuidValue? locationId,
-  }) async => _result(
-    () {
+  }) async {
+    if (cardGate case final gate?) await gate;
+    return _result(() {
       final row = rows.firstWhere((r) => r.variantId == variantId);
       final entries = cards[variantId] ?? const <StockCardEntry>[];
       // Saldo awal + pergerakan = stok baris, seperti ledger asli.
@@ -66,8 +76,8 @@ class FakeStockRepository extends StockRepository {
         entries: entries,
         minStock: row.minStock,
       );
-    },
-  );
+    });
+  }
 
   String get _next =>
       'SA-PST-K01-261103-${(_counter + 1).toString().padLeft(4, '0')}';

@@ -27,6 +27,8 @@ pergerakan di kartu stok, dan melihat barang yang sudah di bawah minimum.
     persis, atau nama yang hanya cocok satu produk; saran nama muncul saat
     mengetik; fokus tetap di field agar pemindai bisa langsung memindai
     barang berikutnya. Kode tak dikenal: "Produk "…" tidak ditemukan."
+    Barang yang dipindai ulang tidak menambah baris dan diberi tahu "Produk
+    ini sudah ada di daftar penyesuaian."
   - Tabel Produk / Sistem / Fisik / Selisih / Alasan / Nilai (HPP) dan total
     nilai; selisih bertanda dan berwarna (merah berkurang, hijau bertambah).
     Di ponsel tiap baris menjadi kartu.
@@ -64,6 +66,8 @@ pergerakan di kartu stok, dan melihat barang yang sudah di bawah minimum.
   seperti sidebar. Sebelumnya menu di luar lima entri tetap tidak bisa
   dibuka di ponsel.
 - Teks Beranda menyebut stok sudah bisa dipakai.
+- Isian draf penyesuaian dan pilihan lokasi terkunci selama menyimpan agar
+  ketikan tidak hilang saat draf dikosongkan.
 
 ### Diperbaiki
 
@@ -73,12 +77,19 @@ pergerakan di kartu stok, dan melihat barang yang sudah di bawah minimum.
   dibungkus, tombol ganti nama menjadi ikon pensil (ditemukan saat tes
   widget di 360 px).
 
+- Ganti lokasi atau produk kartu stok dengan cepat tidak lagi menampilkan
+  data campuran: hasil muat yang sudah usang dibuang dan lokasi terbaru
+  dimuat ulang (ditemukan saat review).
+- Pilihan produk di kartu stok tetap lengkap bila ada nama produk kembar
+  (label ditambah SKU/barcode).
+- Panjang alasan/catatan dihitung per karakter (emoji = 1), sama dengan
+  penghitung field.
+
 ### Keamanan
 
 - Simpan penyesuaian serta tambah/ganti nama lokasi butuh izin
   `stock:adjust`, dicek di layar (tombol hilang, catatan izin) dan di
-  repositori (`NotPermitted`). Melihat stok butuh `stock:adjust` atau
-  `products:manage`.
+  repositori (`NotPermitted`). Menu dan rute Stok butuh `stock:adjust`.
 
 ### Catatan teknis
 

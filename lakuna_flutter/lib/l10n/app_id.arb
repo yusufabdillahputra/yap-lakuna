@@ -988,6 +988,7 @@
       }
     }
   },
+  "stockAddAlready": "Produk ini sudah ada di daftar penyesuaian.",
   "stockLinesEmpty": "Tambah produk yang dihitung, lalu isi stok fisiknya. Baris yang fisiknya kosong tidak disimpan.",
   "stockTotal": "Total",
   "stockSave": "Simpan penyesuaian",

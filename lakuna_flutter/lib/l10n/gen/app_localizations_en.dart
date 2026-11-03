@@ -1718,6 +1718,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get stockAddAlready =>
+      'This product is already in the adjustment list.';
+
+  @override
   String get stockLinesEmpty =>
       'Add the products you counted, then enter their physical stock. Rows left empty are not saved.';
 

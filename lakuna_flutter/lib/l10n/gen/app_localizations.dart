@@ -3140,6 +3140,12 @@ abstract class AppLocalizations {
   /// **'Produk \"{code}\" tidak ditemukan.'**
   String stockAddNotFound(String code);
 
+  /// No description provided for @stockAddAlready.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk ini sudah ada di daftar penyesuaian.'**
+  String get stockAddAlready;
+
   /// No description provided for @stockLinesEmpty.
   ///
   /// In id, this message translates to:

@@ -69,6 +69,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(ValueKey('stock-line-$kopi')), findsOneWidget);
 
+    // Pindai ulang barang yang sama: tidak menambah baris, beri tahu.
+    await _type(tester, 'stock-add', '8990001');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('stock-add-already')), findsOneWidget);
+
     // Kode tak dikenal.
     await _type(tester, 'stock-add', 'zzz');
     await tester.testTextInput.receiveAction(TextInputAction.done);

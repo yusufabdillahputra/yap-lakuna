@@ -1704,6 +1704,9 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get stockAddAlready => 'Produk ini sudah ada di daftar penyesuaian.';
+
+  @override
   String get stockLinesEmpty =>
       'Tambah produk yang dihitung, lalu isi stok fisiknya. Baris yang fisiknya kosong tidak disimpan.';
 

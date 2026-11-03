@@ -293,6 +293,17 @@ void main() {
       expect(await StockAdjustmentItem.db.count(store.session), 0);
     });
 
+    test('panjang alasan dihitung per karakter (emoji 1 karakter)', () async {
+      final result = await adjust([
+        AdjustmentLine(
+          variantId: kopi.id,
+          physical: Qty.units(3),
+          note: '📦' * StockLimits.lineNote,
+        ),
+      ]);
+      expect(result.items.single.note, '📦' * StockLimits.lineNote);
+    });
+
     test('penyesuaian terakhir: ringkasan terbaru dulu', () async {
       await adjust([AdjustmentLine(variantId: kopi.id, physical: Qty.one)]);
       now = now.add(const Duration(minutes: 5));

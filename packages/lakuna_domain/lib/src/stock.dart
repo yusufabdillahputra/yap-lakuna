@@ -47,3 +47,7 @@ StockLocationNameError? validateLocationName(
   }
   return null;
 }
+
+/// Panjang teks dalam karakter yang terlihat (emoji = 1), sama dengan
+/// penghitung `maxLength` di field teks.
+int textLength(String text) => text.characters.length;

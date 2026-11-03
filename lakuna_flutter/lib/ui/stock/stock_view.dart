@@ -113,7 +113,11 @@ class StockView extends StatelessWidget {
                 action: vm.locations.length > 1
                     ? SizedBox(
                         width: narrow ? double.infinity : 220,
-                        child: _LocationSelect(viewModel: vm),
+                        // Ganti lokasi selagi menyimpan akan membuang draf.
+                        child: IgnorePointer(
+                          ignoring: vm.save.running,
+                          child: _LocationSelect(viewModel: vm),
+                        ),
                       )
                     : null,
               ),
@@ -770,6 +774,7 @@ class _AdjustmentCard extends StatelessWidget {
     );
     final note = FTextField(
       key: ValueKey('stock-note-$rev'),
+      enabled: !vm.save.running,
       label: Text(l10n.stockNoteLabel),
       hint: l10n.stockNoteHint,
       maxLength: StockLimits.note,
@@ -918,6 +923,8 @@ class _PhysicalField extends StatelessWidget {
     final physical = line.physical;
     return FTextField(
       key: ValueKey('stock-physical-${id.uuid}-$revision'),
+      // Isian selama menyimpan akan hilang saat draf dikosongkan.
+      enabled: !viewModel.save.running,
       hint: AppLocalizations.of(context).stockColPhysical,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
@@ -958,6 +965,7 @@ class _LineNoteField extends StatelessWidget {
     final id = line.row.variantId;
     return FTextField(
       key: ValueKey('stock-line-note-${id.uuid}-$revision'),
+      enabled: !viewModel.save.running,
       hint: AppLocalizations.of(context).stockLineNoteHint,
       maxLength: StockLimits.lineNote,
       control: .managed(
@@ -1197,6 +1205,7 @@ class _AddProductFieldState extends State<_AddProductField> {
   final _focus = FocusNode();
   var _query = '';
   String? _notFound;
+  var _already = false;
 
   @override
   void dispose() {
@@ -1210,15 +1219,20 @@ class _AddProductFieldState extends State<_AddProductField> {
     setState(() {
       _query = '';
       _notFound = null;
+      _already = false;
     });
   }
 
   void _submit(String text) {
     if (text.trim().isEmpty) return;
-    if (widget.viewModel.addByCode(text)) {
-      _clear();
-    } else {
-      setState(() => _notFound = text.trim());
+    switch (widget.viewModel.addByCode(text)) {
+      case AddByCodeResult.added:
+        _clear();
+      case AddByCodeResult.already:
+        _clear();
+        setState(() => _already = true);
+      case AddByCodeResult.notFound:
+        setState(() => _notFound = text.trim());
     }
     // Tetap fokus agar pemindai bisa langsung memindai barang berikutnya.
     _focus.requestFocus();
@@ -1246,6 +1260,7 @@ class _AddProductFieldState extends State<_AddProductField> {
       children: [
         FTextField(
           key: const ValueKey('stock-add'),
+          enabled: !widget.viewModel.save.running,
           label: Text(l10n.stockAddLabel),
           hint: l10n.stockAddHint,
           focusNode: _focus,
@@ -1265,11 +1280,20 @@ class _AddProductFieldState extends State<_AddProductField> {
               setState(() {
                 _query = v.text;
                 _notFound = null;
+                _already = false;
               });
             },
           ),
           onSubmit: _submit,
         ),
+        if (_already)
+          Text(
+            l10n.stockAddAlready,
+            key: const ValueKey('stock-add-already'),
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
         if (_notFound case final code?)
           Text(
             l10n.stockAddNotFound(code),
@@ -1329,7 +1353,10 @@ class _StockCardPanel extends StatelessWidget {
               key: ValueKey('stock-card-product-${vm.cardVariantId?.uuid}'),
               label: Text(l10n.stockCardProduct),
               items: {
-                for (final r in vm.rows) r.displayName: r.variantId.uuid,
+                for (final MapEntry(:key, :value) in uniqueStockLabels(
+                  vm.rows,
+                ).entries)
+                  value: key.uuid,
               },
               control: .managed(
                 initial: vm.cardVariantId?.uuid,
@@ -1692,6 +1719,7 @@ class _LocationsTabState extends State<_LocationsTab> {
   }
 
   Future<void> _add() async {
+    if (_busy) return;
     setState(() => _busy = true);
     final ok = await widget.viewModel.addLocation(_newName.text);
     if (!mounted) return;
@@ -1700,6 +1728,7 @@ class _LocationsTabState extends State<_LocationsTab> {
   }
 
   Future<void> _rename(UuidValue id) async {
+    if (_busy) return;
     setState(() => _busy = true);
     final ok = await widget.viewModel.renameLocation(id, _editName);
     if (!mounted) return;

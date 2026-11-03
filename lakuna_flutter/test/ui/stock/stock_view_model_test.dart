@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -68,9 +70,11 @@ void main() {
     });
 
     test('tambah lewat scan barcode/SKU/nama unik', () {
-      expect(vm.addByCode('8990001'), isTrue);
-      expect(vm.addByCode('telur'), isTrue);
-      expect(vm.addByCode('zzz'), isFalse);
+      expect(vm.addByCode('8990001'), AddByCodeResult.added);
+      expect(vm.addByCode('telur'), AddByCodeResult.added);
+      expect(vm.addByCode('zzz'), AddByCodeResult.notFound);
+      // Pindai ulang barang yang sudah ada: tidak menambah, beri tahu.
+      expect(vm.addByCode('8990001'), AddByCodeResult.already);
       expect(vm.lines.map((l) => l.row.variantId), [kopi, telur]);
     });
 
@@ -138,6 +142,34 @@ void main() {
     expect(vm.card!.current, Qty.units(13));
   });
 
+  test(
+    'kartu stok: jawaban lama tidak menimpa produk yang baru dipilih',
+    () async {
+      final gate = Completer<void>();
+      repo.cardGate = gate.future;
+      final slow = vm.selectCardVariant(sabun);
+      expect(vm.card, isNull); // kartu lama tidak tampil di bawah nama baru
+      repo.cardGate = null;
+      await vm.selectCardVariant(telur);
+      gate.complete();
+      await slow;
+      expect(vm.cardVariantId, telur);
+      expect(vm.card!.minStock, Qty.units(15));
+    },
+  );
+
+  test('nama produk kembar tetap bisa dibedakan di pilihan', () {
+    final rows = [
+      sampleRow(1, 'Teh Botol', unit: 'btl', stock: Qty.one, barcode: '111'),
+      sampleRow(2, 'Teh Botol', unit: 'btl', stock: Qty.one, barcode: '222'),
+      sampleRow(3, 'Kopi', unit: 'pcs', stock: Qty.one),
+    ];
+    final labels = uniqueStockLabels(rows);
+    expect(labels.values.toSet(), hasLength(3));
+    expect(labels[rows[2].variantId], 'Kopi');
+    expect(labels[rows[0].variantId], 'Teh Botol · 111');
+  });
+
   group('lokasi', () {
     test('tambah lalu ganti nama; galat duplikat', () async {
       expect(await vm.addLocation('Gudang'), isTrue);
@@ -149,6 +181,27 @@ void main() {
       expect(vm.locations.last.name, 'Gudang Belakang');
       expect(vm.locationError, isNull);
     });
+
+    test(
+      'ganti lokasi saat muat masih berjalan memakai lokasi terbaru',
+      () async {
+        await vm.addLocation('Gudang');
+        final gudang = vm.locations.last.id;
+        repo.rowsByLocation[gudang] = [
+          sampleRow(9, 'Beras', unit: 'kg', stock: Qty.units(50)),
+        ];
+        final gate = Completer<void>();
+        repo.stockGate = gate.future;
+        final first = vm.load.execute(); // Etalase, tertahan.
+        await Future<void>.delayed(Duration.zero);
+        repo.stockGate = null;
+        await vm.selectLocation(gudang);
+        gate.complete();
+        await first;
+        expect(vm.location!.id, gudang);
+        expect(vm.rows.map((r) => r.productName), ['Beras']);
+      },
+    );
 
     test('pilih lokasi memuat ulang daftar dan mengosongkan draf', () async {
       await vm.addLocation('Gudang');

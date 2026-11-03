@@ -364,7 +364,7 @@ Future<StockAdjustmentResult> saveStockAdjustment(
       );
     }
     final n = _clean(l.note);
-    if (n != null && n.length > StockLimits.lineNote) {
+    if (n != null && textLength(n) > StockLimits.lineNote) {
       throw StockAdjustmentInvalid(
         StockAdjustmentError.noteTooLong,
         variantId: l.variantId,
@@ -372,7 +372,7 @@ Future<StockAdjustmentResult> saveStockAdjustment(
     }
   }
   final docNote = _clean(note);
-  if (docNote != null && docNote.length > StockLimits.note) {
+  if (docNote != null && textLength(docNote) > StockLimits.note) {
     throw const StockAdjustmentInvalid(StockAdjustmentError.noteTooLong);
   }
 

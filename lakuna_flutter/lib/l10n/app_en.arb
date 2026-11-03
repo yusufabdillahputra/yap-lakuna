@@ -548,6 +548,7 @@
       }
     }
   },
+  "stockAddAlready": "This product is already in the adjustment list.",
   "stockLinesEmpty": "Add the products you counted, then enter their physical stock. Rows left empty are not saved.",
   "stockTotal": "Total",
   "stockSave": "Save adjustment",
