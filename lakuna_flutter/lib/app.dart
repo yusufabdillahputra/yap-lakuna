@@ -47,8 +47,8 @@ class LakunaApp extends StatelessWidget {
           AppThemeMode.dark => ThemeMode.dark,
           AppThemeMode.system => ThemeMode.system,
         },
-        theme: light.toApproximateMaterialTheme(),
-        darkTheme: dark.toApproximateMaterialTheme(),
+        theme: lakunaMaterialTheme(light),
+        darkTheme: lakunaMaterialTheme(dark),
         builder: (context, child) => FTheme(
           data: Theme.brightnessOf(context) == Brightness.light ? light : dark,
           child: FToaster(child: FTooltipGroup(child: child!)),

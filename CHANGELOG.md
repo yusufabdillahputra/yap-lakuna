@@ -24,25 +24,30 @@ Keterbacaan mode gelap mengikuti aturan kontras kanvas "Desain UI Lakuna".
 - Build lokal tanpa `--dart-define=LAKUNA_VERSION` menampilkan versi `dev`,
   bukan angka versi lama.
 
-### Dihapus
-
-- Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
-  Serverpod. Lakuna tidak memakai Serverpod Cloud; server Fase 2 berjalan di
-  VPS sendiri. Penyimpanan berkas server sementara memakai database.
-
 ### Diperbaiki
 
 - Ikon di dalam grup daftar (`FTileGroup`) tetap memakai biru gelap walau
   gaya tile sudah diganti, karena grup membawa gaya tile sendiri. Ditemukan
   saat uji manual mode gelap di Xvfb; grup tile dan item kini memakai warna
   yang sama.
+- Ikon Material bawaan (di dialog, sheet, dan rute Material lain) memakai
+  `#00598A` di tema gelap (2,6:1). Ditemukan saat review kode; kini memakai
+  warna teks utama.
+
+### Dihapus
+
+- Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
+  Serverpod. Lakuna tidak memakai Serverpod Cloud; server Fase 2 berjalan di
+  VPS sendiri. Penyimpanan berkas server sementara memakai database.
 
 ### Catatan teknis
 
 - Aturan kontras ada di `lakuna_flutter/lib/ui/core/theme/contrast.dart`;
   token warna dasar tetap hasil CLI Forui. `theme_contrast_test.dart`
-  memeriksa warna dan rasio kontras (≥ 4,5:1) tombol destructive, navigasi
-  bawah, tab, dan ikon tile di kedua tema.
+  merender widget dan memeriksa warna serta rasio kontras (≥ 4,5:1): tombol
+  destructive (kedua tema), isi tombol primary gelap yang tidak berubah,
+  navigasi bawah (kedua tema), tab tidak aktif terang, ikon tile dan grup
+  tile gelap, ikon Material bawaan, dan pasangan token teks utama.
 
 ## [0.1.0] - 2026-11-03
 

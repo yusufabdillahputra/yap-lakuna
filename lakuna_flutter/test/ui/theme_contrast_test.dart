@@ -4,8 +4,8 @@ import 'package:forui/forui.dart';
 import 'package:lakuna_flutter/ui/core/theme/theme.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
-/// Aturan kontras kanvas "Desain UI Lakuna" (spec desain, bagian "Aturan
-/// kontras dan mode gelap"): semua teks minimal 4.5:1.
+/// Aturan kontras kanvas "Desain UI Lakuna" (spec F0, bagian "Aturan
+/// kontras"): semua teks minimal 4.5:1.
 double contrast(Color a, Color b) {
   final la = a.computeLuminance();
   final lb = b.computeLuminance();
@@ -46,38 +46,71 @@ void main() {
   final light = lakunaLightTheme(touch: false);
   final dark = lakunaDarkTheme(touch: false);
 
-  testWidgets('tombol destructive gelap: isi #C10007, teks terbaca', (
+  Future<Color> buttonFill(WidgetTester tester) async => tester
+      .widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(FButton),
+          matching: find.byType(DecoratedBox),
+        ),
+      )
+      .map((b) => b.decoration)
+      .whereType<ShapeDecoration>()
+      .map((d) => d.color)
+      .whereType<Color>()
+      .first;
+
+  for (final (name, theme, fill) in [
+    ('gelap', dark, const Color(0xFFC10007)),
+    ('terang', light, const Color(0xFFE7000B)),
+  ]) {
+    testWidgets('tombol destructive $name: isi penuh, teks terbaca', (
+      tester,
+    ) async {
+      await _pumpThemed(
+        tester,
+        theme,
+        FButton(
+          variant: .destructive,
+          onPress: () {},
+          child: const Text('Hapus'),
+        ),
+      );
+      final actual = await buttonFill(tester);
+      expect(actual, fill);
+      final label = _textColor(tester, find.text('Hapus'));
+      expect(label, const Color(0xFFFAFAFA));
+      expect(contrast(label, actual), greaterThanOrEqualTo(4.5));
+    });
+  }
+
+  testWidgets('tombol primary gelap tetap isi #00598A dari preset', (
     tester,
   ) async {
     await _pumpThemed(
       tester,
       dark,
-      FButton(
-        variant: .destructive,
-        onPress: () {},
-        child: const Text('Hapus'),
-      ),
+      FButton(onPress: () {}, child: const Text('Simpan')),
     );
-    final fill = tester
-        .widgetList<DecoratedBox>(
-          find.descendant(
-            of: find.byType(FButton),
-            matching: find.byType(DecoratedBox),
-          ),
-        )
-        .map((b) => b.decoration)
-        .whereType<ShapeDecoration>()
-        .map((d) => d.color)
-        .whereType<Color>()
-        .first;
-    expect(fill, const Color(0xFFC10007));
-    final label = _textColor(tester, find.text('Hapus'));
-    expect(contrast(label, fill), greaterThanOrEqualTo(4.5));
+    final fill = await buttonFill(tester);
+    expect(fill, const Color(0xFF00598A));
+    expect(
+      contrast(_textColor(tester, find.text('Simpan')), fill),
+      greaterThanOrEqualTo(4.5),
+    );
   });
 
-  testWidgets('teks/ikon destructive gelap tetap #FF6467 di luar tombol', (
-    tester,
-  ) async {
+  test('ikon Material bawaan (dialog, sheet) terbaca di kedua tema', () {
+    for (final t in [light, dark]) {
+      final material = lakunaMaterialTheme(t);
+      expect(material.iconTheme.color, t.colors.foreground);
+      expect(
+        contrast(material.iconTheme.color!, t.colors.background),
+        greaterThanOrEqualTo(4.5),
+      );
+    }
+  });
+
+  test('teks/ikon destructive gelap tetap #FF6467 di luar tombol', () {
     expect(dark.colors.destructive, const Color(0xFFFF6467));
     expect(
       contrast(dark.colors.destructive, dark.colors.card),

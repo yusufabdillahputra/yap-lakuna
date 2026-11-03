@@ -182,7 +182,22 @@ Mengikuti panduan arsitektur resmi Flutter:
   `lakunaLightTheme` / `lakunaDarkTheme` menerima `touch` (varian sentuh
   untuk Android/iOS, varian desktop untuk Windows/Linux/macOS).
 - `MaterialApp.router` dibungkus `FTheme`; tema Material diturunkan lewat
-  `toApproximateMaterialTheme()`.
+  `lakunaMaterialTheme()` (`toApproximateMaterialTheme()` dengan ikon bawaan
+  berwarna `foreground`, bukan `primary`).
+- **Aturan kontras** (dari kanvas desain, berlaku sejak v0.1.1, kode di
+  `theme/contrast.dart`):
+  - Semua teks minimal 4.5:1 di latarnya.
+  - Token warna dasar tetap hasil CLI Forui. Isi tombol primary tetap Sky
+    (`#0069A8` terang, `#00598A` gelap).
+  - Di tema gelap, primary yang dipakai sebagai **teks/ikon** (menu aktif,
+    ikon prefix tile/item) memakai Sky muda `#74D4FF`.
+  - Tombol destructive berisi warna penuh dengan teks `#FAFAFA`: `#E7000B`
+    terang, `#C10007` gelap. Token `destructive` sebagai teks/ikon tetap
+    (`#FF6467` gelap).
+  - Teks sekunder di permukaan berwarna tema terang (tab tidak aktif) memakai
+    `#52525C`.
+  - Widget Forui baru yang memakai `primary` sebagai teks/ikon diberi gaya
+    dari warna aksen yang sama saat pertama dipakai, dengan tes kontras.
 - Mode tema Terang / Gelap / Ikuti sistem. Fase 0 menyimpannya di
   `local_preferences`; setelah login PIN ada, disimpan per staf.
 - Bahasa: `flutter_localizations` + `intl`, berkas ARB `app_id.arb` (bawaan,
@@ -276,7 +291,7 @@ Mengikuti panduan arsitektur resmi Flutter:
 | Logo & ikon aplikasi | Mark Etalase (DiceBear icons `shopWindow`) diwarnai Sky | Ikon bawaan Flutter | Spec Merek Lakuna setelah v0.1.0 |
 | Penyimpanan tema per staf | Per pengguna | Per perangkat (`local_preferences`) | Pindah ke per staf di F1-02 |
 | Layar sesuai kanvas Lakuna | Kanvas Desain UI Lakuna (sidebar `FSidebar`, warna status `LakunaStatusColors`) | Shell, beranda, pengaturan memakai komponen Forui bawaan; `LakunaStatusColors` belum ada | Samakan per modul dengan kanvas; tambah `ThemeExtension` status saat layar pertama membutuhkannya |
-| Aturan kontras kanvas | Semua teks ≥ 4.5:1 | v0.1.1: tombol destructive isi penuh (`#C10007` gelap), primary sebagai teks/ikon gelap `#74D4FF` (navigasi bawah, tile, item, grup), tab terang `#52525C` (`theme/contrast.dart`, diuji) | Widget Forui lain yang memakai `primary` sebagai teks (mis. select tile group, kalender) diperiksa saat pertama dipakai |
+| Aturan kontras kanvas | Semua teks ≥ 4.5:1 | v0.1.1: tombol destructive isi penuh, primary sebagai teks/ikon gelap `#74D4FF` (navigasi bawah, tile, item, grup), tab terang `#52525C`, ikon Material bawaan `foreground` (`theme/contrast.dart`, diuji) | Saat pertama dipakai, beri warna aksen ke `FPopoverMenu` mode tile dan `FSelectMenuTile` (masih `#00598A` sebagai ikon di gelap); teks `mutedForeground` di `FItem` terpilih / `FTile` hover tema terang 4.4:1, pakai `#52525C`; warna hover/tekan tombol (destructive dan primary) turun di bawah 4.5:1 sesaat, tetapkan delta sendiri bila perlu |
 | Installer Windows | Bahasa Indonesia, satu cara pasang | Inno Setup berbahasa Inggris; `.exe` dan `.msi` memasang ke folder yang sama dengan ID produk berbeda | Pilih salah satu (dicatat di README); tambahkan `.isl` Indonesia bila perlu |
 | Tanda tangan Android | Satu kunci rilis tetap | `release.yml` memakai secret `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` bila ada; tanpa itu APK/AAB diberi akhiran `-uji` dan catatan rilis memperingatkan | Pemilik membuat keystore dan mengisi secret sebelum data toko sungguhan dipakai |
 | Tanda tangan iOS | Sertifikat Apple | IPA tanpa tanda tangan | Saat akun Apple Developer siap |

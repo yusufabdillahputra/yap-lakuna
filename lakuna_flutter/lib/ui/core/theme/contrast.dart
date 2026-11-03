@@ -1,15 +1,12 @@
 part of 'theme.dart';
 
-// Aturan kontras kanvas "Desain UI Lakuna" (spec desain, bagian "Aturan
-// kontras dan mode gelap", 2026-11-03). Semua teks minimal 4.5:1. Token
-// warna dasar tetap dari CLI Forui; di sini hanya gaya widget yang
-// memakai warna itu sebagai teks/ikon atau tombol destructive.
+// Aturan kontras kanvas "Desain UI Lakuna" (lihat spec F0, bagian "Aturan
+// kontras"). Semua teks minimal 4.5:1. Token warna dasar tetap dari CLI
+// Forui; di sini hanya gaya widget yang memakai warna itu sebagai teks/ikon
+// atau tombol destructive.
 
 /// Sky muda: primary sebagai teks/ikon di tema gelap (11.9:1 di latar).
 const _darkPrimaryText = Color(0xFF74D4FF);
-
-/// Teks di atas permukaan Sky muda (badge gelap).
-const _darkPrimaryTextOn = Color(0xFF052F4A);
 
 /// Teks sekunder di permukaan berwarna tema terang (tab tidak aktif):
 /// 7:1 di `muted`, menggantikan `#71717B` (4.4:1).
@@ -23,10 +20,7 @@ const _destructiveFillText = Color(0xFFFAFAFA);
 
 /// Warna untuk widget yang memakai `primary` sebagai teks/ikon.
 FColors _textAccentColors(FColors colors) => colors.brightness == .dark
-    ? colors.copyWith(
-        primary: _darkPrimaryText,
-        primaryForeground: _darkPrimaryTextOn,
-      )
+    ? colors.copyWith(primary: _darkPrimaryText)
     : colors;
 
 /// Tombol: semua varian dari Forui, kecuali destructive dibuat isi penuh
@@ -129,3 +123,11 @@ FThemeData _lakunaTheme({
     ),
   );
 }
+
+/// Tema Material untuk `MaterialApp`. `toApproximateMaterialTheme()` memberi
+/// ikon bawaan warna `primary` (`#00598A`, 2.6:1 di latar gelap) sehingga
+/// ikon di dialog, sheet, dan rute Material lain sulit dibaca. Ikon bawaan
+/// memakai `style.iconStyle` Forui (warna `foreground`).
+ThemeData lakunaMaterialTheme(FThemeData theme) => theme
+    .toApproximateMaterialTheme()
+    .copyWith(iconTheme: theme.style.iconStyle);
