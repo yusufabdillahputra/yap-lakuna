@@ -658,8 +658,7 @@ class _ProductWriter {
         tenantId: tenant,
         name: name,
         sortOrder:
-            rows.fold<int>(-1, (m, c) => c.sortOrder > m ? c.sortOrder : m) +
-            1,
+            rows.fold<int>(-1, (m, c) => c.sortOrder > m ? c.sortOrder : m) + 1,
         createdAt: s.now,
         updatedAt: s.now,
         createdBy: staffId,

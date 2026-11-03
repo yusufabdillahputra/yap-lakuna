@@ -7,6 +7,78 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-03
+
+Master data (F1-09, layar 1.17). Pemilik merapikan kategori yang terbentuk
+dari form produk, mengatur urutan dan warnanya di kasir, dan mengelola
+satuan dari satu tempat.
+
+### Ditambahkan
+
+- **Menu Master data** (`/master`, izin `products:manage`) di kelompok
+  *Produk & stok* setelah Stok. Tab vertikal di layar lebar, pil di ponsel:
+  *Kategori*, *Satuan*, *Lokasi stok*, *Metode pembayaran*.
+- **Kategori**:
+  - Daftar terurut dengan titik warna, nama induk ("Minuman › Kopi"),
+    jumlah produk, badge *Tidak di kasir* / *Nonaktif*, saklar *Aktif*,
+    tombol naik/turun, dan *Ubah*.
+  - Form *Kategori baru* / *Ubah kategori*: nama (wajib, maks 60 karakter,
+    unik per tenant tanpa membedakan huruf), kategori induk (satu tingkat),
+    8 pilihan warna atau tanpa warna, *Tampil di kasir*, *Aktif*.
+  - Induk terkunci bila kategori itu sendiri punya subkategori; label induk
+    yang namanya mirip dibedakan agar tidak kembar.
+  - *Hapus kategori* dengan dialog konfirmasi; ditolak bila masih dipakai
+    produk atau masih punya subkategori, dan pesannya menyebut jumlah
+    keduanya.
+  - Di ponsel baris menjadi kartu dan form dibuka di lembar bawah.
+- **Satuan**: daftar satuan dengan jumlah produk yang memakai (satuan dasar
+  maupun satuan konversi varian), tambah, ganti nama di tempat, hapus dengan
+  konfirmasi (ditolak bila dipakai).
+- **Lokasi stok** (baca) dengan tombol *Kelola di Stok* yang membuka Stok ›
+  Lokasi stok langsung (`/stok?tab=locations`).
+- **Metode pembayaran**: ringkasan metode aktif dengan tombol *Buka
+  Pengaturan*.
+
+### Diubah
+
+- **Kasir** memakai urutan dari Master data, hanya menampilkan kategori
+  aktif yang tampil di kasir dan dipakai produk (langsung atau lewat
+  subkategori), dan menampilkan titik warna di chip. Memilih kategori induk
+  ikut menampilkan produk subkategorinya.
+- Form produk hanya menyarankan kategori aktif. Mengetik nama kategori
+  nonaktif yang sudah ada memakai kategori itu (tidak membuat kembar).
+- Kategori baru dari form produk mendapat urutan paling akhir (sebelumnya
+  0, sehingga urutan bisa kembar).
+- Layar Stok bisa dibuka langsung ke tab tertentu lewat `?tab=`.
+
+### Diperbaiki
+
+- Galat satuan (nama kembar, gagal simpan) kini tampil di baris yang
+  bersangkutan, tidak tertelan.
+- Menutup lembar form ponsel tanpa *Batal* keluar dari mode ubah, sehingga
+  *+ Kategori* berikutnya tidak membuka form kategori lama.
+- Galat naik/turun dan saklar aktif tampil di atas daftar, terpisah dari
+  galat form.
+- Tombol aksi dinonaktifkan selama daftar dimuat ulang.
+- Chip kategori tanpa warna kembali memakai teks biasa sehingga label
+  panjang membungkus dengan benar (luapan 30 px di pengaturan struk).
+
+### Catatan teknis
+
+- Migrasi `master`: kolom `parent_id` (relasi ke `categories`, Restrict),
+  `color`, `show_in_cashier`, `is_active` di `categories`. Tidak ada tabel
+  baru.
+- Aturan bisnis di `lakuna_domain` (`validateCategory`, `validateUnitName`,
+  `moveInOrder`, `categoryColors`); data di `lakuna_data/master_data.dart`.
+  Urutan dinomori ulang 0..n dalam satu transaksi dan hanya baris yang
+  nomornya berubah yang masuk outbox sync.
+- Hapus kategori dan satuan berupa soft delete (`deleted_at`).
+- Repositori `MasterDataRepository` mengecek `products:manage` di setiap
+  aksi.
+- Tes baru: domain (validasi, urutan), data (13 tes master), view model dan
+  widget (alur kategori, satuan, ponsel, 360/820/1280 px tanpa luapan,
+  tanpa izin).
+
 ## [0.9.0] - 2026-11-03
 
 Stok (F1-08, layar 1.18). Pemilik dan staf gudang melihat stok per lokasi,
@@ -924,7 +996,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...v0.7.0

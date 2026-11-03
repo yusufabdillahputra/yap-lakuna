@@ -1,7 +1,7 @@
 # F1-09 · Master data
 
 - **Fase:** 1
-- **Status:** Berjalan (target v0.10.0)
+- **Status:** Rilis v0.10.0
 - **Layar desain:** 1.17 *Master data* (desktop). Kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525),
   berkas `F1-Master-Data`; 1.17b *Grup modifier* (`F1-Master-Modifier`)
@@ -123,16 +123,26 @@ Pengaturan* butuh `settings:manage`.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Kategori (induk, warna, urutan, tampil di kasir, aktif) | Tab lengkap | Berjalan v0.10.0 | Urutan memakai tombol naik/turun; seret-lepas ⋮⋮ menyusul. |
-| Kasir mengikuti urutan, aktif & warna kategori | Ada | Berjalan v0.10.0 | Selesai saat rilis. |
-| Satuan | Ada | Berjalan v0.10.0 | Selesai saat rilis. |
+| Kategori (induk, warna, urutan, tampil di kasir, aktif) | Tab lengkap | Rilis v0.10.0 | Urutan memakai tombol naik/turun; seret-lepas ⋮⋮ menyusul. Hapus minta konfirmasi. |
+| Kasir mengikuti urutan, aktif & warna kategori | Ada | Rilis v0.10.0 | Chip memuat kategori yang dipakai produk langsung atau lewat subkategori; memilih induk ikut menampilkan produk subkategori. |
+| Satuan | Ada | Rilis v0.10.0 | Selesai. |
 | Lokasi stok | Ada | Baca + tautan ke Stok (v0.9.0) | *Jadikan default* dan hapus lokasi menyusul. |
-| Metode pembayaran | Ada | Ringkasan + tautan ke Pengaturan | Selesai saat rilis. |
+| Metode pembayaran | Ada | Ringkasan + tautan ke Pengaturan (v0.10.0) | Selesai. |
 | Alasan penyesuaian | Ada | Enum bawaan F1-08 | Master alasan sendiri menyusul (butuh tabel baru + migrasi data). |
 | Jenis pengeluaran | Ada | Belum | Dibangun bersama F1-15. |
 | Grup pelanggan | Ada | Belum | Dibangun bersama F1-13. |
 | Meja & area, Grup modifier (1.17b) | Ada | Belum | Dibangun bersama F1-10. |
 | Shift | Ada di 1.17b | Belum | Bersama shift sesi kasir (F1-03 lanjutan). |
+
+### Penyesuaian tata letak (dicatat saat rilis)
+
+- Tab vertikal muncul bila lebar konten ≥ 900 px; di bawahnya tab berupa
+  pil yang bisa digeser.
+- Tabel kategori dan panel form berdampingan bila lebar konten ≥ 860 px;
+  di bawahnya form ditumpuk di bawah tabel.
+- Di bawah 600 px (ponsel) baris kategori menjadi kartu dan form dibuka di
+  lembar bawah; menutup lembar tanpa *Batal* (tombol kembali / ketuk luar)
+  keluar dari mode ubah, pesan sukses tetap di daftar.
 
 Rencana: [2026-11-03-f1-09-master-data.md](../plans/2026-11-03-f1-09-master-data.md).
 
