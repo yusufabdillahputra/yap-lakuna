@@ -168,6 +168,26 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+      - name: Kunci rilis Android (bila secret tersedia)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::warning::Secret ANDROID_KEYSTORE_BASE64 belum ada; APK/AAB ditandatangani kunci debug (hanya untuk uji)."
+            echo "ANDROID_SUFFIX=-uji" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          cat > lakuna_flutter/android/key.properties <<PROPS
+          storeFile=$RUNNER_TEMP/upload.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          PROPS
+          echo "ANDROID_SUFFIX=" >> "$GITHUB_ENV"
       - name: Build APK dan AAB
         working-directory: lakuna_flutter
         run: |
@@ -176,8 +196,8 @@ jobs:
           flutter build appbundle "${args[@]}"
       - run: |
           mkdir -p dist
-          cp lakuna_flutter/build/app/outputs/flutter-apk/app-release.apk "dist/Lakuna-$VERSION-android.apk"
-          cp lakuna_flutter/build/app/outputs/bundle/release/app-release.aab "dist/Lakuna-$VERSION-android.aab"
+          cp lakuna_flutter/build/app/outputs/flutter-apk/app-release.apk "dist/Lakuna-$VERSION-android$ANDROID_SUFFIX.apk"
+          cp lakuna_flutter/build/app/outputs/bundle/release/app-release.aab "dist/Lakuna-$VERSION-android$ANDROID_SUFFIX.aab"
       - uses: actions/upload-artifact@v4
         with:
           name: android
@@ -239,6 +259,14 @@ jobs:
             on { print }
           ' CHANGELOG.md > notes.md
           test -s notes.md
+          if ls dist/*-uji.apk >/dev/null 2>&1; then
+            cat >> notes.md <<'NOTE'
+
+          > **APK/AAB versi uji.** Paket Android rilis ini ditandatangani kunci debug
+          > sementara. Memperbarui ke versi berikutnya mengharuskan uninstall, yang
+          > menghapus data di perangkat. Jangan dipakai untuk data toko sungguhan.
+          NOTE
+          fi
           cat notes.md
       - name: Terbitkan
         run: |

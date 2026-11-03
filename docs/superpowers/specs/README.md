@@ -13,11 +13,14 @@ dibangun dan **kenapa**. Rencana langkah demi langkah (**bagaimana**) ada di
   setiap modul. Spec Lakuna untuk sebuah modul ditulis saat modul itu mulai
   dikerjakan, menyalin aturan dari spec Storeku dan mencatat perbedaan
   khusus Flutter/Serverpod.
-- **Kanvas desain** [Desain UI Retail UMKM](https://claude.ai/artifact/ELHPXCJS8nduSVstc2kxSp)
-  adalah acuan tata letak layar (nomor layar seperti 1.4 Kasir dipakai di
-  kode dan CHANGELOG). Tampilan mengikuti Forui preset `conhcc`; penyesuaian
-  desain ke Forui dikerjakan di thread desain terpisah dan hasilnya menjadi
-  baseline modul.
+- **Kanvas desain** [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) adalah acuan visual
+  setiap layar (Forui preset `conhcc`, 70 artboard). Nomor layar (mis. 1.4
+  Kasir, 1.26b Pengaturan QRIS) dipakai di kode dan CHANGELOG. Mulai dari
+  halaman fondasinya: *Gaya visual Lakuna*, *Peta komponen Forui*, *Pola
+  keadaan & responsif*, dan *Peta fitur hasil audit* (daftar periksa fitur →
+  layar → detail wajib → kunci izin). Spec desain dan audit:
+  `2026-11-03-ui-desain-lakuna-forui-design.md`,
+  `2026-11-03-ui-audit-fitur-lakuna.md`.
 
 ## Aturan yang berlaku untuk semua spec
 

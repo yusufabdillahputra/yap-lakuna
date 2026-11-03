@@ -9,6 +9,15 @@ class Hlc implements Comparable<Hlc> {
   final int counter;
   final String node;
 
+  /// Counter terbesar yang muat di 4 digit. Bila terlampaui, HLC pindah ke
+  /// milidetik berikutnya agar urutan teks tetap sama dengan urutan HLC.
+  static const maxCounter = 9999;
+
+  /// HLC sesudah ([atMillis], [nextCounter]) dengan counter yang dijaga.
+  Hlc _at(int atMillis, int nextCounter) => nextCounter > maxCounter
+      ? Hlc(atMillis + 1, 0, node)
+      : Hlc(atMillis, nextCounter, node);
+
   static Hlc parse(String text) =>
       tryParse(text) ?? (throw FormatException('format HLC tidak valid', text));
 
@@ -25,9 +34,8 @@ class Hlc implements Comparable<Hlc> {
   }
 
   /// Stempel untuk peristiwa lokal baru.
-  Hlc tick(int nowMillis) => nowMillis > millis
-      ? Hlc(nowMillis, 0, node)
-      : Hlc(millis, counter + 1, node);
+  Hlc tick(int nowMillis) =>
+      nowMillis > millis ? Hlc(nowMillis, 0, node) : _at(millis, counter + 1);
 
   /// Menggabungkan stempel dari perangkat lain saat pull.
   Hlc receive(Hlc remote, int nowMillis) {
@@ -46,7 +54,7 @@ class Hlc implements Comparable<Hlc> {
     } else {
       next = 0;
     }
-    return Hlc(max, next, node);
+    return _at(max, next);
   }
 
   @override

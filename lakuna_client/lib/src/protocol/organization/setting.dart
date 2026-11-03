@@ -15,12 +15,17 @@ import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
 
 /// Pengaturan per tenant; outlet_id diisi bila hanya berlaku untuk satu outlet.
+/// scope_key = 'tenant' untuk pengaturan tingkat tenant, atau 'outlet:<id>' untuk
+/// pengaturan per outlet (lihat settingScopeTenant / settingScopeOutlet di
+/// lakuna_data). Kolom ini tidak boleh NULL agar indeks unik juga menjaga
+/// pengaturan tingkat tenant (NULL dianggap berbeda oleh SQLite & Postgres).
 abstract class Setting
     implements _isd.TableRow<_isc.UuidValue>, _isc.ProtocolSerialization {
   Setting._({
     _isc.UuidValue? id,
     required this.tenantId,
     this.outletId,
+    required this.scopeKey,
     required this.key,
     String? valueJson,
     DateTime? createdAt,
@@ -41,6 +46,7 @@ abstract class Setting
     _isc.UuidValue? id,
     required _isc.UuidValue tenantId,
     _isc.UuidValue? outletId,
+    required String scopeKey,
     required String key,
     String? valueJson,
     DateTime? createdAt,
@@ -64,6 +70,7 @@ abstract class Setting
       outletId: jsonSerialization['outletId'] == null
           ? null
           : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['outletId']),
+      scopeKey: jsonSerialization['scopeKey'] as String,
       key: jsonSerialization['key'] as String,
       valueJson: jsonSerialization['valueJson'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
@@ -106,6 +113,8 @@ abstract class Setting
 
   _isc.UuidValue? outletId;
 
+  String scopeKey;
+
   String key;
 
   String valueJson;
@@ -136,6 +145,7 @@ abstract class Setting
     _isc.UuidValue? id,
     _isc.UuidValue? tenantId,
     _isc.UuidValue? outletId = const _isc.$UndefinedUuidValue(),
+    String? scopeKey,
     String? key,
     String? valueJson,
     DateTime? createdAt,
@@ -154,6 +164,7 @@ abstract class Setting
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
       if (outletId != null) 'outletId': outletId?.toJson(),
+      'scopeKey': scopeKey,
       'key': key,
       'valueJson': valueJson,
       'createdAt': createdAt.toJson(),
@@ -174,6 +185,7 @@ abstract class Setting
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
       if (outletId != null) 'outletId': outletId?.toJson(),
+      'scopeKey': scopeKey,
       'key': key,
       'valueJson': valueJson,
       'createdAt': createdAt.toJson(),
@@ -220,6 +232,7 @@ class _SettingImpl extends Setting {
     _isc.UuidValue? id,
     required _isc.UuidValue tenantId,
     _isc.UuidValue? outletId,
+    required String scopeKey,
     required String key,
     String? valueJson,
     DateTime? createdAt,
@@ -234,6 +247,7 @@ class _SettingImpl extends Setting {
          id: id,
          tenantId: tenantId,
          outletId: outletId,
+         scopeKey: scopeKey,
          key: key,
          valueJson: valueJson,
          createdAt: createdAt,
@@ -254,6 +268,7 @@ class _SettingImpl extends Setting {
     _isc.UuidValue? id,
     _isc.UuidValue? tenantId,
     _isc.UuidValue? outletId = const _isc.$UndefinedUuidValue(),
+    String? scopeKey,
     String? key,
     String? valueJson,
     DateTime? createdAt,
@@ -269,6 +284,7 @@ class _SettingImpl extends Setting {
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
       outletId: outletId is _isc.UndefinedSentinel ? this.outletId : outletId,
+      scopeKey: scopeKey ?? this.scopeKey,
       key: key ?? this.key,
       valueJson: valueJson ?? this.valueJson,
       createdAt: createdAt ?? this.createdAt,
@@ -305,6 +321,11 @@ class SettingUpdateTable extends _isd.UpdateTable<SettingTable> {
     _isc.UuidValue? value,
   ) => _isd.ColumnValue(
     table.outletId,
+    value,
+  );
+
+  _isd.ColumnValue<String, String> scopeKey(String value) => _isd.ColumnValue(
+    table.scopeKey,
     value,
   );
 
@@ -381,6 +402,11 @@ class SettingTable extends _isd.Table<_isc.UuidValue> {
       this,
       fieldName: 'outletId',
     );
+    scopeKey = _isd.ColumnString(
+      'scope_key',
+      this,
+      fieldName: 'scopeKey',
+    );
     key = _isd.ColumnString(
       'key',
       this,
@@ -440,6 +466,8 @@ class SettingTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnUuid outletId;
 
+  late final _isd.ColumnString scopeKey;
+
   late final _isd.ColumnString key;
 
   late final _isd.ColumnString valueJson;
@@ -465,6 +493,7 @@ class SettingTable extends _isd.Table<_isc.UuidValue> {
     id,
     tenantId,
     outletId,
+    scopeKey,
     key,
     valueJson,
     createdAt,

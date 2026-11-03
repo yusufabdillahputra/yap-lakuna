@@ -88,7 +88,14 @@ void main() {
     await expectLater(
       store.write((w) async {
         final s = await w.stamp();
-        await w.insert(Tenant(name: 'Gagal', hlc: s.hlc.toString()), s);
+        await w.insert(
+          Tenant(
+            name: 'Gagal',
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
         throw StateError('batal');
       }),
       throwsStateError,
@@ -100,7 +107,10 @@ void main() {
   test('update menambah entri outbox dengan HLC yang lebih besar', () async {
     final tenant = await store.write((w) async {
       final s = await w.stamp();
-      return w.insert(Tenant(name: 'A', hlc: s.hlc.toString()), s);
+      return w.insert(
+        Tenant(name: 'A', hlc: s.hlc.toString(), originDeviceId: s.deviceId),
+        s,
+      );
     });
     final updated = await store.write((w) async {
       final s = await w.stamp();
@@ -145,7 +155,84 @@ void main() {
 
   test('aktor dicatat sebagai created_by/updated_by', () async {
     final actor = UuidValue.fromString(newId());
-    final s = await store.write((w) async => w.stamp(), actor: actor);
-    expect(s.actor, actor);
+    final tenant = await store.write((w) async {
+      final s = await w.stamp();
+      expect(s.actor, actor);
+      return w.insert(
+        Tenant(
+          name: 'A',
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+          createdBy: s.actor,
+          updatedBy: s.actor,
+        ),
+        s,
+      );
+    }, actor: actor);
+    final stored = await Tenant.db.findById(store.session, tenant.id);
+    expect(stored!.createdBy, actor);
+    expect(stored.updatedBy, actor);
+  });
+
+  group('SyncTx menolak baris yang kolom sync-nya tidak sesuai stempel', () {
+    Future<void> expectRejected(
+      Tenant Function(SyncStamp s) build, {
+      UuidValue? actor,
+    }) async {
+      await expectLater(
+        store.write((w) async {
+          final s = await w.stamp();
+          return w.insert(build(s), s);
+        }, actor: actor),
+        throwsA(isA<SyncStampMismatch>()),
+      );
+      expect(await Tenant.db.count(store.session), 0);
+      expect(await SyncOutboxEntry.db.count(store.session), 0);
+    }
+
+    test('hlc lama', () async {
+      await expectRejected(
+        (s) => Tenant(
+          name: 'A',
+          hlc: Hlc(1, 0, 'lain').toString(),
+          originDeviceId: s.deviceId,
+        ),
+      );
+    });
+
+    test('origin_device_id kosong', () async {
+      await expectRejected((s) => Tenant(name: 'A', hlc: s.hlc.toString()));
+    });
+
+    test('created_by tidak diisi padahal ada aktor', () async {
+      await expectRejected(
+        (s) => Tenant(
+          name: 'A',
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        actor: UuidValue.fromString(newId()),
+      );
+    });
+
+    test('update dengan hlc yang tidak diperbarui', () async {
+      final tenant = await store.write((w) async {
+        final s = await w.stamp();
+        return w.insert(
+          Tenant(name: 'A', hlc: s.hlc.toString(), originDeviceId: s.deviceId),
+          s,
+        );
+      });
+      await expectLater(
+        store.write((w) async {
+          final s = await w.stamp();
+          return w.update(tenant.copyWith(name: 'B'), s);
+        }),
+        throwsA(isA<SyncStampMismatch>()),
+      );
+      final stored = await Tenant.db.findById(store.session, tenant.id);
+      expect(stored!.name, 'A');
+      expect(await SyncOutboxEntry.db.count(store.session), 1);
+    });
   });
 }

@@ -1,4 +1,8 @@
 ### Pengaturan per tenant; outlet_id diisi bila hanya berlaku untuk satu outlet.
+### scope_key = 'tenant' untuk pengaturan tingkat tenant, atau 'outlet:<id>' untuk
+### pengaturan per outlet (lihat settingScopeTenant / settingScopeOutlet di
+### lakuna_data). Kolom ini tidak boleh NULL agar indeks unik juga menjaga
+### pengaturan tingkat tenant (NULL dianggap berbeda oleh SQLite & Postgres).
 class: Setting
 table: settings
 database: all
@@ -6,6 +10,7 @@ fields:
   id: UuidValue, defaultModel=random_v7
   tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
   outletId: UuidValue?, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  scopeKey: String, column=scope_key
   key: String
   valueJson: String, default='null', column=value_json
   createdAt: DateTime, default=now, column=created_at
@@ -17,6 +22,6 @@ fields:
   hlc: String
   originDeviceId: UuidValue?, column=origin_device_id
 indexes:
-  settings_tenant_outlet_key_idx:
-    fields: tenantId, outletId, key
+  settings_tenant_scope_key_idx:
+    fields: tenantId, scopeKey, key
     unique: true

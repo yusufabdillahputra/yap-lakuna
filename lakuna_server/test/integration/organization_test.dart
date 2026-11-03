@@ -75,5 +75,24 @@ void main() {
         throwsA(isA<Exception>()),
       );
     });
+
+    test('pengaturan tingkat tenant unik walau outlet_id kosong', () async {
+      final session = sessionBuilder.build();
+      final tenant = await Tenant.db.insertRow(
+        session,
+        Tenant(name: 'A', hlc: 'h'),
+      );
+      Setting setting() => Setting(
+        tenantId: tenant.id,
+        scopeKey: 'tenant',
+        key: 'tax',
+        hlc: 'h',
+      );
+      await Setting.db.insertRow(session, setting());
+      await expectLater(
+        Setting.db.insertRow(session, setting()),
+        throwsA(isA<Exception>()),
+      );
+    });
   });
 }

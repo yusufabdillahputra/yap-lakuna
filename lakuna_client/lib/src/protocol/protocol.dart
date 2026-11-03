@@ -614,6 +614,12 @@ class Protocol extends _isd.DatabaseSerializationManager
           dartType: 'UuidValue?',
         ),
         _isd.ColumnDefinition(
+          name: 'scope_key',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
           name: 'key',
           columnType: _isd.ColumnType.text,
           isNullable: false,
@@ -702,7 +708,7 @@ class Protocol extends _isd.DatabaseSerializationManager
       ],
       indexes: [
         _isd.IndexDefinition(
-          indexName: 'settings_tenant_outlet_key_idx',
+          indexName: 'settings_tenant_scope_key_idx',
           tableSpace: null,
           elements: [
             _isd.IndexElementDefinition(
@@ -711,7 +717,7 @@ class Protocol extends _isd.DatabaseSerializationManager
             ),
             _isd.IndexElementDefinition(
               type: _isd.IndexElementDefinitionType.column,
-              definition: 'outlet_id',
+              definition: 'scope_key',
             ),
             _isd.IndexElementDefinition(
               type: _isd.IndexElementDefinitionType.column,

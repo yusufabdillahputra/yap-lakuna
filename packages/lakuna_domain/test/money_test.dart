@@ -52,4 +52,10 @@ void main() {
       expect(Qty.units(1).isPositive, isTrue);
     });
   });
+
+  test('Money diurutkan sesama Money', () {
+    final list = [const Money(300), const Money(-5), const Money(20)]
+      ..sort((a, b) => a.compareTo(b));
+    expect(list, [const Money(-5), const Money(20), const Money(300)]);
+  });
 }

@@ -7,7 +7,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="Lakuna"
            Manufacturer="Yusuf Abdillah Putra"
-           Version="$(Version)"
+           Version="$(var.Version)"
            UpgradeCode="53843631-D761-4C9A-BDD4-79AA0B017AF7"
            Scope="perMachine">
     <MajorUpgrade DowngradeErrorMessage="Versi Lakuna yang lebih baru sudah terpasang." />
@@ -18,7 +18,7 @@
     </StandardDirectory>
 
     <Feature Id="Main" Title="Lakuna">
-      <Files Directory="INSTALLFOLDER" Include="$(AppDir)\**" />
+      <Files Directory="INSTALLFOLDER" Include="$(var.AppDir)\**" />
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 

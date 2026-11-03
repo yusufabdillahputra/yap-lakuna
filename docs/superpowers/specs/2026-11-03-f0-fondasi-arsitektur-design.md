@@ -4,8 +4,9 @@
 - **Status:** Dirilis di v0.1.0
 - **Acuan:** spec F0 Storeku
   (`yusufabdillahputra/storeku`, `docs/superpowers/specs/2026-11-02-f0-fondasi-arsitektur-design.md`),
-  kanvas [Desain UI Retail UMKM](https://claude.ai/artifact/ELHPXCJS8nduSVstc2kxSp),
-  panduan arsitektur aplikasi resmi Flutter (docs.flutter.dev/app-architecture),
+  kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (70 artboard, Forui `conhcc`; spec
+  `2026-11-03-ui-desain-lakuna-forui-design.md` dan audit fitur
+  `2026-11-03-ui-audit-fitur-lakuna.md`), panduan arsitektur aplikasi resmi Flutter (docs.flutter.dev/app-architecture),
   dokumentasi Serverpod 4.1.
 
 ## Tujuan
@@ -26,9 +27,9 @@ sini berlaku.
    (`dart run forui init --preset conhcc`): warna dasar Zinc, warna utama Sky
    (`#0069A8` terang, `#00598A` gelap), judul Montserrat, isi DM Sans, ikon
    Tabler, radius Medium. Palet pastel dan Plus Jakarta Sans milik Storeku
-   **tidak** dipakai. Tata letak layar tetap mengikuti kanvas; penyesuaian
-   desain ke Forui dikerjakan di thread desain terpisah dan hasilnya menjadi
-   acuan modul.
+   **tidak** dipakai. Acuan visual setiap layar adalah kanvas
+   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (hasil thread desain: 51 layar Storeku
+   dikonversi ke Forui + 14 layar detail hasil audit + halaman fondasi).
 3. Semua aset harus bisa dipakai tanpa internet.
 4. Satu codebase Dart untuk aplikasi dan backend: **Serverpod** (model YAML),
    dengan dukungan pengembangan berbasis AI dari Serverpod dipakai maksimal.
@@ -87,15 +88,33 @@ repositori.
   `updated_at`, `deleted_at`, `created_by`, `updated_by`, `version`, `hlc`,
   `origin_device_id`.
 - Semua tulis data bisnis lewat `LakunaStore.write((tx) => ...)` dan
-  `SyncTx.insert/update`, yang mengisi HLC dan menambah satu entri
-  `sync_outbox_entries` di transaksi yang sama. Error di tengah transaksi
-  membatalkan baris data dan entri outbox bersama-sama.
-- Tabel lokal perangkat (`database: client`): `sync_outbox_entries`,
-  `sync_state_entries`, `local_preferences`.
+  `SyncTx.insert/update`. Pemanggil membuat stempel (`tx.stamp()`) dan
+  mengisi kolom sync baris dari stempel itu: `hlc`, `origin_device_id`,
+  `created_by`/`updated_by` (= aktor), serta `version` + 1 dan `updated_at`
+  saat update. `SyncTx` **menolak** baris yang `hlc`, `origin_device_id`, atau
+  kolom aktornya tidak sama dengan stempel (`SyncStampMismatch`) sebelum
+  menulis apa pun, lalu menambah satu entri `sync_outbox` di transaksi yang
+  sama. Error di tengah transaksi membatalkan baris data dan entri outbox
+  bersama-sama.
+- Indeks unik tidak boleh memakai kolom yang bisa `NULL` sebagai pembeda
+  (SQLite dan Postgres menganggap `NULL` selalu berbeda). Contoh:
+  `settings` memakai `scope_key` (`'tenant'` atau `'outlet:<id>'`) dengan
+  unik `(tenant_id, scope_key, key)`.
+- Soft delete dan kunci alami unik (mis. kode outlet, keanggotaan staf di
+  outlet): baris yang di-soft-delete tetap memegang kuncinya, jadi membuat
+  ulang data yang sama dilakukan dengan **memulihkan** baris lama
+  (`deleted_at` dikosongkan), bukan menyisipkan baris baru.
+- Tabel lokal perangkat (`database: client`): `sync_outbox`,
+  `sync_state`, `local_preferences`.
 - Tabel fondasi v0.1.0: `tenants`, `outlets`, `stock_locations`, `devices`,
   `settings`, `staff_members`, `outlet_members` + tabel lokal di atas. Modul
   lain menambah model dan migrasi (`serverpod create-migration --tag <modul>`).
 - Lokasi berkas: folder data aplikasi (`path_provider`), nama `lakuna.sqlite`.
+  Folder itu bergantung pada identitas aplikasi, jadi identitas berikut
+  **tidak boleh diubah** setelah rilis: Linux `id.lakuna.app`
+  (`~/.local/share/id.lakuna.app`), Windows CompanyName `Lakuna` + ProductName
+  `Lakuna` (`%APPDATA%\Lakuna\Lakuna`), Android/iOS/macOS bundle
+  `id.lakuna.app`.
   Variabel lingkungan `LAKUNA_DATA_DIR` menggantinya untuk uji manual.
 - Nomor dokumen memuat kode outlet dan perangkat: nota
   `OUTLET-DEVICE-YYMMDD-0001`, dokumen lain `<PREFIX>-OUTLET-DEVICE-YYMMDD-0001`.
@@ -103,9 +122,11 @@ repositori.
 ## Sync (disiapkan, dijalankan fase 2)
 
 - HLC teks yang bisa diurutkan: `<millis 13 digit>-<counter 4 digit>-<node>`.
-  HLC terakhir disimpan di `sync_state_entries` (`last_hlc`); jam perangkat
-  yang mundur tidak membuat HLC mundur.
-- `sync_outbox_entries(table_name, row_id, op, payload_json, hlc, status,
+  HLC terakhir disimpan di `sync_state` (`last_hlc`); jam perangkat
+  yang mundur tidak membuat HLC mundur. Bila counter melewati 9999, HLC
+  pindah ke milidetik berikutnya dengan counter 0, sehingga urutan teks
+  selalu sama dengan urutan HLC.
+- `sync_outbox(table_name, row_id, op, payload_json, hlc, status,
   attempts, last_error, created_at)`; status `pending/sent/acked/conflict`.
 - Fase 2: endpoint Serverpod `push`/`pull`, last-writer-wins per baris dengan
   HLC. Paket resmi `serverpod_offline_sync` dievaluasi lagi bila sudah
@@ -241,6 +262,11 @@ Mengikuti panduan arsitektur resmi Flutter:
 | --- | --- | --- | --- |
 | Logo & ikon aplikasi | Mark Etalase (DiceBear icons `shopWindow`) diwarnai Sky | Ikon bawaan Flutter | Spec Merek Lakuna setelah v0.1.0 |
 | Penyimpanan tema per staf | Per pengguna | Per perangkat (`local_preferences`) | Pindah ke per staf di F1-02 |
-| Layar sesuai Forui | Kanvas Storeku disesuaikan ke Forui conhcc | Shell, beranda, pengaturan | Ikuti hasil thread desain Forui per modul |
-| Bahasa installer Windows | Bahasa Indonesia | Inno Setup bahasa Inggris (terjemahan Indonesia tidak resmi) | Tambahkan berkas `.isl` Indonesia bila diperlukan |
-| Tanda tangan Android/iOS | Keystore & sertifikat toko | APK/AAB ditandatangani kunci debug, IPA tanpa tanda tangan | Saat distribusi ke pengguna nyata |
+| Layar sesuai kanvas Lakuna | Kanvas Desain UI Lakuna (sidebar `FSidebar`, warna status `LakunaStatusColors`) | Shell, beranda, pengaturan memakai komponen Forui bawaan; `LakunaStatusColors` belum ada | Samakan per modul dengan kanvas; tambah `ThemeExtension` status saat layar pertama membutuhkannya |
+| Kontras tombol destructive gelap | ≥ 4.5:1 | Token CLI `#FF6467` + teks `#FAFAFA` (< 4.5:1) | Cek di perangkat saat tombol destructive pertama dipakai; bila perlu teks `#09090B` |
+| Installer Windows | Bahasa Indonesia, satu cara pasang | Inno Setup berbahasa Inggris; `.exe` dan `.msi` memasang ke folder yang sama dengan ID produk berbeda | Pilih salah satu (dicatat di README); tambahkan `.isl` Indonesia bila perlu |
+| Tanda tangan Android | Satu kunci rilis tetap | `release.yml` memakai secret `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` bila ada; tanpa itu APK/AAB diberi akhiran `-uji` dan catatan rilis memperingatkan | Pemilik membuat keystore dan mengisi secret sebelum data toko sungguhan dipakai |
+| Tanda tangan iOS | Sertifikat Apple | IPA tanpa tanda tangan | Saat akun Apple Developer siap |
+| Versi di aplikasi | Dari `pubspec.yaml` | `--dart-define=LAKUNA_VERSION` (diisi `release.yml`); build tanpa itu menampilkan `0.1.0` | Pakai `package_info_plus` bila build lokal perlu versi akurat |
+| Layar gagal mulai | Pesan + lokasi data | Bila database gagal dibuka, aplikasi berhenti tanpa pesan | Tambahkan layar error di modul Data & backup (F1-19) |
+| Menu mobile | Semua modul terjangkau | Navigasi bawah 4 menu, belum ada menu "Lainnya" | Tambahkan sebelum modul nyata pertama selain kasir/produk |

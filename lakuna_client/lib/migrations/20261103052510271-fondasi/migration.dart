@@ -2,9 +2,9 @@
 /// Merging: resolve registry conflicts the same as migration_registry.txt.
 part of '../migration_registry.dart';
 
-class _Migration20261103044847760_fondasi implements MigrationVersionSql {
+class _Migration20261103052510271_fondasi implements MigrationVersionSql {
   @override
-  String get version => '20261103044847760-fondasi';
+  String get version => '20261103052510271-fondasi';
 
   @override
   String get moduleName => 'lakuna';
@@ -108,6 +108,7 @@ CREATE TABLE "settings" (
     "id" BLOB PRIMARY KEY DEFAULT (unhex(printf('%012x', CAST(unixepoch('now', 'subsecond') * 1000 AS INTEGER)) || '7' || substr(hex(randomblob(2)), 2, 3) || substr('89AB', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(8)), 2, 15))),
     "tenant_id" BLOB NOT NULL,
     "outlet_id" BLOB,
+    "scope_key" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "value_json" TEXT NOT NULL DEFAULT ('null'),
     "created_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
@@ -123,7 +124,7 @@ CREATE TABLE "settings" (
 ) STRICT;
 
 -- Indexes
-CREATE UNIQUE INDEX "settings_tenant_outlet_key_idx" ON "settings" ("tenant_id", "outlet_id", "key");
+CREATE UNIQUE INDEX "settings_tenant_scope_key_idx" ON "settings" ("tenant_id", "scope_key", "key");
 
 --
 -- ACTION CREATE TABLE
@@ -956,9 +957,9 @@ INSERT INTO "serverpod_sqlite_schema" VALUES
 -- MIGRATION VERSION FOR lakuna
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('lakuna', '20261103044847760-fondasi', (unixepoch('now', 'subsecond') * 1000))
+    VALUES ('lakuna', '20261103052510271-fondasi', (unixepoch('now', 'subsecond') * 1000))
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261103044847760-fondasi', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
+    DO UPDATE SET "version" = '20261103052510271-fondasi', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
 
 --
 -- MIGRATION VERSION FOR serverpod
@@ -1091,6 +1092,7 @@ CREATE TABLE "settings" (
     "id" BLOB PRIMARY KEY DEFAULT (unhex(printf('%012x', CAST(unixepoch('now', 'subsecond') * 1000 AS INTEGER)) || '7' || substr(hex(randomblob(2)), 2, 3) || substr('89AB', 1 + (abs(random()) % 4), 1) || substr(hex(randomblob(8)), 2, 15))),
     "tenant_id" BLOB NOT NULL,
     "outlet_id" BLOB,
+    "scope_key" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "value_json" TEXT NOT NULL DEFAULT ('null'),
     "created_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
@@ -1106,7 +1108,7 @@ CREATE TABLE "settings" (
 ) STRICT;
 
 -- Indexes
-CREATE UNIQUE INDEX "settings_tenant_outlet_key_idx" ON "settings" ("tenant_id", "outlet_id", "key");
+CREATE UNIQUE INDEX "settings_tenant_scope_key_idx" ON "settings" ("tenant_id", "scope_key", "key");
 
 
 --
@@ -1980,9 +1982,9 @@ INSERT INTO "serverpod_sqlite_schema" VALUES
 -- MIGRATION VERSION FOR lakuna
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('lakuna', '20261103044847760-fondasi', (unixepoch('now', 'subsecond') * 1000))
+    VALUES ('lakuna', '20261103052510271-fondasi', (unixepoch('now', 'subsecond') * 1000))
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261103044847760-fondasi', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
+    DO UPDATE SET "version" = '20261103052510271-fondasi', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
 
 --
 -- MIGRATION VERSION FOR serverpod

@@ -25,11 +25,17 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
   stock_locations, devices, settings, staff_members, outlet_members, dengan
   kolom sinkronisasi standar (`created_at`, `updated_at`, `deleted_at`,
   `created_by`, `updated_by`, `version`, `hlc`, `origin_device_id`).
-- **Tabel lokal perangkat** (`database: client`): sync_outbox_entries,
-  sync_state_entries, local_preferences.
+- **Tabel lokal perangkat** (`database: client`): sync_outbox,
+  sync_state, local_preferences.
 - **`LakunaStore` dan `SyncTx`**: membuka database SQLite di perangkat,
   menjalankan migrasi, membuat ID perangkat sekali, dan menulis setiap
   perubahan data bersama entri outbox sinkronisasi dalam satu transaksi.
+  `SyncTx` menolak baris yang kolom `hlc`, `origin_device_id`, atau
+  `created_by`/`updated_by`-nya tidak sesuai stempel transaksi, supaya
+  sinkronisasi fase 2 tidak kehilangan perubahan.
+- **Pengaturan bertingkat**: tabel `settings` memakai `scope_key`
+  (`'tenant'` atau `'outlet:<id>'`) agar pengaturan tingkat tenant tidak bisa
+  ganda.
 - **Aplikasi Lakuna**:
   - Tema Forui preset `conhcc` (Zinc + Sky, Montserrat, DM Sans, ikon
     Tabler) dengan varian sentuh untuk Android/iOS.
@@ -61,10 +67,26 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
   offline ringkas (ikon saja, tetap punya label aksesibilitas dan tooltip)
   dan judul yang dipotong dengan elipsis.
 
+- Temuan review kode sebelum rilis:
+  - Urutan teks HLC bisa salah bila counter melewati 9999 (mis. setelah jam
+    perangkat sempat maju lalu dikoreksi). Sekarang HLC pindah ke milidetik
+    berikutnya.
+  - Indeks unik `settings` memakai `outlet_id` yang boleh kosong sehingga
+    pengaturan tingkat tenant bisa tersimpan dua kali. Diganti `scope_key`.
+  - CompanyName Windows masih nilai template dan menentukan folder data
+    (`%APPDATA%`). Sekarang `Lakuna`, sebelum ada data pengguna.
+  - `Money` bisa dibandingkan dengan angka mentah (`Comparable<num>`).
+    Sekarang hanya dengan `Money`.
+  - Nama installer WiX memakai `$(var.…)` eksplisit; workflow deploy
+    Serverpod memakai Flutter 3.47.9.
+
 ### Keamanan
 
 - `config/passwords.yaml` server tidak di-commit. CI memakai kata sandi
-  khusus tes lewat variabel `SERVERPOD_PASSWORD_*`.
+  khusus tes lewat variabel `SERVERPOD_PASSWORD_*`. `docker-compose.yaml`
+  bawaan template masih memuat kata sandi Postgres pengembangan lokal (bukan
+  rahasia produksi).
+- Kunci rilis Android dibaca dari secret repo dan tidak pernah di-commit.
 
 ### Catatan teknis
 
@@ -78,8 +100,12 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Rollback transaksi membatalkan baris data dan entri outbox bersama-sama
   (diuji).
 - ID aplikasi di semua platform: `id.lakuna.app`.
-- Paket Android dan AAB masih ditandatangani kunci debug; iOS belum
-  ditandatangani. Keduanya menunggu akun toko.
+- Paket Android ditandatangani kunci rilis bila secret
+  `ANDROID_KEYSTORE_*` sudah diisi. Tanpa secret, berkas diberi akhiran
+  `-uji`, ditandatangani kunci debug, dan catatan rilis memperingatkan bahwa
+  pembaruan ke versi berikut menghapus data. iOS belum ditandatangani.
+- Installer Windows `.exe` dan `.msi` memasang ke folder yang sama; pakai
+  salah satu saja.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 

@@ -4,14 +4,14 @@ library;
 
 import 'package:serverpod_database/serverpod_database.dart';
 
-part '20261103044847760-fondasi/migration.dart';
+part '20261103052510271-fondasi/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
   /// Ordered list of all client-side database migrations.
   /// New migrations are always appended at the end.
   static final List<MigrationVersionSql> migrations = [
-    _Migration20261103044847760_fondasi(),
+    _Migration20261103052510271_fondasi(),
   ];
 
   /// List of all client-side database migration versions.

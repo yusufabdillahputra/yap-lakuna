@@ -12,6 +12,12 @@ Installer setiap versi ada di halaman
 Windows (`.exe`, `.msi`), Linux (`.deb`), macOS (`.dmg`), Android (`.apk`,
 `.aab`), dan iOS (`.ipa` tanpa tanda tangan, untuk pengujian).
 
+- Di Windows pilih **salah satu** installer (`.exe` atau `.msi`), jangan
+  keduanya.
+- Berkas Android berakhiran `-uji` ditandatangani kunci sementara: pembaruan
+  ke versi berikutnya mengharuskan uninstall dan menghapus data di perangkat.
+  Gunakan hanya untuk mencoba.
+
 ## Teknologi
 
 - **Flutter** 3.47 + **Forui** (preset `conhcc`: Zinc + Sky, Montserrat,
@@ -41,7 +47,13 @@ Butuh Flutter 3.47.9.
 flutter pub get
 (cd packages/lakuna_domain && dart test)
 (cd packages/lakuna_data && dart test)
-(cd lakuna_server && dart test)        # PostgreSQL tertanam, tanpa Docker
+# Tes server memakai PostgreSQL tertanam (tanpa Docker). Tanpa
+# lakuna_server/config/passwords.yaml, isi kata sandi tes lewat variabel:
+export SERVERPOD_PASSWORD_database=lakuna-test
+export SERVERPOD_PASSWORD_emailSecretHashPepper=lakuna-test
+export SERVERPOD_PASSWORD_jwtHmacSha512PrivateKey=lakuna-test
+export SERVERPOD_PASSWORD_jwtRefreshTokenHashPepper=lakuna-test
+(cd lakuna_server && dart test)
 (cd lakuna_flutter && flutter test)
 (cd lakuna_flutter && flutter run -d linux)   # atau windows / macos / android
 ```

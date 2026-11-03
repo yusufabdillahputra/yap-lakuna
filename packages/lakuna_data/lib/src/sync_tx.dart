@@ -24,6 +24,16 @@ class SyncStamp {
   final UuidValue? actor;
 }
 
+/// Dilempar bila kolom sync sebuah baris tidak sesuai dengan [SyncStamp]
+/// yang dipakai untuk menulisnya. Baris dan outbox tidak ditulis.
+class SyncStampMismatch extends StateError {
+  SyncStampMismatch(String table, String column, Object? expected, Object? got)
+    : super(
+        'Kolom sync $table.$column harus "$expected" dari stempel, '
+        'tetapi berisi "$got".',
+      );
+}
+
 /// Konteks satu transaksi tulis. Setiap [insert]/[update] juga menambah satu
 /// entri `sync_outbox` di transaksi yang sama, sehingga tidak ada perubahan
 /// yang terlewat saat sync.
@@ -70,24 +80,56 @@ class SyncTx {
   }
 
   /// Menyisipkan [row] lalu mencatatnya di outbox dengan HLC dari [stamp].
+  ///
+  /// [row] wajib membawa `hlc` dan `originDeviceId` dari [stamp], serta
+  /// `createdBy`/`updatedBy` = aktor bila transaksi punya aktor. Bila tidak,
+  /// [SyncStampMismatch] dilempar sebelum apa pun ditulis.
   Future<T> insert<T extends TableRow<UuidValue?>>(
     T row,
     SyncStamp stamp,
   ) async {
+    _check(row, stamp, const ['createdBy', 'updatedBy']);
     final saved = await session.db.insertRow<T>(row, transaction: transaction);
     await _record(saved, stamp, SyncOp.upsert);
     return saved;
   }
 
   /// Memperbarui [row] lalu mencatatnya di outbox. Pemanggil mengisi kolom
-  /// sync (`version`, `updated_at`, `hlc`, ...) dari [stamp].
+  /// sync (`version` + 1, `updatedAt`, `hlc`, `originDeviceId`,
+  /// `updatedBy`) dari [stamp]; `hlc`, `originDeviceId`, dan `updatedBy`
+  /// diperiksa seperti pada [insert].
   Future<T> update<T extends TableRow<UuidValue?>>(
     T row,
     SyncStamp stamp,
   ) async {
+    _check(row, stamp, const ['updatedBy']);
     final saved = await session.db.updateRow<T>(row, transaction: transaction);
     await _record(saved, stamp, SyncOp.upsert);
     return saved;
+  }
+
+  void _check(
+    TableRow<UuidValue?> row,
+    SyncStamp stamp,
+    List<String> actorColumns,
+  ) {
+    final json = row.toJson();
+    final table = row.table.tableName;
+    void expectValue(String column, Object? expected) {
+      final got = json[column];
+      if (got != expected) {
+        throw SyncStampMismatch(table, column, expected, got);
+      }
+    }
+
+    expectValue('hlc', stamp.hlc.toString());
+    expectValue('originDeviceId', stamp.deviceId.toJson());
+    final actor = stamp.actor;
+    if (actor != null) {
+      for (final column in actorColumns) {
+        expectValue(column, actor.toJson());
+      }
+    }
   }
 
   Future<void> _record(

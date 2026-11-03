@@ -59,13 +59,17 @@ keputusan yang mengubah tujuan produk.
   terang, `#00598A` gelap), judul **Montserrat**, isi **DM Sans**, ikon
   **Tabler** (`tabler_icons_plus`), radius Medium. Tema di
   `lakuna_flutter/lib/ui/core/theme/`.
-- Tata letak layar mengikuti kanvas
-  [Desain UI Retail UMKM](https://claude.ai/artifact/ELHPXCJS8nduSVstc2kxSp)
-  (nomor layar mis. 1.4 Kasir dipakai di kode dan CHANGELOG). Penyesuaian ke
-  Forui dikerjakan di thread desain terpisah; hasilnya jadi acuan modul.
+- Acuan visual: kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
+  (70 artboard; nomor layar mis. 1.4 Kasir dipakai di kode dan CHANGELOG).
+  Halaman fondasi *Peta fitur hasil audit* adalah daftar periksa per modul.
+  Spec desain: `docs/superpowers/specs/2026-11-03-ui-desain-lakuna-forui-design.md`.
+- QRIS statis = gambar stiker QRIS utuh vertikal yang diunggah pemilik,
+  ditampilkan rasio asli tanpa dipotong (1.6 / 1.6m / 1.26b).
 - Mode Terang / Gelap / Ikuti sistem. Layout jalan di desktop, tablet, dan
   mobile (breakpoint 600 / 1280 px).
-- Denah meja F&B memakai paket `vyuh_node_flow`.
+- Denah meja F&B memakai paket `vyuh_node_flow` (gambar denah = node
+  terkunci di latar, meja = node tanpa port, orientasi 0°/90°, snap grid
+  20 px, minimap; kasir memakai `NodeFlowViewer`).
 - **Semua aset offline**: font dibundel, tanpa `google_fonts`, tanpa gambar
   jaringan. Logo dan placeholder dari DiceBear dibuat sekali lalu
   di-commit.

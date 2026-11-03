@@ -10,7 +10,7 @@ extension type const BasisPoints(int value) {
 
 /// Uang dalam rupiah penuh (IDR tidak memakai sen). Tidak pernah memakai
 /// `double`.
-extension type const Money(int value) implements Comparable<num> {
+extension type const Money(int value) {
   static const zero = Money(0);
 
   static Money sum(Iterable<Money> items) => items.fold(zero, (a, b) => a + b);
@@ -24,6 +24,9 @@ extension type const Money(int value) implements Comparable<num> {
   bool operator <=(Money other) => value <= other.value;
   bool operator >(Money other) => value > other.value;
   bool operator >=(Money other) => value >= other.value;
+
+  /// Untuk mengurutkan, mis. `list.sort((a, b) => a.compareTo(b))`.
+  int compareTo(Money other) => value.compareTo(other.value);
 
   /// Bagian [bp] dari jumlah ini, dibulatkan setengah menjauhi nol.
   Money applyBp(BasisPoints bp) => Money(
