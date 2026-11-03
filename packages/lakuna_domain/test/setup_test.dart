@@ -82,6 +82,15 @@ void main() {
     });
   });
 
+  test('kolom ulangi yang kosong wajib diisi', () {
+    expect(_valid(passwordConfirm: '').validate(), {
+      SetupField.passwordConfirm: SetupError.required,
+    });
+    expect(_valid(pinConfirm: '').validate(), {
+      SetupField.pinConfirm: SetupError.required,
+    });
+  });
+
   test('ulangi kata sandi harus sama', () {
     expect(_valid(passwordConfirm: 'rahasia124').validate(), {
       SetupField.passwordConfirm: SetupError.passwordMismatch,

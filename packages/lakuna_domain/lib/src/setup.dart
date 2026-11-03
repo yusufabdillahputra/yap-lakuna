@@ -146,11 +146,24 @@ class SetupInput {
           : (_email.hasMatch(email) ? null : SetupError.invalidEmail),
     SetupField.password =>
       password.length < passwordMinLength ? SetupError.passwordTooShort : null,
-    SetupField.passwordConfirm =>
-      passwordConfirm == password ? null : SetupError.passwordMismatch,
+    SetupField.passwordConfirm => _retype(
+      passwordConfirm,
+      password,
+      SetupError.passwordMismatch,
+    ),
     SetupField.pin => _pin.hasMatch(pin) ? null : SetupError.invalidPin,
-    SetupField.pinConfirm => pinConfirm == pin ? null : SetupError.pinMismatch,
+    SetupField.pinConfirm => _retype(pinConfirm, pin, SetupError.pinMismatch),
   };
+
+  /// Kolom ulangi: kosong → [SetupError.required], beda → [mismatch].
+  static SetupError? _retype(
+    String retype,
+    String source,
+    SetupError mismatch,
+  ) {
+    if (retype.isEmpty) return SetupError.required;
+    return retype == source ? null : mismatch;
+  }
 
   static SetupError? _name(String value) {
     if (value.isEmpty) return SetupError.required;

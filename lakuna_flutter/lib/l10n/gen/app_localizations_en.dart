@@ -247,7 +247,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPasswordTooShort => 'At least 8 characters';
 
   @override
-  String get errorPasswordMismatch => 'Passwords do not match';
+  String get errorPasswordMismatch => 'The passwords do not match';
 
   @override
   String get errorInvalidPin => 'The PIN must be 6 digits';

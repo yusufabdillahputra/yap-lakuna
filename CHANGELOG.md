@@ -7,6 +7,81 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-03
+
+Login PIN & ganti kasir (F1-02, layar 1.2): beberapa staf bergantian memakai
+satu perangkat dengan PIN 6 digit, dan menu mengikuti izin role.
+
+### Ditambahkan
+
+- **Layar "Siapa yang bertugas?" (1.2)** setiap kali aplikasi dibuka:
+  - Baris konteks usaha · cabang · perangkat, lalu grid staf aktif di cabang
+    ini (avatar inisial, nama, role). Pemilik di urutan pertama.
+  - Kartu *Masukkan PIN* dengan 6 titik dan keypad 1–9 / Batal / 0 / ⌫
+    (tombol 64 px). PIN langsung diperiksa setelah digit ke-6.
+  - Keyboard fisik: angka, Backspace, dan Esc.
+  - Staf tanpa PIN tampil nonaktif dengan keterangan "Belum punya PIN".
+  - Tautan *Masuk dengan email & kata sandi (pemilik)*.
+  - Mobile: daftar staf dulu, lalu kartu PIN dengan tombol *Pilih staf lain*.
+- **Kunci sementara**: 5 kali PIN salah mengunci PIN staf itu 60 detik,
+  dengan pesan sisa percobaan dan hitung mundur. Login email pemilik
+  dibatasi dengan aturan yang sama per email.
+- **Tombol *Ganti kasir*** di bilah atas beserta nama dan role staf yang
+  bertugas (ikon saja di ponsel). Beranda menampilkan baris *Bertugas*.
+- **Menu dan rute sesuai izin**: Kasir dan Riwayat butuh `sales:create`,
+  Produk `products:manage`, Stok `stock:adjust`, Pembelian
+  `purchases:manage`, Pelanggan `customers:manage`, Supplier
+  `suppliers:manage`, Pengeluaran `expenses:manage`, Laporan `reports:view`,
+  Pengguna `users:manage`. Membuka rute modul tanpa izin dialihkan ke
+  Beranda.
+- **Kolom *Ulangi kata sandi*** di langkah 3 setup toko (kanvas 1.1b),
+  berdampingan dengan kata sandi, seperti *Ulangi PIN*.
+
+### Diubah
+
+- Setelah *Mulai jualan* di wizard setup, pemilik langsung bertugas tanpa
+  mengetik PIN. Membuka ulang aplikasi selalu menampilkan layar login.
+- Kolom ulangi (kata sandi dan PIN) yang kosong kini bergalat "Wajib diisi",
+  bukan "tidak sama".
+- Lencana offline di bilah atas tablet memakai bentuk ringkas agar nama staf
+  dan tombol *Ganti kasir* muat.
+
+### Diperbaiki
+
+- Teks tombol panjang (tautan login pemilik, label keypad) tidak lagi
+  meluap di layar sempit; tautan dibungkus dan label keypad diperkecil.
+- Kartu staf terpilih tidak lagi bergeser 1 px karena bingkai 2 px.
+- Angka keypad yang nonaktif (saat dikunci) kini tampak redup; sebelumnya
+  gaya teks angka menimpa warna nonaktif tombol.
+
+### Keamanan
+
+- PIN dan kata sandi diverifikasi terhadap hash Argon2id di isolate
+  terpisah; tidak ada PIN atau kata sandi asli yang disimpan.
+- Email yang tidak terdaftar memberi pesan yang sama dengan kata sandi salah,
+  sehingga daftar email pemilik tidak bocor.
+- Selama dikunci, verifikasi tidak dijalankan sama sekali, termasuk untuk PIN
+  yang benar.
+
+### Catatan teknis
+
+- `lakuna_domain`: `PinGuard` (5 kali salah → kunci 60 detik, jam bisa
+  disuntik), `permissionsForRole` (kunci tak dikenal → tanpa izin, pemilik
+  selalu semua izin), `staffInitials`; `SetupInput.passwordConfirm` dan
+  `SetupError.passwordMismatch`.
+- `lakuna_data`: `OutletStaff`, `listOutletStaff`, `findStaffById`,
+  `findOwnerByEmail` (dibatasi `tenant_id`/`outlet_id`). Tidak ada tabel atau
+  migrasi baru; sesi hanya di memori.
+- `lakuna_flutter`: `SessionRepository` (abstrak, lokal, palsu untuk tes)
+  dengan galat bertipe `WrongPin`, `CredentialsLocked`, `WrongCredentials`,
+  `StaffUnavailable`; `LoginViewModel`; rute `/masuk`; router mendengarkan
+  toko dan sesi sekaligus; `MenuEntry.permission`, `visibleMenu`,
+  `mobileMenu(permissions)`.
+- Saat debug, kegagalan login dengan kata sandi yang benar di Xvfb ternyata
+  akibat `xdotool` (Ctrl+A tidak memilih teks); diulang dengan Backspace dan
+  berhasil. Tes repositori lokal memakai hash Argon2id sungguhan.
+- Tes: 49 domain, 25 data, 72 Flutter.
+
 ## [0.2.0] - 2026-11-03
 
 Setup toko pertama (F1-01, layar 1.1): instal baru langsung punya toko siap
@@ -231,7 +306,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yusufabdillahputra/yap-lakuna/releases/tag/v0.1.0

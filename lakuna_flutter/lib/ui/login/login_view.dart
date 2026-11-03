@@ -221,6 +221,7 @@ class _OwnerLink extends StatelessWidget {
   Widget build(BuildContext context) => FButton(
     key: const ValueKey('login-owner-link'),
     variant: .ghost,
+    mainAxisSize: .min,
     prefix: const Icon(TablerIcons.mail),
     onPress: viewModel.showPasswordForm,
     // Flexible: teks panjang dibungkus di ponsel, bukan meluap.
@@ -293,7 +294,9 @@ class _StaffPanel extends StatelessWidget {
                       width: width,
                       child: _StaffTile(
                         staff: s,
-                        selected: viewModel.selected?.id == s.id,
+                        selected:
+                            !viewModel.passwordMode &&
+                            viewModel.selected?.id == s.id,
                         onPress: () => viewModel.select(s),
                       ),
                     ),
@@ -337,7 +340,8 @@ class _StaffTile extends StatelessWidget {
             variants.contains(FTappableVariant.pressed);
         return AnimatedContainer(
           duration: const Duration(milliseconds: 120),
-          padding: const EdgeInsets.all(16),
+          // Bingkai terpilih 2 px: padding dikurangi agar ukuran tetap.
+          padding: EdgeInsets.all(selected ? 15 : 16),
           decoration: BoxDecoration(
             color: hovered && staff.hasPin ? colors.secondary : colors.card,
             borderRadius: theme.style.borderRadius.lg,
@@ -409,106 +413,115 @@ class _PinCard extends StatelessWidget {
             variant: .outline,
             semanticsLabel: hint,
             onPress: enabled ? onPress : null,
-            child: label,
+            // Label diperkecil bila tombol sempit (mis. "Cancel" di ponsel).
+            child: Flexible(
+              child: FittedBox(fit: BoxFit.scaleDown, child: label),
+            ),
           ),
         );
     Widget digit(int d) => key(
       '$d',
-      Text('$d', style: theme.typography.body.xl),
+      // Hanya ukuran: warna mengikuti tombol agar keadaan nonaktif terlihat.
+      Text('$d', style: TextStyle(fontSize: theme.typography.body.xl.fontSize)),
       () => viewModel.addDigit(d),
     );
     return FCard(
       key: const ValueKey('pin-card'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            selected == null
-                ? l10n.loginSelectStaff
-                : l10n.loginEnterPinFor(selected.name),
-            textAlign: TextAlign.center,
-            style: theme.typography.body.lg.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colors.foreground,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              selected == null
+                  ? l10n.loginSelectStaff
+                  : l10n.loginEnterPinFor(selected.name),
+              textAlign: TextAlign.center,
+              style: theme.typography.body.lg.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colors.foreground,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            key: const ValueKey('pin-dots'),
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (var i = 0; i < pinLength; i++)
-                Container(
-                  width: 16,
-                  height: 16,
-                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: i < viewModel.pin.length ? colors.foreground : null,
-                    border: Border.all(
-                      color: colors.mutedForeground,
-                      width: 1.5,
+            const SizedBox(height: 20),
+            Row(
+              key: const ValueKey('pin-dots'),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < pinLength; i++)
+                  Container(
+                    width: 16,
+                    height: 16,
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: i < viewModel.pin.length
+                          ? colors.foreground
+                          : null,
+                      border: Border.all(
+                        color: colors.mutedForeground,
+                        width: 1.5,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (viewModel.submitPin.running)
-            const Center(child: FCircularProgress())
-          else if (error != null)
-            FAlert(
-              key: const ValueKey('login-error'),
-              variant: .destructive,
-              title: Text(_errorText(l10n, viewModel, error)),
-            ),
-          const SizedBox(height: 16),
-          for (final row in const [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-          ]) ...[
-            Row(
-              children: [
-                for (final d in row) ...[
-                  Expanded(child: digit(d)),
-                  if (d != row.last) const SizedBox(width: 8),
-                ],
               ],
             ),
-            const SizedBox(height: 8),
-          ],
-          Row(
-            children: [
-              Expanded(
-                child: key(
-                  'cancel',
-                  Text(l10n.loginKeypadCancel),
-                  viewModel.clearPin,
-                ),
+            const SizedBox(height: 16),
+            if (viewModel.submitPin.running)
+              const Center(child: FCircularProgress())
+            else if (error != null)
+              FAlert(
+                key: const ValueKey('login-error'),
+                variant: .destructive,
+                title: Text(_errorText(l10n, viewModel, error)),
               ),
-              const SizedBox(width: 8),
-              Expanded(child: digit(0)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: key(
-                  'delete',
-                  const Icon(TablerIcons.backspace),
-                  viewModel.backspace,
-                  hint: l10n.loginKeypadDelete,
-                ),
+            const SizedBox(height: 16),
+            for (final row in const [
+              [1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9],
+            ]) ...[
+              Row(
+                children: [
+                  for (final d in row) ...[
+                    Expanded(child: digit(d)),
+                    if (d != row.last) const SizedBox(width: 8),
+                  ],
+                ],
               ),
+              const SizedBox(height: 8),
             ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.loginPinNote,
-            textAlign: TextAlign.center,
-            style: theme.typography.body.sm.copyWith(
-              color: colors.mutedForeground,
+            Row(
+              children: [
+                Expanded(
+                  child: key(
+                    'cancel',
+                    Text(l10n.loginKeypadCancel),
+                    viewModel.clearPin,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: digit(0)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: key(
+                    'delete',
+                    const Icon(TablerIcons.backspace),
+                    viewModel.backspace,
+                    hint: l10n.loginKeypadDelete,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              l10n.loginPinNote,
+              textAlign: TextAlign.center,
+              style: theme.typography.body.sm.copyWith(
+                color: colors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -531,65 +544,68 @@ class _OwnerCard extends StatelessWidget {
         viewModel.canSubmitPassword && !viewModel.submitPassword.running;
     return FCard(
       key: const ValueKey('owner-card'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.loginOwnerTitle,
-            style: theme.typography.body.lg.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colors.foreground,
-            ),
-          ),
-          const SizedBox(height: 16),
-          FTextField(
-            key: const ValueKey('login-email'),
-            label: Text(l10n.fieldEmail),
-            keyboardType: TextInputType.emailAddress,
-            autofocus: true,
-            control: .managed(
-              initial: TextEditingValue(text: viewModel.email),
-              onChange: (v) => viewModel.setEmail(v.text),
-            ),
-          ),
-          const SizedBox(height: 12),
-          FTextField(
-            key: const ValueKey('login-password'),
-            label: Text(l10n.fieldPassword),
-            obscureText: true,
-            onSubmit: (_) {
-              if (canSubmit) viewModel.submitPassword.execute();
-            },
-            control: .managed(
-              onChange: (v) => viewModel.setPassword(v.text),
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (error != null) ...[
-            FAlert(
-              key: const ValueKey('login-error'),
-              variant: .destructive,
-              title: Text(_errorText(l10n, viewModel, error)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.loginOwnerTitle,
+              style: theme.typography.body.lg.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colors.foreground,
+              ),
             ),
             const SizedBox(height: 16),
+            FTextField(
+              key: const ValueKey('login-email'),
+              label: Text(l10n.fieldEmail),
+              keyboardType: TextInputType.emailAddress,
+              autofocus: true,
+              control: .managed(
+                initial: TextEditingValue(text: viewModel.email),
+                onChange: (v) => viewModel.setEmail(v.text),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FTextField(
+              key: const ValueKey('login-password'),
+              label: Text(l10n.fieldPassword),
+              obscureText: true,
+              onSubmit: (_) {
+                if (canSubmit) viewModel.submitPassword.execute();
+              },
+              control: .managed(
+                onChange: (v) => viewModel.setPassword(v.text),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (error != null) ...[
+              FAlert(
+                key: const ValueKey('login-error'),
+                variant: .destructive,
+                title: Text(_errorText(l10n, viewModel, error)),
+              ),
+              const SizedBox(height: 16),
+            ],
+            FButton(
+              key: const ValueKey('login-submit'),
+              onPress: canSubmit ? viewModel.submitPassword.execute : null,
+              prefix: viewModel.submitPassword.running
+                  ? const FCircularProgress()
+                  : null,
+              child: Text(l10n.loginSubmit),
+            ),
+            const SizedBox(height: 8),
+            FButton(
+              key: const ValueKey('login-back-to-pin'),
+              variant: .ghost,
+              prefix: const Icon(TablerIcons.arrowLeft),
+              onPress: viewModel.showPinForm,
+              child: Text(l10n.loginBackToPin),
+            ),
           ],
-          FButton(
-            key: const ValueKey('login-submit'),
-            onPress: canSubmit ? viewModel.submitPassword.execute : null,
-            prefix: viewModel.submitPassword.running
-                ? const FCircularProgress()
-                : null,
-            child: Text(l10n.loginSubmit),
-          ),
-          const SizedBox(height: 8),
-          FButton(
-            key: const ValueKey('login-back-to-pin'),
-            variant: .ghost,
-            prefix: const Icon(TablerIcons.arrowLeft),
-            onPress: viewModel.showPinForm,
-            child: Text(l10n.loginBackToPin),
-          ),
-        ],
+        ),
       ),
     );
   }

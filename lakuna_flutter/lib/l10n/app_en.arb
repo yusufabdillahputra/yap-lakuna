@@ -75,7 +75,7 @@
   "errorInvalidCode": "2–6 letters or digits",
   "errorInvalidEmail": "Invalid email format",
   "errorPasswordTooShort": "At least 8 characters",
-  "errorPasswordMismatch": "Passwords do not match",
+  "errorPasswordMismatch": "The passwords do not match",
   "errorInvalidPin": "The PIN must be 6 digits",
   "errorPinMismatch": "The PINs do not match",
   "errorInvalidTimezone": "Choose a time zone",

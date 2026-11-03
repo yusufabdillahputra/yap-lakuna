@@ -1,7 +1,7 @@
 # F1-02 · Login PIN & ganti kasir
 
 - **Fase:** 1
-- **Status:** Dikerjakan (target v0.3.0)
+- **Status:** Dirilis di v0.3.0
 - **Layar desain:** 1.2 *Login & ganti kasir (PIN) · tablet* (kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525))
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-02-login-pin-design.md`
@@ -95,8 +95,8 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
   `WrongCredentials`, `StaffUnavailable`.
 - `LoginViewModel`: staf terpilih, digit PIN, mode email, hitung mundur
   kunci (`Timer` per detik), perintah `Command0`.
-- Router: toko belum ada → `/setup`; toko ada tanpa sesi → `/login`; sesi
-  ada dan berada di `/login` atau `/setup` → Beranda; rute modul yang izinnya
+- Router: toko belum ada → `/setup`; toko ada tanpa sesi → `/masuk`; sesi
+  ada dan berada di `/masuk` atau `/setup` → Beranda; rute modul yang izinnya
   tidak dimiliki → Beranda.
 - Setelah *Mulai jualan* di wizard, `startOwnerSession` dipanggil sehingga
   pemilik langsung masuk ke Beranda.
@@ -108,8 +108,12 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 - **Staf dinonaktifkan saat layar login terbuka:** verifikasi mengembalikan
   `StaffUnavailable` dan daftar dimuat ulang.
 - **PIN diketik saat dikunci:** keypad nonaktif sampai hitung mundur habis.
-- **Email bukan milik pemilik atau bukan anggota cabang ini:** pesan sama
-  dengan kata sandi salah, agar tidak membocorkan email yang terdaftar.
+- **Email bukan milik pemilik:** pesan sama dengan kata sandi salah, agar
+  tidak membocorkan email yang terdaftar. Pemilik boleh masuk di cabang mana
+  pun; role-nya diambil dari keanggotaan cabang bila ada, selain itu
+  `owner`.
+- **Label keypad di layar sempit:** label diperkecil (mis. "Cancel" di
+  ponsel) agar tidak meluap.
 - **Dikunci lalu aplikasi ditutup:** kunci di memori hilang (diterima di
   Fase 1, sama dengan Storeku).
 
@@ -135,8 +139,14 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 | Persetujuan PIN manajer | Void dan diskon "butuh PIN manajer" | Belum | Bangun bersama modul pertama yang membutuhkannya, pakai `PinGuard` |
 | Kunci per perangkat | "Dikunci 1 mnt" | `PinGuard` di memori, hilang saat aplikasi ditutup | Cukup untuk Fase 1 |
 | Log masuk/keluar | - | Tidak dicatat | Catat di sesi kasir (F1-03) |
+| Ganti/atur ulang PIN | Kanvas 1.25b: setiap ganti atau atur ulang PIN menghapus hitungan salah dan kunci sementara | Belum ada ganti PIN | Saat F1-17 (Pengguna & role, *Akun saya*): panggil `PinGuard.recordSuccess` untuk staf itu setelah PIN disimpan |
+| Nama staf di bilah atas mobile | Kanvas 1.2 hanya tablet | Mobile: ikon *Ganti kasir* saja (nama di label aksesibilitas); nama tampil di Beranda | Pertahankan; bilah atas ponsel sempit |
 
 ## Kriteria selesai
+
+Terpenuhi di v0.3.0: uji manual di Xvfb (login tablet terang, PIN salah,
+kunci dengan hitung mundur, login email pemilik, menu kasir, mobile gelap,
+setup langsung masuk sebagai pemilik).
 
 - Buka ulang aplikasi menampilkan layar login; PIN pemilik membuka Beranda.
 - Lima PIN salah mengunci 60 detik dengan hitung mundur.
