@@ -7309,6 +7309,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Lokasi stok tidak ditemukan. Pilih lokasi lain.'**
   String get purchaseErrLocation;
+
+  /// No description provided for @purchaseRefundToHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih kas atau rekening'**
+  String get purchaseRefundToHint;
 }
 
 class _AppLocalizationsDelegate

@@ -801,7 +801,7 @@ class _PaymentsCard extends StatelessWidget {
           (
             formatDayMonth(r.returnedAt, tz),
             l10n.purchaseReturnReduction(r.number),
-            '-',
+            '',
             Money(r.debtReduction),
           ),
         if (r.refundAmount > 0)
@@ -842,7 +842,8 @@ class _PaymentsCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(desc, style: body),
-                              Text(from, style: _muted(context)),
+                              if (from.isNotEmpty)
+                                Text(from, style: _muted(context)),
                             ],
                           ),
                         ),
@@ -1041,6 +1042,7 @@ class _ReturnCard extends StatelessWidget {
               FSelect<String>(
                 key: ValueKey('purchase-refund-source-$gen'),
                 label: Text(l10n.purchaseRefundTo),
+                hint: l10n.purchaseRefundToHint,
                 forceErrorText:
                     issues.contains(PurchaseReturnIssue.refundSource)
                     ? l10n.purchaseReturnErrRefund

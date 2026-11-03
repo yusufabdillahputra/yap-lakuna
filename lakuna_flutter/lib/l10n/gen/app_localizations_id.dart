@@ -4137,4 +4137,7 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get purchaseErrLocation =>
       'Lokasi stok tidak ditemukan. Pilih lokasi lain.';
+
+  @override
+  String get purchaseRefundToHint => 'Pilih kas atau rekening';
 }

@@ -4250,4 +4250,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get purchaseErrLocation =>
       'Stock location not found. Choose another location.';
+
+  @override
+  String get purchaseRefundToHint => 'Choose cash or account';
 }

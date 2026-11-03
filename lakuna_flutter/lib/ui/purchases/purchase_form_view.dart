@@ -355,7 +355,7 @@ class _Lines extends StatelessWidget {
   final PurchaseFormViewModel viewModel;
   final bool narrow;
 
-  static const _cols = [30, 17, 12, 18, 18];
+  static const _cols = [25, 18, 10, 22, 17];
 
   @override
   Widget build(BuildContext context) {

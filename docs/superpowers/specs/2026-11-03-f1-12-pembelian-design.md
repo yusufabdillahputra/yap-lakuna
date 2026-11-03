@@ -1,7 +1,7 @@
 # F1-12 · Pembelian & retur beli
 
 - **Fase:** 1
-- **Status:** Dirancang (v0.16.0)
+- **Status:** Rilis v0.16.0
 - **Layar desain:** 1.19 *Pembelian & retur beli* dan 1.19b *Detail
   pembelian: HPP & saran harga jual* (terang + gelap) di kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525).
@@ -181,6 +181,30 @@ supplier. Barang yang dikembalikan ke supplier dicatat sebagai retur beli.
     per hari. Nomor draf tetap saat draf diterima.
 13. Rute `/pembelian` dengan menu *Pembelian* (Inventori).
 
+### Keputusan tambahan (review dan uji manual)
+
+14. **Izin aktor di lapisan data**: aktor wajib staf aktif outlet ini
+    dengan `purchases:manage`. Bayar dari laci / uang kembali ke laci juga
+    butuh `cash_movements:create`; *Terapkan harga jual* juga butuh
+    `products:manage`. Staf gudang bawaan tidak punya keduanya, jadi UI
+    menyembunyikan *Kas laci* dan kotak centang harga.
+15. **HPP setelah retur beli**: stok keluar dengan harga pokok mendarat
+    baris dan rata-rata dihitung ulang
+    (`averageCostAfterReturn`: `(stok × HPP − qty × harga pokok) ÷ sisa`,
+    minimum 0; retur semua stok mempertahankan HPP lama). Keluar stok lain
+    tetap tidak mengubah HPP. `levelAverageCost` dipakai juga saat
+    `rebuildStockLevels`.
+16. **Saran harga** memakai salinan harga jual saat diterima
+    (`purchase_items.sell_price_before`), satu saran per varian (HPP
+    sebelum dari baris pertama, sesudah dari baris terakhir), agar saran
+    tidak berlipat setelah diterapkan.
+17. **Penerimaan** menolak produk nonaktif, terhapus, atau tanpa lacak
+    stok. Lokasi yang tidak ada → `StockLocationNotFound`.
+18. **Tata letak**: dua panel di lebar konten ≥ 1000 px (daftar 35 :
+    form 65); daftar < 460 px memakai tiga kolom (supplier di bawah nomor);
+    form < 520 px memakai kartu per baris; detail ≥ 860 px tiga kartu
+    sejajar.
+
 ## Beda dengan Storeku
 
 - Storeku menyimpan HPP hanya sebagai `cost_price`. Lakuna menyimpan juga
@@ -242,7 +266,10 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pembelian`.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Pembelian, draf, terima, landed cost, HPP, hutang, kas laci, retur beli, saran harga jual | 1.19, 1.19b | Belum | v0.16.0. |
+| Pembelian, draf, terima, landed cost, HPP, hutang, kas laci, retur beli, saran harga jual | 1.19, 1.19b | Rilis v0.16.0 | — |
+| Status sesi kasir untuk *Kas laci* | Petunjuk di form | Dimuat sekali saat layar dibuka | Muat ulang saat form disimpan atau sesi berubah. |
+| Draf dibuka di dua tempat lalu diterima dua kali | — | Ditolak di data (`PurchaseNotEditable`) | Cukup; pesan galat sudah ada. |
+| Keunikan nama supplier | Unik per tenant | Dicek di kode, belum indeks DB | Indeks unik saat sinkronisasi Fase 2. |
 | Bayar hutang belakangan | Tombol *Bayar hutang* | Nonaktif | F1-14. |
 | Foto faktur | *Lihat foto faktur* | Belum | Pakai `media_files` (F1-18) di rilis berikutnya. |
 | Kartu stok terkait, cetak/bagikan PDF | Tombol di 1.19b | Belum | Setelah F1-14. |

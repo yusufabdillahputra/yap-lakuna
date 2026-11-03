@@ -206,37 +206,39 @@ void main() {
     expect(purchaseReturnNumber('PST', 'D01', d, 1), 'RB-PST-D01-261102-0001');
   });
 
-  test('retur beli mengeluarkan nilai pada HPP mendarat, rata-rata dihitung ulang',
-      () {
-    // 10 @ 1.000 + 10 @ 2.000 → 20 @ 1.500. Retur 10 @ 2.000 → 10 @ 1.000.
-    expect(
-      averageCostAfterReturn(
-        onHand: Qty.units(20),
-        avgCost: const Money(1500),
-        returned: Qty.units(10),
-        unitCost: const Money(2000),
-      ),
-      const Money(1000),
-    );
-    // Habis atau minus: rata-rata lama dipertahankan.
-    expect(
-      averageCostAfterReturn(
-        onHand: Qty.units(10),
-        avgCost: const Money(1500),
-        returned: Qty.units(10),
-        unitCost: const Money(2000),
-      ),
-      const Money(1500),
-    );
-    // Nilai sisa tidak pernah minus.
-    expect(
-      averageCostAfterReturn(
-        onHand: Qty.units(2),
-        avgCost: const Money(100),
-        returned: Qty.units(1),
-        unitCost: const Money(5000),
-      ),
-      Money.zero,
-    );
-  });
+  test(
+    'retur beli mengeluarkan nilai pada HPP mendarat, rata-rata dihitung ulang',
+    () {
+      // 10 @ 1.000 + 10 @ 2.000 → 20 @ 1.500. Retur 10 @ 2.000 → 10 @ 1.000.
+      expect(
+        averageCostAfterReturn(
+          onHand: Qty.units(20),
+          avgCost: const Money(1500),
+          returned: Qty.units(10),
+          unitCost: const Money(2000),
+        ),
+        const Money(1000),
+      );
+      // Habis atau minus: rata-rata lama dipertahankan.
+      expect(
+        averageCostAfterReturn(
+          onHand: Qty.units(10),
+          avgCost: const Money(1500),
+          returned: Qty.units(10),
+          unitCost: const Money(2000),
+        ),
+        const Money(1500),
+      );
+      // Nilai sisa tidak pernah minus.
+      expect(
+        averageCostAfterReturn(
+          onHand: Qty.units(2),
+          avgCost: const Money(100),
+          returned: Qty.units(1),
+          unitCost: const Money(5000),
+        ),
+        Money.zero,
+      );
+    },
+  );
 }

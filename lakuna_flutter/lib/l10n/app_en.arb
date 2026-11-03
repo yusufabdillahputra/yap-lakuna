@@ -2036,5 +2036,6 @@
   },
   "purchaseReturnsMade": "Returns made",
   "purchaseDetailLoadFailed": "The purchase details failed to load.",
-  "purchaseErrLocation": "Stock location not found. Choose another location."
+  "purchaseErrLocation": "Stock location not found. Choose another location.",
+  "purchaseRefundToHint": "Choose cash or account"
 }

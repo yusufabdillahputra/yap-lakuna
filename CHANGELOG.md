@@ -7,6 +7,122 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-03
+
+Pembelian dan retur pembelian (F1-12, layar 1.19 dan 1.19b). Pemilik dan
+staf gudang mencatat barang masuk dari supplier: stok bertambah, harga
+pokok rata-rata diperbarui, hutang supplier tercatat, dan harga jual bisa
+disesuaikan dari saran yang menjaga margin.
+
+### Ditambahkan
+
+- Menu **Pembelian** (`/pembelian`, grup Inventori) untuk staf dengan izin
+  `purchases:manage`. Tab **Pembelian** dan **Retur pembelian**, kotak cari
+  nomor/supplier, status *Draf*, *Lunas*, *Hutang*.
+- Layar 1.19 dua panel di lebar ≥ 1000 px: daftar di kiri, form
+  *Pembelian baru* di kanan. Di layar lebih sempit form dibuka sebagai
+  halaman `/pembelian/baru`, dan daftar dimuat ulang saat kembali.
+- **Form pembelian**:
+  - supplier dari daftar, *Tanpa supplier*, atau *+ Supplier baru* (nama
+    diketik dan dibuat saat disimpan; nama unik per tenant tanpa membedakan
+    huruf besar/kecil);
+  - no. faktur supplier, tanggal, lokasi stok tujuan;
+  - scan barcode, SKU, atau nama produk dengan saran nama; barcode satuan
+    konversi langsung memilih satuan itu (mis. barcode dus → *Dus (6)*);
+  - baris: satuan (dasar atau konversi), qty (boleh pecahan), harga beli
+    per satuan (bawaan = HPP × isi), subtotal; satu varian dengan dua
+    satuan digabung;
+  - diskon faktur dan ongkos kirim dibagi ke baris secara proporsional
+    (harga pokok mendarat);
+  - *Bayar sekarang* dengan tombol *Bayar lunas*, sumber dana **Kas toko**,
+    **Kas laci** (sesi kasir terbuka di perangkat ini), atau **Rekening
+    bank**;
+  - sisa jadi hutang dengan **jatuh tempo** bawaan +14 hari dari tanggal
+    pembelian (bisa diubah, tidak boleh sebelum tanggal pembelian);
+  - catatan, *Simpan draf*, dan *Terima barang & simpan*.
+- **Draf** mendapat nomor `PB-` saat pertama disimpan, bisa diubah atau
+  dihapus, dan tidak menggerakkan stok. Nomor tetap saat draf diterima,
+  mis. `PB-PST-K01-261104-0001`.
+- **Terima barang**: stok masuk lewat ledger di lokasi terpilih (qty ×
+  isi satuan), HPP rata-rata tertimbang per lokasi dan `cost_price` varian
+  diperbarui, bayar dari laci menulis kas keluar di sesi terbuka.
+- **Detail 1.19b** (`/pembelian/:id`): info dokumen, tabel *Barang
+  diterima* dengan HPP sebelum → sesudah, harga jual, saran jual, dan
+  lencana *Aman* / *Di bawah saran*; ringkasan (subtotal, diskon, ongkir,
+  total, sudah dibayar, diretur, sisa hutang) dengan kotak jatuh tempo;
+  daftar pembayaran (bayar di muka, pengurang hutang, uang kembali).
+- **Saran harga jual** menjaga margin lama: `harga jual × HPP baru ÷ HPP
+  lama`, dibulatkan ke atas ke Rp 100, satu saran per varian. Baris di
+  bawah saran tercentang otomatis; *Terapkan harga jual (N produk)*
+  mengubah harga jual lewat outbox.
+- **Retur pembelian** `RB-`: qty per baris dibatasi sisa yang belum
+  diretur dan stok di lokasi; nilai retur mengurangi hutang lebih dulu,
+  kelebihannya menjadi uang kembali ke kas toko, laci, atau bank yang
+  dipilih. Catatan retur opsional. Daftar retur tampil di detail dan di tab
+  *Retur pembelian*.
+- Kartu stok menampilkan pembelian dan retur pembelian dengan nomor PB/RB.
+- Model data: tabel `suppliers`, `purchases`, `purchase_items`,
+  `purchase_returns`, `purchase_return_items`; enum `PurchaseStatus`,
+  `FundingSource` (migrasi `pembelian`).
+
+### Diubah
+
+- Teks Beranda menyebut Pembelian sudah bisa dipakai; Pelanggan, supplier,
+  dan laporan menyusul.
+- HPP rata-rata setelah **retur pembelian** kini dihitung ulang dari nilai
+  persediaan (`(stok × HPP − qty retur × harga pokok baris) ÷ sisa stok`),
+  bukan dibiarkan tetap. Keluar stok lain (penjualan, penyesuaian) tetap
+  tidak mengubah HPP rata-rata. Aturan yang sama dipakai saat membangun
+  ulang saldo stok.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (uji manual dan review kode),
+bukan bug di versi sebelumnya.
+
+- Saran harga jual bertambah terus setelah harga diterapkan, karena
+  dasarnya harga jual terkini. Kini memakai salinan harga jual saat barang
+  diterima (`purchase_items.sell_price_before`).
+- Varian yang muncul di dua baris (dua satuan) mendapat dua saran harga.
+- Produk nonaktif, terhapus, atau tanpa lacak stok bisa diterima.
+- Lokasi stok yang tidak ada menampilkan pesan umum; kini *Lokasi stok
+  tidak ditemukan*.
+- Pesan "Draf tersimpan" tetap tampil setelah form diubah lagi.
+- Jatuh tempo bawaan bisa bergeser sehari di zona dengan pergantian jam
+  musim panas; kini dihitung dari tanggal kalender.
+- Panjang catatan retur dihitung per unit UTF-16; kini per karakter.
+- Harga beli "Rp 195.000" terpotong di kolom form 1280 px; daftar di panel
+  kiri memotong lencana status. Daftar sempit kini memakai tiga kolom
+  dengan supplier di bawah nomor.
+- View model form dipakai setelah dibuang saat pindah dari dua panel ke
+  satu panel.
+
+### Keamanan
+
+- `purchases:manage` dicek di menu, layar, repositori aplikasi, **dan**
+  lapisan data: aktor wajib staf aktif outlet ini dengan izin yang cukup
+  (`PurchaseActorNotPermitted`).
+- Bayar dari laci atau uang kembali ke laci juga butuh
+  `cash_movements:create`; pilihan *Kas laci* disembunyikan bagi staf
+  tanpa izin itu.
+- *Terapkan harga jual* juga butuh `products:manage`; kotak centang dan
+  tombolnya disembunyikan bagi staf gudang.
+
+### Catatan teknis
+
+- Aturan domain di `lakuna_domain/purchase.dart` (`purchaseTotals`,
+  `validatePurchase`, `purchaseDebt`, `suggestedSellPrice`,
+  `purchaseReturnSplit`, `averageCostAfterReturn`, nomor `PB-`/`RB-`);
+  data di `lakuna_data/purchases.dart`, semua tulis lewat
+  `LakunaStore.write` + outbox. `levelAverageCost` di `stock.dart` dipakai
+  bersama oleh penulisan stok dan `rebuildStockLevels`.
+- Kolom baru `purchase_items.sell_price_before`; migrasi
+  `20261103222601917-pembelian`.
+- Gap tercatat di spec F1-12: bayar hutang belakangan (F1-14), foto
+  faktur, kartu stok terkait dan PDF, master supplier lengkap (F1-14),
+  status sesi kasir tidak diperbarui selama form terbuka, keunikan nama
+  supplier belum dijaga indeks DB (sinkronisasi Fase 2).
+
 ## [0.15.0] - 2026-11-03
 
 Riwayat transaksi, void & retur (F1-11, layar 1.14). Pemilik dan kasir bisa
@@ -1497,7 +1613,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.12.0...v0.13.0
