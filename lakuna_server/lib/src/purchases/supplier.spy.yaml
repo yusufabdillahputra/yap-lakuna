@@ -1,0 +1,22 @@
+### Supplier (F1-12 minimal; master lengkap di F1-14). Nama unik per tenant
+### tanpa membedakan huruf besar/kecil (dicek di lakuna_data).
+class: Supplier
+table: suppliers
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  name: String
+  phone: String?
+  note: String?
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  suppliers_tenant_idx:
+    fields: tenantId

@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -6553,6 +6553,768 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Nota di-void'**
   String get stockNoteVoid;
+
+  /// No description provided for @purchasesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian'**
+  String get purchasesTitle;
+
+  /// No description provided for @purchasesSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang masuk dari supplier, termasuk retur pembelian'**
+  String get purchasesSubtitle;
+
+  /// No description provided for @purchasesNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian baru'**
+  String get purchasesNew;
+
+  /// No description provided for @purchasesTabPurchases.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian'**
+  String get purchasesTabPurchases;
+
+  /// No description provided for @purchasesTabReturns.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur pembelian'**
+  String get purchasesTabReturns;
+
+  /// No description provided for @purchasesSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nomor / supplier'**
+  String get purchasesSearch;
+
+  /// No description provided for @purchasesColNumber.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor'**
+  String get purchasesColNumber;
+
+  /// No description provided for @purchasesColSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get purchasesColSupplier;
+
+  /// No description provided for @purchasesColTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get purchasesColTotal;
+
+  /// No description provided for @purchasesColStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get purchasesColStatus;
+
+  /// No description provided for @purchasesColValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai'**
+  String get purchasesColValue;
+
+  /// No description provided for @purchasesColSource.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian asal'**
+  String get purchasesColSource;
+
+  /// No description provided for @purchasesStatusDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf'**
+  String get purchasesStatusDraft;
+
+  /// No description provided for @purchasesStatusPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunas'**
+  String get purchasesStatusPaid;
+
+  /// No description provided for @purchasesStatusDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Hutang'**
+  String get purchasesStatusDebt;
+
+  /// No description provided for @purchasesDraftTag.
+  ///
+  /// In id, this message translates to:
+  /// **'draf'**
+  String get purchasesDraftTag;
+
+  /// No description provided for @purchasesReturnTag.
+  ///
+  /// In id, this message translates to:
+  /// **'retur'**
+  String get purchasesReturnTag;
+
+  /// No description provided for @purchasesNoSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa supplier'**
+  String get purchasesNoSupplier;
+
+  /// No description provided for @purchasesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pembelian.'**
+  String get purchasesEmpty;
+
+  /// No description provided for @purchasesReturnsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada retur pembelian.'**
+  String get purchasesReturnsEmpty;
+
+  /// No description provided for @purchasesLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian gagal dimuat.'**
+  String get purchasesLoadFailed;
+
+  /// No description provided for @purchaseFormNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian baru · {number}'**
+  String purchaseFormNew(String number);
+
+  /// No description provided for @purchaseFormDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf · {number}'**
+  String purchaseFormDraft(String number);
+
+  /// No description provided for @purchaseSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get purchaseSupplier;
+
+  /// No description provided for @purchaseSupplierNew.
+  ///
+  /// In id, this message translates to:
+  /// **'+ Supplier baru'**
+  String get purchaseSupplierNew;
+
+  /// No description provided for @purchaseSupplierNewName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama supplier baru'**
+  String get purchaseSupplierNewName;
+
+  /// No description provided for @purchaseSupplierPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih dari daftar'**
+  String get purchaseSupplierPick;
+
+  /// No description provided for @purchaseInvoiceNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No. faktur supplier'**
+  String get purchaseInvoiceNo;
+
+  /// No description provided for @purchaseDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get purchaseDate;
+
+  /// No description provided for @purchaseLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk ke lokasi'**
+  String get purchaseLocation;
+
+  /// No description provided for @purchaseColProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get purchaseColProduct;
+
+  /// No description provided for @purchaseColUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan'**
+  String get purchaseColUnit;
+
+  /// No description provided for @purchaseColQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Qty'**
+  String get purchaseColQty;
+
+  /// No description provided for @purchaseColPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli'**
+  String get purchaseColPrice;
+
+  /// No description provided for @purchaseColSubtotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Subtotal'**
+  String get purchaseColSubtotal;
+
+  /// No description provided for @purchaseRemoveLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus baris'**
+  String get purchaseRemoveLine;
+
+  /// No description provided for @purchaseScan.
+  ///
+  /// In id, this message translates to:
+  /// **'+ Scan / cari produk'**
+  String get purchaseScan;
+
+  /// No description provided for @purchaseScanHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode, SKU, atau nama produk'**
+  String get purchaseScanHint;
+
+  /// No description provided for @purchaseScanNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk \"{code}\" tidak ditemukan.'**
+  String purchaseScanNotFound(String code);
+
+  /// No description provided for @purchaseNoLines.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada produk. Scan barcode atau cari nama produk.'**
+  String get purchaseNoLines;
+
+  /// No description provided for @purchasePaidNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar sekarang'**
+  String get purchasePaidNow;
+
+  /// No description provided for @purchasePayInFull.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar lunas'**
+  String get purchasePayInFull;
+
+  /// No description provided for @purchaseFundingFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari'**
+  String get purchaseFundingFrom;
+
+  /// No description provided for @fundingStoreCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas toko'**
+  String get fundingStoreCash;
+
+  /// No description provided for @fundingDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci'**
+  String get fundingDrawer;
+
+  /// No description provided for @fundingBank.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekening bank'**
+  String get fundingBank;
+
+  /// No description provided for @purchaseDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo sisa'**
+  String get purchaseDueOn;
+
+  /// No description provided for @purchaseNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan'**
+  String get purchaseNote;
+
+  /// No description provided for @purchaseSubtotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Subtotal'**
+  String get purchaseSubtotal;
+
+  /// No description provided for @purchaseDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon faktur'**
+  String get purchaseDiscount;
+
+  /// No description provided for @purchaseShipping.
+  ///
+  /// In id, this message translates to:
+  /// **'Ongkos kirim'**
+  String get purchaseShipping;
+
+  /// No description provided for @purchaseTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get purchaseTotal;
+
+  /// No description provided for @purchaseDebtLeft.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa jadi hutang'**
+  String get purchaseDebtLeft;
+
+  /// No description provided for @purchaseSaveDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan draf'**
+  String get purchaseSaveDraft;
+
+  /// No description provided for @purchaseReceive.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima barang & simpan'**
+  String get purchaseReceive;
+
+  /// No description provided for @purchaseDeleteDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus draf'**
+  String get purchaseDeleteDraft;
+
+  /// No description provided for @purchaseReceiveNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Saat disimpan: stok {location} bertambah (ledger), harga pokok rata-rata diperbarui, hutang supplier tercatat.'**
+  String purchaseReceiveNote(String location);
+
+  /// No description provided for @purchaseDraftSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf {number} disimpan.'**
+  String purchaseDraftSaved(String number);
+
+  /// No description provided for @purchaseErrLines.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahkan minimal satu produk.'**
+  String get purchaseErrLines;
+
+  /// No description provided for @purchaseErrQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Qty harus lebih dari 0.'**
+  String get purchaseErrQty;
+
+  /// No description provided for @purchaseErrPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli tidak sah.'**
+  String get purchaseErrPrice;
+
+  /// No description provided for @purchaseErrDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon tidak boleh melebihi subtotal.'**
+  String get purchaseErrDiscount;
+
+  /// No description provided for @purchaseErrShipping.
+  ///
+  /// In id, this message translates to:
+  /// **'Ongkos kirim tidak sah.'**
+  String get purchaseErrShipping;
+
+  /// No description provided for @purchaseErrPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar tidak boleh melebihi total.'**
+  String get purchaseErrPaid;
+
+  /// No description provided for @purchaseErrSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih atau ketik supplier untuk pembelian yang berhutang.'**
+  String get purchaseErrSupplier;
+
+  /// No description provided for @purchaseErrDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi jatuh tempo, tidak sebelum tanggal pembelian.'**
+  String get purchaseErrDueOn;
+
+  /// No description provided for @purchaseErrInvoiceNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No. faktur maksimal {max} karakter.'**
+  String purchaseErrInvoiceNo(int max);
+
+  /// No description provided for @purchaseErrNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan maksimal {max} karakter.'**
+  String purchaseErrNote(int max);
+
+  /// No description provided for @purchaseErrDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar dari kas laci butuh sesi kasir yang terbuka di perangkat ini.'**
+  String get purchaseErrDrawer;
+
+  /// No description provided for @purchaseErrNotEditable.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian ini sudah diterima dan tidak bisa diubah.'**
+  String get purchaseErrNotEditable;
+
+  /// No description provided for @purchaseErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian tidak ditemukan.'**
+  String get purchaseErrNotFound;
+
+  /// No description provided for @purchaseErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin mengelola pembelian.'**
+  String get purchaseErrNotPermitted;
+
+  /// No description provided for @purchaseErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian gagal disimpan. Coba lagi.'**
+  String get purchaseErrGeneric;
+
+  /// No description provided for @purchaseFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian dari {supplier}'**
+  String purchaseFrom(String supplier);
+
+  /// No description provided for @purchaseBadgePaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunas'**
+  String get purchaseBadgePaid;
+
+  /// No description provided for @purchaseBadgeDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum lunas · hutang'**
+  String get purchaseBadgeDebt;
+
+  /// No description provided for @purchaseCreatedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuat oleh'**
+  String get purchaseCreatedBy;
+
+  /// No description provided for @purchaseReceivedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang diterima'**
+  String get purchaseReceivedTitle;
+
+  /// No description provided for @purchaseReceivedSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok {location} bertambah lewat ledger saat pembelian disimpan'**
+  String purchaseReceivedSubtitle(String location);
+
+  /// No description provided for @purchaseColAvgCost.
+  ///
+  /// In id, this message translates to:
+  /// **'HPP rata-rata'**
+  String get purchaseColAvgCost;
+
+  /// No description provided for @purchaseColSellPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual'**
+  String get purchaseColSellPrice;
+
+  /// No description provided for @purchaseColSuggested.
+  ///
+  /// In id, this message translates to:
+  /// **'Saran jual'**
+  String get purchaseColSuggested;
+
+  /// No description provided for @purchaseColChangePrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah harga'**
+  String get purchaseColChangePrice;
+
+  /// No description provided for @purchaseBelowSuggested.
+  ///
+  /// In id, this message translates to:
+  /// **'Di bawah saran'**
+  String get purchaseBelowSuggested;
+
+  /// No description provided for @purchaseSafe.
+  ///
+  /// In id, this message translates to:
+  /// **'Aman'**
+  String get purchaseSafe;
+
+  /// No description provided for @purchaseApplyPrices.
+  ///
+  /// In id, this message translates to:
+  /// **'Terapkan harga jual ({count} produk)'**
+  String purchaseApplyPrices(int count);
+
+  /// No description provided for @purchasePricesApplied.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual diperbarui.'**
+  String get purchasePricesApplied;
+
+  /// No description provided for @purchaseAvgCostNote.
+  ///
+  /// In id, this message translates to:
+  /// **'HPP memakai rata-rata tertimbang (moving average) dalam satuan dasar. Saran jual menjaga margin harga jual saat barang diterima. Centang \"Ubah harga\" lalu Terapkan harga jual.'**
+  String get purchaseAvgCostNote;
+
+  /// No description provided for @purchaseSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Ringkasan'**
+  String get purchaseSummary;
+
+  /// No description provided for @purchasePaidSoFar.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah dibayar'**
+  String get purchasePaidSoFar;
+
+  /// No description provided for @purchaseReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'Diretur'**
+  String get purchaseReturned;
+
+  /// No description provided for @purchaseDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa hutang'**
+  String get purchaseDebt;
+
+  /// No description provided for @purchaseDueIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo {date} ({days} hari lagi).'**
+  String purchaseDueIn(String date, int days);
+
+  /// No description provided for @purchaseDueToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo {date} (hari ini).'**
+  String purchaseDueToday(String date);
+
+  /// No description provided for @purchaseOverdue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo {date} (lewat {days} hari).'**
+  String purchaseOverdue(String date, int days);
+
+  /// No description provided for @purchasePayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran'**
+  String get purchasePayments;
+
+  /// No description provided for @purchasePaymentDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get purchasePaymentDate;
+
+  /// No description provided for @purchasePaymentDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get purchasePaymentDesc;
+
+  /// No description provided for @purchasePaymentFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari'**
+  String get purchasePaymentFrom;
+
+  /// No description provided for @purchasePaymentAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get purchasePaymentAmount;
+
+  /// No description provided for @purchaseDownPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar di muka'**
+  String get purchaseDownPayment;
+
+  /// No description provided for @purchaseReturnReduction.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur {number} (pengurang hutang)'**
+  String purchaseReturnReduction(String number);
+
+  /// No description provided for @purchaseReturnRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur {number} (uang kembali)'**
+  String purchaseReturnRefund(String number);
+
+  /// No description provided for @purchaseNoPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pembayaran.'**
+  String get purchaseNoPayments;
+
+  /// No description provided for @purchasePayDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar hutang'**
+  String get purchasePayDebt;
+
+  /// No description provided for @purchasePayDebtLater.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelunasan hutang menyusul di modul Supplier & hutang.'**
+  String get purchasePayDebtLater;
+
+  /// No description provided for @purchaseActions.
+  ///
+  /// In id, this message translates to:
+  /// **'Tindakan'**
+  String get purchaseActions;
+
+  /// No description provided for @purchaseReturnAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur pembelian'**
+  String get purchaseReturnAction;
+
+  /// No description provided for @purchaseReturnActionNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Membuat dokumen RB-… yang mengurangi stok & hutang. Pembelian yang sudah diterima tidak bisa dihapus, hanya diretur.'**
+  String get purchaseReturnActionNote;
+
+  /// No description provided for @purchaseReturnTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur pembelian'**
+  String get purchaseReturnTitle;
+
+  /// No description provided for @purchaseReturnRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa {qty}'**
+  String purchaseReturnRemaining(String qty);
+
+  /// No description provided for @purchaseReturnQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Qty retur'**
+  String get purchaseReturnQty;
+
+  /// No description provided for @purchaseReturnNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan retur'**
+  String get purchaseReturnNote;
+
+  /// No description provided for @purchaseRefundTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali ke'**
+  String get purchaseRefundTo;
+
+  /// No description provided for @purchaseReturnSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengurangi hutang {debt} · uang kembali {refund}'**
+  String purchaseReturnSplit(String debt, String refund);
+
+  /// No description provided for @purchaseReturnSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Proses retur · {amount}'**
+  String purchaseReturnSubmit(String amount);
+
+  /// No description provided for @purchaseReturnCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get purchaseReturnCancel;
+
+  /// No description provided for @purchaseReturnErrEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi qty retur minimal satu barang.'**
+  String get purchaseReturnErrEmpty;
+
+  /// No description provided for @purchaseReturnErrQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Qty retur melebihi sisa.'**
+  String get purchaseReturnErrQty;
+
+  /// No description provided for @purchaseReturnErrStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok di lokasi pembelian tidak cukup untuk diretur.'**
+  String get purchaseReturnErrStock;
+
+  /// No description provided for @purchaseReturnErrRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih ke mana uang kembali.'**
+  String get purchaseReturnErrRefund;
+
+  /// No description provided for @purchaseReturnErrStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya pembelian yang sudah diterima yang bisa diretur.'**
+  String get purchaseReturnErrStatus;
+
+  /// No description provided for @purchaseReturnDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur {number} tercatat.'**
+  String purchaseReturnDone(String number);
+
+  /// No description provided for @purchaseReturnsMade.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur yang sudah dibuat'**
+  String get purchaseReturnsMade;
+
+  /// No description provided for @purchaseDetailLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail pembelian gagal dimuat.'**
+  String get purchaseDetailLoadFailed;
+
+  /// No description provided for @purchaseErrLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi stok tidak ditemukan. Pilih lokasi lain.'**
+  String get purchaseErrLocation;
+
+  /// No description provided for @purchaseRefundToHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih kas atau rekening'**
+  String get purchaseRefundToHint;
 }
 
 class _AppLocalizationsDelegate

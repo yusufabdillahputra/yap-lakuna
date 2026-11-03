@@ -17,6 +17,7 @@ part '20261103175303114-modifier/migration.dart';
 part '20261103184928076-split/migration.dart';
 part '20261103195744239-denah/migration.dart';
 part '20261103205544079-riwayat/migration.dart';
+part '20261103222601917-pembelian/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -36,6 +37,7 @@ class MigrationRegistry {
     _Migration20261103184928076_split(),
     _Migration20261103195744239_denah(),
     _Migration20261103205544079_riwayat(),
+    _Migration20261103222601917_pembelian(),
   ];
 
   /// List of all client-side database migration versions.

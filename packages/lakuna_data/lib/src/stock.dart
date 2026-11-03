@@ -105,9 +105,33 @@ Future<StockMovement> recordStockMovement(
     variantId: variantId,
     quantity: quantity,
     unitCost: unitCost,
+    sourceType: sourceType,
   );
   return movement;
 }
+
+/// HPP rata-rata lokasi setelah satu pergerakan: masuk memakai rata-rata
+/// tertimbang; retur beli keluar pada HPP mendarat barisnya
+/// ([averageCostAfterReturn]); keluar lainnya tidak mengubah rata-rata.
+Money levelAverageCost({
+  required Qty onHand,
+  required Money avgCost,
+  required Qty quantity,
+  required Money unitCost,
+  required StockSourceType sourceType,
+}) => sourceType == StockSourceType.purchaseReturn && quantity.milli < 0
+    ? averageCostAfterReturn(
+        onHand: onHand,
+        avgCost: avgCost,
+        returned: -quantity,
+        unitCost: unitCost,
+      )
+    : movingAverageCost(
+        onHand: onHand,
+        avgCost: avgCost,
+        incoming: quantity,
+        unitCost: unitCost,
+      );
 
 Future<void> _applyToLevel(
   DatabaseSession session,
@@ -116,6 +140,7 @@ Future<void> _applyToLevel(
   required UuidValue variantId,
   required Qty quantity,
   required Money unitCost,
+  required StockSourceType sourceType,
 }) async {
   final level = await StockLevel.db.findFirstRow(
     session,
@@ -124,11 +149,12 @@ Future<void> _applyToLevel(
     transaction: transaction,
   );
   final onHand = Qty(level?.quantityMilli ?? 0);
-  final avg = movingAverageCost(
+  final avg = levelAverageCost(
     onHand: onHand,
     avgCost: Money(level?.avgCost ?? 0),
-    incoming: quantity,
+    quantity: quantity,
     unitCost: unitCost,
+    sourceType: sourceType,
   );
   if (level == null) {
     await StockLevel.db.insertRow(
@@ -192,11 +218,12 @@ Future<void> rebuildStockLevels(LakunaStore store) =>
         final quantity = Qty(m.quantityMilli);
         levels[key] = (
           onHand + quantity,
-          movingAverageCost(
+          levelAverageCost(
             onHand: onHand,
             avgCost: avg,
-            incoming: quantity,
+            quantity: quantity,
             unitCost: Money(m.unitCost),
+            sourceType: m.sourceType,
           ),
         );
       }

@@ -64,7 +64,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 9 | [Master data](2026-11-03-f1-09-master-data-design.md) | 1.17 | Rilis v0.10.0: kategori, satuan, lokasi (baca), metode bayar (tautan); alasan, jenis pengeluaran, grup pelanggan, meja/modifier menyusul modulnya |
 | 10 | Meja F&B (denah `vyuh_node_flow`), open bill, modifier, split bill | 1.7, 1.7b–d, 1.8, 1.9 | Rilis: grid, open bill, take away, pajak & service v0.11.0; modifier v0.12.0; split bill v0.13.0; denah v0.14.0 |
 | 11 | [Riwayat transaksi, void & retur](2026-11-03-f1-11-riwayat-void-retur-design.md) | 1.14 | Rilis v0.15.0: daftar + filter, retur sebagian/penuh, void dengan persetujuan PIN manajer, cetak ulang, ekspor Excel (retur ke piutang menyusul F1-13) |
-| 12 | Pembelian & retur beli | 1.19 | Belum |
+| 12 | [Pembelian & retur beli](2026-11-03-f1-12-pembelian-design.md) | 1.19, 1.19b | Rilis v0.16.0: draf, terima, landed cost, HPP, hutang + jatuh tempo, kas laci, retur beli, saran harga jual (bayar hutang di F1-14) |
 | 13 | Pelanggan & piutang | 1.20 | Belum |
 | 14 | Supplier & hutang | 1.21 | Belum |
 | 15 | Pengeluaran | 1.22 | Belum |

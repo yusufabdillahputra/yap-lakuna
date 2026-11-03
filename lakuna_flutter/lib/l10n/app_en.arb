@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, transaction history, and purchases are ready to use. Customers, suppliers, and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -1768,5 +1768,274 @@
   "receiptBannerVoid": "VOID",
   "receiptReturned": "Returned",
   "receiptNet": "Net",
-  "stockNoteVoid": "Sale voided"
+  "stockNoteVoid": "Sale voided",
+  "purchasesTitle": "Purchases",
+  "purchasesSubtitle": "Goods received from suppliers, including purchase returns",
+  "purchasesNew": "New purchase",
+  "purchasesTabPurchases": "Purchases",
+  "purchasesTabReturns": "Purchase returns",
+  "purchasesSearch": "Search number / supplier",
+  "purchasesColNumber": "Number",
+  "purchasesColSupplier": "Supplier",
+  "purchasesColTotal": "Total",
+  "purchasesColStatus": "Status",
+  "purchasesColValue": "Value",
+  "purchasesColSource": "Original purchase",
+  "purchasesStatusDraft": "Draft",
+  "purchasesStatusPaid": "Paid",
+  "purchasesStatusDebt": "Payable",
+  "purchasesDraftTag": "draft",
+  "purchasesReturnTag": "return",
+  "purchasesNoSupplier": "No supplier",
+  "purchasesEmpty": "No purchases yet.",
+  "purchasesReturnsEmpty": "No purchase returns yet.",
+  "purchasesLoadFailed": "Purchases failed to load.",
+  "purchaseFormNew": "New purchase · {number}",
+  "@purchaseFormNew": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseFormDraft": "Draft · {number}",
+  "@purchaseFormDraft": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseSupplier": "Supplier",
+  "purchaseSupplierNew": "+ New supplier",
+  "purchaseSupplierNewName": "New supplier name",
+  "purchaseSupplierPick": "Pick from the list",
+  "purchaseInvoiceNo": "Supplier invoice no.",
+  "purchaseDate": "Date",
+  "purchaseLocation": "Receive into",
+  "purchaseColProduct": "Product",
+  "purchaseColUnit": "Unit",
+  "purchaseColQty": "Qty",
+  "purchaseColPrice": "Cost price",
+  "purchaseColSubtotal": "Subtotal",
+  "purchaseRemoveLine": "Remove line",
+  "purchaseScan": "+ Scan / search product",
+  "purchaseScanHint": "Barcode, SKU or product name",
+  "purchaseScanNotFound": "Product \"{code}\" not found.",
+  "@purchaseScanNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseNoLines": "No products yet. Scan a barcode or search by name.",
+  "purchasePaidNow": "Pay now",
+  "purchasePayInFull": "Pay in full",
+  "purchaseFundingFrom": "From",
+  "fundingStoreCash": "Store cash",
+  "fundingDrawer": "Cash drawer",
+  "fundingBank": "Bank account",
+  "purchaseDueOn": "Balance due on",
+  "purchaseNote": "Note",
+  "purchaseSubtotal": "Subtotal",
+  "purchaseDiscount": "Invoice discount",
+  "purchaseShipping": "Shipping",
+  "purchaseTotal": "Total",
+  "purchaseDebtLeft": "Balance becomes payable",
+  "purchaseSaveDraft": "Save draft",
+  "purchaseReceive": "Receive goods & save",
+  "purchaseDeleteDraft": "Delete draft",
+  "purchaseReceiveNote": "On save: {location} stock increases (ledger), the average cost is updated, and the supplier payable is recorded.",
+  "@purchaseReceiveNote": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseDraftSaved": "Draft {number} saved.",
+  "@purchaseDraftSaved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseErrLines": "Add at least one product.",
+  "purchaseErrQty": "Qty must be more than 0.",
+  "purchaseErrPrice": "Invalid cost price.",
+  "purchaseErrDiscount": "The discount can't exceed the subtotal.",
+  "purchaseErrShipping": "Invalid shipping cost.",
+  "purchaseErrPaid": "Payment can't exceed the total.",
+  "purchaseErrSupplier": "Choose or type a supplier for a purchase on credit.",
+  "purchaseErrDueOn": "Set a due date, not before the purchase date.",
+  "purchaseErrInvoiceNo": "Invoice no. is at most {max} characters.",
+  "@purchaseErrInvoiceNo": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseErrNote": "The note is at most {max} characters.",
+  "@purchaseErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseErrDrawer": "Paying from the cash drawer needs an open cashier session on this device.",
+  "purchaseErrNotEditable": "This purchase was already received and can't be changed.",
+  "purchaseErrNotFound": "Purchase not found.",
+  "purchaseErrNotPermitted": "You don't have permission to manage purchases.",
+  "purchaseErrGeneric": "The purchase couldn't be saved. Try again.",
+  "purchaseFrom": "Purchase from {supplier}",
+  "@purchaseFrom": {
+    "placeholders": {
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseBadgePaid": "Paid",
+  "purchaseBadgeDebt": "Unpaid · payable",
+  "purchaseCreatedBy": "Created by",
+  "purchaseReceivedTitle": "Goods received",
+  "purchaseReceivedSubtitle": "{location} stock increased through the ledger when the purchase was saved",
+  "@purchaseReceivedSubtitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseColAvgCost": "Average cost",
+  "purchaseColSellPrice": "Sell price",
+  "purchaseColSuggested": "Suggested price",
+  "purchaseColChangePrice": "Change price",
+  "purchaseBelowSuggested": "Below suggestion",
+  "purchaseSafe": "OK",
+  "purchaseApplyPrices": "Apply sell price ({count} products)",
+  "@purchaseApplyPrices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchasePricesApplied": "Sell prices updated.",
+  "purchaseAvgCostNote": "Average cost uses a weighted moving average in the base unit. The suggested price keeps the margin of the sell price at receipt. Tick \"Change price\", then Apply sell price.",
+  "purchaseSummary": "Summary",
+  "purchasePaidSoFar": "Paid",
+  "purchaseReturned": "Returned",
+  "purchaseDebt": "Balance payable",
+  "purchaseDueIn": "Due {date} (in {days} days).",
+  "@purchaseDueIn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseDueToday": "Due {date} (today).",
+  "@purchaseDueToday": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseOverdue": "Due {date} ({days} days overdue).",
+  "@purchaseOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "purchasePayments": "Payments",
+  "purchasePaymentDate": "Date",
+  "purchasePaymentDesc": "Description",
+  "purchasePaymentFrom": "From",
+  "purchasePaymentAmount": "Amount",
+  "purchaseDownPayment": "Down payment",
+  "purchaseReturnReduction": "Return {number} (reduces payable)",
+  "@purchaseReturnReduction": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnRefund": "Return {number} (refund)",
+  "@purchaseReturnRefund": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseNoPayments": "No payments yet.",
+  "purchasePayDebt": "Pay payable",
+  "purchasePayDebtLater": "Paying off payables comes with the Suppliers & payables module.",
+  "purchaseActions": "Actions",
+  "purchaseReturnAction": "Purchase return",
+  "purchaseReturnActionNote": "Creates an RB-… document that reduces stock and the payable. A received purchase can't be deleted, only returned.",
+  "purchaseReturnTitle": "Purchase return",
+  "purchaseReturnRemaining": "Left {qty}",
+  "@purchaseReturnRemaining": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnQty": "Return qty",
+  "purchaseReturnNote": "Return note",
+  "purchaseRefundTo": "Refund to",
+  "purchaseReturnSplit": "Reduces payable {debt} · refund {refund}",
+  "@purchaseReturnSplit": {
+    "placeholders": {
+      "debt": {
+        "type": "String"
+      },
+      "refund": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnSubmit": "Process return · {amount}",
+  "@purchaseReturnSubmit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnCancel": "Cancel",
+  "purchaseReturnErrEmpty": "Enter a return qty for at least one item.",
+  "purchaseReturnErrQty": "The return qty exceeds what's left.",
+  "purchaseReturnErrStock": "There isn't enough stock at the purchase location to return.",
+  "purchaseReturnErrRefund": "Choose where the refund goes.",
+  "purchaseReturnErrStatus": "Only received purchases can be returned.",
+  "purchaseReturnDone": "Return {number} recorded.",
+  "@purchaseReturnDone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnsMade": "Returns made",
+  "purchaseDetailLoadFailed": "The purchase details failed to load.",
+  "purchaseErrLocation": "Stock location not found. Choose another location.",
+  "purchaseRefundToHint": "Choose cash or account"
 }

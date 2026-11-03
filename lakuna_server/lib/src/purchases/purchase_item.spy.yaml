@@ -1,0 +1,36 @@
+### Baris pembelian (F1-12). Qty dan harga dalam satuan baris; isi
+### `factor_milli` dan harga pokok mendarat per satuan dasar disalin agar
+### retur memakai angka saat pembelian. `avg_cost_before/after` diisi saat
+### barang diterima (HPP rata-rata lokasi, satuan dasar).
+class: PurchaseItem
+table: purchase_items
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  purchaseId: UuidValue, relation(parent=purchases, onDelete=Restrict), column=purchase_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  productUnitId: UuidValue?, relation(parent=product_units, onDelete=Restrict), column=product_unit_id
+  productName: String, column=product_name
+  variantName: String, column=variant_name
+  unitName: String, column=unit_name
+  factorMilli: int, column=factor_milli
+  quantityMilli: int, column=quantity_milli
+  unitPrice: int, column=unit_price
+  lineTotal: int, column=line_total
+  landedUnitCost: int, column=landed_unit_cost
+  avgCostBefore: int?, column=avg_cost_before
+  avgCostAfter: int?, column=avg_cost_after
+  sellPriceBefore: int?, column=sell_price_before
+  sortOrder: int, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  purchase_items_purchase_idx:
+    fields: purchaseId

@@ -1,0 +1,6 @@
+### Status dokumen pembelian (F1-12). Draf belum menggerakkan stok.
+enum: PurchaseStatus
+serialized: byName
+values:
+  - draft
+  - received

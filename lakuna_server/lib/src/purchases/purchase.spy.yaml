@@ -1,0 +1,44 @@
+### Pembelian dari supplier (F1-12), nomor `PB-<OUTLET>-<PERANGKAT>-<yymmdd>-<nnnn>`.
+### `purchased_on` = tanggal lokal (UTC tengah malam). Hutang = total −
+### `paid_amount` − pengurang hutang retur (`purchase_returns.debt_reduction`).
+class: Purchase
+table: purchases
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  stockLocationId: UuidValue, relation(parent=stock_locations, onDelete=Restrict), column=stock_location_id
+  supplierId: UuidValue?, relation(parent=suppliers, onDelete=Restrict), column=supplier_id
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  number: String
+  invoiceNo: String?, column=invoice_no
+  status: PurchaseStatus
+  purchasedOn: DateTime, column=purchased_on
+  subtotal: int
+  discount: int
+  shipping: int
+  total: int
+  paidAmount: int, column=paid_amount
+  fundingSource: FundingSource?, column=funding_source
+  dueOn: DateTime?, column=due_on
+  note: String?
+  receivedAt: DateTime?, column=received_at
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  purchases_outlet_idx:
+    fields: outletId, purchasedOn
+  purchases_supplier_idx:
+    fields: supplierId
+  purchases_number_idx:
+    fields: tenantId, number
+    unique: true

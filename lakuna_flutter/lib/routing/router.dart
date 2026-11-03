@@ -9,6 +9,7 @@ import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
 import '../data/repositories/history_repository.dart';
+import '../data/repositories/purchases_repository.dart';
 import '../data/repositories/master_data_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
@@ -28,6 +29,8 @@ import '../ui/dining/dining_view.dart';
 import '../ui/dining/split_bill_view.dart';
 import '../ui/floor_plan/floor_plan_view.dart';
 import '../ui/history/history_view.dart';
+import '../ui/purchases/purchase_detail_view.dart';
+import '../ui/purchases/purchases_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -57,6 +60,7 @@ GoRouter createRouter({
   required DiningRepository dining,
   required DiningAdminRepository diningAdmin,
   required HistoryRepository history,
+  required PurchasesRepository purchases,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
@@ -286,6 +290,47 @@ GoRouter createRouter({
               session: session,
               diningAdmin: diningAdmin,
             ),
+          ),
+          GoRoute(
+            path: Routes.purchases,
+            builder: (context, state) => PurchasesScreen(
+              repository: purchases,
+              onOpenPurchase: (id) =>
+                  context.push<void>(Routes.purchase(id.uuid)),
+              onNewPurchase: () => context.push<UuidValue>(Routes.purchaseNew),
+            ),
+          ),
+          GoRoute(
+            path: Routes.purchaseNew,
+            builder: (context, state) => PurchaseFormPage(
+              repository: purchases,
+              // Setelah diterima, daftar membuka detail pembelian.
+              onReceived: (p) => context.canPop()
+                  ? context.pop(p.id)
+                  : context.go(Routes.purchase(p.id.uuid)),
+              onBack: () => context.canPop()
+                  ? context.pop()
+                  : context.go(Routes.purchases),
+            ),
+          ),
+          GoRoute(
+            path: '${Routes.purchases}/:purchase',
+            // Tautan rusak kembali ke daftar pembelian.
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['purchase']) == null
+                ? Routes.purchases
+                : null,
+            builder: (context, state) {
+              final id = state.pathParameters['purchase']!;
+              return PurchaseDetailScreen(
+                key: ValueKey('purchase-$id'),
+                repository: purchases,
+                purchaseId: UuidValue.fromString(id),
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(Routes.purchases),
+              );
+            },
           ),
           GoRoute(
             path: '/modul/:key',
