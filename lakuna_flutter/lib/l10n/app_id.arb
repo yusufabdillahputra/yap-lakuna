@@ -155,5 +155,128 @@
   "roleManager": "Manajer",
   "roleCashier": "Kasir",
   "roleWaiter": "Pelayan",
-  "roleStockKeeper": "Staf gudang"
+  "roleStockKeeper": "Staf gudang",
+  "menuCashSession": "Sesi kasir",
+  "cashDrawerTitle": "Sesi kasir · Kas laci",
+  "cashCashierLabel": "Kasir: {name}",
+  "@cashCashierLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashOpenTitle": "Buka sesi kasir",
+  "cashOpenBody": "Hitung uang di laci sebelum mulai berjualan, lalu catat sebagai saldo awal.",
+  "cashOpeningCash": "Saldo awal laci",
+  "cashOpeningNote": "Catatan (opsional)",
+  "cashOpenButton": "Buka sesi",
+  "cashActive": "Sesi aktif",
+  "cashOpenedBy": "Dibuka {time} oleh {name} · {device}",
+  "@cashOpenedBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "cashExpected": "Perkiraan uang di laci",
+  "cashCloseButton": "Tutup sesi",
+  "cashMovementsTitle": "Gerakan kas sesi ini",
+  "cashColTime": "Jam",
+  "cashColNote": "Keterangan",
+  "cashColSource": "Sumber",
+  "cashColAmount": "Jumlah",
+  "cashOpeningRow": "Saldo awal",
+  "cashSourceOpening": "Buka sesi",
+  "cashSourceManual": "Manual",
+  "cashMovementsFootnote": "Pengeluaran, bayar hutang, dan retur tunai dari modul lain akan tercatat otomatis di sesi yang sedang buka.",
+  "cashRecordTitle": "Catat uang laci",
+  "cashOutflow": "Uang keluar",
+  "cashInflow": "Uang masuk",
+  "cashAmount": "Jumlah",
+  "cashNote": "Keterangan",
+  "cashNoteHint": "Mis. beli es batu",
+  "cashSave": "Simpan",
+  "cashNeedsPermission": "Butuh izin {permission}.",
+  "@cashNeedsPermission": {
+    "placeholders": {
+      "permission": {
+        "type": "String"
+      }
+    }
+  },
+  "cashCloseTitle": "Tutup sesi kasir · {name}",
+  "@cashCloseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashBackToDrawer": "Kembali ke kas laci",
+  "cashStatTransactions": "Transaksi",
+  "cashStatSales": "Penjualan",
+  "cashStatVoids": "Void / retur",
+  "cashRecapTitle": "Rekap kas laci",
+  "cashRecapOpening": "Saldo awal ({time})",
+  "@cashRecapOpening": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cashRecapCashSales": "Penjualan tunai",
+  "cashRecapInflow": "Uang masuk lain",
+  "cashRecapOutflow": "Uang keluar",
+  "cashRecapExpected": "Seharusnya di laci",
+  "cashRecapNonCash": "QRIS statis (terkonfirmasi) · kartu",
+  "cashRecapFootnote": "QRIS statis & kartu tidak masuk laci, ditampilkan terpisah untuk dicocokkan dengan mutasi rekening.",
+  "cashCountTitle": "Hitung uang fisik",
+  "cashSheetsLabel": "Lembar Rp {denomination}",
+  "@cashSheetsLabel": {
+    "placeholders": {
+      "denomination": {
+        "type": "String"
+      }
+    }
+  },
+  "cashCoins": "Receh",
+  "cashCounted": "Uang dihitung",
+  "cashDifference": "Selisih",
+  "cashDifferenceExact": "Pas",
+  "cashClosingNote": "Catatan selisih",
+  "cashClosingNoteHint": "Wajib diisi bila ada selisih",
+  "cashClosedTitle": "Sesi kasir ditutup",
+  "cashClosedBody": "Ditutup {time}. Rekap tersimpan di perangkat ini.",
+  "@cashClosedBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cashStartNew": "Buka sesi baru",
+  "cashErrorNegative": "Tidak boleh negatif",
+  "cashErrorNotPositive": "Harus lebih dari 0",
+  "cashErrorTooLong": "Maksimal 200 karakter",
+  "cashErrorNotPermitted": "Anda tidak punya izin {permission}.",
+  "@cashErrorNotPermitted": {
+    "placeholders": {
+      "permission": {
+        "type": "String"
+      }
+    }
+  },
+  "cashErrorAlreadyOpen": "Sesi sudah dibuka di layar lain. Data dimuat ulang.",
+  "cashErrorNotOpen": "Sesi sudah ditutup di layar lain. Data dimuat ulang.",
+  "cashErrorFailed": "Gagal menyimpan. Coba lagi.",
+  "cashLoadFailed": "Sesi kasir gagal dimuat."
 }

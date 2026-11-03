@@ -383,4 +383,208 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get roleStockKeeper => 'Staf gudang';
+
+  @override
+  String get menuCashSession => 'Sesi kasir';
+
+  @override
+  String get cashDrawerTitle => 'Sesi kasir · Kas laci';
+
+  @override
+  String cashCashierLabel(String name) {
+    return 'Kasir: $name';
+  }
+
+  @override
+  String get cashOpenTitle => 'Buka sesi kasir';
+
+  @override
+  String get cashOpenBody =>
+      'Hitung uang di laci sebelum mulai berjualan, lalu catat sebagai saldo awal.';
+
+  @override
+  String get cashOpeningCash => 'Saldo awal laci';
+
+  @override
+  String get cashOpeningNote => 'Catatan (opsional)';
+
+  @override
+  String get cashOpenButton => 'Buka sesi';
+
+  @override
+  String get cashActive => 'Sesi aktif';
+
+  @override
+  String cashOpenedBy(String time, String name, String device) {
+    return 'Dibuka $time oleh $name · $device';
+  }
+
+  @override
+  String get cashExpected => 'Perkiraan uang di laci';
+
+  @override
+  String get cashCloseButton => 'Tutup sesi';
+
+  @override
+  String get cashMovementsTitle => 'Gerakan kas sesi ini';
+
+  @override
+  String get cashColTime => 'Jam';
+
+  @override
+  String get cashColNote => 'Keterangan';
+
+  @override
+  String get cashColSource => 'Sumber';
+
+  @override
+  String get cashColAmount => 'Jumlah';
+
+  @override
+  String get cashOpeningRow => 'Saldo awal';
+
+  @override
+  String get cashSourceOpening => 'Buka sesi';
+
+  @override
+  String get cashSourceManual => 'Manual';
+
+  @override
+  String get cashMovementsFootnote =>
+      'Pengeluaran, bayar hutang, dan retur tunai dari modul lain akan tercatat otomatis di sesi yang sedang buka.';
+
+  @override
+  String get cashRecordTitle => 'Catat uang laci';
+
+  @override
+  String get cashOutflow => 'Uang keluar';
+
+  @override
+  String get cashInflow => 'Uang masuk';
+
+  @override
+  String get cashAmount => 'Jumlah';
+
+  @override
+  String get cashNote => 'Keterangan';
+
+  @override
+  String get cashNoteHint => 'Mis. beli es batu';
+
+  @override
+  String get cashSave => 'Simpan';
+
+  @override
+  String cashNeedsPermission(String permission) {
+    return 'Butuh izin $permission.';
+  }
+
+  @override
+  String cashCloseTitle(String name) {
+    return 'Tutup sesi kasir · $name';
+  }
+
+  @override
+  String get cashBackToDrawer => 'Kembali ke kas laci';
+
+  @override
+  String get cashStatTransactions => 'Transaksi';
+
+  @override
+  String get cashStatSales => 'Penjualan';
+
+  @override
+  String get cashStatVoids => 'Void / retur';
+
+  @override
+  String get cashRecapTitle => 'Rekap kas laci';
+
+  @override
+  String cashRecapOpening(String time) {
+    return 'Saldo awal ($time)';
+  }
+
+  @override
+  String get cashRecapCashSales => 'Penjualan tunai';
+
+  @override
+  String get cashRecapInflow => 'Uang masuk lain';
+
+  @override
+  String get cashRecapOutflow => 'Uang keluar';
+
+  @override
+  String get cashRecapExpected => 'Seharusnya di laci';
+
+  @override
+  String get cashRecapNonCash => 'QRIS statis (terkonfirmasi) · kartu';
+
+  @override
+  String get cashRecapFootnote =>
+      'QRIS statis & kartu tidak masuk laci, ditampilkan terpisah untuk dicocokkan dengan mutasi rekening.';
+
+  @override
+  String get cashCountTitle => 'Hitung uang fisik';
+
+  @override
+  String cashSheetsLabel(String denomination) {
+    return 'Lembar Rp $denomination';
+  }
+
+  @override
+  String get cashCoins => 'Receh';
+
+  @override
+  String get cashCounted => 'Uang dihitung';
+
+  @override
+  String get cashDifference => 'Selisih';
+
+  @override
+  String get cashDifferenceExact => 'Pas';
+
+  @override
+  String get cashClosingNote => 'Catatan selisih';
+
+  @override
+  String get cashClosingNoteHint => 'Wajib diisi bila ada selisih';
+
+  @override
+  String get cashClosedTitle => 'Sesi kasir ditutup';
+
+  @override
+  String cashClosedBody(String time) {
+    return 'Ditutup $time. Rekap tersimpan di perangkat ini.';
+  }
+
+  @override
+  String get cashStartNew => 'Buka sesi baru';
+
+  @override
+  String get cashErrorNegative => 'Tidak boleh negatif';
+
+  @override
+  String get cashErrorNotPositive => 'Harus lebih dari 0';
+
+  @override
+  String get cashErrorTooLong => 'Maksimal 200 karakter';
+
+  @override
+  String cashErrorNotPermitted(String permission) {
+    return 'Anda tidak punya izin $permission.';
+  }
+
+  @override
+  String get cashErrorAlreadyOpen =>
+      'Sesi sudah dibuka di layar lain. Data dimuat ulang.';
+
+  @override
+  String get cashErrorNotOpen =>
+      'Sesi sudah ditutup di layar lain. Data dimuat ulang.';
+
+  @override
+  String get cashErrorFailed => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String get cashLoadFailed => 'Sesi kasir gagal dimuat.';
 }

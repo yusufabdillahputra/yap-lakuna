@@ -21,6 +21,7 @@ void main() {
     for (final label in [
       'Beranda',
       'Kasir',
+      'Sesi kasir',
       'Riwayat',
       'Produk',
       'Stok',

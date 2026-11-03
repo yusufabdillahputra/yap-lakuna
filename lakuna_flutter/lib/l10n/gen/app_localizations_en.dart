@@ -390,4 +390,208 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleStockKeeper => 'Stock keeper';
+
+  @override
+  String get menuCashSession => 'Cash session';
+
+  @override
+  String get cashDrawerTitle => 'Cash session · Cash drawer';
+
+  @override
+  String cashCashierLabel(String name) {
+    return 'Cashier: $name';
+  }
+
+  @override
+  String get cashOpenTitle => 'Open cash session';
+
+  @override
+  String get cashOpenBody =>
+      'Count the money in the drawer before you start selling, then record it as the opening cash.';
+
+  @override
+  String get cashOpeningCash => 'Opening cash';
+
+  @override
+  String get cashOpeningNote => 'Note (optional)';
+
+  @override
+  String get cashOpenButton => 'Open session';
+
+  @override
+  String get cashActive => 'Active session';
+
+  @override
+  String cashOpenedBy(String time, String name, String device) {
+    return 'Opened $time by $name · $device';
+  }
+
+  @override
+  String get cashExpected => 'Expected cash in drawer';
+
+  @override
+  String get cashCloseButton => 'Close session';
+
+  @override
+  String get cashMovementsTitle => 'Cash movements this session';
+
+  @override
+  String get cashColTime => 'Time';
+
+  @override
+  String get cashColNote => 'Description';
+
+  @override
+  String get cashColSource => 'Source';
+
+  @override
+  String get cashColAmount => 'Amount';
+
+  @override
+  String get cashOpeningRow => 'Opening cash';
+
+  @override
+  String get cashSourceOpening => 'Session opened';
+
+  @override
+  String get cashSourceManual => 'Manual';
+
+  @override
+  String get cashMovementsFootnote =>
+      'Expenses, debt payments, and cash refunds from other modules will be recorded automatically in the open session.';
+
+  @override
+  String get cashRecordTitle => 'Record drawer cash';
+
+  @override
+  String get cashOutflow => 'Cash out';
+
+  @override
+  String get cashInflow => 'Cash in';
+
+  @override
+  String get cashAmount => 'Amount';
+
+  @override
+  String get cashNote => 'Description';
+
+  @override
+  String get cashNoteHint => 'E.g. buy ice';
+
+  @override
+  String get cashSave => 'Save';
+
+  @override
+  String cashNeedsPermission(String permission) {
+    return 'Requires the $permission permission.';
+  }
+
+  @override
+  String cashCloseTitle(String name) {
+    return 'Close cash session · $name';
+  }
+
+  @override
+  String get cashBackToDrawer => 'Back to cash drawer';
+
+  @override
+  String get cashStatTransactions => 'Transactions';
+
+  @override
+  String get cashStatSales => 'Sales';
+
+  @override
+  String get cashStatVoids => 'Voids / returns';
+
+  @override
+  String get cashRecapTitle => 'Cash drawer recap';
+
+  @override
+  String cashRecapOpening(String time) {
+    return 'Opening cash ($time)';
+  }
+
+  @override
+  String get cashRecapCashSales => 'Cash sales';
+
+  @override
+  String get cashRecapInflow => 'Other cash in';
+
+  @override
+  String get cashRecapOutflow => 'Cash out';
+
+  @override
+  String get cashRecapExpected => 'Expected in drawer';
+
+  @override
+  String get cashRecapNonCash => 'Static QRIS (confirmed) · card';
+
+  @override
+  String get cashRecapFootnote =>
+      'Static QRIS & card payments don\'t go into the drawer; they are shown separately to match against the bank statement.';
+
+  @override
+  String get cashCountTitle => 'Count physical cash';
+
+  @override
+  String cashSheetsLabel(String denomination) {
+    return 'Rp $denomination notes';
+  }
+
+  @override
+  String get cashCoins => 'Coins';
+
+  @override
+  String get cashCounted => 'Counted cash';
+
+  @override
+  String get cashDifference => 'Difference';
+
+  @override
+  String get cashDifferenceExact => 'Exact';
+
+  @override
+  String get cashClosingNote => 'Difference note';
+
+  @override
+  String get cashClosingNoteHint => 'Required when there is a difference';
+
+  @override
+  String get cashClosedTitle => 'Cash session closed';
+
+  @override
+  String cashClosedBody(String time) {
+    return 'Closed at $time. The recap is saved on this device.';
+  }
+
+  @override
+  String get cashStartNew => 'Open a new session';
+
+  @override
+  String get cashErrorNegative => 'Cannot be negative';
+
+  @override
+  String get cashErrorNotPositive => 'Must be more than 0';
+
+  @override
+  String get cashErrorTooLong => 'At most 200 characters';
+
+  @override
+  String cashErrorNotPermitted(String permission) {
+    return 'You don\'t have the $permission permission.';
+  }
+
+  @override
+  String get cashErrorAlreadyOpen =>
+      'A session was already opened elsewhere. The data has been reloaded.';
+
+  @override
+  String get cashErrorNotOpen =>
+      'The session was already closed elsewhere. The data has been reloaded.';
+
+  @override
+  String get cashErrorFailed => 'Could not save. Try again.';
+
+  @override
+  String get cashLoadFailed => 'The cash session could not be loaded.';
 }

@@ -805,6 +805,372 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Staf gudang'**
   String get roleStockKeeper;
+
+  /// No description provided for @menuCashSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir'**
+  String get menuCashSession;
+
+  /// No description provided for @cashDrawerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir · Kas laci'**
+  String get cashDrawerTitle;
+
+  /// No description provided for @cashCashierLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir: {name}'**
+  String cashCashierLabel(String name);
+
+  /// No description provided for @cashOpenTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir'**
+  String get cashOpenTitle;
+
+  /// No description provided for @cashOpenBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Hitung uang di laci sebelum mulai berjualan, lalu catat sebagai saldo awal.'**
+  String get cashOpenBody;
+
+  /// No description provided for @cashOpeningCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo awal laci'**
+  String get cashOpeningCash;
+
+  /// No description provided for @cashOpeningNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get cashOpeningNote;
+
+  /// No description provided for @cashOpenButton.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi'**
+  String get cashOpenButton;
+
+  /// No description provided for @cashActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi aktif'**
+  String get cashActive;
+
+  /// No description provided for @cashOpenedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuka {time} oleh {name} · {device}'**
+  String cashOpenedBy(String time, String name, String device);
+
+  /// No description provided for @cashExpected.
+  ///
+  /// In id, this message translates to:
+  /// **'Perkiraan uang di laci'**
+  String get cashExpected;
+
+  /// No description provided for @cashCloseButton.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup sesi'**
+  String get cashCloseButton;
+
+  /// No description provided for @cashMovementsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gerakan kas sesi ini'**
+  String get cashMovementsTitle;
+
+  /// No description provided for @cashColTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get cashColTime;
+
+  /// No description provided for @cashColNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get cashColNote;
+
+  /// No description provided for @cashColSource.
+  ///
+  /// In id, this message translates to:
+  /// **'Sumber'**
+  String get cashColSource;
+
+  /// No description provided for @cashColAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get cashColAmount;
+
+  /// No description provided for @cashOpeningRow.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo awal'**
+  String get cashOpeningRow;
+
+  /// No description provided for @cashSourceOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi'**
+  String get cashSourceOpening;
+
+  /// No description provided for @cashSourceManual.
+  ///
+  /// In id, this message translates to:
+  /// **'Manual'**
+  String get cashSourceManual;
+
+  /// No description provided for @cashMovementsFootnote.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran, bayar hutang, dan retur tunai dari modul lain akan tercatat otomatis di sesi yang sedang buka.'**
+  String get cashMovementsFootnote;
+
+  /// No description provided for @cashRecordTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Catat uang laci'**
+  String get cashRecordTitle;
+
+  /// No description provided for @cashOutflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang keluar'**
+  String get cashOutflow;
+
+  /// No description provided for @cashInflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang masuk'**
+  String get cashInflow;
+
+  /// No description provided for @cashAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get cashAmount;
+
+  /// No description provided for @cashNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get cashNote;
+
+  /// No description provided for @cashNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mis. beli es batu'**
+  String get cashNoteHint;
+
+  /// No description provided for @cashSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get cashSave;
+
+  /// No description provided for @cashNeedsPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin {permission}.'**
+  String cashNeedsPermission(String permission);
+
+  /// No description provided for @cashCloseTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup sesi kasir · {name}'**
+  String cashCloseTitle(String name);
+
+  /// No description provided for @cashBackToDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke kas laci'**
+  String get cashBackToDrawer;
+
+  /// No description provided for @cashStatTransactions.
+  ///
+  /// In id, this message translates to:
+  /// **'Transaksi'**
+  String get cashStatTransactions;
+
+  /// No description provided for @cashStatSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan'**
+  String get cashStatSales;
+
+  /// No description provided for @cashStatVoids.
+  ///
+  /// In id, this message translates to:
+  /// **'Void / retur'**
+  String get cashStatVoids;
+
+  /// No description provided for @cashRecapTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekap kas laci'**
+  String get cashRecapTitle;
+
+  /// No description provided for @cashRecapOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo awal ({time})'**
+  String cashRecapOpening(String time);
+
+  /// No description provided for @cashRecapCashSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan tunai'**
+  String get cashRecapCashSales;
+
+  /// No description provided for @cashRecapInflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang masuk lain'**
+  String get cashRecapInflow;
+
+  /// No description provided for @cashRecapOutflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang keluar'**
+  String get cashRecapOutflow;
+
+  /// No description provided for @cashRecapExpected.
+  ///
+  /// In id, this message translates to:
+  /// **'Seharusnya di laci'**
+  String get cashRecapExpected;
+
+  /// No description provided for @cashRecapNonCash.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis (terkonfirmasi) · kartu'**
+  String get cashRecapNonCash;
+
+  /// No description provided for @cashRecapFootnote.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis & kartu tidak masuk laci, ditampilkan terpisah untuk dicocokkan dengan mutasi rekening.'**
+  String get cashRecapFootnote;
+
+  /// No description provided for @cashCountTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hitung uang fisik'**
+  String get cashCountTitle;
+
+  /// No description provided for @cashSheetsLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Lembar Rp {denomination}'**
+  String cashSheetsLabel(String denomination);
+
+  /// No description provided for @cashCoins.
+  ///
+  /// In id, this message translates to:
+  /// **'Receh'**
+  String get cashCoins;
+
+  /// No description provided for @cashCounted.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang dihitung'**
+  String get cashCounted;
+
+  /// No description provided for @cashDifference.
+  ///
+  /// In id, this message translates to:
+  /// **'Selisih'**
+  String get cashDifference;
+
+  /// No description provided for @cashDifferenceExact.
+  ///
+  /// In id, this message translates to:
+  /// **'Pas'**
+  String get cashDifferenceExact;
+
+  /// No description provided for @cashClosingNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan selisih'**
+  String get cashClosingNote;
+
+  /// No description provided for @cashClosingNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib diisi bila ada selisih'**
+  String get cashClosingNoteHint;
+
+  /// No description provided for @cashClosedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir ditutup'**
+  String get cashClosedTitle;
+
+  /// No description provided for @cashClosedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditutup {time}. Rekap tersimpan di perangkat ini.'**
+  String cashClosedBody(String time);
+
+  /// No description provided for @cashStartNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi baru'**
+  String get cashStartNew;
+
+  /// No description provided for @cashErrorNegative.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak boleh negatif'**
+  String get cashErrorNegative;
+
+  /// No description provided for @cashErrorNotPositive.
+  ///
+  /// In id, this message translates to:
+  /// **'Harus lebih dari 0'**
+  String get cashErrorNotPositive;
+
+  /// No description provided for @cashErrorTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 200 karakter'**
+  String get cashErrorTooLong;
+
+  /// No description provided for @cashErrorNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin {permission}.'**
+  String cashErrorNotPermitted(String permission);
+
+  /// No description provided for @cashErrorAlreadyOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi sudah dibuka di layar lain. Data dimuat ulang.'**
+  String get cashErrorAlreadyOpen;
+
+  /// No description provided for @cashErrorNotOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi sudah ditutup di layar lain. Data dimuat ulang.'**
+  String get cashErrorNotOpen;
+
+  /// No description provided for @cashErrorFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get cashErrorFailed;
+
+  /// No description provided for @cashLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir gagal dimuat.'**
+  String get cashLoadFailed;
 }
 
 class _AppLocalizationsDelegate

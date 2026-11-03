@@ -71,6 +71,13 @@ final List<MenuGroup> appMenu = [
         (l) => l.menuCashier,
         Permission.salesCreate,
       ),
+      MenuEntry(
+        key: 'cash_session',
+        icon: TablerIcons.cashRegister,
+        label: (l) => l.menuCashSession,
+        path: Routes.cashSession,
+        permission: Permission.cashSessionOpen,
+      ),
       _module(
         'history',
         TablerIcons.receipt,
@@ -183,6 +190,14 @@ List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
 MenuEntry? menuEntryByKey(String key) {
   for (final e in allMenuEntries) {
     if (e.key == key) return e;
+  }
+  return null;
+}
+
+/// Entri menu dengan jalur [path] persis (rute modul yang sudah dibangun).
+MenuEntry? menuEntryByPath(String path) {
+  for (final e in allMenuEntries) {
+    if (e.path == path) return e;
   }
   return null;
 }

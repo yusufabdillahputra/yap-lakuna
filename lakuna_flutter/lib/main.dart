@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'app.dart';
 import 'config/app_environment.dart';
 import 'data/repositories/app_settings_repository.dart';
+import 'data/repositories/cash_drawer_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
+import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_session_repository.dart';
 import 'data/repositories/local_store_repository.dart';
 import 'data/repositories/session_repository.dart';
@@ -39,6 +41,11 @@ Future<void> main() async {
     store,
     stores: storeRepository,
   );
+  final cashDrawerRepository = LocalCashDrawerRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
 
   runApp(
     MultiProvider(
@@ -51,6 +58,7 @@ Future<void> main() async {
         ChangeNotifierProvider<SessionRepository>.value(
           value: sessionRepository,
         ),
+        Provider<CashDrawerRepository>.value(value: cashDrawerRepository),
       ],
       child: LakunaApp(
         settings: settings,
@@ -58,6 +66,7 @@ Future<void> main() async {
           settings: settings,
           store: storeRepository,
           session: sessionRepository,
+          cashDrawer: cashDrawerRepository,
         ),
       ),
     ),
