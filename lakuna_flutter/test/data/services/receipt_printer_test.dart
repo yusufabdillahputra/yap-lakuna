@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_pdf.dart';
 import 'package:path_provider/path_provider.dart';
@@ -72,6 +74,69 @@ void main() {
     }
   });
 
+  group('Bluetooth (Android)', () {
+    const rpp = PrinterSelection(
+      kind: PrinterKind.bluetooth,
+      name: 'RPP02N',
+      address: '66:22:B1:00:00:01',
+    );
+    const lines = [ReceiptLine('TOKO')];
+
+    test(
+      'meminta izin dulu sebelum memeriksa Bluetooth atau mencari',
+      () async {
+        final bt = _FakeBluetooth();
+        final printer = PlatformReceiptPrinter(
+          bluetooth: bt,
+          bluetoothSupported: true,
+        );
+        final found = await printer.bluetoothPrinters();
+        expect(found.single.address, rpp.address);
+        expect(bt.calls.first, 'permission');
+      },
+    );
+
+    test(
+      'izin ditolak → PrinterFailure.permission, bukan "Bluetooth mati"',
+      () async {
+        final bt = _FakeBluetooth(permission: false);
+        final printer = PlatformReceiptPrinter(
+          bluetooth: bt,
+          bluetoothSupported: true,
+        );
+        for (final action in [
+          printer.bluetoothPrinters,
+          () => printer.print(rpp, lines, ReceiptPaper.mm58, jobName: 't'),
+        ]) {
+          await expectLater(
+            action(),
+            throwsA(
+              isA<PrinterFailure>().having(
+                (e) => e.reason,
+                'reason',
+                PrinterFailureReason.permission,
+              ),
+            ),
+          );
+        }
+        expect(bt.calls, everyElement('permission'));
+      },
+    );
+
+    test('byte dikirim sebagai List<int> biasa (plugin Android menolak '
+        'Uint8List/byte[])', () async {
+      final bt = _FakeBluetooth();
+      final printer = PlatformReceiptPrinter(
+        bluetooth: bt,
+        bluetoothSupported: true,
+      );
+      await printer.print(rpp, lines, ReceiptPaper.mm58, jobName: 't');
+      expect(bt.calls, ['permission', 'enabled', 'connect', 'write']);
+      expect(bt.written, isNot(isA<Uint8List>()));
+      expect(bt.written, encodeEscPos(lines));
+    });
+  });
+
   group('receiptPdfDirectory', () {
     test('memakai folder Dokumen bila ada', () async {
       final dir = await receiptPdfDirectory(
@@ -91,4 +156,49 @@ void main() {
       expect(dir.path, '/data/app/Struk');
     });
   });
+}
+
+class _FakeBluetooth implements BluetoothThermal {
+  _FakeBluetooth({this.permission = true});
+
+  bool permission;
+  final calls = <String>[];
+  List<int>? written;
+
+  @override
+  Future<bool> requestPermission() async {
+    calls.add('permission');
+    return permission;
+  }
+
+  @override
+  Future<bool> enabled() async {
+    calls.add('enabled');
+    return true;
+  }
+
+  @override
+  Future<List<(String, String)>> paired() async {
+    calls.add('paired');
+    return [('RPP02N', '66:22:B1:00:00:01')];
+  }
+
+  @override
+  Future<bool> connected() async => false;
+
+  @override
+  Future<void> disconnect() async {}
+
+  @override
+  Future<bool> connect(String mac) async {
+    calls.add('connect');
+    return true;
+  }
+
+  @override
+  Future<bool> write(List<int> bytes) async {
+    calls.add('write');
+    written = bytes;
+    return true;
+  }
 }

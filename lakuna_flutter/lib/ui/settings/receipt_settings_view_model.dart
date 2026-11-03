@@ -203,7 +203,7 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
     if (_errors.isNotEmpty) {
       return Result.error(ReceiptSettingsInvalid(_errors));
     }
-    final result = await _repository.saveReceipt(_draft);
+    final result = await _repository.saveReceipt(_withDefaultHeader(_draft));
     switch (result) {
       case Ok(:final value):
         _config = value;
@@ -213,6 +213,24 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
         if (error case ReceiptSettingsInvalid(:final errors)) _errors = errors;
     }
     return result;
+  }
+
+  /// Header yang sama dengan bawaan disimpan `null` agar struk tetap
+  /// mengikuti alamat dan telepon cabang bila nanti diubah.
+  ReceiptSettings _withDefaultHeader(ReceiptSettings s) {
+    final header = s.header;
+    final fallback = _config?.defaultHeader ?? '';
+    if (header == null ||
+        fallback.isEmpty ||
+        receiptTextLines(header).join('\n') !=
+            receiptTextLines(fallback).join('\n')) {
+      return s;
+    }
+    return ReceiptSettings(
+      paper: s.paper,
+      footer: s.footer,
+      autoPrint: s.autoPrint,
+    );
   }
 
   Future<Result<T>> _printerAction<T>(Future<T> Function() body) async {

@@ -41,6 +41,8 @@ String receiptAscii(String text) {
       out.writeCharCode(rune);
       continue;
     }
+    // Tanda aksen terurai (NFD) ikut huruf sebelumnya, tidak makan kolom.
+    if (rune >= 0x0300 && rune <= 0x036F) continue;
     final ch = String.fromCharCode(rune);
     final i = _accented.indexOf(ch);
     if (i >= 0) {

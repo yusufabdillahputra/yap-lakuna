@@ -610,11 +610,18 @@ class CashierViewModel extends ChangeNotifier {
   }
 
   /// Kembali ke kasir kosong dan muat ulang katalog (stok terbaru).
+  /// *Transaksi baru* ditahan selama struk dicetak/dibagikan agar hasilnya
+  /// tidak menempel ke nota berikutnya.
+  bool get canStartNewTransaction => !printing;
+
   void newTransaction() {
+    if (!canStartNewTransaction) return;
     _stage = CashierStage.browse;
     _result = null;
     _error = null;
     _resetPrint();
+    printReceipt.clearResult();
+    shareReceipt.clearResult();
     _query = '';
     notifyListeners();
     load.execute();
@@ -656,7 +663,7 @@ class CashierViewModel extends ChangeNotifier {
 
   /// Cetak otomatis sekali per nota.
   Future<void> autoPrint(List<ReceiptLine> lines) async {
-    if (!shouldAutoPrint) return;
+    if (!shouldAutoPrint || printing) return;
     _autoPrinted.add(_result!.sale.number);
     await printReceipt.execute(lines);
   }
@@ -669,17 +676,18 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<void>> _printReceipt(List<ReceiptLine> lines) async {
     _resetPrint();
+    final sale = _result?.sale.number;
     try {
       await _printer.print(
         printer ?? const PrinterSelection(kind: PrinterKind.system, name: ''),
         lines,
         receiptPaper,
-        jobName: _result?.sale.number ?? 'Lakuna',
+        jobName: sale ?? 'Lakuna',
       );
-      _printed = printer?.isDirect ?? false;
+      if (_result?.sale.number == sale) _printed = printer?.isDirect ?? false;
       return const Result.ok(null);
     } on PrinterFailure catch (e) {
-      _printFailure = e.reason;
+      if (_result?.sale.number == sale) _printFailure = e.reason;
       return Result.error(e);
     } on Exception catch (e) {
       return Result.error(e);
@@ -688,13 +696,14 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<String?>> _shareReceipt(List<ReceiptLine> lines) async {
     _resetPrint();
+    final sale = _result?.sale.number;
     try {
       final path = await _printer.sharePdf(
         lines,
         receiptPaper,
-        fileName: '${_result?.sale.number ?? 'struk'}.pdf',
+        fileName: '${sale ?? 'struk'}.pdf',
       );
-      _sharedPath = path;
+      if (_result?.sale.number == sale) _sharedPath = path;
       return Result.ok(path);
     } on Exception catch (e) {
       return Result.error(e);

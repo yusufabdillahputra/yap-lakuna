@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
@@ -16,6 +18,9 @@ class FakeReceiptPrinter implements ReceiptPrinter {
 
   /// Lokasi PDF yang dikembalikan [sharePdf] (desktop); `null` = share sheet.
   String? sharePath = '/home/kasir/Dokumen/Lakuna/Struk/nota.pdf';
+
+  /// Bila diisi, [print] menunggu sampai completer ini selesai.
+  Completer<void>? hold;
 
   final prints = <(PrinterSelection, List<ReceiptLine>, ReceiptPaper)>[];
   final shares = <(List<ReceiptLine>, ReceiptPaper, String)>[];
@@ -40,6 +45,7 @@ class FakeReceiptPrinter implements ReceiptPrinter {
     required String jobName,
   }) async {
     _fail();
+    if (hold case final h?) await h.future;
     prints.add((printer, lines, paper));
   }
 

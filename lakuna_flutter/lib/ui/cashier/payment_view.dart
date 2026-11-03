@@ -843,7 +843,7 @@ class SuccessView extends StatelessWidget {
           key: const ValueKey('success-new'),
           size: .lg,
           prefix: const Icon(TablerIcons.plus),
-          onPress: vm.newTransaction,
+          onPress: vm.canStartNewTransaction ? vm.newTransaction : null,
           child: Flexible(
             child: Text(l10n.successNew, overflow: TextOverflow.ellipsis),
           ),

@@ -2,6 +2,8 @@
 /// dan PDF memakai baris yang sama dari [layoutReceipt].
 library;
 
+import 'escpos.dart';
+
 /// Lebar kertas thermal dan jumlah kolom karakter (font A).
 enum ReceiptPaper {
   mm58(32),
@@ -97,6 +99,7 @@ class ReceiptContent {
 /// Membungkus [text] per kata menjadi baris ≤ [width]. Kata yang lebih
 /// panjang dari [width] dipotong paksa. Teks kosong → tanpa baris.
 List<String> wrapText(String text, int width) {
+  text = receiptAscii(text);
   final lines = <String>[];
   var current = '';
   for (final word in text.split(RegExp(r'\s+'))) {
@@ -125,6 +128,8 @@ List<ReceiptLine> layoutPair(
   int width, {
   bool bold = false,
 }) {
+  label = receiptAscii(label);
+  value = receiptAscii(value);
   final gap = width - label.length - value.length;
   if (gap >= 1) {
     return [ReceiptLine('$label${' ' * gap}$value', bold: bold)];

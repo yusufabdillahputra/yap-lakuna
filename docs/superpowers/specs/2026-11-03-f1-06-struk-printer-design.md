@@ -138,3 +138,5 @@ sesi (F1-03), struk WhatsApp (F3-03).
 | Cetak ulang dari riwayat | 1.14 | Belum | Bersama F1-11, label CETAK ULANG |
 | Cetak rekap sesi | 1.3 | Belum | Mesin baris yang sama (F1-03) |
 | USB langsung tanpa driver | - | Lewat dialog cetak sistem | Bila ada permintaan |
+| Kasir tetap terbuka bila pengaturan struk gagal dibaca | - | Belum: galat baca membuat layar kasir gagal dimuat | Jatuh ke bawaan + log |
+| Log galat cetak non-printer (PlatformException) | - | Belum: pesan umum "Struk gagal dicetak" | Catat ke log diagnostik |

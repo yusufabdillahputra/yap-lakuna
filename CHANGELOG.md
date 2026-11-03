@@ -61,6 +61,23 @@ footer, lebar kertas, dan cetak otomatis per cabang.
 - *Bagikan PDF* di Linux tanpa `xdg-user-dir` gagal karena folder Dokumen
   tidak dikenal; kini disimpan ke folder data aplikasi
   (`~/.local/share/id.lakuna.app/Struk`) (ditemukan saat uji manual).
+- Cetak Bluetooth selalu gagal "kirim gagal": byte dikirim sebagai
+  `Uint8List` yang tiba di plugin Android sebagai `byte[]`, padahal plugin
+  membaca `List<Int>`. Kini dikirim sebagai `List<int>` biasa (ditemukan
+  saat code review).
+- Android 12+: dialog izin Bluetooth tidak pernah muncul dan *Cari printer*
+  melapor "Bluetooth mati". Izin kini diminta lebih dulu; bila ditolak
+  pesannya "Izin Bluetooth ditolak" (ditemukan saat code review).
+- Galat cetak atau PDF nota sebelumnya tidak lagi muncul di layar berhasil
+  nota berikutnya. *Transaksi baru* ditahan selama struk masih dicetak agar
+  hasil cetak tidak tertukar antar nota (ditemukan saat code review).
+- Struk di layar tidak lagi terpotong di kanan saat ukuran huruf sistem
+  diperbesar (mis. 130% di Android) (ditemukan saat code review).
+- Teks non-ASCII (emoji, "ß", aksen terurai) diratakan ke ASCII sebelum
+  ditata sehingga satu karakter selalu satu kolom dan nominal tetap rata
+  kanan; pratinjau sama persis dengan cetakan (ditemukan saat code review).
+- Header yang dikembalikan sama dengan alamat cabang disimpan sebagai
+  bawaan lagi, sehingga ikut berubah bila alamat atau telepon cabang diubah.
 - Bagian Pengaturan struk di layar sekitar 750 px jatuh ke tata letak
   sempit dan baris status printer meluap di ponsel (ditemukan saat uji
   manual).

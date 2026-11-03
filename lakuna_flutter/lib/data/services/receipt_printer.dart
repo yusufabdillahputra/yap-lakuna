@@ -84,6 +84,8 @@ Future<void> sendToNetworkPrinter(
   } on SocketException {
     throw const PrinterFailure(PrinterFailureReason.connect);
   }
+  // Galat soket juga muncul di `done`; tangkap agar tidak jadi galat liar.
+  unawaited(socket.done.catchError((Object _) => socket));
   try {
     socket.add(bytes);
     await socket.flush().timeout(timeout);
@@ -113,31 +115,91 @@ Future<Directory> receiptPdfDirectory({
   }
 }
 
+/// Lapisan tipis di atas `print_bluetooth_thermal` agar alurnya bisa diuji.
+abstract class BluetoothThermal {
+  /// Memeriksa dan, di Android 12+, meminta izin BLUETOOTH_CONNECT/SCAN.
+  /// Plugin menolak semua panggilan lain sampai izin diberikan.
+  Future<bool> requestPermission();
+  Future<bool> enabled();
+
+  /// Printer yang sudah dipasangkan: (nama, MAC).
+  Future<List<(String, String)>> paired();
+  Future<bool> connected();
+  Future<void> disconnect();
+  Future<bool> connect(String mac);
+
+  /// [bytes] harus `List<int>` biasa: plugin Android membaca argumen
+  /// sebagai `List<Int>`, sedangkan `Uint8List` tiba sebagai `byte[]`.
+  Future<bool> write(List<int> bytes);
+}
+
+class PluginBluetoothThermal implements BluetoothThermal {
+  const PluginBluetoothThermal();
+
+  @override
+  Future<bool> requestPermission() =>
+      PrintBluetoothThermal.isPermissionBluetoothGranted;
+
+  @override
+  Future<bool> enabled() => PrintBluetoothThermal.bluetoothEnabled;
+
+  @override
+  Future<List<(String, String)>> paired() async => [
+    for (final d in await PrintBluetoothThermal.pairedBluetooths)
+      (d.name, d.macAdress),
+  ];
+
+  @override
+  Future<bool> connected() => PrintBluetoothThermal.connectionStatus;
+
+  @override
+  Future<void> disconnect() => PrintBluetoothThermal.disconnect;
+
+  @override
+  Future<bool> connect(String mac) =>
+      PrintBluetoothThermal.connect(macPrinterAddress: mac);
+
+  @override
+  Future<bool> write(List<int> bytes) => PrintBluetoothThermal.writeBytes(
+    bytes is Uint8List ? List<int>.of(bytes) : bytes,
+  );
+}
+
 /// [ReceiptPrinter] nyata: Bluetooth (`print_bluetooth_thermal`), soket
 /// TCP, dan `printing` untuk dialog cetak / share sheet.
 class PlatformReceiptPrinter implements ReceiptPrinter {
-  PlatformReceiptPrinter();
+  PlatformReceiptPrinter({
+    BluetoothThermal bluetooth = const PluginBluetoothThermal(),
+    bool? bluetoothSupported,
+  }) : _bt = bluetooth,
+       _btSupported = bluetoothSupported ?? (!kIsWeb && Platform.isAndroid);
 
+  final BluetoothThermal _bt;
+  final bool _btSupported;
   String? _connectedMac;
 
   bool get _mobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   @override
-  bool get supportsBluetooth => !kIsWeb && Platform.isAndroid;
+  bool get supportsBluetooth => _btSupported;
+
+  /// Izin dulu (memunculkan dialog izin), baru status Bluetooth.
+  Future<void> _ready() async {
+    if (!await _bt.requestPermission()) {
+      throw const PrinterFailure(PrinterFailureReason.permission);
+    }
+    if (!await _bt.enabled()) {
+      throw const PrinterFailure(PrinterFailureReason.bluetoothOff);
+    }
+  }
 
   @override
   Future<List<PrinterSelection>> bluetoothPrinters() async {
     if (!supportsBluetooth) return const [];
-    if (!await PrintBluetoothThermal.bluetoothEnabled) {
-      throw const PrinterFailure(PrinterFailureReason.bluetoothOff);
-    }
+    await _ready();
     return [
-      for (final d in await PrintBluetoothThermal.pairedBluetooths)
-        PrinterSelection(
-          kind: PrinterKind.bluetooth,
-          name: d.name,
-          address: d.macAdress,
-        ),
+      for (final (name, mac) in await _bt.paired())
+        PrinterSelection(kind: PrinterKind.bluetooth, name: name, address: mac),
     ];
   }
 
@@ -171,27 +233,20 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     if (!supportsBluetooth) {
       throw const PrinterFailure(PrinterFailureReason.unsupported);
     }
-    if (!await PrintBluetoothThermal.bluetoothEnabled) {
-      throw const PrinterFailure(PrinterFailureReason.bluetoothOff);
-    }
-    final connected = await PrintBluetoothThermal.connectionStatus;
+    await _ready();
+    final connected = await _bt.connected();
     if (connected && _connectedMac != mac) {
-      await PrintBluetoothThermal.disconnect;
+      await _bt.disconnect();
     }
     if (!connected || _connectedMac != mac) {
       _connectedMac = null;
-      final ok = await PrintBluetoothThermal.connect(macPrinterAddress: mac)
+      final ok = await _bt
+          .connect(mac)
           .timeout(networkPrinterTimeout * 2, onTimeout: () => false);
-      if (!ok) {
-        throw PrinterFailure(
-          await PrintBluetoothThermal.isPermissionBluetoothGranted
-              ? PrinterFailureReason.connect
-              : PrinterFailureReason.permission,
-        );
-      }
+      if (!ok) throw const PrinterFailure(PrinterFailureReason.connect);
       _connectedMac = mac;
     }
-    if (!await PrintBluetoothThermal.writeBytes(bytes)) {
+    if (!await _bt.write(List<int>.of(bytes))) {
       _connectedMac = null;
       throw const PrinterFailure(PrinterFailureReason.write);
     }

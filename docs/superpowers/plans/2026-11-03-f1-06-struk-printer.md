@@ -62,5 +62,5 @@ dan layar sukses baru.
 - [x] Uji manual Xvfb (printer LAN tiruan, PDF, 58/80 mm, mobile),
   tangkapan layar.
 - [x] Versi 0.8.0, CHANGELOG, status spec + README.
-- [ ] Review subagent, perbaiki Critical/Important.
+- [x] Review subagent, perbaiki Critical/Important.
 - [ ] PR, CI hijau, squash merge, mulai ulang cabang, cek rilis.

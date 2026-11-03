@@ -179,4 +179,23 @@ void main() {
       );
     });
   });
+
+  test('teks non-ASCII diratakan dulu agar satu karakter = satu kolom '
+      '(emoji, ß, aksen terurai)', () {
+    const nfdCafe = 'Cafe\u0301';
+    final lines = [
+      ...layoutPair('Kopi \u2615 $nfdCafe', '12.000', 32),
+      ...layoutPair('Stra\u00dfe', '1.000', 32),
+      for (final l in wrapText('Teh \u{1F375} manis $nfdCafe', 10))
+        ReceiptLine(l),
+    ];
+    for (final l in lines.take(2)) {
+      expect(l.text.length, 32, reason: l.text);
+    }
+    for (final l in lines) {
+      expect(l.text, receiptAscii(l.text), reason: l.text);
+      expect(l.text.length, lessThanOrEqualTo(32));
+    }
+    expect(lines.first.text, startsWith('Kopi ? Cafe '));
+  });
 }

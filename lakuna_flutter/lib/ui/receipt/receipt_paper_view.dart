@@ -45,6 +45,8 @@ class ReceiptPaperView extends StatelessWidget {
                 Text(
                   line.text,
                   maxLines: 1,
+                  // Kolom tetap; FittedBox yang menyesuaikan ukuran.
+                  textScaler: TextScaler.noScaling,
                   softWrap: false,
                   overflow: TextOverflow.clip,
                   textAlign: switch (line.align) {

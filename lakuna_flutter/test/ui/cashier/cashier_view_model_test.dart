@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -446,6 +448,45 @@ void main() {
       expect(printer.prints.single.$3, ReceiptPaper.mm80);
       expect(vm.printed, isTrue);
       expect(vm.shouldAutoPrint, isFalse);
+    });
+
+    test('galat cetak/PDF tidak terbawa ke nota berikutnya', () async {
+      repo.printer = rpp;
+      await vm.load.execute();
+      await sell();
+      printer.nextFailure = const PrinterFailure(
+        PrinterFailureReason.connect,
+      );
+      await vm.printReceipt.execute(lines);
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.write);
+      await vm.shareReceipt.execute(lines);
+      expect(vm.printReceipt.error || vm.shareReceipt.error, isTrue);
+      vm.newTransaction();
+      await vm.load.execute();
+      await sell();
+      expect(vm.printReceipt.error, isFalse);
+      expect(vm.shareReceipt.error, isFalse);
+      expect(vm.printFailure, isNull);
+    });
+
+    test('selama mencetak, transaksi baru ditahan; hasil cetak nota lama '
+        'tidak menempel ke nota baru', () async {
+      repo.printer = rpp;
+      await vm.load.execute();
+      await sell();
+      final hold = printer.hold = Completer<void>();
+      final job = vm.printReceipt.execute(lines);
+      expect(vm.printing, isTrue);
+      expect(vm.canStartNewTransaction, isFalse);
+      vm.newTransaction(); // diabaikan selama mencetak
+      expect(vm.stage, CashierStage.done);
+      hold.complete();
+      await job;
+      expect(vm.printed, isTrue);
+      expect(vm.canStartNewTransaction, isTrue);
+      vm.newTransaction();
+      expect(vm.stage, CashierStage.browse);
+      expect(vm.printed, isFalse);
     });
 
     test('gagal cetak: alasan tersimpan, coba lagi berhasil', () async {

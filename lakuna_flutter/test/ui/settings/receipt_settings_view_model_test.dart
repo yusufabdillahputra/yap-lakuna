@@ -78,6 +78,19 @@ void main() {
     },
   );
 
+  test('header dikembalikan sama dengan bawaan → disimpan null agar ikut '
+      'alamat cabang lagi', () async {
+    vm.setHeader('Ruko Baru');
+    await vm.save.execute();
+    expect(repo.config.settings.header, 'Ruko Baru');
+    vm.setHeader(' Jl. Melati 12 ');
+    await vm.save.execute();
+    expect(repo.config.settings.header, isNull);
+    vm.setHeader('');
+    await vm.save.execute();
+    expect(repo.config.settings.header, '');
+  });
+
   test('isian terlalu panjang: galat per field, tidak tersimpan', () async {
     vm.setHeader('x' * 49);
     await vm.save.execute();
