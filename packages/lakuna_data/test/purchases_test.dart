@@ -110,6 +110,10 @@ void main() {
   );
 
   test('draf: nomor PB, tanpa stok; ubah lalu hapus', () async {
+    expect(
+      await previewPurchaseNumber(store, scope, now: now),
+      'PB-PST-K01-261103-0001',
+    );
     final draft = await savePurchaseDraft(
       store,
       scope,
@@ -185,6 +189,9 @@ void main() {
     expect(item.avgCostBefore, 30000);
     // (30.000 × 10 + 30.973 × 24) / 34 = 30.686,8 → 30.687.
     expect(item.avgCostAfter, 30687);
+    // Harga jual saat diterima, dasar saran harga (tidak berubah walau
+    // harga jual diterapkan belakangan).
+    expect(item.sellPriceBefore, 36000);
     final stock = (await level(minyak))!;
     expect(stock.quantityMilli, 34000);
     expect(stock.avgCost, 30687);

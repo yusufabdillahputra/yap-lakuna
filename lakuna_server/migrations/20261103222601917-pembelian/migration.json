@@ -134,6 +134,14 @@
           },
           {
             "__className__": "serverpod.ColumnDefinition",
+            "name": "sell_price_before",
+            "fieldName": "sellPriceBefore",
+            "columnType": 6,
+            "isNullable": true,
+            "dartType": "int?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
             "name": "sort_order",
             "fieldName": "sortOrder",
             "columnType": 6,

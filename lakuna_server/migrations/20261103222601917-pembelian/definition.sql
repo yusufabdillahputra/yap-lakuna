@@ -512,6 +512,7 @@ CREATE TABLE "purchase_items" (
     "landed_unit_cost" bigint NOT NULL,
     "avg_cost_before" bigint,
     "avg_cost_after" bigint,
+    "sell_price_before" bigint,
     "sort_order" bigint NOT NULL,
     "created_at" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2562,9 +2563,9 @@ ALTER TABLE ONLY "serverpod_auth_core_session"
 -- MIGRATION VERSION FOR lakuna
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('lakuna', '20261103220956327-pembelian', now())
+    VALUES ('lakuna', '20261103222601917-pembelian', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261103220956327-pembelian', "timestamp" = now();
+    DO UPDATE SET "version" = '20261103222601917-pembelian', "timestamp" = now();
 
 --
 -- MIGRATION VERSION FOR serverpod

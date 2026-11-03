@@ -2,9 +2,9 @@
 /// Merging: resolve registry conflicts the same as migration_registry.txt.
 part of '../migration_registry.dart';
 
-class _Migration20261103220956327_pembelian implements MigrationVersionSql {
+class _Migration20261103222601917_pembelian implements MigrationVersionSql {
   @override
-  String get version => '20261103220956327-pembelian';
+  String get version => '20261103222601917-pembelian';
 
   @override
   String get moduleName => 'lakuna';
@@ -31,6 +31,7 @@ CREATE TABLE "purchase_items" (
     "landed_unit_cost" INTEGER NOT NULL,
     "avg_cost_before" INTEGER,
     "avg_cost_after" INTEGER,
+    "sell_price_before" INTEGER,
     "sort_order" INTEGER NOT NULL,
     "created_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
     "updated_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
@@ -695,9 +696,9 @@ INSERT INTO "serverpod_sqlite_schema" VALUES
 -- MIGRATION VERSION FOR lakuna
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('lakuna', '20261103220956327-pembelian', (unixepoch('now', 'subsecond') * 1000))
+    VALUES ('lakuna', '20261103222601917-pembelian', (unixepoch('now', 'subsecond') * 1000))
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261103220956327-pembelian', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
+    DO UPDATE SET "version" = '20261103222601917-pembelian', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
 
 --
 -- MIGRATION VERSION FOR serverpod
@@ -1291,6 +1292,7 @@ CREATE TABLE "purchase_items" (
     "landed_unit_cost" INTEGER NOT NULL,
     "avg_cost_before" INTEGER,
     "avg_cost_after" INTEGER,
+    "sell_price_before" INTEGER,
     "sort_order" INTEGER NOT NULL,
     "created_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
     "updated_at" INTEGER NOT NULL DEFAULT (CAST(unixepoch('subsecond') * 1000 AS INTEGER)),
@@ -3016,9 +3018,9 @@ INSERT INTO "serverpod_sqlite_schema" VALUES
 -- MIGRATION VERSION FOR lakuna
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('lakuna', '20261103220956327-pembelian', (unixepoch('now', 'subsecond') * 1000))
+    VALUES ('lakuna', '20261103222601917-pembelian', (unixepoch('now', 'subsecond') * 1000))
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20261103220956327-pembelian', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
+    DO UPDATE SET "version" = '20261103222601917-pembelian', "timestamp" = (unixepoch('now', 'subsecond') * 1000);
 
 --
 -- MIGRATION VERSION FOR serverpod

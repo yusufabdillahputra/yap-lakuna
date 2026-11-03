@@ -35,6 +35,7 @@ abstract class PurchaseItem
     required this.landedUnitCost,
     this.avgCostBefore,
     this.avgCostAfter,
+    this.sellPriceBefore,
     required this.sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -65,6 +66,7 @@ abstract class PurchaseItem
     required int landedUnitCost,
     int? avgCostBefore,
     int? avgCostAfter,
+    int? sellPriceBefore,
     required int sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -105,6 +107,7 @@ abstract class PurchaseItem
       landedUnitCost: jsonSerialization['landedUnitCost'] as int,
       avgCostBefore: jsonSerialization['avgCostBefore'] as int?,
       avgCostAfter: jsonSerialization['avgCostAfter'] as int?,
+      sellPriceBefore: jsonSerialization['sellPriceBefore'] as int?,
       sortOrder: jsonSerialization['sortOrder'] as int,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
@@ -166,6 +169,8 @@ abstract class PurchaseItem
 
   int? avgCostAfter;
 
+  int? sellPriceBefore;
+
   int sortOrder;
 
   DateTime createdAt;
@@ -206,6 +211,7 @@ abstract class PurchaseItem
     int? landedUnitCost,
     int? avgCostBefore,
     int? avgCostAfter,
+    int? sellPriceBefore,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -235,6 +241,7 @@ abstract class PurchaseItem
       'landedUnitCost': landedUnitCost,
       if (avgCostBefore != null) 'avgCostBefore': avgCostBefore,
       if (avgCostAfter != null) 'avgCostAfter': avgCostAfter,
+      if (sellPriceBefore != null) 'sellPriceBefore': sellPriceBefore,
       'sortOrder': sortOrder,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -266,6 +273,7 @@ abstract class PurchaseItem
       'landedUnitCost': landedUnitCost,
       if (avgCostBefore != null) 'avgCostBefore': avgCostBefore,
       if (avgCostAfter != null) 'avgCostAfter': avgCostAfter,
+      if (sellPriceBefore != null) 'sellPriceBefore': sellPriceBefore,
       'sortOrder': sortOrder,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -325,6 +333,7 @@ class _PurchaseItemImpl extends PurchaseItem {
     required int landedUnitCost,
     int? avgCostBefore,
     int? avgCostAfter,
+    int? sellPriceBefore,
     required int sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -350,6 +359,7 @@ class _PurchaseItemImpl extends PurchaseItem {
          landedUnitCost: landedUnitCost,
          avgCostBefore: avgCostBefore,
          avgCostAfter: avgCostAfter,
+         sellPriceBefore: sellPriceBefore,
          sortOrder: sortOrder,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -381,6 +391,7 @@ class _PurchaseItemImpl extends PurchaseItem {
     int? landedUnitCost,
     Object? avgCostBefore = _Undefined,
     Object? avgCostAfter = _Undefined,
+    Object? sellPriceBefore = _Undefined,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -409,6 +420,9 @@ class _PurchaseItemImpl extends PurchaseItem {
       landedUnitCost: landedUnitCost ?? this.landedUnitCost,
       avgCostBefore: avgCostBefore is int? ? avgCostBefore : this.avgCostBefore,
       avgCostAfter: avgCostAfter is int? ? avgCostAfter : this.avgCostAfter,
+      sellPriceBefore: sellPriceBefore is int?
+          ? sellPriceBefore
+          : this.sellPriceBefore,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -507,6 +521,11 @@ class PurchaseItemUpdateTable extends _is.UpdateTable<PurchaseItemTable> {
 
   _is.ColumnValue<int, int> avgCostAfter(int? value) => _is.ColumnValue(
     table.avgCostAfter,
+    value,
+  );
+
+  _is.ColumnValue<int, int> sellPriceBefore(int? value) => _is.ColumnValue(
+    table.sellPriceBefore,
     value,
   );
 
@@ -639,6 +658,11 @@ class PurchaseItemTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'avgCostAfter',
     );
+    sellPriceBefore = _is.ColumnInt(
+      'sell_price_before',
+      this,
+      fieldName: 'sellPriceBefore',
+    );
     sortOrder = _is.ColumnInt(
       'sort_order',
       this,
@@ -717,6 +741,8 @@ class PurchaseItemTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt avgCostAfter;
 
+  late final _is.ColumnInt sellPriceBefore;
+
   late final _is.ColumnInt sortOrder;
 
   late final _is.ColumnDateTime createdAt;
@@ -752,6 +778,7 @@ class PurchaseItemTable extends _is.Table<_is.UuidValue> {
     landedUnitCost,
     avgCostBefore,
     avgCostAfter,
+    sellPriceBefore,
     sortOrder,
     createdAt,
     updatedAt,

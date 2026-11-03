@@ -3348,6 +3348,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'int?',
         ),
         _isp.ColumnDefinition(
+          name: 'sell_price_before',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
           name: 'sort_order',
           columnType: _isp.ColumnType.bigint,
           isNullable: false,

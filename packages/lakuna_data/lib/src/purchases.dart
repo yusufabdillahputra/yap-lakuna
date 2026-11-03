@@ -501,21 +501,37 @@ Future<String> _nextNumber(
   CatalogScope scope,
   DateTime now, {
   required bool isReturn,
+}) => _number(w.session, w.transaction, scope, now, isReturn: isReturn);
+
+/// Nomor PB berikutnya untuk judul form (belum dipesan; nomor final dibuat
+/// saat simpan).
+Future<String> previewPurchaseNumber(
+  LakunaStore store,
+  CatalogScope scope, {
+  required DateTime now,
+}) => _number(store.session, null, scope, now, isReturn: false);
+
+Future<String> _number(
+  DatabaseSession session,
+  Transaction? transaction,
+  CatalogScope scope,
+  DateTime now, {
+  required bool isReturn,
 }) async {
   final outlet = await Outlet.db.findById(
-    w.session,
+    session,
     scope.outletId,
-    transaction: w.transaction,
+    transaction: transaction,
   );
   final device = await Device.db.findById(
-    w.session,
+    session,
     scope.deviceId,
-    transaction: w.transaction,
+    transaction: transaction,
   );
   final tenant = await Tenant.db.findById(
-    w.session,
+    session,
     scope.tenantId,
-    transaction: w.transaction,
+    transaction: transaction,
   );
   if (outlet == null || device == null) {
     throw StateError('Cabang/perangkat ${scope.outletId} tidak ditemukan.');
@@ -525,16 +541,16 @@ Future<String> _nextNumber(
   final prefix = '$code-${receiptPrefix(outlet.code, device.code, local)}';
   final existing = isReturn
       ? (await PurchaseReturn.db.find(
-          w.session,
+          session,
           where: (r) =>
               r.tenantId.equals(scope.tenantId) & r.number.like('$prefix%'),
-          transaction: w.transaction,
+          transaction: transaction,
         )).map((r) => r.number)
       : (await Purchase.db.find(
-          w.session,
+          session,
           where: (p) =>
               p.tenantId.equals(scope.tenantId) & p.number.like('$prefix%'),
-          transaction: w.transaction,
+          transaction: transaction,
         )).map((p) => p.number);
   final counter = nextReceiptCounter(existing, prefix);
   return isReturn
@@ -843,7 +859,9 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
   for (final (i, l) in lines.indexed) {
     int? before;
     int? after;
+    int? sellBefore;
     if (receiving) {
+      sellBefore = l.variant.sellPrice;
       final tracks = ProductKind.values.byName(l.product.type.name).tracksStock;
       if (tracks) {
         before = (await _level(w, doc.stockLocationId, l.variant.id))?.avgCost;
@@ -898,6 +916,7 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
           landedUnitCost: totals.landedUnitCosts[i].value,
           avgCostBefore: before,
           avgCostAfter: after,
+          sellPriceBefore: sellBefore,
           sortOrder: i,
           createdAt: s.now,
           updatedAt: s.now,
