@@ -170,7 +170,7 @@ selesai.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Langkah 4 "Produk pertama (atau import Excel)" | Tambah produk atau import Excel di onboarding | Langkah 4 berisi ringkasan + *Mulai jualan* | Tambahkan saat F1-07 Produk (import Excel memakai `FDeterminateProgress`) |
+| Langkah 4 "Produk pertama (atau import Excel)" | Tambah produk atau import Excel di onboarding | Langkah 4 berisi ringkasan + *Mulai jualan* | Katalog sudah ada sejak v0.5.0 (F1-07); tombol *Tambah produk* dan import Excel di langkah 4 masih gap F1-07 |
 | Kode perangkat | Tidak tampak di 1.1 (pratinjau memakai `T01`) | Field kode perangkat, bawaan `K01` | Pertahankan; kanvas bisa diperbarui |
 | Lokasi stok Gudang | Etalase & Gudang | Hanya "Etalase" | Sama dengan Storeku: tambah lewat Master data (F1-09) |
 | Login setelah setup | 1.2 Login PIN | Setelah setup langsung ke Beranda | Login PIN dan kunci sesi di F1-02 |

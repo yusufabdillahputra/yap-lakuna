@@ -1,7 +1,7 @@
 # F1-07 · Produk, varian, satuan, grosir
 
 - **Fase:** 1
-- **Status:** Berjalan (inti katalog untuk v0.5.0)
+- **Status:** Rilis v0.5.0 (inti katalog), ada gap
 - **Layar desain:** 1.15 *Daftar produk & stok · desktop*, 1.15m *Produk &
   stok · mobile* (terang dan gelap), 1.16 *Form produk (varian, satuan,
   grosir) · desktop*, kanvas
@@ -186,6 +186,8 @@ Migrasi `produk`. Model di `lakuna_server/lib/src/catalog/`, semua
   `variant_id`, `quantity_milli` (≠ 0, positif = masuk), `unit_cost`,
   `source_type` (`opening`/`adjustment`/`sale`/`sale_return`/`purchase`/
   `purchase_return`/`transfer`), `source_id?`, `occurred_at`, `note?`.
+  Nilai enum disimpan dengan nama Dart (`saleReturn`, `purchaseReturn`),
+  bukan snake_case, karena Serverpod menyimpan enum `byName`.
 - **`stock_levels`** (`database: client`, tidak disinkronkan): cache
   `stock_location_id`, `variant_id`, `quantity_milli`, `avg_cost`, unik per
   (lokasi, varian). Diperbarui di transaksi yang sama dengan
@@ -195,6 +197,11 @@ Migrasi `produk`. Model di `lakuna_server/lib/src/catalog/`, semua
   pastikan kategori/satuan, sisipkan atau perbarui produk, varian, satuan,
   dan tingkat; varian/satuan/tingkat yang dihapus di form di-soft-delete;
   stok awal varian baru dicatat sebagai pergerakan.
+- **Nama kelas model:** `ProductCategory` (tabel `categories`),
+  `MeasureUnit` (`units`), `ProductPriceTier` (`price_tiers`), agar tidak
+  bentrok dengan `PriceTier` domain, `Category` Flutter, dan kelas
+  `<Model>Repository` buatan Serverpod. Repositori aplikasi bernama
+  `CatalogRepository`.
 - **Perbedaan dengan Storeku:**
   - `price_tiers` hanya menyimpan harga (Storeku juga `discount_bp`), karena
     form hanya mengisi harga.
@@ -258,9 +265,17 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 | Klik produk → kartu stok | Catatan kaki 1.15 | Klik membuka form | Tautan ke kartu stok F1-08 |
 | Arsip produk | "Hapus = arsip" | Belum | Tambah aksi arsip (soft delete) di form |
 | Produk pertama di onboarding | Langkah 4 F1-01 | Belum | Tombol *Tambah produk* di langkah 4 |
+| Form dua kolom | Info dasar di kiri, tab di kanan | Satu kolom; dua kolom hanya bila konten ≥ 1000 px | Cukup; layar 1280 px dengan sidebar memakai satu kolom agar tabel varian lega |
+| Label tab di ponsel | "Satuan & konversi", "Harga grosir" | "Satuan", "Grosir" di bawah 600 px | Label penuh terpotong di 400 px |
+| Daftar ponsel saat 2+ varian | Satu baris satuan | "2 varian · botol" | Cukup |
 
 ## Kriteria selesai
 
 Inti v0.5.0: daftar dan form bekerja di desktop dan ponsel, stok awal masuk
 ledger, kode unik dijaga, semua tes lulus, uji manual dengan tangkapan layar.
 Modul selesai penuh setelah semua baris gap selesai.
+
+Terpenuhi di v0.5.0: uji manual di Xvfb 1280x800 (produk baru dengan varian,
+satuan Dus isi 6, grosir ≥6, stok awal 24; ubah produk menambah varian 1 L;
+galat barcode kembar; daftar memperlihatkan stok 36) dan ponsel 400x800 mode
+gelap. Tangkapan layar `v0.5.0-*.png`.
