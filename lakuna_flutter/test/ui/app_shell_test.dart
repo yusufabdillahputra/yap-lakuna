@@ -21,6 +21,7 @@ void main() {
     for (final label in [
       'Beranda',
       'Kasir',
+      'Sesi kasir',
       'Riwayat',
       'Produk',
       'Stok',
@@ -42,6 +43,7 @@ void main() {
     await pumpLakuna(tester, size: const Size(400, 800));
     expect(find.byKey(const ValueKey('sidebar')), findsNothing);
     expect(find.byKey(const ValueKey('nav-cashier')), findsOneWidget);
+    expect(find.byKey(const ValueKey('nav-cash_session')), findsOneWidget);
     expect(find.byKey(const ValueKey('nav-settings')), findsOneWidget);
     expect(
       find.bySemanticsLabel(RegExp('Offline · data di perangkat ini')),

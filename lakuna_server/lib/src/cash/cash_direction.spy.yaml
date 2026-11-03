@@ -1,0 +1,6 @@
+### Arah uang laci di luar penjualan: masuk atau keluar.
+enum: CashDirection
+serialized: byName
+values:
+  - inflow
+  - outflow

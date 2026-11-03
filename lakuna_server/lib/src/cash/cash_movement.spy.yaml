@@ -1,0 +1,28 @@
+### Uang masuk/keluar laci di luar penjualan (mis. beli es batu), selalu di
+### sesi kasir yang terbuka (F1-03). Pengeluaran dan bayar hutang dari laci
+### (F1-14/F1-15) menulis ke sini dengan `source` modulnya.
+class: CashMovement
+table: cash_movements
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  cashSessionId: UuidValue, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  direction: CashDirection
+  ### Jumlah (rupiah, selalu positif).
+  amount: int
+  note: String
+  ### Asal catatan: `manual` dari layar sesi kasir.
+  source: String, default='manual'
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  cash_movements_session_idx:
+    fields: cashSessionId

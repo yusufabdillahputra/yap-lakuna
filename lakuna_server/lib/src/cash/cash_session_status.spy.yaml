@@ -1,0 +1,6 @@
+### Status sesi kasir (F1-03).
+enum: CashSessionStatus
+serialized: byName
+values:
+  - opened
+  - closed

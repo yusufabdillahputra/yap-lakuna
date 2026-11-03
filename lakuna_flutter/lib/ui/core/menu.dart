@@ -71,6 +71,13 @@ final List<MenuGroup> appMenu = [
         (l) => l.menuCashier,
         Permission.salesCreate,
       ),
+      MenuEntry(
+        key: 'cash_session',
+        icon: TablerIcons.cashRegister,
+        label: (l) => l.menuCashSession,
+        path: Routes.cashSession,
+        permission: Permission.cashSessionOpen,
+      ),
       _module(
         'history',
         TablerIcons.receipt,
@@ -174,7 +181,13 @@ List<MenuGroup> visibleMenu(Set<Permission> permissions) => [
 
 /// Menu ringkas untuk navigasi bawah di mobile, disaring izin.
 List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
-  for (final key in const ['home', 'cashier', 'products', 'settings'])
+  for (final key in const [
+    'home',
+    'cashier',
+    'cash_session',
+    'products',
+    'settings',
+  ])
     if (allMenuEntries.firstWhere((e) => e.key == key) case final e
         when e.allows(permissions))
       e,
@@ -183,6 +196,14 @@ List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
 MenuEntry? menuEntryByKey(String key) {
   for (final e in allMenuEntries) {
     if (e.key == key) return e;
+  }
+  return null;
+}
+
+/// Entri menu dengan jalur [path] persis (rute modul yang sudah dibangun).
+MenuEntry? menuEntryByPath(String path) {
+  for (final e in allMenuEntries) {
+    if (e.path == path) return e;
   }
   return null;
 }

@@ -8,6 +8,7 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  characters: ^1.4.0
   hashlib: ^2.4.2
   uuid: ^4.6.0
 

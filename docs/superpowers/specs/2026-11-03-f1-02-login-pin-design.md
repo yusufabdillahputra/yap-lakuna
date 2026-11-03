@@ -150,7 +150,7 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 | --- | --- | --- | --- |
 | Persetujuan PIN manajer | Void dan diskon "butuh PIN manajer" | Belum | Bangun bersama modul pertama yang membutuhkannya, pakai `PinGuard` |
 | Kunci per perangkat | "Dikunci 1 mnt" | `PinGuard` di memori, hilang saat aplikasi ditutup | Cukup untuk Fase 1 |
-| Log masuk/keluar | - | Tidak dicatat | Catat di sesi kasir (F1-03) |
+| Log masuk/keluar | - | Tidak dicatat; sesi kasir F1-03 hanya mencatat `opened_by`/`closed_by` | Tabel log bila laporan F1-16 membutuhkannya (gap F1-03) |
 | Ganti/atur ulang PIN | Kanvas 1.25b: setiap ganti atau atur ulang PIN menghapus hitungan salah dan kunci sementara | Belum ada ganti PIN | Saat F1-17 (Pengguna & role, *Akun saya*): panggil `PinGuard.recordSuccess` untuk staf itu setelah PIN disimpan |
 | Nama staf di bilah atas mobile | Kanvas 1.2 hanya tablet | Mobile: ikon *Ganti kasir* saja (nama di label aksesibilitas); nama tampil di Beranda | Pertahankan; bilah atas ponsel sempit |
 

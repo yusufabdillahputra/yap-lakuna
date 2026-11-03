@@ -118,3 +118,16 @@ class FakeSessionRepository extends SessionRepository {
     notifyListeners();
   }
 }
+
+/// Staf contoh dengan izin tertentu (role kustom, mewakili F1-17).
+StaffProfile staffWithPermissions(
+  Set<Permission> permissions, {
+  String name = 'Sari',
+}) => StaffProfile(
+  id: UuidValue.fromString(newId()),
+  name: name,
+  roleKey: 'custom',
+  isOwner: false,
+  hasPin: true,
+  permissions: permissions,
+);

@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/store_repository.dart';
+import '../ui/cash_session/cash_session_view.dart';
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
@@ -22,6 +24,7 @@ GoRouter createRouter({
   required AppSettingsViewModel settings,
   required StoreRepository store,
   required SessionRepository session,
+  required CashDrawerRepository cashDrawer,
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -39,12 +42,12 @@ GoRouter createRouter({
       if (location == Routes.login || location == Routes.setup) {
         return Routes.home;
       }
-      final moduleKey = state.pathParameters['key'];
-      if (moduleKey != null) {
-        final entry = menuEntryByKey(moduleKey);
-        if (entry != null && !entry.allows(staff.permissions)) {
-          return Routes.home;
-        }
+      final entry = switch (state.pathParameters['key']) {
+        final key? => menuEntryByKey(key),
+        null => menuEntryByPath(location),
+      };
+      if (entry != null && !entry.allows(staff.permissions)) {
+        return Routes.home;
       }
       return null;
     },
@@ -77,6 +80,14 @@ GoRouter createRouter({
           GoRoute(
             path: Routes.settings,
             builder: (context, state) => SettingsView(viewModel: settings),
+          ),
+          GoRoute(
+            path: Routes.cashSession,
+            builder: (context, state) => CashSessionScreen(
+              repository: cashDrawer,
+              store: store,
+              session: session,
+            ),
           ),
           GoRoute(
             path: '/modul/:key',
