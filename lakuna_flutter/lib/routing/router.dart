@@ -7,6 +7,7 @@ import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
+import '../data/repositories/stock_repository.dart';
 import '../data/repositories/store_repository.dart';
 import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
@@ -22,6 +23,7 @@ import '../ui/products/product_form_view.dart';
 import '../ui/products/product_list_view.dart';
 import '../ui/settings/app_settings_view_model.dart';
 import '../ui/settings/settings_screen.dart';
+import '../ui/stock/stock_view.dart';
 import 'routes.dart';
 
 /// Router aplikasi:
@@ -35,6 +37,7 @@ GoRouter createRouter({
   required SessionRepository session,
   required CashDrawerRepository cashDrawer,
   required CatalogRepository catalog,
+  required StockRepository stock,
   required CashierRepository cashier,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
@@ -135,6 +138,14 @@ GoRouter createRouter({
               key: ValueKey(state.pathParameters['productId']),
               repository: catalog,
               productId: state.pathParameters['productId'],
+            ),
+          ),
+          GoRoute(
+            path: Routes.stock,
+            builder: (context, state) => StockScreen(
+              repository: stock,
+              session: session,
+              store: store,
             ),
           ),
           GoRoute(

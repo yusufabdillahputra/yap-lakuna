@@ -15,6 +15,7 @@
   "menuReports": "Laporan",
   "menuUsers": "Pengguna & role",
   "menuSettings": "Pengaturan",
+  "menuMore": "Lainnya",
   "menuGuide": "Panduan",
   "menuGroupSales": "Penjualan",
   "menuGroupInventory": "Inventori",
@@ -22,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -915,5 +916,180 @@
   "receiptSettingsSave": "Simpan",
   "receiptSettingsCancel": "Batal",
   "receiptSettingsSaved": "Pengaturan struk tersimpan",
-  "receiptSettingsLoadError": "Pengaturan struk gagal dimuat."
+  "receiptSettingsLoadError": "Pengaturan struk gagal dimuat.",
+  "stockTitle": "Stok",
+  "stockSubtitle": "{location} · {outlet}",
+  "@stockSubtitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "stockTabList": "Daftar produk",
+  "stockTabAdjustment": "Penyesuaian",
+  "stockTabCard": "Kartu stok",
+  "stockTabMinimum": "Stok minimum",
+  "stockTabLocations": "Lokasi stok",
+  "stockLoadFailed": "Data stok gagal dimuat.",
+  "stockSearchHint": "Cari nama, SKU, atau barcode",
+  "stockLocation": "Lokasi",
+  "stockColProduct": "Produk",
+  "stockColStock": "Stok",
+  "stockColMinimum": "Minimum",
+  "stockColValue": "Nilai (HPP)",
+  "stockColSystem": "Sistem",
+  "stockColPhysical": "Fisik",
+  "stockColDifference": "Selisih",
+  "stockColReason": "Alasan",
+  "stockBadgeLow": "Di bawah minimum",
+  "stockBadgeNegative": "Minus",
+  "stockEmpty": "Belum ada produk barang. Tambahkan di menu Produk.",
+  "stockNoMatch": "Tidak ada produk yang cocok.",
+  "stockValueTotal": "Nilai stok {value}",
+  "@stockValueTotal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustmentNew": "Penyesuaian stok baru",
+  "stockAdjustmentMeta": "{number} · {staff}",
+  "@stockAdjustmentMeta": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockReasonLabel": "Alasan umum",
+  "stockReasonRoutineCheck": "Cek rutin",
+  "stockReasonDamaged": "Rusak",
+  "stockReasonLost": "Hilang",
+  "stockReasonExpired": "Kedaluwarsa",
+  "stockReasonOther": "Lainnya",
+  "stockNoteLabel": "Catatan",
+  "stockNoteHint": "Mis. cek rutin mingguan",
+  "stockLineNoteHint": "Alasan baris",
+  "stockAddLabel": "Scan / tambah produk",
+  "stockAddHint": "Scan barcode atau ketik nama produk",
+  "stockAddNotFound": "Produk \"{code}\" tidak ditemukan.",
+  "@stockAddNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAddAlready": "Produk ini sudah ada di daftar penyesuaian.",
+  "stockLinesEmpty": "Tambah produk yang dihitung, lalu isi stok fisiknya. Baris yang fisiknya kosong tidak disimpan.",
+  "stockTotal": "Total",
+  "stockSave": "Simpan penyesuaian",
+  "stockClear": "Batal",
+  "stockSaved": "Penyesuaian {number} tersimpan.",
+  "@stockSaved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPermissionNote": "Butuh izin stock:adjust. Tercatat sebagai pergerakan stok dengan alasan, bisa diaudit.",
+  "stockNoPermission": "Anda hanya bisa melihat stok. Penyesuaian butuh izin stock:adjust.",
+  "stockErrorEmpty": "Isi stok fisik minimal satu produk.",
+  "stockErrorNegative": "Stok fisik tidak boleh minus.",
+  "stockErrorDuplicate": "Produk yang sama ada dua kali.",
+  "stockErrorNotGoods": "Jasa dan menu tidak punya stok.",
+  "stockErrorUnknownVariant": "Produk sudah dihapus atau tidak ditemukan.",
+  "stockErrorUnknownLocation": "Lokasi stok tidak ditemukan.",
+  "stockErrorNoChange": "Tidak ada selisih: stok fisik sama dengan stok sistem.",
+  "stockErrorNoteTooLong": "Alasan atau catatan terlalu panjang.",
+  "stockErrorGeneric": "Penyesuaian gagal disimpan.",
+  "stockRecentTitle": "Penyesuaian terakhir",
+  "stockRecentEmpty": "Belum ada penyesuaian.",
+  "stockRecentMeta": "{reason} · {count} produk · {staff}",
+  "@stockRecentMeta": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardTitle": "Kartu stok",
+  "stockCardCurrent": "Stok sekarang {stock} · minimum {minimum}",
+  "@stockCardCurrent": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "minimum": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardCurrentNoMin": "Stok sekarang {stock}",
+  "@stockCardCurrentNoMin": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardProduct": "Produk",
+  "stockColTime": "Waktu",
+  "stockColDescription": "Keterangan",
+  "stockColInOut": "Masuk/keluar",
+  "stockColBalance": "Saldo",
+  "stockCardEmpty": "Belum ada pergerakan.",
+  "stockCardNote": "Kartu stok = daftar pergerakan (ledger). Saldo tidak pernah diedit langsung, selalu lewat entri baru.",
+  "stockCardOpening": "Saldo sebelumnya {balance}",
+  "@stockCardOpening": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "stockSourceOpening": "Stok awal",
+  "stockSourceSale": "Penjualan",
+  "stockSourceSaleReturn": "Retur penjualan",
+  "stockSourcePurchase": "Pembelian",
+  "stockSourcePurchaseReturn": "Retur pembelian",
+  "stockSourceTransfer": "Transfer",
+  "stockSourceAdjustment": "Penyesuaian",
+  "stockMinimumTitle": "Di bawah stok minimum",
+  "stockMinimumCount": "{count} produk",
+  "@stockMinimumCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockMinimumEmpty": "Semua stok di atas minimum.",
+  "stockMinimumPurchaseSoon": "Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.",
+  "stockLocationsHint": "Etalase, gudang, atau rak terpisah di cabang ini.",
+  "stockLocationDefault": "Bawaan",
+  "stockLocationNameLabel": "Nama lokasi",
+  "stockLocationAdd": "Tambah lokasi",
+  "stockLocationRename": "Ganti nama",
+  "stockLocationSave": "Simpan",
+  "stockLocationCancel": "Batal",
+  "stockLocationErrorEmpty": "Nama lokasi wajib diisi.",
+  "stockLocationErrorTooLong": "Nama lokasi maks 40 karakter.",
+  "stockLocationErrorDuplicate": "Nama lokasi sudah dipakai di cabang ini.",
+  "stockRemoveLine": "Hapus baris"
 }

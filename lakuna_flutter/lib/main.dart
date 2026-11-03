@@ -15,11 +15,13 @@ import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_payment_settings_repository.dart';
 import 'data/repositories/local_receipt_settings_repository.dart';
 import 'data/repositories/local_session_repository.dart';
+import 'data/repositories/local_stock_repository.dart';
 import 'data/repositories/local_store_repository.dart';
 import 'data/repositories/catalog_repository.dart';
 import 'data/repositories/payment_settings_repository.dart';
 import 'data/repositories/receipt_settings_repository.dart';
 import 'data/repositories/session_repository.dart';
+import 'data/repositories/stock_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/services/receipt_printer.dart';
 import 'routing/router.dart';
@@ -59,6 +61,11 @@ Future<void> main() async {
     stores: storeRepository,
     session: sessionRepository,
   );
+  final stockRepository = LocalStockRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
   final cashierRepository = LocalCashierRepository(
     store,
     stores: storeRepository,
@@ -92,6 +99,7 @@ Future<void> main() async {
         Provider<CashDrawerRepository>.value(value: cashDrawerRepository),
         Provider<CatalogRepository>.value(value: catalogRepository),
         Provider<CashierRepository>.value(value: cashierRepository),
+        Provider<StockRepository>.value(value: stockRepository),
         Provider<PaymentSettingsRepository>.value(
           value: paymentSettingsRepository,
         ),
@@ -108,6 +116,7 @@ Future<void> main() async {
           session: sessionRepository,
           cashDrawer: cashDrawerRepository,
           catalog: catalogRepository,
+          stock: stockRepository,
           cashier: cashierRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,

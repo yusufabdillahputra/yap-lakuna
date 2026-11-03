@@ -60,7 +60,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer; v0.7.0: QRIS statis, split (kredit menyusul bersama F1-13) |
 | 6 | [Struk & printer](2026-11-03-f1-06-struk-printer-design.md) | 1.12, 1.26 | Rilis v0.8.0: struk layar, ESC/POS Bluetooth/LAN, dialog cetak, PDF (logo, cetak ulang, BLE menyusul) |
 | 7 | [Produk, varian, satuan, grosir](2026-11-03-f1-07-produk-design.md) | 1.15, 1.16 | Rilis v0.5.0, inti katalog dibangun sebelum kasir (foto, import, label barcode, arsip menyusul) |
-| 8 | Stok: penyesuaian, kartu stok, stok minimum | 1.18 | Belum |
+| 8 | Stok: penyesuaian, kartu stok, stok minimum | 1.18 | Rilis v0.9.0 |
 | 9 | Master data | 1.17 | Belum |
 | 10 | Meja F&B (denah `vyuh_node_flow`), open bill, modifier, split bill | 1.7, 1.7b–d, 1.8, 1.9 | Belum |
 | 11 | Riwayat transaksi, void & retur | 1.14 | Belum |

@@ -1,0 +1,30 @@
+### Baris dokumen penyesuaian: stok sistem saat disimpan, stok fisik, dan
+### selisihnya (mili-satuan dasar).
+class: StockAdjustmentItem
+table: stock_adjustment_items
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  adjustmentId: UuidValue, relation(parent=stock_adjustments, onDelete=Restrict), column=adjustment_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  systemMilli: int, column=system_milli
+  physicalMilli: int, column=physical_milli
+  differenceMilli: int, column=difference_milli
+  ### HPP per satuan dasar saat disimpan (rupiah).
+  unitCost: int, column=unit_cost
+  ### Nilai selisih (rupiah, bertanda).
+  value: int
+  note: String?
+  sortOrder: int, default=0, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  stock_adjustment_items_adjustment_idx:
+    fields: adjustmentId

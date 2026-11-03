@@ -1,0 +1,9 @@
+### Alasan umum dokumen penyesuaian stok (F1-08).
+enum: StockAdjustmentReason
+serialized: byName
+values:
+  - routineCheck
+  - damaged
+  - lost
+  - expired
+  - other

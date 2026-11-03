@@ -7,6 +7,103 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-03
+
+Stok (F1-08, layar 1.18). Pemilik dan staf gudang melihat stok per lokasi,
+mencatat penyesuaian dengan alasan yang bisa diaudit, menelusuri setiap
+pergerakan di kartu stok, dan melihat barang yang sudah di bawah minimum.
+
+### Ditambahkan
+
+- **Menu Stok** (`/stok`, izin `stock:adjust`) dengan lima tab: *Daftar
+  produk*, *Penyesuaian*, *Kartu stok*, *Stok minimum*, *Lokasi stok*. Di
+  layar lebar tab berupa bilah tab; di ponsel berupa pil.
+- **Penyesuaian stok baru**:
+  - Nomor dokumen `SA-<OUTLET>-<PERANGKAT>-<yymmdd>-<nnnn>` dan nama staf di
+    kepala kartu; nomor urut per hari per perangkat (tanggal lokal cabang).
+  - *Alasan umum* (Cek rutin, Rusak, Hilang, Kedaluwarsa, Lainnya), catatan
+    dokumen (maks 200 karakter), dan alasan per baris (maks 60 karakter).
+  - **Scan / tambah produk**: Enter menambah barang lewat barcode atau SKU
+    persis, atau nama yang hanya cocok satu produk; saran nama muncul saat
+    mengetik; fokus tetap di field agar pemindai bisa langsung memindai
+    barang berikutnya. Kode tak dikenal: "Produk "…" tidak ditemukan."
+    Barang yang dipindai ulang tidak menambah baris dan diberi tahu "Produk
+    ini sudah ada di daftar penyesuaian."
+  - Tabel Produk / Sistem / Fisik / Selisih / Alasan / Nilai (HPP) dan total
+    nilai; selisih bertanda dan berwarna (merah berkurang, hijau bertambah).
+    Di ponsel tiap baris menjadi kartu.
+  - Baris yang fisiknya kosong tidak disimpan; baris dengan selisih 0
+    disimpan sebagai bukti sudah dihitung tetapi tidak membuat pergerakan.
+  - Selisih dihitung ulang dari stok **saat disimpan** di dalam transaksi
+    tulis, jadi penjualan yang terjadi sambil mengisi tetap terhitung.
+  - Nilai selisih = selisih × HPP rata-rata saat itu, atau harga modal bila
+    rata-rata masih 0.
+  - Ditolak dengan pesan jelas: tidak ada baris yang diisi, fisik minus,
+    produk dua kali, jasa/menu, produk terhapus, lokasi cabang lain, atau
+    semua selisih 0.
+  - Daftar **Penyesuaian terakhir** (10 dokumen): nomor, waktu, alasan,
+    jumlah produk, staf, lokasi, dan total nilai.
+- **Kartu stok**: pilih produk; "Stok sekarang X · minimum Y"; tabel Waktu
+  (zona waktu cabang), Keterangan (*Stok awal*, *Penjualan <nota>*,
+  *Penyesuaian <nomor> · <alasan> (<staf>)*, catatan baris), Masuk/keluar,
+  dan Saldo berjalan; 200 pergerakan terakhir dengan saldo sebelumnya.
+- **Daftar produk** stok per lokasi: stok, minimum, nilai (stok × HPP), tanda
+  *Di bawah minimum* / *Minus*, total nilai stok, cari nama/SKU/barcode.
+  Mengetuk baris membuka kartu stoknya.
+- **Stok minimum**: barang dengan stok ≤ minimum, paling kritis dulu,
+  "stok / minimum"; mengetuk baris membuka kartu stoknya.
+- **Lokasi stok**: daftar lokasi cabang (Etalase bawaan), tambah dan ganti
+  nama (maks 40 karakter, unik per cabang tanpa membedakan huruf besar/kecil).
+  Bila lokasi lebih dari satu, pilihan lokasi muncul di kepala layar.
+- Tabel `stock_adjustments` dan `stock_adjustment_items` (migrasi `stock`),
+  tercatat di outbox sinkronisasi.
+
+### Diubah
+
+- **Navigasi bawah ponsel** mengikuti kanvas 1.15m: *Beranda, Kasir,
+  Produk, Riwayat, Lainnya*. *Lainnya* membuka lembar berisi menu lain yang
+  boleh dibuka staf (mis. Sesi kasir, Stok, Pengaturan), dikelompokkan
+  seperti sidebar. Sebelumnya menu di luar lima entri tetap tidak bisa
+  dibuka di ponsel.
+- Teks Beranda menyebut stok sudah bisa dipakai.
+- Isian draf penyesuaian dan pilihan lokasi terkunci selama menyimpan agar
+  ketikan tidak hilang saat draf dikosongkan.
+
+### Diperbaiki
+
+- Tombol berlabel panjang di layar sempit (mis. *Simpan penyesuaian* di
+  ponsel 360 px) tidak lagi meluap; label menyusut.
+- Baris lokasi stok di ponsel tidak lagi meluap: nama dan tanda *Bawaan*
+  dibungkus, tombol ganti nama menjadi ikon pensil (ditemukan saat tes
+  widget di 360 px).
+
+- Ganti lokasi atau produk kartu stok dengan cepat tidak lagi menampilkan
+  data campuran: hasil muat yang sudah usang dibuang dan lokasi terbaru
+  dimuat ulang (ditemukan saat review).
+- Pilihan produk di kartu stok tetap lengkap bila ada nama produk kembar
+  (label ditambah SKU/barcode).
+- Panjang alasan/catatan dihitung per karakter (emoji = 1), sama dengan
+  penghitung field.
+
+### Keamanan
+
+- Simpan penyesuaian serta tambah/ganti nama lokasi butuh izin
+  `stock:adjust`, dicek di layar (tombol hilang, catatan izin) dan di
+  repositori (`NotPermitted`). Menu dan rute Stok butuh `stock:adjust`.
+
+### Catatan teknis
+
+- Stok tetap ledger: penyesuaian hanya menambah baris `stock_movements`
+  lewat `recordStockMovement` (`source_type = adjustment`), cache
+  `stock_levels` ikut diperbarui; pergerakan keluar dan masuk memakai HPP
+  saat itu sehingga rata-rata tidak bergeser.
+- Minimum stok berlaku di lokasi bawaan (tempat jual), sama dengan daftar
+  produk F1-07; di lokasi lain kolom minimum kosong dan tidak ada tanda.
+- Aturan baru di `lakuna_domain` (`stockDifference`, `adjustmentUnitCost`,
+  `adjustmentValue`, `validateLocationName`) dan `lakuna_data`
+  (`saveStockAdjustment`, `stockCard`, `stockList`, `belowMinimumStock`,
+  lokasi), diuji di paket masing-masing.
+
 ## [0.8.0] - 2026-11-03
 
 Struk dan printer (F1-06, layar 1.12 dan 1.26). Setelah bayar, kasir bisa
@@ -827,7 +924,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...v0.6.0

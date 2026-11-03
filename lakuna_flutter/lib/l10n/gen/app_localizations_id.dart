@@ -55,6 +55,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get menuSettings => 'Pengaturan';
 
   @override
+  String get menuMore => 'Lainnya';
+
+  @override
   String get menuGuide => 'Panduan';
 
   @override
@@ -77,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.';
+      'Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -1580,4 +1583,303 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get receiptSettingsLoadError => 'Pengaturan struk gagal dimuat.';
+
+  @override
+  String get stockTitle => 'Stok';
+
+  @override
+  String stockSubtitle(String location, String outlet) {
+    return '$location · $outlet';
+  }
+
+  @override
+  String get stockTabList => 'Daftar produk';
+
+  @override
+  String get stockTabAdjustment => 'Penyesuaian';
+
+  @override
+  String get stockTabCard => 'Kartu stok';
+
+  @override
+  String get stockTabMinimum => 'Stok minimum';
+
+  @override
+  String get stockTabLocations => 'Lokasi stok';
+
+  @override
+  String get stockLoadFailed => 'Data stok gagal dimuat.';
+
+  @override
+  String get stockSearchHint => 'Cari nama, SKU, atau barcode';
+
+  @override
+  String get stockLocation => 'Lokasi';
+
+  @override
+  String get stockColProduct => 'Produk';
+
+  @override
+  String get stockColStock => 'Stok';
+
+  @override
+  String get stockColMinimum => 'Minimum';
+
+  @override
+  String get stockColValue => 'Nilai (HPP)';
+
+  @override
+  String get stockColSystem => 'Sistem';
+
+  @override
+  String get stockColPhysical => 'Fisik';
+
+  @override
+  String get stockColDifference => 'Selisih';
+
+  @override
+  String get stockColReason => 'Alasan';
+
+  @override
+  String get stockBadgeLow => 'Di bawah minimum';
+
+  @override
+  String get stockBadgeNegative => 'Minus';
+
+  @override
+  String get stockEmpty => 'Belum ada produk barang. Tambahkan di menu Produk.';
+
+  @override
+  String get stockNoMatch => 'Tidak ada produk yang cocok.';
+
+  @override
+  String stockValueTotal(String value) {
+    return 'Nilai stok $value';
+  }
+
+  @override
+  String get stockAdjustmentNew => 'Penyesuaian stok baru';
+
+  @override
+  String stockAdjustmentMeta(String number, String staff) {
+    return '$number · $staff';
+  }
+
+  @override
+  String get stockReasonLabel => 'Alasan umum';
+
+  @override
+  String get stockReasonRoutineCheck => 'Cek rutin';
+
+  @override
+  String get stockReasonDamaged => 'Rusak';
+
+  @override
+  String get stockReasonLost => 'Hilang';
+
+  @override
+  String get stockReasonExpired => 'Kedaluwarsa';
+
+  @override
+  String get stockReasonOther => 'Lainnya';
+
+  @override
+  String get stockNoteLabel => 'Catatan';
+
+  @override
+  String get stockNoteHint => 'Mis. cek rutin mingguan';
+
+  @override
+  String get stockLineNoteHint => 'Alasan baris';
+
+  @override
+  String get stockAddLabel => 'Scan / tambah produk';
+
+  @override
+  String get stockAddHint => 'Scan barcode atau ketik nama produk';
+
+  @override
+  String stockAddNotFound(String code) {
+    return 'Produk \"$code\" tidak ditemukan.';
+  }
+
+  @override
+  String get stockAddAlready => 'Produk ini sudah ada di daftar penyesuaian.';
+
+  @override
+  String get stockLinesEmpty =>
+      'Tambah produk yang dihitung, lalu isi stok fisiknya. Baris yang fisiknya kosong tidak disimpan.';
+
+  @override
+  String get stockTotal => 'Total';
+
+  @override
+  String get stockSave => 'Simpan penyesuaian';
+
+  @override
+  String get stockClear => 'Batal';
+
+  @override
+  String stockSaved(String number) {
+    return 'Penyesuaian $number tersimpan.';
+  }
+
+  @override
+  String get stockPermissionNote =>
+      'Butuh izin stock:adjust. Tercatat sebagai pergerakan stok dengan alasan, bisa diaudit.';
+
+  @override
+  String get stockNoPermission =>
+      'Anda hanya bisa melihat stok. Penyesuaian butuh izin stock:adjust.';
+
+  @override
+  String get stockErrorEmpty => 'Isi stok fisik minimal satu produk.';
+
+  @override
+  String get stockErrorNegative => 'Stok fisik tidak boleh minus.';
+
+  @override
+  String get stockErrorDuplicate => 'Produk yang sama ada dua kali.';
+
+  @override
+  String get stockErrorNotGoods => 'Jasa dan menu tidak punya stok.';
+
+  @override
+  String get stockErrorUnknownVariant =>
+      'Produk sudah dihapus atau tidak ditemukan.';
+
+  @override
+  String get stockErrorUnknownLocation => 'Lokasi stok tidak ditemukan.';
+
+  @override
+  String get stockErrorNoChange =>
+      'Tidak ada selisih: stok fisik sama dengan stok sistem.';
+
+  @override
+  String get stockErrorNoteTooLong => 'Alasan atau catatan terlalu panjang.';
+
+  @override
+  String get stockErrorGeneric => 'Penyesuaian gagal disimpan.';
+
+  @override
+  String get stockRecentTitle => 'Penyesuaian terakhir';
+
+  @override
+  String get stockRecentEmpty => 'Belum ada penyesuaian.';
+
+  @override
+  String stockRecentMeta(String reason, int count, String staff) {
+    return '$reason · $count produk · $staff';
+  }
+
+  @override
+  String get stockCardTitle => 'Kartu stok';
+
+  @override
+  String stockCardCurrent(String stock, String minimum) {
+    return 'Stok sekarang $stock · minimum $minimum';
+  }
+
+  @override
+  String stockCardCurrentNoMin(String stock) {
+    return 'Stok sekarang $stock';
+  }
+
+  @override
+  String get stockCardProduct => 'Produk';
+
+  @override
+  String get stockColTime => 'Waktu';
+
+  @override
+  String get stockColDescription => 'Keterangan';
+
+  @override
+  String get stockColInOut => 'Masuk/keluar';
+
+  @override
+  String get stockColBalance => 'Saldo';
+
+  @override
+  String get stockCardEmpty => 'Belum ada pergerakan.';
+
+  @override
+  String get stockCardNote =>
+      'Kartu stok = daftar pergerakan (ledger). Saldo tidak pernah diedit langsung, selalu lewat entri baru.';
+
+  @override
+  String stockCardOpening(String balance) {
+    return 'Saldo sebelumnya $balance';
+  }
+
+  @override
+  String get stockSourceOpening => 'Stok awal';
+
+  @override
+  String get stockSourceSale => 'Penjualan';
+
+  @override
+  String get stockSourceSaleReturn => 'Retur penjualan';
+
+  @override
+  String get stockSourcePurchase => 'Pembelian';
+
+  @override
+  String get stockSourcePurchaseReturn => 'Retur pembelian';
+
+  @override
+  String get stockSourceTransfer => 'Transfer';
+
+  @override
+  String get stockSourceAdjustment => 'Penyesuaian';
+
+  @override
+  String get stockMinimumTitle => 'Di bawah stok minimum';
+
+  @override
+  String stockMinimumCount(int count) {
+    return '$count produk';
+  }
+
+  @override
+  String get stockMinimumEmpty => 'Semua stok di atas minimum.';
+
+  @override
+  String get stockMinimumPurchaseSoon =>
+      'Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.';
+
+  @override
+  String get stockLocationsHint =>
+      'Etalase, gudang, atau rak terpisah di cabang ini.';
+
+  @override
+  String get stockLocationDefault => 'Bawaan';
+
+  @override
+  String get stockLocationNameLabel => 'Nama lokasi';
+
+  @override
+  String get stockLocationAdd => 'Tambah lokasi';
+
+  @override
+  String get stockLocationRename => 'Ganti nama';
+
+  @override
+  String get stockLocationSave => 'Simpan';
+
+  @override
+  String get stockLocationCancel => 'Batal';
+
+  @override
+  String get stockLocationErrorEmpty => 'Nama lokasi wajib diisi.';
+
+  @override
+  String get stockLocationErrorTooLong => 'Nama lokasi maks 40 karakter.';
+
+  @override
+  String get stockLocationErrorDuplicate =>
+      'Nama lokasi sudah dipakai di cabang ini.';
+
+  @override
+  String get stockRemoveLine => 'Hapus baris';
 }

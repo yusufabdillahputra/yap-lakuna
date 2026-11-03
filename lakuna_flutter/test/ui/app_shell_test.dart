@@ -42,14 +42,31 @@ void main() {
     final semantics = tester.ensureSemantics();
     await pumpLakuna(tester, size: const Size(400, 800));
     expect(find.byKey(const ValueKey('sidebar')), findsNothing);
-    expect(find.byKey(const ValueKey('nav-cashier')), findsOneWidget);
-    expect(find.byKey(const ValueKey('nav-cash_session')), findsOneWidget);
-    expect(find.byKey(const ValueKey('nav-settings')), findsOneWidget);
+    // Sesuai kanvas 1.15m: Beranda, Kasir, Produk, Riwayat, Lainnya.
+    for (final key in ['home', 'cashier', 'products', 'history', 'more']) {
+      expect(find.byKey(ValueKey('nav-$key')), findsOneWidget, reason: key);
+    }
+    expect(find.byKey(const ValueKey('nav-settings')), findsNothing);
     expect(
       find.bySemanticsLabel(RegExp('Offline · data di perangkat ini')),
       findsOneWidget,
     );
     semantics.dispose();
+  });
+
+  testWidgets('mobile: Lainnya membuka menu sisanya, mis. Stok', (
+    tester,
+  ) async {
+    await pumpLakuna(tester, size: const Size(400, 800));
+    await tester.tap(find.byKey(const ValueKey('nav-more')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('more-cash_session')), findsOneWidget);
+    expect(find.byKey(const ValueKey('more-settings')), findsOneWidget);
+    expect(find.byKey(const ValueKey('more-products')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('more-stock')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('more-stock')), findsNothing);
+    expect(find.text('Penyesuaian stok baru'), findsOneWidget);
   });
 
   testWidgets('tablet memakai sidebar', (tester) async {
@@ -61,9 +78,16 @@ void main() {
     tester,
   ) async {
     await pumpLakuna(tester);
+    await tester.tap(find.byKey(const ValueKey('nav-purchases')));
+    await tester.pumpAndSettle();
+    expect(find.text('Pembelian segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('menu Stok membuka layar stok', (tester) async {
+    await pumpLakuna(tester);
     await tester.tap(find.byKey(const ValueKey('nav-stock')));
     await tester.pumpAndSettle();
-    expect(find.text('Stok segera hadir'), findsOneWidget);
+    expect(find.text('Penyesuaian stok baru'), findsOneWidget);
   });
 
   testWidgets('menu Produk membuka daftar produk', (tester) async {

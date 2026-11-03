@@ -20,6 +20,9 @@ class LakunaStore {
 
   final DateTime Function() _clock;
 
+  /// Waktu sekarang (UTC) menurut jam store.
+  DateTime now() => _clock().toUtc();
+
   /// Lokasi file database.
   final String path;
 

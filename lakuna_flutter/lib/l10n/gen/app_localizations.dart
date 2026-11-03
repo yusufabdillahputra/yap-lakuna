@@ -188,6 +188,12 @@ abstract class AppLocalizations {
   /// **'Pengaturan'**
   String get menuSettings;
 
+  /// No description provided for @menuMore.
+  ///
+  /// In id, this message translates to:
+  /// **'Lainnya'**
+  String get menuMore;
+
   /// No description provided for @menuGuide.
   ///
   /// In id, this message translates to:
@@ -233,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -2911,6 +2917,546 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengaturan struk gagal dimuat.'**
   String get receiptSettingsLoadError;
+
+  /// No description provided for @stockTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok'**
+  String get stockTitle;
+
+  /// No description provided for @stockSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{location} · {outlet}'**
+  String stockSubtitle(String location, String outlet);
+
+  /// No description provided for @stockTabList.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar produk'**
+  String get stockTabList;
+
+  /// No description provided for @stockTabAdjustment.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian'**
+  String get stockTabAdjustment;
+
+  /// No description provided for @stockTabCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Kartu stok'**
+  String get stockTabCard;
+
+  /// No description provided for @stockTabMinimum.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok minimum'**
+  String get stockTabMinimum;
+
+  /// No description provided for @stockTabLocations.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi stok'**
+  String get stockTabLocations;
+
+  /// No description provided for @stockLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data stok gagal dimuat.'**
+  String get stockLoadFailed;
+
+  /// No description provided for @stockSearchHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama, SKU, atau barcode'**
+  String get stockSearchHint;
+
+  /// No description provided for @stockLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi'**
+  String get stockLocation;
+
+  /// No description provided for @stockColProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get stockColProduct;
+
+  /// No description provided for @stockColStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok'**
+  String get stockColStock;
+
+  /// No description provided for @stockColMinimum.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimum'**
+  String get stockColMinimum;
+
+  /// No description provided for @stockColValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai (HPP)'**
+  String get stockColValue;
+
+  /// No description provided for @stockColSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Sistem'**
+  String get stockColSystem;
+
+  /// No description provided for @stockColPhysical.
+  ///
+  /// In id, this message translates to:
+  /// **'Fisik'**
+  String get stockColPhysical;
+
+  /// No description provided for @stockColDifference.
+  ///
+  /// In id, this message translates to:
+  /// **'Selisih'**
+  String get stockColDifference;
+
+  /// No description provided for @stockColReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan'**
+  String get stockColReason;
+
+  /// No description provided for @stockBadgeLow.
+  ///
+  /// In id, this message translates to:
+  /// **'Di bawah minimum'**
+  String get stockBadgeLow;
+
+  /// No description provided for @stockBadgeNegative.
+  ///
+  /// In id, this message translates to:
+  /// **'Minus'**
+  String get stockBadgeNegative;
+
+  /// No description provided for @stockEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada produk barang. Tambahkan di menu Produk.'**
+  String get stockEmpty;
+
+  /// No description provided for @stockNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada produk yang cocok.'**
+  String get stockNoMatch;
+
+  /// No description provided for @stockValueTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai stok {value}'**
+  String stockValueTotal(String value);
+
+  /// No description provided for @stockAdjustmentNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian stok baru'**
+  String get stockAdjustmentNew;
+
+  /// No description provided for @stockAdjustmentMeta.
+  ///
+  /// In id, this message translates to:
+  /// **'{number} · {staff}'**
+  String stockAdjustmentMeta(String number, String staff);
+
+  /// No description provided for @stockReasonLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan umum'**
+  String get stockReasonLabel;
+
+  /// No description provided for @stockReasonRoutineCheck.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek rutin'**
+  String get stockReasonRoutineCheck;
+
+  /// No description provided for @stockReasonDamaged.
+  ///
+  /// In id, this message translates to:
+  /// **'Rusak'**
+  String get stockReasonDamaged;
+
+  /// No description provided for @stockReasonLost.
+  ///
+  /// In id, this message translates to:
+  /// **'Hilang'**
+  String get stockReasonLost;
+
+  /// No description provided for @stockReasonExpired.
+  ///
+  /// In id, this message translates to:
+  /// **'Kedaluwarsa'**
+  String get stockReasonExpired;
+
+  /// No description provided for @stockReasonOther.
+  ///
+  /// In id, this message translates to:
+  /// **'Lainnya'**
+  String get stockReasonOther;
+
+  /// No description provided for @stockNoteLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan'**
+  String get stockNoteLabel;
+
+  /// No description provided for @stockNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mis. cek rutin mingguan'**
+  String get stockNoteHint;
+
+  /// No description provided for @stockLineNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan baris'**
+  String get stockLineNoteHint;
+
+  /// No description provided for @stockAddLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Scan / tambah produk'**
+  String get stockAddLabel;
+
+  /// No description provided for @stockAddHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Scan barcode atau ketik nama produk'**
+  String get stockAddHint;
+
+  /// No description provided for @stockAddNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk \"{code}\" tidak ditemukan.'**
+  String stockAddNotFound(String code);
+
+  /// No description provided for @stockAddAlready.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk ini sudah ada di daftar penyesuaian.'**
+  String get stockAddAlready;
+
+  /// No description provided for @stockLinesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah produk yang dihitung, lalu isi stok fisiknya. Baris yang fisiknya kosong tidak disimpan.'**
+  String get stockLinesEmpty;
+
+  /// No description provided for @stockTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get stockTotal;
+
+  /// No description provided for @stockSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan penyesuaian'**
+  String get stockSave;
+
+  /// No description provided for @stockClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get stockClear;
+
+  /// No description provided for @stockSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian {number} tersimpan.'**
+  String stockSaved(String number);
+
+  /// No description provided for @stockPermissionNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin stock:adjust. Tercatat sebagai pergerakan stok dengan alasan, bisa diaudit.'**
+  String get stockPermissionNote;
+
+  /// No description provided for @stockNoPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda hanya bisa melihat stok. Penyesuaian butuh izin stock:adjust.'**
+  String get stockNoPermission;
+
+  /// No description provided for @stockErrorEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi stok fisik minimal satu produk.'**
+  String get stockErrorEmpty;
+
+  /// No description provided for @stockErrorNegative.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok fisik tidak boleh minus.'**
+  String get stockErrorNegative;
+
+  /// No description provided for @stockErrorDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk yang sama ada dua kali.'**
+  String get stockErrorDuplicate;
+
+  /// No description provided for @stockErrorNotGoods.
+  ///
+  /// In id, this message translates to:
+  /// **'Jasa dan menu tidak punya stok.'**
+  String get stockErrorNotGoods;
+
+  /// No description provided for @stockErrorUnknownVariant.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk sudah dihapus atau tidak ditemukan.'**
+  String get stockErrorUnknownVariant;
+
+  /// No description provided for @stockErrorUnknownLocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi stok tidak ditemukan.'**
+  String get stockErrorUnknownLocation;
+
+  /// No description provided for @stockErrorNoChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada selisih: stok fisik sama dengan stok sistem.'**
+  String get stockErrorNoChange;
+
+  /// No description provided for @stockErrorNoteTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan atau catatan terlalu panjang.'**
+  String get stockErrorNoteTooLong;
+
+  /// No description provided for @stockErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian gagal disimpan.'**
+  String get stockErrorGeneric;
+
+  /// No description provided for @stockRecentTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian terakhir'**
+  String get stockRecentTitle;
+
+  /// No description provided for @stockRecentEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada penyesuaian.'**
+  String get stockRecentEmpty;
+
+  /// No description provided for @stockRecentMeta.
+  ///
+  /// In id, this message translates to:
+  /// **'{reason} · {count} produk · {staff}'**
+  String stockRecentMeta(String reason, int count, String staff);
+
+  /// No description provided for @stockCardTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kartu stok'**
+  String get stockCardTitle;
+
+  /// No description provided for @stockCardCurrent.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok sekarang {stock} · minimum {minimum}'**
+  String stockCardCurrent(String stock, String minimum);
+
+  /// No description provided for @stockCardCurrentNoMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok sekarang {stock}'**
+  String stockCardCurrentNoMin(String stock);
+
+  /// No description provided for @stockCardProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get stockCardProduct;
+
+  /// No description provided for @stockColTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktu'**
+  String get stockColTime;
+
+  /// No description provided for @stockColDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get stockColDescription;
+
+  /// No description provided for @stockColInOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk/keluar'**
+  String get stockColInOut;
+
+  /// No description provided for @stockColBalance.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo'**
+  String get stockColBalance;
+
+  /// No description provided for @stockCardEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pergerakan.'**
+  String get stockCardEmpty;
+
+  /// No description provided for @stockCardNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Kartu stok = daftar pergerakan (ledger). Saldo tidak pernah diedit langsung, selalu lewat entri baru.'**
+  String get stockCardNote;
+
+  /// No description provided for @stockCardOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo sebelumnya {balance}'**
+  String stockCardOpening(String balance);
+
+  /// No description provided for @stockSourceOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok awal'**
+  String get stockSourceOpening;
+
+  /// No description provided for @stockSourceSale.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan'**
+  String get stockSourceSale;
+
+  /// No description provided for @stockSourceSaleReturn.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur penjualan'**
+  String get stockSourceSaleReturn;
+
+  /// No description provided for @stockSourcePurchase.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian'**
+  String get stockSourcePurchase;
+
+  /// No description provided for @stockSourcePurchaseReturn.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur pembelian'**
+  String get stockSourcePurchaseReturn;
+
+  /// No description provided for @stockSourceTransfer.
+  ///
+  /// In id, this message translates to:
+  /// **'Transfer'**
+  String get stockSourceTransfer;
+
+  /// No description provided for @stockSourceAdjustment.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian'**
+  String get stockSourceAdjustment;
+
+  /// No description provided for @stockMinimumTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Di bawah stok minimum'**
+  String get stockMinimumTitle;
+
+  /// No description provided for @stockMinimumCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} produk'**
+  String stockMinimumCount(int count);
+
+  /// No description provided for @stockMinimumEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua stok di atas minimum.'**
+  String get stockMinimumEmpty;
+
+  /// No description provided for @stockMinimumPurchaseSoon.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.'**
+  String get stockMinimumPurchaseSoon;
+
+  /// No description provided for @stockLocationsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Etalase, gudang, atau rak terpisah di cabang ini.'**
+  String get stockLocationsHint;
+
+  /// No description provided for @stockLocationDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Bawaan'**
+  String get stockLocationDefault;
+
+  /// No description provided for @stockLocationNameLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama lokasi'**
+  String get stockLocationNameLabel;
+
+  /// No description provided for @stockLocationAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah lokasi'**
+  String get stockLocationAdd;
+
+  /// No description provided for @stockLocationRename.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti nama'**
+  String get stockLocationRename;
+
+  /// No description provided for @stockLocationSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get stockLocationSave;
+
+  /// No description provided for @stockLocationCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get stockLocationCancel;
+
+  /// No description provided for @stockLocationErrorEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama lokasi wajib diisi.'**
+  String get stockLocationErrorEmpty;
+
+  /// No description provided for @stockLocationErrorTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama lokasi maks 40 karakter.'**
+  String get stockLocationErrorTooLong;
+
+  /// No description provided for @stockLocationErrorDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama lokasi sudah dipakai di cabang ini.'**
+  String get stockLocationErrorDuplicate;
+
+  /// No description provided for @stockRemoveLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus baris'**
+  String get stockRemoveLine;
 }
 
 class _AppLocalizationsDelegate

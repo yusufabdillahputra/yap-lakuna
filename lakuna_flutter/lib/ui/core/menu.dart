@@ -97,11 +97,12 @@ final List<MenuGroup> appMenu = [
         path: Routes.products,
         permission: Permission.productsManage,
       ),
-      _module(
-        'stock',
-        TablerIcons.buildingWarehouse,
-        (l) => l.menuStock,
-        Permission.stockAdjust,
+      MenuEntry(
+        key: 'stock',
+        icon: TablerIcons.buildingWarehouse,
+        label: (l) => l.menuStock,
+        path: Routes.stock,
+        permission: Permission.stockAdjust,
       ),
       _module(
         'purchases',
@@ -181,18 +182,29 @@ List<MenuGroup> visibleMenu(Set<Permission> permissions) => [
       ),
 ];
 
-/// Menu ringkas untuk navigasi bawah di mobile, disaring izin.
+/// Entri navigasi bawah mobile sesuai kanvas 1.15m (Beranda, Kasir, Produk,
+/// Riwayat), disaring izin. Sisanya ada di *Lainnya* ([mobileMoreMenu]).
+const _mobilePrimary = ['home', 'cashier', 'products', 'history'];
+
 List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
-  for (final key in const [
-    'home',
-    'cashier',
-    'cash_session',
-    'products',
-    'settings',
-  ])
+  for (final key in _mobilePrimary)
     if (allMenuEntries.firstWhere((e) => e.key == key) case final e
         when e.allows(permissions))
       e,
+];
+
+/// Menu *Lainnya* di mobile: entri yang boleh dilihat tetapi tidak ada di
+/// navigasi bawah, per kelompok.
+List<MenuGroup> mobileMoreMenu(Set<Permission> permissions) => [
+  for (final group in visibleMenu(permissions))
+    if (group.entries.any((e) => !_mobilePrimary.contains(e.key)))
+      MenuGroup(
+        label: group.label,
+        entries: [
+          for (final e in group.entries)
+            if (!_mobilePrimary.contains(e.key)) e,
+        ],
+      ),
 ];
 
 MenuEntry? menuEntryByKey(String key) {

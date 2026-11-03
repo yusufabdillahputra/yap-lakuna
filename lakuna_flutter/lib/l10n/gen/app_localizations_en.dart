@@ -55,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuSettings => 'Settings';
 
   @override
+  String get menuMore => 'More';
+
+  @override
   String get menuGuide => 'Guide';
 
   @override
@@ -77,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail checkout, cash sessions, and products are ready to use. Purchases, history, and reports follow in upcoming releases.';
+      'Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -1594,4 +1597,306 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptSettingsLoadError => 'Could not load receipt settings.';
+
+  @override
+  String get stockTitle => 'Stock';
+
+  @override
+  String stockSubtitle(String location, String outlet) {
+    return '$location · $outlet';
+  }
+
+  @override
+  String get stockTabList => 'Product list';
+
+  @override
+  String get stockTabAdjustment => 'Adjustment';
+
+  @override
+  String get stockTabCard => 'Stock card';
+
+  @override
+  String get stockTabMinimum => 'Minimum stock';
+
+  @override
+  String get stockTabLocations => 'Stock locations';
+
+  @override
+  String get stockLoadFailed => 'Stock data failed to load.';
+
+  @override
+  String get stockSearchHint => 'Search name, SKU or barcode';
+
+  @override
+  String get stockLocation => 'Location';
+
+  @override
+  String get stockColProduct => 'Product';
+
+  @override
+  String get stockColStock => 'Stock';
+
+  @override
+  String get stockColMinimum => 'Minimum';
+
+  @override
+  String get stockColValue => 'Value (COGS)';
+
+  @override
+  String get stockColSystem => 'System';
+
+  @override
+  String get stockColPhysical => 'Physical';
+
+  @override
+  String get stockColDifference => 'Difference';
+
+  @override
+  String get stockColReason => 'Reason';
+
+  @override
+  String get stockBadgeLow => 'Below minimum';
+
+  @override
+  String get stockBadgeNegative => 'Negative';
+
+  @override
+  String get stockEmpty => 'No goods yet. Add them under Products.';
+
+  @override
+  String get stockNoMatch => 'No matching products.';
+
+  @override
+  String stockValueTotal(String value) {
+    return 'Stock value $value';
+  }
+
+  @override
+  String get stockAdjustmentNew => 'New stock adjustment';
+
+  @override
+  String stockAdjustmentMeta(String number, String staff) {
+    return '$number · $staff';
+  }
+
+  @override
+  String get stockReasonLabel => 'General reason';
+
+  @override
+  String get stockReasonRoutineCheck => 'Routine check';
+
+  @override
+  String get stockReasonDamaged => 'Damaged';
+
+  @override
+  String get stockReasonLost => 'Lost';
+
+  @override
+  String get stockReasonExpired => 'Expired';
+
+  @override
+  String get stockReasonOther => 'Other';
+
+  @override
+  String get stockNoteLabel => 'Note';
+
+  @override
+  String get stockNoteHint => 'E.g. weekly routine check';
+
+  @override
+  String get stockLineNoteHint => 'Line reason';
+
+  @override
+  String get stockAddLabel => 'Scan / add product';
+
+  @override
+  String get stockAddHint => 'Scan a barcode or type a product name';
+
+  @override
+  String stockAddNotFound(String code) {
+    return 'Product \"$code\" not found.';
+  }
+
+  @override
+  String get stockAddAlready =>
+      'This product is already in the adjustment list.';
+
+  @override
+  String get stockLinesEmpty =>
+      'Add the products you counted, then enter their physical stock. Rows left empty are not saved.';
+
+  @override
+  String get stockTotal => 'Total';
+
+  @override
+  String get stockSave => 'Save adjustment';
+
+  @override
+  String get stockClear => 'Cancel';
+
+  @override
+  String stockSaved(String number) {
+    return 'Adjustment $number saved.';
+  }
+
+  @override
+  String get stockPermissionNote =>
+      'Requires the stock:adjust permission. Recorded as stock movements with a reason, so it can be audited.';
+
+  @override
+  String get stockNoPermission =>
+      'You can only view stock. Adjustments require the stock:adjust permission.';
+
+  @override
+  String get stockErrorEmpty =>
+      'Enter the physical stock of at least one product.';
+
+  @override
+  String get stockErrorNegative => 'Physical stock cannot be negative.';
+
+  @override
+  String get stockErrorDuplicate => 'The same product appears twice.';
+
+  @override
+  String get stockErrorNotGoods => 'Services and menu items have no stock.';
+
+  @override
+  String get stockErrorUnknownVariant =>
+      'The product was deleted or not found.';
+
+  @override
+  String get stockErrorUnknownLocation => 'Stock location not found.';
+
+  @override
+  String get stockErrorNoChange =>
+      'No difference: physical stock equals system stock.';
+
+  @override
+  String get stockErrorNoteTooLong => 'The reason or note is too long.';
+
+  @override
+  String get stockErrorGeneric => 'The adjustment failed to save.';
+
+  @override
+  String get stockRecentTitle => 'Recent adjustments';
+
+  @override
+  String get stockRecentEmpty => 'No adjustments yet.';
+
+  @override
+  String stockRecentMeta(String reason, int count, String staff) {
+    return '$reason · $count products · $staff';
+  }
+
+  @override
+  String get stockCardTitle => 'Stock card';
+
+  @override
+  String stockCardCurrent(String stock, String minimum) {
+    return 'Current stock $stock · minimum $minimum';
+  }
+
+  @override
+  String stockCardCurrentNoMin(String stock) {
+    return 'Current stock $stock';
+  }
+
+  @override
+  String get stockCardProduct => 'Product';
+
+  @override
+  String get stockColTime => 'Time';
+
+  @override
+  String get stockColDescription => 'Description';
+
+  @override
+  String get stockColInOut => 'In/out';
+
+  @override
+  String get stockColBalance => 'Balance';
+
+  @override
+  String get stockCardEmpty => 'No movements yet.';
+
+  @override
+  String get stockCardNote =>
+      'The stock card is a ledger of movements. The balance is never edited directly, only through new entries.';
+
+  @override
+  String stockCardOpening(String balance) {
+    return 'Earlier balance $balance';
+  }
+
+  @override
+  String get stockSourceOpening => 'Opening stock';
+
+  @override
+  String get stockSourceSale => 'Sale';
+
+  @override
+  String get stockSourceSaleReturn => 'Sales return';
+
+  @override
+  String get stockSourcePurchase => 'Purchase';
+
+  @override
+  String get stockSourcePurchaseReturn => 'Purchase return';
+
+  @override
+  String get stockSourceTransfer => 'Transfer';
+
+  @override
+  String get stockSourceAdjustment => 'Adjustment';
+
+  @override
+  String get stockMinimumTitle => 'Below minimum stock';
+
+  @override
+  String stockMinimumCount(int count) {
+    return '$count products';
+  }
+
+  @override
+  String get stockMinimumEmpty => 'All stock is above minimum.';
+
+  @override
+  String get stockMinimumPurchaseSoon =>
+      'Purchase orders from this list will come with the Purchases module.';
+
+  @override
+  String get stockLocationsHint =>
+      'Display, warehouse, or separate shelves in this branch.';
+
+  @override
+  String get stockLocationDefault => 'Default';
+
+  @override
+  String get stockLocationNameLabel => 'Location name';
+
+  @override
+  String get stockLocationAdd => 'Add location';
+
+  @override
+  String get stockLocationRename => 'Rename';
+
+  @override
+  String get stockLocationSave => 'Save';
+
+  @override
+  String get stockLocationCancel => 'Cancel';
+
+  @override
+  String get stockLocationErrorEmpty => 'Location name is required.';
+
+  @override
+  String get stockLocationErrorTooLong =>
+      'Location name can have at most 40 characters.';
+
+  @override
+  String get stockLocationErrorDuplicate =>
+      'This name is already used in this branch.';
+
+  @override
+  String get stockRemoveLine => 'Remove row';
 }
