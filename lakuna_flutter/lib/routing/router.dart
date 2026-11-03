@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/repositories/cash_drawer_repository.dart';
+import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/store_repository.dart';
 import '../ui/cash_session/cash_session_view.dart';
@@ -11,6 +12,8 @@ import '../ui/core/menu.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/onboarding/onboarding_view.dart';
+import '../ui/products/product_form_view.dart';
+import '../ui/products/product_list_view.dart';
 import '../ui/settings/app_settings_view_model.dart';
 import '../ui/settings/settings_view.dart';
 import 'routes.dart';
@@ -25,6 +28,7 @@ GoRouter createRouter({
   required StoreRepository store,
   required SessionRepository session,
   required CashDrawerRepository cashDrawer,
+  required CatalogRepository catalog,
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -87,6 +91,24 @@ GoRouter createRouter({
               repository: cashDrawer,
               store: store,
               session: session,
+            ),
+          ),
+          // Rute saudara (bukan bersarang) supaya kembali ke daftar
+          // membuat layar baru yang memuat ulang katalog.
+          GoRoute(
+            path: Routes.products,
+            builder: (context, state) => ProductListScreen(repository: catalog),
+          ),
+          GoRoute(
+            path: Routes.productNew,
+            builder: (context, state) => ProductFormScreen(repository: catalog),
+          ),
+          GoRoute(
+            path: '${Routes.products}/:productId',
+            builder: (context, state) => ProductFormScreen(
+              key: ValueKey(state.pathParameters['productId']),
+              repository: catalog,
+              productId: state.pathParameters['productId'],
             ),
           ),
           GoRoute(

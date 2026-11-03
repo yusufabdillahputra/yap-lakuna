@@ -3,23 +3,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
 
-/// Staf yang bertugas tidak punya [permission] (atau belum ada yang login).
-class NotPermitted implements Exception {
-  const NotPermitted(this.permission);
-
-  final Permission permission;
-
-  @override
-  String toString() => 'NotPermitted(${permission.key})';
-}
-
-/// Konteks toko belum termuat; layar sesi kasir tidak bisa dipakai.
-class StoreNotReady implements Exception {
-  const StoreNotReady();
-
-  @override
-  String toString() => 'StoreNotReady';
-}
+export 'repository_errors.dart';
 
 /// Sesi kasir yang sedang terbuka beserta gerakan kas dan rekapnya.
 @immutable

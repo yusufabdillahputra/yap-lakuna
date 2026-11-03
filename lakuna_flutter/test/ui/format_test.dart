@@ -20,4 +20,24 @@ void main() {
     expect(fmt('abc').text, '');
     expect(fmt('9' * 20).text.replaceAll('.', '').length, 15);
   });
+
+  test('QtyInputFormatter menolak input tidak sah', () {
+    const f = QtyInputFormatter();
+    const old = TextEditingValue(text: '12');
+    String fmt(String s) =>
+        f.formatEditUpdate(old, TextEditingValue(text: s)).text;
+    expect(fmt('12,5'), '12,5');
+    expect(fmt('12,125'), '12,125');
+    expect(fmt('12,1255'), '12');
+    expect(fmt('1,2,3'), '12');
+    expect(fmt('12a'), '12');
+    expect(fmt('-1'), '12');
+    expect(fmt(''), '');
+    expect(
+      const QtyInputFormatter(
+        decimal: '.',
+      ).formatEditUpdate(old, const TextEditingValue(text: '0.25')).text,
+      '0.25',
+    );
+  });
 }

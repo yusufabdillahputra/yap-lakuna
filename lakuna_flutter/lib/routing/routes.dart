@@ -12,6 +12,15 @@ abstract final class Routes {
   /// Sesi kasir dan kas laci (F1-03).
   static const cashSession = '/sesi-kasir';
 
+  /// Daftar produk & stok (F1-07).
+  static const products = '/produk';
+
+  /// Form produk baru (F1-07).
+  static const productNew = '/produk/baru';
+
+  /// Form ubah produk [id] (F1-07).
+  static String product(String id) => '/produk/$id';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

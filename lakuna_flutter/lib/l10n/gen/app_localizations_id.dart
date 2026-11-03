@@ -587,4 +587,310 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashLoadFailed => 'Sesi kasir gagal dimuat.';
+
+  @override
+  String get productsTitle => 'Produk & stok';
+
+  @override
+  String get productsTitleMobile => 'Produk';
+
+  @override
+  String productsSummary(int active, int low) {
+    return '$active produk aktif · $low di bawah stok minimum';
+  }
+
+  @override
+  String productsSummaryShort(int active, int low) {
+    return '$active aktif · $low di bawah minimum';
+  }
+
+  @override
+  String get productsNew => 'Produk baru';
+
+  @override
+  String get productsSearchHint => 'Cari nama, SKU, atau barcode';
+
+  @override
+  String get productsCategoryFilter => 'Kategori';
+
+  @override
+  String get productsAllCategories => 'Semua';
+
+  @override
+  String productsBelowMinimumChip(int count) {
+    return 'Di bawah minimum ($count)';
+  }
+
+  @override
+  String get productsColProduct => 'Produk';
+
+  @override
+  String get productsColCategory => 'Kategori';
+
+  @override
+  String get productsColVariantUnit => 'Varian / satuan';
+
+  @override
+  String get productsColCost => 'Harga beli';
+
+  @override
+  String get productsColPrice => 'Harga jual';
+
+  @override
+  String get productsColTiers => 'Grosir';
+
+  @override
+  String get productsColStock => 'Stok';
+
+  @override
+  String productsVariantsCount(int count) {
+    return '$count varian';
+  }
+
+  @override
+  String get productsStockFootnote =>
+      'Stok dihitung dari riwayat pergerakan (stok awal, pembelian, penjualan, retur, penyesuaian).';
+
+  @override
+  String get productsEmptyTitle => 'Belum ada produk';
+
+  @override
+  String get productsEmptyBody =>
+      'Tambahkan produk pertama agar bisa dijual di kasir.';
+
+  @override
+  String get productsNoMatch => 'Tidak ada produk yang cocok.';
+
+  @override
+  String get productsLoadFailed => 'Produk gagal dimuat.';
+
+  @override
+  String productsStock(String qty) {
+    return 'Stok $qty';
+  }
+
+  @override
+  String productsStockMin(String qty, String min) {
+    return 'Stok $qty / min $min';
+  }
+
+  @override
+  String get productsInactive => 'Tidak dijual';
+
+  @override
+  String get productFormNewTitle => 'Produk baru';
+
+  @override
+  String productFormEditTitle(String name) {
+    return 'Edit produk · $name';
+  }
+
+  @override
+  String get productFormCancel => 'Batal';
+
+  @override
+  String get productFormSave => 'Simpan';
+
+  @override
+  String get productFormBasicInfo => 'Info dasar';
+
+  @override
+  String get productFormName => 'Nama produk';
+
+  @override
+  String get productFormCategory => 'Kategori';
+
+  @override
+  String get productFormKind => 'Jenis';
+
+  @override
+  String get productKindGoods => 'Barang (lacak stok)';
+
+  @override
+  String get productKindService => 'Jasa (tanpa stok)';
+
+  @override
+  String get productKindMenu => 'Menu F&B';
+
+  @override
+  String get productFormBaseUnit => 'Satuan dasar';
+
+  @override
+  String get productFormBaseUnitHint => 'pcs, botol, kg';
+
+  @override
+  String get productFormSku => 'SKU induk';
+
+  @override
+  String get productFormBrand => 'Merek';
+
+  @override
+  String get productFormActive => 'Dijual di kasir';
+
+  @override
+  String get productFormTaxable => 'Kena pajak (PB1/PPN)';
+
+  @override
+  String get productFormTaxableHint => 'Mengikuti pengaturan pajak toko';
+
+  @override
+  String get productFormOptional => 'Opsional';
+
+  @override
+  String get productTabVariants => 'Varian';
+
+  @override
+  String get productTabUnits => 'Satuan & konversi';
+
+  @override
+  String get productTabTiers => 'Harga grosir';
+
+  @override
+  String get productTabUnitsShort => 'Satuan';
+
+  @override
+  String get productTabTiersShort => 'Grosir';
+
+  @override
+  String get productVariantName => 'Varian';
+
+  @override
+  String get productVariantNameHint => 'mis. 2 L';
+
+  @override
+  String get productVariantSku => 'SKU';
+
+  @override
+  String get productVariantBarcode => 'Barcode';
+
+  @override
+  String get productCostPrice => 'Harga beli';
+
+  @override
+  String get productSellPrice => 'Harga jual';
+
+  @override
+  String get productMinStock => 'Stok min';
+
+  @override
+  String get productOpeningStock => 'Stok awal';
+
+  @override
+  String get productAddVariant => 'Tambah varian';
+
+  @override
+  String get productRemoveRow => 'Hapus baris';
+
+  @override
+  String productVariantFallback(int index) {
+    return 'Varian $index';
+  }
+
+  @override
+  String get productSelectVariant => 'Varian';
+
+  @override
+  String get productBaseUnitRow => 'satuan dasar';
+
+  @override
+  String get productUnitName => 'Satuan';
+
+  @override
+  String productUnitFactor(String unit) {
+    return 'Isi ($unit)';
+  }
+
+  @override
+  String get productUnitPriceHint => 'Kosong = harga × isi';
+
+  @override
+  String get productAddUnit => 'Tambah satuan';
+
+  @override
+  String productUnitsHelp(String unit, String conversion, String factor) {
+    return 'Stok selalu disimpan dalam satuan dasar ($unit). Jual 1 $conversion = keluar $factor $unit dari kartu stok.';
+  }
+
+  @override
+  String productUnitsHelpBase(String unit) {
+    return 'Stok selalu disimpan dalam satuan dasar ($unit).';
+  }
+
+  @override
+  String get productUnitsEmpty =>
+      'Belum ada satuan konversi, mis. dus berisi 12.';
+
+  @override
+  String productTierMinQty(String unit) {
+    return 'Mulai jumlah ($unit)';
+  }
+
+  @override
+  String productTierPrice(String unit) {
+    return 'Harga per $unit';
+  }
+
+  @override
+  String get productTierAppliesTo => 'Berlaku untuk';
+
+  @override
+  String get productTierAllCustomers => 'Semua pelanggan';
+
+  @override
+  String get productAddTier => 'Tambah tingkat harga';
+
+  @override
+  String get productTiersHelp =>
+      'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.';
+
+  @override
+  String get productTiersEmpty => 'Belum ada harga grosir.';
+
+  @override
+  String get productBaseUnitPlaceholder => 'satuan dasar';
+
+  @override
+  String get productSaveFailed => 'Produk gagal disimpan. Coba lagi.';
+
+  @override
+  String get productNotFound => 'Produk tidak ditemukan atau sudah dihapus.';
+
+  @override
+  String get productFixErrors => 'Periksa isian yang ditandai merah.';
+
+  @override
+  String productErrorNotPermitted(String permission) {
+    return 'Anda tidak punya izin $permission.';
+  }
+
+  @override
+  String productErrorTooLong(int max) {
+    return 'Maksimal $max karakter';
+  }
+
+  @override
+  String get productErrorNegative => 'Tidak boleh negatif';
+
+  @override
+  String get productErrorNotPositive => 'Harus lebih dari 0';
+
+  @override
+  String get productErrorDuplicate => 'Kembar di produk ini';
+
+  @override
+  String get productErrorSameAsBase => 'Sama dengan satuan dasar';
+
+  @override
+  String get productErrorFactorTooSmall => 'Isi harus lebih dari 1';
+
+  @override
+  String get productErrorMinQtyTooSmall => 'Harus lebih dari 1';
+
+  @override
+  String productErrorTaken(String name) {
+    return 'Sudah dipakai $name';
+  }
+
+  @override
+  String get productErrorVariantsRequired => 'Minimal satu varian';
 }
