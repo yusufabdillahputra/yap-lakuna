@@ -44,7 +44,7 @@ Legenda: **Rilis** (sudah di `main` dan dirilis), **Sebagian**,
 
 | Spec | Layar desain | Status |
 | --- | --- | --- |
-| [F0 · Fondasi & arsitektur](2026-11-03-f0-fondasi-arsitektur-design.md) | Gaya visual, tema gelap | Rilis v0.1.0, ada gap |
+| [F0 · Fondasi & arsitektur](2026-11-03-f0-fondasi-arsitektur-design.md) | Gaya visual, tema gelap | Rilis v0.1.0 (kontras v0.1.1), ada gap |
 | Merek · logo, ikon aplikasi & placeholder DiceBear | Logo Etalase diwarnai Sky | Belum |
 
 ### Fase 1 · Gratis, offline-first

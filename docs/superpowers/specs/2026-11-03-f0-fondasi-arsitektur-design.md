@@ -1,7 +1,7 @@
 # F0 · Fondasi & arsitektur Lakuna
 
 - **Fase:** 0 (dipakai semua fase)
-- **Status:** Dirilis di v0.1.0
+- **Status:** Dirilis di v0.1.0 (aturan kontras v0.1.1)
 - **Acuan:** spec F0 Storeku
   (`yusufabdillahputra/storeku`, `docs/superpowers/specs/2026-11-02-f0-fondasi-arsitektur-design.md`),
   kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (70 artboard, Forui `conhcc`; spec
@@ -276,10 +276,10 @@ Mengikuti panduan arsitektur resmi Flutter:
 | Logo & ikon aplikasi | Mark Etalase (DiceBear icons `shopWindow`) diwarnai Sky | Ikon bawaan Flutter | Spec Merek Lakuna setelah v0.1.0 |
 | Penyimpanan tema per staf | Per pengguna | Per perangkat (`local_preferences`) | Pindah ke per staf di F1-02 |
 | Layar sesuai kanvas Lakuna | Kanvas Desain UI Lakuna (sidebar `FSidebar`, warna status `LakunaStatusColors`) | Shell, beranda, pengaturan memakai komponen Forui bawaan; `LakunaStatusColors` belum ada | Samakan per modul dengan kanvas; tambah `ThemeExtension` status saat layar pertama membutuhkannya |
-| Kontras tombol destructive gelap | ≥ 4.5:1 | Token CLI `#FF6467` + teks `#FAFAFA` (< 4.5:1) | Cek di perangkat saat tombol destructive pertama dipakai; bila perlu teks `#09090B` |
+| Aturan kontras kanvas | Semua teks ≥ 4.5:1 | v0.1.1: tombol destructive isi penuh (`#C10007` gelap), primary sebagai teks/ikon gelap `#74D4FF` (navigasi bawah, tile, item, grup), tab terang `#52525C` (`theme/contrast.dart`, diuji) | Widget Forui lain yang memakai `primary` sebagai teks (mis. select tile group, kalender) diperiksa saat pertama dipakai |
 | Installer Windows | Bahasa Indonesia, satu cara pasang | Inno Setup berbahasa Inggris; `.exe` dan `.msi` memasang ke folder yang sama dengan ID produk berbeda | Pilih salah satu (dicatat di README); tambahkan `.isl` Indonesia bila perlu |
 | Tanda tangan Android | Satu kunci rilis tetap | `release.yml` memakai secret `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` bila ada; tanpa itu APK/AAB diberi akhiran `-uji` dan catatan rilis memperingatkan | Pemilik membuat keystore dan mengisi secret sebelum data toko sungguhan dipakai |
 | Tanda tangan iOS | Sertifikat Apple | IPA tanpa tanda tangan | Saat akun Apple Developer siap |
-| Versi di aplikasi | Dari `pubspec.yaml` | `--dart-define=LAKUNA_VERSION` (diisi `release.yml`); build tanpa itu menampilkan `0.1.0` | Pakai `package_info_plus` bila build lokal perlu versi akurat |
+| Versi di aplikasi | Dari `pubspec.yaml` | `--dart-define=LAKUNA_VERSION` (diisi `release.yml`); build tanpa itu menampilkan `dev` | Pakai `package_info_plus` bila build lokal perlu versi akurat |
 | Layar gagal mulai | Pesan + lokasi data | Bila database gagal dibuka, aplikasi berhenti tanpa pesan | Tambahkan layar error di modul Data & backup (F1-19) |
 | Menu mobile | Semua modul terjangkau | Navigasi bawah 4 menu, belum ada menu "Lainnya" | Tambahkan sebelum modul nyata pertama selain kasir/produk |
