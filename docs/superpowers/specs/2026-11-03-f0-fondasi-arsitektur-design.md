@@ -4,7 +4,7 @@
 - **Status:** Dirilis di v0.1.0 (aturan kontras v0.1.1)
 - **Acuan:** spec F0 Storeku
   (`yusufabdillahputra/storeku`, `docs/superpowers/specs/2026-11-02-f0-fondasi-arsitektur-design.md`),
-  kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (70 artboard, Forui `conhcc`; spec
+  kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (85 artboard, Forui `conhcc`; spec
   `2026-11-03-ui-desain-lakuna-forui-design.md` dan audit fitur
   `2026-11-03-ui-audit-fitur-lakuna.md`), panduan arsitektur aplikasi resmi Flutter (docs.flutter.dev/app-architecture),
   dokumentasi Serverpod 4.1.

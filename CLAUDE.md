@@ -60,7 +60,7 @@ keputusan yang mengubah tujuan produk.
   **Tabler** (`tabler_icons_plus`), radius Medium. Tema di
   `lakuna_flutter/lib/ui/core/theme/`.
 - Acuan visual: kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
-  (70 artboard; nomor layar mis. 1.4 Kasir dipakai di kode dan CHANGELOG).
+  (85 artboard, 23 di antaranya mode gelap; nomor layar mis. 1.4 Kasir dipakai di kode dan CHANGELOG).
   Halaman fondasi *Peta fitur hasil audit* adalah daftar periksa per modul.
   Spec desain: `docs/superpowers/specs/2026-11-03-ui-desain-lakuna-forui-design.md`.
 - QRIS statis = gambar stiker QRIS utuh vertikal yang diunggah pemilik,
