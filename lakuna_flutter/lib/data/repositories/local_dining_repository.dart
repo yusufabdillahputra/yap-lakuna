@@ -156,19 +156,23 @@ class LocalDiningRepository extends DiningRepository {
       );
 
   @override
-  Future<Result<void>> voidBill(UuidValue billId, String reason) =>
-      _guard((ctx, staff) {
-        if (!staff.can(Permission.salesVoid)) {
-          throw const NotPermitted(Permission.salesVoid);
-        }
-        return voidOpenBill(
-          _store,
-          CatalogScope.of(ctx),
-          staffId: staff.id,
-          billId: billId,
-          reason: reason,
-        );
-      });
+  Future<Result<void>> voidBill(
+    UuidValue billId,
+    String reason, {
+    UuidValue? approverId,
+  }) => _guard((ctx, staff) {
+    if (approverId == null && !staff.can(Permission.salesVoid)) {
+      throw const NotPermitted(Permission.salesVoid);
+    }
+    return voidOpenBill(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      approverId: approverId,
+      billId: billId,
+      reason: reason,
+    );
+  });
 
   @override
   Future<Result<void>> deleteEmptyBill(UuidValue billId) => _guard(

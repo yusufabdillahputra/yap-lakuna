@@ -14,6 +14,8 @@ import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
 import 'data/repositories/local_dining_admin_repository.dart';
+import 'data/repositories/history_repository.dart';
+import 'data/repositories/local_history_repository.dart';
 import 'data/repositories/local_dining_repository.dart';
 import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_master_data_repository.dart';
@@ -89,6 +91,12 @@ Future<void> main() async {
     session: sessionRepository,
     preferences: preferences,
   );
+  final historyRepository = LocalHistoryRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+    preferences: preferences,
+  );
   final diningAdminRepository = LocalDiningAdminRepository(
     store,
     stores: storeRepository,
@@ -123,6 +131,7 @@ Future<void> main() async {
         Provider<CashierRepository>.value(value: cashierRepository),
         Provider<DiningRepository>.value(value: diningRepository),
         Provider<DiningAdminRepository>.value(value: diningAdminRepository),
+        Provider<HistoryRepository>.value(value: historyRepository),
         Provider<StockRepository>.value(value: stockRepository),
         Provider<MasterDataRepository>.value(value: masterDataRepository),
         Provider<PaymentSettingsRepository>.value(
@@ -146,6 +155,7 @@ Future<void> main() async {
           cashier: cashierRepository,
           dining: diningRepository,
           diningAdmin: diningAdminRepository,
+          history: historyRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,
           receiptPrinter: receiptPrinter,

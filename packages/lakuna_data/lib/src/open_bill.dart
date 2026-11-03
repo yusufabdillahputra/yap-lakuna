@@ -5,6 +5,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'dining_admin.dart';
+import 'history.dart' show requireApprover;
 import 'modifier_admin.dart';
 import 'payment_settings.dart';
 import 'sale_core.dart';
@@ -1139,17 +1140,23 @@ Future<OpenBill> moveBillToTable(
 );
 
 /// *Batalkan bill* dengan [reason] (wajib, ≤ 120). Stok tidak bergerak.
-/// Izin `sales:void` diperiksa pemanggil.
+/// Izin `sales:void` staf [staffId] diperiksa pemanggil. [approverId] =
+/// staf lain yang menyetujui lewat PIN (F1-11); izinnya diperiksa di sini
+/// dan dia dicatat di `voided_by`.
 Future<void> voidOpenBill(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
+  UuidValue? approverId,
   required UuidValue billId,
   required String reason,
 }) async {
   final text = reason.trim();
   if (text.isEmpty || text.characters.length > FnbLimits.voidReason) {
     throw const BillInputInvalid(BillField.voidReason);
+  }
+  if (approverId != null) {
+    await requireApprover(store, scope, approverId, Permission.salesVoid);
   }
   await store.write(actor: staffId, (w) async {
     final sale = await _openSale(
@@ -1182,7 +1189,7 @@ Future<void> voidOpenBill(
       sale.copyWith(
         status: SaleStatus.voided,
         voidReason: text,
-        voidedBy: staffId,
+        voidedBy: approverId ?? staffId,
         voidedAt: s.now,
         version: sale.version + 1,
         updatedAt: s.now,

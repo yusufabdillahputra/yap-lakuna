@@ -6,11 +6,13 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/dining_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show SaleOption, saleOptionsFor;
 import '../cashier/payment_view.dart' show tabularFigures;
+import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../floor_plan/floor_canvas.dart';
 import '../products/product_widgets.dart';
@@ -27,6 +29,7 @@ class DiningScreen extends StatefulWidget {
     required this.repository,
     required this.printer,
     required this.onPay,
+    this.session,
     this.onSplit,
     this.onArrange,
     this.initialBill,
@@ -34,6 +37,10 @@ class DiningScreen extends StatefulWidget {
 
   final DiningRepository repository;
   final ReceiptPrinter printer;
+
+  /// Untuk *Persetujuan manajer* saat staf tanpa `sales:void` membatalkan
+  /// bill (F1-11). Tanpa ini tombol *Batalkan bill* disembunyikan.
+  final SessionRepository? session;
 
   /// *Tutup & bayar*: membuka kasir mode bill.
   final void Function(UuidValue billId) onPay;
@@ -83,12 +90,18 @@ class _DiningScreenState extends State<DiningScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => DiningView(
-    viewModel: _viewModel,
-    onPay: widget.onPay,
-    onSplit: widget.onSplit,
-    onArrange: widget.onArrange,
-  );
+  Widget build(BuildContext context) {
+    final view = DiningView(
+      viewModel: _viewModel,
+      onPay: widget.onPay,
+      onSplit: widget.onSplit,
+      onArrange: widget.onArrange,
+    );
+    return switch (widget.session) {
+      final session? => ApprovalScope(session: session, child: view),
+      null => view,
+    };
+  }
 }
 
 /// Galat aksi bill untuk ditampilkan.
@@ -1293,7 +1306,7 @@ class _BillPanel extends StatelessWidget {
                 busy ? null : () => vm.deleteEmpty.execute(bill.id),
                 destructive: true,
               )
-            else if (vm.canVoid)
+            else if (vm.canVoid || ApprovalScope.maybeOf(context) != null)
               textAction(
                 'dining-void',
                 l10n.diningVoid,
@@ -1834,11 +1847,26 @@ Future<void> _voidBill(
   DiningViewModel vm,
   OpenBill bill,
 ) async {
+  UuidValue? approverId;
+  if (!vm.canVoid) {
+    final session = ApprovalScope.maybeOf(context);
+    if (session == null) return;
+    final approver = await requestApproval(
+      context,
+      session: session,
+      permission: Permission.salesVoid,
+      reason: AppLocalizations.of(context).approvalVoidBill,
+    );
+    if (approver == null || !context.mounted) return;
+    approverId = approver.id;
+  }
   final reason = await _showDialog<String>(
     context,
     (context) => _VoidDialog(bill: bill),
   );
-  if (reason != null) await vm.voidBill.execute(reason);
+  if (reason != null) {
+    await vm.voidBill.execute((reason: reason, approverId: approverId));
+  }
 }
 
 class _VoidDialog extends StatefulWidget {

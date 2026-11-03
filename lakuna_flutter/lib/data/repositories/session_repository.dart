@@ -4,6 +4,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
+import 'repository_errors.dart';
 
 /// Staf yang tampil di layar login atau sedang bertugas. Tidak membawa hash
 /// PIN/kata sandi.
@@ -95,6 +96,16 @@ abstract class SessionRepository extends ChangeNotifier {
 
   /// Sisa kunci login pemilik dengan [email], atau `null`.
   Duration? passwordRetryAfter(String email);
+
+  /// Persetujuan manajer (F1-11): memeriksa PIN staf [staffId] dengan kunci
+  /// yang sama dengan login, lalu izin [permission]-nya. Sesi yang berjalan
+  /// tidak berubah. Gagal dengan [WrongPin], [CredentialsLocked],
+  /// [StaffUnavailable], atau [NotPermitted].
+  Future<Result<StaffProfile>> verifyApprover(
+    UuidValue staffId,
+    String pin,
+    Permission permission,
+  );
 
   /// Memulai sesi pemilik tanpa PIN, tepat setelah setup toko (F1-01).
   void startOwnerSession(StoreContext context);

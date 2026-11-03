@@ -43,6 +43,12 @@ abstract final class Routes {
     },
   ).toString();
 
+  /// Riwayat transaksi, void & retur (F1-11).
+  static const history = '/riwayat';
+
+  /// Rincian nota [id] di riwayat (halaman sendiri di layar sempit).
+  static String historySale(String id) => '$history/$id';
+
   /// Daftar produk & stok (F1-07).
   static const products = '/produk';
 

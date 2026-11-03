@@ -1,8 +1,10 @@
-### Status nota: `completed` lunas tersimpan; `open` (nota tersimpan / open
-### bill) dan `voided` menyusul (F1-04 1.4b, F1-10, F1-11).
+### Status nota: `completed` lunas; `open` open bill (F1-10); `voided` dan
+### retur sebagian/penuh (F1-11).
 enum: SaleStatus
 serialized: byName
 values:
   - open
   - completed
   - voided
+  - partiallyReturned
+  - returned

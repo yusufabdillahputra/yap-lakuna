@@ -12,12 +12,14 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 
-/// Status nota: `completed` lunas tersimpan; `open` (nota tersimpan / open
-/// bill) dan `voided` menyusul (F1-04 1.4b, F1-10, F1-11).
+/// Status nota: `completed` lunas; `open` open bill (F1-10); `voided` dan
+/// retur sebagian/penuh (F1-11).
 enum SaleStatus implements _isc.SerializableModel {
   open,
   completed,
-  voided;
+  voided,
+  partiallyReturned,
+  returned;
 
   static SaleStatus fromJson(String name) {
     switch (name) {
@@ -27,6 +29,10 @@ enum SaleStatus implements _isc.SerializableModel {
         return SaleStatus.completed;
       case 'voided':
         return SaleStatus.voided;
+      case 'partiallyReturned':
+        return SaleStatus.partiallyReturned;
+      case 'returned':
+        return SaleStatus.returned;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "SaleStatus"',

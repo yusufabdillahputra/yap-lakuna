@@ -62,7 +62,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 7 | [Produk, varian, satuan, grosir](2026-11-03-f1-07-produk-design.md) | 1.15, 1.16 | Rilis v0.5.0, inti katalog dibangun sebelum kasir (foto, import, label barcode, arsip menyusul) |
 | 8 | [Stok: penyesuaian, kartu stok, stok minimum](2026-11-03-f1-08-stok-design.md) | 1.18 | Rilis v0.9.0 (transfer antarlokasi, opname terjadwal menyusul) |
 | 9 | [Master data](2026-11-03-f1-09-master-data-design.md) | 1.17 | Rilis v0.10.0: kategori, satuan, lokasi (baca), metode bayar (tautan); alasan, jenis pengeluaran, grup pelanggan, meja/modifier menyusul modulnya |
-| 10 | Meja F&B (denah `vyuh_node_flow`), open bill, modifier, split bill | 1.7, 1.7b–d, 1.8, 1.9 | Sebagian: grid, open bill, take away, pajak & service v0.11.0; modifier v0.12.0; split bill v0.13.0; denah v0.14.0 |
+| 10 | Meja F&B (denah `vyuh_node_flow`), open bill, modifier, split bill | 1.7, 1.7b–d, 1.8, 1.9 | Rilis: grid, open bill, take away, pajak & service v0.11.0; modifier v0.12.0; split bill v0.13.0; denah v0.14.0 |
 | 11 | Riwayat transaksi, void & retur | 1.14 | Belum |
 | 12 | Pembelian & retur beli | 1.19 | Belum |
 | 13 | Pelanggan & piutang | 1.20 | Belum |

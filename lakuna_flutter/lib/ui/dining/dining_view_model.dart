@@ -39,6 +39,9 @@ class BillItemInput {
   final List<UuidValue> modifierIds;
 }
 
+/// *Batalkan bill*: alasan dan penyetuju (F1-11; `null` = staf bertugas).
+typedef BillVoid = ({String reason, UuidValue? approverId});
+
 /// View model layar Meja & open bill (1.7 / 1.7e, F1-10).
 class DiningViewModel extends ChangeNotifier {
   DiningViewModel({required this._repository, required this._printer}) {
@@ -78,8 +81,8 @@ class DiningViewModel extends ChangeNotifier {
   /// Meja tujuan.
   late final Command1<OpenBill, UuidValue> move;
 
-  /// Alasan batal.
-  late final Command1<void, String> voidBill;
+  /// Alasan batal dan penyetuju (F1-11; `null` = staf bertugas).
+  late final Command1<void, BillVoid> voidBill;
   late final Command1<void, UuidValue> deleteEmpty;
   late final Command1<void, List<ReceiptLine>> printTicket;
 
@@ -442,10 +445,16 @@ class DiningViewModel extends ChangeNotifier {
     return _act(() => _repository.moveBill(id, tableId), onOk: _put);
   }
 
-  Future<Result<void>> _void(String reason) async {
+  Future<Result<void>> _void(BillVoid request) async {
     final id = _billId;
     if (id == null) return Result.error(BillNotFound());
-    final result = await _act(() => _repository.voidBill(id, reason));
+    final result = await _act(
+      () => _repository.voidBill(
+        id,
+        request.reason,
+        approverId: request.approverId,
+      ),
+    );
     if (result is Ok) {
       _selectedId = null;
       await _reloadOverview();

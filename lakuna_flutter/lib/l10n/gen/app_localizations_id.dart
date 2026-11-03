@@ -511,6 +511,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get cashRecapCashSales => 'Penjualan tunai';
 
   @override
+  String get cashRecapCashRefunds => 'Retur tunai';
+
+  @override
   String get cashRecapInflow => 'Uang masuk lain';
 
   @override
@@ -3402,4 +3405,304 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningNoFloorArea => 'Belum ada area mode denah.';
+
+  @override
+  String get approvalTitle => 'Persetujuan manajer';
+
+  @override
+  String get approvalStaff => 'Penyetuju';
+
+  @override
+  String get approvalPin => 'PIN penyetuju';
+
+  @override
+  String get approvalCancel => 'Batal';
+
+  @override
+  String get approvalSubmit => 'Setujui';
+
+  @override
+  String get approvalNone =>
+      'Tidak ada staf lain yang berizin dan punya PIN di cabang ini.';
+
+  @override
+  String get approvalNotPermitted =>
+      'Staf ini tidak punya izin untuk tindakan ini.';
+
+  @override
+  String get approvalVoidSale =>
+      'Void transaksi butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.';
+
+  @override
+  String get approvalVoidBill =>
+      'Batalkan bill butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.';
+
+  @override
+  String get historyTitle => 'Riwayat transaksi';
+
+  @override
+  String get historyLoadFailed => 'Riwayat gagal dimuat.';
+
+  @override
+  String historySummary(String range, int count, String total) {
+    return '$range · $count transaksi · $total';
+  }
+
+  @override
+  String get historyExport => 'Ekspor Excel';
+
+  @override
+  String historyExportSaved(String path) {
+    return 'Excel disimpan di $path';
+  }
+
+  @override
+  String get historyExportFailed => 'Ekspor gagal. Coba lagi.';
+
+  @override
+  String get historyEmpty => 'Belum ada transaksi untuk filter ini.';
+
+  @override
+  String get historyPickSale =>
+      'Pilih nota untuk melihat rincian, retur, cetak ulang, atau void.';
+
+  @override
+  String get historyRangeToday => 'Hari ini';
+
+  @override
+  String get historyRangeYesterday => 'Kemarin';
+
+  @override
+  String get historyRangeWeek => '7 hari';
+
+  @override
+  String get historyFilterStaff => 'Kasir';
+
+  @override
+  String get historyFilterAllStaff => 'Semua kasir';
+
+  @override
+  String get historyFilterMethod => 'Metode';
+
+  @override
+  String get historyFilterAllMethods => 'Semua metode';
+
+  @override
+  String get historyFilterStatus => 'Status';
+
+  @override
+  String get historyStatusAll => 'Semua status';
+
+  @override
+  String get historyStatusCompleted => 'Selesai';
+
+  @override
+  String get historyStatusPartial => 'Retur sebagian';
+
+  @override
+  String get historyStatusReturned => 'Diretur';
+
+  @override
+  String get historyStatusReturnedAny => 'Retur';
+
+  @override
+  String get historyStatusVoided => 'Void';
+
+  @override
+  String get historyColNumber => 'Nota';
+
+  @override
+  String get historyColDate => 'Tanggal';
+
+  @override
+  String get historyColTime => 'Jam';
+
+  @override
+  String get historyColStaff => 'Kasir';
+
+  @override
+  String get historyColMethod => 'Metode';
+
+  @override
+  String get historyColTotal => 'Total';
+
+  @override
+  String get historyColReturned => 'Retur';
+
+  @override
+  String get historyColNet => 'Bersih';
+
+  @override
+  String get historyColStatus => 'Status';
+
+  @override
+  String get historyBack => 'Kembali';
+
+  @override
+  String get historyTotalOriginal => 'Total awal';
+
+  @override
+  String get historyReturnedTotal => 'Sudah diretur';
+
+  @override
+  String get historyNet => 'Nilai bersih';
+
+  @override
+  String historyVoidedBy(String name, String reason) {
+    return 'Di-void oleh $name: $reason';
+  }
+
+  @override
+  String get historyItems => 'Item';
+
+  @override
+  String historyItemReturned(String qty) {
+    return 'diretur $qty';
+  }
+
+  @override
+  String get historyReturnAll => 'Retur semua';
+
+  @override
+  String historyReturnQty(String left) {
+    return 'Jumlah retur (sisa $left)';
+  }
+
+  @override
+  String get historyReturns => 'Retur';
+
+  @override
+  String get historyReturnTitle => 'Retur barang';
+
+  @override
+  String get historyReturnReason => 'Alasan';
+
+  @override
+  String get historyReasonDamaged => 'Barang rusak';
+
+  @override
+  String get historyReasonWrongItem => 'Salah ambil';
+
+  @override
+  String get historyReasonExpired => 'Kedaluwarsa';
+
+  @override
+  String get historyReasonOther => 'Lainnya';
+
+  @override
+  String get historyReturnNote => 'Catatan (opsional)';
+
+  @override
+  String get historyReturnNoteRequired => 'Catatan (wajib)';
+
+  @override
+  String get historyRefundMethod => 'Uang kembali';
+
+  @override
+  String get historyRefundCash => 'Tunai dari laci';
+
+  @override
+  String get historyRefundTransfer => 'Transfer';
+
+  @override
+  String get historyRefundDebt => 'Potong piutang';
+
+  @override
+  String get historyRefundCashNeedsSession =>
+      'Uang kembali tunai butuh sesi kasir terbuka di perangkat ini.';
+
+  @override
+  String get historyRestock => 'Kembalikan barang ke stok';
+
+  @override
+  String historyReturnSubmit(String amount) {
+    return 'Proses retur · $amount';
+  }
+
+  @override
+  String get historyReprint => 'Cetak ulang struk';
+
+  @override
+  String get historyClose => 'Tutup';
+
+  @override
+  String get historyVoid => 'Void transaksi';
+
+  @override
+  String get historyVoidHint =>
+      'Butuh izin sales:void (PIN manajer). Void membalik stok dan pembayaran lewat entri baru; data lama tidak dihapus.';
+
+  @override
+  String historyVoidTitle(String number) {
+    return 'Void nota $number?';
+  }
+
+  @override
+  String get historyVoidBody =>
+      'Stok dikembalikan dan nota tidak lagi dihitung di rekap sesi.';
+
+  @override
+  String get historyVoidReason => 'Alasan void';
+
+  @override
+  String get historyVoidKeep => 'Jangan void';
+
+  @override
+  String get historyVoidBlockStatus => 'Nota ini sudah void atau diretur.';
+
+  @override
+  String get historyVoidBlockReturned =>
+      'Nota yang sudah diretur tidak bisa di-void.';
+
+  @override
+  String get historyVoidBlockNotToday => 'Void hanya untuk nota hari ini.';
+
+  @override
+  String get historyVoidBlockSession =>
+      'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.';
+
+  @override
+  String get historyErrReturnEmpty => 'Isi jumlah retur minimal satu item.';
+
+  @override
+  String get historyErrReturnQuantity => 'Jumlah retur melebihi sisa item.';
+
+  @override
+  String get historyErrReturnNote =>
+      'Catatan wajib untuk alasan Lainnya (maks. 200 karakter).';
+
+  @override
+  String get historyErrReturnStatus => 'Nota ini tidak bisa diretur lagi.';
+
+  @override
+  String get historyErrRefundMethod => 'Cara uang kembali ini belum tersedia.';
+
+  @override
+  String get historyErrNoSession =>
+      'Buka sesi kasir dulu untuk uang kembali tunai.';
+
+  @override
+  String get historyErrVoidReason => 'Alasan wajib diisi (maks. 120 karakter).';
+
+  @override
+  String get historyErrNotPermitted =>
+      'Anda tidak punya izin untuk tindakan ini.';
+
+  @override
+  String get historyErrNotFound => 'Nota tidak ditemukan.';
+
+  @override
+  String get historyErrGeneric => 'Terjadi kesalahan. Coba lagi.';
+
+  @override
+  String get receiptBannerReprint => 'CETAK ULANG';
+
+  @override
+  String get receiptBannerVoid => 'VOID';
+
+  @override
+  String get receiptReturned => 'Retur';
+
+  @override
+  String get receiptNet => 'Bersih';
 }

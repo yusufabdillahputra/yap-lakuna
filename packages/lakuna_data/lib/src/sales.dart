@@ -380,7 +380,13 @@ Future<SessionSalesSummary> sessionSalesSummary(
     where: (s) =>
         s.tenantId.equals(tenantId) &
         s.cashSessionId.equals(sessionId) &
-        s.status.equals(SaleStatus.completed) &
+        // Nota yang kemudian diretur tetap terjual di sesi ini; retur tunai
+        // dikurangkan terpisah (`cashRefunds`).
+        s.status.inSet({
+          SaleStatus.completed,
+          SaleStatus.partiallyReturned,
+          SaleStatus.returned,
+        }) &
         s.deletedAt.equals(null),
     transaction: transaction,
   );

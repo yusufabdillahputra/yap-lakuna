@@ -56,9 +56,13 @@ import 'sales/order_type.dart' as _irm80e8w;
 import 'sales/payment.dart' as _inbmsx46;
 import 'sales/payment_method.dart' as _i3u620qk;
 import 'sales/payment_status.dart' as _i132i774;
+import 'sales/refund_method.dart' as _inoqf2bb;
 import 'sales/sale.dart' as _ichu53ep;
 import 'sales/sale_item.dart' as _i2mbgaee;
 import 'sales/sale_item_modifier.dart' as _ij9zr0hu;
+import 'sales/sale_return.dart' as _i2r6ycms;
+import 'sales/sale_return_item.dart' as _irvbvltx;
+import 'sales/sale_return_reason.dart' as _i73uzfny;
 import 'sales/sale_status.dart' as _i3d8n48k;
 import 'sales/split_mode.dart' as _iesw84sv;
 import 'stock/stock_adjustment.dart' as _i7xu84a6;
@@ -108,9 +112,13 @@ export 'sales/order_type.dart';
 export 'sales/payment.dart';
 export 'sales/payment_method.dart';
 export 'sales/payment_status.dart';
+export 'sales/refund_method.dart';
 export 'sales/sale.dart';
 export 'sales/sale_item.dart';
 export 'sales/sale_item_modifier.dart';
+export 'sales/sale_return.dart';
+export 'sales/sale_return_item.dart';
+export 'sales/sale_return_reason.dart';
 export 'sales/sale_status.dart';
 export 'sales/split_mode.dart';
 export 'stock/stock_adjustment.dart';
@@ -174,9 +182,13 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_inbmsx46.Payment>,
           _is.getType<_i3u620qk.PaymentMethod>,
           _is.getType<_i132i774.PaymentStatus>,
+          _is.getType<_inoqf2bb.RefundMethod>,
           _is.getType<_ichu53ep.Sale>,
           _is.getType<_i2mbgaee.SaleItem>,
           _is.getType<_ij9zr0hu.SaleItemModifier>,
+          _is.getType<_i2r6ycms.SaleReturn>,
+          _is.getType<_irvbvltx.SaleReturnItem>,
+          _is.getType<_i73uzfny.SaleReturnReason>,
           _is.getType<_i3d8n48k.SaleStatus>,
           _is.getType<_iesw84sv.SplitMode>,
           _is.getType<_i7xu84a6.StockAdjustment>,
@@ -226,9 +238,13 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_inbmsx46.Payment?>,
           _is.getType<_i3u620qk.PaymentMethod?>,
           _is.getType<_i132i774.PaymentStatus?>,
+          _is.getType<_inoqf2bb.RefundMethod?>,
           _is.getType<_ichu53ep.Sale?>,
           _is.getType<_i2mbgaee.SaleItem?>,
           _is.getType<_ij9zr0hu.SaleItemModifier?>,
+          _is.getType<_i2r6ycms.SaleReturn?>,
+          _is.getType<_irvbvltx.SaleReturnItem?>,
+          _is.getType<_i73uzfny.SaleReturnReason?>,
           _is.getType<_i3d8n48k.SaleStatus?>,
           _is.getType<_iesw84sv.SplitMode?>,
           _is.getType<_i7xu84a6.StockAdjustment?>,
@@ -285,9 +301,13 @@ class Protocol extends _is.DatabaseSerializationManager
           'Payment',
           'PaymentMethod',
           'PaymentStatus',
+          'RefundMethod',
           'Sale',
           'SaleItem',
           'SaleItemModifier',
+          'SaleReturn',
+          'SaleReturnItem',
+          'SaleReturnReason',
           'SaleStatus',
           'SplitMode',
           'StockAdjustment',
@@ -3620,6 +3640,415 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'sale_return_items',
+      dartName: 'SaleReturnItem',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_return_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_item_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'quantity_milli',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_return_items_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_return_items_fk_1',
+          columns: ['sale_return_id'],
+          referenceTable: 'sale_returns',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_return_items_fk_2',
+          columns: ['sale_item_id'],
+          referenceTable: 'sale_items',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sale_return_items_return_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_return_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sale_return_items_item_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_item_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'sale_returns',
+      dartName: 'SaleReturn',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cash_session_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'staff_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'number',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reason',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:SaleReturnReason',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'refund_method',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:RefundMethod',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'restock',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _isp.ColumnDefinition(
+          name: 'returned_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_3',
+          columns: ['cash_session_id'],
+          referenceTable: 'cash_sessions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_4',
+          columns: ['sale_id'],
+          referenceTable: 'sales',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_returns_fk_5',
+          columns: ['staff_id'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sale_returns_sale_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sale_returns_session_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'cash_session_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sale_returns_number_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'number',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'sales',
       dartName: 'Sale',
       schema: 'public',
@@ -5303,6 +5732,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i132i774.PaymentStatus) {
       return _i132i774.PaymentStatus.fromJson(data) as T;
     }
+    if (t == _inoqf2bb.RefundMethod) {
+      return _inoqf2bb.RefundMethod.fromJson(data) as T;
+    }
     if (t == _ichu53ep.Sale) {
       return _ichu53ep.Sale.fromJson(data) as T;
     }
@@ -5311,6 +5743,15 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (t == _ij9zr0hu.SaleItemModifier) {
       return _ij9zr0hu.SaleItemModifier.fromJson(data) as T;
+    }
+    if (t == _i2r6ycms.SaleReturn) {
+      return _i2r6ycms.SaleReturn.fromJson(data) as T;
+    }
+    if (t == _irvbvltx.SaleReturnItem) {
+      return _irvbvltx.SaleReturnItem.fromJson(data) as T;
+    }
+    if (t == _i73uzfny.SaleReturnReason) {
+      return _i73uzfny.SaleReturnReason.fromJson(data) as T;
     }
     if (t == _i3d8n48k.SaleStatus) {
       return _i3d8n48k.SaleStatus.fromJson(data) as T;
@@ -5478,6 +5919,9 @@ class Protocol extends _is.DatabaseSerializationManager
       return (data != null ? _i132i774.PaymentStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_inoqf2bb.RefundMethod?>()) {
+      return (data != null ? _inoqf2bb.RefundMethod.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_ichu53ep.Sale?>()) {
       return (data != null ? _ichu53ep.Sale.fromJson(data) : null) as T;
     }
@@ -5486,6 +5930,17 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (t == _is.getType<_ij9zr0hu.SaleItemModifier?>()) {
       return (data != null ? _ij9zr0hu.SaleItemModifier.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i2r6ycms.SaleReturn?>()) {
+      return (data != null ? _i2r6ycms.SaleReturn.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_irvbvltx.SaleReturnItem?>()) {
+      return (data != null ? _irvbvltx.SaleReturnItem.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i73uzfny.SaleReturnReason?>()) {
+      return (data != null ? _i73uzfny.SaleReturnReason.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_i3d8n48k.SaleStatus?>()) {
@@ -5582,9 +6037,13 @@ class Protocol extends _is.DatabaseSerializationManager
       _inbmsx46.Payment => 'Payment',
       _i3u620qk.PaymentMethod => 'PaymentMethod',
       _i132i774.PaymentStatus => 'PaymentStatus',
+      _inoqf2bb.RefundMethod => 'RefundMethod',
       _ichu53ep.Sale => 'Sale',
       _i2mbgaee.SaleItem => 'SaleItem',
       _ij9zr0hu.SaleItemModifier => 'SaleItemModifier',
+      _i2r6ycms.SaleReturn => 'SaleReturn',
+      _irvbvltx.SaleReturnItem => 'SaleReturnItem',
+      _i73uzfny.SaleReturnReason => 'SaleReturnReason',
       _i3d8n48k.SaleStatus => 'SaleStatus',
       _iesw84sv.SplitMode => 'SplitMode',
       _i7xu84a6.StockAdjustment => 'StockAdjustment',
@@ -5687,12 +6146,20 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'PaymentMethod';
       case _i132i774.PaymentStatus():
         return 'PaymentStatus';
+      case _inoqf2bb.RefundMethod():
+        return 'RefundMethod';
       case _ichu53ep.Sale():
         return 'Sale';
       case _i2mbgaee.SaleItem():
         return 'SaleItem';
       case _ij9zr0hu.SaleItemModifier():
         return 'SaleItemModifier';
+      case _i2r6ycms.SaleReturn():
+        return 'SaleReturn';
+      case _irvbvltx.SaleReturnItem():
+        return 'SaleReturnItem';
+      case _i73uzfny.SaleReturnReason():
+        return 'SaleReturnReason';
       case _i3d8n48k.SaleStatus():
         return 'SaleStatus';
       case _iesw84sv.SplitMode():
@@ -5856,6 +6323,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'PaymentStatus') {
       return deserialize<_i132i774.PaymentStatus>(data['data']);
     }
+    if (dataClassName == 'RefundMethod') {
+      return deserialize<_inoqf2bb.RefundMethod>(data['data']);
+    }
     if (dataClassName == 'Sale') {
       return deserialize<_ichu53ep.Sale>(data['data']);
     }
@@ -5864,6 +6334,15 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'SaleItemModifier') {
       return deserialize<_ij9zr0hu.SaleItemModifier>(data['data']);
+    }
+    if (dataClassName == 'SaleReturn') {
+      return deserialize<_i2r6ycms.SaleReturn>(data['data']);
+    }
+    if (dataClassName == 'SaleReturnItem') {
+      return deserialize<_irvbvltx.SaleReturnItem>(data['data']);
+    }
+    if (dataClassName == 'SaleReturnReason') {
+      return deserialize<_i73uzfny.SaleReturnReason>(data['data']);
     }
     if (dataClassName == 'SaleStatus') {
       return deserialize<_i3d8n48k.SaleStatus>(data['data']);
@@ -5996,6 +6475,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i2mbgaee.SaleItem.t;
       case _ij9zr0hu.SaleItemModifier:
         return _ij9zr0hu.SaleItemModifier.t;
+      case _i2r6ycms.SaleReturn:
+        return _i2r6ycms.SaleReturn.t;
+      case _irvbvltx.SaleReturnItem:
+        return _irvbvltx.SaleReturnItem.t;
       case _i7xu84a6.StockAdjustment:
         return _i7xu84a6.StockAdjustment.t;
       case _iuqt5pmc.StockAdjustmentItem:

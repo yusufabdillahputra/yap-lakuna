@@ -72,6 +72,9 @@ class FakeDiningRepository extends DiningRepository {
   final tickets = <KitchenTicket>[];
   final voided = <UuidValue, String>{};
 
+  /// Penyetuju *Batalkan bill* per bill (F1-11).
+  final voidApprovers = <UuidValue, UuidValue>{};
+
   /// Pembayaran bagian split (F1-10c).
   final payments = <Payment>[];
 
@@ -515,8 +518,13 @@ class FakeDiningRepository extends DiningRepository {
       });
 
   @override
-  Future<Result<void>> voidBill(UuidValue billId, String reason) => _run(() {
-    if (!_can(Permission.salesVoid)) {
+  Future<Result<void>> voidBill(
+    UuidValue billId,
+    String reason, {
+    UuidValue? approverId,
+  }) => _run(() {
+    if (approverId != null) voidApprovers[billId] = approverId;
+    if (approverId == null && !_can(Permission.salesVoid)) {
       throw const NotPermitted(Permission.salesVoid);
     }
     final text = reason.trim();
