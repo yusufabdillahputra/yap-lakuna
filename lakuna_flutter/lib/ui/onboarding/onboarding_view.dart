@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_data/lakuna_data.dart' show SetupAlreadyDone;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
@@ -9,6 +10,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
 import '../settings/app_settings_view_model.dart';
 import '../settings/appearance_tiles.dart';
+import '../../utils/result.dart';
 import 'onboarding_view_model.dart';
 
 /// Layar 1.1 Setup toko pertama. Memiliki [OnboardingViewModel] sendiri
@@ -679,7 +681,12 @@ class _SummaryStep extends StatelessWidget {
           FAlert(
             key: const ValueKey('setup-error'),
             variant: .destructive,
-            title: Text(l10n.setupFailed),
+            title: Text(
+              switch (viewModel.finish.result) {
+                Error(error: SetupAlreadyDone()) => l10n.setupAlreadyDone,
+                _ => l10n.setupFailed,
+              },
+            ),
           ),
         FCard(
           child: Padding(

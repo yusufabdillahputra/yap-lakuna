@@ -104,6 +104,23 @@ void main() {
     expect(find.text('Langkah 4 dari 4'), findsOneWidget);
   });
 
+  testWidgets('isian tetap ada setelah kembali ke langkah sebelumnya', (
+    tester,
+  ) async {
+    await pumpLakuna(tester, store: FakeStoreRepository());
+    await _next(tester);
+    await _type(tester, SetupField.businessName, 'Toko Bu Ani');
+    await _type(tester, SetupField.outletName, 'Cabang Pusat');
+    await _type(tester, SetupField.outletCode, 'PST');
+    await _next(tester);
+    await _type(tester, SetupField.ownerName, 'Ani');
+    await tester.tap(find.byKey(const ValueKey('onboarding-back')));
+    await tester.pumpAndSettle();
+    expect(find.text('Toko Bu Ani'), findsOneWidget);
+    await _next(tester);
+    expect(find.text('Ani'), findsOneWidget);
+  });
+
   testWidgets('sakelar EN mengganti bahasa wizard', (tester) async {
     await pumpLakuna(tester, store: FakeStoreRepository());
     await tester.tap(find.byKey(const ValueKey('onboarding-lang-en')));

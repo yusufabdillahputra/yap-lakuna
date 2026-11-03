@@ -88,5 +88,6 @@
   "buttonNextSummary": "Next: summary",
   "buttonStartSelling": "Start selling",
   "setupFailed": "The store could not be saved. Please try again.",
-  "homeStoreLabel": "Store"
+  "homeStoreLabel": "Store",
+  "setupAlreadyDone": "This device already holds incomplete store data. Restore from a backup or contact support."
 }

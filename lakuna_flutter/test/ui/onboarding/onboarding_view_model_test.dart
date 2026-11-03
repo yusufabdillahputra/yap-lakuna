@@ -29,7 +29,7 @@ void main() {
     repository = FakeStoreRepository();
     vm = OnboardingViewModel(
       repository: repository,
-      today: () => DateTime(2026, 11, 3),
+      now: () => DateTime.utc(2026, 11, 3, 3),
     );
   });
 
@@ -67,6 +67,30 @@ void main() {
     vm.setField(SetupField.outletCode, 'bdg');
     vm.setField(SetupField.deviceCode, 't01');
     expect(vm.receiptPreview, 'BDG-T01-261103-0001');
+  });
+
+  test('tanggal pratinjau nota mengikuti zona waktu yang dipilih', () {
+    final late = OnboardingViewModel(
+      repository: repository,
+      now: () => DateTime.utc(2026, 11, 3, 16, 30),
+    );
+    // 23.30 WIB masih tanggal 3; 01.30 WIT sudah tanggal 4.
+    expect(late.receiptPreview, 'PST-K01-261103-0001');
+    late.setField(SetupField.timezone, 'Asia/Jayapura');
+    expect(late.receiptPreview, 'PST-K01-261104-0001');
+  });
+
+  test('kembali dari ringkasan menghapus galat setup sebelumnya', () async {
+    repository.failSetup = true;
+    vm.next();
+    fillBusiness(vm);
+    vm.next();
+    fillOwner(vm);
+    vm.next();
+    await vm.finish.execute();
+    expect(vm.finish.error, isTrue);
+    vm.back();
+    expect(vm.finish.error, isFalse);
   });
 
   test('alur lengkap sampai ringkasan lalu setup sekali', () async {

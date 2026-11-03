@@ -631,6 +631,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Toko'**
   String get homeStoreLabel;
+
+  /// No description provided for @setupAlreadyDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan.'**
+  String get setupAlreadyDone;
 }
 
 class _AppLocalizationsDelegate

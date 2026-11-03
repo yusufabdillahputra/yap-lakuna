@@ -52,6 +52,16 @@ jualan dalam 4 langkah, tanpa internet.
   karena `textCapitalization` hanya berlaku di keyboard layar. Ditemukan saat
   uji manual di Xvfb; kini disaring ke huruf/angka dan langsung dijadikan
   huruf besar.
+- Temuan review kode sebelum rilis:
+  - Pesan "Toko gagal disimpan" tetap tampil setelah pengguna kembali dan
+    mengubah isian. Kini hilang saat kembali ke langkah sebelumnya.
+  - Tanggal pratinjau nomor nota memakai jam perangkat, bukan zona waktu
+    yang dipilih. Pada 23.30 WIB, toko WIT sudah berganti tanggal. Kini
+    mengikuti WIB/WITA/WIT yang dipilih.
+  - Bila toko sudah ada tetapi konteksnya belum termuat, setup gagal terus
+    dengan pesan umum. Kini setup memuat ulang toko yang ada. Bila datanya
+    tidak lengkap, tampil pesan khusus (pulihkan dari backup), dan galat
+    saat memuat toko ketika aplikasi dibuka dicatat di log.
 
 ### Keamanan
 

@@ -288,4 +288,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeStoreLabel => 'Store';
+
+  @override
+  String get setupAlreadyDone =>
+      'This device already holds incomplete store data. Restore from a backup or contact support.';
 }

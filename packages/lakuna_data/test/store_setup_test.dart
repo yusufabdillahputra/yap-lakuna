@@ -94,6 +94,11 @@ void main() {
       'outlet_members',
     });
     expect(outbox, hasLength(6));
+    final hlc = ctx.tenant.hlc;
+    expect(outbox.map((e) => e.hlc).toSet(), {hlc});
+    expect(ctx.outlet.hlc, hlc);
+    expect(ctx.device.hlc, hlc);
+    expect(ctx.owner.originDeviceId, store.deviceId);
     expect(ctx.outlet.createdBy, ctx.owner.id);
     expect(ctx.tenant.createdBy, ctx.owner.id);
     expect(ctx.owner.createdBy, ctx.owner.id);

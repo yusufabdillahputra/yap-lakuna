@@ -65,9 +65,37 @@ void main() {
     expect((await reloaded.load() as Ok).value, isNotNull);
   });
 
-  test('setup kedua menjadi Result.error SetupAlreadyDone', () async {
+  test(
+    'toko sudah ada tetapi konteks belum dimuat: setup memuat ulang',
+    () async {
+      await repo.setup(_input());
+      final fresh = LocalStoreRepository(
+        store,
+        hasher: const CredentialHasher.forTesting(),
+      );
+      final result = await fresh.setup(_input());
+      expect(result, isA<Ok<StoreContext>>());
+      expect(fresh.current, isNotNull);
+    },
+  );
+
+  test('setup kedua tidak membuat toko ganda', () async {
+    final first = (await repo.setup(_input()) as Ok<StoreContext>).value;
+    final second = (await repo.setup(_input()) as Ok<StoreContext>).value;
+    expect(second.tenant.id, first.tenant.id);
+    expect(await Tenant.db.count(store.session), 1);
+  });
+
+  test('toko ada tetapi tidak lengkap: tetap galat SetupAlreadyDone', () async {
     await repo.setup(_input());
-    final second = await repo.setup(_input());
-    expect((second as Error).error, isA<SetupAlreadyDone>());
+    await store.session.db.unsafeExecute('DELETE FROM outlet_members');
+    await store.session.db.unsafeExecute('DELETE FROM staff_members');
+    final fresh = LocalStoreRepository(
+      store,
+      hasher: const CredentialHasher.forTesting(),
+    );
+    final result = await fresh.setup(_input());
+    expect((result as Error).error, isA<SetupAlreadyDone>());
+    expect(fresh.current, isNull);
   });
 }

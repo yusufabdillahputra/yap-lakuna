@@ -105,5 +105,6 @@
   "buttonNextSummary": "Lanjut: ringkasan",
   "buttonStartSelling": "Mulai jualan",
   "setupFailed": "Toko gagal disimpan. Coba lagi.",
-  "homeStoreLabel": "Toko"
+  "homeStoreLabel": "Toko",
+  "setupAlreadyDone": "Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan."
 }

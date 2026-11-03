@@ -287,4 +287,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeStoreLabel => 'Toko';
+
+  @override
+  String get setupAlreadyDone =>
+      'Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan.';
 }

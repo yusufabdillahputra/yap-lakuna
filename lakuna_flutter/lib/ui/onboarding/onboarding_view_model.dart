@@ -13,13 +13,13 @@ enum OnboardingStep { languageTheme, business, owner, summary }
 class OnboardingViewModel extends ChangeNotifier {
   OnboardingViewModel({
     required this._repository,
-    DateTime Function()? today,
-  }) : _today = today ?? DateTime.now {
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now {
     finish = Command0(_finish);
   }
 
   final StoreRepository _repository;
-  final DateTime Function() _today;
+  final DateTime Function() _now;
 
   late final Command0<StoreContext> finish;
 
@@ -63,14 +63,20 @@ class OnboardingViewModel extends ChangeNotifier {
     return input.validate(fields: [field])[field];
   }
 
-  /// Contoh nomor nota pertama hari ini dari kode yang diketik.
+  /// Contoh nomor nota pertama hari ini dari kode yang diketik. Tanggalnya
+  /// mengikuti zona waktu yang dipilih (WIB/WITA/WIT), bukan jam perangkat.
   String get receiptPreview {
+    final zone = setupTimezones.firstWhere(
+      (z) => z.id == value(SetupField.timezone),
+      orElse: () => setupTimezones.first,
+    );
+    final local = _now().toUtc().add(Duration(hours: zone.utcOffsetHours));
     final outlet = normalizeCode(value(SetupField.outletCode));
     final device = normalizeCode(value(SetupField.deviceCode));
     return receiptNumber(
       outlet.isEmpty ? 'PST' : outlet,
       device.isEmpty ? 'K01' : device,
-      _today(),
+      local,
       1,
     );
   }
@@ -102,6 +108,8 @@ class OnboardingViewModel extends ChangeNotifier {
 
   void back() {
     if (_step.index == 0) return;
+    // Galat setup lama tidak relevan lagi setelah isian bisa diubah.
+    if (finish.error) finish.clearResult();
     _step = OnboardingStep.values[_step.index - 1];
     notifyListeners();
   }

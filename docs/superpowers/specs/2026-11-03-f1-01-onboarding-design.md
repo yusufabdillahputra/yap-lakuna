@@ -107,7 +107,8 @@ pemilik (`created_by` = ID pemilik):
     modulnya.
   - Tidak ada tabel `users`/`roles` arium. Pemilik adalah `staff_members`,
     dan role berupa kunci teks di `outlet_members`.
-- **Konteks toko:** `StoreRepository.loadContext()` mengembalikan
+- **Konteks toko:** `loadStoreContext()` (`lakuna_data`, dipanggil
+  `StoreRepository.load()`) mengembalikan
   `StoreContext` berisi tenant, outlet, perangkat, dan pemilik. Bila belum
   ada tenant, hasilnya `null`.
 - **Satu tenant per perangkat:** setup ditolak (`SetupAlreadyDone`) bila
@@ -117,7 +118,7 @@ pemilik (`created_by` = ID pemilik):
 
 Tidak perlu izin, karena belum ada pengguna. Setup hanya bisa dijalankan bila
 database belum punya tenant. Router selalu mengarahkan ke `/setup` selama
-`loadContext()` masih `null`, dan menolak membuka `/setup` setelah setup
+konteks toko masih `null`, dan menolak membuka `/setup` setelah setup
 selesai.
 
 ## Kasus tepi
@@ -146,7 +147,7 @@ selesai.
   - Input tidak valid ditolak sebelum menulis. Rollback transaksi sudah diuji
     di `store_test` untuk `LakunaStore.write`, dan setup memakai satu
     `write`.
-  - `loadContext()` mengembalikan `null` sebelum setup.
+  - `loadStoreContext()` mengembalikan `null` sebelum setup.
 - **`lakuna_flutter`:**
   - View model: navigasi langkah, validasi memblokir *Lanjut*, pratinjau
     nota, perintah setup memanggil repositori sekali.
@@ -164,6 +165,9 @@ selesai.
 | Lokasi stok Gudang | Etalase & Gudang | Hanya "Etalase" | Sama dengan Storeku: tambah lewat Master data (F1-09) |
 | Login setelah setup | 1.2 Login PIN | Setelah setup langsung ke Beranda | Login PIN dan kunci sesi di F1-02 |
 | Kartu jenis usaha | Tiga kartu berdampingan | `FSelectTileGroup` vertikal (sesuai peta komponen) | Pertahankan; terbaca di ponsel |
+| Hash di outbox sync | - | `sync_outbox.payload_json` baris `staff_members` memuat `pin_hash`/`password_hash` (sama dengan isi SQLite) | Sebelum sync Fase 2: putuskan hash ikut sync atau tidak, dan tandai field hash `scope=serverOnly` agar endpoint tidak mengembalikannya ke klien |
+| Fokus saat jendela diubah ukurannya | - | Melewati lebar 560 px, grid field berganti Row/Column sehingga fokus hilang (isian tetap) | Perbaiki bila mengganggu (GlobalKey per field) |
+| Data toko tidak lengkap | - | Bila tenant ada tetapi perangkat/pemilik hilang, setup menampilkan pesan khusus (pulihkan dari backup) | Tangani lewat Data & backup (F1-19) dan sync Fase 2 |
 | Tes server Postgres lokal | - | Postgres tertanam menolak jalan sebagai root di lingkungan cloud | Tes server dijalankan CI |
 
 ## Kriteria selesai
