@@ -42,7 +42,7 @@ terlihat di layar.
 | Supplier & hutang | 1.21 | Hutang per pembelian, jatuh tempo, bayar dari kas toko / laci / bank | `suppliers:manage` |
 | Pengeluaran | 1.22 | Jenis pengeluaran, foto nota; dari kas laci ikut rekap sesi | `expenses:manage` |
 | Laporan & laba rugi | 1.23, 1.24 | Penjualan, produk terlaris, kas; laba rugi memakai HPP; angka laba disembunyikan tanpa izin | `reports:view` (usul: `reports:view_profit` untuk angka laba, belum ada di katalog F0) |
-| Pengguna & role | 1.25, 1.25b | Role owner, manager, cashier, waiter, stock_keeper; matriks memakai kunci izin dari kode; tambah staf (PIN + ulangi PIN), reset PIN staf, ganti kata sandi & PIN sendiri | `users:manage` |
+| Pengguna & role | 1.25, 1.25b | Role owner, manager, cashier, waiter, stock_keeper; matriks memakai kunci izin dari kode; tambah staf (PIN + ulangi PIN), reset PIN staf, ganti kata sandi & PIN sendiri di "Akun saya" | `users:manage` (tambah, reset); "Akun saya" tanpa izin khusus |
 | Pengaturan | 1.26, 1.26b | Metode bayar, struk, pajak & service, stok minus, PIN diskon, pembulatan, tema, bahasa | `settings:manage` |
 | Panduan | 1.27 | Panduan per fitur ID + EN, tangkapan layar WebP | — |
 
@@ -70,7 +70,7 @@ stock_keeper = `purchases:manage`, `stock:adjust`, `suppliers:manage`.
 | 1.16b, 1.17b Modifier | Master grup modifier dan penempelannya ke menu belum tergambar |
 | 1.19b Detail pembelian | HPP rata-rata, saran harga jual, pembayaran hutang |
 | 1.20b Kuitansi | Bukti bayar piutang (A5/PDF dan 58 mm) |
-| 1.25b Tambah pengguna & akun saya | PIN staf + ulangi PIN; ganti kata sandi dan PIN pemilik, selalu dengan kolom ulangi |
+| 1.25b Tambah pengguna & akun saya | PIN staf + ulangi PIN; "Akun saya" (setiap pengguna) untuk ganti kata sandi dan PIN, selalu dengan kolom ulangi |
 | 1.26b Pengaturan QRIS | Unggah stiker QRIS utuh, cek rasio & QR, data merchant |
 
 Halaman fondasi baru: **Pola keadaan & responsif** (kosong, memuat, error,

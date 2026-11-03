@@ -206,7 +206,7 @@ Setiap kali kata sandi atau PIN disetel atau diganti, ada kolom **ulangi**
 tepat di samping atau di bawah kolom pertama. Layar acuan:
 
 - **1.1b Setup langkah 3, akun pemilik & PIN:** nama, email, kata sandi +
-  ulangi kata sandi, PIN 6 angka + ulangi PIN. Langkah 4 wizard adalah
+  ulangi kata sandi, PIN 6 digit + ulangi PIN. Langkah 4 wizard adalah
   "Ringkasan" (produk pertama pindah ke modul Produk), dan layar 1.1 ikut
   diperbarui.
 - **1.25b Tambah pengguna & akun saya:** PIN staf + ulangi PIN; reset PIN
@@ -215,20 +215,32 @@ tepat di samping atau di bawah kolom pertama. Layar acuan:
 
 Aturan perilakunya:
 
-- Pakai `FTextFormField.password` dengan tombol mata per kolom; PIN memakai
-  keyboard angka, 6 angka, isinya disembunyikan.
-- Kolom ulangi wajib diisi dan harus sama persis. Pengecekan terjadi saat
-  kolom ulangi kehilangan fokus, saat menekan tombol simpan/lanjut, dan
-  diulang bila kolom pertama diubah.
-- Pesan galat di bawah kolom ulangi: "Kata sandi tidak sama. Ketik ulang." /
-  "PIN tidak sama. Ketik ulang." (EN: "Passwords do not match" / "PINs do not
-  match"). Bila cocok, tampilkan petunjuk sukses ("PIN sama").
-- Tombol simpan/lanjut tetap aktif; bila ada galat, fokus pindah ke kolom
-  pertama yang salah.
-- Hanya hash Argon2id dari kolom pertama yang disimpan. Nilai kolom ulangi
+- **Kontrol:** kata sandi memakai `FTextFormField.password` dengan tombol
+  mata per kolom. PIN di formulir (1.1b, 1.25b) memakai `FTextFormField`
+  tersembunyi + tombol mata, keyboard angka, tepat 6 digit. Papan PIN
+  (`FOtpField` + tombol angka) hanya untuk memasukkan PIN di 1.2 dan 1.2b.
+- **Kolom ulangi kosong:** galat "Wajib diisi" / "Required".
+- **Tidak sama:** galat di bawah kolom ulangi, "Kata sandi tidak sama" /
+  "The passwords do not match" dan "PIN tidak sama" / "The PINs do not
+  match" (sama dengan kunci `errorPinMismatch` yang sudah ada). Kanvas
+  menambahkan "Ketik ulang." sebagai contoh kalimat bantu; boleh dipakai.
+- **Sama:** petunjuk sukses di bawah kolom ulangi, "Kata sandi sama" /
+  "Passwords match" dan "PIN sama" / "PINs match".
+- **Kapan dicek:** saat kolom ulangi kehilangan fokus dan saat menekan
+  tombol simpan/lanjut. Setelah kolom ulangi pernah dicek, perubahan di
+  kolom asal (kata sandi atau PIN) langsung memicu cek ulang.
+- **Tombol simpan/lanjut tetap aktif.** Bila ada galat, fokus pindah ke
+  kolom paling atas yang bergalat.
+- **Penyimpanan:** hanya hash Argon2id dari kolom asal. Nilai kolom ulangi
   tidak pernah disimpan, dicatat, atau dikirim.
-- Ganti kata sandi atau PIN sendiri butuh nilai saat ini. Setelah PIN
-  diganti, hitungan salah PIN dan kunci sementara staf itu direset.
+- **Izin:** "Akun saya" terbuka untuk setiap pengguna yang sedang masuk,
+  tanpa izin khusus, tetapi butuh kata sandi atau PIN saat ini. Tambah
+  pengguna dan reset PIN staf butuh `users:manage` dan tidak butuh PIN
+  lama. PIN dan kata sandi pemilik hanya bisa diganti pemilik sendiri
+  lewat "Akun saya".
+- **Kunci sementara:** PIN saat ini yang salah di "Akun saya" dihitung
+  sebagai salah PIN biasa. Setelah PIN diganti sendiri atau direset oleh
+  `users:manage`, hitungan salah PIN dan kunci sementara staf itu direset.
 
 ## Struktur kanvas
 
