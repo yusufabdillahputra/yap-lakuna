@@ -24,3 +24,84 @@ PaymentReferenceError? validatePaymentReference(String reference) =>
     reference.trim().length > maxPaymentReferenceLength
     ? PaymentReferenceError.tooLong
     : null;
+
+/// Satu bagian pembayaran: nominal dan apakah tunai. Hanya tunai yang boleh
+/// melebihi sisa (kembalian).
+class TenderPart {
+  const TenderPart(this.amount, {this.isCash = false});
+
+  final Money amount;
+  final bool isCash;
+}
+
+/// Alasan pembayaran belum bisa diselesaikan, urut prioritas.
+enum TenderError {
+  /// Belum ada bagian.
+  empty,
+
+  /// Ada nominal nol atau negatif.
+  nonPositive,
+
+  /// Lebih dari satu bagian tunai.
+  multipleCash,
+
+  /// Jumlah non-tunai melebihi total: kembalian hanya dari tunai.
+  nonCashOver,
+
+  /// Jumlah bagian kurang dari total.
+  short,
+}
+
+/// Hasil [settleTender].
+class Settlement {
+  const Settlement({
+    required this.paid,
+    required this.remaining,
+    required this.change,
+    this.error,
+  });
+
+  /// Jumlah semua bagian.
+  final Money paid;
+
+  /// Sisa yang belum dibayar (≥ 0).
+  final Money remaining;
+
+  /// Kembalian dari bagian tunai (≥ 0).
+  final Money change;
+
+  /// `null` bila lunas.
+  final TenderError? error;
+
+  bool get isSettled => error == null;
+}
+
+/// Melunasi [total] dengan [parts] (satu metode = satu bagian). Lihat
+/// [TenderError] untuk aturannya.
+Settlement settleTender(Money total, List<TenderPart> parts) {
+  final paid = Money.sum(parts.map((p) => p.amount));
+  final nonCash = Money.sum([
+    for (final p in parts)
+      if (!p.isCash) p.amount,
+  ]);
+  final diff = paid - total;
+  final remaining = diff.isNegative ? -diff : Money.zero;
+  final change = diff.isNegative ? Money.zero : diff;
+  final error = parts.isEmpty
+      ? TenderError.empty
+      : parts.any((p) => p.amount <= Money.zero)
+      ? TenderError.nonPositive
+      : parts.where((p) => p.isCash).length > 1
+      ? TenderError.multipleCash
+      : nonCash > total
+      ? TenderError.nonCashOver
+      : remaining > Money.zero
+      ? TenderError.short
+      : null;
+  return Settlement(
+    paid: paid,
+    remaining: remaining,
+    change: error == null ? change : Money.zero,
+    error: error,
+  );
+}

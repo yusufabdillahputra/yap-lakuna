@@ -1,0 +1,30 @@
+### Berkas gambar yang diunggah (stiker QRIS, nanti foto produk). Isi berkas
+### disimpan di `<folder data>/media/<storage_key>`; `storage_key` =
+### `<sha256>.<ext>` sehingga berkas sama tidak disalin dua kali dan aman
+### disinkronkan ke object storage (Fase 2).
+class: MediaFile
+table: media_files
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue?, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  kind: MediaKind
+  fileName: String, column=file_name
+  mimeType: String, column=mime_type
+  sizeBytes: int, column=size_bytes
+  sha256: String
+  width: int
+  height: int
+  storageKey: String, column=storage_key
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  media_files_tenant_sha_idx:
+    fields: tenantId, sha256

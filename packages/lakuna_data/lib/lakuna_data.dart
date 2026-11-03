@@ -4,6 +4,8 @@ library;
 export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 
 export 'src/cash.dart';
+export 'src/media.dart';
+export 'src/payment_settings.dart';
 export 'src/catalog.dart';
 export 'src/preferences.dart';
 export 'src/sales.dart';

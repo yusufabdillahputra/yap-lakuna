@@ -1,0 +1,5 @@
+### Jenis berkas media yang diunggah (F1-18).
+enum: MediaKind
+serialized: byName
+values:
+  - qrisSticker

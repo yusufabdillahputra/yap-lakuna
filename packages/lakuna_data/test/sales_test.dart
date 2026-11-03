@@ -85,12 +85,14 @@ void main() {
   Future<CheckoutResult> checkout(
     List<SaleLineRequest> lines, {
     SalePaymentRequest payment = const SalePaymentRequest.cash(Money(1000000)),
+    List<SalePaymentRequest>? payments,
+    UuidValue? staffId,
   }) => checkoutSale(
     store,
     scope,
-    staffId: ctx.owner.id,
+    staffId: staffId ?? ctx.owner.id,
     lines: lines,
-    payment: payment,
+    payments: payments ?? [payment],
   );
 
   test('tanpa sesi kasir terbuka ditolak', () async {
@@ -138,10 +140,10 @@ void main() {
       expect(item.tracksStock, isTrue);
       expect(result.items.last.tracksStock, isFalse);
 
-      expect(result.payment.method, PaymentMethod.cash);
-      expect(result.payment.amount, 100000);
-      expect(result.payment.changeAmount, 26000);
-      expect(result.payment.status, PaymentStatus.paid);
+      expect(result.payments.single.method, PaymentMethod.cash);
+      expect(result.payments.single.amount, 100000);
+      expect(result.payments.single.changeAmount, 26000);
+      expect(result.payments.single.status, PaymentStatus.paid);
 
       final moves = await StockMovement.db.find(
         store.session,
@@ -214,15 +216,15 @@ void main() {
         reference: ' 004512 ',
       ),
     );
-    expect(card.payment.amount, 2000);
-    expect(card.payment.changeAmount, 0);
-    expect(card.payment.reference, '004512');
+    expect(card.payments.single.amount, 2000);
+    expect(card.payments.single.changeAmount, 0);
+    expect(card.payments.single.reference, '004512');
     expect(card.sale.changeAmount, 0);
 
     final transfer = await checkout([
       SaleLineRequest(variantId: v(jasa).id, quantity: Qty.one),
     ], payment: const SalePaymentRequest(method: PaymentMethod.transfer));
-    expect(transfer.payment.reference, isNull);
+    expect(transfer.payments.single.reference, isNull);
     expect(transfer.sale.number, 'PST-K01-261103-0002');
   });
 
@@ -334,6 +336,168 @@ void main() {
     final drawer = await cashDrawerFor(store, cashScope, session);
     expect(drawer.cashSales, const Money(36000));
     expect(drawer.expectedCash, const Money(236000));
+  });
+
+  group('split dan QRIS statis', () {
+    Future<void> enableQris({bool enabled = true}) async {
+      await saveQrisSettings(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        settings: QrisStaticSettings(enabled: enabled),
+        image: QrisImageUpload(bytes: pngBytes(1080, 1528), fileName: 'q.png'),
+      );
+    }
+
+    SaleLineRequest minyakLine() =>
+        SaleLineRequest(variantId: v(minyak).id, quantity: Qty.units(2));
+
+    test('tunai + kartu: dua baris, kembalian di baris tunai', () async {
+      final session = await openSession();
+      final result = await checkout(
+        [minyakLine()],
+        payments: const [
+          SalePaymentRequest(
+            method: PaymentMethod.card,
+            amount: Money(50000),
+            reference: '0045',
+          ),
+          SalePaymentRequest.cash(Money(30000)),
+        ],
+      );
+      expect(result.sale.total, 72000);
+      expect(result.sale.paidAmount, 72000);
+      expect(result.sale.changeAmount, 8000);
+      expect(result.payments.map((p) => p.method), [
+        PaymentMethod.card,
+        PaymentMethod.cash,
+      ]);
+      expect(result.payments.first.amount, 50000);
+      expect(result.payments.first.changeAmount, 0);
+      expect(result.payments.first.reference, '0045');
+      expect(result.payments.last.amount, 30000);
+      expect(result.payments.last.changeAmount, 8000);
+
+      final summary = await salesSummaryForSession(
+        store,
+        scope,
+        sessionId: session.id,
+      );
+      expect(summary.cash, const Money(22000));
+      expect(summary.nonCash, const Money(50000));
+      final outbox = await SyncOutboxEntry.db.find(store.session);
+      expect(outbox.where((e) => e.entity == 'payments'), hasLength(2));
+    });
+
+    test('pembagian tidak sah ditolak', () async {
+      await openSession();
+      Future<void> rejects(
+        List<SalePaymentRequest> payments,
+        Matcher matcher,
+      ) => expectLater(
+        checkout([minyakLine()], payments: payments),
+        throwsA(matcher),
+      );
+      await rejects(const [], isA<SalePaymentInvalid>());
+      await rejects(
+        const [
+          SalePaymentRequest.cash(Money(40000)),
+          SalePaymentRequest.cash(Money(40000)),
+        ],
+        isA<SalePaymentInvalid>().having(
+          (e) => e.error,
+          'error',
+          TenderError.multipleCash,
+        ),
+      );
+      await rejects(
+        const [
+          SalePaymentRequest(method: PaymentMethod.card, amount: Money(50000)),
+          SalePaymentRequest(
+            method: PaymentMethod.transfer,
+            amount: Money(30000),
+          ),
+        ],
+        isA<SalePaymentInvalid>().having(
+          (e) => e.error,
+          'error',
+          TenderError.nonCashOver,
+        ),
+      );
+      // Non-tunai tanpa nominal di split = nol.
+      await rejects(
+        const [
+          SalePaymentRequest(method: PaymentMethod.card),
+          SalePaymentRequest.cash(Money(72000)),
+        ],
+        isA<SalePaymentInvalid>().having(
+          (e) => e.error,
+          'error',
+          TenderError.nonPositive,
+        ),
+      );
+      await rejects(
+        const [
+          SalePaymentRequest(method: PaymentMethod.card, amount: Money(50000)),
+          SalePaymentRequest.cash(Money(20000)),
+        ],
+        isA<SalePaymentShort>()
+            .having((e) => e.total, 'total', const Money(72000))
+            .having((e) => e.received, 'received', const Money(70000)),
+      );
+      expect(await Sale.db.count(store.session), 0);
+    });
+
+    test('QRIS butuh QRIS statis aktif di cabang', () async {
+      await openSession();
+      await enableQris(enabled: false);
+      await expectLater(
+        checkout(
+          [minyakLine()],
+          payment: const SalePaymentRequest(
+            method: PaymentMethod.qrisStatic,
+            confirmed: true,
+          ),
+        ),
+        throwsA(isA<SalePaymentUnsupported>()),
+      );
+    });
+
+    test('QRIS tanpa Sudah Terbayar ditolak', () async {
+      await openSession();
+      await enableQris();
+      await expectLater(
+        checkout([
+          minyakLine(),
+        ], payment: const SalePaymentRequest(method: PaymentMethod.qrisStatic)),
+        throwsA(isA<SalePaymentUnconfirmed>()),
+      );
+      expect(await Sale.db.count(store.session), 0);
+    });
+
+    test('QRIS terkonfirmasi mencatat siapa dan kapan', () async {
+      await openSession();
+      await enableQris();
+      final result = await checkout(
+        [minyakLine()],
+        payments: const [
+          SalePaymentRequest.cash(Money(50000)),
+          SalePaymentRequest(
+            method: PaymentMethod.qrisStatic,
+            amount: Money(22000),
+            confirmed: true,
+          ),
+        ],
+      );
+      final qris = result.payments.last;
+      expect(qris.method, PaymentMethod.qrisStatic);
+      expect(qris.amount, 22000);
+      expect(qris.status, PaymentStatus.paid);
+      expect(qris.confirmedBy, ctx.owner.id);
+      expect(qris.confirmedAt, now);
+      expect(result.payments.first.confirmedBy, isNull);
+      expect(result.sale.changeAmount, 0);
+    });
   });
 
   test('sesi tertutup menolak checkout', () async {

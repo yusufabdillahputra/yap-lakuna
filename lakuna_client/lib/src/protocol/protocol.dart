@@ -31,6 +31,8 @@ import 'catalog/stock_level.dart' as _i9vlojuz;
 import 'catalog/stock_movement.dart' as _i3qehoul;
 import 'catalog/stock_source_type.dart' as _ieciauh3;
 import 'catalog/unit.dart' as _iqtijg36;
+import 'media/media_file.dart' as _iw898kbq;
+import 'media/media_kind.dart' as _i8mjpd0r;
 import 'organization/business_type.dart' as _i6i3gkff;
 import 'organization/device.dart' as _iis0lnof;
 import 'organization/device_platform.dart' as _ide5u809;
@@ -66,6 +68,8 @@ export 'catalog/stock_level.dart';
 export 'catalog/stock_movement.dart';
 export 'catalog/stock_source_type.dart';
 export 'catalog/unit.dart';
+export 'media/media_file.dart';
+export 'media/media_kind.dart';
 export 'organization/business_type.dart';
 export 'organization/device.dart';
 export 'organization/device_platform.dart';
@@ -116,6 +120,8 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i3qehoul.StockMovement>,
           _isc.getType<_ieciauh3.StockSourceType>,
           _isc.getType<_iqtijg36.MeasureUnit>,
+          _isc.getType<_iw898kbq.MediaFile>,
+          _isc.getType<_i8mjpd0r.MediaKind>,
           _isc.getType<_i6i3gkff.BusinessType>,
           _isc.getType<_iis0lnof.Device>,
           _isc.getType<_ide5u809.DevicePlatform>,
@@ -151,6 +157,8 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i3qehoul.StockMovement?>,
           _isc.getType<_ieciauh3.StockSourceType?>,
           _isc.getType<_iqtijg36.MeasureUnit?>,
+          _isc.getType<_iw898kbq.MediaFile?>,
+          _isc.getType<_i8mjpd0r.MediaKind?>,
           _isc.getType<_i6i3gkff.BusinessType?>,
           _isc.getType<_iis0lnof.Device?>,
           _isc.getType<_ide5u809.DevicePlatform?>,
@@ -192,6 +200,8 @@ class Protocol extends _isd.DatabaseSerializationManager
           'StockMovement',
           'StockSourceType',
           'MeasureUnit',
+          'MediaFile',
+          'MediaKind',
           'BusinessType',
           'Device',
           'DevicePlatform',
@@ -905,6 +915,174 @@ class Protocol extends _isd.DatabaseSerializationManager
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'media_files',
+      dartName: 'MediaFile',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'kind',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:MediaKind',
+        ),
+        _isd.ColumnDefinition(
+          name: 'file_name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'mime_type',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'size_bytes',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sha256',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'width',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'height',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'storage_key',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'media_files_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'media_files_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'media_files_tenant_sha_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'sha256',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -3485,6 +3663,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _iqtijg36.MeasureUnit) {
       return _iqtijg36.MeasureUnit.fromJson(data) as T;
     }
+    if (t == _iw898kbq.MediaFile) {
+      return _iw898kbq.MediaFile.fromJson(data) as T;
+    }
+    if (t == _i8mjpd0r.MediaKind) {
+      return _i8mjpd0r.MediaKind.fromJson(data) as T;
+    }
     if (t == _i6i3gkff.BusinessType) {
       return _i6i3gkff.BusinessType.fromJson(data) as T;
     }
@@ -3597,6 +3781,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _isc.getType<_iqtijg36.MeasureUnit?>()) {
       return (data != null ? _iqtijg36.MeasureUnit.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_iw898kbq.MediaFile?>()) {
+      return (data != null ? _iw898kbq.MediaFile.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i8mjpd0r.MediaKind?>()) {
+      return (data != null ? _i8mjpd0r.MediaKind.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i6i3gkff.BusinessType?>()) {
       return (data != null ? _i6i3gkff.BusinessType.fromJson(data) : null) as T;
     }
@@ -3696,6 +3886,8 @@ class Protocol extends _isd.DatabaseSerializationManager
       _i3qehoul.StockMovement => 'StockMovement',
       _ieciauh3.StockSourceType => 'StockSourceType',
       _iqtijg36.MeasureUnit => 'MeasureUnit',
+      _iw898kbq.MediaFile => 'MediaFile',
+      _i8mjpd0r.MediaKind => 'MediaKind',
       _i6i3gkff.BusinessType => 'BusinessType',
       _iis0lnof.Device => 'Device',
       _ide5u809.DevicePlatform => 'DevicePlatform',
@@ -3759,6 +3951,10 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'StockSourceType';
       case _iqtijg36.MeasureUnit():
         return 'MeasureUnit';
+      case _iw898kbq.MediaFile():
+        return 'MediaFile';
+      case _i8mjpd0r.MediaKind():
+        return 'MediaKind';
       case _i6i3gkff.BusinessType():
         return 'BusinessType';
       case _iis0lnof.Device():
@@ -3864,6 +4060,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'MeasureUnit') {
       return deserialize<_iqtijg36.MeasureUnit>(data['data']);
+    }
+    if (dataClassName == 'MediaFile') {
+      return deserialize<_iw898kbq.MediaFile>(data['data']);
+    }
+    if (dataClassName == 'MediaKind') {
+      return deserialize<_i8mjpd0r.MediaKind>(data['data']);
     }
     if (dataClassName == 'BusinessType') {
       return deserialize<_i6i3gkff.BusinessType>(data['data']);
@@ -3989,6 +4191,8 @@ class Protocol extends _isd.DatabaseSerializationManager
         return _i3qehoul.StockMovement.t;
       case _iqtijg36.MeasureUnit:
         return _iqtijg36.MeasureUnit.t;
+      case _iw898kbq.MediaFile:
+        return _iw898kbq.MediaFile.t;
       case _iis0lnof.Device:
         return _iis0lnof.Device.t;
       case _iqoqqr0f.Outlet:

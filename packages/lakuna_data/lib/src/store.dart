@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_client/migrations/migration_registry.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -8,7 +10,7 @@ import 'sync_tx.dart';
 
 /// Database lokal Lakuna (SQLite di perangkat) beserta identitas perangkat.
 class LakunaStore {
-  LakunaStore._(this.session, this.deviceId, this._clock);
+  LakunaStore._(this.session, this.deviceId, this._clock, this.path);
 
   /// Sesi database sisi klien Serverpod.
   final ClientDatabaseSession session;
@@ -17,6 +19,13 @@ class LakunaStore {
   final UuidValue deviceId;
 
   final DateTime Function() _clock;
+
+  /// Lokasi file database.
+  final String path;
+
+  /// Folder berkas media (stiker QRIS, foto) di samping database.
+  String get mediaDirectory =>
+      '${File(path).parent.path}${Platform.pathSeparator}media';
 
   /// Membuka (atau membuat) database di [path] dan menjalankan migrasi.
   static Future<LakunaStore> open(
@@ -41,7 +50,7 @@ class LakunaStore {
       await writeSyncState(session, SyncStateKey.deviceId, id, transaction: tx);
       return UuidValue.fromString(id);
     });
-    return LakunaStore._(session, deviceId, clock ?? DateTime.now);
+    return LakunaStore._(session, deviceId, clock ?? DateTime.now, path);
   }
 
   /// Menjalankan [body] dalam satu transaksi tulis yang tercatat di outbox.
