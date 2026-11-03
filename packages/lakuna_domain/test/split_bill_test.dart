@@ -102,6 +102,21 @@ void main() {
       );
     });
 
+    test('per item: porsi belum bertamu ikut menanggung bagiannya', () {
+      // Tamu A baru punya 3.500 dari subtotal 20.500: tagihannya sebanding,
+      // bukan seluruh total.
+      expect(
+        splitDues(
+          mode: SplitKind.item,
+          total: const Money(23678),
+          guests: 3,
+          guestSubtotals: const [Money(3500), Money.zero, Money.zero],
+          unassigned: const Money(17000),
+        ),
+        [const Money(4043), Money.zero, Money.zero],
+      );
+    });
+
     test('nominal bebas: tanpa pembagian', () {
       expect(
         splitDues(

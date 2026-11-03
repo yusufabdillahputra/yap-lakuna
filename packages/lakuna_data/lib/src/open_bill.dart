@@ -1158,8 +1158,26 @@ Future<void> voidOpenBill(
       billId,
       transaction: w.transaction,
     );
-    await _assertUnlocked(w, scope, sale.id);
     final s = await w.stamp();
+    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
+    // batal (uang dikembalikan ke tamu; belum masuk sesi kasir karena sesi
+    // baru diisi saat nota selesai). QRIS yang masih menunggu dihapus.
+    for (final p in await _billPayments(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction)) {
+      if (p.status != PaymentStatus.pending) continue;
+      await w.update(
+        p.copyWith(
+          deletedAt: s.now,
+          version: p.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
     await w.update(
       sale.copyWith(
         status: SaleStatus.voided,
@@ -1341,9 +1359,12 @@ Future<CheckoutResult> _completeBill(
       subtotal: list.value,
       tierDiscount: (list - charges.subtotal).value,
       total: charges.total.value,
-      paidAmount: payments.fold<int>(0, (a, p) => a + p.amount),
+      // Sama dengan penjualan retail: paid_amount = total nota (uang
+      // diterima dan kembalian ada di baris payments).
+      paidAmount: charges.total.value,
       changeAmount: payments.fold<int>(0, (a, p) => a + p.changeAmount),
-      itemCount: items.length,
+      // Porsi split dihitung sebagai baris asalnya.
+      itemCount: {for (final i in items) i.splitFromItemId ?? i.id}.length,
       soldAt: s.now,
       serviceBp: rates.service.value,
       taxBp: rates.tax.value,

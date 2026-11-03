@@ -27,6 +27,7 @@ class CashierScreen extends StatefulWidget {
     required this.printer,
     this.billId,
     this.part,
+    this.completed,
     this.onLeaveBill,
     this.onBillDone,
   });
@@ -39,6 +40,9 @@ class CashierScreen extends StatefulWidget {
 
   /// Mode bagian split bill (F1-10c): tamu atau nominal yang dibayar.
   final BillPart? part;
+
+  /// Bill yang sudah lunas di layar split: langsung ke struk.
+  final CompletedBill? completed;
 
   /// Keluar dari mode bill (kembali ke layar Meja).
   final VoidCallback? onLeaveBill;
@@ -68,6 +72,10 @@ class _CashierScreenState extends State<CashierScreen> {
 
   Future<void> _load() async {
     await _viewModel.load.execute();
+    if (widget.completed case final done? when _viewModel.loaded) {
+      _viewModel.showReceipt(done);
+      return;
+    }
     final id = _parseId(widget.billId);
     if (id != null && _viewModel.loaded) await _viewModel.openBill.execute(id);
   }

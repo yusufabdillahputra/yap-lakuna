@@ -5294,12 +5294,6 @@ abstract class AppLocalizations {
   /// **'{price} / porsi'**
   String billSplitPortionPrice(String price);
 
-  /// No description provided for @billSplitUnassigned.
-  ///
-  /// In id, this message translates to:
-  /// **'Belum dibagi'**
-  String get billSplitUnassigned;
-
   /// No description provided for @billSplitUnassignedCount.
   ///
   /// In id, this message translates to:
@@ -5479,6 +5473,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Split bill gagal. Coba lagi.'**
   String get billSplitErrorGeneric;
+
+  /// No description provided for @diningVoidSplitPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagian yang sudah dibayar ({amount}) dikembalikan ke tamu dan tidak masuk sesi kasir.'**
+  String diningVoidSplitPaid(String amount);
 }
 
 class _AppLocalizationsDelegate

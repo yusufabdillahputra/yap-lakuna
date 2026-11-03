@@ -155,6 +155,14 @@ void main() {
       expect(row(b, kopi, null).quantityMilli, 2000);
       expect(row(b, kopi, 'A').quantityMilli, 1000);
       expect(row(b, kopi, 'A').lineTotal, 24000);
+      // Tagihan sementara A sebanding porsinya, bukan seluruh total.
+      expect(
+        b.split!.part('A').due,
+        allocateByWeight(b.charges.total, [
+          24000,
+          b.charges.subtotal.value - 24000,
+        ]).first,
+      );
       b = await assign(row(b, kopi, null), 'A');
       expect(row(b, kopi, 'A').quantityMilli, 2000);
       expect(row(b, kopi, 'A').lineTotal, 48000);
@@ -360,16 +368,6 @@ void main() {
           throwsA(isA<SplitLocked>()),
         );
         await expectLater(
-          voidOpenBill(
-            store,
-            scope,
-            staffId: staff(),
-            billId: b.id,
-            reason: 'salah',
-          ),
-          throwsA(isA<SplitLocked>()),
-        );
-        await expectLater(
           payOpenBill(
             store,
             scope,
@@ -389,7 +387,8 @@ void main() {
         expect(done.sale.total, 91245);
         expect(done.sale.serviceAmount, 3950);
         expect(done.sale.taxAmount, 8295);
-        expect(done.sale.paidAmount, 30000 + 63525);
+        expect(done.sale.paidAmount, done.sale.total);
+        expect(done.sale.changeAmount, 2280);
         expect(done.sale.changeAmount, 2280);
         expect(done.payments.map((p) => (p.guestLabel, p.amount)), [
           ('A', 30000),
@@ -477,7 +476,7 @@ void main() {
       final a = receipt.payments.firstWhere((p) => p.guestLabel == 'A');
       expect(a.status, PaymentStatus.paid);
       expect(a.confirmedBy, staff());
-      expect(receipt.sale.paidAmount, 18334 + 20000 + 18333);
+      expect(receipt.sale.paidAmount, receipt.sale.total);
       expect(receipt.sale.changeAmount, 20000 - 18333);
     });
 
@@ -515,6 +514,43 @@ void main() {
           count: const CashCount(sheets: {}),
         ),
         throwsA(isA<CashSessionHasOpenSplit>()),
+      );
+    });
+
+    test('batalkan bill berpembayaran bagian: menunggu dihapus, sesi bisa '
+        'ditutup', () async {
+      final session = await openSession();
+      var b = await bill(kopiQty: 1, nasiQty: 0);
+      b = await split(b, SplitMode.equal, 3);
+      await pay(b, guest: 'A');
+      await pay(
+        b,
+        guest: 'B',
+        payments: const [SalePaymentRequest(method: PaymentMethod.qrisStatic)],
+        pending: true,
+      );
+      await voidOpenBill(
+        store,
+        scope,
+        staffId: staff(),
+        billId: b.id,
+        reason: 'Tamu B dan C pergi',
+      );
+      final sale = await Sale.db.findById(store.session, b.id);
+      expect(sale!.status, SaleStatus.voided);
+      final left = await Payment.db.find(
+        store.session,
+        where: (p) => p.saleId.equals(b.id) & p.deletedAt.equals(null),
+      );
+      // Bagian lunas tetap tercatat pada bill batal (dikembalikan ke tamu);
+      // QRIS yang menunggu dihapus.
+      expect(left.map((p) => p.guestLabel), ['A']);
+      await closeCashSession(
+        store,
+        CashScope.of(ctx),
+        sessionId: session.id,
+        staffId: staff(),
+        count: const CashCount(sheets: {}),
       );
     });
   });

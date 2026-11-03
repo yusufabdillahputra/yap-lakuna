@@ -100,12 +100,26 @@ void main() {
       await _tap(tester, 'split-back');
       expect(_text(tester, 'dining-split-status'), contains('1 dari 2'));
       expect(find.text('Lanjutkan split · Rp 33.495'), findsOneWidget);
-      expect(_key('dining-void'), findsNothing);
+      // Item terkunci; batal bill tetap bisa (bagian lunas dikembalikan).
+      expect(tester.widget<FButton>(_key('dining-add-menu')).onPress, isNull);
+      expect(_key('dining-void'), findsOneWidget);
+      expect(find.text('Tamu A'), findsWidgets);
       await _tap(tester, 'dining-pay');
 
+      // Bagian terakhir dikonfirmasi di layar split: langsung ke struk.
       await _tap(tester, 'split-confirm-B');
-      expect(_key('split-done'), findsOneWidget);
-      await _tap(tester, 'split-done-back');
+      expect(_key('success-title'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: _key('success-receipt'),
+          matching: find.textContaining('Tamu B - QRIS'),
+        ),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.text('Kembali ke meja').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Kembali ke meja').last);
+      await tester.pumpAndSettle();
       expect(
         find.text('Pelayan: Dimas · 0 dari 6 meja terisi'),
         findsOneWidget,

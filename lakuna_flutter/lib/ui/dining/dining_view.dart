@@ -877,7 +877,9 @@ class _BillPanel extends StatelessWidget {
               mainAxisSize: .min,
               variant: .outline,
               prefix: const Icon(TablerIcons.plus, size: 16),
-              onPress: busy ? null : () => _openMenu(context, vm, bill),
+              onPress: busy || locked
+                  ? null
+                  : () => _openMenu(context, vm, bill),
               child: Flexible(child: Text(l10n.diningAddMenu)),
             ),
           ],
@@ -1004,7 +1006,7 @@ class _BillPanel extends StatelessWidget {
               'dining-split',
               l10n.diningSplit,
               TablerIcons.arrowsSplit,
-              busy || bill.items.isEmpty || onSplit == null
+              busy || bill.items.isEmpty || !vm.canPay || onSplit == null
                   ? null
                   : () => onSplit!(bill.id),
             ),
@@ -1016,7 +1018,7 @@ class _BillPanel extends StatelessWidget {
                 busy ? null : () => vm.deleteEmpty.execute(bill.id),
                 destructive: true,
               )
-            else if (vm.canVoid && !locked)
+            else if (vm.canVoid)
               textAction(
                 'dining-void',
                 l10n.diningVoid,
@@ -1054,7 +1056,10 @@ class _BillPanel extends StatelessWidget {
           Text(
             l10n.diningSplitStatus(
               split.parts.where((p) => p.status == SplitPartStatus.paid).length,
-              split.guests,
+              // Nominal bebas: jumlah tamu = bagian yang sudah ada.
+              split.mode == SplitKind.amount
+                  ? split.parts.length
+                  : split.guests,
             ),
             key: const ValueKey('dining-split-status'),
             textAlign: TextAlign.center,
@@ -1165,6 +1170,8 @@ class _BillItemRow extends StatelessWidget {
         item.kitchenStatus == null ||
         item.kitchenStatus == KitchenStatus.pending;
     final busy = vm.busy;
+    // Split bill berpembayaran: jumlah item terkunci (F1-10c).
+    final locked = vm.selectedBill?.split?.locked ?? false;
     final qty = Qty(item.quantityMilli);
     final name = '${item.productName} ${item.variantName}'.trim();
     final unit = item.productUnitId == null ? '' : ' ${item.unitName}';
@@ -1177,7 +1184,9 @@ class _BillItemRow extends StatelessWidget {
           size: .sm,
           variant: .outline,
           semanticsLabel: label,
-          onPress: busy ? null : () => vm.setQuantity.execute((item.id, to)),
+          onPress: busy || locked
+              ? null
+              : () => vm.setQuantity.execute((item.id, to)),
           child: Icon(icon, size: 14),
         );
 
@@ -1215,6 +1224,14 @@ class _BillItemRow extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (item.guestLabel case final guest?)
+                      Text(
+                        l10n.billSplitGuest(guest),
+                        key: ValueKey('dining-item-guest-$key'),
+                        style: theme.typography.body.xs.copyWith(
+                          color: theme.colors.primary,
+                        ),
+                      ),
                     if (modifierText.isNotEmpty)
                       Text(
                         '+ $modifierText',
@@ -1566,7 +1583,12 @@ class _VoidDialogState extends State<_VoidDialog> {
       context,
       key: const ValueKey('dining-void-dialog'),
       title: l10n.diningVoidTitle(widget.bill.label),
-      body: l10n.diningVoidBody,
+      body: switch (widget.bill.split) {
+        final split? when split.paid > Money.zero =>
+          '${l10n.diningVoidBody} '
+              '${l10n.diningVoidSplitPaid(formatMoney(context, split.paid))}',
+        _ => l10n.diningVoidBody,
+      },
       children: [
         FTextField(
           key: const ValueKey('dining-void-reason'),

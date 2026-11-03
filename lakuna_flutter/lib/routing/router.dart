@@ -18,7 +18,7 @@ import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
-import '../ui/cashier/cashier_view_model.dart' show BillPart;
+import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
@@ -148,6 +148,9 @@ GoRouter createRouter({
                 printer: receiptPrinter,
                 billId: bill,
                 part: part,
+                completed: state.extra is CompletedBill
+                    ? state.extra! as CompletedBill
+                    : null,
                 onLeaveBill: bill == null
                     ? null
                     : part == null
@@ -184,6 +187,8 @@ GoRouter createRouter({
                 repository: dining,
                 billId: UuidValue.fromString(bill),
                 onBack: () => context.go(Routes.tablesBill(bill)),
+                onCompleted: (done) =>
+                    context.go(Routes.cashierBill(bill), extra: done),
                 onPay: (guest, amount) => context.go(
                   Routes.cashierBillPart(
                     bill,

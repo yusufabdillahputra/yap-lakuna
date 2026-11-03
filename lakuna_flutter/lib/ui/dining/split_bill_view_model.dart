@@ -118,7 +118,10 @@ class SplitBillViewModel extends ChangeNotifier {
         s.mode == SplitKind.amount &&
         s.next != null &&
         _amount > Money.zero &&
-        _amount <= s.remaining;
+        _amount <= s.remaining &&
+        // Tamu ke-8 (terakhir) wajib melunasi sisa.
+        (guestIndex(s.next!.label) != SplitLimits.maxGuests - 1 ||
+            _amount == s.remaining);
   }
 
   // --- Aksi -----------------------------------------------------------------

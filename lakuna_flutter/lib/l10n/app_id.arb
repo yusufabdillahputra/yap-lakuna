@@ -1896,7 +1896,6 @@
       }
     }
   },
-  "billSplitUnassigned": "Belum dibagi",
   "billSplitUnassignedCount": "{count} porsi belum punya tamu.",
   "@billSplitUnassignedCount": {
     "placeholders": {
@@ -1989,5 +1988,13 @@
   "billSplitErrorAmount": "Nominal harus lebih dari 0 dan tidak melebihi sisa tagihan.",
   "billSplitErrorNothingDue": "Tamu ini tidak punya tagihan.",
   "billSplitErrorPending": "Hanya QRIS yang bisa menunggu konfirmasi.",
-  "billSplitErrorGeneric": "Split bill gagal. Coba lagi."
+  "billSplitErrorGeneric": "Split bill gagal. Coba lagi.",
+  "diningVoidSplitPaid": "Bagian yang sudah dibayar ({amount}) dikembalikan ke tamu dan tidak masuk sesi kasir.",
+  "@diningVoidSplitPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

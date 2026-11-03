@@ -77,18 +77,22 @@ Qty splitPortion(Qty quantity) =>
     quantity.milli >= 2000 && quantity.milli % 1000 == 0 ? Qty.one : quantity;
 
 /// Tagihan per tamu (urut A, B, …) untuk [total] bill. *Per item*:
-/// proporsional [guestSubtotals] (Σ total porsi tiap tamu). *Rata*: sama
-/// rata. *Nominal bebas*: kosong (nominal diketik kasir).
+/// proporsional [guestSubtotals] (Σ total porsi tiap tamu); porsi yang
+/// belum bertamu ([unassigned]) ikut sebagai bobot agar tagihan sementara
+/// tidak membengkak. *Rata*: sama rata. *Nominal bebas*: kosong (nominal
+/// diketik kasir).
 List<Money> splitDues({
   required SplitKind mode,
   required Money total,
   required int guests,
   List<Money> guestSubtotals = const [],
+  Money unassigned = Money.zero,
 }) => switch (mode) {
   SplitKind.item => allocateByWeight(total, [
     for (var i = 0; i < guests; i++)
       i < guestSubtotals.length ? guestSubtotals[i].value : 0,
-  ]),
+    unassigned.value,
+  ]).sublist(0, guests),
   SplitKind.equal => allocateByWeight(total, List.filled(guests, 1)),
   SplitKind.amount => const [],
 };

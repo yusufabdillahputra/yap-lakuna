@@ -3091,9 +3091,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get billSplitUnassigned => 'Not assigned';
-
-  @override
   String billSplitUnassignedCount(int count) {
     return '$count portions have no guest yet.';
   }
@@ -3206,4 +3203,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get billSplitErrorGeneric =>
       'The split bill action failed. Try again.';
+
+  @override
+  String diningVoidSplitPaid(String amount) {
+    return 'Parts already paid ($amount) are returned to the guests and not counted in the cash session.';
+  }
 }

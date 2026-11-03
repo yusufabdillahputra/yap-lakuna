@@ -157,6 +157,15 @@ class BillPart {
   final Money? amount;
 }
 
+/// Bill yang lunas di luar layar Bayar (mis. *Sudah Terbayar* di layar
+/// split): layar kasir langsung menampilkan struknya.
+class CompletedBill {
+  const CompletedBill(this.bill, this.result);
+
+  final OpenBill bill;
+  final CheckoutResult result;
+}
+
 class CashierViewModel extends ChangeNotifier {
   CashierViewModel({required this._repository, required this._printer}) {
     load = Command0(_load)..addListener(notifyListeners);
@@ -415,6 +424,15 @@ class CashierViewModel extends ChangeNotifier {
       startPayment();
     }
     return result;
+  }
+
+  /// Tampilkan struk bill yang sudah lunas (tahap selesai, cetak otomatis
+  /// tetap berlaku).
+  void showReceipt(CompletedBill done) {
+    _bill = done.bill;
+    _result = done.result;
+    _stage = CashierStage.done;
+    notifyListeners();
   }
 
   /// Bagian split yang dibayar; diatur sebelum [openBill].

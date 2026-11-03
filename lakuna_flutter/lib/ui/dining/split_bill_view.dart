@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/dining_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../cashier/cashier_view_model.dart' show CompletedBill;
 import '../cashier/payment_view.dart'
     show billOrderLabel, paymentMethodLabel, tabularFigures;
 import '../core/format.dart';
@@ -40,6 +41,7 @@ class SplitBillScreen extends StatefulWidget {
     required this.billId,
     required this.onBack,
     required this.onPay,
+    this.onCompleted,
   });
 
   final DiningRepository repository;
@@ -50,6 +52,10 @@ class SplitBillScreen extends StatefulWidget {
 
   /// *Bayar bagian*: tamu [guest] (per item / rata) atau nominal [amount].
   final void Function(String? guest, Money? amount) onPay;
+
+  /// Bill lunas lewat *Sudah Terbayar* di layar ini: tampilkan struk.
+  /// Tanpa ini hanya muncul dialog nomor nota.
+  final void Function(CompletedBill done)? onCompleted;
 
   @override
   State<SplitBillScreen> createState() => _SplitBillScreenState();
@@ -81,6 +87,11 @@ class _SplitBillScreenState extends State<SplitBillScreen> {
     final done = _viewModel.completed;
     if (done == null || _doneShown || !mounted) return;
     _doneShown = true;
+    final bill = _viewModel.bill;
+    if (widget.onCompleted case final show? when bill != null) {
+      show(CompletedBill(bill, done));
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     await showFDialog<void>(
       context: context,
@@ -116,14 +127,21 @@ class _SplitBillScreenState extends State<SplitBillScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) => ListenableBuilder(
-      listenable: _viewModel,
-      builder: (context, _) => SplitBillView(
-        viewModel: _viewModel,
-        narrow: constraints.maxWidth < 900,
-        onBack: widget.onBack,
-        onPay: widget.onPay,
+  Widget build(BuildContext context) => PopScope(
+    // Tombol kembali Android kembali ke bill, bukan keluar aplikasi.
+    canPop: false,
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop) widget.onBack();
+    },
+    child: LayoutBuilder(
+      builder: (context, constraints) => ListenableBuilder(
+        listenable: _viewModel,
+        builder: (context, _) => SplitBillView(
+          viewModel: _viewModel,
+          narrow: constraints.maxWidth < 900,
+          onBack: widget.onBack,
+          onPay: widget.onPay,
+        ),
       ),
     ),
   );

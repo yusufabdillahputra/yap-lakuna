@@ -37,7 +37,8 @@ enum SplitError {
   /// Nominal bebas kosong, nol, atau melebihi sisa.
   amount,
 
-  /// Hanya satu pembayaran QRIS statis yang boleh menunggu konfirmasi.
+  /// Bagian yang menunggu konfirmasi harus berupa tepat satu pembayaran
+  /// QRIS statis.
   pending,
 
   /// Pembayaran bukan pembayaran bagian yang menunggu.
@@ -169,6 +170,14 @@ BillSplit? _computeSplit(
 
   bool owned(SaleItem i, String label) =>
       kind == SplitKind.item && i.guestLabel == label;
+  final unassigned = kind != SplitKind.item
+      ? const <SaleItem>[]
+      : [
+          for (final i in items)
+            if (i.guestLabel == null ||
+                (guestIndex(i.guestLabel!) ?? guests) >= guests)
+              i,
+        ];
   final dues = splitDues(
     mode: kind,
     total: total,
@@ -180,6 +189,7 @@ BillSplit? _computeSplit(
             if (owned(i, l)) Money(i.lineTotal),
         ]),
     ],
+    unassigned: Money.sum(unassigned.map((i) => Money(i.lineTotal))),
   );
   final unpaid = [
     for (final l in labels)
@@ -216,14 +226,7 @@ BillSplit? _computeSplit(
           pending: Money.sum(paymentsOf(label).map(_waiting)),
         ),
     ],
-    unassigned: kind != SplitKind.item
-        ? const []
-        : [
-            for (final i in items)
-              if (i.guestLabel == null ||
-                  (guestIndex(i.guestLabel!) ?? guests) >= guests)
-                i,
-          ],
+    unassigned: unassigned,
     paid: paid,
     pending: pending,
   );

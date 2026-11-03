@@ -2,7 +2,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../l10n/gen/app_localizations.dart';
-import '../receipt/receipt_content.dart' show receiptDate;
+import '../receipt/receipt_content.dart' show mergeSplitPortions, receiptDate;
 
 String _qty(AppLocalizations l10n, int milli) =>
     l10n.localeName.startsWith('en')
@@ -44,7 +44,8 @@ List<ReceiptLine> kitchenTicketLines(
     ),
     ...layoutPair(l10n.ticketStaff, result.staffName, w),
     rule,
-    for (final item in result.items) ...[
+    // Porsi split bill yang dikirim bersamaan digabung kembali.
+    for (final item in mergeSplitPortions(result.items)) ...[
       for (final l in wrapText(
         '${_qty(l10n, item.quantityMilli)}'
         '${item.productUnitId == null ? '' : ' ${item.unitName}'}'

@@ -2998,9 +2998,6 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get billSplitUnassigned => 'Belum dibagi';
-
-  @override
   String billSplitUnassignedCount(int count) {
     return '$count porsi belum punya tamu.';
   }
@@ -3112,4 +3109,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get billSplitErrorGeneric => 'Split bill gagal. Coba lagi.';
+
+  @override
+  String diningVoidSplitPaid(String amount) {
+    return 'Bagian yang sudah dibayar ($amount) dikembalikan ke tamu dan tidak masuk sesi kasir.';
+  }
 }

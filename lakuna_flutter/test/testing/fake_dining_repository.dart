@@ -488,7 +488,14 @@ class FakeDiningRepository extends DiningRepository {
       throw const BillInputInvalid(BillField.voidReason);
     }
     final b = bill(billId);
-    _unlocked(b);
+    // Bagian lunas tetap; QRIS menunggu dihapus (sama dengan voidOpenBill).
+    for (final p in [...payments]) {
+      if (p.saleId == billId &&
+          p.deletedAt == null &&
+          p.status == PaymentStatus.pending) {
+        _replacePayment(p.copyWith(deletedAt: now));
+      }
+    }
     voided[billId] = text;
     _replaceSale(b.sale.copyWith(status: SaleStatus.voided));
   });
@@ -507,6 +514,12 @@ class FakeDiningRepository extends DiningRepository {
   }
 
   // --- Split bill (F1-10c) --------------------------------------------------
+
+  void _needSales() {
+    if (!_can(Permission.salesCreate)) {
+      throw const NotPermitted(Permission.salesCreate);
+    }
+  }
 
   void _unlocked(OpenBill b) {
     if (b.payments.isNotEmpty) throw SplitLocked();
@@ -565,6 +578,7 @@ class FakeDiningRepository extends DiningRepository {
     SplitMode? mode,
     int guests,
   ) => _run(() {
+    _needSales();
     if (mode != null && !SplitLimits.validGuests(guests)) {
       throw const SplitInvalid(SplitError.guests);
     }
@@ -590,6 +604,7 @@ class FakeDiningRepository extends DiningRepository {
   @override
   Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest) =>
       _run(() {
+        _needSales();
         final item = _item(itemId);
         final b = bill(item.saleId);
         _unlocked(b);
@@ -716,7 +731,7 @@ class FakeDiningRepository extends DiningRepository {
       serviceAmount: b.charges.service.value,
       taxAmount: b.charges.tax.value,
       total: b.charges.total.value,
-      paidAmount: own.fold<int>(0, (a, p) => a + p.amount),
+      paidAmount: b.charges.total.value,
       changeAmount: own.fold<int>(0, (a, p) => a + p.changeAmount),
       soldAt: now,
     );
@@ -760,6 +775,7 @@ class FakeDiningRepository extends DiningRepository {
 
   @override
   Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) => _run(() {
+    _needSales();
     final p = _pending(paymentId);
     _replacePayment(p.copyWith(deletedAt: now));
     return bill(p.saleId);

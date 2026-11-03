@@ -1362,7 +1362,6 @@
       }
     }
   },
-  "billSplitUnassigned": "Not assigned",
   "billSplitUnassignedCount": "{count} portions have no guest yet.",
   "@billSplitUnassignedCount": {
     "placeholders": {
@@ -1455,5 +1454,13 @@
   "billSplitErrorAmount": "The amount must be above 0 and at most the remaining balance.",
   "billSplitErrorNothingDue": "This guest has nothing to pay.",
   "billSplitErrorPending": "Only QRIS can wait for confirmation.",
-  "billSplitErrorGeneric": "The split bill action failed. Try again."
+  "billSplitErrorGeneric": "The split bill action failed. Try again.",
+  "diningVoidSplitPaid": "Parts already paid ({amount}) are returned to the guests and not counted in the cash session.",
+  "@diningVoidSplitPaid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -189,28 +189,37 @@ class LocalDiningRepository extends DiningRepository {
     UuidValue billId,
     SplitMode? mode,
     int guests,
-  ) => _guard(
-    (ctx, staff) => setBillSplit(
+  ) => _guard((ctx, staff) {
+    _needSales(staff);
+    return setBillSplit(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
       billId: billId,
       mode: mode,
       guests: guests,
-    ),
-  );
+    );
+  });
+
+  /// Split bill bagian dari pembayaran: butuh `sales:create` juga.
+  static void _needSales(StaffProfile staff) {
+    if (!staff.can(Permission.salesCreate)) {
+      throw const NotPermitted(Permission.salesCreate);
+    }
+  }
 
   @override
   Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest) =>
-      _guard(
-        (ctx, staff) => data.assignPortion(
+      _guard((ctx, staff) {
+        _needSales(staff);
+        return data.assignPortion(
           _store,
           CatalogScope.of(ctx),
           staffId: staff.id,
           itemId: itemId,
           guest: guest,
-        ),
-      );
+        );
+      });
 
   @override
   Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId) =>
@@ -227,14 +236,16 @@ class LocalDiningRepository extends DiningRepository {
       });
 
   @override
-  Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) => _guard(
-    (ctx, staff) => data.cancelSplitPayment(
-      _store,
-      CatalogScope.of(ctx),
-      staffId: staff.id,
-      paymentId: paymentId,
-    ),
-  );
+  Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) =>
+      _guard((ctx, staff) {
+        _needSales(staff);
+        return data.cancelSplitPayment(
+          _store,
+          CatalogScope.of(ctx),
+          staffId: staff.id,
+          paymentId: paymentId,
+        );
+      });
 
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, StaffProfile staff) body,

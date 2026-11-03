@@ -159,6 +159,14 @@ class BillPaySummary extends StatelessWidget {
   final String? partLabel;
   final Money? partDue;
 
+  /// Mode per item: hanya porsi tamu yang dibayar agar layar Bayar ringkas.
+  List<SaleItem> get _items => switch ((bill.split, partLabel)) {
+    (final split?, final label?) when split.mode == SplitKind.item =>
+      split.parts.where((p) => p.label == label).firstOrNull?.items ??
+          bill.items,
+    _ => bill.items,
+  };
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -184,7 +192,7 @@ class BillPaySummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 4,
         children: [
-          for (final item in bill.items)
+          for (final item in _items)
             line(
               '${formatQty(context, Qty(item.quantityMilli))}'
               '${item.productUnitId == null ? '' : ' ${item.unitName}'} × '
