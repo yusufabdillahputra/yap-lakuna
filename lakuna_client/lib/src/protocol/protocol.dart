@@ -17,6 +17,10 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
+import 'cash/cash_direction.dart' as _i728pu70;
+import 'cash/cash_movement.dart' as _iepnwe9z;
+import 'cash/cash_session.dart' as _iepiq7d7;
+import 'cash/cash_session_status.dart' as _itp0bn28;
 import 'organization/business_type.dart' as _i6i3gkff;
 import 'organization/device.dart' as _iis0lnof;
 import 'organization/device_platform.dart' as _ide5u809;
@@ -32,6 +36,10 @@ import 'sync/outbox_status.dart' as _imib010r;
 import 'sync/sync_op.dart' as _ipjkwoxz;
 import 'sync/sync_outbox_entry.dart' as _ikzi06kl;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
+export 'cash/cash_direction.dart';
+export 'cash/cash_movement.dart';
+export 'cash/cash_session.dart';
+export 'cash/cash_session_status.dart';
 export 'organization/business_type.dart';
 export 'organization/device.dart';
 export 'organization/device_platform.dart';
@@ -62,6 +70,10 @@ class Protocol extends _isd.DatabaseSerializationManager
       _isc.ProtocolDeserialization.cached(
         this,
         types: const [
+          _isc.getType<_i728pu70.CashDirection>,
+          _isc.getType<_iepnwe9z.CashMovement>,
+          _isc.getType<_iepiq7d7.CashSession>,
+          _isc.getType<_itp0bn28.CashSessionStatus>,
           _isc.getType<_i6i3gkff.BusinessType>,
           _isc.getType<_iis0lnof.Device>,
           _isc.getType<_ide5u809.DevicePlatform>,
@@ -77,6 +89,10 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_ipjkwoxz.SyncOp>,
           _isc.getType<_ikzi06kl.SyncOutboxEntry>,
           _isc.getType<_iwwr3hpi.SyncStateEntry>,
+          _isc.getType<_i728pu70.CashDirection?>,
+          _isc.getType<_iepnwe9z.CashMovement?>,
+          _isc.getType<_iepiq7d7.CashSession?>,
+          _isc.getType<_itp0bn28.CashSessionStatus?>,
           _isc.getType<_i6i3gkff.BusinessType?>,
           _isc.getType<_iis0lnof.Device?>,
           _isc.getType<_ide5u809.DevicePlatform?>,
@@ -98,6 +114,10 @@ class Protocol extends _isd.DatabaseSerializationManager
           _iacc.Protocol.new,
         ],
         classNames: const [
+          'CashDirection',
+          'CashMovement',
+          'CashSession',
+          'CashSessionStatus',
           'BusinessType',
           'Device',
           'DevicePlatform',
@@ -117,6 +137,391 @@ class Protocol extends _isd.DatabaseSerializationManager
       );
 
   static List<_isd.TableDefinition> get targetTableDefinitions => [
+    _isd.TableDefinition(
+      name: 'cash_movements',
+      dartName: 'CashMovement',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'cash_session_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'direction',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:CashDirection',
+        ),
+        _isd.ColumnDefinition(
+          name: 'amount',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'note',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'source',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'manual\'',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_movements_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_movements_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_movements_fk_2',
+          columns: ['cash_session_id'],
+          referenceTable: 'cash_sessions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'cash_movements_session_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'cash_session_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'cash_sessions',
+      dartName: 'CashSession',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'status',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:CashSessionStatus',
+        ),
+        _isd.ColumnDefinition(
+          name: 'opened_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'opened_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'opening_cash',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'opening_note',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'closed_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'closed_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'expected_cash',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'counted_cash',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'difference',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'counted_breakdown',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'closing_note',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_3',
+          columns: ['opened_by'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_4',
+          columns: ['closed_by'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'cash_sessions_device_status_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'device_id',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'status',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     _isd.TableDefinition(
       name: 'devices',
       dartName: 'Device',
@@ -1233,6 +1638,18 @@ class Protocol extends _isd.DatabaseSerializationManager
       }
     }
 
+    if (t == _i728pu70.CashDirection) {
+      return _i728pu70.CashDirection.fromJson(data) as T;
+    }
+    if (t == _iepnwe9z.CashMovement) {
+      return _iepnwe9z.CashMovement.fromJson(data) as T;
+    }
+    if (t == _iepiq7d7.CashSession) {
+      return _iepiq7d7.CashSession.fromJson(data) as T;
+    }
+    if (t == _itp0bn28.CashSessionStatus) {
+      return _itp0bn28.CashSessionStatus.fromJson(data) as T;
+    }
     if (t == _i6i3gkff.BusinessType) {
       return _i6i3gkff.BusinessType.fromJson(data) as T;
     }
@@ -1277,6 +1694,20 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (t == _iwwr3hpi.SyncStateEntry) {
       return _iwwr3hpi.SyncStateEntry.fromJson(data) as T;
+    }
+    if (t == _isc.getType<_i728pu70.CashDirection?>()) {
+      return (data != null ? _i728pu70.CashDirection.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iepnwe9z.CashMovement?>()) {
+      return (data != null ? _iepnwe9z.CashMovement.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iepiq7d7.CashSession?>()) {
+      return (data != null ? _iepiq7d7.CashSession.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_itp0bn28.CashSessionStatus?>()) {
+      return (data != null ? _itp0bn28.CashSessionStatus.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_i6i3gkff.BusinessType?>()) {
       return (data != null ? _i6i3gkff.BusinessType.fromJson(data) : null) as T;
@@ -1343,6 +1774,10 @@ class Protocol extends _isd.DatabaseSerializationManager
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
+      _i728pu70.CashDirection => 'CashDirection',
+      _iepnwe9z.CashMovement => 'CashMovement',
+      _iepiq7d7.CashSession => 'CashSession',
+      _itp0bn28.CashSessionStatus => 'CashSessionStatus',
       _i6i3gkff.BusinessType => 'BusinessType',
       _iis0lnof.Device => 'Device',
       _ide5u809.DevicePlatform => 'DevicePlatform',
@@ -1372,6 +1807,14 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
 
     switch (data) {
+      case _i728pu70.CashDirection():
+        return 'CashDirection';
+      case _iepnwe9z.CashMovement():
+        return 'CashMovement';
+      case _iepiq7d7.CashSession():
+        return 'CashSession';
+      case _itp0bn28.CashSessionStatus():
+        return 'CashSessionStatus';
       case _i6i3gkff.BusinessType():
         return 'BusinessType';
       case _iis0lnof.Device():
@@ -1423,6 +1866,18 @@ class Protocol extends _isd.DatabaseSerializationManager
     var dataClassName = data['className'];
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
+    }
+    if (dataClassName == 'CashDirection') {
+      return deserialize<_i728pu70.CashDirection>(data['data']);
+    }
+    if (dataClassName == 'CashMovement') {
+      return deserialize<_iepnwe9z.CashMovement>(data['data']);
+    }
+    if (dataClassName == 'CashSession') {
+      return deserialize<_iepiq7d7.CashSession>(data['data']);
+    }
+    if (dataClassName == 'CashSessionStatus') {
+      return deserialize<_itp0bn28.CashSessionStatus>(data['data']);
     }
     if (dataClassName == 'BusinessType') {
       return deserialize<_i6i3gkff.BusinessType>(data['data']);
@@ -1510,6 +1965,10 @@ class Protocol extends _isd.DatabaseSerializationManager
       }
     }
     switch (t) {
+      case _iepnwe9z.CashMovement:
+        return _iepnwe9z.CashMovement.t;
+      case _iepiq7d7.CashSession:
+        return _iepiq7d7.CashSession.t;
       case _iis0lnof.Device:
         return _iis0lnof.Device.t;
       case _iqoqqr0f.Outlet:

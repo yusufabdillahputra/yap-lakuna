@@ -4,6 +4,7 @@
 /// supaya bisa dipakai bersama oleh aplikasi dan server.
 library;
 
+export 'src/cash_session.dart';
 export 'src/credentials.dart';
 export 'src/document_number.dart';
 export 'src/hlc.dart';

@@ -3,6 +3,7 @@ library;
 
 export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 
+export 'src/cash.dart';
 export 'src/preferences.dart';
 export 'src/settings_scope.dart';
 export 'src/staff_access.dart';
