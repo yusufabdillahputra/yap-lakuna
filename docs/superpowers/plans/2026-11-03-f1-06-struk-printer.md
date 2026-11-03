@@ -15,52 +15,52 @@ dan layar sukses baru.
 
 ## Tugas 1 · Domain: tata letak struk
 
-- [ ] Tes gagal `receipt_test.dart`: kolom 32/48, `wrapText`, pasangan
+- [x] Tes gagal `receipt_test.dart`: kolom 32/48, `wrapText`, pasangan
   muat/tidak muat, barang dua baris, garis, header/footer tengah.
-- [ ] `receipt.dart`: `ReceiptPaper`, `ReceiptAlign`, `ReceiptLine`,
+- [x] `receipt.dart`: `ReceiptPaper`, `ReceiptAlign`, `ReceiptLine`,
   `ReceiptContent` (+ `ReceiptItem`, `ReceiptPair`), `layoutReceipt`.
 
 ## Tugas 2 · Domain: ESC/POS
 
-- [ ] Tes gagal `escpos_test.dart`: byte golden satu struk kecil, ASCII
+- [x] Tes gagal `escpos_test.dart`: byte golden satu struk kecil, ASCII
   pengganti, tanpa potong.
-- [ ] `escpos.dart`: `receiptAscii`, `encodeEscPos`.
+- [x] `escpos.dart`: `receiptAscii`, `encodeEscPos`.
 
 ## Tugas 3 · Data: pengaturan struk
 
-- [ ] Tes gagal `receipt_settings_test.dart`.
-- [ ] `receipt_settings.dart`: `ReceiptSettings`, `ReceiptSettingsError`,
+- [x] Tes gagal `receipt_settings_test.dart`.
+- [x] `receipt_settings.dart`: `ReceiptSettings`, `ReceiptSettingsError`,
   `validateReceiptSettings`, `loadReceiptSettings` (bawaan dari alamat
   cabang), `saveReceiptSettings`; preferensi `printer.selected`.
 
 ## Tugas 4 · Aplikasi: repositori, layanan printer, PDF
 
-- [ ] `ReceiptSettingsRepository` (lokal + palsu), izin `settings:manage`
+- [x] `ReceiptSettingsRepository` (lokal + palsu), izin `settings:manage`
   untuk simpan dan printer.
-- [ ] `ReceiptPrinter` (abstrak) + `PlatformReceiptPrinter`
+- [x] `ReceiptPrinter` (abstrak) + `PlatformReceiptPrinter`
   (Bluetooth `print_bluetooth_thermal`, soket TCP, `printing`), palsu
   untuk tes. Tes soket dengan `ServerSocket` lokal.
-- [ ] `receipt_content.dart`: `CheckoutResult` + data kasir + pengaturan →
+- [x] `receipt_content.dart`: `CheckoutResult` + data kasir + pengaturan →
   `ReceiptContent` (tes).
-- [ ] `receipt_pdf.dart` (DM Mono dibundel), `ReceiptPaperView`.
+- [x] `receipt_pdf.dart` (DM Mono dibundel), `ReceiptPaperView`.
 
 ## Tugas 5 · Aplikasi: layar sukses dan cetak
 
-- [ ] View model: status printer, `printReceipt`, `shareReceipt`, cetak
+- [x] View model: status printer, `printReceipt`, `shareReceipt`, cetak
   otomatis sekali; tes.
-- [ ] Layar sukses 1.12 dengan kartu printer, tombol, galat + *Coba lagi*.
+- [x] Layar sukses 1.12 dengan kartu printer, tombol, galat + *Coba lagi*.
 
 ## Tugas 6 · Aplikasi: Pengaturan › Struk & printer
 
-- [ ] `ReceiptSettingsViewModel` + tes.
-- [ ] Bagian pengaturan (printer perangkat + struk cabang + pratinjau),
+- [x] `ReceiptSettingsViewModel` + tes.
+- [x] Bagian pengaturan (printer perangkat + struk cabang + pratinjau),
   tes widget.
-- [ ] i18n ID + EN, `flutter gen-l10n`.
+- [x] i18n ID + EN, `flutter gen-l10n`.
 
 ## Tugas 7 · Rilis
 
-- [ ] Uji manual Xvfb (printer LAN tiruan, PDF, 58/80 mm, mobile),
+- [x] Uji manual Xvfb (printer LAN tiruan, PDF, 58/80 mm, mobile),
   tangkapan layar.
-- [ ] Versi 0.8.0, CHANGELOG, status spec + README.
+- [x] Versi 0.8.0, CHANGELOG, status spec + README.
 - [ ] Review subagent, perbaiki Critical/Important.
 - [ ] PR, CI hijau, squash merge, mulai ulang cabang, cek rilis.

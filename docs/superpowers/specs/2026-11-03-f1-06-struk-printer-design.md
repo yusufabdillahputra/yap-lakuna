@@ -1,7 +1,7 @@
 # F1-06 · Struk & printer
 
 - **Fase:** 1
-- **Status:** Berjalan (v0.8.0)
+- **Status:** Rilis v0.8.0
 - **Layar desain:** 1.5c / 1.12 *Pembayaran berhasil · struk* (desktop dan
   mobile), 1.26 *Pengaturan › Struk & printer*. Kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
@@ -131,8 +131,8 @@ sesi (F1-03), struk WhatsApp (F3-03).
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Struk layar, ESC/POS, PDF, header/footer, lebar kertas | 1.12, 1.26 | Berjalan v0.8.0 | - |
-| Bluetooth Android | *Cari printer* | Berjalan v0.8.0 (belum diuji di perangkat fisik) | Uji dengan printer RPP02N/sejenis |
+| Struk layar, ESC/POS, PDF, header/footer, lebar kertas | 1.12, 1.26 | Rilis v0.8.0 | - |
+| Bluetooth Android | *Cari printer* | Rilis v0.8.0 (belum diuji di perangkat fisik) | Uji dengan printer RPP02N/sejenis |
 | Bluetooth iOS/macOS/Windows (BLE) | - | Belum | Bila ada permintaan; paket sudah mendukung BLE |
 | Logo di struk | *Tampilkan logo* | Belum | Raster `GS v 0` dari logo toko (bersama Profil toko) |
 | Cetak ulang dari riwayat | 1.14 | Belum | Bersama F1-11, label CETAK ULANG |
