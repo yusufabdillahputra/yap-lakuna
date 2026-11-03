@@ -96,11 +96,16 @@ class LocalHistoryRepository extends HistoryRepository {
     required UuidValue saleId,
     required String reason,
     UuidValue? approverId,
-  }) => _guard((ctx, staff) {
+  }) => _guard((ctx, staff) async {
     if (approverId == null && !staff.can(Permission.salesVoid)) {
       throw const NotPermitted(Permission.salesVoid);
     }
-    return data.voidSale(
+    // Penyetuju harus baru saja memasukkan PIN-nya (sekali pakai).
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.salesVoid)) {
+      throw const NotPermitted(Permission.salesVoid);
+    }
+    final result = await data.voidSale(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
@@ -109,6 +114,10 @@ class LocalHistoryRepository extends HistoryRepository {
       reason: reason,
       now: _clock().toUtc(),
     );
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.salesVoid);
+    }
+    return result;
   });
 
   /// Melihat riwayat: `sales:create` atau `reports:view`.

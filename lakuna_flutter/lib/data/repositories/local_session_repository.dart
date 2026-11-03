@@ -80,6 +80,7 @@ class LocalSessionRepository extends SessionRepository {
       if (!staff.permissions.contains(permission)) {
         return Result.error(NotPermitted(permission));
       }
+      grantApproval(staffId, permission);
       return Result.ok(StaffProfile.fromOutletStaff(staff));
     }),
   );
@@ -180,6 +181,7 @@ class LocalSessionRepository extends SessionRepository {
 
   @override
   void logout() {
+    clearApprovals();
     if (_current == null) return;
     _current = null;
     notifyListeners();
@@ -187,6 +189,7 @@ class LocalSessionRepository extends SessionRepository {
 
   Result<StaffProfile> _signIn(String key, OutletStaff staff) {
     _guard.recordSuccess(key);
+    clearApprovals();
     final profile = StaffProfile.fromOutletStaff(staff);
     _current = profile;
     notifyListeners();

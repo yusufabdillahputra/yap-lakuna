@@ -234,7 +234,11 @@ class _HistoryList extends StatelessWidget {
             key: const ValueKey('history-export'),
             variant: .outline,
             mainAxisSize: .min,
-            onPress: page == null || page.rows.isEmpty || vm.export.running
+            onPress:
+                page == null ||
+                    page.rows.isEmpty ||
+                    vm.listing ||
+                    vm.export.running
                 ? null
                 : () => vm.export.execute(
                     historyWorkbook(l10n, page, timezone: vm.data?.timezone),
@@ -248,10 +252,10 @@ class _HistoryList extends StatelessWidget {
             child: Flexible(child: Text(l10n.historyExport)),
           ),
         ),
-        if (vm.export.completed && vm.savedPath != null)
+        if (vm.export.completed && vm.exportPath != null)
           FAlert(
             key: const ValueKey('history-export-saved'),
-            title: Text(l10n.historyExportSaved(vm.savedPath!)),
+            title: Text(l10n.historyExportSaved(vm.exportPath!)),
           )
         else if (vm.export.error)
           FAlert(
@@ -287,6 +291,7 @@ class _HistoryList extends StatelessWidget {
             _SaleCard(
               row: r,
               timezone: vm.data?.timezone,
+              withDate: vm.filter.range != HistoryRange.today,
               selected: r.sale.id == vm.selectedId,
               onTap: () => onOpen(r.sale.id),
             )
@@ -294,6 +299,7 @@ class _HistoryList extends StatelessWidget {
           _SaleTable(
             rows: page.rows,
             timezone: vm.data?.timezone,
+            withDate: vm.filter.range != HistoryRange.today,
             selectedId: vm.selectedId,
             onOpen: onOpen,
           ),
@@ -439,16 +445,21 @@ class _SaleTable extends StatelessWidget {
   const _SaleTable({
     required this.rows,
     required this.timezone,
+    required this.withDate,
     required this.selectedId,
     required this.onOpen,
   });
 
   final List<HistoryRow> rows;
   final String? timezone;
+
+  /// Rentang lebih dari hari ini: kolom waktu memuat tanggal.
+  final bool withDate;
   final UuidValue? selectedId;
   final void Function(UuidValue id) onOpen;
 
-  static const _cols = [36, 9, 14, 16, 16, 14];
+  static const _cols = [32, 9, 14, 15, 15, 19];
+  static const _colsWithDate = [30, 13, 13, 14, 14, 19];
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +470,9 @@ class _SaleTable extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
     final body = theme.typography.body.sm.copyWith(fontFeatures: _tabular);
-    Widget cell(int i, Widget child) => Expanded(flex: _cols[i], child: child);
+    final cols = withDate ? _colsWithDate : _cols;
+    Widget cell(int i, Widget child) => Expanded(flex: cols[i], child: child);
+    final selectedColor = theme.colors.primary.withValues(alpha: 0.08);
     final labels = [
       l10n.historyColNumber,
       l10n.historyColTime,
@@ -506,7 +519,7 @@ class _SaleTable extends StatelessWidget {
           for (final r in rows)
             DecoratedBox(
               decoration: BoxDecoration(
-                color: r.sale.id == selectedId ? theme.colors.secondary : null,
+                color: r.sale.id == selectedId ? selectedColor : null,
                 border: Border(top: BorderSide(color: theme.colors.border)),
               ),
               child: FTappable(
@@ -531,7 +544,13 @@ class _SaleTable extends StatelessWidget {
                       ),
                       cell(
                         1,
-                        Text(formatClock(r.sale.soldAt, timezone), style: body),
+                        Text(
+                          withDate
+                              ? formatDayClock(r.sale.soldAt, timezone)
+                              : formatClock(r.sale.soldAt, timezone),
+                          maxLines: 1,
+                          style: body,
+                        ),
                       ),
                       cell(
                         2,
@@ -586,12 +605,14 @@ class _SaleCard extends StatelessWidget {
   const _SaleCard({
     required this.row,
     required this.timezone,
+    required this.withDate,
     required this.selected,
     required this.onTap,
   });
 
   final HistoryRow row;
   final String? timezone;
+  final bool withDate;
   final bool selected;
   final VoidCallback onTap;
 
@@ -605,7 +626,9 @@ class _SaleCard extends StatelessWidget {
       onPress: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: selected ? theme.colors.secondary : theme.colors.card,
+          color: selected
+              ? theme.colors.primary.withValues(alpha: 0.08)
+              : theme.colors.card,
           border: Border.all(color: theme.colors.border),
           borderRadius: BorderRadius.circular(14),
         ),
@@ -629,7 +652,9 @@ class _SaleCard extends StatelessWidget {
                     ),
                     Text(
                       [
-                        formatClock(r.sale.soldAt, timezone),
+                        withDate
+                            ? formatDayClock(r.sale.soldAt, timezone)
+                            : formatClock(r.sale.soldAt, timezone),
                         r.staffName,
                         historyMethods(l10n, r.methods),
                       ].join(' · '),

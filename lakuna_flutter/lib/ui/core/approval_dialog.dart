@@ -68,6 +68,9 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   List<StaffProfile>? _approvers;
   StaffProfile? _selected;
   var _pin = '';
+
+  /// Naik setiap PIN ditolak agar kolom PIN dikosongkan.
+  var _attempt = 0;
   var _busy = false;
   Exception? _error;
   Timer? _ticker;
@@ -133,6 +136,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
         setState(() {
           _busy = false;
           _error = error;
+          _pin = '';
+          _attempt++;
         });
         _tick();
     }
@@ -213,18 +218,21 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                 }),
               ),
             ),
-            FTextField(
-              key: const ValueKey('approval-pin'),
-              label: Text(l10n.approvalPin),
-              obscureText: true,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              control: .managed(
-                onChange: (v) => setState(() => _pin = v.text),
+            KeyedSubtree(
+              key: ValueKey('approval-pin-$_attempt'),
+              child: FTextField(
+                key: const ValueKey('approval-pin'),
+                label: Text(l10n.approvalPin),
+                obscureText: true,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                control: .managed(
+                  onChange: (v) => setState(() => _pin = v.text),
+                ),
+                onSubmit: (_) => _submit(),
               ),
-              onSubmit: (_) => _submit(),
             ),
             if (message != null)
               FAlert(

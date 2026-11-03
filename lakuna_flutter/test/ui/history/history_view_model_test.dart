@@ -135,7 +135,8 @@ void main() {
     expect(printer.prints.single.$2, lines);
     await vm.shareReceipt.execute(lines);
     expect(printer.shares.single.$3, '${a.sale.number}.pdf');
-    expect(vm.savedPath, printer.sharePath);
+    expect(vm.pdfPath, printer.sharePath);
+    expect(vm.exportPath, isNull);
     printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
     await vm.printReceipt.execute(lines);
     expect(vm.printFailure, PrinterFailureReason.connect);
@@ -152,6 +153,24 @@ void main() {
       exporter.saved.single.$1,
       matches(RegExp(r'^riwayat-7-hari-\d{6}\.xlsx$')),
     );
-    expect(vm.savedPath, exporter.path);
+    expect(vm.exportPath, exporter.path);
+    expect(vm.pdfPath, isNull);
+  });
+
+  test('generasi form naik setelah retur dan saat ganti nota', () async {
+    final a = repo.addSale([('Kopi', 3000, 10000)]);
+    final b = repo.addSale([('Roti', 1000, 10000)]);
+    create(initial: a);
+    await vm.load.execute();
+    final first = vm.formGeneration;
+    vm.stepReturn(vm.detail!.items.single, 1);
+    vm.setNote('Pecah');
+    vm.setRefundMethod(RefundMethod.transfer);
+    await vm.submitReturn.execute();
+    expect(vm.note, '');
+    expect(vm.formGeneration, greaterThan(first));
+    final afterReturn = vm.formGeneration;
+    vm.select(b.sale.id);
+    expect(vm.formGeneration, greaterThan(afterReturn));
   });
 }

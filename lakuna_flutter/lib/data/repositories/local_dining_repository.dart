@@ -160,11 +160,16 @@ class LocalDiningRepository extends DiningRepository {
     UuidValue billId,
     String reason, {
     UuidValue? approverId,
-  }) => _guard((ctx, staff) {
+  }) => _guard((ctx, staff) async {
     if (approverId == null && !staff.can(Permission.salesVoid)) {
       throw const NotPermitted(Permission.salesVoid);
     }
-    return voidOpenBill(
+    // Penyetuju harus baru saja memasukkan PIN-nya (sekali pakai).
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.salesVoid)) {
+      throw const NotPermitted(Permission.salesVoid);
+    }
+    await voidOpenBill(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
@@ -172,6 +177,9 @@ class LocalDiningRepository extends DiningRepository {
       billId: billId,
       reason: reason,
     );
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.salesVoid);
+    }
   });
 
   @override

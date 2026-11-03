@@ -196,6 +196,11 @@ void main() {
     await tester.enterText(_input('approval-pin'), '000000');
     await _tap(tester, 'approval-submit');
     expect(find.text('PIN salah. Sisa 4 percobaan.'), findsOneWidget);
+    // Kolom PIN dikosongkan setelah PIN ditolak.
+    expect(
+      tester.widget<EditableText>(_input('approval-pin')).controller.text,
+      isEmpty,
+    );
     await tester.enterText(_input('approval-pin'), '123456');
     await _tap(tester, 'approval-submit');
     expect(_key('approval-dialog'), findsNothing);

@@ -119,6 +119,7 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
       BillInputInvalid(field: BillField.guests) => l10n.diningGuestsInvalid,
       BillInputInvalid(field: BillField.note) => l10n.diningNoteTooLong,
       BillInputInvalid() => l10n.diningErrorInput,
+      ApproverNotPermitted() => l10n.approvalNotPermitted,
       NotPermitted() => l10n.diningErrorPermission,
       ModifierSelectionInvalid(error: ModifierSelectionError.unavailable) =>
         l10n.diningErrorModifierSoldOut,

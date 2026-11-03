@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -1767,5 +1767,6 @@
   "receiptBannerReprint": "REPRINT",
   "receiptBannerVoid": "VOID",
   "receiptReturned": "Returned",
-  "receiptNet": "Net"
+  "receiptNet": "Net",
+  "stockNoteVoid": "Sale voided"
 }

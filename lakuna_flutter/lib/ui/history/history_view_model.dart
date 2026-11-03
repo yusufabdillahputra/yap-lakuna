@@ -62,7 +62,12 @@ class HistoryViewModel extends ChangeNotifier {
   // Struk & ekspor.
   PrinterFailureReason? _printFailure;
   var _printed = false;
-  String? _savedPath;
+  String? _pdfPath;
+  String? _exportPath;
+
+  /// Naik setiap form retur dikosongkan, dipakai sebagai kunci kolom teks
+  /// agar isi lama tidak tertinggal.
+  var _formGeneration = 0;
 
   HistoryData? get data => _data;
   HistoryPage? get page => _page;
@@ -177,7 +182,8 @@ class HistoryViewModel extends ChangeNotifier {
     _returnError = null;
     _printFailure = null;
     _printed = false;
-    _savedPath = null;
+    _pdfPath = null;
+    _formGeneration++;
     submitReturn.clearResult();
     voidSale.clearResult();
   }
@@ -333,8 +339,13 @@ class HistoryViewModel extends ChangeNotifier {
   PrinterFailureReason? get printFailure => _printFailure;
   bool get printed => _printed;
 
-  /// Lokasi PDF struk atau berkas Excel yang disimpan di desktop.
-  String? get savedPath => _savedPath;
+  /// Lokasi PDF struk yang disimpan di desktop.
+  String? get pdfPath => _pdfPath;
+
+  /// Lokasi berkas Excel yang disimpan di desktop.
+  String? get exportPath => _exportPath;
+
+  int get formGeneration => _formGeneration;
 
   Future<Result<void>> _printReceipt(List<ReceiptLine> lines) async {
     _printFailure = null;
@@ -360,14 +371,14 @@ class HistoryViewModel extends ChangeNotifier {
   }
 
   Future<Result<String?>> _shareReceipt(List<ReceiptLine> lines) async {
-    _savedPath = null;
+    _pdfPath = null;
     try {
       final path = await _printer.sharePdf(
         lines,
         paper,
         fileName: '${_detail?.sale.number ?? 'struk'}.pdf',
       );
-      _savedPath = path;
+      _pdfPath = path;
       return Result.ok(path);
     } on Exception catch (e) {
       return Result.error(e);
@@ -389,14 +400,14 @@ class HistoryViewModel extends ChangeNotifier {
   }
 
   Future<Result<String?>> _export(Uint8List bytes) async {
-    _savedPath = null;
+    _exportPath = null;
     try {
       final tz = _data?.timezone;
       final path = await _exporter.save(
         bytes,
         fileName: exportFileName(outletLocalTime(DateTime.now().toUtc(), tz)),
       );
-      _savedPath = path;
+      _exportPath = path;
       return Result.ok(path);
     } on Exception catch (e) {
       return Result.error(e);

@@ -77,6 +77,43 @@ class StaffUnavailable implements Exception {
 /// Sesi staf yang sedang bertugas di perangkat ini (F1-02). Router
 /// mendengarkan [current]: selama `null`, aplikasi menampilkan layar login.
 abstract class SessionRepository extends ChangeNotifier {
+  /// Masa berlaku persetujuan manajer setelah PIN-nya diperiksa: cukup untuk
+  /// mengisi alasan void.
+  static const approvalTtl = Duration(minutes: 2);
+
+  /// Jam untuk masa berlaku persetujuan (bisa diganti di tes).
+  @visibleForTesting
+  DateTime Function() approvalClock = DateTime.now;
+
+  final _approvals = <(UuidValue, Permission), DateTime>{};
+
+  /// Mencatat persetujuan [staffId] untuk [permission]; dipanggil
+  /// [verifyApprover] setelah PIN dan izin benar.
+  @protected
+  void grantApproval(UuidValue staffId, Permission permission) =>
+      _approvals[(staffId, permission)] = approvalClock().add(approvalTtl);
+
+  /// Apakah [staffId] baru saja menyetujui [permission] dengan PIN-nya dan
+  /// persetujuan itu belum dipakai atau kedaluwarsa. Repositori memeriksa ini
+  /// sebelum menerima `approverId`, agar id staf saja tidak cukup.
+  bool hasApproval(UuidValue staffId, Permission permission) {
+    final until = _approvals[(staffId, permission)];
+    if (until == null) return false;
+    if (approvalClock().isAfter(until)) {
+      _approvals.remove((staffId, permission));
+      return false;
+    }
+    return true;
+  }
+
+  /// Menghabiskan persetujuan setelah aksinya berhasil (sekali pakai).
+  void consumeApproval(UuidValue staffId, Permission permission) =>
+      _approvals.remove((staffId, permission));
+
+  /// Menghapus semua persetujuan (mis. saat ganti kasir).
+  @protected
+  void clearApprovals() => _approvals.clear();
+
   /// Staf yang sedang bertugas, atau `null` bila belum login.
   StaffProfile? get current;
 
@@ -99,7 +136,8 @@ abstract class SessionRepository extends ChangeNotifier {
 
   /// Persetujuan manajer (F1-11): memeriksa PIN staf [staffId] dengan kunci
   /// yang sama dengan login, lalu izin [permission]-nya. Sesi yang berjalan
-  /// tidak berubah. Gagal dengan [WrongPin], [CredentialsLocked],
+  /// tidak berubah. Berhasil mencatat persetujuan sekali pakai (lihat
+  /// [hasApproval]). Gagal dengan [WrongPin], [CredentialsLocked],
   /// [StaffUnavailable], atau [NotPermitted].
   Future<Result<StaffProfile>> verifyApprover(
     UuidValue staffId,

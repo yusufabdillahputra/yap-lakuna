@@ -124,6 +124,7 @@ class FakeSessionRepository extends SessionRepository {
     }
     guard.recordSuccess(key);
     if (!s.can(permission)) return Result.error(NotPermitted(permission));
+    grantApproval(staffId, permission);
     return Result.ok(s);
   }
 
@@ -143,6 +144,7 @@ class FakeSessionRepository extends SessionRepository {
 
   @override
   void logout() {
+    clearApprovals();
     current = null;
     notifyListeners();
   }

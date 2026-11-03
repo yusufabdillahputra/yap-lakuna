@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -6547,6 +6547,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bersih'**
   String get receiptNet;
+
+  /// No description provided for @stockNoteVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota di-void'**
+  String get stockNoteVoid;
 }
 
 class _AppLocalizationsDelegate

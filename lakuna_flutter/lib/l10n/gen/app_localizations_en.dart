@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.';
+      'Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -3816,4 +3816,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptNet => 'Net';
+
+  @override
+  String get stockNoteVoid => 'Sale voided';
 }

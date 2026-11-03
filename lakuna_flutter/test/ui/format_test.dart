@@ -10,6 +10,12 @@ void main() {
     expect(formatClock(t, 'Asia/Jayapura'), '09.58');
   });
 
+  test('formatDayClock memuat tanggal di zona cabang', () {
+    final t = DateTime.utc(2026, 11, 2, 18, 5);
+    expect(formatDayClock(t, 'Asia/Jakarta'), '03/11 01.05');
+    expect(formatDayClock(t, 'Asia/Makassar'), '03/11 02.05');
+  });
+
   test('RupiahInputFormatter mengelompokkan ribuan', () {
     const f = RupiahInputFormatter();
     TextEditingValue fmt(String s) =>

@@ -241,6 +241,30 @@ void main() {
         Permission.salesVoid,
       );
       expect((result as Error).error, isA<NotPermitted>());
+      expect(session.hasApproval(cashier.id, Permission.salesVoid), isFalse);
+    });
+
+    test('persetujuan sekali pakai, per izin, dan kedaluwarsa', () async {
+      var now = DateTime.utc(2026, 11, 3, 9);
+      session.approvalClock = () => now;
+      final owner = ctx.owner.id;
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+      await session.verifyApprover(owner, '000000', Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isTrue);
+      expect(session.hasApproval(owner, Permission.salesReturn), isFalse);
+      session.consumeApproval(owner, Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      now = now.add(SessionRepository.approvalTtl + const Duration(seconds: 1));
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      session.logout();
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
     });
   });
 }

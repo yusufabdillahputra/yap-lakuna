@@ -436,7 +436,7 @@ class _ReturnForm extends StatelessWidget {
             ],
           ),
           FTextField(
-            key: const ValueKey('history-return-note'),
+            key: ValueKey('history-return-note-${vm.formGeneration}'),
             label: Text(
               vm.reason == SaleReturnReason.other
                   ? l10n.historyReturnNoteRequired
@@ -705,10 +705,10 @@ class _ReprintDialog extends StatelessWidget {
                   key: const ValueKey('history-printed'),
                   title: Text(l10n.receiptPrinted),
                 ),
-              if (vm.shareReceipt.completed && vm.savedPath != null)
+              if (vm.shareReceipt.completed && vm.pdfPath != null)
                 FAlert(
                   key: const ValueKey('history-pdf-saved'),
-                  title: Text(l10n.receiptPdfSaved(vm.savedPath!)),
+                  title: Text(l10n.receiptPdfSaved(vm.pdfPath!)),
                 ),
               Wrap(
                 spacing: 8,

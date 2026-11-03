@@ -69,7 +69,7 @@ void main() {
       hasPin: true,
       permissions: Permission.values.toSet(),
     );
-    session = FakeSessionRepository()..current = owner;
+    session = FakeSessionRepository(staff: [owner])..current = owner;
     repo = LocalHistoryRepository(
       store,
       stores: stores,
@@ -184,10 +184,34 @@ void main() {
     );
   });
 
-  test('void dengan penyetuju pemilik mencatat penyetuju', () async {
+  test('void dengan penyetuju butuh persetujuan PIN sekali pakai', () async {
     await openSession();
     final sale = await sell();
+    final other = await sell();
     session.current = staffWithPermissions({Permission.salesCreate});
+    // Tanpa PIN penyetuju: approverId saja tidak cukup.
+    expect(
+      _err(
+        await repo.voidSale(
+          saleId: sale.sale.id,
+          reason: 'Salah input',
+          approverId: owner.id,
+        ),
+      ),
+      isA<NotPermitted>(),
+    );
+    _ok(await session.verifyApprover(owner.id, '123456', Permission.salesVoid));
+    // Alasan ditolak tidak menghabiskan persetujuan.
+    expect(
+      _err(
+        await repo.voidSale(
+          saleId: sale.sale.id,
+          reason: ' ',
+          approverId: owner.id,
+        ),
+      ),
+      isA<SaleVoidInvalid>(),
+    );
     final voided = _ok(
       await repo.voidSale(
         saleId: sale.sale.id,
@@ -197,5 +221,16 @@ void main() {
     );
     expect(voided.status, SaleStatus.voided);
     expect(voided.voidedBy, owner.id);
+    // Persetujuan sudah terpakai.
+    expect(
+      _err(
+        await repo.voidSale(
+          saleId: other.sale.id,
+          reason: 'Salah input',
+          approverId: owner.id,
+        ),
+      ),
+      isA<NotPermitted>(),
+    );
   });
 }

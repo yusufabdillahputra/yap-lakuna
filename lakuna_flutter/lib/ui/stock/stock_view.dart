@@ -212,6 +212,14 @@ String _sourceLabel(AppLocalizations l10n, StockSourceType t) => switch (t) {
 };
 
 /// "Penyesuaian SA-… · Rusak (Budi)".
+/// Catatan gerak stok untuk ditampilkan; penanda `void` dari pembatalan
+/// nota diterjemahkan. Kosong menjadi `null`.
+String? stockEntryNote(AppLocalizations l10n, String? note) => switch (note) {
+  null || '' => null,
+  voidMovementNote => l10n.stockNoteVoid,
+  final n => n,
+};
+
 String _entryDescription(AppLocalizations l10n, StockCardEntry e) {
   final buf = StringBuffer(_sourceLabel(l10n, e.sourceType));
   if (e.documentNumber case final n?) buf.write(' $n');
@@ -1473,7 +1481,7 @@ class _EntryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_entryDescription(l10n, e), style: body),
-                if (e.note case final n? when n.isNotEmpty)
+                if (stockEntryNote(l10n, e.note) case final n?)
                   Text(n, style: _muted(context)),
               ],
             ),
@@ -1528,7 +1536,7 @@ class _EntryTile extends StatelessWidget {
               Text(
                 [
                   _formatDateTime(e.occurredAt, timezone),
-                  if (e.note case final n? when n.isNotEmpty) n,
+                  ?stockEntryNote(l10n, e.note),
                 ].join(' · '),
                 style: _muted(context),
               ),
