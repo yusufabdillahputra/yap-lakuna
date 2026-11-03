@@ -116,6 +116,14 @@ void main() {
       expect(_key('floor-canvas'), findsOneWidget);
       await _tap(tester, 'floor-preset-0');
       expect(find.text('Meja M3 dipilih'), findsOneWidget);
+      // Meja bulat 60×60 mengisi node-nya (bukan menyusut ke ukuran teks).
+      final round = tester.getSize(_key('floor-table-M3'));
+      expect(round.width, closeTo(round.height, 0.5));
+      final label = find.descendant(
+        of: _key('floor-table-M3'),
+        matching: find.text('M3'),
+      );
+      expect(round.width, greaterThan(tester.getSize(label).width + 8));
       await _tap(tester, 'floor-save');
       expect(admin.lastLayout, isNotNull);
       expect(tester.takeException(), isNull);

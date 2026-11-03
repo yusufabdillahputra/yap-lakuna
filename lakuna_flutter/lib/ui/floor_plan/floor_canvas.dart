@@ -95,6 +95,8 @@ class _FloorEvents extends NodeFlowPlugin {
   }
 }
 
+const _minimapFloor = Color(0xFFE4E4E7);
+
 /// Pengendali kanvas denah: zoom, tengah tampilan, snap.
 class FloorCanvasController {
   FloorCanvasController({bool snap = false})
@@ -109,7 +111,20 @@ class FloorCanvasController {
         showAttribution: false,
         plugins: [
           _snap,
-          MinimapPlugin(visible: true, size: const Size(150, 110), margin: 12),
+          MinimapPlugin(
+            visible: true,
+            size: const Size(150, 110),
+            margin: 12,
+            // Gambar denah digambar abu-abu tipis; tanpa ini seluruh peta
+            // mini tertutup warna node dan meja tidak terlihat.
+            thumbnailBuilder: (canvas, node, bounds, color) {
+              if (node.data case FloorNodeData(background: true)) {
+                canvas.drawRect(bounds, Paint()..color = _minimapFloor);
+                return true;
+              }
+              return false;
+            },
+          ),
           _events,
         ],
       ),
@@ -365,7 +380,9 @@ class _FloorCanvasState extends State<FloorCanvas> {
         : NodeFlowBehavior.preview,
     nodeBuilder: (context, node) => node.data.background
         ? _background(context)
-        : widget.tableBuilder(context, node.data.key),
+        // Node berbentuk (bulat) membungkus isi dengan Center: isi dipaksa
+        // memenuhi ukuran node agar lingkaran tidak menyusut ke ukuran teks.
+        : SizedBox.expand(child: widget.tableBuilder(context, node.data.key)),
     nodeShapeBuilder: (context, node) {
       if (node.data.background) return null;
       final spec = widget.tables.where((t) => t.key == node.id).firstOrNull;
