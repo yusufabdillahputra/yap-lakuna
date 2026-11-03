@@ -1112,7 +1112,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get successPrintNote =>
-      'Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.';
+      'Cetak otomatis setelah bayar bisa diaktifkan di Pengaturan › Struk & printer.';
 
   @override
   String get successNew => 'Transaksi baru';
@@ -1401,4 +1401,183 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qrisSettingsLoadError => 'Pengaturan QRIS gagal dimuat.';
+
+  @override
+  String get receiptSampleNumber => 'PST-K01-261103-0001';
+
+  @override
+  String get receiptPrinterTitle => 'Printer struk';
+
+  @override
+  String get receiptPrinterNone => 'Belum ada printer';
+
+  @override
+  String get receiptPrinterNoneHint =>
+      'Atur di Pengaturan › Struk & printer. Tanpa printer, Cetak struk membuka dialog cetak sistem.';
+
+  @override
+  String get printerKindBluetooth => 'Bluetooth';
+
+  @override
+  String get printerKindNetwork => 'Jaringan (LAN)';
+
+  @override
+  String get printerKindSystem => 'Dialog cetak sistem';
+
+  @override
+  String get receiptPrint => 'Cetak struk';
+
+  @override
+  String get receiptShare => 'Bagikan PDF';
+
+  @override
+  String get receiptPrinted => 'Struk terkirim ke printer.';
+
+  @override
+  String receiptPdfSaved(String path) {
+    return 'PDF disimpan di $path';
+  }
+
+  @override
+  String get receiptShareError => 'PDF struk gagal dibuat.';
+
+  @override
+  String get printerRetry => 'Coba lagi';
+
+  @override
+  String get printerErrorBluetoothOff =>
+      'Bluetooth mati. Nyalakan lalu coba lagi.';
+
+  @override
+  String get printerErrorPermission =>
+      'Izin Bluetooth ditolak. Izinkan di pengaturan perangkat.';
+
+  @override
+  String get printerErrorConnect =>
+      'Printer tidak bisa dihubungi. Pastikan menyala dan dalam jangkauan.';
+
+  @override
+  String get printerErrorWrite => 'Data gagal terkirim ke printer.';
+
+  @override
+  String get printerErrorTimeout => 'Printer tidak menjawab.';
+
+  @override
+  String get printerErrorUnsupported =>
+      'Jenis printer ini tidak didukung di perangkat ini.';
+
+  @override
+  String get printerErrorGeneric => 'Struk gagal dicetak.';
+
+  @override
+  String get settingsSectionReceipt => 'Struk & printer';
+
+  @override
+  String get receiptSettingsBreadcrumb => 'Struk & printer';
+
+  @override
+  String get receiptDeviceTitle => 'Printer perangkat ini';
+
+  @override
+  String get receiptDeviceSubtitle =>
+      'Disimpan di perangkat ini saja, tidak ikut ke perangkat lain.';
+
+  @override
+  String get printerSearch => 'Cari printer';
+
+  @override
+  String get printerBluetoothEmpty =>
+      'Belum ada printer yang dipasangkan. Pasangkan printer di pengaturan Bluetooth perangkat, lalu cari lagi.';
+
+  @override
+  String get printerBluetoothUnsupported =>
+      'Printer Bluetooth tersedia di Android. Di perangkat ini pakai printer jaringan atau dialog cetak sistem.';
+
+  @override
+  String get printerSelected => 'Terpilih';
+
+  @override
+  String get printerChoose => 'Pilih';
+
+  @override
+  String get printerAddress => 'Alamat printer';
+
+  @override
+  String get printerAddressHint =>
+      'IP atau nama host, port bawaan 9100. Contoh 192.168.1.50:9100';
+
+  @override
+  String get printerAddressInvalid =>
+      'Alamat tidak sah. Contoh 192.168.1.50 atau 192.168.1.50:9100';
+
+  @override
+  String get printerUseAddress => 'Pakai alamat ini';
+
+  @override
+  String get printerSystemNote =>
+      'Struk dikirim sebagai PDF ke dialog cetak sistem operasi, untuk printer USB atau printer dengan driver.';
+
+  @override
+  String get printerUseSystem => 'Pakai dialog cetak sistem';
+
+  @override
+  String get printerTest => 'Tes cetak';
+
+  @override
+  String get printerTestSent => 'Tes cetak terkirim.';
+
+  @override
+  String get printerForget => 'Lupakan printer';
+
+  @override
+  String get receiptOutletTitle => 'Struk cabang ini';
+
+  @override
+  String get receiptPaperWidth => 'Lebar kertas';
+
+  @override
+  String receiptPaperOption(int mm, int columns) {
+    return '$mm mm · $columns kolom';
+  }
+
+  @override
+  String get receiptHeader => 'Header struk';
+
+  @override
+  String get receiptHeaderHint =>
+      'Alamat, telepon, atau teks lain di bawah nama toko. Maks 4 baris.';
+
+  @override
+  String get receiptFooter => 'Footer struk';
+
+  @override
+  String get receiptFooterHint => 'Pesan penutup. Maks 4 baris.';
+
+  @override
+  String get receiptTooManyLines => 'Maks 4 baris';
+
+  @override
+  String get receiptLineTooLong => 'Maks 48 karakter per baris';
+
+  @override
+  String get receiptAutoPrint => 'Cetak otomatis setelah bayar';
+
+  @override
+  String get receiptAutoPrintHint =>
+      'Hanya untuk printer Bluetooth atau jaringan.';
+
+  @override
+  String get receiptPreviewTitle => 'Pratinjau struk';
+
+  @override
+  String get receiptSettingsSave => 'Simpan';
+
+  @override
+  String get receiptSettingsCancel => 'Batal';
+
+  @override
+  String get receiptSettingsSaved => 'Pengaturan struk tersimpan';
+
+  @override
+  String get receiptSettingsLoadError => 'Pengaturan struk gagal dimuat.';
 }

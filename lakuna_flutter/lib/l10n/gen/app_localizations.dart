@@ -2081,7 +2081,7 @@ abstract class AppLocalizations {
   /// No description provided for @successPrintNote.
   ///
   /// In id, this message translates to:
-  /// **'Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.'**
+  /// **'Cetak otomatis setelah bayar bisa diaktifkan di Pengaturan › Struk & printer.'**
   String get successPrintNote;
 
   /// No description provided for @successNew.
@@ -2587,6 +2587,330 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengaturan QRIS gagal dimuat.'**
   String get qrisSettingsLoadError;
+
+  /// No description provided for @receiptSampleNumber.
+  ///
+  /// In id, this message translates to:
+  /// **'PST-K01-261103-0001'**
+  String get receiptSampleNumber;
+
+  /// No description provided for @receiptPrinterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer struk'**
+  String get receiptPrinterTitle;
+
+  /// No description provided for @receiptPrinterNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada printer'**
+  String get receiptPrinterNone;
+
+  /// No description provided for @receiptPrinterNoneHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur di Pengaturan › Struk & printer. Tanpa printer, Cetak struk membuka dialog cetak sistem.'**
+  String get receiptPrinterNoneHint;
+
+  /// No description provided for @printerKindBluetooth.
+  ///
+  /// In id, this message translates to:
+  /// **'Bluetooth'**
+  String get printerKindBluetooth;
+
+  /// No description provided for @printerKindNetwork.
+  ///
+  /// In id, this message translates to:
+  /// **'Jaringan (LAN)'**
+  String get printerKindNetwork;
+
+  /// No description provided for @printerKindSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Dialog cetak sistem'**
+  String get printerKindSystem;
+
+  /// No description provided for @receiptPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak struk'**
+  String get receiptPrint;
+
+  /// No description provided for @receiptShare.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagikan PDF'**
+  String get receiptShare;
+
+  /// No description provided for @receiptPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk terkirim ke printer.'**
+  String get receiptPrinted;
+
+  /// No description provided for @receiptPdfSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF disimpan di {path}'**
+  String receiptPdfSaved(String path);
+
+  /// No description provided for @receiptShareError.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF struk gagal dibuat.'**
+  String get receiptShareError;
+
+  /// No description provided for @printerRetry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get printerRetry;
+
+  /// No description provided for @printerErrorBluetoothOff.
+  ///
+  /// In id, this message translates to:
+  /// **'Bluetooth mati. Nyalakan lalu coba lagi.'**
+  String get printerErrorBluetoothOff;
+
+  /// No description provided for @printerErrorPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin Bluetooth ditolak. Izinkan di pengaturan perangkat.'**
+  String get printerErrorPermission;
+
+  /// No description provided for @printerErrorConnect.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer tidak bisa dihubungi. Pastikan menyala dan dalam jangkauan.'**
+  String get printerErrorConnect;
+
+  /// No description provided for @printerErrorWrite.
+  ///
+  /// In id, this message translates to:
+  /// **'Data gagal terkirim ke printer.'**
+  String get printerErrorWrite;
+
+  /// No description provided for @printerErrorTimeout.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer tidak menjawab.'**
+  String get printerErrorTimeout;
+
+  /// No description provided for @printerErrorUnsupported.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis printer ini tidak didukung di perangkat ini.'**
+  String get printerErrorUnsupported;
+
+  /// No description provided for @printerErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk gagal dicetak.'**
+  String get printerErrorGeneric;
+
+  /// No description provided for @settingsSectionReceipt.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk & printer'**
+  String get settingsSectionReceipt;
+
+  /// No description provided for @receiptSettingsBreadcrumb.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk & printer'**
+  String get receiptSettingsBreadcrumb;
+
+  /// No description provided for @receiptDeviceTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer perangkat ini'**
+  String get receiptDeviceTitle;
+
+  /// No description provided for @receiptDeviceSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Disimpan di perangkat ini saja, tidak ikut ke perangkat lain.'**
+  String get receiptDeviceSubtitle;
+
+  /// No description provided for @printerSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari printer'**
+  String get printerSearch;
+
+  /// No description provided for @printerBluetoothEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada printer yang dipasangkan. Pasangkan printer di pengaturan Bluetooth perangkat, lalu cari lagi.'**
+  String get printerBluetoothEmpty;
+
+  /// No description provided for @printerBluetoothUnsupported.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer Bluetooth tersedia di Android. Di perangkat ini pakai printer jaringan atau dialog cetak sistem.'**
+  String get printerBluetoothUnsupported;
+
+  /// No description provided for @printerSelected.
+  ///
+  /// In id, this message translates to:
+  /// **'Terpilih'**
+  String get printerSelected;
+
+  /// No description provided for @printerChoose.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih'**
+  String get printerChoose;
+
+  /// No description provided for @printerAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat printer'**
+  String get printerAddress;
+
+  /// No description provided for @printerAddressHint.
+  ///
+  /// In id, this message translates to:
+  /// **'IP atau nama host, port bawaan 9100. Contoh 192.168.1.50:9100'**
+  String get printerAddressHint;
+
+  /// No description provided for @printerAddressInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat tidak sah. Contoh 192.168.1.50 atau 192.168.1.50:9100'**
+  String get printerAddressInvalid;
+
+  /// No description provided for @printerUseAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Pakai alamat ini'**
+  String get printerUseAddress;
+
+  /// No description provided for @printerSystemNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk dikirim sebagai PDF ke dialog cetak sistem operasi, untuk printer USB atau printer dengan driver.'**
+  String get printerSystemNote;
+
+  /// No description provided for @printerUseSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Pakai dialog cetak sistem'**
+  String get printerUseSystem;
+
+  /// No description provided for @printerTest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tes cetak'**
+  String get printerTest;
+
+  /// No description provided for @printerTestSent.
+  ///
+  /// In id, this message translates to:
+  /// **'Tes cetak terkirim.'**
+  String get printerTestSent;
+
+  /// No description provided for @printerForget.
+  ///
+  /// In id, this message translates to:
+  /// **'Lupakan printer'**
+  String get printerForget;
+
+  /// No description provided for @receiptOutletTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk cabang ini'**
+  String get receiptOutletTitle;
+
+  /// No description provided for @receiptPaperWidth.
+  ///
+  /// In id, this message translates to:
+  /// **'Lebar kertas'**
+  String get receiptPaperWidth;
+
+  /// No description provided for @receiptPaperOption.
+  ///
+  /// In id, this message translates to:
+  /// **'{mm} mm · {columns} kolom'**
+  String receiptPaperOption(int mm, int columns);
+
+  /// No description provided for @receiptHeader.
+  ///
+  /// In id, this message translates to:
+  /// **'Header struk'**
+  String get receiptHeader;
+
+  /// No description provided for @receiptHeaderHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat, telepon, atau teks lain di bawah nama toko. Maks 4 baris.'**
+  String get receiptHeaderHint;
+
+  /// No description provided for @receiptFooter.
+  ///
+  /// In id, this message translates to:
+  /// **'Footer struk'**
+  String get receiptFooter;
+
+  /// No description provided for @receiptFooterHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesan penutup. Maks 4 baris.'**
+  String get receiptFooterHint;
+
+  /// No description provided for @receiptTooManyLines.
+  ///
+  /// In id, this message translates to:
+  /// **'Maks 4 baris'**
+  String get receiptTooManyLines;
+
+  /// No description provided for @receiptLineTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maks 48 karakter per baris'**
+  String get receiptLineTooLong;
+
+  /// No description provided for @receiptAutoPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak otomatis setelah bayar'**
+  String get receiptAutoPrint;
+
+  /// No description provided for @receiptAutoPrintHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya untuk printer Bluetooth atau jaringan.'**
+  String get receiptAutoPrintHint;
+
+  /// No description provided for @receiptPreviewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau struk'**
+  String get receiptPreviewTitle;
+
+  /// No description provided for @receiptSettingsSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get receiptSettingsSave;
+
+  /// No description provided for @receiptSettingsCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get receiptSettingsCancel;
+
+  /// No description provided for @receiptSettingsSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan struk tersimpan'**
+  String get receiptSettingsSaved;
+
+  /// No description provided for @receiptSettingsLoadError.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan struk gagal dimuat.'**
+  String get receiptSettingsLoadError;
 }
 
 class _AppLocalizationsDelegate

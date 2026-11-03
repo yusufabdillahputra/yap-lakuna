@@ -13,11 +13,13 @@ class LocalCashierRepository extends CashierRepository {
     this._store, {
     required this._stores,
     required this._session,
+    required this._preferences,
   });
 
   final LakunaStore _store;
   final StoreRepository _stores;
   final SessionRepository _session;
+  final LocalPreferences _preferences;
 
   @override
   Future<Result<CashierData>> load() => _guard((ctx, staff) async {
@@ -64,6 +66,8 @@ class LocalCashierRepository extends CashierRepository {
             )
           : null,
       canConfirmPayments: staff.can(Permission.paymentsConfirm),
+      receipt: await loadReceiptConfig(_store, scope),
+      printer: await loadPrinterSelection(_preferences),
     );
   });
 

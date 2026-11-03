@@ -1125,7 +1125,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get successPrintNote =>
-      'Receipt printing and PDF sharing arrive with the Receipt & printer module.';
+      'Auto-print after payment can be turned on in Settings › Receipt & printer.';
 
   @override
   String get successNew => 'New transaction';
@@ -1416,4 +1416,182 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrisSettingsLoadError => 'QRIS settings failed to load.';
+
+  @override
+  String get receiptSampleNumber => 'PST-K01-261103-0001';
+
+  @override
+  String get receiptPrinterTitle => 'Receipt printer';
+
+  @override
+  String get receiptPrinterNone => 'No printer yet';
+
+  @override
+  String get receiptPrinterNoneHint =>
+      'Set one up in Settings › Receipt & printer. Without a printer, Print receipt opens the system print dialog.';
+
+  @override
+  String get printerKindBluetooth => 'Bluetooth';
+
+  @override
+  String get printerKindNetwork => 'Network (LAN)';
+
+  @override
+  String get printerKindSystem => 'System print dialog';
+
+  @override
+  String get receiptPrint => 'Print receipt';
+
+  @override
+  String get receiptShare => 'Share PDF';
+
+  @override
+  String get receiptPrinted => 'Receipt sent to the printer.';
+
+  @override
+  String receiptPdfSaved(String path) {
+    return 'PDF saved to $path';
+  }
+
+  @override
+  String get receiptShareError => 'Could not create the receipt PDF.';
+
+  @override
+  String get printerRetry => 'Try again';
+
+  @override
+  String get printerErrorBluetoothOff =>
+      'Bluetooth is off. Turn it on and try again.';
+
+  @override
+  String get printerErrorPermission =>
+      'Bluetooth permission denied. Allow it in the device settings.';
+
+  @override
+  String get printerErrorConnect =>
+      'Cannot reach the printer. Make sure it is on and in range.';
+
+  @override
+  String get printerErrorWrite => 'Could not send data to the printer.';
+
+  @override
+  String get printerErrorTimeout => 'The printer did not respond.';
+
+  @override
+  String get printerErrorUnsupported =>
+      'This printer type is not supported on this device.';
+
+  @override
+  String get printerErrorGeneric => 'Could not print the receipt.';
+
+  @override
+  String get settingsSectionReceipt => 'Receipt & printer';
+
+  @override
+  String get receiptSettingsBreadcrumb => 'Receipt & printer';
+
+  @override
+  String get receiptDeviceTitle => 'This device\'s printer';
+
+  @override
+  String get receiptDeviceSubtitle =>
+      'Stored on this device only, not shared with other devices.';
+
+  @override
+  String get printerSearch => 'Find printers';
+
+  @override
+  String get printerBluetoothEmpty =>
+      'No paired printers yet. Pair the printer in the device\'s Bluetooth settings, then search again.';
+
+  @override
+  String get printerBluetoothUnsupported =>
+      'Bluetooth printers are available on Android. On this device use a network printer or the system print dialog.';
+
+  @override
+  String get printerSelected => 'Selected';
+
+  @override
+  String get printerChoose => 'Choose';
+
+  @override
+  String get printerAddress => 'Printer address';
+
+  @override
+  String get printerAddressHint =>
+      'IP or host name, default port 9100. Example 192.168.1.50:9100';
+
+  @override
+  String get printerAddressInvalid =>
+      'Invalid address. Example 192.168.1.50 or 192.168.1.50:9100';
+
+  @override
+  String get printerUseAddress => 'Use this address';
+
+  @override
+  String get printerSystemNote =>
+      'The receipt goes as a PDF to the operating system\'s print dialog, for USB printers or printers with a driver.';
+
+  @override
+  String get printerUseSystem => 'Use the system print dialog';
+
+  @override
+  String get printerTest => 'Test print';
+
+  @override
+  String get printerTestSent => 'Test print sent.';
+
+  @override
+  String get printerForget => 'Forget printer';
+
+  @override
+  String get receiptOutletTitle => 'Receipts for this branch';
+
+  @override
+  String get receiptPaperWidth => 'Paper width';
+
+  @override
+  String receiptPaperOption(int mm, int columns) {
+    return '$mm mm · $columns columns';
+  }
+
+  @override
+  String get receiptHeader => 'Receipt header';
+
+  @override
+  String get receiptHeaderHint =>
+      'Address, phone, or other text under the store name. Up to 4 lines.';
+
+  @override
+  String get receiptFooter => 'Receipt footer';
+
+  @override
+  String get receiptFooterHint => 'Closing message. Up to 4 lines.';
+
+  @override
+  String get receiptTooManyLines => 'Up to 4 lines';
+
+  @override
+  String get receiptLineTooLong => 'Up to 48 characters per line';
+
+  @override
+  String get receiptAutoPrint => 'Print automatically after payment';
+
+  @override
+  String get receiptAutoPrintHint => 'Only for Bluetooth or network printers.';
+
+  @override
+  String get receiptPreviewTitle => 'Receipt preview';
+
+  @override
+  String get receiptSettingsSave => 'Save';
+
+  @override
+  String get receiptSettingsCancel => 'Cancel';
+
+  @override
+  String get receiptSettingsSaved => 'Receipt settings saved';
+
+  @override
+  String get receiptSettingsLoadError => 'Could not load receipt settings.';
 }

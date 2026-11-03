@@ -6,11 +6,13 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/fake_receipt_printer.dart';
 import '../../testing/qris_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -34,18 +36,24 @@ void main() {
     bool sessionOpen = true,
     CashierQris? qris,
     Set<Permission>? permissions,
+    FakeReceiptPrinter? printer,
+    PrinterSelection? selected,
+    ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings()),
   }) async {
     final repo = FakeCashierRepository(
       seed: cashierProducts(),
       sessionOpen: sessionOpen,
       qris: qris,
       permissions: permissions,
+      printer: selected,
+      receipt: receipt,
     );
     await pumpLakuna(
       tester,
       size: size,
       initialLocation: Routes.cashier,
       cashier: repo,
+      receiptPrinter: printer,
     );
     return repo;
   }
@@ -110,7 +118,7 @@ void main() {
     expect(
       find.descendant(
         of: _key('success-receipt'),
-        matching: find.text('PST-K01-261103-0001'),
+        matching: find.textContaining('PST-K01-261103-0001'),
       ),
       findsOneWidget,
     );
@@ -265,6 +273,95 @@ void main() {
     expect(find.byKey(const ValueKey('cash-open-card')), findsOneWidget);
   });
 
+  group('struk (1.12)', () {
+    const rpp = PrinterSelection(
+      kind: PrinterKind.bluetooth,
+      name: 'RPP02N',
+      address: '66:22:B1:00:00:01',
+    );
+
+    Future<void> sellCard(WidgetTester tester) async {
+      await scan(tester, 'KOP');
+      await _tap(tester, 'cashier-pay');
+      await _tap(tester, 'payment-method-card');
+      await _tap(tester, 'payment-finish');
+      expect(_key('success-title'), findsOneWidget);
+    }
+
+    testWidgets('printer Bluetooth: cetak, gagal, coba lagi, bagikan PDF', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      await pump(tester, printer: printer, selected: rpp);
+      await sellCard(tester);
+      expect(find.text('RPP02N · Bluetooth · 58 mm'), findsOneWidget);
+      expect(printer.prints, isEmpty); // cetak otomatis mati
+      expect(_key('receipt-auto-print-note'), findsOneWidget);
+
+      printer.nextFailure = const PrinterFailure(
+        PrinterFailureReason.bluetoothOff,
+      );
+      await _tap(tester, 'receipt-print');
+      expect(
+        find.text('Bluetooth mati. Nyalakan lalu coba lagi.'),
+        findsOneWidget,
+      );
+      await _tap(tester, 'receipt-print-retry');
+      expect(_key('receipt-printed'), findsOneWidget);
+      final (target, lines, paper) = printer.prints.single;
+      expect(target, rpp);
+      expect(paper, ReceiptPaper.mm58);
+      expect(lines.first.text, 'WARUNG CONTOH');
+      expect(lines.last.text, 'Terima kasih, sampai jumpa lagi!');
+
+      await _tap(tester, 'receipt-share');
+      expect(printer.shares.single.$3, 'PST-K01-261103-0001.pdf');
+      expect(_key('receipt-pdf-saved'), findsOneWidget);
+    });
+
+    testWidgets('tanpa printer: dialog sistem; cetak otomatis 80 mm sekali', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      await pump(
+        tester,
+        printer: printer,
+        selected: const PrinterSelection(
+          kind: PrinterKind.network,
+          name: '10.0.0.9',
+          address: '10.0.0.9:9100',
+        ),
+        receipt: const ReceiptConfig(
+          settings: ReceiptSettings(
+            paper: ReceiptPaper.mm80,
+            footer: 'Sampai jumpa',
+            autoPrint: true,
+          ),
+        ),
+      );
+      await sellCard(tester);
+      expect(printer.prints, hasLength(1));
+      expect(printer.prints.single.$3, ReceiptPaper.mm80);
+      expect(printer.prints.single.$2.last.text, 'Sampai jumpa');
+      expect(_key('receipt-printed'), findsOneWidget);
+      expect(_key('receipt-auto-print-note'), findsNothing);
+      await tester.pumpAndSettle();
+      expect(printer.prints, hasLength(1));
+    });
+
+    testWidgets('ponsel: belum ada printer, tombol cetak membuka dialog', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      await pump(tester, size: const Size(390, 844), printer: printer);
+      await sellCard(tester);
+      expect(find.text('Belum ada printer'), findsOneWidget);
+      await _tap(tester, 'receipt-print');
+      expect(printer.prints.single.$1.kind, PrinterKind.system);
+      expect(_key('receipt-printed'), findsNothing);
+    });
+  });
+
   testWidgets('QRIS statis tablet: perbesar, belum masuk, sudah terbayar', (
     tester,
   ) async {
@@ -303,7 +400,7 @@ void main() {
     expect(
       find.descendant(
         of: _key('success-receipt'),
-        matching: find.text('QRIS statis'),
+        matching: find.textContaining(RegExp(r'^QRIS statis +2\.000$')),
       ),
       findsOneWidget,
     );

@@ -7,6 +7,109 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-03
+
+Struk dan printer (F1-06, layar 1.12 dan 1.26). Setelah bayar, kasir bisa
+mencetak struk ke printer thermal Bluetooth (Android) atau jaringan (LAN),
+lewat dialog cetak sistem, atau membagikan PDF-nya. Pemilik mengatur header,
+footer, lebar kertas, dan cetak otomatis per cabang.
+
+### Ditambahkan
+
+- **Layar Pembayaran berhasil (1.12)**:
+  - Struk tampil seperti kertas thermal (huruf DM Mono, 32 kolom untuk
+    58 mm, 48 kolom untuk 80 mm), sama persis dengan yang dicetak.
+  - Kartu **Printer struk** dengan nama printer, jenis, dan lebar kertas
+    (mis. "RPP02N · Bluetooth · 58 mm"), atau "Belum ada printer".
+  - Tombol **Cetak struk** dan **Bagikan PDF**. Di Android/iOS PDF dibuka di
+    lembar bagikan; di desktop disimpan ke `Dokumen/Lakuna/Struk/<nota>.pdf`
+    dan lokasinya ditampilkan.
+  - Pesan galat yang jelas bila cetak gagal (Bluetooth mati, izin ditolak,
+    printer tidak terjangkau, kirim gagal, tidak menjawab) dengan **Coba
+    lagi**. Nota tetap tersimpan walau cetak gagal.
+  - **Cetak otomatis** sekali per nota bila diaktifkan dan printer
+    Bluetooth/LAN dipilih.
+- **Pengaturan › Struk & printer (1.26)**, hanya untuk staf dengan izin
+  `settings:manage`:
+  - **Printer perangkat ini** (disimpan di perangkat saja): *Bluetooth*
+    (Android, daftar printer yang sudah dipasangkan), *Jaringan (LAN)*
+    dengan alamat IP/host dan port (bawaan 9100), atau *Dialog cetak
+    sistem*. Tombol **Tes cetak** dan **Lupakan printer**.
+  - **Struk cabang ini** (berlaku di semua perangkat cabang): lebar kertas
+    58/80 mm, header (bawaan alamat dan telepon cabang), footer (bawaan
+    "Terima kasih, sampai jumpa lagi!"), masing-masing maks 4 baris × 48
+    karakter, dan sakelar *Cetak otomatis setelah bayar*.
+  - **Pratinjau struk** langsung berubah saat isian diketik.
+  - Tombol **Simpan** dan **Batal**; pesan "Pengaturan struk tersimpan".
+- Struk memuat nama toko, cabang, header, nomor nota, tanggal (zona waktu
+  cabang), kasir, barang (nama, qty × harga, subtotal; harga grosir sudah
+  terhitung), total, setiap pembayaran, kembalian tunai, dan footer.
+
+### Diubah
+
+- Pratinjau struk lama di layar berhasil diganti mesin baris struk yang
+  sama untuk layar, PDF, dan ESC/POS.
+- Catatan "Cetak otomatis bisa diaktifkan di Pengaturan" hanya muncul bila
+  cetak otomatis belum aktif.
+
+### Diperbaiki
+
+- PDF struk kadang kehilangan baris terakhir (footer): galat pembulatan
+  membuat isi sedikit lebih tinggi dari halaman sehingga paket `pdf`
+  membuang baris itu. Halaman kini diberi kelonggaran 2 pt; diuji 1 sampai
+  80 baris di kedua lebar kertas (ditemukan saat uji manual).
+- *Bagikan PDF* di Linux tanpa `xdg-user-dir` gagal karena folder Dokumen
+  tidak dikenal; kini disimpan ke folder data aplikasi
+  (`~/.local/share/id.lakuna.app/Struk`) (ditemukan saat uji manual).
+- Cetak Bluetooth selalu gagal "kirim gagal": byte dikirim sebagai
+  `Uint8List` yang tiba di plugin Android sebagai `byte[]`, padahal plugin
+  membaca `List<Int>`. Kini dikirim sebagai `List<int>` biasa (ditemukan
+  saat code review).
+- Android 12+: dialog izin Bluetooth tidak pernah muncul dan *Cari printer*
+  melapor "Bluetooth mati". Izin kini diminta lebih dulu; bila ditolak
+  pesannya "Izin Bluetooth ditolak" (ditemukan saat code review).
+- Galat cetak atau PDF nota sebelumnya tidak lagi muncul di layar berhasil
+  nota berikutnya. *Transaksi baru* ditahan selama struk masih dicetak agar
+  hasil cetak tidak tertukar antar nota (ditemukan saat code review).
+- Struk di layar tidak lagi terpotong di kanan saat ukuran huruf sistem
+  diperbesar (mis. 130% di Android) (ditemukan saat code review).
+- Teks non-ASCII (emoji, "ß", aksen terurai) diratakan ke ASCII sebelum
+  ditata sehingga satu karakter selalu satu kolom dan nominal tetap rata
+  kanan; pratinjau sama persis dengan cetakan (ditemukan saat code review).
+- Header yang dikembalikan sama dengan alamat cabang disimpan sebagai
+  bawaan lagi, sehingga ikut berubah bila alamat atau telepon cabang diubah.
+- Bagian Pengaturan struk di layar sekitar 750 px jatuh ke tata letak
+  sempit dan baris status printer meluap di ponsel (ditemukan saat uji
+  manual).
+
+### Keamanan
+
+- Pengaturan struk cabang hanya bisa disimpan staf dengan `settings:manage`,
+  dicek di UI dan di `LocalReceiptSettingsRepository`.
+- Header dan footer divalidasi (maks 4 baris × 48 karakter) di domain dan
+  repositori. Karakter di luar ASCII diubah ke padanan ASCII (mis. "é" →
+  "e", "—" → "-") atau "?" sebelum dikirim ke printer, sehingga byte kendali
+  tidak bisa disisipkan lewat teks struk.
+
+### Catatan teknis
+
+- Domain: `receipt.dart` (`ReceiptPaper`, `ReceiptLine`, `ReceiptContent`,
+  `wrapText`, `layoutPair`, `layoutReceipt`, `validateReceiptSettings`) dan
+  `escpos.dart` (`receiptAscii`, `encodeEscPos`: `ESC @`, `ESC a`, `ESC E`,
+  `ESC d 3`, `GS V 66 0`).
+- Data: `ReceiptSettings` di tabel `settings` (`scope_key` =
+  `outlet:<id>`, `key` = `receipt.settings`, nilai JSON) lewat outbox sync;
+  pilihan printer di preferensi lokal `printer.selected` (tidak disinkron).
+- Aplikasi: `ReceiptPrinter` (abstrak + palsu untuk tes) dan
+  `PlatformReceiptPrinter`: Bluetooth lewat `print_bluetooth_thermal`, LAN
+  lewat soket TCP mentah (batas waktu 5 detik), dialog cetak dan PDF lewat
+  `printing` + `pdf`. `ReceiptSettingsRepository` (lokal + palsu).
+- Dependensi baru: `pdf`, `printing`, `print_bluetooth_thermal`. Font DM
+  Mono (OFL) dibundel di `assets/fonts/DM_Mono`.
+- Uji manual memakai printer LAN tiruan (soket 9100 yang menyimpan byte)
+  dan dekoder ESC/POS; struk 58 dan 80 mm terbaca benar.
+- Printer Bluetooth belum diuji di perangkat fisik.
+
 ## [0.7.0] - 2026-11-03
 
 QRIS statis dengan konfirmasi manual (F1-05, layar 1.6 dan 1.6m), split
@@ -724,7 +827,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...v0.5.0

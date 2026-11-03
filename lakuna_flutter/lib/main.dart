@@ -13,12 +13,15 @@ import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
 import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_payment_settings_repository.dart';
+import 'data/repositories/local_receipt_settings_repository.dart';
 import 'data/repositories/local_session_repository.dart';
 import 'data/repositories/local_store_repository.dart';
 import 'data/repositories/catalog_repository.dart';
 import 'data/repositories/payment_settings_repository.dart';
+import 'data/repositories/receipt_settings_repository.dart';
 import 'data/repositories/session_repository.dart';
 import 'data/repositories/store_repository.dart';
+import 'data/services/receipt_printer.dart';
 import 'routing/router.dart';
 import 'utils/result.dart';
 import 'ui/settings/app_settings_view_model.dart';
@@ -33,9 +36,8 @@ Future<void> main() async {
     deviceId: store.deviceId.uuid,
     version: appVersion,
   );
-  final settingsRepository = LocalAppSettingsRepository(
-    LocalPreferences(store.session),
-  );
+  final preferences = LocalPreferences(store.session);
+  final settingsRepository = LocalAppSettingsRepository(preferences);
   final settings = AppSettingsViewModel(repository: settingsRepository);
   await settings.load.execute();
   final storeRepository = LocalStoreRepository(store);
@@ -61,12 +63,20 @@ Future<void> main() async {
     store,
     stores: storeRepository,
     session: sessionRepository,
+    preferences: preferences,
   );
   final paymentSettingsRepository = LocalPaymentSettingsRepository(
     store,
     stores: storeRepository,
     session: sessionRepository,
   );
+  final receiptSettingsRepository = LocalReceiptSettingsRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+    preferences: preferences,
+  );
+  final receiptPrinter = PlatformReceiptPrinter();
 
   runApp(
     MultiProvider(
@@ -85,6 +95,10 @@ Future<void> main() async {
         Provider<PaymentSettingsRepository>.value(
           value: paymentSettingsRepository,
         ),
+        Provider<ReceiptSettingsRepository>.value(
+          value: receiptSettingsRepository,
+        ),
+        Provider<ReceiptPrinter>.value(value: receiptPrinter),
       ],
       child: LakunaApp(
         settings: settings,
@@ -96,6 +110,8 @@ Future<void> main() async {
           catalog: catalogRepository,
           cashier: cashierRepository,
           paymentSettings: paymentSettingsRepository,
+          receiptSettings: receiptSettingsRepository,
+          receiptPrinter: receiptPrinter,
         ),
       ),
     ),

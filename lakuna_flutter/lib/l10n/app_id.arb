@@ -673,7 +673,7 @@
       }
     }
   },
-  "successPrintNote": "Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.",
+  "successPrintNote": "Cetak otomatis setelah bayar bisa diaktifkan di Pengaturan › Struk & printer.",
   "successNew": "Transaksi baru",
   "receiptNo": "No",
   "receiptDate": "Tgl",
@@ -844,5 +844,76 @@
     }
   },
   "qrisSettingsNmidInvalid": "Hanya huruf dan angka, maks 20",
-  "qrisSettingsLoadError": "Pengaturan QRIS gagal dimuat."
+  "qrisSettingsLoadError": "Pengaturan QRIS gagal dimuat.",
+  "receiptSampleNumber": "PST-K01-261103-0001",
+  "receiptPrinterTitle": "Printer struk",
+  "receiptPrinterNone": "Belum ada printer",
+  "receiptPrinterNoneHint": "Atur di Pengaturan › Struk & printer. Tanpa printer, Cetak struk membuka dialog cetak sistem.",
+  "printerKindBluetooth": "Bluetooth",
+  "printerKindNetwork": "Jaringan (LAN)",
+  "printerKindSystem": "Dialog cetak sistem",
+  "receiptPrint": "Cetak struk",
+  "receiptShare": "Bagikan PDF",
+  "receiptPrinted": "Struk terkirim ke printer.",
+  "receiptPdfSaved": "PDF disimpan di {path}",
+  "@receiptPdfSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareError": "PDF struk gagal dibuat.",
+  "printerRetry": "Coba lagi",
+  "printerErrorBluetoothOff": "Bluetooth mati. Nyalakan lalu coba lagi.",
+  "printerErrorPermission": "Izin Bluetooth ditolak. Izinkan di pengaturan perangkat.",
+  "printerErrorConnect": "Printer tidak bisa dihubungi. Pastikan menyala dan dalam jangkauan.",
+  "printerErrorWrite": "Data gagal terkirim ke printer.",
+  "printerErrorTimeout": "Printer tidak menjawab.",
+  "printerErrorUnsupported": "Jenis printer ini tidak didukung di perangkat ini.",
+  "printerErrorGeneric": "Struk gagal dicetak.",
+  "settingsSectionReceipt": "Struk & printer",
+  "receiptSettingsBreadcrumb": "Struk & printer",
+  "receiptDeviceTitle": "Printer perangkat ini",
+  "receiptDeviceSubtitle": "Disimpan di perangkat ini saja, tidak ikut ke perangkat lain.",
+  "printerSearch": "Cari printer",
+  "printerBluetoothEmpty": "Belum ada printer yang dipasangkan. Pasangkan printer di pengaturan Bluetooth perangkat, lalu cari lagi.",
+  "printerBluetoothUnsupported": "Printer Bluetooth tersedia di Android. Di perangkat ini pakai printer jaringan atau dialog cetak sistem.",
+  "printerSelected": "Terpilih",
+  "printerChoose": "Pilih",
+  "printerAddress": "Alamat printer",
+  "printerAddressHint": "IP atau nama host, port bawaan 9100. Contoh 192.168.1.50:9100",
+  "printerAddressInvalid": "Alamat tidak sah. Contoh 192.168.1.50 atau 192.168.1.50:9100",
+  "printerUseAddress": "Pakai alamat ini",
+  "printerSystemNote": "Struk dikirim sebagai PDF ke dialog cetak sistem operasi, untuk printer USB atau printer dengan driver.",
+  "printerUseSystem": "Pakai dialog cetak sistem",
+  "printerTest": "Tes cetak",
+  "printerTestSent": "Tes cetak terkirim.",
+  "printerForget": "Lupakan printer",
+  "receiptOutletTitle": "Struk cabang ini",
+  "receiptPaperWidth": "Lebar kertas",
+  "receiptPaperOption": "{mm} mm · {columns} kolom",
+  "@receiptPaperOption": {
+    "placeholders": {
+      "mm": {
+        "type": "int"
+      },
+      "columns": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptHeader": "Header struk",
+  "receiptHeaderHint": "Alamat, telepon, atau teks lain di bawah nama toko. Maks 4 baris.",
+  "receiptFooter": "Footer struk",
+  "receiptFooterHint": "Pesan penutup. Maks 4 baris.",
+  "receiptTooManyLines": "Maks 4 baris",
+  "receiptLineTooLong": "Maks 48 karakter per baris",
+  "receiptAutoPrint": "Cetak otomatis setelah bayar",
+  "receiptAutoPrintHint": "Hanya untuk printer Bluetooth atau jaringan.",
+  "receiptPreviewTitle": "Pratinjau struk",
+  "receiptSettingsSave": "Simpan",
+  "receiptSettingsCancel": "Batal",
+  "receiptSettingsSaved": "Pengaturan struk tersimpan",
+  "receiptSettingsLoadError": "Pengaturan struk gagal dimuat."
 }

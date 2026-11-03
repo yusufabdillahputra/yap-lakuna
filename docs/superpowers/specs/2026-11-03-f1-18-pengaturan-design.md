@@ -91,7 +91,8 @@ memakainya.
 | *Kasir boleh konfirmasi tanpa PIN manajer* | 1.26b | Belum | Bersama persetujuan PIN manajer |
 | *Tampilkan juga di layar mobile kasir* | 1.26b | Belum, selalu tampil | Bila ada permintaan |
 | Rekening transfer, kartu, kredit | 1.26 | Belum | Bersama kredit (F1-13) |
-| Profil toko, cabang, struk & printer, pajak, penjualan & stok, data & backup | 1.26 | Belum | Bersama modul terkait |
+| Struk & printer | 1.26 | Rilis v0.8.0 (lihat F1-06) | - |
+| Profil toko, cabang, pajak, penjualan & stok, data & backup | 1.26 | Belum | Bersama modul terkait |
 | Orientasi EXIF JPEG | - | Belum: lebar/tinggi dibaca dari SOF sebelum rotasi, foto ponsel bisa diberi peringatan "tidak vertikal" palsu | Baca APP1 orientation 5-8 lalu tukar lebar/tinggi |
 | Berkas gambar lama | - | Saat stiker diganti, baris `media_files` lama dan berkasnya tetap ada; berkas ditulis sebelum transaksi selesai | Pembersihan media tanpa rujukan (Fase 2, bersama unggah object storage) |
 | Baris gambar ada, berkas hilang di perangkat | - | Pengaturan meminta unggah ulang sebelum QRIS bisa diaktifkan | Sengaja: kasir tidak bisa menampilkan stiker tanpa berkas |

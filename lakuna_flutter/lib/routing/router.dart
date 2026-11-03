@@ -5,9 +5,11 @@ import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
+import '../data/repositories/receipt_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/store_repository.dart';
 import '../data/services/image_file_picker.dart';
+import '../data/services/receipt_printer.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/coming_soon/coming_soon_view.dart';
@@ -35,6 +37,8 @@ GoRouter createRouter({
   required CatalogRepository catalog,
   required CashierRepository cashier,
   required PaymentSettingsRepository paymentSettings,
+  required ReceiptSettingsRepository receiptSettings,
+  required ReceiptPrinter receiptPrinter,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   String initialLocation = Routes.home,
 }) {
@@ -93,6 +97,8 @@ GoRouter createRouter({
             builder: (context, state) => SettingsScreen(
               settings: settings,
               paymentSettings: paymentSettings,
+              receiptSettings: receiptSettings,
+              receiptPrinter: receiptPrinter,
               imagePicker: imagePicker,
               session: session,
               store: store,
@@ -108,7 +114,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.cashier,
-            builder: (context, state) => CashierScreen(repository: cashier),
+            builder: (context, state) => CashierScreen(
+              repository: cashier,
+              printer: receiptPrinter,
+            ),
           ),
           // Rute saudara (bukan bersarang) supaya kembali ke daftar
           // membuat layar baru yang memuat ulang katalog.
