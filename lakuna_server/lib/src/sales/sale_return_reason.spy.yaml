@@ -1,0 +1,8 @@
+### Alasan retur penjualan (F1-11).
+enum: SaleReturnReason
+serialized: byName
+values:
+  - damaged
+  - wrongItem
+  - expired
+  - other

@@ -107,9 +107,9 @@ void main() {
   test('batalkan bill butuh alasan dan izin', () async {
     await vm.openTable.execute((table('M3').id, 2));
     await add('Kopi Susu Aren');
-    await vm.voidBill.execute('  ');
+    await vm.voidBill.execute((reason: '  ', approverId: null));
     expect(vm.actionError, isA<BillInputInvalid>());
-    await vm.voidBill.execute('Tamu batal');
+    await vm.voidBill.execute((reason: 'Tamu batal', approverId: null));
     expect(vm.selectedBill, isNull);
     expect(vm.tableState(table('M3')), TableState.empty);
     expect(repo.voided.values, ['Tamu batal']);

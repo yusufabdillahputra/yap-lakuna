@@ -114,7 +114,16 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       tenantId: scope.tenantId,
       sessionId: session.id,
     );
-    final drawer = cashDrawerOf(session, movements, cashSales: sales.cash);
+    final drawer = cashDrawerOf(
+      session,
+      movements,
+      cashSales: sales.cash,
+      cashRefunds: await sessionCashRefunds(
+        _store.session,
+        tenantId: scope.tenantId,
+        sessionId: session.id,
+      ),
+    );
     final opener = await StaffMember.db.findFirstRow(
       _store.session,
       where: (s) =>

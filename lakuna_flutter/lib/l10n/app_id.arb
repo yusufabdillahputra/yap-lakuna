@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -235,6 +235,7 @@
     }
   },
   "cashRecapCashSales": "Penjualan tunai",
+  "cashRecapCashRefunds": "Retur tunai",
   "cashRecapInflow": "Uang masuk lain",
   "cashRecapOutflow": "Uang keluar",
   "cashRecapExpected": "Seharusnya di laci",
@@ -2151,5 +2152,155 @@
   "diningArrange": "Atur denah",
   "diningFloorLocked": "Posisi terkunci · geser & zoom saja",
   "diningUnplaced": "Belum ditempatkan",
-  "diningNoFloorArea": "Belum ada area mode denah."
+  "diningNoFloorArea": "Belum ada area mode denah.",
+  "approvalTitle": "Persetujuan manajer",
+  "approvalStaff": "Penyetuju",
+  "approvalPin": "PIN penyetuju",
+  "approvalCancel": "Batal",
+  "approvalSubmit": "Setujui",
+  "approvalNone": "Tidak ada staf lain yang berizin dan punya PIN di cabang ini.",
+  "approvalNotPermitted": "Staf ini tidak punya izin untuk tindakan ini.",
+  "approvalVoidSale": "Void transaksi butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.",
+  "approvalVoidBill": "Batalkan bill butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.",
+  "historyTitle": "Riwayat transaksi",
+  "historyLoadFailed": "Riwayat gagal dimuat.",
+  "historySummary": "{range} · {count} transaksi · {total}",
+  "@historySummary": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "historyExport": "Ekspor Excel",
+  "historyExportSaved": "Excel disimpan di {path}",
+  "@historyExportSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "historyExportFailed": "Ekspor gagal. Coba lagi.",
+  "historyEmpty": "Belum ada transaksi untuk filter ini.",
+  "historyPickSale": "Pilih nota untuk melihat rincian, retur, cetak ulang, atau void.",
+  "historyRangeToday": "Hari ini",
+  "historyRangeYesterday": "Kemarin",
+  "historyRangeWeek": "7 hari",
+  "historyFilterStaff": "Kasir",
+  "historyFilterAllStaff": "Semua kasir",
+  "historyFilterMethod": "Metode",
+  "historyFilterAllMethods": "Semua metode",
+  "historyFilterStatus": "Status",
+  "historyStatusAll": "Semua status",
+  "historyStatusCompleted": "Selesai",
+  "historyStatusPartial": "Retur sebagian",
+  "historyStatusReturned": "Diretur",
+  "historyStatusReturnedAny": "Retur",
+  "historyStatusVoided": "Void",
+  "historyColNumber": "Nota",
+  "historyColDate": "Tanggal",
+  "historyColTime": "Jam",
+  "historyColStaff": "Kasir",
+  "historyColMethod": "Metode",
+  "historyColTotal": "Total",
+  "historyColReturned": "Retur",
+  "historyColNet": "Bersih",
+  "historyColStatus": "Status",
+  "historyBack": "Kembali",
+  "historyTotalOriginal": "Total awal",
+  "historyReturnedTotal": "Sudah diretur",
+  "historyNet": "Nilai bersih",
+  "historyVoidedBy": "Di-void oleh {name}: {reason}",
+  "@historyVoidedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "historyItems": "Item",
+  "historyItemReturned": "diretur {qty}",
+  "@historyItemReturned": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturnAll": "Retur semua",
+  "historyReturnQty": "Jumlah retur (sisa {left})",
+  "@historyReturnQty": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturns": "Retur",
+  "historyReturnTitle": "Retur barang",
+  "historyReturnReason": "Alasan",
+  "historyReasonDamaged": "Barang rusak",
+  "historyReasonWrongItem": "Salah ambil",
+  "historyReasonExpired": "Kedaluwarsa",
+  "historyReasonOther": "Lainnya",
+  "historyReturnNote": "Catatan (opsional)",
+  "historyReturnNoteRequired": "Catatan (wajib)",
+  "historyRefundMethod": "Uang kembali",
+  "historyRefundCash": "Tunai dari laci",
+  "historyRefundTransfer": "Transfer",
+  "historyRefundDebt": "Potong piutang",
+  "historyRefundCashNeedsSession": "Uang kembali tunai butuh sesi kasir terbuka di perangkat ini.",
+  "historyRestock": "Kembalikan barang ke stok",
+  "historyReturnSubmit": "Proses retur · {amount}",
+  "@historyReturnSubmit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReprint": "Cetak ulang struk",
+  "historyClose": "Tutup",
+  "historyVoid": "Void transaksi",
+  "historyVoidHint": "Butuh izin sales:void (PIN manajer). Void membalik stok dan pembayaran lewat entri baru; data lama tidak dihapus.",
+  "historyVoidTitle": "Void nota {number}?",
+  "@historyVoidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "historyVoidBody": "Stok dikembalikan dan nota tidak lagi dihitung di rekap sesi.",
+  "historyVoidReason": "Alasan void",
+  "historyVoidKeep": "Jangan void",
+  "historyVoidBlockStatus": "Nota ini sudah void atau diretur.",
+  "historyVoidBlockReturned": "Nota yang sudah diretur tidak bisa di-void.",
+  "historyVoidBlockNotToday": "Void hanya untuk nota hari ini.",
+  "historyVoidBlockSession": "Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.",
+  "historyErrReturnEmpty": "Isi jumlah retur minimal satu item.",
+  "historyErrReturnQuantity": "Jumlah retur melebihi sisa item.",
+  "historyErrReturnNote": "Catatan wajib untuk alasan Lainnya (maks. 200 karakter).",
+  "historyErrReturnStatus": "Nota ini tidak bisa diretur lagi.",
+  "historyErrRefundMethod": "Cara uang kembali ini belum tersedia.",
+  "historyErrNoSession": "Buka sesi kasir dulu untuk uang kembali tunai.",
+  "historyErrVoidReason": "Alasan wajib diisi (maks. 120 karakter).",
+  "historyErrNotPermitted": "Anda tidak punya izin untuk tindakan ini.",
+  "historyErrNotFound": "Nota tidak ditemukan.",
+  "historyErrGeneric": "Terjadi kesalahan. Coba lagi.",
+  "receiptBannerReprint": "CETAK ULANG",
+  "receiptBannerVoid": "VOID",
+  "receiptReturned": "Retur",
+  "receiptNet": "Bersih",
+  "stockNoteVoid": "Nota di-void"
 }

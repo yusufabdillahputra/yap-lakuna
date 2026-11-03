@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -156,6 +156,7 @@
   "cashRecapTitle": "Cash drawer recap",
   "cashRecapOpening": "Opening cash ({time})",
   "cashRecapCashSales": "Cash sales",
+  "cashRecapCashRefunds": "Cash refunds",
   "cashRecapInflow": "Other cash in",
   "cashRecapOutflow": "Cash out",
   "cashRecapExpected": "Expected in drawer",
@@ -1617,5 +1618,155 @@
   "diningArrange": "Arrange floor plan",
   "diningFloorLocked": "Positions locked · pan & zoom only",
   "diningUnplaced": "Not placed yet",
-  "diningNoFloorArea": "No area uses a floor plan yet."
+  "diningNoFloorArea": "No area uses a floor plan yet.",
+  "approvalTitle": "Manager approval",
+  "approvalStaff": "Approver",
+  "approvalPin": "Approver PIN",
+  "approvalCancel": "Cancel",
+  "approvalSubmit": "Approve",
+  "approvalNone": "No other staff with this permission and a PIN at this branch.",
+  "approvalNotPermitted": "This staff member is not allowed to do this.",
+  "approvalVoidSale": "Voiding a sale needs the sales:void permission. Ask an authorised staff member to enter their PIN.",
+  "approvalVoidBill": "Cancelling a bill needs the sales:void permission. Ask an authorised staff member to enter their PIN.",
+  "historyTitle": "Sales history",
+  "historyLoadFailed": "Could not load the history.",
+  "historySummary": "{range} · {count} sales · {total}",
+  "@historySummary": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "historyExport": "Export to Excel",
+  "historyExportSaved": "Excel file saved to {path}",
+  "@historyExportSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "historyExportFailed": "Export failed. Try again.",
+  "historyEmpty": "No sales match this filter.",
+  "historyPickSale": "Pick a sale to see its details, return items, reprint or void it.",
+  "historyRangeToday": "Today",
+  "historyRangeYesterday": "Yesterday",
+  "historyRangeWeek": "7 days",
+  "historyFilterStaff": "Cashier",
+  "historyFilterAllStaff": "All cashiers",
+  "historyFilterMethod": "Method",
+  "historyFilterAllMethods": "All methods",
+  "historyFilterStatus": "Status",
+  "historyStatusAll": "All statuses",
+  "historyStatusCompleted": "Completed",
+  "historyStatusPartial": "Partly returned",
+  "historyStatusReturned": "Returned",
+  "historyStatusReturnedAny": "Returned",
+  "historyStatusVoided": "Voided",
+  "historyColNumber": "Receipt",
+  "historyColDate": "Date",
+  "historyColTime": "Time",
+  "historyColStaff": "Cashier",
+  "historyColMethod": "Method",
+  "historyColTotal": "Total",
+  "historyColReturned": "Returned",
+  "historyColNet": "Net",
+  "historyColStatus": "Status",
+  "historyBack": "Back",
+  "historyTotalOriginal": "Original total",
+  "historyReturnedTotal": "Returned",
+  "historyNet": "Net value",
+  "historyVoidedBy": "Voided by {name}: {reason}",
+  "@historyVoidedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "historyItems": "Items",
+  "historyItemReturned": "{qty} returned",
+  "@historyItemReturned": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturnAll": "Return all",
+  "historyReturnQty": "Return quantity ({left} left)",
+  "@historyReturnQty": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturns": "Returns",
+  "historyReturnTitle": "Return items",
+  "historyReturnReason": "Reason",
+  "historyReasonDamaged": "Damaged",
+  "historyReasonWrongItem": "Wrong item",
+  "historyReasonExpired": "Expired",
+  "historyReasonOther": "Other",
+  "historyReturnNote": "Note (optional)",
+  "historyReturnNoteRequired": "Note (required)",
+  "historyRefundMethod": "Refund",
+  "historyRefundCash": "Cash from drawer",
+  "historyRefundTransfer": "Transfer",
+  "historyRefundDebt": "Deduct from credit",
+  "historyRefundCashNeedsSession": "Cash refunds need an open cash session on this device.",
+  "historyRestock": "Put items back in stock",
+  "historyReturnSubmit": "Process return · {amount}",
+  "@historyReturnSubmit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReprint": "Reprint receipt",
+  "historyClose": "Close",
+  "historyVoid": "Void sale",
+  "historyVoidHint": "Needs the sales:void permission (manager PIN). Voiding reverses stock and payment with new entries; old data is kept.",
+  "historyVoidTitle": "Void receipt {number}?",
+  "@historyVoidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "historyVoidBody": "Stock is restored and the sale no longer counts in the session recap.",
+  "historyVoidReason": "Void reason",
+  "historyVoidKeep": "Keep sale",
+  "historyVoidBlockStatus": "This sale is already voided or returned.",
+  "historyVoidBlockReturned": "A sale with returns cannot be voided.",
+  "historyVoidBlockNotToday": "Only today's sales can be voided.",
+  "historyVoidBlockSession": "Only sales in this device's open cash session can be voided.",
+  "historyErrReturnEmpty": "Enter a return quantity for at least one item.",
+  "historyErrReturnQuantity": "Return quantity exceeds what is left.",
+  "historyErrReturnNote": "A note is required for Other (max 200 characters).",
+  "historyErrReturnStatus": "This sale can no longer be returned.",
+  "historyErrRefundMethod": "This refund method is not available yet.",
+  "historyErrNoSession": "Open a cash session first for cash refunds.",
+  "historyErrVoidReason": "A reason is required (max 120 characters).",
+  "historyErrNotPermitted": "You are not allowed to do this.",
+  "historyErrNotFound": "Receipt not found.",
+  "historyErrGeneric": "Something went wrong. Try again.",
+  "receiptBannerReprint": "REPRINT",
+  "receiptBannerVoid": "VOID",
+  "receiptReturned": "Returned",
+  "receiptNet": "Net",
+  "stockNoteVoid": "Sale voided"
 }

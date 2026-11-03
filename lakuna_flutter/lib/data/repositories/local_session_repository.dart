@@ -5,6 +5,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
+import 'repository_errors.dart';
 import 'session_repository.dart';
 import 'store_repository.dart';
 
@@ -62,11 +63,33 @@ class LocalSessionRepository extends SessionRepository {
 
   @override
   Future<Result<StaffProfile>> loginWithPin(UuidValue staffId, String pin) =>
-      _serialized(pinGuardKey(staffId), () => _loginWithPin(staffId, pin));
+      _serialized(
+        pinGuardKey(staffId),
+        () => _checkPin(staffId, pin, (key, staff) => _signIn(key, staff)),
+      );
 
-  Future<Result<StaffProfile>> _loginWithPin(
+  @override
+  Future<Result<StaffProfile>> verifyApprover(
     UuidValue staffId,
     String pin,
+    Permission permission,
+  ) => _serialized(
+    pinGuardKey(staffId),
+    () => _checkPin(staffId, pin, (key, staff) {
+      _guard.recordSuccess(key);
+      if (!staff.permissions.contains(permission)) {
+        return Result.error(NotPermitted(permission));
+      }
+      grantApproval(staffId, permission);
+      return Result.ok(StaffProfile.fromOutletStaff(staff));
+    }),
+  );
+
+  /// Memeriksa PIN [staffId] dengan [PinGuard]; PIN benar → [onMatch].
+  Future<Result<StaffProfile>> _checkPin(
+    UuidValue staffId,
+    String pin,
+    Result<StaffProfile> Function(String key, OutletStaff staff) onMatch,
   ) async {
     final ctx = _stores.current;
     if (ctx == null) return const Result.error(StaffUnavailable());
@@ -85,7 +108,7 @@ class LocalSessionRepository extends SessionRepository {
       if (staff == null || hash == null || hash.isEmpty) {
         return const Result.error(StaffUnavailable());
       }
-      if (await _verify(pin, hash)) return _signIn(key, staff);
+      if (await _verify(pin, hash)) return onMatch(key, staff);
       _guard.recordFailure(key);
       if (_guard.retryAfter(key) case final wait?) {
         return Result.error(CredentialsLocked(wait));
@@ -158,6 +181,7 @@ class LocalSessionRepository extends SessionRepository {
 
   @override
   void logout() {
+    clearApprovals();
     if (_current == null) return;
     _current = null;
     notifyListeners();
@@ -165,6 +189,7 @@ class LocalSessionRepository extends SessionRepository {
 
   Result<StaffProfile> _signIn(String key, OutletStaff staff) {
     _guard.recordSuccess(key);
+    clearApprovals();
     final profile = StaffProfile.fromOutletStaff(staff);
     _current = profile;
     notifyListeners();

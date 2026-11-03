@@ -1,0 +1,24 @@
+### Baris retur penjualan (F1-11): jumlah dan nilai yang dikembalikan dari satu baris nota.
+class: SaleReturnItem
+table: sale_return_items
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  saleReturnId: UuidValue, relation(parent=sale_returns, onDelete=Restrict), column=sale_return_id
+  saleItemId: UuidValue, relation(parent=sale_items, onDelete=Restrict), column=sale_item_id
+  quantityMilli: int, column=quantity_milli
+  amount: int
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  sale_return_items_return_idx:
+    fields: saleReturnId
+  sale_return_items_item_idx:
+    fields: saleItemId

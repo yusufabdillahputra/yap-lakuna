@@ -13,10 +13,12 @@ import 'fake_cashier_repository.dart';
 import 'fake_catalog_repository.dart';
 import 'fake_dining_admin_repository.dart';
 import 'fake_dining_repository.dart';
+import 'fake_history_repository.dart';
 import 'fake_payment_settings_repository.dart';
 import 'fake_receipt_printer.dart';
 import 'fake_receipt_settings_repository.dart';
 import 'fake_session_repository.dart';
+import 'fake_spreadsheet_exporter.dart';
 import 'fake_master_data_repository.dart';
 import 'fake_stock_repository.dart';
 import 'fake_store_repository.dart';
@@ -37,6 +39,8 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeCashierRepository? cashier,
   FakeDiningRepository? dining,
   FakeDiningAdminRepository? diningAdmin,
+  FakeHistoryRepository? history,
+  FakeSpreadsheetExporter? exporter,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
   FakeReceiptSettingsRepository? receiptSettings,
@@ -82,10 +86,12 @@ Future<AppSettingsViewModel> pumpLakuna(
           cashier: cashier ?? FakeCashierRepository(),
           dining: dining ?? FakeDiningRepository(),
           diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
+          history: history ?? FakeHistoryRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
           receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
           imagePicker: imagePicker ?? FakeImagePicker(),
+          exporter: exporter ?? FakeSpreadsheetExporter(),
           initialLocation: initialLocation,
         ),
       ),

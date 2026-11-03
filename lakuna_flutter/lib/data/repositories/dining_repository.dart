@@ -111,7 +111,13 @@ abstract class DiningRepository {
 
   Future<Result<OpenBill>> moveBill(UuidValue billId, UuidValue tableId);
 
-  Future<Result<void>> voidBill(UuidValue billId, String reason);
+  /// [approverId] = penyetuju ber-`sales:void` yang PIN-nya sudah
+  /// diverifikasi (F1-11), bila staf bertugas tidak punya izin itu.
+  Future<Result<void>> voidBill(
+    UuidValue billId,
+    String reason, {
+    UuidValue? approverId,
+  });
 
   Future<Result<void>> deleteEmptyBill(UuidValue billId);
 

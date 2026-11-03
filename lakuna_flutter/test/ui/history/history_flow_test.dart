@@ -1,0 +1,156 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_flutter/routing/routes.dart';
+
+import '../../testing/app_harness.dart';
+import '../../testing/fake_history_repository.dart';
+import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_session_repository.dart';
+
+Finder _key(String key) => find.byKey(ValueKey(key));
+
+Finder _input(String key) =>
+    find.descendant(of: _key(key), matching: find.byType(EditableText));
+
+Future<void> _tap(WidgetTester tester, String key) async {
+  await tester.ensureVisible(_key(key));
+  await tester.pumpAndSettle();
+  await tester.tap(_key(key));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  late FakeHistoryRepository history;
+  late FakeReceiptPrinter printer;
+  late FakeSessionRepository session;
+  late CheckoutResult kopi;
+  late CheckoutResult roti;
+
+  Future<void> pump(
+    WidgetTester tester, {
+    Size size = const Size(1280, 800),
+    String role = 'owner',
+    String location = Routes.history,
+  }) async {
+    history = FakeHistoryRepository(
+      canVoid: role == 'owner',
+      canReturn: role == 'owner',
+    );
+    kopi = history.addSale([('Kopi Susu', 2000, 18000)]);
+    roti = history.addSale([
+      ('Roti Bakar', 1000, 25000),
+    ], method: PaymentMethod.qrisStatic);
+    printer = FakeReceiptPrinter();
+    session = FakeSessionRepository()
+      ..current = sampleStaff(name: 'Sari', role: role);
+    await pumpLakuna(
+      tester,
+      size: size,
+      initialLocation: location,
+      history: history,
+      receiptPrinter: printer,
+      session: session,
+    );
+  }
+
+  testWidgets('desktop: daftar + panel, retur sebagian, cetak ulang', (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.text('Riwayat transaksi'), findsWidgets);
+    expect(
+      find.text('Hari ini · 2 transaksi · Rp 61.000'),
+      findsOneWidget,
+    );
+    expect(_key('history-table'), findsOneWidget);
+    expect(_key('history-pick'), findsOneWidget);
+
+    await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+    expect(_key('history-detail-${kopi.sale.id.uuid}'), findsOneWidget);
+    final item = kopi.items.single.id.uuid;
+    await _tap(tester, 'history-return-plus-$item');
+    await _tap(tester, 'history-reason-wrongItem');
+    expect(find.text('Proses retur · Rp 18.000'), findsOneWidget);
+    await _tap(tester, 'history-refund-transfer');
+    await _tap(tester, 'history-return-submit');
+    expect(history.returns.single.amount, 18000);
+    expect(history.returns.single.restock, isTrue);
+    expect(find.text('Retur sebagian'), findsWidgets);
+    expect(find.text('RT-PST-K01-261103-0001'), findsOneWidget);
+    // Nota yang sudah diretur tidak bisa di-void.
+    expect(
+      find.text('Nota ini sudah void atau diretur.'),
+      findsOneWidget,
+    );
+
+    await _tap(tester, 'history-reprint');
+    expect(_key('history-reprint-dialog'), findsOneWidget);
+    expect(find.textContaining('CETAK ULANG'), findsOneWidget);
+    await _tap(tester, 'history-reprint-print');
+    expect(printer.prints, hasLength(1));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('kasir tanpa izin void: persetujuan PIN manajer lalu void', (
+    tester,
+  ) async {
+    await pump(tester, role: 'cashier');
+    await _tap(tester, 'history-row-${roti.sale.id.uuid}');
+    // Tanpa sales:return form retur tidak tampil.
+    expect(_key('history-return-form'), findsNothing);
+    await _tap(tester, 'history-void');
+    expect(_key('approval-dialog'), findsOneWidget);
+    await tester.enterText(_input('approval-pin'), '123456');
+    await _tap(tester, 'approval-submit');
+    await _tap(tester, 'history-void-confirm');
+    expect(
+      find.text('Alasan wajib diisi (maks. 120 karakter).'),
+      findsOneWidget,
+    );
+    await tester.enterText(_input('history-void-reason'), 'Salah input');
+    await _tap(tester, 'history-void-confirm');
+    expect(history.voids.single.$3, session.staff.single.id);
+    expect(_key('history-voided-info'), findsOneWidget);
+    expect(find.text('Void'), findsWidgets);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('filter status memuat ulang daftar', (tester) async {
+    await pump(tester);
+    await tester.tap(_key('history-filter-status'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Void').last);
+    await tester.pumpAndSettle();
+    expect(history.filters.last.status, HistoryStatus.voided);
+    expect(_key('history-empty'), findsOneWidget);
+    await _tap(tester, 'history-range-week');
+    expect(history.filters.last.range, HistoryRange.week);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('ekspor Excel dari kepala layar', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'history-export');
+    expect(_key('history-export-saved'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  for (final size in const [Size(360, 740), Size(820, 1180)]) {
+    testWidgets('${size.width.toInt()} px: kartu/tabel lalu halaman rincian', (
+      tester,
+    ) async {
+      await pump(tester, size: size);
+      expect(tester.takeException(), isNull);
+      expect(_key('history-pick'), findsNothing);
+      await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+      expect(_key('history-detail-page'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _tap(tester, 'history-return-all');
+      await _tap(tester, 'history-return-submit');
+      expect(history.returns.single.amount, 36000);
+      await _tap(tester, 'history-detail-back');
+      expect(_key('history-detail-page'), findsNothing);
+      // Daftar dimuat ulang setelah kembali.
+      expect(find.text('Diretur'), findsWidgets);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+}

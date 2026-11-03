@@ -16,6 +16,18 @@ String formatClock(DateTime time, String? timezone) {
   return '${two(local.hour)}.${two(local.minute)}';
 }
 
+/// Tanggal dan jam `dd/MM HH.mm` di zona waktu cabang, untuk daftar yang
+/// mencakup lebih dari satu hari.
+String formatDayClock(DateTime time, String? timezone) =>
+    '${formatDayMonth(time, timezone)} ${formatClock(time, timezone)}';
+
+/// Tanggal `dd/MM` di zona waktu cabang.
+String formatDayMonth(DateTime time, String? timezone) {
+  final local = outletLocalTime(time, timezone);
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${two(local.day)}/${two(local.month)}';
+}
+
 /// Field nominal rupiah: hanya angka, dikelompokkan dengan titik saat
 /// diketik (`200000` → `200.000`). Kursor tetap di akhir.
 class RupiahInputFormatter extends TextInputFormatter {

@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail, sesi kasir, produk, dan stok sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -1033,6 +1033,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Penjualan tunai'**
   String get cashRecapCashSales;
+
+  /// No description provided for @cashRecapCashRefunds.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur tunai'**
+  String get cashRecapCashRefunds;
 
   /// No description provided for @cashRecapInflow.
   ///
@@ -5995,6 +6001,558 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Belum ada area mode denah.'**
   String get diningNoFloorArea;
+
+  /// No description provided for @approvalTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Persetujuan manajer'**
+  String get approvalTitle;
+
+  /// No description provided for @approvalStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyetuju'**
+  String get approvalStaff;
+
+  /// No description provided for @approvalPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN penyetuju'**
+  String get approvalPin;
+
+  /// No description provided for @approvalCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get approvalCancel;
+
+  /// No description provided for @approvalSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Setujui'**
+  String get approvalSubmit;
+
+  /// No description provided for @approvalNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada staf lain yang berizin dan punya PIN di cabang ini.'**
+  String get approvalNone;
+
+  /// No description provided for @approvalNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf ini tidak punya izin untuk tindakan ini.'**
+  String get approvalNotPermitted;
+
+  /// No description provided for @approvalVoidSale.
+  ///
+  /// In id, this message translates to:
+  /// **'Void transaksi butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.'**
+  String get approvalVoidSale;
+
+  /// No description provided for @approvalVoidBill.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan bill butuh izin sales:void. Minta staf yang berizin memasukkan PIN-nya.'**
+  String get approvalVoidBill;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat transaksi'**
+  String get historyTitle;
+
+  /// No description provided for @historyLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat gagal dimuat.'**
+  String get historyLoadFailed;
+
+  /// No description provided for @historySummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{range} · {count} transaksi · {total}'**
+  String historySummary(String range, int count, String total);
+
+  /// No description provided for @historyExport.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor Excel'**
+  String get historyExport;
+
+  /// No description provided for @historyExportSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Excel disimpan di {path}'**
+  String historyExportSaved(String path);
+
+  /// No description provided for @historyExportFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor gagal. Coba lagi.'**
+  String get historyExportFailed;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada transaksi untuk filter ini.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyPickSale.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih nota untuk melihat rincian, retur, cetak ulang, atau void.'**
+  String get historyPickSale;
+
+  /// No description provided for @historyRangeToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Hari ini'**
+  String get historyRangeToday;
+
+  /// No description provided for @historyRangeYesterday.
+  ///
+  /// In id, this message translates to:
+  /// **'Kemarin'**
+  String get historyRangeYesterday;
+
+  /// No description provided for @historyRangeWeek.
+  ///
+  /// In id, this message translates to:
+  /// **'7 hari'**
+  String get historyRangeWeek;
+
+  /// No description provided for @historyFilterStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir'**
+  String get historyFilterStaff;
+
+  /// No description provided for @historyFilterAllStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua kasir'**
+  String get historyFilterAllStaff;
+
+  /// No description provided for @historyFilterMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode'**
+  String get historyFilterMethod;
+
+  /// No description provided for @historyFilterAllMethods.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua metode'**
+  String get historyFilterAllMethods;
+
+  /// No description provided for @historyFilterStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get historyFilterStatus;
+
+  /// No description provided for @historyStatusAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua status'**
+  String get historyStatusAll;
+
+  /// No description provided for @historyStatusCompleted.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get historyStatusCompleted;
+
+  /// No description provided for @historyStatusPartial.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur sebagian'**
+  String get historyStatusPartial;
+
+  /// No description provided for @historyStatusReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'Diretur'**
+  String get historyStatusReturned;
+
+  /// No description provided for @historyStatusReturnedAny.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur'**
+  String get historyStatusReturnedAny;
+
+  /// No description provided for @historyStatusVoided.
+  ///
+  /// In id, this message translates to:
+  /// **'Void'**
+  String get historyStatusVoided;
+
+  /// No description provided for @historyColNumber.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota'**
+  String get historyColNumber;
+
+  /// No description provided for @historyColDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get historyColDate;
+
+  /// No description provided for @historyColTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get historyColTime;
+
+  /// No description provided for @historyColStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir'**
+  String get historyColStaff;
+
+  /// No description provided for @historyColMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode'**
+  String get historyColMethod;
+
+  /// No description provided for @historyColTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get historyColTotal;
+
+  /// No description provided for @historyColReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur'**
+  String get historyColReturned;
+
+  /// No description provided for @historyColNet.
+  ///
+  /// In id, this message translates to:
+  /// **'Bersih'**
+  String get historyColNet;
+
+  /// No description provided for @historyColStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get historyColStatus;
+
+  /// No description provided for @historyBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get historyBack;
+
+  /// No description provided for @historyTotalOriginal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total awal'**
+  String get historyTotalOriginal;
+
+  /// No description provided for @historyReturnedTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah diretur'**
+  String get historyReturnedTotal;
+
+  /// No description provided for @historyNet.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai bersih'**
+  String get historyNet;
+
+  /// No description provided for @historyVoidedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Di-void oleh {name}: {reason}'**
+  String historyVoidedBy(String name, String reason);
+
+  /// No description provided for @historyItems.
+  ///
+  /// In id, this message translates to:
+  /// **'Item'**
+  String get historyItems;
+
+  /// No description provided for @historyItemReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'diretur {qty}'**
+  String historyItemReturned(String qty);
+
+  /// No description provided for @historyReturnAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur semua'**
+  String get historyReturnAll;
+
+  /// No description provided for @historyReturnQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah retur (sisa {left})'**
+  String historyReturnQty(String left);
+
+  /// No description provided for @historyReturns.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur'**
+  String get historyReturns;
+
+  /// No description provided for @historyReturnTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur barang'**
+  String get historyReturnTitle;
+
+  /// No description provided for @historyReturnReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan'**
+  String get historyReturnReason;
+
+  /// No description provided for @historyReasonDamaged.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang rusak'**
+  String get historyReasonDamaged;
+
+  /// No description provided for @historyReasonWrongItem.
+  ///
+  /// In id, this message translates to:
+  /// **'Salah ambil'**
+  String get historyReasonWrongItem;
+
+  /// No description provided for @historyReasonExpired.
+  ///
+  /// In id, this message translates to:
+  /// **'Kedaluwarsa'**
+  String get historyReasonExpired;
+
+  /// No description provided for @historyReasonOther.
+  ///
+  /// In id, this message translates to:
+  /// **'Lainnya'**
+  String get historyReasonOther;
+
+  /// No description provided for @historyReturnNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get historyReturnNote;
+
+  /// No description provided for @historyReturnNoteRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (wajib)'**
+  String get historyReturnNoteRequired;
+
+  /// No description provided for @historyRefundMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali'**
+  String get historyRefundMethod;
+
+  /// No description provided for @historyRefundCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai dari laci'**
+  String get historyRefundCash;
+
+  /// No description provided for @historyRefundTransfer.
+  ///
+  /// In id, this message translates to:
+  /// **'Transfer'**
+  String get historyRefundTransfer;
+
+  /// No description provided for @historyRefundDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Potong piutang'**
+  String get historyRefundDebt;
+
+  /// No description provided for @historyRefundCashNeedsSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali tunai butuh sesi kasir terbuka di perangkat ini.'**
+  String get historyRefundCashNeedsSession;
+
+  /// No description provided for @historyRestock.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembalikan barang ke stok'**
+  String get historyRestock;
+
+  /// No description provided for @historyReturnSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Proses retur · {amount}'**
+  String historyReturnSubmit(String amount);
+
+  /// No description provided for @historyReprint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak ulang struk'**
+  String get historyReprint;
+
+  /// No description provided for @historyClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get historyClose;
+
+  /// No description provided for @historyVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Void transaksi'**
+  String get historyVoid;
+
+  /// No description provided for @historyVoidHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin sales:void (PIN manajer). Void membalik stok dan pembayaran lewat entri baru; data lama tidak dihapus.'**
+  String get historyVoidHint;
+
+  /// No description provided for @historyVoidTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Void nota {number}?'**
+  String historyVoidTitle(String number);
+
+  /// No description provided for @historyVoidBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok dikembalikan dan nota tidak lagi dihitung di rekap sesi.'**
+  String get historyVoidBody;
+
+  /// No description provided for @historyVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan void'**
+  String get historyVoidReason;
+
+  /// No description provided for @historyVoidKeep.
+  ///
+  /// In id, this message translates to:
+  /// **'Jangan void'**
+  String get historyVoidKeep;
+
+  /// No description provided for @historyVoidBlockStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota ini sudah void atau diretur.'**
+  String get historyVoidBlockStatus;
+
+  /// No description provided for @historyVoidBlockReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota yang sudah diretur tidak bisa di-void.'**
+  String get historyVoidBlockReturned;
+
+  /// No description provided for @historyVoidBlockNotToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Void hanya untuk nota hari ini.'**
+  String get historyVoidBlockNotToday;
+
+  /// No description provided for @historyVoidBlockSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.'**
+  String get historyVoidBlockSession;
+
+  /// No description provided for @historyErrReturnEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi jumlah retur minimal satu item.'**
+  String get historyErrReturnEmpty;
+
+  /// No description provided for @historyErrReturnQuantity.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah retur melebihi sisa item.'**
+  String get historyErrReturnQuantity;
+
+  /// No description provided for @historyErrReturnNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan wajib untuk alasan Lainnya (maks. 200 karakter).'**
+  String get historyErrReturnNote;
+
+  /// No description provided for @historyErrReturnStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota ini tidak bisa diretur lagi.'**
+  String get historyErrReturnStatus;
+
+  /// No description provided for @historyErrRefundMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Cara uang kembali ini belum tersedia.'**
+  String get historyErrRefundMethod;
+
+  /// No description provided for @historyErrNoSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir dulu untuk uang kembali tunai.'**
+  String get historyErrNoSession;
+
+  /// No description provided for @historyErrVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan wajib diisi (maks. 120 karakter).'**
+  String get historyErrVoidReason;
+
+  /// No description provided for @historyErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk tindakan ini.'**
+  String get historyErrNotPermitted;
+
+  /// No description provided for @historyErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tidak ditemukan.'**
+  String get historyErrNotFound;
+
+  /// No description provided for @historyErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjadi kesalahan. Coba lagi.'**
+  String get historyErrGeneric;
+
+  /// No description provided for @receiptBannerReprint.
+  ///
+  /// In id, this message translates to:
+  /// **'CETAK ULANG'**
+  String get receiptBannerReprint;
+
+  /// No description provided for @receiptBannerVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'VOID'**
+  String get receiptBannerVoid;
+
+  /// No description provided for @receiptReturned.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur'**
+  String get receiptReturned;
+
+  /// No description provided for @receiptNet.
+  ///
+  /// In id, this message translates to:
+  /// **'Bersih'**
+  String get receiptNet;
+
+  /// No description provided for @stockNoteVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota di-void'**
+  String get stockNoteVoid;
 }
 
 class _AppLocalizationsDelegate

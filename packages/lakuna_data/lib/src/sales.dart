@@ -4,6 +4,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'cash.dart';
+import 'history.dart' show soldStatuses;
 import 'sale_core.dart';
 import 'stock.dart';
 import 'store.dart';
@@ -342,6 +343,8 @@ class SessionSalesSummary {
     this.total = Money.zero,
     this.cash = Money.zero,
     this.nonCash = Money.zero,
+    this.voidCount = 0,
+    this.returnCount = 0,
   });
 
   /// Jumlah nota lunas.
@@ -353,6 +356,12 @@ class SessionSalesSummary {
 
   /// Kartu, transfer, QRIS: tidak masuk laci.
   final Money nonCash;
+
+  /// Nota sesi ini yang di-void (F1-11).
+  final int voidCount;
+
+  /// Dokumen retur yang dicatat di sesi ini (F1-11).
+  final int returnCount;
 }
 
 /// Ringkasan nota lunas di sesi [sessionId].
@@ -380,11 +389,32 @@ Future<SessionSalesSummary> sessionSalesSummary(
     where: (s) =>
         s.tenantId.equals(tenantId) &
         s.cashSessionId.equals(sessionId) &
-        s.status.equals(SaleStatus.completed) &
+        // Nota yang kemudian diretur tetap terjual di sesi ini; retur tunai
+        // dikurangkan terpisah (`cashRefunds`).
+        s.status.inSet(soldStatuses) &
         s.deletedAt.equals(null),
     transaction: transaction,
   );
-  if (sales.isEmpty) return const SessionSalesSummary();
+  final voidCount = await Sale.db.count(
+    session,
+    where: (s) =>
+        s.tenantId.equals(tenantId) &
+        s.cashSessionId.equals(sessionId) &
+        s.status.equals(SaleStatus.voided) &
+        s.deletedAt.equals(null),
+    transaction: transaction,
+  );
+  final returnCount = await SaleReturn.db.count(
+    session,
+    where: (r) =>
+        r.tenantId.equals(tenantId) &
+        r.cashSessionId.equals(sessionId) &
+        r.deletedAt.equals(null),
+    transaction: transaction,
+  );
+  if (sales.isEmpty) {
+    return SessionSalesSummary(voidCount: voidCount, returnCount: returnCount);
+  }
   final payments = await Payment.db.find(
     session,
     where: (p) =>
@@ -408,5 +438,7 @@ Future<SessionSalesSummary> sessionSalesSummary(
     total: Money.sum(sales.map((s) => Money(s.total))),
     cash: cash,
     nonCash: nonCash,
+    voidCount: voidCount,
+    returnCount: returnCount,
   );
 }

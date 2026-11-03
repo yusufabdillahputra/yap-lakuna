@@ -35,6 +35,7 @@ void main() {
   late FakeDiningRepository dining;
   late FakeCashierRepository cashier;
   late FakeReceiptPrinter printer;
+  late FakeSessionRepository session;
 
   Future<void> pump(
     WidgetTester tester, {
@@ -59,7 +60,8 @@ void main() {
       dining: dining,
       cashier: cashier,
       receiptPrinter: printer,
-      session: FakeSessionRepository()..current = sampleStaff(role: role),
+      session: session = FakeSessionRepository()
+        ..current = sampleStaff(name: 'Dimas', role: role),
     );
   }
 
@@ -178,16 +180,36 @@ void main() {
     expect(_key('dining-select-hint'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
-  testWidgets('pelayan: tanpa tombol batal, bayar mati', (tester) async {
+  testWidgets('pelayan: batalkan bill lewat persetujuan manajer, bayar mati', (
+    tester,
+  ) async {
     await pump(tester, role: 'waiter');
     await _tap(tester, 'dining-table-M3');
     await _tap(tester, 'dining-guests-open');
     await addMenu(tester, ['Es Teh Manis']);
-    expect(_key('dining-void'), findsNothing);
     expect(
       find.text('Pembayaran oleh kasir (butuh izin penjualan).'),
       findsOneWidget,
     );
+    await _tap(tester, 'dining-void');
+    expect(_key('approval-dialog'), findsOneWidget);
+    await tester.enterText(_input('approval-pin'), '000000');
+    await _tap(tester, 'approval-submit');
+    expect(find.text('PIN salah. Sisa 4 percobaan.'), findsOneWidget);
+    // Kolom PIN dikosongkan setelah PIN ditolak.
+    expect(
+      tester.widget<EditableText>(_input('approval-pin')).controller.text,
+      isEmpty,
+    );
+    await tester.enterText(_input('approval-pin'), '123456');
+    await _tap(tester, 'approval-submit');
+    expect(_key('approval-dialog'), findsNothing);
+    await tester.enterText(_input('dining-void-reason'), 'Tamu pergi');
+    await _tap(tester, 'dining-void-confirm');
+    final owner = session.staff.single;
+    expect(dining.voided.values, ['Tamu pergi']);
+    expect(dining.voidApprovers.values, [owner.id]);
+    expect(session.current!.name, 'Dimas');
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   for (final size in const [Size(360, 740), Size(820, 1180)]) {

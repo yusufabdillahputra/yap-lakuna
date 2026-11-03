@@ -8,6 +8,7 @@ import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
+import '../data/repositories/history_repository.dart';
 import '../data/repositories/master_data_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
@@ -16,6 +17,7 @@ import '../data/repositories/stock_repository.dart';
 import '../data/repositories/store_repository.dart';
 import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
+import '../data/services/spreadsheet_exporter.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
@@ -25,6 +27,7 @@ import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
 import '../ui/dining/split_bill_view.dart';
 import '../ui/floor_plan/floor_plan_view.dart';
+import '../ui/history/history_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -53,10 +56,12 @@ GoRouter createRouter({
   required CashierRepository cashier,
   required DiningRepository dining,
   required DiningAdminRepository diningAdmin,
+  required HistoryRepository history,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
+  SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -169,6 +174,7 @@ GoRouter createRouter({
               key: ValueKey('tables-${state.uri.queryParameters['bill']}'),
               repository: dining,
               printer: receiptPrinter,
+              session: session,
               initialBill: state.uri.queryParameters['bill'],
               onPay: (id) => context.go(Routes.cashierBill(id.uuid)),
               onSplit: (id) => context.go(Routes.tablesSplit(id.uuid)),
@@ -213,6 +219,39 @@ GoRouter createRouter({
           ),
           // Rute saudara (bukan bersarang) supaya kembali ke daftar
           // membuat layar baru yang memuat ulang katalog.
+          GoRoute(
+            path: Routes.history,
+            builder: (context, state) => HistoryScreen(
+              repository: history,
+              session: session,
+              printer: receiptPrinter,
+              exporter: exporter,
+              onOpenSale: (id) =>
+                  context.push<void>(Routes.historySale(id.uuid)),
+            ),
+          ),
+          GoRoute(
+            path: '${Routes.history}/:sale',
+            // Tautan rusak kembali ke daftar riwayat.
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['sale']) == null
+                ? Routes.history
+                : null,
+            builder: (context, state) {
+              final sale = state.pathParameters['sale']!;
+              return HistoryScreen(
+                key: ValueKey('history-$sale'),
+                repository: history,
+                session: session,
+                printer: receiptPrinter,
+                exporter: exporter,
+                initialSale: UuidValue.fromString(sale),
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(Routes.history),
+              );
+            },
+          ),
           GoRoute(
             path: Routes.products,
             builder: (context, state) => ProductListScreen(repository: catalog),

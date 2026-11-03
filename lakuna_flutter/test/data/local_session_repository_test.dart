@@ -6,6 +6,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/local_session_repository.dart';
 import 'package:lakuna_flutter/data/repositories/local_store_repository.dart';
+import 'package:lakuna_flutter/data/repositories/repository_errors.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -162,5 +163,108 @@ void main() {
     session.logout();
     expect(session.current, isNull);
     expect(notified, 2);
+  });
+
+  group('persetujuan PIN (F1-11)', () {
+    Future<StaffMember> addCashier() {
+      final actor = ctx.owner.id;
+      return store.write(actor: actor, (w) async {
+        final s = await w.stamp();
+        final staff = await w.insert(
+          StaffMember(
+            tenantId: ctx.tenant.id,
+            name: 'Sari',
+            pinHash: const CredentialHasher.forTesting().hash('654321'),
+            isActive: true,
+            createdBy: actor,
+            updatedBy: actor,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+        await w.insert(
+          OutletMember(
+            tenantId: ctx.tenant.id,
+            outletId: ctx.outlet.id,
+            staffMemberId: staff.id,
+            roleName: DefaultRole.cashier.key,
+            createdBy: actor,
+            updatedBy: actor,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+        return staff;
+      });
+    }
+
+    test('PIN benar memberi profil penyetuju tanpa mengganti sesi', () async {
+      final cashier = await addCashier();
+      await session.loginWithPin(cashier.id, '654321');
+      var notified = 0;
+      session.addListener(() => notified++);
+      final result = await session.verifyApprover(
+        ctx.owner.id,
+        '123456',
+        Permission.salesVoid,
+      );
+      expect((result as Ok<StaffProfile>).value.id, ctx.owner.id);
+      expect(session.current!.id, cashier.id);
+      expect(notified, 0);
+    });
+
+    test('PIN salah memakai kunci yang sama dengan login', () async {
+      for (var left = 4; left >= 1; left--) {
+        final r = await session.verifyApprover(
+          ctx.owner.id,
+          '000000',
+          Permission.salesVoid,
+        );
+        expect(((r as Error).error as WrongPin).remainingAttempts, left);
+      }
+      final locked = await session.verifyApprover(
+        ctx.owner.id,
+        '000000',
+        Permission.salesVoid,
+      );
+      expect((locked as Error).error, isA<CredentialsLocked>());
+      expect(session.pinRetryAfter(ctx.owner.id), isNotNull);
+    });
+
+    test('staf tanpa izin ditolak walau PIN benar', () async {
+      final cashier = await addCashier();
+      final result = await session.verifyApprover(
+        cashier.id,
+        '654321',
+        Permission.salesVoid,
+      );
+      expect((result as Error).error, isA<NotPermitted>());
+      expect(session.hasApproval(cashier.id, Permission.salesVoid), isFalse);
+    });
+
+    test('persetujuan sekali pakai, per izin, dan kedaluwarsa', () async {
+      var now = DateTime.utc(2026, 11, 3, 9);
+      session.approvalClock = () => now;
+      final owner = ctx.owner.id;
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+      await session.verifyApprover(owner, '000000', Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isTrue);
+      expect(session.hasApproval(owner, Permission.salesReturn), isFalse);
+      session.consumeApproval(owner, Permission.salesVoid);
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      now = now.add(SessionRepository.approvalTtl + const Duration(seconds: 1));
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+
+      await session.verifyApprover(owner, '123456', Permission.salesVoid);
+      session.logout();
+      expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
+    });
   });
 }

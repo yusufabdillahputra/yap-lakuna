@@ -13,6 +13,7 @@ class MenuEntry {
     required this.label,
     required this.path,
     this.permission,
+    this.orPermission,
   });
 
   final String key;
@@ -24,8 +25,14 @@ class MenuEntry {
   /// staf). Sama dengan pemetaan modul di Storeku.
   final Permission? permission;
 
+  /// Izin pengganti [permission] (mis. Riwayat: `sales:create` atau
+  /// `reports:view`).
+  final Permission? orPermission;
+
   bool allows(Set<Permission> permissions) =>
-      permission == null || permissions.contains(permission);
+      permission == null ||
+      permissions.contains(permission) ||
+      (orPermission != null && permissions.contains(orPermission));
 }
 
 /// Kelompok menu di sidebar.
@@ -86,11 +93,13 @@ final List<MenuGroup> appMenu = [
         path: Routes.cashSession,
         permission: Permission.cashSessionOpen,
       ),
-      _module(
-        'history',
-        TablerIcons.receipt,
-        (l) => l.menuHistory,
-        Permission.salesCreate,
+      MenuEntry(
+        key: 'history',
+        icon: TablerIcons.receipt,
+        label: (l) => l.menuHistory,
+        path: Routes.history,
+        permission: Permission.salesCreate,
+        orPermission: Permission.reportsView,
       ),
     ],
   ),

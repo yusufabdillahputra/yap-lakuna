@@ -1,0 +1,7 @@
+### Cara uang retur dikembalikan (F1-11). `debt` (potong piutang) aktif di F1-13.
+enum: RefundMethod
+serialized: byName
+values:
+  - cash
+  - transfer
+  - debt

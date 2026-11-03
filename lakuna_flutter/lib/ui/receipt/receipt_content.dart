@@ -40,7 +40,8 @@ String receiptDate(DateTime local) {
 List<String> _footer(AppLocalizations l10n, ReceiptConfig config) =>
     config.footerLines ?? [l10n.receiptThanks];
 
-/// Isi struk nota [result] (F1-06, 1.12).
+/// Isi struk nota [result] (F1-06, 1.12). Cetak ulang riwayat (F1-11)
+/// memberi [banner] dan nilai [returned].
 ReceiptContent saleReceiptContent(
   AppLocalizations l10n, {
   required CheckoutResult result,
@@ -51,6 +52,7 @@ ReceiptContent saleReceiptContent(
   required ReceiptConfig config,
   String? banner,
   String? orderLabel,
+  int returned = 0,
 }) {
   final sale = result.sale;
   final fnbCharges = sale.serviceAmount != 0 || sale.taxAmount != 0;
@@ -125,6 +127,15 @@ ReceiptContent saleReceiptContent(
         ),
       if (result.payments.any((p) => p.method == PaymentMethod.cash))
         ReceiptPair(l10n.receiptChange, receiptAmount(l10n, sale.changeAmount)),
+      // Cetak ulang nota yang diretur (F1-11): nilai retur dan bersih.
+      if (returned != 0) ...[
+        ReceiptPair(l10n.receiptReturned, '-${receiptAmount(l10n, returned)}'),
+        ReceiptPair(
+          l10n.receiptNet,
+          receiptAmount(l10n, sale.total - returned),
+          bold: true,
+        ),
+      ],
     ],
     footer: _footer(l10n, config),
   );

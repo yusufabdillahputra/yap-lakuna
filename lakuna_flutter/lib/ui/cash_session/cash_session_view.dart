@@ -949,7 +949,12 @@ class _Stats extends StatelessWidget {
                   formatMoney(context, sales.total),
                 ),
               ),
-              Expanded(child: stat(l10n.cashStatVoids, '0')),
+              Expanded(
+                child: stat(
+                  l10n.cashStatVoids,
+                  '${sales.voidCount + sales.returnCount}',
+                ),
+              ),
             ],
           ),
         );
@@ -1011,6 +1016,12 @@ class _Recap extends StatelessWidget {
             l10n.cashRecapCashSales,
             '+${formatMoney(context, drawer.cashSales)}',
           ),
+          if (drawer.cashRefunds != Money.zero)
+            line(
+              l10n.cashRecapCashRefunds,
+              '−${formatMoney(context, drawer.cashRefunds)}',
+              key: const ValueKey('cash-recap-refunds'),
+            ),
           line(
             l10n.cashRecapInflow,
             '+${formatMoney(context, drawer.inflow)}',

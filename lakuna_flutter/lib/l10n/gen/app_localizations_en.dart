@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.';
+      'Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -516,6 +516,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashRecapCashSales => 'Cash sales';
+
+  @override
+  String get cashRecapCashRefunds => 'Cash refunds';
 
   @override
   String get cashRecapInflow => 'Other cash in';
@@ -3509,4 +3512,311 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diningNoFloorArea => 'No area uses a floor plan yet.';
+
+  @override
+  String get approvalTitle => 'Manager approval';
+
+  @override
+  String get approvalStaff => 'Approver';
+
+  @override
+  String get approvalPin => 'Approver PIN';
+
+  @override
+  String get approvalCancel => 'Cancel';
+
+  @override
+  String get approvalSubmit => 'Approve';
+
+  @override
+  String get approvalNone =>
+      'No other staff with this permission and a PIN at this branch.';
+
+  @override
+  String get approvalNotPermitted =>
+      'This staff member is not allowed to do this.';
+
+  @override
+  String get approvalVoidSale =>
+      'Voiding a sale needs the sales:void permission. Ask an authorised staff member to enter their PIN.';
+
+  @override
+  String get approvalVoidBill =>
+      'Cancelling a bill needs the sales:void permission. Ask an authorised staff member to enter their PIN.';
+
+  @override
+  String get historyTitle => 'Sales history';
+
+  @override
+  String get historyLoadFailed => 'Could not load the history.';
+
+  @override
+  String historySummary(String range, int count, String total) {
+    return '$range · $count sales · $total';
+  }
+
+  @override
+  String get historyExport => 'Export to Excel';
+
+  @override
+  String historyExportSaved(String path) {
+    return 'Excel file saved to $path';
+  }
+
+  @override
+  String get historyExportFailed => 'Export failed. Try again.';
+
+  @override
+  String get historyEmpty => 'No sales match this filter.';
+
+  @override
+  String get historyPickSale =>
+      'Pick a sale to see its details, return items, reprint or void it.';
+
+  @override
+  String get historyRangeToday => 'Today';
+
+  @override
+  String get historyRangeYesterday => 'Yesterday';
+
+  @override
+  String get historyRangeWeek => '7 days';
+
+  @override
+  String get historyFilterStaff => 'Cashier';
+
+  @override
+  String get historyFilterAllStaff => 'All cashiers';
+
+  @override
+  String get historyFilterMethod => 'Method';
+
+  @override
+  String get historyFilterAllMethods => 'All methods';
+
+  @override
+  String get historyFilterStatus => 'Status';
+
+  @override
+  String get historyStatusAll => 'All statuses';
+
+  @override
+  String get historyStatusCompleted => 'Completed';
+
+  @override
+  String get historyStatusPartial => 'Partly returned';
+
+  @override
+  String get historyStatusReturned => 'Returned';
+
+  @override
+  String get historyStatusReturnedAny => 'Returned';
+
+  @override
+  String get historyStatusVoided => 'Voided';
+
+  @override
+  String get historyColNumber => 'Receipt';
+
+  @override
+  String get historyColDate => 'Date';
+
+  @override
+  String get historyColTime => 'Time';
+
+  @override
+  String get historyColStaff => 'Cashier';
+
+  @override
+  String get historyColMethod => 'Method';
+
+  @override
+  String get historyColTotal => 'Total';
+
+  @override
+  String get historyColReturned => 'Returned';
+
+  @override
+  String get historyColNet => 'Net';
+
+  @override
+  String get historyColStatus => 'Status';
+
+  @override
+  String get historyBack => 'Back';
+
+  @override
+  String get historyTotalOriginal => 'Original total';
+
+  @override
+  String get historyReturnedTotal => 'Returned';
+
+  @override
+  String get historyNet => 'Net value';
+
+  @override
+  String historyVoidedBy(String name, String reason) {
+    return 'Voided by $name: $reason';
+  }
+
+  @override
+  String get historyItems => 'Items';
+
+  @override
+  String historyItemReturned(String qty) {
+    return '$qty returned';
+  }
+
+  @override
+  String get historyReturnAll => 'Return all';
+
+  @override
+  String historyReturnQty(String left) {
+    return 'Return quantity ($left left)';
+  }
+
+  @override
+  String get historyReturns => 'Returns';
+
+  @override
+  String get historyReturnTitle => 'Return items';
+
+  @override
+  String get historyReturnReason => 'Reason';
+
+  @override
+  String get historyReasonDamaged => 'Damaged';
+
+  @override
+  String get historyReasonWrongItem => 'Wrong item';
+
+  @override
+  String get historyReasonExpired => 'Expired';
+
+  @override
+  String get historyReasonOther => 'Other';
+
+  @override
+  String get historyReturnNote => 'Note (optional)';
+
+  @override
+  String get historyReturnNoteRequired => 'Note (required)';
+
+  @override
+  String get historyRefundMethod => 'Refund';
+
+  @override
+  String get historyRefundCash => 'Cash from drawer';
+
+  @override
+  String get historyRefundTransfer => 'Transfer';
+
+  @override
+  String get historyRefundDebt => 'Deduct from credit';
+
+  @override
+  String get historyRefundCashNeedsSession =>
+      'Cash refunds need an open cash session on this device.';
+
+  @override
+  String get historyRestock => 'Put items back in stock';
+
+  @override
+  String historyReturnSubmit(String amount) {
+    return 'Process return · $amount';
+  }
+
+  @override
+  String get historyReprint => 'Reprint receipt';
+
+  @override
+  String get historyClose => 'Close';
+
+  @override
+  String get historyVoid => 'Void sale';
+
+  @override
+  String get historyVoidHint =>
+      'Needs the sales:void permission (manager PIN). Voiding reverses stock and payment with new entries; old data is kept.';
+
+  @override
+  String historyVoidTitle(String number) {
+    return 'Void receipt $number?';
+  }
+
+  @override
+  String get historyVoidBody =>
+      'Stock is restored and the sale no longer counts in the session recap.';
+
+  @override
+  String get historyVoidReason => 'Void reason';
+
+  @override
+  String get historyVoidKeep => 'Keep sale';
+
+  @override
+  String get historyVoidBlockStatus =>
+      'This sale is already voided or returned.';
+
+  @override
+  String get historyVoidBlockReturned =>
+      'A sale with returns cannot be voided.';
+
+  @override
+  String get historyVoidBlockNotToday => 'Only today\'s sales can be voided.';
+
+  @override
+  String get historyVoidBlockSession =>
+      'Only sales in this device\'s open cash session can be voided.';
+
+  @override
+  String get historyErrReturnEmpty =>
+      'Enter a return quantity for at least one item.';
+
+  @override
+  String get historyErrReturnQuantity =>
+      'Return quantity exceeds what is left.';
+
+  @override
+  String get historyErrReturnNote =>
+      'A note is required for Other (max 200 characters).';
+
+  @override
+  String get historyErrReturnStatus => 'This sale can no longer be returned.';
+
+  @override
+  String get historyErrRefundMethod =>
+      'This refund method is not available yet.';
+
+  @override
+  String get historyErrNoSession =>
+      'Open a cash session first for cash refunds.';
+
+  @override
+  String get historyErrVoidReason =>
+      'A reason is required (max 120 characters).';
+
+  @override
+  String get historyErrNotPermitted => 'You are not allowed to do this.';
+
+  @override
+  String get historyErrNotFound => 'Receipt not found.';
+
+  @override
+  String get historyErrGeneric => 'Something went wrong. Try again.';
+
+  @override
+  String get receiptBannerReprint => 'REPRINT';
+
+  @override
+  String get receiptBannerVoid => 'VOID';
+
+  @override
+  String get receiptReturned => 'Returned';
+
+  @override
+  String get receiptNet => 'Net';
+
+  @override
+  String get stockNoteVoid => 'Sale voided';
 }

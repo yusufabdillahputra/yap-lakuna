@@ -1,6 +1,7 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/repository_errors.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -98,6 +99,35 @@ class FakeSessionRepository extends SessionRepository {
     return Result.error(wrong(guard.remainingAttempts(key)));
   }
 
+  /// Percobaan persetujuan (staf, PIN, izin), untuk tes.
+  final approvals = <(UuidValue, String, Permission)>[];
+
+  @override
+  Future<Result<StaffProfile>> verifyApprover(
+    UuidValue staffId,
+    String pin,
+    Permission permission,
+  ) async {
+    approvals.add((staffId, pin, permission));
+    final key = pinGuardKey(staffId);
+    if (guard.retryAfter(key) case final wait?) {
+      return Result.error(CredentialsLocked(wait));
+    }
+    final s = staff.where((s) => s.id == staffId).firstOrNull;
+    if (s == null || !s.hasPin) return const Result.error(StaffUnavailable());
+    if (pin != this.pin) {
+      guard.recordFailure(key);
+      if (guard.retryAfter(key) case final wait?) {
+        return Result.error(CredentialsLocked(wait));
+      }
+      return Result.error(WrongPin(guard.remainingAttempts(key)));
+    }
+    guard.recordSuccess(key);
+    if (!s.can(permission)) return Result.error(NotPermitted(permission));
+    grantApproval(staffId, permission);
+    return Result.ok(s);
+  }
+
   @override
   Duration? pinRetryAfter(UuidValue staffId) =>
       guard.retryAfter(pinGuardKey(staffId));
@@ -114,6 +144,7 @@ class FakeSessionRepository extends SessionRepository {
 
   @override
   void logout() {
+    clearApprovals();
     current = null;
     notifyListeners();
   }

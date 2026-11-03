@@ -1,7 +1,7 @@
 # F1-10 · Meja F&B, open bill, modifier, split bill
 
 - **Fase:** 1
-- **Status:** Berjalan: v0.11.0 (grid, open bill, take away, pajak & service) dirilis; modifier, split bill, denah menyusul
+- **Status:** Dirilis: v0.11.0 (grid, open bill, take away, pajak & service), v0.12.0 (modifier), v0.13.0 (split bill), v0.14.0 (denah)
 - **Layar desain:** 1.7 *Meja & open bill · mode grid* (`Meja-FnB-Tablet`),
   1.7b *Mode denah* (`F1-Meja-Denah`), 1.7c *Unggah denah*
   (`F1-Upload-Denah`), 1.7d *Atur denah* (`F1-Atur-Denah`), 1.7e *Tiket
