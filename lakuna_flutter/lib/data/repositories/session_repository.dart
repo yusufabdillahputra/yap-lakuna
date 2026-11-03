@@ -90,9 +90,21 @@ abstract class SessionRepository extends ChangeNotifier {
   /// [WrongCredentials] atau [CredentialsLocked].
   Future<Result<StaffProfile>> loginWithPassword(String email, String password);
 
+  /// Sisa kunci PIN staf [staffId], atau `null` bila tidak dikunci.
+  Duration? pinRetryAfter(UuidValue staffId);
+
+  /// Sisa kunci login pemilik dengan [email], atau `null`.
+  Duration? passwordRetryAfter(String email);
+
   /// Memulai sesi pemilik tanpa PIN, tepat setelah setup toko (F1-01).
   void startOwnerSession(StoreContext context);
 
   /// Mengakhiri sesi (*Ganti kasir*).
   void logout();
 }
+
+/// Kunci [PinGuard] untuk PIN staf [staffId].
+String pinGuardKey(UuidValue staffId) => 'pin:${staffId.uuid}';
+
+/// Kunci [PinGuard] untuk login pemilik dengan [email].
+String passwordGuardKey(String email) => 'email:${email.trim().toLowerCase()}';

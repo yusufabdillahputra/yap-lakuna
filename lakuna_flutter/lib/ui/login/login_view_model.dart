@@ -55,17 +55,24 @@ class LoginViewModel extends ChangeNotifier {
 
   bool get locked => lockSecondsLeft != null;
 
-  /// Memilih staf untuk mengetik PIN. Staf tanpa PIN diabaikan.
+  /// Pilihan tidak boleh berubah selama satu percobaan masih diperiksa, agar
+  /// hasilnya tidak mendarat di staf atau formulir lain.
+  bool get _busy => submitPin.running || submitPassword.running;
+
+  /// Memilih staf untuk mengetik PIN. Staf tanpa PIN diabaikan. Bila PIN staf
+  /// itu masih dikunci, hitung mundurnya langsung tampil.
   void select(StaffProfile staff) {
-    if (!staff.hasPin) return;
+    if (!staff.hasPin || _busy) return;
     _selected = staff;
     _passwordMode = false;
     _resetAttempt();
+    _rearm(_session.pinRetryAfter(staff.id));
     notifyListeners();
   }
 
   /// Kembali ke daftar staf (mobile).
   void clearSelection() {
+    if (_busy) return;
     _selected = null;
     _resetAttempt();
     notifyListeners();
@@ -99,20 +106,31 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   void showPasswordForm() {
+    if (_busy) return;
     _passwordMode = true;
     _resetAttempt();
+    if (_email.trim().isNotEmpty) {
+      _rearm(_session.passwordRetryAfter(_email));
+    }
     notifyListeners();
   }
 
   void showPinForm() {
+    if (_busy) return;
     _passwordMode = false;
     _resetAttempt();
+    if (_selected case final staff?) {
+      _rearm(_session.pinRetryAfter(staff.id));
+    }
     notifyListeners();
   }
 
   void setEmail(String value) {
     _email = value;
     if (submitPassword.error) submitPassword.clearResult();
+    // Kunci berlaku per email: tampilkan atau lepas sesuai email yang diketik.
+    _resetLock();
+    _rearm(_session.passwordRetryAfter(value));
     notifyListeners();
   }
 
@@ -129,7 +147,10 @@ class LoginViewModel extends ChangeNotifier {
       final selectedId = _selected?.id;
       _selected = value.where((s) => s.id == selectedId).firstOrNull;
       final withPin = value.where((s) => s.hasPin).toList();
-      if (_selected == null && withPin.length == 1) _selected = withPin.single;
+      if (_selected == null && withPin.length == 1) {
+        _selected = withPin.single;
+        _rearm(_session.pinRetryAfter(withPin.single.id));
+      }
       notifyListeners();
     }
     return result;
@@ -173,10 +194,19 @@ class LoginViewModel extends ChangeNotifier {
     });
   }
 
+  void _rearm(Duration? retryAfter) {
+    if (retryAfter != null) _lock(retryAfter);
+  }
+
+  void _resetLock() {
+    _ticker?.cancel();
+    _ticker = null;
+    _lockedUntil = null;
+  }
+
   void _resetAttempt() {
     _pin = '';
-    _ticker?.cancel();
-    _lockedUntil = null;
+    _resetLock();
     if (submitPin.result != null) submitPin.clearResult();
     if (submitPassword.result != null) submitPassword.clearResult();
   }

@@ -109,6 +109,7 @@ Future<OutletStaff?> _withRole(
   final member = await OutletMember.db.findFirstRow(
     store.session,
     where: (m) =>
+        m.tenantId.equals(staff.tenantId) &
         m.staffMemberId.equals(staff.id) &
         m.outletId.equals(outletId) &
         m.deletedAt.equals(null),

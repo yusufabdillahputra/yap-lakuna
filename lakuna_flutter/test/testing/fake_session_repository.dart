@@ -53,7 +53,7 @@ class FakeSessionRepository extends SessionRepository {
 
   @override
   Future<Result<StaffProfile>> loginWithPin(UuidValue staffId, String pin) =>
-      _attempt('pin:$staffId', () {
+      _attempt(pinGuardKey(staffId), () {
         pinAttempts.add(pin);
         final s = staff.where((s) => s.id == staffId).firstOrNull;
         if (s == null || !s.hasPin) throw const StaffUnavailable();
@@ -64,7 +64,7 @@ class FakeSessionRepository extends SessionRepository {
   Future<Result<StaffProfile>> loginWithPassword(
     String email,
     String password,
-  ) => _attempt('email:${email.trim().toLowerCase()}', () {
+  ) => _attempt(passwordGuardKey(email), () {
     if (email.trim().toLowerCase() != this.email || password != this.password) {
       return null;
     }
@@ -97,6 +97,14 @@ class FakeSessionRepository extends SessionRepository {
     }
     return Result.error(wrong(guard.remainingAttempts(key)));
   }
+
+  @override
+  Duration? pinRetryAfter(UuidValue staffId) =>
+      guard.retryAfter(pinGuardKey(staffId));
+
+  @override
+  Duration? passwordRetryAfter(String email) =>
+      guard.retryAfter(passwordGuardKey(email));
 
   @override
   void startOwnerSession(StoreContext context) {

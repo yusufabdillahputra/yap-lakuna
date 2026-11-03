@@ -104,7 +104,7 @@
   "loginBackToStaff": "Choose someone else",
   "loginKeypadCancel": "Cancel",
   "loginKeypadDelete": "Delete one digit",
-  "loginWrongPin": "Wrong PIN. {count} attempts left.",
+  "loginWrongPin": "{count, plural, =1{Wrong PIN. 1 attempt left.} other{Wrong PIN. {count} attempts left.}}",
   "loginLocked": "Too many attempts. Try again in {seconds} s.",
   "loginWrongCredentials": "Wrong email or password.",
   "loginStaffUnavailable": "This staff member is no longer active at this branch.",

@@ -24,6 +24,15 @@ class LocalSessionRepository extends SessionRepository {
   final PinGuard _guard;
   StaffProfile? _current;
 
+  /// Percobaan yang sedang berjalan per kunci [PinGuard]. Percobaan untuk
+  /// kunci yang sama diantrekan agar pemeriksaan kunci dan pencatatan gagal
+  /// tidak bisa disalip percobaan lain (mis. dialog persetujuan manajer).
+  final _pending = <String, Future<void>>{};
+
+  /// Hash tiruan untuk email tak dikenal, agar waktu responsnya setara dengan
+  /// email terdaftar.
+  Future<String>? _dummyHash;
+
   @override
   StaffProfile? get current => _current;
 
@@ -44,13 +53,24 @@ class LocalSessionRepository extends SessionRepository {
   }
 
   @override
-  Future<Result<StaffProfile>> loginWithPin(
+  Duration? pinRetryAfter(UuidValue staffId) =>
+      _guard.retryAfter(pinGuardKey(staffId));
+
+  @override
+  Duration? passwordRetryAfter(String email) =>
+      _guard.retryAfter(passwordGuardKey(email));
+
+  @override
+  Future<Result<StaffProfile>> loginWithPin(UuidValue staffId, String pin) =>
+      _serialized(pinGuardKey(staffId), () => _loginWithPin(staffId, pin));
+
+  Future<Result<StaffProfile>> _loginWithPin(
     UuidValue staffId,
     String pin,
   ) async {
     final ctx = _stores.current;
     if (ctx == null) return const Result.error(StaffUnavailable());
-    final key = 'pin:${staffId.uuid}';
+    final key = pinGuardKey(staffId);
     if (_guard.retryAfter(key) case final wait?) {
       return Result.error(CredentialsLocked(wait));
     }
@@ -80,10 +100,18 @@ class LocalSessionRepository extends SessionRepository {
   Future<Result<StaffProfile>> loginWithPassword(
     String email,
     String password,
+  ) => _serialized(
+    passwordGuardKey(email),
+    () => _loginWithPassword(email, password),
+  );
+
+  Future<Result<StaffProfile>> _loginWithPassword(
+    String email,
+    String password,
   ) async {
     final ctx = _stores.current;
     if (ctx == null) return const Result.error(WrongCredentials());
-    final key = 'email:${email.trim().toLowerCase()}';
+    final key = passwordGuardKey(email);
     if (_guard.retryAfter(key) case final wait?) {
       return Result.error(CredentialsLocked(wait));
     }
@@ -95,10 +123,11 @@ class LocalSessionRepository extends SessionRepository {
         email: email,
       );
       final hash = owner?.staff.passwordHash;
-      if (owner != null &&
-          hash != null &&
-          hash.isNotEmpty &&
-          await _verify(password, hash)) {
+      if (owner == null || hash == null || hash.isEmpty) {
+        // Tetap menjalankan Argon2id agar waktu respons tidak membocorkan
+        // email mana yang terdaftar.
+        await _verify(password, await (_dummyHash ??= _hashDummy()));
+      } else if (await _verify(password, hash)) {
         return _signIn(key, owner);
       }
       // Email tidak dikenal diperlakukan sama dengan kata sandi salah agar
@@ -121,7 +150,7 @@ class LocalSessionRepository extends SessionRepository {
       name: owner.name,
       roleKey: DefaultRole.owner.key,
       isOwner: true,
-      hasPin: owner.pinHash != null,
+      hasPin: owner.pinHash?.isNotEmpty ?? false,
       permissions: permissionsForRole(DefaultRole.owner.key, isOwner: true),
     );
     notifyListeners();
@@ -140,6 +169,23 @@ class LocalSessionRepository extends SessionRepository {
     _current = profile;
     notifyListeners();
     return Result.ok(profile);
+  }
+
+  /// Menjalankan [body] setelah percobaan sebelumnya untuk [key] selesai.
+  Future<T> _serialized<T>(String key, Future<T> Function() body) {
+    final previous = _pending[key] ?? Future<void>.value();
+    final result = previous.then((_) => body());
+    final done = result.then<void>((_) {}, onError: (Object _) {});
+    _pending[key] = done;
+    done.whenComplete(() {
+      if (identical(_pending[key], done)) _pending.remove(key);
+    });
+    return result;
+  }
+
+  Future<String> _hashDummy() {
+    final hasher = _hasher;
+    return Isolate.run(() => hasher.hash('lakuna-email-tidak-dikenal'));
   }
 
   /// Argon2id sengaja lambat; verifikasi di isolate agar UI tetap halus.

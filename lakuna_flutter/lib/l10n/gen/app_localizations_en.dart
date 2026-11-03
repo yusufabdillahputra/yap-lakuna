@@ -340,7 +340,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String loginWrongPin(int count) {
-    return 'Wrong PIN. $count attempts left.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wrong PIN. $count attempts left.',
+      one: 'Wrong PIN. 1 attempt left.',
+    );
+    return '$_temp0';
   }
 
   @override

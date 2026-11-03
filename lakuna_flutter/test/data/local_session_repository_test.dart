@@ -101,6 +101,30 @@ void main() {
     );
   });
 
+  test('percobaan bersamaan diperiksa berurutan per staf', () async {
+    // Tanpa antrean, PIN benar yang dikirim bersamaan lolos sebelum
+    // kegagalan ke-5 tercatat.
+    final results = await Future.wait([
+      for (var i = 0; i < 5; i++) session.loginWithPin(ctx.owner.id, '000000'),
+      session.loginWithPin(ctx.owner.id, '123456'),
+    ]);
+    expect((results.last as Error).error, isA<CredentialsLocked>());
+    expect(session.current, isNull);
+  });
+
+  test('sisa kunci bisa dibaca per staf dan per email', () async {
+    expect(session.pinRetryAfter(ctx.owner.id), isNull);
+    for (var i = 0; i < 5; i++) {
+      await session.loginWithPin(ctx.owner.id, '000000');
+      await session.loginWithPassword(' Ani@Contoh.id', 'salah12345');
+    }
+    expect(session.pinRetryAfter(ctx.owner.id), const Duration(seconds: 60));
+    expect(
+      session.passwordRetryAfter('ani@contoh.id'),
+      const Duration(seconds: 60),
+    );
+  });
+
   test('staf yang tidak dikenal tidak bisa login', () async {
     final r = await session.loginWithPin(
       UuidValue.fromString(newId()),

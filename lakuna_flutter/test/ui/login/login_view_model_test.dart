@@ -112,6 +112,60 @@ void main() {
     expect(vm.lockSecondsLeft, isNull);
   });
 
+  test('kunci tetap berlaku saat kembali ke staf yang dikunci', () async {
+    await vm.load.execute();
+    vm.select(sari);
+    for (var i = 0; i < 5; i++) {
+      await typePin('000000');
+    }
+    vm.select(owner);
+    expect(vm.lockSecondsLeft, isNull);
+    now = now.add(const Duration(seconds: 10));
+    vm.select(sari);
+    expect(vm.lockSecondsLeft, 50);
+    vm.addDigit(1);
+    expect(vm.pin, isEmpty);
+
+    vm.showPasswordForm();
+    vm.showPinForm();
+    expect(vm.lockSecondsLeft, 50);
+  });
+
+  test('email yang dikunci langsung terlihat saat diketik', () async {
+    await vm.load.execute();
+    vm.showPasswordForm();
+    vm.setEmail('yusuf@contoh.id');
+    vm.setPassword('salah');
+    for (var i = 0; i < 5; i++) {
+      await vm.submitPassword.execute();
+    }
+    expect(vm.lockSecondsLeft, 60);
+    vm.showPinForm();
+    vm.showPasswordForm();
+    vm.setEmail('yusuf@contoh.id');
+    expect(vm.lockSecondsLeft, 60);
+    expect(vm.canSubmitPassword, isFalse);
+    vm.setEmail('lain@contoh.id');
+    expect(vm.lockSecondsLeft, isNull);
+  });
+
+  test('pilihan staf diabaikan selama PIN diperiksa', () async {
+    await vm.load.execute();
+    vm.select(sari);
+    for (final d in '00000'.split('')) {
+      vm.addDigit(int.parse(d));
+    }
+    vm.addDigit(0); // digit ke-6 menjalankan pemeriksaan
+    expect(vm.submitPin.running, isTrue);
+    vm.select(owner);
+    vm.showPasswordForm();
+    expect(vm.selected, sari);
+    expect(vm.passwordMode, isFalse);
+    while (vm.submitPin.running) {
+      await Future<void>.delayed(Duration.zero);
+    }
+  });
+
   test('login pemilik dengan email dan kata sandi', () async {
     await vm.load.execute();
     vm.showPasswordForm();

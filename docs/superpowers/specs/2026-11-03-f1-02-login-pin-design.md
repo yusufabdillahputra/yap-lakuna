@@ -88,11 +88,18 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 
 ## Aplikasi (`lakuna_flutter`)
 
-- `SessionRepository` (`ChangeNotifier`): `current` (`ActiveStaff`:
-  ID, nama, role, izin), `listStaff()`, `loginWithPin(staffId, pin)`,
-  `loginWithPassword(email, password)`, `startOwnerSession(StoreContext)`,
-  `logout()`. Galat bertipe: `WrongPin(remaining)`, `PinLocked(retryAfter)`,
+- `SessionRepository` (`ChangeNotifier`): `current` (`StaffProfile`:
+  ID, nama, role, izin, punya PIN; tanpa hash), `listStaff()`,
+  `loginWithPin(staffId, pin)`, `loginWithPassword(email, password)`,
+  `pinRetryAfter(staffId)`, `passwordRetryAfter(email)`,
+  `startOwnerSession(StoreContext)`, `logout()`. Galat bertipe:
+  `WrongPin(remainingAttempts)`, `CredentialsLocked(retryAfter)`,
   `WrongCredentials`, `StaffUnavailable`.
+- Percobaan untuk kunci yang sama (staf atau email) diantrekan di
+  repositori, sehingga pemeriksaan kunci dan pencatatan gagal tidak bisa
+  disalip percobaan bersamaan.
+- Email tak dikenal tetap diverifikasi terhadap hash tiruan agar waktu
+  respons tidak membocorkan email terdaftar.
 - `LoginViewModel`: staf terpilih, digit PIN, mode email, hitung mundur
   kunci (`Timer` per detik), perintah `Command0`.
 - Router: toko belum ada → `/setup`; toko ada tanpa sesi → `/masuk`; sesi
@@ -107,7 +114,12 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
   keterangan "Belum punya PIN".
 - **Staf dinonaktifkan saat layar login terbuka:** verifikasi mengembalikan
   `StaffUnavailable` dan daftar dimuat ulang.
-- **PIN diketik saat dikunci:** keypad nonaktif sampai hitung mundur habis.
+- **PIN diketik saat dikunci:** keypad nonaktif sampai hitung mundur habis,
+  juga setelah berpindah ke staf lain lalu kembali, atau bolak-balik ke
+  formulir email. Email yang dikunci langsung menampilkan hitung mundur saat
+  diketik.
+- **Staf lain dipilih saat PIN sedang diperiksa:** pilihan diabaikan sampai
+  hasilnya keluar, agar galat tidak mendarat di kartu staf lain.
 - **Email bukan milik pemilik:** pesan sama dengan kata sandi salah, agar
   tidak membocorkan email yang terdaftar. Pemilik boleh masuk di cabang mana
   pun; role-nya diambil dari keanggotaan cabang bila ada, selain itu

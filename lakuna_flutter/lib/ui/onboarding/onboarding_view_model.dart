@@ -120,6 +120,11 @@ class OnboardingViewModel extends ChangeNotifier {
 
   /// Menyimpan toko lalu langsung memulai sesi pemilik (F1-02), sehingga
   /// pemilik tidak perlu mengetik PIN tepat setelah setup.
+  ///
+  /// Jangan menyisipkan `await` di antara `setup` dan `startOwnerSession`:
+  /// `setup` memberi tahu router (yang sesaat mengarah ke `/masuk`), dan sesi
+  /// harus dimulai pada giliran microtask yang sama agar layar login tidak
+  /// sempat tampil. Tes alur onboarding memastikan Beranda langsung terbuka.
   Future<Result<StoreContext>> _finish() async {
     final result = await _repository.setup(input);
     if (result case Ok(:final value)) _session.startOwnerSession(value);

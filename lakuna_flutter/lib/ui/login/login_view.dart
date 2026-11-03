@@ -67,6 +67,13 @@ String _errorText(AppLocalizations l10n, LoginViewModel vm, Exception e) =>
       _ => l10n.loginFailed,
     };
 
+/// Pesan di kartu PIN/pemilik: hitung mundur selama dikunci (juga saat
+/// kembali ke staf atau email yang masih dikunci), selain itu galat terakhir.
+String? _message(AppLocalizations l10n, LoginViewModel vm, Exception? error) {
+  if (vm.lockSecondsLeft case final seconds?) return l10n.loginLocked(seconds);
+  return error == null ? null : _errorText(l10n, vm, error);
+}
+
 /// "Siapa yang bertugas?": grid staf di kiri dan kartu PIN di kanan
 /// (tablet/desktop), atau satu kolom bergantian (mobile).
 class LoginView extends StatelessWidget {
@@ -468,11 +475,11 @@ class _PinCard extends StatelessWidget {
             const SizedBox(height: 16),
             if (viewModel.submitPin.running)
               const Center(child: FCircularProgress())
-            else if (error != null)
+            else if (_message(l10n, viewModel, error) case final message?)
               FAlert(
                 key: const ValueKey('login-error'),
                 variant: .destructive,
-                title: Text(_errorText(l10n, viewModel, error)),
+                title: Text(message),
               ),
             const SizedBox(height: 16),
             for (final row in const [
@@ -580,11 +587,11 @@ class _OwnerCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (error != null) ...[
+            if (_message(l10n, viewModel, error) case final message?) ...[
               FAlert(
                 key: const ValueKey('login-error'),
                 variant: .destructive,
-                title: Text(_errorText(l10n, viewModel, error)),
+                title: Text(message),
               ),
               const SizedBox(height: 16),
             ],

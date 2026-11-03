@@ -48,6 +48,7 @@ satu perangkat dengan PIN 6 digit, dan menu mengikuti izin role.
 
 ### Diperbaiki
 
+- Teks Inggris sisa percobaan memakai bentuk tunggal ("1 attempt left").
 - Teks tombol panjang (tautan login pemilik, label keypad) tidak lagi
   meluap di layar sempit; tautan dibungkus dan label keypad diperkecil.
 - Kartu staf terpilih tidak lagi bergeser 1 px karena bingkai 2 px.
@@ -61,7 +62,12 @@ satu perangkat dengan PIN 6 digit, dan menu mengikuti izin role.
 - Email yang tidak terdaftar memberi pesan yang sama dengan kata sandi salah,
   sehingga daftar email pemilik tidak bocor.
 - Selama dikunci, verifikasi tidak dijalankan sama sekali, termasuk untuk PIN
-  yang benar.
+  yang benar. Kunci tetap tampil (keypad nonaktif + hitung mundur) setelah
+  berpindah staf lalu kembali.
+- Percobaan bersamaan untuk staf atau email yang sama diantrekan, sehingga
+  tidak ada percobaan ke-6 yang lolos sebelum kunci tercatat.
+- Email tak dikenal tetap menjalankan Argon2id terhadap hash tiruan, agar
+  waktu respons tidak membedakan email terdaftar.
 
 ### Catatan teknis
 
@@ -80,7 +86,11 @@ satu perangkat dengan PIN 6 digit, dan menu mengikuti izin role.
 - Saat debug, kegagalan login dengan kata sandi yang benar di Xvfb ternyata
   akibat `xdotool` (Ctrl+A tidak memilih teks); diulang dengan Backspace dan
   berhasil. Tes repositori lokal memakai hash Argon2id sungguhan.
-- Tes: 49 domain, 25 data, 72 Flutter.
+- Review subagent sebelum merge menemukan kunci yang hilang saat berganti
+  staf (Important), plus antrean percobaan, kebocoran waktu email, satu query
+  keanggotaan tanpa `tenant_id`, dan teks Inggris "1 attempts"; semuanya
+  diperbaiki dengan tes.
+- Tes: 49 domain, 25 data, 78 Flutter.
 
 ## [0.2.0] - 2026-11-03
 
