@@ -22,8 +22,11 @@ import 'cash/cash_movement.dart' as _iepnwe9z;
 import 'cash/cash_session.dart' as _iepiq7d7;
 import 'cash/cash_session_status.dart' as _itp0bn28;
 import 'catalog/category.dart' as _i3vicioi;
+import 'catalog/modifier_group.dart' as _i0tnb6lw;
+import 'catalog/modifier_option.dart' as _i4wvaayq;
 import 'catalog/price_tier.dart' as _iwn9aw8c;
 import 'catalog/product.dart' as _ixeznjic;
+import 'catalog/product_modifier_group.dart' as _ivspx6m7;
 import 'catalog/product_type.dart' as _irudmnqe;
 import 'catalog/product_unit.dart' as _i6wsuj4v;
 import 'catalog/product_variant.dart' as _iz4qpnk9;
@@ -53,6 +56,7 @@ import 'sales/payment_method.dart' as _i3u620qk;
 import 'sales/payment_status.dart' as _i132i774;
 import 'sales/sale.dart' as _ichu53ep;
 import 'sales/sale_item.dart' as _i2mbgaee;
+import 'sales/sale_item_modifier.dart' as _ij9zr0hu;
 import 'sales/sale_status.dart' as _i3d8n48k;
 import 'stock/stock_adjustment.dart' as _i7xu84a6;
 import 'stock/stock_adjustment_item.dart' as _iuqt5pmc;
@@ -67,8 +71,11 @@ export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
 export 'cash/cash_session_status.dart';
 export 'catalog/category.dart';
+export 'catalog/modifier_group.dart';
+export 'catalog/modifier_option.dart';
 export 'catalog/price_tier.dart';
 export 'catalog/product.dart';
+export 'catalog/product_modifier_group.dart';
 export 'catalog/product_type.dart';
 export 'catalog/product_unit.dart';
 export 'catalog/product_variant.dart';
@@ -98,6 +105,7 @@ export 'sales/payment_method.dart';
 export 'sales/payment_status.dart';
 export 'sales/sale.dart';
 export 'sales/sale_item.dart';
+export 'sales/sale_item_modifier.dart';
 export 'sales/sale_status.dart';
 export 'stock/stock_adjustment.dart';
 export 'stock/stock_adjustment_item.dart';
@@ -126,8 +134,11 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iepiq7d7.CashSession>,
           _is.getType<_itp0bn28.CashSessionStatus>,
           _is.getType<_i3vicioi.ProductCategory>,
+          _is.getType<_i0tnb6lw.ModifierGroup>,
+          _is.getType<_i4wvaayq.ModifierOption>,
           _is.getType<_iwn9aw8c.ProductPriceTier>,
           _is.getType<_ixeznjic.Product>,
+          _is.getType<_ivspx6m7.ProductModifierGroup>,
           _is.getType<_irudmnqe.ProductType>,
           _is.getType<_i6wsuj4v.ProductUnit>,
           _is.getType<_iz4qpnk9.ProductVariant>,
@@ -157,6 +168,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i132i774.PaymentStatus>,
           _is.getType<_ichu53ep.Sale>,
           _is.getType<_i2mbgaee.SaleItem>,
+          _is.getType<_ij9zr0hu.SaleItemModifier>,
           _is.getType<_i3d8n48k.SaleStatus>,
           _is.getType<_i7xu84a6.StockAdjustment>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem>,
@@ -171,8 +183,11 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iepiq7d7.CashSession?>,
           _is.getType<_itp0bn28.CashSessionStatus?>,
           _is.getType<_i3vicioi.ProductCategory?>,
+          _is.getType<_i0tnb6lw.ModifierGroup?>,
+          _is.getType<_i4wvaayq.ModifierOption?>,
           _is.getType<_iwn9aw8c.ProductPriceTier?>,
           _is.getType<_ixeznjic.Product?>,
+          _is.getType<_ivspx6m7.ProductModifierGroup?>,
           _is.getType<_irudmnqe.ProductType?>,
           _is.getType<_i6wsuj4v.ProductUnit?>,
           _is.getType<_iz4qpnk9.ProductVariant?>,
@@ -202,6 +217,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i132i774.PaymentStatus?>,
           _is.getType<_ichu53ep.Sale?>,
           _is.getType<_i2mbgaee.SaleItem?>,
+          _is.getType<_ij9zr0hu.SaleItemModifier?>,
           _is.getType<_i3d8n48k.SaleStatus?>,
           _is.getType<_i7xu84a6.StockAdjustment?>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem?>,
@@ -223,8 +239,11 @@ class Protocol extends _is.DatabaseSerializationManager
           'CashSession',
           'CashSessionStatus',
           'ProductCategory',
+          'ModifierGroup',
+          'ModifierOption',
           'ProductPriceTier',
           'Product',
+          'ProductModifierGroup',
           'ProductType',
           'ProductUnit',
           'ProductVariant',
@@ -254,6 +273,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'PaymentStatus',
           'Sale',
           'SaleItem',
+          'SaleItemModifier',
           'SaleStatus',
           'StockAdjustment',
           'StockAdjustmentItem',
@@ -1595,6 +1615,283 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'modifier_groups',
+      dartName: 'ModifierGroup',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'min_select',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'max_select',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'modifier_groups_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'modifier_groups_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'modifiers',
+      dartName: 'ModifierOption',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifier_group_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'price_delta',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'is_default',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'is_available',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'modifiers_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'modifiers_fk_1',
+          columns: ['modifier_group_id'],
+          referenceTable: 'modifier_groups',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'modifiers_group_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'modifier_group_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'outlet_members',
       dartName: 'OutletMember',
       schema: 'public',
@@ -2163,6 +2460,158 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'product_modifier_groups',
+      dartName: 'ProductModifierGroup',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'product_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifier_group_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'product_modifier_groups_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'product_modifier_groups_fk_1',
+          columns: ['product_id'],
+          referenceTable: 'products',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'product_modifier_groups_fk_2',
+          columns: ['modifier_group_id'],
+          referenceTable: 'modifier_groups',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'product_modifier_groups_product_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'product_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'product_modifier_groups_group_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'modifier_group_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'product_units',
       dartName: 'ProductUnit',
       schema: 'public',
@@ -2663,6 +3112,163 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'sale_item_modifiers',
+      dartName: 'SaleItemModifier',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_item_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifier_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'group_name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'price_delta',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_item_modifiers_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_item_modifiers_fk_1',
+          columns: ['sale_item_id'],
+          referenceTable: 'sale_items',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_item_modifiers_fk_2',
+          columns: ['modifier_id'],
+          referenceTable: 'modifiers',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sale_item_modifiers_item_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_item_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'sale_items',
       dartName: 'SaleItem',
       schema: 'public',
@@ -2779,6 +3385,19 @@ class Protocol extends _is.DatabaseSerializationManager
         ),
         _isp.ColumnDefinition(
           name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifier_delta',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifier_key',
           columnType: _isp.ColumnType.text,
           isNullable: true,
           dartType: 'String?',
@@ -4474,11 +5093,20 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i3vicioi.ProductCategory) {
       return _i3vicioi.ProductCategory.fromJson(data) as T;
     }
+    if (t == _i0tnb6lw.ModifierGroup) {
+      return _i0tnb6lw.ModifierGroup.fromJson(data) as T;
+    }
+    if (t == _i4wvaayq.ModifierOption) {
+      return _i4wvaayq.ModifierOption.fromJson(data) as T;
+    }
     if (t == _iwn9aw8c.ProductPriceTier) {
       return _iwn9aw8c.ProductPriceTier.fromJson(data) as T;
     }
     if (t == _ixeznjic.Product) {
       return _ixeznjic.Product.fromJson(data) as T;
+    }
+    if (t == _ivspx6m7.ProductModifierGroup) {
+      return _ivspx6m7.ProductModifierGroup.fromJson(data) as T;
     }
     if (t == _irudmnqe.ProductType) {
       return _irudmnqe.ProductType.fromJson(data) as T;
@@ -4567,6 +5195,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i2mbgaee.SaleItem) {
       return _i2mbgaee.SaleItem.fromJson(data) as T;
     }
+    if (t == _ij9zr0hu.SaleItemModifier) {
+      return _ij9zr0hu.SaleItemModifier.fromJson(data) as T;
+    }
     if (t == _i3d8n48k.SaleStatus) {
       return _i3d8n48k.SaleStatus.fromJson(data) as T;
     }
@@ -4612,12 +5243,26 @@ class Protocol extends _is.DatabaseSerializationManager
       return (data != null ? _i3vicioi.ProductCategory.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i0tnb6lw.ModifierGroup?>()) {
+      return (data != null ? _i0tnb6lw.ModifierGroup.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i4wvaayq.ModifierOption?>()) {
+      return (data != null ? _i4wvaayq.ModifierOption.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iwn9aw8c.ProductPriceTier?>()) {
       return (data != null ? _iwn9aw8c.ProductPriceTier.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_ixeznjic.Product?>()) {
       return (data != null ? _ixeznjic.Product.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ivspx6m7.ProductModifierGroup?>()) {
+      return (data != null
+              ? _ivspx6m7.ProductModifierGroup.fromJson(data)
+              : null)
+          as T;
     }
     if (t == _is.getType<_irudmnqe.ProductType?>()) {
       return (data != null ? _irudmnqe.ProductType.fromJson(data) : null) as T;
@@ -4715,6 +5360,10 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_i2mbgaee.SaleItem?>()) {
       return (data != null ? _i2mbgaee.SaleItem.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_ij9zr0hu.SaleItemModifier?>()) {
+      return (data != null ? _ij9zr0hu.SaleItemModifier.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_i3d8n48k.SaleStatus?>()) {
       return (data != null ? _i3d8n48k.SaleStatus.fromJson(data) : null) as T;
     }
@@ -4772,8 +5421,11 @@ class Protocol extends _is.DatabaseSerializationManager
       _iepiq7d7.CashSession => 'CashSession',
       _itp0bn28.CashSessionStatus => 'CashSessionStatus',
       _i3vicioi.ProductCategory => 'ProductCategory',
+      _i0tnb6lw.ModifierGroup => 'ModifierGroup',
+      _i4wvaayq.ModifierOption => 'ModifierOption',
       _iwn9aw8c.ProductPriceTier => 'ProductPriceTier',
       _ixeznjic.Product => 'Product',
+      _ivspx6m7.ProductModifierGroup => 'ProductModifierGroup',
       _irudmnqe.ProductType => 'ProductType',
       _i6wsuj4v.ProductUnit => 'ProductUnit',
       _iz4qpnk9.ProductVariant => 'ProductVariant',
@@ -4803,6 +5455,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _i132i774.PaymentStatus => 'PaymentStatus',
       _ichu53ep.Sale => 'Sale',
       _i2mbgaee.SaleItem => 'SaleItem',
+      _ij9zr0hu.SaleItemModifier => 'SaleItemModifier',
       _i3d8n48k.SaleStatus => 'SaleStatus',
       _i7xu84a6.StockAdjustment => 'StockAdjustment',
       _iuqt5pmc.StockAdjustmentItem => 'StockAdjustmentItem',
@@ -4836,10 +5489,16 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'CashSessionStatus';
       case _i3vicioi.ProductCategory():
         return 'ProductCategory';
+      case _i0tnb6lw.ModifierGroup():
+        return 'ModifierGroup';
+      case _i4wvaayq.ModifierOption():
+        return 'ModifierOption';
       case _iwn9aw8c.ProductPriceTier():
         return 'ProductPriceTier';
       case _ixeznjic.Product():
         return 'Product';
+      case _ivspx6m7.ProductModifierGroup():
+        return 'ProductModifierGroup';
       case _irudmnqe.ProductType():
         return 'ProductType';
       case _i6wsuj4v.ProductUnit():
@@ -4898,6 +5557,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'Sale';
       case _i2mbgaee.SaleItem():
         return 'SaleItem';
+      case _ij9zr0hu.SaleItemModifier():
+        return 'SaleItemModifier';
       case _i3d8n48k.SaleStatus():
         return 'SaleStatus';
       case _i7xu84a6.StockAdjustment():
@@ -4957,11 +5618,20 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'ProductCategory') {
       return deserialize<_i3vicioi.ProductCategory>(data['data']);
     }
+    if (dataClassName == 'ModifierGroup') {
+      return deserialize<_i0tnb6lw.ModifierGroup>(data['data']);
+    }
+    if (dataClassName == 'ModifierOption') {
+      return deserialize<_i4wvaayq.ModifierOption>(data['data']);
+    }
     if (dataClassName == 'ProductPriceTier') {
       return deserialize<_iwn9aw8c.ProductPriceTier>(data['data']);
     }
     if (dataClassName == 'Product') {
       return deserialize<_ixeznjic.Product>(data['data']);
+    }
+    if (dataClassName == 'ProductModifierGroup') {
+      return deserialize<_ivspx6m7.ProductModifierGroup>(data['data']);
     }
     if (dataClassName == 'ProductType') {
       return deserialize<_irudmnqe.ProductType>(data['data']);
@@ -5050,6 +5720,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'SaleItem') {
       return deserialize<_i2mbgaee.SaleItem>(data['data']);
     }
+    if (dataClassName == 'SaleItemModifier') {
+      return deserialize<_ij9zr0hu.SaleItemModifier>(data['data']);
+    }
     if (dataClassName == 'SaleStatus') {
       return deserialize<_i3d8n48k.SaleStatus>(data['data']);
     }
@@ -5130,10 +5803,16 @@ class Protocol extends _is.DatabaseSerializationManager
         return _iepiq7d7.CashSession.t;
       case _i3vicioi.ProductCategory:
         return _i3vicioi.ProductCategory.t;
+      case _i0tnb6lw.ModifierGroup:
+        return _i0tnb6lw.ModifierGroup.t;
+      case _i4wvaayq.ModifierOption:
+        return _i4wvaayq.ModifierOption.t;
       case _iwn9aw8c.ProductPriceTier:
         return _iwn9aw8c.ProductPriceTier.t;
       case _ixeznjic.Product:
         return _ixeznjic.Product.t;
+      case _ivspx6m7.ProductModifierGroup:
+        return _ivspx6m7.ProductModifierGroup.t;
       case _i6wsuj4v.ProductUnit:
         return _i6wsuj4v.ProductUnit.t;
       case _iz4qpnk9.ProductVariant:
@@ -5170,6 +5849,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return _ichu53ep.Sale.t;
       case _i2mbgaee.SaleItem:
         return _i2mbgaee.SaleItem.t;
+      case _ij9zr0hu.SaleItemModifier:
+        return _ij9zr0hu.SaleItemModifier.t;
       case _i7xu84a6.StockAdjustment:
         return _i7xu84a6.StockAdjustment.t;
       case _iuqt5pmc.StockAdjustmentItem:

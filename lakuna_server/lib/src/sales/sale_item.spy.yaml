@@ -30,6 +30,11 @@ fields:
   kitchenTicketId: UuidValue?, relation(parent=kitchen_tickets, onDelete=Restrict), column=kitchen_ticket_id
   ### Catatan dapur, maks 120 karakter.
   note: String?
+  ### Σ tambahan harga modifier per satuan baris (F1-10b); line_total =
+  ### (unit_price + modifier_delta) × jumlah.
+  modifierDelta: int, default=0, column=modifier_delta
+  ### Id opsi modifier terurut dipisah koma; kunci gabung baris.
+  modifierKey: String?, column=modifier_key
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at

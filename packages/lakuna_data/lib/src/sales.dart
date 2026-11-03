@@ -150,6 +150,7 @@ class CheckoutResult {
     required this.items,
     required this.payments,
     this.negativeStock = const [],
+    this.modifiers = const {},
   });
 
   final Sale sale;
@@ -160,6 +161,12 @@ class CheckoutResult {
   /// Urut sesuai permintaan.
   final List<Payment> payments;
   final List<NegativeStock> negativeStock;
+
+  /// Modifier per item (bill F&B), urut `sort_order`.
+  final Map<UuidValue, List<SaleItemModifier>> modifiers;
+
+  List<SaleItemModifier> modifiersOf(SaleItem item) =>
+      modifiers[item.id] ?? const [];
 }
 
 /// Menyimpan penjualan [lines] dengan [payments] (satu atau lebih, split)

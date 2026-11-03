@@ -5,6 +5,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'dining_admin.dart';
+import 'modifier_admin.dart';
 import 'sale_core.dart';
 import 'sales.dart';
 import 'stock.dart';
@@ -59,6 +60,25 @@ class BillInputInvalid implements Exception {
 }
 
 /// Open bill beserta itemnya dan tagihan dengan tarif terkini.
+/// Pilihan modifier tidak sah untuk menu ini (F1-10b).
+class ModifierSelectionInvalid implements Exception {
+  const ModifierSelectionInvalid(this.error);
+
+  final ModifierSelectionError error;
+
+  @override
+  String toString() => 'ModifierSelectionInvalid(${error.name})';
+}
+
+/// Harga satuan + tambahan modifier negatif.
+class ModifierPriceInvalid implements Exception {
+  @override
+  String toString() => 'ModifierPriceInvalid';
+}
+
+/// Modifier per baris nota, urut tampil.
+typedef ItemModifiers = Map<UuidValue, List<SaleItemModifier>>;
+
 class OpenBill {
   const OpenBill({
     required this.sale,
@@ -67,6 +87,7 @@ class OpenBill {
     required this.rates,
     this.table,
     this.openedByName = '',
+    this.modifiers = const {},
   });
 
   final Sale sale;
@@ -79,6 +100,12 @@ class OpenBill {
   /// `null` untuk take away.
   final DiningTable? table;
   final String openedByName;
+
+  /// Modifier terpilih per item (salinan nama & harga).
+  final ItemModifiers modifiers;
+
+  List<SaleItemModifier> modifiersOf(SaleItem item) =>
+      modifiers[item.id] ?? const [];
 
   UuidValue get id => sale.id;
   bool get isTakeAway => sale.orderType == OrderType.takeAway;
@@ -145,6 +172,8 @@ class KitchenSendResult {
   final List<SaleItem> items;
   final OpenBill bill;
   final String staffName;
+
+  List<SaleItemModifier> modifiersOf(SaleItem item) => bill.modifiersOf(item);
 }
 
 // --- Baca -------------------------------------------------------------------
@@ -173,6 +202,31 @@ Future<List<SaleItem>> _items(
         i.deletedAt.equals(null),
     transaction: transaction,
   ))..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+}
+
+/// Modifier (belum dihapus) untuk [itemIds], urut `sort_order`.
+Future<ItemModifiers> itemModifiers(
+  DatabaseSession session,
+  UuidValue tenantId,
+  Iterable<UuidValue> itemIds, {
+  Transaction? transaction,
+}) async {
+  final ids = itemIds.toSet();
+  if (ids.isEmpty) return const {};
+  final rows = await SaleItemModifier.db.find(
+    session,
+    where: (m) =>
+        m.tenantId.equals(tenantId) &
+        m.deletedAt.equals(null) &
+        m.saleItemId.inSet(ids),
+    orderBy: (m) => m.sortOrder,
+    transaction: transaction,
+  );
+  final result = <UuidValue, List<SaleItemModifier>>{};
+  for (final m in rows) {
+    (result[m.saleItemId] ??= []).add(m);
+  }
+  return result;
 }
 
 Future<Map<UuidValue, String>> _staffNames(
@@ -227,6 +281,12 @@ Future<List<OpenBill>> _bills(
     sales.map((s) => s.openedBy ?? s.staffId),
     transaction: transaction,
   );
+  final modifiers = await itemModifiers(
+    session,
+    scope.tenantId,
+    items.map((i) => i.id),
+    transaction: transaction,
+  );
   return [
     for (final s in sales)
       () {
@@ -241,6 +301,7 @@ Future<List<OpenBill>> _bills(
           rates: rates,
           table: tables[s.diningTableId],
           openedByName: names[s.openedBy ?? s.staffId] ?? '',
+          modifiers: {for (final i in own) i.id: ?modifiers[i.id]},
         );
       }(),
   ];
@@ -589,9 +650,7 @@ Future<void> _refreshTotals(
     transaction: w.transaction,
   );
   final charges = _charges(sale, items, rates);
-  final list = Money.sum(
-    items.map((i) => Money(i.listPrice).timesMilli(i.quantityMilli)),
-  );
+  final list = Money.sum(items.map(_listTotal));
   await w.update(
     sale.copyWith(
       subtotal: list.value,
@@ -606,6 +665,61 @@ Future<void> _refreshTotals(
     ),
     s,
   );
+}
+
+/// Harga daftar baris (tanpa grosir) + tambahan modifier.
+Money _listTotal(SaleItem i) =>
+    Money(i.listPrice + i.modifierDelta).timesMilli(i.quantityMilli);
+
+/// `(unit_price + modifier_delta) × jumlah`.
+Money _lineTotal(Money unitPrice, int modifierDelta, Qty quantity) =>
+    (unitPrice + Money(modifierDelta)).timesMilli(quantity.milli);
+
+/// Grup modifier terpasang di produk [variantId] (urut) dan validasi
+/// [selected]. Mengembalikan opsi terpilih (urut grup lalu opsi) dan
+/// tambahan per satuan.
+Future<(List<(ModifierGroup, ModifierOption)>, Money)> _modifiersFor(
+  SyncTx w,
+  CatalogScope scope,
+  UuidValue variantId,
+  List<UuidValue> selected,
+) async {
+  final variant = await ProductVariant.db.findFirstRow(
+    w.session,
+    where: (v) => v.tenantId.equals(scope.tenantId) & v.id.equals(variantId),
+    transaction: w.transaction,
+  );
+  final links = variant == null
+      ? const <ProductModifierGroup>[]
+      : await productModifierLinks(
+          w.session,
+          scope.tenantId,
+          productIds: [variant.productId],
+          transaction: w.transaction,
+        );
+  if (links.isEmpty && selected.isEmpty) {
+    return (const <(ModifierGroup, ModifierOption)>[], Money.zero);
+  }
+  final details = {
+    for (final d in await modifierGroupDetails(
+      w.session,
+      scope.tenantId,
+      transaction: w.transaction,
+    ))
+      d.id: d,
+  };
+  final groups = [for (final l in links) ?details[l.modifierGroupId]];
+  final ids = [for (final id in selected) id.uuid];
+  final error = validateModifierSelection([
+    for (final g in groups) g.rule,
+  ], ids);
+  if (error != null) throw ModifierSelectionInvalid(error);
+  final chosen = [
+    for (final g in groups)
+      for (final o in g.options)
+        if (ids.contains(o.id.uuid)) (g.group, o),
+  ];
+  return (chosen, modifierDelta([for (final g in groups) g.rule], ids));
 }
 
 String? _note(String? note) {
@@ -626,9 +740,11 @@ Future<OpenBill> addBillItem(
   required UuidValue billId,
   required SaleLineRequest line,
   String? note,
+  List<UuidValue> modifierIds = const [],
 }) async {
   if (!line.quantity.isPositive) throw const SaleQuantityInvalid(0);
   final cleanNote = _note(note);
+  final key = modifierKey([for (final id in modifierIds) id.uuid]);
   await store.write(actor: staffId, (w) async {
     final sale = await _openSale(
       w.session,
@@ -639,13 +755,20 @@ Future<OpenBill> addBillItem(
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
+    final (chosen, delta) = await _modifiersFor(
+      w,
+      scope,
+      line.variantId,
+      modifierIds,
+    );
     final same = items
         .where(
           (i) =>
               i.kitchenStatus == KitchenStatus.pending &&
               i.variantId == line.variantId &&
               i.productUnitId == line.productUnitId &&
-              i.note == cleanNote,
+              i.note == cleanNote &&
+              i.modifierKey == key,
         )
         .firstOrNull;
     final quantity = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -656,11 +779,14 @@ Future<OpenBill> addBillItem(
         quantity: quantity,
       ),
     ]);
+    if (modifiedUnitPrice(priced.line.unitPrice, delta) == null) {
+      throw ModifierPriceInvalid();
+    }
     final s = await w.stamp();
     if (same != null) {
       await w.update(_repriced(same, priced, s, staffId), s);
     } else {
-      await w.insert(
+      final item = await w.insert(
         SaleItem(
           tenantId: scope.tenantId,
           saleId: sale.id,
@@ -673,7 +799,13 @@ Future<OpenBill> addBillItem(
           quantityMilli: priced.line.quantity.milli,
           listPrice: priced.line.listPrice.value,
           unitPrice: priced.line.unitPrice.value,
-          lineTotal: priced.line.lineTotal.value,
+          lineTotal: _lineTotal(
+            priced.line.unitPrice,
+            delta.value,
+            priced.line.quantity,
+          ).value,
+          modifierDelta: delta.value,
+          modifierKey: key,
           unitCost: 0,
           tracksStock: priced.tracksStock,
           sortOrder:
@@ -689,6 +821,26 @@ Future<OpenBill> addBillItem(
         ),
         s,
       );
+      for (final (i, (group, option)) in chosen.indexed) {
+        await w.insert(
+          SaleItemModifier(
+            tenantId: scope.tenantId,
+            saleItemId: item.id,
+            modifierId: option.id,
+            groupName: group.name,
+            name: option.name,
+            priceDelta: option.priceDelta,
+            sortOrder: i,
+            createdAt: s.now,
+            updatedAt: s.now,
+            createdBy: staffId,
+            updatedBy: staffId,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      }
     }
     await _refreshTotals(w, scope, sale, s, staffId);
   });
@@ -704,7 +856,11 @@ SaleItem _repriced(
   quantityMilli: priced.line.quantity.milli,
   listPrice: priced.line.listPrice.value,
   unitPrice: priced.line.unitPrice.value,
-  lineTotal: priced.line.lineTotal.value,
+  lineTotal: _lineTotal(
+    priced.line.unitPrice,
+    item.modifierDelta,
+    priced.line.quantity,
+  ).value,
   version: item.version + 1,
   updatedAt: s.now,
   updatedBy: staffId,
@@ -1101,9 +1257,7 @@ Future<CheckoutResult> payOpenBill(
         );
       }
     }
-    final list = Money.sum(
-      items.map((i) => Money(i.listPrice).timesMilli(i.quantityMilli)),
-    );
+    final list = Money.sum(items.map(_listTotal));
     final paid = await w.update(
       sale.copyWith(
         number: await nextReceiptNumber(w, scope, s.now),
@@ -1149,6 +1303,12 @@ Future<CheckoutResult> payOpenBill(
       items: paidItems,
       payments: paymentRows,
       negativeStock: negative,
+      modifiers: await itemModifiers(
+        w.session,
+        scope.tenantId,
+        paidItems.map((i) => i.id),
+        transaction: w.transaction,
+      ),
     );
   });
 }

@@ -1,0 +1,27 @@
+### Opsi di grup modifier. Tambahan harga boleh negatif (potongan); opsi
+### habis ditandai is_available = false, tidak dihapus.
+class: ModifierOption
+table: modifiers
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  modifierGroupId: UuidValue, relation(parent=modifier_groups, onDelete=Restrict), column=modifier_group_id
+  name: String
+  ### Tambahan harga per satuan baris, rupiah (boleh negatif).
+  priceDelta: int, default=0, column=price_delta
+  ### Terpilih otomatis di sheet 1.8.
+  isDefault: bool, default=false, column=is_default
+  isAvailable: bool, default=true, column=is_available
+  sortOrder: int, default=0, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  modifiers_group_idx:
+    fields: modifierGroupId

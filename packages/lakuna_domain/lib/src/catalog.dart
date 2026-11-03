@@ -149,6 +149,7 @@ class ProductDraft {
     this.brand = '',
     this.isActive = true,
     this.isTaxable = false,
+    this.modifierGroupIds = const [],
   });
 
   final String? id;
@@ -163,6 +164,9 @@ class ProductDraft {
   final bool isActive;
   final bool isTaxable;
   final List<VariantDraft> variants;
+
+  /// Grup modifier terpasang, berurutan (1.16b, F1-10b).
+  final List<String> modifierGroupIds;
 
   /// SKU varian yang terisi, sudah dinormalkan ([normalizeCode]).
   List<String> get skus => [
@@ -202,6 +206,9 @@ enum ProductField {
   unitSellPrice,
   tierMinQty,
   tierPrice,
+
+  /// Grup modifier terpasang (F1-10b).
+  modifierGroups,
 }
 
 enum ProductError {
@@ -224,6 +231,9 @@ enum ProductError {
 
   /// Kode sudah dipakai produk lain di tenant ini.
   taken,
+
+  /// Data yang dirujuk sudah dihapus (mis. grup modifier).
+  missing,
 }
 
 /// Satu masalah di form produk. [variant], [unit], dan [tier] adalah indeks

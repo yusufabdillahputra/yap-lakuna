@@ -1,0 +1,807 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "modifier_groups",
+        "dartName": "ModifierGroup",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "name",
+            "fieldName": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "min_select",
+            "fieldName": "minSelect",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "max_select",
+            "fieldName": "maxSelect",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "sort_order",
+            "fieldName": "sortOrder",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "modifier_groups_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "modifier_groups_tenant_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "tenant_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "modifiers",
+        "dartName": "ModifierOption",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "modifier_group_id",
+            "fieldName": "modifierGroupId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "name",
+            "fieldName": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "price_delta",
+            "fieldName": "priceDelta",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "is_default",
+            "fieldName": "isDefault",
+            "columnType": 1,
+            "isNullable": false,
+            "columnDefault": "false",
+            "dartType": "bool"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "is_available",
+            "fieldName": "isAvailable",
+            "columnType": 1,
+            "isNullable": false,
+            "columnDefault": "true",
+            "dartType": "bool"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "sort_order",
+            "fieldName": "sortOrder",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "modifiers_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "modifiers_fk_1",
+            "columns": [
+              "modifier_group_id"
+            ],
+            "referenceTable": "modifier_groups",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "modifiers_group_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "modifier_group_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "product_modifier_groups",
+        "dartName": "ProductModifierGroup",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "product_id",
+            "fieldName": "productId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "modifier_group_id",
+            "fieldName": "modifierGroupId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "sort_order",
+            "fieldName": "sortOrder",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "product_modifier_groups_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "product_modifier_groups_fk_1",
+            "columns": [
+              "product_id"
+            ],
+            "referenceTable": "products",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "product_modifier_groups_fk_2",
+            "columns": [
+              "modifier_group_id"
+            ],
+            "referenceTable": "modifier_groups",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "product_modifier_groups_product_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "product_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          },
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "product_modifier_groups_group_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "modifier_group_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "sale_item_modifiers",
+        "dartName": "SaleItemModifier",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "sale_item_id",
+            "fieldName": "saleItemId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "modifier_id",
+            "fieldName": "modifierId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "group_name",
+            "fieldName": "groupName",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "name",
+            "fieldName": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "price_delta",
+            "fieldName": "priceDelta",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "sort_order",
+            "fieldName": "sortOrder",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "sale_item_modifiers_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "sale_item_modifiers_fk_1",
+            "columns": [
+              "sale_item_id"
+            ],
+            "referenceTable": "sale_items",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "sale_item_modifiers_fk_2",
+            "columns": [
+              "modifier_id"
+            ],
+            "referenceTable": "modifiers",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "sale_item_modifiers_item_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "sale_item_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "sale_items",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "modifier_delta",
+            "fieldName": "modifierDelta",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "modifier_key",
+            "fieldName": "modifierKey",
+            "columnType": 0,
+            "isNullable": true,
+            "dartType": "String?"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    }
+  ],
+  "warnings": [],
+  "migrationApiVersion": 1
+}
