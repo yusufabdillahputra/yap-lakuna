@@ -5,6 +5,7 @@ import 'package:lakuna_flutter/data/repositories/master_data_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
 import 'fake_stock_repository.dart' show fakeId;
+import 'modifier_seed.dart';
 
 /// Master data di memori dengan aturan `lakuna_domain` yang sama dengan
 /// `lakuna_data`. Contoh: Sembako (2 produk), Minuman (1) dengan subkategori
@@ -61,6 +62,9 @@ class FakeMasterDataRepository extends MasterDataRepository {
   }
 
   bool permitted;
+
+  /// Ukuran (dipakai 1 menu) dan Topping.
+  final modifierGroupsData = seedModifierGroups();
   final categoriesData = <ProductCategory>[];
   final productCounts = <UuidValue, int>{};
   final unitsData = <MeasureUnit>[];
@@ -244,4 +248,84 @@ class FakeMasterDataRepository extends MasterDataRepository {
   @override
   Future<Result<List<StockLocation>>> locations() async =>
       _run(() => List.of(locationsData));
+
+  @override
+  Future<Result<List<ModifierGroupDetail>>> modifierGroups() async =>
+      _run(() => List.of(modifierGroupsData));
+
+  @override
+  Future<Result<ModifierGroup>> saveModifierGroup(
+    UuidValue? id,
+    ModifierGroupDraft draft,
+  ) async => _run(() {
+    final index = id == null
+        ? -1
+        : modifierGroupsData.indexWhere((g) => g.id == id);
+    if (id != null && index < 0) throw MasterNotFound();
+    final errors = validateModifierGroup(
+      draft,
+      existingNames: [
+        for (final g in modifierGroupsData)
+          if (g.id != id) g.name,
+      ],
+    );
+    if (errors.isNotEmpty) {
+      throw ModifierGroupInvalid(
+        errors,
+        optionErrors: modifierOptionErrors(draft),
+      );
+    }
+    final old = index < 0 ? null : modifierGroupsData[index];
+    final group = ModifierGroup(
+      id: old?.id ?? fakeId(_next++),
+      tenantId: fakeId(1),
+      name: draft.name.trim(),
+      minSelect: draft.minSelect,
+      maxSelect: draft.maxSelect,
+      sortOrder: old?.group.sortOrder ?? modifierGroupsData.length,
+      hlc: '',
+    );
+    final detail = ModifierGroupDetail(
+      group: group,
+      options: [
+        for (final (i, o) in draft.options.indexed)
+          ModifierOption(
+            id: o.id == null ? fakeId(_next++) : UuidValue.fromString(o.id!),
+            tenantId: fakeId(1),
+            modifierGroupId: group.id,
+            name: o.name.trim(),
+            priceDelta: o.priceDelta.value,
+            isDefault: o.isDefault,
+            isAvailable: o.isAvailable,
+            sortOrder: i,
+            hlc: '',
+          ),
+      ],
+      productCount: old?.productCount ?? 0,
+    );
+    if (index < 0) {
+      modifierGroupsData.add(detail);
+    } else {
+      modifierGroupsData[index] = detail;
+    }
+    return group;
+  });
+
+  @override
+  Future<Result<void>> moveModifierGroup(UuidValue id, int delta) async =>
+      _run(() {
+        final i = modifierGroupsData.indexWhere((g) => g.id == id);
+        if (i < 0) throw MasterNotFound();
+        final j = (i + delta).clamp(0, modifierGroupsData.length - 1);
+        final g = modifierGroupsData.removeAt(i);
+        modifierGroupsData.insert(j, g);
+      });
+
+  @override
+  Future<Result<void>> deleteModifierGroup(UuidValue id) async => _run(() {
+    final g = modifierGroupsData.where((g) => g.id == id).firstOrNull;
+    if (g == null) throw MasterNotFound();
+    if (g.productCount > 0) throw MasterInUse(products: g.productCount);
+    modifierGroupsData.remove(g);
+  });
 }

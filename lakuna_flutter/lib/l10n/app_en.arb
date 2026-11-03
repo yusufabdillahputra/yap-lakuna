@@ -1122,5 +1122,127 @@
   "fnbRatesSave": "Save rates",
   "fnbRatesSaved": "Rates saved.",
   "fnbRatesLoadFailed": "Could not load the rates.",
-  "fnbRatesSaveFailed": "Could not save the rates."
+  "fnbRatesSaveFailed": "Could not save the rates.",
+  "masterTabModifiers": "Modifier groups",
+  "modifierHint": "Changes apply to new orders; old receipts keep a copy of modifier names & prices.",
+  "modifierGroups": "Modifier groups",
+  "modifierAdd": "Add group",
+  "modifierEmpty": "No modifier groups yet. E.g. Size, Sugar level, Topping.",
+  "modifierLoadFailed": "Modifier groups failed to load.",
+  "modifierRuleRequired": "Required · pick {count}",
+  "@modifierRuleRequired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierRuleRequiredRange": "Required · pick {min}–{max}",
+  "@modifierRuleRequiredRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierRuleOptional": "Optional · max {max}",
+  "@modifierRuleOptional": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierOptionCount": "{count, plural, =1{1 option} other{{count} options}}",
+  "@modifierOptionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierUsedBy": "{count, plural, =0{not used by any menu} =1{used by 1 menu} other{used by {count} menus}}",
+  "@modifierUsedBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierNewGroup": "New modifier group",
+  "modifierEditGroup": "Edit modifier group",
+  "modifierName": "Group name",
+  "modifierRequired": "Required",
+  "modifierRequiredHint": "Customers must choose before the item goes on the bill.",
+  "modifierMin": "Minimum",
+  "modifierMax": "Maximum",
+  "modifierMaxHint": "Maximum 1 shows as a single choice.",
+  "modifierOptions": "Options",
+  "modifierOptionName": "Option name",
+  "modifierOptionPrice": "Extra price",
+  "modifierOptionPriceHint": "Use minus for a discount, e.g. -3,000.",
+  "modifierOptionDefault": "Default",
+  "modifierOptionAvailable": "Available",
+  "modifierOptionSoldOut": "Sold out",
+  "modifierOptionAdd": "Add option",
+  "modifierOptionRemove": "Remove option",
+  "modifierErrNameEmpty": "Group name is required.",
+  "modifierErrNameTooLong": "At most {max} characters.",
+  "@modifierErrNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrNameDuplicate": "Group name is already used.",
+  "modifierErrSelectRange": "Minimum must be ≤ maximum, maximum 1–{max}.",
+  "@modifierErrSelectRange": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrMinAboveOptions": "Minimum is more than the number of options.",
+  "modifierErrOptionCount": "Add 1–{max} options.",
+  "@modifierErrOptionCount": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrOptionNameEmpty": "Option name is required.",
+  "modifierErrOptionNameDuplicate": "Duplicate option name.",
+  "modifierErrOptionPrice": "Extra price must be within ±IDR 1,000,000.",
+  "modifierErrDefaultsAboveMax": "More default options than the maximum.",
+  "modifierErrInUse": "{count, plural, =1{The group is still used by 1 menu. Remove it from the menu form first.} other{The group is still used by {count} menus. Remove it from the menu forms first.}}",
+  "@modifierErrInUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrGeneric": "Could not save. Try again.",
+  "modifierDeleteTitle": "Delete {name}?",
+  "@modifierDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modifierDeleteBody": "Its options are deleted too. Old receipts keep their copy.",
+  "productTabModifiers": "Modifiers",
+  "productErrorModifierMissing": "A modifier group was deleted. Remove it and save again.",
+  "productModifiersEmpty": "No groups attached. The item goes straight to the bill without choices.",
+  "productModifiersHelp": "The order here is the order on the modifier sheet in Tables.",
+  "productModifiersNoMaster": "No modifier groups yet. Create them in Master data › Modifier groups.",
+  "productModifierAttach": "Add group",
+  "productModifierRemove": "Remove"
 }

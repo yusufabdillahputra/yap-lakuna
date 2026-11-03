@@ -12,11 +12,15 @@ class ProductCatalog {
     required this.products,
     required this.categories,
     required this.units,
+    this.modifierGroups = const [],
   });
 
   final List<CatalogProduct> products;
   final List<ProductCategory> categories;
   final List<MeasureUnit> units;
+
+  /// Grup modifier master (urut) untuk tab *Modifier* form produk (1.16b).
+  final List<ModifierGroupDetail> modifierGroups;
 }
 
 /// Katalog produk (F1-07). Semua aksi butuh `products:manage`; izin dicek

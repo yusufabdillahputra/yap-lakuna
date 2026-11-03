@@ -2767,4 +2767,203 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fnbRatesSaveFailed => 'Could not save the rates.';
+
+  @override
+  String get masterTabModifiers => 'Modifier groups';
+
+  @override
+  String get modifierHint =>
+      'Changes apply to new orders; old receipts keep a copy of modifier names & prices.';
+
+  @override
+  String get modifierGroups => 'Modifier groups';
+
+  @override
+  String get modifierAdd => 'Add group';
+
+  @override
+  String get modifierEmpty =>
+      'No modifier groups yet. E.g. Size, Sugar level, Topping.';
+
+  @override
+  String get modifierLoadFailed => 'Modifier groups failed to load.';
+
+  @override
+  String modifierRuleRequired(int count) {
+    return 'Required · pick $count';
+  }
+
+  @override
+  String modifierRuleRequiredRange(int min, int max) {
+    return 'Required · pick $min–$max';
+  }
+
+  @override
+  String modifierRuleOptional(int max) {
+    return 'Optional · max $max';
+  }
+
+  @override
+  String modifierOptionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count options',
+      one: '1 option',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modifierUsedBy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'used by $count menus',
+      one: 'used by 1 menu',
+      zero: 'not used by any menu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get modifierNewGroup => 'New modifier group';
+
+  @override
+  String get modifierEditGroup => 'Edit modifier group';
+
+  @override
+  String get modifierName => 'Group name';
+
+  @override
+  String get modifierRequired => 'Required';
+
+  @override
+  String get modifierRequiredHint =>
+      'Customers must choose before the item goes on the bill.';
+
+  @override
+  String get modifierMin => 'Minimum';
+
+  @override
+  String get modifierMax => 'Maximum';
+
+  @override
+  String get modifierMaxHint => 'Maximum 1 shows as a single choice.';
+
+  @override
+  String get modifierOptions => 'Options';
+
+  @override
+  String get modifierOptionName => 'Option name';
+
+  @override
+  String get modifierOptionPrice => 'Extra price';
+
+  @override
+  String get modifierOptionPriceHint =>
+      'Use minus for a discount, e.g. -3,000.';
+
+  @override
+  String get modifierOptionDefault => 'Default';
+
+  @override
+  String get modifierOptionAvailable => 'Available';
+
+  @override
+  String get modifierOptionSoldOut => 'Sold out';
+
+  @override
+  String get modifierOptionAdd => 'Add option';
+
+  @override
+  String get modifierOptionRemove => 'Remove option';
+
+  @override
+  String get modifierErrNameEmpty => 'Group name is required.';
+
+  @override
+  String modifierErrNameTooLong(int max) {
+    return 'At most $max characters.';
+  }
+
+  @override
+  String get modifierErrNameDuplicate => 'Group name is already used.';
+
+  @override
+  String modifierErrSelectRange(int max) {
+    return 'Minimum must be ≤ maximum, maximum 1–$max.';
+  }
+
+  @override
+  String get modifierErrMinAboveOptions =>
+      'Minimum is more than the number of options.';
+
+  @override
+  String modifierErrOptionCount(int max) {
+    return 'Add 1–$max options.';
+  }
+
+  @override
+  String get modifierErrOptionNameEmpty => 'Option name is required.';
+
+  @override
+  String get modifierErrOptionNameDuplicate => 'Duplicate option name.';
+
+  @override
+  String get modifierErrOptionPrice =>
+      'Extra price must be within ±IDR 1,000,000.';
+
+  @override
+  String get modifierErrDefaultsAboveMax =>
+      'More default options than the maximum.';
+
+  @override
+  String modifierErrInUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'The group is still used by $count menus. Remove it from the menu forms first.',
+      one: 'The group is still used by 1 menu. Remove it from the menu form first.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get modifierErrGeneric => 'Could not save. Try again.';
+
+  @override
+  String modifierDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get modifierDeleteBody =>
+      'Its options are deleted too. Old receipts keep their copy.';
+
+  @override
+  String get productTabModifiers => 'Modifiers';
+
+  @override
+  String get productErrorModifierMissing =>
+      'A modifier group was deleted. Remove it and save again.';
+
+  @override
+  String get productModifiersEmpty =>
+      'No groups attached. The item goes straight to the bill without choices.';
+
+  @override
+  String get productModifiersHelp =>
+      'The order here is the order on the modifier sheet in Tables.';
+
+  @override
+  String get productModifiersNoMaster =>
+      'No modifier groups yet. Create them in Master data › Modifier groups.';
+
+  @override
+  String get productModifierAttach => 'Add group';
+
+  @override
+  String get productModifierRemove => 'Remove';
 }

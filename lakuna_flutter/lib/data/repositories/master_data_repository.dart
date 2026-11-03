@@ -37,4 +37,18 @@ abstract class MasterDataRepository {
 
   /// Lokasi stok cabang (baca saja di Master data).
   Future<Result<List<StockLocation>>> locations();
+
+  /// Grup modifier urut master, dengan opsi dan jumlah menu (1.17b).
+  Future<Result<List<ModifierGroupDetail>>> modifierGroups();
+
+  /// Buat ([id] `null`) atau ubah grup. Gagal dengan `ModifierGroupInvalid`.
+  Future<Result<ModifierGroup>> saveModifierGroup(
+    UuidValue? id,
+    ModifierGroupDraft draft,
+  );
+
+  Future<Result<void>> moveModifierGroup(UuidValue id, int delta);
+
+  /// Ditolak (`MasterInUse`) bila grup masih dipasang di menu.
+  Future<Result<void>> deleteModifierGroup(UuidValue id);
 }

@@ -4807,6 +4807,300 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tarif gagal disimpan.'**
   String get fnbRatesSaveFailed;
+
+  /// No description provided for @masterTabModifiers.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup modifier'**
+  String get masterTabModifiers;
+
+  /// No description provided for @modifierHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Perubahan berlaku untuk pesanan baru; nota lama menyimpan salinan nama & harga modifier.'**
+  String get modifierHint;
+
+  /// No description provided for @modifierGroups.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup modifier'**
+  String get modifierGroups;
+
+  /// No description provided for @modifierAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah grup'**
+  String get modifierAdd;
+
+  /// No description provided for @modifierEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada grup modifier. Contoh: Ukuran, Level gula, Topping.'**
+  String get modifierEmpty;
+
+  /// No description provided for @modifierLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup modifier gagal dimuat.'**
+  String get modifierLoadFailed;
+
+  /// No description provided for @modifierRuleRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib · pilih {count}'**
+  String modifierRuleRequired(int count);
+
+  /// No description provided for @modifierRuleRequiredRange.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib · pilih {min}–{max}'**
+  String modifierRuleRequiredRange(int min, int max);
+
+  /// No description provided for @modifierRuleOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional · maks {max}'**
+  String modifierRuleOptional(int max);
+
+  /// No description provided for @modifierOptionCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, other{{count} opsi}}'**
+  String modifierOptionCount(int count);
+
+  /// No description provided for @modifierUsedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, =0{belum dipakai menu} other{dipakai {count} menu}}'**
+  String modifierUsedBy(int count);
+
+  /// No description provided for @modifierNewGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup modifier baru'**
+  String get modifierNewGroup;
+
+  /// No description provided for @modifierEditGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah grup modifier'**
+  String get modifierEditGroup;
+
+  /// No description provided for @modifierName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup'**
+  String get modifierName;
+
+  /// No description provided for @modifierRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib dipilih'**
+  String get modifierRequired;
+
+  /// No description provided for @modifierRequiredHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan harus memilih sebelum menu masuk bill.'**
+  String get modifierRequiredHint;
+
+  /// No description provided for @modifierMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal pilih'**
+  String get modifierMin;
+
+  /// No description provided for @modifierMax.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal pilih'**
+  String get modifierMax;
+
+  /// No description provided for @modifierMaxHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 1 tampil sebagai pilihan tunggal.'**
+  String get modifierMaxHint;
+
+  /// No description provided for @modifierOptions.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsi'**
+  String get modifierOptions;
+
+  /// No description provided for @modifierOptionName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama opsi'**
+  String get modifierOptionName;
+
+  /// No description provided for @modifierOptionPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahan harga'**
+  String get modifierOptionPrice;
+
+  /// No description provided for @modifierOptionPriceHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Minus untuk potongan, mis. -3.000.'**
+  String get modifierOptionPriceHint;
+
+  /// No description provided for @modifierOptionDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Bawaan'**
+  String get modifierOptionDefault;
+
+  /// No description provided for @modifierOptionAvailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersedia'**
+  String get modifierOptionAvailable;
+
+  /// No description provided for @modifierOptionSoldOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Habis'**
+  String get modifierOptionSoldOut;
+
+  /// No description provided for @modifierOptionAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah opsi'**
+  String get modifierOptionAdd;
+
+  /// No description provided for @modifierOptionRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus opsi'**
+  String get modifierOptionRemove;
+
+  /// No description provided for @modifierErrNameEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup wajib diisi.'**
+  String get modifierErrNameEmpty;
+
+  /// No description provided for @modifierErrNameTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {max} karakter.'**
+  String modifierErrNameTooLong(int max);
+
+  /// No description provided for @modifierErrNameDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup sudah dipakai.'**
+  String get modifierErrNameDuplicate;
+
+  /// No description provided for @modifierErrSelectRange.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal harus ≤ maksimal, maksimal 1–{max}.'**
+  String modifierErrSelectRange(int max);
+
+  /// No description provided for @modifierErrMinAboveOptions.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal pilih melebihi jumlah opsi.'**
+  String get modifierErrMinAboveOptions;
+
+  /// No description provided for @modifierErrOptionCount.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi 1–{max} opsi.'**
+  String modifierErrOptionCount(int max);
+
+  /// No description provided for @modifierErrOptionNameEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama opsi wajib diisi.'**
+  String get modifierErrOptionNameEmpty;
+
+  /// No description provided for @modifierErrOptionNameDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama opsi kembar.'**
+  String get modifierErrOptionNameDuplicate;
+
+  /// No description provided for @modifierErrOptionPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahan harga −Rp 1.000.000 s.d. Rp 1.000.000.'**
+  String get modifierErrOptionPrice;
+
+  /// No description provided for @modifierErrDefaultsAboveMax.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsi bawaan lebih banyak dari maksimal pilih.'**
+  String get modifierErrDefaultsAboveMax;
+
+  /// No description provided for @modifierErrInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, other{Grup masih dipasang di {count} menu. Lepas dulu dari form menu.}}'**
+  String modifierErrInUse(int count);
+
+  /// No description provided for @modifierErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get modifierErrGeneric;
+
+  /// No description provided for @modifierDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String modifierDeleteTitle(String name);
+
+  /// No description provided for @modifierDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsi grup ikut terhapus. Nota lama tetap menyimpan salinannya.'**
+  String get modifierDeleteBody;
+
+  /// No description provided for @productTabModifiers.
+  ///
+  /// In id, this message translates to:
+  /// **'Modifier'**
+  String get productTabModifiers;
+
+  /// No description provided for @productErrorModifierMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada grup modifier yang sudah dihapus. Lepas lalu simpan lagi.'**
+  String get productErrorModifierMissing;
+
+  /// No description provided for @productModifiersEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada grup terpasang. Menu langsung masuk bill tanpa pilihan.'**
+  String get productModifiersEmpty;
+
+  /// No description provided for @productModifiersHelp.
+  ///
+  /// In id, this message translates to:
+  /// **'Urutan grup di sini = urutan di lembar pilih modifier layar Meja.'**
+  String get productModifiersHelp;
+
+  /// No description provided for @productModifiersNoMaster.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada grup modifier. Buat dulu di Master data › Grup modifier.'**
+  String get productModifiersNoMaster;
+
+  /// No description provided for @productModifierAttach.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah grup'**
+  String get productModifierAttach;
+
+  /// No description provided for @productModifierRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Lepas'**
+  String get productModifierRemove;
 }
 
 class _AppLocalizationsDelegate

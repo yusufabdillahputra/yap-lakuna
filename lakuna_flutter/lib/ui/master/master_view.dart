@@ -16,6 +16,8 @@ import '../products/product_widgets.dart';
 import 'dining_setup_view_model.dart';
 import 'dining_tables_tab.dart';
 import 'master_data_view_model.dart';
+import 'modifier_groups_tab.dart';
+import 'modifier_groups_view_model.dart';
 
 /// Layar *Master data* (1.17, F1-09). Memiliki [MasterDataViewModel].
 class MasterDataScreen extends StatefulWidget {
@@ -38,12 +40,16 @@ class MasterDataScreen extends StatefulWidget {
 
 class _MasterDataScreenState extends State<MasterDataScreen> {
   late final _viewModel = MasterDataViewModel(repository: widget.repository);
+  late final _modifiers = ModifierGroupsViewModel(
+    repository: widget.repository,
+  );
   DiningSetupViewModel? _dining;
 
   @override
   void initState() {
     super.initState();
     _viewModel.load.execute();
+    _modifiers.load.execute();
     final admin = widget.diningAdmin;
     if (admin != null &&
         (widget.session.current?.can(Permission.settingsManage) ?? false)) {
@@ -54,6 +60,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
   @override
   void dispose() {
     _viewModel.dispose();
+    _modifiers.dispose();
     _dining?.dispose();
     super.dispose();
   }
@@ -66,6 +73,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
       canManageStock: staff?.can(Permission.stockAdjust) ?? false,
       canManageSettings: staff?.can(Permission.settingsManage) ?? false,
       dining: _dining,
+      modifiers: _modifiers,
     );
   }
 }
@@ -77,6 +85,7 @@ class MasterDataView extends StatelessWidget {
     this.canManageStock = false,
     this.canManageSettings = false,
     this.dining,
+    this.modifiers,
   });
 
   final MasterDataViewModel viewModel;
@@ -86,9 +95,17 @@ class MasterDataView extends StatelessWidget {
   /// Tab Meja & area; `null` = tab tidak tampil.
   final DiningSetupViewModel? dining;
 
+  /// Tab Grup modifier; `null` = tab tidak tampil.
+  final ModifierGroupsViewModel? modifiers;
+
   List<MasterTab> get _tabs => [
     for (final t in MasterTab.values)
-      if (t != MasterTab.tables || dining != null) t,
+      if (switch (t) {
+        MasterTab.tables => dining != null,
+        MasterTab.modifiers => modifiers != null,
+        _ => true,
+      })
+        t,
   ];
 
   @override
@@ -127,6 +144,10 @@ class MasterDataView extends StatelessWidget {
         final content = switch (vm.tab) {
           MasterTab.categories => _CategoriesTab(viewModel: vm),
           MasterTab.units => _UnitsTab(viewModel: vm),
+          MasterTab.modifiers => switch (modifiers) {
+            final m? => ModifierGroupsTab(viewModel: m),
+            null => const SizedBox.shrink(),
+          },
           MasterTab.locations => _LocationsTab(
             viewModel: vm,
             canManage: canManageStock,
@@ -171,6 +192,7 @@ class MasterDataView extends StatelessWidget {
 String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
   MasterTab.categories => l10n.masterTabCategories,
   MasterTab.units => l10n.masterTabUnits,
+  MasterTab.modifiers => l10n.masterTabModifiers,
   MasterTab.locations => l10n.masterTabLocations,
   MasterTab.payments => l10n.masterTabPayments,
   MasterTab.tables => l10n.masterTabTables,
@@ -179,6 +201,7 @@ String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
 IconData _tabIcon(MasterTab tab) => switch (tab) {
   MasterTab.categories => TablerIcons.category,
   MasterTab.units => TablerIcons.ruler2,
+  MasterTab.modifiers => TablerIcons.adjustmentsHorizontal,
   MasterTab.locations => TablerIcons.buildingWarehouse,
   MasterTab.payments => TablerIcons.creditCard,
   MasterTab.tables => TablerIcons.armchair,

@@ -1656,5 +1656,127 @@
   "fnbRatesSave": "Simpan tarif",
   "fnbRatesSaved": "Tarif tersimpan.",
   "fnbRatesLoadFailed": "Tarif gagal dimuat.",
-  "fnbRatesSaveFailed": "Tarif gagal disimpan."
+  "fnbRatesSaveFailed": "Tarif gagal disimpan.",
+  "masterTabModifiers": "Grup modifier",
+  "modifierHint": "Perubahan berlaku untuk pesanan baru; nota lama menyimpan salinan nama & harga modifier.",
+  "modifierGroups": "Grup modifier",
+  "modifierAdd": "Tambah grup",
+  "modifierEmpty": "Belum ada grup modifier. Contoh: Ukuran, Level gula, Topping.",
+  "modifierLoadFailed": "Grup modifier gagal dimuat.",
+  "modifierRuleRequired": "Wajib · pilih {count}",
+  "@modifierRuleRequired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierRuleRequiredRange": "Wajib · pilih {min}–{max}",
+  "@modifierRuleRequiredRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierRuleOptional": "Opsional · maks {max}",
+  "@modifierRuleOptional": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierOptionCount": "{count, plural, other{{count} opsi}}",
+  "@modifierOptionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierUsedBy": "{count, plural, =0{belum dipakai menu} other{dipakai {count} menu}}",
+  "@modifierUsedBy": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierNewGroup": "Grup modifier baru",
+  "modifierEditGroup": "Ubah grup modifier",
+  "modifierName": "Nama grup",
+  "modifierRequired": "Wajib dipilih",
+  "modifierRequiredHint": "Pelanggan harus memilih sebelum menu masuk bill.",
+  "modifierMin": "Minimal pilih",
+  "modifierMax": "Maksimal pilih",
+  "modifierMaxHint": "Maksimal 1 tampil sebagai pilihan tunggal.",
+  "modifierOptions": "Opsi",
+  "modifierOptionName": "Nama opsi",
+  "modifierOptionPrice": "Tambahan harga",
+  "modifierOptionPriceHint": "Minus untuk potongan, mis. -3.000.",
+  "modifierOptionDefault": "Bawaan",
+  "modifierOptionAvailable": "Tersedia",
+  "modifierOptionSoldOut": "Habis",
+  "modifierOptionAdd": "Tambah opsi",
+  "modifierOptionRemove": "Hapus opsi",
+  "modifierErrNameEmpty": "Nama grup wajib diisi.",
+  "modifierErrNameTooLong": "Maksimal {max} karakter.",
+  "@modifierErrNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrNameDuplicate": "Nama grup sudah dipakai.",
+  "modifierErrSelectRange": "Minimal harus ≤ maksimal, maksimal 1–{max}.",
+  "@modifierErrSelectRange": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrMinAboveOptions": "Minimal pilih melebihi jumlah opsi.",
+  "modifierErrOptionCount": "Isi 1–{max} opsi.",
+  "@modifierErrOptionCount": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrOptionNameEmpty": "Nama opsi wajib diisi.",
+  "modifierErrOptionNameDuplicate": "Nama opsi kembar.",
+  "modifierErrOptionPrice": "Tambahan harga −Rp 1.000.000 s.d. Rp 1.000.000.",
+  "modifierErrDefaultsAboveMax": "Opsi bawaan lebih banyak dari maksimal pilih.",
+  "modifierErrInUse": "{count, plural, other{Grup masih dipasang di {count} menu. Lepas dulu dari form menu.}}",
+  "@modifierErrInUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modifierErrGeneric": "Gagal menyimpan. Coba lagi.",
+  "modifierDeleteTitle": "Hapus {name}?",
+  "@modifierDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modifierDeleteBody": "Opsi grup ikut terhapus. Nota lama tetap menyimpan salinannya.",
+  "productTabModifiers": "Modifier",
+  "productErrorModifierMissing": "Ada grup modifier yang sudah dihapus. Lepas lalu simpan lagi.",
+  "productModifiersEmpty": "Belum ada grup terpasang. Menu langsung masuk bill tanpa pilihan.",
+  "productModifiersHelp": "Urutan grup di sini = urutan di lembar pilih modifier layar Meja.",
+  "productModifiersNoMaster": "Belum ada grup modifier. Buat dulu di Master data › Grup modifier.",
+  "productModifierAttach": "Tambah grup",
+  "productModifierRemove": "Lepas"
 }
