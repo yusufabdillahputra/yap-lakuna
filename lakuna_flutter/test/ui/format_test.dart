@@ -22,6 +22,23 @@ void main() {
     expect(fmt('9' * 20).text.replaceAll('.', '').length, 15);
   });
 
+  test('SignedRupiahInputFormatter menerima minus di depan', () {
+    const f = SignedRupiahInputFormatter();
+    String fmt(String s) => f
+        .formatEditUpdate(TextEditingValue.empty, TextEditingValue(text: s))
+        .text;
+    expect(fmt('4000'), '4.000');
+    expect(fmt('-3000'), '-3.000');
+    expect(fmt('-'), '-');
+    expect(fmt('3-000'), '3.000');
+    expect(fmt('--5'), '-5');
+    expect(fmt('9' * 12).replaceAll('.', '').length, 9);
+    expect(parseSignedRupiah('-3.000'), const Money(-3000));
+    expect(parseSignedRupiah('4.000'), const Money(4000));
+    expect(parseSignedRupiah(''), Money.zero);
+    expect(parseSignedRupiah('-'), Money.zero);
+  });
+
   test('QtyInputFormatter menolak input tidak sah', () {
     const f = QtyInputFormatter();
     const old = TextEditingValue(text: '12');

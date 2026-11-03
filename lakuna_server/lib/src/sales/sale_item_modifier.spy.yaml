@@ -1,0 +1,25 @@
+### Modifier terpilih di baris nota. Nama dan harga disalin agar nota lama
+### tidak berubah bila master diubah (F1-10b).
+class: SaleItemModifier
+table: sale_item_modifiers
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  saleItemId: UuidValue, relation(parent=sale_items, onDelete=Restrict), column=sale_item_id
+  modifierId: UuidValue, relation(parent=modifiers, onDelete=Restrict), column=modifier_id
+  groupName: String, column=group_name
+  name: String
+  priceDelta: int, column=price_delta
+  sortOrder: int, default=0, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  sale_item_modifiers_item_idx:
+    fields: saleItemId

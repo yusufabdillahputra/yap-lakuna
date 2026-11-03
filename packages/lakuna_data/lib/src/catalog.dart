@@ -5,6 +5,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show TableRow, Transaction;
 
+import 'modifier_admin.dart' show productModifierLinks;
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
@@ -114,6 +115,7 @@ class CatalogProduct {
     this.categoryName,
     this.sku,
     this.brand,
+    this.modifierGroupIds = const [],
   });
 
   final UuidValue id;
@@ -128,6 +130,9 @@ class CatalogProduct {
   final bool isActive;
   final bool isTaxable;
   final List<CatalogVariant> variants;
+
+  /// Grup modifier terpasang, urut tampil di 1.8 (F1-10b).
+  final List<UuidValue> modifierGroupIds;
 
   bool get tracksStock => kind.tracksStock;
 
@@ -150,6 +155,7 @@ class CatalogProduct {
     brand: brand ?? '',
     isActive: isActive,
     isTaxable: isTaxable,
+    modifierGroupIds: [for (final id in modifierGroupIds) id.uuid],
     variants: [
       for (final v in variants)
         VariantDraft(
@@ -290,6 +296,11 @@ Future<List<CatalogProduct>> _loadProducts(
     ))
       c.id: c.name,
   };
+  final modifierLinks = await productModifierLinks(
+    session,
+    tenant,
+    productIds: productIds,
+  );
   final location = await defaultStockLocation(store, scope);
   final stock = {
     for (final l
@@ -320,6 +331,10 @@ Future<List<CatalogProduct>> _loadProducts(
         brand: p.brand,
         isActive: p.isActive,
         isTaxable: p.isTaxable,
+        modifierGroupIds: [
+          for (final l in modifierLinks)
+            if (l.productId == p.id) l.modifierGroupId,
+        ],
         variants: [
           for (final v in variants.where((v) => v.productId == p.id))
             CatalogVariant(
@@ -392,6 +407,74 @@ class _ProductWriter {
 
   Transaction get tx => w.transaction;
   UuidValue get tenant => scope.tenantId;
+
+  /// Pasang grup modifier [ids] berurutan (1.16b): baris lama yang tidak
+  /// dipilih dihapus lunak, urutan yang berubah diperbarui.
+  Future<void> _saveModifierLinks(UuidValue productId, List<String> ids) async {
+    final wanted = <UuidValue>[];
+    for (final id in ids) {
+      final uuid = UuidValue.withValidation(id);
+      if (!wanted.contains(uuid)) wanted.add(uuid);
+    }
+    if (wanted.isNotEmpty) {
+      final groups = await ModifierGroup.db.find(
+        w.session,
+        where: (g) =>
+            g.tenantId.equals(tenant) &
+            g.deletedAt.equals(null) &
+            g.id.inSet(wanted.toSet()),
+        transaction: tx,
+      );
+      if (groups.length != wanted.length) {
+        throw const ProductInputInvalid([
+          ProductIssue(ProductField.modifierGroups, ProductError.missing),
+        ]);
+      }
+    }
+    final old = await ProductModifierGroup.db.find(
+      w.session,
+      where: (l) =>
+          l.tenantId.equals(tenant) &
+          l.productId.equals(productId) &
+          l.deletedAt.equals(null),
+      transaction: tx,
+    );
+    for (final l in old) {
+      final i = wanted.indexOf(l.modifierGroupId);
+      if (i == l.sortOrder) continue;
+      await w.update(
+        l.copyWith(
+          sortOrder: i < 0 ? l.sortOrder : i,
+          deletedAt: i < 0 ? s.now : null,
+          version: l.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
+    final linked = {for (final l in old) l.modifierGroupId};
+    for (final (i, id) in wanted.indexed) {
+      if (linked.contains(id)) continue;
+      await w.insert(
+        ProductModifierGroup(
+          tenantId: tenant,
+          productId: productId,
+          modifierGroupId: id,
+          sortOrder: i,
+          createdAt: s.now,
+          updatedAt: s.now,
+          createdBy: staffId,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
+  }
 
   Future<UuidValue> save(ProductDraft draft) async {
     final existing = await _existingProduct(draft.id);
@@ -499,6 +582,7 @@ class _ProductWriter {
       await _saveTiers(old.id, const [], isNew: false);
       await w.update(_stampVariant(old.copyWith(deletedAt: s.now)), s);
     }
+    await _saveModifierLinks(productId, draft.modifierGroupIds);
     return productId;
   }
 

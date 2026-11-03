@@ -11,6 +11,10 @@ bool _english(AppLocalizations l10n) => l10n.localeName.startsWith('en');
 String receiptAmount(AppLocalizations l10n, int value) =>
     groupThousands(value, _english(l10n) ? ',' : '.');
 
+/// Nominal bertanda untuk tambahan modifier: `-3.000`, `4.000`.
+String _signed(AppLocalizations l10n, int value) =>
+    '${value < 0 ? '-' : ''}${receiptAmount(l10n, value.abs())}';
+
 String _qty(AppLocalizations l10n, int milli) => _english(l10n)
     ? Qty(milli).format(decimal: '.', group: ',')
     : Qty(milli).format(decimal: ',', group: '.');
@@ -68,10 +72,18 @@ ReceiptContent saleReceiptContent(
       for (final item in result.items)
         ReceiptItem(
           name: '${item.productName} ${item.variantName}'.trim(),
+          extras: [
+            for (final m in result.modifiersOf(item))
+              m.priceDelta == 0
+                  ? '+ ${m.name}'
+                  : '+ ${m.name} ${_signed(l10n, m.priceDelta)}',
+          ],
+          // Harga satuan termasuk tambahan modifier agar jumlah × harga =
+          // total baris.
           detail:
               '${_qty(l10n, item.quantityMilli)}'
               '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
-              ' x ${receiptAmount(l10n, item.unitPrice)}',
+              ' x ${receiptAmount(l10n, item.unitPrice + item.modifierDelta)}',
           amount: receiptAmount(l10n, item.lineTotal),
         ),
     ],

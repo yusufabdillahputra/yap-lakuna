@@ -2679,4 +2679,231 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get fnbRatesSaveFailed => 'Tarif gagal disimpan.';
+
+  @override
+  String get masterTabModifiers => 'Grup modifier';
+
+  @override
+  String get modifierHint =>
+      'Perubahan berlaku untuk pesanan baru; nota lama menyimpan salinan nama & harga modifier.';
+
+  @override
+  String get modifierGroups => 'Grup modifier';
+
+  @override
+  String get modifierAdd => 'Tambah grup';
+
+  @override
+  String get modifierEmpty =>
+      'Belum ada grup modifier. Contoh: Ukuran, Level gula, Topping.';
+
+  @override
+  String get modifierLoadFailed => 'Grup modifier gagal dimuat.';
+
+  @override
+  String modifierRuleRequired(int count) {
+    return 'Wajib · pilih $count';
+  }
+
+  @override
+  String modifierRuleRequiredRange(int min, int max) {
+    return 'Wajib · pilih $min–$max';
+  }
+
+  @override
+  String modifierRuleOptional(int max) {
+    return 'Opsional · maks $max';
+  }
+
+  @override
+  String modifierOptionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count opsi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String modifierUsedBy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dipakai $count menu',
+      zero: 'belum dipakai menu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get modifierNewGroup => 'Grup modifier baru';
+
+  @override
+  String get modifierEditGroup => 'Ubah grup modifier';
+
+  @override
+  String get modifierName => 'Nama grup';
+
+  @override
+  String get modifierRequired => 'Wajib dipilih';
+
+  @override
+  String get modifierRequiredHint =>
+      'Pelanggan harus memilih sebelum menu masuk bill.';
+
+  @override
+  String get modifierMin => 'Minimal pilih';
+
+  @override
+  String get modifierMax => 'Maksimal pilih';
+
+  @override
+  String get modifierMaxHint => 'Maksimal 1 tampil sebagai pilihan tunggal.';
+
+  @override
+  String get modifierOptions => 'Opsi';
+
+  @override
+  String get modifierOptionName => 'Nama opsi';
+
+  @override
+  String get modifierOptionPrice => 'Tambahan harga';
+
+  @override
+  String get modifierOptionPriceHint => 'Minus untuk potongan, mis. -3.000.';
+
+  @override
+  String get modifierOptionDefault => 'Bawaan';
+
+  @override
+  String get modifierOptionAvailable => 'Tersedia';
+
+  @override
+  String get modifierOptionSoldOut => 'Habis';
+
+  @override
+  String get modifierOptionAdd => 'Tambah opsi';
+
+  @override
+  String get modifierOptionRemove => 'Hapus opsi';
+
+  @override
+  String get modifierErrNameEmpty => 'Nama grup wajib diisi.';
+
+  @override
+  String modifierErrNameTooLong(int max) {
+    return 'Maksimal $max karakter.';
+  }
+
+  @override
+  String get modifierErrNameDuplicate => 'Nama grup sudah dipakai.';
+
+  @override
+  String modifierErrSelectRange(int max) {
+    return 'Minimal harus ≤ maksimal, maksimal 1–$max.';
+  }
+
+  @override
+  String get modifierErrMinAboveOptions =>
+      'Minimal pilih melebihi jumlah opsi.';
+
+  @override
+  String modifierErrOptionCount(int max) {
+    return 'Isi 1–$max opsi.';
+  }
+
+  @override
+  String get modifierErrOptionNameEmpty => 'Nama opsi wajib diisi.';
+
+  @override
+  String get modifierErrOptionNameDuplicate => 'Nama opsi kembar.';
+
+  @override
+  String get modifierErrOptionPrice =>
+      'Tambahan harga −Rp 1.000.000 s.d. Rp 1.000.000.';
+
+  @override
+  String get modifierErrDefaultsAboveMax =>
+      'Opsi bawaan lebih banyak dari maksimal pilih.';
+
+  @override
+  String modifierErrInUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Grup masih dipasang di $count menu. Lepas dulu dari form menu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get modifierErrGeneric => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String modifierDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get modifierDeleteBody =>
+      'Opsi grup ikut terhapus. Nota lama tetap menyimpan salinannya.';
+
+  @override
+  String get productTabModifiers => 'Modifier';
+
+  @override
+  String get productErrorModifierMissing =>
+      'Ada grup modifier yang sudah dihapus. Lepas lalu simpan lagi.';
+
+  @override
+  String get productModifiersEmpty =>
+      'Belum ada grup terpasang. Menu langsung masuk bill tanpa pilihan.';
+
+  @override
+  String get productModifiersHelp =>
+      'Urutan grup di sini = urutan di lembar pilih modifier layar Meja.';
+
+  @override
+  String get productModifiersNoMaster =>
+      'Belum ada grup modifier. Buat dulu di Master data › Grup modifier.';
+
+  @override
+  String get productModifierAttach => 'Tambah grup';
+
+  @override
+  String get productModifierRemove => 'Lepas';
+
+  @override
+  String modifierSheetAdd(String total) {
+    return 'Tambah ke bill · $total';
+  }
+
+  @override
+  String get modifierSheetQty => 'Jumlah';
+
+  @override
+  String get modifierSheetLess => 'Kurangi';
+
+  @override
+  String get modifierSheetMore => 'Tambah';
+
+  @override
+  String get modifierSheetPriceInvalid =>
+      'Potongan modifier melebihi harga menu.';
+
+  @override
+  String get modifierSheetNote => 'Catatan untuk dapur (opsional)';
+
+  @override
+  String get diningErrorModifierRequired =>
+      'Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.';
+
+  @override
+  String get diningErrorModifierSoldOut =>
+      'Ada opsi modifier yang habis. Pilih opsi lain.';
+
+  @override
+  String get diningErrorModifierPrice =>
+      'Potongan modifier melebihi harga menu.';
 }

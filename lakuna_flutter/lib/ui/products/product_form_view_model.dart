@@ -7,8 +7,8 @@ import '../../data/repositories/catalog_repository.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
-/// Tab kartu kanan form 1.16.
-enum ProductTab { variants, units, tiers }
+/// Tab kartu kanan form 1.16; *Modifier* (1.16b) sejak v0.12.0.
+enum ProductTab { variants, units, tiers, modifiers }
 
 /// Satuan konversi yang sedang diedit. [key] stabil selama form terbuka
 /// supaya field teks tidak tertukar saat baris dihapus.
@@ -147,6 +147,9 @@ class ProductFormViewModel extends ChangeNotifier {
   bool _isTaxable = false;
   final variants = <EditableVariant>[];
 
+  /// Grup modifier terpasang, urut tampil di sheet 1.8.
+  final _modifierGroupIds = <UuidValue>[];
+
   ProductTab _tab = ProductTab.variants;
   // `key` varian terpilih (bukan indeks) agar tidak bergeser saat baris
   // lain dihapus.
@@ -190,6 +193,46 @@ class ProductFormViewModel extends ChangeNotifier {
 
   int _key() => _nextKey++;
 
+  // --- Modifier (1.16b) ----------------------------------------------------
+
+  List<ModifierGroupDetail> get _allGroups =>
+      _catalog?.modifierGroups ?? const [];
+
+  /// Grup terpasang sesuai urutan; grup yang tidak dikenal dilewati.
+  List<ModifierGroupDetail> get attachedGroups => [
+    for (final id in _modifierGroupIds)
+      ?_allGroups.where((g) => g.id == id).firstOrNull,
+  ];
+
+  /// Grup master yang belum terpasang (urut master).
+  List<ModifierGroupDetail> get availableGroups => [
+    for (final g in _allGroups)
+      if (!_modifierGroupIds.contains(g.id)) g,
+  ];
+
+  void attachGroup(UuidValue id) {
+    if (save.running || _modifierGroupIds.contains(id)) return;
+    _modifierGroupIds.add(id);
+    _clear(ProductField.modifierGroups, notify: false);
+    notifyListeners();
+  }
+
+  void detachGroup(UuidValue id) {
+    if (save.running || !_modifierGroupIds.remove(id)) return;
+    _clear(ProductField.modifierGroups, notify: false);
+    notifyListeners();
+  }
+
+  /// Pindah [delta] posisi (−1 naik, +1 turun).
+  void moveGroup(UuidValue id, int delta) {
+    final i = _modifierGroupIds.indexOf(id);
+    if (save.running || i < 0) return;
+    final j = (i + delta).clamp(0, _modifierGroupIds.length - 1);
+    if (i == j) return;
+    _modifierGroupIds.insert(j, _modifierGroupIds.removeAt(i));
+    notifyListeners();
+  }
+
   Future<Result<ProductCatalog>> _load() async {
     final result = await _repository.loadCatalog();
     switch (result) {
@@ -224,6 +267,9 @@ class ProductFormViewModel extends ChangeNotifier {
     brand = d.brand;
     _isActive = d.isActive;
     _isTaxable = d.isTaxable;
+    _modifierGroupIds
+      ..clear()
+      ..addAll(p.modifierGroupIds);
     variants
       ..clear()
       ..addAll([
@@ -432,6 +478,7 @@ class ProductFormViewModel extends ChangeNotifier {
     ProductField.unitCostPrice ||
     ProductField.unitSellPrice => ProductTab.units,
     ProductField.tierMinQty || ProductField.tierPrice => ProductTab.tiers,
+    ProductField.modifierGroups => ProductTab.modifiers,
     _ => null,
   };
 
@@ -461,6 +508,7 @@ class ProductFormViewModel extends ChangeNotifier {
     isActive: _isActive,
     isTaxable: _isTaxable,
     variants: [for (final v in variants) v.toDraft()],
+    modifierGroupIds: [for (final id in _modifierGroupIds) id.uuid],
   );
 
   Future<Result<UuidValue>> _save() async {

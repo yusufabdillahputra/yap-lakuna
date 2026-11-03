@@ -1,0 +1,23 @@
+### Grup modifier menu F&B per tenant (F1-10b, 1.17b), mis. Ukuran, Topping.
+### Wajib dipilih = min_select ≥ 1; maks 1 = pilihan tunggal.
+class: ModifierGroup
+table: modifier_groups
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  name: String
+  minSelect: int, default=0, column=min_select
+  maxSelect: int, default=1, column=max_select
+  sortOrder: int, default=0, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  modifier_groups_tenant_idx:
+    fields: tenantId

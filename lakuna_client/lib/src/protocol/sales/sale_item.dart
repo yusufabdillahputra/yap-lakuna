@@ -39,6 +39,8 @@ abstract class SaleItem
     this.kitchenStatus,
     this.kitchenTicketId,
     this.note,
+    int? modifierDelta,
+    this.modifierKey,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -48,6 +50,7 @@ abstract class SaleItem
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _isc.Uuid().v7obj(),
+       modifierDelta = modifierDelta ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -72,6 +75,8 @@ abstract class SaleItem
     _i2h1um1f.KitchenStatus? kitchenStatus,
     _isc.UuidValue? kitchenTicketId,
     String? note,
+    int? modifierDelta,
+    String? modifierKey,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -123,6 +128,8 @@ abstract class SaleItem
               jsonSerialization['kitchenTicketId'],
             ),
       note: jsonSerialization['note'] as String?,
+      modifierDelta: jsonSerialization['modifierDelta'] as int?,
+      modifierKey: jsonSerialization['modifierKey'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -202,6 +209,13 @@ abstract class SaleItem
   /// Catatan dapur, maks 120 karakter.
   String? note;
 
+  /// Σ tambahan harga modifier per satuan baris (F1-10b); line_total =
+  /// (unit_price + modifier_delta) × jumlah.
+  int modifierDelta;
+
+  /// Id opsi modifier terurut dipisah koma; kunci gabung baris.
+  String? modifierKey;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -244,6 +258,8 @@ abstract class SaleItem
     _i2h1um1f.KitchenStatus? kitchenStatus,
     _isc.UuidValue? kitchenTicketId = const _isc.$UndefinedUuidValue(),
     String? note,
+    int? modifierDelta,
+    String? modifierKey,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -276,6 +292,8 @@ abstract class SaleItem
       if (kitchenStatus != null) 'kitchenStatus': kitchenStatus?.toJson(),
       if (kitchenTicketId != null) 'kitchenTicketId': kitchenTicketId?.toJson(),
       if (note != null) 'note': note,
+      'modifierDelta': modifierDelta,
+      if (modifierKey != null) 'modifierKey': modifierKey,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -310,6 +328,8 @@ abstract class SaleItem
       if (kitchenStatus != null) 'kitchenStatus': kitchenStatus?.toJson(),
       if (kitchenTicketId != null) 'kitchenTicketId': kitchenTicketId?.toJson(),
       if (note != null) 'note': note,
+      'modifierDelta': modifierDelta,
+      if (modifierKey != null) 'modifierKey': modifierKey,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -372,6 +392,8 @@ class _SaleItemImpl extends SaleItem {
     _i2h1um1f.KitchenStatus? kitchenStatus,
     _isc.UuidValue? kitchenTicketId,
     String? note,
+    int? modifierDelta,
+    String? modifierKey,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -400,6 +422,8 @@ class _SaleItemImpl extends SaleItem {
          kitchenStatus: kitchenStatus,
          kitchenTicketId: kitchenTicketId,
          note: note,
+         modifierDelta: modifierDelta,
+         modifierKey: modifierKey,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -434,6 +458,8 @@ class _SaleItemImpl extends SaleItem {
     Object? kitchenStatus = _Undefined,
     _isc.UuidValue? kitchenTicketId = const _isc.$UndefinedUuidValue(),
     Object? note = _Undefined,
+    int? modifierDelta,
+    Object? modifierKey = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -469,6 +495,8 @@ class _SaleItemImpl extends SaleItem {
           ? this.kitchenTicketId
           : kitchenTicketId,
       note: note is String? ? note : this.note,
+      modifierDelta: modifierDelta ?? this.modifierDelta,
+      modifierKey: modifierKey is String? ? modifierKey : this.modifierKey,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -594,6 +622,17 @@ class SaleItemUpdateTable extends _isd.UpdateTable<SaleItemTable> {
     table.note,
     value,
   );
+
+  _isd.ColumnValue<int, int> modifierDelta(int value) => _isd.ColumnValue(
+    table.modifierDelta,
+    value,
+  );
+
+  _isd.ColumnValue<String, String> modifierKey(String? value) =>
+      _isd.ColumnValue(
+        table.modifierKey,
+        value,
+      );
 
   _isd.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _isd.ColumnValue(
@@ -738,6 +777,17 @@ class SaleItemTable extends _isd.Table<_isc.UuidValue> {
       'note',
       this,
     );
+    modifierDelta = _isd.ColumnInt(
+      'modifier_delta',
+      this,
+      hasDefault: true,
+      fieldName: 'modifierDelta',
+    );
+    modifierKey = _isd.ColumnString(
+      'modifier_key',
+      this,
+      fieldName: 'modifierKey',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -826,6 +876,13 @@ class SaleItemTable extends _isd.Table<_isc.UuidValue> {
   /// Catatan dapur, maks 120 karakter.
   late final _isd.ColumnString note;
 
+  /// Σ tambahan harga modifier per satuan baris (F1-10b); line_total =
+  /// (unit_price + modifier_delta) × jumlah.
+  late final _isd.ColumnInt modifierDelta;
+
+  /// Id opsi modifier terurut dipisah koma; kunci gabung baris.
+  late final _isd.ColumnString modifierKey;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -863,6 +920,8 @@ class SaleItemTable extends _isd.Table<_isc.UuidValue> {
     kitchenStatus,
     kitchenTicketId,
     note,
+    modifierDelta,
+    modifierKey,
     createdAt,
     updatedAt,
     deletedAt,

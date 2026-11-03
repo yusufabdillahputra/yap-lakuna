@@ -16,6 +16,26 @@ enum DiningMode { dineIn, takeAway }
 /// Status meja di grid 1.7 (dihitung dari bill terbuka).
 enum TableState { empty, open, billRequested }
 
+/// Item yang ditambahkan dari lembar menu atau sheet modifier 1.8.
+@immutable
+class BillItemInput {
+  const BillItemInput(
+    this.option, {
+    this.note,
+    this.quantity = Qty.one,
+    this.modifierIds = const [],
+  });
+
+  final SaleOption option;
+
+  /// Catatan dapur; kosong = tanpa catatan.
+  final String? note;
+  final Qty quantity;
+
+  /// Opsi modifier terpilih (urut grup).
+  final List<UuidValue> modifierIds;
+}
+
 /// View model layar Meja & open bill (1.7 / 1.7e, F1-10).
 class DiningViewModel extends ChangeNotifier {
   DiningViewModel({required this._repository, required this._printer}) {
@@ -44,8 +64,7 @@ class DiningViewModel extends ChangeNotifier {
   /// Nama pemesan opsional.
   late final Command1<OpenBill, String?> openTakeAway;
 
-  /// (pilihan menu, catatan dapur).
-  late final Command1<OpenBill, (SaleOption, String?)> addItem;
+  late final Command1<OpenBill, BillItemInput> addItem;
 
   /// (item, jumlah baru); nol menghapus item *Baru*.
   late final Command1<OpenBill, (UuidValue, Qty)> setQuantity;
@@ -100,6 +119,10 @@ class DiningViewModel extends ChangeNotifier {
   List<DiningArea> get areas => _overview?.areas ?? const [];
   List<DiningTable> get tables => _overview?.tables ?? const [];
   bool get canPay => _data?.canPay ?? false;
+
+  /// Grup modifier menu [p] (urut 1.16b); kosong = langsung masuk bill.
+  List<ModifierGroupDetail> modifierGroupsOf(CatalogProduct p) =>
+      _data?.groupsOf(p) ?? const [];
   bool get canVoid => _data?.canVoid ?? false;
   String get staffName => _data?.staffName ?? '';
   FnbRates get rates => _overview?.rates ?? const FnbRates();
@@ -305,19 +328,20 @@ class DiningViewModel extends ChangeNotifier {
 
   UuidValue? get _billId => _selectedId;
 
-  Future<Result<OpenBill>> _addItem((SaleOption, String?) arg) {
+  Future<Result<OpenBill>> _addItem(BillItemInput input) {
     final id = _billId;
     if (id == null) return Future.value(Result.error(BillNotFound()));
-    final (option, note) = arg;
+    final note = input.note?.trim() ?? '';
     return _act(
       () => _repository.addItem(
         id,
         SaleLineRequest(
-          variantId: option.variant.id,
-          productUnitId: option.unit?.id,
-          quantity: Qty.one,
+          variantId: input.option.variant.id,
+          productUnitId: input.option.unit?.id,
+          quantity: input.quantity,
         ),
-        note: note,
+        note: note.isEmpty ? null : note,
+        modifierIds: input.modifierIds,
       ),
       onOk: _put,
     );

@@ -101,6 +101,41 @@ class LocalMasterDataRepository extends MasterDataRepository {
   Future<Result<List<StockLocation>>> locations() =>
       _guard((scope, _) => stockLocations(_store, scope));
 
+  @override
+  Future<Result<List<ModifierGroupDetail>>> modifierGroups() =>
+      _guard((scope, _) => modifierGroupRows(_store, scope));
+
+  @override
+  Future<Result<ModifierGroup>> saveModifierGroup(
+    UuidValue? id,
+    ModifierGroupDraft draft,
+  ) => _guard(
+    (scope, staffId) => data.saveModifierGroup(
+      _store,
+      scope,
+      staffId: staffId,
+      id: id,
+      draft: draft,
+    ),
+  );
+
+  @override
+  Future<Result<void>> moveModifierGroup(UuidValue id, int delta) => _guard(
+    (scope, staffId) => data.moveModifierGroup(
+      _store,
+      scope,
+      staffId: staffId,
+      id: id,
+      delta: delta,
+    ),
+  );
+
+  @override
+  Future<Result<void>> deleteModifierGroup(UuidValue id) => _guard(
+    (scope, staffId) =>
+        data.deleteModifierGroup(_store, scope, staffId: staffId, id: id),
+  );
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(CatalogScope scope, UuidValue staffId) body,
   ) async {

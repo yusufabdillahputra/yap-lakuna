@@ -46,6 +46,7 @@ class LocalDiningRepository extends DiningRepository {
       canVoid: staff.can(Permission.salesVoid),
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
+      modifierGroups: await menuModifierGroups(_store, scope),
     );
   });
 
@@ -79,6 +80,7 @@ class LocalDiningRepository extends DiningRepository {
     UuidValue billId,
     SaleLineRequest line, {
     String? note,
+    List<UuidValue> modifierIds = const [],
   }) => _guard(
     (ctx, staff) => addBillItem(
       _store,
@@ -87,6 +89,7 @@ class LocalDiningRepository extends DiningRepository {
       billId: billId,
       line: line,
       note: note,
+      modifierIds: modifierIds,
     ),
   );
 

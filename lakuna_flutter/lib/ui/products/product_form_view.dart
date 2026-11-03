@@ -9,6 +9,8 @@ import '../../data/repositories/catalog_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
+import '../master/modifier_groups_tab.dart'
+    show modifierDeltaLabel, modifierRuleLabel;
 import 'product_form_view_model.dart';
 import 'product_widgets.dart';
 
@@ -91,6 +93,7 @@ String productFieldError(
   ProductError.factorTooSmall => l10n.productErrorFactorTooSmall,
   ProductError.minQtyTooSmall => l10n.productErrorMinQtyTooSmall,
   ProductError.taken => l10n.productErrorTaken(problem.takenBy ?? ''),
+  ProductError.missing => l10n.productErrorModifierMissing,
 };
 
 class ProductFormView extends StatelessWidget {
@@ -559,8 +562,160 @@ class _TabsCard extends StatelessWidget {
               ),
               child: _TiersTab(viewModel: vm),
             ),
+            FTabEntry(
+              label: label(ProductTab.modifiers, l10n.productTabModifiers),
+              child: _ModifiersTab(viewModel: vm),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Tab *Modifier* (1.16b): grup terpasang berurutan, pasang dari master.
+class _ModifiersTab extends StatelessWidget {
+  const _ModifiersTab({required this.viewModel});
+
+  final ProductFormViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final attached = vm.attachedGroups;
+    final available = vm.availableGroups;
+    final problem = vm.problem(ProductField.modifierGroups);
+    final busy = vm.save.running;
+    Widget icon(String key, IconData icon, String label, VoidCallback? on) =>
+        FButton.icon(
+          key: ValueKey(key),
+          size: .sm,
+          variant: .ghost,
+          semanticsLabel: label,
+          onPress: busy ? null : on,
+          child: Icon(icon, size: 16),
+        );
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: [
+          if (problem != null)
+            Text(
+              productFieldError(l10n, ProductField.modifierGroups, problem),
+              key: const ValueKey('product-modifier-error'),
+              style: theme.typography.body.xs.copyWith(
+                color: theme.colors.destructive,
+              ),
+            ),
+          if (attached.isEmpty) _Help(l10n.productModifiersEmpty),
+          for (final (i, g) in attached.indexed)
+            FCard(
+              key: ValueKey('product-modifier-${g.name}'),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 2,
+                        children: [
+                          Text(
+                            g.name,
+                            style: theme.typography.body.sm.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            modifierRuleLabel(
+                              l10n,
+                              g.group.minSelect,
+                              g.group.maxSelect,
+                            ),
+                            style: theme.typography.body.xs.copyWith(
+                              color: g.isRequired
+                                  ? theme.colors.primary
+                                  : theme.colors.mutedForeground,
+                            ),
+                          ),
+                          Text(
+                            [
+                              for (final o in g.options)
+                                [
+                                  o.name,
+                                  modifierDeltaLabel(
+                                    context,
+                                    Money(o.priceDelta),
+                                  ),
+                                ].where((s) => s.isNotEmpty).join(' '),
+                            ].join(', '),
+                            style: theme.typography.body.xs.copyWith(
+                              color: theme.colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Wrap(
+                      children: [
+                        icon(
+                          'product-modifier-up-${g.name}',
+                          TablerIcons.arrowUp,
+                          l10n.diningSetupMoveUp,
+                          i == 0 ? null : () => vm.moveGroup(g.id, -1),
+                        ),
+                        icon(
+                          'product-modifier-down-${g.name}',
+                          TablerIcons.arrowDown,
+                          l10n.diningSetupMoveDown,
+                          i == attached.length - 1
+                              ? null
+                              : () => vm.moveGroup(g.id, 1),
+                        ),
+                        icon(
+                          'product-modifier-remove-${g.name}',
+                          TablerIcons.x,
+                          l10n.productModifierRemove,
+                          () => vm.detachGroup(g.id),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (available.isNotEmpty) ...[
+            Text(
+              l10n.productModifierAttach,
+              style: theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final g in available)
+                  FButton(
+                    key: ValueKey('product-modifier-attach-${g.name}'),
+                    size: .sm,
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    prefix: const Icon(TablerIcons.plus, size: 16),
+                    onPress: busy ? null : () => vm.attachGroup(g.id),
+                    child: Flexible(child: Text(g.name)),
+                  ),
+              ],
+            ),
+          ] else if (attached.isEmpty)
+            _Help(l10n.productModifiersNoMaster),
+          _Help(l10n.productModifiersHelp),
+        ],
       ),
     );
   }

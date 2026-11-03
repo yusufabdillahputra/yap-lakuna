@@ -7,6 +7,91 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-03
+
+Modifier menu F&B (F1-10 bagian kedua, layar 1.8, 1.16b, 1.17b). Kafe dan
+warung bisa membuat pilihan seperti ukuran, level pedas, atau topping,
+memasangnya di menu, lalu memilihnya saat menambah pesanan di layar Meja.
+
+### Ditambahkan
+
+- **Master data › Modifier** (1.17b, izin `products:manage`):
+  - Daftar grup dengan aturan ("Wajib · pilih 1", "Opsional · maks 2"),
+    jumlah opsi, dan jumlah menu pemakai; urutkan naik/turun; hapus grup
+    ditolak bila masih dipasang di menu.
+  - Form grup (dialog): nama, saklar *Wajib dipilih*, minimal dan
+    maksimal pilih (0–20), opsi 1–30 dengan nama, tambahan harga (boleh
+    negatif, mis. "Tanpa gula −Rp 2.000"), *Bawaan*, dan *Tersedia/Habis*.
+    Dialog tetap terbuka sampai simpan berhasil; kesalahan tampil di kolom
+    terkait.
+- **Form produk › tab Modifier** (1.16b): pasang grup dari master,
+  urutkan naik/turun, lepas. Urutan ini dipakai di sheet 1.8. Disimpan
+  bersama produk dalam satu transaksi.
+- **Sheet *Pilih modifier*** (1.8) di layar Meja untuk menu yang punya
+  grup modifier:
+  - Label aturan per grup (amber bila wajib), opsi sebagai tombol pilihan
+    dengan harga tambahan, opsi *Habis* dicoret dan tidak bisa dipilih,
+    opsi *Bawaan* terpilih otomatis.
+  - Pilih satu (radio) untuk maks 1, centang dengan batas untuk maks > 1.
+  - *Catatan untuk dapur*, jumlah − / + (1–999), tombol *Tambah ke bill ·
+    Rp X* yang aktif setelah semua grup wajib terpenuhi.
+  - Menu tanpa modifier tetap langsung masuk bill seperti v0.11.0.
+- Modifier tampil di **panel bill** ("+ Besar, Boba"), **tiket dapur**
+  (`+ Besar` per baris sebelum catatan `*`), **ringkasan Bayar**, dan
+  **struk** (`+ Besar 4.000`, potongan `+ Tanpa gula -2.000`, baris
+  rincian `3 x 14.000` = harga + tambahan).
+
+### Diubah
+
+- Baris bill digabung hanya bila varian, satuan, catatan, set modifier,
+  dan tambahan per satuan sama.
+- Subtotal nota (harga daftar) kini termasuk tambahan modifier.
+
+### Diperbaiki
+
+Bug berikut ditemukan saat review kode dan uji layar sebelum rilis:
+
+- Mengubah jumlah item dengan harga grosir + tambahan negatif bisa membuat
+  harga satuan di bawah nol; kini ditolak `ModifierPriceInvalid`.
+- Menambah item yang sama setelah harga opsi diubah di master menggabung
+  ke baris lama dengan tambahan lama; kini menjadi baris baru.
+- Menghapus item bill (jumlah 0) meninggalkan baris modifier yatim yang
+  ikut tersinkron; kini ikut dihapus.
+- Sheet modifier di ponsel 360 px meluap 38 px; judul grup dan tombol opsi
+  kini membungkus.
+
+### Keamanan
+
+- Pilihan modifier divalidasi ulang di lapisan data: opsi harus milik grup
+  yang terpasang di menu itu, tersedia, tidak dobel, dan jumlah per grup
+  di antara minimal dan maksimal (`ModifierSelectionInvalid`), sehingga
+  harga tidak bisa dimanipulasi dari UI.
+
+### Catatan teknis
+
+- Migrasi `modifier`: tabel `modifier_groups`, `modifiers`,
+  `product_modifier_groups`, `sale_item_modifiers`; `sale_items` mendapat
+  `modifier_delta` (bawaan 0) dan `modifier_key` (nullable). Diuji manual
+  dengan membuka data v0.11.0.
+- `sale_items.unit_price` tetap harga dasar (grosir berlaku di harga
+  dasar); `line_total = (unit_price + modifier_delta) × jumlah`.
+  `sale_item_modifiers` menyimpan salinan nama grup, nama opsi, dan harga
+  sehingga nota lama tidak berubah saat master diubah.
+- Aturan di `lakuna_domain/modifier.dart` (`validateModifierGroup`,
+  `validateModifierSelection`, `modifierDelta`, `modifiedUnitPrice`,
+  `modifierKey`); data di `lakuna_data/modifier_admin.dart` dan
+  `open_bill.dart`. Kueri pemasangan dibatasi ke produk dan grup yang
+  dipakai.
+- Tes baru: domain (aturan grup, pilihan, harga, struk), data (master,
+  pemasangan, bill, gabung, grosir, hapus), view model dan widget (tab
+  Modifier, form produk, sheet di tablet dan ponsel 360 px, alur meja
+  sampai struk).
+- Rilis v0.9.0 dan v0.10.0 tidak terbit di GitHub Releases (job macOS
+  batal sebelum `release.yml` diperbaiki di v0.11.0); isinya termasuk
+  dalam v0.11.0 dan seterusnya.
+- Tunda: modifier di kasir retail, toggle tiket dapur/catatan per menu,
+  split bill (v0.13.0), denah (v0.14.0).
+
 ## [0.11.0] - 2026-11-03
 
 Meja F&B dan open bill (F1-10 bagian pertama, layar 1.7 dan 1.7e). Warung
@@ -1110,7 +1195,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...v0.9.0

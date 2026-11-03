@@ -177,7 +177,11 @@ class BillPaySummary extends StatelessWidget {
             line(
               '${formatQty(context, Qty(item.quantityMilli))}'
               '${item.productUnitId == null ? '' : ' ${item.unitName}'} × '
-              '${'${item.productName} ${item.variantName}'.trim()}',
+              '${'${item.productName} ${item.variantName}'.trim()}'
+              '${switch (bill.modifiersOf(item)) {
+                final m when m.isEmpty => '',
+                final m => ' + ${m.map((x) => x.name).join(', ')}',
+              }}',
               Money(item.lineTotal),
             ),
           const FDivider(),

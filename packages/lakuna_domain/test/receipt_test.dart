@@ -198,4 +198,24 @@ void main() {
     }
     expect(lines.first.text, startsWith('Kopi ? Cafe '));
   });
+
+  test('modifier tampil di bawah nama item, menjorok', () {
+    final lines = layoutReceipt(
+      const ReceiptContent(
+        storeName: 'KOPI',
+        items: [
+          ReceiptItem(
+            name: 'Kopi Susu Aren',
+            extras: ['+ Besar', '+ Tanpa gula -3.000'],
+            detail: '2 x 24.000',
+            amount: '50.000',
+          ),
+        ],
+      ),
+      ReceiptPaper.mm58,
+    ).map((l) => l.text).toList();
+    final i = lines.indexOf('Kopi Susu Aren');
+    expect(lines.sublist(i + 1, i + 3), ['  + Besar', '  + Tanpa gula -3.000']);
+    expect(lines[i + 3], startsWith('  2 x 24.000'));
+  });
 }

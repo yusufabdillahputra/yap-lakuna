@@ -13,6 +13,7 @@ part '20261103114011514-qris/migration.dart';
 part '20261103133809437-stock/migration.dart';
 part '20261103160755181-master/migration.dart';
 part '20261103164735343-meja/migration.dart';
+part '20261103175303114-modifier/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -28,6 +29,7 @@ class MigrationRegistry {
     _Migration20261103133809437_stock(),
     _Migration20261103160755181_master(),
     _Migration20261103164735343_meja(),
+    _Migration20261103175303114_modifier(),
   ];
 
   /// List of all client-side database migration versions.

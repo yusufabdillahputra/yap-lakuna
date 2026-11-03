@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/catalog_repository.dart';
 import 'package:lakuna_flutter/ui/products/product_form_view_model.dart';
 
 import '../../testing/fake_catalog_repository.dart';
+import '../../testing/modifier_seed.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
 
 void main() {
@@ -240,5 +242,49 @@ void main() {
     await vm.save.execute();
     expect(vm.problem(ProductField.brand), isNotNull);
     expect(vm.hasProblems, isTrue);
+  });
+
+  test(
+    'modifier: pasang, urutkan, lepas, tersimpan dan dimuat ulang',
+    () async {
+      repo.modifierGroups = seedModifierGroups();
+      final ukuran = repo.modifierGroups.first.id;
+      final topping = repo.modifierGroups.last.id;
+      final id = repo.products.first.id.uuid;
+      final vm = await open(id);
+      expect(vm.attachedGroups, isEmpty);
+      expect(vm.availableGroups.map((g) => g.name), ['Ukuran', 'Topping']);
+
+      vm.attachGroup(topping);
+      vm.attachGroup(ukuran);
+      expect(vm.attachedGroups.map((g) => g.name), ['Topping', 'Ukuran']);
+      expect(vm.availableGroups, isEmpty);
+      vm.moveGroup(ukuran, -1);
+      expect(vm.attachedGroups.map((g) => g.name), ['Ukuran', 'Topping']);
+      expect(vm.draft.modifierGroupIds, [ukuran.uuid, topping.uuid]);
+
+      await vm.save.execute();
+      expect(repo.saved.last.modifierGroupIds, [ukuran.uuid, topping.uuid]);
+
+      final again = await open(id);
+      expect(again.attachedGroups.map((g) => g.name), ['Ukuran', 'Topping']);
+      again.detachGroup(ukuran);
+      expect(again.attachedGroups.map((g) => g.name), ['Topping']);
+      expect(again.availableGroups.map((g) => g.name), ['Ukuran']);
+    },
+  );
+
+  test('modifier: grup terhapus menunjuk tab Modifier', () async {
+    final vm = await open(repo.products.first.id.uuid);
+    repo.nextError = ProductInputInvalid(const [
+      ProductIssue(ProductField.modifierGroups, ProductError.missing),
+    ]);
+    await vm.save.execute();
+    expect(vm.tab, ProductTab.modifiers);
+    expect(vm.tabHasProblem(ProductTab.modifiers), isTrue);
+    expect(
+      vm.problem(ProductField.modifierGroups)?.error,
+      ProductError.missing,
+    );
   });
 }

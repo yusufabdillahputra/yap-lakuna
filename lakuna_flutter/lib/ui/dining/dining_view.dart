@@ -17,6 +17,7 @@ import '../receipt/receipt_content.dart' show percentLabel;
 import '../receipt/receipt_paper_view.dart';
 import 'dining_view_model.dart';
 import 'kitchen_ticket.dart';
+import 'modifier_sheet.dart';
 
 /// Layar Meja & open bill (1.7 / 1.7e, F1-10). Memiliki [DiningViewModel].
 class DiningScreen extends StatefulWidget {
@@ -92,6 +93,10 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
       BillInputInvalid(field: BillField.note) => l10n.diningNoteTooLong,
       BillInputInvalid() => l10n.diningErrorInput,
       NotPermitted() => l10n.diningErrorPermission,
+      ModifierSelectionInvalid(error: ModifierSelectionError.unavailable) =>
+        l10n.diningErrorModifierSoldOut,
+      ModifierSelectionInvalid() => l10n.diningErrorModifierRequired,
+      ModifierPriceInvalid() => l10n.diningErrorModifierPrice,
       _ => l10n.diningErrorGeneric,
     };
 
@@ -878,7 +883,11 @@ class _BillPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final item in bill.items)
-                _BillItemRow(viewModel: vm, item: item),
+                _BillItemRow(
+                  viewModel: vm,
+                  item: item,
+                  modifiers: bill.modifiersOf(item),
+                ),
             ],
           );
 
@@ -1087,10 +1096,15 @@ class _BillPanel extends StatelessWidget {
 }
 
 class _BillItemRow extends StatelessWidget {
-  const _BillItemRow({required this.viewModel, required this.item});
+  const _BillItemRow({
+    required this.viewModel,
+    required this.item,
+    this.modifiers = const [],
+  });
 
   final DiningViewModel viewModel;
   final SaleItem item;
+  final List<SaleItemModifier> modifiers;
 
   @override
   Widget build(BuildContext context) {
@@ -1106,6 +1120,7 @@ class _BillItemRow extends StatelessWidget {
     final name = '${item.productName} ${item.variantName}'.trim();
     final unit = item.productUnitId == null ? '' : ' ${item.unitName}';
     final key = item.id.uuid;
+    final modifierText = modifiers.map((m) => m.name).join(', ');
 
     Widget qtyButton(String k, IconData icon, Qty to, String label) =>
         FButton.icon(
@@ -1118,7 +1133,11 @@ class _BillItemRow extends StatelessWidget {
         );
 
     return Padding(
-      key: ValueKey('dining-item-$name'),
+      key: ValueKey(
+        modifierText.isEmpty
+            ? 'dining-item-$name'
+            : 'dining-item-$name + $modifierText',
+      ),
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1147,6 +1166,14 @@ class _BillItemRow extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (modifierText.isNotEmpty)
+                      Text(
+                        '+ $modifierText',
+                        key: ValueKey('dining-item-modifiers-$key'),
+                        style: theme.typography.body.xs.copyWith(
+                          color: theme.colors.mutedForeground,
+                        ),
+                      ),
                     if (item.note case final note? when note.trim().isNotEmpty)
                       Text(
                         '* ${note.trim()}',
@@ -1558,8 +1585,19 @@ class _MenuSheetState extends State<_MenuSheet> {
   DiningViewModel get _vm => widget.viewModel;
 
   Future<void> _add(SaleOption option) async {
-    final note = _note.trim();
-    await _vm.addItem.execute((option, note.isEmpty ? null : note));
+    var input = BillItemInput(option, note: _note.trim());
+    final groups = _vm.modifierGroupsOf(option.product);
+    if (groups.isNotEmpty) {
+      final picked = await showModifierSheet(
+        context,
+        option: option,
+        groups: groups,
+        note: _note.trim(),
+      );
+      if (picked == null || !mounted) return;
+      input = picked;
+    }
+    await _vm.addItem.execute(input);
     if (!mounted || !_vm.addItem.completed) return;
     setState(() {
       _added = option.label.isEmpty

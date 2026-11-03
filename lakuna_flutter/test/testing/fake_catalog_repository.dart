@@ -23,6 +23,9 @@ class FakeCatalogRepository extends CatalogRepository {
   final units = <MeasureUnit>[];
   final saved = <ProductDraft>[];
 
+  /// Grup modifier master untuk tab *Modifier*.
+  List<ModifierGroupDetail> modifierGroups = const [];
+
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
   var loadCalls = 0;
@@ -49,6 +52,7 @@ class FakeCatalogRepository extends CatalogRepository {
         products: sorted,
         categories: List.of(categories),
         units: List.of(units),
+        modifierGroups: List.of(modifierGroups),
       ),
     );
   }
@@ -161,6 +165,9 @@ class FakeCatalogRepository extends CatalogRepository {
       brand: orNull(d.brand),
       isActive: d.isActive,
       isTaxable: d.isTaxable,
+      modifierGroupIds: [
+        for (final id in d.modifierGroupIds) UuidValue.fromString(id),
+      ],
       variants: [
         for (final v in d.variants)
           CatalogVariant(

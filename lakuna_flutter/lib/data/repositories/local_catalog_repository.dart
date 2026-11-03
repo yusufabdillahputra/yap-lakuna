@@ -29,6 +29,7 @@ class LocalCatalogRepository extends CatalogRepository {
       products: products,
       categories: categories,
       units: units,
+      modifierGroups: await modifierGroupRows(_store, scope),
     );
   });
 

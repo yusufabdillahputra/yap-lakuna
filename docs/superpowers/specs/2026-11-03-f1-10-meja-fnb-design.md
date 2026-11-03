@@ -209,13 +209,107 @@ mematikan `foreign_keys` selama migrasi); diuji pada data v0.10.0.
 - View model + widget: alur meja → menu → kirim → disajikan → bayar,
   take away, batal, pindah, tanpa izin, ponsel 360/820/1280 tanpa luapan.
 
+## Lingkup v0.12.0 · Modifier (brainstorming 3 Nov 2026)
+
+Kanvas Lakuna 1.8 *Pilih modifier menu* (`F1-Modifier`), 1.16b *Form menu
+F&B · Modifier* (`F1-Produk-Modifier`), 1.17b *Master grup modifier*
+(`F1-Master-Modifier`) dan keputusan Storeku v0.11.0 menjawab hampir semua
+pertanyaan. Perbedaan dari Storeku: harga tambahan **boleh negatif**
+(potongan, mis. "Tanpa nasi −Rp 3.000"), opsi bisa ditandai **Habis**
+(tidak dihapus), opsi **Bawaan** terpilih otomatis, dan urutan grup diatur
+**per menu**.
+
+### Master data › Grup modifier (1.17b)
+
+Tab baru di Master data, izin `products:manage` (sama dengan form produk):
+
+- Daftar grup: nama, aturan ("Wajib · pilih 1", "Opsional · maks 2"),
+  jumlah opsi, "dipakai n menu"; urutkan naik/turun; *+ Grup modifier*.
+- Form grup (panel kanan di layar lebar, lembar bawah di ponsel): *Nama
+  grup* (wajib, maks 40, unik per tenant tanpa membedakan huruf), *Wajib
+  dipilih* (saklar), *Minimal pilih* dan *Maksimal pilih* (0–20; wajib ⇒
+  min ≥ 1; min ≤ maks; maks ≥ 1). Maks 1 tampil sebagai pilihan tunggal.
+- Opsi (1–30 per grup): *Nama opsi* (wajib, maks 40, unik per grup),
+  *Tambahan harga* (−Rp 1.000.000 s.d. Rp 1.000.000, boleh negatif),
+  *Bawaan* (terpilih otomatis di 1.8; jumlah bawaan ≤ maks), *Status*
+  Tersedia / Habis. Hapus opsi = soft delete (nota lama menyimpan salinan).
+- Catatan: "Perubahan berlaku untuk pesanan baru; nota lama menyimpan
+  salinan nama & harga modifier." *Hapus grup* ditolak bila masih dipasang
+  di menu (menyebut jumlah menu).
+
+### Form produk › Modifier (1.16b)
+
+Tab *Modifier* di form produk (semua jenis produk): daftar grup terpasang
+berurutan dengan opsi dan harga tambahan, tombol naik/turun dan lepas,
+*Tambah grup* (pilih dari grup yang belum terpasang). Urutan = urutan di
+1.8. Disimpan bersama produk ke `product_modifier_groups` dalam transaksi
+yang sama. Toggle *Kirim ke tiket dapur* / *Bisa catatan bebas* di kanvas
+ditunda (semua menu ikut tiket dan boleh catatan).
+
+### Sheet 1.8 di layar Meja
+
+- Menu yang punya grup modifier membuka sheet: nama, deskripsi varian,
+  harga; setiap grup dengan label aturan (amber bila wajib); opsi sebagai
+  tombol pilihan dengan harga tambahan; opsi *Habis* dicoret dan tidak
+  bisa dipilih; opsi *Bawaan* yang tersedia sudah terpilih.
+- Maks 1 = pilihan tunggal (mengetuk opsi lain memindah pilihan; mengetuk
+  opsi terpilih di grup opsional mengosongkan). Maks > 1 = centang dengan
+  batas; opsi lain nonaktif setelah batas tercapai.
+- *Catatan untuk dapur* (maks 120), jumlah − / + (1–999), tombol *Tambah
+  ke bill · Rp X* = (harga + Σ tambahan) × jumlah; nonaktif sampai semua
+  grup memenuhi minimal.
+- Menu tanpa grup modifier langsung masuk bill seperti v0.11.0 (catatan
+  dari kolom catatan lembar menu).
+
+### Aturan bisnis modifier
+
+- Validasi di `lakuna_domain` (`validateModifierGroup`,
+  `validateModifierSelection`) dan diulang di `lakuna_data` saat menambah
+  item: setiap opsi milik grup yang terpasang di produk, tersedia, tidak
+  dobel; jumlah per grup di antara min dan maks → `ModifierSelectionInvalid`.
+- **Harga**: `sale_items.unit_price` tetap harga dasar (grosir berlaku pada
+  harga dasar); kolom baru `modifier_delta` = Σ tambahan per satuan baris;
+  `line_total = (unit_price + modifier_delta) × jumlah`, minimal 0 per
+  satuan (Σ tambahan < −harga ditolak `ModifierPriceInvalid`).
+  `sale_item_modifiers` menyimpan nama grup, nama opsi, dan
+  `price_delta` beku.
+- **Gabung baris** hanya bila varian, satuan, catatan, **set
+  modifier** (kolom `modifier_key` = id opsi terurut), dan **tambahan per
+  satuan** sama (harga opsi yang diubah di master membuat baris baru), dan
+  baris masih *Baru*.
+- Mengubah jumlah memeriksa ulang harga: grosir + tambahan negatif yang
+  membuat harga satuan di bawah 0 ditolak `ModifierPriceInvalid`. Menghapus
+  item ikut menghapus (soft delete) baris `sale_item_modifiers`-nya.
+- **Tiket dapur & struk**: modifier tampil di bawah nama item (`  + Besar`,
+  `  + Tanpa nasi -3.000` di struk), catatan berawalan `*`. Baris panel
+  bill menampilkan modifier sebagai teks kecil.
+- Stok tidak dipengaruhi modifier (resep di Fase 3). Kasir retail belum
+  memakai modifier (gap; toko F&B memakai layar Meja / Take away).
+
+### Data (migrasi `modifier`)
+
+- `modifier_groups`: `tenant_id`, `name`, `min_select`, `max_select`,
+  `sort_order` + kolom standar.
+- `modifiers`: `tenant_id`, `modifier_group_id`, `name`, `price_delta`,
+  `is_default`, `is_available`, `sort_order` + kolom standar.
+- `product_modifier_groups`: `tenant_id`, `product_id`,
+  `modifier_group_id`, `sort_order` + kolom standar (soft delete saat
+  dilepas).
+- `sale_item_modifiers`: `tenant_id`, `sale_item_id`, `modifier_id`,
+  `group_name`, `name`, `price_delta`, `sort_order` + kolom standar.
+- `sale_items` tambah `modifier_delta` (bawaan 0) dan `modifier_key`
+  (nullable).
+
+### Kriteria selesai v0.12.0
+
+Di tablet: buat grup Ukuran (wajib, Reguler / Besar +4.000) dan Topping
+(opsional, maks 2, Keju habis) → pasang di Kopi Susu Aren → di Meja pilih
+Besar + Boba, catatan, jumlah 2 → bill "2 × Kopi Susu Aren + Besar, Boba"
+Rp 66.000 → tiket dapur dan struk menampilkan modifier → bayar.
+
 ## Rilis berikutnya (keputusan dari Storeku, dirinci saat dikerjakan)
 
-- **v0.12.0 Modifier**: Master › *Grup modifier* (wajib/opsional,
-  min/maks, opsi dengan harga tambahan boleh negatif, opsi habis), form
-  produk › *Modifier*, sheet 1.8 di layar Meja (catatan dapur, jumlah,
-  *Tambah ke bill · Rp X*); snapshot nama & harga di `sale_item_modifiers`;
-  gabung baris hanya bila modifier dan catatan sama.
+- **v0.12.0 Modifier**: dirinci di *Lingkup v0.12.0* di atas.
 - **v0.13.0 Split bill**: satu nota, pembayaran per tamu (`guest_label`),
   mode per item / bagi rata / nominal bebas, QRIS bagian menunggu +
   *Sudah Terbayar*, nota lunas saat semua bagian lunas.
@@ -232,7 +326,9 @@ mematikan `foreign_keys` selama migrasi); diuji pada data v0.10.0.
 | Pajak & service | 1.26 | Dirilis v0.11.0 | Retail belum memakai tarif. |
 | Tutup & bayar | 1.6 | Dirilis v0.11.0 | Rincian bill (item, subtotal, service, PB1, total) tampil di kolom kanan layar Bayar, di atas pilihan metode. |
 | Catatan dapur | 1.7 | Dirilis v0.11.0 | Kolom catatan di lembar menu berlaku untuk item berikutnya yang ditambahkan, lalu dikosongkan. *Minta bill* hanya untuk dine in. |
-| Modifier | 1.8, 1.16b, 1.17b | Belum | v0.12.0. |
+| Modifier | 1.8, 1.16b, 1.17b | Dirilis v0.12.0 | Form grup berupa dialog (bukan panel kanan / lembar bawah). Total di sheet 1.8 memakai harga dasar; harga grosir dihitung di lapisan data saat item masuk bill. Baris rincian struk = (harga + tambahan) × jumlah, modifier di bawah nama. |
+| Modifier di kasir retail | — | Belum | Toko F&B memakai layar Meja / Take away. |
+| Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Belum | Semua menu ikut tiket dan boleh catatan. |
 | Split bill | 1.9 | Belum | v0.13.0. |
 | Denah | 1.7b–d | Belum | v0.14.0. |
 | Gabung meja | Ada (`can_merge` di 1.7d) | Belum | Setelah denah. |

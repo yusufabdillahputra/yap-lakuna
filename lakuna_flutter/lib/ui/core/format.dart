@@ -40,6 +40,41 @@ class RupiahInputFormatter extends TextInputFormatter {
   }
 }
 
+/// Field tambahan harga yang boleh negatif (`-3.000` = potongan). Tanda
+/// minus hanya di depan; maksimal 9 digit.
+class SignedRupiahInputFormatter extends TextInputFormatter {
+  const SignedRupiahInputFormatter();
+
+  static const maxDigits = 9;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final negative = newValue.text.trimLeft().startsWith('-');
+    var digits = newValue.text.replaceAll(RegExp('[^0-9]'), '');
+    if (digits.length > maxDigits) digits = digits.substring(0, maxDigits);
+    digits = digits.replaceFirst(RegExp('^0+(?=[0-9])'), '');
+    final grouped = digits.isEmpty
+        ? ''
+        : groupThousands(int.parse(digits), '.');
+    final text = '${negative ? '-' : ''}$grouped';
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
+/// Nilai dari [SignedRupiahInputFormatter]; kosong atau `-` = nol.
+Money parseSignedRupiah(String text) {
+  final digits = text.replaceAll(RegExp('[^0-9]'), '');
+  if (digits.isEmpty) return Money.zero;
+  final value = int.parse(digits);
+  return Money(text.trimLeft().startsWith('-') ? -value : value);
+}
+
 bool _isEnglish(BuildContext context) =>
     Localizations.localeOf(context).languageCode == 'en';
 
