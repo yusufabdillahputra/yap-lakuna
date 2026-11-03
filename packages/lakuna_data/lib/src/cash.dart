@@ -29,6 +29,13 @@ class CashScope {
   final UuidValue deviceId;
 }
 
+/// Masih ada bill split yang sebagian dibayar di cabang ini: sesi kasir
+/// tidak bisa ditutup sampai bill itu lunas atau bagian menunggunya dibatalkan.
+class CashSessionHasOpenSplit implements Exception {
+  @override
+  String toString() => 'CashSessionHasOpenSplit';
+}
+
 /// Perangkat ini sudah punya sesi kasir terbuka.
 class CashSessionAlreadyOpen implements Exception {
   @override
@@ -227,6 +234,27 @@ Future<CashSession> closeCashSession(
   }
   return store.write(actor: staffId, (w) async {
     final session = await _openSession(w, scope, sessionId);
+    final open = await Sale.db.find(
+      w.session,
+      where: (s) =>
+          s.tenantId.equals(scope.tenantId) &
+          s.outletId.equals(scope.outletId) &
+          s.status.equals(SaleStatus.open) &
+          s.deletedAt.equals(null),
+      transaction: w.transaction,
+    );
+    if (open.isNotEmpty &&
+        await Payment.db.count(
+              w.session,
+              where: (p) =>
+                  p.tenantId.equals(scope.tenantId) &
+                  p.saleId.inSet({for (final s in open) s.id}) &
+                  p.deletedAt.equals(null),
+              transaction: w.transaction,
+            ) >
+            0) {
+      throw CashSessionHasOpenSplit();
+    }
     final drawer = await cashDrawerFor(
       store,
       scope,

@@ -267,6 +267,7 @@ Future<List<Payment>> insertPayments(
   required List<Money> amounts,
   required Money change,
   required SyncStamp stamp,
+  String? guestLabel,
 }) async {
   final s = stamp;
   final paid = <Payment>[];
@@ -284,6 +285,7 @@ Future<List<Payment>> insertPayments(
           changeAmount: payment.isCash ? change.value : 0,
           reference: reference.isEmpty ? null : reference,
           status: PaymentStatus.paid,
+          guestLabel: guestLabel,
           confirmedBy: confirms ? staffId : null,
           confirmedAt: confirms ? s.now : null,
           paidAt: s.now,
