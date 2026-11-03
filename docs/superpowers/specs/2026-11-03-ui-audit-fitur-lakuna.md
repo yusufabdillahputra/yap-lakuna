@@ -97,9 +97,9 @@ offline, tanpa izin, toast, konfirmasi, satu layar di tiga lebar) dan
   posisi per meja).
 - Paket dekoder QR offline untuk pemeriksaan gambar QRIS (opsional; boleh
   dilewati di versi pertama asal peringatan tampil).
-- Tombol `destructive` di mode gelap: token conhcc (`#FF6467` dengan teks
-  `#FAFAFA`) kontrasnya di bawah 4.5:1. Ikuti nilai dari CLI Forui, lalu
-  cek ulang di perangkat; bila perlu teks tombol dibuat gelap (`#09090B`).
+- Tombol `destructive` di mode gelap: **sudah diputuskan** (2026-11-03) isi
+  `#C10007` + teks `#FAFAFA` (6.2:1), lihat "Aturan kontras dan mode gelap"
+  di spec desain.
 
 ## Status & gap
 

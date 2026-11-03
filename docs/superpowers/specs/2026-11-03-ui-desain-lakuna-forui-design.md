@@ -71,6 +71,32 @@ juga dipakai Forui):
 
 Warna status tetap dibedakan juga dengan ikon dan kecerahan, bukan rona saja.
 
+### Aturan kontras dan mode gelap (keputusan 2026-11-03)
+
+Yusuf meminta teks mode gelap yang kurang terbaca diperbaiki mengikuti
+praktik komunitas. Rujukan: Material Design dark theme (permukaan gelap
+bertingkat makin terang, hindari putih murni untuk teks, warna jenuh diganti
+tona terang), Apple HIG Dark Mode (kontras minimal 4.5:1, usahakan 7:1 untuk
+teks kecil; uji dengan Increase Contrast), Radix Colors (warna cerah seperti
+Sky muda memakai teks gelap), WCAG 2.2 SC 1.4.3 dan 1.4.11.
+
+| Aturan | Terang | Gelap |
+| --- | --- | --- |
+| Teks utama | `#09090B` | `#FAFAFA` (19:1 di latar, 17:1 di kartu) |
+| Teks sekunder di latar/kartu | `#71717B` | `#9F9FA9` (6.8:1 di kartu) |
+| Teks sekunder di permukaan berwarna (tab, badge, kartu terpilih) | `#52525C` (7:1) | `#9F9FA9` |
+| Primary sebagai **teks/ikon** (link, tab aktif, nav aktif) | `#0069A8` | `#74D4FF` (10.6:1); jangan `#00598A` (2.7:1) |
+| Tombol primary | `#0069A8` + `#F0F9FF` | `#00598A` + `#F0F9FF` (7:1) |
+| Tombol destructive | `#E7000B` + `#FAFAFA` | **`#C10007`** + `#FAFAFA` (6.2:1); bukan `#FF6467` + putih (2.8:1) |
+| Teks/ikon destructive | `#C10007`/`#E7000B` | `#FF6467` (6.1:1 di kartu) |
+| Badge latar Sky muda | — | `#74D4FF` + teks `#052F4A` (8.3:1) |
+| Kontrol tanpa warna teks eksplisit | — | wajib `foreground`; jangan biarkan default hitam |
+
+Di Flutter: override `FButtonStyles` destructive untuk tema gelap dan
+`FTabs` (label tidak aktif `#52525C` di tema terang); token lain tetap dari
+CLI. Semua artboard kanvas diperiksa otomatis: tidak ada teks di bawah 4.5:1
+(kecuali dua contoh "jangan" di halaman Gaya visual · mode gelap).
+
 ### Tipografi
 
 - Judul (`h1`–`h3`, judul kartu, angka KPI besar): **Montserrat** 600–800.
@@ -180,7 +206,9 @@ Contoh mode gelap; nomor layar tetap (1.1 … 1.27, 1.7b–d, 2.1 … 2.6,
 3.1 … 3.7) supaya spec Storeku tetap bisa dirujuk. Hasil audit menambah
 layar bernomor sisipan (1.2b, 1.3b, 1.4b, 1.5b, 1.5c, 1.6m, 1.7e, 1.11b,
 1.15m, 1.16b, 1.17b, 1.19b, 1.20b, 1.26b) dan dua halaman fondasi: "Pola
-keadaan & responsif" dan "Peta fitur hasil audit". Total 70 artboard.
+keadaan & responsif" dan "Peta fitur hasil audit". Halaman "Mode gelap"
+berisi 23 layar (8 contoh lama + versi gelap 15 layar hasil audit). Total 85
+artboard.
 
 ## Cara membuat
 
@@ -201,7 +229,8 @@ sekali pakai, tidak disimpan di repo (kanvas adalah sumber kebenaran).
 
 | Hal | Status |
 | --- | --- |
-| Kanvas "Desain UI Lakuna" (70 artboard) | terbit 2026-11-03 |
+| Kanvas "Desain UI Lakuna" (85 artboard, 23 layar mode gelap) | terbit 2026-11-03 |
+| Kontras: semua teks ≥ 4.5:1, aturan mode gelap | terbit 2026-11-03 |
 | Audit fitur + 14 layar detail | terbit 2026-11-03 |
 | QRIS stiker vertikal, denah `vyuh_node_flow` | terbit 2026-11-03 |
 | Tema Flutter (`FThemeData`) | dikerjakan thread "Bangun aplikasi Lakuna dengan Flutter" |
