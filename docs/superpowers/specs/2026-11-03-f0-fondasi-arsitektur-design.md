@@ -28,8 +28,9 @@ sini berlaku.
    (`#0069A8` terang, `#00598A` gelap), judul Montserrat, isi DM Sans, ikon
    Tabler, radius Medium. Palet pastel dan Plus Jakarta Sans milik Storeku
    **tidak** dipakai. Acuan visual setiap layar adalah kanvas
-   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (hasil thread desain: 51 layar Storeku
-   dikonversi ke Forui + 14 layar detail hasil audit + halaman fondasi).
+   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (hasil thread desain: 54 artboard Storeku
+   dikonversi ke Forui + 14 layar detail hasil audit + 2 halaman fondasi baru +
+   15 layar mode gelap baru, total 85 artboard).
 3. Semua aset harus bisa dipakai tanpa internet.
 4. Satu codebase Dart untuk aplikasi dan backend: **Serverpod** (model YAML),
    dengan dukungan pengembangan berbasis AI dari Serverpod dipakai maksimal.

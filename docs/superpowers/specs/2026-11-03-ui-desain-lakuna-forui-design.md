@@ -1,6 +1,6 @@
 # Desain UI Lakuna (Forui, preset `conhcc`)
 
-Status: disetujui untuk dikerjakan (keputusan Yusuf 2026-11-03).
+Status: kanvas terbit 2026-11-03 (disetujui Yusuf); tema Flutter dirilis di v0.1.0, aturan kontras di v0.1.1.
 Kanvas: **"Desain UI Lakuna"** — <https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525>
 (privat, milik Yusuf). Kanvas Storeku "Desain UI Retail UMKM" tetap utuh dan
 tidak diubah.
@@ -25,8 +25,8 @@ tidak diubah.
 ## Tujuan
 
 Satu kanvas desain yang menjadi acuan visual aplikasi Flutter Lakuna:
-semua 50 layar Storeku (27 layar Fase 1, 6 Fase 2, 7 Fase 3, 8 contoh
-gelap, plus 3 halaman fondasi) dengan tata letak dan alur yang sama, tetapi
+semua 54 artboard Storeku (3 halaman fondasi, 30 layar Fase 1 yaitu
+1.1–1.27 dan 1.7b–d, 6 Fase 2, 7 Fase 3, 8 contoh gelap) dengan tata letak dan alur yang sama, tetapi
 token warna, tipografi, radius, ikon, dan pola komponennya sama dengan yang
 akan dihasilkan `dart run forui init --preset conhcc`. Developer Flutter
 harus bisa menyalin nilai dari kanvas langsung ke `FThemeData` tanpa
@@ -94,7 +94,8 @@ Sky muda memakai teks gelap), WCAG 2.2 SC 1.4.3 dan 1.4.11.
 
 Di Flutter: override `FButtonStyles` destructive untuk tema gelap dan
 `FTabs` (label tidak aktif `#52525C` di tema terang); token lain tetap dari
-CLI. Semua artboard kanvas diperiksa otomatis: tidak ada teks di bawah 4.5:1
+CLI. Implementasinya ada di `lakuna_flutter/lib/ui/core/theme/contrast.dart`
+(lihat "Aturan kontras" di spec F0). Semua artboard kanvas diperiksa otomatis: tidak ada teks di bawah 4.5:1
 (kecuali dua contoh "jangan" di halaman Gaya visual · mode gelap).
 
 ### Tipografi
@@ -102,7 +103,7 @@ CLI. Semua artboard kanvas diperiksa otomatis: tidak ada teks di bawah 4.5:1
 - Judul (`h1`–`h3`, judul kartu, angka KPI besar): **Montserrat** 600–800.
 - Isi, tombol, tabel, angka rupiah: **DM Sans** 400–700, angka
   `tabular-nums` (`FontFeature.tabularFigures()`).
-- Font dibundel di `apps/lakuna/assets/fonts/` (sudah diunduh CLI Forui),
+- Font dibundel di `lakuna_flutter/assets/fonts/` (sudah diunduh CLI Forui),
   tanpa `google_fonts` saat aplikasi jalan.
 
 ### Radius (`FBorderRadius`, Medium)
@@ -170,7 +171,7 @@ lain memetakan komponen Dioxus ke Forui:
 
 ### Teks yang khusus Storeku
 
-- "arium" → `lakuna_auth` (PIN Argon2id lokal) di Fase 1 dan auth
+- "arium" → modul login PIN lokal (F1-02, Argon2id) di Fase 1 dan auth
   Serverpod di Fase 2.
 - "dioxus-flow" → `vyuh_node_flow` (lihat bagian Denah meja).
 - Halaman "Peta Dioxus Components" → "Peta komponen Forui".
@@ -207,8 +208,9 @@ Contoh mode gelap; nomor layar tetap (1.1 … 1.27, 1.7b–d, 2.1 … 2.6,
 layar bernomor sisipan (1.2b, 1.3b, 1.4b, 1.5b, 1.5c, 1.6m, 1.7e, 1.11b,
 1.15m, 1.16b, 1.17b, 1.19b, 1.20b, 1.26b) dan dua halaman fondasi: "Pola
 keadaan & responsif" dan "Peta fitur hasil audit". Halaman "Mode gelap"
-berisi 23 layar (8 contoh lama + versi gelap 15 layar hasil audit). Total 85
-artboard.
+berisi 23 layar: 8 contoh lama + versi gelap 15 layar (14 layar hasil audit
+ditambah 1.6 QRIS yang dirombak). Total 85 artboard = 54 artboard Storeku +
+2 halaman fondasi baru + 14 layar audit + 15 layar gelap baru.
 
 ## Cara membuat
 
@@ -233,4 +235,5 @@ sekali pakai, tidak disimpan di repo (kanvas adalah sumber kebenaran).
 | Kontras: semua teks ≥ 4.5:1, aturan mode gelap | terbit 2026-11-03 |
 | Audit fitur + 14 layar detail | terbit 2026-11-03 |
 | QRIS stiker vertikal, denah `vyuh_node_flow` | terbit 2026-11-03 |
-| Tema Flutter (`FThemeData`) | dikerjakan thread "Bangun aplikasi Lakuna dengan Flutter" |
+| Tema Flutter (`FThemeData`) + aturan kontras | rilis v0.1.1 (`theme/contrast.dart`) |
+| Warna status (`LakunaStatusColors`) di semua layar | gap: dipakai saat modul F1 dibuat |

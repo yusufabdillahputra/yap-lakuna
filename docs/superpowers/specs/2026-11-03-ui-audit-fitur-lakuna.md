@@ -41,7 +41,7 @@ terlihat di layar.
 | Pelanggan & piutang | 1.20, 1.20b | Limit kredit, alokasi pembayaran ke nota terlama, kuitansi A5/PDF dan 58 mm | `customers:manage`, `debts:manage` |
 | Supplier & hutang | 1.21 | Hutang per pembelian, jatuh tempo, bayar dari kas toko / laci / bank | `suppliers:manage` |
 | Pengeluaran | 1.22 | Jenis pengeluaran, foto nota; dari kas laci ikut rekap sesi | `expenses:manage` |
-| Laporan & laba rugi | 1.23, 1.24 | Penjualan, produk terlaris, kas; laba rugi memakai HPP; angka laba disembunyikan tanpa izin | `reports:view`, `reports:view_profit` |
+| Laporan & laba rugi | 1.23, 1.24 | Penjualan, produk terlaris, kas; laba rugi memakai HPP; angka laba disembunyikan tanpa izin | `reports:view` (usul: `reports:view_profit` untuk angka laba, belum ada di katalog F0) |
 | Pengguna & role | 1.25 | Role owner, manager, cashier, waiter, stock_keeper; matriks memakai kunci izin dari kode | `users:manage` |
 | Pengaturan | 1.26, 1.26b | Metode bayar, struk, pajak & service, stok minus, PIN diskon, pembulatan, tema, bahasa | `settings:manage` |
 | Panduan | 1.27 | Panduan per fitur ID + EN, tangkapan layar WebP | — |
@@ -77,10 +77,12 @@ offline, tanpa izin, toast, konfirmasi, satu layar di tiga lebar) dan
 
 ## Aturan lintas layar yang diseragamkan
 
-- Nomor dokumen memuat kode outlet **dan** perangkat: nota
-  `PST-T01-261103-0047`; dokumen back office memakai perangkat PC kantor
-  `D01`: pembelian `PB-PST-D01-…`, retur beli `RB-…`, penyesuaian `SA-…`,
-  bayar hutang `BH-…`, bayar piutang `BP-…`. (Kanvas Storeku lama memakai
+- Nomor dokumen memuat kode outlet **dan** kode perangkat yang membuat
+  dokumen: format `<PREFIX>-PST-<PERANGKAT>-YYMMDD-NNNN` (nota tanpa
+  prefiks). Di data contoh, tablet kasir `T01` (nota
+  `PST-T01-261102-0047`) dan PC kantor `D01` untuk back office: pembelian
+  `PB-PST-D01-…`, retur beli `RB-…`, penyesuaian `SA-…`, bayar hutang
+  `BH-…`, bayar piutang `BP-…`. `T01`/`D01` hanya contoh. (Kanvas Storeku lama memakai
   `PB-PST-261102-…` tanpa kode perangkat; sudah dibetulkan.)
 - Stok dan saldo selalu ledger; tidak ada layar yang mengubah angka stok
   langsung.
