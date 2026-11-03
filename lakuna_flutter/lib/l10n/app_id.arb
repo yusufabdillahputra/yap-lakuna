@@ -1091,5 +1091,169 @@
   "stockLocationErrorEmpty": "Nama lokasi wajib diisi.",
   "stockLocationErrorTooLong": "Nama lokasi maks 40 karakter.",
   "stockLocationErrorDuplicate": "Nama lokasi sudah dipakai di cabang ini.",
-  "stockRemoveLine": "Hapus baris"
+  "stockRemoveLine": "Hapus baris",
+  "menuMasterData": "Master data",
+  "masterTitle": "Master data",
+  "masterSubtitle": "Data referensi yang dipakai produk, stok, kasir & laporan",
+  "masterTabCategories": "Kategori",
+  "masterTabUnits": "Satuan",
+  "masterTabLocations": "Lokasi stok",
+  "masterTabPayments": "Metode pembayaran",
+  "masterLoadFailed": "Gagal memuat master data.",
+  "masterCategoryAdd": "Kategori",
+  "masterColCategory": "Kategori",
+  "masterColProducts": "Produk",
+  "masterColActive": "Aktif",
+  "masterCategoryEdit": "Ubah",
+  "masterMoveUp": "Naikkan {name}",
+  "@masterMoveUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterMoveDown": "Turunkan {name}",
+  "@masterMoveDown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterOrderHint": "Urutan ini dipakai tab kategori di layar kasir. Ketuk panah untuk menaikkan atau menurunkan.",
+  "masterProductCount": "{count} produk",
+  "@masterProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masterCategoryHidden": "Tidak di kasir",
+  "masterCategoryInactive": "Nonaktif",
+  "masterCategoryEmpty": "Belum ada kategori. Tambahkan di sini atau langsung dari form produk.",
+  "masterFormNew": "Kategori baru",
+  "masterFormEdit": "Ubah kategori",
+  "masterFormName": "Nama kategori",
+  "masterFormParent": "Kategori induk",
+  "masterFormParentNone": "(tidak ada)",
+  "masterFormParentLocked": "Kategori ini punya subkategori, jadi tidak bisa diberi induk.",
+  "masterFormColor": "Warna",
+  "masterColorNone": "Tanpa warna",
+  "masterColorPick": "Warna {number}",
+  "@masterColorPick": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "masterFormShowInCashier": "Tampil di kasir",
+  "masterFormShowInCashierHint": "Muncul sebagai tab kategori di layar kasir.",
+  "masterFormActive": "Aktif",
+  "masterFormActiveHint": "Kategori nonaktif tidak tampil di kasir dan tidak disarankan di form produk; produknya tetap dijual.",
+  "masterFormCancel": "Batal",
+  "masterFormSave": "Simpan kategori",
+  "masterFormDelete": "Hapus kategori",
+  "masterCategorySaved": "Kategori {name} tersimpan.",
+  "@masterCategorySaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterErrNameEmpty": "Nama kategori wajib diisi.",
+  "masterErrNameTooLong": "Nama kategori maks {max} karakter.",
+  "@masterErrNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "masterErrNameDuplicate": "Nama kategori sudah dipakai.",
+  "masterErrParentMissing": "Kategori induk tidak ditemukan.",
+  "masterErrParentSelf": "Kategori tidak bisa menjadi induk dirinya sendiri.",
+  "masterErrParentNested": "Induk harus kategori utama (hanya satu tingkat).",
+  "masterErrHasChildren": "Kategori yang punya subkategori tidak bisa diberi induk.",
+  "masterErrColor": "Pilih warna dari palet.",
+  "masterInUseProducts": "Tidak bisa dihapus: masih dipakai {count} produk.",
+  "@masterInUseProducts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masterInUseChildren": "Tidak bisa dihapus: masih punya {count} subkategori.",
+  "@masterInUseChildren": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masterActionFailed": "Gagal menyimpan. Coba lagi.",
+  "masterUnitsHint": "Satuan dipakai di form produk sebagai satuan dasar dan satuan konversi. Ganti nama langsung terlihat di semua produk.",
+  "masterUnitName": "Nama satuan",
+  "masterUnitAdd": "Tambah satuan",
+  "masterUnitRename": "Ganti nama {name}",
+  "@masterUnitRename": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterUnitDelete": "Hapus {name}",
+  "@masterUnitDelete": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterUnitSave": "Simpan",
+  "masterUnitCancel": "Batal",
+  "masterUnitErrEmpty": "Nama satuan wajib diisi.",
+  "masterUnitErrTooLong": "Nama satuan maks {max} karakter.",
+  "@masterUnitErrTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "masterUnitErrDuplicate": "Nama satuan sudah dipakai.",
+  "masterUnitEmpty": "Belum ada satuan. Satuan juga dibuat otomatis dari form produk.",
+  "masterLocationsHint": "Lokasi stok per cabang (etalase, gudang). Tambah dan ganti nama lokasi di layar Stok.",
+  "masterLocationsManage": "Kelola di Stok",
+  "masterPaymentsHint": "Metode bayar yang tersedia di kasir. QRIS statis, struk, dan printer diatur di Pengaturan.",
+  "masterPaymentsOpen": "Buka Pengaturan",
+  "masterPaymentQrisHint": "Gambar stiker QRIS + tombol Sudah Terbayar",
+  "masterPaymentAlways": "Selalu tersedia",
+  "masterInUseBoth": "Tidak bisa dihapus: masih dipakai {products} produk dan punya {children} subkategori.",
+  "@masterInUseBoth": {
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "children": {
+        "type": "int"
+      }
+    }
+  },
+  "masterDeleteTitle": "Hapus {name}?",
+  "@masterDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterDeleteBody": "Data yang dihapus tidak tampil lagi di daftar dan pilihan.",
+  "masterDeleteConfirm": "Hapus",
+  "masterDeleteCancel": "Batal"
 }

@@ -136,7 +136,13 @@ class FakeCatalogRepository extends CatalogRepository {
           .where((c) => c.name.toLowerCase() == category.toLowerCase())
           .firstOrNull;
       final c =
-          found ?? ProductCategory(tenantId: _tenant, name: category, hlc: '');
+          found ??
+          ProductCategory(
+            tenantId: _tenant,
+            name: category,
+            sortOrder: categories.length,
+            hlc: '',
+          );
       if (found == null) categories.add(c);
       categoryId = c.id;
     }

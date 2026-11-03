@@ -13,13 +13,18 @@
 import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// Kategori produk per tenant (F1-07; master lengkap di F1-09).
+/// Kategori produk per tenant (F1-07; master di F1-09: induk satu tingkat,
+/// warna palet, urutan, tampil di kasir, aktif).
 abstract class ProductCategory
     implements _is.TableRow<_is.UuidValue>, _is.ProtocolSerialization {
   ProductCategory._({
     _is.UuidValue? id,
     required this.tenantId,
+    this.parentId,
     required this.name,
+    this.color,
+    bool? showInCashier,
+    bool? isActive,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -30,6 +35,8 @@ abstract class ProductCategory
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _is.Uuid().v7obj(),
+       showInCashier = showInCashier ?? true,
+       isActive = isActive ?? true,
        sortOrder = sortOrder ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
@@ -38,7 +45,11 @@ abstract class ProductCategory
   factory ProductCategory({
     _is.UuidValue? id,
     required _is.UuidValue tenantId,
+    _is.UuidValue? parentId,
     required String name,
+    String? color,
+    bool? showInCashier,
+    bool? isActive,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -58,7 +69,17 @@ abstract class ProductCategory
       tenantId: _is.UuidValueJsonExtension.fromJson(
         jsonSerialization['tenantId'],
       ),
+      parentId: jsonSerialization['parentId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['parentId']),
       name: jsonSerialization['name'] as String,
+      color: jsonSerialization['color'] as String?,
+      showInCashier: jsonSerialization['showInCashier'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['showInCashier']),
+      isActive: jsonSerialization['isActive'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['isActive']),
       sortOrder: jsonSerialization['sortOrder'] as int?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
@@ -94,7 +115,17 @@ abstract class ProductCategory
 
   _is.UuidValue tenantId;
 
+  /// Induk (satu tingkat); null = kategori utama.
+  _is.UuidValue? parentId;
+
   String name;
+
+  /// Hex `#RRGGBB` dari palet `categoryColors`, atau null.
+  String? color;
+
+  bool showInCashier;
+
+  bool isActive;
 
   int sortOrder;
 
@@ -123,7 +154,11 @@ abstract class ProductCategory
   ProductCategory copyWith({
     _is.UuidValue? id,
     _is.UuidValue? tenantId,
+    _is.UuidValue? parentId = const _is.$UndefinedUuidValue(),
     String? name,
+    String? color,
+    bool? showInCashier,
+    bool? isActive,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -140,7 +175,11 @@ abstract class ProductCategory
       '__className__': 'ProductCategory',
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
+      if (parentId != null) 'parentId': parentId?.toJson(),
       'name': name,
+      if (color != null) 'color': color,
+      'showInCashier': showInCashier,
+      'isActive': isActive,
       'sortOrder': sortOrder,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -159,7 +198,11 @@ abstract class ProductCategory
       '__className__': 'ProductCategory',
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
+      if (parentId != null) 'parentId': parentId?.toJson(),
       'name': name,
+      if (color != null) 'color': color,
+      'showInCashier': showInCashier,
+      'isActive': isActive,
       'sortOrder': sortOrder,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -200,11 +243,17 @@ abstract class ProductCategory
   }
 }
 
+class _Undefined {}
+
 class _ProductCategoryImpl extends ProductCategory {
   _ProductCategoryImpl({
     _is.UuidValue? id,
     required _is.UuidValue tenantId,
+    _is.UuidValue? parentId,
     required String name,
+    String? color,
+    bool? showInCashier,
+    bool? isActive,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -217,7 +266,11 @@ class _ProductCategoryImpl extends ProductCategory {
   }) : super._(
          id: id,
          tenantId: tenantId,
+         parentId: parentId,
          name: name,
+         color: color,
+         showInCashier: showInCashier,
+         isActive: isActive,
          sortOrder: sortOrder,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -236,7 +289,11 @@ class _ProductCategoryImpl extends ProductCategory {
   ProductCategory copyWith({
     _is.UuidValue? id,
     _is.UuidValue? tenantId,
+    _is.UuidValue? parentId = const _is.$UndefinedUuidValue(),
     String? name,
+    Object? color = _Undefined,
+    bool? showInCashier,
+    bool? isActive,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -250,7 +307,11 @@ class _ProductCategoryImpl extends ProductCategory {
     return ProductCategory(
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
+      parentId: parentId is _is.UndefinedSentinel ? this.parentId : parentId,
       name: name ?? this.name,
+      color: color is String? ? color : this.color,
+      showInCashier: showInCashier ?? this.showInCashier,
+      isActive: isActive ?? this.isActive,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -281,8 +342,30 @@ class ProductCategoryUpdateTable extends _is.UpdateTable<ProductCategoryTable> {
         value,
       );
 
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> parentId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.parentId,
+    value,
+  );
+
   _is.ColumnValue<String, String> name(String value) => _is.ColumnValue(
     table.name,
+    value,
+  );
+
+  _is.ColumnValue<String, String> color(String? value) => _is.ColumnValue(
+    table.color,
+    value,
+  );
+
+  _is.ColumnValue<bool, bool> showInCashier(bool value) => _is.ColumnValue(
+    table.showInCashier,
+    value,
+  );
+
+  _is.ColumnValue<bool, bool> isActive(bool value) => _is.ColumnValue(
+    table.isActive,
     value,
   );
 
@@ -349,9 +432,30 @@ class ProductCategoryTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'tenantId',
     );
+    parentId = _is.ColumnUuid(
+      'parent_id',
+      this,
+      fieldName: 'parentId',
+    );
     name = _is.ColumnString(
       'name',
       this,
+    );
+    color = _is.ColumnString(
+      'color',
+      this,
+    );
+    showInCashier = _is.ColumnBool(
+      'show_in_cashier',
+      this,
+      hasDefault: true,
+      fieldName: 'showInCashier',
+    );
+    isActive = _is.ColumnBool(
+      'is_active',
+      this,
+      hasDefault: true,
+      fieldName: 'isActive',
     );
     sortOrder = _is.ColumnInt(
       'sort_order',
@@ -406,7 +510,17 @@ class ProductCategoryTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnUuid tenantId;
 
+  /// Induk (satu tingkat); null = kategori utama.
+  late final _is.ColumnUuid parentId;
+
   late final _is.ColumnString name;
+
+  /// Hex `#RRGGBB` dari palet `categoryColors`, atau null.
+  late final _is.ColumnString color;
+
+  late final _is.ColumnBool showInCashier;
+
+  late final _is.ColumnBool isActive;
 
   late final _is.ColumnInt sortOrder;
 
@@ -430,7 +544,11 @@ class ProductCategoryTable extends _is.Table<_is.UuidValue> {
   List<_is.Column> get columns => [
     id,
     tenantId,
+    parentId,
     name,
+    color,
+    showInCashier,
+    isActive,
     sortOrder,
     createdAt,
     updatedAt,

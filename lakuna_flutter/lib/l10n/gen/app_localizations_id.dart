@@ -1882,4 +1882,255 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get stockRemoveLine => 'Hapus baris';
+
+  @override
+  String get menuMasterData => 'Master data';
+
+  @override
+  String get masterTitle => 'Master data';
+
+  @override
+  String get masterSubtitle =>
+      'Data referensi yang dipakai produk, stok, kasir & laporan';
+
+  @override
+  String get masterTabCategories => 'Kategori';
+
+  @override
+  String get masterTabUnits => 'Satuan';
+
+  @override
+  String get masterTabLocations => 'Lokasi stok';
+
+  @override
+  String get masterTabPayments => 'Metode pembayaran';
+
+  @override
+  String get masterLoadFailed => 'Gagal memuat master data.';
+
+  @override
+  String get masterCategoryAdd => 'Kategori';
+
+  @override
+  String get masterColCategory => 'Kategori';
+
+  @override
+  String get masterColProducts => 'Produk';
+
+  @override
+  String get masterColActive => 'Aktif';
+
+  @override
+  String get masterCategoryEdit => 'Ubah';
+
+  @override
+  String masterMoveUp(String name) {
+    return 'Naikkan $name';
+  }
+
+  @override
+  String masterMoveDown(String name) {
+    return 'Turunkan $name';
+  }
+
+  @override
+  String get masterOrderHint =>
+      'Urutan ini dipakai tab kategori di layar kasir. Ketuk panah untuk menaikkan atau menurunkan.';
+
+  @override
+  String masterProductCount(int count) {
+    return '$count produk';
+  }
+
+  @override
+  String get masterCategoryHidden => 'Tidak di kasir';
+
+  @override
+  String get masterCategoryInactive => 'Nonaktif';
+
+  @override
+  String get masterCategoryEmpty =>
+      'Belum ada kategori. Tambahkan di sini atau langsung dari form produk.';
+
+  @override
+  String get masterFormNew => 'Kategori baru';
+
+  @override
+  String get masterFormEdit => 'Ubah kategori';
+
+  @override
+  String get masterFormName => 'Nama kategori';
+
+  @override
+  String get masterFormParent => 'Kategori induk';
+
+  @override
+  String get masterFormParentNone => '(tidak ada)';
+
+  @override
+  String get masterFormParentLocked =>
+      'Kategori ini punya subkategori, jadi tidak bisa diberi induk.';
+
+  @override
+  String get masterFormColor => 'Warna';
+
+  @override
+  String get masterColorNone => 'Tanpa warna';
+
+  @override
+  String masterColorPick(int number) {
+    return 'Warna $number';
+  }
+
+  @override
+  String get masterFormShowInCashier => 'Tampil di kasir';
+
+  @override
+  String get masterFormShowInCashierHint =>
+      'Muncul sebagai tab kategori di layar kasir.';
+
+  @override
+  String get masterFormActive => 'Aktif';
+
+  @override
+  String get masterFormActiveHint =>
+      'Kategori nonaktif tidak tampil di kasir dan tidak disarankan di form produk; produknya tetap dijual.';
+
+  @override
+  String get masterFormCancel => 'Batal';
+
+  @override
+  String get masterFormSave => 'Simpan kategori';
+
+  @override
+  String get masterFormDelete => 'Hapus kategori';
+
+  @override
+  String masterCategorySaved(String name) {
+    return 'Kategori $name tersimpan.';
+  }
+
+  @override
+  String get masterErrNameEmpty => 'Nama kategori wajib diisi.';
+
+  @override
+  String masterErrNameTooLong(int max) {
+    return 'Nama kategori maks $max karakter.';
+  }
+
+  @override
+  String get masterErrNameDuplicate => 'Nama kategori sudah dipakai.';
+
+  @override
+  String get masterErrParentMissing => 'Kategori induk tidak ditemukan.';
+
+  @override
+  String get masterErrParentSelf =>
+      'Kategori tidak bisa menjadi induk dirinya sendiri.';
+
+  @override
+  String get masterErrParentNested =>
+      'Induk harus kategori utama (hanya satu tingkat).';
+
+  @override
+  String get masterErrHasChildren =>
+      'Kategori yang punya subkategori tidak bisa diberi induk.';
+
+  @override
+  String get masterErrColor => 'Pilih warna dari palet.';
+
+  @override
+  String masterInUseProducts(int count) {
+    return 'Tidak bisa dihapus: masih dipakai $count produk.';
+  }
+
+  @override
+  String masterInUseChildren(int count) {
+    return 'Tidak bisa dihapus: masih punya $count subkategori.';
+  }
+
+  @override
+  String get masterActionFailed => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String get masterUnitsHint =>
+      'Satuan dipakai di form produk sebagai satuan dasar dan satuan konversi. Ganti nama langsung terlihat di semua produk.';
+
+  @override
+  String get masterUnitName => 'Nama satuan';
+
+  @override
+  String get masterUnitAdd => 'Tambah satuan';
+
+  @override
+  String masterUnitRename(String name) {
+    return 'Ganti nama $name';
+  }
+
+  @override
+  String masterUnitDelete(String name) {
+    return 'Hapus $name';
+  }
+
+  @override
+  String get masterUnitSave => 'Simpan';
+
+  @override
+  String get masterUnitCancel => 'Batal';
+
+  @override
+  String get masterUnitErrEmpty => 'Nama satuan wajib diisi.';
+
+  @override
+  String masterUnitErrTooLong(int max) {
+    return 'Nama satuan maks $max karakter.';
+  }
+
+  @override
+  String get masterUnitErrDuplicate => 'Nama satuan sudah dipakai.';
+
+  @override
+  String get masterUnitEmpty =>
+      'Belum ada satuan. Satuan juga dibuat otomatis dari form produk.';
+
+  @override
+  String get masterLocationsHint =>
+      'Lokasi stok per cabang (etalase, gudang). Tambah dan ganti nama lokasi di layar Stok.';
+
+  @override
+  String get masterLocationsManage => 'Kelola di Stok';
+
+  @override
+  String get masterPaymentsHint =>
+      'Metode bayar yang tersedia di kasir. QRIS statis, struk, dan printer diatur di Pengaturan.';
+
+  @override
+  String get masterPaymentsOpen => 'Buka Pengaturan';
+
+  @override
+  String get masterPaymentQrisHint =>
+      'Gambar stiker QRIS + tombol Sudah Terbayar';
+
+  @override
+  String get masterPaymentAlways => 'Selalu tersedia';
+
+  @override
+  String masterInUseBoth(int products, int children) {
+    return 'Tidak bisa dihapus: masih dipakai $products produk dan punya $children subkategori.';
+  }
+
+  @override
+  String masterDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get masterDeleteBody =>
+      'Data yang dihapus tidak tampil lagi di daftar dan pilihan.';
+
+  @override
+  String get masterDeleteConfirm => 'Hapus';
+
+  @override
+  String get masterDeleteCancel => 'Batal';
 }

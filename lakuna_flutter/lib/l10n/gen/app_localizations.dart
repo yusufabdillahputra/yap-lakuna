@@ -3457,6 +3457,426 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Hapus baris'**
   String get stockRemoveLine;
+
+  /// No description provided for @menuMasterData.
+  ///
+  /// In id, this message translates to:
+  /// **'Master data'**
+  String get menuMasterData;
+
+  /// No description provided for @masterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Master data'**
+  String get masterTitle;
+
+  /// No description provided for @masterSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Data referensi yang dipakai produk, stok, kasir & laporan'**
+  String get masterSubtitle;
+
+  /// No description provided for @masterTabCategories.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get masterTabCategories;
+
+  /// No description provided for @masterTabUnits.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan'**
+  String get masterTabUnits;
+
+  /// No description provided for @masterTabLocations.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi stok'**
+  String get masterTabLocations;
+
+  /// No description provided for @masterTabPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode pembayaran'**
+  String get masterTabPayments;
+
+  /// No description provided for @masterLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat master data.'**
+  String get masterLoadFailed;
+
+  /// No description provided for @masterCategoryAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get masterCategoryAdd;
+
+  /// No description provided for @masterColCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get masterColCategory;
+
+  /// No description provided for @masterColProducts.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get masterColProducts;
+
+  /// No description provided for @masterColActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get masterColActive;
+
+  /// No description provided for @masterCategoryEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah'**
+  String get masterCategoryEdit;
+
+  /// No description provided for @masterMoveUp.
+  ///
+  /// In id, this message translates to:
+  /// **'Naikkan {name}'**
+  String masterMoveUp(String name);
+
+  /// No description provided for @masterMoveDown.
+  ///
+  /// In id, this message translates to:
+  /// **'Turunkan {name}'**
+  String masterMoveDown(String name);
+
+  /// No description provided for @masterOrderHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Urutan ini dipakai tab kategori di layar kasir. Ketuk panah untuk menaikkan atau menurunkan.'**
+  String get masterOrderHint;
+
+  /// No description provided for @masterProductCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} produk'**
+  String masterProductCount(int count);
+
+  /// No description provided for @masterCategoryHidden.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak di kasir'**
+  String get masterCategoryHidden;
+
+  /// No description provided for @masterCategoryInactive.
+  ///
+  /// In id, this message translates to:
+  /// **'Nonaktif'**
+  String get masterCategoryInactive;
+
+  /// No description provided for @masterCategoryEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada kategori. Tambahkan di sini atau langsung dari form produk.'**
+  String get masterCategoryEmpty;
+
+  /// No description provided for @masterFormNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori baru'**
+  String get masterFormNew;
+
+  /// No description provided for @masterFormEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah kategori'**
+  String get masterFormEdit;
+
+  /// No description provided for @masterFormName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama kategori'**
+  String get masterFormName;
+
+  /// No description provided for @masterFormParent.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori induk'**
+  String get masterFormParent;
+
+  /// No description provided for @masterFormParentNone.
+  ///
+  /// In id, this message translates to:
+  /// **'(tidak ada)'**
+  String get masterFormParentNone;
+
+  /// No description provided for @masterFormParentLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori ini punya subkategori, jadi tidak bisa diberi induk.'**
+  String get masterFormParentLocked;
+
+  /// No description provided for @masterFormColor.
+  ///
+  /// In id, this message translates to:
+  /// **'Warna'**
+  String get masterFormColor;
+
+  /// No description provided for @masterColorNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa warna'**
+  String get masterColorNone;
+
+  /// No description provided for @masterColorPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Warna {number}'**
+  String masterColorPick(int number);
+
+  /// No description provided for @masterFormShowInCashier.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampil di kasir'**
+  String get masterFormShowInCashier;
+
+  /// No description provided for @masterFormShowInCashierHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Muncul sebagai tab kategori di layar kasir.'**
+  String get masterFormShowInCashierHint;
+
+  /// No description provided for @masterFormActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get masterFormActive;
+
+  /// No description provided for @masterFormActiveHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori nonaktif tidak tampil di kasir dan tidak disarankan di form produk; produknya tetap dijual.'**
+  String get masterFormActiveHint;
+
+  /// No description provided for @masterFormCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get masterFormCancel;
+
+  /// No description provided for @masterFormSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan kategori'**
+  String get masterFormSave;
+
+  /// No description provided for @masterFormDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus kategori'**
+  String get masterFormDelete;
+
+  /// No description provided for @masterCategorySaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori {name} tersimpan.'**
+  String masterCategorySaved(String name);
+
+  /// No description provided for @masterErrNameEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama kategori wajib diisi.'**
+  String get masterErrNameEmpty;
+
+  /// No description provided for @masterErrNameTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama kategori maks {max} karakter.'**
+  String masterErrNameTooLong(int max);
+
+  /// No description provided for @masterErrNameDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama kategori sudah dipakai.'**
+  String get masterErrNameDuplicate;
+
+  /// No description provided for @masterErrParentMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori induk tidak ditemukan.'**
+  String get masterErrParentMissing;
+
+  /// No description provided for @masterErrParentSelf.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori tidak bisa menjadi induk dirinya sendiri.'**
+  String get masterErrParentSelf;
+
+  /// No description provided for @masterErrParentNested.
+  ///
+  /// In id, this message translates to:
+  /// **'Induk harus kategori utama (hanya satu tingkat).'**
+  String get masterErrParentNested;
+
+  /// No description provided for @masterErrHasChildren.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori yang punya subkategori tidak bisa diberi induk.'**
+  String get masterErrHasChildren;
+
+  /// No description provided for @masterErrColor.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih warna dari palet.'**
+  String get masterErrColor;
+
+  /// No description provided for @masterInUseProducts.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa dihapus: masih dipakai {count} produk.'**
+  String masterInUseProducts(int count);
+
+  /// No description provided for @masterInUseChildren.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa dihapus: masih punya {count} subkategori.'**
+  String masterInUseChildren(int count);
+
+  /// No description provided for @masterActionFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get masterActionFailed;
+
+  /// No description provided for @masterUnitsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan dipakai di form produk sebagai satuan dasar dan satuan konversi. Ganti nama langsung terlihat di semua produk.'**
+  String get masterUnitsHint;
+
+  /// No description provided for @masterUnitName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama satuan'**
+  String get masterUnitName;
+
+  /// No description provided for @masterUnitAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah satuan'**
+  String get masterUnitAdd;
+
+  /// No description provided for @masterUnitRename.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti nama {name}'**
+  String masterUnitRename(String name);
+
+  /// No description provided for @masterUnitDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}'**
+  String masterUnitDelete(String name);
+
+  /// No description provided for @masterUnitSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get masterUnitSave;
+
+  /// No description provided for @masterUnitCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get masterUnitCancel;
+
+  /// No description provided for @masterUnitErrEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama satuan wajib diisi.'**
+  String get masterUnitErrEmpty;
+
+  /// No description provided for @masterUnitErrTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama satuan maks {max} karakter.'**
+  String masterUnitErrTooLong(int max);
+
+  /// No description provided for @masterUnitErrDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama satuan sudah dipakai.'**
+  String get masterUnitErrDuplicate;
+
+  /// No description provided for @masterUnitEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada satuan. Satuan juga dibuat otomatis dari form produk.'**
+  String get masterUnitEmpty;
+
+  /// No description provided for @masterLocationsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi stok per cabang (etalase, gudang). Tambah dan ganti nama lokasi di layar Stok.'**
+  String get masterLocationsHint;
+
+  /// No description provided for @masterLocationsManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Kelola di Stok'**
+  String get masterLocationsManage;
+
+  /// No description provided for @masterPaymentsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode bayar yang tersedia di kasir. QRIS statis, struk, dan printer diatur di Pengaturan.'**
+  String get masterPaymentsHint;
+
+  /// No description provided for @masterPaymentsOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Pengaturan'**
+  String get masterPaymentsOpen;
+
+  /// No description provided for @masterPaymentQrisHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar stiker QRIS + tombol Sudah Terbayar'**
+  String get masterPaymentQrisHint;
+
+  /// No description provided for @masterPaymentAlways.
+  ///
+  /// In id, this message translates to:
+  /// **'Selalu tersedia'**
+  String get masterPaymentAlways;
+
+  /// No description provided for @masterInUseBoth.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa dihapus: masih dipakai {products} produk dan punya {children} subkategori.'**
+  String masterInUseBoth(int products, int children);
+
+  /// No description provided for @masterDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String masterDeleteTitle(String name);
+
+  /// No description provided for @masterDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data yang dihapus tidak tampil lagi di daftar dan pilihan.'**
+  String get masterDeleteBody;
+
+  /// No description provided for @masterDeleteConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get masterDeleteConfirm;
+
+  /// No description provided for @masterDeleteCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get masterDeleteCancel;
 }
 
 class _AppLocalizationsDelegate

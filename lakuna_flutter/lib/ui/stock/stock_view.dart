@@ -22,11 +22,15 @@ class StockScreen extends StatefulWidget {
     required this.repository,
     required this.session,
     required this.store,
+    this.initialTab,
   });
 
   final StockRepository repository;
   final SessionRepository session;
   final StoreRepository store;
+
+  /// Tab yang dibuka pertama (mis. dari Master data › Lokasi stok).
+  final StockTab? initialTab;
 
   @override
   State<StockScreen> createState() => _StockScreenState();
@@ -43,6 +47,7 @@ class _StockScreenState extends State<StockScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialTab case final tab?) _viewModel.setTab(tab);
     _viewModel.load.execute();
   }
 

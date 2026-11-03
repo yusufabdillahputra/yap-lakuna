@@ -181,7 +181,8 @@ class ProductFormViewModel extends ChangeNotifier {
 
   /// Saran nama kategori dan satuan dari katalog.
   List<String> get categorySuggestions => [
-    for (final c in _catalog?.categories ?? const <ProductCategory>[]) c.name,
+    for (final c in _catalog?.categories ?? const <ProductCategory>[])
+      if (c.isActive) c.name,
   ];
   List<String> get unitSuggestions => [
     for (final u in _catalog?.units ?? const <MeasureUnit>[]) u.name,

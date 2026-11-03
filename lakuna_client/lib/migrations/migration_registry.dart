@@ -11,6 +11,7 @@ part '20261103084505913-produk/migration.dart';
 part '20261103093432462-penjualan/migration.dart';
 part '20261103114011514-qris/migration.dart';
 part '20261103133809437-stock/migration.dart';
+part '20261103160755181-master/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -24,6 +25,7 @@ class MigrationRegistry {
     _Migration20261103093432462_penjualan(),
     _Migration20261103114011514_qris(),
     _Migration20261103133809437_stock(),
+    _Migration20261103160755181_master(),
   ];
 
   /// List of all client-side database migration versions.

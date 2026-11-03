@@ -66,10 +66,11 @@ class FakeCashierRepository extends CashierRepository {
     return Result.ok(
       CashierData(
         products: products,
-        categories: [
+        categories: cashierCategories(catalog.categories, used),
+        categoryParents: {
           for (final c in catalog.categories)
-            if (used.contains(c.id)) c,
-        ],
+            if (c.parentId != null) c.id: c.parentId!,
+        },
         businessName: 'Warung Contoh',
         outletName: 'Cabang Pusat',
         staffName: 'Sari',

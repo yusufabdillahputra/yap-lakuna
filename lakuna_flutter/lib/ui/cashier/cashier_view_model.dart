@@ -193,7 +193,9 @@ class CashierViewModel extends ChangeNotifier {
   /// Produk setelah cari dan filter kategori.
   List<CatalogProduct> get products => [
     for (final p in _data?.products ?? const <CatalogProduct>[])
-      if ((_categoryId == null || p.categoryId == _categoryId) &&
+      if ((_categoryId == null ||
+              p.categoryId == _categoryId ||
+              _data?.categoryParents[p.categoryId] == _categoryId) &&
           productMatches(p, _query))
         p,
   ];
