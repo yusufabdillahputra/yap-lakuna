@@ -187,15 +187,20 @@ Future<CashDrawer> cashDrawerFor(
     session.id,
     transaction: transaction,
   );
-  Money total(CashDirection d) => Money.sum(
-    movements.where((m) => m.direction == d).map((m) => Money(m.amount)),
-  );
-  return CashDrawer(
-    openingCash: Money(session.openingCash),
-    inflow: total(CashDirection.inflow),
-    outflow: total(CashDirection.outflow),
-  );
+  return cashDrawerOf(session, movements);
 }
+
+/// Rekap [session] dari [movements] yang sudah dimuat.
+CashDrawer cashDrawerOf(
+  CashSession session,
+  Iterable<CashMovement> movements,
+) => CashDrawer.fromMovements(
+  openingCash: Money(session.openingCash),
+  movements: [
+    for (final m in movements)
+      (inflow: m.direction == CashDirection.inflow, amount: Money(m.amount)),
+  ],
+);
 
 /// Menutup sesi [sessionId] dengan hasil hitung [count]. Pemeriksaan
 /// "masih terbuka", hitung seharusnya, dan pembaruan sesi berada dalam satu

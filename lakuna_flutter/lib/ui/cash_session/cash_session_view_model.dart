@@ -98,7 +98,17 @@ class CashSessionViewModel extends ChangeNotifier {
     }
   }
 
-  void setOpeningNote(String text) => _openingNote = text;
+  CashError? _openingNoteError;
+
+  CashError? get openingNoteError => _openingNoteError;
+
+  void setOpeningNote(String text) {
+    _openingNote = text;
+    if (_openingNoteError != null) {
+      _openingNoteError = null;
+      notifyListeners();
+    }
+  }
 
   // --- Uang masuk/keluar ---------------------------------------------------
 
@@ -160,15 +170,23 @@ class CashSessionViewModel extends ChangeNotifier {
   Money get difference =>
       _active?.drawer.differenceFor(countedTotal) ?? Money.zero;
 
+  /// Ke formulir tutup sesi. Hitungan dan catatan selalu mulai kosong
+  /// (field-nya juga kosong saat dipasang ulang), lalu rekap dimuat ulang
+  /// agar seharusnya di laci memuat gerakan kas terbaru.
   void startClosing() {
     _closing = true;
     _error = null;
+    _clearCount();
+    _clearMovementForm();
     notifyListeners();
+    load.execute();
   }
 
   void cancelClosing() {
     _closing = false;
     _error = null;
+    _clearCount();
+    _clearMovementForm();
     notifyListeners();
   }
 
@@ -225,10 +243,12 @@ class CashSessionViewModel extends ChangeNotifier {
     _openingCashError = cash == null
         ? CashError.required
         : validateOpeningCash(cash);
-    if (_openingCashError != null) {
-      return Result.error(
-        CashInputInvalid(CashField.openingCash, _openingCashError!),
-      );
+    _openingNoteError = validateOpeningNote(_openingNote);
+    if (_openingCashError case final e?) {
+      return Result.error(CashInputInvalid(CashField.openingCash, e));
+    }
+    if (_openingNoteError case final e?) {
+      return Result.error(CashInputInvalid(CashField.note, e));
     }
     final result = await _repository.open(
       openingCash: cash!,
@@ -261,11 +281,7 @@ class CashSessionViewModel extends ChangeNotifier {
     );
     await _apply(
       result,
-      onOk: () {
-        _movementAmount = '';
-        _movementNote = '';
-        _movementFormVersion++;
-      },
+      onOk: _clearMovementForm,
     );
     return result;
   }
@@ -322,7 +338,7 @@ class CashSessionViewModel extends ChangeNotifier {
         } else if (_active != null) {
           _movementNoteError = e;
         } else {
-          _error = error;
+          _openingNoteError = e;
         }
       case CashSessionAlreadyOpen() || CashSessionNotOpen():
         _error = error;
@@ -333,15 +349,26 @@ class CashSessionViewModel extends ChangeNotifier {
   }
 
   void _resetForms() {
+    _clearCount();
+    _clearMovementForm();
+    _direction = CashDirection.outflow;
+  }
+
+  void _clearCount() {
     _sheets.clear();
     _coins = Money.zero;
     _closingNote = '';
     _closingNoteError = null;
+  }
+
+  /// Mengosongkan formulir uang laci; view memasang ulang field-nya lewat
+  /// [movementFormVersion] agar yang tampak sama dengan yang tersimpan.
+  void _clearMovementForm() {
     _movementAmount = '';
     _movementNote = '';
     _movementAmountError = null;
     _movementNoteError = null;
-    _direction = CashDirection.outflow;
+    _movementFormVersion++;
   }
 
   @override

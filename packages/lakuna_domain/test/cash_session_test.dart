@@ -27,6 +27,20 @@ void main() {
     });
   });
 
+  test('CashDrawer.fromMovements menjumlahkan masuk dan keluar', () {
+    final drawer = CashDrawer.fromMovements(
+      openingCash: const Money(100000),
+      movements: const [
+        (inflow: true, amount: Money(50000)),
+        (inflow: false, amount: Money(15000)),
+        (inflow: false, amount: Money(5000)),
+      ],
+    );
+    expect(drawer.inflow, const Money(50000));
+    expect(drawer.outflow, const Money(20000));
+    expect(drawer.expectedCash, const Money(130000));
+  });
+
   group('CashCount', () {
     test('pecahan mengikuti Storeku, dari terbesar', () {
       expect(cashDenominations, [
@@ -109,6 +123,13 @@ void main() {
         validateClosingNote(Money.zero, 'x' * (cashNoteMaxLength + 1)),
         CashError.tooLong,
       );
+    });
+
+    test('panjang catatan dihitung per karakter, bukan unit UTF-16', () {
+      final emoji = '😀' * cashNoteMaxLength;
+      expect(emoji.length, cashNoteMaxLength * 2);
+      expect(validateMovementNote(emoji), isNull);
+      expect(validateMovementNote('$emoji!'), CashError.tooLong);
     });
 
     test('catatan buka sesi opsional tapi dibatasi panjangnya', () {

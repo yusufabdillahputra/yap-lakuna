@@ -42,6 +42,10 @@ uang fisik per pecahan dan melihat selisihnya.
     (butuh `cash_session:close`).
   - Kartu hasil (seharusnya, dihitung, selisih, catatan) dengan tombol
     *Buka sesi baru*.
+  - Masuk ke *Tutup sesi* memuat ulang rekap terbaru. Hitungan, catatan
+    selisih, dan formulir uang laci selalu kosong setiap berpindah antara
+    kas laci dan tutup sesi, sehingga tidak ada isian tak tampak yang ikut
+    tersimpan.
 
 ### Diubah
 
@@ -64,8 +68,11 @@ uang fisik per pecahan dan melihat selisihnya.
   (`inflow`/`outflow`, karena `in` kata kunci Dart). Migrasi
   `sesi-kasir` untuk server dan klien.
 - `lakuna_domain`: `CashDrawer.expectedCash` (saldo awal + penjualan tunai −
-  retur tunai + masuk − keluar), `CashCount` (total pecahan + receh, JSON
-  rincian), dan validasi saldo awal, uang laci, serta catatan selisih.
+  retur tunai + masuk − keluar), `CashDrawer.fromMovements`, `CashCount`
+  (total pecahan + receh, JSON rincian), dan validasi saldo awal, uang laci,
+  serta catatan selisih. Panjang catatan (maks. 200) dihitung per karakter
+  yang tampak (paket `characters`), sama dengan penghitung field, sehingga
+  emoji tidak membuat catatan ditolak diam-diam.
 - `lakuna_data`: `openCashSession`, `findOpenCashSession`,
   `recordCashMovement`, `listCashMovements`, `cashDrawerFor`,
   `closeCashSession`. Semua tulis lewat `LakunaStore.write` dengan aktor
@@ -77,6 +84,8 @@ uang fisik per pecahan dan melihat selisihnya.
   `RupiahInputFormatter`, dan `formatClock` (jam zona cabang).
 - Sesi yang dibuka atau ditutup di layar lain memuat ulang layar dengan
   pesan, bukan galat diam.
+- Baris nominal di rekap, hitung uang, dan kartu hasil tidak meluap di
+  ponsel 320 px dengan nominal jutaan (diuji di tes widget).
 
 ## [0.3.0] - 2026-11-03
 

@@ -173,6 +173,11 @@ Migrasi `sesi-kasir`.
   berikutnya melanjutkan sesi yang sama, dan nama penutup dicatat di
   `closed_by`.
 - **Selisih pas (0):** catatan tidak wajib.
+- **Bolak-balik kas laci ↔ tutup sesi:** hitungan, catatan selisih, dan
+  formulir uang laci dikosongkan (field-nya juga dipasang ulang kosong), dan
+  rekap dimuat ulang saat masuk ke tutup sesi.
+- **Panjang catatan** dihitung per karakter yang tampak (grapheme), sama
+  dengan penghitung field teks.
 
 ## Pengujian (TDD)
 
@@ -208,6 +213,7 @@ Migrasi `sesi-kasir`.
 | Keadaan "belum ada sesi" | Tidak digambar | Kartu *Buka sesi kasir* (saldo awal, catatan) | Tambah artboard di kanvas |
 | Navigasi ponsel | Kanvas 1.3b mobile tidak menggambar navigasi bawah | *Sesi kasir* menjadi item navigasi bawah (Beranda, Kasir, Sesi kasir, Produk, Pengaturan sesuai izin) | Pertahankan; tanpa ini kasir di ponsel tidak bisa membuka sesi |
 | Kartu angka di ponsel | - | Tiga kartu tetap satu baris | Pertahankan |
+| Izin tutup tanpa izin buka | - | Menu dan rute butuh `cash_session:open`; role kustom yang hanya punya `cash_session:close` tidak bisa membuka layar | Saat F1-17 menambah role kustom: izinkan rute bila punya salah satu dari open/close |
 | Log masuk/keluar staf | Spec F1-02 menunda ke F1-03 | Belum: sesi mencatat `opened_by`/`closed_by` saja | Tabel log bila laporan F1-16 membutuhkannya |
 
 ## Kriteria selesai

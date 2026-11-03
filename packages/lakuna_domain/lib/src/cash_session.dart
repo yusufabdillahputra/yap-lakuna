@@ -1,11 +1,13 @@
+import 'package:characters/characters.dart';
+
 import 'money.dart';
 
 /// Pecahan uang kertas yang dihitung saat tutup sesi, dari terbesar.
 /// Rp 2.000 dan 1.000 ikut dihitung (sama dengan Storeku).
 const cashDenominations = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
 
-/// Panjang maksimal catatan buka sesi, keterangan uang laci, dan catatan
-/// selisih.
+/// Panjang maksimal (dalam karakter yang tampak, sama dengan penghitung
+/// field teks) catatan buka sesi, keterangan uang laci, dan catatan selisih.
 const cashNoteMaxLength = 200;
 
 /// Komponen kas laci dalam satu sesi kasir.
@@ -17,6 +19,32 @@ class CashDrawer {
     this.inflow = Money.zero,
     this.outflow = Money.zero,
   });
+
+  /// Rekap dari gerakan kas sesi: [movements] berisi arah (`inflow`
+  /// true = uang masuk) dan jumlahnya.
+  factory CashDrawer.fromMovements({
+    required Money openingCash,
+    required Iterable<({bool inflow, Money amount})> movements,
+    Money cashSales = Money.zero,
+    Money cashRefunds = Money.zero,
+  }) {
+    var inflow = Money.zero;
+    var outflow = Money.zero;
+    for (final m in movements) {
+      if (m.inflow) {
+        inflow += m.amount;
+      } else {
+        outflow += m.amount;
+      }
+    }
+    return CashDrawer(
+      openingCash: openingCash,
+      cashSales: cashSales,
+      cashRefunds: cashRefunds,
+      inflow: inflow,
+      outflow: outflow,
+    );
+  }
 
   final Money openingCash;
 
@@ -97,7 +125,7 @@ CashError? validateOpeningCash(Money amount) =>
     amount.isNegative ? CashError.negative : null;
 
 CashError? validateOpeningNote(String note) =>
-    note.trim().length > cashNoteMaxLength ? CashError.tooLong : null;
+    _noteLength(note) > cashNoteMaxLength ? CashError.tooLong : null;
 
 CashError? validateMovementAmount(Money amount) =>
     amount.value <= 0 ? CashError.notPositive : null;
@@ -111,8 +139,9 @@ CashError? validateClosingNote(Money difference, String note) {
 }
 
 CashError? _requiredNote(String note) {
-  final trimmed = note.trim();
-  if (trimmed.isEmpty) return CashError.required;
-  if (trimmed.length > cashNoteMaxLength) return CashError.tooLong;
+  if (note.trim().isEmpty) return CashError.required;
+  if (_noteLength(note) > cashNoteMaxLength) return CashError.tooLong;
   return null;
 }
+
+int _noteLength(String note) => note.trim().characters.length;

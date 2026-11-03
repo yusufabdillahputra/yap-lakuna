@@ -459,11 +459,14 @@ class _OpenForm extends StatelessWidget {
                 autofocus: true,
                 error: viewModel.openingCashError,
                 onChange: viewModel.setOpeningCash,
-                onSubmit: (_) => viewModel.open.execute(),
+                onSubmit: viewModel.canOpen
+                    ? (_) => viewModel.open.execute()
+                    : null,
               ),
               _NoteField(
                 key: const ValueKey('cash-opening-note'),
                 label: l10n.cashOpeningNote,
+                error: viewModel.openingNoteError,
                 onChange: viewModel.setOpeningNote,
               ),
               FButton(
@@ -795,19 +798,32 @@ class _MovementForm extends StatelessWidget {
               ),
             ],
           ),
-          _MoneyField(
-            key: ValueKey('cash-movement-amount-$version'),
-            label: l10n.cashAmount,
-            error: viewModel.movementAmountError,
-            onChange: viewModel.setMovementAmount,
-          ),
-          _NoteField(
-            key: ValueKey('cash-movement-note-$version'),
-            label: l10n.cashNote,
-            hint: l10n.cashNoteHint,
-            error: viewModel.movementNoteError,
-            onChange: viewModel.setMovementNote,
-            onSubmit: enabled ? (_) => viewModel.saveMovement.execute() : null,
+          // Kunci versi memasang ulang kedua field (kosong) setiap formulir
+          // dikosongkan view model, agar yang tampak sama dengan isinya.
+          KeyedSubtree(
+            key: ValueKey('cash-movement-form-$version'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                _MoneyField(
+                  key: const ValueKey('cash-movement-amount'),
+                  label: l10n.cashAmount,
+                  error: viewModel.movementAmountError,
+                  onChange: viewModel.setMovementAmount,
+                ),
+                _NoteField(
+                  key: const ValueKey('cash-movement-note'),
+                  label: l10n.cashNote,
+                  hint: l10n.cashNoteHint,
+                  error: viewModel.movementNoteError,
+                  onChange: viewModel.setMovementNote,
+                  onSubmit: enabled
+                      ? (_) => viewModel.saveMovement.execute()
+                      : null,
+                ),
+              ],
+            ),
           ),
           FButton(
             key: const ValueKey('cash-movement-save'),
@@ -961,7 +977,14 @@ class _Recap extends StatelessWidget {
           spacing: 12,
           children: [
             Expanded(child: Text(label, style: style)),
-            Text(value, key: key, style: style),
+            Flexible(
+              child: Text(
+                value,
+                key: key,
+                style: style,
+                textAlign: TextAlign.right,
+              ),
+            ),
           ],
         ),
       );
@@ -1062,11 +1085,14 @@ class _CountCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                formatMoney(context, viewModel.countedTotal),
-                key: const ValueKey('cash-counted'),
-                style: theme.typography.body.md.copyWith(
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  formatMoney(context, viewModel.countedTotal),
+                  key: const ValueKey('cash-counted'),
+                  textAlign: TextAlign.right,
+                  style: theme.typography.body.md.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -1079,22 +1105,24 @@ class _CountCard extends StatelessWidget {
                   style: theme.typography.body.sm,
                 ),
               ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: exact ? tone.okBg : tone.warnBg,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 2,
+              Flexible(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: exact ? tone.okBg : tone.warnBg,
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(
-                    diffText,
-                    key: const ValueKey('cash-difference'),
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: exact ? tone.okFg : tone.warnFg,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      diffText,
+                      key: const ValueKey('cash-difference'),
+                      style: theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: exact ? tone.okFg : tone.warnFg,
+                      ),
                     ),
                   ),
                 ),
@@ -1153,41 +1181,49 @@ class _CountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return Row(
-      spacing: 12,
-      children: [
-        SizedBox(
-          width: 96,
-          child: Text(label, style: theme.typography.body.sm),
-        ),
-        SizedBox(
-          width: money ? 120 : 80,
-          child: Semantics(
-            label: semanticsLabel,
-            child: FTextField(
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.right,
-              hint: '0',
-              inputFormatters: [
-                if (money)
-                  const RupiahInputFormatter()
-                else ...[
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(5),
-                ],
-              ],
-              control: .managed(onChange: (value) => onChange(value.text)),
+    return LayoutBuilder(
+      builder: (context, c) {
+        // Ponsel 320 px: kolom label dan field diperkecil agar subtotal muat.
+        final narrow = c.maxWidth < 320;
+        return Row(
+          spacing: narrow ? 8 : 12,
+          children: [
+            SizedBox(
+              width: narrow ? 76 : 96,
+              child: Text(label, style: theme.typography.body.sm),
             ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            subtotal,
-            textAlign: TextAlign.right,
-            style: theme.typography.body.sm,
-          ),
-        ),
-      ],
+            SizedBox(
+              width: money ? (narrow ? 100 : 120) : (narrow ? 64 : 80),
+              child: Semantics(
+                label: semanticsLabel,
+                child: FTextField(
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.right,
+                  hint: '0',
+                  inputFormatters: [
+                    if (money)
+                      const RupiahInputFormatter()
+                    else ...[
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                  ],
+                  control: .managed(
+                    onChange: (value) => onChange(value.text),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(subtotal, style: theme.typography.body.sm),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -1213,12 +1249,15 @@ class _Closed extends StatelessWidget {
           child: Row(
             children: [
               Expanded(child: Text(label, style: theme.typography.body.md)),
-              Text(
-                value,
-                key: key,
-                style: theme.typography.body.md.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: color,
+              Flexible(
+                child: Text(
+                  value,
+                  key: key,
+                  textAlign: TextAlign.right,
+                  style: theme.typography.body.md.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
                 ),
               ),
             ],

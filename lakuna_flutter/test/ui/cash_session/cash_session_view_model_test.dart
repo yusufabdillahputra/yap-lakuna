@@ -168,6 +168,65 @@ void main() {
     expect(vm.stage, CashStage.drawer);
   });
 
+  test(
+    'hitungan dan catatan tidak tersimpan diam-diam saat bolak-balik',
+    () async {
+      await vm.load.execute();
+      await openWith('100000');
+      vm
+        ..startClosing()
+        ..setSheets(100000, '3')
+        ..setCoins('500')
+        ..setClosingNote('catatan tersembunyi')
+        ..cancelClosing()
+        ..startClosing();
+      expect(vm.countedTotal, Money.zero);
+      expect(vm.sheetsOf(100000), 0);
+      await vm.close.execute();
+      expect(vm.closingNoteError, CashError.required);
+      expect(repo.session!.status, CashSessionStatus.opened);
+    },
+  );
+
+  test('formulir uang laci dikosongkan saat pindah ke tutup sesi', () async {
+    await vm.load.execute();
+    await openWith('100000');
+    final version = vm.movementFormVersion;
+    vm
+      ..setMovementAmount('15000')
+      ..setMovementNote('hantu')
+      ..startClosing();
+    expect(vm.movementFormVersion, greaterThan(version));
+    vm.cancelClosing();
+    await vm.saveMovement.execute();
+    expect(vm.movementAmountError, CashError.required);
+    expect(repo.movements, isEmpty);
+  });
+
+  test('masuk ke tutup sesi memuat ulang rekap terbaru', () async {
+    await vm.load.execute();
+    await openWith('100000');
+    // Modul lain menulis uang keluar setelah layar dimuat.
+    await repo.recordMovement(
+      repo.session!.id,
+      direction: CashDirection.outflow,
+      amount: const Money(10000),
+      note: 'Pengeluaran',
+    );
+    vm.startClosing();
+    await pumpEventQueue();
+    expect(vm.active!.drawer.expectedCash, const Money(90000));
+  });
+
+  test('catatan buka sesi terlalu panjang ditempel di field-nya', () async {
+    await vm.load.execute();
+    vm.setOpeningNote('x' * (cashNoteMaxLength + 1));
+    await openWith('1000');
+    expect(vm.openingNoteError, CashError.tooLong);
+    expect(vm.error, isNull);
+    expect(repo.session, isNull);
+  });
+
   test('izin mengatur tombol', () {
     final limited = create(permissions: {Permission.cashSessionOpen});
     addTearDown(limited.dispose);

@@ -153,16 +153,7 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
     return e;
   }
 
-  CashDrawer _drawer(CashSession s) {
-    Money total(CashDirection d) => Money.sum(
-      movements.where((m) => m.direction == d).map((m) => Money(m.amount)),
-    );
-    return CashDrawer(
-      openingCash: Money(s.openingCash),
-      inflow: total(CashDirection.inflow),
-      outflow: total(CashDirection.outflow),
-    );
-  }
+  CashDrawer _drawer(CashSession s) => cashDrawerOf(s, movements);
 
   ActiveCashSession _active(CashSession s) => ActiveCashSession(
     session: s,

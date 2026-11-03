@@ -64,15 +64,21 @@ void main() {
     expect(_text(tester, 'cash-expected'), 'Rp 200.000');
     expect(find.byKey(const ValueKey('cash-row-opening')), findsOneWidget);
 
-    await _type(tester, 'cash-movement-amount-0', '15000');
-    await _type(tester, 'cash-movement-note-0', 'Beli es batu');
+    await _type(tester, 'cash-movement-amount', '15000');
+    await _type(tester, 'cash-movement-note', 'Beli es batu');
     await _tap(tester, 'cash-movement-save');
     expect(repo.movements, hasLength(1));
     expect(_text(tester, 'cash-expected'), 'Rp 185.000');
     expect(find.text('Beli es batu'), findsOneWidget);
     expect(find.text('−Rp 15.000'), findsOneWidget);
     // Formulir kosong lagi.
-    expect(_input('cash-movement-amount-1'), findsOneWidget);
+    expect(
+      tester
+          .widget<EditableText>(_input('cash-movement-amount'))
+          .controller
+          .text,
+      isEmpty,
+    );
 
     await _tap(tester, 'cash-start-close');
     expect(find.text('Tutup sesi kasir · Yusuf'), findsOneWidget);
@@ -105,8 +111,8 @@ void main() {
     await _tap(tester, 'cash-open');
     await tester.tap(find.byKey(const ValueKey('cash-direction-inflow')));
     await tester.pumpAndSettle();
-    await _type(tester, 'cash-movement-amount-0', '50000');
-    await _type(tester, 'cash-movement-note-0', 'Tambah kembalian');
+    await _type(tester, 'cash-movement-amount', '50000');
+    await _type(tester, 'cash-movement-note', 'Tambah kembalian');
     await _tap(tester, 'cash-movement-save');
     expect(repo.movements.single.direction, CashDirection.inflow);
     expect(find.text('+Rp 50.000'), findsOneWidget);
@@ -128,13 +134,47 @@ void main() {
     await pump(tester, size: const Size(400, 800));
     await _type(tester, 'cash-opening-cash', '100000');
     await _tap(tester, 'cash-open');
-    await _type(tester, 'cash-movement-amount-0', '5000');
-    await _type(tester, 'cash-movement-note-0', 'Parkir');
+    await _type(tester, 'cash-movement-amount', '5000');
+    await _type(tester, 'cash-movement-note', 'Parkir');
     await _tap(tester, 'cash-movement-save');
     expect(find.text('Parkir'), findsOneWidget);
     await _tap(tester, 'cash-start-close');
     await _type(tester, 'cash-count-50000', '2');
     expect(_text(tester, 'cash-counted'), 'Rp 100.000');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('bolak-balik tutup sesi tidak menyimpan isian tersembunyi', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _type(tester, 'cash-opening-cash', '100000');
+    await _tap(tester, 'cash-open');
+    await _type(tester, 'cash-movement-amount', '15000');
+    await _type(tester, 'cash-movement-note', 'hantu');
+    await _tap(tester, 'cash-start-close');
+    await _type(tester, 'cash-count-100000', '3');
+    await _type(tester, 'cash-closing-note', 'catatan tersembunyi');
+    await _tap(tester, 'cash-back-to-drawer');
+    await _tap(tester, 'cash-movement-save');
+    expect(repo.movements, isEmpty);
+    await _tap(tester, 'cash-start-close');
+    expect(_text(tester, 'cash-counted'), 'Rp 0');
+    await _tap(tester, 'cash-close');
+    expect(repo.session!.status, CashSessionStatus.opened);
+    expect(find.text('Wajib diisi'), findsOneWidget);
+  });
+
+  testWidgets('ponsel 320 px dengan nominal besar tanpa luapan', (
+    tester,
+  ) async {
+    await pump(tester, size: const Size(320, 740));
+    await _type(tester, 'cash-opening-cash', '1500000');
+    await _tap(tester, 'cash-open');
+    await _tap(tester, 'cash-start-close');
+    await _type(tester, 'cash-count-100000', '15');
+    await _type(tester, 'cash-count-coins', '1500000');
+    expect(_text(tester, 'cash-counted'), 'Rp 3.000.000');
     expect(tester.takeException(), isNull);
   });
 
