@@ -3,6 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/dining_admin_repository.dart';
 import '../../data/repositories/payment_settings_repository.dart';
 import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
@@ -13,6 +14,8 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
 import '../products/product_widgets.dart' show ChoicePill;
 import 'app_settings_view_model.dart';
+import 'fnb_rates_section.dart';
+import 'fnb_rates_view_model.dart';
 import 'payment_settings_view_model.dart';
 import 'qris_settings_section.dart';
 import 'receipt_settings_section.dart';
@@ -20,7 +23,7 @@ import 'receipt_settings_view_model.dart';
 import 'settings_view.dart';
 
 /// Bagian layar Pengaturan (1.26). Bagian lain menyusul bersama modulnya.
-enum SettingsSection { payments, receipt, appearance }
+enum SettingsSection { payments, receipt, taxes, appearance }
 
 /// Layar Pengaturan: navigasi bagian (kolom kiri di layar lebar, pil di
 /// layar sempit) dan isi bagian. *Metode pembayaran* dan *Struk & printer*
@@ -35,7 +38,11 @@ class SettingsScreen extends StatefulWidget {
     required this.imagePicker,
     required this.session,
     required this.store,
+    this.diningAdmin,
   });
+
+  /// Tarif service & PB1 (F1-10).
+  final DiningAdminRepository? diningAdmin;
 
   final AppSettingsViewModel settings;
   final PaymentSettingsRepository paymentSettings;
@@ -57,6 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       : SettingsSection.appearance;
   PaymentSettingsViewModel? _payments;
   ReceiptSettingsViewModel? _receipt;
+  FnbRatesViewModel? _rates;
 
   @override
   void initState() {
@@ -70,6 +78,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         repository: widget.receiptSettings,
         printer: widget.receiptPrinter,
       )..load.execute();
+      if (widget.diningAdmin case final admin?) {
+        _rates = FnbRatesViewModel(repository: admin)..load.execute();
+      }
     }
   }
 
@@ -77,24 +88,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     _payments?.dispose();
     _receipt?.dispose();
+    _rates?.dispose();
     super.dispose();
   }
 
   List<SettingsSection> get _sections => [
     if (_canManage) SettingsSection.payments,
     if (_canManage) SettingsSection.receipt,
+    if (_rates != null) SettingsSection.taxes,
     SettingsSection.appearance,
   ];
 
   String _label(AppLocalizations l10n, SettingsSection s) => switch (s) {
     SettingsSection.payments => l10n.settingsSectionPayments,
     SettingsSection.receipt => l10n.settingsSectionReceipt,
+    SettingsSection.taxes => l10n.settingsSectionTaxes,
     SettingsSection.appearance => l10n.settingsSectionAppearance,
   };
 
   IconData _icon(SettingsSection s) => switch (s) {
     SettingsSection.payments => TablerIcons.creditCard,
     SettingsSection.receipt => TablerIcons.receipt,
+    SettingsSection.taxes => TablerIcons.percentage,
     SettingsSection.appearance => TablerIcons.palette,
   };
 
@@ -113,6 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         outletName: widget.store.current?.outlet.name ?? '',
         staffName: widget.session.current?.name ?? '',
       ),
+      SettingsSection.taxes => FnbRatesSection(viewModel: _rates!),
       SettingsSection.appearance => SettingsView(viewModel: widget.settings),
     };
     return LayoutBuilder(

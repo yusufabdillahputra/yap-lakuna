@@ -2133,4 +2133,550 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get masterDeleteCancel => 'Batal';
+
+  @override
+  String get menuTables => 'Meja';
+
+  @override
+  String billTableLabel(String label) {
+    return 'Meja $label';
+  }
+
+  @override
+  String billTakeAwayLabel(String label) {
+    return 'Take away $label';
+  }
+
+  @override
+  String paymentBillLines(String label, int count) {
+    return '$label · $count item';
+  }
+
+  @override
+  String get successBackToTables => 'Kembali ke meja';
+
+  @override
+  String get receiptOrder => 'Pesanan';
+
+  @override
+  String get receiptSubtotal => 'Subtotal';
+
+  @override
+  String receiptService(String pct) {
+    return 'Service $pct';
+  }
+
+  @override
+  String receiptTax(String pct) {
+    return 'PB1 $pct';
+  }
+
+  @override
+  String get cashierBillLoadFailed =>
+      'Bill gagal dibuka. Mungkin sudah dibayar atau dibatalkan.';
+
+  @override
+  String get cashierBillBack => 'Kembali ke meja';
+
+  @override
+  String get diningTitle => 'Meja';
+
+  @override
+  String diningSubtitle(String staff, int occupied, int total) {
+    return 'Pelayan: $staff · $occupied dari $total meja terisi';
+  }
+
+  @override
+  String get diningDineIn => 'Dine in';
+
+  @override
+  String get diningTakeAway => 'Take away';
+
+  @override
+  String get diningLegendEmpty => 'Kosong';
+
+  @override
+  String get diningLegendOpen => 'Terisi · open bill';
+
+  @override
+  String get diningLegendRequested => 'Minta bill';
+
+  @override
+  String get diningAllAreas => 'Semua';
+
+  @override
+  String get diningNoArea => 'Tanpa area';
+
+  @override
+  String get diningNoTables =>
+      'Belum ada meja. Tambahkan di Master data › Meja & area.';
+
+  @override
+  String diningSeats(int count) {
+    return '$count kursi';
+  }
+
+  @override
+  String diningMinutes(int m) {
+    return '$m mnt';
+  }
+
+  @override
+  String diningHours(int h, int m) {
+    return '$h j $m mnt';
+  }
+
+  @override
+  String diningDays(int d) {
+    return '$d hari';
+  }
+
+  @override
+  String get diningTakeAwayNew => 'Take away baru';
+
+  @override
+  String get diningTakeAwayNone => 'Belum ada take away terbuka.';
+
+  @override
+  String diningTakeAwayItems(int count, String time) {
+    return '$count item · $time';
+  }
+
+  @override
+  String get diningStatusNew => 'Baru';
+
+  @override
+  String get diningStatusKitchen => 'Di dapur';
+
+  @override
+  String get diningStatusServed => 'Disajikan';
+
+  @override
+  String get diningStatusReady => 'Siap ambil';
+
+  @override
+  String get diningStatusEmpty => 'Kosong';
+
+  @override
+  String get diningDeleteEmpty => 'Hapus bill kosong';
+
+  @override
+  String get diningSelectHint =>
+      'Pilih meja atau take away untuk melihat bill.';
+
+  @override
+  String diningBillTableTitle(String label) {
+    return 'Meja $label · Open bill';
+  }
+
+  @override
+  String diningBillTakeAwayTitle(String label) {
+    return '$label · Take away';
+  }
+
+  @override
+  String diningBillGuests(int count) {
+    return '$count tamu';
+  }
+
+  @override
+  String diningBillOpened(String time) {
+    return 'dibuka $time';
+  }
+
+  @override
+  String diningBillServer(String name) {
+    return 'Pelayan $name';
+  }
+
+  @override
+  String get diningAddMenu => 'Menu';
+
+  @override
+  String get diningBillEmpty => 'Belum ada item. Ketuk + Menu untuk menambah.';
+
+  @override
+  String get diningMarkServed => 'Tandai disajikan';
+
+  @override
+  String get diningRemoveItem => 'Hapus item';
+
+  @override
+  String get diningSubtotal => 'Subtotal';
+
+  @override
+  String diningService(String pct) {
+    return 'Service $pct (dine in)';
+  }
+
+  @override
+  String diningTax(String pct) {
+    return 'PB1 $pct';
+  }
+
+  @override
+  String get diningTotal => 'Total';
+
+  @override
+  String diningSend(int count) {
+    return 'Kirim ke dapur ($count item baru)';
+  }
+
+  @override
+  String get diningRequestBill => 'Minta bill';
+
+  @override
+  String get diningCancelRequest => 'Batal minta bill';
+
+  @override
+  String get diningMove => 'Pindah meja';
+
+  @override
+  String get diningSplitSoon => 'Split bill (segera)';
+
+  @override
+  String get diningVoid => 'Batalkan bill';
+
+  @override
+  String diningPay(String amount) {
+    return 'Tutup & bayar · $amount';
+  }
+
+  @override
+  String get diningPayNoPermission =>
+      'Pembayaran oleh kasir (butuh izin penjualan).';
+
+  @override
+  String get diningBack => 'Kembali ke meja';
+
+  @override
+  String diningOpenTitle(String label) {
+    return 'Buka meja $label';
+  }
+
+  @override
+  String get diningGuests => 'Jumlah tamu';
+
+  @override
+  String get diningGuestsInvalid => 'Isi 1–99 tamu.';
+
+  @override
+  String get diningOpen => 'Buka bill';
+
+  @override
+  String get diningCancel => 'Batal';
+
+  @override
+  String get diningCustomerName => 'Nama pemesan (opsional)';
+
+  @override
+  String get diningCreate => 'Buat';
+
+  @override
+  String diningMoveTitle(String label) {
+    return 'Pindahkan $label ke';
+  }
+
+  @override
+  String get diningMoveNone => 'Tidak ada meja kosong.';
+
+  @override
+  String diningVoidTitle(String label) {
+    return 'Batalkan bill $label?';
+  }
+
+  @override
+  String get diningVoidBody =>
+      'Bill ditutup tanpa pembayaran dan stok tidak berubah. Alasan tersimpan di riwayat.';
+
+  @override
+  String get diningVoidReason => 'Alasan';
+
+  @override
+  String get diningVoidReasonInvalid =>
+      'Alasan wajib diisi, maks 120 karakter.';
+
+  @override
+  String get diningVoidKeep => 'Kembali';
+
+  @override
+  String diningMenuTitle(String label) {
+    return 'Tambah menu · $label';
+  }
+
+  @override
+  String get diningSearch => 'Cari menu';
+
+  @override
+  String get diningNote => 'Catatan dapur untuk item berikutnya (opsional)';
+
+  @override
+  String get diningNoteTooLong => 'Catatan maks 120 karakter.';
+
+  @override
+  String diningAdded(String name) {
+    return 'Ditambahkan: $name';
+  }
+
+  @override
+  String get diningDone => 'Selesai';
+
+  @override
+  String get diningNoMenu => 'Menu tidak ditemukan.';
+
+  @override
+  String get diningLoadFailed => 'Data meja gagal dimuat.';
+
+  @override
+  String get diningErrorLocked =>
+      'Item yang sudah di dapur tidak bisa diubah atau dihapus.';
+
+  @override
+  String get diningErrorOccupied => 'Meja sudah punya bill terbuka.';
+
+  @override
+  String get diningErrorNothingToSend => 'Tidak ada item baru untuk dikirim.';
+
+  @override
+  String get diningErrorNotFound => 'Bill tidak ditemukan atau sudah ditutup.';
+
+  @override
+  String get diningErrorNotEmpty => 'Bill masih berisi item.';
+
+  @override
+  String get diningErrorUnavailable => 'Menu tidak tersedia lagi.';
+
+  @override
+  String get diningErrorInput => 'Isian tidak sah.';
+
+  @override
+  String get diningErrorPermission => 'Anda tidak punya izin untuk aksi ini.';
+
+  @override
+  String get diningErrorGeneric => 'Aksi gagal. Coba lagi.';
+
+  @override
+  String get ticketDialogTitle => 'Terkirim ke dapur';
+
+  @override
+  String get ticketHeading => 'TIKET DAPUR';
+
+  @override
+  String ticketDineIn(String label) {
+    return 'Meja $label · Dine in';
+  }
+
+  @override
+  String ticketTakeAway(String label) {
+    return '$label · Take away';
+  }
+
+  @override
+  String get ticketNo => 'No';
+
+  @override
+  String get ticketTime => 'Jam';
+
+  @override
+  String get ticketStaff => 'Pelayan';
+
+  @override
+  String get ticketFooter => 'Item baru saja · tanpa harga';
+
+  @override
+  String get ticketPrint => 'Cetak tiket';
+
+  @override
+  String get ticketClose => 'Tutup';
+
+  @override
+  String get ticketPrinted => 'Tiket terkirim ke printer.';
+
+  @override
+  String get ticketPrintFailed =>
+      'Tiket gagal dicetak. Periksa printer di Pengaturan › Struk & printer.';
+
+  @override
+  String get masterTabTables => 'Meja & area';
+
+  @override
+  String get diningSetupHint =>
+      'Meja dipakai di layar Meja (F&B). Nama meja unik per cabang; area opsional.';
+
+  @override
+  String get diningSetupAreas => 'Area';
+
+  @override
+  String get diningSetupAreaAdd => 'Tambah area';
+
+  @override
+  String diningSetupAreaTables(int count) {
+    return '$count meja';
+  }
+
+  @override
+  String get diningSetupAreasEmpty =>
+      'Belum ada area. Contoh: Indoor, Teras, Lantai 2.';
+
+  @override
+  String get diningSetupTables => 'Meja';
+
+  @override
+  String get diningSetupTableAdd => 'Tambah meja';
+
+  @override
+  String get diningSetupTableRange => 'Tambah beberapa';
+
+  @override
+  String get diningSetupTablesEmpty =>
+      'Belum ada meja. Pakai Tambah beberapa untuk membuat M1–M12 sekaligus.';
+
+  @override
+  String get diningSetupNoArea => 'Tanpa area';
+
+  @override
+  String get diningSetupName => 'Nama';
+
+  @override
+  String get diningSetupArea => 'Area';
+
+  @override
+  String get diningSetupSeats => 'Kursi';
+
+  @override
+  String get diningSetupPrefix => 'Awalan';
+
+  @override
+  String get diningSetupFrom => 'Mulai';
+
+  @override
+  String get diningSetupTo => 'Sampai';
+
+  @override
+  String diningSetupPreview(String names) {
+    return 'Akan dibuat: $names';
+  }
+
+  @override
+  String get diningSetupRangeInvalid =>
+      'Rentang tidak sah (1–50 meja sekaligus).';
+
+  @override
+  String get diningSetupNewArea => 'Area baru';
+
+  @override
+  String get diningSetupRenameArea => 'Ganti nama area';
+
+  @override
+  String get diningSetupNewTable => 'Meja baru';
+
+  @override
+  String get diningSetupEditTable => 'Ubah meja';
+
+  @override
+  String get diningSetupSave => 'Simpan';
+
+  @override
+  String get diningSetupCancel => 'Batal';
+
+  @override
+  String get diningSetupDelete => 'Hapus';
+
+  @override
+  String diningSetupDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get diningSetupDeleteBody =>
+      'Data yang dihapus tidak tampil lagi di layar Meja.';
+
+  @override
+  String get diningSetupMoveUp => 'Naikkan';
+
+  @override
+  String get diningSetupMoveDown => 'Turunkan';
+
+  @override
+  String get diningSetupEdit => 'Ubah';
+
+  @override
+  String get diningSetupErrNameEmpty => 'Nama wajib diisi.';
+
+  @override
+  String diningSetupErrNameTooLong(int max) {
+    return 'Nama maks $max karakter.';
+  }
+
+  @override
+  String get diningSetupErrNameDuplicate => 'Nama sudah dipakai.';
+
+  @override
+  String diningSetupErrNameDuplicateAt(String name) {
+    return 'Nama $name sudah dipakai.';
+  }
+
+  @override
+  String get diningSetupErrSeats => 'Kursi 1–99.';
+
+  @override
+  String diningSetupErrAreaInUse(int count) {
+    return 'Area masih punya $count meja. Pindahkan atau hapus mejanya dulu.';
+  }
+
+  @override
+  String get diningSetupErrTableBusy => 'Meja masih punya bill terbuka.';
+
+  @override
+  String get diningSetupErrGeneric => 'Aksi gagal. Coba lagi.';
+
+  @override
+  String get diningSetupLoadFailed => 'Data meja gagal dimuat.';
+
+  @override
+  String get settingsSectionTaxes => 'Pajak & service';
+
+  @override
+  String get fnbRatesTitle => 'Pajak & service';
+
+  @override
+  String get fnbRatesSubtitle =>
+      'Berlaku untuk open bill di layar Meja cabang ini.';
+
+  @override
+  String get fnbRatesService => 'Service charge (%)';
+
+  @override
+  String get fnbRatesServiceHint => '0–30%, kelipatan 0,5';
+
+  @override
+  String get fnbRatesTax => 'PB1 / pajak restoran (%)';
+
+  @override
+  String get fnbRatesTaxHint => '0–20%, kelipatan 0,5';
+
+  @override
+  String get fnbRatesInvalidService => 'Isi 0–30 dengan kelipatan 0,5.';
+
+  @override
+  String get fnbRatesInvalidTax => 'Isi 0–20 dengan kelipatan 0,5.';
+
+  @override
+  String get fnbRatesNote =>
+      'Service hanya untuk dine in. PB1 dihitung dari subtotal + service.';
+
+  @override
+  String get fnbRatesPreview => 'Contoh dine in';
+
+  @override
+  String get fnbRatesSave => 'Simpan tarif';
+
+  @override
+  String get fnbRatesSaved => 'Tarif tersimpan.';
+
+  @override
+  String get fnbRatesLoadFailed => 'Tarif gagal dimuat.';
+
+  @override
+  String get fnbRatesSaveFailed => 'Tarif gagal disimpan.';
 }

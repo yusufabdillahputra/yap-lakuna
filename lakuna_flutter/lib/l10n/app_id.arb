@@ -1255,5 +1255,406 @@
   },
   "masterDeleteBody": "Data yang dihapus tidak tampil lagi di daftar dan pilihan.",
   "masterDeleteConfirm": "Hapus",
-  "masterDeleteCancel": "Batal"
+  "masterDeleteCancel": "Batal",
+  "menuTables": "Meja",
+  "billTableLabel": "Meja {label}",
+  "@billTableLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billTakeAwayLabel": "Take away {label}",
+  "@billTakeAwayLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentBillLines": "{label} · {count} item",
+  "@paymentBillLines": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "successBackToTables": "Kembali ke meja",
+  "receiptOrder": "Pesanan",
+  "receiptSubtotal": "Subtotal",
+  "receiptService": "Service {pct}",
+  "@receiptService": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptTax": "PB1 {pct}",
+  "@receiptTax": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierBillLoadFailed": "Bill gagal dibuka. Mungkin sudah dibayar atau dibatalkan.",
+  "cashierBillBack": "Kembali ke meja",
+  "diningTitle": "Meja",
+  "diningSubtitle": "Pelayan: {staff} · {occupied} dari {total} meja terisi",
+  "@diningSubtitle": {
+    "placeholders": {
+      "staff": {
+        "type": "String"
+      },
+      "occupied": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "diningDineIn": "Dine in",
+  "diningTakeAway": "Take away",
+  "diningLegendEmpty": "Kosong",
+  "diningLegendOpen": "Terisi · open bill",
+  "diningLegendRequested": "Minta bill",
+  "diningAllAreas": "Semua",
+  "diningNoArea": "Tanpa area",
+  "diningNoTables": "Belum ada meja. Tambahkan di Master data › Meja & area.",
+  "diningSeats": "{count} kursi",
+  "@diningSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningMinutes": "{m} mnt",
+  "@diningMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "diningHours": "{h} j {m} mnt",
+  "@diningHours": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "diningDays": "{d} hari",
+  "@diningDays": {
+    "placeholders": {
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "diningTakeAwayNew": "Take away baru",
+  "diningTakeAwayNone": "Belum ada take away terbuka.",
+  "diningTakeAwayItems": "{count} item · {time}",
+  "@diningTakeAwayItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diningStatusNew": "Baru",
+  "diningStatusKitchen": "Di dapur",
+  "diningStatusServed": "Disajikan",
+  "diningStatusReady": "Siap ambil",
+  "diningStatusEmpty": "Kosong",
+  "diningDeleteEmpty": "Hapus bill kosong",
+  "diningSelectHint": "Pilih meja atau take away untuk melihat bill.",
+  "diningBillTableTitle": "Meja {label} · Open bill",
+  "@diningBillTableTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillTakeAwayTitle": "{label} · Take away",
+  "@diningBillTakeAwayTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillGuests": "{count} tamu",
+  "@diningBillGuests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningBillOpened": "dibuka {time}",
+  "@diningBillOpened": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillServer": "Pelayan {name}",
+  "@diningBillServer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningAddMenu": "Menu",
+  "diningBillEmpty": "Belum ada item. Ketuk + Menu untuk menambah.",
+  "diningMarkServed": "Tandai disajikan",
+  "diningRemoveItem": "Hapus item",
+  "diningSubtotal": "Subtotal",
+  "diningService": "Service {pct} (dine in)",
+  "@diningService": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "diningTax": "PB1 {pct}",
+  "@diningTax": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "diningTotal": "Total",
+  "diningSend": "Kirim ke dapur ({count} item baru)",
+  "@diningSend": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningRequestBill": "Minta bill",
+  "diningCancelRequest": "Batal minta bill",
+  "diningMove": "Pindah meja",
+  "diningSplitSoon": "Split bill (segera)",
+  "diningVoid": "Batalkan bill",
+  "diningPay": "Tutup & bayar · {amount}",
+  "@diningPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "diningPayNoPermission": "Pembayaran oleh kasir (butuh izin penjualan).",
+  "diningBack": "Kembali ke meja",
+  "diningOpenTitle": "Buka meja {label}",
+  "@diningOpenTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningGuests": "Jumlah tamu",
+  "diningGuestsInvalid": "Isi 1–99 tamu.",
+  "diningOpen": "Buka bill",
+  "diningCancel": "Batal",
+  "diningCustomerName": "Nama pemesan (opsional)",
+  "diningCreate": "Buat",
+  "diningMoveTitle": "Pindahkan {label} ke",
+  "@diningMoveTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningMoveNone": "Tidak ada meja kosong.",
+  "diningVoidTitle": "Batalkan bill {label}?",
+  "@diningVoidTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningVoidBody": "Bill ditutup tanpa pembayaran dan stok tidak berubah. Alasan tersimpan di riwayat.",
+  "diningVoidReason": "Alasan",
+  "diningVoidReasonInvalid": "Alasan wajib diisi, maks 120 karakter.",
+  "diningVoidKeep": "Kembali",
+  "diningMenuTitle": "Tambah menu · {label}",
+  "@diningMenuTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSearch": "Cari menu",
+  "diningNote": "Catatan dapur untuk item berikutnya (opsional)",
+  "diningNoteTooLong": "Catatan maks 120 karakter.",
+  "diningAdded": "Ditambahkan: {name}",
+  "@diningAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningDone": "Selesai",
+  "diningNoMenu": "Menu tidak ditemukan.",
+  "diningLoadFailed": "Data meja gagal dimuat.",
+  "diningErrorLocked": "Item yang sudah di dapur tidak bisa diubah atau dihapus.",
+  "diningErrorOccupied": "Meja sudah punya bill terbuka.",
+  "diningErrorNothingToSend": "Tidak ada item baru untuk dikirim.",
+  "diningErrorNotFound": "Bill tidak ditemukan atau sudah ditutup.",
+  "diningErrorNotEmpty": "Bill masih berisi item.",
+  "diningErrorUnavailable": "Menu tidak tersedia lagi.",
+  "diningErrorInput": "Isian tidak sah.",
+  "diningErrorPermission": "Anda tidak punya izin untuk aksi ini.",
+  "diningErrorGeneric": "Aksi gagal. Coba lagi.",
+  "ticketDialogTitle": "Terkirim ke dapur",
+  "ticketHeading": "TIKET DAPUR",
+  "ticketDineIn": "Meja {label} · Dine in",
+  "@ticketDineIn": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketTakeAway": "{label} · Take away",
+  "@ticketTakeAway": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketNo": "No",
+  "ticketTime": "Jam",
+  "ticketStaff": "Pelayan",
+  "ticketFooter": "Item baru saja · tanpa harga",
+  "ticketPrint": "Cetak tiket",
+  "ticketClose": "Tutup",
+  "ticketPrinted": "Tiket terkirim ke printer.",
+  "ticketPrintFailed": "Tiket gagal dicetak. Periksa printer di Pengaturan › Struk & printer.",
+  "masterTabTables": "Meja & area",
+  "diningSetupHint": "Meja dipakai di layar Meja (F&B). Nama meja unik per cabang; area opsional.",
+  "diningSetupAreas": "Area",
+  "diningSetupAreaAdd": "Tambah area",
+  "diningSetupAreaTables": "{count} meja",
+  "@diningSetupAreaTables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupAreasEmpty": "Belum ada area. Contoh: Indoor, Teras, Lantai 2.",
+  "diningSetupTables": "Meja",
+  "diningSetupTableAdd": "Tambah meja",
+  "diningSetupTableRange": "Tambah beberapa",
+  "diningSetupTablesEmpty": "Belum ada meja. Pakai Tambah beberapa untuk membuat M1–M12 sekaligus.",
+  "diningSetupNoArea": "Tanpa area",
+  "diningSetupName": "Nama",
+  "diningSetupArea": "Area",
+  "diningSetupSeats": "Kursi",
+  "diningSetupPrefix": "Awalan",
+  "diningSetupFrom": "Mulai",
+  "diningSetupTo": "Sampai",
+  "diningSetupPreview": "Akan dibuat: {names}",
+  "@diningSetupPreview": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupRangeInvalid": "Rentang tidak sah (1–50 meja sekaligus).",
+  "diningSetupNewArea": "Area baru",
+  "diningSetupRenameArea": "Ganti nama area",
+  "diningSetupNewTable": "Meja baru",
+  "diningSetupEditTable": "Ubah meja",
+  "diningSetupSave": "Simpan",
+  "diningSetupCancel": "Batal",
+  "diningSetupDelete": "Hapus",
+  "diningSetupDeleteTitle": "Hapus {name}?",
+  "@diningSetupDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupDeleteBody": "Data yang dihapus tidak tampil lagi di layar Meja.",
+  "diningSetupMoveUp": "Naikkan",
+  "diningSetupMoveDown": "Turunkan",
+  "diningSetupEdit": "Ubah",
+  "diningSetupErrNameEmpty": "Nama wajib diisi.",
+  "diningSetupErrNameTooLong": "Nama maks {max} karakter.",
+  "@diningSetupErrNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupErrNameDuplicate": "Nama sudah dipakai.",
+  "diningSetupErrNameDuplicateAt": "Nama {name} sudah dipakai.",
+  "@diningSetupErrNameDuplicateAt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupErrSeats": "Kursi 1–99.",
+  "diningSetupErrAreaInUse": "Area masih punya {count} meja. Pindahkan atau hapus mejanya dulu.",
+  "@diningSetupErrAreaInUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupErrTableBusy": "Meja masih punya bill terbuka.",
+  "diningSetupErrGeneric": "Aksi gagal. Coba lagi.",
+  "diningSetupLoadFailed": "Data meja gagal dimuat.",
+  "settingsSectionTaxes": "Pajak & service",
+  "fnbRatesTitle": "Pajak & service",
+  "fnbRatesSubtitle": "Berlaku untuk open bill di layar Meja cabang ini.",
+  "fnbRatesService": "Service charge (%)",
+  "fnbRatesServiceHint": "0–30%, kelipatan 0,5",
+  "fnbRatesTax": "PB1 / pajak restoran (%)",
+  "fnbRatesTaxHint": "0–20%, kelipatan 0,5",
+  "fnbRatesInvalidService": "Isi 0–30 dengan kelipatan 0,5.",
+  "fnbRatesInvalidTax": "Isi 0–20 dengan kelipatan 0,5.",
+  "fnbRatesNote": "Service hanya untuk dine in. PB1 dihitung dari subtotal + service.",
+  "fnbRatesPreview": "Contoh dine in",
+  "fnbRatesSave": "Simpan tarif",
+  "fnbRatesSaved": "Tarif tersimpan.",
+  "fnbRatesLoadFailed": "Tarif gagal dimuat.",
+  "fnbRatesSaveFailed": "Tarif gagal disimpan."
 }

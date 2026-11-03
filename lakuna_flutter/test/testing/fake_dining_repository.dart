@@ -1,0 +1,441 @@
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/dining_repository.dart';
+import 'package:lakuna_flutter/utils/result.dart';
+
+import 'fake_catalog_repository.dart';
+import 'fake_stock_repository.dart' show fakeId;
+
+/// Menu contoh F&B: Kopi Susu Aren 24.000, Nasi Goreng Kampung 29.000, Es
+/// Teh Manis 5.000.
+const sampleMenu = [
+  ProductDraft(
+    name: 'Kopi Susu Aren',
+    category: 'Minuman',
+    baseUnit: 'gelas',
+    variants: [VariantDraft(sellPrice: Money(24000))],
+  ),
+  ProductDraft(
+    name: 'Nasi Goreng Kampung',
+    category: 'Makanan',
+    kind: ProductKind.service,
+    baseUnit: 'porsi',
+    variants: [VariantDraft(sellPrice: Money(29000))],
+  ),
+  ProductDraft(
+    name: 'Es Teh Manis',
+    category: 'Minuman',
+    baseUnit: 'gelas',
+    variants: [VariantDraft(sellPrice: Money(5000))],
+  ),
+];
+
+/// Meja & open bill di memori dengan aturan `lakuna_domain` yang sama:
+/// area Indoor (M1–M4) dan Teras (M5–M6), service 5%, PB1 10%.
+class FakeDiningRepository extends DiningRepository {
+  FakeDiningRepository({
+    this.permissions,
+    this.rates = const FnbRates(
+      service: BasisPoints(500),
+      tax: BasisPoints(1000),
+    ),
+    List<ProductDraft> menu = sampleMenu,
+  }) : catalog = FakeCatalogRepository(seed: menu) {
+    areas.addAll([_area(1, 'Indoor', 0), _area(2, 'Teras', 1)]);
+    for (var i = 1; i <= 6; i++) {
+      tables.add(
+        DiningTable(
+          id: fakeId(600 + i),
+          tenantId: _tenant,
+          outletId: _outlet,
+          diningAreaId: fakeId(i <= 4 ? 501 : 502),
+          name: 'M$i',
+          seats: i.isEven ? 4 : 2,
+          sortOrder: i,
+          hlc: '',
+        ),
+      );
+    }
+  }
+
+  final FakeCatalogRepository catalog;
+
+  /// Izin staf; `null` = semua izin.
+  Set<Permission>? permissions;
+  FnbRates rates;
+  final areas = <DiningArea>[];
+  final tables = <DiningTable>[];
+  final sales = <Sale>[];
+  final items = <SaleItem>[];
+  final tickets = <KitchenTicket>[];
+  final voided = <UuidValue, String>{};
+  final _tenant = fakeId(1);
+  final _outlet = fakeId(2);
+  var _next = 700;
+  var now = DateTime.utc(2026, 11, 3, 5, 10);
+
+  /// Galat berikutnya (sekali pakai).
+  Exception? nextError;
+  var loadCalls = 0;
+
+  DiningArea _area(int n, String name, int order) => DiningArea(
+    id: fakeId(500 + n),
+    tenantId: _tenant,
+    outletId: _outlet,
+    name: name,
+    sortOrder: order,
+    hlc: '',
+  );
+
+  bool _can(Permission p) => permissions?.contains(p) ?? true;
+
+  Future<Result<T>> _run<T>(T Function() body) async {
+    final e = nextError;
+    nextError = null;
+    if (e != null) return Result.error(e);
+    if (!_can(Permission.openBillsManage)) {
+      return const Result.error(NotPermitted(Permission.openBillsManage));
+    }
+    try {
+      return Result.ok(body());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  // --- Baca -----------------------------------------------------------------
+
+  OpenBill bill(UuidValue id) {
+    final sale = sales.where((s) => s.id == id).firstOrNull;
+    if (sale == null || sale.status != SaleStatus.open) throw BillNotFound();
+    final own = [
+      for (final i in items)
+        if (i.saleId == id && i.deletedAt == null) i,
+    ]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return OpenBill(
+      sale: sale,
+      items: own,
+      charges: fnbCharges(
+        Money.sum(own.map((i) => Money(i.lineTotal))),
+        dineIn: sale.orderType == OrderType.dineIn,
+        serviceBp: rates.service,
+        taxBp: rates.tax,
+      ),
+      rates: rates,
+      table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
+      openedByName: 'Dimas',
+    );
+  }
+
+  DiningOverview _overview() => DiningOverview(
+    areas: List.of(areas),
+    tables: List.of(tables),
+    bills: [
+      for (final s in sales)
+        if (s.status == SaleStatus.open && s.deletedAt == null) bill(s.id),
+    ],
+    rates: rates,
+  );
+
+  @override
+  Future<Result<DiningData>> load() => _run(() {
+    loadCalls++;
+    final products = [...catalog.products]
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return DiningData(
+      overview: _overview(),
+      products: products,
+      categories: cashierCategories(catalog.categories, {
+        for (final p in products) p.categoryId,
+      }),
+      staffName: 'Dimas',
+      timezone: 'Asia/Jakarta',
+      canPay: _can(Permission.salesCreate),
+      canVoid: _can(Permission.salesVoid),
+    );
+  });
+
+  @override
+  Future<Result<DiningOverview>> overview() => _run(_overview);
+
+  // --- Bill -----------------------------------------------------------------
+
+  Sale _newSale(OrderType type, {UuidValue? table, int? guests, String? name}) {
+    final queue = type == OrderType.takeAway
+        ? nextDailyNumber(sales.map((s) => s.queueNumber ?? 0))
+        : null;
+    final number =
+        'OB-PST-K01-261103-${(sales.length + 1).toString().padLeft(4, '0')}';
+    final sale = Sale(
+      id: fakeId(_next++),
+      tenantId: _tenant,
+      outletId: _outlet,
+      deviceId: fakeId(3),
+      staffId: fakeId(4),
+      number: number,
+      billNumber: number,
+      status: SaleStatus.open,
+      orderType: type,
+      diningTableId: table,
+      queueNumber: queue,
+      customerName: name,
+      guestCount: guests,
+      openedBy: fakeId(4),
+      openedAt: now,
+      subtotal: 0,
+      tierDiscount: 0,
+      total: 0,
+      paidAmount: 0,
+      changeAmount: 0,
+      itemCount: 0,
+      soldAt: now,
+      hlc: '',
+    );
+    sales.add(sale);
+    return sale;
+  }
+
+  void _replaceSale(Sale s) => sales[sales.indexWhere((x) => x.id == s.id)] = s;
+
+  void _replaceItem(SaleItem i) =>
+      items[items.indexWhere((x) => x.id == i.id)] = i;
+
+  void _sync(UuidValue billId) {
+    final b = bill(billId);
+    _replaceSale(
+      b.sale.copyWith(itemCount: b.items.length, total: b.charges.total.value),
+    );
+  }
+
+  @override
+  Future<Result<OpenBill>> openTable(UuidValue tableId, int guests) => _run(() {
+    if (guests < 1 || guests > FnbLimits.guestsMax) {
+      throw const BillInputInvalid(BillField.guests);
+    }
+    if (!tables.any((t) => t.id == tableId)) throw DiningNotFound();
+    final existing = sales
+        .where(
+          (s) =>
+              s.diningTableId == tableId &&
+              s.status == SaleStatus.open &&
+              s.deletedAt == null,
+        )
+        .firstOrNull;
+    return bill(
+      existing?.id ??
+          _newSale(OrderType.dineIn, table: tableId, guests: guests).id,
+    );
+  });
+
+  @override
+  Future<Result<OpenBill>> openTakeAway(String? customerName) => _run(() {
+    final name = customerName?.trim() ?? '';
+    if (name.length > FnbLimits.customerName) {
+      throw const BillInputInvalid(BillField.customerName);
+    }
+    final empty = sales
+        .where(
+          (s) =>
+              s.orderType == OrderType.takeAway &&
+              s.status == SaleStatus.open &&
+              s.deletedAt == null &&
+              s.itemCount == 0,
+        )
+        .firstOrNull;
+    if (empty != null) {
+      if (name.isNotEmpty) _replaceSale(empty.copyWith(customerName: name));
+      return bill(empty.id);
+    }
+    return bill(
+      _newSale(OrderType.takeAway, name: name.isEmpty ? null : name).id,
+    );
+  });
+
+  @override
+  Future<Result<OpenBill>> addItem(
+    UuidValue billId,
+    SaleLineRequest line, {
+    String? note,
+  }) => _run(() {
+    final b = bill(billId);
+    final clean = note?.trim() ?? '';
+    if (clean.length > FnbLimits.itemNote) {
+      throw const BillInputInvalid(BillField.note);
+    }
+    final product = catalog.products
+        .where((p) => p.variants.any((v) => v.id == line.variantId))
+        .firstOrNull;
+    if (product == null || !product.isActive) {
+      throw SaleItemUnavailable(line.variantId);
+    }
+    final variant = product.variants.firstWhere((v) => v.id == line.variantId);
+    final same = b.items
+        .where(
+          (i) =>
+              i.kitchenStatus == KitchenStatus.pending &&
+              i.variantId == line.variantId &&
+              (i.note ?? '') == clean,
+        )
+        .firstOrNull;
+    final qty = Qty(same?.quantityMilli ?? 0) + line.quantity;
+    final priced = priceSaleLine(
+      sellPrice: variant.sellPrice,
+      quantity: qty,
+      tiers: variant.tiers,
+    );
+    if (same != null) {
+      _replaceItem(
+        same.copyWith(
+          quantityMilli: qty.milli,
+          unitPrice: priced.unitPrice.value,
+          lineTotal: priced.lineTotal.value,
+        ),
+      );
+    } else {
+      items.add(
+        SaleItem(
+          id: fakeId(_next++),
+          tenantId: _tenant,
+          saleId: billId,
+          variantId: variant.id,
+          productName: product.name,
+          variantName: variant.name,
+          unitName: product.baseUnit,
+          factorMilli: 1000,
+          quantityMilli: qty.milli,
+          listPrice: priced.listPrice.value,
+          unitPrice: priced.unitPrice.value,
+          lineTotal: priced.lineTotal.value,
+          unitCost: 0,
+          tracksStock: product.tracksStock,
+          sortOrder: items.length,
+          kitchenStatus: KitchenStatus.pending,
+          note: clean.isEmpty ? null : clean,
+          hlc: '',
+        ),
+      );
+    }
+    _sync(billId);
+    return bill(billId);
+  });
+
+  SaleItem _item(UuidValue id) =>
+      items.where((i) => i.id == id && i.deletedAt == null).firstOrNull ??
+      (throw BillNotFound());
+
+  @override
+  Future<Result<OpenBill>> setItemQuantity(UuidValue itemId, Qty quantity) =>
+      _run(() {
+        final item = _item(itemId);
+        bill(item.saleId);
+        if (item.kitchenStatus != KitchenStatus.pending) throw BillItemLocked();
+        if (quantity.isPositive) {
+          _replaceItem(
+            item.copyWith(
+              quantityMilli: quantity.milli,
+              lineTotal: Money(item.unitPrice).timesMilli(quantity.milli).value,
+            ),
+          );
+        } else {
+          _replaceItem(item.copyWith(deletedAt: now));
+        }
+        _sync(item.saleId);
+        return bill(item.saleId);
+      });
+
+  @override
+  Future<Result<OpenBill>> markServed(UuidValue itemId) => _run(() {
+    final item = _item(itemId);
+    if (item.kitchenStatus != KitchenStatus.sent) throw BillItemLocked();
+    _replaceItem(item.copyWith(kitchenStatus: KitchenStatus.served));
+    return bill(item.saleId);
+  });
+
+  @override
+  Future<Result<KitchenSendResult>> sendToKitchen(UuidValue billId) => _run(() {
+    final pending = [
+      for (final i in bill(billId).items)
+        if (i.kitchenStatus == KitchenStatus.pending) i,
+    ];
+    if (pending.isEmpty) throw NothingToSend();
+    final ticket = KitchenTicket(
+      id: fakeId(_next++),
+      tenantId: _tenant,
+      outletId: _outlet,
+      deviceId: fakeId(3),
+      saleId: billId,
+      number: tickets.length + 12,
+      staffId: fakeId(4),
+      sentAt: now,
+      hlc: '',
+    );
+    tickets.add(ticket);
+    final sent = [
+      for (final i in pending)
+        i.copyWith(
+          kitchenStatus: KitchenStatus.sent,
+          kitchenTicketId: ticket.id,
+        ),
+    ];
+    sent.forEach(_replaceItem);
+    return KitchenSendResult(
+      ticket: ticket,
+      items: sent,
+      bill: bill(billId),
+      staffName: 'Dimas',
+    );
+  });
+
+  @override
+  Future<Result<OpenBill>> setBillRequested(UuidValue billId, bool requested) =>
+      _run(() {
+        final b = bill(billId);
+        _replaceSale(b.sale.copyWith(billRequestedAt: requested ? now : null));
+        return bill(billId);
+      });
+
+  @override
+  Future<Result<OpenBill>> moveBill(UuidValue billId, UuidValue tableId) =>
+      _run(() {
+        final b = bill(billId);
+        if (sales.any(
+          (s) =>
+              s.diningTableId == tableId &&
+              s.status == SaleStatus.open &&
+              s.deletedAt == null &&
+              s.id != billId,
+        )) {
+          throw TableOccupied();
+        }
+        _replaceSale(b.sale.copyWith(diningTableId: tableId));
+        return bill(billId);
+      });
+
+  @override
+  Future<Result<void>> voidBill(UuidValue billId, String reason) => _run(() {
+    if (!_can(Permission.salesVoid)) {
+      throw const NotPermitted(Permission.salesVoid);
+    }
+    final text = reason.trim();
+    if (text.isEmpty || text.length > FnbLimits.voidReason) {
+      throw const BillInputInvalid(BillField.voidReason);
+    }
+    final b = bill(billId);
+    voided[billId] = text;
+    _replaceSale(b.sale.copyWith(status: SaleStatus.voided));
+  });
+
+  @override
+  Future<Result<void>> deleteEmptyBill(UuidValue billId) => _run(() {
+    final b = bill(billId);
+    if (b.items.isNotEmpty) throw BillNotEmpty();
+    _replaceSale(b.sale.copyWith(deletedAt: now));
+  });
+
+  /// Dipakai kasir palsu saat bill dibayar.
+  void markPaid(UuidValue billId) {
+    final b = bill(billId);
+    _replaceSale(b.sale.copyWith(status: SaleStatus.completed));
+  }
+}

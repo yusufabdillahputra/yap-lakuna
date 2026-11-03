@@ -21,6 +21,7 @@ void main() {
     for (final label in [
       'Beranda',
       'Kasir',
+      'Meja',
       'Sesi kasir',
       'Riwayat',
       'Produk',
@@ -34,8 +35,20 @@ void main() {
       'Pengaturan',
       'Panduan',
     ]) {
+      // Sidebar memakai daftar malas: gulir sampai entri dibangun.
+      await tester.scrollUntilVisible(
+        find.text(label),
+        120,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const ValueKey('sidebar')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       expect(find.text(label), findsWidgets, reason: label);
     }
+    await tester.pumpAndSettle();
   });
 
   testWidgets('mobile memakai navigasi bawah, tanpa sidebar', (tester) async {

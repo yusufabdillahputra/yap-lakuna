@@ -11,6 +11,8 @@ import 'fake_app_settings_repository.dart';
 import 'fake_cash_drawer_repository.dart';
 import 'fake_cashier_repository.dart';
 import 'fake_catalog_repository.dart';
+import 'fake_dining_admin_repository.dart';
+import 'fake_dining_repository.dart';
 import 'fake_payment_settings_repository.dart';
 import 'fake_receipt_printer.dart';
 import 'fake_receipt_settings_repository.dart';
@@ -33,6 +35,8 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeStockRepository? stock,
   FakeMasterDataRepository? masterData,
   FakeCashierRepository? cashier,
+  FakeDiningRepository? dining,
+  FakeDiningAdminRepository? diningAdmin,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
   FakeReceiptSettingsRepository? receiptSettings,
@@ -76,6 +80,8 @@ Future<AppSettingsViewModel> pumpLakuna(
           stock: stock ?? FakeStockRepository(),
           masterData: masterData ?? FakeMasterDataRepository(),
           cashier: cashier ?? FakeCashierRepository(),
+          dining: dining ?? FakeDiningRepository(),
+          diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
           receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),

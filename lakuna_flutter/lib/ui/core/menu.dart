@@ -73,6 +73,13 @@ final List<MenuGroup> appMenu = [
         permission: Permission.salesCreate,
       ),
       MenuEntry(
+        key: 'tables',
+        icon: TablerIcons.armchair,
+        label: (l) => l.menuTables,
+        path: Routes.tables,
+        permission: Permission.openBillsManage,
+      ),
+      MenuEntry(
         key: 'cash_session',
         icon: TablerIcons.cashRegister,
         label: (l) => l.menuCashSession,

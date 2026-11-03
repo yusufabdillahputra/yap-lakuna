@@ -153,4 +153,38 @@ void main() {
     final lines = layoutReceipt(content, ReceiptPaper.mm58);
     expect(lines.every((l) => l.text.length <= 32), isTrue);
   });
+
+  test('nota open bill F&B: pesanan, subtotal, service, PB1', () {
+    final base = result([pay(PaymentMethod.cash, 210000, change: 1735)]);
+    final content = saleReceiptContent(
+      id,
+      result: CheckoutResult(
+        sale: base.sale.copyWith(
+          serviceBp: 500,
+          taxBp: 1050,
+          serviceAmount: 9075,
+          taxAmount: 20010,
+          total: 208265,
+        ),
+        items: base.items,
+        payments: base.payments,
+      ),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+      orderLabel: 'Meja M4',
+    );
+    expect(content.meta.last.label, 'Pesanan');
+    expect(content.meta.last.value, 'Meja M4');
+    expect(content.totals.map((p) => (p.label, p.value)).take(4), [
+      ('Subtotal', '180.500'),
+      ('Service 5%', '9.075'),
+      ('PB1 10,5%', '20.010'),
+      ('TOTAL', '208.265'),
+    ]);
+    expect(percentLabel(en, 1050), '10.5%');
+    expect(percentLabel(id, 1225), '12,25%');
+  });
 }

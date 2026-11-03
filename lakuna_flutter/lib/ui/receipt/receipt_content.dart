@@ -15,6 +15,17 @@ String _qty(AppLocalizations l10n, int milli) => _english(l10n)
     ? Qty(milli).format(decimal: '.', group: ',')
     : Qty(milli).format(decimal: ',', group: '.');
 
+/// Tarif basis poin sebagai persen: `5%`, `5,5%` (id) / `5.5%` (en).
+String percentLabel(AppLocalizations l10n, int bp) {
+  final whole = bp ~/ 100;
+  final frac = bp % 100;
+  if (frac == 0) return '$whole%';
+  final digits = frac % 10 == 0
+      ? '${frac ~/ 10}'
+      : frac.toString().padLeft(2, '0');
+  return '$whole${_english(l10n) ? '.' : ','}$digits%';
+}
+
 /// `dd/MM/yy HH.mm`.
 String receiptDate(DateTime local) {
   String two(int n) => n.toString().padLeft(2, '0');
@@ -35,8 +46,10 @@ ReceiptContent saleReceiptContent(
   required String? timezone,
   required ReceiptConfig config,
   String? banner,
+  String? orderLabel,
 }) {
   final sale = result.sale;
+  final fnbCharges = sale.serviceAmount != 0 || sale.taxAmount != 0;
   return ReceiptContent(
     storeName: businessName.toUpperCase(),
     outletName: outletName,
@@ -49,6 +62,7 @@ ReceiptContent saleReceiptContent(
         receiptDate(outletLocalTime(sale.soldAt, timezone)),
       ),
       ReceiptPair(l10n.receiptCashier, staffName),
+      if (orderLabel != null) ReceiptPair(l10n.receiptOrder, orderLabel),
     ],
     items: [
       for (final item in result.items)
@@ -62,6 +76,25 @@ ReceiptContent saleReceiptContent(
         ),
     ],
     totals: [
+      if (fnbCharges) ...[
+        ReceiptPair(
+          l10n.receiptSubtotal,
+          receiptAmount(
+            l10n,
+            result.items.fold(0, (sum, i) => sum + i.lineTotal),
+          ),
+        ),
+        if (sale.serviceAmount != 0)
+          ReceiptPair(
+            l10n.receiptService(percentLabel(l10n, sale.serviceBp)),
+            receiptAmount(l10n, sale.serviceAmount),
+          ),
+        if (sale.taxAmount != 0)
+          ReceiptPair(
+            l10n.receiptTax(percentLabel(l10n, sale.taxBp)),
+            receiptAmount(l10n, sale.taxAmount),
+          ),
+      ],
       ReceiptPair(
         l10n.receiptTotal,
         receiptAmount(l10n, sale.total),

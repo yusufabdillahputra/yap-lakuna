@@ -8,9 +8,13 @@ import 'config/app_environment.dart';
 import 'data/repositories/app_settings_repository.dart';
 import 'data/repositories/cash_drawer_repository.dart';
 import 'data/repositories/cashier_repository.dart';
+import 'data/repositories/dining_admin_repository.dart';
+import 'data/repositories/dining_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
+import 'data/repositories/local_dining_admin_repository.dart';
+import 'data/repositories/local_dining_repository.dart';
 import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_master_data_repository.dart';
 import 'data/repositories/local_payment_settings_repository.dart';
@@ -79,6 +83,17 @@ Future<void> main() async {
     session: sessionRepository,
     preferences: preferences,
   );
+  final diningRepository = LocalDiningRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+    preferences: preferences,
+  );
+  final diningAdminRepository = LocalDiningAdminRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
   final paymentSettingsRepository = LocalPaymentSettingsRepository(
     store,
     stores: storeRepository,
@@ -106,6 +121,8 @@ Future<void> main() async {
         Provider<CashDrawerRepository>.value(value: cashDrawerRepository),
         Provider<CatalogRepository>.value(value: catalogRepository),
         Provider<CashierRepository>.value(value: cashierRepository),
+        Provider<DiningRepository>.value(value: diningRepository),
+        Provider<DiningAdminRepository>.value(value: diningAdminRepository),
         Provider<StockRepository>.value(value: stockRepository),
         Provider<MasterDataRepository>.value(value: masterDataRepository),
         Provider<PaymentSettingsRepository>.value(
@@ -127,6 +144,8 @@ Future<void> main() async {
           stock: stockRepository,
           masterData: masterDataRepository,
           cashier: cashierRepository,
+          dining: diningRepository,
+          diningAdmin: diningAdminRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,
           receiptPrinter: receiptPrinter,

@@ -92,6 +92,29 @@ class LocalCashierRepository extends CashierRepository {
     );
   });
 
+  @override
+  Future<Result<OpenBill>> loadBill(UuidValue billId) => _guard(
+    (ctx, _) => loadOpenBill(_store, CatalogScope.of(ctx), billId),
+  );
+
+  @override
+  Future<Result<CheckoutResult>> payBill(
+    UuidValue billId,
+    List<SalePaymentRequest> payments,
+  ) => _guard((ctx, staff) {
+    if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
+        !staff.can(Permission.paymentsConfirm)) {
+      throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    return payOpenBill(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      billId: billId,
+      payments: payments,
+    );
+  });
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, StaffProfile staff) body,
   ) async {

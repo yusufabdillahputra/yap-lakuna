@@ -3877,6 +3877,936 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Batal'**
   String get masterDeleteCancel;
+
+  /// No description provided for @menuTables.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja'**
+  String get menuTables;
+
+  /// No description provided for @billTableLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja {label}'**
+  String billTableLabel(String label);
+
+  /// No description provided for @billTakeAwayLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Take away {label}'**
+  String billTakeAwayLabel(String label);
+
+  /// No description provided for @paymentBillLines.
+  ///
+  /// In id, this message translates to:
+  /// **'{label} · {count} item'**
+  String paymentBillLines(String label, int count);
+
+  /// No description provided for @successBackToTables.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke meja'**
+  String get successBackToTables;
+
+  /// No description provided for @receiptOrder.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesanan'**
+  String get receiptOrder;
+
+  /// No description provided for @receiptSubtotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Subtotal'**
+  String get receiptSubtotal;
+
+  /// No description provided for @receiptService.
+  ///
+  /// In id, this message translates to:
+  /// **'Service {pct}'**
+  String receiptService(String pct);
+
+  /// No description provided for @receiptTax.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 {pct}'**
+  String receiptTax(String pct);
+
+  /// No description provided for @cashierBillLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill gagal dibuka. Mungkin sudah dibayar atau dibatalkan.'**
+  String get cashierBillLoadFailed;
+
+  /// No description provided for @cashierBillBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke meja'**
+  String get cashierBillBack;
+
+  /// No description provided for @diningTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja'**
+  String get diningTitle;
+
+  /// No description provided for @diningSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelayan: {staff} · {occupied} dari {total} meja terisi'**
+  String diningSubtitle(String staff, int occupied, int total);
+
+  /// No description provided for @diningDineIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Dine in'**
+  String get diningDineIn;
+
+  /// No description provided for @diningTakeAway.
+  ///
+  /// In id, this message translates to:
+  /// **'Take away'**
+  String get diningTakeAway;
+
+  /// No description provided for @diningLegendEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Kosong'**
+  String get diningLegendEmpty;
+
+  /// No description provided for @diningLegendOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Terisi · open bill'**
+  String get diningLegendOpen;
+
+  /// No description provided for @diningLegendRequested.
+  ///
+  /// In id, this message translates to:
+  /// **'Minta bill'**
+  String get diningLegendRequested;
+
+  /// No description provided for @diningAllAreas.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get diningAllAreas;
+
+  /// No description provided for @diningNoArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa area'**
+  String get diningNoArea;
+
+  /// No description provided for @diningNoTables.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada meja. Tambahkan di Master data › Meja & area.'**
+  String get diningNoTables;
+
+  /// No description provided for @diningSeats.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} kursi'**
+  String diningSeats(int count);
+
+  /// No description provided for @diningMinutes.
+  ///
+  /// In id, this message translates to:
+  /// **'{m} mnt'**
+  String diningMinutes(int m);
+
+  /// No description provided for @diningHours.
+  ///
+  /// In id, this message translates to:
+  /// **'{h} j {m} mnt'**
+  String diningHours(int h, int m);
+
+  /// No description provided for @diningDays.
+  ///
+  /// In id, this message translates to:
+  /// **'{d} hari'**
+  String diningDays(int d);
+
+  /// No description provided for @diningTakeAwayNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Take away baru'**
+  String get diningTakeAwayNew;
+
+  /// No description provided for @diningTakeAwayNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada take away terbuka.'**
+  String get diningTakeAwayNone;
+
+  /// No description provided for @diningTakeAwayItems.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} item · {time}'**
+  String diningTakeAwayItems(int count, String time);
+
+  /// No description provided for @diningStatusNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Baru'**
+  String get diningStatusNew;
+
+  /// No description provided for @diningStatusKitchen.
+  ///
+  /// In id, this message translates to:
+  /// **'Di dapur'**
+  String get diningStatusKitchen;
+
+  /// No description provided for @diningStatusServed.
+  ///
+  /// In id, this message translates to:
+  /// **'Disajikan'**
+  String get diningStatusServed;
+
+  /// No description provided for @diningStatusReady.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap ambil'**
+  String get diningStatusReady;
+
+  /// No description provided for @diningStatusEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Kosong'**
+  String get diningStatusEmpty;
+
+  /// No description provided for @diningDeleteEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus bill kosong'**
+  String get diningDeleteEmpty;
+
+  /// No description provided for @diningSelectHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih meja atau take away untuk melihat bill.'**
+  String get diningSelectHint;
+
+  /// No description provided for @diningBillTableTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja {label} · Open bill'**
+  String diningBillTableTitle(String label);
+
+  /// No description provided for @diningBillTakeAwayTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{label} · Take away'**
+  String diningBillTakeAwayTitle(String label);
+
+  /// No description provided for @diningBillGuests.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} tamu'**
+  String diningBillGuests(int count);
+
+  /// No description provided for @diningBillOpened.
+  ///
+  /// In id, this message translates to:
+  /// **'dibuka {time}'**
+  String diningBillOpened(String time);
+
+  /// No description provided for @diningBillServer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelayan {name}'**
+  String diningBillServer(String name);
+
+  /// No description provided for @diningAddMenu.
+  ///
+  /// In id, this message translates to:
+  /// **'Menu'**
+  String get diningAddMenu;
+
+  /// No description provided for @diningBillEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada item. Ketuk + Menu untuk menambah.'**
+  String get diningBillEmpty;
+
+  /// No description provided for @diningMarkServed.
+  ///
+  /// In id, this message translates to:
+  /// **'Tandai disajikan'**
+  String get diningMarkServed;
+
+  /// No description provided for @diningRemoveItem.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus item'**
+  String get diningRemoveItem;
+
+  /// No description provided for @diningSubtotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Subtotal'**
+  String get diningSubtotal;
+
+  /// No description provided for @diningService.
+  ///
+  /// In id, this message translates to:
+  /// **'Service {pct} (dine in)'**
+  String diningService(String pct);
+
+  /// No description provided for @diningTax.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 {pct}'**
+  String diningTax(String pct);
+
+  /// No description provided for @diningTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get diningTotal;
+
+  /// No description provided for @diningSend.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim ke dapur ({count} item baru)'**
+  String diningSend(int count);
+
+  /// No description provided for @diningRequestBill.
+  ///
+  /// In id, this message translates to:
+  /// **'Minta bill'**
+  String get diningRequestBill;
+
+  /// No description provided for @diningCancelRequest.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal minta bill'**
+  String get diningCancelRequest;
+
+  /// No description provided for @diningMove.
+  ///
+  /// In id, this message translates to:
+  /// **'Pindah meja'**
+  String get diningMove;
+
+  /// No description provided for @diningSplitSoon.
+  ///
+  /// In id, this message translates to:
+  /// **'Split bill (segera)'**
+  String get diningSplitSoon;
+
+  /// No description provided for @diningVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan bill'**
+  String get diningVoid;
+
+  /// No description provided for @diningPay.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup & bayar · {amount}'**
+  String diningPay(String amount);
+
+  /// No description provided for @diningPayNoPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran oleh kasir (butuh izin penjualan).'**
+  String get diningPayNoPermission;
+
+  /// No description provided for @diningBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke meja'**
+  String get diningBack;
+
+  /// No description provided for @diningOpenTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka meja {label}'**
+  String diningOpenTitle(String label);
+
+  /// No description provided for @diningGuests.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah tamu'**
+  String get diningGuests;
+
+  /// No description provided for @diningGuestsInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi 1–99 tamu.'**
+  String get diningGuestsInvalid;
+
+  /// No description provided for @diningOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka bill'**
+  String get diningOpen;
+
+  /// No description provided for @diningCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get diningCancel;
+
+  /// No description provided for @diningCustomerName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama pemesan (opsional)'**
+  String get diningCustomerName;
+
+  /// No description provided for @diningCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat'**
+  String get diningCreate;
+
+  /// No description provided for @diningMoveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pindahkan {label} ke'**
+  String diningMoveTitle(String label);
+
+  /// No description provided for @diningMoveNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada meja kosong.'**
+  String get diningMoveNone;
+
+  /// No description provided for @diningVoidTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan bill {label}?'**
+  String diningVoidTitle(String label);
+
+  /// No description provided for @diningVoidBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill ditutup tanpa pembayaran dan stok tidak berubah. Alasan tersimpan di riwayat.'**
+  String get diningVoidBody;
+
+  /// No description provided for @diningVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan'**
+  String get diningVoidReason;
+
+  /// No description provided for @diningVoidReasonInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan wajib diisi, maks 120 karakter.'**
+  String get diningVoidReasonInvalid;
+
+  /// No description provided for @diningVoidKeep.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get diningVoidKeep;
+
+  /// No description provided for @diningMenuTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah menu · {label}'**
+  String diningMenuTitle(String label);
+
+  /// No description provided for @diningSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari menu'**
+  String get diningSearch;
+
+  /// No description provided for @diningNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan dapur untuk item berikutnya (opsional)'**
+  String get diningNote;
+
+  /// No description provided for @diningNoteTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan maks 120 karakter.'**
+  String get diningNoteTooLong;
+
+  /// No description provided for @diningAdded.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditambahkan: {name}'**
+  String diningAdded(String name);
+
+  /// No description provided for @diningDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get diningDone;
+
+  /// No description provided for @diningNoMenu.
+  ///
+  /// In id, this message translates to:
+  /// **'Menu tidak ditemukan.'**
+  String get diningNoMenu;
+
+  /// No description provided for @diningLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data meja gagal dimuat.'**
+  String get diningLoadFailed;
+
+  /// No description provided for @diningErrorLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Item yang sudah di dapur tidak bisa diubah atau dihapus.'**
+  String get diningErrorLocked;
+
+  /// No description provided for @diningErrorOccupied.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja sudah punya bill terbuka.'**
+  String get diningErrorOccupied;
+
+  /// No description provided for @diningErrorNothingToSend.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada item baru untuk dikirim.'**
+  String get diningErrorNothingToSend;
+
+  /// No description provided for @diningErrorNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill tidak ditemukan atau sudah ditutup.'**
+  String get diningErrorNotFound;
+
+  /// No description provided for @diningErrorNotEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill masih berisi item.'**
+  String get diningErrorNotEmpty;
+
+  /// No description provided for @diningErrorUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Menu tidak tersedia lagi.'**
+  String get diningErrorUnavailable;
+
+  /// No description provided for @diningErrorInput.
+  ///
+  /// In id, this message translates to:
+  /// **'Isian tidak sah.'**
+  String get diningErrorInput;
+
+  /// No description provided for @diningErrorPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk aksi ini.'**
+  String get diningErrorPermission;
+
+  /// No description provided for @diningErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Aksi gagal. Coba lagi.'**
+  String get diningErrorGeneric;
+
+  /// No description provided for @ticketDialogTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Terkirim ke dapur'**
+  String get ticketDialogTitle;
+
+  /// No description provided for @ticketHeading.
+  ///
+  /// In id, this message translates to:
+  /// **'TIKET DAPUR'**
+  String get ticketHeading;
+
+  /// No description provided for @ticketDineIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja {label} · Dine in'**
+  String ticketDineIn(String label);
+
+  /// No description provided for @ticketTakeAway.
+  ///
+  /// In id, this message translates to:
+  /// **'{label} · Take away'**
+  String ticketTakeAway(String label);
+
+  /// No description provided for @ticketNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No'**
+  String get ticketNo;
+
+  /// No description provided for @ticketTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get ticketTime;
+
+  /// No description provided for @ticketStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelayan'**
+  String get ticketStaff;
+
+  /// No description provided for @ticketFooter.
+  ///
+  /// In id, this message translates to:
+  /// **'Item baru saja · tanpa harga'**
+  String get ticketFooter;
+
+  /// No description provided for @ticketPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak tiket'**
+  String get ticketPrint;
+
+  /// No description provided for @ticketClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get ticketClose;
+
+  /// No description provided for @ticketPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket terkirim ke printer.'**
+  String get ticketPrinted;
+
+  /// No description provided for @ticketPrintFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket gagal dicetak. Periksa printer di Pengaturan › Struk & printer.'**
+  String get ticketPrintFailed;
+
+  /// No description provided for @masterTabTables.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja & area'**
+  String get masterTabTables;
+
+  /// No description provided for @diningSetupHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja dipakai di layar Meja (F&B). Nama meja unik per cabang; area opsional.'**
+  String get diningSetupHint;
+
+  /// No description provided for @diningSetupAreas.
+  ///
+  /// In id, this message translates to:
+  /// **'Area'**
+  String get diningSetupAreas;
+
+  /// No description provided for @diningSetupAreaAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah area'**
+  String get diningSetupAreaAdd;
+
+  /// No description provided for @diningSetupAreaTables.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} meja'**
+  String diningSetupAreaTables(int count);
+
+  /// No description provided for @diningSetupAreasEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada area. Contoh: Indoor, Teras, Lantai 2.'**
+  String get diningSetupAreasEmpty;
+
+  /// No description provided for @diningSetupTables.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja'**
+  String get diningSetupTables;
+
+  /// No description provided for @diningSetupTableAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah meja'**
+  String get diningSetupTableAdd;
+
+  /// No description provided for @diningSetupTableRange.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah beberapa'**
+  String get diningSetupTableRange;
+
+  /// No description provided for @diningSetupTablesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada meja. Pakai Tambah beberapa untuk membuat M1–M12 sekaligus.'**
+  String get diningSetupTablesEmpty;
+
+  /// No description provided for @diningSetupNoArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa area'**
+  String get diningSetupNoArea;
+
+  /// No description provided for @diningSetupName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama'**
+  String get diningSetupName;
+
+  /// No description provided for @diningSetupArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Area'**
+  String get diningSetupArea;
+
+  /// No description provided for @diningSetupSeats.
+  ///
+  /// In id, this message translates to:
+  /// **'Kursi'**
+  String get diningSetupSeats;
+
+  /// No description provided for @diningSetupPrefix.
+  ///
+  /// In id, this message translates to:
+  /// **'Awalan'**
+  String get diningSetupPrefix;
+
+  /// No description provided for @diningSetupFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai'**
+  String get diningSetupFrom;
+
+  /// No description provided for @diningSetupTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampai'**
+  String get diningSetupTo;
+
+  /// No description provided for @diningSetupPreview.
+  ///
+  /// In id, this message translates to:
+  /// **'Akan dibuat: {names}'**
+  String diningSetupPreview(String names);
+
+  /// No description provided for @diningSetupRangeInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang tidak sah (1–50 meja sekaligus).'**
+  String get diningSetupRangeInvalid;
+
+  /// No description provided for @diningSetupNewArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Area baru'**
+  String get diningSetupNewArea;
+
+  /// No description provided for @diningSetupRenameArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti nama area'**
+  String get diningSetupRenameArea;
+
+  /// No description provided for @diningSetupNewTable.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja baru'**
+  String get diningSetupNewTable;
+
+  /// No description provided for @diningSetupEditTable.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah meja'**
+  String get diningSetupEditTable;
+
+  /// No description provided for @diningSetupSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get diningSetupSave;
+
+  /// No description provided for @diningSetupCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get diningSetupCancel;
+
+  /// No description provided for @diningSetupDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get diningSetupDelete;
+
+  /// No description provided for @diningSetupDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String diningSetupDeleteTitle(String name);
+
+  /// No description provided for @diningSetupDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data yang dihapus tidak tampil lagi di layar Meja.'**
+  String get diningSetupDeleteBody;
+
+  /// No description provided for @diningSetupMoveUp.
+  ///
+  /// In id, this message translates to:
+  /// **'Naikkan'**
+  String get diningSetupMoveUp;
+
+  /// No description provided for @diningSetupMoveDown.
+  ///
+  /// In id, this message translates to:
+  /// **'Turunkan'**
+  String get diningSetupMoveDown;
+
+  /// No description provided for @diningSetupEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah'**
+  String get diningSetupEdit;
+
+  /// No description provided for @diningSetupErrNameEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama wajib diisi.'**
+  String get diningSetupErrNameEmpty;
+
+  /// No description provided for @diningSetupErrNameTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama maks {max} karakter.'**
+  String diningSetupErrNameTooLong(int max);
+
+  /// No description provided for @diningSetupErrNameDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama sudah dipakai.'**
+  String get diningSetupErrNameDuplicate;
+
+  /// No description provided for @diningSetupErrNameDuplicateAt.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama {name} sudah dipakai.'**
+  String diningSetupErrNameDuplicateAt(String name);
+
+  /// No description provided for @diningSetupErrSeats.
+  ///
+  /// In id, this message translates to:
+  /// **'Kursi 1–99.'**
+  String get diningSetupErrSeats;
+
+  /// No description provided for @diningSetupErrAreaInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Area masih punya {count} meja. Pindahkan atau hapus mejanya dulu.'**
+  String diningSetupErrAreaInUse(int count);
+
+  /// No description provided for @diningSetupErrTableBusy.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja masih punya bill terbuka.'**
+  String get diningSetupErrTableBusy;
+
+  /// No description provided for @diningSetupErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Aksi gagal. Coba lagi.'**
+  String get diningSetupErrGeneric;
+
+  /// No description provided for @diningSetupLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data meja gagal dimuat.'**
+  String get diningSetupLoadFailed;
+
+  /// No description provided for @settingsSectionTaxes.
+  ///
+  /// In id, this message translates to:
+  /// **'Pajak & service'**
+  String get settingsSectionTaxes;
+
+  /// No description provided for @fnbRatesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pajak & service'**
+  String get fnbRatesTitle;
+
+  /// No description provided for @fnbRatesSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku untuk open bill di layar Meja cabang ini.'**
+  String get fnbRatesSubtitle;
+
+  /// No description provided for @fnbRatesService.
+  ///
+  /// In id, this message translates to:
+  /// **'Service charge (%)'**
+  String get fnbRatesService;
+
+  /// No description provided for @fnbRatesServiceHint.
+  ///
+  /// In id, this message translates to:
+  /// **'0–30%, kelipatan 0,5'**
+  String get fnbRatesServiceHint;
+
+  /// No description provided for @fnbRatesTax.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 / pajak restoran (%)'**
+  String get fnbRatesTax;
+
+  /// No description provided for @fnbRatesTaxHint.
+  ///
+  /// In id, this message translates to:
+  /// **'0–20%, kelipatan 0,5'**
+  String get fnbRatesTaxHint;
+
+  /// No description provided for @fnbRatesInvalidService.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi 0–30 dengan kelipatan 0,5.'**
+  String get fnbRatesInvalidService;
+
+  /// No description provided for @fnbRatesInvalidTax.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi 0–20 dengan kelipatan 0,5.'**
+  String get fnbRatesInvalidTax;
+
+  /// No description provided for @fnbRatesNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Service hanya untuk dine in. PB1 dihitung dari subtotal + service.'**
+  String get fnbRatesNote;
+
+  /// No description provided for @fnbRatesPreview.
+  ///
+  /// In id, this message translates to:
+  /// **'Contoh dine in'**
+  String get fnbRatesPreview;
+
+  /// No description provided for @fnbRatesSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan tarif'**
+  String get fnbRatesSave;
+
+  /// No description provided for @fnbRatesSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Tarif tersimpan.'**
+  String get fnbRatesSaved;
+
+  /// No description provided for @fnbRatesLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Tarif gagal dimuat.'**
+  String get fnbRatesLoadFailed;
+
+  /// No description provided for @fnbRatesSaveFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Tarif gagal disimpan.'**
+  String get fnbRatesSaveFailed;
 }
 
 class _AppLocalizationsDelegate
