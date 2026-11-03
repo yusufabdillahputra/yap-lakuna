@@ -1,4 +1,4 @@
-### Staf toko. PIN kasir disimpan sebagai hash Argon2id (modul F1-02).
+### Staf toko. PIN dan kata sandi disimpan sebagai hash Argon2id (string PHC).
 class: StaffMember
 table: staff_members
 database: all
@@ -8,6 +8,8 @@ fields:
   name: String
   email: String?
   pinHash: String?, column=pin_hash
+  ### Hash Argon2id kata sandi pemilik (login email, F1-01).
+  passwordHash: String?, column=password_hash
   isOwner: bool, default=false, column=is_owner
   isActive: bool, default=true, column=is_active
   createdAt: DateTime, default=now, column=created_at

@@ -29,7 +29,9 @@
   "comingSoonTitle": "{module} segera hadir",
   "@comingSoonTitle": {
     "placeholders": {
-      "module": {"type": "String"}
+      "module": {
+        "type": "String"
+      }
     }
   },
   "comingSoonBody": "Modul ini sedang dibangun dan akan tersedia di rilis berikutnya.",
@@ -41,5 +43,68 @@
   "settingsLanguage": "Bahasa",
   "languageIndonesian": "Bahasa Indonesia",
   "languageEnglish": "English",
-  "settingsSaveError": "Pengaturan gagal disimpan. Coba lagi."
+  "settingsSaveError": "Pengaturan gagal disimpan. Coba lagi.",
+  "onboardingWelcome": "Selamat datang",
+  "onboardingHeadline": "Siapkan toko Anda dalam 4 langkah",
+  "onboardingOfflineNote": "Semua data tersimpan di perangkat ini. Anda bisa mengaktifkan versi hosting kapan saja.",
+  "onboardingStepOf": "Langkah {current} dari {total}",
+  "@onboardingStepOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingStepLanguage": "Bahasa & tema",
+  "onboardingStepBusiness": "Jenis usaha & cabang",
+  "onboardingStepOwner": "Akun pemilik & PIN",
+  "onboardingStepSummary": "Siap jualan",
+  "onboardingTitleLanguage": "Pilih bahasa dan tema",
+  "onboardingTitleBusiness": "Jenis usaha & cabang pertama",
+  "onboardingTitleOwner": "Akun pemilik & PIN",
+  "onboardingTitleSummary": "Periksa, lalu mulai jualan",
+  "businessTypeLabel": "Jenis usaha",
+  "businessRetail": "Retail",
+  "businessRetailDesc": "Toko kelontong, grosir, toko bangunan, counter HP.",
+  "businessFnb": "F&B",
+  "businessFnbDesc": "Warung makan, kafe, kedai kopi. Ada meja & open bill.",
+  "businessMixed": "Campuran",
+  "businessMixedDesc": "Jual barang sekaligus makanan/minuman.",
+  "fieldBusinessName": "Nama usaha",
+  "fieldOutletName": "Nama cabang",
+  "fieldOutletCode": "Kode cabang (untuk nomor nota)",
+  "fieldDeviceCode": "Kode perangkat",
+  "fieldTimezone": "Zona waktu",
+  "fieldOwnerName": "Nama pemilik",
+  "fieldEmail": "Email",
+  "fieldPassword": "Kata sandi",
+  "fieldPin": "PIN (6 angka)",
+  "fieldPinConfirm": "Ulangi PIN",
+  "receiptPreviewLabel": "Contoh nomor nota",
+  "receiptPreviewNote": "Cabang, perangkat, tanggal, urutan. Aman walau beberapa kasir offline.",
+  "ownerNote": "PIN dipakai untuk masuk dan ganti kasir. Email dan kata sandi dipakai untuk masuk sebagai pemilik.",
+  "errorRequired": "Wajib diisi",
+  "errorTooLong": "Maksimal 60 karakter",
+  "errorInvalidCode": "2–6 huruf atau angka",
+  "errorInvalidEmail": "Format email tidak valid",
+  "errorPasswordTooShort": "Minimal 8 karakter",
+  "errorInvalidPin": "PIN harus 6 angka",
+  "errorPinMismatch": "PIN tidak sama",
+  "errorInvalidTimezone": "Pilih zona waktu",
+  "summaryBusiness": "Usaha",
+  "summaryOutlet": "Cabang",
+  "summaryDevice": "Perangkat",
+  "summaryOwner": "Pemilik",
+  "summaryNote": "Data baru disimpan setelah Anda menekan Mulai jualan.",
+  "buttonBack": "Kembali",
+  "buttonNextBusiness": "Lanjut: jenis usaha",
+  "buttonNextOwner": "Lanjut: akun pemilik",
+  "buttonNextSummary": "Lanjut: ringkasan",
+  "buttonStartSelling": "Mulai jualan",
+  "setupFailed": "Toko gagal disimpan. Coba lagi.",
+  "homeStoreLabel": "Toko",
+  "setupAlreadyDone": "Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan."
 }

@@ -769,6 +769,12 @@ class Protocol extends _isd.DatabaseSerializationManager
           dartType: 'String?',
         ),
         _isd.ColumnDefinition(
+          name: 'password_hash',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
           name: 'is_owner',
           columnType: _isd.ColumnType.boolean,
           isNullable: false,

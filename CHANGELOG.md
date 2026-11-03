@@ -7,6 +7,84 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-03
+
+Setup toko pertama (F1-01, layar 1.1): instal baru langsung punya toko siap
+jualan dalam 4 langkah, tanpa internet.
+
+### Ditambahkan
+
+- **Wizard setup toko 4 langkah** yang terbuka otomatis saat database belum
+  punya toko:
+  1. Bahasa & tema (berlaku langsung).
+  2. Jenis usaha (Retail, F&B, Campuran), nama usaha, cabang, kode cabang,
+     kode perangkat, dan zona waktu (WIB/WITA/WIT), dengan pratinjau nomor
+     nota (mis. `PST-K01-261103-0001`) yang berubah saat kode diketik.
+  3. Akun pemilik: nama, email, kata sandi, dan PIN 6 digit.
+  4. Ringkasan dan tombol *Mulai jualan*. Data baru ditulis saat tombol ini
+     ditekan.
+- Tata letak tablet/desktop dengan panel Sky dan stepper di kiri. Di ponsel
+  panel diganti progress bar, dan tombol ditumpuk selebar layar. Sakelar
+  bahasa ID/EN ada di setiap langkah.
+- Setup menulis **dalam satu transaksi**: tenant, cabang, perangkat ini,
+  lokasi stok "Etalase", pemilik (role `owner`), dan keanggotaannya di
+  cabang. Semua baris tercatat di outbox sinkronisasi dengan aktor pemilik.
+- Kata sandi dan PIN disimpan sebagai hash **Argon2id** (memori 19 MiB,
+  2 iterasi, salt acak 16 byte), dihitung di isolate terpisah agar UI tidak
+  macet.
+- Beranda menampilkan toko aktif: usaha · cabang · kode perangkat.
+
+### Diubah
+
+- Router mengarahkan semua jalur ke `/setup` selama toko belum ada, dan
+  menolak `/setup` setelah setup selesai.
+- Pilihan tema dan bahasa di Pengaturan menjadi komponen bersama yang juga
+  dipakai langkah 1 setup.
+
+### Diperbaiki
+
+- Panel samping wizard meluap di layar pendek (setinggi 800 px dengan teks
+  besar). Ditemukan oleh tes widget; panel kini bisa digulir dan catatan
+  tetap di bawah bila muat.
+- Label tombol wizard terpotong di ponsel selebar 400 px. Ditemukan oleh tes
+  widget; di ponsel tombol kini ditumpuk.
+- Kode cabang dan perangkat tampil huruf kecil saat diketik di desktop,
+  karena `textCapitalization` hanya berlaku di keyboard layar. Ditemukan saat
+  uji manual di Xvfb; kini disaring ke huruf/angka dan langsung dijadikan
+  huruf besar.
+- Temuan review kode sebelum rilis:
+  - Pesan "Toko gagal disimpan" tetap tampil setelah pengguna kembali dan
+    mengubah isian. Kini hilang saat kembali ke langkah sebelumnya.
+  - Tanggal pratinjau nomor nota memakai jam perangkat, bukan zona waktu
+    yang dipilih. Pada 23.30 WIB, toko WIT sudah berganti tanggal. Kini
+    mengikuti WIB/WITA/WIT yang dipilih.
+  - Bila toko sudah ada tetapi konteksnya belum termuat, setup gagal terus
+    dengan pesan umum. Kini setup memuat ulang toko yang ada. Bila datanya
+    tidak lengkap, tampil pesan khusus (pulihkan dari backup), dan galat
+    saat memuat toko ketika aplikasi dibuka dicatat di log.
+
+### Keamanan
+
+- PIN dan kata sandi tidak pernah disimpan dalam teks asli. Hash memakai
+  format PHC sehingga parameter bisa dinaikkan nanti tanpa memutus hash
+  lama.
+
+### Catatan teknis
+
+- Migrasi `onboarding` menambah kolom `staff_members.password_hash`.
+- `lakuna_domain`: `SetupInput` (validasi per field dan per langkah),
+  `CredentialHasher` (paket `hashlib`, murni Dart), `BusinessKind`, dan
+  `setupTimezones`.
+- `lakuna_data`: `setupStore()`, `loadStoreContext()`, `StoreContext`, serta
+  `SetupAlreadyDone` dan `SetupInvalid`. Keduanya ditolak sebelum ada yang
+  ditulis.
+- Aplikasi: `StoreRepository` (`ChangeNotifier`, didengar router) dengan
+  versi lokal dan palsu, `OnboardingViewModel`, dan `OnboardingScreen`.
+- Metode bayar dan satuan bawaan dibuat oleh modulnya sendiri (F1-05 dan
+  F1-07), bukan di onboarding seperti di Storeku.
+- Produk pertama dan import Excel (langkah 4 di kanvas) dipindah ke modul
+  Produk (F1-07).
+
 ## [0.1.1] - 2026-11-03
 
 Keterbacaan mode gelap mengikuti aturan kontras kanvas "Desain UI Lakuna".
@@ -153,6 +231,7 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yusufabdillahputra/yap-lakuna/releases/tag/v0.1.0

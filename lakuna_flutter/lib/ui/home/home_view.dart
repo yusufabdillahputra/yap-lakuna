@@ -4,17 +4,21 @@ import 'package:material_ui/material_ui.dart' show SelectableText;
 import 'package:provider/provider.dart';
 
 import '../../config/app_environment.dart';
+import '../../data/repositories/store_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 
-/// Beranda fondasi: sambutan dan informasi perangkat.
+/// Beranda: sambutan, toko aktif, dan informasi perangkat.
 class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+  const HomeView({super.key, required this.store});
+
+  final StoreRepository store;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final env = context.read<AppEnvironment>();
     final theme = context.theme;
+    final ctx = store.current;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Align(
@@ -34,6 +38,13 @@ class HomeView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 8,
                     children: [
+                      if (ctx != null)
+                        _InfoRow(
+                          label: l10n.homeStoreLabel,
+                          value:
+                              '${ctx.tenant.name} · ${ctx.outlet.name} · '
+                              '${ctx.device.code}',
+                        ),
                       _InfoRow(
                         label: l10n.homeVersionLabel,
                         value: env.version,

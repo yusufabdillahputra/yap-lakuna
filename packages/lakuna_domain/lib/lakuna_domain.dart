@@ -4,9 +4,11 @@
 /// supaya bisa dipakai bersama oleh aplikasi dan server.
 library;
 
+export 'src/credentials.dart';
 export 'src/document_number.dart';
 export 'src/hlc.dart';
 export 'src/ids.dart';
 export 'src/money.dart';
 export 'src/permission.dart';
 export 'src/qty.dart';
+export 'src/setup.dart';

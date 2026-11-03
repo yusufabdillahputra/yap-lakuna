@@ -7,7 +7,10 @@ import 'app.dart';
 import 'config/app_environment.dart';
 import 'data/repositories/app_settings_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
+import 'data/repositories/local_store_repository.dart';
+import 'data/repositories/store_repository.dart';
 import 'routing/router.dart';
+import 'utils/result.dart';
 import 'ui/settings/app_settings_view_model.dart';
 
 Future<void> main() async {
@@ -25,6 +28,11 @@ Future<void> main() async {
   );
   final settings = AppSettingsViewModel(repository: settingsRepository);
   await settings.load.execute();
+  final storeRepository = LocalStoreRepository(store);
+  if (await storeRepository.load() case Error(:final error)) {
+    // Wizard tetap tampil; galatnya dicatat agar bisa dilacak.
+    debugPrint('Konteks toko gagal dimuat: $error');
+  }
 
   runApp(
     MultiProvider(
@@ -33,10 +41,11 @@ Future<void> main() async {
         Provider<AppEnvironment>.value(value: environment),
         Provider<AppSettingsRepository>.value(value: settingsRepository),
         ChangeNotifierProvider<AppSettingsViewModel>.value(value: settings),
+        ChangeNotifierProvider<StoreRepository>.value(value: storeRepository),
       ],
       child: LakunaApp(
         settings: settings,
-        router: createRouter(settings: settings),
+        router: createRouter(settings: settings, store: storeRepository),
       ),
     ),
   );
