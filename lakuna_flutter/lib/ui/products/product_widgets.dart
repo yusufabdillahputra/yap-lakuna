@@ -186,15 +186,28 @@ class ChoicePill extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.dot,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
+  /// Titik warna di depan label (warna kategori, F1-09).
+  final Color? dot;
+
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final text = Text(
+      label,
+      style: theme.typography.body.sm.copyWith(
+        fontWeight: FontWeight.w600,
+        color: selected
+            ? theme.colors.primaryForeground
+            : theme.colors.secondaryForeground,
+      ),
+    );
     return FTappable(
       onPress: onTap,
       semanticsLabel: label,
@@ -206,19 +219,47 @@ class ChoicePill extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Text(
-            label,
-            style: theme.typography.body.sm.copyWith(
-              fontWeight: FontWeight.w600,
-              color: selected
-                  ? theme.colors.primaryForeground
-                  : theme.colors.secondaryForeground,
+          child: switch (dot) {
+            null => text,
+            final color => Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                ColorDot(color: color),
+                Flexible(child: text),
+              ],
             ),
-          ),
+          },
         ),
       ),
     );
   }
+}
+
+/// Warna kategori dari hex `#RRGGBB`, atau `null` bila kosong/tidak sah.
+Color? categoryColor(String? hex) {
+  if (hex == null || hex.length != 7 || !hex.startsWith('#')) return null;
+  final v = int.tryParse(hex.substring(1), radix: 16);
+  return v == null ? null : Color(0xFF000000 | v);
+}
+
+/// Lingkaran warna kecil (warna kategori).
+class ColorDot extends StatelessWidget {
+  const ColorDot({super.key, required this.color, this.size = 10});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(color: context.theme.colors.background, width: 1.5),
+    ),
+  );
 }
 
 /// Kartu dengan judul opsional dan isi berjarak 16.

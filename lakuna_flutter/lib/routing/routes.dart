@@ -27,6 +27,12 @@ abstract final class Routes {
   /// Stok: penyesuaian, kartu stok, stok minimum, lokasi (F1-08).
   static const stock = '/stok';
 
+  /// Stok dengan tab tertentu terbuka (nama `StockTab`, mis. `locations`).
+  static String stockTab(String tab) => '$stock?tab=$tab';
+
+  /// Master data: kategori, satuan, lokasi, metode bayar (F1-09).
+  static const master = '/master';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

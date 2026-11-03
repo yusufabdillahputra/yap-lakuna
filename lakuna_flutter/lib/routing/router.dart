@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
+import '../data/repositories/master_data_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
@@ -18,12 +19,14 @@ import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
+import '../ui/master/master_view.dart';
 import '../ui/onboarding/onboarding_view.dart';
 import '../ui/products/product_form_view.dart';
 import '../ui/products/product_list_view.dart';
 import '../ui/settings/app_settings_view_model.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/stock/stock_view.dart';
+import '../ui/stock/stock_view_model.dart' show StockTab;
 import 'routes.dart';
 
 /// Router aplikasi:
@@ -38,6 +41,7 @@ GoRouter createRouter({
   required CashDrawerRepository cashDrawer,
   required CatalogRepository catalog,
   required StockRepository stock,
+  required MasterDataRepository masterData,
   required CashierRepository cashier,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
@@ -146,7 +150,15 @@ GoRouter createRouter({
               repository: stock,
               session: session,
               store: store,
+              initialTab: StockTab.values
+                  .where((t) => t.name == state.uri.queryParameters['tab'])
+                  .firstOrNull,
             ),
+          ),
+          GoRoute(
+            path: Routes.master,
+            builder: (context, state) =>
+                MasterDataScreen(repository: masterData, session: session),
           ),
           GoRoute(
             path: '/modul/:key',

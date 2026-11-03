@@ -104,6 +104,13 @@ final List<MenuGroup> appMenu = [
         path: Routes.stock,
         permission: Permission.stockAdjust,
       ),
+      MenuEntry(
+        key: 'master',
+        icon: TablerIcons.category,
+        label: (l) => l.menuMasterData,
+        path: Routes.master,
+        permission: Permission.productsManage,
+      ),
       _module(
         'purchases',
         TablerIcons.truck,

@@ -56,6 +56,32 @@ void main() {
     expect(vm.products, hasLength(3));
   });
 
+  test('chip kategori mengikuti master: urutan, saklar, induk', () async {
+    final cats = repo.catalog.categories;
+    final sembako = cats.firstWhere((c) => c.name == 'Sembako');
+    final minuman = cats.firstWhere((c) => c.name == 'Minuman');
+    // Minuman jadi subkategori "Dapur" yang tampil paling depan; Sembako
+    // disembunyikan dari kasir.
+    final dapur = ProductCategory(
+      tenantId: sembako.tenantId,
+      name: 'Dapur',
+      sortOrder: -1,
+      hlc: '',
+    );
+    cats
+      ..add(dapur)
+      ..[cats.indexOf(minuman)] = minuman.copyWith(parentId: dapur.id)
+      ..[cats.indexOf(sembako)] = sembako.copyWith(showInCashier: false);
+    await vm.load.execute();
+    expect(vm.categories.map((c) => c.name), ['Dapur', 'Minuman']);
+    // Chip induk memuat produk subkategori.
+    vm.setCategory(dapur.id);
+    expect(vm.products.single.name, 'Kopi Sachet');
+    // Sembako tetap dijual lewat "Semua".
+    vm.setCategory(null);
+    expect(vm.products, hasLength(3));
+  });
+
   test('ketuk produk: langsung masuk bila hanya satu pilihan', () {
     expect(vm.tapProduct(product('Kopi Sachet')), isTrue);
     expect(vm.lines.single.title, 'Kopi Sachet');

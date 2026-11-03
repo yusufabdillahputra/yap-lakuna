@@ -1,11 +1,18 @@
-### Kategori produk per tenant (F1-07; master lengkap di F1-09).
+### Kategori produk per tenant (F1-07; master di F1-09: induk satu tingkat,
+### warna palet, urutan, tampil di kasir, aktif).
 class: ProductCategory
 table: categories
 database: all
 fields:
   id: UuidValue, defaultModel=random_v7
   tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  ### Induk (satu tingkat); null = kategori utama.
+  parentId: UuidValue?, relation(parent=categories, onDelete=Restrict), column=parent_id
   name: String
+  ### Hex `#RRGGBB` dari palet `categoryColors`, atau null.
+  color: String?
+  showInCashier: bool, default=true, column=show_in_cashier
+  isActive: bool, default=true, column=is_active
   sortOrder: int, default=0, column=sort_order
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at

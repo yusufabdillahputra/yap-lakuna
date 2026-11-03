@@ -12,12 +12,14 @@ import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
 import 'data/repositories/local_catalog_repository.dart';
+import 'data/repositories/local_master_data_repository.dart';
 import 'data/repositories/local_payment_settings_repository.dart';
 import 'data/repositories/local_receipt_settings_repository.dart';
 import 'data/repositories/local_session_repository.dart';
 import 'data/repositories/local_stock_repository.dart';
 import 'data/repositories/local_store_repository.dart';
 import 'data/repositories/catalog_repository.dart';
+import 'data/repositories/master_data_repository.dart';
 import 'data/repositories/payment_settings_repository.dart';
 import 'data/repositories/receipt_settings_repository.dart';
 import 'data/repositories/session_repository.dart';
@@ -66,6 +68,11 @@ Future<void> main() async {
     stores: storeRepository,
     session: sessionRepository,
   );
+  final masterDataRepository = LocalMasterDataRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
   final cashierRepository = LocalCashierRepository(
     store,
     stores: storeRepository,
@@ -100,6 +107,7 @@ Future<void> main() async {
         Provider<CatalogRepository>.value(value: catalogRepository),
         Provider<CashierRepository>.value(value: cashierRepository),
         Provider<StockRepository>.value(value: stockRepository),
+        Provider<MasterDataRepository>.value(value: masterDataRepository),
         Provider<PaymentSettingsRepository>.value(
           value: paymentSettingsRepository,
         ),
@@ -117,6 +125,7 @@ Future<void> main() async {
           cashDrawer: cashDrawerRepository,
           catalog: catalogRepository,
           stock: stockRepository,
+          masterData: masterDataRepository,
           cashier: cashierRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,

@@ -345,6 +345,7 @@ class _Categories extends StatelessWidget {
             ChoicePill(
               key: ValueKey('cashier-category-${c.id.uuid}'),
               label: c.name,
+              dot: categoryColor(c.color),
               selected: vm.categoryId == c.id,
               onTap: () => vm.setCategory(c.id),
             ),

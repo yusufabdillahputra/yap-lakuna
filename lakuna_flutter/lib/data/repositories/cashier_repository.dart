@@ -45,6 +45,7 @@ class CashierData {
   const CashierData({
     required this.products,
     required this.categories,
+    this.categoryParents = const {},
     required this.businessName,
     required this.outletName,
     required this.staffName,
@@ -59,8 +60,12 @@ class CashierData {
   /// Produk aktif dengan minimal satu varian, urut nama.
   final List<CatalogProduct> products;
 
-  /// Kategori yang punya produk aktif, urut nama.
+  /// Chip kategori: aktif, *Tampil di kasir*, punya produk aktif (langsung
+  /// atau lewat subkategori), urut master (F1-09).
   final List<ProductCategory> categories;
+
+  /// Subkategori → induk, agar chip induk ikut memuat produk subkategori.
+  final Map<UuidValue, UuidValue> categoryParents;
   final String businessName;
   final String outletName;
 

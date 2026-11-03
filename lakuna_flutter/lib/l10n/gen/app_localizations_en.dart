@@ -1899,4 +1899,251 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stockRemoveLine => 'Remove row';
+
+  @override
+  String get menuMasterData => 'Master data';
+
+  @override
+  String get masterTitle => 'Master data';
+
+  @override
+  String get masterSubtitle =>
+      'Reference data used by products, stock, cashier & reports';
+
+  @override
+  String get masterTabCategories => 'Categories';
+
+  @override
+  String get masterTabUnits => 'Units';
+
+  @override
+  String get masterTabLocations => 'Stock locations';
+
+  @override
+  String get masterTabPayments => 'Payment methods';
+
+  @override
+  String get masterLoadFailed => 'Could not load master data.';
+
+  @override
+  String get masterCategoryAdd => 'Category';
+
+  @override
+  String get masterColCategory => 'Category';
+
+  @override
+  String get masterColProducts => 'Products';
+
+  @override
+  String get masterColActive => 'Active';
+
+  @override
+  String get masterCategoryEdit => 'Edit';
+
+  @override
+  String masterMoveUp(String name) {
+    return 'Move $name up';
+  }
+
+  @override
+  String masterMoveDown(String name) {
+    return 'Move $name down';
+  }
+
+  @override
+  String get masterOrderHint =>
+      'This order is used for the category tabs on the cashier screen. Tap the arrows to move a category up or down.';
+
+  @override
+  String masterProductCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get masterCategoryHidden => 'Hidden in cashier';
+
+  @override
+  String get masterCategoryInactive => 'Inactive';
+
+  @override
+  String get masterCategoryEmpty =>
+      'No categories yet. Add one here or straight from the product form.';
+
+  @override
+  String get masterFormNew => 'New category';
+
+  @override
+  String get masterFormEdit => 'Edit category';
+
+  @override
+  String get masterFormName => 'Category name';
+
+  @override
+  String get masterFormParent => 'Parent category';
+
+  @override
+  String get masterFormParentNone => '(none)';
+
+  @override
+  String get masterFormParentLocked =>
+      'This category has subcategories, so it cannot have a parent.';
+
+  @override
+  String get masterFormColor => 'Color';
+
+  @override
+  String get masterColorNone => 'No color';
+
+  @override
+  String masterColorPick(int number) {
+    return 'Color $number';
+  }
+
+  @override
+  String get masterFormShowInCashier => 'Show in cashier';
+
+  @override
+  String get masterFormShowInCashierHint =>
+      'Appears as a category tab on the cashier screen.';
+
+  @override
+  String get masterFormActive => 'Active';
+
+  @override
+  String get masterFormActiveHint =>
+      'Inactive categories are hidden in the cashier and not suggested in the product form; their products are still sold.';
+
+  @override
+  String get masterFormCancel => 'Cancel';
+
+  @override
+  String get masterFormSave => 'Save category';
+
+  @override
+  String get masterFormDelete => 'Delete category';
+
+  @override
+  String masterCategorySaved(String name) {
+    return 'Category $name saved.';
+  }
+
+  @override
+  String get masterErrNameEmpty => 'Category name is required.';
+
+  @override
+  String masterErrNameTooLong(int max) {
+    return 'Category name can be at most $max characters.';
+  }
+
+  @override
+  String get masterErrNameDuplicate => 'This category name is already used.';
+
+  @override
+  String get masterErrParentMissing => 'Parent category not found.';
+
+  @override
+  String get masterErrParentSelf => 'A category cannot be its own parent.';
+
+  @override
+  String get masterErrParentNested =>
+      'The parent must be a top-level category (one level only).';
+
+  @override
+  String get masterErrHasChildren =>
+      'A category with subcategories cannot have a parent.';
+
+  @override
+  String get masterErrColor => 'Pick a color from the palette.';
+
+  @override
+  String masterInUseProducts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+    );
+    return 'Cannot delete: still used by $_temp0.';
+  }
+
+  @override
+  String masterInUseChildren(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcategories',
+      one: '1 subcategory',
+    );
+    return 'Cannot delete: still has $_temp0.';
+  }
+
+  @override
+  String get masterActionFailed => 'Could not save. Please try again.';
+
+  @override
+  String get masterUnitsHint =>
+      'Units are used in the product form as base and conversion units. A rename shows up on every product right away.';
+
+  @override
+  String get masterUnitName => 'Unit name';
+
+  @override
+  String get masterUnitAdd => 'Add unit';
+
+  @override
+  String masterUnitRename(String name) {
+    return 'Rename $name';
+  }
+
+  @override
+  String masterUnitDelete(String name) {
+    return 'Delete $name';
+  }
+
+  @override
+  String get masterUnitSave => 'Save';
+
+  @override
+  String get masterUnitCancel => 'Cancel';
+
+  @override
+  String get masterUnitErrEmpty => 'Unit name is required.';
+
+  @override
+  String masterUnitErrTooLong(int max) {
+    return 'Unit name can be at most $max characters.';
+  }
+
+  @override
+  String get masterUnitErrDuplicate => 'This unit name is already used.';
+
+  @override
+  String get masterUnitEmpty =>
+      'No units yet. Units are also created from the product form.';
+
+  @override
+  String get masterLocationsHint =>
+      'Stock locations per branch (shop floor, warehouse). Add and rename them on the Stock screen.';
+
+  @override
+  String get masterLocationsManage => 'Manage in Stock';
+
+  @override
+  String get masterPaymentsHint =>
+      'Payment methods available at the cashier. Static QRIS, receipts, and printers are set up in Settings.';
+
+  @override
+  String get masterPaymentsOpen => 'Open Settings';
+
+  @override
+  String get masterPaymentQrisHint => 'QRIS sticker image + Paid button';
+
+  @override
+  String get masterPaymentAlways => 'Always available';
 }

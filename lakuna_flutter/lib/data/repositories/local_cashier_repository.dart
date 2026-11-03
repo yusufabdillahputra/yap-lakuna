@@ -28,11 +28,10 @@ class LocalCashierRepository extends CashierRepository {
       for (final p in await listProducts(_store, scope))
         if (p.isActive && p.variants.isNotEmpty) p,
     ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    final used = {for (final p in products) p.categoryId};
-    final categories = [
-      for (final c in await listCategories(_store, scope))
-        if (used.contains(c.id)) c,
-    ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    final all = await listCategories(_store, scope);
+    final categories = cashierCategories(all, {
+      for (final p in products) p.categoryId,
+    });
     final open = await findOpenCashSession(_store, CashScope.of(ctx));
     CashierSession? session;
     if (open != null) {
@@ -51,6 +50,10 @@ class LocalCashierRepository extends CashierRepository {
     return CashierData(
       products: products,
       categories: categories,
+      categoryParents: {
+        for (final c in all)
+          if (c.parentId != null) c.id: c.parentId!,
+      },
       businessName: ctx.tenant.name,
       outletName: ctx.outlet.name,
       staffName: staff.name,
