@@ -1,0 +1,54 @@
+name: lakuna_flutter
+description: Lakuna, aplikasi kasir offline-first untuk UMKM Indonesia.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  forui: ^0.27.7
+  go_router: ^18.1.2
+  intl: any
+  lakuna_client:
+    path: ../lakuna_client
+  lakuna_data:
+    path: ../packages/lakuna_data
+  lakuna_domain:
+    path: ../packages/lakuna_domain
+  material_ui: any
+  path: any
+  path_provider: ^2.1.6
+  provider: ^6.1.5
+  tabler_icons_plus: ^3.50.0
+
+dev_dependencies:
+  # Dipakai agen untuk menjalankan aplikasi lewat Dart MCP (lib/driver.dart).
+  flutter_driver:
+    sdk: flutter
+  flutter_lints: '>=3.0.0 <7.0.0'
+  flutter_test:
+    sdk: flutter
+  forui_cli: ^0.27.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat/Montserrat.ttf
+        - asset: assets/fonts/Montserrat/Montserrat-Italic.ttf
+          style: italic
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DM_Sans/DMSans.ttf
+        - asset: assets/fonts/DM_Sans/DMSans-Italic.ttf
+          style: italic

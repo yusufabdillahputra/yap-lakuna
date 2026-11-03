@@ -1,0 +1,9 @@
+enum: DevicePlatform
+serialized: byName
+values:
+  - windows
+  - linux
+  - macos
+  - android
+  - ios
+  - web

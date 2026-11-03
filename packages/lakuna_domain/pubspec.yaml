@@ -1,0 +1,15 @@
+name: lakuna_domain
+description: Aturan bisnis Lakuna dalam Dart murni (uang, jumlah, nota, izin, HLC).
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  uuid: ^4.6.0
+
+dev_dependencies:
+  lints: '>=3.0.0 <7.0.0'
+  test: any

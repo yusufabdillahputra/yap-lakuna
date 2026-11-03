@@ -1,0 +1,5 @@
+enum: SyncOp
+serialized: byName
+values:
+  - upsert
+  - delete
