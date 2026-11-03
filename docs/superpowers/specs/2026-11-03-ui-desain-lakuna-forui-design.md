@@ -200,6 +200,36 @@ lain memetakan komponen Dioxus ke Forui:
   asli, tidak dipotong**, dengan nominal besar, langkah cek mutasi, tombol
   **Belum masuk** dan **Sudah Terbayar** (izin `payments:confirm`).
 
+### Kata sandi dan PIN: selalu dengan kolom ulangi (keputusan Yusuf 2026-11-03)
+
+Setiap kali kata sandi atau PIN disetel atau diganti, ada kolom **ulangi**
+tepat di samping atau di bawah kolom pertama. Layar acuan:
+
+- **1.1b Setup langkah 3, akun pemilik & PIN:** nama, email, kata sandi +
+  ulangi kata sandi, PIN 6 angka + ulangi PIN. Langkah 4 wizard adalah
+  "Ringkasan" (produk pertama pindah ke modul Produk), dan layar 1.1 ikut
+  diperbarui.
+- **1.25b Tambah pengguna & akun saya:** PIN staf + ulangi PIN; reset PIN
+  staf oleh `users:manage` tanpa PIN lama; "Akun saya" untuk ganti kata sandi
+  (saat ini, baru, ulangi baru) dan ganti PIN (saat ini, baru, ulangi baru).
+
+Aturan perilakunya:
+
+- Pakai `FTextFormField.password` dengan tombol mata per kolom; PIN memakai
+  keyboard angka, 6 angka, isinya disembunyikan.
+- Kolom ulangi wajib diisi dan harus sama persis. Pengecekan terjadi saat
+  kolom ulangi kehilangan fokus, saat menekan tombol simpan/lanjut, dan
+  diulang bila kolom pertama diubah.
+- Pesan galat di bawah kolom ulangi: "Kata sandi tidak sama. Ketik ulang." /
+  "PIN tidak sama. Ketik ulang." (EN: "Passwords do not match" / "PINs do not
+  match"). Bila cocok, tampilkan petunjuk sukses ("PIN sama").
+- Tombol simpan/lanjut tetap aktif; bila ada galat, fokus pindah ke kolom
+  pertama yang salah.
+- Hanya hash Argon2id dari kolom pertama yang disimpan. Nilai kolom ulangi
+  tidak pernah disimpan, dicatat, atau dikirim.
+- Ganti kata sandi atau PIN sendiri butuh nilai saat ini. Setelah PIN
+  diganti, hitungan salah PIN dan kunci sementara staf itu direset.
+
 ## Struktur kanvas
 
 Sama dengan Storeku: halaman Fondasi & komponen, Fase 1, Fase 2, Fase 3,
@@ -207,10 +237,11 @@ Contoh mode gelap; nomor layar tetap (1.1 … 1.27, 1.7b–d, 2.1 … 2.6,
 3.1 … 3.7) supaya spec Storeku tetap bisa dirujuk. Hasil audit menambah
 layar bernomor sisipan (1.2b, 1.3b, 1.4b, 1.5b, 1.5c, 1.6m, 1.7e, 1.11b,
 1.15m, 1.16b, 1.17b, 1.19b, 1.20b, 1.26b) dan dua halaman fondasi: "Pola
-keadaan & responsif" dan "Peta fitur hasil audit". Halaman "Mode gelap"
-berisi 23 layar: 8 contoh lama + versi gelap 15 layar (14 layar hasil audit
-ditambah 1.6 QRIS yang dirombak). Total 85 artboard = 54 artboard Storeku +
-2 halaman fondasi baru + 14 layar audit + 15 layar gelap baru.
+keadaan & responsif" dan "Peta fitur hasil audit". Lalu dua layar kata sandi
+dan PIN (1.1b, 1.25b; lihat bagian di atas). Halaman "Mode gelap" berisi 25
+layar: 8 contoh lama + versi gelap 17 layar (14 layar hasil audit, 1.6 QRIS
+yang dirombak, 1.1b, 1.25b). Total 89 artboard = 54 artboard Storeku +
+2 halaman fondasi baru + 16 layar detail + 17 layar gelap baru.
 
 ## Cara membuat
 
@@ -231,7 +262,8 @@ sekali pakai, tidak disimpan di repo (kanvas adalah sumber kebenaran).
 
 | Hal | Status |
 | --- | --- |
-| Kanvas "Desain UI Lakuna" (85 artboard, 23 layar mode gelap) | terbit 2026-11-03 |
+| Kanvas "Desain UI Lakuna" (89 artboard, 25 layar mode gelap) | terbit 2026-11-03 |
+| Kolom ulangi kata sandi & PIN (1.1b, 1.25b) | terbit di kanvas 2026-11-03; implementasi di thread pengembang (setup v0.3.0, form pengguna di modul Pengguna & role) |
 | Kontras: semua teks ≥ 4.5:1, aturan mode gelap | terbit 2026-11-03 |
 | Audit fitur + 14 layar detail | terbit 2026-11-03 |
 | QRIS stiker vertikal, denah `vyuh_node_flow` | terbit 2026-11-03 |
