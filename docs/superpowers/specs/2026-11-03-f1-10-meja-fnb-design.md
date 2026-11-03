@@ -273,9 +273,13 @@ ditunda (semua menu ikut tiket dan boleh catatan).
   satuan (Σ tambahan < −harga ditolak `ModifierPriceInvalid`).
   `sale_item_modifiers` menyimpan nama grup, nama opsi, dan
   `price_delta` beku.
-- **Gabung baris** hanya bila varian, satuan, catatan, dan **set
-  modifier** sama (kolom `modifier_key` = id opsi terurut) dan baris masih
-  *Baru*.
+- **Gabung baris** hanya bila varian, satuan, catatan, **set
+  modifier** (kolom `modifier_key` = id opsi terurut), dan **tambahan per
+  satuan** sama (harga opsi yang diubah di master membuat baris baru), dan
+  baris masih *Baru*.
+- Mengubah jumlah memeriksa ulang harga: grosir + tambahan negatif yang
+  membuat harga satuan di bawah 0 ditolak `ModifierPriceInvalid`. Menghapus
+  item ikut menghapus (soft delete) baris `sale_item_modifiers`-nya.
 - **Tiket dapur & struk**: modifier tampil di bawah nama item (`  + Besar`,
   `  + Tanpa nasi -3.000` di struk), catatan berawalan `*`. Baris panel
   bill menampilkan modifier sebagai teks kecil.
@@ -322,7 +326,9 @@ Rp 66.000 → tiket dapur dan struk menampilkan modifier → bayar.
 | Pajak & service | 1.26 | Dirilis v0.11.0 | Retail belum memakai tarif. |
 | Tutup & bayar | 1.6 | Dirilis v0.11.0 | Rincian bill (item, subtotal, service, PB1, total) tampil di kolom kanan layar Bayar, di atas pilihan metode. |
 | Catatan dapur | 1.7 | Dirilis v0.11.0 | Kolom catatan di lembar menu berlaku untuk item berikutnya yang ditambahkan, lalu dikosongkan. *Minta bill* hanya untuk dine in. |
-| Modifier | 1.8, 1.16b, 1.17b | Belum | v0.12.0. |
+| Modifier | 1.8, 1.16b, 1.17b | Dirilis v0.12.0 | Form grup berupa dialog (bukan panel kanan / lembar bawah). Total di sheet 1.8 memakai harga dasar; harga grosir dihitung di lapisan data saat item masuk bill. Baris rincian struk = (harga + tambahan) × jumlah, modifier di bawah nama. |
+| Modifier di kasir retail | — | Belum | Toko F&B memakai layar Meja / Take away. |
+| Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Belum | Semua menu ikut tiket dan boleh catatan. |
 | Split bill | 1.9 | Belum | v0.13.0. |
 | Denah | 1.7b–d | Belum | v0.14.0. |
 | Gabung meja | Ada (`can_merge` di 1.7d) | Belum | Setelah denah. |
