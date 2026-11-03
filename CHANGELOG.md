@@ -116,6 +116,10 @@ dapur, lalu menutup dan membayar bill dengan service charge dan PB1.
   & service).
 - Tunda ke rilis berikutnya: modifier (v0.12.0), split bill (v0.13.0),
   denah `vyuh_node_flow` (v0.14.0).
+- `release.yml`: GitHub Release tetap terbit bila installer Linux, Windows,
+  dan Android berhasil walau runner macOS tidak didapat (rilis v0.9.0
+  tertahan karena job macOS dua kali batal). Catatan rilis menyebut
+  installer Apple yang belum tersedia.
 
 ## [0.10.0] - 2026-11-03
 
