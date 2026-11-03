@@ -1,0 +1,22 @@
+### Pengaturan per tenant; outlet_id diisi bila hanya berlaku untuk satu outlet.
+class: Setting
+table: settings
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue?, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  key: String
+  valueJson: String, default='null', column=value_json
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  settings_tenant_outlet_key_idx:
+    fields: tenantId, outletId, key
+    unique: true

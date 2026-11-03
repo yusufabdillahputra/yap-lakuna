@@ -1,0 +1,30 @@
+services:
+  # Development services
+  postgres:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "8090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: lakuna
+      POSTGRES_PASSWORD: "JSB4N8bRmQ9oY_nOIA1KsWKRkPUr2d3q"
+    volumes:
+      - lakuna_data:/var/lib/postgresql/data
+
+
+  # Test services
+  postgres_test:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "9090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: lakuna_test
+      POSTGRES_PASSWORD: "OPGdXnLCmvqDX1E-Y6p8rpPF99mK-yZ4"
+    volumes:
+      - lakuna_test_data:/var/lib/postgresql/data
+
+
+volumes:
+  lakuna_data:
+  lakuna_test_data:

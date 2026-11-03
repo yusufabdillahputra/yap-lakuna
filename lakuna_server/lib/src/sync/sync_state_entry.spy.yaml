@@ -1,0 +1,12 @@
+### Status sync perangkat: id perangkat, tenant/outlet aktif, HLC terakhir,
+### cursor pull. Hanya ada di perangkat.
+class: SyncStateEntry
+table: sync_state
+database: client
+fields:
+  key: String
+  value: String
+indexes:
+  sync_state_key_idx:
+    fields: key
+    unique: true

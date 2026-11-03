@@ -1,0 +1,20 @@
+name: lakuna_data
+description: Repositori data lokal Lakuna di atas database sisi klien Serverpod (SQLite), termasuk outbox sync.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  lakuna_client:
+    path: ../../lakuna_client
+  lakuna_domain:
+    path: ../lakuna_domain
+  serverpod_client: 4.1.0
+  serverpod_database: 4.1.0
+
+dev_dependencies:
+  lints: '>=3.0.0 <7.0.0'
+  test: any

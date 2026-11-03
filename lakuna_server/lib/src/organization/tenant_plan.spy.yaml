@@ -1,0 +1,6 @@
+### Paket tenant: gratis (offline) atau hosted (sync ke server).
+enum: TenantPlan
+serialized: byName
+values:
+  - free
+  - hosted
