@@ -1,7 +1,7 @@
 # F1-01 · Onboarding & setup toko
 
 - **Fase:** 1
-- **Status:** Berjalan (target v0.2.0)
+- **Status:** Dirilis di v0.2.0
 - **Layar desain:** 1.1 *Setup toko pertama · tablet* (kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525))
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-01-onboarding-design.md`
@@ -143,7 +143,9 @@ selesai.
   - `setupStore` membuat 6 baris dan 6 entri outbox dalam satu transaksi.
   - Aktor dan HLC terisi.
   - Setup kedua ditolak.
-  - Galat di tengah transaksi membatalkan semua baris.
+  - Input tidak valid ditolak sebelum menulis. Rollback transaksi sudah diuji
+    di `store_test` untuk `LakunaStore.write`, dan setup memakai satu
+    `write`.
   - `loadContext()` mengembalikan `null` sebelum setup.
 - **`lakuna_flutter`:**
   - View model: navigasi langkah, validasi memblokir *Lanjut*, pratinjau
@@ -160,8 +162,15 @@ selesai.
 | Langkah 4 "Produk pertama (atau import Excel)" | Tambah produk atau import Excel di onboarding | Langkah 4 berisi ringkasan + *Mulai jualan* | Tambahkan saat F1-07 Produk (import Excel memakai `FDeterminateProgress`) |
 | Kode perangkat | Tidak tampak di 1.1 (pratinjau memakai `T01`) | Field kode perangkat, bawaan `K01` | Pertahankan; kanvas bisa diperbarui |
 | Lokasi stok Gudang | Etalase & Gudang | Hanya "Etalase" | Sama dengan Storeku: tambah lewat Master data (F1-09) |
+| Login setelah setup | 1.2 Login PIN | Setelah setup langsung ke Beranda | Login PIN dan kunci sesi di F1-02 |
+| Kartu jenis usaha | Tiga kartu berdampingan | `FSelectTileGroup` vertikal (sesuai peta komponen) | Pertahankan; terbaca di ponsel |
+| Tes server Postgres lokal | - | Postgres tertanam menolak jalan sebagai root di lingkungan cloud | Tes server dijalankan CI |
 
 ## Kriteria selesai
+
+Terpenuhi di v0.2.0: uji manual di Xvfb (desktop terang, ponsel gelap),
+isi database diperiksa (6 tabel, 6 entri outbox, hash Argon2id), dan buka
+ulang aplikasi langsung masuk ke Beranda.
 
 - Instal baru membuka wizard. Setelah *Mulai jualan*, Beranda menampilkan
   nama usaha, cabang, dan kode perangkat.

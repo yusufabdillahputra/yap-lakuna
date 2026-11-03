@@ -319,6 +319,318 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengaturan gagal disimpan. Coba lagi.'**
   String get settingsSaveError;
+
+  /// No description provided for @onboardingWelcome.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat datang'**
+  String get onboardingWelcome;
+
+  /// No description provided for @onboardingHeadline.
+  ///
+  /// In id, this message translates to:
+  /// **'Siapkan toko Anda dalam 4 langkah'**
+  String get onboardingHeadline;
+
+  /// No description provided for @onboardingOfflineNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua data tersimpan di perangkat ini. Anda bisa mengaktifkan versi hosting kapan saja.'**
+  String get onboardingOfflineNote;
+
+  /// No description provided for @onboardingStepOf.
+  ///
+  /// In id, this message translates to:
+  /// **'Langkah {current} dari {total}'**
+  String onboardingStepOf(int current, int total);
+
+  /// No description provided for @onboardingStepLanguage.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa & tema'**
+  String get onboardingStepLanguage;
+
+  /// No description provided for @onboardingStepBusiness.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis usaha & cabang'**
+  String get onboardingStepBusiness;
+
+  /// No description provided for @onboardingStepOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun pemilik & PIN'**
+  String get onboardingStepOwner;
+
+  /// No description provided for @onboardingStepSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap jualan'**
+  String get onboardingStepSummary;
+
+  /// No description provided for @onboardingTitleLanguage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih bahasa dan tema'**
+  String get onboardingTitleLanguage;
+
+  /// No description provided for @onboardingTitleBusiness.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis usaha & cabang pertama'**
+  String get onboardingTitleBusiness;
+
+  /// No description provided for @onboardingTitleOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun pemilik & PIN'**
+  String get onboardingTitleOwner;
+
+  /// No description provided for @onboardingTitleSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa, lalu mulai jualan'**
+  String get onboardingTitleSummary;
+
+  /// No description provided for @businessTypeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis usaha'**
+  String get businessTypeLabel;
+
+  /// No description provided for @businessRetail.
+  ///
+  /// In id, this message translates to:
+  /// **'Retail'**
+  String get businessRetail;
+
+  /// No description provided for @businessRetailDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko kelontong, grosir, toko bangunan, counter HP.'**
+  String get businessRetailDesc;
+
+  /// No description provided for @businessFnb.
+  ///
+  /// In id, this message translates to:
+  /// **'F&B'**
+  String get businessFnb;
+
+  /// No description provided for @businessFnbDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Warung makan, kafe, kedai kopi. Ada meja & open bill.'**
+  String get businessFnbDesc;
+
+  /// No description provided for @businessMixed.
+  ///
+  /// In id, this message translates to:
+  /// **'Campuran'**
+  String get businessMixed;
+
+  /// No description provided for @businessMixedDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Jual barang sekaligus makanan/minuman.'**
+  String get businessMixedDesc;
+
+  /// No description provided for @fieldBusinessName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama usaha'**
+  String get fieldBusinessName;
+
+  /// No description provided for @fieldOutletName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama cabang'**
+  String get fieldOutletName;
+
+  /// No description provided for @fieldOutletCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode cabang (untuk nomor nota)'**
+  String get fieldOutletCode;
+
+  /// No description provided for @fieldDeviceCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode perangkat'**
+  String get fieldDeviceCode;
+
+  /// No description provided for @fieldTimezone.
+  ///
+  /// In id, this message translates to:
+  /// **'Zona waktu'**
+  String get fieldTimezone;
+
+  /// No description provided for @fieldOwnerName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama pemilik'**
+  String get fieldOwnerName;
+
+  /// No description provided for @fieldEmail.
+  ///
+  /// In id, this message translates to:
+  /// **'Email'**
+  String get fieldEmail;
+
+  /// No description provided for @fieldPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi'**
+  String get fieldPassword;
+
+  /// No description provided for @fieldPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN (6 angka)'**
+  String get fieldPin;
+
+  /// No description provided for @fieldPinConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi PIN'**
+  String get fieldPinConfirm;
+
+  /// No description provided for @receiptPreviewLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Contoh nomor nota'**
+  String get receiptPreviewLabel;
+
+  /// No description provided for @receiptPreviewNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang, perangkat, tanggal, urutan. Aman walau beberapa kasir offline.'**
+  String get receiptPreviewNote;
+
+  /// No description provided for @ownerNote.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN dipakai untuk masuk dan ganti kasir. Email dan kata sandi dipakai untuk masuk sebagai pemilik.'**
+  String get ownerNote;
+
+  /// No description provided for @errorRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib diisi'**
+  String get errorRequired;
+
+  /// No description provided for @errorTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 60 karakter'**
+  String get errorTooLong;
+
+  /// No description provided for @errorInvalidCode.
+  ///
+  /// In id, this message translates to:
+  /// **'2–6 huruf atau angka'**
+  String get errorInvalidCode;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In id, this message translates to:
+  /// **'Format email tidak valid'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorPasswordTooShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal 8 karakter'**
+  String get errorPasswordTooShort;
+
+  /// No description provided for @errorInvalidPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN harus 6 angka'**
+  String get errorInvalidPin;
+
+  /// No description provided for @errorPinMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN tidak sama'**
+  String get errorPinMismatch;
+
+  /// No description provided for @errorInvalidTimezone.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih zona waktu'**
+  String get errorInvalidTimezone;
+
+  /// No description provided for @summaryBusiness.
+  ///
+  /// In id, this message translates to:
+  /// **'Usaha'**
+  String get summaryBusiness;
+
+  /// No description provided for @summaryOutlet.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang'**
+  String get summaryOutlet;
+
+  /// No description provided for @summaryDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat'**
+  String get summaryDevice;
+
+  /// No description provided for @summaryOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemilik'**
+  String get summaryOwner;
+
+  /// No description provided for @summaryNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Data baru disimpan setelah Anda menekan Mulai jualan.'**
+  String get summaryNote;
+
+  /// No description provided for @buttonBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get buttonBack;
+
+  /// No description provided for @buttonNextBusiness.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut: jenis usaha'**
+  String get buttonNextBusiness;
+
+  /// No description provided for @buttonNextOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut: akun pemilik'**
+  String get buttonNextOwner;
+
+  /// No description provided for @buttonNextSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut: ringkasan'**
+  String get buttonNextSummary;
+
+  /// No description provided for @buttonStartSelling.
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai jualan'**
+  String get buttonStartSelling;
+
+  /// No description provided for @setupFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko gagal disimpan. Coba lagi.'**
+  String get setupFailed;
+
+  /// No description provided for @homeStoreLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko'**
+  String get homeStoreLabel;
 }
 
 class _AppLocalizationsDelegate

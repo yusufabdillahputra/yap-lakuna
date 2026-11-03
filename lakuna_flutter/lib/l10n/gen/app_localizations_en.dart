@@ -124,4 +124,168 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSaveError =>
       'Settings could not be saved. Please try again.';
+
+  @override
+  String get onboardingWelcome => 'Welcome';
+
+  @override
+  String get onboardingHeadline => 'Set up your store in 4 steps';
+
+  @override
+  String get onboardingOfflineNote =>
+      'All data is stored on this device. You can turn on the hosted version at any time.';
+
+  @override
+  String onboardingStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get onboardingStepLanguage => 'Language & theme';
+
+  @override
+  String get onboardingStepBusiness => 'Business type & branch';
+
+  @override
+  String get onboardingStepOwner => 'Owner account & PIN';
+
+  @override
+  String get onboardingStepSummary => 'Ready to sell';
+
+  @override
+  String get onboardingTitleLanguage => 'Choose language and theme';
+
+  @override
+  String get onboardingTitleBusiness => 'Business type & first branch';
+
+  @override
+  String get onboardingTitleOwner => 'Owner account & PIN';
+
+  @override
+  String get onboardingTitleSummary => 'Review, then start selling';
+
+  @override
+  String get businessTypeLabel => 'Business type';
+
+  @override
+  String get businessRetail => 'Retail';
+
+  @override
+  String get businessRetailDesc =>
+      'Grocery, wholesale, hardware store, phone counter.';
+
+  @override
+  String get businessFnb => 'F&B';
+
+  @override
+  String get businessFnbDesc =>
+      'Food stall, café, coffee shop. With tables & open bills.';
+
+  @override
+  String get businessMixed => 'Mixed';
+
+  @override
+  String get businessMixedDesc => 'Sell goods as well as food and drinks.';
+
+  @override
+  String get fieldBusinessName => 'Business name';
+
+  @override
+  String get fieldOutletName => 'Branch name';
+
+  @override
+  String get fieldOutletCode => 'Branch code (for receipt numbers)';
+
+  @override
+  String get fieldDeviceCode => 'Device code';
+
+  @override
+  String get fieldTimezone => 'Time zone';
+
+  @override
+  String get fieldOwnerName => 'Owner name';
+
+  @override
+  String get fieldEmail => 'Email';
+
+  @override
+  String get fieldPassword => 'Password';
+
+  @override
+  String get fieldPin => 'PIN (6 digits)';
+
+  @override
+  String get fieldPinConfirm => 'Repeat PIN';
+
+  @override
+  String get receiptPreviewLabel => 'Sample receipt number';
+
+  @override
+  String get receiptPreviewNote =>
+      'Branch, device, date, sequence. Safe even when several cashiers are offline.';
+
+  @override
+  String get ownerNote =>
+      'The PIN is used to sign in and switch cashiers. The email and password are used to sign in as the owner.';
+
+  @override
+  String get errorRequired => 'Required';
+
+  @override
+  String get errorTooLong => 'Up to 60 characters';
+
+  @override
+  String get errorInvalidCode => '2–6 letters or digits';
+
+  @override
+  String get errorInvalidEmail => 'Invalid email format';
+
+  @override
+  String get errorPasswordTooShort => 'At least 8 characters';
+
+  @override
+  String get errorInvalidPin => 'The PIN must be 6 digits';
+
+  @override
+  String get errorPinMismatch => 'The PINs do not match';
+
+  @override
+  String get errorInvalidTimezone => 'Choose a time zone';
+
+  @override
+  String get summaryBusiness => 'Business';
+
+  @override
+  String get summaryOutlet => 'Branch';
+
+  @override
+  String get summaryDevice => 'Device';
+
+  @override
+  String get summaryOwner => 'Owner';
+
+  @override
+  String get summaryNote =>
+      'Your data is saved only after you press Start selling.';
+
+  @override
+  String get buttonBack => 'Back';
+
+  @override
+  String get buttonNextBusiness => 'Next: business type';
+
+  @override
+  String get buttonNextOwner => 'Next: owner account';
+
+  @override
+  String get buttonNextSummary => 'Next: summary';
+
+  @override
+  String get buttonStartSelling => 'Start selling';
+
+  @override
+  String get setupFailed => 'The store could not be saved. Please try again.';
+
+  @override
+  String get homeStoreLabel => 'Store';
 }

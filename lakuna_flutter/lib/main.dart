@@ -7,6 +7,8 @@ import 'app.dart';
 import 'config/app_environment.dart';
 import 'data/repositories/app_settings_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
+import 'data/repositories/local_store_repository.dart';
+import 'data/repositories/store_repository.dart';
 import 'routing/router.dart';
 import 'ui/settings/app_settings_view_model.dart';
 
@@ -25,6 +27,8 @@ Future<void> main() async {
   );
   final settings = AppSettingsViewModel(repository: settingsRepository);
   await settings.load.execute();
+  final storeRepository = LocalStoreRepository(store);
+  await storeRepository.load();
 
   runApp(
     MultiProvider(
@@ -33,10 +37,11 @@ Future<void> main() async {
         Provider<AppEnvironment>.value(value: environment),
         Provider<AppSettingsRepository>.value(value: settingsRepository),
         ChangeNotifierProvider<AppSettingsViewModel>.value(value: settings),
+        ChangeNotifierProvider<StoreRepository>.value(value: storeRepository),
       ],
       child: LakunaApp(
         settings: settings,
-        router: createRouter(settings: settings),
+        router: createRouter(settings: settings, store: storeRepository),
       ),
     ),
   );

@@ -29,15 +29,19 @@ class SetupCredentials {
 }
 
 /// Setup ditolak karena perangkat ini sudah punya tenant.
-class SetupAlreadyDone extends StateError {
-  SetupAlreadyDone() : super('Perangkat ini sudah punya toko.');
+class SetupAlreadyDone implements Exception {
+  @override
+  String toString() => 'SetupAlreadyDone: perangkat ini sudah punya toko.';
 }
 
 /// Setup ditolak karena input tidak lolos [SetupInput.validate].
-class SetupInvalid extends ArgumentError {
-  SetupInvalid(this.errors) : super('Data setup tidak valid: $errors');
+class SetupInvalid implements Exception {
+  SetupInvalid(this.errors);
 
   final Map<SetupField, SetupError> errors;
+
+  @override
+  String toString() => 'SetupInvalid: $errors';
 }
 
 /// Nama lokasi stok bawaan yang dibuat saat setup.
