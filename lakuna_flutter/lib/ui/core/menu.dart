@@ -65,11 +65,12 @@ final List<MenuGroup> appMenu = [
   MenuGroup(
     label: (l) => l.menuGroupSales,
     entries: [
-      _module(
-        'cashier',
-        TablerIcons.shoppingCart,
-        (l) => l.menuCashier,
-        Permission.salesCreate,
+      MenuEntry(
+        key: 'cashier',
+        icon: TablerIcons.shoppingCart,
+        label: (l) => l.menuCashier,
+        path: Routes.cashier,
+        permission: Permission.salesCreate,
       ),
       MenuEntry(
         key: 'cash_session',

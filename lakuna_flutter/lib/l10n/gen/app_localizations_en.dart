@@ -900,4 +900,251 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productErrorVariantsRequired => 'At least one variant';
+
+  @override
+  String cashierContext(String name, String time) {
+    return 'Cashier: $name · Session opened $time';
+  }
+
+  @override
+  String get cashierSearchHint => 'Search product or scan barcode…';
+
+  @override
+  String get cashierScannerReady => 'Scanner ready';
+
+  @override
+  String cashierScanUnknown(String code) {
+    return 'Unknown barcode: $code';
+  }
+
+  @override
+  String get cashierAllCategories => 'All';
+
+  @override
+  String get cashierNoProducts =>
+      'No active products yet. Add them in Products.';
+
+  @override
+  String get cashierNoMatch => 'No matching products.';
+
+  @override
+  String cashierStock(String qty) {
+    return 'Stock $qty';
+  }
+
+  @override
+  String get cashierOrder => 'Order';
+
+  @override
+  String get cashierWalkIn => 'Walk-in customer · Takeaway';
+
+  @override
+  String get cashierCartEmpty =>
+      'No items yet. Scan a barcode or tap a product.';
+
+  @override
+  String cashierTierNote(String qty) {
+    return 'wholesale ≥ $qty';
+  }
+
+  @override
+  String get cashierSubtotal => 'Subtotal';
+
+  @override
+  String get cashierTierDiscount => 'Wholesale discount';
+
+  @override
+  String get cashierTotal => 'Total';
+
+  @override
+  String get cashierClear => 'Clear';
+
+  @override
+  String get cashierPay => 'Pay';
+
+  @override
+  String cashierPayAmount(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String cashierMobileSummary(int lines, String items) {
+    return '$lines products · $items items';
+  }
+
+  @override
+  String get cashierViewOrder => 'View order';
+
+  @override
+  String get cashierPickTitle => 'Choose variant / unit';
+
+  @override
+  String get cashierQtyTitle => 'Change quantity';
+
+  @override
+  String cashierQtyLabel(String unit) {
+    return 'Quantity ($unit)';
+  }
+
+  @override
+  String get cashierQtySave => 'Save';
+
+  @override
+  String get cashierCancel => 'Cancel';
+
+  @override
+  String get cashierDecrease => 'Decrease';
+
+  @override
+  String get cashierIncrease => 'Increase';
+
+  @override
+  String get cashierNoSessionTitle => 'Open a cash session first';
+
+  @override
+  String get cashierNoSessionBody =>
+      'Sales are recorded in this device\'s cash session so the drawer can be reconciled at closing.';
+
+  @override
+  String get cashierOpenSession => 'Open cash session';
+
+  @override
+  String get cashierLoadFailed => 'Couldn\'t load the cashier.';
+
+  @override
+  String paymentTitle(String amount) {
+    return 'Payment · Total $amount';
+  }
+
+  @override
+  String get paymentBack => 'Back to order';
+
+  @override
+  String paymentLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paymentCash => 'Cash';
+
+  @override
+  String get paymentCashHint => 'Calculates change';
+
+  @override
+  String get paymentCard => 'Debit / credit card';
+
+  @override
+  String get paymentCardHint => 'Separate EDC';
+
+  @override
+  String get paymentTransfer => 'Bank transfer';
+
+  @override
+  String get paymentTransferHint => 'Check the statement first';
+
+  @override
+  String get paymentReceived => 'Amount received';
+
+  @override
+  String get paymentExact => 'Exact amount';
+
+  @override
+  String get paymentChange => 'Change';
+
+  @override
+  String paymentShort(String amount) {
+    return 'Short by $amount';
+  }
+
+  @override
+  String get paymentApproval => 'Card approval no. (optional)';
+
+  @override
+  String get paymentApprovalHint => 'e.g. 004512';
+
+  @override
+  String get paymentReference => 'Transfer reference (optional)';
+
+  @override
+  String get paymentReferenceTooLong => 'Up to 40 characters';
+
+  @override
+  String paymentNonCashNote(String amount) {
+    return 'Amount paid equals the total $amount.';
+  }
+
+  @override
+  String get paymentFinish => 'Complete payment';
+
+  @override
+  String get paymentErrorSession =>
+      'The cash session is closed. Open a session again to continue.';
+
+  @override
+  String get paymentErrorUnavailable =>
+      'A product is no longer available. Check the order.';
+
+  @override
+  String get paymentErrorShort => 'The amount received is less than the total.';
+
+  @override
+  String get paymentErrorGeneric => 'Couldn\'t save the payment. Try again.';
+
+  @override
+  String get successHeader => 'Payment complete';
+
+  @override
+  String successReceiptNo(String number) {
+    return 'Receipt $number';
+  }
+
+  @override
+  String get successTitle => 'Payment successful';
+
+  @override
+  String successDetail(String method, String amount, String time, String name) {
+    return '$method $amount · $time · $name';
+  }
+
+  @override
+  String get successChange => 'Change';
+
+  @override
+  String get successNegativeTitle => 'Stock went negative';
+
+  @override
+  String successNegativeBody(String name, String qty) {
+    return '$name is now $qty. Check stock or record an adjustment.';
+  }
+
+  @override
+  String get successPrintNote =>
+      'Receipt printing and PDF sharing arrive with the Receipt & printer module.';
+
+  @override
+  String get successNew => 'New transaction';
+
+  @override
+  String get receiptNo => 'No';
+
+  @override
+  String get receiptDate => 'Date';
+
+  @override
+  String get receiptCashier => 'Cashier';
+
+  @override
+  String get receiptTotal => 'TOTAL';
+
+  @override
+  String get receiptChange => 'Change';
+
+  @override
+  String get receiptThanks => 'Thank you, see you again!';
 }

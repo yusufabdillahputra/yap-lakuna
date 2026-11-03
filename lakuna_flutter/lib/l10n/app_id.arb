@@ -495,5 +495,190 @@
       }
     }
   },
-  "productErrorVariantsRequired": "Minimal satu varian"
+  "productErrorVariantsRequired": "Minimal satu varian",
+  "cashierContext": "Kasir: {name} · Sesi dibuka {time}",
+  "@cashierContext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierSearchHint": "Cari produk atau scan barcode…",
+  "cashierScannerReady": "Scanner siap",
+  "cashierScanUnknown": "Barcode tidak dikenal: {code}",
+  "@cashierScanUnknown": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierAllCategories": "Semua",
+  "cashierNoProducts": "Belum ada produk aktif. Tambahkan di menu Produk.",
+  "cashierNoMatch": "Tidak ada produk yang cocok.",
+  "cashierStock": "Stok {qty}",
+  "@cashierStock": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierOrder": "Pesanan",
+  "cashierWalkIn": "Pelanggan umum · Ambil sendiri",
+  "cashierCartEmpty": "Belum ada barang. Scan barcode atau ketuk produk.",
+  "cashierTierNote": "grosir ≥ {qty}",
+  "@cashierTierNote": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierSubtotal": "Subtotal",
+  "cashierTierDiscount": "Diskon grosir",
+  "cashierTotal": "Total",
+  "cashierClear": "Kosongkan",
+  "cashierPay": "Bayar",
+  "cashierPayAmount": "Bayar {amount}",
+  "@cashierPayAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierMobileSummary": "{lines} produk · {items} item",
+  "@cashierMobileSummary": {
+    "placeholders": {
+      "lines": {
+        "type": "int"
+      },
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierViewOrder": "Lihat pesanan",
+  "cashierPickTitle": "Pilih varian / satuan",
+  "cashierQtyTitle": "Ubah jumlah",
+  "cashierQtyLabel": "Jumlah ({unit})",
+  "@cashierQtyLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierQtySave": "Simpan",
+  "cashierCancel": "Batal",
+  "cashierDecrease": "Kurangi",
+  "cashierIncrease": "Tambah",
+  "cashierNoSessionTitle": "Buka sesi kasir dulu",
+  "cashierNoSessionBody": "Penjualan dicatat ke sesi kasir perangkat ini agar uang laci bisa direkap saat tutup sesi.",
+  "cashierOpenSession": "Buka sesi kasir",
+  "cashierLoadFailed": "Kasir gagal dimuat.",
+  "paymentTitle": "Pembayaran · Total {amount}",
+  "@paymentTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentBack": "Kembali ke pesanan",
+  "paymentLines": "{count} item",
+  "@paymentLines": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paymentCash": "Tunai",
+  "paymentCashHint": "Hitung kembalian",
+  "paymentCard": "Kartu debit / kredit",
+  "paymentCardHint": "EDC terpisah",
+  "paymentTransfer": "Transfer bank",
+  "paymentTransferHint": "Cek mutasi dulu",
+  "paymentReceived": "Uang diterima",
+  "paymentExact": "Uang pas",
+  "paymentChange": "Kembalian",
+  "paymentShort": "Kurang {amount}",
+  "@paymentShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentApproval": "No. approval kartu (opsional)",
+  "paymentApprovalHint": "mis. 004512",
+  "paymentReference": "Referensi transfer (opsional)",
+  "paymentReferenceTooLong": "Maksimal 40 karakter",
+  "paymentNonCashNote": "Jumlah dibayar sama dengan total {amount}.",
+  "@paymentNonCashNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentFinish": "Selesaikan pembayaran",
+  "paymentErrorSession": "Sesi kasir sudah ditutup. Buka sesi lagi untuk melanjutkan.",
+  "paymentErrorUnavailable": "Ada produk yang tidak tersedia lagi. Periksa pesanan.",
+  "paymentErrorShort": "Uang diterima kurang dari total.",
+  "paymentErrorGeneric": "Pembayaran gagal disimpan. Coba lagi.",
+  "successHeader": "Pembayaran selesai",
+  "successReceiptNo": "Nota {number}",
+  "@successReceiptNo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "successTitle": "Pembayaran berhasil",
+  "successDetail": "{method} {amount} · {time} · {name}",
+  "@successDetail": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "successChange": "Kembalian",
+  "successNegativeTitle": "Stok jadi minus",
+  "successNegativeBody": "{name} sekarang {qty}. Cek stok atau catat penyesuaian.",
+  "@successNegativeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "successPrintNote": "Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.",
+  "successNew": "Transaksi baru",
+  "receiptNo": "No",
+  "receiptDate": "Tgl",
+  "receiptCashier": "Kasir",
+  "receiptTotal": "TOTAL",
+  "receiptChange": "Kembali",
+  "receiptThanks": "Terima kasih, sampai jumpa lagi!"
 }

@@ -880,7 +880,7 @@ class _CloseForm extends StatelessWidget {
         _TwoColumns(
           sideWidth: 400,
           main: [
-            const _Stats(),
+            _Stats(sales: viewModel.active!.sales),
             _Recap(active: viewModel.active!, store: store),
           ],
           side: _CountCard(viewModel: viewModel),
@@ -890,10 +890,12 @@ class _CloseForm extends StatelessWidget {
   }
 }
 
-/// Tiga kartu angka. Bernilai 0 sampai modul penjualan ada (lihat gap
-/// spec F1-03).
+/// Tiga kartu angka: jumlah nota, penjualan, dan void/retur (0 sampai
+/// F1-11).
 class _Stats extends StatelessWidget {
-  const _Stats();
+  const _Stats({required this.sales});
+
+  final SessionSalesSummary sales;
 
   @override
   Widget build(BuildContext context) {
@@ -937,11 +939,13 @@ class _Stats extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: narrow ? 8 : 12,
             children: [
-              Expanded(child: stat(l10n.cashStatTransactions, '0')),
+              Expanded(
+                child: stat(l10n.cashStatTransactions, '${sales.count}'),
+              ),
               Expanded(
                 child: stat(
                   l10n.cashStatSales,
-                  formatMoney(context, Money.zero),
+                  formatMoney(context, sales.total),
                 ),
               ),
               Expanded(child: stat(l10n.cashStatVoids, '0')),
@@ -1022,7 +1026,10 @@ class _Recap extends StatelessWidget {
             key: const ValueKey('cash-recap-expected'),
           ),
           const _Rule(vertical: 6),
-          line(l10n.cashRecapNonCash, formatMoney(context, Money.zero)),
+          line(
+            l10n.cashRecapNonCash,
+            formatMoney(context, active.sales.nonCash),
+          ),
           const SizedBox(height: 8),
           Text(l10n.cashRecapFootnote, style: muted),
         ],

@@ -2,10 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/repositories/cash_drawer_repository.dart';
+import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/store_repository.dart';
 import '../ui/cash_session/cash_session_view.dart';
+import '../ui/cashier/cashier_view.dart';
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
@@ -29,6 +31,7 @@ GoRouter createRouter({
   required SessionRepository session,
   required CashDrawerRepository cashDrawer,
   required CatalogRepository catalog,
+  required CashierRepository cashier,
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -92,6 +95,10 @@ GoRouter createRouter({
               store: store,
               session: session,
             ),
+          ),
+          GoRoute(
+            path: Routes.cashier,
+            builder: (context, state) => CashierScreen(repository: cashier),
           ),
           // Rute saudara (bukan bersarang) supaya kembali ke daftar
           // membuat layar baru yang memuat ulang katalog.

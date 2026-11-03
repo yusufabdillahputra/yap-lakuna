@@ -893,4 +893,245 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productErrorVariantsRequired => 'Minimal satu varian';
+
+  @override
+  String cashierContext(String name, String time) {
+    return 'Kasir: $name · Sesi dibuka $time';
+  }
+
+  @override
+  String get cashierSearchHint => 'Cari produk atau scan barcode…';
+
+  @override
+  String get cashierScannerReady => 'Scanner siap';
+
+  @override
+  String cashierScanUnknown(String code) {
+    return 'Barcode tidak dikenal: $code';
+  }
+
+  @override
+  String get cashierAllCategories => 'Semua';
+
+  @override
+  String get cashierNoProducts =>
+      'Belum ada produk aktif. Tambahkan di menu Produk.';
+
+  @override
+  String get cashierNoMatch => 'Tidak ada produk yang cocok.';
+
+  @override
+  String cashierStock(String qty) {
+    return 'Stok $qty';
+  }
+
+  @override
+  String get cashierOrder => 'Pesanan';
+
+  @override
+  String get cashierWalkIn => 'Pelanggan umum · Ambil sendiri';
+
+  @override
+  String get cashierCartEmpty =>
+      'Belum ada barang. Scan barcode atau ketuk produk.';
+
+  @override
+  String cashierTierNote(String qty) {
+    return 'grosir ≥ $qty';
+  }
+
+  @override
+  String get cashierSubtotal => 'Subtotal';
+
+  @override
+  String get cashierTierDiscount => 'Diskon grosir';
+
+  @override
+  String get cashierTotal => 'Total';
+
+  @override
+  String get cashierClear => 'Kosongkan';
+
+  @override
+  String get cashierPay => 'Bayar';
+
+  @override
+  String cashierPayAmount(String amount) {
+    return 'Bayar $amount';
+  }
+
+  @override
+  String cashierMobileSummary(int lines, String items) {
+    return '$lines produk · $items item';
+  }
+
+  @override
+  String get cashierViewOrder => 'Lihat pesanan';
+
+  @override
+  String get cashierPickTitle => 'Pilih varian / satuan';
+
+  @override
+  String get cashierQtyTitle => 'Ubah jumlah';
+
+  @override
+  String cashierQtyLabel(String unit) {
+    return 'Jumlah ($unit)';
+  }
+
+  @override
+  String get cashierQtySave => 'Simpan';
+
+  @override
+  String get cashierCancel => 'Batal';
+
+  @override
+  String get cashierDecrease => 'Kurangi';
+
+  @override
+  String get cashierIncrease => 'Tambah';
+
+  @override
+  String get cashierNoSessionTitle => 'Buka sesi kasir dulu';
+
+  @override
+  String get cashierNoSessionBody =>
+      'Penjualan dicatat ke sesi kasir perangkat ini agar uang laci bisa direkap saat tutup sesi.';
+
+  @override
+  String get cashierOpenSession => 'Buka sesi kasir';
+
+  @override
+  String get cashierLoadFailed => 'Kasir gagal dimuat.';
+
+  @override
+  String paymentTitle(String amount) {
+    return 'Pembayaran · Total $amount';
+  }
+
+  @override
+  String get paymentBack => 'Kembali ke pesanan';
+
+  @override
+  String paymentLines(int count) {
+    return '$count item';
+  }
+
+  @override
+  String get paymentCash => 'Tunai';
+
+  @override
+  String get paymentCashHint => 'Hitung kembalian';
+
+  @override
+  String get paymentCard => 'Kartu debit / kredit';
+
+  @override
+  String get paymentCardHint => 'EDC terpisah';
+
+  @override
+  String get paymentTransfer => 'Transfer bank';
+
+  @override
+  String get paymentTransferHint => 'Cek mutasi dulu';
+
+  @override
+  String get paymentReceived => 'Uang diterima';
+
+  @override
+  String get paymentExact => 'Uang pas';
+
+  @override
+  String get paymentChange => 'Kembalian';
+
+  @override
+  String paymentShort(String amount) {
+    return 'Kurang $amount';
+  }
+
+  @override
+  String get paymentApproval => 'No. approval kartu (opsional)';
+
+  @override
+  String get paymentApprovalHint => 'mis. 004512';
+
+  @override
+  String get paymentReference => 'Referensi transfer (opsional)';
+
+  @override
+  String get paymentReferenceTooLong => 'Maksimal 40 karakter';
+
+  @override
+  String paymentNonCashNote(String amount) {
+    return 'Jumlah dibayar sama dengan total $amount.';
+  }
+
+  @override
+  String get paymentFinish => 'Selesaikan pembayaran';
+
+  @override
+  String get paymentErrorSession =>
+      'Sesi kasir sudah ditutup. Buka sesi lagi untuk melanjutkan.';
+
+  @override
+  String get paymentErrorUnavailable =>
+      'Ada produk yang tidak tersedia lagi. Periksa pesanan.';
+
+  @override
+  String get paymentErrorShort => 'Uang diterima kurang dari total.';
+
+  @override
+  String get paymentErrorGeneric => 'Pembayaran gagal disimpan. Coba lagi.';
+
+  @override
+  String get successHeader => 'Pembayaran selesai';
+
+  @override
+  String successReceiptNo(String number) {
+    return 'Nota $number';
+  }
+
+  @override
+  String get successTitle => 'Pembayaran berhasil';
+
+  @override
+  String successDetail(String method, String amount, String time, String name) {
+    return '$method $amount · $time · $name';
+  }
+
+  @override
+  String get successChange => 'Kembalian';
+
+  @override
+  String get successNegativeTitle => 'Stok jadi minus';
+
+  @override
+  String successNegativeBody(String name, String qty) {
+    return '$name sekarang $qty. Cek stok atau catat penyesuaian.';
+  }
+
+  @override
+  String get successPrintNote =>
+      'Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.';
+
+  @override
+  String get successNew => 'Transaksi baru';
+
+  @override
+  String get receiptNo => 'No';
+
+  @override
+  String get receiptDate => 'Tgl';
+
+  @override
+  String get receiptCashier => 'Kasir';
+
+  @override
+  String get receiptTotal => 'TOTAL';
+
+  @override
+  String get receiptChange => 'Kembali';
+
+  @override
+  String get receiptThanks => 'Terima kasih, sampai jumpa lagi!';
 }

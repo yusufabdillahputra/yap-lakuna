@@ -1711,6 +1711,420 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Minimal satu varian'**
   String get productErrorVariantsRequired;
+
+  /// No description provided for @cashierContext.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir: {name} · Sesi dibuka {time}'**
+  String cashierContext(String name, String time);
+
+  /// No description provided for @cashierSearchHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari produk atau scan barcode…'**
+  String get cashierSearchHint;
+
+  /// No description provided for @cashierScannerReady.
+  ///
+  /// In id, this message translates to:
+  /// **'Scanner siap'**
+  String get cashierScannerReady;
+
+  /// No description provided for @cashierScanUnknown.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode tidak dikenal: {code}'**
+  String cashierScanUnknown(String code);
+
+  /// No description provided for @cashierAllCategories.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get cashierAllCategories;
+
+  /// No description provided for @cashierNoProducts.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada produk aktif. Tambahkan di menu Produk.'**
+  String get cashierNoProducts;
+
+  /// No description provided for @cashierNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada produk yang cocok.'**
+  String get cashierNoMatch;
+
+  /// No description provided for @cashierStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok {qty}'**
+  String cashierStock(String qty);
+
+  /// No description provided for @cashierOrder.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesanan'**
+  String get cashierOrder;
+
+  /// No description provided for @cashierWalkIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan umum · Ambil sendiri'**
+  String get cashierWalkIn;
+
+  /// No description provided for @cashierCartEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada barang. Scan barcode atau ketuk produk.'**
+  String get cashierCartEmpty;
+
+  /// No description provided for @cashierTierNote.
+  ///
+  /// In id, this message translates to:
+  /// **'grosir ≥ {qty}'**
+  String cashierTierNote(String qty);
+
+  /// No description provided for @cashierSubtotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Subtotal'**
+  String get cashierSubtotal;
+
+  /// No description provided for @cashierTierDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon grosir'**
+  String get cashierTierDiscount;
+
+  /// No description provided for @cashierTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get cashierTotal;
+
+  /// No description provided for @cashierClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Kosongkan'**
+  String get cashierClear;
+
+  /// No description provided for @cashierPay.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar'**
+  String get cashierPay;
+
+  /// No description provided for @cashierPayAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar {amount}'**
+  String cashierPayAmount(String amount);
+
+  /// No description provided for @cashierMobileSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{lines} produk · {items} item'**
+  String cashierMobileSummary(int lines, String items);
+
+  /// No description provided for @cashierViewOrder.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat pesanan'**
+  String get cashierViewOrder;
+
+  /// No description provided for @cashierPickTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih varian / satuan'**
+  String get cashierPickTitle;
+
+  /// No description provided for @cashierQtyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah jumlah'**
+  String get cashierQtyTitle;
+
+  /// No description provided for @cashierQtyLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah ({unit})'**
+  String cashierQtyLabel(String unit);
+
+  /// No description provided for @cashierQtySave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get cashierQtySave;
+
+  /// No description provided for @cashierCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get cashierCancel;
+
+  /// No description provided for @cashierDecrease.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurangi'**
+  String get cashierDecrease;
+
+  /// No description provided for @cashierIncrease.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah'**
+  String get cashierIncrease;
+
+  /// No description provided for @cashierNoSessionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir dulu'**
+  String get cashierNoSessionTitle;
+
+  /// No description provided for @cashierNoSessionBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan dicatat ke sesi kasir perangkat ini agar uang laci bisa direkap saat tutup sesi.'**
+  String get cashierNoSessionBody;
+
+  /// No description provided for @cashierOpenSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir'**
+  String get cashierOpenSession;
+
+  /// No description provided for @cashierLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir gagal dimuat.'**
+  String get cashierLoadFailed;
+
+  /// No description provided for @paymentTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran · Total {amount}'**
+  String paymentTitle(String amount);
+
+  /// No description provided for @paymentBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke pesanan'**
+  String get paymentBack;
+
+  /// No description provided for @paymentLines.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} item'**
+  String paymentLines(int count);
+
+  /// No description provided for @paymentCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai'**
+  String get paymentCash;
+
+  /// No description provided for @paymentCashHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Hitung kembalian'**
+  String get paymentCashHint;
+
+  /// No description provided for @paymentCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Kartu debit / kredit'**
+  String get paymentCard;
+
+  /// No description provided for @paymentCardHint.
+  ///
+  /// In id, this message translates to:
+  /// **'EDC terpisah'**
+  String get paymentCardHint;
+
+  /// No description provided for @paymentTransfer.
+  ///
+  /// In id, this message translates to:
+  /// **'Transfer bank'**
+  String get paymentTransfer;
+
+  /// No description provided for @paymentTransferHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek mutasi dulu'**
+  String get paymentTransferHint;
+
+  /// No description provided for @paymentReceived.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang diterima'**
+  String get paymentReceived;
+
+  /// No description provided for @paymentExact.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang pas'**
+  String get paymentExact;
+
+  /// No description provided for @paymentChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembalian'**
+  String get paymentChange;
+
+  /// No description provided for @paymentShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurang {amount}'**
+  String paymentShort(String amount);
+
+  /// No description provided for @paymentApproval.
+  ///
+  /// In id, this message translates to:
+  /// **'No. approval kartu (opsional)'**
+  String get paymentApproval;
+
+  /// No description provided for @paymentApprovalHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. 004512'**
+  String get paymentApprovalHint;
+
+  /// No description provided for @paymentReference.
+  ///
+  /// In id, this message translates to:
+  /// **'Referensi transfer (opsional)'**
+  String get paymentReference;
+
+  /// No description provided for @paymentReferenceTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 40 karakter'**
+  String get paymentReferenceTooLong;
+
+  /// No description provided for @paymentNonCashNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah dibayar sama dengan total {amount}.'**
+  String paymentNonCashNote(String amount);
+
+  /// No description provided for @paymentFinish.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesaikan pembayaran'**
+  String get paymentFinish;
+
+  /// No description provided for @paymentErrorSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir sudah ditutup. Buka sesi lagi untuk melanjutkan.'**
+  String get paymentErrorSession;
+
+  /// No description provided for @paymentErrorUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada produk yang tidak tersedia lagi. Periksa pesanan.'**
+  String get paymentErrorUnavailable;
+
+  /// No description provided for @paymentErrorShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang diterima kurang dari total.'**
+  String get paymentErrorShort;
+
+  /// No description provided for @paymentErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran gagal disimpan. Coba lagi.'**
+  String get paymentErrorGeneric;
+
+  /// No description provided for @successHeader.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran selesai'**
+  String get successHeader;
+
+  /// No description provided for @successReceiptNo.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota {number}'**
+  String successReceiptNo(String number);
+
+  /// No description provided for @successTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran berhasil'**
+  String get successTitle;
+
+  /// No description provided for @successDetail.
+  ///
+  /// In id, this message translates to:
+  /// **'{method} {amount} · {time} · {name}'**
+  String successDetail(String method, String amount, String time, String name);
+
+  /// No description provided for @successChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembalian'**
+  String get successChange;
+
+  /// No description provided for @successNegativeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok jadi minus'**
+  String get successNegativeTitle;
+
+  /// No description provided for @successNegativeBody.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} sekarang {qty}. Cek stok atau catat penyesuaian.'**
+  String successNegativeBody(String name, String qty);
+
+  /// No description provided for @successPrintNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak struk dan bagikan PDF hadir bersama modul Struk & printer.'**
+  String get successPrintNote;
+
+  /// No description provided for @successNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Transaksi baru'**
+  String get successNew;
+
+  /// No description provided for @receiptNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No'**
+  String get receiptNo;
+
+  /// No description provided for @receiptDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tgl'**
+  String get receiptDate;
+
+  /// No description provided for @receiptCashier.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir'**
+  String get receiptCashier;
+
+  /// No description provided for @receiptTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'TOTAL'**
+  String get receiptTotal;
+
+  /// No description provided for @receiptChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get receiptChange;
+
+  /// No description provided for @receiptThanks.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima kasih, sampai jumpa lagi!'**
+  String get receiptThanks;
 }
 
 class _AppLocalizationsDelegate

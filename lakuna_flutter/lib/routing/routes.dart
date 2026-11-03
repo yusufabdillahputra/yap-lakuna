@@ -12,6 +12,9 @@ abstract final class Routes {
   /// Sesi kasir dan kas laci (F1-03).
   static const cashSession = '/sesi-kasir';
 
+  /// Kasir retail + bayar (F1-04/F1-05).
+  static const cashier = '/kasir';
+
   /// Daftar produk & stok (F1-07).
   static const products = '/produk';
 

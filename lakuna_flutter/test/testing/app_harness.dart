@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'fake_app_settings_repository.dart';
 import 'fake_cash_drawer_repository.dart';
+import 'fake_cashier_repository.dart';
 import 'fake_catalog_repository.dart';
 import 'fake_session_repository.dart';
 import 'fake_store_repository.dart';
@@ -24,6 +25,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeSessionRepository? session,
   FakeCashDrawerRepository? cashDrawer,
   FakeCatalogRepository? catalog,
+  FakeCashierRepository? cashier,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -60,6 +62,7 @@ Future<AppSettingsViewModel> pumpLakuna(
           session: sessionRepository,
           cashDrawer: cashDrawer ?? FakeCashDrawerRepository(),
           catalog: catalog ?? FakeCatalogRepository(),
+          cashier: cashier ?? FakeCashierRepository(),
           initialLocation: initialLocation,
         ),
       ),
