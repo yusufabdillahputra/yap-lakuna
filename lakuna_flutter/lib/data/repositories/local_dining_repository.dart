@@ -30,8 +30,9 @@ class LocalDiningRepository extends DiningRepository {
         if (p.isActive && p.variants.isNotEmpty) p,
     ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     final all = await listCategories(_store, scope);
+    final overview = await diningOverview(_store, scope);
     return DiningData(
-      overview: await diningOverview(_store, scope),
+      overview: overview,
       products: products,
       categories: cashierCategories(all, {
         for (final p in products) p.categoryId,
@@ -47,6 +48,11 @@ class LocalDiningRepository extends DiningRepository {
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
       modifierGroups: await menuModifierGroups(_store, scope),
+      floorImages: await floorImages(_store, scope, [
+        for (final a in overview.areas)
+          if (a.layoutMode == DiningLayoutMode.floor) a,
+      ]),
+      canArrange: staff.can(Permission.settingsManage),
     );
   });
 

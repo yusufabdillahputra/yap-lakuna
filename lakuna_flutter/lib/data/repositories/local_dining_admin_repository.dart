@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
@@ -84,6 +86,50 @@ class LocalDiningAdminRepository extends DiningAdminRepository {
   Future<Result<void>> deleteTable(UuidValue id) => _guard(
     (scope, staffId) =>
         deleteDiningTable(_store, scope, staffId: staffId, id: id),
+  );
+
+  @override
+  Future<Result<FloorPlanSetup>> loadFloorPlan() => _guard((scope, _) async {
+    final areas = await diningAreas(_store, scope);
+    return FloorPlanSetup(
+      areas: areas,
+      tables: await diningTables(_store, scope),
+      images: await floorImages(_store, scope, areas),
+    );
+  });
+
+  @override
+  Future<Result<DiningArea>> saveFloorImage(
+    UuidValue areaId,
+    Uint8List bytes,
+    String fileName,
+  ) => _guard(
+    (scope, staffId) => data.saveFloorImage(
+      _store,
+      scope,
+      staffId: staffId,
+      areaId: areaId,
+      bytes: bytes,
+      fileName: fileName,
+    ),
+  );
+
+  @override
+  Future<Result<void>> saveFloorLayout(
+    UuidValue areaId, {
+    required DiningLayoutMode mode,
+    required List<FloorTableDraft> tables,
+    List<UuidValue> deleted = const [],
+  }) => _guard(
+    (scope, staffId) => data.saveFloorLayout(
+      _store,
+      scope,
+      staffId: staffId,
+      areaId: areaId,
+      mode: mode,
+      tables: tables,
+      deleted: deleted,
+    ),
   );
 
   @override

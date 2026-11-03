@@ -5,6 +5,7 @@ import 'package:lakuna_flutter/data/repositories/dining_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
 import 'fake_catalog_repository.dart';
+import 'floor_seed.dart';
 import 'fake_stock_repository.dart' show fakeId;
 
 /// Menu contoh F&B: Kopi Susu Aren 24.000, Nasi Goreng Kampung 29.000, Es
@@ -78,6 +79,9 @@ class FakeDiningRepository extends DiningRepository {
   var sessionOpen = true;
   var _receipts = 100;
 
+  /// Gambar denah per area (mode Denah 1.7b).
+  final floorImages = <UuidValue, FloorImage>{};
+
   /// Grup modifier per produk (lihat [attachModifiers]).
   final modifierGroups = <UuidValue, List<ModifierGroupDetail>>{};
 
@@ -91,6 +95,36 @@ class FakeDiningRepository extends DiningRepository {
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
   var loadCalls = 0;
+
+  /// Area [area] (1 = Indoor, 2 = Teras) jadi mode denah dengan gambar
+  /// 1600 × 1200 dan meja di [positions] (nama → x, y).
+  void useFloorPlan(int area, Map<String, (int, int)> positions) {
+    final i = areas.indexWhere((a) => a.id == fakeId(500 + area));
+    final media = MediaFile(
+      id: fakeId(560 + area),
+      tenantId: _tenant,
+      outletId: _outlet,
+      kind: MediaKind.floorPlan,
+      fileName: 'denah.png',
+      mimeType: 'image/png',
+      sizeBytes: 100,
+      sha256: 'x',
+      width: 1600,
+      height: 1200,
+      storageKey: 'x.png',
+      hlc: '',
+    );
+    areas[i] = areas[i].copyWith(
+      layoutMode: DiningLayoutMode.floor,
+      floorMediaId: media.id,
+    );
+    floorImages[areas[i].id] = FloorImage(media: media, bytes: samplePng);
+    for (final (j, t) in tables.indexed) {
+      final pos = positions[t.name];
+      if (pos == null) continue;
+      tables[j] = t.copyWith(posX: pos.$1, posY: pos.$2);
+    }
+  }
 
   /// Pasang [groups] di menu bernama [productName].
   void attachModifiers(String productName, List<ModifierGroupDetail> groups) {
@@ -178,6 +212,8 @@ class FakeDiningRepository extends DiningRepository {
       canPay: _can(Permission.salesCreate),
       canVoid: _can(Permission.salesVoid),
       modifierGroups: Map.of(modifierGroups),
+      floorImages: Map.of(floorImages),
+      canArrange: _can(Permission.settingsManage),
     );
   });
 

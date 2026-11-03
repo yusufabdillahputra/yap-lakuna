@@ -6,6 +6,8 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Lakuna memakai kamera untuk memotret denah meja.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Lakuna</string>
 	<key>CFBundleExecutable</key>
