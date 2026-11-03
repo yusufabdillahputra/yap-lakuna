@@ -22,7 +22,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Fondasi aplikasi sudah siap. Modul kasir, produk, dan stok akan hadir di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -680,5 +680,14 @@
   "receiptCashier": "Kasir",
   "receiptTotal": "TOTAL",
   "receiptChange": "Kembali",
-  "receiptThanks": "Terima kasih, sampai jumpa lagi!"
+  "receiptThanks": "Terima kasih, sampai jumpa lagi!",
+  "cashierPriceFrom": "mulai {price}",
+  "@cashierPriceFrom": {
+    "description": "Harga termurah di kartu produk kasir bila varian berbeda harga.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

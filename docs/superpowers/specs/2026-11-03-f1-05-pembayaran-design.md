@@ -1,7 +1,7 @@
 # F1-05 · Pembayaran: tunai, kartu, transfer, split, QRIS statis, kredit
 
 - **Fase:** 1
-- **Status:** Berjalan (tunai, kartu, transfer untuk v0.6.0)
+- **Status:** Rilis v0.6.0 (tunai, kartu, transfer), ada gap
 - **Layar desain:** 1.5 *Bayar tunai & split payment*, 1.5b *Kredit /
   piutang & no. approval kartu*, 1.5c *Pembayaran berhasil, cetak &
   bagikan*, 1.6 / 1.6m *Bayar QRIS statis*, versi gelapnya. Kanvas
@@ -17,7 +17,9 @@ kredit (piutang).
 
 ## Lingkup v0.6.0
 
-- Rute `/kasir/bayar` dari tombol *Bayar* (keranjang tidak kosong).
+- Tahap bayar di dalam rute `/kasir` (bukan rute terpisah) dari tombol
+  *Bayar* (keranjang tidak kosong). Keranjang tetap di view model kasir,
+  jadi tombol ← kembali ke pesanan tanpa kehilangan isi.
 - Kolom kiri (1.5b): kartu **Total** besar + jumlah item, lalu pilihan
   metode *Tunai* (hitung kembalian), *Kartu debit / kredit* (EDC
   terpisah), *Transfer bank*.
@@ -34,7 +36,10 @@ kredit (piutang).
   peringatan **Stok jadi minus** per varian, pratinjau struk teks (nama
   toko, cabang, no, tanggal, kasir, item "2 x 70.000", total, bayar,
   kembali), tombol **Transaksi baru**. Cetak/PDF menyusul F1-06.
-- Ponsel: kolom metode di atas, panel bayar di bawah, satu kolom.
+- Ponsel: kolom metode di atas, panel bayar di bawah, satu kolom. Kotak
+  **Kembalian** menempel di atas tombol selesai agar selalu terlihat.
+- Desktop/tablet: kolom *Uang diterima* langsung fokus, jadi nominal bisa
+  diketik tanpa keypad.
 
 ## Aturan bisnis (`lakuna_domain`, `payment.dart`)
 

@@ -1,7 +1,7 @@
 # F1-04 · Kasir retail
 
 - **Fase:** 1
-- **Status:** Berjalan (inti untuk v0.6.0, bersama inti F1-05)
+- **Status:** Rilis v0.6.0 (inti, bersama inti F1-05), ada gap
 - **Layar desain:** 1.4 *Kasir retail · tablet*, 1.11 *Kasir · mobile*,
   1.11b *Keranjang (sheet bawah) · mobile*, versi gelapnya; 1.4b menyusul.
   Kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
@@ -28,8 +28,12 @@ Termasuk:
   mengosongkan kolom. Tidak dikenal → pesan "Barcode tidak dikenal", kolom
   dikosongkan.
 - Chip kategori (*Semua* + kategori yang punya produk aktif).
-- Grid produk aktif (`is_active`): kotak inisial, nama, harga (rentang bila
-  banyak varian), stok (merah bila ≤ 0, abu-abu "—" untuk jasa/menu).
+- Grid produk aktif (`is_active`): kotak inisial, nama, harga ("mulai Rp X"
+  bila harga varian berbeda; daftar ponsel menampilkan rentang penuh), stok
+  (merah bila ≤ 0, abu-abu "—" untuk jasa/menu).
+- Di tablet/desktop kolom cari **tetap fokus** saat produk atau tombol
+  keranjang diklik, jadi scanner (yang bekerja seperti keyboard) tidak
+  kehilangan input. Setelah dialog ditutup fokus kembali ke kolom cari.
 - Ketuk produk: satu varian tanpa satuan lain → langsung masuk keranjang;
   selain itu → dialog pilih varian × satuan dengan harga masing-masing.
 - **Keranjang (panel *Pesanan*)**: "Pelanggan umum · Ambil sendiri", baris
@@ -137,6 +141,9 @@ Migrasi `penjualan`, model di `lakuna_server/lib/src/sales/`.
 | Catatan per item | Baris catatan | Hanya catatan grosir | Bersama modifier F1-10 |
 | *Izinkan stok minus* | Pengaturan 1.26 | Selalu boleh, ada peringatan | F1-18 |
 | *Wajib buka sesi kasir* | Pengaturan, default aktif | Selalu wajib | F1-18 |
+| Pilihan satuan di dialog | Varian × satuan | Satuan dasar disebut bila produk punya satuan konversi | Cukup |
+| Stok minus di daftar ponsel | Merah | Abu-abu (grid tablet sudah merah) | Rapikan bersama F1-08 Stok |
+| Sheet pesanan ponsel | Menutupi layar penuh | Di dalam shell, navigasi bawah tetap terlihat | Cukup |
 
 ## Kriteria selesai
 

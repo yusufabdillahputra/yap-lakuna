@@ -22,7 +22,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "The app foundation is ready. Cashier, product, and stock modules arrive in upcoming releases.",
+  "homeWelcomeBody": "Retail checkout, cash sessions, and products are ready to use. Purchases, history, and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -337,5 +337,13 @@
   "receiptCashier": "Cashier",
   "receiptTotal": "TOTAL",
   "receiptChange": "Change",
-  "receiptThanks": "Thank you, see you again!"
+  "receiptThanks": "Thank you, see you again!",
+  "cashierPriceFrom": "from {price}",
+  "@cashierPriceFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -240,6 +240,9 @@ class _SearchFieldState extends State<_SearchField> {
           hint: l10n.cashierSearchHint,
           focusNode: _focus,
           autofocus: !widget.compact,
+          // Tablet/desktop: kolom tetap fokus saat produk atau tombol
+          // keranjang diklik, agar scanner (keyboard) tidak kehilangan input.
+          onTapOutside: widget.compact ? null : (_) {},
           textInputAction: TextInputAction.done,
           prefixBuilder: (context, style, _) => Padding(
             padding: const EdgeInsetsDirectional.only(start: 12),
@@ -317,6 +320,16 @@ String? _stockText(BuildContext context, CatalogProduct p) => p.tracksStock
     ? AppLocalizations.of(context)
           .cashierStock(formatQty(context, p.totalStock))
     : null;
+
+/// Harga di kartu produk: satu harga, atau "mulai Rp X" bila varian
+/// berbeda harga (rentang penuh terlalu panjang untuk kartu).
+String _tilePrice(BuildContext context, CatalogProduct p) {
+  final prices = p.variants.map((v) => v.sellPrice).toSet();
+  final low = formatMoney(context, prices.reduce((a, b) => a < b ? a : b));
+  return prices.length == 1
+      ? low
+      : AppLocalizations.of(context).cashierPriceFrom(low);
+}
 
 Color _stockColor(BuildContext context, CatalogProduct p) {
   final colors = context.theme.colors;
@@ -469,7 +482,7 @@ class _ProductTile extends StatelessWidget {
                 ),
               ),
               Text(
-                priceRange(context, p.variants.map((v) => v.sellPrice)),
+                _tilePrice(context, p),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.typography.body.sm.copyWith(

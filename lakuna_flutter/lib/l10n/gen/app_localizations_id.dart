@@ -77,7 +77,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Fondasi aplikasi sudah siap. Modul kasir, produk, dan stok akan hadir di rilis berikutnya.';
+      'Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -1134,4 +1134,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get receiptThanks => 'Terima kasih, sampai jumpa lagi!';
+
+  @override
+  String cashierPriceFrom(String price) {
+    return 'mulai $price';
+  }
 }

@@ -75,6 +75,11 @@ void main() {
     expect(find.text('2 L · Dus (6)'), findsOneWidget);
     await _tap(tester, 'cashier-option-1');
     expect(_text(tester, 'cashier-total'), 'Rp 282.500');
+    // Kolom cari tetap fokus agar scanner berikutnya langsung masuk.
+    expect(
+      tester.widget<EditableText>(_input('cashier-search')).focusNode.hasFocus,
+      isTrue,
+    );
 
     await _tap(tester, 'cashier-pay');
     expect(_key('payment-cash'), findsOneWidget);

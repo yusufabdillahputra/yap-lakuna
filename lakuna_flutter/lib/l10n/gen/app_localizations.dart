@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Fondasi aplikasi sudah siap. Modul kasir, produk, dan stok akan hadir di rilis berikutnya.'**
+  /// **'Kasir retail, sesi kasir, dan produk sudah bisa dipakai. Pembelian, riwayat, dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -2125,6 +2125,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Terima kasih, sampai jumpa lagi!'**
   String get receiptThanks;
+
+  /// Harga termurah di kartu produk kasir bila varian berbeda harga.
+  ///
+  /// In id, this message translates to:
+  /// **'mulai {price}'**
+  String cashierPriceFrom(String price);
 }
 
 class _AppLocalizationsDelegate

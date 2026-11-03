@@ -176,7 +176,17 @@ class PaymentView extends StatelessWidget {
               ),
             ),
           ),
-          Padding(padding: const EdgeInsets.all(16), child: finish),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                if (vm.method == PaymentMethod.cash) _ChangeBox(viewModel: vm),
+                finish,
+              ],
+            ),
+          ),
         ],
       );
     }
@@ -378,7 +388,6 @@ class _CashPanelState extends State<_CashPanel> {
     final theme = context.theme;
     final vm = widget.viewModel;
     final total = vm.totals.total;
-    final change = vm.change;
     final quick = vm.quickAmounts;
     const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0'];
     return _Panel(
@@ -396,6 +405,7 @@ class _CashPanelState extends State<_CashPanel> {
           FTextField(
             key: const ValueKey('payment-received'),
             label: Text(l10n.paymentReceived),
+            autofocus: !widget.compact,
             keyboardType: TextInputType.number,
             inputFormatters: const [RupiahInputFormatter()],
             enabled: !vm.pay.running,
@@ -472,55 +482,72 @@ class _CashPanelState extends State<_CashPanel> {
               );
             },
           ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: change == null
-                  ? theme.colors.destructive.withValues(alpha: 0.1)
-                  : theme.colors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.paymentChange,
-                      style: theme.typography.body.md.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: change != null
-                        ? Text(
-                            formatMoney(context, change),
-                            key: const ValueKey('payment-change'),
-                            textAlign: TextAlign.end,
-                            style: _tabular(
-                              theme.typography.display.lg.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            l10n.paymentShort(formatMoney(context, vm.shortBy)),
-                            key: const ValueKey('payment-short'),
-                            textAlign: TextAlign.end,
-                            style: _tabular(
-                              theme.typography.body.md.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: theme.colors.destructive,
-                              ),
-                            ),
-                          ),
-                  ),
-                ],
+          if (!widget.compact) _ChangeBox(viewModel: vm),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kembalian, atau "Kurang X" bila uang diterima belum cukup. Di ponsel
+/// berada di atas tombol selesai agar selalu terlihat.
+class _ChangeBox extends StatelessWidget {
+  const _ChangeBox({required this.viewModel});
+
+  final CashierViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final change = vm.change;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: change == null
+            ? theme.colors.destructive.withValues(alpha: 0.1)
+            : theme.colors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.paymentChange,
+                style: theme.typography.body.md.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-        ],
+            Expanded(
+              flex: 2,
+              child: change != null
+                  ? Text(
+                      formatMoney(context, change),
+                      key: const ValueKey('payment-change'),
+                      textAlign: TextAlign.end,
+                      style: _tabular(
+                        theme.typography.display.lg.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    )
+                  : Text(
+                      l10n.paymentShort(formatMoney(context, vm.shortBy)),
+                      key: const ValueKey('payment-short'),
+                      textAlign: TextAlign.end,
+                      style: _tabular(
+                        theme.typography.body.md.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colors.destructive,
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

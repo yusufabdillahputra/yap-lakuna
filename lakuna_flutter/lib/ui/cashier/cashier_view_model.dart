@@ -154,30 +154,33 @@ class CashierViewModel extends ChangeNotifier {
 
   // --- Pilihan jual --------------------------------------------------------
 
-  /// Semua varian × satuan [product]. Satuan hanya disebut bila varian
-  /// punya satuan konversi.
-  List<SaleOption> optionsFor(CatalogProduct product) => [
-    for (final v in product.variants) ...[
-      SaleOption(
-        product: product,
-        variant: v,
-        label: _label(v.name, v.units.isEmpty ? null : product.baseUnit),
-        price: v.sellPrice,
-      ),
-      for (final u in v.units)
+  /// Semua varian × satuan [product]. Satuan dasar hanya disebut bila
+  /// produk punya satuan konversi, agar pilihan bisa dibedakan.
+  List<SaleOption> optionsFor(CatalogProduct product) {
+    final hasUnits = product.variants.any((v) => v.units.isNotEmpty);
+    return [
+      for (final v in product.variants) ...[
         SaleOption(
           product: product,
           variant: v,
-          unit: u,
-          label: _label(v.name, '${u.name} (${u.factor.format()})'),
-          price: conversionSellPrice(
-            variantPrice: v.sellPrice,
-            factor: u.factor,
-            unitPrice: u.sellPrice,
-          ),
+          label: _label(v.name, hasUnits ? product.baseUnit : null),
+          price: v.sellPrice,
         ),
-    ],
-  ];
+        for (final u in v.units)
+          SaleOption(
+            product: product,
+            variant: v,
+            unit: u,
+            label: _label(v.name, '${u.name} (${u.factor.format()})'),
+            price: conversionSellPrice(
+              variantPrice: v.sellPrice,
+              factor: u.factor,
+              unitPrice: u.sellPrice,
+            ),
+          ),
+      ],
+    ];
+  }
 
   static String _label(String variant, String? unit) => [
     if (variant.trim().isNotEmpty) variant.trim(),

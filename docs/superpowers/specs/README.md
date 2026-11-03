@@ -55,9 +55,9 @@ Urutan pengerjaan sama dengan Storeku.
 | --- | --- | --- | --- |
 | 1 | [Onboarding & setup toko](2026-11-03-f1-01-onboarding-design.md) | 1.1, 1.1b | Rilis v0.2.0, ulangi kata sandi v0.3.0 (produk pertama di F1-07) |
 | 2 | [Login PIN & ganti kasir](2026-11-03-f1-02-login-pin-design.md) | 1.2 | Rilis v0.3.0 (persetujuan PIN manajer menyusul bersama void/diskon) |
-| 3 | [Sesi kasir](2026-11-03-f1-03-sesi-kasir-design.md) | 1.3, 1.3b | Rilis v0.4.0 (shift, cetak rekap, dan angka penjualan menyusul) |
-| 4 | Kasir retail | 1.4, 1.11 | Belum (berikutnya, memakai katalog F1-07) |
-| 5 | Pembayaran: tunai, split, QRIS statis, kredit | 1.5, 1.6 | Belum |
+| 3 | [Sesi kasir](2026-11-03-f1-03-sesi-kasir-design.md) | 1.3, 1.3b | Rilis v0.4.0, angka penjualan v0.6.0 (shift dan cetak rekap menyusul) |
+| 4 | [Kasir retail](2026-11-03-f1-04-kasir-retail-design.md) | 1.4, 1.11 | Rilis v0.6.0 (pelanggan, diskon, nota tersimpan 1.4b menyusul) |
+| 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer (QRIS statis, split, kredit menyusul) |
 | 6 | Struk & printer | 1.12 | Belum |
 | 7 | [Produk, varian, satuan, grosir](2026-11-03-f1-07-produk-design.md) | 1.15, 1.16 | Rilis v0.5.0, inti katalog dibangun sebelum kasir (foto, import, label barcode, arsip menyusul) |
 | 8 | Stok: penyesuaian, kartu stok, stok minimum | 1.18 | Belum |

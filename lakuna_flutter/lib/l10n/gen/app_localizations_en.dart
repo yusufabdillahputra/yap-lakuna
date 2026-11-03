@@ -77,7 +77,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'The app foundation is ready. Cashier, product, and stock modules arrive in upcoming releases.';
+      'Retail checkout, cash sessions, and products are ready to use. Purchases, history, and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -1147,4 +1147,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptThanks => 'Thank you, see you again!';
+
+  @override
+  String cashierPriceFrom(String price) {
+    return 'from $price';
+  }
 }
