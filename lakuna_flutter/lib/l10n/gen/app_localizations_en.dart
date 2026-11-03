@@ -3819,4 +3819,431 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stockNoteVoid => 'Sale voided';
+
+  @override
+  String get purchasesTitle => 'Purchases';
+
+  @override
+  String get purchasesSubtitle =>
+      'Goods received from suppliers, including purchase returns';
+
+  @override
+  String get purchasesNew => 'New purchase';
+
+  @override
+  String get purchasesTabPurchases => 'Purchases';
+
+  @override
+  String get purchasesTabReturns => 'Purchase returns';
+
+  @override
+  String get purchasesSearch => 'Search number / supplier';
+
+  @override
+  String get purchasesColNumber => 'Number';
+
+  @override
+  String get purchasesColSupplier => 'Supplier';
+
+  @override
+  String get purchasesColTotal => 'Total';
+
+  @override
+  String get purchasesColStatus => 'Status';
+
+  @override
+  String get purchasesColValue => 'Value';
+
+  @override
+  String get purchasesColSource => 'Original purchase';
+
+  @override
+  String get purchasesStatusDraft => 'Draft';
+
+  @override
+  String get purchasesStatusPaid => 'Paid';
+
+  @override
+  String get purchasesStatusDebt => 'Payable';
+
+  @override
+  String get purchasesDraftTag => 'draft';
+
+  @override
+  String get purchasesReturnTag => 'return';
+
+  @override
+  String get purchasesNoSupplier => 'No supplier';
+
+  @override
+  String get purchasesEmpty => 'No purchases yet.';
+
+  @override
+  String get purchasesReturnsEmpty => 'No purchase returns yet.';
+
+  @override
+  String get purchasesLoadFailed => 'Purchases failed to load.';
+
+  @override
+  String purchaseFormNew(String number) {
+    return 'New purchase · $number';
+  }
+
+  @override
+  String purchaseFormDraft(String number) {
+    return 'Draft · $number';
+  }
+
+  @override
+  String get purchaseSupplier => 'Supplier';
+
+  @override
+  String get purchaseSupplierNew => '+ New supplier';
+
+  @override
+  String get purchaseSupplierNewName => 'New supplier name';
+
+  @override
+  String get purchaseSupplierPick => 'Pick from the list';
+
+  @override
+  String get purchaseInvoiceNo => 'Supplier invoice no.';
+
+  @override
+  String get purchaseDate => 'Date';
+
+  @override
+  String get purchaseLocation => 'Receive into';
+
+  @override
+  String get purchaseColProduct => 'Product';
+
+  @override
+  String get purchaseColUnit => 'Unit';
+
+  @override
+  String get purchaseColQty => 'Qty';
+
+  @override
+  String get purchaseColPrice => 'Cost price';
+
+  @override
+  String get purchaseColSubtotal => 'Subtotal';
+
+  @override
+  String get purchaseRemoveLine => 'Remove line';
+
+  @override
+  String get purchaseScan => '+ Scan / search product';
+
+  @override
+  String get purchaseScanHint => 'Barcode, SKU or product name';
+
+  @override
+  String purchaseScanNotFound(String code) {
+    return 'Product \"$code\" not found.';
+  }
+
+  @override
+  String get purchaseNoLines =>
+      'No products yet. Scan a barcode or search by name.';
+
+  @override
+  String get purchasePaidNow => 'Pay now';
+
+  @override
+  String get purchasePayInFull => 'Pay in full';
+
+  @override
+  String get purchaseFundingFrom => 'From';
+
+  @override
+  String get fundingStoreCash => 'Store cash';
+
+  @override
+  String get fundingDrawer => 'Cash drawer';
+
+  @override
+  String get fundingBank => 'Bank account';
+
+  @override
+  String get purchaseDueOn => 'Balance due on';
+
+  @override
+  String get purchaseNote => 'Note';
+
+  @override
+  String get purchaseSubtotal => 'Subtotal';
+
+  @override
+  String get purchaseDiscount => 'Invoice discount';
+
+  @override
+  String get purchaseShipping => 'Shipping';
+
+  @override
+  String get purchaseTotal => 'Total';
+
+  @override
+  String get purchaseDebtLeft => 'Balance becomes payable';
+
+  @override
+  String get purchaseSaveDraft => 'Save draft';
+
+  @override
+  String get purchaseReceive => 'Receive goods & save';
+
+  @override
+  String get purchaseDeleteDraft => 'Delete draft';
+
+  @override
+  String purchaseReceiveNote(String location) {
+    return 'On save: $location stock increases (ledger), the average cost is updated, and the supplier payable is recorded.';
+  }
+
+  @override
+  String purchaseDraftSaved(String number) {
+    return 'Draft $number saved.';
+  }
+
+  @override
+  String get purchaseErrLines => 'Add at least one product.';
+
+  @override
+  String get purchaseErrQty => 'Qty must be more than 0.';
+
+  @override
+  String get purchaseErrPrice => 'Invalid cost price.';
+
+  @override
+  String get purchaseErrDiscount => 'The discount can\'t exceed the subtotal.';
+
+  @override
+  String get purchaseErrShipping => 'Invalid shipping cost.';
+
+  @override
+  String get purchaseErrPaid => 'Payment can\'t exceed the total.';
+
+  @override
+  String get purchaseErrSupplier =>
+      'Choose or type a supplier for a purchase on credit.';
+
+  @override
+  String get purchaseErrDueOn =>
+      'Set a due date, not before the purchase date.';
+
+  @override
+  String purchaseErrInvoiceNo(int max) {
+    return 'Invoice no. is at most $max characters.';
+  }
+
+  @override
+  String purchaseErrNote(int max) {
+    return 'The note is at most $max characters.';
+  }
+
+  @override
+  String get purchaseErrDrawer =>
+      'Paying from the cash drawer needs an open cashier session on this device.';
+
+  @override
+  String get purchaseErrNotEditable =>
+      'This purchase was already received and can\'t be changed.';
+
+  @override
+  String get purchaseErrNotFound => 'Purchase not found.';
+
+  @override
+  String get purchaseErrNotPermitted =>
+      'You don\'t have permission to manage purchases.';
+
+  @override
+  String get purchaseErrGeneric =>
+      'The purchase couldn\'t be saved. Try again.';
+
+  @override
+  String purchaseFrom(String supplier) {
+    return 'Purchase from $supplier';
+  }
+
+  @override
+  String get purchaseBadgePaid => 'Paid';
+
+  @override
+  String get purchaseBadgeDebt => 'Unpaid · payable';
+
+  @override
+  String get purchaseCreatedBy => 'Created by';
+
+  @override
+  String get purchaseReceivedTitle => 'Goods received';
+
+  @override
+  String purchaseReceivedSubtitle(String location) {
+    return '$location stock increased through the ledger when the purchase was saved';
+  }
+
+  @override
+  String get purchaseColAvgCost => 'Average cost';
+
+  @override
+  String get purchaseColSellPrice => 'Sell price';
+
+  @override
+  String get purchaseColSuggested => 'Suggested price';
+
+  @override
+  String get purchaseColChangePrice => 'Change price';
+
+  @override
+  String get purchaseBelowSuggested => 'Below suggestion';
+
+  @override
+  String get purchaseSafe => 'OK';
+
+  @override
+  String purchaseApplyPrices(int count) {
+    return 'Apply sell price ($count products)';
+  }
+
+  @override
+  String get purchasePricesApplied => 'Sell prices updated.';
+
+  @override
+  String get purchaseAvgCostNote =>
+      'Average cost uses a weighted moving average in the base unit. The suggested price keeps the margin of the sell price at receipt. Tick \"Change price\", then Apply sell price.';
+
+  @override
+  String get purchaseSummary => 'Summary';
+
+  @override
+  String get purchasePaidSoFar => 'Paid';
+
+  @override
+  String get purchaseReturned => 'Returned';
+
+  @override
+  String get purchaseDebt => 'Balance payable';
+
+  @override
+  String purchaseDueIn(String date, int days) {
+    return 'Due $date (in $days days).';
+  }
+
+  @override
+  String purchaseDueToday(String date) {
+    return 'Due $date (today).';
+  }
+
+  @override
+  String purchaseOverdue(String date, int days) {
+    return 'Due $date ($days days overdue).';
+  }
+
+  @override
+  String get purchasePayments => 'Payments';
+
+  @override
+  String get purchasePaymentDate => 'Date';
+
+  @override
+  String get purchasePaymentDesc => 'Description';
+
+  @override
+  String get purchasePaymentFrom => 'From';
+
+  @override
+  String get purchasePaymentAmount => 'Amount';
+
+  @override
+  String get purchaseDownPayment => 'Down payment';
+
+  @override
+  String purchaseReturnReduction(String number) {
+    return 'Return $number (reduces payable)';
+  }
+
+  @override
+  String purchaseReturnRefund(String number) {
+    return 'Return $number (refund)';
+  }
+
+  @override
+  String get purchaseNoPayments => 'No payments yet.';
+
+  @override
+  String get purchasePayDebt => 'Pay payable';
+
+  @override
+  String get purchasePayDebtLater =>
+      'Paying off payables comes with the Suppliers & payables module.';
+
+  @override
+  String get purchaseActions => 'Actions';
+
+  @override
+  String get purchaseReturnAction => 'Purchase return';
+
+  @override
+  String get purchaseReturnActionNote =>
+      'Creates an RB-… document that reduces stock and the payable. A received purchase can\'t be deleted, only returned.';
+
+  @override
+  String get purchaseReturnTitle => 'Purchase return';
+
+  @override
+  String purchaseReturnRemaining(String qty) {
+    return 'Left $qty';
+  }
+
+  @override
+  String get purchaseReturnQty => 'Return qty';
+
+  @override
+  String get purchaseReturnNote => 'Return note';
+
+  @override
+  String get purchaseRefundTo => 'Refund to';
+
+  @override
+  String purchaseReturnSplit(String debt, String refund) {
+    return 'Reduces payable $debt · refund $refund';
+  }
+
+  @override
+  String purchaseReturnSubmit(String amount) {
+    return 'Process return · $amount';
+  }
+
+  @override
+  String get purchaseReturnCancel => 'Cancel';
+
+  @override
+  String get purchaseReturnErrEmpty =>
+      'Enter a return qty for at least one item.';
+
+  @override
+  String get purchaseReturnErrQty => 'The return qty exceeds what\'s left.';
+
+  @override
+  String get purchaseReturnErrStock =>
+      'There isn\'t enough stock at the purchase location to return.';
+
+  @override
+  String get purchaseReturnErrRefund => 'Choose where the refund goes.';
+
+  @override
+  String get purchaseReturnErrStatus =>
+      'Only received purchases can be returned.';
+
+  @override
+  String purchaseReturnDone(String number) {
+    return 'Return $number recorded.';
+  }
+
+  @override
+  String get purchaseReturnsMade => 'Returns made';
+
+  @override
+  String get purchaseDetailLoadFailed => 'The purchase details failed to load.';
 }

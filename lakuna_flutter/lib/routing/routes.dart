@@ -67,6 +67,15 @@ abstract final class Routes {
   /// Master data: kategori, satuan, lokasi, metode bayar (F1-09).
   static const master = '/master';
 
+  /// Pembelian & retur pembelian (F1-12).
+  static const purchases = '/pembelian';
+
+  /// Form pembelian baru (halaman sendiri di layar sempit).
+  static const purchaseNew = '/pembelian/baru';
+
+  /// Detail pembelian [id], atau form draf.
+  static String purchase(String id) => '/pembelian/$id';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

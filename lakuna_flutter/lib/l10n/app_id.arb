@@ -2302,5 +2302,272 @@
   "receiptBannerVoid": "VOID",
   "receiptReturned": "Retur",
   "receiptNet": "Bersih",
-  "stockNoteVoid": "Nota di-void"
+  "stockNoteVoid": "Nota di-void",
+  "purchasesTitle": "Pembelian",
+  "purchasesSubtitle": "Barang masuk dari supplier, termasuk retur pembelian",
+  "purchasesNew": "Pembelian baru",
+  "purchasesTabPurchases": "Pembelian",
+  "purchasesTabReturns": "Retur pembelian",
+  "purchasesSearch": "Cari nomor / supplier",
+  "purchasesColNumber": "Nomor",
+  "purchasesColSupplier": "Supplier",
+  "purchasesColTotal": "Total",
+  "purchasesColStatus": "Status",
+  "purchasesColValue": "Nilai",
+  "purchasesColSource": "Pembelian asal",
+  "purchasesStatusDraft": "Draf",
+  "purchasesStatusPaid": "Lunas",
+  "purchasesStatusDebt": "Hutang",
+  "purchasesDraftTag": "draf",
+  "purchasesReturnTag": "retur",
+  "purchasesNoSupplier": "Tanpa supplier",
+  "purchasesEmpty": "Belum ada pembelian.",
+  "purchasesReturnsEmpty": "Belum ada retur pembelian.",
+  "purchasesLoadFailed": "Pembelian gagal dimuat.",
+  "purchaseFormNew": "Pembelian baru · {number}",
+  "@purchaseFormNew": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseFormDraft": "Draf · {number}",
+  "@purchaseFormDraft": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseSupplier": "Supplier",
+  "purchaseSupplierNew": "+ Supplier baru",
+  "purchaseSupplierNewName": "Nama supplier baru",
+  "purchaseSupplierPick": "Pilih dari daftar",
+  "purchaseInvoiceNo": "No. faktur supplier",
+  "purchaseDate": "Tanggal",
+  "purchaseLocation": "Masuk ke lokasi",
+  "purchaseColProduct": "Produk",
+  "purchaseColUnit": "Satuan",
+  "purchaseColQty": "Qty",
+  "purchaseColPrice": "Harga beli",
+  "purchaseColSubtotal": "Subtotal",
+  "purchaseRemoveLine": "Hapus baris",
+  "purchaseScan": "+ Scan / cari produk",
+  "purchaseScanHint": "Barcode, SKU, atau nama produk",
+  "purchaseScanNotFound": "Produk \"{code}\" tidak ditemukan.",
+  "@purchaseScanNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseNoLines": "Belum ada produk. Scan barcode atau cari nama produk.",
+  "purchasePaidNow": "Bayar sekarang",
+  "purchasePayInFull": "Bayar lunas",
+  "purchaseFundingFrom": "Dari",
+  "fundingStoreCash": "Kas toko",
+  "fundingDrawer": "Kas laci",
+  "fundingBank": "Rekening bank",
+  "purchaseDueOn": "Jatuh tempo sisa",
+  "purchaseNote": "Catatan",
+  "purchaseSubtotal": "Subtotal",
+  "purchaseDiscount": "Diskon faktur",
+  "purchaseShipping": "Ongkos kirim",
+  "purchaseTotal": "Total",
+  "purchaseDebtLeft": "Sisa jadi hutang",
+  "purchaseSaveDraft": "Simpan draf",
+  "purchaseReceive": "Terima barang & simpan",
+  "purchaseDeleteDraft": "Hapus draf",
+  "purchaseReceiveNote": "Saat disimpan: stok {location} bertambah (ledger), harga pokok rata-rata diperbarui, hutang supplier tercatat.",
+  "@purchaseReceiveNote": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseDraftSaved": "Draf {number} disimpan.",
+  "@purchaseDraftSaved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseErrLines": "Tambahkan minimal satu produk.",
+  "purchaseErrQty": "Qty harus lebih dari 0.",
+  "purchaseErrPrice": "Harga beli tidak sah.",
+  "purchaseErrDiscount": "Diskon tidak boleh melebihi subtotal.",
+  "purchaseErrShipping": "Ongkos kirim tidak sah.",
+  "purchaseErrPaid": "Bayar tidak boleh melebihi total.",
+  "purchaseErrSupplier": "Pilih atau ketik supplier untuk pembelian yang berhutang.",
+  "purchaseErrDueOn": "Isi jatuh tempo, tidak sebelum tanggal pembelian.",
+  "purchaseErrInvoiceNo": "No. faktur maksimal {max} karakter.",
+  "@purchaseErrInvoiceNo": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseErrNote": "Catatan maksimal {max} karakter.",
+  "@purchaseErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseErrDrawer": "Bayar dari kas laci butuh sesi kasir yang terbuka di perangkat ini.",
+  "purchaseErrNotEditable": "Pembelian ini sudah diterima dan tidak bisa diubah.",
+  "purchaseErrNotFound": "Pembelian tidak ditemukan.",
+  "purchaseErrNotPermitted": "Anda tidak punya izin mengelola pembelian.",
+  "purchaseErrGeneric": "Pembelian gagal disimpan. Coba lagi.",
+  "purchaseFrom": "Pembelian dari {supplier}",
+  "@purchaseFrom": {
+    "placeholders": {
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseBadgePaid": "Lunas",
+  "purchaseBadgeDebt": "Belum lunas · hutang",
+  "purchaseCreatedBy": "Dibuat oleh",
+  "purchaseReceivedTitle": "Barang diterima",
+  "purchaseReceivedSubtitle": "Stok {location} bertambah lewat ledger saat pembelian disimpan",
+  "@purchaseReceivedSubtitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseColAvgCost": "HPP rata-rata",
+  "purchaseColSellPrice": "Harga jual",
+  "purchaseColSuggested": "Saran jual",
+  "purchaseColChangePrice": "Ubah harga",
+  "purchaseBelowSuggested": "Di bawah saran",
+  "purchaseSafe": "Aman",
+  "purchaseApplyPrices": "Terapkan harga jual ({count} produk)",
+  "@purchaseApplyPrices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchasePricesApplied": "Harga jual diperbarui.",
+  "purchaseAvgCostNote": "HPP memakai rata-rata tertimbang (moving average) dalam satuan dasar. Saran jual menjaga margin harga jual saat barang diterima. Centang \"Ubah harga\" lalu Terapkan harga jual.",
+  "purchaseSummary": "Ringkasan",
+  "purchasePaidSoFar": "Sudah dibayar",
+  "purchaseReturned": "Diretur",
+  "purchaseDebt": "Sisa hutang",
+  "purchaseDueIn": "Jatuh tempo {date} ({days} hari lagi).",
+  "@purchaseDueIn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseDueToday": "Jatuh tempo {date} (hari ini).",
+  "@purchaseDueToday": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseOverdue": "Jatuh tempo {date} (lewat {days} hari).",
+  "@purchaseOverdue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "purchasePayments": "Pembayaran",
+  "purchasePaymentDate": "Tanggal",
+  "purchasePaymentDesc": "Keterangan",
+  "purchasePaymentFrom": "Dari",
+  "purchasePaymentAmount": "Jumlah",
+  "purchaseDownPayment": "Bayar di muka",
+  "purchaseReturnReduction": "Retur {number} (pengurang hutang)",
+  "@purchaseReturnReduction": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnRefund": "Retur {number} (uang kembali)",
+  "@purchaseReturnRefund": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseNoPayments": "Belum ada pembayaran.",
+  "purchasePayDebt": "Bayar hutang",
+  "purchasePayDebtLater": "Pelunasan hutang menyusul di modul Supplier & hutang.",
+  "purchaseActions": "Tindakan",
+  "purchaseReturnAction": "Retur pembelian",
+  "purchaseReturnActionNote": "Membuat dokumen RB-… yang mengurangi stok & hutang. Pembelian yang sudah diterima tidak bisa dihapus, hanya diretur.",
+  "purchaseReturnTitle": "Retur pembelian",
+  "purchaseReturnRemaining": "Sisa {qty}",
+  "@purchaseReturnRemaining": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnQty": "Qty retur",
+  "purchaseReturnNote": "Catatan retur",
+  "purchaseRefundTo": "Uang kembali ke",
+  "purchaseReturnSplit": "Mengurangi hutang {debt} · uang kembali {refund}",
+  "@purchaseReturnSplit": {
+    "placeholders": {
+      "debt": {
+        "type": "String"
+      },
+      "refund": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnSubmit": "Proses retur · {amount}",
+  "@purchaseReturnSubmit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnCancel": "Batal",
+  "purchaseReturnErrEmpty": "Isi qty retur minimal satu barang.",
+  "purchaseReturnErrQty": "Qty retur melebihi sisa.",
+  "purchaseReturnErrStock": "Stok di lokasi pembelian tidak cukup untuk diretur.",
+  "purchaseReturnErrRefund": "Pilih ke mana uang kembali.",
+  "purchaseReturnErrStatus": "Hanya pembelian yang sudah diterima yang bisa diretur.",
+  "purchaseReturnDone": "Retur {number} tercatat.",
+  "@purchaseReturnDone": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnsMade": "Retur yang sudah dibuat",
+  "purchaseDetailLoadFailed": "Detail pembelian gagal dimuat."
 }

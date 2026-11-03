@@ -15,6 +15,7 @@ import 'fake_dining_admin_repository.dart';
 import 'fake_dining_repository.dart';
 import 'fake_history_repository.dart';
 import 'fake_payment_settings_repository.dart';
+import 'fake_purchases_repository.dart';
 import 'fake_receipt_printer.dart';
 import 'fake_receipt_settings_repository.dart';
 import 'fake_session_repository.dart';
@@ -40,6 +41,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeDiningRepository? dining,
   FakeDiningAdminRepository? diningAdmin,
   FakeHistoryRepository? history,
+  FakePurchasesRepository? purchases,
   FakeSpreadsheetExporter? exporter,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
@@ -87,6 +89,7 @@ Future<AppSettingsViewModel> pumpLakuna(
           dining: dining ?? FakeDiningRepository(),
           diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
           history: history ?? FakeHistoryRepository(),
+          purchases: purchases ?? FakePurchasesRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
           receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),

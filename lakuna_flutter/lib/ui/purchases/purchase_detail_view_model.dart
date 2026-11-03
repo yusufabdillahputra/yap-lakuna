@@ -46,6 +46,20 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   final PurchasesRepository _repository;
   final UuidValue purchaseId;
 
+  var _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Perintah yang selesai setelah layar ditutup tidak memberi tahu lagi.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
   late final Command0<void> load;
   late final Command0<void> applyPrices;
   late final Command0<PurchaseReturn> submitReturn;

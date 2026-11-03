@@ -127,11 +127,12 @@ final List<MenuGroup> appMenu = [
         path: Routes.master,
         permission: Permission.productsManage,
       ),
-      _module(
-        'purchases',
-        TablerIcons.truck,
-        (l) => l.menuPurchases,
-        Permission.purchasesManage,
+      MenuEntry(
+        key: 'purchases',
+        icon: TablerIcons.truck,
+        label: (l) => l.menuPurchases,
+        path: Routes.purchases,
+        permission: Permission.purchasesManage,
       ),
     ],
   ),

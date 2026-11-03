@@ -1,0 +1,176 @@
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/routing/routes.dart';
+
+import '../../testing/app_harness.dart';
+import '../../testing/fake_purchases_repository.dart';
+
+Finder _key(String key) => find.byKey(ValueKey(key));
+
+Finder _keyPrefix(String prefix) => find.byWidgetPredicate(
+  (w) =>
+      w.key is ValueKey<String> &&
+      (w.key! as ValueKey<String>).value.startsWith(prefix),
+);
+
+Finder _input(Finder field) =>
+    find.descendant(of: field, matching: find.byType(EditableText));
+
+Future<void> _tap(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _scan(WidgetTester tester, String code) async {
+  await tester.ensureVisible(_key('purchase-scan'));
+  await tester.enterText(_input(_key('purchase-scan')), code);
+  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _type(WidgetTester tester, Finder field, String text) async {
+  await tester.ensureVisible(field);
+  await tester.enterText(_input(field), text);
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  late FakePurchasesRepository repo;
+
+  Future<void> pump(WidgetTester tester, Size size) async {
+    repo = FakePurchasesRepository();
+    await pumpLakuna(
+      tester,
+      size: size,
+      initialLocation: Routes.purchases,
+      purchases: repo,
+    );
+  }
+
+  testWidgets(
+    'desktop: draf → terima → saran harga → terapkan → retur dengan uang kembali',
+    (tester) async {
+      await pump(tester, const Size(1440, 900));
+      expect(
+        find.text('Pembelian baru · PB-PST-D01-261103-0001'),
+        findsOneWidget,
+      );
+      expect(_key('purchases-empty'), findsOneWidget);
+
+      // Barcode dus memilih satuan dus (6); harga 6 × HPP.
+      await _scan(tester, '8991234500031');
+      expect(find.text('Dus (6)'), findsOneWidget);
+      expect(find.text('Rp 195.000'), findsWidgets);
+
+      // Terima tanpa supplier padahal berhutang → galat, tidak tersimpan.
+      await _tap(tester, _key('purchase-receive'));
+      expect(
+        find.text('Pilih atau ketik supplier untuk pembelian yang berhutang.'),
+        findsOneWidget,
+      );
+      expect(repo.purchases, isEmpty);
+
+      // Simpan draf boleh tanpa supplier.
+      await _tap(tester, _key('purchase-save-draft'));
+      expect(find.text('Draf · PB-PST-D01-261103-0001'), findsOneWidget);
+      expect(find.text('Draf'), findsOneWidget);
+
+      // Harga naik jadi 210.000/dus, bayar lunas, terima.
+      await _type(tester, _keyPrefix('purchase-price-'), '210000');
+      await _tap(tester, _key('purchase-pay-full'));
+      expect(find.text('Rp 210.000'), findsWidgets);
+      await _tap(tester, _key('purchase-receive'));
+
+      // Halaman detail 1.19b.
+      expect(_key('purchase-detail'), findsOneWidget);
+      expect(find.text('Lunas'), findsOneWidget);
+      // HPP 32.500 → (780.000 + 210.000) / 30 = 33.000; saran 36.600.
+      expect(
+        find.textContaining('Rp 33.000', findRichText: true),
+        findsOneWidget,
+      );
+      expect(find.text('Rp 36.600'), findsOneWidget);
+      expect(find.text('Di bawah saran'), findsOneWidget);
+      await _tap(tester, _key('purchase-apply-prices'));
+      expect(repo.applied.single.values.single, const Money(36600));
+      expect(find.text('Aman'), findsOneWidget);
+      expect(find.text('Terapkan harga jual (0 produk)'), findsOneWidget);
+
+      // Retur 1 dus: lunas, jadi semuanya uang kembali.
+      await _tap(tester, _key('purchase-return-open'));
+      await _type(tester, _keyPrefix('purchase-return-qty-'), '1');
+      expect(
+        find.text('Mengurangi hutang Rp 0 · uang kembali Rp 210.000'),
+        findsOneWidget,
+      );
+      await _tap(tester, _key('purchase-return-submit'));
+      expect(find.text('Pilih ke mana uang kembali.'), findsOneWidget);
+      await _tap(tester, _keyPrefix('purchase-refund-source-'));
+      await _tap(tester, find.text('Rekening bank').last);
+      await _tap(tester, _key('purchase-return-submit'));
+      expect(repo.returns.single.refundAmount, 210000);
+      expect(repo.returns.single.refundSource, FundingSource.bank);
+      expect(
+        find.text('Retur RB-PST-D01-261103-0001 tercatat.'),
+        findsOneWidget,
+      );
+      expect(_key('purchase-return-form'), findsNothing);
+
+      // Kembali ke daftar: pembelian lunas dan tab retur.
+      await _tap(tester, _key('purchase-back'));
+      expect(
+        find.text('Pembelian baru · PB-PST-D01-261103-0002'),
+        findsOneWidget,
+      );
+      expect(find.text('Lunas'), findsOneWidget);
+      await _tap(tester, _key('purchases-tab-returns'));
+      expect(find.text('RB-PST-D01-261103-0001'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
+
+  testWidgets('desktop: berhutang dengan supplier baru, jatuh tempo +14', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await _scan(tester, 'MYK-2L');
+    await _type(tester, _keyPrefix('purchase-paid-'), '10000');
+    // Supplier baru diketik lewat pilihan "+ Supplier baru".
+    await _tap(tester, _keyPrefix('purchase-supplier-'));
+    await _tap(tester, find.text('+ Supplier baru').last);
+    await _type(tester, _keyPrefix('purchase-supplier-name-'), 'UD Makmur');
+    expect(find.text('Rp 22.500'), findsWidgets);
+    await _tap(tester, _key('purchase-receive'));
+    final r = repo.requests.single;
+    expect(r.newSupplierName, 'UD Makmur');
+    expect(r.dueOn, DateTime.utc(2026, 11, 17));
+    expect(_key('purchase-detail'), findsOneWidget);
+    expect(find.text('Belum lunas · hutang'), findsOneWidget);
+    expect(find.text('Jatuh tempo 17/11/2026 (14 hari lagi).'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('ponsel 360 px: form halaman sendiri, detail bertumpuk', (
+    tester,
+  ) async {
+    await pump(tester, const Size(360, 780));
+    expect(_key('purchase-form'), findsNothing);
+    await _tap(tester, _key('purchases-new'));
+    expect(_key('purchase-form-page'), findsOneWidget);
+    await _scan(tester, 'KOP');
+    await _type(tester, _keyPrefix('purchase-price-'), '1500');
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _key('purchase-receive'));
+    expect(_key('purchase-detail'), findsOneWidget);
+    expect(find.text('Lunas'), findsOneWidget);
+    await _tap(tester, _key('purchase-back'));
+    expect(_key('purchases-table'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+}

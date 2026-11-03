@@ -18,6 +18,20 @@ class PurchasesViewModel extends ChangeNotifier {
 
   final PurchasesRepository _repository;
 
+  var _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Perintah yang selesai setelah layar ditutup tidak memberi tahu lagi.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
   late final Command0<void> load;
 
   var _tab = PurchaseTab.purchases;
@@ -25,6 +39,8 @@ class PurchasesViewModel extends ChangeNotifier {
   List<PurchaseRow>? _rows;
   List<PurchaseReturnRow>? _returns;
   Exception? _error;
+  String? _timezone;
+  var _setupLoaded = false;
 
   /// Nomor permintaan terakhir; hasil yang lebih lama dibuang.
   var _request = 0;
@@ -35,8 +51,17 @@ class PurchasesViewModel extends ChangeNotifier {
   List<PurchaseReturnRow>? get returns => _returns;
   Exception? get error => _error;
 
+  /// Zona waktu cabang untuk tanggal retur.
+  String? get timezone => _timezone;
+
   Future<Result<void>> _load() async {
     final request = ++_request;
+    if (!_setupLoaded) {
+      if (await _repository.load() case Ok(:final value)) {
+        _timezone = value.timezone;
+        _setupLoaded = true;
+      }
+    }
     final query = _query;
     final rows = await _repository.list(query: query);
     final returns = await _repository.listReturns(query: query);

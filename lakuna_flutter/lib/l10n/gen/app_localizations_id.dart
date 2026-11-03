@@ -3708,4 +3708,429 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get stockNoteVoid => 'Nota di-void';
+
+  @override
+  String get purchasesTitle => 'Pembelian';
+
+  @override
+  String get purchasesSubtitle =>
+      'Barang masuk dari supplier, termasuk retur pembelian';
+
+  @override
+  String get purchasesNew => 'Pembelian baru';
+
+  @override
+  String get purchasesTabPurchases => 'Pembelian';
+
+  @override
+  String get purchasesTabReturns => 'Retur pembelian';
+
+  @override
+  String get purchasesSearch => 'Cari nomor / supplier';
+
+  @override
+  String get purchasesColNumber => 'Nomor';
+
+  @override
+  String get purchasesColSupplier => 'Supplier';
+
+  @override
+  String get purchasesColTotal => 'Total';
+
+  @override
+  String get purchasesColStatus => 'Status';
+
+  @override
+  String get purchasesColValue => 'Nilai';
+
+  @override
+  String get purchasesColSource => 'Pembelian asal';
+
+  @override
+  String get purchasesStatusDraft => 'Draf';
+
+  @override
+  String get purchasesStatusPaid => 'Lunas';
+
+  @override
+  String get purchasesStatusDebt => 'Hutang';
+
+  @override
+  String get purchasesDraftTag => 'draf';
+
+  @override
+  String get purchasesReturnTag => 'retur';
+
+  @override
+  String get purchasesNoSupplier => 'Tanpa supplier';
+
+  @override
+  String get purchasesEmpty => 'Belum ada pembelian.';
+
+  @override
+  String get purchasesReturnsEmpty => 'Belum ada retur pembelian.';
+
+  @override
+  String get purchasesLoadFailed => 'Pembelian gagal dimuat.';
+
+  @override
+  String purchaseFormNew(String number) {
+    return 'Pembelian baru · $number';
+  }
+
+  @override
+  String purchaseFormDraft(String number) {
+    return 'Draf · $number';
+  }
+
+  @override
+  String get purchaseSupplier => 'Supplier';
+
+  @override
+  String get purchaseSupplierNew => '+ Supplier baru';
+
+  @override
+  String get purchaseSupplierNewName => 'Nama supplier baru';
+
+  @override
+  String get purchaseSupplierPick => 'Pilih dari daftar';
+
+  @override
+  String get purchaseInvoiceNo => 'No. faktur supplier';
+
+  @override
+  String get purchaseDate => 'Tanggal';
+
+  @override
+  String get purchaseLocation => 'Masuk ke lokasi';
+
+  @override
+  String get purchaseColProduct => 'Produk';
+
+  @override
+  String get purchaseColUnit => 'Satuan';
+
+  @override
+  String get purchaseColQty => 'Qty';
+
+  @override
+  String get purchaseColPrice => 'Harga beli';
+
+  @override
+  String get purchaseColSubtotal => 'Subtotal';
+
+  @override
+  String get purchaseRemoveLine => 'Hapus baris';
+
+  @override
+  String get purchaseScan => '+ Scan / cari produk';
+
+  @override
+  String get purchaseScanHint => 'Barcode, SKU, atau nama produk';
+
+  @override
+  String purchaseScanNotFound(String code) {
+    return 'Produk \"$code\" tidak ditemukan.';
+  }
+
+  @override
+  String get purchaseNoLines =>
+      'Belum ada produk. Scan barcode atau cari nama produk.';
+
+  @override
+  String get purchasePaidNow => 'Bayar sekarang';
+
+  @override
+  String get purchasePayInFull => 'Bayar lunas';
+
+  @override
+  String get purchaseFundingFrom => 'Dari';
+
+  @override
+  String get fundingStoreCash => 'Kas toko';
+
+  @override
+  String get fundingDrawer => 'Kas laci';
+
+  @override
+  String get fundingBank => 'Rekening bank';
+
+  @override
+  String get purchaseDueOn => 'Jatuh tempo sisa';
+
+  @override
+  String get purchaseNote => 'Catatan';
+
+  @override
+  String get purchaseSubtotal => 'Subtotal';
+
+  @override
+  String get purchaseDiscount => 'Diskon faktur';
+
+  @override
+  String get purchaseShipping => 'Ongkos kirim';
+
+  @override
+  String get purchaseTotal => 'Total';
+
+  @override
+  String get purchaseDebtLeft => 'Sisa jadi hutang';
+
+  @override
+  String get purchaseSaveDraft => 'Simpan draf';
+
+  @override
+  String get purchaseReceive => 'Terima barang & simpan';
+
+  @override
+  String get purchaseDeleteDraft => 'Hapus draf';
+
+  @override
+  String purchaseReceiveNote(String location) {
+    return 'Saat disimpan: stok $location bertambah (ledger), harga pokok rata-rata diperbarui, hutang supplier tercatat.';
+  }
+
+  @override
+  String purchaseDraftSaved(String number) {
+    return 'Draf $number disimpan.';
+  }
+
+  @override
+  String get purchaseErrLines => 'Tambahkan minimal satu produk.';
+
+  @override
+  String get purchaseErrQty => 'Qty harus lebih dari 0.';
+
+  @override
+  String get purchaseErrPrice => 'Harga beli tidak sah.';
+
+  @override
+  String get purchaseErrDiscount => 'Diskon tidak boleh melebihi subtotal.';
+
+  @override
+  String get purchaseErrShipping => 'Ongkos kirim tidak sah.';
+
+  @override
+  String get purchaseErrPaid => 'Bayar tidak boleh melebihi total.';
+
+  @override
+  String get purchaseErrSupplier =>
+      'Pilih atau ketik supplier untuk pembelian yang berhutang.';
+
+  @override
+  String get purchaseErrDueOn =>
+      'Isi jatuh tempo, tidak sebelum tanggal pembelian.';
+
+  @override
+  String purchaseErrInvoiceNo(int max) {
+    return 'No. faktur maksimal $max karakter.';
+  }
+
+  @override
+  String purchaseErrNote(int max) {
+    return 'Catatan maksimal $max karakter.';
+  }
+
+  @override
+  String get purchaseErrDrawer =>
+      'Bayar dari kas laci butuh sesi kasir yang terbuka di perangkat ini.';
+
+  @override
+  String get purchaseErrNotEditable =>
+      'Pembelian ini sudah diterima dan tidak bisa diubah.';
+
+  @override
+  String get purchaseErrNotFound => 'Pembelian tidak ditemukan.';
+
+  @override
+  String get purchaseErrNotPermitted =>
+      'Anda tidak punya izin mengelola pembelian.';
+
+  @override
+  String get purchaseErrGeneric => 'Pembelian gagal disimpan. Coba lagi.';
+
+  @override
+  String purchaseFrom(String supplier) {
+    return 'Pembelian dari $supplier';
+  }
+
+  @override
+  String get purchaseBadgePaid => 'Lunas';
+
+  @override
+  String get purchaseBadgeDebt => 'Belum lunas · hutang';
+
+  @override
+  String get purchaseCreatedBy => 'Dibuat oleh';
+
+  @override
+  String get purchaseReceivedTitle => 'Barang diterima';
+
+  @override
+  String purchaseReceivedSubtitle(String location) {
+    return 'Stok $location bertambah lewat ledger saat pembelian disimpan';
+  }
+
+  @override
+  String get purchaseColAvgCost => 'HPP rata-rata';
+
+  @override
+  String get purchaseColSellPrice => 'Harga jual';
+
+  @override
+  String get purchaseColSuggested => 'Saran jual';
+
+  @override
+  String get purchaseColChangePrice => 'Ubah harga';
+
+  @override
+  String get purchaseBelowSuggested => 'Di bawah saran';
+
+  @override
+  String get purchaseSafe => 'Aman';
+
+  @override
+  String purchaseApplyPrices(int count) {
+    return 'Terapkan harga jual ($count produk)';
+  }
+
+  @override
+  String get purchasePricesApplied => 'Harga jual diperbarui.';
+
+  @override
+  String get purchaseAvgCostNote =>
+      'HPP memakai rata-rata tertimbang (moving average) dalam satuan dasar. Saran jual menjaga margin harga jual saat barang diterima. Centang \"Ubah harga\" lalu Terapkan harga jual.';
+
+  @override
+  String get purchaseSummary => 'Ringkasan';
+
+  @override
+  String get purchasePaidSoFar => 'Sudah dibayar';
+
+  @override
+  String get purchaseReturned => 'Diretur';
+
+  @override
+  String get purchaseDebt => 'Sisa hutang';
+
+  @override
+  String purchaseDueIn(String date, int days) {
+    return 'Jatuh tempo $date ($days hari lagi).';
+  }
+
+  @override
+  String purchaseDueToday(String date) {
+    return 'Jatuh tempo $date (hari ini).';
+  }
+
+  @override
+  String purchaseOverdue(String date, int days) {
+    return 'Jatuh tempo $date (lewat $days hari).';
+  }
+
+  @override
+  String get purchasePayments => 'Pembayaran';
+
+  @override
+  String get purchasePaymentDate => 'Tanggal';
+
+  @override
+  String get purchasePaymentDesc => 'Keterangan';
+
+  @override
+  String get purchasePaymentFrom => 'Dari';
+
+  @override
+  String get purchasePaymentAmount => 'Jumlah';
+
+  @override
+  String get purchaseDownPayment => 'Bayar di muka';
+
+  @override
+  String purchaseReturnReduction(String number) {
+    return 'Retur $number (pengurang hutang)';
+  }
+
+  @override
+  String purchaseReturnRefund(String number) {
+    return 'Retur $number (uang kembali)';
+  }
+
+  @override
+  String get purchaseNoPayments => 'Belum ada pembayaran.';
+
+  @override
+  String get purchasePayDebt => 'Bayar hutang';
+
+  @override
+  String get purchasePayDebtLater =>
+      'Pelunasan hutang menyusul di modul Supplier & hutang.';
+
+  @override
+  String get purchaseActions => 'Tindakan';
+
+  @override
+  String get purchaseReturnAction => 'Retur pembelian';
+
+  @override
+  String get purchaseReturnActionNote =>
+      'Membuat dokumen RB-… yang mengurangi stok & hutang. Pembelian yang sudah diterima tidak bisa dihapus, hanya diretur.';
+
+  @override
+  String get purchaseReturnTitle => 'Retur pembelian';
+
+  @override
+  String purchaseReturnRemaining(String qty) {
+    return 'Sisa $qty';
+  }
+
+  @override
+  String get purchaseReturnQty => 'Qty retur';
+
+  @override
+  String get purchaseReturnNote => 'Catatan retur';
+
+  @override
+  String get purchaseRefundTo => 'Uang kembali ke';
+
+  @override
+  String purchaseReturnSplit(String debt, String refund) {
+    return 'Mengurangi hutang $debt · uang kembali $refund';
+  }
+
+  @override
+  String purchaseReturnSubmit(String amount) {
+    return 'Proses retur · $amount';
+  }
+
+  @override
+  String get purchaseReturnCancel => 'Batal';
+
+  @override
+  String get purchaseReturnErrEmpty => 'Isi qty retur minimal satu barang.';
+
+  @override
+  String get purchaseReturnErrQty => 'Qty retur melebihi sisa.';
+
+  @override
+  String get purchaseReturnErrStock =>
+      'Stok di lokasi pembelian tidak cukup untuk diretur.';
+
+  @override
+  String get purchaseReturnErrRefund => 'Pilih ke mana uang kembali.';
+
+  @override
+  String get purchaseReturnErrStatus =>
+      'Hanya pembelian yang sudah diterima yang bisa diretur.';
+
+  @override
+  String purchaseReturnDone(String number) {
+    return 'Retur $number tercatat.';
+  }
+
+  @override
+  String get purchaseReturnsMade => 'Retur yang sudah dibuat';
+
+  @override
+  String get purchaseDetailLoadFailed => 'Detail pembelian gagal dimuat.';
 }
