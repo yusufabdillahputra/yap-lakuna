@@ -10,6 +10,8 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import 'cashier_view.dart' show cashierKeepsFocus;
 import 'cashier_view_model.dart';
+import 'qris_panel.dart';
+import 'split_panel.dart';
 
 /// Nama metode bayar untuk layar dan struk.
 String paymentMethodLabel(AppLocalizations l10n, PaymentMethod method) =>
@@ -17,7 +19,7 @@ String paymentMethodLabel(AppLocalizations l10n, PaymentMethod method) =>
       PaymentMethod.cash => l10n.paymentCash,
       PaymentMethod.card => l10n.paymentCard,
       PaymentMethod.transfer => l10n.paymentTransfer,
-      PaymentMethod.qrisStatic => 'QRIS',
+      PaymentMethod.qrisStatic => l10n.paymentQris,
     };
 
 /// Pesan galat simpan pembayaran.
@@ -26,6 +28,11 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       CashSessionNotOpen() => l10n.paymentErrorSession,
       SaleItemUnavailable() => l10n.paymentErrorUnavailable,
       SalePaymentShort() => l10n.paymentErrorShort,
+      SalePaymentUnsupported() => l10n.paymentErrorQrisOff,
+      SalePaymentUnconfirmed() => l10n.paymentErrorUnconfirmed,
+      SalePaymentInvalid() => l10n.paymentErrorSplit,
+      NotPermitted(permission: Permission.paymentsConfirm) =>
+        l10n.paymentErrorConfirmPermission,
       NotPermitted() => l10n.paymentErrorPermission,
       _ => l10n.paymentErrorGeneric,
     };
@@ -36,7 +43,10 @@ String _plain(BuildContext context, int value) => groupThousands(
   Localizations.localeOf(context).languageCode == 'en' ? ',' : '.',
 );
 
-TextStyle _tabular(TextStyle style) =>
+TextStyle _tabular(TextStyle style) => tabularFigures(style);
+
+/// Angka rata lebar (nominal, struk).
+TextStyle tabularFigures(TextStyle style) =>
     style.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
 
 /// Judul halaman dengan tombol kembali opsional.
@@ -107,9 +117,9 @@ class _StageHeader extends StatelessWidget {
   }
 }
 
-/// Kartu putih berbingkai.
-class _Panel extends StatelessWidget {
-  const _Panel({required this.child, this.panelKey});
+/// Kartu putih berbingkai di layar bayar.
+class PaymentPanel extends StatelessWidget {
+  const PaymentPanel({super.key, required this.child, this.panelKey});
 
   final Widget child;
   final Key? panelKey;
@@ -150,9 +160,15 @@ class PaymentView extends StatelessWidget {
       backLabel: l10n.paymentBack,
     );
     final methods = _MethodChoice(viewModel: vm, compact: narrow);
-    final detail = vm.method == PaymentMethod.cash
-        ? _CashPanel(viewModel: vm, compact: narrow)
-        : _ReferencePanel(key: ValueKey(vm.method), viewModel: vm);
+    final detail = switch (vm.mode) {
+      PayMode.cash => _CashPanel(viewModel: vm, compact: narrow),
+      PayMode.card || PayMode.transfer => _ReferencePanel(
+        key: ValueKey(vm.mode),
+        viewModel: vm,
+      ),
+      PayMode.qris => QrisPanel(viewModel: vm, compact: narrow),
+      PayMode.split => SplitPanel(viewModel: vm),
+    };
     final error = vm.error;
     final errorAlert = error == null
         ? null
@@ -161,7 +177,9 @@ class PaymentView extends StatelessWidget {
             variant: .destructive,
             title: Text(paymentErrorMessage(l10n, error)),
           );
-    final finish = _FinishButton(viewModel: vm);
+    final finish = vm.mode == PayMode.qris
+        ? QrisActions(viewModel: vm)
+        : _FinishButton(viewModel: vm);
 
     if (narrow) {
       return Column(
@@ -184,7 +202,7 @@ class PaymentView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 10,
               children: [
-                if (vm.method == PaymentMethod.cash) _ChangeBox(viewModel: vm),
+                if (vm.mode == PayMode.cash) _ChangeBox(viewModel: vm),
                 finish,
               ],
             ),
@@ -227,16 +245,28 @@ class _MethodChoice extends StatelessWidget {
   final CashierViewModel viewModel;
   final bool compact;
 
-  static const _methods = [
-    (PaymentMethod.cash, TablerIcons.cash),
-    (PaymentMethod.card, TablerIcons.creditCard),
-    (PaymentMethod.transfer, TablerIcons.buildingBank),
-  ];
+  static IconData _icon(PayMode m) => switch (m) {
+    PayMode.cash => TablerIcons.cash,
+    PayMode.card => TablerIcons.creditCard,
+    PayMode.transfer => TablerIcons.buildingBank,
+    PayMode.qris => TablerIcons.qrcode,
+    PayMode.split => TablerIcons.arrowsSplit2,
+  };
 
-  String _hint(AppLocalizations l10n, PaymentMethod m) => switch (m) {
-    PaymentMethod.cash => l10n.paymentCashHint,
-    PaymentMethod.card => l10n.paymentCardHint,
-    _ => l10n.paymentTransferHint,
+  static String _label(AppLocalizations l10n, PayMode m) => switch (m) {
+    PayMode.cash => l10n.paymentCash,
+    PayMode.card => l10n.paymentCard,
+    PayMode.transfer => l10n.paymentTransfer,
+    PayMode.qris => l10n.paymentQris,
+    PayMode.split => l10n.paymentSplit,
+  };
+
+  static String _hint(AppLocalizations l10n, PayMode m) => switch (m) {
+    PayMode.cash => l10n.paymentCashHint,
+    PayMode.card => l10n.paymentCardHint,
+    PayMode.transfer => l10n.paymentTransferHint,
+    PayMode.qris => l10n.paymentQrisHint,
+    PayMode.split => l10n.paymentSplitHint,
   };
 
   @override
@@ -244,13 +274,21 @@ class _MethodChoice extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final vm = viewModel;
-    Widget card(PaymentMethod m, IconData icon) {
-      final selected = vm.method == m;
+    final modes = [
+      PayMode.cash,
+      PayMode.card,
+      PayMode.transfer,
+      if (vm.qris != null) PayMode.qris,
+      PayMode.split,
+    ];
+    Widget card(PayMode m) {
+      final selected = vm.mode == m;
+      final icon = _icon(m);
       return FTappable(
         key: ValueKey('payment-method-${m.name}'),
-        semanticsLabel: paymentMethodLabel(l10n, m),
+        semanticsLabel: _label(l10n, m),
         selected: selected,
-        onPress: vm.pay.running ? null : () => vm.setMethod(m),
+        onPress: vm.pay.running ? null : () => vm.setMode(m),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: selected
@@ -270,7 +308,7 @@ class _MethodChoice extends StatelessWidget {
                     children: [
                       Icon(icon, size: 20, color: theme.colors.primary),
                       Text(
-                        paymentMethodLabel(l10n, m),
+                        _label(l10n, m),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -289,7 +327,7 @@ class _MethodChoice extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              paymentMethodLabel(l10n, m),
+                              _label(l10n, m),
                               style: theme.typography.body.sm.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
@@ -317,18 +355,24 @@ class _MethodChoice extends StatelessWidget {
     }
 
     if (compact) {
-      return Row(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final (m, icon) in _methods) Expanded(child: card(m, icon)),
-        ],
+      // Tiga kartu per baris agar label tetap terbaca di ponsel.
+      return LayoutBuilder(
+        builder: (context, c) {
+          final width = (c.maxWidth - 16) / 3;
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final m in modes) SizedBox(width: width, child: card(m)),
+            ],
+          );
+        },
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
-      children: [for (final (m, icon) in _methods) card(m, icon)],
+      children: [for (final m in modes) card(m)],
     );
   }
 }
@@ -392,7 +436,7 @@ class _CashPanelState extends State<_CashPanel> {
     final total = vm.totals.total;
     final quick = vm.quickAmounts;
     const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0'];
-    return _Panel(
+    return PaymentPanel(
       panelKey: const ValueKey('payment-cash'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -566,15 +610,16 @@ class _ReferencePanel extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final vm = viewModel;
-    final card = vm.method == PaymentMethod.card;
-    return _Panel(
+    final method = vm.method!;
+    final card = method == PaymentMethod.card;
+    return PaymentPanel(
       panelKey: const ValueKey('payment-noncash'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 14,
         children: [
           Text(
-            paymentMethodLabel(l10n, vm.method),
+            paymentMethodLabel(l10n, method),
             style: theme.typography.display.lg.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -647,8 +692,11 @@ class SuccessView extends StatelessWidget {
     final result = vm.result!;
     final data = vm.data!;
     final sale = result.sale;
-    final payment = result.payment;
-    final cash = payment.method == PaymentMethod.cash;
+    final payments = result.payments;
+    final cash = payments.any((p) => p.method == PaymentMethod.cash);
+    final methodText = payments.length == 1
+        ? paymentMethodLabel(l10n, payments.single.method)
+        : l10n.paymentSplitSummary(payments.length);
 
     final summary = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -684,8 +732,8 @@ class SuccessView extends StatelessWidget {
                   ),
                   Text(
                     l10n.successDetail(
-                      paymentMethodLabel(l10n, payment.method),
-                      formatMoney(context, Money(payment.amount)),
+                      methodText,
+                      formatMoney(context, Money(sale.total)),
                       formatClock(sale.soldAt, data.timezone),
                       data.staffName,
                     ),
@@ -699,7 +747,7 @@ class SuccessView extends StatelessWidget {
           ],
         ),
         if (cash)
-          _Panel(
+          PaymentPanel(
             child: Row(
               children: [
                 Expanded(
@@ -711,7 +759,7 @@ class SuccessView extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  formatMoney(context, Money(payment.changeAmount)),
+                  formatMoney(context, Money(sale.changeAmount)),
                   key: const ValueKey('success-change'),
                   style: _tabular(
                     theme.typography.display.xl2.copyWith(
@@ -856,7 +904,6 @@ class _ReceiptPreview extends StatelessWidget {
     );
     final bold = base.copyWith(fontWeight: FontWeight.w700);
     final sale = result.sale;
-    final payment = result.payment;
     final local = outletLocalTime(sale.soldAt, data.timezone);
     String two(int n) => n.toString().padLeft(2, '0');
     final date =
@@ -932,12 +979,13 @@ class _ReceiptPreview extends StatelessWidget {
           ],
           rule(),
           pair(l10n.receiptTotal, _plain(context, sale.total), style: bold),
-          pair(
-            paymentMethodLabel(l10n, payment.method),
-            _plain(context, payment.amount),
-          ),
-          if (payment.method == PaymentMethod.cash)
-            pair(l10n.receiptChange, _plain(context, payment.changeAmount)),
+          for (final payment in result.payments)
+            pair(
+              paymentMethodLabel(l10n, payment.method),
+              _plain(context, payment.amount),
+            ),
+          if (result.payments.any((p) => p.method == PaymentMethod.cash))
+            pair(l10n.receiptChange, _plain(context, sale.changeAmount)),
           rule(),
           Text(l10n.receiptThanks, textAlign: TextAlign.center, style: base),
         ],

@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/ui/cashier/cashier_view_model.dart';
 
 import '../../testing/cashier_seed.dart';
@@ -138,11 +141,11 @@ void main() {
     await vm.pay.execute();
     expect(vm.stage, CashierStage.done);
     expect(vm.result!.sale.number, 'PST-K01-261103-0001');
-    expect(vm.result!.payment.changeAmount, 27500);
+    expect(vm.result!.payments.single.changeAmount, 27500);
     expect(vm.cartIsEmpty, isTrue);
-    final (lines, payment) = repo.checkouts.single;
+    final (lines, payments) = repo.checkouts.single;
     expect(lines.single.quantity, Qty.one);
-    expect(payment.received, const Money(100000));
+    expect(payments.single.amount, const Money(100000));
 
     vm.newTransaction();
     expect(vm.stage, CashierStage.browse);
@@ -161,20 +164,21 @@ void main() {
   test('kartu: jumlah = total, no. approval ikut', () async {
     vm.scan('KOP');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.card);
+    vm.setMode(PayMode.card);
     expect(vm.canPay, isTrue);
     vm.setReference('004512');
     await vm.pay.execute();
-    final (_, payment) = repo.checkouts.single;
-    expect(payment.method, PaymentMethod.card);
-    expect(payment.reference, '004512');
-    expect(vm.result!.payment.changeAmount, 0);
+    final (_, payments) = repo.checkouts.single;
+    expect(payments.single.method, PaymentMethod.card);
+    expect(payments.single.reference, '004512');
+    expect(payments.single.amount, isNull);
+    expect(vm.result!.payments.single.changeAmount, 0);
   });
 
   test('referensi terlalu panjang mematikan tombol bayar', () {
     vm.scan('KOP');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.transfer);
+    vm.setMode(PayMode.transfer);
     vm.setReference('x' * 41);
     expect(vm.referenceTooLong, isTrue);
     expect(vm.canPay, isFalse);
@@ -192,7 +196,7 @@ void main() {
     vm.scan('KOP');
     vm.scan('KOP');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.card);
+    vm.setMode(PayMode.card);
     await vm.pay.execute();
     expect(vm.result!.negativeStock.single.name, 'Kopi Sachet');
   });
@@ -200,7 +204,7 @@ void main() {
   test('galat simpan ditampilkan dan keranjang utuh', () async {
     vm.scan('KOP');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.card);
+    vm.setMode(PayMode.card);
     repo.sessionOpen = false;
     await vm.pay.execute();
     expect(vm.stage, CashierStage.pay);
@@ -217,7 +221,7 @@ void main() {
   test('setelah transaksi, katalog dimuat ulang untuk stok terbaru', () async {
     vm.scan('KOP');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.card);
+    vm.setMode(PayMode.card);
     final before = repo.loadCalls;
     await vm.pay.execute();
     vm.newTransaction();
@@ -228,7 +232,7 @@ void main() {
   test('id varian dan satuan dikirim ke checkout', () async {
     vm.scan('8991234500031');
     vm.startPayment();
-    vm.setMethod(PaymentMethod.card);
+    vm.setMode(PayMode.card);
     await vm.pay.execute();
     final (lines, _) = repo.checkouts.single;
     final minyak = product('Minyak Goreng').variants.single;
@@ -241,5 +245,140 @@ void main() {
     vm.scan('KOP');
     expect(vm.lines.single.key, isA<int>());
     expect(vm.lines.single.variant.id, isA<UuidValue>());
+  });
+
+  group('QRIS statis', () {
+    final sticker = CashierQris(
+      image: Uint8List.fromList(const [1, 2, 3]),
+      merchantName: 'WARUNG CONTOH',
+    );
+
+    test('tanpa QRIS aktif: mode QRIS tidak bisa dipilih', () {
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.setMode(PayMode.qris);
+      expect(vm.mode, PayMode.cash);
+      expect(vm.splitMethods, isNot(contains(PaymentMethod.qrisStatic)));
+    });
+
+    test('Sudah Terbayar menyimpan QRIS terkonfirmasi', () async {
+      repo.qris = sticker;
+      await vm.load.execute();
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.setMode(PayMode.qris);
+      expect(vm.mode, PayMode.qris);
+      expect(vm.canPay, isFalse); // bukan tombol Selesaikan
+      expect(vm.canConfirmQris, isTrue);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+      final payment = repo.checkouts.single.$2.single;
+      expect(payment.method, PaymentMethod.qrisStatic);
+      expect(payment.confirmed, isTrue);
+    });
+
+    test('Belum masuk kembali ke tunai tanpa menyimpan', () {
+      repo.qris = sticker;
+      vm.load.execute();
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.setMode(PayMode.qris);
+      vm.qrisNotReceived();
+      expect(vm.mode, PayMode.cash);
+      expect(repo.checkouts, isEmpty);
+    });
+
+    test('tanpa payments:confirm tombol Sudah Terbayar mati', () async {
+      repo
+        ..qris = sticker
+        ..permissions = {Permission.salesCreate};
+      await vm.load.execute();
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.setMode(PayMode.qris);
+      expect(vm.canConfirmPayments, isFalse);
+      expect(vm.canConfirmQris, isFalse);
+    });
+  });
+
+  group('split', () {
+    setUp(() async {
+      repo.qris = CashierQris(image: Uint8List.fromList(const [1]));
+      await vm.load.execute();
+      // 3 × Kopi Sachet = Rp 6.000.
+      for (var i = 0; i < 3; i++) {
+        vm.scan('KOP');
+      }
+      vm.startPayment();
+      vm.setMode(PayMode.split);
+    });
+
+    test(
+      'tambah tunai lalu QRIS sisa; QRIS menunggu sampai dikonfirmasi',
+      () async {
+        expect(vm.totals.total, const Money(6000));
+        expect(vm.draftAmount, const Money(6000));
+        expect(vm.canPay, isFalse);
+
+        vm.setDraftAmount(const Money(2000));
+        vm.addPart();
+        expect(vm.parts.single.isCash, isTrue);
+        expect(vm.splitSettlement.remaining, const Money(4000));
+        expect(vm.draftAmount, const Money(4000));
+        expect(vm.draftMethod, PaymentMethod.card); // tunai sudah ada
+
+        vm.setDraftMethod(PaymentMethod.cash);
+        expect(vm.draftError, SplitDraftError.cashExists);
+
+        vm.setDraftMethod(PaymentMethod.qrisStatic);
+        vm.setDraftAmount(const Money(5000));
+        expect(vm.draftError, SplitDraftError.overRemaining);
+        vm.setDraftAmount(const Money(4000));
+        vm.addPart();
+        expect(vm.parts.last.isPending, isTrue);
+        expect(vm.splitSettlement.isSettled, isTrue);
+        expect(vm.draftError, SplitDraftError.settled);
+        expect(vm.hasPendingQris, isTrue);
+        expect(vm.canPay, isFalse);
+
+        vm.confirmPart(1);
+        expect(vm.canPay, isTrue);
+        await vm.pay.execute();
+        final payments = repo.checkouts.single.$2;
+        expect(payments.map((p) => p.method), [
+          PaymentMethod.cash,
+          PaymentMethod.qrisStatic,
+        ]);
+        expect(payments.map((p) => p.amount), const [Money(2000), Money(4000)]);
+        expect(payments.last.confirmed, isTrue);
+        expect(vm.result!.payments, hasLength(2));
+      },
+    );
+
+    test('tunai lebih memberi kembalian; hapus bagian mengembalikan sisa', () {
+      vm.setDraftMethod(PaymentMethod.card);
+      vm.setDraftAmount(const Money(1000));
+      vm.addPart();
+      vm.setDraftMethod(PaymentMethod.cash);
+      vm.setDraftAmount(const Money(10000));
+      vm.addPart();
+      expect(vm.splitSettlement.change, const Money(5000));
+      expect(vm.canPay, isTrue);
+
+      vm.removePart(0);
+      expect(vm.splitSettlement.remaining, Money.zero);
+      expect(vm.splitSettlement.change, const Money(4000));
+      vm.removePart(0);
+      expect(vm.parts, isEmpty);
+      expect(vm.draftAmount, const Money(6000));
+    });
+
+    test('masuk lagi ke tahap bayar mengosongkan bagian', () {
+      vm.addPart();
+      vm.backToCart();
+      vm.startPayment();
+      expect(vm.parts, isEmpty);
+      expect(vm.mode, PayMode.cash);
+    });
   });
 }

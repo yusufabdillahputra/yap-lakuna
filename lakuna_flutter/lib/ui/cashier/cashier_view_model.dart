@@ -11,6 +11,43 @@ import '../products/product_list_view_model.dart' show productMatches;
 /// Tahap layar kasir: memilih barang, membayar, atau nota selesai.
 enum CashierStage { browse, pay, done }
 
+/// Pilihan di layar bayar: satu metode, atau bagi beberapa metode.
+enum PayMode { cash, card, transfer, qris, split }
+
+/// Satu bagian split payment. QRIS menunggu *Sudah Terbayar*.
+@immutable
+class SplitPart {
+  const SplitPart({
+    required this.method,
+    required this.amount,
+    this.confirmed = false,
+  });
+
+  final PaymentMethod method;
+  final Money amount;
+
+  /// QRIS sudah dikonfirmasi; metode lain selalu dianggap diterima.
+  final bool confirmed;
+
+  bool get isCash => method == PaymentMethod.cash;
+  bool get isPending => method == PaymentMethod.qrisStatic && !confirmed;
+}
+
+/// Alasan bagian split belum bisa ditambah.
+enum SplitDraftError {
+  /// Nominal nol.
+  empty,
+
+  /// Sudah ada bagian tunai.
+  cashExists,
+
+  /// Non-tunai melebihi sisa (kembalian hanya dari tunai).
+  overRemaining,
+
+  /// Sudah lunas.
+  settled,
+}
+
 /// Hasil [CashierViewModel.scan].
 enum ScanOutcome { added, unknown, empty }
 
@@ -102,9 +139,12 @@ class CashierViewModel extends ChangeNotifier {
   var _nextKey = 0;
 
   CashierStage _stage = CashierStage.browse;
-  PaymentMethod _method = PaymentMethod.cash;
+  PayMode _mode = PayMode.cash;
   Money _received = Money.zero;
   String _reference = '';
+  final _parts = <SplitPart>[];
+  PaymentMethod _draftMethod = PaymentMethod.cash;
+  Money? _draftAmount;
   CheckoutResult? _result;
   Exception? _error;
 
@@ -320,10 +360,26 @@ class CashierViewModel extends ChangeNotifier {
   // --- Bayar ---------------------------------------------------------------
 
   CashierStage get stage => _stage;
-  PaymentMethod get method => _method;
+  PayMode get mode => _mode;
+
+  /// Metode untuk [mode] satu metode; `null` saat split.
+  PaymentMethod? get method => switch (_mode) {
+    PayMode.cash => PaymentMethod.cash,
+    PayMode.card => PaymentMethod.card,
+    PayMode.transfer => PaymentMethod.transfer,
+    PayMode.qris => PaymentMethod.qrisStatic,
+    PayMode.split => null,
+  };
+
   Money get received => _received;
   String get reference => _reference;
   CheckoutResult? get result => _result;
+
+  /// QRIS statis cabang; `null` bila nonaktif.
+  CashierQris? get qris => _data?.qris;
+
+  /// Staf boleh menekan *Sudah Terbayar*.
+  bool get canConfirmPayments => _data?.canConfirmPayments ?? false;
 
   /// Galat simpan terakhir (sesi tertutup, produk tidak tersedia, dll.).
   Exception? get error => _error;
@@ -341,18 +397,31 @@ class CashierViewModel extends ChangeNotifier {
 
   bool get referenceTooLong => validatePaymentReference(_reference) != null;
 
+  /// *Selesaikan pembayaran* aktif. QRIS tunggal memakai *Sudah Terbayar*
+  /// ([canConfirmQris]), bukan tombol ini.
   bool get canPay =>
       !cartIsEmpty &&
       !pay.running &&
-      !referenceTooLong &&
-      (_method != PaymentMethod.cash || change != null);
+      switch (_mode) {
+        PayMode.cash => change != null,
+        PayMode.card || PayMode.transfer => !referenceTooLong,
+        PayMode.qris => false,
+        PayMode.split => splitSettlement.isSettled && !hasPendingQris,
+      };
+
+  /// *Sudah Terbayar* untuk QRIS tunggal aktif.
+  bool get canConfirmQris =>
+      !cartIsEmpty && !pay.running && qris != null && canConfirmPayments;
 
   void startPayment() {
     if (cartIsEmpty) return;
     _stage = CashierStage.pay;
-    _method = PaymentMethod.cash;
+    _mode = PayMode.cash;
     _received = Money.zero;
     _reference = '';
+    _parts.clear();
+    _draftMethod = PaymentMethod.cash;
+    _draftAmount = null;
     _error = null;
     notifyListeners();
   }
@@ -364,11 +433,18 @@ class CashierViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setMethod(PaymentMethod m) {
-    _method = m;
+  void setMode(PayMode m) {
+    if (m == PayMode.qris && qris == null) return;
+    _mode = m;
     _reference = '';
     _error = null;
     notifyListeners();
+  }
+
+  /// *Belum masuk* di QRIS tunggal: kembali ke tunai tanpa menyimpan.
+  void qrisNotReceived() {
+    if (pay.running) return;
+    setMode(PayMode.cash);
   }
 
   void setReceived(Money m) {
@@ -394,6 +470,104 @@ class CashierViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Split -------------------------------------------------------------
+
+  List<SplitPart> get parts => List.unmodifiable(_parts);
+
+  Settlement get splitSettlement => settleTender(totals.total, [
+    for (final p in _parts) TenderPart(p.amount, isCash: p.isCash),
+  ]);
+
+  bool get hasPendingQris => _parts.any((p) => p.isPending);
+
+  /// Metode yang bisa dipilih di form tambah bagian.
+  List<PaymentMethod> get splitMethods => [
+    PaymentMethod.cash,
+    PaymentMethod.card,
+    PaymentMethod.transfer,
+    if (qris != null) PaymentMethod.qrisStatic,
+  ];
+
+  PaymentMethod get draftMethod => _draftMethod;
+
+  /// Nominal bagian baru; bawaan = sisa.
+  Money get draftAmount => _draftAmount ?? splitSettlement.remaining;
+
+  SplitDraftError? get draftError {
+    final settlement = splitSettlement;
+    if (_parts.isNotEmpty && settlement.remaining == Money.zero) {
+      return SplitDraftError.settled;
+    }
+    final amount = draftAmount;
+    if (amount <= Money.zero) return SplitDraftError.empty;
+    if (_draftMethod == PaymentMethod.cash) {
+      return _parts.any((p) => p.isCash) ? SplitDraftError.cashExists : null;
+    }
+    return amount > settlement.remaining ? SplitDraftError.overRemaining : null;
+  }
+
+  void setDraftMethod(PaymentMethod m) {
+    _draftMethod = m;
+    notifyListeners();
+  }
+
+  void setDraftAmount(Money m) {
+    _draftAmount = m;
+    notifyListeners();
+  }
+
+  /// *Tambah metode*. QRIS masuk sebagai menunggu konfirmasi.
+  void addPart() {
+    if (pay.running || draftError != null) return;
+    _parts.add(SplitPart(method: _draftMethod, amount: draftAmount));
+    _draftAmount = null;
+    _draftMethod = _parts.any((p) => p.isCash)
+        ? PaymentMethod.card
+        : PaymentMethod.cash;
+    _error = null;
+    notifyListeners();
+  }
+
+  void removePart(int index) {
+    if (pay.running) return;
+    _parts.removeAt(index);
+    _draftAmount = null;
+    notifyListeners();
+  }
+
+  /// *Sudah Terbayar* untuk bagian QRIS [index].
+  void confirmPart(int index) {
+    if (pay.running || !canConfirmPayments) return;
+    final p = _parts[index];
+    _parts[index] = SplitPart(
+      method: p.method,
+      amount: p.amount,
+      confirmed: true,
+    );
+    notifyListeners();
+  }
+
+  List<SalePaymentRequest> _payments() => switch (_mode) {
+    PayMode.cash => [SalePaymentRequest.cash(_received)],
+    PayMode.card => [
+      SalePaymentRequest(method: PaymentMethod.card, reference: _reference),
+    ],
+    PayMode.transfer => [
+      SalePaymentRequest(method: PaymentMethod.transfer, reference: _reference),
+    ],
+    PayMode.qris => const [
+      SalePaymentRequest(method: PaymentMethod.qrisStatic, confirmed: true),
+    ],
+    PayMode.split => [
+      for (final p in _parts)
+        SalePaymentRequest(
+          method: p.method,
+          amount: p.amount,
+          confirmed: p.confirmed,
+        ),
+    ],
+  };
+
   Future<Result<CheckoutResult>> _pay() async {
     _error = null;
     final result = await _repository.checkout(
@@ -405,11 +579,7 @@ class CashierViewModel extends ChangeNotifier {
             quantity: i.quantity,
           ),
       ],
-      payment: SalePaymentRequest(
-        method: _method,
-        received: _method == PaymentMethod.cash ? _received : null,
-        reference: _reference,
-      ),
+      payments: _payments(),
     );
     switch (result) {
       case Ok(:final value):

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 
@@ -18,6 +20,26 @@ class CashierSession {
   final String openedByName;
 }
 
+/// QRIS statis cabang yang ditampilkan di layar bayar (1.6 / 1.6m).
+class CashierQris {
+  const CashierQris({
+    required this.image,
+    this.merchantName = '',
+    this.nmid = '',
+    this.terminalCode = '',
+    this.settlementNote = '',
+  });
+
+  /// Stiker utuh (PNG/JPG/WebP).
+  final Uint8List image;
+  final String merchantName;
+  final String nmid;
+  final String terminalCode;
+
+  /// *Dana masuk ke*.
+  final String settlementNote;
+}
+
 /// Isi layar kasir: produk yang bisa dijual, kategorinya, dan sesi kasir.
 class CashierData {
   const CashierData({
@@ -28,6 +50,8 @@ class CashierData {
     required this.staffName,
     this.timezone,
     this.session,
+    this.qris,
+    this.canConfirmPayments = false,
   });
 
   /// Produk aktif dengan minimal satu varian, urut nama.
@@ -46,6 +70,12 @@ class CashierData {
 
   /// `null` bila perangkat belum membuka sesi kasir.
   final CashierSession? session;
+
+  /// `null` bila QRIS statis nonaktif atau gambarnya belum ada.
+  final CashierQris? qris;
+
+  /// Staf boleh menekan *Sudah Terbayar* (`payments:confirm`).
+  final bool canConfirmPayments;
 }
 
 /// Kasir retail dan pembayaran (F1-04/F1-05). Izin `sales:create` dicek di
@@ -55,11 +85,12 @@ abstract class CashierRepository {
   /// Gagal dengan `NotPermitted` atau `StoreNotReady`.
   Future<Result<CashierData>> load();
 
-  /// Menyimpan penjualan. Gagal dengan `NotPermitted`, `CashSessionNotOpen`,
-  /// `SaleItemUnavailable`, `SalePaymentShort`, atau galat input lain dari
-  /// `checkoutSale`.
+  /// Menyimpan penjualan dengan satu atau beberapa pembayaran. Gagal
+  /// dengan `NotPermitted` (termasuk QRIS tanpa `payments:confirm`),
+  /// `CashSessionNotOpen`, `SaleItemUnavailable`, `SalePaymentShort`, atau
+  /// galat input lain dari `checkoutSale`.
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
-    required SalePaymentRequest payment,
+    required List<SalePaymentRequest> payments,
   });
 }

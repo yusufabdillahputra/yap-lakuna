@@ -1143,4 +1143,262 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get paymentErrorPermission =>
       'Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer.';
+
+  @override
+  String get paymentQris => 'QRIS statis';
+
+  @override
+  String get paymentQrisHint => 'Konfirmasi manual';
+
+  @override
+  String get paymentSplit => 'Bagi beberapa metode';
+
+  @override
+  String get paymentSplitHint => 'Split payment';
+
+  @override
+  String paymentSplitSummary(int count) {
+    return 'Split · $count metode';
+  }
+
+  @override
+  String get paymentErrorQrisOff =>
+      'QRIS statis tidak aktif di cabang ini. Pilih metode lain.';
+
+  @override
+  String get paymentErrorUnconfirmed =>
+      'QRIS belum dikonfirmasi Sudah Terbayar.';
+
+  @override
+  String get paymentErrorSplit =>
+      'Pembagian pembayaran tidak sah. Periksa nominal tiap metode.';
+
+  @override
+  String get paymentErrorConfirmPermission =>
+      'Anda tidak punya izin konfirmasi pembayaran QRIS. Minta supervisor.';
+
+  @override
+  String get qrisPending => 'Menunggu konfirmasi kasir';
+
+  @override
+  String get qrisInstruction => 'Scan QRIS, ketik nominal persis';
+
+  @override
+  String qrisSettlement(String target) {
+    return 'Dana masuk ke: $target';
+  }
+
+  @override
+  String get qrisStep1 => 'Tunjukkan stiker QRIS ke pelanggan.';
+
+  @override
+  String qrisStep2(String amount) {
+    return 'Pelanggan scan dan mengetik nominal $amount.';
+  }
+
+  @override
+  String get qrisStep3 => 'Cek notifikasi atau mutasi dana masuk.';
+
+  @override
+  String get qrisStep4 => 'Tekan Sudah Terbayar bila dana sudah masuk.';
+
+  @override
+  String get qrisWarning =>
+      'Jangan konfirmasi dari tangkapan layar pelanggan saja. Pastikan dana benar-benar masuk.';
+
+  @override
+  String get qrisEnlarge => 'Perbesar gambar QRIS';
+
+  @override
+  String get qrisTapFullscreen => 'Ketuk gambar untuk layar penuh';
+
+  @override
+  String get qrisImageLabel => 'Stiker QRIS statis toko';
+
+  @override
+  String get qrisClose => 'Tutup';
+
+  @override
+  String get qrisNotReceived => 'Belum masuk';
+
+  @override
+  String get qrisPaid => 'Sudah Terbayar';
+
+  @override
+  String get qrisNoPermission =>
+      'Butuh izin konfirmasi pembayaran (payments:confirm).';
+
+  @override
+  String get splitTitle => 'Split payment';
+
+  @override
+  String get splitHint => 'Contoh: sebagian tunai, sisa QRIS atau kartu.';
+
+  @override
+  String get splitAmount => 'Nominal';
+
+  @override
+  String get splitAdd => 'Tambah metode';
+
+  @override
+  String get splitRemove => 'Hapus';
+
+  @override
+  String get splitConfirm => 'Konfirmasi';
+
+  @override
+  String get splitReceived => 'Diterima';
+
+  @override
+  String get splitPending => 'Menunggu';
+
+  @override
+  String get splitRemaining => 'Sisa';
+
+  @override
+  String get splitCashExists => 'Tunai sudah ada. Hapus dulu untuk mengubah.';
+
+  @override
+  String get splitOverRemaining => 'Melebihi sisa. Kembalian hanya dari tunai.';
+
+  @override
+  String get splitPendingNote =>
+      'Konfirmasi semua QRIS yang menunggu sebelum menyelesaikan.';
+
+  @override
+  String get settingsTitle => 'Pengaturan';
+
+  @override
+  String get settingsSectionPayments => 'Metode pembayaran';
+
+  @override
+  String get settingsSectionAppearance => 'Tampilan & bahasa';
+
+  @override
+  String settingsBranchScope(String outlet) {
+    return 'Berlaku untuk $outlet · semua perangkat cabang ini';
+  }
+
+  @override
+  String get qrisSettingsBreadcrumb => 'Metode pembayaran › QRIS statis';
+
+  @override
+  String get qrisSettingsImageTitle => 'Gambar QRIS statis';
+
+  @override
+  String get qrisSettingsImageSubtitle =>
+      'Dipakai di layar Bayar QRIS dan bisa dicetak ulang sebagai stiker meja';
+
+  @override
+  String get qrisSettingsNoImage => 'Belum ada gambar QRIS';
+
+  @override
+  String qrisSettingsFileInfo(String name, String size) {
+    return '$name · $size';
+  }
+
+  @override
+  String get qrisSettingsReplace => 'Ganti gambar QRIS';
+
+  @override
+  String get qrisSettingsUpload => 'Unggah gambar QRIS';
+
+  @override
+  String get qrisSettingsUploadHint =>
+      'Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.';
+
+  @override
+  String get qrisSettingsPick => 'Pilih file';
+
+  @override
+  String get qrisSettingsCheckTitle => 'Hasil pemeriksaan';
+
+  @override
+  String qrisSettingsPortrait(String ratio) {
+    return 'Rasio vertikal terdeteksi ($ratio). Gambar ditampilkan utuh, tidak dipotong.';
+  }
+
+  @override
+  String qrisSettingsNotPortrait(String ratio) {
+    return 'Gambar tidak vertikal ($ratio). Pastikan ini stiker QRIS utuh.';
+  }
+
+  @override
+  String qrisSettingsResolution(int width, int height) {
+    return 'Resolusi $width × $height px.';
+  }
+
+  @override
+  String qrisSettingsLowResolution(int width, int height) {
+    return 'Resolusi $width × $height px. Disarankan ≥ 1000 px lebar agar tajam di tablet.';
+  }
+
+  @override
+  String get qrisSettingsUnsupported => 'File bukan PNG, JPG, atau WebP.';
+
+  @override
+  String get qrisSettingsTooLarge => 'File lebih dari 5 MB.';
+
+  @override
+  String get qrisSettingsWholeTitle => 'Unggah stiker utuh, bukan potongan QR';
+
+  @override
+  String get qrisSettingsWholeBody =>
+      'Pakai file asli dari bank/PJP atau foto lurus seluruh stiker: header QRIS + GPN, nama merchant, NMID, kode terminal, QR, dan tulisan \"SATU QRIS UNTUK SEMUA\". Pelanggan perlu melihat nama toko untuk yakin sebelum membayar.';
+
+  @override
+  String get qrisSettingsMerchantTitle => 'Data merchant';
+
+  @override
+  String get qrisSettingsMerchantName => 'Nama merchant di QRIS';
+
+  @override
+  String get qrisSettingsNmid => 'NMID';
+
+  @override
+  String get qrisSettingsNmidHint => 'Nomor ID merchant nasional';
+
+  @override
+  String get qrisSettingsTerminal => 'Kode terminal';
+
+  @override
+  String get qrisSettingsSettlement => 'Dana masuk ke';
+
+  @override
+  String get qrisSettingsSettlementHint =>
+      'Petunjuk untuk kasir saat cek mutasi, mis. Rekening BCA 123-456-7890';
+
+  @override
+  String get qrisSettingsEnabled => 'QRIS statis aktif di kasir';
+
+  @override
+  String get qrisSettingsRequirePaid => 'Wajib tekan \"Sudah Terbayar\"';
+
+  @override
+  String get qrisSettingsRequirePaidHint =>
+      'Selalu aktif untuk QRIS statis; tidak bisa dimatikan';
+
+  @override
+  String get qrisSettingsSave => 'Simpan';
+
+  @override
+  String get qrisSettingsCancel => 'Batal';
+
+  @override
+  String get qrisSettingsSaved => 'Pengaturan QRIS tersimpan';
+
+  @override
+  String get qrisSettingsImageMissing =>
+      'Unggah gambar QRIS sebelum mengaktifkan.';
+
+  @override
+  String qrisSettingsTooLong(int max) {
+    return 'Maksimal $max karakter';
+  }
+
+  @override
+  String get qrisSettingsNmidInvalid => 'Hanya huruf dan angka, maks 20';
+
+  @override
+  String get qrisSettingsLoadError => 'Pengaturan QRIS gagal dimuat.';
 }
