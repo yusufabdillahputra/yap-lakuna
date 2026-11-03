@@ -148,7 +148,9 @@ class ProductFormViewModel extends ChangeNotifier {
   final variants = <EditableVariant>[];
 
   ProductTab _tab = ProductTab.variants;
-  int _selected = 0;
+  // `key` varian terpilih (bukan indeks) agar tidak bergeser saat baris
+  // lain dihapus.
+  int? _selectedKey;
   final _problems = <_FieldKey, FieldProblem>{};
 
   bool get isNew => _rawId == null;
@@ -169,7 +171,13 @@ class ProductFormViewModel extends ChangeNotifier {
   ProductTab get tab => _tab;
 
   /// Indeks varian yang dipilih di tab Satuan dan Harga grosir.
-  int get selectedVariant => _selected.clamp(0, variants.length - 1);
+  int get selectedVariant {
+    final i = variants.indexWhere((v) => v.key == _selectedKey);
+    return i < 0 ? 0 : i;
+  }
+
+  /// Ada galat di field mana pun (spanduk "Periksa isian").
+  bool get hasProblems => _problems.isNotEmpty;
 
   /// Saran nama kategori dan satuan dari katalog.
   List<String> get categorySuggestions => [
@@ -307,7 +315,7 @@ class ProductFormViewModel extends ChangeNotifier {
   }
 
   void selectVariant(int index) {
-    _selected = index;
+    _selectedKey = variants[index].key;
     notifyListeners();
   }
 
@@ -319,10 +327,10 @@ class ProductFormViewModel extends ChangeNotifier {
   }
 
   void removeVariant(int index) {
-    if (variants.length <= 1) return;
+    // Selama menyimpan, indeks baris dipakai untuk memetakan galat.
+    if (variants.length <= 1 || save.running) return;
     variants.removeAt(index);
     _problems.clear();
-    if (_selected >= variants.length) _selected = variants.length - 1;
     notifyListeners();
   }
 
@@ -333,7 +341,9 @@ class ProductFormViewModel extends ChangeNotifier {
     void Function(EditableVariant v) edit,
   ) {
     edit(variants[index]);
-    _clear(field, variant: variants[index].key);
+    _clear(field, variant: variants[index].key, notify: false);
+    // Judul baris, petunjuk harga satuan, dan teks bantu ikut nilai ini.
+    notifyListeners();
   }
 
   // --- Satuan konversi -----------------------------------------------------
@@ -344,6 +354,7 @@ class ProductFormViewModel extends ChangeNotifier {
   }
 
   void removeUnit(int variant, int index) {
+    if (save.running) return;
     variants[variant].units.removeAt(index);
     _problems.clear();
     notifyListeners();
@@ -357,7 +368,8 @@ class ProductFormViewModel extends ChangeNotifier {
   ) {
     final u = variants[variant].units[index];
     edit(u);
-    _clear(field, variant: variants[variant].key, unit: u.key);
+    _clear(field, variant: variants[variant].key, unit: u.key, notify: false);
+    notifyListeners();
   }
 
   // --- Harga grosir --------------------------------------------------------
@@ -368,6 +380,7 @@ class ProductFormViewModel extends ChangeNotifier {
   }
 
   void removeTier(int variant, int index) {
+    if (save.running) return;
     variants[variant].tiers.removeAt(index);
     _problems.clear();
     notifyListeners();
@@ -381,7 +394,8 @@ class ProductFormViewModel extends ChangeNotifier {
   ) {
     final t = variants[variant].tiers[index];
     edit(t);
-    _clear(field, variant: variants[variant].key, tier: t.key);
+    _clear(field, variant: variants[variant].key, tier: t.key, notify: false);
+    notifyListeners();
   }
 
   // --- Galat ---------------------------------------------------------------
@@ -420,11 +434,17 @@ class ProductFormViewModel extends ChangeNotifier {
     _ => null,
   };
 
-  void _clear(ProductField field, {int? variant, int? unit, int? tier}) {
+  void _clear(
+    ProductField field, {
+    int? variant,
+    int? unit,
+    int? tier,
+    bool notify = true,
+  }) {
     final hadField = _problems.remove((field, variant, unit, tier)) != null;
     final hadError = _error != null;
     _error = null;
-    if (hadField || hadError) notifyListeners();
+    if (notify && (hadField || hadError)) notifyListeners();
   }
 
   // --- Simpan --------------------------------------------------------------
@@ -488,6 +508,12 @@ class ProductFormViewModel extends ChangeNotifier {
     ProductTab? firstTab;
     int? firstVariant;
     for (final (issue, takenBy) in issues) {
+      final tab = _tabOf(issue.field);
+      // Tab pertama menurut urutan form, bukan urutan galat.
+      if (tab != null && (firstTab == null || tab.index < firstTab.index)) {
+        firstTab = tab;
+        firstVariant = issue.variant;
+      }
       final v = issue.variant == null ? null : variants[issue.variant!];
       final key = (
         issue.field,
@@ -500,16 +526,11 @@ class ProductFormViewModel extends ChangeNotifier {
         key,
         () => FieldProblem(issue.error, takenBy: takenBy),
       );
-      final tab = _tabOf(issue.field);
-      if (tab != null && firstTab == null) {
-        firstTab = tab;
-        firstVariant = issue.variant;
-      }
     }
     if (firstTab != null && !tabHasProblem(_tab)) {
       _tab = firstTab;
       if (firstVariant != null && firstTab != ProductTab.variants) {
-        _selected = firstVariant;
+        _selectedKey = variants[firstVariant].key;
       }
     }
   }

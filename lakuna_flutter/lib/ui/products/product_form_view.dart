@@ -155,7 +155,6 @@ class ProductFormView extends StatelessWidget {
             : l10n.productFormEditTitle(viewModel.originalName);
         final saving = viewModel.save.running;
         final error = viewModel.error;
-        final hasProblems = ProductTab.values.any(viewModel.tabHasProblem);
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -203,9 +202,7 @@ class ProductFormView extends StatelessWidget {
                   variant: .destructive,
                   title: Text(productErrorMessage(l10n, error)),
                 )
-              else if (hasProblems ||
-                  viewModel.problem(ProductField.name) != null ||
-                  viewModel.problem(ProductField.baseUnit) != null)
+              else if (viewModel.hasProblems)
                 FAlert(
                   key: const ValueKey('product-fix-errors'),
                   variant: .destructive,

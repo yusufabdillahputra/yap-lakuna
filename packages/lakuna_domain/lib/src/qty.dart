@@ -49,10 +49,13 @@ extension type const Qty(int milli) {
     final t = text.trim();
     final g = RegExp.escape(group);
     final d = RegExp.escape(decimal);
-    final match = RegExp('^(\\d{1,3}(?:$g\\d{3})+|\\d+)(?:$d(\\d{1,3}))?\$')
+    // Bagian bulat atau pecahan boleh kosong ("12," atau ",5") karena
+    // pemformat input membiarkan ketikan setengah jadi; minimal satu angka.
+    final match = RegExp('^(\\d{1,3}(?:$g\\d{3})+|\\d*)(?:$d(\\d{0,3}))?\$')
         .firstMatch(t);
     if (match == null) return null;
-    final whole = match.group(1)!.replaceAll(group, '');
+    if (match.group(1)!.isEmpty && (match.group(2) ?? '').isEmpty) return null;
+    final whole = match.group(1)!.replaceAll(group, '').padLeft(1, '0');
     final frac = (match.group(2) ?? '').padRight(3, '0');
     if (whole.length > 15) return null;
     return Qty(int.parse(whole) * 1000 + int.parse(frac));

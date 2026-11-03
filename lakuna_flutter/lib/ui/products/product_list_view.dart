@@ -676,7 +676,8 @@ class _ProductCard extends StatelessWidget {
         ? null
         : p.isLowStock && lowVariant != null
         ? l10n.productsStockMin(
-            formatQty(context, p.totalStock),
+            // Stok varian yang kurang, bukan total semua varian.
+            formatQty(context, lowVariant.stock),
             formatQty(context, lowVariant.minStock),
           )
         : l10n.productsStock(formatQty(context, p.totalStock));

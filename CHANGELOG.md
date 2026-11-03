@@ -82,6 +82,15 @@ karena kasir hanya bisa menjual barang yang ada di katalog.
   "harus lebih dari 0" alih-alih "wajib diisi" (urutan galat diperbaiki),
   dan tombol tambah baris tidak tertekan di tes karena kuncinya ada di
   pembungkus selebar kartu.
+- Temuan review sebelum rilis yang sudah diperbaiki:
+  - jumlah setengah diketik ("12," atau ",5") sempat terbaca nol sehingga
+    stok awal hilang; `Qty.tryParse` kini menerimanya;
+  - galat di beberapa tab kini membuka tab pertama menurut urutan form;
+  - varian terpilih tidak lagi bergeser saat varian lain dihapus;
+  - baris tidak bisa dihapus selama menyimpan;
+  - judul baris dan petunjuk harga satuan ikut berubah saat diketik;
+  - spanduk galat muncul untuk galat field mana pun;
+  - pil stok ponsel menampilkan stok varian yang kurang.
 - Tes baru: 28 tes domain, 19 tes data, 24 tes aplikasi (view model, alur
   widget desktop dan ponsel 320 px).
 

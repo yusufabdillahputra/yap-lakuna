@@ -181,4 +181,56 @@ void main() {
     expect(d.isActive, isFalse);
     expect(d.isTaxable, isTrue);
   });
+
+  test(
+    'galat di beberapa tab membuka tab pertama menurut urutan form',
+    () async {
+      final vm = await open();
+      vm
+        ..setName('Kopi')
+        ..setBaseUnit('sachet');
+      vm.editVariant(0, ProductField.sellPrice, (v) {
+        v.sellPrice = const Money(2000);
+        v.sku = 'X' * 41; // terlalu panjang (tab Varian)
+      });
+      vm.addTier(0);
+      vm.editTier(
+        0,
+        0,
+        ProductField.tierMinQty,
+        (t) => t.minQty = Qty.units(10),
+      );
+      vm.setTab(ProductTab.units); // harga grosir kosong = "wajib" (tab Grosir)
+
+      await vm.save.execute();
+      expect(vm.tab, ProductTab.variants);
+      expect(vm.tabHasProblem(ProductTab.tiers), isTrue);
+      expect(vm.hasProblems, isTrue);
+    },
+  );
+
+  test('varian terpilih tidak bergeser saat varian lain dihapus', () async {
+    final vm = await open();
+    vm
+      ..addVariant()
+      ..addVariant();
+    final c = vm.variants[2].key;
+    vm.selectVariant(2);
+    vm.removeVariant(0);
+    expect(vm.variants[vm.selectedVariant].key, c);
+  });
+
+  test('galat field info dasar mana pun memunculkan spanduk', () async {
+    final vm = await open();
+    vm
+      ..setName('Teh')
+      ..setBaseUnit('botol')
+      ..setBrand('M' * 61);
+    vm.editVariant(0, ProductField.sellPrice, (v) {
+      v.sellPrice = const Money(5000);
+    });
+    await vm.save.execute();
+    expect(vm.problem(ProductField.brand), isNotNull);
+    expect(vm.hasProblems, isTrue);
+  });
 }

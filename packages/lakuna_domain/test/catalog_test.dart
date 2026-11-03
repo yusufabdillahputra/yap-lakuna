@@ -116,6 +116,13 @@ void main() {
       expect(Qty.tryParse('1,2345'), isNull);
       expect(Qty.tryParse('-2'), isNull);
       expect(Qty.tryParse('abc'), isNull);
+    });
+
+    test('tryParse menerima ketikan setengah jadi dari pemformat input', () {
+      expect(Qty.tryParse('12,'), Qty.units(12));
+      expect(Qty.tryParse(',5'), const Qty(500));
+      expect(Qty.tryParse('1.250,'), Qty.units(1250));
+      expect(Qty.tryParse(','), isNull);
       expect(Qty.tryParse('1.25'), isNull);
     });
 
