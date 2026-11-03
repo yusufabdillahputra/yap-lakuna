@@ -402,7 +402,7 @@ class _ItemsCard extends StatelessWidget {
       );
     }
 
-    Widget check(PriceSuggestion? s) => s == null
+    Widget check(PriceSuggestion? s) => s == null || !vm.canEditPrices
         ? const SizedBox()
         : FCheckbox(
             key: ValueKey('purchase-change-price-${s.item.id.uuid}'),
@@ -620,18 +620,19 @@ class _ItemsCard extends StatelessWidget {
                 variant: .destructive,
                 title: Text(purchaseErrorMessage(l10n, error)),
               ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FButton(
-                key: const ValueKey('purchase-apply-prices'),
-                mainAxisSize: .min,
-                onPress: count == 0 || vm.applyPrices.running
-                    ? null
-                    : vm.applyPrices.execute,
-                prefix: const Icon(TablerIcons.check),
-                child: Flexible(child: Text(l10n.purchaseApplyPrices(count))),
+            if (vm.canEditPrices)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FButton(
+                  key: const ValueKey('purchase-apply-prices'),
+                  mainAxisSize: .min,
+                  onPress: count == 0 || vm.applyPrices.running
+                      ? null
+                      : vm.applyPrices.execute,
+                  prefix: const Icon(TablerIcons.check),
+                  child: Flexible(child: Text(l10n.purchaseApplyPrices(count))),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -1046,7 +1047,9 @@ class _ReturnCard extends StatelessWidget {
                     : null,
                 items: {
                   for (final k in FundingKind.values)
-                    fundingLabel(l10n, k): k.name,
+                    if (k != FundingKind.drawer ||
+                        (vm.setup?.canUseDrawer ?? false))
+                      fundingLabel(l10n, k): k.name,
                 },
                 control: .managed(
                   initial: vm.refundSource?.name,

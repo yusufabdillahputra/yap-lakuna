@@ -16,7 +16,7 @@ const _tabular = [FontFeature.tabularFigures()];
 const _newSupplier = '__new';
 
 /// Form di bawah lebar ini memakai satu kolom dan kartu per baris.
-const purchaseFormNarrowWidth = 560.0;
+const purchaseFormNarrowWidth = 520.0;
 
 TextStyle _muted(BuildContext context) => context.theme.typography.body.xs
     .copyWith(color: context.theme.colors.mutedForeground);
@@ -895,7 +895,11 @@ class _PaymentAndTotals extends StatelessWidget {
             key: ValueKey('purchase-funding-$gen'),
             label: Text(l10n.purchaseFundingFrom),
             items: {
-              for (final k in FundingKind.values) fundingLabel(l10n, k): k.name,
+              for (final k in FundingKind.values)
+                if (k != FundingKind.drawer ||
+                    (vm.setup?.canUseDrawer ?? false) ||
+                    vm.funding == k)
+                  fundingLabel(l10n, k): k.name,
             },
             control: .managed(
               initial: vm.funding.name,

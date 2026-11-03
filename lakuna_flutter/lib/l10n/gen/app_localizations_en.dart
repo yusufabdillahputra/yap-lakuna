@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B checkout, cash sessions, products, stock, and transaction history are ready to use. Purchases and reports follow in upcoming releases.';
+      'Retail and F&B checkout, cash sessions, products, stock, transaction history, and purchases are ready to use. Customers, suppliers, and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -4246,4 +4246,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseDetailLoadFailed => 'The purchase details failed to load.';
+
+  @override
+  String get purchaseErrLocation =>
+      'Stock location not found. Choose another location.';
 }

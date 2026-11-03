@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -4133,4 +4133,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchaseDetailLoadFailed => 'Detail pembelian gagal dimuat.';
+
+  @override
+  String get purchaseErrLocation =>
+      'Lokasi stok tidak ditemukan. Pilih lokasi lain.';
 }

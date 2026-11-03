@@ -174,7 +174,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
   late final Command0<void> deleteDraft;
 
   /// Jatuh tempo bawaan: 14 hari setelah tanggal pembelian.
-  static const defaultTerm = Duration(days: 14);
+  static const defaultTermDays = 14;
 
   PurchaseSetup? _setup;
   Exception? _error;
@@ -311,7 +311,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _shipping = Money.zero;
     _paid = Money.zero;
     _funding = FundingKind.storeCash;
-    _dueOn = s.today.add(defaultTerm);
+    _dueOn = _plusDays(s.today, defaultTermDays);
     _note = '';
     _attempt = null;
     _actionError = null;
@@ -351,7 +351,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _funding = p.fundingSource == null
         ? FundingKind.storeCash
         : fundingKind(p.fundingSource!);
-    _dueOn = p.dueOn == null ? _purchasedOn.add(defaultTerm) : _date(p.dueOn!);
+    _dueOn = p.dueOn == null
+        ? _plusDays(_purchasedOn, defaultTermDays)
+        : _date(p.dueOn!);
     _note = p.note ?? '';
     _attempt = null;
     _actionError = null;
@@ -384,8 +386,14 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   void _touched() {
     _actionError = null;
+    // Pesan "Draf disimpan" hilang setelah isian berubah.
+    if (saveDraft.completed) saveDraft.clearResult();
     notifyListeners();
   }
+
+  /// [d] + [days] hari kalender (aman dari pergantian jam musim panas).
+  static DateTime _plusDays(DateTime d, int days) =>
+      DateTime(d.year, d.month, d.day + days);
 
   void selectSupplier(UuidValue? id) {
     _supplierId = id;
@@ -415,9 +423,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
     // Jatuh tempo ikut bergeser bila masih bawaan atau jadi sebelum tanggal.
     final due = _dueOn;
     if (due == null ||
-        due == _purchasedOn.add(defaultTerm) ||
+        due == _plusDays(_purchasedOn, defaultTermDays) ||
         due.isBefore(day)) {
-      _dueOn = day.add(defaultTerm);
+      _dueOn = _plusDays(day, defaultTermDays);
     }
     _purchasedOn = day;
     _generation++;
@@ -648,7 +656,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
   Future<Result<Purchase>> _submit({required bool receiving}) async {
     _attempt = receiving;
     _actionError = null;
-    if (_locationId == null || _validate(receiving: receiving).isNotEmpty) {
+    if (_locationId == null) {
+      final error = StockLocationNotFound();
+      _actionError = error;
+      notifyListeners();
+      return Result.error(error);
+    }
+    if (_validate(receiving: receiving).isNotEmpty) {
       notifyListeners();
       return Result.error(PurchaseInvalid(_validate(receiving: receiving)));
     }

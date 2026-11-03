@@ -49,7 +49,9 @@ String purchaseErrorMessage(AppLocalizations l10n, Exception error) =>
       CashSessionNotOpen() => l10n.purchaseErrDrawer,
       PurchaseNotEditable() => l10n.purchaseErrNotEditable,
       PurchaseNotFound() => l10n.purchaseErrNotFound,
-      NotPermitted() => l10n.purchaseErrNotPermitted,
+      NotPermitted() ||
+      PurchaseActorNotPermitted() => l10n.purchaseErrNotPermitted,
+      StockLocationNotFound() => l10n.purchaseErrLocation,
       PurchaseReturnInvalid(:final error) => purchaseReturnErrorMessage(
         l10n,
         error,

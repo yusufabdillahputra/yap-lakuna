@@ -5,7 +5,9 @@ import 'package:serverpod_database/serverpod_database.dart'
     show ColumnOrderingOperations, DatabaseSession, Transaction;
 
 import 'sale_core.dart' show requireOpenCashSession;
+import 'staff_access.dart';
 import 'stock.dart';
+import 'stock_admin.dart' show StockLocationNotFound;
 import 'store.dart';
 import 'sync_tx.dart';
 
@@ -21,6 +23,43 @@ class PurchaseInvalid implements Exception {
   @override
   String toString() => 'PurchaseInvalid($issues)';
 }
+
+/// Aktor bukan staf aktif cabang ini atau tidak punya [permission].
+class PurchaseActorNotPermitted implements Exception {
+  const PurchaseActorNotPermitted(this.permission);
+
+  final Permission permission;
+
+  @override
+  String toString() => 'PurchaseActorNotPermitted(${permission.key})';
+}
+
+/// [staffId] staf aktif cabang ini dengan semua izin [needed].
+Future<void> _requireActor(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue staffId,
+  List<Permission> needed,
+) async {
+  final staff = await findStaffById(
+    store,
+    tenantId: scope.tenantId,
+    outletId: scope.outletId,
+    staffId: staffId,
+  );
+  for (final p in needed) {
+    if (staff == null || !staff.permissions.contains(p)) {
+      throw PurchaseActorNotPermitted(p);
+    }
+  }
+}
+
+/// Izin tulis pembelian: `purchases:manage`, ditambah
+/// `cash_movements:create` bila uang keluar/masuk laci.
+List<Permission> _needed({bool drawer = false}) => [
+  Permission.purchasesManage,
+  if (drawer) Permission.cashMovementsCreate,
+];
 
 class PurchaseNotFound implements Exception {
   @override
@@ -580,8 +619,9 @@ class _ResolvedLine {
 Future<List<_ResolvedLine>> _resolveLines(
   SyncTx w,
   CatalogScope scope,
-  List<PurchaseLineRequest> lines,
-) async {
+  List<PurchaseLineRequest> lines, {
+  required bool receiving,
+}) async {
   final seen = <(UuidValue, UuidValue?)>{};
   final out = <_ResolvedLine>[];
   for (final (i, l) in lines.indexed) {
@@ -613,6 +653,12 @@ Future<List<_ResolvedLine>> _resolveLines(
         product == null ||
         variant.tenantId != scope.tenantId ||
         variant.deletedAt != null ||
+        // Draf boleh menyimpan produk yang kemudian dinonaktifkan, tetapi
+        // yang diterima hanya produk aktif yang melacak stok.
+        (receiving &&
+            (!product.isActive ||
+                product.deletedAt != null ||
+                !ProductKind.values.byName(product.type.name).tracksStock)) ||
         badUnit ||
         !seen.add((l.variantId, l.productUnitId))) {
       throw PurchaseInvalid([PurchaseIssue(PurchaseField.lines, i)]);
@@ -737,9 +783,9 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
       location.tenantId != scope.tenantId ||
       location.outletId != scope.outletId ||
       location.deletedAt != null) {
-    throw const PurchaseInvalid([PurchaseIssue(PurchaseField.lines)]);
+    throw StockLocationNotFound();
   }
-  final lines = await _resolveLines(w, scope, r.lines);
+  final lines = await _resolveLines(w, scope, r.lines, receiving: receiving);
   final supplierId = await _resolveSupplier(w, scope, r, s, staffId);
   final totals = purchaseTotals(
     [
@@ -976,6 +1022,7 @@ Future<Purchase> savePurchaseDraft(
   required PurchaseRequest request,
 }) async {
   _validate(request, receiving: false);
+  await _requireActor(store, scope, staffId, _needed());
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -998,6 +1045,14 @@ Future<Purchase> receivePurchase(
   required PurchaseRequest request,
 }) async {
   _validate(request, receiving: true);
+  await _requireActor(
+    store,
+    scope,
+    staffId,
+    _needed(
+      drawer: request.paid.value > 0 && request.funding == FundingSource.drawer,
+    ),
+  );
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -1017,25 +1072,39 @@ Future<void> deletePurchaseDraft(
   CatalogScope scope, {
   required UuidValue staffId,
   required UuidValue purchaseId,
-}) => store.write(actor: staffId, (w) async {
-  final p = await _purchase(
-    w.session,
-    scope,
-    purchaseId,
-    transaction: w.transaction,
-  );
-  if (p.status != PurchaseStatus.draft) throw PurchaseNotEditable();
-  final s = await w.stamp();
-  for (final i in await _items(
-    w.session,
-    scope.tenantId,
-    p.id,
-    transaction: w.transaction,
-  )) {
+}) async {
+  await _requireActor(store, scope, staffId, _needed());
+  await store.write(actor: staffId, (w) async {
+    final p = await _purchase(
+      w.session,
+      scope,
+      purchaseId,
+      transaction: w.transaction,
+    );
+    if (p.status != PurchaseStatus.draft) throw PurchaseNotEditable();
+    final s = await w.stamp();
+    for (final i in await _items(
+      w.session,
+      scope.tenantId,
+      p.id,
+      transaction: w.transaction,
+    )) {
+      await w.update(
+        i.copyWith(
+          deletedAt: s.now,
+          version: i.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
     await w.update(
-      i.copyWith(
+      p.copyWith(
         deletedAt: s.now,
-        version: i.version + 1,
+        version: p.version + 1,
         updatedAt: s.now,
         updatedBy: staffId,
         hlc: s.hlc.toString(),
@@ -1043,19 +1112,8 @@ Future<void> deletePurchaseDraft(
       ),
       s,
     );
-  }
-  await w.update(
-    p.copyWith(
-      deletedAt: s.now,
-      version: p.version + 1,
-      updatedAt: s.now,
-      updatedBy: staffId,
-      hlc: s.hlc.toString(),
-      originDeviceId: s.deviceId,
-    ),
-    s,
-  );
-});
+  });
+}
 
 /// Retur pembelian `RB-`: stok keluar dari lokasi pembelian dengan HPP baris,
 /// nilai mengurangi hutang dulu, kelebihannya uang kembali ke
@@ -1073,6 +1131,12 @@ Future<PurchaseReturn> returnPurchase(
   if ((text?.characters.length ?? 0) > PurchaseLimits.note) {
     throw const PurchaseReturnInvalid(PurchaseReturnError.note);
   }
+  await _requireActor(
+    store,
+    scope,
+    staffId,
+    _needed(drawer: refundSource == FundingSource.drawer),
+  );
   if (!lines.any((l) => l.quantity.milli > 0)) {
     throw const PurchaseReturnInvalid(PurchaseReturnError.empty);
   }
@@ -1233,6 +1297,11 @@ Future<void> applySellPrices(
     throw ArgumentError.value(prices, 'prices', 'tidak boleh negatif');
   }
   if (prices.isEmpty) return;
+  // Harga jual milik master produk: butuh izin produk juga.
+  await _requireActor(store, scope, staffId, [
+    Permission.purchasesManage,
+    Permission.productsManage,
+  ]);
   await store.write(actor: staffId, (w) async {
     final s = await w.stamp();
     for (final MapEntry(key: id, value: price) in prices.entries) {

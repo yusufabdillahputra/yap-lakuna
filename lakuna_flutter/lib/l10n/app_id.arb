@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, dan riwayat transaksi sudah bisa dipakai. Pembelian dan laporan menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -2569,5 +2569,6 @@
     }
   },
   "purchaseReturnsMade": "Retur yang sudah dibuat",
-  "purchaseDetailLoadFailed": "Detail pembelian gagal dimuat."
+  "purchaseDetailLoadFailed": "Detail pembelian gagal dimuat.",
+  "purchaseErrLocation": "Lokasi stok tidak ditemukan. Pilih lokasi lain."
 }

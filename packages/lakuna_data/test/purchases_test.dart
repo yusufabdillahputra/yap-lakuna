@@ -340,6 +340,9 @@ void main() {
       expect(first.debtReduction, 185836);
       expect(first.refundAmount, 0);
       expect((await level(minyak))!.quantityMilli, 34000 - 6000);
+      // 6 btl keluar pada HPP mendarat 30.973, bukan rata-rata:
+      // (30.687 × 34 − 30.973 × 6) / 28 = 30.625,7 → 30.626.
+      expect((await level(minyak))!.avgCost, 30626);
 
       d = await loadPurchaseDetail(store, scope, p.id);
       expect(d.debt, const Money(189000 - 185836));
@@ -518,5 +521,83 @@ void main() {
     );
     final fresh = (await loadProduct(store, scope, minyak.id))!;
     expect(v(fresh).sellPrice, const Money(37200));
+  });
+
+  test('aktor wajib staf cabang dengan izin yang cukup', () async {
+    final actor = ctx.owner.id;
+    Future<StaffMember> addStaff(String name, String role) =>
+        store.write(actor: actor, (w) async {
+          final s = await w.stamp();
+          final staff = await w.insert(
+            StaffMember(
+              tenantId: ctx.tenant.id,
+              name: name,
+              pinHash: r'$argon2id$x',
+              isActive: true,
+              createdBy: actor,
+              updatedBy: actor,
+              hlc: s.hlc.toString(),
+              originDeviceId: s.deviceId,
+            ),
+            s,
+          );
+          await w.insert(
+            OutletMember(
+              tenantId: ctx.tenant.id,
+              outletId: ctx.outlet.id,
+              staffMemberId: staff.id,
+              roleName: role,
+              createdBy: actor,
+              updatedBy: actor,
+              hlc: s.hlc.toString(),
+              originDeviceId: s.deviceId,
+            ),
+            s,
+          );
+          return staff;
+        });
+    final gudang = await addStaff('Andi', 'stock_keeper');
+    final kasir = await addStaff('Sari', 'cashier');
+    Matcher denied(Permission p) => throwsA(
+      isA<PurchaseActorNotPermitted>().having((e) => e.permission, 'p', p),
+    );
+
+    await expectLater(
+      savePurchaseDraft(store, scope, staffId: kasir.id, request: request()),
+      denied(Permission.purchasesManage),
+    );
+    // Staf gudang boleh menerima barang, tetapi tidak memakai uang laci
+    // dan tidak mengubah harga jual.
+    await expectLater(
+      receivePurchase(
+        store,
+        scope,
+        staffId: gudang.id,
+        request: request(
+          paid: const Money(889000),
+          funding: FundingSource.drawer,
+        ),
+      ),
+      denied(Permission.cashMovementsCreate),
+    );
+    final p = await receivePurchase(
+      store,
+      scope,
+      staffId: gudang.id,
+      request: request(
+        paid: const Money(889000),
+        funding: FundingSource.storeCash,
+      ),
+    );
+    expect(p.staffId, gudang.id);
+    await expectLater(
+      applySellPrices(
+        store,
+        scope,
+        staffId: gudang.id,
+        prices: {v(minyak).id: const Money(37200)},
+      ),
+      denied(Permission.productsManage),
+    );
   });
 }

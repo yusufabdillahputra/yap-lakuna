@@ -256,3 +256,22 @@ String purchaseReturnNumber(
   DateTime localDate,
   int counter,
 ) => documentNumber('RB', outletCode, deviceCode, localDate, counter);
+
+/// HPP rata-rata setelah retur beli: barang keluar pada harga pokok mendarat
+/// barisnya ([unitCost]), bukan rata-rata, sehingga nilai sisa =
+/// `onHand × avg − returned × unitCost` dibagi qty sisa. Qty sisa ≤ 0 →
+/// rata-rata lama; nilai sisa minus → 0.
+Money averageCostAfterReturn({
+  required Qty onHand,
+  required Money avgCost,
+  required Qty returned,
+  required Money unitCost,
+}) {
+  final remaining = onHand.milli - returned.milli;
+  if (returned.milli <= 0 || remaining <= 0) return avgCost;
+  final value =
+      BigInt.from(avgCost.value) * BigInt.from(onHand.milli) -
+      BigInt.from(unitCost.value) * BigInt.from(returned.milli);
+  if (value <= BigInt.zero) return Money.zero;
+  return Money(divRoundHalfAway(value, BigInt.from(remaining)));
+}

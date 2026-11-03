@@ -17,6 +17,8 @@ class PurchaseSetup {
     required this.nextNumber,
     this.timezone,
     this.hasOpenSession = false,
+    this.canUseDrawer = true,
+    this.canEditPrices = true,
   });
 
   /// Lokasi stok cabang, bawaan dulu.
@@ -35,6 +37,12 @@ class PurchaseSetup {
 
   /// Perangkat ini punya sesi kasir terbuka (bayar dari kas laci).
   final bool hasOpenSession;
+
+  /// Staf boleh memakai uang laci (`cash_movements:create`).
+  final bool canUseDrawer;
+
+  /// Staf boleh menerapkan harga jual (`products:manage`).
+  final bool canEditPrices;
 }
 
 /// Pembelian dan retur beli (F1-12). Semua aksi butuh `purchases:manage`,

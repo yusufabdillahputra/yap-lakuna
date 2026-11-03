@@ -165,6 +165,25 @@ void main() {
       expect(vm.checked, isEmpty);
     });
 
+    test('satu saran per varian walau dibeli dalam dua satuan', () async {
+      repo.canEditPrices = false;
+      form
+        ..selectSupplier(repo.suppliers.single.id)
+        ..addByCode('8991234500031')
+        ..addByCode('MYK-2L')
+        ..payInFull();
+      await form.receive.execute();
+      final vm = PurchaseDetailViewModel(
+        repository: repo,
+        purchaseId: form.draftId!,
+      );
+      await vm.load.execute();
+      expect(vm.detail!.items, hasLength(2));
+      expect(vm.suggestions, hasLength(1));
+      expect(vm.suggestionFor(vm.detail!.items.last), isNull);
+      expect(vm.canEditPrices, isFalse);
+    });
+
     test('jatuh tempo dalam hari', () async {
       final vm = await received();
       expect(vm.dueInDays, 14);

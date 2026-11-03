@@ -141,9 +141,9 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 16,
                 children: [
-                  Expanded(flex: 4, child: list),
+                  Expanded(flex: 35, child: list),
                   Expanded(
-                    flex: 6,
+                    flex: 65,
                     child: PurchaseFormPanel(
                       key: ObjectKey(_form),
                       viewModel: _form,

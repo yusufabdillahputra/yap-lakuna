@@ -18,6 +18,8 @@ class FakePurchasesRepository extends PurchasesRepository {
     List<ProductDraft>? products,
     this.canManage = true,
     this.hasOpenSession = true,
+    this.canUseDrawer = true,
+    this.canEditPrices = true,
     List<String> suppliers = const ['CV Sumber Pangan'],
   }) {
     final catalog = FakeCatalogRepository(seed: products ?? cashierProducts());
@@ -39,6 +41,8 @@ class FakePurchasesRepository extends PurchasesRepository {
 
   bool canManage;
   bool hasOpenSession;
+  bool canUseDrawer;
+  bool canEditPrices;
   final _tenant = _id();
   final _outlet = _id();
   final _device = _id();
@@ -104,6 +108,8 @@ class FakePurchasesRepository extends PurchasesRepository {
       nextNumber: _number(),
       timezone: 'Asia/Jakarta',
       hasOpenSession: hasOpenSession,
+      canUseDrawer: canUseDrawer,
+      canEditPrices: canEditPrices,
     ),
   );
 

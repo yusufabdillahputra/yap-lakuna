@@ -23,7 +23,7 @@ class LocalPurchasesRepository extends PurchasesRepository {
   final DateTime Function() _clock;
 
   @override
-  Future<Result<PurchaseSetup>> load() => _guard((ctx, scope, _) async {
+  Future<Result<PurchaseSetup>> load() => _guard((ctx, scope, staff) async {
     final now = _clock().toUtc();
     final timezone = ctx.outlet.timezone ?? ctx.tenant.timezone;
     final local = outletLocalTime(now, timezone);
@@ -40,6 +40,8 @@ class LocalPurchasesRepository extends PurchasesRepository {
       timezone: timezone,
       hasOpenSession:
           await findOpenCashSession(_store, CashScope.of(ctx)) != null,
+      canUseDrawer: staff.can(Permission.cashMovementsCreate),
+      canEditPrices: staff.can(Permission.productsManage),
     );
   });
 
@@ -105,6 +107,7 @@ class LocalPurchasesRepository extends PurchasesRepository {
 
   @override
   Future<Result<void>> applySellPrices(Map<UuidValue, Money> prices) => _guard(
+    permission: Permission.productsManage,
     (_, scope, staff) => data.applySellPrices(
       _store,
       scope,
@@ -115,13 +118,17 @@ class LocalPurchasesRepository extends PurchasesRepository {
 
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, CatalogScope scope, StaffProfile staff)
-    body,
-  ) async {
+    body, {
+    Permission? permission,
+  }) async {
     final ctx = _stores.current;
     if (ctx == null) return const Result.error(StoreNotReady());
     final staff = _session.current;
     if (staff == null || !staff.can(Permission.purchasesManage)) {
       return const Result.error(NotPermitted(Permission.purchasesManage));
+    }
+    if (permission != null && !staff.can(permission)) {
+      return Result.error(NotPermitted(permission));
     }
     try {
       return Result.ok(await body(ctx, CatalogScope.of(ctx), staff));

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show StringCharacters;
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -124,25 +125,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
       case Ok(:final value):
         _detail = value;
         _error = null;
-        _suggestions = [
-          for (final item in value.items)
-            if (item.avgCostBefore != null && item.avgCostAfter != null)
-              PriceSuggestion(
-                item: item,
-                sellPrice: value.sellPrices[item.variantId] ?? Money.zero,
-                // Dasar saran: harga jual saat barang diterima, agar saran
-                // tidak naik lagi setelah harga diterapkan.
-                suggested: suggestedSellPrice(
-                  sellPrice: Money(
-                    item.sellPriceBefore ??
-                        value.sellPrices[item.variantId]?.value ??
-                        0,
-                  ),
-                  oldCost: Money(item.avgCostBefore!),
-                  newCost: Money(item.avgCostAfter!),
-                ),
-              ),
-        ];
+        _suggestions = _suggest(value);
         _checked = {
           for (final s in _suggestions)
             if (s.below) s.item.variantId,
@@ -153,6 +136,39 @@ class PurchaseDetailViewModel extends ChangeNotifier {
         return Result.error(error);
     }
   }
+
+  /// Satu saran per varian, di baris pertamanya. Varian yang dibeli dalam
+  /// dua satuan memakai HPP sebelum dari baris pertama dan HPP sesudah dari
+  /// baris terakhir (ledger berurutan).
+  static List<PriceSuggestion> _suggest(PurchaseDetail d) {
+    final byVariant = <UuidValue, List<PurchaseItem>>{};
+    for (final item in d.items) {
+      (byVariant[item.variantId] ??= []).add(item);
+    }
+    return [
+      for (final MapEntry(key: variantId, value: items) in byVariant.entries)
+        if (items.first.avgCostBefore case final before?)
+          if (items.last.avgCostAfter case final after?)
+            PriceSuggestion(
+              item: items.first,
+              sellPrice: d.sellPrices[variantId] ?? Money.zero,
+              // Dasar saran: harga jual saat barang diterima, agar saran
+              // tidak naik lagi setelah harga diterapkan.
+              suggested: suggestedSellPrice(
+                sellPrice: Money(
+                  items.first.sellPriceBefore ??
+                      d.sellPrices[variantId]?.value ??
+                      0,
+                ),
+                oldCost: Money(before),
+                newCost: Money(after),
+              ),
+            ),
+    ];
+  }
+
+  /// Staf boleh menerapkan harga jual.
+  bool get canEditPrices => _setup?.canEditPrices ?? false;
 
   PriceSuggestion? suggestionFor(PurchaseItem item) =>
       _suggestions.where((s) => s.item.id == item.id).firstOrNull;
@@ -256,7 +272,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     if (returnSplit.refund.value > 0 && _refundSource == null) {
       issues.add(PurchaseReturnIssue.refundSource);
     }
-    if (_returnNote.trim().length > PurchaseLimits.note) {
+    if (_returnNote.trim().characters.length > PurchaseLimits.note) {
       issues.add(PurchaseReturnIssue.note);
     }
     return issues;
