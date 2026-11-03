@@ -8,6 +8,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cashier_repository.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
@@ -19,16 +20,24 @@ import 'payment_view.dart';
 /// Layar kasir retail (1.4 / 1.11 / 1.11b, F1-04) beserta tahap bayar
 /// (1.5 / 1.5c, F1-05). Memiliki [CashierViewModel].
 class CashierScreen extends StatefulWidget {
-  const CashierScreen({super.key, required this.repository});
+  const CashierScreen({
+    super.key,
+    required this.repository,
+    required this.printer,
+  });
 
   final CashierRepository repository;
+  final ReceiptPrinter printer;
 
   @override
   State<CashierScreen> createState() => _CashierScreenState();
 }
 
 class _CashierScreenState extends State<CashierScreen> {
-  late final _viewModel = CashierViewModel(repository: widget.repository);
+  late final _viewModel = CashierViewModel(
+    repository: widget.repository,
+    printer: widget.printer,
+  );
 
   @override
   void initState() {

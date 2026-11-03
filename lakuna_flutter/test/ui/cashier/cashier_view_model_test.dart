@@ -5,18 +5,22 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/ui/cashier/cashier_view_model.dart';
 
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/fake_receipt_printer.dart';
 
 void main() {
   late FakeCashierRepository repo;
   late CashierViewModel vm;
+  late FakeReceiptPrinter printer;
 
   setUp(() async {
     repo = FakeCashierRepository(seed: cashierProducts());
-    vm = CashierViewModel(repository: repo);
+    printer = FakeReceiptPrinter();
+    vm = CashierViewModel(repository: repo, printer: printer);
     await vm.load.execute();
   });
 
@@ -392,6 +396,81 @@ void main() {
       vm.startPayment();
       expect(vm.parts, isEmpty);
       expect(vm.mode, PayMode.cash);
+    });
+  });
+
+  group('struk', () {
+    const lines = [ReceiptLine('TOKO')];
+    const rpp = PrinterSelection(
+      kind: PrinterKind.bluetooth,
+      name: 'RPP02N',
+      address: '66:22:B1:00:00:01',
+    );
+
+    Future<void> sell() async {
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.setMode(PayMode.card);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+    }
+
+    test('tanpa printer: cetak lewat dialog sistem', () async {
+      await sell();
+      expect(vm.printer, isNull);
+      expect(vm.shouldAutoPrint, isFalse);
+      await vm.printReceipt.execute(lines);
+      final (target, printed, paper) = printer.prints.single;
+      expect(target.kind, PrinterKind.system);
+      expect(printed, lines);
+      expect(paper, ReceiptPaper.mm58);
+      expect(vm.printed, isFalse); // dialog: tidak dianggap terkirim
+    });
+
+    test('cetak otomatis sekali per nota ke printer langsung', () async {
+      repo
+        ..printer = rpp
+        ..receipt = const ReceiptConfig(
+          settings: ReceiptSettings(
+            paper: ReceiptPaper.mm80,
+            autoPrint: true,
+          ),
+        );
+      await vm.load.execute();
+      await sell();
+      expect(vm.shouldAutoPrint, isTrue);
+      await vm.autoPrint(lines);
+      await vm.autoPrint(lines);
+      expect(printer.prints, hasLength(1));
+      expect(printer.prints.single.$1, rpp);
+      expect(printer.prints.single.$3, ReceiptPaper.mm80);
+      expect(vm.printed, isTrue);
+      expect(vm.shouldAutoPrint, isFalse);
+    });
+
+    test('gagal cetak: alasan tersimpan, coba lagi berhasil', () async {
+      repo.printer = rpp;
+      await vm.load.execute();
+      await sell();
+      printer.nextFailure = const PrinterFailure(
+        PrinterFailureReason.bluetoothOff,
+      );
+      await vm.printReceipt.execute(lines);
+      expect(vm.printFailure, PrinterFailureReason.bluetoothOff);
+      expect(vm.stage, CashierStage.done);
+      await vm.printReceipt.execute(lines);
+      expect(vm.printFailure, isNull);
+      expect(vm.printed, isTrue);
+    });
+
+    test('bagikan PDF: nama berkas = nomor nota, lokasi desktop', () async {
+      await sell();
+      await vm.shareReceipt.execute(lines);
+      final (_, _, fileName) = printer.shares.single;
+      expect(fileName, '${vm.result!.sale.number}.pdf');
+      expect(vm.sharedPath, printer.sharePath);
+      vm.newTransaction();
+      expect(vm.sharedPath, isNull);
     });
   });
 }

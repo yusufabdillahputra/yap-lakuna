@@ -9,6 +9,9 @@ import '../../data/repositories/cashier_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import 'cashier_view.dart' show cashierKeepsFocus;
+import '../receipt/printer_labels.dart';
+import '../receipt/receipt_content.dart';
+import '../receipt/receipt_paper_view.dart';
 import 'cashier_view_model.dart';
 import 'qris_panel.dart';
 import 'split_panel.dart';
@@ -36,12 +39,6 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       NotPermitted() => l10n.paymentErrorPermission,
       _ => l10n.paymentErrorGeneric,
     };
-
-/// Angka rupiah tanpa "Rp" untuk struk: `200.000` (id) / `200,000` (en).
-String _plain(BuildContext context, int value) => groupThousands(
-  value,
-  Localizations.localeOf(context).languageCode == 'en' ? ',' : '.',
-);
 
 TextStyle _tabular(TextStyle style) => tabularFigures(style);
 
@@ -707,6 +704,21 @@ class SuccessView extends StatelessWidget {
     final methodText = payments.length == 1
         ? paymentMethodLabel(l10n, payments.single.method)
         : l10n.paymentSplitSummary(payments.length);
+    final lines = layoutReceipt(
+      saleReceiptContent(
+        l10n,
+        result: result,
+        businessName: data.businessName,
+        outletName: data.outletName,
+        staffName: data.staffName,
+        timezone: data.timezone,
+        config: data.receipt,
+      ),
+      vm.receiptPaper,
+    );
+    if (vm.shouldAutoPrint) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => vm.autoPrint(lines));
+    }
 
     final summary = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -826,25 +838,7 @@ class SuccessView extends StatelessWidget {
               ),
             ),
           ),
-        Row(
-          spacing: 8,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              TablerIcons.printer,
-              size: 16,
-              color: theme.colors.mutedForeground,
-            ),
-            Expanded(
-              child: Text(
-                l10n.successPrintNote,
-                style: theme.typography.body.xs.copyWith(
-                  color: theme.colors.mutedForeground,
-                ),
-              ),
-            ),
-          ],
-        ),
+        _ReceiptActions(viewModel: vm, lines: lines),
         FButton(
           key: const ValueKey('success-new'),
           size: .lg,
@@ -857,7 +851,13 @@ class SuccessView extends StatelessWidget {
       ],
     );
 
-    final receipt = _ReceiptPreview(result: result, data: data);
+    final receipt = ConstrainedBox(
+      key: const ValueKey('success-receipt'),
+      constraints: BoxConstraints(
+        maxWidth: vm.receiptPaper == ReceiptPaper.mm58 ? 280 : 400,
+      ),
+      child: ReceiptPaperView(lines: lines, paper: vm.receiptPaper),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -897,114 +897,136 @@ class SuccessView extends StatelessWidget {
   }
 }
 
-/// Pratinjau struk 58 mm (teks), sebelum modul Struk & printer.
-class _ReceiptPreview extends StatelessWidget {
-  const _ReceiptPreview({required this.result, required this.data});
+/// Kartu printer + *Cetak struk* / *Bagikan PDF* di layar sukses (1.12).
+class _ReceiptActions extends StatelessWidget {
+  const _ReceiptActions({required this.viewModel, required this.lines});
 
-  final CheckoutResult result;
-  final CashierData data;
+  final CashierViewModel viewModel;
+  final List<ReceiptLine> lines;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
-    const ink = Color(0xFF111111);
-    final base = _tabular(
-      theme.typography.body.xs.copyWith(color: ink, height: 1.45),
-    );
-    final bold = base.copyWith(fontWeight: FontWeight.w700);
-    final sale = result.sale;
-    final local = outletLocalTime(sale.soldAt, data.timezone);
-    String two(int n) => n.toString().padLeft(2, '0');
-    final date =
-        '${two(local.day)}/${two(local.month)}/${two(local.year % 100)} '
-        '${two(local.hour)}.${two(local.minute)}';
+    final vm = viewModel;
+    final printer = vm.printer;
+    final direct = printer?.isDirect ?? false;
+    final busy = vm.printing;
+    Widget spinner() =>
+        const SizedBox.square(dimension: 16, child: FCircularProgress());
 
-    // [wideLeft]: baris barang (kiri panjang) vs. baris kepala (kanan
-    // panjang, mis. nomor nota).
-    Widget pair(
-      String left,
-      String right, {
-      TextStyle? style,
-      bool wideLeft = false,
-    }) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 8,
+    final print = FButton(
+      key: const ValueKey('receipt-print'),
+      variant: direct ? .primary : .outline,
+      onPress: busy ? null : () => vm.printReceipt.execute(lines),
+      prefix: vm.printReceipt.running
+          ? spinner()
+          : const Icon(TablerIcons.printer),
+      child: Flexible(
+        child: Text(l10n.receiptPrint, overflow: TextOverflow.ellipsis),
+      ),
+    );
+    final share = FButton(
+      key: const ValueKey('receipt-share'),
+      variant: .outline,
+      onPress: busy ? null : () => vm.shareReceipt.execute(lines),
+      prefix: vm.shareReceipt.running
+          ? spinner()
+          : const Icon(TablerIcons.share),
+      child: Flexible(
+        child: Text(l10n.receiptShare, overflow: TextOverflow.ellipsis),
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
       children: [
-        Expanded(
-          flex: wideLeft ? 3 : 1,
-          child: Text(left, style: style ?? base),
+        PaymentPanel(
+          child: Row(
+            key: const ValueKey('receipt-printer'),
+            spacing: 12,
+            children: [
+              Icon(
+                TablerIcons.printer,
+                size: 22,
+                color: printer == null
+                    ? theme.colors.mutedForeground
+                    : theme.colors.primary,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Text(
+                      printer == null
+                          ? l10n.receiptPrinterNone
+                          : l10n.receiptPrinterTitle,
+                      style: theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      printer == null
+                          ? l10n.receiptPrinterNoneHint
+                          : printerSummary(l10n, printer, vm.receiptPaper),
+                      style: theme.typography.body.xs.copyWith(
+                        color: theme.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        Expanded(
-          flex: wideLeft ? 2 : 3,
-          child: Text(right, textAlign: TextAlign.end, style: style ?? base),
+        Row(
+          spacing: 8,
+          children: [
+            Expanded(child: print),
+            Expanded(child: share),
+          ],
+        ),
+        if (vm.printFailure != null || vm.printReceipt.error)
+          FAlert(
+            key: const ValueKey('receipt-print-error'),
+            variant: .destructive,
+            title: Text(printerFailureMessage(l10n, vm.printFailure)),
+            subtitle: GestureDetector(
+              key: const ValueKey('receipt-print-retry'),
+              onTap: busy ? null : () => vm.printReceipt.execute(lines),
+              child: Text(
+                l10n.printerRetry,
+                style: const TextStyle(decoration: TextDecoration.underline),
+              ),
+            ),
+          )
+        else if (vm.shareReceipt.error)
+          FAlert(
+            key: const ValueKey('receipt-share-error'),
+            variant: .destructive,
+            title: Text(l10n.receiptShareError),
+          )
+        else if (vm.printed)
+          FAlert(
+            key: const ValueKey('receipt-printed'),
+            icon: const Icon(TablerIcons.circleCheck),
+            title: Text(l10n.receiptPrinted),
+          )
+        else if (vm.sharedPath case final path?)
+          FAlert(
+            key: const ValueKey('receipt-pdf-saved'),
+            icon: const Icon(TablerIcons.fileTypePdf),
+            title: Text(l10n.receiptPdfSaved(path)),
+          ),
+        Text(
+          l10n.successPrintNote,
+          style: theme.typography.body.xs.copyWith(
+            color: theme.colors.mutedForeground,
+          ),
         ),
       ],
-    );
-    Widget rule() => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Text(
-        '-' * 32,
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        style: base.copyWith(color: const Color(0xFF9F9FA9)),
-      ),
-    );
-
-    return Container(
-      key: const ValueKey('success-receipt'),
-      width: 280,
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        border: Border.all(color: const Color(0xFFE4E4E7)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            data.businessName.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: bold,
-          ),
-          Text(data.outletName, textAlign: TextAlign.center, style: base),
-          rule(),
-          pair(l10n.receiptNo, sale.number),
-          pair(l10n.receiptDate, date),
-          pair(l10n.receiptCashier, data.staffName),
-          rule(),
-          for (final item in result.items) ...[
-            Text(
-              '${item.productName} ${item.variantName}'.trim(),
-              style: base,
-            ),
-            pair(
-              '  ${formatQty(context, Qty(item.quantityMilli))}'
-              '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
-              ' x ${_plain(context, item.unitPrice)}',
-              _plain(context, item.lineTotal),
-              wideLeft: true,
-            ),
-          ],
-          rule(),
-          pair(l10n.receiptTotal, _plain(context, sale.total), style: bold),
-          for (final payment in result.payments)
-            pair(
-              paymentMethodLabel(l10n, payment.method),
-              _plain(context, payment.amount),
-              wideLeft: true,
-            ),
-          if (result.payments.any((p) => p.method == PaymentMethod.cash))
-            pair(
-              l10n.receiptChange,
-              _plain(context, sale.changeAmount),
-              wideLeft: true,
-            ),
-          rule(),
-          Text(l10n.receiptThanks, textAlign: TextAlign.center, style: base),
-        ],
-      ),
     );
   }
 }

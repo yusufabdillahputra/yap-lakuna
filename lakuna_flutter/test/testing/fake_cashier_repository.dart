@@ -16,6 +16,8 @@ class FakeCashierRepository extends CashierRepository {
     this.sessionOpen = true,
     this.permissions,
     this.qris,
+    this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
+    this.printer,
   }) : catalog = FakeCatalogRepository(seed: seed);
 
   final FakeCatalogRepository catalog;
@@ -26,6 +28,9 @@ class FakeCashierRepository extends CashierRepository {
 
   /// QRIS statis aktif; `null` = nonaktif.
   CashierQris? qris;
+
+  ReceiptConfig receipt;
+  PrinterSelection? printer;
 
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
@@ -70,6 +75,8 @@ class FakeCashierRepository extends CashierRepository {
         staffName: 'Sari',
         timezone: 'Asia/Jakarta',
         qris: qris,
+        receipt: receipt,
+        printer: printer,
         canConfirmPayments:
             permissions?.contains(Permission.paymentsConfirm) ?? true,
         session: sessionOpen

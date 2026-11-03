@@ -4,6 +4,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/cashier_repository.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../products/product_list_view_model.dart' show productMatches;
@@ -115,9 +116,11 @@ class _Item {
 /// Keranjang hidup selama layar kasir terbuka; bayar adalah tahap di layar
 /// yang sama agar keranjang tidak hilang.
 class CashierViewModel extends ChangeNotifier {
-  CashierViewModel({required this._repository}) {
+  CashierViewModel({required this._repository, required this._printer}) {
     load = Command0(_load)..addListener(notifyListeners);
     pay = Command0(_pay)..addListener(notifyListeners);
+    printReceipt = Command1(_printReceipt)..addListener(notifyListeners);
+    shareReceipt = Command1(_shareReceipt)..addListener(notifyListeners);
   }
 
   /// Tombol hapus satu digit di keypad.
@@ -127,9 +130,16 @@ class CashierViewModel extends ChangeNotifier {
   static const maxDigits = 15;
 
   final CashierRepository _repository;
+  final ReceiptPrinter _printer;
 
   late final Command0<CashierData> load;
   late final Command0<CheckoutResult> pay;
+
+  /// Mencetak baris struk nota terakhir (F1-06).
+  late final Command1<void, List<ReceiptLine>> printReceipt;
+
+  /// PDF struk: hasil = lokasi berkas di desktop, `null` di share sheet.
+  late final Command1<String?, List<ReceiptLine>> shareReceipt;
 
   CashierData? _data;
   String _query = '';
@@ -147,6 +157,10 @@ class CashierViewModel extends ChangeNotifier {
   Money? _draftAmount;
   CheckoutResult? _result;
   Exception? _error;
+  PrinterFailureReason? _printFailure;
+  var _printed = false;
+  String? _sharedPath;
+  final _autoPrinted = <String>{};
 
   var _disposed = false;
 
@@ -600,8 +614,87 @@ class CashierViewModel extends ChangeNotifier {
     _stage = CashierStage.browse;
     _result = null;
     _error = null;
+    _resetPrint();
     _query = '';
     notifyListeners();
     load.execute();
+  }
+
+  // --- Struk (F1-06) -------------------------------------------------------
+
+  /// Lebar kertas struk cabang ini.
+  ReceiptPaper get receiptPaper =>
+      _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
+
+  /// Printer terpilih di perangkat ini; `null` = dialog cetak sistem.
+  PrinterSelection? get printer => _data?.printer;
+
+  /// Galat cetak terakhir; nota tetap tersimpan.
+  PrinterFailureReason? get printFailure => _printFailure;
+
+  /// Struk nota ini sudah terkirim ke printer.
+  bool get printed => _printed;
+
+  /// Lokasi PDF yang disimpan di desktop.
+  String? get sharedPath => _sharedPath;
+
+  bool get printing => printReceipt.running || shareReceipt.running;
+
+  /// Cetak otomatis belum dijalankan untuk nota ini dan diaktifkan di
+  /// Pengaturan dengan printer langsung (Bluetooth/LAN).
+  bool get shouldAutoPrint {
+    final sale = _result?.sale;
+    return sale != null &&
+        _stage == CashierStage.done &&
+        (_data?.receipt.settings.autoPrint ?? false) &&
+        (printer?.isDirect ?? false) &&
+        !_autoPrinted.contains(sale.number);
+  }
+
+  /// Cetak otomatis sekali per nota.
+  Future<void> autoPrint(List<ReceiptLine> lines) async {
+    if (!shouldAutoPrint) return;
+    _autoPrinted.add(_result!.sale.number);
+    await printReceipt.execute(lines);
+  }
+
+  void _resetPrint() {
+    _printFailure = null;
+    _printed = false;
+    _sharedPath = null;
+  }
+
+  Future<Result<void>> _printReceipt(List<ReceiptLine> lines) async {
+    _resetPrint();
+    try {
+      await _printer.print(
+        printer ?? const PrinterSelection(kind: PrinterKind.system, name: ''),
+        lines,
+        receiptPaper,
+        jobName: _result?.sale.number ?? 'Lakuna',
+      );
+      _printed = printer?.isDirect ?? false;
+      return const Result.ok(null);
+    } on PrinterFailure catch (e) {
+      _printFailure = e.reason;
+      return Result.error(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<String?>> _shareReceipt(List<ReceiptLine> lines) async {
+    _resetPrint();
+    try {
+      final path = await _printer.sharePdf(
+        lines,
+        receiptPaper,
+        fileName: '${_result?.sale.number ?? 'struk'}.pdf',
+      );
+      _sharedPath = path;
+      return Result.ok(path);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 }

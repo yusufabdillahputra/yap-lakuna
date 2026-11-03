@@ -52,6 +52,8 @@ class CashierData {
     this.session,
     this.qris,
     this.canConfirmPayments = false,
+    this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
+    this.printer,
   });
 
   /// Produk aktif dengan minimal satu varian, urut nama.
@@ -76,6 +78,12 @@ class CashierData {
 
   /// Staf boleh menekan *Sudah Terbayar* (`payments:confirm`).
   final bool canConfirmPayments;
+
+  /// Pengaturan struk cabang ini (F1-06).
+  final ReceiptConfig receipt;
+
+  /// Printer terpilih di perangkat ini; `null` = belum ada.
+  final PrinterSelection? printer;
 }
 
 /// Kasir retail dan pembayaran (F1-04/F1-05). Izin `sales:create` dicek di

@@ -8,6 +8,7 @@ export 'src/media.dart';
 export 'src/payment_settings.dart';
 export 'src/catalog.dart';
 export 'src/preferences.dart';
+export 'src/receipt_settings.dart';
 export 'src/sales.dart';
 export 'src/settings_scope.dart';
 export 'src/staff_access.dart';

@@ -12,6 +12,8 @@ import 'fake_cash_drawer_repository.dart';
 import 'fake_cashier_repository.dart';
 import 'fake_catalog_repository.dart';
 import 'fake_payment_settings_repository.dart';
+import 'fake_receipt_printer.dart';
+import 'fake_receipt_settings_repository.dart';
 import 'fake_session_repository.dart';
 import 'fake_store_repository.dart';
 
@@ -29,6 +31,8 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeCashierRepository? cashier,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
+  FakeReceiptSettingsRepository? receiptSettings,
+  FakeReceiptPrinter? receiptPrinter,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -67,6 +71,8 @@ Future<AppSettingsViewModel> pumpLakuna(
           catalog: catalog ?? FakeCatalogRepository(),
           cashier: cashier ?? FakeCashierRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
+          receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
+          receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
           imagePicker: imagePicker ?? FakeImagePicker(),
           initialLocation: initialLocation,
         ),

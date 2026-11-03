@@ -71,7 +71,12 @@ void main() {
         hasPin: true,
         permissions: Permission.values.toSet(),
       );
-    repo = LocalCashierRepository(store, stores: stores, session: session);
+    repo = LocalCashierRepository(
+      store,
+      stores: stores,
+      session: session,
+      preferences: LocalPreferences(store.session),
+    );
     await saveProduct(
       store,
       CatalogScope.of(ctx),
