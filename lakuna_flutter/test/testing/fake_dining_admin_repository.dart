@@ -305,9 +305,7 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
     );
     this.tables.removeWhere((t) => deleted.contains(t.id));
     for (final d in tables) {
-      final j = d.id == null
-          ? -1
-          : this.tables.indexWhere((t) => t.id == d.id);
+      final j = d.id == null ? -1 : this.tables.indexWhere((t) => t.id == d.id);
       final base = j < 0
           ? DiningTable(
               id: fakeId(_next++),

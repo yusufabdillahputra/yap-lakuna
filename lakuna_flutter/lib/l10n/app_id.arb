@@ -1996,5 +1996,160 @@
         "type": "String"
       }
     }
-  }
+  },
+  "floorErrorImageTooLarge": "Gambar denah lebih dari 5 MB.",
+  "floorErrorImageFormat": "Format tidak didukung. Pakai PNG, JPG, WebP, atau SVG.",
+  "floorErrorNameEmpty": "Nama meja wajib diisi.",
+  "floorErrorNameTooLong": "Nama meja maksimal 20 karakter.",
+  "floorErrorNameDuplicate": "Nama meja sudah dipakai di cabang ini.",
+  "floorErrorSeats": "Kursi 1 sampai 99.",
+  "floorErrorSize": "Lebar dan tinggi 20 sampai 600.",
+  "floorErrorPosition": "Posisi meja di luar denah.",
+  "floorErrorInUse": "Meja yang dihapus masih punya bill terbuka.",
+  "floorErrorPermission": "Butuh izin Kelola pengaturan.",
+  "floorErrorGeneric": "Tata letak gagal disimpan. Coba lagi.",
+  "floorErrorOn": "{table}: {message}",
+  "@floorErrorOn": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "floorShapeRound": "Bulat",
+  "floorShapeSquare": "Kotak",
+  "floorShapeLong": "Panjang",
+  "floorShapeBar": "Kursi bar",
+  "floorDiscardTitle": "Buang perubahan?",
+  "floorDiscardBody": "Perubahan tata letak yang belum disimpan akan hilang.",
+  "floorDiscardKeep": "Batal",
+  "floorDiscardConfirm": "Buang",
+  "floorLoadFailed": "Denah gagal dimuat.",
+  "floorBack": "Kembali",
+  "floorNoArea": "Belum ada area. Tambah area dulu, mis. Indoor atau Teras.",
+  "floorTitle": "Atur denah meja",
+  "floorSubtitle": "Pengaturan › Meja & area (F&B)",
+  "floorAddArea": "+ Area",
+  "floorAddAreaTitle": "Area baru",
+  "floorAreaName": "Nama area",
+  "floorAddAreaSave": "Tambah",
+  "floorGridInfoTitle": "Mode Grid",
+  "floorGridInfoBody": "Meja area {area} tampil sebagai kotak berurutan di layar Meja. Pilih Denah untuk mengunggah gambar denah dan mengatur posisi meja.",
+  "@floorGridInfoBody": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorSeats": "{count} kursi",
+  "@floorSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "floorUndo": "Urungkan",
+  "floorRedo": "Ulangi",
+  "floorReplaceImage": "Ganti gambar denah",
+  "floorOpacity": "Transparansi denah",
+  "floorSnap": "Snap ke grid {size} px",
+  "@floorSnap": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "floorZoom": "Zoom {percent}%",
+  "@floorZoom": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "floorZoomIn": "Perbesar",
+  "floorZoomOut": "Perkecil",
+  "floorZoomFit": "Pas layar",
+  "floorUploadTitle": "Unggah gambar denah area {area}",
+  "@floorUploadTitle": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorUploadBody": "Foto sketsa tangan, hasil export aplikasi denah, atau gambar dari arsitek. PNG / JPG / WebP / SVG, maks. 5 MB.",
+  "floorPickFile": "Pilih file",
+  "floorTakePhoto": "Ambil foto",
+  "floorTipsTitle": "Tips gambar",
+  "floorTipAngle": "Sudut pandang",
+  "floorTipAngleValue": "Dari atas, lurus",
+  "floorTipSize": "Ukuran",
+  "floorTipSizeValue": "Lebar minimal 1200 px",
+  "floorTipContent": "Isi",
+  "floorTipContentValue": "Dinding, pintu, dapur, bar",
+  "floorTipStorage": "Gambar disimpan di perangkat. Saat hosting aktif, ikut diunggah ke Object Storage seperti foto produk.",
+  "floorTipGrid": "Tidak punya denah? Pilih mode Grid. Meja tampil seperti biasa dan bisa diganti kapan saja.",
+  "floorPreset": "{shape} · {seats} kursi",
+  "@floorPreset": {
+    "placeholders": {
+      "shape": {
+        "type": "String"
+      },
+      "seats": {
+        "type": "int"
+      }
+    }
+  },
+  "floorAddTable": "Tambah meja",
+  "floorAddTableHint": "Ketuk untuk menaruh meja di tengah tampilan.",
+  "floorUnplaced": "Belum ditempatkan",
+  "floorUnplacedHint": "Meja yang sudah ada di mode grid tapi belum punya posisi. Ketuk untuk menaruh.",
+  "floorUnplacedNone": "Semua meja sudah ditempatkan.",
+  "floorModeTitle": "Mode tata letak · {area}",
+  "@floorModeTitle": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorModeGrid": "Grid",
+  "floorModeGridHint": "Tanpa denah. Meja tampil sebagai kotak berurutan.",
+  "floorModeFloor": "Denah",
+  "floorModeFloorHint": "Unggah gambar denah, lalu atur posisi meja.",
+  "floorSelected": "Meja {name} dipilih",
+  "@floorSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "floorSelectHint": "Ketuk meja di denah untuk mengubah nama, kursi, bentuk, dan ukurannya.",
+  "floorName": "Nama",
+  "floorSeatsLabel": "Kursi",
+  "floorShape": "Bentuk",
+  "floorWidth": "Lebar",
+  "floorHeight": "Tinggi",
+  "floorOrientation": "Orientasi",
+  "floorHorizontal": "Mendatar",
+  "floorVertical": "Tegak",
+  "floorCanMerge": "Boleh digabung dengan meja sebelah",
+  "floorDelete": "Hapus meja",
+  "floorUnsaved": "Ada perubahan yang belum disimpan.",
+  "floorSave": "Simpan tata letak",
+  "floorSaving": "Menyimpan…",
+  "diningLayoutGrid": "Grid",
+  "diningLayoutFloor": "Denah",
+  "diningArrange": "Atur denah",
+  "diningFloorLocked": "Posisi terkunci · geser & zoom saja",
+  "diningUnplaced": "Belum ditempatkan",
+  "diningNoFloorArea": "Belum ada area mode denah."
 }

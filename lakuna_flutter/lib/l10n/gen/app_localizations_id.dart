@@ -3114,4 +3114,292 @@ class AppLocalizationsId extends AppLocalizations {
   String diningVoidSplitPaid(String amount) {
     return 'Bagian yang sudah dibayar ($amount) dikembalikan ke tamu dan tidak masuk sesi kasir.';
   }
+
+  @override
+  String get floorErrorImageTooLarge => 'Gambar denah lebih dari 5 MB.';
+
+  @override
+  String get floorErrorImageFormat =>
+      'Format tidak didukung. Pakai PNG, JPG, WebP, atau SVG.';
+
+  @override
+  String get floorErrorNameEmpty => 'Nama meja wajib diisi.';
+
+  @override
+  String get floorErrorNameTooLong => 'Nama meja maksimal 20 karakter.';
+
+  @override
+  String get floorErrorNameDuplicate =>
+      'Nama meja sudah dipakai di cabang ini.';
+
+  @override
+  String get floorErrorSeats => 'Kursi 1 sampai 99.';
+
+  @override
+  String get floorErrorSize => 'Lebar dan tinggi 20 sampai 600.';
+
+  @override
+  String get floorErrorPosition => 'Posisi meja di luar denah.';
+
+  @override
+  String get floorErrorInUse => 'Meja yang dihapus masih punya bill terbuka.';
+
+  @override
+  String get floorErrorPermission => 'Butuh izin Kelola pengaturan.';
+
+  @override
+  String get floorErrorGeneric => 'Tata letak gagal disimpan. Coba lagi.';
+
+  @override
+  String floorErrorOn(String table, String message) {
+    return '$table: $message';
+  }
+
+  @override
+  String get floorShapeRound => 'Bulat';
+
+  @override
+  String get floorShapeSquare => 'Kotak';
+
+  @override
+  String get floorShapeLong => 'Panjang';
+
+  @override
+  String get floorShapeBar => 'Kursi bar';
+
+  @override
+  String get floorDiscardTitle => 'Buang perubahan?';
+
+  @override
+  String get floorDiscardBody =>
+      'Perubahan tata letak yang belum disimpan akan hilang.';
+
+  @override
+  String get floorDiscardKeep => 'Batal';
+
+  @override
+  String get floorDiscardConfirm => 'Buang';
+
+  @override
+  String get floorLoadFailed => 'Denah gagal dimuat.';
+
+  @override
+  String get floorBack => 'Kembali';
+
+  @override
+  String get floorNoArea =>
+      'Belum ada area. Tambah area dulu, mis. Indoor atau Teras.';
+
+  @override
+  String get floorTitle => 'Atur denah meja';
+
+  @override
+  String get floorSubtitle => 'Pengaturan › Meja & area (F&B)';
+
+  @override
+  String get floorAddArea => '+ Area';
+
+  @override
+  String get floorAddAreaTitle => 'Area baru';
+
+  @override
+  String get floorAreaName => 'Nama area';
+
+  @override
+  String get floorAddAreaSave => 'Tambah';
+
+  @override
+  String get floorGridInfoTitle => 'Mode Grid';
+
+  @override
+  String floorGridInfoBody(String area) {
+    return 'Meja area $area tampil sebagai kotak berurutan di layar Meja. Pilih Denah untuk mengunggah gambar denah dan mengatur posisi meja.';
+  }
+
+  @override
+  String floorSeats(int count) {
+    return '$count kursi';
+  }
+
+  @override
+  String get floorUndo => 'Urungkan';
+
+  @override
+  String get floorRedo => 'Ulangi';
+
+  @override
+  String get floorReplaceImage => 'Ganti gambar denah';
+
+  @override
+  String get floorOpacity => 'Transparansi denah';
+
+  @override
+  String floorSnap(int size) {
+    return 'Snap ke grid $size px';
+  }
+
+  @override
+  String floorZoom(int percent) {
+    return 'Zoom $percent%';
+  }
+
+  @override
+  String get floorZoomIn => 'Perbesar';
+
+  @override
+  String get floorZoomOut => 'Perkecil';
+
+  @override
+  String get floorZoomFit => 'Pas layar';
+
+  @override
+  String floorUploadTitle(String area) {
+    return 'Unggah gambar denah area $area';
+  }
+
+  @override
+  String get floorUploadBody =>
+      'Foto sketsa tangan, hasil export aplikasi denah, atau gambar dari arsitek. PNG / JPG / WebP / SVG, maks. 5 MB.';
+
+  @override
+  String get floorPickFile => 'Pilih file';
+
+  @override
+  String get floorTakePhoto => 'Ambil foto';
+
+  @override
+  String get floorTipsTitle => 'Tips gambar';
+
+  @override
+  String get floorTipAngle => 'Sudut pandang';
+
+  @override
+  String get floorTipAngleValue => 'Dari atas, lurus';
+
+  @override
+  String get floorTipSize => 'Ukuran';
+
+  @override
+  String get floorTipSizeValue => 'Lebar minimal 1200 px';
+
+  @override
+  String get floorTipContent => 'Isi';
+
+  @override
+  String get floorTipContentValue => 'Dinding, pintu, dapur, bar';
+
+  @override
+  String get floorTipStorage =>
+      'Gambar disimpan di perangkat. Saat hosting aktif, ikut diunggah ke Object Storage seperti foto produk.';
+
+  @override
+  String get floorTipGrid =>
+      'Tidak punya denah? Pilih mode Grid. Meja tampil seperti biasa dan bisa diganti kapan saja.';
+
+  @override
+  String floorPreset(String shape, int seats) {
+    return '$shape · $seats kursi';
+  }
+
+  @override
+  String get floorAddTable => 'Tambah meja';
+
+  @override
+  String get floorAddTableHint =>
+      'Ketuk untuk menaruh meja di tengah tampilan.';
+
+  @override
+  String get floorUnplaced => 'Belum ditempatkan';
+
+  @override
+  String get floorUnplacedHint =>
+      'Meja yang sudah ada di mode grid tapi belum punya posisi. Ketuk untuk menaruh.';
+
+  @override
+  String get floorUnplacedNone => 'Semua meja sudah ditempatkan.';
+
+  @override
+  String floorModeTitle(String area) {
+    return 'Mode tata letak · $area';
+  }
+
+  @override
+  String get floorModeGrid => 'Grid';
+
+  @override
+  String get floorModeGridHint =>
+      'Tanpa denah. Meja tampil sebagai kotak berurutan.';
+
+  @override
+  String get floorModeFloor => 'Denah';
+
+  @override
+  String get floorModeFloorHint =>
+      'Unggah gambar denah, lalu atur posisi meja.';
+
+  @override
+  String floorSelected(String name) {
+    return 'Meja $name dipilih';
+  }
+
+  @override
+  String get floorSelectHint =>
+      'Ketuk meja di denah untuk mengubah nama, kursi, bentuk, dan ukurannya.';
+
+  @override
+  String get floorName => 'Nama';
+
+  @override
+  String get floorSeatsLabel => 'Kursi';
+
+  @override
+  String get floorShape => 'Bentuk';
+
+  @override
+  String get floorWidth => 'Lebar';
+
+  @override
+  String get floorHeight => 'Tinggi';
+
+  @override
+  String get floorOrientation => 'Orientasi';
+
+  @override
+  String get floorHorizontal => 'Mendatar';
+
+  @override
+  String get floorVertical => 'Tegak';
+
+  @override
+  String get floorCanMerge => 'Boleh digabung dengan meja sebelah';
+
+  @override
+  String get floorDelete => 'Hapus meja';
+
+  @override
+  String get floorUnsaved => 'Ada perubahan yang belum disimpan.';
+
+  @override
+  String get floorSave => 'Simpan tata letak';
+
+  @override
+  String get floorSaving => 'Menyimpan…';
+
+  @override
+  String get diningLayoutGrid => 'Grid';
+
+  @override
+  String get diningLayoutFloor => 'Denah';
+
+  @override
+  String get diningArrange => 'Atur denah';
+
+  @override
+  String get diningFloorLocked => 'Posisi terkunci · geser & zoom saja';
+
+  @override
+  String get diningUnplaced => 'Belum ditempatkan';
+
+  @override
+  String get diningNoFloorArea => 'Belum ada area mode denah.';
 }

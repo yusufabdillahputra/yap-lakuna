@@ -23,13 +23,16 @@ void main() {
 
   group('TablePreset', () {
     test('lima palet dengan kursi dan ukuran kelipatan 20 bila bisa', () {
-      expect(TablePreset.all.map((p) => (p.shape, p.seats, p.width, p.height)), [
-        (FloorShape.round, 2, 60, 60),
-        (FloorShape.square, 4, 80, 80),
-        (FloorShape.long, 6, 140, 80),
-        (FloorShape.long, 8, 180, 80),
-        (FloorShape.bar, 1, 40, 40),
-      ]);
+      expect(
+        TablePreset.all.map((p) => (p.shape, p.seats, p.width, p.height)),
+        [
+          (FloorShape.round, 2, 60, 60),
+          (FloorShape.square, 4, 80, 80),
+          (FloorShape.long, 6, 140, 80),
+          (FloorShape.long, 8, 180, 80),
+          (FloorShape.bar, 1, 40, 40),
+        ],
+      );
     });
   });
 

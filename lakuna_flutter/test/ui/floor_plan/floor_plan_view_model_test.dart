@@ -53,7 +53,10 @@ void main() {
     vm.addPreset(TablePreset.all.first, cx: 400, cy: 300);
     final m = vm.selected!;
     expect(m.name, 'M3');
-    expect((m.shape, m.seats, m.width, m.height), (TableShape.round, 2, 60, 60));
+    expect(
+      (m.shape, m.seats, m.width, m.height),
+      (TableShape.round, 2, 60, 60),
+    );
     // 400 − 30 = 370 → 380; 300 − 30 = 270 → 280.
     expect((m.x, m.y), (380, 280));
     expect(vm.dirty, isTrue);

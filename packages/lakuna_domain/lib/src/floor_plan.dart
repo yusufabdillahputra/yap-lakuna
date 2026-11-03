@@ -121,9 +121,10 @@ ImageHeader? _svg(List<int> bytes) {
   final root = RegExp(r'^<svg\b([^>]*)>?').firstMatch(rest);
   if (root == null) return null;
   final attrs = root.group(1) ?? '';
-  String? attr(String name) => RegExp(
-    '\\b$name\\s*=\\s*["\\\']([^"\\\']*)["\\\']',
-  ).firstMatch(attrs)?.group(1);
+  String? attr(String name) =>
+      RegExp('\\b$name\\s*=\\s*["\\\']([^"\\\']*)["\\\']')
+          .firstMatch(attrs)
+          ?.group(1);
 
   final viewBox = attr('viewBox')
       ?.trim()

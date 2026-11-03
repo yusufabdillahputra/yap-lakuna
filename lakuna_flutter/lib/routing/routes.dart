@@ -24,6 +24,12 @@ abstract final class Routes {
   /// Layar Meja dengan bill [id] terpilih.
   static String tablesBill(String id) => '$tables?bill=$id';
 
+  /// *Atur denah* (1.7d), langsung ke area [area] bila ada.
+  static String tablesFloor([String? area]) => Uri(
+    path: '$tables/denah',
+    queryParameters: area == null ? null : {'area': area},
+  ).toString();
+
   /// Split bill open bill [id] (F1-10c, layar 1.9).
   static String tablesSplit(String id) => '$tables/split/$id';
 

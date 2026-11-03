@@ -12,6 +12,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show SaleOption, saleOptionsFor;
 import '../cashier/payment_view.dart' show tabularFigures;
 import '../core/format.dart';
+import '../floor_plan/floor_canvas.dart';
 import '../products/product_widgets.dart';
 import '../receipt/receipt_content.dart' show percentLabel;
 import '../receipt/receipt_paper_view.dart';
@@ -27,6 +28,7 @@ class DiningScreen extends StatefulWidget {
     required this.printer,
     required this.onPay,
     this.onSplit,
+    this.onArrange,
     this.initialBill,
   });
 
@@ -38,6 +40,9 @@ class DiningScreen extends StatefulWidget {
 
   /// *Split bill*: membuka layar split (1.9).
   final void Function(UuidValue billId)? onSplit;
+
+  /// *Atur denah* (1.7d) untuk area denah yang tampil (atau area pertama).
+  final void Function(UuidValue? area)? onArrange;
 
   /// Bill yang langsung dipilih (kembali dari tahap bayar).
   final String? initialBill;
@@ -82,6 +87,7 @@ class _DiningScreenState extends State<DiningScreen> {
     viewModel: _viewModel,
     onPay: widget.onPay,
     onSplit: widget.onSplit,
+    onArrange: widget.onArrange,
   );
 }
 
@@ -194,12 +200,14 @@ class DiningView extends StatelessWidget {
     required this.viewModel,
     required this.onPay,
     this.onSplit,
+    this.onArrange,
     this.clock = DateTime.now,
   });
 
   final DiningViewModel viewModel;
   final void Function(UuidValue billId) onPay;
   final void Function(UuidValue billId)? onSplit;
+  final void Function(UuidValue? area)? onArrange;
 
   /// Jam untuk lama bill terbuka (bisa diganti di tes).
   final DateTime Function() clock;
@@ -229,7 +237,12 @@ class DiningView extends StatelessWidget {
             final wide = constraints.maxWidth >= 900;
             final narrow = constraints.maxWidth < 600;
             final selected = vm.selectedBill;
-            final main = _MainPane(viewModel: vm, narrow: narrow, clock: clock);
+            final main = _MainPane(
+              viewModel: vm,
+              narrow: narrow,
+              clock: clock,
+              onArrange: onArrange,
+            );
             if (!wide) {
               if (selected == null) return main;
               return PopScope(
@@ -365,11 +378,13 @@ class _MainPane extends StatelessWidget {
     required this.viewModel,
     required this.narrow,
     required this.clock,
+    this.onArrange,
   });
 
   final DiningViewModel viewModel;
   final bool narrow;
   final DateTime Function() clock;
+  final void Function(UuidValue? area)? onArrange;
 
   @override
   Widget build(BuildContext context) {
@@ -391,8 +406,38 @@ class _MainPane extends StatelessWidget {
           selected: vm.mode == DiningMode.takeAway,
           onTap: () => vm.setMode(DiningMode.takeAway),
         ),
+        if (vm.hasFloor && vm.mode == DiningMode.dineIn) ...[
+          ChoicePill(
+            key: const ValueKey('dining-layout-grid'),
+            label: l10n.diningLayoutGrid,
+            selected: vm.layout == DiningLayout.grid,
+            onTap: () => vm.setLayout(DiningLayout.grid),
+          ),
+          ChoicePill(
+            key: const ValueKey('dining-layout-floor'),
+            label: l10n.diningLayoutFloor,
+            selected: vm.layout == DiningLayout.floor,
+            onTap: () => vm.setLayout(DiningLayout.floor),
+          ),
+        ],
+        if (onArrange case final arrange? when vm.canArrange)
+          FButton(
+            key: const ValueKey('dining-arrange'),
+            variant: .outline,
+            size: .sm,
+            mainAxisSize: .min,
+            prefix: const Icon(TablerIcons.layoutBoardSplit, size: 16),
+            onPress: () => arrange(
+              vm.layout == DiningLayout.floor
+                  ? vm.floorArea?.id
+                  : vm.areaId ?? vm.areas.firstOrNull?.id,
+            ),
+            child: Flexible(child: Text(l10n.diningArrange)),
+          ),
       ],
     );
+    final floor =
+        vm.mode == DiningMode.dineIn && vm.layout == DiningLayout.floor;
     final pad = narrow ? 16.0 : 24.0;
     return CustomScrollView(
       slivers: [
@@ -418,7 +463,10 @@ class _MainPane extends StatelessWidget {
                     key: const ValueKey('dining-action-error'),
                     style: _errorStyle(context),
                   ),
-                if (vm.mode == DiningMode.dineIn) ...[
+                if (floor) ...[
+                  const _Legend(),
+                  _FloorAreaTabs(viewModel: vm),
+                ] else if (vm.mode == DiningMode.dineIn) ...[
                   const _Legend(),
                   if (vm.areas.isNotEmpty) _AreaTabs(viewModel: vm),
                 ] else
@@ -438,7 +486,15 @@ class _MainPane extends StatelessWidget {
         ),
         SliverPadding(
           padding: EdgeInsets.all(pad),
-          sliver: vm.mode == DiningMode.dineIn
+          sliver: floor
+              ? SliverToBoxAdapter(
+                  child: _FloorPane(
+                    key: ValueKey('dining-floor-${vm.floorArea?.id}'),
+                    viewModel: vm,
+                    narrow: narrow,
+                  ),
+                )
+              : vm.mode == DiningMode.dineIn
               ? _TableGrid(viewModel: vm, narrow: narrow, clock: clock)
               : _TakeAwayList(viewModel: vm),
         ),
@@ -516,6 +572,233 @@ class _AreaTabs extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _FloorAreaTabs extends StatelessWidget {
+  const _FloorAreaTabs({required this.viewModel});
+
+  final DiningViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = viewModel;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 8,
+        children: [
+          for (final a in vm.floorAreas)
+            ChoicePill(
+              key: ValueKey('dining-floor-area-${a.name}'),
+              label: a.name,
+              selected: vm.floorArea?.id == a.id,
+              onTap: () => vm.setFloorArea(a.id),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Denah area terpilih (1.7b): meja terkunci di posisinya, warna status,
+/// geser & zoom tampilan saja. Meja tanpa posisi tampil sebagai chip.
+class _FloorPane extends StatefulWidget {
+  const _FloorPane({super.key, required this.viewModel, required this.narrow});
+
+  final DiningViewModel viewModel;
+  final bool narrow;
+
+  @override
+  State<_FloorPane> createState() => _FloorPaneState();
+}
+
+class _FloorPaneState extends State<_FloorPane> {
+  final _canvas = FloorCanvasController();
+
+  @override
+  void dispose() {
+    _canvas.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = widget.viewModel;
+    final area = vm.floorArea;
+    if (area == null) {
+      return Text(l10n.diningNoFloorArea, style: _muted(context));
+    }
+    final image = vm.floorImage(area);
+    final placed = vm.floorTables(area, placed: true);
+    final unplaced = vm.floorTables(area, placed: false);
+    final byKey = {for (final t in placed) t.id.uuid: t};
+
+    (Color, Color, Color) colors(DiningTable t) {
+      final bill = vm.billFor(t);
+      final selected = bill != null && vm.selectedBill?.id == bill.id;
+      final tone = switch (vm.tableState(t)) {
+        TableState.empty => null,
+        TableState.open => _Tone.sky,
+        TableState.billRequested => _Tone.amber,
+      };
+      final (bg, fg) = tone == null
+          ? (theme.colors.card, theme.colors.foreground)
+          : _toneColors(context, tone);
+      final border = selected
+          ? theme.colors.primary
+          : tone == null
+          ? theme.colors.border
+          : fg;
+      return (bg, fg, border);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 12,
+      children: [
+        SizedBox(
+          height: widget.narrow ? 420 : 560,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: theme.colors.border),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: FloorCanvas(
+                      key: const ValueKey('dining-floor-canvas'),
+                      controller: _canvas,
+                      world: image?.world ?? floorWorldSize(null, null),
+                      image: image,
+                      tables: [
+                        for (final t in placed)
+                          FloorTableSpec(
+                            key: t.id.uuid,
+                            x: t.posX!,
+                            y: t.posY ?? 0,
+                            width: t.width,
+                            height: t.height,
+                            shape: t.shape,
+                            signature: (
+                              t.name,
+                              colors(t),
+                              vm.billFor(t)?.charges.total,
+                            ),
+                          ),
+                      ],
+                      tableBuilder: (context, key) {
+                        final t = byKey[key];
+                        if (t == null) return const SizedBox.shrink();
+                        final (bg, fg, border) = colors(t);
+                        final bill = vm.billFor(t);
+                        return FloorTableBox(
+                          key: ValueKey('dining-floor-table-${t.name}'),
+                          name: t.name,
+                          detail: bill == null
+                              ? null
+                              : formatMoney(context, bill.charges.total),
+                          shape: t.shape,
+                          background: bg,
+                          foreground: fg,
+                          border: border,
+                          borderWidth: border == theme.colors.primary
+                              ? 2.5
+                              : 1.5,
+                        );
+                      },
+                      onTap: (key) {
+                        final t = byKey[key];
+                        if (t != null && !vm.busy) _tapTable(context, vm, t);
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: theme.colors.background.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: theme.colors.border),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          l10n.diningFloorLocked,
+                          key: const ValueKey('dining-floor-locked'),
+                          style: theme.typography.body.xs.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 10,
+                    bottom: 10,
+                    child: FloorZoomControls(controller: _canvas),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (unplaced.isNotEmpty) ...[
+          Text(
+            l10n.diningUnplaced,
+            style: theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final t in unplaced)
+                Builder(
+                  builder: (context) {
+                    final (bg, fg, border) = colors(t);
+                    return FTappable(
+                      key: ValueKey('dining-unplaced-${t.name}'),
+                      semanticsLabel: t.name,
+                      onPress: vm.busy ? null : () => _tapTable(context, vm, t),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: bg,
+                          border: Border.all(color: border),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Text(
+                            t.name,
+                            style: theme.typography.body.sm.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: fg,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
@@ -600,15 +883,7 @@ class _TableCard extends StatelessWidget {
       key: ValueKey('dining-table-${table.name}'),
       semanticsLabel: table.name,
       selected: selected,
-      onPress: vm.busy
-          ? null
-          : () async {
-              if (vm.tapTable(table)) return;
-              final guests = await _askGuests(context, table);
-              if (guests != null) {
-                await vm.openTable.execute((table.id, guests));
-              }
-            },
+      onPress: vm.busy ? null : () => _tapTable(context, vm, table),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: bg,
@@ -1366,6 +1641,18 @@ Future<T?> _showDialog<T>(BuildContext context, WidgetBuilder builder) =>
     );
 
 /// Jumlah tamu untuk membuka [table]; `null` = batal.
+/// Ketuk meja (grid atau denah): pilih bill, atau tanya jumlah tamu lalu
+/// buka meja kosong.
+Future<void> _tapTable(
+  BuildContext context,
+  DiningViewModel vm,
+  DiningTable table,
+) async {
+  if (vm.tapTable(table)) return;
+  final guests = await _askGuests(context, table);
+  if (guests != null) await vm.openTable.execute((table.id, guests));
+}
+
 Future<int?> _askGuests(BuildContext context, DiningTable table) =>
     _showDialog<int>(context, (context) => _GuestsDialog(table: table));
 

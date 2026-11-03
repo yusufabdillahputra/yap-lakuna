@@ -3208,4 +3208,305 @@ class AppLocalizationsEn extends AppLocalizations {
   String diningVoidSplitPaid(String amount) {
     return 'Parts already paid ($amount) are returned to the guests and not counted in the cash session.';
   }
+
+  @override
+  String get floorErrorImageTooLarge =>
+      'The floor plan image is larger than 5 MB.';
+
+  @override
+  String get floorErrorImageFormat =>
+      'Unsupported format. Use PNG, JPG, WebP, or SVG.';
+
+  @override
+  String get floorErrorNameEmpty => 'Table name is required.';
+
+  @override
+  String get floorErrorNameTooLong =>
+      'Table name can be at most 20 characters.';
+
+  @override
+  String get floorErrorNameDuplicate =>
+      'This table name is already used at this branch.';
+
+  @override
+  String get floorErrorSeats => 'Seats must be 1 to 99.';
+
+  @override
+  String get floorErrorSize => 'Width and height must be 20 to 600.';
+
+  @override
+  String get floorErrorPosition => 'The table is outside the floor plan.';
+
+  @override
+  String get floorErrorInUse => 'A deleted table still has an open bill.';
+
+  @override
+  String get floorErrorPermission => 'Requires the Manage settings permission.';
+
+  @override
+  String get floorErrorGeneric => 'Could not save the layout. Try again.';
+
+  @override
+  String floorErrorOn(String table, String message) {
+    return '$table: $message';
+  }
+
+  @override
+  String get floorShapeRound => 'Round';
+
+  @override
+  String get floorShapeSquare => 'Square';
+
+  @override
+  String get floorShapeLong => 'Long';
+
+  @override
+  String get floorShapeBar => 'Bar seat';
+
+  @override
+  String get floorDiscardTitle => 'Discard changes?';
+
+  @override
+  String get floorDiscardBody => 'Unsaved layout changes will be lost.';
+
+  @override
+  String get floorDiscardKeep => 'Cancel';
+
+  @override
+  String get floorDiscardConfirm => 'Discard';
+
+  @override
+  String get floorLoadFailed => 'Could not load the floor plan.';
+
+  @override
+  String get floorBack => 'Back';
+
+  @override
+  String get floorNoArea =>
+      'No areas yet. Add one first, e.g. Indoor or Terrace.';
+
+  @override
+  String get floorTitle => 'Arrange floor plan';
+
+  @override
+  String get floorSubtitle => 'Settings › Tables & areas (F&B)';
+
+  @override
+  String get floorAddArea => '+ Area';
+
+  @override
+  String get floorAddAreaTitle => 'New area';
+
+  @override
+  String get floorAreaName => 'Area name';
+
+  @override
+  String get floorAddAreaSave => 'Add';
+
+  @override
+  String get floorGridInfoTitle => 'Grid mode';
+
+  @override
+  String floorGridInfoBody(String area) {
+    return 'Tables in $area show as an ordered grid on the Tables screen. Choose Floor plan to upload a floor plan and place tables.';
+  }
+
+  @override
+  String floorSeats(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats',
+      one: '1 seat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get floorUndo => 'Undo';
+
+  @override
+  String get floorRedo => 'Redo';
+
+  @override
+  String get floorReplaceImage => 'Replace floor plan image';
+
+  @override
+  String get floorOpacity => 'Plan opacity';
+
+  @override
+  String floorSnap(int size) {
+    return 'Snap to $size px grid';
+  }
+
+  @override
+  String floorZoom(int percent) {
+    return 'Zoom $percent%';
+  }
+
+  @override
+  String get floorZoomIn => 'Zoom in';
+
+  @override
+  String get floorZoomOut => 'Zoom out';
+
+  @override
+  String get floorZoomFit => 'Fit to screen';
+
+  @override
+  String floorUploadTitle(String area) {
+    return 'Upload a floor plan for $area';
+  }
+
+  @override
+  String get floorUploadBody =>
+      'A photo of a hand sketch, an export from a floor plan app, or an architect drawing. PNG / JPG / WebP / SVG, up to 5 MB.';
+
+  @override
+  String get floorPickFile => 'Choose file';
+
+  @override
+  String get floorTakePhoto => 'Take photo';
+
+  @override
+  String get floorTipsTitle => 'Image tips';
+
+  @override
+  String get floorTipAngle => 'Viewpoint';
+
+  @override
+  String get floorTipAngleValue => 'From above, straight';
+
+  @override
+  String get floorTipSize => 'Size';
+
+  @override
+  String get floorTipSizeValue => 'At least 1200 px wide';
+
+  @override
+  String get floorTipContent => 'Contents';
+
+  @override
+  String get floorTipContentValue => 'Walls, doors, kitchen, bar';
+
+  @override
+  String get floorTipStorage =>
+      'The image is stored on this device. With hosting, it is uploaded to object storage like product photos.';
+
+  @override
+  String get floorTipGrid =>
+      'No floor plan? Choose Grid mode. Tables show as usual and you can switch any time.';
+
+  @override
+  String floorPreset(String shape, int seats) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seats,
+      locale: localeName,
+      other: '$seats seats',
+      one: '1 seat',
+    );
+    return '$shape · $_temp0';
+  }
+
+  @override
+  String get floorAddTable => 'Add table';
+
+  @override
+  String get floorAddTableHint =>
+      'Tap to place a table in the middle of the view.';
+
+  @override
+  String get floorUnplaced => 'Not placed yet';
+
+  @override
+  String get floorUnplacedHint =>
+      'Tables from grid mode without a position. Tap to place.';
+
+  @override
+  String get floorUnplacedNone => 'All tables are placed.';
+
+  @override
+  String floorModeTitle(String area) {
+    return 'Layout mode · $area';
+  }
+
+  @override
+  String get floorModeGrid => 'Grid';
+
+  @override
+  String get floorModeGridHint =>
+      'No floor plan. Tables show as an ordered grid.';
+
+  @override
+  String get floorModeFloor => 'Floor plan';
+
+  @override
+  String get floorModeFloorHint =>
+      'Upload a floor plan, then place the tables.';
+
+  @override
+  String floorSelected(String name) {
+    return 'Table $name selected';
+  }
+
+  @override
+  String get floorSelectHint =>
+      'Tap a table on the plan to edit its name, seats, shape, and size.';
+
+  @override
+  String get floorName => 'Name';
+
+  @override
+  String get floorSeatsLabel => 'Seats';
+
+  @override
+  String get floorShape => 'Shape';
+
+  @override
+  String get floorWidth => 'Width';
+
+  @override
+  String get floorHeight => 'Height';
+
+  @override
+  String get floorOrientation => 'Orientation';
+
+  @override
+  String get floorHorizontal => 'Horizontal';
+
+  @override
+  String get floorVertical => 'Vertical';
+
+  @override
+  String get floorCanMerge => 'Can be joined with the next table';
+
+  @override
+  String get floorDelete => 'Delete table';
+
+  @override
+  String get floorUnsaved => 'You have unsaved changes.';
+
+  @override
+  String get floorSave => 'Save layout';
+
+  @override
+  String get floorSaving => 'Saving…';
+
+  @override
+  String get diningLayoutGrid => 'Grid';
+
+  @override
+  String get diningLayoutFloor => 'Floor plan';
+
+  @override
+  String get diningArrange => 'Arrange floor plan';
+
+  @override
+  String get diningFloorLocked => 'Positions locked · pan & zoom only';
+
+  @override
+  String get diningUnplaced => 'Not placed yet';
+
+  @override
+  String get diningNoFloorArea => 'No area uses a floor plan yet.';
 }

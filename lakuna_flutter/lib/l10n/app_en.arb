@@ -1462,5 +1462,160 @@
         "type": "String"
       }
     }
-  }
+  },
+  "floorErrorImageTooLarge": "The floor plan image is larger than 5 MB.",
+  "floorErrorImageFormat": "Unsupported format. Use PNG, JPG, WebP, or SVG.",
+  "floorErrorNameEmpty": "Table name is required.",
+  "floorErrorNameTooLong": "Table name can be at most 20 characters.",
+  "floorErrorNameDuplicate": "This table name is already used at this branch.",
+  "floorErrorSeats": "Seats must be 1 to 99.",
+  "floorErrorSize": "Width and height must be 20 to 600.",
+  "floorErrorPosition": "The table is outside the floor plan.",
+  "floorErrorInUse": "A deleted table still has an open bill.",
+  "floorErrorPermission": "Requires the Manage settings permission.",
+  "floorErrorGeneric": "Could not save the layout. Try again.",
+  "floorErrorOn": "{table}: {message}",
+  "@floorErrorOn": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "floorShapeRound": "Round",
+  "floorShapeSquare": "Square",
+  "floorShapeLong": "Long",
+  "floorShapeBar": "Bar seat",
+  "floorDiscardTitle": "Discard changes?",
+  "floorDiscardBody": "Unsaved layout changes will be lost.",
+  "floorDiscardKeep": "Cancel",
+  "floorDiscardConfirm": "Discard",
+  "floorLoadFailed": "Could not load the floor plan.",
+  "floorBack": "Back",
+  "floorNoArea": "No areas yet. Add one first, e.g. Indoor or Terrace.",
+  "floorTitle": "Arrange floor plan",
+  "floorSubtitle": "Settings › Tables & areas (F&B)",
+  "floorAddArea": "+ Area",
+  "floorAddAreaTitle": "New area",
+  "floorAreaName": "Area name",
+  "floorAddAreaSave": "Add",
+  "floorGridInfoTitle": "Grid mode",
+  "floorGridInfoBody": "Tables in {area} show as an ordered grid on the Tables screen. Choose Floor plan to upload a floor plan and place tables.",
+  "@floorGridInfoBody": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorSeats": "{count, plural, =1{1 seat} other{{count} seats}}",
+  "@floorSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "floorUndo": "Undo",
+  "floorRedo": "Redo",
+  "floorReplaceImage": "Replace floor plan image",
+  "floorOpacity": "Plan opacity",
+  "floorSnap": "Snap to {size} px grid",
+  "@floorSnap": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "floorZoom": "Zoom {percent}%",
+  "@floorZoom": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "floorZoomIn": "Zoom in",
+  "floorZoomOut": "Zoom out",
+  "floorZoomFit": "Fit to screen",
+  "floorUploadTitle": "Upload a floor plan for {area}",
+  "@floorUploadTitle": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorUploadBody": "A photo of a hand sketch, an export from a floor plan app, or an architect drawing. PNG / JPG / WebP / SVG, up to 5 MB.",
+  "floorPickFile": "Choose file",
+  "floorTakePhoto": "Take photo",
+  "floorTipsTitle": "Image tips",
+  "floorTipAngle": "Viewpoint",
+  "floorTipAngleValue": "From above, straight",
+  "floorTipSize": "Size",
+  "floorTipSizeValue": "At least 1200 px wide",
+  "floorTipContent": "Contents",
+  "floorTipContentValue": "Walls, doors, kitchen, bar",
+  "floorTipStorage": "The image is stored on this device. With hosting, it is uploaded to object storage like product photos.",
+  "floorTipGrid": "No floor plan? Choose Grid mode. Tables show as usual and you can switch any time.",
+  "floorPreset": "{shape} · {seats, plural, =1{1 seat} other{{seats} seats}}",
+  "@floorPreset": {
+    "placeholders": {
+      "shape": {
+        "type": "String"
+      },
+      "seats": {
+        "type": "int"
+      }
+    }
+  },
+  "floorAddTable": "Add table",
+  "floorAddTableHint": "Tap to place a table in the middle of the view.",
+  "floorUnplaced": "Not placed yet",
+  "floorUnplacedHint": "Tables from grid mode without a position. Tap to place.",
+  "floorUnplacedNone": "All tables are placed.",
+  "floorModeTitle": "Layout mode · {area}",
+  "@floorModeTitle": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "floorModeGrid": "Grid",
+  "floorModeGridHint": "No floor plan. Tables show as an ordered grid.",
+  "floorModeFloor": "Floor plan",
+  "floorModeFloorHint": "Upload a floor plan, then place the tables.",
+  "floorSelected": "Table {name} selected",
+  "@floorSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "floorSelectHint": "Tap a table on the plan to edit its name, seats, shape, and size.",
+  "floorName": "Name",
+  "floorSeatsLabel": "Seats",
+  "floorShape": "Shape",
+  "floorWidth": "Width",
+  "floorHeight": "Height",
+  "floorOrientation": "Orientation",
+  "floorHorizontal": "Horizontal",
+  "floorVertical": "Vertical",
+  "floorCanMerge": "Can be joined with the next table",
+  "floorDelete": "Delete table",
+  "floorUnsaved": "You have unsaved changes.",
+  "floorSave": "Save layout",
+  "floorSaving": "Saving…",
+  "diningLayoutGrid": "Grid",
+  "diningLayoutFloor": "Floor plan",
+  "diningArrange": "Arrange floor plan",
+  "diningFloorLocked": "Positions locked · pan & zoom only",
+  "diningUnplaced": "Not placed yet",
+  "diningNoFloorArea": "No area uses a floor plan yet."
 }

@@ -184,6 +184,7 @@ class FloorPlanViewModel extends ChangeNotifier {
   Exception? _error;
   int? _errorIndex;
   var _revision = 0;
+  var _formEpoch = 0;
   var _disposed = false;
 
   @override
@@ -212,8 +213,7 @@ class FloorPlanViewModel extends ChangeNotifier {
       areas.where((a) => a.id == _areaId).firstOrNull ?? areas.firstOrNull;
 
   /// Gambar denah area terpilih.
-  FloorImage? get image =>
-      area == null ? null : _setup?.images[area!.id];
+  FloorImage? get image => area == null ? null : _setup?.images[area!.id];
 
   ({int width, int height}) get world =>
       image?.world ?? floorWorldSize(null, null);
@@ -250,6 +250,10 @@ class FloorPlanViewModel extends ChangeNotifier {
 
   /// Naik setiap draf berubah (kanvas menyelaraskan node).
   int get revision => _revision;
+
+  /// Naik bila isian panel properti harus diisi ulang (pilih meja, undo,
+  /// geser/ubah ukuran di kanvas), tidak saat mengetik.
+  int get formEpoch => _formEpoch;
 
   /// Galat aksi terakhir; [errorItem] = meja draf yang ditolak (bila ada).
   Exception? get error => _error;
@@ -296,6 +300,7 @@ class FloorPlanViewModel extends ChangeNotifier {
     _errorIndex = null;
     _saved = _snapshot();
     _revision++;
+    _formEpoch++;
   }
 
   /// Pindah ke area [id]; draf yang belum disimpan dibuang (view bertanya
@@ -341,7 +346,8 @@ class FloorPlanViewModel extends ChangeNotifier {
     _coalesce = tag;
   }
 
-  void _changed() {
+  void _changed({bool typing = false}) {
+    if (!typing) _formEpoch++;
     _error = null;
     _errorIndex = null;
     _revision++;
@@ -390,6 +396,7 @@ class FloorPlanViewModel extends ChangeNotifier {
     if (key == _selected) return;
     _selected = key;
     _coalesce = null;
+    _formEpoch++;
     notifyListeners();
   }
 
@@ -433,14 +440,20 @@ class FloorPlanViewModel extends ChangeNotifier {
     }
   }
 
-  void _replace(String key, FloorItem Function(FloorItem) change, [String? tag]) {
+  static const _typed = {'name', 'seats', 'width', 'height'};
+
+  void _replace(
+    String key,
+    FloorItem Function(FloorItem) change, [
+    String? tag,
+  ]) {
     final i = _items.indexWhere((e) => e.key == key);
     if (i < 0) return;
     final next = change(_items[i]);
     if (next == _items[i]) return;
     _commit(tag == null ? null : '$tag:$key');
     _items = [..._items]..[i] = next;
-    _changed();
+    _changed(typing: _typed.contains(tag));
   }
 
   /// Ketuk *Belum ditempatkan*: taruh di tengah tampilan.

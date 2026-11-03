@@ -24,6 +24,7 @@ import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
 import '../ui/dining/split_bill_view.dart';
+import '../ui/floor_plan/floor_plan_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -171,6 +172,17 @@ GoRouter createRouter({
               initialBill: state.uri.queryParameters['bill'],
               onPay: (id) => context.go(Routes.cashierBill(id.uuid)),
               onSplit: (id) => context.go(Routes.tablesSplit(id.uuid)),
+              onArrange: (area) => context.go(Routes.tablesFloor(area?.uuid)),
+            ),
+          ),
+          GoRoute(
+            path: '${Routes.tables}/denah',
+            builder: (context, state) => FloorPlanScreen(
+              key: ValueKey('floor-${state.uri.query}'),
+              repository: diningAdmin,
+              picker: imagePicker,
+              initialArea: _uuid(state.uri.queryParameters['area']),
+              onBack: () => context.go(Routes.tables),
             ),
           ),
           GoRoute(
