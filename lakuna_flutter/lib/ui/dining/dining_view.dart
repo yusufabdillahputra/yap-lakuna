@@ -439,66 +439,71 @@ class _MainPane extends StatelessWidget {
     final floor =
         vm.mode == DiningMode.dineIn && vm.layout == DiningLayout.floor;
     final pad = narrow ? 16.0 : 24.0;
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(pad, pad, pad, 0),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                PageHeader(
-                  title: l10n.diningTitle,
-                  subtitle: l10n.diningSubtitle(
-                    vm.staffName,
-                    vm.occupiedCount,
-                    vm.tables.length,
-                  ),
-                  action: modes,
-                ),
-                if (vm.actionError case final e? when vm.selectedBill == null)
-                  Text(
-                    diningErrorMessage(l10n, e),
-                    key: const ValueKey('dining-action-error'),
-                    style: _errorStyle(context),
-                  ),
-                if (floor) ...[
-                  const _Legend(),
-                  _FloorAreaTabs(viewModel: vm),
-                ] else if (vm.mode == DiningMode.dineIn) ...[
-                  const _Legend(),
-                  if (vm.areas.isNotEmpty) _AreaTabs(viewModel: vm),
-                ] else
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: FButton(
-                      key: const ValueKey('dining-take-away-new'),
-                      mainAxisSize: .min,
-                      prefix: const Icon(TablerIcons.plus, size: 16),
-                      onPress: vm.busy ? null : () => _newTakeAway(context, vm),
-                      child: Flexible(child: Text(l10n.diningTakeAwayNew)),
+    return FloorScrollLock(
+      builder: (context, physics) => CustomScrollView(
+        physics: physics,
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(pad, pad, pad, 0),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  PageHeader(
+                    title: l10n.diningTitle,
+                    subtitle: l10n.diningSubtitle(
+                      vm.staffName,
+                      vm.occupiedCount,
+                      vm.tables.length,
                     ),
+                    action: modes,
                   ),
-              ],
+                  if (vm.actionError case final e? when vm.selectedBill == null)
+                    Text(
+                      diningErrorMessage(l10n, e),
+                      key: const ValueKey('dining-action-error'),
+                      style: _errorStyle(context),
+                    ),
+                  if (floor) ...[
+                    const _Legend(),
+                    _FloorAreaTabs(viewModel: vm),
+                  ] else if (vm.mode == DiningMode.dineIn) ...[
+                    const _Legend(),
+                    if (vm.areas.isNotEmpty) _AreaTabs(viewModel: vm),
+                  ] else
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: FButton(
+                        key: const ValueKey('dining-take-away-new'),
+                        mainAxisSize: .min,
+                        prefix: const Icon(TablerIcons.plus, size: 16),
+                        onPress: vm.busy
+                            ? null
+                            : () => _newTakeAway(context, vm),
+                        child: Flexible(child: Text(l10n.diningTakeAwayNew)),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.all(pad),
-          sliver: floor
-              ? SliverToBoxAdapter(
-                  child: _FloorPane(
-                    key: ValueKey('dining-floor-${vm.floorArea?.id}'),
-                    viewModel: vm,
-                    narrow: narrow,
-                  ),
-                )
-              : vm.mode == DiningMode.dineIn
-              ? _TableGrid(viewModel: vm, narrow: narrow, clock: clock)
-              : _TakeAwayList(viewModel: vm),
-        ),
-      ],
+          SliverPadding(
+            padding: EdgeInsets.all(pad),
+            sliver: floor
+                ? SliverToBoxAdapter(
+                    child: _FloorPane(
+                      key: ValueKey('dining-floor-${vm.floorArea?.id}'),
+                      viewModel: vm,
+                      narrow: narrow,
+                    ),
+                  )
+                : vm.mode == DiningMode.dineIn
+                ? _TableGrid(viewModel: vm, narrow: narrow, clock: clock)
+                : _TakeAwayList(viewModel: vm),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -686,11 +691,6 @@ class _FloorPaneState extends State<_FloorPane> {
                             width: t.width,
                             height: t.height,
                             shape: t.shape,
-                            signature: (
-                              t.name,
-                              colors(t),
-                              vm.billFor(t)?.charges.total,
-                            ),
                           ),
                       ],
                       tableBuilder: (context, key) {

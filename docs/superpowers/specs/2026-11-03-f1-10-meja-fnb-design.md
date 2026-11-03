@@ -469,7 +469,8 @@ akhir drag/resize terbaca lewat plugin (`NodeDragEnded`, `ResizeEnded`).
 - Pilihan **Grid / Denah** di header tampil bila ada area mode denah;
   bawaan Denah bila ada (pilihan diingat selama aplikasi terbuka).
 - Mode Denah: tab hanya area denah, legenda sama, kanvas
-  `NodeFlowViewer` dengan meja terkunci (geser & zoom saja, keterangan
+  `NodeFlowEditor` ber-`behavior: preview` (bukan `NodeFlowViewer`, agar
+  `nodeShapeBuilder` untuk meja bulat tetap tersedia) dengan meja terkunci (geser & zoom saja, keterangan
   "Posisi terkunci · geser & zoom saja"), tombol zoom, minimap. Warna meja
   sama dengan kartu grid (kosong / terisi / minta bill), nama dan total
   bill tampil di meja; meja bulat memakai `CircleShape`. Ketuk meja =
@@ -507,7 +508,7 @@ akhir drag/resize terbaca lewat plugin (`NodeDragEnded`, `ResizeEnded`).
   (termasuk antar draf), kursi 1–99, ukuran 20–600, posisi 0–5000; meja
   yang dihapus ditolak bila punya bill terbuka (`DiningInUse`). Meja
   bermodel baru masuk urutan terakhir.
-- Ponsel (< 600 px): panel ditumpuk di bawah kanvas (tinggi kanvas 360),
+- Ponsel (< 600 px): panel ditumpuk di bawah kanvas (tinggi kanvas 460, cukup untuk geser dan zoom dengan jari),
   palet dan daftar *Belum ditempatkan* berupa chip.
 
 ### Data (migrasi `denah`)
@@ -548,8 +549,20 @@ dibuka dari chip *Belum ditempatkan*.
 | Split bill: kas per sesi | — | Belum | Tunai bagian masuk sesi yang menyelesaikan nota; laci di tengah sesi belum menghitungnya. Cek tutup sesi berlaku per cabang. Catat `cash_session_id` per pembayaran sebelum sinkronisasi Fase 2. |
 | Split bill: baris porsi | — | Sederhana | Memindah baris satu porsi menyisipkan baris baru dan menghapus yang lama (outbox bertambah). Ubah label di tempat bila seluruh baris pindah. Ubah jumlah baris porsi memakai harga ulang baris itu saja. |
 | Split bill: retur bagian lunas | — | Belum | Void/retur nota di F1-13. |
-| Denah | 1.7b–d | Belum | v0.14.0. |
-| Gabung meja | Ada (`can_merge` di 1.7d) | Belum | Setelah denah. |
+| Denah | 1.7b–d | Dirilis v0.14.0 | Layar *Atur denah* (`/meja/denah`) untuk pemegang `settings:manage`: unggah PNG/JPG/WebP/SVG ≤ 5 MB (kamera di Android/iOS), preset meja, chip *Belum ditempatkan*, geser + ubah ukuran dengan snap 20 px, undo/redo, simpan sekali per area dalam satu transaksi. Layar Meja: pilihan Grid / Denah, kanvas terkunci, warna & total sama dengan grid. Layout lebar (≥ 1100 px) tiga kolom; di bawahnya satu kolom bergulir. |
+| Denah: tarik dari palet | 1.7d | Ketuk | Preset dan meja belum ditempatkan ditaruh di tengah tampilan lalu digeser; tarik langsung dari palet belum ada. |
+| Denah: garis bantu, LOD | 1.7d | Belum | `LodPlugin` dan garis perataan antar meja belum dipakai; cukup untuk denah ≤ 50 meja. |
+| Denah: seret di layar sentuh | — | Belum diuji perangkat | Uji widget dan Xvfb memakai mouse; uji di tablet Android nyata sebelum Fase 1 ditutup. |
+| Denah: peta mini mode gelap | — | Tema terang | `MinimapPlugin` memakai `MinimapTheme.light` di kedua mode. |
+| Denah: pilihan Grid/Denah diingat | 1.7b | Per layar | Pilihan dan area denah kembali ke bawaan setiap layar Meja dibangun ulang (mis. kembali dari bayar). Simpan di layanan yang hidup selama aplikasi; pilih area dari meja bill yang dibuka. |
+| Denah: keluar lewat menu samping | 1.7d | Tanpa konfirmasi | *Kembali* dan tombol kembali sistem bertanya sebelum membuang draf; pindah menu lewat sidebar belum. |
+| Denah: geser beberapa meja | 1.7d | Satu langkah undo per meja | Pilih banyak (seret kotak/Ctrl) masih bisa; geser bersama tercatat per meja. |
+| Denah: gambar lama | — | Tetap tersimpan | Mengganti gambar denah tidak menghapus berkas lama di `media_files`; bersihkan sebelum sinkronisasi Fase 2. |
+| Denah: SVG | 1.7c | Cek awal `<svg` | SVG dengan DTD internal ditolak; SVG rusak yang lolos tampil kosong. |
+| Denah: ukuran saat mengetik | 1.7d | Divalidasi saat simpan | Lebar/tinggi di luar 20–600 tampil apa adanya sampai *Simpan* menolaknya. |
+| Denah: pas layar saat ganti area | 1.7d | Sekali saat kanvas dipasang | Berpindah antar dua area denah memakai tampilan sebelumnya; tekan tombol *pas layar*. |
+| Denah: ketuk meja | 1.7b | Dirilis v0.14.0 | Ketuk = jari naik tanpa bergeser > 18 px dan tanpa jari kedua, sehingga menggeser/zoom denah di atas meja tidak membuka meja. Selama jari di kanvas, gulir halaman dikunci. |
+| Gabung meja | Ada (`can_merge` di 1.7d) | Belum | `can_merge` sudah disimpan dari panel denah; aksi gabung bill menyusul. |
 | Printer dapur terpisah | — | Belum | Tiket memakai printer perangkat. |
 | Nomor TA/K per perangkat | — | v0.11.0 tanpa kode perangkat | `TA-01`/`K-0001` urut per perangkat; dua tablet satu cabang bisa sama. Tambah kode perangkat sebelum sinkronisasi Fase 2. |
 | Kurangi item produk nonaktif | — | Hanya hapus | Mengurangi jumlah memakai harga ulang dan ditolak (`SaleItemUnavailable`); hapus baris tetap bisa. |

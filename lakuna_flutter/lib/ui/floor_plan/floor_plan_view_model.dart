@@ -326,7 +326,7 @@ class FloorPlanViewModel extends ChangeNotifier {
         _error = null;
         return _load();
       case Error(:final error):
-        _error = error;
+        _error = error is DiningNameInvalid ? FloorAreaInvalid(error) : error;
         return Result.error(error);
     }
   }
@@ -446,12 +446,23 @@ class FloorPlanViewModel extends ChangeNotifier {
     String key,
     FloorItem Function(FloorItem) change, [
     String? tag,
+    bool fromCanvas = false,
   ]) {
     final i = _items.indexWhere((e) => e.key == key);
     if (i < 0) return;
     final next = change(_items[i]);
-    if (next == _items[i]) return;
-    _commit(tag == null ? null : '$tag:$key');
+    if (next == _items[i]) {
+      // Kanvas sudah menggambar posisi/ukuran mentah (belum di-snap atau di
+      // luar batas): tetap beri tahu agar node dikembalikan ke draf.
+      if (fromCanvas) {
+        _revision++;
+        notifyListeners();
+      }
+      return;
+    }
+    // Hanya ketikan (nama, kursi, ukuran) yang digabung jadi satu langkah
+    // undo; ketukan pilihan tetap langkah sendiri.
+    _commit(_typed.contains(tag) ? '$tag:$key' : null);
     _items = [..._items]..[i] = next;
     _changed(typing: _typed.contains(tag));
   }
@@ -470,23 +481,29 @@ class FloorPlanViewModel extends ChangeNotifier {
   void moveTo(String key, num x, num y) => _replace(
     key,
     (e) => e.copyWith(x: _clampPos(_snapped(x)), y: _clampPos(_snapped(y))),
+    null,
+    true,
   );
 
   /// Akhir ubah ukuran di kanvas (pojok kiri atas bisa ikut bergeser).
-  void resizeTo(String key, num x, num y, num width, num height) =>
-      _replace(key, (e) {
-        int size(num v) {
-          final s = _snapped(v);
-          return s.clamp(FloorLimits.minSize, FloorLimits.maxSize);
-        }
+  void resizeTo(String key, num x, num y, num width, num height) => _replace(
+    key,
+    (e) {
+      int size(num v) {
+        final s = _snapped(v);
+        return s.clamp(FloorLimits.minSize, FloorLimits.maxSize);
+      }
 
-        return e.copyWith(
-          x: _clampPos(_snapped(x)),
-          y: _clampPos(_snapped(y)),
-          width: size(width),
-          height: size(height),
-        );
-      });
+      return e.copyWith(
+        x: _clampPos(_snapped(x)),
+        y: _clampPos(_snapped(y)),
+        width: size(width),
+        height: size(height),
+      );
+    },
+    null,
+    true,
+  );
 
   void _edit(FloorItem Function(FloorItem) change, String tag) {
     final key = _selected;
@@ -634,4 +651,11 @@ class FloorPlanViewModel extends ChangeNotifier {
       const [],
     );
   }
+}
+
+/// Nama area baru (*+ Area*) ditolak; pesannya tentang area, bukan meja.
+class FloorAreaInvalid implements Exception {
+  const FloorAreaInvalid(this.cause);
+
+  final DiningNameInvalid cause;
 }

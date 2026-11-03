@@ -155,7 +155,7 @@ lain memetakan komponen Dioxus ke Forui:
 | Breadcrumb | `FBreadcrumb` |
 | PIN pad | `FOtpField` untuk tampilan digit + tombol angka kustom |
 | Virtual List | `ListView.builder` / `SliverList` |
-| Denah meja (dioxus-flow) | `vyuh_node_flow`: `NodeFlowEditor` (atur denah 1.7d) dan `NodeFlowViewer` (kasir 1.7b) |
+| Denah meja (dioxus-flow) | `vyuh_node_flow`: `NodeFlowEditor` (atur denah 1.7d) dan `NodeFlowEditor` mode preview (kasir 1.7b) |
 | Gambar QRIS statis | `Image` dalam `AspectRatio` rasio asli + `BoxFit.contain` (tidak dipotong) |
 
 ### Logo dan placeholder (DiceBear)
@@ -185,7 +185,7 @@ lain memetakan komponen Dioxus ke Forui:
   diganti pilihan **Orientasi 0° / 90°** (tukar lebar-tinggi).
 - `SnapPlugin` + `GridSnapDelegate` 20 px, `MinimapPlugin`, `LodPlugin`
   untuk denah besar.
-- Kasir (1.7b) memakai `NodeFlowViewer` (geser & zoom saja); warna meja
+- Kasir (1.7b) memakai `NodeFlowEditor` mode `preview` dengan meja terkunci (geser & zoom saja); warna meja
   mengikuti status bill. Tata letak disimpan sebagai JSON per area
   (`dining_areas.layout_json`) atau ke kolom posisi meja; keputusan skema di
   thread pengembang.

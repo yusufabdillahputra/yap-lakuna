@@ -123,6 +123,38 @@ void main() {
     expect(vm.canRedo, isFalse);
   });
 
+  test('pilihan bentuk/orientasi: tiap ketukan satu langkah undo', () async {
+    await start();
+    vm.addPreset(TablePreset.all[2], cx: 400, cy: 300); // panjang
+    vm.setShape(TableShape.square);
+    vm.setShape(TableShape.round);
+    vm.undo();
+    expect(vm.selected!.shape, TableShape.square);
+  });
+
+  test(
+    'geser/ubah ukuran tanpa perubahan draf tetap memicu gambar ulang',
+    () async {
+      await start();
+      final key = item('M1').key;
+      vm.place(key, cx: 400, cy: 300); // 360, 260
+      final revision = vm.revision;
+      var notified = 0;
+      vm.addListener(() => notified++);
+      // Kanvas melaporkan 365 (belum di-snap) → draf tetap 360.
+      vm.moveTo(key, 365, 262);
+      expect((item('M1').x, item('M1').y), (360, 260));
+      expect(vm.revision, greaterThan(revision));
+      expect(notified, 1);
+      vm.resizeTo(key, 360, 260, 83, 79);
+      expect((item('M1').width, item('M1').height), (80, 80));
+      expect(notified, 2);
+      expect(vm.canUndo, isTrue);
+      vm.undo();
+      expect(item('M1').x, isNull); // hanya langkah tempatkan
+    },
+  );
+
   test('hapus: meja tersimpan masuk daftar hapus, meja baru hilang', () async {
     await start();
     vm.addPreset(TablePreset.all[1], cx: 100, cy: 100);
@@ -233,6 +265,7 @@ void main() {
     expect(vm.area!.name, 'Rooftop');
     expect(vm.items, isEmpty);
     await vm.addArea.execute('rooftop');
-    expect(vm.error, isA<DiningNameInvalid>());
+    // Pesan galat area, bukan galat nama meja.
+    expect(vm.error, isA<FloorAreaInvalid>());
   });
 }

@@ -11,6 +11,7 @@ import '../../data/repositories/dining_admin_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../products/product_widgets.dart' show ChoicePill, PageHeader;
+import '../master/dining_tables_tab.dart' show diningSetupErrorMessage;
 import 'floor_canvas.dart';
 import 'floor_plan_view_model.dart';
 
@@ -20,6 +21,11 @@ String floorErrorMessage(AppLocalizations l10n, Exception error) =>
       FloorImageInvalid(error: FloorImageError.tooLarge) =>
         l10n.floorErrorImageTooLarge,
       FloorImageInvalid() => l10n.floorErrorImageFormat,
+      FloorAreaInvalid(:final cause) => diningSetupErrorMessage(
+        l10n,
+        cause,
+        nameMax: FnbLimits.areaName,
+      ),
       DiningNameInvalid(error: DiningNameError.empty) =>
         l10n.floorErrorNameEmpty,
       DiningNameInvalid(error: DiningNameError.tooLong) =>
@@ -269,20 +275,23 @@ class FloorPlanView extends StatelessWidget {
               ],
             );
           }
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(pad),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                header,
-                SizedBox(
-                  height: vm.showCanvas ? (narrow ? 460 : 520) : null,
-                  child: center,
-                ),
-                palette,
-                side,
-              ],
+          return FloorScrollLock(
+            builder: (context, physics) => SingleChildScrollView(
+              physics: physics,
+              padding: EdgeInsets.all(pad),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 16,
+                children: [
+                  header,
+                  SizedBox(
+                    height: vm.showCanvas ? (narrow ? 460 : 520) : null,
+                    child: center,
+                  ),
+                  palette,
+                  side,
+                ],
+              ),
             ),
           );
         },
@@ -485,7 +494,6 @@ class _Center extends StatelessWidget {
     }
     final theme = context.theme;
     final selected = vm.selected;
-    final errorKey = vm.errorItem?.key;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
@@ -522,12 +530,6 @@ class _Center extends StatelessWidget {
                             width: t.width,
                             height: t.height,
                             shape: t.shape,
-                            signature: (
-                              t.name,
-                              t.seats,
-                              t.key == selected?.key,
-                              t.key == errorKey,
-                            ),
                           ),
                       ],
                       tableBuilder: (context, key) {
