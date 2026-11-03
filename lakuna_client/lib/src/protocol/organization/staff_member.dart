@@ -14,7 +14,7 @@ import 'dart:async' as _ida;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
 
-/// Staf toko. PIN kasir disimpan sebagai hash Argon2id (modul F1-02).
+/// Staf toko. PIN dan kata sandi disimpan sebagai hash Argon2id (string PHC).
 abstract class StaffMember
     implements _isd.TableRow<_isc.UuidValue>, _isc.ProtocolSerialization {
   StaffMember._({
@@ -23,6 +23,7 @@ abstract class StaffMember
     required this.name,
     this.email,
     this.pinHash,
+    this.passwordHash,
     bool? isOwner,
     bool? isActive,
     DateTime? createdAt,
@@ -46,6 +47,7 @@ abstract class StaffMember
     required String name,
     String? email,
     String? pinHash,
+    String? passwordHash,
     bool? isOwner,
     bool? isActive,
     DateTime? createdAt,
@@ -69,6 +71,7 @@ abstract class StaffMember
       name: jsonSerialization['name'] as String,
       email: jsonSerialization['email'] as String?,
       pinHash: jsonSerialization['pinHash'] as String?,
+      passwordHash: jsonSerialization['passwordHash'] as String?,
       isOwner: jsonSerialization['isOwner'] == null
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['isOwner']),
@@ -119,6 +122,9 @@ abstract class StaffMember
 
   String? pinHash;
 
+  /// Hash Argon2id kata sandi pemilik (login email, F1-01).
+  String? passwordHash;
+
   bool isOwner;
 
   bool isActive;
@@ -151,6 +157,7 @@ abstract class StaffMember
     String? name,
     String? email,
     String? pinHash,
+    String? passwordHash,
     bool? isOwner,
     bool? isActive,
     DateTime? createdAt,
@@ -171,6 +178,7 @@ abstract class StaffMember
       'name': name,
       if (email != null) 'email': email,
       if (pinHash != null) 'pinHash': pinHash,
+      if (passwordHash != null) 'passwordHash': passwordHash,
       'isOwner': isOwner,
       'isActive': isActive,
       'createdAt': createdAt.toJson(),
@@ -193,6 +201,7 @@ abstract class StaffMember
       'name': name,
       if (email != null) 'email': email,
       if (pinHash != null) 'pinHash': pinHash,
+      if (passwordHash != null) 'passwordHash': passwordHash,
       'isOwner': isOwner,
       'isActive': isActive,
       'createdAt': createdAt.toJson(),
@@ -243,6 +252,7 @@ class _StaffMemberImpl extends StaffMember {
     required String name,
     String? email,
     String? pinHash,
+    String? passwordHash,
     bool? isOwner,
     bool? isActive,
     DateTime? createdAt,
@@ -259,6 +269,7 @@ class _StaffMemberImpl extends StaffMember {
          name: name,
          email: email,
          pinHash: pinHash,
+         passwordHash: passwordHash,
          isOwner: isOwner,
          isActive: isActive,
          createdAt: createdAt,
@@ -281,6 +292,7 @@ class _StaffMemberImpl extends StaffMember {
     String? name,
     Object? email = _Undefined,
     Object? pinHash = _Undefined,
+    Object? passwordHash = _Undefined,
     bool? isOwner,
     bool? isActive,
     DateTime? createdAt,
@@ -298,6 +310,7 @@ class _StaffMemberImpl extends StaffMember {
       name: name ?? this.name,
       email: email is String? ? email : this.email,
       pinHash: pinHash is String? ? pinHash : this.pinHash,
+      passwordHash: passwordHash is String? ? passwordHash : this.passwordHash,
       isOwner: isOwner ?? this.isOwner,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
@@ -344,6 +357,12 @@ class StaffMemberUpdateTable extends _isd.UpdateTable<StaffMemberTable> {
     table.pinHash,
     value,
   );
+
+  _isd.ColumnValue<String, String> passwordHash(String? value) =>
+      _isd.ColumnValue(
+        table.passwordHash,
+        value,
+      );
 
   _isd.ColumnValue<bool, bool> isOwner(bool value) => _isd.ColumnValue(
     table.isOwner,
@@ -426,6 +445,11 @@ class StaffMemberTable extends _isd.Table<_isc.UuidValue> {
       this,
       fieldName: 'pinHash',
     );
+    passwordHash = _isd.ColumnString(
+      'password_hash',
+      this,
+      fieldName: 'passwordHash',
+    );
     isOwner = _isd.ColumnBool(
       'is_owner',
       this,
@@ -491,6 +515,9 @@ class StaffMemberTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnString pinHash;
 
+  /// Hash Argon2id kata sandi pemilik (login email, F1-01).
+  late final _isd.ColumnString passwordHash;
+
   late final _isd.ColumnBool isOwner;
 
   late final _isd.ColumnBool isActive;
@@ -518,6 +545,7 @@ class StaffMemberTable extends _isd.Table<_isc.UuidValue> {
     name,
     email,
     pinHash,
+    passwordHash,
     isOwner,
     isActive,
     createdAt,
