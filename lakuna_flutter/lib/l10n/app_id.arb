@@ -1233,5 +1233,27 @@
   "masterPaymentsHint": "Metode bayar yang tersedia di kasir. QRIS statis, struk, dan printer diatur di Pengaturan.",
   "masterPaymentsOpen": "Buka Pengaturan",
   "masterPaymentQrisHint": "Gambar stiker QRIS + tombol Sudah Terbayar",
-  "masterPaymentAlways": "Selalu tersedia"
+  "masterPaymentAlways": "Selalu tersedia",
+  "masterInUseBoth": "Tidak bisa dihapus: masih dipakai {products} produk dan punya {children} subkategori.",
+  "@masterInUseBoth": {
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "children": {
+        "type": "int"
+      }
+    }
+  },
+  "masterDeleteTitle": "Hapus {name}?",
+  "@masterDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterDeleteBody": "Data yang dihapus tidak tampil lagi di daftar dan pilihan.",
+  "masterDeleteConfirm": "Hapus",
+  "masterDeleteCancel": "Batal"
 }

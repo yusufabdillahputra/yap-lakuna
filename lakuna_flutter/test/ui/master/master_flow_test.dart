@@ -103,9 +103,17 @@ void main() {
     await _tap(tester, 'master-category-save');
     expect(find.text('Minuman dingin ›'), findsOneWidget);
 
+    // Batal di konfirmasi tidak menghapus.
+    await _tap(tester, 'master-category-edit-$rokok');
+    await _tap(tester, 'master-category-delete');
+    expect(find.text('Hapus Rokok?'), findsOneWidget);
+    await _tap(tester, 'master-confirm-cancel');
+    expect(repo.categoriesData.any((c) => c.name == 'Rokok'), isTrue);
+
     // Hapus Sembako ditolak (2 produk).
     await _tap(tester, 'master-category-edit-$sembako');
     await _tap(tester, 'master-category-delete');
+    await _tap(tester, 'master-confirm-delete');
     expect(
       find.text('Tidak bisa dihapus: masih dipakai 2 produk.'),
       findsOneWidget,
@@ -113,6 +121,7 @@ void main() {
     // Hapus Teh berhasil.
     await _tap(tester, 'master-category-edit-${teh.id.uuid}');
     await _tap(tester, 'master-category-delete');
+    await _tap(tester, 'master-confirm-delete');
     expect(repo.categoriesData.any((c) => c.name == 'Teh'), isFalse);
     expect(find.text('Kategori baru'), findsOneWidget);
   });
@@ -140,11 +149,13 @@ void main() {
 
     final pcs = fakeId(401).uuid;
     await _tap(tester, 'master-unit-delete-$pcs');
+    await _tap(tester, 'master-confirm-delete');
     expect(
       find.text('Tidak bisa dihapus: masih dipakai 2 produk.'),
       findsOneWidget,
     );
     await _tap(tester, 'master-unit-delete-$dus');
+    await _tap(tester, 'master-confirm-delete');
     expect(repo.unitsData.any((u) => u.name == 'Dus'), isFalse);
   });
 
@@ -179,6 +190,31 @@ void main() {
     // Lembar tertutup, pesan sukses tampil di daftar.
     expect(find.byKey(const ValueKey('master-category-save')), findsNothing);
     expect(find.text('Kategori Roti tersimpan.'), findsOneWidget);
+  });
+
+  testWidgets('ponsel: lembar ditutup tanpa Batal keluar dari mode ubah', (
+    tester,
+  ) async {
+    final repo = await pump(tester, size: const Size(360, 740));
+    // Nama panjang tidak meluap di daftar maupun di lembar.
+    repo.categoriesData[1] = repo.categoriesData[1].copyWith(
+      name: 'Minuman dingin kemasan botol dan kaleng serba ada lengkap',
+    );
+    // Naik/turun memuat ulang daftar (nama panjang ikut tampil).
+    await _tap(tester, 'master-category-down-$sembako');
+    await _tap(tester, 'master-category-edit-$minuman');
+    expect(find.byKey(const ValueKey('master-category-save')), findsOneWidget);
+    // Tutup lembar tanpa Batal (tombol kembali sistem).
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('master-category-save')), findsNothing);
+    // Gagal naik/turun tetap terlihat di daftar.
+    repo.nextError = Exception('db');
+    await _tap(tester, 'master-category-down-$sembako');
+    expect(
+      find.byKey(const ValueKey('master-category-action-error')),
+      findsOneWidget,
+    );
   });
 
   for (final size in const [Size(820, 1180), Size(1280, 800), Size(360, 740)]) {

@@ -716,5 +716,10 @@
   "masterPaymentsHint": "Payment methods available at the cashier. Static QRIS, receipts, and printers are set up in Settings.",
   "masterPaymentsOpen": "Open Settings",
   "masterPaymentQrisHint": "QRIS sticker image + Paid button",
-  "masterPaymentAlways": "Always available"
+  "masterPaymentAlways": "Always available",
+  "masterInUseBoth": "Cannot delete: still used by {products, plural, =1{1 product} other{{products} products}} and has {children, plural, =1{1 subcategory} other{{children} subcategories}}.",
+  "masterDeleteTitle": "Delete {name}?",
+  "masterDeleteBody": "Deleted data no longer appears in lists and pickers.",
+  "masterDeleteConfirm": "Delete",
+  "masterDeleteCancel": "Cancel"
 }

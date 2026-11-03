@@ -2146,4 +2146,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get masterPaymentAlways => 'Always available';
+
+  @override
+  String masterInUseBoth(int products, int children) {
+    String _temp0 = intl.Intl.pluralLogic(
+      products,
+      locale: localeName,
+      other: '$products products',
+      one: '1 product',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      children,
+      locale: localeName,
+      other: '$children subcategories',
+      one: '1 subcategory',
+    );
+    return 'Cannot delete: still used by $_temp0 and has $_temp1.';
+  }
+
+  @override
+  String masterDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get masterDeleteBody =>
+      'Deleted data no longer appears in lists and pickers.';
+
+  @override
+  String get masterDeleteConfirm => 'Delete';
+
+  @override
+  String get masterDeleteCancel => 'Cancel';
 }

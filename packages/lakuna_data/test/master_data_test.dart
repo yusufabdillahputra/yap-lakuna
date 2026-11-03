@@ -143,6 +143,51 @@ void main() {
       );
     });
 
+    test('induk bisa dikosongkan lagi', () async {
+      final a = await create(const CategoryDraft(name: 'Minuman'));
+      final b = await create(CategoryDraft(name: 'Kopi', parentId: a.id.uuid));
+      final cleared = await updateCategory(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: b.id,
+        draft: const CategoryDraft(name: 'Kopi'),
+      );
+      expect(cleared.parentId, isNull);
+      expect(
+        (await ProductCategory.db.findById(store.session, b.id))!.parentId,
+        isNull,
+      );
+    });
+
+    test(
+      'form produk memakai ulang kategori nonaktif, urutan max + 1',
+      () async {
+        final rokok = await create(
+          const CategoryDraft(name: 'Rokok', isActive: false),
+        );
+        await create(const CategoryDraft(name: 'Snack'));
+        // Hapus kategori di tengah membuat jumlah baris < sort_order terbesar.
+        final tengah = await create(const CategoryDraft(name: 'Tengah'));
+        await create(const CategoryDraft(name: 'Akhir'));
+        await deleteCategory(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          id: tengah.id,
+        );
+        await product('Kretek', category: 'rokok');
+        await product('Roti tawar', category: 'Roti');
+        final rows = await categoryRows(store, scope);
+        final reused = rows.firstWhere((r) => r.category.id == rokok.id);
+        expect(reused.productCount, 1);
+        expect(reused.category.isActive, isFalse);
+        final roti = rows.firstWhere((r) => r.category.name == 'Roti');
+        expect(roti.category.sortOrder, 4);
+        expect(rows.last.category.name, 'Roti');
+      },
+    );
+
     test('saklar aktif saja', () async {
       final a = await create(const CategoryDraft(name: 'Rokok'));
       final off = await setCategoryActive(
@@ -190,6 +235,17 @@ void main() {
         for (final r in await categoryRows(store, scope)) r.category.sortOrder,
       ];
       expect(orders, [0, 1, 2]);
+      // Hanya baris yang nomornya berubah yang ditulis ke outbox.
+      final before = await SyncOutboxEntry.db.count(store.session);
+      await moveCategory(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: b.id,
+        delta: -1,
+      );
+      expect(await names(), ['C', 'B', 'A']);
+      expect(await SyncOutboxEntry.db.count(store.session) - before, 2);
     });
 
     test('hapus ditolak bila dipakai produk atau punya subkategori', () async {

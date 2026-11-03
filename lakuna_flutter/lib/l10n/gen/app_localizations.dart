@@ -3847,6 +3847,36 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Selalu tersedia'**
   String get masterPaymentAlways;
+
+  /// No description provided for @masterInUseBoth.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa dihapus: masih dipakai {products} produk dan punya {children} subkategori.'**
+  String masterInUseBoth(int products, int children);
+
+  /// No description provided for @masterDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String masterDeleteTitle(String name);
+
+  /// No description provided for @masterDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data yang dihapus tidak tampil lagi di daftar dan pilihan.'**
+  String get masterDeleteBody;
+
+  /// No description provided for @masterDeleteConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get masterDeleteConfirm;
+
+  /// No description provided for @masterDeleteCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get masterDeleteCancel;
 }
 
 class _AppLocalizationsDelegate

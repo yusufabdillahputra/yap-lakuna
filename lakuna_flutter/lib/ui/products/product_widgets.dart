@@ -226,7 +226,7 @@ class ChoicePill extends StatelessWidget {
               spacing: 6,
               children: [
                 ColorDot(color: color),
-                Flexible(child: text),
+                text,
               ],
             ),
           },

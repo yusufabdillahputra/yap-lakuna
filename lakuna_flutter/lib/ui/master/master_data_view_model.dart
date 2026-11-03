@@ -51,6 +51,7 @@ class MasterDataViewModel extends ChangeNotifier {
 
   /// Ada aksi tulis yang sedang berjalan; tombol lain dinonaktifkan.
   bool get busy =>
+      load.running ||
       saveCategory.running ||
       deleteCategory.running ||
       move.running ||
@@ -91,6 +92,7 @@ class MasterDataViewModel extends ChangeNotifier {
   bool _isActive = true;
   List<CategoryError> _formErrors = const [];
   Object? _categoryError;
+  Object? _rowError;
   String? _savedName;
 
   /// Kategori yang sedang diubah; `null` = form *Kategori baru*.
@@ -106,8 +108,11 @@ class MasterDataViewModel extends ChangeNotifier {
   bool get isActive => _isActive;
   List<CategoryError> get formErrors => _formErrors;
 
-  /// Galat aksi baris atau hapus ([MasterInUse], dsb.).
+  /// Galat simpan/hapus form kategori ([MasterInUse], dsb.).
   Object? get categoryError => _categoryError;
+
+  /// Galat aksi baris tabel (naik/turun, saklar aktif).
+  Object? get rowError => _rowError;
 
   /// Nama kategori yang baru tersimpan (pesan sukses).
   String? get savedName => _savedName;
@@ -150,6 +155,17 @@ class MasterDataViewModel extends ChangeNotifier {
   void startNew() {
     _fill();
     _savedName = null;
+    _rowError = null;
+    notifyListeners();
+  }
+
+  /// Lembar form ponsel ditutup tanpa *Batal* (ketuk luar / geser): keluar
+  /// dari mode ubah, pesan sukses tetap.
+  void closeForm() {
+    if (_editingId == null && _formErrors.isEmpty && _categoryError == null) {
+      return;
+    }
+    _fill();
     notifyListeners();
   }
 
@@ -164,6 +180,7 @@ class MasterDataViewModel extends ChangeNotifier {
       isActive: c.isActive,
     );
     _savedName = null;
+    _rowError = null;
     notifyListeners();
   }
 
@@ -246,17 +263,17 @@ class MasterDataViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _move((UuidValue, int) arg) async {
-    _categoryError = null;
+    _rowError = null;
     final result = await _repository.moveCategory(arg.$1, arg.$2);
-    if (result case Error(:final error)) _categoryError = error;
+    if (result case Error(:final error)) _rowError = error;
     await _reloadCategories();
     return result;
   }
 
   Future<Result<void>> _toggleActive((UuidValue, bool) arg) async {
-    _categoryError = null;
+    _rowError = null;
     final result = await _repository.setCategoryActive(arg.$1, arg.$2);
-    if (result case Error(:final error)) _categoryError = error;
+    if (result case Error(:final error)) _rowError = error;
     await _reloadCategories();
     // Saklar di tabel juga memperbarui form bila kategori itu sedang diubah.
     if (_editingId == arg.$1 && result is Ok) {
@@ -272,6 +289,8 @@ class MasterDataViewModel extends ChangeNotifier {
   UuidValue? _unitErrorId;
   MasterInUse? _unitInUse;
   UuidValue? _unitInUseId;
+  bool _unitFailed = false;
+  UuidValue? _unitFailedId;
 
   /// Galat nama satuan; [unitErrorId] = satuan yang diganti namanya, `null`
   /// = field satuan baru.
@@ -282,13 +301,24 @@ class MasterDataViewModel extends ChangeNotifier {
   MasterInUse? get unitInUse => _unitInUse;
   UuidValue? get unitInUseId => _unitInUseId;
 
+  /// Aksi satuan gagal karena sebab lain (izin, tidak ditemukan, database)
+  /// untuk [unitFailedId] (`null` = field satuan baru).
+  bool get unitFailed => _unitFailed;
+  UuidValue? get unitFailedId => _unitFailedId;
+
   void clearUnitError() {
-    if (_unitError == null && _unitInUse == null) return;
+    if (_unitError == null && _unitInUse == null && !_unitFailed) return;
+    _resetUnitErrors();
+    notifyListeners();
+  }
+
+  void _resetUnitErrors() {
     _unitError = null;
     _unitErrorId = null;
     _unitInUse = null;
     _unitInUseId = null;
-    notifyListeners();
+    _unitFailed = false;
+    _unitFailedId = null;
   }
 
   Future<bool> addUnit(String name) =>
@@ -306,10 +336,7 @@ class MasterDataViewModel extends ChangeNotifier {
   ) async {
     if (_unitBusy) return false;
     _unitBusy = true;
-    _unitError = null;
-    _unitErrorId = null;
-    _unitInUse = null;
-    _unitInUseId = null;
+    _resetUnitErrors();
     notifyListeners();
     try {
       final result = await action();
@@ -324,6 +351,9 @@ class MasterDataViewModel extends ChangeNotifier {
           } else if (error case MasterInUse()) {
             _unitInUse = error;
             _unitInUseId = id;
+          } else {
+            _unitFailed = true;
+            _unitFailedId = id;
           }
           return false;
       }

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/ui/master/master_data_view_model.dart';
+import 'package:lakuna_flutter/ui/master/master_view.dart' show parentItems;
 
 import '../../testing/fake_master_data_repository.dart';
 import '../../testing/fake_stock_repository.dart' show fakeId;
@@ -130,6 +131,43 @@ void main() {
     expect(await vm.deleteUnit(dus.id), isTrue);
     expect(vm.unitInUse, isNull);
     expect(vm.units.map((u) => u.unit.name), ['botol', 'kg', 'pcs']);
+  });
+
+  test('galat aksi satuan lain tetap dilaporkan', () async {
+    repo.nextError = Exception('db');
+    expect(await vm.addUnit('kg'), isFalse);
+    expect(vm.unitFailed, isTrue);
+    expect(vm.unitFailedId, isNull);
+    vm.clearUnitError();
+    expect(vm.unitFailed, isFalse);
+  });
+
+  test('galat baris terpisah dari form; tutup form keluar dari ubah', () async {
+    vm.edit(vm.categories[0]);
+    repo.nextError = Exception('db');
+    await vm.toggleActive.execute((vm.categories[1].category.id, false));
+    expect(vm.rowError, isNotNull);
+    expect(vm.categoryError, isNull);
+    vm.setName('Sembako baru');
+    vm.closeForm();
+    expect(vm.editing, isFalse);
+    expect(vm.name, '');
+  });
+
+  test('pilihan induk berlabel unik', () {
+    final a = vm.categories[0].category;
+    final items = parentItems('(tidak ada)', [
+      a,
+      a.copyWith(id: fakeId(900)),
+      a.copyWith(id: fakeId(901), name: '(tidak ada)'),
+    ]);
+    expect(items.keys, [
+      '(tidak ada)',
+      'Sembako',
+      'Sembako (2)',
+      '(tidak ada) (2)',
+    ]);
+    expect(items['Sembako (2)'], fakeId(900).uuid);
   });
 
   test('tanpa izin: galat muat', () async {

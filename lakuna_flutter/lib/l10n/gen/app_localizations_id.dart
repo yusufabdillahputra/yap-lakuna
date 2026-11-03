@@ -2113,4 +2113,24 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get masterPaymentAlways => 'Selalu tersedia';
+
+  @override
+  String masterInUseBoth(int products, int children) {
+    return 'Tidak bisa dihapus: masih dipakai $products produk dan punya $children subkategori.';
+  }
+
+  @override
+  String masterDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get masterDeleteBody =>
+      'Data yang dihapus tidak tampil lagi di daftar dan pilihan.';
+
+  @override
+  String get masterDeleteConfirm => 'Hapus';
+
+  @override
+  String get masterDeleteCancel => 'Batal';
 }

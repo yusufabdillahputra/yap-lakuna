@@ -231,11 +231,84 @@ String _categoryErrorMessage(AppLocalizations l10n, CategoryError e) =>
 
 String _actionErrorMessage(AppLocalizations l10n, Object error) =>
     switch (error) {
+      MasterInUse(:final products, :final children)
+          when products > 0 && children > 0 =>
+        l10n.masterInUseBoth(products, children),
       MasterInUse(:final products) when products > 0 =>
         l10n.masterInUseProducts(products),
       MasterInUse(:final children) => l10n.masterInUseChildren(children),
       _ => l10n.masterActionFailed,
     };
+
+/// Label unik untuk pilihan induk: nama kembar (mis. dibuat di dua
+/// perangkat sebelum sync) atau sama dengan label "(tidak ada)" diberi
+/// nomor agar setiap kategori tetap bisa dipilih.
+Map<String, String> parentItems(String none, List<ProductCategory> options) {
+  final items = <String, String>{none: ''};
+  for (final c in options) {
+    var label = c.name;
+    for (var n = 2; items.containsKey(label); n++) {
+      label = '${c.name} ($n)';
+    }
+    items[label] = c.id.uuid;
+  }
+  return items;
+}
+
+/// Konfirmasi hapus data master; `true` = hapus.
+Future<bool> _confirmDelete(BuildContext context, String name) async {
+  final ok = await showFDialog<bool>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 400),
+      builder: (context, style) {
+        final l10n = AppLocalizations.of(context);
+        final theme = context.theme;
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('master-confirm'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Text(
+                l10n.masterDeleteTitle(name),
+                style: theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(l10n.masterDeleteBody, style: _muted(context)),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  FButton(
+                    key: const ValueKey('master-confirm-cancel'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(false),
+                    child: Flexible(child: Text(l10n.masterDeleteCancel)),
+                  ),
+                  FButton(
+                    key: const ValueKey('master-confirm-delete'),
+                    variant: .destructive,
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(true),
+                    child: Flexible(child: Text(l10n.masterDeleteConfirm)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+  return ok ?? false;
+}
 
 class _CategoriesTab extends StatelessWidget {
   const _CategoriesTab({required this.viewModel});
@@ -291,13 +364,15 @@ void _openFormSheet(BuildContext context, MasterDataViewModel vm) {
             builder: (_, _) => _CategoryForm(
               viewModel: vm,
               bare: true,
-              onDone: () => Navigator.of(sheetContext).pop(),
+              onDone: () {
+                if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+              },
             ),
           ),
         ),
       ),
     ),
-  );
+  ).then((_) => vm.closeForm());
 }
 
 class _CategoryList extends StatelessWidget {
@@ -312,7 +387,7 @@ class _CategoryList extends StatelessWidget {
     final theme = context.theme;
     final vm = viewModel;
     final rows = vm.categories;
-    final error = vm.categoryError;
+    final error = vm.rowError;
     return SectionCard(
       title: l10n.masterTabCategories,
       trailing: FButton(
@@ -337,7 +412,7 @@ class _CategoryList extends StatelessWidget {
               key: const ValueKey('master-category-saved'),
               title: Text(l10n.masterCategorySaved(name)),
             ),
-          if (error != null && !vm.editing)
+          if (error != null)
             Text(
               _actionErrorMessage(l10n, error),
               key: const ValueKey('master-category-action-error'),
@@ -621,6 +696,8 @@ class _CategoryForm extends StatelessWidget {
     }
 
     Future<void> delete() async {
+      final name = vm.editingRow?.category.name ?? vm.name;
+      if (!await _confirmDelete(context, name)) return;
       await vm.deleteCategory.execute();
       if (vm.deleteCategory.completed) onDone?.call();
     }
@@ -656,10 +733,19 @@ class _CategoryForm extends StatelessWidget {
         if (vm.editing &&
             options.isEmpty &&
             vm.categories.any((r) => r.category.parentId == vm.editingId))
-          Text(
-            l10n.masterFormParentLocked,
+          Column(
             key: const ValueKey('master-category-parent-locked'),
-            style: _muted(context),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
+            children: [
+              Text(
+                l10n.masterFormParent,
+                style: theme.typography.body.sm.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(l10n.masterFormParentLocked, style: _muted(context)),
+            ],
           )
         else
           FSelect<String>(
@@ -668,11 +754,7 @@ class _CategoryForm extends StatelessWidget {
             hint: none,
             enabled: !busy,
             forceErrorText: parentError,
-            items: {
-              none: '',
-              for (final c in options)
-                if (c.name != none) c.name: c.id.uuid,
-            },
+            items: parentItems(none, options),
             control: .managed(
               initial: vm.parentId ?? '',
               onChange: (v) => vm.setParent(v == null || v.isEmpty ? null : v),
@@ -730,7 +812,7 @@ class _CategoryForm extends StatelessWidget {
             enabled: !busy,
             onChange: vm.setActive,
           ),
-        if (vm.categoryError case final error? when vm.editing)
+        if (vm.categoryError case final error?)
           Text(
             _actionErrorMessage(l10n, error),
             key: const ValueKey('master-category-error'),
@@ -868,6 +950,11 @@ class _UnitsTabState extends State<_UnitsTab> {
     }
   }
 
+  Future<void> _delete(MeasureUnit u) async {
+    if (!await _confirmDelete(context, u.name)) return;
+    await _vm.deleteUnit(u.id);
+  }
+
   void _startEdit(MeasureUnit u) {
     _vm.clearUnitError();
     setState(() {
@@ -899,6 +986,13 @@ class _UnitsTabState extends State<_UnitsTab> {
         return Text(
           l10n.masterInUseProducts(e.products),
           key: const ValueKey('master-unit-in-use'),
+          style: _errorStyle(context),
+        );
+      }
+      if (vm.unitFailed && vm.unitFailedId == id) {
+        return Text(
+          l10n.masterActionFailed,
+          key: const ValueKey('master-unit-failed'),
           style: _errorStyle(context),
         );
       }
@@ -1007,7 +1101,7 @@ class _UnitsTabState extends State<_UnitsTab> {
                         semanticsLabel: l10n.masterUnitDelete(r.unit.name),
                         onPress: busy || _editing != null
                             ? null
-                            : () => vm.deleteUnit(r.unit.id),
+                            : () => _delete(r.unit),
                         child: const Icon(TablerIcons.trash, size: 16),
                       ),
                     ],

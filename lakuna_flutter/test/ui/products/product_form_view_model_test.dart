@@ -29,6 +29,14 @@ void main() {
     expect(vm.unitSuggestions, containsAll(['botol', 'dus']));
   });
 
+  test('saran kategori hanya kategori aktif (F1-09)', () async {
+    final i = repo.categories.indexWhere((c) => c.name == 'Minuman');
+    repo.categories[i] = repo.categories[i].copyWith(isActive: false);
+    final vm = await open();
+    expect(vm.categorySuggestions, contains('Sembako'));
+    expect(vm.categorySuggestions, isNot(contains('Minuman')));
+  });
+
   test('simpan produk baru dengan satuan konversi dan grosir', () async {
     final vm = await open();
     vm
