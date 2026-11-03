@@ -32,6 +32,7 @@ dependencies:
   printing: ^5.15.1
   provider: ^6.1.5
   tabler_icons_plus: ^3.50.0
+  vyuh_node_flow: ^0.32.0
 
 dev_dependencies:
   # Dipakai agen untuk menjalankan aplikasi lewat Dart MCP (lib/driver.dart).

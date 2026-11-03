@@ -330,6 +330,9 @@ Future<DiningTable> updateDiningTable(
       name: draft.name.trim(),
       diningAreaId: draft.areaId,
       seats: draft.seats,
+      // Pindah area melepas posisi denah (meja jadi *Belum ditempatkan*).
+      posX: draft.areaId == current.diningAreaId ? current.posX : null,
+      posY: draft.areaId == current.diningAreaId ? current.posY : null,
       version: current.version + 1,
       updatedAt: s.now,
       updatedBy: staffId,

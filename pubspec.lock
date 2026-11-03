@@ -225,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: "3bce007a596ff8b3119c45d68aaef631272537c03d30e5d4534dd24bf4c5eaa2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   fake_async:
     dependency: transitive
     description:
@@ -352,6 +360,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_mobx:
+    dependency: transitive
+    description:
+      name: flutter_mobx
+      sha256: d4bae30eba1fadc856e8904fd2151e229b2d1ea5fea3318955e59ef70c41294b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   flutter_test:
     dependency: transitive
     description: flutter
@@ -519,6 +535,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.12.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -599,6 +623,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  mobx:
+    dependency: transitive
+    description:
+      name: mobx
+      sha256: "0502582173bee95ef466cb1c5e9f0e87e5026f21f29e98318b67719fc63ffeaf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.0"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -1228,6 +1260,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.4.0"
+  vyuh_node_flow:
+    dependency: transitive
+    description:
+      name: vyuh_node_flow
+      sha256: "747ebaaa85c21f96b1f55436e9adae1191961643ec6a9afe066fa4cf02e5295b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.32.0"
   watcher:
     dependency: transitive
     description:

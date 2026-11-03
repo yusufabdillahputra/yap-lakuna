@@ -1,8 +1,13 @@
-/// Format gambar yang didukung untuk unggahan (stiker QRIS, foto produk).
+/// Format gambar yang didukung untuk unggahan (stiker QRIS, foto produk,
+/// denah meja).
 enum ImageFormat {
   png('image/png', 'png'),
   jpeg('image/jpeg', 'jpg'),
-  webp('image/webp', 'webp');
+  webp('image/webp', 'webp'),
+
+  /// Hanya untuk gambar denah ([readFloorImageHeader]); stiker QRIS
+  /// ([readImageHeader]) tidak menerima SVG.
+  svg('image/svg+xml', 'svg');
 
   const ImageFormat(this.mimeType, this.extension);
 

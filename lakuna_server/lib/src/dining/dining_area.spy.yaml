@@ -8,6 +8,8 @@ fields:
   outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
   name: String
   sortOrder: int, default=0, column=sort_order
+  layoutMode: DiningLayoutMode, default=grid, column=layout_mode
+  floorMediaId: UuidValue?, relation(parent=media_files, onDelete=Restrict), column=floor_media_id
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at

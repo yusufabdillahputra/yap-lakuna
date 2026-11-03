@@ -1,5 +1,6 @@
-### Jenis berkas media yang diunggah (F1-18).
+### Jenis berkas media yang diunggah (F1-18; denah meja F1-10).
 enum: MediaKind
 serialized: byName
 values:
   - qrisSticker
+  - floorPlan

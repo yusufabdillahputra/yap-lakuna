@@ -10,6 +10,7 @@ export 'src/media.dart';
 export 'src/payment_settings.dart';
 export 'src/catalog.dart';
 export 'src/dining_admin.dart';
+export 'src/floor_plan.dart';
 export 'src/open_bill.dart';
 export 'src/preferences.dart';
 export 'src/receipt_settings.dart';

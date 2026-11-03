@@ -35,8 +35,10 @@ import 'catalog/stock_movement.dart' as _i3qehoul;
 import 'catalog/stock_source_type.dart' as _ieciauh3;
 import 'catalog/unit.dart' as _iqtijg36;
 import 'dining/dining_area.dart' as _i9bwyigh;
+import 'dining/dining_layout_mode.dart' as _ibu6mpzk;
 import 'dining/dining_table.dart' as _i0tiivx0;
 import 'dining/kitchen_ticket.dart' as _iks39owa;
+import 'dining/table_shape.dart' as _ij18fkx6;
 import 'media/media_file.dart' as _iw898kbq;
 import 'media/media_kind.dart' as _i8mjpd0r;
 import 'organization/business_type.dart' as _i6i3gkff;
@@ -85,8 +87,10 @@ export 'catalog/stock_movement.dart';
 export 'catalog/stock_source_type.dart';
 export 'catalog/unit.dart';
 export 'dining/dining_area.dart';
+export 'dining/dining_layout_mode.dart';
 export 'dining/dining_table.dart';
 export 'dining/kitchen_ticket.dart';
+export 'dining/table_shape.dart';
 export 'media/media_file.dart';
 export 'media/media_kind.dart';
 export 'organization/business_type.dart';
@@ -150,8 +154,10 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_ieciauh3.StockSourceType>,
           _isc.getType<_iqtijg36.MeasureUnit>,
           _isc.getType<_i9bwyigh.DiningArea>,
+          _isc.getType<_ibu6mpzk.DiningLayoutMode>,
           _isc.getType<_i0tiivx0.DiningTable>,
           _isc.getType<_iks39owa.KitchenTicket>,
+          _isc.getType<_ij18fkx6.TableShape>,
           _isc.getType<_iw898kbq.MediaFile>,
           _isc.getType<_i8mjpd0r.MediaKind>,
           _isc.getType<_i6i3gkff.BusinessType>,
@@ -200,8 +206,10 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_ieciauh3.StockSourceType?>,
           _isc.getType<_iqtijg36.MeasureUnit?>,
           _isc.getType<_i9bwyigh.DiningArea?>,
+          _isc.getType<_ibu6mpzk.DiningLayoutMode?>,
           _isc.getType<_i0tiivx0.DiningTable?>,
           _isc.getType<_iks39owa.KitchenTicket?>,
+          _isc.getType<_ij18fkx6.TableShape?>,
           _isc.getType<_iw898kbq.MediaFile?>,
           _isc.getType<_i8mjpd0r.MediaKind?>,
           _isc.getType<_i6i3gkff.BusinessType?>,
@@ -256,8 +264,10 @@ class Protocol extends _isd.DatabaseSerializationManager
           'StockSourceType',
           'MeasureUnit',
           'DiningArea',
+          'DiningLayoutMode',
           'DiningTable',
           'KitchenTicket',
+          'TableShape',
           'MediaFile',
           'MediaKind',
           'BusinessType',
@@ -1016,6 +1026,19 @@ class Protocol extends _isd.DatabaseSerializationManager
           columnDefault: '0',
         ),
         _isd.ColumnDefinition(
+          name: 'layout_mode',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:DiningLayoutMode',
+          columnDefault: '\'grid\'',
+        ),
+        _isd.ColumnDefinition(
+          name: 'floor_media_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
           name: 'created_at',
           columnType: _isd.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -1082,6 +1105,16 @@ class Protocol extends _isd.DatabaseSerializationManager
           constraintName: 'dining_areas_fk_1',
           columns: ['outlet_id'],
           referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'dining_areas_fk_2',
+          columns: ['floor_media_id'],
+          referenceTable: 'media_files',
           referenceTableSchema: 'public',
           referenceColumns: ['id'],
           onUpdate: _isd.ForeignKeyAction.noAction,
@@ -1156,6 +1189,46 @@ class Protocol extends _isd.DatabaseSerializationManager
           isNullable: false,
           dartType: 'int',
           columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
+          name: 'shape',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:TableShape',
+          columnDefault: '\'square\'',
+        ),
+        _isd.ColumnDefinition(
+          name: 'pos_x',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'pos_y',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'width',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '80',
+        ),
+        _isd.ColumnDefinition(
+          name: 'height',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '80',
+        ),
+        _isd.ColumnDefinition(
+          name: 'can_merge',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
         ),
         _isd.ColumnDefinition(
           name: 'created_at',
@@ -5409,11 +5482,17 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _i9bwyigh.DiningArea) {
       return _i9bwyigh.DiningArea.fromJson(data) as T;
     }
+    if (t == _ibu6mpzk.DiningLayoutMode) {
+      return _ibu6mpzk.DiningLayoutMode.fromJson(data) as T;
+    }
     if (t == _i0tiivx0.DiningTable) {
       return _i0tiivx0.DiningTable.fromJson(data) as T;
     }
     if (t == _iks39owa.KitchenTicket) {
       return _iks39owa.KitchenTicket.fromJson(data) as T;
+    }
+    if (t == _ij18fkx6.TableShape) {
+      return _ij18fkx6.TableShape.fromJson(data) as T;
     }
     if (t == _iw898kbq.MediaFile) {
       return _iw898kbq.MediaFile.fromJson(data) as T;
@@ -5571,12 +5650,19 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _isc.getType<_i9bwyigh.DiningArea?>()) {
       return (data != null ? _i9bwyigh.DiningArea.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_ibu6mpzk.DiningLayoutMode?>()) {
+      return (data != null ? _ibu6mpzk.DiningLayoutMode.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_i0tiivx0.DiningTable?>()) {
       return (data != null ? _i0tiivx0.DiningTable.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_iks39owa.KitchenTicket?>()) {
       return (data != null ? _iks39owa.KitchenTicket.fromJson(data) : null)
           as T;
+    }
+    if (t == _isc.getType<_ij18fkx6.TableShape?>()) {
+      return (data != null ? _ij18fkx6.TableShape.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_iw898kbq.MediaFile?>()) {
       return (data != null ? _iw898kbq.MediaFile.fromJson(data) : null) as T;
@@ -5717,8 +5803,10 @@ class Protocol extends _isd.DatabaseSerializationManager
       _ieciauh3.StockSourceType => 'StockSourceType',
       _iqtijg36.MeasureUnit => 'MeasureUnit',
       _i9bwyigh.DiningArea => 'DiningArea',
+      _ibu6mpzk.DiningLayoutMode => 'DiningLayoutMode',
       _i0tiivx0.DiningTable => 'DiningTable',
       _iks39owa.KitchenTicket => 'KitchenTicket',
+      _ij18fkx6.TableShape => 'TableShape',
       _iw898kbq.MediaFile => 'MediaFile',
       _i8mjpd0r.MediaKind => 'MediaKind',
       _i6i3gkff.BusinessType => 'BusinessType',
@@ -5799,10 +5887,14 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'MeasureUnit';
       case _i9bwyigh.DiningArea():
         return 'DiningArea';
+      case _ibu6mpzk.DiningLayoutMode():
+        return 'DiningLayoutMode';
       case _i0tiivx0.DiningTable():
         return 'DiningTable';
       case _iks39owa.KitchenTicket():
         return 'KitchenTicket';
+      case _ij18fkx6.TableShape():
+        return 'TableShape';
       case _iw898kbq.MediaFile():
         return 'MediaFile';
       case _i8mjpd0r.MediaKind():
@@ -5939,11 +6031,17 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (dataClassName == 'DiningArea') {
       return deserialize<_i9bwyigh.DiningArea>(data['data']);
     }
+    if (dataClassName == 'DiningLayoutMode') {
+      return deserialize<_ibu6mpzk.DiningLayoutMode>(data['data']);
+    }
     if (dataClassName == 'DiningTable') {
       return deserialize<_i0tiivx0.DiningTable>(data['data']);
     }
     if (dataClassName == 'KitchenTicket') {
       return deserialize<_iks39owa.KitchenTicket>(data['data']);
+    }
+    if (dataClassName == 'TableShape') {
+      return deserialize<_ij18fkx6.TableShape>(data['data']);
     }
     if (dataClassName == 'MediaFile') {
       return deserialize<_iw898kbq.MediaFile>(data['data']);

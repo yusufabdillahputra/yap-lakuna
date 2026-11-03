@@ -1,0 +1,127 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "dining_areas",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "layout_mode",
+            "fieldName": "layoutMode",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'grid'",
+            "dartType": "protocol:DiningLayoutMode"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "floor_media_id",
+            "fieldName": "floorMediaId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "dining_areas_fk_2",
+            "columns": [
+              "floor_media_id"
+            ],
+            "referenceTable": "media_files",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "dining_tables",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "shape",
+            "fieldName": "shape",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'square'",
+            "dartType": "protocol:TableShape"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "pos_x",
+            "fieldName": "posX",
+            "columnType": 6,
+            "isNullable": true,
+            "dartType": "int?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "pos_y",
+            "fieldName": "posY",
+            "columnType": 6,
+            "isNullable": true,
+            "dartType": "int?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "width",
+            "fieldName": "width",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "80",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "height",
+            "fieldName": "height",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "80",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "can_merge",
+            "fieldName": "canMerge",
+            "columnType": 1,
+            "isNullable": false,
+            "columnDefault": "false",
+            "dartType": "bool"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    }
+  ],
+  "warnings": [],
+  "migrationApiVersion": 1
+}

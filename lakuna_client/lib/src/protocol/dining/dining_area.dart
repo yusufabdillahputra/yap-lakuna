@@ -13,6 +13,7 @@
 import 'dart:async' as _ida;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
+import '../dining/dining_layout_mode.dart' as _iks3qkj2;
 
 /// Area meja per cabang (F1-10), mis. Indoor, Teras.
 abstract class DiningArea
@@ -23,6 +24,8 @@ abstract class DiningArea
     required this.outletId,
     required this.name,
     int? sortOrder,
+    _iks3qkj2.DiningLayoutMode? layoutMode,
+    this.floorMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -33,6 +36,7 @@ abstract class DiningArea
     this.originDeviceId,
   }) : id = id ?? const _isc.Uuid().v7obj(),
        sortOrder = sortOrder ?? 0,
+       layoutMode = layoutMode ?? _iks3qkj2.DiningLayoutMode.grid,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -43,6 +47,8 @@ abstract class DiningArea
     required _isc.UuidValue outletId,
     required String name,
     int? sortOrder,
+    _iks3qkj2.DiningLayoutMode? layoutMode,
+    _isc.UuidValue? floorMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -66,6 +72,16 @@ abstract class DiningArea
       ),
       name: jsonSerialization['name'] as String,
       sortOrder: jsonSerialization['sortOrder'] as int?,
+      layoutMode: jsonSerialization['layoutMode'] == null
+          ? null
+          : _iks3qkj2.DiningLayoutMode.fromJson(
+              (jsonSerialization['layoutMode'] as String),
+            ),
+      floorMediaId: jsonSerialization['floorMediaId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['floorMediaId'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -110,6 +126,10 @@ abstract class DiningArea
 
   int sortOrder;
 
+  _iks3qkj2.DiningLayoutMode layoutMode;
+
+  _isc.UuidValue? floorMediaId;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -138,6 +158,8 @@ abstract class DiningArea
     _isc.UuidValue? outletId,
     String? name,
     int? sortOrder,
+    _iks3qkj2.DiningLayoutMode? layoutMode,
+    _isc.UuidValue? floorMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -156,6 +178,8 @@ abstract class DiningArea
       'outletId': outletId.toJson(),
       'name': name,
       'sortOrder': sortOrder,
+      'layoutMode': layoutMode.toJson(),
+      if (floorMediaId != null) 'floorMediaId': floorMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -176,6 +200,8 @@ abstract class DiningArea
       'outletId': outletId.toJson(),
       'name': name,
       'sortOrder': sortOrder,
+      'layoutMode': layoutMode.toJson(),
+      if (floorMediaId != null) 'floorMediaId': floorMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -222,6 +248,8 @@ class _DiningAreaImpl extends DiningArea {
     required _isc.UuidValue outletId,
     required String name,
     int? sortOrder,
+    _iks3qkj2.DiningLayoutMode? layoutMode,
+    _isc.UuidValue? floorMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -236,6 +264,8 @@ class _DiningAreaImpl extends DiningArea {
          outletId: outletId,
          name: name,
          sortOrder: sortOrder,
+         layoutMode: layoutMode,
+         floorMediaId: floorMediaId,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -256,6 +286,8 @@ class _DiningAreaImpl extends DiningArea {
     _isc.UuidValue? outletId,
     String? name,
     int? sortOrder,
+    _iks3qkj2.DiningLayoutMode? layoutMode,
+    _isc.UuidValue? floorMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -271,6 +303,10 @@ class _DiningAreaImpl extends DiningArea {
       outletId: outletId ?? this.outletId,
       name: name ?? this.name,
       sortOrder: sortOrder ?? this.sortOrder,
+      layoutMode: layoutMode ?? this.layoutMode,
+      floorMediaId: floorMediaId is _isc.UndefinedSentinel
+          ? this.floorMediaId
+          : floorMediaId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -315,6 +351,19 @@ class DiningAreaUpdateTable extends _isd.UpdateTable<DiningAreaTable> {
 
   _isd.ColumnValue<int, int> sortOrder(int value) => _isd.ColumnValue(
     table.sortOrder,
+    value,
+  );
+
+  _isd.ColumnValue<_iks3qkj2.DiningLayoutMode, _iks3qkj2.DiningLayoutMode>
+  layoutMode(_iks3qkj2.DiningLayoutMode value) => _isd.ColumnValue(
+    table.layoutMode,
+    value,
+  );
+
+  _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> floorMediaId(
+    _isc.UuidValue? value,
+  ) => _isd.ColumnValue(
+    table.floorMediaId,
     value,
   );
 
@@ -391,6 +440,18 @@ class DiningAreaTable extends _isd.Table<_isc.UuidValue> {
       hasDefault: true,
       fieldName: 'sortOrder',
     );
+    layoutMode = _isd.ColumnEnum(
+      'layout_mode',
+      this,
+      _isd.EnumSerialization.byName,
+      hasDefault: true,
+      fieldName: 'layoutMode',
+    );
+    floorMediaId = _isd.ColumnUuid(
+      'floor_media_id',
+      this,
+      fieldName: 'floorMediaId',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -444,6 +505,10 @@ class DiningAreaTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnInt sortOrder;
 
+  late final _isd.ColumnEnum<_iks3qkj2.DiningLayoutMode> layoutMode;
+
+  late final _isd.ColumnUuid floorMediaId;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -467,6 +532,8 @@ class DiningAreaTable extends _isd.Table<_isc.UuidValue> {
     outletId,
     name,
     sortOrder,
+    layoutMode,
+    floorMediaId,
     createdAt,
     updatedAt,
     deletedAt,

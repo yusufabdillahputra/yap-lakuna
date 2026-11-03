@@ -12,14 +12,17 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// Jenis berkas media yang diunggah (F1-18).
+/// Jenis berkas media yang diunggah (F1-18; denah meja F1-10).
 enum MediaKind implements _is.SerializableModel {
-  qrisSticker;
+  qrisSticker,
+  floorPlan;
 
   static MediaKind fromJson(String name) {
     switch (name) {
       case 'qrisSticker':
         return MediaKind.qrisSticker;
+      case 'floorPlan':
+        return MediaKind.floorPlan;
       default:
         throw ArgumentError('Value "$name" cannot be converted to "MediaKind"');
     }
