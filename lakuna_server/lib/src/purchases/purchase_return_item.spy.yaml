@@ -1,0 +1,22 @@
+### Baris retur pembelian (F1-12); qty dalam satuan baris pembelian.
+class: PurchaseReturnItem
+table: purchase_return_items
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  purchaseReturnId: UuidValue, relation(parent=purchase_returns, onDelete=Restrict), column=purchase_return_id
+  purchaseItemId: UuidValue, relation(parent=purchase_items, onDelete=Restrict), column=purchase_item_id
+  quantityMilli: int, column=quantity_milli
+  amount: int
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  purchase_return_items_return_idx:
+    fields: purchaseReturnId

@@ -1,0 +1,36 @@
+### Retur pembelian (F1-12), nomor `RB-…`. Nilai mengurangi hutang dulu
+### (`debt_reduction`); kelebihannya uang kembali (`refund_amount`) ke
+### `refund_source`. Laci menulis `cash_movements` masuk di sesi
+### `cash_session_id`.
+class: PurchaseReturn
+table: purchase_returns
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  purchaseId: UuidValue, relation(parent=purchases, onDelete=Restrict), column=purchase_id
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  number: String
+  amount: int
+  debtReduction: int, column=debt_reduction
+  refundAmount: int, column=refund_amount
+  refundSource: FundingSource?, column=refund_source
+  note: String?
+  returnedAt: DateTime, column=returned_at
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  purchase_returns_purchase_idx:
+    fields: purchaseId
+  purchase_returns_number_idx:
+    fields: tenantId, number
+    unique: true

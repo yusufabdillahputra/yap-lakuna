@@ -1,0 +1,8 @@
+### Sumber dana bayar pembelian atau uang kembali retur beli (F1-12).
+### `drawer` menulis `cash_movements` di sesi kasir perangkat.
+enum: FundingSource
+serialized: byName
+values:
+  - storeCash
+  - drawer
+  - bank
