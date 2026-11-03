@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
+import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/store_repository.dart';
+import '../data/services/image_file_picker.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/coming_soon/coming_soon_view.dart';
@@ -17,7 +19,7 @@ import '../ui/onboarding/onboarding_view.dart';
 import '../ui/products/product_form_view.dart';
 import '../ui/products/product_list_view.dart';
 import '../ui/settings/app_settings_view_model.dart';
-import '../ui/settings/settings_view.dart';
+import '../ui/settings/settings_screen.dart';
 import 'routes.dart';
 
 /// Router aplikasi:
@@ -32,6 +34,8 @@ GoRouter createRouter({
   required CashDrawerRepository cashDrawer,
   required CatalogRepository catalog,
   required CashierRepository cashier,
+  required PaymentSettingsRepository paymentSettings,
+  ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -86,7 +90,13 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.settings,
-            builder: (context, state) => SettingsView(viewModel: settings),
+            builder: (context, state) => SettingsScreen(
+              settings: settings,
+              paymentSettings: paymentSettings,
+              imagePicker: imagePicker,
+              session: session,
+              store: store,
+            ),
           ),
           GoRoute(
             path: Routes.cashSession,
