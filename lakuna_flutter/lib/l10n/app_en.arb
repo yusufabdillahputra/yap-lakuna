@@ -1244,5 +1244,21 @@
   "productModifiersHelp": "The order here is the order on the modifier sheet in Tables.",
   "productModifiersNoMaster": "No modifier groups yet. Create them in Master data › Modifier groups.",
   "productModifierAttach": "Add group",
-  "productModifierRemove": "Remove"
+  "productModifierRemove": "Remove",
+  "modifierSheetAdd": "Add to bill · {total}",
+  "@modifierSheetAdd": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "modifierSheetQty": "Quantity",
+  "modifierSheetLess": "Decrease",
+  "modifierSheetMore": "Increase",
+  "modifierSheetPriceInvalid": "Modifier discounts exceed the item price.",
+  "modifierSheetNoteHint": "Note for the kitchen (optional)",
+  "diningErrorModifierRequired": "Modifier choices are incomplete or invalid. Open the item again.",
+  "diningErrorModifierSoldOut": "A modifier option is sold out. Choose another.",
+  "diningErrorModifierPrice": "Modifier discounts exceed the item price."
 }

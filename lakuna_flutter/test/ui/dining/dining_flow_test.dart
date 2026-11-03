@@ -10,6 +10,7 @@ import '../../testing/fake_cashier_repository.dart';
 import '../../testing/fake_dining_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/modifier_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
@@ -39,12 +40,16 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 800),
     String role = 'owner',
+    bool modifiers = false,
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
           ? null
           : permissionsForRole(role, isOwner: false),
     );
+    if (modifiers) {
+      dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
+    }
     cashier = FakeCashierRepository()..dining = dining;
     printer = FakeReceiptPrinter();
     await pumpLakuna(
@@ -292,5 +297,95 @@ void main() {
     expect(FakeCashierRepository(dining: d).dining, same(d));
     expect(Permission.openBillsManage.key, 'open_bills:manage');
     expect(UuidValue.fromString(d.tables.first.id.uuid), d.tables.first.id);
+  });
+
+  testWidgets('modifier 1.8: pilih, total, bill, tiket, struk', (tester) async {
+    await pump(tester, modifiers: true);
+    await _tap(tester, 'dining-table-M1');
+    await _tap(tester, 'dining-guests-open');
+
+    await _tap(tester, 'dining-add-menu');
+    await tester.enterText(_input('dining-menu-note-0'), 'less ice');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'dining-menu-Kopi Susu Aren');
+    expect(_key('modifier-sheet'), findsOneWidget);
+    expect(find.text('Wajib · pilih 1'), findsOneWidget);
+    expect(find.text('Opsional · maks 2'), findsOneWidget);
+    // Reguler bawaan sudah terpilih → tombol aktif dengan harga dasar.
+    expect(find.text('Tambah ke bill · Rp 24.000'), findsOneWidget);
+
+    await _tap(tester, 'modifier-sheet-option-Besar');
+    await _tap(tester, 'modifier-sheet-option-Boba');
+    await _tap(tester, 'modifier-sheet-option-Keju'); // habis: diabaikan
+    await _tap(tester, 'modifier-sheet-more');
+    expect(find.text('Tambah ke bill · Rp 66.000'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: _key('modifier-sheet-note'),
+        matching: find.text('less ice'),
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'modifier-sheet-add');
+    expect(_key('modifier-sheet'), findsNothing);
+    expect(_key('dining-menu-added'), findsOneWidget);
+
+    // Menu tanpa modifier langsung masuk bill.
+    await _tap(tester, 'dining-menu-Es Teh Manis');
+    expect(_key('modifier-sheet'), findsNothing);
+    await _tap(tester, 'dining-menu-done');
+
+    expect(_key('dining-item-Kopi Susu Aren + Besar, Boba'), findsOneWidget);
+    expect(find.text('+ Besar, Boba'), findsOneWidget);
+    expect(find.text('* less ice'), findsOneWidget);
+    final kopi = dining.items.firstWhere(
+      (i) => i.productName == 'Kopi Susu Aren',
+    );
+    expect(kopi.lineTotal, 66000);
+
+    await _tap(tester, 'dining-send');
+    await _tap(tester, 'dining-ticket-print');
+    final ticket = printer.prints.single.$2.map((l) => l.text).toList();
+    final at = ticket.indexWhere((l) => l.contains('Kopi Susu Aren'));
+    expect(ticket.sublist(at + 1, at + 4), [
+      '  + Besar',
+      '  + Boba',
+      '  * less ice',
+    ]);
+    await _tap(tester, 'dining-ticket-close');
+
+    await _tap(tester, 'dining-pay');
+    expect(
+      find.descendant(
+        of: _key('payment-bill-summary'),
+        matching: find.textContaining('Kopi Susu Aren + Besar, Boba'),
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'payment-quick-0');
+    await _tap(tester, 'payment-finish');
+    final receipt = _key('success-receipt');
+    expect(
+      find.descendant(
+        of: receipt,
+        matching: find.textContaining('+ Besar 4.000'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: receipt, matching: find.textContaining('2 x 33.000')),
+      findsOneWidget,
+    );
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('modifier 1.8 di ponsel 360 px', (tester) async {
+    await pump(tester, size: const Size(360, 740), modifiers: true);
+    await _tap(tester, 'dining-table-M1');
+    await _tap(tester, 'dining-guests-open');
+    await _tap(tester, 'dining-add-menu');
+    await _tap(tester, 'dining-menu-Kopi Susu Aren');
+    expect(_key('modifier-sheet-option-Pudding'), findsNothing);
+    expect(_key('modifier-sheet-add'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

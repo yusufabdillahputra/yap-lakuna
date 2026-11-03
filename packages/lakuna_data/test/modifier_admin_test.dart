@@ -205,6 +205,10 @@ void main() {
     var p = (await loadProduct(store, scope, id))!;
     expect(p.modifierGroupIds, [b.id, a.id]);
     expect(p.toDraft().modifierGroupIds, [b.id.uuid, a.id.uuid]);
+    final menu = await menuModifierGroups(store, scope);
+    expect(menu.keys, [id]);
+    expect(menu[id]!.map((g) => g.id), [b.id, a.id]);
+    expect(menu[id]!.first.options.single.name, 'Es');
 
     await saveProduct(
       store,

@@ -19,6 +19,7 @@ class DiningData {
     this.canVoid = false,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
+    this.modifierGroups = const {},
   });
 
   final DiningOverview overview;
@@ -46,6 +47,13 @@ class DiningData {
   final ReceiptConfig receipt;
   final PrinterSelection? printer;
 
+  /// Grup modifier per produk (urut 1.16b) untuk sheet 1.8; produk tanpa
+  /// grup tidak ada di peta.
+  final Map<UuidValue, List<ModifierGroupDetail>> modifierGroups;
+
+  List<ModifierGroupDetail> groupsOf(CatalogProduct p) =>
+      modifierGroups[p.id] ?? const [];
+
   DiningData withOverview(DiningOverview o) => DiningData(
     overview: o,
     products: products,
@@ -57,6 +65,7 @@ class DiningData {
     canVoid: canVoid,
     receipt: receipt,
     printer: printer,
+    modifierGroups: modifierGroups,
   );
 }
 
@@ -72,10 +81,13 @@ abstract class DiningRepository {
 
   Future<Result<OpenBill>> openTakeAway(String? customerName);
 
+  /// [modifierIds] = opsi terpilih di sheet 1.8 (gagal dengan
+  /// `ModifierSelectionInvalid` / `ModifierPriceInvalid`).
   Future<Result<OpenBill>> addItem(
     UuidValue billId,
     SaleLineRequest line, {
     String? note,
+    List<UuidValue> modifierIds = const [],
   });
 
   /// Nol menghapus item *Baru*.

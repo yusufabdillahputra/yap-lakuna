@@ -2873,4 +2873,37 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productModifierRemove => 'Lepas';
+
+  @override
+  String modifierSheetAdd(String total) {
+    return 'Tambah ke bill · $total';
+  }
+
+  @override
+  String get modifierSheetQty => 'Jumlah';
+
+  @override
+  String get modifierSheetLess => 'Kurangi';
+
+  @override
+  String get modifierSheetMore => 'Tambah';
+
+  @override
+  String get modifierSheetPriceInvalid =>
+      'Potongan modifier melebihi harga menu.';
+
+  @override
+  String get modifierSheetNoteHint => 'Catatan untuk dapur (opsional)';
+
+  @override
+  String get diningErrorModifierRequired =>
+      'Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.';
+
+  @override
+  String get diningErrorModifierSoldOut =>
+      'Ada opsi modifier yang habis. Pilih opsi lain.';
+
+  @override
+  String get diningErrorModifierPrice =>
+      'Potongan modifier melebihi harga menu.';
 }

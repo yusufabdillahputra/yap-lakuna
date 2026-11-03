@@ -167,6 +167,27 @@ Future<List<ModifierGroupDetail>> modifierGroupDetails(
   ];
 }
 
+/// Grup modifier per produk (urut pemasangan) untuk sheet 1.8 di layar
+/// Meja. Produk tanpa grup tidak ada di peta.
+Future<Map<UuidValue, List<ModifierGroupDetail>>> menuModifierGroups(
+  LakunaStore store,
+  CatalogScope scope,
+) async {
+  final links = await productModifierLinks(store.session, scope.tenantId);
+  if (links.isEmpty) return const {};
+  final details = {
+    for (final d in await modifierGroupDetails(store.session, scope.tenantId))
+      d.id: d,
+  };
+  final result = <UuidValue, List<ModifierGroupDetail>>{};
+  for (final l in links) {
+    if (details[l.modifierGroupId] case final d?) {
+      (result[l.productId] ??= []).add(d);
+    }
+  }
+  return result;
+}
+
 /// Daftar grup untuk tab Master › Grup modifier.
 Future<List<ModifierGroupDetail>> modifierGroupRows(
   LakunaStore store,

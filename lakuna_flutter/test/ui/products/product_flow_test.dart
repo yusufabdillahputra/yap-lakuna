@@ -6,6 +6,7 @@ import 'package:lakuna_flutter/routing/routes.dart';
 import '../../testing/app_harness.dart';
 import '../../testing/fake_catalog_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/modifier_seed.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
 
 Finder _input(String key) => find.descendant(
@@ -139,6 +140,38 @@ void main() {
     await _tap(tester, 'product-save');
     expect(repo.saved.single.variants.single.sellPrice, const Money(37000));
     expect(find.text('Rp 37.000'), findsOneWidget);
+  });
+
+  testWidgets('tab Modifier: pasang, urut, lepas, simpan', (tester) async {
+    final repo = FakeCatalogRepository(seed: sampleProducts())
+      ..modifierGroups = seedModifierGroups();
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.products,
+      catalog: repo,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    final kopi = repo.products.firstWhere((p) => p.name == 'Kopi Sachet');
+    await _tap(tester, 'product-row-${kopi.id.uuid}');
+    await _tap(tester, 'product-tab-modifiers');
+    expect(
+      find.text(
+        'Belum ada grup terpasang. Menu langsung masuk bill tanpa pilihan.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'product-modifier-attach-Topping');
+    await _tap(tester, 'product-modifier-attach-Ukuran');
+    expect(find.byKey(const ValueKey('product-modifier-Topping')), findsOne);
+    expect(find.text('Boba +Rp 5.000, Keju +Rp 6.000'), findsOneWidget);
+    await _tap(tester, 'product-modifier-up-Ukuran');
+    await _tap(tester, 'product-save');
+    final [ukuran, topping] = repo.modifierGroups;
+    expect(repo.saved.single.modifierGroupIds, [
+      ukuran.id.uuid,
+      topping.id.uuid,
+    ]);
   });
 
   testWidgets('ponsel: kartu, chip di bawah minimum, dan tombol tambah', (

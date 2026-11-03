@@ -70,6 +70,12 @@ class FakeDiningRepository extends DiningRepository {
   final items = <SaleItem>[];
   final tickets = <KitchenTicket>[];
   final voided = <UuidValue, String>{};
+
+  /// Grup modifier per produk (lihat [attachModifiers]).
+  final modifierGroups = <UuidValue, List<ModifierGroupDetail>>{};
+
+  /// Modifier terpilih per item.
+  final itemModifiers = <UuidValue, List<SaleItemModifier>>{};
   final _tenant = fakeId(1);
   final _outlet = fakeId(2);
   var _next = 700;
@@ -78,6 +84,12 @@ class FakeDiningRepository extends DiningRepository {
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
   var loadCalls = 0;
+
+  /// Pasang [groups] di menu bernama [productName].
+  void attachModifiers(String productName, List<ModifierGroupDetail> groups) {
+    final p = catalog.products.firstWhere((p) => p.name == productName);
+    modifierGroups[p.id] = groups;
+  }
 
   DiningArea _area(int n, String name, int order) => DiningArea(
     id: fakeId(500 + n),
@@ -125,6 +137,7 @@ class FakeDiningRepository extends DiningRepository {
       rates: rates,
       table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
       openedByName: 'Dimas',
+      modifiers: {for (final i in own) i.id: ?itemModifiers[i.id]},
     );
   }
 
@@ -153,6 +166,7 @@ class FakeDiningRepository extends DiningRepository {
       timezone: 'Asia/Jakarta',
       canPay: _can(Permission.salesCreate),
       canVoid: _can(Permission.salesVoid),
+      modifierGroups: Map.of(modifierGroups),
     );
   });
 
@@ -257,6 +271,7 @@ class FakeDiningRepository extends DiningRepository {
     UuidValue billId,
     SaleLineRequest line, {
     String? note,
+    List<UuidValue> modifierIds = const [],
   }) => _run(() {
     final b = bill(billId);
     final clean = note?.trim() ?? '';
@@ -270,12 +285,29 @@ class FakeDiningRepository extends DiningRepository {
       throw SaleItemUnavailable(line.variantId);
     }
     final variant = product.variants.firstWhere((v) => v.id == line.variantId);
+    final groups = modifierGroups[product.id] ?? const <ModifierGroupDetail>[];
+    final ids = [for (final id in modifierIds) id.uuid];
+    final selError = validateModifierSelection([
+      for (final g in groups) g.rule,
+    ], ids);
+    if (selError != null) throw ModifierSelectionInvalid(selError);
+    final chosen = [
+      for (final g in groups)
+        for (final o in g.options)
+          if (modifierIds.contains(o.id)) (g, o),
+    ];
+    final delta = Money.sum(chosen.map((c) => Money(c.$2.priceDelta)));
+    if (modifiedUnitPrice(variant.sellPrice, delta) == null) {
+      throw ModifierPriceInvalid();
+    }
+    final key = modifierKey(ids);
     final same = b.items
         .where(
           (i) =>
               i.kitchenStatus == KitchenStatus.pending &&
               i.variantId == line.variantId &&
-              (i.note ?? '') == clean,
+              (i.note ?? '') == clean &&
+              i.modifierKey == key,
         )
         .firstOrNull;
     final qty = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -289,13 +321,29 @@ class FakeDiningRepository extends DiningRepository {
         same.copyWith(
           quantityMilli: qty.milli,
           unitPrice: priced.unitPrice.value,
-          lineTotal: priced.lineTotal.value,
+          lineTotal: (priced.unitPrice + delta).timesMilli(qty.milli).value,
         ),
       );
     } else {
+      final itemId = fakeId(_next++);
+      if (chosen.isNotEmpty) {
+        itemModifiers[itemId] = [
+          for (final (n, (g, o)) in chosen.indexed)
+            SaleItemModifier(
+              tenantId: _tenant,
+              saleItemId: itemId,
+              modifierId: o.id,
+              groupName: g.name,
+              name: o.name,
+              priceDelta: o.priceDelta,
+              sortOrder: n,
+              hlc: '',
+            ),
+        ];
+      }
       items.add(
         SaleItem(
-          id: fakeId(_next++),
+          id: itemId,
           tenantId: _tenant,
           saleId: billId,
           variantId: variant.id,
@@ -306,7 +354,9 @@ class FakeDiningRepository extends DiningRepository {
           quantityMilli: qty.milli,
           listPrice: priced.listPrice.value,
           unitPrice: priced.unitPrice.value,
-          lineTotal: priced.lineTotal.value,
+          lineTotal: (priced.unitPrice + delta).timesMilli(qty.milli).value,
+          modifierDelta: delta.value,
+          modifierKey: key,
           unitCost: 0,
           tracksStock: product.tracksStock,
           sortOrder: items.length,
@@ -334,7 +384,9 @@ class FakeDiningRepository extends DiningRepository {
           _replaceItem(
             item.copyWith(
               quantityMilli: quantity.milli,
-              lineTotal: Money(item.unitPrice).timesMilli(quantity.milli).value,
+              lineTotal: Money(item.unitPrice + item.modifierDelta)
+                  .timesMilli(quantity.milli)
+                  .value,
             ),
           );
         } else {

@@ -5101,6 +5101,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Lepas'**
   String get productModifierRemove;
+
+  /// No description provided for @modifierSheetAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah ke bill · {total}'**
+  String modifierSheetAdd(String total);
+
+  /// No description provided for @modifierSheetQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get modifierSheetQty;
+
+  /// No description provided for @modifierSheetLess.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurangi'**
+  String get modifierSheetLess;
+
+  /// No description provided for @modifierSheetMore.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah'**
+  String get modifierSheetMore;
+
+  /// No description provided for @modifierSheetPriceInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Potongan modifier melebihi harga menu.'**
+  String get modifierSheetPriceInvalid;
+
+  /// No description provided for @modifierSheetNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan untuk dapur (opsional)'**
+  String get modifierSheetNoteHint;
+
+  /// No description provided for @diningErrorModifierRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.'**
+  String get diningErrorModifierRequired;
+
+  /// No description provided for @diningErrorModifierSoldOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada opsi modifier yang habis. Pilih opsi lain.'**
+  String get diningErrorModifierSoldOut;
+
+  /// No description provided for @diningErrorModifierPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Potongan modifier melebihi harga menu.'**
+  String get diningErrorModifierPrice;
 }
 
 class _AppLocalizationsDelegate

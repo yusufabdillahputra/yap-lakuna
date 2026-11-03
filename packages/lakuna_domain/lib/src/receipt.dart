@@ -60,11 +60,15 @@ class ReceiptItem {
     required this.name,
     required this.detail,
     required this.amount,
+    this.extras = const [],
   });
 
   final String name;
   final String detail;
   final String amount;
+
+  /// Baris tambahan di bawah nama, menjorok (modifier F&B, `+ Besar`).
+  final List<String> extras;
 }
 
 /// Isi struk yang sudah diformat (teks dan nominal), tanpa tata letak.
@@ -164,6 +168,8 @@ List<ReceiptLine> layoutReceipt(ReceiptContent content, ReceiptPaper paper) {
     [
       for (final item in content.items) ...[
         for (final l in wrapText(item.name, w)) ReceiptLine(l),
+        for (final e in item.extras)
+          for (final l in wrapText(e, w - 2)) ReceiptLine('  $l'),
         ...layoutPair('  ${item.detail}', item.amount, w),
       ],
     ],

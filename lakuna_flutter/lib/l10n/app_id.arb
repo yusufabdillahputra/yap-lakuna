@@ -1778,5 +1778,21 @@
   "productModifiersHelp": "Urutan grup di sini = urutan di lembar pilih modifier layar Meja.",
   "productModifiersNoMaster": "Belum ada grup modifier. Buat dulu di Master data › Grup modifier.",
   "productModifierAttach": "Tambah grup",
-  "productModifierRemove": "Lepas"
+  "productModifierRemove": "Lepas",
+  "modifierSheetAdd": "Tambah ke bill · {total}",
+  "@modifierSheetAdd": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "modifierSheetQty": "Jumlah",
+  "modifierSheetLess": "Kurangi",
+  "modifierSheetMore": "Tambah",
+  "modifierSheetPriceInvalid": "Potongan modifier melebihi harga menu.",
+  "modifierSheetNoteHint": "Catatan untuk dapur (opsional)",
+  "diningErrorModifierRequired": "Pilihan modifier belum lengkap atau tidak sah. Buka lagi menunya.",
+  "diningErrorModifierSoldOut": "Ada opsi modifier yang habis. Pilih opsi lain.",
+  "diningErrorModifierPrice": "Potongan modifier melebihi harga menu."
 }

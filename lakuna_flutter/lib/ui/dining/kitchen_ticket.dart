@@ -10,8 +10,8 @@ String _qty(AppLocalizations l10n, int milli) =>
     : Qty(milli).format(decimal: ',', group: '.');
 
 /// Baris tiket dapur 1.7e: judul, meja/take away, nomor `K-0012`, jam,
-/// pelayan, lalu item baru (jumlah × nama) dengan catatan berawalan `*`,
-/// tanpa harga.
+/// pelayan, lalu item baru (jumlah × nama) dengan modifier (`+ Besar`) dan
+/// catatan berawalan `*`, tanpa harga.
 List<ReceiptLine> kitchenTicketLines(
   AppLocalizations l10n, {
   required KitchenSendResult result,
@@ -52,6 +52,8 @@ List<ReceiptLine> kitchenTicketLines(
         w,
       ))
         ReceiptLine(l, bold: true),
+      for (final m in result.modifiersOf(item))
+        for (final l in wrapText('+ ${m.name}', w - 2)) ReceiptLine('  $l'),
       if (item.note case final note? when note.trim().isNotEmpty)
         for (final l in wrapText('* ${note.trim()}', w - 2))
           ReceiptLine('  $l'),

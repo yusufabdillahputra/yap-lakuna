@@ -317,6 +317,7 @@ class FakeCashierRepository extends CashierRepository {
       CheckoutResult(
         sale: sale,
         items: bill.items,
+        modifiers: bill.modifiers,
         payments: [
           for (final (i, payment) in payments.indexed)
             Payment(

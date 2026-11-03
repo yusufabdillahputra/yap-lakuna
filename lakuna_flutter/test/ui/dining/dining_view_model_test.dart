@@ -9,6 +9,7 @@ import 'package:lakuna_flutter/ui/dining/dining_view_model.dart';
 
 import '../../testing/fake_dining_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
+import '../../testing/modifier_seed.dart';
 
 void main() {
   late FakeDiningRepository repo;
@@ -25,10 +26,9 @@ void main() {
   CatalogProduct product(String name) =>
       vm.menuProducts.firstWhere((p) => p.name == name);
 
-  Future<void> add(String name, {String? note}) => vm.addItem.execute((
-    saleOptionsFor(product(name)).single,
-    note,
-  ));
+  Future<void> add(String name, {String? note}) => vm.addItem.execute(
+    BillItemInput(saleOptionsFor(product(name)).single, note: note),
+  );
 
   test('memuat meja per area dan hitungan terisi', () {
     expect(vm.mode, DiningMode.dineIn);
@@ -165,4 +165,55 @@ void main() {
     expect(denied.load.error, isTrue);
     expect(denied.loadError, isA<NotPermitted>());
   });
+
+  test(
+    'modifier: harga + tambahan, gabung set sama, pilihan tidak sah',
+    () async {
+      final groups = seedModifierGroups();
+      repo.attachModifiers('Kopi Susu Aren', groups);
+      await vm.load.execute();
+      final kopi = product('Kopi Susu Aren');
+      expect(vm.modifierGroupsOf(kopi).map((g) => g.name), [
+        'Ukuran',
+        'Topping',
+      ]);
+      expect(vm.modifierGroupsOf(product('Es Teh Manis')), isEmpty);
+
+      await vm.openTable.execute((table('M1').id, 2));
+      final besar = groups.first.options.last.id;
+      final boba = groups.last.options.first.id;
+      final keju = groups.last.options.last.id;
+      final option = saleOptionsFor(kopi).single;
+      await vm.addItem.execute(
+        BillItemInput(
+          option,
+          note: 'less ice',
+          quantity: Qty.units(2),
+          modifierIds: [besar, boba],
+        ),
+      );
+      var bill = vm.selectedBill!;
+      final item = bill.items.single;
+      expect(item.lineTotal, 66000);
+      expect(item.note, 'less ice');
+      expect(bill.modifiersOf(item).map((m) => m.name), ['Besar', 'Boba']);
+
+      await vm.addItem.execute(
+        BillItemInput(option, note: 'less ice', modifierIds: [boba, besar]),
+      );
+      bill = vm.selectedBill!;
+      expect(bill.items.single.quantityMilli, 3000);
+
+      await vm.addItem.execute(BillItemInput(option, modifierIds: [boba]));
+      expect(vm.actionError, isA<ModifierSelectionInvalid>());
+      await vm.addItem.execute(
+        BillItemInput(option, modifierIds: [besar, keju]),
+      );
+      expect(
+        (vm.actionError! as ModifierSelectionInvalid).error,
+        ModifierSelectionError.unavailable,
+      );
+      expect(vm.selectedBill!.items, hasLength(1));
+    },
+  );
 }

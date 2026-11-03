@@ -2966,4 +2966,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productModifierRemove => 'Remove';
+
+  @override
+  String modifierSheetAdd(String total) {
+    return 'Add to bill · $total';
+  }
+
+  @override
+  String get modifierSheetQty => 'Quantity';
+
+  @override
+  String get modifierSheetLess => 'Decrease';
+
+  @override
+  String get modifierSheetMore => 'Increase';
+
+  @override
+  String get modifierSheetPriceInvalid =>
+      'Modifier discounts exceed the item price.';
+
+  @override
+  String get modifierSheetNoteHint => 'Note for the kitchen (optional)';
+
+  @override
+  String get diningErrorModifierRequired =>
+      'Modifier choices are incomplete or invalid. Open the item again.';
+
+  @override
+  String get diningErrorModifierSoldOut =>
+      'A modifier option is sold out. Choose another.';
+
+  @override
+  String get diningErrorModifierPrice =>
+      'Modifier discounts exceed the item price.';
 }
