@@ -1,0 +1,21 @@
+### Harga grosir: mulai min_qty_milli (satuan dasar) harga per satuan dasar.
+class: ProductPriceTier
+table: price_tiers
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  minQtyMilli: int, column=min_qty_milli
+  price: int
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  price_tiers_variant_idx:
+    fields: variantId

@@ -9,8 +9,10 @@ import 'data/repositories/app_settings_repository.dart';
 import 'data/repositories/cash_drawer_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
+import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_session_repository.dart';
 import 'data/repositories/local_store_repository.dart';
+import 'data/repositories/catalog_repository.dart';
 import 'data/repositories/session_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'routing/router.dart';
@@ -46,6 +48,11 @@ Future<void> main() async {
     stores: storeRepository,
     session: sessionRepository,
   );
+  final catalogRepository = LocalCatalogRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
 
   runApp(
     MultiProvider(
@@ -59,6 +66,7 @@ Future<void> main() async {
           value: sessionRepository,
         ),
         Provider<CashDrawerRepository>.value(value: cashDrawerRepository),
+        Provider<CatalogRepository>.value(value: catalogRepository),
       ],
       child: LakunaApp(
         settings: settings,
@@ -67,6 +75,7 @@ Future<void> main() async {
           store: storeRepository,
           session: sessionRepository,
           cashDrawer: cashDrawerRepository,
+          catalog: catalogRepository,
         ),
       ),
     ),

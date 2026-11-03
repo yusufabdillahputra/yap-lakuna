@@ -1171,6 +1171,546 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Sesi kasir gagal dimuat.'**
   String get cashLoadFailed;
+
+  /// No description provided for @productsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk & stok'**
+  String get productsTitle;
+
+  /// No description provided for @productsTitleMobile.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get productsTitleMobile;
+
+  /// No description provided for @productsSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{active} produk aktif · {low} di bawah stok minimum'**
+  String productsSummary(int active, int low);
+
+  /// No description provided for @productsSummaryShort.
+  ///
+  /// In id, this message translates to:
+  /// **'{active} aktif · {low} di bawah minimum'**
+  String productsSummaryShort(int active, int low);
+
+  /// No description provided for @productsNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk baru'**
+  String get productsNew;
+
+  /// No description provided for @productsSearchHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama, SKU, atau barcode'**
+  String get productsSearchHint;
+
+  /// No description provided for @productsCategoryFilter.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get productsCategoryFilter;
+
+  /// No description provided for @productsAllCategories.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get productsAllCategories;
+
+  /// No description provided for @productsBelowMinimumChip.
+  ///
+  /// In id, this message translates to:
+  /// **'Di bawah minimum ({count})'**
+  String productsBelowMinimumChip(int count);
+
+  /// No description provided for @productsColProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get productsColProduct;
+
+  /// No description provided for @productsColCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get productsColCategory;
+
+  /// No description provided for @productsColVariantUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian / satuan'**
+  String get productsColVariantUnit;
+
+  /// No description provided for @productsColCost.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli'**
+  String get productsColCost;
+
+  /// No description provided for @productsColPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual'**
+  String get productsColPrice;
+
+  /// No description provided for @productsColTiers.
+  ///
+  /// In id, this message translates to:
+  /// **'Grosir'**
+  String get productsColTiers;
+
+  /// No description provided for @productsColStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok'**
+  String get productsColStock;
+
+  /// No description provided for @productsVariantsCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} varian'**
+  String productsVariantsCount(int count);
+
+  /// No description provided for @productsStockFootnote.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok dihitung dari riwayat pergerakan (stok awal, pembelian, penjualan, retur, penyesuaian).'**
+  String get productsStockFootnote;
+
+  /// No description provided for @productsEmptyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada produk'**
+  String get productsEmptyTitle;
+
+  /// No description provided for @productsEmptyBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahkan produk pertama agar bisa dijual di kasir.'**
+  String get productsEmptyBody;
+
+  /// No description provided for @productsNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada produk yang cocok.'**
+  String get productsNoMatch;
+
+  /// No description provided for @productsLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk gagal dimuat.'**
+  String get productsLoadFailed;
+
+  /// No description provided for @productsStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok {qty}'**
+  String productsStock(String qty);
+
+  /// No description provided for @productsStockMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok {qty} / min {min}'**
+  String productsStockMin(String qty, String min);
+
+  /// No description provided for @productsInactive.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dijual'**
+  String get productsInactive;
+
+  /// No description provided for @productFormNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk baru'**
+  String get productFormNewTitle;
+
+  /// No description provided for @productFormEditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Edit produk · {name}'**
+  String productFormEditTitle(String name);
+
+  /// No description provided for @productFormCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get productFormCancel;
+
+  /// No description provided for @productFormSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get productFormSave;
+
+  /// No description provided for @productFormBasicInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'Info dasar'**
+  String get productFormBasicInfo;
+
+  /// No description provided for @productFormName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama produk'**
+  String get productFormName;
+
+  /// No description provided for @productFormCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get productFormCategory;
+
+  /// No description provided for @productFormKind.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis'**
+  String get productFormKind;
+
+  /// No description provided for @productKindGoods.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang (lacak stok)'**
+  String get productKindGoods;
+
+  /// No description provided for @productKindService.
+  ///
+  /// In id, this message translates to:
+  /// **'Jasa (tanpa stok)'**
+  String get productKindService;
+
+  /// No description provided for @productKindMenu.
+  ///
+  /// In id, this message translates to:
+  /// **'Menu F&B'**
+  String get productKindMenu;
+
+  /// No description provided for @productFormBaseUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan dasar'**
+  String get productFormBaseUnit;
+
+  /// No description provided for @productFormBaseUnitHint.
+  ///
+  /// In id, this message translates to:
+  /// **'pcs, botol, kg'**
+  String get productFormBaseUnitHint;
+
+  /// No description provided for @productFormSku.
+  ///
+  /// In id, this message translates to:
+  /// **'SKU induk'**
+  String get productFormSku;
+
+  /// No description provided for @productFormBrand.
+  ///
+  /// In id, this message translates to:
+  /// **'Merek'**
+  String get productFormBrand;
+
+  /// No description provided for @productFormActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Dijual di kasir'**
+  String get productFormActive;
+
+  /// No description provided for @productFormTaxable.
+  ///
+  /// In id, this message translates to:
+  /// **'Kena pajak (PB1/PPN)'**
+  String get productFormTaxable;
+
+  /// No description provided for @productFormTaxableHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengikuti pengaturan pajak toko'**
+  String get productFormTaxableHint;
+
+  /// No description provided for @productFormOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional'**
+  String get productFormOptional;
+
+  /// No description provided for @productTabVariants.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian'**
+  String get productTabVariants;
+
+  /// No description provided for @productTabUnits.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan & konversi'**
+  String get productTabUnits;
+
+  /// No description provided for @productTabTiers.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga grosir'**
+  String get productTabTiers;
+
+  /// No description provided for @productTabUnitsShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan'**
+  String get productTabUnitsShort;
+
+  /// No description provided for @productTabTiersShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Grosir'**
+  String get productTabTiersShort;
+
+  /// No description provided for @productVariantName.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian'**
+  String get productVariantName;
+
+  /// No description provided for @productVariantNameHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. 2 L'**
+  String get productVariantNameHint;
+
+  /// No description provided for @productVariantSku.
+  ///
+  /// In id, this message translates to:
+  /// **'SKU'**
+  String get productVariantSku;
+
+  /// No description provided for @productVariantBarcode.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode'**
+  String get productVariantBarcode;
+
+  /// No description provided for @productCostPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli'**
+  String get productCostPrice;
+
+  /// No description provided for @productSellPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual'**
+  String get productSellPrice;
+
+  /// No description provided for @productMinStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok min'**
+  String get productMinStock;
+
+  /// No description provided for @productOpeningStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok awal'**
+  String get productOpeningStock;
+
+  /// No description provided for @productAddVariant.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah varian'**
+  String get productAddVariant;
+
+  /// No description provided for @productRemoveRow.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus baris'**
+  String get productRemoveRow;
+
+  /// No description provided for @productVariantFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian {index}'**
+  String productVariantFallback(int index);
+
+  /// No description provided for @productSelectVariant.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian'**
+  String get productSelectVariant;
+
+  /// No description provided for @productBaseUnitRow.
+  ///
+  /// In id, this message translates to:
+  /// **'satuan dasar'**
+  String get productBaseUnitRow;
+
+  /// No description provided for @productUnitName.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan'**
+  String get productUnitName;
+
+  /// No description provided for @productUnitFactor.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi ({unit})'**
+  String productUnitFactor(String unit);
+
+  /// No description provided for @productUnitPriceHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Kosong = harga × isi'**
+  String get productUnitPriceHint;
+
+  /// No description provided for @productAddUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah satuan'**
+  String get productAddUnit;
+
+  /// No description provided for @productUnitsHelp.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok selalu disimpan dalam satuan dasar ({unit}). Jual 1 {conversion} = keluar {factor} {unit} dari kartu stok.'**
+  String productUnitsHelp(String unit, String conversion, String factor);
+
+  /// No description provided for @productUnitsHelpBase.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok selalu disimpan dalam satuan dasar ({unit}).'**
+  String productUnitsHelpBase(String unit);
+
+  /// No description provided for @productUnitsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada satuan konversi, mis. dus berisi 12.'**
+  String get productUnitsEmpty;
+
+  /// No description provided for @productTierMinQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Mulai jumlah ({unit})'**
+  String productTierMinQty(String unit);
+
+  /// No description provided for @productTierPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga per {unit}'**
+  String productTierPrice(String unit);
+
+  /// No description provided for @productTierAppliesTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku untuk'**
+  String get productTierAppliesTo;
+
+  /// No description provided for @productTierAllCustomers.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua pelanggan'**
+  String get productTierAllCustomers;
+
+  /// No description provided for @productAddTier.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah tingkat harga'**
+  String get productAddTier;
+
+  /// No description provided for @productTiersHelp.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.'**
+  String get productTiersHelp;
+
+  /// No description provided for @productTiersEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada harga grosir.'**
+  String get productTiersEmpty;
+
+  /// No description provided for @productBaseUnitPlaceholder.
+  ///
+  /// In id, this message translates to:
+  /// **'satuan dasar'**
+  String get productBaseUnitPlaceholder;
+
+  /// No description provided for @productSaveFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk gagal disimpan. Coba lagi.'**
+  String get productSaveFailed;
+
+  /// No description provided for @productNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk tidak ditemukan atau sudah dihapus.'**
+  String get productNotFound;
+
+  /// No description provided for @productFixErrors.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa isian yang ditandai merah.'**
+  String get productFixErrors;
+
+  /// No description provided for @productErrorNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin {permission}.'**
+  String productErrorNotPermitted(String permission);
+
+  /// No description provided for @productErrorTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {max} karakter'**
+  String productErrorTooLong(int max);
+
+  /// No description provided for @productErrorNegative.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak boleh negatif'**
+  String get productErrorNegative;
+
+  /// No description provided for @productErrorNotPositive.
+  ///
+  /// In id, this message translates to:
+  /// **'Harus lebih dari 0'**
+  String get productErrorNotPositive;
+
+  /// No description provided for @productErrorDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembar di produk ini'**
+  String get productErrorDuplicate;
+
+  /// No description provided for @productErrorSameAsBase.
+  ///
+  /// In id, this message translates to:
+  /// **'Sama dengan satuan dasar'**
+  String get productErrorSameAsBase;
+
+  /// No description provided for @productErrorFactorTooSmall.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi harus lebih dari 1'**
+  String get productErrorFactorTooSmall;
+
+  /// No description provided for @productErrorMinQtyTooSmall.
+  ///
+  /// In id, this message translates to:
+  /// **'Harus lebih dari 1'**
+  String get productErrorMinQtyTooSmall;
+
+  /// No description provided for @productErrorTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah dipakai {name}'**
+  String productErrorTaken(String name);
+
+  /// No description provided for @productErrorVariantsRequired.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal satu varian'**
+  String get productErrorVariantsRequired;
 }
 
 class _AppLocalizationsDelegate

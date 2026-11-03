@@ -1,0 +1,26 @@
+### Satuan konversi varian, mis. dus berisi 6 botol (factor_milli 6000).
+class: ProductUnit
+table: product_units
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  unitId: UuidValue, relation(parent=units, onDelete=Restrict), column=unit_id
+  ### Isi satu satuan ini dalam mili-satuan dasar.
+  factorMilli: int, column=factor_milli
+  barcode: String?
+  ### Harga yang diisi sendiri; null = harga varian × isi.
+  costPrice: int?, column=cost_price
+  sellPrice: int?, column=sell_price
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  product_units_variant_idx:
+    fields: variantId

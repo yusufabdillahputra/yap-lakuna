@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/ui/core/format.dart';
 
 void main() {
@@ -19,5 +20,45 @@ void main() {
     expect(fmt('0').text, '0');
     expect(fmt('abc').text, '');
     expect(fmt('9' * 20).text.replaceAll('.', '').length, 15);
+  });
+
+  test('QtyInputFormatter menolak input tidak sah', () {
+    const f = QtyInputFormatter();
+    const old = TextEditingValue(text: '12');
+    String fmt(String s) =>
+        f.formatEditUpdate(old, TextEditingValue(text: s)).text;
+    expect(fmt('12,5'), '12,5');
+    expect(fmt('12,125'), '12,125');
+    expect(fmt('12,1255'), '12');
+    expect(fmt('1,2,3'), '12');
+    expect(fmt('12a'), '12');
+    expect(fmt('-1'), '12');
+    expect(fmt(''), '');
+    expect(
+      const QtyInputFormatter(
+        decimal: '.',
+      ).formatEditUpdate(old, const TextEditingValue(text: '0.25')).text,
+      '0.25',
+    );
+  });
+
+  test('setiap ketikan yang lolos QtyInputFormatter bisa dibaca', () {
+    // Ketikan setengah jadi tidak boleh diam-diam tersimpan sebagai nol.
+    const f = QtyInputFormatter();
+    final samples = {
+      '12,': Qty.units(12),
+      ',5': const Qty(500),
+      '0,': Qty.zero,
+      '7': Qty.units(7),
+      '1250,125': const Qty(1250125),
+    };
+    for (final MapEntry(key: text, value: qty) in samples.entries) {
+      final out = f.formatEditUpdate(
+        TextEditingValue.empty,
+        TextEditingValue(text: text),
+      );
+      expect(out.text, text);
+      expect(Qty.tryParse(text, group: ''), qty, reason: text);
+    }
   });
 }

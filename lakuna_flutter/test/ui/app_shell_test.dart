@@ -61,8 +61,15 @@ void main() {
     tester,
   ) async {
     await pumpLakuna(tester);
+    await tester.tap(find.byKey(const ValueKey('nav-stock')));
+    await tester.pumpAndSettle();
+    expect(find.text('Stok segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('menu Produk membuka daftar produk', (tester) async {
+    await pumpLakuna(tester);
     await tester.tap(find.byKey(const ValueKey('nav-products')));
     await tester.pumpAndSettle();
-    expect(find.text('Produk segera hadir'), findsOneWidget);
+    expect(find.byKey(const ValueKey('products-empty')), findsOneWidget);
   });
 }

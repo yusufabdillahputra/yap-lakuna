@@ -1,3 +1,4 @@
+import 'money.dart' show groupThousands;
 import 'rounding.dart';
 
 /// Jumlah barang dalam mili-satuan (per seribu), supaya barang timbang
@@ -23,4 +24,40 @@ extension type const Qty(int milli) {
       BigInt.from(1000),
     ),
   );
+
+  /// `12,5`, `0,25`, `1.250` (id) atau dengan [decimal] `.` dan [group] `,`
+  /// (en). Nol di belakang koma dibuang.
+  String format({String decimal = ',', String group = '.'}) {
+    final abs = milli.abs();
+    final whole = groupThousands(abs ~/ 1000, group);
+    final frac = (abs % 1000)
+        .toString()
+        .padLeft(3, '0')
+        .replaceFirst(RegExp(r'0+$'), '');
+    final sign = milli < 0 ? '-' : '';
+    return frac.isEmpty ? '$sign$whole' : '$sign$whole$decimal$frac';
+  }
+
+  /// Kebalikan [format]: angka tidak negatif dengan pemisah ribuan [group]
+  /// (kelompok tiga digit) dan paling banyak tiga desimal setelah
+  /// [decimal]. `null` bila tidak sah atau melampaui batas.
+  static Qty? tryParse(
+    String text, {
+    String decimal = ',',
+    String group = '.',
+  }) {
+    final t = text.trim();
+    final g = RegExp.escape(group);
+    final d = RegExp.escape(decimal);
+    // Bagian bulat atau pecahan boleh kosong ("12," atau ",5") karena
+    // pemformat input membiarkan ketikan setengah jadi; minimal satu angka.
+    final match = RegExp('^(\\d{1,3}(?:$g\\d{3})+|\\d*)(?:$d(\\d{0,3}))?\$')
+        .firstMatch(t);
+    if (match == null) return null;
+    if (match.group(1)!.isEmpty && (match.group(2) ?? '').isEmpty) return null;
+    final whole = match.group(1)!.replaceAll(group, '').padLeft(1, '0');
+    final frac = (match.group(2) ?? '').padRight(3, '0');
+    if (whole.length > 15) return null;
+    return Qty(int.parse(whole) * 1000 + int.parse(frac));
+  }
 }

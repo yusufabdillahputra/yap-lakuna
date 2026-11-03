@@ -1,0 +1,35 @@
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+
+import '../../utils/result.dart';
+
+export 'repository_errors.dart';
+
+/// Isi katalog untuk daftar produk dan saran isian form.
+class ProductCatalog {
+  const ProductCatalog({
+    required this.products,
+    required this.categories,
+    required this.units,
+  });
+
+  final List<CatalogProduct> products;
+  final List<ProductCategory> categories;
+  final List<MeasureUnit> units;
+}
+
+/// Katalog produk (F1-07). Semua aksi butuh `products:manage`; izin dicek
+/// di sini juga, bukan hanya di menu.
+abstract class CatalogRepository {
+  /// Gagal dengan `NotPermitted` atau `StoreNotReady`.
+  Future<Result<ProductCatalog>> loadCatalog();
+
+  /// Produk [id], atau `null` bila tidak ada.
+  Future<Result<CatalogProduct?>> loadProduct(UuidValue id);
+
+  /// Menyimpan [draft] dan mengembalikan ID produk. Gagal dengan
+  /// `NotPermitted`, `ProductInputInvalid`, `ProductCodesTaken`, atau
+  /// `ProductNotFound`.
+  Future<Result<UuidValue>> save(ProductDraft draft);
+}

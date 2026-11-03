@@ -7,6 +7,93 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-03
+
+Katalog produk (F1-07, layar 1.15, 1.15m, dan 1.16): pemilik atau manajer
+mengisi produk dengan varian, satuan konversi, harga grosir bertingkat, dan
+stok awal. Inti katalog ini dibangun lebih dulu daripada Kasir retail (F1-04)
+karena kasir hanya bisa menjual barang yang ada di katalog.
+
+### Ditambahkan
+
+- **Menu *Produk*** (rute `/produk`) di kelompok Inventori dan navigasi bawah
+  ponsel, untuk staf dengan izin `products:manage`.
+- **Daftar produk & stok (1.15)**:
+  - Ringkasan "N produk aktif · M di bawah stok minimum", kotak cari (nama,
+    SKU, barcode varian atau satuan), dan pilihan kategori.
+  - Tabel Produk / Kategori / Varian · satuan / Harga beli / Harga jual /
+    Grosir / Stok. Produk satu varian menampilkan satuan konversinya
+    ("botol · Dus (6)"); produk banyak varian menampilkan rentang harga.
+  - Pil stok: biru muda (hijau di ponsel dan mode gelap) bila aman, kuning
+    bila di bawah stok minimum, dan "—" untuk jasa dan menu yang tidak
+    melacak stok. Di bawah 900 px kolom Kategori dan Harga
+    beli disembunyikan.
+  - Keadaan kosong dengan tombol *Tambah produk pertama*, dan pesan "tidak
+    ada yang cocok" saat pencarian kosong.
+- **Daftar produk ponsel (1.15m)**: kartu produk, chip *Semua* / *Di bawah
+  minimum (N)* / per kategori, dan tombol tambah melayang.
+- **Form produk (1.16)** (rute `/produk/baru` dan `/produk/:id`):
+  - Kartu *Info dasar*: nama, kategori dan satuan dasar (isian dengan saran,
+    kategori/satuan baru dibuat otomatis), jenis (Barang / Jasa / Menu),
+    SKU induk, merek, *Dijual di kasir*, *Kena pajak*.
+  - Tab *Varian*: nama, SKU, barcode, harga beli, harga jual, stok minimum,
+    dan stok awal (hanya untuk varian baru).
+  - Tab *Satuan & konversi*: baris satuan dasar, lalu satuan lain dengan
+    isi, harga beli, harga jual (kosong = harga varian × isi), dan barcode.
+  - Tab *Harga grosir*: tingkat "mulai jumlah" dan harga per satuan dasar.
+  - Galat ditandai di field dan baris yang tepat, tab yang bermasalah diberi
+    titik merah dan dibuka otomatis, termasuk SKU/barcode yang sudah dipakai
+    produk lain ("Sudah dipakai <produk>").
+  - Di layar sempit tabel berubah menjadi kartu per baris dan label tab
+    dipendekkan (*Satuan*, *Grosir*).
+- **Stok sebagai ledger**: stok awal dicatat sebagai pergerakan stok sumber
+  *stok awal*; saldo dan harga pokok rata-rata disimpan di cache per lokasi
+  yang diperbarui di transaksi yang sama.
+- Format jumlah Indonesia (koma desimal, titik ribuan) untuk isi satuan dan
+  stok, dengan pemformat input.
+
+### Diubah
+
+- Menu *Produk* tidak lagi membuka halaman "segera hadir".
+- Galat repositori `NotPermitted` dan `StoreNotReady` dipindah ke berkas
+  bersama agar dipakai semua repositori.
+
+### Catatan teknis
+
+- Aturan bisnis katalog di `lakuna_domain` (`catalog.dart`): validasi draf
+  produk (panjang, wajib, tidak negatif, isi > 1, satuan ≠ satuan dasar,
+  tingkat grosir ≥ 2 dan tidak kembar, SKU/barcode unik di draf),
+  `unitPriceFor` (grosir), `conversionSellPrice`, `movingAverageCost`, serta
+  `Qty.format` / `Qty.tryParse`.
+- Model Serverpod baru di `lakuna_server/lib/src/catalog/`: `categories`,
+  `units`, `products`, `product_variants`, `product_units`, `price_tiers`,
+  `stock_movements`, dan cache klien `stock_levels`. Migrasi `produk`.
+  Kelas model diberi nama `ProductCategory`, `MeasureUnit`, dan
+  `ProductPriceTier` agar tidak bentrok dengan kelas `<Model>Repository`
+  buatan Serverpod dan `Category` Flutter.
+- `lakuna_data`: `saveProduct` menulis semua baris dalam satu transaksi
+  sync (satu stempel HLC), mencocokkan varian/satuan/tingkat lama dengan id
+  dan men-soft-delete yang dihapus, serta hanya memperbarui baris yang
+  berubah. `recordStockMovement` dan `rebuildStockLevels` untuk ledger stok.
+- Rute produk dibuat bersebelahan (bukan bersarang) agar daftar dimuat ulang
+  setelah kembali dari form.
+- Debug: kartu produk ponsel meluap 26 px di layar 320 px (diperbaiki
+  dengan pembagian lebar kolom), harga grosir kosong sempat dilaporkan
+  "harus lebih dari 0" alih-alih "wajib diisi" (urutan galat diperbaiki),
+  dan tombol tambah baris tidak tertekan di tes karena kuncinya ada di
+  pembungkus selebar kartu.
+- Temuan review sebelum rilis yang sudah diperbaiki:
+  - jumlah setengah diketik ("12," atau ",5") sempat terbaca nol sehingga
+    stok awal hilang; `Qty.tryParse` kini menerimanya;
+  - galat di beberapa tab kini membuka tab pertama menurut urutan form;
+  - varian terpilih tidak lagi bergeser saat varian lain dihapus;
+  - baris tidak bisa dihapus selama menyimpan;
+  - judul baris dan petunjuk harga satuan ikut berubah saat diketik;
+  - spanduk galat muncul untuk galat field mana pun;
+  - pil stok ponsel menampilkan stok varian yang kurang.
+- Tes baru: 28 tes domain, 19 tes data, 24 tes aplikasi (view model, alur
+  widget desktop dan ponsel 320 px).
+
 ## [0.4.0] - 2026-11-03
 
 Sesi kasir (F1-03, layar 1.3 dan 1.3b): kasir membuka laci dengan saldo
@@ -396,7 +483,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...v0.2.0

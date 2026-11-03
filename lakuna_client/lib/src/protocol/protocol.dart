@@ -21,6 +21,16 @@ import 'cash/cash_direction.dart' as _i728pu70;
 import 'cash/cash_movement.dart' as _iepnwe9z;
 import 'cash/cash_session.dart' as _iepiq7d7;
 import 'cash/cash_session_status.dart' as _itp0bn28;
+import 'catalog/category.dart' as _i3vicioi;
+import 'catalog/price_tier.dart' as _iwn9aw8c;
+import 'catalog/product.dart' as _ixeznjic;
+import 'catalog/product_type.dart' as _irudmnqe;
+import 'catalog/product_unit.dart' as _i6wsuj4v;
+import 'catalog/product_variant.dart' as _iz4qpnk9;
+import 'catalog/stock_level.dart' as _i9vlojuz;
+import 'catalog/stock_movement.dart' as _i3qehoul;
+import 'catalog/stock_source_type.dart' as _ieciauh3;
+import 'catalog/unit.dart' as _iqtijg36;
 import 'organization/business_type.dart' as _i6i3gkff;
 import 'organization/device.dart' as _iis0lnof;
 import 'organization/device_platform.dart' as _ide5u809;
@@ -40,6 +50,16 @@ export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
 export 'cash/cash_session_status.dart';
+export 'catalog/category.dart';
+export 'catalog/price_tier.dart';
+export 'catalog/product.dart';
+export 'catalog/product_type.dart';
+export 'catalog/product_unit.dart';
+export 'catalog/product_variant.dart';
+export 'catalog/stock_level.dart';
+export 'catalog/stock_movement.dart';
+export 'catalog/stock_source_type.dart';
+export 'catalog/unit.dart';
 export 'organization/business_type.dart';
 export 'organization/device.dart';
 export 'organization/device_platform.dart';
@@ -74,6 +94,16 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iepnwe9z.CashMovement>,
           _isc.getType<_iepiq7d7.CashSession>,
           _isc.getType<_itp0bn28.CashSessionStatus>,
+          _isc.getType<_i3vicioi.ProductCategory>,
+          _isc.getType<_iwn9aw8c.ProductPriceTier>,
+          _isc.getType<_ixeznjic.Product>,
+          _isc.getType<_irudmnqe.ProductType>,
+          _isc.getType<_i6wsuj4v.ProductUnit>,
+          _isc.getType<_iz4qpnk9.ProductVariant>,
+          _isc.getType<_i9vlojuz.StockLevel>,
+          _isc.getType<_i3qehoul.StockMovement>,
+          _isc.getType<_ieciauh3.StockSourceType>,
+          _isc.getType<_iqtijg36.MeasureUnit>,
           _isc.getType<_i6i3gkff.BusinessType>,
           _isc.getType<_iis0lnof.Device>,
           _isc.getType<_ide5u809.DevicePlatform>,
@@ -93,6 +123,16 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iepnwe9z.CashMovement?>,
           _isc.getType<_iepiq7d7.CashSession?>,
           _isc.getType<_itp0bn28.CashSessionStatus?>,
+          _isc.getType<_i3vicioi.ProductCategory?>,
+          _isc.getType<_iwn9aw8c.ProductPriceTier?>,
+          _isc.getType<_ixeznjic.Product?>,
+          _isc.getType<_irudmnqe.ProductType?>,
+          _isc.getType<_i6wsuj4v.ProductUnit?>,
+          _isc.getType<_iz4qpnk9.ProductVariant?>,
+          _isc.getType<_i9vlojuz.StockLevel?>,
+          _isc.getType<_i3qehoul.StockMovement?>,
+          _isc.getType<_ieciauh3.StockSourceType?>,
+          _isc.getType<_iqtijg36.MeasureUnit?>,
           _isc.getType<_i6i3gkff.BusinessType?>,
           _isc.getType<_iis0lnof.Device?>,
           _isc.getType<_ide5u809.DevicePlatform?>,
@@ -118,6 +158,16 @@ class Protocol extends _isd.DatabaseSerializationManager
           'CashMovement',
           'CashSession',
           'CashSessionStatus',
+          'ProductCategory',
+          'ProductPriceTier',
+          'Product',
+          'ProductType',
+          'ProductUnit',
+          'ProductVariant',
+          'StockLevel',
+          'StockMovement',
+          'StockSourceType',
+          'MeasureUnit',
           'BusinessType',
           'Device',
           'DevicePlatform',
@@ -513,6 +563,119 @@ class Protocol extends _isd.DatabaseSerializationManager
             _isd.IndexElementDefinition(
               type: _isd.IndexElementDefinitionType.column,
               definition: 'status',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'categories',
+      dartName: 'ProductCategory',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'categories_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'categories_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
             ),
           ],
           type: 'btree',
@@ -994,6 +1157,634 @@ class Protocol extends _isd.DatabaseSerializationManager
       managed: true,
     ),
     _isd.TableDefinition(
+      name: 'price_tiers',
+      dartName: 'ProductPriceTier',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'variant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'min_qty_milli',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'price',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'price_tiers_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'price_tiers_fk_1',
+          columns: ['variant_id'],
+          referenceTable: 'product_variants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'price_tiers_variant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'variant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'product_units',
+      dartName: 'ProductUnit',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'variant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'unit_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'factor_milli',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'barcode',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'cost_price',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sell_price',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'product_units_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'product_units_fk_1',
+          columns: ['variant_id'],
+          referenceTable: 'product_variants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'product_units_fk_2',
+          columns: ['unit_id'],
+          referenceTable: 'units',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'product_units_variant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'variant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'product_variants',
+      dartName: 'ProductVariant',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'product_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'\'',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sku',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'barcode',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'cost_price',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sell_price',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'min_stock_milli',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'product_variants_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'product_variants_fk_1',
+          columns: ['product_id'],
+          referenceTable: 'products',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'product_variants_product_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'product_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isd.IndexDefinition(
+          indexName: 'product_variants_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'products',
+      dartName: 'Product',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'category_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'base_unit_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'type',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:ProductType',
+        ),
+        _isd.ColumnDefinition(
+          name: 'sku',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'brand',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'is_active',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'is_taxable',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'products_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'products_fk_1',
+          columns: ['category_id'],
+          referenceTable: 'categories',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'products_fk_2',
+          columns: ['base_unit_id'],
+          referenceTable: 'units',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'products_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
       name: 'settings',
       dartName: 'Setting',
       schema: 'public',
@@ -1261,6 +2052,66 @@ class Protocol extends _isd.DatabaseSerializationManager
       managed: true,
     ),
     _isd.TableDefinition(
+      name: 'stock_levels',
+      dartName: 'StockLevel',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isd.ColumnDefinition(
+          name: 'stock_location_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'variant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'quantity_milli',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'avg_cost',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'stock_levels_location_variant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'stock_location_id',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'variant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isd.TableDefinition(
       name: 'stock_locations',
       dartName: 'StockLocation',
       schema: 'public',
@@ -1373,6 +2224,194 @@ class Protocol extends _isd.DatabaseSerializationManager
         ),
       ],
       indexes: [],
+      managed: true,
+    ),
+    _isd.TableDefinition(
+      name: 'stock_movements',
+      dartName: 'StockMovement',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'stock_location_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'variant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'quantity_milli',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'unit_cost',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isd.ColumnDefinition(
+          name: 'source_type',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:StockSourceType',
+        ),
+        _isd.ColumnDefinition(
+          name: 'source_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'occurred_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isd.ColumnDefinition(
+          name: 'note',
+          columnType: _isd.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'stock_movements_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'stock_movements_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'stock_movements_fk_2',
+          columns: ['stock_location_id'],
+          referenceTable: 'stock_locations',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'stock_movements_fk_3',
+          columns: ['variant_id'],
+          referenceTable: 'product_variants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'stock_movements_variant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'stock_location_id',
+            ),
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'variant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
       managed: true,
     ),
     _isd.TableDefinition(
@@ -1604,6 +2643,112 @@ class Protocol extends _isd.DatabaseSerializationManager
       indexes: [],
       managed: true,
     ),
+    _isd.TableDefinition(
+      name: 'units',
+      dartName: 'MeasureUnit',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isd.ColumnDefinition(
+          name: 'id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isd.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isd.ColumnDefinition(
+          name: 'name',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isd.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isd.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
+          name: 'version',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isd.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isd.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isd.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isd.ForeignKeyDefinition(
+          constraintName: 'units_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isd.IndexDefinition(
+          indexName: 'units_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._iaic.Protocol() is _isd.DatabaseSerializationManager
         ? (_iaic.Protocol() as _isd.DatabaseSerializationManager)
               .getTargetTableDefinitions()
@@ -1649,6 +2794,36 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (t == _itp0bn28.CashSessionStatus) {
       return _itp0bn28.CashSessionStatus.fromJson(data) as T;
+    }
+    if (t == _i3vicioi.ProductCategory) {
+      return _i3vicioi.ProductCategory.fromJson(data) as T;
+    }
+    if (t == _iwn9aw8c.ProductPriceTier) {
+      return _iwn9aw8c.ProductPriceTier.fromJson(data) as T;
+    }
+    if (t == _ixeznjic.Product) {
+      return _ixeznjic.Product.fromJson(data) as T;
+    }
+    if (t == _irudmnqe.ProductType) {
+      return _irudmnqe.ProductType.fromJson(data) as T;
+    }
+    if (t == _i6wsuj4v.ProductUnit) {
+      return _i6wsuj4v.ProductUnit.fromJson(data) as T;
+    }
+    if (t == _iz4qpnk9.ProductVariant) {
+      return _iz4qpnk9.ProductVariant.fromJson(data) as T;
+    }
+    if (t == _i9vlojuz.StockLevel) {
+      return _i9vlojuz.StockLevel.fromJson(data) as T;
+    }
+    if (t == _i3qehoul.StockMovement) {
+      return _i3qehoul.StockMovement.fromJson(data) as T;
+    }
+    if (t == _ieciauh3.StockSourceType) {
+      return _ieciauh3.StockSourceType.fromJson(data) as T;
+    }
+    if (t == _iqtijg36.MeasureUnit) {
+      return _iqtijg36.MeasureUnit.fromJson(data) as T;
     }
     if (t == _i6i3gkff.BusinessType) {
       return _i6i3gkff.BusinessType.fromJson(data) as T;
@@ -1708,6 +2883,41 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _isc.getType<_itp0bn28.CashSessionStatus?>()) {
       return (data != null ? _itp0bn28.CashSessionStatus.fromJson(data) : null)
           as T;
+    }
+    if (t == _isc.getType<_i3vicioi.ProductCategory?>()) {
+      return (data != null ? _i3vicioi.ProductCategory.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iwn9aw8c.ProductPriceTier?>()) {
+      return (data != null ? _iwn9aw8c.ProductPriceTier.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ixeznjic.Product?>()) {
+      return (data != null ? _ixeznjic.Product.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_irudmnqe.ProductType?>()) {
+      return (data != null ? _irudmnqe.ProductType.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i6wsuj4v.ProductUnit?>()) {
+      return (data != null ? _i6wsuj4v.ProductUnit.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iz4qpnk9.ProductVariant?>()) {
+      return (data != null ? _iz4qpnk9.ProductVariant.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i9vlojuz.StockLevel?>()) {
+      return (data != null ? _i9vlojuz.StockLevel.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i3qehoul.StockMovement?>()) {
+      return (data != null ? _i3qehoul.StockMovement.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ieciauh3.StockSourceType?>()) {
+      return (data != null ? _ieciauh3.StockSourceType.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iqtijg36.MeasureUnit?>()) {
+      return (data != null ? _iqtijg36.MeasureUnit.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i6i3gkff.BusinessType?>()) {
       return (data != null ? _i6i3gkff.BusinessType.fromJson(data) : null) as T;
@@ -1778,6 +2988,16 @@ class Protocol extends _isd.DatabaseSerializationManager
       _iepnwe9z.CashMovement => 'CashMovement',
       _iepiq7d7.CashSession => 'CashSession',
       _itp0bn28.CashSessionStatus => 'CashSessionStatus',
+      _i3vicioi.ProductCategory => 'ProductCategory',
+      _iwn9aw8c.ProductPriceTier => 'ProductPriceTier',
+      _ixeznjic.Product => 'Product',
+      _irudmnqe.ProductType => 'ProductType',
+      _i6wsuj4v.ProductUnit => 'ProductUnit',
+      _iz4qpnk9.ProductVariant => 'ProductVariant',
+      _i9vlojuz.StockLevel => 'StockLevel',
+      _i3qehoul.StockMovement => 'StockMovement',
+      _ieciauh3.StockSourceType => 'StockSourceType',
+      _iqtijg36.MeasureUnit => 'MeasureUnit',
       _i6i3gkff.BusinessType => 'BusinessType',
       _iis0lnof.Device => 'Device',
       _ide5u809.DevicePlatform => 'DevicePlatform',
@@ -1815,6 +3035,26 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'CashSession';
       case _itp0bn28.CashSessionStatus():
         return 'CashSessionStatus';
+      case _i3vicioi.ProductCategory():
+        return 'ProductCategory';
+      case _iwn9aw8c.ProductPriceTier():
+        return 'ProductPriceTier';
+      case _ixeznjic.Product():
+        return 'Product';
+      case _irudmnqe.ProductType():
+        return 'ProductType';
+      case _i6wsuj4v.ProductUnit():
+        return 'ProductUnit';
+      case _iz4qpnk9.ProductVariant():
+        return 'ProductVariant';
+      case _i9vlojuz.StockLevel():
+        return 'StockLevel';
+      case _i3qehoul.StockMovement():
+        return 'StockMovement';
+      case _ieciauh3.StockSourceType():
+        return 'StockSourceType';
+      case _iqtijg36.MeasureUnit():
+        return 'MeasureUnit';
       case _i6i3gkff.BusinessType():
         return 'BusinessType';
       case _iis0lnof.Device():
@@ -1878,6 +3118,36 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'CashSessionStatus') {
       return deserialize<_itp0bn28.CashSessionStatus>(data['data']);
+    }
+    if (dataClassName == 'ProductCategory') {
+      return deserialize<_i3vicioi.ProductCategory>(data['data']);
+    }
+    if (dataClassName == 'ProductPriceTier') {
+      return deserialize<_iwn9aw8c.ProductPriceTier>(data['data']);
+    }
+    if (dataClassName == 'Product') {
+      return deserialize<_ixeznjic.Product>(data['data']);
+    }
+    if (dataClassName == 'ProductType') {
+      return deserialize<_irudmnqe.ProductType>(data['data']);
+    }
+    if (dataClassName == 'ProductUnit') {
+      return deserialize<_i6wsuj4v.ProductUnit>(data['data']);
+    }
+    if (dataClassName == 'ProductVariant') {
+      return deserialize<_iz4qpnk9.ProductVariant>(data['data']);
+    }
+    if (dataClassName == 'StockLevel') {
+      return deserialize<_i9vlojuz.StockLevel>(data['data']);
+    }
+    if (dataClassName == 'StockMovement') {
+      return deserialize<_i3qehoul.StockMovement>(data['data']);
+    }
+    if (dataClassName == 'StockSourceType') {
+      return deserialize<_ieciauh3.StockSourceType>(data['data']);
+    }
+    if (dataClassName == 'MeasureUnit') {
+      return deserialize<_iqtijg36.MeasureUnit>(data['data']);
     }
     if (dataClassName == 'BusinessType') {
       return deserialize<_i6i3gkff.BusinessType>(data['data']);
@@ -1969,6 +3239,22 @@ class Protocol extends _isd.DatabaseSerializationManager
         return _iepnwe9z.CashMovement.t;
       case _iepiq7d7.CashSession:
         return _iepiq7d7.CashSession.t;
+      case _i3vicioi.ProductCategory:
+        return _i3vicioi.ProductCategory.t;
+      case _iwn9aw8c.ProductPriceTier:
+        return _iwn9aw8c.ProductPriceTier.t;
+      case _ixeznjic.Product:
+        return _ixeznjic.Product.t;
+      case _i6wsuj4v.ProductUnit:
+        return _i6wsuj4v.ProductUnit.t;
+      case _iz4qpnk9.ProductVariant:
+        return _iz4qpnk9.ProductVariant.t;
+      case _i9vlojuz.StockLevel:
+        return _i9vlojuz.StockLevel.t;
+      case _i3qehoul.StockMovement:
+        return _i3qehoul.StockMovement.t;
+      case _iqtijg36.MeasureUnit:
+        return _iqtijg36.MeasureUnit.t;
       case _iis0lnof.Device:
         return _iis0lnof.Device.t;
       case _iqoqqr0f.Outlet:

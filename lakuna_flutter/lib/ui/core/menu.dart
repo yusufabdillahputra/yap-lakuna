@@ -89,11 +89,12 @@ final List<MenuGroup> appMenu = [
   MenuGroup(
     label: (l) => l.menuGroupInventory,
     entries: [
-      _module(
-        'products',
-        TablerIcons.package,
-        (l) => l.menuProducts,
-        Permission.productsManage,
+      MenuEntry(
+        key: 'products',
+        icon: TablerIcons.package,
+        label: (l) => l.menuProducts,
+        path: Routes.products,
+        permission: Permission.productsManage,
       ),
       _module(
         'stock',
@@ -201,9 +202,13 @@ MenuEntry? menuEntryByKey(String key) {
 }
 
 /// Entri menu dengan jalur [path] persis (rute modul yang sudah dibangun).
+/// Entri menu untuk [path], termasuk subrute (`/produk/baru` → Produk).
 MenuEntry? menuEntryByPath(String path) {
   for (final e in allMenuEntries) {
     if (e.path == path) return e;
+  }
+  for (final e in allMenuEntries) {
+    if (e.path != '/' && path.startsWith('${e.path}/')) return e;
   }
   return null;
 }

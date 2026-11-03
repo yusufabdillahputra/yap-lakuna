@@ -594,4 +594,310 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashLoadFailed => 'The cash session could not be loaded.';
+
+  @override
+  String get productsTitle => 'Products & stock';
+
+  @override
+  String get productsTitleMobile => 'Products';
+
+  @override
+  String productsSummary(int active, int low) {
+    return '$active active products · $low below minimum stock';
+  }
+
+  @override
+  String productsSummaryShort(int active, int low) {
+    return '$active active · $low below minimum';
+  }
+
+  @override
+  String get productsNew => 'New product';
+
+  @override
+  String get productsSearchHint => 'Search name, SKU, or barcode';
+
+  @override
+  String get productsCategoryFilter => 'Category';
+
+  @override
+  String get productsAllCategories => 'All';
+
+  @override
+  String productsBelowMinimumChip(int count) {
+    return 'Below minimum ($count)';
+  }
+
+  @override
+  String get productsColProduct => 'Product';
+
+  @override
+  String get productsColCategory => 'Category';
+
+  @override
+  String get productsColVariantUnit => 'Variant / unit';
+
+  @override
+  String get productsColCost => 'Cost price';
+
+  @override
+  String get productsColPrice => 'Selling price';
+
+  @override
+  String get productsColTiers => 'Wholesale';
+
+  @override
+  String get productsColStock => 'Stock';
+
+  @override
+  String productsVariantsCount(int count) {
+    return '$count variants';
+  }
+
+  @override
+  String get productsStockFootnote =>
+      'Stock is calculated from the movement history (opening stock, purchases, sales, returns, adjustments).';
+
+  @override
+  String get productsEmptyTitle => 'No products yet';
+
+  @override
+  String get productsEmptyBody =>
+      'Add your first product so it can be sold at the cashier.';
+
+  @override
+  String get productsNoMatch => 'No matching products.';
+
+  @override
+  String get productsLoadFailed => 'The products could not be loaded.';
+
+  @override
+  String productsStock(String qty) {
+    return 'Stock $qty';
+  }
+
+  @override
+  String productsStockMin(String qty, String min) {
+    return 'Stock $qty / min $min';
+  }
+
+  @override
+  String get productsInactive => 'Not for sale';
+
+  @override
+  String get productFormNewTitle => 'New product';
+
+  @override
+  String productFormEditTitle(String name) {
+    return 'Edit product · $name';
+  }
+
+  @override
+  String get productFormCancel => 'Cancel';
+
+  @override
+  String get productFormSave => 'Save';
+
+  @override
+  String get productFormBasicInfo => 'Basic info';
+
+  @override
+  String get productFormName => 'Product name';
+
+  @override
+  String get productFormCategory => 'Category';
+
+  @override
+  String get productFormKind => 'Type';
+
+  @override
+  String get productKindGoods => 'Goods (track stock)';
+
+  @override
+  String get productKindService => 'Service (no stock)';
+
+  @override
+  String get productKindMenu => 'F&B menu';
+
+  @override
+  String get productFormBaseUnit => 'Base unit';
+
+  @override
+  String get productFormBaseUnitHint => 'pcs, bottle, kg';
+
+  @override
+  String get productFormSku => 'Parent SKU';
+
+  @override
+  String get productFormBrand => 'Brand';
+
+  @override
+  String get productFormActive => 'Sold at the cashier';
+
+  @override
+  String get productFormTaxable => 'Taxable (PB1/VAT)';
+
+  @override
+  String get productFormTaxableHint => 'Follows the store tax settings';
+
+  @override
+  String get productFormOptional => 'Optional';
+
+  @override
+  String get productTabVariants => 'Variants';
+
+  @override
+  String get productTabUnits => 'Units & conversion';
+
+  @override
+  String get productTabTiers => 'Wholesale prices';
+
+  @override
+  String get productTabUnitsShort => 'Units';
+
+  @override
+  String get productTabTiersShort => 'Wholesale';
+
+  @override
+  String get productVariantName => 'Variant';
+
+  @override
+  String get productVariantNameHint => 'e.g. 2 L';
+
+  @override
+  String get productVariantSku => 'SKU';
+
+  @override
+  String get productVariantBarcode => 'Barcode';
+
+  @override
+  String get productCostPrice => 'Cost price';
+
+  @override
+  String get productSellPrice => 'Selling price';
+
+  @override
+  String get productMinStock => 'Min stock';
+
+  @override
+  String get productOpeningStock => 'Opening stock';
+
+  @override
+  String get productAddVariant => 'Add variant';
+
+  @override
+  String get productRemoveRow => 'Remove row';
+
+  @override
+  String productVariantFallback(int index) {
+    return 'Variant $index';
+  }
+
+  @override
+  String get productSelectVariant => 'Variant';
+
+  @override
+  String get productBaseUnitRow => 'base unit';
+
+  @override
+  String get productUnitName => 'Unit';
+
+  @override
+  String productUnitFactor(String unit) {
+    return 'Contains ($unit)';
+  }
+
+  @override
+  String get productUnitPriceHint => 'Empty = price × contents';
+
+  @override
+  String get productAddUnit => 'Add unit';
+
+  @override
+  String productUnitsHelp(String unit, String conversion, String factor) {
+    return 'Stock is always kept in the base unit ($unit). Selling 1 $conversion takes $factor $unit off the stock card.';
+  }
+
+  @override
+  String productUnitsHelpBase(String unit) {
+    return 'Stock is always kept in the base unit ($unit).';
+  }
+
+  @override
+  String get productUnitsEmpty => 'No conversion units yet, e.g. a box of 12.';
+
+  @override
+  String productTierMinQty(String unit) {
+    return 'From quantity ($unit)';
+  }
+
+  @override
+  String productTierPrice(String unit) {
+    return 'Price per $unit';
+  }
+
+  @override
+  String get productTierAppliesTo => 'Applies to';
+
+  @override
+  String get productTierAllCustomers => 'All customers';
+
+  @override
+  String get productAddTier => 'Add price tier';
+
+  @override
+  String get productTiersHelp =>
+      'Wholesale prices apply automatically at the cashier once the quantity reaches the tier.';
+
+  @override
+  String get productTiersEmpty => 'No wholesale prices yet.';
+
+  @override
+  String get productBaseUnitPlaceholder => 'base unit';
+
+  @override
+  String get productSaveFailed => 'The product could not be saved. Try again.';
+
+  @override
+  String get productNotFound =>
+      'The product was not found or has been deleted.';
+
+  @override
+  String get productFixErrors => 'Check the fields marked in red.';
+
+  @override
+  String productErrorNotPermitted(String permission) {
+    return 'You do not have the $permission permission.';
+  }
+
+  @override
+  String productErrorTooLong(int max) {
+    return 'At most $max characters';
+  }
+
+  @override
+  String get productErrorNegative => 'Cannot be negative';
+
+  @override
+  String get productErrorNotPositive => 'Must be more than 0';
+
+  @override
+  String get productErrorDuplicate => 'Duplicated in this product';
+
+  @override
+  String get productErrorSameAsBase => 'Same as the base unit';
+
+  @override
+  String get productErrorFactorTooSmall => 'Must contain more than 1';
+
+  @override
+  String get productErrorMinQtyTooSmall => 'Must be more than 1';
+
+  @override
+  String productErrorTaken(String name) {
+    return 'Already used by $name';
+  }
+
+  @override
+  String get productErrorVariantsRequired => 'At least one variant';
 }

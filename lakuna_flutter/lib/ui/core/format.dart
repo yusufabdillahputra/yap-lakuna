@@ -42,3 +42,46 @@ class RupiahInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+bool _isEnglish(BuildContext context) =>
+    Localizations.localeOf(context).languageCode == 'en';
+
+/// Pemisah desimal jumlah barang sesuai bahasa: `,` (id) atau `.` (en).
+String qtyDecimalSeparator(BuildContext context) =>
+    _isEnglish(context) ? '.' : ',';
+
+/// Jumlah barang sesuai bahasa: `12,5` / `1.250` (id) atau `12.5` / `1,250`
+/// (en). [grouped] `false` untuk isi awal field (tanpa pemisah ribuan).
+String formatQty(BuildContext context, Qty qty, {bool grouped = true}) {
+  final en = _isEnglish(context);
+  return qty.format(
+    decimal: en ? '.' : ',',
+    group: grouped ? (en ? ',' : '.') : '',
+  );
+}
+
+/// Membaca jumlah dari field (tanpa pemisah ribuan). Kosong → nol;
+/// tidak sah → `null`.
+Qty? parseQtyInput(BuildContext context, String text) {
+  if (text.trim().isEmpty) return Qty.zero;
+  return Qty.tryParse(text, decimal: qtyDecimalSeparator(context), group: '');
+}
+
+/// Field jumlah barang: hanya angka dan satu pemisah desimal [decimal],
+/// paling banyak tiga desimal dan 12 digit bulat. Input lain ditolak
+/// (nilai lama dipertahankan).
+class QtyInputFormatter extends TextInputFormatter {
+  const QtyInputFormatter({this.decimal = ','});
+
+  final String decimal;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final d = RegExp.escape(decimal);
+    final ok = RegExp('^\\d{0,12}(?:$d\\d{0,3})?\$').hasMatch(newValue.text);
+    return ok ? newValue : oldValue;
+  }
+}

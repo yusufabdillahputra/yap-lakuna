@@ -1,0 +1,30 @@
+### Varian produk yang dijual dan dilacak stoknya. SKU dan barcode unik per
+### tenant (dicek di lakuna_data tanpa membedakan huruf besar/kecil).
+class: ProductVariant
+table: product_variants
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  productId: UuidValue, relation(parent=products, onDelete=Restrict), column=product_id
+  ### Nama varian; kosong bila produk hanya punya satu varian.
+  name: String, default=''
+  sku: String?
+  barcode: String?
+  costPrice: int, column=cost_price
+  sellPrice: int, column=sell_price
+  minStockMilli: int, default=0, column=min_stock_milli
+  sortOrder: int, default=0, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  product_variants_product_idx:
+    fields: productId
+  product_variants_tenant_idx:
+    fields: tenantId

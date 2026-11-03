@@ -278,5 +278,222 @@
   "cashErrorAlreadyOpen": "Sesi sudah dibuka di layar lain. Data dimuat ulang.",
   "cashErrorNotOpen": "Sesi sudah ditutup di layar lain. Data dimuat ulang.",
   "cashErrorFailed": "Gagal menyimpan. Coba lagi.",
-  "cashLoadFailed": "Sesi kasir gagal dimuat."
+  "cashLoadFailed": "Sesi kasir gagal dimuat.",
+  "productsTitle": "Produk & stok",
+  "productsTitleMobile": "Produk",
+  "productsSummary": "{active} produk aktif · {low} di bawah stok minimum",
+  "@productsSummary": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "low": {
+        "type": "int"
+      }
+    }
+  },
+  "productsSummaryShort": "{active} aktif · {low} di bawah minimum",
+  "@productsSummaryShort": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "low": {
+        "type": "int"
+      }
+    }
+  },
+  "productsNew": "Produk baru",
+  "productsSearchHint": "Cari nama, SKU, atau barcode",
+  "productsCategoryFilter": "Kategori",
+  "productsAllCategories": "Semua",
+  "productsBelowMinimumChip": "Di bawah minimum ({count})",
+  "@productsBelowMinimumChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsColProduct": "Produk",
+  "productsColCategory": "Kategori",
+  "productsColVariantUnit": "Varian / satuan",
+  "productsColCost": "Harga beli",
+  "productsColPrice": "Harga jual",
+  "productsColTiers": "Grosir",
+  "productsColStock": "Stok",
+  "productsVariantsCount": "{count} varian",
+  "@productsVariantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsStockFootnote": "Stok dihitung dari riwayat pergerakan (stok awal, pembelian, penjualan, retur, penyesuaian).",
+  "productsEmptyTitle": "Belum ada produk",
+  "productsEmptyBody": "Tambahkan produk pertama agar bisa dijual di kasir.",
+  "productsNoMatch": "Tidak ada produk yang cocok.",
+  "productsLoadFailed": "Produk gagal dimuat.",
+  "productsStock": "Stok {qty}",
+  "@productsStock": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "productsStockMin": "Stok {qty} / min {min}",
+  "@productsStockMin": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "productsInactive": "Tidak dijual",
+  "productFormNewTitle": "Produk baru",
+  "productFormEditTitle": "Edit produk · {name}",
+  "@productFormEditTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productFormCancel": "Batal",
+  "productFormSave": "Simpan",
+  "productFormBasicInfo": "Info dasar",
+  "productFormName": "Nama produk",
+  "productFormCategory": "Kategori",
+  "productFormKind": "Jenis",
+  "productKindGoods": "Barang (lacak stok)",
+  "productKindService": "Jasa (tanpa stok)",
+  "productKindMenu": "Menu F&B",
+  "productFormBaseUnit": "Satuan dasar",
+  "productFormBaseUnitHint": "pcs, botol, kg",
+  "productFormSku": "SKU induk",
+  "productFormBrand": "Merek",
+  "productFormActive": "Dijual di kasir",
+  "productFormTaxable": "Kena pajak (PB1/PPN)",
+  "productFormTaxableHint": "Mengikuti pengaturan pajak toko",
+  "productFormOptional": "Opsional",
+  "productTabVariants": "Varian",
+  "productTabUnits": "Satuan & konversi",
+  "productTabTiers": "Harga grosir",
+  "productTabUnitsShort": "Satuan",
+  "productTabTiersShort": "Grosir",
+  "productVariantName": "Varian",
+  "productVariantNameHint": "mis. 2 L",
+  "productVariantSku": "SKU",
+  "productVariantBarcode": "Barcode",
+  "productCostPrice": "Harga beli",
+  "productSellPrice": "Harga jual",
+  "productMinStock": "Stok min",
+  "productOpeningStock": "Stok awal",
+  "productAddVariant": "Tambah varian",
+  "productRemoveRow": "Hapus baris",
+  "productVariantFallback": "Varian {index}",
+  "@productVariantFallback": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "productSelectVariant": "Varian",
+  "productBaseUnitRow": "satuan dasar",
+  "productUnitName": "Satuan",
+  "productUnitFactor": "Isi ({unit})",
+  "@productUnitFactor": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productUnitPriceHint": "Kosong = harga × isi",
+  "productAddUnit": "Tambah satuan",
+  "productUnitsHelp": "Stok selalu disimpan dalam satuan dasar ({unit}). Jual 1 {conversion} = keluar {factor} {unit} dari kartu stok.",
+  "@productUnitsHelp": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "conversion": {
+        "type": "String"
+      },
+      "factor": {
+        "type": "String"
+      }
+    }
+  },
+  "productUnitsHelpBase": "Stok selalu disimpan dalam satuan dasar ({unit}).",
+  "@productUnitsHelpBase": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productUnitsEmpty": "Belum ada satuan konversi, mis. dus berisi 12.",
+  "productTierMinQty": "Mulai jumlah ({unit})",
+  "@productTierMinQty": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productTierPrice": "Harga per {unit}",
+  "@productTierPrice": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productTierAppliesTo": "Berlaku untuk",
+  "productTierAllCustomers": "Semua pelanggan",
+  "productAddTier": "Tambah tingkat harga",
+  "productTiersHelp": "Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.",
+  "productTiersEmpty": "Belum ada harga grosir.",
+  "productBaseUnitPlaceholder": "satuan dasar",
+  "productSaveFailed": "Produk gagal disimpan. Coba lagi.",
+  "productNotFound": "Produk tidak ditemukan atau sudah dihapus.",
+  "productFixErrors": "Periksa isian yang ditandai merah.",
+  "productErrorNotPermitted": "Anda tidak punya izin {permission}.",
+  "@productErrorNotPermitted": {
+    "placeholders": {
+      "permission": {
+        "type": "String"
+      }
+    }
+  },
+  "productErrorTooLong": "Maksimal {max} karakter",
+  "@productErrorTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "productErrorNegative": "Tidak boleh negatif",
+  "productErrorNotPositive": "Harus lebih dari 0",
+  "productErrorDuplicate": "Kembar di produk ini",
+  "productErrorSameAsBase": "Sama dengan satuan dasar",
+  "productErrorFactorTooSmall": "Isi harus lebih dari 1",
+  "productErrorMinQtyTooSmall": "Harus lebih dari 1",
+  "productErrorTaken": "Sudah dipakai {name}",
+  "@productErrorTaken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productErrorVariantsRequired": "Minimal satu varian"
 }

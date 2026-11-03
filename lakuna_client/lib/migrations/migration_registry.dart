@@ -7,6 +7,7 @@ import 'package:serverpod_database/serverpod_database.dart';
 part '20261103052510271-fondasi/migration.dart';
 part '20261103061957945-onboarding/migration.dart';
 part '20261103074811903-sesi-kasir/migration.dart';
+part '20261103084505913-produk/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -16,6 +17,7 @@ class MigrationRegistry {
     _Migration20261103052510271_fondasi(),
     _Migration20261103061957945_onboarding(),
     _Migration20261103074811903_sesi_kasir(),
+    _Migration20261103084505913_produk(),
   ];
 
   /// List of all client-side database migration versions.
