@@ -154,7 +154,10 @@ class MasterDataView extends StatelessWidget {
           ),
           MasterTab.payments => _PaymentsTab(canManage: canManageSettings),
           MasterTab.tables => switch (dining) {
-            final d? => DiningTablesTab(viewModel: d),
+            final d? => DiningTablesTab(
+              viewModel: d,
+              onArrange: (area) => context.go(Routes.tablesFloor(area.uuid)),
+            ),
             null => const SizedBox.shrink(),
           },
         };

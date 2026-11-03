@@ -1,0 +1,7 @@
+### Tata letak meja satu area (F1-10 v0.14.0): kotak berurutan atau denah.
+enum: DiningLayoutMode
+serialized: byName
+default: grid
+values:
+  - grid
+  - floor

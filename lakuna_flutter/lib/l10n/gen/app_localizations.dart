@@ -5479,6 +5479,522 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bagian yang sudah dibayar ({amount}) dikembalikan ke tamu dan tidak masuk sesi kasir.'**
   String diningVoidSplitPaid(String amount);
+
+  /// No description provided for @floorErrorImageTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar denah lebih dari 5 MB.'**
+  String get floorErrorImageTooLarge;
+
+  /// No description provided for @floorErrorImageFormat.
+  ///
+  /// In id, this message translates to:
+  /// **'Format tidak didukung. Pakai PNG, JPG, WebP, atau SVG.'**
+  String get floorErrorImageFormat;
+
+  /// No description provided for @floorErrorNameEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama meja wajib diisi.'**
+  String get floorErrorNameEmpty;
+
+  /// No description provided for @floorErrorNameTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama meja maksimal 20 karakter.'**
+  String get floorErrorNameTooLong;
+
+  /// No description provided for @floorErrorNameDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama meja sudah dipakai di cabang ini.'**
+  String get floorErrorNameDuplicate;
+
+  /// No description provided for @floorErrorSeats.
+  ///
+  /// In id, this message translates to:
+  /// **'Kursi 1 sampai 99.'**
+  String get floorErrorSeats;
+
+  /// No description provided for @floorErrorSize.
+  ///
+  /// In id, this message translates to:
+  /// **'Lebar dan tinggi 20 sampai 600.'**
+  String get floorErrorSize;
+
+  /// No description provided for @floorErrorPosition.
+  ///
+  /// In id, this message translates to:
+  /// **'Posisi meja di luar denah.'**
+  String get floorErrorPosition;
+
+  /// No description provided for @floorErrorInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja yang dihapus masih punya bill terbuka.'**
+  String get floorErrorInUse;
+
+  /// No description provided for @floorErrorPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin Kelola pengaturan.'**
+  String get floorErrorPermission;
+
+  /// No description provided for @floorErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Tata letak gagal disimpan. Coba lagi.'**
+  String get floorErrorGeneric;
+
+  /// No description provided for @floorErrorOn.
+  ///
+  /// In id, this message translates to:
+  /// **'{table}: {message}'**
+  String floorErrorOn(String table, String message);
+
+  /// No description provided for @floorShapeRound.
+  ///
+  /// In id, this message translates to:
+  /// **'Bulat'**
+  String get floorShapeRound;
+
+  /// No description provided for @floorShapeSquare.
+  ///
+  /// In id, this message translates to:
+  /// **'Kotak'**
+  String get floorShapeSquare;
+
+  /// No description provided for @floorShapeLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Panjang'**
+  String get floorShapeLong;
+
+  /// No description provided for @floorShapeBar.
+  ///
+  /// In id, this message translates to:
+  /// **'Kursi bar'**
+  String get floorShapeBar;
+
+  /// No description provided for @floorDiscardTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buang perubahan?'**
+  String get floorDiscardTitle;
+
+  /// No description provided for @floorDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Perubahan tata letak yang belum disimpan akan hilang.'**
+  String get floorDiscardBody;
+
+  /// No description provided for @floorDiscardKeep.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get floorDiscardKeep;
+
+  /// No description provided for @floorDiscardConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Buang'**
+  String get floorDiscardConfirm;
+
+  /// No description provided for @floorLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Denah gagal dimuat.'**
+  String get floorLoadFailed;
+
+  /// No description provided for @floorBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get floorBack;
+
+  /// No description provided for @floorNoArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada area. Tambah area dulu, mis. Indoor atau Teras.'**
+  String get floorNoArea;
+
+  /// No description provided for @floorTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur denah meja'**
+  String get floorTitle;
+
+  /// No description provided for @floorSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan › Meja & area (F&B)'**
+  String get floorSubtitle;
+
+  /// No description provided for @floorAddArea.
+  ///
+  /// In id, this message translates to:
+  /// **'+ Area'**
+  String get floorAddArea;
+
+  /// No description provided for @floorAddAreaTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Area baru'**
+  String get floorAddAreaTitle;
+
+  /// No description provided for @floorAreaName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama area'**
+  String get floorAreaName;
+
+  /// No description provided for @floorAddAreaSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah'**
+  String get floorAddAreaSave;
+
+  /// No description provided for @floorGridInfoTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode Grid'**
+  String get floorGridInfoTitle;
+
+  /// No description provided for @floorGridInfoBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja area {area} tampil sebagai kotak berurutan di layar Meja. Pilih Denah untuk mengunggah gambar denah dan mengatur posisi meja.'**
+  String floorGridInfoBody(String area);
+
+  /// No description provided for @floorSeats.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} kursi'**
+  String floorSeats(int count);
+
+  /// No description provided for @floorUndo.
+  ///
+  /// In id, this message translates to:
+  /// **'Urungkan'**
+  String get floorUndo;
+
+  /// No description provided for @floorRedo.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi'**
+  String get floorRedo;
+
+  /// No description provided for @floorReplaceImage.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti gambar denah'**
+  String get floorReplaceImage;
+
+  /// No description provided for @floorOpacity.
+  ///
+  /// In id, this message translates to:
+  /// **'Transparansi denah'**
+  String get floorOpacity;
+
+  /// No description provided for @floorSnap.
+  ///
+  /// In id, this message translates to:
+  /// **'Snap ke grid {size} px'**
+  String floorSnap(int size);
+
+  /// No description provided for @floorZoom.
+  ///
+  /// In id, this message translates to:
+  /// **'Zoom {percent}%'**
+  String floorZoom(int percent);
+
+  /// No description provided for @floorZoomIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Perbesar'**
+  String get floorZoomIn;
+
+  /// No description provided for @floorZoomOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Perkecil'**
+  String get floorZoomOut;
+
+  /// No description provided for @floorZoomFit.
+  ///
+  /// In id, this message translates to:
+  /// **'Pas layar'**
+  String get floorZoomFit;
+
+  /// No description provided for @floorUploadTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah gambar denah area {area}'**
+  String floorUploadTitle(String area);
+
+  /// No description provided for @floorUploadBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto sketsa tangan, hasil export aplikasi denah, atau gambar dari arsitek. PNG / JPG / WebP / SVG, maks. 5 MB.'**
+  String get floorUploadBody;
+
+  /// No description provided for @floorPickFile.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih file'**
+  String get floorPickFile;
+
+  /// No description provided for @floorTakePhoto.
+  ///
+  /// In id, this message translates to:
+  /// **'Ambil foto'**
+  String get floorTakePhoto;
+
+  /// No description provided for @floorTipsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tips gambar'**
+  String get floorTipsTitle;
+
+  /// No description provided for @floorTipAngle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudut pandang'**
+  String get floorTipAngle;
+
+  /// No description provided for @floorTipAngleValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari atas, lurus'**
+  String get floorTipAngleValue;
+
+  /// No description provided for @floorTipSize.
+  ///
+  /// In id, this message translates to:
+  /// **'Ukuran'**
+  String get floorTipSize;
+
+  /// No description provided for @floorTipSizeValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Lebar minimal 1200 px'**
+  String get floorTipSizeValue;
+
+  /// No description provided for @floorTipContent.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi'**
+  String get floorTipContent;
+
+  /// No description provided for @floorTipContentValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Dinding, pintu, dapur, bar'**
+  String get floorTipContentValue;
+
+  /// No description provided for @floorTipStorage.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar disimpan di perangkat. Saat hosting aktif, ikut diunggah ke Object Storage seperti foto produk.'**
+  String get floorTipStorage;
+
+  /// No description provided for @floorTipGrid.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak punya denah? Pilih mode Grid. Meja tampil seperti biasa dan bisa diganti kapan saja.'**
+  String get floorTipGrid;
+
+  /// No description provided for @floorPreset.
+  ///
+  /// In id, this message translates to:
+  /// **'{shape} · {seats} kursi'**
+  String floorPreset(String shape, int seats);
+
+  /// No description provided for @floorAddTable.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah meja'**
+  String get floorAddTable;
+
+  /// No description provided for @floorAddTableHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk untuk menaruh meja di tengah tampilan.'**
+  String get floorAddTableHint;
+
+  /// No description provided for @floorUnplaced.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ditempatkan'**
+  String get floorUnplaced;
+
+  /// No description provided for @floorUnplacedHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja yang sudah ada di mode grid tapi belum punya posisi. Ketuk untuk menaruh.'**
+  String get floorUnplacedHint;
+
+  /// No description provided for @floorUnplacedNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua meja sudah ditempatkan.'**
+  String get floorUnplacedNone;
+
+  /// No description provided for @floorModeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode tata letak · {area}'**
+  String floorModeTitle(String area);
+
+  /// No description provided for @floorModeGrid.
+  ///
+  /// In id, this message translates to:
+  /// **'Grid'**
+  String get floorModeGrid;
+
+  /// No description provided for @floorModeGridHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa denah. Meja tampil sebagai kotak berurutan.'**
+  String get floorModeGridHint;
+
+  /// No description provided for @floorModeFloor.
+  ///
+  /// In id, this message translates to:
+  /// **'Denah'**
+  String get floorModeFloor;
+
+  /// No description provided for @floorModeFloorHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah gambar denah, lalu atur posisi meja.'**
+  String get floorModeFloorHint;
+
+  /// No description provided for @floorSelected.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja {name} dipilih'**
+  String floorSelected(String name);
+
+  /// No description provided for @floorSelectHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk meja di denah untuk mengubah nama, kursi, bentuk, dan ukurannya.'**
+  String get floorSelectHint;
+
+  /// No description provided for @floorName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama'**
+  String get floorName;
+
+  /// No description provided for @floorSeatsLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kursi'**
+  String get floorSeatsLabel;
+
+  /// No description provided for @floorShape.
+  ///
+  /// In id, this message translates to:
+  /// **'Bentuk'**
+  String get floorShape;
+
+  /// No description provided for @floorWidth.
+  ///
+  /// In id, this message translates to:
+  /// **'Lebar'**
+  String get floorWidth;
+
+  /// No description provided for @floorHeight.
+  ///
+  /// In id, this message translates to:
+  /// **'Tinggi'**
+  String get floorHeight;
+
+  /// No description provided for @floorOrientation.
+  ///
+  /// In id, this message translates to:
+  /// **'Orientasi'**
+  String get floorOrientation;
+
+  /// No description provided for @floorHorizontal.
+  ///
+  /// In id, this message translates to:
+  /// **'Mendatar'**
+  String get floorHorizontal;
+
+  /// No description provided for @floorVertical.
+  ///
+  /// In id, this message translates to:
+  /// **'Tegak'**
+  String get floorVertical;
+
+  /// No description provided for @floorCanMerge.
+  ///
+  /// In id, this message translates to:
+  /// **'Boleh digabung dengan meja sebelah'**
+  String get floorCanMerge;
+
+  /// No description provided for @floorDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus meja'**
+  String get floorDelete;
+
+  /// No description provided for @floorUnsaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada perubahan yang belum disimpan.'**
+  String get floorUnsaved;
+
+  /// No description provided for @floorSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan tata letak'**
+  String get floorSave;
+
+  /// No description provided for @floorSaving.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyimpan…'**
+  String get floorSaving;
+
+  /// No description provided for @diningLayoutGrid.
+  ///
+  /// In id, this message translates to:
+  /// **'Grid'**
+  String get diningLayoutGrid;
+
+  /// No description provided for @diningLayoutFloor.
+  ///
+  /// In id, this message translates to:
+  /// **'Denah'**
+  String get diningLayoutFloor;
+
+  /// No description provided for @diningArrange.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur denah'**
+  String get diningArrange;
+
+  /// No description provided for @diningFloorLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Posisi terkunci · geser & zoom saja'**
+  String get diningFloorLocked;
+
+  /// No description provided for @diningUnplaced.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ditempatkan'**
+  String get diningUnplaced;
+
+  /// No description provided for @diningNoFloorArea.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada area mode denah.'**
+  String get diningNoFloorArea;
 }
 
 class _AppLocalizationsDelegate

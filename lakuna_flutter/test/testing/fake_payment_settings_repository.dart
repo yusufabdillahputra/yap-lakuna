@@ -74,13 +74,33 @@ class FakePaymentSettingsRepository extends PaymentSettingsRepository {
 }
 
 /// Pemilih gambar palsu: mengembalikan [next] (sekali pakai).
-class FakeImagePicker implements ImageFilePicker {
+class FakeImagePicker extends ImageFilePicker {
   PickedImage? next;
   var calls = 0;
 
+  /// Argumen `vector` panggilan terakhir.
+  bool? lastVector;
+
+  /// Kamera tersedia (denah 1.7c).
+  var camera = false;
+  var photoCalls = 0;
+
   @override
-  Future<PickedImage?> pickImage({required int maxBytes}) async {
+  bool get canTakePhoto => camera;
+
+  @override
+  Future<PickedImage?> takePhoto({required int maxBytes}) {
+    photoCalls++;
+    return pickImage(maxBytes: maxBytes);
+  }
+
+  @override
+  Future<PickedImage?> pickImage({
+    required int maxBytes,
+    bool vector = false,
+  }) async {
     calls++;
+    lastVector = vector;
     final picked = next;
     next = null;
     if (picked == null) return null;

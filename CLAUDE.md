@@ -69,7 +69,8 @@ keputusan yang mengubah tujuan produk.
   mobile (breakpoint 600 / 1280 px).
 - Denah meja F&B memakai paket `vyuh_node_flow` (gambar denah = node
   terkunci di latar, meja = node tanpa port, orientasi 0°/90°, snap grid
-  20 px, minimap; kasir memakai `NodeFlowViewer`).
+  20 px, minimap; kasir memakai `NodeFlowEditor` mode `preview` dengan
+  meja terkunci).
 - **Semua aset offline**: font dibundel, tanpa `google_fonts`, tanpa gambar
   jaringan. Logo dan placeholder dari DiceBear dibuat sekali lalu
   di-commit.

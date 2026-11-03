@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -25,6 +27,21 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
   /// Meja dengan bill terbuka (hapus ditolak).
   final busyTables = <UuidValue>{};
   FnbRates savedRates = const FnbRates();
+
+  /// Gambar denah per area.
+  final images = <UuidValue, FloorImage>{};
+
+  /// Panggilan *Simpan tata letak* terakhir.
+  ({
+    UuidValue areaId,
+    DiningLayoutMode mode,
+    List<FloorTableDraft> tables,
+    List<UuidValue> deleted,
+  })?
+  lastLayout;
+
+  /// Galat berikutnya (sekali pakai).
+  Exception? nextError;
   var _next = 900;
   final _tenant = fakeId(1);
   final _outlet = fakeId(2);
@@ -50,6 +67,9 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
   );
 
   Future<Result<T>> _run<T>(T Function() body) async {
+    final e = nextError;
+    nextError = null;
+    if (e != null) return Result.error(e);
     if (!permitted) {
       return const Result.error(NotPermitted(Permission.settingsManage));
     }
@@ -198,6 +218,122 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
   Future<Result<void>> deleteTable(UuidValue id) => _run(() {
     if (busyTables.contains(id)) throw const DiningInUse(openBill: true);
     tables.removeWhere((t) => t.id == id);
+  });
+
+  @override
+  Future<Result<FloorPlanSetup>> loadFloorPlan() => _run(() {
+    _sort();
+    return FloorPlanSetup(
+      areas: List.of(areas),
+      tables: List.of(tables),
+      images: Map.of(images),
+    );
+  });
+
+  @override
+  Future<Result<DiningArea>> saveFloorImage(
+    UuidValue areaId,
+    Uint8List bytes,
+    String fileName,
+  ) => _run(() {
+    if (bytes.length > FloorLimits.imageBytes) {
+      throw const FloorImageInvalid(FloorImageError.tooLarge);
+    }
+    final header = readFloorImageHeader(bytes);
+    if (header == null) throw const FloorImageInvalid(FloorImageError.format);
+    final i = areas.indexWhere((a) => a.id == areaId);
+    if (i < 0) throw DiningNotFound();
+    final media = MediaFile(
+      id: fakeId(_next++),
+      tenantId: _tenant,
+      outletId: _outlet,
+      kind: MediaKind.floorPlan,
+      fileName: fileName,
+      mimeType: header.mimeType,
+      sizeBytes: bytes.length,
+      sha256: 'x',
+      width: header.width,
+      height: header.height,
+      storageKey: 'x.${header.extension}',
+      hlc: '',
+    );
+    images[areaId] = FloorImage(media: media, bytes: bytes);
+    return areas[i] = areas[i].copyWith(
+      floorMediaId: media.id,
+      layoutMode: DiningLayoutMode.floor,
+    );
+  });
+
+  @override
+  Future<Result<void>> saveFloorLayout(
+    UuidValue areaId, {
+    required DiningLayoutMode mode,
+    required List<FloorTableDraft> tables,
+    List<UuidValue> deleted = const [],
+  }) => _run(() {
+    final i = areas.indexWhere((a) => a.id == areaId);
+    if (i < 0) throw DiningNotFound();
+    final touched = {
+      for (final d in tables)
+        if (d.id != null) d.id!,
+      ...deleted,
+    };
+    final names = [
+      for (final t in this.tables)
+        if (!touched.contains(t.id)) t.name,
+    ];
+    for (final (j, d) in tables.indexed) {
+      _checkName(d.name, FnbLimits.tableName, names, j);
+      final e = validateFloorTable(
+        seats: d.seats,
+        width: d.width,
+        height: d.height,
+        x: d.x,
+        y: d.y,
+      );
+      if (e != null) throw FloorTableInvalid(e, index: j);
+      names.add(d.name.trim());
+    }
+    if (deleted.any(busyTables.contains)) {
+      throw const DiningInUse(openBill: true);
+    }
+    lastLayout = (
+      areaId: areaId,
+      mode: mode,
+      tables: tables,
+      deleted: deleted,
+    );
+    this.tables.removeWhere((t) => deleted.contains(t.id));
+    for (final d in tables) {
+      final j = d.id == null ? -1 : this.tables.indexWhere((t) => t.id == d.id);
+      final base = j < 0
+          ? DiningTable(
+              id: fakeId(_next++),
+              tenantId: _tenant,
+              outletId: _outlet,
+              name: d.name,
+              sortOrder: this.tables.length,
+              hlc: '',
+            )
+          : this.tables[j];
+      final next = base.copyWith(
+        diningAreaId: areaId,
+        name: d.name.trim(),
+        seats: d.seats,
+        shape: d.shape,
+        posX: d.x,
+        posY: d.y,
+        width: d.width,
+        height: d.height,
+        canMerge: d.canMerge,
+      );
+      if (j < 0) {
+        this.tables.add(next);
+      } else {
+        this.tables[j] = next;
+      }
+    }
+    areas[i] = areas[i].copyWith(layoutMode: mode);
   });
 
   @override

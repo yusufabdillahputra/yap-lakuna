@@ -7,6 +7,105 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-03
+
+Denah meja F&B (F1-10 bagian keempat, layar 1.7b–1.7d). Pemilik mengunggah
+gambar denah per area lalu menata meja di atasnya; kasir dan pelayan memilih
+meja langsung dari denah.
+
+### Ditambahkan
+
+- Layar **Atur denah** 1.7d (`/meja/denah?area=…`), dibuka dari tombol
+  *Atur denah* di layar Meja atau ikon denah per area di Master data ›
+  Meja & area. Pilihan area di header (plus tambah area), mode tata letak
+  **Grid** / **Denah** per area.
+- Panel **unggah denah** 1.7c: PNG, JPG, WebP, atau SVG maksimal 5 MB,
+  dengan tips gambar. Di Android/iOS ada tombol **Ambil foto** (kamera).
+  Tombol *Ganti gambar denah* mengganti gambar tanpa mengubah posisi meja.
+- Kanvas denah (`vyuh_node_flow`): gambar denah terkunci di latar dengan
+  pengatur transparansi, meja tanpa port yang bisa digeser dan diubah
+  ukurannya (20–600), snap grid 20 px (bisa dimatikan), zoom 25–300 %,
+  tombol zoom dan *pas layar*, peta mini.
+- Palet **Tambah meja**: Bulat · 2 kursi, Kotak · 4, Panjang · 6,
+  Panjang · 8, Kursi bar · 1. Nama otomatis melanjutkan nomor terakhir
+  (M7, M8, …). Chip **Belum ditempatkan** untuk meja lama yang belum punya
+  posisi; ketuk untuk menaruhnya di tengah tampilan.
+- Panel meja terpilih: nama, kursi, bentuk (bulat, kotak, panjang, kursi
+  bar), lebar & tinggi, orientasi mendatar/tegak, *Boleh digabung dengan
+  meja sebelah*, *Hapus meja*. **Undo/redo**, catatan *ada perubahan yang
+  belum disimpan*, dan konfirmasi buang perubahan saat kembali atau ganti
+  area.
+- Layar **Meja** 1.7b: pilihan **Grid / Denah** (bawaan Denah bila ada area
+  denah), tab area denah, kanvas terkunci (geser & zoom saja) dengan warna
+  status dan total bill yang sama dengan kartu grid, meja bulat berbentuk
+  lingkaran, chip meja yang belum ditempatkan, dan tombol *Atur denah*
+  bagi pemegang izin pengaturan.
+- Model data: `dining_areas.layout_mode`, `dining_areas.floor_media_id`,
+  `dining_tables.shape`, `pos_x`, `pos_y`, `width`, `height`, `can_merge`,
+  jenis media `floorPlan` (migrasi `denah`).
+
+### Diubah
+
+- Memindah meja ke area lain di Master data mengosongkan posisinya; meja
+  tampil sebagai *Belum ditempatkan* di denah area baru.
+- Subjudul area di Master data menyebut *Denah* untuk area mode denah.
+- Pemilih gambar menerima SVG (khusus denah) dan foto kamera di ponsel.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (uji manual dan review kode),
+bukan bug di versi sebelumnya.
+
+- Meja bulat sempat tergambar sebagai lingkaran kecil seukuran teks, dan
+  peta mini tertutup warna biru oleh node gambar denah.
+- Layar Meja: ketuk meja di denah terpicu saat jari turun, sehingga
+  menggeser denah di atas meja langsung membuka dialog tamu. Ketuk kini
+  dihitung saat jari naik tanpa bergeser, dan tidak tertahan pengenal
+  ketuk ganda.
+- Atur denah: memilih meja membuat ulang node-nya, sehingga geser pertama
+  pada meja yang belum dipilih terputus. Node kini hanya dibuat ulang bila
+  bentuknya berubah; nama, warna, dan tanda terpilih diperbarui di tempat.
+- Atur denah: setelah kanvas dilepas dan dipasang lagi (ganti area, panel
+  unggah), node meja area lain tertinggal tak terlihat dan pengendali vyuh
+  memegang `context` editor lama. Pengendali vyuh kini dibuat setiap kali
+  kanvas dipasang dan dibuang saat dilepas.
+- Posisi atau ukuran di kanvas bisa berbeda dari draf yang disimpan bila
+  hasil snap sama dengan nilai lama (mis. ubah ukuran beberapa piksel, geser
+  melewati tepi kiri). Kanvas kini selalu dikembalikan ke draf.
+- Di layar sentuh, geser meja/denah ke atas-bawah malah menggulir halaman.
+  Gulir halaman dikunci selama jari ada di kanvas (layar Meja dan Atur denah
+  di bawah 1100 px).
+- Undo menggabungkan beberapa ketukan pilihan bentuk/orientasi/gabung jadi
+  satu langkah; kini hanya ketikan yang digabung.
+- Nama area duplikat di *+ Area* menampilkan pesan tentang nama meja.
+
+### Keamanan
+
+- Unggah denah dan simpan tata letak butuh `settings:manage`, dicek di
+  layar dan di repositori. Gambar divalidasi dari isi berkas (bukan nama),
+  ukuran maksimal 5 MB, dan posisi/ukuran meja divalidasi di lapisan data.
+- Menghapus meja yang masih punya open bill ditolak.
+
+### Catatan teknis
+
+- Aturan denah di `lakuna_domain/floor_plan.dart` (`FloorLimits`,
+  `floorWorldSize`, `TablePreset`, `nextTableName`, `snapTo`,
+  `validateFloorTable`, `readFloorImageHeader` dengan SVG `viewBox`); data
+  di `lakuna_data/floor_plan.dart` (`saveFloorImage`, `saveFloorLayout`
+  dalam satu transaksi dengan outbox, `floorImages`).
+- Koordinat dunia lebar 800, tinggi mengikuti rasio gambar (200–2000).
+  Orientasi disimpan sebagai tukar lebar/tinggi, tanpa kolom rotasi.
+- Kasir memakai `NodeFlowEditor` mode `preview` dengan node terkunci, bukan
+  `NodeFlowViewer`, agar bentuk lingkaran tetap bisa dipakai.
+- Dependensi baru: `vyuh_node_flow` 0.32, `flutter_svg`, `image_picker`
+  (izin kamera iOS di `Info.plist`).
+- `FloorScrollLock` membungkus daftar bergulir yang memuat kanvas; kanvas
+  menaikkan hitungan jari lewat `Listener` (tetikus tidak dihitung).
+- Gap tercatat di spec F1-10: tarik langsung dari palet, garis bantu dan
+  `LodPlugin`, seret di layar sentuh belum diuji di perangkat, peta mini
+  belum ikut mode gelap, pilihan Grid/Denah belum diingat lintas layar,
+  keluar lewat sidebar tanpa konfirmasi, gambar denah lama belum dihapus.
+
 ## [0.13.0] - 2026-11-03
 
 Split bill F&B (F1-10 bagian ketiga, layar 1.9). Satu meja bisa dibayar per
@@ -1284,7 +1383,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.10.0...v0.11.0

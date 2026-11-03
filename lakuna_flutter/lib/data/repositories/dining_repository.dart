@@ -20,6 +20,8 @@ class DiningData {
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
     this.modifierGroups = const {},
+    this.floorImages = const {},
+    this.canArrange = false,
   });
 
   final DiningOverview overview;
@@ -51,6 +53,12 @@ class DiningData {
   /// grup tidak ada di peta.
   final Map<UuidValue, List<ModifierGroupDetail>> modifierGroups;
 
+  /// Gambar denah per area (mode Denah 1.7b).
+  final Map<UuidValue, FloorImage> floorImages;
+
+  /// Boleh *Atur denah* (`settings:manage`).
+  final bool canArrange;
+
   List<ModifierGroupDetail> groupsOf(CatalogProduct p) =>
       modifierGroups[p.id] ?? const [];
 
@@ -66,6 +74,8 @@ class DiningData {
     receipt: receipt,
     printer: printer,
     modifierGroups: modifierGroups,
+    floorImages: floorImages,
+    canArrange: canArrange,
   );
 }
 

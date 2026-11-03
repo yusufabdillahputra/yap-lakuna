@@ -1,0 +1,719 @@
+import 'package:flutter/material.dart' show Colors;
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kTouchSlop;
+import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:forui/forui.dart';
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
+import 'package:vyuh_node_flow/vyuh_node_flow.dart';
+
+import '../../l10n/gen/app_localizations.dart';
+
+/// Data node denah: meja ([key]) atau gambar latar.
+@immutable
+class FloorNodeData {
+  const FloorNodeData(this.key, {this.background = false});
+
+  final String key;
+  final bool background;
+}
+
+/// Node meja: tanpa port, bisa diubah ukurannya (20–600).
+class _TableNode extends Node<FloorNodeData>
+    with ResizableMixin<FloorNodeData> {
+  _TableNode({
+    required super.id,
+    required super.position,
+    required super.data,
+    required super.size,
+    super.locked,
+  }) : super(type: 'table', retainedRendering: RetainedNodeRendering.live);
+
+  @override
+  Size get minSize => const Size(
+    FloorLimits.minSize + 0.0,
+    FloorLimits.minSize + 0.0,
+  );
+
+  @override
+  Size? get maxSize => const Size(
+    FloorLimits.maxSize + 0.0,
+    FloorLimits.maxSize + 0.0,
+  );
+}
+
+/// Meja yang digambar di kanvas. Isi meja (nama, warna, kursi) dibangun
+/// ulang tiap kali [FloorCanvas] diperbarui; node hanya dibuat ulang bila
+/// bentuknya berubah (bulat ↔ persegi) agar geser yang sedang berjalan tidak
+/// terputus.
+@immutable
+class FloorTableSpec {
+  const FloorTableSpec({
+    required this.key,
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    required this.shape,
+  });
+
+  final String key;
+  final int x;
+  final int y;
+  final int width;
+  final int height;
+  final TableShape shape;
+}
+
+/// Plugin penerus kejadian akhir geser/ubah ukuran dan zoom.
+class _FloorEvents extends NodeFlowPlugin {
+  void Function(Set<String> ids)? onDragEnded;
+  void Function(String id)? onResizeEnded;
+  void Function(double zoom)? onZoom;
+
+  @override
+  String get id => 'lakuna-floor-events';
+
+  @override
+  void attach(NodeFlowController<dynamic, dynamic> controller) {}
+
+  @override
+  void detach() {}
+
+  @override
+  void onEvent(GraphEvent event) {
+    switch (event) {
+      case NodeDragEnded(:final nodeIds):
+        onDragEnded?.call(nodeIds);
+      case ResizeEnded(:final nodeId):
+        onResizeEnded?.call(nodeId);
+      case ViewportChanged(:final viewport):
+        onZoom?.call(viewport.zoom);
+      default:
+    }
+  }
+}
+
+const _minimapFloor = Color(0xFFE4E4E7);
+
+/// Mengunci gulir halaman selama jari menyentuh kanvas denah. Kanvas yang
+/// berada di dalam daftar bergulir kalah dari pengenal gulir vertikal
+/// halaman, sehingga geser meja/denah ke atas-bawah malah menggulir halaman.
+class FloorScrollLock extends StatefulWidget {
+  const FloorScrollLock({super.key, required this.builder});
+
+  /// [physics] = `NeverScrollableScrollPhysics` selama kanvas disentuh.
+  final Widget Function(BuildContext context, ScrollPhysics? physics) builder;
+
+  static ValueNotifier<int>? _of(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_ScrollLockScope>()?.pointers;
+
+  @override
+  State<FloorScrollLock> createState() => _FloorScrollLockState();
+}
+
+class _FloorScrollLockState extends State<FloorScrollLock> {
+  final _pointers = ValueNotifier<int>(0);
+  late final _locked = _Locked(_pointers);
+
+  @override
+  void dispose() {
+    _locked.dispose();
+    _pointers.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _ScrollLockScope(
+    pointers: _pointers,
+    child: ValueListenableBuilder<bool>(
+      valueListenable: _locked,
+      builder: (context, locked, _) => widget.builder(
+        context,
+        locked ? const NeverScrollableScrollPhysics() : null,
+      ),
+    ),
+  );
+}
+
+/// `true` selama ada jari di kanvas.
+class _Locked extends ValueNotifier<bool> {
+  _Locked(this._source) : super(_source.value > 0) {
+    _source.addListener(_update);
+  }
+
+  final ValueNotifier<int> _source;
+
+  void _update() => value = _source.value > 0;
+
+  @override
+  void dispose() {
+    _source.removeListener(_update);
+    super.dispose();
+  }
+}
+
+class _ScrollLockScope extends InheritedWidget {
+  const _ScrollLockScope({required this.pointers, required super.child});
+
+  final ValueNotifier<int> pointers;
+
+  @override
+  bool updateShouldNotify(_ScrollLockScope old) => pointers != old.pointers;
+}
+
+/// Pengendali kanvas denah: zoom, tengah tampilan, snap. Hidup selama
+/// layar; `NodeFlowController` di dalamnya dibuat tiap kali [FloorCanvas]
+/// dipasang dan dibuang saat dilepas, karena editor vyuh meninggalkan
+/// callback yang memegang `context`-nya di pengendali.
+class FloorCanvasController {
+  FloorCanvasController({bool snap = false}) : _snapOn = snap;
+
+  bool _snapOn;
+  SnapPlugin? _snap;
+  _FloorEvents _events = _FloorEvents();
+  NodeFlowController<FloorNodeData, void>? _flow;
+
+  /// Pengendali vyuh yang sedang terpasang (ada selama kanvas tampil).
+  NodeFlowController<FloorNodeData, void> get flow => _flow!;
+
+  /// Zoom terkini (label "Zoom 100%").
+  final zoom = ValueNotifier<double>(1);
+
+  set snap(bool value) {
+    _snapOn = value;
+    _snap?.enabled = value;
+  }
+
+  /// Titik tengah tampilan dalam koordinat dunia denah.
+  Offset get center =>
+      _flow?.getViewportCenter().offset ??
+      Offset(FloorLimits.worldWidth / 2, FloorLimits.defaultHeight / 2);
+
+  void zoomIn() => _flow?.zoomBy(0.2);
+  void zoomOut() => _flow?.zoomBy(-0.2);
+  void fit() => _flow?.fitToView();
+
+  NodeFlowController<FloorNodeData, void> _attach() {
+    final snap = SnapPlugin([
+      GridSnapDelegate(gridSize: FloorLimits.grid + 0.0),
+    ], enabled: _snapOn);
+    final events = _FloorEvents()..onZoom = (z) => zoom.value = z;
+    final flow = NodeFlowController<FloorNodeData, void>(
+      config: NodeFlowConfig(
+        minZoom: 0.25,
+        maxZoom: 3,
+        showAttribution: false,
+        plugins: [
+          snap,
+          MinimapPlugin(
+            visible: true,
+            size: const Size(150, 110),
+            margin: 12,
+            // Gambar denah digambar abu-abu tipis; tanpa ini seluruh peta
+            // mini tertutup warna node dan meja tidak terlihat.
+            thumbnailBuilder: (canvas, node, bounds, color) {
+              if (node.data case FloorNodeData(background: true)) {
+                canvas.drawRect(bounds, Paint()..color = _minimapFloor);
+                return true;
+              }
+              return false;
+            },
+          ),
+          events,
+        ],
+      ),
+    );
+    // Tanpa pintasan keyboard bawaan (hapus, gandakan, tempel): semua
+    // perubahan meja lewat panel agar draf tetap satu sumber.
+    for (final keys in flow.shortcuts.shortcuts.keys.toList()) {
+      flow.shortcuts.removeShortcut(keys);
+    }
+    _snap = snap;
+    _events = events;
+    return _flow = flow;
+  }
+
+  void _detach(NodeFlowController<FloorNodeData, void> flow) {
+    if (identical(_flow, flow)) {
+      _flow = null;
+      _snap = null;
+    }
+    flow.dispose();
+  }
+
+  void dispose() => zoom.dispose();
+}
+
+/// Kanvas denah `vyuh_node_flow`: gambar denah = node terkunci di lapisan
+/// latar, meja = node tanpa port. [editable] = *Atur denah* (geser, ubah
+/// ukuran); selain itu meja terkunci (geser & zoom tampilan saja).
+class FloorCanvas extends StatefulWidget {
+  const FloorCanvas({
+    super.key,
+    required this.controller,
+    required this.world,
+    required this.tables,
+    required this.tableBuilder,
+    this.image,
+    this.opacity = 1,
+    this.editable = false,
+    this.selected,
+    this.onSelect,
+    this.onTap,
+    this.onMoved,
+    this.onResized,
+  });
+
+  final FloorCanvasController controller;
+  final ({int width, int height}) world;
+  final List<FloorTableSpec> tables;
+  final Widget Function(BuildContext context, String key) tableBuilder;
+  final FloorImage? image;
+  final double opacity;
+  final bool editable;
+
+  /// Meja terpilih (editor).
+  final String? selected;
+  final ValueChanged<String?>? onSelect;
+
+  /// Ketuk meja (layar Meja).
+  final ValueChanged<String>? onTap;
+  final void Function(String key, int x, int y)? onMoved;
+  final void Function(String key, int x, int y, int width, int height)?
+  onResized;
+
+  static const backgroundId = '__denah';
+
+  @override
+  State<FloorCanvas> createState() => _FloorCanvasState();
+}
+
+class _FloorCanvasState extends State<FloorCanvas> {
+  /// Bentuk node meja yang sedang ada di [_flow] (dari kanvas ini).
+  final _shapes = <String, Object>{};
+  Object? _backgroundSignature;
+  var _fitted = false;
+
+  /// Dinaikkan setelah sinkronisasi agar isi meja (nama, warna, terpilih)
+  /// dibangun ulang tanpa membuat ulang node.
+  final _content = ValueNotifier<int>(0);
+
+  /// Jari yang sedang menyentuh kanvas (untuk [FloorScrollLock]).
+  final _down = <int>{};
+  ValueNotifier<int>? _lock;
+
+  late NodeFlowController<FloorNodeData, void> _flow;
+
+  @override
+  void initState() {
+    super.initState();
+    _flow = widget.controller._attach();
+    _wire();
+    _sync();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _fitted) return;
+      _fitted = true;
+      widget.controller.fit();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _lock = FloorScrollLock._of(context);
+  }
+
+  @override
+  void dispose() {
+    _release();
+    _content.dispose();
+    // Anak (editor vyuh) sudah dibuang lebih dulu.
+    widget.controller._detach(_flow);
+    super.dispose();
+  }
+
+  void _press(PointerDownEvent e) {
+    if (e.kind == PointerDeviceKind.mouse) return;
+    _down.add(e.pointer);
+    _lock?.value += 1;
+  }
+
+  void _lift(PointerEvent e) {
+    if (!_down.remove(e.pointer)) return;
+    _lock?.value -= 1;
+  }
+
+  void _release() {
+    if (_down.isEmpty) return;
+    _lock?.value -= _down.length;
+    _down.clear();
+  }
+
+  @override
+  void didUpdateWidget(FloorCanvas old) {
+    super.didUpdateWidget(old);
+    _wire();
+    // Menyentuh node MobX tidak boleh di tengah build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _sync();
+    });
+  }
+
+  void _wire() {
+    final events = widget.controller._events;
+    events.onDragEnded = (ids) {
+      for (final id in ids) {
+        final node = _flow.getNode(id);
+        if (node == null || node.data.background) continue;
+        final p = node.position.value;
+        widget.onMoved?.call(id, p.dx.round(), p.dy.round());
+      }
+    };
+    events.onResizeEnded = (id) {
+      final node = _flow.getNode(id);
+      if (node == null || node.data.background) return;
+      final p = node.position.value;
+      final s = node.size.value;
+      widget.onResized?.call(
+        id,
+        p.dx.round(),
+        p.dy.round(),
+        s.width.round(),
+        s.height.round(),
+      );
+    };
+  }
+
+  void _sync() {
+    final flow = _flow;
+    final world = widget.world;
+    final bg = (widget.image?.media.id, world, widget.opacity);
+    if (bg != _backgroundSignature) {
+      if (flow.getNode(FloorCanvas.backgroundId) != null) {
+        flow.removeNode(FloorCanvas.backgroundId);
+      }
+      flow.addNode(
+        Node<FloorNodeData>(
+          id: FloorCanvas.backgroundId,
+          type: 'denah',
+          position: Offset.zero,
+          size: Size(world.width + 0.0, world.height + 0.0),
+          data: const FloorNodeData(FloorCanvas.backgroundId, background: true),
+          layer: NodeRenderLayer.background,
+          locked: true,
+          selectable: false,
+          initialZIndex: -1,
+        ),
+      );
+      _backgroundSignature = bg;
+    }
+
+    // Hapus semua node meja yang tidak ada lagi, termasuk sisa dari kanvas
+    // sebelumnya pada pengendali yang sama (mis. area lain).
+    final keys = {for (final t in widget.tables) t.key};
+    for (final id in flow.nodes.keys.toList()) {
+      if (id == FloorCanvas.backgroundId || keys.contains(id)) continue;
+      flow.removeNode(id);
+      _shapes.remove(id);
+    }
+    for (final t in widget.tables) {
+      final position = Offset(t.x + 0.0, t.y + 0.0);
+      final size = Size(t.width + 0.0, t.height + 0.0);
+      final signature = (_round(t.shape), widget.editable);
+      final node = flow.getNode(t.key);
+      if (node == null || _shapes[t.key] != signature) {
+        if (node != null) flow.removeNode(t.key);
+        flow.addNode(
+          _TableNode(
+            id: t.key,
+            position: position,
+            size: size,
+            data: FloorNodeData(t.key),
+            locked: !widget.editable,
+          ),
+        );
+        _shapes[t.key] = signature;
+        continue;
+      }
+      if (node.position.value != position) {
+        flow.setNodePosition(t.key, position);
+      }
+      if (node.size.value != size) flow.setNodeSize(t.key, size);
+    }
+
+    if (widget.editable) {
+      final selected = widget.selected;
+      if (selected == null) {
+        if (flow.selectedNodeIds.isNotEmpty) flow.clearNodeSelection();
+      } else if (!flow.isNodeSelected(selected) &&
+          flow.getNode(selected) != null) {
+        flow.selectNode(selected);
+      }
+    }
+    _content.value++;
+  }
+
+  static bool _round(TableShape shape) =>
+      shape == TableShape.round || shape == TableShape.bar;
+
+  Widget _table(BuildContext context, String key) => ValueListenableBuilder(
+    valueListenable: _content,
+    // Node berbentuk (bulat) membungkus isi dengan Center: isi dipaksa
+    // memenuhi ukuran node agar lingkaran tidak menyusut ke ukuran teks.
+    builder: (context, _, _) {
+      final table = SizedBox.expand(child: widget.tableBuilder(context, key));
+      final onTap = widget.onTap;
+      if (widget.editable || onTap == null) return table;
+      return _QuickTap(onTap: () => onTap(key), child: table);
+    },
+  );
+
+  NodeFlowTheme _theme(BuildContext context) {
+    final colors = context.theme.colors;
+    final dark = colors.brightness == Brightness.dark;
+    final base = dark ? NodeFlowTheme.dark : NodeFlowTheme.light;
+    return base.copyWith(
+      backgroundColor: colors.muted,
+      nodeTheme: base.nodeTheme.copyWith(
+        backgroundColor: Colors.transparent,
+        selectedBackgroundColor: Colors.transparent,
+        highlightBackgroundColor: Colors.transparent,
+        borderColor: Colors.transparent,
+        selectedBorderColor: Colors.transparent,
+        highlightBorderColor: Colors.transparent,
+        borderWidth: 0,
+        selectedBorderWidth: 0,
+        borderRadius: BorderRadius.zero,
+      ),
+      gridTheme: GridTheme(
+        color: colors.border,
+        size: FloorLimits.grid + 0.0,
+        thickness: 1,
+        style: GridStyles.dots,
+      ),
+    );
+  }
+
+  Widget _background(BuildContext context) {
+    final image = widget.image;
+    final bytes = image?.bytes;
+    final colors = context.theme.colors;
+    final Widget content;
+    if (image == null || bytes == null) {
+      content = DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.card,
+          border: Border.all(color: colors.border),
+        ),
+      );
+    } else if (image.isSvg) {
+      content = SvgPicture.memory(bytes, fit: BoxFit.fill);
+    } else {
+      content = Image.memory(bytes, fit: BoxFit.fill, gaplessPlayback: true);
+    }
+    return IgnorePointer(
+      child: Opacity(opacity: widget.opacity, child: content),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    onPointerDown: _press,
+    onPointerUp: _lift,
+    onPointerCancel: _lift,
+    child: _editor(context),
+  );
+
+  Widget _editor(BuildContext context) => NodeFlowEditor<FloorNodeData, void>(
+    controller: _flow,
+    theme: _theme(context),
+    behavior: widget.editable
+        ? NodeFlowBehavior.design
+        : NodeFlowBehavior.preview,
+    nodeBuilder: (context, node) => node.data.background
+        ? _background(context)
+        : _table(context, node.data.key),
+    nodeShapeBuilder: (context, node) {
+      if (node.data.background) return null;
+      final spec = widget.tables.where((t) => t.key == node.id).firstOrNull;
+      return spec != null && _round(spec.shape)
+          ? const CircleShape(
+              fillColor: Colors.transparent,
+              strokeColor: Colors.transparent,
+              strokeWidth: 0,
+            )
+          : null;
+    },
+    events: NodeFlowEvents<FloorNodeData, void>(
+      node: NodeEvents<FloorNodeData>(
+        onSelected: widget.editable
+            ? (node) => widget.onSelect?.call(
+                node == null || node.data.background ? null : node.data.key,
+              )
+            : null,
+        onBeforeDelete: (_) async => false,
+      ),
+    ),
+  );
+}
+
+/// Tombol zoom (+, −, pas layar) di pojok kanvas.
+class FloorZoomControls extends StatelessWidget {
+  const FloorZoomControls({super.key, required this.controller});
+
+  final FloorCanvasController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    Widget button(String key, IconData icon, String label, VoidCallback f) =>
+        FButton.icon(
+          key: ValueKey(key),
+          variant: .outline,
+          semanticsLabel: label,
+          onPress: f,
+          child: Icon(icon, size: 16),
+        );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        button(
+          'floor-zoom-in',
+          TablerIcons.plus,
+          l10n.floorZoomIn,
+          controller.zoomIn,
+        ),
+        button(
+          'floor-zoom-out',
+          TablerIcons.minus,
+          l10n.floorZoomOut,
+          controller.zoomOut,
+        ),
+        button(
+          'floor-zoom-fit',
+          TablerIcons.arrowsMaximize,
+          l10n.floorZoomFit,
+          controller.fit,
+        ),
+      ],
+    );
+  }
+}
+
+/// Isi kotak meja: nama + baris kecil, bentuk bulat untuk meja bulat/bar.
+class FloorTableBox extends StatelessWidget {
+  const FloorTableBox({
+    super.key,
+    required this.name,
+    required this.shape,
+    required this.background,
+    required this.foreground,
+    required this.border,
+    this.detail,
+    this.borderWidth = 1.5,
+  });
+
+  final String name;
+  final String? detail;
+  final TableShape shape;
+  final Color background;
+  final Color foreground;
+  final Color border;
+  final double borderWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final round = shape == TableShape.round || shape == TableShape.bar;
+    final typography = context.theme.typography;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        shape: round ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: round ? null : BorderRadius.circular(8),
+        border: Border.all(color: border, width: borderWidth),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                maxLines: 1,
+                style: typography.body.sm.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: foreground,
+                ),
+              ),
+              if (detail case final d?)
+                Text(
+                  d,
+                  maxLines: 1,
+                  style: typography.body.xs.copyWith(
+                    fontSize: 10,
+                    color: foreground,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Ketuk meja di layar Meja: jari turun lalu naik tanpa bergeser lebih dari
+/// `kTouchSlop` dan tanpa jari kedua. `NodeEvents.onTap` terpicu saat jari
+/// turun (menggeser denah di atas meja ikut membuka meja), sedangkan
+/// pengenal ketuk biasa tertahan ~300 ms oleh pengenal ketuk ganda vyuh.
+/// Posisi diukur global karena meja ikut bergerak saat denah digeser.
+class _QuickTap extends StatefulWidget {
+  const _QuickTap({required this.onTap, required this.child});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  State<_QuickTap> createState() => _QuickTapState();
+}
+
+class _QuickTapState extends State<_QuickTap> {
+  int? _pointer;
+  Offset _start = Offset.zero;
+  var _valid = false;
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    behavior: HitTestBehavior.opaque,
+    onPointerDown: (e) {
+      if (_pointer != null) {
+        _valid = false; // jari kedua: cubit/zoom
+        return;
+      }
+      _pointer = e.pointer;
+      _start = e.position;
+      _valid = true;
+    },
+    onPointerMove: (e) {
+      if (e.pointer == _pointer &&
+          (e.position - _start).distance > kTouchSlop) {
+        _valid = false;
+      }
+    },
+    onPointerUp: (e) {
+      if (e.pointer != _pointer) return;
+      _pointer = null;
+      if (_valid) widget.onTap();
+    },
+    onPointerCancel: (e) {
+      if (e.pointer == _pointer) _pointer = null;
+    },
+    child: widget.child,
+  );
+}

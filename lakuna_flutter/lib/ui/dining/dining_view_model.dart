@@ -13,6 +13,9 @@ import '../products/product_list_view_model.dart' show productMatches;
 /// Dine in (grid meja) atau take away.
 enum DiningMode { dineIn, takeAway }
 
+/// Tampilan dine in: kotak berurutan atau denah (1.7b).
+enum DiningLayout { grid, floor }
+
 /// Status meja di grid 1.7 (dihitung dari bill terbuka).
 enum TableState { empty, open, billRequested }
 
@@ -83,6 +86,8 @@ class DiningViewModel extends ChangeNotifier {
   DiningData? _data;
   DiningMode _mode = DiningMode.dineIn;
   UuidValue? _areaId;
+  DiningLayout? _layout;
+  UuidValue? _floorAreaId;
   UuidValue? _selectedId;
   KitchenSendResult? _ticket;
   Exception? _actionError;
@@ -138,6 +143,12 @@ class DiningViewModel extends ChangeNotifier {
       if (_selectedId != null && _billById(_selectedId!) == null) {
         _selectedId = null;
       }
+      // Bawaan Denah bila ada area mode denah; pilihan diingat.
+      if (floorAreas.isEmpty) {
+        _layout = null;
+      } else {
+        _layout ??= DiningLayout.floor;
+      }
     }
     return result;
   }
@@ -188,6 +199,47 @@ class DiningViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // --- Denah (1.7b) ----------------------------------------------------------
+
+  /// Area mode denah, urut master.
+  List<DiningArea> get floorAreas => [
+    for (final a in areas)
+      if (a.layoutMode == DiningLayoutMode.floor) a,
+  ];
+
+  /// Pilihan Grid / Denah tampil (ada area mode denah).
+  bool get hasFloor => floorAreas.isNotEmpty;
+
+  DiningLayout get layout =>
+      hasFloor ? _layout ?? DiningLayout.floor : DiningLayout.grid;
+
+  void setLayout(DiningLayout l) {
+    if (layout == l) return;
+    _layout = l;
+    notifyListeners();
+  }
+
+  /// Area denah yang tampil.
+  DiningArea? get floorArea =>
+      floorAreas.where((a) => a.id == _floorAreaId).firstOrNull ??
+      floorAreas.firstOrNull;
+
+  void setFloorArea(UuidValue id) {
+    _floorAreaId = id;
+    notifyListeners();
+  }
+
+  FloorImage? floorImage(DiningArea area) => _data?.floorImages[area.id];
+
+  /// Meja area [area] yang sudah / belum punya posisi.
+  List<DiningTable> floorTables(DiningArea area, {required bool placed}) => [
+    for (final t in tables)
+      if (t.diningAreaId == area.id && (t.posX != null) == placed) t,
+  ];
+
+  /// Boleh *Atur denah* (`settings:manage`).
+  bool get canArrange => _data?.canArrange ?? false;
 
   /// Area terpilih; `null` = semua meja.
   UuidValue? get areaId => _areaId;

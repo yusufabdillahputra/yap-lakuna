@@ -1,0 +1,9 @@
+### Bentuk meja di denah (F1-10 v0.14.0).
+enum: TableShape
+serialized: byName
+default: square
+values:
+  - round
+  - square
+  - long
+  - bar

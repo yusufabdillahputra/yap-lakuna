@@ -13,8 +13,10 @@
 import 'dart:async' as _ida;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'package:serverpod_database/serverpod_database.dart' as _isd;
+import '../dining/table_shape.dart' as _ijxcpzcj;
 
-/// Meja F&B per cabang (F1-10). Posisi denah menyusul (v0.14.0).
+/// Meja F&B per cabang (F1-10). Posisi, ukuran, dan bentuk di denah dalam
+/// satuan dunia denah (lebar 800); `pos_x`/`pos_y` kosong = belum ditempatkan.
 abstract class DiningTable
     implements _isd.TableRow<_isc.UuidValue>, _isc.ProtocolSerialization {
   DiningTable._({
@@ -25,6 +27,12 @@ abstract class DiningTable
     required this.name,
     int? seats,
     int? sortOrder,
+    _ijxcpzcj.TableShape? shape,
+    this.posX,
+    this.posY,
+    int? width,
+    int? height,
+    bool? canMerge,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -36,6 +44,10 @@ abstract class DiningTable
   }) : id = id ?? const _isc.Uuid().v7obj(),
        seats = seats ?? 4,
        sortOrder = sortOrder ?? 0,
+       shape = shape ?? _ijxcpzcj.TableShape.square,
+       width = width ?? 80,
+       height = height ?? 80,
+       canMerge = canMerge ?? false,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -48,6 +60,12 @@ abstract class DiningTable
     required String name,
     int? seats,
     int? sortOrder,
+    _ijxcpzcj.TableShape? shape,
+    int? posX,
+    int? posY,
+    int? width,
+    int? height,
+    bool? canMerge,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -77,6 +95,18 @@ abstract class DiningTable
       name: jsonSerialization['name'] as String,
       seats: jsonSerialization['seats'] as int?,
       sortOrder: jsonSerialization['sortOrder'] as int?,
+      shape: jsonSerialization['shape'] == null
+          ? null
+          : _ijxcpzcj.TableShape.fromJson(
+              (jsonSerialization['shape'] as String),
+            ),
+      posX: jsonSerialization['posX'] as int?,
+      posY: jsonSerialization['posY'] as int?,
+      width: jsonSerialization['width'] as int?,
+      height: jsonSerialization['height'] as int?,
+      canMerge: jsonSerialization['canMerge'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['canMerge']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -125,6 +155,18 @@ abstract class DiningTable
 
   int sortOrder;
 
+  _ijxcpzcj.TableShape shape;
+
+  int? posX;
+
+  int? posY;
+
+  int width;
+
+  int height;
+
+  bool canMerge;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -155,6 +197,12 @@ abstract class DiningTable
     String? name,
     int? seats,
     int? sortOrder,
+    _ijxcpzcj.TableShape? shape,
+    int? posX,
+    int? posY,
+    int? width,
+    int? height,
+    bool? canMerge,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -175,6 +223,12 @@ abstract class DiningTable
       'name': name,
       'seats': seats,
       'sortOrder': sortOrder,
+      'shape': shape.toJson(),
+      if (posX != null) 'posX': posX,
+      if (posY != null) 'posY': posY,
+      'width': width,
+      'height': height,
+      'canMerge': canMerge,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -197,6 +251,12 @@ abstract class DiningTable
       'name': name,
       'seats': seats,
       'sortOrder': sortOrder,
+      'shape': shape.toJson(),
+      if (posX != null) 'posX': posX,
+      if (posY != null) 'posY': posY,
+      'width': width,
+      'height': height,
+      'canMerge': canMerge,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -236,6 +296,8 @@ abstract class DiningTable
   }
 }
 
+class _Undefined {}
+
 class _DiningTableImpl extends DiningTable {
   _DiningTableImpl({
     _isc.UuidValue? id,
@@ -245,6 +307,12 @@ class _DiningTableImpl extends DiningTable {
     required String name,
     int? seats,
     int? sortOrder,
+    _ijxcpzcj.TableShape? shape,
+    int? posX,
+    int? posY,
+    int? width,
+    int? height,
+    bool? canMerge,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -261,6 +329,12 @@ class _DiningTableImpl extends DiningTable {
          name: name,
          seats: seats,
          sortOrder: sortOrder,
+         shape: shape,
+         posX: posX,
+         posY: posY,
+         width: width,
+         height: height,
+         canMerge: canMerge,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -283,6 +357,12 @@ class _DiningTableImpl extends DiningTable {
     String? name,
     int? seats,
     int? sortOrder,
+    _ijxcpzcj.TableShape? shape,
+    Object? posX = _Undefined,
+    Object? posY = _Undefined,
+    int? width,
+    int? height,
+    bool? canMerge,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -302,6 +382,12 @@ class _DiningTableImpl extends DiningTable {
       name: name ?? this.name,
       seats: seats ?? this.seats,
       sortOrder: sortOrder ?? this.sortOrder,
+      shape: shape ?? this.shape,
+      posX: posX is int? ? posX : this.posX,
+      posY: posY is int? ? posY : this.posY,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      canMerge: canMerge ?? this.canMerge,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -358,6 +444,38 @@ class DiningTableUpdateTable extends _isd.UpdateTable<DiningTableTable> {
 
   _isd.ColumnValue<int, int> sortOrder(int value) => _isd.ColumnValue(
     table.sortOrder,
+    value,
+  );
+
+  _isd.ColumnValue<_ijxcpzcj.TableShape, _ijxcpzcj.TableShape> shape(
+    _ijxcpzcj.TableShape value,
+  ) => _isd.ColumnValue(
+    table.shape,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> posX(int? value) => _isd.ColumnValue(
+    table.posX,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> posY(int? value) => _isd.ColumnValue(
+    table.posY,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> width(int value) => _isd.ColumnValue(
+    table.width,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> height(int value) => _isd.ColumnValue(
+    table.height,
+    value,
+  );
+
+  _isd.ColumnValue<bool, bool> canMerge(bool value) => _isd.ColumnValue(
+    table.canMerge,
     value,
   );
 
@@ -444,6 +562,38 @@ class DiningTableTable extends _isd.Table<_isc.UuidValue> {
       hasDefault: true,
       fieldName: 'sortOrder',
     );
+    shape = _isd.ColumnEnum(
+      'shape',
+      this,
+      _isd.EnumSerialization.byName,
+      hasDefault: true,
+    );
+    posX = _isd.ColumnInt(
+      'pos_x',
+      this,
+      fieldName: 'posX',
+    );
+    posY = _isd.ColumnInt(
+      'pos_y',
+      this,
+      fieldName: 'posY',
+    );
+    width = _isd.ColumnInt(
+      'width',
+      this,
+      hasDefault: true,
+    );
+    height = _isd.ColumnInt(
+      'height',
+      this,
+      hasDefault: true,
+    );
+    canMerge = _isd.ColumnBool(
+      'can_merge',
+      this,
+      hasDefault: true,
+      fieldName: 'canMerge',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -501,6 +651,18 @@ class DiningTableTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnInt sortOrder;
 
+  late final _isd.ColumnEnum<_ijxcpzcj.TableShape> shape;
+
+  late final _isd.ColumnInt posX;
+
+  late final _isd.ColumnInt posY;
+
+  late final _isd.ColumnInt width;
+
+  late final _isd.ColumnInt height;
+
+  late final _isd.ColumnBool canMerge;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -526,6 +688,12 @@ class DiningTableTable extends _isd.Table<_isc.UuidValue> {
     name,
     seats,
     sortOrder,
+    shape,
+    posX,
+    posY,
+    width,
+    height,
+    canMerge,
     createdAt,
     updatedAt,
     deletedAt,

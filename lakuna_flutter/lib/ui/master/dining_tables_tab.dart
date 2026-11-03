@@ -37,9 +37,12 @@ TextStyle _muted(BuildContext context) => context.theme.typography.body.xs
 
 /// Tab Master data › Meja & area (F1-10, izin `settings:manage`).
 class DiningTablesTab extends StatefulWidget {
-  const DiningTablesTab({super.key, required this.viewModel});
+  const DiningTablesTab({super.key, required this.viewModel, this.onArrange});
 
   final DiningSetupViewModel viewModel;
+
+  /// *Atur denah* area (1.7d).
+  final void Function(UuidValue area)? onArrange;
 
   @override
   State<DiningTablesTab> createState() => _DiningTablesTabState();
@@ -231,10 +234,23 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
                         row(
                           key: 'dining-setup-area-${a.name}',
                           title: a.name,
-                          subtitle: l10n.diningSetupAreaTables(
-                            tables.where((t) => t.diningAreaId == a.id).length,
-                          ),
+                          subtitle: [
+                            l10n.diningSetupAreaTables(
+                              tables
+                                  .where((t) => t.diningAreaId == a.id)
+                                  .length,
+                            ),
+                            if (a.layoutMode == DiningLayoutMode.floor)
+                              l10n.diningLayoutFloor,
+                          ].join(' · '),
                           actions: [
+                            if (widget.onArrange case final arrange?)
+                              iconButton(
+                                'dining-setup-area-floor-${a.name}',
+                                TablerIcons.layoutBoardSplit,
+                                l10n.diningArrange,
+                                () => arrange(a.id),
+                              ),
                             iconButton(
                               'dining-setup-area-up-${a.name}',
                               TablerIcons.arrowUp,
