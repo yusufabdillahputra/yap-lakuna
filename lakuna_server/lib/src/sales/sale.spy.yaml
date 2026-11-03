@@ -21,6 +21,26 @@ fields:
   ### Jumlah baris item.
   itemCount: int, column=item_count
   soldAt: DateTime, column=sold_at
+  ### F&B (F1-10). Open bill memakai nomor bill `OB-…` di [number] sampai
+  ### lunas; nomor bill tetap di [billNumber].
+  orderType: OrderType, default=retail, column=order_type
+  diningTableId: UuidValue?, relation(parent=dining_tables, onDelete=Restrict), column=dining_table_id
+  billNumber: String?, column=bill_number
+  ### Nomor take away harian per perangkat (`TA-07`).
+  queueNumber: int?, column=queue_number
+  customerName: String?, column=customer_name
+  guestCount: int?, column=guest_count
+  openedBy: UuidValue?, column=opened_by
+  openedAt: DateTime?, column=opened_at
+  billRequestedAt: DateTime?, column=bill_requested_at
+  ### Tarif dan nominal service/PB1, dibekukan saat lunas.
+  serviceBp: int, default=0, column=service_bp
+  taxBp: int, default=0, column=tax_bp
+  serviceAmount: int, default=0, column=service_amount
+  taxAmount: int, default=0, column=tax_amount
+  voidReason: String?, column=void_reason
+  voidedBy: UuidValue?, column=voided_by
+  voidedAt: DateTime?, column=voided_at
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at
@@ -37,3 +57,5 @@ indexes:
     fields: cashSessionId
   sales_outlet_sold_idx:
     fields: outletId, soldAt
+  sales_outlet_status_idx:
+    fields: outletId, status

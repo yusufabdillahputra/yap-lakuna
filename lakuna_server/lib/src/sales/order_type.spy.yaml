@@ -1,0 +1,7 @@
+### Jenis pesanan (F1-10): penjualan kasir retail, dine in (meja), take away.
+enum: OrderType
+serialized: byName
+values:
+  - retail
+  - dineIn
+  - takeAway

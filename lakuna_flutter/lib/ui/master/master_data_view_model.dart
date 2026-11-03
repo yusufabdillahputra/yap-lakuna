@@ -8,7 +8,7 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 
 /// Tab layar Master data (1.17) di v0.10.0.
-enum MasterTab { categories, units, locations, payments }
+enum MasterTab { categories, units, locations, payments, tables }
 
 /// View model layar Master data (F1-09): kategori, satuan, lokasi (baca),
 /// metode bayar (tautan).

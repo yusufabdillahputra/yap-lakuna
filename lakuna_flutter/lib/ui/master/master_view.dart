@@ -6,12 +6,15 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/dining_admin_repository.dart';
 import '../../data/repositories/master_data_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
 import '../products/product_widgets.dart';
+import 'dining_setup_view_model.dart';
+import 'dining_tables_tab.dart';
 import 'master_data_view_model.dart';
 
 /// Layar *Master data* (1.17, F1-09). Memiliki [MasterDataViewModel].
@@ -20,10 +23,14 @@ class MasterDataScreen extends StatefulWidget {
     super.key,
     required this.repository,
     required this.session,
+    this.diningAdmin,
   });
 
   final MasterDataRepository repository;
   final SessionRepository session;
+
+  /// Meja & area (F1-10); tab tampil untuk staf dengan `settings:manage`.
+  final DiningAdminRepository? diningAdmin;
 
   @override
   State<MasterDataScreen> createState() => _MasterDataScreenState();
@@ -31,16 +38,23 @@ class MasterDataScreen extends StatefulWidget {
 
 class _MasterDataScreenState extends State<MasterDataScreen> {
   late final _viewModel = MasterDataViewModel(repository: widget.repository);
+  DiningSetupViewModel? _dining;
 
   @override
   void initState() {
     super.initState();
     _viewModel.load.execute();
+    final admin = widget.diningAdmin;
+    if (admin != null &&
+        (widget.session.current?.can(Permission.settingsManage) ?? false)) {
+      _dining = DiningSetupViewModel(repository: admin)..load.execute();
+    }
   }
 
   @override
   void dispose() {
     _viewModel.dispose();
+    _dining?.dispose();
     super.dispose();
   }
 
@@ -51,6 +65,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
       viewModel: _viewModel,
       canManageStock: staff?.can(Permission.stockAdjust) ?? false,
       canManageSettings: staff?.can(Permission.settingsManage) ?? false,
+      dining: _dining,
     );
   }
 }
@@ -61,11 +76,20 @@ class MasterDataView extends StatelessWidget {
     required this.viewModel,
     this.canManageStock = false,
     this.canManageSettings = false,
+    this.dining,
   });
 
   final MasterDataViewModel viewModel;
   final bool canManageStock;
   final bool canManageSettings;
+
+  /// Tab Meja & area; `null` = tab tidak tampil.
+  final DiningSetupViewModel? dining;
+
+  List<MasterTab> get _tabs => [
+    for (final t in MasterTab.values)
+      if (t != MasterTab.tables || dining != null) t,
+  ];
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -108,6 +132,10 @@ class MasterDataView extends StatelessWidget {
             canManage: canManageStock,
           ),
           MasterTab.payments => _PaymentsTab(canManage: canManageSettings),
+          MasterTab.tables => switch (dining) {
+            final d? => DiningTablesTab(viewModel: d),
+            null => const SizedBox.shrink(),
+          },
         };
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -121,12 +149,15 @@ class MasterDataView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 16,
                   children: [
-                    SizedBox(width: 220, child: _SideTabs(viewModel: vm)),
+                    SizedBox(
+                      width: 220,
+                      child: _SideTabs(viewModel: vm, tabs: _tabs),
+                    ),
                     Expanded(child: content),
                   ],
                 )
               else ...[
-                _TabPills(viewModel: vm),
+                _TabPills(viewModel: vm, tabs: _tabs),
                 content,
               ],
             ],
@@ -142,6 +173,7 @@ String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
   MasterTab.units => l10n.masterTabUnits,
   MasterTab.locations => l10n.masterTabLocations,
   MasterTab.payments => l10n.masterTabPayments,
+  MasterTab.tables => l10n.masterTabTables,
 };
 
 IconData _tabIcon(MasterTab tab) => switch (tab) {
@@ -149,6 +181,7 @@ IconData _tabIcon(MasterTab tab) => switch (tab) {
   MasterTab.units => TablerIcons.ruler2,
   MasterTab.locations => TablerIcons.buildingWarehouse,
   MasterTab.payments => TablerIcons.creditCard,
+  MasterTab.tables => TablerIcons.armchair,
 };
 
 TextStyle _muted(BuildContext context) => context.theme.typography.body.xs
@@ -158,9 +191,10 @@ TextStyle _errorStyle(BuildContext context) => context.theme.typography.body.xs
     .copyWith(color: context.theme.colors.destructive);
 
 class _SideTabs extends StatelessWidget {
-  const _SideTabs({required this.viewModel});
+  const _SideTabs({required this.viewModel, required this.tabs});
 
   final MasterDataViewModel viewModel;
+  final List<MasterTab> tabs;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +206,7 @@ class _SideTabs extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 2,
           children: [
-            for (final tab in MasterTab.values)
+            for (final tab in tabs)
               FItem(
                 key: ValueKey('master-tab-${tab.name}'),
                 prefix: Icon(_tabIcon(tab), size: 18),
@@ -188,9 +222,10 @@ class _SideTabs extends StatelessWidget {
 }
 
 class _TabPills extends StatelessWidget {
-  const _TabPills({required this.viewModel});
+  const _TabPills({required this.viewModel, required this.tabs});
 
   final MasterDataViewModel viewModel;
+  final List<MasterTab> tabs;
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +235,7 @@ class _TabPills extends StatelessWidget {
       child: Row(
         spacing: 8,
         children: [
-          for (final tab in MasterTab.values)
+          for (final tab in tabs)
             ChoicePill(
               key: ValueKey('master-pill-${tab.name}'),
               label: _tabLabel(l10n, tab),

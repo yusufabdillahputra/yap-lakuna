@@ -7,6 +7,7 @@ library;
 export 'src/cash_session.dart';
 export 'src/catalog.dart';
 export 'src/credentials.dart';
+export 'src/dining.dart';
 export 'src/document_number.dart';
 export 'src/escpos.dart';
 export 'src/hlc.dart';

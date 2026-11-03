@@ -237,13 +237,22 @@ jobs:
   publish:
     name: Tag + GitHub Release
     needs: [prepare, linux, windows, macos, android, ios]
-    if: needs.prepare.outputs.release == 'true'
+    # Runner macOS GitHub-hosted kadang tidak pernah didapat (job batal);
+    # rilis tetap terbit bila Linux, Windows, dan Android berhasil, dengan
+    # catatan installer Apple yang menyusul.
+    if: >-
+      always() && needs.prepare.outputs.release == 'true' &&
+      needs.linux.result == 'success' &&
+      needs.windows.result == 'success' &&
+      needs.android.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
       GH_TOKEN: ${{ github.token }}
+      MACOS_RESULT: ${{ needs.macos.result }}
+      IOS_RESULT: ${{ needs.ios.result }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -266,6 +275,13 @@ jobs:
           > sementara. Memperbarui ke versi berikutnya mengharuskan uninstall, yang
           > menghapus data di perangkat. Jangan dipakai untuk data toko sungguhan.
           NOTE
+          fi
+          missing=()
+          [ "$MACOS_RESULT" = success ] || missing+=("macOS .dmg")
+          [ "$IOS_RESULT" = success ] || missing+=("iOS .ipa")
+          if [ ${#missing[@]} -gt 0 ]; then
+            list="$(printf '%s, ' "${missing[@]}")"; list="${list%, }"
+            printf '\n> **Installer belum tersedia:** %s (runner GitHub gagal\n> didapat). Versi berikutnya menyertakannya kembali.\n' "$list" >> notes.md
           fi
           cat notes.md
       - name: Terbitkan

@@ -7,6 +7,120 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-03
+
+Meja F&B dan open bill (F1-10 bagian pertama, layar 1.7 dan 1.7e). Warung
+makan dan kafe bisa membuka meja, mencatat pesanan, mengirim tiket ke
+dapur, lalu menutup dan membayar bill dengan service charge dan PB1.
+
+### Ditambahkan
+
+- **Menu Meja** (`/meja`, izin `open_bills:manage`) di kelompok
+  *Penjualan* setelah Kasir:
+  - Subjudul "Pelayan: {staf} · {n} dari {m} meja terisi", pilihan
+    **Dine in / Take away**, legenda *Kosong / Terisi · open bill / Minta
+    bill*, tab area (*Semua* + setiap area).
+  - Kartu meja: nama, jumlah tamu, total bill, lama duduk, warna sesuai
+    status. Membuka meja kosong menanyakan jumlah tamu (bawaan = kursi
+    meja, 1–99).
+  - **Take away** bernomor `TA-01`, `TA-02`, … per hari per perangkat,
+    dengan nama pemesan opsional, badge *Baru / Di dapur / Siap ambil*,
+    dan *Hapus bill kosong*. *Take away baru* memakai ulang take away
+    kosong sehingga nomor tidak terbuang.
+  - **Panel bill** (kanan 400 px di layar lebar, satu halaman dengan tombol
+    kembali di ponsel): item dengan jumlah, catatan, badge *Baru / Di
+    dapur / Disajikan*; item *Baru* bisa ditambah, dikurangi, dihapus;
+    item di dapur bisa *Tandai disajikan*. Subtotal, *Service X% (dine
+    in)*, *PB1 Y%*, Total.
+  - **+ Menu**: lembar pilih menu dengan pencarian, chip kategori, dan
+    catatan dapur untuk item berikutnya ("tanpa es").
+  - **Kirim ke dapur (n item baru)**: menyimpan item, membuat tiket
+    `K-0001` (urut per hari per perangkat), lalu menampilkan pratinjau
+    *TIKET DAPUR* monospace tanpa harga dengan tombol *Cetak tiket* ke
+    printer struk perangkat.
+  - **Minta bill** / *Batal minta bill* (dine in), **Pindah meja** ke meja
+    kosong, **Batalkan bill** dengan alasan wajib (izin `sales:void`).
+  - **Tutup & bayar** membuka layar Bayar yang sama dengan kasir
+    (`/kasir?bill=…`) dengan total bill. Semua metode bayar bisa dipakai.
+    Setelah lunas ada tombol **Kembali ke meja**; *Kembali* dari tahap
+    bayar mengembalikan ke bill yang masih terbuka.
+- **Master data › Meja & area** (izin `settings:manage`): tambah, ganti
+  nama, urutkan, dan hapus area (ditolak bila masih punya meja); tambah,
+  ubah, urutkan, dan hapus meja (ditolak bila masih ada bill terbuka);
+  **Tambah beberapa** membuat M1–M12 sekaligus dengan pratinjau nama.
+- **Pengaturan › Pajak & service** per cabang: service charge 0–30% dan
+  PB1 0–20% dengan kelipatan 0,5%, pratinjau contoh dine in Rp 100.000,
+  dan tombol *Simpan tarif* yang aktif hanya bila ada perubahan sah.
+- **Struk** open bill mencantumkan baris *Pesanan* (Meja M4 / TA-01),
+  *Subtotal*, *Service 5%*, dan *PB1 10%*.
+
+### Diubah
+
+- Layar Kasir bisa dibuka dalam mode bill (`/kasir?bill=<id>`): langsung ke
+  tahap Bayar dengan subjudul "Meja M4 · 2 item" dan rincian bill hanya
+  baca (item, subtotal, service, PB1, total). Bill yang tidak ditemukan
+  atau masih kosong menampilkan pesan dan tombol *Kembali ke meja*; tombol
+  yang sama muncul bila sesi kasir belum dibuka.
+- Inti penjualan (`sale_core.dart`) dipisah dari `sales.dart` agar kasir
+  retail dan bayar open bill memakai jalur nomor nota, pembayaran, dan
+  pergerakan stok yang sama.
+
+### Diperbaiki
+
+- Tombol *Tambah beberapa* dan *Tambah meja* meluap 228 px di ponsel 360 px
+  saat berada di judul kartu; kini berada di bawah judul.
+- Baris aksi item bill, pil mode, legenda, kartu take away, dan kartu menu
+  tidak lagi meluap di 360 px (termasuk saat dialog beranimasi).
+- Tes sidebar desktop menggulir daftar menu yang dibangun malas, sehingga
+  menu baru tidak mendorong entri terakhir keluar dari pemeriksaan.
+- Temuan review sebelum rilis:
+  - *Take away baru* yang memakai ulang take away kosong kini menghapus
+    nama pemesan lama bila pesanan baru tanpa nama (sebelumnya tiket dan
+    struk tetap atas nama pemesan sebelumnya).
+  - Panjang nama pemesan, catatan dapur, dan alasan batal dihitung per
+    karakter (emoji tidak lagi ditolak padahal lolos di kolom isian).
+  - Galat aksi bill lama tidak ikut tampil saat lembar *+ Menu* dibuka.
+  - Pencarian meja dan varian saat memuat dan membayar bill dibatasi
+    `tenant_id`.
+
+### Keamanan
+
+- Setiap aksi bill dicek di repositori: `open_bills:manage` untuk semua
+  aksi, `sales:create` untuk bayar, `sales:void` untuk batal,
+  `settings:manage` untuk meja, area, dan tarif. Pelayan tidak melihat
+  tombol batal dan tombol bayar diganti catatan "Pembayaran oleh kasir".
+
+### Catatan teknis
+
+- Migrasi `meja`: tabel `dining_areas`, `dining_tables`, `kitchen_tickets`;
+  `sales` mendapat `order_type`, `dining_table_id`, `bill_number`,
+  `queue_number`, `customer_name`, `guest_count`, `opened_by`, `opened_at`,
+  `bill_requested_at`, `service_bp`, `tax_bp`, `service_amount`,
+  `tax_amount`, `void_reason`, `voided_by`, `voided_at`; `sale_items`
+  mendapat `kitchen_status`, `kitchen_ticket_id`, `note`. Semua kolom baru
+  nullable atau berbawaan. Diuji manual dengan membuka data v0.10.0.
+- Open bill adalah baris `sales` berstatus `open` dengan nomor
+  `OB-<outlet>-<perangkat>-<yymmdd>-<nnnn>`; saat lunas `number` diganti
+  nomor nota biasa dan nomor bill tetap di `bill_number`. Stok keluar
+  sekali saat lunas, tidak saat dikirim ke dapur.
+- Aturan tarif di `lakuna_domain` (`fnbCharges`, `validateFnbRate`,
+  `FnbLimits`): service = subtotal × tarif (hanya dine in), PB1 =
+  (subtotal + service) × tarif, dibulatkan setengah ke atas ke rupiah.
+  Tarif disimpan di `settings` (`fnb.service_bp`, `fnb.tax_bp`, basis
+  poin) per cabang.
+- Data di `lakuna_data/open_bill.dart` dan `dining_admin.dart`, semua tulis
+  lewat `LakunaStore.write` + `SyncTx` sehingga masuk outbox sync.
+- Tes baru: domain (tarif, nomor), data (open bill, meja & area), view
+  model dan widget (alur meja tablet, bayar, pindah, batal, pelayan, take
+  away 360/820 px, ponsel + tombol kembali sistem, tab Meja & area, Pajak
+  & service).
+- Tunda ke rilis berikutnya: modifier (v0.12.0), split bill (v0.13.0),
+  denah `vyuh_node_flow` (v0.14.0).
+- `release.yml`: GitHub Release tetap terbit bila installer Linux, Windows,
+  dan Android berhasil walau runner macOS tidak didapat (rilis v0.9.0
+  tertahan karena job macOS dua kali batal). Catatan rilis menyebut
+  installer Apple yang belum tersedia.
+
 ## [0.10.0] - 2026-11-03
 
 Master data (F1-09, layar 1.17). Pemilik merapikan kategori yang terbentuk
@@ -996,7 +1110,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...v0.8.0

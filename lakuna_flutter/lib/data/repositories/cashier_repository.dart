@@ -106,4 +106,15 @@ abstract class CashierRepository {
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
   });
+
+  /// Open bill F1-10 yang akan dibayar. Gagal dengan `NotPermitted` atau
+  /// `BillNotFound`.
+  Future<Result<OpenBill>> loadBill(UuidValue billId);
+
+  /// *Tutup & bayar* open bill [billId]. Galat sama dengan [checkout];
+  /// bill tanpa item → `SaleEmpty`.
+  Future<Result<CheckoutResult>> payBill(
+    UuidValue billId,
+    List<SalePaymentRequest> payments,
+  );
 }

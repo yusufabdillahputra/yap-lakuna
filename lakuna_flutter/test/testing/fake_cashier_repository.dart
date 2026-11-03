@@ -5,6 +5,7 @@ import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
 import 'fake_catalog_repository.dart';
+import 'fake_dining_repository.dart';
 
 UuidValue _id() => UuidValue.fromString(newId());
 
@@ -18,7 +19,12 @@ class FakeCashierRepository extends CashierRepository {
     this.qris,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
+    this.dining,
   }) : catalog = FakeCatalogRepository(seed: seed);
+
+  /// Sumber open bill untuk mode bill (F1-10).
+  FakeDiningRepository? dining;
+  final paidBills = <(UuidValue, List<SalePaymentRequest>)>[];
 
   final FakeCatalogRepository catalog;
   bool sessionOpen;
@@ -240,6 +246,91 @@ class FakeCashierRepository extends CashierRepository {
             ),
         ],
         negativeStock: negative,
+      ),
+    );
+  }
+
+  @override
+  Future<Result<OpenBill>> loadBill(UuidValue billId) async {
+    if (_check() case final e?) return Result.error(e);
+    final d = dining;
+    if (d == null) return Result.error(BillNotFound());
+    try {
+      return Result.ok(d.bill(billId));
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<CheckoutResult>> payBill(
+    UuidValue billId,
+    List<SalePaymentRequest> payments,
+  ) async {
+    if (_check() case final e?) return Result.error(e);
+    if (!sessionOpen) return Result.error(CashSessionNotOpen());
+    final d = dining;
+    if (d == null) return Result.error(BillNotFound());
+    final OpenBill bill;
+    try {
+      bill = d.bill(billId);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+    if (bill.items.isEmpty) return Result.error(SaleEmpty());
+    final total = bill.charges.total;
+    final single = payments.length == 1;
+    final amounts = [
+      for (final p in payments)
+        p.amount ?? (single && !p.isCash ? total : Money.zero),
+    ];
+    final settlement = settleTender(total, [
+      for (final (i, p) in payments.indexed)
+        TenderPart(amounts[i], isCash: p.isCash),
+    ]);
+    if (settlement.error == TenderError.short ||
+        (single && payments.single.isCash && !settlement.isSettled)) {
+      return Result.error(
+        SalePaymentShort(total: total, received: settlement.paid),
+      );
+    }
+    paidBills.add((billId, payments));
+    d.markPaid(billId);
+    _counter++;
+    final now = DateTime.utc(2026, 11, 3, 6, 0);
+    final sale = bill.sale.copyWith(
+      number: 'PST-K01-261103-${_counter.toString().padLeft(4, '0')}',
+      billNumber: bill.sale.number,
+      status: SaleStatus.completed,
+      cashSessionId: _session,
+      subtotal: bill.charges.subtotal.value,
+      serviceBp: bill.rates.service.value,
+      taxBp: bill.rates.tax.value,
+      serviceAmount: bill.charges.service.value,
+      taxAmount: bill.charges.tax.value,
+      total: total.value,
+      paidAmount: total.value,
+      changeAmount: settlement.change.value,
+      soldAt: now,
+    );
+    return Result.ok(
+      CheckoutResult(
+        sale: sale,
+        items: bill.items,
+        payments: [
+          for (final (i, payment) in payments.indexed)
+            Payment(
+              tenantId: _tenant,
+              saleId: sale.id,
+              method: payment.method,
+              amount: amounts[i].value,
+              changeAmount: payment.isCash ? settlement.change.value : 0,
+              status: PaymentStatus.paid,
+              paidAt: now,
+              hlc: '',
+            ),
+        ],
+        negativeStock: const [],
       ),
     );
   }

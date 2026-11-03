@@ -112,12 +112,46 @@ class _Item {
   Qty quantity;
 }
 
+/// Semua varian × satuan [product]. Satuan dasar hanya disebut bila
+/// produk punya satuan konversi, agar pilihan bisa dibedakan.
+List<SaleOption> saleOptionsFor(CatalogProduct product) {
+  final hasUnits = product.variants.any((v) => v.units.isNotEmpty);
+  return [
+    for (final v in product.variants) ...[
+      SaleOption(
+        product: product,
+        variant: v,
+        label: _optionLabel(v.name, hasUnits ? product.baseUnit : null),
+        price: v.sellPrice,
+      ),
+      for (final u in v.units)
+        SaleOption(
+          product: product,
+          variant: v,
+          unit: u,
+          label: _optionLabel(v.name, '${u.name} (${u.factor.format()})'),
+          price: conversionSellPrice(
+            variantPrice: v.sellPrice,
+            factor: u.factor,
+            unitPrice: u.sellPrice,
+          ),
+        ),
+    ],
+  ];
+}
+
+String _optionLabel(String variant, String? unit) => [
+  if (variant.trim().isNotEmpty) variant.trim(),
+  ?unit,
+].join(' · ');
+
 /// View model kasir retail (1.4 / 1.11) dan bayar (1.5 / 1.5c), F1-04/F1-05.
 /// Keranjang hidup selama layar kasir terbuka; bayar adalah tahap di layar
 /// yang sama agar keranjang tidak hilang.
 class CashierViewModel extends ChangeNotifier {
   CashierViewModel({required this._repository, required this._printer}) {
     load = Command0(_load)..addListener(notifyListeners);
+    openBill = Command1(_openBill)..addListener(notifyListeners);
     pay = Command0(_pay)..addListener(notifyListeners);
     printReceipt = Command1(_printReceipt)..addListener(notifyListeners);
     shareReceipt = Command1(_shareReceipt)..addListener(notifyListeners);
@@ -133,6 +167,9 @@ class CashierViewModel extends ChangeNotifier {
   final ReceiptPrinter _printer;
 
   late final Command0<CashierData> load;
+
+  /// Mode bill (F1-10): memuat open bill lalu langsung ke tahap bayar.
+  late final Command1<OpenBill, UuidValue> openBill;
   late final Command0<CheckoutResult> pay;
 
   /// Mencetak baris struk nota terakhir (F1-06).
@@ -142,6 +179,7 @@ class CashierViewModel extends ChangeNotifier {
   late final Command1<String?, List<ReceiptLine>> shareReceipt;
 
   CashierData? _data;
+  OpenBill? _bill;
   String _query = '';
   String? _unknownCode;
   UuidValue? _categoryId;
@@ -225,38 +263,9 @@ class CashierViewModel extends ChangeNotifier {
 
   // --- Pilihan jual --------------------------------------------------------
 
-  /// Semua varian × satuan [product]. Satuan dasar hanya disebut bila
-  /// produk punya satuan konversi, agar pilihan bisa dibedakan.
-  List<SaleOption> optionsFor(CatalogProduct product) {
-    final hasUnits = product.variants.any((v) => v.units.isNotEmpty);
-    return [
-      for (final v in product.variants) ...[
-        SaleOption(
-          product: product,
-          variant: v,
-          label: _label(v.name, hasUnits ? product.baseUnit : null),
-          price: v.sellPrice,
-        ),
-        for (final u in v.units)
-          SaleOption(
-            product: product,
-            variant: v,
-            unit: u,
-            label: _label(v.name, '${u.name} (${u.factor.format()})'),
-            price: conversionSellPrice(
-              variantPrice: v.sellPrice,
-              factor: u.factor,
-              unitPrice: u.sellPrice,
-            ),
-          ),
-      ],
-    ];
-  }
-
-  static String _label(String variant, String? unit) => [
-    if (variant.trim().isNotEmpty) variant.trim(),
-    ?unit,
-  ].join(' · ');
+  /// Semua varian × satuan [product] ([saleOptionsFor]).
+  List<SaleOption> optionsFor(CatalogProduct product) =>
+      saleOptionsFor(product);
 
   /// Menambah [product] bila hanya ada satu pilihan (`true`); selain itu
   /// tampilan perlu menampilkan [optionsFor] (`false`).
@@ -373,6 +382,32 @@ class CashierViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Mode bill (F1-10) --------------------------------------------------
+
+  /// Open bill yang sedang dibayar; `null` = kasir retail biasa.
+  OpenBill? get bill => _bill;
+  bool get billMode => _bill != null;
+
+  Future<Result<OpenBill>> _openBill(UuidValue id) async {
+    final result = await _repository.loadBill(id);
+    if (result case Ok(:final value)) {
+      // Bill kosong (mis. tautan lama) tidak bisa dibayar: tampilkan galat,
+      // jangan jatuh ke keranjang retail dengan mode bill aktif.
+      if (value.items.isEmpty) return Result.error(SaleEmpty());
+      _bill = value;
+      startPayment();
+    }
+    return result;
+  }
+
+  /// Total yang dibayar: total bill (dengan service & PB1) atau keranjang.
+  Money get payTotal => _bill?.charges.total ?? totals.total;
+
+  /// Jumlah baris yang dibayar.
+  int get payLineCount => _bill?.items.length ?? lineCount;
+
+  bool get _nothingToPay => _bill == null ? cartIsEmpty : _bill!.items.isEmpty;
+
   // --- Bayar ---------------------------------------------------------------
 
   CashierStage get stage => _stage;
@@ -400,14 +435,14 @@ class CashierViewModel extends ChangeNotifier {
   /// Galat simpan terakhir (sesi tertutup, produk tidak tersedia, dll.).
   Exception? get error => _error;
 
-  List<Money> get quickAmounts => quickCashAmounts(totals.total);
+  List<Money> get quickAmounts => quickCashAmounts(payTotal);
 
   /// Kembalian tunai, `null` bila uang kurang.
-  Money? get change => cashChange(total: totals.total, received: _received);
+  Money? get change => cashChange(total: payTotal, received: _received);
 
   /// Kekurangan uang tunai (nol bila cukup).
   Money get shortBy {
-    final short = totals.total - _received;
+    final short = payTotal - _received;
     return short.value > 0 ? short : Money.zero;
   }
 
@@ -416,7 +451,7 @@ class CashierViewModel extends ChangeNotifier {
   /// *Selesaikan pembayaran* aktif. QRIS tunggal memakai *Sudah Terbayar*
   /// ([canConfirmQris]), bukan tombol ini.
   bool get canPay =>
-      !cartIsEmpty &&
+      !_nothingToPay &&
       !pay.running &&
       switch (_mode) {
         PayMode.cash => change != null,
@@ -427,10 +462,10 @@ class CashierViewModel extends ChangeNotifier {
 
   /// *Sudah Terbayar* untuk QRIS tunggal aktif.
   bool get canConfirmQris =>
-      !cartIsEmpty && !pay.running && qris != null && canConfirmPayments;
+      !_nothingToPay && !pay.running && qris != null && canConfirmPayments;
 
   void startPayment() {
-    if (cartIsEmpty) return;
+    if (_nothingToPay) return;
     _stage = CashierStage.pay;
     _mode = PayMode.cash;
     _received = Money.zero;
@@ -442,8 +477,15 @@ class CashierViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Dipanggil saat keluar dari mode bill (kembali ke layar Meja).
+  VoidCallback? onLeaveBill;
+
   void backToCart() {
     if (pay.running) return;
+    if (billMode) {
+      onLeaveBill?.call();
+      return;
+    }
     _stage = CashierStage.browse;
     _error = null;
     notifyListeners();
@@ -490,7 +532,7 @@ class CashierViewModel extends ChangeNotifier {
 
   List<SplitPart> get parts => List.unmodifiable(_parts);
 
-  Settlement get splitSettlement => settleTender(totals.total, [
+  Settlement get splitSettlement => settleTender(payTotal, [
     for (final p in _parts) TenderPart(p.amount, isCash: p.isCash),
   ]);
 
@@ -589,17 +631,20 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<CheckoutResult>> _pay() async {
     _error = null;
-    final result = await _repository.checkout(
-      lines: [
-        for (final i in _items)
-          SaleLineRequest(
-            variantId: i.variant.id,
-            productUnitId: i.unit?.id,
-            quantity: i.quantity,
-          ),
-      ],
-      payments: _payments(),
-    );
+    final bill = _bill;
+    final result = bill != null
+        ? await _repository.payBill(bill.id, _payments())
+        : await _repository.checkout(
+            lines: [
+              for (final i in _items)
+                SaleLineRequest(
+                  variantId: i.variant.id,
+                  productUnitId: i.unit?.id,
+                  quantity: i.quantity,
+                ),
+            ],
+            payments: _payments(),
+          );
     switch (result) {
       case Ok(:final value):
         _result = value;
@@ -618,6 +663,10 @@ class CashierViewModel extends ChangeNotifier {
 
   void newTransaction() {
     if (!canStartNewTransaction) return;
+    if (billMode) {
+      onLeaveBill?.call();
+      return;
+    }
     _stage = CashierStage.browse;
     _result = null;
     _error = null;

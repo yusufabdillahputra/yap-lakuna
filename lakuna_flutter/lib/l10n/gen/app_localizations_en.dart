@@ -2178,4 +2178,593 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get masterDeleteCancel => 'Cancel';
+
+  @override
+  String get menuTables => 'Tables';
+
+  @override
+  String billTableLabel(String label) {
+    return 'Table $label';
+  }
+
+  @override
+  String billTakeAwayLabel(String label) {
+    return 'Take away $label';
+  }
+
+  @override
+  String paymentBillLines(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$label · $_temp0';
+  }
+
+  @override
+  String get successBackToTables => 'Back to tables';
+
+  @override
+  String get receiptOrder => 'Order';
+
+  @override
+  String get receiptSubtotal => 'Subtotal';
+
+  @override
+  String receiptService(String pct) {
+    return 'Service $pct';
+  }
+
+  @override
+  String receiptTax(String pct) {
+    return 'PB1 $pct';
+  }
+
+  @override
+  String get cashierBillLoadFailed =>
+      'Could not open the bill. It may already be paid or voided.';
+
+  @override
+  String get cashierBillBack => 'Back to tables';
+
+  @override
+  String get diningTitle => 'Tables';
+
+  @override
+  String diningSubtitle(String staff, int occupied, int total) {
+    return 'Server: $staff · $occupied of $total tables occupied';
+  }
+
+  @override
+  String get diningDineIn => 'Dine in';
+
+  @override
+  String get diningTakeAway => 'Take away';
+
+  @override
+  String get diningLegendEmpty => 'Empty';
+
+  @override
+  String get diningLegendOpen => 'Occupied · open bill';
+
+  @override
+  String get diningLegendRequested => 'Bill requested';
+
+  @override
+  String get diningAllAreas => 'All';
+
+  @override
+  String get diningNoArea => 'No area';
+
+  @override
+  String get diningNoTables =>
+      'No tables yet. Add them in Master data › Tables & areas.';
+
+  @override
+  String diningSeats(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats',
+      one: '1 seat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String diningMinutes(int m) {
+    return '$m min';
+  }
+
+  @override
+  String diningHours(int h, int m) {
+    return '$h h $m min';
+  }
+
+  @override
+  String diningDays(int d) {
+    String _temp0 = intl.Intl.pluralLogic(
+      d,
+      locale: localeName,
+      other: '$d days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diningTakeAwayNew => 'New take away';
+
+  @override
+  String get diningTakeAwayNone => 'No open take away orders.';
+
+  @override
+  String diningTakeAwayItems(int count, String time) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0 · $time';
+  }
+
+  @override
+  String get diningStatusNew => 'New';
+
+  @override
+  String get diningStatusKitchen => 'In kitchen';
+
+  @override
+  String get diningStatusServed => 'Served';
+
+  @override
+  String get diningStatusReady => 'Ready';
+
+  @override
+  String get diningStatusEmpty => 'Empty';
+
+  @override
+  String get diningDeleteEmpty => 'Delete empty bill';
+
+  @override
+  String get diningSelectHint =>
+      'Select a table or take away order to see its bill.';
+
+  @override
+  String diningBillTableTitle(String label) {
+    return 'Table $label · Open bill';
+  }
+
+  @override
+  String diningBillTakeAwayTitle(String label) {
+    return '$label · Take away';
+  }
+
+  @override
+  String diningBillGuests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count guests',
+      one: '1 guest',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String diningBillOpened(String time) {
+    return 'opened $time';
+  }
+
+  @override
+  String diningBillServer(String name) {
+    return 'Server $name';
+  }
+
+  @override
+  String get diningAddMenu => 'Menu';
+
+  @override
+  String get diningBillEmpty => 'No items yet. Tap + Menu to add some.';
+
+  @override
+  String get diningMarkServed => 'Mark served';
+
+  @override
+  String get diningRemoveItem => 'Remove item';
+
+  @override
+  String get diningSubtotal => 'Subtotal';
+
+  @override
+  String diningService(String pct) {
+    return 'Service $pct (dine in)';
+  }
+
+  @override
+  String diningTax(String pct) {
+    return 'PB1 $pct';
+  }
+
+  @override
+  String get diningTotal => 'Total';
+
+  @override
+  String diningSend(int count) {
+    return 'Send to kitchen ($count new)';
+  }
+
+  @override
+  String get diningRequestBill => 'Request bill';
+
+  @override
+  String get diningCancelRequest => 'Cancel bill request';
+
+  @override
+  String get diningMove => 'Move table';
+
+  @override
+  String get diningSplitSoon => 'Split bill (soon)';
+
+  @override
+  String get diningVoid => 'Void bill';
+
+  @override
+  String diningPay(String amount) {
+    return 'Close & pay · $amount';
+  }
+
+  @override
+  String get diningPayNoPermission =>
+      'Payment is taken by a cashier (needs the sales permission).';
+
+  @override
+  String get diningBack => 'Back to tables';
+
+  @override
+  String diningOpenTitle(String label) {
+    return 'Open table $label';
+  }
+
+  @override
+  String get diningGuests => 'Guests';
+
+  @override
+  String get diningGuestsInvalid => 'Enter 1–99 guests.';
+
+  @override
+  String get diningOpen => 'Open bill';
+
+  @override
+  String get diningCancel => 'Cancel';
+
+  @override
+  String get diningCustomerName => 'Customer name (optional)';
+
+  @override
+  String get diningCreate => 'Create';
+
+  @override
+  String diningMoveTitle(String label) {
+    return 'Move $label to';
+  }
+
+  @override
+  String get diningMoveNone => 'No empty tables.';
+
+  @override
+  String diningVoidTitle(String label) {
+    return 'Void bill $label?';
+  }
+
+  @override
+  String get diningVoidBody =>
+      'The bill is closed without payment and stock does not change. The reason is kept in history.';
+
+  @override
+  String get diningVoidReason => 'Reason';
+
+  @override
+  String get diningVoidReasonInvalid =>
+      'A reason is required, at most 120 characters.';
+
+  @override
+  String get diningVoidKeep => 'Keep bill';
+
+  @override
+  String diningMenuTitle(String label) {
+    return 'Add items · $label';
+  }
+
+  @override
+  String get diningSearch => 'Search menu';
+
+  @override
+  String get diningNote => 'Kitchen note for the next item (optional)';
+
+  @override
+  String get diningNoteTooLong => 'Notes are at most 120 characters.';
+
+  @override
+  String diningAdded(String name) {
+    return 'Added: $name';
+  }
+
+  @override
+  String get diningDone => 'Done';
+
+  @override
+  String get diningNoMenu => 'No menu items found.';
+
+  @override
+  String get diningLoadFailed => 'Could not load tables.';
+
+  @override
+  String get diningErrorLocked =>
+      'Items already in the kitchen cannot be changed or removed.';
+
+  @override
+  String get diningErrorOccupied => 'That table already has an open bill.';
+
+  @override
+  String get diningErrorNothingToSend => 'There are no new items to send.';
+
+  @override
+  String get diningErrorNotFound =>
+      'The bill was not found or is already closed.';
+
+  @override
+  String get diningErrorNotEmpty => 'The bill still has items.';
+
+  @override
+  String get diningErrorUnavailable => 'That menu item is no longer available.';
+
+  @override
+  String get diningErrorInput => 'Invalid input.';
+
+  @override
+  String get diningErrorPermission =>
+      'You do not have permission for this action.';
+
+  @override
+  String get diningErrorGeneric => 'The action failed. Please try again.';
+
+  @override
+  String get ticketDialogTitle => 'Sent to kitchen';
+
+  @override
+  String get ticketHeading => 'KITCHEN TICKET';
+
+  @override
+  String ticketDineIn(String label) {
+    return 'Table $label · Dine in';
+  }
+
+  @override
+  String ticketTakeAway(String label) {
+    return '$label · Take away';
+  }
+
+  @override
+  String get ticketNo => 'No';
+
+  @override
+  String get ticketTime => 'Time';
+
+  @override
+  String get ticketStaff => 'Server';
+
+  @override
+  String get ticketFooter => 'New items only · no prices';
+
+  @override
+  String get ticketPrint => 'Print ticket';
+
+  @override
+  String get ticketClose => 'Close';
+
+  @override
+  String get ticketPrinted => 'Ticket sent to the printer.';
+
+  @override
+  String get ticketPrintFailed =>
+      'The ticket failed to print. Check the printer in Settings › Receipt & printer.';
+
+  @override
+  String get masterTabTables => 'Tables & areas';
+
+  @override
+  String get diningSetupHint =>
+      'Tables are used on the Tables screen (F&B). Table names are unique per branch; areas are optional.';
+
+  @override
+  String get diningSetupAreas => 'Areas';
+
+  @override
+  String get diningSetupAreaAdd => 'Add area';
+
+  @override
+  String diningSetupAreaTables(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tables',
+      one: '1 table',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get diningSetupAreasEmpty =>
+      'No areas yet. For example: Indoor, Terrace, 2nd floor.';
+
+  @override
+  String get diningSetupTables => 'Tables';
+
+  @override
+  String get diningSetupTableAdd => 'Add table';
+
+  @override
+  String get diningSetupTableRange => 'Add several';
+
+  @override
+  String get diningSetupTablesEmpty =>
+      'No tables yet. Use Add several to create T1–T12 at once.';
+
+  @override
+  String get diningSetupNoArea => 'No area';
+
+  @override
+  String get diningSetupName => 'Name';
+
+  @override
+  String get diningSetupArea => 'Area';
+
+  @override
+  String get diningSetupSeats => 'Seats';
+
+  @override
+  String get diningSetupPrefix => 'Prefix';
+
+  @override
+  String get diningSetupFrom => 'From';
+
+  @override
+  String get diningSetupTo => 'To';
+
+  @override
+  String diningSetupPreview(String names) {
+    return 'Will create: $names';
+  }
+
+  @override
+  String get diningSetupRangeInvalid => 'Invalid range (1–50 tables at once).';
+
+  @override
+  String get diningSetupNewArea => 'New area';
+
+  @override
+  String get diningSetupRenameArea => 'Rename area';
+
+  @override
+  String get diningSetupNewTable => 'New table';
+
+  @override
+  String get diningSetupEditTable => 'Edit table';
+
+  @override
+  String get diningSetupSave => 'Save';
+
+  @override
+  String get diningSetupCancel => 'Cancel';
+
+  @override
+  String get diningSetupDelete => 'Delete';
+
+  @override
+  String diningSetupDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get diningSetupDeleteBody =>
+      'Deleted items no longer appear on the Tables screen.';
+
+  @override
+  String get diningSetupMoveUp => 'Move up';
+
+  @override
+  String get diningSetupMoveDown => 'Move down';
+
+  @override
+  String get diningSetupEdit => 'Edit';
+
+  @override
+  String get diningSetupErrNameEmpty => 'Name is required.';
+
+  @override
+  String diningSetupErrNameTooLong(int max) {
+    return 'Names are at most $max characters.';
+  }
+
+  @override
+  String get diningSetupErrNameDuplicate => 'That name is already used.';
+
+  @override
+  String diningSetupErrNameDuplicateAt(String name) {
+    return 'The name $name is already used.';
+  }
+
+  @override
+  String get diningSetupErrSeats => 'Seats must be 1–99.';
+
+  @override
+  String diningSetupErrAreaInUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tables',
+      one: '1 table',
+    );
+    return 'This area still has $_temp0. Move or delete them first.';
+  }
+
+  @override
+  String get diningSetupErrTableBusy => 'This table still has an open bill.';
+
+  @override
+  String get diningSetupErrGeneric => 'The action failed. Please try again.';
+
+  @override
+  String get diningSetupLoadFailed => 'Could not load tables.';
+
+  @override
+  String get settingsSectionTaxes => 'Tax & service';
+
+  @override
+  String get fnbRatesTitle => 'Tax & service charge';
+
+  @override
+  String get fnbRatesSubtitle =>
+      'Applies to open bills on the Tables screen at this branch.';
+
+  @override
+  String get fnbRatesService => 'Service charge (%)';
+
+  @override
+  String get fnbRatesServiceHint => '0–30%, steps of 0.5';
+
+  @override
+  String get fnbRatesTax => 'Restaurant tax / PB1 (%)';
+
+  @override
+  String get fnbRatesTaxHint => '0–20%, steps of 0.5';
+
+  @override
+  String get fnbRatesInvalidService => 'Enter 0–30 in steps of 0.5.';
+
+  @override
+  String get fnbRatesInvalidTax => 'Enter 0–20 in steps of 0.5.';
+
+  @override
+  String get fnbRatesNote =>
+      'Service applies to dine in only. PB1 is calculated on subtotal + service.';
+
+  @override
+  String get fnbRatesPreview => 'Dine-in example';
+
+  @override
+  String get fnbRatesSave => 'Save rates';
+
+  @override
+  String get fnbRatesSaved => 'Rates saved.';
+
+  @override
+  String get fnbRatesLoadFailed => 'Could not load the rates.';
+
+  @override
+  String get fnbRatesSaveFailed => 'Could not save the rates.';
 }

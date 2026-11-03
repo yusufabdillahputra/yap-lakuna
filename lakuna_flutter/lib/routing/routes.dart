@@ -15,6 +15,15 @@ abstract final class Routes {
   /// Kasir retail + bayar (F1-04/F1-05).
   static const cashier = '/kasir';
 
+  /// Kasir mode bill: bayar open bill [id] (F1-10).
+  static String cashierBill(String id) => '$cashier?bill=$id';
+
+  /// Meja & open bill (F1-10).
+  static const tables = '/meja';
+
+  /// Layar Meja dengan bill [id] terpilih.
+  static String tablesBill(String id) => '$tables?bill=$id';
+
   /// Daftar produk & stok (F1-07).
   static const products = '/produk';
 

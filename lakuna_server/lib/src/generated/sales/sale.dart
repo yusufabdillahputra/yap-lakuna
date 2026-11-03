@@ -12,6 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
+import '../sales/order_type.dart' as _is7lc49y;
 import '../sales/sale_status.dart' as _i3rqzpgm;
 
 /// Nota penjualan (F1-04/F1-05). Nomor memuat kode cabang dan perangkat
@@ -34,6 +35,22 @@ abstract class Sale
     required this.changeAmount,
     required this.itemCount,
     required this.soldAt,
+    _is7lc49y.OrderType? orderType,
+    this.diningTableId,
+    this.billNumber,
+    this.queueNumber,
+    this.customerName,
+    this.guestCount,
+    this.openedBy,
+    this.openedAt,
+    this.billRequestedAt,
+    int? serviceBp,
+    int? taxBp,
+    int? serviceAmount,
+    int? taxAmount,
+    this.voidReason,
+    this.voidedBy,
+    this.voidedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -43,6 +60,11 @@ abstract class Sale
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _is.Uuid().v7obj(),
+       orderType = orderType ?? _is7lc49y.OrderType.retail,
+       serviceBp = serviceBp ?? 0,
+       taxBp = taxBp ?? 0,
+       serviceAmount = serviceAmount ?? 0,
+       taxAmount = taxAmount ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -63,6 +85,22 @@ abstract class Sale
     required int changeAmount,
     required int itemCount,
     required DateTime soldAt,
+    _is7lc49y.OrderType? orderType,
+    _is.UuidValue? diningTableId,
+    String? billNumber,
+    int? queueNumber,
+    String? customerName,
+    int? guestCount,
+    _is.UuidValue? openedBy,
+    DateTime? openedAt,
+    DateTime? billRequestedAt,
+    int? serviceBp,
+    int? taxBp,
+    int? serviceAmount,
+    int? taxAmount,
+    String? voidReason,
+    _is.UuidValue? voidedBy,
+    DateTime? voidedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -106,6 +144,42 @@ abstract class Sale
       changeAmount: jsonSerialization['changeAmount'] as int,
       itemCount: jsonSerialization['itemCount'] as int,
       soldAt: _is.DateTimeJsonExtension.fromJson(jsonSerialization['soldAt']),
+      orderType: jsonSerialization['orderType'] == null
+          ? null
+          : _is7lc49y.OrderType.fromJson(
+              (jsonSerialization['orderType'] as String),
+            ),
+      diningTableId: jsonSerialization['diningTableId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['diningTableId'],
+            ),
+      billNumber: jsonSerialization['billNumber'] as String?,
+      queueNumber: jsonSerialization['queueNumber'] as int?,
+      customerName: jsonSerialization['customerName'] as String?,
+      guestCount: jsonSerialization['guestCount'] as int?,
+      openedBy: jsonSerialization['openedBy'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['openedBy']),
+      openedAt: jsonSerialization['openedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['openedAt']),
+      billRequestedAt: jsonSerialization['billRequestedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['billRequestedAt'],
+            ),
+      serviceBp: jsonSerialization['serviceBp'] as int?,
+      taxBp: jsonSerialization['taxBp'] as int?,
+      serviceAmount: jsonSerialization['serviceAmount'] as int?,
+      taxAmount: jsonSerialization['taxAmount'] as int?,
+      voidReason: jsonSerialization['voidReason'] as String?,
+      voidedBy: jsonSerialization['voidedBy'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['voidedBy']),
+      voidedAt: jsonSerialization['voidedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['voidedAt']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -168,6 +242,42 @@ abstract class Sale
 
   DateTime soldAt;
 
+  /// F&B (F1-10). Open bill memakai nomor bill `OB-…` di [number] sampai
+  /// lunas; nomor bill tetap di [billNumber].
+  _is7lc49y.OrderType orderType;
+
+  _is.UuidValue? diningTableId;
+
+  String? billNumber;
+
+  /// Nomor take away harian per perangkat (`TA-07`).
+  int? queueNumber;
+
+  String? customerName;
+
+  int? guestCount;
+
+  _is.UuidValue? openedBy;
+
+  DateTime? openedAt;
+
+  DateTime? billRequestedAt;
+
+  /// Tarif dan nominal service/PB1, dibekukan saat lunas.
+  int serviceBp;
+
+  int taxBp;
+
+  int serviceAmount;
+
+  int taxAmount;
+
+  String? voidReason;
+
+  _is.UuidValue? voidedBy;
+
+  DateTime? voidedAt;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -206,6 +316,22 @@ abstract class Sale
     int? changeAmount,
     int? itemCount,
     DateTime? soldAt,
+    _is7lc49y.OrderType? orderType,
+    _is.UuidValue? diningTableId = const _is.$UndefinedUuidValue(),
+    String? billNumber,
+    int? queueNumber,
+    String? customerName,
+    int? guestCount,
+    _is.UuidValue? openedBy = const _is.$UndefinedUuidValue(),
+    DateTime? openedAt = const _is.$UndefinedDateTime(),
+    DateTime? billRequestedAt = const _is.$UndefinedDateTime(),
+    int? serviceBp,
+    int? taxBp,
+    int? serviceAmount,
+    int? taxAmount,
+    String? voidReason,
+    _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
+    DateTime? voidedAt = const _is.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -234,6 +360,22 @@ abstract class Sale
       'changeAmount': changeAmount,
       'itemCount': itemCount,
       'soldAt': soldAt.toJson(),
+      'orderType': orderType.toJson(),
+      if (diningTableId != null) 'diningTableId': diningTableId?.toJson(),
+      if (billNumber != null) 'billNumber': billNumber,
+      if (queueNumber != null) 'queueNumber': queueNumber,
+      if (customerName != null) 'customerName': customerName,
+      if (guestCount != null) 'guestCount': guestCount,
+      if (openedBy != null) 'openedBy': openedBy?.toJson(),
+      if (openedAt != null) 'openedAt': openedAt?.toJson(),
+      if (billRequestedAt != null) 'billRequestedAt': billRequestedAt?.toJson(),
+      'serviceBp': serviceBp,
+      'taxBp': taxBp,
+      'serviceAmount': serviceAmount,
+      'taxAmount': taxAmount,
+      if (voidReason != null) 'voidReason': voidReason,
+      if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
+      if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -264,6 +406,22 @@ abstract class Sale
       'changeAmount': changeAmount,
       'itemCount': itemCount,
       'soldAt': soldAt.toJson(),
+      'orderType': orderType.toJson(),
+      if (diningTableId != null) 'diningTableId': diningTableId?.toJson(),
+      if (billNumber != null) 'billNumber': billNumber,
+      if (queueNumber != null) 'queueNumber': queueNumber,
+      if (customerName != null) 'customerName': customerName,
+      if (guestCount != null) 'guestCount': guestCount,
+      if (openedBy != null) 'openedBy': openedBy?.toJson(),
+      if (openedAt != null) 'openedAt': openedAt?.toJson(),
+      if (billRequestedAt != null) 'billRequestedAt': billRequestedAt?.toJson(),
+      'serviceBp': serviceBp,
+      'taxBp': taxBp,
+      'serviceAmount': serviceAmount,
+      'taxAmount': taxAmount,
+      if (voidReason != null) 'voidReason': voidReason,
+      if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
+      if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -303,6 +461,8 @@ abstract class Sale
   }
 }
 
+class _Undefined {}
+
 class _SaleImpl extends Sale {
   _SaleImpl({
     _is.UuidValue? id,
@@ -320,6 +480,22 @@ class _SaleImpl extends Sale {
     required int changeAmount,
     required int itemCount,
     required DateTime soldAt,
+    _is7lc49y.OrderType? orderType,
+    _is.UuidValue? diningTableId,
+    String? billNumber,
+    int? queueNumber,
+    String? customerName,
+    int? guestCount,
+    _is.UuidValue? openedBy,
+    DateTime? openedAt,
+    DateTime? billRequestedAt,
+    int? serviceBp,
+    int? taxBp,
+    int? serviceAmount,
+    int? taxAmount,
+    String? voidReason,
+    _is.UuidValue? voidedBy,
+    DateTime? voidedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -344,6 +520,22 @@ class _SaleImpl extends Sale {
          changeAmount: changeAmount,
          itemCount: itemCount,
          soldAt: soldAt,
+         orderType: orderType,
+         diningTableId: diningTableId,
+         billNumber: billNumber,
+         queueNumber: queueNumber,
+         customerName: customerName,
+         guestCount: guestCount,
+         openedBy: openedBy,
+         openedAt: openedAt,
+         billRequestedAt: billRequestedAt,
+         serviceBp: serviceBp,
+         taxBp: taxBp,
+         serviceAmount: serviceAmount,
+         taxAmount: taxAmount,
+         voidReason: voidReason,
+         voidedBy: voidedBy,
+         voidedAt: voidedAt,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -374,6 +566,22 @@ class _SaleImpl extends Sale {
     int? changeAmount,
     int? itemCount,
     DateTime? soldAt,
+    _is7lc49y.OrderType? orderType,
+    _is.UuidValue? diningTableId = const _is.$UndefinedUuidValue(),
+    Object? billNumber = _Undefined,
+    Object? queueNumber = _Undefined,
+    Object? customerName = _Undefined,
+    Object? guestCount = _Undefined,
+    _is.UuidValue? openedBy = const _is.$UndefinedUuidValue(),
+    DateTime? openedAt = const _is.$UndefinedDateTime(),
+    DateTime? billRequestedAt = const _is.$UndefinedDateTime(),
+    int? serviceBp,
+    int? taxBp,
+    int? serviceAmount,
+    int? taxAmount,
+    Object? voidReason = _Undefined,
+    _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
+    DateTime? voidedAt = const _is.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -401,6 +609,26 @@ class _SaleImpl extends Sale {
       changeAmount: changeAmount ?? this.changeAmount,
       itemCount: itemCount ?? this.itemCount,
       soldAt: soldAt ?? this.soldAt,
+      orderType: orderType ?? this.orderType,
+      diningTableId: diningTableId is _is.UndefinedSentinel
+          ? this.diningTableId
+          : diningTableId,
+      billNumber: billNumber is String? ? billNumber : this.billNumber,
+      queueNumber: queueNumber is int? ? queueNumber : this.queueNumber,
+      customerName: customerName is String? ? customerName : this.customerName,
+      guestCount: guestCount is int? ? guestCount : this.guestCount,
+      openedBy: openedBy is _is.UndefinedSentinel ? this.openedBy : openedBy,
+      openedAt: openedAt is _is.UndefinedSentinel ? this.openedAt : openedAt,
+      billRequestedAt: billRequestedAt is _is.UndefinedSentinel
+          ? this.billRequestedAt
+          : billRequestedAt,
+      serviceBp: serviceBp ?? this.serviceBp,
+      taxBp: taxBp ?? this.taxBp,
+      serviceAmount: serviceAmount ?? this.serviceAmount,
+      taxAmount: taxAmount ?? this.taxAmount,
+      voidReason: voidReason is String? ? voidReason : this.voidReason,
+      voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
+      voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -501,6 +729,98 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
     table.soldAt,
     value,
   );
+
+  _is.ColumnValue<_is7lc49y.OrderType, _is7lc49y.OrderType> orderType(
+    _is7lc49y.OrderType value,
+  ) => _is.ColumnValue(
+    table.orderType,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> diningTableId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.diningTableId,
+    value,
+  );
+
+  _is.ColumnValue<String, String> billNumber(String? value) => _is.ColumnValue(
+    table.billNumber,
+    value,
+  );
+
+  _is.ColumnValue<int, int> queueNumber(int? value) => _is.ColumnValue(
+    table.queueNumber,
+    value,
+  );
+
+  _is.ColumnValue<String, String> customerName(String? value) =>
+      _is.ColumnValue(
+        table.customerName,
+        value,
+      );
+
+  _is.ColumnValue<int, int> guestCount(int? value) => _is.ColumnValue(
+    table.guestCount,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> openedBy(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.openedBy,
+    value,
+  );
+
+  _is.ColumnValue<DateTime, DateTime> openedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.openedAt,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> billRequestedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.billRequestedAt,
+        value,
+      );
+
+  _is.ColumnValue<int, int> serviceBp(int value) => _is.ColumnValue(
+    table.serviceBp,
+    value,
+  );
+
+  _is.ColumnValue<int, int> taxBp(int value) => _is.ColumnValue(
+    table.taxBp,
+    value,
+  );
+
+  _is.ColumnValue<int, int> serviceAmount(int value) => _is.ColumnValue(
+    table.serviceAmount,
+    value,
+  );
+
+  _is.ColumnValue<int, int> taxAmount(int value) => _is.ColumnValue(
+    table.taxAmount,
+    value,
+  );
+
+  _is.ColumnValue<String, String> voidReason(String? value) => _is.ColumnValue(
+    table.voidReason,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> voidedBy(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.voidedBy,
+    value,
+  );
+
+  _is.ColumnValue<DateTime, DateTime> voidedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.voidedAt,
+        value,
+      );
 
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
@@ -622,6 +942,92 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'soldAt',
     );
+    orderType = _is.ColumnEnum(
+      'order_type',
+      this,
+      _is.EnumSerialization.byName,
+      hasDefault: true,
+      fieldName: 'orderType',
+    );
+    diningTableId = _is.ColumnUuid(
+      'dining_table_id',
+      this,
+      fieldName: 'diningTableId',
+    );
+    billNumber = _is.ColumnString(
+      'bill_number',
+      this,
+      fieldName: 'billNumber',
+    );
+    queueNumber = _is.ColumnInt(
+      'queue_number',
+      this,
+      fieldName: 'queueNumber',
+    );
+    customerName = _is.ColumnString(
+      'customer_name',
+      this,
+      fieldName: 'customerName',
+    );
+    guestCount = _is.ColumnInt(
+      'guest_count',
+      this,
+      fieldName: 'guestCount',
+    );
+    openedBy = _is.ColumnUuid(
+      'opened_by',
+      this,
+      fieldName: 'openedBy',
+    );
+    openedAt = _is.ColumnDateTime(
+      'opened_at',
+      this,
+      fieldName: 'openedAt',
+    );
+    billRequestedAt = _is.ColumnDateTime(
+      'bill_requested_at',
+      this,
+      fieldName: 'billRequestedAt',
+    );
+    serviceBp = _is.ColumnInt(
+      'service_bp',
+      this,
+      hasDefault: true,
+      fieldName: 'serviceBp',
+    );
+    taxBp = _is.ColumnInt(
+      'tax_bp',
+      this,
+      hasDefault: true,
+      fieldName: 'taxBp',
+    );
+    serviceAmount = _is.ColumnInt(
+      'service_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'serviceAmount',
+    );
+    taxAmount = _is.ColumnInt(
+      'tax_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'taxAmount',
+    );
+    voidReason = _is.ColumnString(
+      'void_reason',
+      this,
+      fieldName: 'voidReason',
+    );
+    voidedBy = _is.ColumnUuid(
+      'voided_by',
+      this,
+      fieldName: 'voidedBy',
+    );
+    voidedAt = _is.ColumnDateTime(
+      'voided_at',
+      this,
+      fieldName: 'voidedAt',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -697,6 +1103,42 @@ class SaleTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnDateTime soldAt;
 
+  /// F&B (F1-10). Open bill memakai nomor bill `OB-…` di [number] sampai
+  /// lunas; nomor bill tetap di [billNumber].
+  late final _is.ColumnEnum<_is7lc49y.OrderType> orderType;
+
+  late final _is.ColumnUuid diningTableId;
+
+  late final _is.ColumnString billNumber;
+
+  /// Nomor take away harian per perangkat (`TA-07`).
+  late final _is.ColumnInt queueNumber;
+
+  late final _is.ColumnString customerName;
+
+  late final _is.ColumnInt guestCount;
+
+  late final _is.ColumnUuid openedBy;
+
+  late final _is.ColumnDateTime openedAt;
+
+  late final _is.ColumnDateTime billRequestedAt;
+
+  /// Tarif dan nominal service/PB1, dibekukan saat lunas.
+  late final _is.ColumnInt serviceBp;
+
+  late final _is.ColumnInt taxBp;
+
+  late final _is.ColumnInt serviceAmount;
+
+  late final _is.ColumnInt taxAmount;
+
+  late final _is.ColumnString voidReason;
+
+  late final _is.ColumnUuid voidedBy;
+
+  late final _is.ColumnDateTime voidedAt;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -730,6 +1172,22 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     changeAmount,
     itemCount,
     soldAt,
+    orderType,
+    diningTableId,
+    billNumber,
+    queueNumber,
+    customerName,
+    guestCount,
+    openedBy,
+    openedAt,
+    billRequestedAt,
+    serviceBp,
+    taxBp,
+    serviceAmount,
+    taxAmount,
+    voidReason,
+    voidedBy,
+    voidedAt,
     createdAt,
     updatedAt,
     deletedAt,

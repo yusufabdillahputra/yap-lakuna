@@ -25,6 +25,11 @@ fields:
   unitCost: int, column=unit_cost
   tracksStock: bool, column=tracks_stock
   sortOrder: int, column=sort_order
+  ### F&B (F1-10); `null` = penjualan retail.
+  kitchenStatus: KitchenStatus?, column=kitchen_status
+  kitchenTicketId: UuidValue?, relation(parent=kitchen_tickets, onDelete=Restrict), column=kitchen_ticket_id
+  ### Catatan dapur, maks 120 karakter.
+  note: String?
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at

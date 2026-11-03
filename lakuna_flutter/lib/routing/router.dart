@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
+import '../data/repositories/dining_admin_repository.dart';
+import '../data/repositories/dining_repository.dart';
 import '../data/repositories/master_data_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
@@ -17,6 +19,7 @@ import '../ui/cashier/cashier_view.dart';
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
+import '../ui/dining/dining_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -43,6 +46,8 @@ GoRouter createRouter({
   required StockRepository stock,
   required MasterDataRepository masterData,
   required CashierRepository cashier,
+  required DiningRepository dining,
+  required DiningAdminRepository diningAdmin,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
@@ -109,6 +114,7 @@ GoRouter createRouter({
               imagePicker: imagePicker,
               session: session,
               store: store,
+              diningAdmin: diningAdmin,
             ),
           ),
           GoRoute(
@@ -121,9 +127,27 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.cashier,
-            builder: (context, state) => CashierScreen(
-              repository: cashier,
+            builder: (context, state) {
+              final bill = state.uri.queryParameters['bill'];
+              return CashierScreen(
+                key: ValueKey('cashier-${bill ?? ''}'),
+                repository: cashier,
+                printer: receiptPrinter,
+                billId: bill,
+                onLeaveBill: bill == null
+                    ? null
+                    : () => context.go(Routes.tablesBill(bill)),
+              );
+            },
+          ),
+          GoRoute(
+            path: Routes.tables,
+            builder: (context, state) => DiningScreen(
+              key: ValueKey('tables-${state.uri.queryParameters['bill']}'),
+              repository: dining,
               printer: receiptPrinter,
+              initialBill: state.uri.queryParameters['bill'],
+              onPay: (id) => context.go(Routes.cashierBill(id.uuid)),
             ),
           ),
           // Rute saudara (bukan bersarang) supaya kembali ke daftar
@@ -157,8 +181,11 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.master,
-            builder: (context, state) =>
-                MasterDataScreen(repository: masterData, session: session),
+            builder: (context, state) => MasterDataScreen(
+              repository: masterData,
+              session: session,
+              diningAdmin: diningAdmin,
+            ),
           ),
           GoRoute(
             path: '/modul/:key',

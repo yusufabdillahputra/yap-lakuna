@@ -1,0 +1,7 @@
+### Status item open bill F&B (F1-10): Baru → Di dapur → Disajikan.
+enum: KitchenStatus
+serialized: byName
+values:
+  - pending
+  - sent
+  - served

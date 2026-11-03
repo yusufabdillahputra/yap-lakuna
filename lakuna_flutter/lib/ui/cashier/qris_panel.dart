@@ -226,7 +226,7 @@ class QrisPanel extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final qris = viewModel.qris!;
-    final total = viewModel.totals.total;
+    final total = viewModel.payTotal;
     void open() => showQrisFullscreen(context, qris.image);
 
     Widget amount({required bool withMerchant}) => Column(

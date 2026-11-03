@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
@@ -24,10 +25,18 @@ class CashierScreen extends StatefulWidget {
     super.key,
     required this.repository,
     required this.printer,
+    this.billId,
+    this.onLeaveBill,
   });
 
   final CashierRepository repository;
   final ReceiptPrinter printer;
+
+  /// Mode bill (F1-10): open bill yang dibayar.
+  final String? billId;
+
+  /// Keluar dari mode bill (kembali ke layar Meja).
+  final VoidCallback? onLeaveBill;
 
   @override
   State<CashierScreen> createState() => _CashierScreenState();
@@ -42,7 +51,14 @@ class _CashierScreenState extends State<CashierScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel.load.execute();
+    _viewModel.onLeaveBill = widget.onLeaveBill;
+    _load();
+  }
+
+  Future<void> _load() async {
+    await _viewModel.load.execute();
+    final id = _parseId(widget.billId);
+    if (id != null && _viewModel.loaded) await _viewModel.openBill.execute(id);
   }
 
   @override
@@ -55,7 +71,18 @@ class _CashierScreenState extends State<CashierScreen> {
   Widget build(BuildContext context) => CashierView(
     viewModel: _viewModel,
     onOpenSession: () => context.go(Routes.cashSession),
+    billRequested: widget.billId != null,
+    onLeaveBill: widget.onLeaveBill,
   );
+}
+
+UuidValue? _parseId(String? text) {
+  if (text == null) return null;
+  try {
+    return UuidValue.withValidation(text);
+  } on FormatException {
+    return null;
+  }
 }
 
 /// Desktop dengan keyboard fisik: kolom bisa fokus otomatis tanpa
@@ -73,10 +100,16 @@ class CashierView extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onOpenSession,
+    this.billRequested = false,
+    this.onLeaveBill,
   });
 
   final CashierViewModel viewModel;
   final VoidCallback onOpenSession;
+
+  /// Dibuka untuk membayar open bill: tahap pesanan retail tidak dipakai.
+  final bool billRequested;
+  final VoidCallback? onLeaveBill;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -113,7 +146,45 @@ class CashierView extends StatelessWidget {
             return const Center(child: FCircularProgress());
           }
           if (!vm.hasSession) {
-            return _NoSession(onOpenSession: onOpenSession);
+            return _NoSession(
+              onOpenSession: onOpenSession,
+              // Mode bill: bisa kembali ke bill di layar Meja (tetap terbuka).
+              onLeaveBill: billRequested ? onLeaveBill : null,
+            );
+          }
+          if (billRequested && !vm.billMode) {
+            if (vm.openBill.running || !vm.openBill.error) {
+              return const Center(child: FCircularProgress());
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 12,
+                children: [
+                  FAlert(
+                    key: const ValueKey('cashier-bill-error'),
+                    variant: .destructive,
+                    title: Text(
+                      AppLocalizations.of(context).cashierBillLoadFailed,
+                    ),
+                  ),
+                  if (onLeaveBill case final leave?)
+                    FButton(
+                      key: const ValueKey('cashier-bill-back'),
+                      mainAxisSize: .min,
+                      variant: .outline,
+                      prefix: const Icon(TablerIcons.arrowLeft, size: 16),
+                      onPress: leave,
+                      child: Flexible(
+                        child: Text(
+                          AppLocalizations.of(context).cashierBillBack,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
           }
           final narrow = constraints.maxWidth < 600;
           return switch (vm.stage) {
@@ -134,9 +205,10 @@ class CashierView extends StatelessWidget {
 }
 
 class _NoSession extends StatelessWidget {
-  const _NoSession({required this.onOpenSession});
+  const _NoSession({required this.onOpenSession, this.onLeaveBill});
 
   final VoidCallback onOpenSession;
+  final VoidCallback? onLeaveBill;
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +257,14 @@ class _NoSession extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onLeaveBill case final leave?)
+                    FButton(
+                      key: const ValueKey('cashier-no-session-bill-back'),
+                      variant: .outline,
+                      prefix: const Icon(TablerIcons.arrowLeft, size: 16),
+                      onPress: leave,
+                      child: Flexible(child: Text(l10n.cashierBillBack)),
+                    ),
                 ],
               ),
             ),

@@ -721,5 +721,406 @@
   "masterDeleteTitle": "Delete {name}?",
   "masterDeleteBody": "Deleted data no longer appears in lists and pickers.",
   "masterDeleteConfirm": "Delete",
-  "masterDeleteCancel": "Cancel"
+  "masterDeleteCancel": "Cancel",
+  "menuTables": "Tables",
+  "billTableLabel": "Table {label}",
+  "@billTableLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "billTakeAwayLabel": "Take away {label}",
+  "@billTakeAwayLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentBillLines": "{label} · {count, plural, =1{1 item} other{{count} items}}",
+  "@paymentBillLines": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "successBackToTables": "Back to tables",
+  "receiptOrder": "Order",
+  "receiptSubtotal": "Subtotal",
+  "receiptService": "Service {pct}",
+  "@receiptService": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptTax": "PB1 {pct}",
+  "@receiptTax": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierBillLoadFailed": "Could not open the bill. It may already be paid or voided.",
+  "cashierBillBack": "Back to tables",
+  "diningTitle": "Tables",
+  "diningSubtitle": "Server: {staff} · {occupied} of {total} tables occupied",
+  "@diningSubtitle": {
+    "placeholders": {
+      "staff": {
+        "type": "String"
+      },
+      "occupied": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "diningDineIn": "Dine in",
+  "diningTakeAway": "Take away",
+  "diningLegendEmpty": "Empty",
+  "diningLegendOpen": "Occupied · open bill",
+  "diningLegendRequested": "Bill requested",
+  "diningAllAreas": "All",
+  "diningNoArea": "No area",
+  "diningNoTables": "No tables yet. Add them in Master data › Tables & areas.",
+  "diningSeats": "{count, plural, =1{1 seat} other{{count} seats}}",
+  "@diningSeats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningMinutes": "{m} min",
+  "@diningMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "diningHours": "{h} h {m} min",
+  "@diningHours": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "diningDays": "{d, plural, =1{1 day} other{{d} days}}",
+  "@diningDays": {
+    "placeholders": {
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "diningTakeAwayNew": "New take away",
+  "diningTakeAwayNone": "No open take away orders.",
+  "diningTakeAwayItems": "{count, plural, =1{1 item} other{{count} items}} · {time}",
+  "@diningTakeAwayItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diningStatusNew": "New",
+  "diningStatusKitchen": "In kitchen",
+  "diningStatusServed": "Served",
+  "diningStatusReady": "Ready",
+  "diningStatusEmpty": "Empty",
+  "diningDeleteEmpty": "Delete empty bill",
+  "diningSelectHint": "Select a table or take away order to see its bill.",
+  "diningBillTableTitle": "Table {label} · Open bill",
+  "@diningBillTableTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillTakeAwayTitle": "{label} · Take away",
+  "@diningBillTakeAwayTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillGuests": "{count, plural, =1{1 guest} other{{count} guests}}",
+  "@diningBillGuests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningBillOpened": "opened {time}",
+  "@diningBillOpened": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diningBillServer": "Server {name}",
+  "@diningBillServer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningAddMenu": "Menu",
+  "diningBillEmpty": "No items yet. Tap + Menu to add some.",
+  "diningMarkServed": "Mark served",
+  "diningRemoveItem": "Remove item",
+  "diningSubtotal": "Subtotal",
+  "diningService": "Service {pct} (dine in)",
+  "@diningService": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "diningTax": "PB1 {pct}",
+  "@diningTax": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "diningTotal": "Total",
+  "diningSend": "Send to kitchen ({count} new)",
+  "@diningSend": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningRequestBill": "Request bill",
+  "diningCancelRequest": "Cancel bill request",
+  "diningMove": "Move table",
+  "diningSplitSoon": "Split bill (soon)",
+  "diningVoid": "Void bill",
+  "diningPay": "Close & pay · {amount}",
+  "@diningPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "diningPayNoPermission": "Payment is taken by a cashier (needs the sales permission).",
+  "diningBack": "Back to tables",
+  "diningOpenTitle": "Open table {label}",
+  "@diningOpenTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningGuests": "Guests",
+  "diningGuestsInvalid": "Enter 1–99 guests.",
+  "diningOpen": "Open bill",
+  "diningCancel": "Cancel",
+  "diningCustomerName": "Customer name (optional)",
+  "diningCreate": "Create",
+  "diningMoveTitle": "Move {label} to",
+  "@diningMoveTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningMoveNone": "No empty tables.",
+  "diningVoidTitle": "Void bill {label}?",
+  "@diningVoidTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningVoidBody": "The bill is closed without payment and stock does not change. The reason is kept in history.",
+  "diningVoidReason": "Reason",
+  "diningVoidReasonInvalid": "A reason is required, at most 120 characters.",
+  "diningVoidKeep": "Keep bill",
+  "diningMenuTitle": "Add items · {label}",
+  "@diningMenuTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSearch": "Search menu",
+  "diningNote": "Kitchen note for the next item (optional)",
+  "diningNoteTooLong": "Notes are at most 120 characters.",
+  "diningAdded": "Added: {name}",
+  "@diningAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningDone": "Done",
+  "diningNoMenu": "No menu items found.",
+  "diningLoadFailed": "Could not load tables.",
+  "diningErrorLocked": "Items already in the kitchen cannot be changed or removed.",
+  "diningErrorOccupied": "That table already has an open bill.",
+  "diningErrorNothingToSend": "There are no new items to send.",
+  "diningErrorNotFound": "The bill was not found or is already closed.",
+  "diningErrorNotEmpty": "The bill still has items.",
+  "diningErrorUnavailable": "That menu item is no longer available.",
+  "diningErrorInput": "Invalid input.",
+  "diningErrorPermission": "You do not have permission for this action.",
+  "diningErrorGeneric": "The action failed. Please try again.",
+  "ticketDialogTitle": "Sent to kitchen",
+  "ticketHeading": "KITCHEN TICKET",
+  "ticketDineIn": "Table {label} · Dine in",
+  "@ticketDineIn": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketTakeAway": "{label} · Take away",
+  "@ticketTakeAway": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ticketNo": "No",
+  "ticketTime": "Time",
+  "ticketStaff": "Server",
+  "ticketFooter": "New items only · no prices",
+  "ticketPrint": "Print ticket",
+  "ticketClose": "Close",
+  "ticketPrinted": "Ticket sent to the printer.",
+  "ticketPrintFailed": "The ticket failed to print. Check the printer in Settings › Receipt & printer.",
+  "masterTabTables": "Tables & areas",
+  "diningSetupHint": "Tables are used on the Tables screen (F&B). Table names are unique per branch; areas are optional.",
+  "diningSetupAreas": "Areas",
+  "diningSetupAreaAdd": "Add area",
+  "diningSetupAreaTables": "{count, plural, =1{1 table} other{{count} tables}}",
+  "@diningSetupAreaTables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupAreasEmpty": "No areas yet. For example: Indoor, Terrace, 2nd floor.",
+  "diningSetupTables": "Tables",
+  "diningSetupTableAdd": "Add table",
+  "diningSetupTableRange": "Add several",
+  "diningSetupTablesEmpty": "No tables yet. Use Add several to create T1–T12 at once.",
+  "diningSetupNoArea": "No area",
+  "diningSetupName": "Name",
+  "diningSetupArea": "Area",
+  "diningSetupSeats": "Seats",
+  "diningSetupPrefix": "Prefix",
+  "diningSetupFrom": "From",
+  "diningSetupTo": "To",
+  "diningSetupPreview": "Will create: {names}",
+  "@diningSetupPreview": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupRangeInvalid": "Invalid range (1–50 tables at once).",
+  "diningSetupNewArea": "New area",
+  "diningSetupRenameArea": "Rename area",
+  "diningSetupNewTable": "New table",
+  "diningSetupEditTable": "Edit table",
+  "diningSetupSave": "Save",
+  "diningSetupCancel": "Cancel",
+  "diningSetupDelete": "Delete",
+  "diningSetupDeleteTitle": "Delete {name}?",
+  "@diningSetupDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupDeleteBody": "Deleted items no longer appear on the Tables screen.",
+  "diningSetupMoveUp": "Move up",
+  "diningSetupMoveDown": "Move down",
+  "diningSetupEdit": "Edit",
+  "diningSetupErrNameEmpty": "Name is required.",
+  "diningSetupErrNameTooLong": "Names are at most {max} characters.",
+  "@diningSetupErrNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupErrNameDuplicate": "That name is already used.",
+  "diningSetupErrNameDuplicateAt": "The name {name} is already used.",
+  "@diningSetupErrNameDuplicateAt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningSetupErrSeats": "Seats must be 1–99.",
+  "diningSetupErrAreaInUse": "This area still has {count, plural, =1{1 table} other{{count} tables}}. Move or delete them first.",
+  "@diningSetupErrAreaInUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diningSetupErrTableBusy": "This table still has an open bill.",
+  "diningSetupErrGeneric": "The action failed. Please try again.",
+  "diningSetupLoadFailed": "Could not load tables.",
+  "settingsSectionTaxes": "Tax & service",
+  "fnbRatesTitle": "Tax & service charge",
+  "fnbRatesSubtitle": "Applies to open bills on the Tables screen at this branch.",
+  "fnbRatesService": "Service charge (%)",
+  "fnbRatesServiceHint": "0–30%, steps of 0.5",
+  "fnbRatesTax": "Restaurant tax / PB1 (%)",
+  "fnbRatesTaxHint": "0–20%, steps of 0.5",
+  "fnbRatesInvalidService": "Enter 0–30 in steps of 0.5.",
+  "fnbRatesInvalidTax": "Enter 0–20 in steps of 0.5.",
+  "fnbRatesNote": "Service applies to dine in only. PB1 is calculated on subtotal + service.",
+  "fnbRatesPreview": "Dine-in example",
+  "fnbRatesSave": "Save rates",
+  "fnbRatesSaved": "Rates saved.",
+  "fnbRatesLoadFailed": "Could not load the rates.",
+  "fnbRatesSaveFailed": "Could not save the rates."
 }
