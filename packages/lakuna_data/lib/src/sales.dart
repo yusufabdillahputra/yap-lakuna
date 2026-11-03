@@ -4,7 +4,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'cash.dart';
-import 'payment_settings.dart';
+import 'sale_core.dart';
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
@@ -162,13 +162,6 @@ class CheckoutResult {
   final List<NegativeStock> negativeStock;
 }
 
-const _supportedMethods = {
-  PaymentMethod.cash,
-  PaymentMethod.card,
-  PaymentMethod.transfer,
-  PaymentMethod.qrisStatic,
-};
-
 /// Menyimpan penjualan [lines] dengan [payments] (satu atau lebih, split)
 /// dalam satu transaksi: nota, item, pembayaran, pergerakan stok, dan
 /// outbox. Butuh sesi kasir terbuka di perangkat ini
@@ -185,69 +178,17 @@ Future<CheckoutResult> checkoutSale(
   for (var i = 0; i < lines.length; i++) {
     if (!lines[i].quantity.isPositive) throw SaleQuantityInvalid(i);
   }
-  for (final payment in payments) {
-    if (!_supportedMethods.contains(payment.method)) {
-      throw SalePaymentUnsupported(payment.method);
-    }
-    if (validatePaymentReference(payment.reference) != null) {
-      throw SaleReferenceInvalid();
-    }
-  }
+  checkPaymentRequests(payments);
   return store.write(actor: staffId, (w) async {
-    final session = await findOpenCashSession(
-      store,
-      CashScope(
-        tenantId: scope.tenantId,
-        outletId: scope.outletId,
-        deviceId: scope.deviceId,
-      ),
-      transaction: w.transaction,
-    );
-    if (session == null) throw CashSessionNotOpen();
-    final priced = await _priceLines(w.session, w.transaction, scope, lines);
+    final session = await requireOpenCashSession(store, w, scope);
+    final priced = await priceRequests(w.session, w.transaction, scope, lines);
     final totals = SaleTotals.of(priced.map((p) => p.line));
     final total = totals.total;
 
-    if (payments.any((p) => p.method == PaymentMethod.qrisStatic)) {
-      final ready = await qrisStaticReady(
-        w.session,
-        scope,
-        transaction: w.transaction,
-      );
-      if (!ready) {
-        throw const SalePaymentUnsupported(PaymentMethod.qrisStatic);
-      }
-      if (payments.any(
-        (p) => p.method == PaymentMethod.qrisStatic && !p.confirmed,
-      )) {
-        throw SalePaymentUnconfirmed();
-      }
-    }
-    final single = payments.length == 1;
-    final amounts = [
-      for (final p in payments)
-        p.amount ?? (single && !p.isCash ? total : Money.zero),
-    ];
-    final settlement = settleTender(total, [
-      for (var i = 0; i < payments.length; i++)
-        TenderPart(amounts[i], isCash: payments[i].isCash),
-    ]);
-    switch (settlement.error) {
-      case null:
-        break;
-      case TenderError.short:
-        throw SalePaymentShort(total: total, received: settlement.paid);
-      case final error:
-        // Tunai tunggal nol = kurang bayar, bukan galat pembagian.
-        if (single && payments.single.isCash) {
-          throw SalePaymentShort(total: total, received: settlement.paid);
-        }
-        throw SalePaymentInvalid(error);
-    }
-    final change = settlement.change;
+    final (amounts, change) = await settlePayments(w, scope, total, payments);
 
     final s = await w.stamp();
-    final number = await _nextNumber(w, scope, s.now);
+    final number = await nextReceiptNumber(w, scope, s.now);
     final sale = await w.insert(
       Sale(
         tenantId: scope.tenantId,
@@ -278,7 +219,12 @@ Future<CheckoutResult> checkoutSale(
     final items = <SaleItem>[];
     for (var i = 0; i < priced.length; i++) {
       final p = priced[i];
-      final unitCost = await _averageCost(w, location.id, p);
+      final unitCost = await averageCost(
+        w,
+        location.id,
+        p.variant.id,
+        Money(p.variant.costPrice),
+      );
       items.add(
         await w.insert(
           SaleItem(
@@ -322,58 +268,22 @@ Future<CheckoutResult> checkoutSale(
       }
     }
 
-    final paid = <Payment>[];
-    for (var i = 0; i < payments.length; i++) {
-      final payment = payments[i];
-      final reference = payment.reference.trim();
-      final confirms = payment.method == PaymentMethod.qrisStatic;
-      paid.add(
-        await w.insert(
-          Payment(
-            tenantId: scope.tenantId,
-            saleId: sale.id,
-            method: payment.method,
-            amount: amounts[i].value,
-            changeAmount: payment.isCash ? change.value : 0,
-            reference: reference.isEmpty ? null : reference,
-            status: PaymentStatus.paid,
-            confirmedBy: confirms ? staffId : null,
-            confirmedAt: confirms ? s.now : null,
-            paidAt: s.now,
-            createdAt: s.now,
-            updatedAt: s.now,
-            createdBy: staffId,
-            updatedBy: staffId,
-            hlc: s.hlc.toString(),
-            originDeviceId: s.deviceId,
-          ),
-          s,
-        ),
-      );
-    }
+    final paid = await insertPayments(
+      w,
+      scope,
+      saleId: sale.id,
+      staffId: staffId,
+      payments: payments,
+      amounts: amounts,
+      change: change,
+      stamp: s,
+    );
 
-    final negative = <NegativeStock>[];
-    final seen = <UuidValue>{};
-    for (final p in priced) {
-      if (!p.tracksStock || !seen.add(p.variant.id)) continue;
-      final level = await StockLevel.db.findFirstRow(
-        w.session,
-        where: (l) =>
-            l.stockLocationId.equals(location.id) &
-            l.variantId.equals(p.variant.id),
-        transaction: w.transaction,
-      );
-      final onHand = Qty(level?.quantityMilli ?? 0);
-      if (onHand.milli < 0) {
-        negative.add(
-          NegativeStock(
-            variantId: p.variant.id,
-            name: '${p.product.name} ${p.variant.name}'.trim(),
-            onHand: onHand,
-          ),
-        );
-      }
-    }
+    final negative = await negativeStockAfterSale(w, location.id, {
+      for (final p in priced)
+        if (p.tracksStock)
+          p.variant.id: '${p.product.name} ${p.variant.name}'.trim(),
+    });
     return CheckoutResult(
       sale: sale,
       items: items,
@@ -383,164 +293,12 @@ Future<CheckoutResult> checkoutSale(
   });
 }
 
-class _PricedRequest {
-  const _PricedRequest({
-    required this.product,
-    required this.variant,
-    required this.unitName,
-    required this.line,
-    this.unit,
-  });
-
-  final Product product;
-  final ProductVariant variant;
-  final ProductUnit? unit;
-  final String unitName;
-  final PricedLine line;
-
-  bool get tracksStock =>
-      ProductKind.values.byName(product.type.name).tracksStock;
-}
-
-Future<List<_PricedRequest>> _priceLines(
-  DatabaseSession session,
-  Transaction transaction,
-  CatalogScope scope,
-  List<SaleLineRequest> lines,
-) async {
-  final variantIds = {for (final l in lines) l.variantId};
-  final variants = {
-    for (final v in await ProductVariant.db.find(
-      session,
-      where: (v) =>
-          v.tenantId.equals(scope.tenantId) &
-          v.id.inSet(variantIds) &
-          v.deletedAt.equals(null),
-      transaction: transaction,
-    ))
-      v.id: v,
-  };
-  final productIds = {for (final v in variants.values) v.productId};
-  final products = productIds.isEmpty
-      ? <UuidValue, Product>{}
-      : {
-          for (final p in await Product.db.find(
-            session,
-            where: (p) =>
-                p.tenantId.equals(scope.tenantId) &
-                p.id.inSet(productIds) &
-                p.isActive.equals(true) &
-                p.deletedAt.equals(null),
-            transaction: transaction,
-          ))
-            p.id: p,
-        };
-  final unitIds = {
-    for (final l in lines)
-      if (l.productUnitId != null) l.productUnitId!,
-  };
-  final units = unitIds.isEmpty
-      ? <UuidValue, ProductUnit>{}
-      : {
-          for (final u in await ProductUnit.db.find(
-            session,
-            where: (u) =>
-                u.tenantId.equals(scope.tenantId) &
-                u.id.inSet(unitIds) &
-                u.deletedAt.equals(null),
-            transaction: transaction,
-          ))
-            u.id: u,
-        };
-  final tiers = variantIds.isEmpty
-      ? <ProductPriceTier>[]
-      : await ProductPriceTier.db.find(
-          session,
-          where: (t) =>
-              t.tenantId.equals(scope.tenantId) &
-              t.variantId.inSet(variantIds) &
-              t.deletedAt.equals(null),
-          transaction: transaction,
-        );
-  final measureIds = {
-    for (final p in products.values) p.baseUnitId,
-    for (final u in units.values) u.unitId,
-  };
-  final measureNames = measureIds.isEmpty
-      ? <UuidValue, String>{}
-      : {
-          for (final m in await MeasureUnit.db.find(
-            session,
-            where: (m) =>
-                m.id.inSet(measureIds) & m.tenantId.equals(scope.tenantId),
-            transaction: transaction,
-          ))
-            m.id: m.name,
-        };
-
-  return [
-    for (final l in lines)
-      _price(l, variants, products, units, tiers, measureNames),
-  ];
-}
-
-_PricedRequest _price(
-  SaleLineRequest l,
-  Map<UuidValue, ProductVariant> variants,
-  Map<UuidValue, Product> products,
-  Map<UuidValue, ProductUnit> units,
-  List<ProductPriceTier> tiers,
-  Map<UuidValue, String> measureNames,
-) {
-  final variant = variants[l.variantId];
-  final product = variant == null ? null : products[variant.productId];
-  if (variant == null || product == null) {
-    throw SaleItemUnavailable(l.variantId);
-  }
-  final unitId = l.productUnitId;
-  final unit = unitId == null ? null : units[unitId];
-  if (unitId != null && (unit == null || unit.variantId != variant.id)) {
-    throw SaleItemUnavailable(l.variantId);
-  }
-  final line = priceSaleLine(
-    sellPrice: Money(variant.sellPrice),
-    quantity: l.quantity,
-    tiers: [
-      for (final t in tiers)
-        if (t.variantId == variant.id)
-          PriceTier(minQty: Qty(t.minQtyMilli), price: Money(t.price)),
-    ],
-    factor: unit == null ? null : Qty(unit.factorMilli),
-    unitPrice: unit?.sellPrice == null ? null : Money(unit!.sellPrice!),
-  );
-  return _PricedRequest(
-    product: product,
-    variant: variant,
-    unit: unit,
-    unitName: measureNames[unit?.unitId ?? product.baseUnitId] ?? '',
-    line: line,
-  );
-}
-
-/// Biaya rata-rata per satuan dasar di cache stok; harga beli varian bila
-/// belum ada stok.
-Future<Money> _averageCost(
+/// Nomor nota berikutnya perangkat ini (tanggal lokal cabang).
+Future<String> nextReceiptNumber(
   SyncTx w,
-  UuidValue locationId,
-  _PricedRequest p,
+  CatalogScope scope,
+  DateTime now,
 ) async {
-  final level = await StockLevel.db.findFirstRow(
-    w.session,
-    where: (l) =>
-        l.stockLocationId.equals(locationId) & l.variantId.equals(p.variant.id),
-    transaction: w.transaction,
-  );
-  return level == null || level.avgCost == 0
-      ? Money(p.variant.costPrice)
-      : Money(level.avgCost);
-}
-
-Future<String> _nextNumber(SyncTx w, CatalogScope scope, DateTime now) async {
   final outlet = await Outlet.db.findById(
     w.session,
     scope.outletId,

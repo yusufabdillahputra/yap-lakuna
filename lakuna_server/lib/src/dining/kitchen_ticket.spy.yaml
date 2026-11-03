@@ -1,0 +1,27 @@
+### Tiket dapur (F1-10): satu kiriman item Baru dari satu bill. Nomor
+### `K-0012` urut per hari per perangkat.
+class: KitchenTicket
+table: kitchen_tickets
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  saleId: UuidValue, relation(parent=sales, onDelete=Restrict), column=sale_id
+  number: int
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  sentAt: DateTime, column=sent_at
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  kitchen_tickets_sale_idx:
+    fields: saleId
+  kitchen_tickets_device_idx:
+    fields: deviceId, sentAt

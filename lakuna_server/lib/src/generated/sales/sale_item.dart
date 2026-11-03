@@ -12,6 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
+import '../sales/kitchen_status.dart' as _i2h1um1f;
 
 /// Baris nota. Nama, satuan, dan harga disalin saat jual agar nota lama
 /// tidak berubah bila katalog diubah.
@@ -34,6 +35,9 @@ abstract class SaleItem
     required this.unitCost,
     required this.tracksStock,
     required this.sortOrder,
+    this.kitchenStatus,
+    this.kitchenTicketId,
+    this.note,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -64,6 +68,9 @@ abstract class SaleItem
     required int unitCost,
     required bool tracksStock,
     required int sortOrder,
+    _i2h1um1f.KitchenStatus? kitchenStatus,
+    _is.UuidValue? kitchenTicketId,
+    String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -104,6 +111,17 @@ abstract class SaleItem
         jsonSerialization['tracksStock'],
       ),
       sortOrder: jsonSerialization['sortOrder'] as int,
+      kitchenStatus: jsonSerialization['kitchenStatus'] == null
+          ? null
+          : _i2h1um1f.KitchenStatus.fromJson(
+              (jsonSerialization['kitchenStatus'] as String),
+            ),
+      kitchenTicketId: jsonSerialization['kitchenTicketId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['kitchenTicketId'],
+            ),
+      note: jsonSerialization['note'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -171,6 +189,14 @@ abstract class SaleItem
 
   int sortOrder;
 
+  /// F&B (F1-10); `null` = penjualan retail.
+  _i2h1um1f.KitchenStatus? kitchenStatus;
+
+  _is.UuidValue? kitchenTicketId;
+
+  /// Catatan dapur, maks 120 karakter.
+  String? note;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -210,6 +236,9 @@ abstract class SaleItem
     int? unitCost,
     bool? tracksStock,
     int? sortOrder,
+    _i2h1um1f.KitchenStatus? kitchenStatus,
+    _is.UuidValue? kitchenTicketId = const _is.$UndefinedUuidValue(),
+    String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -239,6 +268,9 @@ abstract class SaleItem
       'unitCost': unitCost,
       'tracksStock': tracksStock,
       'sortOrder': sortOrder,
+      if (kitchenStatus != null) 'kitchenStatus': kitchenStatus?.toJson(),
+      if (kitchenTicketId != null) 'kitchenTicketId': kitchenTicketId?.toJson(),
+      if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -270,6 +302,9 @@ abstract class SaleItem
       'unitCost': unitCost,
       'tracksStock': tracksStock,
       'sortOrder': sortOrder,
+      if (kitchenStatus != null) 'kitchenStatus': kitchenStatus?.toJson(),
+      if (kitchenTicketId != null) 'kitchenTicketId': kitchenTicketId?.toJson(),
+      if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -309,6 +344,8 @@ abstract class SaleItem
   }
 }
 
+class _Undefined {}
+
 class _SaleItemImpl extends SaleItem {
   _SaleItemImpl({
     _is.UuidValue? id,
@@ -327,6 +364,9 @@ class _SaleItemImpl extends SaleItem {
     required int unitCost,
     required bool tracksStock,
     required int sortOrder,
+    _i2h1um1f.KitchenStatus? kitchenStatus,
+    _is.UuidValue? kitchenTicketId,
+    String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -352,6 +392,9 @@ class _SaleItemImpl extends SaleItem {
          unitCost: unitCost,
          tracksStock: tracksStock,
          sortOrder: sortOrder,
+         kitchenStatus: kitchenStatus,
+         kitchenTicketId: kitchenTicketId,
+         note: note,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -383,6 +426,9 @@ class _SaleItemImpl extends SaleItem {
     int? unitCost,
     bool? tracksStock,
     int? sortOrder,
+    Object? kitchenStatus = _Undefined,
+    _is.UuidValue? kitchenTicketId = const _is.$UndefinedUuidValue(),
+    Object? note = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -411,6 +457,13 @@ class _SaleItemImpl extends SaleItem {
       unitCost: unitCost ?? this.unitCost,
       tracksStock: tracksStock ?? this.tracksStock,
       sortOrder: sortOrder ?? this.sortOrder,
+      kitchenStatus: kitchenStatus is _i2h1um1f.KitchenStatus?
+          ? kitchenStatus
+          : this.kitchenStatus,
+      kitchenTicketId: kitchenTicketId is _is.UndefinedSentinel
+          ? this.kitchenTicketId
+          : kitchenTicketId,
+      note: note is String? ? note : this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -512,6 +565,24 @@ class SaleItemUpdateTable extends _is.UpdateTable<SaleItemTable> {
 
   _is.ColumnValue<int, int> sortOrder(int value) => _is.ColumnValue(
     table.sortOrder,
+    value,
+  );
+
+  _is.ColumnValue<_i2h1um1f.KitchenStatus, _i2h1um1f.KitchenStatus>
+  kitchenStatus(_i2h1um1f.KitchenStatus? value) => _is.ColumnValue(
+    table.kitchenStatus,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> kitchenTicketId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.kitchenTicketId,
+    value,
+  );
+
+  _is.ColumnValue<String, String> note(String? value) => _is.ColumnValue(
+    table.note,
     value,
   );
 
@@ -643,6 +714,21 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'sortOrder',
     );
+    kitchenStatus = _is.ColumnEnum(
+      'kitchen_status',
+      this,
+      _is.EnumSerialization.byName,
+      fieldName: 'kitchenStatus',
+    );
+    kitchenTicketId = _is.ColumnUuid(
+      'kitchen_ticket_id',
+      this,
+      fieldName: 'kitchenTicketId',
+    );
+    note = _is.ColumnString(
+      'note',
+      this,
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -723,6 +809,14 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt sortOrder;
 
+  /// F&B (F1-10); `null` = penjualan retail.
+  late final _is.ColumnEnum<_i2h1um1f.KitchenStatus> kitchenStatus;
+
+  late final _is.ColumnUuid kitchenTicketId;
+
+  /// Catatan dapur, maks 120 karakter.
+  late final _is.ColumnString note;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -757,6 +851,9 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
     unitCost,
     tracksStock,
     sortOrder,
+    kitchenStatus,
+    kitchenTicketId,
+    note,
     createdAt,
     updatedAt,
     deletedAt,

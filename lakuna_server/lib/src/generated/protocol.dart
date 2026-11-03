@@ -31,6 +31,9 @@ import 'catalog/stock_level.dart' as _i9vlojuz;
 import 'catalog/stock_movement.dart' as _i3qehoul;
 import 'catalog/stock_source_type.dart' as _ieciauh3;
 import 'catalog/unit.dart' as _iqtijg36;
+import 'dining/dining_area.dart' as _i9bwyigh;
+import 'dining/dining_table.dart' as _i0tiivx0;
+import 'dining/kitchen_ticket.dart' as _iks39owa;
 import 'media/media_file.dart' as _iw898kbq;
 import 'media/media_kind.dart' as _i8mjpd0r;
 import 'organization/business_type.dart' as _i6i3gkff;
@@ -43,6 +46,8 @@ import 'organization/staff_member.dart' as _iy6hfkoy;
 import 'organization/stock_location.dart' as _iwbn33ao;
 import 'organization/tenant.dart' as _icpow00o;
 import 'organization/tenant_plan.dart' as _ii59gw8o;
+import 'sales/kitchen_status.dart' as _ih3x5ypv;
+import 'sales/order_type.dart' as _irm80e8w;
 import 'sales/payment.dart' as _inbmsx46;
 import 'sales/payment_method.dart' as _i3u620qk;
 import 'sales/payment_status.dart' as _i132i774;
@@ -71,6 +76,9 @@ export 'catalog/stock_level.dart';
 export 'catalog/stock_movement.dart';
 export 'catalog/stock_source_type.dart';
 export 'catalog/unit.dart';
+export 'dining/dining_area.dart';
+export 'dining/dining_table.dart';
+export 'dining/kitchen_ticket.dart';
 export 'media/media_file.dart';
 export 'media/media_kind.dart';
 export 'organization/business_type.dart';
@@ -83,6 +91,8 @@ export 'organization/staff_member.dart';
 export 'organization/stock_location.dart';
 export 'organization/tenant.dart';
 export 'organization/tenant_plan.dart';
+export 'sales/kitchen_status.dart';
+export 'sales/order_type.dart';
 export 'sales/payment.dart';
 export 'sales/payment_method.dart';
 export 'sales/payment_status.dart';
@@ -125,6 +135,9 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i3qehoul.StockMovement>,
           _is.getType<_ieciauh3.StockSourceType>,
           _is.getType<_iqtijg36.MeasureUnit>,
+          _is.getType<_i9bwyigh.DiningArea>,
+          _is.getType<_i0tiivx0.DiningTable>,
+          _is.getType<_iks39owa.KitchenTicket>,
           _is.getType<_iw898kbq.MediaFile>,
           _is.getType<_i8mjpd0r.MediaKind>,
           _is.getType<_i6i3gkff.BusinessType>,
@@ -137,6 +150,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iwbn33ao.StockLocation>,
           _is.getType<_icpow00o.Tenant>,
           _is.getType<_ii59gw8o.TenantPlan>,
+          _is.getType<_ih3x5ypv.KitchenStatus>,
+          _is.getType<_irm80e8w.OrderType>,
           _is.getType<_inbmsx46.Payment>,
           _is.getType<_i3u620qk.PaymentMethod>,
           _is.getType<_i132i774.PaymentStatus>,
@@ -165,6 +180,9 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i3qehoul.StockMovement?>,
           _is.getType<_ieciauh3.StockSourceType?>,
           _is.getType<_iqtijg36.MeasureUnit?>,
+          _is.getType<_i9bwyigh.DiningArea?>,
+          _is.getType<_i0tiivx0.DiningTable?>,
+          _is.getType<_iks39owa.KitchenTicket?>,
           _is.getType<_iw898kbq.MediaFile?>,
           _is.getType<_i8mjpd0r.MediaKind?>,
           _is.getType<_i6i3gkff.BusinessType?>,
@@ -177,6 +195,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iwbn33ao.StockLocation?>,
           _is.getType<_icpow00o.Tenant?>,
           _is.getType<_ii59gw8o.TenantPlan?>,
+          _is.getType<_ih3x5ypv.KitchenStatus?>,
+          _is.getType<_irm80e8w.OrderType?>,
           _is.getType<_inbmsx46.Payment?>,
           _is.getType<_i3u620qk.PaymentMethod?>,
           _is.getType<_i132i774.PaymentStatus?>,
@@ -212,6 +232,9 @@ class Protocol extends _is.DatabaseSerializationManager
           'StockMovement',
           'StockSourceType',
           'MeasureUnit',
+          'DiningArea',
+          'DiningTable',
+          'KitchenTicket',
           'MediaFile',
           'MediaKind',
           'BusinessType',
@@ -224,6 +247,8 @@ class Protocol extends _is.DatabaseSerializationManager
           'StockLocation',
           'Tenant',
           'TenantPlan',
+          'KitchenStatus',
+          'OrderType',
           'Payment',
           'PaymentMethod',
           'PaymentStatus',
@@ -922,6 +947,480 @@ class Protocol extends _is.DatabaseSerializationManager
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'dining_areas',
+      dartName: 'DiningArea',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dining_areas_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dining_areas_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'dining_areas_outlet_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'dining_tables',
+      dartName: 'DiningTable',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'dining_area_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'seats',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '4',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sort_order',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dining_tables_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dining_tables_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dining_tables_fk_2',
+          columns: ['dining_area_id'],
+          referenceTable: 'dining_areas',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'dining_tables_outlet_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'kitchen_tickets',
+      dartName: 'KitchenTicket',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'number',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'staff_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sent_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'kitchen_tickets_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'kitchen_tickets_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'kitchen_tickets_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'kitchen_tickets_fk_3',
+          columns: ['sale_id'],
+          referenceTable: 'sales',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'kitchen_tickets_fk_4',
+          columns: ['staff_id'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'kitchen_tickets_sale_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'kitchen_tickets_device_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'device_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sent_at',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -2267,6 +2766,24 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'int',
         ),
         _isp.ColumnDefinition(
+          name: 'kitchen_status',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:KitchenStatus?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kitchen_ticket_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -2353,6 +2870,16 @@ class Protocol extends _is.DatabaseSerializationManager
           constraintName: 'sale_items_fk_3',
           columns: ['product_unit_id'],
           referenceTable: 'product_units',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sale_items_fk_4',
+          columns: ['kitchen_ticket_id'],
+          referenceTable: 'kitchen_tickets',
           referenceTableSchema: 'public',
           referenceColumns: ['id'],
           onUpdate: _isp.ForeignKeyAction.noAction,
@@ -2475,6 +3002,107 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'DateTime',
         ),
         _isp.ColumnDefinition(
+          name: 'order_type',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:OrderType',
+          columnDefault: '\'retail\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'dining_table_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bill_number',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'queue_number',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'customer_name',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'guest_count',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'opened_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'opened_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bill_requested_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'service_bp',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tax_bp',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'service_amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tax_amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'void_reason',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'voided_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'voided_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -2577,6 +3205,16 @@ class Protocol extends _is.DatabaseSerializationManager
           onDelete: _isp.ForeignKeyAction.restrict,
           matchType: null,
         ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sales_fk_5',
+          columns: ['dining_table_id'],
+          referenceTable: 'dining_tables',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
       ],
       indexes: [
         _isp.IndexDefinition(
@@ -2620,6 +3258,23 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'sold_at',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sales_outlet_status_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'status',
             ),
           ],
           type: 'btree',
@@ -3846,6 +4501,15 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _iqtijg36.MeasureUnit) {
       return _iqtijg36.MeasureUnit.fromJson(data) as T;
     }
+    if (t == _i9bwyigh.DiningArea) {
+      return _i9bwyigh.DiningArea.fromJson(data) as T;
+    }
+    if (t == _i0tiivx0.DiningTable) {
+      return _i0tiivx0.DiningTable.fromJson(data) as T;
+    }
+    if (t == _iks39owa.KitchenTicket) {
+      return _iks39owa.KitchenTicket.fromJson(data) as T;
+    }
     if (t == _iw898kbq.MediaFile) {
       return _iw898kbq.MediaFile.fromJson(data) as T;
     }
@@ -3881,6 +4545,12 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (t == _ii59gw8o.TenantPlan) {
       return _ii59gw8o.TenantPlan.fromJson(data) as T;
+    }
+    if (t == _ih3x5ypv.KitchenStatus) {
+      return _ih3x5ypv.KitchenStatus.fromJson(data) as T;
+    }
+    if (t == _irm80e8w.OrderType) {
+      return _irm80e8w.OrderType.fromJson(data) as T;
     }
     if (t == _inbmsx46.Payment) {
       return _inbmsx46.Payment.fromJson(data) as T;
@@ -3973,6 +4643,16 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_iqtijg36.MeasureUnit?>()) {
       return (data != null ? _iqtijg36.MeasureUnit.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i9bwyigh.DiningArea?>()) {
+      return (data != null ? _i9bwyigh.DiningArea.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i0tiivx0.DiningTable?>()) {
+      return (data != null ? _i0tiivx0.DiningTable.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iks39owa.KitchenTicket?>()) {
+      return (data != null ? _iks39owa.KitchenTicket.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iw898kbq.MediaFile?>()) {
       return (data != null ? _iw898kbq.MediaFile.fromJson(data) : null) as T;
     }
@@ -4010,6 +4690,13 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (t == _is.getType<_ii59gw8o.TenantPlan?>()) {
       return (data != null ? _ii59gw8o.TenantPlan.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ih3x5ypv.KitchenStatus?>()) {
+      return (data != null ? _ih3x5ypv.KitchenStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_irm80e8w.OrderType?>()) {
+      return (data != null ? _irm80e8w.OrderType.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_inbmsx46.Payment?>()) {
       return (data != null ? _inbmsx46.Payment.fromJson(data) : null) as T;
@@ -4094,6 +4781,9 @@ class Protocol extends _is.DatabaseSerializationManager
       _i3qehoul.StockMovement => 'StockMovement',
       _ieciauh3.StockSourceType => 'StockSourceType',
       _iqtijg36.MeasureUnit => 'MeasureUnit',
+      _i9bwyigh.DiningArea => 'DiningArea',
+      _i0tiivx0.DiningTable => 'DiningTable',
+      _iks39owa.KitchenTicket => 'KitchenTicket',
       _iw898kbq.MediaFile => 'MediaFile',
       _i8mjpd0r.MediaKind => 'MediaKind',
       _i6i3gkff.BusinessType => 'BusinessType',
@@ -4106,6 +4796,8 @@ class Protocol extends _is.DatabaseSerializationManager
       _iwbn33ao.StockLocation => 'StockLocation',
       _icpow00o.Tenant => 'Tenant',
       _ii59gw8o.TenantPlan => 'TenantPlan',
+      _ih3x5ypv.KitchenStatus => 'KitchenStatus',
+      _irm80e8w.OrderType => 'OrderType',
       _inbmsx46.Payment => 'Payment',
       _i3u620qk.PaymentMethod => 'PaymentMethod',
       _i132i774.PaymentStatus => 'PaymentStatus',
@@ -4162,6 +4854,12 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'StockSourceType';
       case _iqtijg36.MeasureUnit():
         return 'MeasureUnit';
+      case _i9bwyigh.DiningArea():
+        return 'DiningArea';
+      case _i0tiivx0.DiningTable():
+        return 'DiningTable';
+      case _iks39owa.KitchenTicket():
+        return 'KitchenTicket';
       case _iw898kbq.MediaFile():
         return 'MediaFile';
       case _i8mjpd0r.MediaKind():
@@ -4186,6 +4884,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'Tenant';
       case _ii59gw8o.TenantPlan():
         return 'TenantPlan';
+      case _ih3x5ypv.KitchenStatus():
+        return 'KitchenStatus';
+      case _irm80e8w.OrderType():
+        return 'OrderType';
       case _inbmsx46.Payment():
         return 'Payment';
       case _i3u620qk.PaymentMethod():
@@ -4282,6 +4984,15 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'MeasureUnit') {
       return deserialize<_iqtijg36.MeasureUnit>(data['data']);
     }
+    if (dataClassName == 'DiningArea') {
+      return deserialize<_i9bwyigh.DiningArea>(data['data']);
+    }
+    if (dataClassName == 'DiningTable') {
+      return deserialize<_i0tiivx0.DiningTable>(data['data']);
+    }
+    if (dataClassName == 'KitchenTicket') {
+      return deserialize<_iks39owa.KitchenTicket>(data['data']);
+    }
     if (dataClassName == 'MediaFile') {
       return deserialize<_iw898kbq.MediaFile>(data['data']);
     }
@@ -4317,6 +5028,12 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'TenantPlan') {
       return deserialize<_ii59gw8o.TenantPlan>(data['data']);
+    }
+    if (dataClassName == 'KitchenStatus') {
+      return deserialize<_ih3x5ypv.KitchenStatus>(data['data']);
+    }
+    if (dataClassName == 'OrderType') {
+      return deserialize<_irm80e8w.OrderType>(data['data']);
     }
     if (dataClassName == 'Payment') {
       return deserialize<_inbmsx46.Payment>(data['data']);
@@ -4425,6 +5142,12 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i3qehoul.StockMovement.t;
       case _iqtijg36.MeasureUnit:
         return _iqtijg36.MeasureUnit.t;
+      case _i9bwyigh.DiningArea:
+        return _i9bwyigh.DiningArea.t;
+      case _i0tiivx0.DiningTable:
+        return _i0tiivx0.DiningTable.t;
+      case _iks39owa.KitchenTicket:
+        return _iks39owa.KitchenTicket.t;
       case _iw898kbq.MediaFile:
         return _iw898kbq.MediaFile.t;
       case _iis0lnof.Device:
