@@ -58,6 +58,7 @@ import 'sales/sale.dart' as _ichu53ep;
 import 'sales/sale_item.dart' as _i2mbgaee;
 import 'sales/sale_item_modifier.dart' as _ij9zr0hu;
 import 'sales/sale_status.dart' as _i3d8n48k;
+import 'sales/split_mode.dart' as _iesw84sv;
 import 'stock/stock_adjustment.dart' as _i7xu84a6;
 import 'stock/stock_adjustment_item.dart' as _iuqt5pmc;
 import 'stock/stock_adjustment_reason.dart' as _i5me420k;
@@ -107,6 +108,7 @@ export 'sales/sale.dart';
 export 'sales/sale_item.dart';
 export 'sales/sale_item_modifier.dart';
 export 'sales/sale_status.dart';
+export 'sales/split_mode.dart';
 export 'stock/stock_adjustment.dart';
 export 'stock/stock_adjustment_item.dart';
 export 'stock/stock_adjustment_reason.dart';
@@ -170,6 +172,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i2mbgaee.SaleItem>,
           _is.getType<_ij9zr0hu.SaleItemModifier>,
           _is.getType<_i3d8n48k.SaleStatus>,
+          _is.getType<_iesw84sv.SplitMode>,
           _is.getType<_i7xu84a6.StockAdjustment>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem>,
           _is.getType<_i5me420k.StockAdjustmentReason>,
@@ -219,6 +222,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i2mbgaee.SaleItem?>,
           _is.getType<_ij9zr0hu.SaleItemModifier?>,
           _is.getType<_i3d8n48k.SaleStatus?>,
+          _is.getType<_iesw84sv.SplitMode?>,
           _is.getType<_i7xu84a6.StockAdjustment?>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem?>,
           _is.getType<_i5me420k.StockAdjustmentReason?>,
@@ -275,6 +279,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'SaleItem',
           'SaleItemModifier',
           'SaleStatus',
+          'SplitMode',
           'StockAdjustment',
           'StockAdjustmentItem',
           'StockAdjustmentReason',
@@ -2241,6 +2246,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'DateTime',
         ),
         _isp.ColumnDefinition(
+          name: 'guest_label',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -3403,6 +3414,18 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'String?',
         ),
         _isp.ColumnDefinition(
+          name: 'guest_label',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'split_from_item_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -3720,6 +3743,18 @@ class Protocol extends _is.DatabaseSerializationManager
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
           dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'split_mode',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:SplitMode?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'split_guests',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
         ),
         _isp.ColumnDefinition(
           name: 'created_at',
@@ -5201,6 +5236,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i3d8n48k.SaleStatus) {
       return _i3d8n48k.SaleStatus.fromJson(data) as T;
     }
+    if (t == _iesw84sv.SplitMode) {
+      return _iesw84sv.SplitMode.fromJson(data) as T;
+    }
     if (t == _i7xu84a6.StockAdjustment) {
       return _i7xu84a6.StockAdjustment.fromJson(data) as T;
     }
@@ -5367,6 +5405,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_i3d8n48k.SaleStatus?>()) {
       return (data != null ? _i3d8n48k.SaleStatus.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_iesw84sv.SplitMode?>()) {
+      return (data != null ? _iesw84sv.SplitMode.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_i7xu84a6.StockAdjustment?>()) {
       return (data != null ? _i7xu84a6.StockAdjustment.fromJson(data) : null)
           as T;
@@ -5457,6 +5498,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _i2mbgaee.SaleItem => 'SaleItem',
       _ij9zr0hu.SaleItemModifier => 'SaleItemModifier',
       _i3d8n48k.SaleStatus => 'SaleStatus',
+      _iesw84sv.SplitMode => 'SplitMode',
       _i7xu84a6.StockAdjustment => 'StockAdjustment',
       _iuqt5pmc.StockAdjustmentItem => 'StockAdjustmentItem',
       _i5me420k.StockAdjustmentReason => 'StockAdjustmentReason',
@@ -5561,6 +5603,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'SaleItemModifier';
       case _i3d8n48k.SaleStatus():
         return 'SaleStatus';
+      case _iesw84sv.SplitMode():
+        return 'SplitMode';
       case _i7xu84a6.StockAdjustment():
         return 'StockAdjustment';
       case _iuqt5pmc.StockAdjustmentItem():
@@ -5725,6 +5769,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'SaleStatus') {
       return deserialize<_i3d8n48k.SaleStatus>(data['data']);
+    }
+    if (dataClassName == 'SplitMode') {
+      return deserialize<_iesw84sv.SplitMode>(data['data']);
     }
     if (dataClassName == 'StockAdjustment') {
       return deserialize<_i7xu84a6.StockAdjustment>(data['data']);

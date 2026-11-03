@@ -24,6 +24,19 @@ abstract final class Routes {
   /// Layar Meja dengan bill [id] terpilih.
   static String tablesBill(String id) => '$tables?bill=$id';
 
+  /// Split bill open bill [id] (F1-10c, layar 1.9).
+  static String tablesSplit(String id) => '$tables/split/$id';
+
+  /// Bayar bagian split: tamu [guest] atau nominal [amount] (F1-10c).
+  static String cashierBillPart(String id, {String? guest, int? amount}) => Uri(
+    path: cashier,
+    queryParameters: {
+      'bill': id,
+      'guest': ?guest,
+      if (amount != null) 'amount': '$amount',
+    },
+  ).toString();
+
   /// Daftar produk & stok (F1-07).
   static const products = '/produk';
 

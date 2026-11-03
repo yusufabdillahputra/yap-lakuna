@@ -104,4 +104,43 @@ abstract class DiningRepository {
   Future<Result<void>> voidBill(UuidValue billId, String reason);
 
   Future<Result<void>> deleteEmptyBill(UuidValue billId);
+
+  // --- Split bill (F1-10c) --------------------------------------------------
+
+  /// Bill [billId] beserta izin bayar dan konfirmasi QRIS untuk layar 1.9.
+  Future<Result<SplitBillData>> loadSplit(UuidValue billId);
+
+  /// Mode split dan jumlah tamu; [mode] `null` membatalkan split. Gagal
+  /// dengan `SplitInvalid` atau `SplitLocked`.
+  Future<Result<OpenBill>> setSplit(
+    UuidValue billId,
+    SplitMode? mode,
+    int guests,
+  );
+
+  /// Satu porsi item [itemId] ke tamu [guest] (`null` = belum dibagi).
+  Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest);
+
+  /// *Sudah Terbayar* bagian QRIS menunggu; butuh `payments:confirm`.
+  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId);
+
+  /// Membatalkan bagian QRIS yang menunggu.
+  Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId);
+}
+
+/// Isi layar split bill 1.9.
+class SplitBillData {
+  const SplitBillData({
+    required this.bill,
+    required this.canPay,
+    required this.canConfirm,
+  });
+
+  final OpenBill bill;
+
+  /// `sales:create`: boleh membayar bagian.
+  final bool canPay;
+
+  /// `payments:confirm`: boleh menekan *Sudah Terbayar*.
+  final bool canConfirm;
 }

@@ -12,6 +12,7 @@ import 'cashier_view.dart' show cashierKeepsFocus;
 import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart';
 import '../receipt/receipt_paper_view.dart';
+import '../dining/split_bill_view.dart' show splitErrorMessage;
 import 'cashier_view_model.dart';
 import 'qris_panel.dart';
 import 'split_panel.dart';
@@ -39,6 +40,7 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       SalePaymentUnsupported() => l10n.paymentErrorQrisOff,
       SalePaymentUnconfirmed() => l10n.paymentErrorUnconfirmed,
       SalePaymentInvalid() => l10n.paymentErrorSplit,
+      SplitLocked() || SplitInvalid() => splitErrorMessage(l10n, error),
       NotPermitted(permission: Permission.paymentsConfirm) =>
         l10n.paymentErrorConfirmPermission,
       NotPermitted() => l10n.paymentErrorPermission,
@@ -144,9 +146,26 @@ class PaymentPanel extends StatelessWidget {
 /// Ringkasan bill (hanya baca) di layar Bayar mode open bill: item,
 /// subtotal, service, PB1, total, agar kasir bisa menjelaskan tagihan.
 class BillPaySummary extends StatelessWidget {
-  const BillPaySummary({super.key, required this.bill});
+  const BillPaySummary({
+    super.key,
+    required this.bill,
+    this.partLabel,
+    this.partDue,
+  });
 
   final OpenBill bill;
+
+  /// Bagian split bill yang sedang dibayar (F1-10c).
+  final String? partLabel;
+  final Money? partDue;
+
+  /// Mode per item: hanya porsi tamu yang dibayar agar layar Bayar ringkas.
+  List<SaleItem> get _items => switch ((bill.split, partLabel)) {
+    (final split?, final label?) when split.mode == SplitKind.item =>
+      split.parts.where((p) => p.label == label).firstOrNull?.items ??
+          bill.items,
+    _ => bill.items,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +192,7 @@ class BillPaySummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 4,
         children: [
-          for (final item in bill.items)
+          for (final item in _items)
             line(
               '${formatQty(context, Qty(item.quantityMilli))}'
               '${item.productUnitId == null ? '' : ' ${item.unitName}'} × '
@@ -196,7 +215,16 @@ class BillPaySummary extends StatelessWidget {
               l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
               charges.tax,
             ),
-          line(l10n.diningTotal, charges.total, bold: true),
+          line(l10n.diningTotal, charges.total, bold: partDue == null),
+          if (partDue case final due?) ...[
+            const FDivider(),
+            line(
+              l10n.paymentPartDue(partLabel ?? '-'),
+              due,
+              bold: true,
+              key: const ValueKey('payment-part-due'),
+            ),
+          ],
         ],
       ),
     );
@@ -219,14 +247,22 @@ class PaymentView extends StatelessWidget {
     final vm = viewModel;
     final header = _StageHeader(
       title: l10n.paymentTitle(formatMoney(context, vm.payTotal)),
-      subtitle: vm.bill == null
-          ? l10n.paymentLines(vm.payLineCount)
-          : l10n.paymentBillLines(
-              billOrderLabel(l10n, vm.bill!),
-              vm.payLineCount,
-            ),
+      subtitle: switch (vm.bill) {
+        null => l10n.paymentLines(vm.payLineCount),
+        final bill when vm.partMode => switch (vm.partLabel) {
+          final label? => l10n.paymentPartSubtitle(
+            billOrderLabel(l10n, bill),
+            label,
+          ),
+          null => l10n.paymentPartNext(billOrderLabel(l10n, bill)),
+        },
+        final bill => l10n.paymentBillLines(
+          billOrderLabel(l10n, bill),
+          vm.payLineCount,
+        ),
+      },
       onBack: vm.pay.running ? null : vm.backToCart,
-      backLabel: l10n.paymentBack,
+      backLabel: vm.partMode ? l10n.paymentPartBack : l10n.paymentBack,
     );
     final methods = _MethodChoice(viewModel: vm, compact: narrow);
     final detail = switch (vm.mode) {
@@ -249,7 +285,13 @@ class PaymentView extends StatelessWidget {
     final finish = vm.mode == PayMode.qris
         ? QrisActions(viewModel: vm)
         : _FinishButton(viewModel: vm);
-    final summary = vm.bill == null ? null : BillPaySummary(bill: vm.bill!);
+    final summary = vm.bill == null
+        ? null
+        : BillPaySummary(
+            bill: vm.bill!,
+            partLabel: vm.partMode ? vm.partLabel : null,
+            partDue: vm.partMode ? vm.payTotal : null,
+          );
 
     if (narrow) {
       return Column(

@@ -148,6 +148,24 @@ String _optionLabel(String variant, String? unit) => [
 /// View model kasir retail (1.4 / 1.11) dan bayar (1.5 / 1.5c), F1-04/F1-05.
 /// Keranjang hidup selama layar kasir terbuka; bayar adalah tahap di layar
 /// yang sama agar keranjang tidak hilang.
+/// Bagian split bill yang dibayar di layar Bayar (F1-10c): tamu [guest]
+/// (mode per item / rata) atau nominal [amount] (nominal bebas).
+class BillPart {
+  const BillPart({this.guest, this.amount});
+
+  final String? guest;
+  final Money? amount;
+}
+
+/// Bill yang lunas di luar layar Bayar (mis. *Sudah Terbayar* di layar
+/// split): layar kasir langsung menampilkan struknya.
+class CompletedBill {
+  const CompletedBill(this.bill, this.result);
+
+  final OpenBill bill;
+  final CheckoutResult result;
+}
+
 class CashierViewModel extends ChangeNotifier {
   CashierViewModel({required this._repository, required this._printer}) {
     load = Command0(_load)..addListener(notifyListeners);
@@ -170,7 +188,10 @@ class CashierViewModel extends ChangeNotifier {
 
   /// Mode bill (F1-10): memuat open bill lalu langsung ke tahap bayar.
   late final Command1<OpenBill, UuidValue> openBill;
-  late final Command0<CheckoutResult> pay;
+
+  /// Hasil `null` = bagian split terbayar tapi bill belum lunas (kembali
+  /// ke layar split lewat [onLeaveBill]).
+  late final Command0<CheckoutResult?> pay;
 
   /// Mencetak baris struk nota terakhir (F1-06).
   late final Command1<void, List<ReceiptLine>> printReceipt;
@@ -180,6 +201,8 @@ class CashierViewModel extends ChangeNotifier {
 
   CashierData? _data;
   OpenBill? _bill;
+  BillPart? _part;
+  var _waitQris = false;
   String _query = '';
   String? _unknownCode;
   UuidValue? _categoryId;
@@ -394,19 +417,77 @@ class CashierViewModel extends ChangeNotifier {
       // Bill kosong (mis. tautan lama) tidak bisa dibayar: tampilkan galat,
       // jangan jatuh ke keranjang retail dengan mode bill aktif.
       if (value.items.isEmpty) return Result.error(SaleEmpty());
+      if (_part != null) {
+        if (_partError(value) case final e?) return Result.error(e);
+      }
       _bill = value;
       startPayment();
     }
     return result;
   }
 
-  /// Total yang dibayar: total bill (dengan service & PB1) atau keranjang.
-  Money get payTotal => _bill?.charges.total ?? totals.total;
+  /// Tampilkan struk bill yang sudah lunas (tahap selesai, cetak otomatis
+  /// tetap berlaku).
+  void showReceipt(CompletedBill done) {
+    _bill = done.bill;
+    _result = done.result;
+    _stage = CashierStage.done;
+    notifyListeners();
+  }
+
+  /// Bagian split yang dibayar; diatur sebelum [openBill].
+  BillPart? get part => _part;
+
+  void setPart(BillPart? value) => _part = value;
+
+  /// Tautan bagian yang tidak bisa dibayar lagi (mis. sudah lunas).
+  SplitInvalid? _partError(OpenBill bill) {
+    final split = bill.split;
+    if (split == null) return const SplitInvalid(SplitError.notSet);
+    final guest = _part?.guest;
+    if (guest == null) {
+      return split.next == null
+          ? const SplitInvalid(SplitError.partPaid)
+          : null;
+    }
+    final part = split.parts.where((p) => p.label == guest).firstOrNull;
+    if (part == null) return const SplitInvalid(SplitError.guest);
+    if (part.payments.isNotEmpty) {
+      return const SplitInvalid(SplitError.partPaid);
+    }
+    return null;
+  }
+
+  /// Membayar satu bagian split bill, bukan seluruh bill.
+  bool get partMode => _bill != null && _part != null;
+
+  /// Label tamu yang dibayar: tamu terpilih atau tamu berikutnya di mode
+  /// nominal bebas.
+  String? get partLabel => _part?.guest ?? _bill?.split?.next?.label;
+
+  /// Total yang dibayar: bagian tamu, total bill (dengan service & PB1),
+  /// atau keranjang.
+  Money get payTotal {
+    final part = _part;
+    final bill = _bill;
+    if (part != null && bill != null) {
+      if (part.amount case final amount?) return amount;
+      final split = bill.split;
+      final due = split?.parts
+          .where((p) => p.label == part.guest)
+          .firstOrNull
+          ?.due;
+      return due ?? Money.zero;
+    }
+    return bill?.charges.total ?? totals.total;
+  }
 
   /// Jumlah baris yang dibayar.
   int get payLineCount => _bill?.items.length ?? lineCount;
 
-  bool get _nothingToPay => _bill == null ? cartIsEmpty : _bill!.items.isEmpty;
+  bool get _nothingToPay => _bill == null
+      ? cartIsEmpty
+      : _bill!.items.isEmpty || (partMode && payTotal <= Money.zero);
 
   // --- Bayar ---------------------------------------------------------------
 
@@ -464,6 +545,22 @@ class CashierViewModel extends ChangeNotifier {
   bool get canConfirmQris =>
       !_nothingToPay && !pay.running && qris != null && canConfirmPayments;
 
+  /// *Simpan, tunggu konfirmasi* (QRIS bagian split): bagian tersimpan
+  /// sebagai menunggu dan dikonfirmasi nanti di layar split.
+  bool get canWaitQris =>
+      partMode && !_nothingToPay && !pay.running && qris != null;
+
+  /// Simpan bagian QRIS sebagai menunggu konfirmasi.
+  Future<void> waitQris() async {
+    if (!canWaitQris) return;
+    _waitQris = true;
+    try {
+      await pay.execute();
+    } finally {
+      _waitQris = false;
+    }
+  }
+
   void startPayment() {
     if (_nothingToPay) return;
     _stage = CashierStage.pay;
@@ -479,6 +576,11 @@ class CashierViewModel extends ChangeNotifier {
 
   /// Dipanggil saat keluar dari mode bill (kembali ke layar Meja).
   VoidCallback? onLeaveBill;
+
+  /// Dipanggil oleh *Kembali ke meja* setelah bill lunas; bawaan
+  /// [onLeaveBill]. Mode bagian split kembali ke layar split saat belum
+  /// lunas, tapi ke layar Meja setelah lunas.
+  VoidCallback? onBillDone;
 
   void backToCart() {
     if (pay.running) return;
@@ -629,9 +731,35 @@ class CashierViewModel extends ChangeNotifier {
     ],
   };
 
-  Future<Result<CheckoutResult>> _pay() async {
+  Future<Result<CheckoutResult?>> _payPart(OpenBill bill, BillPart part) async {
+    final pending = _waitQris;
+    final result = await _repository.payBillPart(
+      bill.id,
+      guest: part.amount == null ? part.guest : null,
+      amount: part.amount,
+      payments: pending
+          ? const [SalePaymentRequest(method: PaymentMethod.qrisStatic)]
+          : _payments(),
+      pending: pending,
+    );
+    switch (result) {
+      case Ok(value: SplitPayResult(:final receipt?)):
+        _result = receipt;
+        _stage = CashierStage.done;
+        return Result.ok(receipt);
+      case Ok():
+        onLeaveBill?.call();
+        return const Result.ok(null);
+      case Error(:final error):
+        _error = error;
+        return Result.error(error);
+    }
+  }
+
+  Future<Result<CheckoutResult?>> _pay() async {
     _error = null;
     final bill = _bill;
+    if (bill != null && _part != null) return _payPart(bill, _part!);
     final result = bill != null
         ? await _repository.payBill(bill.id, _payments())
         : await _repository.checkout(
@@ -664,7 +792,7 @@ class CashierViewModel extends ChangeNotifier {
   void newTransaction() {
     if (!canStartNewTransaction) return;
     if (billMode) {
-      onLeaveBill?.call();
+      (onBillDone ?? onLeaveBill)?.call();
       return;
     }
     _stage = CashierStage.browse;

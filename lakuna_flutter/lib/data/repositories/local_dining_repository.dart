@@ -174,6 +174,79 @@ class LocalDiningRepository extends DiningRepository {
     ),
   );
 
+  @override
+  Future<Result<SplitBillData>> loadSplit(UuidValue billId) =>
+      _guard((ctx, staff) async {
+        return SplitBillData(
+          bill: await loadOpenBill(_store, CatalogScope.of(ctx), billId),
+          canPay: staff.can(Permission.salesCreate),
+          canConfirm: staff.can(Permission.paymentsConfirm),
+        );
+      });
+
+  @override
+  Future<Result<OpenBill>> setSplit(
+    UuidValue billId,
+    SplitMode? mode,
+    int guests,
+  ) => _guard((ctx, staff) {
+    _needSales(staff);
+    return setBillSplit(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      billId: billId,
+      mode: mode,
+      guests: guests,
+    );
+  });
+
+  /// Split bill bagian dari pembayaran: butuh `sales:create` juga.
+  static void _needSales(StaffProfile staff) {
+    if (!staff.can(Permission.salesCreate)) {
+      throw const NotPermitted(Permission.salesCreate);
+    }
+  }
+
+  @override
+  Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest) =>
+      _guard((ctx, staff) {
+        _needSales(staff);
+        return data.assignPortion(
+          _store,
+          CatalogScope.of(ctx),
+          staffId: staff.id,
+          itemId: itemId,
+          guest: guest,
+        );
+      });
+
+  @override
+  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId) =>
+      _guard((ctx, staff) {
+        for (final p in [Permission.salesCreate, Permission.paymentsConfirm]) {
+          if (!staff.can(p)) throw NotPermitted(p);
+        }
+        return data.confirmSplitPayment(
+          _store,
+          CatalogScope.of(ctx),
+          staffId: staff.id,
+          paymentId: paymentId,
+        );
+      });
+
+  @override
+  Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) =>
+      _guard((ctx, staff) {
+        _needSales(staff);
+        return data.cancelSplitPayment(
+          _store,
+          CatalogScope.of(ctx),
+          staffId: staff.id,
+          paymentId: paymentId,
+        );
+      });
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, StaffProfile staff) body,
   ) async {

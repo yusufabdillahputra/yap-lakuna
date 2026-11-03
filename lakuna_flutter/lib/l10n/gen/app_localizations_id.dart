@@ -2332,9 +2332,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get diningMove => 'Pindah meja';
 
   @override
-  String get diningSplitSoon => 'Split bill (segera)';
-
-  @override
   String get diningVoid => 'Batalkan bill';
 
   @override
@@ -2906,4 +2903,215 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get diningErrorModifierPrice =>
       'Potongan modifier melebihi harga menu.';
+
+  @override
+  String get diningSplit => 'Split bill';
+
+  @override
+  String diningSplitStatus(int paid, int total) {
+    return 'Split · $paid dari $total tamu lunas';
+  }
+
+  @override
+  String diningContinueSplit(String amount) {
+    return 'Lanjutkan split · $amount';
+  }
+
+  @override
+  String get diningErrorSplitLocked =>
+      'Bill terkunci karena sudah ada pembayaran bagian. Lanjutkan di layar Split bill.';
+
+  @override
+  String paymentPartSubtitle(String bill, String label) {
+    return '$bill · Bagian tamu $label';
+  }
+
+  @override
+  String paymentPartNext(String bill) {
+    return '$bill · Tamu berikutnya';
+  }
+
+  @override
+  String get paymentPartWait => 'Simpan, tunggu konfirmasi';
+
+  @override
+  String paymentPartDue(String label) {
+    return 'Bagian tamu $label';
+  }
+
+  @override
+  String get paymentPartBack => 'Kembali ke split';
+
+  @override
+  String receiptGuestPayment(String label, String method) {
+    return 'Tamu $label · $method';
+  }
+
+  @override
+  String get cashSessionErrorOpenSplit =>
+      'Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.';
+
+  @override
+  String billSplitTitle(String bill, int guests) {
+    return 'Split bill · $bill · $guests tamu';
+  }
+
+  @override
+  String billSplitRates(String service, String tax) {
+    return 'Service $service · PB1 $tax';
+  }
+
+  @override
+  String get billSplitRatesOff => 'Pajak & service: tidak aktif';
+
+  @override
+  String get billSplitChooseMode => 'Pilih cara membagi tagihan.';
+
+  @override
+  String get billSplitModeItem => 'Per item';
+
+  @override
+  String get billSplitModeEqual => 'Bagi rata';
+
+  @override
+  String get billSplitModeAmount => 'Nominal bebas';
+
+  @override
+  String get billSplitGuests => 'Jumlah tamu';
+
+  @override
+  String get billSplitGuestLess => 'Kurangi tamu';
+
+  @override
+  String get billSplitGuestMore => 'Tambah tamu';
+
+  @override
+  String get billSplitItems => 'Item di bill';
+
+  @override
+  String get billSplitItemsHint =>
+      'Ketuk tamu untuk memberi satu porsi. Item lebih dari 1 dibagi per porsi.';
+
+  @override
+  String billSplitPortionPrice(String price) {
+    return '$price / porsi';
+  }
+
+  @override
+  String billSplitUnassignedCount(int count) {
+    return '$count porsi belum punya tamu.';
+  }
+
+  @override
+  String billSplitGuest(String label) {
+    return 'Tamu $label';
+  }
+
+  @override
+  String get billSplitGuestEmpty => 'Belum ada porsi.';
+
+  @override
+  String get billSplitStatusUnpaid => 'Belum bayar';
+
+  @override
+  String billSplitStatusPaid(String methods) {
+    return 'Lunas · $methods';
+  }
+
+  @override
+  String get billSplitStatusPending => 'QRIS statis · menunggu';
+
+  @override
+  String get billSplitCancelPayment => 'Batalkan';
+
+  @override
+  String billSplitPay(String label) {
+    return 'Bayar bagian $label';
+  }
+
+  @override
+  String billSplitNextGuest(String label) {
+    return 'Tamu berikutnya ($label)';
+  }
+
+  @override
+  String get billSplitAmount => 'Nominal';
+
+  @override
+  String billSplitAmountHint(String amount) {
+    return 'Maks $amount';
+  }
+
+  @override
+  String get billSplitPayAmount => 'Bayar';
+
+  @override
+  String get billSplitTotal => 'Total bill';
+
+  @override
+  String billSplitPaid(String labels) {
+    return 'Sudah dibayar ($labels)';
+  }
+
+  @override
+  String billSplitPending(String labels) {
+    return 'Menunggu konfirmasi ($labels)';
+  }
+
+  @override
+  String get billSplitRemaining => 'Sisa tagihan';
+
+  @override
+  String get billSplitNote =>
+      'Bill tetap terbuka sampai semua bagian lunas. Tiap bagian dicatat sebagai pembayaran di nota yang sama, jadi laporan & stok tidak terpecah.';
+
+  @override
+  String get billSplitCancel => 'Batalkan split';
+
+  @override
+  String get billSplitLocked =>
+      'Pembagian terkunci karena sudah ada pembayaran bagian. Batalkan bagian QRIS yang menunggu untuk mengubahnya.';
+
+  @override
+  String get billSplitDone => 'Bill lunas';
+
+  @override
+  String billSplitDoneBody(String number) {
+    return 'Semua bagian lunas. Nota $number tersimpan.';
+  }
+
+  @override
+  String get billSplitLoadFailed => 'Split bill tidak bisa dimuat.';
+
+  @override
+  String get billSplitErrorLocked =>
+      'Sudah ada pembayaran bagian; pembagian tidak bisa diubah.';
+
+  @override
+  String get billSplitErrorGuests => 'Jumlah tamu 2–8.';
+
+  @override
+  String get billSplitErrorUnassigned => 'Bagikan semua porsi ke tamu dulu.';
+
+  @override
+  String get billSplitErrorPartPaid => 'Tamu ini sudah membayar.';
+
+  @override
+  String get billSplitErrorAmount =>
+      'Nominal harus lebih dari 0 dan tidak melebihi sisa tagihan.';
+
+  @override
+  String get billSplitErrorNothingDue => 'Tamu ini tidak punya tagihan.';
+
+  @override
+  String get billSplitErrorPending =>
+      'Hanya QRIS yang bisa menunggu konfirmasi.';
+
+  @override
+  String get billSplitErrorGeneric => 'Split bill gagal. Coba lagi.';
+
+  @override
+  String diningVoidSplitPaid(String amount) {
+    return 'Bagian yang sudah dibayar ($amount) dikembalikan ke tamu dan tidak masuk sesi kasir.';
+  }
 }

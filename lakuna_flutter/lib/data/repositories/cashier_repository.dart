@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 
 import '../../utils/result.dart';
 
@@ -117,4 +118,16 @@ abstract class CashierRepository {
     UuidValue billId,
     List<SalePaymentRequest> payments,
   );
+
+  /// Bagian split bill (F1-10c): tamu [guest] (per item / rata) atau
+  /// nominal [amount] (nominal bebas). [pending] menyimpan QRIS sebagai
+  /// *menunggu* (tanpa `payments:confirm`). Hasil memuat struk bila bill
+  /// lunas.
+  Future<Result<SplitPayResult>> payBillPart(
+    UuidValue billId, {
+    String? guest,
+    Money? amount,
+    required List<SalePaymentRequest> payments,
+    bool pending = false,
+  });
 }

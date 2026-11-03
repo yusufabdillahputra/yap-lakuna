@@ -14,6 +14,7 @@ import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../sales/order_type.dart' as _is7lc49y;
 import '../sales/sale_status.dart' as _i3rqzpgm;
+import '../sales/split_mode.dart' as _ixxw9kq3;
 
 /// Nota penjualan (F1-04/F1-05). Nomor memuat kode cabang dan perangkat
 /// (`PST-K01-261103-0001`) agar unik tanpa koordinasi saat sync.
@@ -51,6 +52,8 @@ abstract class Sale
     this.voidReason,
     this.voidedBy,
     this.voidedAt,
+    this.splitMode,
+    this.splitGuests,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -101,6 +104,8 @@ abstract class Sale
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
+    _ixxw9kq3.SplitMode? splitMode,
+    int? splitGuests,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -180,6 +185,12 @@ abstract class Sale
       voidedAt: jsonSerialization['voidedAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['voidedAt']),
+      splitMode: jsonSerialization['splitMode'] == null
+          ? null
+          : _ixxw9kq3.SplitMode.fromJson(
+              (jsonSerialization['splitMode'] as String),
+            ),
+      splitGuests: jsonSerialization['splitGuests'] as int?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -278,6 +289,11 @@ abstract class Sale
 
   DateTime? voidedAt;
 
+  /// Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
+  _ixxw9kq3.SplitMode? splitMode;
+
+  int? splitGuests;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -332,6 +348,8 @@ abstract class Sale
     String? voidReason,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    _ixxw9kq3.SplitMode? splitMode,
+    int? splitGuests,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -376,6 +394,8 @@ abstract class Sale
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (splitMode != null) 'splitMode': splitMode?.toJson(),
+      if (splitGuests != null) 'splitGuests': splitGuests,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -422,6 +442,8 @@ abstract class Sale
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (splitMode != null) 'splitMode': splitMode?.toJson(),
+      if (splitGuests != null) 'splitGuests': splitGuests,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -496,6 +518,8 @@ class _SaleImpl extends Sale {
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
+    _ixxw9kq3.SplitMode? splitMode,
+    int? splitGuests,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -536,6 +560,8 @@ class _SaleImpl extends Sale {
          voidReason: voidReason,
          voidedBy: voidedBy,
          voidedAt: voidedAt,
+         splitMode: splitMode,
+         splitGuests: splitGuests,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -582,6 +608,8 @@ class _SaleImpl extends Sale {
     Object? voidReason = _Undefined,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    Object? splitMode = _Undefined,
+    Object? splitGuests = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -629,6 +657,8 @@ class _SaleImpl extends Sale {
       voidReason: voidReason is String? ? voidReason : this.voidReason,
       voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
       voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
+      splitMode: splitMode is _ixxw9kq3.SplitMode? ? splitMode : this.splitMode,
+      splitGuests: splitGuests is int? ? splitGuests : this.splitGuests,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -821,6 +851,18 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
         table.voidedAt,
         value,
       );
+
+  _is.ColumnValue<_ixxw9kq3.SplitMode, _ixxw9kq3.SplitMode> splitMode(
+    _ixxw9kq3.SplitMode? value,
+  ) => _is.ColumnValue(
+    table.splitMode,
+    value,
+  );
+
+  _is.ColumnValue<int, int> splitGuests(int? value) => _is.ColumnValue(
+    table.splitGuests,
+    value,
+  );
 
   _is.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _is.ColumnValue(
@@ -1028,6 +1070,17 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'voidedAt',
     );
+    splitMode = _is.ColumnEnum(
+      'split_mode',
+      this,
+      _is.EnumSerialization.byName,
+      fieldName: 'splitMode',
+    );
+    splitGuests = _is.ColumnInt(
+      'split_guests',
+      this,
+      fieldName: 'splitGuests',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -1139,6 +1192,11 @@ class SaleTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnDateTime voidedAt;
 
+  /// Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
+  late final _is.ColumnEnum<_ixxw9kq3.SplitMode> splitMode;
+
+  late final _is.ColumnInt splitGuests;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -1188,6 +1246,8 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     voidReason,
     voidedBy,
     voidedAt,
+    splitMode,
+    splitGuests,
     createdAt,
     updatedAt,
     deletedAt,

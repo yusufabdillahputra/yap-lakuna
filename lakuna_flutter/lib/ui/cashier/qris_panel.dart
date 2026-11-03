@@ -387,6 +387,19 @@ class QrisActions extends StatelessWidget {
               color: theme.colors.destructive,
             ),
           ),
+        if (vm.partMode && vm.qris != null)
+          FButton(
+            key: const ValueKey('qris-wait'),
+            variant: .secondary,
+            onPress: vm.canWaitQris ? vm.waitQris : null,
+            prefix: const Icon(TablerIcons.clock),
+            child: Flexible(
+              child: Text(
+                l10n.paymentPartWait,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
         Row(
           spacing: 8,
           children: [

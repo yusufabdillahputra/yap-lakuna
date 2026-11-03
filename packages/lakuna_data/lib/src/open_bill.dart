@@ -6,11 +6,14 @@ import 'package:serverpod_database/serverpod_database.dart'
 
 import 'dining_admin.dart';
 import 'modifier_admin.dart';
+import 'payment_settings.dart';
 import 'sale_core.dart';
 import 'sales.dart';
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
+
+part 'split_bill.dart';
 
 /// Open bill F&B (F1-10): bill per meja dan take away, item dengan status
 /// dapur, tiket dapur, dan tutup & bayar. Bill = baris `sales` berstatus
@@ -88,9 +91,16 @@ class OpenBill {
     this.table,
     this.openedByName = '',
     this.modifiers = const {},
+    this.payments = const [],
   });
 
   final Sale sale;
+
+  /// Pembayaran bagian split (menunggu atau lunas), urut dibuat.
+  final List<Payment> payments;
+
+  /// Keadaan split bill; `null` bila bill tidak di-split.
+  BillSplit? get split => billSplit(this);
 
   /// Item yang belum dihapus, urut `sort_order`.
   final List<SaleItem> items;
@@ -287,6 +297,12 @@ Future<List<OpenBill>> _bills(
     items.map((i) => i.id),
     transaction: transaction,
   );
+  final payments = await _billPayments(
+    session,
+    scope.tenantId,
+    sales.map((s) => s.id),
+    transaction: transaction,
+  );
   return [
     for (final s in sales)
       () {
@@ -302,6 +318,10 @@ Future<List<OpenBill>> _bills(
           table: tables[s.diningTableId],
           openedByName: names[s.openedBy ?? s.staffId] ?? '',
           modifiers: {for (final i in own) i.id: ?modifiers[i.id]},
+          payments: [
+            for (final p in payments)
+              if (p.saleId == s.id) p,
+          ],
         );
       }(),
   ];
@@ -753,6 +773,7 @@ Future<OpenBill> addBillItem(
       billId,
       transaction: w.transaction,
     );
+    await _assertUnlocked(w, scope, sale.id);
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
@@ -770,7 +791,9 @@ Future<OpenBill> addBillItem(
               i.productUnitId == line.productUnitId &&
               i.note == cleanNote &&
               i.modifierKey == key &&
-              i.modifierDelta == delta.value,
+              i.modifierDelta == delta.value &&
+              i.guestLabel == null &&
+              i.splitFromItemId == null,
         )
         .firstOrNull;
     final quantity = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -904,6 +927,7 @@ Future<OpenBill> setBillItemQuantity(
 }) async {
   final billId = await store.write(actor: staffId, (w) async {
     final (sale, item) = await _billItem(w, scope, itemId);
+    await _assertUnlocked(w, scope, sale.id);
     if (item.kitchenStatus != KitchenStatus.pending) throw BillItemLocked();
     final s = await w.stamp();
     if (quantity.isPositive) {
@@ -932,22 +956,7 @@ Future<OpenBill> setBillItemQuantity(
         ),
         s,
       );
-      final mods = await itemModifiers(w.session, scope.tenantId, [
-        item.id,
-      ], transaction: w.transaction);
-      for (final m in mods[item.id] ?? const <SaleItemModifier>[]) {
-        await w.update(
-          m.copyWith(
-            deletedAt: s.now,
-            version: m.version + 1,
-            updatedAt: s.now,
-            updatedBy: staffId,
-            hlc: s.hlc.toString(),
-            originDeviceId: s.deviceId,
-          ),
-          s,
-        );
-      }
+      await _deleteItemModifiers(w, scope, item.id, s, staffId);
     }
     await _refreshTotals(w, scope, sale, s, staffId);
     return sale.id;
@@ -1150,6 +1159,25 @@ Future<void> voidOpenBill(
       transaction: w.transaction,
     );
     final s = await w.stamp();
+    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
+    // batal (uang dikembalikan ke tamu; belum masuk sesi kasir karena sesi
+    // baru diisi saat nota selesai). QRIS yang masih menunggu dihapus.
+    for (final p in await _billPayments(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction)) {
+      if (p.status != PaymentStatus.pending) continue;
+      await w.update(
+        p.copyWith(
+          deletedAt: s.now,
+          version: p.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
     await w.update(
       sale.copyWith(
         status: SaleStatus.voided,
@@ -1220,6 +1248,7 @@ Future<CheckoutResult> payOpenBill(
       billId,
       transaction: w.transaction,
     );
+    await _assertUnlocked(w, scope, sale.id);
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
@@ -1232,80 +1261,7 @@ Future<CheckoutResult> payOpenBill(
     final charges = _charges(sale, items, rates);
     final total = charges.total;
     final (amounts, change) = await settlePayments(w, scope, total, payments);
-
     final s = await w.stamp();
-    final location = await defaultStockLocationIn(w, scope);
-    final variants = {
-      for (final v in await ProductVariant.db.find(
-        w.session,
-        where: (v) =>
-            v.tenantId.equals(scope.tenantId) &
-            v.id.inSet({for (final i in items) i.variantId}),
-        transaction: w.transaction,
-      ))
-        v.id: v,
-    };
-    final paidItems = <SaleItem>[];
-    for (final item in items) {
-      final cost = await averageCost(
-        w,
-        location.id,
-        item.variantId,
-        Money(variants[item.variantId]?.costPrice ?? 0),
-      );
-      paidItems.add(
-        await w.update(
-          item.copyWith(
-            unitCost: cost.value,
-            version: item.version + 1,
-            updatedAt: s.now,
-            updatedBy: staffId,
-            hlc: s.hlc.toString(),
-            originDeviceId: s.deviceId,
-          ),
-          s,
-        ),
-      );
-      if (item.tracksStock) {
-        await recordStockMovement(
-          w,
-          scope,
-          locationId: location.id,
-          variantId: item.variantId,
-          quantity: -Qty(item.quantityMilli).toBaseUnit(item.factorMilli),
-          unitCost: cost,
-          sourceType: StockSourceType.sale,
-          sourceId: sale.id,
-          stamp: s,
-        );
-      }
-    }
-    final list = Money.sum(items.map(_listTotal));
-    final paid = await w.update(
-      sale.copyWith(
-        number: await nextReceiptNumber(w, scope, s.now),
-        status: SaleStatus.completed,
-        cashSessionId: cash.id,
-        staffId: staffId,
-        subtotal: list.value,
-        tierDiscount: (list - charges.subtotal).value,
-        total: total.value,
-        paidAmount: total.value,
-        changeAmount: change.value,
-        itemCount: items.length,
-        soldAt: s.now,
-        serviceBp: rates.service.value,
-        taxBp: rates.tax.value,
-        serviceAmount: charges.service.value,
-        taxAmount: charges.tax.value,
-        version: sale.version + 1,
-        updatedAt: s.now,
-        updatedBy: staffId,
-        hlc: s.hlc.toString(),
-        originDeviceId: s.deviceId,
-      ),
-      s,
-    );
     final paymentRows = await insertPayments(
       w,
       scope,
@@ -1316,22 +1272,127 @@ Future<CheckoutResult> payOpenBill(
       change: change,
       stamp: s,
     );
-    final negative = await negativeStockAfterSale(w, location.id, {
-      for (final i in items)
-        if (i.tracksStock)
-          i.variantId: '${i.productName} ${i.variantName}'.trim(),
-    });
-    return CheckoutResult(
-      sale: paid,
-      items: paidItems,
+    return _completeBill(
+      w,
+      scope,
+      cash: cash,
+      sale: sale,
+      items: items,
+      rates: rates,
+      charges: charges,
       payments: paymentRows,
-      negativeStock: negative,
-      modifiers: await itemModifiers(
-        w.session,
-        scope.tenantId,
-        paidItems.map((i) => i.id),
-        transaction: w.transaction,
-      ),
+      staffId: staffId,
+      stamp: s,
     );
   });
+}
+
+/// Menyelesaikan bill [sale] yang sudah lunas oleh [payments] dalam
+/// transaksi [w]: nomor nota, HPP dan stok keluar, sesi kasir, service &
+/// PB1 beku, status `completed`. Dipakai *Tutup & bayar* dan split bill.
+Future<CheckoutResult> _completeBill(
+  SyncTx w,
+  CatalogScope scope, {
+  required CashSession cash,
+  required Sale sale,
+  required List<SaleItem> items,
+  required FnbRates rates,
+  required FnbCharges charges,
+  required List<Payment> payments,
+  required UuidValue staffId,
+  required SyncStamp stamp,
+}) async {
+  final s = stamp;
+  final location = await defaultStockLocationIn(w, scope);
+  final variants = {
+    for (final v in await ProductVariant.db.find(
+      w.session,
+      where: (v) =>
+          v.tenantId.equals(scope.tenantId) &
+          v.id.inSet({for (final i in items) i.variantId}),
+      transaction: w.transaction,
+    ))
+      v.id: v,
+  };
+  final paidItems = <SaleItem>[];
+  for (final item in items) {
+    final cost = await averageCost(
+      w,
+      location.id,
+      item.variantId,
+      Money(variants[item.variantId]?.costPrice ?? 0),
+    );
+    paidItems.add(
+      await w.update(
+        item.copyWith(
+          unitCost: cost.value,
+          version: item.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      ),
+    );
+    if (item.tracksStock) {
+      await recordStockMovement(
+        w,
+        scope,
+        locationId: location.id,
+        variantId: item.variantId,
+        quantity: -Qty(item.quantityMilli).toBaseUnit(item.factorMilli),
+        unitCost: cost,
+        sourceType: StockSourceType.sale,
+        sourceId: sale.id,
+        stamp: s,
+      );
+    }
+  }
+  final list = Money.sum(items.map(_listTotal));
+  final paid = await w.update(
+    sale.copyWith(
+      number: await nextReceiptNumber(w, scope, s.now),
+      status: SaleStatus.completed,
+      cashSessionId: cash.id,
+      staffId: staffId,
+      subtotal: list.value,
+      tierDiscount: (list - charges.subtotal).value,
+      total: charges.total.value,
+      // Sama dengan penjualan retail: paid_amount = total nota (uang
+      // diterima dan kembalian ada di baris payments).
+      paidAmount: charges.total.value,
+      changeAmount: payments.fold<int>(0, (a, p) => a + p.changeAmount),
+      // Porsi split dihitung sebagai baris asalnya.
+      itemCount: {for (final i in items) i.splitFromItemId ?? i.id}.length,
+      soldAt: s.now,
+      serviceBp: rates.service.value,
+      taxBp: rates.tax.value,
+      serviceAmount: charges.service.value,
+      taxAmount: charges.tax.value,
+      version: sale.version + 1,
+      updatedAt: s.now,
+      updatedBy: staffId,
+      hlc: s.hlc.toString(),
+      originDeviceId: s.deviceId,
+    ),
+    s,
+  );
+  final negative = await negativeStockAfterSale(w, location.id, {
+    for (final i in items)
+      if (i.tracksStock)
+        i.variantId: '${i.productName} ${i.variantName}'.trim(),
+  });
+  return CheckoutResult(
+    sale: paid,
+    items: paidItems,
+    payments: payments,
+    negativeStock: negative,
+    modifiers: await itemModifiers(
+      w.session,
+      scope.tenantId,
+      paidItems.map((i) => i.id),
+      transaction: w.transaction,
+    ),
+  );
 }

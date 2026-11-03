@@ -35,6 +35,10 @@ fields:
   modifierDelta: int, default=0, column=modifier_delta
   ### Id opsi modifier terurut dipisah koma; kunci gabung baris.
   modifierKey: String?, column=modifier_key
+  ### Split bill per item: tamu pemilik porsi (`A`–`H`) dan baris asal
+  ### porsi yang dipecah.
+  guestLabel: String?, column=guest_label
+  splitFromItemId: UuidValue?, column=split_from_item_id
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at

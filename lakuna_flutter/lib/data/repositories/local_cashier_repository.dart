@@ -115,6 +115,31 @@ class LocalCashierRepository extends CashierRepository {
     );
   });
 
+  @override
+  Future<Result<SplitPayResult>> payBillPart(
+    UuidValue billId, {
+    String? guest,
+    Money? amount,
+    required List<SalePaymentRequest> payments,
+    bool pending = false,
+  }) => _guard((ctx, staff) {
+    if (!pending &&
+        payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
+        !staff.can(Permission.paymentsConfirm)) {
+      throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    return paySplitPart(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      billId: billId,
+      guest: guest,
+      amount: amount,
+      payments: payments,
+      pending: pending,
+    );
+  });
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, StaffProfile staff) body,
   ) async {

@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
+import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
@@ -16,10 +18,12 @@ import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
+import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
+import '../ui/dining/split_bill_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -128,13 +132,31 @@ GoRouter createRouter({
           GoRoute(
             path: Routes.cashier,
             builder: (context, state) {
-              final bill = state.uri.queryParameters['bill'];
+              final query = state.uri.queryParameters;
+              final bill = query['bill'];
+              final guest = query['guest'];
+              final amount = int.tryParse(query['amount'] ?? '');
+              final part = bill == null || (guest == null && amount == null)
+                  ? null
+                  : BillPart(
+                      guest: guest,
+                      amount: amount == null ? null : Money(amount),
+                    );
               return CashierScreen(
-                key: ValueKey('cashier-${bill ?? ''}'),
+                key: ValueKey('cashier-${state.uri.query}'),
                 repository: cashier,
                 printer: receiptPrinter,
                 billId: bill,
+                part: part,
+                completed: state.extra is CompletedBill
+                    ? state.extra! as CompletedBill
+                    : null,
                 onLeaveBill: bill == null
+                    ? null
+                    : part == null
+                    ? () => context.go(Routes.tablesBill(bill))
+                    : () => context.go(Routes.tablesSplit(bill)),
+                onBillDone: bill == null
                     ? null
                     : () => context.go(Routes.tablesBill(bill)),
               );
@@ -148,7 +170,34 @@ GoRouter createRouter({
               printer: receiptPrinter,
               initialBill: state.uri.queryParameters['bill'],
               onPay: (id) => context.go(Routes.cashierBill(id.uuid)),
+              onSplit: (id) => context.go(Routes.tablesSplit(id.uuid)),
             ),
+          ),
+          GoRoute(
+            path: '${Routes.tables}/split/:bill',
+            // Tautan rusak kembali ke layar Meja.
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['bill']) == null
+                ? Routes.tables
+                : null,
+            builder: (context, state) {
+              final bill = state.pathParameters['bill']!;
+              return SplitBillScreen(
+                key: ValueKey('split-$bill'),
+                repository: dining,
+                billId: UuidValue.fromString(bill),
+                onBack: () => context.go(Routes.tablesBill(bill)),
+                onCompleted: (done) =>
+                    context.go(Routes.cashierBill(bill), extra: done),
+                onPay: (guest, amount) => context.go(
+                  Routes.cashierBillPart(
+                    bill,
+                    guest: guest,
+                    amount: amount?.value,
+                  ),
+                ),
+              );
+            },
           ),
           // Rute saudara (bukan bersarang) supaya kembali ke daftar
           // membuat layar baru yang memuat ulang katalog.
@@ -196,4 +245,13 @@ GoRouter createRouter({
       ),
     ],
   );
+}
+
+UuidValue? _uuid(String? text) {
+  if (text == null) return null;
+  try {
+    return UuidValue.withValidation(text);
+  } on FormatException {
+    return null;
+  }
 }

@@ -307,12 +307,135 @@ Di tablet: buat grup Ukuran (wajib, Reguler / Besar +4.000) dan Topping
 Besar + Boba, catatan, jumlah 2 → bill "2 × Kopi Susu Aren + Besar, Boba"
 Rp 66.000 → tiket dapur dan struk menampilkan modifier → bayar.
 
+## Lingkup v0.13.0 · Split bill (brainstorming 3 Nov 2026)
+
+Kanvas Lakuna 1.9 *Split bill* (`F1-Split-Bill`) dan keputusan Storeku
+v0.12.0 menjawab semua pertanyaan utama: bill tetap **satu nota**, setiap
+bagian tamu dicatat sebagai **pembayaran** di nota yang sama dengan label
+tamu, sehingga laporan dan stok tidak terpecah. Perbedaan dari Storeku:
+kembalian tunai dicatat **per pembayaran** (kolom `payments.change_amount`
+sudah ada), dan aturan dibagi ke `lakuna_domain` (`split_bill.dart`) serta
+`lakuna_data` (`split_bill.dart`).
+
+### Layar 1.9 `/meja/split/:bill`
+
+- Masuk dari panel bill (1.7): tombol *Split bill* (sebelumnya "segera")
+  aktif bila bill berisi item (item *Baru* boleh). Izin `sales:create` +
+  `open_bills:manage`.
+- Kepala: "Split bill · Meja M1 · 3 tamu", catatan tarif ("Service 5% ·
+  PB1 10%" atau "Pajak & service: tidak aktif"), tombol kembali.
+- **Jumlah tamu** 2–8 (label A–H), − / +; bawaan = jumlah tamu bill
+  (dibatasi 2–8).
+- **Mode** (tab): *Per item* / *Bagi rata* / *Nominal bebas*.
+- **Per item**: setiap baris item (porsi) menampilkan "2× Nasi Goreng" +
+  modifier + "Rp 28.000 / porsi" dan chip tamu A…H. Mengetuk chip tamu
+  memindah **satu porsi** dari baris itu ke tamu tersebut; jumlah pecahan
+  atau ≤ 1 dipindah utuh. Mengetuk chip tamu yang sudah dipilih pada baris
+  satu porsi mengembalikannya ke *belum dibagi*. Petunjuk: "Ketuk tamu
+  untuk memberi satu porsi. Item lebih dari 1 dibagi per porsi."
+- **Kartu tamu** (kanan di layar lebar, di bawah di ponsel): huruf, "Tamu
+  A", daftar porsi (mode item), tagihan, status *Belum bayar* / *Lunas ·
+  Tunai* / *QRIS statis · menunggu* + *Sudah Terbayar* + *Batalkan*, tombol
+  *Bayar bagian A*.
+- **Nominal bebas**: satu kartu "Tamu berikutnya" dengan kolom nominal
+  (≤ sisa tagihan) dan *Bayar*; tamu yang sudah bayar tampil sebagai kartu
+  berlabel A, B, C… berurutan.
+- **Ringkasan**: Total bill, Sudah dibayar (A, C), Menunggu konfirmasi
+  (B), Sisa tagihan, catatan "Bill tetap terbuka sampai semua bagian lunas.
+  Tiap bagian dicatat sebagai pembayaran di nota yang sama, jadi laporan &
+  stok tidak terpecah."
+- *Bayar bagian X* membuka layar Bayar yang sama (keypad, tunai, kartu,
+  transfer, QRIS, beberapa metode) dengan judul "Bayar bagian A · Rp X".
+  QRIS punya tombol tambahan *Tunggu konfirmasi* yang menyimpan bagian
+  sebagai pembayaran **menunggu**. Setelah berhasil kembali ke layar split;
+  bila bagian terakhir membuat bill lunas, tampil layar *Pembayaran
+  selesai* + struk seperti *Tutup & bayar*.
+
+### Aturan bisnis split
+
+- **Domain** (`lakuna_domain/split_bill.dart`):
+  - `SplitLimits` (tamu 2–8), `guestLabel(i)` A–H.
+  - `allocateByWeight(total, weights)` membagi total dengan sisa terbesar
+    (jumlah selalu sama dengan total; bobot nol → 0; urutan stabil).
+  - `splitDues(mode, total, guests, guestSubtotals, unassigned)` →
+    tagihan per tamu: *item* = proporsional terhadap Σ `line_total` porsi
+    tamu (porsi yang belum bertamu ikut sebagai bobot agar tagihan
+    sementara tidak membengkak), *rata* = bobot sama, *nominal* = kosong
+    (nominal diketik kasir).
+  - `splitPortion(quantity)` → jumlah satu porsi (1 satuan bila jumlah
+    ≥ 2 satuan bulat, selain itu utuh).
+- **Data** (`lakuna_data/split_bill.dart`):
+  - `setBillSplit(bill, mode, guests)` menyimpan `sales.split_mode` dan
+    `sales.split_guests`. Mengurangi jumlah tamu mengembalikan porsi tamu
+    yang hilang ke *belum dibagi*.
+  - `assignPortion(item, guest | null)` memecah baris: baris asal dikurangi
+    satu porsi, baris baru (atau baris tamu yang sama dari asal yang sama)
+    bertambah; `split_from_item_id` = baris asal, modifier disalin. Baris
+    dengan jumlah 0 dihapus (soft delete, beserta modifier). Total baris
+    dihitung ulang dengan harga satuan beku baris (grosir tidak dihitung
+    ulang saat memecah, agar total bill tidak berubah).
+  - `paySplitPart(bill, guest, payments, {pending})` → bagian tamu: cek
+    sesi kasir terbuka, mode item mewajibkan semua porsi sudah punya tamu,
+    tagihan tamu dihitung ulang dari data, pembayaran harus ≥ tagihan
+    (kembalian tunai di pembayaran itu). Disimpan di `payments` nota yang
+    sama dengan `guest_label`, status `paid` atau `pending` (hanya QRIS).
+    Tamu yang sudah punya pembayaran (lunas atau menunggu) ditolak
+    (`SplitPartPaid`).
+  - `confirmSplitPayment` (*Sudah Terbayar*, izin `payments:confirm`) dan
+    `cancelSplitPayment` (hapus pembayaran menunggu).
+  - **Kunci**: begitu ada pembayaran bagian (menunggu atau lunas), ubah
+    mode, jumlah tamu, pembagian porsi, tambah/ubah/hapus item, dan
+    *Tutup & bayar* biasa ditolak (`SplitLocked`); pindah meja, kirim ke
+    dapur, dan tandai disajikan tetap boleh. Batalkan bagian QRIS yang
+    menunggu dulu bila bill perlu diubah.
+  - **Batalkan bill** (izin `sales:void`) tetap boleh walau terkunci, agar
+    sesi kasir bisa ditutup bila tamu pergi: bagian lunas tetap tercatat
+    di bill batal (uangnya dikembalikan ke tamu; belum masuk sesi kasir
+    karena `cash_session_id` baru diisi saat nota selesai), QRIS yang
+    menunggu dihapus. Dialog batal menyebut jumlah yang dikembalikan.
+  - **Lunas**: saat Σ (jumlah − kembalian) pembayaran `paid` = total bill,
+    nota diselesaikan sekali dalam transaksi yang sama: nomor nota, stok,
+    sesi kasir, service & PB1 beku, status `paid` (fungsi bersama dengan
+    *Tutup & bayar*). `sales.paid_amount` = total nota (sama dengan
+    retail), `sales.change_amount` = Σ kembalian, `item_count` = jumlah
+    baris asal (porsi tidak dihitung terpisah).
+  - Sesi kasir tidak bisa ditutup selama ada bill split dengan pembayaran
+    di sesi itu yang belum lunas (`CashSessionHasOpenSplit`).
+- **Struk** menggabung porsi kembali per produk (asal yang sama) dan
+  mencantumkan pembayaran per tamu ("Tamu A · Tunai 62.000").
+- **Tiket dapur**: memecah porsi tidak mengubah status dapur (baris baru
+  menyalin `kitchen_status` dan `kitchen_ticket_id`); porsi yang dikirim
+  bersamaan digabung kembali di tiket.
+- **Izin**: atur split, bagi porsi, dan batalkan bagian menunggu butuh
+  `open_bills:manage` + `sales:create`; *Sudah Terbayar* juga
+  `payments:confirm`; bayar bagian lewat kasir butuh `sales:create`
+  (QRIS lunas langsung juga `payments:confirm`, QRIS menunggu tidak).
+- **Lunas di layar split** (*Sudah Terbayar* bagian terakhir): langsung ke
+  layar *Pembayaran selesai* kasir dengan struk, cetak, dan cetak otomatis
+  seperti *Tutup & bayar*.
+
+### Data (migrasi `split`)
+
+- `sales` tambah `split_mode` (enum `SplitMode`: `item`, `equal`, `amount`;
+  nullable) dan `split_guests` (int, nullable).
+- `sale_items` tambah `guest_label` (String?, `A`–`H`) dan
+  `split_from_item_id` (UuidValue?).
+- `payments` tambah `guest_label` (String?).
+- `payments` untuk bill terbuka boleh ada (status `pending`/`paid`);
+  laporan hanya menghitung nota `paid`.
+
+### Kriteria selesai v0.13.0
+
+Di tablet: meja M1, 3 tamu, 2× Nasi Goreng, 3× Es Teh, 1× Ayam Bakar →
+Split bill per item → A bayar tunai (kembalian), B QRIS menunggu lalu
+*Sudah Terbayar*, C kartu → bill lunas, struk menampilkan pembayaran per
+tamu, meja kosong. Bagi rata Rp 100.000 untuk 3 tamu = 33.334 / 33.333 /
+33.333. Nominal bebas: 50.000 + sisa.
+
 ## Rilis berikutnya (keputusan dari Storeku, dirinci saat dikerjakan)
 
 - **v0.12.0 Modifier**: dirinci di *Lingkup v0.12.0* di atas.
-- **v0.13.0 Split bill**: satu nota, pembayaran per tamu (`guest_label`),
-  mode per item / bagi rata / nominal bebas, QRIS bagian menunggu +
-  *Sudah Terbayar*, nota lunas saat semua bagian lunas.
+- **v0.13.0 Split bill**: dirinci di *Lingkup v0.13.0* di atas.
 - **v0.14.0 Denah**: `vyuh_node_flow` (gambar denah = node terkunci di
   latar, meja = node tanpa port, orientasi 0°/90°, snap 20 px, minimap),
   unggah gambar PNG/JPG/WebP/SVG ≤ 5 MB, kasir memakai `NodeFlowViewer`.
@@ -329,7 +452,11 @@ Rp 66.000 → tiket dapur dan struk menampilkan modifier → bayar.
 | Modifier | 1.8, 1.16b, 1.17b | Dirilis v0.12.0 | Form grup berupa dialog (bukan panel kanan / lembar bawah). Total di sheet 1.8 memakai harga dasar; harga grosir dihitung di lapisan data saat item masuk bill. Baris rincian struk = (harga + tambahan) × jumlah, modifier di bawah nama. |
 | Modifier di kasir retail | — | Belum | Toko F&B memakai layar Meja / Take away. |
 | Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Belum | Semua menu ikut tiket dan boleh catatan. |
-| Split bill | 1.9 | Belum | v0.13.0. |
+| Split bill | 1.9 | Dirilis v0.13.0 | Layar Bayar bagian menampilkan porsi tamu (mode per item) atau semua item (rata/nominal), subtotal, service, PB1, total bill, lalu baris *Bagian tamu X*. Panel bill menampilkan porsi bertamu sebagai baris sendiri dengan label tamu. Tombol *Tunggu konfirmasi* QRIS bernama *Simpan, tunggu konfirmasi*. |
+| Split bill: tarif beku | — | Belum | Tarif service/PB1 dibaca ulang tiap bayar bagian; perubahan tarif di tengah split ditanggung tamu terakhir. Bekukan tarif saat bagian pertama dibayar. |
+| Split bill: kas per sesi | — | Belum | Tunai bagian masuk sesi yang menyelesaikan nota; laci di tengah sesi belum menghitungnya. Cek tutup sesi berlaku per cabang. Catat `cash_session_id` per pembayaran sebelum sinkronisasi Fase 2. |
+| Split bill: baris porsi | — | Sederhana | Memindah baris satu porsi menyisipkan baris baru dan menghapus yang lama (outbox bertambah). Ubah label di tempat bila seluruh baris pindah. Ubah jumlah baris porsi memakai harga ulang baris itu saja. |
+| Split bill: retur bagian lunas | — | Belum | Void/retur nota di F1-13. |
 | Denah | 1.7b–d | Belum | v0.14.0. |
 | Gabung meja | Ada (`can_merge` di 1.7d) | Belum | Setelah denah. |
 | Printer dapur terpisah | — | Belum | Tiket memakai printer perangkat. |
