@@ -519,6 +519,13 @@ void main() {
 
     test('batalkan bill berpembayaran bagian: menunggu dihapus, sesi bisa '
         'ditutup', () async {
+      await saveQrisSettings(
+        store,
+        scope,
+        staffId: staff(),
+        settings: const QrisStaticSettings(enabled: true),
+        image: QrisImageUpload(bytes: pngBytes(1080, 1528), fileName: 'q.png'),
+      );
       final session = await openSession();
       var b = await bill(kopiQty: 1, nasiQty: 0);
       b = await split(b, SplitMode.equal, 3);
