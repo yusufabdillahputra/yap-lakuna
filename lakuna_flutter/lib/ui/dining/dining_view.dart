@@ -1527,14 +1527,18 @@ Future<void> _openMenu(
   BuildContext context,
   DiningViewModel vm,
   OpenBill bill,
-) => showFDialog<void>(
-  context: context,
-  builder: (context, style, animation) => FDialog(
-    animation: animation,
-    constraints: const BoxConstraints(minWidth: 280, maxWidth: 760),
-    builder: (context, style) => _MenuSheet(viewModel: vm, bill: bill),
-  ),
-);
+) {
+  // Galat panel lama (mis. tidak ada item baru) tidak ikut ke lembar menu.
+  vm.clearActionError();
+  return showFDialog<void>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 760),
+      builder: (context, style) => _MenuSheet(viewModel: vm, bill: bill),
+    ),
+  );
+}
 
 class _MenuSheet extends StatefulWidget {
   const _MenuSheet({required this.viewModel, required this.bill});
@@ -1703,6 +1707,7 @@ class _MenuSheetState extends State<_MenuSheet> {
                 ),
                 if (error != null)
                   Text(
+                    key: const ValueKey('dining-menu-error'),
                     diningErrorMessage(l10n, error),
                     style: _errorStyle(context),
                   )

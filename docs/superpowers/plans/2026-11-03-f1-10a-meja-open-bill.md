@@ -44,7 +44,7 @@ Spec: [2026-11-03-f1-10-meja-fnb-design.md](../specs/2026-11-03-f1-10-meja-fnb-d
 
 ## 5. Selesai
 
-- [ ] Review subagent; perbaiki Critical/Important.
+- [x] Review subagent; perbaiki Critical/Important.
 - [x] Uji manual Xvfb (desktop + ponsel), tangkapan layar.
 - [x] Spec Status & gap, README spec, CHANGELOG 0.11.0, versi `0.11.0+12`.
 - [ ] PR, CI hijau, squash merge, cek rilis.

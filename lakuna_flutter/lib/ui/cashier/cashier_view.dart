@@ -146,7 +146,11 @@ class CashierView extends StatelessWidget {
             return const Center(child: FCircularProgress());
           }
           if (!vm.hasSession) {
-            return _NoSession(onOpenSession: onOpenSession);
+            return _NoSession(
+              onOpenSession: onOpenSession,
+              // Mode bill: bisa kembali ke bill di layar Meja (tetap terbuka).
+              onLeaveBill: billRequested ? onLeaveBill : null,
+            );
           }
           if (billRequested && !vm.billMode) {
             if (vm.openBill.running || !vm.openBill.error) {
@@ -201,9 +205,10 @@ class CashierView extends StatelessWidget {
 }
 
 class _NoSession extends StatelessWidget {
-  const _NoSession({required this.onOpenSession});
+  const _NoSession({required this.onOpenSession, this.onLeaveBill});
 
   final VoidCallback onOpenSession;
+  final VoidCallback? onLeaveBill;
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +257,14 @@ class _NoSession extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onLeaveBill case final leave?)
+                    FButton(
+                      key: const ValueKey('cashier-no-session-bill-back'),
+                      variant: .outline,
+                      prefix: const Icon(TablerIcons.arrowLeft, size: 16),
+                      onPress: leave,
+                      child: Flexible(child: Text(l10n.cashierBillBack)),
+                    ),
                 ],
               ),
             ),

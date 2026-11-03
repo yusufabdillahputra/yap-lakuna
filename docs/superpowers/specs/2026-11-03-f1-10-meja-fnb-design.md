@@ -230,13 +230,17 @@ mematikan `foreign_keys` selama migrasi); diuji pada data v0.10.0.
 | Meja grid, open bill, take away, tiket dapur | 1.7, 1.7e | Dirilis v0.11.0 | Tab area: *Semua* + area (tanpa tab *Tanpa area*; meja tanpa area tampil di *Semua*). |
 | Meja & area di Master data | 1.17 | Dirilis v0.11.0 | Posisi denah di v0.14.0. |
 | Pajak & service | 1.26 | Dirilis v0.11.0 | Retail belum memakai tarif. |
-| Tutup & bayar | 1.6 | Dirilis v0.11.0 | Sisi kiri layar Bayar hanya menampilkan subjudul (label · n item), belum daftar item baca-saja. |
+| Tutup & bayar | 1.6 | Dirilis v0.11.0 | Rincian bill (item, subtotal, service, PB1, total) tampil di kolom kanan layar Bayar, di atas pilihan metode. |
 | Catatan dapur | 1.7 | Dirilis v0.11.0 | Kolom catatan di lembar menu berlaku untuk item berikutnya yang ditambahkan, lalu dikosongkan. *Minta bill* hanya untuk dine in. |
 | Modifier | 1.8, 1.16b, 1.17b | Belum | v0.12.0. |
 | Split bill | 1.9 | Belum | v0.13.0. |
 | Denah | 1.7b–d | Belum | v0.14.0. |
 | Gabung meja | Ada (`can_merge` di 1.7d) | Belum | Setelah denah. |
 | Printer dapur terpisah | — | Belum | Tiket memakai printer perangkat. |
+| Nomor TA/K per perangkat | — | v0.11.0 tanpa kode perangkat | `TA-01`/`K-0001` urut per perangkat; dua tablet satu cabang bisa sama. Tambah kode perangkat sebelum sinkronisasi Fase 2. |
+| Kurangi item produk nonaktif | — | Hanya hapus | Mengurangi jumlah memakai harga ulang dan ditolak (`SaleItemUnavailable`); hapus baris tetap bisa. |
+| Durasi kartu meja | 1.7 | Diperbarui saat layar dibangun ulang | Tambah penyegar per menit bila perlu. |
+| Tes migrasi otomatis | — | Uji manual data v0.10.0 | Tambah fixture SQLite v0.10.0 di `lakuna_data/test`. |
 
 ## Kriteria selesai v0.11.0
 

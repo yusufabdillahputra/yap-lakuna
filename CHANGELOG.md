@@ -57,8 +57,10 @@ dapur, lalu menutup dan membayar bill dengan service charge dan PB1.
 ### Diubah
 
 - Layar Kasir bisa dibuka dalam mode bill (`/kasir?bill=<id>`): langsung ke
-  tahap Bayar dengan subjudul "Meja M4 · 2 item". Bill yang tidak ditemukan
-  menampilkan pesan dan tombol kembali.
+  tahap Bayar dengan subjudul "Meja M4 · 2 item" dan rincian bill hanya
+  baca (item, subtotal, service, PB1, total). Bill yang tidak ditemukan
+  atau masih kosong menampilkan pesan dan tombol *Kembali ke meja*; tombol
+  yang sama muncul bila sesi kasir belum dibuka.
 - Inti penjualan (`sale_core.dart`) dipisah dari `sales.dart` agar kasir
   retail dan bayar open bill memakai jalur nomor nota, pembayaran, dan
   pergerakan stok yang sama.
@@ -71,6 +73,15 @@ dapur, lalu menutup dan membayar bill dengan service charge dan PB1.
   tidak lagi meluap di 360 px (termasuk saat dialog beranimasi).
 - Tes sidebar desktop menggulir daftar menu yang dibangun malas, sehingga
   menu baru tidak mendorong entri terakhir keluar dari pemeriksaan.
+- Temuan review sebelum rilis:
+  - *Take away baru* yang memakai ulang take away kosong kini menghapus
+    nama pemesan lama bila pesanan baru tanpa nama (sebelumnya tiket dan
+    struk tetap atas nama pemesan sebelumnya).
+  - Panjang nama pemesan, catatan dapur, dan alasan batal dihitung per
+    karakter (emoji tidak lagi ditolak padahal lolos di kolom isian).
+  - Galat aksi bill lama tidak ikut tampil saat lembar *+ Menu* dibuka.
+  - Pencarian meja dan varian saat memuat dan membayar bill dibatasi
+    `tenant_id`.
 
 ### Keamanan
 

@@ -391,6 +391,9 @@ class CashierViewModel extends ChangeNotifier {
   Future<Result<OpenBill>> _openBill(UuidValue id) async {
     final result = await _repository.loadBill(id);
     if (result case Ok(:final value)) {
+      // Bill kosong (mis. tautan lama) tidak bisa dibayar: tampilkan galat,
+      // jangan jatuh ke keranjang retail dengan mode bill aktif.
+      if (value.items.isEmpty) return Result.error(SaleEmpty());
       _bill = value;
       startPayment();
     }

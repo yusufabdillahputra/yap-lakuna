@@ -289,6 +289,19 @@ void main() {
       expect(again.id, ta1.id);
       expect(again.sale.customerName, 'Rani');
 
+      // Dipakai ulang tanpa nama: nama pemesan lama dihapus.
+      final anon = await openTakeAway(store, scope, staffId: staff());
+      expect(anon.id, ta1.id);
+      expect(anon.sale.customerName, isNull);
+      // Emoji dihitung per karakter, sama dengan kolom isian.
+      final emoji = await openTakeAway(
+        store,
+        scope,
+        staffId: staff(),
+        customerName: '😀' * FnbLimits.customerName,
+      );
+      expect(emoji.sale.customerName, '😀' * FnbLimits.customerName);
+
       await add(again, line(kopi));
       final ta2 = await openTakeAway(store, scope, staffId: staff());
       expect(ta2.sale.queueNumber, 2);

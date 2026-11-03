@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart' show BillItemLocked;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -109,6 +110,20 @@ void main() {
     await _tap(tester, 'dining-pay');
     expect(find.text('Pembayaran · Total Rp 27.720'), findsOneWidget);
     expect(find.text('Meja M4 · 1 item'), findsOneWidget);
+    // Rincian bill (hanya baca) agar kasir bisa menjelaskan service & PB1.
+    final summary = _key('payment-bill-summary');
+    expect(
+      find.descendant(of: summary, matching: find.text('Service 5% (dine in)')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: summary, matching: find.text('PB1 10%')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: summary, matching: find.textContaining('Kopi')),
+      findsOneWidget,
+    );
     await _tap(tester, 'payment-quick-0');
     await _tap(tester, 'payment-finish');
     expect(_key('success-title'), findsOneWidget);
@@ -227,6 +242,50 @@ void main() {
     expect(find.text('Rp 27.720'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('bill kosong lewat tautan: galat, bukan keranjang retail', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'dining-table-M1');
+    await _tap(tester, 'dining-guests-open');
+    final id = dining.sales.single.id;
+    await tester.binding.handlePushRoute(Routes.cashierBill(id.uuid));
+    await tester.pumpAndSettle();
+    expect(_key('cashier-bill-error'), findsOneWidget);
+    await _tap(tester, 'cashier-bill-back');
+    expect(find.text('Meja M1 · Open bill'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('tanpa sesi kasir: bisa kembali ke bill di meja', (
+    tester,
+  ) async {
+    await pump(tester);
+    cashier.sessionOpen = false;
+    await _tap(tester, 'dining-table-M2');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Es Teh Manis']);
+    await _tap(tester, 'dining-pay');
+    expect(_key('cashier-no-session'), findsOneWidget);
+    await _tap(tester, 'cashier-no-session-bill-back');
+    expect(find.text('Meja M2 · Open bill'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('galat panel lama tidak ikut ke lembar menu', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'dining-table-M3');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Es Teh Manis']);
+    await _tap(tester, 'dining-send');
+    await _tap(tester, 'dining-ticket-close');
+    // Galat aksi apa pun di panel bill.
+    dining.nextError = BillItemLocked();
+    await _tap(tester, 'dining-request-bill');
+    expect(_key('dining-bill-error'), findsOneWidget);
+    await _tap(tester, 'dining-add-menu');
+    expect(_key('dining-menu'), findsOneWidget);
+    expect(_key('dining-menu-error'), findsNothing);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   test('kasir palsu tertaut ke meja', () {
     final d = FakeDiningRepository();

@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
@@ -214,7 +215,8 @@ Future<List<OpenBill>> _bills(
       : {
           for (final t in await DiningTable.db.find(
             session,
-            where: (t) => t.id.inSet(tableIds),
+            where: (t) =>
+                t.tenantId.equals(scope.tenantId) & t.id.inSet(tableIds),
             transaction: transaction,
           ))
             t.id: t,
@@ -499,7 +501,7 @@ Future<OpenBill> openTableBill(
 
 String? _customer(String? name) {
   final t = name?.trim() ?? '';
-  if (t.length > FnbLimits.customerName) {
+  if (t.characters.length > FnbLimits.customerName) {
     throw const BillInputInvalid(BillField.customerName);
   }
   return t.isEmpty ? null : t;
@@ -535,7 +537,8 @@ Future<OpenBill> openTakeAway(
         )
         .firstOrNull;
     if (empty != null) {
-      if (name != null && name != empty.customerName) {
+      // Pemesan baru menggantikan nama lama (juga bila kosong).
+      if (name != empty.customerName) {
         await w.update(
           empty.copyWith(
             customerName: name,
@@ -607,7 +610,7 @@ Future<void> _refreshTotals(
 
 String? _note(String? note) {
   final t = note?.trim() ?? '';
-  if (t.length > FnbLimits.itemNote) {
+  if (t.characters.length > FnbLimits.itemNote) {
     throw const BillInputInvalid(BillField.note);
   }
   return t.isEmpty ? null : t;
@@ -957,7 +960,7 @@ Future<void> voidOpenBill(
   required String reason,
 }) async {
   final text = reason.trim();
-  if (text.isEmpty || text.length > FnbLimits.voidReason) {
+  if (text.isEmpty || text.characters.length > FnbLimits.voidReason) {
     throw const BillInputInvalid(BillField.voidReason);
   }
   await store.write(actor: staffId, (w) async {
@@ -1056,7 +1059,9 @@ Future<CheckoutResult> payOpenBill(
     final variants = {
       for (final v in await ProductVariant.db.find(
         w.session,
-        where: (v) => v.id.inSet({for (final i in items) i.variantId}),
+        where: (v) =>
+            v.tenantId.equals(scope.tenantId) &
+            v.id.inSet({for (final i in items) i.variantId}),
         transaction: w.transaction,
       ))
         v.id: v,

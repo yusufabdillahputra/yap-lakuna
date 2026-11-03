@@ -141,6 +141,64 @@ class PaymentPanel extends StatelessWidget {
   }
 }
 
+/// Ringkasan bill (hanya baca) di layar Bayar mode open bill: item,
+/// subtotal, service, PB1, total, agar kasir bisa menjelaskan tagihan.
+class BillPaySummary extends StatelessWidget {
+  const BillPaySummary({super.key, required this.bill});
+
+  final OpenBill bill;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final charges = bill.charges;
+    final small = theme.typography.body.sm;
+    Widget line(String label, Money amount, {bool bold = false, Key? key}) {
+      final style = bold ? small.copyWith(fontWeight: FontWeight.w700) : small;
+      return Row(
+        key: key,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Expanded(child: Text(label, style: style)),
+          Text(formatMoney(context, amount), style: tabularFigures(style)),
+        ],
+      );
+    }
+
+    return PaymentPanel(
+      panelKey: const ValueKey('payment-bill-summary'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 4,
+        children: [
+          for (final item in bill.items)
+            line(
+              '${formatQty(context, Qty(item.quantityMilli))}'
+              '${item.productUnitId == null ? '' : ' ${item.unitName}'} × '
+              '${'${item.productName} ${item.variantName}'.trim()}',
+              Money(item.lineTotal),
+            ),
+          const FDivider(),
+          line(l10n.diningSubtotal, charges.subtotal),
+          if (charges.service.value != 0)
+            line(
+              l10n.diningService(percentLabel(l10n, bill.rates.service.value)),
+              charges.service,
+            ),
+          if (charges.tax.value != 0)
+            line(
+              l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
+              charges.tax,
+            ),
+          line(l10n.diningTotal, charges.total, bold: true),
+        ],
+      ),
+    );
+  }
+}
+
 // --- Pembayaran (1.5) ---------------------------------------------------------
 
 /// Tahap bayar di layar kasir (1.5, F1-05): pilih metode, uang diterima
@@ -187,6 +245,7 @@ class PaymentView extends StatelessWidget {
     final finish = vm.mode == PayMode.qris
         ? QrisActions(viewModel: vm)
         : _FinishButton(viewModel: vm);
+    final summary = vm.bill == null ? null : BillPaySummary(bill: vm.bill!);
 
     if (narrow) {
       return Column(
@@ -199,7 +258,7 @@ class PaymentView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 12,
-                children: [methods, detail, ?errorAlert],
+                children: [?summary, methods, detail, ?errorAlert],
               ),
             ),
           ),
@@ -234,7 +293,7 @@ class PaymentView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: 12,
-                    children: [methods, ?errorAlert, finish],
+                    children: [?summary, methods, ?errorAlert, finish],
                   ),
                 ),
               ],
