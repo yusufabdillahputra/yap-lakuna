@@ -24,7 +24,7 @@ terlihat di layar.
 
 | Fitur | Layar | Detail yang wajib ada di aplikasi | Izin |
 | --- | --- | --- | --- |
-| Login & PIN | 1.2, 1.2b | Ganti kasir dengan PIN; persetujuan PIN manajer untuk void, retur, diskon manual; salah PIN berulang → dikunci sementara | `sales:void`, `sales:discount` |
+| Login & PIN | 1.1b, 1.2, 1.2b, 1.25b | Setel kata sandi & PIN selalu dengan kolom ulangi; ganti kasir dengan PIN; persetujuan PIN manajer untuk void, retur, diskon manual; salah PIN berulang → dikunci sementara | `sales:void`, `sales:discount` |
 | Sesi kasir & kas laci | 1.3, 1.3b | Buka sesi + shift (opsional) + saldo awal; uang masuk/keluar; "catat juga sebagai pengeluaran"; tutup sesi dengan selisih | `cash_session:open`, `cash_session:close`, `cash_movements:create` |
 | Kasir retail | 1.4, 1.4b, 1.11, 1.11b | Satuan konversi (renceng, dus), harga grosir otomatis, pilih pelanggan, diskon manual, nota tersimpan (status open) | `sales:create`, `sales:discount` |
 | Pembayaran | 1.5, 1.5b, 1.5c | Tunai, kartu (no. approval opsional), transfer, QRIS statis, split; kredit = tombol khusus dengan limit, DP & jatuh tempo; layar berhasil + kembalian | `sales:create`, `debts:manage` |
@@ -42,7 +42,7 @@ terlihat di layar.
 | Supplier & hutang | 1.21 | Hutang per pembelian, jatuh tempo, bayar dari kas toko / laci / bank | `suppliers:manage` |
 | Pengeluaran | 1.22 | Jenis pengeluaran, foto nota; dari kas laci ikut rekap sesi | `expenses:manage` |
 | Laporan & laba rugi | 1.23, 1.24 | Penjualan, produk terlaris, kas; laba rugi memakai HPP; angka laba disembunyikan tanpa izin | `reports:view` (usul: `reports:view_profit` untuk angka laba, belum ada di katalog F0) |
-| Pengguna & role | 1.25 | Role owner, manager, cashier, waiter, stock_keeper; matriks memakai kunci izin dari kode | `users:manage` |
+| Pengguna & role | 1.25, 1.25b | Role owner, manager, cashier, waiter, stock_keeper; matriks memakai kunci izin dari kode; tambah staf (PIN + ulangi PIN), reset PIN staf, ganti kata sandi & PIN sendiri di "Akun saya" | `users:manage` (tambah, reset); "Akun saya" tanpa izin khusus |
 | Pengaturan | 1.26, 1.26b | Metode bayar, struk, pajak & service, stok minus, PIN diskon, pembulatan, tema, bahasa | `settings:manage` |
 | Panduan | 1.27 | Panduan per fitur ID + EN, tangkapan layar WebP | — |
 
@@ -56,6 +56,7 @@ stock_keeper = `purchases:manage`, `stock:adjust`, `suppliers:manage`.
 
 | Layar | Alasan |
 | --- | --- |
+| 1.1b Setup: akun pemilik & PIN | Kolom ulangi kata sandi dan ulangi PIN (permintaan Yusuf 2026-11-03); validasi "tidak sama" |
 | 1.2b Persetujuan PIN manajer | Spec void & diskon manual butuh persetujuan; belum ada layarnya |
 | 1.3b Kas laci | Uang masuk/keluar dan rekap sesi belum tergambar; opsi "catat juga sebagai pengeluaran" |
 | 1.4b Pelanggan, diskon, nota tersimpan | Kasir harus bisa memilih pelanggan (grosir/kredit), menyimpan nota, memberi diskon manual |
@@ -69,6 +70,7 @@ stock_keeper = `purchases:manage`, `stock:adjust`, `suppliers:manage`.
 | 1.16b, 1.17b Modifier | Master grup modifier dan penempelannya ke menu belum tergambar |
 | 1.19b Detail pembelian | HPP rata-rata, saran harga jual, pembayaran hutang |
 | 1.20b Kuitansi | Bukti bayar piutang (A5/PDF dan 58 mm) |
+| 1.25b Tambah pengguna & akun saya | PIN staf + ulangi PIN; "Akun saya" (setiap pengguna) untuk ganti kata sandi dan PIN, selalu dengan kolom ulangi |
 | 1.26b Pengaturan QRIS | Unggah stiker QRIS utuh, cek rasio & QR, data merchant |
 
 Halaman fondasi baru: **Pola keadaan & responsif** (kosong, memuat, error,
@@ -84,6 +86,8 @@ offline, tanpa izin, toast, konfirmasi, satu layar di tiga lebar) dan
   `PB-PST-D01-…`, retur beli `RB-…`, penyesuaian `SA-…`, bayar hutang
   `BH-…`, bayar piutang `BP-…`. `T01`/`D01` hanya contoh. (Kanvas Storeku lama memakai
   `PB-PST-261102-…` tanpa kode perangkat; sudah dibetulkan.)
+- Setiap kali kata sandi atau PIN disetel atau diganti, ada kolom ulangi
+  (aturan lengkap di spec desain, bagian "Kata sandi dan PIN").
 - Stok dan saldo selalu ledger; tidak ada layar yang mengubah angka stok
   langsung.
 - Uang rupiah bulat; jumlah barang mendukung pecahan (timbang 0,5 kg).
@@ -109,4 +113,5 @@ offline, tanpa izin, toast, konfirmasi, satu layar di tiga lebar) dan
 | --- | --- |
 | Audit spec Storeku → kanvas Lakuna | selesai 2026-11-03 |
 | 14 layar detail + 2 halaman fondasi | terbit di kanvas 2026-11-03 |
+| 1.1b dan 1.25b (kolom ulangi kata sandi & PIN) | terbit di kanvas 2026-11-03 |
 | Implementasi Flutter | thread "Bangun aplikasi Lakuna dengan Flutter" |

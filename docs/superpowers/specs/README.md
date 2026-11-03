@@ -14,7 +14,7 @@ dibangun dan **kenapa**. Rencana langkah demi langkah (**bagaimana**) ada di
   dikerjakan, menyalin aturan dari spec Storeku dan mencatat perbedaan
   khusus Flutter/Serverpod.
 - **Kanvas desain** [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) adalah acuan visual
-  setiap layar (Forui preset `conhcc`, 85 artboard). Nomor layar (mis. 1.4
+  setiap layar (Forui preset `conhcc`, 89 artboard). Nomor layar (mis. 1.4
   Kasir, 1.26b Pengaturan QRIS) dipakai di kode dan CHANGELOG. Mulai dari
   halaman fondasinya: *Gaya visual Lakuna*, *Peta komponen Forui*, *Pola
   keadaan & responsif*, dan *Peta fitur hasil audit* (daftar periksa fitur →
