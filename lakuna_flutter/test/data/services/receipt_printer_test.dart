@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_pdf.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 
@@ -56,4 +57,38 @@ void main() {
       expect(f80.height, greaterThan(f58.height));
     },
   );
+
+  test('halaman PDF selalu sedikit lebih tinggi dari isi agar baris '
+      'terakhir tidak terbuang karena pembulatan', () {
+    for (final paper in ReceiptPaper.values) {
+      for (var n = 1; n <= 120; n++) {
+        final f = receiptPageFormat(paper, n);
+        expect(
+          f.availableHeight - n * receiptLineHeightPt(paper),
+          greaterThanOrEqualTo(1),
+          reason: '${paper.name} $n baris',
+        );
+      }
+    }
+  });
+
+  group('receiptPdfDirectory', () {
+    test('memakai folder Dokumen bila ada', () async {
+      final dir = await receiptPdfDirectory(
+        documents: () async => Directory('/home/u/Documents'),
+        fallback: () async => Directory('/data/app'),
+      );
+      expect(dir.path, '/home/u/Documents/Lakuna/Struk');
+    });
+
+    test('folder Dokumen tidak dikenal (tanpa xdg-user-dir) → folder '
+        'data aplikasi', () async {
+      final dir = await receiptPdfDirectory(
+        documents: () async =>
+            throw MissingPlatformDirectoryException('no documents'),
+        fallback: () async => Directory('/data/app'),
+      );
+      expect(dir.path, '/data/app/Struk');
+    });
+  });
 }

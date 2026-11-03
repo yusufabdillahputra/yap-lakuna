@@ -30,15 +30,24 @@ double _fontSize(ReceiptPaper paper) =>
     PdfPageFormat.mm /
     (paper.columns * receiptCharEm);
 
+/// Tinggi satu baris struk di PDF (pt).
+double receiptLineHeightPt(ReceiptPaper paper) =>
+    _fontSize(paper) * receiptLineHeight;
+
 double _margin(ReceiptPaper paper) =>
     (_paperMm(paper) - receiptPrintableMm(paper)) / 2 * PdfPageFormat.mm;
+
+/// Kelonggaran tinggi halaman (pt). Tanpa ini, galat pembulatan bisa
+/// membuat kolom sedikit lebih tinggi dari halaman dan paket `pdf`
+/// membuang baris terakhir (footer).
+const _heightSlackPt = 2.0;
 
 /// Ukuran halaman gulungan setinggi [lineCount] baris.
 PdfPageFormat receiptPageFormat(ReceiptPaper paper, int lineCount) {
   final margin = _margin(paper);
   return PdfPageFormat(
     _paperMm(paper) * PdfPageFormat.mm,
-    lineCount * _fontSize(paper) * receiptLineHeight + margin * 2,
+    lineCount * receiptLineHeightPt(paper) + margin * 2 + _heightSlackPt,
     marginAll: margin,
   );
 }
@@ -60,7 +69,7 @@ Future<Uint8List> buildReceiptPdf(
         children: [
           for (final line in lines)
             pw.SizedBox(
-              height: size * receiptLineHeight,
+              height: receiptLineHeightPt(paper),
               child: pw.Text(
                 line.text,
                 textAlign: switch (line.align) {

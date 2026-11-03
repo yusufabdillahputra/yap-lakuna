@@ -626,6 +626,9 @@ class CashierViewModel extends ChangeNotifier {
   ReceiptPaper get receiptPaper =>
       _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
 
+  /// Cetak otomatis setelah bayar diaktifkan untuk cabang ini.
+  bool get autoPrintEnabled => _data?.receipt.settings.autoPrint ?? false;
+
   /// Printer terpilih di perangkat ini; `null` = dialog cetak sistem.
   PrinterSelection? get printer => _data?.printer;
 
@@ -646,7 +649,7 @@ class CashierViewModel extends ChangeNotifier {
     final sale = _result?.sale;
     return sale != null &&
         _stage == CashierStage.done &&
-        (_data?.receipt.settings.autoPrint ?? false) &&
+        autoPrintEnabled &&
         (printer?.isDirect ?? false) &&
         !_autoPrinted.contains(sale.number);
   }

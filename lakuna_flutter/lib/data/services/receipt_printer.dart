@@ -97,6 +97,22 @@ Future<void> sendToNetworkPrinter(
   }
 }
 
+/// Folder PDF struk di desktop: `Dokumen/Lakuna/Struk`, atau
+/// `<data aplikasi>/Struk` bila folder Dokumen tidak dikenal (mis. Linux
+/// tanpa `xdg-user-dir`).
+Future<Directory> receiptPdfDirectory({
+  Future<Directory> Function() documents = getApplicationDocumentsDirectory,
+  Future<Directory> Function() fallback = getApplicationSupportDirectory,
+}) async {
+  try {
+    final docs = await documents();
+    return Directory(p.join(docs.path, 'Lakuna', 'Struk'));
+  } on MissingPlatformDirectoryException {
+    final base = await fallback();
+    return Directory(p.join(base.path, 'Struk'));
+  }
+}
+
 /// [ReceiptPrinter] nyata: Bluetooth (`print_bluetooth_thermal`), soket
 /// TCP, dan `printing` untuk dialog cetak / share sheet.
 class PlatformReceiptPrinter implements ReceiptPrinter {
@@ -192,8 +208,7 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
       await Printing.sharePdf(bytes: pdf, filename: fileName);
       return null;
     }
-    final docs = await getApplicationDocumentsDirectory();
-    final dir = Directory(p.join(docs.path, 'Lakuna', 'Struk'));
+    final dir = await receiptPdfDirectory();
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, fileName));
     await file.writeAsBytes(pdf, flush: true);

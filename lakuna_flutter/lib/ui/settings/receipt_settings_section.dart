@@ -64,7 +64,7 @@ class ReceiptSettingsSection extends StatelessWidget {
         final lines = _sampleLines(l10n);
         return LayoutBuilder(
           builder: (context, c) {
-            final wide = c.maxWidth >= 760;
+            final wide = c.maxWidth >= 720;
             final actions = _Actions(viewModel: vm);
             final preview = Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,13 +85,10 @@ class ReceiptSettingsSection extends StatelessWidget {
                 ),
               ],
             );
-            final cards = Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                _PrinterCard(viewModel: vm, lines: lines),
-                _ReceiptCard(viewModel: vm),
-              ],
+            final printerCard = _PrinterCard(viewModel: vm, lines: lines);
+            final receiptCard = _ReceiptCard(
+              viewModel: vm,
+              preview: wide ? preview : null,
             );
             return Column(
               key: const ValueKey('receipt-settings'),
@@ -135,23 +132,9 @@ class ReceiptSettingsSection extends StatelessWidget {
                     variant: .destructive,
                     title: Text(l10n.settingsSaveError),
                   ),
-                if (wide)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 20,
-                    children: [
-                      Expanded(child: cards),
-                      SizedBox(
-                        width: vm.paper == ReceiptPaper.mm58 ? 300 : 400,
-                        child: preview,
-                      ),
-                    ],
-                  )
-                else ...[
-                  cards,
-                  preview,
-                  actions,
-                ],
+                printerCard,
+                receiptCard,
+                if (!wide) ...[preview, actions],
               ],
             );
           },
@@ -490,9 +473,12 @@ class _DeviceRow extends StatelessWidget {
 }
 
 class _ReceiptCard extends StatelessWidget {
-  const _ReceiptCard({required this.viewModel});
+  const _ReceiptCard({required this.viewModel, this.preview});
 
   final ReceiptSettingsViewModel viewModel;
+
+  /// Pratinjau di samping isian (layar lebar).
+  final Widget? preview;
 
   @override
   Widget build(BuildContext context) {
@@ -506,81 +492,91 @@ class _ReceiptCard extends StatelessWidget {
         ? Text(l10n.receiptLineTooLong)
         : null;
     final r = vm.revision;
+    final form = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 14,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            Text(
+              l10n.receiptPaperWidth,
+              style: context.theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final paper in ReceiptPaper.values)
+                  ChoicePill(
+                    key: ValueKey('receipt-paper-${paper.name}'),
+                    label: l10n.receiptPaperOption(
+                      paper == ReceiptPaper.mm58 ? 58 : 80,
+                      paper.columns,
+                    ),
+                    selected: paper == vm.paper,
+                    onTap: () => vm.setPaper(paper),
+                  ),
+              ],
+            ),
+          ],
+        ),
+        FTextField(
+          key: ValueKey('receipt-header-$r'),
+          label: Text(l10n.receiptHeader),
+          description: Text(l10n.receiptHeaderHint),
+          minLines: 2,
+          maxLines: 5,
+          error: error(
+            ReceiptSettingsError.headerTooManyLines,
+            ReceiptSettingsError.headerLineTooLong,
+          ),
+          control: .managed(
+            initial: TextEditingValue(text: vm.headerText),
+            onChange: (v) => vm.setHeader(v.text),
+          ),
+        ),
+        FTextField(
+          key: ValueKey('receipt-footer-$r'),
+          label: Text(l10n.receiptFooter),
+          description: Text(l10n.receiptFooterHint),
+          minLines: 2,
+          maxLines: 5,
+          error: error(
+            ReceiptSettingsError.footerTooManyLines,
+            ReceiptSettingsError.footerLineTooLong,
+          ),
+          control: .managed(
+            initial: TextEditingValue(
+              text: vm.footerText ?? l10n.receiptThanks,
+            ),
+            onChange: (v) => vm.setFooter(v.text),
+          ),
+        ),
+        FSwitch(
+          key: const ValueKey('receipt-auto-print'),
+          label: Text(l10n.receiptAutoPrint),
+          description: Text(l10n.receiptAutoPrintHint),
+          value: vm.autoPrint,
+          onChange: vm.setAutoPrint,
+        ),
+      ],
+    );
     return SettingsCard(
       title: l10n.receiptOutletTitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 14,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 8,
-            children: [
-              Text(
-                l10n.receiptPaperWidth,
-                style: context.theme.typography.body.sm.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final paper in ReceiptPaper.values)
-                    ChoicePill(
-                      key: ValueKey('receipt-paper-${paper.name}'),
-                      label: l10n.receiptPaperOption(
-                        paper == ReceiptPaper.mm58 ? 58 : 80,
-                        paper.columns,
-                      ),
-                      selected: paper == vm.paper,
-                      onTap: () => vm.setPaper(paper),
-                    ),
-                ],
-              ),
-            ],
-          ),
-          FTextField(
-            key: ValueKey('receipt-header-$r'),
-            label: Text(l10n.receiptHeader),
-            description: Text(l10n.receiptHeaderHint),
-            minLines: 2,
-            maxLines: 5,
-            error: error(
-              ReceiptSettingsError.headerTooManyLines,
-              ReceiptSettingsError.headerLineTooLong,
+      child: preview == null
+          ? form
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 20,
+              children: [
+                Expanded(child: form),
+                SizedBox(width: 280, child: preview),
+              ],
             ),
-            control: .managed(
-              initial: TextEditingValue(text: vm.headerText),
-              onChange: (v) => vm.setHeader(v.text),
-            ),
-          ),
-          FTextField(
-            key: ValueKey('receipt-footer-$r'),
-            label: Text(l10n.receiptFooter),
-            description: Text(l10n.receiptFooterHint),
-            minLines: 2,
-            maxLines: 5,
-            error: error(
-              ReceiptSettingsError.footerTooManyLines,
-              ReceiptSettingsError.footerLineTooLong,
-            ),
-            control: .managed(
-              initial: TextEditingValue(
-                text: vm.footerText ?? l10n.receiptThanks,
-              ),
-              onChange: (v) => vm.setFooter(v.text),
-            ),
-          ),
-          FSwitch(
-            key: const ValueKey('receipt-auto-print'),
-            label: Text(l10n.receiptAutoPrint),
-            description: Text(l10n.receiptAutoPrintHint),
-            value: vm.autoPrint,
-            onChange: vm.setAutoPrint,
-          ),
-        ],
-      ),
     );
   }
 }

@@ -296,6 +296,7 @@ void main() {
       await sellCard(tester);
       expect(find.text('RPP02N · Bluetooth · 58 mm'), findsOneWidget);
       expect(printer.prints, isEmpty); // cetak otomatis mati
+      expect(_key('receipt-auto-print-note'), findsOneWidget);
 
       printer.nextFailure = const PrinterFailure(
         PrinterFailureReason.bluetoothOff,
@@ -343,6 +344,7 @@ void main() {
       expect(printer.prints.single.$3, ReceiptPaper.mm80);
       expect(printer.prints.single.$2.last.text, 'Sampai jumpa');
       expect(_key('receipt-printed'), findsOneWidget);
+      expect(_key('receipt-auto-print-note'), findsNothing);
       await tester.pumpAndSettle();
       expect(printer.prints, hasLength(1));
     });

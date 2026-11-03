@@ -1020,12 +1020,14 @@ class _ReceiptActions extends StatelessWidget {
             icon: const Icon(TablerIcons.fileTypePdf),
             title: Text(l10n.receiptPdfSaved(path)),
           ),
-        Text(
-          l10n.successPrintNote,
-          style: theme.typography.body.xs.copyWith(
-            color: theme.colors.mutedForeground,
+        if (!vm.autoPrintEnabled)
+          Text(
+            key: const ValueKey('receipt-auto-print-note'),
+            l10n.successPrintNote,
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
           ),
-        ),
       ],
     );
   }
