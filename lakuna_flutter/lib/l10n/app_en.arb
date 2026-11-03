@@ -15,6 +15,7 @@
   "menuReports": "Reports",
   "menuUsers": "Users & roles",
   "menuSettings": "Settings",
+  "menuMore": "More",
   "menuGuide": "Guide",
   "menuGroupSales": "Sales",
   "menuGroupInventory": "Inventory",
@@ -22,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail checkout, cash sessions, and products are ready to use. Purchases, history, and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail checkout, cash sessions, products, and stock are ready to use. Purchases, history, and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -475,5 +476,179 @@
   "receiptSettingsSave": "Save",
   "receiptSettingsCancel": "Cancel",
   "receiptSettingsSaved": "Receipt settings saved",
-  "receiptSettingsLoadError": "Could not load receipt settings."
+  "receiptSettingsLoadError": "Could not load receipt settings.",
+  "stockTitle": "Stock",
+  "stockSubtitle": "{location} · {outlet}",
+  "@stockSubtitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "stockTabList": "Product list",
+  "stockTabAdjustment": "Adjustment",
+  "stockTabCard": "Stock card",
+  "stockTabMinimum": "Minimum stock",
+  "stockTabLocations": "Stock locations",
+  "stockLoadFailed": "Stock data failed to load.",
+  "stockSearchHint": "Search name, SKU or barcode",
+  "stockLocation": "Location",
+  "stockColProduct": "Product",
+  "stockColStock": "Stock",
+  "stockColMinimum": "Minimum",
+  "stockColValue": "Value (COGS)",
+  "stockColSystem": "System",
+  "stockColPhysical": "Physical",
+  "stockColDifference": "Difference",
+  "stockColReason": "Reason",
+  "stockBadgeLow": "Below minimum",
+  "stockBadgeNegative": "Negative",
+  "stockEmpty": "No goods yet. Add them under Products.",
+  "stockNoMatch": "No matching products.",
+  "stockValueTotal": "Stock value {value}",
+  "@stockValueTotal": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "stockAdjustmentNew": "New stock adjustment",
+  "stockAdjustmentMeta": "{number} · {staff}",
+  "@stockAdjustmentMeta": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockReasonLabel": "General reason",
+  "stockReasonRoutineCheck": "Routine check",
+  "stockReasonDamaged": "Damaged",
+  "stockReasonLost": "Lost",
+  "stockReasonExpired": "Expired",
+  "stockReasonOther": "Other",
+  "stockNoteLabel": "Note",
+  "stockNoteHint": "E.g. weekly routine check",
+  "stockLineNoteHint": "Line reason",
+  "stockAddLabel": "Scan / add product",
+  "stockAddHint": "Scan a barcode or type a product name",
+  "stockAddNotFound": "Product \"{code}\" not found.",
+  "@stockAddNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "stockLinesEmpty": "Add the products you counted, then enter their physical stock. Rows left empty are not saved.",
+  "stockTotal": "Total",
+  "stockSave": "Save adjustment",
+  "stockClear": "Cancel",
+  "stockSaved": "Adjustment {number} saved.",
+  "@stockSaved": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPermissionNote": "Requires the stock:adjust permission. Recorded as stock movements with a reason, so it can be audited.",
+  "stockNoPermission": "You can only view stock. Adjustments require the stock:adjust permission.",
+  "stockErrorEmpty": "Enter the physical stock of at least one product.",
+  "stockErrorNegative": "Physical stock cannot be negative.",
+  "stockErrorDuplicate": "The same product appears twice.",
+  "stockErrorNotGoods": "Services and menu items have no stock.",
+  "stockErrorUnknownVariant": "The product was deleted or not found.",
+  "stockErrorUnknownLocation": "Stock location not found.",
+  "stockErrorNoChange": "No difference: physical stock equals system stock.",
+  "stockErrorNoteTooLong": "The reason or note is too long.",
+  "stockErrorGeneric": "The adjustment failed to save.",
+  "stockRecentTitle": "Recent adjustments",
+  "stockRecentEmpty": "No adjustments yet.",
+  "stockRecentMeta": "{reason} · {count} products · {staff}",
+  "@stockRecentMeta": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardTitle": "Stock card",
+  "stockCardCurrent": "Current stock {stock} · minimum {minimum}",
+  "@stockCardCurrent": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "minimum": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardCurrentNoMin": "Current stock {stock}",
+  "@stockCardCurrentNoMin": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardProduct": "Product",
+  "stockColTime": "Time",
+  "stockColDescription": "Description",
+  "stockColInOut": "In/out",
+  "stockColBalance": "Balance",
+  "stockCardEmpty": "No movements yet.",
+  "stockCardNote": "The stock card is a ledger of movements. The balance is never edited directly, only through new entries.",
+  "stockCardOpening": "Earlier balance {balance}",
+  "@stockCardOpening": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "stockSourceOpening": "Opening stock",
+  "stockSourceSale": "Sale",
+  "stockSourceSaleReturn": "Sales return",
+  "stockSourcePurchase": "Purchase",
+  "stockSourcePurchaseReturn": "Purchase return",
+  "stockSourceTransfer": "Transfer",
+  "stockSourceAdjustment": "Adjustment",
+  "stockMinimumTitle": "Below minimum stock",
+  "stockMinimumCount": "{count} products",
+  "@stockMinimumCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockMinimumEmpty": "All stock is above minimum.",
+  "stockMinimumPurchaseSoon": "Purchase orders from this list will come with the Purchases module.",
+  "stockLocationsHint": "Display, warehouse, or separate shelves in this branch.",
+  "stockLocationDefault": "Default",
+  "stockLocationNameLabel": "Location name",
+  "stockLocationAdd": "Add location",
+  "stockLocationRename": "Rename",
+  "stockLocationSave": "Save",
+  "stockLocationCancel": "Cancel",
+  "stockLocationErrorEmpty": "Location name is required.",
+  "stockLocationErrorTooLong": "Location name can have at most 40 characters.",
+  "stockLocationErrorDuplicate": "This name is already used in this branch.",
+  "stockRemoveLine": "Remove row"
 }

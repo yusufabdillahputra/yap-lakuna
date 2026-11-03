@@ -58,18 +58,32 @@ class AppShell extends StatelessWidget {
           );
           if (mobile) {
             final items = mobileMenu(permissions);
-            final index = items.indexWhere(_isSelected);
+            final more = mobileMoreMenu(permissions);
+            final primary = items.indexWhere(_isSelected);
+            final inMore = more.expand((g) => g.entries).any(_isSelected);
             return FScaffold(
               header: header,
               footer: FBottomNavigationBar(
-                index: index,
-                onChange: (i) => context.go(items[i].path),
+                index: primary >= 0 ? primary : (inMore ? items.length : -1),
+                onChange: (i) {
+                  if (i < items.length) {
+                    context.go(items[i].path);
+                  } else {
+                    _showMore(context, more);
+                  }
+                },
                 children: [
                   for (final e in items)
                     FBottomNavigationBarItem(
                       key: ValueKey('nav-${e.key}'),
                       icon: Icon(e.icon),
                       label: Text(e.label(l10n)),
+                    ),
+                  if (more.isNotEmpty)
+                    FBottomNavigationBarItem(
+                      key: const ValueKey('nav-more'),
+                      icon: const Icon(TablerIcons.dots),
+                      label: Text(l10n.menuMore),
                     ),
                 ],
               ),
@@ -87,6 +101,61 @@ class AppShell extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  /// Lembar *Lainnya* (mobile): menu yang tidak muat di navigasi bawah.
+  void _showMore(BuildContext context, List<MenuGroup> groups) {
+    showFSheet<void>(
+      context: context,
+      side: .btt,
+      builder: (sheetContext) {
+        final l10n = AppLocalizations.of(sheetContext);
+        final theme = sheetContext.theme;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.colors.background,
+            border: Border.all(color: theme.colors.border),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                key: const ValueKey('more-sheet'),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 4,
+                children: [
+                  for (final group in groups) ...[
+                    if (group.label case final label?)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+                        child: Text(
+                          label(l10n),
+                          style: theme.typography.body.xs.copyWith(
+                            color: theme.colors.mutedForeground,
+                          ),
+                        ),
+                      ),
+                    for (final e in group.entries)
+                      FItem(
+                        key: ValueKey('more-${e.key}'),
+                        prefix: Icon(e.icon),
+                        title: Text(e.label(l10n)),
+                        selected: _isSelected(e),
+                        onPress: () {
+                          Navigator.of(sheetContext).pop();
+                          context.go(e.path);
+                        },
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

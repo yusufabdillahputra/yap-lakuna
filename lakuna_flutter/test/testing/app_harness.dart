@@ -15,6 +15,7 @@ import 'fake_payment_settings_repository.dart';
 import 'fake_receipt_printer.dart';
 import 'fake_receipt_settings_repository.dart';
 import 'fake_session_repository.dart';
+import 'fake_stock_repository.dart';
 import 'fake_store_repository.dart';
 
 /// Menjalankan aplikasi lengkap dengan repositori palsu pada ukuran layar
@@ -28,6 +29,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeSessionRepository? session,
   FakeCashDrawerRepository? cashDrawer,
   FakeCatalogRepository? catalog,
+  FakeStockRepository? stock,
   FakeCashierRepository? cashier,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
@@ -69,6 +71,7 @@ Future<AppSettingsViewModel> pumpLakuna(
           session: sessionRepository,
           cashDrawer: cashDrawer ?? FakeCashDrawerRepository(),
           catalog: catalog ?? FakeCatalogRepository(),
+          stock: stock ?? FakeStockRepository(),
           cashier: cashier ?? FakeCashierRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),

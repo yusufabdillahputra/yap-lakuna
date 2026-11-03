@@ -133,7 +133,7 @@ void main() {
     test(
       'di bawah minimum urut paling kritis (stok/minimum terkecil)',
       () async {
-        final rows = await belowMinimum(store, scope);
+        final rows = await belowMinimumStock(store, scope);
         expect(rows.map((r) => r.productName), ['Kopi Sachet', 'Telur Ayam']);
       },
     );
@@ -236,13 +236,13 @@ void main() {
     test('nomor urut per hari per perangkat', () async {
       await adjust([AdjustmentLine(variantId: kopi.id, physical: Qty.one)]);
       expect(
-        await nextAdjustmentNumber(store, scope),
+        await nextStockAdjustmentNumber(store, scope),
         'SA-PST-K01-261103-0002',
       );
       await adjust([AdjustmentLine(variantId: kopi.id, physical: Qty.zero)]);
       now = DateTime.utc(2026, 11, 3, 18); // 01.00 WIB tanggal 4
       expect(
-        await nextAdjustmentNumber(store, scope),
+        await nextStockAdjustmentNumber(store, scope),
         'SA-PST-K01-261104-0001',
       );
     });
@@ -300,7 +300,7 @@ void main() {
         AdjustmentLine(variantId: sabun.id, physical: Qty.units(14)),
         AdjustmentLine(variantId: telur.id, physical: const Qty(12000)),
       ], reason: StockAdjustmentReason.damaged);
-      final list = await recentAdjustments(store, scope);
+      final list = await recentStockAdjustments(store, scope);
       expect(list.map((a) => a.number), [
         'SA-PST-K01-261103-0002',
         'SA-PST-K01-261103-0001',
@@ -445,6 +445,35 @@ void main() {
       expect(
         rows.firstWhere((r) => r.variantId == kopi.id).stock,
         Qty.units(10),
+      );
+    });
+
+    test('minimum hanya berlaku di lokasi bawaan, sama dengan daftar '
+        'produk', () async {
+      final gudang = await createStockLocation(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        name: 'Gudang',
+      );
+      final rows = await stockList(store, scope, locationId: gudang.id);
+      expect(rows.every((r) => r.minStock == Qty.zero), isTrue);
+      expect(rows.any((r) => r.belowMinimum), isFalse);
+      expect(
+        await belowMinimumStock(store, scope, locationId: gudang.id),
+        isEmpty,
+      );
+      final card = await stockCard(
+        store,
+        scope,
+        variantId: kopi.id,
+        locationId: gudang.id,
+      );
+      expect(card.minStock, Qty.zero);
+      // Di etalase minimum tetap terbaca.
+      expect(
+        (await stockCard(store, scope, variantId: kopi.id)).minStock,
+        Qty.units(20),
       );
     });
   });

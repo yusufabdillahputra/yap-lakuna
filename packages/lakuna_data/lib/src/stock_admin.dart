@@ -129,7 +129,9 @@ Future<List<StockRow>> stockList(
         sku: v.sku ?? byId[v.productId]!.sku,
         barcode: v.barcode,
         stock: Qty(levels[v.id]?.quantityMilli ?? 0),
-        minStock: Qty(v.minStockMilli),
+        // Minimum berlaku di lokasi bawaan (tempat jual), sama dengan
+        // daftar produk; lokasi lain tidak ditandai.
+        minStock: location.isDefault ? Qty(v.minStockMilli) : Qty.zero,
         unitCost: adjustmentUnitCost(
           avgCost: Money(levels[v.id]?.avgCost ?? 0),
           costPrice: Money(v.costPrice),
@@ -146,7 +148,7 @@ Future<List<StockRow>> stockList(
 
 /// Varian dengan stok ≤ minimum, paling kritis (stok/minimum terkecil)
 /// dulu.
-Future<List<StockRow>> belowMinimum(
+Future<List<StockRow>> belowMinimumStock(
   LakunaStore store,
   CatalogScope scope, {
   UuidValue? locationId,
@@ -561,21 +563,21 @@ Future<(String, String, String?)> _codes(
 
 /// Nomor penyesuaian berikutnya (pratinjau di kepala form; nomor final
 /// dibuat saat simpan).
-Future<String> nextAdjustmentNumber(LakunaStore store, CatalogScope scope) =>
-    store.session.db.transaction((tx) async {
-      final (outlet, device, timezone) = await _codes(store.session, tx, scope);
-      final local = outletLocalTime(store.now(), timezone);
-      final prefix =
-          '$_adjustmentPrefix-${receiptPrefix(outlet, device, local)}';
-      final existing = await StockAdjustment.db.find(
-        store.session,
-        where: (a) =>
-            a.tenantId.equals(scope.tenantId) & a.number.like('$prefix%'),
-        transaction: tx,
-      );
-      final counter = nextReceiptCounter(existing.map((a) => a.number), prefix);
-      return documentNumber(_adjustmentPrefix, outlet, device, local, counter);
-    });
+Future<String> nextStockAdjustmentNumber(
+  LakunaStore store,
+  CatalogScope scope,
+) => store.session.db.transaction((tx) async {
+  final (outlet, device, timezone) = await _codes(store.session, tx, scope);
+  final local = outletLocalTime(store.now(), timezone);
+  final prefix = '$_adjustmentPrefix-${receiptPrefix(outlet, device, local)}';
+  final existing = await StockAdjustment.db.find(
+    store.session,
+    where: (a) => a.tenantId.equals(scope.tenantId) & a.number.like('$prefix%'),
+    transaction: tx,
+  );
+  final counter = nextReceiptCounter(existing.map((a) => a.number), prefix);
+  return documentNumber(_adjustmentPrefix, outlet, device, local, counter);
+});
 
 /// Ringkasan dokumen penyesuaian untuk daftar.
 class StockAdjustmentSummary {
@@ -603,7 +605,7 @@ class StockAdjustmentSummary {
 }
 
 /// Penyesuaian cabang ini, terbaru dulu.
-Future<List<StockAdjustmentSummary>> recentAdjustments(
+Future<List<StockAdjustmentSummary>> recentStockAdjustments(
   LakunaStore store,
   CatalogScope scope, {
   int limit = 10,
@@ -797,6 +799,6 @@ Future<StockCard> stockCard(
   return StockCard(
     openingBalance: opening,
     entries: entries,
-    minStock: Qty(variant?.minStockMilli ?? 0),
+    minStock: location.isDefault ? Qty(variant?.minStockMilli ?? 0) : Qty.zero,
   );
 }

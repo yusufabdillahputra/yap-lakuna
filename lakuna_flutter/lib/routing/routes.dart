@@ -24,6 +24,9 @@ abstract final class Routes {
   /// Form ubah produk [id] (F1-07).
   static String product(String id) => '/produk/$id';
 
+  /// Stok: penyesuaian, kartu stok, stok minimum, lokasi (F1-08).
+  static const stock = '/stok';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }
