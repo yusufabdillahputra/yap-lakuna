@@ -4,6 +4,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'cash.dart';
+import 'payment_settings.dart';
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
@@ -26,26 +27,35 @@ class SaleLineRequest {
   final Qty quantity;
 }
 
-/// Pembayaran yang dipilih di layar bayar (F1-05).
+/// Satu pembayaran yang dipilih di layar bayar (F1-05). Satu nota bisa
+/// punya beberapa (split).
 class SalePaymentRequest {
   const SalePaymentRequest({
     required this.method,
-    this.received,
+    this.amount,
     this.reference = '',
+    this.confirmed = false,
   });
 
-  /// Tunai dengan uang diterima [received].
-  const SalePaymentRequest.cash(Money this.received)
+  /// Tunai dengan uang diterima [amount].
+  const SalePaymentRequest.cash(Money this.amount)
     : method = PaymentMethod.cash,
-      reference = '';
+      reference = '',
+      confirmed = false;
 
   final PaymentMethod method;
 
-  /// Uang diterima (hanya tunai).
-  final Money? received;
+  /// Tunai: uang diterima. Non-tunai: jumlah dibayar; `null` pada
+  /// pembayaran tunggal berarti sama dengan total.
+  final Money? amount;
 
   /// No. approval kartu atau referensi transfer.
   final String reference;
+
+  /// Kasir sudah menekan *Sudah Terbayar* (wajib untuk QRIS statis).
+  final bool confirmed;
+
+  bool get isCash => method == PaymentMethod.cash;
 }
 
 /// Keranjang kosong.
@@ -91,7 +101,24 @@ class SaleReferenceInvalid implements Exception {
   String toString() => 'SaleReferenceInvalid';
 }
 
-/// Metode bayar belum didukung (QRIS statis menyusul).
+/// Pembagian pembayaran tidak sah (lihat [TenderError]); kurang bayar
+/// memakai [SalePaymentShort].
+class SalePaymentInvalid implements Exception {
+  const SalePaymentInvalid(this.error);
+
+  final TenderError error;
+
+  @override
+  String toString() => 'SalePaymentInvalid($error)';
+}
+
+/// QRIS statis belum dikonfirmasi *Sudah Terbayar*.
+class SalePaymentUnconfirmed implements Exception {
+  @override
+  String toString() => 'SalePaymentUnconfirmed';
+}
+
+/// Metode bayar tidak tersedia, mis. QRIS statis nonaktif di cabang ini.
 class SalePaymentUnsupported implements Exception {
   const SalePaymentUnsupported(this.method);
 
@@ -121,7 +148,7 @@ class CheckoutResult {
   const CheckoutResult({
     required this.sale,
     required this.items,
-    required this.payment,
+    required this.payments,
     this.negativeStock = const [],
   });
 
@@ -129,7 +156,9 @@ class CheckoutResult {
 
   /// Urut sesuai keranjang.
   final List<SaleItem> items;
-  final Payment payment;
+
+  /// Urut sesuai permintaan.
+  final List<Payment> payments;
   final List<NegativeStock> negativeStock;
 }
 
@@ -137,28 +166,32 @@ const _supportedMethods = {
   PaymentMethod.cash,
   PaymentMethod.card,
   PaymentMethod.transfer,
+  PaymentMethod.qrisStatic,
 };
 
-/// Menyimpan penjualan [lines] dengan [payment] dalam satu transaksi: nota,
-/// item, pembayaran, pergerakan stok, dan outbox. Butuh sesi kasir terbuka
-/// di perangkat ini ([CashSessionNotOpen]). Harga dihitung ulang dari
-/// database.
+/// Menyimpan penjualan [lines] dengan [payments] (satu atau lebih, split)
+/// dalam satu transaksi: nota, item, pembayaran, pergerakan stok, dan
+/// outbox. Butuh sesi kasir terbuka di perangkat ini
+/// ([CashSessionNotOpen]). Harga dihitung ulang dari database. QRIS statis
+/// harus aktif di cabang dan sudah dikonfirmasi; `confirmed_by` = [staffId].
 Future<CheckoutResult> checkoutSale(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required List<SaleLineRequest> lines,
-  required SalePaymentRequest payment,
+  required List<SalePaymentRequest> payments,
 }) async {
   if (lines.isEmpty) throw SaleEmpty();
   for (var i = 0; i < lines.length; i++) {
     if (!lines[i].quantity.isPositive) throw SaleQuantityInvalid(i);
   }
-  if (!_supportedMethods.contains(payment.method)) {
-    throw SalePaymentUnsupported(payment.method);
-  }
-  if (validatePaymentReference(payment.reference) != null) {
-    throw SaleReferenceInvalid();
+  for (final payment in payments) {
+    if (!_supportedMethods.contains(payment.method)) {
+      throw SalePaymentUnsupported(payment.method);
+    }
+    if (validatePaymentReference(payment.reference) != null) {
+      throw SaleReferenceInvalid();
+    }
   }
   return store.write(actor: staffId, (w) async {
     final session = await findOpenCashSession(
@@ -175,12 +208,43 @@ Future<CheckoutResult> checkoutSale(
     final totals = SaleTotals.of(priced.map((p) => p.line));
     final total = totals.total;
 
-    final isCash = payment.method == PaymentMethod.cash;
-    final received = isCash ? (payment.received ?? Money.zero) : total;
-    final change = cashChange(total: total, received: received);
-    if (change == null) {
-      throw SalePaymentShort(total: total, received: received);
+    if (payments.any((p) => p.method == PaymentMethod.qrisStatic)) {
+      final ready = await qrisStaticReady(
+        w.session,
+        scope,
+        transaction: w.transaction,
+      );
+      if (!ready) {
+        throw const SalePaymentUnsupported(PaymentMethod.qrisStatic);
+      }
+      if (payments.any(
+        (p) => p.method == PaymentMethod.qrisStatic && !p.confirmed,
+      )) {
+        throw SalePaymentUnconfirmed();
+      }
     }
+    final single = payments.length == 1;
+    final amounts = [
+      for (final p in payments)
+        p.amount ?? (single && !p.isCash ? total : Money.zero),
+    ];
+    final settlement = settleTender(total, [
+      for (var i = 0; i < payments.length; i++)
+        TenderPart(amounts[i], isCash: payments[i].isCash),
+    ]);
+    switch (settlement.error) {
+      case null:
+        break;
+      case TenderError.short:
+        throw SalePaymentShort(total: total, received: settlement.paid);
+      case final error:
+        // Tunai tunggal nol = kurang bayar, bukan galat pembagian.
+        if (single && payments.single.isCash) {
+          throw SalePaymentShort(total: total, received: settlement.paid);
+        }
+        throw SalePaymentInvalid(error);
+    }
+    final change = settlement.change;
 
     final s = await w.stamp();
     final number = await _nextNumber(w, scope, s.now);
@@ -258,26 +322,35 @@ Future<CheckoutResult> checkoutSale(
       }
     }
 
-    final reference = payment.reference.trim();
-    final paid = await w.insert(
-      Payment(
-        tenantId: scope.tenantId,
-        saleId: sale.id,
-        method: payment.method,
-        amount: received.value,
-        changeAmount: change.value,
-        reference: reference.isEmpty ? null : reference,
-        status: PaymentStatus.paid,
-        paidAt: s.now,
-        createdAt: s.now,
-        updatedAt: s.now,
-        createdBy: staffId,
-        updatedBy: staffId,
-        hlc: s.hlc.toString(),
-        originDeviceId: s.deviceId,
-      ),
-      s,
-    );
+    final paid = <Payment>[];
+    for (var i = 0; i < payments.length; i++) {
+      final payment = payments[i];
+      final reference = payment.reference.trim();
+      final confirms = payment.method == PaymentMethod.qrisStatic;
+      paid.add(
+        await w.insert(
+          Payment(
+            tenantId: scope.tenantId,
+            saleId: sale.id,
+            method: payment.method,
+            amount: amounts[i].value,
+            changeAmount: payment.isCash ? change.value : 0,
+            reference: reference.isEmpty ? null : reference,
+            status: PaymentStatus.paid,
+            confirmedBy: confirms ? staffId : null,
+            confirmedAt: confirms ? s.now : null,
+            paidAt: s.now,
+            createdAt: s.now,
+            updatedAt: s.now,
+            createdBy: staffId,
+            updatedBy: staffId,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        ),
+      );
+    }
 
     final negative = <NegativeStock>[];
     final seen = <UuidValue>{};
@@ -304,7 +377,7 @@ Future<CheckoutResult> checkoutSale(
     return CheckoutResult(
       sale: sale,
       items: items,
-      payment: paid,
+      payments: paid,
       negativeStock: negative,
     );
   });

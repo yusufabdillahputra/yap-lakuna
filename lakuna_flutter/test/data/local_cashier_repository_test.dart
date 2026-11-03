@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -115,12 +116,12 @@ void main() {
     final result = _ok(
       await repo.checkout(
         lines: [SaleLineRequest(variantId: kopi.id, quantity: Qty.units(3))],
-        payment: const SalePaymentRequest.cash(Money(10000)),
+        payments: const [SalePaymentRequest.cash(Money(10000))],
       ),
     );
     expect(result.sale.number, startsWith('PST-K01-'));
     expect(result.sale.total, 6000);
-    expect(result.payment.changeAmount, 4000);
+    expect(result.payments.single.changeAmount, 4000);
     expect(result.negativeStock.single.onHand, Qty.units(-1));
   });
 
@@ -130,7 +131,7 @@ void main() {
       _err(
         await repo.checkout(
           lines: [SaleLineRequest(variantId: kopi.id, quantity: Qty.one)],
-          payment: const SalePaymentRequest.cash(Money(2000)),
+          payments: const [SalePaymentRequest.cash(Money(2000))],
         ),
       ),
       isA<CashSessionNotOpen>(),
@@ -150,4 +151,80 @@ void main() {
     session.current = null;
     expect(_err(await repo.load()), isA<NotPermitted>());
   });
+
+  test(
+    'QRIS statis aktif ikut termuat; konfirmasi butuh payments:confirm',
+    () async {
+      var data = _ok(await repo.load());
+      expect(data.qris, isNull);
+      expect(data.canConfirmPayments, isTrue);
+
+      final image = _png(1080, 1528);
+      await saveQrisSettings(
+        store,
+        CatalogScope.of(ctx),
+        staffId: ctx.owner.id,
+        settings: const QrisStaticSettings(
+          enabled: true,
+          merchantName: 'TOKO BU ANI',
+          nmid: 'ID1023',
+          settlementNote: 'BCA 123',
+        ),
+        image: QrisImageUpload(bytes: image, fileName: 'qris.png'),
+      );
+      data = _ok(await repo.load());
+      expect(data.qris!.image, image);
+      expect(data.qris!.merchantName, 'TOKO BU ANI');
+      expect(data.qris!.nmid, 'ID1023');
+      expect(data.qris!.settlementNote, 'BCA 123');
+
+      await openCashSession(
+        store,
+        CashScope.of(ctx),
+        staffId: ctx.owner.id,
+        openingCash: const Money(100000),
+      );
+      final kopi = data.products.single.variants.single;
+      final lines = [SaleLineRequest(variantId: kopi.id, quantity: Qty.one)];
+      const qris = SalePaymentRequest(
+        method: PaymentMethod.qrisStatic,
+        confirmed: true,
+      );
+
+      session.current = staffWithPermissions({Permission.salesCreate});
+      expect(_ok(await repo.load()).canConfirmPayments, isFalse);
+      expect(
+        _err(await repo.checkout(lines: lines, payments: const [qris])),
+        isA<NotPermitted>().having(
+          (e) => e.permission,
+          'permission',
+          Permission.paymentsConfirm,
+        ),
+      );
+
+      // Staf nyata (FK nota) dengan izin kasir bawaan.
+      session.current = StaffProfile(
+        id: ctx.owner.id,
+        name: 'Ani',
+        roleKey: 'cashier',
+        isOwner: false,
+        hasPin: true,
+        permissions: DefaultRole.cashier.permissions,
+      );
+      final r = await repo.checkout(lines: lines, payments: const [qris]);
+      if (r is Error<CheckoutResult>) fail('${r.error}');
+      expect(_ok(r).payments.single.confirmedBy, session.current!.id);
+    },
+  );
+}
+
+Uint8List _png(int w, int h) {
+  int b(int v, int s) => (v >> s) & 0xFF;
+  return Uint8List.fromList([
+    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, //
+    0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, //
+    b(w, 24), b(w, 16), b(w, 8), b(w, 0), //
+    b(h, 24), b(h, 16), b(h, 8), b(h, 0), //
+    8, 6, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]);
 }

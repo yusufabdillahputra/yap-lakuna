@@ -1,13 +1,17 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:forui/forui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/qris_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
@@ -28,10 +32,14 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 800),
     bool sessionOpen = true,
+    CashierQris? qris,
+    Set<Permission>? permissions,
   }) async {
     final repo = FakeCashierRepository(
       seed: cashierProducts(),
       sessionOpen: sessionOpen,
+      qris: qris,
+      permissions: permissions,
     );
     await pumpLakuna(
       tester,
@@ -106,9 +114,9 @@ void main() {
       ),
       findsOneWidget,
     );
-    final (lines, payment) = repo.checkouts.single;
+    final (lines, payments) = repo.checkouts.single;
     expect(lines, hasLength(2));
-    expect(payment.received?.value, 300000);
+    expect(payments.single.amount?.value, 300000);
 
     await _tap(tester, 'success-new');
     expect(_key('cashier-empty-cart'), findsOneWidget);
@@ -163,7 +171,7 @@ void main() {
     );
 
     await _tap(tester, 'payment-finish');
-    expect(repo.checkouts.single.$2.reference, '004512');
+    expect(repo.checkouts.single.$2.single.reference, '004512');
     expect(_key('success-title'), findsOneWidget);
     expect(_key('success-change'), findsNothing);
   });
@@ -190,7 +198,7 @@ void main() {
     await _tap(tester, 'payment-finish');
     expect(_key('success-title'), findsOneWidget);
     expect(find.text('Stok jadi minus'), findsOneWidget);
-    expect(repo.checkouts.single.$2.method, PaymentMethod.transfer);
+    expect(repo.checkouts.single.$2.single.method, PaymentMethod.transfer);
   });
 
   testWidgets('tablet Android: tanpa fokus otomatis (keyboard tidak muncul)', (
@@ -255,5 +263,158 @@ void main() {
     await _tap(tester, 'cashier-open-session');
     expect(_key('cashier-no-session'), findsNothing);
     expect(find.byKey(const ValueKey('cash-open-card')), findsOneWidget);
+  });
+
+  testWidgets('QRIS statis tablet: perbesar, belum masuk, sudah terbayar', (
+    tester,
+  ) async {
+    final repo = await pump(
+      tester,
+      size: const Size(1194, 834),
+      qris: sampleQris(),
+    );
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-qris');
+    expect(_key('payment-qris'), findsOneWidget);
+    expect(_text(tester, 'qris-amount'), 'Rp 2.000');
+    expect(find.text('Menunggu konfirmasi kasir'), findsOneWidget);
+    expect(find.text('WARUNG CONTOH · NMID ID10234567890 · A01'), findsOne);
+    expect(
+      find.text('Dana masuk ke: Rekening BCA 123-456-7890'),
+      findsOneWidget,
+    );
+    expect(_key('payment-finish'), findsNothing);
+
+    await _tap(tester, 'qris-enlarge');
+    expect(_key('qris-fullscreen'), findsOneWidget);
+    await _tap(tester, 'qris-fullscreen-close');
+    expect(_key('qris-fullscreen'), findsNothing);
+
+    await _tap(tester, 'qris-not-received');
+    expect(_key('payment-cash'), findsOneWidget);
+    expect(repo.checkouts, isEmpty);
+
+    await _tap(tester, 'payment-method-qris');
+    await _tap(tester, 'qris-confirm');
+    expect(_key('success-title'), findsOneWidget);
+    expect(find.text('QRIS statis Rp 2.000 · 10.44 · Sari'), findsOneWidget);
+    expect(_key('success-change'), findsNothing);
+    expect(
+      find.descendant(
+        of: _key('success-receipt'),
+        matching: find.text('QRIS statis'),
+      ),
+      findsOneWidget,
+    );
+    final payment = repo.checkouts.single.$2.single;
+    expect(payment.method, PaymentMethod.qrisStatic);
+    expect(payment.confirmed, isTrue);
+  });
+
+  testWidgets('QRIS tanpa izin konfirmasi: Sudah Terbayar mati', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      qris: sampleQris(),
+      permissions: {Permission.salesCreate},
+    );
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-qris');
+    expect(_key('qris-no-permission'), findsOneWidget);
+    expect(
+      tester.widget<FButton>(_key('qris-confirm')).onPress,
+      isNull,
+    );
+  });
+
+  testWidgets('QRIS nonaktif: pilihan QRIS tidak muncul', (tester) async {
+    await pump(tester);
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-pay');
+    expect(_key('payment-method-qris'), findsNothing);
+    expect(_key('payment-method-split'), findsOneWidget);
+  });
+
+  testWidgets('ponsel QRIS: gambar layar penuh dan tombol di bawah', (
+    tester,
+  ) async {
+    final repo = await pump(
+      tester,
+      size: const Size(360, 740),
+      qris: sampleQris(),
+    );
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, 'cashier-view-order');
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-qris');
+    expect(find.text('Ketuk gambar untuk layar penuh'), findsOneWidget);
+    await _tap(tester, 'qris-image');
+    expect(_key('qris-fullscreen'), findsOneWidget);
+    await _tap(tester, 'qris-fullscreen-close');
+    await _tap(tester, 'qris-confirm');
+    expect(_key('success-title'), findsOneWidget);
+  });
+
+  testWidgets('split tunai + QRIS: konfirmasi di dialog, kembalian', (
+    tester,
+  ) async {
+    final repo = await pump(tester, qris: sampleQris());
+    for (var i = 0; i < 3; i++) {
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    }
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-split');
+    expect(_key('payment-split'), findsOneWidget);
+    expect(_text(tester, 'split-remaining'), 'Rp 6.000');
+    expect(
+      tester.widget<EditableText>(_input('split-amount')).controller.text,
+      '6.000',
+    );
+
+    // QRIS 4.000 dulu, lalu tunai 5.000 (kembalian 3.000).
+    await _tap(tester, 'split-method-qrisStatic');
+    await tester.enterText(_input('split-amount'), '4000');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'split-add');
+    expect(find.text('Menunggu'), findsOneWidget);
+    expect(_text(tester, 'split-remaining'), 'Rp 2.000');
+
+    await _tap(tester, 'split-method-cash');
+    await tester.enterText(_input('split-amount'), '5000');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'split-add');
+    expect(_text(tester, 'split-remaining'), 'Rp 0');
+    expect(_text(tester, 'split-change'), 'Rp 3.000');
+    expect(_key('split-pending-note'), findsOneWidget);
+    expect(
+      tester.widget<FButton>(_key('payment-finish')).onPress,
+      isNull,
+    );
+
+    // Belum masuk menghapus bagian QRIS.
+    await _tap(tester, 'split-part-0-confirm');
+    expect(_key('qris-dialog'), findsOneWidget);
+    await _tap(tester, 'qris-dialog-reject');
+    expect(_key('split-part-1'), findsNothing);
+    expect(_text(tester, 'split-remaining'), 'Rp 1.000');
+
+    await _tap(tester, 'split-method-qrisStatic');
+    await _tap(tester, 'split-add');
+    await _tap(tester, 'split-part-1-confirm');
+    await _tap(tester, 'qris-dialog-confirm');
+    expect(find.text('Menunggu'), findsNothing);
+    await _tap(tester, 'payment-finish');
+
+    expect(_key('success-title'), findsOneWidget);
+    expect(find.text('Split · 2 metode Rp 6.000 · 10.44 · Sari'), findsOne);
+    expect(_text(tester, 'success-change'), 'Rp 0');
+    final payments = repo.checkouts.single.$2;
+    expect(payments.map((p) => (p.method, p.amount?.value)), [
+      (PaymentMethod.cash, 5000),
+      (PaymentMethod.qrisStatic, 1000),
+    ]);
   });
 }

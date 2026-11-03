@@ -2137,6 +2137,456 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer.'**
   String get paymentErrorPermission;
+
+  /// No description provided for @paymentQris.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis'**
+  String get paymentQris;
+
+  /// No description provided for @paymentQrisHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Konfirmasi manual'**
+  String get paymentQrisHint;
+
+  /// No description provided for @paymentSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagi beberapa metode'**
+  String get paymentSplit;
+
+  /// No description provided for @paymentSplitHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Split payment'**
+  String get paymentSplitHint;
+
+  /// No description provided for @paymentSplitSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Split · {count} metode'**
+  String paymentSplitSummary(int count);
+
+  /// No description provided for @paymentErrorQrisOff.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis tidak aktif di cabang ini. Pilih metode lain.'**
+  String get paymentErrorQrisOff;
+
+  /// No description provided for @paymentErrorUnconfirmed.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS belum dikonfirmasi Sudah Terbayar.'**
+  String get paymentErrorUnconfirmed;
+
+  /// No description provided for @paymentErrorSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembagian pembayaran tidak sah. Periksa nominal tiap metode.'**
+  String get paymentErrorSplit;
+
+  /// No description provided for @paymentErrorConfirmPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin konfirmasi pembayaran QRIS. Minta supervisor.'**
+  String get paymentErrorConfirmPermission;
+
+  /// No description provided for @qrisPending.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu konfirmasi kasir'**
+  String get qrisPending;
+
+  /// No description provided for @qrisInstruction.
+  ///
+  /// In id, this message translates to:
+  /// **'Scan QRIS, ketik nominal persis'**
+  String get qrisInstruction;
+
+  /// No description provided for @qrisSettlement.
+  ///
+  /// In id, this message translates to:
+  /// **'Dana masuk ke: {target}'**
+  String qrisSettlement(String target);
+
+  /// No description provided for @qrisStep1.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunjukkan stiker QRIS ke pelanggan.'**
+  String get qrisStep1;
+
+  /// No description provided for @qrisStep2.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan scan dan mengetik nominal {amount}.'**
+  String qrisStep2(String amount);
+
+  /// No description provided for @qrisStep3.
+  ///
+  /// In id, this message translates to:
+  /// **'Cek notifikasi atau mutasi dana masuk.'**
+  String get qrisStep3;
+
+  /// No description provided for @qrisStep4.
+  ///
+  /// In id, this message translates to:
+  /// **'Tekan Sudah Terbayar bila dana sudah masuk.'**
+  String get qrisStep4;
+
+  /// No description provided for @qrisWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Jangan konfirmasi dari tangkapan layar pelanggan saja. Pastikan dana benar-benar masuk.'**
+  String get qrisWarning;
+
+  /// No description provided for @qrisEnlarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Perbesar gambar QRIS'**
+  String get qrisEnlarge;
+
+  /// No description provided for @qrisTapFullscreen.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk gambar untuk layar penuh'**
+  String get qrisTapFullscreen;
+
+  /// No description provided for @qrisImageLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Stiker QRIS statis toko'**
+  String get qrisImageLabel;
+
+  /// No description provided for @qrisClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get qrisClose;
+
+  /// No description provided for @qrisNotReceived.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum masuk'**
+  String get qrisNotReceived;
+
+  /// No description provided for @qrisPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah Terbayar'**
+  String get qrisPaid;
+
+  /// No description provided for @qrisNoPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin konfirmasi pembayaran (payments:confirm).'**
+  String get qrisNoPermission;
+
+  /// No description provided for @splitTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Split payment'**
+  String get splitTitle;
+
+  /// No description provided for @splitHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Contoh: sebagian tunai, sisa QRIS atau kartu.'**
+  String get splitHint;
+
+  /// No description provided for @splitAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Nominal'**
+  String get splitAmount;
+
+  /// No description provided for @splitAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah metode'**
+  String get splitAdd;
+
+  /// No description provided for @splitRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get splitRemove;
+
+  /// No description provided for @splitConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Konfirmasi'**
+  String get splitConfirm;
+
+  /// No description provided for @splitReceived.
+  ///
+  /// In id, this message translates to:
+  /// **'Diterima'**
+  String get splitReceived;
+
+  /// No description provided for @splitPending.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu'**
+  String get splitPending;
+
+  /// No description provided for @splitRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get splitRemaining;
+
+  /// No description provided for @splitCashExists.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai sudah ada. Hapus dulu untuk mengubah.'**
+  String get splitCashExists;
+
+  /// No description provided for @splitOverRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Melebihi sisa. Kembalian hanya dari tunai.'**
+  String get splitOverRemaining;
+
+  /// No description provided for @splitPendingNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Konfirmasi semua QRIS yang menunggu sebelum menyelesaikan.'**
+  String get splitPendingNote;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSectionPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode pembayaran'**
+  String get settingsSectionPayments;
+
+  /// No description provided for @settingsSectionAppearance.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilan & bahasa'**
+  String get settingsSectionAppearance;
+
+  /// No description provided for @settingsBranchScope.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku untuk {outlet} · semua perangkat cabang ini'**
+  String settingsBranchScope(String outlet);
+
+  /// No description provided for @qrisSettingsBreadcrumb.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode pembayaran › QRIS statis'**
+  String get qrisSettingsBreadcrumb;
+
+  /// No description provided for @qrisSettingsImageTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar QRIS statis'**
+  String get qrisSettingsImageTitle;
+
+  /// No description provided for @qrisSettingsImageSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Dipakai di layar Bayar QRIS dan bisa dicetak ulang sebagai stiker meja'**
+  String get qrisSettingsImageSubtitle;
+
+  /// No description provided for @qrisSettingsNoImage.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada gambar QRIS'**
+  String get qrisSettingsNoImage;
+
+  /// No description provided for @qrisSettingsFileInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} · {size}'**
+  String qrisSettingsFileInfo(String name, String size);
+
+  /// No description provided for @qrisSettingsReplace.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti gambar QRIS'**
+  String get qrisSettingsReplace;
+
+  /// No description provided for @qrisSettingsUpload.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah gambar QRIS'**
+  String get qrisSettingsUpload;
+
+  /// No description provided for @qrisSettingsUploadHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.'**
+  String get qrisSettingsUploadHint;
+
+  /// No description provided for @qrisSettingsPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih file'**
+  String get qrisSettingsPick;
+
+  /// No description provided for @qrisSettingsCheckTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hasil pemeriksaan'**
+  String get qrisSettingsCheckTitle;
+
+  /// No description provided for @qrisSettingsPortrait.
+  ///
+  /// In id, this message translates to:
+  /// **'Rasio vertikal terdeteksi ({ratio}). Gambar ditampilkan utuh, tidak dipotong.'**
+  String qrisSettingsPortrait(String ratio);
+
+  /// No description provided for @qrisSettingsNotPortrait.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar tidak vertikal ({ratio}). Pastikan ini stiker QRIS utuh.'**
+  String qrisSettingsNotPortrait(String ratio);
+
+  /// No description provided for @qrisSettingsResolution.
+  ///
+  /// In id, this message translates to:
+  /// **'Resolusi {width} × {height} px.'**
+  String qrisSettingsResolution(int width, int height);
+
+  /// No description provided for @qrisSettingsLowResolution.
+  ///
+  /// In id, this message translates to:
+  /// **'Resolusi {width} × {height} px. Disarankan ≥ 1000 px lebar agar tajam di tablet.'**
+  String qrisSettingsLowResolution(int width, int height);
+
+  /// No description provided for @qrisSettingsUnsupported.
+  ///
+  /// In id, this message translates to:
+  /// **'File bukan PNG, JPG, atau WebP.'**
+  String get qrisSettingsUnsupported;
+
+  /// No description provided for @qrisSettingsTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'File lebih dari 5 MB.'**
+  String get qrisSettingsTooLarge;
+
+  /// No description provided for @qrisSettingsWholeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah stiker utuh, bukan potongan QR'**
+  String get qrisSettingsWholeTitle;
+
+  /// No description provided for @qrisSettingsWholeBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pakai file asli dari bank/PJP atau foto lurus seluruh stiker: header QRIS + GPN, nama merchant, NMID, kode terminal, QR, dan tulisan \"SATU QRIS UNTUK SEMUA\". Pelanggan perlu melihat nama toko untuk yakin sebelum membayar.'**
+  String get qrisSettingsWholeBody;
+
+  /// No description provided for @qrisSettingsMerchantTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Data merchant'**
+  String get qrisSettingsMerchantTitle;
+
+  /// No description provided for @qrisSettingsMerchantName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama merchant di QRIS'**
+  String get qrisSettingsMerchantName;
+
+  /// No description provided for @qrisSettingsNmid.
+  ///
+  /// In id, this message translates to:
+  /// **'NMID'**
+  String get qrisSettingsNmid;
+
+  /// No description provided for @qrisSettingsNmidHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor ID merchant nasional'**
+  String get qrisSettingsNmidHint;
+
+  /// No description provided for @qrisSettingsTerminal.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode terminal'**
+  String get qrisSettingsTerminal;
+
+  /// No description provided for @qrisSettingsSettlement.
+  ///
+  /// In id, this message translates to:
+  /// **'Dana masuk ke'**
+  String get qrisSettingsSettlement;
+
+  /// No description provided for @qrisSettingsSettlementHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Petunjuk untuk kasir saat cek mutasi, mis. Rekening BCA 123-456-7890'**
+  String get qrisSettingsSettlementHint;
+
+  /// No description provided for @qrisSettingsEnabled.
+  ///
+  /// In id, this message translates to:
+  /// **'QRIS statis aktif di kasir'**
+  String get qrisSettingsEnabled;
+
+  /// No description provided for @qrisSettingsRequirePaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib tekan \"Sudah Terbayar\"'**
+  String get qrisSettingsRequirePaid;
+
+  /// No description provided for @qrisSettingsRequirePaidHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Selalu aktif untuk QRIS statis; tidak bisa dimatikan'**
+  String get qrisSettingsRequirePaidHint;
+
+  /// No description provided for @qrisSettingsSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get qrisSettingsSave;
+
+  /// No description provided for @qrisSettingsCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get qrisSettingsCancel;
+
+  /// No description provided for @qrisSettingsSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan QRIS tersimpan'**
+  String get qrisSettingsSaved;
+
+  /// No description provided for @qrisSettingsImageMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah gambar QRIS sebelum mengaktifkan.'**
+  String get qrisSettingsImageMissing;
+
+  /// No description provided for @qrisSettingsTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {max} karakter'**
+  String qrisSettingsTooLong(int max);
+
+  /// No description provided for @qrisSettingsNmidInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya huruf dan angka, maks 20'**
+  String get qrisSettingsNmidInvalid;
+
+  /// No description provided for @qrisSettingsLoadError.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan QRIS gagal dimuat.'**
+  String get qrisSettingsLoadError;
 }
 
 class _AppLocalizationsDelegate

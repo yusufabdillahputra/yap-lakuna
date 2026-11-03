@@ -15,6 +15,7 @@ class FakeCashierRepository extends CashierRepository {
     List<ProductDraft> seed = const [],
     this.sessionOpen = true,
     this.permissions,
+    this.qris,
   }) : catalog = FakeCatalogRepository(seed: seed);
 
   final FakeCatalogRepository catalog;
@@ -23,9 +24,12 @@ class FakeCashierRepository extends CashierRepository {
   /// Izin staf; `null` = semua izin.
   Set<Permission>? permissions;
 
+  /// QRIS statis aktif; `null` = nonaktif.
+  CashierQris? qris;
+
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
-  final checkouts = <(List<SaleLineRequest>, SalePaymentRequest)>[];
+  final checkouts = <(List<SaleLineRequest>, List<SalePaymentRequest>)>[];
   var loadCalls = 0;
   var _counter = 0;
   final _tenant = _id();
@@ -65,6 +69,9 @@ class FakeCashierRepository extends CashierRepository {
         outletName: 'Cabang Pusat',
         staffName: 'Sari',
         timezone: 'Asia/Jakarta',
+        qris: qris,
+        canConfirmPayments:
+            permissions?.contains(Permission.paymentsConfirm) ?? true,
         session: sessionOpen
             ? CashierSession(
                 id: _session,
@@ -79,11 +86,26 @@ class FakeCashierRepository extends CashierRepository {
   @override
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
-    required SalePaymentRequest payment,
+    required List<SalePaymentRequest> payments,
   }) async {
     if (_check() case final e?) return Result.error(e);
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
-    checkouts.add((lines, payment));
+    final qrisUsed = payments.any((p) => p.method == PaymentMethod.qrisStatic);
+    final p = permissions;
+    if (qrisUsed && p != null && !p.contains(Permission.paymentsConfirm)) {
+      return const Result.error(NotPermitted(Permission.paymentsConfirm));
+    }
+    if (qrisUsed && qris == null) {
+      return const Result.error(
+        SalePaymentUnsupported(PaymentMethod.qrisStatic),
+      );
+    }
+    if (payments.any(
+      (p) => p.method == PaymentMethod.qrisStatic && !p.confirmed,
+    )) {
+      return Result.error(SalePaymentUnconfirmed());
+    }
+    checkouts.add((lines, payments));
     final priced =
         <(CatalogProduct, CatalogVariant, CatalogUnit?, PricedLine)>[];
     for (final l in lines) {
@@ -111,14 +133,25 @@ class FakeCashierRepository extends CashierRepository {
       ));
     }
     final totals = SaleTotals.of(priced.map((p) => p.$4));
-    final cash = payment.method == PaymentMethod.cash;
-    final received = cash ? payment.received ?? Money.zero : totals.total;
-    final change = cashChange(total: totals.total, received: received);
-    if (change == null) {
+    final single = payments.length == 1;
+    final amounts = [
+      for (final p in payments)
+        p.amount ?? (single && !p.isCash ? totals.total : Money.zero),
+    ];
+    final settlement = settleTender(totals.total, [
+      for (final (i, p) in payments.indexed)
+        TenderPart(amounts[i], isCash: p.isCash),
+    ]);
+    if (settlement.error == TenderError.short ||
+        (single && payments.single.isCash && !settlement.isSettled)) {
       return Result.error(
-        SalePaymentShort(total: totals.total, received: received),
+        SalePaymentShort(total: totals.total, received: settlement.paid),
       );
     }
+    if (settlement.error case final error?) {
+      return Result.error(SalePaymentInvalid(error));
+    }
+    final change = settlement.change;
     final now = DateTime.utc(2026, 11, 3, 3, 44);
     _counter++;
     final sale = Sale(
@@ -176,19 +209,28 @@ class FakeCashierRepository extends CashierRepository {
               hlc: '',
             ),
         ],
-        payment: Payment(
-          tenantId: _tenant,
-          saleId: sale.id,
-          method: payment.method,
-          amount: received.value,
-          changeAmount: change.value,
-          reference: payment.reference.trim().isEmpty
-              ? null
-              : payment.reference.trim(),
-          status: PaymentStatus.paid,
-          paidAt: now,
-          hlc: '',
-        ),
+        payments: [
+          for (final (i, payment) in payments.indexed)
+            Payment(
+              tenantId: _tenant,
+              saleId: sale.id,
+              method: payment.method,
+              amount: amounts[i].value,
+              changeAmount: payment.isCash ? change.value : 0,
+              reference: payment.reference.trim().isEmpty
+                  ? null
+                  : payment.reference.trim(),
+              status: PaymentStatus.paid,
+              confirmedBy: payment.method == PaymentMethod.qrisStatic
+                  ? _session
+                  : null,
+              confirmedAt: payment.method == PaymentMethod.qrisStatic
+                  ? now
+                  : null,
+              paidAt: now,
+              hlc: '',
+            ),
+        ],
         negativeStock: negative,
       ),
     );

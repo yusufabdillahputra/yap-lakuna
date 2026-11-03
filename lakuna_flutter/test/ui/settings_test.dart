@@ -17,6 +17,8 @@ void main() {
       repository: repo,
       initialLocation: Routes.settings,
     );
+    await tester.tap(find.byKey(const ValueKey('settings-section-appearance')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('locale-en')));
     await tester.pumpAndSettle();
     expect(repo.storedLocale, const Locale('en'));
@@ -33,6 +35,8 @@ void main() {
       repository: repo,
       initialLocation: Routes.settings,
     );
+    await tester.tap(find.byKey(const ValueKey('settings-section-appearance')));
+    await tester.pumpAndSettle();
     BuildContext ctx() =>
         tester.element(find.byKey(const ValueKey('theme-dark')));
     expect(ctx().theme.colors.brightness, Brightness.light);
@@ -54,6 +58,8 @@ void main() {
       repository: repo,
       initialLocation: Routes.settings,
     );
+    await tester.tap(find.byKey(const ValueKey('settings-section-appearance')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('theme-dark')));
     await tester.pumpAndSettle();
     expect(find.text('Pengaturan gagal disimpan. Coba lagi.'), findsOneWidget);

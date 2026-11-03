@@ -690,5 +690,159 @@
       }
     }
   },
-  "paymentErrorPermission": "Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer."
+  "paymentErrorPermission": "Anda tidak punya izin menyimpan penjualan. Minta pemilik atau manajer.",
+  "paymentQris": "QRIS statis",
+  "paymentQrisHint": "Konfirmasi manual",
+  "paymentSplit": "Bagi beberapa metode",
+  "paymentSplitHint": "Split payment",
+  "paymentSplitSummary": "Split · {count} metode",
+  "@paymentSplitSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paymentErrorQrisOff": "QRIS statis tidak aktif di cabang ini. Pilih metode lain.",
+  "paymentErrorUnconfirmed": "QRIS belum dikonfirmasi Sudah Terbayar.",
+  "paymentErrorSplit": "Pembagian pembayaran tidak sah. Periksa nominal tiap metode.",
+  "paymentErrorConfirmPermission": "Anda tidak punya izin konfirmasi pembayaran QRIS. Minta supervisor.",
+  "qrisPending": "Menunggu konfirmasi kasir",
+  "qrisInstruction": "Scan QRIS, ketik nominal persis",
+  "qrisSettlement": "Dana masuk ke: {target}",
+  "@qrisSettlement": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisStep1": "Tunjukkan stiker QRIS ke pelanggan.",
+  "qrisStep2": "Pelanggan scan dan mengetik nominal {amount}.",
+  "@qrisStep2": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisStep3": "Cek notifikasi atau mutasi dana masuk.",
+  "qrisStep4": "Tekan Sudah Terbayar bila dana sudah masuk.",
+  "qrisWarning": "Jangan konfirmasi dari tangkapan layar pelanggan saja. Pastikan dana benar-benar masuk.",
+  "qrisEnlarge": "Perbesar gambar QRIS",
+  "qrisTapFullscreen": "Ketuk gambar untuk layar penuh",
+  "qrisImageLabel": "Stiker QRIS statis toko",
+  "qrisClose": "Tutup",
+  "qrisNotReceived": "Belum masuk",
+  "qrisPaid": "Sudah Terbayar",
+  "qrisNoPermission": "Butuh izin konfirmasi pembayaran (payments:confirm).",
+  "splitTitle": "Split payment",
+  "splitHint": "Contoh: sebagian tunai, sisa QRIS atau kartu.",
+  "splitAmount": "Nominal",
+  "splitAdd": "Tambah metode",
+  "splitRemove": "Hapus",
+  "splitConfirm": "Konfirmasi",
+  "splitReceived": "Diterima",
+  "splitPending": "Menunggu",
+  "splitRemaining": "Sisa",
+  "splitCashExists": "Tunai sudah ada. Hapus dulu untuk mengubah.",
+  "splitOverRemaining": "Melebihi sisa. Kembalian hanya dari tunai.",
+  "splitPendingNote": "Konfirmasi semua QRIS yang menunggu sebelum menyelesaikan.",
+  "settingsTitle": "Pengaturan",
+  "settingsSectionPayments": "Metode pembayaran",
+  "settingsSectionAppearance": "Tampilan & bahasa",
+  "settingsBranchScope": "Berlaku untuk {outlet} · semua perangkat cabang ini",
+  "@settingsBranchScope": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisSettingsBreadcrumb": "Metode pembayaran › QRIS statis",
+  "qrisSettingsImageTitle": "Gambar QRIS statis",
+  "qrisSettingsImageSubtitle": "Dipakai di layar Bayar QRIS dan bisa dicetak ulang sebagai stiker meja",
+  "qrisSettingsNoImage": "Belum ada gambar QRIS",
+  "qrisSettingsFileInfo": "{name} · {size}",
+  "@qrisSettingsFileInfo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisSettingsReplace": "Ganti gambar QRIS",
+  "qrisSettingsUpload": "Unggah gambar QRIS",
+  "qrisSettingsUploadHint": "Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.",
+  "qrisSettingsPick": "Pilih file",
+  "qrisSettingsCheckTitle": "Hasil pemeriksaan",
+  "qrisSettingsPortrait": "Rasio vertikal terdeteksi ({ratio}). Gambar ditampilkan utuh, tidak dipotong.",
+  "@qrisSettingsPortrait": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisSettingsNotPortrait": "Gambar tidak vertikal ({ratio}). Pastikan ini stiker QRIS utuh.",
+  "@qrisSettingsNotPortrait": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "qrisSettingsResolution": "Resolusi {width} × {height} px.",
+  "@qrisSettingsResolution": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "qrisSettingsLowResolution": "Resolusi {width} × {height} px. Disarankan ≥ 1000 px lebar agar tajam di tablet.",
+  "@qrisSettingsLowResolution": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "qrisSettingsUnsupported": "File bukan PNG, JPG, atau WebP.",
+  "qrisSettingsTooLarge": "File lebih dari 5 MB.",
+  "qrisSettingsWholeTitle": "Unggah stiker utuh, bukan potongan QR",
+  "qrisSettingsWholeBody": "Pakai file asli dari bank/PJP atau foto lurus seluruh stiker: header QRIS + GPN, nama merchant, NMID, kode terminal, QR, dan tulisan \"SATU QRIS UNTUK SEMUA\". Pelanggan perlu melihat nama toko untuk yakin sebelum membayar.",
+  "qrisSettingsMerchantTitle": "Data merchant",
+  "qrisSettingsMerchantName": "Nama merchant di QRIS",
+  "qrisSettingsNmid": "NMID",
+  "qrisSettingsNmidHint": "Nomor ID merchant nasional",
+  "qrisSettingsTerminal": "Kode terminal",
+  "qrisSettingsSettlement": "Dana masuk ke",
+  "qrisSettingsSettlementHint": "Petunjuk untuk kasir saat cek mutasi, mis. Rekening BCA 123-456-7890",
+  "qrisSettingsEnabled": "QRIS statis aktif di kasir",
+  "qrisSettingsRequirePaid": "Wajib tekan \"Sudah Terbayar\"",
+  "qrisSettingsRequirePaidHint": "Selalu aktif untuk QRIS statis; tidak bisa dimatikan",
+  "qrisSettingsSave": "Simpan",
+  "qrisSettingsCancel": "Batal",
+  "qrisSettingsSaved": "Pengaturan QRIS tersimpan",
+  "qrisSettingsImageMissing": "Unggah gambar QRIS sebelum mengaktifkan.",
+  "qrisSettingsTooLong": "Maksimal {max} karakter",
+  "@qrisSettingsTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "qrisSettingsNmidInvalid": "Hanya huruf dan angka, maks 20",
+  "qrisSettingsLoadError": "Pengaturan QRIS gagal dimuat."
 }

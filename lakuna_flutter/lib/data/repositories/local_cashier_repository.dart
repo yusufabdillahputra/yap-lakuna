@@ -45,6 +45,7 @@ class LocalCashierRepository extends CashierRepository {
         openedByName: opener?.name ?? '',
       );
     }
+    final qris = await loadQrisConfig(_store, scope);
     return CashierData(
       products: products,
       categories: categories,
@@ -53,22 +54,36 @@ class LocalCashierRepository extends CashierRepository {
       staffName: staff.name,
       timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
       session: session,
+      qris: qris.isUsable
+          ? CashierQris(
+              image: qris.imageBytes!,
+              merchantName: qris.settings.merchantName,
+              nmid: qris.settings.nmid,
+              terminalCode: qris.settings.terminalCode,
+              settlementNote: qris.settings.settlementNote,
+            )
+          : null,
+      canConfirmPayments: staff.can(Permission.paymentsConfirm),
     );
   });
 
   @override
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
-    required SalePaymentRequest payment,
-  }) => _guard(
-    (ctx, staff) => checkoutSale(
+    required List<SalePaymentRequest> payments,
+  }) => _guard((ctx, staff) {
+    if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
+        !staff.can(Permission.paymentsConfirm)) {
+      throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    return checkoutSale(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
       lines: lines,
-      payment: payment,
-    ),
-  );
+      payments: payments,
+    );
+  });
 
   Future<Result<T>> _guard<T>(
     Future<T> Function(StoreContext ctx, StaffProfile staff) body,

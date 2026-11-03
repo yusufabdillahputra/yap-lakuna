@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -47,3 +48,15 @@ Future<StoreContext> setupTestStore(
   platform: DevicePlatform.linux,
   credentials: testCredentials,
 );
+
+/// PNG minimal (header saja) berukuran [w] × [h].
+Uint8List pngBytes(int w, int h, {int fill = 0}) {
+  int b(int v, int s) => (v >> s) & 0xFF;
+  return Uint8List.fromList([
+    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, //
+    0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, //
+    b(w, 24), b(w, 16), b(w, 8), b(w, 0), //
+    b(h, 24), b(h, 16), b(h, 8), b(h, 0), //
+    8, 6, 0, 0, 0, 0, 0, 0, 0, fill,
+  ]);
+}

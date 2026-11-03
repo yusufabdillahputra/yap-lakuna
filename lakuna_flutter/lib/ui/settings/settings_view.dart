@@ -5,7 +5,7 @@ import '../../l10n/gen/app_localizations.dart';
 import 'app_settings_view_model.dart';
 import 'appearance_tiles.dart';
 
-/// Pengaturan tampilan: tema dan bahasa.
+/// Bagian *Tampilan & bahasa* di Pengaturan: tema dan bahasa.
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key, required this.viewModel});
 
@@ -24,28 +24,25 @@ class SettingsView extends StatelessWidget {
       builder: (context, _) {
         final failed =
             viewModel.setThemeMode.error || viewModel.setLocale.error;
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 16,
-                children: [
-                  Text(
-                    l10n.settingsAppearance,
-                    style: theme.typography.display.xl2,
+        return Align(
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                Text(
+                  l10n.settingsAppearance,
+                  style: theme.typography.display.xl2,
+                ),
+                if (failed)
+                  FAlert(
+                    variant: .destructive,
+                    title: Text(l10n.settingsSaveError),
                   ),
-                  if (failed)
-                    FAlert(
-                      variant: .destructive,
-                      title: Text(l10n.settingsSaveError),
-                    ),
-                  AppearanceTiles(viewModel: viewModel),
-                ],
-              ),
+                AppearanceTiles(viewModel: viewModel),
+              ],
             ),
           ),
         );

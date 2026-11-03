@@ -1156,4 +1156,264 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paymentErrorPermission =>
       'You are not allowed to save sales. Ask the owner or a manager.';
+
+  @override
+  String get paymentQris => 'Static QRIS';
+
+  @override
+  String get paymentQrisHint => 'Manual confirmation';
+
+  @override
+  String get paymentSplit => 'Split across methods';
+
+  @override
+  String get paymentSplitHint => 'Split payment';
+
+  @override
+  String paymentSplitSummary(int count) {
+    return 'Split · $count methods';
+  }
+
+  @override
+  String get paymentErrorQrisOff =>
+      'Static QRIS is turned off for this branch. Choose another method.';
+
+  @override
+  String get paymentErrorUnconfirmed => 'QRIS has not been confirmed as paid.';
+
+  @override
+  String get paymentErrorSplit =>
+      'The split is not valid. Check each method\'s amount.';
+
+  @override
+  String get paymentErrorConfirmPermission =>
+      'You are not allowed to confirm QRIS payments. Ask a supervisor.';
+
+  @override
+  String get qrisPending => 'Waiting for cashier confirmation';
+
+  @override
+  String get qrisInstruction => 'Scan the QRIS and type the exact amount';
+
+  @override
+  String qrisSettlement(String target) {
+    return 'Funds go to: $target';
+  }
+
+  @override
+  String get qrisStep1 => 'Show the QRIS sticker to the customer.';
+
+  @override
+  String qrisStep2(String amount) {
+    return 'The customer scans and types $amount.';
+  }
+
+  @override
+  String get qrisStep3 =>
+      'Check the incoming payment notification or statement.';
+
+  @override
+  String get qrisStep4 => 'Press Paid once the funds arrive.';
+
+  @override
+  String get qrisWarning =>
+      'Do not confirm from the customer\'s screenshot alone. Make sure the funds have arrived.';
+
+  @override
+  String get qrisEnlarge => 'Enlarge QRIS image';
+
+  @override
+  String get qrisTapFullscreen => 'Tap the image for full screen';
+
+  @override
+  String get qrisImageLabel => 'Store static QRIS sticker';
+
+  @override
+  String get qrisClose => 'Close';
+
+  @override
+  String get qrisNotReceived => 'Not received';
+
+  @override
+  String get qrisPaid => 'Paid';
+
+  @override
+  String get qrisNoPermission =>
+      'Requires payment confirmation permission (payments:confirm).';
+
+  @override
+  String get splitTitle => 'Split payment';
+
+  @override
+  String get splitHint => 'Example: part cash, the rest QRIS or card.';
+
+  @override
+  String get splitAmount => 'Amount';
+
+  @override
+  String get splitAdd => 'Add method';
+
+  @override
+  String get splitRemove => 'Remove';
+
+  @override
+  String get splitConfirm => 'Confirm';
+
+  @override
+  String get splitReceived => 'Received';
+
+  @override
+  String get splitPending => 'Waiting';
+
+  @override
+  String get splitRemaining => 'Remaining';
+
+  @override
+  String get splitCashExists =>
+      'Cash is already added. Remove it first to change it.';
+
+  @override
+  String get splitOverRemaining =>
+      'More than remaining. Change only comes from cash.';
+
+  @override
+  String get splitPendingNote => 'Confirm every waiting QRIS before finishing.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsSectionPayments => 'Payment methods';
+
+  @override
+  String get settingsSectionAppearance => 'Appearance & language';
+
+  @override
+  String settingsBranchScope(String outlet) {
+    return 'Applies to $outlet · all devices in this branch';
+  }
+
+  @override
+  String get qrisSettingsBreadcrumb => 'Payment methods › Static QRIS';
+
+  @override
+  String get qrisSettingsImageTitle => 'Static QRIS image';
+
+  @override
+  String get qrisSettingsImageSubtitle =>
+      'Used on the QRIS payment screen and can be reprinted as a table sticker';
+
+  @override
+  String get qrisSettingsNoImage => 'No QRIS image yet';
+
+  @override
+  String qrisSettingsFileInfo(String name, String size) {
+    return '$name · $size';
+  }
+
+  @override
+  String get qrisSettingsReplace => 'Replace QRIS image';
+
+  @override
+  String get qrisSettingsUpload => 'Upload QRIS image';
+
+  @override
+  String get qrisSettingsUploadHint =>
+      'Choose the sticker file from this device. PNG, JPG, or WebP, up to 5 MB.';
+
+  @override
+  String get qrisSettingsPick => 'Choose file';
+
+  @override
+  String get qrisSettingsCheckTitle => 'Check results';
+
+  @override
+  String qrisSettingsPortrait(String ratio) {
+    return 'Portrait ratio detected ($ratio). The image is shown whole, never cropped.';
+  }
+
+  @override
+  String qrisSettingsNotPortrait(String ratio) {
+    return 'The image is not portrait ($ratio). Make sure this is the whole QRIS sticker.';
+  }
+
+  @override
+  String qrisSettingsResolution(int width, int height) {
+    return 'Resolution $width × $height px.';
+  }
+
+  @override
+  String qrisSettingsLowResolution(int width, int height) {
+    return 'Resolution $width × $height px. At least 1000 px wide is recommended for sharp tablets.';
+  }
+
+  @override
+  String get qrisSettingsUnsupported => 'The file is not PNG, JPG, or WebP.';
+
+  @override
+  String get qrisSettingsTooLarge => 'The file is larger than 5 MB.';
+
+  @override
+  String get qrisSettingsWholeTitle =>
+      'Upload the whole sticker, not a cropped QR';
+
+  @override
+  String get qrisSettingsWholeBody =>
+      'Use the original file from your bank/PJP or a straight photo of the whole sticker: QRIS + GPN header, merchant name, NMID, terminal code, QR, and \"SATU QRIS UNTUK SEMUA\". Customers need to see the store name before paying.';
+
+  @override
+  String get qrisSettingsMerchantTitle => 'Merchant details';
+
+  @override
+  String get qrisSettingsMerchantName => 'Merchant name on the QRIS';
+
+  @override
+  String get qrisSettingsNmid => 'NMID';
+
+  @override
+  String get qrisSettingsNmidHint => 'National merchant ID';
+
+  @override
+  String get qrisSettingsTerminal => 'Terminal code';
+
+  @override
+  String get qrisSettingsSettlement => 'Funds go to';
+
+  @override
+  String get qrisSettingsSettlementHint =>
+      'A hint for cashiers checking statements, e.g. BCA account 123-456-7890';
+
+  @override
+  String get qrisSettingsEnabled => 'Static QRIS active at the cashier';
+
+  @override
+  String get qrisSettingsRequirePaid => '\"Paid\" confirmation required';
+
+  @override
+  String get qrisSettingsRequirePaidHint =>
+      'Always on for static QRIS; cannot be turned off';
+
+  @override
+  String get qrisSettingsSave => 'Save';
+
+  @override
+  String get qrisSettingsCancel => 'Cancel';
+
+  @override
+  String get qrisSettingsSaved => 'QRIS settings saved';
+
+  @override
+  String get qrisSettingsImageMissing =>
+      'Upload a QRIS image before turning it on.';
+
+  @override
+  String qrisSettingsTooLong(int max) {
+    return 'At most $max characters';
+  }
+
+  @override
+  String get qrisSettingsNmidInvalid => 'Letters and digits only, up to 20';
+
+  @override
+  String get qrisSettingsLoadError => 'QRIS settings failed to load.';
 }

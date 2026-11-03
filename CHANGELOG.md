@@ -7,6 +7,127 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-03
+
+QRIS statis dengan konfirmasi manual (F1-05, layar 1.6 dan 1.6m), split
+payment (panel 1.5), dan pengaturan QRIS statis per cabang (F1-18, layar
+1.26b). Pemilik mengunggah stiker QRIS utuh sekali; kasir menampilkannya
+saat bayar dan menekan *Sudah Terbayar* setelah dana masuk.
+
+### Ditambahkan
+
+- **Pengaturan › Metode pembayaran › QRIS statis (1.26b)**, hanya untuk
+  staf dengan izin `settings:manage`:
+  - Pratinjau stiker QRIS utuh dengan rasio asli (tidak dipotong), nama file
+    dan ukurannya.
+  - *Pilih file* (PNG, JPG, atau WebP, maks 5 MB) lewat dialog berkas
+    sistem.
+  - **Hasil pemeriksaan**: rasio vertikal (mis. "1 : 1,41"), resolusi
+    (disarankan ≥ 1000 px lebar), dan galat bila file bukan PNG/JPG/WebP atau
+    lebih dari 5 MB. Format dicek dari isi file, bukan nama file.
+  - Catatan "Unggah stiker utuh, bukan potongan QR".
+  - **Data merchant**: nama merchant, NMID (huruf/angka, disimpan huruf
+    besar), kode terminal, dan *Dana masuk ke* (petunjuk kasir saat cek
+    mutasi).
+  - Sakelar *QRIS statis aktif di kasir* (butuh gambar) dan *Wajib tekan
+    "Sudah Terbayar"* (selalu aktif).
+  - Tombol **Simpan** dan **Batal**; pesan "Pengaturan QRIS tersimpan".
+- **Layar Pengaturan bernavigasi bagian**: kolom kiri di layar lebar, pil di
+  ponsel. Bagian *Metode pembayaran* dan *Tampilan & bahasa*.
+- **Bayar QRIS statis (1.6 tablet/desktop, 1.6m ponsel)**:
+  - Pilihan metode *QRIS statis · Konfirmasi manual* muncul bila QRIS statis
+    aktif dan gambarnya ada.
+  - Stiker QRIS utuh, lencana *Menunggu konfirmasi kasir*, "Scan QRIS, ketik
+    nominal persis" dengan nominal besar, nama merchant · NMID · kode
+    terminal, *Dana masuk ke*, empat langkah, dan peringatan "Jangan
+    konfirmasi dari tangkapan layar pelanggan saja".
+  - *Perbesar gambar QRIS* (desktop/tablet) atau ketuk gambar (ponsel)
+    membuka stiker layar penuh yang bisa di-zoom.
+  - **Belum masuk** kembali ke *Tunai* tanpa menyimpan apa pun. **Sudah
+    Terbayar** menyimpan nota dan mencatat siapa dan kapan konfirmasi
+    (`confirmed_by`, `confirmed_at`). Di ponsel kedua tombol ada di bilah
+    bawah.
+  - Tanpa izin `payments:confirm` tombol *Sudah Terbayar* mati dengan
+    petunjuk; penyimpanan juga menolak.
+- **Split payment (Bagi beberapa metode)**:
+  - Daftar bagian (metode, nominal, lencana *Diterima* / *Menunggu*, hapus),
+    form tambah dengan pilihan Tunai / Kartu / Transfer / QRIS statis dan
+    nominal yang terisi otomatis dengan sisa, lalu *Tambah metode*.
+  - Baris **Sisa** dan **Kembalian** (bila tunai melebihi sisa).
+  - Bagian QRIS masuk sebagai *Menunggu*; *Konfirmasi* membuka dialog
+    stiker dengan nominal bagian itu. *Sudah Terbayar* mengubahnya jadi
+    *Diterima*, *Belum masuk* menghapus bagian itu.
+  - *Selesaikan pembayaran* aktif hanya bila sisa nol dan tidak ada QRIS
+    yang menunggu.
+- **Struk dan layar berhasil** menampilkan setiap pembayaran (mis. "Kartu
+  debit / kredit 10.000", "QRIS statis 13.000") dan kembalian; ringkasan
+  "Split · 2 metode Rp X".
+
+### Diubah
+
+- Satu nota bisa punya beberapa pembayaran. Kembalian hanya dari bagian
+  tunai; non-tunai tidak boleh melebihi total.
+- Kartu metode bayar di ponsel tersusun tiga per baris dengan tinggi sama.
+- Layar Pengaturan dibuka di bagian *Metode pembayaran* untuk pemilik dan
+  manajer; staf lain langsung melihat *Tampilan & bahasa*.
+
+### Diperbaiki
+
+- Label pembayaran panjang di pratinjau struk (mis. "QRIS statis") tidak
+  lagi terpotong ke dua baris (ditemukan saat uji manual).
+- Lencana *Diterima* dan catatan QRIS menunggu memakai warna status tetap
+  agar terbaca di tema gelap (ditemukan saat uji manual).
+- Dialog konfirmasi QRIS di split kini berbingkai padding (isi sempat
+  menempel ke tepi dialog saat uji manual).
+- Penjualan bertotal Rp 0 (barang harga 0) kembali bisa diselesaikan
+  dengan tunai 0 atau kartu/transfer; sempat ditolak sebagai "uang kurang"
+  oleh aturan pelunasan baru (ditemukan saat code review).
+- Kasir tanpa izin `payments:confirm` tidak lagi ditawari QRIS sebagai
+  bagian split yang tidak bisa ia konfirmasi.
+- Menghapus bagian split kini juga menghapus pesan galat bayar sebelumnya.
+- Checkout QRIS memeriksa baris gambar stiker masih ada, bukan hanya
+  isiannya.
+- Stiker yang sama diunggah di cabang lain kini mendapat baris media milik
+  cabang itu (sebelumnya memakai baris cabang pertama).
+- Baris pengaturan QRIS yang rusak (bukan objek JSON) tidak lagi membuat
+  simpan gagal tanpa pesan; dibaca sebagai bawaan lalu ditimpa.
+
+### Keamanan
+
+- Konfirmasi QRIS diperiksa di dua lapis: UI (tombol mati) dan
+  `LocalCashierRepository` (`NotPermitted(payments:confirm)`).
+- Pengaturan QRIS hanya bisa dimuat dan disimpan staf dengan
+  `settings:manage`, dicek di repositori juga.
+- Gambar stiker diperiksa dari isi file (header PNG/JPEG/WebP) dan dibatasi
+  5 MB; file lebih dari 5 MB tidak dibaca ke memori.
+- macOS: hak `com.apple.security.files.user-selected.read-only` agar dialog
+  berkas bisa membaca file pilihan pengguna di dalam sandbox.
+
+### Catatan teknis
+
+- Domain: `settleTender` (galat `empty`, `nonPositive`, `multipleCash`,
+  `nonCashOver`, `short`), `readImageHeader` (PNG, JPEG SOF, WebP VP8 /
+  VP8L / VP8X tanpa dekoder gambar), `checkQrisImage`,
+  `validateQrisSettings`.
+- Model baru `MediaFile` (tabel `media_files`, enum `MediaKind`) dan migrasi
+  `qris`. Berkas disimpan di `<folder data>/media/<sha256>.<ext>`; berkas
+  yang sama tidak disalin dua kali. Fase 2 bisa mengunggah dengan kunci yang
+  sama ke object storage.
+- Pengaturan QRIS disimpan di tabel `settings` (`scope_key` =
+  `outlet:<id>`, `key` = `payments.qris_static`, nilai JSON) lewat outbox
+  sync.
+- `checkoutSale(payments: [...])` menggantikan `payment:`;
+  `SalePaymentRequest.amount` menggantikan `received`, ditambah `confirmed`.
+  `CheckoutResult.payments` menggantikan `payment`. Galat baru
+  `SalePaymentInvalid` dan `SalePaymentUnconfirmed`.
+- Aplikasi: `PaymentSettingsRepository` (lokal + palsu), `ImageFilePicker`
+  di atas `file_selector`, `PayMode` dan `SplitPart` di view model kasir.
+- Dependensi baru: `file_selector` (aplikasi), `crypto` (data).
+- Spec baru F1-18 Pengaturan; spec F1-05 diperbarui dengan lingkup v0.7.0.
+- Belum: referensi kartu/transfer per bagian split, PIN manajer untuk
+  *Sudah Terbayar*, pembacaan QR otomatis (NMID), foto stiker dari kamera
+  (dicatat sebagai gap di spec).
+
 ## [0.6.0] - 2026-11-03
 
 Kasir retail (F1-04, layar 1.4, 1.11, 1.11b) dan inti pembayaran (F1-05,
@@ -603,7 +724,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...v0.4.0
