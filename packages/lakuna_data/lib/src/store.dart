@@ -45,10 +45,7 @@ class LakunaStore {
   }
 
   /// Menjalankan [body] dalam satu transaksi tulis yang tercatat di outbox.
-  Future<R> write<R>(
-    Future<R> Function(SyncTx w) body, {
-    UuidValue? actor,
-  }) {
+  Future<R> write<R>(Future<R> Function(SyncTx w) body, {UuidValue? actor}) {
     return session.db.transaction(
       (tx) => body(
         SyncTx(

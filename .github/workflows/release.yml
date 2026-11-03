@@ -1,0 +1,251 @@
+name: Rilis
+
+# Setelah PR di-merge ke main: bila versi di lakuna_flutter/pubspec.yaml belum
+# punya tag, workflow ini membuat installer semua platform secara paralel,
+# lalu tag vX.Y.Z + GitHub Release berisi bagian CHANGELOG versi itu.
+# Jangan push tag manual. Semua runner GitHub-hosted.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+
+jobs:
+  prepare:
+    name: Cek versi
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        name: Baca versi dan cek tag
+        run: |
+          line="$(grep -E '^version:' lakuna_flutter/pubspec.yaml | head -1)"
+          full="${line#version: }"
+          version="${full%%+*}"
+          build="${full#*+}"
+          [ "$build" = "$full" ] && build=1
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
+            echo "Tag v$version sudah ada; tidak ada rilis baru."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+              echo "::error::CHANGELOG.md belum punya bagian ## [$version]"
+              exit 1
+            fi
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  linux:
+    name: Linux (.deb)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD: ${{ needs.prepare.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: >-
+          flutter build linux --release
+          --build-name "$VERSION" --build-number "$BUILD"
+          --dart-define=LAKUNA_VERSION="$VERSION"
+      - run: tools/packaging/linux/build-deb.sh "$VERSION" lakuna_flutter/build/linux/x64/release/bundle dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*
+          if-no-files-found: error
+
+  windows:
+    name: Windows (.exe + .msi)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD: ${{ needs.prepare.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        shell: bash
+        run: >-
+          flutter build windows --release
+          --build-name "$VERSION" --build-number "$BUILD"
+          --dart-define=LAKUNA_VERSION="$VERSION"
+      - name: Pasang Inno Setup dan WiX
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) {
+            choco install innosetup -y --no-progress
+            "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
+          }
+          dotnet tool install --global wix --version 5.0.2
+      - name: Buat installer
+        shell: pwsh
+        run: |
+          $src = (Resolve-Path "lakuna_flutter\build\windows\x64\runner\Release").Path
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $dist = (Resolve-Path dist).Path
+          iscc /DAppVersion=$env:VERSION /DSourceDir="$src" /DOutputDir="$dist" tools\packaging\windows\lakuna.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wix build -arch x64 -d Version=$env:VERSION -d AppDir="$src" `
+            -o "$dist\Lakuna-$env:VERSION-windows-x64.msi" tools\packaging\windows\lakuna.wxs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Remove-Item "$dist\*.wixpdb" -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+          if-no-files-found: error
+
+  macos:
+    name: macOS (.dmg)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: macos-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD: ${{ needs.prepare.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: >-
+          flutter build macos --release
+          --build-name "$VERSION" --build-number "$BUILD"
+          --dart-define=LAKUNA_VERSION="$VERSION"
+      - run: tools/packaging/macos/build-dmg.sh "$VERSION" lakuna_flutter/build/macos/Build/Products/Release/Lakuna.app dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*
+          if-no-files-found: error
+
+  android:
+    name: Android (.apk + .aab)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD: ${{ needs.prepare.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Build APK dan AAB
+        working-directory: lakuna_flutter
+        run: |
+          args=(--release --build-name "$VERSION" --build-number "$BUILD" --dart-define=LAKUNA_VERSION="$VERSION")
+          flutter build apk "${args[@]}"
+          flutter build appbundle "${args[@]}"
+      - run: |
+          mkdir -p dist
+          cp lakuna_flutter/build/app/outputs/flutter-apk/app-release.apk "dist/Lakuna-$VERSION-android.apk"
+          cp lakuna_flutter/build/app/outputs/bundle/release/app-release.aab "dist/Lakuna-$VERSION-android.aab"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: dist/*
+          if-no-files-found: error
+
+  ios:
+    name: iOS (.ipa tanpa tanda tangan)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: macos-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD: ${{ needs.prepare.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: >-
+          flutter build ios --release --no-codesign
+          --build-name "$VERSION" --build-number "$BUILD"
+          --dart-define=LAKUNA_VERSION="$VERSION"
+      - run: |
+          stage="$(mktemp -d)"
+          mkdir -p "$stage/Payload" dist
+          cp -R lakuna_flutter/build/ios/iphoneos/Runner.app "$stage/Payload/"
+          (cd "$stage" && zip -qr "$GITHUB_WORKSPACE/dist/Lakuna-$VERSION-ios-unsigned.ipa" Payload)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Tag + GitHub Release
+    needs: [prepare, linux, windows, macos, android, ios]
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Catatan rilis dari CHANGELOG
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[[^]]+\]: / { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md
+          cat notes.md
+      - name: Terbitkan
+        run: |
+          flags=()
+          case "$VERSION" in 0.*) flags+=(--prerelease) ;; esac
+          gh release create "v$VERSION" dist/* \
+            --target "$GITHUB_SHA" \
+            --title "Lakuna v$VERSION" \
+            --notes-file notes.md \
+            "${flags[@]}"

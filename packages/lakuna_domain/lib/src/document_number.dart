@@ -31,7 +31,7 @@ String _yymmdd(DateTime d) =>
 /// outlet).
 class DailyCounter {
   DailyCounter({required DateTime date, this.last = 0})
-      : date = DateTime(date.year, date.month, date.day);
+    : date = DateTime(date.year, date.month, date.day);
 
   DateTime date;
   int last;

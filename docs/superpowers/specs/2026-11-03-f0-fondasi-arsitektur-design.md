@@ -1,0 +1,246 @@
+# F0 · Fondasi & arsitektur Lakuna
+
+- **Fase:** 0 (dipakai semua fase)
+- **Status:** Dirilis di v0.1.0
+- **Acuan:** spec F0 Storeku
+  (`yusufabdillahputra/storeku`, `docs/superpowers/specs/2026-11-02-f0-fondasi-arsitektur-design.md`),
+  kanvas [Desain UI Retail UMKM](https://claude.ai/artifact/ELHPXCJS8nduSVstc2kxSp),
+  panduan arsitektur aplikasi resmi Flutter (docs.flutter.dev/app-architecture),
+  dokumentasi Serverpod 4.1.
+
+## Tujuan
+
+Lakuna adalah aplikasi kasir offline-first untuk UMKM Indonesia (Retail dan
+F&B), versi Flutter dari ide dan rancangan Storeku. Spec ini menetapkan aturan
+bersama untuk semua modul: struktur repo, database, sync, RBAC, bahasa, tema,
+aset offline, pengujian, CI, dan rilis. Spec modul lain menganggap aturan di
+sini berlaku.
+
+## Keputusan Yusuf (2026-11-03)
+
+1. Flutter dipilih karena lebih matang daripada Dioxus. Pengembangan Storeku
+   **ditunda**; fokus penuh ke Lakuna. Storeku **tidak** akan pernah sync ke
+   server Lakuna, jadi tidak ada syarat kompatibilitas data. Rancangan
+   Storeku (tabel, alur, aturan) hanya acuan.
+2. Komponen UI memakai **Forui** dengan preset `conhcc` secara penuh
+   (`dart run forui init --preset conhcc`): warna dasar Zinc, warna utama Sky
+   (`#0069A8` terang, `#00598A` gelap), judul Montserrat, isi DM Sans, ikon
+   Tabler, radius Medium. Palet pastel dan Plus Jakarta Sans milik Storeku
+   **tidak** dipakai. Tata letak layar tetap mengikuti kanvas; penyesuaian
+   desain ke Forui dikerjakan di thread desain terpisah dan hasilnya menjadi
+   acuan modul.
+3. Semua aset harus bisa dipakai tanpa internet.
+4. Satu codebase Dart untuk aplikasi dan backend: **Serverpod** (model YAML),
+   dengan dukungan pengembangan berbasis AI dari Serverpod dipakai maksimal.
+5. Denah meja F&B memakai paket `vyuh_node_flow` (berlaku saat modul F&B
+   dikerjakan).
+6. README dan dokumen publik Lakuna tidak menyebut proyek acuan lain selain
+   Storeku.
+7. CI memakai runner GitHub-hosted dengan job paralel sebanyak mungkin
+   (repo publik).
+
+## Prinsip (sama dengan Storeku)
+
+1. **Offline-first.** SQLite di perangkat adalah tempat kerja utama. Semua
+   fitur fase 1 jalan tanpa internet.
+2. **ID dibuat di perangkat** (UUIDv7).
+3. **Aturan bisnis di Dart** (`lakuna_domain`), bukan trigger database.
+4. **Dokumen final append-only.** Koreksi lewat dokumen baru (void, retur,
+   penyesuaian).
+5. **Saldo adalah hasil hitung.** Stok dan saldo hutang/piutang berupa ledger;
+   angka saldo hanya cache yang bisa dihitung ulang.
+6. **Multi-tenant sejak awal.** Tabel bisnis punya `tenant_id`; tabel
+   operasional punya `outlet_id`.
+
+## Struktur monorepo (pub workspace)
+
+| Paket | Isi | Bergantung pada |
+| --- | --- | --- |
+| `lakuna_server` | Server Serverpod. Model `.spy.yaml` di `lib/src/<area>/` adalah **sumber skema tunggal** untuk SQLite di perangkat dan Postgres di server. Endpoint sync di fase 2 | serverpod 4.1 |
+| `lakuna_client` | Hasil generate Serverpod: kelas model, protokol, migrasi database klien. **Jangan diedit tangan** | serverpod_client |
+| `packages/lakuna_domain` | Dart murni: `Money`, `BasisPoints`, `Qty`, `newId()`, `Hlc`, katalog `Permission` + `DefaultRole`, nomor nota + `DailyCounter`. Bertambah per modul | `uuid` |
+| `packages/lakuna_data` | Akses database lokal: `LakunaStore` (buka/migrasi SQLite), `SyncTx` (tulis + outbox dalam satu transaksi), `sync_state`, `LocalPreferences`. Repositori modul ditambahkan di sini | lakuna_client, lakuna_domain, serverpod_database |
+| `lakuna_flutter` | Aplikasi Flutter: Forui, MVVM, go_router, i18n, layar per modul | semua paket di atas |
+
+Aturan: `lakuna_domain` tidak boleh meng-import Flutter atau Serverpod supaya
+bisa dipakai di aplikasi dan server. Aplikasi tidak boleh memanggil
+`ClientDatabaseSession` langsung dari widget; semua akses data lewat
+repositori.
+
+## Database (model Serverpod + SQLite)
+
+- Model ditulis di `.spy.yaml` dengan `database: all` (tabel ada di SQLite
+  perangkat dan Postgres server) atau `database: client` (hanya di
+  perangkat). `serverpod generate` membuat kelas Dart dan migrasi; hasilnya
+  di-commit dan CI memeriksa tidak ada perubahan setelah generate ulang.
+- Tabel SQLite dibuat `STRICT` oleh Serverpod; ID `UuidValue` (UUIDv7,
+  `defaultModel=random_v7`).
+- Penamaan English `snake_case`, tabel jamak, FK `<tabel_tunggal>_id`.
+  Serverpod memakai camelCase sebagai nama kolom bawaan, jadi **setiap field
+  wajib diberi `column=snake_name`** bila namanya lebih dari satu kata.
+  `tableName` adalah nama field yang dicadangkan Serverpod.
+- Uang `int` rupiah penuh. Persen dalam basis poin (100 bp = 1%). Jumlah
+  barang `int` mili-satuan (`*_milli`). Tanpa `double`.
+- FK memakai `relation(parent=<tabel>, onDelete=Restrict)`; hapus data =
+  soft delete (`deleted_at`).
+- Kolom sync standar setiap tabel yang disinkronkan: `created_at`,
+  `updated_at`, `deleted_at`, `created_by`, `updated_by`, `version`, `hlc`,
+  `origin_device_id`.
+- Semua tulis data bisnis lewat `LakunaStore.write((tx) => ...)` dan
+  `SyncTx.insert/update`, yang mengisi HLC dan menambah satu entri
+  `sync_outbox_entries` di transaksi yang sama. Error di tengah transaksi
+  membatalkan baris data dan entri outbox bersama-sama.
+- Tabel lokal perangkat (`database: client`): `sync_outbox_entries`,
+  `sync_state_entries`, `local_preferences`.
+- Tabel fondasi v0.1.0: `tenants`, `outlets`, `stock_locations`, `devices`,
+  `settings`, `staff_members`, `outlet_members` + tabel lokal di atas. Modul
+  lain menambah model dan migrasi (`serverpod create-migration --tag <modul>`).
+- Lokasi berkas: folder data aplikasi (`path_provider`), nama `lakuna.sqlite`.
+  Variabel lingkungan `LAKUNA_DATA_DIR` menggantinya untuk uji manual.
+- Nomor dokumen memuat kode outlet dan perangkat: nota
+  `OUTLET-DEVICE-YYMMDD-0001`, dokumen lain `<PREFIX>-OUTLET-DEVICE-YYMMDD-0001`.
+
+## Sync (disiapkan, dijalankan fase 2)
+
+- HLC teks yang bisa diurutkan: `<millis 13 digit>-<counter 4 digit>-<node>`.
+  HLC terakhir disimpan di `sync_state_entries` (`last_hlc`); jam perangkat
+  yang mundur tidak membuat HLC mundur.
+- `sync_outbox_entries(table_name, row_id, op, payload_json, hlc, status,
+  attempts, last_error, created_at)`; status `pending/sent/acked/conflict`.
+- Fase 2: endpoint Serverpod `push`/`pull`, last-writer-wins per baris dengan
+  HLC. Paket resmi `serverpod_offline_sync` dievaluasi lagi bila sudah
+  matang (2026-11 masih 0.0.11); sampai saat itu Lakuna memakai outbox
+  sendiri.
+
+## RBAC
+
+- Model staf → role → izin `resource:action`, keanggotaan per outlet di
+  `outlet_members(staff_member_id, role_name)`.
+- Katalog izin di kode (`Permission` di `lakuna_domain`), 21 izin dengan nama
+  yang sama dengan Storeku. Role bawaan `owner`, `manager`, `cashier`,
+  `waiter`, `stock_keeper`.
+- UI menyembunyikan menu/tombol tanpa izin; repositori memeriksa izin lagi.
+  Implementasi penuh di modul F1-02 (PIN) dan F1-17 (pengguna & role).
+
+## Arsitektur aplikasi Flutter
+
+Mengikuti panduan arsitektur resmi Flutter:
+
+- **Lapisan UI**: `View` (widget) + `ViewModel` (`ChangeNotifier`). View
+  tidak memuat logika selain tampilan. Aksi dari view memakai `Command0` /
+  `Command1` (`lib/utils/command.dart`) yang menyediakan status `running`,
+  `error`, `completed`.
+- **Lapisan data**: repositori abstrak di `lib/data/repositories/` dengan
+  implementasi lokal di atas `lakuna_data`. Setiap repositori punya versi
+  palsu (`test/testing/fake_*`) untuk tes widget.
+- Hasil operasi berupa `Result<T>` (`Ok` / `Error`), bukan exception yang
+  lolos ke UI.
+- Model immutable. Dependency injection lewat `provider`
+  (`MultiProvider` di `main.dart`). Navigasi `go_router` dengan `ShellRoute`.
+- Struktur folder: `lib/config`, `lib/data`, `lib/routing`,
+  `lib/ui/<fitur>/` (view + view model), `lib/ui/core/` (shell, tema,
+  komponen bersama), `lib/utils`.
+
+## UI, tema, bahasa
+
+- **Forui 0.27** + preset `conhcc`. Berkas tema hasil CLI di
+  `lakuna_flutter/lib/ui/core/theme/` boleh disesuaikan tangan; fungsi
+  `lakunaLightTheme` / `lakunaDarkTheme` menerima `touch` (varian sentuh
+  untuk Android/iOS, varian desktop untuk Windows/Linux/macOS).
+- `MaterialApp.router` dibungkus `FTheme`; tema Material diturunkan lewat
+  `toApproximateMaterialTheme()`.
+- Mode tema Terang / Gelap / Ikuti sistem. Fase 0 menyimpannya di
+  `local_preferences`; setelah login PIN ada, disimpan per staf.
+- Bahasa: `flutter_localizations` + `intl`, berkas ARB `app_id.arb` (bawaan,
+  templat) dan `app_en.arb`. Setiap kunci baru wajib ada di keduanya; tes
+  memastikan kedua berkas punya kunci yang sama. Komponen Forui memakai
+  `FLocalizations` (sudah ada bahasa Indonesia).
+- Ikon: Tabler (`tabler_icons_plus`).
+- Breakpoint sama dengan Storeku: mobile < 600 px (navigasi bawah), tablet
+  600–1279 px (sidebar 200 px), desktop ≥ 1280 px (sidebar 256 px).
+- Status offline selalu terlihat di bilah atas (ringkas berupa ikon di
+  mobile, dengan label aksesibilitas).
+
+## Aset offline
+
+- Font Montserrat dan DM Sans (OFL) disimpan di `lakuna_flutter/assets/fonts/`
+  bersama lisensinya. Tidak memakai `google_fonts`.
+- Ikon Tabler berupa font di dalam paket `tabler_icons_plus`.
+- Logo, ikon aplikasi, dan placeholder DiceBear dibuat sekali oleh skrip
+  (spec Merek) lalu di-commit; aplikasi tidak memanggil api.dicebear.com.
+- SQLite ikut terbundel lewat build hook paket `sqlite3`.
+- Gambar unggahan pengguna (foto produk, QRIS) disalin ke folder data.
+- Tes `offline_assets_test.dart` gagal bila `lakuna_flutter/lib` memakai
+  `Image.network`, `NetworkImage`, `google_fonts`, atau `package:http`.
+
+## Pengembangan dengan AI (Serverpod)
+
+- `AGENTS.md` berisi aturan kerja agen dan checklist setelah perubahan;
+  `CLAUDE.md` berisi aturan proyek (Bahasa Indonesia).
+- `.mcp.json` mendaftarkan MCP `serverpod mcp-server` (migrasi, log, hot
+  reload, menjalankan aplikasi) dan `dart mcp-server` (analisis, tes,
+  flutter_driver).
+- Skill Serverpod, Flutter, dan Relic di `.claude/skills/` (hasil
+  `skills get --ide claude`) di-commit agar setiap sesi memakainya.
+- `lakuna_flutter/lib/driver.dart` menjalankan aplikasi dengan ekstensi
+  Flutter Driver untuk uji oleh agen.
+
+## Pengujian
+
+- `lakuna_domain`: unit test `dart test`.
+- `lakuna_data`: tes dengan SQLite di folder sementara, termasuk outbox
+  terisi dalam transaksi yang sama, rollback tidak meninggalkan outbox,
+  semua tabel `STRICT`, HLC monoton.
+- `lakuna_server`: tes integrasi `withServerpod` dengan PostgreSQL tertanam
+  (tanpa Docker).
+- `lakuna_flutter`: tes view model dengan repositori palsu, widget test
+  (bahasa, tema, tata letak per breakpoint), tes kelengkapan kunci ARB, tes
+  aset offline.
+- Uji manual: aplikasi Linux di Xvfb 1280x800 dengan `LAKUNA_DATA_DIR`,
+  tangkapan layar setiap layar yang berubah.
+
+## CI dan rilis
+
+- GitHub Actions, hanya runner GitHub-hosted, semua job CI paralel (tanpa
+  `needs:`): format, analyze, cek kode generate, tes domain, tes data, tes
+  server, tes Flutter, build Linux, Windows, macOS, Android, iOS (tanpa tanda
+  tangan).
+- Versi di `lakuna_flutter/pubspec.yaml` (`X.Y.Z+build`, SemVer; `0.x` =
+  pre-release). Setiap rilis menambah bagian `CHANGELOG.md` (Keep a Changelog,
+  Bahasa Indonesia: Ditambahkan / Diubah / Diperbaiki / Dihapus / Keamanan /
+  Catatan teknis).
+- Setelah merge ke `main`, `release.yml` membuat installer paralel, lalu tag
+  `vX.Y.Z` dan GitHub Release dari CHANGELOG: Windows `.exe` (Inno Setup) +
+  `.msi` (WiX 5), Linux `.deb`, macOS `.dmg`, Android `.apk` + `.aab`, iOS
+  `.ipa` tanpa tanda tangan. Skrip kemasan di `tools/packaging/`.
+
+## Praktik terbaik yang diikuti
+
+- Arsitektur MVVM resmi Flutter (bukan Riverpod/Bloc) agar kode mudah dibaca
+  agen dan manusia, dan cocok dengan contoh resmi Serverpod.
+- Kode generate Serverpod dan l10n di-commit dan dicek CI.
+- Satu sumber skema (`.spy.yaml`) untuk klien dan server, migrasi dibuat
+  CLI, `migration.sql` hanya diubah tangan bila perlu menjaga data.
+- Rahasia server (`config/passwords.yaml`) tidak di-commit; CI memakai
+  variabel `SERVERPOD_PASSWORD_*` khusus tes.
+- Lint `flutter_lints` / `lints` dengan `--fatal-infos`, `dart format`
+  wajib.
+
+## Kriteria selesai v0.1.0
+
+- Monorepo dengan lima paket, analyze bersih, semua tes lulus.
+- Aplikasi terbuka di Linux dengan tema conhcc terang/gelap, bahasa
+  Indonesia/Inggris, shell navigasi responsif, beranda, pengaturan, dan
+  status offline; database dibuat di folder data dan pengaturan bertahan
+  setelah aplikasi dibuka ulang.
+- CI paralel hijau, rilis v0.1.0 terbit otomatis.
+
+## Status & gap
+
+| Topik | Rancangan | Kode saat ini | Rekomendasi |
+| --- | --- | --- | --- |
+| Logo & ikon aplikasi | Mark Etalase (DiceBear icons `shopWindow`) diwarnai Sky | Ikon bawaan Flutter | Spec Merek Lakuna setelah v0.1.0 |
+| Penyimpanan tema per staf | Per pengguna | Per perangkat (`local_preferences`) | Pindah ke per staf di F1-02 |
+| Layar sesuai Forui | Kanvas Storeku disesuaikan ke Forui conhcc | Shell, beranda, pengaturan | Ikuti hasil thread desain Forui per modul |
+| Bahasa installer Windows | Bahasa Indonesia | Inno Setup bahasa Inggris (terjemahan Indonesia tidak resmi) | Tambahkan berkas `.isl` Indonesia bila diperlukan |
+| Tanda tangan Android/iOS | Keystore & sertifikat toko | APK/AAB ditandatangani kunci debug, IPA tanpa tanda tangan | Saat distribusi ke pengguna nyata |

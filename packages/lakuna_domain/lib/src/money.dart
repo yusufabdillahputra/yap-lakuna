@@ -13,8 +13,7 @@ extension type const BasisPoints(int value) {
 extension type const Money(int value) implements Comparable<num> {
   static const zero = Money(0);
 
-  static Money sum(Iterable<Money> items) =>
-      items.fold(zero, (a, b) => a + b);
+  static Money sum(Iterable<Money> items) => items.fold(zero, (a, b) => a + b);
 
   bool get isNegative => value < 0;
 
@@ -28,15 +27,19 @@ extension type const Money(int value) implements Comparable<num> {
 
   /// Bagian [bp] dari jumlah ini, dibulatkan setengah menjauhi nol.
   Money applyBp(BasisPoints bp) => Money(
-        divRoundHalfAway(BigInt.from(value) * BigInt.from(bp.value),
-            BigInt.from(10000)),
-      );
+    divRoundHalfAway(
+      BigInt.from(value) * BigInt.from(bp.value),
+      BigInt.from(10000),
+    ),
+  );
 
   /// Harga per satuan dikali jumlah dalam mili-satuan.
   Money timesMilli(int milli) => Money(
-        divRoundHalfAway(
-            BigInt.from(value) * BigInt.from(milli), BigInt.from(1000)),
-      );
+    divRoundHalfAway(
+      BigInt.from(value) * BigInt.from(milli),
+      BigInt.from(1000),
+    ),
+  );
 
   /// `Rp 12.500`, `-Rp 3.000`.
   String formatIdr() => '${_sign}Rp ${groupThousands(value.abs(), '.')}';

@@ -31,9 +31,11 @@ class Hlc implements Comparable<Hlc> {
 
   /// Menggabungkan stempel dari perangkat lain saat pull.
   Hlc receive(Hlc remote, int nowMillis) {
-    final max = [nowMillis, millis, remote.millis].reduce(
-      (a, b) => a > b ? a : b,
-    );
+    final max = [
+      nowMillis,
+      millis,
+      remote.millis,
+    ].reduce((a, b) => a > b ? a : b);
     final int next;
     if (max == millis && max == remote.millis) {
       next = (counter > remote.counter ? counter : remote.counter) + 1;

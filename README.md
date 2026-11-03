@@ -1,7 +1,56 @@
 # Lakuna
 
 Aplikasi kasir (POS) offline-first untuk UMKM Indonesia, mode Retail dan
-F&B, dibangun dengan Flutter. Lakuna adalah versi Flutter dari
+F&B. Data disimpan di perangkat sehingga kasir tetap jalan tanpa internet.
+Lakuna adalah versi Flutter dari
 [Storeku](https://github.com/yusufabdillahputra/storeku).
 
-Pengembangan dimulai di cabang fitur; lihat pull request pertama.
+## Unduh
+
+Installer setiap versi ada di halaman
+[Releases](https://github.com/yusufabdillahputra/yap-lakuna/releases):
+Windows (`.exe`, `.msi`), Linux (`.deb`), macOS (`.dmg`), Android (`.apk`,
+`.aab`), dan iOS (`.ipa` tanpa tanda tangan, untuk pengujian).
+
+## Teknologi
+
+- **Flutter** 3.47 + **Forui** (preset `conhcc`: Zinc + Sky, Montserrat,
+  DM Sans, ikon Tabler), Bahasa Indonesia dan Inggris, mode terang/gelap.
+- **Serverpod** 4.1: satu skema model YAML untuk database SQLite di perangkat
+  dan PostgreSQL di server (sinkronisasi di fase 2).
+- Arsitektur aplikasi mengikuti panduan resmi Flutter (MVVM, repositori,
+  `provider`, `go_router`).
+
+## Struktur repo
+
+| Folder | Isi |
+| --- | --- |
+| `lakuna_flutter/` | Aplikasi Flutter |
+| `lakuna_server/` | Server Serverpod dan model data (`.spy.yaml`) |
+| `lakuna_client/` | Klien hasil generate Serverpod |
+| `packages/lakuna_domain/` | Aturan bisnis Dart murni (uang, jumlah, izin, nomor nota) |
+| `packages/lakuna_data/` | Database lokal dan outbox sinkronisasi |
+| `docs/superpowers/` | Spec dan rencana per modul |
+| `tools/packaging/` | Skrip pembuat installer |
+
+## Mengembangkan
+
+Butuh Flutter 3.47.9.
+
+```bash
+flutter pub get
+(cd packages/lakuna_domain && dart test)
+(cd packages/lakuna_data && dart test)
+(cd lakuna_server && dart test)        # PostgreSQL tertanam, tanpa Docker
+(cd lakuna_flutter && flutter test)
+(cd lakuna_flutter && flutter run -d linux)   # atau windows / macos / android
+```
+
+Aturan proyek ada di [`CLAUDE.md`](CLAUDE.md), panduan alat Serverpod untuk
+agen AI di [`AGENTS.md`](AGENTS.md), dan arsitektur di
+[spec F0](docs/superpowers/specs/2026-11-03-f0-fondasi-arsitektur-design.md).
+Riwayat perubahan di [`CHANGELOG.md`](CHANGELOG.md).
+
+## Lisensi pihak ketiga
+
+Lihat [`NOTICE.md`](NOTICE.md).

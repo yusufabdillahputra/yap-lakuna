@@ -1,0 +1,36 @@
+<!--
+  Installer Windows (.msi) untuk Lakuna, dibuat dengan WiX Toolset v5.
+  Dipanggil dari release.yml:
+    wix build -arch x64 -d Version=0.1.0 -d AppDir=<folder Release> -o Lakuna.msi lakuna.wxs
+  UpgradeCode tidak boleh diubah agar versi baru menggantikan versi lama.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Lakuna"
+           Manufacturer="Yusuf Abdillah Putra"
+           Version="$(Version)"
+           UpgradeCode="53843631-D761-4C9A-BDD4-79AA0B017AF7"
+           Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="Versi Lakuna yang lebih baru sudah terpasang." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Lakuna" />
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="Lakuna">
+      <Files Directory="INSTALLFOLDER" Include="$(AppDir)\**" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="6B828CEA-3577-4A08-B7B8-4103D4AEBBB8">
+        <Shortcut Id="LakunaShortcut"
+                  Name="Lakuna"
+                  Target="[INSTALLFOLDER]lakuna.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\Lakuna" Name="installed"
+                       Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Package>
+</Wix>

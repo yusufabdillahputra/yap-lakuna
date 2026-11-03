@@ -19,13 +19,16 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  test('preferensi lokal bisa disimpan, ditimpa, dan tidak masuk outbox', () async {
-    final prefs = LocalPreferences(store.session);
-    expect(await prefs.get('theme_mode'), isNull);
-    await prefs.set('theme_mode', 'dark');
-    await prefs.set('theme_mode', 'light');
-    expect(await prefs.get('theme_mode'), 'light');
-    expect(await LocalPreference.db.count(store.session), 1);
-    expect(await SyncOutboxEntry.db.count(store.session), 0);
-  });
+  test(
+    'preferensi lokal bisa disimpan, ditimpa, dan tidak masuk outbox',
+    () async {
+      final prefs = LocalPreferences(store.session);
+      expect(await prefs.get('theme_mode'), isNull);
+      await prefs.set('theme_mode', 'dark');
+      await prefs.set('theme_mode', 'light');
+      expect(await prefs.get('theme_mode'), 'light');
+      expect(await LocalPreference.db.count(store.session), 1);
+      expect(await SyncOutboxEntry.db.count(store.session), 0);
+    },
+  );
 }

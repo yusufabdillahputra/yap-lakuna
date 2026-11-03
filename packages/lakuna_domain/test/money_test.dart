@@ -14,7 +14,10 @@ void main() {
 
     test('basis poin dibulatkan setengah menjauhi nol', () {
       // 11% dari 12.345 = 1.357,95 -> 1.358
-      expect(const Money(12345).applyBp(const BasisPoints(1100)), const Money(1358));
+      expect(
+        const Money(12345).applyBp(const BasisPoints(1100)),
+        const Money(1358),
+      );
       expect(const Money(10).applyBp(BasisPoints.percent(5)), const Money(1));
       expect(const Money(-10).applyBp(BasisPoints.percent(5)), const Money(-1));
       expect(const Money(9).applyBp(BasisPoints.percent(5)), const Money(0));
@@ -31,7 +34,10 @@ void main() {
       expect(const Money(5) - const Money(7), const Money(-2));
       expect(-const Money(5), const Money(-5));
       expect(const Money(3) < const Money(4), isTrue);
-      expect(Money.sum([const Money(1), const Money(2), const Money(3)]), const Money(6));
+      expect(
+        Money.sum([const Money(1), const Money(2), const Money(3)]),
+        const Money(6),
+      );
       expect(const Money(-1).isNegative, isTrue);
     });
   });

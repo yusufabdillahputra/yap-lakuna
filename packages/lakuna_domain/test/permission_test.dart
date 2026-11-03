@@ -15,14 +15,34 @@ void main() {
 
   test('role bawaan', () {
     expect(DefaultRole.owner.permissions.length, Permission.values.length);
-    expect(DefaultRole.manager.permissions, isNot(contains(Permission.usersManage)));
-    expect(DefaultRole.manager.permissions, isNot(contains(Permission.backupManage)));
-    expect(DefaultRole.cashier.permissions, contains(Permission.paymentsConfirm));
-    expect(DefaultRole.cashier.permissions, isNot(contains(Permission.salesVoid)));
+    expect(
+      DefaultRole.manager.permissions,
+      isNot(contains(Permission.usersManage)),
+    );
+    expect(
+      DefaultRole.manager.permissions,
+      isNot(contains(Permission.backupManage)),
+    );
+    expect(
+      DefaultRole.cashier.permissions,
+      contains(Permission.paymentsConfirm),
+    );
+    expect(
+      DefaultRole.cashier.permissions,
+      isNot(contains(Permission.salesVoid)),
+    );
     expect(DefaultRole.waiter.permissions, {Permission.openBillsManage});
-    expect(DefaultRole.stockKeeper.permissions,
-        {Permission.purchasesManage, Permission.stockAdjust, Permission.suppliersManage});
-    expect(DefaultRole.values.map((r) => r.key),
-        ['owner', 'manager', 'cashier', 'waiter', 'stock_keeper']);
+    expect(DefaultRole.stockKeeper.permissions, {
+      Permission.purchasesManage,
+      Permission.stockAdjust,
+      Permission.suppliersManage,
+    });
+    expect(DefaultRole.values.map((r) => r.key), [
+      'owner',
+      'manager',
+      'cashier',
+      'waiter',
+      'stock_keeper',
+    ]);
   });
 }

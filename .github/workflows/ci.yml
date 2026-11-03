@@ -1,0 +1,216 @@
+name: CI
+
+# Semua job berjalan paralel di runner GitHub-hosted (repo publik, menit
+# gratis). Jangan menambahkan `needs:` antar job lint/test/build dan jangan
+# memakai runner self-hosted.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  SERVERPOD_VERSION: '4.1.0'
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Cek format (tanpa kode generate)
+        run: |
+          dart format --output=none --set-exit-if-changed \
+            packages \
+            lakuna_flutter/lib/main.dart lakuna_flutter/lib/app.dart \
+            lakuna_flutter/lib/config lakuna_flutter/lib/data lakuna_flutter/lib/routing \
+            lakuna_flutter/lib/ui lakuna_flutter/lib/utils lakuna_flutter/test \
+            lakuna_server/lib/server.dart lakuna_server/test/integration/organization_test.dart
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: lakuna_domain
+        working-directory: packages/lakuna_domain
+        run: dart analyze --fatal-infos
+      - name: lakuna_data
+        working-directory: packages/lakuna_data
+        run: dart analyze --fatal-infos
+      - name: lakuna_server
+        working-directory: lakuna_server
+        run: dart analyze --fatal-infos
+      - name: lakuna_flutter
+        working-directory: lakuna_flutter
+        run: flutter analyze --fatal-infos
+
+  codegen:
+    name: Kode generate mutakhir
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Pasang Serverpod CLI
+        run: |
+          dart pub global activate serverpod_cli "$SERVERPOD_VERSION"
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+      - name: serverpod generate
+        working-directory: lakuna_server
+        run: serverpod generate
+      - name: flutter gen-l10n
+        working-directory: lakuna_flutter
+        run: flutter gen-l10n
+      - name: Tidak ada perubahan setelah generate
+        run: git diff --exit-code -- lakuna_client lakuna_server/lib/src/generated lakuna_flutter/lib/l10n/gen
+
+  test-domain:
+    name: Tes lakuna_domain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - working-directory: packages/lakuna_domain
+        run: dart test
+
+  test-data:
+    name: Tes lakuna_data (SQLite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - working-directory: packages/lakuna_data
+        run: dart test
+
+  test-server:
+    name: Tes lakuna_server (Postgres tertanam)
+    runs-on: ubuntu-latest
+    env:
+      # Kata sandi khusus database tes sementara; bukan rahasia produksi.
+      SERVERPOD_PASSWORD_database: 'lakuna-ci-test-only'
+      SERVERPOD_PASSWORD_emailSecretHashPepper: 'lakuna-ci-test-only'
+      SERVERPOD_PASSWORD_jwtHmacSha512PrivateKey: 'lakuna-ci-test-only'
+      SERVERPOD_PASSWORD_jwtRefreshTokenHashPepper: 'lakuna-ci-test-only'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Cache binary PostgreSQL tertanam
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/serverpod/pg-binaries
+          key: serverpod-pg-binaries-${{ runner.os }}-${{ env.SERVERPOD_VERSION }}
+      - run: flutter pub get
+      - working-directory: lakuna_server
+        run: dart test
+
+  test-flutter:
+    name: Tes lakuna_flutter (widget)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - working-directory: lakuna_flutter
+        run: flutter test
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: flutter build linux --release
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: flutter build windows --release
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: flutter build macos --release
+
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: flutter build apk --release
+
+  build-ios:
+    name: Build iOS (tanpa tanda tangan)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - working-directory: lakuna_flutter
+        run: flutter build ios --release --no-codesign

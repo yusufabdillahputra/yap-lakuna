@@ -20,12 +20,15 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  test('id perangkat dibuat sekali dan tetap sama setelah dibuka ulang', () async {
-    final first = store.deviceId;
-    await store.close();
-    store = await LakunaStore.open('${dir.path}/lakuna.sqlite');
-    expect(store.deviceId, first);
-  });
+  test(
+    'id perangkat dibuat sekali dan tetap sama setelah dibuka ulang',
+    () async {
+      final first = store.deviceId;
+      await store.close();
+      store = await LakunaStore.open('${dir.path}/lakuna.sqlite');
+      expect(store.deviceId, first);
+    },
+  );
 
   test('semua tabel dibuat STRICT', () async {
     final rows = await store.session.db.unsafeQuery(
@@ -33,11 +36,21 @@ void main() {
       "AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'serverpod_%'",
     );
     final tables = {for (final r in rows) r[0] as String: r[1] as String};
-    expect(tables.keys, containsAll(<String>[
-      'tenants', 'outlets', 'stock_locations', 'devices', 'settings',
-      'staff_members', 'outlet_members', 'sync_outbox', 'sync_state',
-      'local_preferences',
-    ]));
+    expect(
+      tables.keys,
+      containsAll(<String>[
+        'tenants',
+        'outlets',
+        'stock_locations',
+        'devices',
+        'settings',
+        'staff_members',
+        'outlet_members',
+        'sync_outbox',
+        'sync_state',
+        'local_preferences',
+      ]),
+    );
     for (final entry in tables.entries) {
       expect(entry.value.trimRight(), endsWith('STRICT'), reason: entry.key);
     }
@@ -47,7 +60,11 @@ void main() {
     final tenant = await store.write((w) async {
       final s = await w.stamp();
       return w.insert(
-        Tenant(name: 'Toko Maju', hlc: s.hlc.toString(), originDeviceId: s.deviceId),
+        Tenant(
+          name: 'Toko Maju',
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
         s,
       );
     });
@@ -115,7 +132,10 @@ void main() {
   test('HLC terakhir disimpan dan tetap naik walau jam mundur', () async {
     var now = DateTime.utc(2026, 11, 3, 5);
     await store.close();
-    store = await LakunaStore.open('${dir.path}/lakuna.sqlite', clock: () => now);
+    store = await LakunaStore.open(
+      '${dir.path}/lakuna.sqlite',
+      clock: () => now,
+    );
     final a = await store.write((w) async => (await w.stamp()).hlc);
     now = now.subtract(const Duration(minutes: 1));
     final b = await store.write((w) async => (await w.stamp()).hlc);

@@ -18,7 +18,9 @@ extension type const Qty(int milli) {
   /// Konversi dari satuan jual ke satuan dasar. [factorMilli] adalah isi satu
   /// satuan dalam satuan dasar (1 dus = 24 pcs -> 24000).
   Qty toBaseUnit(int factorMilli) => Qty(
-        divRoundHalfAway(
-            BigInt.from(milli) * BigInt.from(factorMilli), BigInt.from(1000)),
-      );
+    divRoundHalfAway(
+      BigInt.from(milli) * BigInt.from(factorMilli),
+      BigInt.from(1000),
+    ),
+  );
 }

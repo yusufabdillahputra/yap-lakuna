@@ -49,28 +49,28 @@ enum DefaultRole {
   final String key;
 
   Set<Permission> get permissions => switch (this) {
-        owner => Permission.values.toSet(),
-        manager => Permission.values.toSet()
-          ..removeAll(const {
-            Permission.usersManage,
-            Permission.backupManage,
-            Permission.syncManage,
-          }),
-        cashier => const {
-            Permission.salesCreate,
-            Permission.salesReturn,
-            Permission.paymentsConfirm,
-            Permission.openBillsManage,
-            Permission.cashSessionOpen,
-            Permission.cashSessionClose,
-            Permission.cashMovementsCreate,
-            Permission.debtsManage,
-          },
-        waiter => const {Permission.openBillsManage},
-        stockKeeper => const {
-            Permission.purchasesManage,
-            Permission.stockAdjust,
-            Permission.suppliersManage,
-          },
-      };
+    owner => Permission.values.toSet(),
+    manager =>
+      Permission.values.toSet()..removeAll(const {
+        Permission.usersManage,
+        Permission.backupManage,
+        Permission.syncManage,
+      }),
+    cashier => const {
+      Permission.salesCreate,
+      Permission.salesReturn,
+      Permission.paymentsConfirm,
+      Permission.openBillsManage,
+      Permission.cashSessionOpen,
+      Permission.cashSessionClose,
+      Permission.cashMovementsCreate,
+      Permission.debtsManage,
+    },
+    waiter => const {Permission.openBillsManage},
+    stockKeeper => const {
+      Permission.purchasesManage,
+      Permission.stockAdjust,
+      Permission.suppliersManage,
+    },
+  };
 }

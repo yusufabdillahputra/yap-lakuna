@@ -32,9 +32,9 @@ class SyncTx {
     required this.session,
     required this.transaction,
     required this.deviceId,
-    required DateTime Function() clock,
+    required this._clock,
     this.actor,
-  }) : _clock = clock;
+  });
 
   final DatabaseSession session;
   final Transaction transaction;
@@ -45,7 +45,8 @@ class SyncTx {
   /// Membuat stempel baru: HLC berikutnya dan waktu sekarang (UTC).
   Future<SyncStamp> stamp() async {
     final now = _clock().toUtc();
-    final last = Hlc.tryParse(
+    final last =
+        Hlc.tryParse(
           await readSyncState(
                 session,
                 SyncStateKey.lastHlc,
@@ -54,8 +55,11 @@ class SyncTx {
               '',
         ) ??
         Hlc(0, 0, deviceId.uuid);
-    final next = Hlc(last.millis, last.counter, deviceId.uuid)
-        .tick(now.millisecondsSinceEpoch);
+    final next = Hlc(
+      last.millis,
+      last.counter,
+      deviceId.uuid,
+    ).tick(now.millisecondsSinceEpoch);
     await writeSyncState(
       session,
       SyncStateKey.lastHlc,
@@ -66,7 +70,10 @@ class SyncTx {
   }
 
   /// Menyisipkan [row] lalu mencatatnya di outbox dengan HLC dari [stamp].
-  Future<T> insert<T extends TableRow<UuidValue?>>(T row, SyncStamp stamp) async {
+  Future<T> insert<T extends TableRow<UuidValue?>>(
+    T row,
+    SyncStamp stamp,
+  ) async {
     final saved = await session.db.insertRow<T>(row, transaction: transaction);
     await _record(saved, stamp, SyncOp.upsert);
     return saved;
@@ -74,7 +81,10 @@ class SyncTx {
 
   /// Memperbarui [row] lalu mencatatnya di outbox. Pemanggil mengisi kolom
   /// sync (`version`, `updated_at`, `hlc`, ...) dari [stamp].
-  Future<T> update<T extends TableRow<UuidValue?>>(T row, SyncStamp stamp) async {
+  Future<T> update<T extends TableRow<UuidValue?>>(
+    T row,
+    SyncStamp stamp,
+  ) async {
     final saved = await session.db.updateRow<T>(row, transaction: transaction);
     await _record(saved, stamp, SyncOp.upsert);
     return saved;
