@@ -7,6 +7,120 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-03
+
+Riwayat transaksi, void & retur (F1-11, layar 1.14). Pemilik dan kasir bisa
+mencari nota, meretur sebagian atau seluruh barang, membatalkan nota hari
+ini dengan persetujuan PIN manajer, mencetak ulang struk, dan mengekspor
+daftar ke Excel.
+
+### Ditambahkan
+
+- Menu **Riwayat** (`/riwayat`) aktif untuk staf dengan izin
+  `sales:create` atau `reports:view`.
+- Ringkasan "Hari ini · N transaksi · Rp X" (nilai bersih setelah retur) dan
+  filter **Hari ini / Kemarin / 7 hari**, **Kasir**, **Metode**, dan
+  **Status** (Semua, Selesai, Retur, Void).
+- Daftar nota berupa tabel (Nota, Jam, Kasir, Metode, Total, Status) atau
+  kartu di layar sempit. Rentang *Kemarin* dan *7 hari* menampilkan tanggal
+  di bawah jam. Status: *Selesai*, *Retur sebagian*, *Diretur*, *Void*.
+- **Panel rincian** di lebar ≥ 900 px; di tablet potret dan ponsel rincian
+  dibuka sebagai halaman `/riwayat/:id` dan daftar dimuat ulang saat
+  kembali. Rincian memuat total awal, sudah diretur, nilai bersih, item
+  dengan sisa yang bisa diretur, dan daftar retur sebelumnya.
+- **Retur** sebagian atau penuh: jumlah per item (tombol −/+ atau *Retur
+  semua*), alasan *Barang rusak / Salah ambil / Kedaluwarsa / Lainnya*
+  (catatan wajib untuk *Lainnya*), uang kembali **Tunai** (dari laci sesi
+  aktif) atau **Transfer**, dan *Kembalikan barang ke stok* (bawaan aktif
+  untuk *Salah ambil* dan *Lainnya*). Tombol *Proses retur · Rp X*. Nomor
+  retur memuat outlet dan perangkat, mis. `RT-PST-K01-261103-0001`.
+- Nilai retur proporsional terhadap total nota, jadi diskon tier, service,
+  dan PB1 ikut dikembalikan sesuai porsi item. Retur terakhir sebuah item
+  mengambil sisa nilai agar total retur tidak melebihi nilai nota.
+- **Void** nota hari ini dari sesi kasir yang masih terbuka, dengan alasan
+  wajib (maks. 120 karakter). Stok dikembalikan lewat entri baru; nota
+  tetap tersimpan dengan status *Void*, penyetuju, waktu, dan alasan.
+- Dialog **Persetujuan manajer**: bila staf aktif tidak punya izin
+  `sales:void`, pilih staf lain yang berizin dan masukkan PIN-nya. Dipakai
+  di Riwayat dan di tombol *Batalkan bill* layar Meja (pelayan kini bisa
+  membatalkan bill dengan PIN manajer).
+- **Cetak ulang struk** dengan baris "CETAK ULANG", baris "VOID" untuk nota
+  void, serta nilai retur dan nilai bersih untuk nota yang diretur. Bisa
+  dicetak atau disimpan/dibagikan sebagai PDF.
+- **Ekspor Excel** (`.xlsx`) sesuai filter: nomor, tanggal, jam, kasir,
+  metode, total, retur, bersih, status. Desktop menyimpan ke folder dokumen
+  Lakuna dan menampilkan lokasinya; Android/iOS membuka lembar bagikan.
+- Rekap sesi kasir: baris **Retur tunai**, dan petak *Void/retur* kini
+  menghitung nota void dan retur di sesi itu.
+- Kartu stok menampilkan retur sebagai "Retur penjualan RT-… (staf)" dan
+  pembalikan void dengan catatan "Nota di-void".
+- Model data: tabel `sale_returns`, `sale_return_items`; enum
+  `SaleReturnReason`, `RefundMethod`; `SaleStatus` bertambah
+  `partiallyReturned` dan `returned` (migrasi `riwayat`).
+
+### Diubah
+
+- Teks Beranda menyebut kasir F&B dan riwayat transaksi sudah bisa dipakai.
+- Menu bisa mensyaratkan salah satu dari beberapa izin (`MenuEntry.orPermission`).
+- Batalkan bill di layar Meja mencatat penyetuju sebagai `voided_by`.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (uji manual dan review kode),
+bukan bug di versi sebelumnya.
+
+- Open bill yang dibatalkan (nomor `OB-…`) sempat muncul di riwayat sebagai
+  nota void. Bill yang tidak pernah dibayar kini disembunyikan dari daftar
+  dan rincian.
+- Petak *Void/retur* di rekap sesi selalu 0.
+- Retur yang mengembalikan stok sempat memakai HPP terkini, bukan HPP baris
+  nota saat dijual.
+- Alasan void dihitung per unit UTF-16, sehingga emoji memakan dua
+  karakter; kini dihitung per karakter.
+- Pembagian nilai retur tidak menangani nota yang semua barisnya bernilai
+  nol (mis. barang gratis dengan service); kini dibagi rata.
+- Kolom catatan retur masih berisi teks lama setelah retur berhasil.
+- Dialog persetujuan tidak mengosongkan PIN yang salah.
+- Label status "Retur sebagian" terpotong dua baris di tabel 1280 px, dan
+  warna baris terpilih menutupi lencana status.
+- Lokasi berkas Excel dan PDF struk memakai satu variabel, sehingga pesan
+  "tersimpan" bisa menunjuk berkas yang salah. Tombol ekspor kini juga
+  nonaktif selama daftar dimuat.
+- Kesalahan *penyetuju tidak berizin* di layar Meja tampil sebagai pesan
+  umum.
+
+### Keamanan
+
+- Retur butuh `sales:return`, void butuh `sales:void`; dicek di layar,
+  repositori aplikasi, dan lapisan data (`requireApprover`).
+- Persetujuan manajer memakai kunci PIN yang sama dengan login (5 kali
+  salah → terkunci 1 menit) dan antrean per staf, dan tidak mengganti sesi
+  yang sedang berjalan.
+- PIN yang benar mencatat persetujuan **sekali pakai** selama 2 menit.
+  Repositori menolak `approverId` tanpa persetujuan itu, jadi id staf saja
+  tidak cukup untuk void. Persetujuan dihapus setelah dipakai, saat ganti
+  kasir, dan saat kedaluwarsa; void yang gagal validasi tidak
+  menghabiskannya.
+- Retur tunai butuh sesi kasir terbuka; jumlah retur dibatasi sisa per item
+  dalam transaksi yang sama dengan penulisan.
+
+### Catatan teknis
+
+- Aturan domain di `lakuna_domain/sale_return.dart` (`ReturnLimits`,
+  `lineShares`, `returnAmount`, `returnState`, `validateReturnNote`,
+  `restockByDefault`); data di `lakuna_data/history.dart`
+  (`listSalesHistory`, `loadSaleDetail`, `returnSale`, `voidSale`,
+  `requireApprover`), semua tulis lewat `LakunaStore.write` + outbox.
+- `SessionRepository.verifyApprover` berbagi `_checkPin` dengan login;
+  persetujuan disimpan di memori (`hasApproval` / `consumeApproval`).
+- XLSX ditulis sendiri di atas `archive` (`buildXlsx`, sel angka asli,
+  lebar kolom), karena paket `excel` bentrok dengan `xml` 7 dari `pdf`.
+  Berkas diperiksa dengan openpyxl.
+- Dependensi baru: `archive`, `share_plus`.
+- Gap tercatat di spec F1-11: retur ke piutang (F1-13), status sesi tidak
+  diperbarui saat layar riwayat terbuka, belum ada peringatan retur tunai
+  melebihi uang laci, konflik retur/void antarperangkat (Fase 2).
+
 ## [0.14.0] - 2026-11-03
 
 Denah meja F&B (F1-10 bagian keempat, layar 1.7b–1.7d). Pemilik mengunggah
@@ -1383,7 +1497,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.11.0...v0.12.0

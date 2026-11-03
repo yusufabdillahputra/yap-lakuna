@@ -14,6 +14,7 @@ void main() {
     final t = DateTime.utc(2026, 11, 2, 18, 5);
     expect(formatDayClock(t, 'Asia/Jakarta'), '03/11 01.05');
     expect(formatDayClock(t, 'Asia/Makassar'), '03/11 02.05');
+    expect(formatDayMonth(t, 'Asia/Jakarta'), '03/11');
   });
 
   test('RupiahInputFormatter mengelompokkan ribuan', () {

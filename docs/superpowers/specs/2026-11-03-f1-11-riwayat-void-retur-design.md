@@ -1,7 +1,7 @@
 # F1-11 · Riwayat transaksi, void & retur
 
 - **Fase:** 1
-- **Status:** Dirancang (v0.15.0)
+- **Status:** Rilis v0.15.0
 - **Layar desain:** 1.14 *Riwayat transaksi, void & retur* (desktop, tablet,
   ponsel, gelap) di kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525).
@@ -52,8 +52,11 @@ Tidak termasuk:
   stok & pembayaran lewat entri baru, data lama tidak dihapus."
 
 **Tata letak**
-- Desktop: daftar di kiri, rincian di kanan.
-- Tablet dan ponsel: rincian dibuka sebagai halaman (`/riwayat/:id`).
+- Lebar konten ≥ 900 px: daftar di kiri, panel rincian 380 px di kanan.
+- Lebih sempit (tablet potret, ponsel): rincian dibuka sebagai halaman
+  (`/riwayat/:id`), lalu daftar dimuat ulang saat kembali.
+- Daftar berupa kartu bila lebar daftar < 520 px.
+- Rentang *Kemarin* dan *7 hari* menampilkan tanggal di bawah jam.
 
 ## Keputusan (brainstorming 3 Nov 2026, mengikuti Storeku v0.14.0)
 
@@ -119,10 +122,16 @@ Tidak termasuk:
    - PIN diperiksa dengan aturan kunci yang sama dengan login (5 salah →
      terkunci 1 menit).
    - Dialog yang sama dipakai tombol *Batalkan bill* di layar Meja.
+   - PIN yang benar mencatat persetujuan sekali pakai selama 2 menit di
+     `SessionRepository`. Repositori menolak `approverId` tanpa persetujuan
+     itu, jadi id staf saja tidak cukup. Persetujuan habis setelah void
+     berhasil, saat ganti kasir, atau saat kedaluwarsa; void yang gagal
+     validasi tidak menghabiskannya.
 10. **Cetak ulang** memakai struk yang sama dengan baris "CETAK ULANG".
     Nota void diberi baris "VOID", dan nota yang diretur mencantumkan nilai
     retur dan nilai bersih.
-11. **Ekspor Excel** memakai paket `excel` (Dart murni).
+11. **Ekspor Excel** memakai penulis XLSX sendiri di atas paket `archive`
+    (paket `excel` bentrok dengan `xml` 7 yang dipakai `pdf`).
     - Isinya mengikuti filter aktif, satu baris per nota: nomor, tanggal,
       jam, kasir, metode, total, retur, bersih, status.
     - Di desktop, berkas disimpan ke folder dokumen Lakuna yang sama dengan
@@ -187,7 +196,12 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `riwayat`.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Riwayat, retur, void, cetak ulang, ekspor | 1.14 | Belum | v0.15.0. |
+| Riwayat, retur, void, cetak ulang, ekspor | 1.14 | Rilis v0.15.0 | — |
+| Open bill yang dibatalkan | — | Tidak tampil di riwayat (nomor OB- tanpa nota) | Lihat di layar Meja bila perlu laporan pembatalan bill. |
+| Rekap sesi *Void/retur* | Jumlah | Jumlah nota void + retur di sesi | — |
+| Sesi kasir dibuka/ditutup saat riwayat terbuka | — | `hasOpenSession` baru diperbarui saat layar dimuat ulang | Muat ulang saat sesi berubah. |
+| Retur tunai melebihi uang di laci | — | Tidak diperingatkan | Peringatan di F1-04 berikutnya. |
+| Retur/void dari dua perangkat | — | Data per perangkat | Konflik ditangani sinkronisasi Fase 2. |
 | Retur ke piutang | "Potong piutang" | Enum siap, opsi disembunyikan | Aktifkan di F1-13. |
 | Status *Menunggu konfirmasi* / *Belum lunas* | Ada di daftar | Belum muncul | Ikut kredit F1-13. |
 

@@ -436,7 +436,11 @@ class SaleStatusBadge extends StatelessWidget {
         SaleStatus.partiallyReturned || SaleStatus.returned => .outline,
         _ => .secondary,
       },
-      child: Text(saleStatusLabel(l10n, status)),
+      child: Text(
+        saleStatusLabel(l10n, status),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }
@@ -453,13 +457,12 @@ class _SaleTable extends StatelessWidget {
   final List<HistoryRow> rows;
   final String? timezone;
 
-  /// Rentang lebih dari hari ini: kolom waktu memuat tanggal.
+  /// Rentang lebih dari hari ini: tanggal di bawah jam.
   final bool withDate;
   final UuidValue? selectedId;
   final void Function(UuidValue id) onOpen;
 
-  static const _cols = [32, 9, 14, 15, 15, 19];
-  static const _colsWithDate = [30, 13, 13, 14, 14, 19];
+  static const _cols = [32, 9, 13, 13, 15, 22];
 
   @override
   Widget build(BuildContext context) {
@@ -470,8 +473,7 @@ class _SaleTable extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
     final body = theme.typography.body.sm.copyWith(fontFeatures: _tabular);
-    final cols = withDate ? _colsWithDate : _cols;
-    Widget cell(int i, Widget child) => Expanded(flex: cols[i], child: child);
+    Widget cell(int i, Widget child) => Expanded(flex: _cols[i], child: child);
     final selectedColor = theme.colors.primary.withValues(alpha: 0.08);
     final labels = [
       l10n.historyColNumber,
@@ -544,12 +546,19 @@ class _SaleTable extends StatelessWidget {
                       ),
                       cell(
                         1,
-                        Text(
-                          withDate
-                              ? formatDayClock(r.sale.soldAt, timezone)
-                              : formatClock(r.sale.soldAt, timezone),
-                          maxLines: 1,
-                          style: body,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              formatClock(r.sale.soldAt, timezone),
+                              style: body,
+                            ),
+                            if (withDate)
+                              Text(
+                                formatDayMonth(r.sale.soldAt, timezone),
+                                style: _muted(context),
+                              ),
+                          ],
                         ),
                       ),
                       cell(

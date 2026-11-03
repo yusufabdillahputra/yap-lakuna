@@ -18,10 +18,14 @@ String formatClock(DateTime time, String? timezone) {
 
 /// Tanggal dan jam `dd/MM HH.mm` di zona waktu cabang, untuk daftar yang
 /// mencakup lebih dari satu hari.
-String formatDayClock(DateTime time, String? timezone) {
+String formatDayClock(DateTime time, String? timezone) =>
+    '${formatDayMonth(time, timezone)} ${formatClock(time, timezone)}';
+
+/// Tanggal `dd/MM` di zona waktu cabang.
+String formatDayMonth(DateTime time, String? timezone) {
   final local = outletLocalTime(time, timezone);
   String two(int n) => n.toString().padLeft(2, '0');
-  return '${two(local.day)}/${two(local.month)} ${formatClock(time, timezone)}';
+  return '${two(local.day)}/${two(local.month)}';
 }
 
 /// Field nominal rupiah: hanya angka, dikelompokkan dengan titik saat
