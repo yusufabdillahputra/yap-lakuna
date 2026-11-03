@@ -9,7 +9,7 @@ import '../products/product_widgets.dart' show ChoicePill;
 import 'cashier_view_model.dart';
 import 'payment_view.dart'
     show PaymentPanel, paymentMethodLabel, tabularFigures;
-import 'qris_panel.dart';
+import 'qris_panel.dart' show qrisAmber, qrisAmberInk, showQrisPartDialog;
 
 /// Split payment (panel kanan 1.5): bagian-bagian pembayaran, form tambah
 /// metode, sisa, dan kembalian. Bagian QRIS menunggu *Sudah Terbayar*.
@@ -97,11 +97,10 @@ class _SplitPanelState extends State<SplitPanel> {
 
     Widget badge(SplitPart p) {
       final pending = p.isPending;
+      // Warna status tetap agar terbaca di tema terang dan gelap.
       return DecoratedBox(
         decoration: BoxDecoration(
-          color: pending
-              ? const Color(0xFFFEF3C6)
-              : theme.colors.primary.withValues(alpha: 0.12),
+          color: pending ? qrisAmber : const Color(0xFFDCFCE7),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Padding(
@@ -110,7 +109,7 @@ class _SplitPanelState extends State<SplitPanel> {
             pending ? l10n.splitPending : l10n.splitReceived,
             style: theme.typography.body.xs.copyWith(
               fontWeight: FontWeight.w700,
-              color: pending ? const Color(0xFF973C00) : theme.colors.primary,
+              color: pending ? qrisAmberInk : const Color(0xFF016630),
             ),
           ),
         ),
@@ -281,11 +280,21 @@ class _SplitPanelState extends State<SplitPanel> {
           if (settlement.change > Money.zero)
             total(l10n.paymentChange, settlement.change, 'split-change'),
           if (vm.hasPendingQris)
-            Text(
-              l10n.splitPendingNote,
-              key: const ValueKey('split-pending-note'),
-              style: theme.typography.body.xs.copyWith(
-                color: const Color(0xFF973C00),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: qrisAmber,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  l10n.splitPendingNote,
+                  key: const ValueKey('split-pending-note'),
+                  style: theme.typography.body.xs.copyWith(
+                    color: qrisAmberInk,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
         ],

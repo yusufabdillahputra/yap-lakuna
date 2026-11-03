@@ -11,8 +11,11 @@ import '../core/format.dart';
 import 'cashier_view_model.dart';
 import 'payment_view.dart' show PaymentPanel, tabularFigures;
 
-const _amber = Color(0xFFFEF3C6);
-const _amberInk = Color(0xFF973C00);
+/// Warna status tetap (sama di tema terang dan gelap) agar terbaca.
+const qrisAmber = Color(0xFFFEF3C6);
+
+/// Teks di atas [qrisAmber].
+const qrisAmberInk = Color(0xFF973C00);
 
 /// Gambar stiker QRIS utuh dengan rasio asli (tidak dipotong).
 class QrisSticker extends StatelessWidget {
@@ -123,7 +126,7 @@ class _PendingBadge extends StatelessWidget {
       alignment: AlignmentDirectional.centerStart,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: _amber,
+          color: qrisAmber,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Padding(
@@ -132,13 +135,13 @@ class _PendingBadge extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: 6,
             children: [
-              const Icon(TablerIcons.clock, size: 14, color: _amberInk),
+              const Icon(TablerIcons.clock, size: 14, color: qrisAmberInk),
               Flexible(
                 child: Text(
                   AppLocalizations.of(context).qrisPending,
                   overflow: TextOverflow.ellipsis,
                   style: theme.typography.body.xs.copyWith(
-                    color: _amberInk,
+                    color: qrisAmberInk,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -183,7 +186,7 @@ class _ScreenshotWarning extends StatelessWidget {
     final theme = context.theme;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _amber,
+        color: qrisAmber,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
@@ -192,11 +195,15 @@ class _ScreenshotWarning extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 10,
           children: [
-            const Icon(TablerIcons.alertTriangle, size: 18, color: _amberInk),
+            const Icon(
+              TablerIcons.alertTriangle,
+              size: 18,
+              color: qrisAmberInk,
+            ),
             Expanded(
               child: Text(
                 AppLocalizations.of(context).qrisWarning,
-                style: theme.typography.body.sm.copyWith(color: _amberInk),
+                style: theme.typography.body.sm.copyWith(color: qrisAmberInk),
               ),
             ),
           ],
@@ -222,7 +229,7 @@ class QrisPanel extends StatelessWidget {
     final total = viewModel.totals.total;
     void open() => showQrisFullscreen(context, qris.image);
 
-    final amount = Column(
+    Widget amount({required bool withMerchant}) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 4,
       children: [
@@ -239,7 +246,7 @@ class QrisPanel extends StatelessWidget {
             theme.typography.display.xl3.copyWith(fontWeight: FontWeight.w800),
           ),
         ),
-        ..._merchantLines(context, qris),
+        if (withMerchant) ..._merchantLines(context, qris),
       ],
     );
     final steps = Column(
@@ -297,7 +304,8 @@ class QrisPanel extends StatelessWidget {
           spacing: 14,
           children: [
             const _PendingBadge(),
-            amount,
+            // Ponsel (1.6m): stiker langsung di bawah nominal.
+            amount(withMerchant: false),
             QrisSticker(
               image: qris.image,
               maxHeight: 460,
@@ -311,6 +319,7 @@ class QrisPanel extends StatelessWidget {
                 color: theme.colors.mutedForeground,
               ),
             ),
+            ..._merchantLines(context, qris),
             const _ScreenshotWarning(),
           ],
         ),
@@ -343,7 +352,7 @@ class QrisPanel extends StatelessWidget {
               spacing: 14,
               children: [
                 const _PendingBadge(),
-                amount,
+                amount(withMerchant: true),
                 steps,
                 const _ScreenshotWarning(),
               ],
@@ -436,6 +445,7 @@ Future<bool?> showQrisPartDialog(
       return ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 380),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
             key: const ValueKey('qris-dialog'),
             crossAxisAlignment: CrossAxisAlignment.stretch,

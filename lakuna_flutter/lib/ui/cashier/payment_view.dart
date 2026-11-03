@@ -304,6 +304,7 @@ class _MethodChoice extends StatelessWidget {
             padding: EdgeInsets.all(compact ? 10 : 12),
             child: compact
                 ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 4,
                     children: [
                       Icon(icon, size: 20, color: theme.colors.primary),
@@ -355,18 +356,27 @@ class _MethodChoice extends StatelessWidget {
     }
 
     if (compact) {
-      // Tiga kartu per baris agar label tetap terbaca di ponsel.
-      return LayoutBuilder(
-        builder: (context, c) {
-          final width = (c.maxWidth - 16) / 3;
-          return Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final m in modes) SizedBox(width: width, child: card(m)),
-            ],
-          );
-        },
+      // Tiga kartu per baris agar label tetap terbaca di ponsel; kartu
+      // sebaris sama tinggi walau labelnya satu atau dua baris.
+      return Column(
+        spacing: 8,
+        children: [
+          for (var i = 0; i < modes.length; i += 3)
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
+                children: [
+                  for (var j = i; j < i + 3; j++)
+                    Expanded(
+                      child: j < modes.length
+                          ? card(modes[j])
+                          : const SizedBox.shrink(),
+                    ),
+                ],
+              ),
+            ),
+        ],
       );
     }
     return Column(
@@ -983,9 +993,14 @@ class _ReceiptPreview extends StatelessWidget {
             pair(
               paymentMethodLabel(l10n, payment.method),
               _plain(context, payment.amount),
+              wideLeft: true,
             ),
           if (result.payments.any((p) => p.method == PaymentMethod.cash))
-            pair(l10n.receiptChange, _plain(context, sale.changeAmount)),
+            pair(
+              l10n.receiptChange,
+              _plain(context, sale.changeAmount),
+              wideLeft: true,
+            ),
           rule(),
           Text(l10n.receiptThanks, textAlign: TextAlign.center, style: base),
         ],

@@ -368,7 +368,9 @@ void main() {
       vm.removePart(0);
       expect(vm.splitSettlement.remaining, Money.zero);
       expect(vm.splitSettlement.change, const Money(4000));
+      expect(vm.draftMethod, PaymentMethod.card); // tunai masih ada
       vm.removePart(0);
+      expect(vm.draftMethod, PaymentMethod.cash);
       expect(vm.parts, isEmpty);
       expect(vm.draftAmount, const Money(6000));
     });

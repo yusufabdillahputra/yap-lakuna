@@ -57,7 +57,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 2 | [Login PIN & ganti kasir](2026-11-03-f1-02-login-pin-design.md) | 1.2 | Rilis v0.3.0 (persetujuan PIN manajer menyusul bersama void/diskon) |
 | 3 | [Sesi kasir](2026-11-03-f1-03-sesi-kasir-design.md) | 1.3, 1.3b | Rilis v0.4.0, angka penjualan v0.6.0 (shift dan cetak rekap menyusul) |
 | 4 | [Kasir retail](2026-11-03-f1-04-kasir-retail-design.md) | 1.4, 1.11 | Rilis v0.6.0 (pelanggan, diskon, nota tersimpan 1.4b menyusul) |
-| 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer (QRIS statis, split, kredit menyusul) |
+| 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer; v0.7.0: QRIS statis, split (kredit menyusul bersama F1-13) |
 | 6 | Struk & printer | 1.12 | Belum |
 | 7 | [Produk, varian, satuan, grosir](2026-11-03-f1-07-produk-design.md) | 1.15, 1.16 | Rilis v0.5.0, inti katalog dibangun sebelum kasir (foto, import, label barcode, arsip menyusul) |
 | 8 | Stok: penyesuaian, kartu stok, stok minimum | 1.18 | Belum |
@@ -70,7 +70,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 15 | Pengeluaran | 1.22 | Belum |
 | 16 | Laporan & laba rugi | 1.23, 1.24 | Belum |
 | 17 | Pengguna & role (RBAC) | 1.25 | Belum |
-| 18 | Pengaturan toko | 1.26 | Sebagian (v0.1.0: tema & bahasa) |
+| 18 | [Pengaturan toko](2026-11-03-f1-18-pengaturan-design.md) | 1.26, 1.26b | Sebagian (v0.1.0: tema & bahasa; v0.7.0: QRIS statis) |
 | 19 | Data & backup | 1.13 | Belum |
 | 20 | Tata letak mobile & beranda | 1.10, 1.11 | Sebagian (v0.1.0: shell responsif) |
 | 21 | Panduan pengguna (ID + EN, gambar WebP) | 1.27 | Belum |

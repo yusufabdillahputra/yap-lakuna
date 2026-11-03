@@ -532,6 +532,7 @@ class CashierViewModel extends ChangeNotifier {
     if (pay.running) return;
     _parts.removeAt(index);
     _draftAmount = null;
+    if (!_parts.any((p) => p.isCash)) _draftMethod = PaymentMethod.cash;
     notifyListeners();
   }
 
