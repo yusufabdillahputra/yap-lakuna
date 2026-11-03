@@ -1,0 +1,6 @@
+### `pending` untuk QRIS statis yang menunggu konfirmasi kasir (menyusul).
+enum: PaymentStatus
+serialized: byName
+values:
+  - pending
+  - paid

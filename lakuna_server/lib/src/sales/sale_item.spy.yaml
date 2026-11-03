@@ -1,0 +1,38 @@
+### Baris nota. Nama, satuan, dan harga disalin saat jual agar nota lama
+### tidak berubah bila katalog diubah.
+class: SaleItem
+table: sale_items
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  saleId: UuidValue, relation(parent=sales, onDelete=Restrict), column=sale_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  ### Satuan konversi; null = satuan dasar.
+  productUnitId: UuidValue?, relation(parent=product_units, onDelete=Restrict), column=product_unit_id
+  productName: String, column=product_name
+  variantName: String, column=variant_name
+  unitName: String, column=unit_name
+  ### Isi satu satuan baris dalam mili-satuan dasar (1000 = satuan dasar).
+  factorMilli: int, column=factor_milli
+  ### Jumlah dalam satuan baris, mili-satuan.
+  quantityMilli: int, column=quantity_milli
+  ### Harga per satuan baris tanpa grosir dan yang dipakai.
+  listPrice: int, column=list_price
+  unitPrice: int, column=unit_price
+  lineTotal: int, column=line_total
+  ### Biaya rata-rata per satuan dasar saat jual (HPP).
+  unitCost: int, column=unit_cost
+  tracksStock: bool, column=tracks_stock
+  sortOrder: int, column=sort_order
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  sale_items_sale_idx:
+    fields: saleId

@@ -11,10 +11,7 @@ String formatMoney(BuildContext context, Money money) =>
 /// Jam `HH.mm` di zona waktu cabang ([timezone] ID IANA dari
 /// [setupTimezones]); zona tak dikenal memakai waktu lokal perangkat.
 String formatClock(DateTime time, String? timezone) {
-  final zone = setupTimezones.where((z) => z.id == timezone).firstOrNull;
-  final local = zone == null
-      ? time.toLocal()
-      : time.toUtc().add(Duration(hours: zone.utcOffsetHours));
+  final local = outletLocalTime(time, timezone);
   String two(int n) => n.toString().padLeft(2, '0');
   return '${two(local.hour)}.${two(local.minute)}';
 }

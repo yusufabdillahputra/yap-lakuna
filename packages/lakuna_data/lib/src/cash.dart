@@ -5,6 +5,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 
 import 'package:serverpod_database/serverpod_database.dart' show Transaction;
 
+import 'sales.dart';
 import 'store.dart';
 import 'store_setup.dart';
 import 'sync_tx.dart';
@@ -173,8 +174,8 @@ Future<List<CashMovement>> listCashMovements(
   return rows;
 }
 
-/// Komponen kas laci [session]. Penjualan dan retur tunai bernilai 0 sampai
-/// modul penjualan (F1-04/F1-05/F1-11) ada.
+/// Komponen kas laci [session]: saldo awal, penjualan tunai bersih (F1-05),
+/// dan gerakan kas. Retur tunai bernilai 0 sampai F1-11 ada.
 Future<CashDrawer> cashDrawerFor(
   LakunaStore store,
   CashScope scope,
@@ -187,15 +188,23 @@ Future<CashDrawer> cashDrawerFor(
     session.id,
     transaction: transaction,
   );
-  return cashDrawerOf(session, movements);
+  final sales = await sessionSalesSummary(
+    store.session,
+    tenantId: scope.tenantId,
+    sessionId: session.id,
+    transaction: transaction,
+  );
+  return cashDrawerOf(session, movements, cashSales: sales.cash);
 }
 
 /// Rekap [session] dari [movements] yang sudah dimuat.
 CashDrawer cashDrawerOf(
   CashSession session,
-  Iterable<CashMovement> movements,
-) => CashDrawer.fromMovements(
+  Iterable<CashMovement> movements, {
+  Money cashSales = Money.zero,
+}) => CashDrawer.fromMovements(
   openingCash: Money(session.openingCash),
+  cashSales: cashSales,
   movements: [
     for (final m in movements)
       (inflow: m.direction == CashDirection.inflow, amount: Money(m.amount)),
