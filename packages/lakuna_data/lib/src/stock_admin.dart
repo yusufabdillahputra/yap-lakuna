@@ -784,10 +784,35 @@ Future<StockCard> stockCard(
           ))
             r.id: r,
         };
+  final purchaseIds = idsOf(StockSourceType.purchase);
+  final purchases = purchaseIds.isEmpty
+      ? const <UuidValue, Purchase>{}
+      : {
+          for (final p in await Purchase.db.find(
+            session,
+            where: (p) =>
+                p.id.inSet(purchaseIds) & p.tenantId.equals(scope.tenantId),
+          ))
+            p.id: p,
+        };
+  final purchaseReturnIds = idsOf(StockSourceType.purchaseReturn);
+  final purchaseReturns = purchaseReturnIds.isEmpty
+      ? const <UuidValue, PurchaseReturn>{}
+      : {
+          for (final r in await PurchaseReturn.db.find(
+            session,
+            where: (r) =>
+                r.id.inSet(purchaseReturnIds) &
+                r.tenantId.equals(scope.tenantId),
+          ))
+            r.id: r,
+        };
   final staff = await _staffNames(store, {
     for (final s in sales.values) s.staffId,
     for (final a in adjustments.values) a.staffId,
     for (final r in returns.values) r.staffId,
+    for (final p in purchases.values) p.staffId,
+    for (final r in purchaseReturns.values) r.staffId,
   });
 
   final entries = <StockCardEntry>[];
@@ -796,12 +821,24 @@ Future<StockCard> stockCard(
     final sale = sales[m.sourceId];
     final adj = adjustments[m.sourceId];
     final ret = returns[m.sourceId];
+    final buy = purchases[m.sourceId];
+    final buyRet = purchaseReturns[m.sourceId];
     entries.add(
       StockCardEntry(
         occurredAt: m.occurredAt,
         sourceType: m.sourceType,
-        documentNumber: sale?.number ?? adj?.number ?? ret?.number,
-        staffName: staff[sale?.staffId ?? adj?.staffId ?? ret?.staffId],
+        documentNumber:
+            sale?.number ??
+            adj?.number ??
+            ret?.number ??
+            buy?.number ??
+            buyRet?.number,
+        staffName:
+            staff[sale?.staffId ??
+                adj?.staffId ??
+                ret?.staffId ??
+                buy?.staffId ??
+                buyRet?.staffId],
         reason: adj?.reason,
         note: m.note,
         quantity: Qty(m.quantityMilli),
