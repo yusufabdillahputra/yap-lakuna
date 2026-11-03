@@ -132,5 +132,7 @@ untuk setiap layar yang diubah.
    panduan.
 2. **Fase 2 (hosted, Serverpod)**: sinkronisasi semua data ke Postgres +
    aset ke object storage, versi web, dashboard semua cabang, transfer stok.
+   Server di **VPS sendiri** (Hostinger/IDCloudhost, Docker), bukan
+   Serverpod Cloud.
 3. **Fase 3**: fitur ala majoo (kasbon/gaji, QRIS/e-wallet terintegrasi,
    promo, membership, dll.).

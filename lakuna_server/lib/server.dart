@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
-import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
 import 'src/generated/serverpod.dart';
@@ -85,20 +84,11 @@ void run(List<String> args) async {
     );
   }
 
-  // Configure cloud storage.
-  // This setup works with Serverpod Cloud without extra configuration.
-  // If you want to use a custom provider for cloud storage, replace these
-  // with your preferred provider.
-  pod.addCloudStorage(
-    await ServerpodCloudProvider.private(
-      fallback: () => DatabaseCloudStorage('private'),
-    ),
-  );
-  pod.addCloudStorage(
-    await ServerpodCloudProvider.public(
-      fallback: () => DatabaseCloudStorage('public'),
-    ),
-  );
+  // Penyimpanan berkas: sementara di database. Fase 2 (server VPS sendiri)
+  // akan memakai object storage S3-compatible lewat paket
+  // serverpod_cloud_storage_s3_compat. Lakuna tidak memakai Serverpod Cloud.
+  pod.addCloudStorage(DatabaseCloudStorage('private'));
+  pod.addCloudStorage(DatabaseCloudStorage('public'));
 
   // Start the server.
   await pod.start();

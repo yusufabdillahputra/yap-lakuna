@@ -76,7 +76,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 21 | Panduan pengguna (ID + EN, gambar WebP) | 1.27 | Belum |
 | 22 | Rilis ke store & distribusi | - | Sebagian (v0.1.0: installer otomatis) |
 
-### Fase 2 · Hosting & sync (Serverpod)
+### Fase 2 · Hosting & sync (Serverpod di VPS sendiri)
 
 | # | Modul | Status |
 | --- | --- | --- |

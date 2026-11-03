@@ -5,6 +5,14 @@ Semua perubahan penting Lakuna dicatat di sini. Format mengikuti
 mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 `0.x`, setiap rilis ditandai pre-release.
 
+## [Unreleased]
+
+### Dihapus
+
+- Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
+  Serverpod. Lakuna tidak memakai Serverpod Cloud; server Fase 2 berjalan di
+  VPS sendiri. Penyimpanan berkas server sementara memakai database.
+
 ## [0.1.0] - 2026-11-03
 
 Fondasi Lakuna: monorepo Flutter + Serverpod, database lokal dengan outbox
@@ -109,4 +117,5 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/yusufabdillahputra/yap-lakuna/releases/tag/v0.1.0
