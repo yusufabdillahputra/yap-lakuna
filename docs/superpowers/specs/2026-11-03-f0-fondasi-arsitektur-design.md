@@ -1,7 +1,7 @@
 # F0 · Fondasi & arsitektur Lakuna
 
 - **Fase:** 0 (dipakai semua fase)
-- **Status:** Dirilis di v0.1.0
+- **Status:** Dirilis di v0.1.0 (aturan kontras v0.1.1)
 - **Acuan:** spec F0 Storeku
   (`yusufabdillahputra/storeku`, `docs/superpowers/specs/2026-11-02-f0-fondasi-arsitektur-design.md`),
   kanvas [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525) (70 artboard, Forui `conhcc`; spec
@@ -133,6 +133,19 @@ repositori.
   matang (2026-11 masih 0.0.11); sampai saat itu Lakuna memakai outbox
   sendiri.
 
+## Deploy server (Fase 2)
+
+- Keputusan Yusuf (2026-11-03): server Lakuna di **VPS sendiri** (mis.
+  Hostinger atau IDCloudhost), **bukan** Serverpod Cloud. Baru dikerjakan di
+  Fase 2.
+- Rencana: image Docker dari `lakuna_server/Dockerfile` + PostgreSQL di VPS
+  yang sama (atau terkelola), reverse proxy HTTPS, dan object storage
+  S3-compatible lewat `serverpod_cloud_storage_s3_compat`. Detail di spec
+  Fase 2 modul 1 (server sync & aktivasi hosting).
+- Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
+  `serverpod create` sudah dihapus; penyimpanan berkas server sementara
+  memakai `DatabaseCloudStorage`.
+
 ## RBAC
 
 - Model staf → role → izin `resource:action`, keanggotaan per outlet di
@@ -169,7 +182,22 @@ Mengikuti panduan arsitektur resmi Flutter:
   `lakunaLightTheme` / `lakunaDarkTheme` menerima `touch` (varian sentuh
   untuk Android/iOS, varian desktop untuk Windows/Linux/macOS).
 - `MaterialApp.router` dibungkus `FTheme`; tema Material diturunkan lewat
-  `toApproximateMaterialTheme()`.
+  `lakunaMaterialTheme()` (`toApproximateMaterialTheme()` dengan ikon bawaan
+  berwarna `foreground`, bukan `primary`).
+- **Aturan kontras** (dari kanvas desain, berlaku sejak v0.1.1, kode di
+  `theme/contrast.dart`):
+  - Semua teks minimal 4.5:1 di latarnya.
+  - Token warna dasar tetap hasil CLI Forui. Isi tombol primary tetap Sky
+    (`#0069A8` terang, `#00598A` gelap).
+  - Di tema gelap, primary yang dipakai sebagai **teks/ikon** (menu aktif,
+    ikon prefix tile/item) memakai Sky muda `#74D4FF`.
+  - Tombol destructive berisi warna penuh dengan teks `#FAFAFA`: `#E7000B`
+    terang, `#C10007` gelap. Token `destructive` sebagai teks/ikon tetap
+    (`#FF6467` gelap).
+  - Teks sekunder di permukaan berwarna tema terang (tab tidak aktif) memakai
+    `#52525C`.
+  - Widget Forui baru yang memakai `primary` sebagai teks/ikon diberi gaya
+    dari warna aksen yang sama saat pertama dipakai, dengan tes kontras.
 - Mode tema Terang / Gelap / Ikuti sistem. Fase 0 menyimpannya di
   `local_preferences`; setelah login PIN ada, disimpan per staf.
 - Bahasa: `flutter_localizations` + `intl`, berkas ARB `app_id.arb` (bawaan,
@@ -263,10 +291,10 @@ Mengikuti panduan arsitektur resmi Flutter:
 | Logo & ikon aplikasi | Mark Etalase (DiceBear icons `shopWindow`) diwarnai Sky | Ikon bawaan Flutter | Spec Merek Lakuna setelah v0.1.0 |
 | Penyimpanan tema per staf | Per pengguna | Per perangkat (`local_preferences`) | Pindah ke per staf di F1-02 |
 | Layar sesuai kanvas Lakuna | Kanvas Desain UI Lakuna (sidebar `FSidebar`, warna status `LakunaStatusColors`) | Shell, beranda, pengaturan memakai komponen Forui bawaan; `LakunaStatusColors` belum ada | Samakan per modul dengan kanvas; tambah `ThemeExtension` status saat layar pertama membutuhkannya |
-| Kontras tombol destructive gelap | ≥ 4.5:1 | Token CLI `#FF6467` + teks `#FAFAFA` (< 4.5:1) | Cek di perangkat saat tombol destructive pertama dipakai; bila perlu teks `#09090B` |
+| Aturan kontras kanvas | Semua teks ≥ 4.5:1 | v0.1.1: tombol destructive isi penuh, primary sebagai teks/ikon gelap `#74D4FF` (navigasi bawah, tile, item, grup), tab terang `#52525C`, ikon Material bawaan `foreground` (`theme/contrast.dart`, diuji) | Saat pertama dipakai, beri warna aksen ke `FPopoverMenu` mode tile dan `FSelectMenuTile` (masih `#00598A` sebagai ikon di gelap); teks `mutedForeground` di `FItem` terpilih / `FTile` hover tema terang 4.4:1, pakai `#52525C`; warna hover/tekan tombol (destructive dan primary) turun di bawah 4.5:1 sesaat, tetapkan delta sendiri bila perlu |
 | Installer Windows | Bahasa Indonesia, satu cara pasang | Inno Setup berbahasa Inggris; `.exe` dan `.msi` memasang ke folder yang sama dengan ID produk berbeda | Pilih salah satu (dicatat di README); tambahkan `.isl` Indonesia bila perlu |
 | Tanda tangan Android | Satu kunci rilis tetap | `release.yml` memakai secret `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` bila ada; tanpa itu APK/AAB diberi akhiran `-uji` dan catatan rilis memperingatkan | Pemilik membuat keystore dan mengisi secret sebelum data toko sungguhan dipakai |
 | Tanda tangan iOS | Sertifikat Apple | IPA tanpa tanda tangan | Saat akun Apple Developer siap |
-| Versi di aplikasi | Dari `pubspec.yaml` | `--dart-define=LAKUNA_VERSION` (diisi `release.yml`); build tanpa itu menampilkan `0.1.0` | Pakai `package_info_plus` bila build lokal perlu versi akurat |
+| Versi di aplikasi | Dari `pubspec.yaml` | `--dart-define=LAKUNA_VERSION` (diisi `release.yml`); build tanpa itu menampilkan `dev` | Pakai `package_info_plus` bila build lokal perlu versi akurat |
 | Layar gagal mulai | Pesan + lokasi data | Bila database gagal dibuka, aplikasi berhenti tanpa pesan | Tambahkan layar error di modul Data & backup (F1-19) |
 | Menu mobile | Semua modul terjangkau | Navigasi bawah 4 menu, belum ada menu "Lainnya" | Tambahkan sebelum modul nyata pertama selain kasir/produk |

@@ -13,9 +13,6 @@ pubspec_overrides.yaml
 .vscode/mcp.json
 .codex/
 
-# Serverpod Cloud CLI
-.scloud/
-
 # Build
 build/
 coverage/
