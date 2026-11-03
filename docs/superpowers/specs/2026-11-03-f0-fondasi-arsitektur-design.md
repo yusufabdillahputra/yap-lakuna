@@ -133,6 +133,19 @@ repositori.
   matang (2026-11 masih 0.0.11); sampai saat itu Lakuna memakai outbox
   sendiri.
 
+## Deploy server (Fase 2)
+
+- Keputusan Yusuf (2026-11-03): server Lakuna di **VPS sendiri** (mis.
+  Hostinger atau IDCloudhost), **bukan** Serverpod Cloud. Baru dikerjakan di
+  Fase 2.
+- Rencana: image Docker dari `lakuna_server/Dockerfile` + PostgreSQL di VPS
+  yang sama (atau terkelola), reverse proxy HTTPS, dan object storage
+  S3-compatible lewat `serverpod_cloud_storage_s3_compat`. Detail di spec
+  Fase 2 modul 1 (server sync & aktivasi hosting).
+- Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
+  `serverpod create` sudah dihapus; penyimpanan berkas server sementara
+  memakai `DatabaseCloudStorage`.
+
 ## RBAC
 
 - Model staf → role → izin `resource:action`, keanggotaan per outlet di
