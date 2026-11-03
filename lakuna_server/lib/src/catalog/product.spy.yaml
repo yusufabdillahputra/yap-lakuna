@@ -1,0 +1,29 @@
+### Produk (F1-07). Stok, harga grosir, dan isi konversi selalu dalam
+### satuan dasar [baseUnitId].
+class: Product
+table: products
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  categoryId: UuidValue?, relation(parent=categories, onDelete=Restrict), column=category_id
+  baseUnitId: UuidValue, relation(parent=units, onDelete=Restrict), column=base_unit_id
+  name: String
+  type: ProductType
+  ### SKU induk (opsional, tidak wajib unik).
+  sku: String?
+  brand: String?
+  ### Sakelar *Dijual di kasir*.
+  isActive: bool, default=true, column=is_active
+  isTaxable: bool, default=false, column=is_taxable
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  products_tenant_idx:
+    fields: tenantId

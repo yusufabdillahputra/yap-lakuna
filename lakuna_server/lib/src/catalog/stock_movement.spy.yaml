@@ -1,0 +1,29 @@
+### Ledger stok: satu baris per pergerakan, tidak pernah diubah. Jumlah dalam
+### mili-satuan dasar, positif = masuk.
+class: StockMovement
+table: stock_movements
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  stockLocationId: UuidValue, relation(parent=stock_locations, onDelete=Restrict), column=stock_location_id
+  variantId: UuidValue, relation(parent=product_variants, onDelete=Restrict), column=variant_id
+  quantityMilli: int, column=quantity_milli
+  ### Biaya per satuan dasar (rupiah).
+  unitCost: int, column=unit_cost
+  sourceType: StockSourceType, column=source_type
+  sourceId: UuidValue?, column=source_id
+  occurredAt: DateTime, column=occurred_at
+  note: String?
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  stock_movements_variant_idx:
+    fields: stockLocationId, variantId

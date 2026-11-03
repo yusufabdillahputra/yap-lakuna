@@ -1,0 +1,7 @@
+### Jenis produk (F1-07): barang lacak stok, jasa tanpa stok, atau menu F&B.
+enum: ProductType
+serialized: byName
+values:
+  - goods
+  - service
+  - menu

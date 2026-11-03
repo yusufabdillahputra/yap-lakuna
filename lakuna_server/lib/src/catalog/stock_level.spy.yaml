@@ -1,0 +1,15 @@
+### Cache saldo stok per lokasi dan varian, hanya di perangkat. Diperbarui
+### bersama `stock_movements` dan bisa dibangun ulang dari ledger.
+class: StockLevel
+table: stock_levels
+database: client
+fields:
+  stockLocationId: UuidValue, column=stock_location_id
+  variantId: UuidValue, column=variant_id
+  quantityMilli: int, column=quantity_milli
+  ### Rata-rata biaya per satuan dasar; hanya berubah oleh barang masuk.
+  avgCost: int, column=avg_cost
+indexes:
+  stock_levels_location_variant_idx:
+    fields: stockLocationId, variantId
+    unique: true

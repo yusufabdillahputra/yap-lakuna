@@ -1,0 +1,11 @@
+### Asal pergerakan stok di ledger `stock_movements`.
+enum: StockSourceType
+serialized: byName
+values:
+  - opening
+  - adjustment
+  - sale
+  - saleReturn
+  - purchase
+  - purchaseReturn
+  - transfer
