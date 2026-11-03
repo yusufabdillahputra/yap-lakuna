@@ -6,6 +6,7 @@ export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 export 'src/cash.dart';
 export 'src/catalog.dart';
 export 'src/preferences.dart';
+export 'src/sales.dart';
 export 'src/settings_scope.dart';
 export 'src/staff_access.dart';
 export 'src/stock.dart';

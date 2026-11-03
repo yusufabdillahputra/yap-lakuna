@@ -1,0 +1,8 @@
+### Metode bayar (F1-05). Kredit bukan metode bayar: sisa menjadi piutang.
+enum: PaymentMethod
+serialized: byName
+values:
+  - cash
+  - card
+  - transfer
+  - qrisStatic

@@ -109,7 +109,12 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
     CashSession session,
   ) async {
     final movements = await listCashMovements(_store, scope, session.id);
-    final drawer = cashDrawerOf(session, movements);
+    final sales = await sessionSalesSummary(
+      _store.session,
+      tenantId: scope.tenantId,
+      sessionId: session.id,
+    );
+    final drawer = cashDrawerOf(session, movements, cashSales: sales.cash);
     final opener = await StaffMember.db.findFirstRow(
       _store.session,
       where: (s) =>
@@ -120,6 +125,7 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       openedByName: opener?.name ?? '',
       movements: movements,
       drawer: drawer,
+      sales: sales,
     );
   }
 }

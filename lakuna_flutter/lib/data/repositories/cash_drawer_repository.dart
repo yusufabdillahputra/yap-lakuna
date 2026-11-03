@@ -1,4 +1,5 @@
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart' show SessionSalesSummary;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
@@ -13,6 +14,7 @@ class ActiveCashSession {
     required this.openedByName,
     required this.movements,
     required this.drawer,
+    this.sales = const SessionSalesSummary(),
   });
 
   final CashSession session;
@@ -24,6 +26,9 @@ class ActiveCashSession {
   final List<CashMovement> movements;
 
   final CashDrawer drawer;
+
+  /// Nota lunas di sesi ini (F1-04/F1-05).
+  final SessionSalesSummary sales;
 }
 
 /// Sesi kasir dan kas laci perangkat ini (F1-03). Namanya bukan

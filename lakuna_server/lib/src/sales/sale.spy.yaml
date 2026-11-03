@@ -1,0 +1,39 @@
+### Nota penjualan (F1-04/F1-05). Nomor memuat kode cabang dan perangkat
+### (`PST-K01-261103-0001`) agar unik tanpa koordinasi saat sync.
+class: Sale
+table: sales
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  number: String
+  status: SaleStatus
+  ### Σ harga daftar × jumlah (sebelum grosir), rupiah.
+  subtotal: int
+  tierDiscount: int, column=tier_discount
+  total: int
+  paidAmount: int, column=paid_amount
+  changeAmount: int, column=change_amount
+  ### Jumlah baris item.
+  itemCount: int, column=item_count
+  soldAt: DateTime, column=sold_at
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  sales_number_idx:
+    fields: tenantId, number
+    unique: true
+  sales_session_idx:
+    fields: cashSessionId
+  sales_outlet_sold_idx:
+    fields: outletId, soldAt

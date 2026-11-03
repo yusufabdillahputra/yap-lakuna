@@ -7,6 +7,126 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-03
+
+Kasir retail (F1-04, layar 1.4, 1.11, 1.11b) dan inti pembayaran (F1-05,
+layar 1.5 dan 1.5c): kasir bisa menjual dengan scan atau ketuk produk, harga
+grosir dan satuan konversi dihitung otomatis, lalu dibayar tunai, kartu,
+atau transfer. Penjualan mengurangi stok lewat ledger dan masuk ke rekap
+sesi kasir.
+
+### Ditambahkan
+
+- **Menu *Kasir*** (rute `/kasir`) di kelompok Penjualan dan navigasi bawah
+  ponsel, untuk staf dengan izin `sales:create`.
+- **Wajib sesi kasir terbuka**: tanpa sesi, kasir menampilkan "Buka sesi
+  kasir dulu" dengan tombol ke *Sesi kasir*.
+- **Kasir tablet/desktop (1.4)**:
+  - Baris konteks "Toko · Cabang" dan "Kasir: nama · Sesi dibuka HH.mm".
+  - Kolom cari dengan label *Scanner siap*: mengetik menyaring produk (nama,
+    SKU, barcode). **Enter** dengan barcode/SKU varian atau barcode satuan
+    konversi langsung memasukkan barang dan mengosongkan kolom. Kode yang
+    tidak dikenal memunculkan pesan merah di bawah kolom.
+  - Pilihan kategori (*Semua* + kategori yang punya produk aktif).
+  - Grid produk: kotak inisial, nama, harga ("mulai Rp X" bila harga varian
+    berbeda), stok (merah bila habis atau minus).
+  - Produk dengan beberapa varian atau satuan konversi membuka dialog
+    pilihan, mis. "2 L · botol", "2 L · Dus (6)", "1 L", masing-masing
+    dengan harganya.
+  - Panel **Pesanan**: baris item dengan "jumlah × harga · satuan", catatan
+    "grosir ≥ N", tombol −/+, total baris. Ketuk angka jumlah untuk
+    mengetik jumlah, termasuk pecahan "0,5". Di bawah: Subtotal, **Diskon
+    grosir**, **Total**, *Kosongkan*, dan **Bayar Rp X**.
+- **Kasir ponsel (1.11 / 1.11b)**: daftar produk satu kolom dengan tombol +,
+  bilah bawah "N produk · M item" + total + *Bayar*, dan sheet bawah berisi
+  pesanan lengkap.
+- **Pembayaran (1.5)** sebagai tahap di layar kasir:
+  - Judul "Pembayaran · Total Rp X" dan jumlah item, tombol ← kembali ke
+    pesanan tanpa kehilangan isi keranjang.
+  - Metode *Tunai* (hitung kembalian), *Kartu debit / kredit* (EDC
+    terpisah), dan *Transfer bank*.
+  - Tunai: *Uang diterima* berawalan Rp (bisa diketik atau lewat keypad
+    1–9, 000, 0, ⌫), nominal cepat *Uang pas* lalu pecahan Rp 10.000 /
+    50.000 / 100.000 terdekat, dan kotak **Kembalian** atau "Kurang Rp X".
+    Di ponsel kotak kembalian menempel di atas tombol selesai.
+  - Kartu: *No. approval kartu (opsional)*; transfer: *Referensi transfer
+    (opsional)*; keduanya maksimal 40 karakter dan jumlah dibayar = total.
+  - Galat simpan ditampilkan dengan pesan yang jelas (sesi sudah ditutup,
+    produk tidak tersedia lagi, uang kurang) dan keranjang tetap utuh.
+- **Pembayaran berhasil (1.5c)**: nomor nota di judul, "Tunai Rp X · HH.mm
+  · kasir", **Kembalian** besar, peringatan **Stok jadi minus** per varian,
+  pratinjau struk 58 mm (toko, cabang, no, tanggal, kasir, item, total,
+  bayar, kembali), dan **Transaksi baru** yang memuat ulang stok terbaru.
+- **Nomor nota** `CABANG-PERANGKAT-YYMMDD-NNNN` (mis.
+  `PST-K01-261103-0001`), urut per perangkat per hari menurut zona waktu
+  cabang, jadi tidak bentrok walau beberapa kasir offline.
+- **Sesi kasir**: tutup sesi kini menampilkan jumlah transaksi dan total
+  penjualan; *Seharusnya di laci* memuat penjualan tunai bersih
+  (diterima − kembalian); kartu dan transfer tampil di baris non-tunai.
+- Teks Beranda diperbarui sesuai modul yang sudah bisa dipakai.
+
+### Diubah
+
+- Menu *Kasir* tidak lagi membuka halaman "segera hadir".
+
+### Diperbaiki
+
+Ditemukan saat uji manual dan review kode, diperbaiki sebelum rilis:
+
+- Kolom cari kasir kehilangan fokus saat produk atau tombol keranjang
+  diklik dengan mouse, sehingga scan barcode berikutnya tidak masuk. Di
+  desktop kolom kini tetap fokus, dan fokus kembali setelah dialog pilihan
+  atau ubah jumlah ditutup. Di tablet/ponsel Android/iOS fokus otomatis
+  sengaja tidak dipakai agar keyboard layar tidak menutupi kasir dan keypad.
+- Tombol kembali sistem Android di tahap bayar bisa menutup aplikasi dan
+  menghilangkan keranjang; kini kembali ke pesanan, dan di layar berhasil
+  sama dengan *Transaksi baru*.
+- Setelah bayar lalu ←, kolom cari kosong tetapi grid masih tersaring kata
+  lama; kolom kini menampilkan kata cari yang sedang dipakai.
+- Struk menentukan nama satuan dari isi satuan, sehingga satuan konversi
+  berisi 1 tampil tanpa nama; kini dari ada/tidaknya satuan konversi.
+- Galat izin saat menyimpan penjualan kini punya pesan sendiri, dan galat
+  data toko yang tidak lengkap tidak lagi membuat layar kasir menunggu
+  tanpa akhir.
+- Lainnya:
+  - Dialog pilihan varian gagal tata letak karena baris harga memakai
+    `Expanded` langsung di dalam tombol; isi tombol kini dibungkus agar
+    lebar terbatas.
+  - Teks tombol panjang (mis. "Bayar Rp 282.500") meluap di layar sempit;
+    teks kini terpotong rapi dengan elipsis.
+  - Baris nomor nota di pratinjau struk meluap; kolom kiri/kanan kini
+    berbagi lebar.
+  - "Kurang Rp X" tidak rata kanan di kotak kembalian.
+  - Di ponsel kotak kembalian tersembunyi di bawah keypad; kini selalu
+    terlihat di atas tombol selesai.
+  - Varian tanpa satuan konversi tampil tanpa nama satuan di dialog
+    sehingga sulit dibedakan; satuan dasar kini disebut untuk semua varian
+    bila produk punya satuan konversi.
+
+### Catatan teknis
+
+- Domain (`lakuna_domain`): `priceSaleLine` (harga grosir hanya untuk
+  satuan dasar, satuan konversi memakai harga satuannya atau harga varian ×
+  isi), `SaleTotals`, `receiptPrefix`, `nextReceiptCounter`, `cashChange`,
+  `quickCashAmounts`, `validatePaymentReference`, dan `outletLocalTime`.
+- Model Serverpod baru `sales`, `sale_items`, `payments` (enum
+  `SaleStatus`, `PaymentMethod`, `PaymentStatus` disimpan byName) dengan
+  migrasi `penjualan`; nomor nota unik per tenant.
+- `checkoutSale` (`lakuna_data`) menulis nota, item, pembayaran, dan
+  gerakan stok sumber `sale` (biaya = HPP rata-rata atau harga beli) dalam
+  satu transaksi lewat `LakunaStore.write`, sehingga semuanya tercatat di
+  outbox sinkronisasi. Harga selalu dihitung ulang dari database, bukan
+  dari layar.
+- `CashierViewModel` memegang keranjang dan tahap bayar (`browse`, `pay`,
+  `done`); bayar bukan rute terpisah agar keranjang tidak perlu dioper.
+  Repositori aplikasi bernama `CashierRepository` karena Serverpod sudah
+  membuat `SaleRepository`.
+- Tes baru: 10 tes data penjualan, 4 tes repositori lokal kasir, 17 tes
+  view model, dan 8 alur widget (desktop lebar tablet, desktop, kartu +
+  galat, ponsel, tablet Android tanpa fokus otomatis, kata cari setelah
+  kembali, tombol kembali sistem, tanpa sesi).
+- Pencarian satuan ukur di `checkoutSale` kini juga dibatasi `tenant_id`.
+
 ## [0.5.0] - 2026-11-03
 
 Katalog produk (F1-07, layar 1.15, 1.15m, dan 1.16): pemilik atau manajer
@@ -483,7 +603,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.2.0...v0.3.0

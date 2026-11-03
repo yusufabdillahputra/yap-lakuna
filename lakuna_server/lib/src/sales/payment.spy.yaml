@@ -1,0 +1,29 @@
+### Pembayaran nota (F1-05). Tunai: `amount` = uang diterima,
+### `change_amount` = kembalian. Non-tunai: `amount` = jumlah dibayar.
+class: Payment
+table: payments
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  saleId: UuidValue, relation(parent=sales, onDelete=Restrict), column=sale_id
+  method: PaymentMethod
+  amount: int
+  changeAmount: int, column=change_amount
+  ### No. approval kartu atau referensi transfer.
+  reference: String?
+  status: PaymentStatus
+  confirmedBy: UuidValue?, column=confirmed_by
+  confirmedAt: DateTime?, column=confirmed_at
+  paidAt: DateTime, column=paid_at
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  payments_sale_idx:
+    fields: saleId

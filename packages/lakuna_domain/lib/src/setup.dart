@@ -20,6 +20,17 @@ const setupTimezones = [
   SetupTimezone('Asia/Jayapura', 'WIT', 9),
 ];
 
+/// Jam dinding cabang untuk [time] di zona [timezone] (ID dari
+/// [setupTimezones]); zona tak dikenal memakai waktu lokal perangkat. Hasil
+/// berupa `DateTime` UTC yang angkanya = jam dinding (hanya untuk tampilan
+/// dan tanggal nota).
+DateTime outletLocalTime(DateTime time, String? timezone) {
+  final zone = setupTimezones.where((z) => z.id == timezone).firstOrNull;
+  return zone == null
+      ? time.toLocal()
+      : time.toUtc().add(Duration(hours: zone.utcOffsetHours));
+}
+
 /// Field wizard setup, dikelompokkan per langkah.
 enum SetupField {
   businessName,
