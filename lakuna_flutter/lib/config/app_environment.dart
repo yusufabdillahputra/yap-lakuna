@@ -17,11 +17,12 @@ class AppEnvironment {
   final String version;
 }
 
-/// Versi aplikasi; disamakan dengan `version` di pubspec.yaml lewat CI
-/// (`--dart-define=LAKUNA_VERSION=...`).
+/// Versi aplikasi; disamakan dengan `version` di pubspec.yaml oleh
+/// `release.yml` (`--dart-define=LAKUNA_VERSION=...`). Build lokal tanpa
+/// define menampilkan `dev` agar tidak ada angka versi yang usang.
 const appVersion = String.fromEnvironment(
   'LAKUNA_VERSION',
-  defaultValue: '0.1.0',
+  defaultValue: 'dev',
 );
 
 /// Lokasi berkas database. `LAKUNA_DATA_DIR` menggantinya untuk uji manual.

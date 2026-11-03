@@ -7,11 +7,47 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-03
+
+Keterbacaan mode gelap mengikuti aturan kontras kanvas "Desain UI Lakuna".
+
+### Diubah
+
+- **Tombol destructive** (hapus, batalkan) kini berisi warna penuh dengan
+  teks putih: `#E7000B` di tema terang dan `#C10007` di tema gelap (6,2:1).
+  Sebelumnya tema gelap memakai latar merah transparan dengan teks `#FF6467`.
+- **Menu dan ikon aktif di tema gelap** (navigasi bawah ponsel, ikon di daftar
+  Pengaturan) memakai Sky muda `#74D4FF` (11,9:1). Sebelumnya `#00598A`
+  yang hanya sekitar 2,7:1 di latar gelap sehingga sulit dibaca.
+- **Label tab tidak aktif di tema terang** memakai `#52525C` (7:1 di latar
+  tab), menggantikan `#71717B` (4,4:1).
+- Build lokal tanpa `--dart-define=LAKUNA_VERSION` menampilkan versi `dev`,
+  bukan angka versi lama.
+
+### Diperbaiki
+
+- Ikon di dalam grup daftar (`FTileGroup`) tetap memakai biru gelap walau
+  gaya tile sudah diganti, karena grup membawa gaya tile sendiri. Ditemukan
+  saat uji manual mode gelap di Xvfb; grup tile dan item kini memakai warna
+  yang sama.
+- Ikon Material bawaan (di dialog, sheet, dan rute Material lain) memakai
+  `#00598A` di tema gelap (2,6:1). Ditemukan saat review kode; kini memakai
+  warna teks utama.
+
 ### Dihapus
 
 - Workflow `deploy.yml` dan paket `serverpod_cloud_storage` bawaan template
   Serverpod. Lakuna tidak memakai Serverpod Cloud; server Fase 2 berjalan di
   VPS sendiri. Penyimpanan berkas server sementara memakai database.
+
+### Catatan teknis
+
+- Aturan kontras ada di `lakuna_flutter/lib/ui/core/theme/contrast.dart`;
+  token warna dasar tetap hasil CLI Forui. `theme_contrast_test.dart`
+  merender widget dan memeriksa warna serta rasio kontras (≥ 4,5:1): tombol
+  destructive (kedua tema), isi tombol primary gelap yang tidak berubah,
+  navigasi bawah (kedua tema), tab tidak aktif terang, ikon tile dan grup
+  tile gelap, ikon Material bawaan, dan pasangan token teks utama.
 
 ## [0.1.0] - 2026-11-03
 
@@ -117,5 +153,6 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/yusufabdillahputra/yap-lakuna/releases/tag/v0.1.0
