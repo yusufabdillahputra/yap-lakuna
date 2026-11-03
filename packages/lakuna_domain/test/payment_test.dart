@@ -20,6 +20,30 @@ void main() {
       expect(s.error, TenderError.nonPositive);
     });
 
+    test('total nol: satu bagian nol lunas (barang gratis)', () {
+      final cash = settleTender(Money.zero, const [
+        TenderPart(Money.zero, isCash: true),
+      ]);
+      expect(cash.isSettled, isTrue);
+      expect(cash.change, Money.zero);
+      final card = settleTender(Money.zero, const [TenderPart(Money.zero)]);
+      expect(card.isSettled, isTrue);
+      // Bagian nol tambahan tetap ditolak.
+      expect(
+        settleTender(Money.zero, const [
+          TenderPart(Money.zero, isCash: true),
+          TenderPart(Money.zero),
+        ]).error,
+        TenderError.nonPositive,
+      );
+      expect(
+        settleTender(Money.zero, const [
+          TenderPart(Money(-1), isCash: true),
+        ]).error,
+        TenderError.nonPositive,
+      );
+    });
+
     test('dua bagian tunai → multipleCash', () {
       final s = settleTender(total, const [
         TenderPart(Money(100000), isCash: true),

@@ -209,12 +209,12 @@ Future<CheckoutResult> checkoutSale(
     final total = totals.total;
 
     if (payments.any((p) => p.method == PaymentMethod.qrisStatic)) {
-      final qris = await readQrisSettings(
+      final ready = await qrisStaticReady(
         w.session,
         scope,
         transaction: w.transaction,
       );
-      if (!qris.enabled || qris.mediaId == null) {
+      if (!ready) {
         throw const SalePaymentUnsupported(PaymentMethod.qrisStatic);
       }
       if (payments.any(

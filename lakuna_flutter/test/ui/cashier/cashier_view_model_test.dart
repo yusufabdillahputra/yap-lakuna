@@ -298,6 +298,8 @@ void main() {
       vm.setMode(PayMode.qris);
       expect(vm.canConfirmPayments, isFalse);
       expect(vm.canConfirmQris, isFalse);
+      // Bagian split QRIS tidak bisa dikonfirmasi, jadi tidak ditawarkan.
+      expect(vm.splitMethods, isNot(contains(PaymentMethod.qrisStatic)));
     });
   });
 
@@ -373,6 +375,15 @@ void main() {
       expect(vm.draftMethod, PaymentMethod.cash);
       expect(vm.parts, isEmpty);
       expect(vm.draftAmount, const Money(6000));
+    });
+
+    test('hapus bagian menghapus galat bayar sebelumnya', () async {
+      vm.addPart();
+      repo.nextError = Exception('gagal');
+      await vm.pay.execute();
+      expect(vm.error, isNotNull);
+      vm.removePart(0);
+      expect(vm.error, isNull);
     });
 
     test('masuk lagi ke tahap bayar mengosongkan bagian', () {

@@ -11,7 +11,7 @@ import 'sync_tx.dart';
 
 /// Menyimpan [bytes] (gambar yang sudah diperiksa, [header]) di folder media
 /// [store] dengan nama `<sha256>.<ext>` lalu mencatat barisnya. Berkas yang
-/// sama (hash sama, jenis sama) memakai baris yang sudah ada.
+/// sama (hash, jenis, dan cabang sama) memakai baris yang sudah ada.
 Future<MediaFile> storeMediaFile(
   SyncTx w,
   LakunaStore store,
@@ -28,6 +28,7 @@ Future<MediaFile> storeMediaFile(
     w.session,
     where: (m) =>
         m.tenantId.equals(scope.tenantId) &
+        m.outletId.equals(outletId) &
         m.sha256.equals(hash) &
         m.kind.equals(kind) &
         m.deletedAt.equals(null),

@@ -485,7 +485,8 @@ class CashierViewModel extends ChangeNotifier {
     PaymentMethod.cash,
     PaymentMethod.card,
     PaymentMethod.transfer,
-    if (qris != null) PaymentMethod.qrisStatic,
+    // Bagian QRIS harus dikonfirmasi; tanpa izin tidak ditawarkan.
+    if (qris != null && canConfirmPayments) PaymentMethod.qrisStatic,
   ];
 
   PaymentMethod get draftMethod => _draftMethod;
@@ -532,6 +533,7 @@ class CashierViewModel extends ChangeNotifier {
     if (pay.running) return;
     _parts.removeAt(index);
     _draftAmount = null;
+    _error = null;
     if (!_parts.any((p) => p.isCash)) _draftMethod = PaymentMethod.cash;
     notifyListeners();
   }

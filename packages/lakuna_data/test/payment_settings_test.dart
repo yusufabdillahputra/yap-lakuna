@@ -163,4 +163,56 @@ void main() {
     );
     expect((await loadQrisConfig(store, other)).isUsable, isFalse);
   });
+
+  test('stiker sama di cabang lain mendapat baris media sendiri', () async {
+    final actor = ctx.owner.id;
+    final outlet = await store.write(actor: actor, (w) async {
+      final s = await w.stamp();
+      return w.insert(
+        Outlet(
+          tenantId: ctx.tenant.id,
+          code: 'CB2',
+          name: 'Cabang Dua',
+          timezone: 'Asia/Jakarta',
+          createdBy: actor,
+          updatedBy: actor,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    });
+    final bytes = pngBytes(1080, 1528);
+    final a = await save(
+      const QrisStaticSettings(enabled: true),
+      image: QrisImageUpload(bytes: bytes, fileName: 'a.png'),
+    );
+    final other = CatalogScope(
+      tenantId: scope.tenantId,
+      outletId: outlet.id,
+      deviceId: scope.deviceId,
+    );
+    final b = await saveQrisSettings(
+      store,
+      other,
+      staffId: actor,
+      settings: const QrisStaticSettings(enabled: true),
+      image: QrisImageUpload(bytes: bytes, fileName: 'b.png'),
+    );
+    expect(b.media!.id, isNot(a.media!.id));
+    expect(b.media!.outletId, outlet.id);
+    expect(b.isUsable, isTrue);
+  });
+
+  test('baris pengaturan rusak (bukan objek) ditimpa saat simpan', () async {
+    await save(const QrisStaticSettings(merchantName: 'LAMA'));
+    final row = await Setting.db.findFirstRow(
+      store.session,
+      where: (t) => t.key.equals(qrisStaticSettingKey),
+    );
+    await Setting.db.updateRow(store.session, row!.copyWith(valueJson: '[1]'));
+    expect((await loadQrisConfig(store, scope)).settings.merchantName, '');
+    final saved = await save(const QrisStaticSettings(merchantName: 'BARU'));
+    expect(saved.settings.merchantName, 'BARU');
+  });
 }

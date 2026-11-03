@@ -83,7 +83,8 @@ kredit (piutang).
 - Metode: `cash`, `card`, `transfer`, `qrisStatic` (kredit menyusul).
 - Pelunasan `settleTender(total, parts)`: setiap bagian punya nominal dan
   tanda tunai. Galat berurutan: `empty` (tidak ada bagian), `nonPositive`
-  (ada nominal ≤ 0), `multipleCash` (lebih dari satu bagian tunai),
+  (ada nominal ≤ 0; kecuali total 0 dengan satu bagian 0, yaitu barang
+  gratis), `multipleCash` (lebih dari satu bagian tunai),
   `nonCashOver` (jumlah non-tunai > total, kembalian hanya dari tunai),
   `short` (jumlah < total). Hasil: `paid` (jumlah), `remaining`
   (sisa ≥ 0), `change` (kembalian ≥ 0, hanya dari bagian tunai).

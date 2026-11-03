@@ -146,11 +146,37 @@ Future<QrisStaticSettings> readQrisSettings(
   Transaction? transaction,
 }) async {
   final row = await _row(session, transaction, scope);
-  if (row == null) return const QrisStaticSettings();
-  final json = jsonDecode(row.valueJson);
-  return json is Map<String, Object?>
-      ? QrisStaticSettings.fromJson(json)
-      : const QrisStaticSettings();
+  return row == null ? const QrisStaticSettings() : _decode(row);
+}
+
+/// QRIS statis cabang [scope] siap dipakai di checkout: aktif dan baris
+/// gambarnya masih ada.
+Future<bool> qrisStaticReady(
+  DatabaseSession session,
+  CatalogScope scope, {
+  Transaction? transaction,
+}) async {
+  final settings = await readQrisSettings(
+    session,
+    scope,
+    transaction: transaction,
+  );
+  if (!settings.enabled) return false;
+  final media = await _media(session, transaction, scope, settings.mediaId);
+  return media != null;
+}
+
+/// Isi baris yang rusak (bukan objek JSON) dibaca sebagai bawaan.
+QrisStaticSettings _decode(Setting row) {
+  try {
+    final json = jsonDecode(row.valueJson);
+    return json is Map<String, Object?>
+        ? QrisStaticSettings.fromJson(json)
+        : const QrisStaticSettings();
+  } on FormatException {
+    // JSON atau UUID gambar rusak.
+    return const QrisStaticSettings();
+  }
 }
 
 /// Menyimpan isian QRIS statis cabang [scope]. [image] baru menggantikan
@@ -171,11 +197,7 @@ Future<QrisConfig> saveQrisSettings(
   }
   await store.write(actor: staffId, (w) async {
     final current = await _row(w.session, w.transaction, scope);
-    final previous = current == null
-        ? null
-        : QrisStaticSettings.fromJson(
-            jsonDecode(current.valueJson) as Map<String, Object?>,
-          );
+    final previous = current == null ? null : _decode(current);
     final oldMedia = await _media(
       w.session,
       w.transaction,

@@ -39,7 +39,8 @@ enum TenderError {
   /// Belum ada bagian.
   empty,
 
-  /// Ada nominal nol atau negatif.
+  /// Ada nominal nol atau negatif. Pengecualian: total nol (barang
+  /// gratis) lunas dengan satu bagian nol.
   nonPositive,
 
   /// Lebih dari satu bagian tunai.
@@ -87,9 +88,12 @@ Settlement settleTender(Money total, List<TenderPart> parts) {
   final diff = paid - total;
   final remaining = diff.isNegative ? -diff : Money.zero;
   final change = diff.isNegative ? Money.zero : diff;
+  final freeSale = total == Money.zero && parts.length == 1;
   final error = parts.isEmpty
       ? TenderError.empty
-      : parts.any((p) => p.amount <= Money.zero)
+      : parts.any(
+          (p) => p.amount.isNegative || (p.amount == Money.zero && !freeSale),
+        )
       ? TenderError.nonPositive
       : parts.where((p) => p.isCash).length > 1
       ? TenderError.multipleCash

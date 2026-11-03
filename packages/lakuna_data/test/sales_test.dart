@@ -338,6 +338,37 @@ void main() {
     expect(drawer.expectedCash, const Money(236000));
   });
 
+  test(
+    'barang Rp 0: tunai 0 dan kartu tanpa nominal tetap tersimpan',
+    () async {
+      final gratis = await product(
+        const ProductDraft(
+          name: 'Kantong Gratis',
+          kind: ProductKind.service,
+          baseUnit: 'pcs',
+          variants: [VariantDraft(sellPrice: Money.zero)],
+        ),
+      );
+      await openSession();
+      final line = SaleLineRequest(
+        variantId: v(gratis).id,
+        quantity: Qty.units(1),
+      );
+      final cash = await checkout(
+        [line],
+        payments: const [SalePaymentRequest.cash(Money.zero)],
+      );
+      expect(cash.sale.total, 0);
+      expect(cash.payments.single.amount, 0);
+      final card = await checkout(
+        [line],
+        payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+      );
+      expect(card.payments.single.method, PaymentMethod.card);
+      expect(card.payments.single.amount, 0);
+    },
+  );
+
   group('split dan QRIS statis', () {
     Future<void> enableQris({bool enabled = true}) async {
       await saveQrisSettings(
@@ -351,6 +382,28 @@ void main() {
 
     SaleLineRequest minyakLine() =>
         SaleLineRequest(variantId: v(minyak).id, quantity: Qty.units(2));
+
+    test('QRIS dengan baris media terhapus ditolak', () async {
+      await enableQris();
+      final config = await loadQrisConfig(store, scope);
+      await MediaFile.db.updateRow(
+        store.session,
+        config.media!.copyWith(deletedAt: now),
+      );
+      await openSession();
+      await expectLater(
+        checkout(
+          [minyakLine()],
+          payments: const [
+            SalePaymentRequest(
+              method: PaymentMethod.qrisStatic,
+              confirmed: true,
+            ),
+          ],
+        ),
+        throwsA(isA<SalePaymentUnsupported>()),
+      );
+    });
 
     test('tunai + kartu: dua baris, kembalian di baris tunai', () async {
       final session = await openSession();

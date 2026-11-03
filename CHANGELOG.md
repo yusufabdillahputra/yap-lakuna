@@ -79,6 +79,18 @@ saat bayar dan menekan *Sudah Terbayar* setelah dana masuk.
   agar terbaca di tema gelap (ditemukan saat uji manual).
 - Dialog konfirmasi QRIS di split kini berbingkai padding (isi sempat
   menempel ke tepi dialog saat uji manual).
+- Penjualan bertotal Rp 0 (barang harga 0) kembali bisa diselesaikan
+  dengan tunai 0 atau kartu/transfer; sempat ditolak sebagai "uang kurang"
+  oleh aturan pelunasan baru (ditemukan saat code review).
+- Kasir tanpa izin `payments:confirm` tidak lagi ditawari QRIS sebagai
+  bagian split yang tidak bisa ia konfirmasi.
+- Menghapus bagian split kini juga menghapus pesan galat bayar sebelumnya.
+- Checkout QRIS memeriksa baris gambar stiker masih ada, bukan hanya
+  isiannya.
+- Stiker yang sama diunggah di cabang lain kini mendapat baris media milik
+  cabang itu (sebelumnya memakai baris cabang pertama).
+- Baris pengaturan QRIS yang rusak (bukan objek JSON) tidak lagi membuat
+  simpan gagal tanpa pesan; dibaca sebagai bawaan lalu ditimpa.
 
 ### Keamanan
 
