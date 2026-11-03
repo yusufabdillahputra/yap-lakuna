@@ -6,6 +6,9 @@ abstract final class Routes {
   /// Setup toko pertama (F1-01).
   static const setup = '/setup';
 
+  /// Login PIN dan ganti kasir (F1-02).
+  static const login = '/masuk';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

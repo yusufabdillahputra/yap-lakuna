@@ -1,19 +1,30 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/session_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../login/login_view.dart' show roleLabel;
 import 'breakpoints.dart';
 import 'menu.dart';
 import 'offline_badge.dart';
 
-/// Kerangka aplikasi: bilah atas, sidebar (tablet/desktop) atau navigasi bawah
-/// (mobile), dan isi halaman.
+/// Kerangka aplikasi: bilah atas (dengan staf bertugas dan *Ganti kasir*),
+/// sidebar (tablet/desktop) atau navigasi bawah (mobile), dan isi halaman.
+/// Menu disaring sesuai izin staf yang bertugas.
 class AppShell extends StatelessWidget {
-  const AppShell({super.key, required this.location, required this.child});
+  const AppShell({
+    super.key,
+    required this.location,
+    required this.session,
+    required this.child,
+  });
 
   /// Jalur yang sedang dibuka, untuk menandai menu terpilih.
   final String location;
+  final SessionRepository session;
   final Widget child;
 
   bool _isSelected(MenuEntry e) =>
@@ -22,51 +33,142 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final size = LayoutSize.of(constraints.maxWidth);
-        final header = FHeader(
-          title: Text(l10n.appTitle, overflow: TextOverflow.ellipsis),
-          suffixes: [
-            Center(child: OfflineBadge(compact: size == LayoutSize.mobile)),
-          ],
-        );
-        if (size == LayoutSize.mobile) {
-          final items = mobileMenu;
-          final index = items.indexWhere(_isSelected);
+    return ListenableBuilder(
+      listenable: session,
+      builder: (context, _) => LayoutBuilder(
+        builder: (context, constraints) {
+          final size = LayoutSize.of(constraints.maxWidth);
+          final mobile = size == LayoutSize.mobile;
+          final staff = session.current;
+          final permissions = staff?.permissions ?? const <Permission>{};
+          final header = FHeader(
+            title: Text(l10n.appTitle, overflow: TextOverflow.ellipsis),
+            suffixes: [
+              Center(
+                child: OfflineBadge(compact: size != LayoutSize.desktop),
+              ),
+              if (staff != null)
+                _StaffSwitcher(
+                  staff: staff,
+                  // Tablet sempit: sidebar 200 px menyisakan sedikit ruang.
+                  compact: constraints.maxWidth < 900,
+                  onSwitch: session.logout,
+                ),
+            ],
+          );
+          if (mobile) {
+            final items = mobileMenu(permissions);
+            final index = items.indexWhere(_isSelected);
+            return FScaffold(
+              header: header,
+              footer: FBottomNavigationBar(
+                index: index,
+                onChange: (i) => context.go(items[i].path),
+                children: [
+                  for (final e in items)
+                    FBottomNavigationBarItem(
+                      key: ValueKey('nav-${e.key}'),
+                      icon: Icon(e.icon),
+                      label: Text(e.label(l10n)),
+                    ),
+                ],
+              ),
+              child: child,
+            );
+          }
           return FScaffold(
             header: header,
-            footer: FBottomNavigationBar(
-              index: index,
-              onChange: (i) => context.go(items[i].path),
-              children: [
-                for (final e in items)
-                  FBottomNavigationBarItem(
-                    key: ValueKey('nav-${e.key}'),
-                    icon: Icon(e.icon),
-                    label: Text(e.label(l10n)),
-                  ),
-              ],
+            sidebar: _Sidebar(
+              groups: visibleMenu(permissions),
+              compact: size == LayoutSize.tablet,
+              isSelected: _isSelected,
             ),
             child: child,
           );
-        }
-        return FScaffold(
-          header: header,
-          sidebar: _Sidebar(
-            compact: size == LayoutSize.tablet,
-            isSelected: _isSelected,
+        },
+      ),
+    );
+  }
+}
+
+/// Staf yang bertugas dan tombol *Ganti kasir* (ikon saja di mobile).
+class _StaffSwitcher extends StatelessWidget {
+  const _StaffSwitcher({
+    required this.staff,
+    required this.compact,
+    required this.onSwitch,
+  });
+
+  final StaffProfile staff;
+  final bool compact;
+  final VoidCallback onSwitch;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: FButton.icon(
+          key: const ValueKey('switch-cashier'),
+          semanticsLabel: '${l10n.switchCashier} (${staff.name})',
+          onPress: onSwitch,
+          child: const Icon(TablerIcons.switchHorizontal),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(left: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FAvatar.raw(size: 32, child: Text(staffInitials(staff.name))),
+          const SizedBox(width: 8),
+          Column(
+            key: const ValueKey('active-staff'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                staff.name,
+                style: theme.typography.body.sm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colors.foreground,
+                ),
+              ),
+              Text(
+                roleLabel(l10n, staff.roleKey),
+                style: theme.typography.body.xs.copyWith(
+                  color: theme.colors.mutedForeground,
+                ),
+              ),
+            ],
           ),
-          child: child,
-        );
-      },
+          const SizedBox(width: 12),
+          FButton(
+            key: const ValueKey('switch-cashier'),
+            variant: .outline,
+            size: .sm,
+            mainAxisSize: .min,
+            prefix: const Icon(TablerIcons.switchHorizontal),
+            onPress: onSwitch,
+            child: Text(l10n.switchCashier),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _Sidebar extends StatelessWidget {
-  const _Sidebar({required this.compact, required this.isSelected});
+  const _Sidebar({
+    required this.groups,
+    required this.compact,
+    required this.isSelected,
+  });
 
+  final List<MenuGroup> groups;
   final bool compact;
   final bool Function(MenuEntry) isSelected;
 
@@ -81,7 +183,7 @@ class _Sidebar extends StatelessWidget {
           constraints: BoxConstraints.tightFor(width: compact ? 200 : 256),
         ),
         children: [
-          for (final group in appMenu)
+          for (final group in groups)
             FSidebarGroup(
               label: group.label == null ? null : Text(group.label!(l10n)),
               children: [

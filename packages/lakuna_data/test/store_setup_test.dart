@@ -18,6 +18,7 @@ SetupInput _input({String outletCode = 'pst', String pin = '123456'}) =>
       ownerName: 'Yusuf',
       email: 'Yusuf@Contoh.id',
       password: 'rahasia123',
+      passwordConfirm: 'rahasia123',
       pin: pin,
       pinConfirm: pin,
     );

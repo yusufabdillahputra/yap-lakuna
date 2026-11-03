@@ -10,6 +10,7 @@ SetupInput _valid({
   String ownerName = 'Yusuf',
   String email = 'yusuf@contoh.id',
   String password = 'rahasia123',
+  String? passwordConfirm,
   String pin = '123456',
   String pinConfirm = '123456',
 }) => SetupInput(
@@ -22,6 +23,7 @@ SetupInput _valid({
   ownerName: ownerName,
   email: email,
   password: password,
+  passwordConfirm: passwordConfirm ?? password,
   pin: pin,
   pinConfirm: pinConfirm,
 );
@@ -78,6 +80,16 @@ void main() {
     expect(_valid(password: '1234567').validate(), {
       SetupField.password: SetupError.passwordTooShort,
     });
+  });
+
+  test('ulangi kata sandi harus sama', () {
+    expect(_valid(passwordConfirm: 'rahasia124').validate(), {
+      SetupField.passwordConfirm: SetupError.passwordMismatch,
+    });
+    expect(
+      SetupField.ownerStep,
+      containsAllInOrder([SetupField.password, SetupField.passwordConfirm]),
+    );
   });
 
   test('PIN tepat 6 angka dan konfirmasi sama', () {

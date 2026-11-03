@@ -211,6 +211,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get fieldPassword => 'Kata sandi';
 
   @override
+  String get fieldPasswordConfirm => 'Ulangi kata sandi';
+
+  @override
   String get fieldPin => 'PIN (6 angka)';
 
   @override
@@ -241,6 +244,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get errorPasswordTooShort => 'Minimal 8 karakter';
+
+  @override
+  String get errorPasswordMismatch => 'Kata sandi tidak sama';
 
   @override
   String get errorInvalidPin => 'PIN harus 6 angka';
@@ -291,4 +297,90 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get setupAlreadyDone =>
       'Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan.';
+
+  @override
+  String get loginTitle => 'Siapa yang bertugas?';
+
+  @override
+  String get loginSelectStaff => 'Pilih nama Anda untuk memasukkan PIN.';
+
+  @override
+  String loginEnterPinFor(String name) {
+    return 'Masukkan PIN $name';
+  }
+
+  @override
+  String get loginNoPin => 'Belum punya PIN';
+
+  @override
+  String get loginPinNote =>
+      'PIN diverifikasi di perangkat ini. 5 kali salah → dikunci 1 menit.';
+
+  @override
+  String get loginOwnerLink => 'Masuk dengan email & kata sandi (pemilik)';
+
+  @override
+  String get loginOwnerTitle => 'Masuk sebagai pemilik';
+
+  @override
+  String get loginSubmit => 'Masuk';
+
+  @override
+  String get loginBackToPin => 'Kembali ke PIN';
+
+  @override
+  String get loginBackToStaff => 'Pilih staf lain';
+
+  @override
+  String get loginKeypadCancel => 'Batal';
+
+  @override
+  String get loginKeypadDelete => 'Hapus satu angka';
+
+  @override
+  String loginWrongPin(int count) {
+    return 'PIN salah. Sisa $count percobaan.';
+  }
+
+  @override
+  String loginLocked(int seconds) {
+    return 'Terlalu banyak percobaan. Coba lagi dalam $seconds detik.';
+  }
+
+  @override
+  String get loginWrongCredentials => 'Email atau kata sandi salah.';
+
+  @override
+  String get loginStaffUnavailable =>
+      'Staf ini tidak lagi aktif di cabang ini.';
+
+  @override
+  String get loginFailed => 'Gagal masuk. Coba lagi.';
+
+  @override
+  String get loginLoadFailed => 'Daftar staf gagal dimuat.';
+
+  @override
+  String get loginRetry => 'Coba lagi';
+
+  @override
+  String get switchCashier => 'Ganti kasir';
+
+  @override
+  String get homeStaffLabel => 'Bertugas';
+
+  @override
+  String get roleOwner => 'Pemilik';
+
+  @override
+  String get roleManager => 'Manajer';
+
+  @override
+  String get roleCashier => 'Kasir';
+
+  @override
+  String get roleWaiter => 'Pelayan';
+
+  @override
+  String get roleStockKeeper => 'Staf gudang';
 }

@@ -5,6 +5,7 @@ import 'package:lakuna_data/lakuna_data.dart' show SetupAlreadyDone;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
@@ -19,10 +20,12 @@ class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({
     super.key,
     required this.repository,
+    required this.session,
     required this.settings,
   });
 
   final StoreRepository repository;
+  final SessionRepository session;
   final AppSettingsViewModel settings;
 
   @override
@@ -30,7 +33,10 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  late final _viewModel = OnboardingViewModel(repository: widget.repository);
+  late final _viewModel = OnboardingViewModel(
+    repository: widget.repository,
+    session: widget.session,
+  );
 
   @override
   void dispose() {
@@ -345,6 +351,7 @@ String setupErrorText(AppLocalizations l10n, SetupError error) =>
       SetupError.invalidCode => l10n.errorInvalidCode,
       SetupError.invalidEmail => l10n.errorInvalidEmail,
       SetupError.passwordTooShort => l10n.errorPasswordTooShort,
+      SetupError.passwordMismatch => l10n.errorPasswordMismatch,
       SetupError.invalidPin => l10n.errorInvalidPin,
       SetupError.pinMismatch => l10n.errorPinMismatch,
       SetupError.invalidTimezone => l10n.errorInvalidTimezone,
@@ -617,7 +624,12 @@ class _OwnerStep extends StatelessWidget {
               label: l10n.fieldPassword,
               obscure: true,
             ),
-            const SizedBox(),
+            _Field(
+              viewModel: viewModel,
+              field: SetupField.passwordConfirm,
+              label: l10n.fieldPasswordConfirm,
+              obscure: true,
+            ),
             _Field(
               viewModel: viewModel,
               field: SetupField.pin,

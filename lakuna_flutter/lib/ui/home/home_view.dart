@@ -4,14 +4,17 @@ import 'package:material_ui/material_ui.dart' show SelectableText;
 import 'package:provider/provider.dart';
 
 import '../../config/app_environment.dart';
+import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../login/login_view.dart' show roleLabel;
 
 /// Beranda: sambutan, toko aktif, dan informasi perangkat.
 class HomeView extends StatelessWidget {
-  const HomeView({super.key, required this.store});
+  const HomeView({super.key, required this.store, required this.session});
 
   final StoreRepository store;
+  final SessionRepository session;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +22,7 @@ class HomeView extends StatelessWidget {
     final env = context.read<AppEnvironment>();
     final theme = context.theme;
     final ctx = store.current;
+    final staff = session.current;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Align(
@@ -44,6 +48,13 @@ class HomeView extends StatelessWidget {
                           value:
                               '${ctx.tenant.name} · ${ctx.outlet.name} · '
                               '${ctx.device.code}',
+                        ),
+                      if (staff != null)
+                        _InfoRow(
+                          label: l10n.homeStaffLabel,
+                          value:
+                              '${staff.name} · '
+                              '${roleLabel(l10n, staff.roleKey)}',
                         ),
                       _InfoRow(
                         label: l10n.homeVersionLabel,

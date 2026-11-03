@@ -81,6 +81,7 @@
   "fieldOwnerName": "Nama pemilik",
   "fieldEmail": "Email",
   "fieldPassword": "Kata sandi",
+  "fieldPasswordConfirm": "Ulangi kata sandi",
   "fieldPin": "PIN (6 angka)",
   "fieldPinConfirm": "Ulangi PIN",
   "receiptPreviewLabel": "Contoh nomor nota",
@@ -91,6 +92,7 @@
   "errorInvalidCode": "2–6 huruf atau angka",
   "errorInvalidEmail": "Format email tidak valid",
   "errorPasswordTooShort": "Minimal 8 karakter",
+  "errorPasswordMismatch": "Kata sandi tidak sama",
   "errorInvalidPin": "PIN harus 6 angka",
   "errorPinMismatch": "PIN tidak sama",
   "errorInvalidTimezone": "Pilih zona waktu",
@@ -106,5 +108,52 @@
   "buttonStartSelling": "Mulai jualan",
   "setupFailed": "Toko gagal disimpan. Coba lagi.",
   "homeStoreLabel": "Toko",
-  "setupAlreadyDone": "Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan."
+  "setupAlreadyDone": "Perangkat ini sudah berisi data toko yang belum lengkap. Pulihkan dari backup atau hubungi dukungan.",
+  "loginTitle": "Siapa yang bertugas?",
+  "loginSelectStaff": "Pilih nama Anda untuk memasukkan PIN.",
+  "loginEnterPinFor": "Masukkan PIN {name}",
+  "@loginEnterPinFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loginNoPin": "Belum punya PIN",
+  "loginPinNote": "PIN diverifikasi di perangkat ini. 5 kali salah → dikunci 1 menit.",
+  "loginOwnerLink": "Masuk dengan email & kata sandi (pemilik)",
+  "loginOwnerTitle": "Masuk sebagai pemilik",
+  "loginSubmit": "Masuk",
+  "loginBackToPin": "Kembali ke PIN",
+  "loginBackToStaff": "Pilih staf lain",
+  "loginKeypadCancel": "Batal",
+  "loginKeypadDelete": "Hapus satu angka",
+  "loginWrongPin": "PIN salah. Sisa {count} percobaan.",
+  "@loginWrongPin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loginLocked": "Terlalu banyak percobaan. Coba lagi dalam {seconds} detik.",
+  "@loginLocked": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loginWrongCredentials": "Email atau kata sandi salah.",
+  "loginStaffUnavailable": "Staf ini tidak lagi aktif di cabang ini.",
+  "loginFailed": "Gagal masuk. Coba lagi.",
+  "loginLoadFailed": "Daftar staf gagal dimuat.",
+  "loginRetry": "Coba lagi",
+  "switchCashier": "Ganti kasir",
+  "homeStaffLabel": "Bertugas",
+  "roleOwner": "Pemilik",
+  "roleManager": "Manajer",
+  "roleCashier": "Kasir",
+  "roleWaiter": "Pelayan",
+  "roleStockKeeper": "Staf gudang"
 }

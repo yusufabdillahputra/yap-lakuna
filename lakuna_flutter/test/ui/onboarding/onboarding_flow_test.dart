@@ -40,6 +40,7 @@ Future<void> _completeWizard(WidgetTester tester) async {
   await _type(tester, SetupField.ownerName, 'Yusuf');
   await _type(tester, SetupField.email, 'yusuf@contoh.id');
   await _type(tester, SetupField.password, 'rahasia123');
+  await _type(tester, SetupField.passwordConfirm, 'rahasia123');
   await _type(tester, SetupField.pin, '123456');
   await _type(tester, SetupField.pinConfirm, '123456');
   await _next(tester);
@@ -68,6 +69,27 @@ void main() {
     expect(find.text('Langkah 2 dari 4'), findsOneWidget);
     expect(find.text('Wajib diisi'), findsNWidgets(2));
     expect(find.text('2–6 huruf atau angka'), findsOneWidget);
+  });
+
+  testWidgets('ulangi kata sandi yang berbeda menahan langkah 3', (
+    tester,
+  ) async {
+    await pumpLakuna(tester, store: FakeStoreRepository());
+    await _next(tester);
+    await tester.tap(find.byKey(const ValueKey('business-retail')));
+    await _type(tester, SetupField.businessName, 'Warung Contoh');
+    await _type(tester, SetupField.outletName, 'Cabang Pusat');
+    await _type(tester, SetupField.outletCode, 'PST');
+    await _next(tester);
+    await _type(tester, SetupField.ownerName, 'Yusuf');
+    await _type(tester, SetupField.email, 'yusuf@contoh.id');
+    await _type(tester, SetupField.password, 'rahasia123');
+    await _type(tester, SetupField.passwordConfirm, 'rahasia124');
+    await _type(tester, SetupField.pin, '123456');
+    await _type(tester, SetupField.pinConfirm, '123456');
+    await _next(tester);
+    expect(find.text('Langkah 3 dari 4'), findsOneWidget);
+    expect(find.text('Kata sandi tidak sama'), findsOneWidget);
   });
 
   testWidgets('tablet: alur lengkap lalu masuk beranda dengan nama toko', (
