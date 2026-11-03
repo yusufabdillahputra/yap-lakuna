@@ -201,8 +201,21 @@ void main() {
 
     test('bill terbuka tidak tampil', () async {
       await openSession();
-      await openTakeAway(store, scope, staffId: ctx.owner.id);
+      final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
       expect((await listSalesHistory(store, scope, now: now)).rows, isEmpty);
+      // Bill batal (belum pernah jadi nota) juga tidak tampil.
+      await voidOpenBill(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.sale.id,
+        reason: 'Tamu batal',
+      );
+      expect((await listSalesHistory(store, scope, now: now)).rows, isEmpty);
+      await expectLater(
+        loadSaleDetail(store, scope, bill.sale.id, now: now),
+        throwsA(isA<SaleNotFound>()),
+      );
     });
   });
 
@@ -252,6 +265,13 @@ void main() {
           restock: false,
         );
         expect(second.number, 'RT-PST-K01-261103-0002');
+        // Kartu stok menampilkan nomor retur yang mengembalikan barang.
+        final card = await stockCard(store, scope, variantId: v(kopi).id);
+        expect(
+          card.entries.last.documentNumber,
+          startsWith('RT-PST-K01-261103-'),
+        );
+        expect(card.entries.last.staffName, ctx.owner.name);
         expect(second.amount, 35000);
         expect(await stock(kopi), const Qty(18000));
         detail = await loadSaleDetail(store, scope, sale.sale.id, now: now);
@@ -270,6 +290,9 @@ void main() {
           sessionId: session.id,
         );
         expect(summary.count, 1);
+        // Kotak *Void / retur* di tutup sesi: dua dokumen retur di sesi ini.
+        expect(summary.returnCount, 2);
+        expect(summary.voidCount, 0);
 
         final history = await listSalesHistory(
           store,
@@ -417,6 +440,12 @@ void main() {
       expect(await stock(kopi), const Qty(20000));
       final drawer = await cashDrawerFor(store, cashScope, session);
       expect(drawer.cashSales, Money.zero);
+      final summary = await salesSummaryForSession(
+        store,
+        scope,
+        sessionId: session.id,
+      );
+      expect((summary.count, summary.voidCount), (0, 1));
       final detail = await loadSaleDetail(store, scope, sale.sale.id, now: now);
       expect(detail.voidedByName, 'Rina');
       expect(detail.net, Money.zero);

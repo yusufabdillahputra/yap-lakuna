@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
@@ -245,12 +246,14 @@ Future<HistoryPage> listSalesHistory(
         s.deletedAt.equals(null),
     orderByList: (s) => [s.soldAt.desc(), s.id.desc()],
   );
-  if (filter.staffId case final id?) {
-    sales = [
-      for (final s in sales)
-        if (s.staffId == id) s,
-    ];
-  }
+  sales = [
+    for (final s in sales)
+      // Bill F&B yang dibatalkan sebelum ditutup tidak pernah jadi nota
+      // (nomornya masih nomor bill `OB-`): tetap di jejak audit, bukan di
+      // riwayat transaksi.
+      if (!_neverClosed(s))
+        if (filter.staffId == null || s.staffId == filter.staffId) s,
+  ];
   final ids = {for (final s in sales) s.id};
   final payments = await _paidPayments(session, scope.tenantId, ids);
   final methods = <UuidValue, List<PaymentMethod>>{};
@@ -378,9 +381,12 @@ Future<Sale> _historySale(
         s.deletedAt.equals(null),
     transaction: transaction,
   );
-  if (sale == null) throw SaleNotFound();
+  if (sale == null || _neverClosed(sale)) throw SaleNotFound();
   return sale;
 }
+
+/// Bill F&B yang dibatalkan sebelum ditutup: nomornya masih nomor bill.
+bool _neverClosed(Sale s) => s.billNumber != null && s.number == s.billNumber;
 
 Future<List<SaleItem>> _saleItems(
   DatabaseSession session,
@@ -738,7 +744,7 @@ Future<SaleReturn> returnSale(
         locationId: out.stockLocationId,
         variantId: item.variantId,
         quantity: Qty(milli).toBaseUnit(item.factorMilli),
-        unitCost: Money(item.unitCost),
+        unitCost: Money(out.unitCost),
         sourceType: StockSourceType.saleReturn,
         sourceId: doc.id,
         stamp: s,
@@ -825,7 +831,7 @@ Future<Sale> voidSale(
   DateTime? now,
 }) async {
   final text = reason.trim();
-  if (text.isEmpty || text.length > FnbLimits.voidReason) {
+  if (text.isEmpty || text.characters.length > FnbLimits.voidReason) {
     throw const SaleVoidInvalid(VoidError.reason);
   }
   await requireApprover(store, scope, approverId, Permission.salesVoid);

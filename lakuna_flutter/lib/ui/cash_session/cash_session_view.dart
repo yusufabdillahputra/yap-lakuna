@@ -949,7 +949,12 @@ class _Stats extends StatelessWidget {
                   formatMoney(context, sales.total),
                 ),
               ),
-              Expanded(child: stat(l10n.cashStatVoids, '0')),
+              Expanded(
+                child: stat(
+                  l10n.cashStatVoids,
+                  '${sales.voidCount + sales.returnCount}',
+                ),
+              ),
             ],
           ),
         );

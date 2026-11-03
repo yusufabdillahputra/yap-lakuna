@@ -18,9 +18,14 @@ enum ReturnNoteError { missing, tooLong }
 
 /// Bagian total nota (termasuk service, PB1, potongan grosir) untuk tiap
 /// baris, proporsional terhadap `line_total`, sisa terbesar. Jumlahnya selalu
-/// sama dengan [total].
-List<Money> lineShares(Money total, List<int> lineTotals) =>
-    allocateByWeight(total, [for (final t in lineTotals) t < 0 ? 0 : t]);
+/// sama dengan [total]. Bila semua baris bernilai nol, total dibagi rata.
+List<Money> lineShares(Money total, List<int> lineTotals) {
+  final weights = [for (final t in lineTotals) t < 0 ? 0 : t];
+  return allocateByWeight(
+    total,
+    weights.every((w) => w == 0) ? [for (final _ in weights) 1] : weights,
+  );
+}
 
 /// Nilai retur [returningMilli] dari baris berbagian [share] yang terjual
 /// [soldMilli] dan sudah diretur [returnedMilli]. Nilai kumulatif dibulatkan

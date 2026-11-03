@@ -448,7 +448,7 @@ class _SaleTable extends StatelessWidget {
   final UuidValue? selectedId;
   final void Function(UuidValue id) onOpen;
 
-  static const _cols = [30, 10, 16, 16, 16, 14];
+  static const _cols = [36, 9, 14, 16, 16, 14];
 
   @override
   Widget build(BuildContext context) {

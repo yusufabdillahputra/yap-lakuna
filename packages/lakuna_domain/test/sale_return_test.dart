@@ -17,6 +17,13 @@ void main() {
       expect(shares, [const Money(3334), const Money(3333), const Money(3333)]);
     });
 
+    test('semua baris nol tetapi total ada: dibagi rata', () {
+      expect(lineShares(const Money(1001), [0, 0]), [
+        const Money(501),
+        const Money(500),
+      ]);
+    });
+
     test('baris nol (gratis) tidak mendapat bagian', () {
       expect(lineShares(const Money(5000), [5000, 0]), [
         const Money(5000),

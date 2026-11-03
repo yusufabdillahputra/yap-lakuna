@@ -773,9 +773,21 @@ Future<StockCard> stockCard(
           ))
             a.id: a,
         };
+  final returnIds = idsOf(StockSourceType.saleReturn);
+  final returns = returnIds.isEmpty
+      ? const <UuidValue, SaleReturn>{}
+      : {
+          for (final r in await SaleReturn.db.find(
+            session,
+            where: (r) =>
+                r.id.inSet(returnIds) & r.tenantId.equals(scope.tenantId),
+          ))
+            r.id: r,
+        };
   final staff = await _staffNames(store, {
     for (final s in sales.values) s.staffId,
     for (final a in adjustments.values) a.staffId,
+    for (final r in returns.values) r.staffId,
   });
 
   final entries = <StockCardEntry>[];
@@ -783,12 +795,13 @@ Future<StockCard> stockCard(
     balance += Qty(m.quantityMilli);
     final sale = sales[m.sourceId];
     final adj = adjustments[m.sourceId];
+    final ret = returns[m.sourceId];
     entries.add(
       StockCardEntry(
         occurredAt: m.occurredAt,
         sourceType: m.sourceType,
-        documentNumber: sale?.number ?? adj?.number,
-        staffName: staff[sale?.staffId ?? adj?.staffId],
+        documentNumber: sale?.number ?? adj?.number ?? ret?.number,
+        staffName: staff[sale?.staffId ?? adj?.staffId ?? ret?.staffId],
         reason: adj?.reason,
         note: m.note,
         quantity: Qty(m.quantityMilli),
