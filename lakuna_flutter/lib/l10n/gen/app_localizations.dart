@@ -11515,6 +11515,162 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{pct} (termasuk)'**
   String billSplitTaxIncluded(String pct);
+
+  /// No description provided for @cashierDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon'**
+  String get cashierDiscount;
+
+  /// No description provided for @cashierDiscountBillTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon nota'**
+  String get cashierDiscountBillTitle;
+
+  /// No description provided for @cashierDiscountLineTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon baris'**
+  String get cashierDiscountLineTitle;
+
+  /// No description provided for @cashierDiscountHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Per nota, atau tekan lama baris untuk diskon per item.'**
+  String get cashierDiscountHint;
+
+  /// No description provided for @cashierDiscountPercent.
+  ///
+  /// In id, this message translates to:
+  /// **'Persen (%)'**
+  String get cashierDiscountPercent;
+
+  /// No description provided for @cashierDiscountAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Rupiah (Rp)'**
+  String get cashierDiscountAmount;
+
+  /// No description provided for @cashierDiscountValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai diskon'**
+  String get cashierDiscountValue;
+
+  /// No description provided for @cashierDiscountBase.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari {amount}'**
+  String cashierDiscountBase(String amount);
+
+  /// No description provided for @cashierDiscountCut.
+  ///
+  /// In id, this message translates to:
+  /// **'Potongan {amount}'**
+  String cashierDiscountCut(String amount);
+
+  /// No description provided for @cashierDiscountApply.
+  ///
+  /// In id, this message translates to:
+  /// **'Terapkan'**
+  String get cashierDiscountApply;
+
+  /// No description provided for @cashierDiscountRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus diskon'**
+  String get cashierDiscountRemove;
+
+  /// No description provided for @cashierDiscountTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon tidak boleh melebihi atau menghabiskan total.'**
+  String get cashierDiscountTooLarge;
+
+  /// No description provided for @cashierDiscountInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi persen 0,01–100 atau nominal rupiah.'**
+  String get cashierDiscountInvalid;
+
+  /// No description provided for @cashierDiscountNeedsPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Setelah Terapkan, manajer memasukkan PIN untuk menyetujui diskon.'**
+  String get cashierDiscountNeedsPin;
+
+  /// No description provided for @cashierDiscountPct.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon {pct}'**
+  String cashierDiscountPct(String pct);
+
+  /// No description provided for @cashierLineDiscounts.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon per item'**
+  String get cashierLineDiscounts;
+
+  /// No description provided for @cashierBillDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon nota'**
+  String get cashierBillDiscount;
+
+  /// No description provided for @cashierBillDiscountPct.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon nota {pct}'**
+  String cashierBillDiscountPct(String pct);
+
+  /// No description provided for @cashierDiscountApprovedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'disetujui {name}'**
+  String cashierDiscountApprovedBy(String name);
+
+  /// No description provided for @approvalDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual butuh izin sales:discount. Minta staf yang berizin memasukkan PIN-nya.'**
+  String get approvalDiscount;
+
+  /// No description provided for @saleErrorDiscountNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual butuh izin atau persetujuan PIN manajer.'**
+  String get saleErrorDiscountNotPermitted;
+
+  /// No description provided for @saleErrorDiscountTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon melebihi nilai baris atau membuat total nota nol.'**
+  String get saleErrorDiscountTooLarge;
+
+  /// No description provided for @receiptDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon'**
+  String get receiptDiscount;
+
+  /// No description provided for @receiptDiscountPct.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon {pct}'**
+  String receiptDiscountPct(String pct);
+
+  /// No description provided for @storeSettingsDiscountPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual butuh PIN manajer'**
+  String get storeSettingsDiscountPin;
+
+  /// No description provided for @storeSettingsDiscountPinHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.'**
+  String get storeSettingsDiscountPinHint;
 }
 
 class _AppLocalizationsDelegate

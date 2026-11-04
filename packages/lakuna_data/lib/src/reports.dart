@@ -260,6 +260,7 @@ Future<_Facts> _facts(
         staffKey: s.staffId.uuid,
         subtotal: Money(s.subtotal),
         tierDiscount: Money(s.tierDiscount),
+        manualDiscount: Money(s.lineDiscountAmount + s.discountAmount),
         service: Money(s.serviceAmount),
         tax: Money(s.taxAmount),
         taxInclusive: s.taxInclusive,

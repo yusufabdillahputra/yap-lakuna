@@ -3444,5 +3444,133 @@
         "type": "String"
       }
     }
+  },
+  "cashierDiscount": "Discount",
+  "@cashierDiscount": {
+    "placeholders": {}
+  },
+  "cashierDiscountBillTitle": "Order discount",
+  "@cashierDiscountBillTitle": {
+    "placeholders": {}
+  },
+  "cashierDiscountLineTitle": "Item discount",
+  "@cashierDiscountLineTitle": {
+    "placeholders": {}
+  },
+  "cashierDiscountHint": "Per order, or long-press a line for an item discount.",
+  "@cashierDiscountHint": {
+    "placeholders": {}
+  },
+  "cashierDiscountPercent": "Percent (%)",
+  "@cashierDiscountPercent": {
+    "placeholders": {}
+  },
+  "cashierDiscountAmount": "Amount (Rp)",
+  "@cashierDiscountAmount": {
+    "placeholders": {}
+  },
+  "cashierDiscountValue": "Discount value",
+  "@cashierDiscountValue": {
+    "placeholders": {}
+  },
+  "cashierDiscountBase": "Of {amount}",
+  "@cashierDiscountBase": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountCut": "Discount {amount}",
+  "@cashierDiscountCut": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountApply": "Apply",
+  "@cashierDiscountApply": {
+    "placeholders": {}
+  },
+  "cashierDiscountRemove": "Remove discount",
+  "@cashierDiscountRemove": {
+    "placeholders": {}
+  },
+  "cashierDiscountTooLarge": "The discount can't exceed or use up the total.",
+  "@cashierDiscountTooLarge": {
+    "placeholders": {}
+  },
+  "cashierDiscountInvalid": "Enter 0.01–100% or a rupiah amount.",
+  "@cashierDiscountInvalid": {
+    "placeholders": {}
+  },
+  "cashierDiscountNeedsPin": "After Apply, a manager enters their PIN to approve the discount.",
+  "@cashierDiscountNeedsPin": {
+    "placeholders": {}
+  },
+  "cashierDiscountPct": "Discount {pct}",
+  "@cashierDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierLineDiscounts": "Item discounts",
+  "@cashierLineDiscounts": {
+    "placeholders": {}
+  },
+  "cashierBillDiscount": "Order discount",
+  "@cashierBillDiscount": {
+    "placeholders": {}
+  },
+  "cashierBillDiscountPct": "Order discount {pct}",
+  "@cashierBillDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountApprovedBy": "approved by {name}",
+  "@cashierDiscountApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "approvalDiscount": "A manual discount needs the sales:discount permission. Ask a permitted staff member to enter their PIN.",
+  "@approvalDiscount": {
+    "placeholders": {}
+  },
+  "saleErrorDiscountNotPermitted": "A manual discount needs permission or a manager's PIN approval.",
+  "@saleErrorDiscountNotPermitted": {
+    "placeholders": {}
+  },
+  "saleErrorDiscountTooLarge": "A discount exceeds its line or makes the order total zero.",
+  "@saleErrorDiscountTooLarge": {
+    "placeholders": {}
+  },
+  "receiptDiscount": "Discount",
+  "@receiptDiscount": {
+    "placeholders": {}
+  },
+  "receiptDiscountPct": "Discount {pct}",
+  "@receiptDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "storeSettingsDiscountPin": "Manual discount needs manager PIN",
+  "@storeSettingsDiscountPin": {
+    "placeholders": {}
+  },
+  "storeSettingsDiscountPinHint": "Cashiers without the discount permission can discount after a manager enters their PIN. When off, only permitted staff can discount.",
+  "@storeSettingsDiscountPinHint": {
+    "placeholders": {}
   }
 }

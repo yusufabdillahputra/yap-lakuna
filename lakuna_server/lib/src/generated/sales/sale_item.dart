@@ -32,6 +32,8 @@ abstract class SaleItem
     required this.listPrice,
     required this.unitPrice,
     required this.lineTotal,
+    int? discountAmount,
+    int? discountBp,
     required this.unitCost,
     required this.tracksStock,
     required this.sortOrder,
@@ -51,6 +53,8 @@ abstract class SaleItem
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _is.Uuid().v7obj(),
+       discountAmount = discountAmount ?? 0,
+       discountBp = discountBp ?? 0,
        modifierDelta = modifierDelta ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
@@ -70,6 +74,8 @@ abstract class SaleItem
     required int listPrice,
     required int unitPrice,
     required int lineTotal,
+    int? discountAmount,
+    int? discountBp,
     required int unitCost,
     required bool tracksStock,
     required int sortOrder,
@@ -115,6 +121,8 @@ abstract class SaleItem
       listPrice: jsonSerialization['listPrice'] as int,
       unitPrice: jsonSerialization['unitPrice'] as int,
       lineTotal: jsonSerialization['lineTotal'] as int,
+      discountAmount: jsonSerialization['discountAmount'] as int?,
+      discountBp: jsonSerialization['discountBp'] as int?,
       unitCost: jsonSerialization['unitCost'] as int,
       tracksStock: _is.BoolJsonExtension.fromJson(
         jsonSerialization['tracksStock'],
@@ -199,6 +207,12 @@ abstract class SaleItem
 
   int lineTotal;
 
+  /// Diskon manual baris (F1-04b) dalam rupiah; line_total sudah bersih.
+  int discountAmount;
+
+  /// Persen diskon baris (basis poin); 0 bila diskon rupiah.
+  int discountBp;
+
   /// Biaya rata-rata per satuan dasar saat jual (HPP).
   int unitCost;
 
@@ -263,6 +277,8 @@ abstract class SaleItem
     int? listPrice,
     int? unitPrice,
     int? lineTotal,
+    int? discountAmount,
+    int? discountBp,
     int? unitCost,
     bool? tracksStock,
     int? sortOrder,
@@ -299,6 +315,8 @@ abstract class SaleItem
       'listPrice': listPrice,
       'unitPrice': unitPrice,
       'lineTotal': lineTotal,
+      'discountAmount': discountAmount,
+      'discountBp': discountBp,
       'unitCost': unitCost,
       'tracksStock': tracksStock,
       'sortOrder': sortOrder,
@@ -337,6 +355,8 @@ abstract class SaleItem
       'listPrice': listPrice,
       'unitPrice': unitPrice,
       'lineTotal': lineTotal,
+      'discountAmount': discountAmount,
+      'discountBp': discountBp,
       'unitCost': unitCost,
       'tracksStock': tracksStock,
       'sortOrder': sortOrder,
@@ -403,6 +423,8 @@ class _SaleItemImpl extends SaleItem {
     required int listPrice,
     required int unitPrice,
     required int lineTotal,
+    int? discountAmount,
+    int? discountBp,
     required int unitCost,
     required bool tracksStock,
     required int sortOrder,
@@ -435,6 +457,8 @@ class _SaleItemImpl extends SaleItem {
          listPrice: listPrice,
          unitPrice: unitPrice,
          lineTotal: lineTotal,
+         discountAmount: discountAmount,
+         discountBp: discountBp,
          unitCost: unitCost,
          tracksStock: tracksStock,
          sortOrder: sortOrder,
@@ -473,6 +497,8 @@ class _SaleItemImpl extends SaleItem {
     int? listPrice,
     int? unitPrice,
     int? lineTotal,
+    int? discountAmount,
+    int? discountBp,
     int? unitCost,
     bool? tracksStock,
     int? sortOrder,
@@ -508,6 +534,8 @@ class _SaleItemImpl extends SaleItem {
       listPrice: listPrice ?? this.listPrice,
       unitPrice: unitPrice ?? this.unitPrice,
       lineTotal: lineTotal ?? this.lineTotal,
+      discountAmount: discountAmount ?? this.discountAmount,
+      discountBp: discountBp ?? this.discountBp,
       unitCost: unitCost ?? this.unitCost,
       tracksStock: tracksStock ?? this.tracksStock,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -610,6 +638,16 @@ class SaleItemUpdateTable extends _is.UpdateTable<SaleItemTable> {
 
   _is.ColumnValue<int, int> lineTotal(int value) => _is.ColumnValue(
     table.lineTotal,
+    value,
+  );
+
+  _is.ColumnValue<int, int> discountAmount(int value) => _is.ColumnValue(
+    table.discountAmount,
+    value,
+  );
+
+  _is.ColumnValue<int, int> discountBp(int value) => _is.ColumnValue(
+    table.discountBp,
     value,
   );
 
@@ -781,6 +819,18 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'lineTotal',
     );
+    discountAmount = _is.ColumnInt(
+      'discount_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'discountAmount',
+    );
+    discountBp = _is.ColumnInt(
+      'discount_bp',
+      this,
+      hasDefault: true,
+      fieldName: 'discountBp',
+    );
     unitCost = _is.ColumnInt(
       'unit_cost',
       this,
@@ -905,6 +955,12 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt lineTotal;
 
+  /// Diskon manual baris (F1-04b) dalam rupiah; line_total sudah bersih.
+  late final _is.ColumnInt discountAmount;
+
+  /// Persen diskon baris (basis poin); 0 bila diskon rupiah.
+  late final _is.ColumnInt discountBp;
+
   /// Biaya rata-rata per satuan dasar saat jual (HPP).
   late final _is.ColumnInt unitCost;
 
@@ -964,6 +1020,8 @@ class SaleItemTable extends _is.Table<_is.UuidValue> {
     listPrice,
     unitPrice,
     lineTotal,
+    discountAmount,
+    discountBp,
     unitCost,
     tracksStock,
     sortOrder,

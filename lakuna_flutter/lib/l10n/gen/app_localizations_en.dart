@@ -6619,4 +6619,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String billSplitTaxIncluded(String pct) {
     return '$pct (included)';
   }
+
+  @override
+  String get cashierDiscount => 'Discount';
+
+  @override
+  String get cashierDiscountBillTitle => 'Order discount';
+
+  @override
+  String get cashierDiscountLineTitle => 'Item discount';
+
+  @override
+  String get cashierDiscountHint =>
+      'Per order, or long-press a line for an item discount.';
+
+  @override
+  String get cashierDiscountPercent => 'Percent (%)';
+
+  @override
+  String get cashierDiscountAmount => 'Amount (Rp)';
+
+  @override
+  String get cashierDiscountValue => 'Discount value';
+
+  @override
+  String cashierDiscountBase(String amount) {
+    return 'Of $amount';
+  }
+
+  @override
+  String cashierDiscountCut(String amount) {
+    return 'Discount $amount';
+  }
+
+  @override
+  String get cashierDiscountApply => 'Apply';
+
+  @override
+  String get cashierDiscountRemove => 'Remove discount';
+
+  @override
+  String get cashierDiscountTooLarge =>
+      'The discount can\'t exceed or use up the total.';
+
+  @override
+  String get cashierDiscountInvalid => 'Enter 0.01–100% or a rupiah amount.';
+
+  @override
+  String get cashierDiscountNeedsPin =>
+      'After Apply, a manager enters their PIN to approve the discount.';
+
+  @override
+  String cashierDiscountPct(String pct) {
+    return 'Discount $pct';
+  }
+
+  @override
+  String get cashierLineDiscounts => 'Item discounts';
+
+  @override
+  String get cashierBillDiscount => 'Order discount';
+
+  @override
+  String cashierBillDiscountPct(String pct) {
+    return 'Order discount $pct';
+  }
+
+  @override
+  String cashierDiscountApprovedBy(String name) {
+    return 'approved by $name';
+  }
+
+  @override
+  String get approvalDiscount =>
+      'A manual discount needs the sales:discount permission. Ask a permitted staff member to enter their PIN.';
+
+  @override
+  String get saleErrorDiscountNotPermitted =>
+      'A manual discount needs permission or a manager\'s PIN approval.';
+
+  @override
+  String get saleErrorDiscountTooLarge =>
+      'A discount exceeds its line or makes the order total zero.';
+
+  @override
+  String get receiptDiscount => 'Discount';
+
+  @override
+  String receiptDiscountPct(String pct) {
+    return 'Discount $pct';
+  }
+
+  @override
+  String get storeSettingsDiscountPin => 'Manual discount needs manager PIN';
+
+  @override
+  String get storeSettingsDiscountPinHint =>
+      'Cashiers without the discount permission can discount after a manager enters their PIN. When off, only permitted staff can discount.';
 }

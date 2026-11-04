@@ -10,6 +10,7 @@ export 'src/credentials.dart';
 export 'src/customer.dart';
 export 'src/customer_import.dart';
 export 'src/dining.dart';
+export 'src/discount.dart';
 export 'src/floor_plan.dart';
 export 'src/document_number.dart';
 export 'src/escpos.dart';

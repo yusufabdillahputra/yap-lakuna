@@ -40,16 +40,19 @@ class SalesRules {
   const SalesRules({
     this.allowNegativeStock = true,
     this.rounding = TotalRounding.none,
+    this.discountNeedsPin = true,
   });
 
   /// JSON tersimpan; kolom yang rusak memakai nilai bawaan.
   factory SalesRules.fromJson(Object? json) {
     if (json is! Map) return const SalesRules();
     final negative = json['allowNegativeStock'];
+    final pin = json['discountNeedsPin'];
     return SalesRules(
       allowNegativeStock: negative is bool ? negative : true,
       rounding:
           TotalRounding.byNameOrNull(json['rounding']) ?? TotalRounding.none,
+      discountNeedsPin: pin is bool ? pin : true,
     );
   }
 
@@ -57,30 +60,42 @@ class SalesRules {
   final bool allowNegativeStock;
   final TotalRounding rounding;
 
+  /// Staf tanpa `sales:discount` boleh memberi diskon manual dengan
+  /// persetujuan PIN manajer (F1-04b). Bila `false`, menu diskon hanya
+  /// untuk staf berizin.
+  final bool discountNeedsPin;
+
   Map<String, Object> toJson() => {
     'allowNegativeStock': allowNegativeStock,
     'rounding': rounding.name,
+    'discountNeedsPin': discountNeedsPin,
   };
 
-  SalesRules copyWith({bool? allowNegativeStock, TotalRounding? rounding}) =>
-      SalesRules(
-        allowNegativeStock: allowNegativeStock ?? this.allowNegativeStock,
-        rounding: rounding ?? this.rounding,
-      );
+  SalesRules copyWith({
+    bool? allowNegativeStock,
+    TotalRounding? rounding,
+    bool? discountNeedsPin,
+  }) => SalesRules(
+    allowNegativeStock: allowNegativeStock ?? this.allowNegativeStock,
+    rounding: rounding ?? this.rounding,
+    discountNeedsPin: discountNeedsPin ?? this.discountNeedsPin,
+  );
 
   @override
   bool operator ==(Object other) =>
       other is SalesRules &&
       other.allowNegativeStock == allowNegativeStock &&
-      other.rounding == rounding;
+      other.rounding == rounding &&
+      other.discountNeedsPin == discountNeedsPin;
 
   @override
-  int get hashCode => Object.hash(allowNegativeStock, rounding);
+  int get hashCode =>
+      Object.hash(allowNegativeStock, rounding, discountNeedsPin);
 
   @override
   String toString() =>
       'SalesRules(allowNegativeStock: $allowNegativeStock, '
-      'rounding: ${rounding.name})';
+      'rounding: ${rounding.name}, discountNeedsPin: $discountNeedsPin)';
 }
 
 /// Batas isian profil toko & cabang.

@@ -153,6 +153,183 @@ void main() {
     expect(vm.shortBy, const Money(12000));
   });
 
+  group('diskon manual', () {
+    test('baris + nota: total, pembulatan, dan permintaan checkout', () async {
+      repo.salesRules = const SalesRules(rounding: TotalRounding.nearest500);
+      await vm.load.execute();
+      expect(vm.discountAccess, DiscountAccess.direct);
+      vm.scan('8990001'); // 72.500
+      vm.scan('KOP'); // 2.000
+      vm.setLineDiscount(0, const ManualDiscount.percent(BasisPoints(1000)));
+      expect(vm.lines.first.discountCut, const Money(7250));
+      expect(vm.lines.first.netTotal, const Money(65250));
+      expect(vm.lineDiscount, const Money(7250));
+      vm.setBillDiscount(const ManualDiscount.amount(Money(1000)));
+      // 65.250 + 2.000 − 1.000 = 66.250 → 66.500.
+      expect(vm.netTotal, const Money(66250));
+      expect(vm.rounding, const Money(250));
+      expect(vm.grandTotal, const Money(66500));
+      vm.startPayment();
+      vm.setReceived(const Money(66500));
+      await vm.pay.execute();
+      final (lines, _) = repo.checkouts.single;
+      expect(
+        lines.first.discount,
+        const ManualDiscount.percent(BasisPoints(1000)),
+      );
+      expect(lines.last.discount, isNull);
+      expect(
+        repo.discounts.single,
+        (const ManualDiscount.amount(Money(1000)), null),
+      );
+      expect(vm.result!.sale.discountAmount, 1000);
+      expect(vm.billDiscount, isNull);
+    });
+
+    test('diskon rupiah dipangkas saat jumlah baris berkurang', () async {
+      vm.scan('KOP');
+      vm.scan('KOP'); // 2 × 2.000
+      vm.setLineDiscount(0, const ManualDiscount.amount(Money(3000)));
+      vm.decrement(0);
+      expect(vm.lines.single.discountCut, const Money(2000));
+      vm.scan('8990001');
+      vm.startPayment();
+      vm.setReceived(const Money(100000));
+      await vm.pay.execute();
+      expect(
+        repo.checkouts.single.$1.first.discount,
+        const ManualDiscount.amount(Money(2000)),
+      );
+    });
+
+    test('galat diskon: melebihi dasar dan nota jadi nol', () {
+      vm.scan('KOP');
+      expect(
+        vm.lineDiscountIssue(0, const ManualDiscount.amount(Money(2500))),
+        DiscountIssue.tooLarge,
+      );
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.percent(BasisPoints.full)),
+        DiscountIssue.tooLarge,
+      );
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.percent(BasisPoints(5000))),
+        isNull,
+      );
+    });
+
+    test(
+      'kasir tanpa izin: butuh persetujuan, penyetuju ikut checkout',
+      () async {
+        repo.permissions = {Permission.salesCreate};
+        await vm.load.execute();
+        expect(vm.discountAccess, DiscountAccess.approval);
+        expect(vm.discountNeedsApproval, isTrue);
+        final rina = UuidValue.fromString(newId());
+        vm.approveDiscounts((id: rina, name: 'Rina'));
+        expect(vm.discountNeedsApproval, isFalse);
+        vm.scan('8990001');
+        vm.setBillDiscount(const ManualDiscount.percent(BasisPoints(500)));
+        vm.startPayment();
+        vm.setReceived(const Money(100000));
+        await vm.pay.execute();
+        expect(repo.discounts.single.$2, rina);
+        // Keranjang baru butuh persetujuan lagi.
+        expect(vm.discountNeedsApproval, isTrue);
+      },
+    );
+
+    test('sakelar PIN mati: kasir tanpa izin tidak bisa diskon', () async {
+      repo
+        ..permissions = {Permission.salesCreate}
+        ..salesRules = const SalesRules(discountNeedsPin: false);
+      await vm.load.execute();
+      expect(vm.discountAccess, DiscountAccess.none);
+      expect(vm.canOfferDiscount, isFalse);
+    });
+
+    test('persetujuan ditolak saat bayar: PIN diminta lagi', () async {
+      repo.permissions = {Permission.salesCreate};
+      await vm.load.execute();
+      vm.approveDiscounts((id: UuidValue.fromString(newId()), name: 'Rina'));
+      vm.scan('KOP');
+      vm.setBillDiscount(const ManualDiscount.amount(Money(500)));
+      repo.nextError = const NotPermitted(Permission.salesDiscount);
+      vm.startPayment();
+      vm.setReceived(const Money(2000));
+      await vm.pay.execute();
+      expect(vm.error, isA<NotPermitted>());
+      expect(vm.discountApprover, isNull);
+      expect(vm.discountNeedsApproval, isTrue);
+    });
+
+    test('penyetuju tidak dikirim bila diskon sudah dihapus', () async {
+      repo.permissions = {Permission.salesCreate};
+      await vm.load.execute();
+      vm.approveDiscounts((id: UuidValue.fromString(newId()), name: 'Rina'));
+      vm.scan('KOP');
+      vm.setBillDiscount(const ManualDiscount.amount(Money(500)));
+      vm.setBillDiscount(null);
+      vm.startPayment();
+      vm.setReceived(const Money(2000));
+      await vm.pay.execute();
+      expect(repo.discounts.single, (null, null));
+    });
+
+    test('diskon yang menghabiskan total menahan bayar', () async {
+      vm.scan('KOP');
+      vm.scan('KOP'); // 4.000
+      vm.setBillDiscount(const ManualDiscount.amount(Money(3000)));
+      expect(vm.discountBlocksPay, isFalse);
+      // Jumlah turun: dasar 2.000, diskon nota terpangkas → total 0.
+      vm.decrement(0);
+      expect(vm.grandTotal, Money.zero);
+      expect(vm.discountBlocksPay, isTrue);
+      vm.startPayment();
+      expect(vm.stage, CashierStage.browse);
+      vm.setBillDiscount(null);
+      expect(vm.discountBlocksPay, isFalse);
+    });
+
+    test(
+      'diskon baris ditolak bila nota jadi nol (juga setelah bulat)',
+      () async {
+        repo.salesRules = const SalesRules(rounding: TotalRounding.nearest500);
+        await vm.load.execute();
+        vm.scan('KOP'); // 2.000
+        expect(
+          vm.lineDiscountIssue(
+            0,
+            const ManualDiscount.percent(BasisPoints.full),
+          ),
+          DiscountIssue.tooLarge,
+        );
+        // 2.000 − 1.800 = 200 → dibulatkan ke 0.
+        expect(
+          vm.lineDiscountIssue(0, const ManualDiscount.amount(Money(1800))),
+          DiscountIssue.tooLarge,
+        );
+        expect(
+          vm.billDiscountIssue(const ManualDiscount.amount(Money(1800))),
+          DiscountIssue.tooLarge,
+        );
+        expect(
+          vm.lineDiscountIssue(0, const ManualDiscount.amount(Money(1000))),
+          isNull,
+        );
+      },
+    );
+
+    test('kosongkan keranjang menghapus diskon dan penyetuju', () {
+      vm.scan('KOP');
+      vm.setBillDiscount(const ManualDiscount.amount(Money(500)));
+      vm.approveDiscounts((id: UuidValue.fromString(newId()), name: 'Rina'));
+      vm.clearCart();
+      expect(vm.billDiscount, isNull);
+      expect(vm.discountApprover, isNull);
+    });
+  });
+
   test('jumlah produk dan item untuk bilah bawah ponsel', () {
     vm.scan('KOP');
     vm.scan('KOP');

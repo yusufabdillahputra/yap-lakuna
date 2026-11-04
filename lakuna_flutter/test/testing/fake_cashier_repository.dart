@@ -48,6 +48,9 @@ class FakeCashierRepository extends CashierRepository {
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
   final checkouts = <(List<SaleLineRequest>, List<SalePaymentRequest>)>[];
+
+  /// Diskon nota + penyetuju per checkout (F1-04b).
+  final discounts = <(ManualDiscount?, UuidValue?)>[];
   var loadCalls = 0;
   var _counter = 0;
   final _tenant = _id();
@@ -95,6 +98,7 @@ class FakeCashierRepository extends CashierRepository {
         canConfirmPayments:
             permissions?.contains(Permission.paymentsConfirm) ?? true,
         canSellOnCredit: permissions?.contains(Permission.debtsManage) ?? true,
+        canDiscount: permissions?.contains(Permission.salesDiscount) ?? true,
         session: sessionOpen
             ? CashierSession(
                 id: _session,
@@ -122,8 +126,17 @@ class FakeCashierRepository extends CashierRepository {
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
     SaleCredit? credit,
+    ManualDiscount? discount,
+    UuidValue? discountApproverId,
   }) async {
     if (_check() case final e?) return Result.error(e);
+    final discounted = discount != null || lines.any((l) => l.discount != null);
+    if (discounted &&
+        discountApproverId == null &&
+        !(permissions?.contains(Permission.salesDiscount) ?? true)) {
+      return const Result.error(DiscountNotPermitted());
+    }
+    discounts.add((discount, discountApproverId));
     if (credit != null) {
       if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
         return const Result.error(NotPermitted(Permission.debtsManage));
@@ -177,7 +190,17 @@ class FakeCashierRepository extends CashierRepository {
         ),
       ));
     }
-    final totals = SaleTotals.of(priced.map((p) => p.$4));
+    final totals0 = SaleTotals.of(priced.map((p) => p.$4));
+    final lineCuts = [
+      for (final (i, p) in priced.indexed)
+        lines[i].discount?.cut(p.$4.lineTotal) ?? Money.zero,
+    ];
+    final linesNet = totals0.total - Money.sum(lineCuts);
+    final billCut = discount?.cut(linesNet) ?? Money.zero;
+    final totals = SaleTotals(
+      subtotal: totals0.subtotal,
+      total: linesNet - billCut,
+    );
     CustomerRow? creditRow;
     if (credit != null) {
       creditRow = creditRows
@@ -225,7 +248,11 @@ class FakeCashierRepository extends CashierRepository {
       number: 'PST-K01-261103-${_counter.toString().padLeft(4, '0')}',
       status: SaleStatus.completed,
       subtotal: totals.subtotal.value,
-      tierDiscount: totals.tierDiscount.value,
+      tierDiscount: totals0.tierDiscount.value,
+      lineDiscountAmount: Money.sum(lineCuts).value,
+      discountAmount: billCut.value,
+      discountBp: discount?.bp ?? 0,
+      discountApprovedBy: discountApproverId,
       total: totals.total.value,
       paidAmount: credit == null
           ? totals.total.value
@@ -269,7 +296,9 @@ class FakeCashierRepository extends CashierRepository {
               quantityMilli: line.quantity.milli,
               listPrice: line.listPrice.value,
               unitPrice: line.unitPrice.value,
-              lineTotal: line.lineTotal.value,
+              lineTotal: (line.lineTotal - lineCuts[i]).value,
+              discountAmount: lineCuts[i].value,
+              discountBp: lines[i].discount?.bp ?? 0,
               unitCost: variant.costPrice.value,
               tracksStock: product.tracksStock,
               sortOrder: i,

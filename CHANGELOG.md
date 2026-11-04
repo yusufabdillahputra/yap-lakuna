@@ -7,6 +7,86 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-04
+
+Diskon manual di Kasir retail (F1-04b, layar 1.4b): kasir memberi diskon
+per baris atau per nota, dalam persen atau rupiah. Staf tanpa izin
+`sales:discount` meminta persetujuan PIN manajer di tempat (1.2b).
+
+### Ditambahkan
+
+- **Diskon baris**: tekan lama (atau klik kanan) baris keranjang membuka
+  dialog *Diskon baris*. Dasar potongan adalah total baris setelah harga
+  grosir. Baris menampilkan sub-baris "Diskon 10% · − Rp 400" dan total
+  baris bersih.
+- **Diskon nota**: tombol diskon (ikon) di samping *Kosongkan* membuka
+  dialog *Diskon nota*. Dasarnya jumlah total baris setelah diskon baris,
+  dihitung sebelum pembulatan total.
+- Dialog diskon: pilihan % / Rp, isian nilai (persen boleh desimal, mis.
+  2,5), keterangan dasar, pratinjau potongan, *Hapus diskon*, *Batal*,
+  *Terapkan*. Diskon yang menghabiskan total ditolak dengan pesan.
+- Blok total Kasir: baris *Diskon baris* dan *Diskon nota 5% · disetujui
+  Rina* (ketuk untuk mengubah), sebelum *Pembulatan*. Bila hanya ada diskon
+  baris, nama penyetuju ditulis di baris *Diskon baris*.
+- **Persetujuan PIN manajer** untuk diskon: staf tanpa `sales:discount`
+  memasukkan PIN staf berizin setelah *Terapkan*. Satu persetujuan berlaku
+  untuk semua diskon di keranjang itu (maks. 30 menit) dan hangus saat
+  keranjang dikosongkan atau nota tersimpan.
+- Sakelar **Diskon manual butuh PIN manajer** di *Pengaturan → Penjualan &
+  stok* (bawaan hidup). Bila mati, staf tanpa izin tidak melihat menu
+  diskon.
+- Struk dan detail riwayat: baris "Diskon 10%  -1.000" di bawah item dan
+  baris diskon nota di blok total; *Subtotal* tampil bila ada diskon nota.
+- Laporan laba rugi: *Diskon* = diskon grosir + diskon manual (baris dan
+  nota).
+
+### Diubah
+
+- Penjualan per produk memakai total baris bersih (sudah dipotong diskon
+  baris). Diskon nota tidak dibagi ke produk, sama seperti pembulatan.
+- Nilai retur dibagi dari total nota, jadi diskon nota ikut terbagi ke
+  setiap baris yang diretur.
+
+### Diperbaiki
+
+Ditemukan saat pengujian dan review sebelum rilis:
+
+- Dialog persetujuan PIN kini juga bisa dibuka dari sheet *Pesanan* di
+  ponsel. Sebelumnya sheet berada di luar cakupan persetujuan sehingga
+  dialog tidak muncul.
+- Keranjang tidak lagi macet bila persetujuan diskon kedaluwarsa (lebih
+  dari 30 menit): penyetuju dihapus dan PIN diminta lagi, dan penyetuju
+  tidak dikirim bila semua diskon sudah dihapus.
+- Diskon yang menghabiskan total (mis. jumlah baris dikurangi setelah
+  diskon diberikan) kini menahan tombol *Bayar* dengan pesan, bukan gagal
+  di layar bayar. Dialog diskon baris juga menolak diskon yang membuat
+  total nota nol.
+- Nota berdiskon yang totalnya menjadi Rp 0 setelah pembulatan ditolak.
+- Isian dialog diskon tidak lagi kembali ke nilai awal saat tema atau
+  bahasa berubah.
+
+### Keamanan
+
+- Lapisan data menolak diskon dari staf tanpa `sales:discount` kecuali
+  penyetujunya staf aktif cabang yang berizin dan sakelar PIN hidup
+  (`DiscountNotPermitted`). Repositori aplikasi juga memeriksa bahwa
+  penyetuju benar-benar lolos PIN di sesi ini, lalu menghabiskan
+  persetujuannya setelah nota tersimpan.
+
+### Catatan teknis
+
+- Migrasi `manual-discount`: `sale_items.discount_amount`,
+  `sale_items.discount_bp`, `sales.discount_amount`, `sales.discount_bp`,
+  `sales.line_discount_amount`, `sales.discount_approved_by`.
+- Domain: `ManualDiscount` (persen dalam basis poin, dibulatkan setengah ke
+  atas; rupiah dibatasi dasar), `parseDiscountValue`,
+  `SalesRules.discountNeedsPin`, `ReportSale.manualDiscount`.
+- `checkoutSale(discount:, discountApproverId:)` dan
+  `SaleLineRequest.discount`; `SessionRepository` memberi masa berlaku
+  persetujuan diskon 30 menit (void tetap 2 menit).
+- Gap: diskon di bill F&B dan split bill, serta batas diskon per role,
+  dicatat di spec F1-04b.
+
 ## [0.23.0] - 2026-11-04
 
 Pengaturan toko bagian kedua (F1-18): pemilik bisa mengubah profil toko dan
@@ -2350,7 +2430,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...v0.21.0

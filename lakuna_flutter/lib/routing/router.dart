@@ -182,6 +182,7 @@ GoRouter createRouter({
                 key: ValueKey('cashier-${state.uri.query}'),
                 repository: cashier,
                 printer: receiptPrinter,
+                session: session,
                 billId: bill,
                 part: part,
                 completed: state.extra is CompletedBill

@@ -221,6 +221,92 @@ void main() {
       expect(_ok(r).payments.single.confirmedBy, session.current!.id);
     },
   );
+
+  test(
+    'diskon dengan penyetuju: PIN harus baru diperiksa, lalu habis',
+    () async {
+      await openCashSession(
+        store,
+        CashScope.of(ctx),
+        staffId: ctx.owner.id,
+        openingCash: const Money(100000),
+      );
+      final kopi = _ok(await repo.load()).products.single.variants.single;
+      final manager = StaffProfile(
+        id: ctx.owner.id,
+        name: 'Ani',
+        roleKey: 'owner',
+        isOwner: true,
+        hasPin: true,
+        permissions: Permission.values.toSet(),
+      );
+      session
+        ..staff = [manager]
+        ..current = StaffProfile(
+          id: ctx.owner.id,
+          name: 'Ani',
+          roleKey: 'cashier',
+          isOwner: false,
+          hasPin: true,
+          permissions: DefaultRole.cashier.permissions,
+        );
+      var now = DateTime.utc(2026, 11, 4, 9);
+      session.approvalClock = () => now;
+      const discount = ManualDiscount.percent(BasisPoints(1000));
+      Future<Result<CheckoutResult>> pay(Money cash) => repo.checkout(
+        lines: [SaleLineRequest(variantId: kopi.id, quantity: Qty.units(2))],
+        payments: [SalePaymentRequest.cash(cash)],
+        discount: discount,
+        discountApproverId: manager.id,
+      );
+
+      // Id penyetuju tanpa PIN ditolak.
+      expect(
+        _err(await pay(const Money(10000))),
+        isA<NotPermitted>().having(
+          (e) => e.permission,
+          'permission',
+          Permission.salesDiscount,
+        ),
+      );
+
+      // Persetujuan diskon berlaku 30 menit.
+      _ok(
+        await session.verifyApprover(
+          manager.id,
+          '123456',
+          Permission.salesDiscount,
+        ),
+      );
+      now = now.add(const Duration(minutes: 29));
+      expect(session.hasApproval(manager.id, Permission.salesDiscount), isTrue);
+
+      // Checkout gagal (uang kurang) tidak menghabiskan persetujuan.
+      expect(await pay(const Money(1000)), isA<Error<CheckoutResult>>());
+      expect(session.hasApproval(manager.id, Permission.salesDiscount), isTrue);
+
+      final sale = _ok(await pay(const Money(10000))).sale;
+      expect(sale.total, 3600);
+      expect(
+        session.hasApproval(manager.id, Permission.salesDiscount),
+        isFalse,
+      );
+
+      // Kedaluwarsa setelah 30 menit.
+      _ok(
+        await session.verifyApprover(
+          manager.id,
+          '123456',
+          Permission.salesDiscount,
+        ),
+      );
+      now = now.add(const Duration(minutes: 31));
+      expect(
+        session.hasApproval(manager.id, Permission.salesDiscount),
+        isFalse,
+      );
+    },
+  );
 }
 
 Uint8List _png(int w, int h) {

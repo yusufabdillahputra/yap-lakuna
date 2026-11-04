@@ -5,8 +5,9 @@ import 'package:serverpod_database/serverpod_database.dart'
 
 import 'cash.dart';
 import 'customers.dart';
-import 'history.dart' show soldStatuses;
+import 'history.dart' show requireApprover, soldStatuses;
 import 'sale_core.dart';
+import 'staff_access.dart' show findStaffById;
 import 'stock.dart';
 import 'store.dart';
 import 'store_settings.dart';
@@ -19,7 +20,11 @@ class SaleLineRequest {
     required this.variantId,
     required this.quantity,
     this.productUnitId,
+    this.discount,
   });
+
+  /// Diskon manual baris (F1-04b), dari total baris setelah harga grosir.
+  final ManualDiscount? discount;
 
   final UuidValue variantId;
 
@@ -132,6 +137,65 @@ class SalePaymentUnsupported implements Exception {
 }
 
 /// Varian yang stoknya jadi minus setelah nota tersimpan.
+/// Diskon manual melebihi dasarnya, atau membuat total nota nol.
+class DiscountTooLarge implements Exception {
+  const DiscountTooLarge();
+  @override
+  String toString() => 'DiscountTooLarge';
+}
+
+/// Nilai diskon manual tidak sah (nol, negatif, atau > 100%).
+class DiscountInvalid implements Exception {
+  const DiscountInvalid();
+  @override
+  String toString() => 'DiscountInvalid';
+}
+
+/// Staf tidak boleh memberi diskon manual: tanpa `sales:discount` dan
+/// tanpa penyetuju (atau persetujuan PIN dimatikan di pengaturan).
+class DiscountNotPermitted implements Exception {
+  const DiscountNotPermitted();
+  @override
+  String toString() => 'DiscountNotPermitted';
+}
+
+/// Potongan [discount] dari [base]; galat bila tidak sah.
+Money _discountCut(ManualDiscount discount, Money base) {
+  switch (discount.issue(base)) {
+    case DiscountIssue.invalid:
+      throw const DiscountInvalid();
+    case DiscountIssue.tooLarge:
+      throw const DiscountTooLarge();
+    case null:
+      return discount.cut(base);
+  }
+}
+
+/// Memeriksa izin diskon manual [staffId]. Mengembalikan penyetuju yang
+/// dicatat (`null` bila staf sendiri berizin).
+Future<UuidValue?> requireDiscountActor(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  UuidValue? approverId,
+}) async {
+  final staff = await findStaffById(
+    store,
+    tenantId: scope.tenantId,
+    outletId: scope.outletId,
+    staffId: staffId,
+  );
+  if (staff?.permissions.contains(Permission.salesDiscount) ?? false) {
+    return null;
+  }
+  final rules = await loadSalesRules(store.session, scope);
+  if (!rules.discountNeedsPin || approverId == null) {
+    throw const DiscountNotPermitted();
+  }
+  await requireApprover(store, scope, approverId, Permission.salesDiscount);
+  return approverId;
+}
+
 class NegativeStock {
   const NegativeStock({
     required this.variantId,
@@ -189,6 +253,8 @@ Future<CheckoutResult> checkoutSale(
   required List<SaleLineRequest> lines,
   required List<SalePaymentRequest> payments,
   SaleCredit? credit,
+  ManualDiscount? discount,
+  UuidValue? discountApproverId,
 }) async {
   if (lines.isEmpty) throw SaleEmpty();
   for (var i = 0; i < lines.length; i++) {
@@ -205,6 +271,15 @@ Future<CheckoutResult> checkoutSale(
     ];
   }
   checkPaymentRequests(payments);
+  final discounted = discount != null || lines.any((l) => l.discount != null);
+  final approvedBy = discounted
+      ? await requireDiscountActor(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: discountApproverId,
+        )
+      : null;
   return store.write(actor: staffId, (w) async {
     final session = await requireOpenCashSession(store, w, scope);
     final priced = await priceRequests(w.session, w.transaction, scope, lines);
@@ -214,7 +289,25 @@ Future<CheckoutResult> checkoutSale(
       scope,
       transaction: w.transaction,
     );
-    final total = roundTotal(totals.total, rules.rounding);
+    // Diskon manual baris lalu nota (F1-04b), sebelum pembulatan.
+    final lineCuts = [
+      for (var i = 0; i < priced.length; i++)
+        switch (lines[i].discount) {
+          final d? => _discountCut(d, priced[i].line.lineTotal),
+          null => Money.zero,
+        },
+    ];
+    final lineDiscount = Money.sum(lineCuts);
+    final linesNet = totals.total - lineDiscount;
+    final billCut = discount == null
+        ? Money.zero
+        : _discountCut(discount, linesNet);
+    final net = linesNet - billCut;
+    final total = roundTotal(net, rules.rounding);
+    // Nota berdiskon harus tetap bernilai, juga setelah pembulatan.
+    if (discounted && (net <= Money.zero || total <= Money.zero)) {
+      throw const DiscountTooLarge();
+    }
 
     final s = await w.stamp();
     Customer? customer;
@@ -240,7 +333,11 @@ Future<CheckoutResult> checkoutSale(
         status: SaleStatus.completed,
         subtotal: totals.subtotal.value,
         tierDiscount: totals.tierDiscount.value,
-        roundingAmount: (total - totals.total).value,
+        lineDiscountAmount: lineDiscount.value,
+        discountAmount: billCut.value,
+        discountBp: discount?.bp ?? 0,
+        discountApprovedBy: approvedBy,
+        roundingAmount: (total - net).value,
         total: total.value,
         paidAmount: credit?.downPayment.value ?? total.value,
         changeAmount: change.value,
@@ -289,7 +386,9 @@ Future<CheckoutResult> checkoutSale(
             quantityMilli: p.line.quantity.milli,
             listPrice: p.line.listPrice.value,
             unitPrice: p.line.unitPrice.value,
-            lineTotal: p.line.lineTotal.value,
+            lineTotal: (p.line.lineTotal - lineCuts[i]).value,
+            discountAmount: lineCuts[i].value,
+            discountBp: lines[i].discount?.bp ?? 0,
             unitCost: unitCost.value,
             tracksStock: p.tracksStock,
             sortOrder: i,

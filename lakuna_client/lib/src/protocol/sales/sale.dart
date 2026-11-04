@@ -52,6 +52,10 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? discountAmount,
+    int? discountBp,
+    int? lineDiscountAmount,
+    this.discountApprovedBy,
     this.voidReason,
     this.voidedBy,
     this.voidedAt,
@@ -75,6 +79,9 @@ abstract class Sale
        taxAmount = taxAmount ?? 0,
        taxInclusive = taxInclusive ?? false,
        roundingAmount = roundingAmount ?? 0,
+       discountAmount = discountAmount ?? 0,
+       discountBp = discountBp ?? 0,
+       lineDiscountAmount = lineDiscountAmount ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -110,6 +117,10 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? discountAmount,
+    int? discountBp,
+    int? lineDiscountAmount,
+    _isc.UuidValue? discountApprovedBy,
     String? voidReason,
     _isc.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -193,6 +204,14 @@ abstract class Sale
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['taxInclusive']),
       roundingAmount: jsonSerialization['roundingAmount'] as int?,
+      discountAmount: jsonSerialization['discountAmount'] as int?,
+      discountBp: jsonSerialization['discountBp'] as int?,
+      lineDiscountAmount: jsonSerialization['lineDiscountAmount'] as int?,
+      discountApprovedBy: jsonSerialization['discountApprovedBy'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['discountApprovedBy'],
+            ),
       voidReason: jsonSerialization['voidReason'] as String?,
       voidedBy: jsonSerialization['voidedBy'] == null
           ? null
@@ -316,6 +335,18 @@ abstract class Sale
   /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   int roundingAmount;
 
+  /// Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
+  int discountAmount;
+
+  /// Persen diskon nota (basis poin); 0 bila diskon rupiah.
+  int discountBp;
+
+  /// Jumlah diskon manual semua baris (untuk laporan).
+  int lineDiscountAmount;
+
+  /// Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
+  _isc.UuidValue? discountApprovedBy;
+
   String? voidReason;
 
   _isc.UuidValue? voidedBy;
@@ -386,6 +417,10 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? discountAmount,
+    int? discountBp,
+    int? lineDiscountAmount,
+    _isc.UuidValue? discountApprovedBy = const _isc.$UndefinedUuidValue(),
     String? voidReason,
     _isc.UuidValue? voidedBy = const _isc.$UndefinedUuidValue(),
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
@@ -436,6 +471,11 @@ abstract class Sale
       'taxAmount': taxAmount,
       'taxInclusive': taxInclusive,
       'roundingAmount': roundingAmount,
+      'discountAmount': discountAmount,
+      'discountBp': discountBp,
+      'lineDiscountAmount': lineDiscountAmount,
+      if (discountApprovedBy != null)
+        'discountApprovedBy': discountApprovedBy?.toJson(),
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -488,6 +528,11 @@ abstract class Sale
       'taxAmount': taxAmount,
       'taxInclusive': taxInclusive,
       'roundingAmount': roundingAmount,
+      'discountAmount': discountAmount,
+      'discountBp': discountBp,
+      'lineDiscountAmount': lineDiscountAmount,
+      if (discountApprovedBy != null)
+        'discountApprovedBy': discountApprovedBy?.toJson(),
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -568,6 +613,10 @@ class _SaleImpl extends Sale {
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? discountAmount,
+    int? discountBp,
+    int? lineDiscountAmount,
+    _isc.UuidValue? discountApprovedBy,
     String? voidReason,
     _isc.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -614,6 +663,10 @@ class _SaleImpl extends Sale {
          taxAmount: taxAmount,
          taxInclusive: taxInclusive,
          roundingAmount: roundingAmount,
+         discountAmount: discountAmount,
+         discountBp: discountBp,
+         lineDiscountAmount: lineDiscountAmount,
+         discountApprovedBy: discountApprovedBy,
          voidReason: voidReason,
          voidedBy: voidedBy,
          voidedAt: voidedAt,
@@ -666,6 +719,10 @@ class _SaleImpl extends Sale {
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? discountAmount,
+    int? discountBp,
+    int? lineDiscountAmount,
+    _isc.UuidValue? discountApprovedBy = const _isc.$UndefinedUuidValue(),
     Object? voidReason = _Undefined,
     _isc.UuidValue? voidedBy = const _isc.$UndefinedUuidValue(),
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
@@ -719,6 +776,12 @@ class _SaleImpl extends Sale {
       taxAmount: taxAmount ?? this.taxAmount,
       taxInclusive: taxInclusive ?? this.taxInclusive,
       roundingAmount: roundingAmount ?? this.roundingAmount,
+      discountAmount: discountAmount ?? this.discountAmount,
+      discountBp: discountBp ?? this.discountBp,
+      lineDiscountAmount: lineDiscountAmount ?? this.lineDiscountAmount,
+      discountApprovedBy: discountApprovedBy is _isc.UndefinedSentinel
+          ? this.discountApprovedBy
+          : discountApprovedBy,
       voidReason: voidReason is String? ? voidReason : this.voidReason,
       voidedBy: voidedBy is _isc.UndefinedSentinel ? this.voidedBy : voidedBy,
       voidedAt: voidedAt is _isc.UndefinedSentinel ? this.voidedAt : voidedAt,
@@ -916,6 +979,28 @@ class SaleUpdateTable extends _isd.UpdateTable<SaleTable> {
 
   _isd.ColumnValue<int, int> roundingAmount(int value) => _isd.ColumnValue(
     table.roundingAmount,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> discountAmount(int value) => _isd.ColumnValue(
+    table.discountAmount,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> discountBp(int value) => _isd.ColumnValue(
+    table.discountBp,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> lineDiscountAmount(int value) => _isd.ColumnValue(
+    table.lineDiscountAmount,
+    value,
+  );
+
+  _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> discountApprovedBy(
+    _isc.UuidValue? value,
+  ) => _isd.ColumnValue(
+    table.discountApprovedBy,
     value,
   );
 
@@ -1166,6 +1251,29 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
       hasDefault: true,
       fieldName: 'roundingAmount',
     );
+    discountAmount = _isd.ColumnInt(
+      'discount_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'discountAmount',
+    );
+    discountBp = _isd.ColumnInt(
+      'discount_bp',
+      this,
+      hasDefault: true,
+      fieldName: 'discountBp',
+    );
+    lineDiscountAmount = _isd.ColumnInt(
+      'line_discount_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'lineDiscountAmount',
+    );
+    discountApprovedBy = _isd.ColumnUuid(
+      'discount_approved_by',
+      this,
+      fieldName: 'discountApprovedBy',
+    );
     voidReason = _isd.ColumnString(
       'void_reason',
       this,
@@ -1313,6 +1421,18 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
   /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   late final _isd.ColumnInt roundingAmount;
 
+  /// Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
+  late final _isd.ColumnInt discountAmount;
+
+  /// Persen diskon nota (basis poin); 0 bila diskon rupiah.
+  late final _isd.ColumnInt discountBp;
+
+  /// Jumlah diskon manual semua baris (untuk laporan).
+  late final _isd.ColumnInt lineDiscountAmount;
+
+  /// Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
+  late final _isd.ColumnUuid discountApprovedBy;
+
   late final _isd.ColumnString voidReason;
 
   late final _isd.ColumnUuid voidedBy;
@@ -1378,6 +1498,10 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
     taxAmount,
     taxInclusive,
     roundingAmount,
+    discountAmount,
+    discountBp,
+    lineDiscountAmount,
+    discountApprovedBy,
     voidReason,
     voidedBy,
     voidedAt,

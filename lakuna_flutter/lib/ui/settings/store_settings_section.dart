@@ -207,6 +207,14 @@ class StoreSettingsSection extends StatelessWidget {
             onChange: vm.setAllowNegativeStock,
           ),
           FSwitch(
+            key: const ValueKey('store-rules-discount-pin'),
+            label: Text(l10n.storeSettingsDiscountPin),
+            description: Text(l10n.storeSettingsDiscountPinHint),
+            enabled: !busy,
+            value: vm.rules.discountNeedsPin,
+            onChange: vm.setDiscountNeedsPin,
+          ),
+          FSwitch(
             key: const ValueKey('store-rules-session'),
             label: Text(l10n.storeSettingsRequireSession),
             description: Text(l10n.storeSettingsRequireSessionHint),

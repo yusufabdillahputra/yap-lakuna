@@ -72,6 +72,7 @@ class LocalCashierRepository extends CashierRepository {
           : null,
       canConfirmPayments: staff.can(Permission.paymentsConfirm),
       canSellOnCredit: staff.can(Permission.debtsManage),
+      canDiscount: staff.can(Permission.salesDiscount),
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
     );
@@ -82,7 +83,9 @@ class LocalCashierRepository extends CashierRepository {
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
     SaleCredit? credit,
-  }) => _guard((ctx, staff) {
+    ManualDiscount? discount,
+    UuidValue? discountApproverId,
+  }) => _guard((ctx, staff) async {
     if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
         !staff.can(Permission.paymentsConfirm)) {
       throw const NotPermitted(Permission.paymentsConfirm);
@@ -90,14 +93,25 @@ class LocalCashierRepository extends CashierRepository {
     if (credit != null && !staff.can(Permission.debtsManage)) {
       throw const NotPermitted(Permission.debtsManage);
     }
-    return checkoutSale(
+    // Id penyetuju saja tidak cukup: PIN-nya harus baru diperiksa di sini.
+    if (discountApproverId != null &&
+        !_session.hasApproval(discountApproverId, Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    final result = await checkoutSale(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
       lines: lines,
       payments: payments,
       credit: credit,
+      discount: discount,
+      discountApproverId: discountApproverId,
     );
+    if (discountApproverId != null) {
+      _session.consumeApproval(discountApproverId, Permission.salesDiscount);
+    }
+    return result;
   });
 
   @override

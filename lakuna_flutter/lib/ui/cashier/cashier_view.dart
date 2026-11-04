@@ -9,13 +9,17 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cashier_repository.dart';
+import '../../data/repositories/session_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
+import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../products/product_list_view.dart' show priceRange;
 import '../products/product_widgets.dart';
+import '../receipt/receipt_content.dart' show percentLabel;
 import 'cashier_view_model.dart';
+import 'discount_dialog.dart';
 import 'payment_view.dart';
 
 /// Layar kasir retail (1.4 / 1.11 / 1.11b, F1-04) beserta tahap bayar
@@ -30,10 +34,14 @@ class CashierScreen extends StatefulWidget {
     this.completed,
     this.onLeaveBill,
     this.onBillDone,
+    this.session,
   });
 
   final CashierRepository repository;
   final ReceiptPrinter printer;
+
+  /// Untuk dialog persetujuan PIN diskon manual (F1-04b).
+  final SessionRepository? session;
 
   /// Mode bill (F1-10): open bill yang dibayar.
   final String? billId;
@@ -87,12 +95,18 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => CashierView(
-    viewModel: _viewModel,
-    onOpenSession: () => context.go(Routes.cashSession),
-    billRequested: widget.billId != null,
-    onLeaveBill: widget.onLeaveBill,
-  );
+  Widget build(BuildContext context) {
+    final view = CashierView(
+      viewModel: _viewModel,
+      onOpenSession: () => context.go(Routes.cashSession),
+      billRequested: widget.billId != null,
+      onLeaveBill: widget.onLeaveBill,
+    );
+    return switch (widget.session) {
+      final session? => ApprovalScope(session: session, child: view),
+      null => view,
+    };
+  }
 }
 
 UuidValue? _parseId(String? text) {
@@ -857,6 +871,10 @@ class _CartRow extends StatelessWidget {
     );
     final tier = line.priced.tier;
     final k = 'cashier-line-${line.key}';
+    final discount = line.discount;
+    void editDiscount() =>
+        editCashierDiscount(context, viewModel, index: index);
+    final canDiscount = viewModel.canOfferDiscount;
     return Padding(
       key: ValueKey(k),
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -864,29 +882,45 @@ class _CartRow extends StatelessWidget {
         spacing: 8,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(
-                  line.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.typography.body.sm.copyWith(
-                    fontWeight: FontWeight.w600,
+            child: GestureDetector(
+              key: ValueKey('$k-info'),
+              behavior: HitTestBehavior.opaque,
+              onLongPress: canDiscount ? editDiscount : null,
+              onSecondaryTap: canDiscount ? editDiscount : null,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    line.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  [
-                    '${formatQty(context, line.quantity)} × '
-                        '${formatMoney(context, line.priced.unitPrice)}',
-                    line.unitName,
-                    if (tier != null)
-                      l10n.cashierTierNote(formatQty(context, tier.minQty)),
-                  ].join(' · '),
-                  style: muted,
-                ),
-              ],
+                  Text(
+                    [
+                      '${formatQty(context, line.quantity)} × '
+                          '${formatMoney(context, line.priced.unitPrice)}',
+                      line.unitName,
+                      if (tier != null)
+                        l10n.cashierTierNote(formatQty(context, tier.minQty)),
+                    ].join(' · '),
+                    style: muted,
+                  ),
+                  if (discount != null)
+                    Text(
+                      '${discountLabel(l10n, discount)} · '
+                      '− ${formatMoney(context, line.discountCut)}',
+                      key: ValueKey('$k-discount'),
+                      style: theme.typography.body.xs.copyWith(
+                        color: theme.colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           _QtyButton(
@@ -921,7 +955,7 @@ class _CartRow extends StatelessWidget {
           SizedBox(
             width: 84,
             child: Text(
-              formatMoney(context, line.priced.lineTotal),
+              formatMoney(context, line.netTotal),
               textAlign: TextAlign.end,
               style: theme.typography.body.sm.copyWith(
                 fontWeight: FontWeight.w700,
@@ -982,6 +1016,34 @@ class _TotalsBlock extends StatelessWidget {
             '− ${formatMoney(context, t.tierDiscount)}',
             key: const ValueKey('cashier-tier-discount'),
           ),
+        if (viewModel.lineDiscount > Money.zero)
+          line(
+            [
+              l10n.cashierLineDiscounts,
+              // Tanpa diskon nota, penyetuju ditulis di baris ini.
+              if (viewModel.billDiscount == null)
+                if (viewModel.discountApprover case final a?)
+                  l10n.cashierDiscountApprovedBy(a.name),
+            ].join(' · '),
+            '− ${formatMoney(context, viewModel.lineDiscount)}',
+            key: const ValueKey('cashier-line-discounts'),
+          ),
+        if (viewModel.billDiscount case final d?)
+          FTappable(
+            key: const ValueKey('cashier-bill-discount'),
+            onPress: () => editCashierDiscount(context, viewModel),
+            child: line(
+              [
+                d.kind == DiscountKind.percent
+                    ? l10n.cashierBillDiscountPct(percentLabel(l10n, d.bp))
+                    : l10n.cashierBillDiscount,
+                if (viewModel.discountApprover case final a?)
+                  l10n.cashierDiscountApprovedBy(a.name),
+              ].join(' · '),
+              '− ${formatMoney(context, viewModel.billDiscountCut)}',
+              key: const ValueKey('cashier-bill-discount-amount'),
+            ),
+          ),
         if (viewModel.rounding != Money.zero)
           line(
             l10n.cashierRounding,
@@ -994,6 +1056,14 @@ class _TotalsBlock extends StatelessWidget {
           strong: true,
           key: const ValueKey('cashier-total'),
         ),
+        if (viewModel.discountBlocksPay)
+          Text(
+            l10n.cashierDiscountTooLarge,
+            key: const ValueKey('cashier-discount-blocks'),
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.destructive,
+            ),
+          ),
       ],
     );
   }
@@ -1092,10 +1162,22 @@ class _OrderPanel extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (vm.canOfferDiscount)
+                      FButton.icon(
+                        key: const ValueKey('cashier-discount'),
+                        variant: .outline,
+                        onPress: lines.isEmpty
+                            ? null
+                            : () => editCashierDiscount(context, vm),
+                        child: Semantics(
+                          label: l10n.cashierDiscount,
+                          child: const Icon(TablerIcons.discount),
+                        ),
+                      ),
                     Expanded(
                       child: FButton(
                         key: const ValueKey('cashier-pay'),
-                        onPress: lines.isEmpty
+                        onPress: lines.isEmpty || vm.discountBlocksPay
                             ? null
                             : (onPay ?? vm.startPayment),
                         child: Flexible(
@@ -1234,22 +1316,29 @@ class _MobileCashier extends StatelessWidget {
   final CashierViewModel viewModel;
 
   Future<void> _showOrder(BuildContext context) async {
+    // Sheet berada di atas rute kasir, jadi cakupan persetujuan PIN
+    // (diskon) diteruskan ke dalamnya.
+    final session = ApprovalScope.maybeOf(context);
+    Widget scoped(Widget child) =>
+        session == null ? child : ApprovalScope(session: session, child: child);
     final pay = await showFSheet<bool>(
       context: context,
       side: FLayout.btt,
       mainAxisMaxRatio: 0.85,
-      builder: (context) => DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.theme.colors.background,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-        ),
-        child: SizedBox(
-          height: MediaQuery.sizeOf(context).height * 0.85,
-          child: ListenableBuilder(
-            listenable: viewModel,
-            builder: (context, _) => _OrderPanel(
-              viewModel: viewModel,
-              onPay: () => Navigator.of(context).pop(true),
+      builder: (context) => scoped(
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.theme.colors.background,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+          ),
+          child: SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.85,
+            child: ListenableBuilder(
+              listenable: viewModel,
+              builder: (context, _) => _OrderPanel(
+                viewModel: viewModel,
+                onPay: () => Navigator.of(context).pop(true),
+              ),
             ),
           ),
         ),
@@ -1349,7 +1438,7 @@ class _MobileCashier extends StatelessWidget {
                   FButton(
                     key: const ValueKey('cashier-pay'),
                     mainAxisSize: .min,
-                    onPress: vm.startPayment,
+                    onPress: vm.discountBlocksPay ? null : vm.startPayment,
                     child: Flexible(
                       child: Text(
                         l10n.cashierPay,

@@ -239,6 +239,43 @@ void main() {
     ]);
   });
 
+  test('diskon baris dan diskon nota', () {
+    final base = result([pay(PaymentMethod.cash, 170000)]);
+    final first = base.items.first;
+    final content = saleReceiptContent(
+      id,
+      result: CheckoutResult(
+        sale: base.sale.copyWith(
+          discountAmount: 8000,
+          discountBp: 500,
+          lineDiscountAmount: 2500,
+          total: 170000,
+        ),
+        items: [
+          first.copyWith(
+            lineTotal: first.lineTotal - 2500,
+            discountAmount: 2500,
+          ),
+          ...base.items.skip(1),
+        ],
+        payments: base.payments,
+      ),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    final item = content.items.first;
+    expect(item.amount, receiptAmount(id, first.lineTotal));
+    expect((item.discount!.label, item.discount!.value), ('Diskon', '-2.500'));
+    expect(content.totals.map((p) => (p.label, p.value)).take(3), [
+      ('Subtotal', '178.000'),
+      ('Diskon 5%', '-8.000'),
+      ('TOTAL', '170.000'),
+    ]);
+  });
+
   test('porsi split bill digabung kembali ke baris asal', () {
     final kopi = item('Kopi', '', 1000, 24000).copyWith(guestLabel: 'B');
     final nasi = item('Nasi', '', 1000, 29000);
