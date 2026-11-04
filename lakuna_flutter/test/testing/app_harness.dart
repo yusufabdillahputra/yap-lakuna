@@ -1,8 +1,10 @@
 import 'fake_backup_repository.dart';
+import 'fake_guide_repository.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/app.dart';
+import 'package:lakuna_flutter/data/repositories/guide_repository.dart';
 import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/config/app_environment.dart';
 import 'package:lakuna_flutter/routing/router.dart';
@@ -65,6 +67,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   TableFilePicker? tablePicker,
   FakeBackupRepository? backup,
   FakeBackupFiles? backupFiles,
+  GuideRepository? guide,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -123,6 +126,7 @@ Future<AppSettingsViewModel> pumpLakuna(
           // Bawaan: backup baru dibuat, jadi Beranda tanpa pengingat.
           backup: backup ?? FakeBackupRepository(last: DateTime.now().toUtc()),
           backupFiles: backupFiles ?? FakeBackupFiles(),
+          guide: guide ?? FakeGuideRepository(),
           initialLocation: initialLocation,
         ),
       ),

@@ -7,6 +7,77 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-11-04
+
+Menu **Panduan** (F1-21, layar 1.27): panduan pengguna lengkap di dalam
+aplikasi, Bahasa Indonesia dan English, tetap bisa dibaca tanpa internet.
+
+### Ditambahkan
+
+- Layar **Panduan** di menu Sistem dan rute `/panduan` (`?artikel=<slug>`
+  membuka artikel tertentu). Semua staf bisa membukanya, termasuk kasir.
+- **27 artikel** dalam 7 bagian: Mulai (instalasi & akun pemilik, masuk
+  dengan PIN, produk pertama, sesi kasir), Kasir (transaksi & grosir,
+  diskon, tunai, QRIS statis, split payment, kredit, struk & printer,
+  retur & void), F&B (meja & open bill, modifier, split bill, denah),
+  Inventori (pembelian, stok, hutang supplier), Keuangan (pelanggan &
+  piutang, pengeluaran, laporan), Admin (pengguna & role, pengaturan toko),
+  dan Data (backup & pulihkan, versi hosted, FAQ).
+- **Tangkapan layar WebP** asli aplikasi di 19 artikel, terpisah untuk
+  Bahasa Indonesia dan English (960 px, total sekitar 800 KB).
+- **Daftar isi** di samping artikel pada layar lebar (≥ 900 px); di HP
+  daftar isi dan artikel tampil bergantian dengan tombol kembali.
+- **Cari** di judul dan isi semua artikel; judul yang cocok tampil lebih
+  dulu, lengkap dengan nama bagiannya.
+- Tombol **ID / EN** untuk mengganti bahasa panduan tanpa mengubah bahasa
+  aplikasi; bawaan mengikuti bahasa aplikasi.
+- Artikel memuat breadcrumb, catatan (biru) dan peringatan (kuning) yang
+  terbaca di mode gelap, tautan antar-artikel, serta tautan *sebelumnya /
+  berikutnya*.
+- Lencana **Tersedia offline**.
+
+### Diubah
+
+- Menu Panduan tidak lagi menampilkan layar "segera hadir".
+
+### Diperbaiki
+
+Ditemukan saat review sebelum rilis:
+
+- Di HP (layar di bawah 900 px), mengetuk hasil pencarian kini membuka
+  artikelnya; tombol kembali menampilkan hasil lagi, dan mengetik di kolom
+  cari saat artikel terbuka langsung menampilkan hasil.
+- Teks pencarian tidak hilang saat lebar jendela melewati 900 px (tablet
+  diputar atau jendela desktop diubah ukurannya).
+- Pencarian yang diketik sebelum artikel selesai dimuat diulang setelah
+  pemuatan selesai, jadi tidak lagi menampilkan "tidak ada hasil" palsu.
+- Meninggalkan Panduan saat artikel masih dimuat tidak memicu galat.
+- Tombol ID / EN nonaktif selama daftar isi dimuat, agar bahasa tombol dan
+  isi artikel tidak berbeda.
+- Artikel yang gagal dimuat menampilkan pesan dengan tombol coba lagi,
+  bukan panel kosong.
+- Pembaca layar: tombol bahasa menyebut mana yang terpilih, dan kolom cari
+  berlabel di HP juga.
+- Daftar isi di HP tidak lagi memakai garis tepi dan latar panel samping.
+- Artikel QRIS menyebut tombol **Perbesar gambar QRIS** yang sebenarnya.
+- Parser menolak judul `###` dan dua kotak catatan tanpa baris kosong,
+  agar kesalahan penulisan tertangkap tes konten.
+
+### Catatan teknis
+
+- Konten di `lakuna_flutter/assets/guide/`: `toc.json` (bagian dan urutan
+  slug), `id/<slug>.md`, `en/<slug>.md`, `img/{id,en}/<nama>.webp`.
+- `guide_markdown.dart`: parser Markdown kecil (judul `#`/`##`, paragraf,
+  daftar bernomor dan berpoin termasuk poin bertingkat, `> [!note]` /
+  `> [!warning]`, gambar `![keterangan](nama)`, **tebal**, *miring*,
+  `[teks](slug)`), tanpa paket tambahan.
+- `GuideRepository` + `AssetGuideRepository` (cache daftar isi dan
+  artikel; artikel EN yang hilang jatuh ke ID), `GuideViewModel`
+  (`load`, `setLanguage`, `open`, `search`).
+- Tes konten memeriksa setiap slug ada di kedua bahasa dan bisa diurai,
+  semua tautan artikel valid, gambar berformat WebP ≤ 150 KB, tidak ada
+  berkas yatim, dan aset terdaftar di `pubspec.yaml`.
+
 ## [0.26.0] - 2026-11-04
 
 Beranda baru (F1-20, layar 1.10): angka hari ini, akses cepat ke modul, dan
@@ -2562,7 +2633,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...HEAD
+[0.27.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...v0.24.0

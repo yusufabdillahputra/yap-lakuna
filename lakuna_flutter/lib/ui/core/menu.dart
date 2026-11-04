@@ -43,19 +43,6 @@ class MenuGroup {
   final List<MenuEntry> entries;
 }
 
-MenuEntry _module(
-  String key,
-  IconData icon,
-  String Function(AppLocalizations) label, [
-  Permission? permission,
-]) => MenuEntry(
-  key: key,
-  icon: icon,
-  label: label,
-  path: Routes.module(key),
-  permission: permission,
-);
-
 /// Menu aplikasi fase 1, urutannya mengikuti kanvas desain.
 final List<MenuGroup> appMenu = [
   MenuGroup(
@@ -198,7 +185,12 @@ final List<MenuGroup> appMenu = [
         label: (l) => l.menuSettings,
         path: Routes.settings,
       ),
-      _module('guide', TablerIcons.help, (l) => l.menuGuide),
+      MenuEntry(
+        key: 'guide',
+        icon: TablerIcons.help,
+        label: (l) => l.menuGuide,
+        path: Routes.guide,
+      ),
     ],
   ),
 ];

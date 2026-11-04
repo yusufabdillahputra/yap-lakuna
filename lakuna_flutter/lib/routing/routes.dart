@@ -111,4 +111,11 @@ abstract final class Routes {
 
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
+
+  /// Panduan pengguna (F1-21).
+  static const guide = '/panduan';
+
+  /// Panduan langsung ke artikel [slug] (tautan kontekstual).
+  static String guideArticle(String slug) =>
+      Uri(path: guide, queryParameters: {'artikel': slug}).toString();
 }

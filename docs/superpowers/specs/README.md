@@ -73,7 +73,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 18 | [Pengaturan toko](2026-11-03-f1-18-pengaturan-design.md) | 1.26, 1.26b | Sebagian (v0.1.0: tema & bahasa; v0.7.0: QRIS statis; v0.8.0: struk & printer; v0.23.0: profil toko, cabang, penjualan & stok, PB1 termasuk, ukuran tampilan; v0.24.0: sakelar diskon butuh PIN; v0.25.0: Data & backup) |
 | 19 | [Data & backup](2026-11-04-f1-19-data-backup-design.md) | 1.13, 1.10 | Rilis v0.25.0 (backup .zip, pulihkan + muat ulang, pengingat Beranda, layar gagal mulai); enkripsi & pulihkan dari onboarding menyusul |
 | 20 | [Tata letak mobile & beranda](2026-11-04-f1-20-mobile-beranda-design.md) | 1.10, 1.11 | Rilis v0.26.0 (Beranda 1.10; navigasi bawah sejak v0.1.0, kasir mobile sejak v0.6.0); bagikan struk menyusul |
-| 21 | Panduan pengguna (ID + EN, gambar WebP) | 1.27 | Belum |
+| 21 | [Panduan pengguna](2026-11-04-f1-21-panduan-design.md) | 1.27 | Rilis v0.27.0 (27 artikel ID + EN, cari, 38 gambar WebP); tautan kontekstual dari layar lain menyusul |
 | 22 | Rilis ke store & distribusi | - | Sebagian (v0.1.0: installer otomatis) |
 
 ### Fase 2 · Hosting & sync (Serverpod di VPS sendiri)

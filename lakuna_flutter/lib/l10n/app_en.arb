@@ -3780,5 +3780,24 @@
   "homeDeviceTitle": "Device info",
   "@homeDeviceTitle": {
     "placeholders": {}
-  }
+  },
+  "guideTitle": "Guide",
+  "guideOffline": "Available offline",
+  "guideSearchLabel": "Search the guide",
+  "guideSearchHint": "Search: returns, QRIS, backup…",
+  "guideLanguageLabel": "Guide language",
+  "guideContents": "Contents",
+  "guideResults": "{count, plural, =1{1 search result} other{{count} search results}}",
+  "@guideResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideNoResults": "No matching articles",
+  "guideLoadError": "The guide could not be loaded",
+  "guidePrevious": "Previous",
+  "guideNext": "Next",
+  "guideImageMissing": "Image not available"
 }

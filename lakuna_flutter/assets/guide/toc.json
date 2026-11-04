@@ -1,0 +1,39 @@
+{
+  "sections": [
+    {
+      "id": "start",
+      "title": { "id": "Mulai", "en": "Getting started" },
+      "articles": ["install-owner", "login-pin", "first-product", "cash-session"]
+    },
+    {
+      "id": "cashier",
+      "title": { "id": "Kasir", "en": "Cashier" },
+      "articles": ["sale", "discount", "pay-cash", "pay-qris", "split-payment", "credit-sale", "receipt-printer", "return-void"]
+    },
+    {
+      "id": "fnb",
+      "title": { "id": "F&B", "en": "Food & beverage" },
+      "articles": ["tables-open-bill", "modifiers", "split-bill", "floor-plan"]
+    },
+    {
+      "id": "inventory",
+      "title": { "id": "Stok & pembelian", "en": "Stock & purchasing" },
+      "articles": ["purchases", "stock", "supplier-debt"]
+    },
+    {
+      "id": "finance",
+      "title": { "id": "Keuangan", "en": "Finance" },
+      "articles": ["customers-credit", "expenses", "reports"]
+    },
+    {
+      "id": "admin",
+      "title": { "id": "Pengaturan", "en": "Settings" },
+      "articles": ["users-roles", "store-settings"]
+    },
+    {
+      "id": "data",
+      "title": { "id": "Data", "en": "Data" },
+      "articles": ["backup-restore", "hosting", "faq"]
+    }
+  ]
+}
