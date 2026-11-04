@@ -83,4 +83,36 @@ void main() {
     expect(vm.load.error, isTrue);
     expect(vm.article, isNull);
   });
+
+  test('pencarian sebelum artikel dimuat diulang setelah dimuat', () async {
+    final vm = GuideViewModel(
+      repository: FakeGuideRepository(),
+      language: GuideLanguage.id,
+    )..search('qris');
+    expect(vm.results, isEmpty);
+    await vm.load.execute();
+    expect(vm.results, ['pay-qris', 'first-product']);
+  });
+
+  test('tidak memberi tahu pendengar setelah dibuang', () async {
+    final vm = GuideViewModel(
+      repository: FakeGuideRepository(),
+      language: GuideLanguage.id,
+    );
+    final loading = vm.load.execute();
+    vm.dispose();
+    await loading;
+  });
+
+  test('ganti bahasa diabaikan selama daftar isi dimuat', () async {
+    final vm = GuideViewModel(
+      repository: FakeGuideRepository(),
+      language: GuideLanguage.id,
+    );
+    final loading = vm.load.execute();
+    await vm.setLanguage.execute(GuideLanguage.en);
+    await loading;
+    expect(vm.language, GuideLanguage.id);
+    expect(vm.article?.title, 'Instalasi & akun pemilik');
+  });
 }

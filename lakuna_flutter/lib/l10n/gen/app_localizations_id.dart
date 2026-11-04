@@ -6832,9 +6832,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get guideLoadError => 'Panduan gagal dimuat';
 
   @override
-  String get guideRetry => 'Coba lagi';
-
-  @override
   String get guidePrevious => 'Sebelumnya';
 
   @override

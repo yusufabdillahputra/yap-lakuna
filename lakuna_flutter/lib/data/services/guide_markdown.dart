@@ -160,6 +160,9 @@ GuideDocument parseGuideMarkdown(String source) {
     if (line.startsWith('# ')) {
       throw FormatException('Judul H1 hanya boleh satu', line);
     }
+    if (line.startsWith('###')) {
+      throw FormatException('Hanya judul # dan ## yang didukung', line);
+    }
     if (line.startsWith('## ')) {
       flushParagraph();
       flushList();
@@ -177,7 +180,11 @@ GuideDocument parseGuideMarkdown(String source) {
       final text = [m[2]!];
       while (i + 1 < lines.length && lines[i + 1].trim().startsWith('>')) {
         i++;
-        text.add(lines[i].trim().substring(1).trim());
+        final next = lines[i].trim();
+        if (_callout.hasMatch(next)) {
+          throw FormatException('Pisahkan dua kotak dengan baris kosong', next);
+        }
+        text.add(next.substring(1).trim());
       }
       blocks.add(
         GuideCallout(

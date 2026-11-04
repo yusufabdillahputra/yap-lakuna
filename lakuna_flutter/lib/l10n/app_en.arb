@@ -3797,7 +3797,6 @@
   },
   "guideNoResults": "No matching articles",
   "guideLoadError": "The guide could not be loaded",
-  "guideRetry": "Try again",
   "guidePrevious": "Previous",
   "guideNext": "Next",
   "guideImageMissing": "Image not available"

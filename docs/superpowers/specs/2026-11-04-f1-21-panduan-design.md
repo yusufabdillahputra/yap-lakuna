@@ -1,7 +1,7 @@
 # F1-21 · Panduan pengguna
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.27.0
 - **Layar desain:** 1.27 *Panduan / dokumentasi · desktop*
 - **Acuan Storeku:** `2026-11-02-f1-21-panduan-design.md`
 
@@ -106,8 +106,8 @@ apa pun di sesi.
 
 | Topik | Desain | Kode | Catatan |
 | --- | --- | --- | --- |
-| Layar Panduan + daftar isi + cari + ID/EN | 1.27 | Dikerjakan | |
-| Artikel semua modul Fase 1 yang dirilis | Daftar isi | Dikerjakan | 27 artikel × 2 bahasa |
-| Tangkapan layar WebP per bahasa | - | Dikerjakan | |
+| Layar Panduan + daftar isi + cari + ID/EN | 1.27 | Rilis v0.27.0 | Layar sempit: daftar isi dan artikel bergantian |
+| Artikel semua modul Fase 1 yang dirilis | Daftar isi | Rilis v0.27.0 | 27 artikel × 2 bahasa |
+| Tangkapan layar WebP per bahasa | - | Rilis v0.27.0 | 19 gambar × 2 bahasa, 960 px |
 | Tautan kontekstual dari layar lain | - | Menyusul | Rute `?artikel=` sudah siap |
 | Situs panduan online | A1 §6 | Menyusul Fase 2 | Konten Markdown dipakai ulang |

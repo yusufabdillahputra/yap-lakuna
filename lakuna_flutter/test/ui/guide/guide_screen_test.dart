@@ -100,6 +100,40 @@ void main() {
     await _tap(tester, 'guide-back');
     expect(_key('guide-article'), findsNothing);
     expect(_key('guide-toc-pay-qris'), findsOneWidget);
+
+    // Cari di HP: hasil, buka artikel, kembali ke hasil.
+    await _search(tester, 'pemilik');
+    await _tap(tester, 'guide-result-install-owner');
+    expect(_text(tester, 'guide-article-title'), 'Instalasi & akun pemilik');
+    await _tap(tester, 'guide-back');
+    expect(_key('guide-result-install-owner'), findsOneWidget);
+    // Mengetik lagi saat artikel terbuka menampilkan hasil.
+    await _tap(tester, 'guide-result-install-owner');
+    await _search(tester, 'qris');
+    expect(_key('guide-article'), findsNothing);
+    expect(_key('guide-result-pay-qris'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('teks cari tetap ada saat lebar layar melewati 900 px', (
+    tester,
+  ) async {
+    await pumpLakuna(
+      tester,
+      size: const Size(1440, 900),
+      initialLocation: Routes.guide,
+    );
+    await _search(tester, 'qris');
+    tester.view.physicalSize = const Size(800, 900);
+    await tester.pumpAndSettle();
+    final field = tester.widget<EditableText>(
+      find.descendant(
+        of: _key('guide-search'),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(field.controller.text, 'qris');
+    expect(_key('guide-result-pay-qris'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

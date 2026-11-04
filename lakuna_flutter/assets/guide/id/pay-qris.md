@@ -10,7 +10,7 @@ Pemilik mengunggah gambar stiker QRIS di **Pengaturan › Metode pembayaran**, m
 
 ## Langkah
 
-1. Di layar Bayar, pilih **QRIS statis**. Gambar QRIS dan total tampil di layar. Ketuk gambar untuk layar penuh.
+1. Di layar Bayar, pilih **QRIS statis**. Gambar QRIS dan total tampil di layar. Tekan **Perbesar gambar QRIS** agar pelanggan lebih mudah memindai.
 2. Minta pelanggan scan dan mengetik nominal yang sama persis.
 3. Cek notifikasi dana masuk di HP toko atau mutasi rekening.
 4. Tekan **Sudah Terbayar**. Nama kasir dan jam konfirmasi tercatat.

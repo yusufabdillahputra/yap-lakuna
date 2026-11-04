@@ -110,4 +110,15 @@ statis milik toko.
     expect((doc.blocks.first as GuideList).items, hasLength(2));
     expect(doc.blocks, hasLength(2));
   });
+
+  test('### dan dua kotak tanpa baris kosong ditolak', () {
+    expect(
+      () => parseGuideMarkdown('# J\n\n### Kecil'),
+      throwsFormatException,
+    );
+    expect(
+      () => parseGuideMarkdown('# J\n\n> [!note] a\n> [!warning] b'),
+      throwsFormatException,
+    );
+  });
 }

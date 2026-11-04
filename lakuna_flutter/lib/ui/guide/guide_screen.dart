@@ -31,6 +31,10 @@ class _GuideScreenState extends State<GuideScreen> {
   /// Layar sempit: artikel (true) atau daftar isi (false).
   late bool _showArticle = widget.initialSlug != null;
 
+  /// Disimpan di sini agar teks cari tidak hilang saat tata letak berganti
+  /// di batas 900 px.
+  final _search = TextEditingController();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -44,7 +48,15 @@ class _GuideScreenState extends State<GuideScreen> {
   @override
   void dispose() {
     _vm?.dispose();
+    _search.dispose();
     super.dispose();
+  }
+
+  /// Mengetik di kolom cari menampilkan hasil; di layar sempit artikel
+  /// ditutup agar daftar hasil terlihat.
+  void _onSearch(String query) {
+    _vm!.search(query);
+    if (_showArticle) setState(() => _showArticle = false);
   }
 
   void _open(String slug) {
@@ -79,27 +91,32 @@ class _GuideScreenState extends State<GuideScreen> {
               children: [
                 SizedBox(
                   width: 280,
-                  child: _Nav(vm: vm, onOpen: _open),
+                  child: _Nav(vm: vm, onOpen: _open, wide: true),
                 ),
                 Expanded(
                   child: _Article(vm: vm, onOpen: _open),
                 ),
               ],
             );
-          } else if (_showArticle && vm.results == null) {
+          } else if (_showArticle) {
             body = _Article(
               vm: vm,
               onOpen: _open,
               onBack: () => setState(() => _showArticle = false),
             );
           } else {
-            body = _Nav(vm: vm, onOpen: _open);
+            body = _Nav(vm: vm, onOpen: _open, wide: false);
           }
           return Column(
             key: const ValueKey('guide-screen'),
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Header(vm: vm, wide: wide),
+              _Header(
+                vm: vm,
+                wide: wide,
+                search: _search,
+                onSearch: _onSearch,
+              ),
               Expanded(child: body),
             ],
           );
@@ -110,10 +127,17 @@ class _GuideScreenState extends State<GuideScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.vm, required this.wide});
+  const _Header({
+    required this.vm,
+    required this.wide,
+    required this.search,
+    required this.onSearch,
+  });
 
   final GuideViewModel vm;
   final bool wide;
+  final TextEditingController search;
+  final ValueChanged<String> onSearch;
 
   @override
   Widget build(BuildContext context) {
@@ -137,18 +161,24 @@ class _Header extends StatelessWidget {
         ),
       ],
     );
-    final search = FTextField(
-      key: const ValueKey('guide-search'),
-      hint: l10n.guideSearchHint,
-      prefixBuilder: (context, style, _) => Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12),
-        child: Icon(
-          TablerIcons.search,
-          size: 18,
-          color: theme.colors.mutedForeground,
+    final searchField = Semantics(
+      label: l10n.guideSearchLabel,
+      child: FTextField(
+        key: const ValueKey('guide-search'),
+        hint: l10n.guideSearchHint,
+        prefixBuilder: (context, style, _) => Padding(
+          padding: const EdgeInsetsDirectional.only(start: 12),
+          child: Icon(
+            TablerIcons.search,
+            size: 18,
+            color: theme.colors.mutedForeground,
+          ),
+        ),
+        control: .managed(
+          controller: search,
+          onChange: (v) => onSearch(v.text),
         ),
       ),
-      control: .managed(onChange: (v) => vm.search(v.text)),
     );
     final language = Semantics(
       label: l10n.guideLanguageLabel,
@@ -158,15 +188,18 @@ class _Header extends StatelessWidget {
         spacing: 4,
         children: [
           for (final lang in GuideLanguage.values)
-            FButton(
-              key: ValueKey('guide-lang-${lang.name}'),
-              size: .sm,
-              mainAxisSize: .min,
-              variant: lang == vm.language ? .primary : .outline,
-              onPress: vm.setLanguage.running
-                  ? null
-                  : () => vm.setLanguage.execute(lang),
-              child: Text(lang.name.toUpperCase()),
+            Semantics(
+              selected: lang == vm.language,
+              child: FButton(
+                key: ValueKey('guide-lang-${lang.name}'),
+                size: .sm,
+                mainAxisSize: .min,
+                variant: lang == vm.language ? .primary : .outline,
+                onPress: vm.setLanguage.running || vm.load.running
+                    ? null
+                    : () => vm.setLanguage.execute(lang),
+                child: Text(lang.name.toUpperCase()),
+              ),
             ),
         ],
       ),
@@ -185,10 +218,7 @@ class _Header extends StatelessWidget {
                   const Spacer(),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),
-                    child: Semantics(
-                      label: l10n.guideSearchLabel,
-                      child: search,
-                    ),
+                    child: searchField,
                   ),
                   language,
                 ],
@@ -203,7 +233,7 @@ class _Header extends StatelessWidget {
                       language,
                     ],
                   ),
-                  search,
+                  searchField,
                 ],
               ),
       ),
@@ -213,10 +243,13 @@ class _Header extends StatelessWidget {
 
 /// Daftar isi, atau hasil pencarian saat sedang mencari.
 class _Nav extends StatelessWidget {
-  const _Nav({required this.vm, required this.onOpen});
+  const _Nav({required this.vm, required this.onOpen, required this.wide});
 
   final GuideViewModel vm;
   final ValueChanged<String> onOpen;
+
+  /// Panel samping (layar lebar) atau satu-satunya isi (layar sempit).
+  final bool wide;
 
   @override
   Widget build(BuildContext context) {
@@ -274,8 +307,10 @@ class _Nav extends StatelessWidget {
     final results = vm.results;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.colors.muted.withValues(alpha: 0.5),
-        border: Border(right: BorderSide(color: theme.colors.border)),
+        color: wide ? theme.colors.muted.withValues(alpha: 0.5) : null,
+        border: wide
+            ? Border(right: BorderSide(color: theme.colors.border))
+            : null,
       ),
       child: SingleChildScrollView(
         key: const ValueKey('guide-toc'),
@@ -353,7 +388,20 @@ class _Article extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final doc = vm.article;
-    if (doc == null) return const SizedBox.shrink();
+    if (doc == null) {
+      // Artikel gagal dimuat (berkas rusak atau hilang).
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: LoadFailedAlert(
+            key: const ValueKey('guide-article-error'),
+            message: l10n.guideLoadError,
+            onRetry: vm.load.execute,
+          ),
+        ),
+      );
+    }
     (String, String)? link(String? slug) =>
         slug == null ? null : (slug, vm.titleOf(slug));
     return SingleChildScrollView(

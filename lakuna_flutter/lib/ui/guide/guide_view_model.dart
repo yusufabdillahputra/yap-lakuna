@@ -19,6 +19,19 @@ class GuideViewModel extends ChangeNotifier {
 
   final GuideRepository _repository;
 
+  var _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
   late final Command0<void> load;
   late final Command1<void, GuideLanguage> setLanguage;
 
@@ -124,11 +137,13 @@ class GuideViewModel extends ChangeNotifier {
     if (!_order.contains(_slug)) {
       _slug = _order.isEmpty ? null : _order.first;
     }
+    // Pencarian yang diketik sebelum artikel selesai dimuat.
+    if (_query case final q?) search(q);
     return const Result.ok(null);
   }
 
   Future<Result<void>> _setLanguage(GuideLanguage language) async {
-    if (language == _language && _docs.isNotEmpty) {
+    if (load.running || (language == _language && _docs.isNotEmpty)) {
       return const Result.ok(null);
     }
     _docs = await _loadDocs(language);

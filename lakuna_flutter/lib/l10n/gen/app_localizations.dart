@@ -12050,12 +12050,6 @@ abstract class AppLocalizations {
   /// **'Panduan gagal dimuat'**
   String get guideLoadError;
 
-  /// No description provided for @guideRetry.
-  ///
-  /// In id, this message translates to:
-  /// **'Coba lagi'**
-  String get guideRetry;
-
   /// No description provided for @guidePrevious.
   ///
   /// In id, this message translates to:
