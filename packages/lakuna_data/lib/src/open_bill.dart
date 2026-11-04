@@ -4,6 +4,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
+import 'customers.dart' show SaleCredit, checkSaleCredit, requireCustomerActor;
 import 'dining_admin.dart';
 import 'history.dart' show requireApprover;
 import 'modifier_admin.dart';
@@ -1294,13 +1295,28 @@ Future<void> deleteEmptyBill(
 /// (dibekukan di nota), nomor nota biasa, sesi kasir perangkat ini, stok
 /// bergerak sekali, `staff_id` = [staffId] (penerima bayar). Gagal seperti
 /// [checkoutSale]; bill tanpa item → [SaleEmpty].
+///
+/// Kredit (F1-13b): [credit] diisi dan [payments] kosong; DP tunai menjadi
+/// pembayaran tunai dan sisanya piutang pelanggan, aturan sama dengan
+/// [checkoutSale].
 Future<CheckoutResult> payOpenBill(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required UuidValue billId,
   required List<SalePaymentRequest> payments,
+  SaleCredit? credit,
 }) async {
+  if (credit != null) {
+    if (payments.isNotEmpty) {
+      throw const SalePaymentInvalid(TenderError.nonCashOver);
+    }
+    await requireCustomerActor(store, scope, staffId, Permission.debtsManage);
+    payments = [
+      if (credit.downPayment > Money.zero)
+        SalePaymentRequest.cash(credit.downPayment),
+    ];
+  }
   checkPaymentRequests(payments);
   return store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
@@ -1322,8 +1338,17 @@ Future<CheckoutResult> payOpenBill(
     );
     final charges = _charges(sale, items, rates);
     final total = charges.total;
-    final (amounts, change) = await settlePayments(w, scope, total, payments);
     final s = await w.stamp();
+    Customer? customer;
+    late final List<Money> amounts;
+    late final Money change;
+    if (credit != null) {
+      customer = await checkSaleCredit(w, scope, credit, total, s.now);
+      amounts = [for (final p in payments) p.amount!];
+      change = Money.zero;
+    } else {
+      (amounts, change) = await settlePayments(w, scope, total, payments);
+    }
     final paymentRows = await insertPayments(
       w,
       scope,
@@ -1345,6 +1370,8 @@ Future<CheckoutResult> payOpenBill(
       payments: paymentRows,
       staffId: staffId,
       stamp: s,
+      credit: credit,
+      customer: customer,
     );
   });
 }
@@ -1363,6 +1390,8 @@ Future<CheckoutResult> _completeBill(
   required List<Payment> payments,
   required UuidValue staffId,
   required SyncStamp stamp,
+  SaleCredit? credit,
+  Customer? customer,
 }) async {
   final s = stamp;
   final location = await defaultStockLocationIn(w, scope);
@@ -1423,7 +1452,16 @@ Future<CheckoutResult> _completeBill(
       total: charges.total.value,
       // Sama dengan penjualan retail: paid_amount = total nota (uang
       // diterima dan kembalian ada di baris payments).
-      paidAmount: charges.total.value,
+      paidAmount: credit?.downPayment.value ?? charges.total.value,
+      customerId: customer?.id ?? sale.customerId,
+      customerName: customer?.name ?? sale.customerName,
+      dueOn: credit == null
+          ? sale.dueOn
+          : DateTime.utc(
+              credit.dueOn.year,
+              credit.dueOn.month,
+              credit.dueOn.day,
+            ),
       changeAmount: payments.fold<int>(0, (a, p) => a + p.changeAmount),
       // Porsi split dihitung sebagai baris asalnya.
       itemCount: {for (final i in items) i.splitFromItemId ?? i.id}.length,

@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-11-04
+
+Meja dan pesanan take away F&B kini bisa ditutup sebagai nota kredit.
+
+### Ditambahkan
+
+- **Kredit / piutang saat *Tutup & bayar* open bill (1.5b, F1-13b).**
+  Metode *Kredit / piutang* yang sebelumnya hanya ada di kasir retail kini
+  muncul juga saat menutup bill meja atau take away. Kasir memilih
+  pelanggan, mengisi DP (boleh 0, masuk laci tunai sesi kasir) dan jatuh
+  tempo; sisa total bill (termasuk service, PB1, dan pembulatan) menjadi
+  piutang pelanggan. Nota muncul di Riwayat *Belum lunas*, di daftar
+  piutang Pelanggan 1.20, dan di rekap sesi kasir sebagai *Penjualan
+  kredit*. Struk mencetak *Tunai* (DP), *Piutang*, dan *Jatuh tempo*.
+
+### Diubah
+
+- Nama pelanggan kredit menggantikan nama take away pada nota yang
+  dibayar kredit, agar nota tercatat atas nama pelanggan yang berutang.
+
+### Keamanan
+
+- Kredit open bill butuh izin `debts:manage`, diperiksa di repositori dan
+  lagi di lapisan data; limit kredit dan DP diperiksa ulang di dalam
+  transaksi tulis.
+
+### Catatan teknis
+
+- `payOpenBill(..., credit:)` memakai `checkSaleCredit` yang sama dengan
+  kasir retail; bila `credit` diisi, `payments` harus kosong (DP dicatat
+  sebagai pembayaran tunai tanpa kembalian). `_completeBill` menyimpan
+  `paidAmount`, pelanggan, dan `dueOn` dari kredit.
+- Kredit tidak tersedia untuk bagian split bill atau bill yang sudah punya
+  pembayaran bagian: view model menyembunyikan metode itu, dan lapisan
+  data menolak lewat `SplitLocked`.
+- Tes baru: data (DP, limit, izin, dine-in dengan service/PB1/pembulatan,
+  ringkasan sesi, bill split terkunci), view model, dan widget 1280 / 360
+  px. Uji manual Xvfb: meja M1 Rp18.500, DP Rp5.000, piutang Rp13.500.
+
 ## [0.29.1] - 2026-11-04
 
 Foto ponsel vertikal tidak lagi dianggap mendatar saat diunggah.
@@ -2859,7 +2898,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...HEAD
+[0.30.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...v0.30.0
 [0.29.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...v0.28.1

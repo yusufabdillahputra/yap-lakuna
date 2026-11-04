@@ -168,11 +168,13 @@ abstract class CashierRepository {
   Future<Result<OpenBill>> loadBill(UuidValue billId);
 
   /// *Tutup & bayar* open bill [billId]. Galat sama dengan [checkout];
-  /// bill tanpa item → `SaleEmpty`.
+  /// bill tanpa item → `SaleEmpty`. [credit] (F1-13b): nota kredit,
+  /// [payments] kosong, butuh `debts:manage`.
   Future<Result<CheckoutResult>> payBill(
     UuidValue billId,
-    List<SalePaymentRequest> payments,
-  );
+    List<SalePaymentRequest> payments, {
+    SaleCredit? credit,
+  });
 
   /// Bagian split bill (F1-10c): tamu [guest] (per item / rata) atau
   /// nominal [amount] (nominal bebas). [pending] menyimpan QRIS sebagai

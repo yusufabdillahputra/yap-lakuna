@@ -983,6 +983,79 @@ void main() {
     });
   });
 
+  group('kredit open bill F&B (F1-13b)', () {
+    late FakeDiningRepository dining;
+    late OpenBill bill;
+    late CustomerRow ani;
+
+    Future<T> ok<T>(Future<Result<T>> f) async => switch (await f) {
+      Ok(:final value) => value,
+      Error(:final error) => throw error,
+    };
+
+    setUp(() async {
+      dining = FakeDiningRepository();
+      ani = CustomerRow(
+        customer: Customer(
+          id: UuidValue.fromString(newId()),
+          tenantId: UuidValue.fromString(newId()),
+          name: 'Toko Bu Ani',
+          creditLimit: 1000000,
+          createdAt: DateTime.utc(2026, 11, 1),
+          hlc: '',
+        ),
+        groupName: null,
+        termDays: 14,
+        outstanding: Money.zero,
+        openCount: 0,
+        overdueCount: 0,
+      );
+      repo
+        ..dining = dining
+        ..creditRows = [ani];
+      final kopi = dining.catalog.products
+          .firstWhere((p) => p.name == 'Kopi Susu Aren')
+          .variants
+          .single
+          .id;
+      bill = await ok(dining.openTable(dining.tables.first.id, 2));
+      bill = await ok(
+        dining.addItem(
+          bill.id,
+          SaleLineRequest(variantId: kopi, quantity: Qty.units(2)),
+        ),
+      );
+      vm = CashierViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+    });
+
+    test('tutup & bayar bill sebagai kredit dengan DP', () async {
+      await vm.openBill.execute(bill.id);
+      expect(vm.canSellOnCredit, isTrue);
+      vm.setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      vm
+        ..selectCreditCustomer(ani.customer.id)
+        ..setCreditDown(const Money(5440));
+      // Total bill 55.440 (service & PB1) → piutang 50.000.
+      expect(vm.creditDebt, const Money(50000));
+      expect(vm.canPay, isTrue);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+      expect(repo.credits.single.customerId, ani.customer.id);
+      expect(repo.credits.single.downPayment, const Money(5440));
+      expect(vm.result!.sale.customerName, 'Toko Bu Ani');
+      expect(vm.result!.sale.paidAmount, 5440);
+    });
+
+    test('bagian split bill: kredit tidak tersedia', () async {
+      bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
+      vm.setPart(const BillPart(guest: 'A'));
+      await vm.openBill.execute(bill.id);
+      expect(vm.canSellOnCredit, isFalse);
+    });
+  });
+
   group('kredit / piutang (1.5b)', () {
     CustomerRow row(
       String name, {

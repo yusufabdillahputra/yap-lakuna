@@ -324,6 +324,188 @@ void main() {
     });
   });
 
+  group('kredit open bill F&B (F1-13b)', () {
+    Future<OpenBill> bill({String? name}) async {
+      final ta = await openTakeAway(
+        store,
+        scope,
+        staffId: owner(),
+        customerName: name,
+      );
+      return addBillItem(
+        store,
+        scope,
+        staffId: owner(),
+        billId: ta.id,
+        line: SaleLineRequest(variantId: v(beras).id, quantity: Qty.units(2)),
+      );
+    }
+
+    Future<CheckoutResult> payOnCredit(
+      OpenBill b,
+      Customer c, {
+      int down = 0,
+      UuidValue? staffId,
+      List<SalePaymentRequest> payments = const [],
+    }) => payOpenBill(
+      store,
+      scope,
+      staffId: staffId ?? owner(),
+      billId: b.id,
+      payments: payments,
+      credit: SaleCredit(
+        customerId: c.id,
+        downPayment: Money(down),
+        dueOn: DateTime.utc(2026, 11, 17),
+      ),
+    );
+
+    test('tutup bill sebagai nota kredit dengan DP', () async {
+      await openSession();
+      final ani = await customer('Toko Bu Ani', limit: 300000);
+      final b = await bill(name: 'Meja teras');
+      final result = await payOnCredit(b, ani, down: 50000);
+      final sale = result.sale;
+      expect(sale.status, SaleStatus.completed);
+      expect(sale.customerId, ani.id);
+      expect(sale.customerName, 'Toko Bu Ani');
+      expect(sale.dueOn, DateTime.utc(2026, 11, 17));
+      expect(sale.total, 200000);
+      expect(sale.paidAmount, 50000);
+      expect(result.payments.single.method, PaymentMethod.cash);
+      expect(result.payments.single.amount, 50000);
+
+      final overview = await listCustomers(store, scope, now: now);
+      expect(overview.rows.single.outstanding, const Money(150000));
+      final stock = await stockOnHand(store, scope, variantId: v(beras).id);
+      expect(stock, Qty.units(48));
+
+      // Bill sudah selesai: tidak bisa dibayar lagi.
+      await expectLater(payOnCredit(b, ani), throwsA(isA<BillNotFound>()));
+    });
+
+    test('limit, payments + kredit, dan izin ditolak', () async {
+      await openSession();
+      final ani = await customer('Toko Bu Ani', limit: 100000);
+      final b = await bill();
+      await expectLater(
+        payOnCredit(b, ani),
+        throwsA(
+          isA<SaleCreditInvalid>().having(
+            (e) => e.issue,
+            'issue',
+            CreditIssue.overLimit,
+          ),
+        ),
+      );
+      final besar = await customer('Pak Darto', limit: 1000000);
+      await expectLater(
+        payOnCredit(
+          b,
+          besar,
+          payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+        ),
+        throwsA(isA<SalePaymentInvalid>()),
+      );
+      final pelayan = await addStaff('Wawan', 'waiter');
+      await expectLater(
+        payOnCredit(b, besar, staffId: pelayan.id),
+        throwsA(isA<CustomerActorNotPermitted>()),
+      );
+      // Bill tetap terbuka setelah semua penolakan.
+      final paid = await payOnCredit(b, besar);
+      expect(paid.sale.paidAmount, 0);
+    });
+
+    Future<OpenBill> tableBill() async {
+      final [meja] = await createDiningTables(
+        store,
+        scope,
+        staffId: owner(),
+        drafts: const [DiningTableDraft(name: 'M1')],
+      );
+      final b = await openTableBill(
+        store,
+        scope,
+        staffId: owner(),
+        tableId: meja.id,
+        guests: 2,
+      );
+      return addBillItem(
+        store,
+        scope,
+        staffId: owner(),
+        billId: b.id,
+        line: SaleLineRequest(variantId: v(beras).id, quantity: Qty.units(1)),
+      );
+    }
+
+    test('dine-in: piutang = total dengan service, PB1, pembulatan − DP; '
+        'ringkasan sesi', () async {
+      await saveFnbRates(
+        store,
+        scope,
+        staffId: owner(),
+        rates: const FnbRates(
+          service: BasisPoints(500),
+          tax: BasisPoints(1000),
+        ),
+      );
+      await saveSalesRules(
+        store,
+        scope,
+        staffId: owner(),
+        rules: const SalesRules(rounding: TotalRounding.nearest500),
+      );
+      final session = await openSession();
+      final ani = await customer('Toko Bu Ani', limit: 300000);
+      final b = await tableBill();
+      expect(b.charges.service, isNot(Money.zero));
+      final sale = (await payOnCredit(b, ani, down: 20000)).sale;
+      expect(sale.total, b.charges.total.value);
+      expect(sale.serviceAmount, b.charges.service.value);
+      expect(sale.total % 500, 0);
+      expect(sale.total, greaterThan(100000));
+      expect(sale.paidAmount, 20000);
+
+      final overview = await listCustomers(store, scope, now: now);
+      expect(overview.rows.single.outstanding, Money(sale.total - 20000));
+      final summary = await salesSummaryForSession(
+        store,
+        scope,
+        sessionId: session.id,
+      );
+      expect(summary.cash, const Money(20000));
+      expect(summary.credit, Money(sale.total - 20000));
+    });
+
+    test(
+      'bill yang sudah dibayar sebagian (split) tidak bisa dikredit',
+      () async {
+        await openSession();
+        final ani = await customer('Toko Bu Ani', limit: 300000);
+        var b = await tableBill();
+        b = await setBillSplit(
+          store,
+          scope,
+          staffId: owner(),
+          billId: b.id,
+          mode: SplitMode.equal,
+          guests: 2,
+        );
+        await paySplitPart(
+          store,
+          scope,
+          staffId: owner(),
+          billId: b.id,
+          guest: 'A',
+          payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+        );
+        await expectLater(payOnCredit(b, ani), throwsA(isA<SplitLocked>()));
+      },
+    );
+  });
+
   group('pembayaran piutang', () {
     late Customer ani;
     late CheckoutResult a;

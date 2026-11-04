@@ -36,7 +36,7 @@ dari dokumen, tidak pernah disimpan sebagai angka yang diubah-ubah.
 - Import pelanggan dari CSV atau XLSX.
 
 **Tidak termasuk**
-- Kredit untuk open bill / split bill F&B (gap).
+- Kredit untuk bagian split bill F&B (gap; open bill dirilis v0.30.0, lihat F1-13b).
 - Memilih pelanggan dari kepala pesanan Kasir dan harga grosir per grup
   (layar 1.4b, gap).
 - Persetujuan PIN untuk melewati limit (gap; limit dikunci).
@@ -212,7 +212,8 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Riwayat *Belum lunas*, retur memotong piutang, rekap sesi *Penjualan kredit* | 1.14, 1.3b | Rilis v0.17.0 | Selesai. |
 | Tab *Grup pelanggan* di Master data | 1.17 | Rilis v0.17.0 | Tampil bila staf punya `customers:manage` (Master data sendiri butuh `products:manage`); grup juga bisa dibuat dari form pelanggan. |
 | Kuitansi A5 & thermal | 1.20b | Rilis v0.17.0 | Terbilang selalu Bahasa Indonesia (dokumen hukum); kota bawaan = bagian terakhir alamat cabang. |
-| Kredit open bill / split bill F&B | 1.5b | Belum | Saat F1-10 disentuh lagi. |
+| Kredit *Tutup & bayar* open bill F&B | 1.5b | Rilis v0.30.0 | Lihat [F1-13b](2026-11-04-f1-13b-kredit-open-bill-design.md). |
+| Kredit bagian split bill F&B | 1.5b | Belum | Butuh pelanggan per bagian tamu. |
 | Pilih pelanggan di kepala pesanan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
 | Harga grosir per grup pelanggan | 1.4b | Belum | Grup belum punya harga (butuh model harga per grup). |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |

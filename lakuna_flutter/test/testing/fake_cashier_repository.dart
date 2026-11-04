@@ -489,9 +489,20 @@ class FakeCashierRepository extends CashierRepository {
   @override
   Future<Result<CheckoutResult>> payBill(
     UuidValue billId,
-    List<SalePaymentRequest> payments,
-  ) async {
+    List<SalePaymentRequest> payments, {
+    SaleCredit? credit,
+  }) async {
     if (_check() case final e?) return Result.error(e);
+    if (credit != null) {
+      if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
+        return const Result.error(NotPermitted(Permission.debtsManage));
+      }
+      credits.add(credit);
+      payments = [
+        if (credit.downPayment > Money.zero)
+          SalePaymentRequest.cash(credit.downPayment),
+      ];
+    }
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
     final d = dining;
     if (d == null) return Result.error(BillNotFound());
@@ -513,8 +524,9 @@ class FakeCashierRepository extends CashierRepository {
       for (final (i, p) in payments.indexed)
         TenderPart(amounts[i], isCash: p.isCash),
     ]);
-    if (settlement.error == TenderError.short ||
-        (single && payments.single.isCash && !settlement.isSettled)) {
+    if (credit == null &&
+        (settlement.error == TenderError.short ||
+            (single && payments.single.isCash && !settlement.isSettled))) {
       return Result.error(
         SalePaymentShort(total: total, received: settlement.paid),
       );
@@ -534,8 +546,14 @@ class FakeCashierRepository extends CashierRepository {
       serviceAmount: bill.charges.service.value,
       taxAmount: bill.charges.tax.value,
       total: total.value,
-      paidAmount: total.value,
-      changeAmount: settlement.change.value,
+      paidAmount: credit?.downPayment.value ?? total.value,
+      changeAmount: credit == null ? settlement.change.value : 0,
+      customerId: credit?.customerId,
+      customerName: switch (_customerRow(credit?.customerId)) {
+        final r? => r.customer.name,
+        null => bill.sale.customerName,
+      },
+      dueOn: credit?.dueOn,
       soldAt: now,
     );
     return Result.ok(
