@@ -1,5 +1,6 @@
-### Supplier (F1-12 minimal; master lengkap di F1-14). Nama unik per tenant
-### tanpa membedakan huruf besar/kecil (dicek di lakuna_data).
+### Supplier (F1-12, master lengkap F1-14). Nama unik per tenant tanpa
+### membedakan huruf besar/kecil (dicek di lakuna_data). [termDays] = tempo
+### standar yang mengisi jatuh tempo bawaan di Pembelian.
 class: Supplier
 table: suppliers
 database: all
@@ -8,6 +9,10 @@ fields:
   tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
   name: String
   phone: String?
+  contactName: String?, column=contact_name
+  category: String?
+  address: String?
+  termDays: int, default=14, column=term_days
   note: String?
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at

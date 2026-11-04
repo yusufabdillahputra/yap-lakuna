@@ -91,9 +91,16 @@ void main() {
     tester,
   ) async {
     await pumpLakuna(tester);
+    await tester.tap(find.byKey(const ValueKey('nav-expenses')));
+    await tester.pumpAndSettle();
+    expect(find.text('Pengeluaran segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('menu Supplier membuka layar supplier & hutang', (tester) async {
+    await pumpLakuna(tester);
     await tester.tap(find.byKey(const ValueKey('nav-suppliers')));
     await tester.pumpAndSettle();
-    expect(find.text('Supplier segera hadir'), findsOneWidget);
+    expect(find.byKey(const ValueKey('suppliers-total')), findsOneWidget);
   });
 
   testWidgets('menu Pelanggan membuka layar pelanggan & piutang', (

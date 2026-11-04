@@ -4844,4 +4844,348 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get historyMethodCredit => 'Kredit';
+
+  @override
+  String get suppliersTitle => 'Supplier & hutang';
+
+  @override
+  String suppliersSubtitle(int count) {
+    return '$count supplier · hutang dicatat per pembelian';
+  }
+
+  @override
+  String get suppliersNew => 'Supplier';
+
+  @override
+  String get suppliersSearch => 'Cari nama, kategori, atau telepon';
+
+  @override
+  String get suppliersColSupplier => 'Supplier';
+
+  @override
+  String get suppliersColDebt => 'Hutang';
+
+  @override
+  String get suppliersEmpty =>
+      'Belum ada supplier. Tambahkan supplier atau catat pembelian pertama.';
+
+  @override
+  String get suppliersNoMatch => 'Tidak ada supplier yang cocok.';
+
+  @override
+  String get suppliersSelectHint =>
+      'Pilih supplier untuk melihat hutang dan membayarnya.';
+
+  @override
+  String get suppliersLoadFailed => 'Data supplier gagal dimuat.';
+
+  @override
+  String get suppliersTotalDebt => 'Total hutang';
+
+  @override
+  String suppliersNearestDue(String date) {
+    return 'Jatuh tempo terdekat: $date';
+  }
+
+  @override
+  String get suppliersNoDue => 'Tidak ada hutang jatuh tempo';
+
+  @override
+  String suppliersOverdueCount(int count) {
+    return '$count pembelian terlambat';
+  }
+
+  @override
+  String supplierPayTitle(String name) {
+    return '$name · bayar hutang';
+  }
+
+  @override
+  String supplierContact(String name) {
+    return 'Kontak: $name';
+  }
+
+  @override
+  String supplierTerm(int days) {
+    return 'tempo standar $days hari';
+  }
+
+  @override
+  String get supplierHistory => 'Riwayat pembelian';
+
+  @override
+  String get supplierEdit => 'Ubah data';
+
+  @override
+  String get supplierNoDebt => 'Tidak ada hutang ke supplier ini.';
+
+  @override
+  String get supplierAmount => 'Jumlah dibayar';
+
+  @override
+  String get supplierPayAll => 'Lunasi semua';
+
+  @override
+  String get supplierFunding => 'Sumber dana';
+
+  @override
+  String get supplierReference => 'No. bukti transfer';
+
+  @override
+  String get supplierReferenceHint => 'Opsional';
+
+  @override
+  String get supplierPaidOn => 'Tanggal bayar';
+
+  @override
+  String get supplierNoteOptional => 'Catatan (opsional)';
+
+  @override
+  String get supplierColPurchase => 'Pembelian';
+
+  @override
+  String get supplierColDue => 'Jatuh tempo';
+
+  @override
+  String get supplierColTotal => 'Total';
+
+  @override
+  String get supplierColRest => 'Sisa';
+
+  @override
+  String get supplierColPay => 'Bayar';
+
+  @override
+  String get supplierTotalRow => 'Total';
+
+  @override
+  String get supplierOverdue => 'Terlambat';
+
+  @override
+  String supplierDueShort(String date) {
+    return 'tempo $date';
+  }
+
+  @override
+  String supplierAutoHint(String name, String amount) {
+    return 'Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke $name $amount.';
+  }
+
+  @override
+  String supplierAutoHintDue(String name, String amount, String date) {
+    return 'Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke $name $amount (jatuh tempo $date).';
+  }
+
+  @override
+  String get supplierManualHint =>
+      'Isi kolom Bayar per pembelian; jumlahnya harus sama dengan jumlah dibayar.';
+
+  @override
+  String get supplierDrawerHint =>
+      'Bayar dari kas laci akan tercatat sebagai uang keluar di sesi kasir yang sedang buka.';
+
+  @override
+  String get supplierDrawerNoSession =>
+      'Kas laci butuh sesi kasir terbuka di perangkat ini.';
+
+  @override
+  String get supplierDrawerNotToday =>
+      'Kas laci hanya untuk pembayaran hari ini. Pilih kas toko atau rekening bank untuk tanggal lain.';
+
+  @override
+  String get supplierDrawerNotPermitted =>
+      'Anda tidak punya izin memakai kas laci.';
+
+  @override
+  String get supplierManual => 'Atur alokasi manual';
+
+  @override
+  String get supplierAuto => 'Alokasi otomatis';
+
+  @override
+  String get supplierAttachProof => 'Lampirkan foto bukti';
+
+  @override
+  String get supplierTakePhoto => 'Foto bukti';
+
+  @override
+  String get supplierRemoveProof => 'Hapus foto';
+
+  @override
+  String get supplierProofTooLarge => 'Foto bukti maksimal 5 MB.';
+
+  @override
+  String get supplierProofInvalid => 'Pilih gambar PNG, JPG, atau WebP.';
+
+  @override
+  String get supplierSavePayment => 'Simpan pembayaran';
+
+  @override
+  String supplierPaid(String number) {
+    return 'Pembayaran $number tersimpan.';
+  }
+
+  @override
+  String get supplierPayments => 'Riwayat pembayaran';
+
+  @override
+  String get supplierNoPayments => 'Belum ada pembayaran hutang.';
+
+  @override
+  String supplierProofTitle(String number) {
+    return 'Bukti $number';
+  }
+
+  @override
+  String get supplierProofMissing => 'Foto bukti belum ada di perangkat ini.';
+
+  @override
+  String get supplierDelete => 'Hapus supplier';
+
+  @override
+  String supplierDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get supplierDeleteBody =>
+      'Pembelian lama tetap menyimpan nama supplier ini.';
+
+  @override
+  String get supplierDeleteAction => 'Hapus';
+
+  @override
+  String get supplierCancel => 'Batal';
+
+  @override
+  String get supplierClose => 'Tutup';
+
+  @override
+  String get supplierFormNew => 'Supplier baru';
+
+  @override
+  String get supplierFormEdit => 'Ubah supplier';
+
+  @override
+  String get supplierFieldName => 'Nama supplier';
+
+  @override
+  String get supplierFieldContact => 'Kontak (nama orang)';
+
+  @override
+  String get supplierFieldPhone => 'No. telepon';
+
+  @override
+  String get supplierFieldCategory => 'Kategori barang';
+
+  @override
+  String get supplierCategoryHint => 'mis. Sembako, Minuman';
+
+  @override
+  String get supplierFieldTerm => 'Tempo standar (hari)';
+
+  @override
+  String get supplierTermHint => 'Mengisi jatuh tempo bawaan di Pembelian.';
+
+  @override
+  String get supplierFieldAddress => 'Alamat';
+
+  @override
+  String get supplierFieldNote => 'Catatan';
+
+  @override
+  String get supplierSave => 'Simpan';
+
+  @override
+  String supplierErrName(int max) {
+    return 'Nama wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get supplierErrPhone => 'Nomor telepon 8–15 digit.';
+
+  @override
+  String supplierErrContact(int max) {
+    return 'Kontak maksimal $max karakter.';
+  }
+
+  @override
+  String supplierErrCategory(int max) {
+    return 'Kategori maksimal $max karakter.';
+  }
+
+  @override
+  String supplierErrAddress(int max) {
+    return 'Alamat maksimal $max karakter.';
+  }
+
+  @override
+  String supplierErrNote(int max) {
+    return 'Catatan maksimal $max karakter.';
+  }
+
+  @override
+  String supplierErrTerm(int max) {
+    return 'Tempo 0–$max hari.';
+  }
+
+  @override
+  String get supplierErrNameTaken => 'Nama supplier sudah dipakai.';
+
+  @override
+  String get supplierErrHasDebt =>
+      'Supplier masih punya hutang. Lunasi dulu sebelum dihapus.';
+
+  @override
+  String get supplierErrNotFound => 'Supplier tidak ditemukan.';
+
+  @override
+  String get supplierErrAmount => 'Isi jumlah dibayar.';
+
+  @override
+  String get supplierErrOver => 'Jumlah melebihi total hutang.';
+
+  @override
+  String get supplierErrAllocation =>
+      'Bayar per pembelian tidak boleh melebihi sisanya.';
+
+  @override
+  String get supplierErrAllocationTotal =>
+      'Jumlah kolom Bayar harus sama dengan jumlah dibayar.';
+
+  @override
+  String get supplierErrDate => 'Tanggal bayar tidak boleh di masa depan.';
+
+  @override
+  String get supplierErrNoSession =>
+      'Buka sesi kasir dulu untuk bayar dari kas laci.';
+
+  @override
+  String get supplierErrText => 'Catatan atau no. bukti terlalu panjang.';
+
+  @override
+  String get supplierErrNotPermitted =>
+      'Anda tidak punya izin untuk tindakan ini.';
+
+  @override
+  String get supplierErrGeneric => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String supplierHistoryTitle(String name) {
+    return 'Riwayat pembelian $name';
+  }
+
+  @override
+  String get supplierHistoryEmpty => 'Belum ada pembelian dari supplier ini.';
+
+  @override
+  String get supplierHistoryPaid => 'Lunas';
+
+  @override
+  String get cashSourceSupplierPayment => 'Bayar hutang supplier';
+
+  @override
+  String purchaseDebtPayment(String number) {
+    return 'Bayar hutang $number';
+  }
 }

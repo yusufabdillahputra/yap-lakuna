@@ -38,6 +38,8 @@ abstract class DebtPayment
     required this.paidOn,
     this.cashSessionId,
     required this.balanceAfter,
+    this.reference,
+    this.proofMediaId,
     this.note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -68,6 +70,8 @@ abstract class DebtPayment
     required DateTime paidOn,
     _is.UuidValue? cashSessionId,
     required int balanceAfter,
+    String? reference,
+    _is.UuidValue? proofMediaId,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -128,6 +132,12 @@ abstract class DebtPayment
               jsonSerialization['cashSessionId'],
             ),
       balanceAfter: jsonSerialization['balanceAfter'] as int,
+      reference: jsonSerialization['reference'] as String?,
+      proofMediaId: jsonSerialization['proofMediaId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['proofMediaId'],
+            ),
       note: jsonSerialization['note'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
@@ -192,6 +202,12 @@ abstract class DebtPayment
 
   int balanceAfter;
 
+  /// No. bukti transfer bayar hutang (F1-14).
+  String? reference;
+
+  /// Foto bukti bayar hutang (F1-14).
+  _is.UuidValue? proofMediaId;
+
   String? note;
 
   DateTime createdAt;
@@ -232,6 +248,8 @@ abstract class DebtPayment
     DateTime? paidOn,
     _is.UuidValue? cashSessionId = const _is.$UndefinedUuidValue(),
     int? balanceAfter,
+    String? reference,
+    _is.UuidValue? proofMediaId = const _is.$UndefinedUuidValue(),
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -261,6 +279,8 @@ abstract class DebtPayment
       'paidOn': paidOn.toJson(),
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'balanceAfter': balanceAfter,
+      if (reference != null) 'reference': reference,
+      if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -292,6 +312,8 @@ abstract class DebtPayment
       'paidOn': paidOn.toJson(),
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'balanceAfter': balanceAfter,
+      if (reference != null) 'reference': reference,
+      if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -351,6 +373,8 @@ class _DebtPaymentImpl extends DebtPayment {
     required DateTime paidOn,
     _is.UuidValue? cashSessionId,
     required int balanceAfter,
+    String? reference,
+    _is.UuidValue? proofMediaId,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -376,6 +400,8 @@ class _DebtPaymentImpl extends DebtPayment {
          paidOn: paidOn,
          cashSessionId: cashSessionId,
          balanceAfter: balanceAfter,
+         reference: reference,
+         proofMediaId: proofMediaId,
          note: note,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -407,6 +433,8 @@ class _DebtPaymentImpl extends DebtPayment {
     DateTime? paidOn,
     _is.UuidValue? cashSessionId = const _is.$UndefinedUuidValue(),
     int? balanceAfter,
+    Object? reference = _Undefined,
+    _is.UuidValue? proofMediaId = const _is.$UndefinedUuidValue(),
     Object? note = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -441,6 +469,10 @@ class _DebtPaymentImpl extends DebtPayment {
           ? this.cashSessionId
           : cashSessionId,
       balanceAfter: balanceAfter ?? this.balanceAfter,
+      reference: reference is String? ? reference : this.reference,
+      proofMediaId: proofMediaId is _is.UndefinedSentinel
+          ? this.proofMediaId
+          : proofMediaId,
       note: note is String? ? note : this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -547,6 +579,18 @@ class DebtPaymentUpdateTable extends _is.UpdateTable<DebtPaymentTable> {
 
   _is.ColumnValue<int, int> balanceAfter(int value) => _is.ColumnValue(
     table.balanceAfter,
+    value,
+  );
+
+  _is.ColumnValue<String, String> reference(String? value) => _is.ColumnValue(
+    table.reference,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> proofMediaId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.proofMediaId,
     value,
   );
 
@@ -677,6 +721,15 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'balanceAfter',
     );
+    reference = _is.ColumnString(
+      'reference',
+      this,
+    );
+    proofMediaId = _is.ColumnUuid(
+      'proof_media_id',
+      this,
+      fieldName: 'proofMediaId',
+    );
     note = _is.ColumnString(
       'note',
       this,
@@ -757,6 +810,12 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt balanceAfter;
 
+  /// No. bukti transfer bayar hutang (F1-14).
+  late final _is.ColumnString reference;
+
+  /// Foto bukti bayar hutang (F1-14).
+  late final _is.ColumnUuid proofMediaId;
+
   late final _is.ColumnString note;
 
   late final _is.ColumnDateTime createdAt;
@@ -792,6 +851,8 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
     paidOn,
     cashSessionId,
     balanceAfter,
+    reference,
+    proofMediaId,
     note,
     createdAt,
     updatedAt,

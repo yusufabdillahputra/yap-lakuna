@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
-import 'package:lakuna_domain/lakuna_domain.dart' show Money;
+import 'package:lakuna_domain/lakuna_domain.dart' show Money, Permission;
 
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
@@ -9,6 +9,7 @@ import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
 import '../data/repositories/customers_repository.dart';
+import '../data/repositories/suppliers_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/purchases_repository.dart';
 import '../data/repositories/master_data_repository.dart';
@@ -36,6 +37,8 @@ import '../ui/customers/kuitansi_view.dart';
 import '../ui/history/history_view.dart';
 import '../ui/purchases/purchase_detail_view.dart';
 import '../ui/purchases/purchases_view.dart';
+import '../ui/suppliers/supplier_panel_view.dart';
+import '../ui/suppliers/suppliers_view.dart';
 import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
@@ -67,6 +70,7 @@ GoRouter createRouter({
   required HistoryRepository history,
   required PurchasesRepository purchases,
   required CustomersRepository customers,
+  required SuppliersRepository suppliers,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
@@ -337,6 +341,11 @@ GoRouter createRouter({
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(Routes.purchases),
+                // Bayar hutang (F1-14) butuh `debts:manage`.
+                onPayDebt: session.current?.can(Permission.debtsManage) ?? false
+                    ? (supplierId) =>
+                          context.push<void>(Routes.supplier(supplierId.uuid))
+                    : null,
               );
             },
           ),
@@ -390,6 +399,39 @@ GoRouter createRouter({
                     : context.go(Routes.customers),
                 onOpenReceipt: (id, {copy = false}) =>
                     context.push<void>(Routes.kuitansi(id.uuid, copy: copy)),
+              );
+            },
+          ),
+          GoRoute(
+            path: Routes.suppliers,
+            builder: (context, state) => SuppliersScreen(
+              repository: suppliers,
+              imagePicker: imagePicker,
+              onOpenSupplier: (id) =>
+                  context.push<void>(Routes.supplier(id.uuid)),
+              onOpenPurchase: (id) =>
+                  context.push<void>(Routes.purchase(id.uuid)),
+            ),
+          ),
+          GoRoute(
+            path: '${Routes.suppliers}/:supplier',
+            // Tautan rusak kembali ke daftar supplier.
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['supplier']) == null
+                ? Routes.suppliers
+                : null,
+            builder: (context, state) {
+              final id = state.pathParameters['supplier']!;
+              return SupplierDetailPage(
+                key: ValueKey('supplier-$id'),
+                repository: suppliers,
+                supplierId: UuidValue.fromString(id),
+                imagePicker: imagePicker,
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(Routes.suppliers),
+                onOpenPurchase: (id) =>
+                    context.push<void>(Routes.purchase(id.uuid)),
               );
             },
           ),

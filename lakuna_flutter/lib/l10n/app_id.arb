@@ -2519,7 +2519,6 @@
   },
   "purchaseNoPayments": "Belum ada pembayaran.",
   "purchasePayDebt": "Bayar hutang",
-  "purchasePayDebtLater": "Pelunasan hutang menyusul di modul Supplier & hutang.",
   "purchaseActions": "Tindakan",
   "purchaseReturnAction": "Retur pembelian",
   "purchaseReturnActionNote": "Membuat dokumen RB-… yang mengurangi stok & hutang. Pembelian yang sudah diterima tidak bisa dihapus, hanya diretur.",
@@ -3049,5 +3048,251 @@
   "customerGroupsTermHint": "0–365 hari. 0 = jatuh tempo hari itu juga.",
   "cashSourcePurchase": "Pembelian",
   "cashSourceDebtPayment": "Bayar piutang",
-  "historyMethodCredit": "Kredit"
+  "historyMethodCredit": "Kredit",
+  "suppliersTitle": "Supplier & hutang",
+  "suppliersSubtitle": "{count} supplier · hutang dicatat per pembelian",
+  "@suppliersSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suppliersNew": "Supplier",
+  "suppliersSearch": "Cari nama, kategori, atau telepon",
+  "suppliersColSupplier": "Supplier",
+  "suppliersColDebt": "Hutang",
+  "suppliersEmpty": "Belum ada supplier. Tambahkan supplier atau catat pembelian pertama.",
+  "suppliersNoMatch": "Tidak ada supplier yang cocok.",
+  "suppliersSelectHint": "Pilih supplier untuk melihat hutang dan membayarnya.",
+  "suppliersLoadFailed": "Data supplier gagal dimuat.",
+  "suppliersTotalDebt": "Total hutang",
+  "suppliersNearestDue": "Jatuh tempo terdekat: {date}",
+  "@suppliersNearestDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "suppliersNoDue": "Tidak ada hutang jatuh tempo",
+  "suppliersOverdueCount": "{count} pembelian terlambat",
+  "@suppliersOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierPayTitle": "{name} · bayar hutang",
+  "@supplierPayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierContact": "Kontak: {name}",
+  "@supplierContact": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierTerm": "tempo standar {days} hari",
+  "@supplierTerm": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierHistory": "Riwayat pembelian",
+  "supplierEdit": "Ubah data",
+  "supplierNoDebt": "Tidak ada hutang ke supplier ini.",
+  "supplierAmount": "Jumlah dibayar",
+  "supplierPayAll": "Lunasi semua",
+  "supplierFunding": "Sumber dana",
+  "supplierReference": "No. bukti transfer",
+  "supplierReferenceHint": "Opsional",
+  "supplierPaidOn": "Tanggal bayar",
+  "supplierNoteOptional": "Catatan (opsional)",
+  "supplierColPurchase": "Pembelian",
+  "supplierColDue": "Jatuh tempo",
+  "supplierColTotal": "Total",
+  "supplierColRest": "Sisa",
+  "supplierColPay": "Bayar",
+  "supplierTotalRow": "Total",
+  "supplierOverdue": "Terlambat",
+  "supplierDueShort": "tempo {date}",
+  "@supplierDueShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierAutoHint": "Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke {name} {amount}.",
+  "@supplierAutoHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierAutoHintDue": "Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke {name} {amount} (jatuh tempo {date}).",
+  "@supplierAutoHintDue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierManualHint": "Isi kolom Bayar per pembelian; jumlahnya harus sama dengan jumlah dibayar.",
+  "supplierDrawerHint": "Bayar dari kas laci akan tercatat sebagai uang keluar di sesi kasir yang sedang buka.",
+  "supplierDrawerNoSession": "Kas laci butuh sesi kasir terbuka di perangkat ini.",
+  "supplierDrawerNotToday": "Kas laci hanya untuk pembayaran hari ini. Pilih kas toko atau rekening bank untuk tanggal lain.",
+  "supplierDrawerNotPermitted": "Anda tidak punya izin memakai kas laci.",
+  "supplierManual": "Atur alokasi manual",
+  "supplierAuto": "Alokasi otomatis",
+  "supplierAttachProof": "Lampirkan foto bukti",
+  "supplierTakePhoto": "Foto bukti",
+  "supplierRemoveProof": "Hapus foto",
+  "supplierProofTooLarge": "Foto bukti maksimal 5 MB.",
+  "supplierProofInvalid": "Pilih gambar PNG, JPG, atau WebP.",
+  "supplierSavePayment": "Simpan pembayaran",
+  "supplierPaid": "Pembayaran {number} tersimpan.",
+  "@supplierPaid": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierPayments": "Riwayat pembayaran",
+  "supplierNoPayments": "Belum ada pembayaran hutang.",
+  "supplierProofTitle": "Bukti {number}",
+  "@supplierProofTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierProofMissing": "Foto bukti belum ada di perangkat ini.",
+  "supplierDelete": "Hapus supplier",
+  "supplierDeleteTitle": "Hapus {name}?",
+  "@supplierDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierDeleteBody": "Pembelian lama tetap menyimpan nama supplier ini.",
+  "supplierDeleteAction": "Hapus",
+  "supplierCancel": "Batal",
+  "supplierClose": "Tutup",
+  "supplierFormNew": "Supplier baru",
+  "supplierFormEdit": "Ubah supplier",
+  "supplierFieldName": "Nama supplier",
+  "supplierFieldContact": "Kontak (nama orang)",
+  "supplierFieldPhone": "No. telepon",
+  "supplierFieldCategory": "Kategori barang",
+  "supplierCategoryHint": "mis. Sembako, Minuman",
+  "supplierFieldTerm": "Tempo standar (hari)",
+  "supplierTermHint": "Mengisi jatuh tempo bawaan di Pembelian.",
+  "supplierFieldAddress": "Alamat",
+  "supplierFieldNote": "Catatan",
+  "supplierSave": "Simpan",
+  "supplierErrName": "Nama wajib diisi, maksimal {max} karakter.",
+  "@supplierErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrPhone": "Nomor telepon 8–15 digit.",
+  "supplierErrContact": "Kontak maksimal {max} karakter.",
+  "@supplierErrContact": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrCategory": "Kategori maksimal {max} karakter.",
+  "@supplierErrCategory": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrAddress": "Alamat maksimal {max} karakter.",
+  "@supplierErrAddress": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrNote": "Catatan maksimal {max} karakter.",
+  "@supplierErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrTerm": "Tempo 0–{max} hari.",
+  "@supplierErrTerm": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrNameTaken": "Nama supplier sudah dipakai.",
+  "supplierErrHasDebt": "Supplier masih punya hutang. Lunasi dulu sebelum dihapus.",
+  "supplierErrNotFound": "Supplier tidak ditemukan.",
+  "supplierErrAmount": "Isi jumlah dibayar.",
+  "supplierErrOver": "Jumlah melebihi total hutang.",
+  "supplierErrAllocation": "Bayar per pembelian tidak boleh melebihi sisanya.",
+  "supplierErrAllocationTotal": "Jumlah kolom Bayar harus sama dengan jumlah dibayar.",
+  "supplierErrDate": "Tanggal bayar tidak boleh di masa depan.",
+  "supplierErrNoSession": "Buka sesi kasir dulu untuk bayar dari kas laci.",
+  "supplierErrText": "Catatan atau no. bukti terlalu panjang.",
+  "supplierErrNotPermitted": "Anda tidak punya izin untuk tindakan ini.",
+  "supplierErrGeneric": "Gagal menyimpan. Coba lagi.",
+  "supplierHistoryTitle": "Riwayat pembelian {name}",
+  "@supplierHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierHistoryEmpty": "Belum ada pembelian dari supplier ini.",
+  "supplierHistoryPaid": "Lunas",
+  "cashSourceSupplierPayment": "Bayar hutang supplier",
+  "purchaseDebtPayment": "Bayar hutang {number}",
+  "@purchaseDebtPayment": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

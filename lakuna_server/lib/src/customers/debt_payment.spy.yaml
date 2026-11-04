@@ -24,6 +24,10 @@ fields:
   paidOn: DateTime, column=paid_on
   cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
   balanceAfter: int, column=balance_after
+  ### No. bukti transfer bayar hutang (F1-14).
+  reference: String?
+  ### Foto bukti bayar hutang (F1-14).
+  proofMediaId: UuidValue?, relation(parent=media_files, onDelete=Restrict), column=proof_media_id
   note: String?
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at

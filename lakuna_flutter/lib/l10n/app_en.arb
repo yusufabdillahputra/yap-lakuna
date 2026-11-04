@@ -1985,7 +1985,6 @@
   },
   "purchaseNoPayments": "No payments yet.",
   "purchasePayDebt": "Pay payable",
-  "purchasePayDebtLater": "Paying off payables comes with the Suppliers & payables module.",
   "purchaseActions": "Actions",
   "purchaseReturnAction": "Purchase return",
   "purchaseReturnActionNote": "Creates an RB-… document that reduces stock and the payable. A received purchase can't be deleted, only returned.",
@@ -2515,5 +2514,251 @@
   "customerGroupsTermHint": "0–365 days. 0 = due the same day.",
   "cashSourcePurchase": "Purchase",
   "cashSourceDebtPayment": "Receivable payment",
-  "historyMethodCredit": "Credit"
+  "historyMethodCredit": "Credit",
+  "suppliersTitle": "Suppliers & payables",
+  "suppliersSubtitle": "{count} suppliers · payables tracked per purchase",
+  "@suppliersSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suppliersNew": "Supplier",
+  "suppliersSearch": "Search name, category, or phone",
+  "suppliersColSupplier": "Supplier",
+  "suppliersColDebt": "Payable",
+  "suppliersEmpty": "No suppliers yet. Add one or record your first purchase.",
+  "suppliersNoMatch": "No matching suppliers.",
+  "suppliersSelectHint": "Pick a supplier to see and pay what you owe.",
+  "suppliersLoadFailed": "Could not load suppliers.",
+  "suppliersTotalDebt": "Total payables",
+  "suppliersNearestDue": "Nearest due date: {date}",
+  "@suppliersNearestDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "suppliersNoDue": "Nothing due",
+  "suppliersOverdueCount": "{count} overdue purchases",
+  "@suppliersOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierPayTitle": "{name} · pay supplier",
+  "@supplierPayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierContact": "Contact: {name}",
+  "@supplierContact": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierTerm": "standard terms {days} days",
+  "@supplierTerm": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierHistory": "Purchase history",
+  "supplierEdit": "Edit",
+  "supplierNoDebt": "Nothing owed to this supplier.",
+  "supplierAmount": "Amount paid",
+  "supplierPayAll": "Pay everything",
+  "supplierFunding": "Paid from",
+  "supplierReference": "Transfer reference",
+  "supplierReferenceHint": "Optional",
+  "supplierPaidOn": "Payment date",
+  "supplierNoteOptional": "Note (optional)",
+  "supplierColPurchase": "Purchase",
+  "supplierColDue": "Due",
+  "supplierColTotal": "Total",
+  "supplierColRest": "Remaining",
+  "supplierColPay": "Pay",
+  "supplierTotalRow": "Total",
+  "supplierOverdue": "Overdue",
+  "supplierDueShort": "due {date}",
+  "@supplierDueShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierAutoHint": "Allocated to the nearest due date first. After saving, you will owe {name} {amount}.",
+  "@supplierAutoHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierAutoHintDue": "Allocated to the nearest due date first. After saving, you will owe {name} {amount} (due {date}).",
+  "@supplierAutoHintDue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierManualHint": "Fill in Pay per purchase; the sum must equal the amount paid.",
+  "supplierDrawerHint": "Paying from the cash drawer is recorded as cash out in the open cashier session.",
+  "supplierDrawerNoSession": "The cash drawer needs an open cashier session on this device.",
+  "supplierDrawerNotToday": "The cash drawer is only for today's payments. Use store cash or bank for other dates.",
+  "supplierDrawerNotPermitted": "You are not allowed to use the cash drawer.",
+  "supplierManual": "Allocate manually",
+  "supplierAuto": "Allocate automatically",
+  "supplierAttachProof": "Attach proof photo",
+  "supplierTakePhoto": "Take photo",
+  "supplierRemoveProof": "Remove photo",
+  "supplierProofTooLarge": "Proof photo must be 5 MB or less.",
+  "supplierProofInvalid": "Choose a PNG, JPG, or WebP image.",
+  "supplierSavePayment": "Save payment",
+  "supplierPaid": "Payment {number} saved.",
+  "@supplierPaid": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierPayments": "Payment history",
+  "supplierNoPayments": "No payments yet.",
+  "supplierProofTitle": "Proof {number}",
+  "@supplierProofTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierProofMissing": "The proof photo is not on this device yet.",
+  "supplierDelete": "Delete supplier",
+  "supplierDeleteTitle": "Delete {name}?",
+  "@supplierDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierDeleteBody": "Past purchases keep this supplier's name.",
+  "supplierDeleteAction": "Delete",
+  "supplierCancel": "Cancel",
+  "supplierClose": "Close",
+  "supplierFormNew": "New supplier",
+  "supplierFormEdit": "Edit supplier",
+  "supplierFieldName": "Supplier name",
+  "supplierFieldContact": "Contact person",
+  "supplierFieldPhone": "Phone",
+  "supplierFieldCategory": "Goods category",
+  "supplierCategoryHint": "e.g. Groceries, Drinks",
+  "supplierFieldTerm": "Standard terms (days)",
+  "supplierTermHint": "Sets the default due date in Purchases.",
+  "supplierFieldAddress": "Address",
+  "supplierFieldNote": "Note",
+  "supplierSave": "Save",
+  "supplierErrName": "Name is required, up to {max} characters.",
+  "@supplierErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrPhone": "Phone must be 8–15 digits.",
+  "supplierErrContact": "Contact up to {max} characters.",
+  "@supplierErrContact": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrCategory": "Category up to {max} characters.",
+  "@supplierErrCategory": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrAddress": "Address up to {max} characters.",
+  "@supplierErrAddress": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrNote": "Note up to {max} characters.",
+  "@supplierErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrTerm": "Terms must be 0–{max} days.",
+  "@supplierErrTerm": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierErrNameTaken": "That supplier name is already used.",
+  "supplierErrHasDebt": "This supplier is still owed money. Pay it off before deleting.",
+  "supplierErrNotFound": "Supplier not found.",
+  "supplierErrAmount": "Enter the amount paid.",
+  "supplierErrOver": "The amount is more than you owe.",
+  "supplierErrAllocation": "A purchase cannot be paid more than its remaining balance.",
+  "supplierErrAllocationTotal": "The Pay column must add up to the amount paid.",
+  "supplierErrDate": "The payment date cannot be in the future.",
+  "supplierErrNoSession": "Open a cashier session to pay from the cash drawer.",
+  "supplierErrText": "The note or reference is too long.",
+  "supplierErrNotPermitted": "You are not allowed to do this.",
+  "supplierErrGeneric": "Could not save. Please try again.",
+  "supplierHistoryTitle": "Purchases from {name}",
+  "@supplierHistoryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supplierHistoryEmpty": "No purchases from this supplier yet.",
+  "supplierHistoryPaid": "Paid",
+  "cashSourceSupplierPayment": "Supplier payment",
+  "purchaseDebtPayment": "Payment {number}",
+  "@purchaseDebtPayment": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

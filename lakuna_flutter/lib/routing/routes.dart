@@ -88,6 +88,12 @@ abstract final class Routes {
     queryParameters: copy ? {'salinan': '1'} : null,
   ).toString();
 
+  /// Supplier & hutang (F1-14).
+  static const suppliers = '/supplier';
+
+  /// Rincian supplier [id] (halaman sendiri di layar sempit).
+  static String supplier(String id) => '$suppliers/$id';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

@@ -732,6 +732,7 @@ class _MovementsCard extends StatelessWidget {
                   'manual' => l10n.cashSourceManual,
                   purchaseCashSource => l10n.cashSourcePurchase,
                   debtPaymentCashSource => l10n.cashSourceDebtPayment,
+                  supplierPaymentCashSource => l10n.cashSourceSupplierPayment,
                   final other => other,
                 },
                 amount: Text(

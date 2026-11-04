@@ -262,12 +262,66 @@ Future<List<PurchaseReturn>> _returnsOf(
   );
 }
 
-Money _debtOf(Purchase p, Iterable<PurchaseReturn> returns) =>
-    p.status == PurchaseStatus.draft
+/// Jumlah alokasi pembayaran hutang (F1-14) per pembelian di [purchaseIds].
+/// Dipecah per 500 id agar tidak melewati batas variabel SQLite.
+Future<Map<UuidValue, Money>> purchaseDebtPaidOf(
+  DatabaseSession session,
+  UuidValue tenantId,
+  Iterable<UuidValue> purchaseIds, {
+  Transaction? transaction,
+}) async {
+  final ids = purchaseIds.toList();
+  final result = <UuidValue, Money>{};
+  for (var i = 0; i < ids.length; i += 500) {
+    for (final a in await DebtPaymentAllocation.db.find(
+      session,
+      where: (a) =>
+          a.tenantId.equals(tenantId) &
+          a.purchaseId.inSet(ids.skip(i).take(500).toSet()) &
+          a.deletedAt.equals(null),
+      transaction: transaction,
+    )) {
+      result[a.purchaseId!] =
+          (result[a.purchaseId!] ?? Money.zero) + Money(a.amount);
+    }
+  }
+  return result;
+}
+
+/// Retur beli per pembelian di [purchaseIds] (dipecah per 500 id).
+Future<Map<UuidValue, List<PurchaseReturn>>> purchaseReturnsOf(
+  DatabaseSession session,
+  UuidValue tenantId,
+  Iterable<UuidValue> purchaseIds, {
+  Transaction? transaction,
+}) async {
+  final ids = purchaseIds.toList();
+  final result = <UuidValue, List<PurchaseReturn>>{};
+  for (var i = 0; i < ids.length; i += 500) {
+    for (final r in await _returnsOf(
+      session,
+      tenantId,
+      ids.skip(i).take(500).toSet(),
+      transaction: transaction,
+    )) {
+      result.putIfAbsent(r.purchaseId, () => []).add(r);
+    }
+  }
+  return result;
+}
+
+/// Sisa hutang pembelian [p] (0 untuk draf) setelah [returns] dan
+/// pembayaran hutang [allocated].
+Money purchaseDebtOf(
+  Purchase p,
+  Iterable<PurchaseReturn> returns, {
+  Money allocated = Money.zero,
+}) => p.status == PurchaseStatus.draft
     ? Money.zero
     : purchaseDebt(
         total: Money(p.total),
         paid: Money(p.paidAmount),
+        allocated: allocated,
         debtReduction: Money.sum(returns.map((r) => Money(r.debtReduction))),
       );
 
@@ -291,25 +345,38 @@ Future<List<PurchaseRow>> listPurchases(
     for (final p in rows)
       if (p.supplierId != null) p.supplierId!,
   });
-  final returns = await _returnsOf(session, scope.tenantId, {
-    for (final p in rows) p.id,
-  });
-  return [
+  return purchaseRowsOf(session, scope.tenantId, [
     for (final p in rows)
       if (_matches(query, [
         p.number,
         p.invoiceNo,
         suppliers[p.supplierId]?.name,
       ]))
-        () {
-          final mine = returns.where((r) => r.purchaseId == p.id);
-          return PurchaseRow(
-            purchase: p,
-            supplierName: suppliers[p.supplierId]?.name,
-            returned: Money.sum(mine.map((r) => Money(r.amount))),
-            debt: _debtOf(p, mine),
-          );
-        }(),
+        p,
+  ], suppliers: suppliers);
+}
+
+/// Baris daftar untuk [purchases] (urutan tetap).
+Future<List<PurchaseRow>> purchaseRowsOf(
+  DatabaseSession session,
+  UuidValue tenantId,
+  List<Purchase> purchases, {
+  required Map<UuidValue, Supplier> suppliers,
+}) async {
+  final ids = [for (final p in purchases) p.id];
+  final returns = await purchaseReturnsOf(session, tenantId, ids);
+  final paid = await purchaseDebtPaidOf(session, tenantId, ids);
+  return [
+    for (final p in purchases)
+      () {
+        final mine = returns[p.id] ?? const <PurchaseReturn>[];
+        return PurchaseRow(
+          purchase: p,
+          supplierName: suppliers[p.supplierId]?.name,
+          returned: Money.sum(mine.map((r) => Money(r.amount))),
+          debt: purchaseDebtOf(p, mine, allocated: paid[p.id] ?? Money.zero),
+        );
+      }(),
   ];
 }
 
@@ -373,6 +440,7 @@ class PurchaseDetail {
     required this.sellPrices,
     required this.skus,
     required this.baseUnits,
+    this.debtPayments = const [],
   });
 
   final Purchase purchase;
@@ -393,11 +461,17 @@ class PurchaseDetail {
   /// Nama satuan dasar per varian (untuk HPP "/btl").
   final Map<UuidValue, String> baseUnits;
 
+  /// Pembayaran hutang yang dialokasikan ke pembelian ini (F1-14), urut
+  /// tanggal bayar.
+  final List<PurchaseDebtPaymentLine> debtPayments;
+
+  Money get debtPaid => Money.sum(debtPayments.map((l) => l.amount));
+
   Money get returnedAmount => Money.sum(returns.map((r) => Money(r.amount)));
   Money get debtReduction =>
       Money.sum(returns.map((r) => Money(r.debtReduction)));
   Money get refunded => Money.sum(returns.map((r) => Money(r.refundAmount)));
-  Money get debt => _debtOf(purchase, returns);
+  Money get debt => purchaseDebtOf(purchase, returns, allocated: debtPaid);
   bool get isDraft => purchase.status == PurchaseStatus.draft;
 
   int remainingMilli(PurchaseItem item) =>
@@ -530,7 +604,60 @@ Future<PurchaseDetail> loadPurchaseDetail(
       for (final v in variants)
         v.id: unitById[productById[v.productId]?.baseUnitId] ?? '',
     },
+    debtPayments: await _debtPaymentLines(session, scope.tenantId, p.id),
   );
+}
+
+/// Bagian pembayaran hutang `BH-` untuk satu pembelian.
+class PurchaseDebtPaymentLine {
+  const PurchaseDebtPaymentLine({
+    required this.number,
+    required this.paidOn,
+    required this.funding,
+    required this.amount,
+  });
+
+  final String number;
+  final DateTime paidOn;
+  final FundingSource? funding;
+  final Money amount;
+}
+
+Future<List<PurchaseDebtPaymentLine>> _debtPaymentLines(
+  DatabaseSession session,
+  UuidValue tenantId,
+  UuidValue purchaseId,
+) async {
+  final allocations = await DebtPaymentAllocation.db.find(
+    session,
+    where: (a) =>
+        a.tenantId.equals(tenantId) &
+        a.purchaseId.equals(purchaseId) &
+        a.deletedAt.equals(null),
+  );
+  if (allocations.isEmpty) return const [];
+  final payments = {
+    for (final p in await DebtPayment.db.find(
+      session,
+      where: (p) =>
+          p.tenantId.equals(tenantId) &
+          p.id.inSet({for (final a in allocations) a.debtPaymentId}),
+    ))
+      p.id: p,
+  };
+  return [
+    for (final a in allocations)
+      if (payments[a.debtPaymentId] case final p?)
+        PurchaseDebtPaymentLine(
+          number: p.number,
+          paidOn: p.paidOn,
+          funding: p.fundingSource,
+          amount: Money(a.amount),
+        ),
+  ]..sort((a, b) {
+    final c = a.paidOn.compareTo(b.paidOn);
+    return c != 0 ? c : a.number.compareTo(b.number);
+  });
 }
 
 // --- Tulis --------------------------------------------------------------------
@@ -1198,7 +1325,14 @@ Future<PurchaseReturn> returnPurchase(
       returned[item.id] = before + milli;
     }
     final amount = Money.sum(picked.map((x) => x.$3));
-    final debt = _debtOf(p, previous);
+    final debtPaid = await purchaseDebtPaidOf(w.session, scope.tenantId, [
+      p.id,
+    ], transaction: w.transaction);
+    final debt = purchaseDebtOf(
+      p,
+      previous,
+      allocated: debtPaid[p.id] ?? Money.zero,
+    );
     final split = purchaseReturnSplit(amount: amount, debt: debt);
     if (split.refund.value > 0 && refundSource == null) {
       throw const PurchaseReturnInvalid(PurchaseReturnError.refundSource);
