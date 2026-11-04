@@ -10597,6 +10597,630 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Dihitung dan selisih kosong = sesi masih buka.'**
   String get reportsCashOpenNote;
+
+  /// No description provided for @menuAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun saya'**
+  String get menuAccount;
+
+  /// No description provided for @usersSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah staf, reset PIN, dan atur izin per role.'**
+  String get usersSubtitle;
+
+  /// No description provided for @usersTabUsers.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna'**
+  String get usersTabUsers;
+
+  /// No description provided for @usersTabRoles.
+  ///
+  /// In id, this message translates to:
+  /// **'Role & izin'**
+  String get usersTabRoles;
+
+  /// No description provided for @usersListTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna outlet'**
+  String get usersListTitle;
+
+  /// No description provided for @usersListCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{outlet} · {count} pengguna aktif'**
+  String usersListCount(String outlet, int count);
+
+  /// No description provided for @usersAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah'**
+  String get usersAdd;
+
+  /// No description provided for @usersColUser.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna'**
+  String get usersColUser;
+
+  /// No description provided for @usersColRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Role'**
+  String get usersColRole;
+
+  /// No description provided for @usersColOutlet.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang'**
+  String get usersColOutlet;
+
+  /// No description provided for @usersColStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get usersColStatus;
+
+  /// No description provided for @usersPinOnly.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN saja'**
+  String get usersPinOnly;
+
+  /// No description provided for @usersEmailAndPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Email + PIN'**
+  String get usersEmailAndPin;
+
+  /// No description provided for @usersAllOutlets.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua'**
+  String get usersAllOutlets;
+
+  /// No description provided for @usersStatusActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get usersStatusActive;
+
+  /// No description provided for @usersStatusInactive.
+  ///
+  /// In id, this message translates to:
+  /// **'Nonaktif'**
+  String get usersStatusInactive;
+
+  /// No description provided for @usersStatusLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN dikunci {seconds} dtk'**
+  String usersStatusLocked(int seconds);
+
+  /// No description provided for @usersUnlock.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka kunci'**
+  String get usersUnlock;
+
+  /// No description provided for @usersResetHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Reset PIN staf: buka pengguna, isi PIN baru dan ulangi PIN baru. Staf tidak perlu PIN lama.'**
+  String get usersResetHint;
+
+  /// No description provided for @usersOwnerHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemilik mengganti PIN dan kata sandinya di Akun saya.'**
+  String get usersOwnerHint;
+
+  /// No description provided for @usersEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pengguna lain. Tambah staf dengan PIN.'**
+  String get usersEmpty;
+
+  /// No description provided for @usersFormNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah pengguna'**
+  String get usersFormNewTitle;
+
+  /// No description provided for @usersFormEditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah pengguna'**
+  String get usersFormEditTitle;
+
+  /// No description provided for @usersFormPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin users:manage'**
+  String get usersFormPermission;
+
+  /// No description provided for @usersFieldName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama'**
+  String get usersFieldName;
+
+  /// No description provided for @usersFieldRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Role'**
+  String get usersFieldRole;
+
+  /// No description provided for @usersFieldRoleHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin mengikuti role; atur di tab Role & izin'**
+  String get usersFieldRoleHint;
+
+  /// No description provided for @usersFieldPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN (6 angka)'**
+  String get usersFieldPin;
+
+  /// No description provided for @usersFieldPinHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf memakai PIN ini untuk masuk di kasir'**
+  String get usersFieldPinHint;
+
+  /// No description provided for @usersFieldPinRetype.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi PIN'**
+  String get usersFieldPinRetype;
+
+  /// No description provided for @usersFieldActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get usersFieldActive;
+
+  /// No description provided for @usersFieldActiveHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna nonaktif tidak muncul di layar login'**
+  String get usersFieldActiveHint;
+
+  /// No description provided for @usersCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get usersCancel;
+
+  /// No description provided for @usersSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan pengguna'**
+  String get usersSave;
+
+  /// No description provided for @usersResetTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Reset PIN'**
+  String get usersResetTitle;
+
+  /// No description provided for @usersResetPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN baru'**
+  String get usersResetPin;
+
+  /// No description provided for @usersResetRetype.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi PIN baru'**
+  String get usersResetRetype;
+
+  /// No description provided for @usersResetSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Reset PIN'**
+  String get usersResetSubmit;
+
+  /// No description provided for @usersResetDone.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN baru tersimpan dan kunci PIN dibuka.'**
+  String get usersResetDone;
+
+  /// No description provided for @usersErrNameTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama sudah dipakai pengguna lain'**
+  String get usersErrNameTaken;
+
+  /// No description provided for @usersErrOwnerLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Pemilik tidak bisa diubah di sini.'**
+  String get usersErrOwnerLocked;
+
+  /// No description provided for @usersErrSelf.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak bisa mengubah akun atau role Anda sendiri di sini.'**
+  String get usersErrSelf;
+
+  /// No description provided for @usersErrBeyond.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda hanya bisa memberi izin yang Anda miliki.'**
+  String get usersErrBeyond;
+
+  /// No description provided for @usersErrRoleNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Role tidak ditemukan.'**
+  String get usersErrRoleNotFound;
+
+  /// No description provided for @usersErrRoleTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama role sudah dipakai.'**
+  String get usersErrRoleTaken;
+
+  /// No description provided for @usersErrRoleInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Role masih dipakai pengguna. Pindahkan penggunanya dulu.'**
+  String get usersErrRoleInUse;
+
+  /// No description provided for @usersErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk aksi ini.'**
+  String get usersErrNotPermitted;
+
+  /// No description provided for @usersErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memproses. Coba lagi.'**
+  String get usersErrGeneric;
+
+  /// No description provided for @usersErrWrongPin.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN saat ini salah. Sisa {remaining} percobaan.'**
+  String usersErrWrongPin(int remaining);
+
+  /// No description provided for @usersErrWrongPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi saat ini salah.'**
+  String get usersErrWrongPassword;
+
+  /// No description provided for @usersErrLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak percobaan. Coba lagi dalam {seconds} detik.'**
+  String usersErrLocked(int seconds);
+
+  /// No description provided for @usersMatrixTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Matriks izin per role'**
+  String get usersMatrixTitle;
+
+  /// No description provided for @usersMatrixPermission.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin'**
+  String get usersMatrixPermission;
+
+  /// No description provided for @usersMatrixNewRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Role custom'**
+  String get usersMatrixNewRole;
+
+  /// No description provided for @usersMatrixSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan perubahan'**
+  String get usersMatrixSave;
+
+  /// No description provided for @usersMatrixDiscard.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan'**
+  String get usersMatrixDiscard;
+
+  /// No description provided for @usersMatrixSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin role tersimpan.'**
+  String get usersMatrixSaved;
+
+  /// No description provided for @usersMatrixNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin berformat resource:action. Tombol dan halaman yang tidak diizinkan otomatis disembunyikan. Pemilik selalu punya semua izin. Role disimpan di perangkat ini; perubahan berlaku saat staf masuk berikutnya.'**
+  String get usersMatrixNote;
+
+  /// No description provided for @usersMatrixMembers.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pengguna'**
+  String usersMatrixMembers(int count);
+
+  /// No description provided for @usersRoleNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Role custom baru'**
+  String get usersRoleNewTitle;
+
+  /// No description provided for @usersRoleRenameTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti nama role'**
+  String get usersRoleRenameTitle;
+
+  /// No description provided for @usersRoleName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama role'**
+  String get usersRoleName;
+
+  /// No description provided for @usersRoleNameHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Barista'**
+  String get usersRoleNameHint;
+
+  /// No description provided for @usersRoleCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat role'**
+  String get usersRoleCreate;
+
+  /// No description provided for @usersRoleRename.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti nama'**
+  String get usersRoleRename;
+
+  /// No description provided for @usersRoleDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus role'**
+  String get usersRoleDelete;
+
+  /// No description provided for @permSalesCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat transaksi'**
+  String get permSalesCreate;
+
+  /// No description provided for @permSalesVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Void nota'**
+  String get permSalesVoid;
+
+  /// No description provided for @permSalesDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual'**
+  String get permSalesDiscount;
+
+  /// No description provided for @permSalesReturn.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur penjualan'**
+  String get permSalesReturn;
+
+  /// No description provided for @permPaymentsConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Konfirmasi bayar manual (QRIS, kartu)'**
+  String get permPaymentsConfirm;
+
+  /// No description provided for @permOpenBillsManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Kelola meja & open bill'**
+  String get permOpenBillsManage;
+
+  /// No description provided for @permCashSessionOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir'**
+  String get permCashSessionOpen;
+
+  /// No description provided for @permCashSessionClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup sesi kasir'**
+  String get permCashSessionClose;
+
+  /// No description provided for @permCashMovementsCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang masuk / keluar laci'**
+  String get permCashMovementsCreate;
+
+  /// No description provided for @permProductsManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Kelola produk & harga'**
+  String get permProductsManage;
+
+  /// No description provided for @permCustomersManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get permCustomersManage;
+
+  /// No description provided for @permSuppliersManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get permSuppliersManage;
+
+  /// No description provided for @permPurchasesManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian & retur beli'**
+  String get permPurchasesManage;
+
+  /// No description provided for @permStockAdjust.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian stok'**
+  String get permStockAdjust;
+
+  /// No description provided for @permDebtsManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang & kredit'**
+  String get permDebtsManage;
+
+  /// No description provided for @permExpensesManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran'**
+  String get permExpensesManage;
+
+  /// No description provided for @permReportsView.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat laporan'**
+  String get permReportsView;
+
+  /// No description provided for @permReportsViewProfit.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat laba rugi'**
+  String get permReportsViewProfit;
+
+  /// No description provided for @permSettingsManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan toko'**
+  String get permSettingsManage;
+
+  /// No description provided for @permUsersManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna & role'**
+  String get permUsersManage;
+
+  /// No description provided for @permBackupManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup & pulihkan'**
+  String get permBackupManage;
+
+  /// No description provided for @permSyncManage.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync & hosting'**
+  String get permSyncManage;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun saya'**
+  String get accountTitle;
+
+  /// No description provided for @accountSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} · {role} · terbuka untuk setiap pengguna'**
+  String accountSubtitle(String name, String role);
+
+  /// No description provided for @accountPasswordTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti kata sandi'**
+  String get accountPasswordTitle;
+
+  /// No description provided for @accountPasswordCurrent.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi saat ini'**
+  String get accountPasswordCurrent;
+
+  /// No description provided for @accountPasswordNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi baru'**
+  String get accountPasswordNew;
+
+  /// No description provided for @accountPasswordNewHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal 8 karakter'**
+  String get accountPasswordNewHint;
+
+  /// No description provided for @accountPasswordRetype.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi kata sandi baru'**
+  String get accountPasswordRetype;
+
+  /// No description provided for @accountPasswordSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti kata sandi'**
+  String get accountPasswordSubmit;
+
+  /// No description provided for @accountPasswordDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi baru tersimpan.'**
+  String get accountPasswordDone;
+
+  /// No description provided for @accountPasswordNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun ini masuk dengan PIN saja, tanpa kata sandi.'**
+  String get accountPasswordNone;
+
+  /// No description provided for @accountPinTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti PIN'**
+  String get accountPinTitle;
+
+  /// No description provided for @accountPinCurrent.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN saat ini'**
+  String get accountPinCurrent;
+
+  /// No description provided for @accountPinNew.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN baru'**
+  String get accountPinNew;
+
+  /// No description provided for @accountPinRetype.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi PIN baru'**
+  String get accountPinRetype;
+
+  /// No description provided for @accountPinSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti PIN'**
+  String get accountPinSubmit;
+
+  /// No description provided for @accountPinDone.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN baru tersimpan.'**
+  String get accountPinDone;
 }
 
 class _AppLocalizationsDelegate

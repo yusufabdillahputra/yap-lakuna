@@ -54,7 +54,7 @@ class HomeView extends StatelessWidget {
                           label: l10n.homeStaffLabel,
                           value:
                               '${staff.name} · '
-                              '${roleLabel(l10n, staff.roleKey)}',
+                              '${roleLabel(l10n, staff.roleKey, staff.roleName)}',
                         ),
                       _InfoRow(
                         label: l10n.homeVersionLabel,

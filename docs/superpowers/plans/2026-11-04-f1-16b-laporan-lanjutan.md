@@ -35,4 +35,4 @@ saat tab dibuka dan menyimpannya per (tab, periode).
 - [x] Uji manual Xvfb 1280x800 + tangkapan layar.
 - [x] CHANGELOG 0.21.0, versi `0.21.0+22`, status spec + README spec.
 - [x] Review kode (subagent), perbaiki Critical/Important.
-- [ ] PR, CI hijau, squash merge, cek rilis.
+- [x] PR, CI hijau, squash merge, cek rilis.

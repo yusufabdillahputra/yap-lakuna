@@ -33,6 +33,7 @@ void main() {
       'Pengeluaran',
       'Laporan',
       'Pengguna & role',
+      'Akun saya',
       'Pengaturan',
       'Panduan',
     ]) {
@@ -91,8 +92,15 @@ void main() {
   testWidgets('menu modul yang belum dibangun membuka halaman segera hadir', (
     tester,
   ) async {
-    await pumpLakuna(tester, initialLocation: Routes.module('users'));
-    expect(find.text('Pengguna & role segera hadir'), findsOneWidget);
+    await pumpLakuna(tester, initialLocation: Routes.module('guide'));
+    expect(find.text('Panduan segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('menu Pengguna & role membuka daftar pengguna', (tester) async {
+    await pumpLakuna(tester, size: const Size(1280, 1400));
+    await tester.tap(find.byKey(const ValueKey('nav-users')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('users-count')), findsOneWidget);
   });
 
   testWidgets('menu Laporan membuka layar laporan', (tester) async {

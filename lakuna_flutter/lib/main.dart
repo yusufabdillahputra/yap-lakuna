@@ -17,12 +17,14 @@ import 'data/repositories/local_dining_admin_repository.dart';
 import 'data/repositories/customers_repository.dart';
 import 'data/repositories/expenses_repository.dart';
 import 'data/repositories/reports_repository.dart';
+import 'data/repositories/users_repository.dart';
 import 'data/repositories/suppliers_repository.dart';
 import 'data/repositories/history_repository.dart';
 import 'data/repositories/purchases_repository.dart';
 import 'data/repositories/local_customers_repository.dart';
 import 'data/repositories/local_expenses_repository.dart';
 import 'data/repositories/local_reports_repository.dart';
+import 'data/repositories/local_users_repository.dart';
 import 'data/repositories/local_suppliers_repository.dart';
 import 'data/repositories/local_history_repository.dart';
 import 'data/repositories/local_purchases_repository.dart';
@@ -133,6 +135,11 @@ Future<void> main() async {
     stores: storeRepository,
     session: sessionRepository,
   );
+  final usersRepository = LocalUsersRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
   final diningAdminRepository = LocalDiningAdminRepository(
     store,
     stores: storeRepository,
@@ -173,6 +180,7 @@ Future<void> main() async {
         Provider<SuppliersRepository>.value(value: suppliersRepository),
         Provider<ExpensesRepository>.value(value: expensesRepository),
         Provider<ReportsRepository>.value(value: reportsRepository),
+        Provider<UsersRepository>.value(value: usersRepository),
         Provider<StockRepository>.value(value: stockRepository),
         Provider<MasterDataRepository>.value(value: masterDataRepository),
         Provider<PaymentSettingsRepository>.value(
@@ -202,6 +210,7 @@ Future<void> main() async {
           suppliers: suppliersRepository,
           expenses: expensesRepository,
           reports: reportsRepository,
+          users: usersRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,
           receiptPrinter: receiptPrinter,

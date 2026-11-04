@@ -56,6 +56,7 @@ import 'organization/outlet.dart' as _iqoqqr0f;
 import 'organization/outlet_member.dart' as _igpgya6r;
 import 'organization/setting.dart' as _if597mfg;
 import 'organization/staff_member.dart' as _iy6hfkoy;
+import 'organization/staff_role.dart' as _i0bmhm5c;
 import 'organization/stock_location.dart' as _iwbn33ao;
 import 'organization/tenant.dart' as _icpow00o;
 import 'organization/tenant_plan.dart' as _ii59gw8o;
@@ -127,6 +128,7 @@ export 'organization/outlet.dart';
 export 'organization/outlet_member.dart';
 export 'organization/setting.dart';
 export 'organization/staff_member.dart';
+export 'organization/staff_role.dart';
 export 'organization/stock_location.dart';
 export 'organization/tenant.dart';
 export 'organization/tenant_plan.dart';
@@ -212,6 +214,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_igpgya6r.OutletMember>,
           _is.getType<_if597mfg.Setting>,
           _is.getType<_iy6hfkoy.StaffMember>,
+          _is.getType<_i0bmhm5c.StaffRole>,
           _is.getType<_iwbn33ao.StockLocation>,
           _is.getType<_icpow00o.Tenant>,
           _is.getType<_ii59gw8o.TenantPlan>,
@@ -283,6 +286,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_igpgya6r.OutletMember?>,
           _is.getType<_if597mfg.Setting?>,
           _is.getType<_iy6hfkoy.StaffMember?>,
+          _is.getType<_i0bmhm5c.StaffRole?>,
           _is.getType<_iwbn33ao.StockLocation?>,
           _is.getType<_icpow00o.Tenant?>,
           _is.getType<_ii59gw8o.TenantPlan?>,
@@ -361,6 +365,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'OutletMember',
           'Setting',
           'StaffMember',
+          'StaffRole',
           'StockLocation',
           'Tenant',
           'TenantPlan',
@@ -5409,6 +5414,128 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'roles',
+      dartName: 'StaffRole',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'role_key',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'permission_keys',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'roles_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'roles_tenant_key_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'role_key',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'sale_item_modifiers',
       dartName: 'SaleItemModifier',
       schema: 'public',
@@ -8110,6 +8237,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _iy6hfkoy.StaffMember) {
       return _iy6hfkoy.StaffMember.fromJson(data) as T;
     }
+    if (t == _i0bmhm5c.StaffRole) {
+      return _i0bmhm5c.StaffRole.fromJson(data) as T;
+    }
     if (t == _iwbn33ao.StockLocation) {
       return _iwbn33ao.StockLocation.fromJson(data) as T;
     }
@@ -8344,6 +8474,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_iy6hfkoy.StaffMember?>()) {
       return (data != null ? _iy6hfkoy.StaffMember.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i0bmhm5c.StaffRole?>()) {
+      return (data != null ? _i0bmhm5c.StaffRole.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_iwbn33ao.StockLocation?>()) {
       return (data != null ? _iwbn33ao.StockLocation.fromJson(data) : null)
           as T;
@@ -8515,6 +8648,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _igpgya6r.OutletMember => 'OutletMember',
       _if597mfg.Setting => 'Setting',
       _iy6hfkoy.StaffMember => 'StaffMember',
+      _i0bmhm5c.StaffRole => 'StaffRole',
       _iwbn33ao.StockLocation => 'StockLocation',
       _icpow00o.Tenant => 'Tenant',
       _ii59gw8o.TenantPlan => 'TenantPlan',
@@ -8639,6 +8773,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'Setting';
       case _iy6hfkoy.StaffMember():
         return 'StaffMember';
+      case _i0bmhm5c.StaffRole():
+        return 'StaffRole';
       case _iwbn33ao.StockLocation():
         return 'StockLocation';
       case _icpow00o.Tenant():
@@ -8846,6 +8982,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'StaffMember') {
       return deserialize<_iy6hfkoy.StaffMember>(data['data']);
     }
+    if (dataClassName == 'StaffRole') {
+      return deserialize<_i0bmhm5c.StaffRole>(data['data']);
+    }
     if (dataClassName == 'StockLocation') {
       return deserialize<_iwbn33ao.StockLocation>(data['data']);
     }
@@ -9043,6 +9182,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return _if597mfg.Setting.t;
       case _iy6hfkoy.StaffMember:
         return _iy6hfkoy.StaffMember.t;
+      case _i0bmhm5c.StaffRole:
+        return _i0bmhm5c.StaffRole.t;
       case _iwbn33ao.StockLocation:
         return _iwbn33ao.StockLocation.t;
       case _icpow00o.Tenant:

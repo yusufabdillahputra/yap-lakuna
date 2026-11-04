@@ -6000,4 +6000,336 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get reportsCashOpenNote =>
       'Dihitung dan selisih kosong = sesi masih buka.';
+
+  @override
+  String get menuAccount => 'Akun saya';
+
+  @override
+  String get usersSubtitle => 'Tambah staf, reset PIN, dan atur izin per role.';
+
+  @override
+  String get usersTabUsers => 'Pengguna';
+
+  @override
+  String get usersTabRoles => 'Role & izin';
+
+  @override
+  String get usersListTitle => 'Pengguna outlet';
+
+  @override
+  String usersListCount(String outlet, int count) {
+    return '$outlet · $count pengguna aktif';
+  }
+
+  @override
+  String get usersAdd => 'Tambah';
+
+  @override
+  String get usersColUser => 'Pengguna';
+
+  @override
+  String get usersColRole => 'Role';
+
+  @override
+  String get usersColOutlet => 'Cabang';
+
+  @override
+  String get usersColStatus => 'Status';
+
+  @override
+  String get usersPinOnly => 'PIN saja';
+
+  @override
+  String get usersEmailAndPin => 'Email + PIN';
+
+  @override
+  String get usersAllOutlets => 'Semua';
+
+  @override
+  String get usersStatusActive => 'Aktif';
+
+  @override
+  String get usersStatusInactive => 'Nonaktif';
+
+  @override
+  String usersStatusLocked(int seconds) {
+    return 'PIN dikunci $seconds dtk';
+  }
+
+  @override
+  String get usersUnlock => 'Buka kunci';
+
+  @override
+  String get usersResetHint =>
+      'Reset PIN staf: buka pengguna, isi PIN baru dan ulangi PIN baru. Staf tidak perlu PIN lama.';
+
+  @override
+  String get usersOwnerHint =>
+      'Pemilik mengganti PIN dan kata sandinya di Akun saya.';
+
+  @override
+  String get usersEmpty => 'Belum ada pengguna lain. Tambah staf dengan PIN.';
+
+  @override
+  String get usersFormNewTitle => 'Tambah pengguna';
+
+  @override
+  String get usersFormEditTitle => 'Ubah pengguna';
+
+  @override
+  String get usersFormPermission => 'Butuh izin users:manage';
+
+  @override
+  String get usersFieldName => 'Nama';
+
+  @override
+  String get usersFieldRole => 'Role';
+
+  @override
+  String get usersFieldRoleHint =>
+      'Izin mengikuti role; atur di tab Role & izin';
+
+  @override
+  String get usersFieldPin => 'PIN (6 angka)';
+
+  @override
+  String get usersFieldPinHint => 'Staf memakai PIN ini untuk masuk di kasir';
+
+  @override
+  String get usersFieldPinRetype => 'Ulangi PIN';
+
+  @override
+  String get usersFieldActive => 'Aktif';
+
+  @override
+  String get usersFieldActiveHint =>
+      'Pengguna nonaktif tidak muncul di layar login';
+
+  @override
+  String get usersCancel => 'Batal';
+
+  @override
+  String get usersSave => 'Simpan pengguna';
+
+  @override
+  String get usersResetTitle => 'Reset PIN';
+
+  @override
+  String get usersResetPin => 'PIN baru';
+
+  @override
+  String get usersResetRetype => 'Ulangi PIN baru';
+
+  @override
+  String get usersResetSubmit => 'Reset PIN';
+
+  @override
+  String get usersResetDone => 'PIN baru tersimpan dan kunci PIN dibuka.';
+
+  @override
+  String get usersErrNameTaken => 'Nama sudah dipakai pengguna lain';
+
+  @override
+  String get usersErrOwnerLocked => 'Pemilik tidak bisa diubah di sini.';
+
+  @override
+  String get usersErrSelf =>
+      'Anda tidak bisa mengubah akun atau role Anda sendiri di sini.';
+
+  @override
+  String get usersErrBeyond => 'Anda hanya bisa memberi izin yang Anda miliki.';
+
+  @override
+  String get usersErrRoleNotFound => 'Role tidak ditemukan.';
+
+  @override
+  String get usersErrRoleTaken => 'Nama role sudah dipakai.';
+
+  @override
+  String get usersErrRoleInUse =>
+      'Role masih dipakai pengguna. Pindahkan penggunanya dulu.';
+
+  @override
+  String get usersErrNotPermitted => 'Anda tidak punya izin untuk aksi ini.';
+
+  @override
+  String get usersErrGeneric => 'Gagal memproses. Coba lagi.';
+
+  @override
+  String usersErrWrongPin(int remaining) {
+    return 'PIN saat ini salah. Sisa $remaining percobaan.';
+  }
+
+  @override
+  String get usersErrWrongPassword => 'Kata sandi saat ini salah.';
+
+  @override
+  String usersErrLocked(int seconds) {
+    return 'Terlalu banyak percobaan. Coba lagi dalam $seconds detik.';
+  }
+
+  @override
+  String get usersMatrixTitle => 'Matriks izin per role';
+
+  @override
+  String get usersMatrixPermission => 'Izin';
+
+  @override
+  String get usersMatrixNewRole => 'Role custom';
+
+  @override
+  String get usersMatrixSave => 'Simpan perubahan';
+
+  @override
+  String get usersMatrixDiscard => 'Batalkan';
+
+  @override
+  String get usersMatrixSaved => 'Izin role tersimpan.';
+
+  @override
+  String get usersMatrixNote =>
+      'Izin berformat resource:action. Tombol dan halaman yang tidak diizinkan otomatis disembunyikan. Pemilik selalu punya semua izin. Role disimpan di perangkat ini; perubahan berlaku saat staf masuk berikutnya.';
+
+  @override
+  String usersMatrixMembers(int count) {
+    return '$count pengguna';
+  }
+
+  @override
+  String get usersRoleNewTitle => 'Role custom baru';
+
+  @override
+  String get usersRoleRenameTitle => 'Ganti nama role';
+
+  @override
+  String get usersRoleName => 'Nama role';
+
+  @override
+  String get usersRoleNameHint => 'mis. Barista';
+
+  @override
+  String get usersRoleCreate => 'Buat role';
+
+  @override
+  String get usersRoleRename => 'Ganti nama';
+
+  @override
+  String get usersRoleDelete => 'Hapus role';
+
+  @override
+  String get permSalesCreate => 'Buat transaksi';
+
+  @override
+  String get permSalesVoid => 'Void nota';
+
+  @override
+  String get permSalesDiscount => 'Diskon manual';
+
+  @override
+  String get permSalesReturn => 'Retur penjualan';
+
+  @override
+  String get permPaymentsConfirm => 'Konfirmasi bayar manual (QRIS, kartu)';
+
+  @override
+  String get permOpenBillsManage => 'Kelola meja & open bill';
+
+  @override
+  String get permCashSessionOpen => 'Buka sesi kasir';
+
+  @override
+  String get permCashSessionClose => 'Tutup sesi kasir';
+
+  @override
+  String get permCashMovementsCreate => 'Uang masuk / keluar laci';
+
+  @override
+  String get permProductsManage => 'Kelola produk & harga';
+
+  @override
+  String get permCustomersManage => 'Pelanggan';
+
+  @override
+  String get permSuppliersManage => 'Supplier';
+
+  @override
+  String get permPurchasesManage => 'Pembelian & retur beli';
+
+  @override
+  String get permStockAdjust => 'Penyesuaian stok';
+
+  @override
+  String get permDebtsManage => 'Piutang & kredit';
+
+  @override
+  String get permExpensesManage => 'Pengeluaran';
+
+  @override
+  String get permReportsView => 'Lihat laporan';
+
+  @override
+  String get permReportsViewProfit => 'Lihat laba rugi';
+
+  @override
+  String get permSettingsManage => 'Pengaturan toko';
+
+  @override
+  String get permUsersManage => 'Pengguna & role';
+
+  @override
+  String get permBackupManage => 'Backup & pulihkan';
+
+  @override
+  String get permSyncManage => 'Sync & hosting';
+
+  @override
+  String get accountTitle => 'Akun saya';
+
+  @override
+  String accountSubtitle(String name, String role) {
+    return '$name · $role · terbuka untuk setiap pengguna';
+  }
+
+  @override
+  String get accountPasswordTitle => 'Ganti kata sandi';
+
+  @override
+  String get accountPasswordCurrent => 'Kata sandi saat ini';
+
+  @override
+  String get accountPasswordNew => 'Kata sandi baru';
+
+  @override
+  String get accountPasswordNewHint => 'Minimal 8 karakter';
+
+  @override
+  String get accountPasswordRetype => 'Ulangi kata sandi baru';
+
+  @override
+  String get accountPasswordSubmit => 'Ganti kata sandi';
+
+  @override
+  String get accountPasswordDone => 'Kata sandi baru tersimpan.';
+
+  @override
+  String get accountPasswordNone =>
+      'Akun ini masuk dengan PIN saja, tanpa kata sandi.';
+
+  @override
+  String get accountPinTitle => 'Ganti PIN';
+
+  @override
+  String get accountPinCurrent => 'PIN saat ini';
+
+  @override
+  String get accountPinNew => 'PIN baru';
+
+  @override
+  String get accountPinRetype => 'Ulangi PIN baru';
+
+  @override
+  String get accountPinSubmit => 'Ganti PIN';
+
+  @override
+  String get accountPinDone => 'PIN baru tersimpan.';
 }

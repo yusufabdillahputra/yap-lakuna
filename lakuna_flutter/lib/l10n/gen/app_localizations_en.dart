@@ -6120,4 +6120,337 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportsCashOpenNote =>
       'Empty counted and difference = session still open.';
+
+  @override
+  String get menuAccount => 'My account';
+
+  @override
+  String get usersSubtitle =>
+      'Add staff, reset PINs and set permissions per role.';
+
+  @override
+  String get usersTabUsers => 'Users';
+
+  @override
+  String get usersTabRoles => 'Roles & permissions';
+
+  @override
+  String get usersListTitle => 'Outlet users';
+
+  @override
+  String usersListCount(String outlet, int count) {
+    return '$outlet · $count active users';
+  }
+
+  @override
+  String get usersAdd => 'Add';
+
+  @override
+  String get usersColUser => 'User';
+
+  @override
+  String get usersColRole => 'Role';
+
+  @override
+  String get usersColOutlet => 'Outlet';
+
+  @override
+  String get usersColStatus => 'Status';
+
+  @override
+  String get usersPinOnly => 'PIN only';
+
+  @override
+  String get usersEmailAndPin => 'Email + PIN';
+
+  @override
+  String get usersAllOutlets => 'All';
+
+  @override
+  String get usersStatusActive => 'Active';
+
+  @override
+  String get usersStatusInactive => 'Inactive';
+
+  @override
+  String usersStatusLocked(int seconds) {
+    return 'PIN locked ${seconds}s';
+  }
+
+  @override
+  String get usersUnlock => 'Unlock';
+
+  @override
+  String get usersResetHint =>
+      'Reset a staff PIN: open the user, enter the new PIN and repeat it. The old PIN is not needed.';
+
+  @override
+  String get usersOwnerHint =>
+      'The owner changes their PIN and password in My account.';
+
+  @override
+  String get usersEmpty => 'No other users yet. Add staff with a PIN.';
+
+  @override
+  String get usersFormNewTitle => 'Add user';
+
+  @override
+  String get usersFormEditTitle => 'Edit user';
+
+  @override
+  String get usersFormPermission => 'Requires users:manage';
+
+  @override
+  String get usersFieldName => 'Name';
+
+  @override
+  String get usersFieldRole => 'Role';
+
+  @override
+  String get usersFieldRoleHint =>
+      'Permissions follow the role; set them in Roles & permissions';
+
+  @override
+  String get usersFieldPin => 'PIN (6 digits)';
+
+  @override
+  String get usersFieldPinHint => 'Staff use this PIN to sign in at the till';
+
+  @override
+  String get usersFieldPinRetype => 'Repeat PIN';
+
+  @override
+  String get usersFieldActive => 'Active';
+
+  @override
+  String get usersFieldActiveHint =>
+      'Inactive users do not appear on the sign-in screen';
+
+  @override
+  String get usersCancel => 'Cancel';
+
+  @override
+  String get usersSave => 'Save user';
+
+  @override
+  String get usersResetTitle => 'Reset PIN';
+
+  @override
+  String get usersResetPin => 'New PIN';
+
+  @override
+  String get usersResetRetype => 'Repeat new PIN';
+
+  @override
+  String get usersResetSubmit => 'Reset PIN';
+
+  @override
+  String get usersResetDone => 'New PIN saved and the PIN lock cleared.';
+
+  @override
+  String get usersErrNameTaken => 'Another user already has this name';
+
+  @override
+  String get usersErrOwnerLocked => 'The owner cannot be changed here.';
+
+  @override
+  String get usersErrSelf => 'You cannot change your own account or role here.';
+
+  @override
+  String get usersErrBeyond => 'You can only grant permissions you have.';
+
+  @override
+  String get usersErrRoleNotFound => 'Role not found.';
+
+  @override
+  String get usersErrRoleTaken => 'This role name is already used.';
+
+  @override
+  String get usersErrRoleInUse =>
+      'The role is still assigned to users. Move them first.';
+
+  @override
+  String get usersErrNotPermitted =>
+      'You do not have permission for this action.';
+
+  @override
+  String get usersErrGeneric => 'Something went wrong. Try again.';
+
+  @override
+  String usersErrWrongPin(int remaining) {
+    return 'Current PIN is wrong. $remaining attempts left.';
+  }
+
+  @override
+  String get usersErrWrongPassword => 'Current password is wrong.';
+
+  @override
+  String usersErrLocked(int seconds) {
+    return 'Too many attempts. Try again in $seconds seconds.';
+  }
+
+  @override
+  String get usersMatrixTitle => 'Permission matrix per role';
+
+  @override
+  String get usersMatrixPermission => 'Permission';
+
+  @override
+  String get usersMatrixNewRole => 'Custom role';
+
+  @override
+  String get usersMatrixSave => 'Save changes';
+
+  @override
+  String get usersMatrixDiscard => 'Discard';
+
+  @override
+  String get usersMatrixSaved => 'Role permissions saved.';
+
+  @override
+  String get usersMatrixNote =>
+      'Permissions use the resource:action format. Buttons and pages that are not allowed are hidden automatically. The owner always has every permission. Roles are stored on this device; changes apply the next time staff sign in.';
+
+  @override
+  String usersMatrixMembers(int count) {
+    return '$count users';
+  }
+
+  @override
+  String get usersRoleNewTitle => 'New custom role';
+
+  @override
+  String get usersRoleRenameTitle => 'Rename role';
+
+  @override
+  String get usersRoleName => 'Role name';
+
+  @override
+  String get usersRoleNameHint => 'e.g. Barista';
+
+  @override
+  String get usersRoleCreate => 'Create role';
+
+  @override
+  String get usersRoleRename => 'Rename';
+
+  @override
+  String get usersRoleDelete => 'Delete role';
+
+  @override
+  String get permSalesCreate => 'Create sales';
+
+  @override
+  String get permSalesVoid => 'Void receipts';
+
+  @override
+  String get permSalesDiscount => 'Manual discounts';
+
+  @override
+  String get permSalesReturn => 'Sales returns';
+
+  @override
+  String get permPaymentsConfirm => 'Confirm manual payments (QRIS, card)';
+
+  @override
+  String get permOpenBillsManage => 'Manage tables & open bills';
+
+  @override
+  String get permCashSessionOpen => 'Open cashier sessions';
+
+  @override
+  String get permCashSessionClose => 'Close cashier sessions';
+
+  @override
+  String get permCashMovementsCreate => 'Cash in / out of the drawer';
+
+  @override
+  String get permProductsManage => 'Manage products & prices';
+
+  @override
+  String get permCustomersManage => 'Customers';
+
+  @override
+  String get permSuppliersManage => 'Suppliers';
+
+  @override
+  String get permPurchasesManage => 'Purchases & purchase returns';
+
+  @override
+  String get permStockAdjust => 'Stock adjustments';
+
+  @override
+  String get permDebtsManage => 'Receivables & credit';
+
+  @override
+  String get permExpensesManage => 'Expenses';
+
+  @override
+  String get permReportsView => 'View reports';
+
+  @override
+  String get permReportsViewProfit => 'View profit & loss';
+
+  @override
+  String get permSettingsManage => 'Store settings';
+
+  @override
+  String get permUsersManage => 'Users & roles';
+
+  @override
+  String get permBackupManage => 'Backup & restore';
+
+  @override
+  String get permSyncManage => 'Sync & hosting';
+
+  @override
+  String get accountTitle => 'My account';
+
+  @override
+  String accountSubtitle(String name, String role) {
+    return '$name · $role · open to every user';
+  }
+
+  @override
+  String get accountPasswordTitle => 'Change password';
+
+  @override
+  String get accountPasswordCurrent => 'Current password';
+
+  @override
+  String get accountPasswordNew => 'New password';
+
+  @override
+  String get accountPasswordNewHint => 'At least 8 characters';
+
+  @override
+  String get accountPasswordRetype => 'Repeat new password';
+
+  @override
+  String get accountPasswordSubmit => 'Change password';
+
+  @override
+  String get accountPasswordDone => 'New password saved.';
+
+  @override
+  String get accountPasswordNone =>
+      'This account signs in with a PIN only, without a password.';
+
+  @override
+  String get accountPinTitle => 'Change PIN';
+
+  @override
+  String get accountPinCurrent => 'Current PIN';
+
+  @override
+  String get accountPinNew => 'New PIN';
+
+  @override
+  String get accountPinRetype => 'Repeat new PIN';
+
+  @override
+  String get accountPinSubmit => 'Change PIN';
+
+  @override
+  String get accountPinDone => 'New PIN saved.';
 }
