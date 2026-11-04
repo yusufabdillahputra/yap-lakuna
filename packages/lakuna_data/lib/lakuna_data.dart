@@ -24,5 +24,6 @@ export 'src/purchases.dart';
 export 'src/stock_admin.dart';
 export 'src/store.dart';
 export 'src/store_setup.dart';
+export 'src/suppliers.dart';
 export 'src/sync_state.dart';
 export 'src/sync_tx.dart';

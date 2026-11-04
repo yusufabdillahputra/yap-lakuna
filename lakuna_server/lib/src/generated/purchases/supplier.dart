@@ -13,8 +13,9 @@
 import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// Supplier (F1-12 minimal; master lengkap di F1-14). Nama unik per tenant
-/// tanpa membedakan huruf besar/kecil (dicek di lakuna_data).
+/// Supplier (F1-12, master lengkap F1-14). Nama unik per tenant tanpa
+/// membedakan huruf besar/kecil (dicek di lakuna_data). [termDays] = tempo
+/// standar yang mengisi jatuh tempo bawaan di Pembelian.
 abstract class Supplier
     implements _is.TableRow<_is.UuidValue>, _is.ProtocolSerialization {
   Supplier._({
@@ -22,6 +23,10 @@ abstract class Supplier
     required this.tenantId,
     required this.name,
     this.phone,
+    this.contactName,
+    this.category,
+    this.address,
+    int? termDays,
     this.note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -32,6 +37,7 @@ abstract class Supplier
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _is.Uuid().v7obj(),
+       termDays = termDays ?? 14,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -41,6 +47,10 @@ abstract class Supplier
     required _is.UuidValue tenantId,
     required String name,
     String? phone,
+    String? contactName,
+    String? category,
+    String? address,
+    int? termDays,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -62,6 +72,10 @@ abstract class Supplier
       ),
       name: jsonSerialization['name'] as String,
       phone: jsonSerialization['phone'] as String?,
+      contactName: jsonSerialization['contactName'] as String?,
+      category: jsonSerialization['category'] as String?,
+      address: jsonSerialization['address'] as String?,
+      termDays: jsonSerialization['termDays'] as int?,
       note: jsonSerialization['note'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
@@ -101,6 +115,14 @@ abstract class Supplier
 
   String? phone;
 
+  String? contactName;
+
+  String? category;
+
+  String? address;
+
+  int termDays;
+
   String? note;
 
   DateTime createdAt;
@@ -130,6 +152,10 @@ abstract class Supplier
     _is.UuidValue? tenantId,
     String? name,
     String? phone,
+    String? contactName,
+    String? category,
+    String? address,
+    int? termDays,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -148,6 +174,10 @@ abstract class Supplier
       'tenantId': tenantId.toJson(),
       'name': name,
       if (phone != null) 'phone': phone,
+      if (contactName != null) 'contactName': contactName,
+      if (category != null) 'category': category,
+      if (address != null) 'address': address,
+      'termDays': termDays,
       if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -168,6 +198,10 @@ abstract class Supplier
       'tenantId': tenantId.toJson(),
       'name': name,
       if (phone != null) 'phone': phone,
+      if (contactName != null) 'contactName': contactName,
+      if (category != null) 'category': category,
+      if (address != null) 'address': address,
+      'termDays': termDays,
       if (note != null) 'note': note,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -216,6 +250,10 @@ class _SupplierImpl extends Supplier {
     required _is.UuidValue tenantId,
     required String name,
     String? phone,
+    String? contactName,
+    String? category,
+    String? address,
+    int? termDays,
     String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -230,6 +268,10 @@ class _SupplierImpl extends Supplier {
          tenantId: tenantId,
          name: name,
          phone: phone,
+         contactName: contactName,
+         category: category,
+         address: address,
+         termDays: termDays,
          note: note,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -250,6 +292,10 @@ class _SupplierImpl extends Supplier {
     _is.UuidValue? tenantId,
     String? name,
     Object? phone = _Undefined,
+    Object? contactName = _Undefined,
+    Object? category = _Undefined,
+    Object? address = _Undefined,
+    int? termDays,
     Object? note = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -265,6 +311,10 @@ class _SupplierImpl extends Supplier {
       tenantId: tenantId ?? this.tenantId,
       name: name ?? this.name,
       phone: phone is String? ? phone : this.phone,
+      contactName: contactName is String? ? contactName : this.contactName,
+      category: category is String? ? category : this.category,
+      address: address is String? ? address : this.address,
+      termDays: termDays ?? this.termDays,
       note: note is String? ? note : this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -302,6 +352,26 @@ class SupplierUpdateTable extends _is.UpdateTable<SupplierTable> {
 
   _is.ColumnValue<String, String> phone(String? value) => _is.ColumnValue(
     table.phone,
+    value,
+  );
+
+  _is.ColumnValue<String, String> contactName(String? value) => _is.ColumnValue(
+    table.contactName,
+    value,
+  );
+
+  _is.ColumnValue<String, String> category(String? value) => _is.ColumnValue(
+    table.category,
+    value,
+  );
+
+  _is.ColumnValue<String, String> address(String? value) => _is.ColumnValue(
+    table.address,
+    value,
+  );
+
+  _is.ColumnValue<int, int> termDays(int value) => _is.ColumnValue(
+    table.termDays,
     value,
   );
 
@@ -376,6 +446,25 @@ class SupplierTable extends _is.Table<_is.UuidValue> {
       'phone',
       this,
     );
+    contactName = _is.ColumnString(
+      'contact_name',
+      this,
+      fieldName: 'contactName',
+    );
+    category = _is.ColumnString(
+      'category',
+      this,
+    );
+    address = _is.ColumnString(
+      'address',
+      this,
+    );
+    termDays = _is.ColumnInt(
+      'term_days',
+      this,
+      hasDefault: true,
+      fieldName: 'termDays',
+    );
     note = _is.ColumnString(
       'note',
       this,
@@ -431,6 +520,14 @@ class SupplierTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnString phone;
 
+  late final _is.ColumnString contactName;
+
+  late final _is.ColumnString category;
+
+  late final _is.ColumnString address;
+
+  late final _is.ColumnInt termDays;
+
   late final _is.ColumnString note;
 
   late final _is.ColumnDateTime createdAt;
@@ -455,6 +552,10 @@ class SupplierTable extends _is.Table<_is.UuidValue> {
     tenantId,
     name,
     phone,
+    contactName,
+    category,
+    address,
+    termDays,
     note,
     createdAt,
     updatedAt,

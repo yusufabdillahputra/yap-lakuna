@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B checkout, cash sessions, products, stock, transaction history, purchases, and customers & receivables are ready to use. Suppliers and reports follow in upcoming releases.';
+      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, and suppliers & payables are ready to use. Expenses and reports are coming in the next releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -4175,10 +4175,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchasePayDebt => 'Pay payable';
 
   @override
-  String get purchasePayDebtLater =>
-      'Paying off payables comes with the Suppliers & payables module.';
-
-  @override
   String get purchaseActions => 'Actions';
 
   @override
@@ -4958,4 +4954,347 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyMethodCredit => 'Credit';
+
+  @override
+  String get suppliersTitle => 'Suppliers & payables';
+
+  @override
+  String suppliersSubtitle(int count) {
+    return '$count suppliers · payables tracked per purchase';
+  }
+
+  @override
+  String get suppliersNew => 'Supplier';
+
+  @override
+  String get suppliersSearch => 'Search name, category, or phone';
+
+  @override
+  String get suppliersColSupplier => 'Supplier';
+
+  @override
+  String get suppliersColDebt => 'Payable';
+
+  @override
+  String get suppliersEmpty =>
+      'No suppliers yet. Add one or record your first purchase.';
+
+  @override
+  String get suppliersNoMatch => 'No matching suppliers.';
+
+  @override
+  String get suppliersSelectHint =>
+      'Pick a supplier to see and pay what you owe.';
+
+  @override
+  String get suppliersLoadFailed => 'Could not load suppliers.';
+
+  @override
+  String get suppliersTotalDebt => 'Total payables';
+
+  @override
+  String suppliersNearestDue(String date) {
+    return 'Nearest due date: $date';
+  }
+
+  @override
+  String get suppliersNoDue => 'Nothing due';
+
+  @override
+  String suppliersOverdueCount(int count) {
+    return '$count overdue purchases';
+  }
+
+  @override
+  String supplierPayTitle(String name) {
+    return '$name · pay supplier';
+  }
+
+  @override
+  String supplierContact(String name) {
+    return 'Contact: $name';
+  }
+
+  @override
+  String supplierTerm(int days) {
+    return 'standard terms $days days';
+  }
+
+  @override
+  String get supplierHistory => 'Purchase history';
+
+  @override
+  String get supplierEdit => 'Edit';
+
+  @override
+  String get supplierNoDebt => 'Nothing owed to this supplier.';
+
+  @override
+  String get supplierAmount => 'Amount paid';
+
+  @override
+  String get supplierPayAll => 'Pay everything';
+
+  @override
+  String get supplierFunding => 'Paid from';
+
+  @override
+  String get supplierReference => 'Transfer reference';
+
+  @override
+  String get supplierReferenceHint => 'Optional';
+
+  @override
+  String get supplierPaidOn => 'Payment date';
+
+  @override
+  String get supplierNoteOptional => 'Note (optional)';
+
+  @override
+  String get supplierColPurchase => 'Purchase';
+
+  @override
+  String get supplierColDue => 'Due';
+
+  @override
+  String get supplierColTotal => 'Total';
+
+  @override
+  String get supplierColRest => 'Remaining';
+
+  @override
+  String get supplierColPay => 'Pay';
+
+  @override
+  String get supplierTotalRow => 'Total';
+
+  @override
+  String get supplierOverdue => 'Overdue';
+
+  @override
+  String supplierDueShort(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String supplierAutoHint(String name, String amount) {
+    return 'Allocated to the nearest due date first. After saving, you will owe $name $amount.';
+  }
+
+  @override
+  String supplierAutoHintDue(String name, String amount, String date) {
+    return 'Allocated to the nearest due date first. After saving, you will owe $name $amount (due $date).';
+  }
+
+  @override
+  String get supplierManualHint =>
+      'Fill in Pay per purchase; the sum must equal the amount paid.';
+
+  @override
+  String get supplierDrawerHint =>
+      'Paying from the cash drawer is recorded as cash out in the open cashier session.';
+
+  @override
+  String get supplierDrawerNoSession =>
+      'The cash drawer needs an open cashier session on this device.';
+
+  @override
+  String get supplierDrawerNotToday =>
+      'The cash drawer is only for today\'s payments. Use store cash or bank for other dates.';
+
+  @override
+  String get supplierDrawerNotPermitted =>
+      'You are not allowed to use the cash drawer.';
+
+  @override
+  String get supplierManual => 'Allocate manually';
+
+  @override
+  String get supplierAuto => 'Allocate automatically';
+
+  @override
+  String get supplierAttachProof => 'Attach proof photo';
+
+  @override
+  String get supplierTakePhoto => 'Take photo';
+
+  @override
+  String get supplierRemoveProof => 'Remove photo';
+
+  @override
+  String get supplierProofTooLarge => 'Proof photo must be 5 MB or less.';
+
+  @override
+  String get supplierProofInvalid => 'Choose a PNG, JPG, or WebP image.';
+
+  @override
+  String get supplierSavePayment => 'Save payment';
+
+  @override
+  String supplierPaid(String number) {
+    return 'Payment $number saved.';
+  }
+
+  @override
+  String get supplierPayments => 'Payment history';
+
+  @override
+  String get supplierNoPayments => 'No payments yet.';
+
+  @override
+  String supplierProofTitle(String number) {
+    return 'Proof $number';
+  }
+
+  @override
+  String get supplierProofMissing =>
+      'The proof photo is not on this device yet.';
+
+  @override
+  String get supplierDelete => 'Delete supplier';
+
+  @override
+  String supplierDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get supplierDeleteBody => 'Past purchases keep this supplier\'s name.';
+
+  @override
+  String get supplierDeleteAction => 'Delete';
+
+  @override
+  String get supplierCancel => 'Cancel';
+
+  @override
+  String get supplierClose => 'Close';
+
+  @override
+  String get supplierFormNew => 'New supplier';
+
+  @override
+  String get supplierFormEdit => 'Edit supplier';
+
+  @override
+  String get supplierFieldName => 'Supplier name';
+
+  @override
+  String get supplierFieldContact => 'Contact person';
+
+  @override
+  String get supplierFieldPhone => 'Phone';
+
+  @override
+  String get supplierFieldCategory => 'Goods category';
+
+  @override
+  String get supplierCategoryHint => 'e.g. Groceries, Drinks';
+
+  @override
+  String get supplierFieldTerm => 'Standard terms (days)';
+
+  @override
+  String get supplierTermHint => 'Sets the default due date in Purchases.';
+
+  @override
+  String get supplierFieldAddress => 'Address';
+
+  @override
+  String get supplierFieldNote => 'Note';
+
+  @override
+  String get supplierSave => 'Save';
+
+  @override
+  String supplierErrName(int max) {
+    return 'Name is required, up to $max characters.';
+  }
+
+  @override
+  String get supplierErrPhone => 'Phone must be 8–15 digits.';
+
+  @override
+  String supplierErrContact(int max) {
+    return 'Contact up to $max characters.';
+  }
+
+  @override
+  String supplierErrCategory(int max) {
+    return 'Category up to $max characters.';
+  }
+
+  @override
+  String supplierErrAddress(int max) {
+    return 'Address up to $max characters.';
+  }
+
+  @override
+  String supplierErrNote(int max) {
+    return 'Note up to $max characters.';
+  }
+
+  @override
+  String supplierErrTerm(int max) {
+    return 'Terms must be 0–$max days.';
+  }
+
+  @override
+  String get supplierErrNameTaken => 'That supplier name is already used.';
+
+  @override
+  String get supplierErrHasDebt =>
+      'This supplier is still owed money. Pay it off before deleting.';
+
+  @override
+  String get supplierErrNotFound => 'Supplier not found.';
+
+  @override
+  String get supplierErrAmount => 'Enter the amount paid.';
+
+  @override
+  String get supplierErrOver => 'The amount is more than you owe.';
+
+  @override
+  String get supplierErrAllocation =>
+      'A purchase cannot be paid more than its remaining balance.';
+
+  @override
+  String get supplierErrAllocationTotal =>
+      'The Pay column must add up to the amount paid.';
+
+  @override
+  String get supplierErrDate => 'The payment date cannot be in the future.';
+
+  @override
+  String get supplierErrNoSession =>
+      'Open a cashier session to pay from the cash drawer.';
+
+  @override
+  String get supplierErrText => 'The note or reference is too long.';
+
+  @override
+  String get supplierErrNotPermitted => 'You are not allowed to do this.';
+
+  @override
+  String get supplierErrGeneric => 'Could not save. Please try again.';
+
+  @override
+  String supplierHistoryTitle(String name) {
+    return 'Purchases from $name';
+  }
+
+  @override
+  String get supplierHistoryEmpty => 'No purchases from this supplier yet.';
+
+  @override
+  String get supplierHistoryPaid => 'Paid';
+
+  @override
+  String get cashSourceSupplierPayment => 'Supplier payment';
+
+  @override
+  String purchaseDebtPayment(String number) {
+    return 'Payment $number';
+  }
 }

@@ -7,6 +7,102 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-11-04
+
+Supplier dan hutang (F1-14, layar 1.21). Toko mencatat supplier dengan tempo
+standar, melihat hutang per supplier dari pembelian yang belum lunas, lalu
+membayarnya dari kas toko, kas laci, atau rekening bank dengan nomor dan foto
+bukti. Sisa hutang selalu dihitung dari dokumen, tidak disimpan sebagai angka.
+
+### Ditambahkan
+
+- Menu **Supplier** (`/supplier`, grup Kontak) untuk staf dengan izin
+  `suppliers:manage` **atau** `debts:manage`; sebelumnya halaman
+  *segera hadir*.
+- **Layar 1.21 Supplier & hutang**:
+  - daftar supplier (nama, kategori, telepon, hutang), cari nama, kontak,
+    kategori, atau nomor telepon; kartu *Total hutang* dengan jumlah
+    supplier berhutang, pembelian terlambat, dan jatuh tempo terdekat;
+  - di lebar ≥ 1000 px panel supplier tampil di kanan; di layar lebih
+    sempit dibuka sebagai halaman `/supplier/:id` dengan tombol kembali;
+  - panel: kontak, tempo standar, telepon, kategori; tabel pembelian
+    belum lunas (nomor, tanggal, jatuh tempo, total, sisa, bayar) dengan
+    lencana *Terlambat*;
+  - **Bayar hutang**: jumlah (tombol *Lunasi semua*), sumber dana *Kas
+    toko* / *Kas laci* / *Rekening bank*, no. bukti transfer (opsional),
+    tanggal bayar (tidak boleh di masa depan), catatan, dan **foto bukti**
+    dari berkas atau kamera (maks. 5 MB, pratinjau dan hapus);
+  - **alokasi otomatis** ke pembelian dengan jatuh tempo terdekat dulu
+    (pembelian tanpa jatuh tempo paling akhir), dengan ringkasan sisa
+    hutang dan jatuh tempo berikutnya setelah disimpan; **alokasi manual**
+    per pembelian yang wajib berjumlah sama dengan uang dibayar;
+  - nomor pembayaran `BH-<OUTLET>-<PERANGKAT>-<yymmdd>-NNNN`;
+  - riwayat pembayaran (nomor, tanggal, sumber, jumlah, no. bukti) dengan
+    tombol lihat foto bukti;
+  - dialog **Riwayat pembelian** (pembelian cabang ini, terbaru dulu) yang
+    membuka detail pembelian;
+  - form **tambah / ubah supplier**: nama (wajib, unik tanpa membedakan
+    huruf besar/kecil), kontak, telepon (dinormalisasi), kategori barang,
+    tempo standar 0–365 hari, alamat, catatan;
+  - **hapus supplier** (ditolak selama masih berhutang; pembelian lama
+    tetap menampilkan namanya).
+- **Kas laci**: bayar hutang dari laci wajib sesi kasir terbuka di perangkat
+  ini, tanggal bayar hari ini, dan izin `cash_movements:create`; tercatat
+  sebagai uang keluar *Bayar hutang supplier* di rekap sesi.
+- **Detail pembelian**: tombol **Bayar hutang** (bila masih berhutang dan
+  staf punya `debts:manage`) membuka panel supplier; kartu *Pembayaran*
+  menampilkan baris pembayaran hutang `BH-…`.
+- Data: kolom `suppliers.contact_name`, `category`, `address`,
+  `term_days` (bawaan 14), `debt_payments.reference`, `proof_media_id`,
+  dan jenis media `paymentProof` (migrasi `supplier`).
+
+### Diubah
+
+- **Pembelian**: jatuh tempo bawaan = tanggal beli + tempo standar supplier
+  terpilih (14 hari untuk supplier baru). Mengganti supplier ikut
+  memperbarui jatuh tempo selama belum diubah manual; draf lama tanpa jatuh
+  tempo juga memakai tempo supplier-nya.
+- Hutang pembelian di daftar, detail, dan retur beli sekarang dikurangi
+  pembayaran hutang supplier; retur setelah pembayaran hanya memotong sisa
+  hutang, kelebihannya dikembalikan seperti biasa.
+- Teks Beranda menyebut supplier & hutang sudah bisa dipakai.
+
+### Diperbaiki
+
+- Dialog form supplier: tombol *Simpan* / *Batal* sekarang menempel di
+  bawah dialog. Sebelumnya di jendela 720 px tombol terpotong, dan klik di
+  bagian yang terpotong mengenai latar sehingga dialog tertutup tanpa
+  menyimpan (ditemukan saat uji manual).
+- Panel supplier memuat ulang status sesi kasir setiap kali dimuat, jadi
+  petunjuk kas laci tidak basi bila sesi dibuka/ditutup selama panel
+  terbuka (temuan review).
+- Bayar dari kas laci tanpa izin `cash_movements:create` ditolak di
+  repositori aplikasi sebelum menyentuh data, dengan pesan izin yang jelas
+  (temuan review).
+- Riwayat pembelian supplier dibatasi cabang ini sehingga setiap baris bisa
+  dibuka; sebelumnya pembelian cabang lain ikut tampil lalu gagal dibuka
+  (temuan review).
+
+### Keamanan
+
+- Izin dicek di menu, layar, repositori aplikasi, dan lapisan data untuk
+  semua aksi tulis: kelola supplier `suppliers:manage`, bayar hutang
+  `debts:manage`, kas laci `cash_movements:create`.
+
+### Catatan teknis
+
+- Domain: `SupplierLimits`, `validateSupplier`, `PayableOrder` (urutan
+  jatuh tempo terdekat), `supplierPaymentNumber`, `purchaseDebt(allocated:)`.
+- Data: `suppliers.dart` (`loadSuppliersOverview`, `loadSupplierDetail`,
+  `listSupplierPurchases`, `saveSupplier`, `deleteSupplier`,
+  `paySupplierDebt`, `loadSupplierPaymentProof`); `purchaseDebtOf` dipakai
+  bersama oleh daftar, detail, pembayaran, hapus, dan retur.
+- Pembaruan supplier menaikkan `version`, `hlc`, dan `origin_device_id`
+  (galat *SyncStampMismatch* saat pengembangan).
+- Tes: domain, data (10 skenario termasuk alokasi ke pembelian supplier
+  lain dan nama bentrok saat ubah), repositori lokal (izin per aksi), VM,
+  dan alur widget 1440/1280/800/360 px.
+
 ## [0.17.0] - 2026-11-04
 
 Pelanggan dan piutang (F1-13, layar 1.20, 1.20b, dan 1.5b). Toko mencatat
@@ -1754,7 +1850,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...v0.15.0

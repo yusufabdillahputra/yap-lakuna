@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -7184,12 +7184,6 @@ abstract class AppLocalizations {
   /// **'Bayar hutang'**
   String get purchasePayDebt;
 
-  /// No description provided for @purchasePayDebtLater.
-  ///
-  /// In id, this message translates to:
-  /// **'Pelunasan hutang menyusul di modul Supplier & hutang.'**
-  String get purchasePayDebtLater;
-
   /// No description provided for @purchaseActions.
   ///
   /// In id, this message translates to:
@@ -8533,6 +8527,588 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kredit'**
   String get historyMethodCredit;
+
+  /// No description provided for @suppliersTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier & hutang'**
+  String get suppliersTitle;
+
+  /// No description provided for @suppliersSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} supplier · hutang dicatat per pembelian'**
+  String suppliersSubtitle(int count);
+
+  /// No description provided for @suppliersNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get suppliersNew;
+
+  /// No description provided for @suppliersSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama, kategori, atau telepon'**
+  String get suppliersSearch;
+
+  /// No description provided for @suppliersColSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get suppliersColSupplier;
+
+  /// No description provided for @suppliersColDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Hutang'**
+  String get suppliersColDebt;
+
+  /// No description provided for @suppliersEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada supplier. Tambahkan supplier atau catat pembelian pertama.'**
+  String get suppliersEmpty;
+
+  /// No description provided for @suppliersNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada supplier yang cocok.'**
+  String get suppliersNoMatch;
+
+  /// No description provided for @suppliersSelectHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih supplier untuk melihat hutang dan membayarnya.'**
+  String get suppliersSelectHint;
+
+  /// No description provided for @suppliersLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data supplier gagal dimuat.'**
+  String get suppliersLoadFailed;
+
+  /// No description provided for @suppliersTotalDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Total hutang'**
+  String get suppliersTotalDebt;
+
+  /// No description provided for @suppliersNearestDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo terdekat: {date}'**
+  String suppliersNearestDue(String date);
+
+  /// No description provided for @suppliersNoDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada hutang jatuh tempo'**
+  String get suppliersNoDue;
+
+  /// No description provided for @suppliersOverdueCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pembelian terlambat'**
+  String suppliersOverdueCount(int count);
+
+  /// No description provided for @supplierPayTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} · bayar hutang'**
+  String supplierPayTitle(String name);
+
+  /// No description provided for @supplierContact.
+  ///
+  /// In id, this message translates to:
+  /// **'Kontak: {name}'**
+  String supplierContact(String name);
+
+  /// No description provided for @supplierTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'tempo standar {days} hari'**
+  String supplierTerm(int days);
+
+  /// No description provided for @supplierHistory.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat pembelian'**
+  String get supplierHistory;
+
+  /// No description provided for @supplierEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah data'**
+  String get supplierEdit;
+
+  /// No description provided for @supplierNoDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada hutang ke supplier ini.'**
+  String get supplierNoDebt;
+
+  /// No description provided for @supplierAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah dibayar'**
+  String get supplierAmount;
+
+  /// No description provided for @supplierPayAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunasi semua'**
+  String get supplierPayAll;
+
+  /// No description provided for @supplierFunding.
+  ///
+  /// In id, this message translates to:
+  /// **'Sumber dana'**
+  String get supplierFunding;
+
+  /// No description provided for @supplierReference.
+  ///
+  /// In id, this message translates to:
+  /// **'No. bukti transfer'**
+  String get supplierReference;
+
+  /// No description provided for @supplierReferenceHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional'**
+  String get supplierReferenceHint;
+
+  /// No description provided for @supplierPaidOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal bayar'**
+  String get supplierPaidOn;
+
+  /// No description provided for @supplierNoteOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get supplierNoteOptional;
+
+  /// No description provided for @supplierColPurchase.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian'**
+  String get supplierColPurchase;
+
+  /// No description provided for @supplierColDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo'**
+  String get supplierColDue;
+
+  /// No description provided for @supplierColTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get supplierColTotal;
+
+  /// No description provided for @supplierColRest.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get supplierColRest;
+
+  /// No description provided for @supplierColPay.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar'**
+  String get supplierColPay;
+
+  /// No description provided for @supplierTotalRow.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get supplierTotalRow;
+
+  /// No description provided for @supplierOverdue.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlambat'**
+  String get supplierOverdue;
+
+  /// No description provided for @supplierDueShort.
+  ///
+  /// In id, this message translates to:
+  /// **'tempo {date}'**
+  String supplierDueShort(String date);
+
+  /// No description provided for @supplierAutoHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke {name} {amount}.'**
+  String supplierAutoHint(String name, String amount);
+
+  /// No description provided for @supplierAutoHintDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi otomatis ke jatuh tempo terdekat dulu. Setelah disimpan, sisa hutang ke {name} {amount} (jatuh tempo {date}).'**
+  String supplierAutoHintDue(String name, String amount, String date);
+
+  /// No description provided for @supplierManualHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi kolom Bayar per pembelian; jumlahnya harus sama dengan jumlah dibayar.'**
+  String get supplierManualHint;
+
+  /// No description provided for @supplierDrawerHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar dari kas laci akan tercatat sebagai uang keluar di sesi kasir yang sedang buka.'**
+  String get supplierDrawerHint;
+
+  /// No description provided for @supplierDrawerNoSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci butuh sesi kasir terbuka di perangkat ini.'**
+  String get supplierDrawerNoSession;
+
+  /// No description provided for @supplierDrawerNotToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci hanya untuk pembayaran hari ini. Pilih kas toko atau rekening bank untuk tanggal lain.'**
+  String get supplierDrawerNotToday;
+
+  /// No description provided for @supplierDrawerNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin memakai kas laci.'**
+  String get supplierDrawerNotPermitted;
+
+  /// No description provided for @supplierManual.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur alokasi manual'**
+  String get supplierManual;
+
+  /// No description provided for @supplierAuto.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi otomatis'**
+  String get supplierAuto;
+
+  /// No description provided for @supplierAttachProof.
+  ///
+  /// In id, this message translates to:
+  /// **'Lampirkan foto bukti'**
+  String get supplierAttachProof;
+
+  /// No description provided for @supplierTakePhoto.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto bukti'**
+  String get supplierTakePhoto;
+
+  /// No description provided for @supplierRemoveProof.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus foto'**
+  String get supplierRemoveProof;
+
+  /// No description provided for @supplierProofTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto bukti maksimal 5 MB.'**
+  String get supplierProofTooLarge;
+
+  /// No description provided for @supplierProofInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih gambar PNG, JPG, atau WebP.'**
+  String get supplierProofInvalid;
+
+  /// No description provided for @supplierSavePayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan pembayaran'**
+  String get supplierSavePayment;
+
+  /// No description provided for @supplierPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran {number} tersimpan.'**
+  String supplierPaid(String number);
+
+  /// No description provided for @supplierPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat pembayaran'**
+  String get supplierPayments;
+
+  /// No description provided for @supplierNoPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pembayaran hutang.'**
+  String get supplierNoPayments;
+
+  /// No description provided for @supplierProofTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti {number}'**
+  String supplierProofTitle(String number);
+
+  /// No description provided for @supplierProofMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto bukti belum ada di perangkat ini.'**
+  String get supplierProofMissing;
+
+  /// No description provided for @supplierDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus supplier'**
+  String get supplierDelete;
+
+  /// No description provided for @supplierDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String supplierDeleteTitle(String name);
+
+  /// No description provided for @supplierDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian lama tetap menyimpan nama supplier ini.'**
+  String get supplierDeleteBody;
+
+  /// No description provided for @supplierDeleteAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get supplierDeleteAction;
+
+  /// No description provided for @supplierCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get supplierCancel;
+
+  /// No description provided for @supplierClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get supplierClose;
+
+  /// No description provided for @supplierFormNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier baru'**
+  String get supplierFormNew;
+
+  /// No description provided for @supplierFormEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah supplier'**
+  String get supplierFormEdit;
+
+  /// No description provided for @supplierFieldName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama supplier'**
+  String get supplierFieldName;
+
+  /// No description provided for @supplierFieldContact.
+  ///
+  /// In id, this message translates to:
+  /// **'Kontak (nama orang)'**
+  String get supplierFieldContact;
+
+  /// No description provided for @supplierFieldPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'No. telepon'**
+  String get supplierFieldPhone;
+
+  /// No description provided for @supplierFieldCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori barang'**
+  String get supplierFieldCategory;
+
+  /// No description provided for @supplierCategoryHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Sembako, Minuman'**
+  String get supplierCategoryHint;
+
+  /// No description provided for @supplierFieldTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo standar (hari)'**
+  String get supplierFieldTerm;
+
+  /// No description provided for @supplierTermHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengisi jatuh tempo bawaan di Pembelian.'**
+  String get supplierTermHint;
+
+  /// No description provided for @supplierFieldAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat'**
+  String get supplierFieldAddress;
+
+  /// No description provided for @supplierFieldNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan'**
+  String get supplierFieldNote;
+
+  /// No description provided for @supplierSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get supplierSave;
+
+  /// No description provided for @supplierErrName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama wajib diisi, maksimal {max} karakter.'**
+  String supplierErrName(int max);
+
+  /// No description provided for @supplierErrPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor telepon 8–15 digit.'**
+  String get supplierErrPhone;
+
+  /// No description provided for @supplierErrContact.
+  ///
+  /// In id, this message translates to:
+  /// **'Kontak maksimal {max} karakter.'**
+  String supplierErrContact(int max);
+
+  /// No description provided for @supplierErrCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori maksimal {max} karakter.'**
+  String supplierErrCategory(int max);
+
+  /// No description provided for @supplierErrAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat maksimal {max} karakter.'**
+  String supplierErrAddress(int max);
+
+  /// No description provided for @supplierErrNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan maksimal {max} karakter.'**
+  String supplierErrNote(int max);
+
+  /// No description provided for @supplierErrTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo 0–{max} hari.'**
+  String supplierErrTerm(int max);
+
+  /// No description provided for @supplierErrNameTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama supplier sudah dipakai.'**
+  String get supplierErrNameTaken;
+
+  /// No description provided for @supplierErrHasDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier masih punya hutang. Lunasi dulu sebelum dihapus.'**
+  String get supplierErrHasDebt;
+
+  /// No description provided for @supplierErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier tidak ditemukan.'**
+  String get supplierErrNotFound;
+
+  /// No description provided for @supplierErrAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi jumlah dibayar.'**
+  String get supplierErrAmount;
+
+  /// No description provided for @supplierErrOver.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah melebihi total hutang.'**
+  String get supplierErrOver;
+
+  /// No description provided for @supplierErrAllocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar per pembelian tidak boleh melebihi sisanya.'**
+  String get supplierErrAllocation;
+
+  /// No description provided for @supplierErrAllocationTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah kolom Bayar harus sama dengan jumlah dibayar.'**
+  String get supplierErrAllocationTotal;
+
+  /// No description provided for @supplierErrDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal bayar tidak boleh di masa depan.'**
+  String get supplierErrDate;
+
+  /// No description provided for @supplierErrNoSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir dulu untuk bayar dari kas laci.'**
+  String get supplierErrNoSession;
+
+  /// No description provided for @supplierErrText.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan atau no. bukti terlalu panjang.'**
+  String get supplierErrText;
+
+  /// No description provided for @supplierErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk tindakan ini.'**
+  String get supplierErrNotPermitted;
+
+  /// No description provided for @supplierErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get supplierErrGeneric;
+
+  /// No description provided for @supplierHistoryTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat pembelian {name}'**
+  String supplierHistoryTitle(String name);
+
+  /// No description provided for @supplierHistoryEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pembelian dari supplier ini.'**
+  String get supplierHistoryEmpty;
+
+  /// No description provided for @supplierHistoryPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunas'**
+  String get supplierHistoryPaid;
+
+  /// No description provided for @cashSourceSupplierPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar hutang supplier'**
+  String get cashSourceSupplierPayment;
+
+  /// No description provided for @purchaseDebtPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar hutang {number}'**
+  String purchaseDebtPayment(String number);
 }
 
 class _AppLocalizationsDelegate

@@ -33,3 +33,4 @@ export 'src/setup.dart';
 export 'src/split_bill.dart';
 export 'src/staff.dart';
 export 'src/stock.dart';
+export 'src/supplier.dart';

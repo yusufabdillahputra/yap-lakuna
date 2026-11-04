@@ -173,8 +173,31 @@ class PurchaseFormViewModel extends ChangeNotifier {
   late final Command0<Purchase> receive;
   late final Command0<void> deleteDraft;
 
-  /// Jatuh tempo bawaan: 14 hari setelah tanggal pembelian.
-  static const defaultTermDays = 14;
+  /// Jatuh tempo bawaan tanpa supplier terpilih: 14 hari setelah tanggal
+  /// pembelian. Supplier terpilih memakai tempo standarnya (F1-14).
+  static const defaultTermDays = SupplierLimits.defaultTermDays;
+
+  /// Tempo standar supplier terpilih, atau [defaultTermDays].
+  int get _termDays => _newSupplier || _supplierId == null
+      ? defaultTermDays
+      : _setup?.suppliers
+                .where((s) => s.id == _supplierId)
+                .firstOrNull
+                ?.termDays ??
+            defaultTermDays;
+
+  /// Mengganti supplier lewat [change]; jatuh tempo ikut tempo supplier
+  /// baru bila masih bawaan.
+  void _changeSupplier(VoidCallback change) {
+    final wasDefault =
+        _dueOn == null || _dueOn == _plusDays(_purchasedOn, _termDays);
+    change();
+    if (wasDefault) {
+      _dueOn = _plusDays(_purchasedOn, _termDays);
+      _generation++;
+    }
+    _touched();
+  }
 
   PurchaseSetup? _setup;
   Exception? _error;
@@ -352,7 +375,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         ? FundingKind.storeCash
         : fundingKind(p.fundingSource!);
     _dueOn = p.dueOn == null
-        ? _plusDays(_purchasedOn, defaultTermDays)
+        ? _plusDays(_purchasedOn, _termDays)
         : _date(p.dueOn!);
     _note = p.note ?? '';
     _attempt = null;
@@ -395,18 +418,16 @@ class PurchaseFormViewModel extends ChangeNotifier {
   static DateTime _plusDays(DateTime d, int days) =>
       DateTime(d.year, d.month, d.day + days);
 
-  void selectSupplier(UuidValue? id) {
+  void selectSupplier(UuidValue? id) => _changeSupplier(() {
     _supplierId = id;
     _newSupplier = false;
-    _touched();
-  }
+  });
 
   /// Mengetik nama supplier baru (dibuat saat simpan).
-  void useNewSupplier() {
+  void useNewSupplier() => _changeSupplier(() {
     _supplierId = null;
     _newSupplier = true;
-    _touched();
-  }
+  });
 
   void setNewSupplierName(String v) {
     _newSupplierName = v;
@@ -423,9 +444,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
     // Jatuh tempo ikut bergeser bila masih bawaan atau jadi sebelum tanggal.
     final due = _dueOn;
     if (due == null ||
-        due == _plusDays(_purchasedOn, defaultTermDays) ||
+        due == _plusDays(_purchasedOn, _termDays) ||
         due.isBefore(day)) {
-      _dueOn = _plusDays(day, defaultTermDays);
+      _dueOn = _plusDays(day, _termDays);
     }
     _purchasedOn = day;
     _generation++;

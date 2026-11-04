@@ -203,14 +203,15 @@ DateTime _day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
 int _len(String? s) => (s ?? '').trim().characters.length;
 
-/// Sisa hutang pembelian: total − dibayar − pengurang hutang dari retur,
-/// tidak pernah minus.
+/// Sisa hutang pembelian: total − dibayar saat beli − alokasi pembayaran
+/// hutang (F1-14) − pengurang hutang dari retur, tidak pernah minus.
 Money purchaseDebt({
   required Money total,
   required Money paid,
+  Money allocated = Money.zero,
   Money debtReduction = Money.zero,
 }) {
-  final debt = total - paid - debtReduction;
+  final debt = total - paid - allocated - debtReduction;
   return debt.isNegative ? Money.zero : debt;
 }
 

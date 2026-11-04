@@ -19,6 +19,7 @@ part '20261103195744239-denah/migration.dart';
 part '20261103205544079-riwayat/migration.dart';
 part '20261103222601917-pembelian/migration.dart';
 part '20261103230815808-pelanggan/migration.dart';
+part '20261104002656061-supplier/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -40,6 +41,7 @@ class MigrationRegistry {
     _Migration20261103205544079_riwayat(),
     _Migration20261103222601917_pembelian(),
     _Migration20261103230815808_pelanggan(),
+    _Migration20261104002656061_supplier(),
   ];
 
   /// List of all client-side database migration versions.

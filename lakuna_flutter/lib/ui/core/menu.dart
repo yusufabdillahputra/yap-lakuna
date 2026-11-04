@@ -147,11 +147,13 @@ final List<MenuGroup> appMenu = [
         permission: Permission.customersManage,
         orPermission: Permission.debtsManage,
       ),
-      _module(
-        'suppliers',
-        TablerIcons.addressBook,
-        (l) => l.menuSuppliers,
-        Permission.suppliersManage,
+      MenuEntry(
+        key: 'suppliers',
+        icon: TablerIcons.addressBook,
+        label: (l) => l.menuSuppliers,
+        path: Routes.suppliers,
+        permission: Permission.suppliersManage,
+        orPermission: Permission.debtsManage,
       ),
     ],
   ),

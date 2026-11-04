@@ -67,4 +67,4 @@ manual Xvfb, dokumen, dan rilis.
 - [x] Review subagent; perbaiki temuan Critical/Important.
 - [x] Uji manual di Xvfb; simpan tangkapan layar.
 - [x] Spec Status & gap, README spec, CHANGELOG 0.17.0, versi `0.17.0+18`.
-- [ ] PR, CI hijau, squash merge, cek rilis.
+- [x] PR, CI hijau, squash merge, cek rilis.

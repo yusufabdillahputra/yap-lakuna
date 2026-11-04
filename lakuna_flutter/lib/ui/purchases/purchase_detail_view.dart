@@ -137,11 +137,15 @@ class PurchaseDetailScreen extends StatefulWidget {
     required this.repository,
     required this.purchaseId,
     required this.onBack,
+    this.onPayDebt,
   });
 
   final PurchasesRepository repository;
   final UuidValue purchaseId;
   final VoidCallback onBack;
+
+  /// Membuka panel bayar hutang supplier (F1-14); `null` = tanpa izin.
+  final Future<void> Function(UuidValue supplierId)? onPayDebt;
 
   @override
   State<PurchaseDetailScreen> createState() => _PurchaseDetailScreenState();
@@ -203,17 +207,33 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
           onBack: widget.onBack,
         );
       }
-      return PurchaseDetailView(viewModel: _vm, onBack: widget.onBack);
+      final pay = widget.onPayDebt;
+      return PurchaseDetailView(
+        viewModel: _vm,
+        onBack: widget.onBack,
+        onPayDebt: pay == null
+            ? null
+            : (id) async {
+                await pay(id);
+                if (mounted) await _vm.load.execute();
+              },
+      );
     },
   );
 }
 
 /// Detail pembelian yang sudah diterima (1.19b).
 class PurchaseDetailView extends StatelessWidget {
-  const PurchaseDetailView({super.key, required this.viewModel, this.onBack});
+  const PurchaseDetailView({
+    super.key,
+    required this.viewModel,
+    this.onBack,
+    this.onPayDebt,
+  });
 
   final PurchaseDetailViewModel viewModel;
   final VoidCallback? onBack;
+  final Future<void> Function(UuidValue supplierId)? onPayDebt;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -226,7 +246,7 @@ class PurchaseDetailView extends StatelessWidget {
       final debt = d.debt;
       final cards = [
         _SummaryCard(viewModel: vm),
-        _PaymentsCard(viewModel: vm),
+        _PaymentsCard(viewModel: vm, onPayDebt: onPayDebt),
         _ActionsCard(viewModel: vm),
       ];
       return SingleChildScrollView(
@@ -774,9 +794,10 @@ class _SummaryCard extends StatelessWidget {
 }
 
 class _PaymentsCard extends StatelessWidget {
-  const _PaymentsCard({required this.viewModel});
+  const _PaymentsCard({required this.viewModel, this.onPayDebt});
 
   final PurchaseDetailViewModel viewModel;
+  final Future<void> Function(UuidValue supplierId)? onPayDebt;
 
   @override
   Widget build(BuildContext context) {
@@ -795,6 +816,13 @@ class _PaymentsCard extends StatelessWidget {
               ? '-'
               : fundingLabel(l10n, fundingKind(p.fundingSource!)),
           Money(p.paidAmount),
+        ),
+      for (final l in d.debtPayments)
+        (
+          formatCalendarDayMonth(l.paidOn),
+          l10n.purchaseDebtPayment(l.number),
+          l.funding == null ? '-' : fundingLabel(l10n, fundingKind(l.funding!)),
+          l.amount,
         ),
       for (final r in d.returns) ...[
         if (r.debtReduction > 0)
@@ -853,13 +881,13 @@ class _PaymentsCard extends StatelessWidget {
                   ),
               ],
             ),
-          FButton(
-            key: const ValueKey('purchase-pay-debt'),
-            onPress: null,
-            prefix: const Icon(TablerIcons.cash),
-            child: Flexible(child: Text(l10n.purchasePayDebt)),
-          ),
-          Text(l10n.purchasePayDebtLater, style: _muted(context)),
+          if (d.debt > Money.zero && p.supplierId != null && onPayDebt != null)
+            FButton(
+              key: const ValueKey('purchase-pay-debt'),
+              onPress: () => onPayDebt!(p.supplierId!),
+              prefix: const Icon(TablerIcons.cash),
+              child: Flexible(child: Text(l10n.purchasePayDebt)),
+            ),
         ],
       ),
     );

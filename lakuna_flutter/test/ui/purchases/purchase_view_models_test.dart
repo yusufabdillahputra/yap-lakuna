@@ -130,6 +130,33 @@ void main() {
       form.setPurchasedOn(DateTime(2026, 11, 2));
       expect(form.dueOn, DateTime(2026, 11, 30));
     });
+
+    test('jatuh tempo bawaan mengikuti tempo standar supplier', () async {
+      repo.suppliers.add(
+        Supplier(
+          tenantId: repo.suppliers.first.tenantId,
+          name: 'PT Segar Jaya',
+          termDays: 7,
+          hlc: '',
+        ),
+      );
+      await form.load.execute();
+      final segar = form.setup!.suppliers.firstWhere(
+        (s) => s.name == 'PT Segar Jaya',
+      );
+      form.setPurchasedOn(DateTime(2026, 11, 3));
+      form.selectSupplier(segar.id);
+      expect(form.dueOn, DateTime(2026, 11, 10));
+      form.setPurchasedOn(DateTime(2026, 11, 1));
+      expect(form.dueOn, DateTime(2026, 11, 8));
+      // Supplier baru (ketik nama) memakai 14 hari.
+      form.useNewSupplier();
+      expect(form.dueOn, DateTime(2026, 11, 15));
+      // Jatuh tempo yang diubah staf tidak ditimpa.
+      form.setDueOn(DateTime(2026, 12, 1));
+      form.selectSupplier(segar.id);
+      expect(form.dueOn, DateTime(2026, 12, 1));
+    });
   });
 
   group('PurchaseDetailViewModel', () {
