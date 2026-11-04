@@ -7,6 +7,30 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.29.1] - 2026-11-04
+
+Foto ponsel vertikal tidak lagi dianggap mendatar saat diunggah.
+
+### Diperbaiki
+
+- **Peringatan "tidak vertikal" palsu untuk foto ponsel.** Ponsel sering
+  menyimpan foto vertikal sebagai gambar mendatar plus tag EXIF "putar
+  90°". Lakuna membaca lebar/tinggi dari header JPEG sebelum rotasi itu,
+  sehingga stiker QRIS hasil foto ponsel (1.6 / 1.26b) diberi peringatan
+  bentuk yang keliru. Kini tag Orientation EXIF dibaca dan, untuk
+  orientasi 5–8 (diputar 90°/270°), lebar dan tinggi ditukar sesuai
+  tampilan sebenarnya.
+
+### Catatan teknis
+
+- `readImageHeader` (`packages/lakuna_domain/lib/src/image_header.dart`)
+  membaca segmen APP1 `Exif`, header TIFF big-endian (`MM`) maupun
+  little-endian (`II`), dan tag 0x0112 di IFD0. EXIF yang rusak atau
+  terpotong diabaikan sehingga ukuran SOF tetap dipakai.
+- Tes baru di `packages/lakuna_domain/test/qris_test.dart`: orientasi 1–8,
+  urutan byte `II`, dan offset IFD rusak.
+- Gap *Orientasi EXIF JPEG* di spec F1-18 ditutup.
+
 ## [0.29.0] - 2026-11-04
 
 Pelanggan di nota dan **nota tersimpan** di Kasir retail (F1-04d, layar
@@ -2833,7 +2857,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...HEAD
+[0.29.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...v0.28.0

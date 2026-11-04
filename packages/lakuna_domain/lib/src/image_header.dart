@@ -51,6 +51,7 @@ ImageHeader? _png(List<int> b) {
 
 ImageHeader? _jpeg(List<int> b) {
   var i = 2;
+  var orientation = 1;
   while (i + 3 < b.length) {
     if (b[i] != 0xFF) return null;
     final marker = b[i + 1];
@@ -71,10 +72,50 @@ ImageHeader? _jpeg(List<int> b) {
         marker != 0xC4 &&
         marker != 0xC8 &&
         marker != 0xCC) {
-      return _sized(ImageFormat.jpeg, _be16(b, i + 7), _be16(b, i + 5));
+      final w = _be16(b, i + 7);
+      final h = _be16(b, i + 5);
+      // Orientasi 5–8 = diputar 90°/270° saat ditampilkan (foto ponsel).
+      return orientation >= 5 && orientation <= 8
+          ? _sized(ImageFormat.jpeg, h, w)
+          : _sized(ImageFormat.jpeg, w, h);
+    }
+    if (marker == 0xE1) {
+      orientation = _exifOrientation(b, i + 4, length - 2) ?? orientation;
     }
     if (marker == 0xD9 || marker == 0xDA) return null;
     i += 2 + length;
+  }
+  return null;
+}
+
+/// Tag Orientation (0x0112) dari IFD0 segmen APP1 Exif yang dimulai di
+/// [start] sepanjang [length]; `null` bila bukan Exif atau rusak.
+int? _exifOrientation(List<int> b, int start, int length) {
+  final end = start + length;
+  if (length < 14 || end > b.length) return null;
+  if (_ascii(b, start, 6) != 'Exif\u0000\u0000') return null;
+  final tiff = start + 6;
+  final big = switch (_ascii(b, tiff, 2)) {
+    'MM' => true,
+    'II' => false,
+    _ => null,
+  };
+  if (big == null) return null;
+  int u16(int at) => big ? _be16(b, at) : _le16(b, at);
+  int u32(int at) => big
+      ? _be32(b, at)
+      : b[at] | (b[at + 1] << 8) | (b[at + 2] << 16) | (b[at + 3] << 24);
+  if (u16(tiff + 2) != 42) return null;
+  final ifd = tiff + u32(tiff + 4);
+  if (ifd < tiff + 8 || ifd + 2 > end) return null;
+  final count = u16(ifd);
+  for (var n = 0; n < count; n++) {
+    final entry = ifd + 2 + n * 12;
+    if (entry + 12 > end) return null;
+    if (u16(entry) == 0x0112) {
+      final value = u16(entry + 8);
+      return value >= 1 && value <= 8 ? value : null;
+    }
   }
   return null;
 }

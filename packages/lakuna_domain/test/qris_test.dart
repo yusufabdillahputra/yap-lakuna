@@ -16,6 +16,26 @@ List<int> _jpeg(int w, int h) => [
   0xFF, 0xC0, 0, 11, 8, ..._be16(h), ..._be16(w), 1, 1, 0x11, 0,
 ];
 
+/// JPEG dengan segmen APP1 Exif berisi tag Orientation [orientation].
+/// [bigEndian] = TIFF "MM", selain itu "II".
+List<int> _jpegExif(int w, int h, int orientation, {bool bigEndian = true}) {
+  List<int> u16(int v) => bigEndian ? _be16(v) : _le16(v);
+  List<int> u32(int v) => bigEndian ? _be32(v) : _be32(v).reversed.toList();
+  final tiff = [
+    ...(bigEndian ? 'MM' : 'II').codeUnits, ...u16(42), ...u32(8),
+    ...u16(2), // dua entri IFD0
+    ...u16(0x010F), ...u16(2), ...u32(4), 65, 98, 0, 0, // Make
+    ...u16(0x0112), ...u16(3), ...u32(1), ...u16(orientation), 0, 0,
+    ...u32(0), // IFD berikutnya
+  ];
+  final app1 = [...'Exif'.codeUnits, 0, 0, ...tiff];
+  return [
+    0xFF, 0xD8, // SOI
+    0xFF, 0xE1, ..._be16(app1.length + 2), ...app1,
+    0xFF, 0xC0, 0, 11, 8, ..._be16(h), ..._be16(w), 1, 1, 0x11, 0,
+  ];
+}
+
 List<int> _webpVp8x(int w, int h) => [
   ...'RIFF'.codeUnits, 0, 0, 0, 0, ...'WEBP'.codeUnits, //
   ...'VP8X'.codeUnits, 10, 0, 0, 0, 0, 0, 0, 0, //
@@ -62,6 +82,28 @@ void main() {
       expect(h.format, ImageFormat.jpeg);
       expect((h.width, h.height), (1080, 1528));
       expect(h.extension, 'jpg');
+    });
+
+    test('JPEG dengan EXIF orientasi 5–8: lebar dan tinggi ditukar', () {
+      // Foto ponsel vertikal disimpan mendatar + tag "putar 90°".
+      for (final o in [5, 6, 7, 8]) {
+        final h = readImageHeader(_jpegExif(4032, 3024, o))!;
+        expect((h.width, h.height), (3024, 4032), reason: 'orientasi $o');
+      }
+      final le = readImageHeader(_jpegExif(4032, 3024, 6, bigEndian: false))!;
+      expect((le.width, le.height), (3024, 4032));
+      for (final o in [1, 2, 3, 4]) {
+        final h = readImageHeader(_jpegExif(1080, 1528, o))!;
+        expect((h.width, h.height), (1080, 1528), reason: 'orientasi $o');
+      }
+    });
+
+    test('EXIF rusak diabaikan, ukuran SOF tetap dipakai', () {
+      final b = _jpegExif(1080, 1528, 6);
+      // Rusak offset IFD0 (jauh di luar segmen).
+      b[4 + 2 + 6 + 4] = 0x7F;
+      final h = readImageHeader(b)!;
+      expect((h.width, h.height), (1080, 1528));
     });
 
     test('WebP VP8X, VP8L, VP8', () {

@@ -142,6 +142,6 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
 | Pembulatan bagian split bill | - | Tagihan per tamu dibagi dari total yang sudah dibulatkan, bisa tidak kelipatan Rp 100/500 | Bulatkan per bagian bila ada permintaan |
 | PB1 termasuk di laporan per produk / kategori | - | Penjualan per produk memakai total baris (termasuk PB1 bila harga termasuk pajak), sama seperti service | Pisahkan pajak per baris di Fase 2 |
 | Aturan pembulatan di layar Kasir | - | Dimuat saat Kasir dibuka; layar dibuat ulang setiap kali menu dibuka | Muat ulang bila aturan bisa berubah dari perangkat lain (sinkronisasi Fase 2) |
-| Orientasi EXIF JPEG | - | Belum: lebar/tinggi dibaca dari SOF sebelum rotasi, foto ponsel bisa diberi peringatan "tidak vertikal" palsu | Baca APP1 orientation 5-8 lalu tukar lebar/tinggi |
+| Orientasi EXIF JPEG | - | Rilis v0.29.1 | `readImageHeader` membaca tag Orientation APP1 Exif (MM/II); 5–8 menukar lebar/tinggi |
 | Berkas gambar lama | - | Saat stiker diganti, baris `media_files` lama dan berkasnya tetap ada; berkas ditulis sebelum transaksi selesai | Pembersihan media tanpa rujukan (Fase 2, bersama unggah object storage) |
 | Baris gambar ada, berkas hilang di perangkat | - | Pengaturan meminta unggah ulang sebelum QRIS bisa diaktifkan | Sengaja: kasir tidak bisa menampilkan stiker tanpa berkas |
