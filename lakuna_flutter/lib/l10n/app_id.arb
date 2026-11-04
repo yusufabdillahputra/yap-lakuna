@@ -4441,5 +4441,8 @@
       }
     }
   },
-  "cashierResumedFrom": "Dari nota tersimpan"
+  "cashierResumedFrom": "Dari nota tersimpan",
+  "paymentErrorParked": "Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.",
+  "cashierResumeDiscountDropped": "Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.",
+  "approvalDiscountResumed": "Diskon dari nota tersimpan"
 }

@@ -3907,5 +3907,8 @@
       }
     }
   },
-  "cashierResumedFrom": "From saved bill"
+  "cashierResumedFrom": "From saved bill",
+  "paymentErrorParked": "This saved bill was already paid or deleted elsewhere. Finish again to record it as a new sale.",
+  "cashierResumeDiscountDropped": "The saved bill's discounts were removed because you don't have discount permission.",
+  "approvalDiscountResumed": "Discount from a saved bill"
 }

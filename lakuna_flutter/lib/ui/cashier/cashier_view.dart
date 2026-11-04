@@ -1142,6 +1142,13 @@ class _OrderPanel extends StatelessWidget {
                 const SizedBox(height: 8),
                 _CustomerField(viewModel: vm),
               ],
+              if (vm.resumeDiscountDropped) ...[
+                const SizedBox(height: 8),
+                FAlert(
+                  key: const ValueKey('cashier-resume-discount-dropped'),
+                  title: Text(l10n.cashierResumeDiscountDropped),
+                ),
+              ],
               if (vm.resumeDropped > 0) ...[
                 const SizedBox(height: 8),
                 FAlert(
@@ -1232,7 +1239,7 @@ class _OrderPanel extends StatelessWidget {
                         key: const ValueKey('cashier-pay'),
                         onPress: lines.isEmpty || vm.discountBlocksPay
                             ? null
-                            : (onPay ?? vm.startPayment),
+                            : (onPay ?? () => _payWithApproval(context, vm)),
                         // Nominal mengecil di panel sempit, tidak terpotong.
                         child: Flexible(
                           child: FittedBox(
@@ -1340,6 +1347,11 @@ class _CustomerField extends StatelessWidget {
       ),
     );
   }
+}
+
+/// *Bayar*: minta PIN manajer dulu bila diskon keranjang belum disetujui.
+Future<void> _payWithApproval(BuildContext context, CashierViewModel vm) async {
+  if (await approveCartDiscounts(context, vm)) vm.startPayment();
 }
 
 // --- Tata letak ---------------------------------------------------------------
@@ -1485,7 +1497,9 @@ class _MobileCashier extends StatelessWidget {
         ),
       ),
     );
-    if (pay ?? false) viewModel.startPayment();
+    if ((pay ?? false) && context.mounted) {
+      await _payWithApproval(context, viewModel);
+    }
   }
 
   @override
@@ -1579,7 +1593,9 @@ class _MobileCashier extends StatelessWidget {
                   FButton(
                     key: const ValueKey('cashier-pay'),
                     mainAxisSize: .min,
-                    onPress: vm.discountBlocksPay ? null : vm.startPayment,
+                    onPress: vm.discountBlocksPay
+                        ? null
+                        : () => _payWithApproval(context, vm),
                     child: Flexible(
                       child: Text(
                         l10n.cashierPay,

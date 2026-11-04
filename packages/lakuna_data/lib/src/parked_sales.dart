@@ -243,6 +243,28 @@ Future<void> removeParkedSale(
     ),
     s,
   );
+  // Baris ikut dihapus agar tidak tersinkron sebagai baris yatim.
+  final items = await SaleItem.db.find(
+    w.session,
+    where: (i) =>
+        i.tenantId.equals(scope.tenantId) &
+        i.saleId.equals(sale.id) &
+        i.deletedAt.equals(null),
+    transaction: w.transaction,
+  );
+  for (final item in items) {
+    await w.update(
+      item.copyWith(
+        deletedAt: s.now,
+        version: item.version + 1,
+        updatedAt: s.now,
+        updatedBy: staffId,
+        hlc: s.hlc.toString(),
+        originDeviceId: s.deviceId,
+      ),
+      s,
+    );
+  }
 }
 
 /// *Hapus* nota tersimpan. Stok tidak tersentuh karena belum bergerak.

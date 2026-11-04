@@ -1218,6 +1218,90 @@ void main() {
       expect(repo.parked, isEmpty);
     });
 
+    test('baris terakhir dihapus: nota asal dan pelanggannya lepas', () async {
+      vm
+        ..selectCustomer(budi)
+        ..scan('8990001');
+      await vm.park.execute(null);
+      final id = vm.parkedRows.single.id;
+      await vm.resumeParked.execute(id);
+      expect(vm.parkedId, id);
+      vm.remove(0);
+      expect(vm.parkedId, isNull);
+      expect(vm.customer, isNull);
+      // Penjualan berikutnya tidak menghapus nota Budi.
+      vm
+        ..scan('kop')
+        ..startPayment()
+        ..setReceived(const Money(100000));
+      await vm.pay.execute();
+      expect(repo.checkoutParked.single, isNull);
+      expect(repo.checkoutCustomers.single, isNull);
+      expect(repo.parked, hasLength(1));
+    });
+
+    test('pelanggan dipilih lalu baris dihapus: pelanggan tetap', () {
+      vm
+        ..selectCustomer(budi)
+        ..scan('8990001')
+        ..remove(0);
+      expect(vm.customer?.id, budi.customer.id);
+    });
+
+    test(
+      'nota asal hilang saat bayar: pesan khusus, bayar ulang biasa',
+      () async {
+        vm.scan('8990001');
+        await vm.park.execute(null);
+        await vm.resumeParked.execute(vm.parkedRows.single.id);
+        repo.parked.clear();
+        vm
+          ..startPayment()
+          ..setReceived(const Money(100000));
+        await vm.pay.execute();
+        expect(vm.error, isA<ParkedSaleNotFound>());
+        expect(vm.parkedId, isNull);
+        await vm.pay.execute();
+        expect(vm.stage, CashierStage.done);
+        expect(repo.checkoutParked.last, isNull);
+      },
+    );
+
+    test('diskon nota tersimpan: kasir tanpa izin diminta PIN', () async {
+      vm
+        ..scan('8990001')
+        ..setBillDiscount(const ManualDiscount.percent(BasisPoints(500)));
+      await vm.park.execute(null);
+      repo.permissions = {Permission.salesCreate};
+      await vm.load.execute();
+      await vm.resumeParked.execute(vm.parkedRows.single.id);
+      expect(vm.billDiscount, isNotNull);
+      expect(vm.discountAwaitsApproval, isTrue);
+      vm.approveDiscounts((id: UuidValue.fromString(newId()), name: 'Rina'));
+      expect(vm.discountAwaitsApproval, isFalse);
+    });
+
+    test(
+      'diskon nota tersimpan dilepas bila staf tidak boleh diskon',
+      () async {
+        vm.scan('8990001');
+        vm
+          ..setLineDiscount(0, const ManualDiscount.amount(Money(1000)))
+          ..setBillDiscount(const ManualDiscount.percent(BasisPoints(500)));
+        await vm.park.execute(null);
+        repo
+          ..permissions = {Permission.salesCreate}
+          ..salesRules = const SalesRules(discountNeedsPin: false);
+        await vm.load.execute();
+        await vm.resumeParked.execute(vm.parkedRows.single.id);
+        expect(vm.hasDiscount, isFalse);
+        expect(vm.resumeDiscountDropped, isTrue);
+        expect(vm.discountAwaitsApproval, isFalse);
+        vm.clearCart();
+        expect(vm.resumeDiscountDropped, isFalse);
+      },
+    );
+
     test('keranjang kosong tidak bisa disimpan', () {
       expect(vm.canPark, isFalse); // keranjang kosong
     });

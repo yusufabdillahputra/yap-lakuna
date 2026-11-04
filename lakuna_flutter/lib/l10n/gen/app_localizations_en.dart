@@ -7155,4 +7155,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashierResumedFrom => 'From saved bill';
+
+  @override
+  String get paymentErrorParked =>
+      'This saved bill was already paid or deleted elsewhere. Finish again to record it as a new sale.';
+
+  @override
+  String get cashierResumeDiscountDropped =>
+      'The saved bill\'s discounts were removed because you don\'t have discount permission.';
+
+  @override
+  String get approvalDiscountResumed => 'Discount from a saved bill';
 }

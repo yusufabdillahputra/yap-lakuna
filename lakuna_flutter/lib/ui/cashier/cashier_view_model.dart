@@ -306,6 +306,7 @@ class CashierViewModel extends ChangeNotifier {
   var _customerQuery = '';
   List<ParkedSaleRow> _parkedRows = const [];
   var _resumeDropped = 0;
+  var _resumeDiscountDropped = false;
 
   var _disposed = false;
 
@@ -640,7 +641,7 @@ class CashierViewModel extends ChangeNotifier {
       item.quantity = next;
     } else {
       _items.removeAt(index);
-      if (_items.isEmpty) _resetDiscounts();
+      if (_items.isEmpty) _cartEmptied();
     }
     notifyListeners();
   }
@@ -651,15 +652,26 @@ class CashierViewModel extends ChangeNotifier {
       _items[index].quantity = quantity;
     } else {
       _items.removeAt(index);
-      if (_items.isEmpty) _resetDiscounts();
+      if (_items.isEmpty) _cartEmptied();
     }
     notifyListeners();
   }
 
   void remove(int index) {
     _items.removeAt(index);
-    if (_items.isEmpty) _resetDiscounts();
+    if (_items.isEmpty) _cartEmptied();
     notifyListeners();
+  }
+
+  /// Baris terakhir dihapus satu per satu: diskon, nota tersimpan asal, dan
+  /// pelanggannya ikut lepas agar tidak menempel ke penjualan berikutnya.
+  void _cartEmptied() {
+    _resetDiscounts();
+    if (_parkedId != null) _customer = null;
+    _parkedId = null;
+    _parkedNote = null;
+    _resumeDropped = 0;
+    _resumeDiscountDropped = false;
   }
 
   void clearCart() {
@@ -669,6 +681,7 @@ class CashierViewModel extends ChangeNotifier {
     _parkedId = null;
     _parkedNote = null;
     _resumeDropped = 0;
+    _resumeDiscountDropped = false;
     notifyListeners();
   }
 
@@ -730,6 +743,17 @@ class CashierViewModel extends ChangeNotifier {
   /// Baris yang dibuang saat nota terakhir dilanjutkan (produk dihapus).
   int get resumeDropped => _resumeDropped;
 
+  /// Diskon nota tersimpan dibuang saat dilanjutkan karena staf ini tidak
+  /// boleh memberi diskon (tanpa izin dan tanpa PIN manajer).
+  bool get resumeDiscountDropped => _resumeDiscountDropped;
+
+  /// Keranjang berdiskon tanpa penyetuju (mis. nota tersimpan dilanjutkan
+  /// kasir tanpa izin): PIN manajer diminta saat *Bayar*.
+  bool get discountAwaitsApproval =>
+      hasDiscount &&
+      discountAccess == DiscountAccess.approval &&
+      _discountApprover == null;
+
   /// *Simpan* tersedia: keranjang berisi, bukan mode bill, tidak sedang
   /// membayar atau menyimpan.
   bool get canPark =>
@@ -773,6 +797,7 @@ class CashierViewModel extends ChangeNotifier {
     _parkedId = null;
     _parkedNote = null;
     _resumeDropped = 0;
+    _resumeDiscountDropped = false;
     _query = '';
     await _loadParked();
     return const Result.ok(null);
@@ -812,6 +837,16 @@ class CashierViewModel extends ChangeNotifier {
         _resumeDropped = dropped;
         _billDiscount = _items.isEmpty ? null : value.discount;
         _discountApprover = null;
+        // Persetujuan diskon tidak ikut disimpan. Staf tanpa izin dan tanpa
+        // jalur PIN tidak bisa memakai/menghapus diskon: buang dan beri tahu.
+        _resumeDiscountDropped = false;
+        if (hasDiscount && discountAccess == DiscountAccess.none) {
+          _resetDiscounts();
+          for (final i in _items) {
+            i.discount = null;
+          }
+          _resumeDiscountDropped = true;
+        }
         _customer = switch ((value.customerId, value.customerName)) {
           (final id?, final name?) => (id: id, name: name),
           _ => null,
@@ -1357,6 +1392,7 @@ class CashierViewModel extends ChangeNotifier {
         }
         _parkedNote = null;
         _resumeDropped = 0;
+        _resumeDiscountDropped = false;
         // Piutang pelanggan berubah: muat ulang saat kredit dipakai lagi.
         if (_mode == PayMode.credit) _creditCustomers = null;
         _stage = CashierStage.done;
@@ -1370,6 +1406,12 @@ class CashierViewModel extends ChangeNotifier {
                   permission: Permission.salesDiscount,
                 )) {
           _discountApprover = null;
+        }
+        // Nota tersimpan asal sudah dibayar/dihapus di tempat lain: bayar
+        // berikutnya menjadi penjualan biasa.
+        if (error is ParkedSaleNotFound) {
+          _parkedId = null;
+          _parkedNote = null;
         }
         // Layar sudah ditutup saat menyimpan dan gagal: keranjang tetap
         // dibawa ke draf (F1-04c).

@@ -143,7 +143,7 @@ Migrasi `penjualan`, model di `lakuna_server/lib/src/sales/`.
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
 | Diskon manual baris & nota + persetujuan PIN | 1.4b | v0.24.0 | Spec F1-04b |
-| Pilih pelanggan di kepala Kasir, nota tersimpan | 1.4b | Belum | Versi berikutnya |
+| Pilih pelanggan di kepala Kasir, nota tersimpan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
 | Foto produk di kartu | Foto | Kotak inisial | Ikuti gap foto F1-07 |
 | Catatan per item | Baris catatan | Hanya catatan grosir | Bersama modifier F1-10 |
 | *Izinkan stok minus* | Pengaturan 1.26 | Selalu boleh, ada peringatan | F1-18 |

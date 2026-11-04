@@ -53,6 +53,7 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       SplitLocked() || SplitInvalid() => splitErrorMessage(l10n, error),
       SaleCreditInvalid(:final issue) => creditIssueMessage(l10n, issue),
       CustomerNotFound() => l10n.customerErrNotFound,
+      ParkedSaleNotFound() => l10n.paymentErrorParked,
       NotPermitted(permission: Permission.paymentsConfirm) =>
         l10n.paymentErrorConfirmPermission,
       NotPermitted() => l10n.paymentErrorPermission,

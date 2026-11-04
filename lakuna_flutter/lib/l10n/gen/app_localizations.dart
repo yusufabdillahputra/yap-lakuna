@@ -12343,6 +12343,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Dari nota tersimpan'**
   String get cashierResumedFrom;
+
+  /// No description provided for @paymentErrorParked.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.'**
+  String get paymentErrorParked;
+
+  /// No description provided for @cashierResumeDiscountDropped.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.'**
+  String get cashierResumeDiscountDropped;
+
+  /// No description provided for @approvalDiscountResumed.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon dari nota tersimpan'**
+  String get approvalDiscountResumed;
 }
 
 class _AppLocalizationsDelegate

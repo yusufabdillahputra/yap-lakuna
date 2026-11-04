@@ -236,6 +236,13 @@ void main() {
         loadParkedSale(store.session, scope, parked.id),
         throwsA(isA<ParkedSaleNotFound>()),
       );
+      // Barisnya ikut terhapus (tidak tersinkron sebagai baris yatim).
+      final items = await SaleItem.db.find(
+        store.session,
+        where: (i) => i.saleId.equals(parked.id),
+      );
+      expect(items, isNotEmpty);
+      expect(items.every((i) => i.deletedAt != null), isTrue);
     });
 
     test('keranjang kosong dan open bill F&B ditolak', () async {

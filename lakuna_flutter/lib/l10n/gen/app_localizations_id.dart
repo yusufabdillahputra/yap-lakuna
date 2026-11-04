@@ -7006,4 +7006,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashierResumedFrom => 'Dari nota tersimpan';
+
+  @override
+  String get paymentErrorParked =>
+      'Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.';
+
+  @override
+  String get cashierResumeDiscountDropped =>
+      'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.';
+
+  @override
+  String get approvalDiscountResumed => 'Diskon dari nota tersimpan';
 }

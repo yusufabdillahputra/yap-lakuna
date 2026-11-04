@@ -7,6 +7,96 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-11-04
+
+Pelanggan di nota dan **nota tersimpan** di Kasir retail (F1-04d, layar
+1.4b; di HP lewat lembar pesanan 1.11).
+
+### Ditambahkan
+
+- **Pelanggan di nota.** Kepala panel Pesanan kini berisi kolom
+  *Pelanggan umum*. Ketuk untuk membuka dialog **Pilih pelanggan**: cari
+  nama atau nomor HP, tiap baris menampilkan HP · grup, *Sisa limit* (bila
+  pelanggan punya limit kredit), dan lencana *Lewat tempo*. Tombol **×**
+  mengembalikan nota ke pelanggan umum.
+- Pelanggan terpilih ikut tersimpan di nota tunai, kartu, transfer, QRIS,
+  dan split (bukan hanya kredit) dan tercetak di struk. Nota non-kredit
+  tetap lunas, tidak menjadi piutang. Mode *Kredit* di layar Bayar memakai
+  pelanggan ini sebagai pilihan awal.
+- **Simpan nota (parkir).** Tombol **Simpan** di samping *Bayar* menyimpan
+  keranjang yang belum dibayar, lengkap dengan diskon baris/nota dan
+  pelanggan. Tanpa pelanggan, kasir bisa menambah *Catatan* (mis. "Meja
+  depan", maks. 40 karakter). Stok **belum** berkurang dan tidak ada
+  pembayaran yang tercatat.
+- **Nota tersimpan (N)** di bilah atas Kasir (di HP: ikon + jumlah)
+  membuka daftar nota tersimpan cabang: nama atau catatan, jumlah item,
+  jam disimpan, kasir, dan total, dengan tombol **Lanjutkan** dan
+  **Hapus** (dengan konfirmasi).
+- *Lanjutkan* memuat nota ke keranjang dengan harga katalog terbaru dan
+  hanya aktif saat keranjang kosong ("Simpan atau kosongkan keranjang
+  dulu"). Barang yang produknya sudah dihapus dibuang dan diberi tahu.
+  Nota tersimpan hilang dari daftar setelah dibayar; menyimpan lagi
+  menggantikan nota lama.
+- Artikel Panduan *Transaksi & harga grosir* (ID + EN) menjelaskan
+  pelanggan di nota dan nota tersimpan.
+
+### Diubah
+
+- Tombol *Kosongkan* di bawah pesanan menjadi ikon tempat sampah agar
+  *Simpan* muat. Nominal di tombol *Bayar* mengecil, tidak terpotong, di
+  panel sempit.
+- Pemilih pelanggan kredit (1.5b) memakai avatar inisial yang sama dengan
+  pemilih pelanggan Kasir.
+
+### Diperbaiki
+
+- (Temuan review sebelum rilis) Menghapus baris terakhir satu per satu
+  pada nota yang dilanjutkan kini melepas nota tersimpan asal dan
+  pelanggannya. Sebelumnya penjualan berikutnya bisa tercatat atas nama
+  pelanggan itu dan ikut menghapus nota tersimpannya yang belum dibayar.
+- (Temuan review) Nota tersimpan berdiskon yang dilanjutkan kasir tanpa
+  izin diskon: *Bayar* kini meminta PIN manajer dulu. Bila diskon manual
+  tidak diizinkan sama sekali (tanpa izin dan sakelar PIN mati), diskon
+  dilepas saat dilanjutkan dan kasir diberi tahu, alih-alih pembayaran
+  gagal tanpa jalan keluar.
+- (Temuan review) Bila nota tersimpan asal sudah dibayar atau dihapus di
+  tempat lain, pembayaran menampilkan pesan khusus dan percobaan
+  berikutnya tercatat sebagai penjualan biasa.
+
+### Keamanan
+
+- Menyimpan, melanjutkan, dan menghapus nota tersimpan memakai izin
+  `sales:create`, diperiksa di repositori. Pelanggan diperiksa milik
+  tenant dan belum dihapus.
+- Membayar nota tersimpan menghapusnya (soft delete) dalam transaksi yang
+  sama dengan penjualan, jadi nota yang sama tidak bisa dibayar dua kali.
+
+### Catatan teknis
+
+- Nota tersimpan = baris `sales` berstatus `open`, `order_type = retail`,
+  tanpa meja, nomor dari urutan open bill (`OB-…`, kini `nextBillNumber`
+  publik di `open_bill.dart`), beserta `sale_items` (`unit_cost` 0).
+  Tanpa migrasi skema. Penghapusan ikut men-soft-delete `sale_items`-nya
+  agar tidak tersinkron sebagai baris yatim.
+- `packages/lakuna_data/lib/src/parked_sales.dart`: `parkSale`,
+  `listParkedSales`, `loadParkedSale`, `deleteParkedSale`,
+  `removeParkedSale`. Penetapan harga keranjang dipisah ke
+  `priceSaleLines` di `sales.dart` dan dipakai bersama `checkoutSale`,
+  yang kini menerima `customerId` dan `parkedSaleId`. `saleCustomer` di
+  `customers.dart`.
+- Nota tersimpan tidak muncul di Meja F&B (sudah menyaring
+  `order_type != retail`), Riwayat, laporan, atau piutang (status `open`),
+  dan tidak menahan tutup sesi kasir (tanpa pembayaran).
+- `CashierViewModel`: `customer`, `parkedId`, `parkedNote`, command
+  `customers` / `park` / `parked` / `resumeParked` / `deleteParked`,
+  `discountAwaitsApproval`, `resumeDiscountDropped`. `CartDraft` membawa
+  pelanggan dan nota asal. UI baru: `customer_picker.dart`,
+  `parked_sales_sheet.dart`.
+- Tes: 8 tes data nota tersimpan, 15 tes view model, 6 tes widget (1280 px
+  dan 360 px). Total 696 tes Flutter dan 285 tes data lulus.
+- Spec `2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md` dan rencana
+  `2026-11-04-f1-04d-pelanggan-nota-tersimpan.md`.
+
 ## [0.28.1] - 2026-11-04
 
 Keranjang kasir tidak lagi hilang saat kasir membuka menu lain (F1-04c,
@@ -2743,7 +2833,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...v0.27.0

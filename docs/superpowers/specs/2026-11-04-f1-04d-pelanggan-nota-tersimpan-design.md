@@ -1,7 +1,7 @@
 # F1-04d · Pelanggan & nota tersimpan di Kasir
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.29.0
 - **Layar desain:** 1.4b *Kasir: pelanggan, diskon manual, nota tersimpan*
   (tablet), 1.11 / 1.11b (mobile, tanpa layar baru).
 - **Acuan Storeku:** `2026-11-02-f1-04-kasir-retail-design.md` (tombol
@@ -92,7 +92,7 @@ lalu melanjutkannya nanti.
 
 | Topik | Desain | Kode | Catatan |
 | --- | --- | --- | --- |
-| Pilih pelanggan di kepala Pesanan | 1.4b | Dikerjakan | |
-| Nota tersimpan (simpan, daftar, lanjutkan, hapus) | 1.4b | Dikerjakan | |
+| Pilih pelanggan di kepala Pesanan | 1.4b | Rilis v0.29.0 | Juga di nota non-kredit dan struk |
+| Nota tersimpan (simpan, daftar, lanjutkan, hapus) | 1.4b | Rilis v0.29.0 | Diskon tanpa penyetuju: PIN saat Bayar, atau dilepas bila staf tak boleh diskon |
 | *Pelanggan baru* dari pemilih Kasir | 1.4b | Belum | Tambah lewat menu Pelanggan |
 | Harga grosir per grup pelanggan | 1.4b | Belum | Grup belum punya harga (butuh model harga per grup) |

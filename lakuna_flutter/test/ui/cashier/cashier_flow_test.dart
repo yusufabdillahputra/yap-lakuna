@@ -915,6 +915,50 @@ void main() {
       expect(_text(tester, 'cashier-total'), 'Rp 2.000');
     });
 
+    testWidgets('diskon nota tersimpan: kasir tanpa izin diminta PIN saat '
+        'Bayar', (tester) async {
+      final session = FakeSessionRepository()
+        ..current = sampleStaff(name: 'Sari', role: 'cashier');
+      final repo = await pump(
+        tester,
+        permissions: {Permission.salesCreate, Permission.cashSessionOpen},
+        session: session,
+      );
+      final kopi = repo.catalog.products.firstWhere(
+        (p) => p.name == 'Kopi Sachet',
+      );
+      await repo.park(
+        lines: [
+          SaleLineRequest(
+            variantId: kopi.variants.single.id,
+            quantity: Qty.one,
+          ),
+        ],
+        discount: const ManualDiscount.percent(BasisPoints(500)),
+      );
+      await _tap(tester, 'cashier-parked');
+      await _tap(tester, 'parked-resume-${repo.parked.single.id.uuid}');
+      expect(_text(tester, 'cashier-total'), 'Rp 1.900');
+
+      // Batal PIN: tetap di pesanan.
+      await _tap(tester, 'cashier-pay');
+      expect(_key('approval-dialog'), findsOneWidget);
+      Navigator.of(tester.element(_key('approval-dialog'))).pop();
+      await tester.pumpAndSettle();
+      expect(_key('payment-received'), findsNothing);
+
+      await _tap(tester, 'cashier-pay');
+      await tester.enterText(_input('approval-pin'), '123456');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'approval-submit');
+      expect(_key('payment-received'), findsOneWidget);
+      await _tap(tester, 'payment-quick-0');
+      await _tap(tester, 'payment-finish');
+      expect(_key('success-title'), findsOneWidget);
+      expect(repo.parked, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('pelanggan dihapus dari nota dengan ×', (tester) async {
       final repo = await pump(tester);
       final ani = row('Toko Bu Ani');
