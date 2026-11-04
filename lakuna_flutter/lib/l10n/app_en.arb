@@ -3799,5 +3799,25 @@
   "guideLoadError": "The guide could not be loaded",
   "guidePrevious": "Previous",
   "guideNext": "Next",
-  "guideImageMissing": "Image not available"
+  "guideImageMissing": "Image not available",
+  "settingsSectionAbout": "About Lakuna",
+  "aboutTagline": "Offline-first point of sale for small businesses, in Retail and F&B modes.",
+  "aboutVersion": "Version",
+  "aboutOpenGuide": "Open the guide",
+  "aboutPrivacyTitle": "Data privacy",
+  "aboutPrivacyLocal": "All store data (products, sales, customers, staff and images) is stored on this device. Lakuna does not send data to anyone else and has no ads or trackers.",
+  "aboutPrivacyHosted": "If you turn on the hosted version, data is synced to your own store server.",
+  "aboutPrivacyBackup": "Backup files hold all of your store data. Keep them somewhere safe.",
+  "aboutLicensesTitle": "Open source licenses",
+  "aboutLicensesSubtitle": "Lakuna is built with these open source packages and fonts.",
+  "aboutLicensesShow": "Show licenses",
+  "aboutLicensesError": "Could not load the license list.",
+  "aboutLicenseCount": "{count, plural, =1{1 license} other{{count} licenses}}",
+  "@aboutLicenseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -54,6 +54,12 @@ flutter:
   assets:
     # Instans statis untuk PDF kuitansi (paket pdf tidak membaca font variabel).
     - assets/fonts/pdf/
+    # Lisensi aset bundel: font SIL OFL dan Bootstrap Icons (logo), tampil
+    # di Pengaturan › Tentang Lakuna (F1-22).
+    - assets/fonts/Montserrat/LICENSE.txt
+    - assets/fonts/DM_Sans/LICENSE.txt
+    - assets/fonts/DM_Mono/LICENSE.txt
+    - assets/licenses/
     # Panduan pengguna offline (F1-21).
     - assets/guide/
     - assets/guide/id/

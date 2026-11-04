@@ -31,25 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: version
-        name: Baca versi dan cek tag
-        run: |
-          line="$(grep -E '^version:' lakuna_flutter/pubspec.yaml | head -1)"
-          full="${line#version: }"
-          version="${full%%+*}"
-          build="${full#*+}"
-          [ "$build" = "$full" ] && build=1
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "build=$build" >> "$GITHUB_OUTPUT"
-          if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null; then
-            echo "Tag v$version sudah ada; tidak ada rilis baru."
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          else
-            if ! grep -q "^## \[$version\]" CHANGELOG.md; then
-              echo "::error::CHANGELOG.md belum punya bagian ## [$version]"
-              exit 1
-            fi
-            echo "release=true" >> "$GITHUB_OUTPUT"
-          fi
+        name: Baca versi, cek tag dan nomor build
+        run: tools/release/check-version.sh
 
   linux:
     name: Linux (.deb)
@@ -284,6 +267,9 @@ jobs:
             printf '\n> **Installer belum tersedia:** %s (runner GitHub gagal\n> didapat). Versi berikutnya menyertakannya kembali.\n' "$list" >> notes.md
           fi
           cat notes.md
+      - name: SHA256SUMS
+        working-directory: dist
+        run: sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt
       - name: Terbitkan
         run: |
           flags=()

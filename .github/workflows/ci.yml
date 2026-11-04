@@ -41,6 +41,13 @@ jobs:
             lakuna_flutter/lib/ui lakuna_flutter/lib/utils lakuna_flutter/test \
             lakuna_server/lib/server.dart lakuna_server/test/integration/organization_test.dart
 
+  version:
+    name: Versi & nomor build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/release/check-version.sh
+
   analyze:
     name: Analyze
     runs-on: ubuntu-latest

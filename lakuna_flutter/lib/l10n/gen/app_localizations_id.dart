@@ -6839,4 +6839,55 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get guideImageMissing => 'Gambar belum tersedia';
+
+  @override
+  String get settingsSectionAbout => 'Tentang Lakuna';
+
+  @override
+  String get aboutTagline =>
+      'Aplikasi kasir offline-first untuk UMKM, mode Retail dan F&B.';
+
+  @override
+  String get aboutVersion => 'Versi';
+
+  @override
+  String get aboutOpenGuide => 'Buka Panduan';
+
+  @override
+  String get aboutPrivacyTitle => 'Privasi data';
+
+  @override
+  String get aboutPrivacyLocal =>
+      'Semua data toko (produk, transaksi, pelanggan, staf, dan gambar) disimpan di perangkat ini. Lakuna tidak mengirim data ke pihak lain dan tidak memakai iklan atau pelacak.';
+
+  @override
+  String get aboutPrivacyHosted =>
+      'Bila versi hosted diaktifkan, data disinkronkan ke server milik toko Anda sendiri.';
+
+  @override
+  String get aboutPrivacyBackup =>
+      'File backup berisi seluruh data toko. Simpan di tempat yang aman.';
+
+  @override
+  String get aboutLicensesTitle => 'Lisensi open source';
+
+  @override
+  String get aboutLicensesSubtitle =>
+      'Lakuna dibangun dengan paket dan font open source berikut.';
+
+  @override
+  String get aboutLicensesShow => 'Tampilkan lisensi';
+
+  @override
+  String get aboutLicensesError => 'Daftar lisensi gagal dimuat.';
+
+  @override
+  String aboutLicenseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lisensi',
+    );
+    return '$_temp0';
+  }
 }
