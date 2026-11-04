@@ -7,10 +7,14 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
+import '../../data/repositories/expenses_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/photo_attach_field.dart';
+import '../expenses/expense_labels.dart';
 import 'cash_session_view_model.dart';
 
 /// Layar *Sesi kasir* (F1-03). Memiliki [CashSessionViewModel] dan memuat
@@ -21,9 +25,15 @@ class CashSessionScreen extends StatefulWidget {
     required this.repository,
     required this.store,
     required this.session,
+    this.expenses,
+    this.imagePicker,
   });
 
   final CashDrawerRepository repository;
+
+  /// Opsi *Catat juga sebagai pengeluaran* (F1-15).
+  final ExpensesRepository? expenses;
+  final ImageFilePicker? imagePicker;
   final StoreRepository store;
   final SessionRepository session;
 
@@ -35,6 +45,8 @@ class _CashSessionScreenState extends State<CashSessionScreen> {
   late final _viewModel = CashSessionViewModel(
     repository: widget.repository,
     permissions: widget.session.current?.permissions ?? const {},
+    expenses: widget.expenses,
+    picker: widget.imagePicker ?? const FileSelectorImagePicker(),
   );
 
   @override
@@ -66,6 +78,12 @@ String cashErrorMessage(AppLocalizations l10n, Exception error) =>
       CashSessionAlreadyOpen() => l10n.cashErrorAlreadyOpen,
       CashSessionNotOpen() => l10n.cashErrorNotOpen,
       CashSessionHasOpenSplit() => l10n.cashSessionErrorOpenSplit,
+      ExpenseActorNotPermitted(:final permission) => l10n.cashErrorNotPermitted(
+        permission.key,
+      ),
+      ExpenseInvalid(:final issues) when issues.isNotEmpty =>
+        expenseIssueMessage(l10n, issues.first),
+      ExpenseReceiptInvalid() => l10n.expenseReceiptInvalid,
       _ => l10n.cashErrorFailed,
     };
 
@@ -664,17 +682,34 @@ class _MovementsCard extends StatelessWidget {
             required Widget amount,
             Key? key,
             bool header = false,
+            String? badge,
+            Key? badgeKey,
           }) {
             final style = header ? muted : theme.typography.body.sm;
+            final noteText = badge == null
+                ? Text(note, style: style)
+                : Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(note, style: style),
+                      FBadge(
+                        key: badgeKey,
+                        variant: .secondary,
+                        child: Text(l10n.cashExpenseBadge(badge)),
+                      ),
+                    ],
+                  );
             final noteCell = narrow && !header
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(note, style: style),
+                      noteText,
                       Text(source, style: muted),
                     ],
                   )
-                : Text(note, style: style);
+                : noteText;
             return Padding(
               key: key,
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -728,8 +763,12 @@ class _MovementsCard extends StatelessWidget {
                 key: ValueKey('cash-row-${m.id.uuid}'),
                 time: formatClock(m.createdAt, timezone),
                 note: m.note,
+                badge: active.expenseLabels[m.id],
+                badgeKey: ValueKey('cash-expense-badge-${m.id.uuid}'),
                 source: switch (m.source) {
                   'manual' => l10n.cashSourceManual,
+                  expenseCashSource => l10n.cashSourceExpense,
+                  expenseVoidCashSource => l10n.cashSourceExpenseVoid,
                   purchaseCashSource => l10n.cashSourcePurchase,
                   debtPaymentCashSource => l10n.cashSourceDebtPayment,
                   supplierPaymentCashSource => l10n.cashSourceSupplierPayment,
@@ -829,6 +868,9 @@ class _MovementForm extends StatelessWidget {
                       ? (_) => viewModel.saveMovement.execute()
                       : null,
                 ),
+                if (viewModel.canRecordExpense &&
+                    viewModel.direction == CashDirection.outflow)
+                  _ExpenseOption(viewModel: viewModel),
               ],
             ),
           ),
@@ -848,6 +890,74 @@ class _MovementForm extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Sakelar *Catat juga sebagai pengeluaran* (F1-15) dengan jenis dan foto
+/// nota.
+class _ExpenseOption extends StatelessWidget {
+  const _ExpenseOption({required this.viewModel});
+
+  final CashSessionViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final receipt = vm.receipt;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 16,
+      children: [
+        FSwitch(
+          key: const ValueKey('cash-as-expense'),
+          label: Text(l10n.cashAsExpense),
+          description: Text(l10n.cashAsExpenseHint),
+          value: vm.asExpense,
+          onChange: vm.setAsExpense,
+        ),
+        if (vm.asExpense) ...[
+          FSelect<String>(
+            key: ValueKey(
+              'cash-expense-category-${vm.expenseCategories.length}',
+            ),
+            label: Text(l10n.expenseCategory),
+            hint: l10n.expenseCategoryHint,
+            items: {
+              for (final c in vm.expenseCategories) c.name: c.id.uuid,
+            },
+            forceErrorText: vm.expenseCategoryMissing
+                ? l10n.expenseErrCategory
+                : null,
+            control: .managed(
+              initial: vm.expenseCategoryId?.uuid,
+              onChange: (v) => vm.setExpenseCategory(
+                v == null ? null : UuidValue.fromString(v),
+              ),
+            ),
+          ),
+          PhotoAttachField(
+            keyPrefix: 'cash-receipt',
+            pickLabel: l10n.expenseReceiptPick,
+            cameraLabel: l10n.expenseReceiptCamera,
+            bytes: receipt?.bytes,
+            fileName: receipt?.fileName,
+            busy: vm.pickReceipt.running,
+            canTakePhoto: vm.canTakePhoto,
+            onPick: vm.pickReceipt.execute,
+            onRemove: vm.removeReceipt,
+            error: vm.receiptRejected ? l10n.expenseReceiptInvalid : null,
+          ),
+          Text(
+            l10n.cashAsExpenseNeedsNote,
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -25,6 +25,27 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
   CashSession? session;
   final movements = <CashMovement>[];
 
+  /// Label pengeluaran per gerakan kas (F1-15).
+  final expenseLabels = <UuidValue, String>{};
+
+  /// Uang keluar dari pengeluaran kas laci (dipanggil
+  /// [FakeExpensesRepository.onDrawerExpense] di tes).
+  void addExpenseMovement(Money amount, String note, String category) {
+    final m = CashMovement(
+      tenantId: _tenant,
+      outletId: _outlet,
+      cashSessionId: session!.id,
+      direction: CashDirection.outflow,
+      amount: amount.value,
+      note: note.trim(),
+      source: 'expense',
+      createdAt: _clock(),
+      hlc: 'h',
+    );
+    movements.add(m);
+    expenseLabels[m.id] = category;
+  }
+
   /// Galat berikutnya yang dikembalikan (sekali pakai).
   Exception? nextError;
   var loadCalls = 0;
@@ -160,5 +181,6 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
     openedByName: staffName,
     movements: List.of(movements),
     drawer: _drawer(s),
+    expenseLabels: Map.of(expenseLabels),
   );
 }

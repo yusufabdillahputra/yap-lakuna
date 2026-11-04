@@ -94,6 +94,9 @@ abstract final class Routes {
   /// Rincian supplier [id] (halaman sendiri di layar sempit).
   static String supplier(String id) => '$suppliers/$id';
 
+  /// Pengeluaran (F1-15).
+  static const expenses = '/pengeluaran';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

@@ -1,0 +1,567 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "expense_categories",
+        "dartName": "ExpenseCategory",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "name",
+            "fieldName": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expense_categories_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "expense_categories_tenant_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "tenant_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "createTable",
+      "createTable": {
+        "__className__": "serverpod.TableDefinition",
+        "name": "expenses",
+        "dartName": "Expense",
+        "module": "lakuna",
+        "schema": "public",
+        "columns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "id",
+            "fieldName": "id",
+            "columnType": 7,
+            "isNullable": false,
+            "columnDefault": "random_v7",
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "tenant_id",
+            "fieldName": "tenantId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "outlet_id",
+            "fieldName": "outletId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "device_id",
+            "fieldName": "deviceId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "staff_id",
+            "fieldName": "staffId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "expense_category_id",
+            "fieldName": "expenseCategoryId",
+            "columnType": 7,
+            "isNullable": false,
+            "dartType": "UuidValue"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "number",
+            "fieldName": "number",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "spent_on",
+            "fieldName": "spentOn",
+            "columnType": 4,
+            "isNullable": false,
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "description",
+            "fieldName": "description",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "amount",
+            "fieldName": "amount",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "funding_source",
+            "fieldName": "fundingSource",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "protocol:FundingSource"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "cash_session_id",
+            "fieldName": "cashSessionId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "cash_movement_id",
+            "fieldName": "cashMovementId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "receipt_media_id",
+            "fieldName": "receiptMediaId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "voided_at",
+            "fieldName": "voidedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "voided_by",
+            "fieldName": "voidedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "void_reason",
+            "fieldName": "voidReason",
+            "columnType": 0,
+            "isNullable": true,
+            "dartType": "String?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "void_cash_movement_id",
+            "fieldName": "voidCashMovementId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_at",
+            "fieldName": "createdAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_at",
+            "fieldName": "updatedAt",
+            "columnType": 4,
+            "isNullable": false,
+            "columnDefault": "now",
+            "dartType": "DateTime"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "deleted_at",
+            "fieldName": "deletedAt",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "created_by",
+            "fieldName": "createdBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "updated_by",
+            "fieldName": "updatedBy",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "version",
+            "fieldName": "version",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "1",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "hlc",
+            "fieldName": "hlc",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "origin_device_id",
+            "fieldName": "originDeviceId",
+            "columnType": 7,
+            "isNullable": true,
+            "dartType": "UuidValue?"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_0",
+            "columns": [
+              "tenant_id"
+            ],
+            "referenceTable": "tenants",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_1",
+            "columns": [
+              "outlet_id"
+            ],
+            "referenceTable": "outlets",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_2",
+            "columns": [
+              "device_id"
+            ],
+            "referenceTable": "devices",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_3",
+            "columns": [
+              "staff_id"
+            ],
+            "referenceTable": "staff_members",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_4",
+            "columns": [
+              "expense_category_id"
+            ],
+            "referenceTable": "expense_categories",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_5",
+            "columns": [
+              "cash_session_id"
+            ],
+            "referenceTable": "cash_sessions",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_6",
+            "columns": [
+              "cash_movement_id"
+            ],
+            "referenceTable": "cash_movements",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_7",
+            "columns": [
+              "receipt_media_id"
+            ],
+            "referenceTable": "media_files",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          },
+          {
+            "__className__": "serverpod.ForeignKeyDefinition",
+            "constraintName": "expenses_fk_8",
+            "columns": [
+              "void_cash_movement_id"
+            ],
+            "referenceTable": "cash_movements",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 2
+          }
+        ],
+        "indexes": [
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "expenses_number_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "tenant_id"
+              },
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "number"
+              }
+            ],
+            "type": "btree",
+            "isUnique": true,
+            "isPrimary": false
+          },
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "expenses_outlet_day_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "outlet_id"
+              },
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "spent_on"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          },
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "expenses_category_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "expense_category_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          },
+          {
+            "__className__": "serverpod.IndexDefinition",
+            "indexName": "expenses_session_idx",
+            "elements": [
+              {
+                "__className__": "serverpod.IndexElementDefinition",
+                "type": 0,
+                "definition": "cash_session_id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": false,
+            "isPrimary": false
+          }
+        ],
+        "managed": true
+      }
+    }
+  ],
+  "warnings": [],
+  "migrationApiVersion": 1
+}

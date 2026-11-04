@@ -13,6 +13,7 @@ export 'src/dining.dart';
 export 'src/floor_plan.dart';
 export 'src/document_number.dart';
 export 'src/escpos.dart';
+export 'src/expense.dart';
 export 'src/hlc.dart';
 export 'src/master_data.dart';
 export 'src/modifier.dart';

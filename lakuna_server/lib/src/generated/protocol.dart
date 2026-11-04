@@ -45,6 +45,8 @@ import 'dining/dining_layout_mode.dart' as _ibu6mpzk;
 import 'dining/dining_table.dart' as _i0tiivx0;
 import 'dining/kitchen_ticket.dart' as _iks39owa;
 import 'dining/table_shape.dart' as _ij18fkx6;
+import 'expenses/expense.dart' as _irrz92md;
+import 'expenses/expense_category.dart' as _i8meinv7;
 import 'media/media_file.dart' as _iw898kbq;
 import 'media/media_kind.dart' as _i8mjpd0r;
 import 'organization/business_type.dart' as _i6i3gkff;
@@ -114,6 +116,8 @@ export 'dining/dining_layout_mode.dart';
 export 'dining/dining_table.dart';
 export 'dining/kitchen_ticket.dart';
 export 'dining/table_shape.dart';
+export 'expenses/expense.dart';
+export 'expenses/expense_category.dart';
 export 'media/media_file.dart';
 export 'media/media_kind.dart';
 export 'organization/business_type.dart';
@@ -197,6 +201,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0tiivx0.DiningTable>,
           _is.getType<_iks39owa.KitchenTicket>,
           _is.getType<_ij18fkx6.TableShape>,
+          _is.getType<_irrz92md.Expense>,
+          _is.getType<_i8meinv7.ExpenseCategory>,
           _is.getType<_iw898kbq.MediaFile>,
           _is.getType<_i8mjpd0r.MediaKind>,
           _is.getType<_i6i3gkff.BusinessType>,
@@ -266,6 +272,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0tiivx0.DiningTable?>,
           _is.getType<_iks39owa.KitchenTicket?>,
           _is.getType<_ij18fkx6.TableShape?>,
+          _is.getType<_irrz92md.Expense?>,
+          _is.getType<_i8meinv7.ExpenseCategory?>,
           _is.getType<_iw898kbq.MediaFile?>,
           _is.getType<_i8mjpd0r.MediaKind?>,
           _is.getType<_i6i3gkff.BusinessType?>,
@@ -342,6 +350,8 @@ class Protocol extends _is.DatabaseSerializationManager
           'DiningTable',
           'KitchenTicket',
           'TableShape',
+          'Expense',
+          'ExpenseCategory',
           'MediaFile',
           'MediaKind',
           'BusinessType',
@@ -2185,6 +2195,435 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'outlet_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'expense_categories',
+      dartName: 'ExpenseCategory',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expense_categories_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'expense_categories_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'expenses',
+      dartName: 'Expense',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'staff_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'expense_category_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'number',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'spent_on',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'description',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'funding_source',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FundingSource',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cash_session_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cash_movement_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'receipt_media_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'voided_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'voided_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'void_reason',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'void_cash_movement_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_3',
+          columns: ['staff_id'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_4',
+          columns: ['expense_category_id'],
+          referenceTable: 'expense_categories',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_5',
+          columns: ['cash_session_id'],
+          referenceTable: 'cash_sessions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_6',
+          columns: ['cash_movement_id'],
+          referenceTable: 'cash_movements',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_7',
+          columns: ['receipt_media_id'],
+          referenceTable: 'media_files',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'expenses_fk_8',
+          columns: ['void_cash_movement_id'],
+          referenceTable: 'cash_movements',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'expenses_number_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'number',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'expenses_outlet_day_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'spent_on',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'expenses_category_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'expense_category_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'expenses_session_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'cash_session_id',
             ),
           ],
           type: 'btree',
@@ -7638,6 +8077,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _ij18fkx6.TableShape) {
       return _ij18fkx6.TableShape.fromJson(data) as T;
     }
+    if (t == _irrz92md.Expense) {
+      return _irrz92md.Expense.fromJson(data) as T;
+    }
+    if (t == _i8meinv7.ExpenseCategory) {
+      return _i8meinv7.ExpenseCategory.fromJson(data) as T;
+    }
     if (t == _iw898kbq.MediaFile) {
       return _iw898kbq.MediaFile.fromJson(data) as T;
     }
@@ -7864,6 +8309,13 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_ij18fkx6.TableShape?>()) {
       return (data != null ? _ij18fkx6.TableShape.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_irrz92md.Expense?>()) {
+      return (data != null ? _irrz92md.Expense.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i8meinv7.ExpenseCategory?>()) {
+      return (data != null ? _i8meinv7.ExpenseCategory.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iw898kbq.MediaFile?>()) {
       return (data != null ? _iw898kbq.MediaFile.fromJson(data) : null) as T;
     }
@@ -8052,6 +8504,8 @@ class Protocol extends _is.DatabaseSerializationManager
       _i0tiivx0.DiningTable => 'DiningTable',
       _iks39owa.KitchenTicket => 'KitchenTicket',
       _ij18fkx6.TableShape => 'TableShape',
+      _irrz92md.Expense => 'Expense',
+      _i8meinv7.ExpenseCategory => 'ExpenseCategory',
       _iw898kbq.MediaFile => 'MediaFile',
       _i8mjpd0r.MediaKind => 'MediaKind',
       _i6i3gkff.BusinessType => 'BusinessType',
@@ -8163,6 +8617,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'KitchenTicket';
       case _ij18fkx6.TableShape():
         return 'TableShape';
+      case _irrz92md.Expense():
+        return 'Expense';
+      case _i8meinv7.ExpenseCategory():
+        return 'ExpenseCategory';
       case _iw898kbq.MediaFile():
         return 'MediaFile';
       case _i8mjpd0r.MediaKind():
@@ -8354,6 +8812,12 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'TableShape') {
       return deserialize<_ij18fkx6.TableShape>(data['data']);
+    }
+    if (dataClassName == 'Expense') {
+      return deserialize<_irrz92md.Expense>(data['data']);
+    }
+    if (dataClassName == 'ExpenseCategory') {
+      return deserialize<_i8meinv7.ExpenseCategory>(data['data']);
     }
     if (dataClassName == 'MediaFile') {
       return deserialize<_iw898kbq.MediaFile>(data['data']);
@@ -8563,6 +9027,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i0tiivx0.DiningTable.t;
       case _iks39owa.KitchenTicket:
         return _iks39owa.KitchenTicket.t;
+      case _irrz92md.Expense:
+        return _irrz92md.Expense.t;
+      case _i8meinv7.ExpenseCategory:
+        return _i8meinv7.ExpenseCategory.t;
       case _iw898kbq.MediaFile:
         return _iw898kbq.MediaFile.t;
       case _iis0lnof.Device:

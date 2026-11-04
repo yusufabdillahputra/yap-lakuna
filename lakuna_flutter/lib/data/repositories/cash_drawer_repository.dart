@@ -15,6 +15,7 @@ class ActiveCashSession {
     required this.movements,
     required this.drawer,
     this.sales = const SessionSalesSummary(),
+    this.expenseLabels = const {},
   });
 
   final CashSession session;
@@ -29,6 +30,10 @@ class ActiveCashSession {
 
   /// Nota lunas di sesi ini (F1-04/F1-05).
   final SessionSalesSummary sales;
+
+  /// Jenis pengeluaran per gerakan kas yang dicatat sebagai pengeluaran
+  /// (F1-15), untuk lencana *Pengeluaran · jenis*.
+  final Map<UuidValue, String> expenseLabels;
 }
 
 /// Sesi kasir dan kas laci perangkat ini (F1-03). Namanya bukan

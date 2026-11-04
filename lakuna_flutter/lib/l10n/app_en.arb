@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, and suppliers & payables are ready to use. Expenses and reports are coming in the next releases.",
+  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, and expenses are ready to use. Reports are coming in the next release.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -2760,5 +2760,154 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expensesTitle": "Expenses",
+  "expensesSubtitle": "Operating costs outside stock purchases",
+  "expensesExport": "Export Excel",
+  "expensesNew": "Record expense",
+  "expensesSearch": "Search expenses",
+  "expensesEmpty": "No expenses in this period.",
+  "expensesNoMatch": "No matching expenses.",
+  "expensesByCategory": "By category · {period}",
+  "@expensesByCategory": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesTotal": "Total {amount}",
+  "@expensesTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesByCategoryEmpty": "No counted expenses yet.",
+  "expensePeriod30Days": "Last 30 days",
+  "expensePeriodThisMonth": "This month",
+  "expensePeriodLastMonth": "Last month",
+  "expenseColDate": "Date",
+  "expenseColNumber": "Number",
+  "expenseColDescription": "Description",
+  "expenseColCategory": "Category",
+  "expenseColFunding": "Paid from",
+  "expenseColAmount": "Amount",
+  "expenseColReceipt": "Receipt",
+  "expenseColStatus": "Status",
+  "expenseHasReceipt": "Has photo",
+  "expenseNoReceipt": "No photo",
+  "expenseVoided": "Voided",
+  "expenseActive": "Recorded",
+  "expenseFundingSession": "{funding} · {name}'s session",
+  "@expenseFundingSession": {
+    "placeholders": {
+      "funding": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseFormTitle": "Record expense",
+  "expenseDescription": "Description",
+  "expenseDescriptionHint": "e.g. Drinking water refill",
+  "expenseCategory": "Expense category",
+  "expenseCategoryHint": "Choose a category",
+  "expenseAmount": "Amount",
+  "expenseFunding": "Paid from",
+  "expenseFundingDrawerActive": "Cash drawer (open session)",
+  "expenseDate": "Date",
+  "expenseReceiptPick": "Attach receipt photo",
+  "expenseReceiptCamera": "Take receipt photo",
+  "expenseReceiptInvalid": "Receipt photo must be a PNG/JPEG/WebP image up to 5 MB.",
+  "expenseReceiptMissing": "The receipt photo is not on this device yet.",
+  "expenseCancel": "Cancel",
+  "expenseSave": "Save expense",
+  "expenseClose": "Close",
+  "expenseErrDescription": "Description is required, up to {max} characters.",
+  "@expenseErrDescription": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseErrCategory": "Choose an expense category.",
+  "expenseErrAmount": "Amount must be more than 0 and at most Rp 1,000,000,000.",
+  "expenseErrDate": "The date cannot be in the future.",
+  "expenseErrNotFound": "Expense not found.",
+  "expenseErrAlreadyVoided": "This expense is already voided.",
+  "expenseErrReason": "A reason is required, up to {max} characters.",
+  "@expenseErrReason": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseErrNotPermitted": "You don't have permission for this expense.",
+  "expenseErrGeneric": "The expense couldn't be processed. Try again.",
+  "expenseDrawerNotPermitted": "The cash drawer needs the cash_movements:create permission.",
+  "expenseDrawerNoSession": "The cash drawer needs an open cash session on this device.",
+  "expenseDrawerNotToday": "Cash drawer expenses must be dated today.",
+  "expenseDetailTitle": "Expense details",
+  "expenseRecordedBy": "Recorded by",
+  "expenseVoidInfo": "Voided by {name}: {reason}",
+  "@expenseVoidInfo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseVoid": "Void expense",
+  "expenseVoidReason": "Reason",
+  "expenseVoidReasonHint": "e.g. Wrong amount, will re-record",
+  "expenseVoidDrawerHint": "The money goes back to the drawer in the open cash session.",
+  "expenseVoidConfirm": "Yes, void",
+  "masterTabExpenseCategories": "Expense categories",
+  "expenseCategoriesNew": "Category",
+  "expenseCategoriesHint": "Used on the Expenses screen and the profit & loss report.",
+  "expenseCategoriesEmpty": "No expense categories yet.",
+  "expenseCategoriesUsage": "{count, plural, =1{1 expense} other{{count} expenses}}",
+  "@expenseCategoriesUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseCategoriesNewTitle": "New expense category",
+  "expenseCategoriesEditTitle": "Edit expense category",
+  "expenseCategoriesName": "Category name",
+  "expenseCategoryErrName": "Name is required, up to {max} characters.",
+  "@expenseCategoryErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseCategoryErrTaken": "That category name is already used.",
+  "expenseCategoryErrInUse": "This category is used by expenses, so it can't be deleted. Rename it if needed.",
+  "cashExpenseBadge": "Expense · {name}",
+  "@cashExpenseBadge": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashSourceExpense": "Expense",
+  "cashSourceExpenseVoid": "Voided expense",
+  "cashAsExpense": "Also record as an expense",
+  "cashAsExpenseHint": "So it counts in the profit & loss report (1.24)",
+  "cashAsExpenseNeedsNote": "The note is required and becomes the expense description.",
+  "expenseCategorySave": "Save"
 }
