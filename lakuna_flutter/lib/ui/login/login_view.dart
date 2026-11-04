@@ -44,14 +44,19 @@ class _LoginScreenState extends State<LoginScreen> {
       LoginView(viewModel: _viewModel, store: widget.store.current);
 }
 
-/// Nama role untuk ditampilkan; kunci tak dikenal ditampilkan apa adanya.
-String roleLabel(AppLocalizations l10n, String roleKey) => switch (roleKey) {
+/// Nama role untuk ditampilkan: role bawaan dari terjemahan, role custom
+/// memakai [roleName], selain itu kuncinya apa adanya.
+String roleLabel(
+  AppLocalizations l10n,
+  String roleKey, [
+  String? roleName,
+]) => switch (roleKey) {
   'owner' => l10n.roleOwner,
   'manager' => l10n.roleManager,
   'cashier' => l10n.roleCashier,
   'waiter' => l10n.roleWaiter,
   'stock_keeper' => l10n.roleStockKeeper,
-  _ => roleKey,
+  _ => roleName ?? roleKey,
 };
 
 String _errorText(AppLocalizations l10n, LoginViewModel vm, Exception e) =>
@@ -338,7 +343,8 @@ class _StaffTile extends StatelessWidget {
     final colors = theme.colors;
     return FTappable(
       key: ValueKey('staff-${staff.id}'),
-      semanticsLabel: '${staff.name}, ${roleLabel(l10n, staff.roleKey)}',
+      semanticsLabel:
+          '${staff.name}, ${roleLabel(l10n, staff.roleKey, staff.roleName)}',
       selected: selected,
       onPress: staff.hasPin ? onPress : null,
       builder: (context, variants, _) {
@@ -376,7 +382,7 @@ class _StaffTile extends StatelessWidget {
                     ),
                     Text(
                       staff.hasPin
-                          ? roleLabel(l10n, staff.roleKey)
+                          ? roleLabel(l10n, staff.roleKey, staff.roleName)
                           : l10n.loginNoPin,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

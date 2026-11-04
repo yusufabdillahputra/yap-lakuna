@@ -179,11 +179,18 @@ final List<MenuGroup> appMenu = [
   MenuGroup(
     label: (l) => l.menuGroupSystem,
     entries: [
-      _module(
-        'users',
-        TablerIcons.userCog,
-        (l) => l.menuUsers,
-        Permission.usersManage,
+      MenuEntry(
+        key: 'users',
+        icon: TablerIcons.userCog,
+        label: (l) => l.menuUsers,
+        path: Routes.users,
+        permission: Permission.usersManage,
+      ),
+      MenuEntry(
+        key: 'account',
+        icon: TablerIcons.userCircle,
+        label: (l) => l.menuAccount,
+        path: Routes.account,
       ),
       MenuEntry(
         key: 'settings',

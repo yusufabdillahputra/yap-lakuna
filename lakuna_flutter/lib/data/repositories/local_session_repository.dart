@@ -187,6 +187,86 @@ class LocalSessionRepository extends SessionRepository {
     notifyListeners();
   }
 
+  @override
+  void unlockPin(UuidValue staffId) =>
+      _guard.recordSuccess(pinGuardKey(staffId));
+
+  @override
+  Future<void> refreshCurrent() async {
+    final me = _current;
+    final ctx = _stores.current;
+    if (me == null || ctx == null) return;
+    final staff = await findStaffById(
+      _store,
+      tenantId: ctx.tenant.id,
+      outletId: ctx.outlet.id,
+      staffId: me.id,
+    );
+    if (!identical(_current, me)) return;
+    if (staff == null) {
+      // Pemilik yang masuk dengan email tanpa keanggotaan cabang tetap
+      // bertugas sebagai pemilik.
+      if (me.isOwner) return;
+      logout();
+      return;
+    }
+    _current = StaffProfile.fromOutletStaff(staff);
+    notifyListeners();
+  }
+
+  @override
+  Future<Result<void>> verifyCurrentPin(String pin) async {
+    final me = _current;
+    if (me == null) return const Result.error(StaffUnavailable());
+    final result = await _serialized(
+      pinGuardKey(me.id),
+      () => _checkPin(me.id, pin, (key, staff) {
+        _guard.recordSuccess(key);
+        return Result.ok(StaffProfile.fromOutletStaff(staff));
+      }),
+    );
+    return switch (result) {
+      Ok() => const Result.ok(null),
+      Error(:final error) => Result.error(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> verifyCurrentPassword(String password) async {
+    final me = _current;
+    final ctx = _stores.current;
+    if (me == null || ctx == null) {
+      return const Result.error(WrongCredentials());
+    }
+    final staff = await StaffMember.db.findFirstRow(
+      _store.session,
+      where: (s) =>
+          s.id.equals(me.id) &
+          s.tenantId.equals(ctx.tenant.id) &
+          s.isActive.equals(true) &
+          s.deletedAt.equals(null),
+    );
+    final hash = staff?.passwordHash;
+    if (staff == null || hash == null || hash.isEmpty) {
+      return const Result.error(WrongCredentials());
+    }
+    final key = passwordGuardKey(staff.email ?? me.id.uuid);
+    return _serialized(key, () async {
+      if (_guard.retryAfter(key) case final wait?) {
+        return Result<void>.error(CredentialsLocked(wait));
+      }
+      if (await _verify(password, hash)) {
+        _guard.recordSuccess(key);
+        return const Result<void>.ok(null);
+      }
+      _guard.recordFailure(key);
+      if (_guard.retryAfter(key) case final wait?) {
+        return Result<void>.error(CredentialsLocked(wait));
+      }
+      return const Result<void>.error(WrongCredentials());
+    });
+  }
+
   Result<StaffProfile> _signIn(String key, OutletStaff staff) {
     _guard.recordSuccess(key);
     clearApprovals();

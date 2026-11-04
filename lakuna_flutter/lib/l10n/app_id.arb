@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -3742,5 +3742,169 @@
       }
     }
   },
-  "reportsCashOpenNote": "Dihitung dan selisih kosong = sesi masih buka."
+  "reportsCashOpenNote": "Dihitung dan selisih kosong = sesi masih buka.",
+  "menuAccount": "Akun saya",
+  "usersSubtitle": "Tambah staf, reset PIN, dan atur izin per role.",
+  "usersTabUsers": "Pengguna",
+  "usersTabRoles": "Role & izin",
+  "usersListTitle": "Pengguna outlet",
+  "usersListCount": "{outlet} · {count} pengguna aktif",
+  "@usersListCount": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersAdd": "Tambah",
+  "usersColUser": "Pengguna",
+  "usersColRole": "Role",
+  "usersColOutlet": "Cabang",
+  "usersColStatus": "Status",
+  "usersPinOnly": "PIN saja",
+  "usersEmailAndPin": "Email + PIN",
+  "usersAllOutlets": "Semua",
+  "usersStatusActive": "Aktif",
+  "usersStatusInactive": "Nonaktif",
+  "usersStatusLocked": "PIN dikunci {seconds} dtk",
+  "@usersStatusLocked": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "usersUnlock": "Buka kunci",
+  "usersResetHint": "Reset PIN staf: buka pengguna, isi PIN baru dan ulangi PIN baru. Staf tidak perlu PIN lama.",
+  "usersOwnerHint": "Pemilik mengganti PIN dan kata sandinya di Akun saya.",
+  "usersEmpty": "Belum ada pengguna lain. Tambah staf dengan PIN.",
+  "usersFormNewTitle": "Tambah pengguna",
+  "usersFormEditTitle": "Ubah pengguna",
+  "usersFormPermission": "Butuh izin users:manage",
+  "usersFieldName": "Nama",
+  "usersFieldRole": "Role",
+  "usersFieldRoleHint": "Izin mengikuti role; atur di tab Role & izin",
+  "usersFieldPin": "PIN (6 angka)",
+  "usersFieldPinHint": "Staf memakai PIN ini untuk masuk di kasir",
+  "usersFieldPinRetype": "Ulangi PIN",
+  "usersFieldActive": "Aktif",
+  "usersFieldActiveHint": "Pengguna nonaktif tidak muncul di layar login",
+  "usersCancel": "Batal",
+  "usersSave": "Simpan pengguna",
+  "usersResetTitle": "Reset PIN",
+  "usersResetPin": "PIN baru",
+  "usersResetRetype": "Ulangi PIN baru",
+  "usersResetSubmit": "Reset PIN",
+  "usersResetDone": "PIN baru tersimpan dan kunci PIN dibuka.",
+  "usersErrNameTaken": "Nama sudah dipakai pengguna lain",
+  "usersErrOwnerLocked": "Pemilik tidak bisa diubah di sini.",
+  "usersErrSelf": "Anda tidak bisa mengubah akun atau role Anda sendiri di sini.",
+  "usersErrBeyond": "Anda hanya bisa memberi izin yang Anda miliki.",
+  "usersErrRoleNotFound": "Role tidak ditemukan.",
+  "usersErrRoleTaken": "Nama role sudah dipakai.",
+  "usersErrRoleInUse": "Role masih dipakai pengguna. Pindahkan penggunanya dulu.",
+  "usersErrNotPermitted": "Anda tidak punya izin untuk aksi ini.",
+  "usersErrGeneric": "Gagal memproses. Coba lagi.",
+  "usersErrWrongPin": "PIN saat ini salah. Sisa {remaining} percobaan.",
+  "@usersErrWrongPin": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "usersErrWrongPassword": "Kata sandi saat ini salah.",
+  "usersErrLocked": "Terlalu banyak percobaan. Coba lagi dalam {seconds} detik.",
+  "@usersErrLocked": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "usersMatrixTitle": "Matriks izin per role",
+  "usersMatrixPermission": "Izin",
+  "usersMatrixNewRole": "Role custom",
+  "usersMatrixSave": "Simpan perubahan",
+  "usersMatrixDiscard": "Batalkan",
+  "usersMatrixSaved": "Izin role tersimpan.",
+  "usersMatrixNote": "Izin berformat resource:action. Tombol dan halaman yang tidak diizinkan otomatis disembunyikan. Pemilik selalu punya semua izin. Role disimpan di perangkat ini; perubahan berlaku saat staf masuk berikutnya.",
+  "usersMatrixMembers": "{count} pengguna",
+  "@usersMatrixMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersRoleNewTitle": "Role custom baru",
+  "usersRoleRenameTitle": "Ganti nama role",
+  "usersRoleName": "Nama role",
+  "usersRoleNameHint": "mis. Barista",
+  "usersRoleCreate": "Buat role",
+  "usersRoleRename": "Ganti nama",
+  "usersRoleDelete": "Hapus role",
+  "permSalesCreate": "Buat transaksi",
+  "permSalesVoid": "Void nota",
+  "permSalesDiscount": "Diskon manual",
+  "permSalesReturn": "Retur penjualan",
+  "permPaymentsConfirm": "Konfirmasi bayar manual (QRIS, kartu)",
+  "permOpenBillsManage": "Kelola meja & open bill",
+  "permCashSessionOpen": "Buka sesi kasir",
+  "permCashSessionClose": "Tutup sesi kasir",
+  "permCashMovementsCreate": "Uang masuk / keluar laci",
+  "permProductsManage": "Kelola produk & harga",
+  "permCustomersManage": "Pelanggan",
+  "permSuppliersManage": "Supplier",
+  "permPurchasesManage": "Pembelian & retur beli",
+  "permStockAdjust": "Penyesuaian stok",
+  "permDebtsManage": "Piutang & kredit",
+  "permExpensesManage": "Pengeluaran",
+  "permReportsView": "Lihat laporan",
+  "permReportsViewProfit": "Lihat laba rugi",
+  "permSettingsManage": "Pengaturan toko",
+  "permUsersManage": "Pengguna & role",
+  "permBackupManage": "Backup & pulihkan",
+  "permSyncManage": "Sync & hosting",
+  "accountTitle": "Akun saya",
+  "accountSubtitle": "{name} · {role} · terbuka untuk setiap pengguna",
+  "@accountSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPasswordTitle": "Ganti kata sandi",
+  "accountPasswordCurrent": "Kata sandi saat ini",
+  "accountPasswordNew": "Kata sandi baru",
+  "accountPasswordNewHint": "Minimal 8 karakter",
+  "accountPasswordRetype": "Ulangi kata sandi baru",
+  "accountPasswordSubmit": "Ganti kata sandi",
+  "accountPasswordDone": "Kata sandi baru tersimpan.",
+  "accountPasswordNone": "Akun ini masuk dengan PIN saja, tanpa kata sandi.",
+  "accountPinTitle": "Ganti PIN",
+  "accountPinCurrent": "PIN saat ini",
+  "accountPinNew": "PIN baru",
+  "accountPinRetype": "Ulangi PIN baru",
+  "accountPinSubmit": "Ganti PIN",
+  "accountPinDone": "PIN baru tersimpan.",
+  "usersErrStaffNotFound": "Pengguna tidak ditemukan atau sudah nonaktif.",
+  "usersErrNoPassword": "Akun ini tidak memakai kata sandi.",
+  "usersRoleDeleteTitle": "Hapus role {name}?",
+  "@usersRoleDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "usersRoleDeleteBody": "Role yang masih dipakai pengguna tidak bisa dihapus.",
+  "usersRoleDeleteConfirm": "Hapus"
 }

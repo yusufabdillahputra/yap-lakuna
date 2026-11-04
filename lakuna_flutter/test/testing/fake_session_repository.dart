@@ -148,6 +148,53 @@ class FakeSessionRepository extends SessionRepository {
     current = null;
     notifyListeners();
   }
+
+  /// Staf yang kuncinya dibuka, untuk tes.
+  final unlocked = <UuidValue>[];
+  var refreshCalls = 0;
+
+  @override
+  void unlockPin(UuidValue staffId) {
+    unlocked.add(staffId);
+    guard.recordSuccess(pinGuardKey(staffId));
+  }
+
+  @override
+  Future<void> refreshCurrent() async {
+    refreshCalls++;
+    final me = current;
+    if (me == null) return;
+    final fresh = staff.where((s) => s.id == me.id).firstOrNull;
+    if (fresh != null && !identical(fresh, me)) {
+      current = fresh;
+      notifyListeners();
+    }
+  }
+
+  @override
+  Future<Result<void>> verifyCurrentPin(String pin) async {
+    final me = current;
+    if (me == null) return const Result.error(StaffUnavailable());
+    final key = pinGuardKey(me.id);
+    if (guard.retryAfter(key) case final wait?) {
+      return Result.error(CredentialsLocked(wait));
+    }
+    if (pin == this.pin) {
+      guard.recordSuccess(key);
+      return const Result.ok(null);
+    }
+    guard.recordFailure(key);
+    if (guard.retryAfter(key) case final wait?) {
+      return Result.error(CredentialsLocked(wait));
+    }
+    return Result.error(WrongPin(guard.remainingAttempts(key)));
+  }
+
+  @override
+  Future<Result<void>> verifyCurrentPassword(String password) async =>
+      password == this.password
+      ? const Result.ok(null)
+      : const Result.error(WrongCredentials());
 }
 
 /// Staf contoh dengan izin tertentu (role kustom, mewakili F1-17).

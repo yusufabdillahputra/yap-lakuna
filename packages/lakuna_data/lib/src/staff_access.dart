@@ -5,7 +5,13 @@ import 'store.dart';
 
 /// Staf yang boleh bekerja di satu cabang beserta role-nya (F1-02).
 class OutletStaff {
-  const OutletStaff({required this.staff, required this.roleKey});
+  OutletStaff({required this.staff, required this.roleKey, StaffRole? role})
+    : roleName = role?.name,
+      permissions = effectivePermissions(
+        roleKey: roleKey,
+        isOwner: staff.isOwner,
+        stored: role?.permissionKeys,
+      );
 
   /// Baris staf, termasuk hash PIN/kata sandi untuk diverifikasi.
   final StaffMember staff;
@@ -18,8 +24,24 @@ class OutletStaff {
   bool get isOwner => staff.isOwner;
   bool get hasPin => staff.pinHash != null && staff.pinHash!.isNotEmpty;
 
-  Set<Permission> get permissions =>
-      permissionsForRole(roleKey, isOwner: staff.isOwner);
+  /// Nama role tersimpan (role custom, atau bawaan yang izinnya pernah
+  /// diubah), `null` bila role bawaan belum pernah disimpan.
+  final String? roleName;
+
+  /// Izin efektif: pemilik semua izin, lalu baris `roles`, lalu bawaan.
+  final Set<Permission> permissions;
+}
+
+/// Baris `roles` aktif milik [tenantId] per kunci (F1-17).
+Future<Map<String, StaffRole>> storedRoles(
+  LakunaStore store, {
+  required UuidValue tenantId,
+}) async {
+  final rows = await StaffRole.db.find(
+    store.session,
+    where: (r) => r.tenantId.equals(tenantId) & r.deletedAt.equals(null),
+  );
+  return {for (final r in rows) r.roleKey: r};
 }
 
 /// Staf aktif yang punya keanggotaan aktif di [outletId]: pemilik dulu,
@@ -47,8 +69,10 @@ Future<List<OutletStaff>> listOutletStaff(
         s.isActive.equals(true) &
         s.deletedAt.equals(null),
   );
+  final stored = await storedRoles(store, tenantId: tenantId);
   final result = [
-    for (final s in staff) OutletStaff(staff: s, roleKey: roles[s.id]!),
+    for (final s in staff)
+      OutletStaff(staff: s, roleKey: roles[s.id]!, role: stored[roles[s.id]!]),
   ];
   result.sort((a, b) {
     if (a.isOwner != b.isOwner) return a.isOwner ? -1 : 1;
@@ -115,5 +139,12 @@ Future<OutletStaff?> _withRole(
         m.deletedAt.equals(null),
   );
   if (member == null) return null;
-  return OutletStaff(staff: staff, roleKey: member.roleName);
+  final role = await StaffRole.db.findFirstRow(
+    store.session,
+    where: (r) =>
+        r.tenantId.equals(staff.tenantId) &
+        r.roleKey.equals(member.roleName) &
+        r.deletedAt.equals(null),
+  );
+  return OutletStaff(staff: staff, roleKey: member.roleName, role: role);
 }

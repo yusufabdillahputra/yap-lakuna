@@ -17,6 +17,7 @@ class StaffProfile {
     required this.isOwner,
     required this.hasPin,
     required this.permissions,
+    this.roleName,
   });
 
   factory StaffProfile.fromOutletStaff(OutletStaff s) => StaffProfile(
@@ -26,6 +27,7 @@ class StaffProfile {
     isOwner: s.isOwner,
     hasPin: s.hasPin,
     permissions: s.permissions,
+    roleName: s.roleName,
   );
 
   final UuidValue id;
@@ -34,6 +36,9 @@ class StaffProfile {
   final bool isOwner;
   final bool hasPin;
   final Set<Permission> permissions;
+
+  /// Nama role tersimpan (role custom), lihat [OutletStaff.roleName].
+  final String? roleName;
 
   bool can(Permission permission) => permissions.contains(permission);
 }
@@ -150,6 +155,22 @@ abstract class SessionRepository extends ChangeNotifier {
 
   /// Mengakhiri sesi (*Ganti kasir*).
   void logout();
+
+  /// Menghapus hitungan salah dan kunci PIN staf [staffId] (F1-17: buka
+  /// kunci, reset PIN, ganti PIN).
+  void unlockPin(UuidValue staffId);
+
+  /// Membaca ulang profil staf yang bertugas (nama, role, izin) setelah
+  /// Pengguna & role diubah; staf yang tidak lagi aktif dikeluarkan.
+  Future<void> refreshCurrent();
+
+  /// *Akun saya*: memeriksa PIN saat ini staf yang bertugas dengan kunci yang
+  /// sama dengan login. Gagal dengan [WrongPin] atau [CredentialsLocked].
+  Future<Result<void>> verifyCurrentPin(String pin);
+
+  /// *Akun saya*: memeriksa kata sandi saat ini. Gagal dengan
+  /// [WrongCredentials] atau [CredentialsLocked].
+  Future<Result<void>> verifyCurrentPassword(String password);
 }
 
 /// Kunci [PinGuard] untuk PIN staf [staffId].

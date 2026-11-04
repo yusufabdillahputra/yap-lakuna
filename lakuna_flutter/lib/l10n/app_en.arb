@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.",
+  "homeWelcomeBody": "Retail and F&B checkout, cashier sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, reports & profit and loss, and users & roles are ready to use.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -3208,5 +3208,169 @@
       }
     }
   },
-  "reportsCashOpenNote": "Empty counted and difference = session still open."
+  "reportsCashOpenNote": "Empty counted and difference = session still open.",
+  "menuAccount": "My account",
+  "usersSubtitle": "Add staff, reset PINs and set permissions per role.",
+  "usersTabUsers": "Users",
+  "usersTabRoles": "Roles & permissions",
+  "usersListTitle": "Outlet users",
+  "usersListCount": "{outlet} · {count} active users",
+  "@usersListCount": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersAdd": "Add",
+  "usersColUser": "User",
+  "usersColRole": "Role",
+  "usersColOutlet": "Outlet",
+  "usersColStatus": "Status",
+  "usersPinOnly": "PIN only",
+  "usersEmailAndPin": "Email + PIN",
+  "usersAllOutlets": "All",
+  "usersStatusActive": "Active",
+  "usersStatusInactive": "Inactive",
+  "usersStatusLocked": "PIN locked {seconds}s",
+  "@usersStatusLocked": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "usersUnlock": "Unlock",
+  "usersResetHint": "Reset a staff PIN: open the user, enter the new PIN and repeat it. The old PIN is not needed.",
+  "usersOwnerHint": "The owner changes their PIN and password in My account.",
+  "usersEmpty": "No other users yet. Add staff with a PIN.",
+  "usersFormNewTitle": "Add user",
+  "usersFormEditTitle": "Edit user",
+  "usersFormPermission": "Requires users:manage",
+  "usersFieldName": "Name",
+  "usersFieldRole": "Role",
+  "usersFieldRoleHint": "Permissions follow the role; set them in Roles & permissions",
+  "usersFieldPin": "PIN (6 digits)",
+  "usersFieldPinHint": "Staff use this PIN to sign in at the till",
+  "usersFieldPinRetype": "Repeat PIN",
+  "usersFieldActive": "Active",
+  "usersFieldActiveHint": "Inactive users do not appear on the sign-in screen",
+  "usersCancel": "Cancel",
+  "usersSave": "Save user",
+  "usersResetTitle": "Reset PIN",
+  "usersResetPin": "New PIN",
+  "usersResetRetype": "Repeat new PIN",
+  "usersResetSubmit": "Reset PIN",
+  "usersResetDone": "New PIN saved and the PIN lock cleared.",
+  "usersErrNameTaken": "Another user already has this name",
+  "usersErrOwnerLocked": "The owner cannot be changed here.",
+  "usersErrSelf": "You cannot change your own account or role here.",
+  "usersErrBeyond": "You can only grant permissions you have.",
+  "usersErrRoleNotFound": "Role not found.",
+  "usersErrRoleTaken": "This role name is already used.",
+  "usersErrRoleInUse": "The role is still assigned to users. Move them first.",
+  "usersErrNotPermitted": "You do not have permission for this action.",
+  "usersErrGeneric": "Something went wrong. Try again.",
+  "usersErrWrongPin": "Current PIN is wrong. {remaining} attempts left.",
+  "@usersErrWrongPin": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "usersErrWrongPassword": "Current password is wrong.",
+  "usersErrLocked": "Too many attempts. Try again in {seconds} seconds.",
+  "@usersErrLocked": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "usersMatrixTitle": "Permission matrix per role",
+  "usersMatrixPermission": "Permission",
+  "usersMatrixNewRole": "Custom role",
+  "usersMatrixSave": "Save changes",
+  "usersMatrixDiscard": "Discard",
+  "usersMatrixSaved": "Role permissions saved.",
+  "usersMatrixNote": "Permissions use the resource:action format. Buttons and pages that are not allowed are hidden automatically. The owner always has every permission. Roles are stored on this device; changes apply the next time staff sign in.",
+  "usersMatrixMembers": "{count} users",
+  "@usersMatrixMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersRoleNewTitle": "New custom role",
+  "usersRoleRenameTitle": "Rename role",
+  "usersRoleName": "Role name",
+  "usersRoleNameHint": "e.g. Barista",
+  "usersRoleCreate": "Create role",
+  "usersRoleRename": "Rename",
+  "usersRoleDelete": "Delete role",
+  "permSalesCreate": "Create sales",
+  "permSalesVoid": "Void receipts",
+  "permSalesDiscount": "Manual discounts",
+  "permSalesReturn": "Sales returns",
+  "permPaymentsConfirm": "Confirm manual payments (QRIS, card)",
+  "permOpenBillsManage": "Manage tables & open bills",
+  "permCashSessionOpen": "Open cashier sessions",
+  "permCashSessionClose": "Close cashier sessions",
+  "permCashMovementsCreate": "Cash in / out of the drawer",
+  "permProductsManage": "Manage products & prices",
+  "permCustomersManage": "Customers",
+  "permSuppliersManage": "Suppliers",
+  "permPurchasesManage": "Purchases & purchase returns",
+  "permStockAdjust": "Stock adjustments",
+  "permDebtsManage": "Receivables & credit",
+  "permExpensesManage": "Expenses",
+  "permReportsView": "View reports",
+  "permReportsViewProfit": "View profit & loss",
+  "permSettingsManage": "Store settings",
+  "permUsersManage": "Users & roles",
+  "permBackupManage": "Backup & restore",
+  "permSyncManage": "Sync & hosting",
+  "accountTitle": "My account",
+  "accountSubtitle": "{name} · {role} · open to every user",
+  "@accountSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPasswordTitle": "Change password",
+  "accountPasswordCurrent": "Current password",
+  "accountPasswordNew": "New password",
+  "accountPasswordNewHint": "At least 8 characters",
+  "accountPasswordRetype": "Repeat new password",
+  "accountPasswordSubmit": "Change password",
+  "accountPasswordDone": "New password saved.",
+  "accountPasswordNone": "This account signs in with a PIN only, without a password.",
+  "accountPinTitle": "Change PIN",
+  "accountPinCurrent": "Current PIN",
+  "accountPinNew": "New PIN",
+  "accountPinRetype": "Repeat new PIN",
+  "accountPinSubmit": "Change PIN",
+  "accountPinDone": "New PIN saved.",
+  "usersErrStaffNotFound": "User not found or no longer active.",
+  "usersErrNoPassword": "This account does not use a password.",
+  "usersRoleDeleteTitle": "Delete role {name}?",
+  "@usersRoleDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "usersRoleDeleteBody": "A role still assigned to users cannot be deleted.",
+  "usersRoleDeleteConfirm": "Delete"
 }

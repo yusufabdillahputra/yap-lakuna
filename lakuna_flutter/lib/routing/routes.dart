@@ -100,6 +100,12 @@ abstract final class Routes {
   /// Laporan & laba rugi (F1-16).
   static const reports = '/laporan';
 
+  /// Pengguna & role (F1-17).
+  static const users = '/pengguna';
+
+  /// Akun saya: ganti PIN dan kata sandi sendiri (F1-17).
+  static const account = '/akun';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

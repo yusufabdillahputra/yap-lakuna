@@ -207,7 +207,7 @@ class _StaffSwitcher extends StatelessWidget {
                 ),
               ),
               Text(
-                roleLabel(l10n, staff.roleKey),
+                roleLabel(l10n, staff.roleKey, staff.roleName),
                 style: theme.typography.body.xs.copyWith(
                   color: theme.colors.mutedForeground,
                 ),
