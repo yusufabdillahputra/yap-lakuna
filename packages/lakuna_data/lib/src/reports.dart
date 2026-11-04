@@ -3,11 +3,16 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession;
 
+import 'cash.dart';
 import 'customers.dart';
 import 'expenses.dart';
+import 'purchases.dart' show purchaseCashSource;
 import 'staff_access.dart';
 import 'stock.dart';
 import 'store.dart';
+import 'suppliers.dart';
+
+part 'reports_extra.dart';
 
 /// Staf tanpa `reports:view` (F1-16).
 class ReportActorNotPermitted implements Exception {

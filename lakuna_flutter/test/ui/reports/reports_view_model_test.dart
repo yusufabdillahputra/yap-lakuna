@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/reports_repository.dart';
 import 'package:lakuna_flutter/data/services/report_document.dart';
@@ -69,6 +70,66 @@ void main() {
         expect(vm.data!.period, sep);
       },
     );
+
+    test('tab lanjutan dimuat saat dibuka dan saat periode berganti', () async {
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      expect(repo.extraRequests, isEmpty);
+      expect(vm.tabs.skip(4), [
+        ReportTab.stock,
+        ReportTab.cash,
+        ReportTab.debts,
+        ReportTab.returns,
+      ]);
+      expect(vm.ready, isTrue);
+
+      vm.setTab(ReportTab.stock);
+      expect(vm.stock, isNull);
+      expect(vm.ready, isFalse);
+      await pumpEventQueue();
+      expect(vm.stock!.totalValue, const Money(183000));
+      expect(vm.ready, isTrue);
+      expect(repo.extraRequests, ['stock:ReportPeriod.today']);
+
+      await vm.setPeriod(const ReportPeriod.month(2026, 10));
+      expect(vm.stock!.rows, isEmpty);
+      expect(repo.extraRequests.last, 'stock:ReportPeriod.month(2026, 10)');
+
+      // Piutang tidak tergantung periode: tidak dimuat ulang saat ganti
+      // periode kembali ke tab yang sama.
+      vm.setTab(ReportTab.debts);
+      await pumpEventQueue();
+      expect(vm.debts!.receivable, const Money(200000));
+      vm.setTab(ReportTab.cash);
+      await pumpEventQueue();
+      expect(vm.cash!.sessions, isEmpty);
+      vm.setTab(ReportTab.returns);
+      await pumpEventQueue();
+      expect(vm.returns!.lines, isEmpty);
+      expect(vm.stock, isNull);
+
+      expect(
+        vm.exportFileName(ReportFormat.xlsx),
+        'laporan-retur-2026-10-261104.xlsx',
+      );
+      vm.setTab(ReportTab.debts);
+      expect(
+        vm.exportFileName(ReportFormat.pdf),
+        'laporan-piutang-hutang-261104.pdf',
+      );
+    });
+
+    test('tab lanjutan: galat izin tampil di tab itu', () async {
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      repo.canView = false;
+      vm.setTab(ReportTab.returns);
+      await pumpEventQueue();
+      expect(vm.extraError, isA<NotPermitted>());
+      expect(vm.returns, isNull);
+      vm.setTab(ReportTab.summary);
+      expect(vm.extraError, isNull);
+    });
 
     test(
       'tanpa izin laba: tab Laba rugi hilang dan kembali ke ringkasan',
@@ -189,6 +250,87 @@ void main() {
       ]);
       // Satuan dasar per kategori bisa campur (pcs + kg): qty tidak dijumlah.
       expect(cat.rows.first.cells[1], '–');
+    });
+
+    test('tabel ekspor tab lanjutan', () async {
+      final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      final stock =
+          ((await repo.loadStock(ReportPeriod.today)) as Ok<StockReport>).value;
+      final t = reportTable(
+        id,
+        data,
+        ReportTab.stock,
+        SalesGroup.product,
+        stock: stock,
+      );
+      expect(t.title, 'Stok · Hari ini');
+      expect(t.headers.last, 'Nilai akhir');
+      expect(t.rows.first.cells.take(5), [
+        'Kopi Susu',
+        '20 gelas',
+        '1 gelas',
+        '4 gelas',
+        '17 gelas',
+      ]);
+      expect((t.rows.last.cells.last! as XlsxNumber).value, 183000);
+      expect(t.notes.first, 'Nilai stok: Rp 183.000');
+      expect(reportRightAligned(t), [false, true, true, true, true, true]);
+
+      final cash =
+          ((await repo.loadCash(ReportPeriod.today)) as Ok<CashReport>).value;
+      final c = reportTable(
+        id,
+        data,
+        ReportTab.cash,
+        SalesGroup.product,
+        cash: cash,
+      );
+      expect(c.rows.first.cells[4], 'Masih buka');
+      expect((c.rows[1].cells[5]! as XlsxNumber).value, -5000);
+      expect(c.notes, contains('Pengeluaran (2×): − Rp 25.000'));
+      expect(c.notes, contains('Kas masuk manual (1×): + Rp 5.000'));
+
+      final debts = ((await repo.loadDebts()) as Ok<DebtReport>).value;
+      final d = reportTable(
+        id,
+        data,
+        ReportTab.debts,
+        SalesGroup.product,
+        debts: debts,
+      );
+      expect(d.title, 'Piutang & hutang · Posisi per 4 November 2026');
+      expect(d.rows.map((r) => r.cells.first), [
+        'Piutang per pelanggan',
+        'Budi',
+        'Rina',
+        'Total',
+        'Hutang per supplier',
+        'CV Sumber',
+        'Total',
+      ]);
+      expect((d.rows[3].cells[3]! as XlsxNumber).value, 200000);
+
+      final returns = ((await repo.loadReturns(
+        ReportPeriod.today,
+      )) as Ok<ReturnsReport>).value;
+      final r = reportTable(
+        id,
+        data,
+        ReportTab.returns,
+        SalesGroup.product,
+        returns: returns,
+      );
+      expect(r.rows.first.cells.take(7), [
+        '04/11/26 11.05',
+        'RT-PST-K01-261104-0001',
+        'PST-K01-261104-0001',
+        'Sari',
+        'Salah ambil',
+        'Ya',
+        'Tunai dari laci',
+      ]);
+      expect(r.notes.single, 'Salah ambil (1×): Rp 18.000');
+      expect(reportXlsx(r).length, greaterThan(100));
     });
 
     test('dokumen: nama lembar, perataan, dan lebar kolom', () async {

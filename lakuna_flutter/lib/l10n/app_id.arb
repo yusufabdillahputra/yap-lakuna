@@ -3614,5 +3614,123 @@
     }
   },
   "reportsNotPermitted": "Anda tidak punya izin melihat laporan.",
-  "reportsLoadFailed": "Laporan gagal dimuat."
+  "reportsLoadFailed": "Laporan gagal dimuat.",
+  "reportsTabStock": "Stok",
+  "reportsTabCash": "Kas & sesi",
+  "reportsTabDebts": "Piutang & hutang",
+  "reportsTabReturns": "Retur",
+  "reportsStockValue": "Nilai stok",
+  "reportsStockValueNote": "Harga pokok rata-rata saat ini",
+  "reportsStockItems": "Produk barang",
+  "reportsStockItemsNote": "Varian yang stoknya dilacak",
+  "reportsStockLow": "Stok menipis",
+  "reportsStockLowNote": "Di bawah atau sama dengan minimum",
+  "reportsStockOut": "Stok habis",
+  "reportsStockOutNote": "Stok nol atau minus",
+  "reportsStockMovement": "Pergerakan stok",
+  "reportsStockNote": "Semua lokasi stok cabang ini, jumlah dalam satuan dasar. Masuk: stok awal, pembelian, retur jual, penyesuaian lebih. Keluar: penjualan, retur beli, penyesuaian kurang. Nilai akhir = stok akhir × harga pokok rata-rata saat ini.",
+  "reportsStockEmpty": "Belum ada barang dengan stok atau pergerakan pada periode ini.",
+  "reportsColOpening": "Awal",
+  "reportsColIn": "Masuk",
+  "reportsColOut": "Keluar",
+  "reportsColClosing": "Akhir",
+  "reportsColClosingValue": "Nilai akhir",
+  "reportsCashSessions": "Sesi kasir",
+  "reportsCashSessionsNote": "{count} masih buka",
+  "@reportsCashSessionsNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsCashDifference": "Total selisih",
+  "reportsCashDifferenceNote": "Sesi yang sudah ditutup",
+  "reportsCashIn": "Kas masuk lain",
+  "reportsCashOut": "Kas keluar",
+  "reportsCashMovementsNote": "Di luar penjualan",
+  "reportsCashMovements": "Kas masuk & keluar",
+  "reportsCashOpen": "Masih buka",
+  "reportsCashEmpty": "Tidak ada sesi kasir yang aktif pada periode ini.",
+  "reportsCashNoMovements": "Tidak ada kas masuk atau keluar di luar penjualan.",
+  "reportsCashNote": "Seharusnya = saldo awal + tunai bersih − refund tunai + kas masuk − kas keluar. Sesi yang masih buka dihitung sampai sekarang.",
+  "reportsColOpened": "Dibuka",
+  "reportsColOpeningCash": "Saldo awal",
+  "reportsColExpected": "Seharusnya",
+  "reportsColCounted": "Dihitung",
+  "reportsColDifference": "Selisih",
+  "reportsColSource": "Sumber",
+  "reportsColEntries": "Catatan",
+  "reportsSourceManualIn": "Kas masuk manual",
+  "reportsSourceManualOut": "Kas keluar manual",
+  "reportsSourceExpense": "Pengeluaran",
+  "reportsSourceExpenseVoid": "Batal pengeluaran",
+  "reportsSourceSupplierPayment": "Bayar hutang supplier",
+  "reportsSourcePurchase": "Bayar pembelian",
+  "reportsSourceDebtPayment": "Terima piutang",
+  "reportsSourceOther": "Lainnya",
+  "reportsDebtAsOf": "Posisi per {date}",
+  "@reportsDebtAsOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsDebtReceivable": "Piutang pelanggan",
+  "reportsDebtCustomersNote": "{count} pelanggan",
+  "@reportsDebtCustomersNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsDebtPayable": "Hutang supplier",
+  "reportsDebtSuppliersNote": "{count} supplier",
+  "@reportsDebtSuppliersNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsDebtOverduePurchases": "Nota beli lewat tempo",
+  "reportsDebtOverduePurchasesNote": "Bayar dari layar Supplier",
+  "reportsDebtCustomers": "Piutang per pelanggan",
+  "reportsDebtSuppliers": "Hutang per supplier",
+  "reportsDebtNoReceivable": "Tidak ada piutang pelanggan.",
+  "reportsDebtNoPayable": "Tidak ada hutang supplier.",
+  "reportsDebtNote": "Posisi hari ini, tidak tergantung periode yang dipilih.",
+  "reportsColCustomer": "Pelanggan",
+  "reportsColSupplier": "Supplier",
+  "reportsColOpenCount": "Nota terbuka",
+  "reportsColOverdueCount": "Lewat tempo",
+  "reportsColNearestDue": "Jatuh tempo terdekat",
+  "reportsColRemaining": "Sisa",
+  "reportsReturnsCountNote": "Retur penjualan pada periode",
+  "reportsReturnsTotal": "Nilai retur",
+  "reportsReturnsTotalNote": "Termasuk bagian service dan PB1",
+  "reportsReturnsRestock": "Kembali ke stok",
+  "reportsReturnsDamaged": "Rusak / kedaluwarsa",
+  "reportsReturnsOfCount": "dari {count} retur",
+  "@reportsReturnsOfCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsReturnsByReason": "Per alasan",
+  "reportsReturnsList": "Daftar retur",
+  "reportsReturnsEmpty": "Tidak ada retur pada periode ini.",
+  "reportsColTime": "Waktu",
+  "reportsColReturnNo": "No retur",
+  "reportsColReceiptNo": "No nota",
+  "reportsColHandledBy": "Petugas",
+  "reportsColReason": "Alasan",
+  "reportsColRestock": "Ke stok",
+  "reportsColRefund": "Refund",
+  "reportsYes": "Ya",
+  "reportsNo": "Tidak"
 }

@@ -7,6 +7,73 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-11-04
+
+Laporan bagian kedua (F1-16): empat tab baru di layar Laporan untuk melihat
+stok, kas laci, piutang & hutang, dan retur cabang ini, masing-masing bisa
+diunduh sebagai PDF atau Excel. Semua angka dihitung dari dokumen (kartu
+stok, sesi kasir, gerakan kas, nota kredit, pembelian, retur).
+
+### Ditambahkan
+
+- Tab **Stok**:
+  - kartu *Nilai stok* (hanya dengan `reports:view_profit`; stok saat ini ×
+    harga pokok rata-rata), *Produk barang*, *Stok menipis*, *Stok habis*;
+  - tabel *Pergerakan stok* per varian barang: Awal, Masuk, Keluar, Akhir
+    (satuan dasar, semua lokasi stok cabang) dan Nilai akhir.
+- Tab **Kas & sesi**:
+  - kartu jumlah sesi (berapa yang masih buka), *Total selisih* sesi yang
+    sudah ditutup, *Kas masuk lain*, *Kas keluar*;
+  - tabel sesi kasir yang aktif pada periode (dibuka, kasir, saldo awal,
+    seharusnya, dihitung, selisih; sesi yang masih buka dihitung sampai
+    sekarang dan ditandai *Masih buka*);
+  - tabel *Kas masuk & keluar* per sumber: manual, pengeluaran, batal
+    pengeluaran, bayar hutang supplier, bayar pembelian, terima piutang.
+- Tab **Piutang & hutang** (posisi hari ini): kartu piutang pelanggan,
+  piutang jatuh tempo, hutang supplier, nota beli lewat tempo; tabel per
+  pelanggan dan per supplier (nota terbuka, lewat tempo, jatuh tempo
+  terdekat, sisa).
+- Tab **Retur**: kartu jumlah retur, nilai retur, kembali ke stok, rusak /
+  kedaluwarsa; ringkasan per alasan; daftar retur (waktu, no retur, no
+  nota, petugas, alasan, ke stok, cara refund, nilai).
+- Unduh PDF/Excel untuk keempat tab: `laporan-stok-…`, `laporan-kas-sesi-…`,
+  `laporan-piutang-hutang-<yymmdd>` (tanpa periode), `laporan-retur-…`.
+
+### Diubah
+
+- Data tab baru dimuat saat tab dibuka dan dimuat ulang saat periode
+  berganti; selama dimuat tombol unduh mati sehingga berkas tidak berisi
+  data periode lain.
+- Repositori laporan membaca ulang izin staf dari role di database untuk
+  setiap muatan, bukan dari sesi masuk.
+
+### Diperbaiki
+
+Ditemukan sebelum rilis (uji manual), bukan bug versi sebelumnya:
+
+- Sesi kasir yang dibuka kemarin dan belum ditutup tidak tampil di laporan
+  *Hari ini* walau gerakan kasnya tampil; kini tab menampilkan sesi yang
+  aktif pada periode, bukan hanya yang dibuka pada periode.
+
+### Keamanan
+
+- Tanpa `reports:view_profit`, lapisan data tidak mengirim harga pokok:
+  kartu *Nilai stok* dan kolom *Nilai akhir* tidak dihitung.
+
+### Catatan teknis
+
+- Domain: `StockMove`, `StockMovementRow`, `stockMovementRows` (awal /
+  masuk / keluar / akhir dari pergerakan + batas periode), `groupTotals`.
+- Data `lakuna_data/reports_extra.dart` (bagian dari `reports.dart`):
+  `loadStockReport`, `loadCashReport` (`CashSourceKind` dari kolom
+  `source`), `loadDebtReport` (memakai `listCustomers` dan
+  `loadSuppliersOverview`), `loadReturnsReport`. Tidak ada perubahan skema.
+- Tabel ekspor: `ReportTable.flex` untuk lebar kolom PDF per tab.
+- Tes: domain (pergerakan stok, kelompok total), data (stok semua lokasi dan
+  izin, sesi tutup/buka dan sesi lintas hari, piutang + hutang lewat tempo,
+  retur per alasan), VM (muat per tab, periode, galat), tabel ekspor, alur
+  widget 1440 / 800 / 360 px.
+
 ## [0.20.0] - 2026-11-04
 
 Laporan & laba rugi bagian pertama (F1-16, layar 1.23 dan 1.24). Pemilik dan
@@ -2081,7 +2148,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...v0.18.0

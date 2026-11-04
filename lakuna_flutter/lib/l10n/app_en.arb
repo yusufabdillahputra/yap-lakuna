@@ -3080,5 +3080,123 @@
     }
   },
   "reportsNotPermitted": "You do not have permission to view reports.",
-  "reportsLoadFailed": "Reports could not be loaded."
+  "reportsLoadFailed": "Reports could not be loaded.",
+  "reportsTabStock": "Stock",
+  "reportsTabCash": "Cash & sessions",
+  "reportsTabDebts": "Receivables & payables",
+  "reportsTabReturns": "Returns",
+  "reportsStockValue": "Stock value",
+  "reportsStockValueNote": "At current average cost",
+  "reportsStockItems": "Goods items",
+  "reportsStockItemsNote": "Variants with tracked stock",
+  "reportsStockLow": "Low stock",
+  "reportsStockLowNote": "At or below minimum",
+  "reportsStockOut": "Out of stock",
+  "reportsStockOutNote": "Zero or negative stock",
+  "reportsStockMovement": "Stock movement",
+  "reportsStockNote": "All stock locations of this branch, quantities in base units. In: opening stock, purchases, sales returns, positive adjustments. Out: sales, purchase returns, negative adjustments. Closing value = closing stock × current average cost.",
+  "reportsStockEmpty": "No goods with stock or movement in this period.",
+  "reportsColOpening": "Opening",
+  "reportsColIn": "In",
+  "reportsColOut": "Out",
+  "reportsColClosing": "Closing",
+  "reportsColClosingValue": "Closing value",
+  "reportsCashSessions": "Cash sessions",
+  "reportsCashSessionsNote": "{count} still open",
+  "@reportsCashSessionsNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsCashDifference": "Total difference",
+  "reportsCashDifferenceNote": "Closed sessions",
+  "reportsCashIn": "Other cash in",
+  "reportsCashOut": "Cash out",
+  "reportsCashMovementsNote": "Excluding sales",
+  "reportsCashMovements": "Cash in & out",
+  "reportsCashOpen": "Still open",
+  "reportsCashEmpty": "No cash sessions active in this period.",
+  "reportsCashNoMovements": "No cash in or out besides sales.",
+  "reportsCashNote": "Expected = opening + net cash sales − cash refunds + cash in − cash out. Open sessions are counted up to now.",
+  "reportsColOpened": "Opened",
+  "reportsColOpeningCash": "Opening cash",
+  "reportsColExpected": "Expected",
+  "reportsColCounted": "Counted",
+  "reportsColDifference": "Difference",
+  "reportsColSource": "Source",
+  "reportsColEntries": "Entries",
+  "reportsSourceManualIn": "Manual cash in",
+  "reportsSourceManualOut": "Manual cash out",
+  "reportsSourceExpense": "Expenses",
+  "reportsSourceExpenseVoid": "Voided expenses",
+  "reportsSourceSupplierPayment": "Supplier debt payments",
+  "reportsSourcePurchase": "Purchase payments",
+  "reportsSourceDebtPayment": "Receivable payments",
+  "reportsSourceOther": "Other",
+  "reportsDebtAsOf": "As of {date}",
+  "@reportsDebtAsOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsDebtReceivable": "Customer receivables",
+  "reportsDebtCustomersNote": "{count} customers",
+  "@reportsDebtCustomersNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsDebtPayable": "Supplier payables",
+  "reportsDebtSuppliersNote": "{count} suppliers",
+  "@reportsDebtSuppliersNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsDebtOverduePurchases": "Overdue purchases",
+  "reportsDebtOverduePurchasesNote": "Pay from the Suppliers screen",
+  "reportsDebtCustomers": "Receivables by customer",
+  "reportsDebtSuppliers": "Payables by supplier",
+  "reportsDebtNoReceivable": "No customer receivables.",
+  "reportsDebtNoPayable": "No supplier payables.",
+  "reportsDebtNote": "Today's position, independent of the selected period.",
+  "reportsColCustomer": "Customer",
+  "reportsColSupplier": "Supplier",
+  "reportsColOpenCount": "Open",
+  "reportsColOverdueCount": "Overdue",
+  "reportsColNearestDue": "Nearest due",
+  "reportsColRemaining": "Remaining",
+  "reportsReturnsCountNote": "Sales returns in the period",
+  "reportsReturnsTotal": "Returns value",
+  "reportsReturnsTotalNote": "Including service and tax share",
+  "reportsReturnsRestock": "Back to stock",
+  "reportsReturnsDamaged": "Damaged / expired",
+  "reportsReturnsOfCount": "of {count} returns",
+  "@reportsReturnsOfCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsReturnsByReason": "By reason",
+  "reportsReturnsList": "Returns",
+  "reportsReturnsEmpty": "No returns in this period.",
+  "reportsColTime": "Time",
+  "reportsColReturnNo": "Return no.",
+  "reportsColReceiptNo": "Receipt no.",
+  "reportsColHandledBy": "Handled by",
+  "reportsColReason": "Reason",
+  "reportsColRestock": "Restock",
+  "reportsColRefund": "Refund",
+  "reportsYes": "Yes",
+  "reportsNo": "No"
 }

@@ -5723,4 +5723,269 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get reportsLoadFailed => 'Laporan gagal dimuat.';
+
+  @override
+  String get reportsTabStock => 'Stok';
+
+  @override
+  String get reportsTabCash => 'Kas & sesi';
+
+  @override
+  String get reportsTabDebts => 'Piutang & hutang';
+
+  @override
+  String get reportsTabReturns => 'Retur';
+
+  @override
+  String get reportsStockValue => 'Nilai stok';
+
+  @override
+  String get reportsStockValueNote => 'Harga pokok rata-rata saat ini';
+
+  @override
+  String get reportsStockItems => 'Produk barang';
+
+  @override
+  String get reportsStockItemsNote => 'Varian yang stoknya dilacak';
+
+  @override
+  String get reportsStockLow => 'Stok menipis';
+
+  @override
+  String get reportsStockLowNote => 'Di bawah atau sama dengan minimum';
+
+  @override
+  String get reportsStockOut => 'Stok habis';
+
+  @override
+  String get reportsStockOutNote => 'Stok nol atau minus';
+
+  @override
+  String get reportsStockMovement => 'Pergerakan stok';
+
+  @override
+  String get reportsStockNote =>
+      'Semua lokasi stok cabang ini, jumlah dalam satuan dasar. Masuk: stok awal, pembelian, retur jual, penyesuaian lebih. Keluar: penjualan, retur beli, penyesuaian kurang. Nilai akhir = stok akhir × harga pokok rata-rata saat ini.';
+
+  @override
+  String get reportsStockEmpty =>
+      'Belum ada barang dengan stok atau pergerakan pada periode ini.';
+
+  @override
+  String get reportsColOpening => 'Awal';
+
+  @override
+  String get reportsColIn => 'Masuk';
+
+  @override
+  String get reportsColOut => 'Keluar';
+
+  @override
+  String get reportsColClosing => 'Akhir';
+
+  @override
+  String get reportsColClosingValue => 'Nilai akhir';
+
+  @override
+  String get reportsCashSessions => 'Sesi kasir';
+
+  @override
+  String reportsCashSessionsNote(int count) {
+    return '$count masih buka';
+  }
+
+  @override
+  String get reportsCashDifference => 'Total selisih';
+
+  @override
+  String get reportsCashDifferenceNote => 'Sesi yang sudah ditutup';
+
+  @override
+  String get reportsCashIn => 'Kas masuk lain';
+
+  @override
+  String get reportsCashOut => 'Kas keluar';
+
+  @override
+  String get reportsCashMovementsNote => 'Di luar penjualan';
+
+  @override
+  String get reportsCashMovements => 'Kas masuk & keluar';
+
+  @override
+  String get reportsCashOpen => 'Masih buka';
+
+  @override
+  String get reportsCashEmpty =>
+      'Tidak ada sesi kasir yang aktif pada periode ini.';
+
+  @override
+  String get reportsCashNoMovements =>
+      'Tidak ada kas masuk atau keluar di luar penjualan.';
+
+  @override
+  String get reportsCashNote =>
+      'Seharusnya = saldo awal + tunai bersih − refund tunai + kas masuk − kas keluar. Sesi yang masih buka dihitung sampai sekarang.';
+
+  @override
+  String get reportsColOpened => 'Dibuka';
+
+  @override
+  String get reportsColOpeningCash => 'Saldo awal';
+
+  @override
+  String get reportsColExpected => 'Seharusnya';
+
+  @override
+  String get reportsColCounted => 'Dihitung';
+
+  @override
+  String get reportsColDifference => 'Selisih';
+
+  @override
+  String get reportsColSource => 'Sumber';
+
+  @override
+  String get reportsColEntries => 'Catatan';
+
+  @override
+  String get reportsSourceManualIn => 'Kas masuk manual';
+
+  @override
+  String get reportsSourceManualOut => 'Kas keluar manual';
+
+  @override
+  String get reportsSourceExpense => 'Pengeluaran';
+
+  @override
+  String get reportsSourceExpenseVoid => 'Batal pengeluaran';
+
+  @override
+  String get reportsSourceSupplierPayment => 'Bayar hutang supplier';
+
+  @override
+  String get reportsSourcePurchase => 'Bayar pembelian';
+
+  @override
+  String get reportsSourceDebtPayment => 'Terima piutang';
+
+  @override
+  String get reportsSourceOther => 'Lainnya';
+
+  @override
+  String reportsDebtAsOf(String date) {
+    return 'Posisi per $date';
+  }
+
+  @override
+  String get reportsDebtReceivable => 'Piutang pelanggan';
+
+  @override
+  String reportsDebtCustomersNote(int count) {
+    return '$count pelanggan';
+  }
+
+  @override
+  String get reportsDebtPayable => 'Hutang supplier';
+
+  @override
+  String reportsDebtSuppliersNote(int count) {
+    return '$count supplier';
+  }
+
+  @override
+  String get reportsDebtOverduePurchases => 'Nota beli lewat tempo';
+
+  @override
+  String get reportsDebtOverduePurchasesNote => 'Bayar dari layar Supplier';
+
+  @override
+  String get reportsDebtCustomers => 'Piutang per pelanggan';
+
+  @override
+  String get reportsDebtSuppliers => 'Hutang per supplier';
+
+  @override
+  String get reportsDebtNoReceivable => 'Tidak ada piutang pelanggan.';
+
+  @override
+  String get reportsDebtNoPayable => 'Tidak ada hutang supplier.';
+
+  @override
+  String get reportsDebtNote =>
+      'Posisi hari ini, tidak tergantung periode yang dipilih.';
+
+  @override
+  String get reportsColCustomer => 'Pelanggan';
+
+  @override
+  String get reportsColSupplier => 'Supplier';
+
+  @override
+  String get reportsColOpenCount => 'Nota terbuka';
+
+  @override
+  String get reportsColOverdueCount => 'Lewat tempo';
+
+  @override
+  String get reportsColNearestDue => 'Jatuh tempo terdekat';
+
+  @override
+  String get reportsColRemaining => 'Sisa';
+
+  @override
+  String get reportsReturnsCountNote => 'Retur penjualan pada periode';
+
+  @override
+  String get reportsReturnsTotal => 'Nilai retur';
+
+  @override
+  String get reportsReturnsTotalNote => 'Termasuk bagian service dan PB1';
+
+  @override
+  String get reportsReturnsRestock => 'Kembali ke stok';
+
+  @override
+  String get reportsReturnsDamaged => 'Rusak / kedaluwarsa';
+
+  @override
+  String reportsReturnsOfCount(int count) {
+    return 'dari $count retur';
+  }
+
+  @override
+  String get reportsReturnsByReason => 'Per alasan';
+
+  @override
+  String get reportsReturnsList => 'Daftar retur';
+
+  @override
+  String get reportsReturnsEmpty => 'Tidak ada retur pada periode ini.';
+
+  @override
+  String get reportsColTime => 'Waktu';
+
+  @override
+  String get reportsColReturnNo => 'No retur';
+
+  @override
+  String get reportsColReceiptNo => 'No nota';
+
+  @override
+  String get reportsColHandledBy => 'Petugas';
+
+  @override
+  String get reportsColReason => 'Alasan';
+
+  @override
+  String get reportsColRestock => 'Ke stok';
+
+  @override
+  String get reportsColRefund => 'Refund';
+
+  @override
+  String get reportsYes => 'Ya';
+
+  @override
+  String get reportsNo => 'Tidak';
 }

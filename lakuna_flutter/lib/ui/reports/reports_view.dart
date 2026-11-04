@@ -13,9 +13,16 @@ import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
+import '../customers/customer_labels.dart' show formatLongDate;
+import '../history/history_labels.dart'
+    show refundMethodLabel, returnReasonLabel;
 import '../products/product_widgets.dart';
+import '../purchases/purchase_labels.dart' show formatCalendarDate;
+import '../receipt/receipt_content.dart' show receiptDate;
 import 'report_labels.dart';
 import 'reports_view_model.dart';
+
+part 'reports_extra_view.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
@@ -93,11 +100,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<void> _download(ReportFormat format) async {
     final data = _vm.data;
-    if (data == null || _preparing) return;
+    if (data == null || !_vm.ready || _preparing) return;
     final l10n = AppLocalizations.of(context);
     setState(() => _preparing = true);
     try {
-      final table = reportTable(l10n, data, _vm.tab, _vm.group);
+      final table = reportTable(
+        l10n,
+        data,
+        _vm.tab,
+        _vm.group,
+        stock: _vm.stock,
+        cash: _vm.cash,
+        debts: _vm.debts,
+        returns: _vm.returns,
+      );
       final bytes = switch (format) {
         ReportFormat.xlsx => reportXlsx(table),
         ReportFormat.pdf => await reportPdf(
@@ -123,7 +139,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         key: ValueKey('reports-download-${f.name}'),
         variant: .outline,
         mainAxisSize: .min,
-        onPress: data == null || busy ? null : () => _download(f),
+        onPress: !vm.ready || busy ? null : () => _download(f),
         prefix: Icon(
           f == ReportFormat.pdf
               ? TablerIcons.fileTypePdf
@@ -216,6 +232,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ReportTab.sales => _Sales(viewModel: vm, data: data),
                 ReportTab.top => _Top(data: data),
                 ReportTab.profit => _Profit(data: data),
+                ReportTab.stock => _Stock(viewModel: vm),
+                ReportTab.cash => _Cash(viewModel: vm),
+                ReportTab.debts => _Debts(viewModel: vm),
+                ReportTab.returns => _Returns(viewModel: vm),
               },
             ],
           ],

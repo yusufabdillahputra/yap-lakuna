@@ -10081,6 +10081,504 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Laporan gagal dimuat.'**
   String get reportsLoadFailed;
+
+  /// No description provided for @reportsTabStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok'**
+  String get reportsTabStock;
+
+  /// No description provided for @reportsTabCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas & sesi'**
+  String get reportsTabCash;
+
+  /// No description provided for @reportsTabDebts.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang & hutang'**
+  String get reportsTabDebts;
+
+  /// No description provided for @reportsTabReturns.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur'**
+  String get reportsTabReturns;
+
+  /// No description provided for @reportsStockValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai stok'**
+  String get reportsStockValue;
+
+  /// No description provided for @reportsStockValueNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga pokok rata-rata saat ini'**
+  String get reportsStockValueNote;
+
+  /// No description provided for @reportsStockItems.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk barang'**
+  String get reportsStockItems;
+
+  /// No description provided for @reportsStockItemsNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian yang stoknya dilacak'**
+  String get reportsStockItemsNote;
+
+  /// No description provided for @reportsStockLow.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok menipis'**
+  String get reportsStockLow;
+
+  /// No description provided for @reportsStockLowNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Di bawah atau sama dengan minimum'**
+  String get reportsStockLowNote;
+
+  /// No description provided for @reportsStockOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok habis'**
+  String get reportsStockOut;
+
+  /// No description provided for @reportsStockOutNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok nol atau minus'**
+  String get reportsStockOutNote;
+
+  /// No description provided for @reportsStockMovement.
+  ///
+  /// In id, this message translates to:
+  /// **'Pergerakan stok'**
+  String get reportsStockMovement;
+
+  /// No description provided for @reportsStockNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua lokasi stok cabang ini, jumlah dalam satuan dasar. Masuk: stok awal, pembelian, retur jual, penyesuaian lebih. Keluar: penjualan, retur beli, penyesuaian kurang. Nilai akhir = stok akhir × harga pokok rata-rata saat ini.'**
+  String get reportsStockNote;
+
+  /// No description provided for @reportsStockEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada barang dengan stok atau pergerakan pada periode ini.'**
+  String get reportsStockEmpty;
+
+  /// No description provided for @reportsColOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Awal'**
+  String get reportsColOpening;
+
+  /// No description provided for @reportsColIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk'**
+  String get reportsColIn;
+
+  /// No description provided for @reportsColOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar'**
+  String get reportsColOut;
+
+  /// No description provided for @reportsColClosing.
+  ///
+  /// In id, this message translates to:
+  /// **'Akhir'**
+  String get reportsColClosing;
+
+  /// No description provided for @reportsColClosingValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai akhir'**
+  String get reportsColClosingValue;
+
+  /// No description provided for @reportsCashSessions.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi kasir'**
+  String get reportsCashSessions;
+
+  /// No description provided for @reportsCashSessionsNote.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} masih buka'**
+  String reportsCashSessionsNote(int count);
+
+  /// No description provided for @reportsCashDifference.
+  ///
+  /// In id, this message translates to:
+  /// **'Total selisih'**
+  String get reportsCashDifference;
+
+  /// No description provided for @reportsCashDifferenceNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi yang sudah ditutup'**
+  String get reportsCashDifferenceNote;
+
+  /// No description provided for @reportsCashIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas masuk lain'**
+  String get reportsCashIn;
+
+  /// No description provided for @reportsCashOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas keluar'**
+  String get reportsCashOut;
+
+  /// No description provided for @reportsCashMovementsNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Di luar penjualan'**
+  String get reportsCashMovementsNote;
+
+  /// No description provided for @reportsCashMovements.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas masuk & keluar'**
+  String get reportsCashMovements;
+
+  /// No description provided for @reportsCashOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Masih buka'**
+  String get reportsCashOpen;
+
+  /// No description provided for @reportsCashEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada sesi kasir yang aktif pada periode ini.'**
+  String get reportsCashEmpty;
+
+  /// No description provided for @reportsCashNoMovements.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada kas masuk atau keluar di luar penjualan.'**
+  String get reportsCashNoMovements;
+
+  /// No description provided for @reportsCashNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Seharusnya = saldo awal + tunai bersih − refund tunai + kas masuk − kas keluar. Sesi yang masih buka dihitung sampai sekarang.'**
+  String get reportsCashNote;
+
+  /// No description provided for @reportsColOpened.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuka'**
+  String get reportsColOpened;
+
+  /// No description provided for @reportsColOpeningCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo awal'**
+  String get reportsColOpeningCash;
+
+  /// No description provided for @reportsColExpected.
+  ///
+  /// In id, this message translates to:
+  /// **'Seharusnya'**
+  String get reportsColExpected;
+
+  /// No description provided for @reportsColCounted.
+  ///
+  /// In id, this message translates to:
+  /// **'Dihitung'**
+  String get reportsColCounted;
+
+  /// No description provided for @reportsColDifference.
+  ///
+  /// In id, this message translates to:
+  /// **'Selisih'**
+  String get reportsColDifference;
+
+  /// No description provided for @reportsColSource.
+  ///
+  /// In id, this message translates to:
+  /// **'Sumber'**
+  String get reportsColSource;
+
+  /// No description provided for @reportsColEntries.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan'**
+  String get reportsColEntries;
+
+  /// No description provided for @reportsSourceManualIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas masuk manual'**
+  String get reportsSourceManualIn;
+
+  /// No description provided for @reportsSourceManualOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas keluar manual'**
+  String get reportsSourceManualOut;
+
+  /// No description provided for @reportsSourceExpense.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran'**
+  String get reportsSourceExpense;
+
+  /// No description provided for @reportsSourceExpenseVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal pengeluaran'**
+  String get reportsSourceExpenseVoid;
+
+  /// No description provided for @reportsSourceSupplierPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar hutang supplier'**
+  String get reportsSourceSupplierPayment;
+
+  /// No description provided for @reportsSourcePurchase.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar pembelian'**
+  String get reportsSourcePurchase;
+
+  /// No description provided for @reportsSourceDebtPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima piutang'**
+  String get reportsSourceDebtPayment;
+
+  /// No description provided for @reportsSourceOther.
+  ///
+  /// In id, this message translates to:
+  /// **'Lainnya'**
+  String get reportsSourceOther;
+
+  /// No description provided for @reportsDebtAsOf.
+  ///
+  /// In id, this message translates to:
+  /// **'Posisi per {date}'**
+  String reportsDebtAsOf(String date);
+
+  /// No description provided for @reportsDebtReceivable.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang pelanggan'**
+  String get reportsDebtReceivable;
+
+  /// No description provided for @reportsDebtCustomersNote.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pelanggan'**
+  String reportsDebtCustomersNote(int count);
+
+  /// No description provided for @reportsDebtPayable.
+  ///
+  /// In id, this message translates to:
+  /// **'Hutang supplier'**
+  String get reportsDebtPayable;
+
+  /// No description provided for @reportsDebtSuppliersNote.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} supplier'**
+  String reportsDebtSuppliersNote(int count);
+
+  /// No description provided for @reportsDebtOverduePurchases.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota beli lewat tempo'**
+  String get reportsDebtOverduePurchases;
+
+  /// No description provided for @reportsDebtOverduePurchasesNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar dari layar Supplier'**
+  String get reportsDebtOverduePurchasesNote;
+
+  /// No description provided for @reportsDebtCustomers.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang per pelanggan'**
+  String get reportsDebtCustomers;
+
+  /// No description provided for @reportsDebtSuppliers.
+  ///
+  /// In id, this message translates to:
+  /// **'Hutang per supplier'**
+  String get reportsDebtSuppliers;
+
+  /// No description provided for @reportsDebtNoReceivable.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada piutang pelanggan.'**
+  String get reportsDebtNoReceivable;
+
+  /// No description provided for @reportsDebtNoPayable.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada hutang supplier.'**
+  String get reportsDebtNoPayable;
+
+  /// No description provided for @reportsDebtNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Posisi hari ini, tidak tergantung periode yang dipilih.'**
+  String get reportsDebtNote;
+
+  /// No description provided for @reportsColCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get reportsColCustomer;
+
+  /// No description provided for @reportsColSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier'**
+  String get reportsColSupplier;
+
+  /// No description provided for @reportsColOpenCount.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota terbuka'**
+  String get reportsColOpenCount;
+
+  /// No description provided for @reportsColOverdueCount.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat tempo'**
+  String get reportsColOverdueCount;
+
+  /// No description provided for @reportsColNearestDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo terdekat'**
+  String get reportsColNearestDue;
+
+  /// No description provided for @reportsColRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get reportsColRemaining;
+
+  /// No description provided for @reportsReturnsCountNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur penjualan pada periode'**
+  String get reportsReturnsCountNote;
+
+  /// No description provided for @reportsReturnsTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai retur'**
+  String get reportsReturnsTotal;
+
+  /// No description provided for @reportsReturnsTotalNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Termasuk bagian service dan PB1'**
+  String get reportsReturnsTotalNote;
+
+  /// No description provided for @reportsReturnsRestock.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke stok'**
+  String get reportsReturnsRestock;
+
+  /// No description provided for @reportsReturnsDamaged.
+  ///
+  /// In id, this message translates to:
+  /// **'Rusak / kedaluwarsa'**
+  String get reportsReturnsDamaged;
+
+  /// No description provided for @reportsReturnsOfCount.
+  ///
+  /// In id, this message translates to:
+  /// **'dari {count} retur'**
+  String reportsReturnsOfCount(int count);
+
+  /// No description provided for @reportsReturnsByReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Per alasan'**
+  String get reportsReturnsByReason;
+
+  /// No description provided for @reportsReturnsList.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar retur'**
+  String get reportsReturnsList;
+
+  /// No description provided for @reportsReturnsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada retur pada periode ini.'**
+  String get reportsReturnsEmpty;
+
+  /// No description provided for @reportsColTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktu'**
+  String get reportsColTime;
+
+  /// No description provided for @reportsColReturnNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No retur'**
+  String get reportsColReturnNo;
+
+  /// No description provided for @reportsColReceiptNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No nota'**
+  String get reportsColReceiptNo;
+
+  /// No description provided for @reportsColHandledBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Petugas'**
+  String get reportsColHandledBy;
+
+  /// No description provided for @reportsColReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan'**
+  String get reportsColReason;
+
+  /// No description provided for @reportsColRestock.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke stok'**
+  String get reportsColRestock;
+
+  /// No description provided for @reportsColRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Refund'**
+  String get reportsColRefund;
+
+  /// No description provided for @reportsYes.
+  ///
+  /// In id, this message translates to:
+  /// **'Ya'**
+  String get reportsYes;
+
+  /// No description provided for @reportsNo.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak'**
+  String get reportsNo;
 }
 
 class _AppLocalizationsDelegate

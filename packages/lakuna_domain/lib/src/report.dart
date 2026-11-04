@@ -530,3 +530,142 @@ List<PaymentMixRow> paymentMix(List<ReportSale> sales) {
     return c != 0 ? c : a.method.index.compareTo(b.method.index);
   });
 }
+
+// --- Stok (v0.21.0) ---------------------------------------------------------
+
+/// Satu pergerakan stok (qty milli satuan dasar, positif = masuk).
+class StockMove {
+  const StockMove({
+    required this.key,
+    required this.quantityMilli,
+    required this.at,
+  });
+
+  final String key;
+  final int quantityMilli;
+  final DateTime at;
+}
+
+/// Kartu stok ringkas satu varian pada periode.
+class StockMovementRow {
+  const StockMovementRow({
+    required this.key,
+    required this.name,
+    required this.opening,
+    required this.inflow,
+    required this.outflow,
+    this.value,
+  });
+
+  final String key;
+  final String name;
+  final Qty opening;
+  final Qty inflow;
+
+  /// Nilai mutlak pergerakan keluar.
+  final Qty outflow;
+
+  /// Akhir × harga pokok saat ini; `null` tanpa izin laba.
+  final Money? value;
+
+  Qty get closing => opening + inflow - outflow;
+}
+
+/// Awal (sebelum [start]), masuk dan keluar (dalam `[start, end)`), dan akhir
+/// per varian di [names]. Pergerakan sesudah [end] diabaikan. Varian tanpa
+/// stok dan tanpa pergerakan dilewati kecuali [includeAll]. Dengan
+/// [unitCost], nilai akhir dihitung dan baris urut nilai menurun; tanpa itu
+/// urut nama.
+List<StockMovementRow> stockMovementRows({
+  required Iterable<StockMove> moves,
+  required DateTime start,
+  required DateTime end,
+  required Map<String, String> names,
+  Map<String, Money>? unitCost,
+  bool includeAll = false,
+}) {
+  final opening = <String, int>{};
+  final inflow = <String, int>{};
+  final outflow = <String, int>{};
+  final moved = <String>{};
+  for (final m in moves) {
+    if (!names.containsKey(m.key) || !m.at.isBefore(end)) continue;
+    if (m.at.isBefore(start)) {
+      opening[m.key] = (opening[m.key] ?? 0) + m.quantityMilli;
+      continue;
+    }
+    moved.add(m.key);
+    if (m.quantityMilli >= 0) {
+      inflow[m.key] = (inflow[m.key] ?? 0) + m.quantityMilli;
+    } else {
+      outflow[m.key] = (outflow[m.key] ?? 0) - m.quantityMilli;
+    }
+  }
+  final rows = <StockMovementRow>[];
+  for (final MapEntry(:key, value: name) in names.entries) {
+    final row = StockMovementRow(
+      key: key,
+      name: name,
+      opening: Qty(opening[key] ?? 0),
+      inflow: Qty(inflow[key] ?? 0),
+      outflow: Qty(outflow[key] ?? 0),
+    );
+    if (!includeAll &&
+        !moved.contains(key) &&
+        row.opening == Qty.zero &&
+        row.closing == Qty.zero) {
+      continue;
+    }
+    rows.add(
+      unitCost == null
+          ? row
+          : StockMovementRow(
+              key: key,
+              name: name,
+              opening: row.opening,
+              inflow: row.inflow,
+              outflow: row.outflow,
+              value: (unitCost[key] ?? Money.zero).timesMilli(
+                row.closing.milli,
+              ),
+            ),
+    );
+  }
+  rows.sort((a, b) {
+    if (unitCost != null) {
+      final c = b.value!.compareTo(a.value!);
+      if (c != 0) return c;
+    }
+    final n = a.name.compareTo(b.name);
+    return n != 0 ? n : a.key.compareTo(b.key);
+  });
+  return rows;
+}
+
+// --- Kelompok total (kas, retur) --------------------------------------------
+
+/// Jumlah catatan dan total per kunci.
+class GroupTotal<K> {
+  const GroupTotal(this.key, this.count, this.total);
+
+  final K key;
+  final int count;
+  final Money total;
+}
+
+/// Mengelompokkan [items] per kunci: urut total menurun, lalu kunci
+/// (`toString`).
+List<GroupTotal<K>> groupTotals<K>(Iterable<(K, Money)> items) {
+  final count = <K, int>{};
+  final total = <K, Money>{};
+  for (final (key, amount) in items) {
+    count[key] = (count[key] ?? 0) + 1;
+    total[key] = (total[key] ?? Money.zero) + amount;
+  }
+  return [
+    for (final key in count.keys) GroupTotal(key, count[key]!, total[key]!),
+  ]..sort((a, b) {
+    final c = b.total.compareTo(a.total);
+    return c != 0 ? c : '${a.key}'.compareTo('${b.key}');
+  });
+}

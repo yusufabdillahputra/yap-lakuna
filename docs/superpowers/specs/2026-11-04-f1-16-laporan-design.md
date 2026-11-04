@@ -2,8 +2,8 @@
 
 - **Fase:** 1
 - **Status:** Rilis v0.20.0 (ringkasan, penjualan, produk terlaris, laba
-  rugi, unduh PDF/Excel); v0.21.0 menyusul (stok, kas & sesi, piutang &
-  hutang, retur)
+  rugi, unduh PDF/Excel) dan v0.21.0 (stok, kas & sesi, piutang & hutang,
+  retur)
 - **Layar desain:** 1.23 *Laporan · desktop* (ringkasan), 1.24 *Laporan
   laba rugi · desktop*
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-16-laporan-design.md`
@@ -175,11 +175,80 @@ lambat pada data besar.
 - Flutter: view model (periode, tab, izin, ekspor), alur widget 1440 /
   800 / 360 px, ekspor menghasilkan nama berkas yang benar.
 
+## Bagian kedua (v0.21.0): Stok, Kas & sesi, Piutang & hutang, Retur
+
+Desain 1.24 hanya menampilkan nama tab ini; isinya mengikuti pola tab
+v0.20.0 (kartu KPI di atas, tabel di bawah, kartu di 360 px) dan aturan
+Storeku F1-16. Urutan tab: Ringkasan, Penjualan, Produk terlaris, Laba
+rugi, **Stok**, **Kas & sesi**, **Piutang & hutang**, **Retur**. Data tab
+ini dimuat saat tab dibuka (bukan saat layar dibuka) dan dimuat ulang saat
+periode berganti. Semua butuh `reports:view`.
+
+### Stok
+
+- Cakupan: varian **barang** (`ProductType.goods`) yang belum dihapus, semua
+  lokasi stok cabang ini dijumlahkan (transfer antarlokasi saling hapus).
+- Kartu: *Nilai stok* (hanya `reports:view_profit`; Σ stok saat ini × harga
+  pokok rata-rata, atau harga beli bila rata-rata 0, sama dengan opname),
+  *Produk barang* (jumlah varian), *Stok menipis* (0 < stok ≤ minimum),
+  *Stok habis* (stok ≤ 0).
+- Tabel **pergerakan periode** (kartu stok ringkas) per varian yang punya
+  stok atau pergerakan pada periode: Produk, Awal, Masuk, Keluar, Akhir
+  (qty satuan dasar), Nilai akhir (hanya `reports:view_profit`).
+  Awal = Σ pergerakan sebelum awal periode; Masuk = Σ pergerakan positif
+  pada periode; Keluar = Σ |pergerakan negatif|; Akhir = Awal + Masuk −
+  Keluar. Nilai akhir = Akhir × harga pokok saat ini (catatan di tab).
+  Urut nilai akhir menurun bila boleh melihat nilai, selain itu nama.
+- Batas periode: `occurred_at` dalam zona waktu cabang, sama dengan nota.
+
+### Kas & sesi
+
+- Sesi kasir cabang ini yang **aktif** pada periode (dibuka sebelum akhir
+  periode dan belum ditutup atau ditutup sesudah awal periode; sesi kemarin
+  yang belum ditutup ikut tampil hari ini): Dibuka (tanggal jam),
+  Kasir, Saldo awal, Seharusnya, Dihitung, Selisih. Sesi yang masih buka:
+  Seharusnya dihitung saat ini (`cashDrawerFor`), Dihitung dan Selisih `–`,
+  label *Masih buka*.
+- Kartu: *Sesi* (N, M masih buka), *Total selisih* (bertanda, hanya sesi
+  tutup), *Kas masuk lain*, *Kas keluar lain* (gerakan kas pada periode).
+- Tabel **kas masuk & keluar**: gerakan kas (`cash_movements.created_at`
+  pada periode) dikelompokkan sumber: Manual masuk, Manual keluar,
+  Pengeluaran, Batal pengeluaran, Bayar hutang supplier, Terima piutang;
+  kolom Sumber, Catatan (jumlah baris), Masuk, Keluar.
+
+### Piutang & hutang
+
+- Posisi **hari ini**, tidak tergantung periode (subjudul tab menyebut
+  tanggal). Data dari `listCustomers` dan `loadSuppliersOverview`.
+- Kartu: *Piutang pelanggan* (total, N pelanggan), *Piutang jatuh tempo*
+  (total, N pelanggan), *Hutang supplier* (total, N supplier), *Nota beli
+  lewat tempo* (jumlah nota).
+- Tabel piutang per pelanggan yang punya sisa: Pelanggan, Nota terbuka,
+  Lewat tempo, Sisa; tabel hutang per supplier: Supplier, Nota terbuka,
+  Lewat tempo, Jatuh tempo terdekat, Sisa. Urut sisa menurun.
+
+### Retur
+
+- Retur penjualan cabang ini dengan `returned_at` pada periode: Waktu, No
+  retur, No nota, Petugas, Alasan, Kembali ke stok (Ya/Tidak), Cara refund
+  (tunai, transfer, potong piutang), Nilai.
+- Kartu: *Retur* (N), *Nilai retur* (Σ `amount`), *Kembali ke stok* (N),
+  *Rusak/kedaluwarsa* (N).
+- Ringkasan per alasan (jumlah dan nilai).
+
+### Ekspor
+
+Satu tabel per tab seperti v0.20.0; tab dengan dua tabel (Kas & sesi,
+Piutang & hutang) menulis keduanya berurutan dengan baris judul bagian
+tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
+`laporan-piutang-hutang-<yymmdd>` (tanpa periode), `laporan-retur-…`.
+
 ## Status & gap
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Tab Stok, Kas & sesi, Piutang & hutang, Retur | 1.24 | v0.21.0 | Lanjutan modul ini. |
+| Tab Stok, Kas & sesi, Piutang & hutang, Retur | 1.24 (nama tab) | Rilis v0.21.0 | Isi dirancang di bagian kedua spec ini; desain rinci bisa ditambahkan ke kanvas. |
+| Nilai stok historis | – | Nilai akhir periode lalu memakai harga pokok saat ini | Cukup untuk UMKM; simpan nilai per pergerakan bila dibutuhkan akurasi historis. |
 | Target margin toko | "Target toko 25%" | Belum ada pengaturan | Tambah di F1-18 Pengaturan, lalu tampilkan di panel. |
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
