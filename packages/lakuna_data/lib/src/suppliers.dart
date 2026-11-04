@@ -365,7 +365,9 @@ Future<SupplierDetail> loadSupplierDetail(
   );
 }
 
-/// Semua pembelian (bukan draf) supplier [supplierId], terbaru dulu.
+/// Pembelian diterima dari supplier [supplierId] di cabang ini, terbaru
+/// dulu. Dibatasi cabang agar setiap baris bisa dibuka di layar Pembelian
+/// (yang juga per cabang); hutang tetap dihitung se-tenant.
 Future<List<PurchaseRow>> listSupplierPurchases(
   LakunaStore store,
   CatalogScope scope,
@@ -378,6 +380,7 @@ Future<List<PurchaseRow>> listSupplierPurchases(
     session,
     where: (p) =>
         p.tenantId.equals(scope.tenantId) &
+        p.outletId.equals(scope.outletId) &
         p.supplierId.equals(supplierId) &
         p.status.equals(PurchaseStatus.received) &
         p.deletedAt.equals(null),

@@ -1,7 +1,7 @@
 # F1-14 · Supplier & hutang
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.18.0)
+- **Status:** Rilis v0.18.0
 - **Layar desain:** 1.21 *Supplier & hutang · desktop* di kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525).
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-14-supplier-hutang-design.md`
@@ -86,7 +86,10 @@ bawaan 14), Alamat, Catatan.
    pembayaran hutang − pengurang hutang retur beli, minimum 0. Draf tidak
    berhutang. Saldo tidak pernah disimpan sebagai angka (ledger).
 2. **Hutang dihitung per tenant** (semua cabang), sama dengan piutang
-   pelanggan. Supplier milik tenant.
+   pelanggan. Supplier milik tenant. Nomor pembelian memuat kode cabang,
+   jadi baris hutang dari cabang lain tetap bisa dikenali. *Riwayat
+   pembelian* di panel supplier hanya memuat pembelian cabang ini, karena
+   detail pembelian dibuka di layar Pembelian yang juga per cabang.
 3. **Pembayaran** memakai `debt_payments` dengan `party = supplier`,
    `supplier_id`, `funding_source`, nomor
    `BH-<OUTLET>-<PERANGKAT>-<yymmdd>-NNNN` (bayar hutang; piutang memakai
@@ -112,11 +115,14 @@ bawaan 14), Alamat, Catatan.
    - Menu *Supplier*: `suppliers:manage` **atau** `debts:manage`.
    - Tambah/ubah/hapus supplier: `suppliers:manage`.
    - Bayar hutang: `debts:manage` (+ `cash_movements:create` untuk laci).
-   - Dicek di menu, layar, repositori aplikasi, dan lapisan data.
+   - Dicek di menu, layar, dan repositori aplikasi (termasuk izin kas laci
+     sebelum menyimpan); lapisan data mengecek ulang semua aksi tulis.
+     Baca (daftar, detail, riwayat, foto bukti) dijaga di repositori
+     aplikasi.
 10. **Supplier**: nama wajib (≤ 120, sama dengan F1-12), unik per tenant tanpa membedakan huruf
     besar/kecil; telepon dinormalisasi seperti pelanggan (boleh kosong,
     tidak wajib unik karena satu sales bisa memegang beberapa supplier);
-    tempo 0–365 hari; teks lain ≤ 120 (alamat ≤ 200, catatan ≤ 500).
+    tempo 0–365 hari; kontak dan kategori ≤ 60, alamat ≤ 200, catatan ≤ 500.
 11. **Hapus supplier** ditolak bila masih berhutang; pembelian lama tetap
     menampilkan namanya.
 12. **Pembelian**: jatuh tempo bawaan = tanggal beli + tempo standar
@@ -160,6 +166,9 @@ bawaan 14), Alamat, Catatan.
 | Import supplier | — | Belum | Pola import pelanggan. |
 | Batal pembayaran hutang | — | Belum | Void + jurnal balik kas. |
 | Umur hutang | — | Belum | F1-16 Laporan. |
+| Hapus supplier yang hanya punya draf pembelian | — | Diizinkan | Draf itu gagal diterima (supplier tidak ada); pertimbangkan blokir atau pesan jelas. |
+| Riwayat pembelian lintas cabang | — | Per cabang | Dashboard semua cabang di Fase 2. |
+| Daftar hutang membaca semua pembelian diterima | — | v0.18.0 | Saring `paid_amount < total` di SQL bila data besar. |
 
 ## Kriteria selesai
 

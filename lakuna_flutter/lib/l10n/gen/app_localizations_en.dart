@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B checkout, cash sessions, products, stock, transaction history, purchases, and customers & receivables are ready to use. Suppliers and reports follow in upcoming releases.';
+      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, and suppliers & payables are ready to use. Expenses and reports are coming in the next releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -4173,10 +4173,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchasePayDebt => 'Pay payable';
-
-  @override
-  String get purchasePayDebtLater =>
-      'Paying off payables comes with the Suppliers & payables module.';
 
   @override
   String get purchaseActions => 'Actions';

@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -7183,12 +7183,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bayar hutang'**
   String get purchasePayDebt;
-
-  /// No description provided for @purchasePayDebtLater.
-  ///
-  /// In id, this message translates to:
-  /// **'Pelunasan hutang menyusul di modul Supplier & hutang.'**
-  String get purchasePayDebtLater;
 
   /// No description provided for @purchaseActions.
   ///

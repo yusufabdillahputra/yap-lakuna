@@ -202,6 +202,22 @@ void main() {
       expect(edited.termDays, 30);
       expect(edited.address, 'Jl. Raya 1');
       expect(edited.contactName, isNull);
+
+      // Ganti nama ke nama supplier lain (beda huruf besar) ditolak.
+      final other = await supplier('UD Makmur');
+      await expectLater(
+        saveSupplier(
+          store,
+          scope,
+          staffId: owner(),
+          input: SupplierInput(
+            id: other.id,
+            name: 'cv sumber pangan JAYA',
+            termDays: 14,
+          ),
+        ),
+        throwsA(isA<SupplierNameTaken>()),
+      );
     });
 
     test('hapus ditolak selama masih berhutang', () async {
@@ -326,6 +342,19 @@ void main() {
       await expectLater(
         pay(s, 1000, paidOn: DateTime.utc(2026, 11, 5)),
         throwsA(isA<SupplierPaymentDateInvalid>()),
+      );
+      // Alokasi ke pembelian supplier lain ditolak.
+      final lain = await supplier('UD Makmur');
+      final c = await buy(lain, kg: 5, dueOn: DateTime(2026, 11, 10));
+      await expectLater(
+        pay(s, 10000, allocations: {c.id: const Money(10000)}),
+        throwsA(
+          isA<SupplierPaymentInvalid>().having(
+            (e) => e.issue,
+            'issue',
+            DebtPaymentIssue.allocationUnknown,
+          ),
+        ),
       );
       await pay(
         s,

@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, transaction history, purchases, and customers & receivables are ready to use. Suppliers and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, and suppliers & payables are ready to use. Expenses and reports are coming in the next releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",

@@ -375,7 +375,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         ? FundingKind.storeCash
         : fundingKind(p.fundingSource!);
     _dueOn = p.dueOn == null
-        ? _plusDays(_purchasedOn, defaultTermDays)
+        ? _plusDays(_purchasedOn, _termDays)
         : _date(p.dueOn!);
     _note = p.note ?? '';
     _attempt = null;

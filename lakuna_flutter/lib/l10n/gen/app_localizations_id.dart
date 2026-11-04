@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -4061,10 +4061,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchasePayDebt => 'Bayar hutang';
-
-  @override
-  String get purchasePayDebtLater =>
-      'Pelunasan hutang menyusul di modul Supplier & hutang.';
 
   @override
   String get purchaseActions => 'Tindakan';

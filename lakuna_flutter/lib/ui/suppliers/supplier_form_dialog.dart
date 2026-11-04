@@ -108,89 +108,100 @@ class _SupplierFormDialogState extends State<SupplierFormDialog> {
         constraints: BoxConstraints(
           maxHeight: MediaQuery.sizeOf(context).height * 0.85,
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            key: const ValueKey('supplier-form'),
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(
-                vm.isEdit ? l10n.supplierFormEdit : l10n.supplierFormNew,
-                style: theme.typography.display.lg.copyWith(
-                  fontWeight: FontWeight.w600,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                child: Column(
+                  key: const ValueKey('supplier-form'),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 12,
+                  children: [
+                    Text(
+                      vm.isEdit ? l10n.supplierFormEdit : l10n.supplierFormNew,
+                      style: theme.typography.display.lg.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    field(
+                      'name',
+                      l10n.supplierFieldName,
+                      vm.name,
+                      vm.setName,
+                      issue: SupplierIssue.name,
+                      autofocus: true,
+                    ),
+                    field(
+                      'contact',
+                      l10n.supplierFieldContact,
+                      vm.contactName,
+                      vm.setContactName,
+                      issue: SupplierIssue.contactName,
+                    ),
+                    field(
+                      'phone',
+                      l10n.supplierFieldPhone,
+                      formatPhone(vm.phone),
+                      vm.setPhone,
+                      issue: SupplierIssue.phone,
+                      hint: '021-555-0101',
+                      keyboard: TextInputType.phone,
+                    ),
+                    field(
+                      'category',
+                      l10n.supplierFieldCategory,
+                      vm.category,
+                      vm.setCategory,
+                      issue: SupplierIssue.category,
+                      hint: l10n.supplierCategoryHint,
+                    ),
+                    field(
+                      'term',
+                      l10n.supplierFieldTerm,
+                      vm.termDays < 0 ? '' : '${vm.termDays}',
+                      vm.setTermDays,
+                      issue: SupplierIssue.termDays,
+                      description: l10n.supplierTermHint,
+                      keyboard: TextInputType.number,
+                      formatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                      ],
+                    ),
+                    field(
+                      'address',
+                      l10n.supplierFieldAddress,
+                      vm.address,
+                      vm.setAddress,
+                      issue: SupplierIssue.address,
+                      maxLines: 2,
+                    ),
+                    field(
+                      'note',
+                      l10n.supplierFieldNote,
+                      vm.note,
+                      vm.setNote,
+                      issue: SupplierIssue.note,
+                    ),
+                    if (saveError != null)
+                      Text(
+                        saveError,
+                        key: const ValueKey('supplier-form-error'),
+                        style: theme.typography.body.sm.copyWith(
+                          color: theme.colors.destructive,
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              field(
-                'name',
-                l10n.supplierFieldName,
-                vm.name,
-                vm.setName,
-                issue: SupplierIssue.name,
-                autofocus: true,
-              ),
-              field(
-                'contact',
-                l10n.supplierFieldContact,
-                vm.contactName,
-                vm.setContactName,
-                issue: SupplierIssue.contactName,
-              ),
-              field(
-                'phone',
-                l10n.supplierFieldPhone,
-                formatPhone(vm.phone),
-                vm.setPhone,
-                issue: SupplierIssue.phone,
-                hint: '021-555-0101',
-                keyboard: TextInputType.phone,
-              ),
-              field(
-                'category',
-                l10n.supplierFieldCategory,
-                vm.category,
-                vm.setCategory,
-                issue: SupplierIssue.category,
-                hint: l10n.supplierCategoryHint,
-              ),
-              field(
-                'term',
-                l10n.supplierFieldTerm,
-                vm.termDays < 0 ? '' : '${vm.termDays}',
-                vm.setTermDays,
-                issue: SupplierIssue.termDays,
-                description: l10n.supplierTermHint,
-                keyboard: TextInputType.number,
-                formatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-              ),
-              field(
-                'address',
-                l10n.supplierFieldAddress,
-                vm.address,
-                vm.setAddress,
-                issue: SupplierIssue.address,
-                maxLines: 2,
-              ),
-              field(
-                'note',
-                l10n.supplierFieldNote,
-                vm.note,
-                vm.setNote,
-                issue: SupplierIssue.note,
-              ),
-              if (saveError != null)
-                Text(
-                  saveError,
-                  key: const ValueKey('supplier-form-error'),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.destructive,
-                  ),
-                ),
-              Wrap(
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 alignment: WrapAlignment.end,
@@ -210,8 +221,8 @@ class _SupplierFormDialogState extends State<SupplierFormDialog> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     },

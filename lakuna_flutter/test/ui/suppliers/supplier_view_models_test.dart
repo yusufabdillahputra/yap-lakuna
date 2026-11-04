@@ -140,6 +140,14 @@ void main() {
       noPermission.dispose();
     });
 
+    test('muat ulang menyegarkan status sesi kasir', () async {
+      vm.setFunding(FundingSource.drawer);
+      expect(vm.drawerIssue, isNull);
+      repo.hasOpenSession = false;
+      await vm.load.execute();
+      expect(vm.drawerIssue, DrawerIssue.noSession);
+    });
+
     test('simpan: kirim permintaan, kosongkan isian, muat ulang', () async {
       picker.next = PickedImage(
         name: 'bukti.png',

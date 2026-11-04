@@ -172,14 +172,14 @@ class SupplierPanelViewModel extends ChangeNotifier {
           null;
 
   Future<Result<void>> _load() async {
-    if (_setup == null) {
-      switch (await _repository.load()) {
-        case Ok(:final value):
-          _setup = value;
-        case Error(:final error):
-          _error = error;
-          return Result.error(error);
-      }
+    // Setup dimuat ulang setiap kali agar status sesi kasir (kas laci)
+    // tidak basi bila sesi dibuka/ditutup selama panel terbuka.
+    switch (await _repository.load()) {
+      case Ok(:final value):
+        _setup = value;
+      case Error(:final error):
+        _error = error;
+        return Result.error(error);
     }
     switch (await _repository.detail(supplierId)) {
       case Ok(:final value):

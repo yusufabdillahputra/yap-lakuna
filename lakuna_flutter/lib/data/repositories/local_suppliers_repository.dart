@@ -61,11 +61,23 @@ class LocalSuppliersRepository extends SuppliersRepository {
   );
 
   @override
-  Future<Result<DebtPayment>> pay(SupplierPaymentRequest request) => _guard(
-    permission: Permission.debtsManage,
-    (_, scope, staff) =>
-        paySupplierDebt(_store, scope, staffId: staff.id, request: request),
-  );
+  Future<Result<DebtPayment>> pay(SupplierPaymentRequest request) {
+    final drawer = request.funding == FundingSource.drawer;
+    final staff = _session.current;
+    if (drawer &&
+        staff != null &&
+        staff.can(Permission.debtsManage) &&
+        !staff.can(Permission.cashMovementsCreate)) {
+      return Future.value(
+        const Result.error(NotPermitted(Permission.cashMovementsCreate)),
+      );
+    }
+    return _guard(
+      permission: Permission.debtsManage,
+      (_, scope, staff) =>
+          paySupplierDebt(_store, scope, staffId: staff.id, request: request),
+    );
+  }
 
   @override
   Future<Result<List<PurchaseRow>>> purchases(UuidValue supplierId) => _guard(
