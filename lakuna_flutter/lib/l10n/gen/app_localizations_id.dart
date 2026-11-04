@@ -6801,4 +6801,45 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeDeviceTitle => 'Info perangkat';
+
+  @override
+  String get guideTitle => 'Panduan';
+
+  @override
+  String get guideOffline => 'Tersedia offline';
+
+  @override
+  String get guideSearchLabel => 'Cari panduan';
+
+  @override
+  String get guideSearchHint => 'Cari: cara retur, QRIS, backup…';
+
+  @override
+  String get guideLanguageLabel => 'Bahasa panduan';
+
+  @override
+  String get guideContents => 'Daftar isi';
+
+  @override
+  String guideResults(int count) {
+    return '$count hasil pencarian';
+  }
+
+  @override
+  String get guideNoResults => 'Tidak ada artikel yang cocok';
+
+  @override
+  String get guideLoadError => 'Panduan gagal dimuat';
+
+  @override
+  String get guideRetry => 'Coba lagi';
+
+  @override
+  String get guidePrevious => 'Sebelumnya';
+
+  @override
+  String get guideNext => 'Berikutnya';
+
+  @override
+  String get guideImageMissing => 'Gambar belum tersedia';
 }

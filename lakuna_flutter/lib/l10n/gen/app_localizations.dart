@@ -11995,6 +11995,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Info perangkat'**
   String get homeDeviceTitle;
+
+  /// No description provided for @guideTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan'**
+  String get guideTitle;
+
+  /// No description provided for @guideOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersedia offline'**
+  String get guideOffline;
+
+  /// No description provided for @guideSearchLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari panduan'**
+  String get guideSearchLabel;
+
+  /// No description provided for @guideSearchHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari: cara retur, QRIS, backup…'**
+  String get guideSearchHint;
+
+  /// No description provided for @guideLanguageLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa panduan'**
+  String get guideLanguageLabel;
+
+  /// No description provided for @guideContents.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar isi'**
+  String get guideContents;
+
+  /// No description provided for @guideResults.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} hasil pencarian'**
+  String guideResults(int count);
+
+  /// No description provided for @guideNoResults.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada artikel yang cocok'**
+  String get guideNoResults;
+
+  /// No description provided for @guideLoadError.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan gagal dimuat'**
+  String get guideLoadError;
+
+  /// No description provided for @guideRetry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get guideRetry;
+
+  /// No description provided for @guidePrevious.
+  ///
+  /// In id, this message translates to:
+  /// **'Sebelumnya'**
+  String get guidePrevious;
+
+  /// No description provided for @guideNext.
+  ///
+  /// In id, this message translates to:
+  /// **'Berikutnya'**
+  String get guideNext;
+
+  /// No description provided for @guideImageMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar belum tersedia'**
+  String get guideImageMissing;
 }
 
 class _AppLocalizationsDelegate

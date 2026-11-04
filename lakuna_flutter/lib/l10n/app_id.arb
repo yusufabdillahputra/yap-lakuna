@@ -4314,5 +4314,25 @@
   "homeDeviceTitle": "Info perangkat",
   "@homeDeviceTitle": {
     "placeholders": {}
-  }
+  },
+  "guideTitle": "Panduan",
+  "guideOffline": "Tersedia offline",
+  "guideSearchLabel": "Cari panduan",
+  "guideSearchHint": "Cari: cara retur, QRIS, backup…",
+  "guideLanguageLabel": "Bahasa panduan",
+  "guideContents": "Daftar isi",
+  "guideResults": "{count} hasil pencarian",
+  "@guideResults": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideNoResults": "Tidak ada artikel yang cocok",
+  "guideLoadError": "Panduan gagal dimuat",
+  "guideRetry": "Coba lagi",
+  "guidePrevious": "Sebelumnya",
+  "guideNext": "Berikutnya",
+  "guideImageMissing": "Gambar belum tersedia"
 }

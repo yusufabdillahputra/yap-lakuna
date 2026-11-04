@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart' show Money, Permission;
 
+import '../data/repositories/guide_repository.dart';
 import '../data/repositories/backup_repository.dart';
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
@@ -28,6 +29,7 @@ import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
 import '../data/services/spreadsheet_exporter.dart';
 import '../data/services/table_file.dart';
+import '../ui/guide/guide_screen.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
@@ -90,11 +92,13 @@ GoRouter createRouter({
   required ReceiptPrinter receiptPrinter,
   required BackupRepository backup,
   BackupFiles backupFiles = const PlatformBackupFiles(),
+  GuideRepository? guide,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
   TableFilePicker tablePicker = const FileSelectorTablePicker(),
   String initialLocation = Routes.home,
 }) {
+  final guideRepository = guide ?? AssetGuideRepository();
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([store, session]),
@@ -494,6 +498,13 @@ GoRouter createRouter({
           GoRoute(
             path: Routes.account,
             builder: (context, state) => MyAccountScreen(repository: users),
+          ),
+          GoRoute(
+            path: Routes.guide,
+            builder: (context, state) => GuideScreen(
+              repository: guideRepository,
+              initialSlug: state.uri.queryParameters['artikel'],
+            ),
           ),
           GoRoute(
             path: '/modul/:key',

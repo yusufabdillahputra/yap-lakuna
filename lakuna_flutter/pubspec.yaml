@@ -54,6 +54,12 @@ flutter:
   assets:
     # Instans statis untuk PDF kuitansi (paket pdf tidak membaca font variabel).
     - assets/fonts/pdf/
+    # Panduan pengguna offline (F1-21).
+    - assets/guide/
+    - assets/guide/id/
+    - assets/guide/en/
+    - assets/guide/img/id/
+    - assets/guide/img/en/
   fonts:
     - family: Montserrat
       fonts:

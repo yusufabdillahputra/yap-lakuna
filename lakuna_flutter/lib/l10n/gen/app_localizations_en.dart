@@ -6943,4 +6943,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeDeviceTitle => 'Device info';
+
+  @override
+  String get guideTitle => 'Guide';
+
+  @override
+  String get guideOffline => 'Available offline';
+
+  @override
+  String get guideSearchLabel => 'Search the guide';
+
+  @override
+  String get guideSearchHint => 'Search: returns, QRIS, backup…';
+
+  @override
+  String get guideLanguageLabel => 'Guide language';
+
+  @override
+  String get guideContents => 'Contents';
+
+  @override
+  String guideResults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count search results',
+      one: '1 search result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get guideNoResults => 'No matching articles';
+
+  @override
+  String get guideLoadError => 'The guide could not be loaded';
+
+  @override
+  String get guideRetry => 'Try again';
+
+  @override
+  String get guidePrevious => 'Previous';
+
+  @override
+  String get guideNext => 'Next';
+
+  @override
+  String get guideImageMissing => 'Image not available';
 }

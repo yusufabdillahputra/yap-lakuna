@@ -93,11 +93,11 @@ void main() {
     expect(find.byKey(const ValueKey('sidebar')), findsOneWidget);
   });
 
-  testWidgets('menu modul yang belum dibangun membuka halaman segera hadir', (
+  testWidgets('modul tak dikenal membuka halaman segera hadir', (
     tester,
   ) async {
-    await pumpLakuna(tester, initialLocation: Routes.module('guide'));
-    expect(find.text('Panduan segera hadir'), findsOneWidget);
+    await pumpLakuna(tester, initialLocation: Routes.module('lain'));
+    expect(find.textContaining('segera hadir'), findsOneWidget);
   });
 
   testWidgets('menu Pengguna & role membuka daftar pengguna', (tester) async {

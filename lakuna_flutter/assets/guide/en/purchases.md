@@ -1,0 +1,24 @@
+# Recording purchases
+
+A purchase records goods coming in from a supplier: stock goes up, the average cost (COGS) is updated, and any unpaid amount becomes a payable.
+
+![A new purchase paid in part; the rest becomes a payable.](purchase)
+
+## Steps
+
+1. Open **Purchases**, then **New purchase**.
+2. Choose the **Supplier**, or **+ New supplier** to type a new name. Fill in the **Supplier invoice no.**, **Date**, and **Receive into** location.
+3. Tap **+ Scan / search product**, then enter the unit, quantity, and cost price for each line.
+4. Enter the **Invoice discount** and **Shipping** if any. Shipping is added to the cost of the goods.
+5. Enter **Pay now** and its source (**Store cash**, **Cash drawer**, or **Bank account**), or tap **Pay in full**. The rest becomes a payable with a **Balance due on** date.
+6. Tap **Receive goods & save**. Use **Save draft** if the goods have not arrived yet.
+
+## After saving
+
+The purchase detail shows the new average cost and a *Suggested price* that keeps your margin. Tick the products whose price you want to change, then **Apply sell price**.
+
+## Purchase returns
+
+In the purchase detail, tap **Purchase return**, enter the return quantities, then **Process return**. A return lowers stock and the payable; if the purchase is already paid, choose where the refund goes.
+
+> [!note] Paying from the cash drawer needs an open cash session on this device. A received purchase cannot be deleted, only returned.
