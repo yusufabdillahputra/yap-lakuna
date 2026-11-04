@@ -230,18 +230,6 @@ abstract class AppLocalizations {
   /// **'Sistem'**
   String get menuGroupSystem;
 
-  /// No description provided for @homeWelcomeTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Selamat datang di Lakuna'**
-  String get homeWelcomeTitle;
-
-  /// No description provided for @homeWelcomeBody.
-  ///
-  /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.'**
-  String get homeWelcomeBody;
-
   /// No description provided for @homeDeviceLabel.
   ///
   /// In id, this message translates to:
@@ -11870,30 +11858,6 @@ abstract class AppLocalizations {
   /// **'Tersedia di versi hosting (Fase 2).'**
   String get backupHostingSoon;
 
-  /// No description provided for @homeBackupTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Perlu perhatian'**
-  String get homeBackupTitle;
-
-  /// No description provided for @homeBackupNever.
-  ///
-  /// In id, this message translates to:
-  /// **'Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.'**
-  String get homeBackupNever;
-
-  /// No description provided for @homeBackupDays.
-  ///
-  /// In id, this message translates to:
-  /// **'Backup terakhir {days} hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.'**
-  String homeBackupDays(int days);
-
-  /// No description provided for @homeBackupAction.
-  ///
-  /// In id, this message translates to:
-  /// **'Buka Data & backup'**
-  String get homeBackupAction;
-
   /// No description provided for @startupErrorTitle.
   ///
   /// In id, this message translates to:
@@ -11929,6 +11893,108 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.'**
   String get homeRestoreFailedBody;
+
+  /// No description provided for @homeGreetingMorning.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat pagi, {name}'**
+  String homeGreetingMorning(String name);
+
+  /// No description provided for @homeGreetingMidday.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat siang, {name}'**
+  String homeGreetingMidday(String name);
+
+  /// No description provided for @homeGreetingAfternoon.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat sore, {name}'**
+  String homeGreetingAfternoon(String name);
+
+  /// No description provided for @homeGreetingNight.
+  ///
+  /// In id, this message translates to:
+  /// **'Selamat malam, {name}'**
+  String homeGreetingNight(String name);
+
+  /// No description provided for @homeSalesTodayTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan hari ini'**
+  String get homeSalesTodayTitle;
+
+  /// No description provided for @homeSalesTodayDetail.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} transaksi · rata-rata {average}'**
+  String homeSalesTodayDetail(int count, String average);
+
+  /// No description provided for @homeModulesLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Modul'**
+  String get homeModulesLabel;
+
+  /// No description provided for @homeAttentionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu perhatian'**
+  String get homeAttentionTitle;
+
+  /// No description provided for @homeAttentionLowStock.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} produk di bawah stok minimum'**
+  String homeAttentionLowStock(int count);
+
+  /// No description provided for @homeAttentionPendingQris.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pembayaran QRIS menunggu konfirmasi'**
+  String homeAttentionPendingQris(int count);
+
+  /// No description provided for @homeAttentionBackupToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir hari ini {time}'**
+  String homeAttentionBackupToday(String time);
+
+  /// No description provided for @homeAttentionBackupYesterday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir kemarin {time}'**
+  String homeAttentionBackupYesterday(String time);
+
+  /// No description provided for @homeAttentionBackupDays.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir {days} hari lalu'**
+  String homeAttentionBackupDays(int days);
+
+  /// No description provided for @homeAttentionBackupNever.
+  ///
+  /// In id, this message translates to:
+  /// **'Data belum pernah di-backup'**
+  String get homeAttentionBackupNever;
+
+  /// No description provided for @homeAttentionView.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat'**
+  String get homeAttentionView;
+
+  /// No description provided for @homeAttentionClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua beres, tidak ada yang perlu ditindak.'**
+  String get homeAttentionClear;
+
+  /// No description provided for @homeDeviceTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Info perangkat'**
+  String get homeDeviceTitle;
 }
 
 class _AppLocalizationsDelegate

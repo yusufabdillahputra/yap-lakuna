@@ -49,7 +49,7 @@ void main() {
     );
     expect(find.text('Masukkan PIN Yusuf'), findsOneWidget);
     await _typePin(tester, '123456');
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.byKey(const ValueKey('switch-cashier')), findsOneWidget);
     expect(find.text('Ganti kasir'), findsOneWidget);
   });
@@ -99,7 +99,7 @@ void main() {
     }
     await tester.pumpAndSettle();
     expect(session.pinAttempts, ['123456']);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
   });
 
   testWidgets('kasir hanya melihat menu sesuai izinnya; ganti kasir', (
@@ -134,7 +134,7 @@ void main() {
       session: session,
       initialLocation: Routes.module('users'),
     );
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
   });
 
   testWidgets('pemilik masuk dengan email dan kata sandi', (tester) async {
@@ -174,7 +174,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('login-submit')));
     await tester.pumpAndSettle();
     expect(session.current, owner);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
   });
 
   testWidgets('mobile: pilih staf, PIN, lalu navigasi bawah sesuai izin', (

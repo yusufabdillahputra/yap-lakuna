@@ -232,6 +232,19 @@ BillSplit? _computeSplit(
   );
 }
 
+/// Jumlah pembayaran QRIS bagian yang menunggu konfirmasi pada bill
+/// terbuka cabang [scope] (kartu *Perlu perhatian* di Beranda, F1-20).
+Future<int> pendingQrisCount(LakunaStore store, CatalogScope scope) async {
+  final session = store.session;
+  final bills = await _openSales(session, scope);
+  final payments = await _billPayments(
+    session,
+    scope.tenantId,
+    bills.map((s) => s.id),
+  );
+  return payments.where((p) => p.status == PaymentStatus.pending).length;
+}
+
 /// Pembayaran (belum dihapus) bill [saleIds], urut dibuat.
 Future<List<Payment>> _billPayments(
   DatabaseSession session,

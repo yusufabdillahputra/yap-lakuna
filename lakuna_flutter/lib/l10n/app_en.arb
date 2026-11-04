@@ -22,8 +22,6 @@
   "menuGroupContacts": "Contacts",
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
-  "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B checkout, cashier sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, reports & profit and loss, and users & roles are ready to use.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -3653,17 +3651,6 @@
   "backupHostingCode": "Activation code",
   "backupHostingConnect": "Connect & upload data",
   "backupHostingSoon": "Available in the hosted version (phase 2).",
-  "homeBackupTitle": "Needs attention",
-  "homeBackupNever": "Data has never been backed up. Back up now so nothing is lost if the device breaks.",
-  "homeBackupDays": "Last backup was {days} days ago. Back up now so nothing is lost if the device breaks.",
-  "@homeBackupDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "homeBackupAction": "Open Data & backup",
   "startupErrorTitle": "Lakuna could not start",
   "startupErrorBody": "The database on this device could not be opened. Your data was not deleted. Copy the details below and contact support.",
   "startupErrorPath": "Data location: {path}",
@@ -3681,6 +3668,117 @@
   },
   "homeRestoreFailedBody": "The database from the backup could not be opened, so your previous data was put back. The failed backup is kept in a pulihkan-gagal folder in the data location.",
   "@homeRestoreFailedBody": {
+    "placeholders": {}
+  },
+  "homeGreetingMorning": "Good morning, {name}",
+  "@homeGreetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingMidday": "Good day, {name}",
+  "@homeGreetingMidday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingAfternoon": "Good afternoon, {name}",
+  "@homeGreetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingNight": "Good evening, {name}",
+  "@homeGreetingNight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSalesTodayTitle": "Today's sales",
+  "@homeSalesTodayTitle": {
+    "placeholders": {}
+  },
+  "homeSalesTodayDetail": "{count, plural, =1{1 transaction} other{{count} transactions}} · average {average}",
+  "@homeSalesTodayDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "homeModulesLabel": "Modules",
+  "@homeModulesLabel": {
+    "placeholders": {}
+  },
+  "homeAttentionTitle": "Needs attention",
+  "@homeAttentionTitle": {
+    "placeholders": {}
+  },
+  "homeAttentionLowStock": "{count, plural, =1{1 product} other{{count} products}} below minimum stock",
+  "@homeAttentionLowStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionPendingQris": "{count, plural, =1{1 QRIS payment} other{{count} QRIS payments}} awaiting confirmation",
+  "@homeAttentionPendingQris": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionBackupToday": "Last backup today at {time}",
+  "@homeAttentionBackupToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAttentionBackupYesterday": "Last backup yesterday at {time}",
+  "@homeAttentionBackupYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAttentionBackupDays": "Last backup {days, plural, =1{1 day} other{{days} days}} ago",
+  "@homeAttentionBackupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionBackupNever": "Data has never been backed up",
+  "@homeAttentionBackupNever": {
+    "placeholders": {}
+  },
+  "homeAttentionView": "View",
+  "@homeAttentionView": {
+    "placeholders": {}
+  },
+  "homeAttentionClear": "All good, nothing needs action.",
+  "@homeAttentionClear": {
+    "placeholders": {}
+  },
+  "homeDeviceTitle": "Device info",
+  "@homeDeviceTitle": {
     "placeholders": {}
   }
 }

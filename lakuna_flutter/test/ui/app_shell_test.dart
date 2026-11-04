@@ -9,7 +9,7 @@ void main() {
     tester,
   ) async {
     await pumpLakuna(tester);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.text('Offline · data di perangkat ini'), findsOneWidget);
     expect(find.text('0192f3a1-7c00-7000-8000-000000000001'), findsOneWidget);
   });
@@ -38,8 +38,12 @@ void main() {
       'Panduan',
     ]) {
       // Sidebar memakai daftar malas: gulir sampai entri dibangun.
+      final inSidebar = find.descendant(
+        of: find.byKey(const ValueKey('sidebar')),
+        matching: find.text(label),
+      );
       await tester.scrollUntilVisible(
-        find.text(label),
+        inSidebar,
         120,
         scrollable: find
             .descendant(
@@ -48,7 +52,7 @@ void main() {
             )
             .first,
       );
-      expect(find.text(label), findsWidgets, reason: label);
+      expect(inSidebar, findsOneWidget, reason: label);
     }
     await tester.pumpAndSettle();
   });

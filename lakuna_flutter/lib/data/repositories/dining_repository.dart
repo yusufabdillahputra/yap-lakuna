@@ -87,6 +87,9 @@ abstract class DiningRepository {
   /// Meja dan bill terbuka saja (tanpa menu).
   Future<Result<DiningOverview>> overview();
 
+  /// Jumlah QRIS bagian split bill yang menunggu konfirmasi (Beranda).
+  Future<Result<int>> pendingQrisCount();
+
   Future<Result<OpenBill>> openTable(UuidValue tableId, int guests);
 
   Future<Result<OpenBill>> openTakeAway(String? customerName);

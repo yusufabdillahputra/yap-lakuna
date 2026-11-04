@@ -57,7 +57,7 @@ void main() {
     await pumpLakuna(tester, store: FakeStoreRepository());
     expect(find.text('Siapkan toko Anda dalam 4 langkah'), findsOneWidget);
     expect(find.byKey(const ValueKey('onboarding-side-panel')), findsOneWidget);
-    expect(find.text('Selamat datang di Lakuna'), findsNothing);
+    expect(find.byKey(const ValueKey('home-greeting')), findsNothing);
   });
 
   testWidgets('galat tampil dan langkah tidak berpindah bila isian kosong', (
@@ -101,7 +101,7 @@ void main() {
 
     expect(store.setupCalls.single.outletCode, 'BDG');
     expect(store.setupCalls.single.businessType, BusinessKind.fnb);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.text('Warung Contoh · Cabang Pusat · K01'), findsOneWidget);
   });
 
@@ -154,7 +154,7 @@ void main() {
     tester,
   ) async {
     await pumpLakuna(tester, initialLocation: Routes.setup);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.text('Siapkan toko Anda dalam 4 langkah'), findsNothing);
   });
 }

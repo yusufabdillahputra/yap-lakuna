@@ -213,7 +213,7 @@ void main() {
       session: FakeSessionRepository(staff: [staff])..current = staff,
     );
     expect(find.text('Sesi kasir'), findsNothing);
-    expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
   });
 
   for (final size in const [Size(1280, 800), Size(360, 740)]) {

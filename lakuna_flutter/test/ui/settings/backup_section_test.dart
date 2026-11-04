@@ -114,8 +114,8 @@ void main() {
     expect(_key('backup-section'), findsNothing);
   });
 
-  group('pengingat Beranda', () {
-    testWidgets('belum pernah backup: pengingat dan tombol ke Pengaturan', (
+  group('baris backup di Beranda', () {
+    testWidgets('belum pernah backup: baris dan tautan ke Pengaturan', (
       tester,
     ) async {
       await pumpLakuna(
@@ -123,17 +123,23 @@ void main() {
         size: const Size(1440, 900),
         backup: FakeBackupRepository(),
       );
-      expect(_key('home-backup-reminder'), findsOneWidget);
-      await _tap(tester, 'home-backup-action');
+      expect(
+        tester.widget<Text>(_key('home-attention-backup-text')).data,
+        'Data belum pernah di-backup',
+      );
+      await _tap(tester, 'home-attention-backup-view');
       expect(_key('backup-section'), findsOneWidget);
     });
 
-    testWidgets('backup baru: tanpa pengingat', (tester) async {
+    testWidgets('backup baru: hari ini', (tester) async {
       await pumpLakuna(tester, size: const Size(1440, 900));
-      expect(_key('home-backup-reminder'), findsNothing);
+      expect(
+        tester.widget<Text>(_key('home-attention-backup-text')).data,
+        startsWith('Backup terakhir hari ini'),
+      );
     });
 
-    testWidgets('kasir tidak diingatkan', (tester) async {
+    testWidgets('kasir tidak melihat baris backup', (tester) async {
       await pumpLakuna(
         tester,
         size: const Size(360, 740),
@@ -142,7 +148,7 @@ void main() {
           current: sampleStaff(name: 'Dimas', role: 'cashier'),
         ),
       );
-      expect(_key('home-backup-reminder'), findsNothing);
+      expect(_key('home-attention-backup'), findsNothing);
     });
   });
 

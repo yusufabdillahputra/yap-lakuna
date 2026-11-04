@@ -10,16 +10,24 @@ StoreContext sampleStoreContext({
   String outletName = 'Cabang Pusat',
   String outletCode = 'PST',
   String deviceCode = 'K01',
+  String? timezone,
+  BusinessType businessType = BusinessType.retail,
 }) {
   final tenantId = UuidValue.fromString(newId());
   final outletId = UuidValue.fromString(newId());
   return StoreContext(
-    tenant: Tenant(id: tenantId, name: businessName, hlc: 'h'),
+    tenant: Tenant(
+      id: tenantId,
+      name: businessName,
+      businessType: businessType,
+      hlc: 'h',
+    ),
     outlet: Outlet(
       id: outletId,
       tenantId: tenantId,
       code: outletCode,
       name: outletName,
+      timezone: timezone,
       hlc: 'h',
     ),
     device: Device(
