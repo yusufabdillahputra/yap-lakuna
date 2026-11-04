@@ -459,4 +459,87 @@ void main() {
     expect(await listProducts(store, scope), hasLength(1));
     expect(await listCategories(store, scope), hasLength(1));
   });
+
+  group('import produk (F1-07b)', () {
+    List<ProductImportRow> rows(List<List<String>> body) => productImportRows([
+      ['nama', 'kategori', 'satuan', 'sku', 'barcode', 'harga jual', 'stok'],
+      ...body,
+    ]).rows;
+
+    Future<ProductImportSummary> run(List<ProductImportRow> r) =>
+        importProducts(store, scope, staffId: ctx.owner.id, rows: r);
+
+    test('produk baru, kategori dipakai ulang, stok awal di ledger', () async {
+      await save(_minyak());
+      final summary = await run(
+        rows([
+          ['Gula Pasir 1 kg', 'sembako', 'kg', 'GLA', '', '17500', '40'],
+          ['Teh Botol', 'Minuman', '', '', '8990001', '5000', '1,5'],
+        ]),
+      );
+      expect(summary.created, 2);
+      expect(summary.skippedLines, isEmpty);
+      final list = await listProducts(store, scope);
+      final gula = list.firstWhere((p) => p.name == 'Gula Pasir 1 kg');
+      final minyak = list.firstWhere((p) => p.name == 'Minyak Goreng');
+      expect(gula.categoryId, minyak.categoryId);
+      expect(gula.baseUnit, 'kg');
+      expect(gula.variants.single.sku, 'GLA');
+      expect(gula.variants.single.sellPrice, const Money(17500));
+      expect(gula.variants.single.stock, Qty.units(40));
+      final teh = list.firstWhere((p) => p.name == 'Teh Botol');
+      expect(teh.baseUnit, 'pcs');
+      expect(teh.variants.single.stock, const Qty(1500));
+      final moves = await StockMovement.db.find(
+        store.session,
+        where: (m) => m.sourceType.equals(StockSourceType.opening),
+      );
+      expect(moves, hasLength(3));
+    });
+
+    test('nama, SKU, atau barcode yang sudah ada dilewati; import ulang '
+        'idempoten', () async {
+      await save(_minyak());
+      final file = rows([
+        ['minyak  goreng', '', '', '', '', '36000', ''],
+        ['Minyak Curah', '', '', 'myk-2l', '', '15000', ''],
+        ['Minyak Dus', '', '', '', '8991234500031', '210000', ''],
+        ['Kecap Manis', '', 'botol', '', '', '9000', '12'],
+      ]);
+      final first = await run(file);
+      expect(first.created, 1);
+      expect(first.skippedLines, [2, 3, 4]);
+      final again = await run(file);
+      expect(again.created, 0);
+      expect(again.skippedLines, [2, 3, 4, 5]);
+      final list = await listProducts(store, scope);
+      expect(
+        list.map((p) => p.name),
+        unorderedEquals(['Minyak Goreng', 'Kecap Manis']),
+      );
+      final kecap = list.firstWhere((p) => p.name == 'Kecap Manis');
+      expect(kecap.variants.single.stock, Qty.units(12));
+    });
+
+    test('draf tidak sah membatalkan seluruh import', () async {
+      final bad = ProductImportRow(
+        line: 2,
+        draft: const ProductDraft(
+          name: '',
+          baseUnit: 'pcs',
+          variants: [VariantDraft()],
+        ),
+      );
+      await expectLater(
+        run([
+          ...rows([
+            ['Kopi', '', '', '', '', '2000', ''],
+          ]),
+          bad,
+        ]),
+        throwsA(isA<ProductInputInvalid>()),
+      );
+      expect(await listProducts(store, scope), isEmpty);
+    });
+  });
 }

@@ -26,6 +26,7 @@ export 'src/permission.dart';
 export 'src/pin_guard.dart';
 export 'src/qris.dart';
 export 'src/purchase.dart';
+export 'src/product_import.dart';
 export 'src/qty.dart';
 export 'src/receipt.dart';
 export 'src/receivable.dart';
