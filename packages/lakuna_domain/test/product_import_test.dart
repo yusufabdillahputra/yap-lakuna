@@ -10,6 +10,10 @@ void main() {
       expect(parseImportQty('1.5'), const Qty(1500));
       expect(parseImportQty('2,25'), const Qty(2250));
       expect(parseImportQty('1,500.25'), const Qty(1500250));
+      // Ambigu (ribuan Inggris atau 1,5): ditolak, bukan ditebak.
+      expect(parseImportQty('1,500'), isNull);
+      expect(parseImportQty('2,375'), isNull);
+      expect(parseImportQty('12,375'), isNull);
       expect(parseImportQty('-3'), isNull);
       expect(parseImportQty('dua'), isNull);
     });

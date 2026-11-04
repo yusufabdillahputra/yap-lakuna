@@ -94,145 +94,152 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
         _ => null,
       };
       final rejected = vm.rejected;
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            key: const ValueKey('product-import'),
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(
-                l10n.productImportTitle,
-                style: theme.typography.display.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(l10n.productImportIntro, style: muted),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: FButton(
-                  key: const ValueKey('product-import-pick'),
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: vm.pick.running || vm.run.running
-                      ? null
-                      : vm.pick.execute,
-                  prefix: const Icon(TablerIcons.fileSpreadsheet),
-                  child: Flexible(child: Text(l10n.importPick)),
-                ),
-              ),
-              if (vm.fileName case final name?)
+      // Selama menyimpan, dialog tidak bisa ditutup (tombol, latar, atau
+      // tombol kembali): transaksi tetap berjalan dan ringkasan harus tampil.
+      return PopScope(
+        canPop: !vm.run.running,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              key: const ValueKey('product-import'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
                 Text(
-                  name,
-                  key: const ValueKey('product-import-file'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.typography.body.sm.copyWith(
+                  l10n.productImportTitle,
+                  style: theme.typography.display.lg.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              if (problem != null)
-                FAlert(
-                  key: const ValueKey('product-import-problem'),
-                  variant: .destructive,
-                  title: Text(problem),
-                ),
-              if (vm.result != null && vm.problem == null) ...[
-                Text(
-                  l10n.importReady(vm.rows.length),
-                  key: const ValueKey('product-import-ready'),
-                  style: theme.typography.body.sm.copyWith(
-                    fontWeight: FontWeight.w600,
+                Text(l10n.productImportIntro, style: muted),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FButton(
+                    key: const ValueKey('product-import-pick'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: vm.pick.running || vm.run.running
+                        ? null
+                        : vm.pick.execute,
+                    prefix: const Icon(TablerIcons.fileSpreadsheet),
+                    child: Flexible(child: Text(l10n.importPick)),
                   ),
                 ),
-                Text(l10n.productImportSkipNote, style: muted),
-              ],
-              if (rejected.isNotEmpty &&
-                  vm.problem != ImportFileProblem.missingName)
-                Column(
-                  key: const ValueKey('product-import-rejected'),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
-                  children: [
-                    Text(
-                      l10n.importRejected(rejected.length),
-                      style: theme.typography.body.sm.copyWith(
-                        color: theme.colors.destructive,
+                if (vm.fileName case final name?)
+                  Text(
+                    name,
+                    key: const ValueKey('product-import-file'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                if (problem != null)
+                  FAlert(
+                    key: const ValueKey('product-import-problem'),
+                    variant: .destructive,
+                    title: Text(problem),
+                  ),
+                if (vm.result != null && vm.problem == null) ...[
+                  Text(
+                    l10n.importReady(vm.rows.length),
+                    key: const ValueKey('product-import-ready'),
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(l10n.productImportSkipNote, style: muted),
+                ],
+                if (rejected.isNotEmpty &&
+                    vm.problem != ImportFileProblem.missingName)
+                  Column(
+                    key: const ValueKey('product-import-rejected'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(
+                        l10n.importRejected(rejected.length),
+                        style: theme.typography.body.sm.copyWith(
+                          color: theme.colors.destructive,
+                        ),
+                      ),
+                      for (final r in rejected.take(20))
+                        Text(
+                          l10n.importRejectLine(
+                            r.line,
+                            productImportReasonLabel(l10n, r.reason),
+                          ),
+                          style: muted,
+                        ),
+                      if (rejected.length > 20)
+                        Text(
+                          l10n.importMoreRejected(rejected.length - 20),
+                          style: muted,
+                        ),
+                    ],
+                  ),
+                if (done != null)
+                  FAlert(
+                    key: const ValueKey('product-import-done'),
+                    title: Text(
+                      l10n.productImportDone(
+                        done.created,
+                        done.skippedLines.length,
                       ),
                     ),
-                    for (final r in rejected.take(20))
-                      Text(
-                        l10n.importRejectLine(
-                          r.line,
-                          productImportReasonLabel(l10n, r.reason),
-                        ),
-                        style: muted,
+                    subtitle: done.skippedLines.isEmpty
+                        ? null
+                        : Text(
+                            l10n.productImportSkippedLines(
+                              _lines(done.skippedLines),
+                            ),
+                          ),
+                  ),
+                if (vm.run.result case Error(:final error))
+                  Text(
+                    productErrorMessage(l10n, error),
+                    key: const ValueKey('product-import-error'),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.destructive,
+                    ),
+                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    FButton(
+                      key: const ValueKey('product-import-close'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: vm.run.running
+                          ? null
+                          : () => Navigator.of(context).pop(done != null),
+                      child: Text(
+                        done != null
+                            ? l10n.importClose
+                            : l10n.productImportCancel,
                       ),
-                    if (rejected.length > 20)
-                      Text(
-                        l10n.importMoreRejected(rejected.length - 20),
-                        style: muted,
+                    ),
+                    if (done == null)
+                      FButton(
+                        key: const ValueKey('product-import-run'),
+                        mainAxisSize: .min,
+                        onPress: vm.canRun ? vm.run.execute : null,
+                        child: Flexible(
+                          child: Text(l10n.productImportRun(vm.rows.length)),
+                        ),
                       ),
                   ],
                 ),
-              if (done != null)
-                FAlert(
-                  key: const ValueKey('product-import-done'),
-                  title: Text(
-                    l10n.productImportDone(
-                      done.created,
-                      done.skippedLines.length,
-                    ),
-                  ),
-                  subtitle: done.skippedLines.isEmpty
-                      ? null
-                      : Text(
-                          l10n.productImportSkippedLines(
-                            _lines(done.skippedLines),
-                          ),
-                        ),
-                ),
-              if (vm.run.result case Error(:final error))
-                Text(
-                  productErrorMessage(l10n, error),
-                  key: const ValueKey('product-import-error'),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.destructive,
-                  ),
-                ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  FButton(
-                    key: const ValueKey('product-import-close'),
-                    variant: .outline,
-                    mainAxisSize: .min,
-                    onPress: () => Navigator.of(context).pop(done != null),
-                    child: Text(
-                      done != null
-                          ? l10n.importClose
-                          : l10n.productImportCancel,
-                    ),
-                  ),
-                  if (done == null)
-                    FButton(
-                      key: const ValueKey('product-import-run'),
-                      mainAxisSize: .min,
-                      onPress: vm.canRun ? vm.run.execute : null,
-                      child: Flexible(
-                        child: Text(l10n.productImportRun(vm.rows.length)),
-                      ),
-                    ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

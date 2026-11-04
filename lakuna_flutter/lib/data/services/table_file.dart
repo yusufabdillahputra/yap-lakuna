@@ -143,6 +143,9 @@ String _number(String v) {
   final n = num.tryParse(v);
   if (n == null) return v;
   if (n == n.roundToDouble() && n.abs() < 1e15) return n.round().toString();
+  // Pecahan memakai koma desimal (format Indonesia) agar `2.375` dari sel
+  // angka tidak terbaca sebagai 2.375 ribu oleh pengurai import.
+  if (!v.contains(RegExp('[eE]'))) return v.replaceAll('.', ',');
   return v;
 }
 

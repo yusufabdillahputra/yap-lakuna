@@ -505,6 +505,7 @@ class _ProductWriter {
   late SyncStamp s;
   final _units = <String, UuidValue>{};
   final _categories = <String, UuidValue>{};
+  StockLocation? _location;
 
   Transaction get tx => w.transaction;
   UuidValue get tenant => scope.tenantId;
@@ -631,7 +632,6 @@ class _ProductWriter {
           )).id;
 
     final kept = <UuidValue>{};
-    StockLocation? location;
     for (var i = 0; i < draft.variants.length; i++) {
       final v = draft.variants[i];
       final old = oldVariants.where((o) => o.id.uuid == v.id).firstOrNull;
@@ -658,7 +658,7 @@ class _ProductWriter {
       if (old == null) {
         variantId = (await w.insert(row, s)).id;
         if (draft.kind.tracksStock && v.openingStock.isPositive) {
-          location ??= await defaultStockLocationIn(w, scope);
+          final location = _location ??= await defaultStockLocationIn(w, scope);
           await recordStockMovement(
             w,
             scope,
@@ -685,7 +685,10 @@ class _ProductWriter {
       await _saveTiers(old.id, const [], isNew: false);
       await w.update(_stampVariant(old.copyWith(deletedAt: s.now)), s);
     }
-    await _saveModifierLinks(productId, draft.modifierGroupIds);
+    // Produk baru tanpa grup modifier tidak punya tautan untuk diperiksa.
+    if (existing != null || draft.modifierGroupIds.isNotEmpty) {
+      await _saveModifierLinks(productId, draft.modifierGroupIds);
+    }
     return productId;
   }
 

@@ -78,6 +78,10 @@ const _columns = {
   'harga beli': 'cost',
   'cost': 'cost',
   'cost price': 'cost',
+  'hpp': 'cost',
+  'harga pokok': 'cost',
+  'harga modal': 'cost',
+  'modal': 'cost',
   'harga jual': 'price',
   'harga': 'price',
   'price': 'price',
@@ -106,8 +110,13 @@ const _kinds = {
 /// Jumlah dari sel import: format Indonesia (`1.500`, `1,5`) lebih dulu,
 /// lalu format ekspor Excel / Inggris (`1.5`, `1,500.25`). `null` bila
 /// tidak sah atau negatif.
+///
+/// `1,500` ditolak karena ambigu: ribuan gaya Inggris (seperti harga
+/// `1,500` = Rp1.500) atau 1,5 gaya Indonesia. Tulis `1500` atau `1,5`.
+/// Sel angka XLSX sudah diubah ke koma desimal oleh pembaca berkas.
 Qty? parseImportQty(String text) {
   final t = text.trim().replaceAll(' ', '');
+  if (RegExp(r'^\d{1,3},\d{3}$').hasMatch(t)) return null;
   return Qty.tryParse(t) ?? Qty.tryParse(t, decimal: '.', group: ',');
 }
 
