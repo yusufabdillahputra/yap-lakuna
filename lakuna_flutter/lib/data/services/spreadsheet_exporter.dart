@@ -158,6 +158,7 @@ const _styles =
 
 /// Menyimpan atau membagikan berkas ekspor (F1-11).
 abstract class SpreadsheetExporter {
+  /// Berkas `.xlsx` atau `.pdf` (menurut ekstensi [fileName]).
   /// Android/iOS: share sheet (hasil `null`). Desktop: disimpan ke folder
   /// dokumen Lakuna yang sama dengan PDF struk (hasil = lokasi berkas).
   Future<String?> save(Uint8List bytes, {required String fileName});
@@ -177,7 +178,13 @@ class PlatformSpreadsheetExporter implements SpreadsheetExporter {
       await SharePlus.instance.share(
         ShareParams(
           files: [
-            XFile.fromData(bytes, mimeType: xlsxMimeType, name: fileName),
+            XFile.fromData(
+              bytes,
+              mimeType: fileName.endsWith('.pdf')
+                  ? 'application/pdf'
+                  : xlsxMimeType,
+              name: fileName,
+            ),
           ],
           fileNameOverrides: [fileName],
         ),

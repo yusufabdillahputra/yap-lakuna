@@ -167,11 +167,12 @@ final List<MenuGroup> appMenu = [
         path: Routes.expenses,
         permission: Permission.expensesManage,
       ),
-      _module(
-        'reports',
-        TablerIcons.chartBar,
-        (l) => l.menuReports,
-        Permission.reportsView,
+      MenuEntry(
+        key: 'reports',
+        icon: TablerIcons.chartBar,
+        label: (l) => l.menuReports,
+        path: Routes.reports,
+        permission: Permission.reportsView,
       ),
     ],
   ),

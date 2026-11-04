@@ -5580,4 +5580,269 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseFundingDrawer => 'Cash drawer';
+
+  @override
+  String get reportsTitle => 'Reports';
+
+  @override
+  String reportsSubtitle(String period, String outlet) {
+    return '$period · $outlet';
+  }
+
+  @override
+  String get reportsPeriod => 'Period';
+
+  @override
+  String get reportsPeriodToday => 'Today';
+
+  @override
+  String get reportsPeriod7Days => 'Last 7 days';
+
+  @override
+  String get reportsPeriodThisMonth => 'This month';
+
+  @override
+  String get reportsDownloadPdf => 'Download PDF';
+
+  @override
+  String get reportsDownloadExcel => 'Download Excel';
+
+  @override
+  String get reportsTabSummary => 'Summary';
+
+  @override
+  String get reportsTabSales => 'Sales';
+
+  @override
+  String get reportsTabTop => 'Best sellers';
+
+  @override
+  String get reportsTabProfit => 'Profit & loss';
+
+  @override
+  String get reportsKpiSales => 'Sales';
+
+  @override
+  String reportsKpiSalesNote(int count) {
+    return '$count transactions';
+  }
+
+  @override
+  String get reportsKpiGrossProfit => 'Gross profit';
+
+  @override
+  String get reportsKpiGrossProfitNote => 'From cost at time of sale';
+
+  @override
+  String get reportsKpiAverage => 'Average per receipt';
+
+  @override
+  String get reportsKpiAverageNote => 'Net sales ÷ transactions';
+
+  @override
+  String get reportsKpiOverdue => 'Overdue receivables';
+
+  @override
+  String reportsKpiOverdueNote(int count) {
+    return '$count customers';
+  }
+
+  @override
+  String get reportsByMethod => 'Sales by payment method';
+
+  @override
+  String get reportsByMethodNote => 'Receipt totals before returns';
+
+  @override
+  String get reportsMethodCredit => 'Credit (receivable)';
+
+  @override
+  String get reportsEmpty => 'No sales in this period yet.';
+
+  @override
+  String get reportsTop => 'Best sellers';
+
+  @override
+  String get reportsFull => 'Full reports';
+
+  @override
+  String get reportsLinkSalesProduct => 'Sales by product';
+
+  @override
+  String get reportsLinkSalesStaff => 'Sales by cashier';
+
+  @override
+  String get reportsLinkSalesCategory => 'Sales by category';
+
+  @override
+  String get reportsLinkProfit => 'Profit & loss';
+
+  @override
+  String get reportsLinkStock => 'Stock card';
+
+  @override
+  String get reportsLinkDebts => 'Payables & receivables';
+
+  @override
+  String get reportsLinkReturns => 'Returns';
+
+  @override
+  String get reportsLinkExpenses => 'Income & expenses';
+
+  @override
+  String get reportsLinkSessions => 'Cashier session recap';
+
+  @override
+  String get reportsGroupProduct => 'By product';
+
+  @override
+  String get reportsGroupStaff => 'By cashier';
+
+  @override
+  String get reportsGroupCategory => 'By category';
+
+  @override
+  String get reportsColProduct => 'Product';
+
+  @override
+  String get reportsColStaff => 'Cashier';
+
+  @override
+  String get reportsColCategory => 'Category';
+
+  @override
+  String get reportsColQty => 'Quantity';
+
+  @override
+  String get reportsColReceipts => 'Receipts';
+
+  @override
+  String get reportsColNet => 'Net sales';
+
+  @override
+  String get reportsColShare => 'Share';
+
+  @override
+  String get reportsColRank => '#';
+
+  @override
+  String get reportsColValue => 'Value';
+
+  @override
+  String get reportsColLine => 'Description';
+
+  @override
+  String get reportsColAmount => 'Amount';
+
+  @override
+  String get reportsColMethod => 'Payment method';
+
+  @override
+  String get reportsNoCategory => 'Uncategorized';
+
+  @override
+  String get reportsTotal => 'Total';
+
+  @override
+  String get reportsSalesNote =>
+      'Net sales = after discounts and returns, excluding PB1 tax. Quantities in base units.';
+
+  @override
+  String reportsPlTitle(String period) {
+    return 'Profit & loss · $period';
+  }
+
+  @override
+  String reportsPlSubtitle(String outlet) {
+    return '$outlet · all cashiers';
+  }
+
+  @override
+  String get reportsPlGross => 'Gross sales';
+
+  @override
+  String get reportsPlDiscount => 'Discounts';
+
+  @override
+  String get reportsPlService => 'Service charge';
+
+  @override
+  String get reportsPlReturns => 'Sales returns';
+
+  @override
+  String get reportsPlNet => 'Net sales';
+
+  @override
+  String get reportsPlCogs => 'Cost of goods sold (COGS)';
+
+  @override
+  String reportsPlGrossProfit(String margin) {
+    return 'Gross profit · margin $margin';
+  }
+
+  @override
+  String get reportsPlExpensesTotal => 'Total operating expenses';
+
+  @override
+  String get reportsPlExpensesNone => 'No expenses yet';
+
+  @override
+  String get reportsPlAdjustment => 'Stock adjustments (count, damaged, lost)';
+
+  @override
+  String get reportsPlNetProfit => 'Net profit';
+
+  @override
+  String reportsPlTax(String amount) {
+    return 'PB1 tax collected $amount: not revenue, excluded.';
+  }
+
+  @override
+  String reportsPlMissingCost(int count) {
+    return '$count products sold without a cost price: their COGS counts as 0.';
+  }
+
+  @override
+  String reportsVsPrevious(String change, String period) {
+    return '$change vs $period';
+  }
+
+  @override
+  String reportsPreviousValue(String period, String amount) {
+    return '$period: $amount';
+  }
+
+  @override
+  String get reportsPrevToday => 'yesterday';
+
+  @override
+  String get reportsPrev7Days => 'the previous 7 days';
+
+  @override
+  String get reportsMargin => 'Gross margin';
+
+  @override
+  String get reportsMarginNote => 'Gross profit ÷ net sales';
+
+  @override
+  String get reportsExpenseRatio => 'Expenses / sales';
+
+  @override
+  String get reportsHowTitle => 'How it is calculated';
+
+  @override
+  String get reportsHowBody =>
+      'COGS uses the weighted average cost at the time of sale. Expenses come from the Expenses menu. Automatic payroll arrives in Phase 3.';
+
+  @override
+  String reportsDocSubtitle(String outlet, String date) {
+    return '$outlet · generated $date';
+  }
+
+  @override
+  String get reportsNotPermitted =>
+      'You do not have permission to view reports.';
+
+  @override
+  String get reportsLoadFailed => 'Reports could not be loaded.';
 }

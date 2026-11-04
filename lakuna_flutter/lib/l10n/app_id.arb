@@ -3445,5 +3445,174 @@
   "cashAsExpenseNeedsNote": "Keterangan wajib diisi dan menjadi keterangan pengeluaran.",
   "expenseCategorySave": "Simpan",
   "expenseReceiptOpen": "Buka foto nota",
-  "expenseFundingDrawer": "Kas laci"
+  "expenseFundingDrawer": "Kas laci",
+  "reportsTitle": "Laporan",
+  "reportsSubtitle": "{period} · {outlet}",
+  "@reportsSubtitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPeriod": "Periode",
+  "reportsPeriodToday": "Hari ini",
+  "reportsPeriod7Days": "7 hari terakhir",
+  "reportsPeriodThisMonth": "Bulan ini",
+  "reportsDownloadPdf": "Unduh PDF",
+  "reportsDownloadExcel": "Unduh Excel",
+  "reportsTabSummary": "Ringkasan",
+  "reportsTabSales": "Penjualan",
+  "reportsTabTop": "Produk terlaris",
+  "reportsTabProfit": "Laba rugi",
+  "reportsKpiSales": "Penjualan",
+  "reportsKpiSalesNote": "{count} transaksi",
+  "@reportsKpiSalesNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsKpiGrossProfit": "Laba kotor",
+  "reportsKpiGrossProfitNote": "Dari harga pokok saat jual",
+  "reportsKpiAverage": "Rata-rata per nota",
+  "reportsKpiAverageNote": "Penjualan bersih ÷ transaksi",
+  "reportsKpiOverdue": "Piutang jatuh tempo",
+  "reportsKpiOverdueNote": "{count} pelanggan",
+  "@reportsKpiOverdueNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsByMethod": "Penjualan per metode bayar",
+  "reportsByMethodNote": "Nilai nota sebelum retur",
+  "reportsMethodCredit": "Kredit (piutang)",
+  "reportsEmpty": "Belum ada penjualan pada periode ini.",
+  "reportsTop": "Produk terlaris",
+  "reportsFull": "Laporan lengkap",
+  "reportsLinkSalesProduct": "Penjualan per produk",
+  "reportsLinkSalesStaff": "Penjualan per kasir",
+  "reportsLinkSalesCategory": "Penjualan per kategori",
+  "reportsLinkProfit": "Laba rugi",
+  "reportsLinkStock": "Kartu stok",
+  "reportsLinkDebts": "Hutang & piutang",
+  "reportsLinkReturns": "Retur",
+  "reportsLinkExpenses": "Pemasukan & pengeluaran",
+  "reportsLinkSessions": "Rekap sesi kasir",
+  "reportsGroupProduct": "Per produk",
+  "reportsGroupStaff": "Per kasir",
+  "reportsGroupCategory": "Per kategori",
+  "reportsColProduct": "Produk",
+  "reportsColStaff": "Kasir",
+  "reportsColCategory": "Kategori",
+  "reportsColQty": "Jumlah",
+  "reportsColReceipts": "Nota",
+  "reportsColNet": "Penjualan bersih",
+  "reportsColShare": "Porsi",
+  "reportsColRank": "#",
+  "reportsColValue": "Nilai",
+  "reportsColLine": "Keterangan",
+  "reportsColAmount": "Jumlah",
+  "reportsColMethod": "Metode bayar",
+  "reportsNoCategory": "Tanpa kategori",
+  "reportsTotal": "Total",
+  "reportsSalesNote": "Penjualan bersih = setelah diskon dan retur, tanpa PB1. Jumlah dalam satuan dasar.",
+  "reportsPlTitle": "Laba rugi · {period}",
+  "@reportsPlTitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlSubtitle": "{outlet} · semua kasir",
+  "@reportsPlSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlGross": "Penjualan kotor",
+  "reportsPlDiscount": "Diskon",
+  "reportsPlService": "Service charge",
+  "reportsPlReturns": "Retur penjualan",
+  "reportsPlNet": "Penjualan bersih",
+  "reportsPlCogs": "Harga pokok penjualan (HPP)",
+  "reportsPlGrossProfit": "Laba kotor · margin {margin}",
+  "@reportsPlGrossProfit": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlExpensesTotal": "Total beban operasional",
+  "reportsPlExpensesNone": "Belum ada pengeluaran",
+  "reportsPlAdjustment": "Penyesuaian stok (selisih, rusak, hilang)",
+  "reportsPlNetProfit": "Laba bersih",
+  "reportsPlTax": "PB1 dipungut {amount}: bukan pendapatan, tidak ikut dihitung.",
+  "@reportsPlTax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlMissingCost": "{count} produk terjual tanpa harga pokok: HPP-nya dihitung 0.",
+  "@reportsPlMissingCost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsVsPrevious": "{change} dibanding {period}",
+  "@reportsVsPrevious": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPreviousValue": "{period}: {amount}",
+  "@reportsPreviousValue": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPrevToday": "kemarin",
+  "reportsPrev7Days": "7 hari sebelumnya",
+  "reportsMargin": "Margin kotor",
+  "reportsMarginNote": "Laba kotor ÷ penjualan bersih",
+  "reportsExpenseRatio": "Beban / penjualan",
+  "reportsHowTitle": "Cara hitung",
+  "reportsHowBody": "HPP dihitung dari harga pokok rata-rata tertimbang saat jual. Pengeluaran diambil dari menu Pengeluaran. Gaji otomatis baru ada di Fase 3.",
+  "reportsDocSubtitle": "{outlet} · dibuat {date}",
+  "@reportsDocSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsNotPermitted": "Anda tidak punya izin melihat laporan.",
+  "reportsLoadFailed": "Laporan gagal dimuat."
 }

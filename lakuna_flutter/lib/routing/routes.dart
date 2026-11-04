@@ -97,6 +97,9 @@ abstract final class Routes {
   /// Pengeluaran (F1-15).
   static const expenses = '/pengeluaran';
 
+  /// Laporan & laba rugi (F1-16).
+  static const reports = '/laporan';
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../testing/app_harness.dart';
 
@@ -90,10 +91,15 @@ void main() {
   testWidgets('menu modul yang belum dibangun membuka halaman segera hadir', (
     tester,
   ) async {
+    await pumpLakuna(tester, initialLocation: Routes.module('users'));
+    expect(find.text('Pengguna & role segera hadir'), findsOneWidget);
+  });
+
+  testWidgets('menu Laporan membuka layar laporan', (tester) async {
     await pumpLakuna(tester);
     await tester.tap(find.byKey(const ValueKey('nav-reports')));
     await tester.pumpAndSettle();
-    expect(find.text('Laporan segera hadir'), findsOneWidget);
+    expect(find.byKey(const ValueKey('reports-kpi-sales')), findsOneWidget);
   });
 
   testWidgets('menu Pengeluaran membuka layar pengeluaran', (tester) async {

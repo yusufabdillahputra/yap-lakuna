@@ -1,0 +1,324 @@
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
+
+import '../../data/repositories/repository_errors.dart';
+import '../../data/services/report_document.dart';
+import '../../data/services/spreadsheet_exporter.dart' show XlsxNumber;
+import '../../l10n/gen/app_localizations.dart';
+import '../cashier/payment_view.dart' show paymentMethodLabel;
+import '../customers/customer_labels.dart';
+import 'reports_view_model.dart';
+
+bool _en(AppLocalizations l10n) => l10n.localeName.startsWith('en');
+
+/// `25,7%` (id) / `25.7%` (en); `–` bila tidak bermakna.
+String percentLabel(AppLocalizations l10n, int? bp, {bool signed = false}) {
+  if (bp == null) return '–';
+  final text = formatPercentBp(bp, decimal: _en(l10n) ? '.' : ',');
+  return signed && bp > 0 ? '+$text' : text;
+}
+
+/// Uang tanpa `BuildContext` (ekspor): `Rp 12.500` / `IDR 12,500`.
+String moneyLabel(AppLocalizations l10n, Money m) =>
+    _en(l10n) ? m.formatEn() : m.formatIdr();
+
+/// Qty dengan pemisah bahasa, mis. `2,5` / `2.5`.
+String qtyLabel(AppLocalizations l10n, Qty q) =>
+    _en(l10n) ? q.format(decimal: '.', group: ',') : q.format();
+
+String reportPeriodLabel(AppLocalizations l10n, ReportPeriod p) =>
+    switch (p.kind) {
+      ReportPeriodKind.today => l10n.reportsPeriodToday,
+      ReportPeriodKind.last7Days => l10n.reportsPeriod7Days,
+      ReportPeriodKind.thisMonth => l10n.reportsPeriodThisMonth,
+      ReportPeriodKind.month => formatLongMonth(l10n, p.year, p.monthOfYear),
+    };
+
+/// Nama periode pembanding: *kemarin*, *7 hari sebelumnya*, atau bulannya.
+String previousPeriodLabel(
+  AppLocalizations l10n,
+  ReportPeriod p,
+  DateTime today,
+) => switch (p.kind) {
+  ReportPeriodKind.today => l10n.reportsPrevToday,
+  ReportPeriodKind.last7Days => l10n.reportsPrev7Days,
+  _ => () {
+    final from = p.previousRange(today).from;
+    return formatLongMonth(l10n, from.year, from.month);
+  }(),
+};
+
+String reportTabLabel(AppLocalizations l10n, ReportTab tab) => switch (tab) {
+  ReportTab.summary => l10n.reportsTabSummary,
+  ReportTab.sales => l10n.reportsTabSales,
+  ReportTab.top => l10n.reportsTabTop,
+  ReportTab.profit => l10n.reportsTabProfit,
+};
+
+String salesGroupLabel(AppLocalizations l10n, SalesGroup g) => switch (g) {
+  SalesGroup.product => l10n.reportsGroupProduct,
+  SalesGroup.staff => l10n.reportsGroupStaff,
+  SalesGroup.category => l10n.reportsGroupCategory,
+};
+
+String reportMethodLabel(AppLocalizations l10n, ReportPaymentMethod m) =>
+    switch (m) {
+      ReportPaymentMethod.cash => paymentMethodLabel(l10n, PaymentMethod.cash),
+      ReportPaymentMethod.card => paymentMethodLabel(l10n, PaymentMethod.card),
+      ReportPaymentMethod.transfer => paymentMethodLabel(
+        l10n,
+        PaymentMethod.transfer,
+      ),
+      ReportPaymentMethod.qris => paymentMethodLabel(
+        l10n,
+        PaymentMethod.qrisStatic,
+      ),
+      ReportPaymentMethod.credit => l10n.reportsMethodCredit,
+    };
+
+String reportErrorMessage(AppLocalizations l10n, Exception error) =>
+    switch (error) {
+      NotPermitted() => l10n.reportsNotPermitted,
+      _ => l10n.reportsLoadFailed,
+    };
+
+/// Nama baris rincian: kasir → nama staf, kategori kosong → *Tanpa
+/// kategori*.
+String breakdownName(
+  AppLocalizations l10n,
+  ReportData data,
+  SalesGroup group,
+  BreakdownRow row,
+) => switch (group) {
+  SalesGroup.staff => data.staffNames[row.key] ?? row.key,
+  SalesGroup.category => row.name.isEmpty ? l10n.reportsNoCategory : row.name,
+  SalesGroup.product => row.name,
+};
+
+/// Qty bersih + satuan dasar, mis. `3 pcs`.
+String breakdownQty(AppLocalizations l10n, ReportData data, BreakdownRow r) {
+  final unit = data.unitOf[r.key];
+  final q = qtyLabel(l10n, r.quantity);
+  return unit == null ? q : '$q $unit';
+}
+
+List<BreakdownRow> breakdownRows(ReportData data, SalesGroup group) =>
+    switch (group) {
+      SalesGroup.product => data.byProduct,
+      SalesGroup.staff => data.byStaff,
+      SalesGroup.category => data.byCategory,
+    };
+
+/// Baris laba rugi (label, nilai bertanda untuk tampilan, gaya).
+enum PlStyle { item, detail, subtotal, total }
+
+class PlLine {
+  const PlLine(
+    this.label,
+    this.amount,
+    this.style, {
+    this.negative = false,
+    this.positive = false,
+  });
+
+  final String label;
+
+  /// Nilai mutlak yang ditampilkan.
+  final Money amount;
+  final PlStyle style;
+
+  /// Ditampilkan dengan tanda `−`.
+  final bool negative;
+
+  /// Disorot hijau (laba kotor).
+  final bool positive;
+
+  /// Nilai bertanda untuk ekspor.
+  Money get signed => negative ? -amount : amount;
+}
+
+/// Baris laba rugi sesuai urutan 1.24.
+List<PlLine> profitLines(AppLocalizations l10n, ProfitAndLoss pl) => [
+  PlLine(l10n.reportsPlGross, pl.grossSales, PlStyle.item),
+  PlLine(l10n.reportsPlDiscount, pl.discount, PlStyle.detail, negative: true),
+  if (pl.service.value != 0)
+    PlLine(l10n.reportsPlService, pl.service, PlStyle.detail),
+  PlLine(l10n.reportsPlReturns, pl.returns, PlStyle.detail, negative: true),
+  PlLine(l10n.reportsPlNet, pl.netSales, PlStyle.subtotal),
+  PlLine(l10n.reportsPlCogs, pl.cogs, PlStyle.detail, negative: true),
+  PlLine(
+    l10n.reportsPlGrossProfit(percentLabel(l10n, pl.grossMarginBp)),
+    Money(pl.grossProfit.value.abs()),
+    PlStyle.subtotal,
+    negative: pl.grossProfit.isNegative,
+    positive: !pl.grossProfit.isNegative,
+  ),
+  for (final e in pl.expenses) PlLine(e.name, e.amount, PlStyle.detail),
+  PlLine(
+    l10n.reportsPlExpensesTotal,
+    pl.totalExpenses,
+    PlStyle.subtotal,
+    negative: true,
+  ),
+  PlLine(
+    l10n.reportsPlAdjustment,
+    Money(pl.stockAdjustment.value.abs()),
+    PlStyle.item,
+    negative: pl.stockAdjustment.isNegative,
+  ),
+  PlLine(
+    l10n.reportsPlNetProfit,
+    Money(pl.netProfit.value.abs()),
+    PlStyle.total,
+    negative: pl.netProfit.isNegative,
+  ),
+];
+
+/// Catatan laba rugi: PB1 dipungut dan produk tanpa harga pokok.
+List<String> profitNotes(AppLocalizations l10n, ProfitAndLoss pl) => [
+  if (pl.taxCollected.value != 0)
+    l10n.reportsPlTax(moneyLabel(l10n, pl.taxCollected)),
+  if (pl.missingCostCount > 0) l10n.reportsPlMissingCost(pl.missingCostCount),
+];
+
+/// Tabel tab aktif untuk unduhan PDF/Excel.
+ReportTable reportTable(
+  AppLocalizations l10n,
+  ReportData data,
+  ReportTab tab,
+  SalesGroup group,
+) {
+  final period = reportPeriodLabel(l10n, data.period);
+  final subtitle = l10n.reportsDocSubtitle(
+    data.outletName,
+    formatLongDate(l10n, data.today),
+  );
+  XlsxNumber money(Money m) => XlsxNumber(m.value);
+  String title(String name) => '$name · $period';
+  switch (tab) {
+    case ReportTab.summary:
+      return ReportTable(
+        title: title(l10n.reportsTabSummary),
+        subtitle: subtitle,
+        headers: [l10n.reportsColLine, l10n.reportsColAmount, ''],
+        widths: const [36, 18, 18],
+        rows: [
+          ReportRow([
+            l10n.reportsKpiSales,
+            money(data.netSales),
+            l10n.reportsKpiSalesNote(data.saleCount),
+          ], strong: true),
+          if (data.profit case final pl?)
+            ReportRow([
+              l10n.reportsKpiGrossProfit,
+              money(pl.grossProfit),
+              percentLabel(l10n, pl.grossMarginBp),
+            ]),
+          ReportRow([l10n.reportsKpiAverage, money(data.averagePerSale), '']),
+          ReportRow([
+            l10n.reportsKpiOverdue,
+            money(data.overdue),
+            l10n.reportsKpiOverdueNote(data.overdueCustomers),
+          ]),
+          ReportRow([l10n.reportsByMethod, null, null], strong: true),
+          for (final m in data.payments)
+            ReportRow([
+              reportMethodLabel(l10n, m.method),
+              money(m.amount),
+              percentLabel(l10n, m.shareBp),
+            ], indent: true),
+          ReportRow([l10n.reportsTop, null, null], strong: true),
+          for (final t in data.top.take(5))
+            ReportRow([
+              t.name,
+              money(t.value),
+              breakdownQty(l10n, data, t),
+            ], indent: true),
+        ],
+        notes: [l10n.reportsByMethodNote, l10n.reportsSalesNote],
+      );
+    case ReportTab.sales:
+      final rows = breakdownRows(data, group);
+      final total = Money.sum(rows.map((r) => r.value));
+      return ReportTable(
+        title: title(
+          '${l10n.reportsTabSales} ${salesGroupLabel(l10n, group).toLowerCase()}',
+        ),
+        subtitle: subtitle,
+        headers: [
+          switch (group) {
+            SalesGroup.product => l10n.reportsColProduct,
+            SalesGroup.staff => l10n.reportsColStaff,
+            SalesGroup.category => l10n.reportsColCategory,
+          },
+          if (group == SalesGroup.staff)
+            l10n.reportsColReceipts
+          else
+            l10n.reportsColQty,
+          l10n.reportsColNet,
+          l10n.reportsColShare,
+        ],
+        widths: const [36, 14, 18, 10],
+        rows: [
+          for (final r in rows)
+            ReportRow([
+              breakdownName(l10n, data, group, r),
+              if (group == SalesGroup.staff)
+                r.count
+              else
+                breakdownQty(l10n, data, r),
+              money(r.value),
+              percentLabel(l10n, ratioBp(r.value, total)),
+            ]),
+          ReportRow([
+            l10n.reportsTotal,
+            if (group == SalesGroup.staff) data.saleCount else '',
+            money(total),
+            '',
+          ], strong: true),
+        ],
+        notes: [l10n.reportsSalesNote],
+      );
+    case ReportTab.top:
+      return ReportTable(
+        title: title(l10n.reportsTabTop),
+        subtitle: subtitle,
+        headers: [
+          l10n.reportsColRank,
+          l10n.reportsColProduct,
+          l10n.reportsColQty,
+          l10n.reportsColValue,
+        ],
+        widths: const [5, 36, 14, 18],
+        rows: [
+          for (final (i, t) in data.top.indexed)
+            ReportRow([
+              '${i + 1}',
+              t.name,
+              breakdownQty(l10n, data, t),
+              money(t.value),
+            ]),
+        ],
+        notes: [l10n.reportsSalesNote],
+      );
+    case ReportTab.profit:
+      final pl = data.profit!;
+      return ReportTable(
+        title: l10n.reportsPlTitle(period),
+        subtitle: subtitle,
+        headers: [l10n.reportsColLine, l10n.reportsColAmount],
+        widths: const [44, 20],
+        rows: [
+          for (final line in profitLines(l10n, pl))
+            ReportRow(
+              [line.label, money(line.signed)],
+              strong:
+                  line.style == PlStyle.subtotal || line.style == PlStyle.total,
+              indent: line.style == PlStyle.detail,
+            ),
+        ],
+        notes: [...profitNotes(l10n, pl), l10n.reportsHowBody],
+      );
+  }
+}
