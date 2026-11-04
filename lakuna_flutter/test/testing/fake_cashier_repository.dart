@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -47,6 +49,9 @@ class FakeCashierRepository extends CashierRepository {
 
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
+
+  /// Menahan `checkout` sampai selesai (mis. layar ditutup saat menyimpan).
+  Completer<void>? checkoutGate;
   final checkouts = <(List<SaleLineRequest>, List<SalePaymentRequest>)>[];
 
   /// Diskon nota + penyetuju per checkout (F1-04b).
@@ -129,6 +134,7 @@ class FakeCashierRepository extends CashierRepository {
     ManualDiscount? discount,
     UuidValue? discountApproverId,
   }) async {
+    if (checkoutGate case final gate?) await gate.future;
     if (_check() case final e?) return Result.error(e);
     final discounted = discount != null || lines.any((l) => l.discount != null);
     if (discounted &&

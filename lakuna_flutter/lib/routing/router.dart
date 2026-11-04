@@ -31,6 +31,7 @@ import '../data/services/spreadsheet_exporter.dart';
 import '../data/services/table_file.dart';
 import '../ui/guide/guide_screen.dart';
 import '../ui/cash_session/cash_session_view.dart';
+import '../ui/cashier/cart_draft.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
 import '../ui/coming_soon/coming_soon_view.dart';
@@ -99,6 +100,8 @@ GoRouter createRouter({
   String initialLocation = Routes.home,
 }) {
   final guideRepository = guide ?? AssetGuideRepository();
+  // Keranjang kasir retail bertahan saat pindah menu (F1-04c).
+  final cartDraft = CartDraft(session);
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([store, session]),
@@ -202,6 +205,7 @@ GoRouter createRouter({
                 repository: cashier,
                 printer: receiptPrinter,
                 session: session,
+                draft: bill == null ? cartDraft : null,
                 billId: bill,
                 part: part,
                 completed: state.extra is CompletedBill

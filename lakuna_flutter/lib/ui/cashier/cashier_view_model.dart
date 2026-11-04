@@ -8,6 +8,7 @@ import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../products/product_list_view_model.dart' show productMatches;
+import 'cart_draft.dart';
 
 /// Tahap layar kasir: memilih barang, membayar, atau nota selesai.
 enum CashierStage { browse, pay, done }
@@ -201,7 +202,11 @@ class CompletedBill {
 }
 
 class CashierViewModel extends ChangeNotifier {
-  CashierViewModel({required this._repository, required this._printer}) {
+  CashierViewModel({
+    required this._repository,
+    required this._printer,
+    this._draft,
+  }) {
     load = Command0(_load)..addListener(notifyListeners);
     openBill = Command1(_openBill)..addListener(notifyListeners);
     pay = Command0(_pay)..addListener(notifyListeners);
@@ -218,6 +223,10 @@ class CashierViewModel extends ChangeNotifier {
 
   final CashierRepository _repository;
   final ReceiptPrinter _printer;
+
+  /// Keranjang yang bertahan saat layar ditutup (F1-04c); `null` di mode
+  /// bill dan di tes yang tidak memakainya.
+  final CartDraft? _draft;
 
   late final Command0<CashierData> load;
 
@@ -272,6 +281,9 @@ class CashierViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    // Keranjang yang sedang disimpan tidak ditulis ke draf: bila berhasil,
+    // nota sudah tercatat; bila gagal, [_pay] menulisnya sendiri.
+    if (!pay.running) _saveDraft();
     _disposed = true;
     super.dispose();
   }
@@ -314,8 +326,73 @@ class CashierViewModel extends ChangeNotifier {
           !value.categories.any((c) => c.id == _categoryId)) {
         _categoryId = null;
       }
+      _restoreDraft(value);
     }
     return result;
+  }
+
+  // --- Draf keranjang (F1-04c) ---------------------------------------------
+
+  /// Memulihkan keranjang dari draf sekali, setelah katalog termuat: baris
+  /// dipetakan ke katalog terbaru dan baris yang variannya hilang dibuang.
+  void _restoreDraft(CashierData data) {
+    final draft = _draft;
+    if (draft == null || billMode || _draftChecked) return;
+    _draftChecked = true;
+    if (draft.isEmpty || _items.isNotEmpty) return;
+    final content = draft.take();
+    for (final line in content.lines) {
+      final match = _findOption(data, line.variantId, line.unitId);
+      if (match == null) continue;
+      final (product, variant, unit) = match;
+      _items.add(
+        _Item(_nextKey++, product, variant, unit, line.quantity)
+          ..discount = line.discount,
+      );
+    }
+    if (_items.isEmpty) return;
+    _billDiscount = content.billDiscount;
+    _discountApprover = content.approver;
+  }
+
+  static (CatalogProduct, CatalogVariant, CatalogUnit?)? _findOption(
+    CashierData data,
+    UuidValue variantId,
+    UuidValue? unitId,
+  ) {
+    for (final p in data.products) {
+      for (final v in p.variants) {
+        if (v.id != variantId) continue;
+        if (unitId == null) return (p, v, null);
+        final unit = v.units.where((u) => u.id == unitId).firstOrNull;
+        return unit == null ? null : (p, v, unit);
+      }
+    }
+    return null;
+  }
+
+  /// Draf sudah dibaca (setelah `load` pertama berhasil). Sebelum itu
+  /// keranjang kosong tidak boleh menimpa draf yang belum dipulihkan.
+  var _draftChecked = false;
+
+  /// Menyimpan keranjang ke draf saat layar ditutup (kosong bila sudah
+  /// dibayar atau dikosongkan).
+  void _saveDraft() {
+    final draft = _draft;
+    if (draft == null || billMode || !_draftChecked) return;
+    draft.save(
+      lines: [
+        for (final i in _items)
+          (
+            variantId: i.variant.id,
+            unitId: i.unit?.id,
+            quantity: i.quantity,
+            discount: i.discount,
+          ),
+      ],
+      billDiscount: _billDiscount,
+      approver: _discountApprover,
+    );
   }
 
   void setQuery(String v) {
@@ -1085,6 +1162,9 @@ class CashierViewModel extends ChangeNotifier {
                 )) {
           _discountApprover = null;
         }
+        // Layar sudah ditutup saat menyimpan dan gagal: keranjang tetap
+        // dibawa ke draf (F1-04c).
+        if (_disposed) _saveDraft();
     }
     return result;
   }

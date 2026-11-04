@@ -8,6 +8,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
+import 'package:lakuna_flutter/ui/cashier/cart_draft.dart';
 import 'package:lakuna_flutter/ui/cashier/cashier_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -16,6 +17,7 @@ import '../../testing/fake_cashier_repository.dart';
 import '../../testing/fake_dining_repository.dart';
 import '../../testing/qris_seed.dart';
 import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_session_repository.dart';
 
 void main() {
   late FakeCashierRepository repo;
@@ -327,6 +329,157 @@ void main() {
       vm.clearCart();
       expect(vm.billDiscount, isNull);
       expect(vm.discountApprover, isNull);
+    });
+  });
+
+  group('draf keranjang (F1-04c)', () {
+    late CartDraft draft;
+
+    setUp(
+      () => draft = CartDraft(FakeSessionRepository(current: sampleStaff())),
+    );
+    tearDown(() => draft.dispose());
+
+    Future<CashierViewModel> open() async {
+      final next = CashierViewModel(
+        repository: repo,
+        printer: printer,
+        draft: draft,
+      );
+      await next.load.execute();
+      return next;
+    }
+
+    test('keranjang dan diskon dipulihkan saat kasir dibuka lagi', () async {
+      final first = await open();
+      first
+        ..scan('8991234500024') // Minyak botol
+        ..scan('8991234500031') // Minyak dus
+        ..setQuantity(0, Qty.units(3))
+        ..setLineDiscount(0, const ManualDiscount.amount(Money(1000)))
+        ..setBillDiscount(const ManualDiscount.percent(BasisPoints(500)))
+        ..startPayment()
+        ..dispose();
+      expect(draft.isEmpty, isFalse);
+
+      final second = await open();
+      expect(second.stage, CashierStage.browse);
+      expect(second.lines.map((l) => l.unitName), ['botol', 'Dus']);
+      expect(second.lines.first.quantity, Qty.units(3));
+      expect(
+        second.lines.first.discount,
+        const ManualDiscount.amount(Money(1000)),
+      );
+      expect(
+        second.billDiscount,
+        const ManualDiscount.percent(BasisPoints(500)),
+      );
+      // Draf sudah diambil; view model lain tidak memulihkannya dua kali.
+      expect(draft.isEmpty, isTrue);
+      second.dispose();
+    });
+
+    test('penyetuju diskon ikut dipulihkan', () async {
+      repo.permissions = {Permission.salesCreate};
+      final first = await open();
+      final rina = UuidValue.fromString(newId());
+      first
+        ..approveDiscounts((id: rina, name: 'Rina'))
+        ..scan('8990001')
+        ..dispose();
+      final second = await open();
+      expect(second.discountApprover?.id, rina);
+      second.dispose();
+    });
+
+    test('baris yang produknya hilang dibuang', () async {
+      final first = await open();
+      first
+        ..scan('8991234500024')
+        ..scan('kop')
+        ..dispose();
+      repo.catalog.products.removeWhere((p) => p.name == 'Kopi Sachet');
+      final second = await open();
+      expect(second.lines.map((l) => l.title), ['Minyak Goreng 2 L']);
+      second.dispose();
+    });
+
+    test('setelah bayar draf kosong', () async {
+      final first = await open();
+      first
+        ..scan('8990001')
+        ..startPayment()
+        ..setReceived(const Money(100000));
+      await first.pay.execute();
+      first.dispose();
+      expect(draft.isEmpty, isTrue);
+    });
+
+    test('keranjang kosong menutup draf yang sudah diambil', () async {
+      final first = await open();
+      first.dispose();
+      expect(draft.isEmpty, isTrue);
+    });
+
+    test('layar ditutup sebelum katalog termuat: draf tetap', () async {
+      final first = await open();
+      first
+        ..scan('kop')
+        ..dispose();
+      repo.nextError = Exception('lambat');
+      final failed = await open();
+      expect(failed.loaded, isFalse);
+      failed.dispose();
+      final again = await open();
+      expect(again.lines.single.title, 'Kopi Sachet');
+      again.dispose();
+    });
+
+    test('ditutup saat menyimpan: nota tidak kembali ke draf', () async {
+      final first = await open();
+      first
+        ..scan('8990001')
+        ..startPayment()
+        ..setReceived(const Money(100000));
+      final gate = repo.checkoutGate = Completer<void>();
+      final paying = first.pay.execute();
+      first.dispose();
+      gate.complete();
+      await paying;
+      expect(repo.checkouts, hasLength(1));
+      expect(draft.isEmpty, isTrue);
+    });
+
+    test('ditutup saat menyimpan lalu gagal: keranjang ke draf', () async {
+      final first = await open();
+      first
+        ..scan('8990001')
+        ..startPayment()
+        ..setReceived(const Money(100000));
+      final gate = repo.checkoutGate = Completer<void>();
+      repo.nextError = Exception('disk penuh');
+      final paying = first.pay.execute();
+      first.dispose();
+      gate.complete();
+      await paying;
+      expect(draft.lines, hasLength(1));
+    });
+
+    test('satuan konversi yang dihapus dibuang saat dipulihkan', () async {
+      final first = await open();
+      first
+        ..scan('8991234500024') // botol
+        ..scan('8991234500031') // Dus
+        ..dispose();
+      for (final v
+          in repo.catalog.products
+              .firstWhere((p) => p.name == 'Minyak Goreng')
+              .variants) {
+        v.units.clear();
+      }
+      final second = await open();
+      expect(second.lines.map((l) => l.unitName), ['botol']);
+      second.dispose();
     });
   });
 

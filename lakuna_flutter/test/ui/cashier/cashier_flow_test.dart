@@ -8,10 +8,12 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
+import 'package:lakuna_flutter/utils/result.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/fake_dining_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/qris_seed.dart';
@@ -156,6 +158,57 @@ void main() {
     expect(_text(tester, 'payment-change'), 'Rp 0');
     expect(repo.checkouts, isEmpty);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets('keranjang tetap saat pindah menu lalu kembali (F1-04c)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    expect(_text(tester, 'cashier-total'), 'Rp 4.000');
+
+    await _tap(tester, 'nav-home');
+    expect(_key('cashier-total'), findsNothing);
+    await _tap(tester, 'nav-cashier');
+    expect(_text(tester, 'cashier-total'), 'Rp 4.000');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('bayar open bill tidak memakai keranjang retail (F1-04c)', (
+    tester,
+  ) async {
+    final dining = FakeDiningRepository();
+    final repo = FakeCashierRepository(seed: cashierProducts())
+      ..dining = dining;
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.cashier,
+      cashier: repo,
+      dining: dining,
+    );
+    final kopi = dining.catalog.products
+        .firstWhere((p) => p.name == 'Kopi Susu Aren')
+        .variants
+        .single
+        .id;
+    final opened = await dining.openTable(dining.tables.first.id, 2);
+    final bill = (opened as Ok<OpenBill>).value;
+    await dining.addItem(
+      bill.id,
+      SaleLineRequest(variantId: kopi, quantity: Qty.one),
+    );
+
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await tester.binding.handlePushRoute(Routes.cashierBill(bill.id.uuid));
+    await tester.pumpAndSettle();
+    // Tahap bayar bill: keranjang retail tidak ikut.
+    expect(_key('cashier-total'), findsNothing);
+    await _tap(tester, 'payment-back');
+    await _tap(tester, 'nav-cashier');
+    expect(_text(tester, 'cashier-total'), 'Rp 4.000');
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('kartu: no. approval, galat simpan ditampilkan', (tester) async {
     final repo = await pump(tester);
