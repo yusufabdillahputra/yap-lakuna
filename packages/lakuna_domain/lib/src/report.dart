@@ -571,29 +571,29 @@ class StockMovementRow {
   Qty get closing => opening + inflow - outflow;
 }
 
-/// Awal (sebelum [start]), masuk dan keluar (dalam `[start, end)`), dan akhir
-/// per varian di [names]. Pergerakan sesudah [end] diabaikan. Varian tanpa
-/// stok dan tanpa pergerakan dilewati kecuali [includeAll]. Dengan
-/// [unitCost], nilai akhir dihitung dan baris urut nilai menurun; tanpa itu
-/// urut nama.
+/// Kartu stok ringkas per varian di [names] dari stok saat ini ([current],
+/// qty milli) dan pergerakan sejak [start] ([moves]; yang lebih awal
+/// diabaikan): awal = saat ini − Σ pergerakan sejak [start]; masuk dan
+/// keluar = pergerakan dalam `[start, end)`. Hanya pergerakan sejak awal
+/// periode yang perlu dimuat. Varian tanpa stok dan tanpa pergerakan
+/// dilewati. Dengan [valueOf] (nilai stok akhir), baris urut nilai menurun;
+/// tanpa itu urut nama.
 List<StockMovementRow> stockMovementRows({
   required Iterable<StockMove> moves,
   required DateTime start,
   required DateTime end,
   required Map<String, String> names,
-  Map<String, Money>? unitCost,
-  bool includeAll = false,
+  required Map<String, int> current,
+  Money Function(String key, Qty closing)? valueOf,
 }) {
-  final opening = <String, int>{};
+  final since = <String, int>{};
   final inflow = <String, int>{};
   final outflow = <String, int>{};
   final moved = <String>{};
   for (final m in moves) {
-    if (!names.containsKey(m.key) || !m.at.isBefore(end)) continue;
-    if (m.at.isBefore(start)) {
-      opening[m.key] = (opening[m.key] ?? 0) + m.quantityMilli;
-      continue;
-    }
+    if (!names.containsKey(m.key) || m.at.isBefore(start)) continue;
+    since[m.key] = (since[m.key] ?? 0) + m.quantityMilli;
+    if (!m.at.isBefore(end)) continue;
     moved.add(m.key);
     if (m.quantityMilli >= 0) {
       inflow[m.key] = (inflow[m.key] ?? 0) + m.quantityMilli;
@@ -603,21 +603,21 @@ List<StockMovementRow> stockMovementRows({
   }
   final rows = <StockMovementRow>[];
   for (final MapEntry(:key, value: name) in names.entries) {
+    final opening = Qty((current[key] ?? 0) - (since[key] ?? 0));
     final row = StockMovementRow(
       key: key,
       name: name,
-      opening: Qty(opening[key] ?? 0),
+      opening: opening,
       inflow: Qty(inflow[key] ?? 0),
       outflow: Qty(outflow[key] ?? 0),
     );
-    if (!includeAll &&
-        !moved.contains(key) &&
+    if (!moved.contains(key) &&
         row.opening == Qty.zero &&
         row.closing == Qty.zero) {
       continue;
     }
     rows.add(
-      unitCost == null
+      valueOf == null
           ? row
           : StockMovementRow(
               key: key,
@@ -625,21 +625,39 @@ List<StockMovementRow> stockMovementRows({
               opening: row.opening,
               inflow: row.inflow,
               outflow: row.outflow,
-              value: (unitCost[key] ?? Money.zero).timesMilli(
-                row.closing.milli,
-              ),
+              value: valueOf(key, row.closing),
             ),
     );
   }
   rows.sort((a, b) {
-    if (unitCost != null) {
+    if (valueOf != null) {
       final c = b.value!.compareTo(a.value!);
       if (c != 0) return c;
     }
-    final n = a.name.compareTo(b.name);
+    final n = a.name.toLowerCase().compareTo(b.name.toLowerCase());
     return n != 0 ? n : a.key.compareTo(b.key);
   });
   return rows;
+}
+
+/// Nilai stok [qty] dari stok saat ini senilai [value] untuk [current]
+/// (rata-rata tertimbang semua lokasi): tepat [value] bila [qty] =
+/// [current], selain itu proporsional (bulat setengah menjauhi nol). Tanpa
+/// stok saat ini memakai [fallback] per satuan dasar.
+Money stockValueOf({
+  required Money value,
+  required Qty current,
+  required Qty qty,
+  required Money fallback,
+}) {
+  if (qty == current) return value;
+  if (current.milli <= 0) return fallback.timesMilli(qty.milli);
+  return Money(
+    divRoundHalfAway(
+      BigInt.from(value.value) * BigInt.from(qty.milli),
+      BigInt.from(current.milli),
+    ),
+  );
 }
 
 // --- Kelompok total (kas, retur) --------------------------------------------

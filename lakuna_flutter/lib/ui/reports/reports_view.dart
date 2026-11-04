@@ -14,8 +14,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
 import '../customers/customer_labels.dart' show formatLongDate;
-import '../history/history_labels.dart'
-    show refundMethodLabel, returnReasonLabel;
+import '../history/history_labels.dart' show returnReasonLabel;
 import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import '../receipt/receipt_content.dart' show receiptDate;

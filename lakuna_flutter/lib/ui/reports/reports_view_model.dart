@@ -134,7 +134,11 @@ class ReportsViewModel extends ChangeNotifier {
     _period = period;
     export.clearResult();
     notifyListeners();
-    await Future.wait([_fetch(), _fetchExtra()]);
+    await Future.wait([
+      _fetch(),
+      // Piutang & hutang tidak tergantung periode.
+      if (_tab != ReportTab.debts) _fetchExtra(),
+    ]);
   }
 
   void setTab(ReportTab tab) {

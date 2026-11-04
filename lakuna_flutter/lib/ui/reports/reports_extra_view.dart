@@ -53,6 +53,7 @@ class _Table extends StatelessWidget {
     required this.columns,
     required this.lines,
     required this.empty,
+    this.cardWidth = _cardListWidth,
   });
 
   final String id;
@@ -60,6 +61,9 @@ class _Table extends StatelessWidget {
   final List<_Col> columns;
   final List<_Line> lines;
   final String empty;
+
+  /// Di bawah lebar ini baris tampil sebagai kartu.
+  final double cardWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +83,7 @@ class _Table extends StatelessWidget {
             )
           : LayoutBuilder(
               builder: (context, c) {
-                final cards = c.maxWidth < _cardListWidth;
+                final cards = c.maxWidth < cardWidth;
                 Widget cell(String text, int i, {bool strong = false}) {
                   final col = columns[i];
                   return Expanded(
@@ -586,6 +590,7 @@ class _Returns extends StatelessWidget {
             _Table(
               id: 'returns-list',
               title: l10n.reportsReturnsList,
+              cardWidth: 900,
               empty: l10n.reportsReturnsEmpty,
               columns: [
                 _Col(l10n.reportsColTime, flex: 3, right: false),
@@ -606,7 +611,7 @@ class _Returns extends StatelessWidget {
                     x.staffName,
                     returnReasonLabel(l10n, x.reason),
                     x.restock ? l10n.reportsYes : l10n.reportsNo,
-                    refundMethodLabel(l10n, x.refundMethod),
+                    returnRefundLabel(l10n, x),
                     formatMoney(context, x.amount),
                   ]),
               ],

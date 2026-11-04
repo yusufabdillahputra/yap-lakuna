@@ -7,23 +7,23 @@ void main() {
     final end = DateTime.utc(2026, 11, 30, 17); // 1 Des 00.00 WIB
     StockMove move(String key, int milli, DateTime at) =>
         StockMove(key: key, quantityMilli: milli, at: at);
+    const costs = {'kopi': Money(6000), 'teh': Money(2500)};
 
-    test('awal, masuk, keluar, akhir per varian dan nilai akhir', () {
+    test('awal dari stok saat ini, masuk, keluar, akhir, nilai', () {
+      // Kopi: 10 (Okt) − 2 (Okt) + 5 + 1 − 3 (Nov) − 4 (Des) = saat ini 7.
       final rows = stockMovementRows(
         moves: [
-          move('kopi', 10000, DateTime.utc(2026, 10, 1)), // stok awal
-          move('kopi', -2000, DateTime.utc(2026, 10, 20)),
+          move('kopi', -2000, DateTime.utc(2026, 10, 20)), // sebelum: abaikan
           move('kopi', 5000, DateTime.utc(2026, 11, 2)), // beli
           move('kopi', -3000, DateTime.utc(2026, 11, 3)), // jual
           move('kopi', 1000, DateTime.utc(2026, 11, 3)), // retur
           move('kopi', -4000, DateTime.utc(2026, 12, 2)), // sesudah periode
-          move('teh', 3000, DateTime.utc(2026, 9, 1)), // tanpa gerak periode
-          move('gula', 0, DateTime.utc(2026, 9, 1)),
         ],
         start: start,
         end: end,
         names: const {'kopi': 'Kopi', 'teh': 'Teh', 'gula': 'Gula'},
-        unitCost: const {'kopi': Money(6000), 'teh': Money(2500)},
+        current: const {'kopi': 7000, 'teh': 3000},
+        valueOf: (k, q) => (costs[k] ?? Money.zero).timesMilli(q.milli),
       );
       expect(
         rows.map(
@@ -51,7 +51,7 @@ void main() {
       expect(rows.first.name, 'Kopi');
     });
 
-    test('tanpa harga pokok: nilai null, urut nama', () {
+    test('tanpa nilai: urut nama tanpa membedakan huruf besar', () {
       final rows = stockMovementRows(
         moves: [
           move('b', 1000, DateTime.utc(2026, 11, 2)),
@@ -59,21 +59,45 @@ void main() {
         ],
         start: start,
         end: end,
-        names: const {'a': 'Apel', 'b': 'Beras'},
+        names: const {'a': 'beras', 'b': 'Apel'},
+        current: const {'a': 2000, 'b': 1000},
       );
-      expect(rows.map((r) => r.name), ['Apel', 'Beras']);
+      expect(rows.map((r) => r.name), ['Apel', 'beras']);
       expect(rows.first.value, isNull);
     });
+  });
 
-    test('barang tanpa pergerakan sama sekali tetap tampil bila diminta', () {
-      final rows = stockMovementRows(
-        moves: const [],
-        start: start,
-        end: end,
-        names: const {'a': 'Apel'},
-        includeAll: true,
+  group('stockValueOf', () {
+    test('tepat nilai saat ini, proporsional, atau harga cadangan', () {
+      const value = Money(100000); // 3 pcs dari dua lokasi berbeda harga
+      final current = Qty.units(3);
+      expect(
+        stockValueOf(
+          value: value,
+          current: current,
+          qty: current,
+          fallback: const Money(1),
+        ),
+        value,
       );
-      expect(rows.single.closing, Qty.zero);
+      expect(
+        stockValueOf(
+          value: value,
+          current: current,
+          qty: Qty.units(1),
+          fallback: const Money(1),
+        ),
+        const Money(33333),
+      );
+      expect(
+        stockValueOf(
+          value: Money.zero,
+          current: Qty.zero,
+          qty: Qty.units(2),
+          fallback: const Money(9000),
+        ),
+        const Money(18000),
+      );
     });
   });
 

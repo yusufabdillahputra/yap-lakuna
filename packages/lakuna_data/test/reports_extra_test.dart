@@ -145,7 +145,7 @@ void main() {
     );
     expect(r.unitOf[v(roti).id.uuid], 'bks');
 
-    // Kemarin: stok awal masuk pada periode itu.
+    // 7 hari terakhir mencakup stok awal kemarin.
     final yesterday = await loadStockReport(
       store,
       scope,
@@ -176,6 +176,158 @@ void main() {
         now: now,
       ),
       throwsA(isA<ReportActorNotPermitted>()),
+    );
+  });
+
+  test('stok: beberapa lokasi, nilai kartu = jumlah nilai baris', () async {
+    await open(100000);
+    final gudang = await createStockLocation(
+      store,
+      scope,
+      staffId: owner(),
+      name: 'Gudang',
+    );
+    final supplier = await saveSupplier(
+      store,
+      scope,
+      staffId: owner(),
+      input: const SupplierInput(name: 'CV Sumber', termDays: 7),
+    );
+    now = DateTime.utc(2026, 11, 4, 3);
+    // 10 kopi @9.000 masuk Gudang; lokasi bawaan tetap 20 @6.000.
+    await receivePurchase(
+      store,
+      scope,
+      staffId: owner(),
+      request: PurchaseRequest(
+        supplierId: supplier.id,
+        purchasedOn: DateTime.utc(2026, 11, 4),
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(kopi).id,
+            quantity: Qty.units(10),
+            unitPrice: const Money(9000),
+          ),
+        ],
+        paid: const Money(90000),
+        funding: FundingSource.bank,
+      ),
+    );
+    final r = await loadStockReport(
+      store,
+      scope,
+      permissions: all,
+      period: ReportPeriod.today,
+      now: now,
+    );
+    final row = r.rows.firstWhere((x) => x.name == 'Kopi Bubuk');
+    expect(row.opening, Qty.units(20));
+    expect(row.inflow, Qty.units(10));
+    expect(row.closing, Qty.units(30));
+    expect(row.value, const Money(20 * 6000 + 10 * 9000));
+    expect(r.totalValue, Money.sum(r.rows.map((x) => x.value!)));
+    // Minimum dibanding stok lokasi bawaan, seperti layar Stok.
+    expect(r.lowCount, 1);
+
+    // Bulan lalu: semua pergerakan sesudah periode, jadi kosong.
+    final october = await loadStockReport(
+      store,
+      scope,
+      permissions: all,
+      period: const ReportPeriod.month(2026, 10),
+      now: now,
+    );
+    expect(october.rows, isEmpty);
+  });
+
+  test('kas: bayar pembelian keluar, refund retur pembelian masuk', () async {
+    final session = await open(100000);
+    final supplier = await saveSupplier(
+      store,
+      scope,
+      staffId: owner(),
+      input: const SupplierInput(name: 'CV Sumber', termDays: 7),
+    );
+    now = DateTime.utc(2026, 11, 4, 3);
+    final location = await defaultStockLocation(store, scope);
+    final purchase = await receivePurchase(
+      store,
+      scope,
+      staffId: owner(),
+      request: PurchaseRequest(
+        supplierId: supplier.id,
+        purchasedOn: DateTime.utc(2026, 11, 4),
+        locationId: location.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(kopi).id,
+            quantity: Qty.units(2),
+            unitPrice: const Money(6000),
+          ),
+        ],
+        paid: const Money(12000),
+        funding: FundingSource.drawer,
+      ),
+    );
+    final detail = await loadPurchaseDetail(store, scope, purchase.id);
+    await returnPurchase(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: purchase.id,
+      lines: [
+        PurchaseReturnLine(
+          purchaseItemId: detail.items.single.id,
+          quantity: Qty.one,
+        ),
+      ],
+      refundSource: FundingSource.drawer,
+    );
+    final r = await loadCashReport(
+      store,
+      scope,
+      permissions: viewOnly,
+      period: ReportPeriod.today,
+      now: now,
+    );
+    expect(r.outflows.map((g) => (g.key, g.total)), [
+      (CashSourceKind.purchase, const Money(12000)),
+    ]);
+    expect(r.inflows.map((g) => (g.key, g.total)), [
+      (CashSourceKind.purchaseRefund, const Money(6000)),
+    ]);
+    // Sesi kemarin masih buka: seharusnya ikut gerakan hari ini.
+    expect(r.sessions.single.expected, const Money(100000 - 12000 + 6000));
+    expect(session.status, CashSessionStatus.opened);
+  });
+
+  test('tanpa reports:view semua tab ditolak', () async {
+    now = DateTime.utc(2026, 11, 4, 3);
+    final denied = throwsA(isA<ReportActorNotPermitted>());
+    await expectLater(
+      loadCashReport(
+        store,
+        scope,
+        permissions: const {Permission.reportsViewProfit},
+        period: ReportPeriod.today,
+        now: now,
+      ),
+      denied,
+    );
+    await expectLater(
+      loadDebtReport(store, scope, permissions: const {}, now: now),
+      denied,
+    );
+    await expectLater(
+      loadReturnsReport(
+        store,
+        scope,
+        permissions: const {},
+        period: ReportPeriod.today,
+        now: now,
+      ),
+      denied,
     );
   });
 

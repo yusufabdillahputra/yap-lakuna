@@ -10,6 +10,7 @@ import '../cashier/payment_view.dart' show paymentMethodLabel;
 import '../customers/customer_labels.dart';
 import '../history/history_labels.dart'
     show refundMethodLabel, returnReasonLabel;
+import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import '../receipt/receipt_content.dart' show receiptDate;
 import 'reports_view_model.dart';
 
@@ -75,9 +76,21 @@ String cashSourceLabel(AppLocalizations l10n, CashSourceKind k) => switch (k) {
   CashSourceKind.expenseVoid => l10n.reportsSourceExpenseVoid,
   CashSourceKind.supplierPayment => l10n.reportsSourceSupplierPayment,
   CashSourceKind.purchase => l10n.reportsSourcePurchase,
+  CashSourceKind.purchaseRefund => l10n.reportsSourcePurchaseRefund,
   CashSourceKind.debtPayment => l10n.reportsSourceDebtPayment,
   CashSourceKind.other => l10n.reportsSourceOther,
 };
+
+/// Cara refund retur; sebagian memotong piutang → `Tunai dari laci +
+/// potong piutang`.
+String returnRefundLabel(AppLocalizations l10n, ReturnReportLine r) {
+  final method = refundMethodLabel(l10n, r.refundMethod);
+  return r.debtReduction > Money.zero &&
+          r.refundMethod != RefundMethod.debt &&
+          r.debtReduction < r.amount
+      ? l10n.reportsRefundMixed(method)
+      : method;
+}
 
 /// Qty + satuan dasar varian [key], mis. `18 pcs`.
 String unitQty(
@@ -453,8 +466,8 @@ ReportTable reportTable(
               x.staffName,
               money(x.opening),
               money(x.expected),
-              if (x.counted case final c?) money(c) else l10n.reportsCashOpen,
-              if (x.difference case final d?) money(d) else '',
+              if (x.counted case final c?) money(c) else null,
+              if (x.difference case final d?) money(d) else null,
             ]),
           ReportRow([
             l10n.reportsTotal,
@@ -475,6 +488,7 @@ ReportTable reportTable(
                 '${signedMoneyLabel(l10n, -g.total)}',
           if (r.inflows.isEmpty && r.outflows.isEmpty)
             l10n.reportsCashNoMovements,
+          if (r.openCount > 0) l10n.reportsCashOpenNote,
           l10n.reportsCashNote,
         ],
       );
@@ -489,13 +503,15 @@ ReportTable reportTable(
           l10n.reportsColLine,
           l10n.reportsColOpenCount,
           l10n.reportsColOverdueCount,
+          l10n.reportsColNearestDue,
           l10n.reportsColRemaining,
         ],
-        widths: const [36, 14, 14, 18],
-        flex: const [4, 2, 2, 2],
+        widths: const [36, 14, 14, 18, 18],
+        flex: const [4, 2, 2, 2, 2],
         rows: [
           ReportRow([
             l10n.reportsDebtCustomers,
+            null,
             null,
             null,
             null,
@@ -505,10 +521,12 @@ ReportTable reportTable(
               c.customer.name,
               c.openCount,
               c.overdueCount,
+              null,
               money(c.outstanding),
             ], indent: true),
           ReportRow([
             l10n.reportsTotal,
+            null,
             null,
             null,
             money(r.receivable),
@@ -518,16 +536,19 @@ ReportTable reportTable(
             null,
             null,
             null,
+            null,
           ], strong: true),
           for (final x in r.suppliers)
             ReportRow([
               x.supplier.name,
               x.openCount,
               x.overdueCount,
+              if (x.nearestDue case final d?) formatCalendarDate(d) else null,
               money(x.debt),
             ], indent: true),
           ReportRow([
             l10n.reportsTotal,
+            null,
             null,
             null,
             money(r.payable),
@@ -565,7 +586,7 @@ ReportTable reportTable(
               x.staffName,
               returnReasonLabel(l10n, x.reason),
               x.restock ? l10n.reportsYes : l10n.reportsNo,
-              refundMethodLabel(l10n, x.refundMethod),
+              returnRefundLabel(l10n, x),
               money(x.amount),
             ]),
           ReportRow([

@@ -51,8 +51,13 @@ class FakeReportsRepository extends ReportsRepository {
   /// Permintaan tab lanjutan, mis. `stock:ReportPeriod.today`.
   final extraRequests = <String>[];
 
-  Result<T> _extra<T>(String tab, ReportPeriod? period, T Function() build) {
+  Future<Result<T>> _extra<T>(
+    String tab,
+    ReportPeriod? period,
+    T Function() build,
+  ) async {
     extraRequests.add('$tab:$period');
+    if (holds[period] case final hold?) await hold.future;
     if (!canView) {
       return const Result.error(NotPermitted(Permission.reportsView));
     }

@@ -6108,4 +6108,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsNo => 'No';
+
+  @override
+  String get reportsSourcePurchaseRefund => 'Purchase return refunds';
+
+  @override
+  String reportsRefundMixed(String method) {
+    return '$method + debt reduction';
+  }
+
+  @override
+  String get reportsCashOpenNote =>
+      'Empty counted and difference = session still open.';
 }

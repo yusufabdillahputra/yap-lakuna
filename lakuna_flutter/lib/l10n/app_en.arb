@@ -3198,5 +3198,15 @@
   "reportsColRestock": "Restock",
   "reportsColRefund": "Refund",
   "reportsYes": "Yes",
-  "reportsNo": "No"
+  "reportsNo": "No",
+  "reportsSourcePurchaseRefund": "Purchase return refunds",
+  "reportsRefundMixed": "{method} + debt reduction",
+  "@reportsRefundMixed": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsCashOpenNote": "Empty counted and difference = session still open."
 }

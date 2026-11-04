@@ -10579,6 +10579,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tidak'**
   String get reportsNo;
+
+  /// No description provided for @reportsSourcePurchaseRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Refund retur pembelian'**
+  String get reportsSourcePurchaseRefund;
+
+  /// No description provided for @reportsRefundMixed.
+  ///
+  /// In id, this message translates to:
+  /// **'{method} + potong piutang'**
+  String reportsRefundMixed(String method);
+
+  /// No description provided for @reportsCashOpenNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Dihitung dan selisih kosong = sesi masih buka.'**
+  String get reportsCashOpenNote;
 }
 
 class _AppLocalizationsDelegate

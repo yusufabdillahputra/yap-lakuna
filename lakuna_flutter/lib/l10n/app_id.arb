@@ -3732,5 +3732,15 @@
   "reportsColRestock": "Ke stok",
   "reportsColRefund": "Refund",
   "reportsYes": "Ya",
-  "reportsNo": "Tidak"
+  "reportsNo": "Tidak",
+  "reportsSourcePurchaseRefund": "Refund retur pembelian",
+  "reportsRefundMixed": "{method} + potong piutang",
+  "@reportsRefundMixed": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsCashOpenNote": "Dihitung dan selisih kosong = sesi masih buka."
 }

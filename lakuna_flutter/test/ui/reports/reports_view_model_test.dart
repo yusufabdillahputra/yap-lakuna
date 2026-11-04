@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/reports_repository.dart';
@@ -117,6 +118,30 @@ void main() {
         vm.exportFileName(ReportFormat.pdf),
         'laporan-piutang-hutang-261104.pdf',
       );
+      // Ganti periode di tab Piutang & hutang tidak memuat ulang tab itu.
+      final before = repo.extraRequests.length;
+      await vm.setPeriod(ReportPeriod.today);
+      expect(repo.extraRequests.length, before);
+      expect(vm.debts, isNotNull);
+    });
+
+    test('tab lanjutan: jawaban usang diabaikan', () async {
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      vm.setTab(ReportTab.stock);
+      await pumpEventQueue();
+      const oct = ReportPeriod.month(2026, 10);
+      final hold = repo.holds[oct] = Completer<void>();
+      // Muatan Oktober (utama ditahan) dan stok Oktober berjalan; lalu
+      // kembali ke hari ini sebelum Oktober selesai.
+      final octLoad = vm.setPeriod(oct);
+      await vm.setPeriod(ReportPeriod.today);
+      hold.complete();
+      await octLoad;
+      expect(vm.period, ReportPeriod.today);
+      // Stok Oktober (kosong) datang terakhir tetapi diabaikan.
+      expect(vm.stock!.rows, isNotEmpty);
+      expect(repo.extraRequests.last, 'stock:ReportPeriod.today');
     });
 
     test('tab lanjutan: galat izin tampil di tab itu', () async {
@@ -285,7 +310,15 @@ void main() {
         SalesGroup.product,
         cash: cash,
       );
-      expect(c.rows.first.cells[4], 'Masih buka');
+      // Sesi masih buka: Dihitung dan Selisih kosong (+ catatan), agar
+      // kolom angka tetap rata kanan di PDF.
+      expect(c.rows.first.cells[4], isNull);
+      expect(c.rows.first.cells[5], isNull);
+      expect(
+        c.notes,
+        contains('Dihitung dan selisih kosong = sesi masih buka.'),
+      );
+      expect(reportRightAligned(c).skip(2), everyElement(isTrue));
       expect((c.rows[1].cells[5]! as XlsxNumber).value, -5000);
       expect(c.notes, contains('Pengeluaran (2×): − Rp 25.000'));
       expect(c.notes, contains('Kas masuk manual (1×): + Rp 5.000'));
@@ -308,7 +341,25 @@ void main() {
         'CV Sumber',
         'Total',
       ]);
-      expect((d.rows[3].cells[3]! as XlsxNumber).value, 200000);
+      expect((d.rows[3].cells[4]! as XlsxNumber).value, 200000);
+      expect(d.rows[5].cells[3], '10/11/2026');
+      expect(
+        returnRefundLabel(
+          id,
+          ReturnReportLine(
+            returnedAt: DateTime.utc(2026, 11, 4),
+            number: 'R',
+            saleNumber: 'S',
+            staffName: 'Sari',
+            reason: SaleReturnReason.other,
+            restock: false,
+            refundMethod: RefundMethod.cash,
+            amount: const Money(20000),
+            debtReduction: const Money(5000),
+          ),
+        ),
+        'Tunai dari laci + potong piutang',
+      );
 
       final returns = ((await repo.loadReturns(
         ReportPeriod.today,

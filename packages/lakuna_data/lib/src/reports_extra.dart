@@ -113,7 +113,6 @@ Future<StockReport> loadStockReport(
         l.deletedAt.equals(null),
   );
   final locationIds = {for (final l in locations) l.id};
-  final defaultId = locations.where((l) => l.isDefault).firstOrNull?.id;
   final levels = locationIds.isEmpty
       ? const <StockLevel>[]
       : await StockLevel.db.find(
@@ -128,23 +127,28 @@ Future<StockReport> loadStockReport(
       u.id: u.name,
   };
 
+  final variantById = {for (final v in variants) v.id: v};
+  final levelsOf = <UuidValue, List<StockLevel>>{};
+  for (final l in levels) {
+    if (variantById.containsKey(l.variantId)) {
+      levelsOf.putIfAbsent(l.variantId, () => []).add(l);
+    }
+  }
+  // Lokasi bawaan seperti `defaultStockLocation`: `isDefault`, atau yang
+  // tertua.
+  final defaultId =
+      (locations.where((l) => l.isDefault).firstOrNull ??
+              (locations.toList()
+                    ..sort((a, b) => a.createdAt.compareTo(b.createdAt)))
+                  .firstOrNull)
+          ?.id;
+
   final names = <String, String>{};
   final unitOf = <String, String>{};
-  final unitCost = <String, Money>{};
-  final stock = <UuidValue, int>{};
+  final current = <String, int>{};
+  final valueNow = <String, Money>{};
+  final fallback = <String, Money>{};
   var totalValue = Money.zero;
-  for (final l in levels) {
-    stock[l.variantId] = (stock[l.variantId] ?? 0) + l.quantityMilli;
-  }
-  final variantById = {for (final v in variants) v.id: v};
-  for (final l in levels) {
-    final v = variantById[l.variantId];
-    if (v == null) continue;
-    totalValue += adjustmentUnitCost(
-      avgCost: Money(l.avgCost),
-      costPrice: Money(v.costPrice),
-    ).timesMilli(l.quantityMilli);
-  }
   var low = 0;
   var out = 0;
   for (final v in variants) {
@@ -152,22 +156,36 @@ Future<StockReport> loadStockReport(
     final key = v.id.uuid;
     names[key] = v.name.isEmpty ? p.name : '${p.name} ${v.name}';
     if (units[p.baseUnitId] case final unit?) unitOf[key] = unit;
-    final level = levels
-        .where((l) => l.variantId == v.id && l.stockLocationId == defaultId)
-        .firstOrNull;
-    unitCost[key] = adjustmentUnitCost(
-      avgCost: Money(level?.avgCost ?? 0),
+    final own = levelsOf[v.id] ?? const <StockLevel>[];
+    Money costAt(StockLevel? l) => adjustmentUnitCost(
+      avgCost: Money(l?.avgCost ?? 0),
       costPrice: Money(v.costPrice),
     );
-    final qty = stock[v.id] ?? 0;
-    if (qty <= 0) {
+    var qty = 0;
+    var value = Money.zero;
+    for (final l in own) {
+      qty += l.quantityMilli;
+      value += costAt(l).timesMilli(l.quantityMilli);
+    }
+    current[key] = qty;
+    valueNow[key] = value;
+    final atDefault = own
+        .where((l) => l.stockLocationId == defaultId)
+        .firstOrNull;
+    fallback[key] = costAt(atDefault);
+    totalValue += value;
+    // Sama dengan layar Stok (1.18): minimum berlaku di lokasi bawaan.
+    final here = atDefault?.quantityMilli ?? 0;
+    if (here <= 0) {
       out++;
-    } else if (v.minStockMilli > 0 && qty <= v.minStockMilli) {
+    } else if (v.minStockMilli > 0 && here <= v.minStockMilli) {
       low++;
     }
   }
 
   final (start, end) = _bounds(period.range(ctx.today), ctx.timezone);
+  // Hanya pergerakan sejak awal periode; awal dihitung mundur dari stok
+  // saat ini.
   final moves = [
     for (final ids in _chunks(variants.map((v) => v.id)))
       for (final m in await StockMovement.db.find(
@@ -177,7 +195,7 @@ Future<StockReport> loadStockReport(
             m.outletId.equals(scope.outletId) &
             m.deletedAt.equals(null) &
             m.variantId.inSet(ids) &
-            (m.occurredAt < end),
+            (m.occurredAt >= start),
       ))
         StockMove(
           key: m.variantId.uuid,
@@ -191,7 +209,15 @@ Future<StockReport> loadStockReport(
       start: start,
       end: end,
       names: names,
-      unitCost: ctx.withProfit ? unitCost : null,
+      current: current,
+      valueOf: ctx.withProfit
+          ? (key, qty) => stockValueOf(
+              value: valueNow[key]!,
+              current: Qty(current[key]!),
+              qty: qty,
+              fallback: fallback[key]!,
+            )
+          : null,
     ),
     unitOf: unitOf,
     variantCount: variants.length,
@@ -239,6 +265,9 @@ enum CashSourceKind {
   expenseVoid,
   supplierPayment,
   purchase,
+
+  /// Uang kembali dari retur pembelian (masuk).
+  purchaseRefund,
   debtPayment,
   other,
 }
@@ -251,7 +280,10 @@ CashSourceKind _cashKind(CashMovement m) => switch (m.source) {
   expenseCashSource => CashSourceKind.expense,
   expenseVoidCashSource => CashSourceKind.expenseVoid,
   supplierPaymentCashSource => CashSourceKind.supplierPayment,
-  purchaseCashSource => CashSourceKind.purchase,
+  purchaseCashSource =>
+    m.direction == CashDirection.inflow
+        ? CashSourceKind.purchaseRefund
+        : CashSourceKind.purchase,
   debtPaymentCashSource => CashSourceKind.debtPayment,
   _ => CashSourceKind.other,
 };
@@ -436,6 +468,7 @@ class ReturnReportLine {
     required this.restock,
     required this.refundMethod,
     required this.amount,
+    this.debtReduction = Money.zero,
   });
 
   /// Waktu lokal cabang.
@@ -447,6 +480,10 @@ class ReturnReportLine {
   final bool restock;
   final RefundMethod refundMethod;
   final Money amount;
+
+  /// Bagian [amount] yang memotong piutang nota kredit (sisanya lewat
+  /// [refundMethod]).
+  final Money debtReduction;
 }
 
 /// Tab Retur.
@@ -514,6 +551,7 @@ Future<ReturnsReport> loadReturnsReport(
         restock: r.restock,
         refundMethod: r.refundMethod,
         amount: Money(r.amount),
+        debtReduction: Money(r.debtReduction),
       ),
   ]);
 }

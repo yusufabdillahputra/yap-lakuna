@@ -54,6 +54,25 @@ Ditemukan sebelum rilis (uji manual), bukan bug versi sebelumnya:
 - Sesi kasir yang dibuka kemarin dan belum ditutup tidak tampil di laporan
   *Hari ini* walau gerakan kasnya tampil; kini tab menampilkan sesi yang
   aktif pada periode, bukan hanya yang dibuka pada periode.
+- Temuan review kode:
+  - Kartu *Nilai stok* dan total *Nilai akhir* bisa berbeda untuk hari yang
+    sama bila stok ada di lokasi lain (mis. Gudang) dengan harga pokok
+    berbeda; kini nilai per varian memakai rata-rata tertimbang semua
+    lokasi dan totalnya sama dengan kartu.
+  - Tab Stok memuat seluruh riwayat pergerakan setiap dibuka; kini hanya
+    pergerakan sejak awal periode, stok awal dihitung mundur dari stok saat
+    ini.
+  - Uang kembali retur pembelian tampil sebagai *Bayar pembelian* bertanda
+    `+`; kini *Refund retur pembelian*.
+  - *Stok menipis* / *Stok habis* kini memakai stok lokasi bawaan seperti
+    layar Stok.
+  - Retur nota kredit yang sebagian memotong piutang kini tertulis *Tunai
+    dari laci + potong piutang*.
+  - Ekspor: kolom *Jatuh tempo terdekat* supplier ikut; sesi yang masih buka
+    tidak lagi membuat kolom angka PDF rata kiri.
+  - Tabel daftar retur menjadi kartu di bawah 900 px agar tidak berdesakan;
+    urutan nama stok tidak membedakan huruf besar.
+  - Ganti periode di tab Piutang & hutang tidak lagi memuat ulang tab itu.
 
 ### Keamanan
 
@@ -62,8 +81,9 @@ Ditemukan sebelum rilis (uji manual), bukan bug versi sebelumnya:
 
 ### Catatan teknis
 
-- Domain: `StockMove`, `StockMovementRow`, `stockMovementRows` (awal /
-  masuk / keluar / akhir dari pergerakan + batas periode), `groupTotals`.
+- Domain: `StockMove`, `StockMovementRow`, `stockMovementRows` (awal
+  dihitung mundur dari stok saat ini, masuk / keluar / akhir per periode),
+  `stockValueOf`, `groupTotals`.
 - Data `lakuna_data/reports_extra.dart` (bagian dari `reports.dart`):
   `loadStockReport`, `loadCashReport` (`CashSourceKind` dari kolom
   `source`), `loadDebtReport` (memakai `listCustomers` dan

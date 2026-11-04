@@ -188,16 +188,21 @@ periode berganti. Semua butuh `reports:view`.
 
 - Cakupan: varian **barang** (`ProductType.goods`) yang belum dihapus, semua
   lokasi stok cabang ini dijumlahkan (transfer antarlokasi saling hapus).
-- Kartu: *Nilai stok* (hanya `reports:view_profit`; Σ stok saat ini × harga
-  pokok rata-rata, atau harga beli bila rata-rata 0, sama dengan opname),
-  *Produk barang* (jumlah varian), *Stok menipis* (0 < stok ≤ minimum),
-  *Stok habis* (stok ≤ 0).
+- Kartu: *Nilai stok* (hanya `reports:view_profit`; Σ per lokasi stok saat
+  ini × harga pokok rata-rata lokasi itu, atau harga beli bila rata-rata 0,
+  sama dengan opname), *Produk barang* (jumlah varian), *Stok menipis* dan
+  *Stok habis* (stok di lokasi bawaan dibanding minimum, sama dengan layar
+  Stok 1.18).
 - Tabel **pergerakan periode** (kartu stok ringkas) per varian yang punya
   stok atau pergerakan pada periode: Produk, Awal, Masuk, Keluar, Akhir
   (qty satuan dasar), Nilai akhir (hanya `reports:view_profit`).
   Awal = Σ pergerakan sebelum awal periode; Masuk = Σ pergerakan positif
   pada periode; Keluar = Σ |pergerakan negatif|; Akhir = Awal + Masuk −
-  Keluar. Nilai akhir = Akhir × harga pokok saat ini (catatan di tab).
+  Keluar. Awal dihitung mundur dari stok saat ini dikurangi pergerakan
+  sejak awal periode, jadi hanya pergerakan sejak awal periode yang dimuat.
+  Nilai akhir = nilai stok saat ini varian itu bila Akhir = stok saat ini,
+  selain itu proporsional (rata-rata tertimbang semua lokasi), sehingga di
+  periode yang berakhir hari ini Σ nilai akhir = kartu *Nilai stok*.
   Urut nilai akhir menurun bila boleh melihat nilai, selain itu nama.
 - Batas periode: `occurred_at` dalam zona waktu cabang, sama dengan nota.
 
@@ -213,13 +218,17 @@ periode berganti. Semua butuh `reports:view`.
   tutup), *Kas masuk lain*, *Kas keluar lain* (gerakan kas pada periode).
 - Tabel **kas masuk & keluar**: gerakan kas (`cash_movements.created_at`
   pada periode) dikelompokkan sumber: Manual masuk, Manual keluar,
-  Pengeluaran, Batal pengeluaran, Bayar hutang supplier, Terima piutang;
-  kolom Sumber, Catatan (jumlah baris), Masuk, Keluar.
+  Pengeluaran, Batal pengeluaran, Bayar hutang supplier, Bayar pembelian,
+  Refund retur pembelian, Terima piutang; kolom Sumber, Catatan (jumlah
+  baris), Jumlah bertanda (`+` masuk, `−` keluar). Di ekspor ditulis sebagai
+  catatan di bawah tabel sesi.
 
 ### Piutang & hutang
 
 - Posisi **hari ini**, tidak tergantung periode (subjudul tab menyebut
-  tanggal). Data dari `listCustomers` dan `loadSuppliersOverview`.
+  tanggal). Data dari `listCustomers` dan `loadSuppliersOverview`. Cukup
+  `reports:view` (katalog izin belum punya izin lihat pelanggan/supplier
+  tersendiri); hutang supplier dan kas pembelian ikut terlihat.
 - Kartu: *Piutang pelanggan* (total, N pelanggan), *Piutang jatuh tempo*
   (total, N pelanggan), *Hutang supplier* (total, N supplier), *Nota beli
   lewat tempo* (jumlah nota).
@@ -231,7 +240,8 @@ periode berganti. Semua butuh `reports:view`.
 
 - Retur penjualan cabang ini dengan `returned_at` pada periode: Waktu, No
   retur, No nota, Petugas, Alasan, Kembali ke stok (Ya/Tidak), Cara refund
-  (tunai, transfer, potong piutang), Nilai.
+  (tunai, transfer, potong piutang; retur nota kredit yang sebagian
+  memotong piutang ditulis *Tunai dari laci + potong piutang*), Nilai.
 - Kartu: *Retur* (N), *Nilai retur* (Σ `amount`), *Kembali ke stok* (N),
   *Rusak/kedaluwarsa* (N).
 - Ringkasan per alasan (jumlah dan nilai).
@@ -254,6 +264,7 @@ tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
 | Pembulatan total (F1-18) | Baris tersendiri | Belum ada pembulatan | Tambah baris saat pembulatan dibangun. |
 | Service charge di rincian | – | Per produk/kategori tanpa service, per kasir dengan service (catatan di tab) | Tambah baris *Service charge* di tabel per produk bila pemilik meminta total yang sama. |
+| Indeks pergerakan stok per waktu | – | Tab Stok memuat pergerakan sejak awal periode tanpa indeks `occurred_at` | Tambah indeks `(outlet_id, occurred_at)` bila tab terasa lambat di data besar. |
 | Biaya muat | – | Tiap ganti periode memuat periode + pembanding + piutang | Cukup untuk skala UMKM; simpan piutang jatuh tempo di cache bila terasa lambat. |
 
 ## Kriteria selesai

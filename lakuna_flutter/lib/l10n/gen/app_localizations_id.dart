@@ -5988,4 +5988,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get reportsNo => 'Tidak';
+
+  @override
+  String get reportsSourcePurchaseRefund => 'Refund retur pembelian';
+
+  @override
+  String reportsRefundMixed(String method) {
+    return '$method + potong piutang';
+  }
+
+  @override
+  String get reportsCashOpenNote =>
+      'Dihitung dan selisih kosong = sesi masih buka.';
 }
