@@ -42,6 +42,14 @@ fields:
   taxInclusive: bool, default=false, column=tax_inclusive
   ### Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   roundingAmount: int, default=0, column=rounding_amount
+  ### Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
+  discountAmount: int, default=0, column=discount_amount
+  ### Persen diskon nota (basis poin); 0 bila diskon rupiah.
+  discountBp: int, default=0, column=discount_bp
+  ### Jumlah diskon manual semua baris (untuk laporan).
+  lineDiscountAmount: int, default=0, column=line_discount_amount
+  ### Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
+  discountApprovedBy: UuidValue?, column=discount_approved_by
   voidReason: String?, column=void_reason
   voidedBy: UuidValue?, column=voided_by
   voidedAt: DateTime?, column=voided_at

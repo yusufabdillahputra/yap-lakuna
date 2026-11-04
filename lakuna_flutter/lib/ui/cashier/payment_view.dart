@@ -40,6 +40,11 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       SaleStockShort(:final items) => l10n.saleErrorStockShort(
         items.map((i) => i.name).join(', '),
       ),
+      DiscountNotPermitted() ||
+      NotPermitted(
+        permission: Permission.salesDiscount,
+      ) => l10n.saleErrorDiscountNotPermitted,
+      DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
       SaleItemUnavailable() => l10n.paymentErrorUnavailable,
       SalePaymentShort() => l10n.paymentErrorShort,
       SalePaymentUnsupported() => l10n.paymentErrorQrisOff,

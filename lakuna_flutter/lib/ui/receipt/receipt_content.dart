@@ -60,7 +60,8 @@ ReceiptContent saleReceiptContent(
   final breakdown =
       sale.serviceAmount != 0 ||
       sale.taxAmount != 0 ||
-      sale.roundingAmount != 0;
+      sale.roundingAmount != 0 ||
+      sale.discountAmount != 0;
   return ReceiptContent(
     storeName: businessName.toUpperCase(),
     outletName: outletName,
@@ -93,7 +94,18 @@ ReceiptContent saleReceiptContent(
               '${_qty(l10n, item.quantityMilli)}'
               '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
               ' x ${receiptAmount(l10n, item.unitPrice + item.modifierDelta)}',
-          amount: receiptAmount(l10n, item.lineTotal),
+          // Jumlah sebelum diskon baris; potongannya di baris sendiri.
+          amount: receiptAmount(l10n, item.lineTotal + item.discountAmount),
+          discount: item.discountAmount == 0
+              ? null
+              : ReceiptPair(
+                  item.discountBp == 0
+                      ? l10n.receiptDiscount
+                      : l10n.receiptDiscountPct(
+                          percentLabel(l10n, item.discountBp),
+                        ),
+                  '-${receiptAmount(l10n, item.discountAmount)}',
+                ),
         ),
     ],
     totals: [
@@ -105,6 +117,13 @@ ReceiptContent saleReceiptContent(
             result.items.fold(0, (sum, i) => sum + i.lineTotal),
           ),
         ),
+        if (sale.discountAmount != 0)
+          ReceiptPair(
+            sale.discountBp == 0
+                ? l10n.receiptDiscount
+                : l10n.receiptDiscountPct(percentLabel(l10n, sale.discountBp)),
+            '-${receiptAmount(l10n, sale.discountAmount)}',
+          ),
         if (sale.serviceAmount != 0)
           ReceiptPair(
             l10n.receiptService(percentLabel(l10n, sale.serviceBp)),

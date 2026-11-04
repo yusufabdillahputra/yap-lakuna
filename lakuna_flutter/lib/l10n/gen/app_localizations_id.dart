@@ -6499,4 +6499,102 @@ class AppLocalizationsId extends AppLocalizations {
   String billSplitTaxIncluded(String pct) {
     return '$pct (termasuk)';
   }
+
+  @override
+  String get cashierDiscount => 'Diskon';
+
+  @override
+  String get cashierDiscountBillTitle => 'Diskon nota';
+
+  @override
+  String get cashierDiscountLineTitle => 'Diskon baris';
+
+  @override
+  String get cashierDiscountHint =>
+      'Per nota, atau tekan lama baris untuk diskon per item.';
+
+  @override
+  String get cashierDiscountPercent => 'Persen (%)';
+
+  @override
+  String get cashierDiscountAmount => 'Rupiah (Rp)';
+
+  @override
+  String get cashierDiscountValue => 'Nilai diskon';
+
+  @override
+  String cashierDiscountBase(String amount) {
+    return 'Dari $amount';
+  }
+
+  @override
+  String cashierDiscountCut(String amount) {
+    return 'Potongan $amount';
+  }
+
+  @override
+  String get cashierDiscountApply => 'Terapkan';
+
+  @override
+  String get cashierDiscountRemove => 'Hapus diskon';
+
+  @override
+  String get cashierDiscountTooLarge =>
+      'Diskon tidak boleh melebihi atau menghabiskan total.';
+
+  @override
+  String get cashierDiscountInvalid =>
+      'Isi persen 0,01–100 atau nominal rupiah.';
+
+  @override
+  String get cashierDiscountNeedsPin =>
+      'Setelah Terapkan, manajer memasukkan PIN untuk menyetujui diskon.';
+
+  @override
+  String cashierDiscountPct(String pct) {
+    return 'Diskon $pct';
+  }
+
+  @override
+  String get cashierLineDiscounts => 'Diskon per item';
+
+  @override
+  String get cashierBillDiscount => 'Diskon nota';
+
+  @override
+  String cashierBillDiscountPct(String pct) {
+    return 'Diskon nota $pct';
+  }
+
+  @override
+  String cashierDiscountApprovedBy(String name) {
+    return 'disetujui $name';
+  }
+
+  @override
+  String get approvalDiscount =>
+      'Diskon manual butuh izin sales:discount. Minta staf yang berizin memasukkan PIN-nya.';
+
+  @override
+  String get saleErrorDiscountNotPermitted =>
+      'Diskon manual butuh izin atau persetujuan PIN manajer.';
+
+  @override
+  String get saleErrorDiscountTooLarge =>
+      'Diskon melebihi nilai baris atau membuat total nota nol.';
+
+  @override
+  String get receiptDiscount => 'Diskon';
+
+  @override
+  String receiptDiscountPct(String pct) {
+    return 'Diskon $pct';
+  }
+
+  @override
+  String get storeSettingsDiscountPin => 'Diskon manual butuh PIN manajer';
+
+  @override
+  String get storeSettingsDiscountPinHint =>
+      'Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.';
 }

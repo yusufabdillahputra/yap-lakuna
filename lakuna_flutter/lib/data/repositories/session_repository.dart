@@ -86,6 +86,10 @@ abstract class SessionRepository extends ChangeNotifier {
   /// mengisi alasan void.
   static const approvalTtl = Duration(minutes: 2);
 
+  /// Persetujuan diskon manual berlaku untuk satu keranjang: cukup lama
+  /// sampai pembayaran selesai (F1-04b).
+  static const discountApprovalTtl = Duration(minutes: 30);
+
   /// Jam untuk masa berlaku persetujuan (bisa diganti di tes).
   @visibleForTesting
   DateTime Function() approvalClock = DateTime.now;
@@ -96,7 +100,11 @@ abstract class SessionRepository extends ChangeNotifier {
   /// [verifyApprover] setelah PIN dan izin benar.
   @protected
   void grantApproval(UuidValue staffId, Permission permission) =>
-      _approvals[(staffId, permission)] = approvalClock().add(approvalTtl);
+      _approvals[(staffId, permission)] = approvalClock().add(
+        permission == Permission.salesDiscount
+            ? discountApprovalTtl
+            : approvalTtl,
+      );
 
   /// Apakah [staffId] baru saja menyetujui [permission] dengan PIN-nya dan
   /// persetujuan itu belum dipakai atau kedaluwarsa. Repositori memeriksa ini

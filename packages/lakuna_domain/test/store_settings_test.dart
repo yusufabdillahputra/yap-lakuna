@@ -47,7 +47,11 @@ void main() {
         rounding: TotalRounding.nearest500,
       );
       final json = rules.toJson();
-      expect(json, {'allowNegativeStock': false, 'rounding': 'nearest500'});
+      expect(json, {
+        'allowNegativeStock': false,
+        'rounding': 'nearest500',
+        'discountNeedsPin': true,
+      });
       expect(SalesRules.fromJson(json), rules);
     });
 

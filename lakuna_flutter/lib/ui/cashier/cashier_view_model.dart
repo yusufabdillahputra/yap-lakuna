@@ -86,7 +86,17 @@ class CartLine {
     required this.variant,
     required this.unit,
     required this.priced,
+    this.discount,
   });
+
+  /// Diskon manual baris (F1-04b).
+  final ManualDiscount? discount;
+
+  /// Potongan diskon baris dari total baris setelah grosir.
+  Money get discountCut => discount?.cut(priced.lineTotal) ?? Money.zero;
+
+  /// Total baris bersih setelah diskon manual.
+  Money get netTotal => priced.lineTotal - discountCut;
 
   /// Kunci tampilan yang stabil.
   final int key;
@@ -111,7 +121,30 @@ class _Item {
   final CatalogVariant variant;
   final CatalogUnit? unit;
   Qty quantity;
+  ManualDiscount? discount;
 }
+
+/// Siapa yang boleh memberi diskon manual di Kasir (F1-04b).
+enum DiscountAccess {
+  /// Staf punya `sales:discount`.
+  direct,
+
+  /// Staf tanpa izin; diskon butuh persetujuan PIN manajer.
+  approval,
+
+  /// Staf tanpa izin dan persetujuan PIN dimatikan.
+  none,
+}
+
+/// Penyetuju diskon manual yang PIN-nya sudah diperiksa.
+typedef DiscountApprover = ({UuidValue id, String name});
+
+/// Diskon rupiah yang melebihi dasar dipangkas ke dasarnya (mis. jumlah
+/// baris berkurang setelah diskon diberikan).
+ManualDiscount _fit(ManualDiscount d, Money base) =>
+    d.kind == DiscountKind.amount && d.amount > base
+    ? ManualDiscount.amount(base)
+    : d;
 
 /// Semua varian × satuan [product]. Satuan dasar hanya disebut bila
 /// produk punya satuan konversi, agar pilihan bisa dibedakan.
@@ -232,6 +265,8 @@ class CashierViewModel extends ChangeNotifier {
   var _creditDown = Money.zero;
   DateTime? _creditDue;
   var _creditQuery = '';
+  ManualDiscount? _billDiscount;
+  DiscountApprover? _discountApprover;
 
   var _disposed = false;
 
@@ -367,6 +402,7 @@ class CashierViewModel extends ChangeNotifier {
           factor: i.unit?.factor,
           unitPrice: i.unit?.sellPrice,
         ),
+        discount: i.discount,
       ),
   ];
 
@@ -378,9 +414,97 @@ class CashierViewModel extends ChangeNotifier {
 
   SaleTotals get totals => SaleTotals.of(lines.map((l) => l.priced));
 
+  // --- Diskon manual (F1-04b) ---------------------------------------------
+
+  DiscountAccess get discountAccess {
+    final data = _data;
+    if (data == null || billMode) return DiscountAccess.none;
+    if (data.canDiscount) return DiscountAccess.direct;
+    return data.salesRules.discountNeedsPin
+        ? DiscountAccess.approval
+        : DiscountAccess.none;
+  }
+
+  bool get canOfferDiscount => discountAccess != DiscountAccess.none;
+
+  /// Diskon berikutnya butuh dialog PIN manajer dulu.
+  bool get discountNeedsApproval =>
+      discountAccess == DiscountAccess.approval && _discountApprover == null;
+
+  DiscountApprover? get discountApprover => _discountApprover;
+
+  /// Penyetuju dari dialog PIN; berlaku sampai keranjang selesai/kosong.
+  void approveDiscounts(DiscountApprover approver) {
+    _discountApprover = approver;
+    notifyListeners();
+  }
+
+  ManualDiscount? get billDiscount => _billDiscount;
+
+  /// Σ potongan diskon baris.
+  Money get lineDiscount => Money.sum(lines.map((l) => l.discountCut));
+
+  /// Σ total baris bersih (dasar diskon nota).
+  Money get linesNet => totals.total - lineDiscount;
+
+  /// Potongan diskon nota.
+  Money get billDiscountCut => _billDiscount?.cut(linesNet) ?? Money.zero;
+
+  /// Total sebelum pembulatan.
+  Money get netTotal => linesNet - billDiscountCut;
+
+  /// Ada diskon baris atau nota di keranjang.
+  bool get hasDiscount =>
+      _billDiscount != null || _items.any((i) => i.discount != null);
+
+  /// Nota senilai [net] habis (nol atau kurang), juga setelah pembulatan.
+  bool _wipesOut(Money net) =>
+      net <= Money.zero ||
+      roundTotal(net, _data?.salesRules.rounding ?? TotalRounding.none) <=
+          Money.zero;
+
+  /// Diskon menghabiskan total (mis. jumlah baris berkurang setelah diskon
+  /// diberikan): bayar ditahan sampai diskon diubah.
+  bool get discountBlocksPay => hasDiscount && _wipesOut(netTotal);
+
+  /// Galat diskon baris [index] untuk [discount]; `null` bila sah. Total
+  /// nota (setelah diskon nota dan pembulatan) harus tetap bernilai.
+  DiscountIssue? lineDiscountIssue(int index, ManualDiscount discount) {
+    final line = lines[index];
+    final issue = discount.issue(line.priced.lineTotal);
+    if (issue != null) return issue;
+    final net =
+        linesNet + line.discountCut - discount.cut(line.priced.lineTotal);
+    final bill = _billDiscount?.cut(net) ?? Money.zero;
+    return _wipesOut(net - bill) ? DiscountIssue.tooLarge : null;
+  }
+
+  /// Galat diskon nota: total nota harus tetap bernilai setelah pembulatan.
+  DiscountIssue? billDiscountIssue(ManualDiscount discount) {
+    final base = linesNet;
+    final issue = discount.issue(base);
+    if (issue != null) return issue;
+    return _wipesOut(base - discount.cut(base)) ? DiscountIssue.tooLarge : null;
+  }
+
+  void setLineDiscount(int index, ManualDiscount? discount) {
+    _items[index].discount = discount;
+    notifyListeners();
+  }
+
+  void setBillDiscount(ManualDiscount? discount) {
+    _billDiscount = discount;
+    notifyListeners();
+  }
+
+  void _resetDiscounts() {
+    _billDiscount = null;
+    _discountApprover = null;
+  }
+
   /// Selisih pembulatan total keranjang (aturan cabang, F1-18).
   Money get rounding {
-    final total = totals.total;
+    final total = netTotal;
     return roundTotal(
           total,
           _data?.salesRules.rounding ?? TotalRounding.none,
@@ -388,8 +512,8 @@ class CashierViewModel extends ChangeNotifier {
         total;
   }
 
-  /// Total keranjang setelah pembulatan (yang dibayar).
-  Money get grandTotal => totals.total + rounding;
+  /// Total keranjang setelah diskon dan pembulatan (yang dibayar).
+  Money get grandTotal => netTotal + rounding;
 
   void increment(int index) {
     _items[index].quantity += Qty.one;
@@ -404,6 +528,7 @@ class CashierViewModel extends ChangeNotifier {
       item.quantity = next;
     } else {
       _items.removeAt(index);
+      if (_items.isEmpty) _resetDiscounts();
     }
     notifyListeners();
   }
@@ -414,17 +539,20 @@ class CashierViewModel extends ChangeNotifier {
       _items[index].quantity = quantity;
     } else {
       _items.removeAt(index);
+      if (_items.isEmpty) _resetDiscounts();
     }
     notifyListeners();
   }
 
   void remove(int index) {
     _items.removeAt(index);
+    if (_items.isEmpty) _resetDiscounts();
     notifyListeners();
   }
 
   void clearCart() {
     _items.clear();
+    _resetDiscounts();
     notifyListeners();
   }
 
@@ -509,7 +637,7 @@ class CashierViewModel extends ChangeNotifier {
   int get payLineCount => _bill?.items.length ?? lineCount;
 
   bool get _nothingToPay => _bill == null
-      ? cartIsEmpty
+      ? cartIsEmpty || discountBlocksPay
       : _bill!.items.isEmpty || (partMode && payTotal <= Money.zero);
 
   // --- Bayar ---------------------------------------------------------------
@@ -912,13 +1040,23 @@ class CashierViewModel extends ChangeNotifier {
         ? await _repository.payBill(bill.id, _payments())
         : await _repository.checkout(
             lines: [
-              for (final i in _items)
+              for (final l in lines)
                 SaleLineRequest(
-                  variantId: i.variant.id,
-                  productUnitId: i.unit?.id,
-                  quantity: i.quantity,
+                  variantId: l.variant.id,
+                  productUnitId: l.unit?.id,
+                  quantity: l.quantity,
+                  discount: switch (l.discount) {
+                    final d? => _fit(d, l.priced.lineTotal),
+                    null => null,
+                  },
                 ),
             ],
+            discount: switch (_billDiscount) {
+              final d? => _fit(d, linesNet),
+              null => null,
+            },
+            // Penyetuju hanya dikirim bila memang ada diskon.
+            discountApproverId: hasDiscount ? _discountApprover?.id : null,
             payments: _payments(),
             credit: _mode == PayMode.credit
                 ? SaleCredit(
@@ -932,11 +1070,21 @@ class CashierViewModel extends ChangeNotifier {
       case Ok(:final value):
         _result = value;
         _items.clear();
+        _resetDiscounts();
         // Piutang pelanggan berubah: muat ulang saat kredit dipakai lagi.
         if (_mode == PayMode.credit) _creditCustomers = null;
         _stage = CashierStage.done;
       case Error(:final error):
         _error = error;
+        // Persetujuan kedaluwarsa atau ditolak: minta PIN lagi saat diskon
+        // diterapkan ulang.
+        if (error
+            case DiscountNotPermitted() ||
+                NotPermitted(
+                  permission: Permission.salesDiscount,
+                )) {
+          _discountApprover = null;
+        }
     }
     return result;
   }

@@ -74,8 +74,8 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
     nota kredit, dan bill F&B (setelah service dan PB1). Selisih disimpan di
     `sales.rounding_amount` (boleh negatif), termasuk dalam `sales.total`,
     tampil sebagai baris *Pembulatan* di kasir, struk, dan laporan.
-  - *Diskon manual butuh PIN manajer* menyusul bersama diskon manual di
-    Kasir (v0.24.0).
+  - *Diskon manual butuh PIN manajer* (v0.24.0, spec F1-04b): bawaan
+    hidup; bila mati, staf tanpa `sales:discount` tidak melihat menu diskon.
 - **Pajak & service** (F&B): sakelar *Harga sudah termasuk pajak* (kunci
   `fnb.tax_inclusive`). Bila hidup, PB1 dipisahkan dari (subtotal +
   service): pajak = (subtotal + service) × tarif ÷ (1 + tarif), dibulatkan
@@ -133,7 +133,7 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
 | Struk & printer | 1.26 | Rilis v0.8.0 (lihat F1-06) | - |
 | Profil toko, Cabang ini | 1.26 | Rilis v0.23.0 | Jenis usaha dan zona waktu hanya dibaca |
 | Penjualan & stok: stok minus, wajib sesi, pembulatan | 1.26 | Rilis v0.23.0 | Wajib sesi selalu hidup |
-| Diskon manual butuh PIN manajer | 1.26 | Belum | v0.24.0 bersama diskon manual Kasir |
+| Diskon manual butuh PIN manajer | 1.26 | v0.24.0 | - |
 | Harga sudah termasuk pajak | 1.26 | Rilis v0.23.0 | F&B saja (pajak hanya di F&B) |
 | Ukuran tampilan Normal/Besar | 1.26 | Rilis v0.23.0 | Skala teks perangkat |
 | Data & backup | 1.26 | Belum | F1-19 |

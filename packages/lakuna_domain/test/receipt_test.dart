@@ -130,6 +130,26 @@ void main() {
       );
     });
 
+    test('diskon baris di bawah baris jumlah', () {
+      const discounted = ReceiptContent(
+        storeName: 'TOKO',
+        items: [
+          ReceiptItem(
+            name: 'Teh Botol',
+            detail: '2 x 4.150',
+            amount: '8.300',
+            discount: ReceiptPair('Diskon 10%', '-830'),
+          ),
+        ],
+      );
+      final lines = layoutReceipt(discounted, ReceiptPaper.mm58);
+      expect(lines.map((l) => l.text).skip(2), [
+        'Teh Botol',
+        '  2 x 4.150                8.300',
+        '  Diskon 10%                -830',
+      ]);
+    });
+
     test('label status (mis. CETAK ULANG) tebal di tengah setelah header', () {
       const reprint = ReceiptContent(
         storeName: 'TOKO',

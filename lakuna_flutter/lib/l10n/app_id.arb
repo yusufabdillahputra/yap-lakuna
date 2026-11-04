@@ -3978,5 +3978,133 @@
         "type": "String"
       }
     }
+  },
+  "cashierDiscount": "Diskon",
+  "@cashierDiscount": {
+    "placeholders": {}
+  },
+  "cashierDiscountBillTitle": "Diskon nota",
+  "@cashierDiscountBillTitle": {
+    "placeholders": {}
+  },
+  "cashierDiscountLineTitle": "Diskon baris",
+  "@cashierDiscountLineTitle": {
+    "placeholders": {}
+  },
+  "cashierDiscountHint": "Per nota, atau tekan lama baris untuk diskon per item.",
+  "@cashierDiscountHint": {
+    "placeholders": {}
+  },
+  "cashierDiscountPercent": "Persen (%)",
+  "@cashierDiscountPercent": {
+    "placeholders": {}
+  },
+  "cashierDiscountAmount": "Rupiah (Rp)",
+  "@cashierDiscountAmount": {
+    "placeholders": {}
+  },
+  "cashierDiscountValue": "Nilai diskon",
+  "@cashierDiscountValue": {
+    "placeholders": {}
+  },
+  "cashierDiscountBase": "Dari {amount}",
+  "@cashierDiscountBase": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountCut": "Potongan {amount}",
+  "@cashierDiscountCut": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountApply": "Terapkan",
+  "@cashierDiscountApply": {
+    "placeholders": {}
+  },
+  "cashierDiscountRemove": "Hapus diskon",
+  "@cashierDiscountRemove": {
+    "placeholders": {}
+  },
+  "cashierDiscountTooLarge": "Diskon tidak boleh melebihi atau menghabiskan total.",
+  "@cashierDiscountTooLarge": {
+    "placeholders": {}
+  },
+  "cashierDiscountInvalid": "Isi persen 0,01–100 atau nominal rupiah.",
+  "@cashierDiscountInvalid": {
+    "placeholders": {}
+  },
+  "cashierDiscountNeedsPin": "Setelah Terapkan, manajer memasukkan PIN untuk menyetujui diskon.",
+  "@cashierDiscountNeedsPin": {
+    "placeholders": {}
+  },
+  "cashierDiscountPct": "Diskon {pct}",
+  "@cashierDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierLineDiscounts": "Diskon per item",
+  "@cashierLineDiscounts": {
+    "placeholders": {}
+  },
+  "cashierBillDiscount": "Diskon nota",
+  "@cashierBillDiscount": {
+    "placeholders": {}
+  },
+  "cashierBillDiscountPct": "Diskon nota {pct}",
+  "@cashierBillDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierDiscountApprovedBy": "disetujui {name}",
+  "@cashierDiscountApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "approvalDiscount": "Diskon manual butuh izin sales:discount. Minta staf yang berizin memasukkan PIN-nya.",
+  "@approvalDiscount": {
+    "placeholders": {}
+  },
+  "saleErrorDiscountNotPermitted": "Diskon manual butuh izin atau persetujuan PIN manajer.",
+  "@saleErrorDiscountNotPermitted": {
+    "placeholders": {}
+  },
+  "saleErrorDiscountTooLarge": "Diskon melebihi nilai baris atau membuat total nota nol.",
+  "@saleErrorDiscountTooLarge": {
+    "placeholders": {}
+  },
+  "receiptDiscount": "Diskon",
+  "@receiptDiscount": {
+    "placeholders": {}
+  },
+  "receiptDiscountPct": "Diskon {pct}",
+  "@receiptDiscountPct": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "storeSettingsDiscountPin": "Diskon manual butuh PIN manajer",
+  "@storeSettingsDiscountPin": {
+    "placeholders": {}
+  },
+  "storeSettingsDiscountPinHint": "Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.",
+  "@storeSettingsDiscountPinHint": {
+    "placeholders": {}
   }
 }

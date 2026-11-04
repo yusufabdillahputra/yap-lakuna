@@ -109,6 +109,12 @@ class StoreSettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setDiscountNeedsPin(bool v) {
+    _rules = _rules.copyWith(discountNeedsPin: v);
+    saveRules.clearResult();
+    notifyListeners();
+  }
+
   void setRounding(TotalRounding r) {
     _rules = _rules.copyWith(rounding: r);
     saveRules.clearResult();

@@ -200,6 +200,7 @@ class ReportSale {
     required this.staffKey,
     required this.subtotal,
     required this.tierDiscount,
+    this.manualDiscount = Money.zero,
     required this.service,
     required this.tax,
     required this.total,
@@ -214,6 +215,9 @@ class ReportSale {
   final String staffKey;
   final Money subtotal;
   final Money tierDiscount;
+
+  /// Diskon manual Kasir: baris + nota (F1-04b).
+  final Money manualDiscount;
   final Money service;
   final Money tax;
   final Money total;
@@ -236,7 +240,12 @@ class ReportSale {
   /// Bagian nota yang menjadi penjualan bersih (tanpa PB1, dengan
   /// pembulatan).
   Money get netContribution =>
-      subtotal - tierDiscount + service - includedTax + rounding;
+      subtotal -
+      tierDiscount -
+      manualDiscount +
+      service -
+      includedTax +
+      rounding;
 }
 
 class ReportReturnLine {
@@ -331,7 +340,7 @@ class ProfitAndLoss {
       });
     return ProfitAndLoss(
       grossSales: Money.sum(sales.map((s) => s.subtotal)),
-      discount: Money.sum(sales.map((s) => s.tierDiscount)),
+      discount: Money.sum(sales.map((s) => s.tierDiscount + s.manualDiscount)),
       service: Money.sum(sales.map((s) => s.service)),
       includedTax: Money.sum(sales.map((s) => s.includedTax)),
       rounding: Money.sum(sales.map((s) => s.rounding)),

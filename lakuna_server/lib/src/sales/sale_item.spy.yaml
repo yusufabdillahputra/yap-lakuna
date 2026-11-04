@@ -21,6 +21,10 @@ fields:
   listPrice: int, column=list_price
   unitPrice: int, column=unit_price
   lineTotal: int, column=line_total
+  ### Diskon manual baris (F1-04b) dalam rupiah; line_total sudah bersih.
+  discountAmount: int, default=0, column=discount_amount
+  ### Persen diskon baris (basis poin); 0 bila diskon rupiah.
+  discountBp: int, default=0, column=discount_bp
   ### Biaya rata-rata per satuan dasar saat jual (HPP).
   unitCost: int, column=unit_cost
   tracksStock: bool, column=tracks_stock

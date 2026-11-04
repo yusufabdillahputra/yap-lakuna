@@ -132,10 +132,18 @@ void main() {
     await tester.ensureVisible(negative);
     await tester.tap(negative);
     await tester.pumpAndSettle();
+    final pin = find.descendant(
+      of: _key('store-rules-discount-pin'),
+      matching: find.text('Diskon manual butuh PIN manajer'),
+    );
+    await tester.ensureVisible(pin);
+    await tester.tap(pin);
+    await tester.pumpAndSettle();
     await _tap(tester, 'store-rules-rounding-nearest100');
     await _tap(tester, 'store-rules-save');
     expect(_key('store-rules-saved'), findsOneWidget);
     expect(repo.calls.last, 'rules:false:nearest100');
+    expect(repo.rules.discountNeedsPin, isFalse);
   });
 
   testWidgets('360: pil bagian dan ukuran tampilan Besar', (tester) async {

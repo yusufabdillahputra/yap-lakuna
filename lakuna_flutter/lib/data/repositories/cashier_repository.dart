@@ -2,7 +2,8 @@ import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show Money, SalesRules;
+import 'package:lakuna_domain/lakuna_domain.dart'
+    show ManualDiscount, Money, SalesRules;
 
 import '../../utils/result.dart';
 
@@ -58,6 +59,7 @@ class CashierData {
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
     this.salesRules = const SalesRules(),
+    this.canDiscount = false,
   });
 
   /// Produk aktif dengan minimal satu varian, urut nama.
@@ -98,6 +100,10 @@ class CashierData {
 
   /// Aturan *Penjualan & stok* cabang (pembulatan total, F1-18).
   final SalesRules salesRules;
+
+  /// Staf boleh memberi diskon manual tanpa persetujuan (`sales:discount`,
+  /// F1-04b).
+  final bool canDiscount;
 }
 
 /// Kasir retail dan pembayaran (F1-04/F1-05). Izin `sales:create` dicek di
@@ -112,11 +118,16 @@ abstract class CashierRepository {
   /// `CashSessionNotOpen`, `SaleItemUnavailable`, `SalePaymentShort`, atau
   /// galat input lain dari `checkoutSale`. [credit] = jual kredit (F1-13):
   /// [payments] kosong, butuh `debts:manage`, gagal dengan
-  /// `SaleCreditInvalid`.
+  /// `SaleCreditInvalid`. [discount] = diskon nota; diskon baris ada di
+  /// [lines]. [discountApproverId] = penyetuju PIN (F1-04b) yang baru
+  /// diverifikasi di sesi ini; gagal dengan `NotPermitted`,
+  /// `DiscountNotPermitted`, `DiscountTooLarge`.
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
     SaleCredit? credit,
+    ManualDiscount? discount,
+    UuidValue? discountApproverId,
   });
 
   /// Pelanggan untuk pemilih kredit (1.5b), dengan limit dan piutangnya.

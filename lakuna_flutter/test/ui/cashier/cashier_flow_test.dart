@@ -13,6 +13,7 @@ import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_session_repository.dart';
 import '../../testing/qris_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -39,6 +40,7 @@ void main() {
     FakeReceiptPrinter? printer,
     PrinterSelection? selected,
     ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings()),
+    FakeSessionRepository? session,
   }) async {
     final repo = FakeCashierRepository(
       seed: cashierProducts(),
@@ -54,6 +56,7 @@ void main() {
       initialLocation: Routes.cashier,
       cashier: repo,
       receiptPrinter: printer,
+      session: session,
     );
     return repo;
   }
@@ -571,6 +574,148 @@ void main() {
       await _tap(tester, productKey(repo, 'Kopi Sachet'));
       await _tap(tester, 'cashier-pay');
       expect(_key('payment-method-credit'), findsNothing);
+    });
+  });
+
+  group('diskon manual (1.4b)', () {
+    Future<void> discount(
+      WidgetTester tester, {
+      required DiscountKind kind,
+      required String value,
+    }) async {
+      expect(_key('discount-dialog'), findsOneWidget);
+      if (kind == DiscountKind.amount) {
+        await _tap(tester, 'discount-kind-amount');
+      }
+      await tester.enterText(_input('discount-value-${kind.name}'), value);
+      await tester.pumpAndSettle();
+    }
+
+    for (final size in const [Size(1440, 900), Size(360, 740)]) {
+      testWidgets('${size.width.toInt()} px: diskon baris dan nota, bayar', (
+        tester,
+      ) async {
+        final repo = await pump(tester, size: size);
+        final mobile = size.width < 600;
+        await _tap(tester, productKey(repo, 'Kopi Sachet'));
+        await _tap(tester, productKey(repo, 'Kopi Sachet'));
+        if (mobile) await _tap(tester, 'cashier-view-order');
+        expect(_text(tester, 'cashier-total'), 'Rp 4.000');
+
+        // Diskon baris lewat tekan lama: Rp 1.000.
+        await tester.longPress(_key('cashier-line-0-info'));
+        await tester.pumpAndSettle();
+        expect(find.text('Diskon baris'), findsOneWidget);
+        await discount(tester, kind: DiscountKind.amount, value: '5000');
+        await _tap(tester, 'discount-apply');
+        expect(
+          find.text('Diskon tidak boleh melebihi atau menghabiskan total.'),
+          findsOneWidget,
+        );
+        await tester.enterText(_input('discount-value-amount'), '1000');
+        await tester.pumpAndSettle();
+        expect(_text(tester, 'discount-preview'), 'Potongan Rp 1.000');
+        await _tap(tester, 'discount-apply');
+        expect(_key('discount-dialog'), findsNothing);
+        expect(_text(tester, 'cashier-line-0-discount'), 'Diskon · − Rp 1.000');
+        expect(_text(tester, 'cashier-line-discounts'), '− Rp 1.000');
+        expect(_text(tester, 'cashier-total'), 'Rp 3.000');
+
+        // Diskon nota 10% dari Rp 3.000.
+        await _tap(tester, 'cashier-discount');
+        expect(find.text('Diskon nota'), findsOneWidget);
+        expect(_key('discount-needs-pin'), findsNothing);
+        await discount(tester, kind: DiscountKind.percent, value: '10');
+        expect(_text(tester, 'discount-preview'), 'Potongan Rp 300');
+        await _tap(tester, 'discount-apply');
+        expect(_text(tester, 'cashier-bill-discount-amount'), '− Rp 300');
+        expect(find.text('Diskon nota 10%'), findsOneWidget);
+        expect(_text(tester, 'cashier-total'), 'Rp 2.700');
+
+        await _tap(tester, 'cashier-pay');
+        await _tap(tester, 'payment-quick-0');
+        await _tap(tester, 'payment-finish');
+        expect(_key('success-title'), findsOneWidget);
+        final (lines, payments) = repo.checkouts.single;
+        expect(lines.single.discount, ManualDiscount.amount(const Money(1000)));
+        expect(payments.single.amount?.value, 2700);
+        expect(repo.discounts.single, (
+          ManualDiscount.percent(const BasisPoints(1000)),
+          null,
+        ));
+      }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+    }
+
+    testWidgets('hapus diskon nota', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-discount');
+      expect(_key('discount-remove'), findsNothing);
+      await discount(tester, kind: DiscountKind.amount, value: '500');
+      await _tap(tester, 'discount-apply');
+      expect(_text(tester, 'cashier-total'), 'Rp 1.500');
+      await _tap(tester, 'cashier-bill-discount');
+      await _tap(tester, 'discount-remove');
+      expect(_key('cashier-bill-discount'), findsNothing);
+      expect(_text(tester, 'cashier-total'), 'Rp 2.000');
+    });
+
+    testWidgets('kasir tanpa izin: PIN manajer, penyetuju di total', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository()
+        ..current = sampleStaff(name: 'Sari', role: 'cashier');
+      final repo = await pump(
+        tester,
+        size: const Size(360, 740),
+        permissions: {Permission.salesCreate, Permission.cashSessionOpen},
+        session: session,
+      );
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-view-order');
+      await _tap(tester, 'cashier-discount');
+      expect(_key('discount-needs-pin'), findsOneWidget);
+      await discount(tester, kind: DiscountKind.percent, value: '5');
+      await _tap(tester, 'discount-apply');
+      expect(_key('approval-dialog'), findsOneWidget);
+      await tester.enterText(_input('approval-pin'), '123456');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'approval-submit');
+      expect(find.text('Diskon nota 5% · disetujui Yusuf'), findsOneWidget);
+      expect(_text(tester, 'cashier-total'), 'Rp 1.900');
+      expect(
+        session.approvals.single,
+        (session.staff.single.id, '123456', Permission.salesDiscount),
+      );
+
+      // Diskon berikutnya di keranjang yang sama tidak meminta PIN lagi.
+      await _tap(tester, 'cashier-bill-discount');
+      expect(_key('discount-needs-pin'), findsNothing);
+      await _tap(tester, 'discount-remove');
+
+      // Keranjang dikosongkan: persetujuan hangus.
+      await _tap(tester, 'cashier-clear');
+      Navigator.of(tester.element(_key('cashier-clear'))).pop();
+      await tester.pumpAndSettle();
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-view-order');
+      await _tap(tester, 'cashier-discount');
+      expect(_key('discount-needs-pin'), findsOneWidget);
+    });
+
+    testWidgets('tanpa izin dan sakelar PIN mati: tombol diskon tidak ada', (
+      tester,
+    ) async {
+      final repo = FakeCashierRepository(
+        seed: cashierProducts(),
+        permissions: {Permission.salesCreate, Permission.cashSessionOpen},
+      )..salesRules = const SalesRules(discountNeedsPin: false);
+      await pumpLakuna(tester, initialLocation: Routes.cashier, cashier: repo);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      expect(_key('cashier-discount'), findsNothing);
+      await tester.longPress(_key('cashier-line-0-info'));
+      await tester.pumpAndSettle();
+      expect(_key('discount-dialog'), findsNothing);
     });
   });
 }
