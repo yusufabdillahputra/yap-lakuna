@@ -7,6 +7,126 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-04
+
+Pengeluaran (F1-15, layar 1.22, 1.3b, dan 1.17). Toko mencatat biaya
+operasional di luar pembelian barang dagang per jenis, dari kas toko, kas
+laci, atau rekening bank, dengan foto nota, supaya laporan laba rugi (F1-16)
+nanti akurat. Pengeluaran tidak pernah diubah nilainya: koreksi dilakukan
+dengan membatalkan lalu mencatat ulang.
+
+### Ditambahkan
+
+- Menu **Pengeluaran** (`/pengeluaran`, grup Keuangan) untuk staf dengan
+  izin `expenses:manage`; sebelumnya halaman *segera hadir*.
+- **Layar 1.22 Pengeluaran**:
+  - cari keterangan, nomor, atau jenis; filter periode *30 hari terakhir*
+    (bawaan), *Bulan ini*, *Bulan lalu* menurut tanggal cabang;
+  - tabel Tanggal, Keterangan, Jenis, Sumber dana (mis. *Kas laci · sesi
+    Sari*), Jumlah, Bukti (*Ada foto* / *Tanpa foto*); di kolom sempit
+    menjadi daftar kartu;
+  - kartu **Per jenis · periode** dengan total dan batang per jenis
+    (pengeluaran batal tidak dihitung);
+  - kartu **Catat pengeluaran** di kanan (≥ 1000 px) atau tombol *Catat
+    pengeluaran* yang membuka dialog (layar lebih sempit): keterangan
+    (wajib, ≤ 120), jenis, jumlah (> 0, ≤ Rp 1 miliar), sumber dana,
+    tanggal (tidak boleh di masa depan; boleh mundur untuk kas toko dan
+    bank), foto nota dari berkas atau kamera (≤ 5 MB);
+  - nomor `EX-<OUTLET>-<PERANGKAT>-<yymmdd>-NNNN`;
+  - dialog **Rincian pengeluaran**: nomor, tanggal, jenis, sumber dana,
+    pencatat, foto nota (ketuk untuk membuka besar dan memperbesar), dan
+    **Batalkan pengeluaran** dengan alasan wajib (≤ 200). Pengeluaran batal
+    tetap tampil dengan lencana *Dibatalkan* dan jumlah dicoret;
+  - **Ekspor Excel** daftar sesuai filter (Tanggal, Nomor, Keterangan,
+    Jenis, Sumber dana, Jumlah, Bukti, Status).
+- **Kas laci dari Pengeluaran**: wajib sesi kasir terbuka di perangkat ini
+  dan izin `cash_movements:create`; menulis uang keluar *Pengeluaran* di
+  sesi dalam transaksi yang sama. Membatalkan pengeluaran laci menulis uang
+  masuk *Batal pengeluaran* di sesi yang sedang buka (ditolak bila tidak ada
+  sesi terbuka).
+- **Kas laci 1.3b**: saat *Uang keluar* dipilih, sakelar **Catat juga
+  sebagai pengeluaran** (*Agar ikut laporan laba rugi*) dengan pilihan
+  jenis dan foto nota; keterangan menjadi keterangan pengeluaran. Baris
+  gerakan kas hasilnya berlencana *Pengeluaran · jenis*.
+- **Master data › Jenis pengeluaran** (tab baru untuk staf
+  `expenses:manage`): nama (wajib, ≤ 60, unik tanpa membedakan huruf
+  besar/kecil), jumlah pengeluaran; tambah, ubah nama, hapus bila belum
+  dipakai. Tujuh jenis bawaan dibuat sekali per toko: *Sewa tempat*,
+  *Listrik & air*, *Gaji & upah*, *Transport*, *Plastik & kemasan*, *Bahan
+  habis pakai*, *Lain-lain*.
+- Model data: tabel `expense_categories` dan `expenses`, jenis media
+  `expenseReceipt` (migrasi `expense`).
+
+### Diubah
+
+- Teks Beranda menyebut pengeluaran sudah bisa dipakai; tinggal laporan
+  yang menyusul.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (tes, uji manual, dan review),
+bukan bug di versi sebelumnya.
+
+- Tombol *Simpan pengeluaran* tidak pernah memanggil penyegaran daftar
+  karena hasil perintah dibaca dari nilai balik `execute()` (selalu kosong),
+  bukan dari `result`.
+- Batang *Per jenis* tidak terlihat: kotak warna tanpa anak berukuran tinggi
+  0 di dalam `Row`. Kini memakai `FractionallySizedBox` di atas lintasan
+  abu-abu.
+- Baris pertama daftar kartu menggambar garis atas ganda dengan tepi kartu.
+- Tanpa izin, kartu form di layar lebar memutar indikator muat tanpa henti;
+  kini hanya pesan galat yang tampil.
+- Tombol *Batalkan pengeluaran* dan *Simpan* jenis meluap di ponsel 360 px.
+- Di kas laci, galat jenis kosong baru muncul setelah keterangan diisi;
+  kini semua galat isian tampil sekaligus.
+- Layar Pengeluaran yang terbuka melewati tengah malam membuat pengeluaran
+  kas laci selalu ditolak (tanggal *hari ini* basi). Kini tanggal kas laci
+  ditetapkan saat simpan menurut cabang, dan daftar memuat ulang hari ini
+  serta status sesi kasir setiap disegarkan atau setelah simpan ditolak
+  (temuan review).
+- Keterangan uang keluar 121–200 karakter dengan sakelar pengeluaran aktif
+  gagal sebagai galat umum; kini batas field ikut 120 dan galatnya tampil di
+  field (temuan review).
+- Galat memuat jenis pengeluaran di kas laci kini tampil, tidak lagi
+  menyisakan pilihan jenis kosong tanpa penjelasan (temuan review).
+- Pilihan sumber dana bertuliskan *Kas laci (sesi aktif)* walau tidak ada
+  sesi terbuka; kini *Kas laci* (temuan review).
+
+### Keamanan
+
+- `expenses:manage` dicek di menu, layar, master jenis, repositori
+  aplikasi, dan lapisan data untuk semua aksi tulis.
+- Kas laci (catat **dan** batal) juga butuh `cash_movements:create` di
+  repositori aplikasi dan lapisan data; tombol *Batalkan* disembunyikan
+  untuk pengeluaran laci bila staf tidak punya izin itu (temuan review).
+- Foto nota hanya dibaca untuk pengeluaran cabang ini (temuan review).
+
+### Catatan teknis
+
+- Domain `lakuna_domain/expense.dart`: `ExpenseLimits`, `validateExpense`,
+  `validateExpenseCategoryName`, `validateExpenseVoidReason`,
+  `defaultExpenseCategories`, `expenseNumber`, `ExpensePeriod` +
+  `expensePeriodRange`, `DateRange`.
+- Data `lakuna_data/expenses.dart`: `ensureExpenseCategories`,
+  `saveExpenseCategory`, `deleteExpenseCategory`, `recordExpense`,
+  `voidExpense`, `listExpenses`, `summarizeExpenses`, `loadExpense`,
+  `loadExpenseReceipt`, `expenseLabelsForSession`. Pengeluaran dan gerakan
+  kasnya masuk outbox sync dalam satu transaksi.
+- Widget bersama `PhotoAttachField` (lampirkan / ambil foto, pratinjau,
+  hapus) untuk foto nota.
+- Migrasi `20261104010452347-expense`.
+- Tes: domain, data (jenis, catat kas toko/bank/laci, outbox, foto, cabang
+  lain, izin, ringkasan, batal laci), repositori lokal (izin catat/batal
+  laci, label rekap sesi), VM, alur widget 1440/800/360 px, tab jenis, dan
+  sakelar pengeluaran di kas laci.
+- Gap tercatat di spec F1-15: tes data untuk peran khusus, hitung pakai per
+  jenis dengan `GROUP BY`, jenis bawaan dan batal laci saat sinkronisasi
+  Fase 2.
+- Tes data supplier (F1-14) dan pembelian kadang gagal saat seluruh tes
+  berjalan: `expect(() => futureGagal, throwsA(...))` tanpa `await` membuat
+  langkah berikutnya (ganti nama, bayar hutang) berpacu dengan aksi yang
+  seharusnya ditolak. Kini memakai `await expectLater`.
+
 ## [0.18.0] - 2026-11-04
 
 Supplier dan hutang (F1-14, layar 1.21). Toko mencatat supplier dengan tempo
@@ -1850,7 +1970,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...v0.16.0

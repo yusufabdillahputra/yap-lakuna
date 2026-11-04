@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, serta pengeluaran sudah bisa dipakai. Laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -3294,5 +3294,156 @@
         "type": "String"
       }
     }
-  }
+  },
+  "expensesTitle": "Pengeluaran",
+  "expensesSubtitle": "Biaya operasional di luar pembelian barang dagang",
+  "expensesExport": "Ekspor Excel",
+  "expensesNew": "Catat pengeluaran",
+  "expensesSearch": "Cari pengeluaran",
+  "expensesEmpty": "Belum ada pengeluaran di periode ini.",
+  "expensesNoMatch": "Tidak ada pengeluaran yang cocok.",
+  "expensesByCategory": "Per jenis · {period}",
+  "@expensesByCategory": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesTotal": "Total {amount}",
+  "@expensesTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expensesByCategoryEmpty": "Belum ada pengeluaran yang dihitung.",
+  "expensePeriod30Days": "30 hari terakhir",
+  "expensePeriodThisMonth": "Bulan ini",
+  "expensePeriodLastMonth": "Bulan lalu",
+  "expenseColDate": "Tanggal",
+  "expenseColNumber": "Nomor",
+  "expenseColDescription": "Keterangan",
+  "expenseColCategory": "Jenis",
+  "expenseColFunding": "Sumber dana",
+  "expenseColAmount": "Jumlah",
+  "expenseColReceipt": "Bukti",
+  "expenseColStatus": "Status",
+  "expenseHasReceipt": "Ada foto",
+  "expenseNoReceipt": "Tanpa foto",
+  "expenseVoided": "Dibatalkan",
+  "expenseActive": "Tercatat",
+  "expenseFundingSession": "{funding} · sesi {name}",
+  "@expenseFundingSession": {
+    "placeholders": {
+      "funding": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseFormTitle": "Catat pengeluaran",
+  "expenseDescription": "Keterangan",
+  "expenseDescriptionHint": "mis. Galon air minum",
+  "expenseCategory": "Jenis pengeluaran",
+  "expenseCategoryHint": "Pilih jenis",
+  "expenseAmount": "Jumlah",
+  "expenseFunding": "Sumber dana",
+  "expenseFundingDrawerActive": "Kas laci (sesi aktif)",
+  "expenseDate": "Tanggal",
+  "expenseReceiptPick": "Lampirkan foto nota",
+  "expenseReceiptCamera": "Ambil foto nota",
+  "expenseReceiptInvalid": "Foto nota harus gambar PNG/JPEG/WebP, maksimal 5 MB.",
+  "expenseReceiptMissing": "Foto nota belum ada di perangkat ini.",
+  "expenseCancel": "Batal",
+  "expenseSave": "Simpan pengeluaran",
+  "expenseClose": "Tutup",
+  "expenseErrDescription": "Keterangan wajib diisi, maksimal {max} karakter.",
+  "@expenseErrDescription": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseErrCategory": "Pilih jenis pengeluaran.",
+  "expenseErrAmount": "Jumlah harus lebih dari 0 dan maksimal Rp 1.000.000.000.",
+  "expenseErrDate": "Tanggal tidak boleh di masa depan.",
+  "expenseErrNotFound": "Pengeluaran tidak ditemukan.",
+  "expenseErrAlreadyVoided": "Pengeluaran ini sudah dibatalkan.",
+  "expenseErrReason": "Alasan wajib diisi, maksimal {max} karakter.",
+  "@expenseErrReason": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseErrNotPermitted": "Anda tidak punya izin untuk pengeluaran ini.",
+  "expenseErrGeneric": "Pengeluaran gagal diproses. Coba lagi.",
+  "expenseDrawerNotPermitted": "Kas laci butuh izin cash_movements:create.",
+  "expenseDrawerNoSession": "Kas laci butuh sesi kasir terbuka di perangkat ini.",
+  "expenseDrawerNotToday": "Pengeluaran dari kas laci harus bertanggal hari ini.",
+  "expenseDetailTitle": "Rincian pengeluaran",
+  "expenseRecordedBy": "Dicatat oleh",
+  "expenseVoidInfo": "Dibatalkan oleh {name}: {reason}",
+  "@expenseVoidInfo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseVoid": "Batalkan pengeluaran",
+  "expenseVoidReason": "Alasan batal",
+  "expenseVoidReasonHint": "mis. Salah jumlah, akan dicatat ulang",
+  "expenseVoidDrawerHint": "Uang dikembalikan ke laci di sesi kasir yang sedang buka.",
+  "expenseVoidConfirm": "Ya, batalkan",
+  "masterTabExpenseCategories": "Jenis pengeluaran",
+  "expenseCategoriesNew": "Jenis",
+  "expenseCategoriesHint": "Dipakai di layar Pengeluaran dan laporan laba rugi.",
+  "expenseCategoriesEmpty": "Belum ada jenis pengeluaran.",
+  "expenseCategoriesUsage": "{count} pengeluaran",
+  "@expenseCategoriesUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseCategoriesNewTitle": "Jenis pengeluaran baru",
+  "expenseCategoriesEditTitle": "Ubah jenis pengeluaran",
+  "expenseCategoriesName": "Nama jenis",
+  "expenseCategoryErrName": "Nama wajib diisi, maksimal {max} karakter.",
+  "@expenseCategoryErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseCategoryErrTaken": "Nama jenis sudah dipakai.",
+  "expenseCategoryErrInUse": "Jenis ini sudah dipakai pengeluaran, jadi tidak bisa dihapus. Ganti namanya bila perlu.",
+  "cashExpenseBadge": "Pengeluaran · {name}",
+  "@cashExpenseBadge": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashSourceExpense": "Pengeluaran",
+  "cashSourceExpenseVoid": "Batal pengeluaran",
+  "cashAsExpense": "Catat juga sebagai pengeluaran",
+  "cashAsExpenseHint": "Agar ikut laporan laba rugi (1.24)",
+  "cashAsExpenseNeedsNote": "Keterangan wajib diisi dan menjadi keterangan pengeluaran.",
+  "expenseCategorySave": "Simpan",
+  "expenseReceiptOpen": "Buka foto nota",
+  "expenseFundingDrawer": "Kas laci"
 }

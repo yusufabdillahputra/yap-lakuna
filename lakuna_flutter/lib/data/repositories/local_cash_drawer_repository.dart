@@ -135,6 +135,15 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       movements: movements,
       drawer: drawer,
       sales: sales,
+      expenseLabels: await expenseLabelsForSession(
+        _store,
+        CatalogScope(
+          tenantId: scope.tenantId,
+          outletId: scope.outletId,
+          deviceId: scope.deviceId,
+        ),
+        session.id,
+      ),
     );
   }
 }

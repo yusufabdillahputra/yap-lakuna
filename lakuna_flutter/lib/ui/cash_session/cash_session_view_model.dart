@@ -4,6 +4,8 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
+import '../../data/repositories/expenses_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -38,7 +40,10 @@ class CashSessionViewModel extends ChangeNotifier {
   CashSessionViewModel({
     required this._repository,
     required this._permissions,
+    this._expenses,
+    this._picker = const FileSelectorImagePicker(),
   }) {
+    pickReceipt = Command1(_pickReceipt)..addListener(notifyListeners);
     load = Command0(_load)..addListener(notifyListeners);
     open = Command0(_open)..addListener(notifyListeners);
     saveMovement = Command0(_saveMovement)..addListener(notifyListeners);
@@ -47,6 +52,13 @@ class CashSessionViewModel extends ChangeNotifier {
 
   final CashDrawerRepository _repository;
   final Set<Permission> _permissions;
+
+  /// Pengeluaran (F1-15) untuk opsi *Catat juga sebagai pengeluaran*.
+  final ExpensesRepository? _expenses;
+  final ImageFilePicker _picker;
+
+  /// Memilih foto nota pengeluaran; argumen `true` = kamera.
+  late final Command1<void, bool> pickReceipt;
 
   late final Command0<ActiveCashSession?> load;
   late final Command0<ActiveCashSession> open;
@@ -74,6 +86,12 @@ class CashSessionViewModel extends ChangeNotifier {
   bool get canClose => _permissions.contains(Permission.cashSessionClose);
   bool get canRecordMovement =>
       _permissions.contains(Permission.cashMovementsCreate);
+
+  /// Uang keluar bisa dicatat juga sebagai pengeluaran (F1-15).
+  bool get canRecordExpense =>
+      _expenses != null &&
+      _permissions.contains(Permission.expensesManage) &&
+      canRecordMovement;
 
   CashStage get stage {
     if (_closed != null) return CashStage.closed;
@@ -123,6 +141,11 @@ class CashSessionViewModel extends ChangeNotifier {
   CashError? get movementAmountError => _movementAmountError;
   CashError? get movementNoteError => _movementNoteError;
 
+  /// Keterangan uang keluar menjadi keterangan pengeluaran bila sakelar
+  /// pengeluaran aktif, jadi batasnya ikut batas pengeluaran.
+  int get movementNoteMaxLength =>
+      asExpense ? ExpenseLimits.description : cashNoteMaxLength;
+
   /// Naik setiap uang laci tersimpan; view memakainya sebagai kunci agar
   /// field kembali kosong.
   int get movementFormVersion => _movementFormVersion;
@@ -146,6 +169,83 @@ class CashSessionViewModel extends ChangeNotifier {
     if (_movementNoteError != null) {
       _movementNoteError = null;
       notifyListeners();
+    }
+  }
+
+  // --- Catat juga sebagai pengeluaran (F1-15) ------------------------------
+
+  ExpensesSetup? _expenseSetup;
+  var _asExpense = false;
+  UuidValue? _expenseCategoryId;
+  var _expenseCategoryMissing = false;
+  ExpenseReceipt? _receipt;
+  var _receiptRejected = false;
+
+  /// Jenis pengeluaran aktif (kosong bila tidak bisa mencatat pengeluaran).
+  List<ExpenseCategory> get expenseCategories =>
+      _expenseSetup?.categories ?? const [];
+
+  /// Sakelar *Catat juga sebagai pengeluaran* aktif (hanya uang keluar).
+  bool get asExpense =>
+      _asExpense && canRecordExpense && _direction == CashDirection.outflow;
+  UuidValue? get expenseCategoryId => _expenseCategoryId;
+
+  /// Jenis belum dipilih saat simpan.
+  bool get expenseCategoryMissing => _expenseCategoryMissing;
+  ExpenseReceipt? get receipt => _receipt;
+
+  /// Foto terakhir ditolak (bukan gambar sah atau > 5 MB).
+  bool get receiptRejected => _receiptRejected;
+  bool get canTakePhoto => _picker.canTakePhoto;
+
+  void setAsExpense(bool value) {
+    if (_asExpense == value) return;
+    _asExpense = value;
+    if (value) _loadExpenseSetup();
+    notifyListeners();
+  }
+
+  void setExpenseCategory(UuidValue? id) {
+    _expenseCategoryId = id;
+    _expenseCategoryMissing = false;
+    notifyListeners();
+  }
+
+  void removeReceipt() {
+    _receipt = null;
+    _receiptRejected = false;
+    notifyListeners();
+  }
+
+  Future<void> _loadExpenseSetup() async {
+    final expenses = _expenses;
+    if (expenses == null || !canRecordExpense) return;
+    switch (await expenses.load()) {
+      case Ok(:final value):
+        _expenseSetup = value;
+      case Error(:final error):
+        // Tampil di kotak galat umum; jenis tetap kosong.
+        _error = error;
+    }
+    notifyListeners();
+  }
+
+  Future<Result<void>> _pickReceipt(bool camera) async {
+    try {
+      final picked = camera
+          ? await _picker.takePhoto(maxBytes: ExpenseLimits.receiptMaxBytes)
+          : await _picker.pickImage(maxBytes: ExpenseLimits.receiptMaxBytes);
+      if (picked == null) return const Result.ok(null);
+      final bytes = picked.bytes;
+      if (bytes == null || readImageHeader(bytes) == null) {
+        _receiptRejected = true;
+      } else {
+        _receipt = ExpenseReceipt(bytes: bytes, fileName: picked.name);
+        _receiptRejected = false;
+      }
+      return const Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 
@@ -267,12 +367,21 @@ class CashSessionViewModel extends ChangeNotifier {
         ? CashError.required
         : validateMovementAmount(amount);
     _movementNoteError = validateMovementNote(_movementNote);
+    // Semua galat isian pengeluaran tampil sekaligus.
+    _expenseCategoryMissing = asExpense && _expenseCategoryId == null;
     if (_movementAmountError case final e?) {
       return Result.error(CashInputInvalid(CashField.amount, e));
+    }
+    if (asExpense && _movementNote.trim().isEmpty) {
+      _movementNoteError = CashError.required;
+    } else if (asExpense &&
+        _movementNote.trim().length > ExpenseLimits.description) {
+      _movementNoteError = CashError.tooLong;
     }
     if (_movementNoteError case final e?) {
       return Result.error(CashInputInvalid(CashField.note, e));
     }
+    if (asExpense) return _saveExpense(session, amount!);
     final result = await _repository.recordMovement(
       session.session.id,
       direction: _direction,
@@ -285,6 +394,50 @@ class CashSessionViewModel extends ChangeNotifier {
     );
     return result;
   }
+
+  /// Uang keluar + pengeluaran laci dalam satu dokumen `EX-`.
+  Future<Result<ActiveCashSession>> _saveExpense(
+    ActiveCashSession session,
+    Money amount,
+  ) async {
+    final categoryId = _expenseCategoryId;
+    if (categoryId == null) {
+      _expenseCategoryMissing = true;
+      notifyListeners();
+      return const Result.error(ExpenseInvalid({ExpenseIssue.category}));
+    }
+    final today = _expenseSetup?.today ?? _date(DateTime.now());
+    final recorded = await _expenses!.record(
+      ExpenseRequest(
+        description: _movementNote,
+        categoryId: categoryId,
+        amount: amount,
+        funding: FundingSource.drawer,
+        spentOn: today,
+        receipt: _receipt,
+      ),
+    );
+    if (recorded case Error(:final error)) {
+      await _handleError(error);
+      return Result.error(error);
+    }
+    final reloaded = await _repository.loadCurrent();
+    switch (reloaded) {
+      case Ok(:final value?):
+        _active = value;
+        _clearMovementForm();
+        return Result.ok(value);
+      case Ok():
+        final error = CashSessionNotOpen();
+        await _handleError(error);
+        return Result.error(error);
+      case Error(:final error):
+        _error = error;
+        return Result.error(error);
+    }
+  }
+
+  static DateTime _date(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
   Future<Result<CashSession>> _close() async {
     final session = _active;
@@ -368,6 +521,11 @@ class CashSessionViewModel extends ChangeNotifier {
     _movementNote = '';
     _movementAmountError = null;
     _movementNoteError = null;
+    _asExpense = false;
+    _expenseCategoryId = null;
+    _expenseCategoryMissing = false;
+    _receipt = null;
+    _receiptRejected = false;
     _movementFormVersion++;
   }
 
@@ -376,6 +534,7 @@ class CashSessionViewModel extends ChangeNotifier {
     for (final c in [load, open, saveMovement, close]) {
       c.dispose();
     }
+    pickReceipt.dispose();
     super.dispose();
   }
 }

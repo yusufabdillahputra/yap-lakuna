@@ -13,6 +13,7 @@ enum MasterTab {
   units,
   modifiers,
   customerGroups,
+  expenseCategories,
   locations,
   payments,
   tables,

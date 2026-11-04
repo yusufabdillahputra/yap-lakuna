@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, serta pengeluaran sudah bisa dipakai. Laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -5184,4 +5184,279 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseDebtPayment(String number) {
     return 'Bayar hutang $number';
   }
+
+  @override
+  String get expensesTitle => 'Pengeluaran';
+
+  @override
+  String get expensesSubtitle =>
+      'Biaya operasional di luar pembelian barang dagang';
+
+  @override
+  String get expensesExport => 'Ekspor Excel';
+
+  @override
+  String get expensesNew => 'Catat pengeluaran';
+
+  @override
+  String get expensesSearch => 'Cari pengeluaran';
+
+  @override
+  String get expensesEmpty => 'Belum ada pengeluaran di periode ini.';
+
+  @override
+  String get expensesNoMatch => 'Tidak ada pengeluaran yang cocok.';
+
+  @override
+  String expensesByCategory(String period) {
+    return 'Per jenis · $period';
+  }
+
+  @override
+  String expensesTotal(String amount) {
+    return 'Total $amount';
+  }
+
+  @override
+  String get expensesByCategoryEmpty => 'Belum ada pengeluaran yang dihitung.';
+
+  @override
+  String get expensePeriod30Days => '30 hari terakhir';
+
+  @override
+  String get expensePeriodThisMonth => 'Bulan ini';
+
+  @override
+  String get expensePeriodLastMonth => 'Bulan lalu';
+
+  @override
+  String get expenseColDate => 'Tanggal';
+
+  @override
+  String get expenseColNumber => 'Nomor';
+
+  @override
+  String get expenseColDescription => 'Keterangan';
+
+  @override
+  String get expenseColCategory => 'Jenis';
+
+  @override
+  String get expenseColFunding => 'Sumber dana';
+
+  @override
+  String get expenseColAmount => 'Jumlah';
+
+  @override
+  String get expenseColReceipt => 'Bukti';
+
+  @override
+  String get expenseColStatus => 'Status';
+
+  @override
+  String get expenseHasReceipt => 'Ada foto';
+
+  @override
+  String get expenseNoReceipt => 'Tanpa foto';
+
+  @override
+  String get expenseVoided => 'Dibatalkan';
+
+  @override
+  String get expenseActive => 'Tercatat';
+
+  @override
+  String expenseFundingSession(String funding, String name) {
+    return '$funding · sesi $name';
+  }
+
+  @override
+  String get expenseFormTitle => 'Catat pengeluaran';
+
+  @override
+  String get expenseDescription => 'Keterangan';
+
+  @override
+  String get expenseDescriptionHint => 'mis. Galon air minum';
+
+  @override
+  String get expenseCategory => 'Jenis pengeluaran';
+
+  @override
+  String get expenseCategoryHint => 'Pilih jenis';
+
+  @override
+  String get expenseAmount => 'Jumlah';
+
+  @override
+  String get expenseFunding => 'Sumber dana';
+
+  @override
+  String get expenseFundingDrawerActive => 'Kas laci (sesi aktif)';
+
+  @override
+  String get expenseDate => 'Tanggal';
+
+  @override
+  String get expenseReceiptPick => 'Lampirkan foto nota';
+
+  @override
+  String get expenseReceiptCamera => 'Ambil foto nota';
+
+  @override
+  String get expenseReceiptInvalid =>
+      'Foto nota harus gambar PNG/JPEG/WebP, maksimal 5 MB.';
+
+  @override
+  String get expenseReceiptMissing => 'Foto nota belum ada di perangkat ini.';
+
+  @override
+  String get expenseCancel => 'Batal';
+
+  @override
+  String get expenseSave => 'Simpan pengeluaran';
+
+  @override
+  String get expenseClose => 'Tutup';
+
+  @override
+  String expenseErrDescription(int max) {
+    return 'Keterangan wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get expenseErrCategory => 'Pilih jenis pengeluaran.';
+
+  @override
+  String get expenseErrAmount =>
+      'Jumlah harus lebih dari 0 dan maksimal Rp 1.000.000.000.';
+
+  @override
+  String get expenseErrDate => 'Tanggal tidak boleh di masa depan.';
+
+  @override
+  String get expenseErrNotFound => 'Pengeluaran tidak ditemukan.';
+
+  @override
+  String get expenseErrAlreadyVoided => 'Pengeluaran ini sudah dibatalkan.';
+
+  @override
+  String expenseErrReason(int max) {
+    return 'Alasan wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get expenseErrNotPermitted =>
+      'Anda tidak punya izin untuk pengeluaran ini.';
+
+  @override
+  String get expenseErrGeneric => 'Pengeluaran gagal diproses. Coba lagi.';
+
+  @override
+  String get expenseDrawerNotPermitted =>
+      'Kas laci butuh izin cash_movements:create.';
+
+  @override
+  String get expenseDrawerNoSession =>
+      'Kas laci butuh sesi kasir terbuka di perangkat ini.';
+
+  @override
+  String get expenseDrawerNotToday =>
+      'Pengeluaran dari kas laci harus bertanggal hari ini.';
+
+  @override
+  String get expenseDetailTitle => 'Rincian pengeluaran';
+
+  @override
+  String get expenseRecordedBy => 'Dicatat oleh';
+
+  @override
+  String expenseVoidInfo(String name, String reason) {
+    return 'Dibatalkan oleh $name: $reason';
+  }
+
+  @override
+  String get expenseVoid => 'Batalkan pengeluaran';
+
+  @override
+  String get expenseVoidReason => 'Alasan batal';
+
+  @override
+  String get expenseVoidReasonHint => 'mis. Salah jumlah, akan dicatat ulang';
+
+  @override
+  String get expenseVoidDrawerHint =>
+      'Uang dikembalikan ke laci di sesi kasir yang sedang buka.';
+
+  @override
+  String get expenseVoidConfirm => 'Ya, batalkan';
+
+  @override
+  String get masterTabExpenseCategories => 'Jenis pengeluaran';
+
+  @override
+  String get expenseCategoriesNew => 'Jenis';
+
+  @override
+  String get expenseCategoriesHint =>
+      'Dipakai di layar Pengeluaran dan laporan laba rugi.';
+
+  @override
+  String get expenseCategoriesEmpty => 'Belum ada jenis pengeluaran.';
+
+  @override
+  String expenseCategoriesUsage(int count) {
+    return '$count pengeluaran';
+  }
+
+  @override
+  String get expenseCategoriesNewTitle => 'Jenis pengeluaran baru';
+
+  @override
+  String get expenseCategoriesEditTitle => 'Ubah jenis pengeluaran';
+
+  @override
+  String get expenseCategoriesName => 'Nama jenis';
+
+  @override
+  String expenseCategoryErrName(int max) {
+    return 'Nama wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get expenseCategoryErrTaken => 'Nama jenis sudah dipakai.';
+
+  @override
+  String get expenseCategoryErrInUse =>
+      'Jenis ini sudah dipakai pengeluaran, jadi tidak bisa dihapus. Ganti namanya bila perlu.';
+
+  @override
+  String cashExpenseBadge(String name) {
+    return 'Pengeluaran · $name';
+  }
+
+  @override
+  String get cashSourceExpense => 'Pengeluaran';
+
+  @override
+  String get cashSourceExpenseVoid => 'Batal pengeluaran';
+
+  @override
+  String get cashAsExpense => 'Catat juga sebagai pengeluaran';
+
+  @override
+  String get cashAsExpenseHint => 'Agar ikut laporan laba rugi (1.24)';
+
+  @override
+  String get cashAsExpenseNeedsNote =>
+      'Keterangan wajib diisi dan menjadi keterangan pengeluaran.';
+
+  @override
+  String get expenseCategorySave => 'Simpan';
+
+  @override
+  String get expenseReceiptOpen => 'Buka foto nota';
+
+  @override
+  String get expenseFundingDrawer => 'Kas laci';
 }

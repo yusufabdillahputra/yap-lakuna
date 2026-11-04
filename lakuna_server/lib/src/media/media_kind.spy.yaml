@@ -1,8 +1,9 @@
 ### Jenis berkas media yang diunggah (F1-18; denah meja F1-10; bukti bayar
-### hutang F1-14).
+### hutang F1-14; foto nota pengeluaran F1-15).
 enum: MediaKind
 serialized: byName
 values:
   - qrisSticker
   - floorPlan
   - paymentProof
+  - expenseReceipt

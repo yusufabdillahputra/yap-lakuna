@@ -9,6 +9,7 @@ import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
 import '../data/repositories/customers_repository.dart';
+import '../data/repositories/expenses_repository.dart';
 import '../data/repositories/suppliers_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/purchases_repository.dart';
@@ -37,6 +38,7 @@ import '../ui/customers/kuitansi_view.dart';
 import '../ui/history/history_view.dart';
 import '../ui/purchases/purchase_detail_view.dart';
 import '../ui/purchases/purchases_view.dart';
+import '../ui/expenses/expenses_view.dart';
 import '../ui/suppliers/supplier_panel_view.dart';
 import '../ui/suppliers/suppliers_view.dart';
 import '../ui/home/home_view.dart';
@@ -71,6 +73,7 @@ GoRouter createRouter({
   required PurchasesRepository purchases,
   required CustomersRepository customers,
   required SuppliersRepository suppliers,
+  required ExpensesRepository expenses,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
@@ -148,6 +151,8 @@ GoRouter createRouter({
               repository: cashDrawer,
               store: store,
               session: session,
+              expenses: expenses,
+              imagePicker: imagePicker,
             ),
           ),
           GoRoute(
@@ -301,6 +306,7 @@ GoRouter createRouter({
               session: session,
               diningAdmin: diningAdmin,
               customers: customers,
+              expenses: expenses,
             ),
           ),
           GoRoute(
@@ -434,6 +440,14 @@ GoRouter createRouter({
                     context.push<void>(Routes.purchase(id.uuid)),
               );
             },
+          ),
+          GoRoute(
+            path: Routes.expenses,
+            builder: (context, state) => ExpensesScreen(
+              repository: expenses,
+              imagePicker: imagePicker,
+              exporter: exporter,
+            ),
           ),
           GoRoute(
             path: '/modul/:key',

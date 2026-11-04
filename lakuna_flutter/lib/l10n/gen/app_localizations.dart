@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, serta supplier & hutang sudah bisa dipakai. Pengeluaran dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, serta pengeluaran sudah bisa dipakai. Laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -9109,6 +9109,498 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bayar hutang {number}'**
   String purchaseDebtPayment(String number);
+
+  /// No description provided for @expensesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran'**
+  String get expensesTitle;
+
+  /// No description provided for @expensesSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Biaya operasional di luar pembelian barang dagang'**
+  String get expensesSubtitle;
+
+  /// No description provided for @expensesExport.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor Excel'**
+  String get expensesExport;
+
+  /// No description provided for @expensesNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Catat pengeluaran'**
+  String get expensesNew;
+
+  /// No description provided for @expensesSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari pengeluaran'**
+  String get expensesSearch;
+
+  /// No description provided for @expensesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pengeluaran di periode ini.'**
+  String get expensesEmpty;
+
+  /// No description provided for @expensesNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada pengeluaran yang cocok.'**
+  String get expensesNoMatch;
+
+  /// No description provided for @expensesByCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Per jenis · {period}'**
+  String expensesByCategory(String period);
+
+  /// No description provided for @expensesTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total {amount}'**
+  String expensesTotal(String amount);
+
+  /// No description provided for @expensesByCategoryEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pengeluaran yang dihitung.'**
+  String get expensesByCategoryEmpty;
+
+  /// No description provided for @expensePeriod30Days.
+  ///
+  /// In id, this message translates to:
+  /// **'30 hari terakhir'**
+  String get expensePeriod30Days;
+
+  /// No description provided for @expensePeriodThisMonth.
+  ///
+  /// In id, this message translates to:
+  /// **'Bulan ini'**
+  String get expensePeriodThisMonth;
+
+  /// No description provided for @expensePeriodLastMonth.
+  ///
+  /// In id, this message translates to:
+  /// **'Bulan lalu'**
+  String get expensePeriodLastMonth;
+
+  /// No description provided for @expenseColDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get expenseColDate;
+
+  /// No description provided for @expenseColNumber.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor'**
+  String get expenseColNumber;
+
+  /// No description provided for @expenseColDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get expenseColDescription;
+
+  /// No description provided for @expenseColCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis'**
+  String get expenseColCategory;
+
+  /// No description provided for @expenseColFunding.
+  ///
+  /// In id, this message translates to:
+  /// **'Sumber dana'**
+  String get expenseColFunding;
+
+  /// No description provided for @expenseColAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get expenseColAmount;
+
+  /// No description provided for @expenseColReceipt.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti'**
+  String get expenseColReceipt;
+
+  /// No description provided for @expenseColStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get expenseColStatus;
+
+  /// No description provided for @expenseHasReceipt.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada foto'**
+  String get expenseHasReceipt;
+
+  /// No description provided for @expenseNoReceipt.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa foto'**
+  String get expenseNoReceipt;
+
+  /// No description provided for @expenseVoided.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibatalkan'**
+  String get expenseVoided;
+
+  /// No description provided for @expenseActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Tercatat'**
+  String get expenseActive;
+
+  /// No description provided for @expenseFundingSession.
+  ///
+  /// In id, this message translates to:
+  /// **'{funding} · sesi {name}'**
+  String expenseFundingSession(String funding, String name);
+
+  /// No description provided for @expenseFormTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Catat pengeluaran'**
+  String get expenseFormTitle;
+
+  /// No description provided for @expenseDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get expenseDescription;
+
+  /// No description provided for @expenseDescriptionHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Galon air minum'**
+  String get expenseDescriptionHint;
+
+  /// No description provided for @expenseCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis pengeluaran'**
+  String get expenseCategory;
+
+  /// No description provided for @expenseCategoryHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih jenis'**
+  String get expenseCategoryHint;
+
+  /// No description provided for @expenseAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah'**
+  String get expenseAmount;
+
+  /// No description provided for @expenseFunding.
+  ///
+  /// In id, this message translates to:
+  /// **'Sumber dana'**
+  String get expenseFunding;
+
+  /// No description provided for @expenseFundingDrawerActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci (sesi aktif)'**
+  String get expenseFundingDrawerActive;
+
+  /// No description provided for @expenseDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get expenseDate;
+
+  /// No description provided for @expenseReceiptPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Lampirkan foto nota'**
+  String get expenseReceiptPick;
+
+  /// No description provided for @expenseReceiptCamera.
+  ///
+  /// In id, this message translates to:
+  /// **'Ambil foto nota'**
+  String get expenseReceiptCamera;
+
+  /// No description provided for @expenseReceiptInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto nota harus gambar PNG/JPEG/WebP, maksimal 5 MB.'**
+  String get expenseReceiptInvalid;
+
+  /// No description provided for @expenseReceiptMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto nota belum ada di perangkat ini.'**
+  String get expenseReceiptMissing;
+
+  /// No description provided for @expenseCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get expenseCancel;
+
+  /// No description provided for @expenseSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan pengeluaran'**
+  String get expenseSave;
+
+  /// No description provided for @expenseClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get expenseClose;
+
+  /// No description provided for @expenseErrDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan wajib diisi, maksimal {max} karakter.'**
+  String expenseErrDescription(int max);
+
+  /// No description provided for @expenseErrCategory.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih jenis pengeluaran.'**
+  String get expenseErrCategory;
+
+  /// No description provided for @expenseErrAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah harus lebih dari 0 dan maksimal Rp 1.000.000.000.'**
+  String get expenseErrAmount;
+
+  /// No description provided for @expenseErrDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal tidak boleh di masa depan.'**
+  String get expenseErrDate;
+
+  /// No description provided for @expenseErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran tidak ditemukan.'**
+  String get expenseErrNotFound;
+
+  /// No description provided for @expenseErrAlreadyVoided.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran ini sudah dibatalkan.'**
+  String get expenseErrAlreadyVoided;
+
+  /// No description provided for @expenseErrReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan wajib diisi, maksimal {max} karakter.'**
+  String expenseErrReason(int max);
+
+  /// No description provided for @expenseErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk pengeluaran ini.'**
+  String get expenseErrNotPermitted;
+
+  /// No description provided for @expenseErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran gagal diproses. Coba lagi.'**
+  String get expenseErrGeneric;
+
+  /// No description provided for @expenseDrawerNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci butuh izin cash_movements:create.'**
+  String get expenseDrawerNotPermitted;
+
+  /// No description provided for @expenseDrawerNoSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci butuh sesi kasir terbuka di perangkat ini.'**
+  String get expenseDrawerNoSession;
+
+  /// No description provided for @expenseDrawerNotToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran dari kas laci harus bertanggal hari ini.'**
+  String get expenseDrawerNotToday;
+
+  /// No description provided for @expenseDetailTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Rincian pengeluaran'**
+  String get expenseDetailTitle;
+
+  /// No description provided for @expenseRecordedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Dicatat oleh'**
+  String get expenseRecordedBy;
+
+  /// No description provided for @expenseVoidInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibatalkan oleh {name}: {reason}'**
+  String expenseVoidInfo(String name, String reason);
+
+  /// No description provided for @expenseVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan pengeluaran'**
+  String get expenseVoid;
+
+  /// No description provided for @expenseVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan batal'**
+  String get expenseVoidReason;
+
+  /// No description provided for @expenseVoidReasonHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Salah jumlah, akan dicatat ulang'**
+  String get expenseVoidReasonHint;
+
+  /// No description provided for @expenseVoidDrawerHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang dikembalikan ke laci di sesi kasir yang sedang buka.'**
+  String get expenseVoidDrawerHint;
+
+  /// No description provided for @expenseVoidConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Ya, batalkan'**
+  String get expenseVoidConfirm;
+
+  /// No description provided for @masterTabExpenseCategories.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis pengeluaran'**
+  String get masterTabExpenseCategories;
+
+  /// No description provided for @expenseCategoriesNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis'**
+  String get expenseCategoriesNew;
+
+  /// No description provided for @expenseCategoriesHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Dipakai di layar Pengeluaran dan laporan laba rugi.'**
+  String get expenseCategoriesHint;
+
+  /// No description provided for @expenseCategoriesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada jenis pengeluaran.'**
+  String get expenseCategoriesEmpty;
+
+  /// No description provided for @expenseCategoriesUsage.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pengeluaran'**
+  String expenseCategoriesUsage(int count);
+
+  /// No description provided for @expenseCategoriesNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis pengeluaran baru'**
+  String get expenseCategoriesNewTitle;
+
+  /// No description provided for @expenseCategoriesEditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah jenis pengeluaran'**
+  String get expenseCategoriesEditTitle;
+
+  /// No description provided for @expenseCategoriesName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama jenis'**
+  String get expenseCategoriesName;
+
+  /// No description provided for @expenseCategoryErrName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama wajib diisi, maksimal {max} karakter.'**
+  String expenseCategoryErrName(int max);
+
+  /// No description provided for @expenseCategoryErrTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama jenis sudah dipakai.'**
+  String get expenseCategoryErrTaken;
+
+  /// No description provided for @expenseCategoryErrInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis ini sudah dipakai pengeluaran, jadi tidak bisa dihapus. Ganti namanya bila perlu.'**
+  String get expenseCategoryErrInUse;
+
+  /// No description provided for @cashExpenseBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran · {name}'**
+  String cashExpenseBadge(String name);
+
+  /// No description provided for @cashSourceExpense.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran'**
+  String get cashSourceExpense;
+
+  /// No description provided for @cashSourceExpenseVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal pengeluaran'**
+  String get cashSourceExpenseVoid;
+
+  /// No description provided for @cashAsExpense.
+  ///
+  /// In id, this message translates to:
+  /// **'Catat juga sebagai pengeluaran'**
+  String get cashAsExpense;
+
+  /// No description provided for @cashAsExpenseHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Agar ikut laporan laba rugi (1.24)'**
+  String get cashAsExpenseHint;
+
+  /// No description provided for @cashAsExpenseNeedsNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan wajib diisi dan menjadi keterangan pengeluaran.'**
+  String get cashAsExpenseNeedsNote;
+
+  /// No description provided for @expenseCategorySave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get expenseCategorySave;
+
+  /// No description provided for @expenseReceiptOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka foto nota'**
+  String get expenseReceiptOpen;
+
+  /// No description provided for @expenseFundingDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci'**
+  String get expenseFundingDrawer;
 }
 
 class _AppLocalizationsDelegate

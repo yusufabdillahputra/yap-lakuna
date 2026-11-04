@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, and suppliers & payables are ready to use. Expenses and reports are coming in the next releases.';
+      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, and expenses are ready to use. Reports are coming in the next release.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -5297,4 +5297,287 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseDebtPayment(String number) {
     return 'Payment $number';
   }
+
+  @override
+  String get expensesTitle => 'Expenses';
+
+  @override
+  String get expensesSubtitle => 'Operating costs outside stock purchases';
+
+  @override
+  String get expensesExport => 'Export Excel';
+
+  @override
+  String get expensesNew => 'Record expense';
+
+  @override
+  String get expensesSearch => 'Search expenses';
+
+  @override
+  String get expensesEmpty => 'No expenses in this period.';
+
+  @override
+  String get expensesNoMatch => 'No matching expenses.';
+
+  @override
+  String expensesByCategory(String period) {
+    return 'By category · $period';
+  }
+
+  @override
+  String expensesTotal(String amount) {
+    return 'Total $amount';
+  }
+
+  @override
+  String get expensesByCategoryEmpty => 'No counted expenses yet.';
+
+  @override
+  String get expensePeriod30Days => 'Last 30 days';
+
+  @override
+  String get expensePeriodThisMonth => 'This month';
+
+  @override
+  String get expensePeriodLastMonth => 'Last month';
+
+  @override
+  String get expenseColDate => 'Date';
+
+  @override
+  String get expenseColNumber => 'Number';
+
+  @override
+  String get expenseColDescription => 'Description';
+
+  @override
+  String get expenseColCategory => 'Category';
+
+  @override
+  String get expenseColFunding => 'Paid from';
+
+  @override
+  String get expenseColAmount => 'Amount';
+
+  @override
+  String get expenseColReceipt => 'Receipt';
+
+  @override
+  String get expenseColStatus => 'Status';
+
+  @override
+  String get expenseHasReceipt => 'Has photo';
+
+  @override
+  String get expenseNoReceipt => 'No photo';
+
+  @override
+  String get expenseVoided => 'Voided';
+
+  @override
+  String get expenseActive => 'Recorded';
+
+  @override
+  String expenseFundingSession(String funding, String name) {
+    return '$funding · $name\'s session';
+  }
+
+  @override
+  String get expenseFormTitle => 'Record expense';
+
+  @override
+  String get expenseDescription => 'Description';
+
+  @override
+  String get expenseDescriptionHint => 'e.g. Drinking water refill';
+
+  @override
+  String get expenseCategory => 'Expense category';
+
+  @override
+  String get expenseCategoryHint => 'Choose a category';
+
+  @override
+  String get expenseAmount => 'Amount';
+
+  @override
+  String get expenseFunding => 'Paid from';
+
+  @override
+  String get expenseFundingDrawerActive => 'Cash drawer (open session)';
+
+  @override
+  String get expenseDate => 'Date';
+
+  @override
+  String get expenseReceiptPick => 'Attach receipt photo';
+
+  @override
+  String get expenseReceiptCamera => 'Take receipt photo';
+
+  @override
+  String get expenseReceiptInvalid =>
+      'Receipt photo must be a PNG/JPEG/WebP image up to 5 MB.';
+
+  @override
+  String get expenseReceiptMissing =>
+      'The receipt photo is not on this device yet.';
+
+  @override
+  String get expenseCancel => 'Cancel';
+
+  @override
+  String get expenseSave => 'Save expense';
+
+  @override
+  String get expenseClose => 'Close';
+
+  @override
+  String expenseErrDescription(int max) {
+    return 'Description is required, up to $max characters.';
+  }
+
+  @override
+  String get expenseErrCategory => 'Choose an expense category.';
+
+  @override
+  String get expenseErrAmount =>
+      'Amount must be more than 0 and at most Rp 1,000,000,000.';
+
+  @override
+  String get expenseErrDate => 'The date cannot be in the future.';
+
+  @override
+  String get expenseErrNotFound => 'Expense not found.';
+
+  @override
+  String get expenseErrAlreadyVoided => 'This expense is already voided.';
+
+  @override
+  String expenseErrReason(int max) {
+    return 'A reason is required, up to $max characters.';
+  }
+
+  @override
+  String get expenseErrNotPermitted =>
+      'You don\'t have permission for this expense.';
+
+  @override
+  String get expenseErrGeneric =>
+      'The expense couldn\'t be processed. Try again.';
+
+  @override
+  String get expenseDrawerNotPermitted =>
+      'The cash drawer needs the cash_movements:create permission.';
+
+  @override
+  String get expenseDrawerNoSession =>
+      'The cash drawer needs an open cash session on this device.';
+
+  @override
+  String get expenseDrawerNotToday =>
+      'Cash drawer expenses must be dated today.';
+
+  @override
+  String get expenseDetailTitle => 'Expense details';
+
+  @override
+  String get expenseRecordedBy => 'Recorded by';
+
+  @override
+  String expenseVoidInfo(String name, String reason) {
+    return 'Voided by $name: $reason';
+  }
+
+  @override
+  String get expenseVoid => 'Void expense';
+
+  @override
+  String get expenseVoidReason => 'Reason';
+
+  @override
+  String get expenseVoidReasonHint => 'e.g. Wrong amount, will re-record';
+
+  @override
+  String get expenseVoidDrawerHint =>
+      'The money goes back to the drawer in the open cash session.';
+
+  @override
+  String get expenseVoidConfirm => 'Yes, void';
+
+  @override
+  String get masterTabExpenseCategories => 'Expense categories';
+
+  @override
+  String get expenseCategoriesNew => 'Category';
+
+  @override
+  String get expenseCategoriesHint =>
+      'Used on the Expenses screen and the profit & loss report.';
+
+  @override
+  String get expenseCategoriesEmpty => 'No expense categories yet.';
+
+  @override
+  String expenseCategoriesUsage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get expenseCategoriesNewTitle => 'New expense category';
+
+  @override
+  String get expenseCategoriesEditTitle => 'Edit expense category';
+
+  @override
+  String get expenseCategoriesName => 'Category name';
+
+  @override
+  String expenseCategoryErrName(int max) {
+    return 'Name is required, up to $max characters.';
+  }
+
+  @override
+  String get expenseCategoryErrTaken => 'That category name is already used.';
+
+  @override
+  String get expenseCategoryErrInUse =>
+      'This category is used by expenses, so it can\'t be deleted. Rename it if needed.';
+
+  @override
+  String cashExpenseBadge(String name) {
+    return 'Expense · $name';
+  }
+
+  @override
+  String get cashSourceExpense => 'Expense';
+
+  @override
+  String get cashSourceExpenseVoid => 'Voided expense';
+
+  @override
+  String get cashAsExpense => 'Also record as an expense';
+
+  @override
+  String get cashAsExpenseHint =>
+      'So it counts in the profit & loss report (1.24)';
+
+  @override
+  String get cashAsExpenseNeedsNote =>
+      'The note is required and becomes the expense description.';
+
+  @override
+  String get expenseCategorySave => 'Save';
+
+  @override
+  String get expenseReceiptOpen => 'Open receipt photo';
+
+  @override
+  String get expenseFundingDrawer => 'Cash drawer';
 }

@@ -1,0 +1,46 @@
+### Pengeluaran operasional (F1-15), nomor `EX-…`. Dari kas laci menulis
+### `cash_movements` keluar di sesi kasir terbuka ([cashSessionId],
+### [cashMovementId]). Koreksi = batal ([voidedAt]) lalu catat baru.
+class: Expense
+table: expenses
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  expenseCategoryId: UuidValue, relation(parent=expense_categories, onDelete=Restrict), column=expense_category_id
+  number: String
+  ### Tanggal pengeluaran (kalender, UTC tengah malam).
+  spentOn: DateTime, column=spent_on
+  description: String
+  amount: int
+  fundingSource: FundingSource, column=funding_source
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  cashMovementId: UuidValue?, relation(parent=cash_movements, onDelete=Restrict), column=cash_movement_id
+  ### Foto nota.
+  receiptMediaId: UuidValue?, relation(parent=media_files, onDelete=Restrict), column=receipt_media_id
+  voidedAt: DateTime?, column=voided_at
+  voidedBy: UuidValue?, column=voided_by
+  voidReason: String?, column=void_reason
+  ### Gerakan kas pengembalian ke laci saat batal.
+  voidCashMovementId: UuidValue?, relation(parent=cash_movements, onDelete=Restrict), column=void_cash_movement_id
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  expenses_number_idx:
+    fields: tenantId, number
+    unique: true
+  expenses_outlet_day_idx:
+    fields: outletId, spentOn
+  expenses_category_idx:
+    fields: expenseCategoryId
+  expenses_session_idx:
+    fields: cashSessionId

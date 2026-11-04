@@ -21,6 +21,9 @@ import 'modifier_groups_view_model.dart';
 import 'customer_groups_tab.dart';
 import 'customer_groups_view_model.dart';
 import '../../data/repositories/customers_repository.dart';
+import '../../data/repositories/expenses_repository.dart';
+import '../expenses/expense_categories_view_model.dart';
+import 'expense_categories_tab.dart';
 
 /// Layar *Master data* (1.17, F1-09). Memiliki [MasterDataViewModel].
 class MasterDataScreen extends StatefulWidget {
@@ -30,9 +33,14 @@ class MasterDataScreen extends StatefulWidget {
     required this.session,
     this.diningAdmin,
     this.customers,
+    this.expenses,
   });
 
   final MasterDataRepository repository;
+
+  /// Jenis pengeluaran (F1-15); tab tampil untuk staf dengan
+  /// `expenses:manage`.
+  final ExpensesRepository? expenses;
   final SessionRepository session;
 
   /// Grup pelanggan (F1-13); tab tampil untuk staf dengan
@@ -53,10 +61,17 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
   );
   DiningSetupViewModel? _dining;
   CustomerGroupsViewModel? _groups;
+  ExpenseCategoriesViewModel? _expenseCategories;
 
   @override
   void initState() {
     super.initState();
+    final expenses = widget.expenses;
+    if (expenses != null &&
+        (widget.session.current?.can(Permission.expensesManage) ?? false)) {
+      _expenseCategories = ExpenseCategoriesViewModel(repository: expenses)
+        ..load.execute();
+    }
     final customers = widget.customers;
     if (customers != null &&
         (widget.session.current?.can(Permission.customersManage) ?? false)) {
@@ -77,6 +92,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
     _modifiers.dispose();
     _dining?.dispose();
     _groups?.dispose();
+    _expenseCategories?.dispose();
     super.dispose();
   }
 
@@ -90,6 +106,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
       dining: _dining,
       modifiers: _modifiers,
       customerGroups: _groups,
+      expenseCategories: _expenseCategories,
     );
   }
 }
@@ -103,6 +120,7 @@ class MasterDataView extends StatelessWidget {
     this.dining,
     this.modifiers,
     this.customerGroups,
+    this.expenseCategories,
   });
 
   final MasterDataViewModel viewModel;
@@ -118,12 +136,16 @@ class MasterDataView extends StatelessWidget {
   /// Tab Grup pelanggan; `null` = tab tidak tampil.
   final CustomerGroupsViewModel? customerGroups;
 
+  /// Tab Jenis pengeluaran; `null` = tab tidak tampil.
+  final ExpenseCategoriesViewModel? expenseCategories;
+
   List<MasterTab> get _tabs => [
     for (final t in MasterTab.values)
       if (switch (t) {
         MasterTab.tables => dining != null,
         MasterTab.modifiers => modifiers != null,
         MasterTab.customerGroups => customerGroups != null,
+        MasterTab.expenseCategories => expenseCategories != null,
         _ => true,
       })
         t,
@@ -171,6 +193,10 @@ class MasterDataView extends StatelessWidget {
           },
           MasterTab.customerGroups => switch (customerGroups) {
             final g? => CustomerGroupsTab(viewModel: g),
+            null => const SizedBox.shrink(),
+          },
+          MasterTab.expenseCategories => switch (expenseCategories) {
+            final e? => ExpenseCategoriesTab(viewModel: e),
             null => const SizedBox.shrink(),
           },
           MasterTab.locations => _LocationsTab(
@@ -222,6 +248,7 @@ String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
   MasterTab.units => l10n.masterTabUnits,
   MasterTab.modifiers => l10n.masterTabModifiers,
   MasterTab.customerGroups => l10n.masterTabCustomerGroups,
+  MasterTab.expenseCategories => l10n.masterTabExpenseCategories,
   MasterTab.locations => l10n.masterTabLocations,
   MasterTab.payments => l10n.masterTabPayments,
   MasterTab.tables => l10n.masterTabTables,
@@ -232,6 +259,7 @@ IconData _tabIcon(MasterTab tab) => switch (tab) {
   MasterTab.units => TablerIcons.ruler2,
   MasterTab.modifiers => TablerIcons.adjustmentsHorizontal,
   MasterTab.customerGroups => TablerIcons.usersGroup,
+  MasterTab.expenseCategories => TablerIcons.receipt2,
   MasterTab.locations => TablerIcons.buildingWarehouse,
   MasterTab.payments => TablerIcons.creditCard,
   MasterTab.tables => TablerIcons.armchair,

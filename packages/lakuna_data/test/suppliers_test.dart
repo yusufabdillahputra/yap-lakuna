@@ -173,11 +173,11 @@ void main() {
       expect(s.contactName, 'Pak Hendra');
       expect(s.category, 'Sembako');
 
-      expect(
+      await expectLater(
         () => supplier('cv sumber pangan'),
         throwsA(isA<SupplierNameTaken>()),
       );
-      expect(
+      await expectLater(
         () => supplier('', termDays: 400),
         throwsA(
           isA<SupplierInvalid>().having((e) => e.issues, 'issues', {
@@ -223,7 +223,7 @@ void main() {
     test('hapus ditolak selama masih berhutang', () async {
       final s = await supplier('UD Makmur');
       final p = await buy(s, kg: 10, dueOn: DateTime(2026, 11, 18));
-      expect(
+      await expectLater(
         () => deleteSupplier(store, scope, staffId: owner(), supplierId: s.id),
         throwsA(isA<SupplierHasDebt>()),
       );

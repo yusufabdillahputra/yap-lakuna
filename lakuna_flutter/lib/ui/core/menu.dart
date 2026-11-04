@@ -160,11 +160,12 @@ final List<MenuGroup> appMenu = [
   MenuGroup(
     label: (l) => l.menuGroupFinance,
     entries: [
-      _module(
-        'expenses',
-        TablerIcons.wallet,
-        (l) => l.menuExpenses,
-        Permission.expensesManage,
+      MenuEntry(
+        key: 'expenses',
+        icon: TablerIcons.wallet,
+        label: (l) => l.menuExpenses,
+        path: Routes.expenses,
+        permission: Permission.expensesManage,
       ),
       _module(
         'reports',

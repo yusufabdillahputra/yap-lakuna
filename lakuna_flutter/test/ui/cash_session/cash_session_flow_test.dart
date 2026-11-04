@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_cash_drawer_repository.dart';
+import '../../testing/fake_expenses_repository.dart';
 import '../../testing/fake_session_repository.dart';
 
 Finder _input(String key) => find.descendant(
@@ -212,5 +214,88 @@ void main() {
     );
     expect(find.text('Sesi kasir'), findsNothing);
     expect(find.text('Selamat datang di Lakuna'), findsOneWidget);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets(
+      '${size.width.toInt()} px: uang keluar dicatat juga sebagai pengeluaran',
+      (tester) async {
+        final drawer = FakeCashDrawerRepository();
+        final expenses = FakeExpensesRepository(seed: false)
+          ..onDrawerExpense = (e, category) => drawer.addExpenseMovement(
+            Money(e.amount),
+            e.description,
+            category,
+          );
+        await pumpLakuna(
+          tester,
+          size: size,
+          initialLocation: Routes.cashSession,
+          cashDrawer: drawer,
+          expenses: expenses,
+        );
+        await _type(tester, 'cash-opening-cash', '200000');
+        await _tap(tester, 'cash-open');
+
+        expect(find.byKey(const ValueKey('cash-as-expense')), findsOneWidget);
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('cash-as-expense')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Catat juga sebagai pengeluaran'));
+        await tester.pumpAndSettle();
+        // Tanpa jenis dan keterangan belum bisa disimpan.
+        await _type(tester, 'cash-movement-amount', '8000');
+        await _tap(tester, 'cash-movement-save');
+        expect(expenses.expenses, isEmpty);
+        expect(find.text('Pilih jenis pengeluaran.'), findsOneWidget);
+
+        await _type(tester, 'cash-movement-note', 'Es batu');
+        final select = find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith(
+                'cash-expense-category-',
+              ),
+        );
+        await tester.ensureVisible(select);
+        await tester.pumpAndSettle();
+        await tester.tap(select);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Bahan habis pakai').last);
+        await tester.pumpAndSettle();
+        await _tap(tester, 'cash-movement-save');
+
+        final e = expenses.expenses.single;
+        expect(e.fundingSource, FundingSource.drawer);
+        expect(e.description, 'Es batu');
+        expect(drawer.movements.single.source, 'expense');
+        expect(_text(tester, 'cash-expected'), 'Rp 192.000');
+        final badge = find.byKey(
+          ValueKey('cash-expense-badge-${drawer.movements.single.id.uuid}'),
+        );
+        expect(badge, findsOneWidget);
+        expect(find.text('Pengeluaran · Bahan habis pakai'), findsOneWidget);
+        // Sakelar kembali mati setelah tersimpan.
+        expect(
+          tester
+              .widget<FSwitch>(find.byKey(const ValueKey('cash-as-expense')))
+              .value,
+          isFalse,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets('sakelar pengeluaran tersembunyi tanpa expenses:manage', (
+    tester,
+  ) async {
+    final repo = await pump(tester, role: 'cashier');
+    expect(repo.session, isNull);
+    await _type(tester, 'cash-opening-cash', '100000');
+    await _tap(tester, 'cash-open');
+    expect(find.byKey(const ValueKey('cash-movement-amount')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cash-as-expense')), findsNothing);
   });
 }
