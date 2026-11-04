@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/reports_repository.dart';
@@ -40,11 +42,15 @@ class FakeReportsRepository extends ReportsRepository {
   final today = DateTime.utc(2026, 11, 4);
   final requests = <ReportPeriod>[];
 
+  /// Muatan periode ini ditahan sampai completer-nya selesai.
+  final holds = <ReportPeriod, Completer<void>>{};
+
   static final kopi = _line('k1', 'kopi', 'Kopi Susu', 3000, 54000, 6000);
 
   @override
   Future<Result<ReportData>> load(ReportPeriod period) async {
     requests.add(period);
+    if (holds[period] case final hold?) await hold.future;
     if (!canView) {
       return const Result.error(NotPermitted(Permission.reportsView));
     }

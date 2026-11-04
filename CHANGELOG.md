@@ -7,6 +7,117 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-04
+
+Laporan & laba rugi bagian pertama (F1-16, layar 1.23 dan 1.24). Pemilik dan
+manajer melihat penjualan, produk terlaris, dan laba rugi cabang ini per
+periode, lalu mengunduhnya sebagai PDF atau Excel tanpa internet. Semua angka
+dihitung ulang dari dokumen (nota, retur, pembayaran, pengeluaran,
+penyesuaian stok), bukan dari kolom ringkasan.
+
+### Ditambahkan
+
+- Menu **Laporan** (`/laporan`, grup Keuangan) untuk staf dengan
+  `reports:view`; sebelumnya halaman *segera hadir*.
+- Pilihan **Periode** di kepala layar, berlaku untuk semua tab: *Hari ini*,
+  *7 hari terakhir*, *Bulan ini*, dan 12 bulan sebelumnya (mis. *Oktober
+  2026*), menurut tanggal dan zona waktu cabang.
+- Tab **Ringkasan** (1.23):
+  - kartu *Penjualan* (penjualan bersih, N transaksi), *Laba kotor* (dari
+    harga pokok saat jual), *Rata-rata per nota*, *Piutang jatuh tempo*
+    (N pelanggan);
+  - *Penjualan per metode bayar* dengan batang dan persen (tunai bersih
+    kembalian, kartu, transfer, QRIS, dan bagian kredit/piutang);
+  - *Produk terlaris* 5 teratas;
+  - *Laporan lengkap*: tautan ke tab penjualan per produk/kasir/kategori dan
+    laba rugi, serta ke layar Stok, Pelanggan, Riwayat (retur),
+    Pengeluaran, dan Sesi kasir sesuai izin staf.
+- Tab **Penjualan**: *Per produk* (jumlah bersih dalam satuan dasar dan
+  nilai), *Per kasir* (jumlah nota dan penjualan bersih), *Per kategori*,
+  dengan porsi persen dan baris total. Di 360 px menjadi daftar kartu.
+- Tab **Produk terlaris**: 20 teratas menurut jumlah bersih.
+- Tab **Laba rugi** (1.24): Penjualan kotor, Diskon, Service charge (bila
+  ada), Retur penjualan, **Penjualan bersih**, HPP, **Laba kotor · margin**,
+  beban operasional per jenis dari Pengeluaran, Total beban, Penyesuaian
+  stok, **Laba bersih**. Panel samping: Laba bersih dibanding periode
+  sebelumnya (kemarin, 7 hari sebelumnya, tanggal yang sama bulan lalu
+  untuk *Bulan ini*, atau bulan sebelumnya), Margin kotor,
+  Beban / penjualan, dan *Cara hitung*. Catatan *PB1 dipungut* dan
+  peringatan produk terjual tanpa harga pokok.
+- **Unduh PDF** (A4, font bawaan aplikasi) dan **Unduh Excel** untuk tab
+  aktif, nama berkas `laporan-<tab>-<periode>-<yymmdd>`. Desktop menyimpan
+  ke folder dokumen Lakuna; Android/iOS membuka lembar berbagi.
+- Izin baru **`reports:view_profit`** (owner dan manajer): kartu Laba kotor,
+  tab Laba rugi, dan angka HPP. Kasir tidak mendapatkannya.
+
+### Diubah
+
+- Teks Beranda: laporan sudah bisa dipakai; tinggal pengguna & role.
+- Lembar berbagi ekspor memakai tipe PDF untuk berkas `.pdf`.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (tes widget dan uji manual),
+bukan bug di versi sebelumnya.
+
+- Tombol tautan *Laporan lengkap*, pilihan *Per produk/kasir/kategori*, dan
+  baris produk terlaris meluap di ponsel 360 px.
+- Kartu ringkasan berdampingan memakai `IntrinsicHeight` di atas daftar
+  yang memakai `LayoutBuilder` sehingga layar gagal digambar; tinggi kini
+  hanya disamakan untuk kartu angka.
+- Baris laba rugi bernilai nol tampil `− Rp 0`.
+- Kolom per produk/kategori berjudul *Penjualan bersih* padahal nilainya
+  tanpa service; kini *Nilai*, dan catatan menjelaskan bedanya dengan per
+  kasir.
+- Temuan review kode:
+  - Saat ganti periode, angka periode lama masih tampil di bawah label
+    periode baru sampai data baru selesai dimuat, dan *Unduh* saat itu
+    menyimpan angka lama dengan nama berkas periode baru. Kini layar
+    menampilkan pemuat dan tombol unduh mati sampai data periode itu siap.
+  - *Bulan ini* dibandingkan dengan bulan lalu penuh (4 hari vs 31 hari
+    tampil −85%); kini dengan tanggal 1 sampai tanggal yang sama bulan lalu
+    (mis. *1–4 Oktober 2026*).
+  - Ketukan ganda *Unduh PDF* bisa menyimpan dua berkas karena tombol baru
+    mati setelah font PDF dimuat.
+  - Jumlah per kategori menjumlahkan satuan dasar yang berbeda (pcs + kg);
+    kini `–`.
+  - PDF *Produk terlaris*: kolom peringkat selebar nama produk dan kolom
+    jumlah rata kiri; lebar dan perataan kolom kini per tabel.
+  - Nama lembar Excel terpotong di tengah kata (*… · Septem*); kini memakai
+    nama tab saja bila terlalu panjang.
+  - Beban yang jenisnya sudah dihapus tampil tanpa nama; kini *Tanpa
+    kategori*.
+
+### Keamanan
+
+- `reports:view` dicek di menu, rute, repositori aplikasi, dan lapisan
+  data. Tanpa `reports:view_profit`, lapisan data tidak menghitung laba dan
+  tidak mengirim harga pokok baris nota ke layar.
+
+### Catatan teknis
+
+- Domain `lakuna_domain/report.dart` (murni): `ReportPeriod` + rentang dan
+  periode pembanding, `ProfitAndLoss.compute`, `salesByProduct`,
+  `salesByCategory`, `salesByStaff`, `topProducts`, `paymentMix`,
+  `returnTaxShare`, `ratioBp`, `changeBp`, `formatPercentBp`.
+- Data `lakuna_data/reports.dart`: `loadReport` (izin dari role staf) dan
+  `buildReport` (izin yang sudah diketahui) memuat nota, baris,
+  pembayaran, retur (termasuk nota asal di luar periode), pengeluaran, dan
+  penyesuaian per 500 id; `overdueReceivables` di `customers.dart`.
+- HPP memakai `sale_items.unit_cost` (rata-rata tertimbang yang dibekukan
+  saat jual) sehingga produk tanpa lacak stok ikut terhitung; retur yang
+  di-restock mengurangi HPP. PB1 tidak dihitung sebagai pendapatan.
+- Tabel ekspor bersama `ReportTable` → `reportXlsx` / `reportPdf`.
+- Tidak ada perubahan skema database.
+- Tes: domain (rumus, periode, rincian, metode bayar), data (skenario jual →
+  void → retur → open bill PB1 → pengeluaran batal → opname dicocokkan
+  manual, zona waktu, izin, tanpa izin laba harga pokok nol, retur hari ini
+  atas nota kemarin), service makan di tempat, VM (jawaban periode usang
+  diabaikan), label/tabel ekspor, alur widget 1440 / 800 / 360 px, PDF
+  terbentuk.
+- Lanjutan modul ini di v0.21.0: tab Stok, Kas & sesi, Piutang & hutang,
+  Retur.
+
 ## [0.19.0] - 2026-11-04
 
 Pengeluaran (F1-15, layar 1.22, 1.3b, dan 1.17). Toko mencatat biaya
@@ -1970,7 +2081,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...v0.17.0

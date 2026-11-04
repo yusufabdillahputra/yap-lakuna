@@ -35,6 +35,7 @@ class ReportTable {
     required this.rows,
     this.notes = const [],
     this.widths = const [],
+    this.flex = const [],
   });
 
   /// Mis. `Laba rugi · Oktober 2026`.
@@ -50,18 +51,46 @@ class ReportTable {
 
   /// Lebar kolom Excel (karakter).
   final List<int> widths;
+
+  /// Lebar relatif kolom PDF; kosong = kolom pertama 3, lainnya 1.
+  final List<int> flex;
 }
 
-/// Nama lembar Excel: maks 31 karakter, tanpa `[]:*?/\`.
-String _sheetName(String title) {
+/// Nama lembar Excel: maks 31 karakter, tanpa `[]:*?/\`. Judul
+/// `<nama> · <periode>` yang terlalu panjang memakai `<nama>` saja (periode
+/// tetap ada di baris judul lembar), bukan dipotong di tengah kata.
+@visibleForTesting
+String reportSheetName(String title) {
   final clean = title.replaceAll(RegExp(r'[\[\]:*?/\\]'), ' ').trim();
-  return clean.length <= 31 ? clean : clean.substring(0, 31).trim();
+  if (clean.length <= 31) return clean;
+  final name = clean.split(' · ').first.trim();
+  return name.length <= 31 ? name : name.substring(0, 31).trim();
+}
+
+/// Kolom rata kanan di PDF: selain kolom pertama, kolom yang semua isinya
+/// angka (rupiah, bilangan, qty `3 gelas`, persen `25,7%`).
+@visibleForTesting
+List<bool> reportRightAligned(ReportTable t) {
+  final digit = RegExp(r'^[−+\-]?\d');
+  bool numericCell(Object? cell) => switch (cell) {
+    null => true,
+    XlsxNumber() || int() => true,
+    final String s => s.isEmpty || digit.hasMatch(s),
+    _ => false,
+  };
+  bool hasValue(Object? cell) => cell != null && cell != '';
+  return [
+    for (var c = 0; c < t.headers.length; c++)
+      c > 0 &&
+          t.rows.any((r) => c < r.cells.length && hasValue(r.cells[c])) &&
+          t.rows.every((r) => c >= r.cells.length || numericCell(r.cells[c])),
+  ];
 }
 
 /// Berkas `.xlsx` satu lembar: judul kolom, baris, lalu judul, subjudul,
 /// dan catatan di bawahnya.
 Uint8List reportXlsx(ReportTable t) => buildXlsx(
-  _sheetName(t.title),
+  reportSheetName(t.title),
   [
     t.headers,
     for (final r in t.rows) r.cells,
@@ -89,11 +118,6 @@ Future<Uint8List> reportPdf(
   pw.TextStyle body({pw.Font? font, double size = 9, PdfColor color = ink}) =>
       pw.TextStyle(font: font ?? regular, fontSize: size, color: color);
 
-  bool numeric(int column) => t.rows.any(
-    (r) =>
-        column < r.cells.length &&
-        (r.cells[column] is XlsxNumber || r.cells[column] is int),
-  );
   String text(Object? cell) => switch (cell) {
     null => '',
     final XlsxNumber n => money(n.value),
@@ -102,8 +126,8 @@ Future<Uint8List> reportPdf(
   };
   final columns = t.headers.length;
   final align = [
-    for (var c = 0; c < columns; c++)
-      c > 0 && numeric(c) ? pw.TextAlign.right : pw.TextAlign.left,
+    for (final right in reportRightAligned(t))
+      right ? pw.TextAlign.right : pw.TextAlign.left,
   ];
 
   pw.Widget cell(
@@ -154,8 +178,10 @@ Future<Uint8List> reportPdf(
         pw.SizedBox(height: 12),
         pw.Table(
           columnWidths: {
-            0: const pw.FlexColumnWidth(3),
-            for (var c = 1; c < columns; c++) c: const pw.FlexColumnWidth(),
+            for (var c = 0; c < columns; c++)
+              c: pw.FlexColumnWidth(
+                c < t.flex.length ? t.flex[c].toDouble() : (c == 0 ? 3 : 1),
+              ),
           },
           border: const pw.TableBorder(
             horizontalInside: pw.BorderSide(color: rule, width: 0.6),

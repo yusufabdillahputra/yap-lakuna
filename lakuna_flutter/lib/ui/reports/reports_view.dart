@@ -20,7 +20,7 @@ import 'reports_view_model.dart';
 const _tabular = [FontFeature.tabularFigures()];
 
 /// Lebar minimum untuk laba rugi + panel samping berdampingan (1.24).
-const reportsSidePanelWidth = 1100.0;
+const reportsSidePanelWidth = 960.0;
 
 /// Di bawah lebar ini tabel tampil sebagai kartu.
 const _cardListWidth = 600.0;
@@ -87,19 +87,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
     super.dispose();
   }
 
+  /// Selama berkas dibuat (font PDF dimuat sebelum ekspor berjalan), tombol
+  /// unduh mati agar ketukan ganda tidak menyimpan dua berkas.
+  var _preparing = false;
+
   Future<void> _download(ReportFormat format) async {
     final data = _vm.data;
-    if (data == null) return;
+    if (data == null || _preparing) return;
     final l10n = AppLocalizations.of(context);
-    final table = reportTable(l10n, data, _vm.tab, _vm.group);
-    final bytes = switch (format) {
-      ReportFormat.xlsx => reportXlsx(table),
-      ReportFormat.pdf => await reportPdf(
-        table,
-        money: (v) => moneyLabel(l10n, Money(v)),
-      ),
-    };
-    await _vm.export.execute((bytes, format));
+    setState(() => _preparing = true);
+    try {
+      final table = reportTable(l10n, data, _vm.tab, _vm.group);
+      final bytes = switch (format) {
+        ReportFormat.xlsx => reportXlsx(table),
+        ReportFormat.pdf => await reportPdf(
+          table,
+          money: (v) => moneyLabel(l10n, Money(v)),
+        ),
+      };
+      await _vm.export.execute((bytes, format));
+    } finally {
+      if (mounted) setState(() => _preparing = false);
+    }
   }
 
   @override
@@ -109,7 +118,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       final l10n = AppLocalizations.of(context);
       final vm = _vm;
       final data = vm.data;
-      final busy = vm.export.running;
+      final busy = _preparing || vm.export.running;
       Widget download(ReportFormat f) => FButton(
         key: ValueKey('reports-download-${f.name}'),
         variant: .outline,
@@ -439,7 +448,7 @@ class _Summary extends StatelessWidget {
     ];
     return LayoutBuilder(
       builder: (context, c) {
-        final columns = c.maxWidth >= 1000
+        final columns = c.maxWidth >= 900
             ? kpis.length
             : c.maxWidth >= 560
             ? 2
@@ -681,8 +690,7 @@ class _Sales extends StatelessWidget {
       color: theme.colors.mutedForeground,
       fontWeight: FontWeight.w600,
     );
-    String amountCol(BreakdownRow r) =>
-        group == SalesGroup.staff ? '${r.count}' : breakdownQty(l10n, data, r);
+    String amountCol(BreakdownRow r) => breakdownCount(l10n, data, group, r);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
@@ -846,7 +854,9 @@ class _Sales extends StatelessWidget {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                l10n.reportsColNet,
+                                group == SalesGroup.staff
+                                    ? l10n.reportsColNet
+                                    : l10n.reportsColValue,
                                 textAlign: TextAlign.right,
                                 style: head,
                               ),
@@ -932,7 +942,7 @@ class _Profit extends StatelessWidget {
       final total = line.style == PlStyle.total;
       final amount = formatMoney(context, line.amount);
       final text = Text(
-        line.negative ? '− $amount' : amount,
+        line.negative && line.amount.value != 0 ? '− $amount' : amount,
         textAlign: TextAlign.right,
         style: (total ? theme.typography.display.lg : theme.typography.body.sm)
             .copyWith(

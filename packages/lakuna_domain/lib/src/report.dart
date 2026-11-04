@@ -45,7 +45,8 @@ class ReportPeriod {
     };
   }
 
-  /// Rentang pembanding: hari/7 hari sebelumnya, atau bulan sebelumnya.
+  /// Rentang pembanding: hari/7 hari sebelumnya, tanggal yang sama bulan lalu
+  /// (bulan ini), atau bulan sebelumnya.
   DateRange previousRange(DateTime today) {
     final r = range(today);
     return switch (kind) {
@@ -57,7 +58,16 @@ class ReportPeriod {
         ),
         DateTime.utc(r.from.year, r.from.month, r.from.day - 1),
       ),
-      _ => _monthRange(r.from.year, r.from.month - 1),
+      ReportPeriodKind.thisMonth => () {
+        // Tanggal 1 s.d. hari yang sama bulan lalu (dipotong di akhir bulan).
+        final t = _day(today);
+        final last = DateTime.utc(t.year, t.month, 0);
+        return DateRange(
+          DateTime.utc(last.year, last.month),
+          DateTime.utc(last.year, last.month, t.day.clamp(1, last.day)),
+        );
+      }(),
+      ReportPeriodKind.month => _monthRange(r.from.year, r.from.month - 1),
     };
   }
 

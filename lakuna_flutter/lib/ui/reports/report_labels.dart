@@ -43,7 +43,12 @@ String previousPeriodLabel(
 ) => switch (p.kind) {
   ReportPeriodKind.today => l10n.reportsPrevToday,
   ReportPeriodKind.last7Days => l10n.reportsPrev7Days,
-  _ => () {
+  ReportPeriodKind.thisMonth => () {
+    final r = p.previousRange(today);
+    final month = formatLongMonth(l10n, r.to.year, r.to.month);
+    return r.to.day == 1 ? '1 $month' : '1–${r.to.day} $month';
+  }(),
+  ReportPeriodKind.month => () {
     final from = p.previousRange(today).from;
     return formatLongMonth(l10n, from.year, from.month);
   }(),
@@ -103,6 +108,19 @@ String breakdownQty(AppLocalizations l10n, ReportData data, BreakdownRow r) {
   return unit == null ? q : '$q $unit';
 }
 
+/// Kolom jumlah tab Penjualan: jumlah nota (kasir), qty dasar (produk),
+/// atau `–` (kategori: satuan dasarnya bisa campur pcs dan kg).
+String breakdownCount(
+  AppLocalizations l10n,
+  ReportData data,
+  SalesGroup group,
+  BreakdownRow r,
+) => switch (group) {
+  SalesGroup.staff => '${r.count}',
+  SalesGroup.category => '–',
+  SalesGroup.product => breakdownQty(l10n, data, r),
+};
+
 List<BreakdownRow> breakdownRows(ReportData data, SalesGroup group) =>
     switch (group) {
       SalesGroup.product => data.byProduct,
@@ -154,7 +172,12 @@ List<PlLine> profitLines(AppLocalizations l10n, ProfitAndLoss pl) => [
     negative: pl.grossProfit.isNegative,
     positive: !pl.grossProfit.isNegative,
   ),
-  for (final e in pl.expenses) PlLine(e.name, e.amount, PlStyle.detail),
+  for (final e in pl.expenses)
+    PlLine(
+      e.name.isEmpty ? l10n.reportsNoCategory : e.name,
+      e.amount,
+      PlStyle.detail,
+    ),
   PlLine(
     l10n.reportsPlExpensesTotal,
     pl.totalExpenses,
@@ -256,7 +279,10 @@ ReportTable reportTable(
             l10n.reportsColReceipts
           else
             l10n.reportsColQty,
-          l10n.reportsColNet,
+          if (group == SalesGroup.staff)
+            l10n.reportsColNet
+          else
+            l10n.reportsColValue,
           l10n.reportsColShare,
         ],
         widths: const [36, 14, 18, 10],
@@ -267,7 +293,7 @@ ReportTable reportTable(
               if (group == SalesGroup.staff)
                 r.count
               else
-                breakdownQty(l10n, data, r),
+                breakdownCount(l10n, data, group, r),
               money(r.value),
               percentLabel(l10n, ratioBp(r.value, total)),
             ]),
@@ -291,6 +317,7 @@ ReportTable reportTable(
           l10n.reportsColValue,
         ],
         widths: const [5, 36, 14, 18],
+        flex: const [1, 5, 2, 2],
         rows: [
           for (final (i, t) in data.top.indexed)
             ReportRow([

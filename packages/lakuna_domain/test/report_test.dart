@@ -72,7 +72,13 @@ void main() {
       );
       expect(
         ReportPeriod.thisMonth.previousRange(today),
-        DateRange(DateTime.utc(2026, 10), DateTime.utc(2026, 10, 31)),
+        DateRange(DateTime.utc(2026, 10), DateTime.utc(2026, 10, 4)),
+      );
+      // Bulan ini dibandingkan dengan tanggal yang sama bulan lalu, dipotong
+      // di akhir bulan lalu (31 Maret → 1–28 Februari).
+      expect(
+        ReportPeriod.thisMonth.previousRange(DateTime.utc(2026, 3, 31)),
+        DateRange(DateTime.utc(2026, 2), DateTime.utc(2026, 2, 28)),
       );
       const jan = ReportPeriod.month(2026, 1);
       expect(
@@ -320,6 +326,26 @@ void main() {
         ('budi', 1, const Money(40000)),
         ('sari', 1, const Money(28000)),
       ]);
+    });
+
+    test('service makan di tempat: per kasir memuatnya, per produk tidak', () {
+      final nasi = line('n1', variant: 'nasi', name: 'Nasi', total: 20000);
+      final dineIn = [
+        sale([nasi], service: 1000),
+      ];
+      final product = salesByProduct(dineIn, const []);
+      final staff = salesByStaff(dineIn, const []);
+      final pl = ProfitAndLoss.compute(
+        sales: dineIn,
+        returns: const [],
+        expenses: const [],
+        stockAdjustment: Money.zero,
+      );
+      expect(product.single.value, const Money(20000));
+      expect(staff.single.value, const Money(21000));
+      expect(pl.netSales, staff.single.value);
+      // Selisihnya tepat service charge di laba rugi.
+      expect(staff.single.value - product.single.value, pl.service);
     });
 
     test('terlaris: qty, lalu nilai, lalu nama; dibatasi', () {

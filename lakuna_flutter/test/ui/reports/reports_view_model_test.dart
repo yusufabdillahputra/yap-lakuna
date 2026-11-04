@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +39,36 @@ void main() {
       expect(repo.requests.last, const ReportPeriod.month(2026, 10));
       expect(vm.data!.saleCount, 0);
     });
+
+    test(
+      'ganti periode: data lama disembunyikan, jawaban usang diabaikan',
+      () async {
+        final vm = ReportsViewModel(repository: repo);
+        await vm.load.execute();
+        const oct = ReportPeriod.month(2026, 10);
+        const sep = ReportPeriod.month(2026, 9);
+        final octHold = repo.holds[oct] = Completer<void>();
+        final sepHold = repo.holds[sep] = Completer<void>();
+
+        final octLoad = vm.setPeriod(oct);
+        // Angka hari ini tidak boleh tampil (atau diunduh) di bawah Oktober.
+        expect(vm.period, oct);
+        expect(vm.data, isNull);
+        expect(vm.loading, isTrue);
+
+        final sepLoad = vm.setPeriod(sep);
+        sepHold.complete();
+        await sepLoad;
+        expect(vm.data!.period, sep);
+        expect(vm.loading, isFalse);
+
+        // Jawaban Oktober datang belakangan: diabaikan.
+        octHold.complete();
+        await octLoad;
+        expect(vm.period, sep);
+        expect(vm.data!.period, sep);
+      },
+    );
 
     test(
       'tanpa izin laba: tab Laba rugi hilang dan kembali ke ringkasan',
@@ -99,7 +130,15 @@ void main() {
       final today = DateTime.utc(2026, 11, 4);
       expect(
         previousPeriodLabel(id, ReportPeriod.thisMonth, today),
-        'Oktober 2026',
+        '1–4 Oktober 2026',
+      );
+      expect(
+        previousPeriodLabel(id, ReportPeriod.thisMonth, DateTime.utc(2026, 11)),
+        '1 Oktober 2026',
+      );
+      expect(
+        previousPeriodLabel(id, const ReportPeriod.month(2026, 10), today),
+        'September 2026',
       );
       expect(previousPeriodLabel(id, ReportPeriod.today, today), 'kemarin');
     });
@@ -148,7 +187,27 @@ void main() {
         'Tanpa kategori',
         'Total',
       ]);
-      expect(cat.rows.first.cells[1], '5');
+      // Satuan dasar per kategori bisa campur (pcs + kg): qty tidak dijumlah.
+      expect(cat.rows.first.cells[1], '–');
+    });
+
+    test('dokumen: nama lembar, perataan, dan lebar kolom', () async {
+      expect(
+        reportSheetName('Penjualan per kategori · September 2026'),
+        'Penjualan per kategori',
+      );
+      expect(
+        reportSheetName('Laba rugi · Oktober 2026'),
+        'Laba rugi · Oktober 2026',
+      );
+      expect(reportSheetName('a/b'), 'a b');
+      final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      final top = reportTable(id, data, ReportTab.top, SalesGroup.product);
+      // Peringkat sempit, nama produk lebar, qty dan nilai rata kanan.
+      expect(top.flex, [1, 5, 2, 2]);
+      expect(reportRightAligned(top), [false, false, true, true]);
+      final sales = reportTable(id, data, ReportTab.sales, SalesGroup.product);
+      expect(reportRightAligned(sales), [false, true, true, true]);
     });
   });
 }

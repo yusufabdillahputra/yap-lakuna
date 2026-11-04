@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, and expenses are ready to use. Reports are coming in the next release.",
+  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -2988,7 +2988,7 @@
   "reportsColMethod": "Payment method",
   "reportsNoCategory": "Uncategorized",
   "reportsTotal": "Total",
-  "reportsSalesNote": "Net sales = after discounts and returns, excluding PB1 tax. Quantities in base units.",
+  "reportsSalesNote": "By product and category: line value after tier pricing and returns, excluding service and PB1 tax. By cashier: net sales as in profit & loss. Quantities in base units.",
   "reportsPlTitle": "Profit & loss · {period}",
   "@reportsPlTitle": {
     "placeholders": {

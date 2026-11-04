@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, and expenses are ready to use. Reports are coming in the next release.';
+      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -5745,7 +5745,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsSalesNote =>
-      'Net sales = after discounts and returns, excluding PB1 tax. Quantities in base units.';
+      'By product and category: line value after tier pricing and returns, excluding service and PB1 tax. By cashier: net sales as in profit & loss. Quantities in base units.';
 
   @override
   String reportsPlTitle(String period) {

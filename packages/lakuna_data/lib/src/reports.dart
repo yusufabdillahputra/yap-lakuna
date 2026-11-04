@@ -358,7 +358,24 @@ Future<ReportData> loadReport(
     outletId: scope.outletId,
     staffId: staffId,
   );
-  final permissions = staff?.permissions ?? const <Permission>{};
+  return buildReport(
+    store,
+    scope,
+    permissions: staff?.permissions ?? const <Permission>{},
+    period: period,
+    now: now,
+  );
+}
+
+/// [loadReport] dengan izin yang sudah diketahui (mis. role kustom).
+/// Tanpa `reports:view_profit`, harga pokok tidak ikut dimuat.
+Future<ReportData> buildReport(
+  LakunaStore store,
+  CatalogScope scope, {
+  required Set<Permission> permissions,
+  required ReportPeriod period,
+  DateTime? now,
+}) async {
   if (!permissions.contains(Permission.reportsView)) {
     throw const ReportActorNotPermitted();
   }

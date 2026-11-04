@@ -39,4 +39,4 @@ Spec: `docs/superpowers/specs/2026-11-04-f1-15-pengeluaran-design.md`
 - [x] Review subagent; perbaiki Critical/Important.
 - [x] Uji manual Xvfb + tangkapan layar.
 - [x] Spec Status & gap, README spec, CHANGELOG 0.19.0, versi `0.19.0+20`.
-- [ ] PR, CI hijau, squash merge, cek rilis.
+- [x] PR, CI hijau, squash merge, cek rilis.

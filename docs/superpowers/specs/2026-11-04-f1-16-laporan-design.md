@@ -1,8 +1,9 @@
 # F1-16 · Laporan & laba rugi
 
 - **Fase:** 1
-- **Status:** Dikerjakan (v0.20.0: ringkasan, penjualan, produk terlaris,
-  laba rugi; v0.21.0: stok, kas & sesi, piutang & hutang, retur)
+- **Status:** Rilis v0.20.0 (ringkasan, penjualan, produk terlaris, laba
+  rugi, unduh PDF/Excel); v0.21.0 menyusul (stok, kas & sesi, piutang &
+  hutang, retur)
 - **Layar desain:** 1.23 *Laporan · desktop* (ringkasan), 1.24 *Laporan
   laba rugi · desktop*
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-16-laporan-design.md`
@@ -56,7 +57,7 @@ target margin toko (menunggu pengaturan, lihat gap).
   Penjualan bersih, Porsi %; baris total di bawah.
 - **Produk terlaris**: peringkat, nama, jumlah, nilai.
 - **Laba rugi** (1.24): kartu *Laba rugi · <periode>* / *<cabang> · semua
-  kasir* dengan baris persis seperti di bawah; panel kanan (≥ 1280 px)
+  kasir* dengan baris persis seperti di bawah; panel kanan (lebar konten ≥ 960 px, mis. layar 1280 px dengan sidebar)
   atau di bawah (lebih sempit).
 - Periode tanpa transaksi menampilkan nol, bukan galat.
 
@@ -107,7 +108,8 @@ Penjualan kotor          Σ sales.subtotal (harga daftar)
 - **Harga pokok kosong**: baris nota dengan `unit_cost = 0` dihitung HPP 0
   dan laporan menampilkan peringatan *N produk terjual tanpa harga pokok*.
 - **Perbandingan**: Laba bersih dibanding periode sebelumnya yang sama
-  panjang (kemarin, 7 hari sebelumnya, bulan sebelumnya). Persen hanya bila
+  panjang (kemarin, 7 hari sebelumnya, bulan sebelumnya; *Bulan ini*
+  dengan tanggal 1 s.d. tanggal yang sama bulan lalu). Persen hanya bila
   laba periode lalu > 0; selain itu tampil nominal periode lalu.
 - **Beban / penjualan** = total beban operasional / penjualan bersih.
   Persen dalam basis poin (bilangan bulat), tanpa `double`.
@@ -122,7 +124,8 @@ Ringkasan dan penjualan:
 - **Metode bayar** (nota pada periode, sebelum retur): tunai = jumlah −
   kembalian, kartu, transfer, QRIS = jumlah; *Kredit* = total nota −
   dibayar saat jual. Jumlah semua = Σ total nota. Persen terhadap jumlah itu.
-- **Per produk**: kunci varian; jumlah bersih = qty dasar terjual − qty
+- **Per produk** (kolom *Nilai*, bukan penjualan bersih karena tanpa
+  service): kunci varian; jumlah bersih = qty dasar terjual − qty
   dasar diretur (retur pada periode); nilai = `line_total` − nilai retur
   proporsional qty (`line_total × qty retur / qty baris`, bulat ke bawah).
   Satuan = satuan dasar produk saat ini. Nama = nama produk (+ varian) dari
@@ -181,6 +184,8 @@ lambat pada data besar.
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
 | Pembulatan total (F1-18) | Baris tersendiri | Belum ada pembulatan | Tambah baris saat pembulatan dibangun. |
+| Service charge di rincian | – | Per produk/kategori tanpa service, per kasir dengan service (catatan di tab) | Tambah baris *Service charge* di tabel per produk bila pemilik meminta total yang sama. |
+| Biaya muat | – | Tiap ganti periode memuat periode + pembanding + piutang | Cukup untuk skala UMKM; simpan piutang jatuh tempo di cache bila terasa lambat. |
 
 ## Kriteria selesai
 

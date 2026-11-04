@@ -59,7 +59,13 @@ class ReportsViewModel extends ChangeNotifier {
   String? _exportPath;
   var _loadToken = 0;
 
-  ReportData? get data => _data;
+  /// Data periode terpilih; `null` selama periode baru dimuat agar angka
+  /// periode lama tidak tampil atau terunduh di bawah label periode baru.
+  ReportData? get data => _data?.period == _period ? _data : null;
+
+  /// Sedang memuat (periode awal atau periode baru).
+  bool get loading => _loading;
+  var _loading = false;
   Exception? get error => _error;
   ReportPeriod get period => _period;
   ReportTab get tab => _tab;
@@ -104,8 +110,10 @@ class ReportsViewModel extends ChangeNotifier {
 
   Future<Result<void>> _fetch() async {
     final token = ++_loadToken;
+    _loading = true;
     final result = await _repository.load(_period);
     if (token != _loadToken) return const Result.ok(null);
+    _loading = false;
     switch (result) {
       case Ok(:final value):
         _data = value;
@@ -124,7 +132,7 @@ class ReportsViewModel extends ChangeNotifier {
   /// `laporan-<tab>-<periode>-<yymmdd>.<ext>`, mis.
   /// `laporan-laba-rugi-2026-10-261104.pdf`.
   String exportFileName(ReportFormat format) {
-    final today = _data?.today ?? DateTime.now();
+    final today = data?.today ?? DateTime.now();
     String two(int n) => n.toString().padLeft(2, '0');
     final date = '${two(today.year % 100)}${two(today.month)}${two(today.day)}';
     final tab = switch (_tab) {

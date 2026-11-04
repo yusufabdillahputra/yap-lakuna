@@ -369,6 +369,92 @@ void main() {
     expect(r.canViewProfit, isTrue);
   });
 
+  test(
+    'tanpa reports:view_profit: laba kosong, harga pokok tidak terbawa',
+    () async {
+      now = DateTime.utc(2026, 11, 4, 3);
+      await sell({kopi: 2000, roti: 1000});
+      final r = await buildReport(
+        store,
+        scope,
+        permissions: {Permission.reportsView},
+        period: ReportPeriod.today,
+        now: now,
+      );
+      expect(r.canViewProfit, isFalse);
+      expect(r.profit, isNull);
+      expect(r.previousProfit, isNull);
+      expect(r.saleCount, 1);
+      expect(r.netSales, const Money(35000));
+      final costs = [
+        for (final s in r.sales)
+          for (final l in s.lines) l.unitCost,
+      ];
+      expect(costs, hasLength(2));
+      expect(costs, everyElement(Money.zero));
+      await expectLater(
+        buildReport(
+          store,
+          scope,
+          permissions: {Permission.reportsViewProfit},
+          period: ReportPeriod.today,
+          now: now,
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
+    },
+  );
+
+  test('retur hari ini atas nota kemarin', () async {
+    final sari = await addStaff('Sari', 'cashier');
+    final a = await sell({kopi: 2000}, staffId: sari.id); // kemarin 20.000
+    now = DateTime.utc(2026, 11, 4, 3);
+    await returnSale(
+      store,
+      scope,
+      staffId: owner(),
+      saleId: a.sale.id,
+      lines: [ReturnLine(saleItemId: a.items.single.id, quantity: Qty.one)],
+      reason: SaleReturnReason.wrongItem,
+      refundMethod: RefundMethod.cash,
+      restock: true,
+    );
+    final r = await report();
+    // Nota kemarin tidak dihitung lagi; returnya mengurangi hari ini.
+    expect(r.saleCount, 0);
+    expect(r.returns, hasLength(1));
+    final pl = r.profit!;
+    expect(pl.grossSales, Money.zero);
+    expect(pl.returns, const Money(10000));
+    expect(pl.netSales, const Money(-10000));
+    // Barang kembali ke stok: HPP berkurang 6.000.
+    expect(pl.cogs, const Money(-6000));
+    // Tercatat atas kasir penjual nota, tanpa menambah jumlah nota.
+    final sariRow = r.byStaff.single;
+    expect(sariRow.key, sari.id.uuid);
+    expect(sariRow.count, 0);
+    expect(sariRow.value, const Money(-10000));
+    expect(r.staffNames[sari.id.uuid], 'Sari');
+    final kopiRow = r.byProduct.single;
+    expect(kopiRow.quantity, Qty.units(-1));
+    expect(kopiRow.value, const Money(-10000));
+
+    // Retur rusak (tanpa restock) tidak mengurangi HPP.
+    await returnSale(
+      store,
+      scope,
+      staffId: owner(),
+      saleId: a.sale.id,
+      lines: [ReturnLine(saleItemId: a.items.single.id, quantity: Qty.one)],
+      reason: SaleReturnReason.damaged,
+      refundMethod: RefundMethod.cash,
+      restock: false,
+    );
+    final r2 = await report();
+    expect(r2.profit!.returns, const Money(20000));
+    expect(r2.profit!.cogs, const Money(-6000));
+  });
+
   test('batas hari memakai zona waktu cabang', () async {
     // 23.30 WIB tanggal 3 = 16.30 UTC: masuk hari 3, bukan 4.
     now = DateTime.utc(2026, 11, 3, 16, 30);

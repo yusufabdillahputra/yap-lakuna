@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, serta pengeluaran sudah bisa dipakai. Laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -5624,7 +5624,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get reportsSalesNote =>
-      'Penjualan bersih = setelah diskon dan retur, tanpa PB1. Jumlah dalam satuan dasar.';
+      'Per produk dan kategori: nilai baris setelah harga grosir dan retur, tanpa service dan PB1. Per kasir: penjualan bersih seperti di laba rugi. Jumlah dalam satuan dasar.';
 
   @override
   String reportsPlTitle(String period) {
