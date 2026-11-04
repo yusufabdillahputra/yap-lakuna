@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B checkout, cash sessions, products, stock, transaction history, and purchases are ready to use. Customers, suppliers, and reports follow in upcoming releases.';
+      'Retail and F&B checkout, cash sessions, products, stock, transaction history, purchases, and customers & receivables are ready to use. Suppliers and reports follow in upcoming releases.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -4253,4 +4253,709 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseRefundToHint => 'Choose cash or account';
+
+  @override
+  String get customersTitle => 'Customers & receivables';
+
+  @override
+  String customersSubtitle(int count) {
+    return '$count customers · receivables tracked per invoice';
+  }
+
+  @override
+  String get customersImport => 'Import Excel';
+
+  @override
+  String get customersNew => 'Customer';
+
+  @override
+  String get customersSearch => 'Search name or phone';
+
+  @override
+  String get customersColCustomer => 'Customer';
+
+  @override
+  String get customersColGroup => 'Group';
+
+  @override
+  String get customersColDebt => 'Receivable';
+
+  @override
+  String get customersEmpty =>
+      'No customers yet. Add one or import from Excel.';
+
+  @override
+  String get customersNoMatch => 'No matching customers.';
+
+  @override
+  String get customersLoadFailed => 'Couldn\'t load customers.';
+
+  @override
+  String get customersSelectHint =>
+      'Select a customer to see receivables and receive payments.';
+
+  @override
+  String get customersTotalDebt => 'Total receivables';
+
+  @override
+  String customersTotalDebtSub(int debtors, int overdue) {
+    return '$debtors customers · $overdue invoices overdue';
+  }
+
+  @override
+  String customerOverdueCount(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String customerGroupLabel(String group) {
+    return '$group group';
+  }
+
+  @override
+  String customerSince(String date) {
+    return 'customer since $date';
+  }
+
+  @override
+  String get customerEdit => 'Edit';
+
+  @override
+  String get customerLimit => 'Credit limit';
+
+  @override
+  String get customerDebt => 'Receivable';
+
+  @override
+  String get customerRemaining => 'Remaining limit';
+
+  @override
+  String get customerReceiveTitle => 'Receive payment';
+
+  @override
+  String get customerAmount => 'Amount received';
+
+  @override
+  String get customerPayAll => 'Pay in full';
+
+  @override
+  String get customerMethod => 'Method';
+
+  @override
+  String get customerPaidOn => 'Date';
+
+  @override
+  String get customerNoteOptional => 'Note (optional)';
+
+  @override
+  String get customerCashDrawerHint =>
+      'Cash goes into the open cashier session\'s drawer.';
+
+  @override
+  String get customerCashStoreHint =>
+      'No open cashier session: cash is recorded as store cash.';
+
+  @override
+  String get customerColInvoice => 'Invoice';
+
+  @override
+  String get customerColDue => 'Due';
+
+  @override
+  String get customerColTotal => 'Total';
+
+  @override
+  String get customerColRest => 'Balance';
+
+  @override
+  String get customerColAllocation => 'Allocation';
+
+  @override
+  String get customerTotalRow => 'Total';
+
+  @override
+  String customerDueShort(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String get customerOverdue => 'Overdue';
+
+  @override
+  String customerAutoHint(String name, String amount) {
+    return 'Allocated to the oldest invoices first. After saving, $name\'s balance will be $amount.';
+  }
+
+  @override
+  String get customerManualHint =>
+      'Manual allocation: enter an amount per invoice. The total must equal the amount received.';
+
+  @override
+  String get customerManual => 'Allocate manually';
+
+  @override
+  String get customerAuto => 'Allocate automatically';
+
+  @override
+  String get customerSaveAndPrint => 'Save & print receipt';
+
+  @override
+  String get customerNoDebt => 'This customer has no outstanding receivables.';
+
+  @override
+  String get customerPayments => 'Payment history';
+
+  @override
+  String get customerNoPayments => 'No receivable payments yet.';
+
+  @override
+  String get customerDelete => 'Delete customer';
+
+  @override
+  String customerDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get customerDeleteBody =>
+      'The customer is removed from the list. Past invoices and payments are kept.';
+
+  @override
+  String get customerDeleteAction => 'Delete';
+
+  @override
+  String get customerCancel => 'Cancel';
+
+  @override
+  String get customerSave => 'Save';
+
+  @override
+  String get customerFormNew => 'New customer';
+
+  @override
+  String get customerFormEdit => 'Edit customer';
+
+  @override
+  String get customerFieldName => 'Name';
+
+  @override
+  String get customerFieldPhone => 'Phone (optional)';
+
+  @override
+  String get customerFieldGroup => 'Group';
+
+  @override
+  String get customerGroupNone => 'No group (14-day term)';
+
+  @override
+  String customerGroupOption(String name, int days) {
+    return '$name · $days-day term';
+  }
+
+  @override
+  String get customerGroupNew => '+ New group';
+
+  @override
+  String get customerFieldNewGroup => 'New group name';
+
+  @override
+  String get customerNewGroupHint => 'e.g. Wholesale';
+
+  @override
+  String get customerFieldLimit => 'Credit limit';
+
+  @override
+  String get customerLimitHint => '0 = no credit sales allowed.';
+
+  @override
+  String get customerFieldAddress => 'Address (optional)';
+
+  @override
+  String get customerFieldNote => 'Note (optional)';
+
+  @override
+  String customerErrName(int max) {
+    return 'Name is required, up to $max characters.';
+  }
+
+  @override
+  String get customerErrPhone => 'Phone number must be 8–15 digits.';
+
+  @override
+  String get customerErrPhoneTaken =>
+      'This phone number belongs to another customer.';
+
+  @override
+  String customerErrAddress(int max) {
+    return 'Address can be up to $max characters.';
+  }
+
+  @override
+  String customerErrNote(int max) {
+    return 'Note can be up to $max characters.';
+  }
+
+  @override
+  String customerErrGroup(int max) {
+    return 'Group name is required, up to $max characters.';
+  }
+
+  @override
+  String get customerErrLimit => 'Credit limit can\'t be negative.';
+
+  @override
+  String get customerErrHasDebt =>
+      'This customer still has receivables; settle them before deleting.';
+
+  @override
+  String get customerErrNotFound => 'Customer not found.';
+
+  @override
+  String get customerErrNotPermitted =>
+      'You don\'t have permission for this action.';
+
+  @override
+  String get customerErrGeneric => 'Couldn\'t save. Try again.';
+
+  @override
+  String get debtErrAmount => 'Enter an amount above 0.';
+
+  @override
+  String get debtErrOver => 'The amount exceeds the total receivable.';
+
+  @override
+  String get debtErrAllocation =>
+      'An allocation can\'t exceed that invoice\'s balance.';
+
+  @override
+  String get debtErrAllocationTotal =>
+      'Allocations must add up to the amount received.';
+
+  @override
+  String get debtErrDate => 'The payment date can\'t be in the future.';
+
+  @override
+  String get debtErrMethod =>
+      'This method can\'t be used for receivable payments.';
+
+  @override
+  String get debtMethodCashDrawer => 'Cash · cash drawer';
+
+  @override
+  String get debtMethodCashStore => 'Cash · store cash';
+
+  @override
+  String groupErrName(int max) {
+    return 'Group name is required, up to $max characters.';
+  }
+
+  @override
+  String groupErrTerm(int max) {
+    return 'Term must be 0–$max days.';
+  }
+
+  @override
+  String get groupErrTaken => 'A group with this name already exists.';
+
+  @override
+  String get groupErrInUse => 'The group still has customers; move them first.';
+
+  @override
+  String get groupErrNotFound => 'Group not found.';
+
+  @override
+  String get creditNoLimit =>
+      'This customer has no credit limit. Set one in Customers.';
+
+  @override
+  String get creditErrDownPayment =>
+      'The down payment must be 0 or more and less than the invoice total.';
+
+  @override
+  String get creditErrDueOn => 'The due date can\'t be before today.';
+
+  @override
+  String get creditErrOverLimit =>
+      'Current plus new receivable exceeds the credit limit.';
+
+  @override
+  String get importTitle => 'Import customers';
+
+  @override
+  String get importIntro =>
+      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Phone, Address, Group, Limit, Note. Headers can be in Indonesian or English.';
+
+  @override
+  String get importPick => 'Choose file';
+
+  @override
+  String get importTooLarge => 'The file is larger than 2 MB.';
+
+  @override
+  String get importUnreadable =>
+      'The file can\'t be read. Save it as .xlsx or .csv and try again.';
+
+  @override
+  String get importMissingName => 'No Name column found in the header row.';
+
+  @override
+  String get importEmpty => 'The file has no customer rows.';
+
+  @override
+  String importReady(int count) {
+    return '$count rows ready to import.';
+  }
+
+  @override
+  String get importUpdateNote =>
+      'Rows with a registered phone number update that customer; new groups are created automatically.';
+
+  @override
+  String importRejected(int count) {
+    return '$count rows skipped:';
+  }
+
+  @override
+  String importRejectLine(int line, String reason) {
+    return 'Row $line: $reason';
+  }
+
+  @override
+  String importMoreRejected(int count) {
+    return '…and $count more rows.';
+  }
+
+  @override
+  String get importReasonName => 'name empty or too long';
+
+  @override
+  String get importReasonPhone => 'invalid phone number';
+
+  @override
+  String get importReasonLimit => 'limit is not a number';
+
+  @override
+  String get importReasonText => 'text too long';
+
+  @override
+  String get importReasonDuplicate => 'phone number repeated in the file';
+
+  @override
+  String importRun(int count) {
+    return 'Import $count customers';
+  }
+
+  @override
+  String importDone(int created, int updated) {
+    return 'Done: $created new customers, $updated updated.';
+  }
+
+  @override
+  String get importClose => 'Close';
+
+  @override
+  String kuitansiCrumb(String number) {
+    return 'Receipt $number';
+  }
+
+  @override
+  String get kuitansiSavedTitle => 'Receivable payment saved';
+
+  @override
+  String kuitansiSubtitle(String amount, String customer, int count) {
+    return '$amount from $customer allocated to $count invoices';
+  }
+
+  @override
+  String get kuitansiSaved => 'Saved';
+
+  @override
+  String get kuitansiBack => 'Back to customer';
+
+  @override
+  String get kuitansiPreviewA5 => 'A5 / PDF preview';
+
+  @override
+  String kuitansiPreviewThermal(String paper) {
+    return '$paper receipt preview';
+  }
+
+  @override
+  String get kuitansiPanelTitle => 'Receipt';
+
+  @override
+  String get kuitansiPanelSub =>
+      'Created automatically when the payment is saved.';
+
+  @override
+  String get kuitansiFormat => 'Format';
+
+  @override
+  String get kuitansiFormatA5 => 'A5 / PDF';
+
+  @override
+  String get kuitansiFormatA5Hint => 'For records & sending via WhatsApp';
+
+  @override
+  String kuitansiFormatThermal(String paper) {
+    return '$paper receipt';
+  }
+
+  @override
+  String get kuitansiFormatThermalHint => 'Printed on the cashier printer';
+
+  @override
+  String get kuitansiShowDetails => 'Show per-invoice details';
+
+  @override
+  String get kuitansiShowBalance => 'Show remaining balance';
+
+  @override
+  String get kuitansiCity => 'City by the signature';
+
+  @override
+  String get kuitansiCityHint => 'From the branch address';
+
+  @override
+  String get kuitansiPrint => 'Print';
+
+  @override
+  String get kuitansiShare => 'Share PDF';
+
+  @override
+  String get kuitansiPrinted => 'Receipt sent to the printer.';
+
+  @override
+  String kuitansiSavedPdf(String path) {
+    return 'PDF saved to $path';
+  }
+
+  @override
+  String get kuitansiReprintNote =>
+      'Receipts can be reprinted from Customers › payment history. Reprints are marked \"COPY\".';
+
+  @override
+  String get kuitansiErrNotFound => 'Payment not found.';
+
+  @override
+  String get kuitansiDocTitle => 'RECEIPT';
+
+  @override
+  String get kuitansiCopy => 'COPY';
+
+  @override
+  String get kuitansiReceivedFrom => 'Received from';
+
+  @override
+  String get kuitansiAmountWords => 'Amount in words';
+
+  @override
+  String get kuitansiFor => 'Payment for';
+
+  @override
+  String kuitansiForDetails(int count) {
+    return 'Receivable, $count invoices (see details)';
+  }
+
+  @override
+  String kuitansiForShort(int count) {
+    return 'Receivable, $count invoices';
+  }
+
+  @override
+  String get kuitansiMethod => 'Method';
+
+  @override
+  String get kuitansiNote => 'Note';
+
+  @override
+  String get kuitansiColInvoice => 'Invoice';
+
+  @override
+  String get kuitansiColBefore => 'Balance before';
+
+  @override
+  String get kuitansiColPaid => 'Paid';
+
+  @override
+  String get kuitansiCashier => 'Cashier';
+
+  @override
+  String kuitansiFootnote(String customer, String amount) {
+    return '$customer\'s balance after this payment: $amount.';
+  }
+
+  @override
+  String get kuitansiThermalBanner => 'RECEIVABLE RECEIPT';
+
+  @override
+  String get kuitansiFrom => 'From';
+
+  @override
+  String get kuitansiPaid => 'PAID';
+
+  @override
+  String get kuitansiBalance => 'Balance';
+
+  @override
+  String get historyStatusUnpaid => 'Unpaid';
+
+  @override
+  String get historyCustomer => 'Customer';
+
+  @override
+  String get historyDueOn => 'Due date';
+
+  @override
+  String get historyCredit => 'Sold on credit';
+
+  @override
+  String get historyOutstanding => 'Outstanding';
+
+  @override
+  String historyReturnDebtOnly(String amount) {
+    return 'This return reduces the receivable by $amount; no refund is due.';
+  }
+
+  @override
+  String historyReturnDebtSplit(String debt, String refund) {
+    return 'Reduces the receivable by $debt, refunds $refund.';
+  }
+
+  @override
+  String get historyVoidBlockDebtPaid =>
+      'This credit invoice already received a receivable payment, so it can\'t be voided. Use a return.';
+
+  @override
+  String get receiptCustomer => 'Customer';
+
+  @override
+  String get receiptDebt => 'On credit';
+
+  @override
+  String get receiptDueOn => 'Due';
+
+  @override
+  String get cashRecapCredit => 'Credit sales (receivable)';
+
+  @override
+  String get paymentCredit => 'Credit / receivable';
+
+  @override
+  String get paymentCreditHint => 'Balance becomes a customer receivable';
+
+  @override
+  String get creditTitle => 'Credit / receivable';
+
+  @override
+  String get creditSubtitle =>
+      'The invoice is saved with the balance as a customer receivable.';
+
+  @override
+  String get creditPickCustomer => 'Choose customer';
+
+  @override
+  String get creditNoCustomers =>
+      'No customers yet. Add customers and their credit limits in Customers.';
+
+  @override
+  String get creditLoadFailed => 'Couldn\'t load customers.';
+
+  @override
+  String creditTerm(int days) {
+    return '$days-day standard term';
+  }
+
+  @override
+  String get creditChange => 'Change';
+
+  @override
+  String get creditRunning => 'Current receivable';
+
+  @override
+  String get creditDownPayment => 'Pay now (down payment)';
+
+  @override
+  String get creditDownPaymentHint =>
+      'Can be 0. Paid in cash into the open session\'s drawer.';
+
+  @override
+  String get creditDueOn => 'Due date';
+
+  @override
+  String get creditDueOnHint => 'Today + the customer\'s standard term';
+
+  @override
+  String get creditInvoiceTotal => 'Invoice total';
+
+  @override
+  String get creditPaidNow => 'Paid now';
+
+  @override
+  String get creditBecomesDebt => 'Becomes receivable';
+
+  @override
+  String get creditRemainingAfter => 'Remaining limit after this';
+
+  @override
+  String get creditOverLimitTitle => 'Over the credit limit';
+
+  @override
+  String creditOverLimit(String limit) {
+    return 'Current plus new receivable exceeds the $limit limit. Lower the amount or raise the down payment.';
+  }
+
+  @override
+  String get creditFootnote =>
+      'The invoice shows as Unpaid in History and joins the customer\'s receivables. A customer is required.';
+
+  @override
+  String get creditSave => 'Save as receivable';
+
+  @override
+  String successCredit(String name) {
+    return 'Receivable for $name';
+  }
+
+  @override
+  String get masterTabCustomerGroups => 'Customer groups';
+
+  @override
+  String get customerGroupsHint =>
+      'A group\'s standard term fills in the due date for credit sales. Customers without a group use 14 days.';
+
+  @override
+  String get customerGroupsNew => 'Group';
+
+  @override
+  String get customerGroupsEmpty => 'No customer groups yet.';
+
+  @override
+  String customerGroupsRowSub(int days, int count) {
+    return '$days-day term · $count customers';
+  }
+
+  @override
+  String get customerGroupsNewTitle => 'New customer group';
+
+  @override
+  String get customerGroupsEditTitle => 'Edit customer group';
+
+  @override
+  String get customerGroupsName => 'Group name';
+
+  @override
+  String get customerGroupsTerm => 'Standard term (days)';
+
+  @override
+  String get customerGroupsTermHint => '0–365 days. 0 = due the same day.';
+
+  @override
+  String get cashSourcePurchase => 'Purchase';
+
+  @override
+  String get cashSourceDebtPayment => 'Receivable payment';
+
+  @override
+  String get historyMethodCredit => 'Credit';
 }

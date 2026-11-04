@@ -173,4 +173,54 @@ void main() {
     vm.select(b.sale.id);
     expect(vm.formGeneration, greaterThan(afterReturn));
   });
+
+  group('nota kredit (F1-13)', () {
+    CheckoutResult credit() => repo.addSale(
+      [('Beras', 2000, 50000), ('Gula', 1000, 20000)],
+      customerName: 'Toko Bu Ani',
+      paidAmount: 20000,
+      dueOn: DateTime.utc(2026, 11, 17),
+    );
+
+    test('daftar & rincian membawa sisa piutang', () async {
+      final a = credit();
+      create(initial: a);
+      await vm.load.execute();
+      expect(vm.page!.rows.single.outstanding, const Money(100000));
+      expect(vm.detail!.outstanding, const Money(100000));
+      expect(vm.detail!.customerName, 'Toko Bu Ani');
+      expect(vm.detail!.credit, const Money(100000));
+    });
+
+    test(
+      'retur ≤ piutang: seluruhnya memotong piutang, tanpa uang kembali',
+      () async {
+        final a = credit();
+        create(initial: a);
+        await vm.load.execute();
+        vm.stepReturn(vm.detail!.items[0], 1); // 50.000
+        expect(vm.returnDebtCut, const Money(50000));
+        expect(vm.returnRefund, Money.zero);
+        expect(vm.returnNeedsRefundMethod, isFalse);
+        expect(vm.refundMethod, RefundMethod.debt);
+        await vm.submitReturn.execute();
+        expect(repo.returns.single.refundMethod, RefundMethod.debt);
+        expect(vm.detail!.outstanding, const Money(50000));
+      },
+    );
+
+    test('retur > piutang: sisa dikembalikan dengan metode pilihan', () async {
+      final a = credit();
+      create(initial: a);
+      await vm.load.execute();
+      vm.returnAll(); // 120.000
+      expect(vm.returnDebtCut, const Money(100000));
+      expect(vm.returnRefund, const Money(20000));
+      expect(vm.returnNeedsRefundMethod, isTrue);
+      vm.setRefundMethod(RefundMethod.transfer);
+      await vm.submitReturn.execute();
+      expect(repo.returns.single.refundMethod, RefundMethod.transfer);
+      expect(vm.detail!.outstanding, Money.zero);
+    });
+  });
 }

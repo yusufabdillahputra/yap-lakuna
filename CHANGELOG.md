@@ -7,6 +7,147 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-04
+
+Pelanggan dan piutang (F1-13, layar 1.20, 1.20b, dan 1.5b). Toko mencatat
+pelanggan tetap, menjual kredit dengan batas dan jatuh tempo, lalu menerima
+pembayaran piutang yang dialokasikan ke nota dengan kuitansi A5 atau struk.
+Saldo piutang selalu dihitung dari dokumen, tidak disimpan sebagai angka.
+
+### Ditambahkan
+
+- Menu **Pelanggan** (`/pelanggan`, grup Kontak) untuk staf dengan izin
+  `customers:manage` **atau** `debts:manage`.
+- **Layar 1.20 Pelanggan & piutang**:
+  - daftar pelanggan (nama + HP, grup, piutang), cari nama atau HP, kartu
+    *Total piutang* dengan jumlah pelanggan dan nota lewat jatuh tempo;
+  - di lebar ≥ 1000 px panel pelanggan tampil di kanan; di layar lebih
+    sempit dibuka sebagai halaman `/pelanggan/:id`;
+  - panel: grup, pelanggan sejak, kontak, catatan, tiga petak *Limit
+    kredit*, *Piutang*, *Sisa limit*; tabel nota belum lunas dengan
+    jatuh tempo dan lencana *Terlambat*;
+  - **Terima pembayaran**: jumlah (tombol *Lunasi semua*), metode Tunai /
+    Transfer bank / QRIS statis, tanggal (tidak boleh di masa depan),
+    catatan; alokasi otomatis ke nota terlama dulu atau *Atur alokasi
+    manual* per nota (jumlah alokasi wajib sama dengan uang diterima);
+    teks sisa piutang setelah bayar; *Simpan & cetak kuitansi*;
+  - riwayat pembayaran bernomor `BP-<OUTLET>-<PERANGKAT>-<yymmdd>-NNNN`
+    yang membuka kuitansi salinan;
+  - *+ Pelanggan*, *Ubah data*, *Hapus pelanggan* (ditolak selama masih
+    berpiutang).
+- **Form pelanggan**: nama, no. HP (dinormalisasi, `+62`/`62` → `0`,
+  8–15 digit, unik per toko), grup (pilih, tanpa grup, atau *+ Grup baru*),
+  limit kredit (0 = tidak boleh kredit), alamat, catatan.
+- **Import Excel**: CSV atau XLSX (maks. 2 MB, sheet pertama) dengan
+  baris judul Indonesia (`nama`, `hp`, `alamat`, `grup`, `limit`,
+  `catatan`) atau English. HP yang sudah ada memperbarui pelanggan itu
+  (hanya kolom terisi), grup baru dibuat, baris salah dilewati dengan
+  nomor baris dan alasannya.
+- **Kuitansi 1.20b** (`/pelanggan/kuitansi/:id`): pratinjau A5 (nama toko,
+  cabang, nomor, telah terima dari, terbilang miring, untuk pembayaran N
+  nota, metode, tabel nota · sisa sebelum · dibayar, kota dan tanggal,
+  kotak jumlah, nama kasir, sisa piutang) dan pratinjau struk 58/80 mm.
+  Pilihan *Tampilkan rincian per nota*, *Tampilkan sisa piutang*, *Kota
+  pada tanda tangan*. *Cetak* (A5 lewat dialog cetak sistem, struk lewat
+  printer struk) dan *Bagikan PDF*. Cetak ulang diberi tanda *SALINAN*.
+- **Kredit di Kasir 1.5b**: metode *Kredit / piutang* (butuh
+  `debts:manage`, nota retail): cari dan pilih pelanggan (sisa limit,
+  tempo), petak Limit / Piutang berjalan / Sisa limit, *Bayar sekarang
+  (DP)* tunai, *Jatuh tempo* (bawaan hari ini + tempo grup, 14 hari tanpa
+  grup), ringkasan *Jadi piutang* dan *Sisa limit setelah ini*, peringatan
+  bila melebihi limit, tombol *Simpan sebagai piutang*. Layar berhasil
+  menampilkan piutang pelanggan.
+- **Grup pelanggan** di Master data (tab baru untuk staf
+  `customers:manage`): nama, tempo standar (0–365 hari), jumlah
+  pelanggan; tambah, ubah, hapus bila tidak dipakai.
+- **Riwayat 1.14**: nota kredit yang masih bersisa berlencana *Belum
+  lunas*; rincian menampilkan pelanggan, jatuh tempo, bagian kredit, dan
+  sisa piutang.
+- **Struk** nota kredit memuat pelanggan, *Piutang*, dan *Jatuh tempo*.
+- **Rekap sesi kasir**: baris *Penjualan kredit (piutang)*; pembayaran
+  piutang tunai saat sesi terbuka masuk laci sebagai kas masuk.
+- Model data: tabel `customer_groups`, `customers`, `debt_payments`,
+  `debt_payment_allocations`; kolom `sales.customer_id`, `sales.due_on`,
+  `sale_returns.debt_reduction`; enum `DebtParty`, `DebtDocumentType`,
+  `RefundMethod.debt` (migrasi `pelanggan`).
+
+### Diubah
+
+- **Retur nota kredit** memotong piutang nota itu dulu; sisanya
+  dikembalikan tunai/transfer. Bila seluruh nilai retur memotong piutang,
+  pilihan uang kembali disembunyikan dan sesi kasir tidak diperlukan.
+- **Void nota kredit** ditolak bila nota sudah menerima pembayaran
+  piutang; pesan menyarankan retur.
+- Nomor HP yang kehilangan angka 0 di depan (mis. dari Excel, `8123…`)
+  dikembalikan menjadi `08123…`.
+
+### Diperbaiki
+
+Semua di bawah ini ditemukan sebelum rilis (tes alur dan uji manual),
+bukan bug di versi sebelumnya.
+
+- Tombol *Simpan & cetak kuitansi* tidak pernah menyimpan: pemeriksaan
+  "boleh simpan" ikut melihat perintah simpan yang sedang berjalan, jadi
+  selalu gagal dari dalam perintah itu sendiri.
+- Daftar pelanggan di panel kredit Kasir memeras nama hingga satu huruf
+  per baris di ponsel 360 px; kini nominal sisa limit mengecil dan nama
+  dipotong rapi.
+- Pratinjau kuitansi A5 meluap di layar sempit; kini diperkecil seperti
+  kertas, bukan ditata ulang.
+- Label tombol (*Lunasi semua*, *Atur alokasi manual*, *Hapus pelanggan*,
+  *Bagikan PDF*) meluap di panel sempit.
+- Dialog grup pelanggan mengosongkan galat simpan saat sedang dibangun
+  sehingga memicu galat framework.
+- Font PDF kuitansi tampil sangat tipis karena paket `pdf` tidak mendukung
+  font variabel; kini memakai potongan statis DM Sans dan Montserrat.
+- Limit kredit dari import seperti `1500000.00` (ekspor akuntansi) terbaca
+  100× lebih besar karena semua titik dibuang. Kini titik/koma hanya
+  dianggap pemisah ribuan bila berpola ribuan; desimal nol diterima,
+  pecahan rupiah ditolak.
+- Kuitansi A5 untuk pelunasan puluhan nota terpotong di satu halaman; kini
+  tabel berlanjut ke halaman berikutnya.
+- Pembayaran tunai bertanggal mundur ikut masuk laci hari ini; kini dicatat
+  sebagai kas toko, dan petunjuk di form ikut menyesuaikan.
+- Struk kuitansi memakai jam simpan, sedangkan A5 memakai tanggal bayar;
+  kini keduanya memakai tanggal bayar.
+- Gerakan kas dari pembelian dan pembayaran piutang di rekap sesi tampil
+  sebagai kode mentah (`purchase`, `debt_payment`); kini berlabel.
+- Daftar pelanggan kredit di Kasir tidak dimuat ulang setelah ada
+  pembayaran piutang atau retur; kini dimuat setiap masuk mode kredit dan
+  diurutkan stabil per nama.
+- Import di lapisan data kini memeriksa ulang setiap baris seperti form
+  pelanggan.
+- Kolom *Metode* di Riwayat dan kepala rincian nota kredit hanya menulis
+  *Tunai* (uang muka); kini tertulis *Tunai + Kredit*.
+- Nomor nota panjang di tabel piutang panel pelanggan terbungkus dua
+  baris; kini satu baris dan mengecil bila perlu.
+
+### Keamanan
+
+- `customers:manage` (tambah/ubah/hapus/import/grup) dan `debts:manage`
+  (terima pembayaran, jual kredit) dicek di menu, layar, repositori
+  aplikasi, **dan** lapisan data: aktor wajib staf aktif outlet ini dengan
+  izin yang cukup.
+
+### Catatan teknis
+
+- Aturan domain di `lakuna_domain` (`customer.dart`, `receivable.dart`,
+  `customer_import.dart`): normalisasi/validasi pelanggan dan grup, cek
+  limit kredit, piutang nota, alokasi FIFO dan validasi manual, terlambat,
+  terbilang `rupiahInWords`, nomor `BP-`, parser import. Data di
+  `lakuna_data/customers.dart`, semua tulis lewat `LakunaStore.write` +
+  outbox.
+- `debt_payments.balance_after` dan `debt_payment_allocations.balance_before`
+  disimpan agar cetak ulang kuitansi sama dengan cetakan pertama. Tabel
+  yang sama dipakai hutang supplier di F1-14.
+- Pembaca XLSX ringan di `table_file.dart` (archive + xml, sharedStrings,
+  inlineStr); PDF A5 di `kuitansi_pdf.dart` dengan font statis di
+  `assets/fonts/pdf/`.
+- Migrasi `20261103230815808-pelanggan`.
+- Gap tercatat di spec F1-13: kredit open bill/split bill F&B, pilih
+  pelanggan di kepala pesanan (1.4b), persetujuan PIN melewati limit,
+  batal pembayaran piutang.
+
 ## [0.16.0] - 2026-11-03
 
 Pembelian dan retur pembelian (F1-12, layar 1.19 dan 1.19b). Pemilik dan
@@ -1613,7 +1754,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.13.0...v0.14.0

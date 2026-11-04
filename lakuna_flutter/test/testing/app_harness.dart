@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/app.dart';
+import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/config/app_environment.dart';
 import 'package:lakuna_flutter/routing/router.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -11,6 +12,7 @@ import 'fake_app_settings_repository.dart';
 import 'fake_cash_drawer_repository.dart';
 import 'fake_cashier_repository.dart';
 import 'fake_catalog_repository.dart';
+import 'fake_customers_repository.dart';
 import 'fake_dining_admin_repository.dart';
 import 'fake_dining_repository.dart';
 import 'fake_history_repository.dart';
@@ -42,11 +44,13 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeDiningAdminRepository? diningAdmin,
   FakeHistoryRepository? history,
   FakePurchasesRepository? purchases,
+  FakeCustomersRepository? customers,
   FakeSpreadsheetExporter? exporter,
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
   FakeReceiptSettingsRepository? receiptSettings,
   FakeReceiptPrinter? receiptPrinter,
+  TableFilePicker? tablePicker,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -90,11 +94,13 @@ Future<AppSettingsViewModel> pumpLakuna(
           diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
           history: history ?? FakeHistoryRepository(),
           purchases: purchases ?? FakePurchasesRepository(),
+          customers: customers ?? FakeCustomersRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
           receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
           imagePicker: imagePicker ?? FakeImagePicker(),
           exporter: exporter ?? FakeSpreadsheetExporter(),
+          tablePicker: tablePicker ?? const FileSelectorTablePicker(),
           initialLocation: initialLocation,
         ),
       ),

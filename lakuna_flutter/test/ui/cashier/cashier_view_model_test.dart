@@ -638,4 +638,87 @@ void main() {
       expect(repo.paidParts.single.$3, const Money(55440));
     });
   });
+
+  group('kredit / piutang (1.5b)', () {
+    CustomerRow row(
+      String name, {
+      int limit = 0,
+      int debt = 0,
+      int term = 14,
+    }) => CustomerRow(
+      customer: Customer(
+        id: UuidValue.fromString(newId()),
+        tenantId: UuidValue.fromString(newId()),
+        name: name,
+        creditLimit: limit,
+        createdAt: DateTime.utc(2026, 11, 1),
+        hlc: '',
+      ),
+      groupName: null,
+      termDays: term,
+      outstanding: Money(debt),
+      openCount: debt > 0 ? 1 : 0,
+      overdueCount: 0,
+    );
+
+    late CustomerRow ani;
+    late CustomerRow darto;
+
+    setUp(() {
+      ani = row('Toko Bu Ani', limit: 200000, debt: 100000);
+      darto = row('Pak Darto');
+      repo.creditRows = [darto, ani];
+    });
+
+    test('pilih pelanggan → jatuh tempo + DP → nota piutang', () async {
+      vm.scan('8990001'); // 72.500
+      vm.startPayment();
+      expect(vm.canSellOnCredit, isTrue);
+      vm.setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      expect(vm.creditCandidates.first.customer.name, 'Toko Bu Ani');
+      expect(vm.canPay, isFalse);
+      vm.selectCreditCustomer(ani.customer.id);
+      expect(vm.creditDue, DateTime.utc(2026, 11, 17));
+      vm.setCreditDown(const Money(10000));
+      expect(vm.creditDebt, const Money(62500));
+      expect(vm.creditRemainingAfter, const Money(37500));
+      expect(vm.canPay, isTrue);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+      expect(repo.credits.single.customerId, ani.customer.id);
+      expect(repo.credits.single.downPayment, const Money(10000));
+      // DP tercatat sebagai tunai, sisanya piutang.
+      expect(repo.checkouts.single.$2.single.amount, const Money(10000));
+    });
+
+    test('limit 0 atau melebihi limit tidak bisa disimpan', () async {
+      vm.scan('8990001');
+      vm.scan('8990001'); // 145.000 > sisa limit 100.000
+      vm.startPayment();
+      vm.setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      vm.selectCreditCustomer(darto.customer.id);
+      expect(vm.creditIssueNow, CreditIssue.noLimit);
+      expect(vm.canPay, isFalse);
+      vm.selectCreditCustomer(ani.customer.id);
+      expect(vm.creditIssueNow, CreditIssue.overLimit);
+      expect(vm.canPay, isFalse);
+      vm.setCreditDown(const Money(50000));
+      expect(vm.creditIssueNow, isNull);
+      expect(vm.canPay, isTrue);
+    });
+
+    test('tanpa debts:manage tombol kredit tidak ada', () async {
+      final r = FakeCashierRepository(
+        seed: cashierProducts(),
+        permissions: {Permission.salesCreate},
+      );
+      final v = CashierViewModel(repository: r, printer: printer);
+      await v.load.execute();
+      expect(v.canSellOnCredit, isFalse);
+      v.setMode(PayMode.credit);
+      expect(v.mode, isNot(PayMode.credit));
+    });
+  });
 }

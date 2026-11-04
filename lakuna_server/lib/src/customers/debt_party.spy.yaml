@@ -1,0 +1,6 @@
+### Pihak pembayaran hutang/piutang: pelanggan (F1-13) atau supplier (F1-14).
+enum: DebtParty
+serialized: byName
+values:
+  - customer
+  - supplier

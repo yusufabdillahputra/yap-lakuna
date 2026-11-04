@@ -34,6 +34,7 @@ abstract class SaleReturn
     this.note,
     required this.refundMethod,
     required this.amount,
+    int? debtReduction,
     required this.restock,
     required this.returnedAt,
     DateTime? createdAt,
@@ -45,6 +46,7 @@ abstract class SaleReturn
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _isc.Uuid().v7obj(),
+       debtReduction = debtReduction ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -62,6 +64,7 @@ abstract class SaleReturn
     String? note,
     required _i950y1oy.RefundMethod refundMethod,
     required int amount,
+    int? debtReduction,
     required bool restock,
     required DateTime returnedAt,
     DateTime? createdAt,
@@ -106,6 +109,7 @@ abstract class SaleReturn
         (jsonSerialization['refundMethod'] as String),
       ),
       amount: jsonSerialization['amount'] as int,
+      debtReduction: jsonSerialization['debtReduction'] as int?,
       restock: _isc.BoolJsonExtension.fromJson(jsonSerialization['restock']),
       returnedAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['returnedAt'],
@@ -168,6 +172,10 @@ abstract class SaleReturn
 
   int amount;
 
+  /// Bagian [amount] yang memotong piutang nota kredit (F1-13); sisanya
+  /// dikembalikan lewat [refundMethod].
+  int debtReduction;
+
   bool restock;
 
   DateTime returnedAt;
@@ -207,6 +215,7 @@ abstract class SaleReturn
     String? note,
     _i950y1oy.RefundMethod? refundMethod,
     int? amount,
+    int? debtReduction,
     bool? restock,
     DateTime? returnedAt,
     DateTime? createdAt,
@@ -234,6 +243,7 @@ abstract class SaleReturn
       if (note != null) 'note': note,
       'refundMethod': refundMethod.toJson(),
       'amount': amount,
+      'debtReduction': debtReduction,
       'restock': restock,
       'returnedAt': returnedAt.toJson(),
       'createdAt': createdAt.toJson(),
@@ -263,6 +273,7 @@ abstract class SaleReturn
       if (note != null) 'note': note,
       'refundMethod': refundMethod.toJson(),
       'amount': amount,
+      'debtReduction': debtReduction,
       'restock': restock,
       'returnedAt': returnedAt.toJson(),
       'createdAt': createdAt.toJson(),
@@ -320,6 +331,7 @@ class _SaleReturnImpl extends SaleReturn {
     String? note,
     required _i950y1oy.RefundMethod refundMethod,
     required int amount,
+    int? debtReduction,
     required bool restock,
     required DateTime returnedAt,
     DateTime? createdAt,
@@ -343,6 +355,7 @@ class _SaleReturnImpl extends SaleReturn {
          note: note,
          refundMethod: refundMethod,
          amount: amount,
+         debtReduction: debtReduction,
          restock: restock,
          returnedAt: returnedAt,
          createdAt: createdAt,
@@ -372,6 +385,7 @@ class _SaleReturnImpl extends SaleReturn {
     Object? note = _Undefined,
     _i950y1oy.RefundMethod? refundMethod,
     int? amount,
+    int? debtReduction,
     bool? restock,
     DateTime? returnedAt,
     DateTime? createdAt,
@@ -398,6 +412,7 @@ class _SaleReturnImpl extends SaleReturn {
       note: note is String? ? note : this.note,
       refundMethod: refundMethod ?? this.refundMethod,
       amount: amount ?? this.amount,
+      debtReduction: debtReduction ?? this.debtReduction,
       restock: restock ?? this.restock,
       returnedAt: returnedAt ?? this.returnedAt,
       createdAt: createdAt ?? this.createdAt,
@@ -490,6 +505,11 @@ class SaleReturnUpdateTable extends _isd.UpdateTable<SaleReturnTable> {
 
   _isd.ColumnValue<int, int> amount(int value) => _isd.ColumnValue(
     table.amount,
+    value,
+  );
+
+  _isd.ColumnValue<int, int> debtReduction(int value) => _isd.ColumnValue(
+    table.debtReduction,
     value,
   );
 
@@ -610,6 +630,12 @@ class SaleReturnTable extends _isd.Table<_isc.UuidValue> {
       'amount',
       this,
     );
+    debtReduction = _isd.ColumnInt(
+      'debt_reduction',
+      this,
+      hasDefault: true,
+      fieldName: 'debtReduction',
+    );
     restock = _isd.ColumnBool(
       'restock',
       this,
@@ -686,6 +712,10 @@ class SaleReturnTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnInt amount;
 
+  /// Bagian [amount] yang memotong piutang nota kredit (F1-13); sisanya
+  /// dikembalikan lewat [refundMethod].
+  late final _isd.ColumnInt debtReduction;
+
   late final _isd.ColumnBool restock;
 
   late final _isd.ColumnDateTime returnedAt;
@@ -720,6 +750,7 @@ class SaleReturnTable extends _isd.Table<_isc.UuidValue> {
     note,
     refundMethod,
     amount,
+    debtReduction,
     restock,
     returnedAt,
     createdAt,

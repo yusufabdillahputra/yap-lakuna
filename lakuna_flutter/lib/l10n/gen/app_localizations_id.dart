@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -4140,4 +4140,708 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchaseRefundToHint => 'Pilih kas atau rekening';
+
+  @override
+  String get customersTitle => 'Pelanggan & piutang';
+
+  @override
+  String customersSubtitle(int count) {
+    return '$count pelanggan · piutang dicatat per nota';
+  }
+
+  @override
+  String get customersImport => 'Import Excel';
+
+  @override
+  String get customersNew => 'Pelanggan';
+
+  @override
+  String get customersSearch => 'Cari nama atau HP';
+
+  @override
+  String get customersColCustomer => 'Pelanggan';
+
+  @override
+  String get customersColGroup => 'Grup';
+
+  @override
+  String get customersColDebt => 'Piutang';
+
+  @override
+  String get customersEmpty =>
+      'Belum ada pelanggan. Tambah pelanggan atau import dari Excel.';
+
+  @override
+  String get customersNoMatch => 'Tidak ada pelanggan yang cocok.';
+
+  @override
+  String get customersLoadFailed => 'Data pelanggan gagal dimuat.';
+
+  @override
+  String get customersSelectHint =>
+      'Pilih pelanggan untuk melihat piutang dan menerima pembayaran.';
+
+  @override
+  String get customersTotalDebt => 'Total piutang';
+
+  @override
+  String customersTotalDebtSub(int debtors, int overdue) {
+    return '$debtors pelanggan · $overdue nota lewat jatuh tempo';
+  }
+
+  @override
+  String customerOverdueCount(int count) {
+    return '$count nota terlambat';
+  }
+
+  @override
+  String customerGroupLabel(String group) {
+    return 'Grup $group';
+  }
+
+  @override
+  String customerSince(String date) {
+    return 'pelanggan sejak $date';
+  }
+
+  @override
+  String get customerEdit => 'Ubah data';
+
+  @override
+  String get customerLimit => 'Limit kredit';
+
+  @override
+  String get customerDebt => 'Piutang';
+
+  @override
+  String get customerRemaining => 'Sisa limit';
+
+  @override
+  String get customerReceiveTitle => 'Terima pembayaran';
+
+  @override
+  String get customerAmount => 'Jumlah diterima';
+
+  @override
+  String get customerPayAll => 'Lunasi semua';
+
+  @override
+  String get customerMethod => 'Metode';
+
+  @override
+  String get customerPaidOn => 'Tanggal';
+
+  @override
+  String get customerNoteOptional => 'Catatan (opsional)';
+
+  @override
+  String get customerCashDrawerHint =>
+      'Tunai masuk ke laci sesi kasir yang terbuka.';
+
+  @override
+  String get customerCashStoreHint =>
+      'Tidak ada sesi kasir terbuka: tunai dicatat sebagai kas toko.';
+
+  @override
+  String get customerColInvoice => 'Nota';
+
+  @override
+  String get customerColDue => 'Jatuh tempo';
+
+  @override
+  String get customerColTotal => 'Total';
+
+  @override
+  String get customerColRest => 'Sisa';
+
+  @override
+  String get customerColAllocation => 'Alokasi';
+
+  @override
+  String get customerTotalRow => 'Total';
+
+  @override
+  String customerDueShort(String date) {
+    return 'tempo $date';
+  }
+
+  @override
+  String get customerOverdue => 'Terlambat';
+
+  @override
+  String customerAutoHint(String name, String amount) {
+    return 'Alokasi otomatis ke nota paling lama dulu. Setelah disimpan, sisa piutang $name $amount.';
+  }
+
+  @override
+  String get customerManualHint =>
+      'Alokasi manual: isi nominal per nota. Totalnya harus sama dengan jumlah diterima.';
+
+  @override
+  String get customerManual => 'Atur alokasi manual';
+
+  @override
+  String get customerAuto => 'Alokasi otomatis';
+
+  @override
+  String get customerSaveAndPrint => 'Simpan & cetak kuitansi';
+
+  @override
+  String get customerNoDebt => 'Pelanggan ini tidak punya piutang.';
+
+  @override
+  String get customerPayments => 'Riwayat pembayaran';
+
+  @override
+  String get customerNoPayments => 'Belum ada pembayaran piutang.';
+
+  @override
+  String get customerDelete => 'Hapus pelanggan';
+
+  @override
+  String customerDeleteTitle(String name) {
+    return 'Hapus $name?';
+  }
+
+  @override
+  String get customerDeleteBody =>
+      'Pelanggan hilang dari daftar. Nota dan pembayaran lamanya tetap tersimpan.';
+
+  @override
+  String get customerDeleteAction => 'Hapus';
+
+  @override
+  String get customerCancel => 'Batal';
+
+  @override
+  String get customerSave => 'Simpan';
+
+  @override
+  String get customerFormNew => 'Pelanggan baru';
+
+  @override
+  String get customerFormEdit => 'Ubah pelanggan';
+
+  @override
+  String get customerFieldName => 'Nama';
+
+  @override
+  String get customerFieldPhone => 'No. HP (opsional)';
+
+  @override
+  String get customerFieldGroup => 'Grup';
+
+  @override
+  String get customerGroupNone => 'Tanpa grup (tempo 14 hari)';
+
+  @override
+  String customerGroupOption(String name, int days) {
+    return '$name · tempo $days hari';
+  }
+
+  @override
+  String get customerGroupNew => '+ Grup baru';
+
+  @override
+  String get customerFieldNewGroup => 'Nama grup baru';
+
+  @override
+  String get customerNewGroupHint => 'mis. Grosir';
+
+  @override
+  String get customerFieldLimit => 'Limit kredit';
+
+  @override
+  String get customerLimitHint => '0 = tidak boleh belanja kredit.';
+
+  @override
+  String get customerFieldAddress => 'Alamat (opsional)';
+
+  @override
+  String get customerFieldNote => 'Catatan (opsional)';
+
+  @override
+  String customerErrName(int max) {
+    return 'Nama wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get customerErrPhone => 'Nomor HP harus 8–15 digit.';
+
+  @override
+  String get customerErrPhoneTaken => 'Nomor HP sudah dipakai pelanggan lain.';
+
+  @override
+  String customerErrAddress(int max) {
+    return 'Alamat maksimal $max karakter.';
+  }
+
+  @override
+  String customerErrNote(int max) {
+    return 'Catatan maksimal $max karakter.';
+  }
+
+  @override
+  String customerErrGroup(int max) {
+    return 'Nama grup wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String get customerErrLimit => 'Limit kredit tidak boleh negatif.';
+
+  @override
+  String get customerErrHasDebt =>
+      'Pelanggan masih punya piutang; lunasi dulu sebelum dihapus.';
+
+  @override
+  String get customerErrNotFound => 'Pelanggan tidak ditemukan.';
+
+  @override
+  String get customerErrNotPermitted => 'Anda tidak punya izin untuk aksi ini.';
+
+  @override
+  String get customerErrGeneric => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String get debtErrAmount => 'Isi jumlah lebih dari 0.';
+
+  @override
+  String get debtErrOver => 'Jumlah melebihi total piutang.';
+
+  @override
+  String get debtErrAllocation =>
+      'Alokasi per nota tidak boleh melebihi sisa nota itu.';
+
+  @override
+  String get debtErrAllocationTotal =>
+      'Total alokasi harus sama dengan jumlah diterima.';
+
+  @override
+  String get debtErrDate => 'Tanggal bayar tidak boleh setelah hari ini.';
+
+  @override
+  String get debtErrMethod =>
+      'Metode ini tidak bisa dipakai untuk pembayaran piutang.';
+
+  @override
+  String get debtMethodCashDrawer => 'Tunai · kas laci';
+
+  @override
+  String get debtMethodCashStore => 'Tunai · kas toko';
+
+  @override
+  String groupErrName(int max) {
+    return 'Nama grup wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String groupErrTerm(int max) {
+    return 'Tempo 0–$max hari.';
+  }
+
+  @override
+  String get groupErrTaken => 'Nama grup sudah ada.';
+
+  @override
+  String get groupErrInUse =>
+      'Grup masih dipakai pelanggan; pindahkan pelanggannya dulu.';
+
+  @override
+  String get groupErrNotFound => 'Grup tidak ditemukan.';
+
+  @override
+  String get creditNoLimit =>
+      'Pelanggan ini tidak punya limit kredit. Atur limit di menu Pelanggan.';
+
+  @override
+  String get creditErrDownPayment =>
+      'DP harus 0 atau lebih dan kurang dari total nota.';
+
+  @override
+  String get creditErrDueOn => 'Jatuh tempo tidak boleh sebelum hari ini.';
+
+  @override
+  String get creditErrOverLimit =>
+      'Piutang berjalan + piutang baru melebihi limit kredit.';
+
+  @override
+  String get importTitle => 'Import pelanggan';
+
+  @override
+  String get importIntro =>
+      'Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), HP, Alamat, Grup, Limit, Catatan. Judul kolom boleh Indonesia atau English.';
+
+  @override
+  String get importPick => 'Pilih berkas';
+
+  @override
+  String get importTooLarge => 'Berkas lebih dari 2 MB.';
+
+  @override
+  String get importUnreadable =>
+      'Berkas tidak bisa dibaca. Simpan sebagai .xlsx atau .csv lalu coba lagi.';
+
+  @override
+  String get importMissingName => 'Kolom Nama tidak ditemukan di baris judul.';
+
+  @override
+  String get importEmpty => 'Berkas tidak berisi baris pelanggan.';
+
+  @override
+  String importReady(int count) {
+    return '$count baris siap diimport.';
+  }
+
+  @override
+  String get importUpdateNote =>
+      'Nomor HP yang sudah terdaftar memperbarui pelanggan itu; grup baru dibuat otomatis.';
+
+  @override
+  String importRejected(int count) {
+    return '$count baris dilewati:';
+  }
+
+  @override
+  String importRejectLine(int line, String reason) {
+    return 'Baris $line: $reason';
+  }
+
+  @override
+  String importMoreRejected(int count) {
+    return '…dan $count baris lain.';
+  }
+
+  @override
+  String get importReasonName => 'nama kosong atau terlalu panjang';
+
+  @override
+  String get importReasonPhone => 'nomor HP tidak sah';
+
+  @override
+  String get importReasonLimit => 'limit bukan angka';
+
+  @override
+  String get importReasonText => 'teks terlalu panjang';
+
+  @override
+  String get importReasonDuplicate => 'nomor HP dobel di berkas';
+
+  @override
+  String importRun(int count) {
+    return 'Import $count pelanggan';
+  }
+
+  @override
+  String importDone(int created, int updated) {
+    return 'Selesai: $created pelanggan baru, $updated diperbarui.';
+  }
+
+  @override
+  String get importClose => 'Tutup';
+
+  @override
+  String kuitansiCrumb(String number) {
+    return 'Kuitansi $number';
+  }
+
+  @override
+  String get kuitansiSavedTitle => 'Pembayaran piutang tersimpan';
+
+  @override
+  String kuitansiSubtitle(String amount, String customer, int count) {
+    return '$amount dari $customer dialokasikan ke $count nota';
+  }
+
+  @override
+  String get kuitansiSaved => 'Tersimpan';
+
+  @override
+  String get kuitansiBack => 'Kembali ke pelanggan';
+
+  @override
+  String get kuitansiPreviewA5 => 'Pratinjau A5 / PDF';
+
+  @override
+  String kuitansiPreviewThermal(String paper) {
+    return 'Pratinjau struk $paper';
+  }
+
+  @override
+  String get kuitansiPanelTitle => 'Kuitansi';
+
+  @override
+  String get kuitansiPanelSub => 'Dibuat otomatis setelah pembayaran disimpan.';
+
+  @override
+  String get kuitansiFormat => 'Format';
+
+  @override
+  String get kuitansiFormatA5 => 'A5 / PDF';
+
+  @override
+  String get kuitansiFormatA5Hint => 'Untuk arsip & dikirim lewat WhatsApp';
+
+  @override
+  String kuitansiFormatThermal(String paper) {
+    return 'Struk $paper';
+  }
+
+  @override
+  String get kuitansiFormatThermalHint => 'Dicetak di printer kasir';
+
+  @override
+  String get kuitansiShowDetails => 'Tampilkan rincian per nota';
+
+  @override
+  String get kuitansiShowBalance => 'Tampilkan sisa piutang';
+
+  @override
+  String get kuitansiCity => 'Kota pada tanda tangan';
+
+  @override
+  String get kuitansiCityHint => 'Dari alamat cabang';
+
+  @override
+  String get kuitansiPrint => 'Cetak';
+
+  @override
+  String get kuitansiShare => 'Bagikan PDF';
+
+  @override
+  String get kuitansiPrinted => 'Kuitansi terkirim ke printer.';
+
+  @override
+  String kuitansiSavedPdf(String path) {
+    return 'PDF disimpan di $path';
+  }
+
+  @override
+  String get kuitansiReprintNote =>
+      'Kuitansi bisa dicetak ulang dari Pelanggan › riwayat pembayaran. Cetak ulang diberi tanda \"SALINAN\".';
+
+  @override
+  String get kuitansiErrNotFound => 'Pembayaran tidak ditemukan.';
+
+  @override
+  String get kuitansiDocTitle => 'KUITANSI';
+
+  @override
+  String get kuitansiCopy => 'SALINAN';
+
+  @override
+  String get kuitansiReceivedFrom => 'Telah terima dari';
+
+  @override
+  String get kuitansiAmountWords => 'Uang sejumlah';
+
+  @override
+  String get kuitansiFor => 'Untuk pembayaran';
+
+  @override
+  String kuitansiForDetails(int count) {
+    return 'Piutang $count nota (lihat rincian)';
+  }
+
+  @override
+  String kuitansiForShort(int count) {
+    return 'Piutang $count nota';
+  }
+
+  @override
+  String get kuitansiMethod => 'Metode';
+
+  @override
+  String get kuitansiNote => 'Catatan';
+
+  @override
+  String get kuitansiColInvoice => 'Nota';
+
+  @override
+  String get kuitansiColBefore => 'Sisa sebelum';
+
+  @override
+  String get kuitansiColPaid => 'Dibayar';
+
+  @override
+  String get kuitansiCashier => 'Kasir';
+
+  @override
+  String kuitansiFootnote(String customer, String amount) {
+    return 'Sisa piutang $customer setelah pembayaran ini: $amount.';
+  }
+
+  @override
+  String get kuitansiThermalBanner => 'KUITANSI PIUTANG';
+
+  @override
+  String get kuitansiFrom => 'Dari';
+
+  @override
+  String get kuitansiPaid => 'DIBAYAR';
+
+  @override
+  String get kuitansiBalance => 'Sisa piutang';
+
+  @override
+  String get historyStatusUnpaid => 'Belum lunas';
+
+  @override
+  String get historyCustomer => 'Pelanggan';
+
+  @override
+  String get historyDueOn => 'Jatuh tempo';
+
+  @override
+  String get historyCredit => 'Jadi piutang';
+
+  @override
+  String get historyOutstanding => 'Sisa piutang';
+
+  @override
+  String historyReturnDebtOnly(String amount) {
+    return 'Retur ini memotong piutang $amount; tidak ada uang kembali.';
+  }
+
+  @override
+  String historyReturnDebtSplit(String debt, String refund) {
+    return 'Memotong piutang $debt, uang kembali $refund.';
+  }
+
+  @override
+  String get historyVoidBlockDebtPaid =>
+      'Nota kredit ini sudah menerima pembayaran piutang, jadi tidak bisa di-void. Pakai retur.';
+
+  @override
+  String get receiptCustomer => 'Pelanggan';
+
+  @override
+  String get receiptDebt => 'Piutang';
+
+  @override
+  String get receiptDueOn => 'Jatuh tempo';
+
+  @override
+  String get cashRecapCredit => 'Penjualan kredit (piutang)';
+
+  @override
+  String get paymentCredit => 'Kredit / piutang';
+
+  @override
+  String get paymentCreditHint => 'Sisa jadi piutang pelanggan';
+
+  @override
+  String get creditTitle => 'Kredit / piutang';
+
+  @override
+  String get creditSubtitle =>
+      'Nota disimpan dengan sisa sebagai piutang pelanggan.';
+
+  @override
+  String get creditPickCustomer => 'Pilih pelanggan';
+
+  @override
+  String get creditNoCustomers =>
+      'Belum ada pelanggan. Tambah pelanggan dan limit kreditnya di menu Pelanggan.';
+
+  @override
+  String get creditLoadFailed => 'Daftar pelanggan gagal dimuat.';
+
+  @override
+  String creditTerm(int days) {
+    return 'tempo standar $days hari';
+  }
+
+  @override
+  String get creditChange => 'Ganti';
+
+  @override
+  String get creditRunning => 'Piutang berjalan';
+
+  @override
+  String get creditDownPayment => 'Bayar sekarang (DP)';
+
+  @override
+  String get creditDownPaymentHint =>
+      'Boleh 0. Dibayar tunai lewat laci sesi aktif.';
+
+  @override
+  String get creditDueOn => 'Jatuh tempo';
+
+  @override
+  String get creditDueOnHint => 'Hari ini + tempo standar pelanggan';
+
+  @override
+  String get creditInvoiceTotal => 'Total nota';
+
+  @override
+  String get creditPaidNow => 'Dibayar sekarang';
+
+  @override
+  String get creditBecomesDebt => 'Jadi piutang';
+
+  @override
+  String get creditRemainingAfter => 'Sisa limit setelah ini';
+
+  @override
+  String get creditOverLimitTitle => 'Melebihi limit';
+
+  @override
+  String creditOverLimit(String limit) {
+    return 'Piutang berjalan + piutang baru melebihi limit $limit. Kurangi nominal atau naikkan DP.';
+  }
+
+  @override
+  String get creditFootnote =>
+      'Nota tercatat Belum lunas di Riwayat dan masuk daftar piutang pelanggan. Pelanggan wajib dipilih.';
+
+  @override
+  String get creditSave => 'Simpan sebagai piutang';
+
+  @override
+  String successCredit(String name) {
+    return 'Piutang $name';
+  }
+
+  @override
+  String get masterTabCustomerGroups => 'Grup pelanggan';
+
+  @override
+  String get customerGroupsHint =>
+      'Tempo standar grup mengisi jatuh tempo otomatis saat jual kredit. Pelanggan tanpa grup memakai 14 hari.';
+
+  @override
+  String get customerGroupsNew => 'Grup';
+
+  @override
+  String get customerGroupsEmpty => 'Belum ada grup pelanggan.';
+
+  @override
+  String customerGroupsRowSub(int days, int count) {
+    return 'Tempo $days hari · $count pelanggan';
+  }
+
+  @override
+  String get customerGroupsNewTitle => 'Grup pelanggan baru';
+
+  @override
+  String get customerGroupsEditTitle => 'Ubah grup pelanggan';
+
+  @override
+  String get customerGroupsName => 'Nama grup';
+
+  @override
+  String get customerGroupsTerm => 'Tempo standar (hari)';
+
+  @override
+  String get customerGroupsTermHint =>
+      '0–365 hari. 0 = jatuh tempo hari itu juga.';
+
+  @override
+  String get cashSourcePurchase => 'Pembelian';
+
+  @override
+  String get cashSourceDebtPayment => 'Bayar piutang';
+
+  @override
+  String get historyMethodCredit => 'Kredit';
 }

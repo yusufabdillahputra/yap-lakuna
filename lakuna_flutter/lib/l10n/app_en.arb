@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, transaction history, and purchases are ready to use. Customers, suppliers, and reports follow in upcoming releases.",
+  "homeWelcomeBody": "Retail and F&B checkout, cash sessions, products, stock, transaction history, purchases, and customers & receivables are ready to use. Suppliers and reports follow in upcoming releases.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -2037,5 +2037,483 @@
   "purchaseReturnsMade": "Returns made",
   "purchaseDetailLoadFailed": "The purchase details failed to load.",
   "purchaseErrLocation": "Stock location not found. Choose another location.",
-  "purchaseRefundToHint": "Choose cash or account"
+  "purchaseRefundToHint": "Choose cash or account",
+  "customersTitle": "Customers & receivables",
+  "customersSubtitle": "{count} customers · receivables tracked per invoice",
+  "@customersSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customersImport": "Import Excel",
+  "customersNew": "Customer",
+  "customersSearch": "Search name or phone",
+  "customersColCustomer": "Customer",
+  "customersColGroup": "Group",
+  "customersColDebt": "Receivable",
+  "customersEmpty": "No customers yet. Add one or import from Excel.",
+  "customersNoMatch": "No matching customers.",
+  "customersLoadFailed": "Couldn't load customers.",
+  "customersSelectHint": "Select a customer to see receivables and receive payments.",
+  "customersTotalDebt": "Total receivables",
+  "customersTotalDebtSub": "{debtors} customers · {overdue} invoices overdue",
+  "@customersTotalDebtSub": {
+    "placeholders": {
+      "debtors": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  },
+  "customerOverdueCount": "{count} overdue",
+  "@customerOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupLabel": "{group} group",
+  "@customerGroupLabel": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "customerSince": "customer since {date}",
+  "@customerSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerEdit": "Edit",
+  "customerLimit": "Credit limit",
+  "customerDebt": "Receivable",
+  "customerRemaining": "Remaining limit",
+  "customerReceiveTitle": "Receive payment",
+  "customerAmount": "Amount received",
+  "customerPayAll": "Pay in full",
+  "customerMethod": "Method",
+  "customerPaidOn": "Date",
+  "customerNoteOptional": "Note (optional)",
+  "customerCashDrawerHint": "Cash goes into the open cashier session's drawer.",
+  "customerCashStoreHint": "No open cashier session: cash is recorded as store cash.",
+  "customerColInvoice": "Invoice",
+  "customerColDue": "Due",
+  "customerColTotal": "Total",
+  "customerColRest": "Balance",
+  "customerColAllocation": "Allocation",
+  "customerTotalRow": "Total",
+  "customerDueShort": "due {date}",
+  "@customerDueShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerOverdue": "Overdue",
+  "customerAutoHint": "Allocated to the oldest invoices first. After saving, {name}'s balance will be {amount}.",
+  "@customerAutoHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerManualHint": "Manual allocation: enter an amount per invoice. The total must equal the amount received.",
+  "customerManual": "Allocate manually",
+  "customerAuto": "Allocate automatically",
+  "customerSaveAndPrint": "Save & print receipt",
+  "customerNoDebt": "This customer has no outstanding receivables.",
+  "customerPayments": "Payment history",
+  "customerNoPayments": "No receivable payments yet.",
+  "customerDelete": "Delete customer",
+  "customerDeleteTitle": "Delete {name}?",
+  "@customerDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerDeleteBody": "The customer is removed from the list. Past invoices and payments are kept.",
+  "customerDeleteAction": "Delete",
+  "customerCancel": "Cancel",
+  "customerSave": "Save",
+  "customerFormNew": "New customer",
+  "customerFormEdit": "Edit customer",
+  "customerFieldName": "Name",
+  "customerFieldPhone": "Phone (optional)",
+  "customerFieldGroup": "Group",
+  "customerGroupNone": "No group (14-day term)",
+  "customerGroupOption": "{name} · {days}-day term",
+  "@customerGroupOption": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupNew": "+ New group",
+  "customerFieldNewGroup": "New group name",
+  "customerNewGroupHint": "e.g. Wholesale",
+  "customerFieldLimit": "Credit limit",
+  "customerLimitHint": "0 = no credit sales allowed.",
+  "customerFieldAddress": "Address (optional)",
+  "customerFieldNote": "Note (optional)",
+  "customerErrName": "Name is required, up to {max} characters.",
+  "@customerErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrPhone": "Phone number must be 8–15 digits.",
+  "customerErrPhoneTaken": "This phone number belongs to another customer.",
+  "customerErrAddress": "Address can be up to {max} characters.",
+  "@customerErrAddress": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrNote": "Note can be up to {max} characters.",
+  "@customerErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrGroup": "Group name is required, up to {max} characters.",
+  "@customerErrGroup": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrLimit": "Credit limit can't be negative.",
+  "customerErrHasDebt": "This customer still has receivables; settle them before deleting.",
+  "customerErrNotFound": "Customer not found.",
+  "customerErrNotPermitted": "You don't have permission for this action.",
+  "customerErrGeneric": "Couldn't save. Try again.",
+  "debtErrAmount": "Enter an amount above 0.",
+  "debtErrOver": "The amount exceeds the total receivable.",
+  "debtErrAllocation": "An allocation can't exceed that invoice's balance.",
+  "debtErrAllocationTotal": "Allocations must add up to the amount received.",
+  "debtErrDate": "The payment date can't be in the future.",
+  "debtErrMethod": "This method can't be used for receivable payments.",
+  "debtMethodCashDrawer": "Cash · cash drawer",
+  "debtMethodCashStore": "Cash · store cash",
+  "groupErrName": "Group name is required, up to {max} characters.",
+  "@groupErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "groupErrTerm": "Term must be 0–{max} days.",
+  "@groupErrTerm": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "groupErrTaken": "A group with this name already exists.",
+  "groupErrInUse": "The group still has customers; move them first.",
+  "groupErrNotFound": "Group not found.",
+  "creditNoLimit": "This customer has no credit limit. Set one in Customers.",
+  "creditErrDownPayment": "The down payment must be 0 or more and less than the invoice total.",
+  "creditErrDueOn": "The due date can't be before today.",
+  "creditErrOverLimit": "Current plus new receivable exceeds the credit limit.",
+  "importTitle": "Import customers",
+  "importIntro": "Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Phone, Address, Group, Limit, Note. Headers can be in Indonesian or English.",
+  "importPick": "Choose file",
+  "importTooLarge": "The file is larger than 2 MB.",
+  "importUnreadable": "The file can't be read. Save it as .xlsx or .csv and try again.",
+  "importMissingName": "No Name column found in the header row.",
+  "importEmpty": "The file has no customer rows.",
+  "importReady": "{count} rows ready to import.",
+  "@importReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importUpdateNote": "Rows with a registered phone number update that customer; new groups are created automatically.",
+  "importRejected": "{count} rows skipped:",
+  "@importRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importRejectLine": "Row {line}: {reason}",
+  "@importRejectLine": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "importMoreRejected": "…and {count} more rows.",
+  "@importMoreRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importReasonName": "name empty or too long",
+  "importReasonPhone": "invalid phone number",
+  "importReasonLimit": "limit is not a number",
+  "importReasonText": "text too long",
+  "importReasonDuplicate": "phone number repeated in the file",
+  "importRun": "Import {count} customers",
+  "@importRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDone": "Done: {created} new customers, {updated} updated.",
+  "@importDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  },
+  "importClose": "Close",
+  "kuitansiCrumb": "Receipt {number}",
+  "@kuitansiCrumb": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiSavedTitle": "Receivable payment saved",
+  "kuitansiSubtitle": "{amount} from {customer} allocated to {count} invoices",
+  "@kuitansiSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "customer": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiSaved": "Saved",
+  "kuitansiBack": "Back to customer",
+  "kuitansiPreviewA5": "A5 / PDF preview",
+  "kuitansiPreviewThermal": "{paper} receipt preview",
+  "@kuitansiPreviewThermal": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiPanelTitle": "Receipt",
+  "kuitansiPanelSub": "Created automatically when the payment is saved.",
+  "kuitansiFormat": "Format",
+  "kuitansiFormatA5": "A5 / PDF",
+  "kuitansiFormatA5Hint": "For records & sending via WhatsApp",
+  "kuitansiFormatThermal": "{paper} receipt",
+  "@kuitansiFormatThermal": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiFormatThermalHint": "Printed on the cashier printer",
+  "kuitansiShowDetails": "Show per-invoice details",
+  "kuitansiShowBalance": "Show remaining balance",
+  "kuitansiCity": "City by the signature",
+  "kuitansiCityHint": "From the branch address",
+  "kuitansiPrint": "Print",
+  "kuitansiShare": "Share PDF",
+  "kuitansiPrinted": "Receipt sent to the printer.",
+  "kuitansiSavedPdf": "PDF saved to {path}",
+  "@kuitansiSavedPdf": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiReprintNote": "Receipts can be reprinted from Customers › payment history. Reprints are marked \"COPY\".",
+  "kuitansiErrNotFound": "Payment not found.",
+  "kuitansiDocTitle": "RECEIPT",
+  "kuitansiCopy": "COPY",
+  "kuitansiReceivedFrom": "Received from",
+  "kuitansiAmountWords": "Amount in words",
+  "kuitansiFor": "Payment for",
+  "kuitansiForDetails": "Receivable, {count} invoices (see details)",
+  "@kuitansiForDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiForShort": "Receivable, {count} invoices",
+  "@kuitansiForShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiMethod": "Method",
+  "kuitansiNote": "Note",
+  "kuitansiColInvoice": "Invoice",
+  "kuitansiColBefore": "Balance before",
+  "kuitansiColPaid": "Paid",
+  "kuitansiCashier": "Cashier",
+  "kuitansiFootnote": "{customer}'s balance after this payment: {amount}.",
+  "@kuitansiFootnote": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiThermalBanner": "RECEIVABLE RECEIPT",
+  "kuitansiFrom": "From",
+  "kuitansiPaid": "PAID",
+  "kuitansiBalance": "Balance",
+  "historyStatusUnpaid": "Unpaid",
+  "historyCustomer": "Customer",
+  "historyDueOn": "Due date",
+  "historyCredit": "Sold on credit",
+  "historyOutstanding": "Outstanding",
+  "historyReturnDebtOnly": "This return reduces the receivable by {amount}; no refund is due.",
+  "@historyReturnDebtOnly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturnDebtSplit": "Reduces the receivable by {debt}, refunds {refund}.",
+  "@historyReturnDebtSplit": {
+    "placeholders": {
+      "debt": {
+        "type": "String"
+      },
+      "refund": {
+        "type": "String"
+      }
+    }
+  },
+  "historyVoidBlockDebtPaid": "This credit invoice already received a receivable payment, so it can't be voided. Use a return.",
+  "receiptCustomer": "Customer",
+  "receiptDebt": "On credit",
+  "receiptDueOn": "Due",
+  "cashRecapCredit": "Credit sales (receivable)",
+  "paymentCredit": "Credit / receivable",
+  "paymentCreditHint": "Balance becomes a customer receivable",
+  "creditTitle": "Credit / receivable",
+  "creditSubtitle": "The invoice is saved with the balance as a customer receivable.",
+  "creditPickCustomer": "Choose customer",
+  "creditNoCustomers": "No customers yet. Add customers and their credit limits in Customers.",
+  "creditLoadFailed": "Couldn't load customers.",
+  "creditTerm": "{days}-day standard term",
+  "@creditTerm": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "creditChange": "Change",
+  "creditRunning": "Current receivable",
+  "creditDownPayment": "Pay now (down payment)",
+  "creditDownPaymentHint": "Can be 0. Paid in cash into the open session's drawer.",
+  "creditDueOn": "Due date",
+  "creditDueOnHint": "Today + the customer's standard term",
+  "creditInvoiceTotal": "Invoice total",
+  "creditPaidNow": "Paid now",
+  "creditBecomesDebt": "Becomes receivable",
+  "creditRemainingAfter": "Remaining limit after this",
+  "creditOverLimitTitle": "Over the credit limit",
+  "creditOverLimit": "Current plus new receivable exceeds the {limit} limit. Lower the amount or raise the down payment.",
+  "@creditOverLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "creditFootnote": "The invoice shows as Unpaid in History and joins the customer's receivables. A customer is required.",
+  "creditSave": "Save as receivable",
+  "successCredit": "Receivable for {name}",
+  "@successCredit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterTabCustomerGroups": "Customer groups",
+  "customerGroupsHint": "A group's standard term fills in the due date for credit sales. Customers without a group use 14 days.",
+  "customerGroupsNew": "Group",
+  "customerGroupsEmpty": "No customer groups yet.",
+  "customerGroupsRowSub": "{days}-day term · {count} customers",
+  "@customerGroupsRowSub": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupsNewTitle": "New customer group",
+  "customerGroupsEditTitle": "Edit customer group",
+  "customerGroupsName": "Group name",
+  "customerGroupsTerm": "Standard term (days)",
+  "customerGroupsTermHint": "0–365 days. 0 = due the same day.",
+  "cashSourcePurchase": "Purchase",
+  "cashSourceDebtPayment": "Receivable payment",
+  "historyMethodCredit": "Credit"
 }

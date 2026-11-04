@@ -8,6 +8,7 @@ import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
+import '../data/repositories/customers_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/purchases_repository.dart';
 import '../data/repositories/master_data_repository.dart';
@@ -19,6 +20,7 @@ import '../data/repositories/store_repository.dart';
 import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
 import '../data/services/spreadsheet_exporter.dart';
+import '../data/services/table_file.dart';
 import '../ui/cash_session/cash_session_view.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
@@ -28,6 +30,9 @@ import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
 import '../ui/dining/split_bill_view.dart';
 import '../ui/floor_plan/floor_plan_view.dart';
+import '../ui/customers/customer_panel_view.dart';
+import '../ui/customers/customers_view.dart';
+import '../ui/customers/kuitansi_view.dart';
 import '../ui/history/history_view.dart';
 import '../ui/purchases/purchase_detail_view.dart';
 import '../ui/purchases/purchases_view.dart';
@@ -61,11 +66,13 @@ GoRouter createRouter({
   required DiningAdminRepository diningAdmin,
   required HistoryRepository history,
   required PurchasesRepository purchases,
+  required CustomersRepository customers,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
+  TableFilePicker tablePicker = const FileSelectorTablePicker(),
   String initialLocation = Routes.home,
 }) {
   return GoRouter(
@@ -289,6 +296,7 @@ GoRouter createRouter({
               repository: masterData,
               session: session,
               diningAdmin: diningAdmin,
+              customers: customers,
             ),
           ),
           GoRoute(
@@ -329,6 +337,59 @@ GoRouter createRouter({
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(Routes.purchases),
+              );
+            },
+          ),
+          GoRoute(
+            path: Routes.customers,
+            builder: (context, state) => CustomersScreen(
+              repository: customers,
+              tablePicker: tablePicker,
+              onOpenCustomer: (id) =>
+                  context.push<void>(Routes.customer(id.uuid)),
+              onOpenReceipt: (id, {copy = false}) =>
+                  context.push<void>(Routes.kuitansi(id.uuid, copy: copy)),
+            ),
+          ),
+          // Sebelum `/:customer` supaya `kuitansi` tidak dibaca sebagai id.
+          GoRoute(
+            path: '${Routes.customers}/kuitansi/:payment',
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['payment']) == null
+                ? Routes.customers
+                : null,
+            builder: (context, state) {
+              final id = state.pathParameters['payment']!;
+              return KuitansiScreen(
+                key: ValueKey('kuitansi-$id'),
+                repository: customers,
+                printer: receiptPrinter,
+                paymentId: UuidValue.fromString(id),
+                copy: state.uri.queryParameters['salinan'] == '1',
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(Routes.customers),
+              );
+            },
+          ),
+          GoRoute(
+            path: '${Routes.customers}/:customer',
+            // Tautan rusak kembali ke daftar pelanggan.
+            redirect: (context, state) =>
+                _uuid(state.pathParameters['customer']) == null
+                ? Routes.customers
+                : null,
+            builder: (context, state) {
+              final id = state.pathParameters['customer']!;
+              return CustomerDetailPage(
+                key: ValueKey('customer-$id'),
+                repository: customers,
+                customerId: UuidValue.fromString(id),
+                onBack: () => context.canPop()
+                    ? context.pop()
+                    : context.go(Routes.customers),
+                onOpenReceipt: (id, {copy = false}) =>
+                    context.push<void>(Routes.kuitansi(id.uuid, copy: copy)),
               );
             },
           ),

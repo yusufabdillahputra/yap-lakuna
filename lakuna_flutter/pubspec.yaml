@@ -1,7 +1,7 @@
 name: lakuna_flutter
 description: Lakuna, aplikasi kasir offline-first untuk UMKM Indonesia.
 publish_to: none
-version: 0.16.0+17
+version: 0.17.0+18
 
 environment:
   sdk: ^3.13.0
@@ -37,6 +37,7 @@ dependencies:
   share_plus: ^13.3.1
   tabler_icons_plus: ^3.50.0
   vyuh_node_flow: ^0.32.0
+  xml: ^7.0.0
 
 dev_dependencies:
   # Dipakai agen untuk menjalankan aplikasi lewat Dart MCP (lib/driver.dart).
@@ -50,6 +51,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    # Instans statis untuk PDF kuitansi (paket pdf tidak membaca font variabel).
+    - assets/fonts/pdf/
   fonts:
     - family: Montserrat
       fonts:

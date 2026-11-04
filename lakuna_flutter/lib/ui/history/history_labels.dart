@@ -48,10 +48,18 @@ String refundMethodLabel(AppLocalizations l10n, RefundMethod m) => switch (m) {
 };
 
 /// Metode bayar nota, digabung `Tunai + QRIS`.
-String historyMethods(AppLocalizations l10n, List<PaymentMethod> methods) =>
-    methods.isEmpty
-    ? '—'
-    : methods.map((m) => paymentMethodLabel(l10n, m)).join(' + ');
+/// Metode bayar nota; nota kredit (F1-13) ditambah *Kredit*.
+String historyMethods(
+  AppLocalizations l10n,
+  List<PaymentMethod> methods, {
+  bool credit = false,
+}) {
+  final labels = [
+    for (final m in methods) paymentMethodLabel(l10n, m),
+    if (credit) l10n.historyMethodCredit,
+  ];
+  return labels.isEmpty ? '—' : labels.join(' + ');
+}
 
 /// Kenapa nota tidak bisa di-void.
 String voidBlockLabel(AppLocalizations l10n, VoidBlock block) =>
@@ -60,6 +68,7 @@ String voidBlockLabel(AppLocalizations l10n, VoidBlock block) =>
       VoidBlock.returned => l10n.historyVoidBlockReturned,
       VoidBlock.notToday => l10n.historyVoidBlockNotToday,
       VoidBlock.session => l10n.historyVoidBlockSession,
+      VoidBlock.debtPaid => l10n.historyVoidBlockDebtPaid,
     };
 
 /// Pesan galat aksi riwayat (retur, void, muat).

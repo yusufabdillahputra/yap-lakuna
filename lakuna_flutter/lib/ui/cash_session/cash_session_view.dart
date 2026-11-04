@@ -728,7 +728,12 @@ class _MovementsCard extends StatelessWidget {
                 key: ValueKey('cash-row-${m.id.uuid}'),
                 time: formatClock(m.createdAt, timezone),
                 note: m.note,
-                source: m.source == 'manual' ? l10n.cashSourceManual : m.source,
+                source: switch (m.source) {
+                  'manual' => l10n.cashSourceManual,
+                  purchaseCashSource => l10n.cashSourcePurchase,
+                  debtPaymentCashSource => l10n.cashSourceDebtPayment,
+                  final other => other,
+                },
                 amount: Text(
                   '${m.direction == CashDirection.inflow ? '+' : '−'}'
                   '${formatMoney(context, Money(m.amount))}',
@@ -1042,6 +1047,12 @@ class _Recap extends StatelessWidget {
             l10n.cashRecapNonCash,
             formatMoney(context, active.sales.nonCash),
           ),
+          if (active.sales.credit.value > 0)
+            line(
+              l10n.cashRecapCredit,
+              formatMoney(context, active.sales.credit),
+              key: const ValueKey('cash-recap-credit'),
+            ),
           const SizedBox(height: 8),
           Text(l10n.cashRecapFootnote, style: muted),
         ],

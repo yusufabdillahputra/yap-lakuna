@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -24,6 +25,8 @@ class FakeReceiptPrinter implements ReceiptPrinter {
 
   final prints = <(PrinterSelection, List<ReceiptLine>, ReceiptPaper)>[];
   final shares = <(List<ReceiptLine>, ReceiptPaper, String)>[];
+  final documentPrints = <(Uint8List, String)>[];
+  final documentShares = <(Uint8List, String)>[];
 
   void _fail() {
     final f = nextFailure;
@@ -57,6 +60,22 @@ class FakeReceiptPrinter implements ReceiptPrinter {
   }) async {
     _fail();
     shares.add((lines, paper, fileName));
+    return sharePath;
+  }
+
+  @override
+  Future<void> printDocument(Uint8List pdf, {required String jobName}) async {
+    _fail();
+    documentPrints.add((pdf, jobName));
+  }
+
+  @override
+  Future<String?> shareDocument(
+    Uint8List pdf, {
+    required String fileName,
+  }) async {
+    _fail();
+    documentShares.add((pdf, fileName));
     return sharePath;
   }
 }

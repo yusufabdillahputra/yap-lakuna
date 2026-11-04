@@ -514,4 +514,63 @@ void main() {
       (PaymentMethod.qrisStatic, 1000),
     ]);
   });
+
+  group('kredit / piutang (1.5b)', () {
+    CustomerRow row(String name, {int limit = 0, int debt = 0}) => CustomerRow(
+      customer: Customer(
+        id: UuidValue.fromString(newId()),
+        tenantId: UuidValue.fromString(newId()),
+        name: name,
+        phone: '081322221010',
+        creditLimit: limit,
+        createdAt: DateTime.utc(2026, 11, 1),
+        hlc: '',
+      ),
+      groupName: 'Grosir',
+      termDays: 14,
+      outstanding: Money(debt),
+      openCount: debt > 0 ? 1 : 0,
+      overdueCount: 0,
+    );
+
+    for (final size in const [Size(1280, 800), Size(360, 740)]) {
+      testWidgets('${size.width.toInt()} px: pilih pelanggan, DP, simpan', (
+        tester,
+      ) async {
+        final repo = await pump(tester, size: size);
+        final ani = row('Toko Bu Ani', limit: 2000000, debt: 100000);
+        repo.creditRows = [row('Pak Darto'), ani];
+        await _tap(tester, productKey(repo, 'Kopi Sachet'));
+        if (size.width < 600) await _tap(tester, 'cashier-view-order');
+        await _tap(tester, 'cashier-pay');
+        await _tap(tester, 'payment-method-credit');
+        expect(_key('credit-panel'), findsOneWidget);
+        expect(
+          tester.widget<FButton>(_key('payment-finish')).onPress,
+          isNull,
+        );
+        await _tap(tester, 'credit-customer-${ani.customer.id.uuid}');
+        expect(_key('credit-selected'), findsOneWidget);
+        expect(_key('credit-summary'), findsOneWidget);
+        await _tap(tester, 'payment-finish');
+        expect(_key('success-title'), findsOneWidget);
+        expect(repo.credits.single.customerId, ani.customer.id);
+        expect(repo.credits.single.dueOn, DateTime.utc(2026, 11, 17));
+        expect(find.textContaining('Toko Bu Ani'), findsWidgets);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('tanpa debts:manage: pilihan kredit tidak ada', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        permissions: {Permission.salesCreate, Permission.cashSessionOpen},
+      );
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-pay');
+      expect(_key('payment-method-credit'), findsNothing);
+    });
+  });
 }

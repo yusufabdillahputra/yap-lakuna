@@ -78,6 +78,21 @@ class HistoryDetailPanel extends StatelessWidget {
     final local = outletLocalTime(sale.soldAt, tz);
     final voided = sale.status == SaleStatus.voided;
 
+    Widget textLine(String label, String value) => Row(
+      spacing: 8,
+      children: [
+        Expanded(child: Text(label, style: _muted(context))),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
     Widget amountLine(String label, Money value, {bool strong = false}) => Row(
       children: [
         Expanded(
@@ -123,13 +138,16 @@ class HistoryDetailPanel extends StatelessWidget {
                   ),
                   Text(
                     '${receiptDate(local)} · ${detail.staffName} · '
-                    '${historyMethods(l10n, [for (final p in detail.receipt.payments) p.method])}',
+                    '${historyMethods(l10n, [for (final p in detail.receipt.payments) p.method], credit: sale.customerId != null && sale.paidAmount < sale.total)}',
                     style: _muted(context),
                   ),
                 ],
               ),
             ),
-            SaleStatusBadge(status: sale.status),
+            SaleStatusBadge(
+              status: sale.status,
+              outstanding: detail.outstanding,
+            ),
           ],
         ),
         SectionCard(
@@ -140,6 +158,22 @@ class HistoryDetailPanel extends StatelessWidget {
               amountLine(l10n.historyTotalOriginal, Money(sale.total)),
               amountLine(l10n.historyReturnedTotal, detail.returnedTotal),
               amountLine(l10n.historyNet, detail.net, strong: true),
+              if (detail.credit > Money.zero) ...[
+                Container(height: 1, color: theme.colors.border),
+                textLine(l10n.historyCustomer, detail.customerName ?? '—'),
+                if (detail.dueOn case final due?)
+                  textLine(
+                    l10n.historyDueOn,
+                    '${due.day.toString().padLeft(2, '0')}/'
+                    '${due.month.toString().padLeft(2, '0')}/${due.year}',
+                  ),
+                amountLine(l10n.historyCredit, detail.credit),
+                amountLine(
+                  l10n.historyOutstanding,
+                  detail.outstanding,
+                  strong: true,
+                ),
+              ],
             ],
           ),
         ),
@@ -449,27 +483,44 @@ class _ReturnForm extends StatelessWidget {
               onChange: (v) => vm.setNote(v.text),
             ),
           ),
-          Text(l10n.historyRefundMethod, style: _muted(context)),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final m in [RefundMethod.cash, RefundMethod.transfer])
-                if (m != RefundMethod.cash || vm.cashRefundAvailable)
-                  ChoicePill(
-                    key: ValueKey('history-refund-${m.name}'),
-                    label: refundMethodLabel(l10n, m),
-                    selected: vm.refundMethod == m,
-                    onTap: () => vm.setRefundMethod(m),
-                  ),
-            ],
-          ),
-          if (!vm.cashRefundAvailable)
+          if (vm.returnDebtCut > Money.zero)
             Text(
-              l10n.historyRefundCashNeedsSession,
-              key: const ValueKey('history-refund-no-session'),
-              style: _muted(context),
+              vm.returnRefund > Money.zero
+                  ? l10n.historyReturnDebtSplit(
+                      formatMoney(context, vm.returnDebtCut),
+                      formatMoney(context, vm.returnRefund),
+                    )
+                  : l10n.historyReturnDebtOnly(
+                      formatMoney(context, vm.returnDebtCut),
+                    ),
+              key: const ValueKey('history-return-debt'),
+              style: context.theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
+          if (vm.returnNeedsRefundMethod) ...[
+            Text(l10n.historyRefundMethod, style: _muted(context)),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final m in [RefundMethod.cash, RefundMethod.transfer])
+                  if (m != RefundMethod.cash || vm.cashRefundAvailable)
+                    ChoicePill(
+                      key: ValueKey('history-refund-${m.name}'),
+                      label: refundMethodLabel(l10n, m),
+                      selected: vm.refundMethod == m,
+                      onTap: () => vm.setRefundMethod(m),
+                    ),
+              ],
+            ),
+            if (!vm.cashRefundAvailable)
+              Text(
+                l10n.historyRefundCashNeedsSession,
+                key: const ValueKey('history-refund-no-session'),
+                style: _muted(context),
+              ),
+          ],
           Row(
             spacing: 12,
             children: [

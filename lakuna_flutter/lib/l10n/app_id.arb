@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -2571,5 +2571,483 @@
   "purchaseReturnsMade": "Retur yang sudah dibuat",
   "purchaseDetailLoadFailed": "Detail pembelian gagal dimuat.",
   "purchaseErrLocation": "Lokasi stok tidak ditemukan. Pilih lokasi lain.",
-  "purchaseRefundToHint": "Pilih kas atau rekening"
+  "purchaseRefundToHint": "Pilih kas atau rekening",
+  "customersTitle": "Pelanggan & piutang",
+  "customersSubtitle": "{count} pelanggan · piutang dicatat per nota",
+  "@customersSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customersImport": "Import Excel",
+  "customersNew": "Pelanggan",
+  "customersSearch": "Cari nama atau HP",
+  "customersColCustomer": "Pelanggan",
+  "customersColGroup": "Grup",
+  "customersColDebt": "Piutang",
+  "customersEmpty": "Belum ada pelanggan. Tambah pelanggan atau import dari Excel.",
+  "customersNoMatch": "Tidak ada pelanggan yang cocok.",
+  "customersLoadFailed": "Data pelanggan gagal dimuat.",
+  "customersSelectHint": "Pilih pelanggan untuk melihat piutang dan menerima pembayaran.",
+  "customersTotalDebt": "Total piutang",
+  "customersTotalDebtSub": "{debtors} pelanggan · {overdue} nota lewat jatuh tempo",
+  "@customersTotalDebtSub": {
+    "placeholders": {
+      "debtors": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  },
+  "customerOverdueCount": "{count} nota terlambat",
+  "@customerOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupLabel": "Grup {group}",
+  "@customerGroupLabel": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "customerSince": "pelanggan sejak {date}",
+  "@customerSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerEdit": "Ubah data",
+  "customerLimit": "Limit kredit",
+  "customerDebt": "Piutang",
+  "customerRemaining": "Sisa limit",
+  "customerReceiveTitle": "Terima pembayaran",
+  "customerAmount": "Jumlah diterima",
+  "customerPayAll": "Lunasi semua",
+  "customerMethod": "Metode",
+  "customerPaidOn": "Tanggal",
+  "customerNoteOptional": "Catatan (opsional)",
+  "customerCashDrawerHint": "Tunai masuk ke laci sesi kasir yang terbuka.",
+  "customerCashStoreHint": "Tidak ada sesi kasir terbuka: tunai dicatat sebagai kas toko.",
+  "customerColInvoice": "Nota",
+  "customerColDue": "Jatuh tempo",
+  "customerColTotal": "Total",
+  "customerColRest": "Sisa",
+  "customerColAllocation": "Alokasi",
+  "customerTotalRow": "Total",
+  "customerDueShort": "tempo {date}",
+  "@customerDueShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "customerOverdue": "Terlambat",
+  "customerAutoHint": "Alokasi otomatis ke nota paling lama dulu. Setelah disimpan, sisa piutang {name} {amount}.",
+  "@customerAutoHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "customerManualHint": "Alokasi manual: isi nominal per nota. Totalnya harus sama dengan jumlah diterima.",
+  "customerManual": "Atur alokasi manual",
+  "customerAuto": "Alokasi otomatis",
+  "customerSaveAndPrint": "Simpan & cetak kuitansi",
+  "customerNoDebt": "Pelanggan ini tidak punya piutang.",
+  "customerPayments": "Riwayat pembayaran",
+  "customerNoPayments": "Belum ada pembayaran piutang.",
+  "customerDelete": "Hapus pelanggan",
+  "customerDeleteTitle": "Hapus {name}?",
+  "@customerDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerDeleteBody": "Pelanggan hilang dari daftar. Nota dan pembayaran lamanya tetap tersimpan.",
+  "customerDeleteAction": "Hapus",
+  "customerCancel": "Batal",
+  "customerSave": "Simpan",
+  "customerFormNew": "Pelanggan baru",
+  "customerFormEdit": "Ubah pelanggan",
+  "customerFieldName": "Nama",
+  "customerFieldPhone": "No. HP (opsional)",
+  "customerFieldGroup": "Grup",
+  "customerGroupNone": "Tanpa grup (tempo 14 hari)",
+  "customerGroupOption": "{name} · tempo {days} hari",
+  "@customerGroupOption": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupNew": "+ Grup baru",
+  "customerFieldNewGroup": "Nama grup baru",
+  "customerNewGroupHint": "mis. Grosir",
+  "customerFieldLimit": "Limit kredit",
+  "customerLimitHint": "0 = tidak boleh belanja kredit.",
+  "customerFieldAddress": "Alamat (opsional)",
+  "customerFieldNote": "Catatan (opsional)",
+  "customerErrName": "Nama wajib diisi, maksimal {max} karakter.",
+  "@customerErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrPhone": "Nomor HP harus 8–15 digit.",
+  "customerErrPhoneTaken": "Nomor HP sudah dipakai pelanggan lain.",
+  "customerErrAddress": "Alamat maksimal {max} karakter.",
+  "@customerErrAddress": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrNote": "Catatan maksimal {max} karakter.",
+  "@customerErrNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrGroup": "Nama grup wajib diisi, maksimal {max} karakter.",
+  "@customerErrGroup": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "customerErrLimit": "Limit kredit tidak boleh negatif.",
+  "customerErrHasDebt": "Pelanggan masih punya piutang; lunasi dulu sebelum dihapus.",
+  "customerErrNotFound": "Pelanggan tidak ditemukan.",
+  "customerErrNotPermitted": "Anda tidak punya izin untuk aksi ini.",
+  "customerErrGeneric": "Gagal menyimpan. Coba lagi.",
+  "debtErrAmount": "Isi jumlah lebih dari 0.",
+  "debtErrOver": "Jumlah melebihi total piutang.",
+  "debtErrAllocation": "Alokasi per nota tidak boleh melebihi sisa nota itu.",
+  "debtErrAllocationTotal": "Total alokasi harus sama dengan jumlah diterima.",
+  "debtErrDate": "Tanggal bayar tidak boleh setelah hari ini.",
+  "debtErrMethod": "Metode ini tidak bisa dipakai untuk pembayaran piutang.",
+  "debtMethodCashDrawer": "Tunai · kas laci",
+  "debtMethodCashStore": "Tunai · kas toko",
+  "groupErrName": "Nama grup wajib diisi, maksimal {max} karakter.",
+  "@groupErrName": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "groupErrTerm": "Tempo 0–{max} hari.",
+  "@groupErrTerm": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "groupErrTaken": "Nama grup sudah ada.",
+  "groupErrInUse": "Grup masih dipakai pelanggan; pindahkan pelanggannya dulu.",
+  "groupErrNotFound": "Grup tidak ditemukan.",
+  "creditNoLimit": "Pelanggan ini tidak punya limit kredit. Atur limit di menu Pelanggan.",
+  "creditErrDownPayment": "DP harus 0 atau lebih dan kurang dari total nota.",
+  "creditErrDueOn": "Jatuh tempo tidak boleh sebelum hari ini.",
+  "creditErrOverLimit": "Piutang berjalan + piutang baru melebihi limit kredit.",
+  "importTitle": "Import pelanggan",
+  "importIntro": "Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), HP, Alamat, Grup, Limit, Catatan. Judul kolom boleh Indonesia atau English.",
+  "importPick": "Pilih berkas",
+  "importTooLarge": "Berkas lebih dari 2 MB.",
+  "importUnreadable": "Berkas tidak bisa dibaca. Simpan sebagai .xlsx atau .csv lalu coba lagi.",
+  "importMissingName": "Kolom Nama tidak ditemukan di baris judul.",
+  "importEmpty": "Berkas tidak berisi baris pelanggan.",
+  "importReady": "{count} baris siap diimport.",
+  "@importReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importUpdateNote": "Nomor HP yang sudah terdaftar memperbarui pelanggan itu; grup baru dibuat otomatis.",
+  "importRejected": "{count} baris dilewati:",
+  "@importRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importRejectLine": "Baris {line}: {reason}",
+  "@importRejectLine": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "importMoreRejected": "…dan {count} baris lain.",
+  "@importMoreRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importReasonName": "nama kosong atau terlalu panjang",
+  "importReasonPhone": "nomor HP tidak sah",
+  "importReasonLimit": "limit bukan angka",
+  "importReasonText": "teks terlalu panjang",
+  "importReasonDuplicate": "nomor HP dobel di berkas",
+  "importRun": "Import {count} pelanggan",
+  "@importRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDone": "Selesai: {created} pelanggan baru, {updated} diperbarui.",
+  "@importDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  },
+  "importClose": "Tutup",
+  "kuitansiCrumb": "Kuitansi {number}",
+  "@kuitansiCrumb": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiSavedTitle": "Pembayaran piutang tersimpan",
+  "kuitansiSubtitle": "{amount} dari {customer} dialokasikan ke {count} nota",
+  "@kuitansiSubtitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "customer": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiSaved": "Tersimpan",
+  "kuitansiBack": "Kembali ke pelanggan",
+  "kuitansiPreviewA5": "Pratinjau A5 / PDF",
+  "kuitansiPreviewThermal": "Pratinjau struk {paper}",
+  "@kuitansiPreviewThermal": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiPanelTitle": "Kuitansi",
+  "kuitansiPanelSub": "Dibuat otomatis setelah pembayaran disimpan.",
+  "kuitansiFormat": "Format",
+  "kuitansiFormatA5": "A5 / PDF",
+  "kuitansiFormatA5Hint": "Untuk arsip & dikirim lewat WhatsApp",
+  "kuitansiFormatThermal": "Struk {paper}",
+  "@kuitansiFormatThermal": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiFormatThermalHint": "Dicetak di printer kasir",
+  "kuitansiShowDetails": "Tampilkan rincian per nota",
+  "kuitansiShowBalance": "Tampilkan sisa piutang",
+  "kuitansiCity": "Kota pada tanda tangan",
+  "kuitansiCityHint": "Dari alamat cabang",
+  "kuitansiPrint": "Cetak",
+  "kuitansiShare": "Bagikan PDF",
+  "kuitansiPrinted": "Kuitansi terkirim ke printer.",
+  "kuitansiSavedPdf": "PDF disimpan di {path}",
+  "@kuitansiSavedPdf": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiReprintNote": "Kuitansi bisa dicetak ulang dari Pelanggan › riwayat pembayaran. Cetak ulang diberi tanda \"SALINAN\".",
+  "kuitansiErrNotFound": "Pembayaran tidak ditemukan.",
+  "kuitansiDocTitle": "KUITANSI",
+  "kuitansiCopy": "SALINAN",
+  "kuitansiReceivedFrom": "Telah terima dari",
+  "kuitansiAmountWords": "Uang sejumlah",
+  "kuitansiFor": "Untuk pembayaran",
+  "kuitansiForDetails": "Piutang {count} nota (lihat rincian)",
+  "@kuitansiForDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiForShort": "Piutang {count} nota",
+  "@kuitansiForShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kuitansiMethod": "Metode",
+  "kuitansiNote": "Catatan",
+  "kuitansiColInvoice": "Nota",
+  "kuitansiColBefore": "Sisa sebelum",
+  "kuitansiColPaid": "Dibayar",
+  "kuitansiCashier": "Kasir",
+  "kuitansiFootnote": "Sisa piutang {customer} setelah pembayaran ini: {amount}.",
+  "@kuitansiFootnote": {
+    "placeholders": {
+      "customer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiThermalBanner": "KUITANSI PIUTANG",
+  "kuitansiFrom": "Dari",
+  "kuitansiPaid": "DIBAYAR",
+  "kuitansiBalance": "Sisa piutang",
+  "historyStatusUnpaid": "Belum lunas",
+  "historyCustomer": "Pelanggan",
+  "historyDueOn": "Jatuh tempo",
+  "historyCredit": "Jadi piutang",
+  "historyOutstanding": "Sisa piutang",
+  "historyReturnDebtOnly": "Retur ini memotong piutang {amount}; tidak ada uang kembali.",
+  "@historyReturnDebtOnly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReturnDebtSplit": "Memotong piutang {debt}, uang kembali {refund}.",
+  "@historyReturnDebtSplit": {
+    "placeholders": {
+      "debt": {
+        "type": "String"
+      },
+      "refund": {
+        "type": "String"
+      }
+    }
+  },
+  "historyVoidBlockDebtPaid": "Nota kredit ini sudah menerima pembayaran piutang, jadi tidak bisa di-void. Pakai retur.",
+  "receiptCustomer": "Pelanggan",
+  "receiptDebt": "Piutang",
+  "receiptDueOn": "Jatuh tempo",
+  "cashRecapCredit": "Penjualan kredit (piutang)",
+  "paymentCredit": "Kredit / piutang",
+  "paymentCreditHint": "Sisa jadi piutang pelanggan",
+  "creditTitle": "Kredit / piutang",
+  "creditSubtitle": "Nota disimpan dengan sisa sebagai piutang pelanggan.",
+  "creditPickCustomer": "Pilih pelanggan",
+  "creditNoCustomers": "Belum ada pelanggan. Tambah pelanggan dan limit kreditnya di menu Pelanggan.",
+  "creditLoadFailed": "Daftar pelanggan gagal dimuat.",
+  "creditTerm": "tempo standar {days} hari",
+  "@creditTerm": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "creditChange": "Ganti",
+  "creditRunning": "Piutang berjalan",
+  "creditDownPayment": "Bayar sekarang (DP)",
+  "creditDownPaymentHint": "Boleh 0. Dibayar tunai lewat laci sesi aktif.",
+  "creditDueOn": "Jatuh tempo",
+  "creditDueOnHint": "Hari ini + tempo standar pelanggan",
+  "creditInvoiceTotal": "Total nota",
+  "creditPaidNow": "Dibayar sekarang",
+  "creditBecomesDebt": "Jadi piutang",
+  "creditRemainingAfter": "Sisa limit setelah ini",
+  "creditOverLimitTitle": "Melebihi limit",
+  "creditOverLimit": "Piutang berjalan + piutang baru melebihi limit {limit}. Kurangi nominal atau naikkan DP.",
+  "@creditOverLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "creditFootnote": "Nota tercatat Belum lunas di Riwayat dan masuk daftar piutang pelanggan. Pelanggan wajib dipilih.",
+  "creditSave": "Simpan sebagai piutang",
+  "successCredit": "Piutang {name}",
+  "@successCredit": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masterTabCustomerGroups": "Grup pelanggan",
+  "customerGroupsHint": "Tempo standar grup mengisi jatuh tempo otomatis saat jual kredit. Pelanggan tanpa grup memakai 14 hari.",
+  "customerGroupsNew": "Grup",
+  "customerGroupsEmpty": "Belum ada grup pelanggan.",
+  "customerGroupsRowSub": "Tempo {days} hari · {count} pelanggan",
+  "@customerGroupsRowSub": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerGroupsNewTitle": "Grup pelanggan baru",
+  "customerGroupsEditTitle": "Ubah grup pelanggan",
+  "customerGroupsName": "Nama grup",
+  "customerGroupsTerm": "Tempo standar (hari)",
+  "customerGroupsTermHint": "0–365 hari. 0 = jatuh tempo hari itu juga.",
+  "cashSourcePurchase": "Pembelian",
+  "cashSourceDebtPayment": "Bayar piutang",
+  "historyMethodCredit": "Kredit"
 }

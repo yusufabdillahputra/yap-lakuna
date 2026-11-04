@@ -1,0 +1,7 @@
+### Dokumen yang dilunasi alokasi pembayaran: nota (piutang) atau pembelian
+### (hutang supplier, F1-14).
+enum: DebtDocumentType
+serialized: byName
+values:
+  - sale
+  - purchase

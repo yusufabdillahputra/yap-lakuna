@@ -76,6 +76,18 @@ abstract final class Routes {
   /// Detail pembelian [id], atau form draf.
   static String purchase(String id) => '/pembelian/$id';
 
+  /// Pelanggan & piutang (F1-13).
+  static const customers = '/pelanggan';
+
+  /// Rincian pelanggan [id] (halaman sendiri di layar sempit).
+  static String customer(String id) => '$customers/$id';
+
+  /// Kuitansi pembayaran piutang [id] (1.13b); [copy] = cetak ulang.
+  static String kuitansi(String id, {bool copy = false}) => Uri(
+    path: '$customers/kuitansi/$id',
+    queryParameters: copy ? {'salinan': '1'} : null,
+  ).toString();
+
   /// Modul yang belum dibangun: `/modul/<kunci>`.
   static String module(String key) => '/modul/$key';
 }

@@ -5,6 +5,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show ColumnOrderingOperations, DatabaseSession, Transaction;
 
 import 'cash.dart';
+import 'customers.dart';
 import 'open_bill.dart';
 import 'sale_core.dart';
 import 'sales.dart';
@@ -70,6 +71,7 @@ class HistoryRow {
     required this.staffName,
     required this.methods,
     required this.returned,
+    this.outstanding = Money.zero,
   });
 
   final Sale sale;
@@ -80,6 +82,9 @@ class HistoryRow {
 
   /// Jumlah nilai retur.
   final Money returned;
+
+  /// Sisa piutang nota kredit (F1-13); 0 untuk nota lunas.
+  final Money outstanding;
 
   Money get total => Money(sale.total);
 
@@ -276,6 +281,7 @@ Future<HistoryPage> listSalesHistory(
     scope.tenantId,
     sales.map((s) => s.staffId),
   );
+  final outstanding = await saleOutstandingOf(session, scope.tenantId, sales);
   return HistoryPage(
     from: from,
     rows: [
@@ -285,6 +291,7 @@ Future<HistoryPage> listSalesHistory(
           staffName: names[s.staffId] ?? '',
           methods: methods[s.id] ?? const [],
           returned: returned[s.id] ?? Money.zero,
+          outstanding: outstanding[s.id] ?? Money.zero,
         ),
     ],
   );
@@ -303,6 +310,9 @@ enum VoidBlock {
 
   /// Sesi kasir nota sudah ditutup atau milik perangkat lain.
   session,
+
+  /// Nota kredit sudah menerima pembayaran piutang (F1-13).
+  debtPaid,
 }
 
 /// Rincian satu nota untuk panel riwayat, retur, dan cetak ulang.
@@ -315,6 +325,7 @@ class SaleDetail {
     required this.shares,
     this.voidedByName,
     this.voidBlock,
+    this.outstanding = Money.zero,
   });
 
   /// Nota, item, pembayaran lunas, modifier (bentuk yang sama dengan hasil
@@ -332,6 +343,18 @@ class SaleDetail {
 
   /// `null` = boleh di-void.
   final VoidBlock? voidBlock;
+
+  /// Sisa piutang nota kredit (F1-13).
+  final Money outstanding;
+
+  /// Nama pelanggan nota kredit (salinan saat jual).
+  String? get customerName => sale.customerName;
+  DateTime? get dueOn => sale.dueOn;
+
+  /// Bagian nota yang dulu menjadi piutang.
+  Money get credit => sale.customerId == null || sale.paidAmount >= sale.total
+      ? Money.zero
+      : Money(sale.total - sale.paidAmount);
 
   Sale get sale => receipt.sale;
   List<SaleItem> get items => receipt.items;
@@ -442,6 +465,15 @@ Future<VoidBlock?> _voidBlock(
 }) async {
   if (returns.isNotEmpty) return VoidBlock.returned;
   if (sale.status != SaleStatus.completed) return VoidBlock.status;
+  if (sale.customerId != null &&
+      await saleHasDebtPayments(
+        store.session,
+        scope.tenantId,
+        sale.id,
+        transaction: transaction,
+      )) {
+    return VoidBlock.debtPaid;
+  }
   final timezone = await _timezone(
     store.session,
     scope,
@@ -502,6 +534,9 @@ Future<SaleDetail> loadSaleDetail(
       returns,
       now ?? DateTime.now().toUtc(),
     ),
+    outstanding:
+        (await saleOutstandingOf(session, scope.tenantId, [sale]))[sale.id] ??
+        Money.zero,
   );
 }
 
@@ -606,9 +641,6 @@ Future<SaleReturn> returnSale(
       null) {
     throw const ReturnInvalid(ReturnError.note);
   }
-  if (refundMethod == RefundMethod.debt) {
-    throw const ReturnInvalid(ReturnError.refundMethod);
-  }
   if (!lines.any((l) => l.quantity.milli > 0)) {
     throw const ReturnInvalid(ReturnError.empty);
   }
@@ -623,18 +655,6 @@ Future<SaleReturn> returnSale(
         sale.status != SaleStatus.partiallyReturned) {
       throw const ReturnInvalid(ReturnError.status);
     }
-    final cashScope = CashScope(
-      tenantId: scope.tenantId,
-      outletId: scope.outletId,
-      deviceId: scope.deviceId,
-    );
-    final cash = refundMethod == RefundMethod.cash
-        ? await requireOpenCashSession(store, w, scope)
-        : await findOpenCashSession(
-            store,
-            cashScope,
-            transaction: w.transaction,
-          );
     final items = await _saleItems(
       w.session,
       scope.tenantId,
@@ -678,6 +698,37 @@ Future<SaleReturn> returnSale(
       returned[item.id] = before + milli;
     }
 
+    // Nota kredit: nilai retur memotong piutang dulu (F1-13).
+    final amount = Money.sum(amounts.map((a) => a.$3));
+    final outstanding =
+        (await saleOutstandingOf(w.session, scope.tenantId, [
+          sale,
+        ], transaction: w.transaction))[sale.id] ??
+        Money.zero;
+    final split = purchaseReturnSplit(amount: amount, debt: outstanding);
+    final method =
+        split.refund == Money.zero && split.debtReduction > Money.zero
+        ? RefundMethod.debt
+        : refundMethod;
+    if (method == RefundMethod.debt && split.refund > Money.zero) {
+      throw const ReturnInvalid(ReturnError.refundMethod);
+    }
+    if (method == RefundMethod.debt && split.debtReduction == Money.zero) {
+      throw const ReturnInvalid(ReturnError.refundMethod);
+    }
+    final cashScope = CashScope(
+      tenantId: scope.tenantId,
+      outletId: scope.outletId,
+      deviceId: scope.deviceId,
+    );
+    final cash = method == RefundMethod.cash
+        ? await requireOpenCashSession(store, w, scope)
+        : await findOpenCashSession(
+            store,
+            cashScope,
+            transaction: w.transaction,
+          );
+
     final s = await w.stamp();
     final doc = await w.insert(
       SaleReturn(
@@ -690,8 +741,9 @@ Future<SaleReturn> returnSale(
         number: await _nextReturnNumber(w, scope, s.now),
         reason: reason,
         note: text == null || text.isEmpty ? null : text,
-        refundMethod: refundMethod,
-        amount: Money.sum(amounts.map((a) => a.$3)).value,
+        refundMethod: method,
+        amount: amount.value,
+        debtReduction: split.debtReduction.value,
         restock: restock,
         returnedAt: s.now,
         createdAt: s.now,
@@ -917,5 +969,5 @@ Future<Money> sessionCashRefunds(
         r.deletedAt.equals(null),
     transaction: transaction,
   );
-  return Money.sum(returns.map((r) => Money(r.amount)));
+  return Money.sum(returns.map((r) => Money(r.amount - r.debtReduction)));
 }

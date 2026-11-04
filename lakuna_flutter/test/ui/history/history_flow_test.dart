@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
@@ -152,5 +153,40 @@ void main() {
       // Daftar dimuat ulang setelah kembali.
       expect(find.text('Diretur'), findsWidgets);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets(
+      '${size.width.toInt()} px: nota kredit Belum lunas, retur potong piutang',
+      (tester) async {
+        await pump(tester, size: size);
+        final credit = history.addSale(
+          [('Beras 5 kg', 2000, 50000)],
+          customerName: 'Toko Bu Ani',
+          paidAmount: 20000,
+          dueOn: DateTime.utc(2026, 11, 17),
+        );
+        await pumpLakuna(
+          tester,
+          size: size,
+          initialLocation: Routes.history,
+          history: history,
+          receiptPrinter: printer,
+          session: session,
+        );
+        expect(find.text('Belum lunas'), findsWidgets);
+        await _tap(tester, 'history-row-${credit.sale.id.uuid}');
+        expect(find.text('Toko Bu Ani'), findsWidgets);
+        expect(find.textContaining('Kredit'), findsWidgets);
+        final item = credit.items.single.id.uuid;
+        await _tap(tester, 'history-return-plus-$item');
+        expect(_key('history-return-debt'), findsOneWidget);
+        expect(_key('history-refund-transfer'), findsNothing);
+        await _tap(tester, 'history-return-submit');
+        expect(history.returns.single.refundMethod, RefundMethod.debt);
+        expect(history.outstanding[credit.sale.id], const Money(30000));
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 }

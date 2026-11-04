@@ -14,6 +14,8 @@ import '../receipt/receipt_content.dart';
 import '../receipt/receipt_paper_view.dart';
 import '../dining/split_bill_view.dart' show splitErrorMessage;
 import 'cashier_view_model.dart';
+import '../customers/customer_labels.dart' show creditIssueMessage;
+import 'credit_panel.dart';
 import 'qris_panel.dart';
 import 'split_panel.dart';
 
@@ -41,6 +43,8 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       SalePaymentUnconfirmed() => l10n.paymentErrorUnconfirmed,
       SalePaymentInvalid() => l10n.paymentErrorSplit,
       SplitLocked() || SplitInvalid() => splitErrorMessage(l10n, error),
+      SaleCreditInvalid(:final issue) => creditIssueMessage(l10n, issue),
+      CustomerNotFound() => l10n.customerErrNotFound,
       NotPermitted(permission: Permission.paymentsConfirm) =>
         l10n.paymentErrorConfirmPermission,
       NotPermitted() => l10n.paymentErrorPermission,
@@ -273,6 +277,7 @@ class PaymentView extends StatelessWidget {
       ),
       PayMode.qris => QrisPanel(viewModel: vm, compact: narrow),
       PayMode.split => SplitPanel(viewModel: vm),
+      PayMode.credit => CreditPanel(viewModel: vm),
     };
     final error = vm.error;
     final errorAlert = error == null
@@ -363,6 +368,7 @@ class _MethodChoice extends StatelessWidget {
     PayMode.transfer => TablerIcons.buildingBank,
     PayMode.qris => TablerIcons.qrcode,
     PayMode.split => TablerIcons.arrowsSplit2,
+    PayMode.credit => TablerIcons.user,
   };
 
   static String _label(AppLocalizations l10n, PayMode m) => switch (m) {
@@ -371,6 +377,7 @@ class _MethodChoice extends StatelessWidget {
     PayMode.transfer => l10n.paymentTransfer,
     PayMode.qris => l10n.paymentQris,
     PayMode.split => l10n.paymentSplit,
+    PayMode.credit => l10n.paymentCredit,
   };
 
   static String _hint(AppLocalizations l10n, PayMode m) => switch (m) {
@@ -379,6 +386,7 @@ class _MethodChoice extends StatelessWidget {
     PayMode.transfer => l10n.paymentTransferHint,
     PayMode.qris => l10n.paymentQrisHint,
     PayMode.split => l10n.paymentSplitHint,
+    PayMode.credit => l10n.paymentCreditHint,
   };
 
   @override
@@ -392,6 +400,7 @@ class _MethodChoice extends StatelessWidget {
       PayMode.transfer,
       if (vm.qris != null) PayMode.qris,
       PayMode.split,
+      if (vm.canSellOnCredit) PayMode.credit,
     ];
     Widget card(PayMode m) {
       final selected = vm.mode == m;
@@ -788,7 +797,9 @@ class _FinishButton extends StatelessWidget {
           : const Icon(TablerIcons.check),
       child: Flexible(
         child: Text(
-          AppLocalizations.of(context).paymentFinish,
+          vm.mode == PayMode.credit
+              ? AppLocalizations.of(context).creditSave
+              : AppLocalizations.of(context).paymentFinish,
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -815,8 +826,11 @@ class SuccessView extends StatelessWidget {
     final data = vm.data!;
     final sale = result.sale;
     final payments = result.payments;
-    final cash = payments.any((p) => p.method == PaymentMethod.cash);
-    final methodText = payments.length == 1
+    final credit = sale.customerId != null && sale.paidAmount < sale.total;
+    final cash = !credit && payments.any((p) => p.method == PaymentMethod.cash);
+    final methodText = credit
+        ? l10n.paymentCredit
+        : payments.length == 1
         ? paymentMethodLabel(l10n, payments.single.method)
         : l10n.paymentSplitSummary(payments.length);
     final lines = layoutReceipt(
@@ -899,6 +913,30 @@ class SuccessView extends StatelessWidget {
                 Text(
                   formatMoney(context, Money(sale.changeAmount)),
                   key: const ValueKey('success-change'),
+                  style: _tabular(
+                    theme.typography.display.xl2.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (credit)
+          PaymentPanel(
+            panelKey: const ValueKey('success-credit'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.successCredit(sale.customerName ?? ''),
+                    style: theme.typography.body.md.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                  ),
+                ),
+                Text(
+                  formatMoney(context, Money(sale.total - sale.paidAmount)),
                   style: _tabular(
                     theme.typography.display.xl2.copyWith(
                       fontWeight: FontWeight.w800,
