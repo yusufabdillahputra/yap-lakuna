@@ -8,6 +8,11 @@ String formatMoney(BuildContext context, Money money) =>
     ? money.formatEn()
     : money.formatIdr();
 
+/// Uang bertanda: `+ Rp 50` / `− Rp 150` (pembulatan, selisih).
+String signedMoney(BuildContext context, Money money) => money.value < 0
+    ? '− ${formatMoney(context, -money)}'
+    : '+ ${formatMoney(context, money)}';
+
 /// Jam `HH.mm` di zona waktu cabang ([timezone] ID IANA dari
 /// [setupTimezones]); zona tak dikenal memakai waktu lokal perangkat.
 String formatClock(DateTime time, String? timezone) {

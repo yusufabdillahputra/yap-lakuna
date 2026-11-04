@@ -38,6 +38,9 @@ class FakeCashierRepository extends CashierRepository {
   ReceiptConfig receipt;
   PrinterSelection? printer;
 
+  /// Aturan *Penjualan & stok* (pembulatan, F1-18).
+  SalesRules salesRules = const SalesRules();
+
   /// Pelanggan pemilih kredit (1.5b, F1-13).
   List<CustomerRow> creditRows = const [];
   final credits = <SaleCredit>[];
@@ -88,6 +91,7 @@ class FakeCashierRepository extends CashierRepository {
         qris: qris,
         receipt: receipt,
         printer: printer,
+        salesRules: salesRules,
         canConfirmPayments:
             permissions?.contains(Permission.paymentsConfirm) ?? true,
         canSellOnCredit: permissions?.contains(Permission.debtsManage) ?? true,

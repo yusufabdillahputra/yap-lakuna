@@ -3906,5 +3906,77 @@
     }
   },
   "usersRoleDeleteBody": "Role yang masih dipakai pengguna tidak bisa dihapus.",
-  "usersRoleDeleteConfirm": "Hapus"
+  "usersRoleDeleteConfirm": "Hapus",
+  "cashierRounding": "Pembulatan",
+  "saleErrorStockShort": "Stok tidak cukup: {names}. Stok minus dimatikan di Pengaturan › Penjualan & stok.",
+  "@saleErrorStockShort": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlIncludedTax": "PB1 termasuk harga",
+  "reportsPlRounding": "Pembulatan total",
+  "receiptTaxIncluded": "PB1 {pct} (termasuk)",
+  "@receiptTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRounding": "Pembulatan",
+  "diningTaxIncluded": "PB1 {pct} (termasuk)",
+  "@diningTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "fnbRatesInclusive": "Harga sudah termasuk pajak",
+  "fnbRatesInclusiveHint": "PB1 dipisahkan dari harga menu dan tidak ditambahkan ke total.",
+  "settingsTextSize": "Ukuran tampilan",
+  "settingsTextSizeNormal": "Normal",
+  "settingsTextSizeLarge": "Besar",
+  "storeSettingsPhoneInvalid": "Hanya angka, spasi, + dan -",
+  "storeSettingsLoadFailed": "Pengaturan toko gagal dimuat.",
+  "storeSettingsBusinessTitle": "Profil toko",
+  "storeSettingsBusinessSubtitle": "Berlaku untuk semua cabang",
+  "storeSettingsBusinessName": "Nama usaha",
+  "storeSettingsBusinessType": "Jenis usaha",
+  "storeSettingsBusinessNote": "Jenis usaha dan zona waktu dipilih saat setup dan tidak bisa diubah karena menentukan menu dan tanggal di nomor nota.",
+  "storeSettingsBusinessSaved": "Profil toko tersimpan.",
+  "storeSettingsOutletTitle": "Cabang ini",
+  "storeSettingsOutletSubtitle": "Alamat dan telepon tampil di kepala struk bawaan",
+  "storeSettingsOutletName": "Nama cabang",
+  "storeSettingsAddress": "Alamat",
+  "storeSettingsPhone": "Telepon",
+  "storeSettingsOutletCode": "Kode cabang",
+  "storeSettingsDeviceCode": "Kode perangkat",
+  "storeSettingsOutletNote": "Kode cabang dan perangkat dipakai di nomor nota (mis. PST-K01-…), jadi tidak bisa diubah.",
+  "storeSettingsOutletSaved": "Data cabang tersimpan.",
+  "storeSettingsRulesTitle": "Penjualan & stok",
+  "storeSettingsRulesSubtitle": "Berlaku untuk semua perangkat cabang ini",
+  "storeSettingsNegativeStock": "Izinkan stok minus",
+  "storeSettingsNegativeStockHint": "Jika mati, produk habis tidak bisa dijual",
+  "storeSettingsRequireSession": "Wajib buka sesi kasir",
+  "storeSettingsRequireSessionHint": "Selalu aktif: uang tunai dicatat per sesi kasir",
+  "storeSettingsRounding": "Pembulatan total",
+  "storeSettingsRoundingHint": "Ke kelipatan terdekat, tepat setengah ke atas. Berlaku untuk semua metode bayar.",
+  "storeSettingsRoundingNone": "Tidak ada",
+  "storeSettingsRounding100": "Ke Rp 100 terdekat",
+  "storeSettingsRounding500": "Ke Rp 500 terdekat",
+  "storeSettingsRulesSaved": "Aturan penjualan tersimpan.",
+  "storeSettingsSave": "Simpan",
+  "storeSettingsSaveFailed": "Gagal menyimpan. Coba lagi.",
+  "billSplitTaxIncluded": "{pct} (termasuk)",
+  "@billSplitTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }

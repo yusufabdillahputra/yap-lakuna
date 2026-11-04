@@ -982,9 +982,15 @@ class _TotalsBlock extends StatelessWidget {
             '− ${formatMoney(context, t.tierDiscount)}',
             key: const ValueKey('cashier-tier-discount'),
           ),
+        if (viewModel.rounding != Money.zero)
+          line(
+            l10n.cashierRounding,
+            signedMoney(context, viewModel.rounding),
+            key: const ValueKey('cashier-rounding'),
+          ),
         line(
           l10n.cashierTotal,
-          formatMoney(context, t.total),
+          formatMoney(context, viewModel.grandTotal),
           strong: true,
           key: const ValueKey('cashier-total'),
         ),
@@ -1095,7 +1101,7 @@ class _OrderPanel extends StatelessWidget {
                         child: Flexible(
                           child: Text(
                             l10n.cashierPayAmount(
-                              formatMoney(context, vm.totals.total),
+                              formatMoney(context, vm.grandTotal),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1321,7 +1327,7 @@ class _MobileCashier extends StatelessWidget {
                             children: [
                               Flexible(
                                 child: Text(
-                                  formatMoney(context, vm.totals.total),
+                                  formatMoney(context, vm.grandTotal),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: theme.typography.body.lg.copyWith(

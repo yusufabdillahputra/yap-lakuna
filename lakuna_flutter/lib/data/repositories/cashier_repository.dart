@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show Money;
+import 'package:lakuna_domain/lakuna_domain.dart' show Money, SalesRules;
 
 import '../../utils/result.dart';
 
@@ -57,6 +57,7 @@ class CashierData {
     this.canSellOnCredit = false,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
+    this.salesRules = const SalesRules(),
   });
 
   /// Produk aktif dengan minimal satu varian, urut nama.
@@ -94,6 +95,9 @@ class CashierData {
 
   /// Printer terpilih di perangkat ini; `null` = belum ada.
   final PrinterSelection? printer;
+
+  /// Aturan *Penjualan & stok* cabang (pembulatan total, F1-18).
+  final SalesRules salesRules;
 }
 
 /// Kasir retail dan pembayaran (F1-04/F1-05). Izin `sales:create` dicek di

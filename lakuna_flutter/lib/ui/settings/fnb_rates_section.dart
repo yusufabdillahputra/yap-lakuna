@@ -67,14 +67,24 @@ class FnbRatesSection extends StatelessWidget {
         ),
       );
 
-      Widget line(String label, Money amount, {bool bold = false}) {
+      Widget line(
+        String label,
+        Money amount, {
+        bool bold = false,
+        bool signed = false,
+      }) {
         final style = bold
             ? theme.typography.body.sm.copyWith(fontWeight: FontWeight.w700)
             : theme.typography.body.sm;
         return Row(
           children: [
             Expanded(child: Text(label, style: style)),
-            Text(formatMoney(context, amount), style: tabularFigures(style)),
+            Text(
+              signed
+                  ? signedMoney(context, amount)
+                  : formatMoney(context, amount),
+              style: tabularFigures(style),
+            ),
           ],
         );
       }
@@ -116,6 +126,14 @@ class FnbRatesSection extends StatelessWidget {
                 ),
               ],
             ),
+            FSwitch(
+              key: const ValueKey('fnb-rates-inclusive'),
+              label: Text(l10n.fnbRatesInclusive),
+              description: Text(l10n.fnbRatesInclusiveHint),
+              enabled: !vm.save.running,
+              value: vm.taxInclusive,
+              onChange: vm.setTaxInclusive,
+            ),
             Text(
               l10n.fnbRatesNote,
               style: theme.typography.body.sm.copyWith(
@@ -152,11 +170,19 @@ class FnbRatesSection extends StatelessWidget {
                       preview.service,
                     ),
                     line(
-                      l10n.diningTax(
+                      (vm.taxInclusive
+                          ? l10n.diningTaxIncluded
+                          : l10n.diningTax)(
                         percentLabel(l10n, vm.taxInvalid ? 0 : vm.tax.value),
                       ),
                       preview.tax,
                     ),
+                    if (preview.rounding != Money.zero)
+                      line(
+                        l10n.cashierRounding,
+                        preview.rounding,
+                        signed: true,
+                      ),
                     line(l10n.diningTotal, preview.total, bold: true),
                   ],
                 ),

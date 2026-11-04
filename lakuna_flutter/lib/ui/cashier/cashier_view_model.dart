@@ -378,6 +378,19 @@ class CashierViewModel extends ChangeNotifier {
 
   SaleTotals get totals => SaleTotals.of(lines.map((l) => l.priced));
 
+  /// Selisih pembulatan total keranjang (aturan cabang, F1-18).
+  Money get rounding {
+    final total = totals.total;
+    return roundTotal(
+          total,
+          _data?.salesRules.rounding ?? TotalRounding.none,
+        ) -
+        total;
+  }
+
+  /// Total keranjang setelah pembulatan (yang dibayar).
+  Money get grandTotal => totals.total + rounding;
+
   void increment(int index) {
     _items[index].quantity += Qty.one;
     notifyListeners();
@@ -489,7 +502,7 @@ class CashierViewModel extends ChangeNotifier {
           ?.due;
       return due ?? Money.zero;
     }
-    return bill?.charges.total ?? totals.total;
+    return bill?.charges.total ?? grandTotal;
   }
 
   /// Jumlah baris yang dibayar.

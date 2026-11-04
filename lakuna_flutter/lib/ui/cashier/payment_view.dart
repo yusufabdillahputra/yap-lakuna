@@ -37,6 +37,9 @@ String paymentMethodLabel(AppLocalizations l10n, PaymentMethod method) =>
 String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
     switch (error) {
       CashSessionNotOpen() => l10n.paymentErrorSession,
+      SaleStockShort(:final items) => l10n.saleErrorStockShort(
+        items.map((i) => i.name).join(', '),
+      ),
       SaleItemUnavailable() => l10n.paymentErrorUnavailable,
       SalePaymentShort() => l10n.paymentErrorShort,
       SalePaymentUnsupported() => l10n.paymentErrorQrisOff,
@@ -177,7 +180,13 @@ class BillPaySummary extends StatelessWidget {
     final theme = context.theme;
     final charges = bill.charges;
     final small = theme.typography.body.sm;
-    Widget line(String label, Money amount, {bool bold = false, Key? key}) {
+    Widget line(
+      String label,
+      Money amount, {
+      bool bold = false,
+      bool signed = false,
+      Key? key,
+    }) {
       final style = bold ? small.copyWith(fontWeight: FontWeight.w700) : small;
       return Row(
         key: key,
@@ -185,7 +194,12 @@ class BillPaySummary extends StatelessWidget {
         spacing: 8,
         children: [
           Expanded(child: Text(label, style: style)),
-          Text(formatMoney(context, amount), style: tabularFigures(style)),
+          Text(
+            signed
+                ? signedMoney(context, amount)
+                : formatMoney(context, amount),
+            style: tabularFigures(style),
+          ),
         ],
       );
     }
@@ -216,8 +230,19 @@ class BillPaySummary extends StatelessWidget {
             ),
           if (charges.tax.value != 0)
             line(
-              l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
+              charges.taxInclusive
+                  ? l10n.diningTaxIncluded(
+                      percentLabel(l10n, bill.rates.tax.value),
+                    )
+                  : l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
               charges.tax,
+            ),
+          if (charges.rounding.value != 0)
+            line(
+              l10n.cashierRounding,
+              charges.rounding,
+              signed: true,
+              key: const ValueKey('payment-bill-rounding'),
             ),
           line(l10n.diningTotal, charges.total, bold: partDue == null),
           if (partDue case final due?) ...[

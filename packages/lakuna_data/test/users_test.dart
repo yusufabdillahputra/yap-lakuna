@@ -265,7 +265,7 @@ void main() {
           throwsA(isA<StaffBeyondPermissions>()),
         );
         await manage(sari.id);
-        expect(
+        await expectLater(
           () => resetStaffPin(
             store,
             scope,
@@ -275,7 +275,7 @@ void main() {
           ),
           throwsA(isA<StaffBeyondPermissions>()),
         );
-        expect(
+        await expectLater(
           () => renameCustomRole(
             store,
             scope,
@@ -285,7 +285,7 @@ void main() {
           ),
           throwsA(isA<StaffBeyondPermissions>()),
         );
-        expect(
+        await expectLater(
           () => deleteCustomRole(
             store,
             scope,
@@ -300,7 +300,7 @@ void main() {
     test(
       'tidak boleh mengubah dirinya sendiri atau role-nya sendiri',
       () async {
-        expect(
+        await expectLater(
           () => updateStaff(
             store,
             scope,
@@ -312,7 +312,7 @@ void main() {
           ),
           throwsA(isA<StaffSelfChange>()),
         );
-        expect(
+        await expectLater(
           () => saveRoleMatrix(
             store,
             scope,
@@ -412,7 +412,7 @@ void main() {
           name: 'Barista',
           permissions: {Permission.openBillsManage},
         );
-        expect(
+        await expectLater(
           () => createCustomRole(
             store,
             scope,
@@ -432,7 +432,7 @@ void main() {
           name: 'Barista Pagi',
         );
         expect((await find(dimas.id))!.roleName, 'Barista Pagi');
-        expect(
+        await expectLater(
           () => deleteCustomRole(
             store,
             scope,

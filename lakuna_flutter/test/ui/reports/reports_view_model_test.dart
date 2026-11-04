@@ -229,6 +229,32 @@ void main() {
       expect(previousPeriodLabel(id, ReportPeriod.today, today), 'kemarin');
     });
 
+    test('laba rugi: PB1 termasuk harga dan pembulatan', () {
+      const pl = ProfitAndLoss(
+        grossSales: Money(110000),
+        discount: Money.zero,
+        service: Money.zero,
+        includedTax: Money(10000),
+        rounding: Money(-300),
+        returns: Money.zero,
+        cogs: Money.zero,
+        expenses: [],
+        stockAdjustment: Money.zero,
+        taxCollected: Money(10000),
+        missingCostCount: 0,
+        saleCount: 1,
+      );
+      final lines = profitLines(id, pl);
+      expect(lines.take(5).map((l) => (l.label, l.signed.value)), [
+        ('Penjualan kotor', 110000),
+        ('Diskon', 0),
+        ('PB1 termasuk harga', -10000),
+        ('Pembulatan total', -300),
+        ('Retur penjualan', 0),
+      ]);
+      expect(pl.netSales, const Money(99700));
+    });
+
     test('laba rugi: urutan baris dan nilai bertanda', () async {
       final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
       final t = reportTable(id, data, ReportTab.profit, SalesGroup.product);

@@ -6,6 +6,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'settings_scope.dart';
+import 'store_settings.dart' show loadSalesRules;
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
@@ -419,15 +420,27 @@ Future<void> deleteDiningTable(
 const fnbServiceKey = 'fnb.service_bp';
 const fnbTaxKey = 'fnb.tax_bp';
 
+/// Kunci `settings` *Harga sudah termasuk pajak* (bool, per cabang).
+const fnbTaxInclusiveKey = 'fnb.tax_inclusive';
+
 /// Tarif service charge dan PB1 cabang.
 class FnbRates {
   const FnbRates({
     this.service = BasisPoints.zero,
     this.tax = BasisPoints.zero,
+    this.taxInclusive = false,
+    this.rounding = TotalRounding.none,
   });
 
   final BasisPoints service;
   final BasisPoints tax;
+
+  /// Harga menu sudah termasuk PB1.
+  final bool taxInclusive;
+
+  /// Pembulatan total dari aturan *Penjualan & stok* (hanya dibaca;
+  /// [saveFnbRates] tidak menyimpannya).
+  final TotalRounding rounding;
 }
 
 Future<Setting?> _rateRow(
@@ -470,7 +483,24 @@ Future<FnbRates> loadFnbRates(
     await _rateRow(session, transaction, scope, fnbTaxKey),
     FnbLimits.taxBp,
   ),
+  taxInclusive: _decodeBool(
+    await _rateRow(session, transaction, scope, fnbTaxInclusiveKey),
+  ),
+  rounding: (await loadSalesRules(
+    session,
+    scope,
+    transaction: transaction,
+  )).rounding,
 );
+
+bool _decodeBool(Setting? row) {
+  if (row == null) return false;
+  try {
+    return jsonDecode(row.valueJson) == true;
+  } on FormatException {
+    return false;
+  }
+}
 
 /// Menyimpan tarif cabang. Gagal dengan [FnbRatesInvalid] tanpa menulis.
 Future<FnbRates> saveFnbRates(
@@ -486,12 +516,13 @@ Future<FnbRates> saveFnbRates(
   }
   await store.write(actor: staffId, (w) async {
     final s = await w.stamp();
-    for (final (key, bp) in [
-      (fnbServiceKey, rates.service),
-      (fnbTaxKey, rates.tax),
+    for (final (key, json) in [
+      (fnbServiceKey, rates.service.value),
+      (fnbTaxKey, rates.tax.value),
+      (fnbTaxInclusiveKey, rates.taxInclusive),
     ]) {
       final current = await _rateRow(w.session, w.transaction, scope, key);
-      final value = jsonEncode(bp.value);
+      final value = jsonEncode(json);
       if (current == null) {
         await w.insert(
           Setting(

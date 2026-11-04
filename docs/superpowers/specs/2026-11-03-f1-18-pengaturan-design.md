@@ -2,7 +2,8 @@
 
 - **Fase:** 1
 - **Status:** Sebagian: tampilan & bahasa (v0.1.0), metode pembayaran ›
-  QRIS statis (v0.7.0)
+  QRIS statis (v0.7.0), struk (v0.8.0), profil, cabang, penjualan & stok,
+  pajak inklusif, ukuran tampilan (v0.23.0)
 - **Layar desain:** 1.26 *Pengaturan*, 1.26b *Pengaturan › Metode
   pembayaran › QRIS statis*. Kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525)
@@ -45,6 +46,44 @@ memakainya.
   "Sudah Terbayar"* (selalu aktif, tidak bisa dimatikan).
 - Tombol **Simpan** (dan **Batal** mengembalikan isian ke nilai tersimpan).
   Berhasil → pesan "Pengaturan QRIS tersimpan".
+
+## Lingkup v0.23.0: Profil toko, Cabang ini, Penjualan & stok, pajak inklusif, ukuran tampilan (1.26)
+
+Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
+
+- **Profil toko** (`settings:manage`): *Nama usaha* (wajib, maks 60, sama
+  dengan onboarding). *Jenis usaha* dan *Zona waktu* hanya dibaca: jenis
+  usaha menentukan menu Retail/F&B, zona waktu menentukan tanggal nomor
+  nota, jadi tidak diubah di Fase 1.
+- **Cabang ini** (`settings:manage`): *Nama cabang* (wajib, maks 60),
+  *Alamat* (opsional, maks 160), *Telepon* (opsional, maks 20, angka, spasi,
+  `+`, `-`). *Kode cabang* dan *Kode perangkat* hanya dibaca karena dipakai
+  di nomor dokumen. Simpan memperbarui kepala aplikasi dan login.
+- **Penjualan & stok** (`settings:manage`, kunci `sales.rules` per cabang,
+  JSON `{"allowNegativeStock": bool, "rounding": "none"|"nearest100"|"nearest500"}`):
+  - *Izinkan stok minus* (bawaan hidup = perilaku sebelumnya: nota tetap
+    tersimpan dan kasir diberi peringatan). Bila mati, nota retail dan
+    penyelesaian bill F&B ditolak bila ada produk berstok yang menjadi
+    minus di lokasi penjualan (`SaleStockShort` berisi nama produk), dan
+    bill F&B menolak menambah item yang stoknya tidak cukup.
+  - *Wajib buka sesi kasir*: sakelar terkunci hidup ("uang tunai dicatat
+    per sesi"), sama dengan *Wajib tekan Sudah Terbayar*.
+  - *Pembulatan total*: Tidak ada / Ke Rp 100 terdekat / Ke Rp 500
+    terdekat. Dibulatkan ke kelipatan terdekat, tepat setengah ke atas
+    (Rp 50 → Rp 100, Rp 250 → Rp 500). Berlaku untuk semua metode bayar,
+    nota kredit, dan bill F&B (setelah service dan PB1). Selisih disimpan di
+    `sales.rounding_amount` (boleh negatif), termasuk dalam `sales.total`,
+    tampil sebagai baris *Pembulatan* di kasir, struk, dan laporan.
+  - *Diskon manual butuh PIN manajer* menyusul bersama diskon manual di
+    Kasir (v0.24.0).
+- **Pajak & service** (F&B): sakelar *Harga sudah termasuk pajak* (kunci
+  `fnb.tax_inclusive`). Bila hidup, PB1 dipisahkan dari (subtotal +
+  service): pajak = (subtotal + service) × tarif ÷ (1 + tarif), dibulatkan
+  setengah ke atas, dan tidak ditambahkan ke total. Nota menyimpan
+  `sales.tax_inclusive` agar struk menulis "PB1 10% (termasuk)" dan laporan
+  memisahkan pajak dari penjualan bersih.
+- **Tampilan & bahasa**: *Ukuran tampilan* Normal / Besar (preferensi
+  perangkat, skala teks 1,0 / 1,15) untuk semua pengguna.
 
 ## Aturan bisnis
 
@@ -92,7 +131,17 @@ memakainya.
 | *Tampilkan juga di layar mobile kasir* | 1.26b | Belum, selalu tampil | Bila ada permintaan |
 | Rekening transfer, kartu, kredit | 1.26 | Belum | Bersama kredit (F1-13) |
 | Struk & printer | 1.26 | Rilis v0.8.0 (lihat F1-06) | - |
-| Profil toko, cabang, pajak, penjualan & stok, data & backup | 1.26 | Belum | Bersama modul terkait |
+| Profil toko, Cabang ini | 1.26 | Rilis v0.23.0 | Jenis usaha dan zona waktu hanya dibaca |
+| Penjualan & stok: stok minus, wajib sesi, pembulatan | 1.26 | Rilis v0.23.0 | Wajib sesi selalu hidup |
+| Diskon manual butuh PIN manajer | 1.26 | Belum | v0.24.0 bersama diskon manual Kasir |
+| Harga sudah termasuk pajak | 1.26 | Rilis v0.23.0 | F&B saja (pajak hanya di F&B) |
+| Ukuran tampilan Normal/Besar | 1.26 | Rilis v0.23.0 | Skala teks perangkat |
+| Data & backup | 1.26 | Belum | F1-19 |
+| Stok minus dimatikan: split bill / QRIS | - | Stok dicek saat bill ditutup; bila stok habis di antara pembayaran bagian split (mis. penjualan retail di perangkat yang sama), bagian terakhir ditolak setelah bagian lain dibayar | Pra-cek stok sebelum bayar bagian pertama; untuk sekarang sesuaikan stok lalu ulangi |
+| Stok minus dimatikan: bill lain | - | Tambah / ubah jumlah item hanya menghitung bill ini, bukan open bill meja lain | Reservasi stok per bill bila diperlukan |
+| Pembulatan bagian split bill | - | Tagihan per tamu dibagi dari total yang sudah dibulatkan, bisa tidak kelipatan Rp 100/500 | Bulatkan per bagian bila ada permintaan |
+| PB1 termasuk di laporan per produk / kategori | - | Penjualan per produk memakai total baris (termasuk PB1 bila harga termasuk pajak), sama seperti service | Pisahkan pajak per baris di Fase 2 |
+| Aturan pembulatan di layar Kasir | - | Dimuat saat Kasir dibuka; layar dibuat ulang setiap kali menu dibuka | Muat ulang bila aturan bisa berubah dari perangkat lain (sinkronisasi Fase 2) |
 | Orientasi EXIF JPEG | - | Belum: lebar/tinggi dibaca dari SOF sebelum rotasi, foto ponsel bisa diberi peringatan "tidak vertikal" palsu | Baca APP1 orientation 5-8 lalu tukar lebar/tinggi |
 | Berkas gambar lama | - | Saat stiker diganti, baris `media_files` lama dan berkasnya tetap ada; berkas ditulis sebelum transaksi selesai | Pembersihan media tanpa rujukan (Fase 2, bersama unggah object storage) |
 | Baris gambar ada, berkas hilang di perangkat | - | Pengaturan meminta unggah ulang sebelum QRIS bisa diaktifkan | Sengaja: kasir tidak bisa menampilkan stiker tanpa berkas |

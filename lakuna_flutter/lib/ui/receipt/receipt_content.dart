@@ -55,7 +55,12 @@ ReceiptContent saleReceiptContent(
   int returned = 0,
 }) {
   final sale = result.sale;
-  final fnbCharges = sale.serviceAmount != 0 || sale.taxAmount != 0;
+  // Rincian Subtotal muncul bila ada service, PB1, atau pembulatan (retail
+  // pun) agar selisih ke TOTAL terlihat.
+  final breakdown =
+      sale.serviceAmount != 0 ||
+      sale.taxAmount != 0 ||
+      sale.roundingAmount != 0;
   return ReceiptContent(
     storeName: businessName.toUpperCase(),
     outletName: outletName,
@@ -92,7 +97,7 @@ ReceiptContent saleReceiptContent(
         ),
     ],
     totals: [
-      if (fnbCharges) ...[
+      if (breakdown) ...[
         ReceiptPair(
           l10n.receiptSubtotal,
           receiptAmount(
@@ -107,8 +112,17 @@ ReceiptContent saleReceiptContent(
           ),
         if (sale.taxAmount != 0)
           ReceiptPair(
-            l10n.receiptTax(percentLabel(l10n, sale.taxBp)),
+            sale.taxInclusive
+                ? l10n.receiptTaxIncluded(percentLabel(l10n, sale.taxBp))
+                : l10n.receiptTax(percentLabel(l10n, sale.taxBp)),
             receiptAmount(l10n, sale.taxAmount),
+          ),
+        if (sale.roundingAmount != 0)
+          ReceiptPair(
+            l10n.receiptRounding,
+            sale.roundingAmount < 0
+                ? '-${receiptAmount(l10n, -sale.roundingAmount)}'
+                : receiptAmount(l10n, sale.roundingAmount),
           ),
       ],
       ReceiptPair(

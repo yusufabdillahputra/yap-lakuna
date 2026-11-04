@@ -24,6 +24,7 @@ import 'fake_payment_settings_repository.dart';
 import 'fake_purchases_repository.dart';
 import 'fake_receipt_printer.dart';
 import 'fake_receipt_settings_repository.dart';
+import 'fake_store_settings_repository.dart';
 import 'fake_session_repository.dart';
 import 'fake_spreadsheet_exporter.dart';
 import 'fake_master_data_repository.dart';
@@ -57,6 +58,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakePaymentSettingsRepository? paymentSettings,
   FakeImagePicker? imagePicker,
   FakeReceiptSettingsRepository? receiptSettings,
+  FakeStoreSettingsRepository? storeSettings,
   FakeReceiptPrinter? receiptPrinter,
   TableFilePicker? tablePicker,
 }) async {
@@ -109,6 +111,7 @@ Future<AppSettingsViewModel> pumpLakuna(
           users: users ?? FakeUsersRepository(),
           paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
           receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
+          storeSettings: storeSettings ?? FakeStoreSettingsRepository(),
           receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
           imagePicker: imagePicker ?? FakeImagePicker(),
           exporter: exporter ?? FakeSpreadsheetExporter(),

@@ -49,10 +49,21 @@ class LakunaApp extends StatelessWidget {
         },
         theme: lakunaMaterialTheme(light),
         darkTheme: lakunaMaterialTheme(dark),
-        builder: (context, child) => FTheme(
-          data: Theme.brightnessOf(context) == Brightness.light ? light : dark,
-          child: FToaster(child: FTooltipGroup(child: child!)),
-        ),
+        builder: (context, child) {
+          final themed = FTheme(
+            data: Theme.brightnessOf(context) == Brightness.light
+                ? light
+                : dark,
+            child: FToaster(child: FTooltipGroup(child: child!)),
+          );
+          // Ukuran tampilan *Besar*: skala teks minimal 1,15 (F1-18).
+          return settings.textSize == AppTextSize.normal
+              ? themed
+              : MediaQuery.withClampedTextScaling(
+                  minScaleFactor: settings.textSize.scale,
+                  child: themed,
+                );
+        },
         routerConfig: router,
       ),
     );

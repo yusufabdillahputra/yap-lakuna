@@ -28,6 +28,9 @@ String splitErrorMessage(
   SplitInvalid(error: SplitError.nothingDue) => l10n.billSplitErrorNothingDue,
   SplitInvalid(error: SplitError.pending) => l10n.billSplitErrorPending,
   CashSessionNotOpen() => l10n.paymentErrorSession,
+  SaleStockShort(:final items) => l10n.saleErrorStockShort(
+    items.map((i) => i.name).join(', '),
+  ),
   NotPermitted() => l10n.diningErrorPermission,
   BillNotFound() => l10n.diningErrorNotFound,
   _ => l10n.billSplitErrorGeneric,
@@ -191,7 +194,11 @@ class SplitBillView extends StatelessWidget {
         ? l10n.billSplitRatesOff
         : l10n.billSplitRates(
             percentLabel(l10n, rates.service.value),
-            percentLabel(l10n, rates.tax.value),
+            rates.taxInclusive
+                ? l10n.billSplitTaxIncluded(
+                    percentLabel(l10n, rates.tax.value),
+                  )
+                : percentLabel(l10n, rates.tax.value),
           );
     final pad = narrow ? 16.0 : 24.0;
     final controls = _Controls(viewModel: vm);

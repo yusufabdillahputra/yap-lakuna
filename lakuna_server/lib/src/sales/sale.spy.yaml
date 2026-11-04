@@ -38,6 +38,10 @@ fields:
   taxBp: int, default=0, column=tax_bp
   serviceAmount: int, default=0, column=service_amount
   taxAmount: int, default=0, column=tax_amount
+  ### PB1 sudah termasuk harga (F1-18): tax_amount dipisahkan, bukan ditambah.
+  taxInclusive: bool, default=false, column=tax_inclusive
+  ### Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
+  roundingAmount: int, default=0, column=rounding_amount
   voidReason: String?, column=void_reason
   voidedBy: UuidValue?, column=voided_by
   voidedAt: DateTime?, column=voided_at

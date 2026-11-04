@@ -1,6 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
+
+import '../../data/repositories/app_settings_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import 'app_settings_view_model.dart';
 import 'appearance_tiles.dart';
@@ -20,10 +23,13 @@ class SettingsView extends StatelessWidget {
         viewModel,
         viewModel.setThemeMode,
         viewModel.setLocale,
+        viewModel.setTextSize,
       ]),
       builder: (context, _) {
         final failed =
-            viewModel.setThemeMode.error || viewModel.setLocale.error;
+            viewModel.setThemeMode.error ||
+            viewModel.setLocale.error ||
+            viewModel.setTextSize.error;
         return Align(
           alignment: Alignment.topLeft,
           child: ConstrainedBox(
@@ -42,6 +48,24 @@ class SettingsView extends StatelessWidget {
                     title: Text(l10n.settingsSaveError),
                   ),
                 AppearanceTiles(viewModel: viewModel),
+                FTileGroup(
+                  label: Text(l10n.settingsTextSize),
+                  children: [
+                    for (final (size, label) in [
+                      (AppTextSize.normal, l10n.settingsTextSizeNormal),
+                      (AppTextSize.large, l10n.settingsTextSizeLarge),
+                    ])
+                      FTile(
+                        key: ValueKey('text-size-${size.name}'),
+                        title: Text(label),
+                        selected: viewModel.textSize == size,
+                        suffix: viewModel.textSize == size
+                            ? const Icon(TablerIcons.check)
+                            : null,
+                        onPress: () => viewModel.setTextSize.execute(size),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),

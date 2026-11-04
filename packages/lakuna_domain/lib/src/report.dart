@@ -204,6 +204,8 @@ class ReportSale {
     required this.tax,
     required this.total,
     required this.credit,
+    this.taxInclusive = false,
+    this.rounding = Money.zero,
     required this.paidAtSale,
     required this.payments,
     required this.lines,
@@ -216,14 +218,25 @@ class ReportSale {
   final Money tax;
   final Money total;
 
+  /// PB1 sudah termasuk harga (bagian dari [subtotal], bukan tambahan).
+  final bool taxInclusive;
+
+  /// Selisih pembulatan total (bagian dari [total]).
+  final Money rounding;
+
   /// Nota kredit (berpelanggan dan belum lunas saat jual).
   final bool credit;
   final Money paidAtSale;
   final List<ReportPayment> payments;
   final List<ReportSaleLine> lines;
 
-  /// Bagian nota yang menjadi penjualan bersih (tanpa PB1).
-  Money get netContribution => subtotal - tierDiscount + service;
+  /// PB1 yang terkandung dalam harga (nol bila pajak ditambahkan).
+  Money get includedTax => taxInclusive ? tax : Money.zero;
+
+  /// Bagian nota yang menjadi penjualan bersih (tanpa PB1, dengan
+  /// pembulatan).
+  Money get netContribution =>
+      subtotal - tierDiscount + service - includedTax + rounding;
 }
 
 class ReportReturnLine {
@@ -277,6 +290,8 @@ class ProfitAndLoss {
     required this.service,
     required this.returns,
     required this.cogs,
+    this.includedTax = Money.zero,
+    this.rounding = Money.zero,
     required this.expenses,
     required this.stockAdjustment,
     required this.taxCollected,
@@ -318,6 +333,8 @@ class ProfitAndLoss {
       grossSales: Money.sum(sales.map((s) => s.subtotal)),
       discount: Money.sum(sales.map((s) => s.tierDiscount)),
       service: Money.sum(sales.map((s) => s.service)),
+      includedTax: Money.sum(sales.map((s) => s.includedTax)),
+      rounding: Money.sum(sales.map((s) => s.rounding)),
       returns: Money.sum(returns.map((r) => r.netAmount)),
       cogs: cogs,
       expenses: lines,
@@ -333,6 +350,12 @@ class ProfitAndLoss {
   final Money grossSales;
   final Money discount;
   final Money service;
+
+  /// PB1 yang terkandung dalam harga nota "harga sudah termasuk pajak".
+  final Money includedTax;
+
+  /// Selisih pembulatan total nota.
+  final Money rounding;
 
   /// Retur penjualan tanpa bagian PB1.
   final Money returns;
@@ -351,7 +374,8 @@ class ProfitAndLoss {
   final int missingCostCount;
   final int saleCount;
 
-  Money get netSales => grossSales - discount + service - returns;
+  Money get netSales =>
+      grossSales - discount + service - includedTax + rounding - returns;
   Money get grossProfit => netSales - cogs;
   int? get grossMarginBp => ratioBp(grossProfit, netSales);
   Money get totalExpenses => Money.sum(expenses.map((e) => e.amount));

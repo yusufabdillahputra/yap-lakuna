@@ -3372,5 +3372,77 @@
     }
   },
   "usersRoleDeleteBody": "A role still assigned to users cannot be deleted.",
-  "usersRoleDeleteConfirm": "Delete"
+  "usersRoleDeleteConfirm": "Delete",
+  "cashierRounding": "Rounding",
+  "saleErrorStockShort": "Not enough stock: {names}. Negative stock is turned off in Settings › Sales & stock.",
+  "@saleErrorStockShort": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlIncludedTax": "PB1 included in prices",
+  "reportsPlRounding": "Total rounding",
+  "receiptTaxIncluded": "PB1 {pct} (included)",
+  "@receiptTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRounding": "Rounding",
+  "diningTaxIncluded": "PB1 {pct} (included)",
+  "@diningTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "fnbRatesInclusive": "Prices include tax",
+  "fnbRatesInclusiveHint": "PB1 is separated from menu prices and not added to the total.",
+  "settingsTextSize": "Display size",
+  "settingsTextSizeNormal": "Normal",
+  "settingsTextSizeLarge": "Large",
+  "storeSettingsPhoneInvalid": "Digits, spaces, + and - only",
+  "storeSettingsLoadFailed": "Could not load store settings.",
+  "storeSettingsBusinessTitle": "Store profile",
+  "storeSettingsBusinessSubtitle": "Applies to all branches",
+  "storeSettingsBusinessName": "Business name",
+  "storeSettingsBusinessType": "Business type",
+  "storeSettingsBusinessNote": "Business type and time zone are chosen during setup and cannot be changed because they decide the menu and the date in receipt numbers.",
+  "storeSettingsBusinessSaved": "Store profile saved.",
+  "storeSettingsOutletTitle": "This branch",
+  "storeSettingsOutletSubtitle": "Address and phone appear in the default receipt header",
+  "storeSettingsOutletName": "Branch name",
+  "storeSettingsAddress": "Address",
+  "storeSettingsPhone": "Phone",
+  "storeSettingsOutletCode": "Branch code",
+  "storeSettingsDeviceCode": "Device code",
+  "storeSettingsOutletNote": "Branch and device codes are part of receipt numbers (e.g. PST-K01-…), so they cannot be changed.",
+  "storeSettingsOutletSaved": "Branch details saved.",
+  "storeSettingsRulesTitle": "Sales & stock",
+  "storeSettingsRulesSubtitle": "Applies to every device in this branch",
+  "storeSettingsNegativeStock": "Allow negative stock",
+  "storeSettingsNegativeStockHint": "When off, out-of-stock products cannot be sold",
+  "storeSettingsRequireSession": "Require an open cash session",
+  "storeSettingsRequireSessionHint": "Always on: cash is recorded per cash session",
+  "storeSettingsRounding": "Total rounding",
+  "storeSettingsRoundingHint": "To the nearest multiple, exact halves round up. Applies to every payment method.",
+  "storeSettingsRoundingNone": "None",
+  "storeSettingsRounding100": "To the nearest Rp 100",
+  "storeSettingsRounding500": "To the nearest Rp 500",
+  "storeSettingsRulesSaved": "Sales rules saved.",
+  "storeSettingsSave": "Save",
+  "storeSettingsSaveFailed": "Could not save. Try again.",
+  "billSplitTaxIncluded": "{pct} (included)",
+  "@billSplitTaxIncluded": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  }
 }

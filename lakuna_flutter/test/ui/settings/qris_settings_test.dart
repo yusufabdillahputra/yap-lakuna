@@ -55,6 +55,7 @@ void main() {
       paymentSettings: repo,
       imagePicker: picker,
     );
+    await _tap(tester, 'settings-section-payments');
     expect(_key('qris-settings'), findsOneWidget);
     expect(find.text('Belum ada gambar QRIS'), findsOneWidget);
     expect(
@@ -143,6 +144,7 @@ void main() {
       paymentSettings: repo,
       imagePicker: picker,
     );
+    await _tap(tester, 'settings-section-payments');
     expect(_key('qris-settings-preview'), findsOneWidget);
     await _tap(tester, 'qris-settings-pick');
     expect(
@@ -181,6 +183,7 @@ void main() {
       initialLocation: Routes.settings,
       imagePicker: picker,
     );
+    await _tap(tester, 'settings-section-payments');
     await _tap(tester, 'qris-settings-pick');
     expect(find.text('File lebih dari 5 MB.'), findsOneWidget);
   });

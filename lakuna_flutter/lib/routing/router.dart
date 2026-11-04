@@ -18,6 +18,7 @@ import '../data/repositories/purchases_repository.dart';
 import '../data/repositories/master_data_repository.dart';
 import '../data/repositories/payment_settings_repository.dart';
 import '../data/repositories/receipt_settings_repository.dart';
+import '../data/repositories/store_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../data/repositories/store_repository.dart';
@@ -83,6 +84,7 @@ GoRouter createRouter({
   required UsersRepository users,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
+  required StoreSettingsRepository storeSettings,
   required ReceiptPrinter receiptPrinter,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
@@ -145,6 +147,7 @@ GoRouter createRouter({
               settings: settings,
               paymentSettings: paymentSettings,
               receiptSettings: receiptSettings,
+              storeSettings: storeSettings,
               receiptPrinter: receiptPrinter,
               imagePicker: imagePicker,
               session: session,

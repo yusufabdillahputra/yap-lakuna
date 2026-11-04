@@ -262,6 +262,8 @@ Future<_Facts> _facts(
         tierDiscount: Money(s.tierDiscount),
         service: Money(s.serviceAmount),
         tax: Money(s.taxAmount),
+        taxInclusive: s.taxInclusive,
+        rounding: Money(s.roundingAmount),
         total: Money(s.total),
         credit: s.customerId != null && s.paidAmount < s.total,
         paidAtSale: Money(s.paidAmount),

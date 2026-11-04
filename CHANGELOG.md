@@ -7,6 +7,96 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-11-04
+
+Pengaturan toko bagian kedua (F1-18): pemilik bisa mengubah profil toko dan
+data cabang, mengatur stok minus dan pembulatan total, memilih harga menu
+yang sudah termasuk PB1, dan memperbesar tampilan. Layar Pengaturan kini
+punya semua bagian desain 1.26 kecuali *Data & backup* (F1-19).
+
+### Ditambahkan
+
+- Bagian **Profil toko** (`settings:manage`): ubah *Nama usaha*; *Jenis
+  usaha* dan *Zona waktu* tampil sebagai info (tidak bisa diubah karena
+  menentukan menu dan tanggal nomor nota).
+- Bagian **Cabang ini**: ubah *Nama cabang*, *Alamat*, *Telepon*; *Kode
+  cabang* dan *Kode perangkat* tampil sebagai info. Alamat dan telepon
+  langsung menjadi kepala struk bawaan; nama baru langsung dipakai di
+  kepala aplikasi, login, dan Kasir.
+- Bagian **Penjualan & stok**:
+  - *Izinkan stok minus* (bawaan hidup). Bila dimatikan, nota retail dan
+    pelunasan bill F&B ditolak bila stok produk akan minus, dan bill F&B
+    menolak menambah item melebihi stok, dengan pesan berisi nama produk.
+  - *Wajib buka sesi kasir* tampil terkunci hidup.
+  - *Pembulatan total*: Tidak ada / Ke Rp 100 / Ke Rp 500 terdekat (tepat
+    setengah ke atas). Berlaku untuk semua metode bayar, nota kredit, bill
+    F&B, dan split bill.
+- Baris **Pembulatan** di keranjang Kasir, ringkasan bill F&B, pembayaran,
+  struk, dan laporan laba rugi.
+- **Harga sudah termasuk pajak** di *Pajak & service* (F&B): PB1 dipisahkan
+  dari harga menu dan tidak ditambahkan ke total; struk menulis "PB1 10%
+  (termasuk)".
+- **Ukuran tampilan** Normal / Besar di *Tampilan & bahasa* (skala teks
+  1,15 di perangkat ini).
+
+### Diubah
+
+- Pengaturan dibuka di *Profil toko* untuk pengguna dengan
+  `settings:manage`; urutan bagian mengikuti desain 1.26.
+- Laba rugi: penjualan bersih kini dikurangi PB1 yang termasuk harga dan
+  ditambah selisih pembulatan (baris *PB1 termasuk harga* dan *Pembulatan
+  total* muncul bila ada).
+
+### Diperbaiki
+
+Ditemukan sebelum rilis (review kode dan uji manual), bukan bug versi
+sebelumnya, kecuali butir terakhir:
+
+- Struk nota retail yang dibulatkan tidak punya baris *Pembulatan*, jadi
+  total baris dan TOTAL tampak tidak cocok (terlihat di uji manual:
+  Rp 9.240 tercetak TOTAL Rp 9.000). Kini struk menampilkan *Subtotal* dan
+  *Pembulatan* setiap kali ada pembulatan.
+- Menaikkan jumlah item bill F&B (tombol + atau ketik jumlah) tidak dicek
+  terhadap stok saat stok minus dimatikan; kini ditolak seperti menambah
+  item.
+- Menyimpan *Profil toko* menghapus isian *Cabang ini* yang belum disimpan
+  (dan sebaliknya); kini hanya bagian yang disimpan yang diisi ulang.
+- Contoh hitungan di *Pajak & service* belum memakai pembulatan total; kini
+  sama dengan yang tampil di bill.
+- Judul split bill menulis "PB1 10%" walau harga sudah termasuk pajak; kini
+  "PB1 10% (termasuk)".
+- Tes data pengguna & role kadang gagal karena pemeriksaan galat async
+  tidak ditunggu (`expect` tanpa `await`), sehingga berjalan setelah
+  langkah berikutnya mengubah data.
+
+### Keamanan
+
+- Simpan profil, cabang, dan aturan penjualan butuh `settings:manage` di
+  repositori, bukan hanya di menu.
+- Aturan stok minus dicek di lapisan data di dalam transaksi tulis, jadi
+  nota yang ditolak tidak meninggalkan stok, pembayaran, atau outbox.
+
+### Catatan teknis
+
+- Kolom baru `sales.rounding_amount` (int, boleh negatif) dan
+  `sales.tax_inclusive` (bool), migrasi `sale-rounding`.
+- Domain `store_settings.dart`: `TotalRounding`, `roundTotal`,
+  `SalesRules` (JSON kunci `sales.rules`), `storeNameIssue`,
+  `outletProfileIssues`; `fnbCharges(taxInclusive:, rounding:)`;
+  `ReportSale.includedTax`, `ProfitAndLoss.includedTax/rounding`.
+- Data `store_settings.dart`: `loadSalesRules`, `saveSalesRules`,
+  `writeOutletSetting`, `enforceStockRule`, `SaleStockShort`,
+  `saveStoreProfile`, `saveOutletProfile`; `FnbRates.taxInclusive` (kunci
+  `fnb.tax_inclusive`) dan `FnbRates.rounding` (dibaca dari aturan
+  penjualan).
+- Aplikasi: `StoreSettingsRepository` + `LocalStoreSettingsRepository`,
+  `StoreSettingsViewModel`, `StoreSettingsSection`; preferensi perangkat
+  `ui.text_size`.
+- Tes: domain (pembulatan, aturan, pajak termasuk, profil, laba rugi), data
+  (aturan + outbox, pembulatan Rp 100/500, stok minus retail dan F&B, pajak
+  termasuk di bill, profil dan cabang), VM + widget 1440 / 360, kasir, struk,
+  laba rugi.
+
 ## [0.22.0] - 2026-11-04
 
 Pengguna & role (F1-17): pemilik bisa menambah staf PIN, mereset dan membuka
@@ -2260,7 +2350,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...v0.20.0
