@@ -530,3 +530,160 @@ List<PaymentMixRow> paymentMix(List<ReportSale> sales) {
     return c != 0 ? c : a.method.index.compareTo(b.method.index);
   });
 }
+
+// --- Stok (v0.21.0) ---------------------------------------------------------
+
+/// Satu pergerakan stok (qty milli satuan dasar, positif = masuk).
+class StockMove {
+  const StockMove({
+    required this.key,
+    required this.quantityMilli,
+    required this.at,
+  });
+
+  final String key;
+  final int quantityMilli;
+  final DateTime at;
+}
+
+/// Kartu stok ringkas satu varian pada periode.
+class StockMovementRow {
+  const StockMovementRow({
+    required this.key,
+    required this.name,
+    required this.opening,
+    required this.inflow,
+    required this.outflow,
+    this.value,
+  });
+
+  final String key;
+  final String name;
+  final Qty opening;
+  final Qty inflow;
+
+  /// Nilai mutlak pergerakan keluar.
+  final Qty outflow;
+
+  /// Akhir × harga pokok saat ini; `null` tanpa izin laba.
+  final Money? value;
+
+  Qty get closing => opening + inflow - outflow;
+}
+
+/// Kartu stok ringkas per varian di [names] dari stok saat ini ([current],
+/// qty milli) dan pergerakan sejak [start] ([moves]; yang lebih awal
+/// diabaikan): awal = saat ini − Σ pergerakan sejak [start]; masuk dan
+/// keluar = pergerakan dalam `[start, end)`. Hanya pergerakan sejak awal
+/// periode yang perlu dimuat. Varian tanpa stok dan tanpa pergerakan
+/// dilewati. Dengan [valueOf] (nilai stok akhir), baris urut nilai menurun;
+/// tanpa itu urut nama.
+List<StockMovementRow> stockMovementRows({
+  required Iterable<StockMove> moves,
+  required DateTime start,
+  required DateTime end,
+  required Map<String, String> names,
+  required Map<String, int> current,
+  Money Function(String key, Qty closing)? valueOf,
+}) {
+  final since = <String, int>{};
+  final inflow = <String, int>{};
+  final outflow = <String, int>{};
+  final moved = <String>{};
+  for (final m in moves) {
+    if (!names.containsKey(m.key) || m.at.isBefore(start)) continue;
+    since[m.key] = (since[m.key] ?? 0) + m.quantityMilli;
+    if (!m.at.isBefore(end)) continue;
+    moved.add(m.key);
+    if (m.quantityMilli >= 0) {
+      inflow[m.key] = (inflow[m.key] ?? 0) + m.quantityMilli;
+    } else {
+      outflow[m.key] = (outflow[m.key] ?? 0) - m.quantityMilli;
+    }
+  }
+  final rows = <StockMovementRow>[];
+  for (final MapEntry(:key, value: name) in names.entries) {
+    final opening = Qty((current[key] ?? 0) - (since[key] ?? 0));
+    final row = StockMovementRow(
+      key: key,
+      name: name,
+      opening: opening,
+      inflow: Qty(inflow[key] ?? 0),
+      outflow: Qty(outflow[key] ?? 0),
+    );
+    if (!moved.contains(key) &&
+        row.opening == Qty.zero &&
+        row.closing == Qty.zero) {
+      continue;
+    }
+    rows.add(
+      valueOf == null
+          ? row
+          : StockMovementRow(
+              key: key,
+              name: name,
+              opening: row.opening,
+              inflow: row.inflow,
+              outflow: row.outflow,
+              value: valueOf(key, row.closing),
+            ),
+    );
+  }
+  rows.sort((a, b) {
+    if (valueOf != null) {
+      final c = b.value!.compareTo(a.value!);
+      if (c != 0) return c;
+    }
+    final n = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    return n != 0 ? n : a.key.compareTo(b.key);
+  });
+  return rows;
+}
+
+/// Nilai stok [qty] dari stok saat ini senilai [value] untuk [current]
+/// (rata-rata tertimbang semua lokasi): tepat [value] bila [qty] =
+/// [current], selain itu proporsional (bulat setengah menjauhi nol). Tanpa
+/// stok saat ini memakai [fallback] per satuan dasar.
+Money stockValueOf({
+  required Money value,
+  required Qty current,
+  required Qty qty,
+  required Money fallback,
+}) {
+  if (qty == current) return value;
+  if (current.milli <= 0) return fallback.timesMilli(qty.milli);
+  return Money(
+    divRoundHalfAway(
+      BigInt.from(value.value) * BigInt.from(qty.milli),
+      BigInt.from(current.milli),
+    ),
+  );
+}
+
+// --- Kelompok total (kas, retur) --------------------------------------------
+
+/// Jumlah catatan dan total per kunci.
+class GroupTotal<K> {
+  const GroupTotal(this.key, this.count, this.total);
+
+  final K key;
+  final int count;
+  final Money total;
+}
+
+/// Mengelompokkan [items] per kunci: urut total menurun, lalu kunci
+/// (`toString`).
+List<GroupTotal<K>> groupTotals<K>(Iterable<(K, Money)> items) {
+  final count = <K, int>{};
+  final total = <K, Money>{};
+  for (final (key, amount) in items) {
+    count[key] = (count[key] ?? 0) + 1;
+    total[key] = (total[key] ?? Money.zero) + amount;
+  }
+  return [
+    for (final key in count.keys) GroupTotal(key, count[key]!, total[key]!),
+  ]..sort((a, b) {
+    final c = b.total.compareTo(a.total);
+    return c != 0 ? c : '${a.key}'.compareTo('${b.key}');
+  });
+}

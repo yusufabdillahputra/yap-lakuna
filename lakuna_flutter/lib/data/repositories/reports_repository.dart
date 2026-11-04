@@ -9,4 +9,16 @@ export 'repository_errors.dart';
 /// sini juga; angka laba hanya ada dengan `reports:view_profit`.
 abstract class ReportsRepository {
   Future<Result<ReportData>> load(ReportPeriod period);
+
+  /// Tab Stok: kartu stok ringkas [period]; nilai hanya dengan izin laba.
+  Future<Result<StockReport>> loadStock(ReportPeriod period);
+
+  /// Tab Kas & sesi.
+  Future<Result<CashReport>> loadCash(ReportPeriod period);
+
+  /// Tab Piutang & hutang: posisi hari ini.
+  Future<Result<DebtReport>> loadDebts();
+
+  /// Tab Retur.
+  Future<Result<ReturnsReport>> loadReturns(ReportPeriod period);
 }

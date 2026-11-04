@@ -5845,4 +5845,279 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsLoadFailed => 'Reports could not be loaded.';
+
+  @override
+  String get reportsTabStock => 'Stock';
+
+  @override
+  String get reportsTabCash => 'Cash & sessions';
+
+  @override
+  String get reportsTabDebts => 'Receivables & payables';
+
+  @override
+  String get reportsTabReturns => 'Returns';
+
+  @override
+  String get reportsStockValue => 'Stock value';
+
+  @override
+  String get reportsStockValueNote => 'At current average cost';
+
+  @override
+  String get reportsStockItems => 'Goods items';
+
+  @override
+  String get reportsStockItemsNote => 'Variants with tracked stock';
+
+  @override
+  String get reportsStockLow => 'Low stock';
+
+  @override
+  String get reportsStockLowNote => 'At or below minimum';
+
+  @override
+  String get reportsStockOut => 'Out of stock';
+
+  @override
+  String get reportsStockOutNote => 'Zero or negative stock';
+
+  @override
+  String get reportsStockMovement => 'Stock movement';
+
+  @override
+  String get reportsStockNote =>
+      'All stock locations of this branch, quantities in base units. In: opening stock, purchases, sales returns, positive adjustments. Out: sales, purchase returns, negative adjustments. Closing value = closing stock × current average cost.';
+
+  @override
+  String get reportsStockEmpty =>
+      'No goods with stock or movement in this period.';
+
+  @override
+  String get reportsColOpening => 'Opening';
+
+  @override
+  String get reportsColIn => 'In';
+
+  @override
+  String get reportsColOut => 'Out';
+
+  @override
+  String get reportsColClosing => 'Closing';
+
+  @override
+  String get reportsColClosingValue => 'Closing value';
+
+  @override
+  String get reportsCashSessions => 'Cash sessions';
+
+  @override
+  String reportsCashSessionsNote(int count) {
+    return '$count still open';
+  }
+
+  @override
+  String get reportsCashDifference => 'Total difference';
+
+  @override
+  String get reportsCashDifferenceNote => 'Closed sessions';
+
+  @override
+  String get reportsCashIn => 'Other cash in';
+
+  @override
+  String get reportsCashOut => 'Cash out';
+
+  @override
+  String get reportsCashMovementsNote => 'Excluding sales';
+
+  @override
+  String get reportsCashMovements => 'Cash in & out';
+
+  @override
+  String get reportsCashOpen => 'Still open';
+
+  @override
+  String get reportsCashEmpty => 'No cash sessions active in this period.';
+
+  @override
+  String get reportsCashNoMovements => 'No cash in or out besides sales.';
+
+  @override
+  String get reportsCashNote =>
+      'Expected = opening + net cash sales − cash refunds + cash in − cash out. Open sessions are counted up to now.';
+
+  @override
+  String get reportsColOpened => 'Opened';
+
+  @override
+  String get reportsColOpeningCash => 'Opening cash';
+
+  @override
+  String get reportsColExpected => 'Expected';
+
+  @override
+  String get reportsColCounted => 'Counted';
+
+  @override
+  String get reportsColDifference => 'Difference';
+
+  @override
+  String get reportsColSource => 'Source';
+
+  @override
+  String get reportsColEntries => 'Entries';
+
+  @override
+  String get reportsSourceManualIn => 'Manual cash in';
+
+  @override
+  String get reportsSourceManualOut => 'Manual cash out';
+
+  @override
+  String get reportsSourceExpense => 'Expenses';
+
+  @override
+  String get reportsSourceExpenseVoid => 'Voided expenses';
+
+  @override
+  String get reportsSourceSupplierPayment => 'Supplier debt payments';
+
+  @override
+  String get reportsSourcePurchase => 'Purchase payments';
+
+  @override
+  String get reportsSourceDebtPayment => 'Receivable payments';
+
+  @override
+  String get reportsSourceOther => 'Other';
+
+  @override
+  String reportsDebtAsOf(String date) {
+    return 'As of $date';
+  }
+
+  @override
+  String get reportsDebtReceivable => 'Customer receivables';
+
+  @override
+  String reportsDebtCustomersNote(int count) {
+    return '$count customers';
+  }
+
+  @override
+  String get reportsDebtPayable => 'Supplier payables';
+
+  @override
+  String reportsDebtSuppliersNote(int count) {
+    return '$count suppliers';
+  }
+
+  @override
+  String get reportsDebtOverduePurchases => 'Overdue purchases';
+
+  @override
+  String get reportsDebtOverduePurchasesNote => 'Pay from the Suppliers screen';
+
+  @override
+  String get reportsDebtCustomers => 'Receivables by customer';
+
+  @override
+  String get reportsDebtSuppliers => 'Payables by supplier';
+
+  @override
+  String get reportsDebtNoReceivable => 'No customer receivables.';
+
+  @override
+  String get reportsDebtNoPayable => 'No supplier payables.';
+
+  @override
+  String get reportsDebtNote =>
+      'Today\'s position, independent of the selected period.';
+
+  @override
+  String get reportsColCustomer => 'Customer';
+
+  @override
+  String get reportsColSupplier => 'Supplier';
+
+  @override
+  String get reportsColOpenCount => 'Open';
+
+  @override
+  String get reportsColOverdueCount => 'Overdue';
+
+  @override
+  String get reportsColNearestDue => 'Nearest due';
+
+  @override
+  String get reportsColRemaining => 'Remaining';
+
+  @override
+  String get reportsReturnsCountNote => 'Sales returns in the period';
+
+  @override
+  String get reportsReturnsTotal => 'Returns value';
+
+  @override
+  String get reportsReturnsTotalNote => 'Including service and tax share';
+
+  @override
+  String get reportsReturnsRestock => 'Back to stock';
+
+  @override
+  String get reportsReturnsDamaged => 'Damaged / expired';
+
+  @override
+  String reportsReturnsOfCount(int count) {
+    return 'of $count returns';
+  }
+
+  @override
+  String get reportsReturnsByReason => 'By reason';
+
+  @override
+  String get reportsReturnsList => 'Returns';
+
+  @override
+  String get reportsReturnsEmpty => 'No returns in this period.';
+
+  @override
+  String get reportsColTime => 'Time';
+
+  @override
+  String get reportsColReturnNo => 'Return no.';
+
+  @override
+  String get reportsColReceiptNo => 'Receipt no.';
+
+  @override
+  String get reportsColHandledBy => 'Handled by';
+
+  @override
+  String get reportsColReason => 'Reason';
+
+  @override
+  String get reportsColRestock => 'Restock';
+
+  @override
+  String get reportsColRefund => 'Refund';
+
+  @override
+  String get reportsYes => 'Yes';
+
+  @override
+  String get reportsNo => 'No';
+
+  @override
+  String get reportsSourcePurchaseRefund => 'Purchase return refunds';
+
+  @override
+  String reportsRefundMixed(String method) {
+    return '$method + debt reduction';
+  }
+
+  @override
+  String get reportsCashOpenNote =>
+      'Empty counted and difference = session still open.';
 }

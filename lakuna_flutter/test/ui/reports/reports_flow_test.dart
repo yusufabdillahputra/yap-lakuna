@@ -107,6 +107,63 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('1440 px: stok, kas & sesi, piutang & hutang, retur', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await _tap(tester, _key('reports-tab-stock'));
+    expect(_key('reports-kpi-stock-value'), findsOneWidget);
+    expect(find.text('Rp 183.000'), findsNWidgets(2)); // KPI + total
+    expect(_key('reports-stock-table-kopi'), findsOneWidget);
+    expect(find.text('17 gelas'), findsOneWidget);
+    expect(find.text('Rp 102.000'), findsOneWidget);
+    expect(
+      tester.getTopLeft(_key('reports-kpi-stock-value')).dy,
+      tester.getTopLeft(_key('reports-kpi-stock-out')).dy,
+    );
+
+    await _tap(tester, _key('reports-tab-cash'));
+    expect(find.text('Masih buka'), findsOneWidget);
+    expect(find.text('1 masih buka'), findsOneWidget);
+    expect(find.text('− Rp 5.000'), findsNWidgets(2)); // KPI + sesi Budi
+    expect(_key('reports-cash-movements-out-expense'), findsOneWidget);
+    expect(find.text('− Rp 25.000'), findsOneWidget);
+    expect(find.text('+ Rp 5.000'), findsOneWidget);
+
+    await _tap(tester, _key('reports-tab-debts'));
+    expect(find.text('Posisi per 4 November 2026'), findsOneWidget);
+    expect(find.text('Rp 200.000'), findsOneWidget);
+    expect(find.text('Budi'), findsOneWidget);
+    expect(find.text('CV Sumber'), findsOneWidget);
+    expect(find.text('10/11/2026'), findsOneWidget);
+    await _tap(tester, _key('reports-download-xlsx'));
+    expect(exporter.saved.last.$1, 'laporan-piutang-hutang-261104.xlsx');
+
+    await _tap(tester, _key('reports-tab-returns'));
+    expect(find.text('RT-PST-K01-261104-0001'), findsOneWidget);
+    expect(_key('reports-returns-reasons-wrongItem'), findsOneWidget);
+    await _tap(tester, _key('reports-download-xlsx'));
+    expect(exporter.saved.last.$1, 'laporan-retur-hari-ini-261104.xlsx');
+
+    // Ganti periode: tab aktif dimuat ulang untuk bulan itu.
+    await _choose(tester, _key('reports-period'), 'Oktober 2026');
+    expect(find.text('Tidak ada retur pada periode ini.'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('stok tanpa izin laba: nilai tidak tampil', (tester) async {
+    await pump(
+      tester,
+      const Size(1440, 900),
+      reports: FakeReportsRepository(canViewProfit: false),
+    );
+    await _tap(tester, _key('reports-tab-stock'));
+    expect(_key('reports-kpi-stock-items'), findsOneWidget);
+    expect(_key('reports-kpi-stock-value'), findsNothing);
+    expect(find.text('Nilai akhir'), findsNothing);
+    expect(find.text('17 gelas'), findsOneWidget);
+  });
+
   testWidgets('periode bulan tanpa transaksi tampil nol', (tester) async {
     await pump(tester, const Size(1440, 900));
     await _choose(tester, _key('reports-period'), 'Oktober 2026');
@@ -152,6 +209,11 @@ void main() {
         tester.getTopLeft(_key('reports-side-net-profit')).dy,
         greaterThan(tester.getBottomLeft(_key('reports-pl')).dy),
       );
+      for (final tab in ['stock', 'cash', 'debts', 'returns']) {
+        await _tap(tester, _key('reports-tab-$tab'));
+        expect(_key('reports-extra-loading'), findsNothing);
+      }
+      expect(find.textContaining('RT-PST-K01-261104-0001'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

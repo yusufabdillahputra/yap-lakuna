@@ -8,6 +8,10 @@ import '../../data/services/spreadsheet_exporter.dart' show XlsxNumber;
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
 import '../customers/customer_labels.dart';
+import '../history/history_labels.dart'
+    show refundMethodLabel, returnReasonLabel;
+import '../purchases/purchase_labels.dart' show formatCalendarDate;
+import '../receipt/receipt_content.dart' show receiptDate;
 import 'reports_view_model.dart';
 
 bool _en(AppLocalizations l10n) => l10n.localeName.startsWith('en');
@@ -59,7 +63,51 @@ String reportTabLabel(AppLocalizations l10n, ReportTab tab) => switch (tab) {
   ReportTab.sales => l10n.reportsTabSales,
   ReportTab.top => l10n.reportsTabTop,
   ReportTab.profit => l10n.reportsTabProfit,
+  ReportTab.stock => l10n.reportsTabStock,
+  ReportTab.cash => l10n.reportsTabCash,
+  ReportTab.debts => l10n.reportsTabDebts,
+  ReportTab.returns => l10n.reportsTabReturns,
 };
+
+String cashSourceLabel(AppLocalizations l10n, CashSourceKind k) => switch (k) {
+  CashSourceKind.manualIn => l10n.reportsSourceManualIn,
+  CashSourceKind.manualOut => l10n.reportsSourceManualOut,
+  CashSourceKind.expense => l10n.reportsSourceExpense,
+  CashSourceKind.expenseVoid => l10n.reportsSourceExpenseVoid,
+  CashSourceKind.supplierPayment => l10n.reportsSourceSupplierPayment,
+  CashSourceKind.purchase => l10n.reportsSourcePurchase,
+  CashSourceKind.purchaseRefund => l10n.reportsSourcePurchaseRefund,
+  CashSourceKind.debtPayment => l10n.reportsSourceDebtPayment,
+  CashSourceKind.other => l10n.reportsSourceOther,
+};
+
+/// Cara refund retur; sebagian memotong piutang → `Tunai dari laci +
+/// potong piutang`.
+String returnRefundLabel(AppLocalizations l10n, ReturnReportLine r) {
+  final method = refundMethodLabel(l10n, r.refundMethod);
+  return r.debtReduction > Money.zero &&
+          r.refundMethod != RefundMethod.debt &&
+          r.debtReduction < r.amount
+      ? l10n.reportsRefundMixed(method)
+      : method;
+}
+
+/// Qty + satuan dasar varian [key], mis. `18 pcs`.
+String unitQty(
+  AppLocalizations l10n,
+  Map<String, String> unitOf,
+  String key,
+  Qty q,
+) {
+  final unit = unitOf[key];
+  final text = qtyLabel(l10n, q);
+  return unit == null ? text : '$text $unit';
+}
+
+/// Uang bertanda untuk tampilan: `+ Rp 5.000` / `− Rp 5.000` / `Rp 0`.
+String signedMoneyLabel(AppLocalizations l10n, Money m) => m.value == 0
+    ? moneyLabel(l10n, m)
+    : '${m.isNegative ? '−' : '+'} ${moneyLabel(l10n, Money(m.value.abs()))}';
 
 String salesGroupLabel(AppLocalizations l10n, SalesGroup g) => switch (g) {
   SalesGroup.product => l10n.reportsGroupProduct,
@@ -210,8 +258,12 @@ ReportTable reportTable(
   AppLocalizations l10n,
   ReportData data,
   ReportTab tab,
-  SalesGroup group,
-) {
+  SalesGroup group, {
+  StockReport? stock,
+  CashReport? cash,
+  DebtReport? debts,
+  ReturnsReport? returns,
+}) {
   final period = reportPeriodLabel(l10n, data.period);
   final subtitle = l10n.reportsDocSubtitle(
     data.outletName,
@@ -346,6 +398,213 @@ ReportTable reportTable(
             ),
         ],
         notes: [...profitNotes(l10n, pl), l10n.reportsHowBody],
+      );
+    case ReportTab.stock:
+      final r = stock!;
+      final value = r.totalValue != null;
+      return ReportTable(
+        title: title(l10n.reportsTabStock),
+        subtitle: subtitle,
+        headers: [
+          l10n.reportsColProduct,
+          l10n.reportsColOpening,
+          l10n.reportsColIn,
+          l10n.reportsColOut,
+          l10n.reportsColClosing,
+          if (value) l10n.reportsColClosingValue,
+        ],
+        widths: [36, 12, 12, 12, 12, if (value) 18],
+        flex: [4, 2, 2, 2, 2, if (value) 3],
+        rows: [
+          for (final x in r.rows)
+            ReportRow([
+              x.name,
+              unitQty(l10n, r.unitOf, x.key, x.opening),
+              unitQty(l10n, r.unitOf, x.key, x.inflow),
+              unitQty(l10n, r.unitOf, x.key, x.outflow),
+              unitQty(l10n, r.unitOf, x.key, x.closing),
+              if (value) money(x.value!),
+            ]),
+          if (value)
+            ReportRow([
+              l10n.reportsTotal,
+              '',
+              '',
+              '',
+              '',
+              money(Money.sum(r.rows.map((x) => x.value!))),
+            ], strong: true),
+        ],
+        notes: [
+          if (r.totalValue case final v?)
+            '${l10n.reportsStockValue}: ${moneyLabel(l10n, v)}',
+          '${l10n.reportsStockItems}: ${r.variantCount} · '
+              '${l10n.reportsStockLow}: ${r.lowCount} · '
+              '${l10n.reportsStockOut}: ${r.outCount}',
+          l10n.reportsStockNote,
+        ],
+      );
+    case ReportTab.cash:
+      final r = cash!;
+      return ReportTable(
+        title: title(l10n.reportsTabCash),
+        subtitle: subtitle,
+        headers: [
+          l10n.reportsColOpened,
+          l10n.reportsColStaff,
+          l10n.reportsColOpeningCash,
+          l10n.reportsColExpected,
+          l10n.reportsColCounted,
+          l10n.reportsColDifference,
+        ],
+        widths: const [16, 22, 16, 16, 16, 16],
+        flex: const [3, 3, 2, 2, 2, 2],
+        rows: [
+          for (final x in r.sessions)
+            ReportRow([
+              receiptDate(x.openedAt),
+              x.staffName,
+              money(x.opening),
+              money(x.expected),
+              if (x.counted case final c?) money(c) else null,
+              if (x.difference case final d?) money(d) else null,
+            ]),
+          ReportRow([
+            l10n.reportsTotal,
+            '',
+            '',
+            '',
+            '',
+            money(r.totalDifference),
+          ], strong: true),
+        ],
+        notes: [
+          '${l10n.reportsCashMovements} (${l10n.reportsCashMovementsNote.toLowerCase()}):',
+          for (final g in r.inflows)
+            '${cashSourceLabel(l10n, g.key)} (${g.count}×): '
+                '${signedMoneyLabel(l10n, g.total)}',
+          for (final g in r.outflows)
+            '${cashSourceLabel(l10n, g.key)} (${g.count}×): '
+                '${signedMoneyLabel(l10n, -g.total)}',
+          if (r.inflows.isEmpty && r.outflows.isEmpty)
+            l10n.reportsCashNoMovements,
+          if (r.openCount > 0) l10n.reportsCashOpenNote,
+          l10n.reportsCashNote,
+        ],
+      );
+    case ReportTab.debts:
+      final r = debts!;
+      return ReportTable(
+        title:
+            '${l10n.reportsTabDebts} · '
+            '${l10n.reportsDebtAsOf(formatLongDate(l10n, r.today))}',
+        subtitle: subtitle,
+        headers: [
+          l10n.reportsColLine,
+          l10n.reportsColOpenCount,
+          l10n.reportsColOverdueCount,
+          l10n.reportsColNearestDue,
+          l10n.reportsColRemaining,
+        ],
+        widths: const [36, 14, 14, 18, 18],
+        flex: const [4, 2, 2, 2, 2],
+        rows: [
+          ReportRow([
+            l10n.reportsDebtCustomers,
+            null,
+            null,
+            null,
+            null,
+          ], strong: true),
+          for (final c in r.customers)
+            ReportRow([
+              c.customer.name,
+              c.openCount,
+              c.overdueCount,
+              null,
+              money(c.outstanding),
+            ], indent: true),
+          ReportRow([
+            l10n.reportsTotal,
+            null,
+            null,
+            null,
+            money(r.receivable),
+          ], strong: true),
+          ReportRow([
+            l10n.reportsDebtSuppliers,
+            null,
+            null,
+            null,
+            null,
+          ], strong: true),
+          for (final x in r.suppliers)
+            ReportRow([
+              x.supplier.name,
+              x.openCount,
+              x.overdueCount,
+              if (x.nearestDue case final d?) formatCalendarDate(d) else null,
+              money(x.debt),
+            ], indent: true),
+          ReportRow([
+            l10n.reportsTotal,
+            null,
+            null,
+            null,
+            money(r.payable),
+          ], strong: true),
+        ],
+        notes: [
+          '${l10n.reportsKpiOverdue}: ${moneyLabel(l10n, r.overdue)} '
+              '(${l10n.reportsKpiOverdueNote(r.overdueCustomers)})',
+          l10n.reportsDebtNote,
+        ],
+      );
+    case ReportTab.returns:
+      final r = returns!;
+      return ReportTable(
+        title: title(l10n.reportsTabReturns),
+        subtitle: subtitle,
+        headers: [
+          l10n.reportsColTime,
+          l10n.reportsColReturnNo,
+          l10n.reportsColReceiptNo,
+          l10n.reportsColHandledBy,
+          l10n.reportsColReason,
+          l10n.reportsColRestock,
+          l10n.reportsColRefund,
+          l10n.reportsColAmount,
+        ],
+        widths: const [15, 24, 22, 16, 16, 8, 12, 14],
+        flex: const [3, 4, 4, 3, 3, 2, 2, 3],
+        rows: [
+          for (final x in r.lines)
+            ReportRow([
+              receiptDate(x.returnedAt),
+              x.number,
+              x.saleNumber,
+              x.staffName,
+              returnReasonLabel(l10n, x.reason),
+              x.restock ? l10n.reportsYes : l10n.reportsNo,
+              returnRefundLabel(l10n, x),
+              money(x.amount),
+            ]),
+          ReportRow([
+            l10n.reportsTotal,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            money(r.total),
+          ], strong: true),
+        ],
+        notes: [
+          for (final g in r.byReason)
+            '${returnReasonLabel(l10n, g.key)} (${g.count}×): '
+                '${moneyLabel(l10n, g.total)}',
+        ],
       );
   }
 }
