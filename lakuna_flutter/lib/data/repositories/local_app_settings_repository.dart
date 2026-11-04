@@ -13,6 +13,17 @@ class LocalAppSettingsRepository implements AppSettingsRepository {
 
   static const _themeKey = 'ui.theme_mode';
   static const _localeKey = 'ui.locale';
+  static const _textSizeKey = 'ui.text_size';
+
+  @override
+  Future<Result<AppTextSize>> textSize() => _guard(() async {
+    final raw = await _preferences.get(_textSizeKey);
+    return AppTextSize.values.asNameMap()[raw] ?? AppTextSize.normal;
+  });
+
+  @override
+  Future<Result<void>> setTextSize(AppTextSize size) =>
+      _guard(() => _preferences.set(_textSizeKey, size.name));
 
   @override
   Future<Result<AppThemeMode>> themeMode() => _guard(() async {

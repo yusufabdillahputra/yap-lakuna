@@ -22,6 +22,7 @@ part '20261103230815808-pelanggan/migration.dart';
 part '20261104002656061-supplier/migration.dart';
 part '20261104010452347-expense/migration.dart';
 part '20261104032411794-staff-role/migration.dart';
+part '20261104041140587-sale-rounding/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -46,6 +47,7 @@ class MigrationRegistry {
     _Migration20261104002656061_supplier(),
     _Migration20261104010452347_expense(),
     _Migration20261104032411794_staff_role(),
+    _Migration20261104041140587_sale_rounding(),
   ];
 
   /// List of all client-side database migration versions.

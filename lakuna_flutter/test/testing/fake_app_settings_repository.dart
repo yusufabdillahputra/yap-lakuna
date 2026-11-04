@@ -6,11 +6,24 @@ class FakeAppSettingsRepository implements AppSettingsRepository {
   FakeAppSettingsRepository({
     this.storedTheme = AppThemeMode.system,
     this.storedLocale = defaultAppLocale,
+    this.storedTextSize = AppTextSize.normal,
     this.failWrites = false,
   });
 
   AppThemeMode storedTheme;
   Locale storedLocale;
+  AppTextSize storedTextSize;
+
+  @override
+  Future<Result<AppTextSize>> textSize() async => Result.ok(storedTextSize);
+
+  @override
+  Future<Result<void>> setTextSize(AppTextSize size) async {
+    if (failWrites) return Result.error(Exception('disk penuh'));
+    storedTextSize = size;
+    return const Result.ok(null);
+  }
+
   bool failWrites;
 
   @override

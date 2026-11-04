@@ -51,4 +51,18 @@ void main() {
     expect(vm.dirty, isFalse);
     expect(vm.saved, isTrue);
   });
+
+  test('pratinjau memakai pembulatan total cabang', () async {
+    final repo = FakeDiningAdminRepository()
+      ..savedRates = const FnbRates(
+        service: BasisPoints(500),
+        tax: BasisPoints(1100),
+        rounding: TotalRounding.nearest500,
+      );
+    final vm = FnbRatesViewModel(repository: repo);
+    await vm.load.execute();
+    // 100.000 + 5.000 + PB1 11% 11.550 = 116.550 → 116.500.
+    expect(vm.preview.rounding, const Money(-50));
+    expect(vm.preview.total, const Money(116500));
+  });
 }

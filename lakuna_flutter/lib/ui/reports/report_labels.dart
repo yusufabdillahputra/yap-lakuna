@@ -210,6 +210,20 @@ List<PlLine> profitLines(AppLocalizations l10n, ProfitAndLoss pl) => [
   PlLine(l10n.reportsPlDiscount, pl.discount, PlStyle.detail, negative: true),
   if (pl.service.value != 0)
     PlLine(l10n.reportsPlService, pl.service, PlStyle.detail),
+  if (pl.includedTax.value != 0)
+    PlLine(
+      l10n.reportsPlIncludedTax,
+      pl.includedTax,
+      PlStyle.detail,
+      negative: true,
+    ),
+  if (pl.rounding.value != 0)
+    PlLine(
+      l10n.reportsPlRounding,
+      Money(pl.rounding.value.abs()),
+      PlStyle.detail,
+      negative: pl.rounding.isNegative,
+    ),
   PlLine(l10n.reportsPlReturns, pl.returns, PlStyle.detail, negative: true),
   PlLine(l10n.reportsPlNet, pl.netSales, PlStyle.subtotal),
   PlLine(l10n.reportsPlCogs, pl.cogs, PlStyle.detail, negative: true),

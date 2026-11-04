@@ -49,6 +49,8 @@ abstract class Sale
     int? taxBp,
     int? serviceAmount,
     int? taxAmount,
+    bool? taxInclusive,
+    int? roundingAmount,
     this.voidReason,
     this.voidedBy,
     this.voidedAt,
@@ -70,6 +72,8 @@ abstract class Sale
        taxBp = taxBp ?? 0,
        serviceAmount = serviceAmount ?? 0,
        taxAmount = taxAmount ?? 0,
+       taxInclusive = taxInclusive ?? false,
+       roundingAmount = roundingAmount ?? 0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -103,6 +107,8 @@ abstract class Sale
     int? taxBp,
     int? serviceAmount,
     int? taxAmount,
+    bool? taxInclusive,
+    int? roundingAmount,
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -182,6 +188,10 @@ abstract class Sale
       taxBp: jsonSerialization['taxBp'] as int?,
       serviceAmount: jsonSerialization['serviceAmount'] as int?,
       taxAmount: jsonSerialization['taxAmount'] as int?,
+      taxInclusive: jsonSerialization['taxInclusive'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['taxInclusive']),
+      roundingAmount: jsonSerialization['roundingAmount'] as int?,
       voidReason: jsonSerialization['voidReason'] as String?,
       voidedBy: jsonSerialization['voidedBy'] == null
           ? null
@@ -295,6 +305,12 @@ abstract class Sale
 
   int taxAmount;
 
+  /// PB1 sudah termasuk harga (F1-18): tax_amount dipisahkan, bukan ditambah.
+  bool taxInclusive;
+
+  /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
+  int roundingAmount;
+
   String? voidReason;
 
   _is.UuidValue? voidedBy;
@@ -363,6 +379,8 @@ abstract class Sale
     int? taxBp,
     int? serviceAmount,
     int? taxAmount,
+    bool? taxInclusive,
+    int? roundingAmount,
     String? voidReason,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
@@ -411,6 +429,8 @@ abstract class Sale
       'taxBp': taxBp,
       'serviceAmount': serviceAmount,
       'taxAmount': taxAmount,
+      'taxInclusive': taxInclusive,
+      'roundingAmount': roundingAmount,
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -461,6 +481,8 @@ abstract class Sale
       'taxBp': taxBp,
       'serviceAmount': serviceAmount,
       'taxAmount': taxAmount,
+      'taxInclusive': taxInclusive,
+      'roundingAmount': roundingAmount,
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -539,6 +561,8 @@ class _SaleImpl extends Sale {
     int? taxBp,
     int? serviceAmount,
     int? taxAmount,
+    bool? taxInclusive,
+    int? roundingAmount,
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -583,6 +607,8 @@ class _SaleImpl extends Sale {
          taxBp: taxBp,
          serviceAmount: serviceAmount,
          taxAmount: taxAmount,
+         taxInclusive: taxInclusive,
+         roundingAmount: roundingAmount,
          voidReason: voidReason,
          voidedBy: voidedBy,
          voidedAt: voidedAt,
@@ -633,6 +659,8 @@ class _SaleImpl extends Sale {
     int? taxBp,
     int? serviceAmount,
     int? taxAmount,
+    bool? taxInclusive,
+    int? roundingAmount,
     Object? voidReason = _Undefined,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
@@ -684,6 +712,8 @@ class _SaleImpl extends Sale {
       taxBp: taxBp ?? this.taxBp,
       serviceAmount: serviceAmount ?? this.serviceAmount,
       taxAmount: taxAmount ?? this.taxAmount,
+      taxInclusive: taxInclusive ?? this.taxInclusive,
+      roundingAmount: roundingAmount ?? this.roundingAmount,
       voidReason: voidReason is String? ? voidReason : this.voidReason,
       voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
       voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
@@ -865,6 +895,16 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
 
   _is.ColumnValue<int, int> taxAmount(int value) => _is.ColumnValue(
     table.taxAmount,
+    value,
+  );
+
+  _is.ColumnValue<bool, bool> taxInclusive(bool value) => _is.ColumnValue(
+    table.taxInclusive,
+    value,
+  );
+
+  _is.ColumnValue<int, int> roundingAmount(int value) => _is.ColumnValue(
+    table.roundingAmount,
     value,
   );
 
@@ -1101,6 +1141,18 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       hasDefault: true,
       fieldName: 'taxAmount',
     );
+    taxInclusive = _is.ColumnBool(
+      'tax_inclusive',
+      this,
+      hasDefault: true,
+      fieldName: 'taxInclusive',
+    );
+    roundingAmount = _is.ColumnInt(
+      'rounding_amount',
+      this,
+      hasDefault: true,
+      fieldName: 'roundingAmount',
+    );
     voidReason = _is.ColumnString(
       'void_reason',
       this,
@@ -1242,6 +1294,12 @@ class SaleTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt taxAmount;
 
+  /// PB1 sudah termasuk harga (F1-18): tax_amount dipisahkan, bukan ditambah.
+  late final _is.ColumnBool taxInclusive;
+
+  /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
+  late final _is.ColumnInt roundingAmount;
+
   late final _is.ColumnString voidReason;
 
   late final _is.ColumnUuid voidedBy;
@@ -1305,6 +1363,8 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     taxBp,
     serviceAmount,
     taxAmount,
+    taxInclusive,
+    roundingAmount,
     voidReason,
     voidedBy,
     voidedAt,

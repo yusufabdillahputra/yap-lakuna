@@ -6471,4 +6471,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usersRoleDeleteConfirm => 'Delete';
+
+  @override
+  String get cashierRounding => 'Rounding';
+
+  @override
+  String saleErrorStockShort(String names) {
+    return 'Not enough stock: $names. Negative stock is turned off in Settings › Sales & stock.';
+  }
+
+  @override
+  String get reportsPlIncludedTax => 'PB1 included in prices';
+
+  @override
+  String get reportsPlRounding => 'Total rounding';
+
+  @override
+  String receiptTaxIncluded(String pct) {
+    return 'PB1 $pct (included)';
+  }
+
+  @override
+  String get receiptRounding => 'Rounding';
+
+  @override
+  String diningTaxIncluded(String pct) {
+    return 'PB1 $pct (included)';
+  }
+
+  @override
+  String get fnbRatesInclusive => 'Prices include tax';
+
+  @override
+  String get fnbRatesInclusiveHint =>
+      'PB1 is separated from menu prices and not added to the total.';
+
+  @override
+  String get settingsTextSize => 'Display size';
+
+  @override
+  String get settingsTextSizeNormal => 'Normal';
+
+  @override
+  String get settingsTextSizeLarge => 'Large';
+
+  @override
+  String get storeSettingsPhoneInvalid => 'Digits, spaces, + and - only';
+
+  @override
+  String get storeSettingsLoadFailed => 'Could not load store settings.';
+
+  @override
+  String get storeSettingsBusinessTitle => 'Store profile';
+
+  @override
+  String get storeSettingsBusinessSubtitle => 'Applies to all branches';
+
+  @override
+  String get storeSettingsBusinessName => 'Business name';
+
+  @override
+  String get storeSettingsBusinessType => 'Business type';
+
+  @override
+  String get storeSettingsBusinessNote =>
+      'Business type and time zone are chosen during setup and cannot be changed because they decide the menu and the date in receipt numbers.';
+
+  @override
+  String get storeSettingsBusinessSaved => 'Store profile saved.';
+
+  @override
+  String get storeSettingsOutletTitle => 'This branch';
+
+  @override
+  String get storeSettingsOutletSubtitle =>
+      'Address and phone appear in the default receipt header';
+
+  @override
+  String get storeSettingsOutletName => 'Branch name';
+
+  @override
+  String get storeSettingsAddress => 'Address';
+
+  @override
+  String get storeSettingsPhone => 'Phone';
+
+  @override
+  String get storeSettingsOutletCode => 'Branch code';
+
+  @override
+  String get storeSettingsDeviceCode => 'Device code';
+
+  @override
+  String get storeSettingsOutletNote =>
+      'Branch and device codes are part of receipt numbers (e.g. PST-K01-…), so they cannot be changed.';
+
+  @override
+  String get storeSettingsOutletSaved => 'Branch details saved.';
+
+  @override
+  String get storeSettingsRulesTitle => 'Sales & stock';
+
+  @override
+  String get storeSettingsRulesSubtitle =>
+      'Applies to every device in this branch';
+
+  @override
+  String get storeSettingsNegativeStock => 'Allow negative stock';
+
+  @override
+  String get storeSettingsNegativeStockHint =>
+      'When off, out-of-stock products cannot be sold';
+
+  @override
+  String get storeSettingsRequireSession => 'Require an open cash session';
+
+  @override
+  String get storeSettingsRequireSessionHint =>
+      'Always on: cash is recorded per cash session';
+
+  @override
+  String get storeSettingsRounding => 'Total rounding';
+
+  @override
+  String get storeSettingsRoundingHint =>
+      'To the nearest multiple, exact halves round up. Applies to every payment method.';
+
+  @override
+  String get storeSettingsRoundingNone => 'None';
+
+  @override
+  String get storeSettingsRounding100 => 'To the nearest Rp 100';
+
+  @override
+  String get storeSettingsRounding500 => 'To the nearest Rp 500';
+
+  @override
+  String get storeSettingsRulesSaved => 'Sales rules saved.';
+
+  @override
+  String get storeSettingsSave => 'Save';
+
+  @override
+  String get storeSettingsSaveFailed => 'Could not save. Try again.';
+
+  @override
+  String billSplitTaxIncluded(String pct) {
+    return '$pct (included)';
+  }
 }

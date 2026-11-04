@@ -44,6 +44,7 @@ class FnbRatesViewModel extends ChangeNotifier {
   FnbRates _stored = const FnbRates();
   int? _service = 0;
   int? _tax = 0;
+  var _inclusive = false;
   var _saved = false;
   var _rev = 0;
   var _disposed = false;
@@ -65,6 +66,9 @@ class FnbRatesViewModel extends ChangeNotifier {
   BasisPoints get service => BasisPoints(_service ?? 0);
   BasisPoints get tax => BasisPoints(_tax ?? 0);
 
+  /// *Harga sudah termasuk pajak* (F1-18).
+  bool get taxInclusive => _inclusive;
+
   bool get serviceInvalid =>
       _service == null ||
       !validateFnbRate(BasisPoints(_service!), FnbLimits.serviceBp);
@@ -73,7 +77,9 @@ class FnbRatesViewModel extends ChangeNotifier {
       _tax == null || !validateFnbRate(BasisPoints(_tax!), FnbLimits.taxBp);
 
   bool get dirty =>
-      _service != _stored.service.value || _tax != _stored.tax.value;
+      _service != _stored.service.value ||
+      _tax != _stored.tax.value ||
+      _inclusive != _stored.taxInclusive;
 
   bool get canSave =>
       !serviceInvalid &&
@@ -85,12 +91,15 @@ class FnbRatesViewModel extends ChangeNotifier {
   /// Tersimpan dan belum diubah lagi.
   bool get saved => _saved;
 
-  /// Contoh hitungan dine in dari subtotal Rp 100.000.
+  /// Contoh hitungan dine in dari subtotal Rp 100.000, memakai pembulatan
+  /// total dari *Penjualan & stok*.
   FnbCharges get preview => fnbCharges(
     fnbPreviewSubtotal,
     dineIn: true,
     serviceBp: serviceInvalid ? BasisPoints.zero : service,
     taxBp: taxInvalid ? BasisPoints.zero : tax,
+    taxInclusive: _inclusive,
+    rounding: _stored.rounding,
   );
 
   void setService(String text) {
@@ -105,10 +114,17 @@ class FnbRatesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setTaxInclusive(bool value) {
+    _inclusive = value;
+    _saved = false;
+    notifyListeners();
+  }
+
   void _apply(FnbRates rates) {
     _stored = rates;
     _service = rates.service.value;
     _tax = rates.tax.value;
+    _inclusive = rates.taxInclusive;
     _rev++;
   }
 
@@ -120,7 +136,7 @@ class FnbRatesViewModel extends ChangeNotifier {
 
   Future<Result<FnbRates>> _save() async {
     final result = await _repository.saveRates(
-      FnbRates(service: service, tax: tax),
+      FnbRates(service: service, tax: tax, taxInclusive: _inclusive),
     );
     if (result case Ok(:final value)) {
       _stored = value;

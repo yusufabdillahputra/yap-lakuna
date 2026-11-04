@@ -188,6 +188,57 @@ void main() {
     expect(percentLabel(id, 1225), '12,25%');
   });
 
+  test('PB1 termasuk harga dan pembulatan total', () {
+    final base = result([pay(PaymentMethod.cash, 200000, change: 18000)]);
+    final content = saleReceiptContent(
+      id,
+      result: CheckoutResult(
+        sale: base.sale.copyWith(
+          taxBp: 1000,
+          taxAmount: 16409,
+          taxInclusive: true,
+          roundingAmount: -500,
+          total: 180000,
+        ),
+        items: base.items,
+        payments: base.payments,
+      ),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    expect(content.totals.map((p) => (p.label, p.value)).take(4), [
+      ('Subtotal', '180.500'),
+      ('PB1 10% (termasuk)', '16.409'),
+      ('Pembulatan', '-500'),
+      ('TOTAL', '180.000'),
+    ]);
+  });
+
+  test('nota retail dengan pembulatan menampilkan subtotal dan selisih', () {
+    final base = result([pay(PaymentMethod.cash, 181000)]);
+    final content = saleReceiptContent(
+      id,
+      result: CheckoutResult(
+        sale: base.sale.copyWith(roundingAmount: 500, total: 181000),
+        items: base.items,
+        payments: base.payments,
+      ),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    expect(content.totals.map((p) => (p.label, p.value)).take(3), [
+      ('Subtotal', '180.500'),
+      ('Pembulatan', '500'),
+      ('TOTAL', '181.000'),
+    ]);
+  });
+
   test('porsi split bill digabung kembali ke baris asal', () {
     final kopi = item('Kopi', '', 1000, 24000).copyWith(guestLabel: 'B');
     final nasi = item('Nasi', '', 1000, 29000);

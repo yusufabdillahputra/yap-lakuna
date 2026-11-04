@@ -8,6 +8,7 @@ import '../../data/repositories/payment_settings_repository.dart';
 import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
+import '../../data/repositories/store_settings_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
@@ -21,9 +22,19 @@ import 'qris_settings_section.dart';
 import 'receipt_settings_section.dart';
 import 'receipt_settings_view_model.dart';
 import 'settings_view.dart';
+import 'store_settings_section.dart';
+import 'store_settings_view_model.dart';
 
 /// Bagian layar Pengaturan (1.26). Bagian lain menyusul bersama modulnya.
-enum SettingsSection { payments, receipt, taxes, appearance }
+enum SettingsSection {
+  business,
+  outlet,
+  payments,
+  receipt,
+  taxes,
+  rules,
+  appearance,
+}
 
 /// Layar Pengaturan: navigasi bagian (kolom kiri di layar lebar, pil di
 /// layar sempit) dan isi bagian. *Metode pembayaran* dan *Struk & printer*
@@ -38,6 +49,7 @@ class SettingsScreen extends StatefulWidget {
     required this.imagePicker,
     required this.session,
     required this.store,
+    required this.storeSettings,
     this.diningAdmin,
   });
 
@@ -52,6 +64,9 @@ class SettingsScreen extends StatefulWidget {
   final SessionRepository session;
   final StoreRepository store;
 
+  /// Profil toko, cabang, penjualan & stok (F1-18).
+  final StoreSettingsRepository storeSettings;
+
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
@@ -60,8 +75,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final bool _canManage =
       widget.session.current?.can(Permission.settingsManage) ?? false;
   late SettingsSection _section = _canManage
-      ? SettingsSection.payments
+      ? SettingsSection.business
       : SettingsSection.appearance;
+  StoreSettingsViewModel? _store;
   PaymentSettingsViewModel? _payments;
   ReceiptSettingsViewModel? _receipt;
   FnbRatesViewModel? _rates;
@@ -70,6 +86,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     if (_canManage) {
+      _store = StoreSettingsViewModel(repository: widget.storeSettings)
+        ..load.execute();
       _payments = PaymentSettingsViewModel(
         repository: widget.paymentSettings,
         picker: widget.imagePicker,
@@ -86,6 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void dispose() {
+    _store?.dispose();
     _payments?.dispose();
     _receipt?.dispose();
     _rates?.dispose();
@@ -93,13 +112,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   List<SettingsSection> get _sections => [
+    if (_canManage) SettingsSection.business,
+    if (_canManage) SettingsSection.outlet,
     if (_canManage) SettingsSection.payments,
     if (_canManage) SettingsSection.receipt,
     if (_rates != null) SettingsSection.taxes,
+    if (_canManage) SettingsSection.rules,
     SettingsSection.appearance,
   ];
 
   String _label(AppLocalizations l10n, SettingsSection s) => switch (s) {
+    SettingsSection.business => l10n.storeSettingsBusinessTitle,
+    SettingsSection.outlet => l10n.storeSettingsOutletTitle,
+    SettingsSection.rules => l10n.storeSettingsRulesTitle,
     SettingsSection.payments => l10n.settingsSectionPayments,
     SettingsSection.receipt => l10n.settingsSectionReceipt,
     SettingsSection.taxes => l10n.settingsSectionTaxes,
@@ -107,6 +132,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   };
 
   IconData _icon(SettingsSection s) => switch (s) {
+    SettingsSection.business => TablerIcons.buildingStore,
+    SettingsSection.outlet => TablerIcons.mapPin,
+    SettingsSection.rules => TablerIcons.adjustmentsHorizontal,
     SettingsSection.payments => TablerIcons.creditCard,
     SettingsSection.receipt => TablerIcons.receipt,
     SettingsSection.taxes => TablerIcons.percentage,
@@ -118,6 +146,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final content = switch (_section) {
+      SettingsSection.business => StoreSettingsSection(
+        viewModel: _store!,
+        part: StoreSettingsPart.business,
+      ),
+      SettingsSection.outlet => StoreSettingsSection(
+        viewModel: _store!,
+        part: StoreSettingsPart.outlet,
+      ),
+      SettingsSection.rules => StoreSettingsSection(
+        viewModel: _store!,
+        part: StoreSettingsPart.rules,
+      ),
       SettingsSection.payments => QrisSettingsSection(
         viewModel: _payments!,
         outletName: widget.store.current?.outlet.name ?? '',

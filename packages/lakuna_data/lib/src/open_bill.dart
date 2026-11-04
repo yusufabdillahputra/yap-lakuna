@@ -12,6 +12,7 @@ import 'sale_core.dart';
 import 'sales.dart';
 import 'stock.dart';
 import 'store.dart';
+import 'store_settings.dart';
 import 'sync_tx.dart';
 
 part 'split_bill.dart';
@@ -195,6 +196,8 @@ FnbCharges _charges(Sale sale, List<SaleItem> items, FnbRates rates) =>
       dineIn: sale.orderType == OrderType.dineIn,
       serviceBp: rates.service,
       taxBp: rates.tax,
+      taxInclusive: rates.taxInclusive,
+      rounding: rates.rounding,
     );
 
 Future<List<SaleItem>> _items(
@@ -808,6 +811,9 @@ Future<OpenBill> addBillItem(
     if (modifiedUnitPrice(priced.line.unitPrice, delta) == null) {
       throw ModifierPriceInvalid();
     }
+    if (priced.tracksStock) {
+      await _requireStockForBill(w, scope, items, priced, same);
+    }
     final s = await w.stamp();
     if (same != null) {
       await w.update(_repriced(same, priced, s, staffId), s);
@@ -871,6 +877,47 @@ Future<OpenBill> addBillItem(
     await _refreshTotals(w, scope, sale, s, staffId);
   });
   return loadOpenBill(store, scope, billId);
+}
+
+/// Stok minus dilarang: jumlah varian [priced] di seluruh bill (satuan
+/// dasar, termasuk baris [same] yang digabung) tidak boleh melebihi stok
+/// lokasi penjualan.
+Future<void> _requireStockForBill(
+  SyncTx w,
+  CatalogScope scope,
+  List<SaleItem> items,
+  PricedRequest priced,
+  SaleItem? same,
+) async {
+  final rules = await loadSalesRules(
+    w.session,
+    scope,
+    transaction: w.transaction,
+  );
+  if (rules.allowNegativeStock) return;
+  final variantId = priced.variant.id;
+  var needed = priced.line.baseQuantity;
+  for (final i in items) {
+    if (i.variantId != variantId || i.id == same?.id) continue;
+    needed += Qty(i.quantityMilli).toBaseUnit(i.factorMilli);
+  }
+  final location = await defaultStockLocationIn(w, scope);
+  final level = await StockLevel.db.findFirstRow(
+    w.session,
+    where: (l) =>
+        l.stockLocationId.equals(location.id) & l.variantId.equals(variantId),
+    transaction: w.transaction,
+  );
+  final onHand = Qty(level?.quantityMilli ?? 0);
+  if (needed.milli > onHand.milli) {
+    throw SaleStockShort([
+      NegativeStock(
+        variantId: variantId,
+        name: '${priced.product.name} ${priced.variant.name}'.trim(),
+        onHand: onHand - needed,
+      ),
+    ]);
+  }
 }
 
 SaleItem _repriced(
@@ -944,6 +991,12 @@ Future<OpenBill> setBillItemQuantity(
         Money(item.modifierDelta),
       );
       if (unit == null) throw ModifierPriceInvalid();
+      if (priced.tracksStock && quantity.milli > item.quantityMilli) {
+        final items = await _items(w.session, scope.tenantId, [
+          sale.id,
+        ], transaction: w.transaction);
+        await _requireStockForBill(w, scope, items, priced, item);
+      }
       await w.update(_repriced(item, priced, s, staffId), s);
     } else {
       await w.update(
@@ -1377,6 +1430,8 @@ Future<CheckoutResult> _completeBill(
       taxBp: rates.tax.value,
       serviceAmount: charges.service.value,
       taxAmount: charges.tax.value,
+      taxInclusive: charges.taxInclusive,
+      roundingAmount: charges.rounding.value,
       version: sale.version + 1,
       updatedAt: s.now,
       updatedBy: staffId,
@@ -1390,6 +1445,7 @@ Future<CheckoutResult> _completeBill(
       if (i.tracksStock)
         i.variantId: '${i.productName} ${i.variantName}'.trim(),
   });
+  await enforceStockRule(w, scope, negative);
   return CheckoutResult(
     sale: paid,
     items: paidItems,

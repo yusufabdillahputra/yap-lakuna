@@ -4,6 +4,8 @@ library;
 import 'package:characters/characters.dart';
 
 import 'money.dart';
+import 'rounding.dart';
+import 'store_settings.dart';
 
 /// Batas isian F&B.
 abstract final class FnbLimits {
@@ -28,32 +30,67 @@ abstract final class FnbLimits {
   static const tableBatch = 50;
 }
 
-/// Rincian tagihan F&B: subtotal (setelah grosir), service, PB1, total.
+/// Rincian tagihan F&B: subtotal (setelah grosir), service, PB1,
+/// pembulatan, total.
 class FnbCharges {
   const FnbCharges({
     required this.subtotal,
     required this.service,
     required this.tax,
+    this.taxInclusive = false,
+    this.rounding = Money.zero,
   });
 
   final Money subtotal;
   final Money service;
   final Money tax;
 
-  Money get total => subtotal + service + tax;
+  /// PB1 sudah termasuk dalam harga: [tax] hanya dipisahkan, tidak
+  /// ditambahkan ke [total].
+  final bool taxInclusive;
+
+  /// Selisih pembulatan total (boleh negatif).
+  final Money rounding;
+
+  Money get total =>
+      subtotal + service + (taxInclusive ? Money.zero : tax) + rounding;
 }
 
 /// Service = [subtotal] × [serviceBp] (hanya [dineIn]); PB1 = (subtotal +
-/// service) × [taxBp]. Masing-masing dibulatkan setengah ke atas.
+/// service) × [taxBp], atau bila [taxInclusive] dipisahkan dari (subtotal
+/// + service): × tarif ÷ (1 + tarif). Masing-masing dibulatkan setengah ke
+/// atas, lalu total dibulatkan menurut [rounding].
 FnbCharges fnbCharges(
   Money subtotal, {
   required bool dineIn,
   required BasisPoints serviceBp,
   required BasisPoints taxBp,
+  bool taxInclusive = false,
+  TotalRounding rounding = TotalRounding.none,
 }) {
   final service = dineIn ? subtotal.applyBp(serviceBp) : Money.zero;
-  final tax = (subtotal + service).applyBp(taxBp);
-  return FnbCharges(subtotal: subtotal, service: service, tax: tax);
+  final base = subtotal + service;
+  final tax = taxInclusive
+      ? Money(
+          divRoundHalfAway(
+            BigInt.from(base.value) * BigInt.from(taxBp.value),
+            BigInt.from(10000 + taxBp.value),
+          ),
+        )
+      : base.applyBp(taxBp);
+  final raw = FnbCharges(
+    subtotal: subtotal,
+    service: service,
+    tax: tax,
+    taxInclusive: taxInclusive,
+  );
+  return FnbCharges(
+    subtotal: subtotal,
+    service: service,
+    tax: tax,
+    taxInclusive: taxInclusive,
+    rounding: roundTotal(raw.total, rounding) - raw.total,
+  );
 }
 
 /// Tarif sah: 0..[max] dan kelipatan 0,5%.

@@ -47,7 +47,9 @@ class LocalCashierRepository extends CashierRepository {
       );
     }
     final qris = await loadQrisConfig(_store, scope);
+    final salesRules = await loadSalesRules(_store.session, scope);
     return CashierData(
+      salesRules: salesRules,
       products: products,
       categories: categories,
       categoryParents: {

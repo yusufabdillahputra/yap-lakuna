@@ -108,6 +108,9 @@ class _DiningScreenState extends State<DiningScreen> {
 String diningErrorMessage(AppLocalizations l10n, Exception error) =>
     switch (error) {
       BillItemLocked() => l10n.diningErrorLocked,
+      SaleStockShort(:final items) => l10n.saleErrorStockShort(
+        items.map((i) => i.name).join(', '),
+      ),
       SplitLocked() => l10n.diningErrorSplitLocked,
       TableOccupied() => l10n.diningErrorOccupied,
       NothingToSend() => l10n.diningErrorNothingToSend,
@@ -1199,14 +1202,24 @@ class _BillPanel extends StatelessWidget {
             ],
           );
 
-    Widget totalRow(String label, Money amount, {bool bold = false}) {
+    Widget totalRow(
+      String label,
+      Money amount, {
+      bool bold = false,
+      bool signed = false,
+    }) {
       final style = bold
           ? theme.typography.body.md.copyWith(fontWeight: FontWeight.w800)
           : theme.typography.body.sm;
       return Row(
         children: [
           Expanded(child: Text(label, style: style)),
-          Text(formatMoney(context, amount), style: tabularFigures(style)),
+          Text(
+            signed
+                ? signedMoney(context, amount)
+                : formatMoney(context, amount),
+            style: tabularFigures(style),
+          ),
         ],
       );
     }
@@ -1224,9 +1237,15 @@ class _BillPanel extends StatelessWidget {
           ),
         if (charges.tax.value != 0)
           totalRow(
-            l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
+            charges.taxInclusive
+                ? l10n.diningTaxIncluded(
+                    percentLabel(l10n, bill.rates.tax.value),
+                  )
+                : l10n.diningTax(percentLabel(l10n, bill.rates.tax.value)),
             charges.tax,
           ),
+        if (charges.rounding.value != 0)
+          totalRow(l10n.cashierRounding, charges.rounding, signed: true),
         totalRow(l10n.diningTotal, charges.total, bold: true),
       ],
     );

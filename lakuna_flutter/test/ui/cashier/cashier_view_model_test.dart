@@ -139,6 +139,20 @@ void main() {
     expect(vm.cartIsEmpty, isTrue);
   });
 
+  test('pembulatan total cabang: baris Pembulatan dan total bayar', () async {
+    repo.salesRules = const SalesRules(rounding: TotalRounding.nearest100);
+    await vm.load.execute();
+    vm.scan('8991234500024');
+    // 0,333 × 36.000 = 11.988 → 12.000.
+    vm.setQuantity(0, const Qty(333));
+    expect(vm.totals.total, const Money(11988));
+    expect(vm.rounding, const Money(12));
+    expect(vm.grandTotal, const Money(12000));
+    vm.startPayment();
+    expect(vm.payTotal, const Money(12000));
+    expect(vm.shortBy, const Money(12000));
+  });
+
   test('jumlah produk dan item untuk bilah bawah ponsel', () {
     vm.scan('KOP');
     vm.scan('KOP');

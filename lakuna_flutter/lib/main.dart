@@ -33,6 +33,7 @@ import 'data/repositories/local_catalog_repository.dart';
 import 'data/repositories/local_master_data_repository.dart';
 import 'data/repositories/local_payment_settings_repository.dart';
 import 'data/repositories/local_receipt_settings_repository.dart';
+import 'data/repositories/local_store_settings_repository.dart';
 import 'data/repositories/local_session_repository.dart';
 import 'data/repositories/local_stock_repository.dart';
 import 'data/repositories/local_store_repository.dart';
@@ -40,6 +41,7 @@ import 'data/repositories/catalog_repository.dart';
 import 'data/repositories/master_data_repository.dart';
 import 'data/repositories/payment_settings_repository.dart';
 import 'data/repositories/receipt_settings_repository.dart';
+import 'data/repositories/store_settings_repository.dart';
 import 'data/repositories/session_repository.dart';
 import 'data/repositories/stock_repository.dart';
 import 'data/repositories/store_repository.dart';
@@ -156,6 +158,11 @@ Future<void> main() async {
     session: sessionRepository,
     preferences: preferences,
   );
+  final storeSettingsRepository = LocalStoreSettingsRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+  );
   final receiptPrinter = PlatformReceiptPrinter();
 
   runApp(
@@ -189,6 +196,9 @@ Future<void> main() async {
         Provider<ReceiptSettingsRepository>.value(
           value: receiptSettingsRepository,
         ),
+        Provider<StoreSettingsRepository>.value(
+          value: storeSettingsRepository,
+        ),
         Provider<ReceiptPrinter>.value(value: receiptPrinter),
       ],
       child: LakunaApp(
@@ -213,6 +223,7 @@ Future<void> main() async {
           users: usersRepository,
           paymentSettings: paymentSettingsRepository,
           receiptSettings: receiptSettingsRepository,
+          storeSettings: storeSettingsRepository,
           receiptPrinter: receiptPrinter,
         ),
       ),

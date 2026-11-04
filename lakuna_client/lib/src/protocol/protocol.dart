@@ -6600,6 +6600,20 @@ class Protocol extends _isd.DatabaseSerializationManager
           columnDefault: '0',
         ),
         _isd.ColumnDefinition(
+          name: 'tax_inclusive',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isd.ColumnDefinition(
+          name: 'rounding_amount',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
           name: 'void_reason',
           columnType: _isd.ColumnType.text,
           isNullable: true,

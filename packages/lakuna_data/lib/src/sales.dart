@@ -9,6 +9,7 @@ import 'history.dart' show soldStatuses;
 import 'sale_core.dart';
 import 'stock.dart';
 import 'store.dart';
+import 'store_settings.dart';
 import 'sync_tx.dart';
 
 /// Satu baris keranjang yang dikirim kasir (F1-04). Harga tidak ikut: harga
@@ -208,7 +209,12 @@ Future<CheckoutResult> checkoutSale(
     final session = await requireOpenCashSession(store, w, scope);
     final priced = await priceRequests(w.session, w.transaction, scope, lines);
     final totals = SaleTotals.of(priced.map((p) => p.line));
-    final total = totals.total;
+    final rules = await loadSalesRules(
+      w.session,
+      scope,
+      transaction: w.transaction,
+    );
+    final total = roundTotal(totals.total, rules.rounding);
 
     final s = await w.stamp();
     Customer? customer;
@@ -234,6 +240,7 @@ Future<CheckoutResult> checkoutSale(
         status: SaleStatus.completed,
         subtotal: totals.subtotal.value,
         tierDiscount: totals.tierDiscount.value,
+        roundingAmount: (total - totals.total).value,
         total: total.value,
         paidAmount: credit?.downPayment.value ?? total.value,
         changeAmount: change.value,
@@ -327,6 +334,9 @@ Future<CheckoutResult> checkoutSale(
         if (p.tracksStock)
           p.variant.id: '${p.product.name} ${p.variant.name}'.trim(),
     });
+    if (!rules.allowNegativeStock && negative.isNotEmpty) {
+      throw SaleStockShort(negative);
+    }
     return CheckoutResult(
       sale: sale,
       items: items,

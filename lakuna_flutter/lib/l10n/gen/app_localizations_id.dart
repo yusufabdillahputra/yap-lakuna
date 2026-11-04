@@ -6351,4 +6351,152 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get usersRoleDeleteConfirm => 'Hapus';
+
+  @override
+  String get cashierRounding => 'Pembulatan';
+
+  @override
+  String saleErrorStockShort(String names) {
+    return 'Stok tidak cukup: $names. Stok minus dimatikan di Pengaturan › Penjualan & stok.';
+  }
+
+  @override
+  String get reportsPlIncludedTax => 'PB1 termasuk harga';
+
+  @override
+  String get reportsPlRounding => 'Pembulatan total';
+
+  @override
+  String receiptTaxIncluded(String pct) {
+    return 'PB1 $pct (termasuk)';
+  }
+
+  @override
+  String get receiptRounding => 'Pembulatan';
+
+  @override
+  String diningTaxIncluded(String pct) {
+    return 'PB1 $pct (termasuk)';
+  }
+
+  @override
+  String get fnbRatesInclusive => 'Harga sudah termasuk pajak';
+
+  @override
+  String get fnbRatesInclusiveHint =>
+      'PB1 dipisahkan dari harga menu dan tidak ditambahkan ke total.';
+
+  @override
+  String get settingsTextSize => 'Ukuran tampilan';
+
+  @override
+  String get settingsTextSizeNormal => 'Normal';
+
+  @override
+  String get settingsTextSizeLarge => 'Besar';
+
+  @override
+  String get storeSettingsPhoneInvalid => 'Hanya angka, spasi, + dan -';
+
+  @override
+  String get storeSettingsLoadFailed => 'Pengaturan toko gagal dimuat.';
+
+  @override
+  String get storeSettingsBusinessTitle => 'Profil toko';
+
+  @override
+  String get storeSettingsBusinessSubtitle => 'Berlaku untuk semua cabang';
+
+  @override
+  String get storeSettingsBusinessName => 'Nama usaha';
+
+  @override
+  String get storeSettingsBusinessType => 'Jenis usaha';
+
+  @override
+  String get storeSettingsBusinessNote =>
+      'Jenis usaha dan zona waktu dipilih saat setup dan tidak bisa diubah karena menentukan menu dan tanggal di nomor nota.';
+
+  @override
+  String get storeSettingsBusinessSaved => 'Profil toko tersimpan.';
+
+  @override
+  String get storeSettingsOutletTitle => 'Cabang ini';
+
+  @override
+  String get storeSettingsOutletSubtitle =>
+      'Alamat dan telepon tampil di kepala struk bawaan';
+
+  @override
+  String get storeSettingsOutletName => 'Nama cabang';
+
+  @override
+  String get storeSettingsAddress => 'Alamat';
+
+  @override
+  String get storeSettingsPhone => 'Telepon';
+
+  @override
+  String get storeSettingsOutletCode => 'Kode cabang';
+
+  @override
+  String get storeSettingsDeviceCode => 'Kode perangkat';
+
+  @override
+  String get storeSettingsOutletNote =>
+      'Kode cabang dan perangkat dipakai di nomor nota (mis. PST-K01-…), jadi tidak bisa diubah.';
+
+  @override
+  String get storeSettingsOutletSaved => 'Data cabang tersimpan.';
+
+  @override
+  String get storeSettingsRulesTitle => 'Penjualan & stok';
+
+  @override
+  String get storeSettingsRulesSubtitle =>
+      'Berlaku untuk semua perangkat cabang ini';
+
+  @override
+  String get storeSettingsNegativeStock => 'Izinkan stok minus';
+
+  @override
+  String get storeSettingsNegativeStockHint =>
+      'Jika mati, produk habis tidak bisa dijual';
+
+  @override
+  String get storeSettingsRequireSession => 'Wajib buka sesi kasir';
+
+  @override
+  String get storeSettingsRequireSessionHint =>
+      'Selalu aktif: uang tunai dicatat per sesi kasir';
+
+  @override
+  String get storeSettingsRounding => 'Pembulatan total';
+
+  @override
+  String get storeSettingsRoundingHint =>
+      'Ke kelipatan terdekat, tepat setengah ke atas. Berlaku untuk semua metode bayar.';
+
+  @override
+  String get storeSettingsRoundingNone => 'Tidak ada';
+
+  @override
+  String get storeSettingsRounding100 => 'Ke Rp 100 terdekat';
+
+  @override
+  String get storeSettingsRounding500 => 'Ke Rp 500 terdekat';
+
+  @override
+  String get storeSettingsRulesSaved => 'Aturan penjualan tersimpan.';
+
+  @override
+  String get storeSettingsSave => 'Simpan';
+
+  @override
+  String get storeSettingsSaveFailed => 'Gagal menyimpan. Coba lagi.';
+
+  @override
+  String billSplitTaxIncluded(String pct) {
+    return '$pct (termasuk)';
+  }
 }

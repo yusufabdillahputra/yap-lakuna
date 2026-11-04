@@ -11251,6 +11251,270 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Hapus'**
   String get usersRoleDeleteConfirm;
+
+  /// No description provided for @cashierRounding.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembulatan'**
+  String get cashierRounding;
+
+  /// No description provided for @saleErrorStockShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok tidak cukup: {names}. Stok minus dimatikan di Pengaturan › Penjualan & stok.'**
+  String saleErrorStockShort(String names);
+
+  /// No description provided for @reportsPlIncludedTax.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 termasuk harga'**
+  String get reportsPlIncludedTax;
+
+  /// No description provided for @reportsPlRounding.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembulatan total'**
+  String get reportsPlRounding;
+
+  /// No description provided for @receiptTaxIncluded.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 {pct} (termasuk)'**
+  String receiptTaxIncluded(String pct);
+
+  /// No description provided for @receiptRounding.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembulatan'**
+  String get receiptRounding;
+
+  /// No description provided for @diningTaxIncluded.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 {pct} (termasuk)'**
+  String diningTaxIncluded(String pct);
+
+  /// No description provided for @fnbRatesInclusive.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga sudah termasuk pajak'**
+  String get fnbRatesInclusive;
+
+  /// No description provided for @fnbRatesInclusiveHint.
+  ///
+  /// In id, this message translates to:
+  /// **'PB1 dipisahkan dari harga menu dan tidak ditambahkan ke total.'**
+  String get fnbRatesInclusiveHint;
+
+  /// No description provided for @settingsTextSize.
+  ///
+  /// In id, this message translates to:
+  /// **'Ukuran tampilan'**
+  String get settingsTextSize;
+
+  /// No description provided for @settingsTextSizeNormal.
+  ///
+  /// In id, this message translates to:
+  /// **'Normal'**
+  String get settingsTextSizeNormal;
+
+  /// No description provided for @settingsTextSizeLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Besar'**
+  String get settingsTextSizeLarge;
+
+  /// No description provided for @storeSettingsPhoneInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya angka, spasi, + dan -'**
+  String get storeSettingsPhoneInvalid;
+
+  /// No description provided for @storeSettingsLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan toko gagal dimuat.'**
+  String get storeSettingsLoadFailed;
+
+  /// No description provided for @storeSettingsBusinessTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Profil toko'**
+  String get storeSettingsBusinessTitle;
+
+  /// No description provided for @storeSettingsBusinessSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku untuk semua cabang'**
+  String get storeSettingsBusinessSubtitle;
+
+  /// No description provided for @storeSettingsBusinessName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama usaha'**
+  String get storeSettingsBusinessName;
+
+  /// No description provided for @storeSettingsBusinessType.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis usaha'**
+  String get storeSettingsBusinessType;
+
+  /// No description provided for @storeSettingsBusinessNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis usaha dan zona waktu dipilih saat setup dan tidak bisa diubah karena menentukan menu dan tanggal di nomor nota.'**
+  String get storeSettingsBusinessNote;
+
+  /// No description provided for @storeSettingsBusinessSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Profil toko tersimpan.'**
+  String get storeSettingsBusinessSaved;
+
+  /// No description provided for @storeSettingsOutletTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang ini'**
+  String get storeSettingsOutletTitle;
+
+  /// No description provided for @storeSettingsOutletSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat dan telepon tampil di kepala struk bawaan'**
+  String get storeSettingsOutletSubtitle;
+
+  /// No description provided for @storeSettingsOutletName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama cabang'**
+  String get storeSettingsOutletName;
+
+  /// No description provided for @storeSettingsAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat'**
+  String get storeSettingsAddress;
+
+  /// No description provided for @storeSettingsPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'Telepon'**
+  String get storeSettingsPhone;
+
+  /// No description provided for @storeSettingsOutletCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode cabang'**
+  String get storeSettingsOutletCode;
+
+  /// No description provided for @storeSettingsDeviceCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode perangkat'**
+  String get storeSettingsDeviceCode;
+
+  /// No description provided for @storeSettingsOutletNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode cabang dan perangkat dipakai di nomor nota (mis. PST-K01-…), jadi tidak bisa diubah.'**
+  String get storeSettingsOutletNote;
+
+  /// No description provided for @storeSettingsOutletSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Data cabang tersimpan.'**
+  String get storeSettingsOutletSaved;
+
+  /// No description provided for @storeSettingsRulesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan & stok'**
+  String get storeSettingsRulesTitle;
+
+  /// No description provided for @storeSettingsRulesSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku untuk semua perangkat cabang ini'**
+  String get storeSettingsRulesSubtitle;
+
+  /// No description provided for @storeSettingsNegativeStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Izinkan stok minus'**
+  String get storeSettingsNegativeStock;
+
+  /// No description provided for @storeSettingsNegativeStockHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Jika mati, produk habis tidak bisa dijual'**
+  String get storeSettingsNegativeStockHint;
+
+  /// No description provided for @storeSettingsRequireSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib buka sesi kasir'**
+  String get storeSettingsRequireSession;
+
+  /// No description provided for @storeSettingsRequireSessionHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Selalu aktif: uang tunai dicatat per sesi kasir'**
+  String get storeSettingsRequireSessionHint;
+
+  /// No description provided for @storeSettingsRounding.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembulatan total'**
+  String get storeSettingsRounding;
+
+  /// No description provided for @storeSettingsRoundingHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke kelipatan terdekat, tepat setengah ke atas. Berlaku untuk semua metode bayar.'**
+  String get storeSettingsRoundingHint;
+
+  /// No description provided for @storeSettingsRoundingNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada'**
+  String get storeSettingsRoundingNone;
+
+  /// No description provided for @storeSettingsRounding100.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke Rp 100 terdekat'**
+  String get storeSettingsRounding100;
+
+  /// No description provided for @storeSettingsRounding500.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke Rp 500 terdekat'**
+  String get storeSettingsRounding500;
+
+  /// No description provided for @storeSettingsRulesSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Aturan penjualan tersimpan.'**
+  String get storeSettingsRulesSaved;
+
+  /// No description provided for @storeSettingsSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get storeSettingsSave;
+
+  /// No description provided for @storeSettingsSaveFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get storeSettingsSaveFailed;
+
+  /// No description provided for @billSplitTaxIncluded.
+  ///
+  /// In id, this message translates to:
+  /// **'{pct} (termasuk)'**
+  String billSplitTaxIncluded(String pct);
 }
 
 class _AppLocalizationsDelegate
