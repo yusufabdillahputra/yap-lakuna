@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show LicenseEntry;
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -17,6 +18,8 @@ import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
 import '../products/product_widgets.dart' show ChoicePill;
+import 'about_section.dart';
+import 'about_view_model.dart';
 import 'app_settings_view_model.dart';
 import 'backup_section.dart';
 import 'backup_view_model.dart';
@@ -39,7 +42,8 @@ enum SettingsSection {
   taxes,
   rules,
   backup,
-  appearance;
+  appearance,
+  about;
 
   /// Bagian dari parameter rute `?bagian=` (mis. `backup` dari pengingat
   /// Beranda); `null` bila tidak dikenal.
@@ -69,7 +73,11 @@ class SettingsScreen extends StatefulWidget {
     this.backup,
     this.backupFiles = const PlatformBackupFiles(),
     this.initialSection,
+    this.licenses,
   });
+
+  /// Sumber lisensi untuk Tentang Lakuna; bawaan [LicenseRegistry].
+  final Stream<LicenseEntry> Function()? licenses;
 
   /// Data & backup (F1-19); hanya untuk staf dengan `backup:manage`.
   final BackupRepository? backup;
@@ -111,6 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ReceiptSettingsViewModel? _receipt;
   FnbRatesViewModel? _rates;
   BackupViewModel? _backup;
+  late final _about = AboutViewModel(licenses: widget.licenses);
 
   @override
   void initState() {
@@ -155,6 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _receipt?.dispose();
     _rates?.dispose();
     _backup?.dispose();
+    _about.dispose();
     super.dispose();
   }
 
@@ -167,6 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_canManage) SettingsSection.rules,
     if (_canBackup) SettingsSection.backup,
     SettingsSection.appearance,
+    SettingsSection.about,
   ];
 
   String _label(AppLocalizations l10n, SettingsSection s) => switch (s) {
@@ -178,6 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.taxes => l10n.settingsSectionTaxes,
     SettingsSection.backup => l10n.settingsSectionBackup,
     SettingsSection.appearance => l10n.settingsSectionAppearance,
+    SettingsSection.about => l10n.settingsSectionAbout,
   };
 
   IconData _icon(SettingsSection s) => switch (s) {
@@ -189,6 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.taxes => TablerIcons.percentage,
     SettingsSection.backup => TablerIcons.databaseExport,
     SettingsSection.appearance => TablerIcons.palette,
+    SettingsSection.about => TablerIcons.infoCircle,
   };
 
   @override
@@ -224,6 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         timezone: widget.store.current?.outlet.timezone,
       ),
       SettingsSection.appearance => SettingsView(viewModel: widget.settings),
+      SettingsSection.about => AboutSection(viewModel: _about),
     };
     return LayoutBuilder(
       builder: (context, c) {

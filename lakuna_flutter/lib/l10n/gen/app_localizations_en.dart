@@ -6987,4 +6987,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideImageMissing => 'Image not available';
+
+  @override
+  String get settingsSectionAbout => 'About Lakuna';
+
+  @override
+  String get aboutTagline =>
+      'Offline-first point of sale for small businesses, in Retail and F&B modes.';
+
+  @override
+  String get aboutVersion => 'Version';
+
+  @override
+  String get aboutOpenGuide => 'Open the guide';
+
+  @override
+  String get aboutPrivacyTitle => 'Data privacy';
+
+  @override
+  String get aboutPrivacyLocal =>
+      'All store data (products, sales, customers, staff and images) is stored on this device. Lakuna does not send data to anyone else and has no ads or trackers.';
+
+  @override
+  String get aboutPrivacyHosted =>
+      'The hosted version (sync to a server) is not available yet. The privacy policy will be updated before it launches.';
+
+  @override
+  String get aboutPrivacyBackup =>
+      'Backup files hold all of your store data. Keep them somewhere safe.';
+
+  @override
+  String get aboutLicensesTitle => 'Open source licenses';
+
+  @override
+  String get aboutLicensesSubtitle =>
+      'Lakuna is built with these open source packages and fonts.';
+
+  @override
+  String get aboutLicensesShow => 'Show licenses';
+
+  @override
+  String get aboutLicensesError => 'Could not load the license list.';
+
+  @override
+  String aboutLicenseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count licenses',
+      one: '1 license',
+    );
+    return '$_temp0';
+  }
 }

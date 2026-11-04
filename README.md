@@ -14,6 +14,9 @@ Windows (`.exe`, `.msi`), Linux (`.deb`), macOS (`.dmg`), Android (`.apk`,
 
 - Di Windows pilih **salah satu** installer (`.exe` atau `.msi`), jangan
   keduanya.
+- `SHA256SUMS.txt` berisi checksum setiap berkas untuk memeriksa unduhan.
+- Langkah rilis ke Google Play dan App Store, kebijakan privasi, dan teks
+  listing ada di [docs/rilis](docs/rilis/README.md).
 - Berkas Android berakhiran `-uji` ditandatangani kunci sementara: pembaruan
   ke versi berikutnya mengharuskan uninstall dan menghapus data di perangkat.
   Gunakan hanya untuk mencoba.

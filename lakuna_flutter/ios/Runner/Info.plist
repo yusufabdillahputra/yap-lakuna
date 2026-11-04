@@ -6,8 +6,12 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Lakuna memakai Bluetooth untuk mencetak struk ke printer kasir.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Lakuna memakai kamera untuk memotret denah meja.</string>
+	<string>Lakuna memakai kamera untuk memotret nota pengeluaran, bukti bayar supplier, dan denah meja.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lakuna membuka galeri agar Anda bisa memilih foto produk, stiker QRIS, nota, atau denah meja.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Lakuna</string>
 	<key>CFBundleExecutable</key>

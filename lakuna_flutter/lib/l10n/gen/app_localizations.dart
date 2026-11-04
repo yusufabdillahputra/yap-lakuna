@@ -12067,6 +12067,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Gambar belum tersedia'**
   String get guideImageMissing;
+
+  /// No description provided for @settingsSectionAbout.
+  ///
+  /// In id, this message translates to:
+  /// **'Tentang Lakuna'**
+  String get settingsSectionAbout;
+
+  /// No description provided for @aboutTagline.
+  ///
+  /// In id, this message translates to:
+  /// **'Aplikasi kasir offline-first untuk UMKM, mode Retail dan F&B.'**
+  String get aboutTagline;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi'**
+  String get aboutVersion;
+
+  /// No description provided for @aboutOpenGuide.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Panduan'**
+  String get aboutOpenGuide;
+
+  /// No description provided for @aboutPrivacyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Privasi data'**
+  String get aboutPrivacyTitle;
+
+  /// No description provided for @aboutPrivacyLocal.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua data toko (produk, transaksi, pelanggan, staf, dan gambar) disimpan di perangkat ini. Lakuna tidak mengirim data ke pihak lain dan tidak memakai iklan atau pelacak.'**
+  String get aboutPrivacyLocal;
+
+  /// No description provided for @aboutPrivacyHosted.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosted (sinkronisasi ke server) belum tersedia. Kebijakan privasi akan diperbarui sebelum versi itu dirilis.'**
+  String get aboutPrivacyHosted;
+
+  /// No description provided for @aboutPrivacyBackup.
+  ///
+  /// In id, this message translates to:
+  /// **'File backup berisi seluruh data toko. Simpan di tempat yang aman.'**
+  String get aboutPrivacyBackup;
+
+  /// No description provided for @aboutLicensesTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lisensi open source'**
+  String get aboutLicensesTitle;
+
+  /// No description provided for @aboutLicensesSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lakuna dibangun dengan paket dan font open source berikut.'**
+  String get aboutLicensesSubtitle;
+
+  /// No description provided for @aboutLicensesShow.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan lisensi'**
+  String get aboutLicensesShow;
+
+  /// No description provided for @aboutLicensesError.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar lisensi gagal dimuat.'**
+  String get aboutLicensesError;
+
+  /// No description provided for @aboutLicenseCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, other{{count} lisensi}}'**
+  String aboutLicenseCount(int count);
 }
 
 class _AppLocalizationsDelegate

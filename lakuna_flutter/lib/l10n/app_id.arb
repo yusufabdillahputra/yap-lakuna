@@ -4333,5 +4333,25 @@
   "guideLoadError": "Panduan gagal dimuat",
   "guidePrevious": "Sebelumnya",
   "guideNext": "Berikutnya",
-  "guideImageMissing": "Gambar belum tersedia"
+  "guideImageMissing": "Gambar belum tersedia",
+  "settingsSectionAbout": "Tentang Lakuna",
+  "aboutTagline": "Aplikasi kasir offline-first untuk UMKM, mode Retail dan F&B.",
+  "aboutVersion": "Versi",
+  "aboutOpenGuide": "Buka Panduan",
+  "aboutPrivacyTitle": "Privasi data",
+  "aboutPrivacyLocal": "Semua data toko (produk, transaksi, pelanggan, staf, dan gambar) disimpan di perangkat ini. Lakuna tidak mengirim data ke pihak lain dan tidak memakai iklan atau pelacak.",
+  "aboutPrivacyHosted": "Versi hosted (sinkronisasi ke server) belum tersedia. Kebijakan privasi akan diperbarui sebelum versi itu dirilis.",
+  "aboutPrivacyBackup": "File backup berisi seluruh data toko. Simpan di tempat yang aman.",
+  "aboutLicensesTitle": "Lisensi open source",
+  "aboutLicensesSubtitle": "Lakuna dibangun dengan paket dan font open source berikut.",
+  "aboutLicensesShow": "Tampilkan lisensi",
+  "aboutLicensesError": "Daftar lisensi gagal dimuat.",
+  "aboutLicenseCount": "{count, plural, other{{count} lisensi}}",
+  "@aboutLicenseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
