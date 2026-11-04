@@ -5453,4 +5453,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get expenseCategorySave => 'Simpan';
+
+  @override
+  String get expenseReceiptOpen => 'Buka foto nota';
+
+  @override
+  String get expenseFundingDrawer => 'Kas laci';
 }

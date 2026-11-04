@@ -42,8 +42,8 @@ abstract class ExpensesRepository {
   Future<Result<List<ExpenseRow>>> list(DateRange range);
 
   /// Gagal dengan `ExpenseInvalid`, `ExpenseDateInvalid`,
-  /// `ExpenseDrawerDate`, `ExpenseReceiptInvalid`, atau
-  /// `CashSessionNotOpen`.
+  /// `ExpenseReceiptInvalid`, atau `CashSessionNotOpen`. Pengeluaran kas
+  /// laci selalu bertanggal hari ini menurut cabang.
   Future<Result<Expense>> record(ExpenseRequest request);
 
   /// Gagal dengan `ExpenseNotFound`.

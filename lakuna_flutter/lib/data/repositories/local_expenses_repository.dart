@@ -60,15 +60,23 @@ class LocalExpensesRepository extends ExpensesRepository {
       _guard((_, scope, _) => loadExpense(_store, scope, id));
 
   @override
-  Future<Result<Expense>> cancel(UuidValue id, String reason) => _guard(
-    (_, scope, staff) => voidExpense(
-      _store,
-      scope,
-      staffId: staff.id,
-      expenseId: id,
-      reason: reason,
-    ),
-  );
+  Future<Result<Expense>> cancel(UuidValue id, String reason) =>
+      _guard((_, scope, staff) async {
+        // Batal kas laci mengembalikan uang ke laci, jadi butuh izin yang
+        // sama dengan mencatatnya.
+        final row = await loadExpense(_store, scope, id);
+        if (row.expense.fundingSource == FundingSource.drawer &&
+            !staff.can(Permission.cashMovementsCreate)) {
+          throw const NotPermitted(Permission.cashMovementsCreate);
+        }
+        return voidExpense(
+          _store,
+          scope,
+          staffId: staff.id,
+          expenseId: id,
+          reason: reason,
+        );
+      });
 
   @override
   Future<Result<Uint8List?>> receipt(UuidValue id) =>

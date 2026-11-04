@@ -53,7 +53,6 @@ String expenseErrorMessage(AppLocalizations l10n, Exception error) =>
       ExpenseInvalid(:final issues) when issues.isNotEmpty =>
         expenseIssueMessage(l10n, issues.first),
       ExpenseDateInvalid() => l10n.expenseErrDate,
-      ExpenseDrawerDate() => l10n.expenseDrawerNotToday,
       ExpenseReceiptInvalid() => l10n.expenseReceiptInvalid,
       ExpenseNotFound() => l10n.expenseErrNotFound,
       ExpenseAlreadyVoided() => l10n.expenseErrAlreadyVoided,

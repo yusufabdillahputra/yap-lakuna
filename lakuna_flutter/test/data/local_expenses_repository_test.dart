@@ -156,5 +156,19 @@ void main() {
     final movement = active.movements.single;
     expect(movement.id, e.cashMovementId);
     expect(active.expenseLabels[movement.id], 'Bahan habis pakai');
+
+    // Batal kas laci juga butuh cash_movements:create.
+    session.current = staffWith({Permission.expensesManage});
+    final cancelDenied = _err(await repo.cancel(e.id, 'Salah'));
+    expect(
+      (cancelDenied as NotPermitted).permission,
+      Permission.cashMovementsCreate,
+    );
+    session.current = owner;
+    _ok(await repo.cancel(e.id, 'Salah'));
+    expect(
+      _ok(await drawer.loadCurrent())!.drawer.expectedCash,
+      const Money(100000),
+    );
   });
 }

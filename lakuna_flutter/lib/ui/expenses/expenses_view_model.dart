@@ -95,15 +95,10 @@ class ExpensesViewModel extends ChangeNotifier {
     await refresh();
   }
 
-  /// Memuat ulang daftar periode ini (setup tetap).
-  Future<void> refresh() async {
-    if (_setup == null) {
-      await load.execute();
-      return;
-    }
-    await _list();
-    notifyListeners();
-  }
+  /// Memuat ulang setup (hari ini, sesi kasir, jenis) dan daftar periode
+  /// ini, mis. setelah menyimpan atau bila layar terbuka melewati tengah
+  /// malam.
+  Future<void> refresh() => load.execute();
 
   Future<Result<void>> _load() async {
     switch (await _repository.load()) {

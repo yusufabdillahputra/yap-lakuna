@@ -6,6 +6,7 @@ import 'package:lakuna_flutter/data/repositories/cash_drawer_repository.dart';
 import 'package:lakuna_flutter/ui/cash_session/cash_session_view_model.dart';
 
 import '../../testing/fake_cash_drawer_repository.dart';
+import '../../testing/fake_expenses_repository.dart';
 
 void main() {
   late FakeCashDrawerRepository repo;
@@ -274,5 +275,69 @@ void main() {
     repo.nextError = Exception('disk');
     await vm.load.execute();
     expect(vm.stage, CashStage.loadFailed);
+  });
+
+  group('catat juga sebagai pengeluaran', () {
+    late FakeExpensesRepository expenses;
+    late CashSessionViewModel evm;
+
+    setUp(() async {
+      expenses = FakeExpensesRepository(seed: false)
+        ..onDrawerExpense = (e, category) => repo.addExpenseMovement(
+          Money(e.amount),
+          e.description,
+          category,
+        );
+      evm = CashSessionViewModel(
+        repository: repo,
+        permissions: Permission.values.toSet(),
+        expenses: expenses,
+      );
+      await evm.load.execute();
+      evm.setOpeningCash('100000');
+      await evm.open.execute();
+    });
+
+    tearDown(() => evm.dispose());
+
+    test('keterangan dan jenis wajib; keterangan maks 120', () async {
+      expect(evm.canRecordExpense, isTrue);
+      evm.setAsExpense(true);
+      await Future<void>.delayed(Duration.zero);
+      expect(evm.expenseCategories, hasLength(7));
+      expect(evm.movementNoteMaxLength, ExpenseLimits.description);
+      evm.setMovementAmount('5000');
+      await evm.saveMovement.execute();
+      expect(evm.movementNoteError, CashError.required);
+      expect(evm.expenseCategoryMissing, isTrue);
+      evm.setMovementNote('x' * 121);
+      evm.setExpenseCategory(expenses.categoryByName('Transport').id);
+      await evm.saveMovement.execute();
+      expect(evm.movementNoteError, CashError.tooLong);
+      expect(expenses.expenses, isEmpty);
+      evm.setMovementNote('Parkir');
+      await evm.saveMovement.execute();
+      expect(expenses.expenses.single.description, 'Parkir');
+      expect(evm.active!.expenseLabels.values.single, 'Transport');
+      expect(evm.asExpense, isFalse);
+      expect(evm.movementNoteMaxLength, cashNoteMaxLength);
+    });
+
+    test('jenis gagal dimuat tampil sebagai galat', () async {
+      expenses.nextError = Exception('db');
+      evm.setAsExpense(true);
+      await Future<void>.delayed(Duration.zero);
+      expect(evm.error, isNotNull);
+    });
+
+    test('tanpa expenses:manage sakelar tidak tersedia', () {
+      final v = CashSessionViewModel(
+        repository: repo,
+        permissions: {Permission.cashMovementsCreate},
+        expenses: expenses,
+      );
+      expect(v.canRecordExpense, isFalse);
+      v.dispose();
+    });
   });
 }

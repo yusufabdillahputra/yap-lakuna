@@ -9,13 +9,21 @@ import '../../utils/result.dart';
 
 /// Dialog *Rincian pengeluaran*: data, foto nota, dan batal dengan alasan.
 class ExpenseDetailViewModel extends ChangeNotifier {
-  ExpenseDetailViewModel({required this._repository, required this.expenseId}) {
+  ExpenseDetailViewModel({
+    required this._repository,
+    required this.expenseId,
+    this.canUseDrawer = true,
+  }) {
     load = Command0(_load)..addListener(notifyListeners);
     cancel = Command0(_cancel)..addListener(notifyListeners);
   }
 
   final ExpensesRepository _repository;
   final UuidValue expenseId;
+
+  /// Staf punya `cash_movements:create`; tanpa itu pengeluaran kas laci
+  /// tidak bisa dibatalkan (uang kembali ke laci).
+  final bool canUseDrawer;
 
   var _disposed = false;
 
@@ -50,7 +58,11 @@ class ExpenseDetailViewModel extends ChangeNotifier {
   /// Form alasan batal sedang tampil.
   bool get confirming => _confirming;
   bool get reasonInvalid => _submitted && !validateExpenseVoidReason(_reason);
-  bool get canCancel => !(_row?.voided ?? true);
+  bool get canCancel {
+    final row = _row;
+    if (row == null || row.voided) return false;
+    return row.expense.fundingSource != FundingSource.drawer || canUseDrawer;
+  }
 
   void startCancel() {
     _confirming = true;

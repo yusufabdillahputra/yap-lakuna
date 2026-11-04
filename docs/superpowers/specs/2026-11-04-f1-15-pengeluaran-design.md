@@ -1,7 +1,7 @@
 # F1-15 · Pengeluaran
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.19.0)
+- **Status:** Rilis v0.19.0
 - **Layar desain:** 1.22 *Pengeluaran* (desktop), 1.3b *Kas laci* (opsi
   *Catat juga sebagai pengeluaran*), 1.17 *Master data › Jenis pengeluaran*
 - **Acuan Storeku:** `docs/superpowers/specs/2026-11-02-f1-15-pengeluaran-design.md`
@@ -61,14 +61,20 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
    `voided_at` / `voided_by` / `void_reason`.
 2. **Tanggal** tidak boleh di masa depan; boleh mundur untuk kas toko dan
    bank.
-3. **Kas laci**: wajib sesi kasir terbuka di perangkat ini, tanggal = hari
-   ini, dan izin `cash_movements:create`; menulis `cash_movements` keluar
+3. **Kas laci**: wajib sesi kasir terbuka di perangkat ini dan izin
+   `cash_movements:create`; menulis `cash_movements` keluar
    (`source = expense`, catatan = keterangan) dalam transaksi yang sama.
+   Tanggalnya selalu hari ini menurut cabang (lapisan data memakai tanggal
+   saat simpan, bukan tanggal kiriman layar, agar layar yang terbuka
+   melewati tengah malam tidak macet); form menolak tanggal lain untuk
+   kas laci. Keterangan uang keluar yang dicatat juga sebagai pengeluaran
+   dibatasi 120 karakter.
 4. **Tidak ada ubah nilai**: koreksi = batalkan (alasan wajib, ≤ 200) lalu
    catat baru. Pembatalan pengeluaran laci menulis uang masuk
    (`source = expense_void`) di sesi yang sedang buka di perangkat ini;
-   tanpa sesi terbuka pembatalan laci ditolak. Pembatalan kas toko/bank
-   tidak menyentuh laci.
+   tanpa sesi terbuka pembatalan laci ditolak. Pembatalan laci juga butuh
+   `cash_movements:create` (tombol *Batalkan* disembunyikan tanpa izin
+   itu). Pembatalan kas toko/bank tidak menyentuh laci.
 5. **Jenis pengeluaran** (`expense_categories`) milik tenant, nama wajib
    ≤ 60, unik tanpa membedakan huruf besar/kecil. Jenis bawaan dibuat
    sekali per tenant saat pertama dibutuhkan: *Sewa tempat*, *Listrik &
@@ -87,7 +93,8 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
 10. **Data per outlet**: daftar dan ringkasan dibatasi outlet ini; jenis
     dipakai bersama semua cabang.
 11. **Foto nota** ≤ 5 MB, gambar sah (PNG/JPEG/WebP), sama dengan bukti
-    bayar hutang (F1-14).
+    bayar hutang (F1-14). Foto di rincian bisa dibuka besar dan
+    diperbesar; foto hanya dibaca untuk pengeluaran cabang ini.
 
 ## Beda dengan Storeku
 
@@ -119,9 +126,13 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Jenis pengeluaran, catat, batal, per jenis, ekspor, kas laci | 1.22, 1.3b, 1.17 | Dalam pengerjaan | — |
+| Jenis pengeluaran, catat, batal, per jenis, ekspor, kas laci | 1.22, 1.3b, 1.17 | Rilis v0.19.0 | — |
 | Pengeluaran berulang (sewa bulanan) | — | Belum | Fase 3. |
 | Laba rugi | 1.24 | Belum | F1-16 membaca `expenses` tidak batal. |
+| Peran khusus dengan `expenses:manage` tanpa `cash_movements:create` | — | Dicek di UI, repositori, data | Peran bawaan belum punya kombinasi ini; tambah tes data saat peran khusus (F1-17) ada. |
+| Jumlah pakai per jenis | — | Dihitung di memori dari semua pengeluaran tenant | Ganti dengan kueri `GROUP BY` bila data besar. |
+| Sinkronisasi (Fase 2) | — | Belum | Jenis bawaan dibuat per perangkat saat offline: pakai ID deterministik (UUIDv5 tenant + nama) atau gabung saat sync. Batal pengeluaran laci dari perangkat lain mengembalikan uang ke laci perangkat itu; batasi ke perangkat asal. |
+| Isian cari hilang saat lebar melewati 520 px | — | Filter tetap berlaku | Pertahankan controller saat tata letak berganti. |
 
 ## Kriteria selesai
 

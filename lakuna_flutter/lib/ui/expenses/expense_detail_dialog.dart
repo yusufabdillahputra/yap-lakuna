@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -17,15 +19,19 @@ import 'expense_labels.dart';
 Future<bool> showExpenseDetail(
   BuildContext context,
   ExpensesRepository repository,
-  UuidValue expenseId,
-) async =>
+  UuidValue expenseId, {
+  bool canUseDrawer = true,
+}) async =>
     await showFDialog<bool>(
       context: context,
       builder: (context, style, animation) => FDialog(
         animation: animation,
         constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
-        builder: (context, style) =>
-            ExpenseDetailDialog(repository: repository, expenseId: expenseId),
+        builder: (context, style) => ExpenseDetailDialog(
+          repository: repository,
+          expenseId: expenseId,
+          canUseDrawer: canUseDrawer,
+        ),
       ),
     ) ??
     false;
@@ -35,10 +41,12 @@ class ExpenseDetailDialog extends StatefulWidget {
     super.key,
     required this.repository,
     required this.expenseId,
+    this.canUseDrawer = true,
   });
 
   final ExpensesRepository repository;
   final UuidValue expenseId;
+  final bool canUseDrawer;
 
   @override
   State<ExpenseDetailDialog> createState() => _ExpenseDetailDialogState();
@@ -48,6 +56,7 @@ class _ExpenseDetailDialogState extends State<ExpenseDetailDialog> {
   late final _vm = ExpenseDetailViewModel(
     repository: widget.repository,
     expenseId: widget.expenseId,
+    canUseDrawer: widget.canUseDrawer,
   )..load.execute();
   var _cancelled = false;
 
@@ -56,6 +65,42 @@ class _ExpenseDetailDialogState extends State<ExpenseDetailDialog> {
     _vm.dispose();
     super.dispose();
   }
+
+  /// Foto nota layar penuh yang bisa diperbesar.
+  Future<void> _openReceipt(BuildContext context, Uint8List bytes) =>
+      showFDialog<void>(
+        context: context,
+        builder: (context, style, animation) => FDialog(
+          animation: animation,
+          constraints: const BoxConstraints(minWidth: 280, maxWidth: 900),
+          builder: (context, style) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              key: const ValueKey('expense-receipt-full'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                Flexible(
+                  child: InteractiveViewer(
+                    maxScale: 5,
+                    child: Image.memory(bytes, fit: BoxFit.contain),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FButton(
+                    key: const ValueKey('expense-receipt-full-close'),
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(),
+                    child: Text(AppLocalizations.of(context).expenseClose),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Future<void> _cancel() async {
     await _vm.cancel.execute();
@@ -176,13 +221,17 @@ class _ExpenseDetailDialogState extends State<ExpenseDetailDialog> {
                           ),
                         ),
                       if (receipt != null)
-                        ClipRRect(
+                        FTappable(
                           key: const ValueKey('expense-detail-receipt'),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            receipt,
-                            fit: BoxFit.contain,
-                            height: 280,
+                          semanticsLabel: l10n.expenseReceiptOpen,
+                          onPress: () => _openReceipt(context, receipt),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(
+                              receipt,
+                              fit: BoxFit.contain,
+                              height: 280,
+                            ),
                           ),
                         )
                       else

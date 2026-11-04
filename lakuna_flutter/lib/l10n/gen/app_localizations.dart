@@ -9589,6 +9589,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Simpan'**
   String get expenseCategorySave;
+
+  /// No description provided for @expenseReceiptOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka foto nota'**
+  String get expenseReceiptOpen;
+
+  /// No description provided for @expenseFundingDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Kas laci'**
+  String get expenseFundingDrawer;
 }
 
 class _AppLocalizationsDelegate

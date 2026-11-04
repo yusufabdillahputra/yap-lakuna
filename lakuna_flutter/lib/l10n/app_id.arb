@@ -3443,5 +3443,7 @@
   "cashAsExpense": "Catat juga sebagai pengeluaran",
   "cashAsExpenseHint": "Agar ikut laporan laba rugi (1.24)",
   "cashAsExpenseNeedsNote": "Keterangan wajib diisi dan menjadi keterangan pengeluaran.",
-  "expenseCategorySave": "Simpan"
+  "expenseCategorySave": "Simpan",
+  "expenseReceiptOpen": "Buka foto nota",
+  "expenseFundingDrawer": "Kas laci"
 }

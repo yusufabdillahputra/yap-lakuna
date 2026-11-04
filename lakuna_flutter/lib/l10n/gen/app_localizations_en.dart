@@ -5574,4 +5574,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseCategorySave => 'Save';
+
+  @override
+  String get expenseReceiptOpen => 'Open receipt photo';
+
+  @override
+  String get expenseFundingDrawer => 'Cash drawer';
 }

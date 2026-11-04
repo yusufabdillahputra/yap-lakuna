@@ -2909,5 +2909,7 @@
   "cashAsExpense": "Also record as an expense",
   "cashAsExpenseHint": "So it counts in the profit & loss report (1.24)",
   "cashAsExpenseNeedsNote": "The note is required and becomes the expense description.",
-  "expenseCategorySave": "Save"
+  "expenseCategorySave": "Save",
+  "expenseReceiptOpen": "Open receipt photo",
+  "expenseFundingDrawer": "Cash drawer"
 }

@@ -88,6 +88,19 @@ void main() {
     expect(_key('expenses-new'), findsNothing);
     expect(find.text('Total Rp 3.250.000'), findsOneWidget);
     expect(_key('expenses-category-Sewa tempat'), findsOneWidget);
+    // Batang per jenis sebanding dengan jenis terbesar.
+    Size barSize(String name) => tester.getSize(
+      find
+          .descendant(
+            of: _key('expenses-bar-$name'),
+            matching: find.byType(ColoredBox),
+          )
+          .last,
+    );
+    double bar(String name) => barSize(name).width;
+    expect(barSize('Sewa tempat').height, 6);
+    expect(bar('Sewa tempat'), greaterThan(100));
+    expect(bar('Transport'), closeTo(bar('Sewa tempat') * 0.02, 1));
     expect(find.text('Kas laci · sesi Sari'), findsOneWidget);
 
     // Galat isian tampil setelah mencoba menyimpan.
@@ -113,6 +126,13 @@ void main() {
     expect(find.text('Total Rp 3.275.000'), findsOneWidget);
     // Isian dikosongkan (generasi baru).
     expect(_key('expense-description-1'), findsOneWidget);
+
+    // Foto nota di rincian bisa dibuka besar.
+    await _tap(tester, _key('expenses-row-${saved.id.uuid}'));
+    await _tap(tester, _key('expense-detail-receipt'));
+    expect(_key('expense-receipt-full'), findsOneWidget);
+    await _tap(tester, _key('expense-receipt-full-close'));
+    await _tap(tester, _key('expense-detail-close'));
 
     // Rincian → batal dengan alasan.
     final listrik = repo.byDescription('Token listrik');
@@ -158,7 +178,7 @@ void main() {
     await _choose(
       tester,
       _key('expense-funding-0'),
-      'Kas laci (sesi aktif)',
+      'Kas laci',
     );
     expect(_key('expense-drawer-hint'), findsOneWidget);
     await fill(tester);

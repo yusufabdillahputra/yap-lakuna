@@ -240,20 +240,15 @@ void main() {
         staffId: owner(),
         openingCash: const Money(300000),
       );
-      await expectLater(
-        spend(
-          'Beli es batu',
-          20000,
-          funding: FundingSource.drawer,
-          spentOn: DateTime.utc(2026, 11, 3),
-        ),
-        throwsA(isA<ExpenseDrawerDate>()),
-      );
+      // Tanggal basi dari layar yang terbuka sejak kemarin tetap dicatat
+      // hari ini karena uang laci keluar sekarang.
       final e = await spend(
         'Beli es batu',
         20000,
         funding: FundingSource.drawer,
+        spentOn: DateTime.utc(2026, 11, 3),
       );
+      expect(e.spentOn, DateTime.utc(2026, 11, 4));
       expect(e.cashSessionId, session.id);
       final moves = await listCashMovements(store, cashScope, session.id);
       final out = moves.single;
@@ -290,6 +285,47 @@ void main() {
           ),
         ),
         throwsA(isA<ExpenseReceiptInvalid>()),
+      );
+    });
+
+    test('pengeluaran laci + gerakan kas masuk outbox bersama', () async {
+      await openCashSession(
+        store,
+        cashScope,
+        staffId: owner(),
+        openingCash: const Money(100000),
+      );
+      Future<Map<String, int>> counts() async {
+        final rows = await SyncOutboxEntry.db.find(store.session);
+        return {
+          for (final t in const ['expenses', 'cash_movements'])
+            t: rows.where((r) => r.entity == t).length,
+        };
+      }
+
+      final before = await counts();
+      await spend('Es batu', 8000, funding: FundingSource.drawer);
+      final after = await counts();
+      expect(after['expenses'], before['expenses']! + 1);
+      expect(after['cash_movements'], before['cash_movements']! + 1);
+    });
+
+    test('pengeluaran dan foto nota cabang lain tidak bisa dibuka', () async {
+      final e = await spend(
+        'Bensin',
+        50000,
+        receipt: ExpenseReceipt(bytes: _png, fileName: 'nota.png'),
+      );
+      final other = CatalogScope(
+        tenantId: scope.tenantId,
+        outletId: UuidValue.fromString(newId()),
+        deviceId: scope.deviceId,
+      );
+      expect(await loadExpenseReceipt(store, other, e.id), isNull);
+      expect(await loadExpenseReceipt(store, scope, e.id), isNotNull);
+      await expectLater(
+        loadExpense(store, other, e.id),
+        throwsA(isA<ExpenseNotFound>()),
       );
     });
 

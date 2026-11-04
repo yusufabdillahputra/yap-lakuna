@@ -208,8 +208,8 @@ class FakeExpensesRepository extends ExpensesRepository {
     if (drawer && !canUseDrawer) {
       throw const NotPermitted(Permission.cashMovementsCreate);
     }
-    if (request.spentOn.isAfter(today)) throw ExpenseDateInvalid();
-    if (drawer && request.spentOn != today) throw ExpenseDrawerDate();
+    final spentOn = drawer ? today : request.spentOn;
+    if (spentOn.isAfter(today)) throw ExpenseDateInvalid();
     if (drawer && !hasOpenSession) throw CashSessionNotOpen();
     final e = Expense(
       id: _id(),
@@ -220,7 +220,7 @@ class FakeExpensesRepository extends ExpensesRepository {
       expenseCategoryId: request.categoryId!,
       number:
           'EX-PST-K01-261104-${(expenses.length + 1).toString().padLeft(4, '0')}',
-      spentOn: request.spentOn,
+      spentOn: spentOn,
       description: request.description.trim(),
       amount: request.amount.value,
       fundingSource: request.funding,
@@ -253,6 +253,9 @@ class FakeExpensesRepository extends ExpensesRepository {
         if (i < 0) throw ExpenseNotFound();
         final e = expenses[i];
         if (e.voidedAt != null) throw ExpenseAlreadyVoided();
+        if (e.fundingSource == FundingSource.drawer && !canUseDrawer) {
+          throw const NotPermitted(Permission.cashMovementsCreate);
+        }
         if (e.fundingSource == FundingSource.drawer && !hasOpenSession) {
           throw CashSessionNotOpen();
         }

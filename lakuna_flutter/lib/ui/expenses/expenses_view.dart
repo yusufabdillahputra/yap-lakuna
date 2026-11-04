@@ -120,6 +120,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 ExpenseForm(
                   viewModel: form,
                   onCancel: () => Navigator.of(context).pop(),
+                  onFailed: _list.refresh,
                   onSaved: (e) async {
                     Navigator.of(context).pop();
                     await _saved(e);
@@ -134,7 +135,12 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   }
 
   Future<void> _openDetail(UuidValue id) async {
-    await showExpenseDetail(context, widget.repository, id);
+    await showExpenseDetail(
+      context,
+      widget.repository,
+      id,
+      canUseDrawer: _list.setup?.canUseDrawer ?? false,
+    );
     if (mounted) await _list.refresh();
   }
 
@@ -246,7 +252,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                           title: l10n.expenseFormTitle,
                           child: form == null
                               ? const Center(child: FCircularProgress())
-                              : ExpenseForm(viewModel: form, onSaved: _saved),
+                              : ExpenseForm(
+                                  viewModel: form,
+                                  onSaved: _saved,
+                                  onFailed: _list.refresh,
+                                ),
                         ),
                       ),
                     ],
@@ -400,8 +410,11 @@ class _ExpenseList extends StatelessWidget {
               key: ValueKey('expenses-row-${r.expense.id.uuid}'),
               onPress: () => onOpen(r.expense.id),
               child: DecoratedBox(
+                // Tanpa kepala tabel, baris pertama tidak perlu garis atas.
                 decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: theme.colors.border)),
+                  border: cards && identical(r, rows.first)
+                      ? null
+                      : Border(top: BorderSide(color: theme.colors.border)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -549,21 +562,20 @@ class _ByCategory extends StatelessWidget {
                   ],
                 ),
                 ClipRRect(
+                  key: ValueKey('expenses-bar-${c.name}'),
                   borderRadius: BorderRadius.circular(4),
                   child: SizedBox(
                     height: 6,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: _share(c.total.value, max),
+                    child: ColoredBox(
+                      color: theme.colors.muted,
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: FractionallySizedBox(
+                          widthFactor: _share(c.total.value, max) / 1000,
+                          heightFactor: 1,
                           child: ColoredBox(color: theme.colors.primary),
                         ),
-                        if (_share(c.total.value, max) < 1000)
-                          Expanded(
-                            flex: 1000 - _share(c.total.value, max),
-                            child: ColoredBox(color: theme.colors.muted),
-                          ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

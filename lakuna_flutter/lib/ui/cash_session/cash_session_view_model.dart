@@ -141,6 +141,11 @@ class CashSessionViewModel extends ChangeNotifier {
   CashError? get movementAmountError => _movementAmountError;
   CashError? get movementNoteError => _movementNoteError;
 
+  /// Keterangan uang keluar menjadi keterangan pengeluaran bila sakelar
+  /// pengeluaran aktif, jadi batasnya ikut batas pengeluaran.
+  int get movementNoteMaxLength =>
+      asExpense ? ExpenseLimits.description : cashNoteMaxLength;
+
   /// Naik setiap uang laci tersimpan; view memakainya sebagai kunci agar
   /// field kembali kosong.
   int get movementFormVersion => _movementFormVersion;
@@ -215,10 +220,14 @@ class CashSessionViewModel extends ChangeNotifier {
   Future<void> _loadExpenseSetup() async {
     final expenses = _expenses;
     if (expenses == null || !canRecordExpense) return;
-    if (await expenses.load() case Ok(:final value)) {
-      _expenseSetup = value;
-      notifyListeners();
+    switch (await expenses.load()) {
+      case Ok(:final value):
+        _expenseSetup = value;
+      case Error(:final error):
+        // Tampil di kotak galat umum; jenis tetap kosong.
+        _error = error;
     }
+    notifyListeners();
   }
 
   Future<Result<void>> _pickReceipt(bool camera) async {
@@ -365,6 +374,9 @@ class CashSessionViewModel extends ChangeNotifier {
     }
     if (asExpense && _movementNote.trim().isEmpty) {
       _movementNoteError = CashError.required;
+    } else if (asExpense &&
+        _movementNote.trim().length > ExpenseLimits.description) {
+      _movementNoteError = CashError.tooLong;
     }
     if (_movementNoteError case final e?) {
       return Result.error(CashInputInvalid(CashField.note, e));

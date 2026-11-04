@@ -44,12 +44,6 @@ class ExpenseDateInvalid implements Exception {
   String toString() => 'ExpenseDateInvalid';
 }
 
-/// Pengeluaran dari kas laci harus bertanggal hari ini.
-class ExpenseDrawerDate implements Exception {
-  @override
-  String toString() => 'ExpenseDrawerDate';
-}
-
 /// Foto nota bukan gambar sah atau terlalu besar.
 class ExpenseReceiptInvalid implements Exception {
   @override
@@ -419,9 +413,10 @@ Future<Expense> recordExpense(
       s.now,
       transaction: w.transaction,
     );
-    final spentOn = _date(request.spentOn);
+    // Uang laci keluar sekarang, jadi tanggalnya selalu hari ini menurut
+    // cabang (layar yang terbuka melewati tengah malam tidak macet).
+    final spentOn = drawer ? today : _date(request.spentOn);
     if (spentOn.isAfter(today)) throw ExpenseDateInvalid();
-    if (drawer && spentOn != today) throw ExpenseDrawerDate();
     final category = await _category(
       w.session,
       scope,
@@ -707,7 +702,10 @@ Future<Uint8List?> loadExpenseReceipt(
   UuidValue expenseId,
 ) async {
   final e = await Expense.db.findById(store.session, expenseId);
-  if (e == null || e.tenantId != scope.tenantId || e.receiptMediaId == null) {
+  if (e == null ||
+      e.tenantId != scope.tenantId ||
+      e.outletId != scope.outletId ||
+      e.receiptMediaId == null) {
     return null;
   }
   final media = await MediaFile.db.findById(store.session, e.receiptMediaId!);

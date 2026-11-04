@@ -213,6 +213,24 @@ void main() {
       expect(vm.canCancel, isFalse);
     });
 
+    test('pengeluaran laci tidak bisa dibatalkan tanpa izin laci', () async {
+      final drawer = repo.byDescription('Beli es batu');
+      final vm = ExpenseDetailViewModel(
+        repository: repo,
+        expenseId: drawer.id,
+        canUseDrawer: false,
+      );
+      await vm.load.execute();
+      expect(vm.canCancel, isFalse);
+      final bank = ExpenseDetailViewModel(
+        repository: repo,
+        expenseId: repo.byDescription('Token listrik').id,
+        canUseDrawer: false,
+      );
+      await bank.load.execute();
+      expect(bank.canCancel, isTrue);
+    });
+
     test('batal laci tanpa sesi terbuka gagal', () async {
       repo.hasOpenSession = false;
       final e = repo.byDescription('Beli es batu');

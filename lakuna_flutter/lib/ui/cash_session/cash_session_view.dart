@@ -84,6 +84,8 @@ String cashErrorMessage(AppLocalizations l10n, Exception error) =>
       ExpenseInvalid(:final issues) when issues.isNotEmpty =>
         expenseIssueMessage(l10n, issues.first),
       ExpenseReceiptInvalid() => l10n.expenseReceiptInvalid,
+      ExpenseDateInvalid() => l10n.expenseErrDate,
+      ExpenseCategoryNotFound() => l10n.expenseErrCategory,
       _ => l10n.cashErrorFailed,
     };
 
@@ -411,6 +413,7 @@ class _NoteField extends StatelessWidget {
     this.hint,
     this.error,
     this.onSubmit,
+    this.maxLength = cashNoteMaxLength,
   });
 
   final String label;
@@ -419,6 +422,9 @@ class _NoteField extends StatelessWidget {
   final CashError? error;
   final ValueChanged<String>? onSubmit;
 
+  /// Batas karakter; lebih pendek saat dicatat juga sebagai pengeluaran.
+  final int maxLength;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -426,9 +432,15 @@ class _NoteField extends StatelessWidget {
     return FTextField(
       label: Text(label),
       hint: hint,
-      maxLength: cashNoteMaxLength,
+      maxLength: maxLength,
       onSubmit: onSubmit,
-      error: error == null ? null : Text(cashFieldError(l10n, error)),
+      error: error == null
+          ? null
+          : Text(
+              error == CashError.tooLong && maxLength < cashNoteMaxLength
+                  ? l10n.expenseErrDescription(maxLength)
+                  : cashFieldError(l10n, error),
+            ),
       control: .managed(onChange: (value) => onChange(value.text)),
     );
   }
@@ -863,6 +875,7 @@ class _MovementForm extends StatelessWidget {
                   label: l10n.cashNote,
                   hint: l10n.cashNoteHint,
                   error: viewModel.movementNoteError,
+                  maxLength: viewModel.movementNoteMaxLength,
                   onChange: viewModel.setMovementNote,
                   onSubmit: enabled
                       ? (_) => viewModel.saveMovement.execute()

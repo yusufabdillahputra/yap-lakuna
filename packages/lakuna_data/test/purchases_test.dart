@@ -151,7 +151,7 @@ void main() {
       purchaseId: draft.id,
     );
     expect(await listPurchases(store, scope), isEmpty);
-    expect(
+    await expectLater(
       () => loadPurchaseDetail(store, scope, draft.id),
       throwsA(isA<PurchaseNotFound>()),
     );

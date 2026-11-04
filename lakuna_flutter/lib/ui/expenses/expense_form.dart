@@ -35,6 +35,7 @@ class ExpenseForm extends StatelessWidget {
     required this.viewModel,
     required this.onSaved,
     this.onCancel,
+    this.onFailed,
   });
 
   final ExpenseFormViewModel viewModel;
@@ -43,9 +44,19 @@ class ExpenseForm extends StatelessWidget {
   /// Tombol *Batal* (hanya di dialog).
   final VoidCallback? onCancel;
 
+  /// Dipanggil saat simpan ditolak di luar validasi isian (mis. sesi kasir
+  /// sudah ditutup), agar layar memuat ulang setup.
+  final VoidCallback? onFailed;
+
   Future<void> _save() async {
     await viewModel.save.execute();
-    if (viewModel.save.result case Ok(:final value)) await onSaved(value);
+    switch (viewModel.save.result) {
+      case Ok(:final value):
+        await onSaved(value);
+      case Error(:final error) when error is! ExpenseInvalid:
+        onFailed?.call();
+      default:
+    }
   }
 
   @override
@@ -122,7 +133,9 @@ class ExpenseForm extends StatelessWidget {
             items: {
               for (final f in expenseFundingOrder)
                 f == FundingSource.drawer
-                        ? l10n.expenseFundingDrawerActive
+                        ? (vm.setup.hasOpenSession
+                              ? l10n.expenseFundingDrawerActive
+                              : l10n.expenseFundingDrawer)
                         : expenseFundingLabel(l10n, f):
                     f.name,
             },
