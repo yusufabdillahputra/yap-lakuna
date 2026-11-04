@@ -79,6 +79,16 @@ class DateRange {
   final DateTime to;
 
   bool contains(DateTime day) => !day.isBefore(from) && !day.isAfter(to);
+
+  @override
+  bool operator ==(Object other) =>
+      other is DateRange && other.from == from && other.to == to;
+
+  @override
+  int get hashCode => Object.hash(from, to);
+
+  @override
+  String toString() => 'DateRange($from, $to)';
 }
 
 /// Rentang [period] relatif ke [today] (tanggal lokal cabang).

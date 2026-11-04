@@ -5,7 +5,8 @@ void main() {
   test('kunci izin unik, berformat resource:action, dan bisa dibaca balik', () {
     final keys = Permission.values.map((p) => p.key).toSet();
     expect(keys.length, Permission.values.length);
-    expect(Permission.values.length, 21);
+    expect(Permission.values.length, 22);
+    expect(Permission.reportsViewProfit.key, 'reports:view_profit');
     for (final p in Permission.values) {
       expect(p.key, contains(':'));
       expect(Permission.fromKey(p.key), p);
@@ -30,6 +31,14 @@ void main() {
     expect(
       DefaultRole.cashier.permissions,
       isNot(contains(Permission.salesVoid)),
+    );
+    expect(
+      DefaultRole.manager.permissions,
+      contains(Permission.reportsViewProfit),
+    );
+    expect(
+      DefaultRole.cashier.permissions,
+      isNot(contains(Permission.reportsViewProfit)),
     );
     expect(DefaultRole.waiter.permissions, {Permission.openBillsManage});
     expect(DefaultRole.stockKeeper.permissions, {

@@ -463,6 +463,25 @@ Future<Map<UuidValue, List<ReceivableSale>>> _receivables(
   return result;
 }
 
+/// Sisa piutang nota kredit yang lewat jatuh tempo pada [today] dan jumlah
+/// pelanggannya (kartu *Piutang jatuh tempo* F1-16).
+Future<(Money, int)> overdueReceivables(
+  DatabaseSession session,
+  UuidValue tenantId,
+  DateTime today,
+) async {
+  final open = await _receivables(session, tenantId, today);
+  var total = Money.zero;
+  var customers = 0;
+  for (final list in open.values) {
+    final due = list.where((r) => r.overdue);
+    if (due.isEmpty) continue;
+    customers++;
+    total += Money.sum(due.map((r) => r.outstanding));
+  }
+  return (total, customers);
+}
+
 /// Total piutang pelanggan [customerId].
 Future<Money> customerOutstanding(
   DatabaseSession session,

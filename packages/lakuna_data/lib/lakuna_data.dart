@@ -17,6 +17,7 @@ export 'src/history.dart';
 export 'src/open_bill.dart';
 export 'src/preferences.dart';
 export 'src/receipt_settings.dart';
+export 'src/reports.dart';
 export 'src/sales.dart';
 export 'src/settings_scope.dart';
 export 'src/staff_access.dart';
