@@ -7166,4 +7166,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get approvalDiscountResumed => 'Discount from a saved bill';
+
+  @override
+  String get productsImport => 'Import Excel';
+
+  @override
+  String get productImportTitle => 'Import products';
+
+  @override
+  String get productImportIntro =>
+      'Choose an Excel (.xlsx) or CSV file, one product per row. Columns: Name and Price (required), Category, Type (goods/service/menu), Unit, SKU, Barcode, Cost, Opening stock, Min stock. Headers may be in Indonesian or English.';
+
+  @override
+  String get productImportMissingColumns =>
+      'The header row has no Name or Price column.';
+
+  @override
+  String get productImportEmpty => 'The file has no product rows.';
+
+  @override
+  String get productImportSkipNote =>
+      'Only adds new products. Rows whose name, SKU, or barcode already exists are skipped; edit those in the product form.';
+
+  @override
+  String get productImportReasonPrice => 'price missing or not whole rupiah';
+
+  @override
+  String get productImportReasonCost => 'cost is not whole rupiah';
+
+  @override
+  String get productImportReasonStock => 'stock is not a number';
+
+  @override
+  String get productImportReasonKind => 'type is not goods, service, or menu';
+
+  @override
+  String get productImportReasonCode => 'duplicate SKU or barcode in the file';
+
+  @override
+  String get productImportReasonName => 'duplicate name in the file';
+
+  @override
+  String productImportRun(int count) {
+    return 'Import $count products';
+  }
+
+  @override
+  String get productImportCancel => 'Cancel';
+
+  @override
+  String productImportDone(int created, int skipped) {
+    return 'Done: $created new products, $skipped skipped because they already exist.';
+  }
+
+  @override
+  String productImportSkippedLines(String lines) {
+    return 'Skipped rows: $lines';
+  }
 }

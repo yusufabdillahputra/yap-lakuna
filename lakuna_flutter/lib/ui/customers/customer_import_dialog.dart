@@ -86,29 +86,32 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
         _ => null,
       };
       final rejected = vm.rejected;
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            key: const ValueKey('customer-import'),
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(
-                l10n.importTitle,
-                style: theme.typography.display.lg.copyWith(
-                  fontWeight: FontWeight.w600,
+      // Selama menyimpan, dialog tidak bisa ditutup (tombol, latar, atau
+      // tombol kembali): transaksi tetap berjalan dan ringkasan harus tampil.
+      return PopScope(
+        canPop: !vm.run.running,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              key: const ValueKey('customer-import'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                Text(
+                  l10n.importTitle,
+                  style: theme.typography.display.lg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Text(l10n.importIntro, style: muted),
-              Row(
-                spacing: 12,
-                children: [
-                  FButton(
+                Text(l10n.importIntro, style: muted),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FButton(
                     key: const ValueKey('customer-import-pick'),
                     variant: .outline,
                     mainAxisSize: .min,
@@ -116,103 +119,107 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                         ? null
                         : vm.pick.execute,
                     prefix: const Icon(TablerIcons.fileSpreadsheet),
-                    child: Text(l10n.importPick),
+                    child: Flexible(child: Text(l10n.importPick)),
                   ),
-                  if (vm.fileName case final name?)
-                    Expanded(
-                      child: Text(
-                        name,
-                        key: const ValueKey('customer-import-file'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.body.sm.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                ),
+                if (vm.fileName case final name?)
+                  Text(
+                    name,
+                    key: const ValueKey('customer-import-file'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                if (problem != null)
+                  FAlert(
+                    key: const ValueKey('customer-import-problem'),
+                    variant: .destructive,
+                    title: Text(problem),
+                  ),
+                if (vm.result != null && vm.problem == null) ...[
+                  Text(
+                    l10n.importReady(vm.rows.length),
+                    key: const ValueKey('customer-import-ready'),
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(l10n.importUpdateNote, style: muted),
                 ],
-              ),
-              if (problem != null)
-                FAlert(
-                  key: const ValueKey('customer-import-problem'),
-                  variant: .destructive,
-                  title: Text(problem),
-                ),
-              if (vm.result != null && vm.problem == null) ...[
-                Text(
-                  l10n.importReady(vm.rows.length),
-                  key: const ValueKey('customer-import-ready'),
-                  style: theme.typography.body.sm.copyWith(
-                    fontWeight: FontWeight.w600,
+                if (rejected.isNotEmpty &&
+                    vm.problem != ImportFileProblem.missingName)
+                  Column(
+                    key: const ValueKey('customer-import-rejected'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(
+                        l10n.importRejected(rejected.length),
+                        style: theme.typography.body.sm.copyWith(
+                          color: theme.colors.destructive,
+                        ),
+                      ),
+                      for (final r in rejected.take(20))
+                        Text(
+                          l10n.importRejectLine(
+                            r.line,
+                            importRejectReasonLabel(l10n, r.reason),
+                          ),
+                          style: muted,
+                        ),
+                      if (rejected.length > 20)
+                        Text(
+                          l10n.importMoreRejected(rejected.length - 20),
+                          style: muted,
+                        ),
+                    ],
                   ),
-                ),
-                Text(l10n.importUpdateNote, style: muted),
-              ],
-              if (rejected.isNotEmpty &&
-                  vm.problem != ImportFileProblem.missingName)
-                Column(
-                  key: const ValueKey('customer-import-rejected'),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
+                if (done != null)
+                  FAlert(
+                    key: const ValueKey('customer-import-done'),
+                    title: Text(l10n.importDone(done.created, done.updated)),
+                  ),
+                if (vm.run.result case Error(:final error))
+                  Text(
+                    customerErrorMessage(l10n, error),
+                    key: const ValueKey('customer-import-error'),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.destructive,
+                    ),
+                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
                   children: [
-                    Text(
-                      l10n.importRejected(rejected.length),
-                      style: theme.typography.body.sm.copyWith(
-                        color: theme.colors.destructive,
+                    FButton(
+                      key: const ValueKey('customer-import-close'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: vm.run.running
+                          ? null
+                          : () => Navigator.of(context).pop(done != null),
+                      child: Flexible(
+                        child: Text(
+                          done != null ? l10n.importClose : l10n.customerCancel,
+                        ),
                       ),
                     ),
-                    for (final r in rejected.take(20))
-                      Text(
-                        l10n.importRejectLine(
-                          r.line,
-                          importRejectReasonLabel(l10n, r.reason),
+                    if (done == null)
+                      FButton(
+                        key: const ValueKey('customer-import-run'),
+                        mainAxisSize: .min,
+                        onPress: vm.canRun ? vm.run.execute : null,
+                        child: Flexible(
+                          child: Text(l10n.importRun(vm.rows.length)),
                         ),
-                        style: muted,
-                      ),
-                    if (rejected.length > 20)
-                      Text(
-                        l10n.importMoreRejected(rejected.length - 20),
-                        style: muted,
                       ),
                   ],
                 ),
-              if (done != null)
-                FAlert(
-                  key: const ValueKey('customer-import-done'),
-                  title: Text(l10n.importDone(done.created, done.updated)),
-                ),
-              if (vm.run.result case Error(:final error))
-                Text(
-                  customerErrorMessage(l10n, error),
-                  key: const ValueKey('customer-import-error'),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.destructive,
-                  ),
-                ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  FButton(
-                    key: const ValueKey('customer-import-close'),
-                    variant: .outline,
-                    mainAxisSize: .min,
-                    onPress: () => Navigator.of(context).pop(done != null),
-                    child: Text(
-                      done != null ? l10n.importClose : l10n.customerCancel,
-                    ),
-                  ),
-                  if (done == null)
-                    FButton(
-                      key: const ValueKey('customer-import-run'),
-                      mainAxisSize: .min,
-                      onPress: vm.canRun ? vm.run.execute : null,
-                      child: Text(l10n.importRun(vm.rows.length)),
-                    ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

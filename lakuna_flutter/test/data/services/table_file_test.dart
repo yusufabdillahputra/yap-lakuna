@@ -38,7 +38,7 @@ void main() {
     final bytes = Uint8List.fromList(ZipEncoder().encode(archive));
     expect(readTableFile('data.xlsx', bytes), [
       ['Nama', '', 'Limit'],
-      ['Toko Bu Ani', '81322221010', '1500000', '2.5'],
+      ['Toko Bu Ani', '81322221010', '1500000', '2,5'],
     ]);
   });
 

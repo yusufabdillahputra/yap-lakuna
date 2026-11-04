@@ -12361,6 +12361,102 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Diskon dari nota tersimpan'**
   String get approvalDiscountResumed;
+
+  /// No description provided for @productsImport.
+  ///
+  /// In id, this message translates to:
+  /// **'Import Excel'**
+  String get productsImport;
+
+  /// No description provided for @productImportTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Import produk'**
+  String get productImportTitle;
+
+  /// No description provided for @productImportIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas Excel (.xlsx) atau CSV, satu baris satu produk. Kolom: Nama dan Harga jual (wajib), Kategori, Jenis (barang/jasa/menu), Satuan, SKU, Barcode, Harga beli, Stok awal, Stok minimum. Judul kolom boleh Indonesia atau English.'**
+  String get productImportIntro;
+
+  /// No description provided for @productImportMissingColumns.
+  ///
+  /// In id, this message translates to:
+  /// **'Kolom Nama atau Harga jual tidak ditemukan di baris judul.'**
+  String get productImportMissingColumns;
+
+  /// No description provided for @productImportEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas tidak berisi baris produk.'**
+  String get productImportEmpty;
+
+  /// No description provided for @productImportSkipNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya menambah produk baru. Produk yang nama, SKU, atau barcode-nya sudah ada dilewati; ubah lewat form produk.'**
+  String get productImportSkipNote;
+
+  /// No description provided for @productImportReasonPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'harga jual kosong atau bukan rupiah bulat'**
+  String get productImportReasonPrice;
+
+  /// No description provided for @productImportReasonCost.
+  ///
+  /// In id, this message translates to:
+  /// **'harga beli bukan rupiah bulat'**
+  String get productImportReasonCost;
+
+  /// No description provided for @productImportReasonStock.
+  ///
+  /// In id, this message translates to:
+  /// **'stok bukan angka'**
+  String get productImportReasonStock;
+
+  /// No description provided for @productImportReasonKind.
+  ///
+  /// In id, this message translates to:
+  /// **'jenis bukan barang, jasa, atau menu'**
+  String get productImportReasonKind;
+
+  /// No description provided for @productImportReasonCode.
+  ///
+  /// In id, this message translates to:
+  /// **'SKU atau barcode dobel di berkas'**
+  String get productImportReasonCode;
+
+  /// No description provided for @productImportReasonName.
+  ///
+  /// In id, this message translates to:
+  /// **'nama dobel di berkas'**
+  String get productImportReasonName;
+
+  /// No description provided for @productImportRun.
+  ///
+  /// In id, this message translates to:
+  /// **'Import {count} produk'**
+  String productImportRun(int count);
+
+  /// No description provided for @productImportCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get productImportCancel;
+
+  /// No description provided for @productImportDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai: {created} produk baru, {skipped} dilewati karena sudah ada.'**
+  String productImportDone(int created, int skipped);
+
+  /// No description provided for @productImportSkippedLines.
+  ///
+  /// In id, this message translates to:
+  /// **'Baris dilewati: {lines}'**
+  String productImportSkippedLines(String lines);
 }
 
 class _AppLocalizationsDelegate

@@ -308,7 +308,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.products,
-            builder: (context, state) => ProductListScreen(repository: catalog),
+            builder: (context, state) => ProductListScreen(
+              repository: catalog,
+              tablePicker: tablePicker,
+            ),
           ),
           GoRoute(
             path: Routes.productNew,

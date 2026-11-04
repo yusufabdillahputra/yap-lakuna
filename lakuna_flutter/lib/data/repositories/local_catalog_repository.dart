@@ -43,6 +43,14 @@ class LocalCatalogRepository extends CatalogRepository {
         saveProduct(_store, scope, staffId: staffId, draft: draft),
   );
 
+  @override
+  Future<Result<ProductImportSummary>> importRows(
+    List<ProductImportRow> rows,
+  ) => _guard(
+    (scope, staffId) =>
+        importProducts(_store, scope, staffId: staffId, rows: rows),
+  );
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(CatalogScope scope, UuidValue staffId) body,
   ) async {

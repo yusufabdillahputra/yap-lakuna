@@ -259,7 +259,7 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 | Foto produk | *Ganti foto*, thumbnail | Kotak inisial | Bangun dengan pola media (gambar lokal, WebP) bersama QRIS di F1-05/F1-26 |
 | Tab Modifier | Hanya Menu F&B | Belum | F1-10 |
 | Tab Barcode & label, *Cetak label barcode* | Ada | Belum | Setelah mesin cetak F1-06 |
-| *Import Excel* | Tombol di 1.15 | Belum | Akhir modul ini (CSV/XLSX, pratinjau dulu) |
+| *Import Excel* | Tombol di 1.15 | Rilis v0.31.0 | Lihat [F1-07b](2026-11-04-f1-07b-import-produk-design.md): produk baru satu varian, yang sudah ada dilewati. |
 | Filter *Lokasi stok* | Etalase/Gudang | Hanya Etalase | Saat F1-09 menambah lokasi kedua |
 | Grosir *Berlaku untuk* grup pelanggan | "Grup pelanggan: Grosir" | Semua pelanggan | Setelah F1-13 (`price_tiers.customer_group_id`) |
 | Klik produk → kartu stok | Catatan kaki 1.15 | Klik membuka form | Tautan ke kartu stok F1-08 |
