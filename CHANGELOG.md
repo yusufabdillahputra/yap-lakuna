@@ -7,6 +7,44 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.28.1] - 2026-11-04
+
+Keranjang kasir tidak lagi hilang saat kasir membuka menu lain (F1-04c,
+layar 1.4 / 1.11).
+
+### Diperbaiki
+
+- **Keranjang Kasir hilang saat pindah menu.** Kasir yang membuka Beranda,
+  Stok, atau menu lain lalu kembali ke Kasir kini menemukan keranjangnya
+  utuh: baris, jumlah, satuan, diskon baris, diskon nota, dan penyetuju
+  diskon. Penyebabnya, keranjang hidup di view model layar Kasir yang
+  dibuang setiap kali layar ditutup.
+- Saat dipulihkan, harga dan nama mengikuti katalog terbaru. Produk,
+  varian, atau satuan konversi yang sudah dihapus atau dinonaktifkan
+  dibuang dari keranjang.
+
+### Keamanan
+
+- Keranjang dikosongkan saat staf berganti (*Ganti kasir* atau logout),
+  jadi tidak berpindah ke staf lain. Persetujuan diskon tetap diperiksa
+  ulang saat bayar.
+- Keranjang yang sedang disimpan saat layar ditutup **tidak** dipulihkan
+  setelah notanya tercatat, sehingga tidak bisa terbayar dua kali. Bila
+  penyimpanan gagal, keranjang tetap dibawa.
+
+### Catatan teknis
+
+- `CartDraft` (`lib/ui/cashier/cart_draft.dart`) dibuat sekali di
+  `createRouter`, hanya di memori, dan mendengarkan `SessionRepository`.
+  Rute kasir tanpa `?bill=` memberikannya ke `CashierScreen`.
+- `CashierViewModel` memulihkan draf setelah `load` pertama berhasil, lalu
+  menulis keranjang ke draf saat `dispose`. Draf tidak ditimpa sebelum
+  dibaca (layar ditutup saat katalog belum termuat atau gagal dimuat).
+- Mode bill (open bill, bagian split, struk lunas) tidak membaca dan tidak
+  menulis draf.
+- Tes baru: unit `CartDraft`, 9 tes draf di `cashier_view_model_test`,
+  dan alur widget Kasir → Beranda → Kasir serta bayar open bill → Kasir.
+
 ## [0.28.0] - 2026-11-04
 
 Persiapan rilis ke store dan distribusi (F1-22): ikon aplikasi Lakuna,
@@ -2705,7 +2743,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...HEAD
+[0.28.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...v0.26.0

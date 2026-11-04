@@ -18,6 +18,7 @@ import '../core/format.dart';
 import '../products/product_list_view.dart' show priceRange;
 import '../products/product_widgets.dart';
 import '../receipt/receipt_content.dart' show percentLabel;
+import 'cart_draft.dart';
 import 'cashier_view_model.dart';
 import 'discount_dialog.dart';
 import 'payment_view.dart';
@@ -35,9 +36,13 @@ class CashierScreen extends StatefulWidget {
     this.onLeaveBill,
     this.onBillDone,
     this.session,
+    this.draft,
   });
 
   final CashierRepository repository;
+
+  /// Keranjang yang bertahan saat layar ditutup (F1-04c); kasir retail saja.
+  final CartDraft? draft;
   final ReceiptPrinter printer;
 
   /// Untuk dialog persetujuan PIN diskon manual (F1-04b).
@@ -66,6 +71,7 @@ class _CashierScreenState extends State<CashierScreen> {
   late final _viewModel = CashierViewModel(
     repository: widget.repository,
     printer: widget.printer,
+    draft: widget.billId == null ? widget.draft : null,
   );
 
   @override
