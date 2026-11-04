@@ -1,7 +1,7 @@
 # F1-22 · Rilis ke store & distribusi
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.28.0
 - **Layar desain:** 1.26 Pengaturan (bagian baru *Tentang Lakuna*); tidak
   ada layar lain.
 - **Acuan:** spec Storeku `2026-11-02-f1-22-rilis-store-design.md`,
@@ -43,6 +43,10 @@ panduan langkah demi langkah.
   sebelumnya dan gagal bila tidak.
 - Setiap GitHub Release menyertakan `SHA256SUMS.txt` agar pengguna bisa
   memeriksa unduhan (8 aset per rilis).
+- Tag terakhir dipilih dengan urutan versi (`sort -v:refname`); jangan
+  memakai tag pra-rilis (`-rc`) karena terurut setelah versi finalnya.
+- Versi hosted belum ada, jadi kebijakan privasi dan layar Tentang
+  menyebutnya *belum tersedia*; keduanya diperbarui sebelum Fase 2 rilis.
 
 ## Lingkup modul ini
 
@@ -78,9 +82,13 @@ Tidak termasuk: akun store, unggah ke store, tanda tangan iOS/desktop
   dipanggil di `main()`.
 - `lib/ui/settings/about_view_model.dart`: `AboutViewModel` dengan
   `Command0 load` yang mengumpulkan `Stream<LicenseEntry>` (bisa diganti di
-  tes) menjadi daftar paket terurut beserta paragrafnya.
+  tes) menjadi daftar paket terurut beserta entrinya. Paragraf baru diurai
+  saat paket dibuka.
 - `lib/ui/settings/about_section.dart`: kartu versi + privasi + tombol
-  Panduan, lalu daftar lisensi (`FAccordion`, satu item per paket).
+  Panduan, lalu daftar lisensi (satu baris per paket, satu terbuka). Teks
+  lisensi di kotak bergulir maks. 360 px dengan `ListView.builder` per
+  paragraf (lisensi Flutter berisi ribuan paragraf), indentasi
+  `LicenseParagraph` seperti `LicensePage`.
 - `SettingsSection.about` selalu ada di akhir daftar bagian.
 
 ## Pengujian
@@ -105,10 +113,11 @@ Tidak termasuk: akun store, unggah ke store, tanda tangan iOS/desktop
 | Topik | Desain | Kode/CI | Catatan |
 | --- | --- | --- | --- |
 | Installer desktop + APK/AAB + IPA tanpa tanda tangan | - | Rilis sejak v0.1.0 | |
-| Nomor build naik, SHA256SUMS | - | Dikerjakan | |
-| Tentang Lakuna + lisensi | 1.26 | Dikerjakan | |
-| Dokumen pemilik + aset store | - | Dikerjakan | |
-| Ikon aplikasi semua platform | Spec desain | Dikerjakan | Menggantikan ikon bawaan Flutter |
+| Nomor build naik, SHA256SUMS | - | v0.28.0 | Job CI *Versi & nomor build* |
+| Tentang Lakuna + lisensi | 1.26 | v0.28.0 | |
+| Dokumen pemilik + aset store | - | v0.28.0 | Tangkapan layar HP 864 px; App Store butuh ukuran iPhone/iPad sendiri |
+| Ikon aplikasi semua platform | Spec desain | v0.28.0 | Menggantikan ikon bawaan Flutter |
 | Keystore Android permanen | - | Menunggu pemilik | Secret belum diisi |
 | Google Play / App Store | - | Menunggu pemilik | Akun developer |
 | Tanda tangan kode desktop | - | Menyusul | Butuh sertifikat |
+| Izin iOS (Bluetooth, galeri, kamera) | - | v0.28.0 | `InfoPlist.strings` EN menyusul |

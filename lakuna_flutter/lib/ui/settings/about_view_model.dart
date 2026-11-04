@@ -3,13 +3,26 @@ import 'package:flutter/foundation.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
-/// Lisensi satu paket atau font; [texts] berisi satu teks per entri lisensi.
+/// Lisensi satu paket atau font beserta entri [LicenseEntry]-nya.
+///
+/// Paragraf baru diurai lewat [paragraphs] saat lisensi dibuka, karena teks
+/// lisensi Flutter sangat panjang.
 @immutable
 class AboutLicense {
-  const AboutLicense({required this.package, required this.texts});
+  const AboutLicense({required this.package, required this.entries});
 
   final String package;
-  final List<String> texts;
+  final List<LicenseEntry> entries;
+
+  int get count => entries.length;
+
+  /// Semua paragraf semua entri; `null` memisahkan entri.
+  List<LicenseParagraph?> paragraphs() => [
+    for (final (i, entry) in entries.indexed) ...[
+      if (i > 0) null,
+      ...entry.paragraphs,
+    ],
+  ];
 }
 
 /// View model Pengaturan › Tentang Lakuna (F1-22): daftar lisensi open
@@ -41,16 +54,15 @@ class AboutViewModel extends ChangeNotifier {
   List<AboutLicense> get licenses => _licenses;
 
   Future<Result<void>> _load() async {
-    final byPackage = <String, List<String>>{};
+    final byPackage = <String, List<LicenseEntry>>{};
     try {
       await for (final entry in _source()) {
-        final text = entry.paragraphs.map((p) => p.text).join('\n\n');
         for (final package in entry.packages) {
-          (byPackage[package] ??= []).add(text);
+          (byPackage[package] ??= []).add(entry);
         }
       }
-    } on Exception catch (e) {
-      return Result.error(e);
+    } catch (e) {
+      return Result.error(e is Exception ? e : Exception(e.toString()));
     }
     final names = byPackage.keys.toList()
       ..sort((a, b) {
@@ -59,7 +71,10 @@ class AboutViewModel extends ChangeNotifier {
       });
     _licenses = [
       for (final name in names)
-        AboutLicense(package: name, texts: List.unmodifiable(byPackage[name]!)),
+        AboutLicense(
+          package: name,
+          entries: List.unmodifiable(byPackage[name]!),
+        ),
     ];
     return const Result.ok(null);
   }

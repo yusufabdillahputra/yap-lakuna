@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -157,65 +158,115 @@ class _LicenseTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FTappable(
-            key: ValueKey('about-license-${license.package}'),
-            selected: open,
-            semanticsLabel: license.package,
-            onPress: onToggle,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        license.package,
-                        style: theme.typography.body.sm.copyWith(
-                          fontWeight: FontWeight.w600,
+          Semantics(
+            expanded: open,
+            child: FTappable(
+              key: ValueKey('about-license-${license.package}'),
+              semanticsLabel: license.package,
+              onPress: onToggle,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          license.package,
+                          style: theme.typography.body.sm.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    ExcludeSemantics(
-                      child: Text(
-                        l10n.aboutLicenseCount(license.texts.length),
-                        style: theme.typography.body.xs.copyWith(
-                          color: theme.colors.mutedForeground,
+                      ExcludeSemantics(
+                        child: Text(
+                          l10n.aboutLicenseCount(license.count),
+                          style: theme.typography.body.xs.copyWith(
+                            color: theme.colors.mutedForeground,
+                          ),
                         ),
                       ),
-                    ),
-                    Icon(
-                      open ? TablerIcons.chevronUp : TablerIcons.chevronDown,
-                      size: 16,
-                      color: theme.colors.mutedForeground,
-                    ),
-                  ],
+                      Icon(
+                        open ? TablerIcons.chevronUp : TablerIcons.chevronDown,
+                        size: 16,
+                        color: theme.colors.mutedForeground,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          if (open)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                key: ValueKey('about-license-text-${license.package}'),
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 12,
-                children: [
-                  for (final text in license.texts)
-                    Text(
-                      text,
-                      style: theme.typography.body.xs.copyWith(
-                        fontFamily: 'DM Mono',
-                        color: theme.colors.mutedForeground,
-                        height: 1.5,
-                      ),
-                    ),
-                ],
-              ),
-            ),
+          if (open) _LicenseText(license: license),
         ],
+      ),
+    );
+  }
+}
+
+/// Teks lisensi satu paket dalam kotak bergulir setinggi maksimal 360 px.
+/// Paragraf diurai sekali saat dibuka dan dirender malas (lisensi Flutter
+/// berisi ribuan paragraf), dengan indentasi seperti `LicensePage`.
+class _LicenseText extends StatefulWidget {
+  const _LicenseText({required this.license});
+
+  final AboutLicense license;
+
+  @override
+  State<_LicenseText> createState() => _LicenseTextState();
+}
+
+class _LicenseTextState extends State<_LicenseText> {
+  late final _paragraphs = widget.license.paragraphs();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final style = theme.typography.body.xs.copyWith(
+      fontFamily: 'DM Mono',
+      color: theme.colors.mutedForeground,
+      height: 1.5,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: ConstrainedBox(
+        key: ValueKey('about-license-text-${widget.license.package}'),
+        constraints: const BoxConstraints(maxHeight: 360),
+        child: ListView.builder(
+          shrinkWrap: true,
+          primary: false,
+          itemCount: _paragraphs.length,
+          itemBuilder: (context, i) {
+            final p = _paragraphs[i];
+            if (p == null) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: SizedBox(
+                  height: 1,
+                  child: ColoredBox(color: theme.colors.border),
+                ),
+              );
+            }
+            if (p.indent == LicenseParagraph.centeredIndent) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  p.text,
+                  style: style.copyWith(fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
+            return Padding(
+              padding: EdgeInsetsDirectional.only(
+                top: 8,
+                start: 16.0 * p.indent,
+              ),
+              child: Text(p.text, style: style),
+            );
+          },
+        ),
       ),
     );
   }

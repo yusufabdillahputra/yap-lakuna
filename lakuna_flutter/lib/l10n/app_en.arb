@@ -3806,7 +3806,7 @@
   "aboutOpenGuide": "Open the guide",
   "aboutPrivacyTitle": "Data privacy",
   "aboutPrivacyLocal": "All store data (products, sales, customers, staff and images) is stored on this device. Lakuna does not send data to anyone else and has no ads or trackers.",
-  "aboutPrivacyHosted": "If you turn on the hosted version, data is synced to your own store server.",
+  "aboutPrivacyHosted": "The hosted version (sync to a server) is not available yet. The privacy policy will be updated before it launches.",
   "aboutPrivacyBackup": "Backup files hold all of your store data. Keep them somewhere safe.",
   "aboutLicensesTitle": "Open source licenses",
   "aboutLicensesSubtitle": "Lakuna is built with these open source packages and fonts.",

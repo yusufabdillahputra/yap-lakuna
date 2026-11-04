@@ -12107,7 +12107,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutPrivacyHosted.
   ///
   /// In id, this message translates to:
-  /// **'Bila versi hosted diaktifkan, data disinkronkan ke server milik toko Anda sendiri.'**
+  /// **'Versi hosted (sinkronisasi ke server) belum tersedia. Kebijakan privasi akan diperbarui sebelum versi itu dirilis.'**
   String get aboutPrivacyHosted;
 
   /// No description provided for @aboutPrivacyBackup.

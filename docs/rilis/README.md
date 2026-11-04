@@ -92,6 +92,9 @@ HP ikut terhapus**.
 3. Di App Store Connect: buat aplikasi, salin teks dari
    [listing-store.md](listing-store.md), tangkapan layar iPhone/iPad, URL
    kebijakan privasi yang sama, *App Privacy*: *Data Not Collected*.
+   Tangkapan layar App Store **belum ada** di `aset/`: Apple meminta ukuran
+   sendiri (iPhone 6,9" 1320×2868, iPad 13" 2064×2752). Ambil dari
+   simulator iOS saat akun Apple siap.
 4. macOS: dengan sertifikat *Developer ID Application* yang sama, `.dmg` bisa
    ditandatangani dan dinotarisasi agar Gatekeeper tidak memperingatkan.
 

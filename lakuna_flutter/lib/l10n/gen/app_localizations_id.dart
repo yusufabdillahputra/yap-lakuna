@@ -6862,7 +6862,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get aboutPrivacyHosted =>
-      'Bila versi hosted diaktifkan, data disinkronkan ke server milik toko Anda sendiri.';
+      'Versi hosted (sinkronisasi ke server) belum tersedia. Kebijakan privasi akan diperbarui sebelum versi itu dirilis.';
 
   @override
   String get aboutPrivacyBackup =>

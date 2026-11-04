@@ -17,9 +17,8 @@ gambar yang Anda pilih (foto produk, stiker QRIS, foto nota).
 - **Versi gratis (offline):** semua data hanya disimpan di perangkat yang
   menjalankan Lakuna. Pengembang Lakuna tidak menerima, melihat, atau
   menyimpan data Anda.
-- **Versi hosted (bila diaktifkan pemilik toko):** data disinkronkan ke
-  server milik toko sendiri yang alamatnya diisi pemilik toko. Pengelola
-  server itu bertanggung jawab atas datanya.
+- **Versi hosted (sinkronisasi ke server):** belum tersedia. Kebijakan ini
+  akan diperbarui sebelum versi itu dirilis.
 
 ## Yang tidak dilakukan Lakuna
 
@@ -38,7 +37,7 @@ bisa memulihkan data toko Anda.
 ## Menghapus data
 
 Hapus aplikasi atau folder datanya untuk menghapus semua data dari
-perangkat. Untuk versi hosted, hubungi pengelola server toko Anda.
+perangkat.
 
 ## Anak-anak
 
@@ -70,9 +69,8 @@ staff and PINs (stored as hashes, never as plain text), and images you pick
 
 - **Free (offline) version:** all data stays on the device running Lakuna.
   The Lakuna developers never receive, see or store your data.
-- **Hosted version (if the store owner turns it on):** data is synced to
-  the store's own server, at the address the owner enters. Whoever runs that
-  server is responsible for the data.
+- **Hosted version (sync to a server):** not available yet. This policy
+  will be updated before that version launches.
 
 ## What Lakuna does not do
 
@@ -91,7 +89,7 @@ data.
 ## Deleting data
 
 Uninstall the app or delete its data folder to remove all data from the
-device. For the hosted version, contact whoever runs your store server.
+device.
 
 ## Children
 

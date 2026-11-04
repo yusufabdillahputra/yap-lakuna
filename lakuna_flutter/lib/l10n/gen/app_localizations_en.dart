@@ -7010,7 +7010,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutPrivacyHosted =>
-      'If you turn on the hosted version, data is synced to your own store server.';
+      'The hosted version (sync to a server) is not available yet. The privacy policy will be updated before it launches.';
 
   @override
   String get aboutPrivacyBackup =>

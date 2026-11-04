@@ -22,8 +22,15 @@ void main() {
       'zeta',
     ]);
     final alpha = vm.licenses[0];
-    expect(alpha.texts, ['Lisensi AB.', 'Satu.\n\nDua.']);
-    expect(vm.licenses[2].texts, ['Lisensi AB.']);
+    expect(alpha.count, 2);
+    expect(vm.licenses[2].count, 1);
+    // Paragraf diurai saat dibuka; pemisah antar-entri berupa null.
+    expect(alpha.paragraphs().map((p) => p?.text), [
+      'Lisensi AB.',
+      null,
+      'Satu.',
+      'Dua.',
+    ]);
   });
 
   test('galat saat membaca lisensi menjadi load.error', () async {
@@ -33,5 +40,11 @@ void main() {
     await vm.load.execute();
     expect(vm.load.error, isTrue);
     expect(vm.licenses, isEmpty);
+  });
+
+  test('galat bukan Exception juga menjadi load.error', () async {
+    final vm = AboutViewModel(licenses: () => Stream.error(StateError('x')));
+    await vm.load.execute();
+    expect(vm.load.error, isTrue);
   });
 }

@@ -61,6 +61,33 @@ void main() {
     });
   }
 
+  testWidgets('lisensi panjang dirender malas di kotak bergulir', (
+    tester,
+  ) async {
+    // ignore: invalid_use_of_visible_for_testing_member
+    LicenseRegistry.reset();
+    final long = [
+      for (var i = 0; i < 3000; i++) 'Paragraf $i.',
+    ].join('\n\n');
+    LicenseRegistry.addLicense(
+      () => Stream.fromIterable([
+        LicenseEntryWithLineBreaks(const ['besar'], long),
+        const LicenseEntryWithLineBreaks(['besar'], 'Judul\n  menjorok'),
+      ]),
+    );
+    await pumpLakuna(
+      tester,
+      initialLocation: '${Routes.settings}?bagian=about',
+    );
+    await _tap(tester, 'about-licenses-show');
+    await _tap(tester, 'about-license-besar');
+    expect(find.text('Paragraf 0.'), findsOneWidget);
+    expect(find.text('Paragraf 2999.'), findsNothing);
+    final box = tester.getSize(_key('about-license-text-besar'));
+    expect(box.height, lessThanOrEqualTo(400));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('bagian dari rute: ?bagian=about', (tester) async {
     await pumpLakuna(
       tester,

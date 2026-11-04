@@ -7,6 +7,78 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-11-04
+
+Persiapan rilis ke store dan distribusi (F1-22): ikon aplikasi Lakuna,
+halaman Tentang Lakuna, pengaman nomor build, dan dokumen untuk Google Play
+dan App Store.
+
+### Ditambahkan
+
+- **Ikon aplikasi Lakuna** di semua platform, menggantikan ikon bawaan
+  Flutter: mark Etalase (etalase toko) putih di kotak gradien Sky. Android
+  memakai ikon adaptive (termasuk ikon bertema Android 13), iOS kotak penuh,
+  macOS mengikuti grid ikon Apple, Windows `.ico` 16–256 px, ikon `.deb`
+  Linux, dan ikon web.
+- **Pengaturan › Tentang Lakuna** (semua staf, termasuk kasir): versi
+  aplikasi, ringkasan privasi data (data di perangkat ini; versi hosted
+  belum tersedia; jaga file backup), tombol **Buka Panduan**, dan
+  **Lisensi open source** yang bisa dibuka per paket. Teks lisensi tampil
+  di kotak bergulir dan dirender bertahap, jadi lisensi Flutter yang
+  berisi ribuan paragraf tidak membuat layar macet.
+- Lisensi font bundel (Montserrat, DM Sans, DM Mono; SIL OFL 1.1) dan
+  Bootstrap Icons (MIT, mark logo) ikut tampil di daftar lisensi dan dicatat
+  di `NOTICE.md`.
+- Dokumen pemilik di `docs/rilis/`: langkah membuat kunci Android permanen
+  dan mengisi secret, Google Play Console (listing, Data safety, jalur
+  internal → produksi), App Store/TestFlight, tanda tangan desktop;
+  **kebijakan privasi** ID + EN untuk URL store (versi hosted ditulis
+  belum tersedia; kebijakan diperbarui sebelum versi itu rilis); **teks
+  listing** ID + EN dalam batas karakter Play dan App Store.
+- Aset store di `docs/rilis/aset/`: ikon 512 px, feature graphic
+  1024×500, dan 18 tangkapan layar asli (HP 864×1728 dan tablet 2560×1600,
+  Bahasa Indonesia dan English).
+
+### Diubah
+
+- Cek versi rilis dipindah ke `tools/release/check-version.sh` dan juga
+  dijalankan di CI setiap PR: versi baru wajib punya bagian CHANGELOG dan
+  **nomor build (`+N`) wajib lebih besar** dari rilis terakhir, karena Play
+  Console dan App Store menolak versionCode yang tidak naik.
+- README menautkan dokumen rilis store dan menjelaskan `SHA256SUMS.txt`.
+
+### Diperbaiki
+
+- iOS: menambah alasan izin **Bluetooth** (cetak struk) dan **galeri
+  foto** (foto produk, stiker QRIS, nota, denah) di `Info.plist`. Tanpa
+  keduanya App Store menolak build dan aplikasi bisa tertutup saat
+  meminta izin. Teks izin kamera diperjelas (nota, bukti bayar, denah).
+
+### Keamanan
+
+- Setiap GitHub Release menyertakan **`SHA256SUMS.txt`** agar unduhan
+  bisa diperiksa (`sha256sum -c SHA256SUMS.txt --ignore-missing`).
+- Skrip cek versi gagal dengan jelas bila tag di origin tidak bisa dibaca,
+  alih-alih menganggap versi belum dirilis.
+
+### Catatan teknis
+
+- `registerBundledLicenses()` (`lib/config/bundled_licenses.dart`)
+  dipanggil di `main()`; teks lisensi dibaca dari aset saat daftar lisensi
+  pertama kali dibuka.
+- `AboutViewModel` mengelompokkan `LicenseRegistry.licenses` per paket
+  (urut abjad) dan menyimpan `LicenseEntry` apa adanya; paragraf baru
+  diurai saat satu paket dibuka (`ListView.builder`, indentasi
+  `LicenseParagraph` dihormati seperti `LicensePage`). Sumber lisensi bisa
+  diganti di tes; galat apa pun menjadi `load.error`.
+- Job CI baru **Versi & nomor build** menjalankan
+  `tools/release/check-version.sh` di setiap PR.
+- `SettingsSection.about` (`?bagian=about`) selalu ada di akhir daftar
+  bagian Pengaturan.
+- Ikon dibuat ulang dengan `node tools/brand/render.mjs <dir>` (Chromium
+  lewat Playwright, font dibundel) lalu `python3 tools/brand/make_icons.py
+  <dir>`.
+
 ## [0.27.0] - 2026-11-04
 
 Menu **Panduan** (F1-21, layar 1.27): panduan pengguna lengkap di dalam
@@ -2633,7 +2705,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.0...HEAD
+[0.28.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...v0.25.0

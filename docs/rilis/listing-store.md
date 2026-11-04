@@ -20,11 +20,11 @@ kelontong, minimarket, warung makan, kafe, dan usaha F&B lain. Semua data
 disimpan di perangkat sehingga kasir tetap jalan walau internet mati.
 
 KASIR CEPAT
-• Cari produk atau scan barcode, harga grosir otomatis
+• Cari produk atau scan barcode dengan scanner USB/Bluetooth, harga grosir otomatis
 • Diskon per nota atau per item, dengan persetujuan PIN manajer
 • Bayar tunai dengan kembalian, kartu, transfer, QRIS statis, atau gabungan
 • Penjualan kredit (piutang pelanggan)
-• Struk lewat printer Bluetooth atau jaringan, retur dan void tercatat
+• Struk lewat printer jaringan, printer Bluetooth (Android), atau PDF; retur dan void tercatat
 
 MODE F&B
 • Meja dalam grid atau denah, open bill, kirim ke dapur
@@ -64,11 +64,11 @@ shops, minimarts, food stalls, cafés and other F&B outlets. All data is
 stored on the device, so the till keeps working when the internet is down.
 
 FAST CHECKOUT
-• Search products or scan barcodes, automatic wholesale prices
+• Search products or scan barcodes with a USB/Bluetooth scanner, automatic wholesale prices
 • Order or item discounts, with manager PIN approval
 • Cash with change, cards, bank transfer, static QRIS, or split payment
 • Credit sales (customer receivables)
-• Receipts on Bluetooth or network printers, returns and voids recorded
+• Receipts on network printers, Bluetooth printers (Android), or PDF; returns and voids recorded
 
 F&B MODE
 • Tables in a grid or on a floor plan, open bills, send to kitchen

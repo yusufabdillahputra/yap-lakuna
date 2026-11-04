@@ -45,7 +45,7 @@ Legenda: **Rilis** (sudah di `main` dan dirilis), **Sebagian**,
 | Spec | Layar desain | Status |
 | --- | --- | --- |
 | [F0 · Fondasi & arsitektur](2026-11-03-f0-fondasi-arsitektur-design.md) | Gaya visual, tema gelap | Rilis v0.1.0 (kontras v0.1.1), ada gap |
-| Merek · logo, ikon aplikasi & placeholder DiceBear | Logo Etalase diwarnai Sky | Belum |
+| Merek · logo, ikon aplikasi & placeholder DiceBear | Logo Etalase diwarnai Sky | Ikon aplikasi v0.28.0 |
 
 ### Fase 1 · Gratis, offline-first
 
@@ -74,7 +74,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 19 | [Data & backup](2026-11-04-f1-19-data-backup-design.md) | 1.13, 1.10 | Rilis v0.25.0 (backup .zip, pulihkan + muat ulang, pengingat Beranda, layar gagal mulai); enkripsi & pulihkan dari onboarding menyusul |
 | 20 | [Tata letak mobile & beranda](2026-11-04-f1-20-mobile-beranda-design.md) | 1.10, 1.11 | Rilis v0.26.0 (Beranda 1.10; navigasi bawah sejak v0.1.0, kasir mobile sejak v0.6.0); bagikan struk menyusul |
 | 21 | [Panduan pengguna](2026-11-04-f1-21-panduan-design.md) | 1.27 | Rilis v0.27.0 (27 artikel ID + EN, cari, 38 gambar WebP); tautan kontekstual dari layar lain menyusul |
-| 22 | Rilis ke store & distribusi | - | Sebagian (v0.1.0: installer otomatis) |
+| 22 | [Rilis ke store & distribusi](2026-11-04-f1-22-rilis-store-design.md) | 1.26 | Rilis v0.28.0 (ikon aplikasi, Tentang Lakuna, SHA256SUMS, dokumen + aset store); unggah ke store menunggu akun pemilik |
 
 ### Fase 2 · Hosting & sync (Serverpod di VPS sendiri)
 
