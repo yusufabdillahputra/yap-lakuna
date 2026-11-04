@@ -48,6 +48,8 @@ Daftar barang dari Excel kini bisa dimasukkan sekaligus.
   menyimpan.
 - Uji manual Xvfb: CSV 6 baris → 3 produk baru, 1 dilewati karena sudah
   ada, 2 ditolak (jenis tidak dikenal, harga kosong).
+- Pengembangan dijeda setelah rilis ini atas permintaan pemilik; titik
+  berhenti dan gap berikutnya dicatat di `docs/superpowers/STATUS-JEDA.md`.
 
 ## [0.30.0] - 2026-11-04
 
