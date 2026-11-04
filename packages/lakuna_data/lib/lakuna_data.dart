@@ -3,6 +3,7 @@ library;
 
 export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 
+export 'src/backup.dart';
 export 'src/cash.dart';
 export 'src/customers.dart';
 export 'src/expenses.dart';

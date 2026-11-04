@@ -3,6 +3,9 @@ abstract final class Routes {
   static const home = '/';
   static const settings = '/pengaturan';
 
+  /// Pengaturan langsung ke bagian *Data & backup* (pengingat Beranda).
+  static const settingsBackup = '/pengaturan?bagian=backup';
+
   /// Setup toko pertama (F1-01).
   static const setup = '/setup';
 

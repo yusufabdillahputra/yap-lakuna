@@ -7,6 +7,87 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-04
+
+Data & backup (F1-19, layar 1.13): pemilik membuat backup seluruh data
+perangkat ke satu berkas `.zip` dan memulihkannya ke perangkat ini atau
+perangkat pengganti.
+
+### Ditambahkan
+
+- Bagian **Data & backup** di Pengaturan (khusus pemilik, izin
+  `backup:manage`): mode *Gratis · offline*, jumlah transaksi, produk, dan
+  ukuran data, serta *Backup terakhir* (hari ini / N hari lalu / belum
+  pernah).
+- **Backup sekarang**: membuat `lakuna-backup-<KODECABANG>-<YYMMDD-HHMM>.zip`
+  berisi `manifest.json`, salinan database yang konsisten (`VACUUM INTO`,
+  kasir tetap bisa jalan), dan semua gambar. Di desktop berkas disimpan ke
+  folder `Dokumen/Lakuna/Backup` dan lokasinya ditampilkan; di Android/iOS
+  lewat menu bagikan. Bila menu bagikan ditutup tanpa memilih, waktu backup
+  tidak dicatat.
+- **Pulihkan**: pilih berkas `.zip`, lihat ringkasan isi backup (toko,
+  cabang, perangkat, tanggal, jumlah transaksi dan produk), ketik nama toko
+  untuk konfirmasi, lalu aplikasi dimuat ulang dan kembali ke layar masuk.
+  Data lama tidak dihapus: dipindah ke folder `sebelum-pulihkan-…` di
+  lokasi data.
+- **Pengingat backup** di Beranda untuk pemilik bila belum pernah backup
+  atau backup terakhir lebih dari 7 hari lalu, dengan tombol ke *Data &
+  backup*.
+- **Layar gagal mulai**: bila database tidak bisa dibuka, aplikasi
+  menampilkan pesan galat dan lokasi data yang bisa disalin, bukan tertutup
+  tanpa pesan.
+- Kartu *Aktifkan versi hosting* (alamat server, kode aktivasi) tampil
+  nonaktif dengan keterangan Fase 2.
+
+### Diubah
+
+- Menu bagian Pengaturan di layar lebar kini bisa digulir bila tidak muat.
+
+### Diperbaiki
+
+Ditemukan saat pengujian dan review sebelum rilis:
+
+- Pemasangan backup aman bila aplikasi mati di tengah jalan: langkah yang
+  sudah selesai tidak diulang, sehingga data hasil pulihkan tidak ikut
+  dipindah dan aplikasi tetap bisa dibuka.
+- Bila database dari backup gagal dibuka, data lama dikembalikan otomatis
+  dan Beranda menampilkan *Pulihkan gagal* (backup yang gagal disimpan di
+  folder `pulihkan-gagal-…`).
+- Berkas zip ditutup setelah diperiksa, jadi di Windows berkas backup bisa
+  dipindah atau dihapus tanpa menutup aplikasi.
+- Database backup diekstrak dan diperiksa checksum-nya langsung dari
+  berkas, tidak ditampung di memori (aman untuk data besar di HP).
+- Salinan sementara backup dihapus saat backup berikutnya dibuat.
+- Dua backup di menit yang sama tidak saling menimpa (akhiran `-2`).
+- *Backup terakhir* setelah pulihkan memakai waktu backup yang dipasang,
+  bukan nilai lama di dalam backup.
+
+### Keamanan
+
+- Hanya `lakuna.sqlite` dan `media/<nama>` yang diekstrak dari backup;
+  entri dengan folder, `..`, `\`, atau `:` diabaikan (zip-slip).
+- Repositori menolak backup dan pulihkan tanpa izin `backup:manage`.
+
+### Catatan teknis
+
+- `lakuna_data`: `createBackup`, `inspectBackup`, `stageRestore`,
+  `applyPendingRestore` (penanda `restore/ready` dan `restore/applying`),
+  `undoRestore`, `finishRestore`, `BackupManifest` (format 1),
+  `BackupInvalid`, `BackupTooNew` (versi skema backup tidak dikenal).
+  Dependensi baru `archive`.
+- Aplikasi: `bootstrap.dart` (merangkai repositori) dan `LakunaRoot` +
+  `AppRestart` (memasang backup sebelum database dibuka, memuat ulang
+  aplikasi dengan pohon widget baru). `main.dart` kini hanya
+  `runApp(const LakunaRoot())`.
+- `BackupRepository` / `LocalBackupRepository`, `BackupFiles`
+  (`share_plus` di ponsel, salin ke folder di desktop, `file_selector` untuk
+  memilih berkas), `BackupViewModel`. Waktu backup terakhir di
+  `local_preferences` (`backup.last_at`).
+- Rute `/pengaturan?bagian=backup` membuka bagian *Data & backup*
+  langsung.
+- Gap: enkripsi backup, pulihkan dari onboarding, perangkat tambahan vs
+  pengganti (identitas perangkat ikut backup), dicatat di spec F1-19.
+
 ## [0.24.0] - 2026-11-04
 
 Diskon manual di Kasir retail (F1-04b, layar 1.4b): kasir memberi diskon
@@ -2430,7 +2511,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...v0.22.0

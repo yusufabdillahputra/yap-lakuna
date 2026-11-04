@@ -3,18 +3,23 @@ import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../app_root.dart';
+import '../../data/repositories/backup_repository.dart';
 import '../../data/repositories/dining_admin_repository.dart';
 import '../../data/repositories/payment_settings_repository.dart';
 import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../data/repositories/store_settings_repository.dart';
+import '../../data/services/backup_files.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
 import '../products/product_widgets.dart' show ChoicePill;
 import 'app_settings_view_model.dart';
+import 'backup_section.dart';
+import 'backup_view_model.dart';
 import 'fnb_rates_section.dart';
 import 'fnb_rates_view_model.dart';
 import 'payment_settings_view_model.dart';
@@ -33,7 +38,17 @@ enum SettingsSection {
   receipt,
   taxes,
   rules,
-  appearance,
+  backup,
+  appearance;
+
+  /// Bagian dari parameter rute `?bagian=` (mis. `backup` dari pengingat
+  /// Beranda); `null` bila tidak dikenal.
+  static SettingsSection? fromQuery(String? value) {
+    for (final s in values) {
+      if (s.name == value) return s;
+    }
+    return null;
+  }
 }
 
 /// Layar Pengaturan: navigasi bagian (kolom kiri di layar lebar, pil di
@@ -51,7 +66,17 @@ class SettingsScreen extends StatefulWidget {
     required this.store,
     required this.storeSettings,
     this.diningAdmin,
+    this.backup,
+    this.backupFiles = const PlatformBackupFiles(),
+    this.initialSection,
   });
+
+  /// Data & backup (F1-19); hanya untuk staf dengan `backup:manage`.
+  final BackupRepository? backup;
+  final BackupFiles backupFiles;
+
+  /// Bagian yang dibuka pertama (bila boleh diakses staf).
+  final SettingsSection? initialSection;
 
   /// Tarif service & PB1 (F1-10).
   final DiningAdminRepository? diningAdmin;
@@ -74,13 +99,18 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late final bool _canManage =
       widget.session.current?.can(Permission.settingsManage) ?? false;
-  late SettingsSection _section = _canManage
-      ? SettingsSection.business
-      : SettingsSection.appearance;
+  late final bool _canBackup =
+      widget.backup != null &&
+      (widget.session.current?.can(Permission.backupManage) ?? false);
+  late SettingsSection _section = switch (widget.initialSection) {
+    final s? when _sections.contains(s) => s,
+    _ => _canManage ? SettingsSection.business : SettingsSection.appearance,
+  };
   StoreSettingsViewModel? _store;
   PaymentSettingsViewModel? _payments;
   ReceiptSettingsViewModel? _receipt;
   FnbRatesViewModel? _rates;
+  BackupViewModel? _backup;
 
   @override
   void initState() {
@@ -100,6 +130,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _rates = FnbRatesViewModel(repository: admin)..load.execute();
       }
     }
+    if (_canBackup) {
+      _backup = BackupViewModel(
+        repository: widget.backup!,
+        files: widget.backupFiles,
+        restart: () async => _restart?.call(),
+      )..load.execute();
+    }
+  }
+
+  /// Dibaca saat dipakai: [AppRestart] belum bisa dicari di [initState].
+  Future<void> Function()? _restart;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _restart = AppRestart.maybeOf(context)?.restart;
   }
 
   @override
@@ -108,6 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _payments?.dispose();
     _receipt?.dispose();
     _rates?.dispose();
+    _backup?.dispose();
     super.dispose();
   }
 
@@ -118,6 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_canManage) SettingsSection.receipt,
     if (_rates != null) SettingsSection.taxes,
     if (_canManage) SettingsSection.rules,
+    if (_canBackup) SettingsSection.backup,
     SettingsSection.appearance,
   ];
 
@@ -128,6 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.payments => l10n.settingsSectionPayments,
     SettingsSection.receipt => l10n.settingsSectionReceipt,
     SettingsSection.taxes => l10n.settingsSectionTaxes,
+    SettingsSection.backup => l10n.settingsSectionBackup,
     SettingsSection.appearance => l10n.settingsSectionAppearance,
   };
 
@@ -138,6 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.payments => TablerIcons.creditCard,
     SettingsSection.receipt => TablerIcons.receipt,
     SettingsSection.taxes => TablerIcons.percentage,
+    SettingsSection.backup => TablerIcons.databaseExport,
     SettingsSection.appearance => TablerIcons.palette,
   };
 
@@ -169,6 +219,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         staffName: widget.session.current?.name ?? '',
       ),
       SettingsSection.taxes => FnbRatesSection(viewModel: _rates!),
+      SettingsSection.backup => BackupSection(
+        viewModel: _backup!,
+        timezone: widget.store.current?.outlet.timezone,
+      ),
       SettingsSection.appearance => SettingsView(viewModel: widget.settings),
     };
     return LayoutBuilder(
@@ -187,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               SizedBox(
                 width: 220,
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 16, 0, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

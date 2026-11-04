@@ -6716,4 +6716,158 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get storeSettingsDiscountPinHint =>
       'Cashiers without the discount permission can discount after a manager enters their PIN. When off, only permitted staff can discount.';
+
+  @override
+  String get settingsSectionBackup => 'Data & backup';
+
+  @override
+  String get backupModeLabel => 'Current mode';
+
+  @override
+  String get backupModeFree => 'Free · offline';
+
+  @override
+  String get backupModeBody =>
+      'All data and images are stored on this device only. Back up regularly so nothing is lost if the phone or computer breaks.';
+
+  @override
+  String get backupStatSales => 'Transactions';
+
+  @override
+  String get backupStatProducts => 'Products';
+
+  @override
+  String get backupStatSize => 'Size';
+
+  @override
+  String get backupLastNever => 'Never backed up';
+
+  @override
+  String get backupLastToday => 'Last backup today';
+
+  @override
+  String backupLastDays(int days) {
+    return 'Last backup $days days ago';
+  }
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupRestore => 'Restore';
+
+  @override
+  String get backupFileNote =>
+      'The backup file holds the database and all images (.zip). Keep it somewhere safe: it contains your store data.';
+
+  @override
+  String backupSavedTo(String path) {
+    return 'Backup saved to $path';
+  }
+
+  @override
+  String get backupShared => 'Backup shared.';
+
+  @override
+  String get backupDismissed =>
+      'Backup was not shared. Try again and pick where to save it.';
+
+  @override
+  String get backupFailed =>
+      'Backup failed. Make sure there is enough storage, then try again.';
+
+  @override
+  String get backupRestoreTitle => 'Restore from backup';
+
+  @override
+  String backupRestoreSummary(String store, String outlet, String device) {
+    return '$store · $outlet · device $device';
+  }
+
+  @override
+  String backupRestoreMade(String date, int sales, int products) {
+    return 'Created $date · $sales transactions · $products products';
+  }
+
+  @override
+  String get backupRestoreWarning =>
+      'All data on this device will be replaced by the backup. Current data is moved to a \"sebelum-pulihkan\" folder in the data folder, then the app reloads and you sign in again.';
+
+  @override
+  String backupRestoreConfirmLabel(String store) {
+    return 'Type \"$store\" to continue';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Restore & reload';
+
+  @override
+  String get backupRestoreCancel => 'Cancel';
+
+  @override
+  String get backupInvalid => 'This file is not a complete Lakuna backup.';
+
+  @override
+  String get backupTooNew =>
+      'This backup was made by a newer Lakuna version. Update the app first.';
+
+  @override
+  String get backupRestoreFailed =>
+      'Restore failed. The data on this device was not changed.';
+
+  @override
+  String get backupHostingTitle => 'Activate hosted version';
+
+  @override
+  String get backupHostingBody =>
+      'Sync all branches and devices to your store server.';
+
+  @override
+  String get backupHostingServer => 'Server address';
+
+  @override
+  String get backupHostingCode => 'Activation code';
+
+  @override
+  String get backupHostingConnect => 'Connect & upload data';
+
+  @override
+  String get backupHostingSoon => 'Available in the hosted version (phase 2).';
+
+  @override
+  String get homeBackupTitle => 'Needs attention';
+
+  @override
+  String get homeBackupNever =>
+      'Data has never been backed up. Back up now so nothing is lost if the device breaks.';
+
+  @override
+  String homeBackupDays(int days) {
+    return 'Last backup was $days days ago. Back up now so nothing is lost if the device breaks.';
+  }
+
+  @override
+  String get homeBackupAction => 'Open Data & backup';
+
+  @override
+  String get startupErrorTitle => 'Lakuna could not start';
+
+  @override
+  String get startupErrorBody =>
+      'The database on this device could not be opened. Your data was not deleted. Copy the details below and contact support.';
+
+  @override
+  String startupErrorPath(String path) {
+    return 'Data location: $path';
+  }
+
+  @override
+  String get startupErrorCopy => 'Copy details';
+
+  @override
+  String get homeRestoreFailedTitle => 'Restore failed';
+
+  @override
+  String get homeRestoreFailedBody =>
+      'The database from the backup could not be opened, so your previous data was put back. The failed backup is kept in a pulihkan-gagal folder in the data location.';
 }

@@ -70,8 +70,8 @@ Urutan pengerjaan sama dengan Storeku.
 | 15 | [Pengeluaran](2026-11-04-f1-15-pengeluaran-design.md) | 1.22 | Rilis v0.19.0: jenis pengeluaran (master data), catat kas toko/laci/bank dengan foto nota, batal dengan alasan (laci dibalik di sesi terbuka), per jenis + periode, ekspor Excel, sakelar *Catat juga sebagai pengeluaran* di kas laci (berulang menyusul Fase 3) |
 | 16 | [Laporan & laba rugi](2026-11-04-f1-16-laporan-design.md) | 1.23, 1.24 | Rilis v0.20.0 + v0.21.0: ringkasan (penjualan, laba kotor, rata-rata, piutang jatuh tempo, metode bayar, terlaris), penjualan per produk/kasir/kategori, produk terlaris, laba rugi + perbandingan periode, unduh PDF/Excel, izin `reports:view_profit`; v0.21.0: tab stok (pergerakan + nilai), kas & sesi, piutang & hutang, retur |
 | 17 | [Pengguna & role (RBAC)](2026-11-04-f1-17-pengguna-role-design.md) | 1.25, 1.25b | Rilis v0.22.0: tambah/ubah staf PIN + ulangi, reset & buka kunci PIN, matriks izin per role, role custom, Akun saya (ganti PIN/kata sandi + ulangi) |
-| 18 | [Pengaturan toko](2026-11-03-f1-18-pengaturan-design.md) | 1.26, 1.26b | Sebagian (v0.1.0: tema & bahasa; v0.7.0: QRIS statis; v0.8.0: struk & printer; v0.23.0: profil toko, cabang, penjualan & stok, PB1 termasuk, ukuran tampilan; v0.24.0: sakelar diskon butuh PIN; Data & backup di F1-19) |
-| 19 | Data & backup | 1.13 | Belum |
+| 18 | [Pengaturan toko](2026-11-03-f1-18-pengaturan-design.md) | 1.26, 1.26b | Sebagian (v0.1.0: tema & bahasa; v0.7.0: QRIS statis; v0.8.0: struk & printer; v0.23.0: profil toko, cabang, penjualan & stok, PB1 termasuk, ukuran tampilan; v0.24.0: sakelar diskon butuh PIN; v0.25.0: Data & backup) |
+| 19 | [Data & backup](2026-11-04-f1-19-data-backup-design.md) | 1.13, 1.10 | Rilis v0.25.0 (backup .zip, pulihkan + muat ulang, pengingat Beranda, layar gagal mulai); enkripsi & pulihkan dari onboarding menyusul |
 | 20 | Tata letak mobile & beranda | 1.10, 1.11 | Sebagian (v0.1.0: shell responsif) |
 | 21 | Panduan pengguna (ID + EN, gambar WebP) | 1.27 | Belum |
 | 22 | Rilis ke store & distribusi | - | Sebagian (v0.1.0: installer otomatis) |

@@ -6597,4 +6597,158 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get storeSettingsDiscountPinHint =>
       'Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.';
+
+  @override
+  String get settingsSectionBackup => 'Data & backup';
+
+  @override
+  String get backupModeLabel => 'Mode saat ini';
+
+  @override
+  String get backupModeFree => 'Gratis · offline';
+
+  @override
+  String get backupModeBody =>
+      'Semua data dan gambar tersimpan di perangkat ini saja. Lakukan backup rutin agar data tidak hilang jika HP atau komputer rusak.';
+
+  @override
+  String get backupStatSales => 'Transaksi';
+
+  @override
+  String get backupStatProducts => 'Produk';
+
+  @override
+  String get backupStatSize => 'Ukuran';
+
+  @override
+  String get backupLastNever => 'Belum pernah backup';
+
+  @override
+  String get backupLastToday => 'Backup terakhir hari ini';
+
+  @override
+  String backupLastDays(int days) {
+    return 'Backup terakhir $days hari lalu';
+  }
+
+  @override
+  String get backupNow => 'Backup sekarang';
+
+  @override
+  String get backupRestore => 'Pulihkan';
+
+  @override
+  String get backupFileNote =>
+      'File backup berisi database dan semua gambar (.zip). Simpan di tempat aman karena isinya data toko Anda.';
+
+  @override
+  String backupSavedTo(String path) {
+    return 'Backup tersimpan di $path';
+  }
+
+  @override
+  String get backupShared => 'Backup dibagikan.';
+
+  @override
+  String get backupDismissed =>
+      'Backup tidak dibagikan. Coba lagi dan pilih tujuan penyimpanan.';
+
+  @override
+  String get backupFailed =>
+      'Backup gagal. Pastikan ruang penyimpanan cukup lalu coba lagi.';
+
+  @override
+  String get backupRestoreTitle => 'Pulihkan dari backup';
+
+  @override
+  String backupRestoreSummary(String store, String outlet, String device) {
+    return '$store · $outlet · perangkat $device';
+  }
+
+  @override
+  String backupRestoreMade(String date, int sales, int products) {
+    return 'Dibuat $date · $sales transaksi · $products produk';
+  }
+
+  @override
+  String get backupRestoreWarning =>
+      'Semua data di perangkat ini akan diganti isi backup. Data saat ini dipindah ke folder \"sebelum-pulihkan\" di folder data, lalu aplikasi dimuat ulang dan Anda masuk lagi.';
+
+  @override
+  String backupRestoreConfirmLabel(String store) {
+    return 'Ketik \"$store\" untuk melanjutkan';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Pulihkan & muat ulang';
+
+  @override
+  String get backupRestoreCancel => 'Batal';
+
+  @override
+  String get backupInvalid => 'Berkas ini bukan backup Lakuna yang utuh.';
+
+  @override
+  String get backupTooNew =>
+      'Backup ini dibuat versi Lakuna yang lebih baru. Perbarui aplikasi dulu.';
+
+  @override
+  String get backupRestoreFailed =>
+      'Pulihkan gagal. Data perangkat ini tidak berubah.';
+
+  @override
+  String get backupHostingTitle => 'Aktifkan versi hosting';
+
+  @override
+  String get backupHostingBody =>
+      'Sinkronkan semua cabang dan perangkat ke server toko Anda.';
+
+  @override
+  String get backupHostingServer => 'Alamat server';
+
+  @override
+  String get backupHostingCode => 'Kode aktivasi';
+
+  @override
+  String get backupHostingConnect => 'Hubungkan & unggah data';
+
+  @override
+  String get backupHostingSoon => 'Tersedia di versi hosting (Fase 2).';
+
+  @override
+  String get homeBackupTitle => 'Perlu perhatian';
+
+  @override
+  String get homeBackupNever =>
+      'Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.';
+
+  @override
+  String homeBackupDays(int days) {
+    return 'Backup terakhir $days hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.';
+  }
+
+  @override
+  String get homeBackupAction => 'Buka Data & backup';
+
+  @override
+  String get startupErrorTitle => 'Lakuna gagal dibuka';
+
+  @override
+  String get startupErrorBody =>
+      'Database di perangkat ini tidak bisa dibuka. Data Anda tidak dihapus. Salin detail di bawah lalu hubungi dukungan.';
+
+  @override
+  String startupErrorPath(String path) {
+    return 'Lokasi data: $path';
+  }
+
+  @override
+  String get startupErrorCopy => 'Salin detail';
+
+  @override
+  String get homeRestoreFailedTitle => 'Pulihkan gagal';
+
+  @override
+  String get homeRestoreFailedBody =>
+      'Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.';
 }

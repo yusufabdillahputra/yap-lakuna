@@ -8,6 +8,7 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  archive: ^4.6.0
   characters: ^1.4.0
   crypto: ^3.0.7
   lakuna_client:
