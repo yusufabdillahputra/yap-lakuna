@@ -8515,6 +8515,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'0–365 hari. 0 = jatuh tempo hari itu juga.'**
   String get customerGroupsTermHint;
+
+  /// No description provided for @cashSourcePurchase.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian'**
+  String get cashSourcePurchase;
+
+  /// No description provided for @cashSourceDebtPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar piutang'**
+  String get cashSourceDebtPayment;
 }
 
 class _AppLocalizationsDelegate

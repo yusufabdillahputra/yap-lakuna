@@ -1,3 +1,4 @@
+import 'package:lakuna_client/lakuna_client.dart' show DebtPayment;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
@@ -102,10 +103,7 @@ ReceiptContent kuitansiReceiptContent(
     meta: [
       ReceiptPair(l10n.receiptNo, p.number),
       ReceiptPair(l10n.kuitansiFrom, receipt.customer.name),
-      ReceiptPair(
-        l10n.receiptDate,
-        receiptDate(outletLocalTime(p.createdAt, setup.timezone)),
-      ),
+      ReceiptPair(l10n.receiptDate, _thermalDate(p, setup.timezone)),
       ReceiptPair(l10n.receiptCashier, receipt.staffName),
     ],
     items: [
@@ -132,4 +130,19 @@ ReceiptContent kuitansiReceiptContent(
     ],
     footer: [l10n.receiptThanks],
   );
+}
+
+/// Tanggal bayar (sama dengan kuitansi A5). Jam simpan ikut hanya bila
+/// dibayar hari itu juga; pembayaran bertanggal mundur tanpa jam.
+String _thermalDate(DebtPayment p, String? timezone) {
+  final saved = outletLocalTime(p.createdAt, timezone);
+  final paid = p.paidOn;
+  if (saved.year == paid.year &&
+      saved.month == paid.month &&
+      saved.day == paid.day) {
+    return receiptDate(saved);
+  }
+  return receiptDate(DateTime(paid.year, paid.month, paid.day))
+      .split(' ')
+      .first;
 }

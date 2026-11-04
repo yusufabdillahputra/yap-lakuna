@@ -535,7 +535,10 @@ class CashierViewModel extends ChangeNotifier {
     rows.sort((a, b) {
       final la = a.creditLimit > Money.zero ? 0 : 1;
       final lb = b.creditLimit > Money.zero ? 0 : 1;
-      return la != lb ? la - lb : 0;
+      if (la != lb) return la - lb;
+      return a.customer.name.toLowerCase().compareTo(
+        b.customer.name.toLowerCase(),
+      );
     });
     return rows;
   }
@@ -720,9 +723,9 @@ class CashierViewModel extends ChangeNotifier {
   void setMode(PayMode m) {
     if (m == PayMode.qris && qris == null) return;
     if (m == PayMode.credit && !canSellOnCredit) return;
-    if (m == PayMode.credit &&
-        _creditCustomers == null &&
-        !loadCredit.running) {
+    // Muat ulang setiap masuk mode kredit: piutang bisa berubah (bayar
+    // piutang, retur) sejak terakhir dimuat.
+    if (m == PayMode.credit && _mode != PayMode.credit && !loadCredit.running) {
       loadCredit.execute();
     }
     _mode = m;

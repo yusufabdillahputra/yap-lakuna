@@ -127,6 +127,33 @@ const _columns = {
 };
 
 /// Baris tabel (baris pertama = judul) → pelanggan sah + baris ditolak.
+/// Rupiah bulat dari sel import: `1500000`, `1.500.000`, `1,500,000`,
+/// `Rp 1.500.000`, juga desimal nol dari ekspor akuntansi (`1500000.00`,
+/// `1.500.000,00`). Pecahan rupiah, negatif, atau teks → `null` (tidak
+/// pernah menebak, agar limit tidak membengkak 100×).
+int? parseImportMoney(String text) {
+  final t = text.trim().replaceFirst(
+    RegExp(r'^rp\.?\s*', caseSensitive: false),
+    '',
+  );
+  final m = RegExp(
+    r'^(\d{1,3}(?:\.\d{3})+|\d{1,3}(?:,\d{3})+|\d+)(?:[.,](\d+))?$',
+  ).firstMatch(t.replaceAll(' ', ''));
+  if (m == null) return null;
+  var whole = m.group(1)!;
+  final fraction = m.group(2);
+  final dotGroups = whole.contains('.');
+  final commaGroups = whole.contains(',');
+  if (fraction != null) {
+    if (RegExp(r'[^0]').hasMatch(fraction)) return null;
+    // Pemisah desimal tidak boleh sama dengan pemisah ribuan.
+    final sep = t[t.length - fraction.length - 1];
+    if ((dotGroups && sep == '.') || (commaGroups && sep == ',')) return null;
+  }
+  whole = whole.replaceAll('.', '').replaceAll(',', '');
+  return int.tryParse(whole);
+}
+
 CustomerImportResult customerImportRows(List<List<String>> table) {
   if (table.isEmpty) return const CustomerImportResult(missingName: true);
   final index = <String, int>{};
@@ -157,12 +184,8 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
     final limitRaw = cell('limit');
     Money? limit;
     if (limitRaw != null) {
-      final digits = limitRaw.replaceAll(
-        RegExp(r'[.\s]|^Rp', caseSensitive: false),
-        '',
-      );
-      final parsed = int.tryParse(digits);
-      if (parsed == null || parsed < 0) {
+      final parsed = parseImportMoney(limitRaw);
+      if (parsed == null) {
         rejected.add(ImportRejected(line, ImportRejectReason.creditLimit));
         continue;
       }

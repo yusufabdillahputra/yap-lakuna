@@ -381,30 +381,33 @@ Future<Map<UuidValue, Money>> saleOutstandingOf(
   ];
   final result = <UuidValue, Money>{for (final s in sales) s.id: Money.zero};
   if (credit.isEmpty) return result;
-  final ids = {for (final s in credit) s.id};
   final allocated = <UuidValue, Money>{};
-  for (final a in await DebtPaymentAllocation.db.find(
-    session,
-    where: (a) =>
-        a.tenantId.equals(tenantId) &
-        a.saleId.inSet(ids) &
-        a.deletedAt.equals(null),
-    transaction: transaction,
-  )) {
-    allocated[a.saleId!] =
-        (allocated[a.saleId!] ?? Money.zero) + Money(a.amount);
-  }
   final reduced = <UuidValue, Money>{};
-  for (final r in await SaleReturn.db.find(
-    session,
-    where: (r) =>
-        r.tenantId.equals(tenantId) &
-        r.saleId.inSet(ids) &
-        r.deletedAt.equals(null),
-    transaction: transaction,
-  )) {
-    reduced[r.saleId] =
-        (reduced[r.saleId] ?? Money.zero) + Money(r.debtReduction);
+  // Dipecah per 500 id agar tidak melewati batas variabel SQLite.
+  for (var i = 0; i < credit.length; i += 500) {
+    final ids = {for (final s in credit.skip(i).take(500)) s.id};
+    for (final a in await DebtPaymentAllocation.db.find(
+      session,
+      where: (a) =>
+          a.tenantId.equals(tenantId) &
+          a.saleId.inSet(ids) &
+          a.deletedAt.equals(null),
+      transaction: transaction,
+    )) {
+      allocated[a.saleId!] =
+          (allocated[a.saleId!] ?? Money.zero) + Money(a.amount);
+    }
+    for (final r in await SaleReturn.db.find(
+      session,
+      where: (r) =>
+          r.tenantId.equals(tenantId) &
+          r.saleId.inSet(ids) &
+          r.deletedAt.equals(null),
+      transaction: transaction,
+    )) {
+      reduced[r.saleId] =
+          (reduced[r.saleId] ?? Money.zero) + Money(r.debtReduction);
+    }
   }
   for (final s in credit) {
     result[s.id] = saleOutstanding(
@@ -972,7 +975,9 @@ Future<DebtPayment> receiveDebtPayment(
         request.allocations ?? allocateOldestFirst(request.amount, receivables);
     final total = Money.sum(open.map((r) => r.outstanding));
 
-    final cash = request.method == PaymentMethod.cash
+    // Uang yang diterima hari lain tidak masuk laci hari ini: dicatat
+    // sebagai kas toko.
+    final cash = request.method == PaymentMethod.cash && paidOn == today
         ? await findOpenCashSession(
             store,
             CashScope(
@@ -1180,6 +1185,31 @@ Future<CustomerImportSummary> importCustomers(
   required List<CustomerImportRow> rows,
 }) async {
   await requireCustomerActor(store, scope, staffId, Permission.customersManage);
+  // Baris dari luar aplikasi diperiksa ulang di lapisan data, sama dengan
+  // `saveCustomer`; satu baris salah membatalkan seluruh import.
+  for (final r in rows) {
+    final issues = validateCustomer(
+      name: r.name,
+      phone: r.phone,
+      address: r.address,
+      note: r.note,
+      groupName: r.groupName,
+      creditLimit: r.creditLimit ?? Money.zero,
+    );
+    if (issues.isNotEmpty) throw CustomerInvalid(issues);
+  }
+  rows = [
+    for (final r in rows)
+      CustomerImportRow(
+        line: r.line,
+        name: r.name.trim(),
+        phone: r.phone == null ? null : normalizePhone(r.phone!),
+        address: _text(r.address),
+        note: _text(r.note),
+        groupName: _text(r.groupName),
+        creditLimit: r.creditLimit,
+      ),
+  ];
   return store.write(actor: staffId, (w) async {
     final s = await w.stamp();
     final existing = await _customers(

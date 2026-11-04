@@ -30,7 +30,7 @@ const sample = KuitansiDocument(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('kuitansi A5 menjadi PDF satu halaman', () async {
+  test('kuitansi A5 menjadi PDF', () async {
     final pdf = await buildKuitansiPdf(sample);
     expect(String.fromCharCodes(pdf.take(5)), '%PDF-');
     // Font ikut tertanam (subset).
@@ -38,5 +38,35 @@ void main() {
     if (Platform.environment['KUITANSI_PDF_OUT'] case final out?) {
       File(out).writeAsBytesSync(pdf);
     }
+  });
+
+  test('pelunasan 40 nota berlanjut ke halaman berikutnya', () async {
+    final long = KuitansiDocument(
+      title: sample.title,
+      number: sample.number,
+      storeName: sample.storeName,
+      storeLine: sample.storeLine,
+      fields: sample.fields,
+      tableHead: sample.tableHead,
+      tableRows: [
+        for (var i = 1; i <= 40; i++)
+          [
+            'PST-T01-261020-${i.toString().padLeft(4, '0')}',
+            'Rp 20.000',
+            'Rp 20.000',
+          ],
+      ],
+      placeDate: sample.placeDate,
+      amount: 'Rp 800.000',
+      signName: sample.signName,
+      signRole: sample.signRole,
+      footnote: sample.footnote,
+    );
+    final doc = await kuitansiPdfDocument(long);
+    await doc.save();
+    expect(doc.document.pdfPageList.pages.length, greaterThan(1));
+    final short = await kuitansiPdfDocument(sample);
+    await short.save();
+    expect(short.document.pdfPageList.pages, hasLength(1));
   });
 }

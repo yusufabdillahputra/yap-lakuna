@@ -3046,5 +3046,7 @@
   "customerGroupsEditTitle": "Ubah grup pelanggan",
   "customerGroupsName": "Nama grup",
   "customerGroupsTerm": "Tempo standar (hari)",
-  "customerGroupsTermHint": "0–365 hari. 0 = jatuh tempo hari itu juga."
+  "customerGroupsTermHint": "0–365 hari. 0 = jatuh tempo hari itu juga.",
+  "cashSourcePurchase": "Pembelian",
+  "cashSourceDebtPayment": "Bayar piutang"
 }

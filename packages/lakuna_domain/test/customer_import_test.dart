@@ -98,4 +98,29 @@ void main() {
       expect(result.rows.single.line, 3);
     });
   });
+
+  group('parseImportMoney', () {
+    test('rupiah bulat, pemisah ribuan titik atau koma, Rp', () {
+      expect(parseImportMoney('1500000'), 1500000);
+      expect(parseImportMoney('1.500.000'), 1500000);
+      expect(parseImportMoney('1,500,000'), 1500000);
+      expect(parseImportMoney('Rp 1.500.000'), 1500000);
+      expect(parseImportMoney('rp2.000'), 2000);
+    });
+
+    test('desimal nol dari ekspor akuntansi tidak dikali 100', () {
+      expect(parseImportMoney('1500000.00'), 1500000);
+      expect(parseImportMoney('1500000,00'), 1500000);
+      expect(parseImportMoney('1.500.000,00'), 1500000);
+      expect(parseImportMoney('1,500,000.00'), 1500000);
+    });
+
+    test('pecahan rupiah, negatif, atau teks ditolak', () {
+      expect(parseImportMoney('1100000.0000000002'), isNull);
+      expect(parseImportMoney('1,5'), isNull);
+      expect(parseImportMoney('-5000'), isNull);
+      expect(parseImportMoney('lima ribu'), isNull);
+      expect(parseImportMoney('1.50.000'), isNull);
+    });
+  });
 }

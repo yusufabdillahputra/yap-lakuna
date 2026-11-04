@@ -100,6 +100,23 @@ bukan bug di versi sebelumnya.
   sehingga memicu galat framework.
 - Font PDF kuitansi tampil sangat tipis karena paket `pdf` tidak mendukung
   font variabel; kini memakai potongan statis DM Sans dan Montserrat.
+- Limit kredit dari import seperti `1500000.00` (ekspor akuntansi) terbaca
+  100× lebih besar karena semua titik dibuang. Kini titik/koma hanya
+  dianggap pemisah ribuan bila berpola ribuan; desimal nol diterima,
+  pecahan rupiah ditolak.
+- Kuitansi A5 untuk pelunasan puluhan nota terpotong di satu halaman; kini
+  tabel berlanjut ke halaman berikutnya.
+- Pembayaran tunai bertanggal mundur ikut masuk laci hari ini; kini dicatat
+  sebagai kas toko, dan petunjuk di form ikut menyesuaikan.
+- Struk kuitansi memakai jam simpan, sedangkan A5 memakai tanggal bayar;
+  kini keduanya memakai tanggal bayar.
+- Gerakan kas dari pembelian dan pembayaran piutang di rekap sesi tampil
+  sebagai kode mentah (`purchase`, `debt_payment`); kini berlabel.
+- Daftar pelanggan kredit di Kasir tidak dimuat ulang setelah ada
+  pembayaran piutang atau retur; kini dimuat setiap masuk mode kredit dan
+  diurutkan stabil per nama.
+- Import di lapisan data kini memeriksa ulang setiap baris seperti form
+  pelanggan.
 
 ### Keamanan
 

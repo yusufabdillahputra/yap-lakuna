@@ -80,6 +80,11 @@ class CustomerPanelViewModel extends ChangeNotifier {
   bool get canManage => _setup?.canManage ?? false;
   bool get hasOpenSession => _setup?.hasOpenSession ?? false;
 
+  /// Tunai masuk laci hanya bila sesi terbuka dan tanggal bayar hari ini;
+  /// selain itu dicatat sebagai kas toko.
+  bool get cashToDrawer =>
+      hasOpenSession && _detail != null && paidOn == _detail!.today;
+
   List<OpenReceivable<UuidValue>> get _open => [
     for (final r in _detail?.open ?? const <ReceivableSale>[])
       OpenReceivable(id: r.sale.id, outstanding: r.outstanding),

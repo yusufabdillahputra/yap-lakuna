@@ -4949,4 +4949,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerGroupsTermHint => '0–365 days. 0 = due the same day.';
+
+  @override
+  String get cashSourcePurchase => 'Purchase';
+
+  @override
+  String get cashSourceDebtPayment => 'Receivable payment';
 }

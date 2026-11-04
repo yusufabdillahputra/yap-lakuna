@@ -21,7 +21,7 @@ import 'customers_view.dart' show debtTone;
 const _tabular = [FontFeature.tabularFigures()];
 
 /// Di bawah lebar ini tabel nota dan isian bayar ditumpuk.
-const customerPanelNarrowWidth = 560.0;
+const customerPanelNarrowWidth = 520.0;
 
 TextStyle _muted(BuildContext context) => context.theme.typography.body.xs
     .copyWith(color: context.theme.colors.mutedForeground);
@@ -94,7 +94,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
             onDeleted: widget.onBack,
             onReceived: (p) async {
               await widget.onOpenReceipt(p.id);
-              await _vm.load.execute();
+              if (mounted) await _vm.load.execute();
             },
             onOpenReceipt: (id) => widget.onOpenReceipt(id, copy: true),
           ),
@@ -439,14 +439,17 @@ class _Stats extends StatelessWidget {
                     color: debt ? fg : theme.colors.mutedForeground,
                   ),
                 ),
-                Text(
-                  formatMoney(context, value),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.typography.display.lg.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: debt ? fg : null,
-                    fontFeatures: _tabular,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    formatMoney(context, value),
+                    maxLines: 1,
+                    style: theme.typography.display.lg.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: debt ? fg : null,
+                      fontFeatures: _tabular,
+                    ),
                   ),
                 ),
               ],
@@ -458,7 +461,8 @@ class _Stats extends StatelessWidget {
       tile('customer-debt', l10n.customerDebt, row.outstanding, debt: true),
       tile('customer-remaining', l10n.customerRemaining, row.remainingLimit),
     ];
-    if (narrow) {
+    // Tiga petak sebaris kecuali layar sangat sempit.
+    if (narrow && MediaQuery.sizeOf(context).width < 400) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 8,
@@ -558,7 +562,7 @@ class _PaymentFields extends StatelessWidget {
     );
     final cashHint = vm.method == PaymentMethod.cash
         ? Text(
-            vm.hasOpenSession
+            vm.cashToDrawer
                 ? l10n.customerCashDrawerHint
                 : l10n.customerCashStoreHint,
             key: const ValueKey('customer-cash-hint'),

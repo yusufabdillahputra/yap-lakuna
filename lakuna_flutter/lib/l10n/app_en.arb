@@ -2512,5 +2512,7 @@
   "customerGroupsEditTitle": "Edit customer group",
   "customerGroupsName": "Group name",
   "customerGroupsTerm": "Standard term (days)",
-  "customerGroupsTermHint": "0–365 days. 0 = due the same day."
+  "customerGroupsTermHint": "0–365 days. 0 = due the same day.",
+  "cashSourcePurchase": "Purchase",
+  "cashSourceDebtPayment": "Receivable payment"
 }

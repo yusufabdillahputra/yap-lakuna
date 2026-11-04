@@ -100,12 +100,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
       return;
     }
     await widget.onOpenCustomer(id);
-    await _list.refresh();
+    if (mounted) await _list.refresh();
   }
 
   Future<void> _new(bool twoPane) async {
     final saved = await showCustomerForm(context, widget.repository);
-    if (saved == null) return;
+    if (saved == null || !mounted) return;
     await _list.refresh();
     if (twoPane) _select(saved.id);
   }
@@ -116,12 +116,14 @@ class _CustomersScreenState extends State<CustomersScreen> {
       widget.repository,
       picker: widget.tablePicker,
     );
-    if (done) await _list.refresh();
+    if (done && mounted) await _list.refresh();
   }
 
   Future<void> _received(DebtPayment payment) async {
     unawaited(_list.refresh());
     await widget.onOpenReceipt(payment.id);
+    // Pengguna bisa pindah menu saat kuitansi terbuka.
+    if (!mounted) return;
     await _list.refresh();
     await _panel?.load.execute();
   }

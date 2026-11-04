@@ -4835,4 +4835,10 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get customerGroupsTermHint =>
       '0–365 hari. 0 = jatuh tempo hari itu juga.';
+
+  @override
+  String get cashSourcePurchase => 'Pembelian';
+
+  @override
+  String get cashSourceDebtPayment => 'Bayar piutang';
 }

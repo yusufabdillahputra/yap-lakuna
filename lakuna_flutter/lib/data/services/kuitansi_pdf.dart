@@ -67,7 +67,12 @@ class KuitansiDocument {
 }
 
 /// PDF kuitansi ukuran A5 tegak.
-Future<Uint8List> buildKuitansiPdf(KuitansiDocument k) async {
+Future<Uint8List> buildKuitansiPdf(KuitansiDocument k) async =>
+    (await kuitansiPdfDocument(k)).save();
+
+/// Dokumen PDF kuitansi. Tabel nota panjang (pelunasan puluhan nota)
+/// berlanjut ke halaman berikutnya; jumlah dan tanda tangan ikut di akhir.
+Future<pw.Document> kuitansiPdfDocument(KuitansiDocument k) async {
   final regular = pw.Font.ttf(await rootBundle.load(_regular));
   final semi = pw.Font.ttf(await rootBundle.load(_semiBold));
   final italic = pw.Font.ttf(await rootBundle.load(_italic));
@@ -80,150 +85,148 @@ Future<Uint8List> buildKuitansiPdf(KuitansiDocument k) async {
 
   final doc = pw.Document(title: k.number, creator: 'Lakuna');
   doc.addPage(
-    pw.Page(
+    pw.MultiPage(
+      crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       pageFormat: PdfPageFormat.a5.copyWith(
         marginLeft: 14 * PdfPageFormat.mm,
         marginRight: 14 * PdfPageFormat.mm,
         marginTop: 14 * PdfPageFormat.mm,
         marginBottom: 14 * PdfPageFormat.mm,
       ),
-      build: (_) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-        children: [
-          pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Expanded(
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(k.storeName, style: body(font: heading, size: 13)),
-                    pw.SizedBox(height: 2),
-                    pw.Text(k.storeLine, style: body(size: 8, color: muted)),
-                  ],
-                ),
-              ),
-              pw.SizedBox(width: 12),
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.end,
-                children: [
-                  pw.Text(k.title, style: body(font: heading, size: 15)),
-                  pw.SizedBox(height: 2),
-                  pw.Text(k.number, style: body(size: 8, color: muted)),
-                  if (k.banner case final banner?) ...[
-                    pw.SizedBox(height: 4),
-                    pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border.all(color: ink, width: 0.8),
-                      ),
-                      child: pw.Text(banner, style: body(font: semi, size: 8)),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-          pw.SizedBox(height: 10),
-          pw.Container(height: 1.6, color: ink),
-          pw.SizedBox(height: 12),
-          for (final f in k.fields)
-            pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(vertical: 4),
-              child: pw.Row(
+      build: (_) => [
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Expanded(
+              child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.SizedBox(
-                    width: 105,
-                    child: pw.Text(f.label, style: body(color: muted)),
-                  ),
-                  pw.Expanded(
-                    child: pw.Text(
-                      f.value,
-                      style: body(font: f.italic ? italic : semi),
-                    ),
-                  ),
+                  pw.Text(k.storeName, style: body(font: heading, size: 13)),
+                  pw.SizedBox(height: 2),
+                  pw.Text(k.storeLine, style: body(size: 8, color: muted)),
                 ],
               ),
             ),
-          if (k.tableHead.length == 3) ...[
-            pw.SizedBox(height: 10),
-            pw.Table(
-              columnWidths: const {
-                0: pw.FlexColumnWidth(5),
-                1: pw.FlexColumnWidth(3),
-                2: pw.FlexColumnWidth(3),
-              },
-              border: const pw.TableBorder(
-                horizontalInside: pw.BorderSide(color: rule, width: 0.6),
-                top: pw.BorderSide(color: rule, width: 0.6),
-                bottom: pw.BorderSide(color: rule, width: 0.6),
-              ),
+            pw.SizedBox(width: 12),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
               children: [
-                for (final (i, row) in [k.tableHead, ...k.tableRows].indexed)
-                  pw.TableRow(
-                    children: [
-                      for (final (c, cell) in row.indexed)
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                          child: pw.Text(
-                            cell,
-                            textAlign: c == 0
-                                ? pw.TextAlign.left
-                                : pw.TextAlign.right,
-                            style: body(
-                              size: 8,
-                              color: i == 0 ? muted : ink,
-                            ),
-                          ),
-                        ),
-                    ],
+                pw.Text(k.title, style: body(font: heading, size: 15)),
+                pw.SizedBox(height: 2),
+                pw.Text(k.number, style: body(size: 8, color: muted)),
+                if (k.banner case final banner?) ...[
+                  pw.SizedBox(height: 4),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: ink, width: 0.8),
+                    ),
+                    child: pw.Text(banner, style: body(font: semi, size: 8)),
                   ),
+                ],
               ],
             ),
           ],
-          pw.SizedBox(height: 10),
-          pw.Align(
-            alignment: pw.Alignment.centerRight,
-            child: pw.Text(k.placeDate, style: body(size: 8, color: muted)),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Container(height: 1.6, color: ink),
+        pw.SizedBox(height: 12),
+        for (final f in k.fields)
+          pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(vertical: 4),
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.SizedBox(
+                  width: 105,
+                  child: pw.Text(f.label, style: body(color: muted)),
+                ),
+                pw.Expanded(
+                  child: pw.Text(
+                    f.value,
+                    style: body(font: f.italic ? italic : semi),
+                  ),
+                ),
+              ],
+            ),
           ),
-          pw.SizedBox(height: 18),
-          pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.end,
+        if (k.tableHead.length == 3) ...[
+          pw.SizedBox(height: 10),
+          pw.Table(
+            columnWidths: const {
+              0: pw.FlexColumnWidth(5),
+              1: pw.FlexColumnWidth(3),
+              2: pw.FlexColumnWidth(3),
+            },
+            border: const pw.TableBorder(
+              horizontalInside: pw.BorderSide(color: rule, width: 0.6),
+              top: pw.BorderSide(color: rule, width: 0.6),
+              bottom: pw.BorderSide(color: rule, width: 0.6),
+            ),
             children: [
-              pw.Container(
-                padding: const pw.EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: ink, width: 1.4),
-                ),
-                child: pw.Text(k.amount, style: body(font: heading, size: 14)),
-              ),
-              pw.Spacer(),
-              pw.SizedBox(
-                width: 120,
-                child: pw.Column(
+              for (final (i, row) in [k.tableHead, ...k.tableRows].indexed)
+                pw.TableRow(
                   children: [
-                    pw.SizedBox(height: 28),
-                    pw.Text(k.signName, style: body(font: semi)),
-                    pw.Text(k.signRole, style: body(size: 8, color: muted)),
+                    for (final (c, cell) in row.indexed)
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(vertical: 4),
+                        child: pw.Text(
+                          cell,
+                          textAlign: c == 0
+                              ? pw.TextAlign.left
+                              : pw.TextAlign.right,
+                          style: body(
+                            size: 8,
+                            color: i == 0 ? muted : ink,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-              ),
             ],
           ),
-          if (k.footnote case final note?) ...[
-            pw.SizedBox(height: 12),
-            pw.Text(note, style: body(size: 8, color: muted)),
-          ],
         ],
-      ),
+        pw.SizedBox(height: 10),
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(k.placeDate, style: body(size: 8, color: muted)),
+        ),
+        pw.SizedBox(height: 18),
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.end,
+          children: [
+            pw.Container(
+              padding: const pw.EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: ink, width: 1.4),
+              ),
+              child: pw.Text(k.amount, style: body(font: heading, size: 14)),
+            ),
+            pw.Spacer(),
+            pw.SizedBox(
+              width: 120,
+              child: pw.Column(
+                children: [
+                  pw.SizedBox(height: 28),
+                  pw.Text(k.signName, style: body(font: semi)),
+                  pw.Text(k.signRole, style: body(size: 8, color: muted)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (k.footnote case final note?) ...[
+          pw.SizedBox(height: 12),
+          pw.Text(note, style: body(size: 8, color: muted)),
+        ],
+      ],
     ),
   );
-  return doc.save();
+  return doc;
 }

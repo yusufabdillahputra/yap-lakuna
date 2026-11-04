@@ -728,7 +728,12 @@ class _MovementsCard extends StatelessWidget {
                 key: ValueKey('cash-row-${m.id.uuid}'),
                 time: formatClock(m.createdAt, timezone),
                 note: m.note,
-                source: m.source == 'manual' ? l10n.cashSourceManual : m.source,
+                source: switch (m.source) {
+                  'manual' => l10n.cashSourceManual,
+                  purchaseCashSource => l10n.cashSourcePurchase,
+                  debtPaymentCashSource => l10n.cashSourceDebtPayment,
+                  final other => other,
+                },
                 amount: Text(
                   '${m.direction == CashDirection.inflow ? '+' : '−'}'
                   '${formatMoney(context, Money(m.amount))}',

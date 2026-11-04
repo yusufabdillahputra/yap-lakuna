@@ -216,6 +216,9 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Pilih pelanggan di kepala pesanan, harga grosir per grup | 1.4b | Belum | Bersama nota tersimpan dan diskon manual. |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |
 | Batal pembayaran piutang | — | Belum | Void pembayaran + jurnal balik kas. |
+| Nomor baris import saat berkas punya baris kosong | — | Bergeser | Bawa nomor baris asli dari CSV/XLSX (`row@r`). |
+| Piutang dihitung dari semua nota kredit pelanggan | — | Dipecah per 500 id | Indeks/ringkasan saat data Fase 2 membesar. |
+| Pembayaran tunai bertanggal mundur | — | Kas toko, tidak masuk laci hari ini | Buku kas F1-15. |
 
 ## Kriteria selesai
 

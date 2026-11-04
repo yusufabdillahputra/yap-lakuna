@@ -402,6 +402,21 @@ void main() {
       expect(detail.payments.single.id, payment.id);
     });
 
+    test('tunai bertanggal mundur tidak masuk laci hari ini', () async {
+      final payment = await receiveDebtPayment(
+        store,
+        scope,
+        staffId: owner(),
+        request: DebtPaymentRequest(
+          customerId: ani.id,
+          amount: const Money(100000),
+          method: PaymentMethod.cash,
+          paidOn: DateTime.utc(2026, 11, 2),
+        ),
+      );
+      expect(payment.cashSessionId, isNull);
+    });
+
     test('manual, transfer tanpa laci, galat', () async {
       Future<DebtPayment> pay(
         int amount, {
@@ -615,4 +630,30 @@ void main() {
     expect(kantin.termDays, 14);
     expect(kantin.customer.creditLimit, 1000000);
   });
+
+  test(
+    'import: baris tidak valid dari luar parser ditolak di lapisan data',
+    () {
+      expect(
+        importCustomers(
+          store,
+          scope,
+          staffId: owner(),
+          rows: const [
+            CustomerImportRow(line: 2, name: '', phone: '081322221010'),
+          ],
+        ),
+        throwsA(isA<CustomerInvalid>()),
+      );
+      expect(
+        importCustomers(
+          store,
+          scope,
+          staffId: owner(),
+          rows: const [CustomerImportRow(line: 2, name: 'Budi', phone: '12')],
+        ),
+        throwsA(isA<CustomerInvalid>()),
+      );
+    },
+  );
 }
