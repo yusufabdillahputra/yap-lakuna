@@ -28,6 +28,7 @@ export 'src/purchase.dart';
 export 'src/qty.dart';
 export 'src/receipt.dart';
 export 'src/receivable.dart';
+export 'src/report.dart';
 export 'src/sale.dart';
 export 'src/sale_return.dart';
 export 'src/setup.dart';

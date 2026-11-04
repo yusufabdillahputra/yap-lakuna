@@ -18,6 +18,7 @@ enum Permission {
   debtsManage('debts:manage'),
   expensesManage('expenses:manage'),
   reportsView('reports:view'),
+  reportsViewProfit('reports:view_profit'),
   settingsManage('settings:manage'),
   usersManage('users:manage'),
   backupManage('backup:manage'),

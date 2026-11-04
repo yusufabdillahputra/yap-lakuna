@@ -10,6 +10,7 @@ import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
 import '../data/repositories/customers_repository.dart';
 import '../data/repositories/expenses_repository.dart';
+import '../data/repositories/reports_repository.dart';
 import '../data/repositories/suppliers_repository.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/purchases_repository.dart';
@@ -39,6 +40,7 @@ import '../ui/history/history_view.dart';
 import '../ui/purchases/purchase_detail_view.dart';
 import '../ui/purchases/purchases_view.dart';
 import '../ui/expenses/expenses_view.dart';
+import '../ui/reports/reports_view.dart';
 import '../ui/suppliers/supplier_panel_view.dart';
 import '../ui/suppliers/suppliers_view.dart';
 import '../ui/home/home_view.dart';
@@ -74,6 +76,7 @@ GoRouter createRouter({
   required CustomersRepository customers,
   required SuppliersRepository suppliers,
   required ExpensesRepository expenses,
+  required ReportsRepository reports,
   required PaymentSettingsRepository paymentSettings,
   required ReceiptSettingsRepository receiptSettings,
   required ReceiptPrinter receiptPrinter,
@@ -446,6 +449,14 @@ GoRouter createRouter({
             builder: (context, state) => ExpensesScreen(
               repository: expenses,
               imagePicker: imagePicker,
+              exporter: exporter,
+            ),
+          ),
+          GoRoute(
+            path: Routes.reports,
+            builder: (context, state) => ReportsScreen(
+              repository: reports,
+              permissions: session.current?.permissions ?? const {},
               exporter: exporter,
             ),
           ),

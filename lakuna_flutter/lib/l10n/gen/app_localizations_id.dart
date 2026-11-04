@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, serta pengeluaran sudah bisa dipakai. Laporan menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -5459,4 +5459,268 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get expenseFundingDrawer => 'Kas laci';
+
+  @override
+  String get reportsTitle => 'Laporan';
+
+  @override
+  String reportsSubtitle(String period, String outlet) {
+    return '$period · $outlet';
+  }
+
+  @override
+  String get reportsPeriod => 'Periode';
+
+  @override
+  String get reportsPeriodToday => 'Hari ini';
+
+  @override
+  String get reportsPeriod7Days => '7 hari terakhir';
+
+  @override
+  String get reportsPeriodThisMonth => 'Bulan ini';
+
+  @override
+  String get reportsDownloadPdf => 'Unduh PDF';
+
+  @override
+  String get reportsDownloadExcel => 'Unduh Excel';
+
+  @override
+  String get reportsTabSummary => 'Ringkasan';
+
+  @override
+  String get reportsTabSales => 'Penjualan';
+
+  @override
+  String get reportsTabTop => 'Produk terlaris';
+
+  @override
+  String get reportsTabProfit => 'Laba rugi';
+
+  @override
+  String get reportsKpiSales => 'Penjualan';
+
+  @override
+  String reportsKpiSalesNote(int count) {
+    return '$count transaksi';
+  }
+
+  @override
+  String get reportsKpiGrossProfit => 'Laba kotor';
+
+  @override
+  String get reportsKpiGrossProfitNote => 'Dari harga pokok saat jual';
+
+  @override
+  String get reportsKpiAverage => 'Rata-rata per nota';
+
+  @override
+  String get reportsKpiAverageNote => 'Penjualan bersih ÷ transaksi';
+
+  @override
+  String get reportsKpiOverdue => 'Piutang jatuh tempo';
+
+  @override
+  String reportsKpiOverdueNote(int count) {
+    return '$count pelanggan';
+  }
+
+  @override
+  String get reportsByMethod => 'Penjualan per metode bayar';
+
+  @override
+  String get reportsByMethodNote => 'Nilai nota sebelum retur';
+
+  @override
+  String get reportsMethodCredit => 'Kredit (piutang)';
+
+  @override
+  String get reportsEmpty => 'Belum ada penjualan pada periode ini.';
+
+  @override
+  String get reportsTop => 'Produk terlaris';
+
+  @override
+  String get reportsFull => 'Laporan lengkap';
+
+  @override
+  String get reportsLinkSalesProduct => 'Penjualan per produk';
+
+  @override
+  String get reportsLinkSalesStaff => 'Penjualan per kasir';
+
+  @override
+  String get reportsLinkSalesCategory => 'Penjualan per kategori';
+
+  @override
+  String get reportsLinkProfit => 'Laba rugi';
+
+  @override
+  String get reportsLinkStock => 'Kartu stok';
+
+  @override
+  String get reportsLinkDebts => 'Hutang & piutang';
+
+  @override
+  String get reportsLinkReturns => 'Retur';
+
+  @override
+  String get reportsLinkExpenses => 'Pemasukan & pengeluaran';
+
+  @override
+  String get reportsLinkSessions => 'Rekap sesi kasir';
+
+  @override
+  String get reportsGroupProduct => 'Per produk';
+
+  @override
+  String get reportsGroupStaff => 'Per kasir';
+
+  @override
+  String get reportsGroupCategory => 'Per kategori';
+
+  @override
+  String get reportsColProduct => 'Produk';
+
+  @override
+  String get reportsColStaff => 'Kasir';
+
+  @override
+  String get reportsColCategory => 'Kategori';
+
+  @override
+  String get reportsColQty => 'Jumlah';
+
+  @override
+  String get reportsColReceipts => 'Nota';
+
+  @override
+  String get reportsColNet => 'Penjualan bersih';
+
+  @override
+  String get reportsColShare => 'Porsi';
+
+  @override
+  String get reportsColRank => '#';
+
+  @override
+  String get reportsColValue => 'Nilai';
+
+  @override
+  String get reportsColLine => 'Keterangan';
+
+  @override
+  String get reportsColAmount => 'Jumlah';
+
+  @override
+  String get reportsColMethod => 'Metode bayar';
+
+  @override
+  String get reportsNoCategory => 'Tanpa kategori';
+
+  @override
+  String get reportsTotal => 'Total';
+
+  @override
+  String get reportsSalesNote =>
+      'Per produk dan kategori: nilai baris setelah harga grosir dan retur, tanpa service dan PB1. Per kasir: penjualan bersih seperti di laba rugi. Jumlah dalam satuan dasar.';
+
+  @override
+  String reportsPlTitle(String period) {
+    return 'Laba rugi · $period';
+  }
+
+  @override
+  String reportsPlSubtitle(String outlet) {
+    return '$outlet · semua kasir';
+  }
+
+  @override
+  String get reportsPlGross => 'Penjualan kotor';
+
+  @override
+  String get reportsPlDiscount => 'Diskon';
+
+  @override
+  String get reportsPlService => 'Service charge';
+
+  @override
+  String get reportsPlReturns => 'Retur penjualan';
+
+  @override
+  String get reportsPlNet => 'Penjualan bersih';
+
+  @override
+  String get reportsPlCogs => 'Harga pokok penjualan (HPP)';
+
+  @override
+  String reportsPlGrossProfit(String margin) {
+    return 'Laba kotor · margin $margin';
+  }
+
+  @override
+  String get reportsPlExpensesTotal => 'Total beban operasional';
+
+  @override
+  String get reportsPlExpensesNone => 'Belum ada pengeluaran';
+
+  @override
+  String get reportsPlAdjustment => 'Penyesuaian stok (selisih, rusak, hilang)';
+
+  @override
+  String get reportsPlNetProfit => 'Laba bersih';
+
+  @override
+  String reportsPlTax(String amount) {
+    return 'PB1 dipungut $amount: bukan pendapatan, tidak ikut dihitung.';
+  }
+
+  @override
+  String reportsPlMissingCost(int count) {
+    return '$count produk terjual tanpa harga pokok: HPP-nya dihitung 0.';
+  }
+
+  @override
+  String reportsVsPrevious(String change, String period) {
+    return '$change dibanding $period';
+  }
+
+  @override
+  String reportsPreviousValue(String period, String amount) {
+    return '$period: $amount';
+  }
+
+  @override
+  String get reportsPrevToday => 'kemarin';
+
+  @override
+  String get reportsPrev7Days => '7 hari sebelumnya';
+
+  @override
+  String get reportsMargin => 'Margin kotor';
+
+  @override
+  String get reportsMarginNote => 'Laba kotor ÷ penjualan bersih';
+
+  @override
+  String get reportsExpenseRatio => 'Beban / penjualan';
+
+  @override
+  String get reportsHowTitle => 'Cara hitung';
+
+  @override
+  String get reportsHowBody =>
+      'HPP dihitung dari harga pokok rata-rata tertimbang saat jual. Pengeluaran diambil dari menu Pengeluaran. Gaji otomatis baru ada di Fase 3.';
+
+  @override
+  String reportsDocSubtitle(String outlet, String date) {
+    return '$outlet · dibuat $date';
+  }
+
+  @override
+  String get reportsNotPermitted => 'Anda tidak punya izin melihat laporan.';
+
+  @override
+  String get reportsLoadFailed => 'Laporan gagal dimuat.';
 }

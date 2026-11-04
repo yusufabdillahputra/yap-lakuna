@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, and expenses are ready to use. Reports are coming in the next release.",
+  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -2911,5 +2911,174 @@
   "cashAsExpenseNeedsNote": "The note is required and becomes the expense description.",
   "expenseCategorySave": "Save",
   "expenseReceiptOpen": "Open receipt photo",
-  "expenseFundingDrawer": "Cash drawer"
+  "expenseFundingDrawer": "Cash drawer",
+  "reportsTitle": "Reports",
+  "reportsSubtitle": "{period} · {outlet}",
+  "@reportsSubtitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPeriod": "Period",
+  "reportsPeriodToday": "Today",
+  "reportsPeriod7Days": "Last 7 days",
+  "reportsPeriodThisMonth": "This month",
+  "reportsDownloadPdf": "Download PDF",
+  "reportsDownloadExcel": "Download Excel",
+  "reportsTabSummary": "Summary",
+  "reportsTabSales": "Sales",
+  "reportsTabTop": "Best sellers",
+  "reportsTabProfit": "Profit & loss",
+  "reportsKpiSales": "Sales",
+  "reportsKpiSalesNote": "{count} transactions",
+  "@reportsKpiSalesNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsKpiGrossProfit": "Gross profit",
+  "reportsKpiGrossProfitNote": "From cost at time of sale",
+  "reportsKpiAverage": "Average per receipt",
+  "reportsKpiAverageNote": "Net sales ÷ transactions",
+  "reportsKpiOverdue": "Overdue receivables",
+  "reportsKpiOverdueNote": "{count} customers",
+  "@reportsKpiOverdueNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsByMethod": "Sales by payment method",
+  "reportsByMethodNote": "Receipt totals before returns",
+  "reportsMethodCredit": "Credit (receivable)",
+  "reportsEmpty": "No sales in this period yet.",
+  "reportsTop": "Best sellers",
+  "reportsFull": "Full reports",
+  "reportsLinkSalesProduct": "Sales by product",
+  "reportsLinkSalesStaff": "Sales by cashier",
+  "reportsLinkSalesCategory": "Sales by category",
+  "reportsLinkProfit": "Profit & loss",
+  "reportsLinkStock": "Stock card",
+  "reportsLinkDebts": "Payables & receivables",
+  "reportsLinkReturns": "Returns",
+  "reportsLinkExpenses": "Income & expenses",
+  "reportsLinkSessions": "Cashier session recap",
+  "reportsGroupProduct": "By product",
+  "reportsGroupStaff": "By cashier",
+  "reportsGroupCategory": "By category",
+  "reportsColProduct": "Product",
+  "reportsColStaff": "Cashier",
+  "reportsColCategory": "Category",
+  "reportsColQty": "Quantity",
+  "reportsColReceipts": "Receipts",
+  "reportsColNet": "Net sales",
+  "reportsColShare": "Share",
+  "reportsColRank": "#",
+  "reportsColValue": "Value",
+  "reportsColLine": "Description",
+  "reportsColAmount": "Amount",
+  "reportsColMethod": "Payment method",
+  "reportsNoCategory": "Uncategorized",
+  "reportsTotal": "Total",
+  "reportsSalesNote": "By product and category: line value after tier pricing and returns, excluding service and PB1 tax. By cashier: net sales as in profit & loss. Quantities in base units.",
+  "reportsPlTitle": "Profit & loss · {period}",
+  "@reportsPlTitle": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlSubtitle": "{outlet} · all cashiers",
+  "@reportsPlSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlGross": "Gross sales",
+  "reportsPlDiscount": "Discounts",
+  "reportsPlService": "Service charge",
+  "reportsPlReturns": "Sales returns",
+  "reportsPlNet": "Net sales",
+  "reportsPlCogs": "Cost of goods sold (COGS)",
+  "reportsPlGrossProfit": "Gross profit · margin {margin}",
+  "@reportsPlGrossProfit": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlExpensesTotal": "Total operating expenses",
+  "reportsPlExpensesNone": "No expenses yet",
+  "reportsPlAdjustment": "Stock adjustments (count, damaged, lost)",
+  "reportsPlNetProfit": "Net profit",
+  "reportsPlTax": "PB1 tax collected {amount}: not revenue, excluded.",
+  "@reportsPlTax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPlMissingCost": "{count} products sold without a cost price: their COGS counts as 0.",
+  "@reportsPlMissingCost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsVsPrevious": "{change} vs {period}",
+  "@reportsVsPrevious": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPreviousValue": "{period}: {amount}",
+  "@reportsPreviousValue": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsPrevToday": "yesterday",
+  "reportsPrev7Days": "the previous 7 days",
+  "reportsMargin": "Gross margin",
+  "reportsMarginNote": "Gross profit ÷ net sales",
+  "reportsExpenseRatio": "Expenses / sales",
+  "reportsHowTitle": "How it is calculated",
+  "reportsHowBody": "COGS uses the weighted average cost at the time of sale. Expenses come from the Expenses menu. Automatic payroll arrives in Phase 3.",
+  "reportsDocSubtitle": "{outlet} · generated {date}",
+  "@reportsDocSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsNotPermitted": "You do not have permission to view reports.",
+  "reportsLoadFailed": "Reports could not be loaded."
 }

@@ -21,38 +21,45 @@ String formatPhone(String? phone) {
 /// 2026`).
 String formatLongDate(AppLocalizations l10n, DateTime d) {
   final english = l10n.localeName.startsWith('en');
-  const id = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
-  const en = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
   return english
-      ? '${en[d.month - 1]} ${d.day}, ${d.year}'
-      : '${d.day} ${id[d.month - 1]} ${d.year}';
+      ? '${_enMonths[d.month - 1]} ${d.day}, ${d.year}'
+      : '${d.day} ${_idMonths[d.month - 1]} ${d.year}';
 }
+
+/// Bulan panjang `Oktober 2026` / `October 2026`.
+String formatLongMonth(AppLocalizations l10n, int year, int month) =>
+    '${(l10n.localeName.startsWith('en') ? _enMonths : _idMonths)[month - 1]} '
+    '$year';
+
+const _idMonths = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
+
+const _enMonths = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 /// Bulan dan tahun singkat `Mar 2026`.
 String formatMonthYear(AppLocalizations l10n, DateTime d) {
