@@ -69,6 +69,7 @@ class LocalCashierRepository extends CashierRepository {
             )
           : null,
       canConfirmPayments: staff.can(Permission.paymentsConfirm),
+      canSellOnCredit: staff.can(Permission.debtsManage),
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
     );
@@ -78,10 +79,14 @@ class LocalCashierRepository extends CashierRepository {
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
+    SaleCredit? credit,
   }) => _guard((ctx, staff) {
     if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
         !staff.can(Permission.paymentsConfirm)) {
       throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    if (credit != null && !staff.can(Permission.debtsManage)) {
+      throw const NotPermitted(Permission.debtsManage);
     }
     return checkoutSale(
       _store,
@@ -89,7 +94,16 @@ class LocalCashierRepository extends CashierRepository {
       staffId: staff.id,
       lines: lines,
       payments: payments,
+      credit: credit,
     );
+  });
+
+  @override
+  Future<Result<CustomersOverview>> creditCustomers() => _guard((ctx, staff) {
+    if (!staff.can(Permission.debtsManage)) {
+      throw const NotPermitted(Permission.debtsManage);
+    }
+    return listCustomers(_store, CatalogScope.of(ctx));
   });
 
   @override

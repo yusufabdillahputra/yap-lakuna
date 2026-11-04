@@ -55,6 +55,8 @@ abstract class Sale
     this.voidedAt,
     this.splitMode,
     this.splitGuests,
+    this.customerId,
+    this.dueOn,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -107,6 +109,8 @@ abstract class Sale
     DateTime? voidedAt,
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
+    _isc.UuidValue? customerId,
+    DateTime? dueOn,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -192,6 +196,14 @@ abstract class Sale
               (jsonSerialization['splitMode'] as String),
             ),
       splitGuests: jsonSerialization['splitGuests'] as int?,
+      customerId: jsonSerialization['customerId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['customerId'],
+            ),
+      dueOn: jsonSerialization['dueOn'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['dueOn']),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -299,6 +311,12 @@ abstract class Sale
 
   int? splitGuests;
 
+  /// Kredit (F1-13): pelanggan dan jatuh tempo piutang. Sisa piutang =
+  /// total − [paidAmount] − alokasi pembayaran − pengurang retur.
+  _isc.UuidValue? customerId;
+
+  DateTime? dueOn;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -355,6 +373,8 @@ abstract class Sale
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
+    _isc.UuidValue? customerId = const _isc.$UndefinedUuidValue(),
+    DateTime? dueOn = const _isc.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -401,6 +421,8 @@ abstract class Sale
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
       if (splitMode != null) 'splitMode': splitMode?.toJson(),
       if (splitGuests != null) 'splitGuests': splitGuests,
+      if (customerId != null) 'customerId': customerId?.toJson(),
+      if (dueOn != null) 'dueOn': dueOn?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -449,6 +471,8 @@ abstract class Sale
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
       if (splitMode != null) 'splitMode': splitMode?.toJson(),
       if (splitGuests != null) 'splitGuests': splitGuests,
+      if (customerId != null) 'customerId': customerId?.toJson(),
+      if (dueOn != null) 'dueOn': dueOn?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -525,6 +549,8 @@ class _SaleImpl extends Sale {
     DateTime? voidedAt,
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
+    _isc.UuidValue? customerId,
+    DateTime? dueOn,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -567,6 +593,8 @@ class _SaleImpl extends Sale {
          voidedAt: voidedAt,
          splitMode: splitMode,
          splitGuests: splitGuests,
+         customerId: customerId,
+         dueOn: dueOn,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -615,6 +643,8 @@ class _SaleImpl extends Sale {
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
     Object? splitMode = _Undefined,
     Object? splitGuests = _Undefined,
+    _isc.UuidValue? customerId = const _isc.$UndefinedUuidValue(),
+    DateTime? dueOn = const _isc.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -664,6 +694,10 @@ class _SaleImpl extends Sale {
       voidedAt: voidedAt is _isc.UndefinedSentinel ? this.voidedAt : voidedAt,
       splitMode: splitMode is _ixxw9kq3.SplitMode? ? splitMode : this.splitMode,
       splitGuests: splitGuests is int? ? splitGuests : this.splitGuests,
+      customerId: customerId is _isc.UndefinedSentinel
+          ? this.customerId
+          : customerId,
+      dueOn: dueOn is _isc.UndefinedSentinel ? this.dueOn : dueOn,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -875,6 +909,19 @@ class SaleUpdateTable extends _isd.UpdateTable<SaleTable> {
     table.splitGuests,
     value,
   );
+
+  _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> customerId(
+    _isc.UuidValue? value,
+  ) => _isd.ColumnValue(
+    table.customerId,
+    value,
+  );
+
+  _isd.ColumnValue<DateTime, DateTime> dueOn(DateTime? value) =>
+      _isd.ColumnValue(
+        table.dueOn,
+        value,
+      );
 
   _isd.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _isd.ColumnValue(
@@ -1093,6 +1140,16 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
       this,
       fieldName: 'splitGuests',
     );
+    customerId = _isd.ColumnUuid(
+      'customer_id',
+      this,
+      fieldName: 'customerId',
+    );
+    dueOn = _isd.ColumnDateTime(
+      'due_on',
+      this,
+      fieldName: 'dueOn',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -1209,6 +1266,12 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnInt splitGuests;
 
+  /// Kredit (F1-13): pelanggan dan jatuh tempo piutang. Sisa piutang =
+  /// total − [paidAmount] − alokasi pembayaran − pengurang retur.
+  late final _isd.ColumnUuid customerId;
+
+  late final _isd.ColumnDateTime dueOn;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -1260,6 +1323,8 @@ class SaleTable extends _isd.Table<_isc.UuidValue> {
     voidedAt,
     splitMode,
     splitGuests,
+    customerId,
+    dueOn,
     createdAt,
     updatedAt,
     deletedAt,

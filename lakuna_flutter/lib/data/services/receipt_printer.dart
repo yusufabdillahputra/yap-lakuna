@@ -6,6 +6,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart' show PdfPageFormat;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:printing/printing.dart';
 
@@ -66,6 +67,13 @@ abstract class ReceiptPrinter {
     ReceiptPaper paper, {
     required String fileName,
   });
+
+  /// Dokumen PDF utuh (mis. kuitansi A5) ke dialog cetak sistem.
+  Future<void> printDocument(Uint8List pdf, {required String jobName});
+
+  /// Dokumen PDF utuh: share sheet di Android/iOS (hasil `null`), atau
+  /// disimpan ke folder Dokumen di desktop (hasil = lokasi berkas).
+  Future<String?> shareDocument(Uint8List pdf, {required String fileName});
 }
 
 /// Batas waktu sambung dan kirim ke printer jaringan.
@@ -258,7 +266,25 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     ReceiptPaper paper, {
     required String fileName,
   }) async {
-    final pdf = await buildReceiptPdf(lines, paper);
+    return shareDocument(
+      await buildReceiptPdf(lines, paper),
+      fileName: fileName,
+    );
+  }
+
+  @override
+  Future<void> printDocument(Uint8List pdf, {required String jobName}) =>
+      Printing.layoutPdf(
+        name: jobName,
+        format: PdfPageFormat.a5,
+        onLayout: (_) async => pdf,
+      );
+
+  @override
+  Future<String?> shareDocument(
+    Uint8List pdf, {
+    required String fileName,
+  }) async {
     if (_mobile) {
       await Printing.sharePdf(bytes: pdf, filename: fileName);
       return null;

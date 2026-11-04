@@ -33,6 +33,9 @@ class FakeHistoryRepository extends HistoryRepository {
   /// Galat berikutnya untuk [list] (sekali pakai).
   Exception? listError;
 
+  /// Sisa piutang nota kredit (F1-13).
+  final outstanding = <UuidValue, Money>{};
+
   /// Nota ini tidak bisa di-void karena alasan ini (mis. kemarin).
   final blocked = <UuidValue, VoidBlock>{};
   var _counter = 0;
@@ -45,6 +48,9 @@ class FakeHistoryRepository extends HistoryRepository {
     String staffName = 'Yusuf',
     int? total,
     DateTime? soldAt,
+    String? customerName,
+    int? paidAmount,
+    DateTime? dueOn,
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -62,7 +68,10 @@ class FakeHistoryRepository extends HistoryRepository {
       tierDiscount: 0,
       changeAmount: 0,
       total: total ?? subtotal,
-      paidAmount: total ?? subtotal,
+      paidAmount: paidAmount ?? total ?? subtotal,
+      customerId: customerName == null ? null : _id(),
+      customerName: customerName,
+      dueOn: dueOn,
       itemCount: items.length,
       soldAt: soldAt ?? DateTime.utc(2026, 11, 3, 3, _counter),
       hlc: '',
@@ -94,7 +103,7 @@ class FakeHistoryRepository extends HistoryRepository {
           tenantId: _tenant,
           saleId: sale.id,
           method: method,
-          amount: total ?? subtotal,
+          amount: paidAmount ?? total ?? subtotal,
           changeAmount: 0,
           status: PaymentStatus.paid,
           paidAt: sale.soldAt,
@@ -105,6 +114,9 @@ class FakeHistoryRepository extends HistoryRepository {
     );
     sales.add(result);
     staffNames[sale.id] = staffName;
+    if (customerName != null) {
+      outstanding[sale.id] = Money(sale.total - sale.paidAmount);
+    }
     return result;
   }
 
@@ -156,6 +168,7 @@ class FakeHistoryRepository extends HistoryRepository {
             staffName: staffNames[s.sale.id] ?? '',
             methods: [for (final p in s.payments) p.method],
             returned: _returned(s.sale.id),
+            outstanding: outstanding[s.sale.id] ?? Money.zero,
           ),
     ];
     return Result.ok(
@@ -207,6 +220,7 @@ class FakeHistoryRepository extends HistoryRepository {
                 'Manajer',
       returns: mine,
       returnedMilli: returned,
+      outstanding: outstanding[saleId] ?? Money.zero,
       shares: {
         for (final (i, item) in s.items.indexed) item.id: shares[i],
       },
@@ -238,14 +252,8 @@ class FakeHistoryRepository extends HistoryRepository {
         throw const ReturnInvalid(ReturnError.note);
       }
       if (!d.canReturn) throw const ReturnInvalid(ReturnError.status);
-      if (refundMethod == RefundMethod.debt) {
-        throw const ReturnInvalid(ReturnError.refundMethod);
-      }
       if (lines.every((l) => l.quantity.milli <= 0)) {
         throw const ReturnInvalid(ReturnError.empty);
-      }
-      if (refundMethod == RefundMethod.cash && !hasOpenSession) {
-        throw CashSessionNotOpen();
       }
       var amount = Money.zero;
       final items = <(SaleItem, int, Money)>[];
@@ -258,6 +266,22 @@ class FakeHistoryRepository extends HistoryRepository {
         amount += value;
         items.add((item, line.quantity.milli, value));
       }
+      // Nota kredit: nilai retur memotong piutang dulu (F1-13).
+      final split = purchaseReturnSplit(amount: amount, debt: d.outstanding);
+      final method =
+          split.refund == Money.zero && split.debtReduction > Money.zero
+          ? RefundMethod.debt
+          : refundMethod;
+      if (method == RefundMethod.debt &&
+          (split.refund > Money.zero || split.debtReduction == Money.zero)) {
+        throw const ReturnInvalid(ReturnError.refundMethod);
+      }
+      if (method == RefundMethod.cash && !hasOpenSession) {
+        throw CashSessionNotOpen();
+      }
+      if (split.debtReduction > Money.zero) {
+        outstanding[saleId] = d.outstanding - split.debtReduction;
+      }
       _returnCounter++;
       final ret = SaleReturn(
         tenantId: _tenant,
@@ -269,7 +293,7 @@ class FakeHistoryRepository extends HistoryRepository {
             'RT-PST-K01-261103-${_returnCounter.toString().padLeft(4, '0')}',
         reason: reason,
         note: note,
-        refundMethod: refundMethod,
+        refundMethod: method,
         amount: amount.value,
         restock: restock,
         returnedAt: DateTime.utc(2026, 11, 3, 4),

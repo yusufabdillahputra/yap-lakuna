@@ -57,15 +57,15 @@ Urutan pengerjaan sama dengan Storeku.
 | 2 | [Login PIN & ganti kasir](2026-11-03-f1-02-login-pin-design.md) | 1.2 | Rilis v0.3.0 (persetujuan PIN manajer menyusul bersama void/diskon) |
 | 3 | [Sesi kasir](2026-11-03-f1-03-sesi-kasir-design.md) | 1.3, 1.3b | Rilis v0.4.0, angka penjualan v0.6.0 (shift dan cetak rekap menyusul) |
 | 4 | [Kasir retail](2026-11-03-f1-04-kasir-retail-design.md) | 1.4, 1.11 | Rilis v0.6.0 (pelanggan, diskon, nota tersimpan 1.4b menyusul) |
-| 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer; v0.7.0: QRIS statis, split (kredit menyusul bersama F1-13) |
+| 5 | [Pembayaran: tunai, split, QRIS statis, kredit](2026-11-03-f1-05-pembayaran-design.md) | 1.5, 1.6 | Rilis v0.6.0: tunai, kartu, transfer; v0.7.0: QRIS statis, split (kredit retail v0.17.0) |
 | 6 | [Struk & printer](2026-11-03-f1-06-struk-printer-design.md) | 1.12, 1.26 | Rilis v0.8.0: struk layar, ESC/POS Bluetooth/LAN, dialog cetak, PDF (logo, cetak ulang, BLE menyusul) |
 | 7 | [Produk, varian, satuan, grosir](2026-11-03-f1-07-produk-design.md) | 1.15, 1.16 | Rilis v0.5.0, inti katalog dibangun sebelum kasir (foto, import, label barcode, arsip menyusul) |
 | 8 | [Stok: penyesuaian, kartu stok, stok minimum](2026-11-03-f1-08-stok-design.md) | 1.18 | Rilis v0.9.0 (transfer antarlokasi, opname terjadwal menyusul) |
-| 9 | [Master data](2026-11-03-f1-09-master-data-design.md) | 1.17 | Rilis v0.10.0: kategori, satuan, lokasi (baca), metode bayar (tautan); alasan, jenis pengeluaran, grup pelanggan, meja/modifier menyusul modulnya |
+| 9 | [Master data](2026-11-03-f1-09-master-data-design.md) | 1.17 | Rilis v0.10.0: kategori, satuan, lokasi (baca), metode bayar (tautan); alasan dan jenis pengeluaran menyusul modulnya; grup pelanggan v0.17.0 |
 | 10 | Meja F&B (denah `vyuh_node_flow`), open bill, modifier, split bill | 1.7, 1.7b–d, 1.8, 1.9 | Rilis: grid, open bill, take away, pajak & service v0.11.0; modifier v0.12.0; split bill v0.13.0; denah v0.14.0 |
-| 11 | [Riwayat transaksi, void & retur](2026-11-03-f1-11-riwayat-void-retur-design.md) | 1.14 | Rilis v0.15.0: daftar + filter, retur sebagian/penuh, void dengan persetujuan PIN manajer, cetak ulang, ekspor Excel (retur ke piutang menyusul F1-13) |
+| 11 | [Riwayat transaksi, void & retur](2026-11-03-f1-11-riwayat-void-retur-design.md) | 1.14 | Rilis v0.15.0: daftar + filter, retur sebagian/penuh, void dengan persetujuan PIN manajer, cetak ulang, ekspor Excel (retur ke piutang v0.17.0) |
 | 12 | [Pembelian & retur beli](2026-11-03-f1-12-pembelian-design.md) | 1.19, 1.19b | Rilis v0.16.0: draf, terima, landed cost, HPP, hutang + jatuh tempo, kas laci, retur beli, saran harga jual (bayar hutang di F1-14) |
-| 13 | Pelanggan & piutang | 1.20 | Belum |
+| 13 | [Pelanggan & piutang](2026-11-03-f1-13-pelanggan-piutang-design.md) | 1.20, 1.20b, 1.5b | Rilis v0.17.0: pelanggan + grup, limit & tempo, kredit di Kasir (DP), piutang per nota, terima pembayaran (alokasi otomatis/manual), kuitansi A5/thermal, import CSV/XLSX, retur potong piutang (kredit F&B menyusul) |
 | 14 | Supplier & hutang | 1.21 | Belum |
 | 15 | Pengeluaran | 1.22 | Belum |
 | 16 | Laporan & laba rugi | 1.23, 1.24 | Belum |

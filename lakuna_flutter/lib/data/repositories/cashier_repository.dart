@@ -54,6 +54,7 @@ class CashierData {
     this.session,
     this.qris,
     this.canConfirmPayments = false,
+    this.canSellOnCredit = false,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
   });
@@ -85,6 +86,9 @@ class CashierData {
   /// Staf boleh menekan *Sudah Terbayar* (`payments:confirm`).
   final bool canConfirmPayments;
 
+  /// Staf boleh menyimpan nota sebagai piutang (`debts:manage`, F1-13).
+  final bool canSellOnCredit;
+
   /// Pengaturan struk cabang ini (F1-06).
   final ReceiptConfig receipt;
 
@@ -102,11 +106,18 @@ abstract class CashierRepository {
   /// Menyimpan penjualan dengan satu atau beberapa pembayaran. Gagal
   /// dengan `NotPermitted` (termasuk QRIS tanpa `payments:confirm`),
   /// `CashSessionNotOpen`, `SaleItemUnavailable`, `SalePaymentShort`, atau
-  /// galat input lain dari `checkoutSale`.
+  /// galat input lain dari `checkoutSale`. [credit] = jual kredit (F1-13):
+  /// [payments] kosong, butuh `debts:manage`, gagal dengan
+  /// `SaleCreditInvalid`.
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
+    SaleCredit? credit,
   });
+
+  /// Pelanggan untuk pemilih kredit (1.5b), dengan limit dan piutangnya.
+  /// Butuh `debts:manage`.
+  Future<Result<CustomersOverview>> creditCustomers();
 
   /// Open bill F1-10 yang akan dibayar. Gagal dengan `NotPermitted` atau
   /// `BillNotFound`.

@@ -12,7 +12,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// Cara uang retur dikembalikan (F1-11). `debt` (potong piutang) aktif di F1-13.
+/// Cara uang retur dikembalikan (F1-11). `debt` = seluruh nilai retur
+/// memotong piutang nota kredit (F1-13).
 enum RefundMethod implements _is.SerializableModel {
   cash,
   transfer,

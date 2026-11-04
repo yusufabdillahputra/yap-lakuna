@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/history_repository.dart';
@@ -423,13 +424,30 @@ Map<String, String> _staffItems(String all, List<HistoryStaff> staff) {
 
 /// Lencana status nota.
 class SaleStatusBadge extends StatelessWidget {
-  const SaleStatusBadge({super.key, required this.status});
+  const SaleStatusBadge({
+    super.key,
+    required this.status,
+    this.outstanding = Money.zero,
+  });
 
   final SaleStatus status;
+
+  /// Sisa piutang nota kredit (F1-13): > 0 → *Belum lunas*.
+  final Money outstanding;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (outstanding > Money.zero && status != SaleStatus.voided) {
+      return FBadge(
+        variant: .destructive,
+        child: Text(
+          l10n.historyStatusUnpaid,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
     return FBadge(
       variant: switch (status) {
         SaleStatus.voided => .destructive,
@@ -596,7 +614,10 @@ class _SaleTable extends StatelessWidget {
                         5,
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: SaleStatusBadge(status: r.sale.status),
+                          child: SaleStatusBadge(
+                            status: r.sale.status,
+                            outstanding: r.outstanding,
+                          ),
                         ),
                       ),
                     ],
@@ -685,7 +706,10 @@ class _SaleCard extends StatelessWidget {
                       fontFeatures: _tabular,
                     ),
                   ),
-                  SaleStatusBadge(status: r.sale.status),
+                  SaleStatusBadge(
+                    status: r.sale.status,
+                    outstanding: r.outstanding,
+                  ),
                 ],
               ),
             ],

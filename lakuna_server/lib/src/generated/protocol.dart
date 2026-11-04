@@ -34,6 +34,12 @@ import 'catalog/stock_level.dart' as _i9vlojuz;
 import 'catalog/stock_movement.dart' as _i3qehoul;
 import 'catalog/stock_source_type.dart' as _ieciauh3;
 import 'catalog/unit.dart' as _iqtijg36;
+import 'customers/customer.dart' as _icwlxqdl;
+import 'customers/customer_group.dart' as _i4qoo631;
+import 'customers/debt_document_type.dart' as _i49nzt9g;
+import 'customers/debt_party.dart' as _iikmsg9x;
+import 'customers/debt_payment.dart' as _invbi2vm;
+import 'customers/debt_payment_allocation.dart' as _icm6v3we;
 import 'dining/dining_area.dart' as _i9bwyigh;
 import 'dining/dining_layout_mode.dart' as _ibu6mpzk;
 import 'dining/dining_table.dart' as _i0tiivx0;
@@ -97,6 +103,12 @@ export 'catalog/stock_level.dart';
 export 'catalog/stock_movement.dart';
 export 'catalog/stock_source_type.dart';
 export 'catalog/unit.dart';
+export 'customers/customer.dart';
+export 'customers/customer_group.dart';
+export 'customers/debt_document_type.dart';
+export 'customers/debt_party.dart';
+export 'customers/debt_payment.dart';
+export 'customers/debt_payment_allocation.dart';
 export 'dining/dining_area.dart';
 export 'dining/dining_layout_mode.dart';
 export 'dining/dining_table.dart';
@@ -174,6 +186,12 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i3qehoul.StockMovement>,
           _is.getType<_ieciauh3.StockSourceType>,
           _is.getType<_iqtijg36.MeasureUnit>,
+          _is.getType<_icwlxqdl.Customer>,
+          _is.getType<_i4qoo631.CustomerGroup>,
+          _is.getType<_i49nzt9g.DebtDocumentType>,
+          _is.getType<_iikmsg9x.DebtParty>,
+          _is.getType<_invbi2vm.DebtPayment>,
+          _is.getType<_icm6v3we.DebtPaymentAllocation>,
           _is.getType<_i9bwyigh.DiningArea>,
           _is.getType<_ibu6mpzk.DiningLayoutMode>,
           _is.getType<_i0tiivx0.DiningTable>,
@@ -237,6 +255,12 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i3qehoul.StockMovement?>,
           _is.getType<_ieciauh3.StockSourceType?>,
           _is.getType<_iqtijg36.MeasureUnit?>,
+          _is.getType<_icwlxqdl.Customer?>,
+          _is.getType<_i4qoo631.CustomerGroup?>,
+          _is.getType<_i49nzt9g.DebtDocumentType?>,
+          _is.getType<_iikmsg9x.DebtParty?>,
+          _is.getType<_invbi2vm.DebtPayment?>,
+          _is.getType<_icm6v3we.DebtPaymentAllocation?>,
           _is.getType<_i9bwyigh.DiningArea?>,
           _is.getType<_ibu6mpzk.DiningLayoutMode?>,
           _is.getType<_i0tiivx0.DiningTable?>,
@@ -307,6 +331,12 @@ class Protocol extends _is.DatabaseSerializationManager
           'StockMovement',
           'StockSourceType',
           'MeasureUnit',
+          'Customer',
+          'CustomerGroup',
+          'DebtDocumentType',
+          'DebtParty',
+          'DebtPayment',
+          'DebtPaymentAllocation',
           'DiningArea',
           'DiningLayoutMode',
           'DiningTable',
@@ -882,6 +912,762 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'customer_groups',
+      dartName: 'CustomerGroup',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'term_days',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '14',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'customer_groups_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'customer_groups_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'customers',
+      dartName: 'Customer',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'customer_group_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'phone',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'address',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'credit_limit',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'customers_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'customers_fk_1',
+          columns: ['customer_group_id'],
+          referenceTable: 'customer_groups',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'customers_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'customers_phone_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'phone',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'debt_payment_allocations',
+      dartName: 'DebtPaymentAllocation',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'debt_payment_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'document_type',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:DebtDocumentType',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sale_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'purchase_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'balance_before',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payment_allocations_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payment_allocations_fk_1',
+          columns: ['debt_payment_id'],
+          referenceTable: 'debt_payments',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payment_allocations_fk_2',
+          columns: ['sale_id'],
+          referenceTable: 'sales',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payment_allocations_fk_3',
+          columns: ['purchase_id'],
+          referenceTable: 'purchases',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'debt_payment_allocations_payment_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'debt_payment_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'debt_payment_allocations_sale_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'sale_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'debt_payment_allocations_purchase_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'purchase_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'debt_payments',
+      dartName: 'DebtPayment',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'staff_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'party',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:DebtParty',
+        ),
+        _isp.ColumnDefinition(
+          name: 'customer_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'supplier_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'number',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'method',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:PaymentMethod?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'funding_source',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:FundingSource?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'paid_on',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cash_session_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'balance_after',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_3',
+          columns: ['staff_id'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_4',
+          columns: ['customer_id'],
+          referenceTable: 'customers',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_5',
+          columns: ['supplier_id'],
+          referenceTable: 'suppliers',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'debt_payments_fk_6',
+          columns: ['cash_session_id'],
+          referenceTable: 'cash_sessions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'debt_payments_number_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'number',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'debt_payments_customer_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'customer_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'debt_payments_supplier_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'supplier_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'debt_payments_session_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'cash_session_id',
             ),
           ],
           type: 'btree',
@@ -4822,6 +5608,13 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'int',
         ),
         _isp.ColumnDefinition(
+          name: 'debt_reduction',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
           name: 'restock',
           columnType: _isp.ColumnType.boolean,
           isNullable: false,
@@ -5205,6 +5998,18 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'int?',
         ),
         _isp.ColumnDefinition(
+          name: 'customer_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'due_on',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -5317,6 +6122,16 @@ class Protocol extends _is.DatabaseSerializationManager
           onDelete: _isp.ForeignKeyAction.restrict,
           matchType: null,
         ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sales_fk_6',
+          columns: ['customer_id'],
+          referenceTable: 'customers',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
       ],
       indexes: [
         _isp.IndexDefinition(
@@ -5377,6 +6192,19 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'status',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sales_customer_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'customer_id',
             ),
           ],
           type: 'btree',
@@ -6730,6 +7558,24 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _iqtijg36.MeasureUnit) {
       return _iqtijg36.MeasureUnit.fromJson(data) as T;
     }
+    if (t == _icwlxqdl.Customer) {
+      return _icwlxqdl.Customer.fromJson(data) as T;
+    }
+    if (t == _i4qoo631.CustomerGroup) {
+      return _i4qoo631.CustomerGroup.fromJson(data) as T;
+    }
+    if (t == _i49nzt9g.DebtDocumentType) {
+      return _i49nzt9g.DebtDocumentType.fromJson(data) as T;
+    }
+    if (t == _iikmsg9x.DebtParty) {
+      return _iikmsg9x.DebtParty.fromJson(data) as T;
+    }
+    if (t == _invbi2vm.DebtPayment) {
+      return _invbi2vm.DebtPayment.fromJson(data) as T;
+    }
+    if (t == _icm6v3we.DebtPaymentAllocation) {
+      return _icm6v3we.DebtPaymentAllocation.fromJson(data) as T;
+    }
     if (t == _i9bwyigh.DiningArea) {
       return _i9bwyigh.DiningArea.fromJson(data) as T;
     }
@@ -6931,6 +7777,29 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_iqtijg36.MeasureUnit?>()) {
       return (data != null ? _iqtijg36.MeasureUnit.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_icwlxqdl.Customer?>()) {
+      return (data != null ? _icwlxqdl.Customer.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i4qoo631.CustomerGroup?>()) {
+      return (data != null ? _i4qoo631.CustomerGroup.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i49nzt9g.DebtDocumentType?>()) {
+      return (data != null ? _i49nzt9g.DebtDocumentType.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iikmsg9x.DebtParty?>()) {
+      return (data != null ? _iikmsg9x.DebtParty.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_invbi2vm.DebtPayment?>()) {
+      return (data != null ? _invbi2vm.DebtPayment.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_icm6v3we.DebtPaymentAllocation?>()) {
+      return (data != null
+              ? _icm6v3we.DebtPaymentAllocation.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_i9bwyigh.DiningArea?>()) {
       return (data != null ? _i9bwyigh.DiningArea.fromJson(data) : null) as T;
     }
@@ -7125,6 +7994,12 @@ class Protocol extends _is.DatabaseSerializationManager
       _i3qehoul.StockMovement => 'StockMovement',
       _ieciauh3.StockSourceType => 'StockSourceType',
       _iqtijg36.MeasureUnit => 'MeasureUnit',
+      _icwlxqdl.Customer => 'Customer',
+      _i4qoo631.CustomerGroup => 'CustomerGroup',
+      _i49nzt9g.DebtDocumentType => 'DebtDocumentType',
+      _iikmsg9x.DebtParty => 'DebtParty',
+      _invbi2vm.DebtPayment => 'DebtPayment',
+      _icm6v3we.DebtPaymentAllocation => 'DebtPaymentAllocation',
       _i9bwyigh.DiningArea => 'DiningArea',
       _ibu6mpzk.DiningLayoutMode => 'DiningLayoutMode',
       _i0tiivx0.DiningTable => 'DiningTable',
@@ -7219,6 +8094,18 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'StockSourceType';
       case _iqtijg36.MeasureUnit():
         return 'MeasureUnit';
+      case _icwlxqdl.Customer():
+        return 'Customer';
+      case _i4qoo631.CustomerGroup():
+        return 'CustomerGroup';
+      case _i49nzt9g.DebtDocumentType():
+        return 'DebtDocumentType';
+      case _iikmsg9x.DebtParty():
+        return 'DebtParty';
+      case _invbi2vm.DebtPayment():
+        return 'DebtPayment';
+      case _icm6v3we.DebtPaymentAllocation():
+        return 'DebtPaymentAllocation';
       case _i9bwyigh.DiningArea():
         return 'DiningArea';
       case _ibu6mpzk.DiningLayoutMode():
@@ -7387,6 +8274,24 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'MeasureUnit') {
       return deserialize<_iqtijg36.MeasureUnit>(data['data']);
+    }
+    if (dataClassName == 'Customer') {
+      return deserialize<_icwlxqdl.Customer>(data['data']);
+    }
+    if (dataClassName == 'CustomerGroup') {
+      return deserialize<_i4qoo631.CustomerGroup>(data['data']);
+    }
+    if (dataClassName == 'DebtDocumentType') {
+      return deserialize<_i49nzt9g.DebtDocumentType>(data['data']);
+    }
+    if (dataClassName == 'DebtParty') {
+      return deserialize<_iikmsg9x.DebtParty>(data['data']);
+    }
+    if (dataClassName == 'DebtPayment') {
+      return deserialize<_invbi2vm.DebtPayment>(data['data']);
+    }
+    if (dataClassName == 'DebtPaymentAllocation') {
+      return deserialize<_icm6v3we.DebtPaymentAllocation>(data['data']);
     }
     if (dataClassName == 'DiningArea') {
       return deserialize<_i9bwyigh.DiningArea>(data['data']);
@@ -7597,6 +8502,14 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i3qehoul.StockMovement.t;
       case _iqtijg36.MeasureUnit:
         return _iqtijg36.MeasureUnit.t;
+      case _icwlxqdl.Customer:
+        return _icwlxqdl.Customer.t;
+      case _i4qoo631.CustomerGroup:
+        return _i4qoo631.CustomerGroup.t;
+      case _invbi2vm.DebtPayment:
+        return _invbi2vm.DebtPayment.t;
+      case _icm6v3we.DebtPaymentAllocation:
+        return _icm6v3we.DebtPaymentAllocation.t;
       case _i9bwyigh.DiningArea:
         return _i9bwyigh.DiningArea.t;
       case _i0tiivx0.DiningTable:

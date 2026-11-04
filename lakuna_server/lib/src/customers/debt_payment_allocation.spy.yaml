@@ -1,0 +1,29 @@
+### Bagian pembayaran [debtPaymentId] yang melunasi satu nota atau
+### pembelian. [balanceBefore] = sisa dokumen sebelum alokasi ini.
+class: DebtPaymentAllocation
+table: debt_payment_allocations
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  debtPaymentId: UuidValue, relation(parent=debt_payments, onDelete=Restrict), column=debt_payment_id
+  documentType: DebtDocumentType, column=document_type
+  saleId: UuidValue?, relation(parent=sales, onDelete=Restrict), column=sale_id
+  purchaseId: UuidValue?, relation(parent=purchases, onDelete=Restrict), column=purchase_id
+  amount: int
+  balanceBefore: int, column=balance_before
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  debt_payment_allocations_payment_idx:
+    fields: debtPaymentId
+  debt_payment_allocations_sale_idx:
+    fields: saleId
+  debt_payment_allocations_purchase_idx:
+    fields: purchaseId

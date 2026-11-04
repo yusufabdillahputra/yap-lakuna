@@ -18,6 +18,9 @@ import 'dining_tables_tab.dart';
 import 'master_data_view_model.dart';
 import 'modifier_groups_tab.dart';
 import 'modifier_groups_view_model.dart';
+import 'customer_groups_tab.dart';
+import 'customer_groups_view_model.dart';
+import '../../data/repositories/customers_repository.dart';
 
 /// Layar *Master data* (1.17, F1-09). Memiliki [MasterDataViewModel].
 class MasterDataScreen extends StatefulWidget {
@@ -26,10 +29,15 @@ class MasterDataScreen extends StatefulWidget {
     required this.repository,
     required this.session,
     this.diningAdmin,
+    this.customers,
   });
 
   final MasterDataRepository repository;
   final SessionRepository session;
+
+  /// Grup pelanggan (F1-13); tab tampil untuk staf dengan
+  /// `customers:manage`.
+  final CustomersRepository? customers;
 
   /// Meja & area (F1-10); tab tampil untuk staf dengan `settings:manage`.
   final DiningAdminRepository? diningAdmin;
@@ -44,10 +52,16 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
     repository: widget.repository,
   );
   DiningSetupViewModel? _dining;
+  CustomerGroupsViewModel? _groups;
 
   @override
   void initState() {
     super.initState();
+    final customers = widget.customers;
+    if (customers != null &&
+        (widget.session.current?.can(Permission.customersManage) ?? false)) {
+      _groups = CustomerGroupsViewModel(repository: customers)..load.execute();
+    }
     _viewModel.load.execute();
     _modifiers.load.execute();
     final admin = widget.diningAdmin;
@@ -62,6 +76,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
     _viewModel.dispose();
     _modifiers.dispose();
     _dining?.dispose();
+    _groups?.dispose();
     super.dispose();
   }
 
@@ -74,6 +89,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
       canManageSettings: staff?.can(Permission.settingsManage) ?? false,
       dining: _dining,
       modifiers: _modifiers,
+      customerGroups: _groups,
     );
   }
 }
@@ -86,6 +102,7 @@ class MasterDataView extends StatelessWidget {
     this.canManageSettings = false,
     this.dining,
     this.modifiers,
+    this.customerGroups,
   });
 
   final MasterDataViewModel viewModel;
@@ -98,11 +115,15 @@ class MasterDataView extends StatelessWidget {
   /// Tab Grup modifier; `null` = tab tidak tampil.
   final ModifierGroupsViewModel? modifiers;
 
+  /// Tab Grup pelanggan; `null` = tab tidak tampil.
+  final CustomerGroupsViewModel? customerGroups;
+
   List<MasterTab> get _tabs => [
     for (final t in MasterTab.values)
       if (switch (t) {
         MasterTab.tables => dining != null,
         MasterTab.modifiers => modifiers != null,
+        MasterTab.customerGroups => customerGroups != null,
         _ => true,
       })
         t,
@@ -146,6 +167,10 @@ class MasterDataView extends StatelessWidget {
           MasterTab.units => _UnitsTab(viewModel: vm),
           MasterTab.modifiers => switch (modifiers) {
             final m? => ModifierGroupsTab(viewModel: m),
+            null => const SizedBox.shrink(),
+          },
+          MasterTab.customerGroups => switch (customerGroups) {
+            final g? => CustomerGroupsTab(viewModel: g),
             null => const SizedBox.shrink(),
           },
           MasterTab.locations => _LocationsTab(
@@ -196,6 +221,7 @@ String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
   MasterTab.categories => l10n.masterTabCategories,
   MasterTab.units => l10n.masterTabUnits,
   MasterTab.modifiers => l10n.masterTabModifiers,
+  MasterTab.customerGroups => l10n.masterTabCustomerGroups,
   MasterTab.locations => l10n.masterTabLocations,
   MasterTab.payments => l10n.masterTabPayments,
   MasterTab.tables => l10n.masterTabTables,
@@ -205,6 +231,7 @@ IconData _tabIcon(MasterTab tab) => switch (tab) {
   MasterTab.categories => TablerIcons.category,
   MasterTab.units => TablerIcons.ruler2,
   MasterTab.modifiers => TablerIcons.adjustmentsHorizontal,
+  MasterTab.customerGroups => TablerIcons.usersGroup,
   MasterTab.locations => TablerIcons.buildingWarehouse,
   MasterTab.payments => TablerIcons.creditCard,
   MasterTab.tables => TablerIcons.armchair,

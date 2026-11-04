@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, dan pembelian sudah bisa dipakai. Pelanggan, supplier, dan laporan menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, serta pelanggan & piutang sudah bisa dipakai. Supplier dan laporan menyusul di rilis berikutnya.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -7315,6 +7315,1206 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pilih kas atau rekening'**
   String get purchaseRefundToHint;
+
+  /// No description provided for @customersTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan & piutang'**
+  String get customersTitle;
+
+  /// No description provided for @customersSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} pelanggan · piutang dicatat per nota'**
+  String customersSubtitle(int count);
+
+  /// No description provided for @customersImport.
+  ///
+  /// In id, this message translates to:
+  /// **'Import Excel'**
+  String get customersImport;
+
+  /// No description provided for @customersNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get customersNew;
+
+  /// No description provided for @customersSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama atau HP'**
+  String get customersSearch;
+
+  /// No description provided for @customersColCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get customersColCustomer;
+
+  /// No description provided for @customersColGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup'**
+  String get customersColGroup;
+
+  /// No description provided for @customersColDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang'**
+  String get customersColDebt;
+
+  /// No description provided for @customersEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pelanggan. Tambah pelanggan atau import dari Excel.'**
+  String get customersEmpty;
+
+  /// No description provided for @customersNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada pelanggan yang cocok.'**
+  String get customersNoMatch;
+
+  /// No description provided for @customersLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data pelanggan gagal dimuat.'**
+  String get customersLoadFailed;
+
+  /// No description provided for @customersSelectHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih pelanggan untuk melihat piutang dan menerima pembayaran.'**
+  String get customersSelectHint;
+
+  /// No description provided for @customersTotalDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Total piutang'**
+  String get customersTotalDebt;
+
+  /// No description provided for @customersTotalDebtSub.
+  ///
+  /// In id, this message translates to:
+  /// **'{debtors} pelanggan · {overdue} nota lewat jatuh tempo'**
+  String customersTotalDebtSub(int debtors, int overdue);
+
+  /// No description provided for @customerOverdueCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} nota terlambat'**
+  String customerOverdueCount(int count);
+
+  /// No description provided for @customerGroupLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup {group}'**
+  String customerGroupLabel(String group);
+
+  /// No description provided for @customerSince.
+  ///
+  /// In id, this message translates to:
+  /// **'pelanggan sejak {date}'**
+  String customerSince(String date);
+
+  /// No description provided for @customerEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah data'**
+  String get customerEdit;
+
+  /// No description provided for @customerLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Limit kredit'**
+  String get customerLimit;
+
+  /// No description provided for @customerDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang'**
+  String get customerDebt;
+
+  /// No description provided for @customerRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa limit'**
+  String get customerRemaining;
+
+  /// No description provided for @customerReceiveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima pembayaran'**
+  String get customerReceiveTitle;
+
+  /// No description provided for @customerAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah diterima'**
+  String get customerAmount;
+
+  /// No description provided for @customerPayAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Lunasi semua'**
+  String get customerPayAll;
+
+  /// No description provided for @customerMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode'**
+  String get customerMethod;
+
+  /// No description provided for @customerPaidOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal'**
+  String get customerPaidOn;
+
+  /// No description provided for @customerNoteOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get customerNoteOptional;
+
+  /// No description provided for @customerCashDrawerHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai masuk ke laci sesi kasir yang terbuka.'**
+  String get customerCashDrawerHint;
+
+  /// No description provided for @customerCashStoreHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada sesi kasir terbuka: tunai dicatat sebagai kas toko.'**
+  String get customerCashStoreHint;
+
+  /// No description provided for @customerColInvoice.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota'**
+  String get customerColInvoice;
+
+  /// No description provided for @customerColDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo'**
+  String get customerColDue;
+
+  /// No description provided for @customerColTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get customerColTotal;
+
+  /// No description provided for @customerColRest.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa'**
+  String get customerColRest;
+
+  /// No description provided for @customerColAllocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi'**
+  String get customerColAllocation;
+
+  /// No description provided for @customerTotalRow.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get customerTotalRow;
+
+  /// No description provided for @customerDueShort.
+  ///
+  /// In id, this message translates to:
+  /// **'tempo {date}'**
+  String customerDueShort(String date);
+
+  /// No description provided for @customerOverdue.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlambat'**
+  String get customerOverdue;
+
+  /// No description provided for @customerAutoHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi otomatis ke nota paling lama dulu. Setelah disimpan, sisa piutang {name} {amount}.'**
+  String customerAutoHint(String name, String amount);
+
+  /// No description provided for @customerManualHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi manual: isi nominal per nota. Totalnya harus sama dengan jumlah diterima.'**
+  String get customerManualHint;
+
+  /// No description provided for @customerManual.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur alokasi manual'**
+  String get customerManual;
+
+  /// No description provided for @customerAuto.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi otomatis'**
+  String get customerAuto;
+
+  /// No description provided for @customerSaveAndPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan & cetak kuitansi'**
+  String get customerSaveAndPrint;
+
+  /// No description provided for @customerNoDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan ini tidak punya piutang.'**
+  String get customerNoDebt;
+
+  /// No description provided for @customerPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat pembayaran'**
+  String get customerPayments;
+
+  /// No description provided for @customerNoPayments.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pembayaran piutang.'**
+  String get customerNoPayments;
+
+  /// No description provided for @customerDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus pelanggan'**
+  String get customerDelete;
+
+  /// No description provided for @customerDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus {name}?'**
+  String customerDeleteTitle(String name);
+
+  /// No description provided for @customerDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan hilang dari daftar. Nota dan pembayaran lamanya tetap tersimpan.'**
+  String get customerDeleteBody;
+
+  /// No description provided for @customerDeleteAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get customerDeleteAction;
+
+  /// No description provided for @customerCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get customerCancel;
+
+  /// No description provided for @customerSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get customerSave;
+
+  /// No description provided for @customerFormNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan baru'**
+  String get customerFormNew;
+
+  /// No description provided for @customerFormEdit.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah pelanggan'**
+  String get customerFormEdit;
+
+  /// No description provided for @customerFieldName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama'**
+  String get customerFieldName;
+
+  /// No description provided for @customerFieldPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'No. HP (opsional)'**
+  String get customerFieldPhone;
+
+  /// No description provided for @customerFieldGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup'**
+  String get customerFieldGroup;
+
+  /// No description provided for @customerGroupNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa grup (tempo 14 hari)'**
+  String get customerGroupNone;
+
+  /// No description provided for @customerGroupOption.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} · tempo {days} hari'**
+  String customerGroupOption(String name, int days);
+
+  /// No description provided for @customerGroupNew.
+  ///
+  /// In id, this message translates to:
+  /// **'+ Grup baru'**
+  String get customerGroupNew;
+
+  /// No description provided for @customerFieldNewGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup baru'**
+  String get customerFieldNewGroup;
+
+  /// No description provided for @customerNewGroupHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Grosir'**
+  String get customerNewGroupHint;
+
+  /// No description provided for @customerFieldLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Limit kredit'**
+  String get customerFieldLimit;
+
+  /// No description provided for @customerLimitHint.
+  ///
+  /// In id, this message translates to:
+  /// **'0 = tidak boleh belanja kredit.'**
+  String get customerLimitHint;
+
+  /// No description provided for @customerFieldAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat (opsional)'**
+  String get customerFieldAddress;
+
+  /// No description provided for @customerFieldNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get customerFieldNote;
+
+  /// No description provided for @customerErrName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama wajib diisi, maksimal {max} karakter.'**
+  String customerErrName(int max);
+
+  /// No description provided for @customerErrPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor HP harus 8–15 digit.'**
+  String get customerErrPhone;
+
+  /// No description provided for @customerErrPhoneTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor HP sudah dipakai pelanggan lain.'**
+  String get customerErrPhoneTaken;
+
+  /// No description provided for @customerErrAddress.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat maksimal {max} karakter.'**
+  String customerErrAddress(int max);
+
+  /// No description provided for @customerErrNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan maksimal {max} karakter.'**
+  String customerErrNote(int max);
+
+  /// No description provided for @customerErrGroup.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup wajib diisi, maksimal {max} karakter.'**
+  String customerErrGroup(int max);
+
+  /// No description provided for @customerErrLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Limit kredit tidak boleh negatif.'**
+  String get customerErrLimit;
+
+  /// No description provided for @customerErrHasDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan masih punya piutang; lunasi dulu sebelum dihapus.'**
+  String get customerErrHasDebt;
+
+  /// No description provided for @customerErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan tidak ditemukan.'**
+  String get customerErrNotFound;
+
+  /// No description provided for @customerErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak punya izin untuk aksi ini.'**
+  String get customerErrNotPermitted;
+
+  /// No description provided for @customerErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyimpan. Coba lagi.'**
+  String get customerErrGeneric;
+
+  /// No description provided for @debtErrAmount.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi jumlah lebih dari 0.'**
+  String get debtErrAmount;
+
+  /// No description provided for @debtErrOver.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah melebihi total piutang.'**
+  String get debtErrOver;
+
+  /// No description provided for @debtErrAllocation.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi per nota tidak boleh melebihi sisa nota itu.'**
+  String get debtErrAllocation;
+
+  /// No description provided for @debtErrAllocationTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total alokasi harus sama dengan jumlah diterima.'**
+  String get debtErrAllocationTotal;
+
+  /// No description provided for @debtErrDate.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal bayar tidak boleh setelah hari ini.'**
+  String get debtErrDate;
+
+  /// No description provided for @debtErrMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode ini tidak bisa dipakai untuk pembayaran piutang.'**
+  String get debtErrMethod;
+
+  /// No description provided for @debtMethodCashDrawer.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai · kas laci'**
+  String get debtMethodCashDrawer;
+
+  /// No description provided for @debtMethodCashStore.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai · kas toko'**
+  String get debtMethodCashStore;
+
+  /// No description provided for @groupErrName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup wajib diisi, maksimal {max} karakter.'**
+  String groupErrName(int max);
+
+  /// No description provided for @groupErrTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo 0–{max} hari.'**
+  String groupErrTerm(int max);
+
+  /// No description provided for @groupErrTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup sudah ada.'**
+  String get groupErrTaken;
+
+  /// No description provided for @groupErrInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup masih dipakai pelanggan; pindahkan pelanggannya dulu.'**
+  String get groupErrInUse;
+
+  /// No description provided for @groupErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup tidak ditemukan.'**
+  String get groupErrNotFound;
+
+  /// No description provided for @creditNoLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan ini tidak punya limit kredit. Atur limit di menu Pelanggan.'**
+  String get creditNoLimit;
+
+  /// No description provided for @creditErrDownPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'DP harus 0 atau lebih dan kurang dari total nota.'**
+  String get creditErrDownPayment;
+
+  /// No description provided for @creditErrDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo tidak boleh sebelum hari ini.'**
+  String get creditErrDueOn;
+
+  /// No description provided for @creditErrOverLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang berjalan + piutang baru melebihi limit kredit.'**
+  String get creditErrOverLimit;
+
+  /// No description provided for @importTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Import pelanggan'**
+  String get importTitle;
+
+  /// No description provided for @importIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), HP, Alamat, Grup, Limit, Catatan. Judul kolom boleh Indonesia atau English.'**
+  String get importIntro;
+
+  /// No description provided for @importPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas'**
+  String get importPick;
+
+  /// No description provided for @importTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas lebih dari 2 MB.'**
+  String get importTooLarge;
+
+  /// No description provided for @importUnreadable.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas tidak bisa dibaca. Simpan sebagai .xlsx atau .csv lalu coba lagi.'**
+  String get importUnreadable;
+
+  /// No description provided for @importMissingName.
+  ///
+  /// In id, this message translates to:
+  /// **'Kolom Nama tidak ditemukan di baris judul.'**
+  String get importMissingName;
+
+  /// No description provided for @importEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas tidak berisi baris pelanggan.'**
+  String get importEmpty;
+
+  /// No description provided for @importReady.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} baris siap diimport.'**
+  String importReady(int count);
+
+  /// No description provided for @importUpdateNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Nomor HP yang sudah terdaftar memperbarui pelanggan itu; grup baru dibuat otomatis.'**
+  String get importUpdateNote;
+
+  /// No description provided for @importRejected.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} baris dilewati:'**
+  String importRejected(int count);
+
+  /// No description provided for @importRejectLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Baris {line}: {reason}'**
+  String importRejectLine(int line, String reason);
+
+  /// No description provided for @importMoreRejected.
+  ///
+  /// In id, this message translates to:
+  /// **'…dan {count} baris lain.'**
+  String importMoreRejected(int count);
+
+  /// No description provided for @importReasonName.
+  ///
+  /// In id, this message translates to:
+  /// **'nama kosong atau terlalu panjang'**
+  String get importReasonName;
+
+  /// No description provided for @importReasonPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'nomor HP tidak sah'**
+  String get importReasonPhone;
+
+  /// No description provided for @importReasonLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'limit bukan angka'**
+  String get importReasonLimit;
+
+  /// No description provided for @importReasonText.
+  ///
+  /// In id, this message translates to:
+  /// **'teks terlalu panjang'**
+  String get importReasonText;
+
+  /// No description provided for @importReasonDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'nomor HP dobel di berkas'**
+  String get importReasonDuplicate;
+
+  /// No description provided for @importRun.
+  ///
+  /// In id, this message translates to:
+  /// **'Import {count} pelanggan'**
+  String importRun(int count);
+
+  /// No description provided for @importDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai: {created} pelanggan baru, {updated} diperbarui.'**
+  String importDone(int created, int updated);
+
+  /// No description provided for @importClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get importClose;
+
+  /// No description provided for @kuitansiCrumb.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuitansi {number}'**
+  String kuitansiCrumb(String number);
+
+  /// No description provided for @kuitansiSavedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran piutang tersimpan'**
+  String get kuitansiSavedTitle;
+
+  /// No description provided for @kuitansiSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{amount} dari {customer} dialokasikan ke {count} nota'**
+  String kuitansiSubtitle(String amount, String customer, int count);
+
+  /// No description provided for @kuitansiSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersimpan'**
+  String get kuitansiSaved;
+
+  /// No description provided for @kuitansiBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke pelanggan'**
+  String get kuitansiBack;
+
+  /// No description provided for @kuitansiPreviewA5.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau A5 / PDF'**
+  String get kuitansiPreviewA5;
+
+  /// No description provided for @kuitansiPreviewThermal.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau struk {paper}'**
+  String kuitansiPreviewThermal(String paper);
+
+  /// No description provided for @kuitansiPanelTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuitansi'**
+  String get kuitansiPanelTitle;
+
+  /// No description provided for @kuitansiPanelSub.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuat otomatis setelah pembayaran disimpan.'**
+  String get kuitansiPanelSub;
+
+  /// No description provided for @kuitansiFormat.
+  ///
+  /// In id, this message translates to:
+  /// **'Format'**
+  String get kuitansiFormat;
+
+  /// No description provided for @kuitansiFormatA5.
+  ///
+  /// In id, this message translates to:
+  /// **'A5 / PDF'**
+  String get kuitansiFormatA5;
+
+  /// No description provided for @kuitansiFormatA5Hint.
+  ///
+  /// In id, this message translates to:
+  /// **'Untuk arsip & dikirim lewat WhatsApp'**
+  String get kuitansiFormatA5Hint;
+
+  /// No description provided for @kuitansiFormatThermal.
+  ///
+  /// In id, this message translates to:
+  /// **'Struk {paper}'**
+  String kuitansiFormatThermal(String paper);
+
+  /// No description provided for @kuitansiFormatThermalHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Dicetak di printer kasir'**
+  String get kuitansiFormatThermalHint;
+
+  /// No description provided for @kuitansiShowDetails.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan rincian per nota'**
+  String get kuitansiShowDetails;
+
+  /// No description provided for @kuitansiShowBalance.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan sisa piutang'**
+  String get kuitansiShowBalance;
+
+  /// No description provided for @kuitansiCity.
+  ///
+  /// In id, this message translates to:
+  /// **'Kota pada tanda tangan'**
+  String get kuitansiCity;
+
+  /// No description provided for @kuitansiCityHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari alamat cabang'**
+  String get kuitansiCityHint;
+
+  /// No description provided for @kuitansiPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak'**
+  String get kuitansiPrint;
+
+  /// No description provided for @kuitansiShare.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagikan PDF'**
+  String get kuitansiShare;
+
+  /// No description provided for @kuitansiPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuitansi terkirim ke printer.'**
+  String get kuitansiPrinted;
+
+  /// No description provided for @kuitansiSavedPdf.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF disimpan di {path}'**
+  String kuitansiSavedPdf(String path);
+
+  /// No description provided for @kuitansiReprintNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuitansi bisa dicetak ulang dari Pelanggan › riwayat pembayaran. Cetak ulang diberi tanda \"SALINAN\".'**
+  String get kuitansiReprintNote;
+
+  /// No description provided for @kuitansiErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran tidak ditemukan.'**
+  String get kuitansiErrNotFound;
+
+  /// No description provided for @kuitansiDocTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'KUITANSI'**
+  String get kuitansiDocTitle;
+
+  /// No description provided for @kuitansiCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'SALINAN'**
+  String get kuitansiCopy;
+
+  /// No description provided for @kuitansiReceivedFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Telah terima dari'**
+  String get kuitansiReceivedFrom;
+
+  /// No description provided for @kuitansiAmountWords.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang sejumlah'**
+  String get kuitansiAmountWords;
+
+  /// No description provided for @kuitansiFor.
+  ///
+  /// In id, this message translates to:
+  /// **'Untuk pembayaran'**
+  String get kuitansiFor;
+
+  /// No description provided for @kuitansiForDetails.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang {count} nota (lihat rincian)'**
+  String kuitansiForDetails(int count);
+
+  /// No description provided for @kuitansiForShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang {count} nota'**
+  String kuitansiForShort(int count);
+
+  /// No description provided for @kuitansiMethod.
+  ///
+  /// In id, this message translates to:
+  /// **'Metode'**
+  String get kuitansiMethod;
+
+  /// No description provided for @kuitansiNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan'**
+  String get kuitansiNote;
+
+  /// No description provided for @kuitansiColInvoice.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota'**
+  String get kuitansiColInvoice;
+
+  /// No description provided for @kuitansiColBefore.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa sebelum'**
+  String get kuitansiColBefore;
+
+  /// No description provided for @kuitansiColPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibayar'**
+  String get kuitansiColPaid;
+
+  /// No description provided for @kuitansiCashier.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir'**
+  String get kuitansiCashier;
+
+  /// No description provided for @kuitansiFootnote.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa piutang {customer} setelah pembayaran ini: {amount}.'**
+  String kuitansiFootnote(String customer, String amount);
+
+  /// No description provided for @kuitansiThermalBanner.
+  ///
+  /// In id, this message translates to:
+  /// **'KUITANSI PIUTANG'**
+  String get kuitansiThermalBanner;
+
+  /// No description provided for @kuitansiFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari'**
+  String get kuitansiFrom;
+
+  /// No description provided for @kuitansiPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'DIBAYAR'**
+  String get kuitansiPaid;
+
+  /// No description provided for @kuitansiBalance.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa piutang'**
+  String get kuitansiBalance;
+
+  /// No description provided for @historyStatusUnpaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum lunas'**
+  String get historyStatusUnpaid;
+
+  /// No description provided for @historyCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get historyCustomer;
+
+  /// No description provided for @historyDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo'**
+  String get historyDueOn;
+
+  /// No description provided for @historyCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Jadi piutang'**
+  String get historyCredit;
+
+  /// No description provided for @historyOutstanding.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa piutang'**
+  String get historyOutstanding;
+
+  /// No description provided for @historyReturnDebtOnly.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur ini memotong piutang {amount}; tidak ada uang kembali.'**
+  String historyReturnDebtOnly(String amount);
+
+  /// No description provided for @historyReturnDebtSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Memotong piutang {debt}, uang kembali {refund}.'**
+  String historyReturnDebtSplit(String debt, String refund);
+
+  /// No description provided for @historyVoidBlockDebtPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota kredit ini sudah menerima pembayaran piutang, jadi tidak bisa di-void. Pakai retur.'**
+  String get historyVoidBlockDebtPaid;
+
+  /// No description provided for @receiptCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan'**
+  String get receiptCustomer;
+
+  /// No description provided for @receiptDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang'**
+  String get receiptDebt;
+
+  /// No description provided for @receiptDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo'**
+  String get receiptDueOn;
+
+  /// No description provided for @cashRecapCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan kredit (piutang)'**
+  String get cashRecapCredit;
+
+  /// No description provided for @paymentCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit / piutang'**
+  String get paymentCredit;
+
+  /// No description provided for @paymentCreditHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa jadi piutang pelanggan'**
+  String get paymentCreditHint;
+
+  /// No description provided for @creditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit / piutang'**
+  String get creditTitle;
+
+  /// No description provided for @creditSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota disimpan dengan sisa sebagai piutang pelanggan.'**
+  String get creditSubtitle;
+
+  /// No description provided for @creditPickCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih pelanggan'**
+  String get creditPickCustomer;
+
+  /// No description provided for @creditNoCustomers.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pelanggan. Tambah pelanggan dan limit kreditnya di menu Pelanggan.'**
+  String get creditNoCustomers;
+
+  /// No description provided for @creditLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar pelanggan gagal dimuat.'**
+  String get creditLoadFailed;
+
+  /// No description provided for @creditTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'tempo standar {days} hari'**
+  String creditTerm(int days);
+
+  /// No description provided for @creditChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti'**
+  String get creditChange;
+
+  /// No description provided for @creditRunning.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang berjalan'**
+  String get creditRunning;
+
+  /// No description provided for @creditDownPayment.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar sekarang (DP)'**
+  String get creditDownPayment;
+
+  /// No description provided for @creditDownPaymentHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Boleh 0. Dibayar tunai lewat laci sesi aktif.'**
+  String get creditDownPaymentHint;
+
+  /// No description provided for @creditDueOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo'**
+  String get creditDueOn;
+
+  /// No description provided for @creditDueOnHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Hari ini + tempo standar pelanggan'**
+  String get creditDueOnHint;
+
+  /// No description provided for @creditInvoiceTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total nota'**
+  String get creditInvoiceTotal;
+
+  /// No description provided for @creditPaidNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibayar sekarang'**
+  String get creditPaidNow;
+
+  /// No description provided for @creditBecomesDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Jadi piutang'**
+  String get creditBecomesDebt;
+
+  /// No description provided for @creditRemainingAfter.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa limit setelah ini'**
+  String get creditRemainingAfter;
+
+  /// No description provided for @creditOverLimitTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Melebihi limit'**
+  String get creditOverLimitTitle;
+
+  /// No description provided for @creditOverLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang berjalan + piutang baru melebihi limit {limit}. Kurangi nominal atau naikkan DP.'**
+  String creditOverLimit(String limit);
+
+  /// No description provided for @creditFootnote.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tercatat Belum lunas di Riwayat dan masuk daftar piutang pelanggan. Pelanggan wajib dipilih.'**
+  String get creditFootnote;
+
+  /// No description provided for @creditSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan sebagai piutang'**
+  String get creditSave;
+
+  /// No description provided for @successCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Piutang {name}'**
+  String successCredit(String name);
+
+  /// No description provided for @masterTabCustomerGroups.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup pelanggan'**
+  String get masterTabCustomerGroups;
+
+  /// No description provided for @customerGroupsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo standar grup mengisi jatuh tempo otomatis saat jual kredit. Pelanggan tanpa grup memakai 14 hari.'**
+  String get customerGroupsHint;
+
+  /// No description provided for @customerGroupsNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup'**
+  String get customerGroupsNew;
+
+  /// No description provided for @customerGroupsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada grup pelanggan.'**
+  String get customerGroupsEmpty;
+
+  /// No description provided for @customerGroupsRowSub.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo {days} hari · {count} pelanggan'**
+  String customerGroupsRowSub(int days, int count);
+
+  /// No description provided for @customerGroupsNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup pelanggan baru'**
+  String get customerGroupsNewTitle;
+
+  /// No description provided for @customerGroupsEditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah grup pelanggan'**
+  String get customerGroupsEditTitle;
+
+  /// No description provided for @customerGroupsName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama grup'**
+  String get customerGroupsName;
+
+  /// No description provided for @customerGroupsTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempo standar (hari)'**
+  String get customerGroupsTerm;
+
+  /// No description provided for @customerGroupsTermHint.
+  ///
+  /// In id, this message translates to:
+  /// **'0–365 hari. 0 = jatuh tempo hari itu juga.'**
+  String get customerGroupsTermHint;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,29 @@
+### Pelanggan (F1-13). HP dinormalisasi (digit, awalan 0) dan unik per
+### tenant bila diisi (dicek di lakuna_data). Piutang tidak disimpan di
+### sini: selalu dihitung dari nota, alokasi pembayaran, dan retur.
+class: Customer
+table: customers
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  customerGroupId: UuidValue?, relation(parent=customer_groups, onDelete=Restrict), column=customer_group_id
+  name: String
+  phone: String?
+  address: String?
+  note: String?
+  ### Limit kredit (rupiah); 0 = tidak boleh kredit.
+  creditLimit: int, default=0, column=credit_limit
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  customers_tenant_idx:
+    fields: tenantId
+  customers_phone_idx:
+    fields: tenantId, phone

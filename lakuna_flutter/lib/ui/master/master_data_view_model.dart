@@ -8,7 +8,15 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 
 /// Tab layar Master data (1.17); *Grup modifier* (1.17b) sejak v0.12.0.
-enum MasterTab { categories, units, modifiers, locations, payments, tables }
+enum MasterTab {
+  categories,
+  units,
+  modifiers,
+  customerGroups,
+  locations,
+  payments,
+  tables,
+}
 
 /// View model layar Master data (F1-09): kategori, satuan, lokasi (baca),
 /// metode bayar (tautan).

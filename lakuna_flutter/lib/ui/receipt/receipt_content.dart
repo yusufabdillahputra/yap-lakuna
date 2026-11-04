@@ -69,6 +69,8 @@ ReceiptContent saleReceiptContent(
       ),
       ReceiptPair(l10n.receiptCashier, staffName),
       if (orderLabel != null) ReceiptPair(l10n.receiptOrder, orderLabel),
+      if (sale.customerId != null && sale.customerName != null)
+        ReceiptPair(l10n.receiptCustomer, sale.customerName!),
     ],
     items: [
       for (final item in mergeSplitPortions(result.items))
@@ -127,6 +129,20 @@ ReceiptContent saleReceiptContent(
         ),
       if (result.payments.any((p) => p.method == PaymentMethod.cash))
         ReceiptPair(l10n.receiptChange, receiptAmount(l10n, sale.changeAmount)),
+      // Nota kredit (F1-13): sisa jadi piutang dan jatuh temponya.
+      if (sale.customerId != null && sale.paidAmount < sale.total) ...[
+        ReceiptPair(
+          l10n.receiptDebt,
+          receiptAmount(l10n, sale.total - sale.paidAmount),
+          bold: true,
+        ),
+        if (sale.dueOn case final due?)
+          ReceiptPair(
+            l10n.receiptDueOn,
+            '${due.day.toString().padLeft(2, '0')}/'
+            '${due.month.toString().padLeft(2, '0')}/${due.year % 100}',
+          ),
+      ],
       // Cetak ulang nota yang diretur (F1-11): nilai retur dan bersih.
       if (returned != 0) ...[
         ReceiptPair(l10n.receiptReturned, '-${receiptAmount(l10n, returned)}'),

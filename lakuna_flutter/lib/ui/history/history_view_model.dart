@@ -247,12 +247,30 @@ class HistoryViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Uang kembali: tunai bawaan bila perangkat punya sesi terbuka.
-  RefundMethod get refundMethod =>
-      _refund ??
-      ((_data?.hasOpenSession ?? false)
-          ? RefundMethod.cash
-          : RefundMethod.transfer);
+  /// Bagian retur yang memotong sisa piutang nota kredit (F1-13).
+  Money get returnDebtCut {
+    final outstanding = _detail?.outstanding ?? Money.zero;
+    final total = returnTotal;
+    return total < outstanding ? total : outstanding;
+  }
+
+  /// Uang yang dikembalikan setelah piutang dipotong.
+  Money get returnRefund => returnTotal - returnDebtCut;
+
+  /// Pilihan uang kembali tampil kecuali retur seluruhnya memotong piutang.
+  bool get returnNeedsRefundMethod =>
+      !(returnDebtCut > Money.zero && returnRefund == Money.zero);
+
+  /// Uang kembali: tunai bawaan bila perangkat punya sesi terbuka; retur
+  /// yang seluruhnya memotong piutang memakai `debt`.
+  RefundMethod get refundMethod {
+    if (!returnNeedsRefundMethod) return RefundMethod.debt;
+    final chosen = _refund;
+    if (chosen != null && chosen != RefundMethod.debt) return chosen;
+    return (_data?.hasOpenSession ?? false)
+        ? RefundMethod.cash
+        : RefundMethod.transfer;
+  }
 
   bool get cashRefundAvailable => _data?.hasOpenSession ?? false;
 

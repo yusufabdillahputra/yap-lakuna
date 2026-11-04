@@ -4,6 +4,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'cash.dart';
+import 'customers.dart';
 import 'history.dart' show soldStatuses;
 import 'sale_core.dart';
 import 'stock.dart';
@@ -175,16 +176,32 @@ class CheckoutResult {
 /// outbox. Butuh sesi kasir terbuka di perangkat ini
 /// ([CashSessionNotOpen]). Harga dihitung ulang dari database. QRIS statis
 /// harus aktif di cabang dan sudah dikonfirmasi; `confirmed_by` = [staffId].
+///
+/// Nota kredit (F1-13): [credit] diisi dan [payments] kosong. DP tunai
+/// dicatat sebagai pembayaran tunai; sisanya menjadi piutang pelanggan.
+/// Butuh `debts:manage` ([CustomerActorNotPermitted]) dan lolos
+/// [creditIssue] ([SaleCreditInvalid]).
 Future<CheckoutResult> checkoutSale(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required List<SaleLineRequest> lines,
   required List<SalePaymentRequest> payments,
+  SaleCredit? credit,
 }) async {
   if (lines.isEmpty) throw SaleEmpty();
   for (var i = 0; i < lines.length; i++) {
     if (!lines[i].quantity.isPositive) throw SaleQuantityInvalid(i);
+  }
+  if (credit != null) {
+    if (payments.isNotEmpty) {
+      throw const SalePaymentInvalid(TenderError.nonCashOver);
+    }
+    await requireCustomerActor(store, scope, staffId, Permission.debtsManage);
+    payments = [
+      if (credit.downPayment > Money.zero)
+        SalePaymentRequest.cash(credit.downPayment),
+    ];
   }
   checkPaymentRequests(payments);
   return store.write(actor: staffId, (w) async {
@@ -193,9 +210,18 @@ Future<CheckoutResult> checkoutSale(
     final totals = SaleTotals.of(priced.map((p) => p.line));
     final total = totals.total;
 
-    final (amounts, change) = await settlePayments(w, scope, total, payments);
-
     final s = await w.stamp();
+    Customer? customer;
+    late final List<Money> amounts;
+    late final Money change;
+    if (credit != null) {
+      customer = await checkSaleCredit(w, scope, credit, total, s.now);
+      amounts = [for (final p in payments) p.amount!];
+      change = Money.zero;
+    } else {
+      (amounts, change) = await settlePayments(w, scope, total, payments);
+    }
+
     final number = await nextReceiptNumber(w, scope, s.now);
     final sale = await w.insert(
       Sale(
@@ -209,10 +235,19 @@ Future<CheckoutResult> checkoutSale(
         subtotal: totals.subtotal.value,
         tierDiscount: totals.tierDiscount.value,
         total: total.value,
-        paidAmount: total.value,
+        paidAmount: credit?.downPayment.value ?? total.value,
         changeAmount: change.value,
         itemCount: priced.length,
         soldAt: s.now,
+        customerId: customer?.id,
+        customerName: customer?.name,
+        dueOn: credit == null
+            ? null
+            : DateTime.utc(
+                credit.dueOn.year,
+                credit.dueOn.month,
+                credit.dueOn.day,
+              ),
         createdAt: s.now,
         updatedAt: s.now,
         createdBy: staffId,
@@ -345,6 +380,7 @@ class SessionSalesSummary {
     this.nonCash = Money.zero,
     this.voidCount = 0,
     this.returnCount = 0,
+    this.credit = Money.zero,
   });
 
   /// Jumlah nota lunas.
@@ -362,6 +398,9 @@ class SessionSalesSummary {
 
   /// Dokumen retur yang dicatat di sesi ini (F1-11).
   final int returnCount;
+
+  /// Bagian nota kredit yang menjadi piutang saat dijual (F1-13).
+  final Money credit;
 }
 
 /// Ringkasan nota lunas di sesi [sessionId].
@@ -440,5 +479,10 @@ Future<SessionSalesSummary> sessionSalesSummary(
     nonCash: nonCash,
     voidCount: voidCount,
     returnCount: returnCount,
+    credit: Money.sum([
+      for (final s in sales)
+        if (s.customerId != null && s.paidAmount < s.total)
+          Money(s.total - s.paidAmount),
+    ]),
   );
 }

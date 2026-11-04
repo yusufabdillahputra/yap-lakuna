@@ -13,7 +13,8 @@ import '../products/product_list_view_model.dart' show productMatches;
 enum CashierStage { browse, pay, done }
 
 /// Pilihan di layar bayar: satu metode, atau bagi beberapa metode.
-enum PayMode { cash, card, transfer, qris, split }
+/// [credit] = simpan sebagai piutang pelanggan (F1-13, 1.5b).
+enum PayMode { cash, card, transfer, qris, split, credit }
 
 /// Satu bagian split payment. QRIS menunggu *Sudah Terbayar*.
 @immutable
@@ -171,6 +172,7 @@ class CashierViewModel extends ChangeNotifier {
     load = Command0(_load)..addListener(notifyListeners);
     openBill = Command1(_openBill)..addListener(notifyListeners);
     pay = Command0(_pay)..addListener(notifyListeners);
+    loadCredit = Command0(_loadCredit)..addListener(notifyListeners);
     printReceipt = Command1(_printReceipt)..addListener(notifyListeners);
     shareReceipt = Command1(_shareReceipt)..addListener(notifyListeners);
   }
@@ -192,6 +194,9 @@ class CashierViewModel extends ChangeNotifier {
   /// Hasil `null` = bagian split terbayar tapi bill belum lunas (kembali
   /// ke layar split lewat [onLeaveBill]).
   late final Command0<CheckoutResult?> pay;
+
+  /// Pelanggan untuk pemilih kredit (1.5b).
+  late final Command0<void> loadCredit;
 
   /// Mencetak baris struk nota terakhir (F1-06).
   late final Command1<void, List<ReceiptLine>> printReceipt;
@@ -222,6 +227,11 @@ class CashierViewModel extends ChangeNotifier {
   var _printed = false;
   String? _sharedPath;
   final _autoPrinted = <String>{};
+  CustomersOverview? _creditCustomers;
+  UuidValue? _creditCustomerId;
+  var _creditDown = Money.zero;
+  DateTime? _creditDue;
+  var _creditQuery = '';
 
   var _disposed = false;
 
@@ -500,8 +510,117 @@ class CashierViewModel extends ChangeNotifier {
     PayMode.card => PaymentMethod.card,
     PayMode.transfer => PaymentMethod.transfer,
     PayMode.qris => PaymentMethod.qrisStatic,
-    PayMode.split => null,
+    PayMode.split || PayMode.credit => null,
   };
+
+  // --- Kredit (F1-13, 1.5b) --------------------------------------------------
+
+  /// Tombol *Kredit / piutang* tampil: staf `debts:manage`, bukan open bill.
+  bool get canSellOnCredit =>
+      (_data?.canSellOnCredit ?? false) && _bill == null;
+
+  CustomersOverview? get creditCustomers => _creditCustomers;
+  String get creditQuery => _creditQuery;
+
+  /// Pelanggan yang cocok dengan pencarian, yang punya limit dulu.
+  List<CustomerRow> get creditCandidates {
+    final q = _creditQuery.trim().toLowerCase();
+    final rows = [
+      for (final r in _creditCustomers?.rows ?? const <CustomerRow>[])
+        if (q.isEmpty ||
+            r.customer.name.toLowerCase().contains(q) ||
+            (r.customer.phone ?? '').contains(q))
+          r,
+    ];
+    rows.sort((a, b) {
+      final la = a.creditLimit > Money.zero ? 0 : 1;
+      final lb = b.creditLimit > Money.zero ? 0 : 1;
+      return la != lb ? la - lb : 0;
+    });
+    return rows;
+  }
+
+  CustomerRow? get creditCustomer => switch (_creditCustomerId) {
+    final id? =>
+      _creditCustomers?.rows.where((r) => r.customer.id == id).firstOrNull,
+    null => null,
+  };
+
+  Money get creditDown => _creditDown;
+  DateTime get creditToday => _creditCustomers?.today ?? DateTime.now().toUtc();
+  DateTime? get creditDue => _creditDue;
+
+  /// Bagian nota yang menjadi piutang.
+  Money get creditDebt {
+    final rest = payTotal - _creditDown;
+    return rest.isNegative ? Money.zero : rest;
+  }
+
+  /// Sisa limit setelah nota ini (boleh negatif = melebihi limit).
+  Money get creditRemainingAfter {
+    final c = creditCustomer;
+    if (c == null) return Money.zero;
+    return c.creditLimit - c.outstanding - creditDebt;
+  }
+
+  /// Galat kredit saat ini; `null` = boleh disimpan.
+  CreditIssue? get creditIssueNow {
+    final c = creditCustomer;
+    final due = _creditDue;
+    if (c == null || due == null) return null;
+    return creditIssue(
+      limit: c.creditLimit,
+      outstanding: c.outstanding,
+      total: payTotal,
+      downPayment: _creditDown,
+      dueOn: due,
+      today: creditToday,
+    );
+  }
+
+  bool get _creditReady =>
+      creditCustomer != null && _creditDue != null && creditIssueNow == null;
+
+  Future<Result<void>> _loadCredit() async {
+    final result = await _repository.creditCustomers();
+    if (result case Ok(:final value)) _creditCustomers = value;
+    return result;
+  }
+
+  void setCreditQuery(String q) {
+    _creditQuery = q;
+    notifyListeners();
+  }
+
+  /// Memilih pelanggan; jatuh tempo = hari ini + tempo standar.
+  void selectCreditCustomer(UuidValue id) {
+    final row = _creditCustomers?.rows
+        .where((r) => r.customer.id == id)
+        .firstOrNull;
+    if (row == null) return;
+    _creditCustomerId = id;
+    _creditDue = creditToday.add(Duration(days: row.termDays));
+    _error = null;
+    notifyListeners();
+  }
+
+  void clearCreditCustomer() {
+    _creditCustomerId = null;
+    _creditDue = null;
+    notifyListeners();
+  }
+
+  void setCreditDown(Money m) {
+    _creditDown = m;
+    _error = null;
+    notifyListeners();
+  }
+
+  void setCreditDue(DateTime d) {
+    _creditDue = DateTime.utc(d.year, d.month, d.day);
+    _error = null;
+    notifyListeners();
+  }
 
   Money get received => _received;
   String get reference => _reference;
@@ -539,6 +658,7 @@ class CashierViewModel extends ChangeNotifier {
         PayMode.card || PayMode.transfer => !referenceTooLong,
         PayMode.qris => false,
         PayMode.split => splitSettlement.isSettled && !hasPendingQris,
+        PayMode.credit => _creditReady,
       };
 
   /// *Sudah Terbayar* untuk QRIS tunggal aktif.
@@ -571,6 +691,10 @@ class CashierViewModel extends ChangeNotifier {
     _draftMethod = PaymentMethod.cash;
     _draftAmount = null;
     _error = null;
+    _creditCustomerId = null;
+    _creditDown = Money.zero;
+    _creditDue = null;
+    _creditQuery = '';
     notifyListeners();
   }
 
@@ -595,6 +719,12 @@ class CashierViewModel extends ChangeNotifier {
 
   void setMode(PayMode m) {
     if (m == PayMode.qris && qris == null) return;
+    if (m == PayMode.credit && !canSellOnCredit) return;
+    if (m == PayMode.credit &&
+        _creditCustomers == null &&
+        !loadCredit.running) {
+      loadCredit.execute();
+    }
     _mode = m;
     _reference = '';
     _error = null;
@@ -729,6 +859,8 @@ class CashierViewModel extends ChangeNotifier {
           confirmed: p.confirmed,
         ),
     ],
+    // DP kredit dibuat lapisan data dari `SaleCredit.downPayment`.
+    PayMode.credit => const [],
   };
 
   Future<Result<CheckoutResult?>> _payPart(OpenBill bill, BillPart part) async {
@@ -772,11 +904,20 @@ class CashierViewModel extends ChangeNotifier {
                 ),
             ],
             payments: _payments(),
+            credit: _mode == PayMode.credit
+                ? SaleCredit(
+                    customerId: _creditCustomerId!,
+                    downPayment: _creditDown,
+                    dueOn: _creditDue!,
+                  )
+                : null,
           );
     switch (result) {
       case Ok(:final value):
         _result = value;
         _items.clear();
+        // Piutang pelanggan berubah: muat ulang saat kredit dipakai lagi.
+        if (_mode == PayMode.credit) _creditCustomers = null;
         _stage = CashierStage.done;
       case Error(:final error):
         _error = error;

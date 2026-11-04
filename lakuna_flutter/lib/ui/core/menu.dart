@@ -139,11 +139,13 @@ final List<MenuGroup> appMenu = [
   MenuGroup(
     label: (l) => l.menuGroupContacts,
     entries: [
-      _module(
-        'customers',
-        TablerIcons.users,
-        (l) => l.menuCustomers,
-        Permission.customersManage,
+      MenuEntry(
+        key: 'customers',
+        icon: TablerIcons.users,
+        label: (l) => l.menuCustomers,
+        path: Routes.customers,
+        permission: Permission.customersManage,
+        orPermission: Permission.debtsManage,
       ),
       _module(
         'suppliers',

@@ -44,6 +44,10 @@ fields:
   ### Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
   splitMode: SplitMode?, column=split_mode
   splitGuests: int?, column=split_guests
+  ### Kredit (F1-13): pelanggan dan jatuh tempo piutang. Sisa piutang =
+  ### total − [paidAmount] − alokasi pembayaran − pengurang retur.
+  customerId: UuidValue?, relation(parent=customers, onDelete=Restrict), column=customer_id
+  dueOn: DateTime?, column=due_on
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at
@@ -62,3 +66,5 @@ indexes:
     fields: outletId, soldAt
   sales_outlet_status_idx:
     fields: outletId, status
+  sales_customer_idx:
+    fields: customerId

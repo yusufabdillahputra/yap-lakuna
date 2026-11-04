@@ -1,0 +1,45 @@
+### Pembayaran piutang pelanggan (F1-13, nomor `BP-…`) atau hutang supplier
+### (F1-14). Tunai di sesi kasir terbuka menulis `cash_movements` masuk dan
+### mengisi [cashSessionId]. [balanceAfter] = sisa piutang/hutang pihak itu
+### setelah pembayaran, disimpan agar kuitansi cetak ulang tidak berubah.
+class: DebtPayment
+table: debt_payments
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  deviceId: UuidValue, relation(parent=devices, onDelete=Restrict), column=device_id
+  staffId: UuidValue, relation(parent=staff_members, onDelete=Restrict), column=staff_id
+  party: DebtParty
+  customerId: UuidValue?, relation(parent=customers, onDelete=Restrict), column=customer_id
+  supplierId: UuidValue?, relation(parent=suppliers, onDelete=Restrict), column=supplier_id
+  number: String
+  amount: int
+  ### Metode terima piutang pelanggan.
+  method: PaymentMethod?
+  ### Sumber dana bayar hutang supplier (F1-14).
+  fundingSource: FundingSource?, column=funding_source
+  ### Tanggal bayar (kalender, UTC tengah malam).
+  paidOn: DateTime, column=paid_on
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
+  balanceAfter: int, column=balance_after
+  note: String?
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  debt_payments_number_idx:
+    fields: tenantId, number
+    unique: true
+  debt_payments_customer_idx:
+    fields: customerId
+  debt_payments_supplier_idx:
+    fields: supplierId
+  debt_payments_session_idx:
+    fields: cashSessionId

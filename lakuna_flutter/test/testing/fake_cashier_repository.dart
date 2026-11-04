@@ -38,6 +38,10 @@ class FakeCashierRepository extends CashierRepository {
   ReceiptConfig receipt;
   PrinterSelection? printer;
 
+  /// Pelanggan pemilih kredit (1.5b, F1-13).
+  List<CustomerRow> creditRows = const [];
+  final credits = <SaleCredit>[];
+
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
   final checkouts = <(List<SaleLineRequest>, List<SalePaymentRequest>)>[];
@@ -86,6 +90,7 @@ class FakeCashierRepository extends CashierRepository {
         printer: printer,
         canConfirmPayments:
             permissions?.contains(Permission.paymentsConfirm) ?? true,
+        canSellOnCredit: permissions?.contains(Permission.debtsManage) ?? true,
         session: sessionOpen
             ? CashierSession(
                 id: _session,
@@ -98,11 +103,33 @@ class FakeCashierRepository extends CashierRepository {
   }
 
   @override
+  Future<Result<CustomersOverview>> creditCustomers() async {
+    if (_check() case final e?) return Result.error(e);
+    if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
+      return const Result.error(NotPermitted(Permission.debtsManage));
+    }
+    return Result.ok(
+      CustomersOverview(rows: creditRows, today: DateTime.utc(2026, 11, 3)),
+    );
+  }
+
+  @override
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
+    SaleCredit? credit,
   }) async {
     if (_check() case final e?) return Result.error(e);
+    if (credit != null) {
+      if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
+        return const Result.error(NotPermitted(Permission.debtsManage));
+      }
+      credits.add(credit);
+      payments = [
+        if (credit.downPayment > Money.zero)
+          SalePaymentRequest.cash(credit.downPayment),
+      ];
+    }
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
     final qrisUsed = payments.any((p) => p.method == PaymentMethod.qrisStatic);
     final p = permissions;
@@ -147,7 +174,23 @@ class FakeCashierRepository extends CashierRepository {
       ));
     }
     final totals = SaleTotals.of(priced.map((p) => p.$4));
-    final single = payments.length == 1;
+    CustomerRow? creditRow;
+    if (credit != null) {
+      creditRow = creditRows
+          .where((r) => r.customer.id == credit.customerId)
+          .firstOrNull;
+      if (creditRow == null) return Result.error(CustomerNotFound());
+      final issue = creditIssue(
+        limit: creditRow.creditLimit,
+        outstanding: creditRow.outstanding,
+        total: totals.total,
+        downPayment: credit.downPayment,
+        dueOn: credit.dueOn,
+        today: DateTime.utc(2026, 11, 3),
+      );
+      if (issue != null) return Result.error(SaleCreditInvalid(issue));
+    }
+    final single = payments.length == 1 && credit == null;
     final amounts = [
       for (final p in payments)
         p.amount ?? (single && !p.isCash ? totals.total : Money.zero),
@@ -156,13 +199,14 @@ class FakeCashierRepository extends CashierRepository {
       for (final (i, p) in payments.indexed)
         TenderPart(amounts[i], isCash: p.isCash),
     ]);
-    if (settlement.error == TenderError.short ||
-        (single && payments.single.isCash && !settlement.isSettled)) {
+    if (credit == null &&
+        (settlement.error == TenderError.short ||
+            (single && payments.single.isCash && !settlement.isSettled))) {
       return Result.error(
         SalePaymentShort(total: totals.total, received: settlement.paid),
       );
     }
-    if (settlement.error case final error?) {
+    if (settlement.error case final error? when credit == null) {
       return Result.error(SalePaymentInvalid(error));
     }
     final change = settlement.change;
@@ -179,8 +223,13 @@ class FakeCashierRepository extends CashierRepository {
       subtotal: totals.subtotal.value,
       tierDiscount: totals.tierDiscount.value,
       total: totals.total.value,
-      paidAmount: totals.total.value,
-      changeAmount: change.value,
+      paidAmount: credit == null
+          ? totals.total.value
+          : credit.downPayment.value,
+      changeAmount: credit == null ? change.value : 0,
+      customerId: credit?.customerId,
+      customerName: creditRow?.customer.name,
+      dueOn: credit?.dueOn,
       itemCount: priced.length,
       soldAt: now,
       hlc: '',

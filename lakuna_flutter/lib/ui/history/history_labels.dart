@@ -60,6 +60,7 @@ String voidBlockLabel(AppLocalizations l10n, VoidBlock block) =>
       VoidBlock.returned => l10n.historyVoidBlockReturned,
       VoidBlock.notToday => l10n.historyVoidBlockNotToday,
       VoidBlock.session => l10n.historyVoidBlockSession,
+      VoidBlock.debtPaid => l10n.historyVoidBlockDebtPaid,
     };
 
 /// Pesan galat aksi riwayat (retur, void, muat).
