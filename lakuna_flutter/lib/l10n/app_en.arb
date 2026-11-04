@@ -3819,5 +3819,93 @@
         "type": "int"
       }
     }
-  }
+  },
+  "cashierCustomerWalkIn": "Walk-in customer",
+  "cashierCustomerPick": "Choose customer",
+  "cashierCustomerClear": "Remove customer from bill",
+  "cashierCustomerSearch": "Search name or phone",
+  "cashierCustomerNone": "No customers yet. Add them from the Customers menu.",
+  "cashierCustomerNoMatch": "No matching customers.",
+  "cashierCustomerLoadFailed": "Could not load customers.",
+  "cashierCustomerRemaining": "Limit left {amount}",
+  "@cashierCustomerRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierCustomerOverdue": "Overdue",
+  "cashierPark": "Save",
+  "cashierParkTitle": "Save bill",
+  "cashierParkBody": "The bill is saved unpaid and can be continued later from Saved bills. Stock only goes down when it is paid.",
+  "cashierParkFor": "For {name}",
+  "@cashierParkFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkNote": "Note (optional)",
+  "cashierParkNoteHint": "e.g. Front table",
+  "cashierParkNoteTooLong": "Note can be at most {max} characters.",
+  "@cashierParkNoteTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierParkFailed": "Could not save the bill. Try again.",
+  "cashierParkedButton": "Saved bills ({count})",
+  "@cashierParkedButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierParkedTitle": "Saved bills",
+  "cashierParkedEmpty": "No saved bills yet.",
+  "cashierParkedNoName": "Unnamed",
+  "cashierParkedMeta": "{count} items · saved {time} by {staff}",
+  "@cashierParkedMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkedResume": "Continue",
+  "cashierParkedDelete": "Delete",
+  "cashierParkedCartBusy": "Save or clear the cart first.",
+  "cashierParkedLoadFailed": "Could not load saved bills.",
+  "cashierParkedResumeFailed": "The bill can't be continued (it may have been paid or deleted).",
+  "cashierParkedDeleteTitle": "Delete saved bill?",
+  "cashierParkedDeleteBody": "{name} will be deleted. Stock is unchanged because the bill was not paid.",
+  "@cashierParkedDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkedDeleteFailed": "Could not delete the saved bill.",
+  "cashierParkedClose": "Close",
+  "cashierResumeDropped": "{count} items were removed because their products were deleted.",
+  "@cashierResumeDropped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierResumedFrom": "From saved bill"
 }

@@ -7039,4 +7039,120 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get cashierCustomerWalkIn => 'Walk-in customer';
+
+  @override
+  String get cashierCustomerPick => 'Choose customer';
+
+  @override
+  String get cashierCustomerClear => 'Remove customer from bill';
+
+  @override
+  String get cashierCustomerSearch => 'Search name or phone';
+
+  @override
+  String get cashierCustomerNone =>
+      'No customers yet. Add them from the Customers menu.';
+
+  @override
+  String get cashierCustomerNoMatch => 'No matching customers.';
+
+  @override
+  String get cashierCustomerLoadFailed => 'Could not load customers.';
+
+  @override
+  String cashierCustomerRemaining(String amount) {
+    return 'Limit left $amount';
+  }
+
+  @override
+  String get cashierCustomerOverdue => 'Overdue';
+
+  @override
+  String get cashierPark => 'Save';
+
+  @override
+  String get cashierParkTitle => 'Save bill';
+
+  @override
+  String get cashierParkBody =>
+      'The bill is saved unpaid and can be continued later from Saved bills. Stock only goes down when it is paid.';
+
+  @override
+  String cashierParkFor(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get cashierParkNote => 'Note (optional)';
+
+  @override
+  String get cashierParkNoteHint => 'e.g. Front table';
+
+  @override
+  String cashierParkNoteTooLong(int max) {
+    return 'Note can be at most $max characters.';
+  }
+
+  @override
+  String get cashierParkFailed => 'Could not save the bill. Try again.';
+
+  @override
+  String cashierParkedButton(int count) {
+    return 'Saved bills ($count)';
+  }
+
+  @override
+  String get cashierParkedTitle => 'Saved bills';
+
+  @override
+  String get cashierParkedEmpty => 'No saved bills yet.';
+
+  @override
+  String get cashierParkedNoName => 'Unnamed';
+
+  @override
+  String cashierParkedMeta(int count, String time, String staff) {
+    return '$count items · saved $time by $staff';
+  }
+
+  @override
+  String get cashierParkedResume => 'Continue';
+
+  @override
+  String get cashierParkedDelete => 'Delete';
+
+  @override
+  String get cashierParkedCartBusy => 'Save or clear the cart first.';
+
+  @override
+  String get cashierParkedLoadFailed => 'Could not load saved bills.';
+
+  @override
+  String get cashierParkedResumeFailed =>
+      'The bill can\'t be continued (it may have been paid or deleted).';
+
+  @override
+  String get cashierParkedDeleteTitle => 'Delete saved bill?';
+
+  @override
+  String cashierParkedDeleteBody(String name) {
+    return '$name will be deleted. Stock is unchanged because the bill was not paid.';
+  }
+
+  @override
+  String get cashierParkedDeleteFailed => 'Could not delete the saved bill.';
+
+  @override
+  String get cashierParkedClose => 'Close';
+
+  @override
+  String cashierResumeDropped(int count) {
+    return '$count items were removed because their products were deleted.';
+  }
+
+  @override
+  String get cashierResumedFrom => 'From saved bill';
 }

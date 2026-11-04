@@ -18,4 +18,17 @@ When the quantity reaches a wholesale tier, the unit price drops automatically. 
 
 > [!note] When stock runs out and *Allow negative stock* is off, the product cannot be sold. Change it in [Store settings](store-settings).
 
-Tap **Clear** to remove the whole order before payment.
+## Customer on the bill
+
+The *Walk-in customer* field above the order opens **Choose customer**. Search by name or phone; the list shows the group, *Limit left*, and an *Overdue* badge. The chosen customer is printed on the receipt and is preselected when the bill is paid on [credit](credit-sale). Tap **×** to go back to a walk-in customer. Add new customers from the [Customers](customers-credit) menu.
+
+## Saved bills
+
+Customer not ready to pay? Tap **Save** next to *Pay*, add a note if needed (e.g. *Front table*), and serve the next customer. Stock only goes down when the bill is paid.
+
+1. Tap **Saved bills (N)** at the top of the Cashier to see the list: name or note, item count, time saved, cashier, and total.
+2. Tap **Continue** to load the bill into the cart. The cart must be empty first; prices come from the latest catalog.
+3. Pay as usual. The saved bill leaves the list once it is paid. Saving it again replaces the old one.
+4. The trash icon deletes a saved bill that was cancelled.
+
+The trash icon below the order (*Clear*) removes the whole order before payment.

@@ -9,6 +9,7 @@ import '../core/format.dart';
 import '../customers/customer_labels.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import 'cashier_view_model.dart';
+import 'customer_picker.dart' show CustomerAvatar;
 
 const _tabular = [FontFeature.tabularFigures()];
 
@@ -77,42 +78,10 @@ class CreditPanel extends StatelessWidget {
   }
 }
 
-String _initials(String name) {
-  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-  return words.take(2).map((w) => w.characters.first.toUpperCase()).join();
-}
-
 String _termLine(AppLocalizations l10n, CustomerRow r) => [
   if (r.groupName case final g?) l10n.customerGroupLabel(g),
   l10n.creditTerm(r.termDays),
 ].join(' · ');
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    return Container(
-      width: 36,
-      height: 36,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colors.primary,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        _initials(name),
-        style: theme.typography.body.xs.copyWith(
-          color: theme.colors.primaryForeground,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
 
 class _Picker extends StatelessWidget {
   const _Picker({required this.viewModel});
@@ -162,7 +131,7 @@ class _Picker extends StatelessWidget {
                         child: Row(
                           spacing: 10,
                           children: [
-                            _Avatar(name: r.customer.name),
+                            CustomerAvatar(name: r.customer.name),
                             Expanded(
                               flex: 2,
                               child: Column(
@@ -358,7 +327,7 @@ class _Form extends StatelessWidget {
                 child: Row(
                   spacing: 10,
                   children: [
-                    _Avatar(name: customer.customer.name),
+                    CustomerAvatar(name: customer.customer.name),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

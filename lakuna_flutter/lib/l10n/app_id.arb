@@ -4353,5 +4353,93 @@
         "type": "int"
       }
     }
-  }
+  },
+  "cashierCustomerWalkIn": "Pelanggan umum",
+  "cashierCustomerPick": "Pilih pelanggan",
+  "cashierCustomerClear": "Hapus pelanggan dari nota",
+  "cashierCustomerSearch": "Cari nama atau HP",
+  "cashierCustomerNone": "Belum ada pelanggan. Tambah lewat menu Pelanggan.",
+  "cashierCustomerNoMatch": "Tidak ada pelanggan yang cocok.",
+  "cashierCustomerLoadFailed": "Daftar pelanggan gagal dimuat.",
+  "cashierCustomerRemaining": "Sisa limit {amount}",
+  "@cashierCustomerRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierCustomerOverdue": "Lewat tempo",
+  "cashierPark": "Simpan",
+  "cashierParkTitle": "Simpan nota",
+  "cashierParkBody": "Nota disimpan tanpa pembayaran dan bisa dilanjutkan nanti dari Nota tersimpan. Stok baru berkurang saat dibayar.",
+  "cashierParkFor": "Atas nama {name}",
+  "@cashierParkFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkNote": "Catatan (opsional)",
+  "cashierParkNoteHint": "mis. Meja depan",
+  "cashierParkNoteTooLong": "Catatan maksimal {max} karakter.",
+  "@cashierParkNoteTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierParkFailed": "Nota gagal disimpan. Coba lagi.",
+  "cashierParkedButton": "Nota tersimpan ({count})",
+  "@cashierParkedButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierParkedTitle": "Nota tersimpan",
+  "cashierParkedEmpty": "Belum ada nota tersimpan.",
+  "cashierParkedNoName": "Tanpa nama",
+  "cashierParkedMeta": "{count} item · disimpan {time} oleh {staff}",
+  "@cashierParkedMeta": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkedResume": "Lanjutkan",
+  "cashierParkedDelete": "Hapus",
+  "cashierParkedCartBusy": "Simpan atau kosongkan keranjang dulu.",
+  "cashierParkedLoadFailed": "Nota tersimpan gagal dimuat.",
+  "cashierParkedResumeFailed": "Nota tidak bisa dilanjutkan (mungkin sudah dibayar atau dihapus).",
+  "cashierParkedDeleteTitle": "Hapus nota tersimpan?",
+  "cashierParkedDeleteBody": "{name} akan dihapus. Stok tidak berubah karena nota belum dibayar.",
+  "@cashierParkedDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cashierParkedDeleteFailed": "Nota tersimpan gagal dihapus.",
+  "cashierParkedClose": "Tutup",
+  "cashierResumeDropped": "{count} barang dibuang karena produknya sudah dihapus.",
+  "@cashierResumeDropped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashierResumedFrom": "Dari nota tersimpan"
 }
