@@ -129,6 +129,31 @@ void main() {
       expect((h.width, h.height), (1080, 1528));
     });
 
+    test('jumlah entri IFD melewati segmen: tidak membaca ke luar segmen', () {
+      final b = _jpegExif(4032, 3024, 6);
+      // Jumlah entri IFD0 (setelah offset IFD) dibuat 0x0FFF: entri yang
+      // masih di dalam segmen tetap dibaca, sisanya tidak.
+      b[4 + 2 + 6 + 8] = 0x0F;
+      b[4 + 2 + 6 + 9] = 0xFF;
+      final h = readImageHeader(b)!;
+      expect((h.width, h.height), (3024, 4032));
+      // Tanpa tag Orientation di dalam segmen: ukuran SOF apa adanya.
+      final c = _jpegExif(4032, 3024, 6);
+      c[4 + 2 + 6 + 8] = 0x0F;
+      c[4 + 2 + 6 + 9] = 0xFF;
+      c[4 + 2 + 6 + 10 + 12] = 0x01; // tag 0x0112 → 0x0101
+      c[4 + 2 + 6 + 10 + 13] = 0x01;
+      final g = readImageHeader(c)!;
+      expect((g.width, g.height), (4032, 3024));
+    });
+
+    test('offset IFD little-endian dengan bit tertinggi: EXIF diabaikan', () {
+      final b = _jpegExif(4032, 3024, 6, bigEndian: false);
+      b.setRange(4 + 2 + 6 + 4, 4 + 2 + 6 + 8, const [0xF0, 0xFF, 0xFF, 0xFF]);
+      final h = readImageHeader(b)!;
+      expect((h.width, h.height), (4032, 3024));
+    });
+
     test('WebP VP8X, VP8L, VP8', () {
       expect(
         readImageHeader(_webpVp8x(1200, 1700)),
