@@ -52,6 +52,7 @@ ImageHeader? _png(List<int> b) {
 ImageHeader? _jpeg(List<int> b) {
   var i = 2;
   var orientation = 1;
+  var exifRead = false;
   while (i + 3 < b.length) {
     if (b[i] != 0xFF) return null;
     final marker = b[i + 1];
@@ -79,8 +80,13 @@ ImageHeader? _jpeg(List<int> b) {
           ? _sized(ImageFormat.jpeg, h, w)
           : _sized(ImageFormat.jpeg, w, h);
     }
-    if (marker == 0xE1) {
-      orientation = _exifOrientation(b, i + 4, length - 2) ?? orientation;
+    // Segmen Exif pertama yang sah menang (sama dengan dekoder Skia).
+    if (marker == 0xE1 && !exifRead) {
+      final o = _exifOrientation(b, i + 4, length - 2);
+      if (o != null) {
+        orientation = o;
+        exifRead = true;
+      }
     }
     if (marker == 0xD9 || marker == 0xDA) return null;
     i += 2 + length;
@@ -113,7 +119,12 @@ int? _exifOrientation(List<int> b, int start, int length) {
     final entry = ifd + 2 + n * 12;
     if (entry + 12 > end) return null;
     if (u16(entry) == 0x0112) {
-      final value = u16(entry + 8);
+      // SHORT (3) biasanya; sebagian penulis memakai LONG (4).
+      final value = switch (u16(entry + 2)) {
+        3 => u16(entry + 8),
+        4 => u32(entry + 8),
+        _ => 0,
+      };
       return value >= 1 && value <= 8 ? value : null;
     }
   }

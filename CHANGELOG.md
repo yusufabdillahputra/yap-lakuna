@@ -25,9 +25,11 @@ Foto ponsel vertikal tidak lagi dianggap mendatar saat diunggah.
 
 - `readImageHeader` (`packages/lakuna_domain/lib/src/image_header.dart`)
   membaca segmen APP1 `Exif`, header TIFF big-endian (`MM`) maupun
-  little-endian (`II`), dan tag 0x0112 di IFD0. EXIF yang rusak atau
+  little-endian (`II`), dan tag 0x0112 di IFD0 (SHORT atau LONG). Segmen
+  Exif pertama yang sah menang, seperti dekoder Skia. EXIF yang rusak atau
   terpotong diabaikan sehingga ukuran SOF tetap dipakai.
 - Tes baru di `packages/lakuna_domain/test/qris_test.dart`: orientasi 1–8,
+  tipe LONG, XMP sesudah Exif,
   urutan byte `II`, dan offset IFD rusak.
 - Gap *Orientasi EXIF JPEG* di spec F1-18 ditutup.
 
