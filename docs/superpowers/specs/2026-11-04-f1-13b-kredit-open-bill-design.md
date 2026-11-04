@@ -1,7 +1,7 @@
 # F1-13b · Kredit untuk open bill F&B
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.30.0
 - **Layar desain:** 1.5b *Bayar: Kredit / piutang* (dipakai juga dari bill
   Meja / Take away, 1.7–1.9).
 - **Acuan:** F1-13 aturan 1–4 (kredit retail), F1-10 *Tutup & bayar*.
@@ -47,5 +47,5 @@ kredit di Kasir retail.
 
 | Topik | Desain | Kode | Catatan |
 | --- | --- | --- | --- |
-| Kredit *Tutup & bayar* open bill | 1.5b | Dikerjakan | |
+| Kredit *Tutup & bayar* open bill | 1.5b | Rilis v0.30.0 | Selesai. |
 | Kredit bagian split bill | 1.5b | Belum | Bagian split dibayar per tamu; kredit per tamu butuh pelanggan per bagian. |
