@@ -105,33 +105,29 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                 ),
               ),
               Text(l10n.importIntro, style: muted),
-              Row(
-                spacing: 12,
-                children: [
-                  FButton(
-                    key: const ValueKey('customer-import-pick'),
-                    variant: .outline,
-                    mainAxisSize: .min,
-                    onPress: vm.pick.running || vm.run.running
-                        ? null
-                        : vm.pick.execute,
-                    prefix: const Icon(TablerIcons.fileSpreadsheet),
-                    child: Text(l10n.importPick),
-                  ),
-                  if (vm.fileName case final name?)
-                    Expanded(
-                      child: Text(
-                        name,
-                        key: const ValueKey('customer-import-file'),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.body.sm.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                ],
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FButton(
+                  key: const ValueKey('customer-import-pick'),
+                  variant: .outline,
+                  mainAxisSize: .min,
+                  onPress: vm.pick.running || vm.run.running
+                      ? null
+                      : vm.pick.execute,
+                  prefix: const Icon(TablerIcons.fileSpreadsheet),
+                  child: Flexible(child: Text(l10n.importPick)),
+                ),
               ),
+              if (vm.fileName case final name?)
+                Text(
+                  name,
+                  key: const ValueKey('customer-import-file'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               if (problem != null)
                 FAlert(
                   key: const ValueKey('customer-import-problem'),
@@ -199,8 +195,10 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                     variant: .outline,
                     mainAxisSize: .min,
                     onPress: () => Navigator.of(context).pop(done != null),
-                    child: Text(
-                      done != null ? l10n.importClose : l10n.customerCancel,
+                    child: Flexible(
+                      child: Text(
+                        done != null ? l10n.importClose : l10n.customerCancel,
+                      ),
                     ),
                   ),
                   if (done == null)
@@ -208,7 +206,9 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                       key: const ValueKey('customer-import-run'),
                       mainAxisSize: .min,
                       onPress: vm.canRun ? vm.run.execute : null,
-                      child: Text(l10n.importRun(vm.rows.length)),
+                      child: Flexible(
+                        child: Text(l10n.importRun(vm.rows.length)),
+                      ),
                     ),
                 ],
               ),

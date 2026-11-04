@@ -4444,5 +4444,45 @@
   "cashierResumedFrom": "Dari nota tersimpan",
   "paymentErrorParked": "Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.",
   "cashierResumeDiscountDropped": "Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.",
-  "approvalDiscountResumed": "Diskon dari nota tersimpan"
+  "approvalDiscountResumed": "Diskon dari nota tersimpan",
+  "productsImport": "Import Excel",
+  "productImportTitle": "Import produk",
+  "productImportIntro": "Pilih berkas Excel (.xlsx) atau CSV, satu baris satu produk. Kolom: Nama dan Harga jual (wajib), Kategori, Jenis (barang/jasa/menu), Satuan, SKU, Barcode, Harga beli, Stok awal, Stok minimum. Judul kolom boleh Indonesia atau English.",
+  "productImportMissingColumns": "Kolom Nama atau Harga jual tidak ditemukan di baris judul.",
+  "productImportEmpty": "Berkas tidak berisi baris produk.",
+  "productImportSkipNote": "Hanya menambah produk baru. Produk yang nama, SKU, atau barcode-nya sudah ada dilewati; ubah lewat form produk.",
+  "productImportReasonPrice": "harga jual kosong atau bukan rupiah bulat",
+  "productImportReasonCost": "harga beli bukan rupiah bulat",
+  "productImportReasonStock": "stok bukan angka",
+  "productImportReasonKind": "jenis bukan barang, jasa, atau menu",
+  "productImportReasonCode": "SKU atau barcode dobel di berkas",
+  "productImportReasonName": "nama dobel di berkas",
+  "productImportRun": "Import {count} produk",
+  "@productImportRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportCancel": "Batal",
+  "productImportDone": "Selesai: {created} produk baru, {skipped} dilewati karena sudah ada.",
+  "@productImportDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportSkippedLines": "Baris dilewati: {lines}",
+  "@productImportSkippedLines": {
+    "placeholders": {
+      "lines": {
+        "type": "String"
+      }
+    }
+  }
 }

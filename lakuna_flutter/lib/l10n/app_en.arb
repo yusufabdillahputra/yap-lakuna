@@ -3910,5 +3910,45 @@
   "cashierResumedFrom": "From saved bill",
   "paymentErrorParked": "This saved bill was already paid or deleted elsewhere. Finish again to record it as a new sale.",
   "cashierResumeDiscountDropped": "The saved bill's discounts were removed because you don't have discount permission.",
-  "approvalDiscountResumed": "Discount from a saved bill"
+  "approvalDiscountResumed": "Discount from a saved bill",
+  "productsImport": "Import Excel",
+  "productImportTitle": "Import products",
+  "productImportIntro": "Choose an Excel (.xlsx) or CSV file, one product per row. Columns: Name and Price (required), Category, Type (goods/service/menu), Unit, SKU, Barcode, Cost, Opening stock, Min stock. Headers may be in Indonesian or English.",
+  "productImportMissingColumns": "The header row has no Name or Price column.",
+  "productImportEmpty": "The file has no product rows.",
+  "productImportSkipNote": "Only adds new products. Rows whose name, SKU, or barcode already exists are skipped; edit those in the product form.",
+  "productImportReasonPrice": "price missing or not whole rupiah",
+  "productImportReasonCost": "cost is not whole rupiah",
+  "productImportReasonStock": "stock is not a number",
+  "productImportReasonKind": "type is not goods, service, or menu",
+  "productImportReasonCode": "duplicate SKU or barcode in the file",
+  "productImportReasonName": "duplicate name in the file",
+  "productImportRun": "Import {count} products",
+  "@productImportRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportCancel": "Cancel",
+  "productImportDone": "Done: {created} new products, {skipped} skipped because they already exist.",
+  "@productImportDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportSkippedLines": "Skipped rows: {lines}",
+  "@productImportSkippedLines": {
+    "placeholders": {
+      "lines": {
+        "type": "String"
+      }
+    }
+  }
 }

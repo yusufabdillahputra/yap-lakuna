@@ -7,18 +7,25 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
+import 'product_import_dialog.dart';
 import 'product_list_view_model.dart';
 import 'product_widgets.dart';
 
 /// Layar *Produk & stok* (1.15 / 1.15m, F1-07). Memiliki
 /// [ProductListViewModel] dan memuat katalog saat dibuka.
 class ProductListScreen extends StatefulWidget {
-  const ProductListScreen({super.key, required this.repository});
+  const ProductListScreen({
+    super.key,
+    required this.repository,
+    this.tablePicker = const FileSelectorTablePicker(),
+  });
 
   final CatalogRepository repository;
+  final TableFilePicker tablePicker;
 
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
@@ -44,7 +51,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
     viewModel: _viewModel,
     onAdd: () => context.go(Routes.productNew),
     onOpen: (id) => context.go(Routes.product(id.uuid)),
+    onImport: _import,
   );
+
+  Future<void> _import() async {
+    final done = await showProductImport(
+      context,
+      widget.repository,
+      picker: widget.tablePicker,
+    );
+    if (done && mounted) await _viewModel.load.execute();
+  }
 }
 
 class ProductListView extends StatelessWidget {
@@ -53,11 +70,15 @@ class ProductListView extends StatelessWidget {
     required this.viewModel,
     required this.onAdd,
     required this.onOpen,
+    this.onImport,
   });
 
   final ProductListViewModel viewModel;
   final VoidCallback onAdd;
   final ValueChanged<UuidValue> onOpen;
+
+  /// Import Excel/CSV (F1-07b); `null` menyembunyikan tombolnya.
+  final VoidCallback? onImport;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -79,8 +100,18 @@ class ProductListView extends StatelessWidget {
         }
         final narrow = constraints.maxWidth < 600;
         return narrow
-            ? _MobileList(viewModel: viewModel, onAdd: onAdd, onOpen: onOpen)
-            : _WideList(viewModel: viewModel, onAdd: onAdd, onOpen: onOpen);
+            ? _MobileList(
+                viewModel: viewModel,
+                onAdd: onAdd,
+                onOpen: onOpen,
+                onImport: onImport,
+              )
+            : _WideList(
+                viewModel: viewModel,
+                onAdd: onAdd,
+                onOpen: onOpen,
+                onImport: onImport,
+              );
       },
     ),
   );
@@ -117,9 +148,10 @@ class _Search extends StatelessWidget {
 }
 
 class _Empty extends StatelessWidget {
-  const _Empty({required this.onAdd});
+  const _Empty({required this.onAdd, this.onImport});
 
   final VoidCallback onAdd;
+  final VoidCallback? onImport;
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +190,15 @@ class _Empty extends StatelessWidget {
               onPress: onAdd,
               child: Flexible(child: Text(l10n.productsNew)),
             ),
+            if (onImport case final onImport?)
+              FButton(
+                key: const ValueKey('products-empty-import'),
+                variant: .outline,
+                mainAxisSize: .min,
+                prefix: const Icon(TablerIcons.fileImport),
+                onPress: onImport,
+                child: Flexible(child: Text(l10n.productsImport)),
+              ),
           ],
         ),
       ),
@@ -189,11 +230,13 @@ class _WideList extends StatelessWidget {
     required this.viewModel,
     required this.onAdd,
     required this.onOpen,
+    this.onImport,
   });
 
   final ProductListViewModel viewModel;
   final VoidCallback onAdd;
   final ValueChanged<UuidValue> onOpen;
+  final VoidCallback? onImport;
 
   @override
   Widget build(BuildContext context) {
@@ -219,16 +262,33 @@ class _WideList extends StatelessWidget {
                         viewModel.activeCount,
                         viewModel.lowStockCount,
                       ),
-                      action: FButton(
-                        key: const ValueKey('products-add'),
-                        mainAxisSize: .min,
-                        prefix: const Icon(TablerIcons.plus),
-                        onPress: onAdd,
-                        child: Flexible(child: Text(l10n.productsNew)),
+                      action: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (onImport case final onImport?)
+                            FButton(
+                              key: const ValueKey('products-import'),
+                              variant: .outline,
+                              mainAxisSize: .min,
+                              prefix: const Icon(TablerIcons.fileImport),
+                              onPress: onImport,
+                              child: Flexible(
+                                child: Text(l10n.productsImport),
+                              ),
+                            ),
+                          FButton(
+                            key: const ValueKey('products-add'),
+                            mainAxisSize: .min,
+                            prefix: const Icon(TablerIcons.plus),
+                            onPress: onAdd,
+                            child: Flexible(child: Text(l10n.productsNew)),
+                          ),
+                        ],
                       ),
                     ),
                     if (viewModel.isEmpty)
-                      _Empty(onAdd: onAdd)
+                      _Empty(onAdd: onAdd, onImport: onImport)
                     else
                       Row(
                         spacing: 12,
@@ -546,11 +606,13 @@ class _MobileList extends StatelessWidget {
     required this.viewModel,
     required this.onAdd,
     required this.onOpen,
+    this.onImport,
   });
 
   final ProductListViewModel viewModel;
   final VoidCallback onAdd;
   final ValueChanged<UuidValue> onOpen;
+  final VoidCallback? onImport;
 
   @override
   Widget build(BuildContext context) {
@@ -573,9 +635,19 @@ class _MobileList extends StatelessWidget {
                         viewModel.activeCount,
                         viewModel.lowStockCount,
                       ),
+                      action: switch (onImport) {
+                        final onImport? when !viewModel.isEmpty => FButton.icon(
+                          key: const ValueKey('products-import'),
+                          variant: .outline,
+                          semanticsLabel: l10n.productsImport,
+                          onPress: onImport,
+                          child: const Icon(TablerIcons.fileImport),
+                        ),
+                        _ => null,
+                      },
                     ),
                     if (viewModel.isEmpty)
-                      _Empty(onAdd: onAdd)
+                      _Empty(onAdd: onAdd, onImport: onImport)
                     else ...[
                       _Search(viewModel: viewModel),
                       _Chips(viewModel: viewModel),
