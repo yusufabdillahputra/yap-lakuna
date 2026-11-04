@@ -178,11 +178,15 @@ class LocalCashierRepository extends CashierRepository {
   @override
   Future<Result<CheckoutResult>> payBill(
     UuidValue billId,
-    List<SalePaymentRequest> payments,
-  ) => _guard((ctx, staff) {
+    List<SalePaymentRequest> payments, {
+    SaleCredit? credit,
+  }) => _guard((ctx, staff) {
     if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
         !staff.can(Permission.paymentsConfirm)) {
       throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    if (credit != null && !staff.can(Permission.debtsManage)) {
+      throw const NotPermitted(Permission.debtsManage);
     }
     return payOpenBill(
       _store,
@@ -190,6 +194,7 @@ class LocalCashierRepository extends CashierRepository {
       staffId: staff.id,
       billId: billId,
       payments: payments,
+      credit: credit,
     );
   });
 

@@ -969,9 +969,14 @@ class CashierViewModel extends ChangeNotifier {
 
   // --- Kredit (F1-13, 1.5b) --------------------------------------------------
 
-  /// Tombol *Kredit / piutang* tampil: staf `debts:manage`, bukan open bill.
-  bool get canSellOnCredit =>
-      (_data?.canSellOnCredit ?? false) && _bill == null;
+  /// Tombol *Kredit / piutang* tampil: staf `debts:manage`; untuk open bill
+  /// hanya *Tutup & bayar* utuh, bukan bagian split atau bill yang sudah
+  /// dibayar sebagian (F1-13b).
+  bool get canSellOnCredit {
+    if (!(_data?.canSellOnCredit ?? false)) return false;
+    final bill = _bill;
+    return bill == null || (_part == null && bill.payments.isEmpty);
+  }
 
   CustomersOverview? get creditCustomers => _creditCustomers;
   String get creditQuery => _creditQuery;
@@ -1355,25 +1360,29 @@ class CashierViewModel extends ChangeNotifier {
     }
   }
 
+  SaleCredit _saleCredit() => SaleCredit(
+    customerId: _creditCustomerId!,
+    downPayment: _creditDown,
+    dueOn: _creditDue!,
+  );
+
   Future<Result<CheckoutResult?>> _pay() async {
     _error = null;
     final bill = _bill;
     if (bill != null && _part != null) return _payPart(bill, _part!);
     final result = bill != null
-        ? await _repository.payBill(bill.id, _payments())
+        ? await _repository.payBill(
+            bill.id,
+            _payments(),
+            credit: _mode == PayMode.credit ? _saleCredit() : null,
+          )
         : await _repository.checkout(
             lines: _requests(),
             discount: _fittedBillDiscount,
             // Penyetuju hanya dikirim bila memang ada diskon.
             discountApproverId: hasDiscount ? _discountApprover?.id : null,
             payments: _payments(),
-            credit: _mode == PayMode.credit
-                ? SaleCredit(
-                    customerId: _creditCustomerId!,
-                    downPayment: _creditDown,
-                    dueOn: _creditDue!,
-                  )
-                : null,
+            credit: _mode == PayMode.credit ? _saleCredit() : null,
             customerId: _customer?.id,
             parkedSaleId: _parkedId,
           );
