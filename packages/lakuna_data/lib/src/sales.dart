@@ -6,6 +6,7 @@ import 'package:serverpod_database/serverpod_database.dart'
 import 'cash.dart';
 import 'customers.dart';
 import 'history.dart' show requireApprover, soldStatuses;
+import 'parked_sales.dart' show removeParkedSale;
 import 'sale_core.dart';
 import 'staff_access.dart' show findStaffById;
 import 'stock.dart';
@@ -236,6 +237,58 @@ class CheckoutResult {
       modifiers[item.id] ?? const [];
 }
 
+/// Harga, diskon manual, dan total nota dari [lines] (dihitung dari
+/// database). Dipakai checkout dan nota tersimpan (F1-04d).
+typedef PricedSale = ({
+  List<PricedRequest> priced,
+  SaleTotals totals,
+  List<Money> lineCuts,
+  Money lineDiscount,
+  Money billCut,
+  Money net,
+  Money total,
+});
+
+Future<PricedSale> priceSaleLines(
+  SyncTx w,
+  CatalogScope scope,
+  List<SaleLineRequest> lines,
+  ManualDiscount? discount,
+  SalesRules rules,
+) async {
+  final priced = await priceRequests(w.session, w.transaction, scope, lines);
+  final totals = SaleTotals.of(priced.map((p) => p.line));
+  // Diskon manual baris lalu nota (F1-04b), sebelum pembulatan.
+  final lineCuts = [
+    for (var i = 0; i < priced.length; i++)
+      switch (lines[i].discount) {
+        final d? => _discountCut(d, priced[i].line.lineTotal),
+        null => Money.zero,
+      },
+  ];
+  final lineDiscount = Money.sum(lineCuts);
+  final linesNet = totals.total - lineDiscount;
+  final billCut = discount == null
+      ? Money.zero
+      : _discountCut(discount, linesNet);
+  final net = linesNet - billCut;
+  final total = roundTotal(net, rules.rounding);
+  final discounted = discount != null || lines.any((l) => l.discount != null);
+  // Nota berdiskon harus tetap bernilai, juga setelah pembulatan.
+  if (discounted && (net <= Money.zero || total <= Money.zero)) {
+    throw const DiscountTooLarge();
+  }
+  return (
+    priced: priced,
+    totals: totals,
+    lineCuts: lineCuts,
+    lineDiscount: lineDiscount,
+    billCut: billCut,
+    net: net,
+    total: total,
+  );
+}
+
 /// Menyimpan penjualan [lines] dengan [payments] (satu atau lebih, split)
 /// dalam satu transaksi: nota, item, pembayaran, pergerakan stok, dan
 /// outbox. Butuh sesi kasir terbuka di perangkat ini
@@ -255,6 +308,8 @@ Future<CheckoutResult> checkoutSale(
   SaleCredit? credit,
   ManualDiscount? discount,
   UuidValue? discountApproverId,
+  UuidValue? customerId,
+  UuidValue? parkedSaleId,
 }) async {
   if (lines.isEmpty) throw SaleEmpty();
   for (var i = 0; i < lines.length; i++) {
@@ -282,34 +337,24 @@ Future<CheckoutResult> checkoutSale(
       : null;
   return store.write(actor: staffId, (w) async {
     final session = await requireOpenCashSession(store, w, scope);
-    final priced = await priceRequests(w.session, w.transaction, scope, lines);
-    final totals = SaleTotals.of(priced.map((p) => p.line));
     final rules = await loadSalesRules(
       w.session,
       scope,
       transaction: w.transaction,
     );
-    // Diskon manual baris lalu nota (F1-04b), sebelum pembulatan.
-    final lineCuts = [
-      for (var i = 0; i < priced.length; i++)
-        switch (lines[i].discount) {
-          final d? => _discountCut(d, priced[i].line.lineTotal),
-          null => Money.zero,
-        },
-    ];
-    final lineDiscount = Money.sum(lineCuts);
-    final linesNet = totals.total - lineDiscount;
-    final billCut = discount == null
-        ? Money.zero
-        : _discountCut(discount, linesNet);
-    final net = linesNet - billCut;
-    final total = roundTotal(net, rules.rounding);
-    // Nota berdiskon harus tetap bernilai, juga setelah pembulatan.
-    if (discounted && (net <= Money.zero || total <= Money.zero)) {
-      throw const DiscountTooLarge();
-    }
+    final pricing = await priceSaleLines(w, scope, lines, discount, rules);
+    final priced = pricing.priced;
+    final totals = pricing.totals;
+    final lineCuts = pricing.lineCuts;
+    final lineDiscount = pricing.lineDiscount;
+    final billCut = pricing.billCut;
+    final net = pricing.net;
+    final total = pricing.total;
 
     final s = await w.stamp();
+    if (parkedSaleId != null) {
+      await removeParkedSale(w, scope, parkedSaleId, staffId, s);
+    }
     Customer? customer;
     late final List<Money> amounts;
     late final Money change;
@@ -318,6 +363,9 @@ Future<CheckoutResult> checkoutSale(
       amounts = [for (final p in payments) p.amount!];
       change = Money.zero;
     } else {
+      if (customerId != null) {
+        customer = await saleCustomer(w, scope, customerId);
+      }
       (amounts, change) = await settlePayments(w, scope, total, payments);
     }
 

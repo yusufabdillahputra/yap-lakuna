@@ -140,6 +140,9 @@ enum DiscountAccess {
 /// Penyetuju diskon manual yang PIN-nya sudah diperiksa.
 typedef DiscountApprover = ({UuidValue id, String name});
 
+/// Pelanggan nota di kepala Pesanan (1.4b, F1-04d).
+typedef SaleCustomer = ({UuidValue id, String name});
+
 /// Diskon rupiah yang melebihi dasar dipangkas ke dasarnya (mis. jumlah
 /// baris berkurang setelah diskon diberikan).
 ManualDiscount _fit(ManualDiscount d, Money base) =>
@@ -213,6 +216,11 @@ class CashierViewModel extends ChangeNotifier {
     loadCredit = Command0(_loadCredit)..addListener(notifyListeners);
     printReceipt = Command1(_printReceipt)..addListener(notifyListeners);
     shareReceipt = Command1(_shareReceipt)..addListener(notifyListeners);
+    customers = Command0(_loadCustomers)..addListener(notifyListeners);
+    park = Command1(_park)..addListener(notifyListeners);
+    parked = Command0(_loadParked)..addListener(notifyListeners);
+    resumeParked = Command1(_resumeParked)..addListener(notifyListeners);
+    deleteParked = Command1(_deleteParked)..addListener(notifyListeners);
   }
 
   /// Tombol hapus satu digit di keypad.
@@ -246,6 +254,21 @@ class CashierViewModel extends ChangeNotifier {
   /// PDF struk: hasil = lokasi berkas di desktop, `null` di share sheet.
   late final Command1<String?, List<ReceiptLine>> shareReceipt;
 
+  /// Pelanggan untuk pemilih di kepala Pesanan (F1-04d).
+  late final Command0<void> customers;
+
+  /// *Simpan nota* dengan catatan opsional (F1-04d).
+  late final Command1<void, String?> park;
+
+  /// Daftar *Nota tersimpan*.
+  late final Command0<void> parked;
+
+  /// *Lanjutkan* nota tersimpan ke keranjang.
+  late final Command1<void, UuidValue> resumeParked;
+
+  /// *Hapus* nota tersimpan.
+  late final Command1<void, UuidValue> deleteParked;
+
   CashierData? _data;
   OpenBill? _bill;
   BillPart? _part;
@@ -276,6 +299,14 @@ class CashierViewModel extends ChangeNotifier {
   var _creditQuery = '';
   ManualDiscount? _billDiscount;
   DiscountApprover? _discountApprover;
+  SaleCustomer? _customer;
+  UuidValue? _parkedId;
+  String? _parkedNote;
+  CustomersOverview? _customerList;
+  var _customerQuery = '';
+  List<ParkedSaleRow> _parkedRows = const [];
+  var _resumeDropped = 0;
+  var _resumeDiscountDropped = false;
 
   var _disposed = false;
 
@@ -327,6 +358,7 @@ class CashierViewModel extends ChangeNotifier {
         _categoryId = null;
       }
       _restoreDraft(value);
+      if (!billMode) await _loadParked();
     }
     return result;
   }
@@ -353,6 +385,8 @@ class CashierViewModel extends ChangeNotifier {
     if (_items.isEmpty) return;
     _billDiscount = content.billDiscount;
     _discountApprover = content.approver;
+    _customer = content.customer;
+    _parkedId = content.parkedId;
   }
 
   static (CatalogProduct, CatalogVariant, CatalogUnit?)? _findOption(
@@ -392,6 +426,8 @@ class CashierViewModel extends ChangeNotifier {
       ],
       billDiscount: _billDiscount,
       approver: _discountApprover,
+      customer: _customer,
+      parkedId: _parkedId,
     );
   }
 
@@ -605,7 +641,7 @@ class CashierViewModel extends ChangeNotifier {
       item.quantity = next;
     } else {
       _items.removeAt(index);
-      if (_items.isEmpty) _resetDiscounts();
+      if (_items.isEmpty) _cartEmptied();
     }
     notifyListeners();
   }
@@ -616,21 +652,221 @@ class CashierViewModel extends ChangeNotifier {
       _items[index].quantity = quantity;
     } else {
       _items.removeAt(index);
-      if (_items.isEmpty) _resetDiscounts();
+      if (_items.isEmpty) _cartEmptied();
     }
     notifyListeners();
   }
 
   void remove(int index) {
     _items.removeAt(index);
-    if (_items.isEmpty) _resetDiscounts();
+    if (_items.isEmpty) _cartEmptied();
     notifyListeners();
+  }
+
+  /// Baris terakhir dihapus satu per satu: diskon, nota tersimpan asal, dan
+  /// pelanggannya ikut lepas agar tidak menempel ke penjualan berikutnya.
+  void _cartEmptied() {
+    _resetDiscounts();
+    if (_parkedId != null) _customer = null;
+    _parkedId = null;
+    _parkedNote = null;
+    _resumeDropped = 0;
+    _resumeDiscountDropped = false;
   }
 
   void clearCart() {
     _items.clear();
     _resetDiscounts();
+    _customer = null;
+    _parkedId = null;
+    _parkedNote = null;
+    _resumeDropped = 0;
+    _resumeDiscountDropped = false;
     notifyListeners();
+  }
+
+  // --- Pelanggan & nota tersimpan (F1-04d, 1.4b) ----------------------------
+
+  /// Pelanggan nota; `null` = pelanggan umum.
+  SaleCustomer? get customer => _customer;
+
+  /// Nota tersimpan asal keranjang ini; dihapus saat nota dibayar.
+  UuidValue? get parkedId => _parkedId;
+
+  /// Catatan nota tersimpan yang sedang dilanjutkan (isian awal *Simpan*).
+  String? get parkedNote => _parkedNote;
+
+  CustomersOverview? get customerList => _customerList;
+  String get customerQuery => _customerQuery;
+
+  /// Pelanggan yang cocok dengan pencarian nama atau HP, urut nama.
+  List<CustomerRow> get customerCandidates {
+    final q = _customerQuery.trim().toLowerCase();
+    final digits = q.replaceAll(RegExp(r'\D'), '');
+    return [
+      for (final r in _customerList?.rows ?? const <CustomerRow>[])
+        if (q.isEmpty ||
+            r.customer.name.toLowerCase().contains(q) ||
+            (digits.isNotEmpty && (r.customer.phone ?? '').contains(digits)))
+          r,
+    ]..sort(
+      (a, b) => a.customer.name.toLowerCase().compareTo(
+        b.customer.name.toLowerCase(),
+      ),
+    );
+  }
+
+  Future<Result<void>> _loadCustomers() async {
+    final result = await _repository.customers();
+    if (result case Ok(:final value)) _customerList = value;
+    return result;
+  }
+
+  void setCustomerQuery(String q) {
+    _customerQuery = q;
+    notifyListeners();
+  }
+
+  void selectCustomer(CustomerRow row) {
+    _customer = (id: row.customer.id, name: row.customer.name);
+    _customerQuery = '';
+    notifyListeners();
+  }
+
+  void clearCustomer() {
+    _customer = null;
+    notifyListeners();
+  }
+
+  List<ParkedSaleRow> get parkedRows => _parkedRows;
+
+  /// Baris yang dibuang saat nota terakhir dilanjutkan (produk dihapus).
+  int get resumeDropped => _resumeDropped;
+
+  /// Diskon nota tersimpan dibuang saat dilanjutkan karena staf ini tidak
+  /// boleh memberi diskon (tanpa izin dan tanpa PIN manajer).
+  bool get resumeDiscountDropped => _resumeDiscountDropped;
+
+  /// Keranjang berdiskon tanpa penyetuju (mis. nota tersimpan dilanjutkan
+  /// kasir tanpa izin): PIN manajer diminta saat *Bayar*.
+  bool get discountAwaitsApproval =>
+      hasDiscount &&
+      discountAccess == DiscountAccess.approval &&
+      _discountApprover == null;
+
+  /// *Simpan* tersedia: keranjang berisi, bukan mode bill, tidak sedang
+  /// membayar atau menyimpan.
+  bool get canPark =>
+      !billMode && _items.isNotEmpty && !park.running && !pay.running;
+
+  /// *Lanjutkan* hanya saat keranjang kosong.
+  bool get canResume =>
+      !billMode && _items.isEmpty && !resumeParked.running && !pay.running;
+
+  List<SaleLineRequest> _requests() => [
+    for (final l in lines)
+      SaleLineRequest(
+        variantId: l.variant.id,
+        productUnitId: l.unit?.id,
+        quantity: l.quantity,
+        discount: switch (l.discount) {
+          final d? => _fit(d, l.priced.lineTotal),
+          null => null,
+        },
+      ),
+  ];
+
+  ManualDiscount? get _fittedBillDiscount => switch (_billDiscount) {
+    final d? => _fit(d, linesNet),
+    null => null,
+  };
+
+  Future<Result<void>> _park(String? note) async {
+    if (billMode || _items.isEmpty) return const Result.ok(null);
+    final result = await _repository.park(
+      lines: _requests(),
+      discount: _fittedBillDiscount,
+      customerId: _customer?.id,
+      note: note,
+      replaceId: _parkedId,
+    );
+    if (result case Error(:final error)) return Result.error(error);
+    _items.clear();
+    _resetDiscounts();
+    _customer = null;
+    _parkedId = null;
+    _parkedNote = null;
+    _resumeDropped = 0;
+    _resumeDiscountDropped = false;
+    _query = '';
+    await _loadParked();
+    return const Result.ok(null);
+  }
+
+  Future<Result<void>> _loadParked() async {
+    final result = await _repository.parkedSales();
+    if (result case Ok(:final value)) _parkedRows = value;
+    return result;
+  }
+
+  Future<Result<void>> _resumeParked(UuidValue id) async {
+    final data = _data;
+    if (billMode || _items.isNotEmpty || data == null) {
+      return const Result.ok(null);
+    }
+    final result = await _repository.loadParked(id);
+    switch (result) {
+      case Error(:final error):
+        // Sudah dibayar/dihapus di tempat lain: segarkan daftar.
+        await _loadParked();
+        return Result.error(error);
+      case Ok(:final value):
+        var dropped = 0;
+        for (final line in value.lines) {
+          final match = _findOption(data, line.variantId, line.productUnitId);
+          if (match == null) {
+            dropped++;
+            continue;
+          }
+          final (product, variant, unit) = match;
+          _items.add(
+            _Item(_nextKey++, product, variant, unit, line.quantity)
+              ..discount = line.discount,
+          );
+        }
+        _resumeDropped = dropped;
+        _billDiscount = _items.isEmpty ? null : value.discount;
+        _discountApprover = null;
+        // Persetujuan diskon tidak ikut disimpan. Staf tanpa izin dan tanpa
+        // jalur PIN tidak bisa memakai/menghapus diskon: buang dan beri tahu.
+        _resumeDiscountDropped = false;
+        if (hasDiscount && discountAccess == DiscountAccess.none) {
+          _resetDiscounts();
+          for (final i in _items) {
+            i.discount = null;
+          }
+          _resumeDiscountDropped = true;
+        }
+        _customer = switch ((value.customerId, value.customerName)) {
+          (final id?, final name?) => (id: id, name: name),
+          _ => null,
+        };
+        _parkedId = value.id;
+        _parkedNote = value.note;
+        _stage = CashierStage.browse;
+        _error = null;
+        return const Result.ok(null);
+    }
+  }
+
+  Future<Result<void>> _deleteParked(UuidValue id) async {
+    final result = await _repository.deleteParked(id);
+    if (_parkedId == id) {
+      _parkedId = null;
+      _parkedNote = null;
+    }
+    await _loadParked();
+    return result;
   }
 
   // --- Mode bill (F1-10) --------------------------------------------------
@@ -804,7 +1040,12 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<void>> _loadCredit() async {
     final result = await _repository.creditCustomers();
-    if (result case Ok(:final value)) _creditCustomers = value;
+    if (result case Ok(:final value)) {
+      _creditCustomers = value;
+      // Pelanggan kepala Pesanan menjadi pilihan awal kredit (F1-04d).
+      final header = _customer;
+      if (_creditCustomerId == null && header != null) _selectCredit(header.id);
+    }
     return result;
   }
 
@@ -815,14 +1056,19 @@ class CashierViewModel extends ChangeNotifier {
 
   /// Memilih pelanggan; jatuh tempo = hari ini + tempo standar.
   void selectCreditCustomer(UuidValue id) {
+    if (_selectCredit(id)) notifyListeners();
+  }
+
+  bool _selectCredit(UuidValue id) {
     final row = _creditCustomers?.rows
         .where((r) => r.customer.id == id)
         .firstOrNull;
-    if (row == null) return;
+    if (row == null) return false;
     _creditCustomerId = id;
     _creditDue = creditToday.add(Duration(days: row.termDays));
+    _customer = (id: row.customer.id, name: row.customer.name);
     _error = null;
-    notifyListeners();
+    return true;
   }
 
   void clearCreditCustomer() {
@@ -1116,22 +1362,8 @@ class CashierViewModel extends ChangeNotifier {
     final result = bill != null
         ? await _repository.payBill(bill.id, _payments())
         : await _repository.checkout(
-            lines: [
-              for (final l in lines)
-                SaleLineRequest(
-                  variantId: l.variant.id,
-                  productUnitId: l.unit?.id,
-                  quantity: l.quantity,
-                  discount: switch (l.discount) {
-                    final d? => _fit(d, l.priced.lineTotal),
-                    null => null,
-                  },
-                ),
-            ],
-            discount: switch (_billDiscount) {
-              final d? => _fit(d, linesNet),
-              null => null,
-            },
+            lines: _requests(),
+            discount: _fittedBillDiscount,
             // Penyetuju hanya dikirim bila memang ada diskon.
             discountApproverId: hasDiscount ? _discountApprover?.id : null,
             payments: _payments(),
@@ -1142,12 +1374,25 @@ class CashierViewModel extends ChangeNotifier {
                     dueOn: _creditDue!,
                   )
                 : null,
+            customerId: _customer?.id,
+            parkedSaleId: _parkedId,
           );
     switch (result) {
       case Ok(:final value):
         _result = value;
         _items.clear();
         _resetDiscounts();
+        _customer = null;
+        if (_parkedId case final id?) {
+          _parkedRows = [
+            for (final r in _parkedRows)
+              if (r.id != id) r,
+          ];
+          _parkedId = null;
+        }
+        _parkedNote = null;
+        _resumeDropped = 0;
+        _resumeDiscountDropped = false;
         // Piutang pelanggan berubah: muat ulang saat kredit dipakai lagi.
         if (_mode == PayMode.credit) _creditCustomers = null;
         _stage = CashierStage.done;
@@ -1161,6 +1406,12 @@ class CashierViewModel extends ChangeNotifier {
                   permission: Permission.salesDiscount,
                 )) {
           _discountApprover = null;
+        }
+        // Nota tersimpan asal sudah dibayar/dihapus di tempat lain: bayar
+        // berikutnya menjadi penjualan biasa.
+        if (error is ParkedSaleNotFound) {
+          _parkedId = null;
+          _parkedNote = null;
         }
         // Layar sudah ditutup saat menyimpan dan gagal: keranjang tetap
         // dibawa ke draf (F1-04c).

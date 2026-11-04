@@ -121,18 +121,47 @@ abstract class CashierRepository {
   /// `SaleCreditInvalid`. [discount] = diskon nota; diskon baris ada di
   /// [lines]. [discountApproverId] = penyetuju PIN (F1-04b) yang baru
   /// diverifikasi di sesi ini; gagal dengan `NotPermitted`,
-  /// `DiscountNotPermitted`, `DiscountTooLarge`.
+  /// `DiscountNotPermitted`, `DiscountTooLarge`. [customerId] = pelanggan
+  /// nota non-kredit (F1-04d, `CustomerNotFound`). [parkedSaleId] = nota
+  /// tersimpan asal keranjang, dihapus saat lunas (`ParkedSaleNotFound`).
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
     required List<SalePaymentRequest> payments,
     SaleCredit? credit,
     ManualDiscount? discount,
     UuidValue? discountApproverId,
+    UuidValue? customerId,
+    UuidValue? parkedSaleId,
   });
 
   /// Pelanggan untuk pemilih kredit (1.5b), dengan limit dan piutangnya.
   /// Butuh `debts:manage`.
   Future<Result<CustomersOverview>> creditCustomers();
+
+  /// Pelanggan untuk pemilih di kepala Pesanan (1.4b, F1-04d); cukup
+  /// `sales:create`.
+  Future<Result<CustomersOverview>> customers();
+
+  /// *Simpan nota* (F1-04d). [replaceId] = nota tersimpan asal keranjang.
+  /// Gagal dengan `SaleEmpty`, `SaleItemUnavailable`, `CustomerNotFound`,
+  /// `ParkedNoteTooLong`.
+  Future<Result<Sale>> park({
+    required List<SaleLineRequest> lines,
+    ManualDiscount? discount,
+    UuidValue? customerId,
+    String? note,
+    UuidValue? replaceId,
+  });
+
+  /// Nota tersimpan cabang ini, terbaru dulu.
+  Future<Result<List<ParkedSaleRow>>> parkedSales();
+
+  /// Isi nota tersimpan untuk dilanjutkan; `ParkedSaleNotFound` bila sudah
+  /// dibayar atau dihapus.
+  Future<Result<ParkedSale>> loadParked(UuidValue id);
+
+  /// Menghapus nota tersimpan.
+  Future<Result<void>> deleteParked(UuidValue id);
 
   /// Open bill F1-10 yang akan dibayar. Gagal dengan `NotPermitted` atau
   /// `BillNotFound`.

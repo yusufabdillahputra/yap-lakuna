@@ -6890,4 +6890,131 @@ class AppLocalizationsId extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get cashierCustomerWalkIn => 'Pelanggan umum';
+
+  @override
+  String get cashierCustomerPick => 'Pilih pelanggan';
+
+  @override
+  String get cashierCustomerClear => 'Hapus pelanggan dari nota';
+
+  @override
+  String get cashierCustomerSearch => 'Cari nama atau HP';
+
+  @override
+  String get cashierCustomerNone =>
+      'Belum ada pelanggan. Tambah lewat menu Pelanggan.';
+
+  @override
+  String get cashierCustomerNoMatch => 'Tidak ada pelanggan yang cocok.';
+
+  @override
+  String get cashierCustomerLoadFailed => 'Daftar pelanggan gagal dimuat.';
+
+  @override
+  String cashierCustomerRemaining(String amount) {
+    return 'Sisa limit $amount';
+  }
+
+  @override
+  String get cashierCustomerOverdue => 'Lewat tempo';
+
+  @override
+  String get cashierPark => 'Simpan';
+
+  @override
+  String get cashierParkTitle => 'Simpan nota';
+
+  @override
+  String get cashierParkBody =>
+      'Nota disimpan tanpa pembayaran dan bisa dilanjutkan nanti dari Nota tersimpan. Stok baru berkurang saat dibayar.';
+
+  @override
+  String cashierParkFor(String name) {
+    return 'Atas nama $name';
+  }
+
+  @override
+  String get cashierParkNote => 'Catatan (opsional)';
+
+  @override
+  String get cashierParkNoteHint => 'mis. Meja depan';
+
+  @override
+  String cashierParkNoteTooLong(int max) {
+    return 'Catatan maksimal $max karakter.';
+  }
+
+  @override
+  String get cashierParkFailed => 'Nota gagal disimpan. Coba lagi.';
+
+  @override
+  String cashierParkedButton(int count) {
+    return 'Nota tersimpan ($count)';
+  }
+
+  @override
+  String get cashierParkedTitle => 'Nota tersimpan';
+
+  @override
+  String get cashierParkedEmpty => 'Belum ada nota tersimpan.';
+
+  @override
+  String get cashierParkedNoName => 'Tanpa nama';
+
+  @override
+  String cashierParkedMeta(int count, String time, String staff) {
+    return '$count item · disimpan $time oleh $staff';
+  }
+
+  @override
+  String get cashierParkedResume => 'Lanjutkan';
+
+  @override
+  String get cashierParkedDelete => 'Hapus';
+
+  @override
+  String get cashierParkedCartBusy => 'Simpan atau kosongkan keranjang dulu.';
+
+  @override
+  String get cashierParkedLoadFailed => 'Nota tersimpan gagal dimuat.';
+
+  @override
+  String get cashierParkedResumeFailed =>
+      'Nota tidak bisa dilanjutkan (mungkin sudah dibayar atau dihapus).';
+
+  @override
+  String get cashierParkedDeleteTitle => 'Hapus nota tersimpan?';
+
+  @override
+  String cashierParkedDeleteBody(String name) {
+    return '$name akan dihapus. Stok tidak berubah karena nota belum dibayar.';
+  }
+
+  @override
+  String get cashierParkedDeleteFailed => 'Nota tersimpan gagal dihapus.';
+
+  @override
+  String get cashierParkedClose => 'Tutup';
+
+  @override
+  String cashierResumeDropped(int count) {
+    return '$count barang dibuang karena produknya sudah dihapus.';
+  }
+
+  @override
+  String get cashierResumedFrom => 'Dari nota tersimpan';
+
+  @override
+  String get paymentErrorParked =>
+      'Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.';
+
+  @override
+  String get cashierResumeDiscountDropped =>
+      'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.';
+
+  @override
+  String get approvalDiscountResumed => 'Diskon dari nota tersimpan';
 }

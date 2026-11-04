@@ -2,7 +2,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/session_repository.dart';
-import 'cashier_view_model.dart' show DiscountApprover;
+import 'cashier_view_model.dart' show DiscountApprover, SaleCustomer;
 
 /// Satu baris keranjang yang disimpan: varian, satuan konversi, jumlah, dan
 /// diskon baris. Harga dan nama diambil ulang dari katalog saat dipulihkan.
@@ -18,6 +18,8 @@ typedef CartDraftContent = ({
   List<CartDraftLine> lines,
   ManualDiscount? billDiscount,
   DiscountApprover? approver,
+  SaleCustomer? customer,
+  UuidValue? parkedId,
 });
 
 /// Keranjang kasir retail yang bertahan saat layar Kasir ditutup (F1-04c).
@@ -35,6 +37,8 @@ class CartDraft {
   List<CartDraftLine> _lines = const [];
   ManualDiscount? _billDiscount;
   DiscountApprover? _approver;
+  SaleCustomer? _customer;
+  UuidValue? _parkedId;
 
   List<CartDraftLine> get lines => _lines;
   bool get isEmpty => _lines.isEmpty;
@@ -51,6 +55,8 @@ class CartDraft {
     required List<CartDraftLine> lines,
     ManualDiscount? billDiscount,
     DiscountApprover? approver,
+    SaleCustomer? customer,
+    UuidValue? parkedId,
   }) {
     // Layar kasir staf lama ditutup setelah logout: jangan simpan.
     if (lines.isEmpty || _staffId == null || _session.current?.id != _staffId) {
@@ -59,6 +65,8 @@ class CartDraft {
     _lines = List.unmodifiable(lines);
     _billDiscount = billDiscount;
     _approver = approver;
+    _customer = customer;
+    _parkedId = parkedId;
   }
 
   /// Mengambil isi draf lalu mengosongkannya.
@@ -67,6 +75,8 @@ class CartDraft {
       lines: _lines,
       billDiscount: _billDiscount,
       approver: _approver,
+      customer: _customer,
+      parkedId: _parkedId,
     );
     clear();
     return content;
@@ -76,6 +86,8 @@ class CartDraft {
     _lines = const [];
     _billDiscount = null;
     _approver = null;
+    _customer = null;
+    _parkedId = null;
   }
 
   void dispose() => _session.removeListener(_onSession);

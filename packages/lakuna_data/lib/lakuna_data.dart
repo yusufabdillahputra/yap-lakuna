@@ -16,6 +16,7 @@ export 'src/dining_admin.dart';
 export 'src/floor_plan.dart';
 export 'src/history.dart';
 export 'src/open_bill.dart';
+export 'src/parked_sales.dart';
 export 'src/preferences.dart';
 export 'src/receipt_settings.dart';
 export 'src/reports.dart';

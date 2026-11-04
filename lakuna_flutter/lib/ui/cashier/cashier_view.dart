@@ -20,7 +20,9 @@ import '../products/product_widgets.dart';
 import '../receipt/receipt_content.dart' show percentLabel;
 import 'cart_draft.dart';
 import 'cashier_view_model.dart';
+import 'customer_picker.dart';
 import 'discount_dialog.dart';
+import 'parked_sales_sheet.dart';
 import 'payment_view.dart';
 
 /// Layar kasir retail (1.4 / 1.11 / 1.11b, F1-04) beserta tahap bayar
@@ -316,9 +318,12 @@ class _NoSession extends StatelessWidget {
 
 /// Baris konteks: "Warung Contoh · Cabang Pusat" dan kasir + jam buka sesi.
 class _ContextLine extends StatelessWidget {
-  const _ContextLine({required this.viewModel});
+  const _ContextLine({required this.viewModel, this.compact = false});
 
   final CashierViewModel viewModel;
+
+  /// Ponsel: tombol *Nota tersimpan* hanya ikon + jumlah.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +331,8 @@ class _ContextLine extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final data = viewModel.data!;
     final session = data.session!;
-    return Column(
+    final count = viewModel.parkedRows.length;
+    final info = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -345,6 +351,27 @@ class _ContextLine extends StatelessWidget {
           style: theme.typography.body.xs.copyWith(
             color: theme.colors.mutedForeground,
           ),
+        ),
+      ],
+    );
+    if (viewModel.billMode) return info;
+    return Row(
+      spacing: 8,
+      children: [
+        Expanded(child: info),
+        FButton(
+          key: const ValueKey('cashier-parked'),
+          variant: .outline,
+          mainAxisSize: .min,
+          prefix: const Icon(TablerIcons.clipboardList),
+          onPress: () => showParkedSales(context, viewModel),
+          child: compact
+              ? Semantics(
+                  label: l10n.cashierParkedButton(count),
+                  excludeSemantics: true,
+                  child: Text('$count'),
+                )
+              : Text(l10n.cashierParkedButton(count)),
         ),
       ],
     );
@@ -1104,12 +1131,32 @@ class _OrderPanel extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              Text(
-                l10n.cashierWalkIn,
-                style: theme.typography.body.xs.copyWith(
-                  color: theme.colors.mutedForeground,
+              if (vm.billMode)
+                Text(
+                  l10n.cashierWalkIn,
+                  style: theme.typography.body.xs.copyWith(
+                    color: theme.colors.mutedForeground,
+                  ),
+                )
+              else ...[
+                const SizedBox(height: 8),
+                _CustomerField(viewModel: vm),
+              ],
+              if (vm.resumeDiscountDropped) ...[
+                const SizedBox(height: 8),
+                FAlert(
+                  key: const ValueKey('cashier-resume-discount-dropped'),
+                  title: Text(l10n.cashierResumeDiscountDropped),
                 ),
-              ),
+              ],
+              if (vm.resumeDropped > 0) ...[
+                const SizedBox(height: 8),
+                FAlert(
+                  key: const ValueKey('cashier-resume-dropped'),
+                  variant: .destructive,
+                  title: Text(l10n.cashierResumeDropped(vm.resumeDropped)),
+                ),
+              ],
             ],
           ),
         ),
@@ -1156,16 +1203,13 @@ class _OrderPanel extends StatelessWidget {
                 Row(
                   spacing: 8,
                   children: [
-                    FButton(
+                    FButton.icon(
                       key: const ValueKey('cashier-clear'),
                       variant: .outline,
-                      mainAxisSize: .min,
                       onPress: lines.isEmpty ? null : vm.clearCart,
-                      child: Flexible(
-                        child: Text(
-                          l10n.cashierClear,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      child: Semantics(
+                        label: l10n.cashierClear,
+                        child: const Icon(TablerIcons.trash),
                       ),
                     ),
                     if (vm.canOfferDiscount)
@@ -1180,18 +1224,32 @@ class _OrderPanel extends StatelessWidget {
                           child: const Icon(TablerIcons.discount),
                         ),
                       ),
+                    if (!vm.billMode)
+                      FButton(
+                        key: const ValueKey('cashier-park'),
+                        variant: .outline,
+                        mainAxisSize: .min,
+                        onPress: vm.canPark
+                            ? () => parkCashierSale(context, vm)
+                            : null,
+                        child: Text(l10n.cashierPark),
+                      ),
                     Expanded(
                       child: FButton(
                         key: const ValueKey('cashier-pay'),
                         onPress: lines.isEmpty || vm.discountBlocksPay
                             ? null
-                            : (onPay ?? vm.startPayment),
+                            : (onPay ?? () => _payWithApproval(context, vm)),
+                        // Nominal mengecil di panel sempit, tidak terpotong.
                         child: Flexible(
-                          child: Text(
-                            l10n.cashierPayAmount(
-                              formatMoney(context, vm.grandTotal),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              l10n.cashierPayAmount(
+                                formatMoney(context, vm.grandTotal),
+                              ),
+                              maxLines: 1,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -1205,6 +1263,95 @@ class _OrderPanel extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Kolom pelanggan di kepala Pesanan (1.4b): *Pelanggan umum* atau nama
+/// pelanggan, ketuk untuk memilih/mengganti, × untuk kembali ke umum.
+class _CustomerField extends StatelessWidget {
+  const _CustomerField({required this.viewModel});
+
+  final CashierViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final l10n = AppLocalizations.of(context);
+    final customer = viewModel.customer;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colors.background,
+        border: Border.all(color: theme.colors.border),
+        borderRadius: theme.style.borderRadius.md,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: FTappable(
+              key: const ValueKey('cashier-customer'),
+              semanticsLabel: l10n.cashierCustomerPick,
+              onPress: () => pickCashierCustomer(context, viewModel),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    if (customer != null)
+                      CustomerAvatar(name: customer.name, size: 24)
+                    else
+                      Icon(
+                        TablerIcons.user,
+                        size: 18,
+                        color: theme.colors.mutedForeground,
+                      ),
+                    Expanded(
+                      child: Text(
+                        customer?.name ?? l10n.cashierCustomerWalkIn,
+                        key: const ValueKey('cashier-customer-name'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.typography.body.sm.copyWith(
+                          fontWeight: customer == null
+                              ? FontWeight.w400
+                              : FontWeight.w600,
+                          color: customer == null
+                              ? theme.colors.mutedForeground
+                              : theme.colors.foreground,
+                        ),
+                      ),
+                    ),
+                    if (customer == null)
+                      Icon(
+                        TablerIcons.selector,
+                        size: 16,
+                        color: theme.colors.mutedForeground,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (customer != null)
+            FButton.icon(
+              key: const ValueKey('cashier-customer-clear'),
+              variant: .ghost,
+              onPress: viewModel.clearCustomer,
+              child: Semantics(
+                label: l10n.cashierCustomerClear,
+                child: const Icon(TablerIcons.x, size: 16),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// *Bayar*: minta PIN manajer dulu bila diskon keranjang belum disetujui.
+Future<void> _payWithApproval(BuildContext context, CashierViewModel vm) async {
+  if (await approveCartDiscounts(context, vm)) vm.startPayment();
 }
 
 // --- Tata letak ---------------------------------------------------------------
@@ -1350,7 +1497,9 @@ class _MobileCashier extends StatelessWidget {
         ),
       ),
     );
-    if (pay ?? false) viewModel.startPayment();
+    if ((pay ?? false) && context.mounted) {
+      await _payWithApproval(context, viewModel);
+    }
   }
 
   @override
@@ -1368,7 +1517,7 @@ class _MobileCashier extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 10,
             children: [
-              _ContextLine(viewModel: vm),
+              _ContextLine(viewModel: vm, compact: true),
               _SearchField(viewModel: vm, compact: true),
               _Categories(viewModel: vm),
             ],
@@ -1444,7 +1593,9 @@ class _MobileCashier extends StatelessWidget {
                   FButton(
                     key: const ValueKey('cashier-pay'),
                     mainAxisSize: .min,
-                    onPress: vm.discountBlocksPay ? null : vm.startPayment,
+                    onPress: vm.discountBlocksPay
+                        ? null
+                        : () => _payWithApproval(context, vm),
                     child: Flexible(
                       child: Text(
                         l10n.cashierPay,

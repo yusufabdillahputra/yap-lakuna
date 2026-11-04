@@ -213,7 +213,8 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Tab *Grup pelanggan* di Master data | 1.17 | Rilis v0.17.0 | Tampil bila staf punya `customers:manage` (Master data sendiri butuh `products:manage`); grup juga bisa dibuat dari form pelanggan. |
 | Kuitansi A5 & thermal | 1.20b | Rilis v0.17.0 | Terbilang selalu Bahasa Indonesia (dokumen hukum); kota bawaan = bagian terakhir alamat cabang. |
 | Kredit open bill / split bill F&B | 1.5b | Belum | Saat F1-10 disentuh lagi. |
-| Pilih pelanggan di kepala pesanan, harga grosir per grup | 1.4b | Belum | Bersama nota tersimpan dan diskon manual. |
+| Pilih pelanggan di kepala pesanan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
+| Harga grosir per grup pelanggan | 1.4b | Belum | Grup belum punya harga (butuh model harga per grup). |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |
 | Batal pembayaran piutang | — | Belum | Void pembayaran + jurnal balik kas. |
 | Nomor baris import saat berkas punya baris kosong | — | Bergeser | Bawa nomor baris asli dari CSV/XLSX (`row@r`). |

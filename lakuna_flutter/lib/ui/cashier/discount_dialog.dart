@@ -68,6 +68,27 @@ Future<void> editCashierDiscount(
   }
 }
 
+/// *Bayar* dari Kasir: keranjang berdiskon tanpa penyetuju (nota tersimpan
+/// yang dilanjutkan staf tanpa izin) meminta PIN manajer dulu. `true` =
+/// boleh lanjut ke pembayaran.
+Future<bool> approveCartDiscounts(
+  BuildContext context,
+  CashierViewModel vm,
+) async {
+  if (!vm.discountAwaitsApproval) return true;
+  final session = ApprovalScope.maybeOf(context);
+  if (session == null) return false;
+  final approver = await requestApproval(
+    context,
+    session: session,
+    permission: Permission.salesDiscount,
+    reason: AppLocalizations.of(context).approvalDiscountResumed,
+  );
+  if (approver == null) return false;
+  vm.approveDiscounts((id: approver.id, name: approver.name));
+  return true;
+}
+
 /// Dialog *Diskon nota* / *Diskon baris* (1.4b): persen atau rupiah,
 /// pratinjau potongan, hapus diskon.
 class DiscountDialog extends StatefulWidget {

@@ -122,4 +122,4 @@ Kolom baru (migrasi `manual-discount`):
 | Sakelar *Diskon manual butuh PIN manajer* | 1.26 | v0.24.0 | - |
 | Diskon di open bill F&B / split bill | - | Belum | Tambahkan di `open_bill.dart` bila diminta |
 | Batas diskon per role | - | Belum | Fase 3 (promo) |
-| Pilih pelanggan & nota tersimpan di Kasir | 1.4b | Belum | Versi berikutnya |
+| Pilih pelanggan & nota tersimpan di Kasir | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |

@@ -611,6 +611,10 @@ class CustomerDetail {
   Customer get customer => row.customer;
 }
 
+/// Pelanggan nota non-kredit (F1-04d): milik tenant dan belum dihapus.
+Future<Customer> saleCustomer(SyncTx w, CatalogScope scope, UuidValue id) =>
+    _customer(w.session, scope, id, transaction: w.transaction);
+
 Future<Customer> _customer(
   DatabaseSession session,
   CatalogScope scope,

@@ -455,7 +455,9 @@ Future<(Outlet, Device, String?)> _place(SyncTx w, CatalogScope scope) async {
 
 const _billPrefix = 'OB';
 
-Future<String> _nextBillNumber(
+/// Nomor bill berikutnya perangkat ini (`OB-…`), juga untuk nota tersimpan
+/// retail (F1-04d).
+Future<String> nextBillNumber(
   SyncTx w,
   CatalogScope scope,
   DateTime now,
@@ -566,7 +568,7 @@ Future<OpenBill> openTableBill(
     final existing = await _tableBill(w, scope, tableId);
     if (existing != null) return existing.id;
     final s = await w.stamp();
-    final number = await _nextBillNumber(w, scope, s.now);
+    final number = await nextBillNumber(w, scope, s.now);
     final sale = await w.insert(
       _newBill(
         scope,
@@ -638,7 +640,7 @@ Future<OpenBill> openTakeAway(
       }
       return empty.id;
     }
-    final number = await _nextBillNumber(w, scope, s.now);
+    final number = await nextBillNumber(w, scope, s.now);
     final sale = await w.insert(
       _newBill(
         scope,

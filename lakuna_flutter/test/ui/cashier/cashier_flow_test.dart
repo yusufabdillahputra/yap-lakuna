@@ -771,4 +771,216 @@ void main() {
       expect(_key('discount-dialog'), findsNothing);
     });
   });
+
+  group('pelanggan & nota tersimpan (F1-04d)', () {
+    CustomerRow row(String name, {int limit = 0, int overdue = 0}) =>
+        CustomerRow(
+          customer: Customer(
+            id: UuidValue.fromString(newId()),
+            tenantId: UuidValue.fromString(newId()),
+            name: name,
+            phone: '081322221010',
+            creditLimit: limit,
+            createdAt: DateTime.utc(2026, 11, 1),
+            hlc: '',
+          ),
+          groupName: 'Grosir',
+          termDays: 14,
+          outstanding: Money.zero,
+          openCount: overdue,
+          overdueCount: overdue,
+        );
+
+    for (final size in const [Size(1280, 800), Size(360, 740)]) {
+      testWidgets(
+        '${size.width.toInt()} px: pilih pelanggan, simpan, lanjutkan, bayar',
+        (tester) async {
+          final repo = await pump(tester, size: size);
+          final mobile = size.width < 600;
+          final ani = row('Toko Bu Ani', limit: 850000);
+          repo.creditRows = [row('Andi Pratama', overdue: 1), ani];
+
+          await _tap(tester, productKey(repo, 'Kopi Sachet'));
+          await _tap(tester, productKey(repo, 'Kopi Sachet'));
+          if (mobile) await _tap(tester, 'cashier-view-order');
+          expect(_text(tester, 'cashier-customer-name'), 'Pelanggan umum');
+
+          // Pilih pelanggan: cari, sisa limit, lewat tempo.
+          await _tap(tester, 'cashier-customer');
+          expect(_key('customer-picker'), findsOneWidget);
+          expect(find.text('Sisa limit Rp 850.000'), findsOneWidget);
+          expect(find.text('Lewat tempo'), findsOneWidget);
+          await tester.enterText(_input('customer-picker-search'), 'zzz');
+          await tester.pumpAndSettle();
+          expect(_key('customer-picker-no-match'), findsOneWidget);
+          await tester.enterText(_input('customer-picker-search'), 'ani');
+          await tester.pumpAndSettle();
+          await _tap(tester, 'customer-picker-${ani.customer.id.uuid}');
+          expect(_key('customer-picker'), findsNothing);
+          expect(_text(tester, 'cashier-customer-name'), 'Toko Bu Ani');
+
+          // Simpan nota atas nama pelanggan.
+          await _tap(tester, 'cashier-park');
+          expect(_key('park-customer'), findsOneWidget);
+          expect(_key('park-note'), findsNothing);
+          await _tap(tester, 'park-save');
+          expect(_key('park-dialog'), findsNothing);
+          expect(repo.parked, hasLength(1));
+          expect(repo.parked.single.customerId, ani.customer.id);
+          if (mobile) {
+            // Keranjang kosong: sheet pesanan ditutup bersama bilah bawah.
+            Navigator.of(tester.element(_key('cashier-park'))).pop();
+            await tester.pumpAndSettle();
+            expect(_key('cashier-mobile-bar'), findsNothing);
+          } else {
+            expect(_key('cashier-empty-cart'), findsOneWidget);
+            expect(_text(tester, 'cashier-customer-name'), 'Pelanggan umum');
+          }
+
+          // Daftar nota tersimpan → lanjutkan → bayar menghapus nota.
+          expect(
+            find.descendant(
+              of: _key('cashier-parked'),
+              matching: find.text(mobile ? '1' : 'Nota tersimpan (1)'),
+            ),
+            findsOneWidget,
+          );
+          await _tap(tester, 'cashier-parked');
+          expect(_key('parked-list'), findsOneWidget);
+          expect(find.text('Toko Bu Ani'), findsOneWidget);
+          expect(
+            find.text('1 item · disimpan 08.12 oleh Sari'),
+            findsOneWidget,
+          );
+          final id = repo.parked.single.id;
+          await _tap(tester, 'parked-resume-${id.uuid}');
+          expect(_key('parked-list'), findsNothing);
+          if (mobile) await _tap(tester, 'cashier-view-order');
+          expect(_text(tester, 'cashier-customer-name'), 'Toko Bu Ani');
+          expect(_text(tester, 'cashier-total'), 'Rp 4.000');
+          await _tap(tester, 'cashier-pay');
+          await _tap(tester, 'payment-quick-0');
+          await _tap(tester, 'payment-finish');
+          expect(_key('success-title'), findsOneWidget);
+          expect(repo.checkoutParked.single, id);
+          expect(repo.checkoutCustomers.single, ani.customer.id);
+          expect(repo.parked, isEmpty);
+          expect(find.textContaining('Toko Bu Ani'), findsWidgets);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+
+    testWidgets('catatan nota tanpa pelanggan, lanjutkan butuh keranjang '
+        'kosong, hapus dengan konfirmasi', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-park');
+      expect(_key('park-note'), findsOneWidget);
+      await tester.enterText(_input('park-note'), 'x' * 41);
+      await _tap(tester, 'park-save');
+      expect(find.text('Catatan maksimal 40 karakter.'), findsOneWidget);
+      expect(repo.parked, isEmpty);
+      await tester.enterText(_input('park-note'), 'Meja depan');
+      await _tap(tester, 'park-save');
+      expect(repo.parked, hasLength(1));
+      expect(_text(tester, 'cashier-customer-name'), 'Pelanggan umum');
+
+      // Keranjang berisi: Lanjutkan mati dengan petunjuk.
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-parked');
+      expect(find.text('Meja depan'), findsOneWidget);
+      expect(_key('parked-cart-busy'), findsOneWidget);
+      final id = repo.parked.single.id;
+      expect(
+        tester.widget<FButton>(_key('parked-resume-${id.uuid}')).onPress,
+        isNull,
+      );
+
+      // Hapus: batal lalu konfirmasi.
+      await _tap(tester, 'parked-delete-${id.uuid}');
+      expect(_key('parked-confirm'), findsOneWidget);
+      await _tap(tester, 'parked-confirm-delete');
+      expect(repo.parked, isEmpty);
+      expect(_key('parked-empty'), findsOneWidget);
+      await _tap(tester, 'parked-close');
+      expect(
+        find.descendant(
+          of: _key('cashier-parked'),
+          matching: find.text('Nota tersimpan (0)'),
+        ),
+        findsOneWidget,
+      );
+      // Keranjang yang sedang dibuat tidak tersentuh.
+      expect(_text(tester, 'cashier-total'), 'Rp 2.000');
+    });
+
+    testWidgets('diskon nota tersimpan: kasir tanpa izin diminta PIN saat '
+        'Bayar', (tester) async {
+      final session = FakeSessionRepository()
+        ..current = sampleStaff(name: 'Sari', role: 'cashier');
+      final repo = await pump(
+        tester,
+        permissions: {Permission.salesCreate, Permission.cashSessionOpen},
+        session: session,
+      );
+      final kopi = repo.catalog.products.firstWhere(
+        (p) => p.name == 'Kopi Sachet',
+      );
+      await repo.park(
+        lines: [
+          SaleLineRequest(
+            variantId: kopi.variants.single.id,
+            quantity: Qty.one,
+          ),
+        ],
+        discount: const ManualDiscount.percent(BasisPoints(500)),
+      );
+      await _tap(tester, 'cashier-parked');
+      await _tap(tester, 'parked-resume-${repo.parked.single.id.uuid}');
+      expect(_text(tester, 'cashier-total'), 'Rp 1.900');
+
+      // Batal PIN: tetap di pesanan.
+      await _tap(tester, 'cashier-pay');
+      expect(_key('approval-dialog'), findsOneWidget);
+      Navigator.of(tester.element(_key('approval-dialog'))).pop();
+      await tester.pumpAndSettle();
+      expect(_key('payment-received'), findsNothing);
+
+      await _tap(tester, 'cashier-pay');
+      await tester.enterText(_input('approval-pin'), '123456');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'approval-submit');
+      expect(_key('payment-received'), findsOneWidget);
+      await _tap(tester, 'payment-quick-0');
+      await _tap(tester, 'payment-finish');
+      expect(_key('success-title'), findsOneWidget);
+      expect(repo.parked, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('pelanggan dihapus dari nota dengan ×', (tester) async {
+      final repo = await pump(tester);
+      final ani = row('Toko Bu Ani');
+      repo.creditRows = [ani];
+      await _tap(tester, 'cashier-customer');
+      await _tap(tester, 'customer-picker-${ani.customer.id.uuid}');
+      expect(_text(tester, 'cashier-customer-name'), 'Toko Bu Ani');
+      await _tap(tester, 'cashier-customer-clear');
+      expect(_text(tester, 'cashier-customer-name'), 'Pelanggan umum');
+      expect(_key('cashier-customer-clear'), findsNothing);
+    });
+
+    testWidgets('daftar pelanggan gagal dimuat: coba lagi', (tester) async {
+      final repo = await pump(tester);
+      repo.creditRows = [row('Toko Bu Ani')];
+      repo.nextError = Exception('db');
+      await _tap(tester, 'cashier-customer');
+      expect(_key('customer-picker-error'), findsOneWidget);
+      await tester.tap(find.text('Coba lagi'));
+      await tester.pumpAndSettle();
+      expect(_key('customer-picker-error'), findsNothing);
+      expect(find.text('Toko Bu Ani'), findsOneWidget);
+    });
+  });
 }

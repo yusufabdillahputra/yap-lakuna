@@ -54,6 +54,129 @@ class FakeCashierRepository extends CashierRepository {
   Completer<void>? checkoutGate;
   final checkouts = <(List<SaleLineRequest>, List<SalePaymentRequest>)>[];
 
+  /// Pelanggan dan nota tersimpan per checkout (F1-04d).
+  final checkoutCustomers = <UuidValue?>[];
+  final checkoutParked = <UuidValue?>[];
+
+  /// Nota tersimpan (F1-04d), terbaru di akhir.
+  final parked = <ParkedSale>[];
+
+  CustomerRow? _customerRow(UuidValue? id) => id == null
+      ? null
+      : creditRows.where((r) => r.customer.id == id).firstOrNull;
+
+  @override
+  Future<Result<CustomersOverview>> customers() async {
+    if (_check() case final e?) return Result.error(e);
+    return Result.ok(
+      CustomersOverview(rows: creditRows, today: DateTime.utc(2026, 11, 3)),
+    );
+  }
+
+  @override
+  Future<Result<Sale>> park({
+    required List<SaleLineRequest> lines,
+    ManualDiscount? discount,
+    UuidValue? customerId,
+    String? note,
+    UuidValue? replaceId,
+  }) async {
+    if (_check() case final e?) return Result.error(e);
+    if (lines.isEmpty) return Result.error(SaleEmpty());
+    if (customerId != null && _customerRow(customerId) == null) {
+      return Result.error(CustomerNotFound());
+    }
+    if (replaceId != null) parked.removeWhere((p) => p.id == replaceId);
+    _counter++;
+    final sale = Sale(
+      tenantId: _tenant,
+      outletId: _id(),
+      deviceId: _id(),
+      staffId: _id(),
+      number: 'OB-PST-K01-261103-${_counter.toString().padLeft(4, '0')}',
+      status: SaleStatus.open,
+      subtotal: 0,
+      tierDiscount: 0,
+      total: _parkedTotal(lines, discount).value,
+      paidAmount: 0,
+      changeAmount: 0,
+      itemCount: lines.length,
+      soldAt: DateTime.utc(2026, 11, 3, 1, 12),
+      customerId: customerId,
+      customerName: _customerRow(customerId)?.customer.name ?? note,
+      hlc: '',
+    );
+    parked.add(
+      ParkedSale(
+        id: sale.id,
+        lines: lines,
+        customerId: customerId,
+        customerName: _customerRow(customerId)?.customer.name,
+        note: customerId == null ? note : null,
+        discount: discount,
+      ),
+    );
+    _parkedSales[sale.id] = sale;
+    return Result.ok(sale);
+  }
+
+  final _parkedSales = <UuidValue, Sale>{};
+
+  Money _parkedTotal(List<SaleLineRequest> lines, ManualDiscount? discount) {
+    var total = Money.zero;
+    for (final l in lines) {
+      final variant = catalog.products
+          .expand((p) => p.variants)
+          .firstWhere((v) => v.id == l.variantId);
+      final unit = l.productUnitId == null
+          ? null
+          : variant.units.firstWhere((u) => u.id == l.productUnitId);
+      final line = priceSaleLine(
+        sellPrice: variant.sellPrice,
+        quantity: l.quantity,
+        tiers: variant.tiers,
+        factor: unit?.factor,
+        unitPrice: unit?.sellPrice,
+      );
+      total += line.lineTotal - (l.discount?.cut(line.lineTotal) ?? Money.zero);
+    }
+    return total - (discount?.cut(total) ?? Money.zero);
+  }
+
+  @override
+  Future<Result<List<ParkedSaleRow>>> parkedSales() async {
+    if (_check() case final e?) return Result.error(e);
+    return Result.ok([
+      for (final p in parked.reversed)
+        ParkedSaleRow(
+          id: p.id,
+          number: _parkedSales[p.id]!.number,
+          title: _parkedSales[p.id]!.customerName,
+          staffName: 'Sari',
+          itemCount: p.lines.length,
+          total: Money(_parkedSales[p.id]!.total),
+          savedAt: DateTime.utc(2026, 11, 3, 1, 12),
+        ),
+    ]);
+  }
+
+  @override
+  Future<Result<ParkedSale>> loadParked(UuidValue id) async {
+    if (_check() case final e?) return Result.error(e);
+    final p = parked.where((p) => p.id == id).firstOrNull;
+    return p == null ? Result.error(ParkedSaleNotFound()) : Result.ok(p);
+  }
+
+  @override
+  Future<Result<void>> deleteParked(UuidValue id) async {
+    if (_check() case final e?) return Result.error(e);
+    final before = parked.length;
+    parked.removeWhere((p) => p.id == id);
+    return parked.length == before
+        ? Result.error(ParkedSaleNotFound())
+        : const Result.ok(null);
+  }
+
   /// Diskon nota + penyetuju per checkout (F1-04b).
   final discounts = <(ManualDiscount?, UuidValue?)>[];
   var loadCalls = 0;
@@ -133,9 +256,19 @@ class FakeCashierRepository extends CashierRepository {
     SaleCredit? credit,
     ManualDiscount? discount,
     UuidValue? discountApproverId,
+    UuidValue? customerId,
+    UuidValue? parkedSaleId,
   }) async {
     if (checkoutGate case final gate?) await gate.future;
     if (_check() case final e?) return Result.error(e);
+    if (parkedSaleId != null && !parked.any((p) => p.id == parkedSaleId)) {
+      return Result.error(ParkedSaleNotFound());
+    }
+    if (customerId != null &&
+        credit == null &&
+        !creditRows.any((r) => r.customer.id == customerId)) {
+      return Result.error(CustomerNotFound());
+    }
     final discounted = discount != null || lines.any((l) => l.discount != null);
     if (discounted &&
         discountApproverId == null &&
@@ -170,6 +303,8 @@ class FakeCashierRepository extends CashierRepository {
       return Result.error(SalePaymentUnconfirmed());
     }
     checkouts.add((lines, payments));
+    checkoutCustomers.add(credit?.customerId ?? customerId);
+    checkoutParked.add(parkedSaleId);
     final priced =
         <(CatalogProduct, CatalogVariant, CatalogUnit?, PricedLine)>[];
     for (final l in lines) {
@@ -264,13 +399,14 @@ class FakeCashierRepository extends CashierRepository {
           ? totals.total.value
           : credit.downPayment.value,
       changeAmount: credit == null ? change.value : 0,
-      customerId: credit?.customerId,
-      customerName: creditRow?.customer.name,
+      customerId: credit?.customerId ?? customerId,
+      customerName: (creditRow ?? _customerRow(customerId))?.customer.name,
       dueOn: credit?.dueOn,
       itemCount: priced.length,
       soldAt: now,
       hlc: '',
     );
+    if (parkedSaleId != null) parked.removeWhere((p) => p.id == parkedSaleId);
     final negative = <NegativeStock>[];
     for (final (product, variant, _, line) in priced) {
       if (!product.tracksStock) continue;

@@ -85,6 +85,8 @@ class LocalCashierRepository extends CashierRepository {
     SaleCredit? credit,
     ManualDiscount? discount,
     UuidValue? discountApproverId,
+    UuidValue? customerId,
+    UuidValue? parkedSaleId,
   }) => _guard((ctx, staff) async {
     if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
         !staff.can(Permission.paymentsConfirm)) {
@@ -107,6 +109,8 @@ class LocalCashierRepository extends CashierRepository {
       credit: credit,
       discount: discount,
       discountApproverId: discountApproverId,
+      customerId: customerId,
+      parkedSaleId: parkedSaleId,
     );
     if (discountApproverId != null) {
       _session.consumeApproval(discountApproverId, Permission.salesDiscount);
@@ -121,6 +125,50 @@ class LocalCashierRepository extends CashierRepository {
     }
     return listCustomers(_store, CatalogScope.of(ctx));
   });
+
+  @override
+  Future<Result<CustomersOverview>> customers() =>
+      _guard((ctx, _) => listCustomers(_store, CatalogScope.of(ctx)));
+
+  @override
+  Future<Result<Sale>> park({
+    required List<SaleLineRequest> lines,
+    ManualDiscount? discount,
+    UuidValue? customerId,
+    String? note,
+    UuidValue? replaceId,
+  }) => _guard(
+    (ctx, staff) => parkSale(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      lines: lines,
+      discount: discount,
+      customerId: customerId,
+      note: note,
+      replaceId: replaceId,
+    ),
+  );
+
+  @override
+  Future<Result<List<ParkedSaleRow>>> parkedSales() => _guard(
+    (ctx, _) => listParkedSales(_store.session, CatalogScope.of(ctx)),
+  );
+
+  @override
+  Future<Result<ParkedSale>> loadParked(UuidValue id) => _guard(
+    (ctx, _) => loadParkedSale(_store.session, CatalogScope.of(ctx), id),
+  );
+
+  @override
+  Future<Result<void>> deleteParked(UuidValue id) => _guard(
+    (ctx, staff) => deleteParkedSale(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      id: id,
+    ),
+  );
 
   @override
   Future<Result<OpenBill>> loadBill(UuidValue billId) => _guard(

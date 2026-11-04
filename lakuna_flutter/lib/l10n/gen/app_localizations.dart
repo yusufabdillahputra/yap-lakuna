@@ -12145,6 +12145,222 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{count, plural, other{{count} lisensi}}'**
   String aboutLicenseCount(int count);
+
+  /// No description provided for @cashierCustomerWalkIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan umum'**
+  String get cashierCustomerWalkIn;
+
+  /// No description provided for @cashierCustomerPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih pelanggan'**
+  String get cashierCustomerPick;
+
+  /// No description provided for @cashierCustomerClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus pelanggan dari nota'**
+  String get cashierCustomerClear;
+
+  /// No description provided for @cashierCustomerSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama atau HP'**
+  String get cashierCustomerSearch;
+
+  /// No description provided for @cashierCustomerNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada pelanggan. Tambah lewat menu Pelanggan.'**
+  String get cashierCustomerNone;
+
+  /// No description provided for @cashierCustomerNoMatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada pelanggan yang cocok.'**
+  String get cashierCustomerNoMatch;
+
+  /// No description provided for @cashierCustomerLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar pelanggan gagal dimuat.'**
+  String get cashierCustomerLoadFailed;
+
+  /// No description provided for @cashierCustomerRemaining.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa limit {amount}'**
+  String cashierCustomerRemaining(String amount);
+
+  /// No description provided for @cashierCustomerOverdue.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat tempo'**
+  String get cashierCustomerOverdue;
+
+  /// No description provided for @cashierPark.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get cashierPark;
+
+  /// No description provided for @cashierParkTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan nota'**
+  String get cashierParkTitle;
+
+  /// No description provided for @cashierParkBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota disimpan tanpa pembayaran dan bisa dilanjutkan nanti dari Nota tersimpan. Stok baru berkurang saat dibayar.'**
+  String get cashierParkBody;
+
+  /// No description provided for @cashierParkFor.
+  ///
+  /// In id, this message translates to:
+  /// **'Atas nama {name}'**
+  String cashierParkFor(String name);
+
+  /// No description provided for @cashierParkNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan (opsional)'**
+  String get cashierParkNote;
+
+  /// No description provided for @cashierParkNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Meja depan'**
+  String get cashierParkNoteHint;
+
+  /// No description provided for @cashierParkNoteTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan maksimal {max} karakter.'**
+  String cashierParkNoteTooLong(int max);
+
+  /// No description provided for @cashierParkFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota gagal disimpan. Coba lagi.'**
+  String get cashierParkFailed;
+
+  /// No description provided for @cashierParkedButton.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan ({count})'**
+  String cashierParkedButton(int count);
+
+  /// No description provided for @cashierParkedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan'**
+  String get cashierParkedTitle;
+
+  /// No description provided for @cashierParkedEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada nota tersimpan.'**
+  String get cashierParkedEmpty;
+
+  /// No description provided for @cashierParkedNoName.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa nama'**
+  String get cashierParkedNoName;
+
+  /// No description provided for @cashierParkedMeta.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} item · disimpan {time} oleh {staff}'**
+  String cashierParkedMeta(int count, String time, String staff);
+
+  /// No description provided for @cashierParkedResume.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjutkan'**
+  String get cashierParkedResume;
+
+  /// No description provided for @cashierParkedDelete.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get cashierParkedDelete;
+
+  /// No description provided for @cashierParkedCartBusy.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan atau kosongkan keranjang dulu.'**
+  String get cashierParkedCartBusy;
+
+  /// No description provided for @cashierParkedLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan gagal dimuat.'**
+  String get cashierParkedLoadFailed;
+
+  /// No description provided for @cashierParkedResumeFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tidak bisa dilanjutkan (mungkin sudah dibayar atau dihapus).'**
+  String get cashierParkedResumeFailed;
+
+  /// No description provided for @cashierParkedDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus nota tersimpan?'**
+  String get cashierParkedDeleteTitle;
+
+  /// No description provided for @cashierParkedDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} akan dihapus. Stok tidak berubah karena nota belum dibayar.'**
+  String cashierParkedDeleteBody(String name);
+
+  /// No description provided for @cashierParkedDeleteFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan gagal dihapus.'**
+  String get cashierParkedDeleteFailed;
+
+  /// No description provided for @cashierParkedClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get cashierParkedClose;
+
+  /// No description provided for @cashierResumeDropped.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} barang dibuang karena produknya sudah dihapus.'**
+  String cashierResumeDropped(int count);
+
+  /// No description provided for @cashierResumedFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari nota tersimpan'**
+  String get cashierResumedFrom;
+
+  /// No description provided for @paymentErrorParked.
+  ///
+  /// In id, this message translates to:
+  /// **'Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.'**
+  String get paymentErrorParked;
+
+  /// No description provided for @cashierResumeDiscountDropped.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.'**
+  String get cashierResumeDiscountDropped;
+
+  /// No description provided for @approvalDiscountResumed.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon dari nota tersimpan'**
+  String get approvalDiscountResumed;
 }
 
 class _AppLocalizationsDelegate
