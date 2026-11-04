@@ -591,7 +591,13 @@ class _SaleTable extends StatelessWidget {
                       cell(
                         3,
                         Text(
-                          historyMethods(l10n, r.methods),
+                          historyMethods(
+                            l10n,
+                            r.methods,
+                            credit:
+                                r.sale.customerId != null &&
+                                r.sale.paidAmount < r.sale.total,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: body,
@@ -686,7 +692,13 @@ class _SaleCard extends StatelessWidget {
                             ? formatDayClock(r.sale.soldAt, timezone)
                             : formatClock(r.sale.soldAt, timezone),
                         r.staffName,
-                        historyMethods(l10n, r.methods),
+                        historyMethods(
+                          l10n,
+                          r.methods,
+                          credit:
+                              r.sale.customerId != null &&
+                              r.sale.paidAmount < r.sale.total,
+                        ),
                       ].join(' · '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

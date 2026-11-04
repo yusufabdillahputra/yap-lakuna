@@ -664,10 +664,16 @@ class _OpenTable extends StatelessWidget {
             key: ValueKey('customer-open-${r.sale.id.uuid}'),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                r.sale.number,
-                maxLines: 2,
-                style: body.copyWith(fontWeight: FontWeight.w600),
+              // Nomor nota tidak dipatah di tanda hubung; diperkecil bila
+              // kolom sempit.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  r.sale.number,
+                  maxLines: 1,
+                  style: body.copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
               Text(
                 [

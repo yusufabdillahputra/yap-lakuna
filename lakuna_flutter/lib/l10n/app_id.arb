@@ -3048,5 +3048,6 @@
   "customerGroupsTerm": "Tempo standar (hari)",
   "customerGroupsTermHint": "0–365 hari. 0 = jatuh tempo hari itu juga.",
   "cashSourcePurchase": "Pembelian",
-  "cashSourceDebtPayment": "Bayar piutang"
+  "cashSourceDebtPayment": "Bayar piutang",
+  "historyMethodCredit": "Kredit"
 }

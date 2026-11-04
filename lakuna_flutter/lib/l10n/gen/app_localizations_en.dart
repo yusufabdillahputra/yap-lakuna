@@ -4955,4 +4955,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashSourceDebtPayment => 'Receivable payment';
+
+  @override
+  String get historyMethodCredit => 'Credit';
 }

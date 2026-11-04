@@ -138,7 +138,7 @@ class HistoryDetailPanel extends StatelessWidget {
                   ),
                   Text(
                     '${receiptDate(local)} · ${detail.staffName} · '
-                    '${historyMethods(l10n, [for (final p in detail.receipt.payments) p.method])}',
+                    '${historyMethods(l10n, [for (final p in detail.receipt.payments) p.method], credit: sale.customerId != null && sale.paidAmount < sale.total)}',
                     style: _muted(context),
                   ),
                 ],

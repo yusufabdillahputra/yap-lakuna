@@ -48,23 +48,23 @@ manual Xvfb, dokumen, dan rilis.
 
 ## 4 · Aplikasi (`lakuna_flutter`)
 
-- [ ] `CustomersRepository` + `LocalCustomersRepository` (izin) + palsu.
-- [ ] `CustomersViewModel` (daftar, cari, pilih), `CustomerPanelViewModel`
+- [x] `CustomersRepository` + `LocalCustomersRepository` (izin) + palsu.
+- [x] `CustomersViewModel` (daftar, cari, pilih), `CustomerPanelViewModel`
   (detail, terima pembayaran, alokasi manual), `CustomerFormViewModel`.
-- [ ] Layar `/pelanggan`, `/pelanggan/:id`, kuitansi
+- [x] Layar `/pelanggan`, `/pelanggan/:id`, kuitansi
   `/pelanggan/kuitansi/:id`; menu *Pelanggan* aktif.
-- [ ] Kuitansi: struk (`ReceiptContent`) dan A5 PDF; cetak, bagikan.
-- [ ] Import CSV/XLSX (pemilih berkas, laporan baris ditolak).
-- [ ] Master data: tab *Grup pelanggan*.
-- [ ] Kasir: `PayMode.credit`, panel kredit 1.5b, pemilih pelanggan.
-- [ ] Riwayat: lencana *Belum lunas*, rincian pelanggan & sisa, retur
+- [x] Kuitansi: struk (`ReceiptContent`) dan A5 PDF; cetak, bagikan.
+- [x] Import CSV/XLSX (pemilih berkas, laporan baris ditolak).
+- [x] Master data: tab *Grup pelanggan*.
+- [x] Kasir: `PayMode.credit`, panel kredit 1.5b, pemilih pelanggan.
+- [x] Riwayat: lencana *Belum lunas*, rincian pelanggan & sisa, retur
   memotong piutang; struk nota kredit.
-- [ ] i18n ID + EN.
-- [ ] Tes VM dan widget (desktop, ponsel 360 px).
+- [x] i18n ID + EN.
+- [x] Tes VM dan widget (desktop, ponsel 360 px).
 
 ## 5 · Selesai
 
-- [ ] Review subagent; perbaiki temuan Critical/Important.
-- [ ] Uji manual di Xvfb; simpan tangkapan layar.
-- [ ] Spec Status & gap, README spec, CHANGELOG 0.17.0, versi `0.17.0+18`.
+- [x] Review subagent; perbaiki temuan Critical/Important.
+- [x] Uji manual di Xvfb; simpan tangkapan layar.
+- [x] Spec Status & gap, README spec, CHANGELOG 0.17.0, versi `0.17.0+18`.
 - [ ] PR, CI hijau, squash merge, cek rilis.

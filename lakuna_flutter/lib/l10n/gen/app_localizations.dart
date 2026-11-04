@@ -8527,6 +8527,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bayar piutang'**
   String get cashSourceDebtPayment;
+
+  /// No description provided for @historyMethodCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit'**
+  String get historyMethodCredit;
 }
 
 class _AppLocalizationsDelegate

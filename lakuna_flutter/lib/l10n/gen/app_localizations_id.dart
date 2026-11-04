@@ -4841,4 +4841,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashSourceDebtPayment => 'Bayar piutang';
+
+  @override
+  String get historyMethodCredit => 'Kredit';
 }

@@ -117,6 +117,10 @@ bukan bug di versi sebelumnya.
   diurutkan stabil per nama.
 - Import di lapisan data kini memeriksa ulang setiap baris seperti form
   pelanggan.
+- Kolom *Metode* di Riwayat dan kepala rincian nota kredit hanya menulis
+  *Tunai* (uang muka); kini tertulis *Tunai + Kredit*.
+- Nomor nota panjang di tabel piutang panel pelanggan terbungkus dua
+  baris; kini satu baris dan mengecil bila perlu.
 
 ### Keamanan
 

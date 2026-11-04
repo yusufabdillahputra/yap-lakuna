@@ -190,6 +190,7 @@ class _Picker extends StatelessWidget {
                             // Nominal mengecil, bukan memotong nama, di
                             // layar sempit.
                             Flexible(
+                              fit: FlexFit.tight,
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.centerRight,

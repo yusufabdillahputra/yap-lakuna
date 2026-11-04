@@ -177,6 +177,7 @@ void main() {
         expect(find.text('Belum lunas'), findsWidgets);
         await _tap(tester, 'history-row-${credit.sale.id.uuid}');
         expect(find.text('Toko Bu Ani'), findsWidgets);
+        expect(find.textContaining('Kredit'), findsWidgets);
         final item = credit.items.single.id.uuid;
         await _tap(tester, 'history-return-plus-$item');
         expect(_key('history-return-debt'), findsOneWidget);
