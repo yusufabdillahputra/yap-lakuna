@@ -4106,5 +4106,115 @@
   "storeSettingsDiscountPinHint": "Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.",
   "@storeSettingsDiscountPinHint": {
     "placeholders": {}
+  },
+  "settingsSectionBackup": "Data & backup",
+  "backupModeLabel": "Mode saat ini",
+  "backupModeFree": "Gratis · offline",
+  "backupModeBody": "Semua data dan gambar tersimpan di perangkat ini saja. Lakukan backup rutin agar data tidak hilang jika HP atau komputer rusak.",
+  "backupStatSales": "Transaksi",
+  "backupStatProducts": "Produk",
+  "backupStatSize": "Ukuran",
+  "backupLastNever": "Belum pernah backup",
+  "backupLastToday": "Backup terakhir hari ini",
+  "backupLastDays": "Backup terakhir {days} hari lalu",
+  "@backupLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupNow": "Backup sekarang",
+  "backupRestore": "Pulihkan",
+  "backupFileNote": "File backup berisi database dan semua gambar (.zip). Simpan di tempat aman karena isinya data toko Anda.",
+  "backupSavedTo": "Backup tersimpan di {path}",
+  "@backupSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupShared": "Backup dibagikan.",
+  "backupDismissed": "Backup tidak dibagikan. Coba lagi dan pilih tujuan penyimpanan.",
+  "backupFailed": "Backup gagal. Pastikan ruang penyimpanan cukup lalu coba lagi.",
+  "backupRestoreTitle": "Pulihkan dari backup",
+  "backupRestoreSummary": "{store} · {outlet} · perangkat {device}",
+  "@backupRestoreSummary": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreMade": "Dibuat {date} · {sales} transaksi · {products} produk",
+  "@backupRestoreMade": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "int"
+      },
+      "products": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoreWarning": "Semua data di perangkat ini akan diganti isi backup. Data saat ini dipindah ke folder \"sebelum-pulihkan\" di folder data, lalu aplikasi dimuat ulang dan Anda masuk lagi.",
+  "backupRestoreConfirmLabel": "Ketik \"{store}\" untuk melanjutkan",
+  "@backupRestoreConfirmLabel": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreConfirm": "Pulihkan & muat ulang",
+  "backupRestoreCancel": "Batal",
+  "backupInvalid": "Berkas ini bukan backup Lakuna yang utuh.",
+  "backupTooNew": "Backup ini dibuat versi Lakuna yang lebih baru. Perbarui aplikasi dulu.",
+  "backupRestoreFailed": "Pulihkan gagal. Data perangkat ini tidak berubah.",
+  "backupHostingTitle": "Aktifkan versi hosting",
+  "backupHostingBody": "Sinkronkan semua cabang dan perangkat ke server toko Anda.",
+  "backupHostingServer": "Alamat server",
+  "backupHostingCode": "Kode aktivasi",
+  "backupHostingConnect": "Hubungkan & unggah data",
+  "backupHostingSoon": "Tersedia di versi hosting (Fase 2).",
+  "homeBackupTitle": "Perlu perhatian",
+  "homeBackupNever": "Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.",
+  "homeBackupDays": "Backup terakhir {days} hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.",
+  "@homeBackupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBackupAction": "Buka Data & backup",
+  "startupErrorTitle": "Lakuna gagal dibuka",
+  "startupErrorBody": "Database di perangkat ini tidak bisa dibuka. Data Anda tidak dihapus. Salin detail di bawah lalu hubungi dukungan.",
+  "startupErrorPath": "Lokasi data: {path}",
+  "@startupErrorPath": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "startupErrorCopy": "Salin detail",
+  "homeRestoreFailedTitle": "Pulihkan gagal",
+  "@homeRestoreFailedTitle": {
+    "placeholders": {}
+  },
+  "homeRestoreFailedBody": "Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.",
+  "@homeRestoreFailedBody": {
+    "placeholders": {}
   }
 }

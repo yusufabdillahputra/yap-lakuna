@@ -11671,6 +11671,264 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kasir tanpa izin diskon bisa memberi diskon setelah manajer memasukkan PIN. Jika mati, hanya staf berizin yang bisa memberi diskon.'**
   String get storeSettingsDiscountPinHint;
+
+  /// No description provided for @settingsSectionBackup.
+  ///
+  /// In id, this message translates to:
+  /// **'Data & backup'**
+  String get settingsSectionBackup;
+
+  /// No description provided for @backupModeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Mode saat ini'**
+  String get backupModeLabel;
+
+  /// No description provided for @backupModeFree.
+  ///
+  /// In id, this message translates to:
+  /// **'Gratis · offline'**
+  String get backupModeFree;
+
+  /// No description provided for @backupModeBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua data dan gambar tersimpan di perangkat ini saja. Lakukan backup rutin agar data tidak hilang jika HP atau komputer rusak.'**
+  String get backupModeBody;
+
+  /// No description provided for @backupStatSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Transaksi'**
+  String get backupStatSales;
+
+  /// No description provided for @backupStatProducts.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get backupStatProducts;
+
+  /// No description provided for @backupStatSize.
+  ///
+  /// In id, this message translates to:
+  /// **'Ukuran'**
+  String get backupStatSize;
+
+  /// No description provided for @backupLastNever.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum pernah backup'**
+  String get backupLastNever;
+
+  /// No description provided for @backupLastToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir hari ini'**
+  String get backupLastToday;
+
+  /// No description provided for @backupLastDays.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir {days} hari lalu'**
+  String backupLastDays(int days);
+
+  /// No description provided for @backupNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup sekarang'**
+  String get backupNow;
+
+  /// No description provided for @backupRestore.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan'**
+  String get backupRestore;
+
+  /// No description provided for @backupFileNote.
+  ///
+  /// In id, this message translates to:
+  /// **'File backup berisi database dan semua gambar (.zip). Simpan di tempat aman karena isinya data toko Anda.'**
+  String get backupFileNote;
+
+  /// No description provided for @backupSavedTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup tersimpan di {path}'**
+  String backupSavedTo(String path);
+
+  /// No description provided for @backupShared.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup dibagikan.'**
+  String get backupShared;
+
+  /// No description provided for @backupDismissed.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup tidak dibagikan. Coba lagi dan pilih tujuan penyimpanan.'**
+  String get backupDismissed;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup gagal. Pastikan ruang penyimpanan cukup lalu coba lagi.'**
+  String get backupFailed;
+
+  /// No description provided for @backupRestoreTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan dari backup'**
+  String get backupRestoreTitle;
+
+  /// No description provided for @backupRestoreSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{store} · {outlet} · perangkat {device}'**
+  String backupRestoreSummary(String store, String outlet, String device);
+
+  /// No description provided for @backupRestoreMade.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuat {date} · {sales} transaksi · {products} produk'**
+  String backupRestoreMade(String date, int sales, int products);
+
+  /// No description provided for @backupRestoreWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua data di perangkat ini akan diganti isi backup. Data saat ini dipindah ke folder \"sebelum-pulihkan\" di folder data, lalu aplikasi dimuat ulang dan Anda masuk lagi.'**
+  String get backupRestoreWarning;
+
+  /// No description provided for @backupRestoreConfirmLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketik \"{store}\" untuk melanjutkan'**
+  String backupRestoreConfirmLabel(String store);
+
+  /// No description provided for @backupRestoreConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan & muat ulang'**
+  String get backupRestoreConfirm;
+
+  /// No description provided for @backupRestoreCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get backupRestoreCancel;
+
+  /// No description provided for @backupInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas ini bukan backup Lakuna yang utuh.'**
+  String get backupInvalid;
+
+  /// No description provided for @backupTooNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup ini dibuat versi Lakuna yang lebih baru. Perbarui aplikasi dulu.'**
+  String get backupTooNew;
+
+  /// No description provided for @backupRestoreFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan gagal. Data perangkat ini tidak berubah.'**
+  String get backupRestoreFailed;
+
+  /// No description provided for @backupHostingTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan versi hosting'**
+  String get backupHostingTitle;
+
+  /// No description provided for @backupHostingBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkronkan semua cabang dan perangkat ke server toko Anda.'**
+  String get backupHostingBody;
+
+  /// No description provided for @backupHostingServer.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat server'**
+  String get backupHostingServer;
+
+  /// No description provided for @backupHostingCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode aktivasi'**
+  String get backupHostingCode;
+
+  /// No description provided for @backupHostingConnect.
+  ///
+  /// In id, this message translates to:
+  /// **'Hubungkan & unggah data'**
+  String get backupHostingConnect;
+
+  /// No description provided for @backupHostingSoon.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersedia di versi hosting (Fase 2).'**
+  String get backupHostingSoon;
+
+  /// No description provided for @homeBackupTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu perhatian'**
+  String get homeBackupTitle;
+
+  /// No description provided for @homeBackupNever.
+  ///
+  /// In id, this message translates to:
+  /// **'Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.'**
+  String get homeBackupNever;
+
+  /// No description provided for @homeBackupDays.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir {days} hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.'**
+  String homeBackupDays(int days);
+
+  /// No description provided for @homeBackupAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Data & backup'**
+  String get homeBackupAction;
+
+  /// No description provided for @startupErrorTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lakuna gagal dibuka'**
+  String get startupErrorTitle;
+
+  /// No description provided for @startupErrorBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Database di perangkat ini tidak bisa dibuka. Data Anda tidak dihapus. Salin detail di bawah lalu hubungi dukungan.'**
+  String get startupErrorBody;
+
+  /// No description provided for @startupErrorPath.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi data: {path}'**
+  String startupErrorPath(String path);
+
+  /// No description provided for @startupErrorCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin detail'**
+  String get startupErrorCopy;
+
+  /// No description provided for @homeRestoreFailedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan gagal'**
+  String get homeRestoreFailedTitle;
+
+  /// No description provided for @homeRestoreFailedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.'**
+  String get homeRestoreFailedBody;
 }
 
 class _AppLocalizationsDelegate

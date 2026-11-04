@@ -3572,5 +3572,115 @@
   "storeSettingsDiscountPinHint": "Cashiers without the discount permission can discount after a manager enters their PIN. When off, only permitted staff can discount.",
   "@storeSettingsDiscountPinHint": {
     "placeholders": {}
+  },
+  "settingsSectionBackup": "Data & backup",
+  "backupModeLabel": "Current mode",
+  "backupModeFree": "Free · offline",
+  "backupModeBody": "All data and images are stored on this device only. Back up regularly so nothing is lost if the phone or computer breaks.",
+  "backupStatSales": "Transactions",
+  "backupStatProducts": "Products",
+  "backupStatSize": "Size",
+  "backupLastNever": "Never backed up",
+  "backupLastToday": "Last backup today",
+  "backupLastDays": "Last backup {days} days ago",
+  "@backupLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupNow": "Back up now",
+  "backupRestore": "Restore",
+  "backupFileNote": "The backup file holds the database and all images (.zip). Keep it somewhere safe: it contains your store data.",
+  "backupSavedTo": "Backup saved to {path}",
+  "@backupSavedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupShared": "Backup shared.",
+  "backupDismissed": "Backup was not shared. Try again and pick where to save it.",
+  "backupFailed": "Backup failed. Make sure there is enough storage, then try again.",
+  "backupRestoreTitle": "Restore from backup",
+  "backupRestoreSummary": "{store} · {outlet} · device {device}",
+  "@backupRestoreSummary": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreMade": "Created {date} · {sales} transactions · {products} products",
+  "@backupRestoreMade": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "sales": {
+        "type": "int"
+      },
+      "products": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoreWarning": "All data on this device will be replaced by the backup. Current data is moved to a \"sebelum-pulihkan\" folder in the data folder, then the app reloads and you sign in again.",
+  "backupRestoreConfirmLabel": "Type \"{store}\" to continue",
+  "@backupRestoreConfirmLabel": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "backupRestoreConfirm": "Restore & reload",
+  "backupRestoreCancel": "Cancel",
+  "backupInvalid": "This file is not a complete Lakuna backup.",
+  "backupTooNew": "This backup was made by a newer Lakuna version. Update the app first.",
+  "backupRestoreFailed": "Restore failed. The data on this device was not changed.",
+  "backupHostingTitle": "Activate hosted version",
+  "backupHostingBody": "Sync all branches and devices to your store server.",
+  "backupHostingServer": "Server address",
+  "backupHostingCode": "Activation code",
+  "backupHostingConnect": "Connect & upload data",
+  "backupHostingSoon": "Available in the hosted version (phase 2).",
+  "homeBackupTitle": "Needs attention",
+  "homeBackupNever": "Data has never been backed up. Back up now so nothing is lost if the device breaks.",
+  "homeBackupDays": "Last backup was {days} days ago. Back up now so nothing is lost if the device breaks.",
+  "@homeBackupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBackupAction": "Open Data & backup",
+  "startupErrorTitle": "Lakuna could not start",
+  "startupErrorBody": "The database on this device could not be opened. Your data was not deleted. Copy the details below and contact support.",
+  "startupErrorPath": "Data location: {path}",
+  "@startupErrorPath": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "startupErrorCopy": "Copy details",
+  "homeRestoreFailedTitle": "Restore failed",
+  "@homeRestoreFailedTitle": {
+    "placeholders": {}
+  },
+  "homeRestoreFailedBody": "The database from the backup could not be opened, so your previous data was put back. The failed backup is kept in a pulihkan-gagal folder in the data location.",
+  "@homeRestoreFailedBody": {
+    "placeholders": {}
   }
 }

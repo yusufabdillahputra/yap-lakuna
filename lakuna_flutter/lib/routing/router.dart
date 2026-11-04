@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart' show Money, Permission;
 
+import '../data/repositories/backup_repository.dart';
 import '../data/repositories/cash_drawer_repository.dart';
 import '../data/repositories/cashier_repository.dart';
 import '../data/repositories/catalog_repository.dart';
@@ -22,6 +23,7 @@ import '../data/repositories/store_settings_repository.dart';
 import '../data/repositories/session_repository.dart';
 import '../data/repositories/stock_repository.dart';
 import '../data/repositories/store_repository.dart';
+import '../data/services/backup_files.dart';
 import '../data/services/image_file_picker.dart';
 import '../data/services/receipt_printer.dart';
 import '../data/services/spreadsheet_exporter.dart';
@@ -86,6 +88,8 @@ GoRouter createRouter({
   required ReceiptSettingsRepository receiptSettings,
   required StoreSettingsRepository storeSettings,
   required ReceiptPrinter receiptPrinter,
+  required BackupRepository backup,
+  BackupFiles backupFiles = const PlatformBackupFiles(),
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
   SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
   TableFilePicker tablePicker = const FileSelectorTablePicker(),
@@ -139,7 +143,7 @@ GoRouter createRouter({
           GoRoute(
             path: Routes.home,
             builder: (context, state) =>
-                HomeView(store: store, session: session),
+                HomeView(store: store, session: session, backup: backup),
           ),
           GoRoute(
             path: Routes.settings,
@@ -153,6 +157,11 @@ GoRouter createRouter({
               session: session,
               store: store,
               diningAdmin: diningAdmin,
+              backup: backup,
+              backupFiles: backupFiles,
+              initialSection: SettingsSection.fromQuery(
+                state.uri.queryParameters['bagian'],
+              ),
             ),
           ),
           GoRoute(
