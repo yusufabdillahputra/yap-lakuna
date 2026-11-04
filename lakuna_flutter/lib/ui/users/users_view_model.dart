@@ -87,6 +87,21 @@ class UsersViewModel extends ChangeNotifier {
   RoleSummary? role(String key) =>
       _roles.where((r) => r.key == key).firstOrNull;
 
+  /// Pengguna yang bisa diubah, direset, atau dibuka kuncinya oleh aktor:
+  /// bukan pemilik; aktor bukan pemilik tidak boleh mengubah dirinya atau
+  /// staf yang izinnya melebihi miliknya (aturan sama dengan `lakuna_data`).
+  bool canManage(StaffAccount a) {
+    if (a.isOwner) return false;
+    final actor = _actor;
+    if (actor == null) return false;
+    if (actor.isOwner) return true;
+    return a.id != actor.id && actor.permissions.containsAll(a.permissions);
+  }
+
+  /// Ada pengguna yang PIN-nya sedang dikunci (layar memperbarui hitung
+  /// mundurnya).
+  bool get anyLocked => _accounts.any((a) => lockedFor(a) != null);
+
   // --- Matriks ---------------------------------------------------------------
 
   /// Izin role [key] termasuk perubahan yang belum disimpan.
@@ -198,9 +213,15 @@ class StaffFormViewModel extends ChangeNotifier {
     required this._repository,
     required List<RoleSummary> roles,
     this.account,
+    StaffProfile? actor,
   }) : roles = [
          for (final r in roles)
-           if (!r.isOwner) r,
+           if (!r.isOwner &&
+               (actor == null ||
+                   actor.isOwner ||
+                   actor.permissions.containsAll(r.permissions) ||
+                   r.key == account?.roleKey))
+             r,
        ],
        _name = account?.name ?? '',
        _roleKey = account?.roleKey ?? DefaultRole.cashier.key,

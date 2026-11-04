@@ -23,7 +23,7 @@
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
   "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.",
+  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -3894,5 +3894,17 @@
   "accountPinNew": "PIN baru",
   "accountPinRetype": "Ulangi PIN baru",
   "accountPinSubmit": "Ganti PIN",
-  "accountPinDone": "PIN baru tersimpan."
+  "accountPinDone": "PIN baru tersimpan.",
+  "usersErrStaffNotFound": "Pengguna tidak ditemukan atau sudah nonaktif.",
+  "usersErrNoPassword": "Akun ini tidak memakai kata sandi.",
+  "usersRoleDeleteTitle": "Hapus role {name}?",
+  "@usersRoleDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "usersRoleDeleteBody": "Role yang masih dipakai pengguna tidak bisa dihapus.",
+  "usersRoleDeleteConfirm": "Hapus"
 }

@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
@@ -66,8 +68,33 @@ class _UsersScreenState extends State<UsersScreen> {
     unawaited(_vm.load.execute());
   }
 
+  /// Memperbarui hitung mundur kunci PIN tiap detik selama ada yang dikunci.
+  Timer? _lockTicker;
+  Map<UuidValue, int> _shownLocks = const {};
+
+  Map<UuidValue, int> _lockSnapshot() => {
+    for (final a in _vm.accounts)
+      if (_vm.lockedFor(a) case final d?) a.id: d.inSeconds,
+  };
+
+  void _syncLockTicker() {
+    if (_vm.anyLocked) {
+      _lockTicker ??= Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        final now = _lockSnapshot();
+        // Bangun ulang hanya bila angka hitung mundur berubah.
+        if (!mapEquals(now, _shownLocks)) setState(() {});
+        if (!_vm.anyLocked) {
+          _lockTicker?.cancel();
+          _lockTicker = null;
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _lockTicker?.cancel();
     _vm.dispose();
     super.dispose();
   }
@@ -77,6 +104,7 @@ class _UsersScreenState extends State<UsersScreen> {
       repository: widget.repository,
       roles: _vm.roles,
       account: account,
+      actor: widget.session.current,
     );
     await showFDialog<bool>(
       context: context,
@@ -104,6 +132,8 @@ class _UsersScreenState extends State<UsersScreen> {
       final l10n = AppLocalizations.of(context);
       final vm = _vm;
       final loaded = vm.load.completed || vm.roles.isNotEmpty;
+      _shownLocks = _lockSnapshot();
+      _syncLockTicker();
       return SingleChildScrollView(
         key: const ValueKey('users-scroll'),
         padding: const EdgeInsets.all(16),
@@ -213,7 +243,7 @@ class _UserList extends StatelessWidget {
                   account: a,
                   outletName: outletName,
                   table: table,
-                  onOpen: a.isOwner ? null : () => onOpen(a),
+                  onOpen: vm.canManage(a) ? () => onOpen(a) : null,
                 ),
               if (vm.accounts.length <= 1)
                 Text(l10n.usersEmpty, style: _muted(context)),
@@ -284,7 +314,7 @@ class _UserRow extends StatelessWidget {
             children: [
               Text(a.name, style: _strong(context)),
               Text(
-                a.email ?? l10n.usersPinOnly,
+                a.email ?? (a.hasPin ? l10n.usersPinOnly : l10n.loginNoPin),
                 style: _muted(context),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -319,7 +349,7 @@ class _UserRow extends StatelessWidget {
                       : l10n.usersStatusInactive),
           ),
         ),
-        if (locked != null)
+        if (locked != null && viewModel.canManage(a))
           FButton(
             key: ValueKey('users-unlock-${a.id.uuid}'),
             size: .sm,

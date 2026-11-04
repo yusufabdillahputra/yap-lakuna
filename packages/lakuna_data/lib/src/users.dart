@@ -385,41 +385,61 @@ Future<StaffMember> createStaff(
 /// Pemilik ditolak; aktor bukan pemilik tidak boleh mengubah dirinya sendiri
 /// atau staf yang izinnya melebihi miliknya.
 Future<(StaffMember, OutletMember)> _target(
-  SyncTx w,
+  DatabaseSession session,
+  Transaction? transaction,
   CatalogScope scope,
   OutletStaff actor,
   UuidValue targetId,
 ) async {
   final staff = await StaffMember.db.findFirstRow(
-    w.session,
+    session,
     where: (s) =>
         s.id.equals(targetId) &
         s.tenantId.equals(scope.tenantId) &
         s.deletedAt.equals(null),
-    transaction: w.transaction,
+    transaction: transaction,
   );
   final member = await OutletMember.db.findFirstRow(
-    w.session,
+    session,
     where: (m) =>
         m.tenantId.equals(scope.tenantId) &
         m.outletId.equals(scope.outletId) &
         m.staffMemberId.equals(targetId) &
         m.deletedAt.equals(null),
-    transaction: w.transaction,
+    transaction: transaction,
   );
   if (staff == null || member == null) throw StaffNotFound();
-  if (staff.isOwner) throw StaffOwnerLocked();
+  if (staff.isOwner || member.roleName == DefaultRole.owner.key) {
+    throw StaffOwnerLocked();
+  }
   if (!actor.isOwner && targetId == actor.id) throw StaffSelfChange();
+  // Izin target saat ini (role yang tidak dikenal = tanpa izin).
+  final role = await _storedRole(
+    session,
+    scope,
+    member.roleName,
+    transaction: transaction,
+  );
   _requireWithin(
     actor,
-    await _assignable(
-      w.session,
-      scope,
-      member.roleName,
-      transaction: w.transaction,
-    ).catchError((Object _) => const <Permission>{}),
+    effectivePermissions(
+      roleKey: member.roleName,
+      stored: role?.permissionKeys,
+    ),
   );
   return (staff, member);
+}
+
+/// Memeriksa bahwa [staffId] boleh mengelola staf [targetId] (izin
+/// `users:manage` dan aturan [_target]), mis. sebelum membuka kunci PIN.
+Future<void> requireStaffManageable(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue targetId,
+}) async {
+  final actor = await _requireManager(store, scope, staffId);
+  await _target(store.session, null, scope, actor, targetId);
 }
 
 /// Mengubah nama, role, dan status staf [targetId].
@@ -435,11 +455,27 @@ Future<void> updateStaff(
   final clean = _cleanName(name);
   final actor = await _requireManager(store, scope, staffId);
   await store.write(actor: staffId, (w) async {
-    final (staff, member) = await _target(w, scope, actor, targetId);
-    _requireWithin(
+    final (staff, member) = await _target(
+      w.session,
+      w.transaction,
+      scope,
       actor,
-      await _assignable(w.session, scope, roleKey, transaction: w.transaction),
+      targetId,
     );
+    // Role yang tidak berubah tidak diperiksa ulang, agar staf dengan role
+    // yang sudah tidak ada (mis. dihapus di perangkat lain) tetap bisa
+    // diganti nama atau dinonaktifkan.
+    if (roleKey != member.roleName) {
+      _requireWithin(
+        actor,
+        await _assignable(
+          w.session,
+          scope,
+          roleKey,
+          transaction: w.transaction,
+        ),
+      );
+    }
     await _requireUniqueName(
       w.session,
       scope,
@@ -488,7 +524,13 @@ Future<void> resetStaffPin(
 }) async {
   final actor = await _requireManager(store, scope, staffId);
   await store.write(actor: staffId, (w) async {
-    final (staff, _) = await _target(w, scope, actor, targetId);
+    final (staff, _) = await _target(
+      w.session,
+      w.transaction,
+      scope,
+      actor,
+      targetId,
+    );
     await _setSecrets(w, staff, staffId, pinHash: pinHash);
   });
 }
@@ -594,6 +636,7 @@ Future<void> saveRoleMatrix(
       if (row == null) {
         await w.insert(
           StaffRole(
+            id: UuidValue.fromString(stableId(scope.tenantId.uuid, key)),
             tenantId: scope.tenantId,
             roleKey: key,
             name: key,
@@ -642,6 +685,7 @@ Future<void> _requireUniqueRoleName(
     transaction: transaction,
   );
   final lower = name.toLowerCase();
+  if (defaultRoleNames.contains(lower)) throw RoleNameTaken();
   if (rows.any(
     (r) =>
         r.roleKey != except &&
@@ -679,11 +723,13 @@ Future<StaffRole> createCustomRole(
       ))
         r.roleKey,
     };
+    final key = roleKeyFor(clean, taken);
     final s = await w.stamp();
     return w.insert(
       StaffRole(
+        id: UuidValue.fromString(stableId(scope.tenantId.uuid, key)),
         tenantId: scope.tenantId,
-        roleKey: roleKeyFor(clean, taken),
+        roleKey: key,
         name: clean,
         permissionKeys: encodePermissions(permissions),
         createdAt: s.now,

@@ -60,7 +60,11 @@ class _RolesMatrix extends StatelessWidget {
                   variant: .ghost,
                   onPress: vm.deleteRole.running
                       ? null
-                      : () => vm.deleteRole.execute(r.key),
+                      : () async {
+                          if (await _confirmDelete(context, r)) {
+                            await vm.deleteRole.execute(r.key);
+                          }
+                        },
                   child: Icon(
                     TablerIcons.trash,
                     size: 16,
@@ -219,6 +223,57 @@ class _RolesMatrix extends StatelessWidget {
   }
 }
 
+/// *Hapus role …?* — `true` bila pengguna memilih hapus.
+Future<bool> _confirmDelete(BuildContext context, RoleSummary role) async {
+  final l10n = AppLocalizations.of(context);
+  final result = await showFDialog<bool>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+      builder: (context, style) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          key: const ValueKey('users-role-delete-dialog'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 12,
+          children: [
+            Text(
+              l10n.usersRoleDeleteTitle(roleLabel(l10n, role.key, role.name)),
+              style: context.theme.typography.display.lg.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(l10n.usersRoleDeleteBody),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FButton(
+                  variant: .outline,
+                  mainAxisSize: .min,
+                  onPress: () => Navigator.of(context).pop(false),
+                  child: Flexible(child: Text(l10n.usersCancel)),
+                ),
+                FButton(
+                  key: const ValueKey('users-role-delete-confirm'),
+                  variant: .destructive,
+                  mainAxisSize: .min,
+                  onPress: () => Navigator.of(context).pop(true),
+                  child: Flexible(child: Text(l10n.usersRoleDeleteConfirm)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  return result ?? false;
+}
+
 class _RoleNameDialog extends StatefulWidget {
   const _RoleNameDialog({required this.viewModel, this.role});
 
@@ -280,6 +335,7 @@ class _RoleNameDialogState extends State<_RoleNameDialog> {
               hint: l10n.usersRoleNameHint,
               autofocus: true,
               maxLength: staffNameMaxLength,
+              onSubmit: (_) => command.running ? null : _save(),
               error: issue == null ? null : Text(staffIssueLabel(l10n, issue)),
               control: .managed(
                 initial: TextEditingValue(text: _name),

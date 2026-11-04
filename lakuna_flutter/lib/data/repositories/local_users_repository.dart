@@ -40,7 +40,18 @@ class LocalUsersRepository extends UsersRepository {
 
   @override
   Future<Result<void>> unlockPin(UuidValue staffId) =>
-      _manage((_, _) async => _session.unlockPin(staffId));
+      _manage((scope, staff) async {
+        // Aturan yang sama dengan reset PIN: pemilik, diri sendiri, dan staf
+        // berizin lebih tidak boleh dibuka kuncinya oleh selain pemilik, agar
+        // batas salah PIN tidak bisa diakali.
+        await requireStaffManageable(
+          _store,
+          scope,
+          staffId: staff.id,
+          targetId: staffId,
+        );
+        _session.unlockPin(staffId);
+      });
 
   @override
   Future<Result<void>> createStaff({

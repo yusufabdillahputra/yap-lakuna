@@ -1,7 +1,7 @@
 # F1-17 · Pengguna & role (RBAC)
 
 - **Fase:** 1
-- **Status:** Berjalan (v0.22.0)
+- **Status:** Rilis v0.22.0
 - **Layar desain:** 1.25 *Pengguna & role (RBAC)*, 1.25b *Tambah pengguna,
   reset PIN & akun saya* (terang + gelap)
 - **Acuan Storeku:** `2026-11-02-f1-17-pengguna-role-design.md`
@@ -42,12 +42,14 @@ Tidak termasuk:
 ## Desain UI (baseline)
 
 - Menu *Sistem → Pengguna & role* (`users:manage`) membuka `/pengguna`
-  dengan dua tab: **Pengguna** (tabel di ≥ 800 px, kartu di bawahnya) dan
+  dengan dua tab: **Pengguna** (tabel di ≥ 720 px, kartu di bawahnya) dan
   **Role & izin** (matriks; kolom role bisa digulir mendatar di layar
   sempit).
 - *Tambah* dan klik baris membuka dialog pengguna (lembar penuh di < 600
-  px). Dialog ubah punya bagian *Reset PIN* dan tombol *Buka kunci PIN* saat
-  staf sedang dikunci.
+  px). Dialog ubah punya bagian *Reset PIN*. Badge *PIN dikunci N dtk* dan
+  tombol *Buka kunci* ada langsung di baris staf (lebih cepat daripada
+  membuka dialog), dengan hitung mundur per detik. Baris pemilik dan baris
+  diri sendiri tidak bisa dibuka oleh non-pemilik.
 - Menu *Sistem → Akun saya* (semua pengguna) membuka `/akun` dengan kartu
   *Ganti PIN* dan *Ganti kata sandi*.
 - Kolom ulangi tepat di bawah kolom pertama; galat "PIN tidak sama" /
@@ -87,6 +89,12 @@ Model baru `StaffRole` (`organization/staff_role.spy.yaml`, tabel `roles`,
 - Role bawaan **tidak** di-seed: barisnya baru dibuat saat matriksnya diubah
   pertama kali, jadi toko lama tidak perlu migrasi data. Role `owner` tidak
   pernah disimpan.
+- `id` baris role deterministik: UUIDv5 dari `tenant_id/role_key`
+  (`stableId`), supaya dua perangkat yang mengubah role yang sama tidak
+  membuat dua baris yang bentrok di indeks unik saat sinkronisasi Fase 2.
+  Untuk role custom, kunci bisa sama di dua perangkat dengan nama berbeda;
+  baris terakhir menang (dicatat sebagai catatan Fase 2).
+- Nama role custom tidak boleh memakai nama role bawaan (id/en).
 - `OutletStaff` membawa `permissions` dan `roleName` yang dibaca dari tabel
   `roles` saat staf dimuat; semua pemeriksaan izin (login, persetujuan
   manajer, repositori yang membaca ulang staf) otomatis memakai izin baru.
@@ -142,6 +150,8 @@ Model baru `StaffRole` (`organization/staff_role.spy.yaml`, tabel `roles`,
 | Login email manajer | Storeku F1-17 | Belum | Fase 2 bersama login web. |
 | Kunci PIN persisten | 1.25 "Dikunci 1 mnt" | Di memori | Sama dengan F1-02. |
 | Cabang lain | Kolom *Cabang* | Hanya cabang perangkat ini | Multi-cabang di Fase 2. |
+| Role per tenant lintas perangkat | — | `id` stabil | Penggabungan role custom bernama beda di Fase 2. |
+| Buka kunci PIN | 1.25 dialog | Di baris staf | Manajer tidak bisa membuka kunci pemilik. |
 
 ## Kriteria selesai
 

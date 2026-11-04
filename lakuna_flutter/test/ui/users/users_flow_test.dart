@@ -4,6 +4,8 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/core/menu.dart';
 
+import 'package:lakuna_flutter/data/repositories/session_repository.dart';
+
 import '../../testing/app_harness.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_users_repository.dart';
@@ -125,12 +127,61 @@ void main() {
 
     await _tap(tester, _key('users-role-new'));
     await _type(tester, _key('users-role-name'), 'Barista');
-    await _tap(tester, _key('users-role-save'));
+    // Enter di kolom nama langsung membuat role.
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
     expect(_key('users-role-barista'), findsOneWidget);
 
     repo.list = [...repo.list, sampleAccount('Tono', role: 'barista')];
     await _tap(tester, _key('users-role-delete-barista'));
+    expect(_key('users-role-delete-dialog'), findsOneWidget);
+    await _tap(tester, _key('users-role-delete-confirm'));
     expect(_key('users-role-delete-error'), findsOneWidget);
+  });
+
+  testWidgets('manajer: pemilik dan dirinya tidak bisa dibuka atau diubah', (
+    tester,
+  ) async {
+    repo = FakeUsersRepository();
+    final rina = repo.list[1];
+    final manager = StaffProfile(
+      id: rina.id,
+      name: 'Rina',
+      roleKey: 'manager',
+      isOwner: false,
+      hasPin: true,
+      permissions: {...DefaultRole.manager.permissions, Permission.usersManage},
+    );
+    final owner = repo.list.first;
+    repo.locked[owner.id] = const Duration(seconds: 30);
+    await pumpLakuna(
+      tester,
+      size: const Size(1440, 900),
+      users: repo,
+      session: FakeSessionRepository(staff: [manager], current: manager),
+      initialLocation: Routes.users,
+    );
+    expect(find.text('PIN dikunci 30 dtk'), findsOneWidget);
+    expect(_key('users-unlock-${owner.id.uuid}'), findsNothing);
+    await _tap(tester, _key('users-row-${rina.id.uuid}'));
+    expect(_key('users-form'), findsNothing);
+    await _tap(tester, _key('users-row-${repo.list[2].id.uuid}'));
+    expect(_key('users-form'), findsOneWidget);
+  });
+
+  testWidgets('1440: staf tanpa PIN ditandai "Belum punya PIN"', (
+    tester,
+  ) async {
+    repo = FakeUsersRepository();
+    repo.list = [...repo.list, sampleAccount('Andi', pin: false)];
+    await pumpLakuna(
+      tester,
+      size: const Size(1440, 900),
+      users: repo,
+      initialLocation: Routes.users,
+    );
+    expect(find.text('Belum punya PIN'), findsOneWidget);
+    expect(find.text('PIN saja'), findsNWidgets(3));
   });
 
   testWidgets('800: daftar dan matriks bisa digulir', (tester) async {

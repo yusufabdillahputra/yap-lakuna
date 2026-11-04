@@ -1,7 +1,7 @@
 name: lakuna_flutter
 description: Lakuna, aplikasi kasir offline-first untuk UMKM Indonesia.
 publish_to: none
-version: 0.21.0+22
+version: 0.22.0+23
 
 environment:
   sdk: ^3.13.0

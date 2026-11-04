@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.';
+      'Retail and F&B checkout, cashier sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, reports & profit and loss, and users & roles are ready to use.';
 
   @override
   String get homeDeviceLabel => 'Device ID';
@@ -6453,4 +6453,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountPinDone => 'New PIN saved.';
+
+  @override
+  String get usersErrStaffNotFound => 'User not found or no longer active.';
+
+  @override
+  String get usersErrNoPassword => 'This account does not use a password.';
+
+  @override
+  String usersRoleDeleteTitle(String name) {
+    return 'Delete role $name?';
+  }
+
+  @override
+  String get usersRoleDeleteBody =>
+      'A role still assigned to users cannot be deleted.';
+
+  @override
+  String get usersRoleDeleteConfirm => 'Delete';
 }

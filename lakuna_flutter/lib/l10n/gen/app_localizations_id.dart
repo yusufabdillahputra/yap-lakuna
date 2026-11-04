@@ -80,7 +80,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.';
+      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.';
 
   @override
   String get homeDeviceLabel => 'ID perangkat';
@@ -6332,4 +6332,23 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get accountPinDone => 'PIN baru tersimpan.';
+
+  @override
+  String get usersErrStaffNotFound =>
+      'Pengguna tidak ditemukan atau sudah nonaktif.';
+
+  @override
+  String get usersErrNoPassword => 'Akun ini tidak memakai kata sandi.';
+
+  @override
+  String usersRoleDeleteTitle(String name) {
+    return 'Hapus role $name?';
+  }
+
+  @override
+  String get usersRoleDeleteBody =>
+      'Role yang masih dipakai pengguna tidak bisa dihapus.';
+
+  @override
+  String get usersRoleDeleteConfirm => 'Hapus';
 }

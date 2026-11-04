@@ -14,6 +14,7 @@ StaffAccount sampleAccount(
   bool active = true,
   String? email,
   bool password = false,
+  bool pin = true,
   UuidValue? id,
 }) {
   final isOwner = role == DefaultRole.owner.key;
@@ -23,7 +24,7 @@ StaffAccount sampleAccount(
       tenantId: _tenant,
       name: name,
       email: email,
-      pinHash: r'$argon2id$pin',
+      pinHash: pin ? r'$argon2id$pin' : null,
       passwordHash: password ? r'$argon2id$pw' : null,
       isOwner: isOwner,
       isActive: active,

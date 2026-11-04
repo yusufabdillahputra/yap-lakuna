@@ -71,13 +71,19 @@ void main() {
 
     test('nama unik tanpa membedakan huruf, nama wajib', () async {
       await add('Sari');
-      expect(() => add('sari'), throwsA(isA<StaffNameTaken>()));
-      expect(() => add('  '), throwsA(isA<StaffNameInvalid>()));
+      await expectLater(() => add('sari'), throwsA(isA<StaffNameTaken>()));
+      await expectLater(() => add('  '), throwsA(isA<StaffNameInvalid>()));
     });
 
     test('role tidak dikenal atau owner ditolak', () async {
-      expect(() => add('Budi', role: 'tamu'), throwsA(isA<RoleNotFound>()));
-      expect(() => add('Budi', role: 'owner'), throwsA(isA<RoleNotFound>()));
+      await expectLater(
+        () => add('Budi', role: 'tamu'),
+        throwsA(isA<RoleNotFound>()),
+      );
+      await expectLater(
+        () => add('Budi', role: 'owner'),
+        throwsA(isA<RoleNotFound>()),
+      );
     });
 
     test(
@@ -126,7 +132,7 @@ void main() {
     });
 
     test('pemilik tidak bisa diubah lewat daftar pengguna', () async {
-      expect(
+      await expectLater(
         () => updateStaff(
           store,
           scope,
@@ -138,7 +144,7 @@ void main() {
         ),
         throwsA(isA<StaffOwnerLocked>()),
       );
-      expect(
+      await expectLater(
         () => resetStaffPin(
           store,
           scope,
@@ -164,11 +170,11 @@ void main() {
 
     test('tanpa users:manage ditolak', () async {
       final sari = await add('Sari');
-      expect(
+      await expectLater(
         () => add('Budi', actor: sari.id),
         throwsA(isA<UsersActorNotPermitted>()),
       );
-      expect(
+      await expectLater(
         () => resetStaffPin(
           store,
           scope,
@@ -211,11 +217,11 @@ void main() {
         name: 'Admin',
         permissions: Permission.values.toSet(),
       );
-      expect(
+      await expectLater(
         () => add('Budi', role: big.roleKey, actor: rina.id),
         throwsA(isA<StaffBeyondPermissions>()),
       );
-      expect(
+      await expectLater(
         () => saveRoleMatrix(
           store,
           scope,
@@ -227,6 +233,69 @@ void main() {
         throwsA(isA<StaffBeyondPermissions>()),
       );
     });
+
+    test(
+      'tidak boleh mengelola pemilik, dirinya, atau staf berizin lebih',
+      () async {
+        final admin = await createCustomRole(
+          store,
+          scope,
+          staffId: owner(),
+          name: 'Admin',
+          permissions: Permission.values.toSet(),
+        );
+        final boss = await add('Bos', role: admin.roleKey);
+        final sari = await add('Sari');
+        Future<void> manage(UuidValue target) => requireStaffManageable(
+          store,
+          scope,
+          staffId: rina.id,
+          targetId: target,
+        );
+        await expectLater(
+          () => manage(owner()),
+          throwsA(isA<StaffOwnerLocked>()),
+        );
+        await expectLater(
+          () => manage(rina.id),
+          throwsA(isA<StaffSelfChange>()),
+        );
+        await expectLater(
+          () => manage(boss.id),
+          throwsA(isA<StaffBeyondPermissions>()),
+        );
+        await manage(sari.id);
+        expect(
+          () => resetStaffPin(
+            store,
+            scope,
+            staffId: rina.id,
+            targetId: boss.id,
+            pinHash: r'$argon2id$x',
+          ),
+          throwsA(isA<StaffBeyondPermissions>()),
+        );
+        expect(
+          () => renameCustomRole(
+            store,
+            scope,
+            staffId: rina.id,
+            roleKey: admin.roleKey,
+            name: 'Super',
+          ),
+          throwsA(isA<StaffBeyondPermissions>()),
+        );
+        expect(
+          () => deleteCustomRole(
+            store,
+            scope,
+            staffId: rina.id,
+            roleKey: admin.roleKey,
+          ),
+          throwsA(isA<StaffBeyondPermissions>()),
+        );
+      },
+    );
 
     test(
       'tidak boleh mengubah dirinya sendiri atau role-nya sendiri',
@@ -313,7 +382,7 @@ void main() {
     });
 
     test('matriks pemilik dan role tak dikenal ditolak', () async {
-      expect(
+      await expectLater(
         () => saveRoleMatrix(
           store,
           scope,
@@ -322,7 +391,7 @@ void main() {
         ),
         throwsA(isA<StaffOwnerLocked>()),
       );
-      expect(
+      await expectLater(
         () => saveRoleMatrix(
           store,
           scope,
@@ -403,8 +472,84 @@ void main() {
       },
     );
 
-    test('role bawaan tidak bisa dihapus atau diganti nama', () async {
+    test('baris role memakai ID tetap dan tercatat di outbox', () async {
+      await saveRoleMatrix(
+        store,
+        scope,
+        staffId: owner(),
+        changes: {
+          'cashier': {Permission.salesCreate},
+        },
+      );
+      final barista = await createCustomRole(
+        store,
+        scope,
+        staffId: owner(),
+        name: 'Barista',
+        permissions: const {},
+      );
+      final rows = await StaffRole.db.find(store.session);
+      final cashier = rows.singleWhere((r) => r.roleKey == 'cashier');
+      expect(cashier.id.uuid, stableId(scope.tenantId.uuid, 'cashier'));
+      expect(barista.id.uuid, stableId(scope.tenantId.uuid, 'barista'));
+      final outbox = await SyncOutboxEntry.db.find(store.session);
       expect(
+        outbox.where((e) => e.entity == 'roles').map((e) => e.rowId),
+        containsAll([cashier.id, barista.id]),
+      );
+    });
+
+    test('nama role custom tidak boleh sama dengan role bawaan', () async {
+      for (final name in ['Kasir', 'cashier', 'Staf Gudang']) {
+        await expectLater(
+          () => createCustomRole(
+            store,
+            scope,
+            staffId: owner(),
+            name: name,
+            permissions: const {},
+          ),
+          throwsA(isA<RoleNameTaken>()),
+          reason: name,
+        );
+      }
+    });
+
+    test(
+      'staf dengan role yang sudah tidak ada tetap bisa diubah pemilik',
+      () async {
+        final barista = await createCustomRole(
+          store,
+          scope,
+          staffId: owner(),
+          name: 'Barista',
+          permissions: {Permission.openBillsManage},
+        );
+        final dimas = await add('Dimas', role: barista.roleKey);
+        // Mewakili role yang dihapus di perangkat lain lalu tersinkron.
+        final row = (await StaffRole.db.find(store.session))
+            .singleWhere((r) => r.roleKey == barista.roleKey);
+        await StaffRole.db.updateRow(
+          store.session,
+          row.copyWith(deletedAt: DateTime.now().toUtc()),
+        );
+        await updateStaff(
+          store,
+          scope,
+          staffId: owner(),
+          targetId: dimas.id,
+          name: 'Dimas P',
+          roleKey: barista.roleKey,
+          active: false,
+        );
+        final accounts = await listStaffAccounts(store, scope);
+        expect(accounts.last.name, 'Dimas P');
+        expect(accounts.last.permissions, isEmpty);
+      },
+    );
+
+    test('role bawaan tidak bisa dihapus atau diganti nama', () async {
+      await expectLater(
         () => deleteCustomRole(
           store,
           scope,
@@ -413,7 +558,7 @@ void main() {
         ),
         throwsA(isA<RoleNotFound>()),
       );
-      expect(
+      await expectLater(
         () => renameCustomRole(
           store,
           scope,
@@ -453,7 +598,7 @@ void main() {
         staffId: sari.id,
         pinHash: r'$argon2id$pin2',
       );
-      expect(
+      await expectLater(
         () => changeOwnPassword(
           store,
           scope,
@@ -466,7 +611,7 @@ void main() {
 
     test('staf nonaktif ditolak', () async {
       final sari = await add('Sari', active: false);
-      expect(
+      await expectLater(
         () => changeOwnPin(
           store,
           scope,

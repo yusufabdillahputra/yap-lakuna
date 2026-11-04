@@ -69,7 +69,7 @@ Urutan pengerjaan sama dengan Storeku.
 | 14 | [Supplier & hutang](2026-11-04-f1-14-supplier-hutang-design.md) | 1.21 | Rilis v0.18.0: master supplier + tempo standar, hutang per pembelian, bayar hutang (alokasi jatuh tempo terdekat / manual, kas toko/laci/bank, no. & foto bukti), tombol Bayar hutang di detail pembelian (import supplier, batal bayar menyusul) |
 | 15 | [Pengeluaran](2026-11-04-f1-15-pengeluaran-design.md) | 1.22 | Rilis v0.19.0: jenis pengeluaran (master data), catat kas toko/laci/bank dengan foto nota, batal dengan alasan (laci dibalik di sesi terbuka), per jenis + periode, ekspor Excel, sakelar *Catat juga sebagai pengeluaran* di kas laci (berulang menyusul Fase 3) |
 | 16 | [Laporan & laba rugi](2026-11-04-f1-16-laporan-design.md) | 1.23, 1.24 | Rilis v0.20.0 + v0.21.0: ringkasan (penjualan, laba kotor, rata-rata, piutang jatuh tempo, metode bayar, terlaris), penjualan per produk/kasir/kategori, produk terlaris, laba rugi + perbandingan periode, unduh PDF/Excel, izin `reports:view_profit`; v0.21.0: tab stok (pergerakan + nilai), kas & sesi, piutang & hutang, retur |
-| 17 | Pengguna & role (RBAC) | 1.25 | Belum |
+| 17 | [Pengguna & role (RBAC)](2026-11-04-f1-17-pengguna-role-design.md) | 1.25, 1.25b | Rilis v0.22.0: tambah/ubah staf PIN + ulangi, reset & buka kunci PIN, matriks izin per role, role custom, Akun saya (ganti PIN/kata sandi + ulangi) |
 | 18 | [Pengaturan toko](2026-11-03-f1-18-pengaturan-design.md) | 1.26, 1.26b | Sebagian (v0.1.0: tema & bahasa; v0.7.0: QRIS statis; v0.8.0: struk & printer) |
 | 19 | Data & backup | 1.13 | Belum |
 | 20 | Tata letak mobile & beranda | 1.10, 1.11 | Sebagian (v0.1.0: shell responsif) |

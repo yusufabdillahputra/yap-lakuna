@@ -23,7 +23,7 @@
   "menuGroupFinance": "Finance",
   "menuGroupSystem": "System",
   "homeWelcomeTitle": "Welcome to Lakuna",
-  "homeWelcomeBody": "Retail and F&B cashier, cash sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, and reports & profit and loss are ready to use. Users & roles are coming in the next release.",
+  "homeWelcomeBody": "Retail and F&B checkout, cashier sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, reports & profit and loss, and users & roles are ready to use.",
   "homeDeviceLabel": "Device ID",
   "homeDataLabel": "Data location",
   "homeVersionLabel": "Version",
@@ -3360,5 +3360,17 @@
   "accountPinNew": "New PIN",
   "accountPinRetype": "Repeat new PIN",
   "accountPinSubmit": "Change PIN",
-  "accountPinDone": "New PIN saved."
+  "accountPinDone": "New PIN saved.",
+  "usersErrStaffNotFound": "User not found or no longer active.",
+  "usersErrNoPassword": "This account does not use a password.",
+  "usersRoleDeleteTitle": "Delete role {name}?",
+  "@usersRoleDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "usersRoleDeleteBody": "A role still assigned to users cannot be deleted.",
+  "usersRoleDeleteConfirm": "Delete"
 }

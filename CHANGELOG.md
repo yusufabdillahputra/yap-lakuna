@@ -7,6 +7,98 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-11-04
+
+Pengguna & role (F1-17): pemilik bisa menambah staf PIN, mereset dan membuka
+kunci PIN, menonaktifkan staf, mengatur izin per role lewat matriks, dan
+membuat role custom. Setiap pengguna punya halaman *Akun saya* untuk
+mengganti PIN dan kata sandinya sendiri. Semua isian PIN dan kata sandi
+baru selalu punya kolom ulangi.
+
+### Ditambahkan
+
+- Menu **Sistem → Pengguna & role** (`users:manage`), layar 1.25:
+  - tab **Pengguna**: tabel (≥ 720 px) atau kartu berisi nama, email atau
+    *PIN saja* / *Belum punya PIN*, role, cabang, status Aktif/Nonaktif;
+    subjudul jumlah pengguna aktif;
+  - badge **PIN dikunci N dtk** dengan hitung mundur per detik dan tombol
+    **Buka kunci** langsung di baris staf;
+  - dialog **Tambah pengguna** (1.25b): nama, role, PIN 6 angka + **ulangi
+    PIN**, status aktif; dialog **Ubah pengguna** dengan bagian **Reset
+    PIN** (PIN baru + ulangi, tanpa PIN lama) yang sekaligus membuka kunci;
+  - tab **Role & izin**: matriks 22 izin × role (label manusia dan kunci
+    `resource:action`), kolom pemilik terkunci, bisa digulir mendatar di
+    layar sempit, tombol *Batalkan* / *Simpan perubahan*;
+  - **Role custom**: buat (Enter langsung menyimpan), ganti nama, hapus
+    dengan konfirmasi; role yang masih dipakai staf tidak bisa dihapus.
+- Menu **Sistem → Akun saya** untuk semua pengguna (1.25b): kartu **Ganti
+  PIN** (PIN saat ini, PIN baru, ulangi) dan **Ganti kata sandi** (kata
+  sandi saat ini, baru minimal 8 karakter, ulangi). Staf tanpa kata sandi
+  melihat keterangan bahwa mereka masuk dengan PIN saja.
+- Izin role tersimpan di tabel baru `roles` dan dipakai saat login, di menu,
+  dan di setiap repositori.
+
+### Diubah
+
+- Nama role di login, beranda, dan kepala aplikasi memakai nama role custom
+  bila ada.
+- Teks sambutan beranda menyebut pengguna & role sudah bisa dipakai.
+- Mengubah staf, matriks, atau nama role menyegarkan izin sesi yang sedang
+  masuk; staf yang dinonaktifkan dikeluarkan saat sesinya disegarkan.
+
+### Diperbaiki
+
+Ditemukan sebelum rilis (review kode dan uji manual), bukan bug versi
+sebelumnya:
+
+- Manajer dengan `users:manage` bisa membuka kunci PIN pemilik; kini
+  ditolak di repositori dan tombolnya tidak tampil.
+- `id` baris role dibuat acak sehingga dua perangkat yang mengubah role yang
+  sama akan bentrok di indeks unik saat sinkronisasi; kini deterministik
+  dari tenant + kunci role.
+- Staf dengan role yang tidak dikenali tidak bisa diubah sama sekali; kini
+  pemilik tetap bisa mengubahnya selama role tidak diganti.
+- Pilihan role di dialog non-pemilik menampilkan role yang izinnya di luar
+  milik aktor; kini disaring. Baris pemilik dan baris diri sendiri tidak
+  bisa dibuka oleh non-pemilik.
+- Badge kunci PIN tidak berkurang sampai daftar dimuat ulang; kini dihitung
+  mundur per detik.
+- Role custom bisa memakai nama role bawaan (mis. "Kasir"); kini ditolak.
+- Hapus role custom tanpa konfirmasi; kini lewat dialog.
+- Staf tanpa PIN tertulis *PIN saja* di daftar; kini *Belum punya PIN*.
+- Pesan galat untuk staf tidak ditemukan dan akun tanpa kata sandi.
+
+### Keamanan
+
+- Non-pemilik tidak bisa memberi izin yang tidak ia miliki, tidak bisa
+  mengubah dirinya atau role-nya sendiri, dan tidak bisa mengubah pemilik.
+  Aturan ini dicek di lapisan data, bukan hanya di UI.
+- Ganti PIN / kata sandi sendiri wajib memasukkan nilai saat ini; salah 5
+  kali memakai kunci login yang sama (60 detik).
+- PIN dan kata sandi di-hash Argon2id di isolate; staf nonaktif tidak
+  muncul di login.
+
+### Catatan teknis
+
+- Model `StaffRole` (`lakuna_server/lib/src/organization/staff_role.spy.yaml`,
+  tabel `roles`, indeks unik `(tenant_id, role_key)`), migrasi
+  `staff-role`. Role bawaan tidak di-seed; barisnya dibuat saat matriks
+  pertama kali diubah. Role `owner` tidak pernah disimpan.
+- Domain `staff.dart`: `StaffIssue`, `validatePinPair`,
+  `validatePasswordPair`, `roleKeyFor`, `encodePermissions` /
+  `decodePermissions`, `effectivePermissions`, `grantIssue`; `ids.dart`:
+  `stableId` (UUIDv5).
+- Data `users.dart`: `listStaffAccounts`, `listRoles`, `createStaff`,
+  `updateStaff`, `resetStaffPin`, `changeOwnPin`, `changeOwnPassword`,
+  `saveRoleMatrix`, `createCustomRole`, `renameCustomRole`,
+  `deleteCustomRole`, `requireStaffManageable`; semua tulis lewat
+  `LakunaStore.write` + outbox sync.
+- Aplikasi: `UsersRepository` + `LocalUsersRepository`;
+  `SessionRepository` mendapat `unlockPin`, `refreshCurrent`,
+  `verifyCurrentPin`, `verifyCurrentPassword`; rute `/pengguna` dan `/akun`.
+- Tes: domain (16), data (23), repositori lokal dengan database sungguhan
+  (6), view model (14), alur widget 1440 / 800 / 360 px, menu.
+
 ## [0.21.0] - 2026-11-04
 
 Laporan bagian kedua (F1-16): empat tab baru di layar Laporan untuk melihat
@@ -2168,7 +2260,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.18.0...v0.19.0

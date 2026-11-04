@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcomeBody.
   ///
   /// In id, this message translates to:
-  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, serta laporan & laba rugi sudah bisa dipakai. Pengguna & role menyusul di rilis berikutnya.'**
+  /// **'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.'**
   String get homeWelcomeBody;
 
   /// No description provided for @homeDeviceLabel.
@@ -11221,6 +11221,36 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'PIN baru tersimpan.'**
   String get accountPinDone;
+
+  /// No description provided for @usersErrStaffNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna tidak ditemukan atau sudah nonaktif.'**
+  String get usersErrStaffNotFound;
+
+  /// No description provided for @usersErrNoPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun ini tidak memakai kata sandi.'**
+  String get usersErrNoPassword;
+
+  /// No description provided for @usersRoleDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus role {name}?'**
+  String usersRoleDeleteTitle(String name);
+
+  /// No description provided for @usersRoleDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Role yang masih dipakai pengguna tidak bisa dihapus.'**
+  String get usersRoleDeleteBody;
+
+  /// No description provided for @usersRoleDeleteConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus'**
+  String get usersRoleDeleteConfirm;
 }
 
 class _AppLocalizationsDelegate

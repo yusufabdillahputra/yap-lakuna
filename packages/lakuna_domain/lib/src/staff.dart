@@ -144,3 +144,18 @@ StaffIssue? grantIssue({
       ? null
       : StaffIssue.beyondOwnPermissions;
 }
+
+/// Nama role bawaan (id + en, huruf kecil) yang tidak boleh dipakai role
+/// custom agar kolom matriks dan pilihan role tidak kembar.
+const defaultRoleNames = {
+  'pemilik',
+  'owner',
+  'manajer',
+  'manager',
+  'kasir',
+  'cashier',
+  'pelayan',
+  'waiter',
+  'staf gudang',
+  'stock keeper',
+};

@@ -50,6 +50,8 @@ String usersErrorMessage(AppLocalizations l10n, Exception e) => switch (e) {
   StaffNameInvalid(:final issue) ||
   RoleNameInvalid(:final issue) => staffIssueLabel(l10n, issue),
   StaffOwnerLocked() => l10n.usersErrOwnerLocked,
+  StaffNotFound() || StaffUnavailable() => l10n.usersErrStaffNotFound,
+  StaffNoPassword() => l10n.usersErrNoPassword,
   StaffSelfChange() => l10n.usersErrSelf,
   StaffBeyondPermissions() => l10n.usersErrBeyond,
   RoleNotFound() => l10n.usersErrRoleNotFound,
