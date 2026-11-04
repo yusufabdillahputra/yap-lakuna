@@ -7,6 +7,57 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-11-04
+
+Beranda baru (F1-20, layar 1.10): angka hari ini, akses cepat ke modul, dan
+hal yang perlu ditindak, di HP maupun desktop.
+
+### Ditambahkan
+
+- **Sapaan** "Selamat pagi / siang / sore / malam, <nama>" menurut jam
+  cabang, dengan nama toko dan cabang.
+- Kartu **Penjualan hari ini** (staf dengan `reports:view`): penjualan
+  bersih, jumlah transaksi, dan rata-rata per transaksi, dari laporan
+  periode *Hari ini*.
+- **Grid modul**: Kasir, Meja (usaha F&B / campuran), Riwayat, Produk, Stok,
+  Pembelian, Pengeluaran, Pelanggan, Laporan; hanya modul yang diizinkan.
+  Empat kolom di HP, enam di layar lebar.
+- Kartu **Perlu perhatian** dengan tautan *Lihat*: jumlah produk di bawah
+  stok minimum (ke Stok), pembayaran QRIS split bill yang menunggu
+  konfirmasi (ke Meja), dan backup terakhir (hari ini / kemarin / N hari
+  lalu / belum pernah; merah bila lebih dari 7 hari, ke Data & backup).
+  Bila tidak ada yang perlu ditindak: "Semua beres".
+- Kartu **Info perangkat** (toko, staf bertugas, versi, ID perangkat, lokasi
+  data) tetap ada di bawah.
+- Beranda dimuat ulang saat aplikasi kembali aktif.
+
+### Diubah
+
+- Kartu pengingat backup v0.25.0 di Beranda digantikan baris backup di
+  *Perlu perhatian*.
+- Teks sambutan lama ("Selamat datang di Lakuna") dihapus.
+
+### Diperbaiki
+
+Ditemukan saat review sebelum rilis:
+
+- Galat tak terduga dari salah satu sumber data hanya menyembunyikan
+  barisnya, tidak menggagalkan seluruh Beranda; setiap bagian tampil begitu
+  datanya siap.
+- Ubin Meja dan hitungan QRIS tidak tampil untuk usaha retail.
+- Label modul yang panjang (mis. Pengeluaran) boleh dua baris di HP 360 px.
+- Pembaca layar: label ubin modul tidak dibaca dua kali, dan setiap tombol
+  *Lihat* menyebut barisnya.
+- Jumlah hari sejak backup tidak negatif bila jam perangkat mundur.
+
+### Catatan teknis
+
+- `lakuna_data`: `pendingQrisCount` (pembayaran `pending` pada bill terbuka
+  cabang). `DiningRepository.pendingQrisCount`.
+- `HomeViewModel` memuat laporan, stok minimum, QRIS menunggu, dan backup
+  secara paralel sesuai izin staf.
+- `sampleStoreContext` di tes menerima `timezone` dan `businessType`.
+
 ## [0.25.0] - 2026-11-04
 
 Data & backup (F1-19, layar 1.13): pemilik membuat backup seluruh data
@@ -2511,7 +2562,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.26.0...HEAD
+[0.26.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.22.0...v0.23.0

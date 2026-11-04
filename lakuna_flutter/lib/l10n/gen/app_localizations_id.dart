@@ -76,13 +76,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get menuGroupSystem => 'Sistem';
 
   @override
-  String get homeWelcomeTitle => 'Selamat datang di Lakuna';
-
-  @override
-  String get homeWelcomeBody =>
-      'Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.';
-
-  @override
   String get homeDeviceLabel => 'ID perangkat';
 
   @override
@@ -6716,21 +6709,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get backupHostingSoon => 'Tersedia di versi hosting (Fase 2).';
 
   @override
-  String get homeBackupTitle => 'Perlu perhatian';
-
-  @override
-  String get homeBackupNever =>
-      'Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.';
-
-  @override
-  String homeBackupDays(int days) {
-    return 'Backup terakhir $days hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.';
-  }
-
-  @override
-  String get homeBackupAction => 'Buka Data & backup';
-
-  @override
   String get startupErrorTitle => 'Lakuna gagal dibuka';
 
   @override
@@ -6751,4 +6729,76 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get homeRestoreFailedBody =>
       'Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.';
+
+  @override
+  String homeGreetingMorning(String name) {
+    return 'Selamat pagi, $name';
+  }
+
+  @override
+  String homeGreetingMidday(String name) {
+    return 'Selamat siang, $name';
+  }
+
+  @override
+  String homeGreetingAfternoon(String name) {
+    return 'Selamat sore, $name';
+  }
+
+  @override
+  String homeGreetingNight(String name) {
+    return 'Selamat malam, $name';
+  }
+
+  @override
+  String get homeSalesTodayTitle => 'Penjualan hari ini';
+
+  @override
+  String homeSalesTodayDetail(int count, String average) {
+    return '$count transaksi · rata-rata $average';
+  }
+
+  @override
+  String get homeModulesLabel => 'Modul';
+
+  @override
+  String get homeAttentionTitle => 'Perlu perhatian';
+
+  @override
+  String homeAttentionLowStock(int count) {
+    return '$count produk di bawah stok minimum';
+  }
+
+  @override
+  String homeAttentionPendingQris(int count) {
+    return '$count pembayaran QRIS menunggu konfirmasi';
+  }
+
+  @override
+  String homeAttentionBackupToday(String time) {
+    return 'Backup terakhir hari ini $time';
+  }
+
+  @override
+  String homeAttentionBackupYesterday(String time) {
+    return 'Backup terakhir kemarin $time';
+  }
+
+  @override
+  String homeAttentionBackupDays(int days) {
+    return 'Backup terakhir $days hari lalu';
+  }
+
+  @override
+  String get homeAttentionBackupNever => 'Data belum pernah di-backup';
+
+  @override
+  String get homeAttentionView => 'Lihat';
+
+  @override
+  String get homeAttentionClear =>
+      'Semua beres, tidak ada yang perlu ditindak.';
+
+  @override
+  String get homeDeviceTitle => 'Info perangkat';
 }

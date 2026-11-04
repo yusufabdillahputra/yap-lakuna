@@ -23,6 +23,11 @@ class LocalDiningRepository extends DiningRepository {
   final LocalPreferences _preferences;
 
   @override
+  Future<Result<int>> pendingQrisCount() => _guard(
+    (ctx, _) => data.pendingQrisCount(_store, CatalogScope.of(ctx)),
+  );
+
+  @override
   Future<Result<DiningData>> load() => _guard((ctx, staff) async {
     final scope = CatalogScope.of(ctx);
     final products = [

@@ -440,6 +440,8 @@ void main() {
       expect(waiting.amount, 18334);
       expect(b.split!.part('A').status, SplitPartStatus.pending);
       expect(b.split!.pending, const Money(18334));
+      // Beranda (F1-20): QRIS menunggu konfirmasi di cabang ini.
+      expect(await pendingQrisCount(store, scope), 1);
 
       b = await cancelSplitPayment(
         store,
@@ -449,6 +451,7 @@ void main() {
       );
       expect(b.payments, isEmpty);
       expect(b.split!.locked, isFalse);
+      expect(await pendingQrisCount(store, scope), 0);
 
       b = (await pay(b, guest: 'A', payments: qris, pending: true)).bill!;
       b = (await pay(

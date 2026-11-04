@@ -223,6 +223,15 @@ class FakeDiningRepository extends DiningRepository {
   @override
   Future<Result<DiningOverview>> overview() => _run(_overview);
 
+  @override
+  Future<Result<int>> pendingQrisCount() => _run(
+    () => payments.where((p) {
+      if (p.status != PaymentStatus.pending) return false;
+      final sale = sales.where((s) => s.id == p.saleId).firstOrNull;
+      return sale != null && sale.status == SaleStatus.open;
+    }).length,
+  );
+
   // --- Bill -----------------------------------------------------------------
 
   Sale _newSale(OrderType type, {UuidValue? table, int? guests, String? name}) {

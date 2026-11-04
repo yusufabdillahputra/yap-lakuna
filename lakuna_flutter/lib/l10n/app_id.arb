@@ -22,8 +22,6 @@
   "menuGroupContacts": "Kontak",
   "menuGroupFinance": "Keuangan",
   "menuGroupSystem": "Sistem",
-  "homeWelcomeTitle": "Selamat datang di Lakuna",
-  "homeWelcomeBody": "Kasir retail dan F&B, sesi kasir, produk, stok, riwayat transaksi, pembelian, pelanggan & piutang, supplier & hutang, pengeluaran, laporan & laba rugi, serta pengguna & role sudah bisa dipakai.",
   "homeDeviceLabel": "ID perangkat",
   "homeDataLabel": "Lokasi data",
   "homeVersionLabel": "Versi",
@@ -4187,17 +4185,6 @@
   "backupHostingCode": "Kode aktivasi",
   "backupHostingConnect": "Hubungkan & unggah data",
   "backupHostingSoon": "Tersedia di versi hosting (Fase 2).",
-  "homeBackupTitle": "Perlu perhatian",
-  "homeBackupNever": "Data belum pernah di-backup. Backup sekarang agar data tidak hilang bila perangkat rusak.",
-  "homeBackupDays": "Backup terakhir {days} hari lalu. Backup sekarang agar data tidak hilang bila perangkat rusak.",
-  "@homeBackupDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
-  "homeBackupAction": "Buka Data & backup",
   "startupErrorTitle": "Lakuna gagal dibuka",
   "startupErrorBody": "Database di perangkat ini tidak bisa dibuka. Data Anda tidak dihapus. Salin detail di bawah lalu hubungi dukungan.",
   "startupErrorPath": "Lokasi data: {path}",
@@ -4215,6 +4202,117 @@
   },
   "homeRestoreFailedBody": "Database dari backup tidak bisa dibuka, jadi data sebelumnya dikembalikan. Berkas backup yang gagal disimpan di folder pulihkan-gagal di lokasi data.",
   "@homeRestoreFailedBody": {
+    "placeholders": {}
+  },
+  "homeGreetingMorning": "Selamat pagi, {name}",
+  "@homeGreetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingMidday": "Selamat siang, {name}",
+  "@homeGreetingMidday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingAfternoon": "Selamat sore, {name}",
+  "@homeGreetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingNight": "Selamat malam, {name}",
+  "@homeGreetingNight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSalesTodayTitle": "Penjualan hari ini",
+  "@homeSalesTodayTitle": {
+    "placeholders": {}
+  },
+  "homeSalesTodayDetail": "{count} transaksi · rata-rata {average}",
+  "@homeSalesTodayDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "homeModulesLabel": "Modul",
+  "@homeModulesLabel": {
+    "placeholders": {}
+  },
+  "homeAttentionTitle": "Perlu perhatian",
+  "@homeAttentionTitle": {
+    "placeholders": {}
+  },
+  "homeAttentionLowStock": "{count} produk di bawah stok minimum",
+  "@homeAttentionLowStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionPendingQris": "{count} pembayaran QRIS menunggu konfirmasi",
+  "@homeAttentionPendingQris": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionBackupToday": "Backup terakhir hari ini {time}",
+  "@homeAttentionBackupToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAttentionBackupYesterday": "Backup terakhir kemarin {time}",
+  "@homeAttentionBackupYesterday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeAttentionBackupDays": "Backup terakhir {days} hari lalu",
+  "@homeAttentionBackupDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAttentionBackupNever": "Data belum pernah di-backup",
+  "@homeAttentionBackupNever": {
+    "placeholders": {}
+  },
+  "homeAttentionView": "Lihat",
+  "@homeAttentionView": {
+    "placeholders": {}
+  },
+  "homeAttentionClear": "Semua beres, tidak ada yang perlu ditindak.",
+  "@homeAttentionClear": {
+    "placeholders": {}
+  },
+  "homeDeviceTitle": "Info perangkat",
+  "@homeDeviceTitle": {
     "placeholders": {}
   }
 }

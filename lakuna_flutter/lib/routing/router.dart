@@ -142,8 +142,14 @@ GoRouter createRouter({
         routes: [
           GoRoute(
             path: Routes.home,
-            builder: (context, state) =>
-                HomeView(store: store, session: session, backup: backup),
+            builder: (context, state) => HomeView(
+              store: store,
+              session: session,
+              reports: reports,
+              stock: stock,
+              dining: dining,
+              backup: backup,
+            ),
           ),
           GoRoute(
             path: Routes.settings,

@@ -76,13 +76,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuGroupSystem => 'System';
 
   @override
-  String get homeWelcomeTitle => 'Welcome to Lakuna';
-
-  @override
-  String get homeWelcomeBody =>
-      'Retail and F&B checkout, cashier sessions, products, stock, transaction history, purchases, customers & receivables, suppliers & payables, expenses, reports & profit and loss, and users & roles are ready to use.';
-
-  @override
   String get homeDeviceLabel => 'Device ID';
 
   @override
@@ -6835,21 +6828,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupHostingSoon => 'Available in the hosted version (phase 2).';
 
   @override
-  String get homeBackupTitle => 'Needs attention';
-
-  @override
-  String get homeBackupNever =>
-      'Data has never been backed up. Back up now so nothing is lost if the device breaks.';
-
-  @override
-  String homeBackupDays(int days) {
-    return 'Last backup was $days days ago. Back up now so nothing is lost if the device breaks.';
-  }
-
-  @override
-  String get homeBackupAction => 'Open Data & backup';
-
-  @override
   String get startupErrorTitle => 'Lakuna could not start';
 
   @override
@@ -6870,4 +6848,99 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get homeRestoreFailedBody =>
       'The database from the backup could not be opened, so your previous data was put back. The failed backup is kept in a pulihkan-gagal folder in the data location.';
+
+  @override
+  String homeGreetingMorning(String name) {
+    return 'Good morning, $name';
+  }
+
+  @override
+  String homeGreetingMidday(String name) {
+    return 'Good day, $name';
+  }
+
+  @override
+  String homeGreetingAfternoon(String name) {
+    return 'Good afternoon, $name';
+  }
+
+  @override
+  String homeGreetingNight(String name) {
+    return 'Good evening, $name';
+  }
+
+  @override
+  String get homeSalesTodayTitle => 'Today\'s sales';
+
+  @override
+  String homeSalesTodayDetail(int count, String average) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$_temp0 · average $average';
+  }
+
+  @override
+  String get homeModulesLabel => 'Modules';
+
+  @override
+  String get homeAttentionTitle => 'Needs attention';
+
+  @override
+  String homeAttentionLowStock(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+    );
+    return '$_temp0 below minimum stock';
+  }
+
+  @override
+  String homeAttentionPendingQris(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count QRIS payments',
+      one: '1 QRIS payment',
+    );
+    return '$_temp0 awaiting confirmation';
+  }
+
+  @override
+  String homeAttentionBackupToday(String time) {
+    return 'Last backup today at $time';
+  }
+
+  @override
+  String homeAttentionBackupYesterday(String time) {
+    return 'Last backup yesterday at $time';
+  }
+
+  @override
+  String homeAttentionBackupDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return 'Last backup $_temp0 ago';
+  }
+
+  @override
+  String get homeAttentionBackupNever => 'Data has never been backed up';
+
+  @override
+  String get homeAttentionView => 'View';
+
+  @override
+  String get homeAttentionClear => 'All good, nothing needs action.';
+
+  @override
+  String get homeDeviceTitle => 'Device info';
 }
