@@ -7380,7 +7380,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String labelsTotal(int labels, int pages) {
-    return '$labels labels · $pages pages';
+    String _temp0 = intl.Intl.pluralLogic(
+      labels,
+      locale: localeName,
+      other: '$labels labels',
+      one: '1 label',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    return '$_temp0 · $_temp1';
   }
 
   @override

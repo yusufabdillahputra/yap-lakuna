@@ -4072,7 +4072,7 @@
   "labelsShowPrice": "Show price",
   "labelsPreview": "Preview",
   "labelsPreviewEmpty": "Pick a product to see a preview.",
-  "labelsTotal": "{labels} labels · {pages} pages",
+  "labelsTotal": "{labels, plural, =1{1 label} other{{labels} labels}} · {pages, plural, =1{1 page} other{{pages} pages}}",
   "@labelsTotal": {
     "placeholders": {
       "labels": {
