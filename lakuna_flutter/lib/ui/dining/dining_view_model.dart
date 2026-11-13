@@ -61,6 +61,7 @@ class DiningViewModel extends ChangeNotifier {
     send = Command0(_send)..addListener(notifyListeners);
     requestBill = Command1(_requestBill)..addListener(notifyListeners);
     move = Command1(_move)..addListener(notifyListeners);
+    merge = Command1(_merge)..addListener(notifyListeners);
     voidBill = Command1(_void)..addListener(notifyListeners);
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
@@ -88,6 +89,9 @@ class DiningViewModel extends ChangeNotifier {
 
   /// Meja tujuan.
   late final Command1<OpenBill, UuidValue> move;
+
+  /// *Gabung meja* (F1-10d): argumen = bill sumber; tujuan = bill terpilih.
+  late final Command1<OpenBill, UuidValue> merge;
 
   /// Alasan batal dan penyetuju (F1-11; `null` = staf bertugas).
   late final Command1<void, BillVoid> voidBill;
@@ -229,6 +233,23 @@ class DiningViewModel extends ChangeNotifier {
     );
   }
 
+  /// Membuang bill [id] dari ringkasan (mis. sumber *Gabung meja*).
+  void _remove(UuidValue id) {
+    final o = _overview;
+    if (o == null) return;
+    _data = _data!.withOverview(
+      DiningOverview(
+        areas: o.areas,
+        tables: o.tables,
+        bills: [
+          for (final b in o.bills)
+            if (b.id != id) b,
+        ],
+        rates: o.rates,
+      ),
+    );
+  }
+
   OpenBill? _billById(UuidValue id) =>
       _overview?.bills.where((b) => b.id == id).firstOrNull;
 
@@ -345,6 +366,31 @@ class DiningViewModel extends ChangeNotifier {
       if (billFor(t) == null) t,
   ];
 
+  bool _tableCanMerge(UuidValue? id) =>
+      id != null && tables.any((t) => t.id == id && t.canMerge);
+
+  /// [bill] dine in di meja *Boleh digabung*: aksi *Gabung meja* tampil.
+  bool canMergeInto(OpenBill bill) =>
+      !bill.isTakeAway && _tableCanMerge(bill.sale.diningTableId);
+
+  /// [bill] tidak sedang di-split dan belum punya pembayaran bagian.
+  static bool _unsplit(OpenBill bill) =>
+      bill.sale.splitMode == null && bill.payments.isEmpty;
+
+  /// Aksi *Gabung meja* aktif: bill ini tidak sedang di-split.
+  bool canMergeNow(OpenBill bill) => canMergeInto(bill) && _unsplit(bill);
+
+  /// Bill dine in lain di meja *Boleh digabung* yang bisa digabung ke
+  /// [bill], urut meja; bill yang di-split atau berdiskon nota tidak
+  /// ditawarkan (akan ditolak).
+  List<OpenBill> mergeSources(OpenBill bill) => [
+    for (final t in tables)
+      if (t.canMerge)
+        if (billFor(t) case final b?
+            when b.id != bill.id && _unsplit(b) && b.discount == null)
+          b,
+  ];
+
   /// Galat aksi bill terakhir (item terkunci, alasan kosong, dsb.).
   Exception? get actionError => _actionError;
 
@@ -363,6 +409,7 @@ class DiningViewModel extends ChangeNotifier {
       send.running ||
       requestBill.running ||
       move.running ||
+      merge.running ||
       voidBill.running ||
       deleteEmpty.running ||
       setDiscount.running;
@@ -488,6 +535,19 @@ class DiningViewModel extends ChangeNotifier {
     final id = _billId;
     if (id == null) return Future.value(Result.error(BillNotFound()));
     return _act(() => _repository.moveBill(id, tableId), onOk: _put);
+  }
+
+  Future<Result<OpenBill>> _merge(UuidValue sourceId) async {
+    final id = _billId;
+    if (id == null) return Result.error(BillNotFound());
+    final result = await _act(() => _repository.mergeBill(id, sourceId));
+    if (result case Ok(:final value)) {
+      _remove(sourceId);
+      await _reloadOverview();
+      _put(value);
+      _selectedId = value.id;
+    }
+    return result;
   }
 
   Future<Result<void>> _void(BillVoid request) async {

@@ -336,6 +336,7 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
                                 vm.areaName(t.diningAreaId) ??
                                     l10n.diningSetupNoArea,
                                 l10n.diningSeats(t.seats),
+                                if (t.canMerge) l10n.diningSetupCanMerge,
                               ].join(' · '),
                               actions: [
                                 iconButton(
@@ -550,6 +551,7 @@ class _TableDialogState extends State<_TableDialog> {
   late var _name = widget.table?.name ?? '';
   late var _seats = '${widget.table?.seats ?? 4}';
   late UuidValue? _area = widget.table?.diningAreaId;
+  late var _canMerge = widget.table?.canMerge ?? false;
   var _nameEmpty = false;
   var _seatsBad = false;
 
@@ -561,7 +563,12 @@ class _TableDialogState extends State<_TableDialog> {
     });
     if (_nameEmpty || _seatsBad) return;
     Navigator.of(context).pop(
-      DiningTableDraft(name: _name.trim(), areaId: _area, seats: seats),
+      DiningTableDraft(
+        name: _name.trim(),
+        areaId: _area,
+        seats: seats,
+        canMerge: _canMerge,
+      ),
     );
   }
 
@@ -608,6 +615,13 @@ class _TableDialogState extends State<_TableDialog> {
             onChange: (v) => _seats = v.text,
           ),
           onSubmit: (_) => _save(),
+        ),
+        FSwitch(
+          key: const ValueKey('dining-setup-table-merge'),
+          label: Text(l10n.floorCanMerge),
+          description: Text(l10n.diningSetupCanMergeHint),
+          value: _canMerge,
+          onChange: (v) => setState(() => _canMerge = v),
         ),
       ],
       actions: _saveCancel(

@@ -166,6 +166,20 @@ class LocalDiningRepository extends DiningRepository {
       );
 
   @override
+  Future<Result<OpenBill>> mergeBill(
+    UuidValue targetBillId,
+    UuidValue sourceBillId,
+  ) => _guard(
+    (ctx, staff) => mergeOpenBills(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      targetBillId: targetBillId,
+      sourceBillId: sourceBillId,
+    ),
+  );
+
+  @override
   Future<Result<OpenBill>> setDiscount(
     UuidValue billId,
     ManualDiscount? discount, {

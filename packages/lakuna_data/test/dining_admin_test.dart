@@ -130,6 +130,29 @@ void main() {
       expect(updated.diningAreaId, indoor.id);
       expect(updated.seats, 1);
       expect(updated.version, 2);
+      expect(updated.canMerge, isFalse);
+      // *Boleh digabung* (F1-10d) dari form meja; null = tidak berubah.
+      final merge = await updateDiningTable(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: m2.id,
+        draft: DiningTableDraft(
+          name: 'Bar 1',
+          areaId: indoor.id,
+          seats: 1,
+          canMerge: true,
+        ),
+      );
+      expect(merge.canMerge, isTrue);
+      final kept = await updateDiningTable(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: m2.id,
+        draft: DiningTableDraft(name: 'Bar 1', areaId: indoor.id, seats: 1),
+      );
+      expect(kept.canMerge, isTrue);
       await moveDiningTable(
         store,
         scope,

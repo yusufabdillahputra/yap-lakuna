@@ -12955,6 +12955,72 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Logo lebih dari 1 MB. Pilih berkas yang lebih kecil.'**
   String get receiptLogoTooLarge;
+
+  /// No description provided for @diningMerge.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabung meja'**
+  String get diningMerge;
+
+  /// No description provided for @diningMergeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabungkan ke {label}'**
+  String diningMergeTitle(String label);
+
+  /// No description provided for @diningMergeHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Item, tiket dapur, dan tamu meja yang dipilih pindah ke bill ini. Meja itu menjadi kosong.'**
+  String get diningMergeHint;
+
+  /// No description provided for @diningMergeNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).'**
+  String get diningMergeNone;
+
+  /// No description provided for @diningMergeOption.
+  ///
+  /// In id, this message translates to:
+  /// **'{label} · {total}'**
+  String diningMergeOption(String label, String total);
+
+  /// No description provided for @diningErrorMergeSplit.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill sedang di-split atau sudah ada pembayaran bagian. Batalkan split dulu.'**
+  String get diningErrorMergeSplit;
+
+  /// No description provided for @diningErrorMergeDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill meja yang digabung punya diskon nota. Hapus diskonnya dulu.'**
+  String get diningErrorMergeDiscount;
+
+  /// No description provided for @diningErrorMergeGuests.
+  ///
+  /// In id, this message translates to:
+  /// **'Jumlah tamu gabungan lebih dari 99.'**
+  String get diningErrorMergeGuests;
+
+  /// No description provided for @diningErrorMergeNotAllowed.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja ini tidak bisa digabung.'**
+  String get diningErrorMergeNotAllowed;
+
+  /// No description provided for @diningSetupCanMergeHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Bill meja ini bisa digabung dengan meja lain lewat Gabung meja.'**
+  String get diningSetupCanMergeHint;
+
+  /// No description provided for @diningSetupCanMerge.
+  ///
+  /// In id, this message translates to:
+  /// **'Boleh digabung'**
+  String get diningSetupCanMerge;
 }
 
 class _AppLocalizationsDelegate

@@ -104,6 +104,64 @@ void main() {
     expect(vm.tableState(table('M2')), TableState.empty);
   });
 
+  test('gabung meja (F1-10d): hanya meja Boleh digabung, item dan tamu '
+      'pindah, meja sumber kosong', () async {
+    repo.allowMerge(['M1', 'M2', 'M4']);
+    await vm.load.execute();
+    await vm.openTable.execute((table('M3').id, 2));
+    final m3 = vm.selectedBill!;
+    expect(vm.canMergeInto(m3), isFalse);
+    await vm.openTable.execute((table('M2').id, 3));
+    await add('Kopi Susu Aren');
+    await vm.openTable.execute((table('M1').id, 2));
+    await add('Nasi Goreng Kampung');
+    final m1 = vm.selectedBill!;
+    expect(vm.canMergeInto(m1), isTrue);
+    // M3 tidak boleh digabung, M4 kosong.
+    expect(vm.mergeSources(m1).map((b) => b.label), ['M2']);
+    // Bill berdiskon nota tidak ditawarkan.
+    repo
+      ..allowMerge(['M3'])
+      ..discountNeedsPin = false;
+    await vm.load.execute();
+    vm.select(vm.billFor(table('M3'))!);
+    await add('Es Teh Manis');
+    await vm.setDiscount.execute((
+      discount: const ManualDiscount.amount(Money(1000)),
+      approverId: null,
+    ));
+    expect(vm.billFor(table('M3'))!.discount, isNotNull);
+    expect(vm.mergeSources(m1).map((b) => b.label), ['M2']);
+    vm.select(vm.billFor(table('M1'))!);
+
+    await vm.merge.execute(vm.billFor(table('M2'))!.id);
+    expect(vm.actionError, isNull);
+    expect(vm.selectedBill?.id, m1.id);
+    expect(vm.selectedBill!.items, hasLength(2));
+    expect(vm.selectedBill!.sale.guestCount, 5);
+    expect(vm.tableState(table('M2')), TableState.empty);
+    expect(vm.mergeSources(m1), isEmpty);
+  });
+
+  test('gabung meja ditolak → pesan galat, bill tetap', () async {
+    repo.allowMerge(['M1', 'M2']);
+    await vm.load.execute();
+    await vm.openTable.execute((table('M2').id, 2));
+    final m2 = vm.selectedBill!;
+    await vm.openTable.execute((table('M1').id, 2));
+    repo.nextError = const BillMergeBlocked(BillMergeReason.discount);
+    await vm.merge.execute(m2.id);
+    expect(
+      vm.actionError,
+      isA<BillMergeBlocked>().having(
+        (e) => e.reason,
+        'reason',
+        BillMergeReason.discount,
+      ),
+    );
+    expect(vm.billFor(table('M2'))?.id, m2.id);
+  });
+
   test('batalkan bill butuh alasan dan izin', () async {
     await vm.openTable.execute((table('M3').id, 2));
     await add('Kopi Susu Aren');

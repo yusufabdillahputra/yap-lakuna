@@ -172,6 +172,7 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
           diningAreaId: d.areaId,
           name: d.name.trim(),
           seats: d.seats,
+          canMerge: d.canMerge ?? false,
           sortOrder: tables.length + i,
           hlc: '',
         ),
@@ -196,6 +197,7 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
       name: draft.name.trim(),
       diningAreaId: draft.areaId,
       seats: draft.seats,
+      canMerge: draft.canMerge ?? tables[i].canMerge,
     );
   });
 
