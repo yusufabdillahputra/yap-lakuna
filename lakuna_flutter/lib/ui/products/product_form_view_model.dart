@@ -134,6 +134,7 @@ class ProductFormViewModel extends ChangeNotifier {
       productId = productId == null ? null : UuidValue.fromString(productId) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
+    archive = Command0(_archive)..addListener(notifyListeners);
   }
 
   final CatalogRepository _repository;
@@ -142,6 +143,10 @@ class ProductFormViewModel extends ChangeNotifier {
 
   late final Command0<ProductCatalog> load;
   late final Command0<UuidValue> save;
+
+  /// Arsipkan produk lama (F1-07d). Gagal dengan `NotPermitted` atau
+  /// `ProductNotFound`.
+  late final Command0<void> archive;
 
   var _nextKey = 0;
   bool _loaded = false;
@@ -177,6 +182,23 @@ class ProductFormViewModel extends ChangeNotifier {
 
   /// Nama produk saat dimuat (untuk judul `Edit produk · nama`).
   String get originalName => _originalName;
+
+  /// Tombol *Arsipkan produk*: hanya produk lama yang termuat.
+  bool get canArchive => !isNew && _loaded && !_notFound;
+
+  /// Stok tersisa produk yang melacak stok dan ≠ 0 (peringatan konfirmasi
+  /// arsip), dengan satuan dasarnya; `null` bila tidak perlu peringatan.
+  (Qty, String)? get archiveStock {
+    final p = _catalog?.products.where((p) => p.id == productId).firstOrNull;
+    if (p == null || !p.tracksStock || p.totalStock == Qty.zero) return null;
+    return (p.totalStock, p.baseUnit);
+  }
+
+  Future<Result<void>> _archive() async {
+    final id = productId;
+    if (id == null || save.running) return const Result.ok(null);
+    return _repository.archive(id);
+  }
 
   /// Galat yang bukan milik satu field.
   Exception? get error => _error;

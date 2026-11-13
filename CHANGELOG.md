@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-13
+
+Produk yang tidak dijual lagi kini bisa diarsipkan dan dipulihkan.
+
+### Ditambahkan
+
+- **Arsipkan produk (1.16, F1-07d).** Tombol *Arsipkan produk* ada di bawah
+  form ubah produk. Dialog konfirmasi menjelaskan bahwa produk hilang dari
+  Kasir, daftar produk, stok, dan pembelian, sedangkan riwayat penjualan
+  dan pembelian tetap tersimpan. Bila produk masih punya stok, dialog
+  menambahkan peringatan *Stok tersisa 24 botol tidak dihitung lagi di stok
+  dan nilai stok*.
+- **Produk diarsipkan (1.15).** Tombol *Diarsipkan (n)* tampil di daftar
+  produk bila ada arsip (ikon di ponsel). Dialognya memuat produk
+  diarsipkan beserta kategori dan stok terakhir, dengan tombol *Pulihkan*
+  per produk.
+- Pulihkan memeriksa ulang SKU dan barcode. Bila kodenya sudah dipakai
+  produk lain, pemulihan ditolak dengan pesan yang menyebut produk
+  pemakainya.
+
+### Diubah
+
+- Barcode dan SKU produk diarsipkan boleh dipakai produk baru, karena
+  pemeriksaan kode kembar hanya melihat produk aktif.
+
+### Keamanan
+
+- Arsip dan pulihkan butuh izin `products:manage`, dicek di repositori
+  seperti simpan produk.
+
+### Catatan teknis
+
+- Arsip = hapus lunak `products.deleted_at` lewat `SyncTx.update` (versi
+  naik, tercatat di outbox). Varian, satuan, dan tingkat grosir tidak
+  diubah, sehingga nota, pembelian, dan ledger stok lama tetap menunjuk
+  varian yang sama. Semua kueri katalog, Kasir, stok, dan pembelian yang
+  sudah menyaring `deleted_at` otomatis menyembunyikannya.
+- `archiveProduct`, `restoreProduct`, `listArchivedProducts`,
+  `countArchivedProducts`, `CatalogProduct.archivedAt`,
+  `ProductCatalog.archivedCount`, `CatalogRepository.archive / archived /
+  restore`, `ArchivedProductsViewModel`.
+- Dialog konfirmasi arsip bisa digulir; tanpa itu tombolnya keluar layar di
+  ponsel 360 px (ditemukan oleh tes widget).
+
 ## [0.34.0] - 2026-11-13
 
 Harga grosir kini bisa dikhususkan untuk grup pelanggan.
@@ -3098,7 +3142,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...HEAD
+[0.35.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...v0.35.0
 [0.34.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...v0.32.0

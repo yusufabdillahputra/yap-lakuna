@@ -4506,5 +4506,67 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productArchive": "Arsipkan produk",
+  "productArchiveHint": "Produk yang tidak dijual lagi. Riwayat penjualan dan pembelian tetap tersimpan, dan produk bisa dipulihkan.",
+  "productArchiveTitle": "Arsipkan {name}?",
+  "@productArchiveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productArchiveBody": "Produk hilang dari Kasir, daftar produk, stok, dan pembelian. Riwayat penjualan dan pembelian tetap tersimpan. Produk bisa dipulihkan lewat tombol Diarsipkan di daftar produk.",
+  "productArchiveStockWarning": "Stok tersisa {stock} {unit} tidak dihitung lagi di stok dan nilai stok.",
+  "@productArchiveStockWarning": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productArchiveConfirm": "Arsipkan",
+  "productsArchived": "Diarsipkan ({count})",
+  "@productsArchived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsArchivedTitle": "Produk diarsipkan",
+  "productsArchivedEmpty": "Belum ada produk yang diarsipkan.",
+  "productsArchivedStock": "Stok {stock} {unit}",
+  "@productsArchivedStock": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productsRestore": "Pulihkan",
+  "productsRestored": "{name} dipulihkan ke daftar produk.",
+  "@productsRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsRestoreTaken": "Barcode atau SKU produk ini sudah dipakai {name}. Ubah kodenya di {name} dulu, lalu pulihkan lagi.",
+  "@productsRestoreTaken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsArchivedClose": "Tutup"
 }

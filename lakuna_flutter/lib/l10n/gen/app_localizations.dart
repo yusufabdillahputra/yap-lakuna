@@ -12493,6 +12493,90 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'harga grup ≥ {qty}'**
   String cashierGroupTierNote(String qty);
+
+  /// No description provided for @productArchive.
+  ///
+  /// In id, this message translates to:
+  /// **'Arsipkan produk'**
+  String get productArchive;
+
+  /// No description provided for @productArchiveHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk yang tidak dijual lagi. Riwayat penjualan dan pembelian tetap tersimpan, dan produk bisa dipulihkan.'**
+  String get productArchiveHint;
+
+  /// No description provided for @productArchiveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Arsipkan {name}?'**
+  String productArchiveTitle(String name);
+
+  /// No description provided for @productArchiveBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk hilang dari Kasir, daftar produk, stok, dan pembelian. Riwayat penjualan dan pembelian tetap tersimpan. Produk bisa dipulihkan lewat tombol Diarsipkan di daftar produk.'**
+  String get productArchiveBody;
+
+  /// No description provided for @productArchiveStockWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok tersisa {stock} {unit} tidak dihitung lagi di stok dan nilai stok.'**
+  String productArchiveStockWarning(String stock, String unit);
+
+  /// No description provided for @productArchiveConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Arsipkan'**
+  String get productArchiveConfirm;
+
+  /// No description provided for @productsArchived.
+  ///
+  /// In id, this message translates to:
+  /// **'Diarsipkan ({count})'**
+  String productsArchived(int count);
+
+  /// No description provided for @productsArchivedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk diarsipkan'**
+  String get productsArchivedTitle;
+
+  /// No description provided for @productsArchivedEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada produk yang diarsipkan.'**
+  String get productsArchivedEmpty;
+
+  /// No description provided for @productsArchivedStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok {stock} {unit}'**
+  String productsArchivedStock(String stock, String unit);
+
+  /// No description provided for @productsRestore.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan'**
+  String get productsRestore;
+
+  /// No description provided for @productsRestored.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} dipulihkan ke daftar produk.'**
+  String productsRestored(String name);
+
+  /// No description provided for @productsRestoreTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode atau SKU produk ini sudah dipakai {name}. Ubah kodenya di {name} dulu, lalu pulihkan lagi.'**
+  String productsRestoreTaken(String name);
+
+  /// No description provided for @productsArchivedClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get productsArchivedClose;
 }
 
 class _AppLocalizationsDelegate

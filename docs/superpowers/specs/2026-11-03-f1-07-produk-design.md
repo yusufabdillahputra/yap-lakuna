@@ -263,7 +263,7 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 | Filter *Lokasi stok* | Etalase/Gudang | Hanya Etalase | Saat F1-09 menambah lokasi kedua |
 | Grosir *Berlaku untuk* grup pelanggan | "Grup pelanggan: Grosir" | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md) (`price_tiers.customer_group_id`) |
 | Klik produk → kartu stok | Catatan kaki 1.15 | Klik membuka form | Tautan ke kartu stok F1-08 |
-| Arsip produk | "Hapus = arsip" | Belum | Tambah aksi arsip (soft delete) di form |
+| Arsip produk | "Hapus = arsip" | Rilis v0.35.0 | [F1-07d](2026-11-13-f1-07d-arsip-produk-design.md): arsip dari form, pulihkan dari 1.15 |
 | Produk pertama di onboarding | Langkah 4 F1-01 | Belum | Tombol *Tambah produk* di langkah 4 |
 | Form dua kolom | Info dasar di kiri, tab di kanan | Satu kolom; dua kolom hanya bila konten ≥ 1000 px | Cukup; layar 1280 px dengan sidebar memakai satu kolom agar tabel varian lega |
 | Label tab di ponsel | "Satuan & konversi", "Harga grosir" | "Satuan", "Grosir" di bawah 600 px | Label penuh terpotong di 400 px |

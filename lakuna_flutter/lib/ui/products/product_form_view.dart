@@ -10,6 +10,7 @@ import '../../data/repositories/catalog_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
+import '../../utils/result.dart';
 import '../master/modifier_groups_tab.dart'
     show modifierDeltaLabel, modifierRuleLabel;
 import 'product_form_view_model.dart';
@@ -234,6 +235,8 @@ class ProductFormView extends StatelessWidget {
                   );
                 },
               ),
+              if (viewModel.canArchive)
+                _ArchiveSection(viewModel: viewModel, onArchived: onDone),
             ],
           ),
         );
@@ -1403,6 +1406,125 @@ class _TierGroupSelect extends StatelessWidget {
         initial: value ?? '',
         onChange: (v) => onChange(v == null || v.isEmpty ? null : v),
       ),
+    );
+  }
+}
+
+/// Aksi *Arsipkan produk* di bawah form produk lama (F1-07d).
+class _ArchiveSection extends StatelessWidget {
+  const _ArchiveSection({required this.viewModel, required this.onArchived});
+
+  final ProductFormViewModel viewModel;
+  final VoidCallback onArchived;
+
+  Future<void> _archive(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final stock = viewModel.archiveStock;
+    final muted = context.theme.typography.body.sm.copyWith(
+      color: context.theme.colors.mutedForeground,
+    );
+    final ok = await showFDialog<bool>(
+      context: context,
+      builder: (context, style, animation) => FDialog(
+        animation: animation,
+        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+        builder: (context, style) => SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('product-archive-confirm'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Text(
+                l10n.productArchiveTitle(viewModel.originalName),
+                style: context.theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(l10n.productArchiveBody, style: muted),
+              if (stock case (final qty, final unit))
+                FAlert(
+                  key: const ValueKey('product-archive-stock'),
+                  variant: .destructive,
+                  title: Text(
+                    l10n.productArchiveStockWarning(
+                      formatQty(context, qty),
+                      unit,
+                    ),
+                  ),
+                ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  FButton(
+                    key: const ValueKey('product-archive-cancel'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(false),
+                    child: Flexible(child: Text(l10n.productFormCancel)),
+                  ),
+                  FButton(
+                    key: const ValueKey('product-archive-ok'),
+                    variant: .destructive,
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(true),
+                    child: Flexible(child: Text(l10n.productArchiveConfirm)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (ok != true) return;
+    await viewModel.archive.execute();
+    if (viewModel.archive.result is Ok) onArchived();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final busy = viewModel.archive.running || viewModel.save.running;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 6,
+      children: [
+        FButton(
+          key: const ValueKey('product-archive'),
+          variant: .ghost,
+          size: .sm,
+          mainAxisSize: .min,
+          onPress: busy ? null : () => _archive(context),
+          prefix: Icon(TablerIcons.archive, color: theme.colors.destructive),
+          child: Flexible(
+            child: Text(
+              l10n.productArchive,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: theme.colors.destructive),
+            ),
+          ),
+        ),
+        Text(
+          l10n.productArchiveHint,
+          style: theme.typography.body.xs.copyWith(
+            color: theme.colors.mutedForeground,
+          ),
+        ),
+        if (viewModel.archive.result case Error(:final error))
+          Text(
+            productErrorMessage(l10n, error),
+            key: const ValueKey('product-archive-error'),
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.destructive,
+            ),
+          ),
+      ],
     );
   }
 }

@@ -138,6 +138,52 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('arsip dan pulihkan produk (F1-07d) ${size.width}', (
+      tester,
+    ) async {
+      final repo = await pump(tester, size: size, seed: sampleProducts());
+      expect(find.byKey(const ValueKey('products-archived')), findsNothing);
+      final minyak = repo.products.firstWhere((p) => p.name == 'Minyak Goreng');
+      final row = size.width < 600 ? 'product-card' : 'product-row';
+      // Ponsel: kartu paling atas agar tidak tertutup tombol mengambang.
+      await _type(tester, 'products-search', 'minyak');
+      await _tap(tester, '$row-${minyak.id.uuid}');
+      await _tap(tester, 'product-archive');
+      expect(find.text('Arsipkan Minyak Goreng?'), findsOneWidget);
+      expect(
+        find.text(
+          'Stok tersisa 24 botol tidak dihitung lagi di stok dan nilai stok.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, 'product-archive-cancel');
+      expect(repo.archiveCalls, isEmpty);
+      await _tap(tester, 'product-archive');
+      await _tap(tester, 'product-archive-ok');
+
+      expect(repo.archiveCalls, [minyak.id]);
+      expect(tester.takeException(), isNull);
+
+      // Kembali ke daftar: produk hilang, tombol arsip tampil.
+      expect(find.text('Minyak Goreng'), findsNothing);
+      await _tap(tester, 'products-archived');
+      expect(find.text('Produk diarsipkan'), findsOneWidget);
+      expect(find.text('Minyak Goreng'), findsOneWidget);
+      expect(find.text('Sembako · Stok 24 botol'), findsOneWidget);
+      await _tap(tester, 'archived-restore-${minyak.id.uuid}');
+      expect(
+        find.text('Minyak Goreng dipulihkan ke daftar produk.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('archived-empty')), findsOneWidget);
+      await _tap(tester, 'archived-close');
+      expect(find.text('Minyak Goreng'), findsOneWidget);
+      expect(find.byKey(const ValueKey('products-archived')), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('kode kembar ditandai dan tab varian dibuka', (tester) async {
     final repo = await pump(
       tester,

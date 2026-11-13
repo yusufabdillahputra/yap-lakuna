@@ -11,6 +11,7 @@ import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
+import 'archived_products_dialog.dart';
 import 'product_import_dialog.dart';
 import 'product_list_view_model.dart';
 import 'product_widgets.dart';
@@ -52,7 +53,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
     onAdd: () => context.go(Routes.productNew),
     onOpen: (id) => context.go(Routes.product(id.uuid)),
     onImport: _import,
+    onArchived: _archived,
   );
+
+  Future<void> _archived() async {
+    final changed = await showArchivedProducts(context, widget.repository);
+    if (changed && mounted) await _viewModel.load.execute();
+  }
 
   Future<void> _import() async {
     final done = await showProductImport(
@@ -71,6 +78,7 @@ class ProductListView extends StatelessWidget {
     required this.onAdd,
     required this.onOpen,
     this.onImport,
+    this.onArchived,
   });
 
   final ProductListViewModel viewModel;
@@ -79,6 +87,9 @@ class ProductListView extends StatelessWidget {
 
   /// Import Excel/CSV (F1-07b); `null` menyembunyikan tombolnya.
   final VoidCallback? onImport;
+
+  /// Dialog produk diarsipkan (F1-07d); tombol tampil bila ada arsip.
+  final VoidCallback? onArchived;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -105,12 +116,14 @@ class ProductListView extends StatelessWidget {
                 onAdd: onAdd,
                 onOpen: onOpen,
                 onImport: onImport,
+                onArchived: viewModel.archivedCount > 0 ? onArchived : null,
               )
             : _WideList(
                 viewModel: viewModel,
                 onAdd: onAdd,
                 onOpen: onOpen,
                 onImport: onImport,
+                onArchived: viewModel.archivedCount > 0 ? onArchived : null,
               );
       },
     ),
@@ -231,12 +244,14 @@ class _WideList extends StatelessWidget {
     required this.onAdd,
     required this.onOpen,
     this.onImport,
+    this.onArchived,
   });
 
   final ProductListViewModel viewModel;
   final VoidCallback onAdd;
   final ValueChanged<UuidValue> onOpen;
   final VoidCallback? onImport;
+  final VoidCallback? onArchived;
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +281,21 @@ class _WideList extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
+                          if (onArchived case final onArchived?)
+                            FButton(
+                              key: const ValueKey('products-archived'),
+                              variant: .ghost,
+                              mainAxisSize: .min,
+                              prefix: const Icon(TablerIcons.archive),
+                              onPress: onArchived,
+                              child: Flexible(
+                                child: Text(
+                                  l10n.productsArchived(
+                                    viewModel.archivedCount,
+                                  ),
+                                ),
+                              ),
+                            ),
                           if (onImport case final onImport?)
                             FButton(
                               key: const ValueKey('products-import'),
@@ -610,12 +640,14 @@ class _MobileList extends StatelessWidget {
     required this.onAdd,
     required this.onOpen,
     this.onImport,
+    this.onArchived,
   });
 
   final ProductListViewModel viewModel;
   final VoidCallback onAdd;
   final ValueChanged<UuidValue> onOpen;
   final VoidCallback? onImport;
+  final VoidCallback? onArchived;
 
   @override
   Widget build(BuildContext context) {
@@ -638,16 +670,31 @@ class _MobileList extends StatelessWidget {
                         viewModel.activeCount,
                         viewModel.lowStockCount,
                       ),
-                      action: switch (onImport) {
-                        final onImport? when !viewModel.isEmpty => FButton.icon(
-                          key: const ValueKey('products-import'),
-                          variant: .outline,
-                          semanticsLabel: l10n.productsImport,
-                          onPress: onImport,
-                          child: const Icon(TablerIcons.fileImport),
-                        ),
-                        _ => null,
-                      },
+                      action: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 8,
+                        children: [
+                          if (onArchived case final onArchived?)
+                            FButton.icon(
+                              key: const ValueKey('products-archived'),
+                              variant: .outline,
+                              semanticsLabel: l10n.productsArchived(
+                                viewModel.archivedCount,
+                              ),
+                              onPress: onArchived,
+                              child: const Icon(TablerIcons.archive),
+                            ),
+                          if (onImport case final onImport?
+                              when !viewModel.isEmpty)
+                            FButton.icon(
+                              key: const ValueKey('products-import'),
+                              variant: .outline,
+                              semanticsLabel: l10n.productsImport,
+                              onPress: onImport,
+                              child: const Icon(TablerIcons.fileImport),
+                            ),
+                        ],
+                      ),
                     ),
                     if (viewModel.isEmpty)
                       _Empty(onAdd: onAdd, onImport: onImport)
