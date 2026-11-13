@@ -7821,4 +7821,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupRestoreReopen =>
       'The backup is ready. Close and reopen the app to finish restoring.';
+
+  @override
+  String get importTemplateDownload => 'Download template';
+
+  @override
+  String importTemplateSaved(String path) {
+    return 'Template saved to $path';
+  }
+
+  @override
+  String get importTemplateFailed =>
+      'The template couldn\'t be saved. Try again.';
+
+  @override
+  String get importReasonSample =>
+      'sample row from the template, replace or delete it';
 }

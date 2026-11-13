@@ -1,11 +1,21 @@
 import 'customer.dart' show normalizePhone;
+import 'customer_import.dart' show isImportTemplateSample;
 import 'supplier.dart';
 
 // Import supplier dari CSV/XLSX (F1-14b). Pembacaan berkas ada di aplikasi
 // (`parseCsv` / pembaca XLSX); di sini hanya tabel sel → baris supplier.
 
 /// Alasan baris import supplier dilewati.
-enum SupplierImportRejectReason { name, phone, termDays, text, duplicateName }
+enum SupplierImportRejectReason {
+  name,
+  phone,
+  termDays,
+  text,
+  duplicateName,
+
+  /// Baris contoh dari templat (F1-07g) yang belum diganti.
+  sample,
+}
 
 /// Baris supplier sah dari berkas. Kolom kosong = `null` (data lama
 /// dipertahankan saat memperbarui supplier dengan nama yang sama).
@@ -133,6 +143,12 @@ SupplierImportResult supplierImportRows(List<List<String>> table) {
     }
 
     final name = cell('name') ?? '';
+    if (isImportTemplateSample(name, supplierImportTemplate)) {
+      rejected.add(
+        SupplierImportRejected(line, SupplierImportRejectReason.sample),
+      );
+      continue;
+    }
     final phoneRaw = cell('phone');
     final phone = phoneRaw == null ? null : normalizePhone(phoneRaw);
     final termRaw = cell('term');
@@ -179,3 +195,31 @@ SupplierImportResult supplierImportRows(List<List<String>> table) {
   }
   return SupplierImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import supplier.
+bool supplierImportKnownHeader(String header) =>
+    _columns.containsKey(header.trim().toLowerCase());
+
+/// Templat berkas import supplier (F1-07g): judul + dua baris contoh yang
+/// lolos [supplierImportRows].
+const supplierImportTemplate = [
+  [
+    'Nama',
+    'Kontak',
+    'Telepon',
+    'Kategori',
+    'Tempo (hari)',
+    'Alamat',
+    'Catatan',
+  ],
+  [
+    'Contoh CV Sumber Pangan',
+    'Pak Hendra',
+    '0215550101',
+    'Sembako',
+    '30',
+    'Jl. Industri 5',
+    'Kirim tiap Senin',
+  ],
+  ['Contoh UD Makmur', 'Bu Rina', '081377770202', 'Minuman', '', '', ''],
+];

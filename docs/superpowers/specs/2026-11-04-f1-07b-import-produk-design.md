@@ -84,7 +84,7 @@ sah dan yang ditolak sebelum disimpan.
 | Import produk baru CSV/XLSX | 1.15 | Rilis v0.31.0 | Selesai. |
 | Perbarui harga produk lama lewat import | — | Belum | Import hanya menambah; ubah harga lewat form. |
 | Varian / satuan konversi / grosir lewat import | — | Belum | Satu baris satu varian. |
-| Templat berkas untuk diunduh | — | Belum | Judul kolom dijelaskan di dialog. |
+| Templat berkas untuk diunduh | — | Selesai v0.47.0 | Tombol *Unduh templat* ([F1-07g](2026-11-14-f1-07g-templat-import-design.md)). |
 | Berkas sangat besar (puluhan ribu baris) | — | Belum | Satu transaksi ±4 ms/baris (lokasi stok dan tautan modifier sudah tidak dikueri per baris); 20 ribu baris ±1 menit tanpa indikator progres. Pertimbangkan `compute` untuk mengurai dan import bertahap. |
 | Import dari dua perangkat (Fase 2) | — | Belum | Nama unik dicek per perangkat; dua perangkat yang mengimpor berkas sama akan menghasilkan produk ganda setelah sync. |
 | Spasi ganda di nama kategori | — | Belum | Kategori dicocokkan tanpa beda huruf tapi tidak merapatkan spasi (perilaku `saveProduct`). |

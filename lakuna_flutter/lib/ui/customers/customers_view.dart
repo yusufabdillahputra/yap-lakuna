@@ -8,6 +8,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/customers_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
@@ -42,6 +43,7 @@ class CustomersScreen extends StatefulWidget {
     required this.onOpenCustomer,
     required this.onOpenReceipt,
     this.tablePicker = const FileSelectorTablePicker(),
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final CustomersRepository repository;
@@ -52,6 +54,9 @@ class CustomersScreen extends StatefulWidget {
   /// Membuka kuitansi pembayaran [paymentId]; [copy] = cetak ulang.
   final Future<void> Function(UuidValue paymentId, {bool copy}) onOpenReceipt;
   final TableFilePicker tablePicker;
+
+  /// Menyimpan templat import (F1-07g).
+  final SpreadsheetExporter exporter;
 
   @override
   State<CustomersScreen> createState() => _CustomersScreenState();
@@ -115,6 +120,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
       context,
       widget.repository,
       picker: widget.tablePicker,
+      exporter: widget.exporter,
     );
     if (done && mounted) await _list.refresh();
   }

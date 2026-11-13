@@ -9,6 +9,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/suppliers_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
@@ -40,6 +41,7 @@ class SuppliersScreen extends StatefulWidget {
     required this.onOpenPurchase,
     this.imagePicker = const FileSelectorImagePicker(),
     this.tablePicker = const FileSelectorTablePicker(),
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final SuppliersRepository repository;
@@ -51,6 +53,9 @@ class SuppliersScreen extends StatefulWidget {
   final Future<void> Function(UuidValue purchaseId) onOpenPurchase;
   final ImageFilePicker imagePicker;
   final TableFilePicker tablePicker;
+
+  /// Menyimpan templat import (F1-07g).
+  final SpreadsheetExporter exporter;
 
   @override
   State<SuppliersScreen> createState() => _SuppliersScreenState();
@@ -115,6 +120,7 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
       context,
       widget.repository,
       picker: widget.tablePicker,
+      exporter: widget.exporter,
     );
     if (!done || !mounted) return;
     await _list.refresh();

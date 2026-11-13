@@ -7,6 +7,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
@@ -23,10 +24,14 @@ class ProductListScreen extends StatefulWidget {
     super.key,
     required this.repository,
     this.tablePicker = const FileSelectorTablePicker(),
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final CatalogRepository repository;
   final TableFilePicker tablePicker;
+
+  /// Menyimpan templat import (F1-07g).
+  final SpreadsheetExporter exporter;
 
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
@@ -68,6 +73,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       context,
       widget.repository,
       picker: widget.tablePicker,
+      exporter: widget.exporter,
     );
     if (done && mounted) await _viewModel.load.execute();
   }

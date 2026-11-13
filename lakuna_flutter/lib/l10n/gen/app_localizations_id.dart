@@ -7654,4 +7654,19 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get setupRestoreReopen =>
       'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.';
+
+  @override
+  String get importTemplateDownload => 'Unduh templat';
+
+  @override
+  String importTemplateSaved(String path) {
+    return 'Templat disimpan di $path';
+  }
+
+  @override
+  String get importTemplateFailed => 'Templat gagal disimpan. Coba lagi.';
+
+  @override
+  String get importReasonSample =>
+      'baris contoh dari templat, ganti atau hapus';
 }

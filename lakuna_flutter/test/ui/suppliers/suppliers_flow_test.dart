@@ -15,6 +15,7 @@ import '../../testing/fake_payment_settings_repository.dart'
     show FakeImagePicker;
 import '../../testing/fake_purchases_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_suppliers_repository.dart';
 import '../../testing/qris_seed.dart';
 
@@ -290,6 +291,57 @@ void main() {
       expect(_keyPrefix('suppliers-row-'), findsNWidgets(4));
     },
   );
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('unduh templat import supplier ${size.width.toInt()} px '
+        '(F1-07g)', (tester) async {
+      final exporter = FakeSpreadsheetExporter()
+        ..path = '/home/kasir/Dokumen/Lakuna/templat-import-supplier.xlsx';
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.suppliers,
+        suppliers: FakeSuppliersRepository(),
+        exporter: exporter,
+      );
+      await _tap(tester, _key('suppliers-import'));
+      await _tap(tester, _key('import-template-suppliers'));
+      expect(exporter.saved.single.$1, 'templat-import-supplier.xlsx');
+      expect(
+        find.text(
+          'Templat disimpan di '
+          '/home/kasir/Dokumen/Lakuna/templat-import-supplier.xlsx',
+        ),
+        findsOneWidget,
+      );
+    });
+  }
+
+  testWidgets('templat gagal disimpan / share sheet: pesan & tombol aktif lagi '
+      '(F1-07g)', (tester) async {
+    final exporter = FakeSpreadsheetExporter()
+      ..error = ArgumentError('sharePositionOrigin');
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.suppliers,
+      suppliers: FakeSuppliersRepository(),
+      exporter: exporter,
+    );
+    await _tap(tester, _key('suppliers-import'));
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(_key('import-template-failed-suppliers'), findsOneWidget);
+    expect(exporter.saved, isEmpty);
+    // Android/iOS: share sheet (lokasi null) — tanpa pesan, tombol aktif.
+    exporter.path = null;
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(exporter.saved, hasLength(1));
+    expect(_key('import-template-failed-suppliers'), findsNothing);
+    expect(_key('import-template-saved-suppliers'), findsNothing);
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(exporter.saved, hasLength(2));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('staf tanpa kelola supplier tidak melihat tombol import', (
     tester,

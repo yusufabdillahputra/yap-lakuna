@@ -4,9 +4,11 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/customers_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/import_template.dart';
 import 'customer_import_view_model.dart';
 import 'customer_labels.dart';
 
@@ -15,6 +17,7 @@ Future<bool> showCustomerImport(
   BuildContext context,
   CustomersRepository repository, {
   required TableFilePicker picker,
+  SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
 }) async {
   // Hasil dari callback, bukan dari nilai pop: dialog bisa ditutup lewat
   // latar atau tombol kembali setelah import tersimpan.
@@ -27,6 +30,7 @@ Future<bool> showCustomerImport(
       builder: (context, style) => CustomerImportDialog(
         repository: repository,
         picker: picker,
+        exporter: exporter,
         onSaved: () => saved = true,
       ),
     ),
@@ -43,6 +47,7 @@ String importRejectReasonLabel(
   ImportRejectReason.creditLimit => l10n.importReasonLimit,
   ImportRejectReason.text => l10n.importReasonText,
   ImportRejectReason.duplicatePhone => l10n.importReasonDuplicate,
+  ImportRejectReason.sample => l10n.importReasonSample,
 };
 
 class CustomerImportDialog extends StatefulWidget {
@@ -51,11 +56,13 @@ class CustomerImportDialog extends StatefulWidget {
     required this.repository,
     required this.picker,
     this.onSaved,
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final CustomersRepository repository;
   final TableFilePicker picker;
   final VoidCallback? onSaved;
+  final SpreadsheetExporter exporter;
 
   @override
   State<CustomerImportDialog> createState() => _CustomerImportDialogState();
@@ -119,9 +126,8 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                   ),
                 ),
                 Text(l10n.importIntro, style: muted),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: FButton(
+                ImportFileActions(
+                  pick: FButton(
                     key: const ValueKey('customer-import-pick'),
                     variant: .outline,
                     mainAxisSize: .min,
@@ -131,6 +137,9 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                     prefix: const Icon(TablerIcons.fileSpreadsheet),
                     child: Flexible(child: Text(l10n.importPick)),
                   ),
+                  kind: ImportTemplateKind.customers,
+                  exporter: widget.exporter,
+                  enabled: !vm.run.running,
                 ),
                 if (vm.fileName case final name?)
                   Text(

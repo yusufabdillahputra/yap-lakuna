@@ -317,6 +317,7 @@ GoRouter createRouter({
             builder: (context, state) => ProductListScreen(
               repository: catalog,
               tablePicker: tablePicker,
+              exporter: exporter,
             ),
           ),
           GoRoute(
@@ -418,6 +419,7 @@ GoRouter createRouter({
             builder: (context, state) => CustomersScreen(
               repository: customers,
               tablePicker: tablePicker,
+              exporter: exporter,
               onOpenCustomer: (id) =>
                   context.push<void>(Routes.customer(id.uuid)),
               onOpenReceipt: (id, {copy = false}) =>
@@ -472,6 +474,7 @@ GoRouter createRouter({
               repository: suppliers,
               imagePicker: imagePicker,
               tablePicker: tablePicker,
+              exporter: exporter,
               onOpenSupplier: (id) =>
                   context.push<void>(Routes.supplier(id.uuid)),
               onOpenPurchase: (id) =>

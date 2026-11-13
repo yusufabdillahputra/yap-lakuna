@@ -1,5 +1,5 @@
 import 'catalog.dart';
-import 'customer_import.dart' show parseImportMoney;
+import 'customer_import.dart' show isImportTemplateSample, parseImportMoney;
 import 'money.dart';
 import 'qty.dart';
 import 'setup.dart' show normalizeCode;
@@ -17,6 +17,9 @@ enum ProductImportRejectReason {
 
   /// Teks terlalu panjang atau isian lain yang ditolak validasi produk.
   text,
+
+  /// Baris contoh dari templat (F1-07g) yang belum diganti.
+  sample,
 
   /// SKU atau barcode sudah dipakai baris sebelumnya di berkas.
   duplicateCode,
@@ -166,6 +169,10 @@ ProductImportResult productImportRows(List<List<String>> table) {
       reject(ProductImportRejectReason.name);
       continue;
     }
+    if (isImportTemplateSample(name, productImportTemplate)) {
+      reject(ProductImportRejectReason.sample);
+      continue;
+    }
     final priceRaw = cell('price');
     final price = priceRaw == null ? null : parseImportMoney(priceRaw);
     if (price == null) {
@@ -241,3 +248,49 @@ ProductImportResult productImportRows(List<List<String>> table) {
   }
   return ProductImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import produk.
+bool productImportKnownHeader(String header) => _columns.containsKey(
+  header.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
+);
+
+/// Templat berkas import produk (F1-07g): judul + dua baris contoh yang
+/// lolos [productImportRows].
+const productImportTemplate = [
+  [
+    'Nama',
+    'Kategori',
+    'Jenis',
+    'Satuan',
+    'SKU',
+    'Barcode',
+    'Harga beli',
+    'Harga jual',
+    'Stok awal',
+    'Stok minimum',
+  ],
+  [
+    'Contoh Gula Pasir 1 kg',
+    'Sembako',
+    'barang',
+    'pcs',
+    'CTH-GULA-1KG',
+    '8991234567890',
+    '14000',
+    '17500',
+    '24',
+    '5',
+  ],
+  [
+    'Contoh Kopi Susu',
+    'Minuman',
+    'menu',
+    'gelas',
+    'CTH-KOPI-SUSU',
+    '',
+    '6000',
+    '15000',
+    '',
+    '',
+  ],
+];

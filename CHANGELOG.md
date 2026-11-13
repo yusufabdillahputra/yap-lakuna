@@ -7,6 +7,78 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.47.0] - 2026-11-14
+
+Pemilik yang baru pertama kali import tidak perlu menebak judul kolom lagi:
+templat Excel bisa diunduh langsung dari dialog import.
+
+### Ditambahkan
+
+- **Templat berkas import (1.15, 1.20, 1.21, F1-07g).** Dialog *Import
+  Excel* di Produk, Pelanggan, dan Supplier punya tombol **Unduh templat**
+  di samping *Pilih berkas*:
+  - berkas `templat-import-produk.xlsx`, `templat-import-pelanggan.xlsx`,
+    atau `templat-import-supplier.xlsx`, satu lembar dengan baris judul
+    tebal dan dibekukan;
+  - kolom produk: Nama, Kategori, Jenis, Satuan, SKU, Barcode, Harga beli,
+    Harga jual, Stok awal, Stok minimum; pelanggan: Nama, HP, Alamat, Grup,
+    Limit, Catatan; supplier: Nama, Kontak, Telepon, Kategori, Tempo (hari),
+    Alamat, Catatan;
+  - dua baris contoh fiktif ("Contoh …") untuk ditimpa. Baris contoh
+    yang lupa dihapus **dilewati** saat import dengan alasan *baris contoh
+    dari templat, ganti atau hapus*, sehingga stok awal, grup "Grosir",
+    atau limit kredit fiktif tidak ikut tersimpan;
+  - kolom HP/Telepon, SKU, dan Barcode berformat teks, jadi nomor telepon
+    rumah `021…` atau barcode berawalan `0` yang diketik di Excel tidak
+    kehilangan nol di depan; angka contoh (harga, stok, limit, tempo)
+    ditulis sebagai angka sehingga Excel tidak menandainya "angka disimpan
+    sebagai teks";
+  - desktop menyimpan ke folder dokumen Lakuna dan menampilkan lokasinya di
+    bawah tombol; Android/iOS membuka share sheet. Galat simpan tampil di
+    tempat yang sama.
+- Panduan *Menambah produk pertama* punya bagian baru **Banyak produk
+  sekaligus**; panduan Pelanggan dan Supplier menyebut tombol templat
+  (ID + EN).
+
+### Diubah
+
+- Baris tombol dialog import kini satu komponen bersama
+  (`ImportFileActions`), sehingga pesan simpan templat tidak menggeser
+  tombol *Pilih berkas* ke baris baru di layar sempit.
+
+### Diperbaiki
+
+- Galat apa pun saat menyimpan templat (termasuk `Error` dari share
+  sheet) kini tertangkap: pesan *gagal disimpan* tampil dan tombol tidak
+  terkunci sampai dialog dibuka ulang (temuan review).
+
+### Catatan teknis
+
+- `buildXlsx` menerima `textColumns` (gaya sel 3 = format teks
+  `numFmtId 49`, dipasang di `<col>` dan di sel teks kolom itu).
+- Alasan tolak baru `sample` di `ImportRejectReason`,
+  `ProductImportRejectReason`, dan `SupplierImportRejectReason`, dicek
+  lewat `isImportTemplateSample` sebelum validasi lain.
+- `FakeSpreadsheetExporter.error` untuk menguji galat simpan; tes widget
+  baru: galat simpan, share sheet (lokasi `null`), templat pelanggan
+  360 px.
+- Templat dibuat di `lakuna_domain` (`productImportTemplate`,
+  `customerImportTemplate`, `supplierImportTemplate`) bersama pembaca
+  import. Fungsi baru `productImportKnownHeader` /
+  `customerImportKnownHeader` / `supplierImportKnownHeader` dipakai tes
+  untuk memastikan tidak ada judul templat yang tidak dikenali.
+- Tes Flutter membaca .xlsx hasil `buildXlsx` lewat `readTableFile` lalu
+  pembaca import: 2 baris contoh dilewati untuk tiap jenis; dengan nama
+  diganti, 2 baris sah dan 0 ditolak.
+- `exporter` (`SpreadsheetExporter`) diteruskan dari router ke layar
+  Produk, Pelanggan, dan Supplier.
+- Uji manual Xvfb: unduh templat supplier (dibuka juga dengan openpyxl:
+  kolom Telepon berformat `@`, tempo berupa angka), ganti satu nama
+  contoh, import → "1 baris siap", baris contoh lain dilewati, selesai
+  1 supplier baru.
+- Gap tercatat: share sheet di iPad belum memberi `sharePositionOrigin`
+  (berlaku juga untuk ekspor lain).
+
 ## [0.46.0] - 2026-11-14
 
 Pindah ke perangkat baru tidak perlu lagi membuat toko palsu dulu: backup
@@ -3799,7 +3871,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...HEAD
+[0.47.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...v0.44.0

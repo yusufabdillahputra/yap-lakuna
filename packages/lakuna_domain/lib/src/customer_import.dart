@@ -58,7 +58,26 @@ List<List<String>> parseCsv(String text) {
 }
 
 /// Alasan baris import dilewati.
-enum ImportRejectReason { name, phone, creditLimit, text, duplicatePhone }
+enum ImportRejectReason {
+  name,
+  phone,
+  creditLimit,
+  text,
+  duplicatePhone,
+
+  /// Baris contoh dari templat (F1-07g) yang belum diganti.
+  sample,
+}
+
+/// `true` bila [name] sama dengan nama baris contoh di [template]
+/// (tanpa beda huruf besar/kecil dan spasi tepi), F1-07g. Baris contoh
+/// dilewati saat import agar data fiktif tidak ikut tersimpan.
+bool isImportTemplateSample(String name, List<List<String>> template) {
+  final key = name.trim().toLowerCase();
+  return template
+      .skip(1)
+      .any((row) => row.isNotEmpty && row.first.toLowerCase() == key);
+}
 
 /// Baris pelanggan sah dari berkas. Kolom kosong = `null` (data lama
 /// dipertahankan saat memperbarui pelanggan dengan HP yang sama).
@@ -189,6 +208,10 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
     }
 
     final name = cell('name') ?? '';
+    if (isImportTemplateSample(name, customerImportTemplate)) {
+      rejected.add(ImportRejected(line, ImportRejectReason.sample));
+      continue;
+    }
     final phoneRaw = cell('phone');
     final phone = phoneRaw == null ? null : normalizePhone(phoneRaw);
     final limitRaw = cell('limit');
@@ -238,3 +261,22 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
   }
   return CustomerImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import pelanggan.
+bool customerImportKnownHeader(String header) =>
+    _columns.containsKey(header.trim().toLowerCase());
+
+/// Templat berkas import pelanggan (F1-07g): judul + dua baris contoh yang
+/// lolos [customerImportRows].
+const customerImportTemplate = [
+  ['Nama', 'HP', 'Alamat', 'Grup', 'Limit', 'Catatan'],
+  [
+    'Contoh Toko Bu Ani',
+    '081234567890',
+    'Jl. Pasar Baru 12',
+    'Grosir',
+    '2000000',
+    'Langganan sejak 2024',
+  ],
+  ['Contoh Pak Budi', '085711112222', '', '', '', ''],
+];
