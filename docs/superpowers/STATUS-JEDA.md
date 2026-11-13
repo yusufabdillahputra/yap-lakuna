@@ -13,6 +13,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.30.0 | Kredit saat *Tutup & bayar* open bill F&B (F1-13b) | #36 |
 | v0.31.0 | Import produk dari Excel/CSV (F1-07b) | #37 |
 | v0.32.0 | Diskon nota di open bill F&B (F1-04e) | #38 |
+| v0.33.0 | Pelanggan baru dari Kasir (F1-04f) | #39 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -21,10 +22,13 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 
 1. ~~Diskon di open bill / split bill F&B~~ — selesai v0.32.0 (F1-04e);
    diskon per baris di bill masih gap.
-2. **Kredit per bagian split bill** — spec F1-13b (butuh pelanggan per
-   bagian tamu).
+2. **Kredit per bagian split bill** — spec F1-13b. Butuh pelanggan per
+   bagian tamu dan dokumen piutang per bagian, karena saat ini piutang
+   melekat pada satu nota dengan satu pelanggan. Perlu desain model data
+   sendiri (tabel baru + alokasi pembayaran piutang).
 3. **Harga grosir per grup pelanggan** — spec F1-13 / F1-04d.
-4. ***Pelanggan baru* dari pemilih pelanggan Kasir** — spec F1-04d.
+4. ~~*Pelanggan baru* dari pemilih pelanggan Kasir~~ — selesai v0.33.0
+   (F1-04f).
 5. **Arsip produk, cetak label barcode, foto produk** — spec F1-07.
 6. **Cetak rekap sesi, logo di struk** — spec F1-06.
 7. **Gabung meja, printer dapur terpisah** — spec F1-10.

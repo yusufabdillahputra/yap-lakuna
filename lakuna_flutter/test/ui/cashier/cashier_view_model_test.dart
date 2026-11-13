@@ -1217,6 +1217,21 @@ void main() {
       },
     );
 
+    test('muat ulang kredit gagal: nota tidak berubah, galat tampil', () async {
+      vm
+        ..selectCustomer(budi)
+        ..scan('8990001')
+        ..startPayment()
+        ..setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      final siti = row('Siti Aminah', limit: 300000);
+      repo.nextError = Exception('disk');
+      await vm.useNewCreditCustomer(siti.customer);
+      expect(vm.customer?.id, budi.customer.id);
+      expect(vm.creditCustomers, isNull);
+      expect(vm.loadCredit.error, isTrue);
+    });
+
     test('tanpa customers:manage tombol pelanggan baru tidak ada', () async {
       repo.permissions = {Permission.salesCreate, Permission.debtsManage};
       await vm.load.execute();

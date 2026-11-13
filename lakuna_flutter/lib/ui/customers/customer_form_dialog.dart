@@ -34,14 +34,15 @@ Future<Customer?> showCustomerForm(
   ),
 );
 
-/// Kata pencarian → isian awal pelanggan baru: hanya angka (dan `+`, spasi,
-/// `-`) = nomor HP, selain itu nama.
+/// Kata pencarian → isian awal pelanggan baru: nomor (angka dengan `+`,
+/// spasi, `-`, `.`, atau kurung; minimal 6 digit) = HP yang dinormalisasi,
+/// selain itu nama.
 ({String name, String phone}) customerDraftFromQuery(String query) {
   final q = query.trim();
   if (q.isEmpty) return (name: '', phone: '');
-  return RegExp(r'^[0-9+\s-]+$').hasMatch(q)
-      ? (name: '', phone: q)
-      : (name: q, phone: '');
+  final digits = q.replaceAll(RegExp(r'\D'), '');
+  final isPhone = RegExp(r'^[0-9+\s().-]+$').hasMatch(q) && digits.length >= 6;
+  return isPhone ? (name: '', phone: normalizePhone(q)) : (name: q, phone: '');
 }
 
 /// Membawa repositori pelanggan ke layar lain (Kasir) agar bisa membuka form

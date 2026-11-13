@@ -747,11 +747,16 @@ class CashierViewModel extends ChangeNotifier {
 
   /// Pelanggan baru dari panel kredit: daftar kredit dimuat ulang lalu
   /// pelanggan itu dipilih (jatuh tempo dari tempo grupnya).
+  /// Bila daftar gagal dimuat, pelanggan nota tidak diubah dan galat muat
+  /// tampil di panel.
   Future<void> useNewCreditCustomer(Customer customer) async {
-    _customer = (id: customer.id, name: customer.name);
-    _creditQuery = '';
     await loadCredit.execute();
-    if (!_selectCredit(customer.id)) notifyListeners();
+    if (loadCredit.error) {
+      _creditCustomers = null;
+      notifyListeners();
+      return;
+    }
+    if (_selectCredit(customer.id)) notifyListeners();
   }
 
   void clearCustomer() {

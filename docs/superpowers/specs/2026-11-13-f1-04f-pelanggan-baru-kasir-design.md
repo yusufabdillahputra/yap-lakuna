@@ -1,7 +1,7 @@
 # F1-04f · Pelanggan baru dari Kasir
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.33.0
 - **Layar:** 1.4b (dialog *Pilih pelanggan*), 1.5b (pemilih kredit),
   memakai form pelanggan 1.20.
 - **Acuan:** F1-04d aturan 1–3 (pelanggan di kepala Pesanan), F1-13
@@ -51,4 +51,4 @@ meninggalkan transaksi, lalu terpilih otomatis di nota (atau di kredit).
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| *Pelanggan baru* dari pemilih Kasir dan kredit | 1.4b, 1.5b | Dikerjakan | |
+| *Pelanggan baru* dari pemilih Kasir dan kredit | 1.4b, 1.5b | Rilis v0.33.0 | Selesai. |
