@@ -7303,4 +7303,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productsArchivedClose => 'Close';
+
+  @override
+  String get productsLabels => 'Print labels';
+
+  @override
+  String get labelsTitle => 'Print barcode labels';
+
+  @override
+  String get labelsSubtitle =>
+      'Pick products and label counts. The barcode is used when set, otherwise the SKU.';
+
+  @override
+  String get labelsBack => 'Back';
+
+  @override
+  String get labelsSearch => 'Search name, SKU or barcode';
+
+  @override
+  String labelsSelectedOnly(int count) {
+    return 'Selected only ($count)';
+  }
+
+  @override
+  String get labelsFillStock => 'Match stock';
+
+  @override
+  String get labelsNoCode => 'No barcode/SKU';
+
+  @override
+  String get labelsBadCode => 'Code can\'t be printed';
+
+  @override
+  String get labelsEmpty => 'No matching products.';
+
+  @override
+  String get labelsLess => 'Less';
+
+  @override
+  String get labelsMore => 'More';
+
+  @override
+  String get labelsSettings => 'Label settings';
+
+  @override
+  String get labelsPaper => 'Paper';
+
+  @override
+  String get labelsPaperA4 => 'A4 · 24 labels (3 × 8)';
+
+  @override
+  String get labelsPaperA4Hint => 'A4 sticker sheet, 70 × 37 mm per label.';
+
+  @override
+  String labelsPaperRoll(String size) {
+    return 'Label $size';
+  }
+
+  @override
+  String get labelsPaperRollHint => 'Label printer, one label per page.';
+
+  @override
+  String get labelsSkip => 'Skip first labels';
+
+  @override
+  String get labelsSkipHint => 'For a partly used sheet (0–23).';
+
+  @override
+  String get labelsShowPrice => 'Show price';
+
+  @override
+  String get labelsPreview => 'Preview';
+
+  @override
+  String get labelsPreviewEmpty => 'Pick a product to see a preview.';
+
+  @override
+  String labelsTotal(int labels, int pages) {
+    return '$labels labels · $pages pages';
+  }
+
+  @override
+  String labelsOverLimit(int max) {
+    return 'At most $max labels per print. Lower the counts.';
+  }
+
+  @override
+  String get labelsPrint => 'Print';
+
+  @override
+  String get labelsSave => 'Save PDF';
+
+  @override
+  String labelsSaved(String path) {
+    return 'PDF saved to $path';
+  }
 }

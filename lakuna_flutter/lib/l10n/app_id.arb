@@ -4568,5 +4568,71 @@
       }
     }
   },
-  "productsArchivedClose": "Tutup"
+  "productsArchivedClose": "Tutup",
+  "productsLabels": "Cetak label",
+  "labelsTitle": "Cetak label barcode",
+  "labelsSubtitle": "Pilih produk dan jumlah label. Barcode dipakai bila ada, selain itu SKU.",
+  "labelsBack": "Kembali",
+  "labelsSearch": "Cari nama, SKU, atau barcode",
+  "labelsSelectedOnly": "Hanya yang dipilih ({count})",
+  "@labelsSelectedOnly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsFillStock": "Isi sesuai stok",
+  "labelsNoCode": "Tanpa barcode/SKU",
+  "labelsBadCode": "Kode tidak bisa dicetak",
+  "labelsEmpty": "Tidak ada produk yang cocok.",
+  "labelsLess": "Kurangi",
+  "labelsMore": "Tambah",
+  "labelsSettings": "Pengaturan label",
+  "labelsPaper": "Kertas",
+  "labelsPaperA4": "A4 · 24 label (3 × 8)",
+  "labelsPaperA4Hint": "Kertas stiker A4, 70 × 37 mm per label.",
+  "labelsPaperRoll": "Label {size}",
+  "@labelsPaperRoll": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsPaperRollHint": "Printer label, satu label per halaman.",
+  "labelsSkip": "Lewati label pertama",
+  "labelsSkipHint": "Untuk lembar yang sebagian sudah terpakai (0–23).",
+  "labelsShowPrice": "Tampilkan harga",
+  "labelsPreview": "Pratinjau",
+  "labelsPreviewEmpty": "Pilih produk untuk melihat pratinjau.",
+  "labelsTotal": "{labels} label · {pages} halaman",
+  "@labelsTotal": {
+    "placeholders": {
+      "labels": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsOverLimit": "Maksimal {max} label per cetak. Kurangi jumlahnya.",
+  "@labelsOverLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsPrint": "Cetak",
+  "labelsSave": "Simpan PDF",
+  "labelsSaved": "PDF disimpan di {path}",
+  "@labelsSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  }
 }

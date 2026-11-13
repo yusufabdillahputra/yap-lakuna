@@ -56,6 +56,7 @@ import '../ui/home/home_view.dart';
 import '../ui/login/login_view.dart';
 import '../ui/master/master_view.dart';
 import '../ui/onboarding/onboarding_view.dart';
+import '../ui/products/barcode_label_view.dart';
 import '../ui/products/product_form_view.dart';
 import '../ui/products/product_list_view.dart';
 import '../ui/settings/app_settings_view_model.dart';
@@ -317,6 +318,17 @@ GoRouter createRouter({
           GoRoute(
             path: Routes.productNew,
             builder: (context, state) => ProductFormScreen(repository: catalog),
+          ),
+          GoRoute(
+            path: Routes.productLabels,
+            builder: (context, state) => BarcodeLabelScreen(
+              repository: catalog,
+              printer: receiptPrinter,
+              initialProduct: _uuid(state.uri.queryParameters['produk']),
+              onBack: () => context.canPop()
+                  ? context.pop()
+                  : context.go(Routes.products),
+            ),
           ),
           GoRoute(
             path: '${Routes.products}/:productId',

@@ -6,6 +6,7 @@ import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_catalog_repository.dart';
+import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/modifier_seed.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
@@ -35,6 +36,7 @@ void main() {
     String location = Routes.products,
     String role = 'owner',
     List<CustomerGroup> groups = const [],
+    FakeReceiptPrinter? printer,
   }) async {
     final repo = FakeCatalogRepository(seed: seed)..customerGroups = groups;
     await pumpLakuna(
@@ -43,6 +45,7 @@ void main() {
       initialLocation: location,
       catalog: repo,
       session: FakeSessionRepository()..current = sampleStaff(role: role),
+      receiptPrinter: printer,
     );
     return repo;
   }
@@ -183,6 +186,64 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('cetak label barcode dari daftar (F1-07e) ${size.width}', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      final repo = await pump(
+        tester,
+        size: size,
+        seed: sampleProducts(),
+        printer: printer,
+      );
+      await _tap(tester, 'products-labels');
+      expect(find.text('Cetak label barcode'), findsWidgets);
+      expect(find.text('Tanpa barcode/SKU · Rp 5.000'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('labels-preview-empty')),
+        findsOneWidget,
+      );
+      final kopi = repo.products.firstWhere((p) => p.name == 'Kopi Sachet');
+      final kopiKey = kopi.variants.single.id.uuid;
+      await _tap(tester, 'labels-check-$kopiKey');
+      await _tap(tester, 'labels-more-$kopiKey');
+      await _tap(tester, 'labels-more-$kopiKey');
+      expect(find.text('3 label · 1 halaman'), findsOneWidget);
+      expect(find.byKey(const ValueKey('labels-preview')), findsOneWidget);
+      await _tap(tester, 'labels-fill-stock');
+      expect(find.text('2 label · 1 halaman'), findsOneWidget);
+      await _type(tester, 'labels-qty-$kopiKey-3', '30');
+      expect(find.text('30 label · 2 halaman'), findsOneWidget);
+      await _tap(tester, 'labels-paper-roll50x30');
+      expect(find.byKey(const ValueKey('labels-skip')), findsNothing);
+      expect(find.text('30 label · 30 halaman'), findsOneWidget);
+      await _tap(tester, 'labels-print');
+      expect(printer.documentPrints.single.$2, 'Label barcode');
+      await _tap(tester, 'labels-save');
+      expect(printer.documentShares, hasLength(1));
+      expect(find.byKey(const ValueKey('labels-saved')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _tap(tester, 'labels-back');
+      expect(find.byKey(const ValueKey('labels-list')), findsNothing);
+      expect(find.byKey(const ValueKey('products-labels')), findsOneWidget);
+    });
+  }
+
+  testWidgets('cetak label dari form produk memilih produk itu', (
+    tester,
+  ) async {
+    final repo = await pump(tester, seed: sampleProducts());
+    final minyak = repo.products.firstWhere((p) => p.name == 'Minyak Goreng');
+    await _tap(tester, 'product-row-${minyak.id.uuid}');
+    await _tap(tester, 'product-labels');
+    expect(find.text('2 label · 1 halaman'), findsOneWidget);
+    expect(find.text('Hanya yang dipilih (2)'), findsOneWidget);
+    expect(find.text('Rp 216.000'), findsNothing);
+    expect(find.text('899100 · Rp 216.000'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('kode kembar ditandai dan tab varian dibuka', (tester) async {
     final repo = await pump(

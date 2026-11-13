@@ -7155,4 +7155,100 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productsArchivedClose => 'Tutup';
+
+  @override
+  String get productsLabels => 'Cetak label';
+
+  @override
+  String get labelsTitle => 'Cetak label barcode';
+
+  @override
+  String get labelsSubtitle =>
+      'Pilih produk dan jumlah label. Barcode dipakai bila ada, selain itu SKU.';
+
+  @override
+  String get labelsBack => 'Kembali';
+
+  @override
+  String get labelsSearch => 'Cari nama, SKU, atau barcode';
+
+  @override
+  String labelsSelectedOnly(int count) {
+    return 'Hanya yang dipilih ($count)';
+  }
+
+  @override
+  String get labelsFillStock => 'Isi sesuai stok';
+
+  @override
+  String get labelsNoCode => 'Tanpa barcode/SKU';
+
+  @override
+  String get labelsBadCode => 'Kode tidak bisa dicetak';
+
+  @override
+  String get labelsEmpty => 'Tidak ada produk yang cocok.';
+
+  @override
+  String get labelsLess => 'Kurangi';
+
+  @override
+  String get labelsMore => 'Tambah';
+
+  @override
+  String get labelsSettings => 'Pengaturan label';
+
+  @override
+  String get labelsPaper => 'Kertas';
+
+  @override
+  String get labelsPaperA4 => 'A4 · 24 label (3 × 8)';
+
+  @override
+  String get labelsPaperA4Hint => 'Kertas stiker A4, 70 × 37 mm per label.';
+
+  @override
+  String labelsPaperRoll(String size) {
+    return 'Label $size';
+  }
+
+  @override
+  String get labelsPaperRollHint => 'Printer label, satu label per halaman.';
+
+  @override
+  String get labelsSkip => 'Lewati label pertama';
+
+  @override
+  String get labelsSkipHint =>
+      'Untuk lembar yang sebagian sudah terpakai (0–23).';
+
+  @override
+  String get labelsShowPrice => 'Tampilkan harga';
+
+  @override
+  String get labelsPreview => 'Pratinjau';
+
+  @override
+  String get labelsPreviewEmpty => 'Pilih produk untuk melihat pratinjau.';
+
+  @override
+  String labelsTotal(int labels, int pages) {
+    return '$labels label · $pages halaman';
+  }
+
+  @override
+  String labelsOverLimit(int max) {
+    return 'Maksimal $max label per cetak. Kurangi jumlahnya.';
+  }
+
+  @override
+  String get labelsPrint => 'Cetak';
+
+  @override
+  String get labelsSave => 'Simpan PDF';
+
+  @override
+  String labelsSaved(String path) {
+    return 'PDF disimpan di $path';
+  }
 }
