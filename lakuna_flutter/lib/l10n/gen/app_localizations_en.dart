@@ -7442,4 +7442,57 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productPhotoUnreadable =>
       'Couldn\'t open the photo. Check the camera permission or pick another file.';
+
+  @override
+  String get recapTitle => 'CASH SESSION RECAP';
+
+  @override
+  String get recapDevice => 'Device';
+
+  @override
+  String get recapOpened => 'Opened';
+
+  @override
+  String get recapOpenedBy => 'Opened by';
+
+  @override
+  String get recapClosed => 'Closed';
+
+  @override
+  String get recapClosedBy => 'Closed by';
+
+  @override
+  String get recapCash => 'Cash';
+
+  @override
+  String get recapNonCash => 'Non-cash';
+
+  @override
+  String get recapCredit => 'Credit (receivable)';
+
+  @override
+  String get recapOpening => 'Opening cash';
+
+  @override
+  String get recapInflow => 'Cash in';
+
+  @override
+  String get recapOutflow => 'Cash out';
+
+  @override
+  String recapNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get cashCloseAndPrint => 'Close session & print recap';
+
+  @override
+  String get cashRecapPrint => 'Print recap';
+
+  @override
+  String get cashRecapPrinted => 'Recap sent to the printer.';
+
+  @override
+  String get cashRecapShareError => 'Couldn\'t create the recap PDF.';
 }

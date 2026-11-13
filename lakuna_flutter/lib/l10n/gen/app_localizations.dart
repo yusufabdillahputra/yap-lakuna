@@ -12799,6 +12799,108 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.'**
   String get productPhotoUnreadable;
+
+  /// No description provided for @recapTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'REKAP SESI KASIR'**
+  String get recapTitle;
+
+  /// No description provided for @recapDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat'**
+  String get recapDevice;
+
+  /// No description provided for @recapOpened.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuka'**
+  String get recapOpened;
+
+  /// No description provided for @recapOpenedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibuka oleh'**
+  String get recapOpenedBy;
+
+  /// No description provided for @recapClosed.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditutup'**
+  String get recapClosed;
+
+  /// No description provided for @recapClosedBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditutup oleh'**
+  String get recapClosedBy;
+
+  /// No description provided for @recapCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Tunai'**
+  String get recapCash;
+
+  /// No description provided for @recapNonCash.
+  ///
+  /// In id, this message translates to:
+  /// **'Non-tunai'**
+  String get recapNonCash;
+
+  /// No description provided for @recapCredit.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit (piutang)'**
+  String get recapCredit;
+
+  /// No description provided for @recapOpening.
+  ///
+  /// In id, this message translates to:
+  /// **'Saldo awal'**
+  String get recapOpening;
+
+  /// No description provided for @recapInflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang masuk'**
+  String get recapInflow;
+
+  /// No description provided for @recapOutflow.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang keluar'**
+  String get recapOutflow;
+
+  /// No description provided for @recapNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan: {note}'**
+  String recapNote(String note);
+
+  /// No description provided for @cashCloseAndPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup sesi & cetak rekap'**
+  String get cashCloseAndPrint;
+
+  /// No description provided for @cashRecapPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak rekap'**
+  String get cashRecapPrint;
+
+  /// No description provided for @cashRecapPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekap terkirim ke printer.'**
+  String get cashRecapPrinted;
+
+  /// No description provided for @cashRecapShareError.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF rekap gagal dibuat.'**
+  String get cashRecapShareError;
 }
 
 class _AppLocalizationsDelegate

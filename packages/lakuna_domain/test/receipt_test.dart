@@ -167,6 +167,37 @@ void main() {
       expect(lines[2].bold, isTrue);
       expect(lines[2].align, ReceiptAlign.center);
     });
+
+    test('blok pasangan (rekap sesi) setelah info, kosong dilewati', () {
+      const recap = ReceiptContent(
+        storeName: 'TOKO',
+        meta: [ReceiptPair('Perangkat', 'K01')],
+        sections: [
+          [ReceiptPair('Transaksi', '3')],
+          [],
+          [
+            ReceiptPair('Saldo awal', '200.000'),
+            ReceiptPair('Uang keluar', '-20.000'),
+          ],
+        ],
+        totals: [ReceiptPair('Selisih', 'Pas', bold: true)],
+      );
+      final lines = layoutReceipt(recap, ReceiptPaper.mm58);
+      final rule = '-' * 32;
+      expect(lines.map((l) => l.text), [
+        'TOKO',
+        rule,
+        'Perangkat                    K01',
+        rule,
+        'Transaksi                      3',
+        rule,
+        'Saldo awal               200.000',
+        'Uang keluar              -20.000',
+        rule,
+        'Selisih                      Pas',
+      ]);
+      expect(lines.last.bold, isTrue);
+    });
   });
 
   group('teks header/footer', () {

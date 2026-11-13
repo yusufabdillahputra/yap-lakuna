@@ -4643,5 +4643,29 @@
   "productPhotoUnsupported": "Berkas bukan gambar PNG, JPG, atau WebP.",
   "productPhotoTooLarge": "Foto lebih dari 2 MB. Pilih foto yang lebih kecil.",
   "productPhotoNotSaved": "Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.",
-  "productPhotoUnreadable": "Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain."
+  "productPhotoUnreadable": "Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.",
+  "recapTitle": "REKAP SESI KASIR",
+  "recapDevice": "Perangkat",
+  "recapOpened": "Dibuka",
+  "recapOpenedBy": "Dibuka oleh",
+  "recapClosed": "Ditutup",
+  "recapClosedBy": "Ditutup oleh",
+  "recapCash": "Tunai",
+  "recapNonCash": "Non-tunai",
+  "recapCredit": "Kredit (piutang)",
+  "recapOpening": "Saldo awal",
+  "recapInflow": "Uang masuk",
+  "recapOutflow": "Uang keluar",
+  "recapNote": "Catatan: {note}",
+  "@recapNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "cashCloseAndPrint": "Tutup sesi & cetak rekap",
+  "cashRecapPrint": "Cetak rekap",
+  "cashRecapPrinted": "Rekap terkirim ke printer.",
+  "cashRecapShareError": "PDF rekap gagal dibuat."
 }

@@ -2,12 +2,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_cash_drawer_repository.dart';
 import '../../testing/fake_expenses_repository.dart';
+import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_receipt_settings_repository.dart';
 import '../../testing/fake_session_repository.dart';
 
 Finder _input(String key) => find.descendant(
@@ -34,6 +38,8 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 800),
     String role = 'owner',
+    FakeReceiptSettingsRepository? receiptSettings,
+    FakeReceiptPrinter? printer,
   }) async {
     final repo = FakeCashDrawerRepository(
       permissions: permissionsForRole(role, isOwner: role == 'owner'),
@@ -43,6 +49,8 @@ void main() {
       size: size,
       initialLocation: Routes.cashSession,
       cashDrawer: repo,
+      receiptSettings: receiptSettings,
+      receiptPrinter: printer,
       session: FakeSessionRepository()..current = sampleStaff(role: role),
     );
     return repo;
@@ -297,5 +305,74 @@ void main() {
     await _tap(tester, 'cash-open');
     expect(find.byKey(const ValueKey('cash-movement-amount')), findsOneWidget);
     expect(find.byKey(const ValueKey('cash-as-expense')), findsNothing);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('cetak rekap sesi (F1-03b) · ${size.width.toInt()} px', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      final repo = await pump(
+        tester,
+        size: size,
+        printer: printer,
+        receiptSettings: FakeReceiptSettingsRepository(
+          printer: const PrinterSelection(
+            kind: PrinterKind.network,
+            name: 'Dapur',
+            address: '192.168.1.50:9100',
+          ),
+        ),
+      );
+      await _type(tester, 'cash-opening-cash', '100000');
+      await _tap(tester, 'cash-open');
+      await _tap(tester, 'cash-start-close');
+      await _type(tester, 'cash-count-100000', '1');
+      expect(find.text('Tutup sesi & cetak rekap'), findsOneWidget);
+      await _tap(tester, 'cash-close');
+      expect(repo.session!.status, CashSessionStatus.closed);
+
+      // Cetak otomatis sekali ke printer terpilih.
+      expect(printer.prints, hasLength(1));
+      final text = printer.prints.single.$2.map((l) => l.text).toList();
+      expect(text, contains('REKAP SESI KASIR'));
+      expect(
+        text.any((t) => t.startsWith('Selisih') && t.endsWith('Pas')),
+        isTrue,
+      );
+      expect(find.byKey(const ValueKey('cash-recap-printed')), findsOneWidget);
+
+      await _tap(tester, 'cash-recap-share');
+      expect(printer.shares, hasLength(1));
+      expect(
+        find.byKey(const ValueKey('cash-recap-pdf-saved')),
+        findsOneWidget,
+      );
+
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await _tap(tester, 'cash-recap-print');
+      expect(
+        find.byKey(const ValueKey('cash-recap-print-error')),
+        findsOneWidget,
+      );
+      expect(printer.prints, hasLength(1));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('tanpa printer: tombol Tutup sesi, rekap bisa dicetak manual', (
+    tester,
+  ) async {
+    final printer = FakeReceiptPrinter();
+    await pump(tester, printer: printer);
+    await _type(tester, 'cash-opening-cash', '100000');
+    await _tap(tester, 'cash-open');
+    await _tap(tester, 'cash-start-close');
+    await _type(tester, 'cash-count-100000', '1');
+    expect(find.text('Tutup sesi & cetak rekap'), findsNothing);
+    await _tap(tester, 'cash-close');
+    expect(printer.prints, isEmpty);
+    await _tap(tester, 'cash-recap-print');
+    expect(printer.prints.single.$1.kind, PrinterKind.system);
   });
 }

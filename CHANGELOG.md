@@ -7,6 +7,58 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-13
+
+Rekap kas laci kini bisa dicetak saat menutup sesi kasir.
+
+### Ditambahkan
+
+- **Cetak rekap sesi kasir (1.3, F1-03b).** Bila perangkat punya printer
+  struk langsung (Bluetooth atau jaringan), tombol di form tutup sesi
+  menjadi *Tutup sesi & cetak rekap* dan rekap langsung dicetak sekali
+  setelah sesi tertutup.
+  - Kartu hasil kini punya tombol *Cetak rekap* (printer terpilih, atau
+    dialog cetak sistem bila belum ada printer) dan *Bagikan PDF* (share
+    sheet di ponsel, folder struk di desktop). Cetak gagal menampilkan
+    pesan printer yang sama dengan struk; sesi tetap tertutup dan rekap
+    bisa dicetak ulang.
+  - Isi rekap: nama toko dan cabang, judul *REKAP SESI KASIR*, perangkat,
+    jam buka/tutup dan nama staf; transaksi, penjualan, tunai, non-tunai,
+    kredit, void/retur; saldo awal, penjualan tunai, retur tunai, uang
+    masuk/keluar; daftar gerakan kas; rincian pecahan yang dihitung; lalu
+    seharusnya di laci, uang dihitung, selisih, dan catatan selisih.
+  - Lebar kertas 58/80 mm mengikuti *Pengaturan › Struk & printer*; jam
+    memakai zona waktu cabang.
+
+### Diubah
+
+- Jam di kartu *Sesi kasir ditutup* memakai zona waktu usaha bila cabang
+  belum punya zona waktu sendiri, sama dengan struk.
+
+### Catatan teknis
+
+- `ReceiptContent.sections` di `lakuna_domain`: blok pasangan label–nilai
+  setelah info nota, masing-masing dipisah garis.
+- `sessionRecapContent` + `SessionRecap` di
+  `lib/ui/cash_session/session_recap_content.dart`.
+- `CashSessionViewModel` menerima `ReceiptSettingsRepository`,
+  `ReceiptPrinter`, nama staf, dan zona waktu; command `printRecap` /
+  `shareRecap`, `autoPrintRecap` sekali per sesi. Nama berkas
+  `rekap-sesi-<yymmdd>-<HHmm>.pdf` (jam cabang).
+- Temuan review dan uji manual yang diperbaiki sebelum rilis:
+  - Pesan *Struk gagal dicetak* tetap tampil setelah *Bagikan PDF*
+    berhasil; kini hanya hasil aksi terakhir yang tampil.
+  - Hasil cetak/PDF sesi sebelumnya terbawa ke kartu sesi berikutnya.
+  - Printer *Dialog cetak sistem* membuka dialog cetak sendiri setelah
+    tutup; kini cetak otomatis hanya untuk printer langsung.
+  - Rekap kini memakai data sesi yang dimuat ulang tepat sebelum tutup
+    agar barisnya selalu cocok dengan seharusnya di laci.
+  - Nama berkas PDF memakai jam perangkat, bukan jam cabang.
+- Uji manual di aplikasi Linux (Xvfb): sesi dengan 20 transaksi dan 5
+  gerakan kas ditutup pas (Rp 728.403); printer jaringan yang tidak
+  terjangkau menampilkan pesan, lalu *Bagikan PDF* menyimpan rekap 80 mm
+  yang isinya diperiksa baris per baris.
+
 ## [0.37.0] - 2026-11-13
 
 Produk kini bisa diberi foto agar kasir lebih cepat mengenali barang.
@@ -3276,7 +3328,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...HEAD
+[0.38.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...v0.35.0

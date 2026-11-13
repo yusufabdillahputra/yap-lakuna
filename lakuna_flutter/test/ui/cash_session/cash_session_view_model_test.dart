@@ -8,6 +8,11 @@ import 'package:lakuna_flutter/ui/cash_session/cash_session_view_model.dart';
 import '../../testing/fake_cash_drawer_repository.dart';
 import '../../testing/fake_expenses_repository.dart';
 
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
+
+import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_receipt_settings_repository.dart';
+
 void main() {
   late FakeCashDrawerRepository repo;
   late CashSessionViewModel vm;
@@ -338,6 +343,127 @@ void main() {
       );
       expect(v.canRecordExpense, isFalse);
       v.dispose();
+    });
+  });
+
+  group('cetak rekap sesi (F1-03b)', () {
+    late FakeReceiptSettingsRepository settings;
+    late FakeReceiptPrinter printer;
+    late CashSessionViewModel pvm;
+    const lines = [ReceiptLine('REKAP SESI KASIR')];
+    const bt = PrinterSelection(
+      kind: PrinterKind.bluetooth,
+      name: 'RPP02N',
+      address: '00:11',
+    );
+
+    Future<CashSessionViewModel> closedWith({
+      PrinterSelection? selected,
+    }) async {
+      settings = FakeReceiptSettingsRepository(
+        config: const ReceiptConfig(
+          settings: ReceiptSettings(paper: ReceiptPaper.mm80),
+        ),
+        printer: selected,
+      );
+      printer = FakeReceiptPrinter();
+      pvm = CashSessionViewModel(
+        repository: repo,
+        permissions: Permission.values.toSet(),
+        receiptSettings: settings,
+        printer: printer,
+        staffName: 'Sari',
+        timezone: 'Asia/Jakarta',
+      );
+      await pvm.load.execute();
+      pvm.setOpeningCash('100.000');
+      await pvm.open.execute();
+      pvm.startClosing();
+      await Future<void>.delayed(Duration.zero);
+      pvm.setSheets(100000, '1');
+      expect(pvm.recap, isNull);
+      await pvm.close.execute();
+      return pvm;
+    }
+
+    tearDown(() => pvm.dispose());
+
+    test(
+      'dengan printer: tombol tutup + cetak, cetak otomatis sekali',
+      () async {
+        final v = await closedWith(selected: bt);
+        expect(v.hasPrinter, isTrue);
+        expect(v.canPrintRecap, isTrue);
+        expect(v.paper, ReceiptPaper.mm80);
+        final recap = v.recap!;
+        expect(recap.closerName, 'Sari');
+        expect(recap.closed.status, CashSessionStatus.closed);
+        expect(recap.active.session.id, recap.closed.id);
+        expect(v.shouldAutoPrintRecap, isTrue);
+        await v.autoPrintRecap(lines);
+        await v.autoPrintRecap(lines);
+        expect(printer.prints, hasLength(1));
+        expect(printer.prints.single.$1, bt);
+        expect(printer.prints.single.$3, ReceiptPaper.mm80);
+        expect(v.recapPrinted, isTrue);
+        expect(v.shouldAutoPrintRecap, isFalse);
+      },
+    );
+
+    test(
+      'tanpa printer: tidak cetak otomatis; cetak manual ke dialog sistem',
+      () async {
+        final v = await closedWith();
+        expect(v.hasPrinter, isFalse);
+        expect(v.shouldAutoPrintRecap, isFalse);
+        await v.printRecap.execute(lines);
+        expect(printer.prints.single.$1.kind, PrinterKind.system);
+        expect(v.recapPrinted, isFalse);
+      },
+    );
+
+    test('galat printer tampil; bagikan PDF menyimpan lokasi', () async {
+      final v = await closedWith(selected: bt);
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await v.autoPrintRecap(lines);
+      expect(v.recapPrintFailure, PrinterFailureReason.connect);
+      expect(v.recapPrinted, isFalse);
+      await v.shareRecap.execute(lines);
+      expect(v.recapPrintFailure, isNull);
+      expect(v.printRecap.error, isFalse);
+      // 00.58 UTC = 07.58 WIB (jam palsu repositori).
+      expect(printer.shares.single.$3, 'rekap-sesi-261103-0758.pdf');
+      expect(v.recapPdfPath, printer.sharePath);
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.write);
+      await v.shareRecap.execute(lines);
+      expect(v.shareRecap.error, isTrue);
+      v.startNew();
+      expect(v.recap, isNull);
+      expect(v.recapPdfPath, isNull);
+      expect(v.shareRecap.error, isFalse);
+      expect(v.printRecap.error, isFalse);
+    });
+
+    test('printer dialog sistem: tidak cetak otomatis', () async {
+      final v = await closedWith(
+        selected: const PrinterSelection(kind: PrinterKind.system, name: ''),
+      );
+      expect(v.hasPrinter, isFalse);
+      expect(v.shouldAutoPrintRecap, isFalse);
+    });
+
+    test('rekap memakai data terbaru saat tutup', () async {
+      final v = await closedWith(selected: bt);
+      expect(
+        v.recap!.active.drawer.expectedCash.value,
+        v.recap!.closed.expectedCash,
+      );
+    });
+
+    test('tanpa layanan cetak: tidak bisa cetak rekap', () {
+      expect(vm.canPrintRecap, isFalse);
+      expect(vm.hasPrinter, isFalse);
+      pvm = create();
     });
   });
 }

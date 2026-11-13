@@ -7283,4 +7283,57 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get productPhotoUnreadable =>
       'Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.';
+
+  @override
+  String get recapTitle => 'REKAP SESI KASIR';
+
+  @override
+  String get recapDevice => 'Perangkat';
+
+  @override
+  String get recapOpened => 'Dibuka';
+
+  @override
+  String get recapOpenedBy => 'Dibuka oleh';
+
+  @override
+  String get recapClosed => 'Ditutup';
+
+  @override
+  String get recapClosedBy => 'Ditutup oleh';
+
+  @override
+  String get recapCash => 'Tunai';
+
+  @override
+  String get recapNonCash => 'Non-tunai';
+
+  @override
+  String get recapCredit => 'Kredit (piutang)';
+
+  @override
+  String get recapOpening => 'Saldo awal';
+
+  @override
+  String get recapInflow => 'Uang masuk';
+
+  @override
+  String get recapOutflow => 'Uang keluar';
+
+  @override
+  String recapNote(String note) {
+    return 'Catatan: $note';
+  }
+
+  @override
+  String get cashCloseAndPrint => 'Tutup sesi & cetak rekap';
+
+  @override
+  String get cashRecapPrint => 'Cetak rekap';
+
+  @override
+  String get cashRecapPrinted => 'Rekap terkirim ke printer.';
+
+  @override
+  String get cashRecapShareError => 'PDF rekap gagal dibuat.';
 }

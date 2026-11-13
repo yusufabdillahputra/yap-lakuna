@@ -206,7 +206,7 @@ Migrasi `sesi-kasir`.
 | --- | --- | --- | --- |
 | Shift | "Shift Pagi", pilih shift saat buka | Tanpa shift | Tambah kolom `shift_id` dan pilihan shift saat F1-09 menyediakan master Shift |
 | Catat sebagai pengeluaran + foto nota | Sakelar dan pilihan jenis di 1.3b | Belum | F1-15 Pengeluaran menulis `cash_movements` dengan `source` `expense` |
-| Cetak rekap | "Tutup sesi & cetak rekap" | Tombol *Tutup sesi*, tanpa cetak | Pakai mesin cetak F1-06 |
+| Cetak rekap | "Tutup sesi & cetak rekap" | Rilis v0.38.0 | [F1-03b](2026-11-13-f1-03b-cetak-rekap-sesi-design.md): cetak otomatis ke printer langsung, *Cetak rekap* / *Bagikan PDF* di kartu hasil |
 | Angka penjualan/QRIS/kartu/void/retur | Terisi | v0.6.0: jumlah nota, penjualan, penjualan tunai di laci, kartu/transfer di baris non-tunai; void/retur 0 | F1-11 mengisi void/retur, QRIS bersama F1-05 lanjutan |
 | Tab Buka/Tutup sesi | `FTabs` di kepala 1.3 | Keadaan terpisah: tombol *Tutup sesi* dan *Kembali ke kas laci* | Pertahankan, karena tab "Buka sesi" saat sesi terbuka tidak bermakna |
 | Pecahan Rp 2.000 dan 1.000 | Tidak tampak di 1.3 | Ada (sama dengan Storeku) | Kanvas bisa ditambah |
