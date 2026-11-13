@@ -7792,7 +7792,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String supplierImportDone(int created, int updated) {
-    return 'Done: $created new suppliers, $updated updated.';
+  String supplierImportDone(int created, int updated, int skipped) {
+    return 'Done: $created new suppliers, $updated updated, $skipped rows skipped.';
   }
 }

@@ -163,7 +163,7 @@ bawaan 14), Alamat, Catatan.
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
 | Master supplier, hutang per pembelian, bayar hutang, foto bukti | 1.21 | v0.18.0 | — |
-| Import supplier | — | Belum | Pola import pelanggan. |
+| Import supplier | — | Selesai v0.45.0 | [F1-14b](2026-11-14-f1-14b-import-supplier-design.md): CSV/XLSX, kunci nama, kolom kosong tidak mengubah data. |
 | Batal pembayaran hutang | — | Selesai v0.44.0 | [F1-13c](2026-11-13-f1-13c-batal-pembayaran-utang-piutang-design.md): alokasi di-soft-delete, kas laci masuk kembali. |
 | Umur hutang | — | Belum | F1-16 Laporan. |
 | Hapus supplier yang hanya punya draf pembelian | — | Diizinkan | Draf itu gagal diterima (supplier tidak ada); pertimbangkan blokir atau pesan jelas. |

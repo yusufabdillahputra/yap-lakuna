@@ -16,13 +16,27 @@ enum ImportFileProblem { tooLarge, unreadable, missingName, empty }
 /// Import pelanggan dari CSV/XLSX (1.20): pilih berkas, pratinjau baris
 /// sah dan ditolak, lalu simpan.
 class CustomerImportViewModel extends ChangeNotifier {
-  CustomerImportViewModel({required this._repository, required this._picker}) {
+  CustomerImportViewModel({
+    required this._repository,
+    required this._picker,
+    this.onSaved,
+  }) {
     pick = Command0(_pick)..addListener(notifyListeners);
     run = Command0(_run)..addListener(notifyListeners);
   }
 
   final CustomersRepository _repository;
   final TableFilePicker _picker;
+
+  /// Dipanggil setiap kali import tersimpan, agar pemanggil tetap memuat
+  /// ulang daftar walau dialog ditutup lewat latar atau tombol kembali.
+  final VoidCallback? onSaved;
+
+  var _saved = false;
+
+  /// Sudah ada import yang tersimpan (tetap `true` setelah memilih berkas
+  /// lain).
+  bool get saved => _saved;
 
   var _disposed = false;
 
@@ -91,6 +105,11 @@ class CustomerImportViewModel extends ChangeNotifier {
     if (rows.isEmpty) {
       return const Result.error(StoreNotReady());
     }
-    return _repository.importRows(rows);
+    final result = await _repository.importRows(rows);
+    if (result is Ok) {
+      _saved = true;
+      onSaved?.call();
+    }
+    return result;
   }
 }

@@ -11,22 +11,28 @@ import '../customers/customer_import_view_model.dart' show ImportFileProblem;
 import 'product_form_view.dart' show productErrorMessage;
 import 'product_import_view_model.dart';
 
-/// Dialog import produk (1.15, F1-07b). Hasil `true` bila ada produk baru.
+/// Dialog import produk (1.15, F1-07b). Hasil `true` bila ada import tersimpan.
 Future<bool> showProductImport(
   BuildContext context,
   CatalogRepository repository, {
   required TableFilePicker picker,
-}) async =>
-    await showFDialog<bool>(
-      context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
-        builder: (context, style) =>
-            ProductImportDialog(repository: repository, picker: picker),
+}) async {
+  // Hasil dari callback: dialog bisa ditutup lewat latar setelah tersimpan.
+  var saved = false;
+  await showFDialog<void>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
+      builder: (context, style) => ProductImportDialog(
+        repository: repository,
+        picker: picker,
+        onSaved: () => saved = true,
       ),
-    ) ??
-    false;
+    ),
+  );
+  return saved;
+}
 
 String productImportReasonLabel(
   AppLocalizations l10n,
@@ -51,10 +57,12 @@ class ProductImportDialog extends StatefulWidget {
     super.key,
     required this.repository,
     required this.picker,
+    this.onSaved,
   });
 
   final CatalogRepository repository;
   final TableFilePicker picker;
+  final VoidCallback? onSaved;
 
   @override
   State<ProductImportDialog> createState() => _ProductImportDialogState();
@@ -64,6 +72,7 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
   late final _vm = ProductImportViewModel(
     repository: widget.repository,
     picker: widget.picker,
+    onSaved: widget.onSaved,
   );
 
   @override
@@ -220,7 +229,7 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                       mainAxisSize: .min,
                       onPress: vm.run.running
                           ? null
-                          : () => Navigator.of(context).pop(done != null),
+                          : () => Navigator.of(context).pop(),
                       child: Text(
                         done != null
                             ? l10n.importClose

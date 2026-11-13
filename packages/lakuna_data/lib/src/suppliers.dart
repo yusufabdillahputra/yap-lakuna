@@ -562,14 +562,27 @@ Future<SupplierImportSummary> importSuppliers(
       final key = name.toLowerCase();
       final old = byName[key];
       if (old != null) {
+        final next = old.copyWith(
+          phone: phone ?? old.phone,
+          contactName: _text(r.contactName) ?? old.contactName,
+          category: _text(r.category) ?? old.category,
+          address: _text(r.address) ?? old.address,
+          note: _text(r.note) ?? old.note,
+          termDays: r.termDays ?? old.termDays,
+        );
+        updated++;
+        // Import ulang berkas yang sama tidak menulis (dan menyinkronkan)
+        // baris yang tidak berubah.
+        if (next.phone == old.phone &&
+            next.contactName == old.contactName &&
+            next.category == old.category &&
+            next.address == old.address &&
+            next.note == old.note &&
+            next.termDays == old.termDays) {
+          continue;
+        }
         byName[key] = await w.update(
-          old.copyWith(
-            phone: phone ?? old.phone,
-            contactName: _text(r.contactName) ?? old.contactName,
-            category: _text(r.category) ?? old.category,
-            address: _text(r.address) ?? old.address,
-            note: _text(r.note) ?? old.note,
-            termDays: r.termDays ?? old.termDays,
+          next.copyWith(
             version: old.version + 1,
             updatedAt: s.now,
             updatedBy: staffId,
@@ -578,7 +591,6 @@ Future<SupplierImportSummary> importSuppliers(
           ),
           s,
         );
-        updated++;
       } else {
         byName[key] = await w.insert(
           Supplier(

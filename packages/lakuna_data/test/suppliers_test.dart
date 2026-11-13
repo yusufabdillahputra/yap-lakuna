@@ -586,6 +586,28 @@ void main() {
           .length;
       expect(after, before + 2);
     });
+
+    test('import ulang tanpa perubahan tidak menulis ulang', () async {
+      final table = [
+        ['Nama', 'Tempo', 'Alamat'],
+        ['CV A', '30', 'Jl. 1'],
+      ];
+      await run(table);
+      Future<int> count() async =>
+          (await SyncOutboxEntry.db.find(store.session))
+              .where((r) => r.entity == 'suppliers')
+              .length;
+      final before = await count();
+      final summary = await run(table);
+      expect((summary.created, summary.updated), (0, 1));
+      expect(await count(), before);
+      final a = (await loadSuppliersOverview(
+        store,
+        scope,
+        now: now,
+      )).rows.single.supplier;
+      expect(a.version, 1);
+    });
   });
 
   test('izin: kasir bayar, staf gudang kelola supplier', () async {

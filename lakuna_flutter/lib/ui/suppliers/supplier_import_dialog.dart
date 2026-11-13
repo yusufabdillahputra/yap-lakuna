@@ -16,17 +16,24 @@ Future<bool> showSupplierImport(
   BuildContext context,
   SuppliersRepository repository, {
   required TableFilePicker picker,
-}) async =>
-    await showFDialog<bool>(
-      context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
-        builder: (context, style) =>
-            SupplierImportDialog(repository: repository, picker: picker),
+}) async {
+  // Hasil dari callback, bukan dari nilai pop: dialog bisa ditutup lewat
+  // latar atau tombol kembali setelah import tersimpan.
+  var saved = false;
+  await showFDialog<void>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
+      builder: (context, style) => SupplierImportDialog(
+        repository: repository,
+        picker: picker,
+        onSaved: () => saved = true,
       ),
-    ) ??
-    false;
+    ),
+  );
+  return saved;
+}
 
 String supplierImportReasonLabel(
   AppLocalizations l10n,
@@ -45,10 +52,12 @@ class SupplierImportDialog extends StatefulWidget {
     super.key,
     required this.repository,
     required this.picker,
+    this.onSaved,
   });
 
   final SuppliersRepository repository;
   final TableFilePicker picker;
+  final VoidCallback? onSaved;
 
   @override
   State<SupplierImportDialog> createState() => _SupplierImportDialogState();
@@ -58,6 +67,7 @@ class _SupplierImportDialogState extends State<SupplierImportDialog> {
   late final _vm = SupplierImportViewModel(
     repository: widget.repository,
     picker: widget.picker,
+    onSaved: widget.onSaved,
   );
 
   @override
@@ -187,7 +197,11 @@ class _SupplierImportDialogState extends State<SupplierImportDialog> {
                   FAlert(
                     key: const ValueKey('supplier-import-done'),
                     title: Text(
-                      l10n.supplierImportDone(done.created, done.updated),
+                      l10n.supplierImportDone(
+                        done.created,
+                        done.updated,
+                        vm.rejected.length,
+                      ),
                     ),
                   ),
                 if (vm.run.result case Error(:final error))
@@ -209,7 +223,7 @@ class _SupplierImportDialogState extends State<SupplierImportDialog> {
                       mainAxisSize: .min,
                       onPress: vm.run.running
                           ? null
-                          : () => Navigator.of(context).pop(done != null),
+                          : () => Navigator.of(context).pop(),
                       child: Flexible(
                         child: Text(
                           done != null ? l10n.importClose : l10n.supplierCancel,

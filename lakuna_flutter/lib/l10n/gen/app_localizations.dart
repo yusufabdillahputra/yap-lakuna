@@ -13385,8 +13385,8 @@ abstract class AppLocalizations {
   /// No description provided for @supplierImportDone.
   ///
   /// In id, this message translates to:
-  /// **'Selesai: {created} supplier baru, {updated} diperbarui.'**
-  String supplierImportDone(int created, int updated);
+  /// **'Selesai: {created} supplier baru, {updated} diperbarui, {skipped} baris dilewati.'**
+  String supplierImportDone(int created, int updated, int skipped);
 }
 
 class _AppLocalizationsDelegate

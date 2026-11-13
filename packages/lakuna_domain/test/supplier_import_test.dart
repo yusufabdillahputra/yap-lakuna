@@ -80,6 +80,27 @@ void main() {
       expect(supplierImportRows(const []).missingName, isTrue);
     });
 
+    test('alias judul telepon; telepon tanpa angka ditolak', () {
+      final r = supplierImportRows([
+        ['Nama Supplier', 'No. Telp', 'Tempo'],
+        ['CV A', '0812-3456-789', '7 hari'],
+        ['CV B', '-', ''],
+      ]);
+      expect(r.rows.single.phone, '08123456789');
+      expect(r.rows.single.termDays, 7);
+      expect(
+        [for (final x in r.rejected) (x.line, x.reason)],
+        [(3, SupplierImportRejectReason.phone)],
+      );
+      expect(
+        supplierImportRows([
+          ['nama', 'WhatsApp'],
+          ['CV C', '081234567890'],
+        ]).rows.single.phone,
+        '081234567890',
+      );
+    });
+
     test('baris salah ditolak dengan alasan; nama ganda tanpa beda huruf', () {
       final r = supplierImportRows([
         ['Nama', 'Telepon', 'Tempo', 'Kategori'],

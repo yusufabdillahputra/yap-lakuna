@@ -254,7 +254,7 @@ void main() {
       await _tap(tester, _key('supplier-import-run'));
       expect(repo.imported.single, hasLength(2));
       expect(
-        find.text('Selesai: 1 supplier baru, 1 diperbarui.'),
+        find.text('Selesai: 1 supplier baru, 1 diperbarui, 1 baris dilewati.'),
         findsOneWidget,
       );
       await _tap(tester, _key('supplier-import-close'));
@@ -263,6 +263,33 @@ void main() {
       expect(repo.byName('Toko Plastik Jaya').category, 'Kemasan');
     });
   }
+
+  testWidgets(
+    'import tersimpan lalu ditutup lewat latar: daftar dimuat ulang',
+    (
+      tester,
+    ) async {
+      repo = FakeSuppliersRepository();
+      await pumpLakuna(
+        tester,
+        size: const Size(1280, 800),
+        initialLocation: Routes.suppliers,
+        suppliers: repo,
+        tablePicker: _TablePicker('Nama\nCV Baru\n'),
+      );
+      await _tap(tester, _key('suppliers-import'));
+      await _tap(tester, _key('supplier-import-pick'));
+      await _tap(tester, _key('supplier-import-run'));
+      expect(
+        find.text('Selesai: 1 supplier baru, 0 diperbarui, 0 baris dilewati.'),
+        findsOneWidget,
+      );
+      await tester.tapAt(const Offset(1200, 780));
+      await tester.pumpAndSettle();
+      expect(_key('supplier-import'), findsNothing);
+      expect(_keyPrefix('suppliers-row-'), findsNWidgets(4));
+    },
+  );
 
   testWidgets('staf tanpa kelola supplier tidak melihat tombol import', (
     tester,

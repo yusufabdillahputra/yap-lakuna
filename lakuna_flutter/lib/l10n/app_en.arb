@@ -4311,13 +4311,16 @@
       }
     }
   },
-  "supplierImportDone": "Done: {created} new suppliers, {updated} updated.",
+  "supplierImportDone": "Done: {created} new suppliers, {updated} updated, {skipped} rows skipped.",
   "@supplierImportDone": {
     "placeholders": {
       "created": {
         "type": "int"
       },
       "updated": {
+        "type": "int"
+      },
+      "skipped": {
         "type": "int"
       }
     }

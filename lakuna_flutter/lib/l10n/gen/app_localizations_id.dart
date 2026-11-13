@@ -7625,7 +7625,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String supplierImportDone(int created, int updated) {
-    return 'Selesai: $created supplier baru, $updated diperbarui.';
+  String supplierImportDone(int created, int updated, int skipped) {
+    return 'Selesai: $created supplier baru, $updated diperbarui, $skipped baris dilewati.';
   }
 }

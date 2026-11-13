@@ -1,7 +1,7 @@
 # F1-14b · Import supplier dari Excel/CSV
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.45.0
 - **Layar:** 1.21 Supplier & hutang (tombol *Import Excel* di samping
   *Supplier*, pola dialog import pelanggan 1.20).
 - **Acuan:** spec F1-14 (gap "Import supplier: pola import pelanggan"),
@@ -38,6 +38,14 @@ berkas yang sama tanpa membuat supplier ganda.
    seluruh import).
 6. **Izin** `suppliers:manage` (UI dan lapisan data).
 7. **Hasil:** ringkasan *N supplier baru, M diperbarui, K baris dilewati*.
+   *Diperbarui* menghitung baris yang cocok dengan supplier lama; baris yang
+   tidak mengubah apa pun tidak ditulis ulang (tidak masuk outbox).
+8. **Judul telepon** juga *Telp*, *No. Telp*, *No. Telepon*, *Nomor HP*,
+   *Nomor Telepon*, *WhatsApp*, *WA* (ditambahkan juga ke import
+   pelanggan).
+9. Daftar dimuat ulang setiap kali import tersimpan, walau dialog ditutup
+   lewat latar/tombol kembali (berlaku juga untuk import pelanggan dan
+   produk).
 
 ## Komponen
 
@@ -64,5 +72,5 @@ berkas yang sama tanpa membuat supplier ganda.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Import supplier CSV/XLSX | — | Dikerjakan | |
+| Import supplier CSV/XLSX | — | Selesai v0.45.0 | |
 | Templat berkas untuk diunduh | — | Belum | Judul kolom dijelaskan di dialog, sama dengan import pelanggan. |

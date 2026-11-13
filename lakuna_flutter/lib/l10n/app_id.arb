@@ -4845,13 +4845,16 @@
       }
     }
   },
-  "supplierImportDone": "Selesai: {created} supplier baru, {updated} diperbarui.",
+  "supplierImportDone": "Selesai: {created} supplier baru, {updated} diperbarui, {skipped} baris dilewati.",
   "@supplierImportDone": {
     "placeholders": {
       "created": {
         "type": "int"
       },
       "updated": {
+        "type": "int"
+      },
+      "skipped": {
         "type": "int"
       }
     }
