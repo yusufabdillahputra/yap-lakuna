@@ -56,6 +56,14 @@ Bill meja dan take away F&B kini bisa diberi diskon nota.
   `DiningViewModel.setDiscount`, `billDiscountIssue`, `discountBlocksPay`.
   Label baris diskon dipakai bersama Kasir, panel bill, dan pembayaran
   (`billDiscountRowLabel`).
+- Temuan review yang diperbaiki sebelum rilis: layar split menampilkan
+  pesan diskon (bukan galat umum) bila diskon menghabiskan total, tombol
+  bayar bill di Kasir ikut mati dalam keadaan itu, dan diskon tetap bisa
+  dihapus dari bill yang itemnya sudah habis.
+- Uji manual Xvfb: bill M2 Rp5.500 diskon 10% → service 248, PB1
+  termasuk 473, pembulatan −198, total Rp5.000; split rata 3 tamu
+  (1.667 / 1.667 / 1.666); tombol *Diskon* hilang setelah bagian pertama
+  dibayar; struk mencetak *Discount 10% −550*.
 - Pengembangan dilanjutkan lagi pada 2026-11-13 setelah jeda.
   `docs/superpowers/STATUS-JEDA.md` kini mencatat titik lanjut.
 

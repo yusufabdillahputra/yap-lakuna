@@ -1141,7 +1141,7 @@ class _BillPanel extends StatelessWidget {
     final discountAction =
         busy ||
             locked ||
-            bill.items.isEmpty ||
+            (bill.items.isEmpty && bill.discount == null) ||
             !vm.canOfferDiscount ||
             (vm.discountNeedsApproval && ApprovalScope.maybeOf(context) == null)
         ? null

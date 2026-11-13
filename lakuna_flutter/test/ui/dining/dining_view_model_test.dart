@@ -197,6 +197,13 @@ void main() {
       await vm.setQuantity.execute((nasi.id, Qty.zero));
       expect(vm.selectedBill!.charges.total, Money.zero);
       expect(vm.discountBlocksPay, isTrue);
+
+      // Diskon tetap bisa dihapus meski bill kosong.
+      final kopi = vm.selectedBill!.items.single;
+      await vm.setQuantity.execute((kopi.id, Qty.zero));
+      await vm.setDiscount.execute((discount: null, approverId: null));
+      expect(vm.selectedBill!.discount, isNull);
+      expect(vm.discountBlocksPay, isFalse);
     });
   });
 
