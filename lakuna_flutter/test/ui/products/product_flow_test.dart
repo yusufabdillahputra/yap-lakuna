@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup, UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -33,8 +34,9 @@ void main() {
     List<ProductDraft>? seed,
     String location = Routes.products,
     String role = 'owner',
+    List<CustomerGroup> groups = const [],
   }) async {
-    final repo = FakeCatalogRepository(seed: seed);
+    final repo = FakeCatalogRepository(seed: seed)..customerGroups = groups;
     await pumpLakuna(
       tester,
       size: size,
@@ -103,6 +105,38 @@ void main() {
     expect(find.text('Rp 36.000'), findsOneWidget);
     expect(find.text('24'), findsOneWidget);
   });
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('grosir untuk grup pelanggan (F1-07c) ${size.width}', (
+      tester,
+    ) async {
+      final reseller = CustomerGroup(
+        id: UuidValue.fromString(newId()),
+        tenantId: UuidValue.fromString(newId()),
+        name: 'Reseller',
+        hlc: '',
+      );
+      final repo = await pump(tester, size: size, groups: [reseller]);
+      await _tap(tester, 'products-empty-add');
+      await _type(tester, 'product-name', 'Gula Pasir');
+      await _type(tester, 'product-base-unit', 'kg');
+      await _type(tester, 'variant-0-price', '16000');
+      await _tap(tester, 'product-tab-tiers');
+      await _tap(tester, 'product-add-tier');
+      await _type(tester, 'tier-1-qty', '1');
+      await _type(tester, 'tier-1-price', '15500');
+      expect(find.text('Semua pelanggan'), findsWidgets);
+      await _tap(tester, 'tier-1-group');
+      await tester.tap(find.text('Reseller').last);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await _tap(tester, 'product-save');
+      expect(
+        repo.saved.single.variants.single.tiers.single.groupId,
+        reseller.id.uuid,
+      );
+    });
+  }
 
   testWidgets('kode kembar ditandai dan tab varian dibuka', (tester) async {
     final repo = await pump(

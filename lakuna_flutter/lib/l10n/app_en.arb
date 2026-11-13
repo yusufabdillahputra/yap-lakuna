@@ -253,7 +253,7 @@
   "productTierAppliesTo": "Applies to",
   "productTierAllCustomers": "All customers",
   "productAddTier": "Add price tier",
-  "productTiersHelp": "Wholesale prices apply automatically at the cashier once the quantity reaches the tier.",
+  "productTiersHelp": "Wholesale prices apply automatically at the cashier once the quantity reaches the tier. A customer group price applies when a customer in that group is selected at the cashier; when two prices apply, the cheaper one wins.",
   "productTiersEmpty": "No wholesale prices yet.",
   "productBaseUnitPlaceholder": "base unit",
   "productSaveFailed": "The product could not be saved. Try again.",
@@ -3962,5 +3962,15 @@
   "cashierCustomerNew": "New customer",
   "@cashierCustomerNew": {
     "placeholders": {}
+  },
+  "productTierGroupMissing": "A customer group in the wholesale prices was deleted. Choose the group again and save.",
+  "groupErrHasPrices": "The group is still used in product wholesale prices; change those prices first.",
+  "cashierGroupTierNote": "group price ≥ {qty}",
+  "@cashierGroupTierNote": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
   }
 }

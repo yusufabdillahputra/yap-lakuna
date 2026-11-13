@@ -261,7 +261,7 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 | Tab Barcode & label, *Cetak label barcode* | Ada | Belum | Setelah mesin cetak F1-06 |
 | *Import Excel* | Tombol di 1.15 | Rilis v0.31.0 | Lihat [F1-07b](2026-11-04-f1-07b-import-produk-design.md): produk baru satu varian, yang sudah ada dilewati. |
 | Filter *Lokasi stok* | Etalase/Gudang | Hanya Etalase | Saat F1-09 menambah lokasi kedua |
-| Grosir *Berlaku untuk* grup pelanggan | "Grup pelanggan: Grosir" | Semua pelanggan | Setelah F1-13 (`price_tiers.customer_group_id`) |
+| Grosir *Berlaku untuk* grup pelanggan | "Grup pelanggan: Grosir" | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md) (`price_tiers.customer_group_id`) |
 | Klik produk → kartu stok | Catatan kaki 1.15 | Klik membuka form | Tautan ke kartu stok F1-08 |
 | Arsip produk | "Hapus = arsip" | Belum | Tambah aksi arsip (soft delete) di form |
 | Produk pertama di onboarding | Langkah 4 F1-01 | Belum | Tombol *Tambah produk* di langkah 4 |

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
@@ -61,6 +62,7 @@ String productErrorMessage(AppLocalizations l10n, Exception error) =>
         permission.key,
       ),
       ProductNotFound() => l10n.productNotFound,
+      PriceTierGroupNotFound() => l10n.productTierGroupMissing,
       _ => l10n.productSaveFailed,
     };
 
@@ -1355,18 +1357,52 @@ class _TiersTab extends StatelessWidget {
       _Col(
         l10n.productTierAppliesTo,
         14,
-        (labeled) => Padding(
-          padding: EdgeInsets.symmetric(vertical: labeled ? 0 : 10),
-          child: Text(
-            labeled
-                ? '${l10n.productTierAppliesTo}: ${l10n.productTierAllCustomers}'
-                : l10n.productTierAllCustomers,
-            style: context.theme.typography.body.sm.copyWith(
-              color: context.theme.colors.mutedForeground,
-            ),
-          ),
+        (labeled) => _TierGroupSelect(
+          key: ValueKey('tier-${t.key}-group'),
+          label: l(labeled, l10n.productTierAppliesTo),
+          groups: vm.customerGroups,
+          value: t.groupId,
+          onChange: (g) => vm.setTierGroup(vi, k, g),
         ),
       ),
     ];
+  }
+}
+
+/// Pilihan *Berlaku untuk* tingkat grosir: semua pelanggan atau satu grup
+/// pelanggan (F1-07c).
+class _TierGroupSelect extends StatelessWidget {
+  const _TierGroupSelect({
+    required this.groups,
+    required this.value,
+    required this.onChange,
+    this.label,
+    super.key,
+  });
+
+  final List<CustomerGroup> groups;
+  final String? value;
+  final ValueChanged<String?> onChange;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final items = <String, String>{l10n.productTierAllCustomers: ''};
+    for (final g in groups) {
+      var name = g.name;
+      for (var n = 2; items.containsKey(name); n++) {
+        name = '${g.name} ($n)';
+      }
+      items[name] = g.id.uuid;
+    }
+    return FSelect<String>(
+      items: items,
+      label: label == null ? null : Text(label!),
+      control: .managed(
+        initial: value ?? '',
+        onChange: (v) => onChange(v == null || v.isEmpty ? null : v),
+      ),
+    );
   }
 }

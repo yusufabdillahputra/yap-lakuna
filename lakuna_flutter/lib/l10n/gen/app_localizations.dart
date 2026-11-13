@@ -1619,7 +1619,7 @@ abstract class AppLocalizations {
   /// No description provided for @productTiersHelp.
   ///
   /// In id, this message translates to:
-  /// **'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.'**
+  /// **'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya. Harga untuk grup pelanggan dipakai bila pelanggan grup itu dipilih di kasir; bila ada dua harga, yang termurah dipakai.'**
   String get productTiersHelp;
 
   /// No description provided for @productTiersEmpty.
@@ -12475,6 +12475,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pelanggan baru'**
   String get cashierCustomerNew;
+
+  /// No description provided for @productTierGroupMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup pelanggan pada harga grosir sudah dihapus. Pilih ulang grupnya lalu simpan.'**
+  String get productTierGroupMissing;
+
+  /// No description provided for @groupErrHasPrices.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu.'**
+  String get groupErrHasPrices;
+
+  /// No description provided for @cashierGroupTierNote.
+  ///
+  /// In id, this message translates to:
+  /// **'harga grup ≥ {qty}'**
+  String cashierGroupTierNote(String qty);
 }
 
 class _AppLocalizationsDelegate

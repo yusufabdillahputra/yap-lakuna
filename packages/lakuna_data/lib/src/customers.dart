@@ -66,6 +66,12 @@ class CustomerGroupNameTaken implements Exception {
   String toString() => 'CustomerGroupNameTaken';
 }
 
+/// Grup masih dipakai tingkat harga grosir produk (F1-07c).
+class CustomerGroupHasPrices implements Exception {
+  @override
+  String toString() => 'CustomerGroupHasPrices';
+}
+
 class CustomerGroupNotFound implements Exception {
   @override
   String toString() => 'CustomerGroupNotFound';
@@ -266,7 +272,8 @@ Future<CustomerGroup> saveCustomerGroup(
   });
 }
 
-/// Hapus lunak grup yang tidak dipakai pelanggan mana pun.
+/// Hapus lunak grup yang tidak dipakai pelanggan mana pun maupun harga
+/// grosir produk ([CustomerGroupHasPrices]).
 Future<void> deleteCustomerGroup(
   LakunaStore store,
   CatalogScope scope, {
@@ -294,6 +301,15 @@ Future<void> deleteCustomerGroup(
       transaction: w.transaction,
     );
     if (used > 0) throw CustomerGroupInUse();
+    final priced = await ProductPriceTier.db.count(
+      w.session,
+      where: (t) =>
+          t.tenantId.equals(scope.tenantId) &
+          t.customerGroupId.equals(groupId) &
+          t.deletedAt.equals(null),
+      transaction: w.transaction,
+    );
+    if (priced > 0) throw CustomerGroupHasPrices();
     final s = await w.stamp();
     await w.update(
       group.copyWith(

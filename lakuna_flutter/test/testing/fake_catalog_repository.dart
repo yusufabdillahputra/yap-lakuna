@@ -25,6 +25,7 @@ class FakeCatalogRepository extends CatalogRepository {
 
   /// Grup modifier master untuk tab *Modifier*.
   List<ModifierGroupDetail> modifierGroups = const [];
+  List<CustomerGroup> customerGroups = const [];
 
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
@@ -53,6 +54,7 @@ class FakeCatalogRepository extends CatalogRepository {
         categories: List.of(categories),
         units: List.of(units),
         modifierGroups: List.of(modifierGroups),
+        customerGroups: List.of(customerGroups),
       ),
     );
   }
@@ -225,6 +227,7 @@ class FakeCatalogRepository extends CatalogRepository {
                   id: t.id ?? newId(),
                   minQty: t.minQty,
                   price: t.price,
+                  groupId: t.groupId,
                 ),
             ],
           ),

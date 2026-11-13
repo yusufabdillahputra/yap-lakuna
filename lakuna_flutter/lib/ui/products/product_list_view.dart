@@ -459,9 +459,12 @@ String priceRange(
   return '$low–${groupThousands(sorted.last.value, en ? ',' : '.')}';
 }
 
-/// Tingkat grosir pertama varian pertama: "≥6: Rp 35.000".
+/// Tingkat grosir umum pertama varian pertama: "≥6: Rp 35.000". Tingkat
+/// grup pelanggan (F1-07c) tidak ditampilkan di sini.
 String tierLabel(BuildContext context, CatalogProduct p) {
-  final tier = p.variants.firstOrNull?.tiers.firstOrNull;
+  final tier = p.variants.firstOrNull?.tiers
+      .where((t) => t.groupId == null)
+      .firstOrNull;
   if (tier == null) return '—';
   return '≥${formatQty(context, tier.minQty)}: '
       '${formatMoney(context, tier.price)}';

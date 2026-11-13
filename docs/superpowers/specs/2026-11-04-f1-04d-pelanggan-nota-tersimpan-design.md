@@ -95,4 +95,4 @@ lalu melanjutkannya nanti.
 | Pilih pelanggan di kepala Pesanan | 1.4b | Rilis v0.29.0 | Juga di nota non-kredit dan struk |
 | Nota tersimpan (simpan, daftar, lanjutkan, hapus) | 1.4b | Rilis v0.29.0 | Diskon tanpa penyetuju: PIN saat Bayar, atau dilepas bila staf tak boleh diskon |
 | *Pelanggan baru* dari pemilih Kasir | 1.4b | Rilis v0.33.0 | [F1-04f](2026-11-13-f1-04f-pelanggan-baru-kasir-design.md), juga dari panel kredit |
-| Harga grosir per grup pelanggan | 1.4b | Belum | Grup belum punya harga (butuh model harga per grup) |
+| Harga grosir per grup pelanggan | 1.4b | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md) |

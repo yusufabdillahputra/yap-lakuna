@@ -13,6 +13,7 @@ class ProductCatalog {
     required this.categories,
     required this.units,
     this.modifierGroups = const [],
+    this.customerGroups = const [],
   });
 
   final List<CatalogProduct> products;
@@ -21,6 +22,10 @@ class ProductCatalog {
 
   /// Grup modifier master (urut) untuk tab *Modifier* form produk (1.16b).
   final List<ModifierGroupDetail> modifierGroups;
+
+  /// Grup pelanggan (urut nama) untuk kolom *Berlaku untuk* tab *Harga
+  /// grosir* (F1-07c).
+  final List<CustomerGroup> customerGroups;
 }
 
 /// Katalog produk (F1-07). Semua aksi butuh `products:manage`; izin dicek

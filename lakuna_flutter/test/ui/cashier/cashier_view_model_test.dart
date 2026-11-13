@@ -1457,5 +1457,114 @@ void main() {
       second.dispose();
       draft.dispose();
     });
+
+    group('harga grosir grup pelanggan (F1-07c)', () {
+      late UuidValue reseller;
+      late CustomerRow ani;
+
+      setUp(() async {
+        reseller = UuidValue.fromString(newId());
+        repo = FakeCashierRepository(
+          seed: cashierProducts(resellerGroupId: reseller.uuid),
+        );
+        ani = row('Toko Ani');
+        ani = CustomerRow(
+          customer: ani.customer.copyWith(customerGroupId: reseller),
+          groupName: 'Reseller',
+          termDays: 14,
+          outstanding: Money.zero,
+          openCount: 0,
+          overdueCount: 0,
+        );
+        repo.creditRows = [budi, ani];
+        vm = CashierViewModel(repository: repo, printer: printer);
+        await vm.load.execute();
+      });
+
+      test('harga berubah saat pelanggan grup dipilih dan dihapus', () async {
+        vm
+          ..scan('8991234500024')
+          ..setQuantity(0, Qty.units(2));
+        expect(vm.totals.total, const Money(72000));
+        vm.selectCustomer(ani);
+        expect(vm.customer?.groupId, reseller);
+        expect(vm.lines.single.priced.unitPrice, const Money(35500));
+        expect(vm.totals.total, const Money(71000));
+        // Tingkat umum lebih murah tetap menang.
+        vm.setQuantity(0, Qty.units(6));
+        expect(vm.lines.single.priced.unitPrice, const Money(35000));
+        vm.setQuantity(0, Qty.units(2));
+        vm.selectCustomer(budi);
+        expect(vm.totals.total, const Money(72000));
+        vm.selectCustomer(ani);
+        vm.clearCustomer();
+        expect(vm.totals.total, const Money(72000));
+      });
+
+      test('checkout dan nota tersimpan memakai harga grup', () async {
+        vm
+          ..selectCustomer(ani)
+          ..scan('8991234500024');
+        await vm.park.execute(null);
+        expect(repo.parked.single.customerGroupId, reseller);
+        await vm.resumeParked.execute(vm.parkedRows.single.id);
+        expect(vm.customer?.groupId, reseller);
+        expect(vm.totals.total, const Money(35500));
+        vm
+          ..startPayment()
+          ..setReceived(const Money(50000));
+        await vm.pay.execute();
+        expect(vm.result!.sale.total, 35500);
+      });
+
+      test('draf memakai grup pelanggan terbaru saat dipulihkan', () async {
+        final draft = CartDraft(FakeSessionRepository(current: sampleStaff()));
+        final first = CashierViewModel(
+          repository: repo,
+          printer: printer,
+          draft: draft,
+        );
+        await first.load.execute();
+        first
+          ..selectCustomer(ani)
+          ..scan('8991234500024');
+        expect(first.totals.total, const Money(35500));
+        first.dispose();
+        // Ani dikeluarkan dari grup Reseller di menu Pelanggan.
+        repo.creditRows = [
+          budi,
+          CustomerRow(
+            customer: ani.customer.copyWith(customerGroupId: null),
+            groupName: null,
+            termDays: 0,
+            outstanding: Money.zero,
+            openCount: 0,
+            overdueCount: 0,
+          ),
+        ];
+        final second = CashierViewModel(
+          repository: repo,
+          printer: printer,
+          draft: draft,
+        );
+        await second.load.execute();
+        expect(second.customer?.id, ani.customer.id);
+        expect(second.customer?.groupId, isNull);
+        expect(second.totals.total, const Money(36000));
+        second.dispose();
+        draft.dispose();
+      });
+
+      test('pelanggan baru dan pelanggan kredit membawa grupnya', () async {
+        vm.scan('8991234500024');
+        await vm.useNewCustomer(ani.customer);
+        expect(vm.totals.total, const Money(35500));
+        vm.clearCustomer();
+        await vm.loadCredit.execute();
+        vm.selectCreditCustomer(ani.customer.id);
+        expect(vm.customer?.groupId, reseller);
+        expect(vm.totals.total, const Money(35500));
+      });
+    });
   });
 }

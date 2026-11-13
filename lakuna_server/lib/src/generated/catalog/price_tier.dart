@@ -14,12 +14,15 @@ import 'dart:async' as _ida;
 import 'package:serverpod/serverpod.dart' as _is;
 
 /// Harga grosir: mulai min_qty_milli (satuan dasar) harga per satuan dasar.
+/// [customerGroupId] `null` = semua pelanggan; diisi = hanya pelanggan grup
+/// itu (F1-07c).
 abstract class ProductPriceTier
     implements _is.TableRow<_is.UuidValue>, _is.ProtocolSerialization {
   ProductPriceTier._({
     _is.UuidValue? id,
     required this.tenantId,
     required this.variantId,
+    this.customerGroupId,
     required this.minQtyMilli,
     required this.price,
     DateTime? createdAt,
@@ -39,6 +42,7 @@ abstract class ProductPriceTier
     _is.UuidValue? id,
     required _is.UuidValue tenantId,
     required _is.UuidValue variantId,
+    _is.UuidValue? customerGroupId,
     required int minQtyMilli,
     required int price,
     DateTime? createdAt,
@@ -62,6 +66,11 @@ abstract class ProductPriceTier
       variantId: _is.UuidValueJsonExtension.fromJson(
         jsonSerialization['variantId'],
       ),
+      customerGroupId: jsonSerialization['customerGroupId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['customerGroupId'],
+            ),
       minQtyMilli: jsonSerialization['minQtyMilli'] as int,
       price: jsonSerialization['price'] as int,
       createdAt: jsonSerialization['createdAt'] == null
@@ -100,6 +109,8 @@ abstract class ProductPriceTier
 
   _is.UuidValue variantId;
 
+  _is.UuidValue? customerGroupId;
+
   int minQtyMilli;
 
   int price;
@@ -130,6 +141,7 @@ abstract class ProductPriceTier
     _is.UuidValue? id,
     _is.UuidValue? tenantId,
     _is.UuidValue? variantId,
+    _is.UuidValue? customerGroupId = const _is.$UndefinedUuidValue(),
     int? minQtyMilli,
     int? price,
     DateTime? createdAt,
@@ -148,6 +160,7 @@ abstract class ProductPriceTier
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
       'variantId': variantId.toJson(),
+      if (customerGroupId != null) 'customerGroupId': customerGroupId?.toJson(),
       'minQtyMilli': minQtyMilli,
       'price': price,
       'createdAt': createdAt.toJson(),
@@ -168,6 +181,7 @@ abstract class ProductPriceTier
       'id': id.toJson(),
       'tenantId': tenantId.toJson(),
       'variantId': variantId.toJson(),
+      if (customerGroupId != null) 'customerGroupId': customerGroupId?.toJson(),
       'minQtyMilli': minQtyMilli,
       'price': price,
       'createdAt': createdAt.toJson(),
@@ -214,6 +228,7 @@ class _ProductPriceTierImpl extends ProductPriceTier {
     _is.UuidValue? id,
     required _is.UuidValue tenantId,
     required _is.UuidValue variantId,
+    _is.UuidValue? customerGroupId,
     required int minQtyMilli,
     required int price,
     DateTime? createdAt,
@@ -228,6 +243,7 @@ class _ProductPriceTierImpl extends ProductPriceTier {
          id: id,
          tenantId: tenantId,
          variantId: variantId,
+         customerGroupId: customerGroupId,
          minQtyMilli: minQtyMilli,
          price: price,
          createdAt: createdAt,
@@ -248,6 +264,7 @@ class _ProductPriceTierImpl extends ProductPriceTier {
     _is.UuidValue? id,
     _is.UuidValue? tenantId,
     _is.UuidValue? variantId,
+    _is.UuidValue? customerGroupId = const _is.$UndefinedUuidValue(),
     int? minQtyMilli,
     int? price,
     DateTime? createdAt,
@@ -263,6 +280,9 @@ class _ProductPriceTierImpl extends ProductPriceTier {
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
       variantId: variantId ?? this.variantId,
+      customerGroupId: customerGroupId is _is.UndefinedSentinel
+          ? this.customerGroupId
+          : customerGroupId,
       minQtyMilli: minQtyMilli ?? this.minQtyMilli,
       price: price ?? this.price,
       createdAt: createdAt ?? this.createdAt,
@@ -299,6 +319,13 @@ class ProductPriceTierUpdateTable
     _is.UuidValue value,
   ) => _is.ColumnValue(
     table.variantId,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> customerGroupId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.customerGroupId,
     value,
   );
 
@@ -376,6 +403,11 @@ class ProductPriceTierTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'variantId',
     );
+    customerGroupId = _is.ColumnUuid(
+      'customer_group_id',
+      this,
+      fieldName: 'customerGroupId',
+    );
     minQtyMilli = _is.ColumnInt(
       'min_qty_milli',
       this,
@@ -434,6 +466,8 @@ class ProductPriceTierTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnUuid variantId;
 
+  late final _is.ColumnUuid customerGroupId;
+
   late final _is.ColumnInt minQtyMilli;
 
   late final _is.ColumnInt price;
@@ -459,6 +493,7 @@ class ProductPriceTierTable extends _is.Table<_is.UuidValue> {
     id,
     tenantId,
     variantId,
+    customerGroupId,
     minQtyMilli,
     price,
     createdAt,

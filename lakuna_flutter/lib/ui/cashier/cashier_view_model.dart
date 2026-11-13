@@ -141,7 +141,7 @@ enum DiscountAccess {
 typedef DiscountApprover = ({UuidValue id, String name});
 
 /// Pelanggan nota di kepala Pesanan (1.4b, F1-04d).
-typedef SaleCustomer = ({UuidValue id, String name});
+typedef SaleCustomer = ({UuidValue id, String name, UuidValue? groupId});
 
 /// Diskon rupiah yang melebihi dasar dipangkas ke dasarnya (mis. jumlah
 /// baris berkurang setelah diskon diberikan).
@@ -358,6 +358,8 @@ class CashierViewModel extends ChangeNotifier {
         _categoryId = null;
       }
       _restoreDraft(value);
+      // Grup pelanggan draf bisa berubah selama di menu lain (F1-07c).
+      if (_customer != null) await _loadCustomers();
       if (!billMode) await _loadParked();
     }
     return result;
@@ -514,6 +516,7 @@ class CashierViewModel extends ChangeNotifier {
           tiers: i.variant.tiers,
           factor: i.unit?.factor,
           unitPrice: i.unit?.sellPrice,
+          customerGroupId: _customer?.groupId?.uuid,
         ),
         discount: i.discount,
       ),
@@ -718,7 +721,10 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<void>> _loadCustomers() async {
     final result = await _repository.customers();
-    if (result case Ok(:final value)) _customerList = value;
+    if (result case Ok(:final value)) {
+      _customerList = value;
+      _refreshCustomer(value.rows);
+    }
     return result;
   }
 
@@ -728,7 +734,7 @@ class CashierViewModel extends ChangeNotifier {
   }
 
   void selectCustomer(CustomerRow row) {
-    _customer = (id: row.customer.id, name: row.customer.name);
+    _customer = _saleCustomer(row.customer);
     _customerQuery = '';
     notifyListeners();
   }
@@ -739,7 +745,7 @@ class CashierViewModel extends ChangeNotifier {
   /// Pelanggan baru dari dialog *Pilih pelanggan*: dipasang ke nota, daftar
   /// dimuat ulang.
   Future<void> useNewCustomer(Customer customer) async {
-    _customer = (id: customer.id, name: customer.name);
+    _customer = _saleCustomer(customer);
     _customerQuery = '';
     notifyListeners();
     await customers.execute();
@@ -758,6 +764,18 @@ class CashierViewModel extends ChangeNotifier {
     }
     if (_selectCredit(customer.id)) notifyListeners();
   }
+
+  /// Menyegarkan nama dan grup pelanggan nota dari daftar terbaru, agar
+  /// harga grosir grup di keranjang sama dengan harga saat checkout.
+  void _refreshCustomer(Iterable<CustomerRow> rows) {
+    final current = _customer;
+    if (current == null) return;
+    final row = rows.where((r) => r.customer.id == current.id).firstOrNull;
+    if (row != null) _customer = _saleCustomer(row.customer);
+  }
+
+  static SaleCustomer _saleCustomer(Customer c) =>
+      (id: c.id, name: c.name, groupId: c.customerGroupId);
 
   void clearCustomer() {
     _customer = null;
@@ -874,7 +892,11 @@ class CashierViewModel extends ChangeNotifier {
           _resumeDiscountDropped = true;
         }
         _customer = switch ((value.customerId, value.customerName)) {
-          (final id?, final name?) => (id: id, name: name),
+          (final id?, final name?) => (
+            id: id,
+            name: name,
+            groupId: value.customerGroupId,
+          ),
           _ => null,
         };
         _parkedId = value.id;
@@ -1077,6 +1099,7 @@ class CashierViewModel extends ChangeNotifier {
     final result = await _repository.creditCustomers();
     if (result case Ok(:final value)) {
       _creditCustomers = value;
+      _refreshCustomer(value.rows);
       // Pelanggan kepala Pesanan menjadi pilihan awal kredit (F1-04d).
       final header = _customer;
       if (_creditCustomerId == null && header != null) _selectCredit(header.id);
@@ -1101,7 +1124,7 @@ class CashierViewModel extends ChangeNotifier {
     if (row == null) return false;
     _creditCustomerId = id;
     _creditDue = creditToday.add(Duration(days: row.termDays));
-    _customer = (id: row.customer.id, name: row.customer.name);
+    _customer = _saleCustomer(row.customer);
     _error = null;
     return true;
   }

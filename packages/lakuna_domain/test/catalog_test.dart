@@ -66,6 +66,91 @@ void main() {
     });
   });
 
+  group('harga grosir per grup pelanggan (F1-07c)', () {
+    test('tingkat yang tidak lebih murah dari harga jual diabaikan', () {
+      final tiers = [
+        PriceTier(minQty: Qty.one, price: const Money(35500), groupId: 'g'),
+        PriceTier(minQty: Qty.units(6), price: const Money(36000)),
+      ];
+      final group = priceSaleLine(
+        sellPrice: const Money(35000),
+        quantity: Qty.units(2),
+        tiers: tiers,
+        customerGroupId: 'g',
+      );
+      expect(group.unitPrice, const Money(35000));
+      expect(group.tier, isNull);
+      expect(group.tierDiscount, Money.zero);
+      final general = priceSaleLine(
+        sellPrice: const Money(35000),
+        quantity: Qty.units(6),
+        tiers: tiers,
+      );
+      expect(general.unitPrice, const Money(35000));
+      expect(general.tierDiscount, Money.zero);
+    });
+
+    const grosir = 'grup-grosir';
+    const reseller = 'grup-reseller';
+    final tiers = [
+      PriceTier(minQty: Qty.units(10), price: const Money(9000)),
+      const PriceTier(minQty: Qty.one, price: Money(9500), groupId: reseller),
+      PriceTier(
+        minQty: Qty.units(10),
+        price: const Money(8500),
+        groupId: grosir,
+      ),
+    ];
+
+    test('tanpa grup: hanya tingkat semua pelanggan (perilaku lama)', () {
+      expect(tierFor(tiers, Qty.units(1)), isNull);
+      expect(tierFor(tiers, Qty.units(12))?.price, const Money(9000));
+    });
+
+    test(
+      'grup reseller: harga grup sejak 1, tingkat umum bila lebih murah',
+      () {
+        expect(
+          tierFor(tiers, Qty.units(2), groupId: reseller)?.price,
+          const Money(9500),
+        );
+        // Pada 10: umum 9.000 < reseller 9.500 → yang lebih murah.
+        expect(
+          tierFor(tiers, Qty.units(10), groupId: reseller)?.price,
+          const Money(9000),
+        );
+      },
+    );
+
+    test('grup grosir lebih murah dari umum; grup lain diabaikan', () {
+      expect(
+        tierFor(tiers, Qty.units(10), groupId: grosir)?.price,
+        const Money(8500),
+      );
+      expect(tierFor(tiers, Qty.units(2), groupId: grosir), isNull);
+      expect(tierFor(tiers, Qty.units(2), groupId: 'lain'), isNull);
+    });
+
+    test('priceSaleLine memakai grup pelanggan', () {
+      final line = priceSaleLine(
+        sellPrice: const Money(10000),
+        quantity: Qty.units(3),
+        tiers: tiers,
+        customerGroupId: reseller,
+      );
+      expect(line.unitPrice, const Money(9500));
+      expect(line.tierDiscount, const Money(1500));
+      expect(
+        priceSaleLine(
+          sellPrice: const Money(10000),
+          quantity: Qty.units(3),
+          tiers: tiers,
+        ).unitPrice,
+        const Money(10000),
+      );
+    });
+  });
+
   group('conversionSellPrice', () {
     test('harga satuan diisi dipakai apa adanya', () {
       expect(
@@ -321,6 +406,45 @@ void main() {
         (ProductField.tierMinQty, ProductError.minQtyTooSmall, 1),
         (ProductField.tierMinQty, ProductError.duplicate, 2),
         (ProductField.tierPrice, ProductError.notPositive, 3),
+      ]);
+    });
+
+    test('tingkat grup: mulai > 0, unik per grup', () {
+      final issues = validateProductDraft(
+        _draft(
+          variants: [
+            VariantDraft(
+              tiers: [
+                PriceTier(minQty: Qty.units(6), price: const Money(35000)),
+                // Grup boleh mulai 1 dan boleh sama dengan tingkat umum.
+                const PriceTier(
+                  minQty: Qty.one,
+                  price: Money(35500),
+                  groupId: 'g',
+                ),
+                PriceTier(
+                  minQty: Qty.units(6),
+                  price: const Money(34000),
+                  groupId: 'g',
+                ),
+                PriceTier(
+                  minQty: Qty.units(6),
+                  price: const Money(33000),
+                  groupId: 'g',
+                ),
+                const PriceTier(
+                  minQty: Qty.zero,
+                  price: Money(30000),
+                  groupId: 'g',
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+      expect(issues.map((i) => (i.field, i.error, i.tier)), [
+        (ProductField.tierMinQty, ProductError.duplicate, 3),
+        (ProductField.tierMinQty, ProductError.notPositive, 4),
       ]);
     });
 

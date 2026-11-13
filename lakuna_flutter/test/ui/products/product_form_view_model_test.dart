@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup, UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/catalog_repository.dart';
@@ -286,5 +287,97 @@ void main() {
       vm.problem(ProductField.modifierGroups)?.error,
       ProductError.missing,
     );
+  });
+
+  group('harga grosir per grup pelanggan (F1-07c)', () {
+    CustomerGroup group(String name) => CustomerGroup(
+      id: UuidValue.fromString(newId()),
+      tenantId: UuidValue.fromString(newId()),
+      name: name,
+      hlc: '',
+    );
+
+    test('pilih grup, jumlah sama boleh beda grup, tersimpan', () async {
+      final reseller = group('Reseller');
+      repo.customerGroups = [reseller];
+      final vm = await open();
+      expect(vm.customerGroups.single.name, 'Reseller');
+      vm
+        ..setName('Gula Pasir')
+        ..setBaseUnit('kg');
+      vm.editVariant(0, ProductField.sellPrice, (v) {
+        v.sellPrice = const Money(16000);
+      });
+      for (var k = 0; k < 2; k++) {
+        vm.addTier(0);
+        vm.editTier(
+          0,
+          k,
+          ProductField.tierMinQty,
+          (t) => t.minQty = Qty.units(5),
+        );
+        vm.editTier(
+          0,
+          k,
+          ProductField.tierPrice,
+          (t) => t.price = const Money(15000),
+        );
+      }
+      // Dua tingkat umum ≥5 kembar.
+      await vm.save.execute();
+      expect(vm.save.error, isTrue);
+      final v = vm.variants.single;
+      expect(
+        vm
+            .problem(
+              ProductField.tierMinQty,
+              variant: v.key,
+              tier: v.tiers[1].key,
+            )
+            ?.error,
+        ProductError.duplicate,
+      );
+      // Pindah ke grup Reseller: galat hilang, simpan berhasil.
+      vm.setTierGroup(0, 1, reseller.id.uuid);
+      expect(
+        vm.problem(
+          ProductField.tierMinQty,
+          variant: v.key,
+          tier: v.tiers[1].key,
+        ),
+        isNull,
+      );
+      await vm.save.execute();
+      expect(vm.save.completed, isTrue);
+      expect(repo.saved.last.variants.single.tiers.map((t) => t.groupId), [
+        null,
+        reseller.id.uuid,
+      ]);
+    });
+
+    test('produk lama memuat grup tingkatnya', () async {
+      final reseller = group('Reseller');
+      repo.customerGroups = [reseller];
+      final vm = await open();
+      vm
+        ..setName('Gula Pasir')
+        ..setBaseUnit('kg');
+      vm.editVariant(0, ProductField.sellPrice, (v) {
+        v.sellPrice = const Money(16000);
+      });
+      vm.addTier(0);
+      vm.editTier(0, 0, ProductField.tierMinQty, (t) => t.minQty = Qty.one);
+      vm.editTier(
+        0,
+        0,
+        ProductField.tierPrice,
+        (t) => t.price = const Money(15500),
+      );
+      vm.setTierGroup(0, 0, reseller.id.uuid);
+      await vm.save.execute();
+      final id = repo.products.firstWhere((p) => p.name == 'Gula Pasir').id;
+      final again = await open(id.uuid);
+      expect(again.variants.single.tiers.single.groupId, reseller.id.uuid);
+    });
   });
 }
