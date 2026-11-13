@@ -7094,4 +7094,9 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get groupErrHasPrices =>
       'Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu.';
+
+  @override
+  String cashierGroupTierNote(String qty) {
+    return 'harga grup ≥ $qty';
+  }
 }

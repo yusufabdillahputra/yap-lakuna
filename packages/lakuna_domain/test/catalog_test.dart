@@ -67,6 +67,29 @@ void main() {
   });
 
   group('harga grosir per grup pelanggan (F1-07c)', () {
+    test('tingkat yang tidak lebih murah dari harga jual diabaikan', () {
+      final tiers = [
+        PriceTier(minQty: Qty.one, price: const Money(35500), groupId: 'g'),
+        PriceTier(minQty: Qty.units(6), price: const Money(36000)),
+      ];
+      final group = priceSaleLine(
+        sellPrice: const Money(35000),
+        quantity: Qty.units(2),
+        tiers: tiers,
+        customerGroupId: 'g',
+      );
+      expect(group.unitPrice, const Money(35000));
+      expect(group.tier, isNull);
+      expect(group.tierDiscount, Money.zero);
+      final general = priceSaleLine(
+        sellPrice: const Money(35000),
+        quantity: Qty.units(6),
+        tiers: tiers,
+      );
+      expect(general.unitPrice, const Money(35000));
+      expect(general.tierDiscount, Money.zero);
+    });
+
     const grosir = 'grup-grosir';
     const reseller = 'grup-reseller';
     final tiers = [

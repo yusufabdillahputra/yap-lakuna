@@ -1517,6 +1517,44 @@ void main() {
         expect(vm.result!.sale.total, 35500);
       });
 
+      test('draf memakai grup pelanggan terbaru saat dipulihkan', () async {
+        final draft = CartDraft(FakeSessionRepository(current: sampleStaff()));
+        final first = CashierViewModel(
+          repository: repo,
+          printer: printer,
+          draft: draft,
+        );
+        await first.load.execute();
+        first
+          ..selectCustomer(ani)
+          ..scan('8991234500024');
+        expect(first.totals.total, const Money(35500));
+        first.dispose();
+        // Ani dikeluarkan dari grup Reseller di menu Pelanggan.
+        repo.creditRows = [
+          budi,
+          CustomerRow(
+            customer: ani.customer.copyWith(customerGroupId: null),
+            groupName: null,
+            termDays: 0,
+            outstanding: Money.zero,
+            openCount: 0,
+            overdueCount: 0,
+          ),
+        ];
+        final second = CashierViewModel(
+          repository: repo,
+          printer: printer,
+          draft: draft,
+        );
+        await second.load.execute();
+        expect(second.customer?.id, ani.customer.id);
+        expect(second.customer?.groupId, isNull);
+        expect(second.totals.total, const Money(36000));
+        second.dispose();
+        draft.dispose();
+      });
+
       test('pelanggan baru dan pelanggan kredit membawa grupnya', () async {
         vm.scan('8991234500024');
         await vm.useNewCustomer(ani.customer);

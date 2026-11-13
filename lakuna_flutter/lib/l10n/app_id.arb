@@ -4498,5 +4498,13 @@
     "placeholders": {}
   },
   "productTierGroupMissing": "Grup pelanggan pada harga grosir sudah dihapus. Pilih ulang grupnya lalu simpan.",
-  "groupErrHasPrices": "Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu."
+  "groupErrHasPrices": "Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu.",
+  "cashierGroupTierNote": "harga grup ≥ {qty}",
+  "@cashierGroupTierNote": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  }
 }

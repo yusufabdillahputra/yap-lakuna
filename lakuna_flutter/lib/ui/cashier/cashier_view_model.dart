@@ -358,6 +358,8 @@ class CashierViewModel extends ChangeNotifier {
         _categoryId = null;
       }
       _restoreDraft(value);
+      // Grup pelanggan draf bisa berubah selama di menu lain (F1-07c).
+      if (_customer != null) await _loadCustomers();
       if (!billMode) await _loadParked();
     }
     return result;
@@ -719,7 +721,10 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<void>> _loadCustomers() async {
     final result = await _repository.customers();
-    if (result case Ok(:final value)) _customerList = value;
+    if (result case Ok(:final value)) {
+      _customerList = value;
+      _refreshCustomer(value.rows);
+    }
     return result;
   }
 
@@ -758,6 +763,15 @@ class CashierViewModel extends ChangeNotifier {
       return;
     }
     if (_selectCredit(customer.id)) notifyListeners();
+  }
+
+  /// Menyegarkan nama dan grup pelanggan nota dari daftar terbaru, agar
+  /// harga grosir grup di keranjang sama dengan harga saat checkout.
+  void _refreshCustomer(Iterable<CustomerRow> rows) {
+    final current = _customer;
+    if (current == null) return;
+    final row = rows.where((r) => r.customer.id == current.id).firstOrNull;
+    if (row != null) _customer = _saleCustomer(row.customer);
   }
 
   static SaleCustomer _saleCustomer(Customer c) =>
@@ -1085,6 +1099,7 @@ class CashierViewModel extends ChangeNotifier {
     final result = await _repository.creditCustomers();
     if (result case Ok(:final value)) {
       _creditCustomers = value;
+      _refreshCustomer(value.rows);
       // Pelanggan kepala Pesanan menjadi pilihan awal kredit (F1-04d).
       final header = _customer;
       if (_creditCustomerId == null && header != null) _selectCredit(header.id);

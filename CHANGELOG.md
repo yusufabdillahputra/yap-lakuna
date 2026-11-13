@@ -49,6 +49,20 @@ Harga grosir kini bisa dikhususkan untuk grup pelanggan.
 - Harga grup belum dipakai di open bill F&B (bill belum berpelanggan saat
   item ditambahkan) dan di satuan konversi (grosir hanya untuk satuan
   dasar); keduanya dicatat sebagai gap di spec F1-07c.
+- Temuan review yang diperbaiki sebelum rilis:
+  - Tingkat grosir yang harganya tidak lebih murah dari harga jual kini
+    diabaikan. Sebelumnya, bila harga jual diturunkan di bawah harga
+    reseller, pelanggan grup justru membayar lebih mahal dan *Diskon
+    grosir* tersimpan negatif.
+  - Draf keranjang yang dipulihkan memakai grup pelanggan terbaru. Bila
+    grup pelanggan diubah di menu Pelanggan saat keranjang masih terisi,
+    harga Kasir kini tetap sama dengan total yang disimpan.
+  - Kolom grosir di daftar produk 1.15 hanya menampilkan tingkat umum, dan
+    catatan baris Kasir menulis *harga grup ≥ 1* untuk harga grup.
+- Uji manual Xvfb: Gula Pasir 1 kg diberi harga Grosir Rp16.500 mulai 1
+  pak. Kasir tanpa pelanggan Rp35.000 untuk 2 pak; setelah Toko Bu Ani
+  (grup Grosir) dipilih, Rp33.000 dengan *Diskon grosir* Rp2.000. Nota
+  tunai tersimpan dengan total Rp33.000.
 
 ## [0.33.0] - 2026-11-13
 

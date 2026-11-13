@@ -12487,6 +12487,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu.'**
   String get groupErrHasPrices;
+
+  /// No description provided for @cashierGroupTierNote.
+  ///
+  /// In id, this message translates to:
+  /// **'harga grup ≥ {qty}'**
+  String cashierGroupTierNote(String qty);
 }
 
 class _AppLocalizationsDelegate

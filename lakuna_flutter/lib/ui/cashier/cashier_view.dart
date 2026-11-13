@@ -950,7 +950,13 @@ class _CartRow extends StatelessWidget {
                           '${formatMoney(context, line.priced.unitPrice)}',
                       line.unitName,
                       if (tier != null)
-                        l10n.cashierTierNote(formatQty(context, tier.minQty)),
+                        tier.groupId == null
+                            ? l10n.cashierTierNote(
+                                formatQty(context, tier.minQty),
+                              )
+                            : l10n.cashierGroupTierNote(
+                                formatQty(context, tier.minQty),
+                              ),
                     ].join(' · '),
                     style: muted,
                   ),

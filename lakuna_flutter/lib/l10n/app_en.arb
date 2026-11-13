@@ -3964,5 +3964,13 @@
     "placeholders": {}
   },
   "productTierGroupMissing": "A customer group in the wholesale prices was deleted. Choose the group again and save.",
-  "groupErrHasPrices": "The group is still used in product wholesale prices; change those prices first."
+  "groupErrHasPrices": "The group is still used in product wholesale prices; change those prices first.",
+  "cashierGroupTierNote": "group price ≥ {qty}",
+  "@cashierGroupTierNote": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  }
 }

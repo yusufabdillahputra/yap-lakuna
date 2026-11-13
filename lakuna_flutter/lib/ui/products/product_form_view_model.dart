@@ -451,12 +451,15 @@ class ProductFormViewModel extends ChangeNotifier {
     final t = variants[variant].tiers[index];
     if (t.groupId == groupId) return;
     t.groupId = groupId;
-    _clear(
-      ProductField.tierMinQty,
-      variant: variants[variant].key,
-      tier: t.key,
-      notify: false,
-    );
+    // Kembar dihitung per grup: galat jumlah baris lain ikut kedaluwarsa.
+    for (final other in variants[variant].tiers) {
+      _clear(
+        ProductField.tierMinQty,
+        variant: variants[variant].key,
+        tier: other.key,
+        notify: false,
+      );
+    }
     notifyListeners();
   }
 

@@ -7242,4 +7242,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get groupErrHasPrices =>
       'The group is still used in product wholesale prices; change those prices first.';
+
+  @override
+  String cashierGroupTierNote(String qty) {
+    return 'group price ≥ $qty';
+  }
 }
