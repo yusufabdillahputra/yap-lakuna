@@ -41,3 +41,4 @@ export 'src/staff.dart';
 export 'src/stock.dart';
 export 'src/store_settings.dart';
 export 'src/supplier.dart';
+export 'src/supplier_import.dart';

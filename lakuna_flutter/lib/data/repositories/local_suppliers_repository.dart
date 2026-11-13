@@ -55,6 +55,15 @@ class LocalSuppliersRepository extends SuppliersRepository {
   );
 
   @override
+  Future<Result<SupplierImportSummary>> importRows(
+    List<SupplierImportRow> rows,
+  ) => _guard(
+    permission: Permission.suppliersManage,
+    (_, scope, staff) =>
+        importSuppliers(_store, scope, staffId: staff.id, rows: rows),
+  );
+
+  @override
   Future<Result<void>> delete(UuidValue id) => _guard(
     permission: Permission.suppliersManage,
     (_, scope, staff) =>

@@ -7758,4 +7758,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get debtErrNotFound =>
       'Payment not found, or its customer/supplier was deleted.';
+
+  @override
+  String get suppliersImport => 'Import Excel';
+
+  @override
+  String get supplierImportTitle => 'Import suppliers';
+
+  @override
+  String get supplierImportIntro =>
+      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Contact, Phone, Category, Term days, Address, Note. Headers can be in Indonesian or English.';
+
+  @override
+  String supplierImportUpdateNote(int days) {
+    return 'Rows with a registered supplier name update that supplier (empty cells keep the old data). New suppliers without a term get $days days.';
+  }
+
+  @override
+  String get supplierImportEmpty => 'The file has no supplier rows.';
+
+  @override
+  String get supplierImportReasonPhone => 'invalid phone number';
+
+  @override
+  String get supplierImportReasonTerm => 'term is not 0–365 days';
+
+  @override
+  String get supplierImportReasonDuplicate => 'name repeated in the file';
+
+  @override
+  String supplierImportRun(int count) {
+    return 'Import $count suppliers';
+  }
+
+  @override
+  String supplierImportDone(int created, int updated) {
+    return 'Done: $created new suppliers, $updated updated.';
+  }
 }

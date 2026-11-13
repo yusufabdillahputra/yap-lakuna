@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
 
@@ -52,6 +53,12 @@ abstract class SuppliersRepository {
   /// `suppliers:manage`. Gagal dengan `SupplierInvalid` atau
   /// `SupplierNameTaken`.
   Future<Result<Supplier>> save(SupplierInput input);
+
+  /// `suppliers:manage`. Import baris berkas (F1-14b) dalam satu transaksi;
+  /// gagal dengan `SupplierInvalid` bila ada baris salah.
+  Future<Result<SupplierImportSummary>> importRows(
+    List<SupplierImportRow> rows,
+  );
 
   /// `suppliers:manage`. Ditolak (`SupplierHasDebt`) bila masih berhutang.
   Future<Result<void>> delete(UuidValue id);

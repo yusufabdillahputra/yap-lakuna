@@ -7591,4 +7591,41 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get debtErrNotFound =>
       'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.';
+
+  @override
+  String get suppliersImport => 'Import Excel';
+
+  @override
+  String get supplierImportTitle => 'Import supplier';
+
+  @override
+  String get supplierImportIntro =>
+      'Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English.';
+
+  @override
+  String supplierImportUpdateNote(int days) {
+    return 'Nama supplier yang sudah terdaftar memperbarui supplier itu (kolom kosong tidak mengubah data lama). Supplier baru tanpa tempo memakai $days hari.';
+  }
+
+  @override
+  String get supplierImportEmpty => 'Berkas tidak berisi baris supplier.';
+
+  @override
+  String get supplierImportReasonPhone => 'nomor telepon tidak sah';
+
+  @override
+  String get supplierImportReasonTerm => 'tempo bukan 0–365 hari';
+
+  @override
+  String get supplierImportReasonDuplicate => 'nama dobel di berkas';
+
+  @override
+  String supplierImportRun(int count) {
+    return 'Import $count supplier';
+  }
+
+  @override
+  String supplierImportDone(int created, int updated) {
+    return 'Selesai: $created supplier baru, $updated diperbarui.';
+  }
 }

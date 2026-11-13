@@ -13327,6 +13327,66 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.'**
   String get debtErrNotFound;
+
+  /// No description provided for @suppliersImport.
+  ///
+  /// In id, this message translates to:
+  /// **'Import Excel'**
+  String get suppliersImport;
+
+  /// No description provided for @supplierImportTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Import supplier'**
+  String get supplierImportTitle;
+
+  /// No description provided for @supplierImportIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English.'**
+  String get supplierImportIntro;
+
+  /// No description provided for @supplierImportUpdateNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama supplier yang sudah terdaftar memperbarui supplier itu (kolom kosong tidak mengubah data lama). Supplier baru tanpa tempo memakai {days} hari.'**
+  String supplierImportUpdateNote(int days);
+
+  /// No description provided for @supplierImportEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas tidak berisi baris supplier.'**
+  String get supplierImportEmpty;
+
+  /// No description provided for @supplierImportReasonPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'nomor telepon tidak sah'**
+  String get supplierImportReasonPhone;
+
+  /// No description provided for @supplierImportReasonTerm.
+  ///
+  /// In id, this message translates to:
+  /// **'tempo bukan 0–365 hari'**
+  String get supplierImportReasonTerm;
+
+  /// No description provided for @supplierImportReasonDuplicate.
+  ///
+  /// In id, this message translates to:
+  /// **'nama dobel di berkas'**
+  String get supplierImportReasonDuplicate;
+
+  /// No description provided for @supplierImportRun.
+  ///
+  /// In id, this message translates to:
+  /// **'Import {count} supplier'**
+  String supplierImportRun(int count);
+
+  /// No description provided for @supplierImportDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai: {created} supplier baru, {updated} diperbarui.'**
+  String supplierImportDone(int created, int updated);
 }
 
 class _AppLocalizationsDelegate

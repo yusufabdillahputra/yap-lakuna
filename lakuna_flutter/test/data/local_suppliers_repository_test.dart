@@ -97,6 +97,20 @@ void main() {
     );
     expect(_ok(await repo.list()).rows.single.supplier.id, s.id);
 
+    // Import (F1-14b): nama lama diperbarui, nama baru dibuat.
+    final summary = _ok(
+      await repo.importRows(const [
+        SupplierImportRow(line: 2, name: 'cv sumber', termDays: 30),
+        SupplierImportRow(line: 3, name: 'UD Baru'),
+      ]),
+    );
+    expect((summary.created, summary.updated), (1, 1));
+    final rows = _ok(await repo.list()).rows;
+    expect(rows.map((r) => (r.supplier.name, r.supplier.termDays)), [
+      ('CV Sumber', 30),
+      ('UD Baru', 14),
+    ]);
+
     // Tanpa izin supplier maupun hutang.
     session.current = staffWith({Permission.salesCreate});
     expect(_err(await repo.list()), isA<NotPermitted>());
@@ -124,6 +138,12 @@ void main() {
     );
     expect(
       _err(await repo.save(const SupplierInput(name: 'Lain', termDays: 7))),
+      isA<NotPermitted>(),
+    );
+    expect(
+      _err(
+        await repo.importRows(const [SupplierImportRow(line: 2, name: 'X')]),
+      ),
       isA<NotPermitted>(),
     );
     // Lolos izin; ditolak karena tidak ada hutang.

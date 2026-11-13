@@ -469,6 +469,7 @@ GoRouter createRouter({
             builder: (context, state) => SuppliersScreen(
               repository: suppliers,
               imagePicker: imagePicker,
+              tablePicker: tablePicker,
               onOpenSupplier: (id) =>
                   context.push<void>(Routes.supplier(id.uuid)),
               onOpenPurchase: (id) =>

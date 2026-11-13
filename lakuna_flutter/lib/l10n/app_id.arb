@@ -4821,5 +4821,39 @@
   "reportsSourceSupplierPaymentVoid": "Batal bayar hutang",
   "cashSourceDebtPaymentVoid": "Batal bayar piutang",
   "cashSourceSupplierPaymentVoid": "Batal bayar hutang",
-  "debtErrNotFound": "Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus."
+  "debtErrNotFound": "Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.",
+  "suppliersImport": "Import Excel",
+  "supplierImportTitle": "Import supplier",
+  "supplierImportIntro": "Pilih berkas Excel (.xlsx) atau CSV. Kolom: Nama (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English.",
+  "supplierImportUpdateNote": "Nama supplier yang sudah terdaftar memperbarui supplier itu (kolom kosong tidak mengubah data lama). Supplier baru tanpa tempo memakai {days} hari.",
+  "@supplierImportUpdateNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierImportEmpty": "Berkas tidak berisi baris supplier.",
+  "supplierImportReasonPhone": "nomor telepon tidak sah",
+  "supplierImportReasonTerm": "tempo bukan 0–365 hari",
+  "supplierImportReasonDuplicate": "nama dobel di berkas",
+  "supplierImportRun": "Import {count} supplier",
+  "@supplierImportRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierImportDone": "Selesai: {created} supplier baru, {updated} diperbarui.",
+  "@supplierImportDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      }
+    }
+  }
 }
