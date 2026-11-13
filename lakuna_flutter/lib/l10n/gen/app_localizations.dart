@@ -12469,6 +12469,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.'**
   String get diningDiscountBlocksPay;
+
+  /// No description provided for @cashierCustomerNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan baru'**
+  String get cashierCustomerNew;
 }
 
 class _AppLocalizationsDelegate

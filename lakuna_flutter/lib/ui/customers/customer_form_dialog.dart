@@ -12,30 +12,72 @@ import 'customer_form_view_model.dart';
 import 'customer_labels.dart';
 
 /// Dialog tambah/ubah pelanggan. Hasil = pelanggan tersimpan, `null` bila
-/// dibatalkan.
+/// dibatalkan. [initialName] / [initialPhone] mengisi form pelanggan baru
+/// (mis. dari kata pencarian Kasir, F1-04f).
 Future<Customer?> showCustomerForm(
   BuildContext context,
   CustomersRepository repository, {
   Customer? customer,
+  String initialName = '',
+  String initialPhone = '',
 }) => showFDialog<Customer>(
   context: context,
   builder: (context, style, animation) => FDialog(
     animation: animation,
     constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
-    builder: (context, style) =>
-        CustomerFormDialog(repository: repository, customer: customer),
+    builder: (context, style) => CustomerFormDialog(
+      repository: repository,
+      customer: customer,
+      initialName: initialName,
+      initialPhone: initialPhone,
+    ),
   ),
 );
+
+/// Kata pencarian → isian awal pelanggan baru: nomor (angka dengan `+`,
+/// spasi, `-`, `.`, atau kurung; minimal 6 digit) = HP yang dinormalisasi,
+/// selain itu nama.
+({String name, String phone}) customerDraftFromQuery(String query) {
+  final q = query.trim();
+  if (q.isEmpty) return (name: '', phone: '');
+  final digits = q.replaceAll(RegExp(r'\D'), '');
+  final isPhone = RegExp(r'^[0-9+\s().-]+$').hasMatch(q) && digits.length >= 6;
+  return isPhone ? (name: '', phone: normalizePhone(q)) : (name: q, phone: '');
+}
+
+/// Membawa repositori pelanggan ke layar lain (Kasir) agar bisa membuka form
+/// *Pelanggan baru* (F1-04f).
+class CustomerFormScope extends InheritedWidget {
+  const CustomerFormScope({
+    super.key,
+    required this.repository,
+    required super.child,
+  });
+
+  final CustomersRepository repository;
+
+  static CustomersRepository? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<CustomerFormScope>()
+      ?.repository;
+
+  @override
+  bool updateShouldNotify(CustomerFormScope oldWidget) =>
+      repository != oldWidget.repository;
+}
 
 class CustomerFormDialog extends StatefulWidget {
   const CustomerFormDialog({
     super.key,
     required this.repository,
     this.customer,
+    this.initialName = '',
+    this.initialPhone = '',
   });
 
   final CustomersRepository repository;
   final Customer? customer;
+  final String initialName;
+  final String initialPhone;
 
   @override
   State<CustomerFormDialog> createState() => _CustomerFormDialogState();
@@ -45,6 +87,8 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
   late final _vm = CustomerFormViewModel(
     repository: widget.repository,
     customer: widget.customer,
+    initialName: widget.initialName,
+    initialPhone: widget.initialPhone,
   )..load.execute();
 
   @override

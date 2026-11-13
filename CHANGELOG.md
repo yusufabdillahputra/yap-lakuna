@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-13
+
+Pelanggan baru bisa dibuat langsung dari Kasir.
+
+### Ditambahkan
+
+- **Tombol *Pelanggan baru* di Kasir (1.4b, 1.5b, F1-04f).** Tombol ini
+  ada di dialog *Pilih pelanggan* dan di panel *Kredit / piutang*. Form
+  yang dibuka sama dengan menu Pelanggan 1.20: nama, HP, grup atau grup
+  baru, limit kredit, alamat, dan catatan.
+- Kata pencarian menjadi isian awal form. Huruf masuk ke nama, sedangkan
+  angka (boleh dengan `+`, spasi, atau `-`) masuk ke nomor HP.
+- Setelah disimpan, pelanggan baru langsung dipasang di nota. Dari panel
+  kredit, pelanggan baru langsung terpilih dengan jatuh tempo dari tempo
+  grupnya. Keranjang dan pilihan bayar tidak berubah.
+
+### Keamanan
+
+- Tombol hanya tampil untuk staf dengan izin `customers:manage`.
+  Repositori pelanggan tetap memeriksa izin saat menyimpan.
+
+### Catatan teknis
+
+- `CashierData.canAddCustomer`, `CashierViewModel.useNewCustomer` /
+  `useNewCreditCustomer`, `CustomerFormScope` (repositori pelanggan dari
+  router ke `CashierScreen`, diteruskan ke sheet pesanan ponsel), dan
+  `showCustomerForm(initialName:, initialPhone:)`.
+- Temuan review yang diperbaiki sebelum rilis:
+  - Nomor HP dari kata pencarian kini dinormalisasi lebih dulu, sehingga
+    `0812-3456-7890` tidak tampil sebagai `0812--3456--7890`. Nomor
+    minimal 6 digit; teks yang lebih pendek dianggap nama.
+  - Bila daftar kredit gagal dimuat ulang setelah pelanggan baru disimpan,
+    pelanggan nota tidak berubah dan galat muat tampil.
+- Uji manual Xvfb:
+  - Dari pencarian "Siti Rahma": *Pelanggan baru*, isi HP, simpan, lalu
+    nota langsung atas nama Siti Rahma.
+  - Dari panel kredit: "Warung Sari" dengan limit Rp500.000 langsung
+    terpilih, jatuh tempo +14 hari.
+
 ## [0.32.0] - 2026-11-13
 
 Bill meja dan take away F&B kini bisa diberi diskon nota.
@@ -3002,7 +3041,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...v0.30.0

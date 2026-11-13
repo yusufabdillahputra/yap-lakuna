@@ -9,12 +9,14 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cashier_repository.dart';
+import '../../data/repositories/customers_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/approval_dialog.dart';
 import '../core/format.dart';
+import '../customers/customer_form_dialog.dart' show CustomerFormScope;
 import '../products/product_list_view.dart' show priceRange;
 import '../products/product_widgets.dart';
 import 'cart_draft.dart';
@@ -38,9 +40,13 @@ class CashierScreen extends StatefulWidget {
     this.onBillDone,
     this.session,
     this.draft,
+    this.customers,
   });
 
   final CashierRepository repository;
+
+  /// Untuk *Pelanggan baru* dari pemilih dan panel kredit (F1-04f).
+  final CustomersRepository? customers;
 
   /// Keranjang yang bertahan saat layar ditutup (F1-04c); kasir retail saja.
   final CartDraft? draft;
@@ -109,9 +115,16 @@ class _CashierScreenState extends State<CashierScreen> {
       billRequested: widget.billId != null,
       onLeaveBill: widget.onLeaveBill,
     );
-    return switch (widget.session) {
-      final session? => ApprovalScope(session: session, child: view),
+    final withCustomers = switch (widget.customers) {
+      final repository? => CustomerFormScope(
+        repository: repository,
+        child: view,
+      ),
       null => view,
+    };
+    return switch (widget.session) {
+      final session? => ApprovalScope(session: session, child: withCustomers),
+      null => withCustomers,
     };
   }
 }
@@ -1467,10 +1480,18 @@ class _MobileCashier extends StatelessWidget {
 
   Future<void> _showOrder(BuildContext context) async {
     // Sheet berada di atas rute kasir, jadi cakupan persetujuan PIN
-    // (diskon) diteruskan ke dalamnya.
+    // (diskon) dan form pelanggan baru (F1-04f) diteruskan ke dalamnya.
     final session = ApprovalScope.maybeOf(context);
-    Widget scoped(Widget child) =>
-        session == null ? child : ApprovalScope(session: session, child: child);
+    final customers = CustomerFormScope.maybeOf(context);
+    Widget scoped(Widget child) {
+      final inner = customers == null
+          ? child
+          : CustomerFormScope(repository: customers, child: child);
+      return session == null
+          ? inner
+          : ApprovalScope(session: session, child: inner);
+    }
+
     final pay = await showFSheet<bool>(
       context: context,
       side: FLayout.btt,

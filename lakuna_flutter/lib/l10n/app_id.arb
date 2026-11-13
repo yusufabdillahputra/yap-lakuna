@@ -4492,5 +4492,9 @@
   "diningDiscountBlocksPay": "Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.",
   "@diningDiscountBlocksPay": {
     "placeholders": {}
+  },
+  "cashierCustomerNew": "Pelanggan baru",
+  "@cashierCustomerNew": {
+    "placeholders": {}
   }
 }
