@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -6,6 +7,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view_model.dart';
 
+import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_stock_repository.dart';
 
 void main() {
@@ -210,5 +212,48 @@ void main() {
       expect(vm.location!.name, 'Gudang');
       expect(vm.lines, isEmpty);
     });
+  });
+
+  group('cetak stok (F1-08b)', () {
+    test(
+      'simpan PDF: nama berkas, lokasi, galat, reset saat ganti lokasi',
+      () async {
+        final exporter = FakeSpreadsheetExporter()
+          ..path = '/docs/Lakuna/stok-etalase-261114.pdf';
+        final printing = StockViewModel(
+          repository: repo,
+          canAdjust: true,
+          exporter: exporter,
+        );
+        await printing.load.execute();
+        expect(printing.canPrint, isTrue);
+        final bytes = Uint8List.fromList([1, 2, 3]);
+        await printing.printList.execute((
+          () async => bytes,
+          'stok-etalase-261114.pdf',
+        ));
+        expect(exporter.saved.single.$1, 'stok-etalase-261114.pdf');
+        expect(printing.printPath, '/docs/Lakuna/stok-etalase-261114.pdf');
+        expect(printing.canPrint, isTrue);
+
+        exporter.error = Exception('disk penuh');
+        await printing.printList.execute((
+          () async => bytes,
+          'stok-etalase-261114.pdf',
+        ));
+        expect(printing.printList.error, isTrue);
+        expect(printing.printPath, isNull);
+
+        await printing.addLocation('Gudang');
+        final gudang = printing.locations.last.id;
+        repo.rowsByLocation[gudang] = [];
+        await printing.selectLocation(gudang);
+        expect(printing.printList.result, isNull);
+        // Lokasi tanpa baris: tidak ada yang dicetak.
+        expect(printing.rows, isEmpty);
+        expect(printing.canPrint, isFalse);
+        printing.dispose();
+      },
+    );
   });
 }

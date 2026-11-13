@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -13,6 +14,7 @@ import 'package:lakuna_flutter/ui/stock/stock_view.dart';
 import '../../testing/app_harness.dart';
 import '../../testing/fake_app_settings_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_stock_repository.dart';
 import '../../testing/fake_store_repository.dart';
 
@@ -42,13 +44,16 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 800),
     String role = 'owner',
+    FakeSpreadsheetExporter? exporter,
+    FakeStockRepository? stock,
   }) async {
-    final repo = FakeStockRepository();
+    final repo = stock ?? FakeStockRepository();
     await pumpLakuna(
       tester,
       size: size,
       initialLocation: Routes.stock,
       stock: repo,
+      exporter: exporter,
       session: FakeSessionRepository()..current = sampleStaff(role: role),
     );
     return repo;
@@ -204,6 +209,55 @@ void main() {
       expect(find.byKey(ValueKey('stock-line-$kopi')), findsOneWidget);
     });
   }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('cetak stok ${size.width.toInt()} px (F1-08b)', (tester) async {
+      final exporter = FakeSpreadsheetExporter()
+        ..path = '/home/kasir/Dokumen/Lakuna/stok-etalase.pdf';
+      await pump(tester, size: size, exporter: exporter);
+      // Pencarian tidak menyaring cetakan.
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-list' : 'stock-tab-list',
+      );
+      await _type(tester, 'stock-search', 'sabun');
+      await tester.ensureVisible(find.byKey(const ValueKey('stock-print')));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('stock-print')));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      final (name, bytes) = exporter.saved.single;
+      expect(name, matches(RegExp(r'^stok-etalase-\d{6}\.pdf$')));
+      expect(String.fromCharCodes(bytes.take(4)), '%PDF');
+      expect(
+        find.text(
+          'Daftar stok disimpan di /home/kasir/Dokumen/Lakuna/stok-etalase.pdf',
+        ),
+        findsOneWidget,
+      );
+
+      // Galat simpan: pesan galat, tombol aktif lagi.
+      exporter.error = Exception('disk penuh');
+      await tester.ensureVisible(find.byKey(const ValueKey('stock-print')));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('stock-print')));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('stock-print-failed')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stock-print-saved')), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('cetak stok mati bila lokasi tanpa barang', (tester) async {
+    await pump(tester, stock: FakeStockRepository()..rows = []);
+    final button = tester.widget<FButton>(
+      find.byKey(const ValueKey('stock-print')),
+    );
+    expect(button.onPress, isNull);
+  });
 
   testWidgets('tanpa izin stock:adjust: hanya melihat', (tester) async {
     tester.view.physicalSize = const Size(1280, 800);

@@ -13453,6 +13453,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'baris contoh dari templat, ganti atau hapus'**
   String get importReasonSample;
+
+  /// No description provided for @stockPrintTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar stok · {location}'**
+  String stockPrintTitle(String location);
+
+  /// No description provided for @stockPrintSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{outlet} · dicetak {time} · {staff}'**
+  String stockPrintSubtitle(String outlet, String time, String staff);
+
+  /// No description provided for @stockPrintColCode.
+  ///
+  /// In id, this message translates to:
+  /// **'SKU / Barcode'**
+  String get stockPrintColCode;
+
+  /// No description provided for @stockPrintColCounted.
+  ///
+  /// In id, this message translates to:
+  /// **'Fisik'**
+  String get stockPrintColCounted;
+
+  /// No description provided for @stockPrintCounts.
+  ///
+  /// In id, this message translates to:
+  /// **'{items} item · {below} di bawah minimum · {minus} stok minus'**
+  String stockPrintCounts(int items, int below, int minus);
+
+  /// No description provided for @stockPrintNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Tulis hasil hitung di kolom Fisik, lalu catat selisihnya di menu Stok, tab Penyesuaian.'**
+  String get stockPrintNote;
+
+  /// No description provided for @stockPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak stok'**
+  String get stockPrint;
+
+  /// No description provided for @stockPrintSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar stok disimpan di {path}'**
+  String stockPrintSaved(String path);
+
+  /// No description provided for @stockPrintFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar stok gagal dibuat. Coba lagi.'**
+  String get stockPrintFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -7669,4 +7669,40 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get importReasonSample =>
       'baris contoh dari templat, ganti atau hapus';
+
+  @override
+  String stockPrintTitle(String location) {
+    return 'Daftar stok · $location';
+  }
+
+  @override
+  String stockPrintSubtitle(String outlet, String time, String staff) {
+    return '$outlet · dicetak $time · $staff';
+  }
+
+  @override
+  String get stockPrintColCode => 'SKU / Barcode';
+
+  @override
+  String get stockPrintColCounted => 'Fisik';
+
+  @override
+  String stockPrintCounts(int items, int below, int minus) {
+    return '$items item · $below di bawah minimum · $minus stok minus';
+  }
+
+  @override
+  String get stockPrintNote =>
+      'Tulis hasil hitung di kolom Fisik, lalu catat selisihnya di menu Stok, tab Penyesuaian.';
+
+  @override
+  String get stockPrint => 'Cetak stok';
+
+  @override
+  String stockPrintSaved(String path) {
+    return 'Daftar stok disimpan di $path';
+  }
+
+  @override
+  String get stockPrintFailed => 'Daftar stok gagal dibuat. Coba lagi.';
 }

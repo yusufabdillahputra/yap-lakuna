@@ -353,6 +353,7 @@ GoRouter createRouter({
               repository: stock,
               session: session,
               store: store,
+              exporter: exporter,
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])
                   .firstOrNull,
