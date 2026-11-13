@@ -187,6 +187,7 @@ class FakeDiningRepository extends DiningRepository {
       table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
       openedByName: 'Dimas',
       discountApprovedByName: sale.discountApprovedBy == null ? '' : 'Rina',
+      customer: _billCustomer(sale.customerId),
       modifiers: {for (final i in own) i.id: ?itemModifiers[i.id]},
       payments: [
         for (final p in payments)
@@ -387,6 +388,7 @@ class FakeDiningRepository extends DiningRepository {
       sellPrice: variant.sellPrice,
       quantity: qty,
       tiers: variant.tiers,
+      customerGroupId: _billCustomer(b.sale.customerId)?.groupId?.uuid,
     );
     if (same != null) {
       _replaceItem(
@@ -564,6 +566,11 @@ class FakeDiningRepository extends DiningRepository {
     if (source.discount != null) {
       throw const BillMergeBlocked(BillMergeReason.discount);
     }
+    if (target.sale.customerId != null &&
+        source.sale.customerId != null &&
+        target.sale.customerId != source.sale.customerId) {
+      throw const BillMergeBlocked(BillMergeReason.customer);
+    }
     final guests =
         (target.sale.guestCount ?? 0) + (source.sale.guestCount ?? 0);
     if (guests > FnbLimits.guestsMax) {
@@ -581,11 +588,95 @@ class FakeDiningRepository extends DiningRepository {
     _replaceSale(
       target.sale.copyWith(
         guestCount: guests,
+        customerId: target.sale.customerId ?? source.sale.customerId,
         customerName: target.sale.customerName ?? source.sale.customerName,
       ),
     );
+    _reprice(target.id);
     merges.add((target.id, source.id));
     return bill(target.id);
+  });
+
+  // --- Pelanggan bill (F1-10f) ---------------------------------------------
+
+  /// Pelanggan untuk pemilih bill.
+  List<CustomerRow> customerRows = const [];
+
+  /// Nama grup pelanggan per id grup.
+  Map<UuidValue, String> groupNames = const {};
+
+  BillCustomer? _billCustomer(UuidValue? id) {
+    final row = customerRows.where((r) => r.customer.id == id).firstOrNull;
+    if (row == null) return null;
+    final c = row.customer;
+    return BillCustomer(
+      id: c.id,
+      name: c.name,
+      groupId: c.customerGroupId,
+      groupName: groupNames[c.customerGroupId] ?? row.groupName,
+    );
+  }
+
+  /// Hitung ulang harga semua item bill dengan grup pelanggannya.
+  void _reprice(UuidValue billId) {
+    final b = bill(billId);
+    final group = b.customer?.groupId?.uuid;
+    for (final item in b.items) {
+      final variant = catalog.products
+          .expand((p) => p.variants)
+          .where((v) => v.id == item.variantId)
+          .firstOrNull;
+      if (variant == null) continue;
+      final qty = Qty(item.quantityMilli);
+      final priced = priceSaleLine(
+        sellPrice: variant.sellPrice,
+        quantity: qty,
+        tiers: variant.tiers,
+        customerGroupId: group,
+      );
+      _replaceItem(
+        item.copyWith(
+          unitPrice: priced.unitPrice.value,
+          lineTotal: (priced.unitPrice + Money(item.modifierDelta))
+              .timesMilli(qty.milli)
+              .value,
+        ),
+      );
+    }
+    _sync(billId);
+  }
+
+  @override
+  Future<Result<CustomersOverview>> customers() => _run(
+    () =>
+        CustomersOverview(rows: customerRows, today: DateTime.utc(2026, 11, 3)),
+  );
+
+  /// Pilihan pelanggan bill yang berhasil.
+  final customerSets = <(UuidValue, UuidValue?)>[];
+
+  @override
+  Future<Result<OpenBill>> setBillCustomer(
+    UuidValue billId,
+    UuidValue? customerId,
+  ) => _run(() {
+    final b = bill(billId);
+    if (b.sale.splitMode != null || b.payments.isNotEmpty) {
+      throw BillCustomerBlocked();
+    }
+    final next = customerId == null ? null : _billCustomer(customerId);
+    if (customerId != null && next == null) throw CustomerNotFound();
+    final name = b.sale.customerName;
+    final keep = name != null && name.isNotEmpty && name != b.customer?.name;
+    _replaceSale(
+      b.sale.copyWith(
+        customerId: next?.id,
+        customerName: keep ? name : next?.name,
+      ),
+    );
+    _reprice(billId);
+    customerSets.add((billId, customerId));
+    return bill(billId);
   });
 
   /// Gabung meja yang berhasil: (tujuan, sumber).

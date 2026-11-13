@@ -7539,7 +7539,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diningMergeNone =>
-      'No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas).';
+      'No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas), without a split, bill discount, or a different customer.';
 
   @override
   String diningMergeOption(String label, String total) {
@@ -7603,4 +7603,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketReprint => 'Reprint';
+
+  @override
+  String get diningCustomerPick => 'Choose customer';
+
+  @override
+  String get diningCustomerChange => 'Change';
+
+  @override
+  String get diningCustomerClear => 'Remove customer';
+
+  @override
+  String diningCustomerLabel(String name) {
+    return 'Customer: $name';
+  }
+
+  @override
+  String diningCustomerGroupLabel(String name, String group) {
+    return 'Customer: $name · $group';
+  }
+
+  @override
+  String diningCustomerTitle(String label) {
+    return 'Customer for $label';
+  }
+
+  @override
+  String get diningCustomerHint =>
+      'The customer\'s group prices apply to every item on the bill.';
+
+  @override
+  String get diningErrorCustomerBlocked =>
+      'The customer can\'t be changed while the bill is split.';
+
+  @override
+  String get diningErrorCustomerNotFound =>
+      'Customer not found or already deleted.';
+
+  @override
+  String get diningErrorMergeCustomer =>
+      'The two tables have different customers.';
+
+  @override
+  String get cashierErrorBillCustomerMismatch =>
+      'Credit must be in the bill customer\'s name. Change the customer on the table panel.';
 }

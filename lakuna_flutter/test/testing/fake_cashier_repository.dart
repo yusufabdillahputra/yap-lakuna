@@ -537,6 +537,11 @@ class FakeCashierRepository extends CashierRepository {
     }
     if (bill.items.isEmpty) return Result.error(SaleEmpty());
     if (bill.payments.isNotEmpty) return Result.error(SplitLocked());
+    if (credit != null &&
+        bill.sale.customerId != null &&
+        credit.customerId != bill.sale.customerId) {
+      return Result.error(BillCustomerMismatch());
+    }
     final total = bill.charges.total;
     final single = payments.length == 1;
     final amounts = [

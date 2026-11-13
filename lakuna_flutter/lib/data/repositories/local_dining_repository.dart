@@ -167,6 +167,24 @@ class LocalDiningRepository extends DiningRepository {
       );
 
   @override
+  Future<Result<CustomersOverview>> customers() =>
+      _guard((ctx, _) => listCustomers(_store, CatalogScope.of(ctx)));
+
+  @override
+  Future<Result<OpenBill>> setBillCustomer(
+    UuidValue billId,
+    UuidValue? customerId,
+  ) => _guard(
+    (ctx, staff) => setOpenBillCustomer(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      billId: billId,
+      customerId: customerId,
+    ),
+  );
+
+  @override
   Future<Result<OpenBill>> mergeBill(
     UuidValue targetBillId,
     UuidValue sourceBillId,

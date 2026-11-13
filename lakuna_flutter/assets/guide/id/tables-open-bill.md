@@ -17,6 +17,13 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 4. Tekan **Kirim ke dapur**. Tiket dapur berisi item baru saja dan bisa dicetak dengan **Cetak tiket**. Bila *Printer dapur* diatur di **Pengaturan › Struk & printer**, tiket langsung tercetak di sana; bila gagal, tekan **Cetak ulang**.
 5. Tandai item dengan **Tandai disajikan** saat makanan diantar.
 
+## Pelanggan di bill
+
+- Tekan **Pilih pelanggan** di bawah judul bill, cari nama atau nomor HP, lalu ketuk pelanggannya. Bila pelanggan masuk grup dengan [harga grosir](first-product), semua item di bill langsung memakai harga grupnya, termasuk item yang sudah dikirim ke dapur.
+- **Ganti** memilih pelanggan lain; tombol **×** melepas pelanggan dan mengembalikan harga normal.
+- Saat **Tutup & bayar** dengan *Kredit / piutang*, pelanggan bill otomatis terpilih. Kredit untuk pelanggan lain ditolak; ganti dulu pelanggan bill.
+- Pelanggan tidak bisa diubah setelah bill di-split atau ada bayar bagian. Dua bill dengan pelanggan berbeda tidak bisa digabung.
+
 ## Menutup bill
 
 1. Saat tamu meminta tagihan, tekan **Minta bill** (meja berubah warna).
