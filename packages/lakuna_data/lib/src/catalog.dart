@@ -120,6 +120,8 @@ class CatalogProduct {
     required this.isActive,
     required this.isTaxable,
     required this.variants,
+    this.sendToKitchen = true,
+    this.allowNote = true,
     this.categoryId,
     this.categoryName,
     this.sku,
@@ -142,6 +144,12 @@ class CatalogProduct {
   final bool isActive;
   final bool isTaxable;
   final List<CatalogVariant> variants;
+
+  /// Item menu ini masuk tiket dapur (F1-10g); mati = langsung disajikan.
+  final bool sendToKitchen;
+
+  /// Item menu ini boleh diberi catatan bebas (F1-10g).
+  final bool allowNote;
 
   /// Grup modifier terpasang, urut tampil di 1.8 (F1-10b).
   final List<UuidValue> modifierGroupIds;
@@ -177,6 +185,8 @@ class CatalogProduct {
     brand: brand ?? '',
     isActive: isActive,
     isTaxable: isTaxable,
+    sendToKitchen: sendToKitchen,
+    allowNote: allowNote,
     modifierGroupIds: [for (final id in modifierGroupIds) id.uuid],
     variants: [
       for (final v in variants)
@@ -379,6 +389,8 @@ Future<List<CatalogProduct>> _loadProducts(
         brand: p.brand,
         isActive: p.isActive,
         isTaxable: p.isTaxable,
+        sendToKitchen: p.sendToKitchen,
+        allowNote: p.allowNote,
         archivedAt: p.deletedAt,
         photoMediaId: p.photoMediaId,
         photoPath: photoPaths[p.photoMediaId],
@@ -866,6 +878,8 @@ class _ProductWriter {
       brand: _orNull(draft.brand),
       isActive: draft.isActive,
       isTaxable: draft.isTaxable,
+      sendToKitchen: draft.sendToKitchen,
+      allowNote: draft.allowNote,
       // Foto diubah lewat setProductPhoto / clearProductPhoto saja.
       photoMediaId: existing?.photoMediaId,
       createdAt: existing?.createdAt ?? s.now,

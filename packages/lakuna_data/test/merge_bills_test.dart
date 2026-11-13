@@ -161,7 +161,7 @@ void main() {
 
     final ticket = await KitchenTicket.db.findById(
       store.session,
-      sent.ticket.id,
+      sent.ticket!.id,
     );
     expect(ticket!.saleId, a.id);
 

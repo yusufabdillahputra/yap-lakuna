@@ -85,6 +85,8 @@ class FakeCatalogRepository extends CatalogRepository {
     baseUnit: p.baseUnit,
     isActive: p.isActive,
     isTaxable: p.isTaxable,
+    sendToKitchen: p.sendToKitchen,
+    allowNote: p.allowNote,
     variants: p.variants,
     categoryId: p.categoryId,
     categoryName: p.categoryName,
@@ -290,6 +292,8 @@ class FakeCatalogRepository extends CatalogRepository {
       brand: orNull(d.brand),
       isActive: d.isActive,
       isTaxable: d.isTaxable,
+      sendToKitchen: d.sendToKitchen,
+      allowNote: d.allowNote,
       photoMediaId: existing?.photoMediaId,
       photoPath: existing?.photoPath,
       modifierGroupIds: [

@@ -244,7 +244,7 @@ berurutan dengan opsi dan harga tambahan, tombol naik/turun dan lepas,
 *Tambah grup* (pilih dari grup yang belum terpasang). Urutan = urutan di
 1.8. Disimpan bersama produk ke `product_modifier_groups` dalam transaksi
 yang sama. Toggle *Kirim ke tiket dapur* / *Bisa catatan bebas* di kanvas
-ditunda (semua menu ikut tiket dan boleh catatan).
+dirilis di v0.43.0 (spec F1-10g).
 
 ### Sheet 1.8 di layar Meja
 
@@ -543,7 +543,7 @@ dibuka dari chip *Belum ditempatkan*.
 | Catatan dapur | 1.7 | Dirilis v0.11.0 | Kolom catatan di lembar menu berlaku untuk item berikutnya yang ditambahkan, lalu dikosongkan. *Minta bill* hanya untuk dine in. |
 | Modifier | 1.8, 1.16b, 1.17b | Dirilis v0.12.0 | Form grup berupa dialog (bukan panel kanan / lembar bawah). Total di sheet 1.8 memakai harga dasar; harga grosir dihitung di lapisan data saat item masuk bill. Baris rincian struk = (harga + tambahan) × jumlah, modifier di bawah nama. |
 | Modifier di kasir retail | — | Belum | Toko F&B memakai layar Meja / Take away. |
-| Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Belum | Semua menu ikut tiket dan boleh catatan. |
+| Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Rilis v0.43.0 | Spec F1-10g. |
 | Split bill | 1.9 | Dirilis v0.13.0 | Layar Bayar bagian menampilkan porsi tamu (mode per item) atau semua item (rata/nominal), subtotal, service, PB1, total bill, lalu baris *Bagian tamu X*. Panel bill menampilkan porsi bertamu sebagai baris sendiri dengan label tamu. Tombol *Tunggu konfirmasi* QRIS bernama *Simpan, tunggu konfirmasi*. |
 | Split bill: tarif beku | — | Belum | Tarif service/PB1 dibaca ulang tiap bayar bagian; perubahan tarif di tengah split ditanggung tamu terakhir. Bekukan tarif saat bagian pertama dibayar. |
 | Split bill: kas per sesi | — | Belum | Tunai bagian masuk sesi yang menyelesaikan nota; laci di tengah sesi belum menghitungnya. Cek tutup sesi berlaku per cabang. Catat `cash_session_id` per pembayaran sebelum sinkronisasi Fase 2. |

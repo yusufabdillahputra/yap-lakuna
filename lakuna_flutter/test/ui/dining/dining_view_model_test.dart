@@ -590,4 +590,54 @@ void main() {
       expect(vm.selectedBill!.items, hasLength(1));
     },
   );
+
+  group('menu tanpa tiket dapur (F1-10g)', () {
+    setUp(() async {
+      repo = FakeDiningRepository(
+        menu: const [
+          ProductDraft(
+            name: 'Nasi Goreng',
+            baseUnit: 'porsi',
+            kind: ProductKind.service,
+            variants: [VariantDraft(sellPrice: Money(31000))],
+          ),
+          ProductDraft(
+            name: 'Air Mineral',
+            baseUnit: 'botol',
+            kind: ProductKind.service,
+            sendToKitchen: false,
+            allowNote: false,
+            variants: [VariantDraft(sellPrice: Money(5000))],
+          ),
+        ],
+      );
+      vm = DiningViewModel(repository: repo, printer: FakeReceiptPrinter());
+      await vm.load.execute();
+      await vm.openTable.execute((table('M1').id, 2));
+    });
+
+    test('hanya non-dapur: tanpa tiket, item disajikan, pesan hilang '
+        'setelah aksi lain', () async {
+      await add('Air Mineral', note: 'dingin');
+      expect(vm.selectedBill!.items.single.note, isNull);
+      await vm.send.execute();
+      expect(vm.send.completed, isTrue);
+      expect(vm.lastTicket, isNull);
+      expect(vm.servedWithoutTicket, 1);
+      expect(vm.shouldAutoPrintTicket, isFalse);
+      expect(vm.selectedBill!.servedCount, 1);
+      await add('Nasi Goreng');
+      expect(vm.servedWithoutTicket, 0);
+    });
+
+    test('campuran: tiket hanya item dapur', () async {
+      await add('Nasi Goreng', note: 'pedas');
+      await add('Air Mineral');
+      await vm.send.execute();
+      expect(vm.lastTicket?.items.map((i) => i.productName), ['Nasi Goreng']);
+      expect(vm.servedWithoutTicket, 1);
+      expect(vm.selectedBill!.sentCount, 1);
+      expect(vm.selectedBill!.servedCount, 1);
+    });
+  });
 }

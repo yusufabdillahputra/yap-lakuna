@@ -4750,5 +4750,19 @@
   "diningErrorCustomerBlocked": "Pelanggan tidak bisa diubah selama bill di-split.",
   "diningErrorCustomerNotFound": "Pelanggan tidak ditemukan atau sudah dihapus.",
   "diningErrorMergeCustomer": "Kedua meja punya pelanggan berbeda.",
-  "cashierErrorBillCustomerMismatch": "Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja."
+  "cashierErrorBillCustomerMismatch": "Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja.",
+  "diningServedWithoutTicket": "{count} item tanpa tiket dapur langsung ditandai disajikan.",
+  "@diningServedWithoutTicket": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productKitchenTitle": "Dapur",
+  "productSendToKitchen": "Kirim ke tiket dapur",
+  "productSendToKitchenHint": "Mati untuk menu yang tidak dimasak (mis. air botol): item langsung disajikan tanpa tiket dapur.",
+  "productAllowNote": "Bisa catatan bebas",
+  "productAllowNoteHint": "Mati bila menu tidak bisa diubah; catatan dapur diabaikan.",
+  "diningNoteNotAllowed": "Catatan disimpan untuk menu berikutnya."
 }

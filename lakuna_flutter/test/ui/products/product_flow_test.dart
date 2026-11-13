@@ -387,12 +387,27 @@ void main() {
     expect(find.byKey(const ValueKey('product-modifier-Topping')), findsOne);
     expect(find.text('Boba +Rp 5.000, Keju +Rp 6.000'), findsOneWidget);
     await _tap(tester, 'product-modifier-up-Ukuran');
+    // Sakelar dapur (F1-10g): bawaan aktif.
+    for (final (key, label) in const [
+      ('product-send-to-kitchen', 'Kirim ke tiket dapur'),
+      ('product-allow-note', 'Bisa catatan bebas'),
+    ]) {
+      final target = find.descendant(
+        of: find.byKey(ValueKey(key)),
+        matching: find.text(label),
+      );
+      await tester.ensureVisible(target);
+      await tester.tap(target);
+      await tester.pumpAndSettle();
+    }
     await _tap(tester, 'product-save');
     final [ukuran, topping] = repo.modifierGroups;
     expect(repo.saved.single.modifierGroupIds, [
       ukuran.id.uuid,
       topping.id.uuid,
     ]);
+    expect(repo.saved.single.sendToKitchen, isFalse);
+    expect(repo.saved.single.allowNote, isFalse);
   });
 
   testWidgets('ponsel: kartu, chip di bawah minimum, dan tombol tambah', (

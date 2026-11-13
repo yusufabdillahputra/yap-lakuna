@@ -16,6 +16,11 @@ fields:
   ### Sakelar *Dijual di kasir*.
   isActive: bool, default=true, column=is_active
   isTaxable: bool, default=false, column=is_taxable
+  ### Sakelar *Kirim ke tiket dapur* (F1-10g): mati = item langsung
+  ### disajikan tanpa tiket dapur.
+  sendToKitchen: bool, default=true, column=send_to_kitchen
+  ### Sakelar *Bisa catatan bebas* (F1-10g): mati = catatan item diabaikan.
+  allowNote: bool, default=true, column=allow_note
   ### Foto produk (F1-07f), berkas di folder media.
   photoMediaId: UuidValue?, relation(parent=media_files, onDelete=Restrict), column=photo_media_id
   createdAt: DateTime, default=now, column=created_at

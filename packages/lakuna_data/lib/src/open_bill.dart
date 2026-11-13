@@ -246,11 +246,18 @@ class KitchenSendResult {
     required this.ticket,
     required this.items,
     required this.bill,
+    this.served = const [],
     this.staffName = '',
   });
 
-  final KitchenTicket ticket;
+  /// `null` bila semua item terkirim bukan menu dapur (F1-10g).
+  final KitchenTicket? ticket;
+
+  /// Item di tiket dapur.
   final List<SaleItem> items;
+
+  /// Item menu tanpa *Kirim ke tiket dapur* yang langsung disajikan.
+  final List<SaleItem> served;
   final OpenBill bill;
   final String staffName;
 
@@ -863,9 +870,14 @@ Future<OpenBill> addBillItem(
   List<UuidValue> modifierIds = const [],
 }) async {
   if (!line.quantity.isPositive) throw const SaleQuantityInvalid(0);
-  final cleanNote = _note(note);
   final key = modifierKey([for (final id in modifierIds) id.uuid]);
   await store.write(actor: staffId, (w) async {
+    // Menu tanpa *Bisa catatan bebas* (F1-10g): catatan diabaikan tanpa
+    // diperiksa.
+    final menu = (await _menuProducts(w, scope, {
+      line.variantId,
+    }))[line.variantId];
+    final cleanNote = menu == null || menu.allowNote ? _note(note) : null;
     final sale = await _openSale(
       w.session,
       scope,
@@ -1142,15 +1154,18 @@ Future<OpenBill> markItemServed(
 
 // --- Dapur ------------------------------------------------------------------
 
-/// Mengirim semua item *Baru* ke dapur: tiket `K-nnnn` baru dan status
-/// item → *Di dapur*. Tanpa item baru → [NothingToSend].
+/// Mengirim semua item *Baru* ke dapur: item menu dapur masuk tiket
+/// `K-nnnn` baru dan berstatus *Di dapur*; item menu tanpa *Kirim ke tiket
+/// dapur* (F1-10g) langsung *Disajikan* tanpa tiket. Tanpa item menu dapur
+/// hasilnya tanpa tiket (`ticket` `null`). Tanpa item baru →
+/// [NothingToSend].
 Future<KitchenSendResult> sendToKitchen(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required UuidValue billId,
 }) async {
-  final (ticket, sent) = await store.write(actor: staffId, (w) async {
+  final (ticket, sent, served) = await store.write(actor: staffId, (w) async {
     final sale = await _openSale(
       w.session,
       scope,
@@ -1165,6 +1180,31 @@ Future<KitchenSendResult> sendToKitchen(
     ];
     if (pending.isEmpty) throw NothingToSend();
     final s = await w.stamp();
+    // Menu tanpa *Kirim ke tiket dapur* (F1-10g) langsung disajikan.
+    final menus = await _menuProducts(w, scope, {
+      for (final i in pending) i.variantId,
+    });
+    bool toKitchen(SaleItem i) => menus[i.variantId]?.sendToKitchen ?? true;
+    final served = [
+      for (final i in pending)
+        if (!toKitchen(i))
+          await w.update(
+            i.copyWith(
+              kitchenStatus: KitchenStatus.served,
+              version: i.version + 1,
+              updatedAt: s.now,
+              updatedBy: staffId,
+              hlc: s.hlc.toString(),
+              originDeviceId: s.deviceId,
+            ),
+            s,
+          ),
+    ];
+    final cooked = [
+      for (final i in pending)
+        if (toKitchen(i)) i,
+    ];
+    if (cooked.isEmpty) return (null, const <SaleItem>[], served);
     final start = await _dayStart(w, scope, s.now);
     final today = await KitchenTicket.db.find(
       w.session,
@@ -1193,7 +1233,7 @@ Future<KitchenSendResult> sendToKitchen(
       s,
     );
     final sent = [
-      for (final i in pending)
+      for (final i in cooked)
         await w.update(
           i.copyWith(
             kitchenStatus: KitchenStatus.sent,
@@ -1207,12 +1247,13 @@ Future<KitchenSendResult> sendToKitchen(
           s,
         ),
     ];
-    return (ticket, sent);
+    return (ticket, sent, served);
   });
   final names = await _staffNames(store.session, scope.tenantId, [staffId]);
   return KitchenSendResult(
     ticket: ticket,
     items: sent,
+    served: served,
     bill: await loadOpenBill(store, scope, billId),
     staffName: names[staffId] ?? '',
   );
@@ -1806,6 +1847,31 @@ Future<CheckoutResult> _completeBill(
       transaction: w.transaction,
     ),
   );
+}
+
+/// Produk menu per varian [variantIds] (sakelar dapur & catatan, F1-10g).
+Future<Map<UuidValue, Product>> _menuProducts(
+  SyncTx w,
+  CatalogScope scope,
+  Set<UuidValue> variantIds,
+) async {
+  final variants = await ProductVariant.db.find(
+    w.session,
+    where: (v) => v.tenantId.equals(scope.tenantId) & v.id.inSet(variantIds),
+    transaction: w.transaction,
+  );
+  if (variants.isEmpty) return const {};
+  final products = {
+    for (final p in await Product.db.find(
+      w.session,
+      where: (p) =>
+          p.tenantId.equals(scope.tenantId) &
+          p.id.inSet({for (final v in variants) v.productId}),
+      transaction: w.transaction,
+    ))
+      p.id: p,
+  };
+  return {for (final v in variants) v.id: ?products[v.productId]};
 }
 
 // --- Pelanggan bill (F1-10f) -------------------------------------------------

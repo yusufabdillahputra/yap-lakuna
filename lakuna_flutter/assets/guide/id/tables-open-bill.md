@@ -14,7 +14,7 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 1. Buka menu **Meja**. Warna meja menunjukkan status: *Kosong*, *Terisi · open bill*, atau *Minta bill*.
 2. Ketuk meja kosong, isi **Jumlah tamu**, lalu **Buka bill**. Untuk take away, tekan **Take away baru** dan isi nama pemesan bila perlu.
 3. Tekan **+ Menu**, cari menu, lalu ketuk untuk menambah. Menu dengan [modifier](modifiers) membuka lembar pilihan dulu.
-4. Tekan **Kirim ke dapur**. Tiket dapur berisi item baru saja dan bisa dicetak dengan **Cetak tiket**. Bila *Printer dapur* diatur di **Pengaturan › Struk & printer**, tiket langsung tercetak di sana; bila gagal, tekan **Cetak ulang**.
+4. Tekan **Kirim ke dapur**. Tiket dapur berisi item baru saja dan bisa dicetak dengan **Cetak tiket**. Bila *Printer dapur* diatur di **Pengaturan › Struk & printer**, tiket langsung tercetak di sana; bila gagal, tekan **Cetak ulang**. Menu yang *Kirim ke tiket dapur*-nya dimatikan tidak masuk tiket dan langsung *Disajikan* (lihat [Modifier menu](modifiers)).
 5. Tandai item dengan **Tandai disajikan** saat makanan diantar.
 
 ## Pelanggan di bill

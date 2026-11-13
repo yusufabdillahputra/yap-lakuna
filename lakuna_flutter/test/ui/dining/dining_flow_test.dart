@@ -64,6 +64,7 @@ void main() {
     List<String> mergeable = const [],
     KitchenPrinter? kitchenPrinter,
     List<CustomerRow> customers = const [],
+    List<String> plainMenus = const [],
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
@@ -75,6 +76,10 @@ void main() {
       ..customerRows = customers;
     if (modifiers) {
       dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
+    }
+    // Menu tanpa tiket dapur dan catatan bebas (F1-10g).
+    for (final name in plainMenus) {
+      await dining.setMenuFlags(name, sendToKitchen: false, allowNote: false);
     }
     cashier = FakeCashierRepository()..dining = dining;
     printer = FakeReceiptPrinter();
@@ -256,6 +261,56 @@ void main() {
         find.text('Pelayan: Dimas · 2 dari 6 meja terisi'),
         findsOneWidget,
       );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(platform));
+  }
+
+  for (final (size, platform) in const [
+    (Size(1280, 800), TargetPlatform.linux),
+    (Size(360, 740), TargetPlatform.android),
+  ]) {
+    testWidgets('menu tanpa tiket dapur & catatan ${size.width.toInt()} px '
+        '(F1-10g)', (tester) async {
+      await pump(tester, size: size, plainMenus: ['Es Teh Manis']);
+      await _tap(tester, 'dining-table-M1');
+      await _tap(tester, 'dining-guests-open');
+      await _tap(tester, 'dining-add-menu');
+      await tester.enterText(
+        find.descendant(
+          of: find.byKey(const ValueKey('dining-menu-note-0')),
+          matching: find.byType(EditableText),
+        ),
+        'tanpa es',
+      );
+      await _tap(tester, 'dining-menu-Es Teh Manis');
+      // Catatan tetap untuk menu berikutnya.
+      expect(_key('dining-menu-note-kept'), findsOneWidget);
+      await tester.enterText(_input('dining-menu-search'), 'Kopi Susu');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'dining-menu-Kopi Susu Aren');
+      expect(_key('dining-menu-note-kept'), findsNothing);
+      await tester.enterText(_input('dining-menu-search'), '');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'dining-menu-done');
+      final items = dining.bill(dining.sales.single.id).items;
+      expect(items.map((i) => i.note), [null, 'tanpa es']);
+
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket'), findsOneWidget);
+      expect(_key('dining-ticket-served-only'), findsOneWidget);
+      await _tapText(tester, 'Tutup');
+
+      if (size.width < 600) {
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+      }
+      await _tap(tester, 'dining-table-M2');
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Es Teh Manis']);
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket'), findsNothing);
+      expect(_key('dining-served-only'), findsOneWidget);
+      expect(find.text('Disajikan'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(platform));
   }
@@ -697,6 +752,28 @@ void main() {
     await _tap(tester, 'dining-menu-Kopi Susu Aren');
     expect(_key('modifier-sheet-option-Pudding'), findsNothing);
     expect(_key('modifier-sheet-add'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('modifier 1.8 menu tanpa catatan bebas: tanpa isian catatan '
+      '(F1-10g)', (tester) async {
+    await pump(
+      tester,
+      size: const Size(360, 740),
+      modifiers: true,
+      plainMenus: ['Kopi Susu Aren'],
+    );
+    await _tap(tester, 'dining-table-M1');
+    await _tap(tester, 'dining-guests-open');
+    await _tap(tester, 'dining-add-menu');
+    await tester.enterText(_input('dining-menu-note-0'), 'less ice');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'dining-menu-Kopi Susu Aren');
+    expect(_key('modifier-sheet'), findsOneWidget);
+    expect(_key('modifier-sheet-note'), findsNothing);
+    await _tap(tester, 'modifier-sheet-add');
+    expect(dining.bill(dining.sales.single.id).items.single.note, isNull);
+    expect(_key('dining-menu-note-kept'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

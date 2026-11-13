@@ -7486,4 +7486,29 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get cashierErrorBillCustomerMismatch =>
       'Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja.';
+
+  @override
+  String diningServedWithoutTicket(int count) {
+    return '$count item tanpa tiket dapur langsung ditandai disajikan.';
+  }
+
+  @override
+  String get productKitchenTitle => 'Dapur';
+
+  @override
+  String get productSendToKitchen => 'Kirim ke tiket dapur';
+
+  @override
+  String get productSendToKitchenHint =>
+      'Mati untuk menu yang tidak dimasak (mis. air botol): item langsung disajikan tanpa tiket dapur.';
+
+  @override
+  String get productAllowNote => 'Bisa catatan bebas';
+
+  @override
+  String get productAllowNoteHint =>
+      'Mati bila menu tidak bisa diubah; catatan dapur diabaikan.';
+
+  @override
+  String get diningNoteNotAllowed => 'Catatan disimpan untuk menu berikutnya.';
 }

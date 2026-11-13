@@ -244,6 +244,8 @@ class ProductFormViewModel extends ChangeNotifier {
   String brand = '';
   bool _isActive = true;
   bool _isTaxable = false;
+  bool _sendToKitchen = true;
+  bool _allowNote = true;
   final variants = <EditableVariant>[];
 
   /// Grup modifier terpasang, urut tampil di sheet 1.8.
@@ -287,6 +289,12 @@ class ProductFormViewModel extends ChangeNotifier {
   ProductKind get kind => _kind;
   bool get isActive => _isActive;
   bool get isTaxable => _isTaxable;
+
+  /// Sakelar *Kirim ke tiket dapur* (1.16b, F1-10g).
+  bool get sendToKitchen => _sendToKitchen;
+
+  /// Sakelar *Bisa catatan bebas* (1.16b, F1-10g).
+  bool get allowNote => _allowNote;
   ProductTab get tab => _tab;
 
   /// Indeks varian yang dipilih di tab Satuan dan Harga grosir.
@@ -385,6 +393,8 @@ class ProductFormViewModel extends ChangeNotifier {
     brand = d.brand;
     _isActive = d.isActive;
     _isTaxable = d.isTaxable;
+    _sendToKitchen = d.sendToKitchen;
+    _allowNote = d.allowNote;
     _modifierGroupIds
       ..clear()
       ..addAll(p.modifierGroupIds);
@@ -469,6 +479,16 @@ class ProductFormViewModel extends ChangeNotifier {
 
   void setTaxable(bool v) {
     _isTaxable = v;
+    notifyListeners();
+  }
+
+  void setSendToKitchen(bool v) {
+    _sendToKitchen = v;
+    notifyListeners();
+  }
+
+  void setAllowNote(bool v) {
+    _allowNote = v;
     notifyListeners();
   }
 
@@ -649,6 +669,8 @@ class ProductFormViewModel extends ChangeNotifier {
     brand: brand,
     isActive: _isActive,
     isTaxable: _isTaxable,
+    sendToKitchen: _sendToKitchen,
+    allowNote: _allowNote,
     variants: [for (final v in variants) v.toDraft()],
     modifierGroupIds: [for (final id in _modifierGroupIds) id.uuid],
   );

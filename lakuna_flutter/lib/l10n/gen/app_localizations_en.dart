@@ -7647,4 +7647,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cashierErrorBillCustomerMismatch =>
       'Credit must be in the bill customer\'s name. Change the customer on the table panel.';
+
+  @override
+  String diningServedWithoutTicket(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'items',
+      one: 'item',
+    );
+    return '$count $_temp0 without a kitchen ticket marked as served.';
+  }
+
+  @override
+  String get productKitchenTitle => 'Kitchen';
+
+  @override
+  String get productSendToKitchen => 'Send to kitchen ticket';
+
+  @override
+  String get productSendToKitchenHint =>
+      'Turn off for items that are not cooked (e.g. bottled water): they are served right away without a kitchen ticket.';
+
+  @override
+  String get productAllowNote => 'Allow free-text notes';
+
+  @override
+  String get productAllowNoteHint =>
+      'Turn off when the item cannot be customised; kitchen notes are ignored.';
+
+  @override
+  String get diningNoteNotAllowed => 'Note kept for the next item.';
 }

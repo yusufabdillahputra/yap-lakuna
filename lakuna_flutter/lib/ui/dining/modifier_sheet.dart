@@ -68,7 +68,7 @@ class _ModifierSheetState extends State<_ModifierSheet> {
     Navigator.of(context).pop(
       BillItemInput(
         widget.option,
-        note: _note,
+        note: widget.option.product.allowNote ? _note : null,
         quantity: Qty.units(_pick.quantity),
         modifierIds: _pick.ids,
       ),
@@ -125,15 +125,17 @@ class _ModifierSheetState extends State<_ModifierSheet> {
                             group: g,
                             pick: pick,
                           ),
-                        FTextField(
-                          key: const ValueKey('modifier-sheet-note'),
-                          label: Text(l10n.modifierSheetNote),
-                          maxLength: FnbLimits.itemNote,
-                          control: .managed(
-                            initial: TextEditingValue(text: _note),
-                            onChange: (v) => _note = v.text,
+                        // Menu tanpa catatan bebas (F1-10g): tanpa isian.
+                        if (widget.option.product.allowNote)
+                          FTextField(
+                            key: const ValueKey('modifier-sheet-note'),
+                            label: Text(l10n.modifierSheetNote),
+                            maxLength: FnbLimits.itemNote,
+                            control: .managed(
+                              initial: TextEditingValue(text: _note),
+                              onChange: (v) => _note = v.text,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),

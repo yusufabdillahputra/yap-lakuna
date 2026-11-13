@@ -271,6 +271,7 @@ class DiningViewModel extends ChangeNotifier {
     if (_mode == m) return;
     _mode = m;
     _actionError = null;
+    _servedOnly = 0;
     final selected = selectedBill;
     if (selected != null && selected.isTakeAway != (m == DiningMode.takeAway)) {
       _selectedId = null;
@@ -352,12 +353,14 @@ class DiningViewModel extends ChangeNotifier {
   void select(OpenBill bill) {
     _selectedId = bill.id;
     _actionError = null;
+    _servedOnly = 0;
     notifyListeners();
   }
 
   void clearSelection() {
     _selectedId = null;
     _actionError = null;
+    _servedOnly = 0;
     notifyListeners();
   }
 
@@ -521,6 +524,7 @@ class DiningViewModel extends ChangeNotifier {
     void Function(T value)? onOk,
   }) async {
     _actionError = null;
+    _servedOnly = 0;
     final result = await action();
     switch (result) {
       case Ok(:final value):
@@ -575,8 +579,15 @@ class DiningViewModel extends ChangeNotifier {
   Future<Result<OpenBill>> _markServed(UuidValue itemId) =>
       _act(() => _repository.markServed(itemId), onOk: _put);
 
-  /// Tiket dapur terakhir yang dikirim (dialog 1.7e).
+  /// Tiket dapur terakhir yang dikirim (dialog 1.7e); hanya hasil kirim
+  /// yang punya tiket.
   KitchenSendResult? get lastTicket => _ticket;
+
+  var _servedOnly = 0;
+
+  /// Jumlah item menu tanpa tiket dapur yang langsung disajikan pada
+  /// *Kirim ke dapur* terakhir bill ini (F1-10g); 0 setelah aksi lain.
+  int get servedWithoutTicket => _servedOnly;
 
   void clearTicket() {
     _ticket = null;
@@ -594,6 +605,9 @@ class DiningViewModel extends ChangeNotifier {
       () => _repository.sendToKitchen(id),
       onOk: (r) {
         _put(r.bill);
+        _servedOnly = r.served.length;
+        // Semua item bukan menu dapur: tidak ada tiket untuk ditampilkan.
+        if (r.ticket == null) return;
         _ticket = r;
         _printFailure = null;
         _ticketPrinted = false;
@@ -727,7 +741,7 @@ class DiningViewModel extends ChangeNotifier {
         ticketPaper,
         jobName: _ticket == null
             ? 'Tiket dapur'
-            : kitchenTicketLabel(_ticket!.ticket.number),
+            : kitchenTicketLabel(_ticket?.ticket?.number ?? 0),
       );
       if (identical(_ticket, ticket)) _ticketPrinted = printer.isDirect;
       return const Result.ok(null);
