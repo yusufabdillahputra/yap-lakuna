@@ -7,6 +7,67 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-13
+
+Produk kini bisa diberi foto agar kasir lebih cepat mengenali barang.
+
+### Ditambahkan
+
+- **Foto produk (1.16, F1-07f).** Kotak foto di kiri atas *Info dasar*
+  form produk dengan tombol *Pilih foto* / *Ganti foto*, *Ambil foto*
+  (kamera, hanya Android/iOS), dan *Hapus foto*.
+  - Satu foto per produk (bukan per varian). PNG, JPG, atau WebP sampai
+    2 MB, diperiksa dari isi berkas, bukan dari nama. Foto kamera
+    dikecilkan ke lebar 1.600 px.
+  - Foto baru langsung tampil sebagai pratinjau, tetapi baru tersimpan saat
+    *Simpan* (produk baru: setelah produknya tersimpan). Berkas tidak
+    didukung, terlalu besar, atau kamera yang tidak bisa dibuka
+    menampilkan pesan di bawah kotak tanpa mengganggu isian lain.
+  - Bila produk tersimpan tetapi fotonya gagal, form tetap terbuka dengan
+    pesan *Produk tersimpan, foto gagal disimpan*; *Simpan* lagi hanya
+    mengubah produk itu.
+- Foto tampil di **Daftar produk 1.15** (tabel dan kartu ponsel), kartu
+  produk **Kasir 1.4**, dan daftar menu meja F&B. Produk tanpa foto, atau
+  yang berkas fotonya belum ada di perangkat atau rusak, tetap memakai
+  kotak inisial.
+
+### Diubah
+
+- Arsip, pulihkan, simpan ulang, dan import produk tidak mengubah foto.
+  Backup sudah membawa folder `media/`, jadi foto ikut dipulihkan.
+
+### Catatan teknis
+
+- Kolom baru `products.photo_media_id` → `media_files`
+  (`MediaKind.productPhoto`, `outlet_id` kosong karena produk berlaku untuk
+  semua cabang); migrasi `foto-produk`.
+- `setProductPhoto` / `clearProductPhoto` di `lakuna_data`
+  (`LakunaStore.write` + `SyncTx`, versi produk naik, izin
+  `products:manage`); berkas disimpan sekali di `media/<sha256>.<ext>`.
+  `ProductPhotoInvalid` untuk berkas bukan gambar atau lebih dari
+  `ProductLimits.photoMaxBytes`.
+- `CatalogProduct.photoMediaId` / `photoPath`; `ProductThumb` mendekode
+  gambar seukuran tampilan (`cacheWidth`) dengan cadangan inisial.
+- `CatalogRepository.setPhoto` / `clearPhoto`; `ImageFilePicker.takePhoto`
+  menerima `maxWidth`.
+- Temuan review yang diperbaiki sebelum rilis:
+  - Menyimpan ulang produk baru setelah fotonya gagal membuat varian baru
+    dan mencatat stok awal dua kali. Kini form diisi ulang dari produk yang
+    sudah tersimpan (ID varian, tanpa stok awal) dan judulnya menjadi
+    *Edit produk*.
+  - Foto yang berkasnya belum ada di perangkat tidak bisa dihapus; kini
+    tombol *Hapus foto* mengikuti data foto, bukan berkasnya.
+  - Galat kamera (mis. izin ditolak) tidak ditangkap; kini tampil sebagai
+    pesan.
+  - Foto kamera 2.400 px bisa melewati batas 2 MB; foto produk kini
+    1.600 px.
+  - Foto melebar terlihat buram di kartu Kasir; gambar kini didekode dua
+    kali lebar kotak.
+- Uji manual di aplikasi Linux (Xvfb): foto PNG dipilih di form Kopi
+  Sachet, tampil sebagai pratinjau, tersimpan, lalu muncul di daftar produk
+  dan kartu Kasir; *Hapus foto* + *Simpan* mengembalikan kotak inisial;
+  form dan kartu daftar di lebar ponsel 360 px.
+
 ## [0.36.0] - 2026-11-13
 
 Label harga + barcode kini bisa dicetak untuk ditempel di rak atau barang.
@@ -3215,7 +3276,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...HEAD
+[0.37.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...v0.35.0
 [0.34.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...v0.34.0

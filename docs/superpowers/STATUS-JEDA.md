@@ -17,6 +17,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.34.0 | Harga grosir per grup pelanggan (F1-07c) | #40 |
 | v0.35.0 | Arsip produk (F1-07d) | #41 |
 | v0.36.0 | Cetak label barcode (F1-07e) | #42 |
+| v0.37.0 | Foto produk (F1-07f) | #43 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -33,8 +34,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    harga grup di open bill F&B masih gap.
 4. ~~*Pelanggan baru* dari pemilih pelanggan Kasir~~ — selesai v0.33.0
    (F1-04f).
-5. **Foto produk** — spec F1-07 (arsip produk selesai v0.35.0, F1-07d;
-   label barcode selesai v0.36.0, F1-07e).
+5. ~~Foto produk~~ — selesai v0.37.0 (F1-07f); kecilkan foto ke WebP
+   masih gap.
 6. **Cetak rekap sesi, logo di struk** — spec F1-06.
 7. **Gabung meja, printer dapur terpisah** — spec F1-10.
 

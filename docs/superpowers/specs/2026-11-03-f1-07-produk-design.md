@@ -256,7 +256,7 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Foto produk | *Ganti foto*, thumbnail | Kotak inisial | Bangun dengan pola media (gambar lokal, WebP) bersama QRIS di F1-05/F1-26 |
+| Foto produk | *Ganti foto*, thumbnail | Rilis v0.37.0 | [F1-07f](2026-11-13-f1-07f-foto-produk-design.md): satu foto per produk di form, daftar, dan Kasir; kecilkan ke WebP masih gap |
 | Tab Modifier | Hanya Menu F&B | Belum | F1-10 |
 | Tab Barcode & label, *Cetak label barcode* | Ada | Rilis v0.36.0 | [F1-07e](2026-11-13-f1-07e-label-barcode-design.md): halaman 1.15b, A4 3×8 dan printer label (PDF); tombol *Cetak label* di form menggantikan tab |
 | *Import Excel* | Tombol di 1.15 | Rilis v0.31.0 | Lihat [F1-07b](2026-11-04-f1-07b-import-produk-design.md): produk baru satu varian, yang sudah ada dilewati. |

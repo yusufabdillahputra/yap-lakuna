@@ -1,7 +1,7 @@
 # F1-07f · Foto produk
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.37.0
 - **Layar:** 1.16 Form produk (kotak foto di *Info dasar*), 1.15 Daftar
   produk (thumbnail), 1.4 Kasir (foto di kartu produk).
 - **Acuan:** kanvas 1.16 *Ganti foto* + thumbnail; spec Storeku F1-07
@@ -20,7 +20,8 @@ barang di layar Kasir, terutama menu F&B dan barang tanpa barcode.
    `outlet_id` kosong karena produk berlaku untuk semua cabang).
 2. **Berkas**: PNG, JPG, atau WebP sampai 2 MB, diperiksa dari isi berkas
    (`readImageHeader`), bukan dari nama. Di Android/iOS ada pilihan *Ambil
-   foto* dari kamera (dikecilkan ke lebar 1.600 px, kualitas 85). Berkas
+   foto* dari kamera (dikecilkan ke lebar 1.600 px, kualitas 85;
+   `ProductLimits.cameraMaxWidth`). Berkas
    disimpan apa adanya di `media/<sha256>.<ext>`; berkas sama tidak disalin
    dua kali.
    - Perbedaan dengan Storeku: belum dikecilkan/dikonversi ke WebP karena
@@ -34,7 +35,10 @@ barang di layar Kasir, terutama menu F&B dan barang tanpa barcode.
 4. **Simpan**: foto disimpan lewat `setProductPhoto` / `clearProductPhoto`
    (`LakunaStore.write` + `SyncTx`, versi produk naik), izin
    `products:manage`. Bila produk tersimpan tetapi foto gagal, form tetap
-   terbuka dengan pesan *Produk tersimpan, foto gagal disimpan*.
+   terbuka dengan pesan *Produk tersimpan, foto gagal disimpan*, diisi
+   ulang dari produk tersimpan (ID varian, tanpa stok awal) sehingga
+   *Simpan* lagi hanya mengubah produk itu. Galat kamera/berkas (mis. izin
+   ditolak) → pesan *Foto tidak bisa dibuka*.
 5. **Tampil**: `CatalogProduct.photoPath` (lokasi berkas di perangkat,
    `null` bila tidak ada atau berkas belum tersinkron). Daftar 1.15 dan
    kartu Kasir menampilkan foto, selain itu kotak inisial seperti
@@ -66,6 +70,6 @@ barang di layar Kasir, terutama menu F&B dan barang tanpa barcode.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Foto produk di form, daftar, dan Kasir | *Ganti foto*, thumbnail | Dikerjakan | |
+| Foto produk di form, daftar, dan Kasir | *Ganti foto*, thumbnail | Rilis v0.37.0 | Juga di daftar menu meja F&B. |
 | Kecilkan foto ke 1.024 px WebP | Storeku F1-07 | Belum | Perlu encoder gambar; sekarang batas 2 MB + `cacheWidth`. |
 | Foto per varian | — | Tidak direncanakan | Satu foto per produk cukup untuk Fase 1. |
