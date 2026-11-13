@@ -13153,6 +13153,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja.'**
   String get cashierErrorBillCustomerMismatch;
+
+  /// No description provided for @diningServedWithoutTicket.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} item tanpa tiket dapur langsung ditandai disajikan.'**
+  String diningServedWithoutTicket(int count);
+
+  /// No description provided for @productKitchenTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Dapur'**
+  String get productKitchenTitle;
+
+  /// No description provided for @productSendToKitchen.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim ke tiket dapur'**
+  String get productSendToKitchen;
+
+  /// No description provided for @productSendToKitchenHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mati untuk menu yang tidak dimasak (mis. air botol): item langsung disajikan tanpa tiket dapur.'**
+  String get productSendToKitchenHint;
+
+  /// No description provided for @productAllowNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Bisa catatan bebas'**
+  String get productAllowNote;
+
+  /// No description provided for @productAllowNoteHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mati bila menu tidak bisa diubah; catatan dapur diabaikan.'**
+  String get productAllowNoteHint;
+
+  /// No description provided for @diningNoteNotAllowed.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan disimpan untuk menu berikutnya.'**
+  String get diningNoteNotAllowed;
 }
 
 class _AppLocalizationsDelegate

@@ -229,21 +229,21 @@ void main() {
       var bill = await add(await open(m1), line(kopi, 2), note: 'es');
       bill = await add(bill, line(nasi));
       final first = await send(bill);
-      expect(first.ticket.number, 1);
-      expect(kitchenTicketLabel(first.ticket.number), 'K-0001');
+      expect(first.ticket!.number, 1);
+      expect(kitchenTicketLabel(first.ticket!.number), 'K-0001');
       expect(first.items, hasLength(2));
       expect(first.staffName, 'Yusuf');
       expect(
         first.bill.items.map((i) => i.kitchenStatus),
         everyElement(KitchenStatus.sent),
       );
-      expect(first.items.first.kitchenTicketId, first.ticket.id);
+      expect(first.items.first.kitchenTicketId, first.ticket!.id);
 
       await expectLater(send(first.bill), throwsA(isA<NothingToSend>()));
 
       bill = await add(first.bill, line(kopi));
       final second = await send(bill);
-      expect(second.ticket.number, 2);
+      expect(second.ticket!.number, 2);
       expect(second.items, hasLength(1));
 
       bill = await markItemServed(
@@ -266,7 +266,7 @@ void main() {
       // Hari berikutnya (tanggal WIB) mulai dari 1 lagi.
       now = DateTime.utc(2026, 11, 3, 17, 30); // 00.30 WIB 4 Nov
       final next = await send(await add(await open(m2), line(kopi)));
-      expect(next.ticket.number, 1);
+      expect(next.ticket!.number, 1);
     });
   });
 

@@ -4462,6 +4462,20 @@ class Protocol extends _isd.DatabaseSerializationManager
           columnDefault: 'false',
         ),
         _isd.ColumnDefinition(
+          name: 'send_to_kitchen',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
+          name: 'allow_note',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isd.ColumnDefinition(
           name: 'photo_media_id',
           columnType: _isd.ColumnType.uuid,
           isNullable: true,

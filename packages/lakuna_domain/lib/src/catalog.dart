@@ -179,6 +179,8 @@ class ProductDraft {
     this.brand = '',
     this.isActive = true,
     this.isTaxable = false,
+    this.sendToKitchen = true,
+    this.allowNote = true,
     this.modifierGroupIds = const [],
   });
 
@@ -193,6 +195,12 @@ class ProductDraft {
   /// Sakelar *Dijual di kasir*.
   final bool isActive;
   final bool isTaxable;
+
+  /// Sakelar *Kirim ke tiket dapur* (1.16b, F1-10g).
+  final bool sendToKitchen;
+
+  /// Sakelar *Bisa catatan bebas* (1.16b, F1-10g).
+  final bool allowNote;
   final List<VariantDraft> variants;
 
   /// Grup modifier terpasang, berurutan (1.16b, F1-10b).

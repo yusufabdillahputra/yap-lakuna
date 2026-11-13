@@ -750,6 +750,27 @@ class _ModifiersTab extends StatelessWidget {
           ] else if (attached.isEmpty)
             _Help(l10n.productModifiersNoMaster),
           _Help(l10n.productModifiersHelp),
+          const FDivider(),
+          Text(
+            l10n.productKitchenTitle,
+            style: theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          FSwitch(
+            key: const ValueKey('product-send-to-kitchen'),
+            label: Text(l10n.productSendToKitchen),
+            description: Text(l10n.productSendToKitchenHint),
+            value: vm.sendToKitchen,
+            onChange: busy ? null : vm.setSendToKitchen,
+          ),
+          FSwitch(
+            key: const ValueKey('product-allow-note'),
+            label: Text(l10n.productAllowNote),
+            description: Text(l10n.productAllowNoteHint),
+            value: vm.allowNote,
+            onChange: busy ? null : vm.setAllowNote,
+          ),
         ],
       ),
     );

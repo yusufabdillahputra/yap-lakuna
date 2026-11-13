@@ -4418,6 +4418,20 @@ class Protocol extends _is.DatabaseSerializationManager
           columnDefault: 'false',
         ),
         _isp.ColumnDefinition(
+          name: 'send_to_kitchen',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
+          name: 'allow_note',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'true',
+        ),
+        _isp.ColumnDefinition(
           name: 'photo_media_id',
           columnType: _isp.ColumnType.uuid,
           isNullable: true,

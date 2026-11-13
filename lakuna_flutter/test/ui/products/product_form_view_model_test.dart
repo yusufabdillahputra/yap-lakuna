@@ -146,6 +146,24 @@ void main() {
     expect(updated.variants.last.stock, Qty.units(5));
   });
 
+  test('sakelar dapur & catatan (F1-10g): bawaan aktif, termuat, '
+      'tersimpan', () async {
+    expect((await open()).sendToKitchen, isTrue);
+    expect((await open()).allowNote, isTrue);
+    final existing = repo.products.firstWhere((p) => p.name == 'Minyak Goreng');
+    var vm = await open(existing.id.uuid);
+    vm
+      ..setSendToKitchen(false)
+      ..setAllowNote(false);
+    await vm.save.execute();
+    final saved = repo.products.firstWhere((p) => p.id == existing.id);
+    expect(saved.sendToKitchen, isFalse);
+    expect(saved.allowNote, isFalse);
+    vm = await open(existing.id.uuid);
+    expect(vm.sendToKitchen, isFalse);
+    expect(vm.allowNote, isFalse);
+  });
+
   test('hapus varian: minimal satu, galat dibersihkan', () async {
     final vm = await open();
     vm.removeVariant(0);
@@ -183,8 +201,12 @@ void main() {
       ..setBrand('Contoh')
       ..setKind(ProductKind.service)
       ..setActive(false)
-      ..setTaxable(true);
+      ..setTaxable(true)
+      ..setSendToKitchen(false)
+      ..setAllowNote(false);
     final d = vm.draft;
+    expect(d.sendToKitchen, isFalse);
+    expect(d.allowNote, isFalse);
     expect(d.name, ' Sabun ');
     expect(d.sku, 'SBN');
     expect(d.brand, 'Contoh');

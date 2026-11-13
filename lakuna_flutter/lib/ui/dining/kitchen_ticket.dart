@@ -36,12 +36,14 @@ List<ReceiptLine> kitchenTicketLines(
     if (bill.sale.customerName case final name? when name.trim().isNotEmpty)
       ...centered(name.trim()),
     rule,
-    ...layoutPair(l10n.ticketNo, kitchenTicketLabel(result.ticket.number), w),
-    ...layoutPair(
-      l10n.ticketTime,
-      receiptDate(outletLocalTime(result.ticket.sentAt, timezone)),
-      w,
-    ),
+    if (result.ticket case final ticket?) ...[
+      ...layoutPair(l10n.ticketNo, kitchenTicketLabel(ticket.number), w),
+      ...layoutPair(
+        l10n.ticketTime,
+        receiptDate(outletLocalTime(ticket.sentAt, timezone)),
+        w,
+      ),
+    ],
     ...layoutPair(l10n.ticketStaff, result.staffName, w),
     rule,
     // Porsi split bill yang dikirim bersamaan digabung kembali.

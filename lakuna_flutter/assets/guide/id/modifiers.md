@@ -16,6 +16,13 @@ Modifier adalah pilihan tambahan pada menu, misalnya ukuran, level gula, atau to
 2. Di tab **Modifier**, tekan **Tambah grup** dan pilih grupnya. Urutan grup di sini menjadi urutan di lembar pilihan.
 3. Simpan produk.
 
+## Menu dapur dan catatan
+
+Di tab **Modifier** produk ada bagian **Dapur**:
+
+- **Kirim ke tiket dapur**: matikan untuk menu yang tidak dimasak (air botol, kerupuk). Saat **Kirim ke dapur**, item ini tidak tercetak di tiket; statusnya langsung *Disajikan*. Bila semua item baru bukan menu dapur, tiket tidak dibuat.
+- **Bisa catatan bebas**: matikan bila menu tidak bisa diubah. Catatan dapur yang sudah diketik tidak dipakai untuk menu ini dan tetap tersimpan untuk menu berikutnya; lembar modifier tidak menampilkan isian catatan.
+
 ## Saat memesan
 
 Di layar Meja, menu dengan modifier membuka lembar pilihan. Pilih opsi, atur jumlah, tambahkan catatan dapur bila perlu, lalu **Tambah ke bill**.

@@ -7,6 +7,64 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-11-13
+
+Menu yang tidak dimasak tidak lagi mengisi tiket dapur, dan menu yang tidak
+bisa diubah tidak menerima catatan bebas.
+
+### Ditambahkan
+
+- **Sakelar dapur per menu (1.16b, F1-10g).** Bagian *Dapur* baru di tab
+  *Modifier* form produk:
+  - **Kirim ke tiket dapur** (bawaan aktif). Bila dimatikan, item menu itu
+    tidak tercetak di tiket saat *Kirim ke dapur* dan statusnya langsung
+    *Disajikan*. Bila semua item baru bukan menu dapur, tiket tidak dibuat,
+    nomor tiket harian tidak terpakai, modal tiket tidak muncul, dan
+    printer dapur tidak mencetak; panel bill menampilkan *N item tanpa
+    tiket dapur langsung ditandai disajikan*.
+  - **Bisa catatan bebas** (bawaan aktif). Bila dimatikan, catatan dapur
+    untuk menu itu diabaikan. Di lembar menu, catatan yang sudah diketik
+    tetap tersimpan untuk menu berikutnya; lembar modifier 1.8 tidak
+    menampilkan isian catatan.
+- Panduan *Modifier menu* dan *Meja & open bill* (ID + EN) menjelaskan
+  kedua sakelar.
+
+### Diubah
+
+- Modal tiket dapur menyebut jumlah item yang langsung disajikan tanpa
+  tiket bila kiriman berisi campuran menu dapur dan non-dapur.
+- Status *Ditambahkan* di lembar menu dibatasi dua baris agar tidak
+  menggeser daftar menu di ponsel.
+
+### Catatan teknis
+
+- Kolom baru `products.send_to_kitchen` dan `products.allow_note`
+  (`bool`, bawaan `true`), migrasi `20261113153626691-menu-dapur` untuk
+  Postgres dan SQLite klien; produk lama tetap ikut tiket dan boleh
+  catatan.
+- `ProductDraft` / `CatalogProduct` `sendToKitchen`, `allowNote`.
+- `KitchenSendResult.ticket` kini boleh `null`, dan `served` berisi item
+  non-dapur. Sakelar dibaca saat kirim, bukan saat item ditambahkan.
+- `DiningViewModel.servedWithoutTicket`; `lastTicket` hanya hasil kirim
+  yang punya tiket.
+- Review subagent tidak menemukan temuan Critical/Important. Temuan minor
+  yang diperbaiki:
+  - Catatan untuk menu tanpa catatan bebas tidak lagi diperiksa panjangnya
+    sebelum diabaikan.
+  - Pesan *tanpa tiket* hilang saat pilihan bill atau mode berubah.
+  - Tes outbox (sakelar produk dan item yang langsung disajikan).
+  - Tes lembar modifier tanpa isian catatan di 360 px.
+- Uji manual di aplikasi Linux (Xvfb) dengan printer dapur tiruan (port
+  9101):
+  - Air Mineral 600 ml diatur tanpa tiket dan tanpa catatan.
+  - Di M4: catatan "pedas" diketik, lalu Air Mineral ditambahkan →
+    catatan tetap tersimpan. Mi Instan Goreng ditambahkan → memakai
+    "pedas".
+  - *Kirim ke dapur* → tiket K-0004 berisi hanya Mi Instan Goreng
+    (dicek dari byte ESC/POS), dan Air Mineral langsung *Disajikan*.
+  - Air Mineral kedua dikirim sendiri → tanpa modal dan tanpa cetak,
+    pesan tampil di panel.
+
 ## [0.42.0] - 2026-11-13
 
 Open bill F&B kini bisa diberi pelanggan, sehingga harga grosir grup
@@ -3558,7 +3616,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...HEAD
+[0.43.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...v0.40.0

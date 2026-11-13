@@ -1426,6 +1426,12 @@ class _BillPanel extends StatelessWidget {
             key: const ValueKey('dining-bill-error'),
             style: _errorStyle(context),
           ),
+        if (vm.servedWithoutTicket case final n when n > 0)
+          Text(
+            l10n.diningServedWithoutTicket(n),
+            key: const ValueKey('dining-served-only'),
+            style: _muted(context),
+          ),
         if (blocksPay)
           Text(
             l10n.diningDiscountBlocksPay,
@@ -2351,17 +2357,24 @@ class _MenuSheetState extends State<_MenuSheet> {
   var _noteRev = 0;
   String? _added;
 
+  /// Catatan tidak terpakai oleh menu tanpa catatan bebas (F1-10g).
+  var _noteKept = false;
+
   DiningViewModel get _vm => widget.viewModel;
 
   Future<void> _add(SaleOption option) async {
-    var input = BillItemInput(option, note: _note.trim());
+    // Menu tanpa catatan bebas (F1-10g) tidak memakai catatan yang sudah
+    // diketik; catatan tetap untuk item berikutnya.
+    final allowNote = option.product.allowNote;
+    final note = allowNote ? _note.trim() : '';
+    var input = BillItemInput(option, note: note);
     final groups = _vm.modifierGroupsOf(option.product);
     if (groups.isNotEmpty) {
       final picked = await showModifierSheet(
         context,
         option: option,
         groups: groups,
-        note: _note.trim(),
+        note: note,
       );
       if (picked == null || !mounted) return;
       input = picked;
@@ -2372,8 +2385,11 @@ class _MenuSheetState extends State<_MenuSheet> {
       _added = option.label.isEmpty
           ? option.product.name
           : '${option.product.name} · ${option.label}';
-      _note = '';
-      _noteRev++;
+      _noteKept = !allowNote && _note.trim().isNotEmpty;
+      if (allowNote) {
+        _note = '';
+        _noteRev++;
+      }
     });
   }
 
@@ -2519,10 +2535,20 @@ class _MenuSheetState extends State<_MenuSheet> {
                     style: _errorStyle(context),
                   )
                 else if (_added case final added?)
-                  Text(
-                    l10n.diningAdded(added),
+                  KeyedSubtree(
                     key: const ValueKey('dining-menu-added'),
-                    style: _muted(context),
+                    child: Text(
+                      _noteKept
+                          ? '${l10n.diningAdded(added)} · '
+                                '${l10n.diningNoteNotAllowed}'
+                          : l10n.diningAdded(added),
+                      key: _noteKept
+                          ? const ValueKey('dining-menu-note-kept')
+                          : null,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: _muted(context),
+                    ),
                   ),
                 FButton(
                   key: const ValueKey('dining-menu-done'),
@@ -2664,6 +2690,12 @@ class _TicketDialog extends StatelessWidget {
                 child: ReceiptPaperView(lines: lines, paper: vm.ticketPaper),
               ),
             ),
+            if (vm.servedWithoutTicket case final n when n > 0)
+              Text(
+                l10n.diningServedWithoutTicket(n),
+                key: const ValueKey('dining-ticket-served-only'),
+                style: _muted(context),
+              ),
             if (vm.printTicket.running && kitchen)
               Text(
                 l10n.ticketPrintingKitchen,

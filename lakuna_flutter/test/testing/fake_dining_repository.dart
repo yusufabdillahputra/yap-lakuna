@@ -133,6 +133,35 @@ class FakeDiningRepository extends DiningRepository {
     }
   }
 
+  /// Ubah sakelar *Kirim ke tiket dapur* / *Bisa catatan bebas* menu
+  /// bernama [productName] (F1-10g).
+  Future<void> setMenuFlags(
+    String productName, {
+    bool sendToKitchen = true,
+    bool allowNote = true,
+  }) async {
+    final d = catalog.products
+        .firstWhere((p) => p.name == productName)
+        .toDraft();
+    await catalog.save(
+      ProductDraft(
+        id: d.id,
+        name: d.name,
+        category: d.category,
+        kind: d.kind,
+        baseUnit: d.baseUnit,
+        sku: d.sku,
+        brand: d.brand,
+        isActive: d.isActive,
+        isTaxable: d.isTaxable,
+        modifierGroupIds: d.modifierGroupIds,
+        variants: d.variants,
+        sendToKitchen: sendToKitchen,
+        allowNote: allowNote,
+      ),
+    );
+  }
+
   /// Pasang [groups] di menu bernama [productName].
   void attachModifiers(String productName, List<ModifierGroupDetail> groups) {
     final p = catalog.products.firstWhere((p) => p.name == productName);
@@ -345,8 +374,8 @@ class FakeDiningRepository extends DiningRepository {
   }) => _run(() {
     final b = bill(billId);
     _unlocked(b);
-    final clean = note?.trim() ?? '';
-    if (clean.length > FnbLimits.itemNote) {
+    final typed = note?.trim() ?? '';
+    if (typed.length > FnbLimits.itemNote) {
       throw const BillInputInvalid(BillField.note);
     }
     final product = catalog.products
@@ -355,6 +384,7 @@ class FakeDiningRepository extends DiningRepository {
     if (product == null || !product.isActive) {
       throw SaleItemUnavailable(line.variantId);
     }
+    final clean = product.allowNote ? typed : '';
     final variant = product.variants.firstWhere((v) => v.id == line.variantId);
     final groups = modifierGroups[product.id] ?? const <ModifierGroupDetail>[];
     final ids = [for (final id in modifierIds) id.uuid];
@@ -485,6 +515,30 @@ class FakeDiningRepository extends DiningRepository {
         if (i.kitchenStatus == KitchenStatus.pending) i,
     ];
     if (pending.isEmpty) throw NothingToSend();
+    bool toKitchen(SaleItem i) =>
+        catalog.products
+            .where((p) => p.variants.any((v) => v.id == i.variantId))
+            .firstOrNull
+            ?.sendToKitchen ??
+        true;
+    final served = [
+      for (final i in pending)
+        if (!toKitchen(i)) i.copyWith(kitchenStatus: KitchenStatus.served),
+    ];
+    served.forEach(_replaceItem);
+    final cooked = [
+      for (final i in pending)
+        if (toKitchen(i)) i,
+    ];
+    if (cooked.isEmpty) {
+      return KitchenSendResult(
+        ticket: null,
+        items: const [],
+        served: served,
+        bill: bill(billId),
+        staffName: 'Dimas',
+      );
+    }
     final ticket = KitchenTicket(
       id: fakeId(_next++),
       tenantId: _tenant,
@@ -498,7 +552,7 @@ class FakeDiningRepository extends DiningRepository {
     );
     tickets.add(ticket);
     final sent = [
-      for (final i in pending)
+      for (final i in cooked)
         i.copyWith(
           kitchenStatus: KitchenStatus.sent,
           kitchenTicketId: ticket.id,
@@ -508,6 +562,7 @@ class FakeDiningRepository extends DiningRepository {
     return KitchenSendResult(
       ticket: ticket,
       items: sent,
+      served: served,
       bill: bill(billId),
       staffName: 'Dimas',
     );

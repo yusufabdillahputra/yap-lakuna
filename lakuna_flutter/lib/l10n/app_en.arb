@@ -4216,5 +4216,19 @@
   "diningErrorCustomerBlocked": "The customer can't be changed while the bill is split.",
   "diningErrorCustomerNotFound": "Customer not found or already deleted.",
   "diningErrorMergeCustomer": "The two tables have different customers.",
-  "cashierErrorBillCustomerMismatch": "Credit must be in the bill customer's name. Change the customer on the table panel."
+  "cashierErrorBillCustomerMismatch": "Credit must be in the bill customer's name. Change the customer on the table panel.",
+  "diningServedWithoutTicket": "{count} {count, plural, =1{item} other{items}} without a kitchen ticket marked as served.",
+  "@diningServedWithoutTicket": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productKitchenTitle": "Kitchen",
+  "productSendToKitchen": "Send to kitchen ticket",
+  "productSendToKitchenHint": "Turn off for items that are not cooked (e.g. bottled water): they are served right away without a kitchen ticket.",
+  "productAllowNote": "Allow free-text notes",
+  "productAllowNoteHint": "Turn off when the item cannot be customised; kitchen notes are ignored.",
+  "diningNoteNotAllowed": "Note kept for the next item."
 }

@@ -30,6 +30,8 @@ abstract class Product
     this.brand,
     bool? isActive,
     bool? isTaxable,
+    bool? sendToKitchen,
+    bool? allowNote,
     this.photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -42,6 +44,8 @@ abstract class Product
   }) : id = id ?? const _isc.Uuid().v7obj(),
        isActive = isActive ?? true,
        isTaxable = isTaxable ?? false,
+       sendToKitchen = sendToKitchen ?? true,
+       allowNote = allowNote ?? true,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -57,6 +61,8 @@ abstract class Product
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    bool? sendToKitchen,
+    bool? allowNote,
     _isc.UuidValue? photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -96,6 +102,12 @@ abstract class Product
       isTaxable: jsonSerialization['isTaxable'] == null
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['isTaxable']),
+      sendToKitchen: jsonSerialization['sendToKitchen'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['sendToKitchen']),
+      allowNote: jsonSerialization['allowNote'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['allowNote']),
       photoMediaId: jsonSerialization['photoMediaId'] == null
           ? null
           : _isc.UuidValueJsonExtension.fromJson(
@@ -157,6 +169,13 @@ abstract class Product
 
   bool isTaxable;
 
+  /// Sakelar *Kirim ke tiket dapur* (F1-10g): mati = item langsung
+  /// disajikan tanpa tiket dapur.
+  bool sendToKitchen;
+
+  /// Sakelar *Bisa catatan bebas* (F1-10g): mati = catatan item diabaikan.
+  bool allowNote;
+
   /// Foto produk (F1-07f), berkas di folder media.
   _isc.UuidValue? photoMediaId;
 
@@ -193,6 +212,8 @@ abstract class Product
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    bool? sendToKitchen,
+    bool? allowNote,
     _isc.UuidValue? photoMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -217,6 +238,8 @@ abstract class Product
       if (brand != null) 'brand': brand,
       'isActive': isActive,
       'isTaxable': isTaxable,
+      'sendToKitchen': sendToKitchen,
+      'allowNote': allowNote,
       if (photoMediaId != null) 'photoMediaId': photoMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -243,6 +266,8 @@ abstract class Product
       if (brand != null) 'brand': brand,
       'isActive': isActive,
       'isTaxable': isTaxable,
+      'sendToKitchen': sendToKitchen,
+      'allowNote': allowNote,
       if (photoMediaId != null) 'photoMediaId': photoMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -297,6 +322,8 @@ class _ProductImpl extends Product {
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    bool? sendToKitchen,
+    bool? allowNote,
     _isc.UuidValue? photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -317,6 +344,8 @@ class _ProductImpl extends Product {
          brand: brand,
          isActive: isActive,
          isTaxable: isTaxable,
+         sendToKitchen: sendToKitchen,
+         allowNote: allowNote,
          photoMediaId: photoMediaId,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -343,6 +372,8 @@ class _ProductImpl extends Product {
     Object? brand = _Undefined,
     bool? isActive,
     bool? isTaxable,
+    bool? sendToKitchen,
+    bool? allowNote,
     _isc.UuidValue? photoMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -366,6 +397,8 @@ class _ProductImpl extends Product {
       brand: brand is String? ? brand : this.brand,
       isActive: isActive ?? this.isActive,
       isTaxable: isTaxable ?? this.isTaxable,
+      sendToKitchen: sendToKitchen ?? this.sendToKitchen,
+      allowNote: allowNote ?? this.allowNote,
       photoMediaId: photoMediaId is _isc.UndefinedSentinel
           ? this.photoMediaId
           : photoMediaId,
@@ -442,6 +475,16 @@ class ProductUpdateTable extends _isd.UpdateTable<ProductTable> {
 
   _isd.ColumnValue<bool, bool> isTaxable(bool value) => _isd.ColumnValue(
     table.isTaxable,
+    value,
+  );
+
+  _isd.ColumnValue<bool, bool> sendToKitchen(bool value) => _isd.ColumnValue(
+    table.sendToKitchen,
+    value,
+  );
+
+  _isd.ColumnValue<bool, bool> allowNote(bool value) => _isd.ColumnValue(
+    table.allowNote,
     value,
   );
 
@@ -549,6 +592,18 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
       hasDefault: true,
       fieldName: 'isTaxable',
     );
+    sendToKitchen = _isd.ColumnBool(
+      'send_to_kitchen',
+      this,
+      hasDefault: true,
+      fieldName: 'sendToKitchen',
+    );
+    allowNote = _isd.ColumnBool(
+      'allow_note',
+      this,
+      hasDefault: true,
+      fieldName: 'allowNote',
+    );
     photoMediaId = _isd.ColumnUuid(
       'photo_media_id',
       this,
@@ -619,6 +674,13 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnBool isTaxable;
 
+  /// Sakelar *Kirim ke tiket dapur* (F1-10g): mati = item langsung
+  /// disajikan tanpa tiket dapur.
+  late final _isd.ColumnBool sendToKitchen;
+
+  /// Sakelar *Bisa catatan bebas* (F1-10g): mati = catatan item diabaikan.
+  late final _isd.ColumnBool allowNote;
+
   /// Foto produk (F1-07f), berkas di folder media.
   late final _isd.ColumnUuid photoMediaId;
 
@@ -650,6 +712,8 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
     brand,
     isActive,
     isTaxable,
+    sendToKitchen,
+    allowNote,
     photoMediaId,
     createdAt,
     updatedAt,
