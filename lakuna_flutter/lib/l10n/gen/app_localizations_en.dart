@@ -7524,4 +7524,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get receiptLogoTooLarge =>
       'The logo is over 1 MB. Choose a smaller file.';
+
+  @override
+  String get diningMerge => 'Merge tables';
+
+  @override
+  String diningMergeTitle(String label) {
+    return 'Merge into $label';
+  }
+
+  @override
+  String get diningMergeHint =>
+      'Items, kitchen tickets and guests of the chosen table move to this bill. That table becomes empty.';
+
+  @override
+  String get diningMergeNone =>
+      'No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas).';
+
+  @override
+  String diningMergeOption(String label, String total) {
+    return '$label · $total';
+  }
+
+  @override
+  String get diningErrorMergeSplit =>
+      'A bill is split or has part payments. Cancel the split first.';
+
+  @override
+  String get diningErrorMergeDiscount =>
+      'The merged table\'s bill has a bill discount. Remove it first.';
+
+  @override
+  String get diningErrorMergeGuests => 'Combined guests exceed 99.';
+
+  @override
+  String get diningErrorMergeNotAllowed => 'These tables can\'t be merged.';
+
+  @override
+  String get diningSetupCanMergeHint =>
+      'This table\'s bill can be merged with another table via Merge tables.';
+
+  @override
+  String get diningSetupCanMerge => 'Can merge';
 }

@@ -4142,5 +4142,33 @@
   "receiptLogoMissing": "The logo file isn't on this device yet.",
   "receiptShowLogo": "Show logo on receipts",
   "receiptLogoUnsupported": "The logo must be a PNG or JPG.",
-  "receiptLogoTooLarge": "The logo is over 1 MB. Choose a smaller file."
+  "receiptLogoTooLarge": "The logo is over 1 MB. Choose a smaller file.",
+  "diningMerge": "Merge tables",
+  "diningMergeTitle": "Merge into {label}",
+  "@diningMergeTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningMergeHint": "Items, kitchen tickets and guests of the chosen table move to this bill. That table becomes empty.",
+  "diningMergeNone": "No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas).",
+  "diningMergeOption": "{label} · {total}",
+  "@diningMergeOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "diningErrorMergeSplit": "A bill is split or has part payments. Cancel the split first.",
+  "diningErrorMergeDiscount": "The merged table's bill has a bill discount. Remove it first.",
+  "diningErrorMergeGuests": "Combined guests exceed 99.",
+  "diningErrorMergeNotAllowed": "These tables can't be merged.",
+  "diningSetupCanMergeHint": "This table's bill can be merged with another table via Merge tables.",
+  "diningSetupCanMerge": "Can merge"
 }

@@ -530,6 +530,61 @@ class FakeDiningRepository extends DiningRepository {
         return bill(billId);
       });
 
+  /// Menandai meja [names] *Boleh digabung* (F1-10d).
+  void allowMerge(List<String> names) {
+    for (var i = 0; i < tables.length; i++) {
+      if (names.contains(tables[i].name)) {
+        tables[i] = tables[i].copyWith(canMerge: true);
+      }
+    }
+  }
+
+  @override
+  Future<Result<OpenBill>> mergeBill(
+    UuidValue targetBillId,
+    UuidValue sourceBillId,
+  ) => _run(() {
+    final target = bill(targetBillId);
+    final source = bill(sourceBillId);
+    bool mergeable(OpenBill b) =>
+        b.sale.orderType == OrderType.dineIn &&
+        tables.any((t) => t.id == b.sale.diningTableId && t.canMerge);
+    if (target.id == source.id || !mergeable(target) || !mergeable(source)) {
+      throw const BillMergeBlocked(BillMergeReason.notAllowed);
+    }
+    if (target.sale.splitMode != null || source.sale.splitMode != null) {
+      throw const BillMergeBlocked(BillMergeReason.split);
+    }
+    if (source.discount != null) {
+      throw const BillMergeBlocked(BillMergeReason.discount);
+    }
+    final guests =
+        (target.sale.guestCount ?? 0) + (source.sale.guestCount ?? 0);
+    if (guests > FnbLimits.guestsMax) {
+      throw const BillMergeBlocked(BillMergeReason.guests);
+    }
+    var order = target.items.fold(
+      0,
+      (max, i) => i.sortOrder > max ? i.sortOrder : max,
+    );
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].saleId != source.id) continue;
+      items[i] = items[i].copyWith(saleId: target.id, sortOrder: ++order);
+    }
+    _replaceSale(source.sale.copyWith(deletedAt: now));
+    _replaceSale(
+      target.sale.copyWith(
+        guestCount: guests,
+        customerName: target.sale.customerName ?? source.sale.customerName,
+      ),
+    );
+    merges.add((target.id, source.id));
+    return bill(target.id);
+  });
+
+  /// Gabung meja yang berhasil: (tujuan, sumber).
+  final merges = <(UuidValue, UuidValue)>[];
+
   /// Sakelar *Diskon manual butuh PIN manajer*.
   bool discountNeedsPin = true;
 

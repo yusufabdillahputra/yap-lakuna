@@ -7,6 +7,51 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.40.0] - 2026-11-13
+
+Dua meja kini bisa digabung menjadi satu tagihan.
+
+### Ditambahkan
+
+- **Gabung meja (1.7 / 1.8, F1-10d).** Panel bill dine in di meja *Boleh
+  digabung* punya aksi *Gabung meja*. Dialog menampilkan meja lain yang
+  berisi pesanan dan juga *Boleh digabung*; memilih satu meja memindahkan
+  seluruh isinya ke bill ini:
+  - item apa adanya (status dapur, catatan, modifier, harga), diurutkan
+    setelah item bill ini;
+  - tiket dapur ikut pindah;
+  - jumlah tamu dijumlah (maks 99); nama pemesan diambil dari meja yang
+    digabung bila bill ini belum punya;
+  - diskon nota bill ini tetap berlaku; total, service, PB1, dan pembulatan
+    dihitung ulang;
+  - meja yang digabung menjadi kosong dan bisa dibuka lagi.
+- Ditolak dengan pesan yang jelas bila salah satu bill sedang di-split
+  atau punya pembayaran bagian, bill meja yang digabung punya diskon nota,
+  jumlah tamu gabungan lebih dari 99, atau meja tidak *Boleh digabung*.
+- Sakelar *Boleh digabung dengan meja sebelah* kini juga ada di form meja
+  *Data master › Meja & area*, sehingga toko tanpa denah bisa memakainya.
+  Daftar meja menandai meja yang *Boleh digabung*.
+
+### Catatan teknis
+
+- `mergeOpenBills` + `BillMergeBlocked(BillMergeReason)` di
+  `lakuna_data` (satu transaksi: item, tiket, bill sumber soft delete,
+  total tujuan dihitung ulang); `DiningTableDraft.canMerge` (`null` =
+  tidak berubah).
+- `DiningRepository.mergeBill`; `DiningViewModel.merge`,
+  `canMergeInto`, `mergeSources`.
+- Temuan review yang diperbaiki sebelum rilis: dialog tidak lagi
+  menawarkan bill yang pasti ditolak (di-split, ada pembayaran bagian,
+  atau berdiskon nota) dan aksi nonaktif selama bill ini di-split; bill
+  sumber langsung hilang dari layar walau muat ulang ringkasan gagal; tes
+  outbox sinkronisasi; spec dirapikan (cabang lain = bill tidak
+  ditemukan, jejak gabung dicatat sebagai gap).
+- Uji manual di aplikasi Linux (Xvfb): M1 diatur *Boleh digabung* dari
+  denah dan M2 dari form meja; M2 (3 tamu, 2 item sudah di dapur) digabung
+  ke M1 (2 tamu, 2 item baru) → M1 5 tamu, 4 item dengan status dapur
+  tetap, total Rp 25.000; M2 kosong; bill gabungan dibayar tunai dan struk
+  memuat keempat item.
+
 ## [0.39.0] - 2026-11-13
 
 Struk kini bisa memuat logo toko, di printer thermal maupun PDF.
@@ -3388,7 +3433,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...HEAD
+[0.40.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...v0.37.0

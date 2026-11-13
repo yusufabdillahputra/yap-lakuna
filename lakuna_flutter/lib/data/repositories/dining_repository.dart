@@ -138,6 +138,13 @@ abstract class DiningRepository {
 
   Future<Result<OpenBill>> moveBill(UuidValue billId, UuidValue tableId);
 
+  /// *Gabung meja* (F1-10d): bill [sourceBillId] digabung ke
+  /// [targetBillId]. Gagal dengan `BillMergeBlocked`.
+  Future<Result<OpenBill>> mergeBill(
+    UuidValue targetBillId,
+    UuidValue sourceBillId,
+  );
+
   /// [approverId] = penyetuju ber-`sales:void` yang PIN-nya sudah
   /// diverifikasi (F1-11), bila staf bertugas tidak punya izin itu.
   Future<Result<void>> voidBill(

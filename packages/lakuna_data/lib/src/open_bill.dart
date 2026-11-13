@@ -52,6 +52,31 @@ class BillNotEmpty implements Exception {
   String toString() => 'BillNotEmpty';
 }
 
+/// Alasan *Gabung meja* ditolak (F1-10d).
+enum BillMergeReason {
+  /// Meja tidak *Boleh digabung*, bill bukan dine in, atau bill sama.
+  notAllowed,
+
+  /// Salah satu bill sedang di-split atau punya pembayaran bagian.
+  split,
+
+  /// Bill sumber punya diskon nota.
+  discount,
+
+  /// Jumlah tamu gabungan lebih dari [FnbLimits.guestsMax].
+  guests,
+}
+
+/// *Gabung meja* ditolak karena [reason].
+class BillMergeBlocked implements Exception {
+  const BillMergeBlocked(this.reason);
+
+  final BillMergeReason reason;
+
+  @override
+  String toString() => 'BillMergeBlocked(${reason.name})';
+}
+
 enum BillField { guests, customerName, note, voidReason }
 
 /// Isian bill tidak sah: tamu 1..99, nama pemesan ≤ 40, catatan ≤ 120,
@@ -1289,6 +1314,131 @@ Future<OpenBill> moveBillToTable(
     return sale.copyWith(diningTableId: tableId);
   },
 );
+
+/// *Gabung meja* (F1-10d): item, tiket dapur, dan tamu bill [sourceBillId]
+/// pindah ke bill [targetBillId]; total dihitung ulang (diskon nota tujuan
+/// tetap) dan bill sumber dihapus sehingga mejanya kosong. Kedua meja harus
+/// *Boleh digabung*; ditolak dengan [BillMergeBlocked].
+Future<OpenBill> mergeOpenBills(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue targetBillId,
+  required UuidValue sourceBillId,
+}) async {
+  if (targetBillId == sourceBillId) {
+    throw const BillMergeBlocked(BillMergeReason.notAllowed);
+  }
+  await store.write(actor: staffId, (w) async {
+    final target = await _openSale(
+      w.session,
+      scope,
+      targetBillId,
+      transaction: w.transaction,
+    );
+    final source = await _openSale(
+      w.session,
+      scope,
+      sourceBillId,
+      transaction: w.transaction,
+    );
+    for (final sale in [target, source]) {
+      final tableId = sale.diningTableId;
+      if (sale.orderType != OrderType.dineIn || tableId == null) {
+        throw const BillMergeBlocked(BillMergeReason.notAllowed);
+      }
+      if (!(await _table(w, scope, tableId)).canMerge) {
+        throw const BillMergeBlocked(BillMergeReason.notAllowed);
+      }
+    }
+    for (final sale in [target, source]) {
+      if (sale.splitMode != null) {
+        throw const BillMergeBlocked(BillMergeReason.split);
+      }
+      final payments = await _billPayments(w.session, scope.tenantId, [
+        sale.id,
+      ], transaction: w.transaction);
+      if (payments.isNotEmpty) {
+        throw const BillMergeBlocked(BillMergeReason.split);
+      }
+    }
+    if (billDiscountOf(source) != null) {
+      throw const BillMergeBlocked(BillMergeReason.discount);
+    }
+    final guests = (target.guestCount ?? 0) + (source.guestCount ?? 0);
+    if (guests > FnbLimits.guestsMax) {
+      throw const BillMergeBlocked(BillMergeReason.guests);
+    }
+
+    final s = await w.stamp();
+    final targetItems = await _items(w.session, scope.tenantId, [
+      target.id,
+    ], transaction: w.transaction);
+    var order = targetItems.fold(
+      0,
+      (max, i) => i.sortOrder > max ? i.sortOrder : max,
+    );
+    for (final item in await _items(w.session, scope.tenantId, [
+      source.id,
+    ], transaction: w.transaction)) {
+      await w.update(
+        item.copyWith(
+          saleId: target.id,
+          sortOrder: ++order,
+          version: item.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
+    final tickets = await KitchenTicket.db.find(
+      w.session,
+      where: (t) =>
+          t.saleId.equals(source.id) &
+          t.tenantId.equals(scope.tenantId) &
+          t.deletedAt.equals(null),
+      transaction: w.transaction,
+    );
+    for (final ticket in tickets) {
+      await w.update(
+        ticket.copyWith(
+          saleId: target.id,
+          version: ticket.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
+    await w.update(
+      source.copyWith(
+        deletedAt: s.now,
+        version: source.version + 1,
+        updatedAt: s.now,
+        updatedBy: staffId,
+        hlc: s.hlc.toString(),
+        originDeviceId: s.deviceId,
+      ),
+      s,
+    );
+    await _refreshTotals(
+      w,
+      scope,
+      target.copyWith(
+        guestCount: guests,
+        customerName: target.customerName ?? source.customerName,
+      ),
+      s,
+      staffId,
+    );
+  });
+  return loadOpenBill(store, scope, targetBillId);
+}
 
 /// *Batalkan bill* dengan [reason] (wajib, ≤ 120). Stok tidak bergerak.
 /// Izin `sales:void` staf [staffId] diperiksa pemanggil. [approverId] =

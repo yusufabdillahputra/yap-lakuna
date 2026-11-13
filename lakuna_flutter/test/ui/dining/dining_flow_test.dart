@@ -42,12 +42,13 @@ void main() {
     Size size = const Size(1280, 800),
     String role = 'owner',
     bool modifiers = false,
+    List<String> mergeable = const [],
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
           ? null
           : permissionsForRole(role, isOwner: false),
-    );
+    )..allowMerge(mergeable);
     if (modifiers) {
       dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
     }
@@ -179,6 +180,61 @@ void main() {
     expect(dining.voided.values, ['Tamu batal pesan']);
     expect(_key('dining-select-hint'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  for (final (size, platform) in const [
+    (Size(1280, 800), TargetPlatform.linux),
+    (Size(360, 740), TargetPlatform.android),
+  ]) {
+    testWidgets('gabung meja ${size.width.toInt()} px (F1-10d)', (
+      tester,
+    ) async {
+      await pump(tester, size: size, mergeable: ['M1', 'M2']);
+      Future<void> backToTables() async {
+        if (size.width >= 600) return;
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+      }
+
+      await _tap(tester, 'dining-table-M2');
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Kopi Susu Aren']);
+      await backToTables();
+      await _tap(tester, 'dining-table-M3');
+      await _tap(tester, 'dining-guests-open');
+      // M3 tidak *Boleh digabung*: aksi tidak ada.
+      expect(_key('dining-merge'), findsNothing);
+      await backToTables();
+      await _tap(tester, 'dining-table-M1');
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Es Teh Manis']);
+
+      await _tap(tester, 'dining-merge');
+      expect(_key('dining-merge-dialog'), findsOneWidget);
+      expect(_key('dining-merge-from-M3'), findsNothing);
+      await _tap(tester, 'dining-merge-from-M2');
+      expect(dining.merges, hasLength(1));
+      expect(_key('dining-merge-dialog'), findsNothing);
+      if (size.width >= 600) {
+        expect(find.text('Meja M1 · Open bill'), findsOneWidget);
+      }
+      expect(find.text('Kopi Susu Aren'), findsWidgets);
+      expect(find.text('Es Teh Manis'), findsWidgets);
+
+      // Tidak ada lagi meja yang bisa digabung.
+      await _tap(tester, 'dining-merge');
+      expect(
+        find.textContaining('Belum ada meja lain yang bisa digabung'),
+        findsOneWidget,
+      );
+      await _tapText(tester, 'Batal');
+      await backToTables();
+      expect(
+        find.text('Pelayan: Dimas · 2 dari 6 meja terisi'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(platform));
+  }
 
   testWidgets('pelayan: batalkan bill lewat persetujuan manajer, bayar mati', (
     tester,

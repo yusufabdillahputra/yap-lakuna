@@ -118,6 +118,12 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
       NotPermitted(permission: Permission.salesDiscount) =>
         l10n.saleErrorDiscountNotPermitted,
       TableOccupied() => l10n.diningErrorOccupied,
+      BillMergeBlocked(:final reason) => switch (reason) {
+        BillMergeReason.split => l10n.diningErrorMergeSplit,
+        BillMergeReason.discount => l10n.diningErrorMergeDiscount,
+        BillMergeReason.guests => l10n.diningErrorMergeGuests,
+        BillMergeReason.notAllowed => l10n.diningErrorMergeNotAllowed,
+      },
       NothingToSend() => l10n.diningErrorNothingToSend,
       BillNotFound() => l10n.diningErrorNotFound,
       BillNotEmpty() => l10n.diningErrorNotEmpty,
@@ -1340,6 +1346,15 @@ class _BillPanel extends StatelessWidget {
                 TablerIcons.arrowsExchange,
                 busy ? null : () => _moveBill(context, vm, bill),
               ),
+            if (vm.canMergeInto(bill))
+              textAction(
+                'dining-merge',
+                l10n.diningMerge,
+                TablerIcons.arrowMerge,
+                busy || !vm.canMergeNow(bill)
+                    ? null
+                    : () => _mergeBill(context, vm, bill),
+              ),
             if (vm.canOfferDiscount && !locked)
               textAction(
                 'dining-discount',
@@ -1907,6 +1922,64 @@ Future<void> _moveBill(
     );
   });
   if (target != null) await vm.move.execute(target.id);
+}
+
+/// *Gabung meja* (F1-10d): pilih bill meja lain yang *Boleh digabung*;
+/// isinya pindah ke [bill].
+Future<void> _mergeBill(
+  BuildContext context,
+  DiningViewModel vm,
+  OpenBill bill,
+) async {
+  final sources = vm.mergeSources(bill);
+  final source = await _showDialog<OpenBill>(context, (context) {
+    final l10n = AppLocalizations.of(context);
+    return _dialogFrame(
+      context,
+      key: const ValueKey('dining-merge-dialog'),
+      title: l10n.diningMergeTitle(bill.label),
+      body: sources.isEmpty ? null : l10n.diningMergeHint,
+      children: [
+        if (sources.isEmpty)
+          Text(l10n.diningMergeNone, style: _muted(context))
+        else
+          Flexible(
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final b in sources)
+                    FButton(
+                      key: ValueKey('dining-merge-from-${b.label}'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: () => Navigator.of(context).pop(b),
+                      child: Flexible(
+                        child: Text(
+                          l10n.diningMergeOption(
+                            b.label,
+                            formatMoney(context, b.charges.total),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+      ],
+      actions: [
+        FButton(
+          variant: .ghost,
+          mainAxisSize: .min,
+          onPress: () => Navigator.of(context).pop(),
+          child: Flexible(child: Text(l10n.diningCancel)),
+        ),
+      ],
+    );
+  });
+  if (source != null) await vm.merge.execute(source.id);
 }
 
 /// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;

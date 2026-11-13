@@ -241,11 +241,19 @@ Future<void> deleteDiningArea(
 
 /// Isian meja.
 class DiningTableDraft {
-  const DiningTableDraft({required this.name, this.areaId, this.seats = 4});
+  const DiningTableDraft({
+    required this.name,
+    this.areaId,
+    this.seats = 4,
+    this.canMerge,
+  });
 
   final String name;
   final UuidValue? areaId;
   final int seats;
+
+  /// *Boleh digabung* (F1-10d); `null` = tetap (ubah) / tidak (baru).
+  final bool? canMerge;
 }
 
 Future<void> _checkArea(SyncTx w, CatalogScope scope, UuidValue? areaId) async {
@@ -291,6 +299,7 @@ Future<List<DiningTable>> createDiningTables(
           diningAreaId: d.areaId,
           name: d.name.trim(),
           seats: d.seats,
+          canMerge: d.canMerge ?? false,
           sortOrder: ++order,
           createdAt: s.now,
           updatedAt: s.now,
@@ -331,6 +340,7 @@ Future<DiningTable> updateDiningTable(
       name: draft.name.trim(),
       diningAreaId: draft.areaId,
       seats: draft.seats,
+      canMerge: draft.canMerge ?? current.canMerge,
       // Pindah area melepas posisi denah (meja jadi *Belum ditempatkan*).
       posX: draft.areaId == current.diningAreaId ? current.posX : null,
       posY: draft.areaId == current.diningAreaId ? current.posY : null,

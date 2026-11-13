@@ -135,8 +135,13 @@ void main() {
 
     await _tap(tester, 'dining-setup-table-edit-M2');
     await _type(tester, 'dining-setup-table-seats', '2');
+    // *Boleh digabung* (F1-10d) juga bisa diatur tanpa denah.
+    expect(repo.tables[1].canMerge, isFalse);
+    await _tap(tester, 'dining-setup-table-merge');
     await _tap(tester, 'dining-setup-table-save');
     expect(repo.tables[1].seats, 2);
+    expect(repo.tables[1].canMerge, isTrue);
+    expect(find.text('Indoor · 2 kursi · Boleh digabung'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

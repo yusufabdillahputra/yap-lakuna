@@ -7365,4 +7365,46 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get receiptLogoTooLarge =>
       'Logo lebih dari 1 MB. Pilih berkas yang lebih kecil.';
+
+  @override
+  String get diningMerge => 'Gabung meja';
+
+  @override
+  String diningMergeTitle(String label) {
+    return 'Gabungkan ke $label';
+  }
+
+  @override
+  String get diningMergeHint =>
+      'Item, tiket dapur, dan tamu meja yang dipilih pindah ke bill ini. Meja itu menjadi kosong.';
+
+  @override
+  String get diningMergeNone =>
+      'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).';
+
+  @override
+  String diningMergeOption(String label, String total) {
+    return '$label · $total';
+  }
+
+  @override
+  String get diningErrorMergeSplit =>
+      'Bill sedang di-split atau sudah ada pembayaran bagian. Batalkan split dulu.';
+
+  @override
+  String get diningErrorMergeDiscount =>
+      'Bill meja yang digabung punya diskon nota. Hapus diskonnya dulu.';
+
+  @override
+  String get diningErrorMergeGuests => 'Jumlah tamu gabungan lebih dari 99.';
+
+  @override
+  String get diningErrorMergeNotAllowed => 'Meja ini tidak bisa digabung.';
+
+  @override
+  String get diningSetupCanMergeHint =>
+      'Bill meja ini bisa digabung dengan meja lain lewat Gabung meja.';
+
+  @override
+  String get diningSetupCanMerge => 'Boleh digabung';
 }

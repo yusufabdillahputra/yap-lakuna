@@ -4676,5 +4676,33 @@
   "receiptLogoMissing": "Berkas logo belum ada di perangkat ini.",
   "receiptShowLogo": "Tampilkan logo di struk",
   "receiptLogoUnsupported": "Logo harus PNG atau JPG.",
-  "receiptLogoTooLarge": "Logo lebih dari 1 MB. Pilih berkas yang lebih kecil."
+  "receiptLogoTooLarge": "Logo lebih dari 1 MB. Pilih berkas yang lebih kecil.",
+  "diningMerge": "Gabung meja",
+  "diningMergeTitle": "Gabungkan ke {label}",
+  "@diningMergeTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningMergeHint": "Item, tiket dapur, dan tamu meja yang dipilih pindah ke bill ini. Meja itu menjadi kosong.",
+  "diningMergeNone": "Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).",
+  "diningMergeOption": "{label} · {total}",
+  "@diningMergeOption": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "diningErrorMergeSplit": "Bill sedang di-split atau sudah ada pembayaran bagian. Batalkan split dulu.",
+  "diningErrorMergeDiscount": "Bill meja yang digabung punya diskon nota. Hapus diskonnya dulu.",
+  "diningErrorMergeGuests": "Jumlah tamu gabungan lebih dari 99.",
+  "diningErrorMergeNotAllowed": "Meja ini tidak bisa digabung.",
+  "diningSetupCanMergeHint": "Bill meja ini bisa digabung dengan meja lain lewat Gabung meja.",
+  "diningSetupCanMerge": "Boleh digabung"
 }
