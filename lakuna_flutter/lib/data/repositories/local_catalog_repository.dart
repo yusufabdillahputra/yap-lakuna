@@ -33,6 +33,7 @@ class LocalCatalogRepository extends CatalogRepository {
       customerGroups: [
         for (final r in await listCustomerGroups(_store, scope)) r.group,
       ],
+      archivedCount: await countArchivedProducts(_store, scope),
     );
   });
 
@@ -52,6 +53,22 @@ class LocalCatalogRepository extends CatalogRepository {
   ) => _guard(
     (scope, staffId) =>
         importProducts(_store, scope, staffId: staffId, rows: rows),
+  );
+
+  @override
+  Future<Result<void>> archive(UuidValue id) => _guard(
+    (scope, staffId) =>
+        archiveProduct(_store, scope, staffId: staffId, productId: id),
+  );
+
+  @override
+  Future<Result<List<CatalogProduct>>> archived() =>
+      _guard((scope, _) => listArchivedProducts(_store, scope));
+
+  @override
+  Future<Result<void>> restore(UuidValue id) => _guard(
+    (scope, staffId) =>
+        restoreProduct(_store, scope, staffId: staffId, productId: id),
   );
 
   Future<Result<T>> _guard<T>(

@@ -40,6 +40,9 @@ class ProductListViewModel extends ChangeNotifier {
   /// Produk aktif (*Dijual di kasir*).
   int get activeCount => _all.where((p) => p.isActive).length;
 
+  /// Jumlah produk diarsipkan (tombol *Diarsipkan*, F1-07d).
+  int get archivedCount => _catalog?.archivedCount ?? 0;
+
   /// Produk dengan varian di bawah stok minimum.
   int get lowStockCount => _all.where((p) => p.isLowStock).length;
 

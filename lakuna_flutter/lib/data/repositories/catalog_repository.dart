@@ -14,6 +14,7 @@ class ProductCatalog {
     required this.units,
     this.modifierGroups = const [],
     this.customerGroups = const [],
+    this.archivedCount = 0,
   });
 
   final List<CatalogProduct> products;
@@ -26,6 +27,9 @@ class ProductCatalog {
   /// Grup pelanggan (urut nama) untuk kolom *Berlaku untuk* tab *Harga
   /// grosir* (F1-07c).
   final List<CustomerGroup> customerGroups;
+
+  /// Jumlah produk diarsipkan (tombol *Diarsipkan* 1.15, F1-07d).
+  final int archivedCount;
 }
 
 /// Katalog produk (F1-07). Semua aksi butuh `products:manage`; izin dicek
@@ -45,4 +49,15 @@ abstract class CatalogRepository {
   /// Import produk baru dari berkas (F1-07b). Produk yang sudah ada
   /// dilewati. Gagal dengan `NotPermitted` atau `ProductInputInvalid`.
   Future<Result<ProductImportSummary>> importRows(List<ProductImportRow> rows);
+
+  /// Mengarsipkan produk [id] (F1-07d). Gagal dengan `NotPermitted` atau
+  /// `ProductNotFound`.
+  Future<Result<void>> archive(UuidValue id);
+
+  /// Produk diarsipkan, urut nama.
+  Future<Result<List<CatalogProduct>>> archived();
+
+  /// Memulihkan produk diarsipkan [id]. Gagal dengan `NotPermitted`,
+  /// `ProductNotFound`, atau `ProductCodesTaken`.
+  Future<Result<void>> restore(UuidValue id);
 }

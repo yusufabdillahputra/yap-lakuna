@@ -122,6 +122,7 @@ class CatalogProduct {
     this.sku,
     this.brand,
     this.modifierGroupIds = const [],
+    this.archivedAt,
   });
 
   final UuidValue id;
@@ -139,6 +140,9 @@ class CatalogProduct {
 
   /// Grup modifier terpasang, urut tampil di 1.8 (F1-10b).
   final List<UuidValue> modifierGroupIds;
+
+  /// Waktu diarsipkan (F1-07d); `null` = produk aktif di katalog.
+  final DateTime? archivedAt;
 
   bool get tracksStock => kind.tracksStock;
 
@@ -261,6 +265,7 @@ Future<List<CatalogProduct>> _loadProducts(
   LakunaStore store,
   CatalogScope scope, {
   UuidValue? productId,
+  bool archived = false,
 }) async {
   final session = store.session;
   final tenant = scope.tenantId;
@@ -268,7 +273,7 @@ Future<List<CatalogProduct>> _loadProducts(
     session,
     where: (p) =>
         p.tenantId.equals(tenant) &
-        p.deletedAt.equals(null) &
+        (archived ? p.deletedAt.notEquals(null) : p.deletedAt.equals(null)) &
         (productId == null ? p.id.notEquals(null) : p.id.equals(productId)),
   );
   if (products.isEmpty) return const [];
@@ -352,6 +357,7 @@ Future<List<CatalogProduct>> _loadProducts(
         brand: p.brand,
         isActive: p.isActive,
         isTaxable: p.isTaxable,
+        archivedAt: p.deletedAt,
         modifierGroupIds: [
           for (final l in modifierLinks)
             if (l.productId == p.id) l.modifierGroupId,
@@ -419,6 +425,109 @@ Future<UuidValue> saveProduct(
     (w) => _ProductWriter(w, scope, staffId).save(draft),
   );
 }
+
+// --- Arsip (F1-07d) ----------------------------------------------------------
+
+/// Produk diarsipkan tenant ini (hapus lunak), urut nama, dengan stok
+/// terakhir di lokasi bawaan cabang.
+Future<List<CatalogProduct>> listArchivedProducts(
+  LakunaStore store,
+  CatalogScope scope,
+) => _loadProducts(store, scope, archived: true);
+
+/// Jumlah produk diarsipkan (tombol *Diarsipkan (n)* di 1.15).
+Future<int> countArchivedProducts(LakunaStore store, CatalogScope scope) =>
+    Product.db.count(
+      store.session,
+      where: (p) =>
+          p.tenantId.equals(scope.tenantId) & p.deletedAt.notEquals(null),
+    );
+
+/// Mengarsipkan produk [productId]: `deleted_at` diisi, varian dan riwayat
+/// tidak diubah. [ProductNotFound] bila tidak ada di katalog tenant ini.
+/// Izin `products:manage` dicek di repositori.
+Future<void> archiveProduct(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue productId,
+}) => store.write(actor: staffId, (w) async {
+  final p = await Product.db.findFirstRow(
+    w.session,
+    where: (p) =>
+        p.id.equals(productId) &
+        p.tenantId.equals(scope.tenantId) &
+        p.deletedAt.equals(null),
+    transaction: w.transaction,
+  );
+  if (p == null) throw ProductNotFound();
+  final s = await w.stamp();
+  await w.update(_stampProduct(p.copyWith(deletedAt: s.now), staffId, s), s);
+});
+
+/// Memulihkan produk diarsipkan [productId]. SKU dan barcode diperiksa lagi
+/// terhadap produk aktif ([ProductCodesTaken]); [ProductNotFound] bila
+/// produk tidak sedang diarsipkan di tenant ini.
+Future<void> restoreProduct(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue productId,
+}) async {
+  final archived = (await _loadProducts(
+    store,
+    scope,
+    productId: productId,
+    archived: true,
+  )).firstOrNull;
+  if (archived == null) throw ProductNotFound();
+  await store.write(actor: staffId, (w) async {
+    final p = await Product.db.findFirstRow(
+      w.session,
+      where: (p) =>
+          p.id.equals(productId) &
+          p.tenantId.equals(scope.tenantId) &
+          p.deletedAt.notEquals(null),
+      transaction: w.transaction,
+    );
+    if (p == null) throw ProductNotFound();
+    await _ProductWriter(
+      w,
+      scope,
+      staffId,
+    )._checkCodes(archived.toDraft(), productId);
+    // Kategori yang terhapus selama produk diarsipkan dilepas, sehingga
+    // produk kembali tanpa kategori (satuan dijaga oleh `deleteUnit`).
+    final category = p.categoryId == null
+        ? null
+        : await ProductCategory.db.findById(
+            w.session,
+            p.categoryId!,
+            transaction: w.transaction,
+          );
+    final keepCategory = category != null && category.deletedAt == null;
+    final s = await w.stamp();
+    await w.update(
+      _stampProduct(
+        p.copyWith(
+          deletedAt: null,
+          categoryId: keepCategory ? p.categoryId : null,
+        ),
+        staffId,
+        s,
+      ),
+      s,
+    );
+  });
+}
+
+Product _stampProduct(Product p, UuidValue staffId, SyncStamp s) => p.copyWith(
+  version: p.version + 1,
+  updatedAt: s.now,
+  updatedBy: staffId,
+  hlc: s.hlc.toString(),
+  originDeviceId: s.deviceId,
+);
 
 // --- Import (F1-07b) --------------------------------------------------------
 

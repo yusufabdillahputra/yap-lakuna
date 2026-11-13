@@ -7099,4 +7099,60 @@ class AppLocalizationsId extends AppLocalizations {
   String cashierGroupTierNote(String qty) {
     return 'harga grup ≥ $qty';
   }
+
+  @override
+  String get productArchive => 'Arsipkan produk';
+
+  @override
+  String get productArchiveHint =>
+      'Produk yang tidak dijual lagi. Riwayat penjualan dan pembelian tetap tersimpan, dan produk bisa dipulihkan.';
+
+  @override
+  String productArchiveTitle(String name) {
+    return 'Arsipkan $name?';
+  }
+
+  @override
+  String get productArchiveBody =>
+      'Produk hilang dari Kasir, daftar produk, stok, dan pembelian. Riwayat penjualan dan pembelian tetap tersimpan. Produk bisa dipulihkan lewat tombol Diarsipkan di daftar produk.';
+
+  @override
+  String productArchiveStockWarning(String stock, String unit) {
+    return 'Stok tersisa $stock $unit tidak dihitung lagi di stok dan nilai stok.';
+  }
+
+  @override
+  String get productArchiveConfirm => 'Arsipkan';
+
+  @override
+  String productsArchived(int count) {
+    return 'Diarsipkan ($count)';
+  }
+
+  @override
+  String get productsArchivedTitle => 'Produk diarsipkan';
+
+  @override
+  String get productsArchivedEmpty => 'Belum ada produk yang diarsipkan.';
+
+  @override
+  String productsArchivedStock(String stock, String unit) {
+    return 'Stok $stock $unit';
+  }
+
+  @override
+  String get productsRestore => 'Pulihkan';
+
+  @override
+  String productsRestored(String name) {
+    return '$name dipulihkan ke daftar produk.';
+  }
+
+  @override
+  String productsRestoreTaken(String name) {
+    return 'Barcode atau SKU produk ini sudah dipakai $name. Ubah kodenya di $name dulu, lalu pulihkan lagi.';
+  }
+
+  @override
+  String get productsArchivedClose => 'Tutup';
 }

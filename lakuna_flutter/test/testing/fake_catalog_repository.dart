@@ -55,8 +55,63 @@ class FakeCatalogRepository extends CatalogRepository {
         units: List.of(units),
         modifierGroups: List.of(modifierGroups),
         customerGroups: List.of(customerGroups),
+        archivedCount: archivedProducts.length,
       ),
     );
+  }
+
+  /// Produk diarsipkan (F1-07d).
+  final archivedProducts = <CatalogProduct>[];
+  final archiveCalls = <UuidValue>[];
+
+  static CatalogProduct _withArchivedAt(CatalogProduct p, DateTime? at) =>
+      CatalogProduct(
+        id: p.id,
+        name: p.name,
+        kind: p.kind,
+        baseUnitId: p.baseUnitId,
+        baseUnit: p.baseUnit,
+        isActive: p.isActive,
+        isTaxable: p.isTaxable,
+        variants: p.variants,
+        categoryId: p.categoryId,
+        categoryName: p.categoryName,
+        sku: p.sku,
+        brand: p.brand,
+        modifierGroupIds: p.modifierGroupIds,
+        archivedAt: at,
+      );
+
+  @override
+  Future<Result<void>> archive(UuidValue id) async {
+    if (_check() case final e?) return Result.error(e);
+    final i = products.indexWhere((p) => p.id == id);
+    if (i < 0) return Result.error(ProductNotFound());
+    archiveCalls.add(id);
+    archivedProducts.add(
+      _withArchivedAt(products.removeAt(i), DateTime.utc(2026, 11, 13, 9)),
+    );
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<List<CatalogProduct>>> archived() async {
+    if (_check() case final e?) return Result.error(e);
+    return Result.ok(
+      [...archivedProducts]
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
+    );
+  }
+
+  @override
+  Future<Result<void>> restore(UuidValue id) async {
+    if (_check() case final e?) return Result.error(e);
+    final i = archivedProducts.indexWhere((p) => p.id == id);
+    if (i < 0) return Result.error(ProductNotFound());
+    final conflicts = _conflicts(archivedProducts[i].toDraft(), id);
+    if (conflicts.isNotEmpty) return Result.error(ProductCodesTaken(conflicts));
+    products.add(_withArchivedAt(archivedProducts.removeAt(i), null));
+    return const Result.ok(null);
   }
 
   @override

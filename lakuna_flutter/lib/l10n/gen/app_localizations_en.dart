@@ -7247,4 +7247,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String cashierGroupTierNote(String qty) {
     return 'group price ≥ $qty';
   }
+
+  @override
+  String get productArchive => 'Archive product';
+
+  @override
+  String get productArchiveHint =>
+      'For products you no longer sell. Sales and purchase history stay, and the product can be restored.';
+
+  @override
+  String productArchiveTitle(String name) {
+    return 'Archive $name?';
+  }
+
+  @override
+  String get productArchiveBody =>
+      'The product disappears from the cashier, product list, stock, and purchases. Sales and purchase history stay. You can restore it from the Archived button on the product list.';
+
+  @override
+  String productArchiveStockWarning(String stock, String unit) {
+    return 'The remaining stock of $stock $unit will no longer count in stock and stock value.';
+  }
+
+  @override
+  String get productArchiveConfirm => 'Archive';
+
+  @override
+  String productsArchived(int count) {
+    return 'Archived ($count)';
+  }
+
+  @override
+  String get productsArchivedTitle => 'Archived products';
+
+  @override
+  String get productsArchivedEmpty => 'No archived products yet.';
+
+  @override
+  String productsArchivedStock(String stock, String unit) {
+    return 'Stock $stock $unit';
+  }
+
+  @override
+  String get productsRestore => 'Restore';
+
+  @override
+  String productsRestored(String name) {
+    return '$name is back on the product list.';
+  }
+
+  @override
+  String productsRestoreTaken(String name) {
+    return 'This product\'s barcode or SKU is now used by $name. Change the code on $name first, then restore again.';
+  }
+
+  @override
+  String get productsArchivedClose => 'Close';
 }

@@ -3972,5 +3972,67 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productArchive": "Archive product",
+  "productArchiveHint": "For products you no longer sell. Sales and purchase history stay, and the product can be restored.",
+  "productArchiveTitle": "Archive {name}?",
+  "@productArchiveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productArchiveBody": "The product disappears from the cashier, product list, stock, and purchases. Sales and purchase history stay. You can restore it from the Archived button on the product list.",
+  "productArchiveStockWarning": "The remaining stock of {stock} {unit} will no longer count in stock and stock value.",
+  "@productArchiveStockWarning": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productArchiveConfirm": "Archive",
+  "productsArchived": "Archived ({count})",
+  "@productsArchived": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsArchivedTitle": "Archived products",
+  "productsArchivedEmpty": "No archived products yet.",
+  "productsArchivedStock": "Stock {stock} {unit}",
+  "@productsArchivedStock": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "productsRestore": "Restore",
+  "productsRestored": "{name} is back on the product list.",
+  "@productsRestored": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsRestoreTaken": "This product's barcode or SKU is now used by {name}. Change the code on {name} first, then restore again.",
+  "@productsRestoreTaken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productsArchivedClose": "Close"
 }
