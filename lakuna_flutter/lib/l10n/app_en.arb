@@ -4341,5 +4341,6 @@
       }
     }
   },
-  "importTemplateFailed": "The template couldn't be saved. Try again."
+  "importTemplateFailed": "The template couldn't be saved. Try again.",
+  "importReasonSample": "sample row from the template, replace or delete it"
 }

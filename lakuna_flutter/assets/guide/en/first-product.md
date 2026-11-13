@@ -17,6 +17,10 @@ Products must exist before they can be sold at the cashier. One product can have
 - **Units & conversion** tab: add a unit such as *box* holding 12 pcs. Selling 1 box takes 12 pcs out of stock. An empty price means base price × contents.
 - **Wholesale prices** tab: set a unit price from a given quantity. The cashier applies it automatically.
 
+## Many products at once
+
+In **Products**, tap **Import Excel**. Tap **Download template** for an Excel file with the headers (Name, Category, Type, Unit, SKU, Barcode, Cost price, Sell price, Opening stock, Minimum stock) and two sample rows. Replace the sample rows with your products (leftover sample rows are skipped automatically), then tap **Choose file**. The preview shows the rows that are ready and the rows that are skipped, with the reason.
+
 > [!note] Categories and units can also be managed in **Master data**. The category order there becomes the tab order at the cashier.
 
 Once the product is saved, continue with [Sales & wholesale prices](sale).

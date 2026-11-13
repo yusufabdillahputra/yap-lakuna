@@ -8,7 +8,7 @@ Menu **Supplier** menyimpan data pemasok dan hutang per pembelian, lalu mencatat
 2. Isi nama supplier, kontak, telepon, kategori barang, dan **Tempo standar (hari)**. Tempo ini mengisi jatuh tempo bawaan di [Pembelian](purchases).
 3. Tekan **Simpan**.
 
-Banyak supplier sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .csv dengan kolom **Nama** (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English.
+Banyak supplier sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .csv dengan kolom **Nama** (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English. **Unduh templat** di dialog yang sama memberi berkas Excel berisi judul kolom dan dua baris contoh; baris contoh otomatis dilewati saat import.
 
 - Pratinjau menampilkan jumlah baris yang siap diimport dan baris yang dilewati beserta alasannya (nama kosong, telepon tidak sah, tempo di luar 0–365 hari, teks terlalu panjang, nama dobel di berkas).
 - Nama yang sudah terdaftar (tanpa beda huruf besar/kecil) **memperbarui** supplier itu: hanya kolom yang terisi yang diganti, kolom kosong mempertahankan data lama.

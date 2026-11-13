@@ -48,6 +48,7 @@ String productImportReasonLabel(
   ProductImportRejectReason.stock => l10n.productImportReasonStock,
   ProductImportRejectReason.kind => l10n.productImportReasonKind,
   ProductImportRejectReason.text => l10n.importReasonText,
+  ProductImportRejectReason.sample => l10n.importReasonSample,
   ProductImportRejectReason.duplicateCode => l10n.productImportReasonCode,
   ProductImportRejectReason.duplicateName => l10n.productImportReasonName,
 };

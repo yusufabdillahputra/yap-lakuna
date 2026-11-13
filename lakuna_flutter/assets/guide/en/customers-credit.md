@@ -8,7 +8,7 @@ The **Customers** menu keeps customer details, credit limits, and receivables pe
 2. Enter the name, phone number, group, **Credit limit** (0 means no credit purchases), address, and note.
 3. Tap **Save**.
 
-Many customers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns Name, Phone, Address, Group, Limit, Note.
+Many customers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns Name, Phone, Address, Group, Limit, Note. No file yet? Tap **Download template** in the same dialog, fill in the rows under the headers, then import. The two sample rows ("Contoh …") are skipped automatically.
 
 ## Customer groups
 

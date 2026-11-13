@@ -1,5 +1,5 @@
 import 'catalog.dart';
-import 'customer_import.dart' show parseImportMoney;
+import 'customer_import.dart' show isImportTemplateSample, parseImportMoney;
 import 'money.dart';
 import 'qty.dart';
 import 'setup.dart' show normalizeCode;
@@ -17,6 +17,9 @@ enum ProductImportRejectReason {
 
   /// Teks terlalu panjang atau isian lain yang ditolak validasi produk.
   text,
+
+  /// Baris contoh dari templat (F1-07g) yang belum diganti.
+  sample,
 
   /// SKU atau barcode sudah dipakai baris sebelumnya di berkas.
   duplicateCode,
@@ -164,6 +167,10 @@ ProductImportResult productImportRows(List<List<String>> table) {
     final name = cell('name');
     if (name == null) {
       reject(ProductImportRejectReason.name);
+      continue;
+    }
+    if (isImportTemplateSample(name, productImportTemplate)) {
+      reject(ProductImportRejectReason.sample);
       continue;
     }
     final priceRaw = cell('price');

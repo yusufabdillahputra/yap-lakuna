@@ -73,4 +73,4 @@ berkas yang sama tanpa membuat supplier ganda.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Import supplier CSV/XLSX | — | Selesai v0.45.0 | |
-| Templat berkas untuk diunduh | — | Belum | Judul kolom dijelaskan di dialog, sama dengan import pelanggan. |
+| Templat berkas untuk diunduh | — | Selesai v0.47.0 | Tombol *Unduh templat* ([F1-07g](2026-11-14-f1-07g-templat-import-design.md)), juga di import pelanggan. |

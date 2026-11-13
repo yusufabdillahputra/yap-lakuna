@@ -58,7 +58,26 @@ List<List<String>> parseCsv(String text) {
 }
 
 /// Alasan baris import dilewati.
-enum ImportRejectReason { name, phone, creditLimit, text, duplicatePhone }
+enum ImportRejectReason {
+  name,
+  phone,
+  creditLimit,
+  text,
+  duplicatePhone,
+
+  /// Baris contoh dari templat (F1-07g) yang belum diganti.
+  sample,
+}
+
+/// `true` bila [name] sama dengan nama baris contoh di [template]
+/// (tanpa beda huruf besar/kecil dan spasi tepi), F1-07g. Baris contoh
+/// dilewati saat import agar data fiktif tidak ikut tersimpan.
+bool isImportTemplateSample(String name, List<List<String>> template) {
+  final key = name.trim().toLowerCase();
+  return template
+      .skip(1)
+      .any((row) => row.isNotEmpty && row.first.toLowerCase() == key);
+}
 
 /// Baris pelanggan sah dari berkas. Kolom kosong = `null` (data lama
 /// dipertahankan saat memperbarui pelanggan dengan HP yang sama).
@@ -189,6 +208,10 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
     }
 
     final name = cell('name') ?? '';
+    if (isImportTemplateSample(name, customerImportTemplate)) {
+      rejected.add(ImportRejected(line, ImportRejectReason.sample));
+      continue;
+    }
     final phoneRaw = cell('phone');
     final phone = phoneRaw == null ? null : normalizePhone(phoneRaw);
     final limitRaw = cell('limit');

@@ -44,4 +44,33 @@ void main() {
     expect(sheet, isNot(contains('r="B3"')));
     expect(sheet, contains('<col min="1" max="1" width="24"'));
   });
+
+  test('kolom teks (format @) agar nol di depan tidak hilang (F1-07g)', () {
+    final bytes = buildXlsx(
+      'Templat',
+      [
+        ['Nama', 'HP', 'Limit'],
+        ['Ani', '0215550101', 2000000],
+      ],
+      widths: [10, 14],
+      textColumns: {1, 3},
+    );
+    final zip = ZipDecoder().decodeBytes(bytes);
+    String part(String name) =>
+        utf8.decode(zip.findFile(name)!.content as List<int>);
+    final sheet = part('xl/worksheets/sheet1.xml');
+    expect(
+      sheet,
+      contains('<col min="1" max="1" width="10" customWidth="1"/>'),
+    );
+    expect(
+      sheet,
+      contains('<col min="2" max="2" width="14" customWidth="1" style="3"/>'),
+    );
+    // Kolom teks di luar [widths] tetap diberi gaya.
+    expect(sheet, contains('<col min="4" max="4" style="3"/>'));
+    expect(sheet, contains('<c r="B2" t="inlineStr" s="3">'));
+    expect(sheet, contains('<c r="C2"><v>2000000</v></c>'));
+    expect(part('xl/styles.xml'), contains('numFmtId="49"'));
+  });
 }

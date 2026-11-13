@@ -49,6 +49,7 @@ String supplierImportReasonLabel(
   SupplierImportRejectReason.text => l10n.importReasonText,
   SupplierImportRejectReason.duplicateName =>
     l10n.supplierImportReasonDuplicate,
+  SupplierImportRejectReason.sample => l10n.importReasonSample,
 };
 
 class SupplierImportDialog extends StatefulWidget {

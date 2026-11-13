@@ -22,7 +22,9 @@ class XlsxNumber {
 /// Membuat berkas `.xlsx` satu lembar bernama [sheetName] dari [rows]
 /// (F1-11). Baris pertama dianggap judul kolom: tebal dan dibekukan.
 /// Sel: `String`, `int`, [XlsxNumber], atau `null` (kosong). [widths]
-/// = lebar kolom dalam karakter.
+/// = lebar kolom dalam karakter. [textColumns] = indeks kolom berformat
+/// teks (`@`) agar isian baru seperti no. HP atau barcode tidak kehilangan
+/// nol di depan saat diketik di Excel (F1-07g).
 ///
 /// Ditulis sendiri di atas `archive` (Office Open XML minimal) karena paket
 /// `excel` tidak cocok dengan `xml` 7 yang dipakai `pdf`.
@@ -30,6 +32,7 @@ Uint8List buildXlsx(
   String sheetName,
   List<List<Object?>> rows, {
   List<int> widths = const [],
+  Set<int> textColumns = const {},
 }) {
   final sheet = StringBuffer()
     ..write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
@@ -39,13 +42,19 @@ Uint8List buildXlsx(
       '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" '
       'state="frozen"/></sheetView></sheetViews>',
     );
-  if (widths.isNotEmpty) {
+  final colCount = [
+    widths.length,
+    for (final c in textColumns) c + 1,
+  ].fold(0, (a, b) => a > b ? a : b);
+  if (colCount > 0) {
     sheet.write('<cols>');
-    for (var i = 0; i < widths.length; i++) {
-      sheet.write(
-        '<col min="${i + 1}" max="${i + 1}" width="${widths[i]}" '
-        'customWidth="1"/>',
-      );
+    for (var i = 0; i < colCount; i++) {
+      final width = i < widths.length
+          ? ' width="${widths[i]}" customWidth="1"'
+          : '';
+      final style = textColumns.contains(i) ? ' style="3"' : '';
+      if (width.isEmpty && style.isEmpty) continue;
+      sheet.write('<col min="${i + 1}" max="${i + 1}"$width$style/>');
     }
     sheet.write('</cols>');
   }
@@ -65,8 +74,13 @@ Uint8List buildXlsx(
             '<c r="$ref"${header ? ' s="1"' : ''}><v>$n</v></c>',
           );
         case final Object value:
+          final style = header
+              ? ' s="1"'
+              : textColumns.contains(c)
+              ? ' s="3"'
+              : '';
           sheet.write(
-            '<c r="$ref" t="inlineStr"${header ? ' s="1"' : ''}>'
+            '<c r="$ref" t="inlineStr"$style>'
             '<is><t xml:space="preserve">${_escape('$value')}</t></is></c>',
           );
       }
@@ -139,7 +153,7 @@ const _workbookRels =
     '<Relationship Id="rId2" Type="$_rel/styles" Target="styles.xml"/>'
     '</Relationships>';
 
-/// Gaya: 0 biasa, 1 tebal (judul), 2 angka `#,##0`.
+/// Gaya: 0 biasa, 1 tebal (judul), 2 angka `#,##0`, 3 teks (`@`).
 const _styles =
     '$_xmlHead<styleSheet xmlns="$_main">'
     '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font>'
@@ -148,10 +162,11 @@ const _styles =
     '<fill><patternFill patternType="gray125"/></fill></fills>'
     '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
     '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-    '<cellXfs count="3">'
+    '<cellXfs count="4">'
     '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
     '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
     '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+    '<xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
     '</cellXfs>'
     '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
     '</styleSheet>';

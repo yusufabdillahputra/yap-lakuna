@@ -7665,4 +7665,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get importTemplateFailed => 'Templat gagal disimpan. Coba lagi.';
+
+  @override
+  String get importReasonSample =>
+      'baris contoh dari templat, ganti atau hapus';
 }

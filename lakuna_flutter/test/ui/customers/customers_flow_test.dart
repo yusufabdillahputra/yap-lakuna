@@ -230,6 +230,27 @@ void main() {
     },
   );
 
+  testWidgets('unduh templat import pelanggan 360 px (F1-07g)', (
+    tester,
+  ) async {
+    final exporter = FakeSpreadsheetExporter()
+      ..path = '/home/kasir/Dokumen/Lakuna/templat-import-pelanggan.xlsx';
+    await pumpLakuna(
+      tester,
+      size: const Size(360, 740),
+      initialLocation: Routes.customers,
+      customers: FakeCustomersRepository(),
+      exporter: exporter,
+    );
+    await _tap(tester, _key('customers-import'));
+    await _tap(tester, _key('import-template-customers'));
+    expect(exporter.saved.single.$1, 'templat-import-pelanggan.xlsx');
+    expect(_key('import-template-saved-customers'), findsOneWidget);
+    // Tombol pilih berkas tetap terlihat di layar sempit.
+    expect(_key('customer-import-pick'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in const [Size(1280, 800), Size(360, 740)]) {
     testWidgets('batal pembayaran piutang ${size.width.toInt()} px (F1-13c)', (
       tester,

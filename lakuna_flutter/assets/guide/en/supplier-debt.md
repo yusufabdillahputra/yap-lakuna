@@ -8,7 +8,7 @@ The **Suppliers** menu keeps supplier details and the payable for each purchase,
 2. Enter the supplier name, contact, phone, goods category, and **Standard term (days)**. The term fills in the default due date in [Purchases](purchases).
 3. Tap **Save**.
 
-Many suppliers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns **Name** (required), Contact, Phone, Category, Term days, Address, Note. Headers can be in Indonesian or English.
+Many suppliers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns **Name** (required), Contact, Phone, Category, Term days, Address, Note. Headers can be in Indonesian or English. **Download template** in the same dialog gives an Excel file with the headers and two sample rows; sample rows are skipped on import.
 
 - The preview shows how many rows are ready and which rows are skipped, with the reason (empty name, invalid phone, term outside 0–365 days, text too long, name repeated in the file).
 - A name that is already registered (ignoring upper/lower case) **updates** that supplier: only filled cells replace data, empty cells keep the old data.

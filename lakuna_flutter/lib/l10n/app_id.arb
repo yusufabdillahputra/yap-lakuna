@@ -4875,5 +4875,6 @@
       }
     }
   },
-  "importTemplateFailed": "Templat gagal disimpan. Coba lagi."
+  "importTemplateFailed": "Templat gagal disimpan. Coba lagi.",
+  "importReasonSample": "baris contoh dari templat, ganti atau hapus"
 }

@@ -7833,4 +7833,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get importTemplateFailed =>
       'The template couldn\'t be saved. Try again.';
+
+  @override
+  String get importReasonSample =>
+      'sample row from the template, replace or delete it';
 }

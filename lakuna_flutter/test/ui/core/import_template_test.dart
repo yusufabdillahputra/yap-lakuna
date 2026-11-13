@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/table_file.dart';
@@ -22,7 +25,42 @@ void main() {
           supplierImportRows(table).rejected.length,
         ),
       };
-      expect((valid, rejected), (2, 0), reason: kind.name);
+      // Baris contoh dilewati saat import (F1-07g).
+      expect((valid, rejected), (0, 2), reason: kind.name);
     }
   });
+
+  test(
+    'HP/Telepon, SKU, Barcode berformat teks; angka contoh berupa angka',
+    () {
+      final xml = {
+        for (final kind in ImportTemplateKind.values)
+          kind: utf8.decode(
+            ZipDecoder()
+                    .decodeBytes(kind.bytes)
+                    .findFile('xl/worksheets/sheet1.xml')!
+                    .content
+                as List<int>,
+          ),
+      };
+      final customers = xml[ImportTemplateKind.customers]!;
+      expect(customers, matches(RegExp(r'<col min="2" max="2"[^>]*style="3"')));
+      expect(customers, contains('<c r="E2"><v>2000000</v></c>'));
+      final suppliers = xml[ImportTemplateKind.suppliers]!;
+      expect(suppliers, matches(RegExp(r'<col min="3" max="3"[^>]*style="3"')));
+      expect(suppliers, contains('<c r="C2" t="inlineStr" s="3">'));
+      final products = xml[ImportTemplateKind.products]!;
+      for (final c in [5, 6]) {
+        expect(
+          products,
+          matches(RegExp('<col min="$c" max="$c"[^>]*style="3"')),
+        );
+      }
+      expect(
+        products,
+        isNot(matches(RegExp(r'<col min="8" max="8"[^>]*style'))),
+      );
+      expect(products, contains('<c r="H2"><v>17500</v></c>'));
+    },
+  );
 }

@@ -47,6 +47,7 @@ String importRejectReasonLabel(
   ImportRejectReason.creditLimit => l10n.importReasonLimit,
   ImportRejectReason.text => l10n.importReasonText,
   ImportRejectReason.duplicatePhone => l10n.importReasonDuplicate,
+  ImportRejectReason.sample => l10n.importReasonSample,
 };
 
 class CustomerImportDialog extends StatefulWidget {

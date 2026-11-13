@@ -27,6 +27,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.44.0 | Batal pembayaran piutang & hutang (F1-13c) | #50 |
 | v0.45.0 | Import supplier dari Excel/CSV (F1-14b) | #51 |
 | v0.46.0 | Pulihkan backup dari onboarding (F1-19b) | #52 |
+| v0.47.0 | Templat import produk, pelanggan, supplier (F1-07g) | #53 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -54,7 +55,7 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 8. ~~Batal pembayaran piutang & hutang~~ — selesai v0.44.0 (F1-13c);
    ubah pembayaran tanpa batal tetap tidak didukung (batal lalu catat ulang).
 9. ~~Import supplier dari Excel/CSV~~ — selesai v0.45.0 (F1-14b);
-   templat berkas untuk diunduh masih gap (juga untuk import pelanggan).
+   templat berkas untuk diunduh selesai v0.47.0 (F1-07g).
 10. ~~Pulihkan dari onboarding~~ — selesai v0.46.0 (F1-19b); enkripsi
    backup masih gap.
 

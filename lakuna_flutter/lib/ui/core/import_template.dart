@@ -24,15 +24,41 @@ enum ImportTemplateKind {
   final String sheetName;
   final List<List<String>> rows;
 
-  /// Isi `.xlsx` templat: judul tebal & dibekukan, lebar kolom menurut isi.
-  Uint8List get bytes => buildXlsx(
-    sheetName,
-    rows,
-    widths: [
-      for (var c = 0; c < rows.first.length; c++)
-        [for (final r in rows) r[c].length].reduce((a, b) => a > b ? a : b) + 4,
-    ],
-  );
+  /// Judul kolom yang berisi kode/nomor: berformat teks di Excel agar nol
+  /// di depan (telepon rumah, barcode) tidak hilang.
+  static const _textHeaders = {'hp', 'telepon', 'sku', 'barcode'};
+
+  /// Isi `.xlsx` templat: judul tebal & dibekukan, lebar kolom menurut isi,
+  /// kolom kode berformat teks, angka contoh ditulis sebagai angka.
+  Uint8List get bytes {
+    final header = rows.first;
+    final text = {
+      for (var c = 0; c < header.length; c++)
+        if (_textHeaders.contains(header[c].toLowerCase())) c,
+    };
+    final number = RegExp(r'^(0|[1-9]\d{0,14})$');
+    return buildXlsx(
+      sheetName,
+      [
+        header,
+        for (final r in rows.skip(1))
+          [
+            for (var c = 0; c < r.length; c++)
+              !text.contains(c) && number.hasMatch(r[c])
+                  ? int.parse(r[c])
+                  : r[c],
+          ],
+      ],
+      textColumns: text,
+      widths: [
+        for (var c = 0; c < header.length; c++)
+          [
+                for (final r in rows) c < r.length ? r[c].length : 0,
+              ].reduce((a, b) => a > b ? a : b) +
+              4,
+      ],
+    );
+  }
 }
 
 /// Baris tombol di dialog import: [pick] (*Pilih berkas*) lalu *Unduh
@@ -74,7 +100,8 @@ class _ImportFileActionsState extends State<ImportFileActions> {
         widget.kind.bytes,
         fileName: widget.kind.fileName,
       );
-    } on Exception {
+    } on Object {
+      // Termasuk Error dari share sheet; tombol tidak boleh terkunci.
       failed = true;
     }
     if (!mounted) return;

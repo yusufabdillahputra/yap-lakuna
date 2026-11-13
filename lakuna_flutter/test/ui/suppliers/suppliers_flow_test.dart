@@ -317,6 +317,32 @@ void main() {
     });
   }
 
+  testWidgets('templat gagal disimpan / share sheet: pesan & tombol aktif lagi '
+      '(F1-07g)', (tester) async {
+    final exporter = FakeSpreadsheetExporter()
+      ..error = ArgumentError('sharePositionOrigin');
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.suppliers,
+      suppliers: FakeSuppliersRepository(),
+      exporter: exporter,
+    );
+    await _tap(tester, _key('suppliers-import'));
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(_key('import-template-failed-suppliers'), findsOneWidget);
+    expect(exporter.saved, isEmpty);
+    // Android/iOS: share sheet (lokasi null) — tanpa pesan, tombol aktif.
+    exporter.path = null;
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(exporter.saved, hasLength(1));
+    expect(_key('import-template-failed-suppliers'), findsNothing);
+    expect(_key('import-template-saved-suppliers'), findsNothing);
+    await _tap(tester, _key('import-template-suppliers'));
+    expect(exporter.saved, hasLength(2));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('staf tanpa kelola supplier tidak melihat tombol import', (
     tester,
   ) async {

@@ -13447,6 +13447,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Templat gagal disimpan. Coba lagi.'**
   String get importTemplateFailed;
+
+  /// No description provided for @importReasonSample.
+  ///
+  /// In id, this message translates to:
+  /// **'baris contoh dari templat, ganti atau hapus'**
+  String get importReasonSample;
 }
 
 class _AppLocalizationsDelegate
