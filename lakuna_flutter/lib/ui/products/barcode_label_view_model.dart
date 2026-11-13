@@ -21,6 +21,7 @@ class LabelRow {
     required this.stock,
     this.code,
     this.symbology,
+    this.searchCodes = const [],
   });
 
   /// `<variantId>` atau `<variantId>/<unitId>`.
@@ -34,6 +35,9 @@ class LabelRow {
 
   /// Barcode, atau SKU bila barcode kosong; `null` = tidak ada kode.
   final String? code;
+
+  /// Kode untuk pencarian: SKU dan barcode varian/satuan.
+  final List<String> searchCodes;
   final BarcodeSymbology? symbology;
 
   bool get printable => code != null && symbology != null;
@@ -139,10 +143,17 @@ class BarcodeLabelViewModel extends ChangeNotifier {
     _ => total,
   };
 
-  /// Naik setiap jumlah diubah dari luar kolom ketik (stepper, isi sesuai
-  /// stok), agar kolom jumlah di layar memuat nilai baru.
-  int get revision => _revision;
-  var _revision = 0;
+  /// Naik setiap jumlah [row] diubah dari luar kolom ketiknya (stepper,
+  /// isi sesuai stok, nilai di luar batas), agar kolom itu memuat nilai baru.
+  /// Per baris, supaya kolom lain yang sedang diketik tidak kehilangan fokus.
+  int revision(LabelRow row) => _revisions[row.key] ?? 0;
+  final _revisions = <String, int>{};
+
+  void _bump(String key) => _revisions[key] = (_revisions[key] ?? 0) + 1;
+
+  /// Naik bila kolom *Lewati* dibatasi ke 0–23.
+  int get skipRevision => _skipRevision;
+  var _skipRevision = 0;
 
   bool get canPrint => total > 0 && !overLimit && !busy;
 
@@ -157,7 +168,7 @@ class BarcodeLabelViewModel extends ChangeNotifier {
         if ((!_selectedOnly || _quantities.containsKey(r.key)) &&
             (q.isEmpty ||
                 r.title.toLowerCase().contains(q) ||
-                (r.code?.toLowerCase().contains(q) ?? false)))
+                r.searchCodes.any((c) => c.toLowerCase().contains(q))))
           r,
     ];
   }
@@ -172,6 +183,8 @@ class BarcodeLabelViewModel extends ChangeNotifier {
           for (final r in _rows) {
             if (r.productId == initial && r.printable) _quantities[r.key] = 1;
           }
+          // Baris produk itu langsung terlihat walau letaknya di bawah.
+          _selectedOnly = _quantities.isNotEmpty;
         }
         _loaded = true;
         return const Result.ok(null);
@@ -203,14 +216,16 @@ class BarcodeLabelViewModel extends ChangeNotifier {
 
   void setQuantity(LabelRow row, int value) {
     if (!_quantities.containsKey(row.key)) return;
-    _quantities[row.key] = value.clamp(1, maxPerRow);
+    final clamped = value.clamp(1, maxPerRow);
+    if (clamped != value) _bump(row.key);
+    _quantities[row.key] = clamped;
     notifyListeners();
   }
 
   /// Jumlah [row] naik/turun [delta] lewat tombol − / +.
   void step(LabelRow row, int delta) {
     if (!_quantities.containsKey(row.key)) return;
-    _revision++;
+    _bump(row.key);
     setQuantity(row, quantity(row) + delta);
   }
 
@@ -219,8 +234,8 @@ class BarcodeLabelViewModel extends ChangeNotifier {
     for (final r in selected) {
       final units = (r.stock.milli + 999) ~/ 1000;
       _quantities[r.key] = units.clamp(1, maxPerRow);
+      _bump(r.key);
     }
-    _revision++;
     notifyListeners();
   }
 
@@ -236,6 +251,7 @@ class BarcodeLabelViewModel extends ChangeNotifier {
 
   void setSkip(int value) {
     _skip = value.clamp(0, BarcodeLabelPaper.perSheet - 1);
+    if (_skip != value) _skipRevision++;
     notifyListeners();
   }
 
@@ -267,27 +283,35 @@ class BarcodeLabelViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<void>> _print(BarcodeLabelSheet sheet) => _guard(() async {
-    await _printer.printDocument(
-      await _buildPdf(sheet),
-      jobName: 'Label barcode',
-    );
-  });
+  Future<Result<void>> _print(BarcodeLabelSheet sheet) {
+    // Hanya hasil aksi terakhir yang ditampilkan.
+    save.clearResult();
+    return _guard(() async {
+      await _printer.printDocument(
+        await _buildPdf(sheet),
+        jobName: 'Label barcode',
+        format: sheet.paper.pageFormat,
+      );
+    });
+  }
 
-  Future<Result<String?>> _save(BarcodeLabelSheet sheet) => _guard(() async {
-    _savedPath = null;
-    final t = _now();
-    String two(int n) => n.toString().padLeft(2, '0');
-    final stamp =
-        '${two(t.year % 100)}${two(t.month)}${two(t.day)}-'
-        '${two(t.hour)}${two(t.minute)}';
-    final path = await _printer.shareDocument(
-      await _buildPdf(sheet),
-      fileName: 'label-barcode-$stamp.pdf',
-    );
-    _savedPath = path;
-    return path;
-  });
+  Future<Result<String?>> _save(BarcodeLabelSheet sheet) {
+    print.clearResult();
+    return _guard(() async {
+      _savedPath = null;
+      final t = _now();
+      String two(int n) => n.toString().padLeft(2, '0');
+      final stamp =
+          '${two(t.year % 100)}${two(t.month)}${two(t.day)}-'
+          '${two(t.hour)}${two(t.minute)}';
+      final path = await _printer.shareDocument(
+        await _buildPdf(sheet),
+        fileName: 'label-barcode-$stamp.pdf',
+      );
+      _savedPath = path;
+      return path;
+    });
+  }
 }
 
 /// Baris label dari katalog: varian lalu satuan berbarcode, urut nama
@@ -302,6 +326,7 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
     required Money price,
     required Qty stock,
     required String? code,
+    required List<String?> searchCodes,
   }) => LabelRow(
     key: key,
     productId: product.id,
@@ -310,6 +335,7 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
     stock: stock,
     code: code,
     symbology: code == null ? null : labelSymbology(code),
+    searchCodes: [...searchCodes.nonNulls],
   );
   String? nonEmpty(String? s) => (s == null || s.trim().isEmpty) ? null : s;
   String variantTitle(CatalogProduct p, CatalogVariant v) =>
@@ -326,6 +352,7 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
           price: v.sellPrice,
           stock: v.stock,
           code: nonEmpty(v.barcode) ?? nonEmpty(v.sku),
+          searchCodes: [v.sku, v.barcode],
         ),
         for (final u in v.units)
           if (nonEmpty(u.barcode) case final code?)
@@ -333,7 +360,11 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
               key: '${v.id.uuid}/${u.id.uuid}',
               product: p,
               title: '${variantTitle(p, v)} · ${u.name}',
-              price: u.sellPrice ?? v.sellPrice.timesMilli(u.factor.milli),
+              price: conversionSellPrice(
+                variantPrice: v.sellPrice,
+                factor: u.factor,
+                unitPrice: u.sellPrice,
+              ),
               stock: u.factor.milli <= 0
                   ? Qty.zero
                   : Qty(
@@ -341,6 +372,7 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
                           u.factor.milli,
                     ),
               code: code,
+              searchCodes: [v.sku, code],
             ),
       ],
   ];

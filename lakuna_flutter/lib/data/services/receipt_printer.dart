@@ -68,8 +68,13 @@ abstract class ReceiptPrinter {
     required String fileName,
   });
 
-  /// Dokumen PDF utuh (mis. kuitansi A5) ke dialog cetak sistem.
-  Future<void> printDocument(Uint8List pdf, {required String jobName});
+  /// Dokumen PDF utuh (mis. kuitansi A5) ke dialog cetak sistem;
+  /// [format] = ukuran kertas yang dipilih di dialog.
+  Future<void> printDocument(
+    Uint8List pdf, {
+    required String jobName,
+    PdfPageFormat format = PdfPageFormat.a5,
+  });
 
   /// Dokumen PDF utuh: share sheet di Android/iOS (hasil `null`), atau
   /// disimpan ke folder Dokumen di desktop (hasil = lokasi berkas).
@@ -273,12 +278,15 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
   }
 
   @override
-  Future<void> printDocument(Uint8List pdf, {required String jobName}) =>
-      Printing.layoutPdf(
-        name: jobName,
-        format: PdfPageFormat.a5,
-        onLayout: (_) async => pdf,
-      );
+  Future<void> printDocument(
+    Uint8List pdf, {
+    required String jobName,
+    PdfPageFormat format = PdfPageFormat.a5,
+  }) => Printing.layoutPdf(
+    name: jobName,
+    format: format,
+    onLayout: (_) async => pdf,
+  );
 
   @override
   Future<String?> shareDocument(

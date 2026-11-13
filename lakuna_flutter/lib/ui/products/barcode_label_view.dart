@@ -111,7 +111,7 @@ class BarcodeLabelView extends StatelessWidget {
           final wide = constraints.maxWidth >= barcodeLabelWideWidth;
           final list = _RowList(viewModel: vm);
           final panel = _Panel(viewModel: vm);
-          return SingleChildScrollView(
+          final scroll = SingleChildScrollView(
             key: const ValueKey('labels-scroll'),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -143,10 +143,67 @@ class BarcodeLabelView extends StatelessWidget {
               ],
             ),
           );
+          if (wide || vm.total == 0) return scroll;
+          // Ponsel: daftar panjang, jadi jumlah dan tombol cetak selalu
+          // terlihat di bawah.
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: scroll),
+              _BottomBar(viewModel: vm),
+            ],
+          );
         },
       );
     },
   );
+}
+
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.viewModel});
+
+  final BarcodeLabelViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    return DecoratedBox(
+      key: const ValueKey('labels-bar'),
+      decoration: BoxDecoration(
+        color: theme.colors.background,
+        border: Border(top: BorderSide(color: theme.colors.border)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        child: Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: Text(
+                l10n.labelsTotal(vm.total, vm.pages),
+                style: theme.typography.body.sm.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            FButton(
+              key: const ValueKey('labels-bar-print'),
+              mainAxisSize: .min,
+              onPress: vm.canPrint
+                  ? () => vm.print.execute(
+                      vm.sheet((m) => formatMoney(context, m)),
+                    )
+                  : null,
+              prefix: const Icon(TablerIcons.printer),
+              child: Text(l10n.labelsPrint),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _RowList extends StatelessWidget {
@@ -217,7 +274,8 @@ class _RowList extends StatelessWidget {
               )
             else
               for (final (i, r) in rows.indexed) ...[
-                if (i > 0) const FDivider(),
+                if (i > 0)
+                  Container(height: 1, color: context.theme.colors.border),
                 _RowTile(viewModel: vm, row: r),
               ],
           ],
@@ -248,41 +306,58 @@ class _RowTile extends StatelessWidget {
     };
     return Padding(
       key: ValueKey('labels-row-${r.key}'),
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        spacing: 10,
-        children: [
-          FCheckbox(
-            key: ValueKey('labels-check-${r.key}'),
-            value: selected,
-            enabled: r.printable,
-            onChange: (v) => vm.toggle(r, v),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(
-                  r.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.typography.body.sm.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: r.printable ? null : theme.colors.mutedForeground,
-                  ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Ponsel: stepper turun ke bawah nama agar nama dan harga terbaca.
+          final stacked = constraints.maxWidth < 400;
+          final stepper = selected
+              ? _QtyStepper(viewModel: vm, row: r, quantity: qty)
+              : null;
+          final line = Row(
+            spacing: 10,
+            children: [
+              FCheckbox(
+                key: ValueKey('labels-check-${r.key}'),
+                value: selected,
+                enabled: r.printable,
+                onChange: (v) => vm.toggle(r, v),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Text(
+                      r.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: r.printable
+                            ? null
+                            : theme.colors.mutedForeground,
+                      ),
+                    ),
+                    Text(
+                      '$note · ${formatMoney(context, r.price)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _muted(context),
+                    ),
+                  ],
                 ),
-                Text(
-                  '$note · ${formatMoney(context, r.price)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _muted(context),
-                ),
-              ],
-            ),
-          ),
-          if (selected) _QtyStepper(viewModel: vm, row: r, quantity: qty),
-        ],
+              ),
+              if (stepper != null && !stacked) stepper,
+            ],
+          );
+          if (stepper == null || !stacked) return line;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 6,
+            children: [line, stepper],
+          );
+        },
       ),
     );
   }
@@ -319,7 +394,7 @@ class _QtyStepper extends StatelessWidget {
         SizedBox(
           width: 64,
           child: FTextField(
-            key: ValueKey('labels-qty-$key-${vm.revision}'),
+            key: ValueKey('labels-qty-$key-${vm.revision(row)}'),
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             inputFormatters: [
@@ -415,7 +490,7 @@ class _Panel extends StatelessWidget {
             ),
             if (vm.paper == BarcodeLabelPaper.a4Sheet)
               FTextField(
-                key: const ValueKey('labels-skip'),
+                key: ValueKey('labels-skip-${vm.skipRevision}'),
                 label: Text(l10n.labelsSkip),
                 description: Text(l10n.labelsSkipHint),
                 keyboardType: TextInputType.number,

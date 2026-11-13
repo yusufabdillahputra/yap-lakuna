@@ -39,6 +39,7 @@ void main() {
   test('baris dari varian, satuan berbarcode, dan produk tanpa kode', () async {
     final vm = make();
     await vm.load.execute();
+    expect(vm.selectedOnly, isFalse);
     expect(vm.rows.map((r) => (r.title, r.code, r.price.value)), [
       ('Jasa Antar', null, 5000),
       ('Kopi Sachet', 'KOP-SCH', 2000),
@@ -67,6 +68,8 @@ void main() {
     ]);
     expect(vm.total, 2);
     expect(vm.preview?.title, 'Minyak Goreng');
+    expect(vm.selectedOnly, isTrue);
+    expect(vm.visible, hasLength(2));
   });
 
   test('pilih, jumlah, isi sesuai stok, cari, hanya terpilih', () async {
@@ -94,10 +97,15 @@ void main() {
     expect(vm.pages, 3);
     vm.setPaper(BarcodeLabelPaper.roll38x25);
     expect(vm.pages, 30);
-    final rev = vm.revision;
+    final rev = vm.revision(kopi);
+    final minyakRev = vm.revision(minyak);
     vm.step(kopi, -1);
     expect(vm.quantity(kopi), 1);
-    expect(vm.revision, rev + 1);
+    expect(vm.revision(kopi), rev + 1);
+    expect(vm.revision(minyak), minyakRev, reason: 'baris lain tetap');
+    vm.setQuantity(kopi, 0);
+    expect(vm.quantity(kopi), 1);
+    expect(vm.revision(kopi), rev + 2, reason: 'kolom memuat nilai 1');
     vm.step(kopi, 1);
     expect(vm.quantity(kopi), 2);
 
@@ -105,6 +113,11 @@ void main() {
     expect(vm.visible.map((r) => r.title), ['Kopi Sachet']);
     vm.setQuery('899100');
     expect(vm.visible.map((r) => r.title), ['Minyak Goreng · dus']);
+    vm.setQuery('myk-2l');
+    expect(vm.visible.map((r) => r.title), [
+      'Minyak Goreng',
+      'Minyak Goreng · dus',
+    ], reason: 'SKU tetap dicari walau barcode terisi');
     vm.setQuery('');
     vm.setSelectedOnly(true);
     expect(vm.visible, hasLength(3));
@@ -122,6 +135,10 @@ void main() {
     vm.toggle(kopi, true);
     vm.setSkip(30);
     expect(vm.skip, 23);
+    expect(vm.skipRevision, 1);
+    vm.setSkip(4);
+    expect(vm.skipRevision, 1);
+    vm.setSkip(23);
     var sheet = vm.sheet(_price);
     expect(sheet.paper, BarcodeLabelPaper.a4Sheet);
     expect(sheet.skip, 23);
@@ -159,6 +176,10 @@ void main() {
     vm.toggle(vm.rows[1], true);
     await vm.print.execute(vm.sheet(_price));
     expect(printer.documentPrints.single.$2, 'Label barcode');
+    expect(
+      printer.documentFormats.single,
+      BarcodeLabelPaper.a4Sheet.pageFormat,
+    );
     expect(built.single.labels.single.title, 'Kopi Sachet');
 
     await vm.save.execute(vm.sheet(_price));
@@ -168,7 +189,14 @@ void main() {
     printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
     await vm.print.execute(vm.sheet(_price));
     expect(vm.print.result, isA<Error<void>>());
+    expect(vm.save.result, isNull, reason: 'hanya hasil aksi terakhir');
     expect(vm.printFailure, PrinterFailureReason.connect);
+
+    // Cetak gagal lalu simpan berhasil: galat cetak tidak tersisa.
+    await vm.save.execute(vm.sheet(_price));
+    expect(vm.print.result, isNull);
+    expect(vm.save.completed, isTrue);
+    expect(vm.printFailure, isNull);
   });
 
   test('galat muat katalog', () async {

@@ -210,17 +210,26 @@ void main() {
       await _tap(tester, 'labels-check-$kopiKey');
       await _tap(tester, 'labels-more-$kopiKey');
       await _tap(tester, 'labels-more-$kopiKey');
-      expect(find.text('3 label · 1 halaman'), findsOneWidget);
+      expect(find.text('3 label · 1 halaman'), findsWidgets);
       expect(find.byKey(const ValueKey('labels-preview')), findsOneWidget);
       await _tap(tester, 'labels-fill-stock');
-      expect(find.text('2 label · 1 halaman'), findsOneWidget);
-      await _type(tester, 'labels-qty-$kopiKey-3', '30');
-      expect(find.text('30 label · 2 halaman'), findsOneWidget);
+      expect(find.text('2 label · 1 halaman'), findsWidgets);
+      await _type(tester, 'labels-qty-$kopiKey-3', '0');
+      expect(find.text('1 label · 1 halaman'), findsWidgets);
+      await _type(tester, 'labels-qty-$kopiKey-4', '30');
+      expect(find.text('30 label · 2 halaman'), findsWidgets);
       await _tap(tester, 'labels-paper-roll50x30');
       expect(find.byKey(const ValueKey('labels-skip')), findsNothing);
-      expect(find.text('30 label · 30 halaman'), findsOneWidget);
-      await _tap(tester, 'labels-print');
+      expect(find.text('30 label · 30 halaman'), findsWidgets);
+      await _tap(
+        tester,
+        size.width < 600 ? 'labels-bar-print' : 'labels-print',
+      );
       expect(printer.documentPrints.single.$2, 'Label barcode');
+      expect(
+        find.byKey(const ValueKey('labels-bar')),
+        size.width < 600 ? findsOneWidget : findsNothing,
+      );
       await _tap(tester, 'labels-save');
       expect(printer.documentShares, hasLength(1));
       expect(find.byKey(const ValueKey('labels-saved')), findsOneWidget);
@@ -231,19 +240,25 @@ void main() {
     });
   }
 
-  testWidgets('cetak label dari form produk memilih produk itu', (
-    tester,
-  ) async {
-    final repo = await pump(tester, seed: sampleProducts());
-    final minyak = repo.products.firstWhere((p) => p.name == 'Minyak Goreng');
-    await _tap(tester, 'product-row-${minyak.id.uuid}');
-    await _tap(tester, 'product-labels');
-    expect(find.text('2 label · 1 halaman'), findsOneWidget);
-    expect(find.text('Hanya yang dipilih (2)'), findsOneWidget);
-    expect(find.text('Rp 216.000'), findsNothing);
-    expect(find.text('899100 · Rp 216.000'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('cetak label dari form produk memilih produk itu '
+        '${size.width}', (tester) async {
+      final repo = await pump(tester, size: size, seed: sampleProducts());
+      final minyak = repo.products.firstWhere(
+        (p) => p.name == 'Minyak Goreng',
+      );
+      final row = size.width < 600 ? 'product-card' : 'product-row';
+      await _type(tester, 'products-search', 'minyak');
+      await _tap(tester, '$row-${minyak.id.uuid}');
+      await _tap(tester, 'product-labels');
+      expect(find.text('2 label · 1 halaman'), findsWidgets);
+      expect(find.text('Hanya yang dipilih (2)'), findsOneWidget);
+      // Hanya baris terpilih yang tampil.
+      expect(find.text('Kopi Sachet'), findsNothing);
+      expect(find.text('899100 · Rp 216.000'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('kode kembar ditandai dan tab varian dibuka', (tester) async {
     final repo = await pump(

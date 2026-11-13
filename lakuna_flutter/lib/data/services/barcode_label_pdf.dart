@@ -19,6 +19,19 @@ enum BarcodeLabelPaper {
   /// Printer label, satu label 38 × 25 mm per halaman.
   roll38x25;
 
+  /// Ukuran halaman PDF (dan kertas di dialog cetak).
+  PdfPageFormat get pageFormat => switch (this) {
+    a4Sheet => PdfPageFormat.a4,
+    roll50x30 => const PdfPageFormat(
+      50 * PdfPageFormat.mm,
+      30 * PdfPageFormat.mm,
+    ),
+    roll38x25 => const PdfPageFormat(
+      38 * PdfPageFormat.mm,
+      25 * PdfPageFormat.mm,
+    ),
+  };
+
   /// Label per lembar A4.
   static const sheetColumns = 3;
   static const sheetRows = 8;
@@ -166,7 +179,7 @@ Future<pw.Document> barcodeLabelPdfDocument(BarcodeLabelSheet sheet) async {
         final page = slots.skip(start).take(perSheet).toList();
         doc.addPage(
           pw.Page(
-            pageFormat: PdfPageFormat.a4.copyWith(
+            pageFormat: sheet.paper.pageFormat.copyWith(
               marginLeft: 0,
               marginRight: 0,
               marginTop: 0,
@@ -196,13 +209,7 @@ Future<pw.Document> barcodeLabelPdfDocument(BarcodeLabelSheet sheet) async {
         );
       }
     case BarcodeLabelPaper.roll50x30 || BarcodeLabelPaper.roll38x25:
-      final (w, h) = sheet.paper == BarcodeLabelPaper.roll50x30
-          ? (50.0, 30.0)
-          : (38.0, 25.0);
-      final format = PdfPageFormat(
-        w * PdfPageFormat.mm,
-        h * PdfPageFormat.mm,
-      );
+      final format = sheet.paper.pageFormat;
       for (final l in sheet.labels) {
         doc.addPage(pw.Page(pageFormat: format, build: (_) => label(l)));
       }

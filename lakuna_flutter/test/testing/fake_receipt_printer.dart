@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
+import 'package:pdf/pdf.dart' show PdfPageFormat;
 
 /// [ReceiptPrinter] palsu: mencatat cetakan dan PDF yang dibagikan.
 class FakeReceiptPrinter implements ReceiptPrinter {
@@ -27,6 +28,9 @@ class FakeReceiptPrinter implements ReceiptPrinter {
   final shares = <(List<ReceiptLine>, ReceiptPaper, String)>[];
   final documentPrints = <(Uint8List, String)>[];
   final documentShares = <(Uint8List, String)>[];
+
+  /// Ukuran kertas tiap [printDocument].
+  final documentFormats = <PdfPageFormat>[];
 
   void _fail() {
     final f = nextFailure;
@@ -64,9 +68,14 @@ class FakeReceiptPrinter implements ReceiptPrinter {
   }
 
   @override
-  Future<void> printDocument(Uint8List pdf, {required String jobName}) async {
+  Future<void> printDocument(
+    Uint8List pdf, {
+    required String jobName,
+    PdfPageFormat format = PdfPageFormat.a5,
+  }) async {
     _fail();
     documentPrints.add((pdf, jobName));
+    documentFormats.add(format);
   }
 
   @override

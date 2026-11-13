@@ -1,7 +1,7 @@
 # F1-07e · Cetak label barcode
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.36.0
 - **Layar:** 1.15b Cetak label barcode (halaman baru), tombol di 1.15 Daftar
   produk dan 1.16 Form produk.
 - **Acuan:** spec Storeku F1-07 "Label barcode: pilih produk + jumlah label,
@@ -47,13 +47,20 @@ cukup memindai label itu.
    per cetak maks. 2.000; lebih dari itu tombol cetak nonaktif dengan pesan.
 7. **Aksi**: *Cetak* (dialog cetak sistem, `ReceiptPrinter.printDocument`)
    dan *Simpan PDF* (share sheet di ponsel, folder Dokumen di desktop,
-   `shareDocument`), nama berkas `label-barcode-YYMMDD-HHmm.pdf`. Printer
-   ESC/POS Bluetooth/jaringan tidak dipakai untuk label (lihat gap).
+   `shareDocument`, folder yang sama dengan PDF struk), nama berkas
+   `label-barcode-YYMMDD-HHmm.pdf`. Dialog cetak dibuka dengan ukuran kertas
+   label yang dipilih (A4 / 50 × 30 / 38 × 25 mm). Hanya hasil aksi terakhir
+   (cetak atau simpan) yang ditampilkan. Printer ESC/POS Bluetooth/jaringan
+   tidak dipakai untuk label (lihat gap).
 8. **Masuk dari**: tombol *Cetak label* di header 1.15 (ikon di ponsel), dan
    tombol *Cetak label* di form 1.16 untuk produk lama yang membuka halaman
    dengan baris produk itu sudah dicentang. Izin `products:manage` (layar
    produk).
-9. **Pencarian** nama/SKU/barcode dan saklar *Hanya yang dipilih*.
+9. **Pencarian** nama, SKU, dan barcode (SKU tetap dicari walau barcode
+   terisi) dan saklar *Hanya yang dipilih*; saklar ini otomatis aktif bila
+   halaman dibuka dari form produk. Label memakai data produk yang sudah
+   disimpan. Jumlah di luar 1–999 dan *Lewati* di luar 0–23 langsung
+   dibetulkan di kolomnya.
    Pratinjau satu label (baris terpilih pertama) ditampilkan di panel kanan
    (layar lebar) atau di atas tombol (ponsel).
 
@@ -80,7 +87,10 @@ cukup memindai label itu.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Cetak label barcode A4 / printer label (PDF) | Tombol 1.15 | Dikerjakan | |
+| Cetak label barcode A4 / printer label (PDF) | Tombol 1.15 | Rilis v0.36.0 | |
 | Label langsung ke printer ESC/POS (Bluetooth/jaringan) | — | Belum | Perlu perintah barcode ESC/POS dan ukuran label per printer. |
 | Tab *Barcode & label* di form 1.16 | Ada | Diganti | Tombol *Cetak label* di form membuka 1.15b. |
 | Buat barcode otomatis untuk produk tanpa kode | — | Belum | Saat ini SKU dipakai sebagai kode Code 128. |
+| Peringatan kode terlalu panjang untuk label kecil | — | Belum | SKU Code 128 ±20 karakter di 38 × 25 mm membuat garis < 1 titik printer 203 dpi; pakai label 50 × 30 atau A4. |
+| UPC-A dibaca pemindai sebagai 13 digit (awalan 0) | — | Belum | Pencarian Kasir belum menyamakan `0` + UPC-A dengan kode 12 digit. |
+| PDF ribuan label tanpa membekukan layar | — | Belum | Batas 2.000 label; PDF dibuat di isolate UI. |
