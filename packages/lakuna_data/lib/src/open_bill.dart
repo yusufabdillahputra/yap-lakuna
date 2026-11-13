@@ -95,9 +95,16 @@ class OpenBill {
     this.openedByName = '',
     this.modifiers = const {},
     this.payments = const [],
+    this.discountApprovedByName = '',
   });
 
   final Sale sale;
+
+  /// Diskon nota yang dipilih (F1-04e); potongannya di [charges].
+  ManualDiscount? get discount => billDiscountOf(sale);
+
+  /// Nama manajer yang menyetujui diskon; kosong bila staf sendiri berizin.
+  final String discountApprovedByName;
 
   /// Pembayaran bagian split (menunggu atau lunas), urut dibuat.
   final List<Payment> payments;
@@ -191,15 +198,37 @@ class KitchenSendResult {
 
 // --- Baca -------------------------------------------------------------------
 
-FnbCharges _charges(Sale sale, List<SaleItem> items, FnbRates rates) =>
-    fnbCharges(
-      Money.sum(items.map((i) => Money(i.lineTotal))),
-      dineIn: sale.orderType == OrderType.dineIn,
-      serviceBp: rates.service,
-      taxBp: rates.tax,
-      taxInclusive: rates.taxInclusive,
-      rounding: rates.rounding,
-    );
+/// Diskon nota tersimpan di bill terbuka: persen di `discount_bp`, rupiah
+/// yang diminta di `discount_amount` (F1-04e).
+ManualDiscount? billDiscountOf(Sale sale) => sale.discountBp > 0
+    ? ManualDiscount.percent(BasisPoints(sale.discountBp))
+    : sale.discountAmount > 0
+    ? ManualDiscount.amount(Money(sale.discountAmount))
+    : null;
+
+FnbCharges _charges(
+  Sale sale,
+  List<SaleItem> items,
+  FnbRates rates, {
+  ManualDiscount? discount,
+  bool useSaleDiscount = true,
+}) => fnbCharges(
+  Money.sum(items.map((i) => Money(i.lineTotal))),
+  dineIn: sale.orderType == OrderType.dineIn,
+  serviceBp: rates.service,
+  taxBp: rates.tax,
+  taxInclusive: rates.taxInclusive,
+  rounding: rates.rounding,
+  discount: useSaleDiscount ? billDiscountOf(sale) : discount,
+);
+
+/// Bill berdiskon yang totalnya habis (item berkurang setelah diskon
+/// rupiah) tidak bisa dibayar sampai diskon diubah.
+void _assertPayable(Sale sale, FnbCharges charges) {
+  if (charges.discount > Money.zero && charges.total <= Money.zero) {
+    throw const DiscountTooLarge();
+  }
+}
 
 Future<List<SaleItem>> _items(
   DatabaseSession session,
@@ -290,12 +319,9 @@ Future<List<OpenBill>> _bills(
           ))
             t.id: t,
         };
-  final names = await _staffNames(
-    session,
-    scope.tenantId,
-    sales.map((s) => s.openedBy ?? s.staffId),
-    transaction: transaction,
-  );
+  final names = await _staffNames(session, scope.tenantId, [
+    for (final s in sales) ...[s.openedBy ?? s.staffId, s.discountApprovedBy],
+  ], transaction: transaction);
   final modifiers = await itemModifiers(
     session,
     scope.tenantId,
@@ -322,6 +348,7 @@ Future<List<OpenBill>> _bills(
           rates: rates,
           table: tables[s.diningTableId],
           openedByName: names[s.openedBy ?? s.staffId] ?? '',
+          discountApprovedByName: names[s.discountApprovedBy] ?? '',
           modifiers: {for (final i in own) i.id: ?modifiers[i.id]},
           payments: [
             for (final p in payments)
@@ -1174,6 +1201,74 @@ Future<OpenBill> setBillRequested(
       sale.copyWith(billRequestedAt: requested ? s.now : null),
 );
 
+/// Menerapkan diskon nota [discount] ke bill (F1-04e), atau menghapusnya
+/// bila `null`. Izin sama dengan Kasir retail ([requireDiscountActor]);
+/// ditolak bila bill sudah punya pembayaran bagian ([SplitLocked]) atau
+/// total setelah diskon habis ([DiscountTooLarge]).
+Future<OpenBill> setBillDiscount(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue billId,
+  required ManualDiscount? discount,
+  UuidValue? approverId,
+}) async {
+  final approvedBy = discount == null
+      ? null
+      : await requireDiscountActor(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: approverId,
+        );
+  return _updateBill(
+    store,
+    scope,
+    staffId: staffId,
+    billId: billId,
+    change: (w, sale, s) async {
+      await _assertUnlocked(w, scope, sale.id);
+      final items = await _items(w.session, scope.tenantId, [
+        sale.id,
+      ], transaction: w.transaction);
+      final rates = await loadFnbRates(
+        w.session,
+        scope,
+        transaction: w.transaction,
+      );
+      if (discount != null) {
+        switch (discount.issue(
+          Money.sum(items.map((i) => Money(i.lineTotal))),
+        )) {
+          case DiscountIssue.invalid:
+            throw const DiscountInvalid();
+          case DiscountIssue.tooLarge:
+            throw const DiscountTooLarge();
+          case null:
+        }
+      }
+      final charges = _charges(
+        sale,
+        items,
+        rates,
+        discount: discount,
+        useSaleDiscount: false,
+      );
+      if (discount != null && charges.total <= Money.zero) {
+        throw const DiscountTooLarge();
+      }
+      return sale.copyWith(
+        discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
+        discountAmount: discount?.kind == DiscountKind.amount
+            ? discount!.amount.value
+            : 0,
+        discountApprovedBy: approvedBy,
+        total: charges.total.value,
+      );
+    },
+  );
+}
+
 /// *Pindah meja* bill dine in ke meja kosong [tableId].
 Future<OpenBill> moveBillToTable(
   LakunaStore store,
@@ -1337,6 +1432,7 @@ Future<CheckoutResult> payOpenBill(
       transaction: w.transaction,
     );
     final charges = _charges(sale, items, rates);
+    _assertPayable(sale, charges);
     final total = charges.total;
     final s = await w.stamp();
     Customer? customer;
@@ -1469,6 +1565,8 @@ Future<CheckoutResult> _completeBill(
       serviceBp: rates.service.value,
       taxBp: rates.tax.value,
       serviceAmount: charges.service.value,
+      // Potongan efektif diskon nota (F1-04e); `discount_bp` tetap.
+      discountAmount: charges.discount.value,
       taxAmount: charges.tax.value,
       taxInclusive: charges.taxInclusive,
       roundingAmount: charges.rounding.value,

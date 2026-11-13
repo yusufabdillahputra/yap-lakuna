@@ -22,6 +22,8 @@ class DiningData {
     this.modifierGroups = const {},
     this.floorImages = const {},
     this.canArrange = false,
+    this.canDiscount = false,
+    this.discountNeedsPin = true,
   });
 
   final DiningOverview overview;
@@ -59,6 +61,16 @@ class DiningData {
   /// Boleh *Atur denah* (`settings:manage`).
   final bool canArrange;
 
+  /// Staf bertugas punya `sales:discount` (F1-04e).
+  final bool canDiscount;
+
+  /// Sakelar *Diskon manual butuh PIN manajer*: staf tanpa izin boleh
+  /// memberi diskon dengan persetujuan PIN.
+  final bool discountNeedsPin;
+
+  /// Tombol *Diskon* tampil di panel bill.
+  bool get canOfferDiscount => canDiscount || discountNeedsPin;
+
   List<ModifierGroupDetail> groupsOf(CatalogProduct p) =>
       modifierGroups[p.id] ?? const [];
 
@@ -76,6 +88,8 @@ class DiningData {
     modifierGroups: modifierGroups,
     floorImages: floorImages,
     canArrange: canArrange,
+    canDiscount: canDiscount,
+    discountNeedsPin: discountNeedsPin,
   );
 }
 
@@ -111,6 +125,16 @@ abstract class DiningRepository {
   Future<Result<KitchenSendResult>> sendToKitchen(UuidValue billId);
 
   Future<Result<OpenBill>> setBillRequested(UuidValue billId, bool requested);
+
+  /// Diskon nota bill (F1-04e); `null` menghapus. [approverId] = penyetuju
+  /// ber-`sales:discount` yang PIN-nya baru diverifikasi, bila staf tidak
+  /// punya izin itu. Gagal dengan `NotPermitted`, `DiscountTooLarge`, atau
+  /// `SplitLocked`.
+  Future<Result<OpenBill>> setDiscount(
+    UuidValue billId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  });
 
   Future<Result<OpenBill>> moveBill(UuidValue billId, UuidValue tableId);
 

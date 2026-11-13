@@ -137,4 +137,58 @@ void main() {
     );
     expect(takeAwayState(pending: 0, sent: 0, served: 2), TakeAwayState.ready);
   });
+
+  group('fnbCharges dengan diskon nota (F1-04e)', () {
+    test('service dan PB1 dari dasar setelah diskon', () {
+      // 100.000 − 10% = 90.000; service 5% = 4.500; PB1 10% dari 94.500.
+      final c = fnbCharges(
+        const Money(100000),
+        dineIn: true,
+        serviceBp: const BasisPoints(500),
+        taxBp: const BasisPoints(1000),
+        discount: const ManualDiscount.percent(BasisPoints(1000)),
+      );
+      expect(c.subtotal, const Money(100000));
+      expect(c.discount, const Money(10000));
+      expect(c.service, const Money(4500));
+      expect(c.tax, const Money(9450));
+      expect(c.total, const Money(103950));
+    });
+
+    test('PB1 termasuk dan pembulatan', () {
+      final c = fnbCharges(
+        const Money(55000),
+        dineIn: true,
+        serviceBp: const BasisPoints(500),
+        taxBp: const BasisPoints(1000),
+        taxInclusive: true,
+        rounding: TotalRounding.nearest500,
+        discount: const ManualDiscount.amount(Money(5000)),
+      );
+      // 50.000 + service 2.500 = 52.500 (PB1 termasuk), dibulatkan 52.500.
+      expect(c.discount, const Money(5000));
+      expect(c.service, const Money(2500));
+      expect(c.total, const Money(52500));
+    });
+
+    test('rupiah dipangkas ke dasar; tanpa diskon tetap sama', () {
+      final c = fnbCharges(
+        const Money(3000),
+        dineIn: false,
+        serviceBp: const BasisPoints(500),
+        taxBp: BasisPoints.zero,
+        discount: const ManualDiscount.amount(Money(5000)),
+      );
+      expect(c.discount, const Money(3000));
+      expect(c.total, Money.zero);
+      final plain = fnbCharges(
+        const Money(3000),
+        dineIn: false,
+        serviceBp: const BasisPoints(500),
+        taxBp: BasisPoints.zero,
+      );
+      expect(plain.discount, Money.zero);
+      expect(plain.total, const Money(3000));
+    });
+  });
 }

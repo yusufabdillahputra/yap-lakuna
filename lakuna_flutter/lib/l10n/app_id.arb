@@ -4484,5 +4484,13 @@
         "type": "String"
       }
     }
+  },
+  "diningDiscountHint": "Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.",
+  "@diningDiscountHint": {
+    "placeholders": {}
+  },
+  "diningDiscountBlocksPay": "Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.",
+  "@diningDiscountBlocksPay": {
+    "placeholders": {}
   }
 }

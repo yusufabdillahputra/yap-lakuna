@@ -120,6 +120,86 @@ void main() {
     expect(vm.canPay, isFalse);
   });
 
+  group('diskon nota bill (F1-04e)', () {
+    test('staf berizin menerapkan dan menghapus diskon persen', () async {
+      expect(vm.canOfferDiscount, isTrue);
+      expect(vm.discountNeedsApproval, isFalse);
+      await vm.openTable.execute((table('M1').id, 2));
+      await add('Kopi Susu Aren');
+      await add('Nasi Goreng Kampung');
+      // 53.000 − 10% = 47.700; service 5% 2.385; PB1 10% 5.009 (dibulatkan).
+      await vm.setDiscount.execute((
+        discount: const ManualDiscount.percent(BasisPoints(1000)),
+        approverId: null,
+      ));
+      final bill = vm.selectedBill!;
+      expect(bill.discount, const ManualDiscount.percent(BasisPoints(1000)));
+      expect(bill.charges.discount, const Money(5300));
+      expect(bill.charges.service, const Money(2385));
+      expect(vm.discountBlocksPay, isFalse);
+
+      await vm.setDiscount.execute((discount: null, approverId: null));
+      expect(vm.selectedBill!.discount, isNull);
+      expect(vm.selectedBill!.charges.discount, Money.zero);
+    });
+
+    test('staf tanpa izin butuh penyetuju; sakelar mati = tidak ada', () async {
+      repo.permissions = {Permission.openBillsManage, Permission.salesCreate};
+      await vm.load.execute();
+      expect(vm.canOfferDiscount, isTrue);
+      expect(vm.discountNeedsApproval, isTrue);
+      await vm.openTable.execute((table('M2').id, 2));
+      await add('Kopi Susu Aren');
+      const d = ManualDiscount.amount(Money(4000));
+      await vm.setDiscount.execute((discount: d, approverId: null));
+      expect(vm.actionError, isA<NotPermitted>());
+      final rina = UuidValue.fromString('00000000-0000-4000-8000-0000000000aa');
+      await vm.setDiscount.execute((discount: d, approverId: rina));
+      expect(vm.actionError, isNull);
+      expect(vm.selectedBill!.discountApprovedByName, 'Rina');
+
+      repo.discountNeedsPin = false;
+      await vm.load.execute();
+      expect(vm.canOfferDiscount, isFalse);
+    });
+
+    test('pratinjau menolak diskon yang menghabiskan total', () async {
+      await vm.openTable.execute((table('M3').id, 2));
+      await add('Kopi Susu Aren');
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.amount(Money(30000))),
+        DiscountIssue.tooLarge,
+      );
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.amount(Money(24000))),
+        DiscountIssue.tooLarge,
+      );
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.amount(Money(20000))),
+        isNull,
+      );
+      expect(
+        vm.billDiscountIssue(const ManualDiscount.percent(BasisPoints(0))),
+        DiscountIssue.invalid,
+      );
+    });
+
+    test('total habis setelah item berkurang memblokir bayar', () async {
+      await vm.openTable.execute((table('M4').id, 2));
+      await add('Kopi Susu Aren');
+      await add('Nasi Goreng Kampung');
+      await vm.setDiscount.execute((
+        discount: const ManualDiscount.amount(Money(24000)),
+        approverId: null,
+      ));
+      expect(vm.discountBlocksPay, isFalse);
+      final nasi = vm.selectedBill!.items.last;
+      await vm.setQuantity.execute((nasi.id, Qty.zero));
+      expect(vm.selectedBill!.charges.total, Money.zero);
+      expect(vm.discountBlocksPay, isTrue);
+    });
+  });
+
   test('take away bernomor; kosong dipakai ulang lalu dihapus', () async {
     vm.setMode(DiningMode.takeAway);
     await vm.openTakeAway.execute('Budi');

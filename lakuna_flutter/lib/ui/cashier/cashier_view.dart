@@ -17,7 +17,6 @@ import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../products/product_list_view.dart' show priceRange;
 import '../products/product_widgets.dart';
-import '../receipt/receipt_content.dart' show percentLabel;
 import 'cart_draft.dart';
 import 'cashier_view_model.dart';
 import 'customer_picker.dart';
@@ -1066,13 +1065,11 @@ class _TotalsBlock extends StatelessWidget {
             key: const ValueKey('cashier-bill-discount'),
             onPress: () => editCashierDiscount(context, viewModel),
             child: line(
-              [
-                d.kind == DiscountKind.percent
-                    ? l10n.cashierBillDiscountPct(percentLabel(l10n, d.bp))
-                    : l10n.cashierBillDiscount,
-                if (viewModel.discountApprover case final a?)
-                  l10n.cashierDiscountApprovedBy(a.name),
-              ].join(' · '),
+              billDiscountRowLabel(
+                l10n,
+                d,
+                approverName: viewModel.discountApprover?.name ?? '',
+              ),
               '− ${formatMoney(context, viewModel.billDiscountCut)}',
               key: const ValueKey('cashier-bill-discount-amount'),
             ),

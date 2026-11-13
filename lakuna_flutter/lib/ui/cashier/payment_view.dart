@@ -14,6 +14,7 @@ import '../receipt/receipt_content.dart';
 import '../receipt/receipt_paper_view.dart';
 import '../dining/split_bill_view.dart' show splitErrorMessage;
 import 'cashier_view_model.dart';
+import 'discount_dialog.dart' show billDiscountRowLabel;
 import '../customers/customer_labels.dart' show creditIssueMessage;
 import 'credit_panel.dart';
 import 'qris_panel.dart';
@@ -229,6 +230,17 @@ class BillPaySummary extends StatelessWidget {
             ),
           const FDivider(),
           line(l10n.diningSubtotal, charges.subtotal),
+          if (bill.discount case final d? when charges.discount > Money.zero)
+            line(
+              billDiscountRowLabel(
+                l10n,
+                d,
+                approverName: bill.discountApprovedByName,
+              ),
+              -charges.discount,
+              signed: true,
+              key: const ValueKey('payment-bill-discount'),
+            ),
           if (charges.service.value != 0)
             line(
               l10n.diningService(percentLabel(l10n, bill.rates.service.value)),
