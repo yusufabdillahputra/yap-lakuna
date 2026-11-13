@@ -3950,5 +3950,13 @@
         "type": "String"
       }
     }
+  },
+  "diningDiscountHint": "For the whole bill. Service charge and tax are applied after the discount.",
+  "@diningDiscountHint": {
+    "placeholders": {}
+  },
+  "diningDiscountBlocksPay": "The discount uses up the bill total. Change or remove it before paying.",
+  "@diningDiscountBlocksPay": {
+    "placeholders": {}
   }
 }

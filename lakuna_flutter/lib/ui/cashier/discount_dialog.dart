@@ -18,6 +18,19 @@ String discountLabel(AppLocalizations l10n, ManualDiscount d) =>
     ? l10n.cashierDiscountPct(percentLabel(l10n, d.bp))
     : l10n.cashierDiscount;
 
+/// Label baris diskon nota: "Diskon nota 10% · disetujui Rina" (Kasir,
+/// panel bill 1.7, ringkasan pembayaran 1.5).
+String billDiscountRowLabel(
+  AppLocalizations l10n,
+  ManualDiscount d, {
+  String approverName = '',
+}) => [
+  d.kind == DiscountKind.percent
+      ? l10n.cashierBillDiscountPct(percentLabel(l10n, d.bp))
+      : l10n.cashierBillDiscount,
+  if (approverName.isNotEmpty) l10n.cashierDiscountApprovedBy(approverName),
+].join(' · ');
+
 /// Membuka dialog diskon baris [index] atau, bila `null`, diskon nota.
 /// Staf tanpa izin diminta persetujuan PIN manajer setelah *Terapkan*.
 Future<void> editCashierDiscount(

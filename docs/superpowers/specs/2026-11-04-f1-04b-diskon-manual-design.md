@@ -61,8 +61,9 @@ Termasuk:
 
 Tidak termasuk (gap):
 
-- Diskon di open bill F&B dan split bill (bill dihitung ulang di
-  `open_bill.dart`; ditunda).
+- Diskon di open bill F&B dan split bill: dirilis terpisah di
+  [F1-04e](2026-11-13-f1-04e-diskon-open-bill-design.md) (v0.32.0, diskon
+  nota saja).
 - Batas diskon maksimal per role.
 - Nota tersimpan (parkir) dan pilih pelanggan di kepala Kasir (1.4b),
   versi berikutnya.
@@ -120,6 +121,7 @@ Kolom baru (migrasi `manual-discount`):
 | Diskon baris & nota di Kasir retail | 1.4b | v0.24.0 | - |
 | Persetujuan PIN untuk diskon | 1.2b | v0.24.0 | - |
 | Sakelar *Diskon manual butuh PIN manajer* | 1.26 | v0.24.0 | - |
-| Diskon di open bill F&B / split bill | - | Belum | Tambahkan di `open_bill.dart` bila diminta |
+| Diskon nota di open bill F&B / split bill | 1.7 | Rilis v0.32.0 | [F1-04e](2026-11-13-f1-04e-diskon-open-bill-design.md) |
+| Diskon per baris di open bill F&B | - | Belum | Lihat gap F1-04e |
 | Batas diskon per role | - | Belum | Fase 3 (promo) |
 | Pilih pelanggan & nota tersimpan di Kasir | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |

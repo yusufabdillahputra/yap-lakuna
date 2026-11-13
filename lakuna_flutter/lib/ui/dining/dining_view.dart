@@ -11,6 +11,7 @@ import '../../data/repositories/dining_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show SaleOption, saleOptionsFor;
+import '../cashier/discount_dialog.dart';
 import '../cashier/payment_view.dart' show tabularFigures;
 import '../core/approval_dialog.dart';
 import '../core/format.dart';
@@ -112,6 +113,10 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
         items.map((i) => i.name).join(', '),
       ),
       SplitLocked() => l10n.diningErrorSplitLocked,
+      DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
+      DiscountNotPermitted() => l10n.saleErrorDiscountNotPermitted,
+      NotPermitted(permission: Permission.salesDiscount) =>
+        l10n.saleErrorDiscountNotPermitted,
       TableOccupied() => l10n.diningErrorOccupied,
       NothingToSend() => l10n.diningErrorNothingToSend,
       BillNotFound() => l10n.diningErrorNotFound,
@@ -1131,6 +1136,17 @@ class _BillPanel extends StatelessWidget {
     final split = bill.split;
     // Sudah ada pembayaran bagian: item, batal, dan bayar penuh terkunci.
     final locked = split?.locked ?? false;
+    // Diskon nota (F1-04e): staf berizin, atau PIN manajer bila sakelar
+    // hidup; terkunci setelah ada pembayaran bagian.
+    final discountAction =
+        busy ||
+            locked ||
+            (bill.items.isEmpty && bill.discount == null) ||
+            !vm.canOfferDiscount ||
+            (vm.discountNeedsApproval && ApprovalScope.maybeOf(context) == null)
+        ? null
+        : () => _editBillDiscount(context, vm, bill);
+    final blocksPay = vm.discountBlocksPay;
 
     final header = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1230,6 +1246,20 @@ class _BillPanel extends StatelessWidget {
       spacing: 4,
       children: [
         totalRow(l10n.diningSubtotal, charges.subtotal),
+        if (bill.discount case final d?)
+          FTappable(
+            key: const ValueKey('dining-bill-discount'),
+            onPress: discountAction,
+            child: totalRow(
+              billDiscountRowLabel(
+                l10n,
+                d,
+                approverName: bill.discountApprovedByName,
+              ),
+              -charges.discount,
+              signed: true,
+            ),
+          ),
         if (charges.service.value != 0)
           totalRow(
             l10n.diningService(percentLabel(l10n, bill.rates.service.value)),
@@ -1310,11 +1340,22 @@ class _BillPanel extends StatelessWidget {
                 TablerIcons.arrowsExchange,
                 busy ? null : () => _moveBill(context, vm, bill),
               ),
+            if (vm.canOfferDiscount && !locked)
+              textAction(
+                'dining-discount',
+                l10n.cashierDiscount,
+                TablerIcons.discount,
+                discountAction,
+              ),
             textAction(
               'dining-split',
               l10n.diningSplit,
               TablerIcons.arrowsSplit,
-              busy || bill.items.isEmpty || !vm.canPay || onSplit == null
+              busy ||
+                      bill.items.isEmpty ||
+                      !vm.canPay ||
+                      onSplit == null ||
+                      blocksPay
                   ? null
                   : () => onSplit!(bill.id),
             ),
@@ -1347,6 +1388,12 @@ class _BillPanel extends StatelessWidget {
           Text(
             diningErrorMessage(l10n, e),
             key: const ValueKey('dining-bill-error'),
+            style: _errorStyle(context),
+          ),
+        if (blocksPay)
+          Text(
+            l10n.diningDiscountBlocksPay,
+            key: const ValueKey('dining-discount-blocks'),
             style: _errorStyle(context),
           ),
         FButton(
@@ -1396,7 +1443,7 @@ class _BillPanel extends StatelessWidget {
           FButton(
             key: const ValueKey('dining-pay'),
             size: .lg,
-            onPress: busy || !vm.canPay || bill.items.isEmpty
+            onPress: busy || !vm.canPay || bill.items.isEmpty || blocksPay
                 ? null
                 : () => onPay(bill.id),
             child: Flexible(
@@ -1860,6 +1907,49 @@ Future<void> _moveBill(
     );
   });
   if (target != null) await vm.move.execute(target.id);
+}
+
+/// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;
+/// staf tanpa izin diminta PIN manajer setelah *Terapkan*.
+Future<void> _editBillDiscount(
+  BuildContext context,
+  DiningViewModel vm,
+  OpenBill bill,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final session = ApprovalScope.maybeOf(context);
+  final choice = await showFDialog<DiscountChoice>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+      builder: (context, style) => DiscountDialog(
+        title: l10n.cashierDiscountBillTitle,
+        subtitle: l10n.diningDiscountHint,
+        base: bill.charges.subtotal,
+        initial: bill.discount,
+        needsApproval: vm.discountNeedsApproval,
+        issueOf: vm.billDiscountIssue,
+      ),
+    ),
+  );
+  if (choice == null || !context.mounted) return;
+  UuidValue? approverId;
+  if (choice.discount != null && vm.discountNeedsApproval) {
+    if (session == null) return;
+    final approver = await requestApproval(
+      context,
+      session: session,
+      permission: Permission.salesDiscount,
+      reason: l10n.approvalDiscount,
+    );
+    if (approver == null) return;
+    approverId = approver.id;
+  }
+  await vm.setDiscount.execute((
+    discount: choice.discount,
+    approverId: approverId,
+  ));
 }
 
 Future<void> _voidBill(

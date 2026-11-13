@@ -12457,6 +12457,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Baris dilewati: {lines}'**
   String productImportSkippedLines(String lines);
+
+  /// No description provided for @diningDiscountHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.'**
+  String get diningDiscountHint;
+
+  /// No description provided for @diningDiscountBlocksPay.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.'**
+  String get diningDiscountBlocksPay;
 }
 
 class _AppLocalizationsDelegate

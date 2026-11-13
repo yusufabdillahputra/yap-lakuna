@@ -3,6 +3,7 @@ library;
 
 import 'package:characters/characters.dart';
 
+import 'discount.dart';
 import 'money.dart';
 import 'rounding.dart';
 import 'store_settings.dart';
@@ -30,18 +31,22 @@ abstract final class FnbLimits {
   static const tableBatch = 50;
 }
 
-/// Rincian tagihan F&B: subtotal (setelah grosir), service, PB1,
-/// pembulatan, total.
+/// Rincian tagihan F&B: subtotal (setelah grosir), diskon nota, service,
+/// PB1, pembulatan, total.
 class FnbCharges {
   const FnbCharges({
     required this.subtotal,
     required this.service,
     required this.tax,
+    this.discount = Money.zero,
     this.taxInclusive = false,
     this.rounding = Money.zero,
   });
 
   final Money subtotal;
+
+  /// Potongan diskon nota manual (F1-04e), sebelum service dan PB1.
+  final Money discount;
   final Money service;
   final Money tax;
 
@@ -53,12 +58,17 @@ class FnbCharges {
   final Money rounding;
 
   Money get total =>
-      subtotal + service + (taxInclusive ? Money.zero : tax) + rounding;
+      subtotal -
+      discount +
+      service +
+      (taxInclusive ? Money.zero : tax) +
+      rounding;
 }
 
-/// Service = [subtotal] × [serviceBp] (hanya [dineIn]); PB1 = (subtotal +
-/// service) × [taxBp], atau bila [taxInclusive] dipisahkan dari (subtotal
-/// + service): × tarif ÷ (1 + tarif). Masing-masing dibulatkan setengah ke
+/// Dasar = [subtotal] − potongan [discount] (F1-04e; rupiah dipangkas ke
+/// subtotal). Service = dasar × [serviceBp] (hanya [dineIn]); PB1 = (dasar
+/// + service) × [taxBp], atau bila [taxInclusive] dipisahkan dari (dasar +
+/// service): × tarif ÷ (1 + tarif). Masing-masing dibulatkan setengah ke
 /// atas, lalu total dibulatkan menurut [rounding].
 FnbCharges fnbCharges(
   Money subtotal, {
@@ -67,9 +77,12 @@ FnbCharges fnbCharges(
   required BasisPoints taxBp,
   bool taxInclusive = false,
   TotalRounding rounding = TotalRounding.none,
+  ManualDiscount? discount,
 }) {
-  final service = dineIn ? subtotal.applyBp(serviceBp) : Money.zero;
-  final base = subtotal + service;
+  final cut = discount?.cut(subtotal) ?? Money.zero;
+  final net = subtotal - cut;
+  final service = dineIn ? net.applyBp(serviceBp) : Money.zero;
+  final base = net + service;
   final tax = taxInclusive
       ? Money(
           divRoundHalfAway(
@@ -80,12 +93,14 @@ FnbCharges fnbCharges(
       : base.applyBp(taxBp);
   final raw = FnbCharges(
     subtotal: subtotal,
+    discount: cut,
     service: service,
     tax: tax,
     taxInclusive: taxInclusive,
   );
   return FnbCharges(
     subtotal: subtotal,
+    discount: cut,
     service: service,
     tax: tax,
     taxInclusive: taxInclusive,

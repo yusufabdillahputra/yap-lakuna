@@ -21,6 +21,7 @@ String splitErrorMessage(
   Exception error,
 ) => switch (error) {
   SplitLocked() => l10n.billSplitErrorLocked,
+  DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
   SplitInvalid(error: SplitError.guests) => l10n.billSplitErrorGuests,
   SplitInvalid(error: SplitError.unassigned) => l10n.billSplitErrorUnassigned,
   SplitInvalid(error: SplitError.partPaid) => l10n.billSplitErrorPartPaid,

@@ -7075,4 +7075,12 @@ class AppLocalizationsId extends AppLocalizations {
   String productImportSkippedLines(String lines) {
     return 'Baris dilewati: $lines';
   }
+
+  @override
+  String get diningDiscountHint =>
+      'Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.';
+
+  @override
+  String get diningDiscountBlocksPay =>
+      'Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.';
 }

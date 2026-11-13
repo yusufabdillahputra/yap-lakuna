@@ -212,6 +212,104 @@ void main() {
     expect(session.current!.name, 'Dimas');
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('diskon nota bill 1280 px: terapkan, bayar, hapus', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'dining-table-M4');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren']);
+    expect(find.text('Rp 27.720'), findsWidgets);
+
+    await _tap(tester, 'dining-discount');
+    expect(_key('discount-dialog'), findsOneWidget);
+    expect(
+      find.text('Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.'),
+      findsOneWidget,
+    );
+    // Staf berizin: tanpa catatan PIN.
+    expect(_key('discount-needs-pin'), findsNothing);
+    await tester.enterText(_input('discount-value-percent'), '10');
+    await tester.pumpAndSettle();
+    expect(_key('discount-preview'), findsOneWidget);
+    await _tap(tester, 'discount-apply');
+    expect(_key('discount-dialog'), findsNothing);
+
+    // 24.000 − 2.400 = 21.600; service 1.080; PB1 2.268.
+    final totals = _key('dining-bill-totals');
+    expect(
+      find.descendant(of: totals, matching: find.text('Diskon nota 10%')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: totals, matching: find.text('− Rp 2.400')),
+      findsOneWidget,
+    );
+    expect(find.text('Rp 24.948'), findsWidgets);
+
+    await _tap(tester, 'dining-pay');
+    expect(find.text('Pembayaran · Total Rp 24.948'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: _key('payment-bill-discount'),
+        matching: find.text('Diskon nota 10%'),
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'payment-back');
+
+    // Ketuk baris diskon untuk mengubah; *Hapus diskon* mengembalikan total.
+    await _tap(tester, 'dining-bill-discount');
+    await _tap(tester, 'discount-remove');
+    expect(_key('dining-bill-discount'), findsNothing);
+    expect(find.text('Rp 27.720'), findsWidgets);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('diskon nota 360 px: pelayan lewat PIN manajer', (tester) async {
+    await pump(tester, size: const Size(360, 740), role: 'waiter');
+    await _tap(tester, 'dining-table-M3');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren', 'Nasi Goreng Kampung']);
+
+    // Ponsel: tombol ada di bawah daftar item yang digulir.
+    await tester.scrollUntilVisible(
+      _key('dining-discount'),
+      200,
+      scrollable: find
+          .ancestor(
+            of: _key('dining-bill-title'),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await _tap(tester, 'dining-discount');
+    expect(_key('discount-needs-pin'), findsOneWidget);
+    await _tap(tester, 'discount-kind-amount');
+    // Melebihi subtotal ditolak di dialog.
+    await tester.enterText(_input('discount-value-amount'), '60000');
+    await _tap(tester, 'discount-apply');
+    expect(
+      find.text('Diskon tidak boleh melebihi atau menghabiskan total.'),
+      findsOneWidget,
+    );
+    await tester.enterText(_input('discount-value-amount'), '5000');
+    await _tap(tester, 'discount-apply');
+    expect(_key('approval-dialog'), findsOneWidget);
+    await tester.enterText(_input('approval-pin'), '123456');
+    await _tap(tester, 'approval-submit');
+    expect(_key('approval-dialog'), findsNothing);
+
+    expect(
+      find.descendant(
+        of: _key('dining-bill-totals'),
+        matching: find.text('Diskon nota · disetujui Rina'),
+      ),
+      findsOneWidget,
+    );
+    expect(dining.discountApprovers.values, [session.staff.single.id]);
+    expect(session.current!.name, 'Dimas');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   for (final size in const [Size(360, 740), Size(820, 1180)]) {
     testWidgets('take away ${size.width.toInt()} px: nomor, hapus kosong', (
       tester,

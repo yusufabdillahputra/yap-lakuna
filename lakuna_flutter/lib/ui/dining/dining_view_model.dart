@@ -42,6 +42,13 @@ class BillItemInput {
 /// *Batalkan bill*: alasan dan penyetuju (F1-11; `null` = staf bertugas).
 typedef BillVoid = ({String reason, UuidValue? approverId});
 
+/// Diskon nota bill (F1-04e): `discount` `null` = hapus; `approverId`
+/// penyetuju PIN manajer (`null` = staf bertugas berizin).
+typedef BillDiscountChange = ({
+  ManualDiscount? discount,
+  UuidValue? approverId,
+});
+
 /// View model layar Meja & open bill (1.7 / 1.7e, F1-10).
 class DiningViewModel extends ChangeNotifier {
   DiningViewModel({required this._repository, required this._printer}) {
@@ -57,6 +64,7 @@ class DiningViewModel extends ChangeNotifier {
     voidBill = Command1(_void)..addListener(notifyListeners);
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
+    setDiscount = Command1(_setDiscount)..addListener(notifyListeners);
   }
 
   final DiningRepository _repository;
@@ -85,6 +93,9 @@ class DiningViewModel extends ChangeNotifier {
   late final Command1<void, BillVoid> voidBill;
   late final Command1<void, UuidValue> deleteEmpty;
   late final Command1<void, List<ReceiptLine>> printTicket;
+
+  /// Terapkan / hapus diskon nota bill terpilih (F1-04e).
+  late final Command1<OpenBill, BillDiscountChange> setDiscount;
 
   DiningData? _data;
   DiningMode _mode = DiningMode.dineIn;
@@ -133,6 +144,39 @@ class DiningViewModel extends ChangeNotifier {
       _data?.groupsOf(p) ?? const [];
   bool get canVoid => _data?.canVoid ?? false;
   String get staffName => _data?.staffName ?? '';
+
+  /// Tombol *Diskon* tampil: staf berizin, atau sakelar PIN manajer hidup.
+  bool get canOfferDiscount => _data?.canOfferDiscount ?? false;
+
+  /// Staf bertugas tanpa `sales:discount`: perlu PIN manajer.
+  bool get discountNeedsApproval => !(_data?.canDiscount ?? false);
+
+  /// Galat diskon nota [discount] untuk bill terpilih; `null` bila sah.
+  /// Total setelah diskon, service, PB1, dan pembulatan harus > 0.
+  DiscountIssue? billDiscountIssue(ManualDiscount discount) {
+    final bill = selectedBill;
+    if (bill == null) return DiscountIssue.invalid;
+    final subtotal = bill.charges.subtotal;
+    final issue = discount.issue(subtotal);
+    if (issue != null) return issue;
+    final after = fnbCharges(
+      subtotal,
+      dineIn: !bill.isTakeAway,
+      serviceBp: bill.rates.service,
+      taxBp: bill.rates.tax,
+      taxInclusive: bill.rates.taxInclusive,
+      rounding: bill.rates.rounding,
+      discount: discount,
+    );
+    return after.total <= Money.zero ? DiscountIssue.tooLarge : null;
+  }
+
+  /// Diskon menghabiskan total bill terpilih (item berkurang): bayar ditolak
+  /// sampai diskon diubah.
+  bool get discountBlocksPay => switch (selectedBill?.charges) {
+    final c? => c.discount > Money.zero && c.total <= Money.zero,
+    null => false,
+  };
   FnbRates get rates => _overview?.rates ?? const FnbRates();
 
   Future<Result<DiningData>> _load() async {
@@ -320,7 +364,8 @@ class DiningViewModel extends ChangeNotifier {
       requestBill.running ||
       move.running ||
       voidBill.running ||
-      deleteEmpty.running;
+      deleteEmpty.running ||
+      setDiscount.running;
 
   // --- Menu ------------------------------------------------------------------
 
@@ -460,6 +505,19 @@ class DiningViewModel extends ChangeNotifier {
       await _reloadOverview();
     }
     return result;
+  }
+
+  Future<Result<OpenBill>> _setDiscount(BillDiscountChange change) {
+    final id = _billId;
+    if (id == null) return Future.value(Result.error(BillNotFound()));
+    return _act(
+      () => _repository.setDiscount(
+        id,
+        change.discount,
+        approverId: change.approverId,
+      ),
+      onOk: _put,
+    );
   }
 
   Future<Result<void>> _deleteEmpty(UuidValue billId) async {

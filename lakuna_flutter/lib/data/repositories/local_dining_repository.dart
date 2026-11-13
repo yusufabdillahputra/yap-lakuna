@@ -58,6 +58,11 @@ class LocalDiningRepository extends DiningRepository {
           if (a.layoutMode == DiningLayoutMode.floor) a,
       ]),
       canArrange: staff.can(Permission.settingsManage),
+      canDiscount: staff.can(Permission.salesDiscount),
+      discountNeedsPin: (await loadSalesRules(
+        _store.session,
+        scope,
+      )).discountNeedsPin,
     );
   });
 
@@ -159,6 +164,36 @@ class LocalDiningRepository extends DiningRepository {
           tableId: tableId,
         ),
       );
+
+  @override
+  Future<Result<OpenBill>> setDiscount(
+    UuidValue billId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  }) => _guard((ctx, staff) async {
+    if (discount != null &&
+        approverId == null &&
+        !staff.can(Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    // Id penyetuju saja tidak cukup: PIN-nya harus baru diperiksa di sini.
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    final bill = await setBillDiscount(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      billId: billId,
+      discount: discount,
+      approverId: discount == null ? null : approverId,
+    );
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.salesDiscount);
+    }
+    return bill;
+  });
 
   @override
   Future<Result<void>> voidBill(

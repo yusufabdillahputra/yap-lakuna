@@ -951,7 +951,11 @@ class CashierViewModel extends ChangeNotifier {
 
   bool get _nothingToPay => _bill == null
       ? cartIsEmpty || discountBlocksPay
-      : _bill!.items.isEmpty || (partMode && payTotal <= Money.zero);
+      : _bill!.items.isEmpty ||
+            (partMode && payTotal <= Money.zero) ||
+            // Diskon nota bill F&B menghabiskan total (F1-04e).
+            (_bill!.charges.discount > Money.zero &&
+                _bill!.charges.total <= Money.zero);
 
   // --- Bayar ---------------------------------------------------------------
 

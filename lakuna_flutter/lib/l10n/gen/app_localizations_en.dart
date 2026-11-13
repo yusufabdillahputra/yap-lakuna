@@ -7223,4 +7223,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String productImportSkippedLines(String lines) {
     return 'Skipped rows: $lines';
   }
+
+  @override
+  String get diningDiscountHint =>
+      'For the whole bill. Service charge and tax are applied after the discount.';
+
+  @override
+  String get diningDiscountBlocksPay =>
+      'The discount uses up the bill total. Change or remove it before paying.';
 }

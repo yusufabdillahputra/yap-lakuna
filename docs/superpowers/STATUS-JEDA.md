@@ -1,8 +1,8 @@
-# Status: pengembangan dijeda (2026-11-04)
+# Status: titik lanjut pengembangan
 
-Pemilik meminta pengembangan Lakuna dijeda setelah pekerjaan yang sedang
-berjalan selesai. Dokumen ini mencatat titik berhenti agar pekerjaan bisa
-dilanjutkan tanpa menelusuri ulang riwayat.
+Pengembangan sempat dijeda pada 2026-11-04 dan **dilanjutkan lagi pada
+2026-11-13** atas permintaan pemilik. Dokumen ini mencatat titik terakhir
+agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 
 ## Rilis terakhir
 
@@ -12,13 +12,15 @@ dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.29.1 | Orientasi EXIF foto ponsel (QRIS) | #35 |
 | v0.30.0 | Kredit saat *Tutup & bayar* open bill F&B (F1-13b) | #36 |
 | v0.31.0 | Import produk dari Excel/CSV (F1-07b) | #37 |
+| v0.32.0 | Diskon nota di open bill F&B (F1-04e) | #38 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 
 ## Gap Fase 1 yang paling berguna untuk dilanjutkan
 
-1. **Diskon di open bill / split bill F&B** — spec F1-04b.
+1. ~~Diskon di open bill / split bill F&B~~ — selesai v0.32.0 (F1-04e);
+   diskon per baris di bill masih gap.
 2. **Kredit per bagian split bill** — spec F1-13b (butuh pelanggan per
    bagian tamu).
 3. **Harga grosir per grup pelanggan** — spec F1-13 / F1-04d.

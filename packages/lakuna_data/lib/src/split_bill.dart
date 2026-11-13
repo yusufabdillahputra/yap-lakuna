@@ -565,6 +565,7 @@ Future<SplitPayResult> paySplitPart(
       transaction: w.transaction,
     );
     final charges = _charges(sale, items, rates);
+    _assertPayable(sale, charges);
     final existing = await _billPayments(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);

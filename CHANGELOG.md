@@ -7,6 +7,66 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-11-13
+
+Bill meja dan take away F&B kini bisa diberi diskon nota.
+
+### Ditambahkan
+
+- **Diskon nota di open bill F&B (1.7, F1-04e).** Tombol *Diskon* di panel
+  bill membuka dialog *Diskon nota* yang sama dengan Kasir: persen atau
+  rupiah, pratinjau potongan, dan *Hapus diskon*. Baris *Diskon nota 10%
+  · disetujui Rina* tampil di blok total panel bill (ketuk untuk mengubah)
+  dan di ringkasan bill tahap pembayaran 1.5.
+- Service dan PB1 dihitung dari subtotal setelah diskon, lalu pembulatan
+  total. Diskon persen mengikuti perubahan item; diskon rupiah dipangkas
+  ke subtotal bila item berkurang.
+- Split bill membagi total setelah diskon. Diskon juga berlaku saat bill
+  ditutup sebagai kredit.
+- Struk, riwayat, laporan, dan retur memakai potongan efektif yang
+  tersimpan di nota, sama dengan diskon nota retail.
+
+### Diubah
+
+- Bila item berkurang sampai diskon menghabiskan total bill, *Tutup &
+  bayar* dan *Split bill* dimatikan dan panel menampilkan pesan sampai
+  diskon diubah.
+
+### Keamanan
+
+- Aturan izin sama dengan diskon Kasir (F1-04b). Staf dengan
+  `sales:discount` langsung menerapkan. Staf lain meminta PIN manajer bila
+  sakelar *Diskon manual butuh PIN manajer* hidup, dan penyetuju dicatat.
+  Bila sakelar mati, tombol tidak muncul. Repositori memeriksa ulang PIN
+  yang baru dimasukkan (sekali pakai), dan lapisan data memeriksa ulang
+  izin lewat `requireDiscountActor`.
+- Diskon tidak bisa diubah setelah ada pembayaran bagian split
+  (`SplitLocked`). Lapisan data juga menolak diskon yang menghabiskan
+  total (`DiscountTooLarge`), baik saat diterapkan maupun saat dibayar.
+
+### Catatan teknis
+
+- `fnbCharges(..., discount:)` dan `FnbCharges.discount`: total =
+  subtotal − diskon + service + PB1 (bila tidak termasuk) + pembulatan.
+- `setBillDiscount` menyimpan pilihan di baris `sales` yang masih open:
+  persen di `discount_bp`, rupiah di `discount_amount`, penyetuju di
+  `discount_approved_by`. Tidak ada kolom atau migrasi baru. Saat bill
+  selesai, `_completeBill` menulis potongan efektif ke `discount_amount`.
+- `DiningRepository.setDiscount` (lokal dan palsu),
+  `DiningViewModel.setDiscount`, `billDiscountIssue`, `discountBlocksPay`.
+  Label baris diskon dipakai bersama Kasir, panel bill, dan pembayaran
+  (`billDiscountRowLabel`).
+- Temuan review yang diperbaiki sebelum rilis: layar split menampilkan
+  pesan diskon (bukan galat umum) bila diskon menghabiskan total, tombol
+  bayar bill di Kasir ikut mati dalam keadaan itu, dan diskon tetap bisa
+  dihapus dari bill yang itemnya sudah habis.
+- Uji manual Xvfb: bill M2 Rp5.500 diskon 10% → service 248, PB1
+  termasuk 473, pembulatan −198, total Rp5.000; split rata 3 tamu
+  (1.667 / 1.667 / 1.666); tombol *Diskon* hilang setelah bagian pertama
+  dibayar; struk mencetak *Discount 10% −550*.
+- Pengembangan dilanjutkan lagi pada 2026-11-13 setelah jeda.
+  `docs/superpowers/STATUS-JEDA.md` kini mencatat titik lanjut.
+
 ## [0.31.0] - 2026-11-04
 
 Daftar barang dari Excel kini bisa dimasukkan sekaligus.
@@ -2942,7 +3002,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...HEAD
+[0.32.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...v0.30.0
 [0.29.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...v0.29.1

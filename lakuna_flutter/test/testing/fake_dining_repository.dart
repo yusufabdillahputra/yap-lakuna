@@ -177,10 +177,12 @@ class FakeDiningRepository extends DiningRepository {
         dineIn: sale.orderType == OrderType.dineIn,
         serviceBp: rates.service,
         taxBp: rates.tax,
+        discount: billDiscountOf(sale),
       ),
       rates: rates,
       table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
       openedByName: 'Dimas',
+      discountApprovedByName: sale.discountApprovedBy == null ? '' : 'Rina',
       modifiers: {for (final i in own) i.id: ?itemModifiers[i.id]},
       payments: [
         for (final p in payments)
@@ -217,6 +219,8 @@ class FakeDiningRepository extends DiningRepository {
       modifierGroups: Map.of(modifierGroups),
       floorImages: Map.of(floorImages),
       canArrange: _can(Permission.settingsManage),
+      canDiscount: _can(Permission.salesDiscount),
+      discountNeedsPin: discountNeedsPin,
     );
   });
 
@@ -525,6 +529,47 @@ class FakeDiningRepository extends DiningRepository {
         _replaceSale(b.sale.copyWith(diningTableId: tableId));
         return bill(billId);
       });
+
+  /// Sakelar *Diskon manual butuh PIN manajer*.
+  bool discountNeedsPin = true;
+
+  /// Penyetuju diskon terakhir per bill.
+  final discountApprovers = <UuidValue, UuidValue>{};
+
+  @override
+  Future<Result<OpenBill>> setDiscount(
+    UuidValue billId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  }) => _run(() {
+    if (discount != null &&
+        approverId == null &&
+        !_can(Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    final b = bill(billId);
+    if (b.payments.isNotEmpty) throw SplitLocked();
+    if (discount != null) {
+      if (discount.issue(b.charges.subtotal) != null) {
+        throw const DiscountTooLarge();
+      }
+      if (approverId != null) discountApprovers[billId] = approverId;
+    }
+    final next = b.sale.copyWith(
+      discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
+      discountAmount: discount?.kind == DiscountKind.amount
+          ? discount!.amount.value
+          : 0,
+      discountApprovedBy: discount == null ? null : approverId,
+    );
+    _replaceSale(next);
+    final after = bill(billId);
+    if (discount != null && after.charges.total <= Money.zero) {
+      _replaceSale(b.sale);
+      throw const DiscountTooLarge();
+    }
+    return after;
+  });
 
   @override
   Future<Result<void>> voidBill(
