@@ -7,6 +7,66 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-13
+
+Label harga + barcode kini bisa dicetak untuk ditempel di rak atau barang.
+
+### Ditambahkan
+
+- **Cetak label barcode (1.15b, F1-07e).** Halaman baru dari tombol *Cetak
+  label* di Produk & stok (ikon barcode di ponsel) atau dari form produk.
+  - Satu baris per varian, plus satu baris per satuan konversi yang punya
+    barcode sendiri (mis. *dus*, dengan harga satuannya). Kode yang dicetak
+    adalah barcode, atau SKU bila barcode kosong; baris tanpa keduanya
+    nonaktif dengan keterangan *Tanpa barcode/SKU*.
+  - Centang baris, atur jumlah 1–999 (− / + atau ketik), *Isi sesuai stok*,
+    cari nama/SKU/barcode, saklar *Hanya yang dipilih*. Dibuka dari form
+    produk, baris produk itu sudah dicentang dan saklar langsung aktif.
+  - Kertas: *A4 · 24 label (3 × 8)* untuk kertas stiker, dengan *Lewati
+    label pertama* untuk lembar yang sebagian sudah terpakai; *Label
+    50 × 30 mm* dan *38 × 25 mm* untuk printer label (satu label per
+    halaman).
+  - Isi label: nama (maks. 2 baris), harga (bisa disembunyikan), barcode
+    dengan teks kode. Pratinjau satu label di layar, jumlah label dan
+    halaman, batas 2.000 label per cetak.
+  - *Cetak* membuka dialog cetak sistem dengan ukuran kertas label yang
+    dipilih; *Simpan PDF* membagikan PDF di ponsel atau menyimpannya di
+    folder Dokumen di desktop.
+- Aturan simbologi di `lakuna_domain` (`labelSymbology`, `eanCheckDigit`):
+  13/8/12 digit dengan digit periksa benar dicetak sebagai EAN-13 / EAN-8 /
+  UPC-A, kode lain sebagai Code 128; kode di luar ASCII cetak tidak bisa
+  dicetak.
+
+### Diubah
+
+- Tombol di kepala halaman (mis. Produk & stok) kini turun baris bila tidak
+  muat, alih-alih meluap ke kanan di tablet.
+
+### Catatan teknis
+
+- `BarcodeLabelPaper`, `BarcodeLabel`, `BarcodeLabelSheet`,
+  `buildBarcodeLabelPdf` (paket `pdf`, `BarcodeWidget`, font PDF yang sama
+  dengan kuitansi). Pratinjau layar memakai SVG dari paket `barcode` lewat
+  `flutter_svg`, tanpa aset jaringan.
+- `BarcodeLabelViewModel` + `labelRows`; rute `/produk/label` (dengan
+  `?produk=<id>`), dijaga izin `products:manage` seperti layar produk lain.
+- `ReceiptPrinter.printDocument` menerima `format` (bawaan A5 untuk
+  kuitansi).
+- `PageHeader` membatasi lebar tombol aksi 60 % agar `Wrap` turun baris.
+- Temuan review yang diperbaiki sebelum rilis:
+  - Dialog cetak sebelumnya selalu dibuka dengan kertas A5, sehingga lembar
+    A4 dan label kecil tercetak salah ukuran.
+  - Galat cetak tetap tampil setelah *Simpan PDF* berhasil; kini hanya hasil
+    aksi terakhir yang ditampilkan.
+  - Kolom jumlah 0 dan *Lewati* > 23 kini langsung dibetulkan di kolomnya;
+    tombol − / + tidak lagi membuat kolom jumlah baris lain kehilangan
+    fokus.
+  - Pencarian SKU kini juga menemukan varian yang barcodenya terisi.
+- Uji manual di aplikasi Linux (Xvfb): Air Mineral dan Beras Premium 5 kg
+  dipilih, *Isi sesuai stok* menjadi 51 + 6 = 57 label · 3 halaman, PDF A4
+  tersimpan 3 halaman; dari form Kopi Sachet baris produk itu langsung
+  terpilih.
+
 ## [0.35.0] - 2026-11-13
 
 Produk yang tidak dijual lagi kini bisa diarsipkan dan dipulihkan.
@@ -3155,7 +3215,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...HEAD
+[0.36.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...v0.36.0
 [0.35.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...v0.35.0
 [0.34.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...v0.33.0

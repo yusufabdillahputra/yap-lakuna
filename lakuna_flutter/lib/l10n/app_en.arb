@@ -4034,5 +4034,71 @@
       }
     }
   },
-  "productsArchivedClose": "Close"
+  "productsArchivedClose": "Close",
+  "productsLabels": "Print labels",
+  "labelsTitle": "Print barcode labels",
+  "labelsSubtitle": "Pick products and label counts. The barcode is used when set, otherwise the SKU.",
+  "labelsBack": "Back",
+  "labelsSearch": "Search name, SKU or barcode",
+  "labelsSelectedOnly": "Selected only ({count})",
+  "@labelsSelectedOnly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsFillStock": "Match stock",
+  "labelsNoCode": "No barcode/SKU",
+  "labelsBadCode": "Code can't be printed",
+  "labelsEmpty": "No matching products.",
+  "labelsLess": "Less",
+  "labelsMore": "More",
+  "labelsSettings": "Label settings",
+  "labelsPaper": "Paper",
+  "labelsPaperA4": "A4 · 24 labels (3 × 8)",
+  "labelsPaperA4Hint": "A4 sticker sheet, 70 × 37 mm per label.",
+  "labelsPaperRoll": "Label {size}",
+  "@labelsPaperRoll": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "labelsPaperRollHint": "Label printer, one label per page.",
+  "labelsSkip": "Skip first labels",
+  "labelsSkipHint": "For a partly used sheet (0–23).",
+  "labelsShowPrice": "Show price",
+  "labelsPreview": "Preview",
+  "labelsPreviewEmpty": "Pick a product to see a preview.",
+  "labelsTotal": "{labels, plural, =1{1 label} other{{labels} labels}} · {pages, plural, =1{1 page} other{{pages} pages}}",
+  "@labelsTotal": {
+    "placeholders": {
+      "labels": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsOverLimit": "At most {max} labels per print. Lower the counts.",
+  "@labelsOverLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsPrint": "Print",
+  "labelsSave": "Save PDF",
+  "labelsSaved": "PDF saved to {path}",
+  "@labelsSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  }
 }

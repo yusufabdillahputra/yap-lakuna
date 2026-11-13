@@ -58,6 +58,12 @@ abstract final class Routes {
   /// Form produk baru (F1-07).
   static const productNew = '/produk/baru';
 
+  /// Cetak label barcode (F1-07e).
+  static const productLabels = '/produk/label';
+
+  /// Cetak label barcode dengan baris produk [id] sudah dipilih.
+  static String productLabelsFor(String id) => '$productLabels?produk=$id';
+
   /// Form ubah produk [id] (F1-07).
   static String product(String id) => '/produk/$id';
 

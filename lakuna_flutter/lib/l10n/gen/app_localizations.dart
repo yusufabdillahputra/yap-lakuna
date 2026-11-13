@@ -12577,6 +12577,174 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup'**
   String get productsArchivedClose;
+
+  /// No description provided for @productsLabels.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak label'**
+  String get productsLabels;
+
+  /// No description provided for @labelsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak label barcode'**
+  String get labelsTitle;
+
+  /// No description provided for @labelsSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih produk dan jumlah label. Barcode dipakai bila ada, selain itu SKU.'**
+  String get labelsSubtitle;
+
+  /// No description provided for @labelsBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get labelsBack;
+
+  /// No description provided for @labelsSearch.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari nama, SKU, atau barcode'**
+  String get labelsSearch;
+
+  /// No description provided for @labelsSelectedOnly.
+  ///
+  /// In id, this message translates to:
+  /// **'Hanya yang dipilih ({count})'**
+  String labelsSelectedOnly(int count);
+
+  /// No description provided for @labelsFillStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi sesuai stok'**
+  String get labelsFillStock;
+
+  /// No description provided for @labelsNoCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa barcode/SKU'**
+  String get labelsNoCode;
+
+  /// No description provided for @labelsBadCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode tidak bisa dicetak'**
+  String get labelsBadCode;
+
+  /// No description provided for @labelsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada produk yang cocok.'**
+  String get labelsEmpty;
+
+  /// No description provided for @labelsLess.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurangi'**
+  String get labelsLess;
+
+  /// No description provided for @labelsMore.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah'**
+  String get labelsMore;
+
+  /// No description provided for @labelsSettings.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan label'**
+  String get labelsSettings;
+
+  /// No description provided for @labelsPaper.
+  ///
+  /// In id, this message translates to:
+  /// **'Kertas'**
+  String get labelsPaper;
+
+  /// No description provided for @labelsPaperA4.
+  ///
+  /// In id, this message translates to:
+  /// **'A4 · 24 label (3 × 8)'**
+  String get labelsPaperA4;
+
+  /// No description provided for @labelsPaperA4Hint.
+  ///
+  /// In id, this message translates to:
+  /// **'Kertas stiker A4, 70 × 37 mm per label.'**
+  String get labelsPaperA4Hint;
+
+  /// No description provided for @labelsPaperRoll.
+  ///
+  /// In id, this message translates to:
+  /// **'Label {size}'**
+  String labelsPaperRoll(String size);
+
+  /// No description provided for @labelsPaperRollHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer label, satu label per halaman.'**
+  String get labelsPaperRollHint;
+
+  /// No description provided for @labelsSkip.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewati label pertama'**
+  String get labelsSkip;
+
+  /// No description provided for @labelsSkipHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Untuk lembar yang sebagian sudah terpakai (0–23).'**
+  String get labelsSkipHint;
+
+  /// No description provided for @labelsShowPrice.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan harga'**
+  String get labelsShowPrice;
+
+  /// No description provided for @labelsPreview.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau'**
+  String get labelsPreview;
+
+  /// No description provided for @labelsPreviewEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih produk untuk melihat pratinjau.'**
+  String get labelsPreviewEmpty;
+
+  /// No description provided for @labelsTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'{labels} label · {pages} halaman'**
+  String labelsTotal(int labels, int pages);
+
+  /// No description provided for @labelsOverLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {max} label per cetak. Kurangi jumlahnya.'**
+  String labelsOverLimit(int max);
+
+  /// No description provided for @labelsPrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak'**
+  String get labelsPrint;
+
+  /// No description provided for @labelsSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan PDF'**
+  String get labelsSave;
+
+  /// No description provided for @labelsSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF disimpan di {path}'**
+  String labelsSaved(String path);
 }
 
 class _AppLocalizationsDelegate

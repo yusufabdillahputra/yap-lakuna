@@ -54,6 +54,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     onOpen: (id) => context.go(Routes.product(id.uuid)),
     onImport: _import,
     onArchived: _archived,
+    onLabels: () => context.push<void>(Routes.productLabels),
   );
 
   Future<void> _archived() async {
@@ -80,6 +81,7 @@ class ProductListView extends StatelessWidget {
     required this.onOpen,
     this.onImport,
     this.onArchived,
+    this.onLabels,
   });
 
   final ProductListViewModel viewModel;
@@ -91,6 +93,9 @@ class ProductListView extends StatelessWidget {
 
   /// Dialog produk diarsipkan (F1-07d); tombol tampil bila ada arsip.
   final VoidCallback? onArchived;
+
+  /// Halaman cetak label barcode (F1-07e); tombol tampil bila ada produk.
+  final VoidCallback? onLabels;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -118,6 +123,7 @@ class ProductListView extends StatelessWidget {
                 onOpen: onOpen,
                 onImport: onImport,
                 onArchived: viewModel.archivedCount > 0 ? onArchived : null,
+                onLabels: viewModel.isEmpty ? null : onLabels,
               )
             : _WideList(
                 viewModel: viewModel,
@@ -125,6 +131,7 @@ class ProductListView extends StatelessWidget {
                 onOpen: onOpen,
                 onImport: onImport,
                 onArchived: viewModel.archivedCount > 0 ? onArchived : null,
+                onLabels: viewModel.isEmpty ? null : onLabels,
               );
       },
     ),
@@ -246,6 +253,7 @@ class _WideList extends StatelessWidget {
     required this.onOpen,
     this.onImport,
     this.onArchived,
+    this.onLabels,
   });
 
   final ProductListViewModel viewModel;
@@ -253,6 +261,7 @@ class _WideList extends StatelessWidget {
   final ValueChanged<UuidValue> onOpen;
   final VoidCallback? onImport;
   final VoidCallback? onArchived;
+  final VoidCallback? onLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -281,6 +290,7 @@ class _WideList extends StatelessWidget {
                       action: Wrap(
                         spacing: 8,
                         runSpacing: 8,
+                        alignment: WrapAlignment.end,
                         children: [
                           if (onArchived case final onArchived?)
                             FButton(
@@ -295,6 +305,17 @@ class _WideList extends StatelessWidget {
                                     viewModel.archivedCount,
                                   ),
                                 ),
+                              ),
+                            ),
+                          if (onLabels case final onLabels?)
+                            FButton(
+                              key: const ValueKey('products-labels'),
+                              variant: .outline,
+                              mainAxisSize: .min,
+                              prefix: const Icon(TablerIcons.barcode),
+                              onPress: onLabels,
+                              child: Flexible(
+                                child: Text(l10n.productsLabels),
                               ),
                             ),
                           if (onImport case final onImport?)
@@ -642,6 +663,7 @@ class _MobileList extends StatelessWidget {
     required this.onOpen,
     this.onImport,
     this.onArchived,
+    this.onLabels,
   });
 
   final ProductListViewModel viewModel;
@@ -649,6 +671,7 @@ class _MobileList extends StatelessWidget {
   final ValueChanged<UuidValue> onOpen;
   final VoidCallback? onImport;
   final VoidCallback? onArchived;
+  final VoidCallback? onLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -684,6 +707,14 @@ class _MobileList extends StatelessWidget {
                               ),
                               onPress: onArchived,
                               child: const Icon(TablerIcons.archive),
+                            ),
+                          if (onLabels case final onLabels?)
+                            FButton.icon(
+                              key: const ValueKey('products-labels'),
+                              variant: .outline,
+                              semanticsLabel: l10n.productsLabels,
+                              onPress: onLabels,
+                              child: const Icon(TablerIcons.barcode),
                             ),
                           if (onImport case final onImport?
                               when !viewModel.isEmpty)

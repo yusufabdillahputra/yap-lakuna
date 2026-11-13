@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup;
+import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup, UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
@@ -53,6 +53,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   Widget build(BuildContext context) => ProductFormView(
     viewModel: _viewModel,
     onDone: () => context.go(Routes.products),
+    onLabels: (id) => context.push<void>(Routes.productLabelsFor(id.uuid)),
   );
 }
 
@@ -104,10 +105,14 @@ class ProductFormView extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onDone,
+    this.onLabels,
   });
 
   final ProductFormViewModel viewModel;
   final VoidCallback onDone;
+
+  /// Cetak label barcode produk ini (F1-07e); `null` menyembunyikan tombol.
+  final ValueChanged<UuidValue>? onLabels;
 
   Future<void> _save() async {
     await viewModel.save.execute();
@@ -235,6 +240,20 @@ class ProductFormView extends StatelessWidget {
                   );
                 },
               ),
+              if ((onLabels, viewModel.productId)
+                  case (final onLabels?, final id?) when viewModel.canArchive)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FButton(
+                    key: const ValueKey('product-labels'),
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: saving ? null : () => onLabels(id),
+                    prefix: const Icon(TablerIcons.barcode),
+                    child: Flexible(child: Text(l10n.productsLabels)),
+                  ),
+                ),
               if (viewModel.canArchive)
                 _ArchiveSection(viewModel: viewModel, onArchived: onDone),
             ],

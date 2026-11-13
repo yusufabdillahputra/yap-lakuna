@@ -59,7 +59,14 @@ class PageHeader extends StatelessWidget {
               spacing: 16,
               children: [
                 Expanded(child: titles),
-                action,
+                // Batasi lebar agar tombol-tombol (Wrap) turun baris, bukan
+                // meluap, di tablet atau saat tombolnya banyak.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth * 0.6,
+                  ),
+                  child: action,
+                ),
               ],
             ),
     );

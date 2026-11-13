@@ -258,7 +258,7 @@ Dicek di menu/rute dan di repositori aplikasi `ProductRepository`
 | --- | --- | --- | --- |
 | Foto produk | *Ganti foto*, thumbnail | Kotak inisial | Bangun dengan pola media (gambar lokal, WebP) bersama QRIS di F1-05/F1-26 |
 | Tab Modifier | Hanya Menu F&B | Belum | F1-10 |
-| Tab Barcode & label, *Cetak label barcode* | Ada | Belum | Setelah mesin cetak F1-06 |
+| Tab Barcode & label, *Cetak label barcode* | Ada | Rilis v0.36.0 | [F1-07e](2026-11-13-f1-07e-label-barcode-design.md): halaman 1.15b, A4 3×8 dan printer label (PDF); tombol *Cetak label* di form menggantikan tab |
 | *Import Excel* | Tombol di 1.15 | Rilis v0.31.0 | Lihat [F1-07b](2026-11-04-f1-07b-import-produk-design.md): produk baru satu varian, yang sudah ada dilewati. |
 | Filter *Lokasi stok* | Etalase/Gudang | Hanya Etalase | Saat F1-09 menambah lokasi kedua |
 | Grosir *Berlaku untuk* grup pelanggan | "Grup pelanggan: Grosir" | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md) (`price_tiers.customer_group_id`) |
