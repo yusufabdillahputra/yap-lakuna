@@ -109,23 +109,18 @@ class LocalCustomersRepository extends CustomersRepository {
 
   @override
   Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason) =>
-      _guard(permission: Permission.debtsManage, (_, scope, staff) async {
-        // Batal tunai laci mengeluarkan uang dari laci: izinnya sama dengan
-        // gerakan kas.
-        final p = await DebtPayment.db.findById(_store.session, paymentId);
-        if (p != null &&
-            debtPaymentTouchesDrawer(p) &&
-            !staff.can(Permission.cashMovementsCreate)) {
-          throw const NotPermitted(Permission.cashMovementsCreate);
-        }
-        return voidDebtPayment(
+      _guard(
+        permission: Permission.debtsManage,
+        // `voidDebtPayment` juga memeriksa `cash_movements:create` untuk
+        // pembayaran laci.
+        (_, scope, staff) => voidDebtPayment(
           _store,
           scope,
           staffId: staff.id,
           paymentId: paymentId,
           reason: reason,
-        );
-      });
+        ),
+      );
 
   @override
   Future<Result<DebtPaymentReceipt>> receipt(UuidValue paymentId) =>

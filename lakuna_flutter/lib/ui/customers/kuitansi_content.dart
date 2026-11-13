@@ -90,7 +90,10 @@ KuitansiDocument kuitansiDocument(
     amount: _money(l10n, receipt.amount),
     signName: receipt.staffName,
     signRole: l10n.kuitansiCashier,
-    footnote: showBalance ? _dueNote(l10n, receipt) : null,
+    // Sisa piutang kuitansi batal sudah tidak berlaku.
+    footnote: showBalance && p.voidedAt == null
+        ? _dueNote(l10n, receipt)
+        : null,
   );
 }
 
@@ -137,7 +140,7 @@ ReceiptContent kuitansiReceiptContent(
         bold: true,
       ),
       ReceiptPair(debtPaymentMethodLabel(l10n, p), ''),
-      if (showBalance)
+      if (showBalance && p.voidedAt == null)
         ReceiptPair(
           l10n.kuitansiBalance,
           receiptAmount(l10n, receipt.balanceAfter.value),

@@ -7587,4 +7587,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashSourceSupplierPaymentVoid => 'Batal bayar hutang';
+
+  @override
+  String get debtErrNotFound =>
+      'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.';
 }

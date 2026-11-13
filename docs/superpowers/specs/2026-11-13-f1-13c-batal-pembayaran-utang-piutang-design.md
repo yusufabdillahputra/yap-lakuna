@@ -41,11 +41,17 @@ pembayaran.
 4. **Izin.** `debts:manage` (sama dengan mencatat pembayaran), ditambah
    `cash_movements:create` bila ada jurnal balik laci.
 5. **Ditolak:** pembayaran sudah batal (`DebtPaymentAlreadyVoided`), bukan
-   milik tenant/cabang ini (`DebtPaymentNotFound`), alasan kosong/terlalu
-   panjang (`DebtPaymentVoidReasonInvalid`).
-6. **Laporan kas.** Sumber baru tampil sebagai *Batal bayar piutang* dan
+   milik tenant/cabang ini atau pelanggan/supplier-nya sudah dihapus
+   (`DebtPaymentNotFound`; pihak hanya bisa dihapus saat saldonya nol, jadi
+   batal tidak boleh menghidupkan saldo pihak terhapus), alasan
+   kosong/terlalu panjang (`DebtPaymentVoidReasonInvalid`).
+6. **Kuitansi batal** tidak menampilkan sisa piutang setelah pembayaran
+   (angkanya sudah tidak berlaku). Detail pembelian hanya menampilkan
+   pembayaran hutang yang berlaku; jejak batal ada di riwayat bayar
+   supplier.
+7. **Laporan kas.** Sumber baru tampil sebagai *Batal bayar piutang* dan
    *Batal bayar hutang* di tab Kas.
-7. Sinkronisasi: semua tulisan lewat outbox seperti biasa.
+8. Sinkronisasi: semua tulisan lewat outbox seperti biasa.
 
 ## Komponen
 

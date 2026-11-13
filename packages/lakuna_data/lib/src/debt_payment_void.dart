@@ -53,6 +53,19 @@ Future<DebtPayment> voidDebtPayment(
       existing.deletedAt != null) {
     throw DebtPaymentNotFound();
   }
+  // Pihak yang sudah dihapus (saldonya nol saat dihapus) tidak boleh
+  // kembali berpiutang/berhutang.
+  final party = switch (existing.party) {
+    DebtParty.customer => (await Customer.db.findById(
+      store.session,
+      existing.customerId!,
+    ))?.deletedAt,
+    DebtParty.supplier => (await Supplier.db.findById(
+      store.session,
+      existing.supplierId!,
+    ))?.deletedAt,
+  };
+  if (party != null) throw DebtPaymentNotFound();
   final drawer = debtPaymentTouchesDrawer(existing);
   switch (existing.party) {
     case DebtParty.customer:

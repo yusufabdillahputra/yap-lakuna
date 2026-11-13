@@ -7754,4 +7754,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashSourceSupplierPaymentVoid => 'Voided supplier payment';
+
+  @override
+  String get debtErrNotFound =>
+      'Payment not found, or its customer/supplier was deleted.';
 }

@@ -163,7 +163,11 @@ class _VoidDialogState extends State<_VoidDialog> {
                   key: const ValueKey('debt-void-back'),
                   variant: .outline,
                   mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(false),
+                  // Tetap terbuka sampai batal selesai agar hasilnya tidak
+                  // hilang (daftar perlu dimuat ulang bila berhasil).
+                  onPress: _running
+                      ? null
+                      : () => Navigator.of(context).pop(false),
                   child: Text(l10n.debtVoidBack),
                 ),
                 FButton(

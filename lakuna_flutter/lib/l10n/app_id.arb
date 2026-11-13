@@ -4820,5 +4820,6 @@
   "reportsSourceDebtPaymentVoid": "Batal bayar piutang",
   "reportsSourceSupplierPaymentVoid": "Batal bayar hutang",
   "cashSourceDebtPaymentVoid": "Batal bayar piutang",
-  "cashSourceSupplierPaymentVoid": "Batal bayar hutang"
+  "cashSourceSupplierPaymentVoid": "Batal bayar hutang",
+  "debtErrNotFound": "Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus."
 }

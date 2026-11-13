@@ -309,6 +309,8 @@ void main() {
         city: '',
       );
       expect(doc.banner, 'BATAL');
+      // Sisa piutang setelah pembayaran sudah tidak berlaku.
+      expect(doc.footnote, isNull);
       expect(doc.fields.map((f) => f.value), contains('Salah pelanggan'));
       final thermal = kuitansiReceiptContent(
         id,

@@ -13321,6 +13321,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Batal bayar hutang'**
   String get cashSourceSupplierPaymentVoid;
+
+  /// No description provided for @debtErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.'**
+  String get debtErrNotFound;
 }
 
 class _AppLocalizationsDelegate

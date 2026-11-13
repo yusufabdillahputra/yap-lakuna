@@ -281,6 +281,12 @@ void main() {
       );
     });
 
+    test('pelanggan yang sudah dihapus: batal ditolak', () async {
+      final p = await receive(800000, PaymentMethod.transfer);
+      await deleteCustomer(store, scope, staffId: owner(), customerId: ani.id);
+      await expectLater(voidIt(p), throwsA(isA<DebtPaymentNotFound>()));
+    });
+
     test('pembayaran, alokasi, dan kas masuk outbox', () async {
       final p = await receive(100000, PaymentMethod.cash);
       Future<Map<String, int>> counts() async {

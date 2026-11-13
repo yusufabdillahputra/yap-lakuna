@@ -4286,5 +4286,6 @@
   "reportsSourceDebtPaymentVoid": "Voided customer payment",
   "reportsSourceSupplierPaymentVoid": "Voided supplier payment",
   "cashSourceDebtPaymentVoid": "Voided receivable payment",
-  "cashSourceSupplierPaymentVoid": "Voided supplier payment"
+  "cashSourceSupplierPaymentVoid": "Voided supplier payment",
+  "debtErrNotFound": "Payment not found, or its customer/supplier was deleted."
 }

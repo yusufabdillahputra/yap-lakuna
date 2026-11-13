@@ -839,7 +839,9 @@ class _Payments extends StatelessWidget {
           _ => null,
         };
       },
-      errorMessage: (e) => customerErrorMessage(l10n, e),
+      errorMessage: (e) => e is DebtPaymentNotFound
+          ? l10n.debtErrNotFound
+          : customerErrorMessage(l10n, e),
     );
     // Ringkasan daftar (total piutang/hutang) ikut berubah.
     if (voided) await onChanged();
@@ -850,120 +852,127 @@ class _Payments extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final payments = viewModel.detail!.payments;
-    return Column(
-      key: const ValueKey('customer-payments'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 8,
-      children: [
-        Text(
-          l10n.customerPayments,
-          style: theme.typography.body.md.copyWith(fontWeight: FontWeight.w700),
-        ),
-        if (payments.isEmpty)
-          Text(l10n.customerNoPayments, style: _muted(context))
-        else
-          for (final p in payments)
-            Row(
-              spacing: 4,
-              children: [
-                Expanded(
-                  child: FTappable(
-                    key: ValueKey('customer-payment-${p.id.uuid}'),
-                    onPress: () => onOpen(p.id),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          Icon(
-                            TablerIcons.receipt,
-                            size: 18,
-                            color: theme.colors.mutedForeground,
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  spacing: 6,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
+    Widget amount(DebtPayment p) => Text(
+      formatMoney(context, Money(p.amount)),
+      style: theme.typography.body.sm.copyWith(
+        fontWeight: FontWeight.w600,
+        fontFeatures: _tabular,
+        decoration: p.voidedAt != null ? TextDecoration.lineThrough : null,
+        color: p.voidedAt != null ? theme.colors.mutedForeground : null,
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Layar sempit: nominal pindah ke bawah nomor agar tombol aksi muat.
+        final narrow = constraints.maxWidth < 420;
+        return Column(
+          key: const ValueKey('customer-payments'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: [
+            Text(
+              l10n.customerPayments,
+              style: theme.typography.body.md.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (payments.isEmpty)
+              Text(l10n.customerNoPayments, style: _muted(context))
+            else
+              for (final p in payments)
+                Row(
+                  spacing: 4,
+                  children: [
+                    Expanded(
+                      child: FTappable(
+                        key: ValueKey('customer-payment-${p.id.uuid}'),
+                        onPress: () => onOpen(p.id),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(
+                                TablerIcons.receipt,
+                                size: 18,
+                                color: theme.colors.mutedForeground,
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      p.number,
-                                      style: theme.typography.body.sm.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    if (p.voidedAt != null)
-                                      FBadge(
-                                        key: ValueKey(
-                                          'customer-payment-voided-${p.id.uuid}',
+                                    Wrap(
+                                      spacing: 6,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            p.number,
+                                            maxLines: 1,
+                                            style: theme.typography.body.sm
+                                                .copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
                                         ),
-                                        variant: .destructive,
-                                        child: Text(l10n.debtVoided),
+                                        if (p.voidedAt != null)
+                                          FBadge(
+                                            key: ValueKey(
+                                              'customer-payment-voided-${p.id.uuid}',
+                                            ),
+                                            variant: .destructive,
+                                            child: Text(l10n.debtVoided),
+                                          ),
+                                      ],
+                                    ),
+                                    Text(
+                                      '${formatCalendarDate(p.paidOn)} · '
+                                      '${debtPaymentMethodLabel(l10n, p)}',
+                                      style: _muted(context),
+                                    ),
+                                    if (p.voidReason case final reason?)
+                                      Text(
+                                        l10n.debtVoidedInfo(reason),
+                                        style: _muted(context),
                                       ),
+                                    if (narrow) amount(p),
                                   ],
                                 ),
-                                Text(
-                                  '${formatCalendarDate(p.paidOn)} · '
-                                  '${debtPaymentMethodLabel(l10n, p)}',
-                                  style: _muted(context),
-                                ),
-                                if (p.voidReason case final reason?)
-                                  Text(
-                                    l10n.debtVoidedInfo(reason),
-                                    style: _muted(context),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                formatMoney(context, Money(p.amount)),
-                                style: theme.typography.body.sm.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  fontFeatures: _tabular,
-                                  decoration: p.voidedAt != null
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                  color: p.voidedAt != null
-                                      ? theme.colors.mutedForeground
-                                      : null,
-                                ),
                               ),
-                            ),
+                              if (!narrow) amount(p),
+                              Icon(
+                                TablerIcons.chevronRight,
+                                size: 16,
+                                color: theme.colors.mutedForeground,
+                              ),
+                            ],
                           ),
-                          Icon(
-                            TablerIcons.chevronRight,
-                            size: 16,
-                            color: theme.colors.mutedForeground,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                    if (viewModel.canVoid(p))
+                      FTooltip(
+                        tipBuilder: (context, _) => Text(l10n.debtVoidAction),
+                        child: FButton.icon(
+                          key: ValueKey('customer-payment-void-${p.id.uuid}'),
+                          variant: .ghost,
+                          onPress: viewModel.voidPayment.running
+                              ? null
+                              : () => _void(context, p),
+                          child: Icon(
+                            TablerIcons.ban,
+                            color: theme.colors.destructive,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                if (viewModel.canVoid(p))
-                  FTooltip(
-                    tipBuilder: (context, _) => Text(l10n.debtVoidAction),
-                    child: FButton.icon(
-                      key: ValueKey('customer-payment-void-${p.id.uuid}'),
-                      variant: .ghost,
-                      onPress: viewModel.voidPayment.running
-                          ? null
-                          : () => _void(context, p),
-                      child: Icon(
-                        TablerIcons.ban,
-                        color: theme.colors.destructive,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

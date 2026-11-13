@@ -27,7 +27,8 @@ bisa dibatalkan dengan jejak, lalu dicatat ulang dengan benar.
   - baris riwayat tetap tampil dengan nominal dicoret, label *Batal*, dan
     alasannya;
   - kuitansi A5 dan thermal pembayaran itu bercap **BATAL** dan memuat
-    alasan batal, rinciannya tetap lengkap.
+    alasan batal, rinciannya tetap lengkap; sisa piutang setelah
+    pembayaran tidak dicetak lagi karena sudah tidak berlaku.
 - **Batal pembayaran hutang (1.21, F1-13c).** Ikon yang sama di riwayat
   bayar supplier: alokasi ke pembelian dihapus sehingga sisa hutang
   kembali, dan pembayaran dari kas laci dikembalikan sebagai kas masuk di
@@ -39,8 +40,9 @@ bisa dibatalkan dengan jejak, lalu dicatat ulang dengan benar.
 
 ### Diubah
 
-- Nominal di baris riwayat pembayaran pelanggan dan supplier mengecil
-  otomatis di layar sempit agar muat bersama tombol aksinya.
+- Di layar sempit (di bawah 420 px) nominal baris riwayat pembayaran
+  pelanggan dan supplier pindah ke bawah nomor agar tombol aksinya muat;
+  nomor pembayaran tetap satu baris.
 
 ### Keamanan
 
@@ -48,7 +50,9 @@ bisa dibatalkan dengan jejak, lalu dicatat ulang dengan benar.
   juga `cash_movements:create`. Izin dicek di repositori aplikasi dan di
   lapisan data. Pembayaran yang dicatat di cabang lain tidak bisa
   dibatalkan dari cabang ini (ditolak sebagai tidak ditemukan), karena
-  jurnal balik kas memakai sesi kasir cabang aktif.
+  jurnal balik kas memakai sesi kasir cabang aktif. Pembayaran milik
+  pelanggan/supplier yang sudah dihapus juga ditolak agar saldo pihak
+  terhapus tidak hidup lagi.
 
 ### Catatan teknis
 
@@ -70,7 +74,9 @@ bisa dibatalkan dengan jejak, lalu dicatat ulang dengan benar.
 - `CustomersRepository.voidPayment` dan `SuppliersRepository.voidPayment`;
   `CustomersSetup.outletId` / `SuppliersSetup.outletId`; dialog bersama
   `debt_payment_void_dialog.dart`.
-- Tes baru: `debt_payment_void_test.dart` (data, 8 tes), tes view model
+- Tombol *Kembali* di dialog batal nonaktif selama proses agar ringkasan
+  daftar tetap dimuat ulang setelah batal berhasil.
+- Tes baru: `debt_payment_void_test.dart` (data, 9 tes), tes view model
   panel pelanggan/supplier dan kuitansi batal, serta tes widget batal di
   1280 dan 360 px.
 

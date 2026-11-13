@@ -24,4 +24,5 @@ Spec: [F1-13c](../specs/2026-11-13-f1-13c-batal-pembayaran-utang-piutang-design.
 - [x] Tes view model + widget 1280/360 px.
 - [x] Panduan ID/EN, spec F1-13/F1-14/README/STATUS-JEDA, CHANGELOG,
       versi 0.44.0+47.
-- [ ] Uji manual Xvfb, review subagent, PR, CI, merge.
+- [x] Uji manual Xvfb, review subagent (temuan: tata letak 360 px, kuitansi batal tanpa sisa piutang, pihak terhapus, tombol Kembali, pesan galat) diperbaiki.
+- [ ] PR #50: CI, merge, cek rilis.

@@ -245,6 +245,11 @@ void main() {
       await pump(tester, size, customers: customers);
       await _tap(tester, _key('customers-row-${ani.id.uuid}'));
       expect(_openRows(), findsNWidgets(2));
+      // Nomor pembayaran tetap satu baris, juga di 360 px.
+      expect(
+        tester.getSize(find.text(payment.number)).height,
+        lessThan(30),
+      );
 
       await _tap(tester, _key('customer-payment-void-${payment.id.uuid}'));
       expect(_key('debt-void-dialog'), findsOneWidget);
