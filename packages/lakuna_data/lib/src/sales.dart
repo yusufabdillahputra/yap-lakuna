@@ -254,9 +254,16 @@ Future<PricedSale> priceSaleLines(
   CatalogScope scope,
   List<SaleLineRequest> lines,
   ManualDiscount? discount,
-  SalesRules rules,
-) async {
-  final priced = await priceRequests(w.session, w.transaction, scope, lines);
+  SalesRules rules, {
+  UuidValue? customerGroupId,
+}) async {
+  final priced = await priceRequests(
+    w.session,
+    w.transaction,
+    scope,
+    lines,
+    customerGroupId: customerGroupId,
+  );
   final totals = SaleTotals.of(priced.map((p) => p.line));
   // Diskon manual baris lalu nota (F1-04b), sebelum pembulatan.
   final lineCuts = [
@@ -342,7 +349,19 @@ Future<CheckoutResult> checkoutSale(
       scope,
       transaction: w.transaction,
     );
-    final pricing = await priceSaleLines(w, scope, lines, discount, rules);
+    // Harga grup pelanggan nota (F1-07c): pelanggan kredit atau terpilih.
+    final buyerId = credit?.customerId ?? customerId;
+    final buyer = buyerId == null
+        ? null
+        : await saleCustomer(w, scope, buyerId);
+    final pricing = await priceSaleLines(
+      w,
+      scope,
+      lines,
+      discount,
+      rules,
+      customerGroupId: buyer?.customerGroupId,
+    );
     final priced = pricing.priced;
     final totals = pricing.totals;
     final lineCuts = pricing.lineCuts;
@@ -363,9 +382,7 @@ Future<CheckoutResult> checkoutSale(
       amounts = [for (final p in payments) p.amount!];
       change = Money.zero;
     } else {
-      if (customerId != null) {
-        customer = await saleCustomer(w, scope, customerId);
-      }
+      customer = buyer;
       (amounts, change) = await settlePayments(w, scope, total, payments);
     }
 

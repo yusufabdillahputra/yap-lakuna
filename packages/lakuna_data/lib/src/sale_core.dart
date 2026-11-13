@@ -36,8 +36,9 @@ Future<List<PricedRequest>> priceRequests(
   DatabaseSession session,
   Transaction transaction,
   CatalogScope scope,
-  List<SaleLineRequest> lines,
-) async {
+  List<SaleLineRequest> lines, {
+  UuidValue? customerGroupId,
+}) async {
   final variantIds = {for (final l in lines) l.variantId};
   final variants = {
     for (final v in await ProductVariant.db.find(
@@ -110,7 +111,15 @@ Future<List<PricedRequest>> priceRequests(
 
   return [
     for (final l in lines)
-      _price(l, variants, products, units, tiers, measureNames),
+      _price(
+        l,
+        variants,
+        products,
+        units,
+        tiers,
+        measureNames,
+        customerGroupId?.uuid,
+      ),
   ];
 }
 
@@ -121,6 +130,7 @@ PricedRequest _price(
   Map<UuidValue, ProductUnit> units,
   List<ProductPriceTier> tiers,
   Map<UuidValue, String> measureNames,
+  String? customerGroupId,
 ) {
   final variant = variants[l.variantId];
   final product = variant == null ? null : products[variant.productId];
@@ -138,8 +148,13 @@ PricedRequest _price(
     tiers: [
       for (final t in tiers)
         if (t.variantId == variant.id)
-          PriceTier(minQty: Qty(t.minQtyMilli), price: Money(t.price)),
+          PriceTier(
+            minQty: Qty(t.minQtyMilli),
+            price: Money(t.price),
+            groupId: t.customerGroupId?.uuid,
+          ),
     ],
+    customerGroupId: customerGroupId,
     factor: unit == null ? null : Qty(unit.factorMilli),
     unitPrice: unit?.sellPrice == null ? null : Money(unit!.sellPrice!),
   );

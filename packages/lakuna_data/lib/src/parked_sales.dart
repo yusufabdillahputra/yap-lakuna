@@ -64,6 +64,7 @@ class ParkedSale {
     required this.lines,
     this.customerId,
     this.customerName,
+    this.customerGroupId,
     this.note,
     this.discount,
   });
@@ -74,6 +75,9 @@ class ParkedSale {
 
   /// Nama pelanggan saat disimpan.
   final String? customerName;
+
+  /// Grup pelanggan saat ini, untuk harga grosir grup (F1-07c).
+  final UuidValue? customerGroupId;
 
   /// Catatan nota tanpa pelanggan.
   final String? note;
@@ -117,14 +121,21 @@ Future<Sale> parkSale(
       scope,
       transaction: w.transaction,
     );
-    final p = await priceSaleLines(w, scope, lines, discount, rules);
+    final customer = customerId == null
+        ? null
+        : await saleCustomer(w, scope, customerId);
+    final p = await priceSaleLines(
+      w,
+      scope,
+      lines,
+      discount,
+      rules,
+      customerGroupId: customer?.customerGroupId,
+    );
     final s = await w.stamp();
     if (replaceId != null) {
       await removeParkedSale(w, scope, replaceId, staffId, s, mustExist: false);
     }
-    final customer = customerId == null
-        ? null
-        : await saleCustomer(w, scope, customerId);
     final number = await nextBillNumber(w, scope, s.now);
     final sale = await w.insert(
       Sale(
@@ -334,9 +345,15 @@ Future<ParkedSale> loadParkedSale(
         i.deletedAt.equals(null),
     orderBy: (i) => i.sortOrder,
   );
+  final customer = sale.customerId == null
+      ? null
+      : await Customer.db.findById(session, sale.customerId!);
   return ParkedSale(
     id: sale.id,
     customerId: sale.customerId,
+    customerGroupId: customer?.deletedAt == null
+        ? customer?.customerGroupId
+        : null,
     customerName: sale.customerId == null ? null : sale.customerName,
     note: sale.customerId == null ? sale.customerName : null,
     discount: _discount(sale.discountBp, sale.discountAmount),

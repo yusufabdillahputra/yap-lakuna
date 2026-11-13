@@ -44,20 +44,22 @@ class PricedLine {
 }
 
 /// Harga baris: satuan dasar ([factor] `null`) memakai harga grosir [tiers]
-/// untuk [quantity]; satuan konversi memakai [unitPrice] atau harga varian ×
-/// isi, tanpa grosir (tingkat grosir didefinisikan per satuan dasar).
+/// untuk [quantity] (termasuk tingkat grup [customerGroupId], F1-07c);
+/// satuan konversi memakai [unitPrice] atau harga varian × isi, tanpa
+/// grosir (tingkat grosir didefinisikan per satuan dasar).
 PricedLine priceSaleLine({
   required Money sellPrice,
   required Qty quantity,
   List<PriceTier> tiers = const [],
   Qty? factor,
   Money? unitPrice,
+  String? customerGroupId,
 }) {
   if (!quantity.isPositive) {
     throw ArgumentError.value(quantity.milli, 'quantity', 'harus > 0');
   }
   if (factor == null) {
-    final tier = tierFor(tiers, quantity);
+    final tier = tierFor(tiers, quantity, groupId: customerGroupId);
     final price = tier?.price ?? sellPrice;
     return PricedLine(
       quantity: quantity,

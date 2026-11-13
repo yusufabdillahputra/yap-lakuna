@@ -40,6 +40,12 @@ class ProductCodesTaken implements Exception {
       'ProductCodesTaken(${conflicts.map((c) => c.issue).toList()})';
 }
 
+/// Grup pelanggan tingkat grosir tidak ada atau sudah dihapus (F1-07c).
+class PriceTierGroupNotFound implements Exception {
+  @override
+  String toString() => 'PriceTierGroupNotFound';
+}
+
 /// Produk yang diubah tidak ada (atau sudah dihapus) di tenant ini.
 class ProductNotFound implements Exception {
   @override
@@ -236,6 +242,13 @@ Future<CatalogProduct?> loadProduct(
 ) async =>
     (await _loadProducts(store, scope, productId: productId)).firstOrNull;
 
+PriceTier _tier(ProductPriceTier t) => PriceTier(
+  id: t.id.uuid,
+  minQty: Qty(t.minQtyMilli),
+  price: Money(t.price),
+  groupId: t.customerGroupId?.uuid,
+);
+
 Future<List<CatalogProduct>> _loadProducts(
   LakunaStore store,
   CatalogScope scope, {
@@ -358,13 +371,16 @@ Future<List<CatalogProduct>> _loadProducts(
                     sellPrice: u.sellPrice == null ? null : Money(u.sellPrice!),
                   ),
               ],
+              // Tingkat semua pelanggan dulu, lalu tingkat grup (F1-07c).
               tiers: [
-                for (final t in tiers.where((t) => t.variantId == v.id))
-                  PriceTier(
-                    id: t.id.uuid,
-                    minQty: Qty(t.minQtyMilli),
-                    price: Money(t.price),
-                  ),
+                for (final t in tiers.where(
+                  (t) => t.variantId == v.id && t.customerGroupId == null,
+                ))
+                  _tier(t),
+                for (final t in tiers.where(
+                  (t) => t.variantId == v.id && t.customerGroupId != null,
+                ))
+                  _tier(t),
               ],
             ),
         ],
@@ -805,6 +821,26 @@ class _ProductWriter {
       hlc: s.hlc.toString(),
       originDeviceId: s.deviceId,
     );
+    // Grup pelanggan tingkat harus aktif di tenant ini (F1-07c).
+    final wanted = {
+      for (final d in drafts)
+        if (d.groupId case final g?) g,
+    };
+    final groupIds = <String?, UuidValue>{};
+    if (wanted.isNotEmpty) {
+      final groups = await CustomerGroup.db.find(
+        w.session,
+        where: (g) =>
+            g.tenantId.equals(tenant) &
+            g.id.inSet({for (final g in wanted) UuidValue.fromString(g)}) &
+            g.deletedAt.equals(null),
+        transaction: tx,
+      );
+      for (final g in groups) {
+        groupIds[g.id.uuid] = g.id;
+      }
+      if (groupIds.length != wanted.length) throw PriceTierGroupNotFound();
+    }
     final kept = <UuidValue>{};
     for (final d in drafts) {
       final old = olds.where((o) => o.id.uuid == d.id).firstOrNull;
@@ -814,6 +850,7 @@ class _ProductWriter {
         variantId: variantId,
         minQtyMilli: d.minQty.milli,
         price: d.price.value,
+        customerGroupId: groupIds[d.groupId],
         createdAt: old?.createdAt ?? s.now,
         updatedAt: old?.updatedAt ?? s.now,
         createdBy: old?.createdBy ?? staffId,

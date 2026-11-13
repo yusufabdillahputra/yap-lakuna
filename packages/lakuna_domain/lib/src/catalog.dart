@@ -16,19 +16,26 @@ enum ProductKind {
 }
 
 /// Satu tingkat harga grosir: mulai [minQty] (satuan dasar) harga per satuan
-/// dasar menjadi [price].
+/// dasar menjadi [price]. [groupId] `null` = semua pelanggan; diisi = hanya
+/// pelanggan grup itu (F1-07c).
 class PriceTier {
-  const PriceTier({required this.minQty, required this.price, this.id});
+  const PriceTier({
+    required this.minQty,
+    required this.price,
+    this.id,
+    this.groupId,
+  });
 
   /// ID baris `price_tiers` bila tingkat sudah tersimpan.
   final String? id;
   final Qty minQty;
   final Money price;
+
+  /// ID grup pelanggan (`customer_groups`), `null` = semua pelanggan.
+  final String? groupId;
 }
 
-/// Tingkat grosir yang berlaku untuk [qty]: [PriceTier.minQty] terbesar yang
-/// masih ≤ [qty]. `null` bila belum mencapai tingkat mana pun.
-PriceTier? tierFor(Iterable<PriceTier> tiers, Qty qty) {
+PriceTier? _highestReached(Iterable<PriceTier> tiers, Qty qty) {
   PriceTier? best;
   for (final t in tiers) {
     if (t.minQty.milli <= qty.milli &&
@@ -39,9 +46,26 @@ PriceTier? tierFor(Iterable<PriceTier> tiers, Qty qty) {
   return best;
 }
 
+/// Tingkat grosir yang berlaku untuk [qty]: dari tingkat semua pelanggan,
+/// [PriceTier.minQty] terbesar yang masih ≤ [qty]. Bila [groupId] diisi,
+/// tingkat grup itu dihitung dengan cara yang sama dan yang **lebih murah**
+/// dipakai (F1-07c). `null` bila belum mencapai tingkat mana pun.
+PriceTier? tierFor(Iterable<PriceTier> tiers, Qty qty, {String? groupId}) {
+  final general = _highestReached(tiers.where((t) => t.groupId == null), qty);
+  if (groupId == null) return general;
+  final group = _highestReached(tiers.where((t) => t.groupId == groupId), qty);
+  if (general == null) return group;
+  if (group == null) return general;
+  return group.price < general.price ? group : general;
+}
+
 /// Harga per satuan dasar untuk [qty] setelah harga grosir.
-Money unitPriceFor(Money base, Iterable<PriceTier> tiers, Qty qty) =>
-    tierFor(tiers, qty)?.price ?? base;
+Money unitPriceFor(
+  Money base,
+  Iterable<PriceTier> tiers,
+  Qty qty, {
+  String? groupId,
+}) => tierFor(tiers, qty, groupId: groupId)?.price ?? base;
 
 /// Harga jual satu satuan konversi berisi [factor] satuan dasar: harga yang
 /// diisi sendiri ([unitPrice]) atau harga varian × isi.
@@ -411,17 +435,26 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
       }
     }
 
-    final tierQtys = <int>{};
+    // Jumlah unik per grup; semua pelanggan dihitung satu grup (F1-07c).
+    final tierQtys = <(String?, int)>{};
     for (var k = 0; k < v.tiers.length; k++) {
       final t = v.tiers[k];
-      if (t.minQty.milli <= Qty.one.milli) {
+      if (t.groupId == null && t.minQty.milli <= Qty.one.milli) {
         add(
           ProductField.tierMinQty,
           ProductError.minQtyTooSmall,
           variant: i,
           tier: k,
         );
-      } else if (!tierQtys.add(t.minQty.milli)) {
+      } else if (t.groupId != null && !t.minQty.isPositive) {
+        // Harga grup boleh berlaku sejak 1 satuan (harga reseller).
+        add(
+          ProductField.tierMinQty,
+          ProductError.notPositive,
+          variant: i,
+          tier: k,
+        );
+      } else if (!tierQtys.add((t.groupId, t.minQty.milli))) {
         add(
           ProductField.tierMinQty,
           ProductError.duplicate,
