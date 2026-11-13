@@ -76,13 +76,19 @@ Future<List<ProductCategory>> _categories(
   transaction: transaction,
 ))..sort(_byOrder);
 
+/// Produk aktif tenant; [includeArchived] ikut menghitung produk
+/// diarsipkan (F1-07d) agar satuannya tidak terhapus selama produk masih
+/// bisa dipulihkan.
 Future<List<Product>> _products(
   DatabaseSession session,
   UuidValue tenantId, {
   Transaction? transaction,
+  bool includeArchived = false,
 }) => Product.db.find(
   session,
-  where: (p) => p.tenantId.equals(tenantId) & p.deletedAt.equals(null),
+  where: (p) =>
+      p.tenantId.equals(tenantId) &
+      (includeArchived ? p.id.notEquals(null) : p.deletedAt.equals(null)),
   transaction: transaction,
 );
 
@@ -337,8 +343,14 @@ Future<Map<UuidValue, Set<UuidValue>>> _unitUsage(
   DatabaseSession session,
   UuidValue tenantId, {
   Transaction? transaction,
+  bool includeArchived = false,
 }) async {
-  final products = await _products(session, tenantId, transaction: transaction);
+  final products = await _products(
+    session,
+    tenantId,
+    transaction: transaction,
+    includeArchived: includeArchived,
+  );
   final usage = <UuidValue, Set<UuidValue>>{};
   for (final p in products) {
     (usage[p.baseUnitId] ??= {}).add(p.id);
@@ -465,10 +477,12 @@ Future<void> deleteUnit(
     transaction: w.transaction,
   )).where((u) => u.id == id).firstOrNull;
   if (current == null) throw MasterNotFound();
+  // Produk diarsipkan ikut dihitung: satuannya dibutuhkan saat dipulihkan.
   final usage = await _unitUsage(
     w.session,
     scope.tenantId,
     transaction: w.transaction,
+    includeArchived: true,
   );
   final products = usage[id]?.length ?? 0;
   if (products > 0) throw MasterInUse(products: products);

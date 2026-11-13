@@ -87,6 +87,7 @@ class _ArchivedProductsDialogState extends State<ArchivedProductsDialog> {
               if (_vm.restoredName case final name?)
                 FAlert(
                   key: const ValueKey('archived-restored'),
+                  icon: const Icon(TablerIcons.circleCheck),
                   title: Text(l10n.productsRestored(name)),
                 ),
               if (products == null)
@@ -130,7 +131,9 @@ class _ArchivedProductsDialogState extends State<ArchivedProductsDialog> {
                   key: const ValueKey('archived-close'),
                   variant: .outline,
                   mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(_vm.changed),
+                  onPress: _vm.restore.running
+                      ? null
+                      : () => Navigator.of(context).pop(_vm.changed),
                   child: Flexible(child: Text(l10n.productsArchivedClose)),
                 ),
               ),

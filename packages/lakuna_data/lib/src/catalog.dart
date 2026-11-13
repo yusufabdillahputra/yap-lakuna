@@ -496,8 +496,28 @@ Future<void> restoreProduct(
       scope,
       staffId,
     )._checkCodes(archived.toDraft(), productId);
+    // Kategori yang terhapus selama produk diarsipkan dilepas, sehingga
+    // produk kembali tanpa kategori (satuan dijaga oleh `deleteUnit`).
+    final category = p.categoryId == null
+        ? null
+        : await ProductCategory.db.findById(
+            w.session,
+            p.categoryId!,
+            transaction: w.transaction,
+          );
+    final keepCategory = category != null && category.deletedAt == null;
     final s = await w.stamp();
-    await w.update(_stampProduct(p.copyWith(deletedAt: null), staffId, s), s);
+    await w.update(
+      _stampProduct(
+        p.copyWith(
+          deletedAt: null,
+          categoryId: keepCategory ? p.categoryId : null,
+        ),
+        staffId,
+        s,
+      ),
+      s,
+    );
   });
 }
 

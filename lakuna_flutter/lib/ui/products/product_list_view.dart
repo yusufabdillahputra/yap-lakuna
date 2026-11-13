@@ -57,8 +57,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
   );
 
   Future<void> _archived() async {
-    final changed = await showArchivedProducts(context, widget.repository);
-    if (changed && mounted) await _viewModel.load.execute();
+    await showArchivedProducts(context, widget.repository);
+    // Dimuat ulang juga bila dialog ditutup lewat latar atau Esc.
+    if (mounted) await _viewModel.load.execute();
   }
 
   Future<void> _import() async {

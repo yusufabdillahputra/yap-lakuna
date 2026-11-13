@@ -29,7 +29,8 @@ hilang dari semua daftar kerja.
    produk).
 3. **Konfirmasi** di form: judul *Arsipkan {nama}?* dan penjelasan bahwa
    produk hilang dari Kasir, daftar produk, stok, dan pembelian, riwayat
-   tetap, dan bisa dipulihkan. Bila stok total varian ≠ 0, dialog
+   tetap, dan bisa dipulihkan. Bila stok varian di lokasi bawaan cabang
+   ≠ 0 (stok yang tampil di daftar produk), dialog
    menambahkan peringatan *Stok tersisa {stok} {satuan} tidak ikut dihitung
    lagi di stok dan nilai stok*. Arsip tidak ditolak karena stok: pemilik
    yang memutuskan (mis. barang rusak sudah dibuang tetapi belum
@@ -37,7 +38,9 @@ hilang dari semua daftar kerja.
 4. **Nota tersimpan / draf keranjang / bill F&B** yang memuat produk itu
    memakai perilaku yang sudah ada: baris dibuang saat dilanjutkan
    (pesan *n baris dibuang*), item bill yang sudah masuk tetap ikut saat
-   bill ditutup, tetapi jumlahnya tidak bisa diubah lagi.
+   bill ditutup, tetapi jumlahnya tidak bisa diubah lagi. Draf pembelian
+   yang memuat produk itu tidak bisa diterima sampai barisnya dihapus atau
+   produknya dipulihkan.
 5. **Daftar arsip.** Daftar produk 1.15 memperlihatkan tombol *Diarsipkan
    (n)* bila ada produk diarsipkan. Tombol membuka dialog berisi produk
    diarsipkan (urut nama, dengan kategori dan stok terakhir) dan tombol
@@ -47,7 +50,10 @@ hilang dari semua daftar kerja.
    satuan) diperiksa lagi terhadap produk aktif; bila sudah dipakai produk
    lain, pemulihan ditolak (`ProductCodesTaken`) dengan pesan yang menyebut
    produk pemakainya. Produk yang dipulihkan kembali dengan status *Dijual di
-   kasir* seperti sebelum diarsipkan.
+   kasir* seperti sebelum diarsipkan. Bila kategorinya dihapus selama
+   produk diarsipkan, produk kembali tanpa kategori. Satuan yang dipakai
+   produk diarsipkan tidak bisa dihapus di Master data (`MasterInUse`),
+   agar produk tetap utuh saat dipulihkan.
 7. Arsip dan pulihkan lewat `LakunaStore.write` + `SyncTx.update` (versi
    naik, tercatat di outbox).
 

@@ -176,4 +176,40 @@ void main() {
       throwsA(isA<ProductNotFound>()),
     );
   });
+
+  test(
+    'satuan produk arsip dijaga; kategori terhapus dilepas saat pulih',
+    () async {
+      final id = await saveProduct(
+        store,
+        scope,
+        staffId: owner(),
+        draft: const ProductDraft(
+          name: 'Teh Kotak',
+          category: 'Minuman',
+          baseUnit: 'kotak',
+          variants: [VariantDraft(sellPrice: Money(4000))],
+        ),
+      );
+      await archive(id);
+      final minuman = (await listCategories(
+        store,
+        scope,
+      )).firstWhere((c) => c.name == 'Minuman');
+      await deleteCategory(store, scope, staffId: owner(), id: minuman.id);
+      final kotak = (await listUnits(
+        store,
+        scope,
+      )).firstWhere((u) => u.name == 'kotak');
+      await expectLater(
+        deleteUnit(store, scope, staffId: owner(), id: kotak.id),
+        throwsA(isA<MasterInUse>()),
+      );
+
+      await restoreProduct(store, scope, staffId: owner(), productId: id);
+      final back = (await loadProduct(store, scope, id))!;
+      expect(back.categoryId, isNull);
+      expect(back.baseUnit, 'kotak');
+    },
+  );
 }

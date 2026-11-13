@@ -159,7 +159,7 @@ class ProductFormView extends StatelessWidget {
         final title = viewModel.isNew
             ? l10n.productFormNewTitle
             : l10n.productFormEditTitle(viewModel.originalName);
-        final saving = viewModel.save.running;
+        final saving = viewModel.save.running || viewModel.archive.running;
         final error = viewModel.error;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),

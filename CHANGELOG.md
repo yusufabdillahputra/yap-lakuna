@@ -50,6 +50,19 @@ Produk yang tidak dijual lagi kini bisa diarsipkan dan dipulihkan.
   restore`, `ArchivedProductsViewModel`.
 - Dialog konfirmasi arsip bisa digulir; tanpa itu tombolnya keluar layar di
   ponsel 360 px (ditemukan oleh tes widget).
+- Temuan review yang diperbaiki sebelum rilis:
+  - Daftar produk dimuat ulang setiap kali dialog *Produk diarsipkan*
+    ditutup, termasuk lewat latar atau Esc, sehingga produk yang dipulihkan
+    langsung tampil. Tombol *Tutup* nonaktif selama pemulihan berjalan.
+  - Satuan yang dipakai produk diarsipkan tidak bisa dihapus di Master
+    data. Kategori yang terhapus selama produk diarsipkan dilepas saat
+    pemulihan, sehingga produk kembali tanpa kategori, bukan menunjuk
+    kategori terhapus.
+  - Tombol *Simpan* nonaktif selama produk diarsipkan.
+- Uji manual di aplikasi Linux (Xvfb): Kopi Sachet diarsipkan dengan
+  peringatan stok tersisa 33 sachet, hilang dari daftar (11 produk aktif,
+  tombol *Diarsipkan (1)*), tampil di dialog dengan kategori dan stok
+  terakhir, lalu dipulihkan kembali menjadi 12 produk.
 
 ## [0.34.0] - 2026-11-13
 

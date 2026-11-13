@@ -42,6 +42,15 @@ class ArchivedProductsViewModel extends ChangeNotifier {
         }
       : null;
 
+  @override
+  void dispose() {
+    // Pemulihan yang selesai setelah dialog ditutup tidak memberi tahu VM
+    // yang sudah dibuang.
+    load.removeListener(notifyListeners);
+    restore.removeListener(notifyListeners);
+    super.dispose();
+  }
+
   Future<Result<List<CatalogProduct>>> _load() async {
     final result = await _repository.archived();
     if (result case Ok(:final value)) _products = value;
