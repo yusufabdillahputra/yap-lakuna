@@ -4287,5 +4287,42 @@
   "reportsSourceSupplierPaymentVoid": "Voided supplier payment",
   "cashSourceDebtPaymentVoid": "Voided receivable payment",
   "cashSourceSupplierPaymentVoid": "Voided supplier payment",
-  "debtErrNotFound": "Payment not found, or its customer/supplier was deleted."
+  "debtErrNotFound": "Payment not found, or its customer/supplier was deleted.",
+  "suppliersImport": "Import Excel",
+  "supplierImportTitle": "Import suppliers",
+  "supplierImportIntro": "Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Contact, Phone, Category, Term days, Address, Note. Headers can be in Indonesian or English.",
+  "supplierImportUpdateNote": "Rows with a registered supplier name update that supplier (empty cells keep the old data). New suppliers without a term get {days} days.",
+  "@supplierImportUpdateNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierImportEmpty": "The file has no supplier rows.",
+  "supplierImportReasonPhone": "invalid phone number",
+  "supplierImportReasonTerm": "term is not 0–365 days",
+  "supplierImportReasonDuplicate": "name repeated in the file",
+  "supplierImportRun": "Import {count} suppliers",
+  "@supplierImportRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supplierImportDone": "Done: {created} new suppliers, {updated} updated, {skipped} rows skipped.",
+  "@supplierImportDone": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  }
 }

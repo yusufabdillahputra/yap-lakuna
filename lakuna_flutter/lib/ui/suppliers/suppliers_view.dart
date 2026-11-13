@@ -9,6 +9,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/suppliers_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import '../customers/customer_labels.dart' show formatPhone;
@@ -16,6 +17,7 @@ import '../customers/customers_view.dart' show debtTone;
 import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDayMonth;
 import 'supplier_form_dialog.dart';
+import 'supplier_import_dialog.dart';
 import 'supplier_panel_view.dart';
 import 'supplier_panel_view_model.dart';
 import 'suppliers_view_model.dart';
@@ -37,6 +39,7 @@ class SuppliersScreen extends StatefulWidget {
     required this.onOpenSupplier,
     required this.onOpenPurchase,
     this.imagePicker = const FileSelectorImagePicker(),
+    this.tablePicker = const FileSelectorTablePicker(),
   });
 
   final SuppliersRepository repository;
@@ -47,6 +50,7 @@ class SuppliersScreen extends StatefulWidget {
   /// Membuka detail pembelian; selesai saat kembali.
   final Future<void> Function(UuidValue purchaseId) onOpenPurchase;
   final ImageFilePicker imagePicker;
+  final TableFilePicker tablePicker;
 
   @override
   State<SuppliersScreen> createState() => _SuppliersScreenState();
@@ -106,6 +110,17 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
     if (twoPane) _select(saved.id);
   }
 
+  Future<void> _import() async {
+    final done = await showSupplierImport(
+      context,
+      widget.repository,
+      picker: widget.tablePicker,
+    );
+    if (!done || !mounted) return;
+    await _list.refresh();
+    await _panel?.load.execute();
+  }
+
   Future<void> _openPurchase(UuidValue id) async {
     await widget.onOpenPurchase(id);
     // Pengguna bisa pindah menu saat detail pembelian terbuka.
@@ -141,12 +156,28 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
                     _list.overview?.rows.length ?? 0,
                   ),
                   action: _list.canManage
-                      ? FButton(
-                          key: const ValueKey('suppliers-new'),
-                          mainAxisSize: .min,
-                          onPress: () => _new(twoPane),
-                          prefix: const Icon(TablerIcons.plus),
-                          child: Flexible(child: Text(l10n.suppliersNew)),
+                      ? Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FButton(
+                              key: const ValueKey('suppliers-import'),
+                              variant: .outline,
+                              mainAxisSize: .min,
+                              onPress: _import,
+                              prefix: const Icon(TablerIcons.fileImport),
+                              child: Flexible(
+                                child: Text(l10n.suppliersImport),
+                              ),
+                            ),
+                            FButton(
+                              key: const ValueKey('suppliers-new'),
+                              mainAxisSize: .min,
+                              onPress: () => _new(twoPane),
+                              prefix: const Icon(TablerIcons.plus),
+                              child: Flexible(child: Text(l10n.suppliersNew)),
+                            ),
+                          ],
                         )
                       : null,
                 ),

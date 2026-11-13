@@ -12,13 +12,20 @@ import '../customers/customer_import_view_model.dart'
 /// Import produk dari CSV/XLSX (1.15, F1-07b): pilih berkas, pratinjau
 /// baris sah dan ditolak, lalu simpan sebagai produk baru.
 class ProductImportViewModel extends ChangeNotifier {
-  ProductImportViewModel({required this._repository, required this._picker}) {
+  ProductImportViewModel({
+    required this._repository,
+    required this._picker,
+    this.onSaved,
+  }) {
     pick = Command0(_pick)..addListener(notifyListeners);
     run = Command0(_run)..addListener(notifyListeners);
   }
 
   final CatalogRepository _repository;
   final TableFilePicker _picker;
+
+  /// Dipanggil setiap kali import tersimpan (lihat import pelanggan).
+  final VoidCallback? onSaved;
 
   var _disposed = false;
 
@@ -86,6 +93,8 @@ class ProductImportViewModel extends ChangeNotifier {
 
   Future<Result<ProductImportSummary>> _run() async {
     if (rows.isEmpty) return const Result.error(StoreNotReady());
-    return _repository.importRows(rows);
+    final result = await _repository.importRows(rows);
+    if (result is Ok) onSaved?.call();
+    return result;
   }
 }

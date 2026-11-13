@@ -15,17 +15,24 @@ Future<bool> showCustomerImport(
   BuildContext context,
   CustomersRepository repository, {
   required TableFilePicker picker,
-}) async =>
-    await showFDialog<bool>(
-      context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
-        builder: (context, style) =>
-            CustomerImportDialog(repository: repository, picker: picker),
+}) async {
+  // Hasil dari callback, bukan dari nilai pop: dialog bisa ditutup lewat
+  // latar atau tombol kembali setelah import tersimpan.
+  var saved = false;
+  await showFDialog<void>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
+      builder: (context, style) => CustomerImportDialog(
+        repository: repository,
+        picker: picker,
+        onSaved: () => saved = true,
       ),
-    ) ??
-    false;
+    ),
+  );
+  return saved;
+}
 
 String importRejectReasonLabel(
   AppLocalizations l10n,
@@ -43,10 +50,12 @@ class CustomerImportDialog extends StatefulWidget {
     super.key,
     required this.repository,
     required this.picker,
+    this.onSaved,
   });
 
   final CustomersRepository repository;
   final TableFilePicker picker;
+  final VoidCallback? onSaved;
 
   @override
   State<CustomerImportDialog> createState() => _CustomerImportDialogState();
@@ -56,6 +65,7 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
   late final _vm = CustomerImportViewModel(
     repository: widget.repository,
     picker: widget.picker,
+    onSaved: widget.onSaved,
   );
 
   @override
@@ -200,7 +210,7 @@ class _CustomerImportDialogState extends State<CustomerImportDialog> {
                       mainAxisSize: .min,
                       onPress: vm.run.running
                           ? null
-                          : () => Navigator.of(context).pop(done != null),
+                          : () => Navigator.of(context).pop(),
                       child: Flexible(
                         child: Text(
                           done != null ? l10n.importClose : l10n.customerCancel,

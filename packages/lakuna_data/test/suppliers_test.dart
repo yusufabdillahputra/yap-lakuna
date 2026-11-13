@@ -465,6 +465,151 @@ void main() {
     });
   });
 
+  group('import', () {
+    Future<SupplierImportSummary> run(
+      List<List<String>> table, {
+      UuidValue? staffId,
+    }) => importSuppliers(
+      store,
+      scope,
+      staffId: staffId ?? owner(),
+      rows: supplierImportRows(table).rows,
+    );
+
+    test('buat baru, perbarui per nama tanpa beda huruf', () async {
+      final old = await supplier('CV Sumber Pangan', phone: '0215550101');
+      final summary = await run([
+        ['Nama', 'Kontak', 'Telepon', 'Tempo', 'Alamat'],
+        ['cv sumber pangan', '', '', '30', 'Jl. Pasar 1'],
+        ['UD Makmur', 'Bu Rina', '0813-1111-2222', '', ''],
+      ]);
+      expect(summary.created, 1);
+      expect(summary.updated, 1);
+      final rows = (await loadSuppliersOverview(store, scope, now: now)).rows;
+      expect(rows, hasLength(2));
+      final a = rows.firstWhere((r) => r.supplier.id == old.id).supplier;
+      // Nama lama tetap (kunci), kolom kosong mempertahankan data lama.
+      expect(a.name, 'CV Sumber Pangan');
+      expect(a.termDays, 30);
+      expect(a.address, 'Jl. Pasar 1');
+      expect(a.phone, '0215550101');
+      expect(a.contactName, 'Pak Hendra');
+      expect(a.category, 'Sembako');
+      expect(a.version, old.version + 1);
+      final b = rows.firstWhere((r) => r.supplier.name == 'UD Makmur').supplier;
+      expect(b.termDays, SupplierLimits.defaultTermDays);
+      expect(b.phone, '081311112222');
+      expect(b.contactName, 'Bu Rina');
+    });
+
+    test('supplier terhapus tidak diperbarui; nama dipakai lagi', () async {
+      final old = await supplier('UD Makmur');
+      await deleteSupplier(store, scope, staffId: owner(), supplierId: old.id);
+      final summary = await run([
+        ['Nama'],
+        ['UD Makmur'],
+      ]);
+      expect(summary.created, 1);
+      expect(summary.updated, 0);
+    });
+
+    test('baris dari luar parser diperiksa ulang', () async {
+      await expectLater(
+        importSuppliers(
+          store,
+          scope,
+          staffId: owner(),
+          rows: const [SupplierImportRow(line: 2, name: 'A', termDays: 400)],
+        ),
+        throwsA(isA<SupplierInvalid>()),
+      );
+      await expectLater(
+        importSuppliers(
+          store,
+          scope,
+          staffId: owner(),
+          rows: const [
+            SupplierImportRow(line: 2, name: 'A'),
+            SupplierImportRow(line: 3, name: 'B', phone: '12'),
+          ],
+        ),
+        throwsA(isA<SupplierInvalid>()),
+      );
+      // Satu baris salah membatalkan seluruh import.
+      expect(
+        (await loadSuppliersOverview(store, scope, now: now)).rows,
+        isEmpty,
+      );
+    });
+
+    test('nama ganda di daftar baris digabung ke satu supplier', () async {
+      final summary = await importSuppliers(
+        store,
+        scope,
+        staffId: owner(),
+        rows: const [
+          SupplierImportRow(line: 2, name: 'Toko D', termDays: 7),
+          SupplierImportRow(line: 3, name: ' toko d ', address: 'Jl. 2'),
+        ],
+      );
+      expect(summary.created, 1);
+      expect(summary.updated, 1);
+      final d = (await loadSuppliersOverview(
+        store,
+        scope,
+        now: now,
+      )).rows.single.supplier;
+      expect(d.name, 'Toko D');
+      expect(d.termDays, 7);
+      expect(d.address, 'Jl. 2');
+    });
+
+    test('izin dan outbox', () async {
+      final kasir = await addStaff('Sari', 'cashier');
+      await expectLater(
+        run([
+          ['Nama'],
+          ['CV A'],
+        ], staffId: kasir.id),
+        throwsA(isA<SupplierActorNotPermitted>()),
+      );
+      final before = (await SyncOutboxEntry.db.find(store.session))
+          .where((r) => r.entity == 'suppliers')
+          .length;
+      await run([
+        ['Nama'],
+        ['CV A'],
+        ['CV B'],
+      ]);
+      final after = (await SyncOutboxEntry.db.find(store.session))
+          .where((r) => r.entity == 'suppliers')
+          .length;
+      expect(after, before + 2);
+    });
+
+    test('import ulang tanpa perubahan tidak menulis ulang', () async {
+      final table = [
+        ['Nama', 'Tempo', 'Alamat'],
+        ['CV A', '30', 'Jl. 1'],
+      ];
+      await run(table);
+      Future<int> count() async =>
+          (await SyncOutboxEntry.db.find(store.session))
+              .where((r) => r.entity == 'suppliers')
+              .length;
+      final before = await count();
+      final summary = await run(table);
+      expect((summary.created, summary.updated), (0, 1));
+      expect(await count(), before);
+      final a = (await loadSuppliersOverview(
+        store,
+        scope,
+        now: now,
+      )).rows.single.supplier;
+      expect(a.version, 1);
+    });
+  });
+
   test('izin: kasir bayar, staf gudang kelola supplier', () async {
     final kasir = await addStaff('Sari', 'cashier');
     final gudangStaff = await addStaff('Andi', 'stock_keeper');

@@ -269,6 +269,37 @@ class FakeSuppliersRepository extends SuppliersRepository {
     },
   );
 
+  /// Baris yang diterima `importRows`.
+  final imported = <List<SupplierImportRow>>[];
+
+  @override
+  Future<Result<SupplierImportSummary>> importRows(
+    List<SupplierImportRow> rows,
+  ) async => _guard(needs: Permission.suppliersManage, () {
+    imported.add(rows);
+    var created = 0;
+    var updated = 0;
+    for (final r in rows) {
+      final name = r.name.trim();
+      final existing = suppliers
+          .where((s) => s.name.toLowerCase() == name.toLowerCase())
+          .firstOrNull;
+      if (existing != null) {
+        updated++;
+      } else {
+        _supplier(
+          name,
+          phone: r.phone,
+          contact: r.contactName,
+          category: r.category,
+          termDays: r.termDays ?? SupplierLimits.defaultTermDays,
+        );
+        created++;
+      }
+    }
+    return SupplierImportSummary(created: created, updated: updated);
+  });
+
   @override
   Future<Result<void>> delete(UuidValue id) async =>
       _guard(needs: Permission.suppliersManage, () {

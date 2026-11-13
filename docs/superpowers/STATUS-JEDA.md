@@ -25,6 +25,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.42.0 | Pelanggan & harga grup di open bill (F1-10f) | #48 |
 | v0.43.0 | Kirim ke tiket dapur & catatan per menu (F1-10g) | #49 |
 | v0.44.0 | Batal pembayaran piutang & hutang (F1-13c) | #50 |
+| v0.45.0 | Import supplier dari Excel/CSV (F1-14b) | #51 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -51,6 +52,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    per menu~~ — selesai v0.43.0 (F1-10g).
 8. ~~Batal pembayaran piutang & hutang~~ — selesai v0.44.0 (F1-13c);
    ubah pembayaran tanpa batal tetap tidak didukung (batal lalu catat ulang).
+9. ~~Import supplier dari Excel/CSV~~ — selesai v0.45.0 (F1-14b);
+   templat berkas untuk diunduh masih gap (juga untuk import pelanggan).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

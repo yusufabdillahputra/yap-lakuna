@@ -7,6 +7,64 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.45.0] - 2026-11-14
+
+Toko yang pindah dari buku atau aplikasi lain bisa memasukkan daftar
+supplier sekaligus dari Excel/CSV.
+
+### Ditambahkan
+
+- **Import supplier (1.21, F1-14b).** Tombol **Import Excel** di samping
+  *Supplier* membuka dialog yang sama polanya dengan import pelanggan:
+  - berkas .xlsx atau .csv (pemisah koma atau titik koma, maks. 2 MB);
+    kolom *Nama* (wajib), *Kontak*, *Telepon/HP*, *Kategori*,
+    *Tempo/Tempo (hari)*, *Alamat*, *Catatan*, judul Indonesia atau
+    English, kolom lain diabaikan;
+  - pratinjau jumlah baris siap import dan baris yang dilewati dengan
+    nomor baris dan alasannya: nama kosong/terlalu panjang, telepon tidak
+    sah, tempo di luar 0–365 hari, teks terlalu panjang, atau nama dobel
+    di berkas;
+  - tempo boleh ditulis `30`, `30 hari`, `7 days`, atau `14.0`;
+  - nama yang sudah terdaftar (tanpa beda huruf besar/kecil) memperbarui
+    supplier itu, hanya kolom yang terisi; supplier baru tanpa tempo
+    memakai tempo standar 14 hari;
+  - ringkasan *N supplier baru, M diperbarui, K baris dilewati*; daftar
+    dan panel supplier dimuat ulang setelah dialog ditutup;
+  - import ulang berkas yang sama tidak menulis ulang (dan tidak
+    menyinkronkan) supplier yang datanya tidak berubah.
+- Judul kolom telepon lain dikenali di import supplier **dan** pelanggan:
+  *Telp*, *No. Telp*, *No. Telepon*, *Nomor HP*, *Nomor Telepon*,
+  *WhatsApp*, *WA*.
+- Panduan *Supplier & hutang* (ID/EN) menjelaskan import supplier.
+
+### Diperbaiki
+
+- Import pelanggan, produk, dan supplier: bila dialog ditutup dengan
+  mengetuk latar atau tombol kembali setelah import tersimpan, atau setelah
+  memilih berkas lain, daftar tidak dimuat ulang sehingga data baru baru
+  tampil setelah pindah menu. Sekarang dialog melaporkan import yang
+  tersimpan lewat callback, bukan dari nilai tutup dialog (temuan review).
+
+### Keamanan
+
+- Import butuh izin `suppliers:manage` di layar (tombol hanya tampil untuk
+  yang berhak) dan di lapisan data.
+
+### Catatan teknis
+
+- Domain: `supplier_import.dart` (`supplierImportRows`,
+  `parseImportTermDays`, `SupplierImportRow`, `SupplierImportRejected`,
+  `SupplierImportRejectReason`), memakai `validateSupplier` yang sama
+  dengan form.
+- Data: `importSuppliers` menulis semua baris dalam satu `LakunaStore.write`
+  (tercatat di outbox) dan memeriksa ulang setiap baris; satu baris salah
+  membatalkan seluruh import. Supplier terhapus tidak diperbarui, namanya
+  boleh dipakai lagi.
+- Flutter: `SuppliersRepository.importRows`, `SupplierImportViewModel`,
+  `supplier_import_dialog.dart`; `SuppliersScreen` menerima
+  `TableFilePicker`. Tes domain, data, repositori lokal, VM, dan widget
+  1280/360 px; uji manual di Linux (Xvfb) dengan berkas CSV.
+
 ## [0.44.0] - 2026-11-13
 
 Pembayaran piutang pelanggan dan hutang supplier yang salah catat sekarang
@@ -3689,7 +3747,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...HEAD
+[0.45.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...v0.42.0

@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
+import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
@@ -51,6 +55,22 @@ Future<void> _choose(WidgetTester tester, Finder field, String label) async {
   await _tap(tester, field);
   await tester.tap(find.text(label).last);
   await tester.pumpAndSettle();
+}
+
+class _TablePicker extends TableFilePicker {
+  _TablePicker(this.text);
+
+  final String text;
+
+  @override
+  Future<PickedTableFile?> pickTable({required int maxBytes}) async {
+    final bytes = Uint8List.fromList(utf8.encode(text));
+    return PickedTableFile(
+      name: 'supplier.csv',
+      size: bytes.length,
+      bytes: bytes,
+    );
+  }
 }
 
 void main() {
@@ -206,6 +226,80 @@ void main() {
     await _tap(tester, _key('supplier-delete-ok'));
     expect(_key('suppliers-pick-hint'), findsOneWidget);
     expect(repo.suppliers.any((s) => s.name == 'Toko Plastik Jaya'), isFalse);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('import CSV supplier ${size.width.toInt()} px (F1-14b)', (
+      tester,
+    ) async {
+      repo = FakeSuppliersRepository();
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.suppliers,
+        suppliers: repo,
+        tablePicker: _TablePicker(
+          'Nama,Kontak,Telepon,Kategori,Tempo\n'
+          'UD Makmur,Bu Rina,,,30\n'
+          'Toko Plastik Jaya,Mas Budi,081311112222,Kemasan,\n'
+          'Toko X,,,,400\n',
+        ),
+      );
+      expect(_keyPrefix('suppliers-row-'), findsNWidgets(3));
+      await _tap(tester, _key('suppliers-import'));
+      await _tap(tester, _key('supplier-import-pick'));
+      expect(find.text('2 baris siap diimport.'), findsOneWidget);
+      expect(_key('supplier-import-rejected'), findsOneWidget);
+      expect(find.textContaining('Baris 4: tempo bukan'), findsOneWidget);
+      await _tap(tester, _key('supplier-import-run'));
+      expect(repo.imported.single, hasLength(2));
+      expect(
+        find.text('Selesai: 1 supplier baru, 1 diperbarui, 1 baris dilewati.'),
+        findsOneWidget,
+      );
+      await _tap(tester, _key('supplier-import-close'));
+      expect(_key('supplier-import'), findsNothing);
+      expect(_keyPrefix('suppliers-row-'), findsNWidgets(4));
+      expect(repo.byName('Toko Plastik Jaya').category, 'Kemasan');
+    });
+  }
+
+  testWidgets(
+    'import tersimpan lalu ditutup lewat latar: daftar dimuat ulang',
+    (
+      tester,
+    ) async {
+      repo = FakeSuppliersRepository();
+      await pumpLakuna(
+        tester,
+        size: const Size(1280, 800),
+        initialLocation: Routes.suppliers,
+        suppliers: repo,
+        tablePicker: _TablePicker('Nama\nCV Baru\n'),
+      );
+      await _tap(tester, _key('suppliers-import'));
+      await _tap(tester, _key('supplier-import-pick'));
+      await _tap(tester, _key('supplier-import-run'));
+      expect(
+        find.text('Selesai: 1 supplier baru, 0 diperbarui, 0 baris dilewati.'),
+        findsOneWidget,
+      );
+      await tester.tapAt(const Offset(1200, 780));
+      await tester.pumpAndSettle();
+      expect(_key('supplier-import'), findsNothing);
+      expect(_keyPrefix('suppliers-row-'), findsNWidgets(4));
+    },
+  );
+
+  testWidgets('staf tanpa kelola supplier tidak melihat tombol import', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const Size(1280, 800),
+      suppliers: FakeSuppliersRepository(canManage: false),
+    );
+    expect(_key('suppliers-import'), findsNothing);
   });
 
   testWidgets('hapus supplier berhutang ditolak', (tester) async {

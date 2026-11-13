@@ -507,6 +507,117 @@ Future<Supplier> saveSupplier(
   });
 }
 
+class SupplierImportSummary {
+  const SupplierImportSummary({required this.created, required this.updated});
+
+  final int created;
+  final int updated;
+}
+
+/// Import supplier (F1-14b). Kunci = nama tanpa beda huruf: nama yang sudah
+/// ada memperbarui kolom yang terisi saja, nama baru dibuat dengan tempo
+/// standar bila tempo kosong. Semua baris dalam satu transaksi.
+Future<SupplierImportSummary> importSuppliers(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required List<SupplierImportRow> rows,
+}) async {
+  await requireSupplierActor(store, scope, staffId, [
+    Permission.suppliersManage,
+  ]);
+  // Baris dari luar aplikasi diperiksa ulang, sama dengan `saveSupplier`;
+  // satu baris salah membatalkan seluruh import.
+  for (final r in rows) {
+    final issues = validateSupplier(
+      name: r.name,
+      termDays: r.termDays ?? SupplierLimits.defaultTermDays,
+      phone: r.phone,
+      contactName: r.contactName,
+      category: r.category,
+      address: r.address,
+      note: r.note,
+    );
+    final phone = r.phone == null ? null : normalizePhone(r.phone!);
+    if (phone != null && phone.isEmpty) {
+      throw const SupplierInvalid({SupplierIssue.phone});
+    }
+    if (issues.isNotEmpty) throw SupplierInvalid(issues);
+  }
+  return store.write(actor: staffId, (w) async {
+    final s = await w.stamp();
+    final byName = {
+      for (final x in await _activeSuppliers(
+        w.session,
+        scope.tenantId,
+        transaction: w.transaction,
+      ))
+        x.name.toLowerCase(): x,
+    };
+    var created = 0;
+    var updated = 0;
+    for (final r in rows) {
+      final name = r.name.trim();
+      final phone = r.phone == null ? null : normalizePhone(r.phone!);
+      final key = name.toLowerCase();
+      final old = byName[key];
+      if (old != null) {
+        final next = old.copyWith(
+          phone: phone ?? old.phone,
+          contactName: _text(r.contactName) ?? old.contactName,
+          category: _text(r.category) ?? old.category,
+          address: _text(r.address) ?? old.address,
+          note: _text(r.note) ?? old.note,
+          termDays: r.termDays ?? old.termDays,
+        );
+        updated++;
+        // Import ulang berkas yang sama tidak menulis (dan menyinkronkan)
+        // baris yang tidak berubah.
+        if (next.phone == old.phone &&
+            next.contactName == old.contactName &&
+            next.category == old.category &&
+            next.address == old.address &&
+            next.note == old.note &&
+            next.termDays == old.termDays) {
+          continue;
+        }
+        byName[key] = await w.update(
+          next.copyWith(
+            version: old.version + 1,
+            updatedAt: s.now,
+            updatedBy: staffId,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      } else {
+        byName[key] = await w.insert(
+          Supplier(
+            tenantId: scope.tenantId,
+            name: name,
+            phone: phone,
+            contactName: _text(r.contactName),
+            category: _text(r.category),
+            address: _text(r.address),
+            note: _text(r.note),
+            termDays: r.termDays ?? SupplierLimits.defaultTermDays,
+            createdAt: s.now,
+            updatedAt: s.now,
+            createdBy: staffId,
+            updatedBy: staffId,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+        created++;
+      }
+    }
+    return SupplierImportSummary(created: created, updated: updated);
+  });
+}
+
 /// Menghapus (soft delete) supplier tanpa hutang.
 Future<void> deleteSupplier(
   LakunaStore store,
