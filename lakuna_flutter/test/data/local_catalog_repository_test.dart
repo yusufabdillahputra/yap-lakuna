@@ -114,7 +114,25 @@ void main() {
       ),
     );
     expect(_err(await repo.save(_kopi)), isA<NotPermitted>());
+    expect(_err(await repo.importRows(const [])), isA<NotPermitted>());
     session.current = null;
     expect(_err(await repo.loadCatalog()), isA<NotPermitted>());
+  });
+
+  test('import produk: baru disimpan, yang sudah ada dilewati', () async {
+    _ok(await repo.save(_kopi));
+    final rows = productImportRows([
+      ['nama', 'harga jual', 'stok'],
+      ['kopi sachet', '2000', '5'],
+      ['Gula Aren', '18000', '3'],
+    ]).rows;
+    final summary = _ok(await repo.importRows(rows));
+    expect(summary.created, 1);
+    expect(summary.skippedLines, [2]);
+    final catalog = _ok(await repo.loadCatalog());
+    expect(
+      catalog.products.map((p) => p.name),
+      unorderedEquals(['Kopi Sachet', 'Gula Aren']),
+    );
   });
 }

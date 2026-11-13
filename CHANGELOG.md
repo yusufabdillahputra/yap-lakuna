@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-11-04
+
+Daftar barang dari Excel kini bisa dimasukkan sekaligus.
+
+### Ditambahkan
+
+- **Import Excel / CSV di Produk 1.15 (F1-07b).** Tombol *Import Excel* di
+  header daftar produk (ikon di ponsel) dan di daftar kosong membuka dialog
+  pratinjau. Satu baris = satu produk satu varian dengan kolom Nama dan
+  Harga jual (wajib), Kategori, Jenis (barang/jasa/menu), Satuan (bawaan
+  `pcs`), SKU, Barcode, Harga beli (juga dikenali sebagai HPP/harga pokok),
+  Stok awal, dan Stok minimum; judul kolom boleh Indonesia atau English.
+  Baris yang salah ditolak dengan nomor baris dan alasannya sebelum
+  disimpan. Stok awal masuk ledger sebagai *stok awal*, kategori dan satuan
+  baru dibuat otomatis.
+- Produk yang nama, SKU, atau barcode-nya sudah ada **dilewati, bukan
+  ditimpa**, sehingga import ulang berkas yang sama tidak menggandakan
+  produk atau stok; ringkasan menyebut baris yang dilewati.
+
+### Diperbaiki
+
+- Sel angka berpecahan dari XLSX (mis. `2.375`) kini dibaca dengan koma
+  desimal, sehingga tidak terbaca 2.375 ribu.
+- Tombol di dialog import pelanggan tidak lagi meluap di layar 360 px.
+
+### Keamanan
+
+- Import butuh izin `products:manage`, dicek di repositori; semua baris
+  diperiksa ulang di lapisan data dan disimpan dalam satu transaksi.
+
+### Catatan teknis
+
+- `productImportRows` (domain) dan `importProducts` (data) memakai
+  `_ProductWriter` yang sama dengan form produk dalam satu `LakunaStore.write`;
+  cek kode kembar sekali untuk seluruh berkas, lokasi stok dan kategori
+  di-cache, tautan modifier tidak dikueri untuk produk baru.
+- Jumlah stok `1,500` ditolak karena ambigu (ribuan Inggris atau 1,5).
+- Dialog import (produk dan pelanggan) tidak bisa ditutup selama
+  menyimpan.
+- Uji manual Xvfb: CSV 6 baris → 3 produk baru, 1 dilewati karena sudah
+  ada, 2 ditolak (jenis tidak dikenal, harga kosong).
+- Pengembangan dijeda setelah rilis ini atas permintaan pemilik; titik
+  berhenti dan gap berikutnya dicatat di `docs/superpowers/STATUS-JEDA.md`.
+
 ## [0.30.0] - 2026-11-04
 
 Meja dan pesanan take away F&B kini bisa ditutup sebagai nota kredit.
@@ -2898,7 +2942,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...HEAD
+[0.31.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.1...v0.30.0
 [0.29.1]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.28.1...v0.29.0

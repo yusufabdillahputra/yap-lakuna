@@ -63,6 +63,32 @@ class FakeCatalogRepository extends CatalogRepository {
     return Result.ok(products.where((p) => p.id == id).firstOrNull);
   }
 
+  /// Baris yang diterima `importRows`.
+  final imported = <ProductImportRow>[];
+
+  @override
+  Future<Result<ProductImportSummary>> importRows(
+    List<ProductImportRow> rows,
+  ) async {
+    if (_check() case final e?) return Result.error(e);
+    var created = 0;
+    final skipped = <int>[];
+    for (final r in rows) {
+      final name = productImportNameKey(r.draft.name);
+      final exists = products.any((p) => productImportNameKey(p.name) == name);
+      if (exists || _conflicts(r.draft, null).isNotEmpty) {
+        skipped.add(r.line);
+        continue;
+      }
+      imported.add(r);
+      _store(r.draft, null);
+      created++;
+    }
+    return Result.ok(
+      ProductImportSummary(created: created, skippedLines: skipped),
+    );
+  }
+
   @override
   Future<Result<UuidValue>> save(ProductDraft draft) async {
     if (_check() case final e?) return Result.error(e);

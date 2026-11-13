@@ -7017,4 +7017,62 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get approvalDiscountResumed => 'Diskon dari nota tersimpan';
+
+  @override
+  String get productsImport => 'Import Excel';
+
+  @override
+  String get productImportTitle => 'Import produk';
+
+  @override
+  String get productImportIntro =>
+      'Pilih berkas Excel (.xlsx) atau CSV, satu baris satu produk. Kolom: Nama dan Harga jual (wajib), Kategori, Jenis (barang/jasa/menu), Satuan, SKU, Barcode, Harga beli, Stok awal, Stok minimum. Judul kolom boleh Indonesia atau English.';
+
+  @override
+  String get productImportMissingColumns =>
+      'Kolom Nama atau Harga jual tidak ditemukan di baris judul.';
+
+  @override
+  String get productImportEmpty => 'Berkas tidak berisi baris produk.';
+
+  @override
+  String get productImportSkipNote =>
+      'Hanya menambah produk baru. Produk yang nama, SKU, atau barcode-nya sudah ada dilewati; ubah lewat form produk.';
+
+  @override
+  String get productImportReasonPrice =>
+      'harga jual kosong atau bukan rupiah bulat';
+
+  @override
+  String get productImportReasonCost => 'harga beli bukan rupiah bulat';
+
+  @override
+  String get productImportReasonStock => 'stok bukan angka';
+
+  @override
+  String get productImportReasonKind => 'jenis bukan barang, jasa, atau menu';
+
+  @override
+  String get productImportReasonCode => 'SKU atau barcode dobel di berkas';
+
+  @override
+  String get productImportReasonName => 'nama dobel di berkas';
+
+  @override
+  String productImportRun(int count) {
+    return 'Import $count produk';
+  }
+
+  @override
+  String get productImportCancel => 'Batal';
+
+  @override
+  String productImportDone(int created, int skipped) {
+    return 'Selesai: $created produk baru, $skipped dilewati karena sudah ada.';
+  }
+
+  @override
+  String productImportSkippedLines(String lines) {
+    return 'Baris dilewati: $lines';
+  }
 }

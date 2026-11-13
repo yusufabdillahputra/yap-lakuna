@@ -396,14 +396,116 @@ Future<UuidValue> saveProduct(
   );
 }
 
+// --- Import (F1-07b) --------------------------------------------------------
+
+class ProductImportSummary {
+  const ProductImportSummary({
+    required this.created,
+    required this.skippedLines,
+  });
+
+  final int created;
+
+  /// Baris berkas yang dilewati karena nama, SKU, atau barcode-nya sudah
+  /// dipakai produk yang ada.
+  final List<int> skippedLines;
+}
+
+/// Menyimpan baris import sah sebagai produk baru dalam satu transaksi.
+/// Produk yang sudah ada (nama tanpa beda huruf/spasi, SKU, atau barcode)
+/// dilewati, bukan ditimpa, sehingga import ulang tidak menggandakan stok.
+/// Izin `products:manage` dicek di repositori, sama dengan [saveProduct].
+Future<ProductImportSummary> importProducts(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required List<ProductImportRow> rows,
+}) async {
+  // Baris dari luar aplikasi diperiksa ulang di sini; satu baris salah
+  // membatalkan seluruh import.
+  for (final r in rows) {
+    if (r.draft.id != null) {
+      throw ArgumentError.value(r.line, 'rows', 'import hanya produk baru');
+    }
+    final issues = validateProductDraft(r.draft);
+    if (issues.isNotEmpty) throw ProductInputInvalid(issues);
+  }
+  return store.write(actor: staffId, (w) async {
+    final tenant = scope.tenantId;
+    final products = await Product.db.find(
+      w.session,
+      where: (p) => p.tenantId.equals(tenant) & p.deletedAt.equals(null),
+      transaction: w.transaction,
+    );
+    final live = {for (final p in products) p.id};
+    final names = {for (final p in products) productImportNameKey(p.name)};
+    final variants = await ProductVariant.db.find(
+      w.session,
+      where: (v) => v.tenantId.equals(tenant) & v.deletedAt.equals(null),
+      transaction: w.transaction,
+    );
+    final liveVariants = <UuidValue>{};
+    final skus = <String>{};
+    final barcodes = <String>{};
+    for (final v in variants) {
+      if (!live.contains(v.productId)) continue;
+      liveVariants.add(v.id);
+      if (v.sku case final sku?) skus.add(normalizeCode(sku));
+      if (v.barcode case final code?) barcodes.add(normalizeCode(code));
+    }
+    for (final u in await ProductUnit.db.find(
+      w.session,
+      where: (u) => u.tenantId.equals(tenant) & u.deletedAt.equals(null),
+      transaction: w.transaction,
+    )) {
+      if (liveVariants.contains(u.variantId) && u.barcode != null) {
+        barcodes.add(normalizeCode(u.barcode!));
+      }
+    }
+
+    final writer = _ProductWriter(w, scope, staffId);
+    var created = 0;
+    final skipped = <int>[];
+    for (final r in rows) {
+      final d = r.draft;
+      final name = productImportNameKey(d.name);
+      final rowSkus = {
+        for (final v in d.variants)
+          if (v.sku.trim().isNotEmpty) normalizeCode(v.sku),
+      };
+      final rowBarcodes = {
+        for (final v in d.variants) ...[
+          if (v.barcode.trim().isNotEmpty) normalizeCode(v.barcode),
+          for (final u in v.units)
+            if (u.barcode.trim().isNotEmpty) normalizeCode(u.barcode),
+        ],
+      };
+      if (names.contains(name) ||
+          rowSkus.any(skus.contains) ||
+          rowBarcodes.any(barcodes.contains)) {
+        skipped.add(r.line);
+        continue;
+      }
+      await writer.save(d, checkCodes: false);
+      names.add(name);
+      skus.addAll(rowSkus);
+      barcodes.addAll(rowBarcodes);
+      created++;
+    }
+    return ProductImportSummary(created: created, skippedLines: skipped);
+  });
+}
+
 class _ProductWriter {
   _ProductWriter(this.w, this.scope, this.staffId);
 
   final SyncTx w;
   final CatalogScope scope;
   final UuidValue staffId;
-  late final SyncStamp s;
+  late SyncStamp s;
   final _units = <String, UuidValue>{};
+  final _categories = <String, UuidValue>{};
+  StockLocation? _location;
 
   Transaction get tx => w.transaction;
   UuidValue get tenant => scope.tenantId;
@@ -476,7 +578,9 @@ class _ProductWriter {
     }
   }
 
-  Future<UuidValue> save(ProductDraft draft) async {
+  /// [checkCodes] `false` hanya untuk import yang sudah memeriksa kode
+  /// kembar sendiri untuk seluruh berkas (satu kueri, bukan per baris).
+  Future<UuidValue> save(ProductDraft draft, {bool checkCodes = true}) async {
     final existing = await _existingProduct(draft.id);
     final oldVariants = existing == null
         ? const <ProductVariant>[]
@@ -486,7 +590,7 @@ class _ProductWriter {
                 v.productId.equals(existing.id) & v.deletedAt.equals(null),
             transaction: tx,
           );
-    await _checkCodes(draft, existing?.id);
+    if (checkCodes) await _checkCodes(draft, existing?.id);
 
     s = await w.stamp();
     final categoryId = _orNull(draft.category) == null
@@ -528,7 +632,6 @@ class _ProductWriter {
           )).id;
 
     final kept = <UuidValue>{};
-    StockLocation? location;
     for (var i = 0; i < draft.variants.length; i++) {
       final v = draft.variants[i];
       final old = oldVariants.where((o) => o.id.uuid == v.id).firstOrNull;
@@ -555,7 +658,7 @@ class _ProductWriter {
       if (old == null) {
         variantId = (await w.insert(row, s)).id;
         if (draft.kind.tracksStock && v.openingStock.isPositive) {
-          location ??= await defaultStockLocationIn(w, scope);
+          final location = _location ??= await defaultStockLocationIn(w, scope);
           await recordStockMovement(
             w,
             scope,
@@ -582,7 +685,10 @@ class _ProductWriter {
       await _saveTiers(old.id, const [], isNew: false);
       await w.update(_stampVariant(old.copyWith(deletedAt: s.now)), s);
     }
-    await _saveModifierLinks(productId, draft.modifierGroupIds);
+    // Produk baru tanpa grup modifier tidak punya tautan untuk diperiksa.
+    if (existing != null || draft.modifierGroupIds.isNotEmpty) {
+      await _saveModifierLinks(productId, draft.modifierGroupIds);
+    }
     return productId;
   }
 
@@ -729,6 +835,8 @@ class _ProductWriter {
   }
 
   Future<UuidValue> _ensureCategory(String name) async {
+    final cached = _categories[name.toLowerCase()];
+    if (cached != null) return cached;
     final rows = await ProductCategory.db.find(
       w.session,
       where: (c) => c.tenantId.equals(tenant) & c.deletedAt.equals(null),
@@ -736,7 +844,7 @@ class _ProductWriter {
     );
     final key = name.toLowerCase();
     final found = rows.where((c) => c.name.trim().toLowerCase() == key);
-    if (found.isNotEmpty) return found.first.id;
+    if (found.isNotEmpty) return _categories[key] = found.first.id;
     final row = await w.insert(
       ProductCategory(
         tenantId: tenant,
@@ -752,7 +860,7 @@ class _ProductWriter {
       ),
       s,
     );
-    return row.id;
+    return _categories[key] = row.id;
   }
 
   Future<UuidValue> _ensureUnit(String name) async {

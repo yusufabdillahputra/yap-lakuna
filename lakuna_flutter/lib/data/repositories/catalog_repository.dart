@@ -36,4 +36,8 @@ abstract class CatalogRepository {
   /// `NotPermitted`, `ProductInputInvalid`, `ProductCodesTaken`, atau
   /// `ProductNotFound`.
   Future<Result<UuidValue>> save(ProductDraft draft);
+
+  /// Import produk baru dari berkas (F1-07b). Produk yang sudah ada
+  /// dilewati. Gagal dengan `NotPermitted` atau `ProductInputInvalid`.
+  Future<Result<ProductImportSummary>> importRows(List<ProductImportRow> rows);
 }
