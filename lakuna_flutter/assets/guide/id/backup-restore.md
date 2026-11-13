@@ -24,3 +24,16 @@ File backup berisi database dan semua gambar. Simpan di tempat aman karena isiny
 > [!warning] Semua data di perangkat ini diganti isi backup. Data lama dipindah ke folder *sebelum-pulihkan* di lokasi data, sehingga masih bisa diselamatkan bila salah pilih.
 
 Bila file backup rusak, aplikasi otomatis kembali ke data lama. Backup dari versi Lakuna yang lebih baru harus dipulihkan setelah aplikasi diperbarui.
+
+## Pindah ke perangkat baru
+
+Di perangkat baru Anda tidak perlu membuat toko dulu.
+
+1. Pasang Lakuna dan buka. Wizard *Siapkan toko Anda* tampil.
+2. Di langkah pertama (*Bahasa & tema*), tekan **Pulihkan dari backup** dan pilih file .zip dari perangkat lama.
+3. Periksa ringkasannya, ketik nama toko, lalu tekan **Pulihkan & muat ulang**.
+4. Aplikasi memuat ulang ke layar masuk. Masuk dengan PIN staf seperti di perangkat lama.
+
+Tombol ini hanya ada sebelum toko dibuat. Setelah toko ada, pulihkan lewat **Pengaturan › Data & backup**.
+
+> [!warning] Perangkat baru melanjutkan kode perangkat dan nomor nota perangkat lama. Jangan memakai backup yang sama di dua perangkat sekaligus.

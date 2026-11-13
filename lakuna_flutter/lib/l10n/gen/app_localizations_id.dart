@@ -7628,4 +7628,30 @@ class AppLocalizationsId extends AppLocalizations {
   String supplierImportDone(int created, int updated, int skipped) {
     return 'Selesai: $created supplier baru, $updated diperbarui, $skipped baris dilewati.';
   }
+
+  @override
+  String get onboardingRestoreHint =>
+      'Pindah perangkat atau HP rusak? Pasang backup toko Anda di sini tanpa membuat toko baru.';
+
+  @override
+  String get onboardingRestoreAction => 'Pulihkan dari backup';
+
+  @override
+  String get setupRestoreIntro =>
+      'Pilih berkas backup Lakuna (.zip) yang dibuat di Pengaturan › Data & backup perangkat lama.';
+
+  @override
+  String get setupRestorePick => 'Pilih berkas backup';
+
+  @override
+  String get setupRestoreWarning =>
+      'Data backup dipasang di perangkat ini, lalu aplikasi dimuat ulang dan Anda masuk dengan PIN dari backup. Jangan memakai backup yang sama di dua perangkat sekaligus.';
+
+  @override
+  String get setupRestoreAlreadySetUp =>
+      'Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup.';
+
+  @override
+  String get setupRestoreReopen =>
+      'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.';
 }

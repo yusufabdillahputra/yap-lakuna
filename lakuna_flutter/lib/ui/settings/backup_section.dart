@@ -182,7 +182,7 @@ class BackupSection extends StatelessWidget {
                 FAlert(
                   key: const ValueKey('backup-restore-error'),
                   variant: .destructive,
-                  title: Text(_restoreError(l10n, error)),
+                  title: Text(backupRestoreError(l10n, error)),
                 ),
               Text(l10n.backupFileNote, style: muted),
             ],
@@ -210,11 +210,14 @@ class BackupSection extends StatelessWidget {
   }
 }
 
-String _restoreError(AppLocalizations l10n, Exception error) => switch (error) {
-  BackupTooNew() => l10n.backupTooNew,
-  BackupInvalid() => l10n.backupInvalid,
-  _ => l10n.backupRestoreFailed,
-};
+/// Pesan galat pulihkan (Pengaturan dan onboarding).
+String backupRestoreError(AppLocalizations l10n, Exception error) =>
+    switch (error) {
+      BackupTooNew() => l10n.backupTooNew,
+      BackupInvalid() => l10n.backupInvalid,
+      StoreAlreadySetUp() => l10n.setupRestoreAlreadySetUp,
+      _ => l10n.backupRestoreFailed,
+    };
 
 class _Stat extends StatelessWidget {
   const _Stat({super.key, required this.label, required this.value});
@@ -313,7 +316,7 @@ class _RestorePanel extends StatelessWidget {
             FAlert(
               key: const ValueKey('backup-restore-failed'),
               variant: .destructive,
-              title: Text(_restoreError(l10n, error)),
+              title: Text(backupRestoreError(l10n, error)),
             ),
           Wrap(
             spacing: 8,

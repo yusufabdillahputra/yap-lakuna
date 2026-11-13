@@ -13387,6 +13387,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Selesai: {created} supplier baru, {updated} diperbarui, {skipped} baris dilewati.'**
   String supplierImportDone(int created, int updated, int skipped);
+
+  /// No description provided for @onboardingRestoreHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Pindah perangkat atau HP rusak? Pasang backup toko Anda di sini tanpa membuat toko baru.'**
+  String get onboardingRestoreHint;
+
+  /// No description provided for @onboardingRestoreAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Pulihkan dari backup'**
+  String get onboardingRestoreAction;
+
+  /// No description provided for @setupRestoreIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas backup Lakuna (.zip) yang dibuat di Pengaturan › Data & backup perangkat lama.'**
+  String get setupRestoreIntro;
+
+  /// No description provided for @setupRestorePick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih berkas backup'**
+  String get setupRestorePick;
+
+  /// No description provided for @setupRestoreWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Data backup dipasang di perangkat ini, lalu aplikasi dimuat ulang dan Anda masuk dengan PIN dari backup. Jangan memakai backup yang sama di dua perangkat sekaligus.'**
+  String get setupRestoreWarning;
+
+  /// No description provided for @setupRestoreAlreadySetUp.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup.'**
+  String get setupRestoreAlreadySetUp;
+
+  /// No description provided for @setupRestoreReopen.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.'**
+  String get setupRestoreReopen;
 }
 
 class _AppLocalizationsDelegate

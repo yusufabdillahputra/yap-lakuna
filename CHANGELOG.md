@@ -7,6 +7,58 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.46.0] - 2026-11-14
+
+Pindah ke perangkat baru tidak perlu lagi membuat toko palsu dulu: backup
+bisa dipasang langsung dari wizard setup.
+
+### Ditambahkan
+
+- **Pulihkan dari backup di onboarding (1.1, F1-19b).** Langkah pertama
+  wizard *Siapkan toko Anda* menampilkan kartu "Pindah perangkat atau HP
+  rusak?" dengan tombol **Pulihkan dari backup**:
+  - pilih berkas `.zip` backup Lakuna; ringkasan toko, cabang, perangkat,
+    tanggal, jumlah transaksi dan produk;
+  - ketik nama toko pada backup (tidak peka huruf besar/kecil), lalu
+    **Pulihkan & muat ulang**;
+  - pemasangan, folder `sebelum-pulihkan-…`, migrasi backup lama, dan
+    pengembalian data bila backup gagal dibuka sama dengan pulihkan di
+    Pengaturan (F1-19); aplikasi lalu membuka layar masuk dengan staf dan
+    preferensi dari backup;
+  - galat berkas rusak, backup dari versi lebih baru, atau gagal disiapkan
+    tampil di dialog; dialog hanya ditutup lewat *Batal* dan terkunci
+    selama backup disiapkan;
+  - bila backup gagal dibuka setelah dipasang, wizard menampilkan pesan
+    *Pulihkan gagal* (sebelumnya pesan ini hanya ada di Beranda, yang tidak
+    terlihat karena perangkat kembali kosong).
+- Panduan *Backup & pulihkan* (ID/EN): bagian *Pindah ke perangkat baru*.
+
+### Keamanan
+
+- Pulihkan dari onboarding tidak butuh login (belum ada staf), jadi
+  repositori menolaknya (`StoreAlreadySetUp`) bila toko sudah dibuat di
+  perangkat ini, termasuk bila konteks toko belum termuat (dibaca ulang
+  dari database) atau masih ada tenant walau data perangkatnya tidak
+  lengkap (cek yang sama dengan setup toko). Pulihkan untuk toko yang sudah ada tetap lewat
+  Pengaturan dengan izin `backup:manage`.
+
+### Catatan teknis
+
+- `BackupRepository.inspectForSetup` / `stageRestoreForSetup`,
+  `SetupRestoreViewModel`, `setup_restore_dialog.dart`;
+  `OnboardingScreen` menerima `BackupRepository` dan `BackupFiles` dari
+  router dan memanggil `AppRestart`.
+- Pesan galat pulihkan dipakai bersama Pengaturan dan onboarding
+  (`backupRestoreError`). Tanpa `AppRestart`, dialog meminta pengguna
+  membuka ulang aplikasi alih-alih diam.
+- View model sengaja tidak membuang `Command`-nya: perintah *Pulihkan*
+  masih menunggu muat ulang aplikasi saat dialog dilepas (galat "Command
+  used after being disposed" ditemukan saat uji manual, sudah ada tesnya).
+- Tes repositori (ditolak bila toko ada, berhasil di perangkat kosong),
+  view model, widget 1280/360 px; uji manual Linux (Xvfb): perangkat
+  kosong → pulihkan backup 4 Nov (skema lama, migrasi otomatis) → masuk
+  dengan PIN dari backup.
+
 ## [0.45.0] - 2026-11-14
 
 Toko yang pindah dari buku atau aplikasi lain bisa memasukkan daftar
@@ -3747,7 +3799,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...HEAD
+[0.46.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...v0.45.0
 [0.44.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...v0.43.0

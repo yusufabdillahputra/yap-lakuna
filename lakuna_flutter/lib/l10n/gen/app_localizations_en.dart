@@ -7795,4 +7795,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String supplierImportDone(int created, int updated, int skipped) {
     return 'Done: $created new suppliers, $updated updated, $skipped rows skipped.';
   }
+
+  @override
+  String get onboardingRestoreHint =>
+      'Moving to a new device? Install your store\'s backup here instead of creating a new store.';
+
+  @override
+  String get onboardingRestoreAction => 'Restore from backup';
+
+  @override
+  String get setupRestoreIntro =>
+      'Choose a Lakuna backup file (.zip) made in Settings › Data & backup on the old device.';
+
+  @override
+  String get setupRestorePick => 'Choose backup file';
+
+  @override
+  String get setupRestoreWarning =>
+      'The backup is installed on this device, then the app reloads and you sign in with a PIN from the backup. Don\'t use the same backup on two devices at once.';
+
+  @override
+  String get setupRestoreAlreadySetUp =>
+      'A store already exists on this device. Restore from Settings › Data & backup instead.';
+
+  @override
+  String get setupRestoreReopen =>
+      'The backup is ready. Close and reopen the app to finish restoring.';
 }

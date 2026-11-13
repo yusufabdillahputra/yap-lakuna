@@ -134,6 +134,8 @@ GoRouter createRouter({
           repository: store,
           session: session,
           settings: settings,
+          backup: backup,
+          backupFiles: backupFiles,
         ),
       ),
       GoRoute(
