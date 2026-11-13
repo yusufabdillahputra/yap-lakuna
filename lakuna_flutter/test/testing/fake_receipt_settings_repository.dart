@@ -9,6 +9,7 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
   FakeReceiptSettingsRepository({
     this.config = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
+    this.kitchen,
   });
 
   ReceiptConfig config;
@@ -16,6 +17,10 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
   Exception? nextError;
   final saves = <ReceiptSettings>[];
   final printerSaves = <PrinterSelection?>[];
+
+  /// Printer dapur (F1-10e).
+  KitchenPrinter? kitchen;
+  final kitchenSaves = <KitchenPrinter?>[];
 
   Result<T> _result<T>(T Function() value) {
     final e = nextError;
@@ -80,5 +85,16 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
       _result(() {
         printerSaves.add(printer);
         this.printer = printer;
+      });
+
+  @override
+  Future<Result<KitchenPrinter?>> loadKitchenPrinter() async =>
+      _result(() => kitchen);
+
+  @override
+  Future<Result<void>> saveKitchenPrinter(KitchenPrinter? kitchen) async =>
+      _result(() {
+        kitchenSaves.add(kitchen);
+        this.kitchen = kitchen;
       });
 }

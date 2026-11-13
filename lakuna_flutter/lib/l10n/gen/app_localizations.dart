@@ -13021,6 +13021,72 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Boleh digabung'**
   String get diningSetupCanMerge;
+
+  /// No description provided for @kitchenPrinterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer dapur'**
+  String get kitchenPrinterTitle;
+
+  /// No description provided for @kitchenPrinterSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket dapur dicetak otomatis di sini saat Kirim ke dapur. Disimpan di perangkat ini saja.'**
+  String get kitchenPrinterSubtitle;
+
+  /// No description provided for @kitchenPrinterSame.
+  ///
+  /// In id, this message translates to:
+  /// **'Sama dengan printer struk'**
+  String get kitchenPrinterSame;
+
+  /// No description provided for @kitchenPrinterSameNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket dapur dicetak lewat tombol Cetak tiket ke printer struk perangkat ini.'**
+  String get kitchenPrinterSameNote;
+
+  /// No description provided for @kitchenPrinterForget.
+  ///
+  /// In id, this message translates to:
+  /// **'Lupakan printer dapur'**
+  String get kitchenPrinterForget;
+
+  /// No description provided for @kitchenPaperWidth.
+  ///
+  /// In id, this message translates to:
+  /// **'Lebar kertas tiket'**
+  String get kitchenPaperWidth;
+
+  /// No description provided for @kitchenPrinterTest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tes cetak tiket'**
+  String get kitchenPrinterTest;
+
+  /// No description provided for @kitchenPrinterTestSent.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket contoh terkirim ke printer dapur.'**
+  String get kitchenPrinterTestSent;
+
+  /// No description provided for @ticketPrintingKitchen.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencetak tiket di printer dapur…'**
+  String get ticketPrintingKitchen;
+
+  /// No description provided for @ticketPrintedKitchen.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket dicetak di printer dapur.'**
+  String get ticketPrintedKitchen;
+
+  /// No description provided for @ticketReprint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak ulang'**
+  String get ticketReprint;
 }
 
 class _AppLocalizationsDelegate

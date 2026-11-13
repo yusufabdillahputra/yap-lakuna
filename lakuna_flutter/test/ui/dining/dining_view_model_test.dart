@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -6,6 +8,7 @@ import 'package:lakuna_flutter/data/repositories/repository_errors.dart';
 import 'package:lakuna_flutter/ui/cashier/cashier_view_model.dart'
     show saleOptionsFor;
 import 'package:lakuna_flutter/ui/dining/dining_view_model.dart';
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 
 import '../../testing/fake_dining_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
@@ -297,6 +300,126 @@ void main() {
     await vm.send.execute();
     await vm.printTicket.execute(const [ReceiptLine('TIKET DAPUR')]);
     expect(printer.prints.single.$2.single.text, 'TIKET DAPUR');
+  });
+
+  group('printer dapur (F1-10e)', () {
+    const counter = PrinterSelection(
+      kind: PrinterKind.network,
+      name: 'Kasir',
+      address: '10.0.0.2:9100',
+    );
+    const kitchen = KitchenPrinter(
+      printer: PrinterSelection(
+        kind: PrinterKind.network,
+        name: 'Dapur',
+        address: '10.0.0.9:9100',
+      ),
+      paper: ReceiptPaper.mm80,
+    );
+    const lines = [ReceiptLine('TIKET DAPUR')];
+    late FakeReceiptPrinter printer;
+
+    Future<void> sendOne() async {
+      await vm.openTable.execute((table('M1').id, 2));
+      await add('Kopi Susu Aren');
+      await vm.send.execute();
+    }
+
+    setUp(() async {
+      printer = FakeReceiptPrinter();
+      repo.printer = counter;
+    });
+
+    test(
+      'tanpa printer dapur: tidak cetak otomatis, tiket ke printer struk',
+      () async {
+        vm = DiningViewModel(repository: repo, printer: printer);
+        await vm.load.execute();
+        await sendOne();
+        expect(vm.ticketToKitchen, isFalse);
+        expect(vm.shouldAutoPrintTicket, isFalse);
+        await vm.autoPrintTicket(lines);
+        expect(printer.prints, isEmpty);
+        expect(vm.ticketPaper, ReceiptPaper.mm58);
+        await vm.printTicket.execute(lines);
+        expect(printer.prints.single.$1, counter);
+      },
+    );
+
+    test('printer dapur: cetak otomatis sekali dengan kertas dapur', () async {
+      repo.kitchenPrinter = kitchen;
+      vm = DiningViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+      expect(vm.shouldAutoPrintTicket, isFalse); // belum ada tiket
+      await sendOne();
+      expect(vm.ticketToKitchen, isTrue);
+      expect(vm.ticketPaper, ReceiptPaper.mm80);
+      expect(vm.shouldAutoPrintTicket, isTrue);
+      await vm.autoPrintTicket(lines);
+      await vm.autoPrintTicket(lines);
+      expect(printer.prints.single, (
+        kitchen.printer,
+        lines,
+        ReceiptPaper.mm80,
+      ));
+      expect(vm.ticketPrinted, isTrue);
+      expect(vm.shouldAutoPrintTicket, isFalse);
+
+      // Tiket berikutnya dicetak otomatis lagi.
+      vm.clearTicket();
+      await add('Kopi Susu Aren');
+      await vm.send.execute();
+      expect(vm.shouldAutoPrintTicket, isTrue);
+    });
+
+    test(
+      'tiket berikutnya menunggu cetak sebelumnya, status tidak tertukar',
+      () async {
+        repo.kitchenPrinter = kitchen;
+        vm = DiningViewModel(repository: repo, printer: printer);
+        await vm.load.execute();
+        await sendOne();
+        final hold = printer.hold = Completer<void>();
+        final first = vm.autoPrintTicket(const [ReceiptLine('A')]);
+        await pumpEventQueue();
+        expect(vm.printTicket.running, isTrue);
+        // Modal A ditutup selagi printer lambat, lalu tiket B dikirim.
+        vm.clearTicket();
+        await add('Kopi Susu Aren');
+        await vm.send.execute();
+        final second = vm.autoPrintTicket(const [ReceiptLine('B')]);
+        await pumpEventQueue();
+        expect(vm.ticketPrinted, isFalse);
+        printer.hold = null;
+        hold.complete();
+        await first;
+        await second;
+        expect(printer.prints.map((p) => p.$2.single.text), ['A', 'B']);
+        expect(vm.ticketPrinted, isTrue);
+      },
+    );
+
+    test(
+      'cetak dapur gagal: alasan tampil, cetak ulang ke printer dapur',
+      () async {
+        repo.kitchenPrinter = kitchen;
+        vm = DiningViewModel(repository: repo, printer: printer);
+        await vm.load.execute();
+        await sendOne();
+        printer.nextFailure = const PrinterFailure(
+          PrinterFailureReason.connect,
+        );
+        await vm.autoPrintTicket(lines);
+        expect(vm.printFailure, PrinterFailureReason.connect);
+        expect(vm.ticketPrinted, isFalse);
+        // Item tetap tercatat di dapur.
+        expect(vm.selectedBill!.sentCount, 1);
+        await vm.printTicket.execute(lines);
+        expect(printer.prints.single.$1, kitchen.printer);
+        expect(vm.printFailure, isNull);
+        expect(vm.ticketPrinted, isTrue);
+      },
+    );
   });
 
   test('tanpa izin open_bills:manage gagal dimuat', () async {

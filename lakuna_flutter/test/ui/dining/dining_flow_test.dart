@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
-import 'package:lakuna_data/lakuna_data.dart' show BillItemLocked;
+import 'package:lakuna_data/lakuna_data.dart'
+    show BillItemLocked, KitchenPrinter, PrinterKind, PrinterSelection;
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
@@ -43,12 +48,14 @@ void main() {
     String role = 'owner',
     bool modifiers = false,
     List<String> mergeable = const [],
+    KitchenPrinter? kitchenPrinter,
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
           ? null
           : permissionsForRole(role, isOwner: false),
     )..allowMerge(mergeable);
+    dining.kitchenPrinter = kitchenPrinter;
     if (modifiers) {
       dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
     }
@@ -402,6 +409,62 @@ void main() {
       expect(_key('dining-table-M1'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('printer dapur ${size.width.toInt()} px: tiket otomatis, '
+        'gagal lalu cetak ulang (F1-10e)', (tester) async {
+      const kitchen = KitchenPrinter(
+        printer: PrinterSelection(
+          kind: PrinterKind.network,
+          name: 'Dapur',
+          address: '10.0.0.9:9100',
+        ),
+        paper: ReceiptPaper.mm80,
+      );
+      await pump(tester, size: size, kitchenPrinter: kitchen);
+      if (size.width < 600) {
+        await _tapText(tester, 'Teras');
+        await _tap(tester, 'dining-table-M5');
+      } else {
+        await _tap(tester, 'dining-table-M1');
+      }
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Kopi Susu Aren']);
+      final hold = printer.hold = Completer<void>();
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket'), findsOneWidget);
+      // Printer dapur lambat: status mencetak, tombol nonaktif.
+      expect(_key('dining-ticket-printing-kitchen'), findsOneWidget);
+      expect(
+        tester.widget<FButton>(_key('dining-ticket-print')).onPress,
+        isNull,
+      );
+      printer.hold = null;
+      hold.complete();
+      await tester.pumpAndSettle();
+      final (target, lines, paper) = printer.prints.single;
+      expect(target, kitchen.printer);
+      expect(paper, ReceiptPaper.mm80);
+      expect(lines.first.text, contains('TIKET DAPUR'));
+      expect(lines.every((l) => l.text.length <= 48), isTrue);
+      expect(find.text('Tiket dicetak di printer dapur.'), findsOneWidget);
+      expect(find.text('Cetak ulang'), findsOneWidget);
+      await _tap(tester, 'dining-ticket-close');
+
+      // Kirim berikutnya: printer dapur mati, item tetap di dapur.
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await addMenu(tester, ['Kopi Susu Aren']);
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket-print-failed'), findsOneWidget);
+      expect(printer.prints, hasLength(1));
+      await _tap(tester, 'dining-ticket-print');
+      expect(printer.prints, hasLength(2));
+      expect(find.text('Tiket dicetak di printer dapur.'), findsOneWidget);
+      await _tap(tester, 'dining-ticket-close');
+      expect(_key('dining-ticket'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('kirim ke dapur di ponsel lalu tombol kembali sistem', (

@@ -28,6 +28,7 @@ import 'fnb_rates_view_model.dart';
 import 'payment_settings_view_model.dart';
 import 'qris_settings_section.dart';
 import 'receipt_settings_section.dart';
+import 'kitchen_printer_view_model.dart';
 import 'receipt_settings_view_model.dart';
 import 'settings_view.dart';
 import 'store_settings_section.dart';
@@ -117,6 +118,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   StoreSettingsViewModel? _store;
   PaymentSettingsViewModel? _payments;
   ReceiptSettingsViewModel? _receipt;
+
+  /// Printer dapur (F1-10e), bersama modul meja.
+  KitchenPrinterViewModel? _kitchen;
   FnbRatesViewModel? _rates;
   BackupViewModel? _backup;
   late final _about = AboutViewModel(licenses: widget.licenses);
@@ -138,6 +142,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       )..load.execute();
       if (widget.diningAdmin case final admin?) {
         _rates = FnbRatesViewModel(repository: admin)..load.execute();
+        _kitchen = KitchenPrinterViewModel(
+          repository: widget.receiptSettings,
+          printer: widget.receiptPrinter,
+        )..load.execute();
       }
     }
     if (_canBackup) {
@@ -163,6 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _store?.dispose();
     _payments?.dispose();
     _receipt?.dispose();
+    _kitchen?.dispose();
     _rates?.dispose();
     _backup?.dispose();
     _about.dispose();
@@ -228,6 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       SettingsSection.receipt => ReceiptSettingsSection(
         viewModel: _receipt!,
+        kitchen: _kitchen,
         businessName: widget.store.current?.tenant.name ?? '',
         outletName: widget.store.current?.outlet.name ?? '',
         staffName: widget.session.current?.name ?? '',

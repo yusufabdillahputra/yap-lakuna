@@ -7407,4 +7407,40 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningSetupCanMerge => 'Boleh digabung';
+
+  @override
+  String get kitchenPrinterTitle => 'Printer dapur';
+
+  @override
+  String get kitchenPrinterSubtitle =>
+      'Tiket dapur dicetak otomatis di sini saat Kirim ke dapur. Disimpan di perangkat ini saja.';
+
+  @override
+  String get kitchenPrinterSame => 'Sama dengan printer struk';
+
+  @override
+  String get kitchenPrinterSameNote =>
+      'Tiket dapur dicetak lewat tombol Cetak tiket ke printer struk perangkat ini.';
+
+  @override
+  String get kitchenPrinterForget => 'Lupakan printer dapur';
+
+  @override
+  String get kitchenPaperWidth => 'Lebar kertas tiket';
+
+  @override
+  String get kitchenPrinterTest => 'Tes cetak tiket';
+
+  @override
+  String get kitchenPrinterTestSent =>
+      'Tiket contoh terkirim ke printer dapur.';
+
+  @override
+  String get ticketPrintingKitchen => 'Mencetak tiket di printer dapur…';
+
+  @override
+  String get ticketPrintedKitchen => 'Tiket dicetak di printer dapur.';
+
+  @override
+  String get ticketReprint => 'Cetak ulang';
 }

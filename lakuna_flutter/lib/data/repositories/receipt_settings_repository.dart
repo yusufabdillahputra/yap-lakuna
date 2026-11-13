@@ -26,4 +26,12 @@ abstract class ReceiptSettingsRepository {
   /// Memilih atau (dengan `null`) melupakan printer. Gagal dengan
   /// `NotPermitted`.
   Future<Result<void>> savePrinter(PrinterSelection? printer);
+
+  /// Printer dapur di perangkat ini (F1-10e); `null` = sama dengan printer
+  /// struk.
+  Future<Result<KitchenPrinter?>> loadKitchenPrinter();
+
+  /// Memilih atau (dengan `null`) melupakan printer dapur. Gagal dengan
+  /// `NotPermitted`.
+  Future<Result<void>> saveKitchenPrinter(KitchenPrinter? kitchen);
 }

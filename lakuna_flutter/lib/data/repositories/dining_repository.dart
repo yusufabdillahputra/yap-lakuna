@@ -19,6 +19,7 @@ class DiningData {
     this.canVoid = false,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
+    this.kitchenPrinter,
     this.modifierGroups = const {},
     this.floorImages = const {},
     this.canArrange = false,
@@ -50,6 +51,10 @@ class DiningData {
   /// Kertas struk cabang dipakai juga untuk tiket dapur.
   final ReceiptConfig receipt;
   final PrinterSelection? printer;
+
+  /// Printer dapur khusus perangkat ini (F1-10e); `null` = tiket ke
+  /// [printer] lewat *Cetak tiket*.
+  final KitchenPrinter? kitchenPrinter;
 
   /// Grup modifier per produk (urut 1.16b) untuk sheet 1.8; produk tanpa
   /// grup tidak ada di peta.
@@ -85,6 +90,7 @@ class DiningData {
     canVoid: canVoid,
     receipt: receipt,
     printer: printer,
+    kitchenPrinter: kitchenPrinter,
     modifierGroups: modifierGroups,
     floorImages: floorImages,
     canArrange: canArrange,

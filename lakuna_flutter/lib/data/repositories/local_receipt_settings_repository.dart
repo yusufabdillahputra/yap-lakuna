@@ -1,5 +1,6 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_data/lakuna_data.dart' as data;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
@@ -50,6 +51,16 @@ class LocalReceiptSettingsRepository extends ReceiptSettingsRepository {
   Future<Result<void>> savePrinter(PrinterSelection? printer) => _guard(
     manage: true,
     (_, _) => savePrinterSelection(_preferences, printer),
+  );
+
+  @override
+  Future<Result<KitchenPrinter?>> loadKitchenPrinter() =>
+      _guard(manage: false, (_, _) => data.loadKitchenPrinter(_preferences));
+
+  @override
+  Future<Result<void>> saveKitchenPrinter(KitchenPrinter? kitchen) => _guard(
+    manage: true,
+    (_, _) => data.saveKitchenPrinter(_preferences, kitchen),
   );
 
   Future<Result<T>> _guard<T>(

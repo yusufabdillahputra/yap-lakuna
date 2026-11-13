@@ -18,6 +18,10 @@ Jenis printer:
 
 Printer disimpan per perangkat, tidak ikut ke perangkat lain.
 
+## Printer dapur
+
+Di kartu *Printer dapur*, pilih **Jaringan (LAN)** atau **Bluetooth** untuk printer di dapur atau bar, lalu atur **Lebar kertas tiket** dan tekan **Tes cetak tiket**. Setelah itu tiket dapur langsung tercetak di printer dapur setiap kali **Kirim ke dapur**. Pilih **Sama dengan printer struk** atau **Lupakan printer dapur** untuk kembali mencetak tiket lewat **Cetak tiket** di printer struk.
+
 ## Isi struk cabang
 
 Atur **Lebar kertas** (58 atau 80 mm), **Header struk** dan **Footer struk** (maks 4 baris), lalu lihat *Pratinjau struk*. Nyalakan **Cetak otomatis setelah bayar** untuk printer Bluetooth atau jaringan. Tekan **Simpan**.

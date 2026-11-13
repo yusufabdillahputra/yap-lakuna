@@ -18,6 +18,10 @@ Printer types:
 
 The printer is saved per device and is not shared with other devices.
 
+## Kitchen printer
+
+In the *Kitchen printer* card, choose **Network (LAN)** or **Bluetooth** for the printer in the kitchen or bar, set the **Ticket paper width**, and tap **Test print ticket**. From then on the kitchen ticket prints on the kitchen printer every time you tap **Send to kitchen**. Choose **Same as receipt printer** or **Forget kitchen printer** to go back to printing tickets with **Print ticket** on the receipt printer.
+
 ## Branch receipt content
 
 Set the **Paper width** (58 or 80 mm), the **Receipt header** and **Receipt footer** (up to 4 lines), and check the *Receipt preview*. Turn on **Print automatically after payment** for Bluetooth or network printers. Tap **Save**.

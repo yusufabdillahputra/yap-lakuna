@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -17,6 +19,7 @@ import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../floor_plan/floor_canvas.dart';
 import '../products/product_widgets.dart';
+import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart' show percentLabel;
 import '../receipt/receipt_paper_view.dart';
 import 'dining_view_model.dart';
@@ -355,6 +358,20 @@ class _TicketListenerState extends State<_TicketListener> {
     _shown = ticket;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      final vm = widget.viewModel;
+      // Printer dapur khusus (F1-10e): tiket langsung dicetak sekali.
+      if (vm.shouldAutoPrintTicket) {
+        unawaited(
+          vm.autoPrintTicket(
+            kitchenTicketLines(
+              AppLocalizations.of(context),
+              result: ticket,
+              timezone: vm.data?.timezone,
+              paper: vm.ticketPaper,
+            ),
+          ),
+        );
+      }
       await showFDialog<void>(
         context: context,
         builder: (context, style, animation) => FDialog(
@@ -2439,10 +2456,12 @@ class _TicketDialog extends StatelessWidget {
         l10n,
         result: ticket,
         timezone: vm.data?.timezone,
-        paper: vm.paper,
+        paper: vm.ticketPaper,
       );
+      final kitchen = vm.ticketToKitchen;
       final height = MediaQuery.sizeOf(context).height;
-      return Padding(
+      // Bergulir utuh di layar pendek agar status dan tombol terjangkau.
+      return SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           key: const ValueKey('dining-ticket'),
@@ -2459,18 +2478,30 @@ class _TicketDialog extends StatelessWidget {
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: height * 0.55),
               child: SingleChildScrollView(
-                child: ReceiptPaperView(lines: lines, paper: vm.paper),
+                child: ReceiptPaperView(lines: lines, paper: vm.ticketPaper),
               ),
             ),
-            if (vm.printFailure != null ||
-                (vm.printTicket.error && vm.printFailure == null))
+            if (vm.printTicket.running && kitchen)
               Text(
-                l10n.ticketPrintFailed,
+                l10n.ticketPrintingKitchen,
+                key: const ValueKey('dining-ticket-printing-kitchen'),
+                style: _muted(context),
+              )
+            else if (vm.printTicket.error)
+              Text(
+                switch (vm.printFailure) {
+                  final reason? => printerFailureMessage(l10n, reason),
+                  null => l10n.ticketPrintFailed,
+                },
                 key: const ValueKey('dining-ticket-print-failed'),
                 style: _errorStyle(context),
               )
             else if (vm.ticketPrinted)
-              Text(l10n.ticketPrinted, style: _muted(context)),
+              Text(
+                kitchen ? l10n.ticketPrintedKitchen : l10n.ticketPrinted,
+                key: const ValueKey('dining-ticket-printed'),
+                style: _muted(context),
+              ),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -2490,7 +2521,13 @@ class _TicketDialog extends StatelessWidget {
                   onPress: vm.printTicket.running
                       ? null
                       : () => vm.printTicket.execute(lines),
-                  child: Flexible(child: Text(l10n.ticketPrint)),
+                  child: Flexible(
+                    child: Text(
+                      kitchen && (vm.ticketPrinted || vm.printTicket.error)
+                          ? l10n.ticketReprint
+                          : l10n.ticketPrint,
+                    ),
+                  ),
                 ),
               ],
             ),
