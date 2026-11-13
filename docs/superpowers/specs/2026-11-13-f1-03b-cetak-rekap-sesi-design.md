@@ -1,7 +1,7 @@
 # F1-03b · Cetak rekap sesi kasir
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.38.0
 - **Layar:** 1.3 Tutup sesi (tombol *Tutup sesi & cetak rekap*) dan kartu
   hasil setelah tutup.
 - **Acuan:** kanvas 1.3 tombol *Tutup sesi & cetak rekap*; spec Storeku
@@ -21,10 +21,11 @@ sebagai PDF.
    lebar kertas dan printer dari *Pengaturan › Struk & printer*. Printer
    langsung (Bluetooth/LAN) menerima ESC/POS; tanpa printer atau printer
    *Dialog cetak sistem* memakai PDF ke dialog cetak.
-2. **Tombol di 1.3**: bila perangkat punya printer terpilih, tombol primer
-   berbunyi *Tutup sesi & cetak rekap* dan rekap langsung dicetak setelah
-   sesi tertutup. Tanpa printer tombol tetap *Tutup sesi* (tidak memaksa
-   dialog cetak).
+2. **Tombol di 1.3**: bila perangkat punya printer langsung (Bluetooth/LAN)
+   terpilih, tombol primer berbunyi *Tutup sesi & cetak rekap* dan rekap
+   langsung dicetak sekali setelah sesi tertutup (sama dengan cetak otomatis
+   struk). Tanpa printer atau dengan *Dialog cetak sistem* tombol tetap
+   *Tutup sesi* (dialog cetak tidak dibuka sendiri).
 3. **Kartu hasil**: tombol *Cetak rekap* dan *Bagikan PDF* di atas *Buka
    sesi baru*. Cetak gagal → pesan printer yang sama dengan struk
    (Bluetooth mati, gagal tersambung, …) di kartu; sesi tetap tertutup dan
@@ -32,8 +33,8 @@ sebagai PDF.
    ditampilkan.
 4. **Isi rekap** (ASCII, 32/48 kolom):
    - Kepala: nama toko (tebal), cabang, judul **REKAP SESI KASIR**.
-   - Info: Perangkat (kode), Dibuka (tanggal jam · nama pembuka), Ditutup
-     (tanggal jam · nama penutup).
+   - Info: Perangkat (kode), Dibuka (tanggal jam), Dibuka oleh, Ditutup
+     (tanggal jam), Ditutup oleh, masing-masing satu baris.
    - Penjualan: Transaksi, Penjualan, Tunai, Non-tunai, Kredit (bila ada),
      Void / retur.
    - Kas laci: Saldo awal, Penjualan tunai, Retur tunai (bila ada), Uang
@@ -45,8 +46,8 @@ sebagai PDF.
    - Penutup tebal: Seharusnya di laci, Uang dihitung, Selisih
      (`Pas` / `+5.000` / `-5.000`), lalu *Catatan: …* bila ada.
    - Waktu memakai zona waktu cabang, sama dengan layar.
-5. **Data rekap** = data sesi saat tombol tutup ditekan (rekap dimuat ulang
-   saat masuk ke tutup sesi) + angka akhir dari sesi tertutup (seharusnya,
+5. **Data rekap** = data sesi yang dimuat ulang tepat sebelum tutup (agar
+   barisnya cocok dengan seharusnya di laci) + angka akhir dari sesi tertutup (seharusnya,
    dihitung, selisih, rincian pecahan, catatan). Rekap hanya bisa dicetak
    dari kartu hasil sesi yang baru ditutup di perangkat ini; rekap sesi
    lama ada di laporan F1-16.
@@ -76,5 +77,5 @@ sebagai PDF.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Tutup sesi & cetak rekap | 1.3 | Dikerjakan | |
+| Tutup sesi & cetak rekap | 1.3 | Rilis v0.38.0 | Cetak otomatis hanya untuk printer langsung. |
 | Cetak ulang rekap sesi lama | — | Belum | Lewat laporan sesi F1-16 bila dibutuhkan. |

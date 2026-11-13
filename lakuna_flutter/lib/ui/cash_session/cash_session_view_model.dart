@@ -48,6 +48,7 @@ class CashSessionViewModel extends ChangeNotifier {
     this._receiptSettings,
     this._printer,
     this._staffName = '',
+    this._timezone,
   }) {
     printRecap = Command1(_printRecap)..addListener(notifyListeners);
     shareRecap = Command1(_shareRecap)..addListener(notifyListeners);
@@ -72,6 +73,9 @@ class CashSessionViewModel extends ChangeNotifier {
 
   /// Nama staf yang bertugas (penutup sesi di rekap).
   final String _staffName;
+
+  /// Zona waktu cabang untuk nama berkas PDF rekap.
+  final String? _timezone;
 
   /// Cetak / bagikan PDF rekap sesi yang baru ditutup; argumen = baris
   /// rekap dari `sessionRecapContent`.
@@ -348,7 +352,10 @@ class CashSessionViewModel extends ChangeNotifier {
 
   /// Perangkat punya printer terpilih: tombol *Tutup sesi & cetak rekap*
   /// dan cetak otomatis setelah tutup.
-  bool get hasPrinter => canPrintRecap && _printerSelection != null;
+  /// Hanya printer langsung (Bluetooth/LAN), sama dengan cetak otomatis
+  /// struk; dialog cetak sistem tidak dibuka sendiri.
+  bool get hasPrinter =>
+      canPrintRecap && (_printerSelection?.isDirect ?? false);
 
   /// Lebar kertas struk cabang ini.
   ReceiptPaper get paper => _paper;
@@ -382,7 +389,10 @@ class CashSessionViewModel extends ChangeNotifier {
   }
 
   String get _recapName {
-    final t = (_recap?.closed.closedAt ?? DateTime.now()).toLocal();
+    final t = outletLocalTime(
+      _recap?.closed.closedAt ?? DateTime.now(),
+      _timezone,
+    );
     String two(int n) => n.toString().padLeft(2, '0');
     return 'rekap-sesi-${two(t.year % 100)}${two(t.month)}${two(t.day)}-'
         '${two(t.hour)}${two(t.minute)}';
@@ -392,6 +402,8 @@ class CashSessionViewModel extends ChangeNotifier {
     final printer = _printer;
     if (printer == null) return const Result.ok(null);
     _resetRecapOutput();
+    // Hanya hasil aksi terakhir yang tampil.
+    shareRecap.clearResult();
     final selection =
         _printerSelection ??
         const PrinterSelection(kind: PrinterKind.system, name: '');
@@ -411,6 +423,7 @@ class CashSessionViewModel extends ChangeNotifier {
     final printer = _printer;
     if (printer == null) return const Result.ok(null);
     _resetRecapOutput();
+    printRecap.clearResult();
     try {
       final path = await printer.sharePdf(
         lines,
@@ -440,6 +453,8 @@ class CashSessionViewModel extends ChangeNotifier {
     _recap = null;
     _recapAutoPrinted = false;
     _resetRecapOutput();
+    printRecap.clearResult();
+    shareRecap.clearResult();
     _openingCash = '';
     _openingNote = '';
     notifyListeners();
@@ -572,6 +587,15 @@ class CashSessionViewModel extends ChangeNotifier {
     if (_closingNoteError case final e?) {
       return Result.error(CashInputInvalid(CashField.note, e));
     }
+    // Rekap dicetak dari data terbaru agar barisnya cocok dengan
+    // seharusnya di laci yang dihitung saat tutup.
+    var snapshot = session;
+    if (canPrintRecap) {
+      if (await _repository.loadCurrent() case Ok(value: final fresh?)
+          when fresh.session.id == session.session.id) {
+        snapshot = fresh;
+      }
+    }
     final result = await _repository.close(
       session.session.id,
       count: count,
@@ -581,12 +605,14 @@ class CashSessionViewModel extends ChangeNotifier {
       case Ok(:final value):
         _closed = value;
         _recap = SessionRecap(
-          active: session,
+          active: snapshot,
           closed: value,
           closerName: _staffName,
         );
         _recapAutoPrinted = false;
         _resetRecapOutput();
+        printRecap.clearResult();
+        shareRecap.clearResult();
         _active = null;
         _closing = false;
         _resetForms();

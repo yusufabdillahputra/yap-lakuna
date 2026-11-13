@@ -139,6 +139,43 @@ void main() {
     expect(bold, contains(p('Selisih', '-5.000')));
   });
 
+  test('baris opsional: kredit, retur tunai, tanpa rincian; 80 mm', () {
+    final base = recap();
+    final r = SessionRecap(
+      active: ActiveCashSession(
+        session: opened,
+        openedByName: 'Yusuf',
+        movements: const [],
+        drawer: cashDrawerOf(
+          opened,
+          const [],
+          cashSales: const Money(300000),
+          cashRefunds: const Money(10000),
+        ),
+        sales: const SessionSalesSummary(
+          count: 2,
+          total: Money(350000),
+          cash: Money(300000),
+          credit: Money(50000),
+          returnCount: 1,
+        ),
+      ),
+      closed: base.closed.copyWith(countedBreakdown: null, closingNote: null),
+      closerName: 'Sari',
+    );
+    final lines = layoutReceipt(
+      content(id, r),
+      ReceiptPaper.mm80,
+    ).map((l) => l.text).toList();
+    String p80(String label, String value) =>
+        '$label${' ' * (48 - label.length - value.length)}$value';
+    expect(lines, contains(p80('Kredit (piutang)', '50.000')));
+    expect(lines, contains(p80('Retur tunai', '-10.000')));
+    expect(lines, contains(p80('Void / retur', '0 / 1')));
+    expect(lines.where((l) => l.contains(' x ')), isEmpty);
+    expect(lines.where((l) => l.startsWith('Receh')), isEmpty);
+  });
+
   test('selisih pas tanpa catatan; bahasa Inggris', () {
     final lines = layoutReceipt(
       content(en, recap(difference: 0, note: null)),

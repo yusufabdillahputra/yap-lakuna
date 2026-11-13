@@ -60,6 +60,9 @@ class _CashSessionScreenState extends State<CashSessionScreen> {
     receiptSettings: widget.receiptSettings,
     printer: widget.printer,
     staffName: widget.session.current?.name ?? '',
+    timezone:
+        widget.store.current?.outlet.timezone ??
+        widget.store.current?.tenant.timezone,
   );
 
   @override
@@ -1451,7 +1454,7 @@ class _Closed extends StatelessWidget {
                 l10n.cashClosedBody(
                   formatClock(
                     closed.closedAt ?? closed.updatedAt,
-                    store?.outlet.timezone,
+                    store?.outlet.timezone ?? store?.tenant.timezone,
                   ),
                 ),
                 style: theme.typography.body.sm.copyWith(

@@ -373,6 +373,7 @@ void main() {
         receiptSettings: settings,
         printer: printer,
         staffName: 'Sari',
+        timezone: 'Asia/Jakarta',
       );
       await pvm.load.execute();
       pvm.setOpeningCash('100.000');
@@ -429,11 +430,34 @@ void main() {
       expect(v.recapPrinted, isFalse);
       await v.shareRecap.execute(lines);
       expect(v.recapPrintFailure, isNull);
-      expect(printer.shares.single.$3, startsWith('rekap-sesi-'));
+      expect(v.printRecap.error, isFalse);
+      // 00.58 UTC = 07.58 WIB (jam palsu repositori).
+      expect(printer.shares.single.$3, 'rekap-sesi-261103-0758.pdf');
       expect(v.recapPdfPath, printer.sharePath);
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.write);
+      await v.shareRecap.execute(lines);
+      expect(v.shareRecap.error, isTrue);
       v.startNew();
       expect(v.recap, isNull);
       expect(v.recapPdfPath, isNull);
+      expect(v.shareRecap.error, isFalse);
+      expect(v.printRecap.error, isFalse);
+    });
+
+    test('printer dialog sistem: tidak cetak otomatis', () async {
+      final v = await closedWith(
+        selected: const PrinterSelection(kind: PrinterKind.system, name: ''),
+      );
+      expect(v.hasPrinter, isFalse);
+      expect(v.shouldAutoPrintRecap, isFalse);
+    });
+
+    test('rekap memakai data terbaru saat tutup', () async {
+      final v = await closedWith(selected: bt);
+      expect(
+        v.recap!.active.drawer.expectedCash.value,
+        v.recap!.closed.expectedCash,
+      );
     });
 
     test('tanpa layanan cetak: tidak bisa cetak rekap', () {
