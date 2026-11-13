@@ -95,6 +95,43 @@ class LocalBackupRepository implements BackupRepository {
     ),
   );
 
+  @override
+  Future<Result<BackupManifest>> inspectForSetup(String path) => _beforeSetup(
+    () => data.inspectBackup(path, knownVersions: lakunaSchemaVersions),
+  );
+
+  @override
+  Future<Result<BackupManifest>> stageRestoreForSetup(String path) =>
+      _beforeSetup(
+        () => data.stageRestore(
+          path,
+          dataDir: _dataDir,
+          knownVersions: lakunaSchemaVersions,
+        ),
+      );
+
+  /// Onboarding belum punya staf; satu-satunya syarat adalah belum ada toko,
+  /// agar data toko yang ada tidak bisa ditimpa tanpa `backup:manage`.
+  Future<Result<T>> _beforeSetup<T>(Future<T> Function() body) async {
+    if (_stores.current != null) {
+      return const Result.error(StoreAlreadySetUp());
+    }
+    // Baca ulang dari database: `current` bisa belum termuat.
+    switch (await _stores.load()) {
+      case Ok(value: null):
+        break;
+      case Ok():
+        return const Result.error(StoreAlreadySetUp());
+      case Error(:final error):
+        return Result.error(error);
+    }
+    try {
+      return Result.ok(await body());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
   Future<Result<T>> _guard<T>(Future<T> Function(StoreContext ctx) body) async {
     const permission = Permission.backupManage;
     final ctx = _stores.current;

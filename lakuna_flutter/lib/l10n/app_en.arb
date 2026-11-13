@@ -4324,5 +4324,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "onboardingRestoreHint": "Moving to a new device? Install your store's backup here instead of creating a new store.",
+  "onboardingRestoreAction": "Restore from backup",
+  "setupRestoreIntro": "Choose a Lakuna backup file (.zip) made in Settings › Data & backup on the old device.",
+  "setupRestorePick": "Choose backup file",
+  "setupRestoreWarning": "The backup is installed on this device, then the app reloads and you sign in with a PIN from the backup. Don't use the same backup on two devices at once.",
+  "setupRestoreAlreadySetUp": "A store already exists on this device. Restore from Settings › Data & backup instead."
 }

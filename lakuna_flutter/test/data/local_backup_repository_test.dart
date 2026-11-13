@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/backup_repository.dart'
+    show StoreAlreadySetUp;
 import 'package:lakuna_flutter/data/repositories/local_backup_repository.dart';
 import 'package:lakuna_flutter/data/repositories/local_store_repository.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
@@ -114,4 +116,51 @@ void main() {
     expect(_err(await repo.stageRestore('/tmp/x.zip')), isA<NotPermitted>());
     expect(exports.existsSync(), isFalse);
   });
+
+  test(
+    'pulihkan dari onboarding: hanya sebelum toko dibuat (F1-19b)',
+    () async {
+      final created = _ok(await repo.createBackup());
+      // Toko sudah ada di perangkat ini: ditolak walau tanpa staf login.
+      session.current = null;
+      expect(
+        _err(await repo.inspectForSetup(created.path)),
+        isA<StoreAlreadySetUp>(),
+      );
+      expect(
+        _err(await repo.stageRestoreForSetup(created.path)),
+        isA<StoreAlreadySetUp>(),
+      );
+      expect(hasPendingRestore('${dir.path}/data'), isFalse);
+
+      // Perangkat baru yang belum punya toko.
+      Directory('${dir.path}/baru').createSync();
+      final fresh = await LakunaStore.open('${dir.path}/baru/lakuna.sqlite');
+      addTearDown(fresh.close);
+      final freshRepo = LocalBackupRepository(
+        fresh,
+        stores: LocalStoreRepository(
+          fresh,
+          hasher: const CredentialHasher.forTesting(),
+          platform: DevicePlatform.linux,
+        ),
+        session: FakeSessionRepository(staff: const []),
+        preferences: LocalPreferences(fresh.session),
+        appVersion: '0.45.0',
+        clock: () => now,
+        exportDirectory: exports,
+      );
+      expect(
+        _ok(await freshRepo.inspectForSetup(created.path)).tenantName,
+        'Toko Bu Ani',
+      );
+      File('${dir.path}/bukan.zip').writeAsStringSync('bukan zip');
+      expect(
+        _err(await freshRepo.inspectForSetup('${dir.path}/bukan.zip')),
+        isA<BackupInvalid>(),
+      );
+      _ok(await freshRepo.stageRestoreForSetup(created.path));
+      expect(hasPendingRestore('${dir.path}/baru'), isTrue);
+    },
+  );
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/backup_repository.dart'
+    show BackupInvalid;
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/fake_backup_repository.dart';
 import '../../testing/fake_store_repository.dart';
 
 Future<void> _type(WidgetTester tester, SetupField field, String text) async {
@@ -156,5 +160,65 @@ void main() {
     await pumpLakuna(tester, initialLocation: Routes.setup);
     expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.text('Siapkan toko Anda dalam 4 langkah'), findsNothing);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('pulihkan dari backup di langkah 1 ${size.width.toInt()} px '
+        '(F1-19b)', (tester) async {
+      final backup = FakeBackupRepository();
+      final files = FakeBackupFiles();
+      await pumpLakuna(
+        tester,
+        store: FakeStoreRepository(),
+        size: size,
+        backup: backup,
+        backupFiles: files,
+      );
+      final restore = find.byKey(const ValueKey('onboarding-restore'));
+      await tester.ensureVisible(restore);
+      await tester.pumpAndSettle();
+      await tester.tap(restore);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('setup-restore')), findsOneWidget);
+      expect(find.byKey(const ValueKey('setup-restore-submit')), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('setup-restore-pick')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Warung Contoh · Cabang Pusat · perangkat K01'),
+        findsOneWidget,
+      );
+      final submit = find.byKey(const ValueKey('setup-restore-submit'));
+      expect(tester.widget<FButton>(submit).onPress, isNull);
+      final confirm = find.descendant(
+        of: find.byKey(const ValueKey('setup-restore-confirm')),
+        matching: find.byType(EditableText),
+      );
+      await tester.ensureVisible(confirm);
+      await tester.enterText(confirm, 'warung contoh');
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(submit);
+      await tester.pumpAndSettle();
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(backup.staged, [files.picked]);
+    });
+  }
+
+  testWidgets('langkah 2 tidak menampilkan pulihkan; galat berkas tampil', (
+    tester,
+  ) async {
+    final backup = FakeBackupRepository()
+      ..inspectError = const BackupInvalid('rusak');
+    await pumpLakuna(tester, store: FakeStoreRepository(), backup: backup);
+    await tester.tap(find.byKey(const ValueKey('onboarding-restore')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('setup-restore-pick')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('setup-restore-error')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('setup-restore-cancel')));
+    await tester.pumpAndSettle();
+    await _next(tester);
+    expect(find.byKey(const ValueKey('onboarding-restore')), findsNothing);
   });
 }

@@ -35,6 +35,23 @@ abstract class BackupRepository {
 
   /// Menyiapkan backup untuk dipasang saat aplikasi dimuat ulang.
   Future<Result<BackupManifest>> stageRestore(String path);
+
+  /// [inspect] dari onboarding (F1-19b): tanpa staf, hanya bila toko belum
+  /// dibuat di perangkat ini (selain itu `StoreAlreadySetUp`).
+  Future<Result<BackupManifest>> inspectForSetup(String path);
+
+  /// [stageRestore] dari onboarding (F1-19b), aturan sama dengan
+  /// [inspectForSetup].
+  Future<Result<BackupManifest>> stageRestoreForSetup(String path);
+}
+
+/// Toko sudah dibuat di perangkat ini: pulihkan lewat Pengaturan
+/// (`backup:manage`), bukan dari onboarding.
+class StoreAlreadySetUp implements Exception {
+  const StoreAlreadySetUp();
+
+  @override
+  String toString() => 'StoreAlreadySetUp';
 }
 
 /// Pengingat backup muncul bila backup terakhir lebih lama dari ini.

@@ -79,6 +79,21 @@ class FakeBackupRepository implements BackupRepository {
     staged.add(path);
     return manifest;
   });
+
+  /// Toko sudah ada: pulihkan dari onboarding ditolak.
+  bool storeExists = false;
+
+  @override
+  Future<Result<BackupManifest>> inspectForSetup(String path) async {
+    if (storeExists) return const Result.error(StoreAlreadySetUp());
+    return inspect(path);
+  }
+
+  @override
+  Future<Result<BackupManifest>> stageRestoreForSetup(String path) async {
+    if (storeExists) return const Result.error(StoreAlreadySetUp());
+    return stageRestore(path);
+  }
 }
 
 /// [BackupFiles] palsu: hasil serah dan berkas pilihan bisa diatur.

@@ -5,14 +5,18 @@ import 'package:lakuna_data/lakuna_data.dart' show SetupAlreadyDone;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../app_root.dart';
+import '../../data/repositories/backup_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
+import '../../data/services/backup_files.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
 import '../settings/app_settings_view_model.dart';
 import '../settings/appearance_tiles.dart';
 import '../../utils/result.dart';
 import 'onboarding_view_model.dart';
+import 'setup_restore_dialog.dart';
 
 /// Layar 1.1 Setup toko pertama. Memiliki [OnboardingViewModel] sendiri
 /// agar isian tidak hilang saat router membangun ulang rute.
@@ -22,11 +26,17 @@ class OnboardingScreen extends StatefulWidget {
     required this.repository,
     required this.session,
     required this.settings,
+    this.backup,
+    this.backupFiles = const PlatformBackupFiles(),
   });
 
   final StoreRepository repository;
   final SessionRepository session;
   final AppSettingsViewModel settings;
+
+  /// Pulihkan dari backup di langkah 1 (F1-19b); `null` = tombol disembunyikan.
+  final BackupRepository? backup;
+  final BackupFiles backupFiles;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -45,8 +55,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      OnboardingView(viewModel: _viewModel, settings: widget.settings);
+  Widget build(BuildContext context) => OnboardingView(
+    viewModel: _viewModel,
+    settings: widget.settings,
+    onRestore: switch (widget.backup) {
+      final backup? => () => showSetupRestore(
+        context,
+        repository: backup,
+        files: widget.backupFiles,
+        restart: AppRestart.maybeOf(context)?.restart,
+      ),
+      null => null,
+    },
+  );
 }
 
 /// Wizard 4 langkah. Tablet/desktop: panel Sky di kiri; mobile: progress
@@ -56,10 +77,14 @@ class OnboardingView extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.settings,
+    this.onRestore,
   });
 
   final OnboardingViewModel viewModel;
   final AppSettingsViewModel settings;
+
+  /// Membuka *Pulihkan dari backup* (F1-19b).
+  final VoidCallback? onRestore;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +102,7 @@ class OnboardingView extends StatelessWidget {
                 viewModel: viewModel,
                 settings: settings,
                 mobile: mobile,
+                onRestore: onRestore,
               );
               if (mobile) return main;
               return Row(
@@ -241,7 +267,10 @@ class _MainArea extends StatelessWidget {
     required this.viewModel,
     required this.settings,
     required this.mobile,
+    this.onRestore,
   });
+
+  final VoidCallback? onRestore;
 
   final OnboardingViewModel viewModel;
   final AppSettingsViewModel settings;
@@ -301,8 +330,14 @@ class _MainArea extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 760),
                 child: switch (viewModel.step) {
-                  OnboardingStep.languageTheme => AppearanceTiles(
-                    viewModel: settings,
+                  OnboardingStep.languageTheme => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 24,
+                    children: [
+                      AppearanceTiles(viewModel: settings),
+                      if (onRestore case final restore?)
+                        _RestoreCard(onPress: restore),
+                    ],
                   ),
                   OnboardingStep.business => _BusinessStep(
                     viewModel: viewModel,
@@ -316,6 +351,49 @@ class _MainArea extends StatelessWidget {
         ),
         _Footer(viewModel: viewModel, padding: padding, mobile: mobile),
       ],
+    );
+  }
+}
+
+/// Pindah perangkat: pasang backup, bukan membuat toko baru (F1-19b).
+class _RestoreCard extends StatelessWidget {
+  const _RestoreCard({required this.onPress});
+
+  final VoidCallback onPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    return DecoratedBox(
+      key: const ValueKey('onboarding-restore-card'),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colors.border),
+        borderRadius: theme.style.borderRadius.lg,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: [
+            Text(
+              l10n.onboardingRestoreHint,
+              style: theme.typography.body.sm.copyWith(
+                color: theme.colors.mutedForeground,
+              ),
+            ),
+            FButton(
+              key: const ValueKey('onboarding-restore'),
+              variant: .outline,
+              mainAxisSize: .min,
+              onPress: onPress,
+              prefix: const Icon(TablerIcons.restore),
+              child: Flexible(child: Text(l10n.onboardingRestoreAction)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
