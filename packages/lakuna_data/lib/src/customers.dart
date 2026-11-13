@@ -1154,7 +1154,11 @@ Future<DebtPaymentReceipt> loadDebtPaymentReceipt(
     where: (a) =>
         a.tenantId.equals(scope.tenantId) &
         a.debtPaymentId.equals(payment.id) &
-        a.deletedAt.equals(null),
+        // Pembayaran batal: alokasinya di-soft-delete saat batal, tetapi
+        // kuitansinya tetap menampilkan rincian.
+        (payment.voidedAt == null
+            ? a.deletedAt.equals(null)
+            : a.deletedAt.notEquals(null) | a.deletedAt.equals(null)),
   );
   final sales = {
     for (final s in await Sale.db.find(

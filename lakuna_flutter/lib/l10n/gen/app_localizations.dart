@@ -13195,6 +13195,138 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Catatan disimpan untuk menu berikutnya.'**
   String get diningNoteNotAllowed;
+
+  /// No description provided for @debtVoidAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan pembayaran'**
+  String get debtVoidAction;
+
+  /// No description provided for @debtVoidTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Batalkan {number}?'**
+  String debtVoidTitle(String number);
+
+  /// No description provided for @debtVoidBodyCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi ke nota dihapus sehingga sisa piutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.'**
+  String get debtVoidBodyCustomer;
+
+  /// No description provided for @debtVoidBodySupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'Alokasi ke pembelian dihapus sehingga sisa hutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.'**
+  String get debtVoidBodySupplier;
+
+  /// No description provided for @debtVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan batal'**
+  String get debtVoidReason;
+
+  /// No description provided for @debtVoidReasonHint.
+  ///
+  /// In id, this message translates to:
+  /// **'mis. Salah nominal, akan dicatat ulang'**
+  String get debtVoidReasonHint;
+
+  /// No description provided for @debtVoidErrReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan wajib diisi, maksimal {max} karakter.'**
+  String debtVoidErrReason(int max);
+
+  /// No description provided for @debtVoidDrawerOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang {amount} dikeluarkan dari laci di sesi kasir yang sedang buka.'**
+  String debtVoidDrawerOut(String amount);
+
+  /// No description provided for @debtVoidDrawerIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang {amount} dikembalikan ke laci di sesi kasir yang sedang buka.'**
+  String debtVoidDrawerIn(String amount);
+
+  /// No description provided for @debtVoidBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get debtVoidBack;
+
+  /// No description provided for @debtVoidConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Ya, batalkan'**
+  String get debtVoidConfirm;
+
+  /// No description provided for @debtVoided.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get debtVoided;
+
+  /// No description provided for @debtVoidedInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal: {reason}'**
+  String debtVoidedInfo(String reason);
+
+  /// No description provided for @debtErrAlreadyVoided.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran ini sudah dibatalkan.'**
+  String get debtErrAlreadyVoided;
+
+  /// No description provided for @debtErrNoSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka sesi kasir dulu: uang laci perlu dijurnal balik.'**
+  String get debtErrNoSession;
+
+  /// No description provided for @kuitansiVoidStamp.
+  ///
+  /// In id, this message translates to:
+  /// **'BATAL'**
+  String get kuitansiVoidStamp;
+
+  /// No description provided for @kuitansiVoidReason.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan batal'**
+  String get kuitansiVoidReason;
+
+  /// No description provided for @reportsSourceDebtPaymentVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal bayar piutang'**
+  String get reportsSourceDebtPaymentVoid;
+
+  /// No description provided for @reportsSourceSupplierPaymentVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal bayar hutang'**
+  String get reportsSourceSupplierPaymentVoid;
+
+  /// No description provided for @cashSourceDebtPaymentVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal bayar piutang'**
+  String get cashSourceDebtPaymentVoid;
+
+  /// No description provided for @cashSourceSupplierPaymentVoid.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal bayar hutang'**
+  String get cashSourceSupplierPaymentVoid;
+
+  /// No description provided for @debtErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.'**
+  String get debtErrNotFound;
 }
 
 class _AppLocalizationsDelegate

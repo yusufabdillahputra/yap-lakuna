@@ -41,7 +41,7 @@ Termasuk:
 Tidak termasuk (gap):
 
 - Import supplier dari Excel.
-- Batal/void pembayaran hutang.
+- Batal/void pembayaran hutang (selesai v0.44.0, F1-13c).
 - Pengingat jatuh tempo (notifikasi).
 - Laporan umur hutang (F1-16).
 
@@ -164,7 +164,7 @@ bawaan 14), Alamat, Catatan.
 | --- | --- | --- | --- |
 | Master supplier, hutang per pembelian, bayar hutang, foto bukti | 1.21 | v0.18.0 | — |
 | Import supplier | — | Belum | Pola import pelanggan. |
-| Batal pembayaran hutang | — | Belum | Void + jurnal balik kas. |
+| Batal pembayaran hutang | — | Selesai v0.44.0 | [F1-13c](2026-11-13-f1-13c-batal-pembayaran-utang-piutang-design.md): alokasi di-soft-delete, kas laci masuk kembali. |
 | Umur hutang | — | Belum | F1-16 Laporan. |
 | Hapus supplier yang hanya punya draf pembelian | — | Diizinkan | Draf itu gagal diterima (supplier tidak ada); pertimbangkan blokir atau pesan jelas. |
 | Riwayat pembelian lintas cabang | — | Per cabang | Dashboard semua cabang di Fase 2. |

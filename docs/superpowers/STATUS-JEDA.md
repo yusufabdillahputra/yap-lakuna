@@ -24,6 +24,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.41.0 | Printer dapur terpisah (F1-10e) | #47 |
 | v0.42.0 | Pelanggan & harga grup di open bill (F1-10f) | #48 |
 | v0.43.0 | Kirim ke tiket dapur & catatan per menu (F1-10g) | #49 |
+| v0.44.0 | Batal pembayaran piutang & hutang (F1-13c) | #50 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -48,6 +49,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    terpisah~~ — selesai v0.41.0 (F1-10e); printer per stasiun (bar vs
    dapur) masih gap. ~~Sakelar *Kirim ke tiket dapur* / *Catatan bebas*
    per menu~~ — selesai v0.43.0 (F1-10g).
+8. ~~Batal pembayaran piutang & hutang~~ — selesai v0.44.0 (F1-13c);
+   ubah pembayaran tanpa batal tetap tidak didukung (batal lalu catat ulang).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

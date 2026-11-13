@@ -7678,4 +7678,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diningNoteNotAllowed => 'Note kept for the next item.';
+
+  @override
+  String get debtVoidAction => 'Void payment';
+
+  @override
+  String debtVoidTitle(String number) {
+    return 'Void $number?';
+  }
+
+  @override
+  String get debtVoidBodyCustomer =>
+      'Its allocations are removed so the outstanding balance returns to what it was before the payment. The payment stays on record marked Void; record it again if needed.';
+
+  @override
+  String get debtVoidBodySupplier =>
+      'Its allocations are removed so the amount owed returns to what it was before the payment. The payment stays on record marked Void; record it again if needed.';
+
+  @override
+  String get debtVoidReason => 'Reason';
+
+  @override
+  String get debtVoidReasonHint => 'e.g. Wrong amount, will re-record';
+
+  @override
+  String debtVoidErrReason(int max) {
+    return 'Enter a reason of at most $max characters.';
+  }
+
+  @override
+  String debtVoidDrawerOut(String amount) {
+    return '$amount is taken out of the drawer in the open cashier session.';
+  }
+
+  @override
+  String debtVoidDrawerIn(String amount) {
+    return '$amount is put back into the drawer in the open cashier session.';
+  }
+
+  @override
+  String get debtVoidBack => 'Back';
+
+  @override
+  String get debtVoidConfirm => 'Yes, void';
+
+  @override
+  String get debtVoided => 'Void';
+
+  @override
+  String debtVoidedInfo(String reason) {
+    return 'Void: $reason';
+  }
+
+  @override
+  String get debtErrAlreadyVoided => 'This payment is already void.';
+
+  @override
+  String get debtErrNoSession =>
+      'Open a cashier session first: the drawer cash must be reversed.';
+
+  @override
+  String get kuitansiVoidStamp => 'VOID';
+
+  @override
+  String get kuitansiVoidReason => 'Void reason';
+
+  @override
+  String get reportsSourceDebtPaymentVoid => 'Voided customer payment';
+
+  @override
+  String get reportsSourceSupplierPaymentVoid => 'Voided supplier payment';
+
+  @override
+  String get cashSourceDebtPaymentVoid => 'Voided receivable payment';
+
+  @override
+  String get cashSourceSupplierPaymentVoid => 'Voided supplier payment';
+
+  @override
+  String get debtErrNotFound =>
+      'Payment not found, or its customer/supplier was deleted.';
 }

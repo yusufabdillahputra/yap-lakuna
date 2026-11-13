@@ -78,6 +78,8 @@ String cashSourceLabel(AppLocalizations l10n, CashSourceKind k) => switch (k) {
   CashSourceKind.purchase => l10n.reportsSourcePurchase,
   CashSourceKind.purchaseRefund => l10n.reportsSourcePurchaseRefund,
   CashSourceKind.debtPayment => l10n.reportsSourceDebtPayment,
+  CashSourceKind.debtPaymentVoid => l10n.reportsSourceDebtPaymentVoid,
+  CashSourceKind.supplierPaymentVoid => l10n.reportsSourceSupplierPaymentVoid,
   CashSourceKind.other => l10n.reportsSourceOther,
 };
 

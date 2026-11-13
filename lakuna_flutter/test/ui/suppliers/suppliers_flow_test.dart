@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -260,6 +261,51 @@ void main() {
         expect(_keyPrefix('suppliers-row-'), findsNWidgets(3));
       },
     );
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('batal bayar hutang dari laci ${size.width.toInt()} px '
+        '(F1-13c)', (tester) async {
+      final suppliers = FakeSuppliersRepository();
+      final sumber = suppliers.byName('CV Sumber Pangan');
+      // Repositori palsu menunda lewat Future.delayed: jalankan di luar
+      // waktu palsu tes.
+      await tester.runAsync(
+        () => suppliers.pay(
+          SupplierPaymentRequest(
+            supplierId: sumber.id,
+            amount: const Money(300000),
+            funding: FundingSource.drawer,
+            paidOn: suppliers.today,
+            reference: 'TRF-0211-883',
+          ),
+        ),
+      );
+      final payment = suppliers.payments.single;
+      await pump(tester, size, suppliers: suppliers);
+      await _tap(tester, _key('suppliers-row-${sumber.id.uuid}'));
+      expect(tester.takeException(), isNull);
+      await _tap(tester, _key('supplier-payment-void-${payment.id.uuid}'));
+      expect(_key('debt-void-dialog'), findsOneWidget);
+      expect(
+        find.text(
+          'Uang Rp 300.000 dikembalikan ke laci di sesi kasir yang sedang '
+          'buka.',
+        ),
+        findsOneWidget,
+      );
+      await _type(tester, _key('debt-void-reason'), 'Salah supplier');
+      await _tap(tester, _key('debt-void-confirm'));
+      expect(repo.voids.single, (payment.id, 'Salah supplier'));
+      expect(_key('debt-void-dialog'), findsNothing);
+      expect(
+        _key('supplier-payment-voided-${payment.id.uuid}'),
+        findsOneWidget,
+      );
+      expect(find.text('Batal: Salah supplier'), findsOneWidget);
+      expect(_key('supplier-payment-void-${payment.id.uuid}'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('tanpa izin supplier/hutang → kembali ke Beranda', (

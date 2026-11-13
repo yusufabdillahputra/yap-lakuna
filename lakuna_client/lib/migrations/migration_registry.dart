@@ -27,6 +27,7 @@ part '20261104045959871-manual-discount/migration.dart';
 part '20261113101251322-grosir-grup/migration.dart';
 part '20261113120353032-foto-produk/migration.dart';
 part '20261113153626691-menu-dapur/migration.dart';
+part '20261113160850353-batal-bayar-utang/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -56,6 +57,7 @@ class MigrationRegistry {
     _Migration20261113101251322_grosir_grup(),
     _Migration20261113120353032_foto_produk(),
     _Migration20261113153626691_menu_dapur(),
+    _Migration20261113160850353_batal_bayar_utang(),
   ];
 
   /// List of all client-side database migration versions.

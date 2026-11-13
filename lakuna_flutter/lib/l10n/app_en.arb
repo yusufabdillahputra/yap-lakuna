@@ -4230,5 +4230,62 @@
   "productSendToKitchenHint": "Turn off for items that are not cooked (e.g. bottled water): they are served right away without a kitchen ticket.",
   "productAllowNote": "Allow free-text notes",
   "productAllowNoteHint": "Turn off when the item cannot be customised; kitchen notes are ignored.",
-  "diningNoteNotAllowed": "Note kept for the next item."
+  "diningNoteNotAllowed": "Note kept for the next item.",
+  "debtVoidAction": "Void payment",
+  "debtVoidTitle": "Void {number}?",
+  "@debtVoidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidBodyCustomer": "Its allocations are removed so the outstanding balance returns to what it was before the payment. The payment stays on record marked Void; record it again if needed.",
+  "debtVoidBodySupplier": "Its allocations are removed so the amount owed returns to what it was before the payment. The payment stays on record marked Void; record it again if needed.",
+  "debtVoidReason": "Reason",
+  "debtVoidReasonHint": "e.g. Wrong amount, will re-record",
+  "debtVoidErrReason": "Enter a reason of at most {max} characters.",
+  "@debtVoidErrReason": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "debtVoidDrawerOut": "{amount} is taken out of the drawer in the open cashier session.",
+  "@debtVoidDrawerOut": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidDrawerIn": "{amount} is put back into the drawer in the open cashier session.",
+  "@debtVoidDrawerIn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidBack": "Back",
+  "debtVoidConfirm": "Yes, void",
+  "debtVoided": "Void",
+  "debtVoidedInfo": "Void: {reason}",
+  "@debtVoidedInfo": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "debtErrAlreadyVoided": "This payment is already void.",
+  "debtErrNoSession": "Open a cashier session first: the drawer cash must be reversed.",
+  "kuitansiVoidStamp": "VOID",
+  "kuitansiVoidReason": "Void reason",
+  "reportsSourceDebtPaymentVoid": "Voided customer payment",
+  "reportsSourceSupplierPaymentVoid": "Voided supplier payment",
+  "cashSourceDebtPaymentVoid": "Voided receivable payment",
+  "cashSourceSupplierPaymentVoid": "Voided supplier payment",
+  "debtErrNotFound": "Payment not found, or its customer/supplier was deleted."
 }

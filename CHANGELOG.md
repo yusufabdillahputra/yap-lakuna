@@ -7,6 +7,79 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.44.0] - 2026-11-13
+
+Pembayaran piutang pelanggan dan hutang supplier yang salah catat sekarang
+bisa dibatalkan dengan jejak, lalu dicatat ulang dengan benar.
+
+### Ditambahkan
+
+- **Batal pembayaran piutang (1.20, F1-13c).** Ikon *Batalkan pembayaran*
+  di setiap baris riwayat pembayaran pelanggan membuka dialog dengan
+  nominal, penjelasan dampaknya, dan **Alasan batal** wajib (1–200
+  karakter). Setelah dibatalkan:
+  - alokasi pembayaran ke setiap nota dihapus (soft delete), sehingga sisa
+    piutang nota, status lunas, ringkasan pelanggan, dan laporan piutang
+    kembali seperti sebelum pembayaran; nota yang tadinya terkunci karena
+    sudah dibayar bisa di-void lagi;
+  - pembayaran tunai yang dulu masuk laci dijurnal balik sebagai kas keluar
+    di sesi kasir yang sedang buka (sumber *Batal bayar piutang*);
+  - baris riwayat tetap tampil dengan nominal dicoret, label *Batal*, dan
+    alasannya;
+  - kuitansi A5 dan thermal pembayaran itu bercap **BATAL** dan memuat
+    alasan batal, rinciannya tetap lengkap; sisa piutang setelah
+    pembayaran tidak dicetak lagi karena sudah tidak berlaku.
+- **Batal pembayaran hutang (1.21, F1-13c).** Ikon yang sama di riwayat
+  bayar supplier: alokasi ke pembelian dihapus sehingga sisa hutang
+  kembali, dan pembayaran dari kas laci dikembalikan sebagai kas masuk di
+  sesi kasir yang sedang buka (sumber *Batal bayar hutang*).
+- Sumber kas *Batal bayar piutang* dan *Batal bayar hutang* di daftar gerak
+  kas sesi kasir (1.3) dan tab *Kas & sesi* Laporan.
+- Panduan *Pelanggan & piutang* dan *Supplier & hutang* (ID + EN) punya
+  bagian baru tentang membatalkan pembayaran.
+
+### Diubah
+
+- Di layar sempit (di bawah 420 px) nominal baris riwayat pembayaran
+  pelanggan dan supplier pindah ke bawah nomor agar tombol aksinya muat;
+  nomor pembayaran tetap satu baris.
+
+### Keamanan
+
+- Batal pembayaran butuh izin `debts:manage`; bila ada jurnal balik laci
+  juga `cash_movements:create`. Izin dicek di repositori aplikasi dan di
+  lapisan data. Pembayaran yang dicatat di cabang lain tidak bisa
+  dibatalkan dari cabang ini (ditolak sebagai tidak ditemukan), karena
+  jurnal balik kas memakai sesi kasir cabang aktif. Pembayaran milik
+  pelanggan/supplier yang sudah dihapus juga ditolak agar saldo pihak
+  terhapus tidak hidup lagi.
+
+### Catatan teknis
+
+- Model `debt_payments` mendapat kolom `voided_at`, `voided_by`,
+  `void_reason`, dan `void_cash_movement_id` (relasi ke `cash_movements`),
+  migrasi `batal-bayar-utang` untuk Postgres dan SQLite klien.
+- `voidDebtPayment(store, scope, staffId:, paymentId:, reason:)` di
+  `lakuna_data` (berkas baru `debt_payment_void.dart`) menulis pembayaran,
+  alokasi, dan gerakan kas dalam satu transaksi outbox. Galat baru:
+  `DebtPaymentAlreadyVoided`, `DebtPaymentVoidReasonInvalid`; tanpa sesi
+  terbuka untuk pembayaran laci gagal dengan `CashSessionNotOpen`.
+- `validateDebtPaymentVoidReason` dan `debtPaymentVoidReasonMax` (200) di
+  `lakuna_domain`; `debtPaymentTouchesDrawer` menentukan perlu tidaknya
+  jurnal balik laci.
+- `CashSourceKind.debtPaymentVoid` / `supplierPaymentVoid` dan konstanta
+  sumber `debt_payment_void` / `supplier_payment_void`.
+- `loadDebtPaymentReceipt` tetap memuat alokasi pembayaran yang dibatalkan
+  agar kuitansi batal menampilkan rincian.
+- `CustomersRepository.voidPayment` dan `SuppliersRepository.voidPayment`;
+  `CustomersSetup.outletId` / `SuppliersSetup.outletId`; dialog bersama
+  `debt_payment_void_dialog.dart`.
+- Tombol *Kembali* di dialog batal nonaktif selama proses agar ringkasan
+  daftar tetap dimuat ulang setelah batal berhasil.
+- Tes baru: `debt_payment_void_test.dart` (data, 9 tes), tes view model
+  panel pelanggan/supplier dan kuitansi batal, serta tes widget batal di
+  1280 dan 360 px.
+
 ## [0.43.0] - 2026-11-13
 
 Menu yang tidak dimasak tidak lagi mengisi tiket dapur, dan menu yang tidak
@@ -3616,7 +3689,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...HEAD
+[0.44.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...v0.41.0

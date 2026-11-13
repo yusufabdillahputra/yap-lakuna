@@ -217,7 +217,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Pilih pelanggan di kepala pesanan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
 | Harga grosir per grup pelanggan | 1.4b | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md). |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |
-| Batal pembayaran piutang | — | Belum | Void pembayaran + jurnal balik kas. |
+| Batal pembayaran piutang | — | Selesai v0.44.0 | [F1-13c](2026-11-13-f1-13c-batal-pembayaran-utang-piutang-design.md): alokasi di-soft-delete, kas laci dijurnal balik, kuitansi bercap BATAL. |
 | Nomor baris import saat berkas punya baris kosong | — | Bergeser | Bawa nomor baris asli dari CSV/XLSX (`row@r`). |
 | Piutang dihitung dari semua nota kredit pelanggan | — | Dipecah per 500 id | Indeks/ringkasan saat data Fase 2 membesar. |
 | Pembayaran tunai bertanggal mundur | — | Kas toko, tidak masuk laci hari ini | Buku kas F1-15. |

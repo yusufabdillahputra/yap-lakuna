@@ -19,4 +19,12 @@ Menu **Supplier** menyimpan data pemasok dan hutang per pembelian, lalu mencatat
 
 Pembayaran juga bisa dimulai dari detail pembelian dengan tombol **Bayar hutang**.
 
+## Membatalkan pembayaran hutang
+
+1. Di riwayat bayar supplier, tekan ikon **Batalkan pembayaran** di baris pembayaran itu.
+2. Isi **Alasan batal**, lalu tekan **Ya, batalkan**.
+3. Sisa hutang setiap pembelian kembali seperti sebelum pembayaran. Pembayaran tetap tampil dicoret dengan label *Batal* dan alasannya.
+
+Pembayaran dari kas laci dikembalikan ke laci di sesi kasir yang sedang buka. Setelah dibatalkan, catat ulang pembayaran yang benar.
+
 > [!note] Hutang yang jatuh tempo dan lewat tempo juga tampil di tab *Piutang & hutang* pada [Laporan](reports).

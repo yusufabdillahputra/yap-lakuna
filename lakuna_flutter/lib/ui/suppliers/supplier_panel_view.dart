@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart' show DebtPaymentNotFound;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
@@ -17,6 +18,7 @@ import '../purchases/purchase_labels.dart'
     show formatCalendarDate, formatCalendarDayMonth;
 import 'supplier_form_dialog.dart';
 import 'supplier_labels.dart';
+import '../customers/debt_payment_void_dialog.dart';
 import 'supplier_panel_view_model.dart';
 import 'supplier_purchases_dialog.dart';
 
@@ -389,7 +391,11 @@ class SupplierPanel extends StatelessWidget {
                       ),
                     ],
                   ],
-                  _Payments(viewModel: vm, repository: repository),
+                  _Payments(
+                    viewModel: vm,
+                    repository: repository,
+                    onChanged: onChanged,
+                  ),
                   if (vm.canManage)
                     Align(
                       alignment: Alignment.centerLeft,
@@ -909,10 +915,15 @@ class _Proof extends StatelessWidget {
 }
 
 class _Payments extends StatelessWidget {
-  const _Payments({required this.viewModel, required this.repository});
+  const _Payments({
+    required this.viewModel,
+    required this.repository,
+    required this.onChanged,
+  });
 
   final SupplierPanelViewModel viewModel;
   final SuppliersRepository repository;
+  final Future<void> Function() onChanged;
 
   Future<void> _showProof(BuildContext context, DebtPayment p) async {
     final result = await repository.proof(p.id);
@@ -932,80 +943,146 @@ class _Payments extends StatelessWidget {
     );
   }
 
+  Future<void> _void(BuildContext context, DebtPayment p) async {
+    final l10n = AppLocalizations.of(context);
+    final voided = await showDebtPaymentVoidDialog(
+      context,
+      payment: p,
+      onConfirm: (reason) async {
+        await viewModel.voidPayment.execute((p.id, reason));
+        return switch (viewModel.voidPayment.result) {
+          Error(:final error) => error,
+          _ => null,
+        };
+      },
+      errorMessage: (e) => e is DebtPaymentNotFound
+          ? l10n.debtErrNotFound
+          : supplierErrorMessage(l10n, e),
+    );
+    // Ringkasan daftar (total piutang/hutang) ikut berubah.
+    if (voided) await onChanged();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final payments = viewModel.detail!.payments;
-    return Column(
-      key: const ValueKey('supplier-payments'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 8,
-      children: [
-        Text(
-          l10n.supplierPayments,
-          style: theme.typography.body.md.copyWith(fontWeight: FontWeight.w700),
-        ),
-        if (payments.isEmpty)
-          Text(l10n.supplierNoPayments, style: _muted(context))
-        else
-          for (final p in payments)
-            Padding(
-              key: ValueKey('supplier-payment-${p.id.uuid}'),
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                spacing: 8,
-                children: [
-                  Icon(
-                    TablerIcons.receipt,
-                    size: 18,
-                    color: theme.colors.mutedForeground,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            p.number,
-                            maxLines: 1,
-                            style: theme.typography.body.sm.copyWith(
-                              fontWeight: FontWeight.w600,
+    Widget amount(DebtPayment p) => Text(
+      formatMoney(context, Money(p.amount)),
+      style: theme.typography.body.sm.copyWith(
+        fontWeight: FontWeight.w600,
+        fontFeatures: _tabular,
+        decoration: p.voidedAt != null ? TextDecoration.lineThrough : null,
+        color: p.voidedAt != null ? theme.colors.mutedForeground : null,
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Layar sempit: nominal pindah ke bawah nomor agar tombol aksi muat.
+        final narrow = constraints.maxWidth < 420;
+        return Column(
+          key: const ValueKey('supplier-payments'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: [
+            Text(
+              l10n.supplierPayments,
+              style: theme.typography.body.md.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (payments.isEmpty)
+              Text(l10n.supplierNoPayments, style: _muted(context))
+            else
+              for (final p in payments)
+                Padding(
+                  key: ValueKey('supplier-payment-${p.id.uuid}'),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        TablerIcons.receipt,
+                        size: 18,
+                        color: theme.colors.mutedForeground,
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: 6,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    p.number,
+                                    maxLines: 1,
+                                    style: theme.typography.body.sm.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                if (p.voidedAt != null)
+                                  FBadge(
+                                    key: ValueKey(
+                                      'supplier-payment-voided-${p.id.uuid}',
+                                    ),
+                                    variant: .destructive,
+                                    child: Text(l10n.debtVoided),
+                                  ),
+                              ],
+                            ),
+                            Text(
+                              [
+                                formatCalendarDate(p.paidOn),
+                                if (p.fundingSource case final f?)
+                                  supplierFundingLabel(l10n, f),
+                                ?p.reference,
+                              ].join(' · '),
+                              style: _muted(context),
+                            ),
+                            if (p.voidReason case final reason?)
+                              Text(
+                                l10n.debtVoidedInfo(reason),
+                                style: _muted(context),
+                              ),
+                            if (narrow) amount(p),
+                          ],
+                        ),
+                      ),
+                      if (!narrow) amount(p),
+                      if (p.proofMediaId != null)
+                        FButton.icon(
+                          key: ValueKey('supplier-payment-proof-${p.id.uuid}'),
+                          variant: .ghost,
+                          onPress: () => _showProof(context, p),
+                          child: const Icon(TablerIcons.photo),
+                        ),
+                      if (viewModel.canVoid(p))
+                        FTooltip(
+                          tipBuilder: (context, _) => Text(l10n.debtVoidAction),
+                          child: FButton.icon(
+                            key: ValueKey('supplier-payment-void-${p.id.uuid}'),
+                            variant: .ghost,
+                            onPress: viewModel.voidPayment.running
+                                ? null
+                                : () => _void(context, p),
+                            child: Icon(
+                              TablerIcons.ban,
+                              color: theme.colors.destructive,
                             ),
                           ),
                         ),
-                        Text(
-                          [
-                            formatCalendarDate(p.paidOn),
-                            if (p.fundingSource case final f?)
-                              supplierFundingLabel(l10n, f),
-                            ?p.reference,
-                          ].join(' · '),
-                          style: _muted(context),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                  Text(
-                    formatMoney(context, Money(p.amount)),
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontFeatures: _tabular,
-                    ),
-                  ),
-                  if (p.proofMediaId != null)
-                    FButton.icon(
-                      key: ValueKey('supplier-payment-proof-${p.id.uuid}'),
-                      variant: .ghost,
-                      onPress: () => _showProof(context, p),
-                      child: const Icon(TablerIcons.photo),
-                    ),
-                ],
-              ),
-            ),
-      ],
+                ),
+          ],
+        );
+      },
     );
   }
 }

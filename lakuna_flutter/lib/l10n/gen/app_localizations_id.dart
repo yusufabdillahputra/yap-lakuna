@@ -7511,4 +7511,84 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningNoteNotAllowed => 'Catatan disimpan untuk menu berikutnya.';
+
+  @override
+  String get debtVoidAction => 'Batalkan pembayaran';
+
+  @override
+  String debtVoidTitle(String number) {
+    return 'Batalkan $number?';
+  }
+
+  @override
+  String get debtVoidBodyCustomer =>
+      'Alokasi ke nota dihapus sehingga sisa piutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.';
+
+  @override
+  String get debtVoidBodySupplier =>
+      'Alokasi ke pembelian dihapus sehingga sisa hutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.';
+
+  @override
+  String get debtVoidReason => 'Alasan batal';
+
+  @override
+  String get debtVoidReasonHint => 'mis. Salah nominal, akan dicatat ulang';
+
+  @override
+  String debtVoidErrReason(int max) {
+    return 'Alasan wajib diisi, maksimal $max karakter.';
+  }
+
+  @override
+  String debtVoidDrawerOut(String amount) {
+    return 'Uang $amount dikeluarkan dari laci di sesi kasir yang sedang buka.';
+  }
+
+  @override
+  String debtVoidDrawerIn(String amount) {
+    return 'Uang $amount dikembalikan ke laci di sesi kasir yang sedang buka.';
+  }
+
+  @override
+  String get debtVoidBack => 'Kembali';
+
+  @override
+  String get debtVoidConfirm => 'Ya, batalkan';
+
+  @override
+  String get debtVoided => 'Batal';
+
+  @override
+  String debtVoidedInfo(String reason) {
+    return 'Batal: $reason';
+  }
+
+  @override
+  String get debtErrAlreadyVoided => 'Pembayaran ini sudah dibatalkan.';
+
+  @override
+  String get debtErrNoSession =>
+      'Buka sesi kasir dulu: uang laci perlu dijurnal balik.';
+
+  @override
+  String get kuitansiVoidStamp => 'BATAL';
+
+  @override
+  String get kuitansiVoidReason => 'Alasan batal';
+
+  @override
+  String get reportsSourceDebtPaymentVoid => 'Batal bayar piutang';
+
+  @override
+  String get reportsSourceSupplierPaymentVoid => 'Batal bayar hutang';
+
+  @override
+  String get cashSourceDebtPaymentVoid => 'Batal bayar piutang';
+
+  @override
+  String get cashSourceSupplierPaymentVoid => 'Batal bayar hutang';
+
+  @override
+  String get debtErrNotFound =>
+      'Pembayaran tidak ditemukan atau pelanggan/supplier-nya sudah dihapus.';
 }

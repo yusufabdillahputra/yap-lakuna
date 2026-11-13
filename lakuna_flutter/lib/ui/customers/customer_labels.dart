@@ -136,6 +136,11 @@ String customerErrorMessage(AppLocalizations l10n, Exception error) =>
       DebtPaymentDateInvalid() => l10n.debtErrDate,
       DebtPaymentMethodInvalid() => l10n.debtErrMethod,
       DebtPaymentNotFound() => l10n.kuitansiErrNotFound,
+      DebtPaymentAlreadyVoided() => l10n.debtErrAlreadyVoided,
+      DebtPaymentVoidReasonInvalid() => l10n.debtVoidErrReason(
+        debtPaymentVoidReasonMax,
+      ),
+      CashSessionNotOpen() => l10n.debtErrNoSession,
       SaleCreditInvalid(:final issue) => creditIssueMessage(l10n, issue),
       NotPermitted() ||
       CustomerActorNotPermitted() => l10n.customerErrNotPermitted,

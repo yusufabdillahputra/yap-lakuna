@@ -21,4 +21,14 @@ Manage groups in **Master data › Customer groups**. A group's standard term fi
 3. Automatic allocation pays the oldest receipt first. Tap **Allocate manually** to fill in each receipt yourself.
 4. Tap **Save & print receipt**. The payment receipt comes as A5/PDF or a thermal slip.
 
+## Voiding a receivable payment
+
+Recorded the wrong amount, method, or customer? Void the payment, then record it again.
+
+1. In the customer's payment history, tap the **Void payment** icon on that payment's row.
+2. Enter the **Reason**, then tap **Yes, void**.
+3. Each receipt's outstanding balance returns to what it was before the payment. The payment stays in the list struck through with a *Void* label and the reason, and its receipt is stamped VOID.
+
+Cash that went into the drawer is taken out again in the open cash session, so open a session first. A payment recorded at another branch can only be voided there.
+
 > [!note] Payment receipts can be reprinted from the customer's payment history, marked COPY. A customer who still owes money cannot be deleted.

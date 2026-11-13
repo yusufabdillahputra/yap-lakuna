@@ -128,6 +128,61 @@ void main() {
       expect(ro.canSubmit, isFalse);
     });
 
+    test('batal pembayaran: piutang kembali, baris tetap dengan alasan '
+        '(F1-13c)', () async {
+      vm.setAmount(const Money(650000));
+      await vm.receive.execute();
+      final paid = vm.detail!.payments.single;
+      expect(vm.detail!.row.outstanding, const Money(500000));
+      expect(vm.canVoid(paid), isTrue);
+
+      await vm.voidPayment.execute((paid.id, '   '));
+      expect(
+        (vm.voidPayment.result! as Error<DebtPayment>).error,
+        isA<DebtPaymentVoidReasonInvalid>(),
+      );
+
+      await vm.voidPayment.execute((paid.id, ' Salah nominal '));
+      expect(vm.voidPayment.result, isA<Ok<DebtPayment>>());
+      expect(repo.voids.last, (paid.id, ' Salah nominal '));
+      expect(vm.detail!.row.outstanding, const Money(1150000));
+      final voided = vm.detail!.payments.single;
+      expect(voided.voidReason, 'Salah nominal');
+      expect(vm.canVoid(voided), isFalse);
+
+      await vm.voidPayment.execute((paid.id, 'lagi'));
+      expect(
+        (vm.voidPayment.result! as Error<DebtPayment>).error,
+        isA<DebtPaymentAlreadyVoided>(),
+      );
+    });
+
+    test('batal: cabang lain / tanpa izin tidak bisa; tunai tanpa sesi '
+        'ditolak', () async {
+      final foreign = repo.addForeignPayment(idOf('Toko Bu Ani'));
+      await vm.load.execute();
+      expect(vm.canVoid(foreign), isFalse);
+
+      vm.setAmount(const Money(100000));
+      await vm.receive.execute();
+      final cash = vm.detail!.payments.first;
+      expect(cash.cashSessionId, isNotNull);
+      repo.hasOpenSession = false;
+      await vm.voidPayment.execute((cash.id, 'Salah'));
+      expect(
+        (vm.voidPayment.result! as Error<DebtPayment>).error,
+        isA<CashSessionNotOpen>(),
+      );
+
+      repo.canReceive = false;
+      final ro = CustomerPanelViewModel(
+        repository: repo,
+        customerId: idOf('Toko Bu Ani'),
+      );
+      await ro.load.execute();
+      expect(ro.canVoid(cash), isFalse);
+    });
+
     test('hapus pelanggan berpiutang ditolak', () async {
       await vm.delete.execute();
       expect(vm.delete.result, isA<Error<void>>());
@@ -234,6 +289,39 @@ void main() {
       expect(short.tableRows, isEmpty);
       expect(short.footnote, isNull);
       expect(short.banner, isNull);
+    });
+
+    test('kuitansi batal bercap BATAL dan memuat alasan (F1-13c)', () async {
+      await repo.voidPayment(payment.id, 'Salah pelanggan');
+      final vm = KuitansiViewModel(
+        repository: repo,
+        printer: FakeReceiptPrinter(),
+        paymentId: payment.id,
+      );
+      await vm.load.execute();
+      final doc = kuitansiDocument(
+        id,
+        receipt: vm.receipt!,
+        setup: vm.setup!,
+        copy: false,
+        showDetails: true,
+        showBalance: true,
+        city: '',
+      );
+      expect(doc.banner, 'BATAL');
+      // Sisa piutang setelah pembayaran sudah tidak berlaku.
+      expect(doc.footnote, isNull);
+      expect(doc.fields.map((f) => f.value), contains('Salah pelanggan'));
+      final thermal = kuitansiReceiptContent(
+        id,
+        receipt: vm.receipt!,
+        setup: vm.setup!,
+        copy: true,
+        showDetails: true,
+        showBalance: true,
+      );
+      expect(thermal.banner, contains('BATAL'));
+      expect(thermal.meta.map((m) => m.value), contains('Salah pelanggan'));
     });
 
     test('isi thermal: nomor BP di baris meta', () async {

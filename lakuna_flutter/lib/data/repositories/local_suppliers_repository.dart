@@ -29,6 +29,7 @@ class LocalSuppliersRepository extends SuppliersRepository {
   Future<Result<SuppliersSetup>> load() => _guard((ctx, scope, staff) async {
     return SuppliersSetup(
       today: await outletToday(_store.session, scope, _now),
+      outletId: ctx.outlet.id,
       canManage: staff.can(Permission.suppliersManage),
       canPay: staff.can(Permission.debtsManage),
       canUseDrawer: staff.can(Permission.cashMovementsCreate),
@@ -78,6 +79,21 @@ class LocalSuppliersRepository extends SuppliersRepository {
           paySupplierDebt(_store, scope, staffId: staff.id, request: request),
     );
   }
+
+  @override
+  Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason) =>
+      _guard(
+        permission: Permission.debtsManage,
+        // `voidDebtPayment` juga memeriksa `cash_movements:create` untuk
+        // pembayaran laci.
+        (_, scope, staff) => voidDebtPayment(
+          _store,
+          scope,
+          staffId: staff.id,
+          paymentId: paymentId,
+          reason: reason,
+        ),
+      );
 
   @override
   Future<Result<List<PurchaseRow>>> purchases(UuidValue supplierId) => _guard(

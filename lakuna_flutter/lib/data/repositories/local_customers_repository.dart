@@ -35,6 +35,7 @@ class LocalCustomersRepository extends CustomersRepository {
       outletAddress: ctx.outlet.address,
       outletPhone: ctx.outlet.phone,
       timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
+      outletId: ctx.outlet.id,
       canManage: staff.can(Permission.customersManage),
       canReceive: staff.can(Permission.debtsManage),
       hasOpenSession:
@@ -103,6 +104,21 @@ class LocalCustomersRepository extends CustomersRepository {
           scope,
           staffId: staff.id,
           request: request,
+        ),
+      );
+
+  @override
+  Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason) =>
+      _guard(
+        permission: Permission.debtsManage,
+        // `voidDebtPayment` juga memeriksa `cash_movements:create` untuk
+        // pembayaran laci.
+        (_, scope, staff) => voidDebtPayment(
+          _store,
+          scope,
+          staffId: staff.id,
+          paymentId: paymentId,
+          reason: reason,
         ),
       );
 

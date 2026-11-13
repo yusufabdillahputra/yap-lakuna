@@ -269,6 +269,12 @@ enum CashSourceKind {
   /// Uang kembali dari retur pembelian (masuk).
   purchaseRefund,
   debtPayment,
+
+  /// Batal terima piutang tunai (keluar, F1-13c).
+  debtPaymentVoid,
+
+  /// Batal bayar hutang dari laci (masuk, F1-13c).
+  supplierPaymentVoid,
   other,
 }
 
@@ -285,6 +291,8 @@ CashSourceKind _cashKind(CashMovement m) => switch (m.source) {
         ? CashSourceKind.purchaseRefund
         : CashSourceKind.purchase,
   debtPaymentCashSource => CashSourceKind.debtPayment,
+  debtPaymentVoidCashSource => CashSourceKind.debtPaymentVoid,
+  supplierPaymentVoidCashSource => CashSourceKind.supplierPaymentVoid,
   _ => CashSourceKind.other,
 };
 

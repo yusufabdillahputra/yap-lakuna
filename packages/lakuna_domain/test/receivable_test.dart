@@ -193,4 +193,11 @@ void main() {
       expect(rupiahInWords(const Money(-5000)), 'Minus lima ribu rupiah');
     });
   });
+
+  test('alasan batal pembayaran 1–200 karakter (F1-13c)', () {
+    expect(validateDebtPaymentVoidReason('Salah nominal'), isTrue);
+    expect(validateDebtPaymentVoidReason('   '), isFalse);
+    expect(validateDebtPaymentVoidReason('x' * 200), isTrue);
+    expect(validateDebtPaymentVoidReason('x' * 201), isFalse);
+  });
 }
