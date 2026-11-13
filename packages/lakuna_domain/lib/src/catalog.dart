@@ -107,6 +107,9 @@ abstract final class ProductLimits {
 
   /// Ukuran maksimal berkas foto produk (F1-07f).
   static const photoMaxBytes = 2 * 1024 * 1024;
+
+  /// Lebar maksimal foto dari kamera (F1-07f).
+  static const cameraMaxWidth = 1600;
 }
 
 /// Satuan konversi sebuah varian, mis. dus berisi 6 botol.

@@ -134,8 +134,7 @@ class ProductFormViewModel extends ChangeNotifier {
     required this._repository,
     String? productId,
     this._picker = const FileSelectorImagePicker(),
-  }) : _rawId = productId,
-       productId = productId == null ? null : UuidValue.fromString(productId) {
+  }) : _routeId = productId == null ? null : UuidValue.fromString(productId) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
     archive = Command0(_archive)..addListener(notifyListeners);
@@ -143,14 +142,22 @@ class ProductFormViewModel extends ChangeNotifier {
       () => _choosePhoto(_picker.pickImage),
     )..addListener(notifyListeners);
     takePhoto = Command0(
-      () => _choosePhoto(_picker.takePhoto),
+      () => _choosePhoto(
+        ({required maxBytes}) => _picker.takePhoto(
+          maxBytes: maxBytes,
+          maxWidth: ProductLimits.cameraMaxWidth,
+        ),
+      ),
     )..addListener(notifyListeners);
   }
 
   final CatalogRepository _repository;
   final ImageFilePicker _picker;
-  final String? _rawId;
-  final UuidValue? productId;
+  final UuidValue? _routeId;
+
+  /// Produk yang diubah: ID rute, atau produk baru yang sudah tersimpan
+  /// tetapi fotonya gagal disimpan.
+  UuidValue? get productId => _savedId ?? _routeId;
 
   late final Command0<ProductCatalog> load;
   late final Command0<UuidValue> save;
@@ -164,6 +171,7 @@ class ProductFormViewModel extends ChangeNotifier {
   late final Command0<void> takePhoto;
 
   String? _photoPath;
+  bool _hasStoredPhoto = false;
   Uint8List? _newPhoto;
   String _newPhotoName = '';
   bool _removePhoto = false;
@@ -179,7 +187,8 @@ class ProductFormViewModel extends ChangeNotifier {
   /// Foto baru yang belum disimpan.
   Uint8List? get photoBytes => _newPhoto;
 
-  bool get hasPhoto => _newPhoto != null || photoPath != null;
+  /// Ada foto (baru, atau tersimpan walau berkasnya belum ada di perangkat).
+  bool get hasPhoto => _newPhoto != null || (_hasStoredPhoto && !_removePhoto);
 
   /// Berkas terakhir yang dipilih ditolak.
   ProductPhotoError? get photoError => _photoError;
@@ -189,7 +198,14 @@ class ProductFormViewModel extends ChangeNotifier {
   Future<Result<void>> _choosePhoto(
     Future<PickedImage?> Function({required int maxBytes}) pick,
   ) async {
-    final picked = await pick(maxBytes: ProductLimits.photoMaxBytes);
+    final PickedImage? picked;
+    try {
+      picked = await pick(maxBytes: ProductLimits.photoMaxBytes);
+    } on Exception catch (e) {
+      // Izin kamera ditolak, berkas tidak terbaca, dll.
+      _photoError = ProductPhotoError.unreadable;
+      return Result.error(e);
+    }
     if (picked == null) return const Result.ok(null);
     final bytes = picked.bytes;
     if (bytes == null) {
@@ -239,7 +255,7 @@ class ProductFormViewModel extends ChangeNotifier {
   int? _selectedKey;
   final _problems = <_FieldKey, FieldProblem>{};
 
-  bool get isNew => _rawId == null;
+  bool get isNew => productId == null;
   bool get loaded => _loaded;
 
   /// Produk yang diubah tidak ditemukan.
@@ -358,6 +374,7 @@ class ProductFormViewModel extends ChangeNotifier {
 
   void _fill(CatalogProduct p) {
     _photoPath = p.photoPath;
+    _hasStoredPhoto = p.photoMediaId != null;
     final d = p.toDraft();
     _originalName = d.name;
     name = d.name;
@@ -687,17 +704,28 @@ class ProductFormViewModel extends ChangeNotifier {
         id,
         ProductPhotoUpload(bytes: photo, fileName: _newPhotoName),
       );
-    } else if (_removePhoto && _photoPath != null) {
+    } else if (_removePhoto && _hasStoredPhoto) {
       result = await _repository.clearPhoto(id);
     } else {
       return Result.ok(id);
     }
     if (result case Error(:final error)) {
+      // Produk sudah tersimpan: isi ulang form dari data tersimpan (ID
+      // varian, tanpa stok awal) agar *Simpan* lagi hanya mengubahnya.
       _savedId = id;
+      await _reload(id);
       _error = ProductPhotoNotSaved(error);
       return Result.error(_error!);
     }
     return Result.ok(id);
+  }
+
+  Future<void> _reload(UuidValue id) async {
+    if (await _repository.loadCatalog() case Ok(:final value)) {
+      _catalog = value;
+      final product = value.products.where((p) => p.id == id).firstOrNull;
+      if (product != null) _fill(product);
+    }
   }
 
   void _show(List<(ProductIssue, String?)> issues) {

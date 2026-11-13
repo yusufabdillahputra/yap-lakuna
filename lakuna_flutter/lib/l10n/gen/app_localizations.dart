@@ -12793,6 +12793,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.'**
   String get productPhotoNotSaved;
+
+  /// No description provided for @productPhotoUnreadable.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.'**
+  String get productPhotoUnreadable;
 }
 
 class _AppLocalizationsDelegate

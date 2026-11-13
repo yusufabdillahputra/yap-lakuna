@@ -7438,4 +7438,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productPhotoNotSaved =>
       'The product was saved, but the photo wasn\'t. Try Save again.';
+
+  @override
+  String get productPhotoUnreadable =>
+      'Couldn\'t open the photo. Check the camera permission or pick another file.';
 }

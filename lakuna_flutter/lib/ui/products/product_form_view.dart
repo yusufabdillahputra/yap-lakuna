@@ -1619,6 +1619,7 @@ class _PhotoActions extends StatelessWidget {
             switch (error) {
               ProductPhotoError.unsupported => l10n.productPhotoUnsupported,
               ProductPhotoError.tooLarge => l10n.productPhotoTooLarge,
+              ProductPhotoError.unreadable => l10n.productPhotoUnreadable,
             },
             key: const ValueKey('product-photo-error'),
             style: small.copyWith(color: theme.colors.destructive),

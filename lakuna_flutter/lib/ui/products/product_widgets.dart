@@ -126,8 +126,9 @@ class ProductThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(size >= 48 ? 8 : 6);
-    // Gambar didekode seukuran tampilannya agar memori tetap kecil.
-    final cache = (size * MediaQuery.devicePixelRatioOf(context)).ceil();
+    // Gambar didekode kecil agar memori hemat; lebar 2× kotak supaya foto
+    // melebar (sampai 2:1) yang dipotong `cover` tetap tajam.
+    final cache = (2 * size * MediaQuery.devicePixelRatioOf(context)).ceil();
     Widget fallback(BuildContext context, Object _, StackTrace? _) =>
         _initials(context, radius);
     final image = switch ((photoBytes, photoPath)) {

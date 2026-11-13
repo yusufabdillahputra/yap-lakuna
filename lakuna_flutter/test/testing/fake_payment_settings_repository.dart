@@ -84,13 +84,18 @@ class FakeImagePicker extends ImageFilePicker {
   /// Kamera tersedia (denah 1.7c).
   var camera = false;
   var photoCalls = 0;
+  int? lastPhotoWidth;
+
+  /// Galat yang dilempar panggilan berikutnya (mis. izin kamera ditolak).
+  Exception? throwNext;
 
   @override
   bool get canTakePhoto => camera;
 
   @override
-  Future<PickedImage?> takePhoto({required int maxBytes}) {
+  Future<PickedImage?> takePhoto({required int maxBytes, int maxWidth = 2400}) {
     photoCalls++;
+    lastPhotoWidth = maxWidth;
     return pickImage(maxBytes: maxBytes);
   }
 
@@ -101,6 +106,10 @@ class FakeImagePicker extends ImageFilePicker {
   }) async {
     calls++;
     lastVector = vector;
+    if (throwNext case final e?) {
+      throwNext = null;
+      throw e;
+    }
     final picked = next;
     next = null;
     if (picked == null) return null;

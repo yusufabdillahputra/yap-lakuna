@@ -142,11 +142,32 @@ void main() {
       expect(vm.save.result, isA<Error<UuidValue>>());
       expect(vm.error, isA<ProductPhotoNotSaved>());
       expect(repo.products.where((p) => p.name == 'Teh Botol'), hasLength(1));
+      // Form diisi ulang dari produk tersimpan: bukan produk baru lagi,
+      // varian punya ID, stok awal tidak dikirim ulang.
+      expect(vm.isNew, isFalse);
+      expect(vm.productId, isNotNull);
+      expect(vm.variants.single.id, isNotNull);
+      expect(vm.photoBytes, samplePng);
 
       await vm.save.execute();
       expect(vm.save.result, isA<Ok<UuidValue>>());
       expect(repo.products.where((p) => p.name == 'Teh Botol'), hasLength(1));
       expect(repo.photoCalls, hasLength(1));
+      expect(repo.saved.last.variants.single.id, isNotNull);
+      expect(repo.saved.last.variants.single.openingStock, Qty.zero);
     },
   );
+
+  test('kamera: lebar 1.600 px; galat kamera jadi pesan', () async {
+    picker.camera = true;
+    final vm = await open(kopiId());
+    picker.next = png('kamera.jpg');
+    await vm.takePhoto.execute();
+    expect(picker.lastPhotoWidth, ProductLimits.cameraMaxWidth);
+
+    picker.throwNext = Exception('izin kamera ditolak');
+    await vm.takePhoto.execute();
+    expect(vm.photoError, ProductPhotoError.unreadable);
+    expect(vm.photoBytes, samplePng);
+  });
 }

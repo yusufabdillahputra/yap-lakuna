@@ -555,7 +555,9 @@ class ProductPhotoUpload {
   final String fileName;
 }
 
-enum ProductPhotoError { unsupported, tooLarge }
+/// Alasan foto produk ditolak. [unreadable] hanya di form: kamera atau
+/// berkas tidak bisa dibuka (mis. izin kamera ditolak).
+enum ProductPhotoError { unsupported, tooLarge, unreadable }
 
 /// Berkas foto bukan PNG/JPG/WebP atau lebih dari
 /// [ProductLimits.photoMaxBytes].

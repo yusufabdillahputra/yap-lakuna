@@ -7279,4 +7279,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get productPhotoNotSaved =>
       'Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.';
+
+  @override
+  String get productPhotoUnreadable =>
+      'Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.';
 }
