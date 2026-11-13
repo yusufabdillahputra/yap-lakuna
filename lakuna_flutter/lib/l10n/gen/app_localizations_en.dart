@@ -7566,4 +7566,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diningSetupCanMerge => 'Can merge';
+
+  @override
+  String get kitchenPrinterTitle => 'Kitchen printer';
+
+  @override
+  String get kitchenPrinterSubtitle =>
+      'Kitchen tickets print here automatically on Send to kitchen. Saved on this device only.';
+
+  @override
+  String get kitchenPrinterSame => 'Same as receipt printer';
+
+  @override
+  String get kitchenPrinterSameNote =>
+      'Kitchen tickets print to this device\'s receipt printer with the Print ticket button.';
+
+  @override
+  String get kitchenPrinterForget => 'Forget kitchen printer';
+
+  @override
+  String get kitchenPaperWidth => 'Ticket paper width';
+
+  @override
+  String get kitchenPrinterTest => 'Test print ticket';
+
+  @override
+  String get kitchenPrinterTestSent =>
+      'Sample ticket sent to the kitchen printer.';
+
+  @override
+  String get ticketPrintingKitchen =>
+      'Printing the ticket on the kitchen printer…';
+
+  @override
+  String get ticketPrintedKitchen => 'Ticket printed on the kitchen printer.';
+
+  @override
+  String get ticketReprint => 'Reprint';
 }

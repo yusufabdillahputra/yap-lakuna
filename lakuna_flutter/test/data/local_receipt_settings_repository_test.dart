@@ -94,6 +94,24 @@ void main() {
     expect(_ok(await repo.loadPrinter()), printer);
   });
 
+  test('printer dapur: simpan, muat, lupakan; kasir ditolak', () async {
+    expect(_ok(await repo.loadKitchenPrinter()), isNull);
+    const kitchen = KitchenPrinter(
+      printer: PrinterSelection(
+        kind: PrinterKind.network,
+        name: '10.0.0.9',
+        address: '10.0.0.9:9100',
+      ),
+      paper: ReceiptPaper.mm80,
+    );
+    _ok(await repo.saveKitchenPrinter(kitchen));
+    expect(_ok(await repo.loadKitchenPrinter()), kitchen);
+    expect(_ok(await repo.loadPrinter()), isNull);
+    session.current = staffWithPermissions({Permission.salesCreate});
+    expect(_ok(await repo.loadKitchenPrinter()), kitchen);
+    expect(_err(await repo.saveKitchenPrinter(null)), isA<NotPermitted>());
+  });
+
   test('kasir tanpa settings:manage: baca boleh, ubah ditolak', () async {
     session.current = staffWithPermissions({Permission.salesCreate});
     expect(_ok(await repo.loadReceipt()).settings.paper, ReceiptPaper.mm58);

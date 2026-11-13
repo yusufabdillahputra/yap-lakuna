@@ -4704,5 +4704,16 @@
   "diningErrorMergeGuests": "Jumlah tamu gabungan lebih dari 99.",
   "diningErrorMergeNotAllowed": "Meja ini tidak bisa digabung.",
   "diningSetupCanMergeHint": "Bill meja ini bisa digabung dengan meja lain lewat Gabung meja.",
-  "diningSetupCanMerge": "Boleh digabung"
+  "diningSetupCanMerge": "Boleh digabung",
+  "kitchenPrinterTitle": "Printer dapur",
+  "kitchenPrinterSubtitle": "Tiket dapur dicetak otomatis di sini saat Kirim ke dapur. Disimpan di perangkat ini saja.",
+  "kitchenPrinterSame": "Sama dengan printer struk",
+  "kitchenPrinterSameNote": "Tiket dapur dicetak lewat tombol Cetak tiket ke printer struk perangkat ini.",
+  "kitchenPrinterForget": "Lupakan printer dapur",
+  "kitchenPaperWidth": "Lebar kertas tiket",
+  "kitchenPrinterTest": "Tes cetak tiket",
+  "kitchenPrinterTestSent": "Tiket contoh terkirim ke printer dapur.",
+  "ticketPrintingKitchen": "Mencetak tiket di printer dapur…",
+  "ticketPrintedKitchen": "Tiket dicetak di printer dapur.",
+  "ticketReprint": "Cetak ulang"
 }

@@ -274,6 +274,46 @@ void main() {
       expect(await loadPrinterSelection(prefs), isNull);
     });
 
+    test('printer dapur: belum ada → null; simpan, muat, lupakan', () async {
+      final prefs = LocalPreferences(store.session);
+      expect(await loadKitchenPrinter(prefs), isNull);
+      const kitchen = KitchenPrinter(
+        printer: PrinterSelection(
+          kind: PrinterKind.network,
+          name: '10.0.0.9',
+          address: '10.0.0.9:9100',
+        ),
+        paper: ReceiptPaper.mm80,
+      );
+      await saveKitchenPrinter(prefs, kitchen);
+      expect(await loadKitchenPrinter(prefs), kitchen);
+      // Terpisah dari printer struk.
+      expect(await loadPrinterSelection(prefs), isNull);
+      await saveKitchenPrinter(prefs, null);
+      expect(await loadKitchenPrinter(prefs), isNull);
+    });
+
+    test(
+      'printer dapur: kertas bawaan 58 mm, isi rusak/sistem → null',
+      () async {
+        final prefs = LocalPreferences(store.session);
+        await prefs.set(
+          kitchenPrinterKey,
+          '{"kind":"bluetooth","name":"RPP02N","address":"66:22:B1:00:00:01"}',
+        );
+        expect((await loadKitchenPrinter(prefs))?.paper, ReceiptPaper.mm58);
+        await prefs.set(kitchenPrinterKey, '{"kind":"system","name":""}');
+        expect(await loadKitchenPrinter(prefs), isNull);
+        await prefs.set(kitchenPrinterKey, 'bukan json');
+        expect(await loadKitchenPrinter(prefs), isNull);
+        await prefs.set(
+          kitchenPrinterKey,
+          '{"kind":"network","name":"a","address":"a:9100","paper":"mm99"}',
+        );
+        expect((await loadKitchenPrinter(prefs))?.paper, ReceiptPaper.mm58);
+      },
+    );
+
     test('alamat jaringan host:port', () {
       expect(parseNetworkAddress('192.168.1.50:9100'), ('192.168.1.50', 9100));
       expect(parseNetworkAddress(' printer.lan '), ('printer.lan', 9100));

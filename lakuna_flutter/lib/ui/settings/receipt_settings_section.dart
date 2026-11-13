@@ -6,9 +6,12 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../products/product_widgets.dart' show ChoicePill;
+import '../receipt/printer_device_row.dart';
 import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart';
 import '../receipt/receipt_paper_view.dart';
+import 'kitchen_printer_card.dart';
+import 'kitchen_printer_view_model.dart';
 import 'receipt_settings_view_model.dart';
 import 'settings_card.dart';
 
@@ -21,10 +24,14 @@ class ReceiptSettingsSection extends StatelessWidget {
     required this.businessName,
     required this.outletName,
     required this.staffName,
+    this.kitchen,
     this.clock = DateTime.now,
   });
 
   final ReceiptSettingsViewModel viewModel;
+
+  /// Kartu *Printer dapur* (F1-10e); `null` tanpa modul meja.
+  final KitchenPrinterViewModel? kitchen;
   final String businessName;
   final String outletName;
   final String staffName;
@@ -134,6 +141,12 @@ class ReceiptSettingsSection extends StatelessWidget {
                     title: Text(l10n.settingsSaveError),
                   ),
                 printerCard,
+                if (kitchen case final k?)
+                  KitchenPrinterCard(
+                    viewModel: k,
+                    staffName: staffName,
+                    clock: clock,
+                  ),
                 receiptCard,
                 if (!wide) ...[preview, actions],
               ],
@@ -231,7 +244,7 @@ class _PrinterCard extends StatelessWidget {
             ),
           ),
           for (final (i, p) in vm.bluetoothPrinters.indexed)
-            _DeviceRow(
+            PrinterDeviceRow(
               key: ValueKey('printer-bt-$i'),
               title: p.name,
               subtitle: p.address,
@@ -395,79 +408,6 @@ class _PrinterCard extends StatelessWidget {
               title: Text(l10n.printerTestSent),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _DeviceRow extends StatelessWidget {
-  const _DeviceRow({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.selected,
-    required this.onChoose,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool selected;
-  final VoidCallback? onChoose;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = context.theme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: selected ? theme.colors.primary : theme.colors.border,
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          spacing: 10,
-          children: [
-            const Icon(TablerIcons.printer, size: 18),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: theme.typography.body.xs.copyWith(
-                      color: theme.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (selected)
-              Text(
-                l10n.printerSelected,
-                style: theme.typography.body.xs.copyWith(
-                  color: theme.colors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-              )
-            else
-              FButton(
-                variant: .outline,
-                size: .sm,
-                mainAxisSize: .min,
-                onPress: onChoose,
-                child: Text(l10n.printerChoose),
-              ),
-          ],
-        ),
       ),
     );
   }

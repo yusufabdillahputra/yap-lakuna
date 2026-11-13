@@ -99,6 +99,10 @@ class FakeDiningRepository extends DiningRepository {
   Exception? nextError;
   var loadCalls = 0;
 
+  /// Printer struk dan printer dapur perangkat (F1-10e).
+  PrinterSelection? printer;
+  KitchenPrinter? kitchenPrinter;
+
   /// Area [area] (1 = Indoor, 2 = Teras) jadi mode denah dengan gambar
   /// 1600 × 1200 dan meja di [positions] (nama → x, y).
   void useFloorPlan(int area, Map<String, (int, int)> positions) {
@@ -221,6 +225,8 @@ class FakeDiningRepository extends DiningRepository {
       canArrange: _can(Permission.settingsManage),
       canDiscount: _can(Permission.salesDiscount),
       discountNeedsPin: discountNeedsPin,
+      printer: printer,
+      kitchenPrinter: kitchenPrinter,
     );
   });
 

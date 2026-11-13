@@ -63,3 +63,35 @@ List<ReceiptLine> kitchenTicketLines(
     ...centered(l10n.ticketFooter),
   ];
 }
+
+/// Tiket contoh untuk *Tes cetak tiket* di Pengaturan (F1-10e).
+List<ReceiptLine> sampleKitchenTicketLines(
+  AppLocalizations l10n, {
+  required ReceiptPaper paper,
+  required String staffName,
+  required DateTime now,
+}) {
+  final w = paper.columns;
+  final rule = ReceiptLine('-' * w);
+  List<ReceiptLine> centered(String text, {bool bold = false}) => [
+    for (final l in wrapText(text, w))
+      ReceiptLine(l, align: ReceiptAlign.center, bold: bold),
+  ];
+  List<ReceiptLine> item(String text, String extra) => [
+    for (final l in wrapText(text, w)) ReceiptLine(l, bold: true),
+    for (final l in wrapText(extra, w - 2)) ReceiptLine('  $l'),
+  ];
+  return [
+    ...centered(l10n.ticketHeading, bold: true),
+    ...centered(l10n.ticketDineIn('A1'), bold: true),
+    rule,
+    ...layoutPair(l10n.ticketNo, kitchenTicketLabel(1), w),
+    ...layoutPair(l10n.ticketTime, receiptDate(now), w),
+    ...layoutPair(l10n.ticketStaff, staffName, w),
+    rule,
+    ...item('1 x Nasi Goreng', '+ Pedas'),
+    ...item('2 x Es Teh Manis', '* Tanpa es'),
+    rule,
+    ...centered(l10n.ticketFooter),
+  ];
+}

@@ -393,6 +393,66 @@ Future<void> savePrinterSelection(
   printer == null ? '' : jsonEncode(printer.toJson()),
 );
 
+/// Kunci preferensi lokal printer dapur di perangkat ini (F1-10e).
+const kitchenPrinterKey = 'printer.kitchen';
+
+/// Printer dapur khusus: tiket dapur dicetak otomatis ke sini saat
+/// *Kirim ke dapur*. Hanya jaringan atau Bluetooth (cetak langsung).
+class KitchenPrinter {
+  const KitchenPrinter({required this.printer, this.paper = ReceiptPaper.mm58});
+
+  final PrinterSelection printer;
+
+  /// Lebar kertas tiket dapur, terpisah dari struk.
+  final ReceiptPaper paper;
+
+  KitchenPrinter copyWith({PrinterSelection? printer, ReceiptPaper? paper}) =>
+      KitchenPrinter(
+        printer: printer ?? this.printer,
+        paper: paper ?? this.paper,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      other is KitchenPrinter &&
+      other.printer == printer &&
+      other.paper == paper;
+
+  @override
+  int get hashCode => Object.hash(printer, paper);
+
+  @override
+  String toString() => 'KitchenPrinter($printer, $paper)';
+}
+
+/// Printer dapur perangkat ini; `null` = sama dengan printer struk.
+Future<KitchenPrinter?> loadKitchenPrinter(LocalPreferences prefs) async {
+  final raw = await prefs.get(kitchenPrinterKey);
+  if (raw == null || raw.isEmpty) return null;
+  try {
+    final json = jsonDecode(raw);
+    final printer = PrinterSelection.fromJson(json);
+    if (printer == null || !printer.isDirect) return null;
+    final paper = ReceiptPaper.values
+        .where((p) => p.name == (json as Map<String, Object?>)['paper'])
+        .firstOrNull;
+    return KitchenPrinter(printer: printer, paper: paper ?? ReceiptPaper.mm58);
+  } on FormatException {
+    return null;
+  }
+}
+
+/// Menyimpan printer dapur; `null` kembali ke printer struk.
+Future<void> saveKitchenPrinter(
+  LocalPreferences prefs,
+  KitchenPrinter? kitchen,
+) => prefs.set(
+  kitchenPrinterKey,
+  kitchen == null
+      ? ''
+      : jsonEncode({...kitchen.printer.toJson(), 'paper': kitchen.paper.name}),
+);
+
 final _hostPattern = RegExp(r'^[A-Za-z0-9.\-]+$');
 
 /// `host[:port]` → (host, port); port bawaan [defaultPrinterPort]. `null`

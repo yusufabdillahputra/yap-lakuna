@@ -507,6 +507,7 @@ class DiningViewModel extends ChangeNotifier {
     _ticket = null;
     _printFailure = null;
     _ticketPrinted = false;
+    _autoPrintStarted = false;
     printTicket.clearResult();
     notifyListeners();
   }
@@ -521,6 +522,7 @@ class DiningViewModel extends ChangeNotifier {
         _ticket = r;
         _printFailure = null;
         _ticketPrinted = false;
+        _autoPrintStarted = false;
       },
     );
   }
@@ -593,6 +595,29 @@ class DiningViewModel extends ChangeNotifier {
 
   ReceiptPaper get paper => _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
 
+  /// Printer dapur khusus perangkat ini (F1-10e).
+  KitchenPrinter? get _kitchenPrinter => _data?.kitchenPrinter;
+
+  /// Tiket dikirim ke printer dapur khusus (bukan printer struk).
+  bool get ticketToKitchen => _kitchenPrinter != null;
+
+  /// Lebar kertas tiket: kertas dapur, atau kertas struk tanpa printer
+  /// dapur.
+  ReceiptPaper get ticketPaper => _kitchenPrinter?.paper ?? paper;
+
+  var _autoPrintStarted = false;
+
+  /// Tiket terakhir belum dicetak otomatis ke printer dapur.
+  bool get shouldAutoPrintTicket =>
+      _ticket != null && ticketToKitchen && !_autoPrintStarted;
+
+  /// Cetak otomatis tiket [lines] ke printer dapur, sekali per tiket.
+  Future<void> autoPrintTicket(List<ReceiptLine> lines) async {
+    if (!shouldAutoPrintTicket || printTicket.running) return;
+    _autoPrintStarted = true;
+    await printTicket.execute(lines);
+  }
+
   PrinterFailureReason? get printFailure => _printFailure;
   bool get ticketPrinted => _ticketPrinted;
 
@@ -600,13 +625,14 @@ class DiningViewModel extends ChangeNotifier {
     _printFailure = null;
     _ticketPrinted = false;
     final printer =
+        _kitchenPrinter?.printer ??
         _data?.printer ??
         const PrinterSelection(kind: PrinterKind.system, name: '');
     try {
       await _printer.print(
         printer,
         lines,
-        paper,
+        ticketPaper,
         jobName: _ticket == null
             ? 'Tiket dapur'
             : kitchenTicketLabel(_ticket!.ticket.number),

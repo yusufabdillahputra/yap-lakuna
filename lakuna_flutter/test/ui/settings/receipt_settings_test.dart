@@ -160,6 +160,51 @@ void main() {
     );
   });
 
+  for (final size in const [Size(1280, 900), Size(360, 760)]) {
+    testWidgets('printer dapur: jaringan, kertas 80 mm, tes tiket, lupakan '
+        '(${size.width.toInt()} px)', (tester) async {
+      final (repo, printer) = await pump(tester, size: size);
+      expect(_key('kitchen-printer'), findsOneWidget);
+      expect(_key('kitchen-printer-same-note'), findsOneWidget);
+      expect(_key('kitchen-printer-test'), findsNothing);
+
+      await _tap(tester, 'kitchen-printer-kind-network');
+      await tester.enterText(_input('kitchen-printer-address-0'), 'bad host');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'kitchen-printer-use-address');
+      expect(repo.kitchen, isNull);
+      expect(
+        find.text(
+          'Alamat tidak sah. Contoh 192.168.1.50 atau 192.168.1.50:9100',
+        ),
+        findsOneWidget,
+      );
+      await tester.enterText(_input('kitchen-printer-address-0'), '10.0.0.9');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'kitchen-printer-use-address');
+      expect(repo.kitchen?.printer.address, '10.0.0.9:9100');
+      expect(find.text('10.0.0.9 · Jaringan (LAN) · 58 mm'), findsOneWidget);
+      // Printer struk tetap kosong.
+      expect(repo.printer, isNull);
+
+      await _tap(tester, 'kitchen-paper-mm80');
+      expect(repo.kitchen?.paper, ReceiptPaper.mm80);
+
+      await _tap(tester, 'kitchen-printer-test');
+      expect(_key('kitchen-printer-test-sent'), findsOneWidget);
+      final (target, lines, paper) = printer.prints.single;
+      expect(target.address, '10.0.0.9:9100');
+      expect(paper, ReceiptPaper.mm80);
+      expect(lines.first.text, 'TIKET DAPUR');
+      expect(lines.every((l) => l.text.length <= 48), isTrue);
+
+      await _tap(tester, 'kitchen-printer-forget');
+      expect(repo.kitchen, isNull);
+      expect(find.text('Sama dengan printer struk'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('kasir tanpa settings:manage tidak melihat Struk & printer', (
     tester,
   ) async {
