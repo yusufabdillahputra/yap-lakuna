@@ -7083,4 +7083,7 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get diningDiscountBlocksPay =>
       'Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.';
+
+  @override
+  String get cashierCustomerNew => 'Pelanggan baru';
 }

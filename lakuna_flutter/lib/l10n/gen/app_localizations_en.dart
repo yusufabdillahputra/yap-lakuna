@@ -7231,4 +7231,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diningDiscountBlocksPay =>
       'The discount uses up the bill total. Change or remove it before paying.';
+
+  @override
+  String get cashierCustomerNew => 'New customer';
 }

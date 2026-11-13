@@ -3958,5 +3958,9 @@
   "diningDiscountBlocksPay": "The discount uses up the bill total. Change or remove it before paying.",
   "@diningDiscountBlocksPay": {
     "placeholders": {}
+  },
+  "cashierCustomerNew": "New customer",
+  "@cashierCustomerNew": {
+    "placeholders": {}
   }
 }

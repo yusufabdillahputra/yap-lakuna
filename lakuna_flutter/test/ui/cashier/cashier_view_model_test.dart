@@ -1185,6 +1185,44 @@ void main() {
       expect(vm.customer, isNull);
     });
 
+    test('pelanggan baru dari pemilih langsung terpasang (F1-04f)', () async {
+      expect(vm.canAddCustomer, isTrue);
+      await vm.customers.execute();
+      vm.setCustomerQuery('Siti');
+      final siti = row('Siti Aminah');
+      repo.creditRows = [...repo.creditRows, siti];
+      await vm.useNewCustomer(siti.customer);
+      expect(vm.customer?.id, siti.customer.id);
+      expect(vm.customer?.name, 'Siti Aminah');
+      expect(vm.customerQuery, isEmpty);
+      // Daftar dimuat ulang agar pelanggan baru ikut tampil.
+      expect(vm.customerList!.rows, hasLength(3));
+    });
+
+    test(
+      'pelanggan baru dari panel kredit langsung terpilih (F1-04f)',
+      () async {
+        vm
+          ..scan('8990001')
+          ..startPayment()
+          ..setMode(PayMode.credit);
+        await Future<void>.delayed(Duration.zero);
+        final siti = row('Siti Aminah', limit: 300000);
+        repo.creditRows = [...repo.creditRows, siti];
+        await vm.useNewCreditCustomer(siti.customer);
+        expect(vm.creditCustomer?.customer.id, siti.customer.id);
+        expect(vm.customer?.name, 'Siti Aminah');
+        // Jatuh tempo dari tempo grup (14 hari).
+        expect(vm.creditDue, vm.creditToday.add(const Duration(days: 14)));
+      },
+    );
+
+    test('tanpa customers:manage tombol pelanggan baru tidak ada', () async {
+      repo.permissions = {Permission.salesCreate, Permission.debtsManage};
+      await vm.load.execute();
+      expect(vm.canAddCustomer, isFalse);
+    });
+
     test('mode kredit memakai pelanggan terpilih', () async {
       vm
         ..selectCustomer(budi)

@@ -43,8 +43,15 @@ class FakeCashierRepository extends CashierRepository {
   /// Aturan *Penjualan & stok* (pembulatan, F1-18).
   SalesRules salesRules = const SalesRules();
 
-  /// Pelanggan pemilih kredit (1.5b, F1-13).
-  List<CustomerRow> creditRows = const [];
+  /// Pelanggan pemilih kredit (1.5b, F1-13), ditambah pelanggan dari
+  /// [customerSource] (form *Pelanggan baru*, F1-04f).
+  List<CustomerRow> get creditRows => [
+    ..._creditRows,
+    ...?customerSource?.call(),
+  ];
+  set creditRows(List<CustomerRow> rows) => _creditRows = rows;
+  List<CustomerRow> _creditRows = const [];
+  List<CustomerRow> Function()? customerSource;
   final credits = <SaleCredit>[];
 
   /// Galat berikutnya (sekali pakai).
@@ -227,6 +234,8 @@ class FakeCashierRepository extends CashierRepository {
             permissions?.contains(Permission.paymentsConfirm) ?? true,
         canSellOnCredit: permissions?.contains(Permission.debtsManage) ?? true,
         canDiscount: permissions?.contains(Permission.salesDiscount) ?? true,
+        canAddCustomer:
+            permissions?.contains(Permission.customersManage) ?? true,
         session: sessionOpen
             ? CashierSession(
                 id: _session,

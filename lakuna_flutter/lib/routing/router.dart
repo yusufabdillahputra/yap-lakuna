@@ -205,6 +205,7 @@ GoRouter createRouter({
                 repository: cashier,
                 printer: receiptPrinter,
                 session: session,
+                customers: customers,
                 draft: bill == null ? cartDraft : null,
                 billId: bill,
                 part: part,

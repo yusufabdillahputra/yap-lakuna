@@ -9,7 +9,9 @@ import '../core/format.dart';
 import '../customers/customer_labels.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import 'cashier_view_model.dart';
-import 'customer_picker.dart' show CustomerAvatar;
+import '../customers/customer_form_dialog.dart' show CustomerFormScope;
+import 'customer_picker.dart'
+    show CustomerAvatar, NewCustomerButton, addCashierCustomer;
 
 const _tabular = [FontFeature.tabularFigures()];
 
@@ -191,6 +193,23 @@ class _Picker extends StatelessWidget {
               ),
             ),
           ),
+        if (vm.canAddCustomer)
+          if (CustomerFormScope.maybeOf(context) case final repo?)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: NewCustomerButton(
+                key: const ValueKey('credit-new-customer'),
+                compact: true,
+                onPress: () async {
+                  final created = await addCashierCustomer(
+                    context,
+                    repo,
+                    vm.creditQuery,
+                  );
+                  if (created != null) await vm.useNewCreditCustomer(created);
+                },
+              ),
+            ),
       ],
     );
   }

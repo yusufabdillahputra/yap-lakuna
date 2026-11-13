@@ -60,6 +60,7 @@ class CashierData {
     this.printer,
     this.salesRules = const SalesRules(),
     this.canDiscount = false,
+    this.canAddCustomer = false,
   });
 
   /// Produk aktif dengan minimal satu varian, urut nama.
@@ -91,6 +92,10 @@ class CashierData {
 
   /// Staf boleh menyimpan nota sebagai piutang (`debts:manage`, F1-13).
   final bool canSellOnCredit;
+
+  /// Staf boleh membuat *Pelanggan baru* dari Kasir (`customers:manage`,
+  /// F1-04f).
+  final bool canAddCustomer;
 
   /// Pengaturan struk cabang ini (F1-06).
   final ReceiptConfig receipt;

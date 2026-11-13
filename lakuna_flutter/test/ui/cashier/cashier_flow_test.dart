@@ -13,6 +13,7 @@ import 'package:lakuna_flutter/utils/result.dart';
 import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
 import '../../testing/fake_cashier_repository.dart';
+import '../../testing/fake_customers_repository.dart';
 import '../../testing/fake_dining_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
@@ -43,6 +44,7 @@ void main() {
     PrinterSelection? selected,
     ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings()),
     FakeSessionRepository? session,
+    FakeCustomersRepository? customers,
   }) async {
     final repo = FakeCashierRepository(
       seed: cashierProducts(),
@@ -59,7 +61,9 @@ void main() {
       cashier: repo,
       receiptPrinter: printer,
       session: session,
+      customers: customers,
     );
+    if (customers != null) repo.customerSource = () => customers.rows;
     return repo;
   }
 
@@ -826,6 +830,74 @@ void main() {
       await tester.pumpAndSettle();
       expect(_key('discount-dialog'), findsNothing);
     });
+  });
+
+  group('pelanggan baru dari Kasir (F1-04f)', () {
+    for (final size in const [Size(1280, 800), Size(360, 740)]) {
+      testWidgets('${size.width.toInt()} px: dari pemilih, terpasang di nota', (
+        tester,
+      ) async {
+        final customers = FakeCustomersRepository(seed: false);
+        final repo = await pump(tester, size: size, customers: customers);
+        await _tap(tester, productKey(repo, 'Kopi Sachet'));
+        if (size.width < 600) await _tap(tester, 'cashier-view-order');
+
+        await _tap(tester, 'cashier-customer');
+        await tester.enterText(_input('customer-picker-search'), 'Siti Aminah');
+        await tester.pumpAndSettle();
+        await _tap(tester, 'customer-picker-new');
+        expect(_key('customer-form'), findsOneWidget);
+        // Kata pencarian menjadi nama.
+        expect(
+          tester
+              .widget<EditableText>(_input('customer-form-name'))
+              .controller
+              .text,
+          'Siti Aminah',
+        );
+        await tester.enterText(_input('customer-form-phone'), '081234567890');
+        await _tap(tester, 'customer-form-save');
+        expect(_key('customer-form'), findsNothing);
+        expect(_key('customer-picker'), findsNothing);
+        expect(_text(tester, 'cashier-customer-name'), 'Siti Aminah');
+        expect(customers.customers.single.phone, '081234567890');
+      }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+    }
+
+    testWidgets('dari panel kredit: pelanggan baru langsung terpilih', (
+      tester,
+    ) async {
+      final customers = FakeCustomersRepository(seed: false);
+      final repo = await pump(tester, customers: customers);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-pay');
+      await _tap(tester, 'payment-method-credit');
+      expect(_key('credit-no-customers'), findsOneWidget);
+      await _tap(tester, 'credit-new-customer');
+      await tester.enterText(_input('customer-form-name'), 'Warung Sari');
+      await tester.enterText(_input('customer-form-limit'), '500000');
+      await _tap(tester, 'customer-form-save');
+      expect(_key('credit-selected'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: _key('credit-selected'),
+          matching: find.text('Warung Sari'),
+        ),
+        findsOneWidget,
+      );
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('tanpa customers:manage: tombol tidak tampil', (tester) async {
+      final repo = await pump(
+        tester,
+        permissions: {Permission.salesCreate, Permission.debtsManage},
+        customers: FakeCustomersRepository(seed: false),
+      );
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-customer');
+      expect(_key('customer-picker'), findsOneWidget);
+      expect(_key('customer-picker-new'), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });
 
   group('pelanggan & nota tersimpan (F1-04d)', () {

@@ -733,6 +733,27 @@ class CashierViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Tombol *Pelanggan baru* di pemilih dan panel kredit (F1-04f).
+  bool get canAddCustomer => _data?.canAddCustomer ?? false;
+
+  /// Pelanggan baru dari dialog *Pilih pelanggan*: dipasang ke nota, daftar
+  /// dimuat ulang.
+  Future<void> useNewCustomer(Customer customer) async {
+    _customer = (id: customer.id, name: customer.name);
+    _customerQuery = '';
+    notifyListeners();
+    await customers.execute();
+  }
+
+  /// Pelanggan baru dari panel kredit: daftar kredit dimuat ulang lalu
+  /// pelanggan itu dipilih (jatuh tempo dari tempo grupnya).
+  Future<void> useNewCreditCustomer(Customer customer) async {
+    _customer = (id: customer.id, name: customer.name);
+    _creditQuery = '';
+    await loadCredit.execute();
+    if (!_selectCredit(customer.id)) notifyListeners();
+  }
+
   void clearCustomer() {
     _customer = null;
     notifyListeners();

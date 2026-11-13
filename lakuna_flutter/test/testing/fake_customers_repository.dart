@@ -164,6 +164,9 @@ class FakeCustomersRepository extends CustomersRepository {
         ),
   ];
 
+  /// Baris semua pelanggan saat ini (sumber pemilih Kasir di tes).
+  List<CustomerRow> get rows => [for (final c in customers) _row(c)];
+
   CustomerRow _row(Customer c) {
     final group = groupList.where((g) => g.id == c.customerGroupId).firstOrNull;
     final open = _open(c.id);

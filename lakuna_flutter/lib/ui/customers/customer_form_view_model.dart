@@ -15,14 +15,18 @@ const customerNoGroupKey = '__none__';
 
 /// Form tambah/ubah pelanggan (1.20).
 class CustomerFormViewModel extends ChangeNotifier {
-  CustomerFormViewModel({required this._repository, Customer? customer})
-    : _customer = customer,
-      _name = customer?.name ?? '',
-      _phone = customer?.phone ?? '',
-      _address = customer?.address ?? '',
-      _note = customer?.note ?? '',
-      _groupKey = customer?.customerGroupId?.uuid ?? customerNoGroupKey,
-      _limit = Money(customer?.creditLimit ?? 0) {
+  CustomerFormViewModel({
+    required this._repository,
+    Customer? customer,
+    String initialName = '',
+    String initialPhone = '',
+  }) : _customer = customer,
+       _name = customer?.name ?? initialName,
+       _phone = customer?.phone ?? initialPhone,
+       _address = customer?.address ?? '',
+       _note = customer?.note ?? '',
+       _groupKey = customer?.customerGroupId?.uuid ?? customerNoGroupKey,
+       _limit = Money(customer?.creditLimit ?? 0) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
   }

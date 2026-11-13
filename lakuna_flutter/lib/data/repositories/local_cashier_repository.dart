@@ -73,6 +73,7 @@ class LocalCashierRepository extends CashierRepository {
       canConfirmPayments: staff.can(Permission.paymentsConfirm),
       canSellOnCredit: staff.can(Permission.debtsManage),
       canDiscount: staff.can(Permission.salesDiscount),
+      canAddCustomer: staff.can(Permission.customersManage),
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
     );

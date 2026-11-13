@@ -1,11 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_client/lakuna_client.dart' show Customer;
 import 'package:lakuna_data/lakuna_data.dart' show CustomerRow;
 import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/customers_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../customers/customer_form_dialog.dart';
 import '../products/product_widgets.dart' show LoadFailedAlert;
 import 'cashier_view_model.dart';
 
@@ -51,21 +54,82 @@ Future<void> pickCashierCustomer(
 ) async {
   vm.setCustomerQuery('');
   vm.customers.execute();
+  // Dialog berada di atas layar Kasir: repositori pelanggan dibaca di sini.
+  final customers = vm.canAddCustomer
+      ? CustomerFormScope.maybeOf(context)
+      : null;
   await showFDialog<void>(
     context: context,
     builder: (context, style, animation) => FDialog(
       animation: animation,
       constraints: const BoxConstraints(minWidth: 280, maxWidth: 440),
-      builder: (context, style) => CustomerPicker(viewModel: vm),
+      builder: (context, style) =>
+          CustomerPicker(viewModel: vm, customers: customers),
+    ),
+  );
+}
+
+/// Form *Pelanggan baru* dari Kasir (F1-04f) dengan isian awal dari kata
+/// pencarian [query]. Hasil `null` bila dibatalkan.
+Future<Customer?> addCashierCustomer(
+  BuildContext context,
+  CustomersRepository customers,
+  String query,
+) {
+  final draft = customerDraftFromQuery(query);
+  return showCustomerForm(
+    context,
+    customers,
+    initialName: draft.name,
+    initialPhone: draft.phone,
+  );
+}
+
+/// Tombol *Pelanggan baru* (pemilih Kasir dan panel kredit).
+class NewCustomerButton extends StatelessWidget {
+  const NewCustomerButton({
+    super.key,
+    required this.onPress,
+    this.compact = false,
+  });
+
+  final VoidCallback? onPress;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => FButton(
+    variant: .outline,
+    size: compact ? .sm : .md,
+    prefix: const Icon(TablerIcons.userPlus, size: 16),
+    onPress: onPress,
+    child: Flexible(
+      child: Text(
+        AppLocalizations.of(context).cashierCustomerNew,
+        overflow: TextOverflow.ellipsis,
+      ),
     ),
   );
 }
 
 /// Isi dialog *Pilih pelanggan*: cari nama/HP, sisa limit, lewat tempo.
 class CustomerPicker extends StatelessWidget {
-  const CustomerPicker({super.key, required this.viewModel});
+  const CustomerPicker({super.key, required this.viewModel, this.customers});
 
   final CashierViewModel viewModel;
+
+  /// Repositori untuk *Pelanggan baru*; `null` = tombol tidak tampil.
+  final CustomersRepository? customers;
+
+  Future<void> _addNew(BuildContext context, CustomersRepository repo) async {
+    final created = await addCashierCustomer(
+      context,
+      repo,
+      viewModel.customerQuery,
+    );
+    if (created == null || !context.mounted) return;
+    await viewModel.useNewCustomer(created);
+    if (context.mounted) Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +223,11 @@ class CustomerPicker extends StatelessWidget {
                   ),
                 ),
                 body,
+                if (customers case final repo?)
+                  NewCustomerButton(
+                    key: const ValueKey('customer-picker-new'),
+                    onPress: () => _addNew(context, repo),
+                  ),
                 FButton(
                   key: const ValueKey('customer-picker-close'),
                   variant: .outline,
