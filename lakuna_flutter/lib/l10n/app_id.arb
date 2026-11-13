@@ -4864,5 +4864,6 @@
   "setupRestoreIntro": "Pilih berkas backup Lakuna (.zip) yang dibuat di Pengaturan › Data & backup perangkat lama.",
   "setupRestorePick": "Pilih berkas backup",
   "setupRestoreWarning": "Data backup dipasang di perangkat ini, lalu aplikasi dimuat ulang dan Anda masuk dengan PIN dari backup. Jangan memakai backup yang sama di dua perangkat sekaligus.",
-  "setupRestoreAlreadySetUp": "Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup."
+  "setupRestoreAlreadySetUp": "Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup.",
+  "setupRestoreReopen": "Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan."
 }

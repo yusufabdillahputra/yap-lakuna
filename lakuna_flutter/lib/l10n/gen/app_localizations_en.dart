@@ -7817,4 +7817,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get setupRestoreAlreadySetUp =>
       'A store already exists on this device. Restore from Settings › Data & backup instead.';
+
+  @override
+  String get setupRestoreReopen =>
+      'The backup is ready. Close and reopen the app to finish restoring.';
 }

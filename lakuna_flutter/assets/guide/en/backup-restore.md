@@ -24,3 +24,16 @@ The backup file holds the database and all images. Keep it somewhere safe becaus
 > [!warning] All data on this device is replaced by the backup. The old data is moved to a *sebelum-pulihkan* folder in the data location, so it can still be rescued if you picked the wrong file.
 
 If the backup file is damaged, the app automatically goes back to the old data. A backup from a newer Lakuna version can be restored after updating the app.
+
+## Moving to a new device
+
+On a new device you don't need to create a store first.
+
+1. Install Lakuna and open it. The *Set up your store* wizard appears.
+2. On the first step (*Language & theme*), tap **Restore from backup** and choose the .zip file from the old device.
+3. Check the summary, type the store name, then tap **Restore & reload**.
+4. The app reloads to the sign-in screen. Sign in with a staff PIN, as on the old device.
+
+This button is only shown before a store exists. After that, restore from **Settings › Data & backup**.
+
+> [!warning] The new device continues the old device's code and receipt numbers. Don't use the same backup on two devices at once.

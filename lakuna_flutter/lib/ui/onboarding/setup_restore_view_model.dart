@@ -30,6 +30,11 @@ class SetupRestoreViewModel extends ChangeNotifier {
   String? _path;
   BackupManifest? _manifest;
   var _confirmText = '';
+  var _staged = false;
+
+  /// Backup sudah disiapkan; tanpa muat ulang otomatis (tidak ada
+  /// `AppRestart`) pengguna diminta membuka ulang aplikasi.
+  bool get staged => _staged;
   var _disposed = false;
 
   // Perintah tidak dibuang: [restore] masih menunggu [_restart] saat
@@ -49,7 +54,7 @@ class SetupRestoreViewModel extends ChangeNotifier {
   /// Isi backup yang dipilih (menunggu konfirmasi).
   BackupManifest? get manifest => _manifest;
   String get confirmText => _confirmText;
-  bool get busy => pick.running || restore.running;
+  bool get busy => pick.running || restore.running || _staged;
 
   /// Nama toko yang diketik cocok (tidak peka huruf, spasi tepi diabaikan).
   bool get _nameMatches {
@@ -58,7 +63,7 @@ class SetupRestoreViewModel extends ChangeNotifier {
         _confirmText.trim().toLowerCase() == m.tenantName.trim().toLowerCase();
   }
 
-  bool get canConfirm => _nameMatches && !restore.running;
+  bool get canConfirm => _nameMatches && !restore.running && !_staged;
 
   void setConfirmText(String value) {
     _confirmText = value;
@@ -93,6 +98,7 @@ class SetupRestoreViewModel extends ChangeNotifier {
     }
     final result = await _repository.stageRestoreForSetup(path);
     if (result case Error(:final error)) return Result.error(error);
+    _staged = true;
     await _restart?.call();
     return const Result.ok(null);
   }

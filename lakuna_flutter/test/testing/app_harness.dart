@@ -3,6 +3,7 @@ import 'fake_guide_repository.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_flutter/app_root.dart';
 import 'package:lakuna_flutter/app.dart';
 import 'package:lakuna_flutter/data/repositories/guide_repository.dart';
 import 'package:lakuna_flutter/data/services/table_file.dart';
@@ -68,6 +69,8 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeBackupRepository? backup,
   FakeBackupFiles? backupFiles,
   GuideRepository? guide,
+  Future<void> Function()? restart,
+  bool restoreFailed = false,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -96,42 +99,69 @@ Future<AppSettingsViewModel> pumpLakuna(
           ),
         ),
       ],
-      child: LakunaApp(
-        settings: settings,
-        router: createRouter(
+      child: _MaybeRestart(
+        restart: restart,
+        restoreFailed: restoreFailed,
+        child: LakunaApp(
           settings: settings,
-          store: storeRepository,
-          session: sessionRepository,
-          cashDrawer: cashDrawer ?? FakeCashDrawerRepository(),
-          catalog: catalog ?? FakeCatalogRepository(),
-          stock: stock ?? FakeStockRepository(),
-          masterData: masterData ?? FakeMasterDataRepository(),
-          cashier: cashier ?? FakeCashierRepository(),
-          dining: dining ?? FakeDiningRepository(),
-          diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
-          history: history ?? FakeHistoryRepository(),
-          purchases: purchases ?? FakePurchasesRepository(),
-          customers: customers ?? FakeCustomersRepository(),
-          suppliers: suppliers ?? FakeSuppliersRepository(),
-          expenses: expenses ?? FakeExpensesRepository(),
-          reports: reports ?? FakeReportsRepository(),
-          users: users ?? FakeUsersRepository(),
-          paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
-          receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
-          storeSettings: storeSettings ?? FakeStoreSettingsRepository(),
-          receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
-          imagePicker: imagePicker ?? FakeImagePicker(),
-          exporter: exporter ?? FakeSpreadsheetExporter(),
-          tablePicker: tablePicker ?? const FileSelectorTablePicker(),
-          // Bawaan: backup baru dibuat, jadi Beranda tanpa pengingat.
-          backup: backup ?? FakeBackupRepository(last: DateTime.now().toUtc()),
-          backupFiles: backupFiles ?? FakeBackupFiles(),
-          guide: guide ?? FakeGuideRepository(),
-          initialLocation: initialLocation,
+          router: createRouter(
+            settings: settings,
+            store: storeRepository,
+            session: sessionRepository,
+            cashDrawer: cashDrawer ?? FakeCashDrawerRepository(),
+            catalog: catalog ?? FakeCatalogRepository(),
+            stock: stock ?? FakeStockRepository(),
+            masterData: masterData ?? FakeMasterDataRepository(),
+            cashier: cashier ?? FakeCashierRepository(),
+            dining: dining ?? FakeDiningRepository(),
+            diningAdmin: diningAdmin ?? FakeDiningAdminRepository(),
+            history: history ?? FakeHistoryRepository(),
+            purchases: purchases ?? FakePurchasesRepository(),
+            customers: customers ?? FakeCustomersRepository(),
+            suppliers: suppliers ?? FakeSuppliersRepository(),
+            expenses: expenses ?? FakeExpensesRepository(),
+            reports: reports ?? FakeReportsRepository(),
+            users: users ?? FakeUsersRepository(),
+            paymentSettings: paymentSettings ?? FakePaymentSettingsRepository(),
+            receiptSettings: receiptSettings ?? FakeReceiptSettingsRepository(),
+            storeSettings: storeSettings ?? FakeStoreSettingsRepository(),
+            receiptPrinter: receiptPrinter ?? FakeReceiptPrinter(),
+            imagePicker: imagePicker ?? FakeImagePicker(),
+            exporter: exporter ?? FakeSpreadsheetExporter(),
+            tablePicker: tablePicker ?? const FileSelectorTablePicker(),
+            // Bawaan: backup baru dibuat, jadi Beranda tanpa pengingat.
+            backup:
+                backup ?? FakeBackupRepository(last: DateTime.now().toUtc()),
+            backupFiles: backupFiles ?? FakeBackupFiles(),
+            guide: guide ?? FakeGuideRepository(),
+            initialLocation: initialLocation,
+          ),
         ),
       ),
     ),
   );
   await tester.pumpAndSettle();
   return settings;
+}
+
+/// [AppRestart] hanya bila tes memintanya (muat ulang / pulihkan gagal).
+class _MaybeRestart extends StatelessWidget {
+  const _MaybeRestart({
+    required this.restart,
+    required this.restoreFailed,
+    required this.child,
+  });
+
+  final Future<void> Function()? restart;
+  final bool restoreFailed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => restart == null && !restoreFailed
+      ? child
+      : AppRestart(
+          restart: restart ?? () async {},
+          restoreFailed: restoreFailed,
+          child: child,
+        );
 }

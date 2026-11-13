@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:lakuna_client/lakuna_client.dart' show Tenant;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart'
     as data
@@ -119,7 +120,13 @@ class LocalBackupRepository implements BackupRepository {
     // Baca ulang dari database: `current` bisa belum termuat.
     switch (await _stores.load()) {
       case Ok(value: null):
-        break;
+        // Sama dengan `setupStore`: tenant yang ada (walau data perangkat
+        // tidak lengkap) tetap dianggap toko.
+        final tenants = await Tenant.db.count(
+          _store.session,
+          where: (t) => t.deletedAt.equals(null),
+        );
+        if (tenants > 0) return const Result.error(StoreAlreadySetUp());
       case Ok():
         return const Result.error(StoreAlreadySetUp());
       case Error(:final error):

@@ -90,4 +90,15 @@ void main() {
       expect(repo.staged, hasLength(1));
     },
   );
+
+  test('tanpa restart: backup siap, tidak bisa dipulihkan dua kali', () async {
+    final manual = SetupRestoreViewModel(repository: repo, files: files);
+    addTearDown(manual.dispose);
+    await manual.pick.execute();
+    manual.setConfirmText('Warung Contoh');
+    await manual.restore.execute();
+    expect(manual.staged, isTrue);
+    expect(manual.canConfirm, isFalse);
+    expect(manual.busy, isTrue);
+  });
 }

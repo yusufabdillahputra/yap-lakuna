@@ -8,6 +8,7 @@ import '../../data/services/backup_files.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
+import '../settings/backup_section.dart' show backupRestoreError;
 import 'setup_restore_view_model.dart';
 
 /// Dialog *Pulihkan dari backup* di onboarding (F1-19b). [restart] memuat
@@ -19,6 +20,8 @@ Future<void> showSetupRestore(
   Future<void> Function()? restart,
 }) => showFDialog<void>(
   context: context,
+  // Ditutup hanya lewat Batal: ketukan latar tidak melewati `PopScope`.
+  barrierDismissible: false,
   builder: (context, style, animation) => FDialog(
     animation: animation,
     constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
@@ -29,14 +32,6 @@ Future<void> showSetupRestore(
     ),
   ),
 );
-
-String setupRestoreError(AppLocalizations l10n, Exception error) =>
-    switch (error) {
-      BackupTooNew() => l10n.backupTooNew,
-      BackupInvalid() => l10n.backupInvalid,
-      StoreAlreadySetUp() => l10n.setupRestoreAlreadySetUp,
-      _ => l10n.backupRestoreFailed,
-    };
 
 class SetupRestoreDialog extends StatefulWidget {
   const SetupRestoreDialog({
@@ -85,7 +80,7 @@ class _SetupRestoreDialogState extends State<SetupRestoreDialog> {
       // Selama backup disiapkan dialog tidak bisa ditutup: aplikasi segera
       // dimuat ulang.
       return PopScope(
-        canPop: !vm.restore.running,
+        canPop: !vm.restore.running && !vm.staged,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.85,
@@ -148,11 +143,16 @@ class _SetupRestoreDialogState extends State<SetupRestoreDialog> {
                     ),
                   ),
                 ],
+                if (vm.staged)
+                  FAlert(
+                    key: const ValueKey('setup-restore-staged'),
+                    title: Text(l10n.setupRestoreReopen),
+                  ),
                 if (error != null)
                   FAlert(
                     key: const ValueKey('setup-restore-error'),
                     variant: .destructive,
-                    title: Text(setupRestoreError(l10n, error)),
+                    title: Text(backupRestoreError(l10n, error)),
                   ),
                 Wrap(
                   spacing: 8,
@@ -163,7 +163,7 @@ class _SetupRestoreDialogState extends State<SetupRestoreDialog> {
                       key: const ValueKey('setup-restore-cancel'),
                       variant: .outline,
                       mainAxisSize: .min,
-                      onPress: vm.restore.running
+                      onPress: vm.restore.running || vm.staged
                           ? null
                           : () => Navigator.of(context).pop(),
                       child: Flexible(child: Text(l10n.backupRestoreCancel)),

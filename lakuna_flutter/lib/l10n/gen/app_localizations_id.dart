@@ -7650,4 +7650,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get setupRestoreAlreadySetUp =>
       'Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup.';
+
+  @override
+  String get setupRestoreReopen =>
+      'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.';
 }

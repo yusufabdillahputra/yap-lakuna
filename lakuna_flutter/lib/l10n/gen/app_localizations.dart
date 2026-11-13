@@ -13423,6 +13423,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Toko sudah dibuat di perangkat ini. Pulihkan lewat Pengaturan › Data & backup.'**
   String get setupRestoreAlreadySetUp;
+
+  /// No description provided for @setupRestoreReopen.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.'**
+  String get setupRestoreReopen;
 }
 
 class _AppLocalizationsDelegate

@@ -167,12 +167,14 @@ void main() {
         '(F1-19b)', (tester) async {
       final backup = FakeBackupRepository();
       final files = FakeBackupFiles();
+      var restarts = 0;
       await pumpLakuna(
         tester,
         store: FakeStoreRepository(),
         size: size,
         backup: backup,
         backupFiles: files,
+        restart: () async => restarts++,
       );
       final restore = find.byKey(const ValueKey('onboarding-restore'));
       await tester.ensureVisible(restore);
@@ -202,8 +204,57 @@ void main() {
       await tester.tap(submit);
       await tester.pumpAndSettle();
       expect(backup.staged, [files.picked]);
+      expect(restarts, 1);
     });
   }
+
+  testWidgets('tanpa muat ulang otomatis: minta buka ulang aplikasi', (
+    tester,
+  ) async {
+    final backup = FakeBackupRepository();
+    await pumpLakuna(tester, store: FakeStoreRepository(), backup: backup);
+    await tester.tap(find.byKey(const ValueKey('onboarding-restore')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('setup-restore-pick')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const ValueKey('setup-restore-confirm')),
+        matching: find.byType(EditableText),
+      ),
+      'Warung Contoh',
+    );
+    await tester.pumpAndSettle();
+    final submit = find.byKey(const ValueKey('setup-restore-submit'));
+    await tester.ensureVisible(submit);
+    await tester.pumpAndSettle();
+    await tester.tap(submit);
+    await tester.pumpAndSettle();
+    expect(backup.staged, hasLength(1));
+    expect(find.byKey(const ValueKey('setup-restore-staged')), findsOneWidget);
+    expect(
+      tester
+          .widget<FButton>(find.byKey(const ValueKey('setup-restore-cancel')))
+          .onPress,
+      isNull,
+    );
+    // Latar tidak menutup dialog.
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('setup-restore')), findsOneWidget);
+  });
+
+  testWidgets('pulihkan gagal: wizard menampilkan pesan', (tester) async {
+    await pumpLakuna(
+      tester,
+      store: FakeStoreRepository(),
+      restoreFailed: true,
+    );
+    expect(
+      find.byKey(const ValueKey('onboarding-restore-failed')),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('langkah 2 tidak menampilkan pulihkan; galat berkas tampil', (
     tester,

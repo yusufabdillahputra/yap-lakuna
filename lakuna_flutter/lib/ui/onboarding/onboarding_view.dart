@@ -334,6 +334,16 @@ class _MainArea extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: 24,
                     children: [
+                      // Backup terakhir gagal dibuka: data lama (perangkat
+                      // kosong) dikembalikan, jadi wizard tampil lagi.
+                      if (AppRestart.maybeOf(context)?.restoreFailed ?? false)
+                        FAlert(
+                          key: const ValueKey('onboarding-restore-failed'),
+                          variant: .destructive,
+                          icon: const Icon(TablerIcons.alertTriangle),
+                          title: Text(l10n.homeRestoreFailedTitle),
+                          subtitle: Text(l10n.homeRestoreFailedBody),
+                        ),
                       AppearanceTiles(viewModel: settings),
                       if (onRestore case final restore?)
                         _RestoreCard(onPress: restore),

@@ -45,7 +45,8 @@ Tidak termasuk (gap):
 
 - Backup otomatis / ke cloud pihak ketiga; enkripsi berkas backup.
 - Aktifkan hosting (alur F2-01).
-- Pulihkan dari layar onboarding (sebelum toko dibuat).
+- Pulihkan dari layar onboarding (sebelum toko dibuat): selesai v0.46.0,
+  [F1-19b](2026-11-14-f1-19b-pulihkan-dari-onboarding-design.md).
 
 ## Format berkas
 
@@ -131,7 +132,7 @@ pulihkan tanpa izin.
 | Layar gagal mulai | - | v0.25.0 | - |
 | Aktifkan hosting | 1.13 | Kartu nonaktif | Alur di F2-01 |
 | Enkripsi backup | - | Belum | Kata sandi backup bila diminta |
-| Pulihkan dari onboarding | - | Belum | Tombol *Pulihkan dari backup* di langkah pertama wizard |
+| Pulihkan dari onboarding | - | Selesai v0.46.0 | [F1-19b](2026-11-14-f1-19b-pulihkan-dari-onboarding-design.md) |
 | Perangkat pengganti vs perangkat tambahan | - | Identitas perangkat ikut backup | Fase 2: daftarkan perangkat baru (kode K02) saat sync |
 | Checksum per gambar | - | Hanya database | Tambah SHA-256 gambar di manifest bila perlu |
 | Simpan ke lokasi pilihan (desktop) | 1.13 | Folder tetap Dokumen/Lakuna/Backup | Dialog simpan bila diminta |

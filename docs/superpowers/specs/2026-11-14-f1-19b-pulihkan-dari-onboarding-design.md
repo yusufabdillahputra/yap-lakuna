@@ -1,7 +1,7 @@
 # F1-19b · Pulihkan dari backup di onboarding
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.46.0
 - **Layar:** 1.1 Onboarding, langkah 1 (*Bahasa & tampilan*): tautan
   *Pulihkan dari backup*. Dialog memakai isi panel pulihkan 1.13.
 - **Acuan:** spec F1-19 (gap "Pulihkan dari onboarding"). Storeku
@@ -32,7 +32,13 @@ Pengaturan.
    bukan onboarding lagi. Pilihan bahasa/tema di wizard diganti preferensi
    dari backup.
 5. Galat (berkas rusak, versi lebih baru, ruang habis) tampil di dialog;
-   dialog tidak bisa ditutup selama backup disiapkan.
+   dialog hanya ditutup lewat *Batal* dan terkunci selama backup
+   disiapkan.
+6. Bila backup gagal dibuka setelah dipasang (F1-19 aturan 7), perangkat
+   kembali kosong sehingga wizard tampil lagi dengan pesan *Pulihkan
+   gagal* di langkah 1.
+7. "Toko sudah ada" = konteks toko termuat **atau** ada tenant yang belum
+   dihapus (sama dengan `setupStore`).
 
 ## Komponen
 
@@ -57,5 +63,5 @@ Pengaturan.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Pulihkan dari onboarding | — | Dikerjakan | |
+| Pulihkan dari onboarding | — | Selesai v0.46.0 | |
 | Pilih toko dari server (Fase 2) | — | Belum | Versi hosting memulihkan dari server, bukan berkas. |
