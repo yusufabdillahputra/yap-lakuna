@@ -317,7 +317,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.productNew,
-            builder: (context, state) => ProductFormScreen(repository: catalog),
+            builder: (context, state) => ProductFormScreen(
+              repository: catalog,
+              picker: imagePicker,
+            ),
           ),
           GoRoute(
             path: Routes.productLabels,
@@ -336,6 +339,7 @@ GoRouter createRouter({
               key: ValueKey(state.pathParameters['productId']),
               repository: catalog,
               productId: state.pathParameters['productId'],
+              picker: imagePicker,
             ),
           ),
           GoRoute(

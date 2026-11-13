@@ -7410,4 +7410,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String labelsSaved(String path) {
     return 'PDF saved to $path';
   }
+
+  @override
+  String get productPhotoPick => 'Choose photo';
+
+  @override
+  String get productPhotoChange => 'Change photo';
+
+  @override
+  String get productPhotoTake => 'Take photo';
+
+  @override
+  String get productPhotoRemove => 'Remove photo';
+
+  @override
+  String get productPhotoHint =>
+      'PNG, JPG or WebP, up to 2 MB. Saved when you press Save.';
+
+  @override
+  String get productPhotoUnsupported =>
+      'The file isn\'t a PNG, JPG or WebP image.';
+
+  @override
+  String get productPhotoTooLarge =>
+      'The photo is over 2 MB. Pick a smaller one.';
+
+  @override
+  String get productPhotoNotSaved =>
+      'The product was saved, but the photo wasn\'t. Try Save again.';
 }

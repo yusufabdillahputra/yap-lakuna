@@ -1,13 +1,18 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup, UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_catalog_repository.dart';
+import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/floor_seed.dart';
 import '../../testing/modifier_seed.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
 
@@ -37,6 +42,7 @@ void main() {
     String role = 'owner',
     List<CustomerGroup> groups = const [],
     FakeReceiptPrinter? printer,
+    FakeImagePicker? picker,
   }) async {
     final repo = FakeCatalogRepository(seed: seed)..customerGroups = groups;
     await pumpLakuna(
@@ -46,6 +52,7 @@ void main() {
       catalog: repo,
       session: FakeSessionRepository()..current = sampleStaff(role: role),
       receiptPrinter: printer,
+      imagePicker: picker,
     );
     return repo;
   }
@@ -256,6 +263,64 @@ void main() {
       // Hanya baris terpilih yang tampil.
       expect(find.text('Kopi Sachet'), findsNothing);
       expect(find.text('899100 · Rp 216.000'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('foto produk: pilih, simpan, tampil di daftar (F1-07f) '
+        '${size.width}', (tester) async {
+      final picker = FakeImagePicker()..camera = size.width < 600;
+      final repo = await pump(
+        tester,
+        size: size,
+        seed: sampleProducts(),
+        picker: picker,
+      );
+      final kopi = repo.products.firstWhere((p) => p.name == 'Kopi Sachet');
+      final row = size.width < 600 ? 'product-card' : 'product-row';
+      await _type(tester, 'products-search', 'kopi');
+      await _tap(tester, '$row-${kopi.id.uuid}');
+      expect(find.text('Pilih foto'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('product-photo-take')),
+        size.width < 600 ? findsOneWidget : findsNothing,
+      );
+      expect(find.byKey(const ValueKey('product-photo-remove')), findsNothing);
+
+      picker.next = PickedImage(
+        name: 'catatan.png',
+        size: 4,
+        bytes: Uint8List.fromList([1, 2, 3, 4]),
+      );
+      await _tap(tester, 'product-photo-pick');
+      expect(
+        find.text('Berkas bukan gambar PNG, JPG, atau WebP.'),
+        findsOneWidget,
+      );
+      picker.next = PickedImage(
+        name: 'kopi.png',
+        size: samplePng.length,
+        bytes: samplePng,
+      );
+      await _tap(tester, 'product-photo-pick');
+      expect(find.text('Ganti foto'), findsOneWidget);
+      expect(find.byKey(const ValueKey('product-photo-remove')), findsOne);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('product-photo')),
+          matching: find.byType(Image),
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, 'product-save');
+      expect(repo.photoCalls.single.$2!.fileName, 'kopi.png');
+      // Daftar memuat ulang: Kopi Sachet kini berfoto (berkas palsu tidak
+      // ada, jadi tampil inisial lewat errorBuilder tanpa galat).
+      expect(
+        repo.products.firstWhere((p) => p.id == kopi.id).photoPath,
+        '/media/kopi.png',
+      );
       expect(tester.takeException(), isNull);
     });
   }

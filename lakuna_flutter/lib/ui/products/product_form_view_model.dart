@@ -4,6 +4,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -129,15 +130,25 @@ typedef _FieldKey = (ProductField, int?, int?, int?);
 /// View model form produk 1.16 (F1-07): tambah ([productId] `null`) atau
 /// ubah produk. ID rute yang tidak ada di katalog → [notFound].
 class ProductFormViewModel extends ChangeNotifier {
-  ProductFormViewModel({required this._repository, String? productId})
-    : _rawId = productId,
-      productId = productId == null ? null : UuidValue.fromString(productId) {
+  ProductFormViewModel({
+    required this._repository,
+    String? productId,
+    this._picker = const FileSelectorImagePicker(),
+  }) : _rawId = productId,
+       productId = productId == null ? null : UuidValue.fromString(productId) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
     archive = Command0(_archive)..addListener(notifyListeners);
+    pickPhoto = Command0(
+      () => _choosePhoto(_picker.pickImage),
+    )..addListener(notifyListeners);
+    takePhoto = Command0(
+      () => _choosePhoto(_picker.takePhoto),
+    )..addListener(notifyListeners);
   }
 
   final CatalogRepository _repository;
+  final ImageFilePicker _picker;
   final String? _rawId;
   final UuidValue? productId;
 
@@ -147,6 +158,60 @@ class ProductFormViewModel extends ChangeNotifier {
   /// Arsipkan produk lama (F1-07d). Gagal dengan `NotPermitted` atau
   /// `ProductNotFound`.
   late final Command0<void> archive;
+
+  /// Pilih foto dari berkas / kamera (F1-07f); baru tersimpan saat *Simpan*.
+  late final Command0<void> pickPhoto;
+  late final Command0<void> takePhoto;
+
+  String? _photoPath;
+  Uint8List? _newPhoto;
+  String _newPhotoName = '';
+  bool _removePhoto = false;
+  ProductPhotoError? _photoError;
+
+  /// Produk baru yang sudah tersimpan tetapi fotonya gagal: simpan ulang
+  /// mengubah produk ini, bukan membuat produk baru lagi.
+  UuidValue? _savedId;
+
+  /// Foto tersimpan (lokasi berkas); `null` bila tidak ada atau dihapus.
+  String? get photoPath => _removePhoto ? null : _photoPath;
+
+  /// Foto baru yang belum disimpan.
+  Uint8List? get photoBytes => _newPhoto;
+
+  bool get hasPhoto => _newPhoto != null || photoPath != null;
+
+  /// Berkas terakhir yang dipilih ditolak.
+  ProductPhotoError? get photoError => _photoError;
+
+  bool get canTakePhoto => _picker.canTakePhoto;
+
+  Future<Result<void>> _choosePhoto(
+    Future<PickedImage?> Function({required int maxBytes}) pick,
+  ) async {
+    final picked = await pick(maxBytes: ProductLimits.photoMaxBytes);
+    if (picked == null) return const Result.ok(null);
+    final bytes = picked.bytes;
+    if (bytes == null) {
+      _photoError = ProductPhotoError.tooLarge;
+    } else if (readImageHeader(bytes) == null) {
+      _photoError = ProductPhotoError.unsupported;
+    } else {
+      _photoError = null;
+      _newPhoto = bytes;
+      _newPhotoName = picked.name;
+      _removePhoto = false;
+    }
+    return const Result.ok(null);
+  }
+
+  /// Lepas foto (baru tersimpan saat *Simpan*).
+  void removePhoto() {
+    _newPhoto = null;
+    _removePhoto = true;
+    _photoError = null;
+    notifyListeners();
+  }
 
   var _nextKey = 0;
   bool _loaded = false;
@@ -292,6 +357,7 @@ class ProductFormViewModel extends ChangeNotifier {
   }
 
   void _fill(CatalogProduct p) {
+    _photoPath = p.photoPath;
     final d = p.toDraft();
     _originalName = d.name;
     name = d.name;
@@ -557,7 +623,7 @@ class ProductFormViewModel extends ChangeNotifier {
   // --- Simpan --------------------------------------------------------------
 
   ProductDraft get draft => ProductDraft(
-    id: productId?.uuid,
+    id: (_savedId ?? productId)?.uuid,
     name: name,
     category: category,
     kind: _kind,
@@ -599,6 +665,7 @@ class ProductFormViewModel extends ChangeNotifier {
       return Result.error(ProductInputInvalid(issues));
     }
     final result = await _repository.save(d);
+    if (result case Ok(value: final id)) return _savePhoto(id);
     if (result case Error(:final error)) {
       switch (error) {
         case ProductInputInvalid(:final issues):
@@ -610,6 +677,27 @@ class ProductFormViewModel extends ChangeNotifier {
       }
     }
     return result;
+  }
+
+  Future<Result<UuidValue>> _savePhoto(UuidValue id) async {
+    final photo = _newPhoto;
+    final Result<void> result;
+    if (photo != null) {
+      result = await _repository.setPhoto(
+        id,
+        ProductPhotoUpload(bytes: photo, fileName: _newPhotoName),
+      );
+    } else if (_removePhoto && _photoPath != null) {
+      result = await _repository.clearPhoto(id);
+    } else {
+      return Result.ok(id);
+    }
+    if (result case Error(:final error)) {
+      _savedId = id;
+      _error = ProductPhotoNotSaved(error);
+      return Result.error(_error!);
+    }
+    return Result.ok(id);
   }
 
   void _show(List<(ProductIssue, String?)> issues) {
@@ -642,4 +730,14 @@ class ProductFormViewModel extends ChangeNotifier {
       }
     }
   }
+}
+
+/// Produk tersimpan tetapi fotonya gagal disimpan (F1-07f).
+class ProductPhotoNotSaved implements Exception {
+  const ProductPhotoNotSaved(this.cause);
+
+  final Exception cause;
+
+  @override
+  String toString() => 'ProductPhotoNotSaved($cause)';
 }

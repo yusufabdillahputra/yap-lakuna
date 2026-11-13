@@ -60,4 +60,11 @@ abstract class CatalogRepository {
   /// Memulihkan produk diarsipkan [id]. Gagal dengan `NotPermitted`,
   /// `ProductNotFound`, atau `ProductCodesTaken`.
   Future<Result<void>> restore(UuidValue id);
+
+  /// Memasang foto produk [id] (F1-07f). Gagal dengan `NotPermitted`,
+  /// `ProductNotFound`, atau `ProductPhotoInvalid`.
+  Future<Result<void>> setPhoto(UuidValue id, ProductPhotoUpload photo);
+
+  /// Melepas foto produk [id].
+  Future<Result<void>> clearPhoto(UuidValue id);
 }

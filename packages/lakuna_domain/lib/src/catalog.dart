@@ -104,6 +104,9 @@ abstract final class ProductLimits {
   static const variantName = 60;
   static const barcode = 64;
   static const unitName = 30;
+
+  /// Ukuran maksimal berkas foto produk (F1-07f).
+  static const photoMaxBytes = 2 * 1024 * 1024;
 }
 
 /// Satuan konversi sebuah varian, mis. dus berisi 6 botol.

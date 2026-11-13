@@ -30,6 +30,7 @@ abstract class Product
     this.brand,
     bool? isActive,
     bool? isTaxable,
+    this.photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -56,6 +57,7 @@ abstract class Product
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    _isc.UuidValue? photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -94,6 +96,11 @@ abstract class Product
       isTaxable: jsonSerialization['isTaxable'] == null
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['isTaxable']),
+      photoMediaId: jsonSerialization['photoMediaId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['photoMediaId'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -150,6 +157,9 @@ abstract class Product
 
   bool isTaxable;
 
+  /// Foto produk (F1-07f), berkas di folder media.
+  _isc.UuidValue? photoMediaId;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -183,6 +193,7 @@ abstract class Product
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    _isc.UuidValue? photoMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -206,6 +217,7 @@ abstract class Product
       if (brand != null) 'brand': brand,
       'isActive': isActive,
       'isTaxable': isTaxable,
+      if (photoMediaId != null) 'photoMediaId': photoMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -231,6 +243,7 @@ abstract class Product
       if (brand != null) 'brand': brand,
       'isActive': isActive,
       'isTaxable': isTaxable,
+      if (photoMediaId != null) 'photoMediaId': photoMediaId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -284,6 +297,7 @@ class _ProductImpl extends Product {
     String? brand,
     bool? isActive,
     bool? isTaxable,
+    _isc.UuidValue? photoMediaId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -303,6 +317,7 @@ class _ProductImpl extends Product {
          brand: brand,
          isActive: isActive,
          isTaxable: isTaxable,
+         photoMediaId: photoMediaId,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -328,6 +343,7 @@ class _ProductImpl extends Product {
     Object? brand = _Undefined,
     bool? isActive,
     bool? isTaxable,
+    _isc.UuidValue? photoMediaId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -350,6 +366,9 @@ class _ProductImpl extends Product {
       brand: brand is String? ? brand : this.brand,
       isActive: isActive ?? this.isActive,
       isTaxable: isTaxable ?? this.isTaxable,
+      photoMediaId: photoMediaId is _isc.UndefinedSentinel
+          ? this.photoMediaId
+          : photoMediaId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -423,6 +442,13 @@ class ProductUpdateTable extends _isd.UpdateTable<ProductTable> {
 
   _isd.ColumnValue<bool, bool> isTaxable(bool value) => _isd.ColumnValue(
     table.isTaxable,
+    value,
+  );
+
+  _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> photoMediaId(
+    _isc.UuidValue? value,
+  ) => _isd.ColumnValue(
+    table.photoMediaId,
     value,
   );
 
@@ -523,6 +549,11 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
       hasDefault: true,
       fieldName: 'isTaxable',
     );
+    photoMediaId = _isd.ColumnUuid(
+      'photo_media_id',
+      this,
+      fieldName: 'photoMediaId',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -588,6 +619,9 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
 
   late final _isd.ColumnBool isTaxable;
 
+  /// Foto produk (F1-07f), berkas di folder media.
+  late final _isd.ColumnUuid photoMediaId;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -616,6 +650,7 @@ class ProductTable extends _isd.Table<_isc.UuidValue> {
     brand,
     isActive,
     isTaxable,
+    photoMediaId,
     createdAt,
     updatedAt,
     deletedAt,

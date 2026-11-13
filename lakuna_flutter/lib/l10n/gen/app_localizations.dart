@@ -12745,6 +12745,54 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'PDF disimpan di {path}'**
   String labelsSaved(String path);
+
+  /// No description provided for @productPhotoPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih foto'**
+  String get productPhotoPick;
+
+  /// No description provided for @productPhotoChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti foto'**
+  String get productPhotoChange;
+
+  /// No description provided for @productPhotoTake.
+  ///
+  /// In id, this message translates to:
+  /// **'Ambil foto'**
+  String get productPhotoTake;
+
+  /// No description provided for @productPhotoRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus foto'**
+  String get productPhotoRemove;
+
+  /// No description provided for @productPhotoHint.
+  ///
+  /// In id, this message translates to:
+  /// **'PNG, JPG, atau WebP, maks. 2 MB. Tersimpan saat Simpan.'**
+  String get productPhotoHint;
+
+  /// No description provided for @productPhotoUnsupported.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas bukan gambar PNG, JPG, atau WebP.'**
+  String get productPhotoUnsupported;
+
+  /// No description provided for @productPhotoTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto lebih dari 2 MB. Pilih foto yang lebih kecil.'**
+  String get productPhotoTooLarge;
+
+  /// No description provided for @productPhotoNotSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.'**
+  String get productPhotoNotSaved;
 }
 
 class _AppLocalizationsDelegate

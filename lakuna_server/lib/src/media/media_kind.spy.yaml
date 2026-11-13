@@ -1,5 +1,5 @@
 ### Jenis berkas media yang diunggah (F1-18; denah meja F1-10; bukti bayar
-### hutang F1-14; foto nota pengeluaran F1-15).
+### hutang F1-14; foto nota pengeluaran F1-15; foto produk F1-07f).
 enum: MediaKind
 serialized: byName
 values:
@@ -7,3 +7,4 @@ values:
   - floorPlan
   - paymentProof
   - expenseReceipt
+  - productPhoto

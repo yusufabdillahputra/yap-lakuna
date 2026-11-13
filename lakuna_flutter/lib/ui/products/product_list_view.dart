@@ -571,7 +571,11 @@ class _ProductRow extends StatelessWidget {
                 child: Row(
                   spacing: 10,
                   children: [
-                    ProductThumb(name: p.name, size: 36),
+                    ProductThumb(
+                      name: p.name,
+                      size: 36,
+                      photoPath: p.photoPath,
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -849,7 +853,7 @@ class _ProductCard extends StatelessWidget {
           child: Row(
             spacing: 12,
             children: [
-              ProductThumb(name: p.name, size: 52),
+              ProductThumb(name: p.name, size: 52, photoPath: p.photoPath),
               Expanded(
                 flex: 3,
                 child: Column(

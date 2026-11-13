@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show TableRow, Transaction;
 
+import 'media.dart';
 import 'modifier_admin.dart' show productModifierLinks;
 import 'stock.dart';
 import 'store.dart';
@@ -123,6 +126,8 @@ class CatalogProduct {
     this.brand,
     this.modifierGroupIds = const [],
     this.archivedAt,
+    this.photoMediaId,
+    this.photoPath,
   });
 
   final UuidValue id;
@@ -143,6 +148,13 @@ class CatalogProduct {
 
   /// Waktu diarsipkan (F1-07d); `null` = produk aktif di katalog.
   final DateTime? archivedAt;
+
+  /// Foto produk (F1-07f).
+  final UuidValue? photoMediaId;
+
+  /// Lokasi berkas foto di perangkat ini; `null` bila tanpa foto atau
+  /// berkasnya belum ada (mis. belum tersinkron).
+  final String? photoPath;
 
   bool get tracksStock => kind.tracksStock;
 
@@ -341,6 +353,16 @@ Future<List<CatalogProduct>> _loadProducts(
       l.variantId: Qty(l.quantityMilli),
   };
 
+  final photoIds = {for (final p in products) ?p.photoMediaId};
+  final photoPaths = <UuidValue?, String>{
+    if (photoIds.isNotEmpty)
+      for (final m in await MediaFile.db.find(
+        session,
+        where: (m) => m.tenantId.equals(tenant) & m.id.inSet(photoIds),
+      ))
+        m.id: ?_mediaPath(store, m),
+  };
+
   final result = [
     for (final p in products)
       CatalogProduct(
@@ -358,6 +380,8 @@ Future<List<CatalogProduct>> _loadProducts(
         isActive: p.isActive,
         isTaxable: p.isTaxable,
         archivedAt: p.deletedAt,
+        photoMediaId: p.photoMediaId,
+        photoPath: photoPaths[p.photoMediaId],
         modifierGroupIds: [
           for (final l in modifierLinks)
             if (l.productId == p.id) l.modifierGroupId,
@@ -520,6 +544,104 @@ Future<void> restoreProduct(
     );
   });
 }
+
+// --- Foto produk (F1-07f) ---------------------------------------------------
+
+/// Berkas foto produk yang dipilih pengguna.
+class ProductPhotoUpload {
+  const ProductPhotoUpload({required this.bytes, required this.fileName});
+
+  final Uint8List bytes;
+  final String fileName;
+}
+
+enum ProductPhotoError { unsupported, tooLarge }
+
+/// Berkas foto bukan PNG/JPG/WebP atau lebih dari
+/// [ProductLimits.photoMaxBytes].
+class ProductPhotoInvalid implements Exception {
+  const ProductPhotoInvalid(this.reason);
+
+  final ProductPhotoError reason;
+
+  @override
+  String toString() => 'ProductPhotoInvalid(${reason.name})';
+}
+
+String? _mediaPath(LakunaStore store, MediaFile media) {
+  final path =
+      '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}';
+  return File(path).existsSync() ? path : null;
+}
+
+Future<Product> _activeProduct(
+  SyncTx w,
+  CatalogScope scope,
+  UuidValue productId,
+) async {
+  final p = await Product.db.findFirstRow(
+    w.session,
+    where: (p) =>
+        p.id.equals(productId) &
+        p.tenantId.equals(scope.tenantId) &
+        p.deletedAt.equals(null),
+    transaction: w.transaction,
+  );
+  if (p == null) throw ProductNotFound();
+  return p;
+}
+
+/// Memasang [photo] sebagai foto produk [productId] (menggantikan foto
+/// lama). Gagal dengan [ProductPhotoInvalid] atau [ProductNotFound] tanpa
+/// menulis apa pun. Izin `products:manage` dicek di repositori.
+Future<void> setProductPhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue productId,
+  required ProductPhotoUpload photo,
+}) async {
+  final header = readImageHeader(photo.bytes);
+  if (header == null) {
+    throw const ProductPhotoInvalid(ProductPhotoError.unsupported);
+  }
+  if (photo.bytes.length > ProductLimits.photoMaxBytes) {
+    throw const ProductPhotoInvalid(ProductPhotoError.tooLarge);
+  }
+  await store.write(actor: staffId, (w) async {
+    final p = await _activeProduct(w, scope, productId);
+    final s = await w.stamp();
+    final media = await storeMediaFile(
+      w,
+      store,
+      scope,
+      bytes: photo.bytes,
+      header: header,
+      fileName: photo.fileName,
+      kind: MediaKind.productPhoto,
+      stamp: s,
+    );
+    if (p.photoMediaId == media.id) return;
+    await w.update(
+      _stampProduct(p.copyWith(photoMediaId: media.id), staffId, s),
+      s,
+    );
+  });
+}
+
+/// Melepas foto produk [productId]; tidak menulis apa pun bila produk tidak
+/// punya foto. Berkas media tetap disimpan (bisa dipakai riwayat sinkron).
+Future<void> clearProductPhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue productId,
+}) => store.write(actor: staffId, (w) async {
+  final p = await _activeProduct(w, scope, productId);
+  if (p.photoMediaId == null) return;
+  final s = await w.stamp();
+  await w.update(_stampProduct(p.copyWith(photoMediaId: null), staffId, s), s);
+});
 
 Product _stampProduct(Product p, UuidValue staffId, SyncStamp s) => p.copyWith(
   version: p.version + 1,
@@ -742,6 +864,8 @@ class _ProductWriter {
       brand: _orNull(draft.brand),
       isActive: draft.isActive,
       isTaxable: draft.isTaxable,
+      // Foto diubah lewat setProductPhoto / clearProductPhoto saja.
+      photoMediaId: existing?.photoMediaId,
       createdAt: existing?.createdAt ?? s.now,
       updatedAt: existing?.updatedAt ?? s.now,
       createdBy: existing?.createdBy ?? staffId,

@@ -7,6 +7,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 import '../core/format.dart';
@@ -22,10 +23,14 @@ class ProductFormScreen extends StatefulWidget {
     super.key,
     required this.repository,
     this.productId,
+    this.picker = const FileSelectorImagePicker(),
   });
 
   final CatalogRepository repository;
   final String? productId;
+
+  /// Pemilih foto produk (F1-07f).
+  final ImageFilePicker picker;
 
   @override
   State<ProductFormScreen> createState() => _ProductFormScreenState();
@@ -35,6 +40,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late final _viewModel = ProductFormViewModel(
     repository: widget.repository,
     productId: widget.productId,
+    picker: widget.picker,
   );
 
   @override
@@ -65,6 +71,7 @@ String productErrorMessage(AppLocalizations l10n, Exception error) =>
       ),
       ProductNotFound() => l10n.productNotFound,
       PriceTierGroupNotFound() => l10n.productTierGroupMissing,
+      ProductPhotoNotSaved() => l10n.productPhotoNotSaved,
       _ => l10n.productSaveFailed,
     };
 
@@ -432,8 +439,11 @@ class _InfoCard extends StatelessWidget {
             spacing: 12,
             children: [
               ProductThumb(
+                key: const ValueKey('product-photo'),
                 name: vm.name.trim().isEmpty ? '?' : vm.name,
                 size: 72,
+                photoBytes: vm.photoBytes,
+                photoPath: vm.photoPath,
               ),
               Expanded(
                 child: _TextInput(
@@ -447,6 +457,7 @@ class _InfoCard extends StatelessWidget {
               ),
             ],
           ),
+          _PhotoActions(viewModel: vm),
           pair(
             FAutocomplete.text(
               key: const ValueKey('product-category'),
@@ -1542,6 +1553,80 @@ class _ArchiveSection extends StatelessWidget {
             style: theme.typography.body.xs.copyWith(
               color: theme.colors.destructive,
             ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Tombol foto produk di *Info dasar* (F1-07f).
+class _PhotoActions extends StatelessWidget {
+  const _PhotoActions({required this.viewModel});
+
+  final ProductFormViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final busy =
+        vm.pickPhoto.running || vm.takePhoto.running || vm.save.running;
+    final small = theme.typography.body.xs;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 6,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FButton(
+              key: const ValueKey('product-photo-pick'),
+              variant: .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              onPress: busy ? null : vm.pickPhoto.execute,
+              prefix: const Icon(TablerIcons.photo),
+              child: Text(
+                vm.hasPhoto ? l10n.productPhotoChange : l10n.productPhotoPick,
+              ),
+            ),
+            if (vm.canTakePhoto)
+              FButton(
+                key: const ValueKey('product-photo-take'),
+                variant: .outline,
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: busy ? null : vm.takePhoto.execute,
+                prefix: const Icon(TablerIcons.camera),
+                child: Text(l10n.productPhotoTake),
+              ),
+            if (vm.hasPhoto)
+              FButton(
+                key: const ValueKey('product-photo-remove'),
+                variant: .ghost,
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: busy ? null : vm.removePhoto,
+                prefix: const Icon(TablerIcons.trash),
+                child: Text(l10n.productPhotoRemove),
+              ),
+          ],
+        ),
+        if (vm.photoError case final error?)
+          Text(
+            switch (error) {
+              ProductPhotoError.unsupported => l10n.productPhotoUnsupported,
+              ProductPhotoError.tooLarge => l10n.productPhotoTooLarge,
+            },
+            key: const ValueKey('product-photo-error'),
+            style: small.copyWith(color: theme.colors.destructive),
+          )
+        else
+          Text(
+            l10n.productPhotoHint,
+            style: small.copyWith(color: theme.colors.mutedForeground),
           ),
       ],
     );

@@ -71,6 +71,24 @@ class LocalCatalogRepository extends CatalogRepository {
         restoreProduct(_store, scope, staffId: staffId, productId: id),
   );
 
+  @override
+  Future<Result<void>> setPhoto(UuidValue id, ProductPhotoUpload photo) =>
+      _guard(
+        (scope, staffId) => setProductPhoto(
+          _store,
+          scope,
+          staffId: staffId,
+          productId: id,
+          photo: photo,
+        ),
+      );
+
+  @override
+  Future<Result<void>> clearPhoto(UuidValue id) => _guard(
+    (scope, staffId) =>
+        clearProductPhoto(_store, scope, staffId: staffId, productId: id),
+  );
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(CatalogScope scope, UuidValue staffId) body,
   ) async {
