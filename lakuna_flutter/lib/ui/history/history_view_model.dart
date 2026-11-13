@@ -354,6 +354,9 @@ class HistoryViewModel extends ChangeNotifier {
   // --- Struk ---------------------------------------------------------------
 
   ReceiptPaper get paper => _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
+
+  /// Logo struk saat ini (F1-06b), `null` bila tidak ditampilkan.
+  Uint8List? get receiptLogo => _data?.receipt.logoBytes;
   PrinterFailureReason? get printFailure => _printFailure;
   bool get printed => _printed;
 
@@ -377,6 +380,7 @@ class HistoryViewModel extends ChangeNotifier {
         lines,
         paper,
         jobName: _detail?.sale.number ?? 'Lakuna',
+        logo: receiptLogo,
       );
       _printed = printer.isDirect;
       return const Result.ok(null);
@@ -395,6 +399,7 @@ class HistoryViewModel extends ChangeNotifier {
         lines,
         paper,
         fileName: '${_detail?.sale.number ?? 'struk'}.pdf',
+        logo: receiptLogo,
       );
       _pdfPath = path;
       return Result.ok(path);

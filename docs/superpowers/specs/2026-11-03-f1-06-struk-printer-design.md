@@ -43,7 +43,7 @@ Termasuk:
   menampilkan lokasinya.
 - Font struk **DM Mono** dibundel (OFL), dipakai di pratinjau dan PDF.
 
-Tidak termasuk (gap): logo raster, Bluetooth di iOS/macOS/Windows (BLE),
+Tidak termasuk (gap): Bluetooth di iOS/macOS/Windows (BLE),
 USB langsung tanpa driver, cetak ulang dari riwayat (F1-11), cetak rekap
 sesi (F1-03), struk WhatsApp (F3-03).
 
@@ -134,7 +134,7 @@ sesi (F1-03), struk WhatsApp (F3-03).
 | Struk layar, ESC/POS, PDF, header/footer, lebar kertas | 1.12, 1.26 | Rilis v0.8.0 | - |
 | Bluetooth Android | *Cari printer* | Rilis v0.8.0 (belum diuji di perangkat fisik) | Uji dengan printer RPP02N/sejenis |
 | Bluetooth iOS/macOS/Windows (BLE) | - | Belum | Bila ada permintaan; paket sudah mendukung BLE |
-| Logo di struk | *Tampilkan logo* | Belum | Raster `GS v 0` dari logo toko (bersama Profil toko) |
+| Logo di struk | *Tampilkan logo* | Rilis v0.39.0 | [F1-06b](2026-11-13-f1-06b-logo-struk-design.md): logo per cabang, raster `GS v 0`, PDF, pratinjau |
 | Cetak ulang dari riwayat | 1.14 | Belum | Bersama F1-11, label CETAK ULANG |
 | Cetak rekap sesi | 1.3 | Rilis v0.38.0 | [F1-03b](2026-11-13-f1-03b-cetak-rekap-sesi-design.md), mesin baris yang sama (`ReceiptContent.sections`) |
 | USB langsung tanpa driver | - | Lewat dialog cetak sistem | Bila ada permintaan |

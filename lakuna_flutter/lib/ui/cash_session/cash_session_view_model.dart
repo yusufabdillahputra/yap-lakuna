@@ -95,6 +95,7 @@ class CashSessionViewModel extends ChangeNotifier {
   SessionRecap? _recap;
   PrinterSelection? _printerSelection;
   ReceiptPaper _paper = ReceiptPaper.mm58;
+  Uint8List? _logo;
   bool _recapAutoPrinted = false;
   bool _recapPrinted = false;
   PrinterFailureReason? _recapPrintFailure;
@@ -408,7 +409,13 @@ class CashSessionViewModel extends ChangeNotifier {
         _printerSelection ??
         const PrinterSelection(kind: PrinterKind.system, name: '');
     try {
-      await printer.print(selection, lines, _paper, jobName: _recapName);
+      await printer.print(
+        selection,
+        lines,
+        _paper,
+        jobName: _recapName,
+        logo: _logo,
+      );
       _recapPrinted = selection.isDirect;
       return const Result.ok(null);
     } on PrinterFailure catch (e) {
@@ -429,6 +436,7 @@ class CashSessionViewModel extends ChangeNotifier {
         lines,
         _paper,
         fileName: '$_recapName.pdf',
+        logo: _logo,
       );
       _recapPdfPath = path;
       return Result.ok(path);
@@ -441,6 +449,7 @@ class CashSessionViewModel extends ChangeNotifier {
     final settings = _receiptSettings!;
     if (await settings.loadReceipt() case Ok(:final value)) {
       _paper = value.settings.paper;
+      _logo = value.logoBytes;
     }
     if (await settings.loadPrinter() case Ok(:final value)) {
       _printerSelection = value;

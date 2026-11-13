@@ -134,6 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _receipt = ReceiptSettingsViewModel(
         repository: widget.receiptSettings,
         printer: widget.receiptPrinter,
+        picker: widget.imagePicker,
       )..load.execute();
       if (widget.diningAdmin case final admin?) {
         _rates = FnbRatesViewModel(repository: admin)..load.execute();

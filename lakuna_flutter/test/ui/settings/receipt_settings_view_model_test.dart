@@ -1,11 +1,17 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/ui/settings/receipt_settings_view_model.dart';
 
+import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_receipt_settings_repository.dart';
+import '../../testing/floor_seed.dart';
 
 void main() {
   late FakeReceiptSettingsRepository repo;
@@ -169,5 +175,142 @@ void main() {
     await vm.load.execute();
     expect(vm.kind, PrinterKind.network);
     expect(vm.networkAddress, '10.0.0.9:9100');
+  });
+
+  group('logo struk (F1-06b)', () {
+    late FakeImagePicker picker;
+
+    setUp(() async {
+      picker = FakeImagePicker();
+      vm = ReceiptSettingsViewModel(
+        repository: repo,
+        printer: printer,
+        picker: picker,
+      );
+      await vm.load.execute();
+    });
+
+    test(
+      'pilih logo: pratinjau, sakelar menyala, tersimpan saat Simpan',
+      () async {
+        expect(vm.hasLogo, isFalse);
+        expect(vm.showLogo, isFalse);
+        picker.next = PickedImage(
+          name: 'logo.png',
+          size: samplePng.length,
+          bytes: samplePng,
+        );
+        await vm.pickLogo.execute();
+        expect(vm.hasLogo, isTrue);
+        expect(vm.logoPreview, samplePng);
+        expect(vm.showLogo, isTrue);
+        expect(vm.previewLogo, samplePng);
+        expect(repo.saves, isEmpty);
+
+        await vm.testPrint.execute(lines);
+        expect(printer.logos.single, samplePng);
+
+        await vm.save.execute();
+        expect(repo.logoSaves.single.$1!.fileName, 'logo.png');
+        expect(repo.config.logoBytes, samplePng);
+        expect(vm.logoPreview, samplePng);
+
+        // Sakelar mati: logo tetap, pratinjau struk tanpa logo.
+        vm.setShowLogo(false);
+        expect(vm.previewLogo, isNull);
+        await vm.save.execute();
+        expect(repo.config.settings.showLogo, isFalse);
+        expect(repo.config.logoImage, samplePng);
+      },
+    );
+
+    test('logo baru lalu sakelar dimatikan sebelum Simpan → tetap mati; '
+        'pemilih hanya menawarkan PNG/JPG', () async {
+      picker.next = PickedImage(
+        name: 'logo.png',
+        size: samplePng.length,
+        bytes: samplePng,
+      );
+      await vm.pickLogo.execute();
+      expect(picker.lastWebp, isFalse);
+      vm.setShowLogo(false);
+      await vm.save.execute();
+      expect(repo.logoSaves.single.$1, isNotNull);
+      expect(repo.config.settings.showLogo, isFalse);
+      expect(repo.config.logoImage, samplePng);
+      expect(repo.config.logoBytes, isNull);
+    });
+
+    test('hapus logo lalu Simpan; Batal mengembalikan', () async {
+      repo.config = ReceiptConfig(
+        settings: ReceiptSettings(
+          logoMediaId: UuidValue.fromString(
+            '0195a0d6-0000-7000-8000-000000000001',
+          ),
+          showLogo: true,
+        ),
+        logoImage: samplePng,
+      );
+      await vm.load.execute();
+      expect(vm.hasLogo, isTrue);
+      vm.removeLogo();
+      expect(vm.hasLogo, isFalse);
+      expect(vm.showLogo, isFalse);
+      vm.cancel();
+      expect(vm.hasLogo, isTrue);
+      expect(vm.showLogo, isTrue);
+      vm.removeLogo();
+      await vm.save.execute();
+      expect(repo.logoSaves.single.$2, isTrue);
+      expect(repo.config.logoImage, isNull);
+      expect(vm.hasLogo, isFalse);
+    });
+
+    test(
+      'logo tersimpan tetapi berkas belum ada: tetap bisa dihapus',
+      () async {
+        repo.config = ReceiptConfig(
+          settings: ReceiptSettings(
+            logoMediaId: UuidValue.fromString(
+              '0195a0d6-0000-7000-8000-000000000001',
+            ),
+            showLogo: true,
+          ),
+        );
+        await vm.load.execute();
+        expect(vm.hasLogo, isTrue);
+        expect(vm.logoPreview, isNull);
+      },
+    );
+
+    test(
+      'berkas tidak didukung / terlalu besar → pesan, logo lama tetap',
+      () async {
+        picker.next = const PickedImage(name: 'x.gif', size: 3);
+        await vm.pickLogo.execute();
+        expect(vm.logoError, ReceiptLogoError.tooLarge);
+        picker.next = PickedImage(
+          name: 'x.txt',
+          size: 3,
+          bytes: Uint8List.fromList([1, 2, 3]),
+        );
+        await vm.pickLogo.execute();
+        expect(vm.logoError, ReceiptLogoError.unsupported);
+        expect(vm.hasLogo, isFalse);
+      },
+    );
+
+    test('header bawaan tetap menyimpan sakelar logo', () async {
+      picker.next = PickedImage(
+        name: 'logo.png',
+        size: samplePng.length,
+        bytes: samplePng,
+      );
+      await vm.pickLogo.execute();
+      vm.setHeader('Jl. Melati 12');
+      await vm.save.execute();
+      expect(repo.saves.last.header, isNull);
+      expect(repo.saves.last.showLogo, isTrue);
+    });
   });
 }

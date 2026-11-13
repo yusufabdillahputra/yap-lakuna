@@ -7495,4 +7495,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashRecapShareError => 'Couldn\'t create the recap PDF.';
+
+  @override
+  String get receiptLogo => 'Receipt logo';
+
+  @override
+  String get receiptLogoHint =>
+      'PNG or JPG up to 1 MB. A black-and-white logo on a white background prints clearest on thermal printers.';
+
+  @override
+  String get receiptLogoPick => 'Choose logo';
+
+  @override
+  String get receiptLogoChange => 'Change logo';
+
+  @override
+  String get receiptLogoRemove => 'Remove logo';
+
+  @override
+  String get receiptLogoMissing => 'The logo file isn\'t on this device yet.';
+
+  @override
+  String get receiptShowLogo => 'Show logo on receipts';
+
+  @override
+  String get receiptLogoUnsupported => 'The logo must be a PNG or JPG.';
+
+  @override
+  String get receiptLogoTooLarge =>
+      'The logo is over 1 MB. Choose a smaller file.';
 }

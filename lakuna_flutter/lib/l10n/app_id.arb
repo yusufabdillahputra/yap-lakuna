@@ -4667,5 +4667,14 @@
   "cashCloseAndPrint": "Tutup sesi & cetak rekap",
   "cashRecapPrint": "Cetak rekap",
   "cashRecapPrinted": "Rekap terkirim ke printer.",
-  "cashRecapShareError": "PDF rekap gagal dibuat."
+  "cashRecapShareError": "PDF rekap gagal dibuat.",
+  "receiptLogo": "Logo struk",
+  "receiptLogoHint": "PNG atau JPG sampai 1 MB. Logo hitam putih dengan latar putih paling jelas di printer thermal.",
+  "receiptLogoPick": "Pilih logo",
+  "receiptLogoChange": "Ganti logo",
+  "receiptLogoRemove": "Hapus logo",
+  "receiptLogoMissing": "Berkas logo belum ada di perangkat ini.",
+  "receiptShowLogo": "Tampilkan logo di struk",
+  "receiptLogoUnsupported": "Logo harus PNG atau JPG.",
+  "receiptLogoTooLarge": "Logo lebih dari 1 MB. Pilih berkas yang lebih kecil."
 }

@@ -13,13 +13,15 @@
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 
 /// Jenis berkas media yang diunggah (F1-18; denah meja F1-10; bukti bayar
-/// hutang F1-14; foto nota pengeluaran F1-15; foto produk F1-07f).
+/// hutang F1-14; foto nota pengeluaran F1-15; foto produk F1-07f; logo
+/// struk F1-06b).
 enum MediaKind implements _isc.SerializableModel {
   qrisSticker,
   floorPlan,
   paymentProof,
   expenseReceipt,
-  productPhoto;
+  productPhoto,
+  receiptLogo;
 
   static MediaKind fromJson(String name) {
     switch (name) {
@@ -33,6 +35,8 @@ enum MediaKind implements _isc.SerializableModel {
         return MediaKind.expenseReceipt;
       case 'productPhoto':
         return MediaKind.productPhoto;
+      case 'receiptLogo':
+        return MediaKind.receiptLogo;
       default:
         throw ArgumentError('Value "$name" cannot be converted to "MediaKind"');
     }

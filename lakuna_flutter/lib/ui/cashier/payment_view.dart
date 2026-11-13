@@ -1056,7 +1056,11 @@ class SuccessView extends StatelessWidget {
       constraints: BoxConstraints(
         maxWidth: vm.receiptPaper == ReceiptPaper.mm58 ? 280 : 400,
       ),
-      child: ReceiptPaperView(lines: lines, paper: vm.receiptPaper),
+      child: ReceiptPaperView(
+        lines: lines,
+        paper: vm.receiptPaper,
+        logo: vm.receiptLogo,
+      ),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

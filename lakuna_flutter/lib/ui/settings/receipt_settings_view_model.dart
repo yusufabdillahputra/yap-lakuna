@@ -3,6 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/receipt_settings_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
@@ -13,7 +14,9 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
   ReceiptSettingsViewModel({
     required this._repository,
     required this._printer,
+    this._picker = const FileSelectorImagePicker(),
   }) {
+    pickLogo = Command0(_pickLogo)..addListener(notifyListeners);
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
     searchBluetooth = Command0(_searchBluetooth)..addListener(notifyListeners);
@@ -24,6 +27,10 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
 
   final ReceiptSettingsRepository _repository;
   final ReceiptPrinter _printer;
+  final ImageFilePicker _picker;
+
+  /// Memilih logo struk (F1-06b); tersimpan saat *Simpan*.
+  late final Command0<void> pickLogo;
 
   late final Command0<void> load;
   late final Command0<ReceiptConfig> save;
@@ -37,6 +44,10 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
   Set<ReceiptSettingsError> _errors = const {};
   var _saved = false;
   var _revision = 0;
+  Uint8List? _newLogo;
+  var _newLogoName = '';
+  var _removeLogo = false;
+  ReceiptLogoError? _logoError;
 
   PrinterSelection? _selected;
   late PrinterKind _kind = _defaultKind;
@@ -86,6 +97,66 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
 
   bool get canSave => loaded && !save.running;
 
+  // --- Logo struk (F1-06b) ---
+
+  /// Ada logo (baru, atau tersimpan walau berkasnya belum ada di perangkat).
+  bool get hasLogo =>
+      _newLogo != null ||
+      (!_removeLogo && _config?.settings.logoMediaId != null);
+
+  /// Gambar logo untuk kotak pratinjau; `null` bila tidak ada / belum ada
+  /// di perangkat ini.
+  Uint8List? get logoPreview =>
+      _newLogo ?? (_removeLogo ? null : _config?.logoImage);
+
+  /// *Tampilkan logo di struk*.
+  bool get showLogo => hasLogo && _draft.showLogo;
+
+  /// Logo di pratinjau struk dan tes cetak.
+  Uint8List? get previewLogo => showLogo ? logoPreview : null;
+
+  /// Berkas terakhir yang dipilih ditolak.
+  ReceiptLogoError? get logoError => _logoError;
+
+  void setShowLogo(bool v) {
+    if (v && !hasLogo) return;
+    _edit(_draft.copyWith(showLogo: v));
+  }
+
+  /// *Hapus logo* (tersimpan saat *Simpan*).
+  void removeLogo() {
+    _newLogo = null;
+    _removeLogo = true;
+    _logoError = null;
+    _edit(_draft.copyWith(showLogo: false));
+  }
+
+  Future<Result<void>> _pickLogo() async {
+    final PickedImage? picked;
+    try {
+      picked = await _picker.pickImage(
+        maxBytes: maxReceiptLogoBytes,
+        webp: false,
+      );
+    } on Exception catch (e) {
+      _logoError = ReceiptLogoError.unsupported;
+      return Result.error(e);
+    }
+    if (picked == null) return const Result.ok(null);
+    final bytes = picked.bytes;
+    final error = bytes == null
+        ? ReceiptLogoError.tooLarge
+        : checkReceiptLogo(bytes);
+    _logoError = error;
+    if (error == null) {
+      _newLogo = bytes;
+      _newLogoName = picked.name;
+      _removeLogo = false;
+      _edit(_draft.copyWith(showLogo: true));
+    }
+    return const Result.ok(null);
+  }
+
   void setPaper(ReceiptPaper v) => _edit(_draft.copyWith(paper: v));
   void setHeader(String v) => _edit(_draft.copyWith(header: v));
   void setFooter(String v) => _edit(_draft.copyWith(footer: v));
@@ -105,6 +176,10 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
 
   void _reset() {
     _draft = _config?.settings ?? const ReceiptSettings();
+    _newLogo = null;
+    _newLogoName = '';
+    _removeLogo = false;
+    _logoError = null;
     _errors = const {};
     _saved = false;
     _revision++;
@@ -203,14 +278,26 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
     if (_errors.isNotEmpty) {
       return Result.error(ReceiptSettingsInvalid(_errors));
     }
-    final result = await _repository.saveReceipt(_withDefaultHeader(_draft));
+    final logo = _newLogo;
+    final result = await _repository.saveReceipt(
+      _withDefaultHeader(_draft),
+      logo: logo == null
+          ? null
+          : ReceiptLogoUpload(bytes: logo, fileName: _newLogoName),
+      removeLogo: _removeLogo && logo == null,
+    );
     switch (result) {
       case Ok(:final value):
         _config = value;
         _reset();
         _saved = true;
       case Error(:final error):
-        if (error case ReceiptSettingsInvalid(:final errors)) _errors = errors;
+        switch (error) {
+          case ReceiptSettingsInvalid(:final errors):
+            _errors = errors;
+          case ReceiptLogoInvalid(error: final e):
+            _logoError = e;
+        }
     }
     return result;
   }
@@ -230,6 +317,8 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
       paper: s.paper,
       footer: s.footer,
       autoPrint: s.autoPrint,
+      logoMediaId: s.logoMediaId,
+      showLogo: s.showLogo,
     );
   }
 
@@ -281,6 +370,7 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
         lines,
         _draft.paper,
         jobName: 'Lakuna test',
+        logo: previewLogo,
       );
       _testSent = true;
     },

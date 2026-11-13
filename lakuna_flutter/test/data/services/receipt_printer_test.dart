@@ -5,10 +5,13 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/receipt_logo_raster.dart';
 import 'package:lakuna_flutter/data/services/receipt_pdf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
+
+import '../../testing/floor_seed.dart';
 
 void main() {
   test('sendToNetworkPrinter mengirim byte utuh lalu menutup soket', () async {
@@ -154,6 +157,89 @@ void main() {
         fallback: () async => Directory('/data/app'),
       );
       expect(dir.path, '/data/app/Struk');
+    });
+  });
+
+  group('logo struk (F1-06b)', () {
+    test('PDF dengan logo lebih tinggi; logo rusak dilewati', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      const lines = [ReceiptLine('TOKO', align: ReceiptAlign.center)];
+      // PNG 1×1: persegi, tinggi dibatasi 20 mm.
+      final size = receiptPdfLogoSize(samplePng, ReceiptPaper.mm58)!;
+      expect(size.height, closeTo(20 * PdfPageFormat.mm, 0.01));
+      expect(size.width, closeTo(20 * PdfPageFormat.mm, 0.01));
+      expect(
+        receiptPdfLogoExtra(samplePng, ReceiptPaper.mm58),
+        closeTo(22 * PdfPageFormat.mm, 0.01),
+      );
+      final pdf = await buildReceiptPdf(
+        lines,
+        ReceiptPaper.mm58,
+        logo: samplePng,
+      );
+      expect(String.fromCharCodes(pdf.take(5)), '%PDF-');
+      expect(
+        receiptPdfLogoExtra(Uint8List.fromList([1, 2]), ReceiptPaper.mm58),
+        0,
+      );
+      final plain = await buildReceiptPdf(
+        lines,
+        ReceiptPaper.mm58,
+        logo: Uint8List.fromList([1, 2]),
+      );
+      expect(String.fromCharCodes(plain.take(5)), '%PDF-');
+      // Header PNG sah tetapi isinya rusak: dekode gagal saat menyimpan,
+      // struk tetap jadi tanpa logo.
+      final corrupt = Uint8List.fromList([
+        ...samplePng.sublist(0, 33),
+        0, 0, 0, 0, 0x49, 0x44, 0x41, 0x54, 1, 2, 3, //
+      ]);
+      expect(receiptPdfLogoExtra(corrupt, ReceiptPaper.mm58), greaterThan(0));
+      final fallback = await buildReceiptPdf(
+        lines,
+        ReceiptPaper.mm58,
+        logo: corrupt,
+      );
+      expect(String.fromCharCodes(fallback.take(5)), '%PDF-');
+      expect(fallback.length, plain.length);
+    });
+
+    test('ukuran titik logo mengikuti batas kertas dan rasio', () {
+      // Header PNG 1000×250 (lebar) → dibatasi lebar.
+      final wide = Uint8List.fromList([
+        ...samplePng.sublist(0, 16),
+        0, 0, 0x03, 0xE8, 0, 0, 0, 0xFA, //
+        ...samplePng.sublist(24),
+      ]);
+      expect(receiptLogoSize(wide, ReceiptPaper.mm58), (
+        width: 256,
+        height: 64,
+      ));
+      expect(receiptLogoSize(wide, ReceiptPaper.mm80), (
+        width: 384,
+        height: 96,
+      ));
+      expect(receiptLogoSize(samplePng, ReceiptPaper.mm58), (
+        width: 1,
+        height: 1,
+      ));
+      expect(receiptLogoSize(Uint8List(4), ReceiptPaper.mm58), isNull);
+    });
+
+    testWidgets('bitmap logo dari PNG; gambar rusak → null', (tester) async {
+      final bitmap = await tester.runAsync(
+        () => receiptLogoBitmap(samplePng, ReceiptPaper.mm58),
+      );
+      // Logo 1×1 di tengah bitmap selebar cetak 58 mm (384 titik).
+      expect(bitmap!.width, 384);
+      expect(bitmap.height, 1);
+      final broken = await tester.runAsync(
+        () => receiptLogoBitmap(
+          Uint8List.fromList([...samplePng.sublist(0, 33), 0, 0, 0]),
+          ReceiptPaper.mm58,
+        ),
+      );
+      expect(broken, isNull);
     });
   });
 }

@@ -3,13 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_receipt_settings_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/floor_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
@@ -38,6 +41,7 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 900),
     bool bluetooth = true,
+    FakeImagePicker? picker,
   }) async {
     final repo = FakeReceiptSettingsRepository(
       config: const ReceiptConfig(
@@ -53,6 +57,7 @@ void main() {
       initialLocation: Routes.settings,
       receiptSettings: repo,
       receiptPrinter: printer,
+      imagePicker: picker,
     );
     await _tap(tester, 'settings-section-receipt');
     expect(_key('receipt-settings'), findsOneWidget);
@@ -165,4 +170,39 @@ void main() {
     );
     expect(_key('settings-section-receipt'), findsNothing);
   });
+
+  for (final size in const [Size(1280, 900), Size(360, 760)]) {
+    testWidgets(
+      'logo struk: pilih, pratinjau, simpan · ${size.width.toInt()} px',
+      (tester) async {
+        final picker = FakeImagePicker()
+          ..next = PickedImage(
+            name: 'logo.png',
+            size: samplePng.length,
+            bytes: samplePng,
+          );
+        final (repo, printer) = await pump(tester, size: size, picker: picker);
+        expect(find.text('Pilih logo'), findsOneWidget);
+        expect(_key('receipt-paper-logo'), findsNothing);
+
+        await _tap(tester, 'receipt-logo-pick');
+        expect(find.text('Ganti logo'), findsOneWidget);
+        expect(_key('receipt-paper-logo'), findsOneWidget);
+        expect(
+          tester.widget<FSwitch>(_key('receipt-show-logo')).value,
+          isTrue,
+        );
+
+        await _tap(tester, 'receipt-settings-save');
+        expect(repo.config.logoBytes, samplePng);
+
+        await _tap(tester, 'receipt-logo-remove');
+        expect(_key('receipt-paper-logo'), findsNothing);
+        await _tap(tester, 'receipt-settings-save');
+        expect(repo.config.logoImage, isNull);
+        expect(printer.prints, isEmpty);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }

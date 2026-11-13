@@ -12901,6 +12901,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'PDF rekap gagal dibuat.'**
   String get cashRecapShareError;
+
+  /// No description provided for @receiptLogo.
+  ///
+  /// In id, this message translates to:
+  /// **'Logo struk'**
+  String get receiptLogo;
+
+  /// No description provided for @receiptLogoHint.
+  ///
+  /// In id, this message translates to:
+  /// **'PNG atau JPG sampai 1 MB. Logo hitam putih dengan latar putih paling jelas di printer thermal.'**
+  String get receiptLogoHint;
+
+  /// No description provided for @receiptLogoPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih logo'**
+  String get receiptLogoPick;
+
+  /// No description provided for @receiptLogoChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti logo'**
+  String get receiptLogoChange;
+
+  /// No description provided for @receiptLogoRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus logo'**
+  String get receiptLogoRemove;
+
+  /// No description provided for @receiptLogoMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas logo belum ada di perangkat ini.'**
+  String get receiptLogoMissing;
+
+  /// No description provided for @receiptShowLogo.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan logo di struk'**
+  String get receiptShowLogo;
+
+  /// No description provided for @receiptLogoUnsupported.
+  ///
+  /// In id, this message translates to:
+  /// **'Logo harus PNG atau JPG.'**
+  String get receiptLogoUnsupported;
+
+  /// No description provided for @receiptLogoTooLarge.
+  ///
+  /// In id, this message translates to:
+  /// **'Logo lebih dari 1 MB. Pilih berkas yang lebih kecil.'**
+  String get receiptLogoTooLarge;
 }
 
 class _AppLocalizationsDelegate

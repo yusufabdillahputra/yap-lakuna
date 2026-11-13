@@ -81,6 +81,7 @@ class ReceiptSettingsSection extends StatelessWidget {
                     key: const ValueKey('receipt-preview'),
                     lines: lines,
                     paper: vm.paper,
+                    logo: vm.previewLogo,
                   ),
                 ),
               ],
@@ -556,6 +557,7 @@ class _ReceiptCard extends StatelessWidget {
             onChange: (v) => vm.setFooter(v.text),
           ),
         ),
+        _LogoField(viewModel: vm),
         FSwitch(
           key: const ValueKey('receipt-auto-print'),
           label: Text(l10n.receiptAutoPrint),
@@ -577,6 +579,128 @@ class _ReceiptCard extends StatelessWidget {
                 SizedBox(width: 280, child: preview),
               ],
             ),
+    );
+  }
+}
+
+/// Logo struk (F1-06b): kotak pratinjau, pilih/ganti/hapus, sakelar tampil.
+class _LogoField extends StatelessWidget {
+  const _LogoField({required this.viewModel});
+
+  final ReceiptSettingsViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final preview = vm.logoPreview;
+    final muted = theme.typography.body.sm.copyWith(
+      color: theme.colors.mutedForeground,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        Text(
+          l10n.receiptLogo,
+          style: theme.typography.body.sm.copyWith(fontWeight: FontWeight.w600),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: [
+            Container(
+              key: const ValueKey('receipt-logo-box'),
+              width: 96,
+              height: 64,
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFFFF),
+                border: Border.all(color: theme.colors.border),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: preview == null
+                  ? Icon(
+                      TablerIcons.photo,
+                      color: theme.colors.mutedForeground,
+                    )
+                  : Image.memory(
+                      preview,
+                      fit: BoxFit.contain,
+                      cacheWidth: 200,
+                      errorBuilder: (_, _, _) => Icon(
+                        TablerIcons.photoOff,
+                        color: theme.colors.mutedForeground,
+                      ),
+                    ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 6,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      FButton(
+                        key: const ValueKey('receipt-logo-pick'),
+                        variant: .outline,
+                        size: .sm,
+                        mainAxisSize: .min,
+                        onPress: vm.pickLogo.running || vm.save.running
+                            ? null
+                            : vm.pickLogo.execute,
+                        prefix: const Icon(TablerIcons.photo),
+                        child: Flexible(
+                          child: Text(
+                            vm.hasLogo
+                                ? l10n.receiptLogoChange
+                                : l10n.receiptLogoPick,
+                          ),
+                        ),
+                      ),
+                      if (vm.hasLogo)
+                        FButton(
+                          key: const ValueKey('receipt-logo-remove'),
+                          variant: .ghost,
+                          size: .sm,
+                          mainAxisSize: .min,
+                          onPress: vm.save.running ? null : vm.removeLogo,
+                          prefix: const Icon(TablerIcons.trash),
+                          child: Flexible(child: Text(l10n.receiptLogoRemove)),
+                        ),
+                    ],
+                  ),
+                  if (vm.logoError case final error?)
+                    Text(
+                      switch (error) {
+                        ReceiptLogoError.unsupported =>
+                          l10n.receiptLogoUnsupported,
+                        ReceiptLogoError.tooLarge => l10n.receiptLogoTooLarge,
+                      },
+                      key: const ValueKey('receipt-logo-error'),
+                      style: theme.typography.body.sm.copyWith(
+                        color: theme.colors.destructive,
+                      ),
+                    )
+                  else if (vm.hasLogo && preview == null)
+                    Text(l10n.receiptLogoMissing, style: muted)
+                  else
+                    Text(l10n.receiptLogoHint, style: muted),
+                ],
+              ),
+            ),
+          ],
+        ),
+        FSwitch(
+          key: const ValueKey('receipt-show-logo'),
+          label: Text(l10n.receiptShowLogo),
+          value: vm.showLogo,
+          onChange: vm.hasLogo ? vm.setShowLogo : null,
+        ),
+      ],
     );
   }
 }

@@ -26,6 +26,9 @@ class FakeReceiptPrinter implements ReceiptPrinter {
 
   final prints = <(PrinterSelection, List<ReceiptLine>, ReceiptPaper)>[];
   final shares = <(List<ReceiptLine>, ReceiptPaper, String)>[];
+
+  /// Logo tiap [print] / [sharePdf], urut panggilan (F1-06b).
+  final logos = <Uint8List?>[];
   final documentPrints = <(Uint8List, String)>[];
   final documentShares = <(Uint8List, String)>[];
 
@@ -50,10 +53,12 @@ class FakeReceiptPrinter implements ReceiptPrinter {
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String jobName,
+    Uint8List? logo,
   }) async {
     _fail();
     if (hold case final h?) await h.future;
     prints.add((printer, lines, paper));
+    logos.add(logo);
   }
 
   @override
@@ -61,9 +66,11 @@ class FakeReceiptPrinter implements ReceiptPrinter {
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String fileName,
+    Uint8List? logo,
   }) async {
     _fail();
     shares.add((lines, paper, fileName));
+    logos.add(logo);
     return sharePath;
   }
 

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'receipt.dart';
+import 'receipt_logo.dart';
 
 const _esc = 0x1B;
 const _gs = 0x1D;
@@ -57,8 +58,23 @@ String receiptAscii(String text) {
 /// Byte ESC/POS untuk [lines]: `ESC @`, per baris `ESC a` (rata) + `ESC E`
 /// (tebal) + teks ASCII + `LF`, lalu `ESC d 3` dan, bila [cut], `GS V 66 0`
 /// (potong sebagian setelah umpan).
-Uint8List encodeEscPos(List<ReceiptLine> lines, {bool cut = true}) {
+///
+/// [logo] (F1-06b) dicetak di tengah sebelum baris pertama sebagai gambar
+/// raster `GS v 0`.
+Uint8List encodeEscPos(
+  List<ReceiptLine> lines, {
+  bool cut = true,
+  MonoBitmap? logo,
+}) {
   final b = BytesBuilder(copy: false)..add([_esc, 0x40]);
+  if (logo != null) {
+    final x = logo.bytesPerRow;
+    final y = logo.height;
+    b
+      ..add([_esc, 0x61, 1])
+      ..add([_gs, 0x76, 0x30, 0, x & 0xFF, x >> 8, y & 0xFF, y >> 8])
+      ..add(logo.bits);
+  }
   void style(ReceiptAlign align, bool bold) => b
     ..add([_esc, 0x61, align.index])
     ..add([_esc, 0x45, bold ? 1 : 0]);

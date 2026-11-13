@@ -7,6 +7,66 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.39.0] - 2026-11-13
+
+Struk kini bisa memuat logo toko, di printer thermal maupun PDF.
+
+### Ditambahkan
+
+- **Logo di struk (1.26, F1-06b).** *Pengaturan › Struk & printer* punya
+  bagian *Logo struk*: kotak pratinjau, *Pilih logo* / *Ganti logo*,
+  *Hapus logo*, dan sakelar *Tampilkan logo di struk*.
+  - Berkas PNG atau JPG sampai 1 MB, diperiksa dari isi berkas. Berkas
+    tidak didukung atau terlalu besar menampilkan pesan di bawah kotak.
+  - Logo disimpan per cabang bersama pengaturan struk saat *Simpan*.
+    Memilih logo baru otomatis menyalakan sakelar; sakelar nonaktif bila
+    belum ada logo.
+  - Logo dicetak di tengah di atas nama toko pada struk penjualan, cetak
+    ulang dari riwayat, kuitansi pelanggan, tes cetak, dan rekap sesi
+    kasir. Tiket dapur dan cek pesanan meja tetap tanpa logo.
+  - **Printer thermal (ESC/POS)**: logo diperkecil ke lebar maks 256 titik
+    (58 mm) / 384 titik (80 mm) dan tinggi maks 160 titik, diubah ke
+    hitam putih (transparan = putih, dithering Floyd–Steinberg), lalu
+    dikirim sebagai gambar raster `GS v 0` selebar area cetak dengan logo
+    di tengahnya, sehingga tetap di tengah pada printer yang mengabaikan
+    perintah rata tengah untuk gambar.
+  - **PDF / dialog cetak**: gambar asli, lebar maks 60 % area cetak dan
+    tinggi maks 20 mm; tinggi halaman ikut bertambah.
+  - **Pratinjau layar** (pengaturan, layar sukses kasir, cetak ulang,
+    kuitansi) menampilkan logo di atas kertas struk.
+  - Logo yang gagal dibaca atau didekode dilewati; struk tetap dicetak.
+  - Dialog pilih logo hanya menawarkan PNG dan JPG.
+
+### Catatan teknis
+
+- `MediaKind.receiptLogo` (enum disimpan sebagai nama, tanpa migrasi).
+- `lakuna_domain`: `checkReceiptLogo`, `maxReceiptLogoBytes`,
+  `receiptLogoMaxDots`, `MonoBitmap`, `monoBitmapFromRgba` (luminans
+  bilangan bulat, dithering), `encodeEscPos(..., logo:)`.
+- `lakuna_data`: `ReceiptSettings.logoMediaId` / `showLogo`,
+  `saveReceiptSettings(..., logo:, removeLogo:)` menyimpan berkas lewat
+  `media_files` cabang, `ReceiptConfig.logoBytes` hanya bila logo tampil
+  dan berkasnya ada, `ReceiptLogoInvalid`.
+- `lakuna_flutter`: `receiptLogoBitmap` (dekode `dart:ui` ke RGBA),
+  `buildReceiptPdf(..., logo:)`, `receiptPageFormat(..., extraPt:)`,
+  `ReceiptPrinter.print/sharePdf(..., logo:)`, `ReceiptPaperView(logo:)`.
+- Temuan review yang diperbaiki sebelum rilis:
+  - Logo baru yang sakelarnya dimatikan sebelum *Simpan* menyala lagi
+    setelah disimpan; kini sakelar mengikuti pilihan pemilik.
+  - Berkas PNG/JPG dengan header sah tetapi isi rusak membuat semua cetak
+    PDF dan *Bagikan PDF* gagal; kini PDF dibuat ulang tanpa logo.
+  - Piksel semi-transparan dihitung dua kali alfanya (warna premultiplied)
+    sehingga tercetak terlalu gelap; kini memakai RGBA lurus.
+  - Pencarian berkas logo kini dibatasi cabang dan jenis media
+    `receiptLogo`; id logo dipertahankan saat baris medianya belum ada di
+    perangkat (siap sinkronisasi Fase 2).
+  - *Pilih logo* dan *Hapus logo* nonaktif selama menyimpan.
+- Uji manual di aplikasi Linux (Xvfb): logo PNG 400×160 dipilih dan
+  disimpan; tes cetak ke printer jaringan tiruan menerima `ESC @`,
+  `ESC a 1`, `GS v 0` 384×154 titik (80 mm) yang terbaca "KOPI", lalu
+  nama toko; PDF cetak ulang memuat gambar logo selebar 43 mm; sakelar
+  dimatikan → pratinjau dan byte cetak tanpa logo.
+
 ## [0.38.0] - 2026-11-13
 
 Rekap kas laci kini bisa dicetak saat menutup sesi kasir.
@@ -3328,7 +3388,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...HEAD
+[0.39.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.35.0...v0.36.0

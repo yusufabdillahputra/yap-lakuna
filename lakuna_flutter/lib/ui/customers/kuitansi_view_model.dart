@@ -79,6 +79,9 @@ class KuitansiViewModel extends ChangeNotifier {
 
   ReceiptPaper get paper => _setup?.receipt.settings.paper ?? ReceiptPaper.mm58;
 
+  /// Logo struk saat ini (F1-06b), `null` bila tidak ditampilkan.
+  Uint8List? get receiptLogo => _setup?.receipt.logoBytes;
+
   PrinterSelection get _printerSelection =>
       _setup?.printer ??
       const PrinterSelection(kind: PrinterKind.system, name: '');
@@ -160,6 +163,7 @@ class KuitansiViewModel extends ChangeNotifier {
       lines,
       paper,
       jobName: _receipt?.payment.number ?? 'Lakuna',
+      logo: receiptLogo,
     ),
   );
 
@@ -170,6 +174,7 @@ class KuitansiViewModel extends ChangeNotifier {
           lines,
           paper,
           fileName: _fileName,
+          logo: receiptLogo,
         );
         _savedPath = path;
         return path;

@@ -823,6 +823,29 @@ void main() {
       expect(vm.shouldAutoPrint, isFalse);
     });
 
+    test('logo struk ikut dicetak dan PDF bila ditampilkan (F1-06b)', () async {
+      final logo = Uint8List.fromList([1, 2, 3]);
+      repo.receipt = ReceiptConfig(
+        settings: const ReceiptSettings(showLogo: true),
+        logoImage: logo,
+      );
+      await vm.load.execute();
+      await sell();
+      await vm.printReceipt.execute(lines);
+      await vm.shareReceipt.execute(lines);
+      expect(printer.logos, [logo, logo]);
+
+      repo.receipt = ReceiptConfig(
+        settings: const ReceiptSettings(),
+        logoImage: logo,
+      );
+      vm.newTransaction();
+      await vm.load.execute();
+      await sell();
+      await vm.printReceipt.execute(lines);
+      expect(printer.logos.last, isNull);
+    });
+
     test('galat cetak/PDF tidak terbawa ke nota berikutnya', () async {
       repo.printer = rpp;
       await vm.load.execute();

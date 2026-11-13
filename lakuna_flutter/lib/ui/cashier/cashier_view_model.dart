@@ -1510,6 +1510,9 @@ class CashierViewModel extends ChangeNotifier {
   ReceiptPaper get receiptPaper =>
       _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
 
+  /// Logo struk yang dicetak (F1-06b); `null` bila tidak ditampilkan.
+  Uint8List? get receiptLogo => _data?.receipt.logoBytes;
+
   /// Cetak otomatis setelah bayar diaktifkan untuk cabang ini.
   bool get autoPrintEnabled => _data?.receipt.settings.autoPrint ?? false;
 
@@ -1560,6 +1563,7 @@ class CashierViewModel extends ChangeNotifier {
         lines,
         receiptPaper,
         jobName: sale ?? 'Lakuna',
+        logo: receiptLogo,
       );
       if (_result?.sale.number == sale) _printed = printer?.isDirect ?? false;
       return const Result.ok(null);
@@ -1579,6 +1583,7 @@ class CashierViewModel extends ChangeNotifier {
         lines,
         receiptPaper,
         fileName: '${sale ?? 'struk'}.pdf',
+        logo: receiptLogo,
       );
       if (_result?.sale.number == sale) _sharedPath = path;
       return Result.ok(path);

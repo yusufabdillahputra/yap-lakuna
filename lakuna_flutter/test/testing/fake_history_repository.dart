@@ -30,6 +30,9 @@ class FakeHistoryRepository extends HistoryRepository {
   final filters = <HistoryFilter>[];
   final voids = <(UuidValue, String, UuidValue?)>[];
 
+  /// Pengaturan struk cabang (logo F1-06b).
+  ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings());
+
   /// Galat berikutnya untuk [list] (sekali pakai).
   Exception? listError;
 
@@ -150,6 +153,7 @@ class FakeHistoryRepository extends HistoryRepository {
       canReturn: canReturn,
       canVoid: canVoid,
       hasOpenSession: hasOpenSession,
+      receipt: receipt,
     ),
   );
 

@@ -12,7 +12,13 @@ abstract class ReceiptSettingsRepository {
   Future<Result<ReceiptConfig>> loadReceipt();
 
   /// Gagal dengan `NotPermitted` atau `ReceiptSettingsInvalid`.
-  Future<Result<ReceiptConfig>> saveReceipt(ReceiptSettings settings);
+  /// [logo] baru / [removeLogo] (F1-06b); gagal juga dengan
+  /// `ReceiptLogoInvalid`.
+  Future<Result<ReceiptConfig>> saveReceipt(
+    ReceiptSettings settings, {
+    ReceiptLogoUpload? logo,
+    bool removeLogo = false,
+  });
 
   /// Printer terpilih di perangkat ini; `null` bila belum ada.
   Future<Result<PrinterSelection?>> loadPrinter();

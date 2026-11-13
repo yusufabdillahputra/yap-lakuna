@@ -741,7 +741,11 @@ class _ReprintDialog extends StatelessWidget {
               Flexible(
                 child: SingleChildScrollView(
                   child: Center(
-                    child: ReceiptPaperView(lines: lines, paper: vm.paper),
+                    child: ReceiptPaperView(
+                      lines: lines,
+                      paper: vm.paper,
+                      logo: vm.receiptLogo,
+                    ),
                   ),
                 ),
               ),

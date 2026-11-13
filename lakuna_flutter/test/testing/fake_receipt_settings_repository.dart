@@ -1,3 +1,4 @@
+import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/receipt_settings_repository.dart';
@@ -25,8 +26,15 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
   @override
   Future<Result<ReceiptConfig>> loadReceipt() async => _result(() => config);
 
+  /// Logo tiap simpan (F1-06b).
+  final logoSaves = <(ReceiptLogoUpload?, bool)>[];
+
   @override
-  Future<Result<ReceiptConfig>> saveReceipt(ReceiptSettings settings) async {
+  Future<Result<ReceiptConfig>> saveReceipt(
+    ReceiptSettings settings, {
+    ReceiptLogoUpload? logo,
+    bool removeLogo = false,
+  }) async {
     final errors = validateReceiptSettings(
       header: settings.header,
       footer: settings.footer,
@@ -34,11 +42,31 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
     if (errors.isNotEmpty) {
       return Result.error(ReceiptSettingsInvalid(errors));
     }
+    if (logo != null) {
+      if (checkReceiptLogo(logo.bytes) case final error?) {
+        return Result.error(ReceiptLogoInvalid(error));
+      }
+    }
     return _result(() {
       saves.add(settings);
+      logoSaves.add((logo, removeLogo));
+      final image = removeLogo ? null : (logo?.bytes ?? config.logoImage);
+      final mediaId = image == null
+          ? null
+          : (logo != null
+                ? UuidValue.fromString(newId())
+                : config.settings.logoMediaId);
       return config = ReceiptConfig(
-        settings: settings,
+        settings: ReceiptSettings(
+          paper: settings.paper,
+          header: settings.header,
+          footer: settings.footer,
+          autoPrint: settings.autoPrint,
+          logoMediaId: mediaId,
+          showLogo: image != null && settings.showLogo,
+        ),
         defaultHeader: config.defaultHeader,
+        logoImage: image,
       );
     });
   }

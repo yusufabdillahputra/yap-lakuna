@@ -42,31 +42,111 @@ double _margin(ReceiptPaper paper) =>
 /// membuang baris terakhir (footer).
 const _heightSlackPt = 2.0;
 
-/// Ukuran halaman gulungan setinggi [lineCount] baris.
-PdfPageFormat receiptPageFormat(ReceiptPaper paper, int lineCount) {
+/// Ukuran halaman gulungan setinggi [lineCount] baris, ditambah
+/// [extraPt] (mis. logo).
+PdfPageFormat receiptPageFormat(
+  ReceiptPaper paper,
+  int lineCount, {
+  double extraPt = 0,
+}) {
   final margin = _margin(paper);
   return PdfPageFormat(
     _paperMm(paper) * PdfPageFormat.mm,
-    lineCount * receiptLineHeightPt(paper) + margin * 2 + _heightSlackPt,
+    lineCount * receiptLineHeightPt(paper) +
+        extraPt +
+        margin * 2 +
+        _heightSlackPt,
     marginAll: margin,
   );
 }
 
-/// PDF struk dari [lines] (baris yang sama dengan layar dan ESC/POS).
+/// Jarak logo ke baris pertama (pt).
+const _logoGapPt = 2 * PdfPageFormat.mm;
+
+/// Ukuran logo di PDF (pt): lebar maks 60 % area cetak, tinggi maks 20 mm,
+/// rasio asli; `null` bila [logo] bukan gambar yang dikenali.
+({double width, double height})? receiptPdfLogoSize(
+  Uint8List? logo,
+  ReceiptPaper paper,
+) {
+  if (logo == null) return null;
+  final header = readImageHeader(logo);
+  if (header == null || header.width <= 0 || header.height <= 0) return null;
+  final maxWidth = receiptPrintableMm(paper) * PdfPageFormat.mm * 0.6;
+  const maxHeight = 20 * PdfPageFormat.mm;
+  var width = maxWidth;
+  var height = width * header.height / header.width;
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = height * header.width / header.height;
+  }
+  return (width: width, height: height);
+}
+
+/// Tinggi tambahan halaman untuk logo (pt), 0 tanpa logo.
+double receiptPdfLogoExtra(Uint8List? logo, ReceiptPaper paper) {
+  final size = receiptPdfLogoSize(logo, paper);
+  return size == null ? 0 : size.height + _logoGapPt;
+}
+
+/// PDF struk dari [lines] (baris yang sama dengan layar dan ESC/POS), dengan
+/// [logo] di tengah atas bila ada (F1-06b). Logo yang gagal didekode
+/// (header sah tetapi isi rusak) dilewati: struk tetap jadi tanpa logo.
 Future<Uint8List> buildReceiptPdf(
   List<ReceiptLine> lines,
+  ReceiptPaper paper, {
+  Uint8List? logo,
+}) async {
+  if (logo != null) {
+    try {
+      return await _buildReceiptPdf(lines, paper, logo);
+    } on Object {
+      // Dekode gambar terjadi saat `save`; ulangi tanpa logo.
+    }
+  }
+  return _buildReceiptPdf(lines, paper, null);
+}
+
+Future<Uint8List> _buildReceiptPdf(
+  List<ReceiptLine> lines,
   ReceiptPaper paper,
+  Uint8List? logo,
 ) async {
   final regular = pw.Font.ttf(await rootBundle.load(_regular));
   final medium = pw.Font.ttf(await rootBundle.load(_medium));
   final size = _fontSize(paper);
+  var logoSize = receiptPdfLogoSize(logo, paper);
+  pw.MemoryImage? image;
+  if (logoSize != null) {
+    try {
+      image = pw.MemoryImage(logo!);
+    } on Object {
+      // Gambar rusak: struk tetap dicetak tanpa logo.
+      logoSize = null;
+    }
+  }
   final doc = pw.Document(title: 'Struk', creator: 'Lakuna');
   doc.addPage(
     pw.Page(
-      pageFormat: receiptPageFormat(paper, lines.length),
+      pageFormat: receiptPageFormat(
+        paper,
+        lines.length,
+        extraPt: logoSize == null ? 0 : logoSize.height + _logoGapPt,
+      ),
       build: (_) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         children: [
+          if (logoSize != null && image != null)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: _logoGapPt),
+              child: pw.Center(
+                child: pw.Image(
+                  image,
+                  width: logoSize.width,
+                  height: logoSize.height,
+                ),
+              ),
+            ),
           for (final line in lines)
             pw.SizedBox(
               height: receiptLineHeightPt(paper),
@@ -87,5 +167,5 @@ Future<Uint8List> buildReceiptPdf(
       ),
     ),
   );
-  return doc.save();
+  return await doc.save();
 }
