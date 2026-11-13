@@ -11,6 +11,7 @@ import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_customers_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
@@ -198,8 +199,10 @@ void main() {
     ) async {
       repo = FakeCustomersRepository();
       printer = FakeReceiptPrinter();
+      final exporter = FakeSpreadsheetExporter();
       await pumpLakuna(
         tester,
+        exporter: exporter,
         size: const Size(1440, 900),
         initialLocation: Routes.customers,
         customers: repo,
@@ -214,6 +217,8 @@ void main() {
         ),
       );
       await _tap(tester, _key('customers-import'));
+      await _tap(tester, _key('import-template-customers'));
+      expect(exporter.saved.single.$1, 'templat-import-pelanggan.xlsx');
       await _tap(tester, _key('customer-import-pick'));
       expect(_key('customer-import-ready'), findsOneWidget);
       expect(_key('customer-import-rejected'), findsOneWidget);

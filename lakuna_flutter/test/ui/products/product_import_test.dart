@@ -14,6 +14,7 @@ import 'package:lakuna_flutter/utils/result.dart';
 import '../../testing/app_harness.dart';
 import '../../testing/fake_catalog_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_spreadsheet_exporter.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
 
 class _Picker extends TableFilePicker {
@@ -84,9 +85,11 @@ void main() {
     WidgetTester tester,
     Size size, {
     List<ProductDraft>? seed,
+    FakeSpreadsheetExporter? exporter,
   }) async {
     final repo = FakeCatalogRepository(seed: seed);
     await pumpLakuna(
+      exporter: exporter,
       tester,
       size: size,
       initialLocation: Routes.products,
@@ -104,8 +107,12 @@ void main() {
     testWidgets('$label: import dari daftar kosong lalu daftar terisi', (
       tester,
     ) async {
-      final repo = await pump(tester, size);
+      final exporter = FakeSpreadsheetExporter();
+      final repo = await pump(tester, size, exporter: exporter);
       await _tap(tester, 'products-empty-import');
+      // Templat (F1-07g) bisa diunduh dari dialog yang sama.
+      await _tap(tester, 'import-template-products');
+      expect(exporter.saved.single.$1, 'templat-import-produk.xlsx');
       expect(_key('product-import'), findsOneWidget);
       await _tap(tester, 'product-import-pick');
       expect(_key('product-import-ready'), findsOneWidget);

@@ -13429,6 +13429,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Backup siap dipasang. Tutup lalu buka lagi aplikasi untuk menyelesaikan pemulihan.'**
   String get setupRestoreReopen;
+
+  /// No description provided for @importTemplateDownload.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh templat'**
+  String get importTemplateDownload;
+
+  /// No description provided for @importTemplateSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'Templat disimpan di {path}'**
+  String importTemplateSaved(String path);
+
+  /// No description provided for @importTemplateFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Templat gagal disimpan. Coba lagi.'**
+  String get importTemplateFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -179,3 +179,31 @@ SupplierImportResult supplierImportRows(List<List<String>> table) {
   }
   return SupplierImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import supplier.
+bool supplierImportKnownHeader(String header) =>
+    _columns.containsKey(header.trim().toLowerCase());
+
+/// Templat berkas import supplier (F1-07g): judul + dua baris contoh yang
+/// lolos [supplierImportRows].
+const supplierImportTemplate = [
+  [
+    'Nama',
+    'Kontak',
+    'Telepon',
+    'Kategori',
+    'Tempo (hari)',
+    'Alamat',
+    'Catatan',
+  ],
+  [
+    'Contoh CV Sumber Pangan',
+    'Pak Hendra',
+    '0215550101',
+    'Sembako',
+    '30',
+    'Jl. Industri 5',
+    'Kirim tiap Senin',
+  ],
+  ['Contoh UD Makmur', 'Bu Rina', '081377770202', 'Minuman', '', '', ''],
+];

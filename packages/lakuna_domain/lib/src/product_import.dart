@@ -241,3 +241,49 @@ ProductImportResult productImportRows(List<List<String>> table) {
   }
   return ProductImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import produk.
+bool productImportKnownHeader(String header) => _columns.containsKey(
+  header.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
+);
+
+/// Templat berkas import produk (F1-07g): judul + dua baris contoh yang
+/// lolos [productImportRows].
+const productImportTemplate = [
+  [
+    'Nama',
+    'Kategori',
+    'Jenis',
+    'Satuan',
+    'SKU',
+    'Barcode',
+    'Harga beli',
+    'Harga jual',
+    'Stok awal',
+    'Stok minimum',
+  ],
+  [
+    'Contoh Gula Pasir 1 kg',
+    'Sembako',
+    'barang',
+    'pcs',
+    'CTH-GULA-1KG',
+    '8991234567890',
+    '14000',
+    '17500',
+    '24',
+    '5',
+  ],
+  [
+    'Contoh Kopi Susu',
+    'Minuman',
+    'menu',
+    'gelas',
+    'CTH-KOPI-SUSU',
+    '',
+    '6000',
+    '15000',
+    '',
+    '',
+  ],
+];

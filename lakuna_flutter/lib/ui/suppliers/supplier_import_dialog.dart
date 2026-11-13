@@ -4,9 +4,11 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/suppliers_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/import_template.dart';
 import '../customers/customer_import_view_model.dart' show ImportFileProblem;
 import 'supplier_import_view_model.dart';
 import 'supplier_labels.dart';
@@ -16,6 +18,7 @@ Future<bool> showSupplierImport(
   BuildContext context,
   SuppliersRepository repository, {
   required TableFilePicker picker,
+  SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
 }) async {
   // Hasil dari callback, bukan dari nilai pop: dialog bisa ditutup lewat
   // latar atau tombol kembali setelah import tersimpan.
@@ -28,6 +31,7 @@ Future<bool> showSupplierImport(
       builder: (context, style) => SupplierImportDialog(
         repository: repository,
         picker: picker,
+        exporter: exporter,
         onSaved: () => saved = true,
       ),
     ),
@@ -53,11 +57,13 @@ class SupplierImportDialog extends StatefulWidget {
     required this.repository,
     required this.picker,
     this.onSaved,
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final SuppliersRepository repository;
   final TableFilePicker picker;
   final VoidCallback? onSaved;
+  final SpreadsheetExporter exporter;
 
   @override
   State<SupplierImportDialog> createState() => _SupplierImportDialogState();
@@ -121,9 +127,8 @@ class _SupplierImportDialogState extends State<SupplierImportDialog> {
                   ),
                 ),
                 Text(l10n.supplierImportIntro, style: muted),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: FButton(
+                ImportFileActions(
+                  pick: FButton(
                     key: const ValueKey('supplier-import-pick'),
                     variant: .outline,
                     mainAxisSize: .min,
@@ -133,6 +138,9 @@ class _SupplierImportDialogState extends State<SupplierImportDialog> {
                     prefix: const Icon(TablerIcons.fileSpreadsheet),
                     child: Flexible(child: Text(l10n.importPick)),
                   ),
+                  kind: ImportTemplateKind.suppliers,
+                  exporter: widget.exporter,
+                  enabled: !vm.run.running,
                 ),
                 if (vm.fileName case final name?)
                   Text(

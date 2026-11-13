@@ -4331,5 +4331,15 @@
   "setupRestorePick": "Choose backup file",
   "setupRestoreWarning": "The backup is installed on this device, then the app reloads and you sign in with a PIN from the backup. Don't use the same backup on two devices at once.",
   "setupRestoreAlreadySetUp": "A store already exists on this device. Restore from Settings › Data & backup instead.",
-  "setupRestoreReopen": "The backup is ready. Close and reopen the app to finish restoring."
+  "setupRestoreReopen": "The backup is ready. Close and reopen the app to finish restoring.",
+  "importTemplateDownload": "Download template",
+  "importTemplateSaved": "Template saved to {path}",
+  "@importTemplateSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "importTemplateFailed": "The template couldn't be saved. Try again."
 }

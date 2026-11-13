@@ -4,9 +4,11 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/import_template.dart';
 import '../customers/customer_import_view_model.dart' show ImportFileProblem;
 import 'product_form_view.dart' show productErrorMessage;
 import 'product_import_view_model.dart';
@@ -16,6 +18,7 @@ Future<bool> showProductImport(
   BuildContext context,
   CatalogRepository repository, {
   required TableFilePicker picker,
+  SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
 }) async {
   // Hasil dari callback: dialog bisa ditutup lewat latar setelah tersimpan.
   var saved = false;
@@ -27,6 +30,7 @@ Future<bool> showProductImport(
       builder: (context, style) => ProductImportDialog(
         repository: repository,
         picker: picker,
+        exporter: exporter,
         onSaved: () => saved = true,
       ),
     ),
@@ -58,11 +62,13 @@ class ProductImportDialog extends StatefulWidget {
     required this.repository,
     required this.picker,
     this.onSaved,
+    this.exporter = const PlatformSpreadsheetExporter(),
   });
 
   final CatalogRepository repository;
   final TableFilePicker picker;
   final VoidCallback? onSaved;
+  final SpreadsheetExporter exporter;
 
   @override
   State<ProductImportDialog> createState() => _ProductImportDialogState();
@@ -126,9 +132,8 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                   ),
                 ),
                 Text(l10n.productImportIntro, style: muted),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: FButton(
+                ImportFileActions(
+                  pick: FButton(
                     key: const ValueKey('product-import-pick'),
                     variant: .outline,
                     mainAxisSize: .min,
@@ -138,6 +143,9 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                     prefix: const Icon(TablerIcons.fileSpreadsheet),
                     child: Flexible(child: Text(l10n.importPick)),
                   ),
+                  kind: ImportTemplateKind.products,
+                  exporter: widget.exporter,
+                  enabled: !vm.run.running,
                 ),
                 if (vm.fileName case final name?)
                   Text(

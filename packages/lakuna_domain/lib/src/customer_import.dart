@@ -238,3 +238,22 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
   }
   return CustomerImportResult(rows: rows, rejected: rejected);
 }
+
+/// Judul kolom [header] dikenali pembaca import pelanggan.
+bool customerImportKnownHeader(String header) =>
+    _columns.containsKey(header.trim().toLowerCase());
+
+/// Templat berkas import pelanggan (F1-07g): judul + dua baris contoh yang
+/// lolos [customerImportRows].
+const customerImportTemplate = [
+  ['Nama', 'HP', 'Alamat', 'Grup', 'Limit', 'Catatan'],
+  [
+    'Contoh Toko Bu Ani',
+    '081234567890',
+    'Jl. Pasar Baru 12',
+    'Grosir',
+    '2000000',
+    'Langganan sejak 2024',
+  ],
+  ['Contoh Pak Budi', '085711112222', '', '', '', ''],
+];
