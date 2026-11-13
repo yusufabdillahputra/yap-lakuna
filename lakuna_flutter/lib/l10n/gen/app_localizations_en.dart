@@ -846,7 +846,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productTiersHelp =>
-      'Wholesale prices apply automatically at the cashier once the quantity reaches the tier.';
+      'Wholesale prices apply automatically at the cashier once the quantity reaches the tier. A customer group price applies when a customer in that group is selected at the cashier; when two prices apply, the cheaper one wins.';
 
   @override
   String get productTiersEmpty => 'No wholesale prices yet.';
@@ -7234,4 +7234,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashierCustomerNew => 'New customer';
+
+  @override
+  String get productTierGroupMissing =>
+      'A customer group in the wholesale prices was deleted. Choose the group again and save.';
+
+  @override
+  String get groupErrHasPrices =>
+      'The group is still used in product wholesale prices; change those prices first.';
 }

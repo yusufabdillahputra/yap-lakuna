@@ -1,8 +1,9 @@
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 /// Produk contoh kasir: minyak (satuan Dus + grosir), beras dua varian,
-/// kopi stok 1, dan satu produk nonaktif.
-List<ProductDraft> cashierProducts() => [
+/// kopi stok 1, dan satu produk nonaktif. [resellerGroupId] menambah harga
+/// grup minyak Rp35.500 mulai 1 botol (F1-07c).
+List<ProductDraft> cashierProducts({String? resellerGroupId}) => [
   ProductDraft(
     name: 'Minyak Goreng',
     category: 'Sembako',
@@ -23,7 +24,15 @@ List<ProductDraft> cashierProducts() => [
             sellPrice: const Money(210000),
           ),
         ],
-        tiers: [PriceTier(minQty: Qty.units(6), price: const Money(35000))],
+        tiers: [
+          PriceTier(minQty: Qty.units(6), price: const Money(35000)),
+          if (resellerGroupId != null)
+            PriceTier(
+              minQty: Qty.one,
+              price: const Money(35500),
+              groupId: resellerGroupId,
+            ),
+        ],
       ),
     ],
   ),

@@ -30,6 +30,9 @@ class LocalCatalogRepository extends CatalogRepository {
       categories: categories,
       units: units,
       modifierGroups: await modifierGroupRows(_store, scope),
+      customerGroups: [
+        for (final r in await listCustomerGroups(_store, scope)) r.group,
+      ],
     );
   });
 

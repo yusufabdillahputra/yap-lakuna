@@ -130,6 +130,7 @@ String customerErrorMessage(AppLocalizations l10n, Exception error) =>
         customerGroupIssueMessage(l10n, issues.first),
       CustomerGroupNameTaken() => l10n.groupErrTaken,
       CustomerGroupInUse() => l10n.groupErrInUse,
+      CustomerGroupHasPrices() => l10n.groupErrHasPrices,
       CustomerGroupNotFound() => l10n.groupErrNotFound,
       DebtPaymentInvalid(:final issue) => debtPaymentIssueMessage(l10n, issue),
       DebtPaymentDateInvalid() => l10n.debtErrDate,

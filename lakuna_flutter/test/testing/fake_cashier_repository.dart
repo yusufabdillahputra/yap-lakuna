@@ -104,7 +104,11 @@ class FakeCashierRepository extends CashierRepository {
       status: SaleStatus.open,
       subtotal: 0,
       tierDiscount: 0,
-      total: _parkedTotal(lines, discount).value,
+      total: _parkedTotal(
+        lines,
+        discount,
+        _customerRow(customerId)?.customer.customerGroupId,
+      ).value,
       paidAmount: 0,
       changeAmount: 0,
       itemCount: lines.length,
@@ -119,6 +123,7 @@ class FakeCashierRepository extends CashierRepository {
         lines: lines,
         customerId: customerId,
         customerName: _customerRow(customerId)?.customer.name,
+        customerGroupId: _customerRow(customerId)?.customer.customerGroupId,
         note: customerId == null ? note : null,
         discount: discount,
       ),
@@ -129,7 +134,11 @@ class FakeCashierRepository extends CashierRepository {
 
   final _parkedSales = <UuidValue, Sale>{};
 
-  Money _parkedTotal(List<SaleLineRequest> lines, ManualDiscount? discount) {
+  Money _parkedTotal(
+    List<SaleLineRequest> lines,
+    ManualDiscount? discount,
+    UuidValue? groupId,
+  ) {
     var total = Money.zero;
     for (final l in lines) {
       final variant = catalog.products
@@ -144,6 +153,7 @@ class FakeCashierRepository extends CashierRepository {
         tiers: variant.tiers,
         factor: unit?.factor,
         unitPrice: unit?.sellPrice,
+        customerGroupId: groupId?.uuid,
       );
       total += line.lineTotal - (l.discount?.cut(line.lineTotal) ?? Money.zero);
     }
@@ -314,6 +324,9 @@ class FakeCashierRepository extends CashierRepository {
     checkouts.add((lines, payments));
     checkoutCustomers.add(credit?.customerId ?? customerId);
     checkoutParked.add(parkedSaleId);
+    final groupId = _customerRow(
+      credit?.customerId ?? customerId,
+    )?.customer.customerGroupId;
     final priced =
         <(CatalogProduct, CatalogVariant, CatalogUnit?, PricedLine)>[];
     for (final l in lines) {
@@ -337,6 +350,7 @@ class FakeCashierRepository extends CashierRepository {
           tiers: variant.tiers,
           factor: unit?.factor,
           unitPrice: unit?.sellPrice,
+          customerGroupId: groupId?.uuid,
         ),
       ));
     }

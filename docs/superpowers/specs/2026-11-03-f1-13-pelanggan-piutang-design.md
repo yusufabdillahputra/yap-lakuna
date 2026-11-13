@@ -215,7 +215,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Kredit *Tutup & bayar* open bill F&B | 1.5b | Rilis v0.30.0 | Lihat [F1-13b](2026-11-04-f1-13b-kredit-open-bill-design.md). |
 | Kredit bagian split bill F&B | 1.5b | Belum | Butuh pelanggan per bagian tamu. |
 | Pilih pelanggan di kepala pesanan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
-| Harga grosir per grup pelanggan | 1.4b | Belum | Grup belum punya harga (butuh model harga per grup). |
+| Harga grosir per grup pelanggan | 1.4b | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md). |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |
 | Batal pembayaran piutang | — | Belum | Void pembayaran + jurnal balik kas. |
 | Nomor baris import saat berkas punya baris kosong | — | Bergeser | Bawa nomor baris asli dari CSV/XLSX (`row@r`). |

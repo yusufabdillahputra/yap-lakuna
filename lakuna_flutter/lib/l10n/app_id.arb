@@ -459,7 +459,7 @@
   "productTierAppliesTo": "Berlaku untuk",
   "productTierAllCustomers": "Semua pelanggan",
   "productAddTier": "Tambah tingkat harga",
-  "productTiersHelp": "Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.",
+  "productTiersHelp": "Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya. Harga untuk grup pelanggan dipakai bila pelanggan grup itu dipilih di kasir; bila ada dua harga, yang termurah dipakai.",
   "productTiersEmpty": "Belum ada harga grosir.",
   "productBaseUnitPlaceholder": "satuan dasar",
   "productSaveFailed": "Produk gagal disimpan. Coba lagi.",
@@ -4496,5 +4496,7 @@
   "cashierCustomerNew": "Pelanggan baru",
   "@cashierCustomerNew": {
     "placeholders": {}
-  }
+  },
+  "productTierGroupMissing": "Grup pelanggan pada harga grosir sudah dihapus. Pilih ulang grupnya lalu simpan.",
+  "groupErrHasPrices": "Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu."
 }

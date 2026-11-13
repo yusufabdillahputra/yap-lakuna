@@ -840,7 +840,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productTiersHelp =>
-      'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya.';
+      'Harga grosir dipakai otomatis di kasir saat jumlah beli mencapai tingkatnya. Harga untuk grup pelanggan dipakai bila pelanggan grup itu dipilih di kasir; bila ada dua harga, yang termurah dipakai.';
 
   @override
   String get productTiersEmpty => 'Belum ada harga grosir.';
@@ -7086,4 +7086,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashierCustomerNew => 'Pelanggan baru';
+
+  @override
+  String get productTierGroupMissing =>
+      'Grup pelanggan pada harga grosir sudah dihapus. Pilih ulang grupnya lalu simpan.';
+
+  @override
+  String get groupErrHasPrices =>
+      'Grup masih dipakai di harga grosir produk; ubah harga grosirnya dulu.';
 }

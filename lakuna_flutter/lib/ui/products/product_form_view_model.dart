@@ -42,17 +42,30 @@ class EditableUnit {
 }
 
 class EditableTier {
-  EditableTier(this.key, {this.id, this.minQty = Qty.zero, this.price});
+  EditableTier(
+    this.key, {
+    this.id,
+    this.minQty = Qty.zero,
+    this.price,
+    this.groupId,
+  });
 
   final int key;
   final String? id;
   Qty minQty;
 
+  /// Grup pelanggan (UUID); `null` = semua pelanggan (F1-07c).
+  String? groupId;
+
   /// `null` selama field masih kosong (ditolak saat simpan).
   Money? price;
 
-  PriceTier toDraft() =>
-      PriceTier(id: id, minQty: minQty, price: price ?? Money.zero);
+  PriceTier toDraft() => PriceTier(
+    id: id,
+    minQty: minQty,
+    price: price ?? Money.zero,
+    groupId: groupId,
+  );
 }
 
 class EditableVariant {
@@ -302,6 +315,7 @@ class ProductFormViewModel extends ChangeNotifier {
                   id: t.id,
                   minQty: t.minQty,
                   price: t.price,
+                  groupId: t.groupId,
                 ),
             ],
           ),
@@ -423,6 +437,26 @@ class ProductFormViewModel extends ChangeNotifier {
 
   void addTier(int variant) {
     variants[variant].tiers.add(EditableTier(_key()));
+    notifyListeners();
+  }
+
+  /// Grup pelanggan untuk *Berlaku untuk* (urut nama).
+  List<CustomerGroup> get customerGroups =>
+      _catalog?.customerGroups ?? const [];
+
+  /// Ganti grup tingkat [index]; galat jumlah (mis. kembar) ikut hilang
+  /// karena keunikan dihitung per grup.
+  void setTierGroup(int variant, int index, String? groupId) {
+    if (save.running) return;
+    final t = variants[variant].tiers[index];
+    if (t.groupId == groupId) return;
+    t.groupId = groupId;
+    _clear(
+      ProductField.tierMinQty,
+      variant: variants[variant].key,
+      tier: t.key,
+      notify: false,
+    );
     notifyListeners();
   }
 

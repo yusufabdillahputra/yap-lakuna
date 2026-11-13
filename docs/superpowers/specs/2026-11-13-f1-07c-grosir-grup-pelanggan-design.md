@@ -1,7 +1,7 @@
 # F1-07c · Harga grosir per grup pelanggan
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.34.0
 - **Layar:** 1.16 Form produk tab *Harga grosir* (kolom *Berlaku untuk*),
   1.4 / 1.4b Kasir (harga ikut pelanggan terpilih), 1.5b kredit.
 - **Acuan Storeku:** F1-07 gap "Grosir *Berlaku untuk* grup pelanggan":
@@ -23,7 +23,7 @@ dipilih, tanpa diskon manual.
    menjadi pilihan: *Semua pelanggan* atau salah satu grup pelanggan
    (urut nama). Validasi:
    - tingkat semua pelanggan: mulai jumlah > 1 (aturan lama);
-   - tingkat grup: mulai jumlah ≥ 1, sehingga harga grup bisa berlaku sejak
+   - tingkat grup: mulai jumlah > 0, sehingga harga grup bisa berlaku sejak
      1 satuan (harga reseller);
    - jumlah yang sama tidak boleh dobel **dalam grup yang sama** (semua
      pelanggan dihitung sebagai satu grup);
@@ -47,6 +47,10 @@ dipilih, tanpa diskon manual.
    (umum lebih dulu).
 7. **F&B open bill** tidak memakai harga grup (bill tidak berpelanggan
    sampai ditutup); dicatat sebagai gap.
+8. **Hapus grup pelanggan** ditolak (`CustomerGroupHasPrices`) selama grup
+   masih dipakai tingkat grosir produk, sama seperti grup yang masih punya
+   pelanggan. Simpan produk dengan grup yang sudah dihapus ditolak
+   (`PriceTierGroupNotFound`).
 
 ## Komponen
 
@@ -75,6 +79,6 @@ dipilih, tanpa diskon manual.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Harga grosir per grup pelanggan di Kasir retail | 1.16, 1.4 | Dikerjakan | |
+| Harga grosir per grup pelanggan di Kasir retail | 1.16, 1.4 | Rilis v0.34.0 | Termasuk kredit dan nota tersimpan. |
 | Harga grup di open bill F&B | — | Belum | Bill belum berpelanggan saat item ditambahkan. |
 | Harga grup untuk satuan konversi | — | Belum | Grosir hanya untuk satuan dasar (aturan lama). |

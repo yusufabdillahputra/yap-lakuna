@@ -7,6 +7,49 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-11-13
+
+Harga grosir kini bisa dikhususkan untuk grup pelanggan.
+
+### Ditambahkan
+
+- **Harga grosir per grup pelanggan (1.16, 1.4, F1-07c).** Kolom *Berlaku
+  untuk* di tab *Harga grosir* form produk kini bisa dipilih: *Semua
+  pelanggan* atau salah satu grup pelanggan (mis. *Reseller*). Harga grup
+  boleh berlaku sejak 1 satuan, jadi bisa dipakai sebagai harga reseller.
+- Kasir menghitung ulang harga keranjang saat pelanggan dipilih, diganti,
+  dihapus, dibuat baru, atau dipilih dari panel kredit. Bila tingkat umum
+  dan tingkat grup sama-sama berlaku, harga yang **lebih murah** dipakai.
+  Potongannya tampil sebagai *Diskon grosir* seperti biasa.
+- Nota tersimpan dan draf keranjang membawa grup pelanggan, sehingga harga
+  tetap sama saat nota dilanjutkan.
+
+### Diubah
+
+- Jumlah mulai yang sama kini boleh dipakai di grup berbeda (mis. ≥5 untuk
+  semua pelanggan dan ≥5 untuk Reseller). Dalam satu grup tetap tidak
+  boleh kembar.
+- Teks bantuan tab *Harga grosir* menjelaskan harga grup.
+- Grup pelanggan yang masih dipakai harga grosir produk tidak bisa
+  dihapus; pesannya meminta mengubah harga grosir dulu.
+
+### Catatan teknis
+
+- Kolom baru `price_tiers.customer_group_id` (nullable, relasi ke
+  `customer_groups`), migrasi `grosir-grup`. `null` = semua pelanggan,
+  jadi data lama tidak berubah.
+- Domain: `PriceTier.groupId`, `tierFor(..., groupId:)`,
+  `priceSaleLine(..., customerGroupId:)`; validasi kembar dihitung per
+  grup, dan tingkat grup cukup mulai > 0.
+- Data: `checkoutSale` dan `parkSale` menghitung harga dengan grup
+  pelanggan nota (pelanggan kredit atau pelanggan terpilih), sehingga total
+  di Kasir sama dengan yang disimpan. `ParkedSale.customerGroupId`,
+  `ProductCatalog.customerGroups`, galat baru `PriceTierGroupNotFound` dan
+  `CustomerGroupHasPrices`.
+- Harga grup belum dipakai di open bill F&B (bill belum berpelanggan saat
+  item ditambahkan) dan di satuan konversi (grosir hanya untuk satuan
+  dasar); keduanya dicatat sebagai gap di spec F1-07c.
+
 ## [0.33.0] - 2026-11-13
 
 Pelanggan baru bisa dibuat langsung dari Kasir.
@@ -3041,7 +3084,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.34.0...HEAD
+[0.34.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.30.0...v0.31.0
