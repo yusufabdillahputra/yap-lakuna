@@ -186,6 +186,8 @@ GoRouter createRouter({
               session: session,
               expenses: expenses,
               imagePicker: imagePicker,
+              receiptSettings: receiptSettings,
+              printer: receiptPrinter,
             ),
           ),
           GoRoute(

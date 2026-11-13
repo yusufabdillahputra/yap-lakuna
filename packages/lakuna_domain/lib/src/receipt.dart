@@ -84,6 +84,7 @@ class ReceiptContent {
     this.header = const [],
     this.banner,
     this.meta = const [],
+    this.sections = const [],
     this.items = const [],
     this.totals = const [],
     this.footer = const [],
@@ -98,6 +99,10 @@ class ReceiptContent {
   /// Label status tebal di tengah, mis. "CETAK ULANG".
   final String? banner;
   final List<ReceiptPair> meta;
+
+  /// Blok pasangan label–nilai setelah [meta], masing-masing dipisah garis
+  /// (mis. rekap sesi kasir: penjualan, kas laci, hitung uang).
+  final List<List<ReceiptPair>> sections;
   final List<ReceiptItem> items;
   final List<ReceiptPair> totals;
 
@@ -170,6 +175,7 @@ List<ReceiptLine> layoutReceipt(ReceiptContent content, ReceiptPaper paper) {
     ],
     if (content.banner case final banner?) centered(banner, bold: true),
     pairs(content.meta),
+    for (final section in content.sections) pairs(section),
     [
       for (final item in content.items) ...[
         for (final l in wrapText(item.name, w)) ReceiptLine(l),

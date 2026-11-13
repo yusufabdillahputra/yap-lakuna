@@ -5,9 +5,12 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
 import '../../data/repositories/expenses_repository.dart';
+import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
+import 'session_recap_content.dart';
 
 /// Membaca nominal rupiah dari teks (titik/spasi diabaikan). Teks kosong
 /// atau tanpa angka → `null`.
@@ -42,7 +45,12 @@ class CashSessionViewModel extends ChangeNotifier {
     required this._permissions,
     this._expenses,
     this._picker = const FileSelectorImagePicker(),
+    this._receiptSettings,
+    this._printer,
+    this._staffName = '',
   }) {
+    printRecap = Command1(_printRecap)..addListener(notifyListeners);
+    shareRecap = Command1(_shareRecap)..addListener(notifyListeners);
     pickReceipt = Command1(_pickReceipt)..addListener(notifyListeners);
     load = Command0(_load)..addListener(notifyListeners);
     open = Command0(_open)..addListener(notifyListeners);
@@ -57,6 +65,19 @@ class CashSessionViewModel extends ChangeNotifier {
   final ExpensesRepository? _expenses;
   final ImageFilePicker _picker;
 
+  /// Kertas dan printer struk untuk cetak rekap (F1-03b); `null` = rekap
+  /// tidak bisa dicetak.
+  final ReceiptSettingsRepository? _receiptSettings;
+  final ReceiptPrinter? _printer;
+
+  /// Nama staf yang bertugas (penutup sesi di rekap).
+  final String _staffName;
+
+  /// Cetak / bagikan PDF rekap sesi yang baru ditutup; argumen = baris
+  /// rekap dari `sessionRecapContent`.
+  late final Command1<void, List<ReceiptLine>> printRecap;
+  late final Command1<String?, List<ReceiptLine>> shareRecap;
+
   /// Memilih foto nota pengeluaran; argumen `true` = kamera.
   late final Command1<void, bool> pickReceipt;
 
@@ -67,6 +88,13 @@ class CashSessionViewModel extends ChangeNotifier {
 
   ActiveCashSession? _active;
   CashSession? _closed;
+  SessionRecap? _recap;
+  PrinterSelection? _printerSelection;
+  ReceiptPaper _paper = ReceiptPaper.mm58;
+  bool _recapAutoPrinted = false;
+  bool _recapPrinted = false;
+  PrinterFailureReason? _recapPrintFailure;
+  String? _recapPdfPath;
   bool _loaded = false;
   bool _loadFailed = false;
   bool _closing = false;
@@ -313,9 +341,105 @@ class CashSessionViewModel extends ChangeNotifier {
     }
   }
 
+  // --- Rekap sesi (F1-03b) -------------------------------------------------
+
+  /// Rekap bisa dicetak / dibagikan (layanan cetak tersedia).
+  bool get canPrintRecap => _receiptSettings != null && _printer != null;
+
+  /// Perangkat punya printer terpilih: tombol *Tutup sesi & cetak rekap*
+  /// dan cetak otomatis setelah tutup.
+  bool get hasPrinter => canPrintRecap && _printerSelection != null;
+
+  /// Lebar kertas struk cabang ini.
+  ReceiptPaper get paper => _paper;
+
+  /// Rekap sesi yang baru ditutup di layar ini.
+  SessionRecap? get recap => _recap;
+
+  bool get recapPrinted => _recapPrinted;
+  PrinterFailureReason? get recapPrintFailure => _recapPrintFailure;
+
+  /// Lokasi PDF rekap yang disimpan di desktop.
+  String? get recapPdfPath => _recapPdfPath;
+
+  bool get recapBusy => printRecap.running || shareRecap.running;
+
+  /// Rekap baru ditutup dengan printer terpilih dan belum dicetak otomatis.
+  bool get shouldAutoPrintRecap =>
+      _recap != null && hasPrinter && !_recapAutoPrinted;
+
+  /// Cetak otomatis sekali setelah *Tutup sesi & cetak rekap*.
+  Future<void> autoPrintRecap(List<ReceiptLine> lines) async {
+    if (!shouldAutoPrintRecap || recapBusy) return;
+    _recapAutoPrinted = true;
+    await printRecap.execute(lines);
+  }
+
+  void _resetRecapOutput() {
+    _recapPrinted = false;
+    _recapPrintFailure = null;
+    _recapPdfPath = null;
+  }
+
+  String get _recapName {
+    final t = (_recap?.closed.closedAt ?? DateTime.now()).toLocal();
+    String two(int n) => n.toString().padLeft(2, '0');
+    return 'rekap-sesi-${two(t.year % 100)}${two(t.month)}${two(t.day)}-'
+        '${two(t.hour)}${two(t.minute)}';
+  }
+
+  Future<Result<void>> _printRecap(List<ReceiptLine> lines) async {
+    final printer = _printer;
+    if (printer == null) return const Result.ok(null);
+    _resetRecapOutput();
+    final selection =
+        _printerSelection ??
+        const PrinterSelection(kind: PrinterKind.system, name: '');
+    try {
+      await printer.print(selection, lines, _paper, jobName: _recapName);
+      _recapPrinted = selection.isDirect;
+      return const Result.ok(null);
+    } on PrinterFailure catch (e) {
+      _recapPrintFailure = e.reason;
+      return Result.error(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<String?>> _shareRecap(List<ReceiptLine> lines) async {
+    final printer = _printer;
+    if (printer == null) return const Result.ok(null);
+    _resetRecapOutput();
+    try {
+      final path = await printer.sharePdf(
+        lines,
+        _paper,
+        fileName: '$_recapName.pdf',
+      );
+      _recapPdfPath = path;
+      return Result.ok(path);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<void> _loadPrinting() async {
+    final settings = _receiptSettings!;
+    if (await settings.loadReceipt() case Ok(:final value)) {
+      _paper = value.settings.paper;
+    }
+    if (await settings.loadPrinter() case Ok(:final value)) {
+      _printerSelection = value;
+    }
+  }
+
   /// Dari kartu hasil kembali ke formulir buka sesi.
   void startNew() {
     _closed = null;
+    _recap = null;
+    _recapAutoPrinted = false;
+    _resetRecapOutput();
     _openingCash = '';
     _openingNote = '';
     notifyListeners();
@@ -324,6 +448,7 @@ class CashSessionViewModel extends ChangeNotifier {
   // --- Perintah ------------------------------------------------------------
 
   Future<Result<ActiveCashSession?>> _load() async {
+    if (_receiptSettings != null) await _loadPrinting();
     final result = await _repository.loadCurrent();
     switch (result) {
       case Ok(:final value):
@@ -455,6 +580,13 @@ class CashSessionViewModel extends ChangeNotifier {
     switch (result) {
       case Ok(:final value):
         _closed = value;
+        _recap = SessionRecap(
+          active: session,
+          closed: value,
+          closerName: _staffName,
+        );
+        _recapAutoPrinted = false;
+        _resetRecapOutput();
         _active = null;
         _closing = false;
         _resetForms();
@@ -535,6 +667,8 @@ class CashSessionViewModel extends ChangeNotifier {
       c.dispose();
     }
     pickReceipt.dispose();
+    printRecap.dispose();
+    shareRecap.dispose();
     super.dispose();
   }
 }

@@ -8,14 +8,18 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
 import '../../data/repositories/expenses_repository.dart';
+import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import '../core/photo_attach_field.dart';
 import '../expenses/expense_labels.dart';
+import '../receipt/printer_labels.dart';
 import 'cash_session_view_model.dart';
+import 'session_recap_content.dart';
 
 /// Layar *Sesi kasir* (F1-03). Memiliki [CashSessionViewModel] dan memuat
 /// sesi terbuka saat dibuka.
@@ -27,9 +31,15 @@ class CashSessionScreen extends StatefulWidget {
     required this.session,
     this.expenses,
     this.imagePicker,
+    this.receiptSettings,
+    this.printer,
   });
 
   final CashDrawerRepository repository;
+
+  /// Kertas dan printer struk untuk cetak rekap sesi (F1-03b).
+  final ReceiptSettingsRepository? receiptSettings;
+  final ReceiptPrinter? printer;
 
   /// Opsi *Catat juga sebagai pengeluaran* (F1-15).
   final ExpensesRepository? expenses;
@@ -47,6 +57,9 @@ class _CashSessionScreenState extends State<CashSessionScreen> {
     permissions: widget.session.current?.permissions ?? const {},
     expenses: widget.expenses,
     picker: widget.imagePicker ?? const FileSelectorImagePicker(),
+    receiptSettings: widget.receiptSettings,
+    printer: widget.printer,
+    staffName: widget.session.current?.name ?? '',
   );
 
   @override
@@ -1306,7 +1319,13 @@ class _CountCard extends StatelessWidget {
             prefix: running
                 ? const FCircularProgress()
                 : const Icon(TablerIcons.lock),
-            child: Flexible(child: Text(l10n.cashCloseButton)),
+            child: Flexible(
+              child: Text(
+                viewModel.hasPrinter
+                    ? l10n.cashCloseAndPrint
+                    : l10n.cashCloseButton,
+              ),
+            ),
           ),
         ],
       ),
@@ -1461,6 +1480,8 @@ class _Closed extends StatelessWidget {
               if (closed.closingNote case final note?)
                 Text(note, style: theme.typography.body.sm),
               const SizedBox(height: 8),
+              if (viewModel.canPrintRecap && viewModel.recap != null)
+                ..._recapActions(context, l10n),
               FButton(
                 key: const ValueKey('cash-start-new'),
                 onPress: viewModel.canOpen ? viewModel.startNew : null,
@@ -1471,6 +1492,80 @@ class _Closed extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension on _Closed {
+  /// Baris rekap sesi (F1-03b) dengan mesin struk F1-06.
+  List<ReceiptLine> _recapLines(AppLocalizations l10n) => layoutReceipt(
+    sessionRecapContent(
+      l10n,
+      recap: viewModel.recap!,
+      businessName: store?.tenant.name ?? '',
+      outletName: store?.outlet.name ?? '',
+      deviceCode: store?.device.code ?? '',
+      timezone: store?.outlet.timezone ?? store?.tenant.timezone,
+    ),
+    viewModel.paper,
+  );
+
+  List<Widget> _recapActions(BuildContext context, AppLocalizations l10n) {
+    final vm = viewModel;
+    final lines = _recapLines(l10n);
+    if (vm.shouldAutoPrintRecap) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => vm.autoPrintRecap(lines),
+      );
+    }
+    final busy = vm.recapBusy;
+    return [
+      if (vm.recapPrintFailure != null || vm.printRecap.error)
+        FAlert(
+          key: const ValueKey('cash-recap-print-error'),
+          variant: .destructive,
+          title: Text(printerFailureMessage(l10n, vm.recapPrintFailure)),
+        )
+      else if (vm.recapPrinted)
+        FAlert(
+          key: const ValueKey('cash-recap-printed'),
+          title: Text(l10n.cashRecapPrinted),
+        ),
+      if (vm.shareRecap.error)
+        FAlert(
+          key: const ValueKey('cash-recap-share-error'),
+          variant: .destructive,
+          title: Text(l10n.cashRecapShareError),
+        )
+      else if (vm.shareRecap.completed && vm.recapPdfPath != null)
+        FAlert(
+          key: const ValueKey('cash-recap-pdf-saved'),
+          title: Text(l10n.receiptPdfSaved(vm.recapPdfPath!)),
+        ),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          FButton(
+            key: const ValueKey('cash-recap-print'),
+            variant: .outline,
+            mainAxisSize: .min,
+            onPress: busy ? null : () => vm.printRecap.execute(lines),
+            prefix: vm.printRecap.running
+                ? const FCircularProgress()
+                : const Icon(TablerIcons.printer),
+            child: Flexible(child: Text(l10n.cashRecapPrint)),
+          ),
+          FButton(
+            key: const ValueKey('cash-recap-share'),
+            variant: .outline,
+            mainAxisSize: .min,
+            onPress: busy ? null : () => vm.shareRecap.execute(lines),
+            prefix: const Icon(TablerIcons.share),
+            child: Flexible(child: Text(l10n.receiptShare)),
+          ),
+        ],
+      ),
+    ];
   }
 }
 
