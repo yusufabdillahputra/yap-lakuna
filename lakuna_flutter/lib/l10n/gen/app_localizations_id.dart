@@ -7380,7 +7380,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningMergeNone =>
-      'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).';
+      'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area), tanpa split, diskon nota, atau pelanggan berbeda.';
 
   @override
   String diningMergeOption(String label, String total) {
@@ -7443,4 +7443,47 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get ticketReprint => 'Cetak ulang';
+
+  @override
+  String get diningCustomerPick => 'Pilih pelanggan';
+
+  @override
+  String get diningCustomerChange => 'Ganti';
+
+  @override
+  String get diningCustomerClear => 'Hapus pelanggan';
+
+  @override
+  String diningCustomerLabel(String name) {
+    return 'Pelanggan: $name';
+  }
+
+  @override
+  String diningCustomerGroupLabel(String name, String group) {
+    return 'Pelanggan: $name · $group';
+  }
+
+  @override
+  String diningCustomerTitle(String label) {
+    return 'Pelanggan $label';
+  }
+
+  @override
+  String get diningCustomerHint =>
+      'Harga grup pelanggan berlaku untuk semua item bill.';
+
+  @override
+  String get diningErrorCustomerBlocked =>
+      'Pelanggan tidak bisa diubah selama bill di-split.';
+
+  @override
+  String get diningErrorCustomerNotFound =>
+      'Pelanggan tidak ditemukan atau sudah dihapus.';
+
+  @override
+  String get diningErrorMergeCustomer => 'Kedua meja punya pelanggan berbeda.';
+
+  @override
+  String get cashierErrorBillCustomerMismatch =>
+      'Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja.';
 }

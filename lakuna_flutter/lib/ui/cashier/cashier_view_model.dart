@@ -933,6 +933,12 @@ class CashierViewModel extends ChangeNotifier {
         if (_partError(value) case final e?) return Result.error(e);
       }
       _bill = value;
+      // Pelanggan bill (F1-10f) menjadi pelanggan nota dan pilihan awal
+      // kredit.
+      _customer = switch (value.customer) {
+        final c? => (id: c.id, name: c.name, groupId: c.groupId),
+        null => null,
+      };
       startPayment();
     }
     return result;

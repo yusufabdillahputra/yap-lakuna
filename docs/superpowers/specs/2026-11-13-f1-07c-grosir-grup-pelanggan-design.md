@@ -80,5 +80,5 @@ dipilih, tanpa diskon manual.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Harga grosir per grup pelanggan di Kasir retail | 1.16, 1.4 | Rilis v0.34.0 | Termasuk kredit dan nota tersimpan. |
-| Harga grup di open bill F&B | — | Belum | Bill belum berpelanggan saat item ditambahkan. |
+| Harga grup di open bill F&B | — | Rilis v0.42.0 | Lewat pelanggan bill (F1-10f). |
 | Harga grup untuk satuan konversi | — | Belum | Grosir hanya untuk satuan dasar (aturan lama). |

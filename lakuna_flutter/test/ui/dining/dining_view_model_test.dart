@@ -422,6 +422,112 @@ void main() {
     );
   });
 
+  group('pelanggan bill (F1-10f)', () {
+    final karyawan = UuidValue.fromString(
+      '0192f3a1-7c00-7000-8000-00000000aa01',
+    );
+    CustomerRow row(String name, {UuidValue? group, String? phone}) =>
+        CustomerRow(
+          customer: Customer(
+            id: UuidValue.fromString(newId()),
+            tenantId: UuidValue.fromString(newId()),
+            name: name,
+            phone: phone,
+            customerGroupId: group,
+            creditLimit: 0,
+            createdAt: DateTime.utc(2026, 11, 1),
+            hlc: '',
+          ),
+          groupName: group == null ? null : 'Karyawan',
+          termDays: 14,
+          outstanding: Money.zero,
+          openCount: 0,
+          overdueCount: 0,
+        );
+    late CustomerRow ani;
+    late CustomerRow budi;
+
+    setUp(() async {
+      repo = FakeDiningRepository(
+        menu: [
+          ProductDraft(
+            name: 'Kopi Susu Aren',
+            category: 'Minuman',
+            baseUnit: 'gelas',
+            variants: [
+              VariantDraft(
+                sellPrice: const Money(24000),
+                tiers: [
+                  PriceTier(
+                    minQty: Qty.one,
+                    price: const Money(20000),
+                    groupId: karyawan.uuid,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      );
+      ani = row('Ani', group: karyawan, phone: '0812');
+      budi = row('Budi');
+      repo.customerRows = [ani, budi];
+      vm = DiningViewModel(repository: repo, printer: FakeReceiptPrinter());
+      await vm.load.execute();
+      await vm.openTable.execute((table('M1').id, 2));
+      await add('Kopi Susu Aren');
+    });
+
+    test('pilih pelanggan grup: harga grup, nama, hapus kembali', () async {
+      await vm.customers.execute();
+      expect(vm.customerCandidates.map((r) => r.customer.name), [
+        'Ani',
+        'Budi',
+      ]);
+      vm.setCustomerQuery('0812');
+      expect(vm.customerCandidates.single, ani);
+      expect(vm.canSetCustomer(vm.selectedBill!), isTrue);
+
+      await vm.setCustomer.execute(ani.customer.id);
+      expect(vm.selectedBill!.customer?.name, 'Ani');
+      expect(vm.selectedBill!.items.single.unitPrice, 20000);
+      expect(vm.customerQuery, isEmpty);
+      // Item baru memakai harga grup.
+      await add('Kopi Susu Aren');
+      expect(vm.selectedBill!.items.single.unitPrice, 20000);
+
+      await vm.setCustomer.execute(null);
+      expect(vm.selectedBill!.customer, isNull);
+      expect(vm.selectedBill!.items.single.unitPrice, 24000);
+    });
+
+    test('ditolak saat split: galat tampil', () async {
+      final b = vm.selectedBill!;
+      repo.sales[repo.sales.indexWhere((s) => s.id == b.id)] = b.sale.copyWith(
+        splitMode: SplitMode.equal,
+      );
+      await vm.load.execute();
+      vm.tapTable(table('M1'));
+      expect(vm.canSetCustomer(vm.selectedBill!), isFalse);
+      await vm.setCustomer.execute(ani.customer.id);
+      expect(vm.actionError, isA<BillCustomerBlocked>());
+    });
+
+    test('gabung meja tidak menawarkan bill pelanggan lain', () async {
+      repo.allowMerge(['M1', 'M2']);
+      await vm.load.execute();
+      vm.tapTable(table('M1'));
+      await vm.setCustomer.execute(ani.customer.id);
+      vm.clearSelection();
+      await vm.openTable.execute((table('M2').id, 2));
+      await add('Kopi Susu Aren');
+      await vm.setCustomer.execute(budi.customer.id);
+      vm.clearSelection();
+      vm.tapTable(table('M1'));
+      expect(vm.mergeSources(vm.selectedBill!), isEmpty);
+    });
+  });
+
   test('tanpa izin open_bills:manage gagal dimuat', () async {
     repo.permissions = const {};
     final denied = DiningViewModel(

@@ -4687,7 +4687,7 @@
     }
   },
   "diningMergeHint": "Item, tiket dapur, dan tamu meja yang dipilih pindah ke bill ini. Meja itu menjadi kosong.",
-  "diningMergeNone": "Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).",
+  "diningMergeNone": "Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area), tanpa split, diskon nota, atau pelanggan berbeda.",
   "diningMergeOption": "{label} · {total}",
   "@diningMergeOption": {
     "placeholders": {
@@ -4715,5 +4715,40 @@
   "kitchenPrinterTestSent": "Tiket contoh terkirim ke printer dapur.",
   "ticketPrintingKitchen": "Mencetak tiket di printer dapur…",
   "ticketPrintedKitchen": "Tiket dicetak di printer dapur.",
-  "ticketReprint": "Cetak ulang"
+  "ticketReprint": "Cetak ulang",
+  "diningCustomerPick": "Pilih pelanggan",
+  "diningCustomerChange": "Ganti",
+  "diningCustomerClear": "Hapus pelanggan",
+  "diningCustomerLabel": "Pelanggan: {name}",
+  "@diningCustomerLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerGroupLabel": "Pelanggan: {name} · {group}",
+  "@diningCustomerGroupLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerTitle": "Pelanggan {label}",
+  "@diningCustomerTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerHint": "Harga grup pelanggan berlaku untuk semua item bill.",
+  "diningErrorCustomerBlocked": "Pelanggan tidak bisa diubah selama bill di-split.",
+  "diningErrorCustomerNotFound": "Pelanggan tidak ditemukan atau sudah dihapus.",
+  "diningErrorMergeCustomer": "Kedua meja punya pelanggan berbeda.",
+  "cashierErrorBillCustomerMismatch": "Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja."
 }

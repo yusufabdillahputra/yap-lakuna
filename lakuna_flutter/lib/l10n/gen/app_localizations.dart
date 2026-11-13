@@ -12977,7 +12977,7 @@ abstract class AppLocalizations {
   /// No description provided for @diningMergeNone.
   ///
   /// In id, this message translates to:
-  /// **'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area).'**
+  /// **'Belum ada meja lain yang bisa digabung. Meja harus berisi pesanan dan Boleh digabung dengan meja sebelah (Atur denah atau Data master › Meja & area), tanpa split, diskon nota, atau pelanggan berbeda.'**
   String get diningMergeNone;
 
   /// No description provided for @diningMergeOption.
@@ -13087,6 +13087,72 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Cetak ulang'**
   String get ticketReprint;
+
+  /// No description provided for @diningCustomerPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih pelanggan'**
+  String get diningCustomerPick;
+
+  /// No description provided for @diningCustomerChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti'**
+  String get diningCustomerChange;
+
+  /// No description provided for @diningCustomerClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus pelanggan'**
+  String get diningCustomerClear;
+
+  /// No description provided for @diningCustomerLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan: {name}'**
+  String diningCustomerLabel(String name);
+
+  /// No description provided for @diningCustomerGroupLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan: {name} · {group}'**
+  String diningCustomerGroupLabel(String name, String group);
+
+  /// No description provided for @diningCustomerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan {label}'**
+  String diningCustomerTitle(String label);
+
+  /// No description provided for @diningCustomerHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga grup pelanggan berlaku untuk semua item bill.'**
+  String get diningCustomerHint;
+
+  /// No description provided for @diningErrorCustomerBlocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan tidak bisa diubah selama bill di-split.'**
+  String get diningErrorCustomerBlocked;
+
+  /// No description provided for @diningErrorCustomerNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan tidak ditemukan atau sudah dihapus.'**
+  String get diningErrorCustomerNotFound;
+
+  /// No description provided for @diningErrorMergeCustomer.
+  ///
+  /// In id, this message translates to:
+  /// **'Kedua meja punya pelanggan berbeda.'**
+  String get diningErrorMergeCustomer;
+
+  /// No description provided for @cashierErrorBillCustomerMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit harus atas nama pelanggan bill. Ganti pelanggan di panel meja.'**
+  String get cashierErrorBillCustomerMismatch;
 }
 
 class _AppLocalizationsDelegate

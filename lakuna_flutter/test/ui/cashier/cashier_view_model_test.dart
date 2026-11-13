@@ -1071,6 +1071,16 @@ void main() {
       expect(vm.result!.sale.paidAmount, 5440);
     });
 
+    test('pelanggan bill (F1-10f) menjadi pilihan awal kredit', () async {
+      dining.customerRows = [ani];
+      bill = await ok(dining.setBillCustomer(bill.id, ani.customer.id));
+      await vm.openBill.execute(bill.id);
+      expect(vm.customer?.name, 'Toko Bu Ani');
+      vm.setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      expect(vm.creditCustomer?.customer.id, ani.customer.id);
+    });
+
     test('bagian split bill: kredit tidak tersedia', () async {
       bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
       vm.setPart(const BillPart(guest: 'A'));

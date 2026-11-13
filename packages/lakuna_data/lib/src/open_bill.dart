@@ -4,7 +4,8 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
-import 'customers.dart' show SaleCredit, checkSaleCredit, requireCustomerActor;
+import 'customers.dart'
+    show SaleCredit, checkSaleCredit, requireCustomerActor, saleCustomer;
 import 'dining_admin.dart';
 import 'history.dart' show requireApprover;
 import 'modifier_admin.dart';
@@ -65,6 +66,9 @@ enum BillMergeReason {
 
   /// Jumlah tamu gabungan lebih dari [FnbLimits.guestsMax].
   guests,
+
+  /// Kedua bill punya pelanggan berbeda (F1-10f).
+  customer,
 }
 
 /// *Gabung meja* ditolak karena [reason].
@@ -75,6 +79,34 @@ class BillMergeBlocked implements Exception {
 
   @override
   String toString() => 'BillMergeBlocked(${reason.name})';
+}
+
+/// Pelanggan bill tidak bisa diubah: bill sedang di-split atau punya
+/// pembayaran bagian (F1-10f).
+class BillCustomerBlocked implements Exception {
+  @override
+  String toString() => 'BillCustomerBlocked';
+}
+
+/// Kredit bill atas nama pelanggan selain pelanggan bill (F1-10f).
+class BillCustomerMismatch implements Exception {
+  @override
+  String toString() => 'BillCustomerMismatch';
+}
+
+/// Pelanggan terpilih di bill (F1-10f).
+class BillCustomer {
+  const BillCustomer({
+    required this.id,
+    required this.name,
+    this.groupId,
+    this.groupName,
+  });
+
+  final UuidValue id;
+  final String name;
+  final UuidValue? groupId;
+  final String? groupName;
 }
 
 enum BillField { guests, customerName, note, voidReason }
@@ -121,9 +153,13 @@ class OpenBill {
     this.modifiers = const {},
     this.payments = const [],
     this.discountApprovedByName = '',
+    this.customer,
   });
 
   final Sale sale;
+
+  /// Pelanggan bill (F1-10f); harga grupnya berlaku untuk semua item.
+  final BillCustomer? customer;
 
   /// Diskon nota yang dipilih (F1-04e); potongannya di [charges].
   ManualDiscount? get discount => billDiscountOf(sale);
@@ -359,6 +395,9 @@ Future<List<OpenBill>> _bills(
     sales.map((s) => s.id),
     transaction: transaction,
   );
+  final customers = await _billCustomers(session, scope, {
+    for (final s in sales) ?s.customerId,
+  }, transaction: transaction);
   return [
     for (final s in sales)
       () {
@@ -374,6 +413,7 @@ Future<List<OpenBill>> _bills(
           table: tables[s.diningTableId],
           openedByName: names[s.openedBy ?? s.staffId] ?? '',
           discountApprovedByName: names[s.discountApprovedBy] ?? '',
+          customer: customers[s.customerId],
           modifiers: {for (final i in own) i.id: ?modifiers[i.id]},
           payments: [
             for (final p in payments)
@@ -862,7 +902,7 @@ Future<OpenBill> addBillItem(
         productUnitId: line.productUnitId,
         quantity: quantity,
       ),
-    ]);
+    ], customerGroupId: await _billGroup(w, scope, sale));
     if (modifiedUnitPrice(priced.line.unitPrice, delta) == null) {
       throw ModifierPriceInvalid();
     }
@@ -1040,7 +1080,7 @@ Future<OpenBill> setBillItemQuantity(
           productUnitId: item.productUnitId,
           quantity: quantity,
         ),
-      ]);
+      ], customerGroupId: await _billGroup(w, scope, sale));
       final unit = modifiedUnitPrice(
         priced.line.unitPrice,
         Money(item.modifierDelta),
@@ -1365,6 +1405,15 @@ Future<OpenBill> mergeOpenBills(
     if (billDiscountOf(source) != null) {
       throw const BillMergeBlocked(BillMergeReason.discount);
     }
+    // Pelanggan yang sudah dihapus dianggap tanpa pelanggan.
+    final targetCustomer = await _liveCustomer(w, scope, target);
+    final sourceCustomer = await _liveCustomer(w, scope, source);
+    if (targetCustomer != null &&
+        sourceCustomer != null &&
+        targetCustomer.id != sourceCustomer.id) {
+      throw const BillMergeBlocked(BillMergeReason.customer);
+    }
+    final mergedCustomer = targetCustomer ?? sourceCustomer;
     final guests = (target.guestCount ?? 0) + (source.guestCount ?? 0);
     if (guests > FnbLimits.guestsMax) {
       throw const BillMergeBlocked(BillMergeReason.guests);
@@ -1374,25 +1423,26 @@ Future<OpenBill> mergeOpenBills(
     final targetItems = await _items(w.session, scope.tenantId, [
       target.id,
     ], transaction: w.transaction);
+    final sourceItems = await _items(w.session, scope.tenantId, [
+      source.id,
+    ], transaction: w.transaction);
     var order = targetItems.fold(
       0,
       (max, i) => i.sortOrder > max ? i.sortOrder : max,
     );
-    for (final item in await _items(w.session, scope.tenantId, [
-      source.id,
-    ], transaction: w.transaction)) {
-      await w.update(
-        item.copyWith(
-          saleId: target.id,
-          sortOrder: ++order,
-          version: item.version + 1,
-          updatedAt: s.now,
-          updatedBy: staffId,
-          hlc: s.hlc.toString(),
-          originDeviceId: s.deviceId,
-        ),
-        s,
+    final movedItems = <SaleItem>[];
+    for (final item in sourceItems) {
+      final moved = item.copyWith(
+        saleId: target.id,
+        sortOrder: ++order,
+        version: item.version + 1,
+        updatedAt: s.now,
+        updatedBy: staffId,
+        hlc: s.hlc.toString(),
+        originDeviceId: s.deviceId,
       );
+      movedItems.add(moved);
+      await w.update(moved, s);
     }
     final tickets = await KitchenTicket.db.find(
       w.session,
@@ -1426,16 +1476,20 @@ Future<OpenBill> mergeOpenBills(
       ),
       s,
     );
-    await _refreshTotals(
-      w,
-      scope,
-      target.copyWith(
-        guestCount: guests,
-        customerName: target.customerName ?? source.customerName,
-      ),
-      s,
-      staffId,
+    final merged = target.copyWith(
+      guestCount: guests,
+      customerId: mergedCustomer?.id ?? target.customerId,
+      customerName: target.customerName ?? source.customerName,
     );
+    // Satu bill berpelanggan: item bill lain ikut harga grupnya (F1-10f).
+    final group = mergedCustomer?.groupId;
+    if (targetCustomer?.groupId != group) {
+      await _repriceItems(w, scope, targetItems, group, s, staffId);
+    }
+    if (sourceCustomer?.groupId != group) {
+      await _repriceItems(w, scope, movedItems, group, s, staffId);
+    }
+    await _refreshTotals(w, scope, merged, s, staffId);
   });
   return loadOpenBill(store, scope, targetBillId);
 }
@@ -1572,6 +1626,12 @@ Future<CheckoutResult> payOpenBill(
       transaction: w.transaction,
     );
     await _assertUnlocked(w, scope, sale.id);
+    if (credit != null) {
+      final billCustomer = await _liveCustomer(w, scope, sale);
+      if (billCustomer != null && credit.customerId != billCustomer.id) {
+        throw BillCustomerMismatch();
+      }
+    }
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
@@ -1746,4 +1806,170 @@ Future<CheckoutResult> _completeBill(
       transaction: w.transaction,
     ),
   );
+}
+
+// --- Pelanggan bill (F1-10f) -------------------------------------------------
+
+/// Pelanggan [ids] beserta nama grupnya; pelanggan terhapus dilewati.
+Future<Map<UuidValue, BillCustomer>> _billCustomers(
+  DatabaseSession session,
+  CatalogScope scope,
+  Set<UuidValue> ids, {
+  Transaction? transaction,
+}) async {
+  if (ids.isEmpty) return const {};
+  final customers = await Customer.db.find(
+    session,
+    where: (c) =>
+        c.tenantId.equals(scope.tenantId) &
+        c.id.inSet(ids) &
+        c.deletedAt.equals(null),
+    transaction: transaction,
+  );
+  final groupIds = {for (final c in customers) ?c.customerGroupId};
+  final groups = groupIds.isEmpty
+      ? const <UuidValue, String>{}
+      : {
+          for (final g in await CustomerGroup.db.find(
+            session,
+            where: (g) =>
+                g.tenantId.equals(scope.tenantId) &
+                g.id.inSet(groupIds) &
+                g.deletedAt.equals(null),
+            transaction: transaction,
+          ))
+            g.id: g.name,
+        };
+  return {
+    for (final c in customers)
+      c.id: BillCustomer(
+        id: c.id,
+        name: c.name,
+        groupId: groups.containsKey(c.customerGroupId)
+            ? c.customerGroupId
+            : null,
+        groupName: groups[c.customerGroupId],
+      ),
+  };
+}
+
+/// Grup pelanggan bill [sale] untuk harga (F1-07c); `null` tanpa pelanggan,
+/// pelanggan tanpa grup, atau pelanggan yang sudah dihapus.
+Future<UuidValue?> _billGroup(SyncTx w, CatalogScope scope, Sale sale) async =>
+    (await _liveCustomer(w, scope, sale))?.groupId;
+
+/// Menghitung ulang harga [items] dengan grup pelanggan [groupId]. Harga
+/// dihitung per baris: item yang produknya sudah nonaktif/dihapus tetap
+/// memakai harga bekunya agar bill tidak terkunci.
+Future<void> _repriceItems(
+  SyncTx w,
+  CatalogScope scope,
+  List<SaleItem> items,
+  UuidValue? groupId,
+  SyncStamp s,
+  UuidValue staffId,
+) async {
+  for (final item in items) {
+    final PricedRequest p;
+    try {
+      p = (await priceRequests(w.session, w.transaction, scope, [
+        SaleLineRequest(
+          variantId: item.variantId,
+          productUnitId: item.productUnitId,
+          quantity: Qty(item.quantityMilli),
+        ),
+      ], customerGroupId: groupId)).single;
+    } on SaleItemUnavailable {
+      continue;
+    }
+    if (p.line.unitPrice.value == item.unitPrice &&
+        p.line.listPrice.value == item.listPrice) {
+      continue;
+    }
+    if (modifiedUnitPrice(p.line.unitPrice, Money(item.modifierDelta)) ==
+        null) {
+      throw ModifierPriceInvalid();
+    }
+    await w.update(_repriced(item, p, s, staffId), s);
+  }
+}
+
+/// Id pelanggan bill [sale] yang masih ada (pelanggan terhapus = tanpa
+/// pelanggan) beserta grupnya.
+Future<BillCustomer?> _liveCustomer(
+  SyncTx w,
+  CatalogScope scope,
+  Sale sale,
+) async {
+  final id = sale.customerId;
+  if (id == null) return null;
+  return (await _billCustomers(w.session, scope, {
+    id,
+  }, transaction: w.transaction))[id];
+}
+
+/// Nama pelanggan untuk kolom nama pemesan bill (≤ [FnbLimits.customerName]).
+String? _billName(String? name) =>
+    name == null || name.length <= FnbLimits.customerName
+    ? name
+    : name.substring(0, FnbLimits.customerName);
+
+/// Memilih ([customerId]) atau menghapus (`null`) pelanggan bill [billId]
+/// dan menghitung ulang harga semua item dengan grupnya (F1-10f). Nama
+/// pemesan kosong diisi nama pelanggan. Gagal dengan [BillCustomerBlocked]
+/// saat bill di-split / punya pembayaran bagian, atau [CustomerNotFound].
+Future<OpenBill> setOpenBillCustomer(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue billId,
+  required UuidValue? customerId,
+}) async {
+  await store.write(actor: staffId, (w) async {
+    final sale = await _openSale(
+      w.session,
+      scope,
+      billId,
+      transaction: w.transaction,
+    );
+    if (sale.splitMode != null) throw BillCustomerBlocked();
+    final payments = await _billPayments(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction);
+    if (payments.isNotEmpty) throw BillCustomerBlocked();
+    if (customerId == sale.customerId) return;
+    if (customerId != null) await saleCustomer(w, scope, customerId);
+    final previous = await _liveCustomer(w, scope, sale);
+    final next = customerId == null
+        ? null
+        : (await _billCustomers(w.session, scope, {
+            customerId,
+          }, transaction: w.transaction))[customerId];
+    final name = sale.customerName;
+    final keepName =
+        name != null && name.isNotEmpty && name != _billName(previous?.name);
+    final s = await w.stamp();
+    final updated = sale.copyWith(
+      customerId: customerId,
+      customerName: keepName ? name : _billName(next?.name),
+    );
+    // Harga beku hanya dihitung ulang bila grup harganya berubah.
+    if (previous?.groupId != next?.groupId) {
+      final items = await _items(w.session, scope.tenantId, [
+        sale.id,
+      ], transaction: w.transaction);
+      await _repriceItems(w, scope, items, next?.groupId, s, staffId);
+    }
+    await _refreshTotals(w, scope, updated, s, staffId);
+    final items = await _items(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction);
+    final rates = await loadFnbRates(
+      w.session,
+      scope,
+      transaction: w.transaction,
+    );
+    _assertPayable(updated, _charges(updated, items, rates));
+  });
+  return loadOpenBill(store, scope, billId);
 }

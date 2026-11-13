@@ -7,6 +7,73 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-11-13
+
+Open bill F&B kini bisa diberi pelanggan, sehingga harga grosir grup
+pelanggan berlaku juga di meja.
+
+### Ditambahkan
+
+- **Pelanggan di open bill (1.7 / 1.8, F1-10f).** Baris *Pelanggan* di
+  bawah judul bill dengan tombol **Pilih pelanggan** / **Ganti** dan
+  **×** untuk melepas. Dialog pemilih mencari nama atau nomor HP dan
+  menampilkan grup pelanggan.
+  - Semua item bill langsung dihitung ulang dengan harga grup pelanggan
+    (F1-07c), termasuk item yang sudah dikirim ke dapur dan item yang
+    ditambahkan atau diubah jumlahnya kemudian. Melepas pelanggan
+    mengembalikan harga normal.
+  - Nama pemesan bill yang masih kosong diisi nama pelanggan.
+  - *Tutup & bayar* dengan *Kredit / piutang* otomatis memilih pelanggan
+    bill.
+- Panduan *Meja & open bill* (ID + EN): bagian *Pelanggan di bill*.
+
+### Diubah
+
+- Baris pelanggan kosong menampilkan *Pelanggan umum*, sama dengan Kasir.
+- *Gabung meja* tidak menawarkan bill dengan pelanggan berbeda; bila
+  hanya satu bill berpelanggan, hasil gabung memakai pelanggan itu dan
+  harganya dihitung ulang. Pesan *Belum ada meja lain yang bisa
+  digabung* kini menyebut split, diskon nota, dan pelanggan berbeda.
+- Pelanggan bill tidak bisa diubah setelah bill di-split atau ada bayar
+  bagian.
+
+### Diperbaiki
+
+- Kredit open bill untuk pelanggan selain pelanggan bill kini ditolak
+  dengan pesan jelas, agar piutang tidak tercatat atas nama yang salah
+  sementara harga memakai grup pelanggan lain.
+
+### Catatan teknis
+
+- `setOpenBillCustomer`, `OpenBill.customer` (`BillCustomer{id, name,
+  groupId, groupName}`), `BillCustomerBlocked`, `BillCustomerMismatch`,
+  `BillMergeReason.customer` di `lakuna_data`; harga ulang lewat
+  `_repriceBill` memakai aturan harga F1-07c dan hanya menulis item yang
+  berubah (tercatat di outbox sync).
+- `addBillItem` / `setBillItemQuantity` memakai grup pelanggan bill.
+- `DiningRepository.customers()` / `setBillCustomer`;
+  `DiningViewModel.customers`, `setCustomer`, `customerCandidates`,
+  `canSetCustomer`; `mergeSources` menyaring pelanggan berbeda.
+- Tes widget panel bill kini menggulir ke aksi tambahan yang belum
+  dibangun oleh `ListView` di ponsel; teks *Belum ada meja lain yang bisa
+  digabung* kini bisa digulir agar tidak meluap di ponsel.
+- Temuan review yang diperbaiki sebelum rilis: harga hanya dihitung ulang
+  bila grup harga bill berubah (sebelumnya memasang pelanggan tanpa grup
+  ikut menaikkan harga beku ke harga menu terbaru); harga dihitung per
+  baris dan item yang produknya sudah nonaktif tetap memakai harga beku
+  (sebelumnya bill terkunci dengan `SaleItemUnavailable`); pelanggan bill
+  yang sudah dihapus dianggap tanpa pelanggan saat gabung dan bayar kredit
+  (sebelumnya kredit ditolak walau panel menampilkan *Pelanggan umum*);
+  nama pelanggan dipotong ke 40 karakter nama pemesan; diskon nota rupiah
+  yang menghabiskan total setelah harga grup kini ditolak saat memilih
+  pelanggan, bukan baru saat bayar. Gabung meja hanya menghitung ulang item
+  bill yang grupnya berbeda.
+- Uji manual di aplikasi Linux (Xvfb): M1 dengan 2 × Gula Pasir 1 kg
+  (Rp 17.500) → pilih *Toko Bu Ani · Grosir* → Rp 16.500 per item; tambah
+  jumlah tetap harga grup; lepas pelanggan → harga normal; *Tutup & bayar*
+  → *Kredit / piutang* memilih Toko Bu Ani; M2 berpelanggan Siti Rahma
+  tidak bisa digabung dengan M1.
+
 ## [0.41.0] - 2026-11-13
 
 Tiket dapur kini bisa keluar langsung di printer dapur, terpisah dari
@@ -3491,7 +3558,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.42.0...HEAD
+[0.42.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...v0.39.0

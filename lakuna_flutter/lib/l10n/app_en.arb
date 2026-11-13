@@ -4153,7 +4153,7 @@
     }
   },
   "diningMergeHint": "Items, kitchen tickets and guests of the chosen table move to this bill. That table becomes empty.",
-  "diningMergeNone": "No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas).",
+  "diningMergeNone": "No other table can be merged. The table needs an open bill and “Can be joined with the next table” turned on (floor plan or Master data › Tables & areas), without a split, bill discount, or a different customer.",
   "diningMergeOption": "{label} · {total}",
   "@diningMergeOption": {
     "placeholders": {
@@ -4181,5 +4181,40 @@
   "kitchenPrinterTestSent": "Sample ticket sent to the kitchen printer.",
   "ticketPrintingKitchen": "Printing the ticket on the kitchen printer…",
   "ticketPrintedKitchen": "Ticket printed on the kitchen printer.",
-  "ticketReprint": "Reprint"
+  "ticketReprint": "Reprint",
+  "diningCustomerPick": "Choose customer",
+  "diningCustomerChange": "Change",
+  "diningCustomerClear": "Remove customer",
+  "diningCustomerLabel": "Customer: {name}",
+  "@diningCustomerLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerGroupLabel": "Customer: {name} · {group}",
+  "@diningCustomerGroupLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerTitle": "Customer for {label}",
+  "@diningCustomerTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "diningCustomerHint": "The customer's group prices apply to every item on the bill.",
+  "diningErrorCustomerBlocked": "The customer can't be changed while the bill is split.",
+  "diningErrorCustomerNotFound": "Customer not found or already deleted.",
+  "diningErrorMergeCustomer": "The two tables have different customers.",
+  "cashierErrorBillCustomerMismatch": "Credit must be in the bill customer's name. Change the customer on the table panel."
 }

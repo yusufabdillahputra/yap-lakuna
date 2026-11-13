@@ -22,6 +22,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.39.0 | Logo di struk (F1-06b) | #45 |
 | v0.40.0 | Gabung meja (F1-10d) | #46 |
 | v0.41.0 | Printer dapur terpisah (F1-10e) | #47 |
+| v0.42.0 | Pelanggan & harga grup di open bill (F1-10f) | #48 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -35,7 +36,7 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    melekat pada satu nota dengan satu pelanggan. Perlu desain model data
    sendiri (tabel baru + alokasi pembayaran piutang).
 3. ~~Harga grosir per grup pelanggan~~ — selesai v0.34.0 (F1-07c);
-   harga grup di open bill F&B masih gap.
+   harga grup di open bill F&B selesai v0.42.0 (F1-10f).
 4. ~~*Pelanggan baru* dari pemilih pelanggan Kasir~~ — selesai v0.33.0
    (F1-04f).
 5. ~~Foto produk~~ — selesai v0.37.0 (F1-07f); kecilkan foto ke WebP

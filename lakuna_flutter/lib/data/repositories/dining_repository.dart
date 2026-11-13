@@ -151,6 +151,17 @@ abstract class DiningRepository {
     UuidValue sourceBillId,
   );
 
+  /// Pelanggan untuk pemilih *Pelanggan* bill (F1-10f), urut nama.
+  Future<Result<CustomersOverview>> customers();
+
+  /// Memilih atau (`null`) menghapus pelanggan bill dan menghitung ulang
+  /// harga grupnya (F1-10f). Gagal dengan `BillCustomerBlocked` atau
+  /// `CustomerNotFound`.
+  Future<Result<OpenBill>> setBillCustomer(
+    UuidValue billId,
+    UuidValue? customerId,
+  );
+
   /// [approverId] = penyetuju ber-`sales:void` yang PIN-nya sudah
   /// diverifikasi (F1-11), bila staf bertugas tidak punya izin itu.
   Future<Result<void>> voidBill(

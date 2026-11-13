@@ -5,7 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart'
-    show BillItemLocked, KitchenPrinter, PrinterKind, PrinterSelection;
+    show
+        BillItemLocked,
+        CustomerRow,
+        KitchenPrinter,
+        PrinterKind,
+        PrinterSelection;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -23,6 +28,15 @@ Finder _input(String key) =>
     find.descendant(of: _key(key), matching: find.byType(EditableText));
 
 Future<void> _tap(WidgetTester tester, String key) async {
+  // Panel bill memakai ListView yang dibangun malas: di ponsel aksi
+  // tambahan di bawah item belum dibangun sampai digulir.
+  final panel = find.ancestor(
+    of: _key('dining-customer-row'),
+    matching: find.byType(Scrollable),
+  );
+  if (_key(key).evaluate().isEmpty && panel.evaluate().isNotEmpty) {
+    await tester.scrollUntilVisible(_key(key), 120, scrollable: panel.first);
+  }
   await tester.ensureVisible(_key(key));
   await tester.pumpAndSettle();
   await tester.tap(_key(key));
@@ -49,13 +63,16 @@ void main() {
     bool modifiers = false,
     List<String> mergeable = const [],
     KitchenPrinter? kitchenPrinter,
+    List<CustomerRow> customers = const [],
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
           ? null
           : permissionsForRole(role, isOwner: false),
     )..allowMerge(mergeable);
-    dining.kitchenPrinter = kitchenPrinter;
+    dining
+      ..kitchenPrinter = kitchenPrinter
+      ..customerRows = customers;
     if (modifiers) {
       dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
     }
@@ -463,6 +480,61 @@ void main() {
       expect(find.text('Tiket dicetak di printer dapur.'), findsOneWidget);
       await _tap(tester, 'dining-ticket-close');
       expect(_key('dining-ticket'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('pelanggan bill ${size.width.toInt()} px: pilih, cari, '
+        'hapus (F1-10f)', (tester) async {
+      CustomerRow row(String name, {String? group, String? phone}) =>
+          CustomerRow(
+            customer: Customer(
+              id: UuidValue.fromString(newId()),
+              tenantId: UuidValue.fromString(newId()),
+              name: name,
+              phone: phone,
+              creditLimit: 0,
+              createdAt: DateTime.utc(2026, 11, 1),
+              hlc: '',
+            ),
+            groupName: group,
+            termDays: 14,
+            outstanding: Money.zero,
+            openCount: 0,
+            overdueCount: 0,
+          );
+      await pump(
+        tester,
+        size: size,
+        customers: [
+          row('Ani', group: 'Karyawan', phone: '081234'),
+          row('Budi'),
+        ],
+      );
+      if (size.width < 600) {
+        await _tapText(tester, 'Teras');
+        await _tap(tester, 'dining-table-M5');
+      } else {
+        await _tap(tester, 'dining-table-M1');
+      }
+      await _tap(tester, 'dining-guests-open');
+      expect(find.text('Pelanggan umum'), findsOneWidget);
+      expect(find.text('Pilih pelanggan'), findsOneWidget);
+      await _tap(tester, 'dining-customer');
+      expect(_key('dining-customer-dialog'), findsOneWidget);
+      expect(_key('dining-customer-option-Budi'), findsOneWidget);
+      await tester.enterText(_input('dining-customer-search'), '0812');
+      await tester.pumpAndSettle();
+      expect(_key('dining-customer-option-Budi'), findsNothing);
+      await _tap(tester, 'dining-customer-option-Ani');
+      expect(_key('dining-customer-dialog'), findsNothing);
+      expect(find.text('Pelanggan: Ani · Karyawan'), findsOneWidget);
+      expect(dining.customerSets, hasLength(1));
+
+      await _tap(tester, 'dining-customer-clear');
+      expect(find.text('Pelanggan: Ani · Karyawan'), findsNothing);
+      expect(dining.customerSets.last.$2, isNull);
       expect(tester.takeException(), isNull);
     });
   }

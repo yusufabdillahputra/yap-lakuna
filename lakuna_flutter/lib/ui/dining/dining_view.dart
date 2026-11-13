@@ -126,7 +126,10 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
         BillMergeReason.discount => l10n.diningErrorMergeDiscount,
         BillMergeReason.guests => l10n.diningErrorMergeGuests,
         BillMergeReason.notAllowed => l10n.diningErrorMergeNotAllowed,
+        BillMergeReason.customer => l10n.diningErrorMergeCustomer,
       },
+      BillCustomerBlocked() => l10n.diningErrorCustomerBlocked,
+      CustomerNotFound() => l10n.diningErrorCustomerNotFound,
       NothingToSend() => l10n.diningErrorNothingToSend,
       BillNotFound() => l10n.diningErrorNotFound,
       BillNotEmpty() => l10n.diningErrorNotEmpty,
@@ -1216,6 +1219,7 @@ class _BillPanel extends StatelessWidget {
           ],
         ),
         Text(meta, style: _muted(context)),
+        _BillCustomerRow(viewModel: vm, bill: bill, busy: busy),
       ],
     );
 
@@ -1958,7 +1962,11 @@ Future<void> _mergeBill(
       body: sources.isEmpty ? null : l10n.diningMergeHint,
       children: [
         if (sources.isEmpty)
-          Text(l10n.diningMergeNone, style: _muted(context))
+          Flexible(
+            child: SingleChildScrollView(
+              child: Text(l10n.diningMergeNone, style: _muted(context)),
+            ),
+          )
         else
           Flexible(
             child: SingleChildScrollView(
@@ -1997,6 +2005,181 @@ Future<void> _mergeBill(
     );
   });
   if (source != null) await vm.merge.execute(source.id);
+}
+
+/// Baris *Pelanggan* panel bill (F1-10f): pilih, ganti, atau hapus.
+class _BillCustomerRow extends StatelessWidget {
+  const _BillCustomerRow({
+    required this.viewModel,
+    required this.bill,
+    required this.busy,
+  });
+
+  final DiningViewModel viewModel;
+  final OpenBill bill;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final customer = bill.customer;
+    final enabled = !busy && vm.canSetCustomer(bill);
+    return Row(
+      key: const ValueKey('dining-customer-row'),
+      spacing: 8,
+      children: [
+        Icon(
+          TablerIcons.user,
+          size: 16,
+          color: customer == null
+              ? theme.colors.mutedForeground
+              : theme.colors.primary,
+        ),
+        Expanded(
+          child: Text(
+            switch (customer) {
+              null => l10n.cashierCustomerWalkIn,
+              BillCustomer(:final name, groupName: final group?) =>
+                l10n.diningCustomerGroupLabel(name, group),
+              BillCustomer(:final name) => l10n.diningCustomerLabel(name),
+            },
+            key: const ValueKey('dining-customer-name'),
+            overflow: TextOverflow.ellipsis,
+            style: customer == null
+                ? _muted(context)
+                : theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+          ),
+        ),
+        FButton(
+          key: const ValueKey('dining-customer'),
+          size: .sm,
+          mainAxisSize: .min,
+          variant: .outline,
+          onPress: enabled ? () => _pickCustomer(context, vm, bill) : null,
+          child: Text(
+            customer == null
+                ? l10n.diningCustomerPick
+                : l10n.diningCustomerChange,
+          ),
+        ),
+        if (customer != null)
+          FButton.icon(
+            key: const ValueKey('dining-customer-clear'),
+            size: .sm,
+            variant: .ghost,
+            onPress: enabled ? () => vm.setCustomer.execute(null) : null,
+            child: Semantics(
+              label: l10n.diningCustomerClear,
+              child: const Icon(TablerIcons.x, size: 16),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Pemilih pelanggan bill (F1-10f): cari nama / nomor HP.
+Future<void> _pickCustomer(
+  BuildContext context,
+  DiningViewModel vm,
+  OpenBill bill,
+) async {
+  unawaited(vm.customers.execute());
+  final picked = await _showDialog<UuidValue>(
+    context,
+    (context) => ListenableBuilder(
+      listenable: vm,
+      builder: (context, _) {
+        final l10n = AppLocalizations.of(context);
+        final theme = context.theme;
+        final all = vm.customerList?.rows ?? const <CustomerRow>[];
+        final rows = vm.customerCandidates;
+        final Widget list;
+        if (vm.customerList == null && vm.customers.error) {
+          list = Text(
+            l10n.cashierCustomerLoadFailed,
+            key: const ValueKey('dining-customer-error'),
+            style: _errorStyle(context),
+          );
+        } else if (vm.customerList == null) {
+          list = const Center(child: FCircularProgress());
+        } else if (all.isEmpty) {
+          list = Text(l10n.cashierCustomerNone, style: _muted(context));
+        } else if (rows.isEmpty) {
+          list = Text(l10n.cashierCustomerNoMatch, style: _muted(context));
+        } else {
+          list = Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final r in rows.take(50))
+                    FTappable(
+                      key: ValueKey(
+                        'dining-customer-option-${r.customer.name}',
+                      ),
+                      onPress: () => Navigator.of(context).pop(r.customer.id),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r.customer.name,
+                              style: theme.typography.body.sm.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if ([r.groupName, r.customer.phone].nonNulls
+                                case final info when info.isNotEmpty)
+                              Text(info.join(' · '), style: _muted(context)),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.8,
+          ),
+          child: _dialogFrame(
+            context,
+            key: const ValueKey('dining-customer-dialog'),
+            title: l10n.diningCustomerTitle(bill.label),
+            body: l10n.diningCustomerHint,
+            children: [
+              FTextField(
+                key: const ValueKey('dining-customer-search'),
+                hint: l10n.cashierCustomerSearch,
+                control: .managed(
+                  initial: TextEditingValue(text: vm.customerQuery),
+                  onChange: (v) => vm.setCustomerQuery(v.text),
+                ),
+              ),
+              list,
+            ],
+            actions: [
+              FButton(
+                variant: .ghost,
+                mainAxisSize: .min,
+                onPress: () => Navigator.of(context).pop(),
+                child: Flexible(child: Text(l10n.diningCancel)),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+  if (picked != null) await vm.setCustomer.execute(picked);
 }
 
 /// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;

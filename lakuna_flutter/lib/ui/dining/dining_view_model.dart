@@ -64,6 +64,8 @@ class DiningViewModel extends ChangeNotifier {
     requestBill = Command1(_requestBill)..addListener(notifyListeners);
     move = Command1(_move)..addListener(notifyListeners);
     merge = Command1(_merge)..addListener(notifyListeners);
+    customers = Command0(_loadCustomers)..addListener(notifyListeners);
+    setCustomer = Command1(_setCustomer)..addListener(notifyListeners);
     voidBill = Command1(_void)..addListener(notifyListeners);
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
@@ -94,6 +96,12 @@ class DiningViewModel extends ChangeNotifier {
 
   /// *Gabung meja* (F1-10d): argumen = bill sumber; tujuan = bill terpilih.
   late final Command1<OpenBill, UuidValue> merge;
+
+  /// Daftar pelanggan untuk pemilih *Pelanggan* bill (F1-10f).
+  late final Command0<void> customers;
+
+  /// Memilih atau (`null`) menghapus pelanggan bill terpilih.
+  late final Command1<OpenBill, UuidValue?> setCustomer;
 
   /// Alasan batal dan penyetuju (F1-11; `null` = staf bertugas).
   late final Command1<void, BillVoid> voidBill;
@@ -389,9 +397,73 @@ class DiningViewModel extends ChangeNotifier {
     for (final t in tables)
       if (t.canMerge)
         if (billFor(t) case final b?
-            when b.id != bill.id && _unsplit(b) && b.discount == null)
+            when b.id != bill.id &&
+                _unsplit(b) &&
+                b.discount == null &&
+                _sameCustomer(bill, b))
           b,
   ];
+
+  /// Bill dengan pelanggan berbeda tidak bisa digabung (F1-10f); pelanggan
+  /// yang sudah dihapus dianggap tanpa pelanggan.
+  static bool _sameCustomer(OpenBill a, OpenBill b) =>
+      a.customer == null ||
+      b.customer == null ||
+      a.customer!.id == b.customer!.id;
+
+  // --- Pelanggan bill (F1-10f) ----------------------------------------------
+
+  CustomersOverview? _customerList;
+  var _customerQuery = '';
+
+  /// Daftar pelanggan termuat; `null` sebelum [customers] berhasil.
+  CustomersOverview? get customerList => _customerList;
+  String get customerQuery => _customerQuery;
+
+  void setCustomerQuery(String q) {
+    _customerQuery = q;
+    notifyListeners();
+  }
+
+  /// Pelanggan yang cocok dengan [customerQuery] (nama atau nomor HP),
+  /// urut nama.
+  List<CustomerRow> get customerCandidates {
+    final q = _customerQuery.trim().toLowerCase();
+    final digits = q.replaceAll(RegExp(r'\D'), '');
+    return [
+      for (final r in _customerList?.rows ?? const <CustomerRow>[])
+        if (q.isEmpty ||
+            r.customer.name.toLowerCase().contains(q) ||
+            (digits.isNotEmpty && (r.customer.phone ?? '').contains(digits)))
+          r,
+    ]..sort(
+      (a, b) => a.customer.name.toLowerCase().compareTo(
+        b.customer.name.toLowerCase(),
+      ),
+    );
+  }
+
+  /// Pelanggan bill bisa diubah: tidak sedang di-split.
+  bool canSetCustomer(OpenBill bill) => _unsplit(bill);
+
+  Future<Result<void>> _loadCustomers() async {
+    _customerQuery = '';
+    final result = await _repository.customers();
+    if (result case Ok(:final value)) _customerList = value;
+    return result;
+  }
+
+  Future<Result<OpenBill>> _setCustomer(UuidValue? customerId) {
+    final id = _billId;
+    if (id == null) return Future.value(Result.error(BillNotFound()));
+    return _act(
+      () => _repository.setBillCustomer(id, customerId),
+      onOk: (bill) {
+        _put(bill);
+        _customerQuery = '';
+      },
+    );
+  }
 
   /// Galat aksi bill terakhir (item terkunci, alasan kosong, dsb.).
   Exception? get actionError => _actionError;
@@ -412,6 +484,7 @@ class DiningViewModel extends ChangeNotifier {
       requestBill.running ||
       move.running ||
       merge.running ||
+      setCustomer.running ||
       voidBill.running ||
       deleteEmpty.running ||
       setDiscount.running;
