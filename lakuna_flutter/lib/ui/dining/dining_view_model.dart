@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -612,9 +614,24 @@ class DiningViewModel extends ChangeNotifier {
       _ticket != null && ticketToKitchen && !_autoPrintStarted;
 
   /// Cetak otomatis tiket [lines] ke printer dapur, sekali per tiket.
+  ///
+  /// Bila cetak tiket sebelumnya masih berjalan (printer lambat), tiket ini
+  /// menunggu lalu dicetak, agar tidak ada tiket yang terlewat.
   Future<void> autoPrintTicket(List<ReceiptLine> lines) async {
-    if (!shouldAutoPrintTicket || printTicket.running) return;
+    if (!shouldAutoPrintTicket) return;
     _autoPrintStarted = true;
+    final ticket = _ticket;
+    while (printTicket.running) {
+      final idle = Completer<void>();
+      void check() {
+        if (!printTicket.running && !idle.isCompleted) idle.complete();
+      }
+
+      printTicket.addListener(check);
+      await idle.future;
+      printTicket.removeListener(check);
+    }
+    if (!identical(_ticket, ticket)) return;
     await printTicket.execute(lines);
   }
 
@@ -624,6 +641,8 @@ class DiningViewModel extends ChangeNotifier {
   Future<Result<void>> _printTicket(List<ReceiptLine> lines) async {
     _printFailure = null;
     _ticketPrinted = false;
+    // Hasil cetak hanya berlaku untuk tiket yang sedang tampil.
+    final ticket = _ticket;
     final printer =
         _kitchenPrinter?.printer ??
         _data?.printer ??
@@ -637,10 +656,10 @@ class DiningViewModel extends ChangeNotifier {
             ? 'Tiket dapur'
             : kitchenTicketLabel(_ticket!.ticket.number),
       );
-      _ticketPrinted = printer.isDirect;
+      if (identical(_ticket, ticket)) _ticketPrinted = printer.isDirect;
       return const Result.ok(null);
     } on PrinterFailure catch (e) {
-      _printFailure = e.reason;
+      if (identical(_ticket, ticket)) _printFailure = e.reason;
       return Result.error(e);
     } on Exception catch (e) {
       return Result.error(e);

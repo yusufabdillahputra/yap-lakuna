@@ -563,7 +563,7 @@ dibuka dari chip *Belum ditempatkan*.
 | Denah: pas layar saat ganti area | 1.7d | Sekali saat kanvas dipasang | Berpindah antar dua area denah memakai tampilan sebelumnya; tekan tombol *pas layar*. |
 | Denah: ketuk meja | 1.7b | Dirilis v0.14.0 | Ketuk = jari naik tanpa bergeser > 18 px dan tanpa jari kedua, sehingga menggeser/zoom denah di atas meja tidak membuka meja. Selama jari di kanvas, gulir halaman dikunci. |
 | Gabung meja | Ada (`can_merge` di 1.7d) | Rilis v0.40.0 | [F1-10d](2026-11-13-f1-10d-gabung-meja-design.md): gabung bill dua meja *Boleh digabung*; satu bill di dua meja kosong masih gap. |
-| Printer dapur terpisah | — | Belum | Tiket memakai printer perangkat. |
+| Printer dapur terpisah | — | Rilis v0.41.0 | [F1-10e](2026-11-13-f1-10e-printer-dapur-design.md): satu printer dapur per perangkat (jaringan/Bluetooth, kertas sendiri), tiket otomatis saat *Kirim ke dapur*; printer per stasiun masih gap. |
 | Nomor TA/K per perangkat | — | v0.11.0 tanpa kode perangkat | `TA-01`/`K-0001` urut per perangkat; dua tablet satu cabang bisa sama. Tambah kode perangkat sebelum sinkronisasi Fase 2. |
 | Kurangi item produk nonaktif | — | Hanya hapus | Mengurangi jumlah memakai harga ulang dan ditolak (`SaleItemUnavailable`); hapus baris tetap bisa. |
 | Durasi kartu meja | 1.7 | Diperbarui saat layar dibangun ulang | Tambah penyegar per menit bila perlu. |

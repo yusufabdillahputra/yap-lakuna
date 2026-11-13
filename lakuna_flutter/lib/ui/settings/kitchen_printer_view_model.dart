@@ -91,18 +91,26 @@ class KitchenPrinterViewModel extends ChangeNotifier {
       forget.running ||
       testPrint.running;
 
+  /// `null` = *Sama dengan printer struk*: melupakan printer dapur yang
+  /// tersimpan.
   void setKind(PrinterKind? kind) {
     if (kind == PrinterKind.system) return;
     if (kind == PrinterKind.bluetooth && !supportsBluetooth) return;
+    if (kind == null && _kitchen != null) {
+      if (!busy) forget.execute();
+      return;
+    }
     _kind = kind;
     _failure = null;
     _testSent = false;
     notifyListeners();
   }
 
-  /// Lebar kertas dapur; langsung tersimpan bila printer dapur sudah ada.
+  /// Lebar kertas dapur; langsung tersimpan bila printer dapur yang tampil
+  /// sudah tersimpan, selain itu dipakai saat printer berikutnya dipilih.
   void setPaper(ReceiptPaper paper) {
-    final current = _kitchen;
+    final saved = _kitchen;
+    final current = saved?.printer.kind == _kind ? saved : null;
     if (paper == _paper || (current != null && busy)) return;
     _paper = paper;
     notifyListeners();

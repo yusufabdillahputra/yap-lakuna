@@ -130,6 +130,42 @@ void main() {
     expect(vm.kind, isNull);
   });
 
+  test('pilih Sama dengan printer struk melupakan printer dapur', () async {
+    await vm.choose.execute(lan);
+    vm.setKind(null);
+    await pumpEventQueue();
+    expect(repo.kitchen, isNull);
+    expect(vm.kitchen, isNull);
+    expect(vm.kind, isNull);
+  });
+
+  test(
+    'kertas tidak menyimpan ulang printer lama saat jenis lain dipilih',
+    () async {
+      await vm.choose.execute(lan);
+      vm.setKind(PrinterKind.bluetooth);
+      vm.setPaper(ReceiptPaper.mm80);
+      await pumpEventQueue();
+      expect(repo.kitchenSaves, hasLength(1));
+      expect(vm.kind, PrinterKind.bluetooth);
+      await vm.searchBluetooth.execute();
+      await vm.choose.execute(bar);
+      expect(
+        repo.kitchen,
+        const KitchenPrinter(printer: bar, paper: ReceiptPaper.mm80),
+      );
+    },
+  );
+
+  test('gagal simpan kertas: kembali ke kertas tersimpan', () async {
+    await vm.choose.execute(lan);
+    repo.nextError = const NotPermitted(Permission.settingsManage);
+    vm.setPaper(ReceiptPaper.mm80);
+    await pumpEventQueue();
+    expect(vm.paper, ReceiptPaper.mm58);
+    expect(repo.kitchen?.paper, ReceiptPaper.mm58);
+  });
+
   test('simpan ditolak tanpa izin: printer dapur tidak berubah', () async {
     repo.nextError = const NotPermitted(Permission.settingsManage);
     await vm.choose.execute(lan);

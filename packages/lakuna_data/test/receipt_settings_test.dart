@@ -304,6 +304,8 @@ void main() {
         expect((await loadKitchenPrinter(prefs))?.paper, ReceiptPaper.mm58);
         await prefs.set(kitchenPrinterKey, '{"kind":"system","name":""}');
         expect(await loadKitchenPrinter(prefs), isNull);
+        await prefs.set(kitchenPrinterKey, '{"kind":"network","name":"a"}');
+        expect(await loadKitchenPrinter(prefs), isNull);
         await prefs.set(kitchenPrinterKey, 'bukan json');
         expect(await loadKitchenPrinter(prefs), isNull);
         await prefs.set(

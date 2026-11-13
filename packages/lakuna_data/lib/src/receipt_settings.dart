@@ -432,7 +432,9 @@ Future<KitchenPrinter?> loadKitchenPrinter(LocalPreferences prefs) async {
   try {
     final json = jsonDecode(raw);
     final printer = PrinterSelection.fromJson(json);
-    if (printer == null || !printer.isDirect) return null;
+    if (printer == null || !printer.isDirect || printer.address.isEmpty) {
+      return null;
+    }
     final paper = ReceiptPaper.values
         .where((p) => p.name == (json as Map<String, Object?>)['paper'])
         .firstOrNull;

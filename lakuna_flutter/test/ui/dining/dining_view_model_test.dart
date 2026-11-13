@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -369,6 +371,33 @@ void main() {
       await vm.send.execute();
       expect(vm.shouldAutoPrintTicket, isTrue);
     });
+
+    test(
+      'tiket berikutnya menunggu cetak sebelumnya, status tidak tertukar',
+      () async {
+        repo.kitchenPrinter = kitchen;
+        vm = DiningViewModel(repository: repo, printer: printer);
+        await vm.load.execute();
+        await sendOne();
+        final hold = printer.hold = Completer<void>();
+        final first = vm.autoPrintTicket(const [ReceiptLine('A')]);
+        await pumpEventQueue();
+        expect(vm.printTicket.running, isTrue);
+        // Modal A ditutup selagi printer lambat, lalu tiket B dikirim.
+        vm.clearTicket();
+        await add('Kopi Susu Aren');
+        await vm.send.execute();
+        final second = vm.autoPrintTicket(const [ReceiptLine('B')]);
+        await pumpEventQueue();
+        expect(vm.ticketPrinted, isFalse);
+        printer.hold = null;
+        hold.complete();
+        await first;
+        await second;
+        expect(printer.prints.map((p) => p.$2.single.text), ['A', 'B']);
+        expect(vm.ticketPrinted, isTrue);
+      },
+    );
 
     test(
       'cetak dapur gagal: alasan tampil, cetak ulang ke printer dapur',

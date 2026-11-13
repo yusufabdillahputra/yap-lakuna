@@ -1,7 +1,7 @@
 # F1-10e · Printer dapur terpisah
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.41.0
 - **Layar:** 1.26 *Pengaturan › Struk & printer* (kartu *Printer dapur*),
   1.7 / 1.8 *Meja* (modal tiket dapur setelah *Kirim ke dapur*).
 - **Acuan:** spec Storeku F1-10 (tiket dapur, "printer dapur terpisah
@@ -33,7 +33,12 @@ printer struk di kasir, tanpa kasir menekan *Cetak tiket* setiap kali.
    Modal tiket menampilkan *Tiket dicetak di printer dapur*, atau pesan
    galat printer dengan *Cetak ulang*. Item tetap berstatus *Di dapur*
    walau cetak gagal (tiket sudah tercatat).
-4. Tiket dari *Tutup & bayar* / split bill tidak berubah (tidak ada tiket
+4. Bila cetak tiket sebelumnya masih berjalan (printer lambat) saat tiket
+   baru dikirim, tiket baru menunggu lalu dicetak; status di modal hanya
+   milik tiket yang tampil.
+5. Memilih *Sama dengan printer struk* saat printer dapur tersimpan
+   langsung melupakannya.
+6. Tiket dari *Tutup & bayar* / split bill tidak berubah (tidak ada tiket
    otomatis di sana).
 
 ## Komponen
@@ -42,7 +47,7 @@ printer struk di kasir, tanpa kasir menekan *Cetak tiket* setiap kali.
   `loadKitchenPrinter` / `saveKitchenPrinter` (`KitchenPrinter{printer,
   paper}`).
 - Flutter: `ReceiptSettingsRepository.loadKitchenPrinter /
-  saveKitchenPrinter`; `KitchenPrinterViewModel` + kartu `_KitchenPrinterCard`
+  saveKitchenPrinter`; `KitchenPrinterViewModel` + kartu `KitchenPrinterCard`
   di bagian Struk & printer; `DiningData.kitchenPrinter`;
   `DiningViewModel.shouldAutoPrintTicket`, `autoPrintTicket(lines)`,
   `ticketPaper`.
@@ -61,5 +66,5 @@ printer struk di kasir, tanpa kasir menekan *Cetak tiket* setiap kali.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Printer dapur terpisah | — | Dikerjakan | |
+| Printer dapur terpisah | — | Rilis v0.41.0 | Kartu *Printer dapur* di 1.26; tiket otomatis + *Cetak ulang* di modal 1.7e. |
 | Printer per stasiun (bar vs dapur, per kategori) | — | Belum | Satu printer dapur per perangkat. |

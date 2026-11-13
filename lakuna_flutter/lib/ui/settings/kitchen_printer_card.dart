@@ -269,7 +269,9 @@ class KitchenPrinterCard extends StatelessWidget {
               ),
             ),
           ],
-          if (vm.failure != null)
+          if (vm.failure != null ||
+              vm.testPrint.error ||
+              vm.searchBluetooth.error)
             FAlert(
               key: const ValueKey('kitchen-printer-error'),
               variant: .destructive,

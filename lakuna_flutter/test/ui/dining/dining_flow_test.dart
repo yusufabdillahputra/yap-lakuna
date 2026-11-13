@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart'
     show BillItemLocked, KitchenPrinter, PrinterKind, PrinterSelection;
@@ -428,8 +431,18 @@ void main() {
       }
       await _tap(tester, 'dining-guests-open');
       await addMenu(tester, ['Kopi Susu Aren']);
+      final hold = printer.hold = Completer<void>();
       await _tap(tester, 'dining-send');
       expect(_key('dining-ticket'), findsOneWidget);
+      // Printer dapur lambat: status mencetak, tombol nonaktif.
+      expect(_key('dining-ticket-printing-kitchen'), findsOneWidget);
+      expect(
+        tester.widget<FButton>(_key('dining-ticket-print')).onPress,
+        isNull,
+      );
+      printer.hold = null;
+      hold.complete();
+      await tester.pumpAndSettle();
       final (target, lines, paper) = printer.prints.single;
       expect(target, kitchen.printer);
       expect(paper, ReceiptPaper.mm80);

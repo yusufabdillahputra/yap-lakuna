@@ -7,6 +7,64 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-11-13
+
+Tiket dapur kini bisa keluar langsung di printer dapur, terpisah dari
+printer struk di kasir.
+
+### Ditambahkan
+
+- **Printer dapur (1.26, F1-10e).** Kartu baru *Printer dapur* di
+  *Pengaturan › Struk & printer*, disimpan di perangkat ini saja:
+  - *Sama dengan printer struk* (bawaan, perilaku lama), *Jaringan (LAN)*
+    dengan alamat `host[:port]` (port bawaan 9100), atau *Bluetooth*
+    (Android) dari printer yang sudah dipasangkan;
+  - lebar kertas tiket 58 / 80 mm, terpisah dari kertas struk;
+  - *Tes cetak tiket* mengirim tiket contoh ke printer dapur;
+  - *Lupakan printer dapur* kembali ke printer struk.
+- **Tiket otomatis saat *Kirim ke dapur* (1.7e).** Bila printer dapur
+  terpasang, tiket langsung dicetak sekali ke printer itu dengan kertas
+  dapur. Modal tiket menampilkan *Tiket dicetak di printer dapur*, atau
+  alasan galat printer (mis. printer tidak bisa dihubungi) dengan tombol
+  *Cetak ulang*. Item tetap berstatus *Di dapur* walau cetak gagal.
+
+- Panduan *Struk & printer* dan *Meja & open bill* (ID + EN) menjelaskan
+  printer dapur.
+
+### Diubah
+
+- Modal tiket dapur kini bisa digulir utuh, sehingga pesan status dan
+  tombol tetap terjangkau di ponsel layar pendek.
+- Galat cetak tiket menampilkan alasan dari printer bila diketahui.
+
+### Catatan teknis
+
+- `KitchenPrinter{printer, paper}`, `kitchenPrinterKey`
+  (`printer.kitchen`), `loadKitchenPrinter` / `saveKitchenPrinter` di
+  `lakuna_data` (hanya printer langsung; isi rusak atau dialog sistem →
+  `null`).
+- `ReceiptSettingsRepository.loadKitchenPrinter / saveKitchenPrinter`
+  (`settings:manage` untuk mengubah); `DiningData.kitchenPrinter` (ikut
+  disalin `withOverview`).
+- `KitchenPrinterViewModel` + `KitchenPrinterCard`; baris printer
+  Bluetooth dipindah ke `PrinterDeviceRow` bersama.
+- `DiningViewModel.ticketToKitchen`, `ticketPaper`,
+  `shouldAutoPrintTicket`, `autoPrintTicket(lines)`.
+- Temuan review yang diperbaiki sebelum rilis: tiket baru yang dikirim
+  selagi cetak tiket sebelumnya masih berjalan kini menunggu lalu dicetak
+  (sebelumnya terlewat dan modalnya bisa salah menampilkan *dicetak*);
+  status cetak hanya milik tiket yang tampil; memilih *Sama dengan printer
+  struk* kini benar-benar melupakan printer dapur; mengganti kertas saat
+  jenis lain sedang dipilih tidak lagi menyimpan ulang printer lama; galat
+  tes cetak / cari Bluetooth yang tak dikenal kini tampil; printer dapur
+  tanpa alamat dianggap tidak ada.
+- Uji manual di aplikasi Linux (Xvfb) dengan dua printer jaringan tiruan
+  (struk 9100, dapur 9101): tes cetak tiket 32 kolom ke dapur; kertas
+  dapur 80 mm; *Kirim ke dapur* M3 mencetak tiket 48 kolom hanya ke
+  printer dapur; printer dapur dimatikan → modal menampilkan *printer
+  tidak bisa dihubungi* dan item tetap di dapur; printer dinyalakan lalu
+  *Cetak ulang* berhasil.
+
 ## [0.40.0] - 2026-11-13
 
 Dua meja kini bisa digabung menjadi satu tagihan.
@@ -3433,7 +3491,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.41.0...HEAD
+[0.41.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.38.0...v0.39.0
 [0.38.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.37.0...v0.38.0

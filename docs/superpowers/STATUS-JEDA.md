@@ -21,6 +21,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.38.0 | Cetak rekap sesi kasir (F1-03b) | #44 |
 | v0.39.0 | Logo di struk (F1-06b) | #45 |
 | v0.40.0 | Gabung meja (F1-10d) | #46 |
+| v0.41.0 | Printer dapur terpisah (F1-10e) | #47 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -41,8 +42,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    masih gap.
 6. ~~Logo di struk~~ — selesai v0.39.0 (F1-06b); cetak rekap sesi
    selesai v0.38.0 (F1-03b).
-7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). **Printer dapur
-   terpisah** — spec F1-10, masih gap.
+7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). ~~Printer dapur
+   terpisah~~ — selesai v0.41.0 (F1-10e); printer per stasiun (bar vs
+   dapur) masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

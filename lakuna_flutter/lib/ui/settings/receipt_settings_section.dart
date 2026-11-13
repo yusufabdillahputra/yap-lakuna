@@ -30,7 +30,8 @@ class ReceiptSettingsSection extends StatelessWidget {
 
   final ReceiptSettingsViewModel viewModel;
 
-  /// Kartu *Printer dapur* (F1-10e); `null` tanpa modul meja.
+  /// Kartu *Printer dapur* (F1-10e); `null` bila pengguna tidak boleh
+  /// mengatur meja (tanpa repositori admin meja).
   final KitchenPrinterViewModel? kitchen;
   final String businessName;
   final String outletName;
