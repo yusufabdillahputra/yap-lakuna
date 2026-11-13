@@ -800,6 +800,9 @@ class _MovementsCard extends StatelessWidget {
                   purchaseCashSource => l10n.cashSourcePurchase,
                   debtPaymentCashSource => l10n.cashSourceDebtPayment,
                   supplierPaymentCashSource => l10n.cashSourceSupplierPayment,
+                  debtPaymentVoidCashSource => l10n.cashSourceDebtPaymentVoid,
+                  supplierPaymentVoidCashSource =>
+                    l10n.cashSourceSupplierPaymentVoid,
                   final other => other,
                 },
                 amount: Text(

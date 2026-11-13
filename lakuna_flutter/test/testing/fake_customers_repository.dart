@@ -190,6 +190,7 @@ class FakeCustomersRepository extends CustomersRepository {
       outletAddress: 'Jl. Melati No. 12, Purwokerto',
       outletPhone: '0812-0000-0001',
       timezone: 'Asia/Jakarta',
+      outletId: _outlet,
       canManage: canManage,
       canReceive: canReceive,
       hasOpenSession: hasOpenSession,
@@ -405,6 +406,9 @@ class FakeCustomersRepository extends CustomersRepository {
       amount: request.amount.value,
       method: request.method,
       paidOn: request.paidOn,
+      cashSessionId: request.method == PaymentMethod.cash && hasOpenSession
+          ? _id()
+          : null,
       balanceAfter: balance.value,
       note: request.note,
       createdAt: DateTime.utc(2026, 11, 3, 2, 12),
@@ -418,6 +422,68 @@ class FakeCustomersRepository extends CustomersRepository {
       staffName: 'Sari',
     );
     return payment;
+  });
+
+  /// Panggilan batal pembayaran: (id, alasan).
+  final voids = <(UuidValue, String)>[];
+
+  /// Pembayaran dari cabang lain (tidak bisa dibatalkan di sini).
+  DebtPayment addForeignPayment(UuidValue customerId) {
+    final p = DebtPayment(
+      id: _id(),
+      tenantId: _tenant,
+      outletId: _id(),
+      deviceId: _device,
+      staffId: _staff,
+      party: DebtParty.customer,
+      customerId: customerId,
+      number: 'BP-CBG-K01-261101-0001',
+      amount: 10000,
+      method: PaymentMethod.transfer,
+      paidOn: DateTime.utc(2026, 11, 1),
+      balanceAfter: 0,
+      hlc: '',
+    );
+    payments.insert(0, p);
+    return p;
+  }
+
+  @override
+  Future<Result<DebtPayment>> voidPayment(
+    UuidValue paymentId,
+    String reason,
+  ) async => _check(Permission.debtsManage, () {
+    voids.add((paymentId, reason));
+    if (!validateDebtPaymentVoidReason(reason)) {
+      throw DebtPaymentVoidReasonInvalid();
+    }
+    final i = payments.indexWhere((p) => p.id == paymentId);
+    if (i < 0) throw DebtPaymentNotFound();
+    final p = payments[i];
+    if (p.voidedAt != null) throw DebtPaymentAlreadyVoided();
+    if (debtPaymentTouchesDrawer(p) && !hasOpenSession) {
+      throw CashSessionNotOpen();
+    }
+    final list = sales[p.customerId] ?? [];
+    for (final line in receipts[p.id]?.lines ?? const <DebtReceiptLine>[]) {
+      final j = list.indexWhere((e) => e.$1.number == line.saleNumber);
+      if (j >= 0) list[j] = (list[j].$1, list[j].$2 + line.amount);
+    }
+    final voided = p.copyWith(
+      voidedAt: DateTime.utc(2026, 11, 3, 3),
+      voidedBy: _staff,
+      voidReason: reason.trim(),
+    );
+    payments[i] = voided;
+    if (receipts[p.id] case final r?) {
+      receipts[p.id] = DebtPaymentReceipt(
+        payment: voided,
+        customer: r.customer,
+        lines: r.lines,
+        staffName: r.staffName,
+      );
+    }
+    return voided;
   });
 
   @override

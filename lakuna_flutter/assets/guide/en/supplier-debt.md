@@ -19,4 +19,12 @@ The **Suppliers** menu keeps supplier details and the payable for each purchase,
 
 You can also start a payment from the purchase detail with the **Pay payable** button.
 
+## Voiding a supplier payment
+
+1. In the supplier's payment history, tap the **Void payment** icon on that payment's row.
+2. Enter the **Reason**, then tap **Yes, void**.
+3. Each purchase's amount owed returns to what it was before the payment. The payment stays in the list struck through with a *Void* label and the reason.
+
+A payment made from the cash drawer is put back into the drawer in the open cash session. After voiding, record the correct payment again.
+
 > [!note] Due and overdue payables also appear on the *Receivables & payables* tab in [Reports](reports).

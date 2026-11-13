@@ -16,6 +16,7 @@ class CustomersSetup {
     this.outletAddress,
     this.outletPhone,
     this.timezone,
+    this.outletId,
     this.canManage = false,
     this.canReceive = false,
     this.hasOpenSession = false,
@@ -30,6 +31,9 @@ class CustomersSetup {
   final String? outletAddress;
   final String? outletPhone;
   final String? timezone;
+
+  /// Cabang aktif: pembayaran cabang lain tidak bisa dibatalkan di sini.
+  final UuidValue? outletId;
 
   /// Staf punya `customers:manage` (tambah, ubah, hapus, import).
   final bool canManage;
@@ -87,6 +91,11 @@ abstract class CustomersRepository {
   /// `debts:manage`. Gagal dengan `DebtPaymentInvalid`,
   /// `DebtPaymentDateInvalid`, atau `DebtPaymentMethodInvalid`.
   Future<Result<DebtPayment>> receivePayment(DebtPaymentRequest request);
+
+  /// `debts:manage` (+ `cash_movements:create` bila tunai di laci). Gagal
+  /// dengan `DebtPaymentAlreadyVoided`, `DebtPaymentVoidReasonInvalid`,
+  /// `DebtPaymentNotFound`, atau `CashSessionNotOpen` (F1-13c).
+  Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason);
 
   /// Isi kuitansi. Gagal dengan `DebtPaymentNotFound`.
   Future<Result<DebtPaymentReceipt>> receipt(UuidValue paymentId);

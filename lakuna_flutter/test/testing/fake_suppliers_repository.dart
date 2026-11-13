@@ -192,6 +192,7 @@ class FakeSuppliersRepository extends SuppliersRepository {
   Future<Result<SuppliersSetup>> load() async => _guard(
     () => SuppliersSetup(
       today: today,
+      outletId: _outlet,
       canManage: canManage,
       canPay: canPay,
       canUseDrawer: canUseDrawer,
@@ -333,10 +334,49 @@ class FakeSuppliersRepository extends SuppliersRepository {
       hlc: '',
     );
     payments.add(payment);
+    _allocated[payment.id] = Map.of(allocations);
     if (request.proof case final proof?) {
       proofs[payment.id] = proof.bytes;
     }
     return payment;
+  });
+
+  final _allocated = <UuidValue, Map<UuidValue, Money>>{};
+
+  /// Panggilan batal pembayaran: (id, alasan).
+  final voids = <(UuidValue, String)>[];
+
+  @override
+  Future<Result<DebtPayment>> voidPayment(
+    UuidValue paymentId,
+    String reason,
+  ) async => _guard(needs: Permission.debtsManage, () {
+    voids.add((paymentId, reason));
+    if (!validateDebtPaymentVoidReason(reason)) {
+      throw DebtPaymentVoidReasonInvalid();
+    }
+    final i = payments.indexWhere((p) => p.id == paymentId);
+    if (i < 0) throw DebtPaymentNotFound();
+    final p = payments[i];
+    if (p.voidedAt != null) throw DebtPaymentAlreadyVoided();
+    final drawer = debtPaymentTouchesDrawer(p);
+    if (drawer && !canUseDrawer) {
+      throw const NotPermitted(Permission.cashMovementsCreate);
+    }
+    if (drawer && !hasOpenSession) throw CashSessionNotOpen();
+    final list = purchaseList[p.supplierId] ?? [];
+    final allocations = _allocated.remove(p.id) ?? const {};
+    for (var j = 0; j < list.length; j++) {
+      final (purchase, rest) = list[j];
+      if (allocations[purchase.id] case final a?) {
+        list[j] = (purchase, rest + a);
+      }
+    }
+    return payments[i] = p.copyWith(
+      voidedAt: DateTime.utc(2026, 11, 4, 4),
+      voidedBy: _staff,
+      voidReason: reason.trim(),
+    );
   });
 
   @override

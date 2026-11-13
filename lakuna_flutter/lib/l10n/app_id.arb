@@ -4764,5 +4764,61 @@
   "productSendToKitchenHint": "Mati untuk menu yang tidak dimasak (mis. air botol): item langsung disajikan tanpa tiket dapur.",
   "productAllowNote": "Bisa catatan bebas",
   "productAllowNoteHint": "Mati bila menu tidak bisa diubah; catatan dapur diabaikan.",
-  "diningNoteNotAllowed": "Catatan disimpan untuk menu berikutnya."
+  "diningNoteNotAllowed": "Catatan disimpan untuk menu berikutnya.",
+  "debtVoidAction": "Batalkan pembayaran",
+  "debtVoidTitle": "Batalkan {number}?",
+  "@debtVoidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidBodyCustomer": "Alokasi ke nota dihapus sehingga sisa piutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.",
+  "debtVoidBodySupplier": "Alokasi ke pembelian dihapus sehingga sisa hutang kembali seperti sebelum pembayaran. Pembayaran tetap tercatat dengan tanda Batal; catat ulang bila perlu.",
+  "debtVoidReason": "Alasan batal",
+  "debtVoidReasonHint": "mis. Salah nominal, akan dicatat ulang",
+  "debtVoidErrReason": "Alasan wajib diisi, maksimal {max} karakter.",
+  "@debtVoidErrReason": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "debtVoidDrawerOut": "Uang {amount} dikeluarkan dari laci di sesi kasir yang sedang buka.",
+  "@debtVoidDrawerOut": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidDrawerIn": "Uang {amount} dikembalikan ke laci di sesi kasir yang sedang buka.",
+  "@debtVoidDrawerIn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtVoidBack": "Kembali",
+  "debtVoidConfirm": "Ya, batalkan",
+  "debtVoided": "Batal",
+  "debtVoidedInfo": "Batal: {reason}",
+  "@debtVoidedInfo": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "debtErrAlreadyVoided": "Pembayaran ini sudah dibatalkan.",
+  "debtErrNoSession": "Buka sesi kasir dulu: uang laci perlu dijurnal balik.",
+  "kuitansiVoidStamp": "BATAL",
+  "kuitansiVoidReason": "Alasan batal",
+  "reportsSourceDebtPaymentVoid": "Batal bayar piutang",
+  "reportsSourceSupplierPaymentVoid": "Batal bayar hutang",
+  "cashSourceDebtPaymentVoid": "Batal bayar piutang",
+  "cashSourceSupplierPaymentVoid": "Batal bayar hutang"
 }

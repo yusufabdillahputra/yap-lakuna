@@ -6,6 +6,7 @@ export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 export 'src/backup.dart';
 export 'src/cash.dart';
 export 'src/customers.dart';
+export 'src/debt_payment_void.dart';
 export 'src/expenses.dart';
 export 'src/master_data.dart';
 export 'src/modifier_admin.dart';

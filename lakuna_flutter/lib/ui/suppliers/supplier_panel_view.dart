@@ -17,6 +17,7 @@ import '../purchases/purchase_labels.dart'
     show formatCalendarDate, formatCalendarDayMonth;
 import 'supplier_form_dialog.dart';
 import 'supplier_labels.dart';
+import '../customers/debt_payment_void_dialog.dart';
 import 'supplier_panel_view_model.dart';
 import 'supplier_purchases_dialog.dart';
 
@@ -389,7 +390,11 @@ class SupplierPanel extends StatelessWidget {
                       ),
                     ],
                   ],
-                  _Payments(viewModel: vm, repository: repository),
+                  _Payments(
+                    viewModel: vm,
+                    repository: repository,
+                    onChanged: onChanged,
+                  ),
                   if (vm.canManage)
                     Align(
                       alignment: Alignment.centerLeft,
@@ -909,10 +914,15 @@ class _Proof extends StatelessWidget {
 }
 
 class _Payments extends StatelessWidget {
-  const _Payments({required this.viewModel, required this.repository});
+  const _Payments({
+    required this.viewModel,
+    required this.repository,
+    required this.onChanged,
+  });
 
   final SupplierPanelViewModel viewModel;
   final SuppliersRepository repository;
+  final Future<void> Function() onChanged;
 
   Future<void> _showProof(BuildContext context, DebtPayment p) async {
     final result = await repository.proof(p.id);
@@ -930,6 +940,24 @@ class _Payments extends StatelessWidget {
             _ProofDialog(number: p.number, bytes: bytes),
       ),
     );
+  }
+
+  Future<void> _void(BuildContext context, DebtPayment p) async {
+    final l10n = AppLocalizations.of(context);
+    final voided = await showDebtPaymentVoidDialog(
+      context,
+      payment: p,
+      onConfirm: (reason) async {
+        await viewModel.voidPayment.execute((p.id, reason));
+        return switch (viewModel.voidPayment.result) {
+          Error(:final error) => error,
+          _ => null,
+        };
+      },
+      errorMessage: (e) => supplierErrorMessage(l10n, e),
+    );
+    // Ringkasan daftar (total piutang/hutang) ikut berubah.
+    if (voided) await onChanged();
   }
 
   @override
@@ -965,16 +993,30 @@ class _Payments extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            p.number,
-                            maxLines: 1,
-                            style: theme.typography.body.sm.copyWith(
-                              fontWeight: FontWeight.w600,
+                        Wrap(
+                          spacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                p.number,
+                                maxLines: 1,
+                                style: theme.typography.body.sm.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (p.voidedAt != null)
+                              FBadge(
+                                key: ValueKey(
+                                  'supplier-payment-voided-${p.id.uuid}',
+                                ),
+                                variant: .destructive,
+                                child: Text(l10n.debtVoided),
+                              ),
+                          ],
                         ),
                         Text(
                           [
@@ -985,14 +1027,31 @@ class _Payments extends StatelessWidget {
                           ].join(' · '),
                           style: _muted(context),
                         ),
+                        if (p.voidReason case final reason?)
+                          Text(
+                            l10n.debtVoidedInfo(reason),
+                            style: _muted(context),
+                          ),
                       ],
                     ),
                   ),
-                  Text(
-                    formatMoney(context, Money(p.amount)),
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontFeatures: _tabular,
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        formatMoney(context, Money(p.amount)),
+                        style: theme.typography.body.sm.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: _tabular,
+                          decoration: p.voidedAt != null
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: p.voidedAt != null
+                              ? theme.colors.mutedForeground
+                              : null,
+                        ),
+                      ),
                     ),
                   ),
                   if (p.proofMediaId != null)
@@ -1001,6 +1060,21 @@ class _Payments extends StatelessWidget {
                       variant: .ghost,
                       onPress: () => _showProof(context, p),
                       child: const Icon(TablerIcons.photo),
+                    ),
+                  if (viewModel.canVoid(p))
+                    FTooltip(
+                      tipBuilder: (context, _) => Text(l10n.debtVoidAction),
+                      child: FButton.icon(
+                        key: ValueKey('supplier-payment-void-${p.id.uuid}'),
+                        variant: .ghost,
+                        onPress: viewModel.voidPayment.running
+                            ? null
+                            : () => _void(context, p),
+                        child: Icon(
+                          TablerIcons.ban,
+                          color: theme.colors.destructive,
+                        ),
+                      ),
                     ),
                 ],
               ),

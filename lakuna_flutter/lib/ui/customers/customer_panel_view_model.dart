@@ -24,6 +24,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
     load = Command0(_load)..addListener(notifyListeners);
     receive = Command0(_receive)..addListener(notifyListeners);
     delete = Command0(_delete)..addListener(notifyListeners);
+    voidPayment = Command1(_voidPayment)..addListener(notifyListeners);
   }
 
   final CustomersRepository _repository;
@@ -37,6 +38,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
     load.dispose();
     receive.dispose();
     delete.dispose();
+    voidPayment.dispose();
     super.dispose();
   }
 
@@ -50,6 +52,9 @@ class CustomerPanelViewModel extends ChangeNotifier {
   /// Hasil = pembayaran tersimpan (untuk membuka kuitansi).
   late final Command0<DebtPayment> receive;
   late final Command0<void> delete;
+
+  /// Batal pembayaran (F1-13c): argumen = (id pembayaran, alasan).
+  late final Command1<DebtPayment, (UuidValue, String)> voidPayment;
 
   CustomersSetup? _setup;
   CustomerDetail? _detail;
@@ -237,6 +242,21 @@ class CustomerPanelViewModel extends ChangeNotifier {
       _generation++;
       await _load();
     }
+    return result;
+  }
+
+  /// Pembayaran [p] bisa dibatalkan di sini: staf punya `debts:manage`,
+  /// belum batal, dan dicatat di cabang ini.
+  bool canVoid(DebtPayment p) =>
+      canReceive &&
+      p.voidedAt == null &&
+      _setup?.outletId != null &&
+      p.outletId == _setup!.outletId;
+
+  Future<Result<DebtPayment>> _voidPayment((UuidValue, String) args) async {
+    final (id, reason) = args;
+    final result = await _repository.voidPayment(id, reason);
+    if (result is Ok<DebtPayment>) await _load();
     return result;
   }
 

@@ -32,6 +32,7 @@ class SupplierPanelViewModel extends ChangeNotifier {
     load = Command0(_load)..addListener(notifyListeners);
     pay = Command0(_pay)..addListener(notifyListeners);
     delete = Command0(_delete)..addListener(notifyListeners);
+    voidPayment = Command1(_voidPayment)..addListener(notifyListeners);
     pickProof = Command1(_pickProof)..addListener(notifyListeners);
   }
 
@@ -47,6 +48,7 @@ class SupplierPanelViewModel extends ChangeNotifier {
     load.dispose();
     pay.dispose();
     delete.dispose();
+    voidPayment.dispose();
     pickProof.dispose();
     super.dispose();
   }
@@ -61,6 +63,9 @@ class SupplierPanelViewModel extends ChangeNotifier {
   /// Hasil = pembayaran tersimpan.
   late final Command0<DebtPayment> pay;
   late final Command0<void> delete;
+
+  /// Batal pembayaran (F1-13c): argumen = (id pembayaran, alasan).
+  late final Command1<DebtPayment, (UuidValue, String)> voidPayment;
 
   /// Argumen `true` = kamera.
   late final Command1<void, bool> pickProof;
@@ -312,6 +317,21 @@ class SupplierPanelViewModel extends ChangeNotifier {
       _generation++;
       await _load();
     }
+    return result;
+  }
+
+  /// Pembayaran [p] bisa dibatalkan di sini: staf punya `debts:manage`,
+  /// belum batal, dan dicatat di cabang ini.
+  bool canVoid(DebtPayment p) =>
+      canPay &&
+      p.voidedAt == null &&
+      _setup?.outletId != null &&
+      p.outletId == _setup!.outletId;
+
+  Future<Result<DebtPayment>> _voidPayment((UuidValue, String) args) async {
+    final (id, reason) = args;
+    final result = await _repository.voidPayment(id, reason);
+    if (result is Ok<DebtPayment>) await _load();
     return result;
   }
 

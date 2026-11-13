@@ -16,6 +16,7 @@ import '../purchases/purchase_labels.dart'
 import 'customer_form_dialog.dart';
 import 'customer_labels.dart';
 import 'customer_panel_view_model.dart';
+import 'debt_payment_void_dialog.dart';
 import 'customers_view.dart' show debtTone;
 
 const _tabular = [FontFeature.tabularFigures()];
@@ -354,7 +355,11 @@ class CustomerPanel extends StatelessWidget {
                       ),
                     ],
                   ],
-                  _Payments(viewModel: vm, onOpen: onOpenReceipt),
+                  _Payments(
+                    viewModel: vm,
+                    onOpen: onOpenReceipt,
+                    onChanged: onChanged,
+                  ),
                   if (vm.canManage)
                     Align(
                       alignment: Alignment.centerLeft,
@@ -812,10 +817,33 @@ class _Hint extends StatelessWidget {
 }
 
 class _Payments extends StatelessWidget {
-  const _Payments({required this.viewModel, required this.onOpen});
+  const _Payments({
+    required this.viewModel,
+    required this.onOpen,
+    required this.onChanged,
+  });
 
   final CustomerPanelViewModel viewModel;
   final Future<void> Function(UuidValue paymentId) onOpen;
+  final Future<void> Function() onChanged;
+
+  Future<void> _void(BuildContext context, DebtPayment p) async {
+    final l10n = AppLocalizations.of(context);
+    final voided = await showDebtPaymentVoidDialog(
+      context,
+      payment: p,
+      onConfirm: (reason) async {
+        await viewModel.voidPayment.execute((p.id, reason));
+        return switch (viewModel.voidPayment.result) {
+          Error(:final error) => error,
+          _ => null,
+        };
+      },
+      errorMessage: (e) => customerErrorMessage(l10n, e),
+    );
+    // Ringkasan daftar (total piutang/hutang) ikut berubah.
+    if (voided) await onChanged();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -835,52 +863,105 @@ class _Payments extends StatelessWidget {
           Text(l10n.customerNoPayments, style: _muted(context))
         else
           for (final p in payments)
-            FTappable(
-              key: ValueKey('customer-payment-${p.id.uuid}'),
-              onPress: () => onOpen(p.id),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Icon(
-                      TablerIcons.receipt,
-                      size: 18,
-                      color: theme.colors.mutedForeground,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              spacing: 4,
+              children: [
+                Expanded(
+                  child: FTappable(
+                    key: ValueKey('customer-payment-${p.id.uuid}'),
+                    onPress: () => onOpen(p.id),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        spacing: 8,
                         children: [
-                          Text(
-                            p.number,
-                            style: theme.typography.body.sm.copyWith(
-                              fontWeight: FontWeight.w600,
+                          Icon(
+                            TablerIcons.receipt,
+                            size: 18,
+                            color: theme.colors.mutedForeground,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 6,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      p.number,
+                                      style: theme.typography.body.sm.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    if (p.voidedAt != null)
+                                      FBadge(
+                                        key: ValueKey(
+                                          'customer-payment-voided-${p.id.uuid}',
+                                        ),
+                                        variant: .destructive,
+                                        child: Text(l10n.debtVoided),
+                                      ),
+                                  ],
+                                ),
+                                Text(
+                                  '${formatCalendarDate(p.paidOn)} · '
+                                  '${debtPaymentMethodLabel(l10n, p)}',
+                                  style: _muted(context),
+                                ),
+                                if (p.voidReason case final reason?)
+                                  Text(
+                                    l10n.debtVoidedInfo(reason),
+                                    style: _muted(context),
+                                  ),
+                              ],
                             ),
                           ),
-                          Text(
-                            '${formatCalendarDate(p.paidOn)} · '
-                            '${debtPaymentMethodLabel(l10n, p)}',
-                            style: _muted(context),
+                          Expanded(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                formatMoney(context, Money(p.amount)),
+                                style: theme.typography.body.sm.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontFeatures: _tabular,
+                                  decoration: p.voidedAt != null
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: p.voidedAt != null
+                                      ? theme.colors.mutedForeground
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            TablerIcons.chevronRight,
+                            size: 16,
+                            color: theme.colors.mutedForeground,
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                      formatMoney(context, Money(p.amount)),
-                      style: theme.typography.body.sm.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontFeatures: _tabular,
+                  ),
+                ),
+                if (viewModel.canVoid(p))
+                  FTooltip(
+                    tipBuilder: (context, _) => Text(l10n.debtVoidAction),
+                    child: FButton.icon(
+                      key: ValueKey('customer-payment-void-${p.id.uuid}'),
+                      variant: .ghost,
+                      onPress: viewModel.voidPayment.running
+                          ? null
+                          : () => _void(context, p),
+                      child: Icon(
+                        TablerIcons.ban,
+                        color: theme.colors.destructive,
                       ),
                     ),
-                    Icon(
-                      TablerIcons.chevronRight,
-                      size: 16,
-                      color: theme.colors.mutedForeground,
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+              ],
             ),
       ],
     );

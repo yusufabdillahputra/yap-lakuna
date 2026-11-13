@@ -41,6 +41,10 @@ abstract class DebtPayment
     this.reference,
     this.proofMediaId,
     this.note,
+    this.voidedAt,
+    this.voidedBy,
+    this.voidReason,
+    this.voidCashMovementId,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -73,6 +77,10 @@ abstract class DebtPayment
     String? reference,
     _is.UuidValue? proofMediaId,
     String? note,
+    DateTime? voidedAt,
+    _is.UuidValue? voidedBy,
+    String? voidReason,
+    _is.UuidValue? voidCashMovementId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -139,6 +147,18 @@ abstract class DebtPayment
               jsonSerialization['proofMediaId'],
             ),
       note: jsonSerialization['note'] as String?,
+      voidedAt: jsonSerialization['voidedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['voidedAt']),
+      voidedBy: jsonSerialization['voidedBy'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['voidedBy']),
+      voidReason: jsonSerialization['voidReason'] as String?,
+      voidCashMovementId: jsonSerialization['voidCashMovementId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['voidCashMovementId'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -210,6 +230,16 @@ abstract class DebtPayment
 
   String? note;
 
+  /// Batal pembayaran (F1-13c): alokasi di-soft-delete, jurnal balik kas
+  /// laci di [voidCashMovementId].
+  DateTime? voidedAt;
+
+  _is.UuidValue? voidedBy;
+
+  String? voidReason;
+
+  _is.UuidValue? voidCashMovementId;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -251,6 +281,10 @@ abstract class DebtPayment
     String? reference,
     _is.UuidValue? proofMediaId = const _is.$UndefinedUuidValue(),
     String? note,
+    DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
+    String? voidReason,
+    _is.UuidValue? voidCashMovementId = const _is.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -282,6 +316,11 @@ abstract class DebtPayment
       if (reference != null) 'reference': reference,
       if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
+      if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
+      if (voidReason != null) 'voidReason': voidReason,
+      if (voidCashMovementId != null)
+        'voidCashMovementId': voidCashMovementId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -315,6 +354,11 @@ abstract class DebtPayment
       if (reference != null) 'reference': reference,
       if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
+      if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
+      if (voidReason != null) 'voidReason': voidReason,
+      if (voidCashMovementId != null)
+        'voidCashMovementId': voidCashMovementId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -376,6 +420,10 @@ class _DebtPaymentImpl extends DebtPayment {
     String? reference,
     _is.UuidValue? proofMediaId,
     String? note,
+    DateTime? voidedAt,
+    _is.UuidValue? voidedBy,
+    String? voidReason,
+    _is.UuidValue? voidCashMovementId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -403,6 +451,10 @@ class _DebtPaymentImpl extends DebtPayment {
          reference: reference,
          proofMediaId: proofMediaId,
          note: note,
+         voidedAt: voidedAt,
+         voidedBy: voidedBy,
+         voidReason: voidReason,
+         voidCashMovementId: voidCashMovementId,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -436,6 +488,10 @@ class _DebtPaymentImpl extends DebtPayment {
     Object? reference = _Undefined,
     _is.UuidValue? proofMediaId = const _is.$UndefinedUuidValue(),
     Object? note = _Undefined,
+    DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
+    Object? voidReason = _Undefined,
+    _is.UuidValue? voidCashMovementId = const _is.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -474,6 +530,12 @@ class _DebtPaymentImpl extends DebtPayment {
           ? this.proofMediaId
           : proofMediaId,
       note: note is String? ? note : this.note,
+      voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
+      voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
+      voidReason: voidReason is String? ? voidReason : this.voidReason,
+      voidCashMovementId: voidCashMovementId is _is.UndefinedSentinel
+          ? this.voidCashMovementId
+          : voidCashMovementId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -596,6 +658,31 @@ class DebtPaymentUpdateTable extends _is.UpdateTable<DebtPaymentTable> {
 
   _is.ColumnValue<String, String> note(String? value) => _is.ColumnValue(
     table.note,
+    value,
+  );
+
+  _is.ColumnValue<DateTime, DateTime> voidedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.voidedAt,
+        value,
+      );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> voidedBy(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.voidedBy,
+    value,
+  );
+
+  _is.ColumnValue<String, String> voidReason(String? value) => _is.ColumnValue(
+    table.voidReason,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> voidCashMovementId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.voidCashMovementId,
     value,
   );
 
@@ -734,6 +821,26 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
       'note',
       this,
     );
+    voidedAt = _is.ColumnDateTime(
+      'voided_at',
+      this,
+      fieldName: 'voidedAt',
+    );
+    voidedBy = _is.ColumnUuid(
+      'voided_by',
+      this,
+      fieldName: 'voidedBy',
+    );
+    voidReason = _is.ColumnString(
+      'void_reason',
+      this,
+      fieldName: 'voidReason',
+    );
+    voidCashMovementId = _is.ColumnUuid(
+      'void_cash_movement_id',
+      this,
+      fieldName: 'voidCashMovementId',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -818,6 +925,16 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnString note;
 
+  /// Batal pembayaran (F1-13c): alokasi di-soft-delete, jurnal balik kas
+  /// laci di [voidCashMovementId].
+  late final _is.ColumnDateTime voidedAt;
+
+  late final _is.ColumnUuid voidedBy;
+
+  late final _is.ColumnString voidReason;
+
+  late final _is.ColumnUuid voidCashMovementId;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -854,6 +971,10 @@ class DebtPaymentTable extends _is.Table<_is.UuidValue> {
     reference,
     proofMediaId,
     note,
+    voidedAt,
+    voidedBy,
+    voidReason,
+    voidCashMovementId,
     createdAt,
     updatedAt,
     deletedAt,

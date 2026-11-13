@@ -69,6 +69,11 @@ String supplierErrorMessage(AppLocalizations l10n, Exception error) =>
       SupplierPaymentProofInvalid() => l10n.supplierProofInvalid,
       SupplierPaymentTextInvalid() => l10n.supplierErrText,
       CashSessionNotOpen() => l10n.supplierErrNoSession,
+      DebtPaymentAlreadyVoided() => l10n.debtErrAlreadyVoided,
+      DebtPaymentVoidReasonInvalid() => l10n.debtVoidErrReason(
+        debtPaymentVoidReasonMax,
+      ),
+      DebtPaymentNotFound() => l10n.supplierErrNotFound,
       NotPermitted() ||
       SupplierActorNotPermitted() => l10n.supplierErrNotPermitted,
       _ => l10n.supplierErrGeneric,

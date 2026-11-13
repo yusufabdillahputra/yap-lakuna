@@ -1,3 +1,5 @@
+import 'package:characters/characters.dart';
+
 import 'document_number.dart';
 import 'money.dart';
 
@@ -204,4 +206,14 @@ String rupiahInWords(Money amount) {
   if (amount.isNegative) words = 'minus $words';
   final sentence = '$words rupiah';
   return sentence[0].toUpperCase() + sentence.substring(1);
+}
+
+/// Panjang maksimum alasan batal pembayaran piutang/hutang (F1-13c), sama
+/// dengan batal pengeluaran.
+const debtPaymentVoidReasonMax = 200;
+
+/// Alasan batal pembayaran sah: tidak kosong, ≤ [debtPaymentVoidReasonMax].
+bool validateDebtPaymentVoidReason(String reason) {
+  final n = reason.trim().characters.length;
+  return n > 0 && n <= debtPaymentVoidReasonMax;
 }

@@ -35,6 +35,7 @@ class LocalCustomersRepository extends CustomersRepository {
       outletAddress: ctx.outlet.address,
       outletPhone: ctx.outlet.phone,
       timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
+      outletId: ctx.outlet.id,
       canManage: staff.can(Permission.customersManage),
       canReceive: staff.can(Permission.debtsManage),
       hasOpenSession:
@@ -105,6 +106,26 @@ class LocalCustomersRepository extends CustomersRepository {
           request: request,
         ),
       );
+
+  @override
+  Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason) =>
+      _guard(permission: Permission.debtsManage, (_, scope, staff) async {
+        // Batal tunai laci mengeluarkan uang dari laci: izinnya sama dengan
+        // gerakan kas.
+        final p = await DebtPayment.db.findById(_store.session, paymentId);
+        if (p != null &&
+            debtPaymentTouchesDrawer(p) &&
+            !staff.can(Permission.cashMovementsCreate)) {
+          throw const NotPermitted(Permission.cashMovementsCreate);
+        }
+        return voidDebtPayment(
+          _store,
+          scope,
+          staffId: staff.id,
+          paymentId: paymentId,
+          reason: reason,
+        );
+      });
 
   @override
   Future<Result<DebtPaymentReceipt>> receipt(UuidValue paymentId) =>

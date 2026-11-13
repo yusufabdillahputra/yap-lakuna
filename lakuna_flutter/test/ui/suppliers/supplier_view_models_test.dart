@@ -178,6 +178,33 @@ void main() {
       expect(vm.detail!.payments.single.number, 'BH-PST-K01-261104-0001');
     });
 
+    test(
+      'batal pembayaran laci: hutang kembali, butuh sesi (F1-13c)',
+      () async {
+        vm
+          ..setAmount(const Money(300000))
+          ..setFunding(FundingSource.drawer);
+        await vm.pay.execute();
+        final paid = vm.detail!.payments.single;
+        final before = vm.detail!.row.debt;
+        expect(vm.canVoid(paid), isTrue);
+
+        repo.hasOpenSession = false;
+        await vm.voidPayment.execute((paid.id, 'Salah nominal'));
+        expect(
+          (vm.voidPayment.result! as Error<DebtPayment>).error,
+          isA<CashSessionNotOpen>(),
+        );
+
+        repo.hasOpenSession = true;
+        await vm.voidPayment.execute((paid.id, 'Salah nominal'));
+        expect(vm.voidPayment.result, isA<Ok<DebtPayment>>());
+        expect(vm.detail!.row.debt, before + const Money(300000));
+        expect(vm.detail!.payments.single.voidReason, 'Salah nominal');
+        expect(vm.canVoid(vm.detail!.payments.single), isFalse);
+      },
+    );
+
     test('foto bukti terlalu besar atau bukan gambar ditolak', () async {
       picker.next = PickedImage(
         name: 'besar.png',

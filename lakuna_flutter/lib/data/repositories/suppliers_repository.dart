@@ -12,6 +12,7 @@ export 'repository_errors.dart';
 class SuppliersSetup {
   const SuppliersSetup({
     required this.today,
+    this.outletId,
     this.canManage = false,
     this.canPay = false,
     this.canUseDrawer = false,
@@ -20,6 +21,9 @@ class SuppliersSetup {
 
   /// Tanggal lokal cabang hari ini (UTC tengah malam).
   final DateTime today;
+
+  /// Cabang aktif: pembayaran cabang lain tidak bisa dibatalkan di sini.
+  final UuidValue? outletId;
 
   /// Staf punya `suppliers:manage` (tambah, ubah, hapus).
   final bool canManage;
@@ -57,6 +61,11 @@ abstract class SuppliersRepository {
   /// `SupplierPaymentDrawerDate`, `SupplierPaymentProofInvalid`, atau
   /// `CashSessionNotOpen`.
   Future<Result<DebtPayment>> pay(SupplierPaymentRequest request);
+
+  /// `debts:manage` (+ `cash_movements:create` bila dari laci). Gagal
+  /// dengan `DebtPaymentAlreadyVoided`, `DebtPaymentVoidReasonInvalid`,
+  /// `DebtPaymentNotFound`, atau `CashSessionNotOpen` (F1-13c).
+  Future<Result<DebtPayment>> voidPayment(UuidValue paymentId, String reason);
 
   /// Semua pembelian supplier, terbaru dulu.
   Future<Result<List<PurchaseRow>>> purchases(UuidValue supplierId);

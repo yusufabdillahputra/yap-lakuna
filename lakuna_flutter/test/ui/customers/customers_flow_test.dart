@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -223,6 +224,91 @@ void main() {
       expect(_keyPrefix('customers-row-'), findsNWidgets(5));
     },
   );
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('batal pembayaran piutang ${size.width.toInt()} px (F1-13c)', (
+      tester,
+    ) async {
+      final customers = FakeCustomersRepository();
+      final ani = customers.customers.firstWhere(
+        (c) => c.name == 'Toko Bu Ani',
+      );
+      await customers.receivePayment(
+        DebtPaymentRequest(
+          customerId: ani.id,
+          amount: const Money(650000),
+          method: PaymentMethod.cash,
+          paidOn: DateTime.utc(2026, 11, 3),
+        ),
+      );
+      final payment = customers.payments.single;
+      await pump(tester, size, customers: customers);
+      await _tap(tester, _key('customers-row-${ani.id.uuid}'));
+      expect(_openRows(), findsNWidgets(2));
+
+      await _tap(tester, _key('customer-payment-void-${payment.id.uuid}'));
+      expect(_key('debt-void-dialog'), findsOneWidget);
+      expect(_key('debt-void-drawer'), findsOneWidget);
+      // Alasan wajib.
+      await _tap(tester, _key('debt-void-confirm'));
+      expect(repo.voids, isEmpty);
+      expect(
+        find.text('Alasan wajib diisi, maksimal 200 karakter.'),
+        findsOneWidget,
+      );
+      await _type(tester, _key('debt-void-reason'), 'Salah nominal');
+      await _tap(tester, _key('debt-void-confirm'));
+      expect(repo.voids.single, (payment.id, 'Salah nominal'));
+      expect(_key('debt-void-dialog'), findsNothing);
+      expect(
+        _key('customer-payment-voided-${payment.id.uuid}'),
+        findsOneWidget,
+      );
+      expect(find.text('Batal: Salah nominal'), findsOneWidget);
+      if (size.width >= 1280) {
+        // Ringkasan daftar ikut diperbarui.
+        expect(
+          find.descendant(
+            of: _key('customers-total'),
+            matching: find.text('Rp 2.065.000'),
+          ),
+          findsOneWidget,
+        );
+      }
+      expect(_key('customer-payment-void-${payment.id.uuid}'), findsNothing);
+      expect(_openRows(), findsNWidgets(3));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('batal pembayaran: galat sesi kasir tampil di dialog', (
+    tester,
+  ) async {
+    final customers = FakeCustomersRepository();
+    final ani = customers.customers.firstWhere((c) => c.name == 'Toko Bu Ani');
+    await customers.receivePayment(
+      DebtPaymentRequest(
+        customerId: ani.id,
+        amount: const Money(100000),
+        method: PaymentMethod.cash,
+        paidOn: DateTime.utc(2026, 11, 3),
+      ),
+    );
+    customers.hasOpenSession = false;
+    final payment = customers.payments.single;
+    await pump(tester, const Size(1280, 800), customers: customers);
+    await _tap(tester, _key('customers-row-${ani.id.uuid}'));
+    await _tap(tester, _key('customer-payment-void-${payment.id.uuid}'));
+    await _type(tester, _key('debt-void-reason'), 'Salah');
+    await _tap(tester, _key('debt-void-confirm'));
+    expect(_key('debt-void-error'), findsOneWidget);
+    expect(
+      find.text('Buka sesi kasir dulu: uang laci perlu dijurnal balik.'),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('debt-void-back'));
+    expect(_key('debt-void-dialog'), findsNothing);
+  });
 
   testWidgets('mobile: buka pelanggan di halaman sendiri, lalu kembali', (
     tester,

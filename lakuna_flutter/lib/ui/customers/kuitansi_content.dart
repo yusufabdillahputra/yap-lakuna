@@ -16,6 +16,16 @@ String _dueNote(AppLocalizations l10n, DebtPaymentReceipt r) {
   return l10n.kuitansiFootnote(r.customer.name, _money(l10n, rest));
 }
 
+/// Cap kuitansi: *BATAL* untuk pembayaran yang dibatalkan (F1-13c),
+/// *SALINAN* untuk cetak ulang.
+String? _banner(AppLocalizations l10n, DebtPayment p, bool copy) {
+  final parts = [
+    if (p.voidedAt != null) l10n.kuitansiVoidStamp,
+    if (copy) l10n.kuitansiCopy,
+  ];
+  return parts.isEmpty ? null : parts.join(' · ');
+}
+
 /// Isi kuitansi A5 (1.20b) untuk PDF dan pratinjau.
 KuitansiDocument kuitansiDocument(
   AppLocalizations l10n, {
@@ -41,7 +51,7 @@ KuitansiDocument kuitansiDocument(
       ?setup.outletAddress,
       ?setup.outletPhone,
     ].join(' · '),
-    banner: copy ? l10n.kuitansiCopy : null,
+    banner: _banner(l10n, p, copy),
     fields: [
       KuitansiField(l10n.kuitansiReceivedFrom, receipt.customer.name),
       KuitansiField(
@@ -57,6 +67,8 @@ KuitansiDocument kuitansiDocument(
       ),
       KuitansiField(l10n.kuitansiMethod, debtPaymentMethodLabel(l10n, p)),
       if (p.note case final note?) KuitansiField(l10n.kuitansiNote, note),
+      if (p.voidReason case final reason?)
+        KuitansiField(l10n.kuitansiVoidReason, reason),
     ],
     tableHead: showDetails
         ? [
@@ -98,6 +110,7 @@ ReceiptContent kuitansiReceiptContent(
     header: setup.receipt.headerLines,
     banner: [
       l10n.kuitansiThermalBanner,
+      if (p.voidedAt != null) l10n.kuitansiVoidStamp,
       if (copy) l10n.kuitansiCopy,
     ].join(' · '),
     meta: [
@@ -105,6 +118,8 @@ ReceiptContent kuitansiReceiptContent(
       ReceiptPair(l10n.kuitansiFrom, receipt.customer.name),
       ReceiptPair(l10n.receiptDate, _thermalDate(p, setup.timezone)),
       ReceiptPair(l10n.receiptCashier, receipt.staffName),
+      if (p.voidReason case final reason?)
+        ReceiptPair(l10n.kuitansiVoidReason, reason),
     ],
     items: [
       if (showDetails)
