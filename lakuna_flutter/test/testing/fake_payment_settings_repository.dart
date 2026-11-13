@@ -80,6 +80,7 @@ class FakeImagePicker extends ImageFilePicker {
 
   /// Argumen `vector` panggilan terakhir.
   bool? lastVector;
+  bool? lastWebp;
 
   /// Kamera tersedia (denah 1.7c).
   var camera = false;
@@ -103,9 +104,11 @@ class FakeImagePicker extends ImageFilePicker {
   Future<PickedImage?> pickImage({
     required int maxBytes,
     bool vector = false,
+    bool webp = true,
   }) async {
     calls++;
     lastVector = vector;
+    lastWebp = webp;
     if (throwNext case final e?) {
       throwNext = null;
       throw e;

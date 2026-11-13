@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -87,6 +88,128 @@ void main() {
       where: (t) => t.entity.equals('settings'),
     );
     expect(outbox, hasLength(2));
+  });
+
+  group('logo struk (F1-06b)', () {
+    Future<ReceiptConfig> saveLogo(
+      ReceiptSettings settings, {
+      ReceiptLogoUpload? logo,
+      bool removeLogo = false,
+    }) => saveReceiptSettings(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      settings: settings,
+      logo: logo,
+      removeLogo: removeLogo,
+    );
+
+    test('simpan logo: media cabang, sakelar menyala, byte termuat', () async {
+      final bytes = pngBytes(200, 80);
+      final saved = await saveLogo(
+        const ReceiptSettings(showLogo: true),
+        logo: ReceiptLogoUpload(bytes: bytes, fileName: 'logo.png'),
+      );
+      expect(saved.settings.showLogo, isTrue);
+      expect(saved.settings.logoMediaId, isNotNull);
+      expect(saved.logoImage, bytes);
+      expect(saved.logoBytes, bytes);
+      final media = await MediaFile.db.findById(
+        store.session,
+        saved.settings.logoMediaId!,
+      );
+      expect(media!.kind, MediaKind.receiptLogo);
+      expect(media.outletId, ctx.outlet.id);
+      final outbox = await SyncOutboxEntry.db.find(store.session);
+      expect(
+        outbox.map((e) => e.entity),
+        containsAll(['media_files', 'settings']),
+      );
+
+      // Sakelar mati: logo tetap tersimpan, tidak dicetak.
+      final hidden = await saveLogo(saved.settings.copyWith(showLogo: false));
+      expect(hidden.settings.logoMediaId, saved.settings.logoMediaId);
+      expect(hidden.logoImage, bytes);
+      expect(hidden.logoBytes, isNull);
+
+      // Hapus logo: sakelar ikut mati.
+      final removed = await saveLogo(
+        hidden.settings.copyWith(showLogo: true),
+        removeLogo: true,
+      );
+      expect(removed.settings.logoMediaId, isNull);
+      expect(removed.settings.showLogo, isFalse);
+      expect(removed.logoImage, isNull);
+    });
+
+    test('tanpa logo sakelar tidak bisa menyala', () async {
+      final saved = await saveLogo(const ReceiptSettings(showLogo: true));
+      expect(saved.settings.showLogo, isFalse);
+    });
+
+    test('logo baru dengan sakelar dimatikan pemilik tetap mati', () async {
+      final saved = await saveLogo(
+        const ReceiptSettings(),
+        logo: ReceiptLogoUpload(bytes: pngBytes(20, 20), fileName: 'l.png'),
+      );
+      expect(saved.settings.logoMediaId, isNotNull);
+      expect(saved.settings.showLogo, isFalse);
+      expect(saved.logoBytes, isNull);
+    });
+
+    test('berkas bukan PNG/JPG atau > 1 MB ditolak tanpa menulis', () async {
+      await expectLater(
+        saveLogo(
+          const ReceiptSettings(),
+          logo: ReceiptLogoUpload(
+            bytes: Uint8List.fromList([1, 2, 3]),
+            fileName: 'x.txt',
+          ),
+        ),
+        throwsA(
+          isA<ReceiptLogoInvalid>().having(
+            (e) => e.error,
+            'error',
+            ReceiptLogoError.unsupported,
+          ),
+        ),
+      );
+      final big = Uint8List(maxReceiptLogoBytes + 1)
+        ..setAll(0, pngBytes(10, 10));
+      await expectLater(
+        saveLogo(
+          const ReceiptSettings(),
+          logo: ReceiptLogoUpload(bytes: big, fileName: 'besar.png'),
+        ),
+        throwsA(isA<ReceiptLogoInvalid>()),
+      );
+      expect(await Setting.db.count(store.session), 0);
+    });
+
+    test('berkas logo belum ada di perangkat → tanpa gambar', () async {
+      final saved = await saveLogo(
+        const ReceiptSettings(showLogo: true),
+        logo: ReceiptLogoUpload(bytes: pngBytes(20, 20), fileName: 'l.png'),
+      );
+      final media = await MediaFile.db.findById(
+        store.session,
+        saved.settings.logoMediaId!,
+      );
+      File(
+        '${store.mediaDirectory}${Platform.pathSeparator}${media!.storageKey}',
+      ).deleteSync();
+      final again = await loadReceiptConfig(store, scope);
+      expect(again.settings.showLogo, isTrue);
+      expect(again.logoImage, isNull);
+      expect(again.logoBytes, isNull);
+
+      // Baris media belum tersinkron ke perangkat ini: simpan ulang tidak
+      // membuang id logo.
+      await MediaFile.db.deleteRow(store.session, media);
+      final kept = await saveLogo(again.settings);
+      expect(kept.settings.logoMediaId, saved.settings.logoMediaId);
+      expect(kept.logoImage, isNull);
+    });
   });
 
   test('isian terlalu panjang ditolak tanpa menulis', () async {

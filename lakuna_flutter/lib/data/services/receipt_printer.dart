@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart' show PdfPageFormat;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:printing/printing.dart';
 
+import 'receipt_logo_raster.dart';
 import 'receipt_pdf.dart';
 
 enum PrinterFailureReason {
@@ -53,11 +54,15 @@ abstract class ReceiptPrinter {
   /// Mencetak [lines] ke [printer]: byte ESC/POS untuk printer langsung,
   /// PDF ke dialog cetak untuk [PrinterKind.system]. Gagal dengan
   /// [PrinterFailure].
+  ///
+  /// [logo] (F1-06b) dicetak di tengah atas; gambar yang tidak bisa
+  /// didekode dilewati.
   Future<void> print(
     PrinterSelection printer,
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String jobName,
+    Uint8List? logo,
   });
 
   /// PDF struk: share sheet di Android/iOS (hasil `null`), atau disimpan ke
@@ -66,6 +71,7 @@ abstract class ReceiptPrinter {
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String fileName,
+    Uint8List? logo,
   });
 
   /// Dokumen PDF utuh (mis. kuitansi A5) ke dialog cetak sistem;
@@ -222,13 +228,22 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String jobName,
+    Uint8List? logo,
   }) async {
+    Future<Uint8List> escPos() async => encodeEscPos(
+      lines,
+      logo: logo == null ? null : await receiptLogoBitmap(logo, paper),
+    );
     switch (printer.kind) {
       case PrinterKind.system:
-        final pdf = await buildReceiptPdf(lines, paper);
+        final pdf = await buildReceiptPdf(lines, paper, logo: logo);
         await Printing.layoutPdf(
           name: jobName,
-          format: receiptPageFormat(paper, lines.length),
+          format: receiptPageFormat(
+            paper,
+            lines.length,
+            extraPt: receiptPdfLogoExtra(logo, paper),
+          ),
           onLayout: (_) async => pdf,
         );
       case PrinterKind.network:
@@ -236,9 +251,9 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
         if (address == null) {
           throw const PrinterFailure(PrinterFailureReason.connect);
         }
-        await sendToNetworkPrinter(address.$1, address.$2, encodeEscPos(lines));
+        await sendToNetworkPrinter(address.$1, address.$2, await escPos());
       case PrinterKind.bluetooth:
-        await _bluetooth(printer.address, encodeEscPos(lines));
+        await _bluetooth(printer.address, await escPos());
     }
   }
 
@@ -270,9 +285,10 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
     required String fileName,
+    Uint8List? logo,
   }) async {
     return shareDocument(
-      await buildReceiptPdf(lines, paper),
+      await buildReceiptPdf(lines, paper, logo: logo),
       fileName: fileName,
     );
   }

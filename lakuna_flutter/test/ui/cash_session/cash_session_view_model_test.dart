@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -359,10 +361,18 @@ void main() {
 
     Future<CashSessionViewModel> closedWith({
       PrinterSelection? selected,
+      Uint8List? logo,
     }) async {
       settings = FakeReceiptSettingsRepository(
-        config: const ReceiptConfig(
-          settings: ReceiptSettings(paper: ReceiptPaper.mm80),
+        config: ReceiptConfig(
+          settings: ReceiptSettings(
+            paper: ReceiptPaper.mm80,
+            logoMediaId: logo == null
+                ? null
+                : UuidValue.fromString('0195a0d6-0000-7000-8000-000000000001'),
+            showLogo: logo != null,
+          ),
+          logoImage: logo,
         ),
         printer: selected,
       );
@@ -409,6 +419,14 @@ void main() {
         expect(v.shouldAutoPrintRecap, isFalse);
       },
     );
+
+    test('rekap dicetak dan dibagikan dengan logo struk (F1-06b)', () async {
+      final logo = Uint8List.fromList([1, 2, 3]);
+      final v = await closedWith(selected: bt, logo: logo);
+      await v.autoPrintRecap(lines);
+      await v.shareRecap.execute(lines);
+      expect(printer.logos, [logo, logo]);
+    });
 
     test(
       'tanpa printer: tidak cetak otomatis; cetak manual ke dialog sistem',

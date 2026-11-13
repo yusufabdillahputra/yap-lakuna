@@ -21,8 +21,13 @@ abstract class ImageFilePicker {
   const ImageFilePicker();
 
   /// `null` bila pengguna membatalkan. Berkas lebih dari [maxBytes] tidak
-  /// dibaca ([PickedImage.bytes] `null`).
-  Future<PickedImage?> pickImage({required int maxBytes, bool vector = false});
+  /// dibaca ([PickedImage.bytes] `null`). [webp] `false` hanya menawarkan
+  /// PNG/JPG (logo struk).
+  Future<PickedImage?> pickImage({
+    required int maxBytes,
+    bool vector = false,
+    bool webp = true,
+  });
 
   /// Perangkat punya kamera untuk [takePhoto] (Android/iOS).
   bool get canTakePhoto => false;
@@ -50,6 +55,13 @@ class FileSelectorImagePicker extends ImageFilePicker {
     ],
   );
 
+  static const _pngJpg = XTypeGroup(
+    label: 'PNG, JPG',
+    extensions: ['png', 'jpg', 'jpeg'],
+    mimeTypes: ['image/png', 'image/jpeg'],
+    uniformTypeIdentifiers: ['public.png', 'public.jpeg'],
+  );
+
   static const _vector = XTypeGroup(
     label: 'PNG, JPG, WebP, SVG',
     extensions: ['png', 'jpg', 'jpeg', 'webp', 'svg'],
@@ -66,9 +78,16 @@ class FileSelectorImagePicker extends ImageFilePicker {
   Future<PickedImage?> pickImage({
     required int maxBytes,
     bool vector = false,
+    bool webp = true,
   }) async {
     final file = await openFile(
-      acceptedTypeGroups: [vector ? _vector : _images],
+      acceptedTypeGroups: [
+        vector
+            ? _vector
+            : webp
+            ? _images
+            : _pngJpg,
+      ],
     );
     return file == null ? null : _read(file, maxBytes);
   }

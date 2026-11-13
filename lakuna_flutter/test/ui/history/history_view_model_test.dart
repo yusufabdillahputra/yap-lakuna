@@ -126,6 +126,27 @@ void main() {
     expect(vm.voidable, isFalse);
   });
 
+  test('cetak ulang dan PDF memakai logo struk saat ini (F1-06b)', () async {
+    final logo = Uint8List.fromList([1, 2, 3]);
+    repo.receipt = ReceiptConfig(
+      settings: ReceiptSettings(
+        logoMediaId: UuidValue.fromString(
+          '0195a0d6-0000-7000-8000-000000000001',
+        ),
+        showLogo: true,
+      ),
+      logoImage: logo,
+    );
+    final a = repo.addSale([('Kopi', 1000, 10000)]);
+    create(initial: a);
+    await vm.load.execute();
+    expect(vm.receiptLogo, logo);
+    const lines = [ReceiptLine('X')];
+    await vm.printReceipt.execute(lines);
+    await vm.shareReceipt.execute(lines);
+    expect(printer.logos, [logo, logo]);
+  });
+
   test('cetak ulang dan PDF memakai nomor nota', () async {
     final a = repo.addSale([('Kopi', 1000, 10000)]);
     create(initial: a);

@@ -26,13 +26,19 @@ class LocalReceiptSettingsRepository extends ReceiptSettingsRepository {
       _guard(manage: false, (scope, _) => loadReceiptConfig(_store, scope));
 
   @override
-  Future<Result<ReceiptConfig>> saveReceipt(ReceiptSettings settings) => _guard(
+  Future<Result<ReceiptConfig>> saveReceipt(
+    ReceiptSettings settings, {
+    ReceiptLogoUpload? logo,
+    bool removeLogo = false,
+  }) => _guard(
     manage: true,
     (scope, staffId) => saveReceiptSettings(
       _store,
       scope,
       staffId: staffId,
       settings: settings,
+      logo: logo,
+      removeLogo: removeLogo,
     ),
   );
 

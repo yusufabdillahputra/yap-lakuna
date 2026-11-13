@@ -134,7 +134,11 @@ class _KuitansiScreenState extends State<KuitansiScreen> {
                 l10n.kuitansiPreviewThermal(paperLabel),
                 style: _muted(context),
               ),
-              ReceiptPaperView(lines: lines, paper: vm.paper),
+              ReceiptPaperView(
+                lines: lines,
+                paper: vm.paper,
+                logo: vm.receiptLogo,
+              ),
             ],
           );
           final panel = _Panel(

@@ -7336,4 +7336,33 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashRecapShareError => 'PDF rekap gagal dibuat.';
+
+  @override
+  String get receiptLogo => 'Logo struk';
+
+  @override
+  String get receiptLogoHint =>
+      'PNG atau JPG sampai 1 MB. Logo hitam putih dengan latar putih paling jelas di printer thermal.';
+
+  @override
+  String get receiptLogoPick => 'Pilih logo';
+
+  @override
+  String get receiptLogoChange => 'Ganti logo';
+
+  @override
+  String get receiptLogoRemove => 'Hapus logo';
+
+  @override
+  String get receiptLogoMissing => 'Berkas logo belum ada di perangkat ini.';
+
+  @override
+  String get receiptShowLogo => 'Tampilkan logo di struk';
+
+  @override
+  String get receiptLogoUnsupported => 'Logo harus PNG atau JPG.';
+
+  @override
+  String get receiptLogoTooLarge =>
+      'Logo lebih dari 1 MB. Pilih berkas yang lebih kecil.';
 }

@@ -4133,5 +4133,14 @@
   "cashCloseAndPrint": "Close session & print recap",
   "cashRecapPrint": "Print recap",
   "cashRecapPrinted": "Recap sent to the printer.",
-  "cashRecapShareError": "Couldn't create the recap PDF."
+  "cashRecapShareError": "Couldn't create the recap PDF.",
+  "receiptLogo": "Receipt logo",
+  "receiptLogoHint": "PNG or JPG up to 1 MB. A black-and-white logo on a white background prints clearest on thermal printers.",
+  "receiptLogoPick": "Choose logo",
+  "receiptLogoChange": "Change logo",
+  "receiptLogoRemove": "Remove logo",
+  "receiptLogoMissing": "The logo file isn't on this device yet.",
+  "receiptShowLogo": "Show logo on receipts",
+  "receiptLogoUnsupported": "The logo must be a PNG or JPG.",
+  "receiptLogoTooLarge": "The logo is over 1 MB. Choose a smaller file."
 }

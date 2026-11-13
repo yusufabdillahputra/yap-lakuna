@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
+import 'media.dart';
 import 'preferences.dart';
 import 'settings_scope.dart';
 import 'stock.dart';
@@ -20,6 +22,8 @@ class ReceiptSettings {
     this.header,
     this.footer,
     this.autoPrint = false,
+    this.logoMediaId,
+    this.showLogo = false,
   });
 
   factory ReceiptSettings.fromJson(Map<String, Object?> json) {
@@ -34,6 +38,11 @@ class ReceiptSettings {
       header: text('header'),
       footer: text('footer'),
       autoPrint: json['autoPrint'] == true,
+      logoMediaId: switch (json['logoMediaId']) {
+        final String id => UuidValue.fromString(id),
+        _ => null,
+      },
+      showLogo: json['showLogo'] == true,
     );
   }
 
@@ -48,11 +57,20 @@ class ReceiptSettings {
   /// Cetak otomatis ke printer langsung setelah bayar.
   final bool autoPrint;
 
+  /// Logo struk di `media_files` (F1-06b); diatur lewat
+  /// [saveReceiptSettings], bukan [copyWith].
+  final UuidValue? logoMediaId;
+
+  /// *Tampilkan logo di struk*; selalu `false` tanpa logo.
+  final bool showLogo;
+
   Map<String, Object?> toJson() => {
     'paper': paper.name,
     'header': header,
     'footer': footer,
     'autoPrint': autoPrint,
+    'logoMediaId': logoMediaId?.uuid,
+    'showLogo': showLogo,
   };
 
   ReceiptSettings copyWith({
@@ -60,26 +78,43 @@ class ReceiptSettings {
     String? header,
     String? footer,
     bool? autoPrint,
+    bool? showLogo,
   }) => ReceiptSettings(
     paper: paper ?? this.paper,
     header: header ?? this.header,
     footer: footer ?? this.footer,
     autoPrint: autoPrint ?? this.autoPrint,
+    logoMediaId: logoMediaId,
+    showLogo: showLogo ?? this.showLogo,
   );
 
-  ReceiptSettings _normalized() => ReceiptSettings(
-    paper: paper,
-    header: header == null ? null : receiptTextLines(header).join('\n'),
-    footer: footer == null ? null : receiptTextLines(footer).join('\n'),
-    autoPrint: autoPrint,
-  );
+  ReceiptSettings _normalized(UuidValue? logo, {required bool showLogo}) =>
+      ReceiptSettings(
+        paper: paper,
+        header: header == null ? null : receiptTextLines(header).join('\n'),
+        footer: footer == null ? null : receiptTextLines(footer).join('\n'),
+        autoPrint: autoPrint,
+        logoMediaId: logo,
+        showLogo: logo != null && showLogo,
+      );
 }
 
 /// Pengaturan struk cabang beserta header bawaannya.
 class ReceiptConfig {
-  const ReceiptConfig({required this.settings, this.defaultHeader = ''});
+  const ReceiptConfig({
+    required this.settings,
+    this.defaultHeader = '',
+    this.logoImage,
+  });
 
   final ReceiptSettings settings;
+
+  /// Berkas logo struk (F1-06b); `null` bila belum ada atau berkasnya belum
+  /// ada di perangkat ini. Untuk pratinjau di pengaturan.
+  final Uint8List? logoImage;
+
+  /// Logo yang dicetak: hanya bila *Tampilkan logo* aktif.
+  Uint8List? get logoBytes => settings.showLogo ? logoImage : null;
 
   /// Alamat dan telepon cabang (baris terpisah), header bila belum diatur.
   final String defaultHeader;
@@ -111,8 +146,11 @@ Future<ReceiptConfig> loadReceiptConfig(
 ) async {
   final row = await _row(store.session, null, scope);
   final outlet = await Outlet.db.findById(store.session, scope.outletId);
+  final settings = row == null ? const ReceiptSettings() : _decode(row);
+  final logo = await _logo(store.session, null, scope, settings.logoMediaId);
   return ReceiptConfig(
-    settings: row == null ? const ReceiptSettings() : _decode(row),
+    settings: settings,
+    logoImage: logo == null ? null : await readMediaFile(store, logo),
     defaultHeader: [
       outlet?.address?.trim(),
       outlet?.phone?.trim(),
@@ -120,23 +158,72 @@ Future<ReceiptConfig> loadReceiptConfig(
   );
 }
 
-/// Menyimpan pengaturan struk cabang [scope]. Gagal dengan
-/// [ReceiptSettingsInvalid] tanpa menulis apa pun.
+/// Logo struk baru yang dipilih pemilik (F1-06b).
+class ReceiptLogoUpload {
+  const ReceiptLogoUpload({required this.bytes, required this.fileName});
+
+  final Uint8List bytes;
+  final String fileName;
+}
+
+/// Berkas logo ditolak (format atau ukuran).
+class ReceiptLogoInvalid implements Exception {
+  const ReceiptLogoInvalid(this.error);
+
+  final ReceiptLogoError error;
+
+  @override
+  String toString() => 'ReceiptLogoInvalid($error)';
+}
+
+/// Menyimpan pengaturan struk cabang [scope]. [logo] baru menggantikan logo
+/// lama dan menyalakan *Tampilkan logo*; [removeLogo] melepas logo. Tanpa
+/// keduanya logo lama tetap. Gagal dengan [ReceiptSettingsInvalid] atau
+/// [ReceiptLogoInvalid] tanpa menulis apa pun.
 Future<ReceiptConfig> saveReceiptSettings(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required ReceiptSettings settings,
+  ReceiptLogoUpload? logo,
+  bool removeLogo = false,
 }) async {
   final errors = validateReceiptSettings(
     header: settings.header,
     footer: settings.footer,
   );
   if (errors.isNotEmpty) throw ReceiptSettingsInvalid(errors);
-  final value = jsonEncode(settings._normalized().toJson());
+  ImageHeader? header;
+  if (logo != null) {
+    if (checkReceiptLogo(logo.bytes) case final error?) {
+      throw ReceiptLogoInvalid(error);
+    }
+    header = readImageHeader(logo.bytes);
+  }
   await store.write(actor: staffId, (w) async {
     final current = await _row(w.session, w.transaction, scope);
+    final previous = current == null ? null : _decode(current);
     final s = await w.stamp();
+    // Id lama dipertahankan walau barisnya belum ada di perangkat ini
+    // (mis. belum tersinkron); berkas yang hilang dilewati saat dibaca.
+    var logoId = removeLogo ? null : previous?.logoMediaId;
+    if (logo != null) {
+      final media = await storeMediaFile(
+        w,
+        store,
+        scope,
+        bytes: logo.bytes,
+        header: header!,
+        fileName: logo.fileName,
+        kind: MediaKind.receiptLogo,
+        outletId: scope.outletId,
+        stamp: s,
+      );
+      logoId = media.id;
+    }
+    final value = jsonEncode(
+      settings._normalized(logoId, showLogo: settings.showLogo).toJson(),
+    );
     if (current == null) {
       await w.insert(
         Setting(
@@ -169,6 +256,26 @@ Future<ReceiptConfig> saveReceiptSettings(
     }
   });
   return loadReceiptConfig(store, scope);
+}
+
+/// Baris media logo struk milik cabang [scope]; `null` bila tidak ada.
+Future<MediaFile?> _logo(
+  DatabaseSession session,
+  Transaction? transaction,
+  CatalogScope scope,
+  UuidValue? id,
+) async {
+  if (id == null) return null;
+  return MediaFile.db.findFirstRow(
+    session,
+    where: (t) =>
+        t.id.equals(id) &
+        t.tenantId.equals(scope.tenantId) &
+        t.outletId.equals(scope.outletId) &
+        t.kind.equals(MediaKind.receiptLogo) &
+        t.deletedAt.equals(null),
+    transaction: transaction,
+  );
 }
 
 ReceiptSettings _decode(Setting row) {
