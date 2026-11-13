@@ -65,22 +65,64 @@ class FakeCatalogRepository extends CatalogRepository {
   final archiveCalls = <UuidValue>[];
 
   static CatalogProduct _withArchivedAt(CatalogProduct p, DateTime? at) =>
-      CatalogProduct(
-        id: p.id,
-        name: p.name,
-        kind: p.kind,
-        baseUnitId: p.baseUnitId,
-        baseUnit: p.baseUnit,
-        isActive: p.isActive,
-        isTaxable: p.isTaxable,
-        variants: p.variants,
-        categoryId: p.categoryId,
-        categoryName: p.categoryName,
-        sku: p.sku,
-        brand: p.brand,
-        modifierGroupIds: p.modifierGroupIds,
+      _copy(
+        p,
         archivedAt: at,
+        photoMediaId: p.photoMediaId,
+        photoPath: p.photoPath,
       );
+
+  static CatalogProduct _copy(
+    CatalogProduct p, {
+    required DateTime? archivedAt,
+    required UuidValue? photoMediaId,
+    required String? photoPath,
+  }) => CatalogProduct(
+    id: p.id,
+    name: p.name,
+    kind: p.kind,
+    baseUnitId: p.baseUnitId,
+    baseUnit: p.baseUnit,
+    isActive: p.isActive,
+    isTaxable: p.isTaxable,
+    variants: p.variants,
+    categoryId: p.categoryId,
+    categoryName: p.categoryName,
+    sku: p.sku,
+    brand: p.brand,
+    modifierGroupIds: p.modifierGroupIds,
+    archivedAt: archivedAt,
+    photoMediaId: photoMediaId,
+    photoPath: photoPath,
+  );
+
+  /// Foto produk (F1-07f): panggilan dan galat berikutnya.
+  final photoCalls = <(UuidValue, ProductPhotoUpload?)>[];
+  Exception? nextPhotoError;
+
+  Future<Result<void>> _photo(UuidValue id, ProductPhotoUpload? photo) async {
+    if (_check() case final e?) return Result.error(e);
+    final e = nextPhotoError;
+    nextPhotoError = null;
+    if (e != null) return Result.error(e);
+    final i = products.indexWhere((p) => p.id == id);
+    if (i < 0) return Result.error(ProductNotFound());
+    photoCalls.add((id, photo));
+    products[i] = _copy(
+      products[i],
+      archivedAt: null,
+      photoMediaId: photo == null ? null : _id(),
+      photoPath: photo == null ? null : '/media/${photo.fileName}',
+    );
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> setPhoto(UuidValue id, ProductPhotoUpload photo) =>
+      _photo(id, photo);
+
+  @override
+  Future<Result<void>> clearPhoto(UuidValue id) => _photo(id, null);
 
   @override
   Future<Result<void>> archive(UuidValue id) async {
@@ -248,6 +290,8 @@ class FakeCatalogRepository extends CatalogRepository {
       brand: orNull(d.brand),
       isActive: d.isActive,
       isTaxable: d.isTaxable,
+      photoMediaId: existing?.photoMediaId,
+      photoPath: existing?.photoPath,
       modifierGroupIds: [
         for (final id in d.modifierGroupIds) UuidValue.fromString(id),
       ],

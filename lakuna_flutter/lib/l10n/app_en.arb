@@ -4100,5 +4100,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productPhotoPick": "Choose photo",
+  "productPhotoChange": "Change photo",
+  "productPhotoTake": "Take photo",
+  "productPhotoRemove": "Remove photo",
+  "productPhotoHint": "PNG, JPG or WebP, up to 2 MB. Saved when you press Save.",
+  "productPhotoUnsupported": "The file isn't a PNG, JPG or WebP image.",
+  "productPhotoTooLarge": "The photo is over 2 MB. Pick a smaller one.",
+  "productPhotoNotSaved": "The product was saved, but the photo wasn't. Try Save again.",
+  "productPhotoUnreadable": "Couldn't open the photo. Check the camera permission or pick another file."
 }

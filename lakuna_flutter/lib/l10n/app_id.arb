@@ -4634,5 +4634,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productPhotoPick": "Pilih foto",
+  "productPhotoChange": "Ganti foto",
+  "productPhotoTake": "Ambil foto",
+  "productPhotoRemove": "Hapus foto",
+  "productPhotoHint": "PNG, JPG, atau WebP, maks. 2 MB. Tersimpan saat Simpan.",
+  "productPhotoUnsupported": "Berkas bukan gambar PNG, JPG, atau WebP.",
+  "productPhotoTooLarge": "Foto lebih dari 2 MB. Pilih foto yang lebih kecil.",
+  "productPhotoNotSaved": "Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.",
+  "productPhotoUnreadable": "Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain."
 }

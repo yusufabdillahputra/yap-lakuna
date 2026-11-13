@@ -2311,7 +2311,11 @@ class _MenuTile extends StatelessWidget {
                       alignment: Alignment.topLeft,
                       child: size < 20
                           ? const SizedBox.shrink()
-                          : ProductThumb(name: product.name, size: size),
+                          : ProductThumb(
+                              name: product.name,
+                              size: size,
+                              photoPath: product.photoPath,
+                            ),
                     );
                   },
                 ),

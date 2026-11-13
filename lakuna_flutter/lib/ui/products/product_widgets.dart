@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -104,15 +107,54 @@ class LoadFailedAlert extends StatelessWidget {
   );
 }
 
-/// Pengganti foto produk: kotak biru langit berisi inisial nama.
+/// Foto produk (F1-07f) dari [photoBytes] atau berkas [photoPath]; tanpa
+/// foto, atau bila gambar gagal dibaca, kotak biru langit berisi inisial.
 class ProductThumb extends StatelessWidget {
-  const ProductThumb({super.key, required this.name, required this.size});
+  const ProductThumb({
+    super.key,
+    required this.name,
+    required this.size,
+    this.photoPath,
+    this.photoBytes,
+  });
 
   final String name;
   final double size;
+  final String? photoPath;
+  final Uint8List? photoBytes;
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(size >= 48 ? 8 : 6);
+    // Gambar didekode kecil agar memori hemat; lebar 2× kotak supaya foto
+    // melebar (sampai 2:1) yang dipotong `cover` tetap tajam.
+    final cache = (2 * size * MediaQuery.devicePixelRatioOf(context)).ceil();
+    Widget fallback(BuildContext context, Object _, StackTrace? _) =>
+        _initials(context, radius);
+    final image = switch ((photoBytes, photoPath)) {
+      (final bytes?, _) => Image.memory(
+        bytes,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        cacheWidth: cache,
+        errorBuilder: fallback,
+      ),
+      (null, final path?) => Image.file(
+        File(path),
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        cacheWidth: cache,
+        errorBuilder: fallback,
+      ),
+      _ => null,
+    };
+    if (image == null) return _initials(context, radius);
+    return ClipRRect(borderRadius: radius, child: image);
+  }
+
+  Widget _initials(BuildContext context, BorderRadius radius) {
     final theme = context.theme;
     final dark = theme.colors.brightness == Brightness.dark;
     return Container(
@@ -121,7 +163,7 @@ class ProductThumb extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: dark ? const Color(0xFF052F4A) : const Color(0xFFDFF2FE),
-        borderRadius: BorderRadius.circular(size >= 48 ? 8 : 6),
+        borderRadius: radius,
       ),
       child: Text(
         staffInitials(name),

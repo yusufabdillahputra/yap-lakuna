@@ -669,6 +669,7 @@ class _ProductTile extends StatelessWidget {
                     child: ProductThumb(
                       name: p.name,
                       size: c.biggest.shortestSide.clamp(32, 72),
+                      photoPath: p.photoPath,
                     ),
                   ),
                 ),
@@ -1435,7 +1436,7 @@ class _MobileProductRow extends StatelessWidget {
         child: Row(
           spacing: 10,
           children: [
-            ProductThumb(name: p.name, size: 48),
+            ProductThumb(name: p.name, size: 48, photoPath: p.photoPath),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

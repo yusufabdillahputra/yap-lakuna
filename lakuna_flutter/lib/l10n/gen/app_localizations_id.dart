@@ -7251,4 +7251,36 @@ class AppLocalizationsId extends AppLocalizations {
   String labelsSaved(String path) {
     return 'PDF disimpan di $path';
   }
+
+  @override
+  String get productPhotoPick => 'Pilih foto';
+
+  @override
+  String get productPhotoChange => 'Ganti foto';
+
+  @override
+  String get productPhotoTake => 'Ambil foto';
+
+  @override
+  String get productPhotoRemove => 'Hapus foto';
+
+  @override
+  String get productPhotoHint =>
+      'PNG, JPG, atau WebP, maks. 2 MB. Tersimpan saat Simpan.';
+
+  @override
+  String get productPhotoUnsupported =>
+      'Berkas bukan gambar PNG, JPG, atau WebP.';
+
+  @override
+  String get productPhotoTooLarge =>
+      'Foto lebih dari 2 MB. Pilih foto yang lebih kecil.';
+
+  @override
+  String get productPhotoNotSaved =>
+      'Produk tersimpan, tetapi foto gagal disimpan. Coba Simpan lagi.';
+
+  @override
+  String get productPhotoUnreadable =>
+      'Foto tidak bisa dibuka. Periksa izin kamera atau pilih berkas lain.';
 }

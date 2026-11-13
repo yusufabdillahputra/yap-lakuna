@@ -28,7 +28,10 @@ abstract class ImageFilePicker {
   bool get canTakePhoto => false;
 
   /// Foto dari kamera; `null` bila dibatalkan.
-  Future<PickedImage?> takePhoto({required int maxBytes}) async => null;
+  Future<PickedImage?> takePhoto({
+    required int maxBytes,
+    int maxWidth = 2400,
+  }) async => null;
 }
 
 /// [ImageFilePicker] dengan dialog berkas sistem (`file_selector`) dan
@@ -77,10 +80,13 @@ class FileSelectorImagePicker extends ImageFilePicker {
           defaultTargetPlatform == TargetPlatform.iOS);
 
   @override
-  Future<PickedImage?> takePhoto({required int maxBytes}) async {
+  Future<PickedImage?> takePhoto({
+    required int maxBytes,
+    int maxWidth = 2400,
+  }) async {
     final file = await ImagePicker().pickImage(
       source: ImageSource.camera,
-      maxWidth: 2400,
+      maxWidth: maxWidth.toDouble(),
       imageQuality: 85,
     );
     return file == null ? null : _read(file, maxBytes);
