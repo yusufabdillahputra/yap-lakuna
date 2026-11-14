@@ -14,9 +14,10 @@ Spec: `docs/superpowers/specs/2026-11-14-f1-10h-tarif-beku-split-design.md`
 - [x] Data: `billRates` + `_ratesOf` di semua perhitungan bill,
   `paySplitPart` membekukan, `cancelSplitPayment` melepas, `_completeBill`
   mengisi `rounding_step`.
-- [ ] Uji penuh (format, analyze, domain/data/flutter).
-- [ ] Uji manual Xvfb: split rata, bayar A, ubah service, total bill dan
-  tagihan B tetap.
-- [ ] Review subagent, perbaikan temuan.
-- [ ] Dokumen rilis: spec status, spec F1-10 gap, README spec, STATUS-JEDA,
+- [x] Uji penuh (format, analyze, domain/data/flutter).
+- [x] Uji manual Xvfb: split rata M3, bayar A, ubah service 5% → 10%, total
+  bill dan tagihan B tetap Rp 14.000/7.000; nota `rounding_step` 500.
+- [x] Review subagent (tanpa Critical/Important); kelipatan tak dikenal
+  tetap beku, catatan bill lama dan sync Fase 2 di spec.
+- [x] Dokumen rilis: spec status, spec F1-10 gap, README spec, STATUS-JEDA,
   panduan split bill, CHANGELOG 0.54.0, pubspec.

@@ -1,7 +1,7 @@
 # F1-10h · Tarif beku saat split bill dibayar
 
 - **Fase:** 1
-- **Status:** Rencana v0.54.0
+- **Status:** Rilis v0.54.0
 - **Layar:** 1.9 Split bill, 1.7 Meja (panel bill), 1.26 Pajak & service
 - **Acuan:** F1-10 (split bill, gap *Split bill: tarif beku*), F1-18
   (pembulatan total), F1-04e/F1-04g (diskon open bill).
@@ -20,7 +20,8 @@ setiap bayar bagian, sehingga selisihnya ditanggung tamu terakhir.
    pembayaran bagian pertama (lunas atau QRIS *menunggu*), tarif cabang saat
    itu disalin ke bill: `sales.service_bp`, `tax_bp`, `tax_inclusive`, dan
    kolom baru `sales.rounding_step` (kelipatan pembulatan 1/100/500).
-2. **Penanda beku** = `rounding_step > 0`. Bill terbuka dengan penanda itu
+2. **Penanda beku** = `rounding_step > 0` (kelipatan yang tidak dikenal
+   tetap beku, tanpa pembulatan). Bill terbuka dengan penanda itu
    memakai tarif tersimpan di semua perhitungan (panel bill, layar Bayar
    bagian, bayar bagian berikutnya, konfirmasi QRIS, nota lunas). Bill lain
    tetap memakai tarif cabang terkini.
@@ -66,5 +67,7 @@ setiap bayar bagian, sehingga selisihnya ditanggung tamu terakhir.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Tarif beku split bill | — | Rencana v0.54.0 | — |
+| Tarif beku split bill | — | Rilis v0.54.0 | Kolom `sales.rounding_step`. |
 | Tarif beku untuk bill yang belum dibayar | — | Tidak direncanakan | Bill tanpa pembayaran mengikuti tarif terkini (harga di menu juga begitu). |
+| Bill split lama (bagian lunas sebelum v0.54.0) | — | Terbatas | Tarif bagian lama tidak tersimpan; bill membeku dengan tarif saat bagian berikutnya dibayar. |
+| Sinkronisasi Fase 2 | — | Catatan | Pembekuan menulis ulang baris `sales`; desain sync harus mencegah edit lama dari perangkat lain menimpa tarif beku. |

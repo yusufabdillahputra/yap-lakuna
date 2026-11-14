@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.54.0] - 2026-11-14
+
+Tagihan tamu split bill tidak lagi bergeser bila tarif service, PB1, atau
+pembulatan diubah setelah tamu pertama membayar.
+
+### Diubah
+
+- **Tarif beku saat split bill dibayar (1.9, F1-10h).** Saat bagian split
+  pertama dicatat (lunas atau QRIS *menunggu*), service, PB1, *Harga sudah
+  termasuk pajak*, dan pembulatan total cabang disalin ke bill. Panel bill,
+  layar Split bill, layar Bayar bagian, konfirmasi QRIS, dan nota lunas
+  memakai tarif itu walau pengaturan diubah di tengah split; bill lain tetap
+  memakai tarif terbaru.
+- Bila semua bagian QRIS yang menunggu dibatalkan (tidak ada pembayaran lagi),
+  bill kembali mengikuti tarif terbaru.
+- Panduan *Split bill* (ID/EN) menjelaskan tarif yang dikunci.
+
+### Diperbaiki
+
+- Mengubah service, PB1, *termasuk pajak*, atau pembulatan di tengah split
+  bill membuat tamu terakhir menanggung selisih (tagihannya = total baru
+  dikurangi bagian yang sudah dibayar dengan tarif lama).
+
+### Catatan teknis
+
+- Kolom baru `sales.rounding_step` (kelipatan pembulatan 1/100/500, bawaan
+  0), migrasi `tarif-beku`. Pada bill terbuka, nilai > 0 menandai tarif beku
+  (`service_bp`, `tax_bp`, `tax_inclusive` tersimpan); nota lunas F&B
+  mencatat kelipatan yang dipakai.
+- Domain: `TotalRounding.byStep`. Data: `billRates(Sale, FnbRates)` dan
+  `_ratesOf` menggantikan pembacaan tarif cabang di semua perhitungan bill;
+  `paySplitPart` membekukan, `cancelSplitPayment` melepas.
+- Bill lama yang sudah punya bagian lunas sebelum versi ini membeku saat
+  bagian berikutnya dibayar (tarif bagian lama tidak tersimpan, jadi tidak
+  bisa dipulihkan). `rounding_step` yang tidak dikenal tetap dianggap beku
+  tanpa pembulatan.
+- Tes: 4 tes data baru (`split_frozen_rates_test`) dan 1 tes domain.
+- Uji manual Xvfb: split rata meja M3 (Rp 14.000, termasuk pajak, bulat
+  Rp 500), bayar tamu A, ubah service 5% → 10%: bill M3 tetap Rp 14.000
+  sementara meja lain naik; tamu B membayar Rp 7.000 dan nota tercatat
+  `service_bp` 500, `rounding_step` 500.
+
 ## [0.53.0] - 2026-11-14
 
 Pelayan dan kasir kini bisa memotong harga satu menu di bill meja atau take
@@ -4224,7 +4266,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...HEAD
+[0.54.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...v0.51.0

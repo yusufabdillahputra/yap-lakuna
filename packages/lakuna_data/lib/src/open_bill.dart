@@ -301,16 +301,16 @@ SaleItem _withGross(SaleItem item, Money gross) {
 /// Tarif yang berlaku untuk bill [sale] (F1-10h): tarif yang dibekukan saat
 /// bagian split pertama dibayar (`rounding_step` > 0), selain itu tarif
 /// cabang terkini [live].
-FnbRates billRates(Sale sale, FnbRates live) =>
-    switch (TotalRounding.byStep(sale.roundingStep)) {
-      final rounding? => FnbRates(
+/// Kelipatan yang tidak dikenal (mis. dari versi lebih baru) tetap dianggap
+/// beku, tanpa pembulatan.
+FnbRates billRates(Sale sale, FnbRates live) => sale.roundingStep > 0
+    ? FnbRates(
         service: BasisPoints(sale.serviceBp),
         tax: BasisPoints(sale.taxBp),
         taxInclusive: sale.taxInclusive,
-        rounding: rounding,
-      ),
-      null => live,
-    };
+        rounding: TotalRounding.byStep(sale.roundingStep) ?? TotalRounding.none,
+      )
+    : live;
 
 Future<FnbRates> _ratesOf(SyncTx w, CatalogScope scope, Sale sale) async =>
     billRates(

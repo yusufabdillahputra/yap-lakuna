@@ -34,6 +34,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.51.0 | PDF pembelian + tautan kartu stok (F1-12c) | #57 |
 | v0.52.0 | Produk pertama di onboarding (F1-01b) | #58 |
 | v0.53.0 | Diskon per baris di open bill F&B (F1-04g) | #59 |
+| v0.54.0 | Tarif beku saat split bill dibayar (F1-10h) | #60 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -58,7 +59,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). ~~Printer dapur
    terpisah~~ — selesai v0.41.0 (F1-10e); printer per stasiun (bar vs
    dapur) masih gap. ~~Sakelar *Kirim ke tiket dapur* / *Catatan bebas*
-   per menu~~ — selesai v0.43.0 (F1-10g).
+   per menu~~ — selesai v0.43.0 (F1-10g). ~~Tarif beku split bill~~ —
+   selesai v0.54.0 (F1-10h); kas per sesi untuk bagian split masih gap.
 8. ~~Batal pembayaran piutang & hutang~~ — selesai v0.44.0 (F1-13c);
    ubah pembayaran tanpa batal tetap tidak didukung (batal lalu catat ulang).
 9. ~~Import supplier dari Excel/CSV~~ — selesai v0.45.0 (F1-14b);
