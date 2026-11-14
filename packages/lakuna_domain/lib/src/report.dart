@@ -5,12 +5,24 @@ import 'rounding.dart';
 
 // --- Periode ----------------------------------------------------------------
 
-enum ReportPeriodKind { today, last7Days, thisMonth, month }
+enum ReportPeriodKind { today, last7Days, thisMonth, month, custom }
 
-/// Periode laporan (F1-16): hari ini, 7 hari terakhir, bulan ini, atau satu
-/// bulan kalender tertentu. Tanggal = tanggal lokal cabang (UTC tengah malam).
+/// Periode laporan (F1-16): hari ini, 7 hari terakhir, bulan ini, satu
+/// bulan kalender tertentu, atau rentang tanggal bebas (F1-16b). Tanggal =
+/// tanggal lokal cabang (UTC tengah malam).
 class ReportPeriod {
-  const ReportPeriod._(this.kind, [this.year = 0, this.monthOfYear = 0]);
+  const ReportPeriod._(
+    this.kind, [
+    this.year = 0,
+    this.monthOfYear = 0,
+    this._from,
+    this._to,
+  ]);
+
+  /// Rentang tanggal bebas [from]–[to] (inklusif; jam diabaikan). Dicek
+  /// dulu dengan [reportRangeError].
+  ReportPeriod.custom(DateTime from, DateTime to)
+    : this._(ReportPeriodKind.custom, 0, 0, _day(from), _day(to));
 
   /// Bulan kalender [year]-[monthOfYear].
   const ReportPeriod.month(int year, int monthOfYear)
@@ -25,6 +37,13 @@ class ReportPeriod {
   /// Hanya untuk [ReportPeriodKind.month].
   final int year;
   final int monthOfYear;
+
+  /// Hanya untuk [ReportPeriodKind.custom].
+  final DateTime? _from;
+  final DateTime? _to;
+
+  /// Jumlah hari rentang [ReportPeriodKind.custom] (inklusif).
+  int get days => _from == null ? 0 : _dayCount(_from, _to!);
 
   static DateTime _day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
@@ -42,6 +61,7 @@ class ReportPeriod {
       ),
       ReportPeriodKind.thisMonth => _monthRange(t.year, t.month),
       ReportPeriodKind.month => _monthRange(year, monthOfYear),
+      ReportPeriodKind.custom => DateRange(_from!, _to!),
     };
   }
 
@@ -68,13 +88,20 @@ class ReportPeriod {
         );
       }(),
       ReportPeriodKind.month => _monthRange(r.from.year, r.from.month - 1),
+      // Jumlah hari yang sama tepat sebelum awal rentang.
+      ReportPeriodKind.custom => DateRange(
+        DateTime.utc(r.from.year, r.from.month, r.from.day - days),
+        DateTime.utc(r.from.year, r.from.month, r.from.day - 1),
+      ),
     };
   }
 
-  /// Bagian nama berkas ekspor: `hari-ini`, `7-hari`, atau `yyyy-mm`.
+  /// Bagian nama berkas ekspor: `hari-ini`, `7-hari`, `yyyy-mm`, atau
+  /// `yyyymmdd-yyyymmdd` (rentang bebas).
   String fileKey(DateTime today) => switch (kind) {
     ReportPeriodKind.today => 'hari-ini',
     ReportPeriodKind.last7Days => '7-hari',
+    ReportPeriodKind.custom => '${_compact(_from!)}-${_compact(_to!)}',
     _ => () {
       final from = range(today).from;
       return '${from.year}-${from.month.toString().padLeft(2, '0')}';
@@ -86,15 +113,54 @@ class ReportPeriod {
       other is ReportPeriod &&
       other.kind == kind &&
       other.year == year &&
-      other.monthOfYear == monthOfYear;
+      other.monthOfYear == monthOfYear &&
+      other._from == _from &&
+      other._to == _to;
 
   @override
-  int get hashCode => Object.hash(kind, year, monthOfYear);
+  int get hashCode => Object.hash(kind, year, monthOfYear, _from, _to);
 
   @override
-  String toString() => kind == ReportPeriodKind.month
-      ? 'ReportPeriod.month($year, $monthOfYear)'
-      : 'ReportPeriod.${kind.name}';
+  String toString() => switch (kind) {
+    ReportPeriodKind.month => 'ReportPeriod.month($year, $monthOfYear)',
+    ReportPeriodKind.custom =>
+      'ReportPeriod.custom(${_compact(_from!)}, ${_compact(_to!)})',
+    _ => 'ReportPeriod.${kind.name}',
+  };
+}
+
+String _compact(DateTime d) =>
+    '${d.year}${d.month.toString().padLeft(2, '0')}'
+    '${d.day.toString().padLeft(2, '0')}';
+
+/// Jumlah hari kalender [from]–[to] inklusif (tanggal UTC tengah malam).
+int _dayCount(DateTime from, DateTime to) => to.difference(from).inDays + 1;
+
+/// Rentang laporan bebas paling panjang (F1-16b).
+const maxReportRangeDays = 366;
+
+/// Galat rentang tanggal bebas laporan (F1-16b).
+enum ReportRangeError {
+  /// Tanggal akhir sebelum tanggal awal.
+  endBeforeStart,
+
+  /// Tanggal akhir melewati hari ini.
+  future,
+
+  /// Lebih dari [maxReportRangeDays] hari.
+  tooLong,
+}
+
+/// Galat rentang [from]–[to] relatif ke [today] (tanggal lokal cabang), atau
+/// `null` bila boleh dipakai.
+ReportRangeError? reportRangeError(DateTime from, DateTime to, DateTime today) {
+  DateTime day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
+  final f = day(from);
+  final t = day(to);
+  if (t.isBefore(f)) return ReportRangeError.endBeforeStart;
+  if (t.isAfter(day(today))) return ReportRangeError.future;
+  if (_dayCount(f, t) > maxReportRangeDays) return ReportRangeError.tooLong;
+  return null;
 }
 
 /// Pilihan periode: hari ini, 7 hari, bulan ini, lalu 12 bulan sebelumnya

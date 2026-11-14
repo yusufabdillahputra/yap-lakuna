@@ -4686,5 +4686,29 @@
       }
     }
   },
-  "historySearchEmpty": "No receipts match your search."
+  "historySearchEmpty": "No receipts match your search.",
+  "reportsPeriodCustom": "Date range…",
+  "reportsRangeTitle": "Choose a date range",
+  "reportsRangeFrom": "From",
+  "reportsRangeTo": "To",
+  "reportsRangeCancel": "Cancel",
+  "reportsRangeApply": "Apply",
+  "reportsRangeErrOrder": "The end date can't be before the start date.",
+  "reportsRangeErrFuture": "The date can't be after today.",
+  "reportsRangeErrTooLong": "The range can be at most {days} days.",
+  "@reportsRangeErrTooLong": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsPrevDays": "{count, plural, =1{the previous day} other{the previous {count} days}}",
+  "@reportsPrevDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

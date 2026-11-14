@@ -111,6 +111,76 @@ void main() {
     });
   });
 
+  group('rentang tanggal bebas (F1-16b)', () {
+    final today = DateTime.utc(2026, 11, 15);
+    DateTime d(int y, int m, int day) => DateTime.utc(y, m, day);
+
+    test('rentang, jumlah hari, pembanding, kunci berkas', () {
+      final half = ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 15));
+      expect(half.kind, ReportPeriodKind.custom);
+      expect(half.range(today), DateRange(d(2026, 11, 1), d(2026, 11, 15)));
+      expect(half.days, 15);
+      expect(
+        half.previousRange(today),
+        DateRange(d(2026, 10, 17), d(2026, 10, 31)),
+      );
+      expect(half.fileKey(today), '20261101-20261115');
+
+      final one = ReportPeriod.custom(d(2026, 3, 1), d(2026, 3, 1));
+      expect(one.days, 1);
+      expect(
+        one.previousRange(today),
+        DateRange(d(2026, 2, 28), d(2026, 2, 28)),
+      );
+
+      final cross = ReportPeriod.custom(d(2025, 12, 28), d(2026, 1, 3));
+      expect(cross.days, 7);
+      expect(
+        cross.previousRange(today),
+        DateRange(d(2025, 12, 21), d(2025, 12, 27)),
+      );
+    });
+
+    test('kesetaraan memakai tanggal; jam diabaikan', () {
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1, 9),
+          DateTime.utc(2026, 11, 2, 23),
+        ),
+        ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 2)),
+      );
+      expect(
+        ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 2)),
+        isNot(ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 3))),
+      );
+      expect(
+        ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 30)),
+        isNot(const ReportPeriod.month(2026, 11)),
+      );
+    });
+
+    test('validasi: urutan, masa depan, paling panjang 366 hari', () {
+      expect(reportRangeError(d(2026, 11, 1), d(2026, 11, 15), today), isNull);
+      expect(reportRangeError(today, today, today), isNull);
+      expect(
+        reportRangeError(d(2026, 11, 2), d(2026, 11, 1), today),
+        ReportRangeError.endBeforeStart,
+      );
+      expect(
+        reportRangeError(d(2026, 11, 1), d(2026, 11, 16), today),
+        ReportRangeError.future,
+      );
+      // 15 Nov 2025 – 15 Nov 2026 = 366 hari (boleh); sehari lebih tidak.
+      expect(maxReportRangeDays, 366);
+      expect(ReportPeriod.custom(d(2025, 11, 15), today).days, 366);
+      expect(reportRangeError(d(2025, 11, 15), today, today), isNull);
+      expect(
+        reportRangeError(d(2025, 11, 14), today, today),
+        ReportRangeError.tooLong,
+      );
+    });
+  });
+
   group('persen', () {
     test('ratioBp dan changeBp', () {
       expect(ratioBp(const Money(257), const Money(1000)), 2570);

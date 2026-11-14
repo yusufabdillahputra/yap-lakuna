@@ -201,6 +201,29 @@ void main() {
       expect(exporter.saved.single.$1, 'laporan-laba-rugi-2026-10-261104.pdf');
       expect(vm.exportPath, exporter.path);
     });
+    test(
+      'rentang tanggal bebas: muat, pilihan, nama berkas (F1-16b)',
+      () async {
+        final vm = ReportsViewModel(repository: repo);
+        await vm.load.execute();
+        final range = ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1),
+          DateTime.utc(2026, 11, 3),
+        );
+        expect(vm.periods, isNot(contains(range)));
+        await vm.setPeriod(range);
+        expect(repo.requests.last, range);
+        expect(vm.data!.period, range);
+        expect(vm.periods, hasLength(16));
+        expect(vm.periods.last, range);
+        expect(
+          vm.exportFileName(ReportFormat.xlsx),
+          'laporan-ringkasan-20261101-20261103-261104.xlsx',
+        );
+        await vm.setPeriod(ReportPeriod.today);
+        expect(vm.periods, hasLength(15));
+      },
+    );
   });
 
   group('label dan tabel ekspor', () {
@@ -227,6 +250,27 @@ void main() {
         'September 2026',
       );
       expect(previousPeriodLabel(id, ReportPeriod.today, today), 'kemarin');
+    });
+
+    test('rentang tanggal bebas: label id/en dan pembanding (F1-16b)', () {
+      final en = AppLocalizationsEn();
+      DateTime d(int y, int m, int day) => DateTime.utc(y, m, day);
+      final one = ReportPeriod.custom(d(2026, 11, 5), d(2026, 11, 5));
+      final half = ReportPeriod.custom(d(2026, 11, 1), d(2026, 11, 15));
+      final cross = ReportPeriod.custom(d(2026, 10, 28), d(2026, 11, 3));
+      final year = ReportPeriod.custom(d(2025, 12, 28), d(2026, 1, 3));
+      expect(reportPeriodLabel(id, one), '5 Nov 2026');
+      expect(reportPeriodLabel(id, half), '1–15 Nov 2026');
+      expect(reportPeriodLabel(id, cross), '28 Okt – 3 Nov 2026');
+      expect(reportPeriodLabel(id, year), '28 Des 2025 – 3 Jan 2026');
+      expect(reportPeriodLabel(en, one), 'Nov 5, 2026');
+      expect(reportPeriodLabel(en, half), 'Nov 1–15, 2026');
+      expect(reportPeriodLabel(en, cross), 'Oct 28 – Nov 3, 2026');
+      expect(reportPeriodLabel(en, year), 'Dec 28, 2025 – Jan 3, 2026');
+      final today = d(2026, 11, 15);
+      expect(previousPeriodLabel(id, half, today), '15 hari sebelumnya');
+      expect(previousPeriodLabel(id, one, today), 'hari sebelumnya');
+      expect(previousPeriodLabel(en, half, today), 'the previous 15 days');
     });
 
     test('laba rugi: PB1 termasuk harga dan pembulatan', () {

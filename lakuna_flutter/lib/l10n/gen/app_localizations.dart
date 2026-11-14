@@ -14070,6 +14070,66 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tidak ada nota yang cocok dengan pencarian.'**
   String get historySearchEmpty;
+
+  /// No description provided for @reportsPeriodCustom.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang tanggal…'**
+  String get reportsPeriodCustom;
+
+  /// No description provided for @reportsRangeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih rentang tanggal'**
+  String get reportsRangeTitle;
+
+  /// No description provided for @reportsRangeFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari'**
+  String get reportsRangeFrom;
+
+  /// No description provided for @reportsRangeTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampai'**
+  String get reportsRangeTo;
+
+  /// No description provided for @reportsRangeCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get reportsRangeCancel;
+
+  /// No description provided for @reportsRangeApply.
+  ///
+  /// In id, this message translates to:
+  /// **'Terapkan'**
+  String get reportsRangeApply;
+
+  /// No description provided for @reportsRangeErrOrder.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal akhir tidak boleh sebelum tanggal awal.'**
+  String get reportsRangeErrOrder;
+
+  /// No description provided for @reportsRangeErrFuture.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal tidak boleh melewati hari ini.'**
+  String get reportsRangeErrFuture;
+
+  /// No description provided for @reportsRangeErrTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang paling panjang {days} hari.'**
+  String reportsRangeErrTooLong(int days);
+
+  /// No description provided for @reportsPrevDays.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, =1{hari sebelumnya} other{{count} hari sebelumnya}}'**
+  String reportsPrevDays(int count);
 }
 
 class _AppLocalizationsDelegate

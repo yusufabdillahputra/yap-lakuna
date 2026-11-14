@@ -126,8 +126,19 @@ class ReportsViewModel extends ChangeNotifier {
       (!_tab.isExtra || (_extraKey == _keyOf(_tab) && _extra != null));
 
   /// Pilihan periode relatif ke hari ini di cabang.
-  List<ReportPeriod> get periods =>
-      reportPeriodChoices(_data?.today ?? DateTime.now());
+  /// Rentang bebas yang aktif ikut di akhir agar tampil terpilih (F1-16b).
+  List<ReportPeriod> get periods => [
+    ...reportPeriodChoices(today),
+    if (_period.kind == ReportPeriodKind.custom) _period,
+  ];
+
+  /// Hari ini di cabang (tanggal UTC tengah malam).
+  DateTime get today =>
+      _data?.today ??
+      () {
+        final now = DateTime.now();
+        return DateTime.utc(now.year, now.month, now.day);
+      }();
 
   Future<void> setPeriod(ReportPeriod period) async {
     if (period == _period) return;

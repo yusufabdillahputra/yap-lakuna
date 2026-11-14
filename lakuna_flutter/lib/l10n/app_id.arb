@@ -5220,5 +5220,29 @@
       }
     }
   },
-  "historySearchEmpty": "Tidak ada nota yang cocok dengan pencarian."
+  "historySearchEmpty": "Tidak ada nota yang cocok dengan pencarian.",
+  "reportsPeriodCustom": "Rentang tanggal…",
+  "reportsRangeTitle": "Pilih rentang tanggal",
+  "reportsRangeFrom": "Dari",
+  "reportsRangeTo": "Sampai",
+  "reportsRangeCancel": "Batal",
+  "reportsRangeApply": "Terapkan",
+  "reportsRangeErrOrder": "Tanggal akhir tidak boleh sebelum tanggal awal.",
+  "reportsRangeErrFuture": "Tanggal tidak boleh melewati hari ini.",
+  "reportsRangeErrTooLong": "Rentang paling panjang {days} hari.",
+  "@reportsRangeErrTooLong": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsPrevDays": "{count, plural, =1{hari sebelumnya} other{{count} hari sebelumnya}}",
+  "@reportsPrevDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
