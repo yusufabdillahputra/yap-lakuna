@@ -74,7 +74,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | #97 |
 | v0.92.0 | Harga beli terakhir untuk barang yang ditambah manual (F1-12e) | #98 |
 | v0.93.0 | Peringatan draf pembelian ganda dari stok minimum (F1-08g) | #99 |
-| v0.94.0 | Tanda "sudah di draf" di tab Stok minimum (F1-08h) | |
+| v0.94.0 | Tanda "sudah di draf" di tab Stok minimum (F1-08h) | #100 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
