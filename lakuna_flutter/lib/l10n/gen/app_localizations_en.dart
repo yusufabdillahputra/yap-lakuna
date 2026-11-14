@@ -7900,4 +7900,50 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0: no longer purchasable (archived or not goods).';
   }
+
+  @override
+  String get purchaseInvoicePhoto => 'Invoice photo';
+
+  @override
+  String get purchaseInvoicePhotoPick => 'Attach invoice photo';
+
+  @override
+  String get purchaseInvoicePhotoCamera => 'Take invoice photo';
+
+  @override
+  String get purchaseInvoicePhotoReplace => 'Replace photo';
+
+  @override
+  String get purchaseInvoicePhotoRemove => 'Remove photo';
+
+  @override
+  String get purchaseInvoicePhotoView => 'View invoice photo';
+
+  @override
+  String get purchaseInvoicePhotoNone => 'No invoice photo yet.';
+
+  @override
+  String get purchaseInvoicePhotoMissing =>
+      'The invoice photo isn\'t on this device yet.';
+
+  @override
+  String get purchaseInvoicePhotoInvalid =>
+      'The invoice photo must be a PNG/JPEG/WebP image, up to 5 MB.';
+
+  @override
+  String get purchaseInvoicePhotoFailed =>
+      'Couldn\'t save the invoice photo. Check the camera permission or try another file.';
+
+  @override
+  String get purchaseInvoicePhotoRemoveTitle => 'Remove the invoice photo?';
+
+  @override
+  String get purchaseInvoicePhotoRemoveBody =>
+      'Stock, cost, and payables don\'t change.';
+
+  @override
+  String get purchaseInvoicePhotoCancel => 'Cancel';
+
+  @override
+  String get purchaseInvoicePhotoClose => 'Close';
 }

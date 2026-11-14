@@ -7714,4 +7714,50 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseRestockSkipped(int count) {
     return '$count barang dilewati karena tidak bisa dibeli lagi (diarsip atau bukan barang).';
   }
+
+  @override
+  String get purchaseInvoicePhoto => 'Foto faktur';
+
+  @override
+  String get purchaseInvoicePhotoPick => 'Lampirkan foto faktur';
+
+  @override
+  String get purchaseInvoicePhotoCamera => 'Ambil foto faktur';
+
+  @override
+  String get purchaseInvoicePhotoReplace => 'Ganti foto';
+
+  @override
+  String get purchaseInvoicePhotoRemove => 'Hapus foto';
+
+  @override
+  String get purchaseInvoicePhotoView => 'Lihat foto faktur';
+
+  @override
+  String get purchaseInvoicePhotoNone => 'Belum ada foto faktur.';
+
+  @override
+  String get purchaseInvoicePhotoMissing =>
+      'Foto faktur belum ada di perangkat ini.';
+
+  @override
+  String get purchaseInvoicePhotoInvalid =>
+      'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 5 MB.';
+
+  @override
+  String get purchaseInvoicePhotoFailed =>
+      'Foto faktur gagal disimpan. Periksa izin kamera atau coba berkas lain.';
+
+  @override
+  String get purchaseInvoicePhotoRemoveTitle => 'Hapus foto faktur?';
+
+  @override
+  String get purchaseInvoicePhotoRemoveBody =>
+      'Stok, harga pokok, dan hutang tidak berubah.';
+
+  @override
+  String get purchaseInvoicePhotoCancel => 'Batal';
+
+  @override
+  String get purchaseInvoicePhotoClose => 'Tutup';
 }

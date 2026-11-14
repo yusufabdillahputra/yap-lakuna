@@ -8,6 +8,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/purchases_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import '../products/product_widgets.dart';
@@ -32,9 +33,13 @@ class PurchasesScreen extends StatefulWidget {
     required this.repository,
     required this.onOpenPurchase,
     required this.onNewPurchase,
+    this.imagePicker = const FileSelectorImagePicker(),
   });
 
   final PurchasesRepository repository;
+
+  /// Foto faktur di form samping (F1-12b).
+  final ImageFilePicker imagePicker;
 
   /// Membuka halaman `/pembelian/:id` (detail, atau form draf di layar
   /// sempit); selesai saat kembali.
@@ -56,9 +61,11 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
 
   PurchaseFormViewModel get _form => _formVm ??= _newForm(null);
 
-  PurchaseFormViewModel _newForm(UuidValue? draftId) =>
-      PurchaseFormViewModel(repository: widget.repository, draftId: draftId)
-        ..load.execute();
+  PurchaseFormViewModel _newForm(UuidValue? draftId) => PurchaseFormViewModel(
+    repository: widget.repository,
+    draftId: draftId,
+    picker: widget.imagePicker,
+  )..load.execute();
 
   @override
   void initState() {

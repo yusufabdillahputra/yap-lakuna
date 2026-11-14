@@ -6,9 +6,11 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/purchases_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
+import '../core/photo_viewer.dart';
 import '../products/product_widgets.dart';
 import 'purchase_detail_view_model.dart';
 import 'purchase_form_view.dart';
@@ -80,10 +82,14 @@ class PurchaseFormPage extends StatefulWidget {
     this.restock,
     required this.onReceived,
     required this.onBack,
+    this.imagePicker = const FileSelectorImagePicker(),
   });
 
   final PurchasesRepository repository;
   final UuidValue? draftId;
+
+  /// Foto faktur (F1-12b).
+  final ImageFilePicker imagePicker;
 
   /// Isian dari daftar stok minimum (F1-08c).
   final PurchaseRestock? restock;
@@ -99,6 +105,7 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
     repository: widget.repository,
     draftId: widget.draftId,
     restock: widget.restock,
+    picker: widget.imagePicker,
   )..load.execute();
 
   @override
@@ -160,10 +167,14 @@ class PurchaseDetailScreen extends StatefulWidget {
     required this.purchaseId,
     required this.onBack,
     this.onPayDebt,
+    this.imagePicker = const FileSelectorImagePicker(),
   });
 
   final PurchasesRepository repository;
   final UuidValue purchaseId;
+
+  /// Foto faktur (F1-12b).
+  final ImageFilePicker imagePicker;
   final VoidCallback onBack;
 
   /// Membuka panel bayar hutang supplier (F1-14); `null` = tanpa izin.
@@ -177,6 +188,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
   late final _vm = PurchaseDetailViewModel(
     repository: widget.repository,
     purchaseId: widget.purchaseId,
+    picker: widget.imagePicker,
   )..load.execute();
 
   @override
@@ -227,6 +239,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
           draftId: widget.purchaseId,
           onReceived: (_) => _vm.load.execute(),
           onBack: widget.onBack,
+          imagePicker: widget.imagePicker,
         );
       }
       final pay = widget.onPayDebt;
@@ -295,6 +308,7 @@ class PurchaseDetailView extends StatelessWidget {
               onBack: onBack,
             ),
             _InfoCard(detail: d),
+            _InvoicePhotoCard(viewModel: vm),
             _ItemsCard(viewModel: vm, wide: wide),
             if (vm.returning) _ReturnCard(viewModel: vm, wide: wide),
             if (wide)
@@ -357,6 +371,201 @@ class _InfoCard extends StatelessWidget {
             pair(
               l10n.purchaseCreatedBy,
               '${detail.staffName} · ${detail.deviceCode}',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Foto faktur pembelian yang sudah diterima (F1-12b): lihat, lampirkan,
+/// ganti, atau hapus.
+class _InvoicePhotoCard extends StatelessWidget {
+  const _InvoicePhotoCard({required this.viewModel});
+
+  final PurchaseDetailViewModel viewModel;
+
+  Future<void> _remove(BuildContext context) async {
+    final ok = await showFDialog<bool>(
+      context: context,
+      builder: (context, style, animation) => FDialog(
+        animation: animation,
+        constraints: const BoxConstraints(minWidth: 280, maxWidth: 400),
+        builder: (context, style) {
+          final l10n = AppLocalizations.of(context);
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              key: const ValueKey('purchase-invoice-photo-confirm'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                Text(
+                  l10n.purchaseInvoicePhotoRemoveTitle,
+                  style: context.theme.typography.display.lg.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  l10n.purchaseInvoicePhotoRemoveBody,
+                  style: _muted(context),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    FButton(
+                      key: const ValueKey('purchase-invoice-photo-cancel'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: () => Navigator.of(context).pop(false),
+                      child: Text(l10n.purchaseInvoicePhotoCancel),
+                    ),
+                    FButton(
+                      key: const ValueKey(
+                        'purchase-invoice-photo-confirm-remove',
+                      ),
+                      variant: .destructive,
+                      mainAxisSize: .min,
+                      onPress: () => Navigator.of(context).pop(true),
+                      child: Text(l10n.purchaseInvoicePhotoRemove),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    if (ok ?? false) await viewModel.removeInvoicePhoto.execute();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final has = vm.detail!.hasInvoicePhoto;
+    final bytes = vm.invoicePhoto;
+    final busy = vm.photoBusy;
+    void view() => showPhotoViewer(
+      context,
+      bytes: bytes!,
+      keyPrefix: 'purchase-invoice-photo',
+      closeLabel: l10n.purchaseInvoicePhotoClose,
+    );
+    Widget button(
+      String key,
+      IconData icon,
+      String label,
+      VoidCallback onPress, {
+      FButtonVariant variant = .outline,
+    }) => FButton(
+      key: ValueKey(key),
+      variant: variant,
+      size: .sm,
+      mainAxisSize: .min,
+      onPress: busy ? null : onPress,
+      prefix: Icon(icon),
+      child: Flexible(
+        child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+    );
+    final error = vm.invoicePhotoRejected
+        ? l10n.purchaseInvoicePhotoInvalid
+        : vm.photoPickFailed
+        ? l10n.purchaseInvoicePhotoFailed
+        : vm.photoError != null
+        ? purchaseErrorMessage(l10n, vm.photoError!)
+        : null;
+    return FCard(
+      key: const ValueKey('purchase-invoice-photo-card'),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
+          children: [
+            if (bytes != null)
+              FTappable(
+                key: const ValueKey('purchase-invoice-photo-thumb'),
+                semanticsLabel: l10n.purchaseInvoicePhotoView,
+                onPress: view,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.memory(
+                    bytes,
+                    width: 72,
+                    height: 72,
+                    fit: BoxFit.cover,
+                    cacheWidth: 216,
+                  ),
+                ),
+              ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  Text(l10n.purchaseInvoicePhoto, style: _muted(context)),
+                  if (bytes == null)
+                    Text(
+                      has
+                          ? l10n.purchaseInvoicePhotoMissing
+                          : l10n.purchaseInvoicePhotoNone,
+                      key: const ValueKey('purchase-invoice-photo-status'),
+                      style: context.theme.typography.body.sm,
+                    ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (bytes != null)
+                        button(
+                          'purchase-invoice-photo-view',
+                          TablerIcons.photoSearch,
+                          l10n.purchaseInvoicePhotoView,
+                          view,
+                          variant: .primary,
+                        ),
+                      button(
+                        'purchase-invoice-photo-pick',
+                        TablerIcons.photo,
+                        has
+                            ? l10n.purchaseInvoicePhotoReplace
+                            : l10n.purchaseInvoicePhotoPick,
+                        () => vm.attachInvoicePhoto.execute(false),
+                      ),
+                      if (vm.canTakePhoto)
+                        button(
+                          'purchase-invoice-photo-camera',
+                          TablerIcons.camera,
+                          l10n.purchaseInvoicePhotoCamera,
+                          () => vm.attachInvoicePhoto.execute(true),
+                        ),
+                      if (has)
+                        button(
+                          'purchase-invoice-photo-remove',
+                          TablerIcons.trash,
+                          l10n.purchaseInvoicePhotoRemove,
+                          () => _remove(context),
+                          variant: .ghost,
+                        ),
+                    ],
+                  ),
+                  if (error != null)
+                    Text(
+                      error,
+                      key: const ValueKey('purchase-invoice-photo-error'),
+                      style: context.theme.typography.body.xs.copyWith(
+                        color: context.theme.colors.destructive,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

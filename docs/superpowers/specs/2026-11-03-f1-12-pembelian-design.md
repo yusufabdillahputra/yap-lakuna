@@ -271,7 +271,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pembelian`.
 | Draf dibuka di dua tempat lalu diterima dua kali | — | Ditolak di data (`PurchaseNotEditable`) | Cukup; pesan galat sudah ada. |
 | Keunikan nama supplier | Unik per tenant | Dicek di kode, belum indeks DB | Indeks unik saat sinkronisasi Fase 2. |
 | Bayar hutang belakangan | Tombol *Bayar hutang* | Nonaktif | F1-14. |
-| Foto faktur | *Lihat foto faktur* | Belum | Pakai `media_files` (F1-18) di rilis berikutnya. |
+| Foto faktur | *Lihat foto faktur* | Selesai v0.50.0 | Lihat spec F1-12b. |
 | Kartu stok terkait, cetak/bagikan PDF | Tombol di 1.19b | Belum | Setelah F1-14. |
 | Master supplier lengkap | 1.21 | Nama, telepon, catatan saja | F1-14. |
 

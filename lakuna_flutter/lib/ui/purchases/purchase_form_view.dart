@@ -8,6 +8,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../utils/result.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/photo_attach_field.dart';
 import '../products/product_widgets.dart';
 import 'purchase_form_view_model.dart';
 import 'purchase_labels.dart';
@@ -128,6 +129,7 @@ class PurchaseFormPanel extends StatelessWidget {
                     ],
                   ),
                   _HeaderFields(viewModel: vm, narrow: narrow),
+                  _InvoicePhotoField(viewModel: vm),
                   _Lines(viewModel: vm, narrow: narrow),
                   _ScanField(viewModel: vm),
                   if (vm.hasIssue(PurchaseField.lines))
@@ -227,6 +229,71 @@ class _Grid extends StatelessWidget {
                 child: i + 1 < children.length
                     ? children[i + 1]
                     : const SizedBox(),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// Lampiran foto faktur (F1-12b); tersimpan bersama pembelian.
+class _InvoicePhotoField extends StatelessWidget {
+  const _InvoicePhotoField({required this.viewModel});
+
+  final PurchaseFormViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final error = vm.invoicePhotoRejected
+        ? l10n.purchaseInvoicePhotoInvalid
+        : vm.pickInvoicePhoto.error
+        ? l10n.purchaseInvoicePhotoFailed
+        : null;
+    return Column(
+      key: const ValueKey('purchase-invoice-photo-field'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 6,
+      children: [
+        Text(
+          l10n.purchaseInvoicePhoto,
+          style: context.theme.typography.body.sm.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        PhotoAttachField(
+          keyPrefix: 'purchase-invoice-photo',
+          pickLabel: l10n.purchaseInvoicePhotoPick,
+          cameraLabel: l10n.purchaseInvoicePhotoCamera,
+          bytes: vm.invoicePhoto,
+          // Nama berkas hanya untuk foto baru yang belum disimpan.
+          fileName: vm.invoicePhotoUnsaved ? vm.invoicePhotoName : null,
+          busy: vm.pickInvoicePhoto.running || vm.busy,
+          canTakePhoto: vm.canTakePhoto,
+          onPick: vm.pickInvoicePhoto.execute,
+          onRemove: vm.removeInvoicePhoto,
+          error: error,
+        ),
+        if (vm.invoicePhotoMissing)
+          Row(
+            spacing: 8,
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.purchaseInvoicePhotoMissing,
+                  key: const ValueKey('purchase-invoice-photo-missing'),
+                  style: _muted(context),
+                ),
+              ),
+              FButton(
+                key: const ValueKey('purchase-invoice-photo-clear'),
+                variant: .ghost,
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: vm.busy ? null : vm.removeInvoicePhoto,
+                child: Text(l10n.purchaseInvoicePhotoRemove),
               ),
             ],
           ),

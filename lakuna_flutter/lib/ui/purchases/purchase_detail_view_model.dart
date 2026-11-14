@@ -5,6 +5,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/purchases_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -38,14 +39,20 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   PurchaseDetailViewModel({
     required this._repository,
     required this.purchaseId,
+    this._picker = const FileSelectorImagePicker(),
   }) {
     load = Command0(_load)..addListener(notifyListeners);
+    attachInvoicePhoto = Command1(_attachInvoicePhoto)
+      ..addListener(notifyListeners);
+    removeInvoicePhoto = Command0(_removeInvoicePhoto)
+      ..addListener(notifyListeners);
     applyPrices = Command0(_applyPrices)..addListener(notifyListeners);
     submitReturn = Command0(_submitReturn)..addListener(notifyListeners);
   }
 
   final PurchasesRepository _repository;
   final UuidValue purchaseId;
+  final ImageFilePicker _picker;
 
   var _disposed = false;
 
@@ -64,6 +71,32 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   late final Command0<void> load;
   late final Command0<void> applyPrices;
   late final Command0<PurchaseReturn> submitReturn;
+
+  /// Melampirkan atau mengganti foto faktur; argumen `true` = kamera
+  /// (F1-12b).
+  late final Command1<void, bool> attachInvoicePhoto;
+  late final Command0<void> removeInvoicePhoto;
+
+  Uint8List? _invoicePhoto;
+  var _invoicePhotoRejected = false;
+  var _photoPickFailed = false;
+  Exception? _photoError;
+
+  /// Kamera/berkas tidak bisa dibuka (mis. izin kamera ditolak).
+  bool get photoPickFailed => _photoPickFailed;
+
+  /// Galat repositori untuk aksi foto terakhir.
+  Exception? get photoError => _photoError;
+
+  /// Isi foto faktur; `null` bila tidak ada atau berkasnya belum ada di
+  /// perangkat ini (lihat `detail.hasInvoicePhoto`).
+  Uint8List? get invoicePhoto => _invoicePhoto;
+
+  /// Berkas terakhir yang dipilih bukan gambar atau terlalu besar.
+  bool get invoicePhotoRejected => _invoicePhotoRejected;
+  bool get canTakePhoto => _picker.canTakePhoto;
+  bool get photoBusy =>
+      attachInvoicePhoto.running || removeInvoicePhoto.running;
 
   PurchaseSetup? _setup;
   PurchaseDetail? _detail;
@@ -125,6 +158,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
       case Ok(:final value):
         _detail = value;
         _error = null;
+        _invoicePhoto = await _photoOf(value);
         _suggestions = _suggest(value);
         _checked = {
           for (final s in _suggestions)
@@ -135,6 +169,62 @@ class PurchaseDetailViewModel extends ChangeNotifier {
         _error = error;
         return Result.error(error);
     }
+  }
+
+  Future<Uint8List?> _photoOf(PurchaseDetail d) async {
+    if (!d.hasInvoicePhoto) return null;
+    final photo = await _repository.invoicePhoto(d.purchase.id);
+    return photo is Ok<Uint8List?> ? photo.value : null;
+  }
+
+  void _resetPhotoState() {
+    _invoicePhotoRejected = false;
+    _photoPickFailed = false;
+    _photoError = null;
+  }
+
+  Future<Result<void>> _attachInvoicePhoto(bool camera) async {
+    _resetPhotoState();
+    const max = PurchaseLimits.invoicePhotoMaxBytes;
+    final PickedImage? picked;
+    try {
+      picked = camera
+          ? await _picker.takePhoto(maxBytes: max)
+          : await _picker.pickImage(maxBytes: max);
+    } on Exception catch (e) {
+      _photoPickFailed = true;
+      return Result.error(e);
+    }
+    if (picked == null) return const Result.ok(null);
+    final bytes = picked.bytes;
+    if (bytes == null || readImageHeader(bytes) == null) {
+      _invoicePhotoRejected = true;
+      return const Result.ok(null);
+    }
+    final result = await _repository.setInvoicePhoto(
+      purchaseId,
+      PurchaseInvoicePhoto(bytes: bytes, fileName: picked.name),
+    );
+    return _afterPhotoChange(result);
+  }
+
+  Future<Result<void>> _removeInvoicePhoto() async {
+    _resetPhotoState();
+    return _afterPhotoChange(await _repository.clearInvoicePhoto(purchaseId));
+  }
+
+  /// Muat ulang detail setelah foto berubah; centang harga yang sudah
+  /// diubah pengguna tetap. Galat muat ulang tidak dilaporkan sebagai foto
+  /// gagal disimpan.
+  Future<Result<void>> _afterPhotoChange(Result<Purchase> result) async {
+    if (result case Error(:final error)) {
+      _photoError = error;
+      return Result.error(error);
+    }
+    final checked = _checked;
+    await _fetch();
+    _checked = checked;
+    return const Result.ok(null);
   }
 
   /// Satu saran per varian, di baris pertamanya. Varian yang dibeli dalam

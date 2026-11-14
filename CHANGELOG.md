@@ -7,6 +7,67 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.50.0] - 2026-11-14
+
+Foto faktur supplier kini tersimpan bersama pembelian, jadi saat mencocokkan
+hutang atau harga beli tidak perlu mencari kertas fakturnya.
+
+### Ditambahkan
+
+- **Foto faktur di form pembelian (1.19, F1-12b).** Bagian *Foto faktur* di
+  bawah isian supplier: **Lampirkan foto faktur** (PNG, JPG, atau WebP
+  sampai 5 MB), **Ambil foto faktur** dari kamera di Android/iOS,
+  pratinjau, dan hapus. Foto tersimpan dalam transaksi yang sama dengan
+  *Simpan draf* atau *Terima barang & simpan*. Draf yang dibuka lagi
+  menampilkan fotonya; menyimpan draf tanpa menyentuh foto tidak mengubah
+  foto.
+- **Kartu *Foto faktur* di detail pembelian (1.19b).** Gambar kecil yang
+  bisa diketuk, **Lihat foto faktur** (layar penuh, bisa diperbesar),
+  **Ganti foto** / **Lampirkan foto faktur**, dan **Hapus foto** dengan
+  konfirmasi. Mengubah foto pembelian yang sudah diterima tidak mengubah
+  stok, HPP, kas, atau hutang. Foto yang tercatat tetapi berkasnya belum
+  ada di perangkat ini diberi keterangan.
+- Panduan *Mencatat pembelian* menjelaskan foto faktur (ID + EN).
+
+### Diubah
+
+- Penampil foto layar penuh dipakai bersama oleh foto nota pengeluaran dan
+  foto faktur (`showPhotoViewer`).
+
+### Diperbaiki (temuan review sebelum rilis)
+
+- Pesan galat foto lama tidak lagi tertinggal setelah aksi berikutnya
+  berhasil; galat repositori memakai pesan yang sesuai, dan pesan "periksa
+  izin kamera" hanya untuk galat kamera/berkas.
+- Memilih atau menghapus foto setelah *Draf disimpan* menghapus pesan
+  tersimpan, karena ada perubahan yang belum disimpan.
+- Galat membaca foto draf tidak lagi ditampilkan sebagai "belum ada di
+  perangkat ini".
+- Mengosongkan foto yang sudah kosong atau memasang foto yang sama tidak
+  menaikkan versi dokumen dan tidak menambah antrean sinkronisasi.
+- `PurchaseInvoicePhotoInvalid` punya pesan sendiri di form pembelian.
+
+### Catatan teknis
+
+- Model: `Purchase.invoiceMediaId` (`purchases.invoice_media_id` →
+  `media_files`), `MediaKind.purchaseInvoice`; migrasi
+  `20261114003906842-foto-faktur`.
+- Domain: `PurchaseLimits.invoicePhotoMaxBytes` (5 MB).
+- Data: `PurchaseInvoicePhoto`, `PurchaseRequest.invoicePhoto` /
+  `removeInvoicePhoto`, `setPurchaseInvoicePhoto`,
+  `clearPurchaseInvoicePhoto`, `loadPurchaseInvoicePhoto`,
+  `PurchaseDetail.hasInvoicePhoto`, `PurchaseInvoicePhotoInvalid`. Berkas
+  disimpan di `media/<sha256>.<ext>` lewat `storeMediaFile` (cabang
+  pembelian).
+- `PurchasesRepository.invoicePhoto/setInvoicePhoto/clearInvoicePhoto`;
+  `PurchaseFormViewModel(picker:)` dan `PurchaseDetailViewModel(picker:)`;
+  router meneruskan `ImageFilePicker` ke layar Pembelian.
+- Tes: 7 tes data foto faktur, 11 tes view model, 2 tes alur widget
+  (1440 px dan ponsel 360 px dengan kamera).
+- Uji manual Xvfb: lampirkan `faktur.png` di form → terima barang →
+  detail menampilkan gambar kecil, *Lihat foto faktur* membuka foto penuh,
+  *Hapus foto* dengan konfirmasi → "Belum ada foto faktur."
+
 ## [0.49.0] - 2026-11-14
 
 Barang yang menipis bisa langsung dipesan ulang: satu ketukan dari daftar
@@ -3976,7 +4037,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...HEAD
+[0.50.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...v0.47.0

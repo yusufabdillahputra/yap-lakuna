@@ -4410,5 +4410,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "purchaseInvoicePhoto": "Invoice photo",
+  "purchaseInvoicePhotoPick": "Attach invoice photo",
+  "purchaseInvoicePhotoCamera": "Take invoice photo",
+  "purchaseInvoicePhotoReplace": "Replace photo",
+  "purchaseInvoicePhotoRemove": "Remove photo",
+  "purchaseInvoicePhotoView": "View invoice photo",
+  "purchaseInvoicePhotoNone": "No invoice photo yet.",
+  "purchaseInvoicePhotoMissing": "The invoice photo isn't on this device yet.",
+  "purchaseInvoicePhotoInvalid": "The invoice photo must be a PNG/JPEG/WebP image, up to 5 MB.",
+  "purchaseInvoicePhotoFailed": "Couldn't save the invoice photo. Check the camera permission or try another file.",
+  "purchaseInvoicePhotoRemoveTitle": "Remove the invoice photo?",
+  "purchaseInvoicePhotoRemoveBody": "Stock, cost, and payables don't change.",
+  "purchaseInvoicePhotoCancel": "Cancel",
+  "purchaseInvoicePhotoClose": "Close"
 }

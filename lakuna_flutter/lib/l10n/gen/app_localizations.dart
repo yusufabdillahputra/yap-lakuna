@@ -13519,6 +13519,90 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{count} barang dilewati karena tidak bisa dibeli lagi (diarsip atau bukan barang).'**
   String purchaseRestockSkipped(int count);
+
+  /// No description provided for @purchaseInvoicePhoto.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto faktur'**
+  String get purchaseInvoicePhoto;
+
+  /// No description provided for @purchaseInvoicePhotoPick.
+  ///
+  /// In id, this message translates to:
+  /// **'Lampirkan foto faktur'**
+  String get purchaseInvoicePhotoPick;
+
+  /// No description provided for @purchaseInvoicePhotoCamera.
+  ///
+  /// In id, this message translates to:
+  /// **'Ambil foto faktur'**
+  String get purchaseInvoicePhotoCamera;
+
+  /// No description provided for @purchaseInvoicePhotoReplace.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti foto'**
+  String get purchaseInvoicePhotoReplace;
+
+  /// No description provided for @purchaseInvoicePhotoRemove.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus foto'**
+  String get purchaseInvoicePhotoRemove;
+
+  /// No description provided for @purchaseInvoicePhotoView.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat foto faktur'**
+  String get purchaseInvoicePhotoView;
+
+  /// No description provided for @purchaseInvoicePhotoNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada foto faktur.'**
+  String get purchaseInvoicePhotoNone;
+
+  /// No description provided for @purchaseInvoicePhotoMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto faktur belum ada di perangkat ini.'**
+  String get purchaseInvoicePhotoMissing;
+
+  /// No description provided for @purchaseInvoicePhotoInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 5 MB.'**
+  String get purchaseInvoicePhotoInvalid;
+
+  /// No description provided for @purchaseInvoicePhotoFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto faktur gagal disimpan. Periksa izin kamera atau coba berkas lain.'**
+  String get purchaseInvoicePhotoFailed;
+
+  /// No description provided for @purchaseInvoicePhotoRemoveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus foto faktur?'**
+  String get purchaseInvoicePhotoRemoveTitle;
+
+  /// No description provided for @purchaseInvoicePhotoRemoveBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok, harga pokok, dan hutang tidak berubah.'**
+  String get purchaseInvoicePhotoRemoveBody;
+
+  /// No description provided for @purchaseInvoicePhotoCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get purchaseInvoicePhotoCancel;
+
+  /// No description provided for @purchaseInvoicePhotoClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get purchaseInvoicePhotoClose;
 }
 
 class _AppLocalizationsDelegate

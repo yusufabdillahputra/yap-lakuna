@@ -12,6 +12,9 @@ abstract final class PurchaseLimits {
   static const invoiceNo = 40;
   static const supplierName = 120;
   static const supplierPhone = 20;
+
+  /// Batas foto faktur (F1-12b), sama dengan foto nota pengeluaran.
+  static const invoicePhotoMaxBytes = 5 * 1024 * 1024;
 }
 
 /// Sumber dana bayar di muka atau uang kembali retur beli (salinan domain

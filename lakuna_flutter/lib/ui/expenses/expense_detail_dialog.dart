@@ -10,6 +10,7 @@ import '../../data/repositories/expenses_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
+import '../core/photo_viewer.dart';
 import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import 'expense_detail_view_model.dart';
@@ -68,38 +69,11 @@ class _ExpenseDetailDialogState extends State<ExpenseDetailDialog> {
 
   /// Foto nota layar penuh yang bisa diperbesar.
   Future<void> _openReceipt(BuildContext context, Uint8List bytes) =>
-      showFDialog<void>(
-        context: context,
-        builder: (context, style, animation) => FDialog(
-          animation: animation,
-          constraints: const BoxConstraints(minWidth: 280, maxWidth: 900),
-          builder: (context, style) => Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              key: const ValueKey('expense-receipt-full'),
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
-              children: [
-                Flexible(
-                  child: InteractiveViewer(
-                    maxScale: 5,
-                    child: Image.memory(bytes, fit: BoxFit.contain),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FButton(
-                    key: const ValueKey('expense-receipt-full-close'),
-                    mainAxisSize: .min,
-                    onPress: () => Navigator.of(context).pop(),
-                    child: Text(AppLocalizations.of(context).expenseClose),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      showPhotoViewer(
+        context,
+        bytes: bytes,
+        keyPrefix: 'expense-receipt',
+        closeLabel: AppLocalizations.of(context).expenseClose,
       );
 
   Future<void> _cancel() async {

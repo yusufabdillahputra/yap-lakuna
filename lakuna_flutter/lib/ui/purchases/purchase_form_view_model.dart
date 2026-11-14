@@ -4,6 +4,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/purchases_repository.dart';
+import '../../data/services/image_file_picker.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -148,8 +149,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
     required this._repository,
     this._draftId,
     this._restock,
+    this._picker = const FileSelectorImagePicker(),
   }) {
     load = Command0(_load)..addListener(notifyListeners);
+    pickInvoicePhoto = Command1(_pickInvoicePhoto)
+      ..addListener(notifyListeners);
     saveDraft = Command0(() => _submit(receiving: false))
       ..addListener(notifyListeners);
     receive = Command0(() => _submit(receiving: true))
@@ -158,6 +162,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   final PurchasesRepository _repository;
+  final ImageFilePicker _picker;
 
   var _disposed = false;
 
@@ -177,6 +182,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
   late final Command0<Purchase> saveDraft;
   late final Command0<Purchase> receive;
   late final Command0<void> deleteDraft;
+
+  /// Memilih foto faktur; argumen `true` = kamera (F1-12b).
+  late final Command1<void, bool> pickInvoicePhoto;
 
   /// Jatuh tempo bawaan tanpa supplier terpilih: 14 hari setelah tanggal
   /// pembelian. Supplier terpilih memakai tempo standarnya (F1-14).
@@ -238,6 +246,14 @@ class PurchaseFormViewModel extends ChangeNotifier {
   DateTime? _dueOn;
   var _note = '';
 
+  // Foto faktur (F1-12b): yang tampil, dan apakah berbeda dari yang
+  // tersimpan (dikirim saat simpan).
+  Uint8List? _invoicePhoto;
+  String? _invoicePhotoName;
+  var _invoicePhotoChanged = false;
+  var _invoicePhotoRejected = false;
+  var _invoicePhotoMissing = false;
+
   /// Aksi terakhir yang dicoba; galat isian tampil setelahnya.
   bool? _attempt;
   Exception? _actionError;
@@ -266,6 +282,20 @@ class PurchaseFormViewModel extends ChangeNotifier {
   FundingKind get funding => _funding;
   DateTime? get dueOn => _dueOn;
   String get note => _note;
+
+  /// Foto faktur yang tampil di form (baru dipilih atau milik draf).
+  Uint8List? get invoicePhoto => _invoicePhoto;
+  String? get invoicePhotoName => _invoicePhotoName;
+
+  /// Berkas terakhir yang dipilih bukan gambar atau terlalu besar.
+  bool get invoicePhotoRejected => _invoicePhotoRejected;
+
+  /// Draf punya foto tetapi berkasnya belum ada di perangkat ini.
+  bool get invoicePhotoMissing => _invoicePhotoMissing;
+
+  /// Foto dipilih atau dihapus tetapi belum disimpan.
+  bool get invoicePhotoUnsaved => _invoicePhotoChanged;
+  bool get canTakePhoto => _picker.canTakePhoto;
 
   /// Galat dari repositori untuk aksi terakhir.
   Exception? get actionError => _actionError;
@@ -327,6 +357,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       switch (detail) {
         case Ok(:final value):
           _fill(value);
+          await _loadInvoicePhoto(value);
         case Error(:final error):
           _error = error;
           return Result.error(error);
@@ -339,6 +370,60 @@ class PurchaseFormViewModel extends ChangeNotifier {
       }
     }
     return const Result.ok(null);
+  }
+
+  Future<void> _loadInvoicePhoto(PurchaseDetail d) async {
+    _clearInvoicePhoto();
+    if (!d.hasInvoicePhoto) return;
+    final photo = await _repository.invoicePhoto(d.purchase.id);
+    // Hanya `Ok(null)` berarti berkas belum ada; galat baca tidak
+    // ditampilkan sebagai "belum ada di perangkat" (foto tetap tersimpan).
+    if (photo case Ok(:final value)) {
+      _invoicePhoto = value;
+      _invoicePhotoMissing = value == null;
+    }
+  }
+
+  void _clearInvoicePhoto() {
+    _invoicePhoto = null;
+    _invoicePhotoName = null;
+    _invoicePhotoChanged = false;
+    _invoicePhotoRejected = false;
+    _invoicePhotoMissing = false;
+  }
+
+  Future<Result<void>> _pickInvoicePhoto(bool camera) async {
+    _invoicePhotoRejected = false;
+    const max = PurchaseLimits.invoicePhotoMaxBytes;
+    try {
+      final picked = camera
+          ? await _picker.takePhoto(maxBytes: max)
+          : await _picker.pickImage(maxBytes: max);
+      if (picked == null) return const Result.ok(null);
+      final bytes = picked.bytes;
+      if (bytes == null || readImageHeader(bytes) == null) {
+        _invoicePhotoRejected = true;
+      } else {
+        _invoicePhoto = bytes;
+        _invoicePhotoName = picked.name;
+        _invoicePhotoChanged = true;
+        _invoicePhotoMissing = false;
+        _touched();
+      }
+      return const Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  /// Mengosongkan foto faktur (tersimpan saat form disimpan).
+  void removeInvoicePhoto() {
+    _invoicePhoto = null;
+    _invoicePhotoName = null;
+    _invoicePhotoChanged = true;
+    _invoicePhotoRejected = false;
+    _invoicePhotoMissing = false;
+    _touched();
   }
 
   void _applyRestock(PurchaseRestock r) {
@@ -394,6 +479,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _funding = FundingKind.storeCash;
     _dueOn = _plusDays(s.today, defaultTermDays);
     _note = '';
+    _clearInvoicePhoto();
     _attempt = null;
     _actionError = null;
     _generation++;
@@ -729,6 +815,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
           ? DateTime.utc(_dueOn!.year, _dueOn!.month, _dueOn!.day)
           : null,
       note: orNull(_note),
+      invoicePhoto: _invoicePhotoChanged && _invoicePhoto != null
+          ? PurchaseInvoicePhoto(
+              bytes: _invoicePhoto!,
+              fileName: _invoicePhotoName ?? 'faktur',
+            )
+          : null,
+      removeInvoicePhoto: _invoicePhotoChanged && _invoicePhoto == null,
     );
   }
 
@@ -754,6 +847,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _draftId = value.id;
         _number = value.number;
         _attempt = null;
+        _invoicePhotoChanged = false;
       case Error(:final error):
         _actionError = error;
     }

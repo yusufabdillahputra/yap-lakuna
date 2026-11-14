@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show ColumnOrderingOperations, DatabaseSession, Transaction;
 
+import 'media.dart';
 import 'sale_core.dart' show requireOpenCashSession;
 import 'staff_access.dart';
 import 'stock.dart';
@@ -60,6 +63,15 @@ List<Permission> _needed({bool drawer = false}) => [
   Permission.purchasesManage,
   if (drawer) Permission.cashMovementsCreate,
 ];
+
+/// Foto faktur bukan PNG/JPG/WebP atau lebih dari
+/// [PurchaseLimits.invoicePhotoMaxBytes] (F1-12b).
+class PurchaseInvoicePhotoInvalid implements Exception {
+  const PurchaseInvoicePhotoInvalid();
+
+  @override
+  String toString() => 'PurchaseInvoicePhotoInvalid';
+}
 
 class PurchaseNotFound implements Exception {
   @override
@@ -120,9 +132,19 @@ class PurchaseLineRequest {
   final Money unitPrice;
 }
 
+/// Foto faktur supplier yang dipilih pengguna (F1-12b).
+class PurchaseInvoicePhoto {
+  const PurchaseInvoicePhoto({required this.bytes, required this.fileName});
+
+  final Uint8List bytes;
+  final String fileName;
+}
+
 /// Isi form pembelian. [id] = draf yang diubah atau diterima. Supplier dari
 /// [supplierId], atau [newSupplierName] yang dibuat (atau dipakai ulang bila
-/// namanya sudah ada).
+/// namanya sudah ada). Foto faktur: [invoicePhoto] baru, atau
+/// [removeInvoicePhoto] untuk mengosongkan; keduanya kosong = foto draf
+/// tetap.
 class PurchaseRequest {
   const PurchaseRequest({
     this.id,
@@ -138,6 +160,8 @@ class PurchaseRequest {
     this.funding,
     this.dueOn,
     this.note,
+    this.invoicePhoto,
+    this.removeInvoicePhoto = false,
   });
 
   final UuidValue? id;
@@ -155,6 +179,8 @@ class PurchaseRequest {
   final FundingSource? funding;
   final DateTime? dueOn;
   final String? note;
+  final PurchaseInvoicePhoto? invoicePhoto;
+  final bool removeInvoicePhoto;
 
   bool get hasSupplier =>
       supplierId != null || (newSupplierName?.trim().isNotEmpty ?? false);
@@ -473,6 +499,9 @@ class PurchaseDetail {
   Money get refunded => Money.sum(returns.map((r) => Money(r.refundAmount)));
   Money get debt => purchaseDebtOf(purchase, returns, allocated: debtPaid);
   bool get isDraft => purchase.status == PurchaseStatus.draft;
+
+  /// Pembelian punya foto faktur (berkasnya bisa belum ada di perangkat).
+  bool get hasInvoicePhoto => purchase.invoiceMediaId != null;
 
   int remainingMilli(PurchaseItem item) =>
       item.quantityMilli - (returnedMilli[item.id] ?? 0);
@@ -871,6 +900,7 @@ void _validate(PurchaseRequest r, {required bool receiving}) {
     receiving: receiving,
   );
   if (issues.isNotEmpty) throw PurchaseInvalid(issues);
+  if (r.invoicePhoto case final photo?) _invoiceHeader(photo);
 }
 
 String? _text(String? s) {
@@ -932,6 +962,11 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
       : null;
   final number =
       existing?.number ?? await _nextNumber(w, scope, s.now, isReturn: false);
+  final invoiceMediaId = r.invoicePhoto != null
+      ? (await _storeInvoicePhoto(w, store, scope, r.invoicePhoto!, s)).id
+      : r.removeInvoicePhoto
+      ? null
+      : existing?.invoiceMediaId;
   final debt = receiving && totals.total > r.paid;
   final fields = (
     supplierId: supplierId,
@@ -971,6 +1006,7 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
         fundingSource: fields.fundingSource,
         dueOn: fields.dueOn,
         note: fields.note,
+        invoiceMediaId: invoiceMediaId,
         receivedAt: receiving ? s.now : null,
         createdAt: s.now,
         updatedAt: s.now,
@@ -999,6 +1035,7 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
         fundingSource: fields.fundingSource,
         dueOn: fields.dueOn,
         note: fields.note,
+        invoiceMediaId: invoiceMediaId,
         receivedAt: receiving ? s.now : null,
         version: existing.version + 1,
         updatedAt: s.now,
@@ -1191,6 +1228,115 @@ Future<Purchase> receivePurchase(
     );
     return doc;
   });
+}
+
+// --- Foto faktur (F1-12b) ------------------------------------------------------
+
+/// Header gambar [photo]; [PurchaseInvoicePhotoInvalid] bila bukan gambar
+/// atau terlalu besar.
+ImageHeader _invoiceHeader(PurchaseInvoicePhoto photo) {
+  final header = readImageHeader(photo.bytes);
+  if (header == null ||
+      photo.bytes.length > PurchaseLimits.invoicePhotoMaxBytes) {
+    throw const PurchaseInvoicePhotoInvalid();
+  }
+  return header;
+}
+
+Future<MediaFile> _storeInvoicePhoto(
+  SyncTx w,
+  LakunaStore store,
+  CatalogScope scope,
+  PurchaseInvoicePhoto photo,
+  SyncStamp stamp,
+) => storeMediaFile(
+  w,
+  store,
+  scope,
+  bytes: photo.bytes,
+  header: _invoiceHeader(photo),
+  fileName: photo.fileName,
+  kind: MediaKind.purchaseInvoice,
+  stamp: stamp,
+  outletId: scope.outletId,
+);
+
+/// Memasang atau mengganti foto faktur [purchaseId] (draf atau diterima).
+/// Stok, HPP, kas, dan hutang tidak berubah.
+Future<Purchase> setPurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue purchaseId,
+  required PurchaseInvoicePhoto photo,
+}) async {
+  _invoiceHeader(photo);
+  return _updateInvoicePhoto(store, scope, staffId, purchaseId, photo);
+}
+
+/// Mengosongkan foto faktur [purchaseId].
+Future<Purchase> clearPurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue purchaseId,
+}) => _updateInvoicePhoto(store, scope, staffId, purchaseId, null);
+
+Future<Purchase> _updateInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue staffId,
+  UuidValue purchaseId,
+  PurchaseInvoicePhoto? photo,
+) async {
+  await _requireActor(store, scope, staffId, _needed());
+  return store.write(actor: staffId, (w) async {
+    final p = await _purchase(
+      w.session,
+      scope,
+      purchaseId,
+      transaction: w.transaction,
+    );
+    if (photo == null && p.invoiceMediaId == null) return p;
+    final s = await w.stamp();
+    final media = photo == null
+        ? null
+        : await _storeInvoicePhoto(w, store, scope, photo, s);
+    // Foto yang sama (hash sama) tidak menulis ulang dokumen.
+    if (media != null && media.id == p.invoiceMediaId) return p;
+    return w.update(
+      p.copyWith(
+        invoiceMediaId: media?.id,
+        version: p.version + 1,
+        updatedAt: s.now,
+        updatedBy: staffId,
+        hlc: s.hlc.toString(),
+        originDeviceId: s.deviceId,
+      ),
+      s,
+    );
+  });
+}
+
+/// Isi foto faktur [purchaseId]; `null` bila tidak ada, bukan milik cabang
+/// ini, atau berkasnya belum ada di perangkat ini.
+Future<Uint8List?> loadPurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue purchaseId,
+) async {
+  final p = await Purchase.db.findById(store.session, purchaseId);
+  if (p == null ||
+      p.tenantId != scope.tenantId ||
+      p.outletId != scope.outletId ||
+      p.deletedAt != null ||
+      p.invoiceMediaId == null) {
+    return null;
+  }
+  final media = await MediaFile.db.findById(store.session, p.invoiceMediaId!);
+  return media == null || media.tenantId != scope.tenantId
+      ? null
+      : readMediaFile(store, media);
 }
 
 /// Menghapus (lunak) draf [purchaseId] beserta barisnya.
