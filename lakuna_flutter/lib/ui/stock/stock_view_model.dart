@@ -4,6 +4,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/stock_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -69,18 +70,76 @@ class AdjustmentDraftLine {
 /// Layar Stok (F1-08, 1.18): daftar stok per lokasi, penyesuaian, kartu
 /// stok, stok minimum, dan lokasi.
 class StockViewModel extends ChangeNotifier {
-  StockViewModel({required this._repository, required this.canAdjust}) {
+  StockViewModel({
+    required this._repository,
+    required this.canAdjust,
+    this._exporter = const PlatformSpreadsheetExporter(),
+  }) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
+    printList = Command1(_print)..addListener(notifyListeners);
   }
 
   final StockRepository _repository;
+  final SpreadsheetExporter _exporter;
 
   /// Staf boleh menyimpan penyesuaian dan mengubah lokasi.
   final bool canAdjust;
 
   late final Command0<void> load;
   late final Command0<StockAdjustmentResult> save;
+
+  /// *Cetak stok* (F1-08b): membuat PDF lewat pembuat dari tampilan (butuh
+  /// terjemahan & font) lalu menyimpannya dengan nama berkas. Hasil =
+  /// lokasi berkas di desktop, `null` bila share sheet.
+  late final Command1<String?, (Future<Uint8List> Function(), String)>
+  printList;
+
+  String? _printPath;
+
+  /// Lokasi PDF cetak stok terakhir (desktop).
+  String? get printPath => _printPath;
+
+  /// Lokasi milik [rows] (bisa tertinggal dari [location] selagi memuat
+  /// atau bila muat lokasi baru gagal).
+  UuidValue? _rowsLocationId;
+
+  /// Baris yang dicetak: semua baris lokasi, tanpa saringan pencarian.
+  List<StockRow> get printRows => _rows;
+
+  /// Nama lokasi milik [printRows].
+  String get printLocationName =>
+      _locations.where((l) => l.id == _rowsLocationId).firstOrNull?.name ?? '';
+
+  /// Ada baris untuk dicetak, baris itu milik lokasi terpilih, dan tidak
+  /// sedang memuat atau menyimpan.
+  bool get canPrint =>
+      _loaded &&
+      _rows.isNotEmpty &&
+      _rowsLocationId == _locationId &&
+      !load.running &&
+      !printList.running;
+
+  Future<Result<String?>> _print(
+    (Future<Uint8List> Function(), String) file,
+  ) async {
+    _printPath = null;
+    try {
+      final bytes = await file.$1();
+      final path = await _exporter.save(bytes, fileName: file.$2);
+      _printPath = path;
+      return Result.ok(path);
+    } on Exception catch (e) {
+      return Result.error(e);
+    } on Object catch (e, stack) {
+      // Error dari pembuat PDF atau share sheet: laporkan agar bisa
+      // ditelusuri, tampilkan pesan gagal biasa.
+      FlutterError.reportError(
+        FlutterErrorDetails(exception: e, stack: stack, library: 'stock'),
+      );
+      return Result.error(Exception('$e'));
+    }
+  }
 
   var _disposed = false;
 
@@ -99,6 +158,8 @@ class StockViewModel extends ChangeNotifier {
   StockTab get tab => _tab;
   void setTab(StockTab tab) {
     _tab = tab;
+    printList.clearResult();
+    _printPath = null;
     notifyListeners();
   }
 
@@ -309,6 +370,8 @@ class StockViewModel extends ChangeNotifier {
     if (id == _locationId) return;
     _locationId = id;
     _clearDraft();
+    printList.clearResult();
+    _printPath = null;
     await load.execute();
   }
 
@@ -384,6 +447,7 @@ class StockViewModel extends ChangeNotifier {
     _locations = list;
     _locationId = target;
     _rows = (rows as Ok<List<StockRow>>).value;
+    _rowsLocationId = target;
     _below = (below as Ok<List<StockRow>>).value;
     _recent = switch (recent) {
       Ok(:final value) => value,

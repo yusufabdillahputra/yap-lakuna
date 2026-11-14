@@ -7837,4 +7837,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get importReasonSample =>
       'sample row from the template, replace or delete it';
+
+  @override
+  String stockPrintTitle(String location) {
+    return 'Stock list · $location';
+  }
+
+  @override
+  String stockPrintSubtitle(String outlet, String time, String staff) {
+    return '$outlet · printed $time · $staff';
+  }
+
+  @override
+  String get stockPrintColCode => 'SKU / Barcode';
+
+  @override
+  String get stockPrintColCounted => 'Counted';
+
+  @override
+  String stockPrintCounts(int items, int below, int minus) {
+    String _temp0 = intl.Intl.pluralLogic(
+      items,
+      locale: localeName,
+      other: '$items items',
+      one: '1 item',
+    );
+    return '$_temp0 · $below below minimum · $minus negative stock';
+  }
+
+  @override
+  String get stockPrintNote =>
+      'Write the counted quantity in the Counted column, then record the difference in the Stock menu, Adjustment tab.';
+
+  @override
+  String get stockPrint => 'Print stock';
+
+  @override
+  String stockPrintSaved(String path) {
+    return 'Stock list saved to $path';
+  }
+
+  @override
+  String get stockPrintFailed => 'Could not create the stock list. Try again.';
 }

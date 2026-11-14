@@ -8,6 +8,15 @@ Stok di Lakuna berupa ledger: setiap perubahan dicatat sebagai pergerakan (stok 
 
 Buka **Stok**. Tab **Daftar produk** menampilkan stok per lokasi, minimum, dan nilai (HPP). Tab **Kartu stok** menampilkan riwayat pergerakan satu produk.
 
+## Cetak daftar stok untuk opname
+
+Tekan **Cetak stok** di bagian atas layar Stok. Lakuna membuat PDF A4 berisi semua barang di lokasi terpilih: SKU/barcode, stok, minimum, nilai, dan kolom **Fisik** yang kosong untuk ditulis tangan saat menghitung di rak. Kata pencarian tidak menyaring cetakan, jadi daftarnya selalu lengkap.
+
+- Di komputer, PDF disimpan di folder dokumen Lakuna dan lokasinya ditampilkan di layar. Buka lalu cetak dari penampil PDF.
+- Di HP/tablet, lembar bagikan terbuka: pilih printer, simpan, atau kirim.
+
+Setelah menghitung, masukkan angka fisiknya di tab **Penyesuaian**.
+
 ## Penyesuaian stok (stock opname)
 
 1. Buka tab **Penyesuaian**.

@@ -4342,5 +4342,54 @@
     }
   },
   "importTemplateFailed": "The template couldn't be saved. Try again.",
-  "importReasonSample": "sample row from the template, replace or delete it"
+  "importReasonSample": "sample row from the template, replace or delete it",
+  "stockPrintTitle": "Stock list · {location}",
+  "@stockPrintTitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintSubtitle": "{outlet} · printed {time} · {staff}",
+  "@stockPrintSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintColCode": "SKU / Barcode",
+  "stockPrintColCounted": "Counted",
+  "stockPrintCounts": "{items, plural, =1{1 item} other{{items} items}} · {below} below minimum · {minus} negative stock",
+  "@stockPrintCounts": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "below": {
+        "type": "int"
+      },
+      "minus": {
+        "type": "int"
+      }
+    }
+  },
+  "stockPrintNote": "Write the counted quantity in the Counted column, then record the difference in the Stock menu, Adjustment tab.",
+  "stockPrint": "Print stock",
+  "stockPrintSaved": "Stock list saved to {path}",
+  "@stockPrintSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintFailed": "Could not create the stock list. Try again."
 }

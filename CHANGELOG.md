@@ -7,6 +7,62 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.48.0] - 2026-11-14
+
+Daftar stok bisa dicetak untuk stock opname manual: hitung di rak, tulis
+di kertas, lalu masukkan selisihnya di tab Penyesuaian.
+
+### Ditambahkan
+
+- **Cetak stok (1.18, F1-08b).** Tombol **Cetak stok** di kepala layar
+  Stok (semua tab, di samping pilihan lokasi) membuat PDF A4 tegak:
+  - judul `Daftar stok · <lokasi>`, subjudul cabang, tanggal & jam cetak
+    (zona waktu cabang), dan nama staf;
+  - kolom Produk, SKU / Barcode, Stok (dengan satuan), Minimum (kosong bila
+    tidak diisi), Nilai (HPP), dan **Fisik** yang kosong untuk ditulis
+    tangan; baris Total nilai;
+  - catatan jumlah item, di bawah minimum, dan stok minus, plus petunjuk
+    mencatat selisih di tab Penyesuaian;
+  - semua barang di lokasi terpilih tercetak; kata pencarian tidak
+    menyaring cetakan.
+- Desktop menyimpan PDF ke folder dokumen Lakuna
+  (`stok-<lokasi>-<yymmdd>-<HHmm>.pdf`) dan menampilkan lokasinya;
+  Android/iOS membuka share sheet. Galat tampil sebagai pesan merah, tombol
+  aktif lagi. Pesan hilang saat pindah tab atau ganti lokasi.
+- Panduan *Penyesuaian & stok minimum* punya bagian **Cetak daftar stok
+  untuk opname** (ID + EN).
+
+### Diubah
+
+- Kepala layar Stok kini memuat tombol *Cetak stok* bersama pilihan lokasi
+  (ponsel: bertumpuk selebar layar).
+
+### Diperbaiki
+
+- PDF laporan dan cetak stok lebih dari 20 halaman (± 700 baris) gagal
+  dibuat di build debug karena batas bawaan paket `pdf`; kini batasnya
+  1000 halaman (temuan review).
+
+### Catatan teknis
+
+- Tombol *Cetak stok* mati selama lokasi baru dimuat dan bila muat lokasi
+  gagal (`printRows` / `printLocationName` mengikuti lokasi milik baris
+  yang termuat), sehingga baris lokasi lama tidak pernah tercetak dengan
+  judul lokasi baru (temuan review, diuji dengan `stockGate`).
+- Galat non-`Exception` dari pembuat PDF dilaporkan lewat
+  `FlutterError.reportError` sebelum pesan gagal ditampilkan.
+- `stockPrintCounts` bahasa Inggris memakai bentuk jamak ICU (`1 item`).
+- `stockPrintTable` / `stockPrintFileName` (`ui/stock/stock_print.dart`)
+  memakai mesin `reportPdf` laporan (F1-16).
+- `StockViewModel.printList` (`Command1`) menerima pembuat PDF dan nama
+  berkas sehingga tombol mati sejak PDF dibuat sampai tersimpan; hasil
+  dihapus saat ganti lokasi. `StockScreen` menerima `exporter` dari router.
+- `XlsxNumber` punya kesetaraan nilai (`==`/`hashCode`) untuk tes.
+- Teks cetakan tidak memakai karakter `›` karena tidak ada di font PDF
+  DM Sans (ditemukan saat uji manual).
+- Uji manual Xvfb: cetak stok Etalase (13 item), PDF dibuka dengan
+  `pdftoppm`.
+
 ## [0.47.0] - 2026-11-14
 
 Pemilik yang baru pertama kali import tidak perlu menebak judul kolom lagi:
@@ -3871,7 +3927,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...HEAD
+[0.48.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...v0.46.0
 [0.45.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.44.0...v0.45.0

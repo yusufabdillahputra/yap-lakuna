@@ -17,6 +17,12 @@ class XlsxNumber {
   const XlsxNumber(this.value);
 
   final int value;
+
+  @override
+  bool operator ==(Object other) => other is XlsxNumber && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 /// Membuat berkas `.xlsx` satu lembar bernama [sheetName] dari [rows]

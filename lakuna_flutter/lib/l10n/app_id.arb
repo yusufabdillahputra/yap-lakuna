@@ -4876,5 +4876,54 @@
     }
   },
   "importTemplateFailed": "Templat gagal disimpan. Coba lagi.",
-  "importReasonSample": "baris contoh dari templat, ganti atau hapus"
+  "importReasonSample": "baris contoh dari templat, ganti atau hapus",
+  "stockPrintTitle": "Daftar stok · {location}",
+  "@stockPrintTitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintSubtitle": "{outlet} · dicetak {time} · {staff}",
+  "@stockPrintSubtitle": {
+    "placeholders": {
+      "outlet": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintColCode": "SKU / Barcode",
+  "stockPrintColCounted": "Fisik",
+  "stockPrintCounts": "{items} item · {below} di bawah minimum · {minus} stok minus",
+  "@stockPrintCounts": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "below": {
+        "type": "int"
+      },
+      "minus": {
+        "type": "int"
+      }
+    }
+  },
+  "stockPrintNote": "Tulis hasil hitung di kolom Fisik, lalu catat selisihnya di menu Stok, tab Penyesuaian.",
+  "stockPrint": "Cetak stok",
+  "stockPrintSaved": "Daftar stok disimpan di {path}",
+  "@stockPrintSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintFailed": "Daftar stok gagal dibuat. Coba lagi."
 }

@@ -28,6 +28,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.45.0 | Import supplier dari Excel/CSV (F1-14b) | #51 |
 | v0.46.0 | Pulihkan backup dari onboarding (F1-19b) | #52 |
 | v0.47.0 | Templat import produk, pelanggan, supplier (F1-07g) | #53 |
+| v0.48.0 | Cetak stok per lokasi (F1-08b) | #54 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -58,6 +59,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    templat berkas untuk diunduh selesai v0.47.0 (F1-07g).
 10. ~~Pulihkan dari onboarding~~ — selesai v0.46.0 (F1-19b); enkripsi
    backup masih gap.
+11. ~~Cetak stok~~ — selesai v0.48.0 (F1-08b). *Buat pesanan pembelian
+   dari daftar stok minimum* (F1-08 × F1-12) masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

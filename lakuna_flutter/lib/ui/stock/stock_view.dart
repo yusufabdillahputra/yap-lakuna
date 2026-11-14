@@ -9,9 +9,13 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/stock_repository.dart';
 import '../../data/repositories/store_repository.dart';
+import '../../data/services/report_document.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import '../products/product_widgets.dart';
+import '../reports/report_labels.dart' show moneyLabel;
+import 'stock_print.dart';
 import 'stock_view_model.dart';
 
 /// Layar *Stok* (1.18, F1-08). Memiliki [StockViewModel] dan memuat stok
@@ -22,12 +26,16 @@ class StockScreen extends StatefulWidget {
     required this.repository,
     required this.session,
     required this.store,
+    this.exporter = const PlatformSpreadsheetExporter(),
     this.initialTab,
   });
 
   final StockRepository repository;
   final SessionRepository session;
   final StoreRepository store;
+
+  /// Penyimpan PDF *Cetak stok* (F1-08b).
+  final SpreadsheetExporter exporter;
 
   /// Tab yang dibuka pertama (mis. dari Master data › Lokasi stok).
   final StockTab? initialTab;
@@ -39,6 +47,7 @@ class StockScreen extends StatefulWidget {
 class _StockScreenState extends State<StockScreen> {
   late final _viewModel = StockViewModel(
     repository: widget.repository,
+    exporter: widget.exporter,
     canAdjust:
         widget.session.current?.permissions.contains(Permission.stockAdjust) ??
         false,
@@ -115,17 +124,41 @@ class StockView extends StatelessWidget {
               PageHeader(
                 title: l10n.stockTitle,
                 subtitle: l10n.stockSubtitle(location?.name ?? '', outletName),
-                action: vm.locations.length > 1
-                    ? SizedBox(
-                        width: narrow ? double.infinity : 220,
-                        // Ganti lokasi selagi menyimpan akan membuang draf.
-                        child: IgnorePointer(
-                          ignoring: vm.save.running,
+                action: _HeaderActions(
+                  narrow: narrow,
+                  print: FButton(
+                    key: const ValueKey('stock-print'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: vm.canPrint ? () => _print(context) : null,
+                    prefix: vm.printList.running
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: FCircularProgress(),
+                          )
+                        : const Icon(TablerIcons.printer),
+                    child: Flexible(child: Text(l10n.stockPrint)),
+                  ),
+                  location: vm.locations.length > 1
+                      ? IgnorePointer(
+                          // Ganti lokasi selagi menyimpan akan membuang draf.
+                          ignoring: vm.save.running || vm.printList.running,
                           child: _LocationSelect(viewModel: vm),
-                        ),
-                      )
-                    : null,
+                        )
+                      : null,
+                ),
               ),
+              if (vm.printList.completed && vm.printPath != null)
+                FAlert(
+                  key: const ValueKey('stock-print-saved'),
+                  title: Text(l10n.stockPrintSaved(vm.printPath!)),
+                )
+              else if (vm.printList.error)
+                FAlert(
+                  key: const ValueKey('stock-print-failed'),
+                  variant: .destructive,
+                  title: Text(l10n.stockPrintFailed),
+                ),
               if (narrow)
                 _TabPills(viewModel: vm)
               else
@@ -158,6 +191,65 @@ class StockView extends StatelessWidget {
       },
     ),
   );
+
+  /// *Cetak stok* (F1-08b): semua baris lokasi terpilih, tanpa saringan
+  /// pencarian.
+  void _print(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final location = vm.printLocationName;
+    final now = DateTime.now();
+    final rows = vm.printRows;
+    vm.printList.execute((
+      () => reportPdf(
+        stockPrintTable(
+          l10n,
+          rows: rows,
+          location: location,
+          outlet: outletName,
+          staff: staffName,
+          printedAt: now,
+          timezone: timezone,
+        ),
+        money: (v) => moneyLabel(l10n, Money(v)),
+      ),
+      stockPrintFileName(location, now, timezone),
+    ));
+  }
+}
+
+/// Tombol kepala layar Stok: *Cetak stok* dan pilihan lokasi (bila > 1).
+/// Ponsel: bertumpuk selebar layar.
+class _HeaderActions extends StatelessWidget {
+  const _HeaderActions({
+    required this.narrow,
+    required this.print,
+    this.location,
+  });
+
+  final bool narrow;
+  final Widget print;
+  final Widget? location;
+
+  @override
+  Widget build(BuildContext context) {
+    final location = this.location;
+    if (narrow) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [?location, print],
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        print,
+        if (location != null) SizedBox(width: 220, child: location),
+      ],
+    );
+  }
 }
 
 // --- Bantuan tampilan ---------------------------------------------------------
