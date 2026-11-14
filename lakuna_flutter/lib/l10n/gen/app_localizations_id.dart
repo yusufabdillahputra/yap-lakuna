@@ -8041,7 +8041,8 @@ class AppLocalizationsId extends AppLocalizations {
   String get receiptTransferRef => 'Ref. transfer';
 
   @override
-  String get historySearchHint => 'Cari no. nota, pelanggan, atau referensi';
+  String get historySearchHint =>
+      'Cari no. nota, pelanggan, barang, atau referensi';
 
   @override
   String historySearchSummary(int count, String total) {

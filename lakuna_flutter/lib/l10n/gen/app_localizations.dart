@@ -14050,7 +14050,7 @@ abstract class AppLocalizations {
   /// No description provided for @historySearchHint.
   ///
   /// In id, this message translates to:
-  /// **'Cari no. nota, pelanggan, atau referensi'**
+  /// **'Cari no. nota, pelanggan, barang, atau referensi'**
   String get historySearchHint;
 
   /// No description provided for @historySearchSummary.

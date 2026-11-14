@@ -417,6 +417,88 @@ void main() {
       },
     );
 
+    test('cocok nama produk dan varian barang; barang dihapus tidak '
+        '(F1-11d)', () async {
+      final today = now;
+      final teh = await product(
+        const ProductDraft(
+          name: 'Teh Celup',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(
+              name: 'Melati',
+              sellPrice: Money(5000),
+              openingStock: Qty(10000),
+            ),
+          ],
+        ),
+      );
+      // Nota lama di luar rentang hari ini tetap ditemukan.
+      now = today.subtract(const Duration(days: 30));
+      await openSession();
+      final old = await sell({roti: 1000});
+      now = today;
+      final a = await sell({kopi: 1000, jasa: 1000});
+      final b = await sell({teh: 1000});
+      // Bill yang Roti-nya dihapus sebelum dibayar tidak cocok "roti".
+      final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
+      final withRoti = await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(roti).id, quantity: Qty(1000)),
+      );
+      await setBillItemQuantity(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        itemId: withRoti.items.single.id!,
+        quantity: Qty.zero,
+      );
+      await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(kopi).id, quantity: Qty(1000)),
+      );
+      final paid = await payOpenBill(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        payments: const [SalePaymentRequest.cash(Money(100000))],
+      );
+
+      Future<List<UuidValue>> find(
+        String q, [
+        HistoryFilter filter = const HistoryFilter(),
+      ]) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: filter.copyWith(query: q),
+        )).rows)
+          r.sale.id,
+      ];
+
+      expect(await find('roti'), [old.sale.id]);
+      expect(await find('TAWAR'), [old.sale.id]);
+      expect(await find('bubuk'), [paid.sale.id, a.sale.id]);
+      expect(await find('pulsa'), [a.sale.id]);
+      // Nama varian.
+      expect(await find('melati'), [b.sale.id]);
+      expect(await find('teh'), [b.sale.id]);
+      // Filter tetap berlaku.
+      expect(
+        await find('bubuk', const HistoryFilter(status: HistoryStatus.voided)),
+        isEmpty,
+      );
+      expect(await find('%ubuk'), isEmpty);
+    });
+
     test('hasil dibatasi dan ditandai terpotong', () async {
       await openSession();
       final a = await sell({kopi: 1000});

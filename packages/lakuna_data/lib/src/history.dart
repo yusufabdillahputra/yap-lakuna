@@ -376,6 +376,9 @@ Future<HistoryPage> listSalesHistory(
 /// di kata kunci tidak menjadi wildcard. Nota dibaca per kelompok
 /// (per [batch] baris) dan berhenti begitu hasil melewati [limit], jadi kata
 /// kunci yang cocok dengan semua nota (mis. kode outlet) tetap ringan.
+/// Maks baris barang yang dibaca saat mencari nama barang (F1-11d).
+const historyItemSearchLimit = 5000;
+
 Future<({List<Sale> sales, bool truncated})> _searchSales(
   DatabaseSession session,
   CatalogScope scope,
@@ -415,11 +418,26 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     ))
       if (has(p.reference)) p.saleId,
   };
+  // Nama barang saat transaksi (F1-11d); baris terbaru dulu, dibatasi agar
+  // kata kunci umum tidak membuat daftar ID raksasa.
+  final withItem = <UuidValue>{
+    for (final i in await SaleItem.db.find(
+      session,
+      where: (i) =>
+          i.tenantId.equals(scope.tenantId) &
+          (i.productName.ilike(pattern) | i.variantName.ilike(pattern)) &
+          i.deletedAt.equals(null),
+      orderByList: (i) => [i.createdAt.desc()],
+      limit: historyItemSearchLimit,
+    ))
+      if (has(i.productName) || has(i.variantName)) i.saleId,
+  };
   bool matches(Sale s) =>
       has(s.number) ||
       has(s.customerName) ||
       customers.contains(s.customerId) ||
-      referenced.contains(s.id);
+      referenced.contains(s.id) ||
+      withItem.contains(s.id);
   final staffId = filter.staffId;
   final found = <Sale>[];
   for (var offset = 0; found.length <= limit; offset += batch) {
@@ -429,6 +447,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
         var text = s.number.ilike(pattern) | s.customerName.ilike(pattern);
         if (customers.isNotEmpty) text = text | s.customerId.inSet(customers);
         if (referenced.isNotEmpty) text = text | s.id.inSet(referenced);
+        if (withItem.isNotEmpty) text = text | s.id.inSet(withItem);
         var where =
             s.tenantId.equals(scope.tenantId) &
             s.outletId.equals(scope.outletId) &
