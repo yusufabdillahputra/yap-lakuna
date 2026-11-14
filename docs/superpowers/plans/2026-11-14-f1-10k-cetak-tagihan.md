@@ -16,4 +16,4 @@ Spec: [F1-10k](../specs/2026-11-14-f1-10k-cetak-tagihan-design.md)
       `tagihan-OB-PST-K01-261113-0003.pdf`; dibuka lagi tanpa sisa alert.
 - [x] **Dokumen**: spec F1-05e, README, STATUS-JEDA, panduan, CHANGELOG
       0.80.0, versi 0.80.0+83.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #86 di-merge (13 cek hijau).

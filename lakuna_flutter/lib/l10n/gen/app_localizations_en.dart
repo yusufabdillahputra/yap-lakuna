@@ -8266,7 +8266,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptTransferRef => 'Transfer ref.';
 
   @override
-  String get historySearchHint => 'Search receipt no., customer, or reference';
+  String get historySearchHint =>
+      'Search receipt no., customer, item, or reference';
 
   @override
   String historySearchSummary(int count, String total) {

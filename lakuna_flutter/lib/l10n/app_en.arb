@@ -4666,7 +4666,7 @@
   "barTicketSection": "Bar",
   "receiptApproval": "Approval no.",
   "receiptTransferRef": "Transfer ref.",
-  "historySearchHint": "Search receipt no., customer, or reference",
+  "historySearchHint": "Search receipt no., customer, item, or reference",
   "historySearchSummary": "Search results · {count} transactions · {total}",
   "@historySearchSummary": {
     "placeholders": {

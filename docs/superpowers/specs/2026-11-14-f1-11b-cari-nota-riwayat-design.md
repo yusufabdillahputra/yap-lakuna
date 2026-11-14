@@ -75,7 +75,7 @@ cari untuk nomor nota, pelanggan, atau referensi pembayaran.
 | --- | --- | --- | --- |
 | Cari nomor nota, pelanggan, referensi | — | Rilis v0.66.0 | — |
 | Rentang tanggal bebas (kalender) | — | Rilis v0.68.0 | [F1-11c](2026-11-14-f1-11c-rentang-tanggal-riwayat-design.md) |
-| Cari nama item | — | Belum | Perlu join `sale_items`; tunggu kebutuhan. |
+| Cari nama item | — | Rilis v0.81.0 | Nama produk atau varian ([F1-11d](2026-11-14-f1-11d-cari-nama-barang-design.md)). |
 | Huruf non-ASCII (é, ü) tanpa beda besar/kecil | — | Belum | Batas `LIKE` SQLite; kolom nama ternormalisasi bila dibutuhkan. |
 | Cari HP dengan format lain (+62, tanda hubung) | — | Rilis v0.77.0 | [F1-13d](2026-11-14-f1-13d-cari-hp-format-design.md): sama di semua kolom cari HP. |
 | Kata kunci berisi `\` di Postgres (Fase 2) | — | Belum | Escape `\` saat pencarian dipindah ke server. |

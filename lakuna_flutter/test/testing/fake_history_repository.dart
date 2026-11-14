@@ -223,7 +223,9 @@ class FakeHistoryRepository extends HistoryRepository {
         q.isEmpty ||
         has(s.sale.number) ||
         has(s.sale.customerName) ||
-        s.payments.any((p) => has(p.reference));
+        s.payments.any((p) => has(p.reference)) ||
+        // Nama barang (F1-11d).
+        s.items.any((i) => has(i.productName) || has(i.variantName));
     return okStatus && okMethod && okStaff && okQuery;
   }
 

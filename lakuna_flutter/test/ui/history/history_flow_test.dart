@@ -213,6 +213,23 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final size in const [Size(1280, 800), Size(360, 780)]) {
+    testWidgets('cari nama barang ${size.width.toInt()} px (F1-11d)', (
+      tester,
+    ) async {
+      await pump(tester, size: size);
+      expect(
+        find.text('Cari no. nota, pelanggan, barang, atau referensi'),
+        findsOneWidget,
+      );
+      await tester.enterText(_input('history-search'), 'ROTI');
+      await tester.pumpAndSettle();
+      expect(_key('history-row-${roti.sale.id.uuid}'), findsOneWidget);
+      expect(_key('history-row-${kopi.sale.id.uuid}'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('360 px: kolom cari dan hasil tanpa luapan (F1-11b)', (
     tester,
   ) async {

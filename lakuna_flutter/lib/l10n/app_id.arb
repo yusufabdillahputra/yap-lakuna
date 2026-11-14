@@ -5200,7 +5200,7 @@
   "barTicketSection": "Bar",
   "receiptApproval": "No. approval",
   "receiptTransferRef": "Ref. transfer",
-  "historySearchHint": "Cari no. nota, pelanggan, atau referensi",
+  "historySearchHint": "Cari no. nota, pelanggan, barang, atau referensi",
   "historySearchSummary": "Hasil pencarian · {count} transaksi · {total}",
   "@historySearchSummary": {
     "placeholders": {
