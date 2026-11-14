@@ -8039,4 +8039,21 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get receiptTransferRef => 'Ref. transfer';
+
+  @override
+  String get historySearchHint => 'Cari no. nota, pelanggan, atau referensi';
+
+  @override
+  String historySearchSummary(int count, String total) {
+    return 'Hasil pencarian · $count transaksi · $total';
+  }
+
+  @override
+  String historySearchTruncated(int limit) {
+    return 'Menampilkan $limit nota terbaru. Perjelas kata kunci untuk mempersempit hasil.';
+  }
+
+  @override
+  String get historySearchEmpty =>
+      'Tidak ada nota yang cocok dengan pencarian.';
 }

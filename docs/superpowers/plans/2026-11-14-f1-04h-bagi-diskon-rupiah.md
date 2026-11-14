@@ -14,4 +14,4 @@ dibagi sebanding jumlah porsi.
 - [x] **Uji manual Xvfb**: split per item bill berdiskon rupiah.
 - [x] **Dokumen**: spec F1-04g (gap), README, STATUS-JEDA, panduan diskon
   id/en, CHANGELOG 0.65.0, pubspec `0.65.0+68`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

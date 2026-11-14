@@ -8264,4 +8264,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptTransferRef => 'Transfer ref.';
+
+  @override
+  String get historySearchHint => 'Search receipt no., customer, or reference';
+
+  @override
+  String historySearchSummary(int count, String total) {
+    return 'Search results · $count transactions · $total';
+  }
+
+  @override
+  String historySearchTruncated(int limit) {
+    return 'Showing the latest $limit receipts. Refine the keyword to narrow the results.';
+  }
+
+  @override
+  String get historySearchEmpty => 'No receipts match your search.';
 }

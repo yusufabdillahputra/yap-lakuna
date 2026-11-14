@@ -65,6 +65,10 @@ class HistoryViewModel extends ChangeNotifier {
   String? _pdfPath;
   String? _exportPath;
 
+  /// Naik setiap kolom cari dikosongkan dari luar (pill tanggal), dipakai
+  /// sebagai kunci kolom cari (F1-11b).
+  var _searchGeneration = 0;
+
   /// Naik setiap form retur dikosongkan, dipakai sebagai kunci kolom teks
   /// agar isi lama tidak tertinggal.
   var _formGeneration = 0;
@@ -72,6 +76,7 @@ class HistoryViewModel extends ChangeNotifier {
   HistoryData? get data => _data;
   HistoryPage? get page => _page;
   HistoryFilter get filter => _filter;
+  int get searchGeneration => _searchGeneration;
   UuidValue? get selectedId => _selectedId;
   SaleDetail? get detail => _detail;
 
@@ -139,6 +144,19 @@ class HistoryViewModel extends ChangeNotifier {
   void setFilter(HistoryFilter filter) {
     _filter = filter;
     unawaited(_list());
+  }
+
+  /// Kata kunci cari (F1-11b); kosong = riwayat per tanggal.
+  void setQuery(String query) {
+    // Hanya spasi tepi yang berubah: kata kunci sama, tidak dimuat ulang.
+    if (query.trim() == _filter.trimmedQuery) return;
+    setFilter(_filter.copyWith(query: query));
+  }
+
+  /// Pilih rentang tanggal; pencarian yang aktif dikosongkan (F1-11b).
+  void setRange(HistoryRange range) {
+    if (_filter.query.isNotEmpty) _searchGeneration++;
+    setFilter(_filter.copyWith(range: range, query: ''));
   }
 
   void select(UuidValue? saleId) {
@@ -410,10 +428,12 @@ class HistoryViewModel extends ChangeNotifier {
 
   // --- Ekspor --------------------------------------------------------------
 
-  /// Nama berkas ekspor: `riwayat-<rentang>-<yymmdd>.xlsx`.
+  /// Nama berkas ekspor: `riwayat-<rentang>-<yymmdd>.xlsx`; hasil cari
+  /// memakai `riwayat-cari-<yymmdd>.xlsx`.
   String exportFileName(DateTime now) {
     String two(int n) => n.toString().padLeft(2, '0');
     final date = '${two(now.year % 100)}${two(now.month)}${two(now.day)}';
+    if (_filter.searching) return 'riwayat-cari-$date.xlsx';
     final range = switch (_filter.range) {
       HistoryRange.today => 'hari-ini',
       HistoryRange.yesterday => 'kemarin',

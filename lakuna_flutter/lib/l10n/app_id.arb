@@ -5199,5 +5199,26 @@
   "kitchenTicketSection": "Dapur",
   "barTicketSection": "Bar",
   "receiptApproval": "No. approval",
-  "receiptTransferRef": "Ref. transfer"
+  "receiptTransferRef": "Ref. transfer",
+  "historySearchHint": "Cari no. nota, pelanggan, atau referensi",
+  "historySearchSummary": "Hasil pencarian · {count} transaksi · {total}",
+  "@historySearchSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "historySearchTruncated": "Menampilkan {limit} nota terbaru. Perjelas kata kunci untuk mempersempit hasil.",
+  "@historySearchTruncated": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "historySearchEmpty": "Tidak ada nota yang cocok dengan pencarian."
 }
