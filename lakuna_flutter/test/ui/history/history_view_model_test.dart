@@ -288,6 +288,28 @@ void main() {
     expect(vm.cashRefundAvailable, isFalse);
   });
 
+  test('void nota tunai sesi ini melebihi laci: peringatan (F1-03d)', () async {
+    final a = repo.addSale([('Kopi', 3000, 10000)]);
+    final old = repo.addSale([('Roti', 1000, 50000)], inOpenSession: false);
+    final qris = repo.addSale([
+      ('Teh', 1000, 50000),
+    ], method: PaymentMethod.qrisStatic);
+    repo.drawerCash = const Money(20000);
+    create(initial: a);
+    await vm.load.execute();
+    expect(vm.voidDrawerShortfall, const Money(10000));
+    vm.select(old.sale.id);
+    await pumpEventQueue();
+    expect(vm.voidDrawerShortfall, isNull); // Uang di sesi lain.
+    vm.select(qris.sale.id);
+    await pumpEventQueue();
+    expect(vm.voidDrawerShortfall, isNull); // Bukan tunai.
+    repo.drawerCash = const Money(30000);
+    vm.select(a.sale.id);
+    await vm.refresh();
+    expect(vm.voidDrawerShortfall, isNull); // Sama dengan perkiraan.
+  });
+
   test('tanpa sesi: tanpa perkiraan dan tanpa peringatan', () async {
     final a = repo.addSale([('Kopi', 3000, 10000)]);
     repo

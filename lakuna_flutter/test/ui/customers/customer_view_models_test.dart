@@ -60,6 +60,21 @@ void main() {
       await vm.load.execute();
     });
 
+    test('perkiraan uang laci dimuat ulang setelah batal (F1-03d)', () async {
+      repo.drawerCash = const Money(500000);
+      await vm.load.execute();
+      expect(vm.drawerCash, const Money(500000));
+      vm
+        ..setAmount(const Money(100000))
+        ..setMethod(PaymentMethod.cash);
+      await vm.receive.execute();
+      expect(vm.drawerCash, const Money(600000)); // Tunai masuk laci.
+      final paid = repo.payments.single;
+      await vm.voidPayment.execute((paid.id, 'Salah nominal'));
+      expect(vm.voidPayment.result, isA<Ok<DebtPayment>>());
+      expect(vm.drawerCash, const Money(500000));
+    });
+
     test('alokasi otomatis nota terlama dulu, sisa setelah bayar', () {
       final open = vm.detail!.open;
       expect(open, hasLength(3));

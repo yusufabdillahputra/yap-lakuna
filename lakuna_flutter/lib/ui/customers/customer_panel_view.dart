@@ -842,6 +842,7 @@ class _Payments extends StatelessWidget {
       errorMessage: (e) => e is DebtPaymentNotFound
           ? l10n.debtErrNotFound
           : customerErrorMessage(l10n, e),
+      drawerCash: viewModel.drawerCash,
     );
     // Ringkasan daftar (total piutang/hutang) ikut berubah.
     if (voided) await onChanged();

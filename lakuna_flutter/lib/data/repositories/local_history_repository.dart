@@ -32,7 +32,11 @@ class LocalHistoryRepository extends HistoryRepository {
       tenantId: ctx.tenant.id,
       outletId: ctx.outlet.id,
     );
-    final drawerCash = await openDrawerCash(_store, CashScope.of(ctx));
+    final cashScope = CashScope.of(ctx);
+    final open = await findOpenCashSession(_store, cashScope);
+    final drawerCash = open == null
+        ? null
+        : (await cashDrawerFor(_store, cashScope, open)).expectedCash;
     return HistoryData(
       staff: [for (final s in staffList) (id: s.id, name: s.name)],
       businessName: ctx.tenant.name,
@@ -44,6 +48,7 @@ class LocalHistoryRepository extends HistoryRepository {
       canVoid: staff.can(Permission.salesVoid),
       hasOpenSession: drawerCash != null,
       drawerCash: drawerCash,
+      openSessionId: open?.id,
     );
   });
 

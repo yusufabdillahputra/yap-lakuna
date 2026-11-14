@@ -5,6 +5,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 
 /// Membuka dialog batal pembayaran piutang/hutang [payment] (F1-13c).
@@ -16,6 +17,7 @@ Future<bool> showDebtPaymentVoidDialog(
   required DebtPayment payment,
   required Future<Exception?> Function(String reason) onConfirm,
   required String Function(Exception error) errorMessage,
+  Money? drawerCash,
 }) async =>
     await showFDialog<bool>(
       context: context,
@@ -26,6 +28,7 @@ Future<bool> showDebtPaymentVoidDialog(
           payment: payment,
           onConfirm: onConfirm,
           errorMessage: errorMessage,
+          drawerCash: drawerCash,
         ),
       ),
     ) ??
@@ -36,9 +39,14 @@ class _VoidDialog extends StatefulWidget {
     required this.payment,
     required this.onConfirm,
     required this.errorMessage,
+    this.drawerCash,
   });
 
   final DebtPayment payment;
+
+  /// Perkiraan uang di laci; batal piutang tunai yang melebihinya
+  /// diperingatkan (F1-03d). Batal hutang supplier menambah laci.
+  final Money? drawerCash;
   final Future<Exception?> Function(String reason) onConfirm;
   final String Function(Exception error) errorMessage;
 
@@ -127,6 +135,17 @@ class _VoidDialogState extends State<_VoidDialog> {
                       key: const ValueKey('debt-void-drawer'),
                       style: muted,
                     ),
+                  if (drawer && !supplier)
+                    if ((
+                          widget.drawerCash,
+                          drawerShortfallOf(Money(p.amount), widget.drawerCash),
+                        )
+                        case (final cash?, final over?))
+                      DrawerShortfallNote(
+                        keyPrefix: 'debt-void',
+                        drawerCash: cash,
+                        shortfall: over,
+                      ),
                   FTextField(
                     key: const ValueKey('debt-void-reason'),
                     label: Text(l10n.debtVoidReason),

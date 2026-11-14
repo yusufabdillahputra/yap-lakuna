@@ -236,7 +236,7 @@ void main() {
     expect(
       find.text(
         'Uang di laci diperkirakan Rp 1.000. Jumlah ini lebih '
-        'Rp 500 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+        'Rp 500 dari perkiraan; pastikan uangnya ada sebelum melanjutkan.',
       ),
       findsOneWidget,
     );

@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.70.0] - 2026-11-14
+
+Peringatan uang di laci tidak cukup (v0.69.0) kini juga muncul di dua
+dialog yang mengurangi laci tanpa mengetik jumlah: void nota tunai dan
+batal pembayaran piutang tunai.
+
+### Ditambahkan
+
+- **Riwayat (1.14), dialog *Void nota*:** bila uang tunai nota yang
+  diterima di sesi yang sedang buka (dikurangi kembalian) lebih besar dari
+  perkiraan uang di laci, dialog menampilkan peringatan. Nota QRIS/kartu
+  tidak diperingatkan.
+- **Pelanggan (1.20), dialog *Batal pembayaran*:** batal pembayaran piutang
+  yang diterima tunai memberi peringatan bila jumlahnya melebihi perkiraan
+  uang di laci. Batal bayar hutang supplier mengembalikan uang ke laci,
+  jadi tanpa peringatan.
+- Panduan *Sesi kasir & kas laci* (id/en) menyebut kedua dialog.
+
+### Diubah
+
+- Teks peringatan kini berakhir *"…pastikan uangnya ada sebelum
+  melanjutkan."* (sebelumnya *sebelum menyimpan*) agar cocok di form dan
+  dialog.
+- Panel pelanggan memuat ulang status sesi kasir dan perkiraan uang laci
+  setiap kali dimuat (setelah terima atau batal pembayaran); bila gagal,
+  data lama dipakai.
+
+### Catatan teknis
+
+- `saleCashInSession(payments, sessionId, saleSessionId:)` di
+  `lakuna_data`: tunai lunas bersih kembalian di sesi itu, pembayaran lama
+  tanpa sesi ikut sesi nota, pembayaran terhapus diabaikan. Tes data
+  memastikan penurunan *Kas seharusnya* saat void sama dengan nilainya.
+- `HistoryData.openSessionId`, `HistoryViewModel.voidDrawerShortfall`,
+  `SaleVoidDialog(drawerCash:, drawerShortfall:)`;
+  `CustomersSetup.drawerCash`, `showDebtPaymentVoidDialog(drawerCash:)`.
+- Tes VM (nota sesi ini/sesi lain/QRIS, muat ulang panel pelanggan) dan
+  widget (dialog void nota, dialog batal piutang 1280 dan 360 px).
+
 ## [0.69.0] - 2026-11-14
 
 Setiap uang yang keluar dari laci kini diperiksa terhadap perkiraan uang di
@@ -4971,7 +5010,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...HEAD
+[0.70.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...v0.68.0
 [0.67.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...v0.67.0

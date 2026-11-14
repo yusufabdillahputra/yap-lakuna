@@ -23,6 +23,7 @@ class HistoryData {
     this.canVoid = false,
     this.hasOpenSession = false,
     this.drawerCash,
+    this.openSessionId,
   });
 
   final List<HistoryStaff> staff;
@@ -44,6 +45,10 @@ class HistoryData {
   /// Perkiraan uang di laci sesi terbuka (*Kas seharusnya*), `null` tanpa
   /// sesi. Untuk peringatan uang laci tidak cukup (F1-03c).
   final Money? drawerCash;
+
+  /// Sesi kasir yang terbuka di perangkat ini, untuk menghitung uang laci
+  /// yang hilang saat void nota (F1-03d).
+  final UuidValue? openSessionId;
 }
 
 /// Riwayat transaksi, retur, dan void (F1-11). Melihat butuh `sales:create`
