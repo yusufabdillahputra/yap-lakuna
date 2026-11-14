@@ -49,6 +49,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.66.0 | Cari nota di Riwayat (F1-11b) | #72 |
 | v0.67.0 | Rentang tanggal bebas di Laporan (F1-16b) | #73 |
 | v0.68.0 | Rentang tanggal bebas di Riwayat (F1-11c) | #74 |
+| v0.69.0 | Peringatan uang di laci tidak cukup (F1-03c) | #75 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -100,6 +101,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     v0.66.0 (F1-11b); ~~rentang tanggal bebas di Riwayat~~ — selesai
     v0.68.0 (F1-11c).
 18. ~~Rentang tanggal bebas di Laporan~~ — selesai v0.67.0 (F1-16b).
+19. ~~Peringatan uang keluar melebihi perkiraan laci~~ — selesai v0.69.0
+    (F1-03c); void pembayaran piutang tunai dan void nota tunai belum
+    diperingatkan.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

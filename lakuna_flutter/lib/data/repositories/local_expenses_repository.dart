@@ -27,12 +27,13 @@ class LocalExpensesRepository extends ExpensesRepository {
   Future<Result<ExpensesSetup>> load() => _guard((ctx, scope, staff) async {
     await ensureExpenseCategories(_store, scope, staffId: staff.id);
     final categories = await listExpenseCategories(_store, scope);
+    final drawerCash = await openDrawerCash(_store, CashScope.of(ctx));
     return ExpensesSetup(
       today: await outletToday(_store.session, scope, _clock().toUtc()),
       categories: [for (final c in categories) c.category],
       canUseDrawer: staff.can(Permission.cashMovementsCreate),
-      hasOpenSession:
-          await findOpenCashSession(_store, CashScope.of(ctx)) != null,
+      hasOpenSession: drawerCash != null,
+      drawerCash: drawerCash,
     );
   });
 

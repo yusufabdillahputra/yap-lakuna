@@ -116,8 +116,16 @@ class HistoryViewModel extends ChangeNotifier {
   /// Memuat ulang daftar dan rincian (mis. setelah kembali dari halaman
   /// rincian di layar sempit).
   Future<void> refresh() async {
+    await _reloadData();
     await _list();
     if (_selectedId case final id?) await _fetchDetail(id);
+  }
+
+  /// Memuat ulang data awal (sesi kasir, perkiraan uang laci) tanpa
+  /// mengganggu layar bila gagal: data lama dipakai terus, jadi peringatan
+  /// laci (F1-03c) bisa memakai perkiraan lama sampai muat ulang berikutnya.
+  Future<void> _reloadData() async {
+    if (await _repository.load() case Ok(:final value)) _data = value;
   }
 
   Future<Result<void>> _list() async {
@@ -319,6 +327,16 @@ class HistoryViewModel extends ChangeNotifier {
 
   bool get cashRefundAvailable => _data?.hasOpenSession ?? false;
 
+  /// Perkiraan uang di laci sesi terbuka (F1-03c), `null` tanpa sesi.
+  Money? get drawerCash => _data?.drawerCash;
+
+  /// Uang kembali tunai melebihi perkiraan uang di laci: kelebihannya, untuk
+  /// peringatan (tidak memblokir).
+  Money? get drawerShortfall =>
+      returnNeedsRefundMethod && refundMethod == RefundMethod.cash
+      ? drawerShortfallOf(returnRefund, drawerCash)
+      : null;
+
   void setRefundMethod(RefundMethod method) {
     _refund = method;
     _returnError = null;
@@ -371,6 +389,7 @@ class HistoryViewModel extends ChangeNotifier {
       case Ok():
         final id = detail.sale.id;
         _resetForms();
+        await _reloadData();
         await _list();
         await _fetchDetail(id);
       case Error(:final error):
@@ -390,6 +409,7 @@ class HistoryViewModel extends ChangeNotifier {
       approverId: request.approverId,
     );
     if (result is Ok) {
+      await _reloadData();
       await _list();
       await _fetchDetail(detail.sale.id);
     }

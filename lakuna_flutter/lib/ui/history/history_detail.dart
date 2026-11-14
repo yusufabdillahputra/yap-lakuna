@@ -9,6 +9,7 @@ import '../../data/repositories/session_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/approval_dialog.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../products/product_widgets.dart';
 import '../receipt/printer_labels.dart';
@@ -519,6 +520,15 @@ class _ReturnForm extends StatelessWidget {
                 l10n.historyRefundCashNeedsSession,
                 key: const ValueKey('history-refund-no-session'),
                 style: _muted(context),
+              ),
+            if ((vm.drawerCash, vm.drawerShortfall) case (
+              final cash?,
+              final over?,
+            ))
+              DrawerShortfallNote(
+                keyPrefix: 'history',
+                drawerCash: cash,
+                shortfall: over,
               ),
           ],
           Row(

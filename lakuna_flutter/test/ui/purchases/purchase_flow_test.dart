@@ -59,8 +59,9 @@ void main() {
     Size size, {
     FakeSessionRepository? session,
     bool stockHasKop = true,
+    Money? drawerCash,
   }) async {
-    repo = FakePurchasesRepository();
+    repo = FakePurchasesRepository()..drawerCash = drawerCash;
     // Layar Stok memakai lokasi dan produk yang sama dengan pembelian.
     final kop = repo.products.firstWhere(
       (p) => p.variants.any((v) => v.sku == 'KOP'),
@@ -219,6 +220,29 @@ void main() {
     expect(_key('purchase-detail'), findsOneWidget);
     expect(find.text('Belum lunas · hutang'), findsOneWidget);
     expect(find.text('Jatuh tempo 17/11/2026 (14 hari lagi).'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('bayar dari laci melebihi perkiraan: peringatan (F1-03c)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900), drawerCash: const Money(1000));
+    await _scan(tester, 'KOP');
+    await _type(tester, _keyPrefix('purchase-price-'), '1500');
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _keyPrefix('purchase-funding-'));
+    await tester.tap(find.text('Kas laci').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Uang di laci diperkirakan Rp 1.000. Jumlah ini lebih '
+        'Rp 500 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('purchase-receive'));
+    expect(_key('purchase-detail'), findsOneWidget);
+    expect(repo.requests.last.funding, FundingSource.drawer);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

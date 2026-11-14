@@ -126,6 +126,46 @@ void main() {
       expect(repo.requests.single.dueOn, isNull);
     });
 
+    test('bayar dari laci melebihi perkiraan: peringatan (F1-03c)', () async {
+      repo.drawerCash = const Money(1000);
+      final f = PurchaseFormViewModel(repository: repo);
+      addTearDown(f.dispose);
+      await f.load.execute();
+      f
+        ..selectSupplier(repo.suppliers.single.id)
+        ..addByCode('KOP')
+        ..setUnitPrice(f.lines.single.key, const Money(1500))
+        ..setPaid(const Money(1000))
+        ..setFunding(FundingKind.drawer);
+      expect(f.drawerShortfall, isNull);
+      f.payInFull();
+      expect(f.drawerShortfall, const Money(500));
+      f.setFunding(FundingKind.storeCash);
+      expect(f.drawerShortfall, isNull);
+      f.setFunding(FundingKind.drawer);
+      // Tanpa izin laci: terima ditolak, jadi tanpa peringatan.
+      repo.canUseDrawer = false;
+      await f.load.execute();
+      f
+        ..addByCode('KOP')
+        ..setUnitPrice(f.lines.single.key, const Money(1500))
+        ..payInFull()
+        ..setFunding(FundingKind.drawer);
+      expect(f.drawerShortfall, isNull);
+      repo.canUseDrawer = true;
+      await f.load.execute();
+      f
+        ..selectSupplier(repo.suppliers.single.id)
+        ..addByCode('KOP')
+        ..setUnitPrice(f.lines.single.key, const Money(1500))
+        ..payInFull()
+        ..setFunding(FundingKind.drawer);
+      expect(f.drawerShortfall, const Money(500));
+      await f.receive.execute();
+      expect(f.receive.completed, isTrue);
+      expect(repo.requests.single.funding, FundingSource.drawer);
+    });
+
     test('draf disimpan lalu dibuka lagi dengan isi yang sama', () async {
       form
         ..selectSupplier(repo.suppliers.single.id)

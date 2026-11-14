@@ -201,8 +201,8 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `riwayat`.
 | Rentang tanggal bebas | — | Rilis v0.68.0 | [F1-11c](2026-11-14-f1-11c-rentang-tanggal-riwayat-design.md) |
 | Open bill yang dibatalkan | — | Tidak tampil di riwayat (nomor OB- tanpa nota) | Lihat di layar Meja bila perlu laporan pembatalan bill. |
 | Rekap sesi *Void/retur* | Jumlah | Jumlah nota void + retur di sesi | — |
-| Sesi kasir dibuka/ditutup saat riwayat terbuka | — | `hasOpenSession` baru diperbarui saat layar dimuat ulang | Muat ulang saat sesi berubah. |
-| Retur tunai melebihi uang di laci | — | Tidak diperingatkan | Peringatan di F1-04 berikutnya. |
+| Sesi kasir dibuka/ditutup saat riwayat terbuka | — | `hasOpenSession` diperbarui saat layar dimuat, setelah retur/void, dan saat muat ulang dari rincian (v0.69.0) | Dengarkan perubahan sesi bila perlu. |
+| Retur tunai melebihi uang di laci | — | Rilis v0.69.0: peringatan, tidak memblokir | [F1-03c](2026-11-14-f1-03c-peringatan-kas-laci-design.md) |
 | Retur/void dari dua perangkat | — | Data per perangkat | Konflik ditangani sinkronisasi Fase 2. |
 | Retur ke piutang | "Potong piutang" | Enum siap, opsi disembunyikan | Aktifkan di F1-13. |
 | Status *Menunggu konfirmasi* / *Belum lunas* | Ada di daftar | Belum muncul | Ikut kredit F1-13. |

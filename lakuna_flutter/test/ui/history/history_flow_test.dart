@@ -34,11 +34,12 @@ void main() {
     Size size = const Size(1280, 800),
     String role = 'owner',
     String location = Routes.history,
+    Money? drawerCash,
   }) async {
     history = FakeHistoryRepository(
       canVoid: role == 'owner',
       canReturn: role == 'owner',
-    );
+    )..drawerCash = drawerCash;
     kopi = history.addSale([('Kopi Susu', 2000, 18000)]);
     roti = history.addSale([
       ('Roti Bakar', 1000, 25000),
@@ -92,6 +93,31 @@ void main() {
     expect(find.textContaining('CETAK ULANG'), findsOneWidget);
     await _tap(tester, 'history-reprint-print');
     expect(printer.prints, hasLength(1));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('retur tunai melebihi uang di laci: peringatan (F1-03c)', (
+    tester,
+  ) async {
+    await pump(tester, drawerCash: const Money(20000));
+    await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+    final item = kopi.items.single.id.uuid;
+    await _tap(tester, 'history-return-plus-$item');
+    await _tap(tester, 'history-reason-wrongItem');
+    expect(_key('history-drawer-short'), findsNothing);
+    await _tap(tester, 'history-return-plus-$item');
+    expect(
+      find.text(
+        'Uang di laci diperkirakan Rp 20.000. Jumlah ini lebih '
+        'Rp 16.000 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'history-refund-transfer');
+    expect(_key('history-drawer-short'), findsNothing);
+    await _tap(tester, 'history-refund-cash');
+    await _tap(tester, 'history-return-submit');
+    expect(history.returns.single.refundMethod, RefundMethod.cash);
+    expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('kasir tanpa izin void: persetujuan PIN manajer lalu void', (

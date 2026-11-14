@@ -48,6 +48,9 @@ class FakeSuppliersRepository extends SuppliersRepository {
   bool canPay;
   bool canUseDrawer;
   bool hasOpenSession;
+
+  /// Perkiraan uang di laci (F1-03c); berkurang oleh bayar dari laci.
+  Money? drawerCash;
   final _tenant = _id();
   final _outlet = _id();
   final _device = _id();
@@ -197,6 +200,7 @@ class FakeSuppliersRepository extends SuppliersRepository {
       canPay: canPay,
       canUseDrawer: canUseDrawer,
       hasOpenSession: hasOpenSession,
+      drawerCash: hasOpenSession ? drawerCash : null,
     ),
   );
 
@@ -334,6 +338,7 @@ class FakeSuppliersRepository extends SuppliersRepository {
     );
     if (issue != null) throw SupplierPaymentInvalid(issue);
     if (drawer && !hasOpenSession) throw CashSessionNotOpen();
+    if (drawer && drawerCash != null) drawerCash = drawerCash! - request.amount;
     final allocations =
         request.allocations ?? allocateOldestFirst(request.amount, payables);
     final list = purchaseList[s.id]!;

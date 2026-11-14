@@ -10,6 +10,16 @@ const cashDenominations = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
 /// field teks) catatan buka sesi, keterangan uang laci, dan catatan selisih.
 const cashNoteMaxLength = 200;
 
+/// Kelebihan [amount] yang akan keluar dari laci di atas perkiraan uang di
+/// laci [drawerCash] (*Kas seharusnya* sesi terbuka), atau `null` bila
+/// cukup, jumlahnya nol atau negatif, atau tidak ada sesi (`drawerCash` null). Dipakai
+/// untuk peringatan, bukan pemblokir (F1-03c).
+Money? drawerShortfallOf(Money amount, Money? drawerCash) {
+  if (drawerCash == null || amount <= Money.zero) return null;
+  final over = amount - drawerCash;
+  return over > Money.zero ? over : null;
+}
+
 /// Komponen kas laci dalam satu sesi kasir.
 class CashDrawer {
   const CashDrawer({

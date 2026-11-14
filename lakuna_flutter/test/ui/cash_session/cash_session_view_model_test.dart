@@ -105,6 +105,27 @@ void main() {
     expect(vm.active!.drawer.expectedCash, const Money(150000));
   });
 
+  test('uang keluar melebihi perkiraan laci: peringatan (F1-03c)', () async {
+    await vm.load.execute();
+    await openWith('100000');
+    var notified = 0;
+    vm.addListener(() => notified++);
+    vm.setMovementAmount('100.000');
+    expect(vm.movementShortfall, isNull);
+    vm.setMovementAmount('120.000');
+    expect(vm.movementShortfall, const Money(20000));
+    expect(notified, greaterThan(0));
+    vm.setDirection(CashDirection.inflow);
+    expect(vm.movementShortfall, isNull);
+    vm
+      ..setDirection(CashDirection.outflow)
+      ..setMovementNote('Setor ke bank');
+    await vm.saveMovement.execute();
+    expect(repo.movements.single.amount, 120000);
+    expect(vm.active!.drawer.expectedCash, const Money(-20000));
+    expect(vm.movementShortfall, isNull); // Form kosong lagi.
+  });
+
   test('jumlah nol ditolak', () async {
     await vm.load.execute();
     await openWith('100000');

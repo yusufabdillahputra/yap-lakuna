@@ -140,6 +140,29 @@ void main() {
       noPermission.dispose();
     });
 
+    test('laci kurang: peringatan, tetap bisa dibayar (F1-03c)', () async {
+      repo.drawerCash = const Money(1000000);
+      await vm.load.execute();
+      vm
+        ..setFunding(FundingSource.drawer)
+        ..setAmount(const Money(1000000));
+      expect(vm.drawerCash, const Money(1000000));
+      expect(vm.drawerShortfall, isNull);
+      vm.setAmount(const Money(1300000));
+      expect(vm.drawerShortfall, const Money(300000));
+      expect(vm.canSubmit, isTrue);
+      vm.setFunding(FundingSource.bank);
+      expect(vm.drawerShortfall, isNull);
+      vm.setFunding(FundingSource.drawer);
+      vm.setPaidOn(DateTime.utc(2026, 11, 3));
+      expect(vm.drawerShortfall, isNull); // Pesan tanggal yang tampil.
+      vm.setPaidOn(DateTime.utc(2026, 11, 4));
+      await vm.pay.execute();
+      expect(vm.pay.result, isA<Ok<DebtPayment>>());
+      // Setup dimuat ulang: 1.000.000 - 1.300.000.
+      expect(vm.drawerCash, const Money(-300000));
+    });
+
     test('muat ulang menyegarkan status sesi kasir', () async {
       vm.setFunding(FundingSource.drawer);
       expect(vm.drawerIssue, isNull);

@@ -116,6 +116,16 @@ class SupplierPanelViewModel extends ChangeNotifier {
     return null;
   }
 
+  /// Perkiraan uang di laci sesi terbuka (F1-03c), `null` tanpa sesi.
+  Money? get drawerCash => _setup?.drawerCash;
+
+  /// Bayar dari laci melebihi perkiraan uang di laci: kelebihannya, untuk
+  /// peringatan (tidak memblokir).
+  Money? get drawerShortfall =>
+      _funding == FundingSource.drawer && drawerIssue == null
+      ? drawerShortfallOf(_amount, drawerCash)
+      : null;
+
   List<OpenReceivable<UuidValue>> get _open => [
     for (final p in _detail?.open ?? const <PayablePurchase>[])
       OpenReceivable(id: p.purchase.id, outstanding: p.outstanding),

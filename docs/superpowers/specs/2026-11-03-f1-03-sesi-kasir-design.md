@@ -214,6 +214,7 @@ Migrasi `sesi-kasir`.
 | Navigasi ponsel | Kanvas 1.3b mobile tidak menggambar navigasi bawah | *Sesi kasir* menjadi item navigasi bawah (Beranda, Kasir, Sesi kasir, Produk, Pengaturan sesuai izin) | Pertahankan; tanpa ini kasir di ponsel tidak bisa membuka sesi |
 | Kartu angka di ponsel | - | Tiga kartu tetap satu baris | Pertahankan |
 | Izin tutup tanpa izin buka | - | Menu dan rute butuh `cash_session:open`; role kustom yang hanya punya `cash_session:close` tidak bisa membuka layar | Saat F1-17 menambah role kustom: izinkan rute bila punya salah satu dari open/close |
+| Uang keluar melebihi perkiraan laci | - | Rilis v0.69.0: peringatan di uang keluar, retur tunai, pengeluaran, bayar supplier, pembelian | [F1-03c](2026-11-14-f1-03c-peringatan-kas-laci-design.md) |
 | Log masuk/keluar staf | Spec F1-02 menunda ke F1-03 | Belum: sesi mencatat `opened_by`/`closed_by` saja | Tabel log bila laporan F1-16 membutuhkannya |
 
 ## Kriteria selesai

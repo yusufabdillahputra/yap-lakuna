@@ -20,6 +20,9 @@ class FakeHistoryRepository extends HistoryRepository {
   bool canReturn;
   bool canVoid;
   bool hasOpenSession;
+
+  /// Perkiraan uang di laci (F1-03c); berkurang oleh retur tunai.
+  Money? drawerCash;
   final List<HistoryStaff> staff;
   final _tenant = _id();
 
@@ -156,6 +159,7 @@ class FakeHistoryRepository extends HistoryRepository {
       canReturn: canReturn,
       canVoid: canVoid,
       hasOpenSession: hasOpenSession,
+      drawerCash: hasOpenSession ? drawerCash : null,
       receipt: receipt,
     ),
   );
@@ -300,6 +304,9 @@ class FakeHistoryRepository extends HistoryRepository {
       }
       if (split.debtReduction > Money.zero) {
         outstanding[saleId] = d.outstanding - split.debtReduction;
+      }
+      if (method == RefundMethod.cash && drawerCash != null) {
+        drawerCash = drawerCash! - split.refund;
       }
       _returnCounter++;
       final ret = SaleReturn(

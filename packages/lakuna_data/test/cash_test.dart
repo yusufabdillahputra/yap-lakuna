@@ -379,4 +379,24 @@ void main() {
       );
     });
   });
+
+  group('openDrawerCash (F1-03c)', () {
+    test('null tanpa sesi, lalu Kas seharusnya sesi terbuka', () async {
+      expect(await openDrawerCash(store, scope()), isNull);
+      final session = await open(cash: 100000);
+      expect(await openDrawerCash(store, scope()), const Money(100000));
+      await recordCashMovement(
+        store,
+        scope(),
+        sessionId: session.id,
+        staffId: ctx.owner.id,
+        direction: CashDirection.outflow,
+        amount: const Money(30000),
+        note: 'Beli gas',
+      );
+      final drawer = await cashDrawerFor(store, scope(), session);
+      expect(await openDrawerCash(store, scope()), drawer.expectedCash);
+      expect(await openDrawerCash(store, scope()), const Money(70000));
+    });
+  });
 }

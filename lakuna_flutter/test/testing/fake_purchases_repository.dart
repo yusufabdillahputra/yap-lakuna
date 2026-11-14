@@ -43,6 +43,9 @@ class FakePurchasesRepository extends PurchasesRepository {
 
   bool canManage;
   bool hasOpenSession;
+
+  /// Perkiraan uang di laci (F1-03c).
+  Money? drawerCash;
   bool canUseDrawer;
   bool canEditPrices;
   final _tenant = _id();
@@ -116,6 +119,7 @@ class FakePurchasesRepository extends PurchasesRepository {
       nextNumber: _number(),
       timezone: 'Asia/Jakarta',
       hasOpenSession: hasOpenSession,
+      drawerCash: hasOpenSession ? drawerCash : null,
       canUseDrawer: canUseDrawer,
       canEditPrices: canEditPrices,
       staffName: 'Yusuf',

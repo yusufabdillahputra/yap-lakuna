@@ -141,4 +141,34 @@ void main() {
       );
     });
   });
+
+  group('drawerShortfall (F1-03c)', () {
+    test('kurang dari atau sama dengan perkiraan: tanpa peringatan', () {
+      expect(drawerShortfallOf(const Money(40000), const Money(50000)), isNull);
+      expect(drawerShortfallOf(const Money(50000), const Money(50000)), isNull);
+    });
+
+    test('melebihi perkiraan: kelebihannya', () {
+      expect(
+        drawerShortfallOf(const Money(65000), const Money(50000)),
+        const Money(15000),
+      );
+    });
+
+    test('perkiraan minus atau nol tetap dihitung', () {
+      expect(
+        drawerShortfallOf(const Money(1000), Money.zero),
+        const Money(1000),
+      );
+      expect(
+        drawerShortfallOf(const Money(1000), const Money(-500)),
+        const Money(1500),
+      );
+    });
+
+    test('tanpa sesi atau jumlah nol: tanpa peringatan', () {
+      expect(drawerShortfallOf(const Money(1000), null), isNull);
+      expect(drawerShortfallOf(Money.zero, Money.zero), isNull);
+    });
+  });
 }

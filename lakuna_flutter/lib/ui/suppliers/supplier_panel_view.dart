@@ -11,6 +11,7 @@ import '../../data/repositories/suppliers_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../customers/customer_labels.dart' show formatPhone;
 import '../products/product_widgets.dart';
@@ -814,6 +815,15 @@ class _Hints extends StatelessWidget {
                   ? l10n.supplierDrawerHint
                   : drawerIssueMessage(l10n, drawer),
             ),
+          ),
+        if ((vm.drawerCash, vm.drawerShortfall) case (
+          final cash?,
+          final over?,
+        ))
+          DrawerShortfallNote(
+            keyPrefix: 'supplier',
+            drawerCash: cash,
+            shortfall: over,
           ),
       ],
     );

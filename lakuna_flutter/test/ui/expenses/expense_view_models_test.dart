@@ -104,6 +104,31 @@ void main() {
       expect(closed.drawerIssue, ExpenseDrawerIssue.notPermitted);
     });
 
+    test('laci kurang: peringatan, tetap bisa disimpan (F1-03c)', () async {
+      repo.drawerCash = const Money(50000);
+      final vm = ExpenseFormViewModel(repository: repo, setup: await setup())
+        ..setDescription('Beli gas')
+        ..setCategory(repo.categoryByName('Bahan habis pakai').id)
+        ..setAmount(const Money(50000));
+      expect(vm.drawerShortfall, isNull);
+      vm.setAmount(const Money(60000));
+      expect(vm.drawerShortfall, const Money(10000));
+      vm.setFunding(FundingSource.bank);
+      expect(vm.drawerShortfall, isNull);
+      vm.setFunding(FundingSource.drawer);
+      // Tanggal mundur: pesan laci yang tampil, bukan peringatan.
+      vm.setSpentOn(DateTime(2026, 11, 3));
+      expect(vm.drawerShortfall, isNull);
+      vm.setSpentOn(DateTime(2026, 11, 4));
+      expect(vm.canSubmit, isTrue);
+      await vm.save.execute();
+      expect(vm.save.result, isA<Ok<Expense>>());
+      vm.updateSetup(await setup());
+      expect(vm.setup.drawerCash, const Money(-10000));
+      vm.setAmount(const Money(1000));
+      expect(vm.drawerShortfall, const Money(11000));
+    });
+
     test('galat isian baru tampil setelah mencoba menyimpan', () async {
       final vm = ExpenseFormViewModel(repository: repo, setup: await setup());
       expect(vm.issues, isEmpty);

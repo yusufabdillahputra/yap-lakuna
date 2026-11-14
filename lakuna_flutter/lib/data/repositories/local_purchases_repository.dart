@@ -30,6 +30,7 @@ class LocalPurchasesRepository extends PurchasesRepository {
     final timezone = ctx.outlet.timezone ?? ctx.tenant.timezone;
     final local = outletLocalTime(now, timezone);
     final products = await listProducts(_store, scope);
+    final drawerCash = await openDrawerCash(_store, CashScope.of(ctx));
     return PurchaseSetup(
       locations: await stockLocations(_store, scope),
       suppliers: await listSuppliers(_store, scope),
@@ -40,8 +41,8 @@ class LocalPurchasesRepository extends PurchasesRepository {
       today: DateTime(local.year, local.month, local.day),
       nextNumber: await previewPurchaseNumber(_store, scope, now: now),
       timezone: timezone,
-      hasOpenSession:
-          await findOpenCashSession(_store, CashScope.of(ctx)) != null,
+      hasOpenSession: drawerCash != null,
+      drawerCash: drawerCash,
       canUseDrawer: staff.can(Permission.cashMovementsCreate),
       canEditPrices: staff.can(Permission.productsManage),
       staffName: staff.name,
