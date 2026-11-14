@@ -36,7 +36,10 @@ class LocalStoreRepository extends StoreRepository {
   }
 
   @override
-  Future<Result<StoreContext>> setup(SetupInput input) async {
+  Future<Result<StoreContext>> setup(
+    SetupInput input, {
+    ProductDraft? firstProduct,
+  }) async {
     try {
       final hasher = _hasher;
       final pin = input.pin;
@@ -53,6 +56,7 @@ class LocalStoreRepository extends StoreRepository {
         input,
         platform: _platform,
         credentials: credentials,
+        firstProduct: firstProduct,
       );
       _current = ctx;
       notifyListeners();

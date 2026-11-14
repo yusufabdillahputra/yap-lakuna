@@ -25,10 +25,14 @@ class ProductListScreen extends StatefulWidget {
     required this.repository,
     this.tablePicker = const FileSelectorTablePicker(),
     this.exporter = const PlatformSpreadsheetExporter(),
+    this.openImport = false,
   });
 
   final CatalogRepository repository;
   final TableFilePicker tablePicker;
+
+  /// Buka dialog import sekali saat layar tampil (dari setup, F1-01b).
+  final bool openImport;
 
   /// Menyimpan templat import (F1-07g).
   final SpreadsheetExporter exporter;
@@ -44,6 +48,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void initState() {
     super.initState();
     _viewModel.load.execute();
+    if (widget.openImport) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _import();
+      });
+    }
   }
 
   @override

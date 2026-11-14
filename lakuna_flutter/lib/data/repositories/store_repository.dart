@@ -13,6 +13,10 @@ abstract class StoreRepository extends ChangeNotifier {
   /// Memuat konteks toko dari database.
   Future<Result<StoreContext?>> load();
 
-  /// Setup toko pertama. Gagal dengan [SetupAlreadyDone] bila sudah ada toko.
-  Future<Result<StoreContext>> setup(SetupInput input);
+  /// Setup toko pertama, beserta [firstProduct] dalam transaksi yang sama
+  /// (F1-01b). Gagal dengan [SetupAlreadyDone] bila sudah ada toko.
+  Future<Result<StoreContext>> setup(
+    SetupInput input, {
+    ProductDraft? firstProduct,
+  });
 }

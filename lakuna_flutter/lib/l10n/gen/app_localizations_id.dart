@@ -145,7 +145,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get onboardingStepOwner => 'Akun pemilik & PIN';
 
   @override
-  String get onboardingStepSummary => 'Siap jualan';
+  String get onboardingStepSummary => 'Produk pertama';
 
   @override
   String get onboardingTitleLanguage => 'Pilih bahasa dan tema';
@@ -157,7 +157,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get onboardingTitleOwner => 'Akun pemilik & PIN';
 
   @override
-  String get onboardingTitleSummary => 'Periksa, lalu mulai jualan';
+  String get onboardingTitleSummary => 'Produk pertama, lalu mulai jualan';
 
   @override
   String get businessTypeLabel => 'Jenis usaha';
@@ -279,7 +279,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get buttonNextOwner => 'Lanjut: akun pemilik';
 
   @override
-  String get buttonNextSummary => 'Lanjut: ringkasan';
+  String get buttonNextSummary => 'Lanjut: produk';
 
   @override
   String get buttonStartSelling => 'Mulai jualan';
@@ -7828,4 +7828,34 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get stockCardFocusMissing =>
       'Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.';
+
+  @override
+  String get firstProductLabel => 'Produk pertama';
+
+  @override
+  String get firstProductAdd => 'Tambah satu produk sekarang';
+
+  @override
+  String get firstProductAddDesc =>
+      'Langsung bisa dijual di Kasir. Produk lain bisa ditambah nanti.';
+
+  @override
+  String get firstProductImport => 'Import dari Excel/CSV';
+
+  @override
+  String get firstProductImportDesc =>
+      'Setelah toko dibuat, layar Produk terbuka dengan dialog import.';
+
+  @override
+  String get firstProductSkip => 'Lewati, tambah nanti';
+
+  @override
+  String get firstProductSkipDesc =>
+      'Tambah produk kapan saja dari menu Produk.';
+
+  @override
+  String get firstProductInvalid => 'Periksa isian produk pertama.';
+
+  @override
+  String get firstProductOptional => 'Opsional';
 }

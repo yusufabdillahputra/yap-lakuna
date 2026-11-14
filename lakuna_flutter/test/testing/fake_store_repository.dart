@@ -54,6 +54,7 @@ class FakeStoreRepository extends StoreRepository {
   StoreContext? _current;
   bool failSetup;
   final setupCalls = <SetupInput>[];
+  final setupProducts = <ProductDraft?>[];
 
   @override
   StoreContext? get current => _current;
@@ -62,8 +63,12 @@ class FakeStoreRepository extends StoreRepository {
   Future<Result<StoreContext?>> load() async => Result.ok(_current);
 
   @override
-  Future<Result<StoreContext>> setup(SetupInput input) async {
+  Future<Result<StoreContext>> setup(
+    SetupInput input, {
+    ProductDraft? firstProduct,
+  }) async {
     setupCalls.add(input);
+    setupProducts.add(firstProduct);
     if (failSetup) return Result.error(Exception('disk penuh'));
     if (_current != null) return Result.error(SetupAlreadyDone());
     final ctx = sampleStoreContext(

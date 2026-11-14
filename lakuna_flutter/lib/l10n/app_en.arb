@@ -43,11 +43,11 @@
   "onboardingStepLanguage": "Language & theme",
   "onboardingStepBusiness": "Business type & branch",
   "onboardingStepOwner": "Owner account & PIN",
-  "onboardingStepSummary": "Ready to sell",
+  "onboardingStepSummary": "First product",
   "onboardingTitleLanguage": "Choose language and theme",
   "onboardingTitleBusiness": "Business type & first branch",
   "onboardingTitleOwner": "Owner account & PIN",
-  "onboardingTitleSummary": "Review, then start selling",
+  "onboardingTitleSummary": "Add a first product, then start selling",
   "businessTypeLabel": "Business type",
   "businessRetail": "Retail",
   "businessRetailDesc": "Grocery, wholesale, hardware store, phone counter.",
@@ -86,7 +86,7 @@
   "buttonBack": "Back",
   "buttonNextBusiness": "Next: business type",
   "buttonNextOwner": "Next: owner account",
-  "buttonNextSummary": "Next: summary",
+  "buttonNextSummary": "Next: first product",
   "buttonStartSelling": "Start selling",
   "setupFailed": "The store could not be saved. Please try again.",
   "homeStoreLabel": "Store",
@@ -4512,5 +4512,14 @@
       }
     }
   },
-  "stockCardFocusMissing": "The linked product or location no longer exists. Showing the default stock card."
+  "stockCardFocusMissing": "The linked product or location no longer exists. Showing the default stock card.",
+  "firstProductLabel": "First product",
+  "firstProductAdd": "Add one product now",
+  "firstProductAddDesc": "Ready to sell at the cashier right away. Add more products later.",
+  "firstProductImport": "Import from Excel/CSV",
+  "firstProductImportDesc": "Once the store is created, the Products screen opens with the import dialog.",
+  "firstProductSkip": "Skip, add later",
+  "firstProductSkipDesc": "Add products any time from the Products menu.",
+  "firstProductInvalid": "Check the first product fields.",
+  "firstProductOptional": "Optional"
 }

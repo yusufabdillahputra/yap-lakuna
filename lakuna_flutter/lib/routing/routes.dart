@@ -55,6 +55,9 @@ abstract final class Routes {
   /// Daftar produk & stok (F1-07).
   static const products = '/produk';
 
+  /// Produk dengan dialog import terbuka (setelah setup, F1-01b).
+  static const productsImport = '/produk?impor=1';
+
   /// Form produk baru (F1-07).
   static const productNew = '/produk/baru';
 

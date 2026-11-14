@@ -146,7 +146,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingStepOwner => 'Owner account & PIN';
 
   @override
-  String get onboardingStepSummary => 'Ready to sell';
+  String get onboardingStepSummary => 'First product';
 
   @override
   String get onboardingTitleLanguage => 'Choose language and theme';
@@ -158,7 +158,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitleOwner => 'Owner account & PIN';
 
   @override
-  String get onboardingTitleSummary => 'Review, then start selling';
+  String get onboardingTitleSummary =>
+      'Add a first product, then start selling';
 
   @override
   String get businessTypeLabel => 'Business type';
@@ -280,7 +281,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buttonNextOwner => 'Next: owner account';
 
   @override
-  String get buttonNextSummary => 'Next: summary';
+  String get buttonNextSummary => 'Next: first product';
 
   @override
   String get buttonStartSelling => 'Start selling';
@@ -8015,4 +8016,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get stockCardFocusMissing =>
       'The linked product or location no longer exists. Showing the default stock card.';
+
+  @override
+  String get firstProductLabel => 'First product';
+
+  @override
+  String get firstProductAdd => 'Add one product now';
+
+  @override
+  String get firstProductAddDesc =>
+      'Ready to sell at the cashier right away. Add more products later.';
+
+  @override
+  String get firstProductImport => 'Import from Excel/CSV';
+
+  @override
+  String get firstProductImportDesc =>
+      'Once the store is created, the Products screen opens with the import dialog.';
+
+  @override
+  String get firstProductSkip => 'Skip, add later';
+
+  @override
+  String get firstProductSkipDesc =>
+      'Add products any time from the Products menu.';
+
+  @override
+  String get firstProductInvalid => 'Check the first product fields.';
+
+  @override
+  String get firstProductOptional => 'Optional';
 }

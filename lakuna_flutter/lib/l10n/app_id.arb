@@ -60,11 +60,11 @@
   "onboardingStepLanguage": "Bahasa & tema",
   "onboardingStepBusiness": "Jenis usaha & cabang",
   "onboardingStepOwner": "Akun pemilik & PIN",
-  "onboardingStepSummary": "Siap jualan",
+  "onboardingStepSummary": "Produk pertama",
   "onboardingTitleLanguage": "Pilih bahasa dan tema",
   "onboardingTitleBusiness": "Jenis usaha & cabang pertama",
   "onboardingTitleOwner": "Akun pemilik & PIN",
-  "onboardingTitleSummary": "Periksa, lalu mulai jualan",
+  "onboardingTitleSummary": "Produk pertama, lalu mulai jualan",
   "businessTypeLabel": "Jenis usaha",
   "businessRetail": "Retail",
   "businessRetailDesc": "Toko kelontong, grosir, toko bangunan, counter HP.",
@@ -103,7 +103,7 @@
   "buttonBack": "Kembali",
   "buttonNextBusiness": "Lanjut: jenis usaha",
   "buttonNextOwner": "Lanjut: akun pemilik",
-  "buttonNextSummary": "Lanjut: ringkasan",
+  "buttonNextSummary": "Lanjut: produk",
   "buttonStartSelling": "Mulai jualan",
   "setupFailed": "Toko gagal disimpan. Coba lagi.",
   "homeStoreLabel": "Toko",
@@ -5046,5 +5046,14 @@
       }
     }
   },
-  "stockCardFocusMissing": "Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan."
+  "stockCardFocusMissing": "Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.",
+  "firstProductLabel": "Produk pertama",
+  "firstProductAdd": "Tambah satu produk sekarang",
+  "firstProductAddDesc": "Langsung bisa dijual di Kasir. Produk lain bisa ditambah nanti.",
+  "firstProductImport": "Import dari Excel/CSV",
+  "firstProductImportDesc": "Setelah toko dibuat, layar Produk terbuka dengan dialog import.",
+  "firstProductSkip": "Lewati, tambah nanti",
+  "firstProductSkipDesc": "Tambah produk kapan saja dari menu Produk.",
+  "firstProductInvalid": "Periksa isian produk pertama.",
+  "firstProductOptional": "Opsional"
 }

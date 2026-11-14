@@ -23,6 +23,12 @@ void fillOwner(OnboardingViewModel vm) {
     ..setField(SetupField.pinConfirm, '123456');
 }
 
+void fillProduct(OnboardingViewModel vm) {
+  vm
+    ..setProductName('Kopi Susu')
+    ..setProductSellPrice(const Money(15000));
+}
+
 void main() {
   late FakeStoreRepository repository;
   late FakeSessionRepository session;
@@ -93,6 +99,7 @@ void main() {
     vm.next();
     fillOwner(vm);
     vm.next();
+    fillProduct(vm);
     await vm.finish.execute();
     expect(vm.finish.error, isTrue);
     vm.back();
@@ -108,6 +115,7 @@ void main() {
     vm.next();
     expect(vm.step, OnboardingStep.summary);
     expect(vm.stepNumber, 4);
+    fillProduct(vm);
 
     await vm.finish.execute();
     expect(vm.finish.completed, isTrue);
@@ -137,11 +145,96 @@ void main() {
     vm.next();
     fillOwner(vm);
     vm.next();
+    fillProduct(vm);
     await vm.finish.execute();
     expect(vm.finish.error, isTrue);
     expect(session.current, isNull);
     repository.failSetup = false;
     await vm.finish.execute();
     expect(vm.finish.completed, isTrue);
+  });
+
+  group('produk pertama (F1-01b)', () {
+    Future<void> toStep4({BusinessKind kind = BusinessKind.retail}) async {
+      vm.next();
+      fillBusiness(vm);
+      vm
+        ..setBusinessType(kind)
+        ..next();
+      fillOwner(vm);
+      vm.next();
+    }
+
+    test('bawaan tambah produk; isian kosong memblokir setup', () async {
+      await toStep4();
+      expect(vm.firstProductChoice, FirstProductChoice.add);
+      expect(vm.productError(ProductField.name), isNull);
+      await vm.finish.execute();
+      expect(vm.finish.error, isTrue);
+      expect(repository.setupCalls, isEmpty);
+      expect(vm.productError(ProductField.name), ProductError.required);
+      expect(vm.productError(ProductField.sellPrice), ProductError.required);
+      // Galat hilang setelah diperbaiki.
+      fillProduct(vm);
+      expect(vm.productError(ProductField.name), isNull);
+      expect(vm.productError(ProductField.sellPrice), isNull);
+      vm.setProductSellPrice(Money.zero);
+      expect(vm.productError(ProductField.sellPrice), ProductError.notPositive);
+    });
+
+    test(
+      'retail: barang dengan satuan, barcode, harga beli, stok awal',
+      () async {
+        await toStep4();
+        expect(vm.productUnit, 'pcs');
+        expect(vm.productTracksStock, isTrue);
+        fillProduct(vm);
+        vm
+          ..setProductCostPrice(const Money(9000))
+          ..setProductUnit('gelas')
+          ..setProductBarcode(' 899100 ')
+          ..setProductOpeningStock(Qty.units(24));
+        await vm.finish.execute();
+        expect(vm.finish.completed, isTrue);
+        final draft = repository.setupProducts.single!;
+        expect(draft.name, 'Kopi Susu');
+        expect(draft.kind, ProductKind.goods);
+        expect(draft.baseUnit, 'gelas');
+        final v = draft.variants.single;
+        expect(v.sellPrice, const Money(15000));
+        expect(v.costPrice, const Money(9000));
+        expect(v.barcode, '899100');
+        expect(v.openingStock, Qty.units(24));
+        expect(vm.opensImport, isFalse);
+      },
+    );
+
+    test('F&B: menu satuan porsi tanpa stok awal', () async {
+      await toStep4(kind: BusinessKind.fnb);
+      expect(vm.productUnit, 'porsi');
+      expect(vm.productTracksStock, isFalse);
+      fillProduct(vm);
+      vm.setProductOpeningStock(Qty.units(5));
+      await vm.finish.execute();
+      final draft = repository.setupProducts.single!;
+      expect(draft.kind, ProductKind.menu);
+      expect(draft.variants.single.openingStock, Qty.zero);
+    });
+
+    test('lewati dan import tidak mengirim produk; isian bertahan', () async {
+      await toStep4();
+      vm.setProductName('Kopi Susu');
+      vm.setFirstProductChoice(FirstProductChoice.skip);
+      expect(vm.opensImport, isFalse);
+      vm.setFirstProductChoice(FirstProductChoice.import);
+      expect(vm.opensImport, isTrue);
+      vm.back();
+      vm.next();
+      expect(vm.firstProductChoice, FirstProductChoice.import);
+      expect(vm.productName, 'Kopi Susu');
+      await vm.finish.execute();
+      expect(vm.finish.completed, isTrue);
+      expect(repository.setupProducts.single, isNull);
+    });
   });
 }

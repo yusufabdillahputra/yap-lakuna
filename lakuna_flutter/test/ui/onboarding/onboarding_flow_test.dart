@@ -25,7 +25,17 @@ Future<void> _next(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _completeWizard(WidgetTester tester) async {
+Future<void> _typeKey(WidgetTester tester, String key, String text) async {
+  final input = find.descendant(
+    of: find.byKey(ValueKey(key)),
+    matching: find.byType(EditableText),
+  );
+  await tester.ensureVisible(input);
+  await tester.enterText(input, text);
+  await tester.pump();
+}
+
+Future<void> _toStep4(WidgetTester tester) async {
   expect(find.text('Langkah 1 dari 4'), findsOneWidget);
   await _next(tester);
 
@@ -51,6 +61,14 @@ Future<void> _completeWizard(WidgetTester tester) async {
 
   expect(find.text('Langkah 4 dari 4'), findsOneWidget);
   expect(find.text('Warung Contoh · F&B'), findsOneWidget);
+}
+
+Future<void> _completeWizard(WidgetTester tester) async {
+  await _toStep4(tester);
+  await _typeKey(tester, 'first-product-name', 'Nasi Goreng');
+  await _typeKey(tester, 'first-product-price', '18000');
+  // F&B: menu tanpa stok awal, satuan bawaan porsi.
+  expect(find.byKey(const ValueKey('first-product-stock')), findsNothing);
   await _next(tester);
 }
 
@@ -105,6 +123,10 @@ void main() {
 
     expect(store.setupCalls.single.outletCode, 'BDG');
     expect(store.setupCalls.single.businessType, BusinessKind.fnb);
+    final product = store.setupProducts.single!;
+    expect(product.name, 'Nasi Goreng');
+    expect(product.baseUnit, 'porsi');
+    expect(product.variants.single.sellPrice, const Money(18000));
     expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
     expect(find.text('Warung Contoh · Cabang Pusat · K01'), findsOneWidget);
   });
@@ -271,5 +293,45 @@ void main() {
     await tester.pumpAndSettle();
     await _next(tester);
     expect(find.byKey(const ValueKey('onboarding-restore')), findsNothing);
+  });
+
+  testWidgets('produk pertama kosong menahan Mulai jualan (F1-01b)', (
+    tester,
+  ) async {
+    final store = FakeStoreRepository();
+    await pumpLakuna(tester, store: store, size: const Size(400, 800));
+    await _toStep4(tester);
+    await _next(tester);
+    expect(store.setupCalls, isEmpty);
+    expect(find.text('Periksa isian produk pertama.'), findsOneWidget);
+    expect(find.text('Wajib diisi'), findsNWidgets(2));
+    // Lewati: toko dibuat tanpa produk.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('first-product-skip')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('first-product-skip')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('first-product-name')), findsNothing);
+    await _next(tester);
+    expect(store.setupProducts.single, isNull);
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
+  });
+
+  testWidgets('pilihan import membuka dialog import produk (F1-01b)', (
+    tester,
+  ) async {
+    final store = FakeStoreRepository();
+    await pumpLakuna(tester, store: store, size: const Size(1280, 800));
+    await _toStep4(tester);
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('first-product-import')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('first-product-import')));
+    await tester.pumpAndSettle();
+    await _next(tester);
+    expect(store.setupProducts.single, isNull);
+    expect(find.byKey(const ValueKey('product-import')), findsOneWidget);
   });
 }
