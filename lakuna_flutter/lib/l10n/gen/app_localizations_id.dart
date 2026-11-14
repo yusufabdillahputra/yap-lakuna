@@ -8229,4 +8229,10 @@ class AppLocalizationsId extends AppLocalizations {
   String diningBillPreviewTitle(String order) {
     return 'Tagihan $order';
   }
+
+  @override
+  String get receiptPendingConfirm => 'Menunggu konfirmasi';
+
+  @override
+  String get diningBillShareFailed => 'PDF tagihan gagal dibuat. Coba lagi.';
 }

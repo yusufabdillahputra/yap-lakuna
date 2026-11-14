@@ -8465,4 +8465,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String diningBillPreviewTitle(String order) {
     return 'Bill for $order';
   }
+
+  @override
+  String get receiptPendingConfirm => 'Awaiting confirmation';
+
+  @override
+  String get diningBillShareFailed =>
+      'Could not create the bill PDF. Try again.';
 }

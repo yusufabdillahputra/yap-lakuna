@@ -14333,6 +14333,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tagihan {order}'**
   String diningBillPreviewTitle(String order);
+
+  /// No description provided for @receiptPendingConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu konfirmasi'**
+  String get receiptPendingConfirm;
+
+  /// No description provided for @diningBillShareFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF tagihan gagal dibuat. Coba lagi.'**
+  String get diningBillShareFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -75,4 +75,4 @@ piutang sebaiknya langsung memuat rekening itu.
 | --- | --- | --- | --- |
 | Rekening di struk nota piutang (baru + cetak ulang) | 1.12 | Rilis v0.79.0 | — |
 | Rekening di kuitansi thermal dan A5 bila masih ada sisa | 1.20b | Rilis v0.79.0 | — |
-| Rekening di struk tagihan open bill sebelum bayar | — | Belum | Lakuna belum punya cetak tagihan (pre-bill). |
+| Rekening di struk tagihan open bill sebelum bayar | 1.7 | Rilis v0.80.0 | [F1-10k](2026-11-14-f1-10k-cetak-tagihan-design.md): tagihan cetak memuat *Transfer ke*. |

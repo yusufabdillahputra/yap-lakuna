@@ -999,6 +999,30 @@ void main() {
       },
     );
 
+    test('hasil cetak dialog lama tidak tampil di dialog berikutnya', () async {
+      vm.clearBillPrint();
+      final hold = printer.hold = Completer<void>();
+      printer.nextFailure = null;
+      final job = vm.printBill.execute(lines);
+      // Dialog ditutup lalu dibuka lagi (bill lain) selagi printer lambat.
+      vm.clearBillPrint();
+      printer.hold = null;
+      hold.complete();
+      await job;
+      expect(printer.prints, hasLength(1));
+      expect(vm.billPrinted, isFalse);
+      expect(vm.billPrintError, isFalse);
+    });
+
+    test('galat bagikan PDF ditandai', () async {
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await vm.shareBill.execute(lines);
+      expect(vm.billShareError, isTrue);
+      expect(vm.billPdfPath, isNull);
+      vm.clearBillPrint();
+      expect(vm.billShareError, isFalse);
+    });
+
     test('bagikan PDF menyimpan lokasi berkas bernama nomor bill', () async {
       await vm.shareBill.execute(lines);
       expect(vm.billPdfPath, printer.sharePath);

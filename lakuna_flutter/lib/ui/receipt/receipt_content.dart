@@ -200,6 +200,9 @@ ReceiptContent billReceiptContent(
   final sale = bill.sale;
   final charges = bill.charges;
   final paid = bill.split?.paid ?? Money.zero;
+  // QRIS bagian split yang belum dikonfirmasi tetap bagian dari sisa
+  // (sama dengan layar), tetapi disebut agar tamu tidak bingung.
+  final pending = bill.split?.pending ?? Money.zero;
   return ReceiptContent(
     storeName: businessName.toUpperCase(),
     outletName: outletName,
@@ -273,6 +276,11 @@ ReceiptContent billReceiptContent(
           bold: true,
         ),
       ],
+      if (pending > Money.zero)
+        ReceiptPair(
+          l10n.receiptPendingConfirm,
+          receiptAmount(l10n, pending.value),
+        ),
       ?receiptTransferLine(l10n, config.transferAccount),
     ],
     footer: _footer(l10n, config),

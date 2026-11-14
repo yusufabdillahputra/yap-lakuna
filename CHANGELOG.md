@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.80.0] - 2026-11-14
+
+Tamu restoran kini bisa menerima tagihan cetak sebelum membayar, lengkap
+dengan service, PB1, dan rekening transfer toko.
+
+### Ditambahkan
+
+- **Meja & open bill (1.7) › Cetak tagihan:** aksi baru di panel bill
+  Meja dan Take away. Dialog *Tagihan {meja/antrean}* menampilkan
+  pratinjau kertas dan tombol *Cetak tagihan* (printer struk perangkat)
+  serta *Bagikan PDF*. Galat printer, *Struk terkirim ke printer*, dan
+  lokasi PDF tampil di dialog.
+- Isi tagihan: kepala dan logo struk, banner *TAGIHAN - BELUM DIBAYAR*,
+  nomor bill, waktu cetak, kasir, meja/antrean, pelanggan terdaftar,
+  barang (modifier, diskon baris, porsi split digabung), Subtotal, diskon
+  nota, service, PB1, pembulatan, TOTAL, *Sudah dibayar* dan *Sisa
+  tagihan* bila sebagian split sudah lunas, *Menunggu konfirmasi* untuk
+  QRIS bagian yang belum dikonfirmasi, dan *Transfer ke* bila rekening
+  diisi (menutup gap F1-05e).
+- Panduan *Meja & open bill* bagian *Cetak tagihan* (ID + EN).
+
+### Catatan teknis
+
+- `billReceiptContent` di `receipt_content.dart`; baris barang nota dan
+  tagihan kini dari `_receiptItems` yang sama (perilaku struk nota tidak
+  berubah).
+- `DiningData.businessName/outletName`; `DiningViewModel.printBill`,
+  `shareBill`, `billPrintFailure`, `billPrinted`, `billPdfPath`,
+  `clearBillPrint()`.
+- Mencetak tagihan tidak menulis data, tidak mengubah *Minta bill*, dan
+  tidak memberi nomor nota baru. Waktu cetak diambil saat tombol ditekan;
+  hasil cetak/PDF dari dialog yang sudah ditutup (printer jaringan lambat)
+  diabaikan agar tidak muncul di tagihan meja lain.
+- l10n `diningPrintBill`, `diningBillPreviewTitle`, `receiptBannerBill`,
+  `receiptPaidSoFar`, `receiptBalanceDue`, `receiptPendingConfirm`,
+  `diningBillShareFailed`. Tes unit isi tagihan (split lunas/menunggu,
+  diskon persen/rupiah, take away, EN, 58 mm), VM (hasil basi, galat
+  PDF), dan widget Meja 1280/360.
+
 ## [0.79.0] - 2026-11-14
 
 Struk yang masih menyisakan piutang kini mencetak rekening transfer toko,
@@ -5417,7 +5456,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...HEAD
+[0.80.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...v0.78.0
 [0.77.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...v0.77.0

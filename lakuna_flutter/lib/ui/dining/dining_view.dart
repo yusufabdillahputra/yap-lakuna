@@ -1822,8 +1822,15 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
           final l10n = AppLocalizations.of(context);
           final bill = vm.selectedBill;
           final data = vm.data;
-          if (bill == null || data == null) return const SizedBox.shrink();
-          final lines = layoutReceipt(
+          if (bill == null || data == null) {
+            // Bill sudah tidak terpilih: tutup dialog, jangan kosong.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) Navigator.of(context).maybePop();
+            });
+            return const SizedBox.shrink();
+          }
+          // Waktu cetak diambil saat tombol ditekan, bukan saat dialog dibuka.
+          List<ReceiptLine> build() => layoutReceipt(
             billReceiptContent(
               l10n,
               bill: bill,
@@ -1836,6 +1843,7 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
             ),
             vm.paper,
           );
+          final lines = build();
           final busy = vm.printBill.running || vm.shareBill.running;
           return _dialogFrame(
             context,
@@ -1853,7 +1861,7 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
                   ),
                 ),
               ),
-              if (vm.billPrintFailure != null || vm.printBill.error)
+              if (vm.billPrintError)
                 FAlert(
                   key: const ValueKey('dining-bill-print-error'),
                   variant: .destructive,
@@ -1864,10 +1872,16 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
                   key: const ValueKey('dining-bill-printed'),
                   title: Text(l10n.receiptPrinted),
                 ),
-              if (vm.shareBill.completed && vm.billPdfPath != null)
+              if (vm.billShareError)
+                FAlert(
+                  key: const ValueKey('dining-bill-share-error'),
+                  variant: .destructive,
+                  title: Text(l10n.diningBillShareFailed),
+                )
+              else if (vm.billPdfPath case final path?)
                 FAlert(
                   key: const ValueKey('dining-bill-pdf-saved'),
-                  title: Text(l10n.receiptPdfSaved(vm.billPdfPath!)),
+                  title: Text(l10n.receiptPdfSaved(path)),
                 ),
             ],
             actions: [
@@ -1882,14 +1896,14 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
                 key: const ValueKey('dining-bill-share'),
                 variant: .outline,
                 mainAxisSize: .min,
-                onPress: busy ? null : () => vm.shareBill.execute(lines),
+                onPress: busy ? null : () => vm.shareBill.execute(build()),
                 prefix: const Icon(TablerIcons.share),
                 child: Flexible(child: Text(l10n.receiptShare)),
               ),
               FButton(
                 key: const ValueKey('dining-bill-print'),
                 mainAxisSize: .min,
-                onPress: busy ? null : () => vm.printBill.execute(lines),
+                onPress: busy ? null : () => vm.printBill.execute(build()),
                 prefix: const Icon(TablerIcons.printer),
                 child: Flexible(child: Text(l10n.diningPrintBill)),
               ),

@@ -5427,5 +5427,13 @@
         "type": "String"
       }
     }
+  },
+  "receiptPendingConfirm": "Menunggu konfirmasi",
+  "@receiptPendingConfirm": {
+    "placeholders": {}
+  },
+  "diningBillShareFailed": "PDF tagihan gagal dibuat. Coba lagi.",
+  "@diningBillShareFailed": {
+    "placeholders": {}
   }
 }

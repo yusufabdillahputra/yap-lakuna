@@ -176,6 +176,24 @@ void main() {
       contains(('Pesanan', 'Take away TA-03')),
     );
     expect(c.totals.last.label, 'TOTAL');
+    // Nama pemesan take away bukan pelanggan terdaftar.
+    expect(c.meta.map((p) => p.label), isNot(contains('Pelanggan')));
+    expect(c.meta.map((p) => p.value), isNot(contains('Pak Budi')));
+  });
+
+  test('diskon nota rupiah berlabel Diskon tanpa persen', () {
+    final b = bill();
+    final rupiah = OpenBill(
+      sale: b.sale.copyWith(discountBp: 0, discountAmount: 5500),
+      items: b.items,
+      charges: b.charges,
+      rates: b.rates,
+      table: b.table,
+    );
+    expect(
+      content(rupiah).totals.map((p) => (p.label, p.value)),
+      contains(('Diskon', '-5.500')),
+    );
   });
 
   test('split sebagian dibayar: Sudah dibayar dan Sisa tagihan', () {
@@ -198,6 +216,28 @@ void main() {
       ('Sudah dibayar', '-28.750', false),
       ('Sisa tagihan', '28.750', true),
       ('Transfer ke: BCA 1234567890 a.n. Warung Contoh', '', false),
+    ]);
+  });
+
+  test('QRIS bagian menunggu konfirmasi disebut di bawah sisa', () {
+    final pending = Payment(
+      tenantId: tenantId,
+      saleId: saleId,
+      method: PaymentMethod.qrisStatic,
+      amount: 28750,
+      changeAmount: 0,
+      status: PaymentStatus.pending,
+      guestLabel: 'A',
+      paidAt: DateTime.utc(2026, 11, 14, 8),
+      hlc: '0',
+    );
+    final rows = content(
+      bill(split: SplitMode.equal, payments: [pending]),
+    ).totals.map((p) => (p.label, p.value, p.bold)).toList();
+    final total = rows.indexWhere((r) => r.$1 == 'TOTAL');
+    expect(rows.sublist(total, total + 2), [
+      ('TOTAL', '57.500', true),
+      ('Menunggu konfirmasi', '28.750', false),
     ]);
   });
 
