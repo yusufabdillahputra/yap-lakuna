@@ -14345,6 +14345,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'PDF tagihan gagal dibuat. Coba lagi.'**
   String get diningBillShareFailed;
+
+  /// No description provided for @reportsAgingReceivable.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur piutang'**
+  String get reportsAgingReceivable;
+
+  /// No description provided for @reportsAgingPayable.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur hutang'**
+  String get reportsAgingPayable;
+
+  /// No description provided for @reportsColAge.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur'**
+  String get reportsColAge;
+
+  /// No description provided for @agingNotDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum jatuh tempo'**
+  String get agingNotDue;
+
+  /// No description provided for @aging1To30.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat 1–30 hari'**
+  String get aging1To30;
+
+  /// No description provided for @aging31To60.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat 31–60 hari'**
+  String get aging31To60;
+
+  /// No description provided for @aging61To90.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat 61–90 hari'**
+  String get aging61To90;
+
+  /// No description provided for @agingOver90.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat > 90 hari'**
+  String get agingOver90;
+
+  /// No description provided for @reportsAgingNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.'**
+  String get reportsAgingNote;
 }
 
 class _AppLocalizationsDelegate

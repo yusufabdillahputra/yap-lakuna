@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.82.0] - 2026-11-14
+
+Pemilik kini bisa melihat seberapa lama piutang pelanggan dan hutang ke
+supplier tertunggak, untuk memutuskan mana yang ditagih atau dibayar dulu.
+
+### Ditambahkan
+
+- **Laporan (1.24) › Piutang & hutang:** tabel **Umur piutang** (sebelum
+  daftar per pelanggan) dan **Umur hutang** (sebelum daftar per supplier).
+  Sisa tiap nota dikelompokkan menurut hari lewat jatuh tempo: *Belum
+  jatuh tempo* (termasuk tanpa jatuh tempo), *Lewat 1–30 hari*, *31–60*,
+  *61–90*, dan *> 90 hari*, lengkap dengan jumlah nota dan baris Total.
+  Di layar ponsel tabel tampil sebagai kartu.
+- Unduhan PDF/Excel tab Piutang & hutang memuat bagian *Umur piutang* dan
+  *Umur hutang*, serta catatan cara hitung umur.
+- Panduan *Laporan* menjelaskan tabel umur (ID + EN).
+
+### Diubah
+
+- Kartu *Piutang jatuh tempo* di tab Piutang & hutang kini dihitung dari
+  data yang sama dengan daftar dan tabel umur, sehingga selalu sama dengan
+  jumlah kelompok *Lewat …*. Pelanggan yang sudah dihapus tidak lagi ikut
+  terhitung di kartu ini.
+
+### Catatan teknis
+
+- `lakuna_domain`: `AgingBucket`, `agingBucketOf` (selisih tanggal
+  kalender UTC, sama dengan `isOverdue`), dan `Aging` (nilai + jumlah nota
+  per kelompok, `total`, `overdue`).
+- `lakuna_data`: `customersWithReceivables` dan `suppliersWithPayables`
+  mengembalikan daftar beserta nota bersisa dari satu pembacaan;
+  `listCustomers` / `loadSuppliersOverview` memakainya. `loadDebtReport`
+  kini membaca piutang sekali (sebelumnya dua kali) dan mengisi
+  `receivableAging` / `payableAging`.
+- Tes domain untuk batas 0/1/30/31/60/61/90/91 hari; tes data untuk
+  kelompok, total = kartu, dan pelanggan terhapus; tes alur Laporan 1440,
+  800, dan 360 px serta tabel ekspor.
+- Gap F1-14 *Umur hutang* ditutup.
+
 ## [0.81.0] - 2026-11-14
 
 Nota lama kini bisa ditemukan lewat nama barang yang dibeli, tanpa perlu
@@ -5489,7 +5528,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...HEAD
+[0.82.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...v0.82.0
 [0.81.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...v0.79.0

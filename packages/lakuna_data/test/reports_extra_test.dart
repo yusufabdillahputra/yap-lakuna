@@ -502,6 +502,123 @@ void main() {
     expect(r.suppliers.single.supplier.name, 'CV Sumber');
     expect(r.payable, const Money(12000));
     expect(r.overduePurchases, 1);
+    // Umur (F1-16c): jatuh tempo 3 Nov = lewat 1 hari; 1 Nov = 3 hari.
+    expect(r.receivableAging.amountOf(AgingBucket.days1To30), r.receivable);
+    expect(r.receivableAging.countOf(AgingBucket.days1To30), 1);
+    expect(r.payableAging.amountOf(AgingBucket.days1To30), r.payable);
+    expect(r.payableAging.count, 1);
+  });
+
+  test('piutang & hutang: umur per kelompok (F1-16c)', () async {
+    // Nota dibuat Juni agar jatuh tempo lama tetap sah.
+    now = DateTime.utc(2026, 6, 20, 3);
+    await open(100000);
+    final budi = await saveCustomer(
+      store,
+      scope,
+      staffId: owner(),
+      input: const CustomerInput(name: 'Budi', creditLimit: Money(1000000)),
+    );
+    Future<void> credit(DateTime dueOn) => checkoutSale(
+      store,
+      scope,
+      staffId: owner(),
+      lines: [SaleLineRequest(variantId: v(roti).id, quantity: Qty.one)],
+      payments: const [],
+      credit: SaleCredit(
+        customerId: budi.id,
+        downPayment: Money.zero,
+        dueOn: dueOn,
+      ),
+    );
+    await credit(DateTime.utc(2026, 11, 10)); // belum jatuh tempo
+    await credit(DateTime.utc(2026, 9, 20)); // lewat 45 hari
+    await credit(DateTime.utc(2026, 7, 1)); // lewat 126 hari
+    // Pelanggan terhapus yang masih berpiutang (mis. hasil sinkronisasi)
+    // tidak dihitung di daftar, kartu, maupun umur.
+    final ani = await saveCustomer(
+      store,
+      scope,
+      staffId: owner(),
+      input: const CustomerInput(name: 'Ani', creditLimit: Money(1000000)),
+    );
+    await checkoutSale(
+      store,
+      scope,
+      staffId: owner(),
+      lines: [SaleLineRequest(variantId: v(roti).id, quantity: Qty.one)],
+      payments: const [],
+      credit: SaleCredit(
+        customerId: ani.id,
+        downPayment: Money.zero,
+        dueOn: DateTime.utc(2026, 7, 1),
+      ),
+    );
+    await store.write(actor: owner(), (w) async {
+      final c = (await Customer.db.findById(w.session, ani.id))!;
+      final st = await w.stamp();
+      await w.update(
+        c.copyWith(
+          deletedAt: st.now,
+          version: c.version + 1,
+          updatedAt: st.now,
+          hlc: st.hlc.toString(),
+        ),
+        st,
+      );
+    });
+    final supplier = await saveSupplier(
+      store,
+      scope,
+      staffId: owner(),
+      input: const SupplierInput(name: 'CV Sumber', termDays: 7),
+    );
+    final location = await defaultStockLocation(store, scope);
+    Future<void> buy(DateTime? dueOn) => receivePurchase(
+      store,
+      scope,
+      staffId: owner(),
+      request: PurchaseRequest(
+        supplierId: supplier.id,
+        purchasedOn: DateTime.utc(2026, 7, 1),
+        locationId: location.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(kopi).id,
+            quantity: Qty.units(1),
+            unitPrice: const Money(6000),
+          ),
+        ],
+        paid: Money.zero,
+        dueOn: dueOn,
+      ),
+    );
+    await buy(DateTime.utc(2026, 8, 20)); // lewat 76 hari
+    await buy(DateTime.utc(2026, 8, 25)); // lewat 71 hari
+    now = DateTime.utc(2026, 11, 4, 3);
+
+    final r = await loadDebtReport(
+      store,
+      scope,
+      permissions: viewOnly,
+      now: now,
+    );
+    final rec = r.receivableAging;
+    expect(rec.amountOf(AgingBucket.notDue), const Money(15000));
+    expect(rec.amountOf(AgingBucket.days1To30), Money.zero);
+    expect(rec.amountOf(AgingBucket.days31To60), const Money(15000));
+    expect(rec.amountOf(AgingBucket.days61To90), Money.zero);
+    expect(rec.amountOf(AgingBucket.over90), const Money(15000));
+    expect(rec.count, 3);
+    expect(rec.total, r.receivable);
+    expect(r.customers.map((c) => c.customer.name), ['Budi']);
+    expect(r.overdue, const Money(30000));
+    expect(r.overdue, rec.overdue);
+    expect(r.overdueCustomers, 1);
+    final pay = r.payableAging;
+    expect(pay.amountOf(AgingBucket.days61To90), const Money(12000));
+    expect(pay.countOf(AgingBucket.days61To90), 2);
+    expect(pay.total, r.payable);
   });
 
   test('retur: daftar, alasan, kembali ke stok', () async {

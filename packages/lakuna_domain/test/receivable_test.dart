@@ -2,6 +2,60 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('umur piutang/hutang (F1-16c)', () {
+    final today = DateTime.utc(2026, 11, 14);
+    DateTime ago(int days) => today.subtract(Duration(days: days));
+
+    test('kelompok menurut hari lewat jatuh tempo', () {
+      expect(agingBucketOf(null, today), AgingBucket.notDue);
+      expect(agingBucketOf(today, today), AgingBucket.notDue);
+      expect(
+        agingBucketOf(today.add(const Duration(days: 3)), today),
+        AgingBucket.notDue,
+      );
+      expect(agingBucketOf(ago(1), today), AgingBucket.days1To30);
+      expect(agingBucketOf(ago(30), today), AgingBucket.days1To30);
+      expect(agingBucketOf(ago(31), today), AgingBucket.days31To60);
+      expect(agingBucketOf(ago(60), today), AgingBucket.days31To60);
+      expect(agingBucketOf(ago(61), today), AgingBucket.days61To90);
+      expect(agingBucketOf(ago(90), today), AgingBucket.days61To90);
+      expect(agingBucketOf(ago(91), today), AgingBucket.over90);
+      expect(agingBucketOf(ago(400), today), AgingBucket.over90);
+    });
+
+    test('jam di tanggal diabaikan (tanggal kalender)', () {
+      expect(
+        agingBucketOf(DateTime.utc(2026, 10, 15, 23, 59), today),
+        AgingBucket.days1To30,
+      );
+      expect(
+        agingBucketOf(DateTime.utc(2026, 10, 14, 0, 1), today),
+        AgingBucket.days31To60,
+      );
+    });
+
+    test('Aging.of menjumlahkan nilai dan nota per kelompok', () {
+      final aging = Aging.of([
+        (dueOn: null, outstanding: const Money(1000)),
+        (dueOn: ago(5), outstanding: const Money(2000)),
+        (dueOn: ago(10), outstanding: const Money(3000)),
+        (dueOn: ago(95), outstanding: const Money(4000)),
+      ], today);
+      expect(aging.amountOf(AgingBucket.notDue), const Money(1000));
+      expect(aging.countOf(AgingBucket.notDue), 1);
+      expect(aging.amountOf(AgingBucket.days1To30), const Money(5000));
+      expect(aging.countOf(AgingBucket.days1To30), 2);
+      expect(aging.amountOf(AgingBucket.days31To60), Money.zero);
+      expect(aging.countOf(AgingBucket.days61To90), 0);
+      expect(aging.amountOf(AgingBucket.over90), const Money(4000));
+      expect(aging.total, const Money(10000));
+      expect(aging.count, 4);
+      expect(aging.overdue, const Money(9000));
+      expect(Aging.empty.total, Money.zero);
+      expect(Aging.empty.count, 0);
+    });
+  });
+
   group('saleOutstanding', () {
     test('total − DP − alokasi − pengurang retur', () {
       expect(

@@ -412,6 +412,8 @@ class DebtReport {
     required this.overdue,
     required this.overdueCustomers,
     required this.overduePurchases,
+    this.receivableAging = Aging.empty,
+    this.payableAging = Aging.empty,
   });
 
   final DateTime today;
@@ -429,6 +431,12 @@ class DebtReport {
   /// Nota beli lewat jatuh tempo.
   final int overduePurchases;
 
+  /// Umur piutang pelanggan di [customers] per nota (F1-16c).
+  final Aging receivableAging;
+
+  /// Umur hutang supplier di [suppliers] per nota beli (F1-16c).
+  final Aging payableAging;
+
   Money get receivable => Money.sum(customers.map((c) => c.outstanding));
   Money get payable => Money.sum(suppliers.map((s) => s.debt));
 }
@@ -440,25 +448,40 @@ Future<DebtReport> loadDebtReport(
   DateTime? now,
 }) async {
   final ctx = await _context(store, scope, permissions, now);
-  final customers = await listCustomers(store, scope, now: now);
-  final suppliers = await loadSuppliersOverview(store, scope, now: now);
-  final (overdue, overdueCustomers) = await overdueReceivables(
-    store.session,
-    scope.tenantId,
-    ctx.today,
+  // Satu pembacaan per sisi: daftar, kartu jatuh tempo, dan umur memakai
+  // data yang sama sehingga totalnya selalu cocok (F1-16c).
+  final (overview: customers, open: receivables) =
+      await customersWithReceivables(store, scope, now: now);
+  final (overview: suppliers, open: payables) = await suppliersWithPayables(
+    store,
+    scope,
+    now: now,
   );
+  final owing = [
+    for (final c in customers.rows)
+      if (c.outstanding > Money.zero) c,
+  ]..sort((a, b) => b.outstanding.compareTo(a.outstanding));
+  final owed = [
+    for (final s in suppliers.rows)
+      if (s.debt > Money.zero) s,
+  ]..sort((a, b) => b.debt.compareTo(a.debt));
+  final receivableAging = Aging.of([
+    for (final c in owing)
+      for (final r in receivables[c.customer.id] ?? const <ReceivableSale>[])
+        (dueOn: r.sale.dueOn, outstanding: r.outstanding),
+  ], ctx.today);
   return DebtReport(
     today: ctx.today,
-    customers: [
-      for (final c in customers.rows)
-        if (c.outstanding > Money.zero) c,
-    ]..sort((a, b) => b.outstanding.compareTo(a.outstanding)),
-    suppliers: [
-      for (final s in suppliers.rows)
-        if (s.debt > Money.zero) s,
-    ]..sort((a, b) => b.debt.compareTo(a.debt)),
-    overdue: overdue,
-    overdueCustomers: overdueCustomers,
+    customers: owing,
+    suppliers: owed,
+    receivableAging: receivableAging,
+    payableAging: Aging.of([
+      for (final s in owed)
+        for (final p in payables[s.supplier.id] ?? const <PayablePurchase>[])
+          (dueOn: p.purchase.dueOn, outstanding: p.outstanding),
+    ], ctx.today),
+    overdue: receivableAging.overdue,
+    overdueCustomers: owing.where((c) => c.overdueCount > 0).length,
     overduePurchases: suppliers.overdueCount,
   );
 }

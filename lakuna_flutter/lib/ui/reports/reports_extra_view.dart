@@ -476,6 +476,12 @@ class _Debts extends StatelessWidget {
                 note: l10n.reportsDebtOverduePurchasesNote,
               ),
             ]),
+            _AgingTable(
+              id: 'debt-aging-receivable',
+              title: l10n.reportsAgingReceivable,
+              empty: l10n.reportsDebtNoReceivable,
+              aging: r.receivableAging,
+            ),
             _Table(
               id: 'debt-customers',
               title: l10n.reportsDebtCustomers,
@@ -495,6 +501,12 @@ class _Debts extends StatelessWidget {
                     formatMoney(context, c.outstanding),
                   ]),
               ],
+            ),
+            _AgingTable(
+              id: 'debt-aging-payable',
+              title: l10n.reportsAgingPayable,
+              empty: l10n.reportsDebtNoPayable,
+              aging: r.payableAging,
             ),
             _Table(
               id: 'debt-suppliers',
@@ -522,9 +534,55 @@ class _Debts extends StatelessWidget {
               ],
             ),
             Text(l10n.reportsDebtNote, style: _muted(context)),
+            Text(l10n.reportsAgingNote, style: _muted(context)),
           ],
         );
       });
+}
+
+/// Tabel umur piutang/hutang per kelompok (F1-16c).
+class _AgingTable extends StatelessWidget {
+  const _AgingTable({
+    required this.id,
+    required this.title,
+    required this.empty,
+    required this.aging,
+  });
+
+  final String id;
+  final String title;
+  final String empty;
+  final Aging aging;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return _Table(
+      id: id,
+      title: title,
+      empty: empty,
+      columns: [
+        _Col(l10n.reportsColAge, flex: 4, right: false),
+        _Col(l10n.reportsColOpenCount),
+        _Col(l10n.reportsColRemaining, flex: 3),
+      ],
+      lines: [
+        if (aging.count > 0) ...[
+          for (final b in AgingBucket.values)
+            _Line(b.name, [
+              agingBucketLabel(l10n, b),
+              '${aging.countOf(b)}',
+              formatMoney(context, aging.amountOf(b)),
+            ]),
+          _Line('total', [
+            l10n.reportsTotal,
+            '${aging.count}',
+            formatMoney(context, aging.total),
+          ], strong: true),
+        ],
+      ],
+    );
+  }
 }
 
 // --- Retur --------------------------------------------------------------------

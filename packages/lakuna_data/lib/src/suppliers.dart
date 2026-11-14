@@ -277,6 +277,17 @@ Future<SuppliersOverview> loadSuppliersOverview(
   LakunaStore store,
   CatalogScope scope, {
   DateTime? now,
+}) async => (await suppliersWithPayables(store, scope, now: now)).overview;
+
+/// [loadSuppliersOverview] beserta pembelian berhutang per supplier, dari
+/// satu pembacaan (umur hutang di Laporan, F1-16c).
+Future<
+  ({SuppliersOverview overview, Map<UuidValue, List<PayablePurchase>> open})
+>
+suppliersWithPayables(
+  LakunaStore store,
+  CatalogScope scope, {
+  DateTime? now,
 }) async {
   final session = store.session;
   final today = await outletToday(
@@ -289,9 +300,12 @@ Future<SuppliersOverview> loadSuppliersOverview(
   suppliers.sort(
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
   );
-  return SuppliersOverview(
-    today: today,
-    rows: [for (final s in suppliers) _row(s, open[s.id] ?? const [])],
+  return (
+    overview: SuppliersOverview(
+      today: today,
+      rows: [for (final s in suppliers) _row(s, open[s.id] ?? const [])],
+    ),
+    open: open,
   );
 }
 

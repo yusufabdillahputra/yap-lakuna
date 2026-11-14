@@ -5435,5 +5435,14 @@
   "diningBillShareFailed": "PDF tagihan gagal dibuat. Coba lagi.",
   "@diningBillShareFailed": {
     "placeholders": {}
-  }
+  },
+  "reportsAgingReceivable": "Umur piutang",
+  "reportsAgingPayable": "Umur hutang",
+  "reportsColAge": "Umur",
+  "agingNotDue": "Belum jatuh tempo",
+  "aging1To30": "Lewat 1–30 hari",
+  "aging31To60": "Lewat 31–60 hari",
+  "aging61To90": "Lewat 61–90 hari",
+  "agingOver90": "Lewat > 90 hari",
+  "reportsAgingNote": "Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo."
 }

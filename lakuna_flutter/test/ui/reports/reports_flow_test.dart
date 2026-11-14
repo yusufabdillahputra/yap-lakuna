@@ -133,7 +133,28 @@ void main() {
 
     await _tap(tester, _key('reports-tab-debts'));
     expect(find.text('Posisi per 4 November 2026'), findsOneWidget);
-    expect(find.text('Rp 200.000'), findsOneWidget);
+    // KPI piutang + total umur piutang (F1-16c).
+    expect(find.text('Rp 200.000'), findsNWidgets(2));
+    expect(_key('reports-debt-aging-receivable-days31To60'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: _key('reports-debt-aging-receivable-days31To60'),
+        matching: find.text('Rp 150.000'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: _key('reports-debt-aging-payable-total'),
+        matching: find.text('Rp 120.000'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Lewat 31–60 hari'), findsNWidgets(2));
+    expect(
+      tester.getTopLeft(_key('reports-debt-aging-receivable')).dy,
+      lessThan(tester.getTopLeft(_key('reports-debt-customers')).dy),
+    );
     expect(find.text('Budi'), findsOneWidget);
     expect(find.text('CV Sumber'), findsOneWidget);
     expect(find.text('10/11/2026'), findsOneWidget);
@@ -308,6 +329,28 @@ void main() {
       for (final tab in ['stock', 'cash', 'debts', 'returns']) {
         await _tap(tester, _key('reports-tab-$tab'));
         expect(_key('reports-extra-loading'), findsNothing);
+        if (tab == 'debts') {
+          await tester.scrollUntilVisible(
+            _key('reports-debt-aging-payable-total'),
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
+          // Mode kartu: kolom tampil sebagai "label: nilai".
+          expect(
+            find.descendant(
+              of: _key('reports-debt-aging-receivable-notDue'),
+              matching: find.text('Nota terbuka: 1'),
+            ),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(
+              of: _key('reports-debt-aging-payable-days31To60'),
+              matching: find.text('Rp 50.000'),
+            ),
+            findsOneWidget,
+          );
+        }
       }
       expect(find.textContaining('RT-PST-K01-261104-0001'), findsOneWidget);
       expect(tester.takeException(), isNull);

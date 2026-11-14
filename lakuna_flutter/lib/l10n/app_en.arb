@@ -4901,5 +4901,14 @@
   "diningBillShareFailed": "Could not create the bill PDF. Try again.",
   "@diningBillShareFailed": {
     "placeholders": {}
-  }
+  },
+  "reportsAgingReceivable": "Receivables aging",
+  "reportsAgingPayable": "Payables aging",
+  "reportsColAge": "Age",
+  "agingNotDue": "Not yet due",
+  "aging1To30": "1–30 days overdue",
+  "aging31To60": "31–60 days overdue",
+  "aging61To90": "61–90 days overdue",
+  "agingOver90": "Over 90 days overdue",
+  "reportsAgingNote": "Age counts from each document's due date to today; documents without a due date count as Not yet due."
 }

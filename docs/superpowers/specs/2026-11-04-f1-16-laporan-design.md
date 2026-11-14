@@ -261,6 +261,7 @@ tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
 | Nilai stok historis | – | Nilai akhir periode lalu memakai harga pokok saat ini | Cukup untuk UMKM; simpan nilai per pergerakan bila dibutuhkan akurasi historis. |
 | Target margin toko | "Target toko 25%" | Belum ada pengaturan | Tambah di F1-18 Pengaturan, lalu tampilkan di panel. |
 | Rentang tanggal bebas | – | Rilis v0.67.0 | [F1-16b](2026-11-14-f1-16b-rentang-tanggal-laporan-design.md) |
+| Umur piutang & hutang | – | Rilis v0.82.0 | [F1-16c](2026-11-14-f1-16c-umur-piutang-hutang-design.md) |
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
 | Pembulatan total (F1-18) | Baris tersendiri | Belum ada pembulatan | Tambah baris saat pembulatan dibangun. |

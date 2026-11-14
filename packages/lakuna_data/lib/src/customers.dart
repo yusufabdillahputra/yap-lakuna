@@ -585,6 +585,17 @@ Future<CustomersOverview> listCustomers(
   LakunaStore store,
   CatalogScope scope, {
   DateTime? now,
+}) async => (await customersWithReceivables(store, scope, now: now)).overview;
+
+/// [listCustomers] beserta nota kredit bersisa per pelanggan, dari satu
+/// pembacaan (umur piutang di Laporan, F1-16c).
+Future<
+  ({CustomersOverview overview, Map<UuidValue, List<ReceivableSale>> open})
+>
+customersWithReceivables(
+  LakunaStore store,
+  CatalogScope scope, {
+  DateTime? now,
 }) async {
   final session = store.session;
   final today = await outletToday(
@@ -600,9 +611,14 @@ Future<CustomersOverview> listCustomers(
   customers.sort(
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
   );
-  return CustomersOverview(
-    today: today,
-    rows: [for (final c in customers) _row(c, groups, open[c.id] ?? const [])],
+  return (
+    overview: CustomersOverview(
+      today: today,
+      rows: [
+        for (final c in customers) _row(c, groups, open[c.id] ?? const []),
+      ],
+    ),
+    open: open,
   );
 }
 
