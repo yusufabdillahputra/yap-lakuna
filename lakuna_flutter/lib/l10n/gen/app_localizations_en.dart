@@ -8053,8 +8053,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productGenerateBarcode => 'Generate barcode';
-
-  @override
-  String get diningErrorPaidOtherSession =>
-      'A part was paid in another cash session. Void the bill on the device that received the money, or settle the bill and use Return.';
 }

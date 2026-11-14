@@ -13765,12 +13765,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Buat barcode'**
   String get productGenerateBarcode;
-
-  /// No description provided for @diningErrorPaidOtherSession.
-  ///
-  /// In id, this message translates to:
-  /// **'Ada bagian yang dibayar di sesi kasir lain. Batalkan bill dari perangkat yang menerima uangnya, atau selesaikan bill lalu pakai Retur.'**
-  String get diningErrorPaidOtherSession;
 }
 
 class _AppLocalizationsDelegate

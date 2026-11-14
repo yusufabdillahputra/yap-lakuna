@@ -661,6 +661,7 @@ Future<SessionSalesSummary> sessionSalesSummary(
       for (final s in await Sale.db.find(
         session,
         where: (s) =>
+            s.tenantId.equals(tenantId) &
             s.id.inSet(others) &
             s.status.inSet({...soldStatuses, SaleStatus.open}) &
             s.deletedAt.equals(null),

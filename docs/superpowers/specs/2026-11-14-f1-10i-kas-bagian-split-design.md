@@ -1,7 +1,7 @@
 # F1-10i · Kas per sesi untuk bagian split bill
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan v0.56.0
+- **Status:** Rilis v0.56.0
 - **Layar:** 1.3 Sesi kasir (rekap laci, tutup sesi), 1.9 Split bill,
   1.14 Riwayat (batal nota).
 - **Acuan:** F1-03 (rekap laci: tunai seharusnya), F1-10 (split bill, gap
@@ -36,14 +36,17 @@ tercatat di laci K02.
    bila ada bill terbuka yang bagiannya dibayar atau menunggu di sesi ini,
    atau pembayaran lama tanpa sesi. Perangkat lain di cabang yang sama
    kini boleh menutup sesinya.
-5. **Batal nota.** Nota hanya bisa dibatalkan di sesi yang menerima semua
-   pembayarannya (`VoidBlock.session`). Batal nota mengembalikan uang dari
-   laci sesi itu. Nota split yang bagiannya dibayar di perangkat lain
-   memakai *Retur*, karena retur mencatat uang keluar di sesi yang
-   mengembalikan. *Batalkan bill* split yang belum lunas juga ditolak
-   (`BillPaidInOtherSession`) bila ada bagian lunas dari sesi lain.
-6. **Pesan.** Pesan tutup sesi dan pesan *Void hanya di sesi nota* disesuaikan;
-   pesan baru `diningErrorPaidOtherSession` untuk batal bill.
+5. **Batal nota.** Nota lunas hanya bisa dibatalkan di sesi yang menerima
+   semua pembayarannya (`VoidBlock.session`), karena batal nota
+   mengembalikan uang dari laci sesi itu dan sesi lain mungkin sudah
+   ditutup. Nota split yang bagiannya dibayar di perangkat lain memakai
+   *Retur*, karena retur mencatat uang keluar di sesi yang mengembalikan.
+6. **Batalkan bill split yang belum lunas** tetap boleh dari perangkat mana
+   pun. Setiap bagian lunas dikembalikan dari laci sesi yang menerimanya dan
+   keluar dari rekap laci sesi itu. Semua sesi penerima masih terbuka
+   karena aturan 4.
+7. **Pesan.** Pesan tutup sesi dan pesan *Void hanya di sesi nota*
+   disesuaikan.
 
 ## Komponen
 
@@ -52,8 +55,8 @@ tercatat di laci K02.
 - Data: `insertPayments(cashSessionId:)`, insert QRIS menunggu, dan
   `confirmSplitPayment` mengisi sesi. `sessionSalesSummary` menghitung
   tunai dan non-tunai per pembayaran. `closeCashSession` membatasi cek
-  bill split ke sesi itu. Pemeriksaan batal nota memeriksa sesi semua
-  pembayaran.
+  bill split ke sesi itu. `_voidBlock` memeriksa sesi semua pembayaran
+  (`paidInSession`).
 
 ## Pengujian
 
@@ -66,6 +69,7 @@ tercatat di laci K02.
   - QRIS menunggu yang dikonfirmasi di sesi lain dihitung di sesi
     konfirmasi.
   - Pembayaran lama tanpa sesi tetap dihitung di sesi notanya.
+  - Batal bill split mengeluarkan tiap bagian dari laci sesi penerimanya.
   - Batal nota ditolak bila ada bagian dari sesi lain.
 - Flutter: rekap 1.3 tidak berubah tampilannya. Tes yang ada tetap lulus.
 - Uji manual Xvfb: split meja dua tamu, bayar A tunai, lalu buka Sesi kasir.
@@ -75,5 +79,7 @@ tercatat di laci K02.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Tunai bagian split masuk sesi penerima | — | Dalam pengerjaan v0.56.0 | `payments.cash_session_id`. |
+| Tunai bagian split masuk sesi penerima | — | Rilis v0.56.0 | `payments.cash_session_id`. |
 | Retur nota split lintas perangkat | — | Catatan | Retur tetap dicatat di sesi yang mengembalikan uang. |
+| Pembayaran lama tanpa sesi di bill terbuka | — | Catatan | Masih menahan tutup sesi semua perangkat di cabang (perilaku lama) sampai bill selesai. |
+| Konfirmasi QRIS bersamaan di dua perangkat (Fase 2) | — | Catatan | Bila dua perangkat offline sama-sama menekan *Sudah terbayar*, sync menyimpan satu `cash_session_id`; desain sync harus menolak konfirmasi kedua. |

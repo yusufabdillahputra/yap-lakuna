@@ -22,3 +22,7 @@ Split bill membagi satu open bill ke beberapa tamu yang membayar sendiri-sendiri
 Service, PB1, *harga sudah termasuk pajak*, dan pembulatan total dikunci saat bagian pertama dibayar. Bila pengaturannya diubah di tengah split, tagihan tamu berikutnya tetap memakai tarif lama, jadi tidak ada tamu yang menanggung selisihnya. Bila semua bagian QRIS yang menunggu dibatalkan, bill kembali memakai tarif terbaru.
 
 Semua bagian tercatat sebagai pembayaran di nota yang sama, jadi laporan dan stok tetap satu nota.
+
+Uang setiap bagian langsung masuk rekap laci sesi kasir yang menerimanya, walau bill belum lunas. Bila tamu A membayar di kasir K01 dan tamu B di kasir K02, tunai A dihitung di laci K01 dan tunai B di laci K02. Sesi yang menerima bagian baru bisa ditutup setelah bill lunas. Sesi perangkat lain tetap bisa ditutup.
+
+> [!note] Bila bill split dibatalkan sebelum lunas, setiap kasir mengembalikan bagian yang ia terima dari lacinya sendiri. Setelah bill lunas, nota hanya bisa di-void dari perangkat yang menerima semua bagiannya; selain itu pakai **Retur** di Riwayat.

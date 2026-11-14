@@ -116,7 +116,6 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
         items.map((i) => i.name).join(', '),
       ),
       SplitLocked() => l10n.diningErrorSplitLocked,
-      BillPaidInOtherSession() => l10n.diningErrorPaidOtherSession,
       BillItemDiscounted() => l10n.billSplitErrorItemDiscounted,
       DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
       DiscountNotPermitted() => l10n.saleErrorDiscountNotPermitted,

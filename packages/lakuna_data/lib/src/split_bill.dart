@@ -549,16 +549,6 @@ Future<OpenBill> assignPortion(
   return loadOpenBill(store, scope, billId);
 }
 
-/// Baris berdiskon rupiah tidak bisa dibagi per porsi (F1-04g): hapus
-/// diskonnya atau ubah ke persen dulu.
-/// Bagian split bill sudah dibayar di sesi kasir lain (perangkat lain atau
-/// sesi yang sudah ditutup): bill tidak bisa dibatalkan dari perangkat ini
-/// karena uangnya ada di laci lain (F1-10i).
-class BillPaidInOtherSession implements Exception {
-  @override
-  String toString() => 'BillPaidInOtherSession';
-}
-
 /// `true` bila semua pembayaran lunas di [payments] diterima di sesi
 /// [sessionId], atau data lama tanpa sesi (F1-10i).
 bool paidInSession(Iterable<Payment> payments, UuidValue? sessionId) =>
@@ -569,6 +559,8 @@ bool paidInSession(Iterable<Payment> payments, UuidValue? sessionId) =>
           p.cashSessionId == sessionId,
     );
 
+/// Baris berdiskon rupiah tidak bisa dibagi per porsi (F1-04g): hapus
+/// diskonnya atau ubah ke persen dulu.
 class BillItemDiscounted implements Exception {
   const BillItemDiscounted();
 }

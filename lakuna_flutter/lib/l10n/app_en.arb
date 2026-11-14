@@ -4523,6 +4523,5 @@
   "firstProductInvalid": "Check the first product fields.",
   "firstProductOptional": "Optional",
   "billSplitErrorItemDiscounted": "Remove this item's rupiah discount or change it to a percentage before splitting it.",
-  "productGenerateBarcode": "Generate barcode",
-  "diningErrorPaidOtherSession": "A part was paid in another cash session. Void the bill on the device that received the money, or settle the bill and use Return."
+  "productGenerateBarcode": "Generate barcode"
 }

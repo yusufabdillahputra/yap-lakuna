@@ -283,20 +283,36 @@ void main() {
     expect((await summary(s01)).cash, const Money(25000));
   });
 
-  test('batal nota dan batal bill ditolak bila bagian dibayar di sesi '
-      'lain', () async {
-    var b = await splitBill();
-    b = (await payCash(k01, b, 'A')).bill!;
-    await expectLater(
-      voidOpenBill(
+  test(
+    'batal bill split: tiap bagian keluar dari laci sesi penerimanya',
+    () async {
+      var b = await splitBill();
+      b = (await payCash(k01, b, 'A')).bill!;
+      expect((await summary(s01)).cash, isNot(Money.zero));
+      await voidOpenBill(
         store,
         k02,
         staffId: owner(),
         billId: b.id,
         reason: 'Tamu pergi',
-      ),
-      throwsA(isA<BillPaidInOtherSession>()),
-    );
+      );
+      expect((await summary(s01)).cash, Money.zero);
+      expect((await summary(s02)).cash, Money.zero);
+      // Sesi penerima bisa ditutup lagi setelah bill batal.
+      final closed = await closeCashSession(
+        store,
+        cashScope(k01),
+        sessionId: s01.id,
+        staffId: owner(),
+        count: const CashCount(sheets: {}),
+      );
+      expect(closed.expectedCash, 0);
+    },
+  );
+
+  test('batal nota ditolak bila ada bagian dari sesi lain', () async {
+    var b = await splitBill();
+    b = (await payCash(k01, b, 'A')).bill!;
     await payCash(k02, b, 'B');
     await expectLater(
       voidSale(

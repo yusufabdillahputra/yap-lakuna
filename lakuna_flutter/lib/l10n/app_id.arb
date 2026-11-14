@@ -5057,6 +5057,5 @@
   "firstProductInvalid": "Periksa isian produk pertama.",
   "firstProductOptional": "Opsional",
   "billSplitErrorItemDiscounted": "Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi.",
-  "productGenerateBarcode": "Buat barcode",
-  "diningErrorPaidOtherSession": "Ada bagian yang dibayar di sesi kasir lain. Batalkan bill dari perangkat yang menerima uangnya, atau selesaikan bill lalu pakai Retur."
+  "productGenerateBarcode": "Buat barcode"
 }

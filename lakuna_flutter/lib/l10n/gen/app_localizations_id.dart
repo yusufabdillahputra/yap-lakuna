@@ -7865,8 +7865,4 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productGenerateBarcode => 'Buat barcode';
-
-  @override
-  String get diningErrorPaidOtherSession =>
-      'Ada bagian yang dibayar di sesi kasir lain. Batalkan bill dari perangkat yang menerima uangnya, atau selesaikan bill lalu pakai Retur.';
 }
