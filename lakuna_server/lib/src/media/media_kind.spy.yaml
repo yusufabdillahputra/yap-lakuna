@@ -1,6 +1,6 @@
 ### Jenis berkas media yang diunggah (F1-18; denah meja F1-10; bukti bayar
 ### hutang F1-14; foto nota pengeluaran F1-15; foto produk F1-07f; logo
-### struk F1-06b).
+### struk F1-06b; foto faktur pembelian F1-12b).
 enum: MediaKind
 serialized: byName
 values:
@@ -10,3 +10,4 @@ values:
   - expenseReceipt
   - productPhoto
   - receiptLogo
+  - purchaseInvoice

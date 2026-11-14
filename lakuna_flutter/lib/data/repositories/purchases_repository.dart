@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart' show Money, Qty;
@@ -91,4 +93,18 @@ abstract class PurchasesRepository {
 
   /// Harga jual baru per varian (satuan dasar).
   Future<Result<void>> applySellPrices(Map<UuidValue, Money> prices);
+
+  /// Isi foto faktur pembelian [id] (F1-12b); `null` bila tidak ada atau
+  /// berkasnya belum ada di perangkat ini.
+  Future<Result<Uint8List?>> invoicePhoto(UuidValue id);
+
+  /// Memasang atau mengganti foto faktur. Gagal dengan
+  /// `PurchaseInvoicePhotoInvalid` atau `PurchaseNotFound`.
+  Future<Result<Purchase>> setInvoicePhoto(
+    UuidValue id,
+    PurchaseInvoicePhoto photo,
+  );
+
+  /// Mengosongkan foto faktur.
+  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id);
 }

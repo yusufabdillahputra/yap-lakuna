@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
@@ -113,6 +115,34 @@ class LocalPurchasesRepository extends PurchasesRepository {
       scope,
       staffId: staff.id,
       prices: prices,
+    ),
+  );
+
+  @override
+  Future<Result<Uint8List?>> invoicePhoto(UuidValue id) =>
+      _guard((_, scope, _) => loadPurchaseInvoicePhoto(_store, scope, id));
+
+  @override
+  Future<Result<Purchase>> setInvoicePhoto(
+    UuidValue id,
+    PurchaseInvoicePhoto photo,
+  ) => _guard(
+    (_, scope, staff) => setPurchaseInvoicePhoto(
+      _store,
+      scope,
+      staffId: staff.id,
+      purchaseId: id,
+      photo: photo,
+    ),
+  );
+
+  @override
+  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id) => _guard(
+    (_, scope, staff) => clearPurchaseInvoicePhoto(
+      _store,
+      scope,
+      staffId: staff.id,
+      purchaseId: id,
     ),
   );
 

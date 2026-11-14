@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -72,6 +74,12 @@ class FakePurchasesRepository extends PurchasesRepository {
   final sellPrices = <UuidValue, Money>{};
   final stock = <UuidValue, Qty>{};
   final requests = <PurchaseRequest>[];
+
+  /// Isi foto faktur per `invoice_media_id` (F1-12b).
+  final photoFiles = <UuidValue, Uint8List>{};
+
+  /// Foto tercatat tetapi berkasnya belum ada di perangkat.
+  var photoFileMissing = false;
   final applied = <Map<UuidValue, Money>>[];
 
   /// Galat berikutnya untuk aksi tulis (sekali pakai).
@@ -247,6 +255,7 @@ class FakePurchasesRepository extends PurchasesRepository {
       receiving: receiving,
     );
     if (issues.isNotEmpty) throw PurchaseInvalid(issues);
+    if (r.invoicePhoto case final photo?) _checkPhoto(photo);
     if (receiving && r.funding == FundingSource.drawer && !hasOpenSession) {
       throw CashSessionNotOpen();
     }
@@ -292,6 +301,11 @@ class FakePurchasesRepository extends PurchasesRepository {
       fundingSource: r.funding,
       dueOn: r.dueOn,
       note: r.note,
+      invoiceMediaId: r.invoicePhoto != null
+          ? _storePhoto(r.invoicePhoto!)
+          : r.removeInvoicePhoto
+          ? null
+          : old?.invoiceMediaId,
       receivedAt: receiving ? DateTime.utc(2026, 11, 3, 4) : null,
       hlc: '',
     );
@@ -427,4 +441,50 @@ class FakePurchasesRepository extends PurchasesRepository {
         applied.add(prices);
         sellPrices.addAll(prices);
       });
+
+  void _checkPhoto(PurchaseInvoicePhoto photo) {
+    if (readImageHeader(photo.bytes) == null ||
+        photo.bytes.length > PurchaseLimits.invoicePhotoMaxBytes) {
+      throw const PurchaseInvoicePhotoInvalid();
+    }
+  }
+
+  UuidValue _storePhoto(PurchaseInvoicePhoto photo) {
+    final id = _id();
+    photoFiles[id] = photo.bytes;
+    return id;
+  }
+
+  Purchase _setPhoto(UuidValue id, UuidValue? mediaId) {
+    final p = purchases.where((p) => p.id == id).firstOrNull;
+    if (p == null) throw PurchaseNotFound();
+    final updated = p.copyWith(
+      invoiceMediaId: mediaId,
+      version: p.version + 1,
+    );
+    purchases[purchases.indexOf(p)] = updated;
+    return updated;
+  }
+
+  @override
+  Future<Result<Uint8List?>> invoicePhoto(UuidValue id) async => _guard(() {
+    final media = purchases
+        .where((p) => p.id == id)
+        .firstOrNull
+        ?.invoiceMediaId;
+    return media == null || photoFileMissing ? null : photoFiles[media];
+  });
+
+  @override
+  Future<Result<Purchase>> setInvoicePhoto(
+    UuidValue id,
+    PurchaseInvoicePhoto photo,
+  ) async => _guard(() {
+    _checkPhoto(photo);
+    return _setPhoto(id, _storePhoto(photo));
+  });
+
+  @override
+  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id) async =>
+      _guard(() => _setPhoto(id, null));
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,8 +6,12 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
+import 'package:lakuna_flutter/data/services/image_file_picker.dart';
+
 import '../../testing/app_harness.dart';
+import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_purchases_repository.dart';
+import '../../testing/floor_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
@@ -41,16 +46,25 @@ Future<void> _type(WidgetTester tester, Finder field, String text) async {
 
 void main() {
   late FakePurchasesRepository repo;
+  late FakeImagePicker picker;
 
   Future<void> pump(WidgetTester tester, Size size) async {
     repo = FakePurchasesRepository();
+    picker = FakeImagePicker();
     await pumpLakuna(
       tester,
       size: size,
       initialLocation: Routes.purchases,
       purchases: repo,
+      imagePicker: picker,
     );
   }
+
+  PickedImage png() => PickedImage(
+    name: 'faktur-sp.png',
+    size: samplePng.length,
+    bytes: samplePng,
+  );
 
   testWidgets(
     'desktop: draf → terima → saran harga → terapkan → retur dengan uang kembali',
@@ -173,4 +187,72 @@ void main() {
     expect(_key('purchases-table'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets(
+    'desktop: foto faktur di form lalu lihat, hapus, lampirkan lagi',
+    (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      // Berkas bukan gambar ditolak dengan pesan.
+      picker.next = PickedImage(
+        name: 'faktur.pdf',
+        size: 3,
+        bytes: Uint8List.fromList([1, 2, 3]),
+      );
+      await _tap(tester, _key('purchase-invoice-photo-pick'));
+      expect(_key('purchase-invoice-photo-error'), findsOneWidget);
+      picker.next = png();
+      await _tap(tester, _key('purchase-invoice-photo-pick'));
+      expect(_key('purchase-invoice-photo-preview'), findsOneWidget);
+      expect(find.text('faktur-sp.png'), findsOneWidget);
+      await _type(tester, _keyPrefix('purchase-price-'), '1500');
+      await _tap(tester, _key('purchase-pay-full'));
+      await _tap(tester, _key('purchase-receive'));
+      expect(repo.requests.single.invoicePhoto!.fileName, 'faktur-sp.png');
+
+      // Detail 1.19b: gambar kecil + *Lihat foto faktur*.
+      expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
+      await _tap(tester, _key('purchase-invoice-photo-view'));
+      expect(_key('purchase-invoice-photo-full'), findsOneWidget);
+      await _tap(tester, _key('purchase-invoice-photo-full-close'));
+      expect(_key('purchase-invoice-photo-full'), findsNothing);
+
+      // Hapus butuh konfirmasi; batal tidak menghapus.
+      await _tap(tester, _key('purchase-invoice-photo-remove'));
+      await _tap(tester, _key('purchase-invoice-photo-cancel'));
+      expect(repo.purchases.single.invoiceMediaId, isNotNull);
+      await _tap(tester, _key('purchase-invoice-photo-remove'));
+      await _tap(tester, _key('purchase-invoice-photo-confirm-remove'));
+      expect(repo.purchases.single.invoiceMediaId, isNull);
+      expect(find.text('Belum ada foto faktur.'), findsOneWidget);
+      expect(find.text('Lampirkan foto faktur'), findsOneWidget);
+
+      picker.next = png();
+      await _tap(tester, _key('purchase-invoice-photo-pick'));
+      expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
+      expect(find.text('Ganti foto'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
+
+  testWidgets('ponsel 360 px: ambil foto faktur dari kamera', (tester) async {
+    await pump(tester, const Size(360, 780));
+    picker.camera = true;
+    await _tap(tester, _key('purchases-new'));
+    await _scan(tester, 'KOP');
+    picker.next = png();
+    await _tap(tester, _key('purchase-invoice-photo-camera'));
+    expect(picker.photoCalls, 1);
+    expect(_key('purchase-invoice-photo-preview'), findsOneWidget);
+    await _type(tester, _keyPrefix('purchase-price-'), '1500');
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _key('purchase-receive'));
+    expect(_key('purchase-detail'), findsOneWidget);
+    expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
+    expect(_key('purchase-invoice-photo-camera'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
 }

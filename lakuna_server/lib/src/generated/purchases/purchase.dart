@@ -18,6 +18,7 @@ import '../purchases/purchase_status.dart' as _i7pslxk7;
 /// Pembelian dari supplier (F1-12), nomor `PB-<OUTLET>-<PERANGKAT>-<yymmdd>-<nnnn>`.
 /// `purchased_on` = tanggal lokal (UTC tengah malam). Hutang = total −
 /// `paid_amount` − pengurang hutang retur (`purchase_returns.debt_reduction`).
+/// Foto faktur supplier di `invoice_media_id` (F1-12b).
 abstract class Purchase
     implements _is.TableRow<_is.UuidValue>, _is.ProtocolSerialization {
   Purchase._({
@@ -41,6 +42,7 @@ abstract class Purchase
     this.fundingSource,
     this.dueOn,
     this.note,
+    this.invoiceMediaId,
     this.receivedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -76,6 +78,7 @@ abstract class Purchase
     _i56sp7oc.FundingSource? fundingSource,
     DateTime? dueOn,
     String? note,
+    _is.UuidValue? invoiceMediaId,
     DateTime? receivedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -139,6 +142,11 @@ abstract class Purchase
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['dueOn']),
       note: jsonSerialization['note'] as String?,
+      invoiceMediaId: jsonSerialization['invoiceMediaId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['invoiceMediaId'],
+            ),
       receivedAt: jsonSerialization['receivedAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['receivedAt']),
@@ -212,6 +220,8 @@ abstract class Purchase
 
   String? note;
 
+  _is.UuidValue? invoiceMediaId;
+
   DateTime? receivedAt;
 
   DateTime createdAt;
@@ -257,6 +267,7 @@ abstract class Purchase
     _i56sp7oc.FundingSource? fundingSource,
     DateTime? dueOn = const _is.$UndefinedDateTime(),
     String? note,
+    _is.UuidValue? invoiceMediaId = const _is.$UndefinedUuidValue(),
     DateTime? receivedAt = const _is.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -291,6 +302,7 @@ abstract class Purchase
       if (fundingSource != null) 'fundingSource': fundingSource?.toJson(),
       if (dueOn != null) 'dueOn': dueOn?.toJson(),
       if (note != null) 'note': note,
+      if (invoiceMediaId != null) 'invoiceMediaId': invoiceMediaId?.toJson(),
       if (receivedAt != null) 'receivedAt': receivedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -327,6 +339,7 @@ abstract class Purchase
       if (fundingSource != null) 'fundingSource': fundingSource?.toJson(),
       if (dueOn != null) 'dueOn': dueOn?.toJson(),
       if (note != null) 'note': note,
+      if (invoiceMediaId != null) 'invoiceMediaId': invoiceMediaId?.toJson(),
       if (receivedAt != null) 'receivedAt': receivedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
@@ -391,6 +404,7 @@ class _PurchaseImpl extends Purchase {
     _i56sp7oc.FundingSource? fundingSource,
     DateTime? dueOn,
     String? note,
+    _is.UuidValue? invoiceMediaId,
     DateTime? receivedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -421,6 +435,7 @@ class _PurchaseImpl extends Purchase {
          fundingSource: fundingSource,
          dueOn: dueOn,
          note: note,
+         invoiceMediaId: invoiceMediaId,
          receivedAt: receivedAt,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -457,6 +472,7 @@ class _PurchaseImpl extends Purchase {
     Object? fundingSource = _Undefined,
     DateTime? dueOn = const _is.$UndefinedDateTime(),
     Object? note = _Undefined,
+    _is.UuidValue? invoiceMediaId = const _is.$UndefinedUuidValue(),
     DateTime? receivedAt = const _is.$UndefinedDateTime(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -494,6 +510,9 @@ class _PurchaseImpl extends Purchase {
           : this.fundingSource,
       dueOn: dueOn is _is.UndefinedSentinel ? this.dueOn : dueOn,
       note: note is String? ? note : this.note,
+      invoiceMediaId: invoiceMediaId is _is.UndefinedSentinel
+          ? this.invoiceMediaId
+          : invoiceMediaId,
       receivedAt: receivedAt is _is.UndefinedSentinel
           ? this.receivedAt
           : receivedAt,
@@ -626,6 +645,13 @@ class PurchaseUpdateTable extends _is.UpdateTable<PurchaseTable> {
 
   _is.ColumnValue<String, String> note(String? value) => _is.ColumnValue(
     table.note,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> invoiceMediaId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.invoiceMediaId,
     value,
   );
 
@@ -778,6 +804,11 @@ class PurchaseTable extends _is.Table<_is.UuidValue> {
       'note',
       this,
     );
+    invoiceMediaId = _is.ColumnUuid(
+      'invoice_media_id',
+      this,
+      fieldName: 'invoiceMediaId',
+    );
     receivedAt = _is.ColumnDateTime(
       'received_at',
       this,
@@ -866,6 +897,8 @@ class PurchaseTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnString note;
 
+  late final _is.ColumnUuid invoiceMediaId;
+
   late final _is.ColumnDateTime receivedAt;
 
   late final _is.ColumnDateTime createdAt;
@@ -906,6 +939,7 @@ class PurchaseTable extends _is.Table<_is.UuidValue> {
     fundingSource,
     dueOn,
     note,
+    invoiceMediaId,
     receivedAt,
     createdAt,
     updatedAt,

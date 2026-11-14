@@ -390,6 +390,7 @@ GoRouter createRouter({
               onOpenPurchase: (id) =>
                   context.push<void>(Routes.purchase(id.uuid)),
               onNewPurchase: () => context.push<UuidValue>(Routes.purchaseNew),
+              imagePicker: imagePicker,
             ),
           ),
           GoRoute(
@@ -407,6 +408,7 @@ GoRouter createRouter({
               onBack: () => context.canPop()
                   ? context.pop()
                   : context.go(Routes.purchases),
+              imagePicker: imagePicker,
             ),
           ),
           GoRoute(
@@ -422,6 +424,7 @@ GoRouter createRouter({
                 key: ValueKey('purchase-$id'),
                 repository: purchases,
                 purchaseId: UuidValue.fromString(id),
+                imagePicker: imagePicker,
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(Routes.purchases),
