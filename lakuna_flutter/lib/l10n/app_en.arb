@@ -4786,7 +4786,7 @@
   "@storeSettingsTransferAccount": {
     "placeholders": {}
   },
-  "storeSettingsTransferAccountHint": "Optional. Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.",
+  "storeSettingsTransferAccountHint": "Optional. One account per line, up to 3 (e.g. BCA and Mandiri). Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.",
   "@storeSettingsTransferAccountHint": {
     "placeholders": {}
   },
@@ -4938,5 +4938,21 @@
   "reportsSessionRecapLoadFailed": "Couldn't load the session recap.",
   "reportsSessionRecapNotClosed": "Session not found in this branch or still open.",
   "reportsSessionRecapOpen": "Reprint session recap",
-  "reportsCashReprintHint": "Tap a closed session to view and reprint its recap."
+  "reportsCashReprintHint": "Tap a closed session to view and reprint its recap.",
+  "storeSettingsTransferTooMany": "At most {count} accounts.",
+  "@storeSettingsTransferTooMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storeSettingsTransferLineTooLong": "Each account can be at most {count} characters.",
+  "@storeSettingsTransferLineTooLong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

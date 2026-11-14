@@ -17,4 +17,4 @@ Spec: [F1-07p](../specs/2026-11-14-f1-07p-templat-import-inggris-design.md)
       0 baris siap, 2 baris dilewati *sample row from the template*.
 - [x] **Dokumen**: spec F1-07g / F1-07p, README, STATUS-JEDA, panduan,
       CHANGELOG 0.85.0, versi 0.85.0+88.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #91 di-merge (13 cek hijau).

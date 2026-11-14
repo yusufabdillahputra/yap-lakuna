@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
@@ -45,7 +44,8 @@ class StoreProfileInvalid implements Exception {
 }
 
 /// Aturan *Penjualan & stok* ditolak: rekening transfer lebih dari
-/// [ProfileLimits.transferAccount] karakter (F1-05c).
+/// [ProfileLimits.transferAccount] karakter per baris (F1-05c) atau lebih
+/// dari [ProfileLimits.transferAccountLines] rekening (F1-05f).
 class SalesRulesInvalid implements Exception {
   const SalesRulesInvalid();
 
@@ -145,8 +145,8 @@ Future<SalesRules> saveSalesRules(
   required UuidValue staffId,
   required SalesRules rules,
 }) async {
-  final account = rules.transferAccount.trim();
-  if (account.characters.length > ProfileLimits.transferAccount) {
+  final account = normalizeTransferAccounts(rules.transferAccount);
+  if (transferAccountIssue(account) != null) {
     throw const SalesRulesInvalid();
   }
   rules = rules.copyWith(transferAccount: account);

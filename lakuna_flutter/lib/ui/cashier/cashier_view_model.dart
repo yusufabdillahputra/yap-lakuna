@@ -543,8 +543,10 @@ class CashierViewModel extends ChangeNotifier {
 
   // --- Diskon manual (F1-04b) ---------------------------------------------
 
-  /// Rekening transfer toko (F1-05c); kosong bila belum diatur.
-  String get transferAccount => _data?.salesRules.transferAccount ?? '';
+  /// Rekening transfer toko per baris (F1-05c, F1-05f); kosong bila belum
+  /// diatur.
+  List<String> get transferAccounts =>
+      _data?.salesRules.transferAccounts ?? const [];
 
   DiscountAccess get discountAccess {
     final data = _data;

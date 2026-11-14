@@ -8156,7 +8156,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get storeSettingsTransferAccountHint =>
-      'Opsional. Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.';
+      'Opsional. Satu rekening per baris, maksimal 3 (mis. BCA dan Mandiri). Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.';
 
   @override
   String get paymentTransferTo => 'Transfer ke';
@@ -8295,4 +8295,14 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get reportsCashReprintHint =>
       'Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya.';
+
+  @override
+  String storeSettingsTransferTooMany(int count) {
+    return 'Maksimal $count rekening.';
+  }
+
+  @override
+  String storeSettingsTransferLineTooLong(int count) {
+    return 'Satu rekening maksimal $count karakter.';
+  }
 }

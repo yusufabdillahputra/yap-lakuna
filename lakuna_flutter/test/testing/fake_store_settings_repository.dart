@@ -74,7 +74,9 @@ class FakeStoreSettingsRepository implements StoreSettingsRepository {
   Future<Result<SalesRules>> saveSalesRules(SalesRules rules) async {
     calls.add('rules:${rules.allowNegativeStock}:${rules.rounding.name}');
     if (failSave) return Result.error(Exception('disk penuh'));
-    this.rules = rules.copyWith(transferAccount: rules.transferAccount.trim());
+    this.rules = rules.copyWith(
+      transferAccount: normalizeTransferAccounts(rules.transferAccount),
+    );
     return Result.ok(this.rules);
   }
 }

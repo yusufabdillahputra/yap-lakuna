@@ -346,11 +346,13 @@ void main() {
           null,
         ),
       );
+      // Dua rekening, satu per baris (F1-05f).
       const account = 'BCA 123-456-7890 a.n. Warung Contoh';
+      const second = 'Mandiri 987-654 a.n. Warung Contoh';
       final repo = await pump(
         tester,
         size: size,
-        rules: const SalesRules(transferAccount: account),
+        rules: const SalesRules(transferAccount: '$account\n$second'),
       );
       await _tap(tester, productKey(repo, 'Kopi Sachet'));
       if (size.width < 600) await _tap(tester, 'cashier-view-order');
@@ -361,7 +363,7 @@ void main() {
         expect(
           find.descendant(
             of: _key('payment-method-transfer'),
-            matching: find.text(account),
+            matching: find.text('$account · $second'),
           ),
           findsOneWidget,
         );
@@ -375,10 +377,22 @@ void main() {
         ),
         findsOneWidget,
       );
+      expect(
+        find.descendant(
+          of: _key('payment-transfer-account'),
+          matching: find.text(second),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Transfer ke'), findsOneWidget);
-      await _tap(tester, 'payment-transfer-copy');
-      expect(copied, [account]);
+      // Tiap rekening punya tombol salin sendiri.
+      await _tap(tester, 'payment-transfer-copy-1');
+      expect(copied, [second]);
       expect(find.text('Disalin'), findsOneWidget);
+      await _tap(tester, 'payment-transfer-copy-0');
+      expect(copied, [second, account]);
+      expect(find.text('Disalin'), findsOneWidget);
+      expect(find.text('Salin'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await _tap(tester, 'payment-finish');
       expect(repo.checkouts.single.$2.single.method, PaymentMethod.transfer);
@@ -394,7 +408,7 @@ void main() {
         final repo = await pump(
           tester,
           size: size,
-          rules: const SalesRules(transferAccount: account),
+          rules: const SalesRules(transferAccount: '$account\nBRI 555'),
         );
         for (var i = 0; i < 2; i++) {
           await _tap(tester, productKey(repo, 'Kopi Sachet'));
@@ -416,6 +430,11 @@ void main() {
           find.descendant(of: box, matching: find.text(account)),
           findsOneWidget,
         );
+        expect(
+          find.descendant(of: box, matching: find.text('BRI 555')),
+          findsOneWidget,
+        );
+        expect(_key('payment-transfer-copy-1'), findsOneWidget);
         expect(tester.takeException(), isNull);
         // Setelah bagian transfer ditambah, metode berganti (tunai, atau
         // kartu bila sudah ada bagian tunai) sehingga kotak hilang.

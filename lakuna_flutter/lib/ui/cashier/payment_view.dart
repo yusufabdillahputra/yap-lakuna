@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -501,8 +502,8 @@ class _MethodChoice extends StatelessWidget {
                             ),
                             Text(
                               m == PayMode.transfer &&
-                                      vm.transferAccount.isNotEmpty
-                                  ? vm.transferAccount
+                                      vm.transferAccounts.isNotEmpty
+                                  ? vm.transferAccounts.join(' · ')
                                   : _hint(l10n, m),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -811,8 +812,8 @@ class _ReferencePanel extends StatelessWidget {
               color: theme.colors.mutedForeground,
             ),
           ),
-          if (!card && vm.transferAccount.isNotEmpty)
-            TransferAccountBox(account: vm.transferAccount),
+          if (!card && vm.transferAccounts.isNotEmpty)
+            TransferAccountBox(accounts: vm.transferAccounts),
           FTextField(
             key: const ValueKey('payment-reference'),
             label: Text(card ? l10n.paymentApproval : l10n.paymentReference),
@@ -832,29 +833,31 @@ class _ReferencePanel extends StatelessWidget {
   }
 }
 
-/// Rekening transfer toko dari *Penjualan & stok* (F1-05c) dengan tombol
-/// salin, agar kasir bisa mengirimkannya ke pembeli.
+/// Rekening transfer toko dari *Penjualan & stok* (F1-05c), satu baris
+/// per rekening dengan tombol salin masing-masing (F1-05f), agar kasir
+/// bisa mengirimkan rekening bank yang dipilih pembeli.
 class TransferAccountBox extends StatefulWidget {
-  const TransferAccountBox({super.key, required this.account});
+  const TransferAccountBox({super.key, required this.accounts});
 
-  final String account;
+  final List<String> accounts;
 
   @override
   State<TransferAccountBox> createState() => _TransferAccountBoxState();
 }
 
 class _TransferAccountBoxState extends State<TransferAccountBox> {
-  var _copied = false;
+  /// Indeks rekening yang terakhir disalin.
+  int? _copied;
 
   @override
   void didUpdateWidget(TransferAccountBox old) {
     super.didUpdateWidget(old);
-    if (old.account != widget.account) _copied = false;
+    if (!listEquals(old.accounts, widget.accounts)) _copied = null;
   }
 
-  Future<void> _copy() async {
-    await Clipboard.setData(ClipboardData(text: widget.account));
-    if (mounted) setState(() => _copied = true);
+  Future<void> _copy(int i) async {
+    await Clipboard.setData(ClipboardData(text: widget.accounts[i]));
+    if (mounted) setState(() => _copied = i);
   }
 
   @override
@@ -869,47 +872,51 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
-        // Wrap: di ponsel atau teks besar tombol salin turun ke baris
-        // berikutnya, tidak memotong nomor rekening.
-        child: Wrap(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
+            Text(
+              l10n.paymentTransferTo,
+              style: theme.typography.body.xs.copyWith(
+                color: theme.colors.mutedForeground,
+              ),
+            ),
+            for (final (i, account) in widget.accounts.indexed)
+              // Wrap: di ponsel atau teks besar tombol salin turun ke baris
+              // berikutnya, tidak memotong nomor rekening.
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text(
-                    l10n.paymentTransferTo,
-                    style: theme.typography.body.xs.copyWith(
-                      color: theme.colors.mutedForeground,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Text(
+                      account,
+                      style: theme.typography.body.md.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  Text(
-                    widget.account,
-                    style: theme.typography.body.md.copyWith(
-                      fontWeight: FontWeight.w700,
+                  FButton(
+                    key: ValueKey('payment-transfer-copy-$i'),
+                    variant: .outline,
+                    size: .sm,
+                    mainAxisSize: .min,
+                    onPress: () => _copy(i),
+                    prefix: Icon(
+                      _copied == i ? TablerIcons.check : TablerIcons.copy,
+                    ),
+                    child: Text(
+                      _copied == i
+                          ? l10n.paymentTransferCopied
+                          : l10n.paymentTransferCopy,
                     ),
                   ),
                 ],
               ),
-            ),
-            FButton(
-              key: const ValueKey('payment-transfer-copy'),
-              variant: .outline,
-              size: .sm,
-              mainAxisSize: .min,
-              onPress: _copy,
-              prefix: Icon(_copied ? TablerIcons.check : TablerIcons.copy),
-              child: Text(
-                _copied ? l10n.paymentTransferCopied : l10n.paymentTransferCopy,
-              ),
-            ),
           ],
         ),
       ),

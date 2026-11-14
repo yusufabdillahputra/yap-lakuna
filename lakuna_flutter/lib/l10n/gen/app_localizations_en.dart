@@ -8386,7 +8386,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeSettingsTransferAccountHint =>
-      'Optional. Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.';
+      'Optional. One account per line, up to 3 (e.g. BCA and Mandiri). Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.';
 
   @override
   String get paymentTransferTo => 'Transfer to';
@@ -8539,4 +8539,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportsCashReprintHint =>
       'Tap a closed session to view and reprint its recap.';
+
+  @override
+  String storeSettingsTransferTooMany(int count) {
+    return 'At most $count accounts.';
+  }
+
+  @override
+  String storeSettingsTransferLineTooLong(int count) {
+    return 'Each account can be at most $count characters.';
+  }
 }

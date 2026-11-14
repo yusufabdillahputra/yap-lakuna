@@ -90,6 +90,40 @@ void main() {
       expect(ProfileLimits.transferAccount, 100);
     });
 
+    test('beberapa rekening (F1-05f): satu per baris, maks 3', () {
+      expect(ProfileLimits.transferAccountLines, 3);
+      expect(
+        normalizeTransferAccounts('  BCA 1 \n\n  Mandiri 2\r\n \n'),
+        'BCA 1\nMandiri 2',
+      );
+      expect(normalizeTransferAccounts('   '), '');
+      expect(normalizeTransferAccounts('A\rB\u2028C'), 'A\nB\nC');
+      const two = SalesRules(transferAccount: 'BCA 1\nMandiri 2');
+      expect(two.transferAccounts, ['BCA 1', 'Mandiri 2']);
+      expect(const SalesRules().transferAccounts, isEmpty);
+      expect(const SalesRules(transferAccount: 'BCA 1').transferAccounts, [
+        'BCA 1',
+      ]);
+      // Data tersimpan dirapikan: baris kosong dibuang, tiap baris
+      // dibatasi 100 karakter, maks 3 rekening.
+      final stored = SalesRules.fromJson({
+        'transferAccount': ' A \n\n${'z' * 150}\nC\nD',
+      });
+      expect(stored.transferAccounts, ['A', 'z' * 100, 'C']);
+      expect(stored.transferAccount, 'A\n${'z' * 100}\nC');
+
+      expect(transferAccountIssue(''), isNull);
+      expect(transferAccountIssue('A\nB\n\nC\n'), isNull);
+      expect(transferAccountIssue('A\nB\nC\nD'), TransferAccountIssue.tooMany);
+      expect(transferAccountIssue('z' * 100), isNull);
+      expect(
+        transferAccountIssue('A\n${'z' * 101}'),
+        TransferAccountIssue.tooLong,
+      );
+      // Spasi di ujung baris tidak dihitung.
+      expect(transferAccountIssue('  ${'z' * 100}  '), isNull);
+    });
+
     test('JSON rusak memakai bawaan per kolom', () {
       expect(SalesRules.fromJson('x'), const SalesRules());
       expect(

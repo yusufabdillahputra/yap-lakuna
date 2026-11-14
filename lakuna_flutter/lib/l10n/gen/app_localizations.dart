@@ -14211,7 +14211,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeSettingsTransferAccountHint.
   ///
   /// In id, this message translates to:
-  /// **'Opsional. Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.'**
+  /// **'Opsional. Satu rekening per baris, maksimal 3 (mis. BCA dan Mandiri). Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.'**
   String get storeSettingsTransferAccountHint;
 
   /// No description provided for @paymentTransferTo.
@@ -14447,6 +14447,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya.'**
   String get reportsCashReprintHint;
+
+  /// No description provided for @storeSettingsTransferTooMany.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {count} rekening.'**
+  String storeSettingsTransferTooMany(int count);
+
+  /// No description provided for @storeSettingsTransferLineTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Satu rekening maksimal {count} karakter.'**
+  String storeSettingsTransferLineTooLong(int count);
 }
 
 class _AppLocalizationsDelegate
