@@ -73,6 +73,13 @@ abstract final class Routes {
   /// Stok dengan tab tertentu terbuka (nama `StockTab`, mis. `locations`).
   static String stockTab(String tab) => '$stock?tab=$tab';
 
+  /// Kartu stok varian [variantId] di lokasi [locationId] (dari detail
+  /// pembelian, F1-12c).
+  static String stockCard(String variantId, String locationId) => Uri(
+    path: stock,
+    queryParameters: {'tab': 'card', 'varian': variantId, 'lokasi': locationId},
+  ).toString();
+
   /// Master data: kategori, satuan, lokasi, metode bayar (F1-09).
   static const master = '/master';
 

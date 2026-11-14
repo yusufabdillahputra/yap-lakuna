@@ -371,6 +371,8 @@ GoRouter createRouter({
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])
                   .firstOrNull,
+              initialVariantId: _uuid(state.uri.queryParameters['varian']),
+              initialLocationId: _uuid(state.uri.queryParameters['lokasi']),
             ),
           ),
           GoRoute(
@@ -425,6 +427,14 @@ GoRouter createRouter({
                 repository: purchases,
                 purchaseId: UuidValue.fromString(id),
                 imagePicker: imagePicker,
+                exporter: exporter,
+                // Kartu stok (F1-12c) butuh izin menu Stok.
+                onOpenStockCard:
+                    session.current?.can(Permission.stockAdjust) ?? false
+                    ? (variant, location) => context.push<void>(
+                        Routes.stockCard(variant.uuid, location.uuid),
+                      )
+                    : null,
                 onBack: () => context.canPop()
                     ? context.pop()
                     : context.go(Routes.purchases),

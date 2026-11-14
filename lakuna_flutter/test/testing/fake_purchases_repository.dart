@@ -118,6 +118,7 @@ class FakePurchasesRepository extends PurchasesRepository {
       hasOpenSession: hasOpenSession,
       canUseDrawer: canUseDrawer,
       canEditPrices: canEditPrices,
+      staffName: 'Yusuf',
     ),
   );
 

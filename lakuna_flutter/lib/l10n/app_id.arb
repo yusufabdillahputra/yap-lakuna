@@ -4958,5 +4958,83 @@
   "purchaseInvoicePhotoRemoveTitle": "Hapus foto faktur?",
   "purchaseInvoicePhotoRemoveBody": "Stok, harga pokok, dan hutang tidak berubah.",
   "purchaseInvoicePhotoCancel": "Batal",
-  "purchaseInvoicePhotoClose": "Tutup"
+  "purchaseInvoicePhotoClose": "Tutup",
+  "purchasePrint": "Cetak / bagikan PDF",
+  "purchasePrintHint": "PDF berisi barang, ringkasan bayar, dan retur; bisa dikirim ke supplier.",
+  "purchasePrintSaved": "PDF pembelian disimpan di {path}",
+  "@purchasePrintSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintFailed": "PDF pembelian gagal dibuat. Coba lagi.",
+  "purchasePrintTitle": "Pembelian {number}",
+  "@purchasePrintTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintInvoiceNo": "No. faktur {number}",
+  "@purchasePrintInvoiceNo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintPaidUpfront": "Dibayar di muka",
+  "purchasePrintDebtPaid": "Bayar hutang",
+  "purchasePrintDue": "Jatuh tempo sisa hutang: {date}",
+  "@purchasePrintDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintNoteLine": "Catatan: {note}",
+  "@purchasePrintNoteLine": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintReturn": "Retur {number} · {date} · {amount}",
+  "@purchasePrintReturn": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintPrinted": "Dicetak {date} oleh {staff}",
+  "@purchasePrintPrinted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseStockCard": "Buka kartu stok {product}",
+  "@purchaseStockCard": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  }
 }

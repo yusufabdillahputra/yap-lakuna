@@ -4424,5 +4424,83 @@
   "purchaseInvoicePhotoRemoveTitle": "Remove the invoice photo?",
   "purchaseInvoicePhotoRemoveBody": "Stock, cost, and payables don't change.",
   "purchaseInvoicePhotoCancel": "Cancel",
-  "purchaseInvoicePhotoClose": "Close"
+  "purchaseInvoicePhotoClose": "Close",
+  "purchasePrint": "Print / share PDF",
+  "purchasePrintHint": "The PDF lists the goods, payment summary, and returns; you can send it to the supplier.",
+  "purchasePrintSaved": "Purchase PDF saved to {path}",
+  "@purchasePrintSaved": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintFailed": "Could not create the purchase PDF. Try again.",
+  "purchasePrintTitle": "Purchase {number}",
+  "@purchasePrintTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintInvoiceNo": "Invoice no. {number}",
+  "@purchasePrintInvoiceNo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintPaidUpfront": "Paid upfront",
+  "purchasePrintDebtPaid": "Payable payments",
+  "purchasePrintDue": "Balance due on: {date}",
+  "@purchasePrintDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintNoteLine": "Note: {note}",
+  "@purchasePrintNoteLine": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintReturn": "Return {number} · {date} · {amount}",
+  "@purchasePrintReturn": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchasePrintPrinted": "Printed {date} by {staff}",
+  "@purchasePrintPrinted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "staff": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseStockCard": "Open the stock card for {product}",
+  "@purchaseStockCard": {
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -11,6 +12,8 @@ import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import '../../testing/app_harness.dart';
 import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_purchases_repository.dart';
+import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/floor_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -47,17 +50,36 @@ Future<void> _type(WidgetTester tester, Finder field, String text) async {
 void main() {
   late FakePurchasesRepository repo;
   late FakeImagePicker picker;
+  late FakeSpreadsheetExporter exporter;
 
-  Future<void> pump(WidgetTester tester, Size size) async {
+  Future<void> pump(
+    WidgetTester tester,
+    Size size, {
+    FakeSessionRepository? session,
+  }) async {
     repo = FakePurchasesRepository();
     picker = FakeImagePicker();
+    exporter = FakeSpreadsheetExporter()
+      ..path = '/home/kasir/Dokumen/Lakuna/pembelian.pdf';
     await pumpLakuna(
       tester,
       size: size,
       initialLocation: Routes.purchases,
       purchases: repo,
       imagePicker: picker,
+      exporter: exporter,
+      session: session,
     );
+  }
+
+  /// Terima pembelian KOP lunas, lalu halaman detail terbuka.
+  Future<void> receiveKop(WidgetTester tester, {bool narrow = false}) async {
+    if (narrow) await _tap(tester, _key('purchases-new'));
+    await _scan(tester, 'KOP');
+    await _type(tester, _keyPrefix('purchase-price-'), '1500');
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _key('purchase-receive'));
+    expect(_key('purchase-detail'), findsOneWidget);
   }
 
   PickedImage png() => PickedImage(
@@ -255,4 +277,64 @@ void main() {
     expect(_key('purchase-invoice-photo-camera'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('desktop: cetak PDF pembelian lalu buka kartu stok (F1-12c)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await receiveKop(tester);
+    await _tap(tester, _key('purchase-print'));
+    expect(
+      exporter.saved.single.$1,
+      'pembelian-pb-pst-d01-261103-0001.pdf',
+    );
+    expect(exporter.saved.single.$2.take(4), '%PDF'.codeUnits);
+    expect(
+      find.text(
+        'PDF pembelian disimpan di /home/kasir/Dokumen/Lakuna/pembelian.pdf',
+      ),
+      findsOneWidget,
+    );
+
+    exporter.error = Exception('disk penuh');
+    await _tap(tester, _key('purchase-print'));
+    expect(_key('purchase-print-failed'), findsOneWidget);
+
+    await _tap(tester, _keyPrefix('purchase-stock-card-'));
+    expect(_key('stock-card'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('ponsel 360 px: cetak PDF lewat lembar bagikan', (tester) async {
+    await pump(tester, const Size(360, 780));
+    exporter.path = null;
+    await receiveKop(tester, narrow: true);
+    await _tap(tester, _key('purchase-print'));
+    expect(exporter.saved, hasLength(1));
+    expect(_key('purchase-print-saved'), findsNothing);
+    expect(_key('purchase-print-failed'), findsNothing);
+    expect(_keyPrefix('purchase-stock-card-'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('tanpa izin Stok: nama produk bukan tautan kartu stok', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const Size(1440, 900),
+      session: FakeSessionRepository()
+        ..current = StaffProfile(
+          id: UuidValue.fromString(newId()),
+          name: 'Andi',
+          roleKey: 'custom',
+          isOwner: false,
+          hasPin: true,
+          permissions: const {Permission.purchasesManage},
+        ),
+    );
+    await receiveKop(tester);
+    expect(_keyPrefix('purchase-stock-card-'), findsNothing);
+    expect(_key('purchase-print'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 }

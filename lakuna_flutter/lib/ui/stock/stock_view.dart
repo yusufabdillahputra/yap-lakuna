@@ -29,6 +29,8 @@ class StockScreen extends StatefulWidget {
     required this.store,
     this.exporter = const PlatformSpreadsheetExporter(),
     this.initialTab,
+    this.initialVariantId,
+    this.initialLocationId,
     this.onRestock,
   });
 
@@ -47,6 +49,10 @@ class StockScreen extends StatefulWidget {
   /// Tab yang dibuka pertama (mis. dari Master data › Lokasi stok).
   final StockTab? initialTab;
 
+  /// Kartu stok yang dibuka pertama (dari detail pembelian, F1-12c).
+  final UuidValue? initialVariantId;
+  final UuidValue? initialLocationId;
+
   @override
   State<StockScreen> createState() => _StockScreenState();
 }
@@ -64,6 +70,12 @@ class _StockScreenState extends State<StockScreen> {
   void initState() {
     super.initState();
     if (widget.initialTab case final tab?) _viewModel.setTab(tab);
+    if (widget.initialVariantId case final variant?) {
+      _viewModel.focusCard(
+        variantId: variant,
+        locationId: widget.initialLocationId,
+      );
+    }
     _viewModel.load.execute();
   }
 

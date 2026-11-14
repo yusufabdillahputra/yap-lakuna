@@ -6,6 +6,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/purchases_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
@@ -40,7 +41,9 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     required this._repository,
     required this.purchaseId,
     this._picker = const FileSelectorImagePicker(),
+    this._exporter = const PlatformSpreadsheetExporter(),
   }) {
+    printPdf = Command1(_printPdf)..addListener(notifyListeners);
     load = Command0(_load)..addListener(notifyListeners);
     attachInvoicePhoto = Command1(_attachInvoicePhoto)
       ..addListener(notifyListeners);
@@ -53,6 +56,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   final PurchasesRepository _repository;
   final UuidValue purchaseId;
   final ImageFilePicker _picker;
+  final SpreadsheetExporter _exporter;
 
   var _disposed = false;
 
@@ -76,6 +80,37 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   /// (F1-12b).
   late final Command1<void, bool> attachInvoicePhoto;
   late final Command0<void> removeInvoicePhoto;
+
+  /// *Cetak / bagikan PDF* (F1-12c): pembuat PDF dan nama berkas. Hasilnya
+  /// lokasi berkas (desktop) atau `null` (lembar bagikan ponsel).
+  late final Command1<String?, (Future<Uint8List> Function(), String)> printPdf;
+  String? _printPath;
+
+  /// Lokasi PDF terakhir yang tersimpan (desktop).
+  String? get printPath => _printPath;
+
+  bool get canPrint => _detail != null && !printPdf.running;
+
+  Future<Result<String?>> _printPdf(
+    (Future<Uint8List> Function(), String) file,
+  ) async {
+    _printPath = null;
+    try {
+      final bytes = await file.$1();
+      final path = await _exporter.save(bytes, fileName: file.$2);
+      _printPath = path;
+      return Result.ok(path);
+    } on Exception catch (e) {
+      return Result.error(e);
+    } on Object catch (e, stack) {
+      // Error dari pembuat PDF atau lembar bagikan: laporkan agar bisa
+      // ditelusuri, tampilkan pesan gagal biasa.
+      FlutterError.reportError(
+        FlutterErrorDetails(exception: e, stack: stack, library: 'purchases'),
+      );
+      return Result.error(Exception('$e'));
+    }
+  }
 
   Uint8List? _invoicePhoto;
   var _invoicePhotoRejected = false;
@@ -117,6 +152,9 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   PurchaseDetail? get detail => _detail;
   Exception? get error => _error;
   String? get timezone => _setup?.timezone;
+
+  /// Staf yang bertugas (PDF pembelian).
+  String get staffName => _setup?.staffName ?? '';
 
   List<PriceSuggestion> get suggestions => _suggestions;
 

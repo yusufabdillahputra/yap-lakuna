@@ -7760,4 +7760,60 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchaseInvoicePhotoClose => 'Tutup';
+
+  @override
+  String get purchasePrint => 'Cetak / bagikan PDF';
+
+  @override
+  String get purchasePrintHint =>
+      'PDF berisi barang, ringkasan bayar, dan retur; bisa dikirim ke supplier.';
+
+  @override
+  String purchasePrintSaved(String path) {
+    return 'PDF pembelian disimpan di $path';
+  }
+
+  @override
+  String get purchasePrintFailed => 'PDF pembelian gagal dibuat. Coba lagi.';
+
+  @override
+  String purchasePrintTitle(String number) {
+    return 'Pembelian $number';
+  }
+
+  @override
+  String purchasePrintInvoiceNo(String number) {
+    return 'No. faktur $number';
+  }
+
+  @override
+  String get purchasePrintPaidUpfront => 'Dibayar di muka';
+
+  @override
+  String get purchasePrintDebtPaid => 'Bayar hutang';
+
+  @override
+  String purchasePrintDue(String date) {
+    return 'Jatuh tempo sisa hutang: $date';
+  }
+
+  @override
+  String purchasePrintNoteLine(String note) {
+    return 'Catatan: $note';
+  }
+
+  @override
+  String purchasePrintReturn(String number, String date, String amount) {
+    return 'Retur $number · $date · $amount';
+  }
+
+  @override
+  String purchasePrintPrinted(String date, String staff) {
+    return 'Dicetak $date oleh $staff';
+  }
+
+  @override
+  String purchaseStockCard(String product) {
+    return 'Buka kartu stok $product';
+  }
 }

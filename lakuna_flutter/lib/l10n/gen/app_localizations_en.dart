@@ -7946,4 +7946,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseInvoicePhotoClose => 'Close';
+
+  @override
+  String get purchasePrint => 'Print / share PDF';
+
+  @override
+  String get purchasePrintHint =>
+      'The PDF lists the goods, payment summary, and returns; you can send it to the supplier.';
+
+  @override
+  String purchasePrintSaved(String path) {
+    return 'Purchase PDF saved to $path';
+  }
+
+  @override
+  String get purchasePrintFailed =>
+      'Could not create the purchase PDF. Try again.';
+
+  @override
+  String purchasePrintTitle(String number) {
+    return 'Purchase $number';
+  }
+
+  @override
+  String purchasePrintInvoiceNo(String number) {
+    return 'Invoice no. $number';
+  }
+
+  @override
+  String get purchasePrintPaidUpfront => 'Paid upfront';
+
+  @override
+  String get purchasePrintDebtPaid => 'Payable payments';
+
+  @override
+  String purchasePrintDue(String date) {
+    return 'Balance due on: $date';
+  }
+
+  @override
+  String purchasePrintNoteLine(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String purchasePrintReturn(String number, String date, String amount) {
+    return 'Return $number · $date · $amount';
+  }
+
+  @override
+  String purchasePrintPrinted(String date, String staff) {
+    return 'Printed $date by $staff';
+  }
+
+  @override
+  String purchaseStockCard(String product) {
+    return 'Open the stock card for $product';
+  }
 }

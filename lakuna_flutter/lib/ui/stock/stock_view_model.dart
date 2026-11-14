@@ -359,6 +359,15 @@ class StockViewModel extends ChangeNotifier {
   StockRow? get cardRow =>
       _rows.where((r) => r.variantId == _cardVariantId).firstOrNull;
 
+  /// Membuka tab *Kartu stok* untuk [variantId] di [locationId] sebelum
+  /// layar dimuat (tautan dari detail pembelian, F1-12c). Produk atau
+  /// lokasi yang tidak ada jatuh ke pilihan bawaan saat dimuat.
+  void focusCard({required UuidValue variantId, UuidValue? locationId}) {
+    _tab = StockTab.card;
+    _cardVariantId = variantId;
+    if (locationId != null) _locationId = locationId;
+  }
+
   Future<void> selectCardVariant(UuidValue variantId) async {
     _cardVariantId = variantId;
     // Kartu produk sebelumnya tidak boleh tampil di bawah nama yang baru.

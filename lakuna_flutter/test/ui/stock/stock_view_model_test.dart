@@ -347,4 +347,28 @@ void main() {
     await loading;
     expect(vm.restock, isNull);
   });
+
+  group('kartu stok dari pembelian (F1-12c)', () {
+    test('focusCard sebelum muat memilih lokasi, tab, dan produk', () async {
+      final gudang = sampleLocation(2, 'Gudang', false);
+      repo = FakeStockRepository(
+        locations: [sampleLocation(1, 'Etalase', true), gudang],
+      );
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: sabun, locationId: gudang.id);
+      await vm.load.execute();
+      expect(vm.tab, StockTab.card);
+      expect(vm.location!.name, 'Gudang');
+      expect(vm.cardVariantId, sabun);
+      expect(vm.card, isNotNull);
+    });
+
+    test('produk atau lokasi yang tidak ada jatuh ke bawaan', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: fakeId(999), locationId: fakeId(998));
+      await vm.load.execute();
+      expect(vm.location!.name, 'Etalase');
+      expect(vm.cardVariantId, kopi);
+    });
+  });
 }
