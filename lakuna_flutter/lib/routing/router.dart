@@ -378,6 +378,9 @@ GoRouter createRouter({
                       }
                     }
                   : null,
+              // Draf yang sudah memuat barang ini (F1-08g).
+              restockDrafts: purchases.restockDrafts,
+              onOpenDraft: (id) => context.push<void>(Routes.purchase(id.uuid)),
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])
                   .firstOrNull,

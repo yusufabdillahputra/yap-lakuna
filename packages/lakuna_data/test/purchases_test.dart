@@ -458,6 +458,85 @@ void main() {
     expect(prices.containsKey(v(gula).id), isFalse);
   });
 
+  test('draf pembelian yang memuat barang stok minimum (F1-08g)', () async {
+    expect(await restockDraftsOf(store, scope, gudang.id, const []), isEmpty);
+    expect(
+      await restockDraftsOf(store, scope, gudang.id, [v(gula).id]),
+      isEmpty,
+    );
+    // Draf berisi minyak + gula.
+    final both = await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(),
+    );
+    // Draf lebih baru berisi gula saja.
+    now = now.add(const Duration(hours: 1));
+    final gulaOnly = await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(gula).id,
+            quantity: Qty.units(3),
+            unitPrice: const Money(14500),
+          ),
+        ],
+      ),
+    );
+    // Pembelian diterima dan draf terhapus tidak dihitung.
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(paid: const Money(889000), funding: FundingSource.bank),
+    );
+    final gone = await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(),
+    );
+    await deletePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      purchaseId: gone.id,
+    );
+
+    // Draf ke lokasi lain tidak ikut: barang itu memang belum dipesan untuk
+    // lokasi ini.
+    final rak = await createStockLocation(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      name: 'Rak Belakang',
+    );
+    expect(await restockDraftsOf(store, scope, rak.id, [v(gula).id]), isEmpty);
+
+    var drafts = await restockDraftsOf(store, scope, gudang.id, [
+      v(minyak).id,
+      v(gula).id,
+    ]);
+    // Paling banyak barang yang sama dulu, lalu yang lebih baru.
+    expect([for (final d in drafts) d.purchaseId], [both.id, gulaOnly.id]);
+    expect(drafts.first.number, both.number);
+    expect(drafts.first.matched, 2);
+    expect(drafts.last.matched, 1);
+    drafts = await restockDraftsOf(store, scope, gudang.id, [v(gula).id]);
+    // Sama banyak: draf yang lebih baru dulu.
+    expect([for (final d in drafts) d.purchaseId], [gulaOnly.id, both.id]);
+    expect(
+      await restockDraftsOf(store, scope, gudang.id, [v(minyak).id]),
+      hasLength(1),
+    );
+  });
+
   group('retur pembelian', () {
     late Purchase p;
     late PurchaseDetail d;

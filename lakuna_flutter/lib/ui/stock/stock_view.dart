@@ -15,6 +15,7 @@ import '../../data/repositories/store_repository.dart';
 import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../../utils/result.dart';
 import '../core/format.dart';
 import '../core/route_return.dart';
 import '../products/product_widgets.dart';
@@ -35,12 +36,25 @@ class StockScreen extends StatefulWidget {
     this.initialVariantId,
     this.initialLocationId,
     this.onRestock,
+    this.restockDrafts,
+    this.onOpenDraft,
   });
 
   /// *Buat pembelian* dari daftar stok minimum (F1-08c); `null` bila staf
   /// tidak boleh mengelola pembelian. Selesai saat staf kembali ke Stok;
   /// layar lalu memuat ulang stok agar daftar minimum tidak basi.
   final Future<void> Function(PurchaseRestock)? onRestock;
+
+  /// Draf pembelian yang sudah memuat barang di bawah minimum (F1-08g);
+  /// bila ada, staf ditawari membuka draf itu dulu.
+  final Future<Result<List<RestockDraft>>> Function(
+    UuidValue locationId,
+    Iterable<UuidValue> variantIds,
+  )?
+  restockDrafts;
+
+  /// Membuka draf pembelian [purchaseId]; selesai saat staf kembali.
+  final Future<void> Function(UuidValue purchaseId)? onOpenDraft;
 
   final StockRepository repository;
   final SessionRepository session;
@@ -92,15 +106,134 @@ class _StockScreenState extends State<StockScreen>
   @override
   void onRouteReturn() => unawaited(_viewModel.load.execute());
 
+  /// Pencarian draf sedang berjalan (F1-08g). Terpisah dari [isAway] karena
+  /// halaman Stok masih rute teratas selama menunggu, jadi pembangunan ulang
+  /// router bisa melepas penjaga [whileAway] sebelum dialog atau form
+  /// terbuka; kueri lokal selalu selesai, jadi bendera ini aman dilepas di
+  /// `finally`.
+  var _checkingDraft = false;
+
   Future<void> _restock(PurchaseRestock r) async {
     // Ketukan ganda tidak membuka dua form pembelian.
-    if (isAway) return;
+    if (isAway || _checkingDraft) return;
+    final List<RestockDraft>? draft;
+    _checkingDraft = true;
     try {
-      await whileAway(() => widget.onRestock!(r));
+      draft = await _existingDraft(r);
+    } finally {
+      _checkingDraft = false;
+    }
+    if (!mounted) return;
+    try {
+      // Dialog dan form didorong sinkron di sini, jadi Stok langsung bukan
+      // rute teratas dan penjaga [whileAway] tidak dilepas terlalu dini.
+      await whileAway(() async {
+        final found = draft;
+        if (found == null) return widget.onRestock!(r);
+        switch (await _askDraft(found, r)) {
+          case _DraftChoice.open:
+            await widget.onOpenDraft!(found.first.purchaseId);
+          case _DraftChoice.create:
+            await widget.onRestock!(r);
+          case null:
+            break;
+        }
+      });
     } finally {
       if (mounted) await _viewModel.load.execute();
     }
   }
+
+  /// Draf yang sudah memuat barang ini (F1-08g); galat baca diabaikan agar
+  /// *Buat pembelian* tetap bisa dipakai.
+  Future<List<RestockDraft>?> _existingDraft(PurchaseRestock r) async {
+    final find = widget.restockDrafts;
+    if (find == null || widget.onOpenDraft == null) return null;
+    final result = await find(r.locationId, {
+      for (final l in r.lines) l.variantId,
+    });
+    return switch (result) {
+      Ok(:final value) when value.isNotEmpty => value,
+      _ => null,
+    };
+  }
+
+  Future<_DraftChoice?> _askDraft(
+    List<RestockDraft> drafts,
+    PurchaseRestock r,
+  ) => showFDialog<_DraftChoice>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+      builder: (context, style) {
+        final l10n = AppLocalizations.of(context);
+        final first = drafts.first;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('stock-restock-draft'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Text(
+                l10n.stockRestockDraftTitle,
+                style: context.theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                l10n.stockRestockDraftBody(
+                  first.number,
+                  first.matched,
+                  r.lines.length,
+                ),
+              ),
+              if (drafts.length > 1)
+                Text(
+                  l10n.stockRestockDraftOthers(drafts.length - 1),
+                  style: _muted(context),
+                ),
+              // Tombol bertumpuk agar muat di ponsel 360 px.
+              FButton(
+                key: const ValueKey('stock-restock-open-draft'),
+                onPress: () => Navigator.of(context).pop(_DraftChoice.open),
+                child: Flexible(
+                  child: Text(
+                    l10n.stockRestockDraftOpen,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              FButton(
+                key: const ValueKey('stock-restock-new'),
+                variant: .outline,
+                onPress: () => Navigator.of(context).pop(_DraftChoice.create),
+                child: Flexible(
+                  child: Text(
+                    l10n.stockRestockDraftNew,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              FButton(
+                key: const ValueKey('stock-restock-cancel'),
+                variant: .ghost,
+                onPress: () => Navigator.of(context).pop(),
+                child: Flexible(
+                  child: Text(
+                    l10n.stockRestockDraftCancel,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -2047,3 +2180,6 @@ class _LocationsTabState extends State<_LocationsTab> {
     );
   }
 }
+
+/// Pilihan saat draf pembelian berisi barang yang sama sudah ada (F1-08g).
+enum _DraftChoice { open, create }

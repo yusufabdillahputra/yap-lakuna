@@ -73,6 +73,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.90.0 | *Buat pembelian* tidak macet setelah keluar lewat menu samping (F1-08f) | #96 |
 | v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | #97 |
 | v0.92.0 | Harga beli terakhir untuk barang yang ditambah manual (F1-12e) | #98 |
+| v0.93.0 | Peringatan draf pembelian ganda dari stok minimum (F1-08g) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -165,6 +166,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 35. ~~Harga beli terakhir untuk barang yang ditambah manual di form
     pembelian~~ — selesai v0.92.0 (F1-12e); harga terakhir per satuan
     konversi dan per supplier terpilih masih gap.
+36. ~~*Buat pembelian* dari stok minimum membuat draf kedua berisi barang
+    yang sama~~ — selesai v0.93.0 (F1-08g): dialog Buka draf / Buat draf
+    baru / Batal, per lokasi terima. Gabung barang yang belum ada ke draf
+    dan tanda "sudah di draf" di tab *Stok minimum* masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

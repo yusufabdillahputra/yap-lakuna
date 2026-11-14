@@ -4980,5 +4980,31 @@
         "type": "int"
       }
     }
-  }
+  },
+  "stockRestockDraftTitle": "A purchase draft already exists",
+  "stockRestockDraftBody": "Draft {number} already has {matched} of {total} items below minimum. Open that draft to avoid a duplicate purchase?",
+  "@stockRestockDraftBody": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "matched": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stockRestockDraftOthers": "{count, plural, =1{1 other draft also has these items (see Purchases).} other{{count} other drafts also have these items (see Purchases).}}",
+  "@stockRestockDraftOthers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockRestockDraftOpen": "Open draft",
+  "stockRestockDraftNew": "Create new draft",
+  "stockRestockDraftCancel": "Cancel"
 }

@@ -33,6 +33,8 @@ Enter **Min stock** per variant in the product form. The **Minimum stock** tab a
 
 Tap **Create purchase** under that list to open a *New purchase* already filled with every item below its minimum, received into the location you are viewing. The suggested quantity is **2 × minimum stock − current stock**, rounded up (e.g. stock 2, minimum 20 → buy 38). Each line's price comes from the purchase price on that item's last purchase (per base unit, e.g. IDR 185,000 per box of 6 becomes IDR 30,833); items never bought before use the cost price. The note above the form says how many items took their price from the last purchase. The **supplier** is filled with the supplier of the last purchase for most of those items (the note above the form names it and how many items); change it if needed, adjust quantities and prices, then save a draft or receive the goods as usual. The button only appears for staff with the *Manage purchases* permission.
 
+A draft does not add stock, so items already in a draft still show below minimum. If a **purchase draft** for the same location already has some of those items, **Create purchase** first shows *A purchase draft already exists* with the draft number and how many of the items it already has. Choose **Open draft** to continue that draft (add any missing items by hand), **Create new draft** if you really need a separate purchase, or **Cancel**. When several drafts match, the one with the most matching items opens; the others are in the *Purchases* menu.
+
 ## Stock locations
 
 Use the **Stock locations** tab to add a display shelf, warehouse, or separate rack in this branch.

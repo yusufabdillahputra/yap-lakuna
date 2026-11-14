@@ -5514,5 +5514,31 @@
         "type": "int"
       }
     }
-  }
+  },
+  "stockRestockDraftTitle": "Sudah ada draf pembelian",
+  "stockRestockDraftBody": "Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?",
+  "@stockRestockDraftBody": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "matched": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stockRestockDraftOthers": "{count, plural, other{Ada {count} draf lain yang juga memuat barang ini (lihat menu Pembelian).}}",
+  "@stockRestockDraftOthers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockRestockDraftOpen": "Buka draf",
+  "stockRestockDraftNew": "Buat draf baru",
+  "stockRestockDraftCancel": "Batal"
 }
