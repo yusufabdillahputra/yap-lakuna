@@ -8324,4 +8324,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningCustomerRefresh => 'Segarkan harga';
+
+  @override
+  String purchaseRestockPriceNote(int count, int total) {
+    return 'Harga diisi dari pembelian terakhir untuk $count dari $total barang.';
+  }
 }

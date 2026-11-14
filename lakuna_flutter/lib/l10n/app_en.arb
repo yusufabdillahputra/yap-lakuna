@@ -4969,5 +4969,16 @@
     }
   },
   "diningCustomerStale": "Customer group changed. Bill prices still use the old group.",
-  "diningCustomerRefresh": "Refresh prices"
+  "diningCustomerRefresh": "Refresh prices",
+  "purchaseRestockPriceNote": "Prices filled from the last purchase for {count} of {total} items.",
+  "@purchaseRestockPriceNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

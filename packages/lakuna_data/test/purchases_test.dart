@@ -367,6 +367,97 @@ void main() {
     },
   );
 
+  test('harga beli terakhir per satuan dasar (F1-08e)', () async {
+    expect(await lastPurchasePricesOf(store, scope, const []), isEmpty);
+    expect(await lastPurchasePricesOf(store, scope, [v(gula).id]), isEmpty);
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(paid: const Money(889000), funding: FundingSource.bank),
+    );
+    // Pembelian lebih baru tanpa supplier: ikut dihitung.
+    now = now.add(const Duration(days: 1));
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(gula).id,
+            quantity: Qty.units(5),
+            unitPrice: const Money(14000),
+          ),
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            productUnitId: dus().id,
+            quantity: Qty.one,
+            unitPrice: const Money(186000),
+          ),
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            quantity: Qty.units(2),
+            unitPrice: const Money(31500),
+          ),
+        ],
+        paid: const Money(319000),
+        funding: FundingSource.bank,
+      ),
+    );
+    // Draf lebih baru tidak dihitung.
+    now = now.add(const Duration(days: 1));
+    await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(supplier: 'CV Draf'),
+    );
+
+    var prices = await lastPurchasePricesOf(store, scope, [
+      v(minyak).id,
+      v(gula).id,
+    ]);
+    expect(prices[v(gula).id], const Money(14000));
+    // Varian muncul dua kali: baris terakhir (per botol) dipakai.
+    expect(prices[v(minyak).id], const Money(31500));
+
+    // Pembelian terbaru hanya per dus: Rp 185.000 / 6 = 30.833.
+    now = now.add(const Duration(days: 1));
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: request(paid: const Money(889000), funding: FundingSource.bank),
+    );
+    prices = await lastPurchasePricesOf(store, scope, [v(minyak).id]);
+    expect(prices[v(minyak).id], const Money(30833));
+
+    // Baris bonus Rp 0 di pembelian terbaru dilewati: harga sebelumnya.
+    now = now.add(const Duration(days: 1));
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            quantity: Qty.one,
+            unitPrice: Money.zero,
+          ),
+        ],
+      ),
+    );
+    prices = await lastPurchasePricesOf(store, scope, [v(minyak).id]);
+    expect(prices[v(minyak).id], const Money(30833));
+    expect(prices.containsKey(v(gula).id), isFalse);
+  });
+
   group('retur pembelian', () {
     late Purchase p;
     late PurchaseDetail d;

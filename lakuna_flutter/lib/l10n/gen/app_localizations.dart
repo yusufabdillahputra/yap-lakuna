@@ -14489,6 +14489,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Segarkan harga'**
   String get diningCustomerRefresh;
+
+  /// No description provided for @purchaseRestockPriceNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga diisi dari pembelian terakhir untuk {count} dari {total} barang.'**
+  String purchaseRestockPriceNote(int count, int total);
 }
 
 class _AppLocalizationsDelegate

@@ -225,6 +225,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
   String? _restockLocationName;
   String? _restockSupplierName;
   var _restockSupplierCount = 0;
+  var _restockPriceCount = 0;
 
   /// Supplier yang diisi dari pembelian terakhir (F1-08d), `null` bila
   /// tidak ada riwayat.
@@ -232,6 +233,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   /// Jumlah barang yang supplier terakhirnya [restockSupplierName].
   int get restockSupplierCount => _restockSupplierCount;
+
+  /// Jumlah baris stok minimum yang harganya diisi dari pembelian terakhir
+  /// (F1-08e).
+  int get restockPriceCount => _restockPriceCount;
 
   /// Jumlah baris yang terisi dari stok minimum (0 = form biasa).
   int get restockApplied => _restockApplied;
@@ -383,6 +388,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       if (_restock case final r?) {
         _restock = null;
         _applyRestock(r);
+        await _applyRestockPrices();
         await _applyRestockSupplier();
       }
     }
@@ -476,6 +482,33 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _restockLocationName = locationName ?? r.locationName;
   }
 
+  /// Harga beli terakhir untuk baris yang terisi dari stok minimum (F1-08e).
+  /// Hanya baris satuan dasar yang harganya belum diubah staf selama
+  /// menunggu; galat baca diabaikan (harga modal tetap dipakai).
+  Future<void> _applyRestockPrices() async {
+    if (_lines.isEmpty) return;
+    final before = {for (final l in _lines) l.key: l.unitPrice};
+    final result = await _repository.lastPurchasePrices({
+      for (final l in _lines) l.product.variantId,
+    });
+    if (result case Ok(:final value)) {
+      var count = 0;
+      final lines = <PurchaseFormLine>[];
+      for (final l in _lines) {
+        final price = value[l.product.variantId];
+        if (price != null && l.unit.isBase && before[l.key] == l.unitPrice) {
+          // priceRev naik agar isian harga yang sudah tampil ikut berganti.
+          lines.add(l.copyWith(unitPrice: price, priceRev: l.priceRev + 1));
+          count++;
+        } else {
+          lines.add(l);
+        }
+      }
+      _lines = lines;
+      _restockPriceCount = count;
+    }
+  }
+
   /// Supplier terakhir untuk barang yang terisi dari stok minimum (F1-08d).
   /// Galat baca diabaikan: supplier tetap kosong seperti F1-08c.
   Future<void> _applyRestockSupplier() async {
@@ -506,6 +539,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _draftId = null;
     _restockSupplierName = null;
     _restockSupplierCount = 0;
+    _restockPriceCount = 0;
     _restockApplied = 0;
     _restockSkipped = 0;
     _restockLocationName = null;

@@ -17,4 +17,4 @@ Rilis: v0.88.0+91.
   `/mnt/project-files/lakuna/f1-10l/`.
 - [x] 7. Dokumen: spec, README spec, STATUS-JEDA, panduan ID/EN,
   CHANGELOG, versi.
-- [ ] 8. PR, CI hijau, squash-merge, rilis.
+- [x] 8. PR, CI hijau, squash-merge, rilis (#94).

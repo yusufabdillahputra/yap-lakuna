@@ -7,6 +7,43 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.89.0] - 2026-11-14
+
+Pembelian dari stok minimum kini mengisi harga tiap barang dengan harga
+beli pada pembelian terakhir, sehingga staf tidak perlu mengetik ulang
+harga faktur supplier.
+
+### Ditambahkan
+
+- **Stok (1.18) › Buat pembelian → Pembelian baru (1.19):** harga baris
+  diisi dari harga satuan pada pembelian **diterima** terbaru barang itu
+  di cabang ini (harga di faktur, sebelum ongkos kirim dan diskon nota),
+  dihitung per satuan dasar. Contoh: pembelian terakhir Rp 185.000 per
+  dus isi 6 menjadi Rp 30.833 per botol. Baris bonus Rp 0 dilewati.
+  Barang yang belum pernah dibeli tetap memakai harga modal.
+- Catatan di atas form menyebut *Harga diisi dari pembelian terakhir untuk
+  n dari m barang.*
+- Panduan *Penyesuaian & stok minimum* menjelaskan asal harga (ID + EN).
+
+### Catatan teknis
+
+- `lakuna_domain`: `perBaseUnitPrice(unitPrice, factor)` (bulat setengah
+  menjauhi nol).
+- `lakuna_data`: `lastPurchasePricesOf(store, scope, variantIds)`:
+  pembelian diterima terbaru per varian (`received_at` atau tanggal beli,
+  lalu nomor, lalu urutan baris), tanpa syarat supplier; draf dan
+  pembelian terhapus diabaikan.
+- Flutter: `PurchasesRepository.lastPurchasePrices`;
+  `PurchaseFormViewModel` mengganti harga baris satuan dasar yang belum
+  diubah staf selama riwayat dimuat (`restockPriceCount`) dan menaikkan
+  `priceRev` agar isian harga yang sudah tampil ikut berganti; galat baca
+  diabaikan (harga modal tetap).
+- Tes domain (pembulatan, isi pecahan), data (terbaru menang, draf, tanpa
+  supplier, dua satuan dalam satu pembelian, per dus, baris bonus Rp 0),
+  VM (sebagian barang, `priceRev`, galat baca), dan alur widget 1280 /
+  360 px.
+- Gap F1-08d *Harga beli terakhir sebagai harga baris* ditutup.
+
 ## [0.88.0] - 2026-11-14
 
 Bill meja dan take away kini memberi tahu bila grup pelanggannya diubah
@@ -5798,7 +5835,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...HEAD
+[0.89.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...v0.89.0
 [0.88.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...v0.88.0
 [0.87.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...v0.87.0
 [0.86.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...v0.86.0
