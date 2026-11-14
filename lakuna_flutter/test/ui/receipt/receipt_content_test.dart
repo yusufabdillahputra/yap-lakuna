@@ -162,21 +162,46 @@ void main() {
     expect(content(id).totals.map((p) => (p.label, p.value)), [
       ('TOTAL', '181.500'),
       ('Kartu debit / kredit', '100.000'),
-      ('  No. approval', '004512'),
+      ('  No. approval 004512', ''),
       ('Transfer bank', '50.000'),
-      ('  Ref. transfer', 'TRF-0211-883'),
+      ('  Ref. transfer TRF-0211-883', ''),
       ('Transfer bank', '20.000'),
       ('Tunai', '20.000'),
       ('Kembali', '8.500'),
     ]);
     expect(
       content(en).totals.map((p) => p.label),
-      contains('  Approval no.'),
+      containsAll(['  Approval no. 004512', '  Transfer ref. TRF-0211-883']),
+    );
+  });
+
+  test('referensi panjang di kertas 58 mm: rata kiri, metode lain tanpa '
+      'referensi (F1-05b)', () {
+    final long = 'A' * 40;
+    final content = saleReceiptContent(
+      id,
+      result: result([
+        pay(PaymentMethod.transfer, 161500, reference: long),
+        // Data lama/sinkron: referensi di QRIS tidak dicetak.
+        pay(PaymentMethod.qrisStatic, 20000, reference: 'QR-1'),
+      ]),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
     );
     expect(
-      content(en).totals.map((p) => p.label),
-      contains('  Transfer ref.'),
+      content.totals.map((p) => p.label),
+      isNot(contains(contains('QR-1'))),
     );
+    final lines = layoutReceipt(content, ReceiptPaper.mm58);
+    final at = lines.indexWhere((l) => l.text.startsWith('Ref. transfer'));
+    expect(at, greaterThan(0));
+    expect(lines[at].align, ReceiptAlign.left);
+    expect(lines[at + 1].text, 'A' * 32);
+    expect(lines[at + 1].align, ReceiptAlign.left);
+    expect(lines.every((l) => l.text.length <= 32), isTrue);
   });
 
   test('struk contoh untuk pratinjau dan tes cetak', () {

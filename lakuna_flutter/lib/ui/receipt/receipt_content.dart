@@ -160,11 +160,15 @@ ReceiptContent saleReceiptContent(
           },
           receiptAmount(l10n, payment.amount),
         ),
-        // No. approval / referensi transfer (F1-05b).
-        if (payment.reference?.trim() case final ref? when ref.isNotEmpty)
+        // No. approval / referensi transfer (F1-05b), satu baris menjorok
+        // tanpa nilai kanan agar referensi panjang tidak terbaca sebagai
+        // nominal saat dibungkus.
+        if ((payment.method == PaymentMethod.card ||
+                payment.method == PaymentMethod.transfer) &&
+            (payment.reference?.trim() ?? '').isNotEmpty)
           ReceiptPair(
-            '  ${payment.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef}',
-            ref,
+            '  ${payment.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef} ${payment.reference!.trim()}',
+            '',
           ),
       ],
       if (result.payments.any((p) => p.method == PaymentMethod.cash))

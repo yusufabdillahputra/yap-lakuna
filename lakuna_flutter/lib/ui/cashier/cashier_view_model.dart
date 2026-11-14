@@ -1356,12 +1356,14 @@ class CashierViewModel extends ChangeNotifier {
     if (_parts.isNotEmpty && settlement.remaining == Money.zero) {
       return SplitDraftError.settled;
     }
-    final amount = draftAmount;
-    if (amount <= Money.zero) return SplitDraftError.empty;
+    // Referensi terlalu panjang diperiksa dulu agar pesannya tetap tampil
+    // walau nominal belum diisi.
     if (draftTakesReference &&
         validatePaymentReference(_draftReference) != null) {
       return SplitDraftError.referenceTooLong;
     }
+    final amount = draftAmount;
+    if (amount <= Money.zero) return SplitDraftError.empty;
     if (_draftMethod == PaymentMethod.cash) {
       return _parts.any((p) => p.isCash) ? SplitDraftError.cashExists : null;
     }

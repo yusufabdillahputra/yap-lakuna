@@ -47,6 +47,10 @@ class _SplitPanelState extends State<SplitPanel> {
   @override
   void didUpdateWidget(covariant SplitPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.viewModel != widget.viewModel) {
+      // VM lain: baca ulang isian referensi apa adanya.
+      _referenceRevision = -1;
+    }
     _sync();
   }
 

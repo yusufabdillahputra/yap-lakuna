@@ -770,6 +770,9 @@ void main() {
       vm.setDraftMethod(PaymentMethod.card);
       expect(vm.draftTakesReference, isTrue);
       vm.setDraftReference('x' * 41);
+      vm.setDraftAmount(Money.zero);
+      // Pesan referensi tetap tampil walau nominal kosong.
+      expect(vm.draftError, SplitDraftError.referenceTooLong);
       vm.setDraftAmount(const Money(1000));
       expect(vm.draftError, SplitDraftError.referenceTooLong);
       vm.addPart();
@@ -800,7 +803,7 @@ void main() {
     });
 
     test(
-      'referensi tetap saat bagian QRIS dikonfirmasi; reset tahap bayar',
+      'QRIS tanpa referensi; isian kosong saat tahap bayar dimulai lagi',
       () {
         vm.setDraftMethod(PaymentMethod.qrisStatic);
         vm.setDraftReference('abc');

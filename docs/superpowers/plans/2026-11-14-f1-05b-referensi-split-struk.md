@@ -11,9 +11,10 @@ approval/referensi, dan referensi tercetak di struk.
   terlalu panjang, isian kosong setelah tambah; lalu implementasi VM.
 - [x] **Tes struk** baris referensi (id/en); lalu `receiptContent` dan l10n.
 - [x] **Widget** `SplitPanel`: isian dan teks referensi; tes alur kasir.
-- [ ] **Review** subagent baru; perbaiki Critical/Important.
-- [ ] **Uji manual Xvfb**: split kartu + tunai dengan no. approval, lihat
+- [x] **Review** subagent baru; perbaiki Critical/Important (referensi
+  rata kiri di 58 mm, hanya kartu/transfer, urutan galat, VM berganti).
+- [x] **Uji manual Xvfb**: split kartu + tunai dengan no. approval, lihat
   struk.
-- [ ] **Dokumen**: spec F1-05 (gap), README, STATUS-JEDA, panduan
+- [x] **Dokumen**: spec F1-05 (gap), README, STATUS-JEDA, panduan
   pembayaran id/en, CHANGELOG 0.64.0, pubspec `0.64.0+67`.
 - [ ] **PR, merge, cek rilis.**
