@@ -8326,4 +8326,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String drawerShortfallWarning(String cash, String over) {
     return 'The drawer should hold about $cash; this amount exceeds it by $over. Make sure the cash is there before continuing.';
   }
+
+  @override
+  String get productImportPreview => 'Review changes';
+
+  @override
+  String productImportPreviewSummary(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      created,
+      locale: localeName,
+      other: '$created new products',
+      one: '1 new product',
+    );
+    return '$_temp0 · $updated updated · $unchanged unchanged · $skipped skipped';
+  }
+
+  @override
+  String productImportPreviewMore(int count) {
+    return 'and $count more changes';
+  }
+
+  @override
+  String productImportPreviewCost(String old, String value) {
+    return 'Cost $old → $value';
+  }
+
+  @override
+  String productImportPreviewMinStock(String old, String value) {
+    return 'Minimum stock $old → $value';
+  }
+
+  @override
+  String get productImportPreviewNone =>
+      'Nothing would change, so there is nothing to save.';
+
+  @override
+  String get productImportPreviewNote =>
+      'Not saved yet. Check this list, then press Save.';
+
+  @override
+  String get productImportSave => 'Save';
 }

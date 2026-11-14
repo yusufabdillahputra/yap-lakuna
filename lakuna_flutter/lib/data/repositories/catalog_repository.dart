@@ -48,10 +48,12 @@ abstract class CatalogRepository {
 
   /// Import produk baru dari berkas (F1-07b). Produk yang sudah ada
   /// dilewati, atau diperbarui harganya bila [updateExisting] (F1-07k).
+  /// [dryRun] hanya menghitung tanpa menyimpan, untuk pratinjau (F1-07m).
   /// Gagal dengan `NotPermitted` atau `ProductInputInvalid`.
   Future<Result<ProductImportSummary>> importRows(
     List<ProductImportRow> rows, {
     bool updateExisting = false,
+    bool dryRun = false,
   });
 
   /// Mengarsipkan produk [id] (F1-07d). Gagal dengan `NotPermitted` atau

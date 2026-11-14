@@ -89,4 +89,4 @@ pilihan untuk memperbarui harga produk yang cocok.
 | --- | --- | --- | --- |
 | Perbarui harga jual/beli/stok min lewat import | — | Rilis v0.59.0 | Sakelar di dialog import. |
 | Perbarui harga varian lain / satuan konversi / grosir | — | Belum | Satu baris satu varian; grosir lewat form. |
-| Pratinjau perubahan harga sebelum simpan | — | Belum | Ringkasan setelah simpan saja. |
+| Pratinjau perubahan harga sebelum simpan | — | Rilis v0.71.0 ([F1-07m](2026-11-14-f1-07m-pratinjau-harga-import-design.md)) | Tombol *Lihat perubahan* lalu *Simpan*. |

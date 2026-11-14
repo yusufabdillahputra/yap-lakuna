@@ -134,6 +134,27 @@ void main() {
     );
   });
 
+  test('pratinjau import tidak menyimpan (F1-07m)', () async {
+    _ok(await repo.save(_kopi));
+    final rows = productImportRows([
+      ['nama', 'harga jual'],
+      ['kopi sachet', '2500'],
+      ['Gula Aren', '18000'],
+    ]).rows;
+    final summary = _ok(
+      await repo.importRows(rows, updateExisting: true, dryRun: true),
+    );
+    expect(summary.updated, 1);
+    expect(summary.created, 1);
+    expect(summary.changes.single.newSell, const Money(2500));
+    final catalog = _ok(await repo.loadCatalog());
+    expect(catalog.products, hasLength(1));
+    expect(
+      catalog.products.single.variants.single.sellPrice,
+      isNot(const Money(2500)),
+    );
+  });
+
   test('import produk: baru disimpan, yang sudah ada dilewati', () async {
     _ok(await repo.save(_kopi));
     final rows = productImportRows([

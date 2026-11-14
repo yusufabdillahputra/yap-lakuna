@@ -4721,5 +4721,56 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productImportPreview": "Review changes",
+  "productImportPreviewSummary": "{created, plural, =1{1 new product} other{{created} new products}} · {updated} updated · {unchanged} unchanged · {skipped} skipped",
+  "@productImportPreviewSummary": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "unchanged": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportPreviewMore": "and {count} more changes",
+  "@productImportPreviewMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportPreviewCost": "Cost {old} → {value}",
+  "@productImportPreviewCost": {
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "productImportPreviewMinStock": "Minimum stock {old} → {value}",
+  "@productImportPreviewMinStock": {
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "productImportPreviewNone": "Nothing would change, so there is nothing to save.",
+  "productImportPreviewNote": "Not saved yet. Check this list, then press Save.",
+  "productImportSave": "Save"
 }

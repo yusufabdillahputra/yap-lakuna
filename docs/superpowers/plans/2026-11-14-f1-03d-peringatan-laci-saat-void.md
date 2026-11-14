@@ -13,4 +13,4 @@ Spec: [F1-03d](../specs/2026-11-14-f1-03d-peringatan-laci-saat-void-design.md).
 - [x] **Uji manual Xvfb**.
 - [x] **Dokumen**: spec F1-03c, README, STATUS-JEDA, panduan, CHANGELOG
   0.70.0, pubspec `0.70.0+73`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

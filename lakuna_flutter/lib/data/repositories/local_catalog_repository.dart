@@ -51,6 +51,7 @@ class LocalCatalogRepository extends CatalogRepository {
   Future<Result<ProductImportSummary>> importRows(
     List<ProductImportRow> rows, {
     bool updateExisting = false,
+    bool dryRun = false,
   }) => _guard(
     (scope, staffId) => importProducts(
       _store,
@@ -58,6 +59,7 @@ class LocalCatalogRepository extends CatalogRepository {
       staffId: staffId,
       rows: rows,
       updateExisting: updateExisting,
+      dryRun: dryRun,
     ),
   );
 
