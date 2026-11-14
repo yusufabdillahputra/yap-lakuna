@@ -42,6 +42,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.59.0 | Perbarui harga produk lewat import (F1-07k) | #65 |
 | v0.60.0 | Enkripsi backup dengan kata sandi (F1-19c) | #66 |
 | v0.61.0 | Printer bar per kategori (F1-10j) | #67 |
+| v0.62.0 | Kecilkan foto produk dan faktur (F1-07l) | #68 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -59,8 +60,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    harga grup di open bill F&B selesai v0.42.0 (F1-10f).
 4. ~~*Pelanggan baru* dari pemilih pelanggan Kasir~~ — selesai v0.33.0
    (F1-04f).
-5. ~~Foto produk~~ — selesai v0.37.0 (F1-07f); kecilkan foto ke WebP
-   masih gap.
+5. ~~Foto produk~~ — selesai v0.37.0 (F1-07f); ~~kecilkan foto~~ —
+   selesai v0.62.0 (F1-07l, JPEG); simpan WebP masih gap.
 6. ~~Logo di struk~~ — selesai v0.39.0 (F1-06b); cetak rekap sesi
    selesai v0.38.0 (F1-03b).
 7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). ~~Printer dapur

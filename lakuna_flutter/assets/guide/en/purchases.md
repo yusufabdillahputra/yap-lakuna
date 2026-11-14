@@ -22,7 +22,7 @@ Tap **Print / share PDF** in the *Actions* card to create a purchase PDF (goods,
 
 Tap a product name under *Goods received* to open that product's **stock card** at the purchase's receiving location (requires access to the Stock menu).
 
-The *Invoice photo* card shows the supplier's invoice. Tap **View invoice photo** to open it full screen (you can zoom), **Replace photo** to change it, or **Remove photo**. Changing the photo doesn't change stock, cost, or payables. Photos can be PNG, JPG, or WebP up to 5 MB.
+The *Invoice photo* card shows the supplier's invoice. Tap **View invoice photo** to open it full screen (you can zoom), **Replace photo** to change it, or **Remove photo**. Changing the photo doesn't change stock, cost, or payables. Photos can be PNG, JPG, or WebP up to 20 MB; large photos are resized automatically to 2,000 px on the longest side, so the invoice stays readable while the file stays small.
 
 ## Purchase returns
 

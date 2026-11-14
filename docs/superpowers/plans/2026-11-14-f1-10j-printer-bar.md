@@ -23,4 +23,4 @@ makanan di printer dapur menurut kategori produk.
 - [x] **Uji manual Xvfb** dengan dua printer jaringan tiruan.
 - [x] **Dokumen**: spec F1-10e/F1-10g (gap), README, STATUS-JEDA, panduan
   printer id/en, CHANGELOG 0.61.0, pubspec `0.61.0+64`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

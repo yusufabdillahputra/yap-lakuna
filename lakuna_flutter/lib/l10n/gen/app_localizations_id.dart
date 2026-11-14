@@ -7262,7 +7262,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productPhotoHint =>
-      'PNG, JPG, atau WebP, maks. 2 MB. Tersimpan saat Simpan.';
+      'PNG, JPG, atau WebP, maks. 20 MB; dikecilkan otomatis. Tersimpan saat Simpan.';
 
   @override
   String get productPhotoUnsupported =>
@@ -7270,7 +7270,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productPhotoTooLarge =>
-      'Foto lebih dari 2 MB. Pilih foto yang lebih kecil.';
+      'Foto lebih dari 20 MB. Pilih foto yang lebih kecil.';
 
   @override
   String get productPhotoNotSaved =>
@@ -7742,7 +7742,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchaseInvoicePhotoInvalid =>
-      'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 5 MB.';
+      'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 20 MB.';
 
   @override
   String get purchaseInvoicePhotoFailed =>

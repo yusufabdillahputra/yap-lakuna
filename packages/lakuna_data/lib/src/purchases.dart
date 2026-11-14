@@ -7,6 +7,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show ColumnOrderingOperations, DatabaseSession, Transaction;
 
 import 'media.dart';
+import 'photo_shrink.dart';
 import 'sale_core.dart' show requireOpenCashSession;
 import 'staff_access.dart';
 import 'stock.dart';
@@ -900,7 +901,7 @@ void _validate(PurchaseRequest r, {required bool receiving}) {
     receiving: receiving,
   );
   if (issues.isNotEmpty) throw PurchaseInvalid(issues);
-  if (r.invoicePhoto case final photo?) _invoiceHeader(photo);
+  if (r.invoicePhoto case final photo?) _checkInvoiceInput(photo);
 }
 
 String? _text(String? s) {
@@ -919,6 +920,7 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
   PurchaseRequest r, {
   required UuidValue staffId,
   required bool receiving,
+  PurchaseInvoicePhoto? invoicePhoto,
 }) async {
   final s = await w.stamp();
   Purchase? existing;
@@ -962,8 +964,9 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
       : null;
   final number =
       existing?.number ?? await _nextNumber(w, scope, s.now, isReturn: false);
-  final invoiceMediaId = r.invoicePhoto != null
-      ? (await _storeInvoicePhoto(w, store, scope, r.invoicePhoto!, s)).id
+  final photo = invoicePhoto ?? r.invoicePhoto;
+  final invoiceMediaId = photo != null
+      ? (await _storeInvoicePhoto(w, store, scope, photo, s)).id
       : r.removeInvoicePhoto
       ? null
       : existing?.invoiceMediaId;
@@ -1187,6 +1190,9 @@ Future<Purchase> savePurchaseDraft(
 }) async {
   _validate(request, receiving: false);
   await _requireActor(store, scope, staffId, _needed());
+  final photo = request.invoicePhoto == null
+      ? null
+      : await _shrinkInvoice(request.invoicePhoto!);
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -1195,6 +1201,7 @@ Future<Purchase> savePurchaseDraft(
       request,
       staffId: staffId,
       receiving: false,
+      invoicePhoto: photo,
     );
     return doc;
   });
@@ -1217,6 +1224,9 @@ Future<Purchase> receivePurchase(
       drawer: request.paid.value > 0 && request.funding == FundingSource.drawer,
     ),
   );
+  final photo = request.invoicePhoto == null
+      ? null
+      : await _shrinkInvoice(request.invoicePhoto!);
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -1225,6 +1235,7 @@ Future<Purchase> receivePurchase(
       request,
       staffId: staffId,
       receiving: true,
+      invoicePhoto: photo,
     );
     return doc;
   });
@@ -1232,8 +1243,8 @@ Future<Purchase> receivePurchase(
 
 // --- Foto faktur (F1-12b) ------------------------------------------------------
 
-/// Header gambar [photo]; [PurchaseInvoicePhotoInvalid] bila bukan gambar
-/// atau terlalu besar.
+/// Header gambar [photo] (sudah dikecilkan); [PurchaseInvoicePhotoInvalid]
+/// bila bukan gambar atau terlalu besar untuk disimpan.
 ImageHeader _invoiceHeader(PurchaseInvoicePhoto photo) {
   final header = readImageHeader(photo.bytes);
   if (header == null ||
@@ -1241,6 +1252,33 @@ ImageHeader _invoiceHeader(PurchaseInvoicePhoto photo) {
     throw const PurchaseInvoicePhotoInvalid();
   }
   return header;
+}
+
+/// Pemeriksaan foto pilihan sebelum dikecilkan (batas 20 MB).
+void _checkInvoiceInput(PurchaseInvoicePhoto photo) {
+  if (readImageHeader(photo.bytes) == null ||
+      photo.bytes.length > PurchaseLimits.invoicePhotoInputMaxBytes) {
+    throw const PurchaseInvoicePhotoInvalid();
+  }
+}
+
+/// Foto faktur dikecilkan ke [PurchaseLimits.invoicePhotoMaxSide] di luar
+/// transaksi (F1-07l), lalu diperiksa batas simpannya.
+Future<PurchaseInvoicePhoto> _shrinkInvoice(PurchaseInvoicePhoto photo) async {
+  _checkInvoiceInput(photo);
+  final Uint8List bytes;
+  try {
+    bytes = await shrinkPhoto(
+      photo.bytes,
+      maxSide: PurchaseLimits.invoicePhotoMaxSide,
+      maxBytes: PurchaseLimits.invoicePhotoMaxBytes,
+    );
+  } on PhotoShrinkFailure {
+    throw const PurchaseInvoicePhotoInvalid();
+  }
+  final shrunk = PurchaseInvoicePhoto(bytes: bytes, fileName: photo.fileName);
+  _invoiceHeader(shrunk);
+  return shrunk;
 }
 
 Future<MediaFile> _storeInvoicePhoto(
@@ -1270,8 +1308,10 @@ Future<Purchase> setPurchaseInvoicePhoto(
   required UuidValue purchaseId,
   required PurchaseInvoicePhoto photo,
 }) async {
-  _invoiceHeader(photo);
-  return _updateInvoicePhoto(store, scope, staffId, purchaseId, photo);
+  // Izin dulu agar staf tanpa izin tidak memicu dekode foto.
+  await _requireActor(store, scope, staffId, _needed());
+  final shrunk = await _shrinkInvoice(photo);
+  return _updateInvoicePhoto(store, scope, staffId, purchaseId, shrunk);
 }
 
 /// Mengosongkan foto faktur [purchaseId].

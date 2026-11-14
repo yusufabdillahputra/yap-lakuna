@@ -394,7 +394,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   Future<Result<void>> _pickInvoicePhoto(bool camera) async {
     _invoicePhotoRejected = false;
-    const max = PurchaseLimits.invoicePhotoMaxBytes;
+    const max = PurchaseLimits.invoicePhotoInputMaxBytes;
     try {
       final picked = camera
           ? await _picker.takePhoto(maxBytes: max)

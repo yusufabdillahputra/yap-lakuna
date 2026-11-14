@@ -71,5 +71,5 @@ barang di layar Kasir, terutama menu F&B dan barang tanpa barcode.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Foto produk di form, daftar, dan Kasir | *Ganti foto*, thumbnail | Rilis v0.37.0 | Juga di daftar menu meja F&B. |
-| Kecilkan foto ke 1.024 px WebP | Storeku F1-07 | Belum | Perlu encoder gambar; sekarang batas 2 MB + `cacheWidth`. |
+| Kecilkan foto ke 1.024 px | Storeku F1-07 | Rilis v0.62.0 | [F1-07l](2026-11-14-f1-07l-kecilkan-foto-design.md): JPEG 1.024 px, pilih sampai 20 MB; WebP masih gap. |
 | Foto per varian | — | Tidak direncanakan | Satu foto per produk cukup untuk Fase 1. |

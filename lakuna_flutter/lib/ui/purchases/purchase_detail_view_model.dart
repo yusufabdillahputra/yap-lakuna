@@ -226,7 +226,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
 
   Future<Result<void>> _attachInvoicePhoto(bool camera) async {
     _resetPhotoState();
-    const max = PurchaseLimits.invoicePhotoMaxBytes;
+    const max = PurchaseLimits.invoicePhotoInputMaxBytes;
     final PickedImage? picked;
     try {
       picked = camera

@@ -71,5 +71,5 @@ bebas, sehingga tiket dapur hanya berisi pekerjaan dapur.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Sakelar *Kirim ke tiket dapur* / *Bisa catatan bebas* | 1.16b | Rilis v0.43.0 | Di tab *Modifier* form produk, bagian *Dapur*. |
-| Printer per stasiun (bar vs dapur) | — | Belum | Satu printer dapur per perangkat (F1-10e). |
+| Printer per stasiun (bar vs dapur) | — | Rilis v0.61.0 | [F1-10j](2026-11-14-f1-10j-printer-bar-design.md). |
 | Sakelar berubah di perangkat lain saat layar Meja terbuka | — | Belum | Lembar menu memakai katalog saat layar dimuat; lapisan data tetap benar (catatan diabaikan sesuai sakelar terbaru). |
