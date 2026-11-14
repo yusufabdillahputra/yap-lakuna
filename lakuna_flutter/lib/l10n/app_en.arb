@@ -4613,5 +4613,39 @@
         "type": "String"
       }
     }
-  }
+  },
+  "backupLock": "Lock with a password",
+  "backupLockNote": "The password is not saved. Without it this backup cannot be restored.",
+  "backupPassword": "Backup password",
+  "backupPasswordRetype": "Retype password",
+  "backupPasswordTooShort": "At least {min} characters.",
+  "@backupPasswordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPasswordTooLong": "At most {max} characters.",
+  "@backupPasswordTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPasswordMismatch": "Passwords do not match.",
+  "backupSavedLockedTo": "Password-locked backup saved to {path}",
+  "@backupSavedLockedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSharedLocked": "Password-locked backup shared.",
+  "backupUnlockTitle": "This backup is locked with a password",
+  "backupUnlockBody": "Enter the password used when the backup was made.",
+  "backupUnlock": "Unlock",
+  "backupWrongPassword": "Wrong password. Try again."
 }

@@ -7,6 +7,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_client/migrations/migration_registry.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import 'backup_crypto.dart';
 import 'preferences.dart';
 import 'store.dart';
 import 'store_setup.dart';
@@ -46,6 +47,22 @@ class BackupTooNew implements Exception {
 
   @override
   String toString() => 'BackupTooNew($schemaVersion)';
+}
+
+/// Backup dikunci kata sandi (F1-19c) dan kata sandi belum diberikan.
+class BackupLocked implements Exception {
+  const BackupLocked();
+
+  @override
+  String toString() => 'BackupLocked';
+}
+
+/// Kata sandi backup salah.
+class BackupWrongPassword implements Exception {
+  const BackupWrongPassword();
+
+  @override
+  String toString() => 'BackupWrongPassword';
 }
 
 /// Isi `manifest.json` backup.
@@ -223,13 +240,25 @@ Future<String> _schemaVersion(LakunaStore store) async {
 /// Membuat backup ke [outPath]. Database disalin dengan `VACUUM INTO`
 /// (snapshot konsisten; kasir tetap bisa jalan). Berkas sementara dihapus
 /// bila gagal.
+///
+/// Dengan [password] (F1-19c) setiap entri dienkripsi AES-256 memakai kunci
+/// turunan PBKDF2 ([iterations]); parameternya di komentar zip.
 Future<BackupManifest> createBackup(
   LakunaStore store,
   StoreContext ctx, {
   required String outPath,
   required String appVersion,
   DateTime? now,
+  String? password,
+  int iterations = backupKdfIterations,
 }) async {
+  if (password != null && password.isEmpty) {
+    throw ArgumentError.value(password, 'password');
+  }
+  final lock = password == null
+      ? null
+      : BackupLock.create(iterations: iterations);
+  final zipPassword = await lock?.zipPassword(password!);
   final createdAt = (now ?? DateTime.now()).toUtc();
   final temp = await Directory.systemTemp.createTemp('lakuna_backup_');
   final snapshot = File('${temp.path}${Platform.pathSeparator}$_dbName');
@@ -257,20 +286,38 @@ Future<BackupManifest> createBackup(
       media: [for (final f in media) _baseName(f.path)],
     );
     await out.parent.create(recursive: true);
-    final encoder = ZipFileEncoder()..create(out.path);
+    // ZipEncoder langsung (bukan ZipFileEncoder) agar komentar zip bisa
+    // ditulis; `streamed` menulis entri bertahap tanpa ditampung di memori.
+    final output = OutputFileStream(out.path);
     try {
-      encoder.addArchiveFile(
+      final encoder = ZipEncoder(password: zipPassword, streamed: true)
+        ..startEncode(output);
+      final manifestJson = manifest.toJson();
+      // AES gaya WinZip (AE-1) tetap mencatat CRC32 isi asli. Nonce acak
+      // membuat CRC manifest tidak bisa dipakai menebak isinya.
+      if (lock != null) manifestJson['nonce'] = randomToken();
+      encoder.add(
         ArchiveFile.string(
           _manifestName,
-          const JsonEncoder.withIndent('  ').convert(manifest.toJson()),
+          const JsonEncoder.withIndent('  ').convert(manifestJson),
         ),
       );
-      await encoder.addFile(snapshot, _dbName);
-      for (final f in media) {
-        await encoder.addFile(f, '$_mediaDir/${_baseName(f.path)}');
+      Future<void> addFile(File file, String name) async {
+        final input = InputFileStream(file.path);
+        try {
+          encoder.add(ArchiveFile.stream(name, input));
+        } finally {
+          await input.close();
+        }
       }
+
+      await addFile(snapshot, _dbName);
+      for (final f in media) {
+        await addFile(f, '$_mediaDir/${_baseName(f.path)}');
+      }
+      encoder.endEncode(comment: lock?.toComment() ?? '');
     } finally {
-      await encoder.close();
+      await output.close();
     }
     return manifest;
   } catch (_) {
@@ -281,13 +328,41 @@ Future<BackupManifest> createBackup(
   }
 }
 
+/// Kunci turunan terakhir: buka kunci lalu pulihkan memakai berkas dan
+/// kata sandi yang sama, jadi PBKDF2 cukup dihitung sekali.
+({String comment, String password, String zipPassword})? _lastKey;
+
+Future<String> _cachedZipPassword(BackupLock lock, String password) async {
+  final comment = lock.toComment();
+  if (_lastKey case final k?
+      when k.comment == comment && k.password == password) {
+    return k.zipPassword;
+  }
+  final zipPassword = await lock.zipPassword(password);
+  _lastKey = (comment: comment, password: password, zipPassword: zipPassword);
+  return zipPassword;
+}
+
+/// Entri zip terenkripsi. Di backup terkunci semua entri yang dibaca harus
+/// terenkripsi: entri biasa bisa ditambahkan siapa saja tanpa kata sandi.
+bool _encrypted(ArchiveFile file) =>
+    file.rawContent is ZipFile && (file.rawContent! as ZipFile).flags & 1 != 0;
+
 /// Membuka zip, menjalankan [body], lalu selalu menutup berkasnya (di
 /// Windows berkas yang masih terbuka tidak bisa dipindah atau dihapus).
+/// Backup terkunci (F1-19c) butuh [password]: tanpa itu `BackupLocked`.
 Future<T> _withArchive<T>(
   String zipPath,
-  Future<T> Function(Archive archive) body,
+  String? password,
+  Future<T> Function(Archive archive, {required bool locked}) body,
 ) async {
   if (!File(zipPath).existsSync()) throw const BackupInvalid('missing');
+  final lock = BackupLock.parse(await readZipComment(zipPath) ?? '');
+  String? zipPassword;
+  if (lock != null) {
+    if (password == null || password.isEmpty) throw const BackupLocked();
+    zipPassword = await _cachedZipPassword(lock, password);
+  }
   final InputFileStream input;
   try {
     input = InputFileStream(zipPath);
@@ -297,11 +372,11 @@ Future<T> _withArchive<T>(
   Archive? archive;
   try {
     try {
-      archive = ZipDecoder().decodeStream(input);
+      archive = ZipDecoder().decodeStream(input, password: zipPassword);
     } on Object {
       throw const BackupInvalid('zip');
     }
-    return await body(archive);
+    return await body(archive, locked: lock != null);
   } finally {
     await archive?.clear();
     await input.close();
@@ -310,15 +385,34 @@ Future<T> _withArchive<T>(
 
 /// Memeriksa manifest dan isi zip tanpa membaca database ke memori.
 /// Checksum database diperiksa [stageRestore] saat berkas diekstrak.
-BackupManifest _validate(Archive archive, List<String> knownVersions) {
+BackupManifest _validate(
+  Archive archive,
+  List<String> knownVersions, {
+  required bool locked,
+}) {
   final manifestFile = archive.findFile(_manifestName);
   if (manifestFile == null) throw const BackupInvalid('manifest');
+  if (locked && !_encrypted(manifestFile)) throw const BackupInvalid('plain');
   final BackupManifest manifest;
   try {
-    final json = jsonDecode(utf8.decode(manifestFile.content));
+    final List<int> content;
+    try {
+      content = manifestFile.content;
+    } on ArchiveException catch (e) {
+      // Kunci turunan salah: pemeriksa 2 byte gagal. MAC yang tidak cocok
+      // setelah pemeriksa lolos hampir pasti data rusak/diubah (kata sandi
+      // salah hanya 1/65536), jadi dilaporkan sebagai berkas tidak sah.
+      if (locked && e is ArchivePasswordException) {
+        throw const BackupWrongPassword();
+      }
+      rethrow;
+    }
+    final json = jsonDecode(utf8.decode(content));
     if (json is! Map<String, Object?>) throw const BackupInvalid('manifest');
     manifest = BackupManifest.fromJson(json);
   } on BackupInvalid {
+    rethrow;
+  } on BackupWrongPassword {
     rethrow;
   } on Object {
     throw const BackupInvalid('manifest');
@@ -331,6 +425,7 @@ BackupManifest _validate(Archive archive, List<String> knownVersions) {
   if (db == null || db.size != manifest.dbSizeBytes) {
     throw const BackupInvalid('database');
   }
+  if (locked && !_encrypted(db)) throw const BackupInvalid('plain');
   if (!knownVersions.contains(manifest.schemaVersion)) {
     throw BackupTooNew(manifest.schemaVersion);
   }
@@ -353,7 +448,12 @@ bool _safeMediaEntry(String name) {
 Future<BackupManifest> inspectBackup(
   String zipPath, {
   required List<String> knownVersions,
-}) => _withArchive(zipPath, (a) async => _validate(a, knownVersions));
+  String? password,
+}) => _withArchive(
+  zipPath,
+  password,
+  (a, {required locked}) async => _validate(a, knownVersions, locked: locked),
+);
 
 String _join(String a, String b) => '$a${Platform.pathSeparator}$b';
 
@@ -365,8 +465,9 @@ Future<BackupManifest> stageRestore(
   String zipPath, {
   required String dataDir,
   required List<String> knownVersions,
-}) => _withArchive(zipPath, (archive) async {
-  final manifest = _validate(archive, knownVersions);
+  String? password,
+}) => _withArchive(zipPath, password, (archive, {required locked}) async {
+  final manifest = _validate(archive, knownVersions, locked: locked);
   final target = Directory(_join(dataDir, _restoreDir));
   if (target.existsSync()) await target.delete(recursive: true);
   await target.create(recursive: true);
@@ -375,6 +476,12 @@ Future<BackupManifest> stageRestore(
       if (!f.isFile) continue;
       final name = f.name;
       if (name != _dbName && !_safeMediaEntry(name)) continue;
+      // Hanya gambar yang tercantum di manifest.
+      if (name != _dbName &&
+          !manifest.media.contains(name.substring(_mediaDir.length + 1))) {
+        continue;
+      }
+      if (locked && !_encrypted(f)) throw const BackupInvalid('plain');
       final dest = File(
         _join(target.path, name.replaceAll('/', Platform.pathSeparator)),
       );

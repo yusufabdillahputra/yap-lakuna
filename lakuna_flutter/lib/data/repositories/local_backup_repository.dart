@@ -53,21 +53,28 @@ class LocalBackupRepository implements BackupRepository {
   );
 
   @override
-  Future<Result<CreatedBackup>> createBackup() => _guard((ctx) async {
-    final now = _clock();
-    final fileName = backupFileName(ctx, now);
-    if (_exports.existsSync()) await _exports.delete(recursive: true);
-    await _exports.create(recursive: true);
-    final path = p.join(_exports.path, fileName);
-    final manifest = await data.createBackup(
-      _store,
-      ctx,
-      outPath: path,
-      appVersion: _appVersion,
-      now: now,
-    );
-    return (path: path, fileName: fileName, manifest: manifest);
-  });
+  Future<Result<CreatedBackup>> createBackup({String? password}) =>
+      _guard((ctx) async {
+        final now = _clock();
+        final fileName = backupFileName(ctx, now);
+        if (_exports.existsSync()) await _exports.delete(recursive: true);
+        await _exports.create(recursive: true);
+        final path = p.join(_exports.path, fileName);
+        final manifest = await data.createBackup(
+          _store,
+          ctx,
+          outPath: path,
+          appVersion: _appVersion,
+          now: now,
+          password: password,
+        );
+        return (
+          path: path,
+          fileName: fileName,
+          manifest: manifest,
+          locked: password != null,
+        );
+      });
 
   @override
   Future<Result<DateTime>> recordBackup() => _guard((_) async {
@@ -83,32 +90,40 @@ class LocalBackupRepository implements BackupRepository {
   }
 
   @override
-  Future<Result<BackupManifest>> inspect(String path) => _guard(
-    (_) => data.inspectBackup(path, knownVersions: lakunaSchemaVersions),
-  );
+  Future<Result<BackupManifest>> inspect(String path, {String? password}) =>
+      _guard((_) => _inspect(path, password));
 
   @override
-  Future<Result<BackupManifest>> stageRestore(String path) => _guard(
-    (_) => data.stageRestore(
-      path,
-      dataDir: _dataDir,
-      knownVersions: lakunaSchemaVersions,
-    ),
-  );
+  Future<Result<BackupManifest>> stageRestore(
+    String path, {
+    String? password,
+  }) => _guard((_) => _stage(path, password));
 
   @override
-  Future<Result<BackupManifest>> inspectForSetup(String path) => _beforeSetup(
-    () => data.inspectBackup(path, knownVersions: lakunaSchemaVersions),
-  );
+  Future<Result<BackupManifest>> inspectForSetup(
+    String path, {
+    String? password,
+  }) => _beforeSetup(() => _inspect(path, password));
 
   @override
-  Future<Result<BackupManifest>> stageRestoreForSetup(String path) =>
-      _beforeSetup(
-        () => data.stageRestore(
-          path,
-          dataDir: _dataDir,
-          knownVersions: lakunaSchemaVersions,
-        ),
+  Future<Result<BackupManifest>> stageRestoreForSetup(
+    String path, {
+    String? password,
+  }) => _beforeSetup(() => _stage(path, password));
+
+  Future<BackupManifest> _inspect(String path, String? password) =>
+      data.inspectBackup(
+        path,
+        knownVersions: lakunaSchemaVersions,
+        password: password,
+      );
+
+  Future<BackupManifest> _stage(String path, String? password) =>
+      data.stageRestore(
+        path,
+        dataDir: _dataDir,
+        knownVersions: lakunaSchemaVersions,
+        password: password,
       );
 
   /// Onboarding belum punya staf; satu-satunya syarat adalah belum ada toko,

@@ -219,6 +219,33 @@ void main() {
       expect(parent.listSync().length, 1);
     });
 
+    test('gambar yang tidak tercantum di manifest tidak diekstrak', () async {
+      final (path, _) = await backup();
+      final extra = await rezip(
+        path,
+        'tambahan.zip',
+        extra: {'media/asing.png': pngBytes(2, 2)},
+      );
+      final target = await Directory.systemTemp.createTemp('lakuna_target_');
+      try {
+        await stageRestore(
+          extra,
+          dataDir: target.path,
+          knownVersions: versions,
+        );
+        expect(
+          File('${target.path}/restore/media/abc.png').existsSync(),
+          isTrue,
+        );
+        expect(
+          File('${target.path}/restore/media/asing.png').existsSync(),
+          isFalse,
+        );
+      } finally {
+        await target.delete(recursive: true);
+      }
+    });
+
     test('backup dari versi skema lebih baru ditolak', () async {
       final (path, _) = await backup();
       await expectLater(

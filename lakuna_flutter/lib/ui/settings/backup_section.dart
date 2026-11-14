@@ -1,6 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show outletLocalTime;
+import 'package:lakuna_domain/lakuna_domain.dart'
+    show
+        BackupPasswordProblem,
+        backupPasswordMaxLength,
+        backupPasswordMinLength,
+        outletLocalTime;
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/backup_repository.dart';
@@ -52,7 +57,10 @@ class BackupSection extends StatelessWidget {
     final stats = vm.stats;
     final days = vm.daysSinceBackup;
     final busy =
-        vm.backupNow.running || vm.pickRestore.running || vm.restore.running;
+        vm.backupNow.running ||
+        vm.pickRestore.running ||
+        vm.restore.running ||
+        vm.unlock.running;
     return Column(
       key: const ValueKey('backup-section'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,6 +152,13 @@ class BackupSection extends StatelessWidget {
                   ),
                 ],
               ),
+              FSwitch(
+                key: const ValueKey('backup-lock'),
+                label: Text(l10n.backupLock),
+                value: vm.lockEnabled,
+                onChange: busy ? null : vm.setLock,
+              ),
+              if (vm.lockEnabled) _PasswordFields(viewModel: vm, busy: busy),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -151,7 +166,7 @@ class BackupSection extends StatelessWidget {
                   FButton(
                     key: const ValueKey('backup-now'),
                     mainAxisSize: .min,
-                    onPress: busy ? null : vm.backupNow.execute,
+                    onPress: vm.canBackup ? vm.backupNow.execute : null,
                     prefix: vm.backupNow.running
                         ? const FCircularProgress()
                         : const Icon(TablerIcons.download),
@@ -188,6 +203,7 @@ class BackupSection extends StatelessWidget {
             ],
           ),
         ),
+        if (vm.needsPassword) _UnlockPanel(viewModel: vm),
         if (vm.pendingRestore case final m?)
           _RestorePanel(
             viewModel: vm,
@@ -201,9 +217,11 @@ class BackupSection extends StatelessWidget {
 
   String? _deliveryText(AppLocalizations l10n, BackupViewModel vm) {
     if (vm.backupNow.error) return l10n.backupFailed;
+    final locked = vm.lastBackupLocked;
     return switch (vm.lastDelivery) {
-      BackupSaved(:final path) => l10n.backupSavedTo(path),
-      BackupShared() => l10n.backupShared,
+      BackupSaved(:final path) =>
+        locked ? l10n.backupSavedLockedTo(path) : l10n.backupSavedTo(path),
+      BackupShared() => locked ? l10n.backupSharedLocked : l10n.backupShared,
       BackupDismissed() => l10n.backupDismissed,
       null => null,
     };
@@ -215,9 +233,210 @@ String backupRestoreError(AppLocalizations l10n, Exception error) =>
     switch (error) {
       BackupTooNew() => l10n.backupTooNew,
       BackupInvalid() => l10n.backupInvalid,
+      BackupWrongPassword() => l10n.backupWrongPassword,
+      BackupLocked() => l10n.backupUnlockBody,
       StoreAlreadySetUp() => l10n.setupRestoreAlreadySetUp,
       _ => l10n.backupRestoreFailed,
     };
+
+/// Pesan isian kata sandi backup (F1-19c).
+String backupPasswordMessage(
+  AppLocalizations l10n,
+  BackupPasswordProblem problem,
+) => switch (problem) {
+  BackupPasswordProblem.tooShort => l10n.backupPasswordTooShort(
+    backupPasswordMinLength,
+  ),
+  BackupPasswordProblem.tooLong => l10n.backupPasswordTooLong(
+    backupPasswordMaxLength,
+  ),
+  BackupPasswordProblem.mismatch => l10n.backupPasswordMismatch,
+};
+
+/// Kata sandi + ulangi untuk mengunci backup (F1-19c). Dibuat ulang lewat
+/// [BackupViewModel.passwordRevision] saat isian dikosongkan.
+class _PasswordFields extends StatelessWidget {
+  const _PasswordFields({required this.viewModel, required this.busy});
+
+  final BackupViewModel viewModel;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final problem = vm.passwordProblem;
+    // Pesan baru tampil setelah isiannya diketik.
+    final passwordError =
+        vm.password.isNotEmpty && problem != BackupPasswordProblem.mismatch
+        ? problem
+        : null;
+    final retypeError =
+        vm.passwordRetype.isNotEmpty &&
+            problem == BackupPasswordProblem.mismatch
+        ? problem
+        : null;
+    return KeyedSubtree(
+      key: ValueKey('backup-password-fields-${vm.passwordRevision}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: [
+          FTextField(
+            key: const ValueKey('backup-password'),
+            label: Text(l10n.backupPassword),
+            obscureText: true,
+            enabled: !busy,
+            error: passwordError == null
+                ? null
+                : Text(backupPasswordMessage(l10n, passwordError)),
+            control: .managed(
+              initial: TextEditingValue(text: vm.password),
+              onChange: (v) => vm.setPassword(v.text),
+            ),
+          ),
+          FTextField(
+            key: const ValueKey('backup-password-retype'),
+            label: Text(l10n.backupPasswordRetype),
+            obscureText: true,
+            enabled: !busy,
+            error: retypeError == null
+                ? null
+                : Text(backupPasswordMessage(l10n, retypeError)),
+            control: .managed(
+              initial: TextEditingValue(text: vm.passwordRetype),
+              onChange: (v) => vm.setPasswordRetype(v.text),
+            ),
+          ),
+          Row(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                TablerIcons.lock,
+                size: 16,
+                color: theme.colors.mutedForeground,
+              ),
+              Expanded(
+                child: Text(
+                  l10n.backupLockNote,
+                  key: const ValueKey('backup-lock-note'),
+                  style: theme.typography.body.sm.copyWith(
+                    color: theme.colors.mutedForeground,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Panel kata sandi untuk membuka backup terkunci (F1-19c), juga dipakai
+/// dialog pulihkan di onboarding.
+class BackupUnlockFields extends StatelessWidget {
+  const BackupUnlockFields({
+    super.key,
+    required this.keyPrefix,
+    required this.enabled,
+    required this.onChanged,
+    required this.onSubmit,
+    this.error,
+  });
+
+  final String keyPrefix;
+  final bool enabled;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onSubmit;
+  final Exception? error;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 12,
+      children: [
+        FTextField(
+          key: ValueKey('$keyPrefix-password'),
+          label: Text(l10n.backupPassword),
+          obscureText: true,
+          enabled: enabled,
+          autofocus: true,
+          onSubmit: (_) => onSubmit?.call(),
+          control: .managed(onChange: (v) => onChanged(v.text)),
+        ),
+        if (error case final e?)
+          FAlert(
+            key: ValueKey('$keyPrefix-error'),
+            variant: .destructive,
+            title: Text(backupRestoreError(l10n, e)),
+          ),
+      ],
+    );
+  }
+}
+
+class _UnlockPanel extends StatelessWidget {
+  const _UnlockPanel({required this.viewModel});
+
+  final BackupViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final running = vm.unlock.running;
+    return SettingsCard(
+      key: const ValueKey('backup-unlock-panel'),
+      title: l10n.backupUnlockTitle,
+      subtitle: l10n.backupUnlockBody,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: [
+          BackupUnlockFields(
+            key: ValueKey('backup-unlock-fields-${vm.unlockRevision}'),
+            keyPrefix: 'backup-unlock',
+            enabled: !running,
+            onChanged: vm.setUnlockPassword,
+            onSubmit: vm.canUnlock ? vm.unlock.execute : null,
+            error: switch (vm.unlock.result) {
+              Error(:final error) => error,
+              _ => null,
+            },
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.end,
+            children: [
+              FButton(
+                key: const ValueKey('backup-unlock-cancel'),
+                variant: .outline,
+                mainAxisSize: .min,
+                onPress: running ? null : vm.cancelRestore,
+                child: Flexible(child: Text(l10n.backupRestoreCancel)),
+              ),
+              FButton(
+                key: const ValueKey('backup-unlock'),
+                mainAxisSize: .min,
+                onPress: vm.canUnlock ? vm.unlock.execute : null,
+                prefix: running
+                    ? const FCircularProgress()
+                    : const Icon(TablerIcons.lockOpen),
+                child: Flexible(child: Text(l10n.backupUnlock)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _Stat extends StatelessWidget {
   const _Stat({super.key, required this.label, required this.value});

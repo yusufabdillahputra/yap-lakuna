@@ -43,7 +43,8 @@ Termasuk:
 
 Tidak termasuk (gap):
 
-- Backup otomatis / ke cloud pihak ketiga; enkripsi berkas backup.
+- Backup otomatis / ke cloud pihak ketiga. Enkripsi berkas backup: selesai
+  v0.60.0, [F1-19c](2026-11-14-f1-19c-enkripsi-backup-design.md).
 - Aktifkan hosting (alur F2-01).
 - Pulihkan dari layar onboarding (sebelum toko dibuat): selesai v0.46.0,
   [F1-19b](2026-11-14-f1-19b-pulihkan-dari-onboarding-design.md).
@@ -131,7 +132,7 @@ pulihkan tanpa izin.
 | Pengingat backup di Beranda | 1.10 | v0.25.0 | - |
 | Layar gagal mulai | - | v0.25.0 | - |
 | Aktifkan hosting | 1.13 | Kartu nonaktif | Alur di F2-01 |
-| Enkripsi backup | - | Belum | Kata sandi backup bila diminta |
+| Enkripsi backup | 1.13 | Rilis v0.60.0 | [F1-19c](2026-11-14-f1-19c-enkripsi-backup-design.md): kunci kata sandi + ulangi, AES-256 per entri |
 | Pulihkan dari onboarding | - | Selesai v0.46.0 | [F1-19b](2026-11-14-f1-19b-pulihkan-dari-onboarding-design.md) |
 | Perangkat pengganti vs perangkat tambahan | - | Identitas perangkat ikut backup | Fase 2: daftarkan perangkat baru (kode K02) saat sync |
 | Checksum per gambar | - | Hanya database | Tambah SHA-256 gambar di manifest bila perlu |

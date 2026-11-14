@@ -13860,6 +13860,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Baris dilewati karena cocoknya ragu (kode kembar atau bertentangan, nama produk banyak varian, atau varian sudah diperbarui baris lain): {lines}'**
   String productImportSkippedUnclear(String lines);
+
+  /// No description provided for @backupLock.
+  ///
+  /// In id, this message translates to:
+  /// **'Kunci dengan kata sandi'**
+  String get backupLock;
+
+  /// No description provided for @backupLockNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi tidak disimpan. Tanpa kata sandi ini backup tidak bisa dipulihkan.'**
+  String get backupLockNote;
+
+  /// No description provided for @backupPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi backup'**
+  String get backupPassword;
+
+  /// No description provided for @backupPasswordRetype.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi kata sandi'**
+  String get backupPasswordRetype;
+
+  /// No description provided for @backupPasswordTooShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Minimal {min} karakter.'**
+  String backupPasswordTooShort(int min);
+
+  /// No description provided for @backupPasswordTooLong.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal {max} karakter.'**
+  String backupPasswordTooLong(int max);
+
+  /// No description provided for @backupPasswordMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi tidak sama.'**
+  String get backupPasswordMismatch;
+
+  /// No description provided for @backupSavedLockedTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terkunci kata sandi tersimpan di {path}'**
+  String backupSavedLockedTo(String path);
+
+  /// No description provided for @backupSharedLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terkunci kata sandi dibagikan.'**
+  String get backupSharedLocked;
+
+  /// No description provided for @backupUnlockTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup ini terkunci kata sandi'**
+  String get backupUnlockTitle;
+
+  /// No description provided for @backupUnlockBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan kata sandi yang dipakai saat backup dibuat.'**
+  String get backupUnlockBody;
+
+  /// No description provided for @backupUnlock.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka'**
+  String get backupUnlock;
+
+  /// No description provided for @backupWrongPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi salah. Coba lagi.'**
+  String get backupWrongPassword;
 }
 
 class _AppLocalizationsDelegate

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_flutter/app_root.dart';
 import 'package:lakuna_flutter/bootstrap.dart' show AppInstance;
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart';
@@ -100,6 +101,96 @@ void main() {
     expect(_key('backup-restore-error'), findsOneWidget);
     expect(_key('backup-restore-panel'), findsNothing);
   });
+
+  Future<void> enter(WidgetTester tester, String key, String text) async {
+    final field = find.descendant(
+      of: _key(key),
+      matching: find.byType(EditableText),
+    );
+    await tester.ensureVisible(field);
+    await tester.enterText(field, text);
+    await tester.pumpAndSettle();
+  }
+
+  bool enabled(WidgetTester tester, String key) =>
+      tester.widget<FButton>(_key(key)).onPress != null;
+
+  for (final size in [const Size(1280, 800), const Size(360, 740)]) {
+    testWidgets('kunci backup dengan kata sandi ${size.width.toInt()} px '
+        '(F1-19c)', (tester) async {
+      final backup = FakeBackupRepository(last: DateTime.utc(2026, 10, 1));
+      final files = FakeBackupFiles();
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.settingsBackup,
+        backup: backup,
+        backupFiles: files,
+      );
+      expect(_key('backup-password'), findsNothing);
+      await _tap(tester, 'backup-lock');
+      expect(_key('backup-lock-note'), findsOneWidget);
+      expect(enabled(tester, 'backup-now'), isFalse);
+
+      await enter(tester, 'backup-password', 'pendek');
+      expect(find.text('Minimal 8 karakter.'), findsOneWidget);
+      await enter(tester, 'backup-password', 'rahasia-toko');
+      await enter(tester, 'backup-password-retype', 'rahasia-tok');
+      expect(find.text('Kata sandi tidak sama.'), findsOneWidget);
+      expect(enabled(tester, 'backup-now'), isFalse);
+      await enter(tester, 'backup-password-retype', 'rahasia-toko');
+      expect(enabled(tester, 'backup-now'), isTrue);
+
+      await _tap(tester, 'backup-now');
+      expect(backup.createdPasswords, ['rahasia-toko']);
+      expect(
+        _text(tester, 'backup-result').data,
+        startsWith('Backup terkunci kata sandi tersimpan di'),
+      );
+      // Isian dikosongkan setelah backup dibuat.
+      final fields = tester.widgetList<EditableText>(
+        find.descendant(
+          of: _key('backup-section'),
+          matching: find.byType(EditableText),
+        ),
+      );
+      expect(fields.map((f) => f.controller.text), everyElement(isEmpty));
+      expect(enabled(tester, 'backup-now'), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('pulihkan backup terkunci ${size.width.toInt()} px '
+        '(F1-19c)', (tester) async {
+      final backup = FakeBackupRepository(last: DateTime.now().toUtc())
+        ..lockPassword = 'rahasia-toko';
+      final files = FakeBackupFiles();
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.settingsBackup,
+        backup: backup,
+        backupFiles: files,
+      );
+      await _tap(tester, 'backup-restore');
+      expect(_key('backup-unlock-panel'), findsOneWidget);
+      expect(_key('backup-restore-panel'), findsNothing);
+      expect(_key('backup-restore-error'), findsNothing);
+      expect(enabled(tester, 'backup-unlock'), isFalse);
+
+      await enter(tester, 'backup-unlock-password', 'salah-sandi');
+      await _tap(tester, 'backup-unlock');
+      expect(find.text('Kata sandi salah. Coba lagi.'), findsOneWidget);
+
+      await enter(tester, 'backup-unlock-password', 'rahasia-toko');
+      await _tap(tester, 'backup-unlock');
+      expect(_key('backup-unlock-panel'), findsNothing);
+      expect(_key('backup-restore-panel'), findsOneWidget);
+      await enter(tester, 'backup-restore-confirm', 'Warung Contoh');
+      await _tap(tester, 'backup-restore-submit');
+      expect(backup.stagedPasswords, ['rahasia-toko']);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('manajer tidak melihat Data & backup', (tester) async {
     await pumpLakuna(

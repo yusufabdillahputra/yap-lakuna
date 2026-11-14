@@ -93,6 +93,27 @@ void main() {
     expect(hasPendingRestore('${dir.path}/data'), isTrue);
   });
 
+  test('backup terkunci kata sandi (F1-19c)', () async {
+    final created = _ok(await repo.createBackup(password: 'rahasia-toko'));
+    expect(created.locked, isTrue);
+    expect(_err(await repo.inspect(created.path)), isA<BackupLocked>());
+    expect(
+      _err(await repo.inspect(created.path, password: 'salah-sandi')),
+      isA<BackupWrongPassword>(),
+    );
+    expect(
+      _ok(
+        await repo.inspect(created.path, password: 'rahasia-toko'),
+      ).tenantName,
+      'Toko Bu Ani',
+    );
+    expect(_err(await repo.stageRestore(created.path)), isA<BackupLocked>());
+    expect(hasPendingRestore('${dir.path}/data'), isFalse);
+    _ok(await repo.stageRestore(created.path, password: 'rahasia-toko'));
+    expect(hasPendingRestore('${dir.path}/data'), isTrue);
+    expect(_ok(await repo.createBackup()).locked, isFalse);
+  });
+
   test('backup baru menghapus salinan sementara sebelumnya', () async {
     final first = _ok(await repo.createBackup());
     File('${exports.path}/sisa.zip').writeAsStringSync('x');
