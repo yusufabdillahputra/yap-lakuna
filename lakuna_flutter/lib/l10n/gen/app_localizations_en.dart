@@ -8207,4 +8207,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupWrongPassword => 'Wrong password. Try again.';
+
+  @override
+  String get barPrinterTitle => 'Bar printer';
+
+  @override
+  String get barPrinterSubtitle =>
+      'Drinks from the chosen categories print automatically at the bar on Send to kitchen. Saved on this device only.';
+
+  @override
+  String get barPrinterNone => 'Not used';
+
+  @override
+  String get barPrinterNoneNote => 'All items go on the kitchen ticket.';
+
+  @override
+  String get barPrinterForget => 'Forget bar printer';
+
+  @override
+  String get barPrinterTest => 'Print test bar ticket';
+
+  @override
+  String get barPrinterTestSent => 'Sample ticket sent to the bar printer.';
+
+  @override
+  String get barCategories => 'Categories to the bar';
+
+  @override
+  String get barCategoriesHint =>
+      'Sub-categories follow their parent. Other items still go to the kitchen.';
+
+  @override
+  String get barCategoriesNeeded =>
+      'Choose at least one category; until then every ticket still goes to the kitchen.';
+
+  @override
+  String get barCategoriesEmpty =>
+      'No menu categories yet. Add categories in Products.';
+
+  @override
+  String get barTicketHeading => 'BAR TICKET';
+
+  @override
+  String get barTicketPrinting => 'Printing on the bar printer…';
+
+  @override
+  String get barTicketPrinted => 'Ticket printed on the bar printer.';
+
+  @override
+  String get barTicketReprint => 'Reprint bar ticket';
+
+  @override
+  String get kitchenTicketSection => 'Kitchen';
+
+  @override
+  String get barTicketSection => 'Bar';
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:lakuna_client/lakuna_client.dart'
+    show ProductCategory, UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
@@ -7,13 +9,18 @@ import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
+/// Stasiun printer tiket: dapur (F1-10e) atau bar (F1-10j).
+enum PrinterStation { kitchen, bar }
+
 /// Pengaturan › Struk & printer › *Printer dapur* (F1-10e): printer khusus
 /// tiket dapur di perangkat ini. Tanpa printer dapur, tiket memakai printer
-/// struk lewat *Cetak tiket*.
+/// struk lewat *Cetak tiket*. Dengan [station] bar (F1-10j) VM yang sama
+/// mengatur *Printer bar* beserta kategori menu yang dicetak di bar.
 class KitchenPrinterViewModel extends ChangeNotifier {
   KitchenPrinterViewModel({
     required this._repository,
     required this._printer,
+    this.station = PrinterStation.kitchen,
   }) {
     load = Command0(_load)..addListener(notifyListeners);
     searchBluetooth = Command0(_searchBluetooth)..addListener(notifyListeners);
@@ -24,6 +31,8 @@ class KitchenPrinterViewModel extends ChangeNotifier {
 
   final ReceiptSettingsRepository _repository;
   final ReceiptPrinter _printer;
+  final PrinterStation station;
+  bool get _isBar => station == PrinterStation.bar;
 
   late final Command0<void> load;
   late final Command0<void> searchBluetooth;
@@ -47,6 +56,8 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   PrinterFailureReason? _failure;
   var _testSent = false;
   var _disposed = false;
+  List<ProductCategory> _categories = const [];
+  Set<UuidValue> _categoryIds = const {};
 
   @override
   void dispose() {
@@ -60,6 +71,67 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   }
 
   bool get loaded => _loaded;
+
+  /// Kategori menu induk yang bisa diarahkan ke bar: yang aktif, ditambah
+  /// yang nonaktif bila sudah terpilih agar bisa dilepas.
+  List<ProductCategory> get categories => [
+    for (final c in _categories)
+      if (c.isActive || _categoryIds.contains(c.id)) c,
+  ];
+
+  /// Kategori yang dicetak di bar (tersimpan, atau dipakai saat printer
+  /// dipilih).
+  Set<UuidValue> get categoryIds => _categoryIds;
+
+  /// Printer bar tersimpan tanpa kategori: belum ada yang ke bar.
+  bool get needsCategory => _isBar && _kitchen != null && _categoryIds.isEmpty;
+
+  /// Kategori [id] masuk / keluar dari bar; langsung tersimpan bila printer
+  /// bar sudah dipilih. Ketukan selagi menyimpan diantrekan.
+  void toggleCategory(UuidValue id) {
+    if (!_isBar) return;
+    _categoryIds = _categoryIds.contains(id)
+        ? ({..._categoryIds}..remove(id))
+        : {..._categoryIds, id};
+    notifyListeners();
+    _saveCategories();
+  }
+
+  var _categorySaving = false;
+  var _categoryDirty = false;
+
+  Future<void> _saveCategories() async {
+    if (_kitchen == null) return;
+    if (_categorySaving) {
+      _categoryDirty = true;
+      return;
+    }
+    _categorySaving = true;
+    try {
+      do {
+        _categoryDirty = false;
+        final saved = _kitchen;
+        if (saved == null) break;
+        await _idleChoose();
+        await choose.execute(saved.printer);
+        if (choose.error && !_categoryDirty) {
+          // Kembali ke kategori yang benar-benar tersimpan.
+          _categoryIds = _kitchen?.categoryIds ?? const {};
+          notifyListeners();
+        }
+      } while (_categoryDirty);
+    } finally {
+      _categorySaving = false;
+    }
+  }
+
+  /// Tunggu simpan lain (mis. lebar kertas) selesai.
+  Future<void> _idleChoose() async {
+    while (choose.running) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+  }
+
   bool get supportsBluetooth => _printer.supportsBluetooth;
 
   /// Printer dapur tersimpan; `null` = sama dengan printer struk.
@@ -148,7 +220,14 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _load() async {
-    final result = await _repository.loadKitchenPrinter();
+    if (_isBar) {
+      final categories = await _repository.menuCategories();
+      if (categories case Error(:final error)) return Result.error(error);
+      _categories = (categories as Ok<List<ProductCategory>>).value;
+    }
+    final result = _isBar
+        ? await _repository.loadBarPrinter()
+        : await _repository.loadKitchenPrinter();
     if (result case Error(:final error)) return Result.error(error);
     _apply((result as Ok<KitchenPrinter?>).value);
     _loaded = true;
@@ -159,6 +238,12 @@ class KitchenPrinterViewModel extends ChangeNotifier {
     _kitchen = kitchen;
     _kind = kitchen?.printer.kind;
     _paper = kitchen?.paper ?? _paper;
+    // Ketukan chip yang menunggu simpan berikutnya tidak ditimpa.
+    if (_isBar && kitchen != null && !_categoryDirty) {
+      // Kategori yang sudah dihapus diabaikan.
+      final known = {for (final c in _categories) c.id};
+      _categoryIds = kitchen.categoryIds.intersection(known);
+    }
     if (kitchen?.printer case PrinterSelection(
       kind: PrinterKind.network,
       :final address,
@@ -170,8 +255,12 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _choose(PrinterSelection printer) async {
-    final next = KitchenPrinter(printer: printer, paper: _paper);
-    final result = await _repository.saveKitchenPrinter(next);
+    final next = KitchenPrinter(
+      printer: printer,
+      paper: _paper,
+      categoryIds: _isBar ? _categoryIds : const {},
+    );
+    final result = await _save(next);
     if (result case Ok()) {
       _apply(next);
       _failure = null;
@@ -181,15 +270,20 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _forget() async {
-    final result = await _repository.saveKitchenPrinter(null);
+    final result = await _save(null);
     if (result case Ok()) {
       _kitchen = null;
       _kind = null;
+      _categoryIds = const {};
       _failure = null;
       _testSent = false;
     }
     return result;
   }
+
+  Future<Result<void>> _save(KitchenPrinter? next) => _isBar
+      ? _repository.saveBarPrinter(next)
+      : _repository.saveKitchenPrinter(next);
 
   Future<Result<void>> _printerAction(Future<void> Function() body) async {
     _failure = null;
@@ -219,7 +313,7 @@ class KitchenPrinterViewModel extends ChangeNotifier {
         kitchen.printer,
         lines,
         kitchen.paper,
-        jobName: 'Lakuna kitchen test',
+        jobName: _isBar ? 'Lakuna bar test' : 'Lakuna kitchen test',
       );
       _testSent = true;
     });

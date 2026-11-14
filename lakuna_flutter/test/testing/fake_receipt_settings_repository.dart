@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -10,6 +12,7 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
     this.config = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
     this.kitchen,
+    this.bar,
   });
 
   ReceiptConfig config;
@@ -21,6 +24,13 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
   /// Printer dapur (F1-10e).
   KitchenPrinter? kitchen;
   final kitchenSaves = <KitchenPrinter?>[];
+
+  /// Printer bar (F1-10j).
+  KitchenPrinter? bar;
+  final barSaves = <KitchenPrinter?>[];
+
+  /// Kategori menu induk untuk printer bar.
+  List<ProductCategory> categories = const [];
 
   Result<T> _result<T>(T Function() value) {
     final e = nextError;
@@ -97,4 +107,23 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
         kitchenSaves.add(kitchen);
         this.kitchen = kitchen;
       });
+
+  @override
+  Future<Result<KitchenPrinter?>> loadBarPrinter() async => _result(() => bar);
+
+  /// Bila diisi, simpan printer bar menunggu sampai selesai.
+  Completer<void>? barSaveGate;
+
+  @override
+  Future<Result<void>> saveBarPrinter(KitchenPrinter? bar) async {
+    await barSaveGate?.future;
+    return _result(() {
+      barSaves.add(bar);
+      this.bar = bar;
+    });
+  }
+
+  @override
+  Future<Result<List<ProductCategory>>> menuCategories() async =>
+      _result(() => categories);
 }

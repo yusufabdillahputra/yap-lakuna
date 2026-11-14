@@ -63,6 +63,25 @@ class LocalReceiptSettingsRepository extends ReceiptSettingsRepository {
     (_, _) => data.saveKitchenPrinter(_preferences, kitchen),
   );
 
+  @override
+  Future<Result<KitchenPrinter?>> loadBarPrinter() =>
+      _guard(manage: false, (_, _) => data.loadBarPrinter(_preferences));
+
+  @override
+  Future<Result<void>> saveBarPrinter(KitchenPrinter? bar) => _guard(
+    manage: true,
+    (_, _) => data.saveBarPrinter(_preferences, bar),
+  );
+
+  @override
+  Future<Result<List<ProductCategory>>> menuCategories() => _guard(
+    manage: false,
+    (scope, _) async => [
+      for (final c in await listCategories(_store, scope))
+        if (c.parentId == null) c,
+    ],
+  );
+
   Future<Result<T>> _guard<T>(
     Future<T> Function(CatalogScope scope, UuidValue staffId) body, {
     required bool manage,

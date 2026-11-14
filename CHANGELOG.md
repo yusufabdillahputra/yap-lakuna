@@ -7,6 +7,64 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.61.0] - 2026-11-14
+
+Kafe yang punya dapur dan bar kini bisa memasang printer bar: satu kali
+*Kirim ke dapur* mencetak minuman di bar dan makanan di dapur, tanpa
+pelayan memisahkan pesanan.
+
+### Ditambahkan
+
+- **Printer bar per kategori (1.26, F1-10j).** Kartu baru *Printer bar*
+  di Pengaturan › Struk & printer, di bawah *Printer dapur*: *Tidak
+  dipakai* (bawaan), *Jaringan (LAN)*, atau *Bluetooth* (Android), lebar
+  kertas 58 / 80 mm, *Tes cetak tiket bar* (tiket contoh berjudul *TIKET
+  BAR*), dan *Lupakan printer bar*. Disimpan per perangkat, butuh izin
+  `settings:manage`.
+- **Kategori ke bar.** Chip kategori menu induk (aktif, urut seperti di
+  Produk); sub-kategori ikut induknya. Chip langsung tersimpan bila
+  printer bar sudah dipilih, atau dipakai saat printer dipilih. Tanpa
+  kategori tampil *Pilih minimal satu kategori; sampai itu semua tiket
+  tetap ke dapur.*
+- **Kirim ke dapur membagi tiket (1.7e).** Item dari kategori bar dicetak
+  otomatis sekali di printer bar dengan judul *TIKET BAR*; item lain tetap
+  ke tiket dapur seperti sebelumnya. Satu nomor tiket (`K-0012`) untuk
+  keduanya. Bila semua item ke bar, tiket dapur tidak dicetak.
+- **Modal tiket dua bagian.** Pratinjau *Dapur* dan *Bar* dengan status
+  cetak masing-masing (*Mencetak di printer bar…*, *Tiket dicetak di
+  printer bar.*, atau alasan galat) dan tombol *Cetak ulang tiket bar*.
+  Galat printer bar tidak menghalangi tiket dapur, dan sebaliknya.
+- Panduan *Struk & printer* (ID/EN): bagian *Printer bar*.
+
+### Diperbaiki
+
+- Cetak langsung ke printer jaringan dan Bluetooth kini dikirim satu per
+  satu. Sebelumnya dua cetak bersamaan bisa saling memutus sambungan
+  Bluetooth (plugin hanya punya satu sambungan), sehingga byte tiket bisa
+  masuk ke printer yang salah atau gagal *tidak tersambung*.
+- Tiket dapur yang menunggu cetak sebelumnya (printer lambat) tetap
+  dicetak walau modalnya sudah ditutup; sebelumnya tiket itu dilewati
+  tanpa pesan bila pelayan menutup modal kedua sebelum printer selesai.
+
+### Catatan teknis
+
+- Preferensi lokal baru `printer.bar` (JSON printer, kertas, `categories`).
+  `printer.kitchen` tidak berubah: kategori dibuang saat memuat printer
+  dapur, dan JSON lama tanpa `categories` dimuat dengan kategori kosong.
+- `splitBarItems` di `lakuna_data` membagi item menurut kategori produk
+  atau induknya (naik maksimal 8 tingkat); varian tidak dikenal dan produk
+  tanpa kategori ke dapur.
+- `KitchenPrinterViewModel(station: PrinterStation.bar)` dan
+  `KitchenPrinterCard` dipakai ulang untuk stasiun bar; `DiningViewModel`
+  mendapat `kitchenTicket` / `barTicket`, `autoPrintBar`, `printBarTicket`.
+  `kitchenTicketLines(heading:)` untuk judul *TIKET BAR*.
+- Review menemukan dan memperbaiki: chip kategori yang diketuk selagi
+  menyimpan sempat hilang, id kategori yang sudah dihapus tetap dihitung
+  terpilih, dan kategori tetap terbawa setelah printer bar dilupakan.
+- Uji manual Xvfb: dua printer jaringan tiruan (port 9101 dapur, 9102 bar)
+  menerima *TIKET DAPUR* berisi makanan dan *TIKET BAR* berisi minuman dari
+  satu kiriman.
+
 ## [0.60.0] - 2026-11-14
 
 Backup kini bisa dikunci dengan kata sandi, sehingga berkas yang disimpan
@@ -4546,7 +4604,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...HEAD
+[0.61.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...v0.58.0

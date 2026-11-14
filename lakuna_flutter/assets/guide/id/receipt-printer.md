@@ -20,7 +20,18 @@ Printer disimpan per perangkat, tidak ikut ke perangkat lain.
 
 ## Printer dapur
 
-Di kartu *Printer dapur*, pilih **Jaringan (LAN)** atau **Bluetooth** untuk printer di dapur atau bar, lalu atur **Lebar kertas tiket** dan tekan **Tes cetak tiket**. Setelah itu tiket dapur langsung tercetak di printer dapur setiap kali **Kirim ke dapur**. Pilih **Sama dengan printer struk** atau **Lupakan printer dapur** untuk kembali mencetak tiket lewat **Cetak tiket** di printer struk.
+Di kartu *Printer dapur*, pilih **Jaringan (LAN)** atau **Bluetooth** untuk printer di dapur, lalu atur **Lebar kertas tiket** dan tekan **Tes cetak tiket**. Setelah itu tiket dapur langsung tercetak di printer dapur setiap kali **Kirim ke dapur**. Pilih **Sama dengan printer struk** atau **Lupakan printer dapur** untuk kembali mencetak tiket lewat **Cetak tiket** di printer struk.
+
+
+## Printer bar
+
+Bila minuman disiapkan di bar, pasang printer kedua di kartu *Printer bar*:
+
+1. Pilih **Jaringan (LAN)** atau **Bluetooth**, isi alamat atau pilih printernya, lalu atur **Lebar kertas tiket**.
+2. Di **Kategori ke bar**, ketuk kategori menu yang dibuat di bar, misalnya *Minuman*. Sub-kategori ikut kategori induknya.
+3. Tekan **Tes cetak tiket bar**.
+
+Setiap **Kirim ke dapur**, item dari kategori bar tercetak di printer bar dengan judul *TIKET BAR*, sedangkan item lain tetap ke tiket dapur. Nomor tiketnya sama. Modal tiket menampilkan kedua tiket dan status cetak masing-masing; bila printer bar gagal, tekan **Cetak ulang tiket bar**. Selama belum ada kategori yang dipilih, semua item tetap ke dapur. Pilih **Tidak dipakai** atau **Lupakan printer bar** untuk berhenti memakai printer bar.
 
 ## Isi struk cabang
 

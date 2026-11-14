@@ -397,37 +397,54 @@ Future<void> savePrinterSelection(
 const kitchenPrinterKey = 'printer.kitchen';
 
 /// Printer dapur khusus: tiket dapur dicetak otomatis ke sini saat
-/// *Kirim ke dapur*. Hanya jaringan atau Bluetooth (cetak langsung).
+/// *Kirim ke dapur*. Hanya jaringan atau Bluetooth (cetak langsung). Dipakai
+/// juga untuk printer bar (F1-10j) dengan [categoryIds].
 class KitchenPrinter {
-  const KitchenPrinter({required this.printer, this.paper = ReceiptPaper.mm58});
+  const KitchenPrinter({
+    required this.printer,
+    this.paper = ReceiptPaper.mm58,
+    this.categoryIds = const {},
+  });
 
   final PrinterSelection printer;
 
   /// Lebar kertas tiket dapur, terpisah dari struk.
   final ReceiptPaper paper;
 
-  KitchenPrinter copyWith({PrinterSelection? printer, ReceiptPaper? paper}) =>
-      KitchenPrinter(
-        printer: printer ?? this.printer,
-        paper: paper ?? this.paper,
-      );
+  /// Printer bar: kategori menu (beserta sub-kategorinya) yang tiketnya
+  /// dicetak di bar. Tidak dipakai printer dapur.
+  final Set<UuidValue> categoryIds;
+
+  /// Printer bar menerima item: printer dipilih dan minimal satu kategori.
+  bool get routesBar => categoryIds.isNotEmpty;
+
+  KitchenPrinter copyWith({
+    PrinterSelection? printer,
+    ReceiptPaper? paper,
+    Set<UuidValue>? categoryIds,
+  }) => KitchenPrinter(
+    printer: printer ?? this.printer,
+    paper: paper ?? this.paper,
+    categoryIds: categoryIds ?? this.categoryIds,
+  );
 
   @override
   bool operator ==(Object other) =>
       other is KitchenPrinter &&
       other.printer == printer &&
-      other.paper == paper;
+      other.paper == paper &&
+      other.categoryIds.length == categoryIds.length &&
+      other.categoryIds.containsAll(categoryIds);
 
   @override
-  int get hashCode => Object.hash(printer, paper);
+  int get hashCode =>
+      Object.hash(printer, paper, Object.hashAllUnordered(categoryIds));
 
   @override
-  String toString() => 'KitchenPrinter($printer, $paper)';
+  String toString() => 'KitchenPrinter($printer, $paper, $categoryIds)';
 }
 
-/// Printer dapur perangkat ini; `null` = sama dengan printer struk.
-Future<KitchenPrinter?> loadKitchenPrinter(LocalPreferences prefs) async {
-  final raw = await prefs.get(kitchenPrinterKey);
+KitchenPrinter? _loadStation(String? raw) {
   if (raw == null || raw.isEmpty) return null;
   try {
     final json = jsonDecode(raw);
@@ -435,25 +452,91 @@ Future<KitchenPrinter?> loadKitchenPrinter(LocalPreferences prefs) async {
     if (printer == null || !printer.isDirect || printer.address.isEmpty) {
       return null;
     }
+    final map = json as Map<String, Object?>;
     final paper = ReceiptPaper.values
-        .where((p) => p.name == (json as Map<String, Object?>)['paper'])
+        .where((p) => p.name == map['paper'])
         .firstOrNull;
-    return KitchenPrinter(printer: printer, paper: paper ?? ReceiptPaper.mm58);
+    final categories = <UuidValue>{};
+    if (map['categories'] case final List<Object?> list) {
+      for (final c in list) {
+        if (c is! String) continue;
+        try {
+          categories.add(UuidValue.withValidation(c));
+        } on FormatException {
+          // Id rusak diabaikan.
+        }
+      }
+    }
+    return KitchenPrinter(
+      printer: printer,
+      paper: paper ?? ReceiptPaper.mm58,
+      categoryIds: categories,
+    );
   } on FormatException {
     return null;
   }
 }
 
+String _stationJson(KitchenPrinter? station, {required bool categories}) =>
+    station == null
+    ? ''
+    : jsonEncode({
+        ...station.printer.toJson(),
+        'paper': station.paper.name,
+        if (categories)
+          'categories': [for (final c in station.categoryIds) c.uuid],
+      });
+
+/// Printer dapur perangkat ini; `null` = sama dengan printer struk.
+Future<KitchenPrinter?> loadKitchenPrinter(LocalPreferences prefs) async =>
+    _loadStation(await prefs.get(kitchenPrinterKey))
+        ?.copyWith(categoryIds: const {});
+
 /// Menyimpan printer dapur; `null` kembali ke printer struk.
 Future<void> saveKitchenPrinter(
   LocalPreferences prefs,
   KitchenPrinter? kitchen,
-) => prefs.set(
-  kitchenPrinterKey,
-  kitchen == null
-      ? ''
-      : jsonEncode({...kitchen.printer.toJson(), 'paper': kitchen.paper.name}),
-);
+) => prefs.set(kitchenPrinterKey, _stationJson(kitchen, categories: false));
+
+/// Kunci preferensi lokal printer bar di perangkat ini (F1-10j).
+const barPrinterKey = 'printer.bar';
+
+/// Printer bar perangkat ini; `null` = tidak dipakai.
+Future<KitchenPrinter?> loadBarPrinter(LocalPreferences prefs) async =>
+    _loadStation(await prefs.get(barPrinterKey));
+
+/// Menyimpan printer bar beserta kategorinya; `null` melupakannya.
+Future<void> saveBarPrinter(LocalPreferences prefs, KitchenPrinter? bar) =>
+    prefs.set(barPrinterKey, _stationJson(bar, categories: true));
+
+/// Membagi item tiket dapur ke dapur dan bar (F1-10j). Item yang kategori
+/// produknya (atau induknya) ada di [barCategories] ke bar; item tanpa
+/// kategori atau varian yang tidak dikenal tetap ke dapur. Urutan item
+/// dipertahankan.
+({List<SaleItem> kitchen, List<SaleItem> bar}) splitBarItems(
+  List<SaleItem> items, {
+  required Map<UuidValue, UuidValue?> variantCategories,
+  required Map<UuidValue, UuidValue> categoryParents,
+  required Set<UuidValue> barCategories,
+}) {
+  bool toBar(SaleItem item) {
+    if (barCategories.isEmpty) return false;
+    var category = variantCategories[item.variantId];
+    // Naik ke induk; dibatasi agar data melingkar tidak berputar terus.
+    for (var depth = 0; category != null && depth < 8; depth++) {
+      if (barCategories.contains(category)) return true;
+      category = categoryParents[category];
+    }
+    return false;
+  }
+
+  final kitchen = <SaleItem>[];
+  final bar = <SaleItem>[];
+  for (final item in items) {
+    (toBar(item) ? bar : kitchen).add(item);
+  }
+  return (kitchen: kitchen, bar: bar);
+}
 
 final _hostPattern = RegExp(r'^[A-Za-z0-9.\-]+$');
 

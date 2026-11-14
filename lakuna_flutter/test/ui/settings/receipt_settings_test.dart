@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_client/lakuna_client.dart' show ProductCategory;
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -12,6 +13,7 @@ import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_receipt_settings_repository.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_stock_repository.dart' show fakeId;
 import '../../testing/floor_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -42,13 +44,14 @@ void main() {
     Size size = const Size(1280, 900),
     bool bluetooth = true,
     FakeImagePicker? picker,
+    List<ProductCategory> categories = const [],
   }) async {
     final repo = FakeReceiptSettingsRepository(
       config: const ReceiptConfig(
         settings: ReceiptSettings(),
         defaultHeader: 'Jl. Melati No. 12',
       ),
-    );
+    )..categories = categories;
     final printer = FakeReceiptPrinter(supportsBluetooth: bluetooth)
       ..paired = [rpp];
     await pumpLakuna(
@@ -204,6 +207,74 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  for (final size in const [Size(1280, 900), Size(360, 760)]) {
+    testWidgets('printer bar: kategori, jaringan, tes tiket bar, lupakan '
+        '(${size.width.toInt()} px)', (tester) async {
+      final minuman = ProductCategory(
+        tenantId: fakeId(1),
+        name: 'Minuman',
+        sortOrder: 0,
+        hlc: '',
+      );
+      final kopi = ProductCategory(
+        tenantId: fakeId(1),
+        name: 'Kopi',
+        sortOrder: 1,
+        hlc: '',
+      );
+      final (repo, printer) = await pump(
+        tester,
+        size: size,
+        categories: [kopi, minuman],
+      );
+      expect(_key('bar-printer'), findsOneWidget);
+      expect(_key('bar-printer-same-note'), findsOneWidget);
+      expect(find.text('Semua item dicetak di tiket dapur.'), findsOneWidget);
+      expect(_key('bar-categories'), findsNothing);
+
+      await _tap(tester, 'bar-printer-kind-network');
+      expect(_key('bar-categories'), findsOneWidget);
+      expect(_key('bar-categories-needed'), findsOneWidget);
+      await _tap(tester, 'bar-category-${minuman.id}');
+      // Belum ada printer: kategori dipakai saat printer dipilih.
+      expect(repo.bar, isNull);
+      expect(_key('bar-categories-needed'), findsNothing);
+
+      await tester.enterText(_input('bar-printer-address-0'), '10.0.0.7');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'bar-printer-use-address');
+      expect(repo.bar?.printer.address, '10.0.0.7:9100');
+      expect(repo.bar?.categoryIds, {minuman.id});
+      // Printer dapur tidak tersentuh.
+      expect(repo.kitchen, isNull);
+
+      await _tap(tester, 'bar-category-${kopi.id}');
+      expect(repo.bar?.categoryIds, {minuman.id, kopi.id});
+      await _tap(tester, 'bar-category-${minuman.id}');
+      await _tap(tester, 'bar-category-${kopi.id}');
+      expect(repo.bar?.categoryIds, isEmpty);
+      expect(_key('bar-categories-needed'), findsOneWidget);
+
+      await _tap(tester, 'bar-printer-test');
+      expect(_key('bar-printer-test-sent'), findsOneWidget);
+      final (target, lines, _) = printer.prints.single;
+      expect(target.address, '10.0.0.7:9100');
+      expect(lines.first.text, 'TIKET BAR');
+      expect(lines.any((l) => l.text.contains('Nasi Goreng')), isFalse);
+
+      await _tap(tester, 'bar-printer-forget');
+      expect(repo.bar, isNull);
+      expect(find.text('Tidak dipakai'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('kategori bar kosong menampilkan petunjuk', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'bar-printer-kind-network');
+    expect(_key('bar-categories-empty'), findsOneWidget);
+  });
 
   testWidgets('kasir tanpa settings:manage tidak melihat Struk & printer', (
     tester,

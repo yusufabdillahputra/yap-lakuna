@@ -103,6 +103,9 @@ class FakeDiningRepository extends DiningRepository {
   PrinterSelection? printer;
   KitchenPrinter? kitchenPrinter;
 
+  /// Printer bar (F1-10j).
+  KitchenPrinter? barPrinter;
+
   /// Area [area] (1 = Indoor, 2 = Teras) jadi mode denah dengan gambar
   /// 1600 × 1200 dan meja di [positions] (nama → x, y).
   void useFloorPlan(int area, Map<String, (int, int)> positions) {
@@ -246,6 +249,9 @@ class FakeDiningRepository extends DiningRepository {
       categories: cashierCategories(catalog.categories, {
         for (final p in products) p.categoryId,
       }),
+      categoryParents: {
+        for (final c in catalog.categories) c.id: ?c.parentId,
+      },
       staffName: 'Dimas',
       timezone: 'Asia/Jakarta',
       canPay: _can(Permission.salesCreate),
@@ -257,6 +263,7 @@ class FakeDiningRepository extends DiningRepository {
       discountNeedsPin: discountNeedsPin,
       printer: printer,
       kitchenPrinter: kitchenPrinter,
+      barPrinter: barPrinter,
     );
   });
 

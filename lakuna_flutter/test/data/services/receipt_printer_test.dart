@@ -138,6 +138,33 @@ void main() {
       expect(bt.written, isNot(isA<Uint8List>()));
       expect(bt.written, encodeEscPos(lines));
     });
+
+    test(
+      'dua cetak bersamaan ke dua printer tidak tertukar (F1-10j)',
+      () async {
+        const bar = PrinterSelection(
+          kind: PrinterKind.bluetooth,
+          name: 'Bar',
+          address: '66:22:B1:00:00:02',
+        );
+        final bt = _FakeBluetooth();
+        final printer = PlatformReceiptPrinter(
+          bluetooth: bt,
+          bluetoothSupported: true,
+        );
+        const dapur = [ReceiptLine('DAPUR')];
+        const minuman = [ReceiptLine('BAR')];
+        await Future.wait([
+          printer.print(rpp, dapur, ReceiptPaper.mm58, jobName: 'a'),
+          printer.print(bar, minuman, ReceiptPaper.mm58, jobName: 'b'),
+        ]);
+        expect(bt.writes.map((w) => w.$1), [rpp.address, bar.address]);
+        expect(bt.writes.map((w) => w.$2), [
+          encodeEscPos(dapur),
+          encodeEscPos(minuman),
+        ]);
+      },
+    );
   });
 
   group('receiptPdfDirectory', () {
@@ -251,6 +278,10 @@ class _FakeBluetooth implements BluetoothThermal {
   final calls = <String>[];
   List<int>? written;
 
+  /// Printer yang sedang tersambung; tulis masuk ke sini.
+  String? current;
+  final writes = <(String?, List<int>)>[];
+
   @override
   Future<bool> requestPermission() async {
     calls.add('permission');
@@ -270,14 +301,17 @@ class _FakeBluetooth implements BluetoothThermal {
   }
 
   @override
-  Future<bool> connected() async => false;
+  Future<bool> connected() async => current != null;
 
   @override
-  Future<void> disconnect() async {}
+  Future<void> disconnect() async => current = null;
 
   @override
   Future<bool> connect(String mac) async {
     calls.add('connect');
+    // Sambungan butuh waktu: pekerjaan lain bisa menyela.
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+    current = mac;
     return true;
   }
 
@@ -285,6 +319,8 @@ class _FakeBluetooth implements BluetoothThermal {
   Future<bool> write(List<int> bytes) async {
     calls.add('write');
     written = bytes;
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+    writes.add((current, bytes));
     return true;
   }
 }

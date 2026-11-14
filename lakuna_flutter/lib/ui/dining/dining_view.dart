@@ -363,13 +363,28 @@ class _TicketListenerState extends State<_TicketListener> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final vm = widget.viewModel;
+      final l10n = AppLocalizations.of(context);
+      // Printer bar (F1-10j): item kategori bar langsung dicetak sekali.
+      if (vm.barTicket case final bar? when vm.shouldAutoPrintBar) {
+        unawaited(
+          vm.autoPrintBar(
+            kitchenTicketLines(
+              l10n,
+              result: bar,
+              timezone: vm.data?.timezone,
+              paper: vm.barPaper,
+              heading: l10n.barTicketHeading,
+            ),
+          ),
+        );
+      }
       // Printer dapur khusus (F1-10e): tiket langsung dicetak sekali.
-      if (vm.shouldAutoPrintTicket) {
+      if (vm.kitchenTicket case final kitchen? when vm.shouldAutoPrintTicket) {
         unawaited(
           vm.autoPrintTicket(
             kitchenTicketLines(
-              AppLocalizations.of(context),
-              result: ticket,
+              l10n,
+              result: kitchen,
               timezone: vm.data?.timezone,
               paper: vm.ticketPaper,
             ),
@@ -2736,16 +2751,41 @@ class _TicketDialog extends StatelessWidget {
       final l10n = AppLocalizations.of(context);
       final theme = context.theme;
       final vm = viewModel;
-      final ticket = vm.lastTicket;
-      if (ticket == null) return const SizedBox.shrink();
-      final lines = kitchenTicketLines(
-        l10n,
-        result: ticket,
-        timezone: vm.data?.timezone,
-        paper: vm.ticketPaper,
-      );
+      if (vm.lastTicket == null) return const SizedBox.shrink();
+      final kitchenPart = vm.kitchenTicket;
+      final barPart = vm.barTicket;
+      final kitchenLines = kitchenPart == null
+          ? null
+          : kitchenTicketLines(
+              l10n,
+              result: kitchenPart,
+              timezone: vm.data?.timezone,
+              paper: vm.ticketPaper,
+            );
+      final barLines = barPart == null
+          ? null
+          : kitchenTicketLines(
+              l10n,
+              result: barPart,
+              timezone: vm.data?.timezone,
+              paper: vm.barPaper,
+              heading: l10n.barTicketHeading,
+            );
       final kitchen = vm.ticketToKitchen;
+      final both = kitchenLines != null && barLines != null;
       final height = MediaQuery.sizeOf(context).height;
+      final previewHeight = height * (both ? 0.3 : 0.55);
+      final sectionStyle = theme.typography.body.sm.copyWith(
+        fontWeight: FontWeight.w600,
+      );
+      Widget preview(String key, List<ReceiptLine> lines, ReceiptPaper paper) =>
+          ConstrainedBox(
+            key: ValueKey(key),
+            constraints: BoxConstraints(maxHeight: previewHeight),
+            child: SingleChildScrollView(
+              child: ReceiptPaperView(lines: lines, paper: paper),
+            ),
+          );
       // Bergulir utuh di layar pendek agar status dan tombol terjangkau.
       return SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -2761,37 +2801,61 @@ class _TicketDialog extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: height * 0.55),
-              child: SingleChildScrollView(
-                child: ReceiptPaperView(lines: lines, paper: vm.ticketPaper),
-              ),
-            ),
+            if (kitchenLines != null) ...[
+              if (barLines != null)
+                Text(l10n.kitchenTicketSection, style: sectionStyle),
+              preview('dining-ticket-kitchen', kitchenLines, vm.ticketPaper),
+              if (vm.printTicket.running && kitchen)
+                Text(
+                  l10n.ticketPrintingKitchen,
+                  key: const ValueKey('dining-ticket-printing-kitchen'),
+                  style: _muted(context),
+                )
+              else if (vm.printTicket.error)
+                Text(
+                  switch (vm.printFailure) {
+                    final reason? => printerFailureMessage(l10n, reason),
+                    null => l10n.ticketPrintFailed,
+                  },
+                  key: const ValueKey('dining-ticket-print-failed'),
+                  style: _errorStyle(context),
+                )
+              else if (vm.ticketPrinted)
+                Text(
+                  kitchen ? l10n.ticketPrintedKitchen : l10n.ticketPrinted,
+                  key: const ValueKey('dining-ticket-printed'),
+                  style: _muted(context),
+                ),
+            ],
+            if (barLines != null) ...[
+              Text(l10n.barTicketSection, style: sectionStyle),
+              preview('dining-ticket-bar', barLines, vm.barPaper),
+              if (vm.printBarTicket.running)
+                Text(
+                  l10n.barTicketPrinting,
+                  key: const ValueKey('dining-ticket-printing-bar'),
+                  style: _muted(context),
+                )
+              else if (vm.printBarTicket.error)
+                Text(
+                  switch (vm.barPrintFailure) {
+                    final reason? => printerFailureMessage(l10n, reason),
+                    null => l10n.ticketPrintFailed,
+                  },
+                  key: const ValueKey('dining-ticket-bar-print-failed'),
+                  style: _errorStyle(context),
+                )
+              else if (vm.barTicketPrinted)
+                Text(
+                  l10n.barTicketPrinted,
+                  key: const ValueKey('dining-ticket-bar-printed'),
+                  style: _muted(context),
+                ),
+            ],
             if (vm.servedWithoutTicket case final n when n > 0)
               Text(
                 l10n.diningServedWithoutTicket(n),
                 key: const ValueKey('dining-ticket-served-only'),
-                style: _muted(context),
-              ),
-            if (vm.printTicket.running && kitchen)
-              Text(
-                l10n.ticketPrintingKitchen,
-                key: const ValueKey('dining-ticket-printing-kitchen'),
-                style: _muted(context),
-              )
-            else if (vm.printTicket.error)
-              Text(
-                switch (vm.printFailure) {
-                  final reason? => printerFailureMessage(l10n, reason),
-                  null => l10n.ticketPrintFailed,
-                },
-                key: const ValueKey('dining-ticket-print-failed'),
-                style: _errorStyle(context),
-              )
-            else if (vm.ticketPrinted)
-              Text(
-                kitchen ? l10n.ticketPrintedKitchen : l10n.ticketPrinted,
-                key: const ValueKey('dining-ticket-printed'),
                 style: _muted(context),
               ),
             Wrap(
@@ -2806,21 +2870,34 @@ class _TicketDialog extends StatelessWidget {
                   onPress: () => Navigator.of(context).pop(),
                   child: Flexible(child: Text(l10n.ticketClose)),
                 ),
-                FButton(
-                  key: const ValueKey('dining-ticket-print'),
-                  mainAxisSize: .min,
-                  prefix: const Icon(TablerIcons.printer, size: 16),
-                  onPress: vm.printTicket.running
-                      ? null
-                      : () => vm.printTicket.execute(lines),
-                  child: Flexible(
-                    child: Text(
-                      kitchen && (vm.ticketPrinted || vm.printTicket.error)
-                          ? l10n.ticketReprint
-                          : l10n.ticketPrint,
+                if (barLines != null &&
+                    (vm.printBarTicket.error || vm.barTicketPrinted))
+                  FButton(
+                    key: const ValueKey('dining-ticket-bar-reprint'),
+                    variant: kitchenLines == null ? .primary : .outline,
+                    mainAxisSize: .min,
+                    prefix: const Icon(TablerIcons.printer, size: 16),
+                    onPress: vm.printBarTicket.running
+                        ? null
+                        : () => vm.printBarTicket.execute(barLines),
+                    child: Flexible(child: Text(l10n.barTicketReprint)),
+                  ),
+                if (kitchenLines != null)
+                  FButton(
+                    key: const ValueKey('dining-ticket-print'),
+                    mainAxisSize: .min,
+                    prefix: const Icon(TablerIcons.printer, size: 16),
+                    onPress: vm.printTicket.running
+                        ? null
+                        : () => vm.printTicket.execute(kitchenLines),
+                    child: Flexible(
+                      child: Text(
+                        kitchen && (vm.ticketPrinted || vm.printTicket.error)
+                            ? l10n.ticketReprint
+                            : l10n.ticketPrint,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ],

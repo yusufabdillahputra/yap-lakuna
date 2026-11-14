@@ -4647,5 +4647,22 @@
   "backupUnlockTitle": "This backup is locked with a password",
   "backupUnlockBody": "Enter the password used when the backup was made.",
   "backupUnlock": "Unlock",
-  "backupWrongPassword": "Wrong password. Try again."
+  "backupWrongPassword": "Wrong password. Try again.",
+  "barPrinterTitle": "Bar printer",
+  "barPrinterSubtitle": "Drinks from the chosen categories print automatically at the bar on Send to kitchen. Saved on this device only.",
+  "barPrinterNone": "Not used",
+  "barPrinterNoneNote": "All items go on the kitchen ticket.",
+  "barPrinterForget": "Forget bar printer",
+  "barPrinterTest": "Print test bar ticket",
+  "barPrinterTestSent": "Sample ticket sent to the bar printer.",
+  "barCategories": "Categories to the bar",
+  "barCategoriesHint": "Sub-categories follow their parent. Other items still go to the kitchen.",
+  "barCategoriesNeeded": "Choose at least one category; until then every ticket still goes to the kitchen.",
+  "barCategoriesEmpty": "No menu categories yet. Add categories in Products.",
+  "barTicketHeading": "BAR TICKET",
+  "barTicketPrinting": "Printing on the bar printer…",
+  "barTicketPrinted": "Ticket printed on the bar printer.",
+  "barTicketReprint": "Reprint bar ticket",
+  "kitchenTicketSection": "Kitchen",
+  "barTicketSection": "Bar"
 }

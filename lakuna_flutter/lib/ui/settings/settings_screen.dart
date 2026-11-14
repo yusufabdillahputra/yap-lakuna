@@ -121,6 +121,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Printer dapur (F1-10e), bersama modul meja.
   KitchenPrinterViewModel? _kitchen;
+
+  /// Printer bar per kategori (F1-10j), bersama modul meja.
+  KitchenPrinterViewModel? _bar;
   FnbRatesViewModel? _rates;
   BackupViewModel? _backup;
   late final _about = AboutViewModel(licenses: widget.licenses);
@@ -145,6 +148,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _kitchen = KitchenPrinterViewModel(
           repository: widget.receiptSettings,
           printer: widget.receiptPrinter,
+        )..load.execute();
+        _bar = KitchenPrinterViewModel(
+          repository: widget.receiptSettings,
+          printer: widget.receiptPrinter,
+          station: PrinterStation.bar,
         )..load.execute();
       }
     }
@@ -172,6 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _payments?.dispose();
     _receipt?.dispose();
     _kitchen?.dispose();
+    _bar?.dispose();
     _rates?.dispose();
     _backup?.dispose();
     _about.dispose();
@@ -238,6 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       SettingsSection.receipt => ReceiptSettingsSection(
         viewModel: _receipt!,
         kitchen: _kitchen,
+        bar: _bar,
         businessName: widget.store.current?.tenant.name ?? '',
         outletName: widget.store.current?.outlet.name ?? '',
         staffName: widget.session.current?.name ?? '',
