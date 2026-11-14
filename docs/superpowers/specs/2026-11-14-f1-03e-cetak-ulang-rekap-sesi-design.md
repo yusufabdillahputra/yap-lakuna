@@ -1,7 +1,7 @@
 # F1-03e · Cetak ulang rekap sesi lama
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.84.0)
+- **Status:** Rilis v0.84.0
 - **Layar:** 1.23 Laporan › tab *Kas & sesi*: baris sesi yang sudah ditutup
   bisa diketuk dan membuka dialog *Rekap sesi* (pratinjau kertas, *Cetak*,
   *Bagikan PDF*).
@@ -32,9 +32,10 @@ dicetak ulang dari Laporan › *Kas & sesi*.
    - Rincian penjualan, kas laci, dan gerakan kas dimuat ulang dari data saat
      ini; angka penutup (seharusnya, dihitung, selisih, pecahan, catatan)
      dari sesi tertutup. Bila rincian kas laci saat ini tidak lagi sama
-     dengan *Seharusnya di laci* yang tersimpan (mis. nota sesi itu di-void
-     sesudah tutup), rekap memuat catatan *Rincian mengikuti data saat ini;
-     ada nota yang berubah setelah sesi ditutup.*
+     dengan *Seharusnya di laci* yang tersimpan (mis. data sesi berubah
+     lewat sinkronisasi, atau sesi lama ditutup dengan rumus versi
+     sebelumnya), rekap memuat catatan *Rincian mengikuti data saat ini;
+     ada data sesi yang berubah setelah ditutup.*
 4. **Dialog Rekap sesi:** pratinjau kertas, tombol *Tutup*, *Bagikan PDF*,
    *Cetak*. Cetak ke printer terpilih; tanpa printer atau *Dialog cetak
    sistem* membuka dialog cetak. Galat printer memakai pesan yang sama
@@ -60,7 +61,7 @@ dicetak ulang dari Laporan › *Kas & sesi*.
 ## Pengujian
 
 - Data: rekap sesi tertutup (gerakan, penjualan, pembuka/penutup, kode
-  perangkat); `changedSinceClose` setelah void nota sesi itu; sesi terbuka
+  perangkat); `changedSinceClose` setelah gerakan kas sesi itu berubah; sesi terbuka
   dan sesi cabang lain ditolak; tanpa `reports:view` ditolak.
 - Flutter: isi rekap cetak ulang (baris *Dicetak ulang*, catatan berubah);
   VM dialog (muat, cetak, galat printer, bagikan PDF, galat muat); widget
@@ -72,4 +73,5 @@ dicetak ulang dari Laporan › *Kas & sesi*.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Cetak ulang rekap sesi lama | 1.23 | Dalam pengerjaan | Dari Laporan › Kas & sesi, izin `reports:view`. |
+| Cetak ulang rekap sesi lama | 1.23 | Rilis v0.84.0 | Dari Laporan › Kas & sesi, izin `reports:view`. |
+| Cetak ulang dari layar Sesi kasir | — | Belum | Riwayat sesi di layar 1.3 bila dibutuhkan; kasir tanpa `reports:view` belum bisa mencetak ulang. |

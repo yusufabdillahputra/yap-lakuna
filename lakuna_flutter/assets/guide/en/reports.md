@@ -15,6 +15,7 @@ The **Reports** menu summarises sales, profit, stock, cash, receivables and paya
    - **Profit & loss**: net sales, COGS, gross profit, operating expenses, and net profit, compared with the previous period.
    - **Stock**, **Cash & sessions**, **Receivables & payables**, **Returns**.
    - In **Receivables & payables**, the **Receivables aging** and **Payables aging** tables group each document's balance by how long it is past due: *Not yet due*, *1–30 days overdue*, *31–60*, *61–90*, and *over 90 days*. Collect or pay the oldest first.
+   - In **Cash & sessions**, tap a closed session (printer icon at the end of the row) to see its recap, then **Print recap** to the receipt printer or **Share PDF**. A reprinted recap carries a *Reprinted* line with its date and time. Sessions that are still open cannot be printed yet.
 3. Tap **Download PDF** or **Download Excel** to save or share the report.
 
 ## How it is calculated

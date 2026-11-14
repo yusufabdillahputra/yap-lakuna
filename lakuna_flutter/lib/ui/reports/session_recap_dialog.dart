@@ -28,7 +28,8 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
     this._receiptSettings,
     this._printer,
     this._timezone,
-  }) {
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now {
     load = Command0(_load)..addListener(notifyListeners);
     print = Command1(_print)..addListener(notifyListeners);
     share = Command1(_share)..addListener(notifyListeners);
@@ -41,6 +42,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
   final ReceiptSettingsRepository? _receiptSettings;
   final ReceiptPrinter? _printer;
   final String? _timezone;
+  final DateTime Function() _clock;
 
   late final Command0<void> load;
 
@@ -59,8 +61,16 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
   PrinterFailureReason? _printFailure;
   var _shareError = false;
   String? _pdfPath;
+  DateTime? _loadedAt;
+  var _disposed = false;
 
   SessionRecap? get recap => _recap;
+
+  /// Waktu muat, untuk baris *Dicetak ulang* di pratinjau.
+  DateTime get loadedAt => _loadedAt ?? _clock();
+
+  /// Waktu sekarang, untuk baris *Dicetak ulang* saat tombol ditekan.
+  DateTime now() => _clock();
 
   /// Kode perangkat tempat sesi dibuka.
   String get deviceCode => _deviceCode;
@@ -72,8 +82,9 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
   ReceiptPaper get paper => _paper;
   Uint8List? get logo => _logo;
 
-  /// Layanan cetak tersedia.
-  bool get canPrint => _printer != null;
+  /// Layanan cetak tersedia (sama dengan F1-03b: printer dan pengaturan
+  /// struk).
+  bool get canPrint => _printer != null && _receiptSettings != null;
 
   /// Terkirim ke printer langsung (bukan dialog cetak sistem).
   bool get printed => _printed;
@@ -90,7 +101,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
   String get fileName {
     final closed = _recap?.closed;
     final t = outletLocalTime(
-      closed?.closedAt ?? closed?.updatedAt ?? DateTime.now(),
+      closed?.closedAt ?? closed?.updatedAt ?? _clock(),
       _timezone,
     );
     String two(int n) => n.toString().padLeft(2, '0');
@@ -100,6 +111,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
 
   Future<Result<void>> _load() async {
     _loadError = null;
+    _loadedAt = _clock();
     if (_receiptSettings case final settings?) {
       if (await settings.loadReceipt() case Ok(:final value)) {
         _paper = value.settings.paper;
@@ -131,7 +143,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
 
   Future<Result<void>> _print(List<ReceiptLine> lines) async {
     final printer = _printer;
-    if (printer == null) return const Result.ok(null);
+    if (printer == null || !canPrint) return const Result.ok(null);
     _resetOutput();
     final selection =
         _printerSelection ??
@@ -158,7 +170,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
 
   Future<Result<String?>> _share(List<ReceiptLine> lines) async {
     final printer = _printer;
-    if (printer == null) return const Result.ok(null);
+    if (printer == null || !canPrint) return const Result.ok(null);
     _resetOutput();
     try {
       final path = await printer.sharePdf(
@@ -173,6 +185,20 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
       _shareError = true;
       return Result.error(e);
     }
+  }
+
+  /// Dialog bisa ditutup saat muat / cetak masih berjalan.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
+  /// Command tidak di-dispose: aksi yang masih berjalan memanggil
+  /// `notifyListeners` miliknya sendiri saat selesai.
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }
 
@@ -191,14 +217,13 @@ Future<void> showSessionRecapDialog(
   builder: (context, style, animation) => FDialog(
     animation: animation,
     constraints: const BoxConstraints(minWidth: 280, maxWidth: 460),
+    // Builder ini bisa dipanggil ulang (tema, inset); view model dibuat
+    // sekali di State dialog.
     builder: (context, style) => _SessionRecapDialog(
-      viewModel: SessionRecapDialogViewModel(
-        repository: repository,
-        sessionId: sessionId,
-        receiptSettings: receiptSettings,
-        printer: printer,
-        timezone: timezone,
-      ),
+      repository: repository,
+      sessionId: sessionId,
+      receiptSettings: receiptSettings,
+      printer: printer,
       businessName: businessName,
       outletName: outletName,
       timezone: timezone,
@@ -208,13 +233,19 @@ Future<void> showSessionRecapDialog(
 
 class _SessionRecapDialog extends StatefulWidget {
   const _SessionRecapDialog({
-    required this.viewModel,
+    required this.repository,
+    required this.sessionId,
+    required this.receiptSettings,
+    required this.printer,
     required this.businessName,
     required this.outletName,
     required this.timezone,
   });
 
-  final SessionRecapDialogViewModel viewModel;
+  final ReportsRepository repository;
+  final UuidValue sessionId;
+  final ReceiptSettingsRepository? receiptSettings;
+  final ReceiptPrinter? printer;
   final String businessName;
   final String outletName;
   final String? timezone;
@@ -224,7 +255,13 @@ class _SessionRecapDialog extends StatefulWidget {
 }
 
 class _SessionRecapDialogState extends State<_SessionRecapDialog> {
-  SessionRecapDialogViewModel get _vm => widget.viewModel;
+  late final _vm = SessionRecapDialogViewModel(
+    repository: widget.repository,
+    sessionId: widget.sessionId,
+    receiptSettings: widget.receiptSettings,
+    printer: widget.printer,
+    timezone: widget.timezone,
+  );
 
   @override
   void initState() {
@@ -238,20 +275,24 @@ class _SessionRecapDialogState extends State<_SessionRecapDialog> {
     super.dispose();
   }
 
-  /// Waktu *Dicetak ulang* diambil saat tombol ditekan.
-  List<ReceiptLine> _lines(AppLocalizations l10n, SessionRecap recap) =>
-      layoutReceipt(
-        sessionRecapContent(
-          l10n,
-          recap: recap,
-          businessName: widget.businessName,
-          outletName: widget.outletName,
-          deviceCode: _vm.deviceCode,
-          timezone: widget.timezone,
-          reprintedAt: DateTime.now(),
-        ),
-        _vm.paper,
-      );
+  /// [at] = waktu *Dicetak ulang*: saat muat untuk pratinjau, saat tombol
+  /// ditekan untuk cetak / PDF.
+  List<ReceiptLine> _lines(
+    AppLocalizations l10n,
+    SessionRecap recap,
+    DateTime at,
+  ) => layoutReceipt(
+    sessionRecapContent(
+      l10n,
+      recap: recap,
+      businessName: widget.businessName,
+      outletName: widget.outletName,
+      deviceCode: _vm.deviceCode,
+      timezone: widget.timezone,
+      reprintedAt: at,
+    ),
+    _vm.paper,
+  );
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -300,7 +341,7 @@ class _SessionRecapDialogState extends State<_SessionRecapDialog> {
                   child: Center(
                     child: ReceiptPaperView(
                       key: const ValueKey('reports-recap-paper'),
-                      lines: _lines(l10n, recap),
+                      lines: _lines(l10n, recap, _vm.loadedAt),
                       paper: _vm.paper,
                       logo: _vm.logo,
                     ),
@@ -348,7 +389,9 @@ class _SessionRecapDialogState extends State<_SessionRecapDialog> {
                     mainAxisSize: .min,
                     onPress: busy
                         ? null
-                        : () => _vm.share.execute(_lines(l10n, recap)),
+                        : () => _vm.share.execute(
+                            _lines(l10n, recap, _vm.now()),
+                          ),
                     prefix: const Icon(TablerIcons.share),
                     child: Flexible(child: Text(l10n.receiptShare)),
                   ),
@@ -357,7 +400,9 @@ class _SessionRecapDialogState extends State<_SessionRecapDialog> {
                     mainAxisSize: .min,
                     onPress: busy
                         ? null
-                        : () => _vm.print.execute(_lines(l10n, recap)),
+                        : () => _vm.print.execute(
+                            _lines(l10n, recap, _vm.now()),
+                          ),
                     prefix: const Icon(TablerIcons.printer),
                     child: Flexible(child: Text(l10n.cashRecapPrint)),
                   ),

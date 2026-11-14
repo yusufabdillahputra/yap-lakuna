@@ -154,6 +154,9 @@ class FakeReportsRepository extends ReportsRepository {
   /// Galat muat rekap berikutnya, bila diisi.
   Exception? recapError;
 
+  /// Seharusnya tersimpan 160.000, tidak cocok dengan rincian 150.000.
+  bool recapChanged = false;
+
   /// Rekap sesi Budi: dibuka 03/11 08.00 WIB (Budi), ditutup 21.00 (Sari)
   /// di K01; 5 nota 80.000 (tunai 50.000, non-tunai 30.000); seharusnya
   /// 150.000, dihitung 145.000 (100.000 + 2 × 20.000 + 5.000).
@@ -180,9 +183,9 @@ class FakeReportsRepository extends ReportsRepository {
       openingCash: 100000,
       closedBy: _uuid(5),
       closedAt: DateTime.utc(2026, 11, 3, 14),
-      expectedCash: 150000,
+      expectedCash: recapChanged ? 160000 : 150000,
       countedCash: 145000,
-      difference: -5000,
+      difference: recapChanged ? -15000 : -5000,
       countedBreakdown: '{"sheets":{"100000":1,"20000":2,"5000":1},"coins":0}',
       hlc: 'h',
     );

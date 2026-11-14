@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -50,6 +51,7 @@ void main() {
       receiptSettings: withPrinter ? settings : null,
       printer: withPrinter ? printer : null,
       timezone: 'Asia/Jakarta',
+      clock: () => DateTime.utc(2026, 11, 14, 2, 30),
     );
   }
 
@@ -138,4 +140,28 @@ void main() {
     expect(vm.pdfPath, isNull);
     expect(vm.shareError, isTrue);
   });
+
+  test('waktu muat untuk pratinjau dari jam yang disuntikkan', () async {
+    build();
+    await vm.load.execute();
+    expect(vm.loadedAt, DateTime.utc(2026, 11, 14, 2, 30));
+    expect(vm.now(), DateTime.utc(2026, 11, 14, 2, 30));
+  });
+
+  test(
+    'ditutup saat cetak berjalan: tidak ada galat setelah dispose',
+    () async {
+      final local = build(selected: bt);
+      await local.load.execute();
+      final hold = printer.hold = Completer<void>();
+      final pending = local.print.execute(lines);
+      expect(local.busy, isTrue);
+      local.dispose();
+      hold.complete();
+      await pending;
+      expect(printer.prints, hasLength(1));
+      // tearDown memanggil dispose lagi: buat VM baru untuknya.
+      build();
+    },
+  );
 }

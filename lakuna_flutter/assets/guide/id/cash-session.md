@@ -25,6 +25,8 @@ Pengeluaran, bayar hutang, dan retur tunai dari modul lain tercatat otomatis di 
 3. Bila ada selisih, isi **Catatan selisih** (wajib).
 4. Konfirmasi penutupan. Rekap tersimpan di perangkat ini.
 
+> [!note] Kertas rekap hilang atau printer mati saat tutup? Cetak ulang rekap sesi lama dari [Laporan](reports) › **Kas & sesi**: ketuk sesinya.
+
 > [!note] QRIS statis dan kartu tidak masuk laci. Keduanya ditampilkan terpisah di rekap untuk dicocokkan dengan mutasi rekening.
 
 > [!warning] Split bill yang sebagian sudah dibayar harus dilunasi atau dibatalkan dulu sebelum sesi bisa ditutup.

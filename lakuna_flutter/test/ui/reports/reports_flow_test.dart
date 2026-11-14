@@ -212,6 +212,19 @@ void main() {
     });
   }
 
+  testWidgets('rekap sesi berubah setelah tutup: catatan di pratinjau', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1280, 800));
+    repo.recapChanged = true;
+    await _tap(tester, _key('reports-tab-cash'));
+    await _tap(tester, _key('reports-cash-sessions-1-tap'));
+    expect(
+      find.textContaining('Rincian mengikuti data saat ini'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('rekap sesi gagal dimuat: pesan galat', (tester) async {
     await pump(tester, const Size(1280, 800));
     repo.recapError = Exception('db');

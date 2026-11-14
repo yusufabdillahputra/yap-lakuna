@@ -78,4 +78,4 @@ sebagai PDF.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Tutup sesi & cetak rekap | 1.3 | Rilis v0.38.0 | Cetak otomatis hanya untuk printer langsung. |
-| Cetak ulang rekap sesi lama | — | Belum | Lewat laporan sesi F1-16 bila dibutuhkan. |
+| Cetak ulang rekap sesi lama | 1.23 | Selesai v0.84.0 | Laporan › Kas & sesi, lihat [F1-03e](2026-11-14-f1-03e-cetak-ulang-rekap-sesi-design.md). |

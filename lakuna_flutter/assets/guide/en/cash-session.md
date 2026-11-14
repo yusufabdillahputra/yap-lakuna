@@ -25,6 +25,8 @@ Expenses, supplier payments, and cash refunds from other modules are recorded au
 3. If there is a difference, fill in the **Difference note** (required).
 4. Confirm the closing. The recap is saved on this device.
 
+> [!note] Lost the recap slip, or the printer was off at closing? Reprint an old session recap from [Reports](reports) › **Cash & sessions**: tap the session.
+
 > [!note] Static QRIS and card payments do not go into the drawer. They are shown separately in the recap so you can match them with your bank statement.
 
 > [!warning] A split bill that is partly paid must be settled or cancelled before the session can close.
