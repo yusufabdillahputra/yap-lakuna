@@ -274,6 +274,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pembelian`.
 | Foto faktur | *Lihat foto faktur* | Selesai v0.50.0 | Lihat spec F1-12b. |
 | Kartu stok terkait, cetak/bagikan PDF | Tombol di 1.19b | Selesai v0.51.0 | Lihat spec F1-12c. |
 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping | — | Selesai v0.91.0 | Lihat spec [F1-12d](2026-11-14-f1-12d-muat-ulang-daftar-design.md) (juga Pelanggan, Supplier, Riwayat). |
+| Harga beli terakhir untuk barang yang ditambah manual | — | Selesai v0.92.0 | Lihat spec [F1-12e](2026-11-14-f1-12e-harga-terakhir-barang-manual-design.md). |
 | Master supplier lengkap | 1.21 | Nama, telepon, catatan saja | F1-14. |
 
 ## Kriteria selesai

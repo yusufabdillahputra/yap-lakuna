@@ -391,6 +391,167 @@ void main() {
     });
   });
 
+  group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
+    UuidValue myk() => form.lines
+        .firstWhere((l) => l.product.sku == 'MYK-2L')
+        .product
+        .variantId;
+
+    test(
+      'satuan dasar memakai harga terakhir; tanpa riwayat harga modal',
+      () async {
+        final variants = [for (final p in repo.products) ...p.variants];
+        final myk2 = variants.firstWhere((v) => v.sku == 'MYK-2L');
+        repo.lastPriceOf[myk2.id] = const Money(31000);
+        expect(form.addByCode('MYK-2L'), PurchaseScanResult.added);
+        // Harga modal tampil dulu, lalu diganti setelah riwayat terbaca.
+        expect(form.lines.single.unitPrice, const Money(32500));
+        await pumpEventQueue();
+        expect(form.lines.single.unitPrice, const Money(31000));
+        expect(form.lines.single.priceRev, 1);
+        expect(myk(), myk2.id);
+        // Barang lain tanpa riwayat tetap harga modal.
+        final other = variants.firstWhere((v) => v.id != myk2.id);
+        form.addProduct(other.id);
+        await pumpEventQueue();
+        expect(form.lines.last.unitPrice, other.costPrice);
+        expect(form.lines.last.priceRev, 0);
+      },
+    );
+
+    test('harga yang diubah staf selama menunggu tidak ditimpa', () async {
+      final myk2 = [
+        for (final p in repo.products) ...p.variants,
+      ].firstWhere((v) => v.sku == 'MYK-2L');
+      repo.lastPriceOf[myk2.id] = const Money(31000);
+      form.addByCode('MYK-2L');
+      form.setUnitPrice(form.lines.single.key, const Money(30000));
+      await pumpEventQueue();
+      expect(form.lines.single.unitPrice, const Money(30000));
+    });
+
+    test('satuan konversi memakai harga modal; kembali ke satuan dasar '
+        'memakai harga terakhir lagi tanpa membaca ulang', () async {
+      final myk2 = [
+        for (final p in repo.products) ...p.variants,
+      ].firstWhere((v) => v.sku == 'MYK-2L');
+      repo.lastPriceOf[myk2.id] = const Money(31000);
+      form.addByCode('8991234500031');
+      await pumpEventQueue();
+      // Dus: HPP dasar 32.500 × 6, tidak dari riwayat.
+      expect(form.lines.single.unitPrice, const Money(195000));
+      expect(repo.lastPriceCalls, 0);
+      final key = form.lines.single.key;
+      form.setUnit(key, null);
+      await pumpEventQueue();
+      expect(form.lines.single.unitPrice, const Money(31000));
+      expect(repo.lastPriceCalls, 1);
+      final dus = form.lines.single.product.units[1].productUnitId;
+      form.setUnit(key, dus);
+      expect(form.lines.single.unitPrice, const Money(195000));
+      form.setUnit(key, null);
+      await pumpEventQueue();
+      expect(form.lines.single.unitPrice, const Money(31000));
+      // Riwayat varian ini sudah tersimpan selama form terbuka.
+      expect(repo.lastPriceCalls, 1);
+    });
+
+    UuidValue mykId() => [
+      for (final p in repo.products) ...p.variants,
+    ].firstWhere((v) => v.sku == 'MYK-2L').id;
+
+    test('baris diganti ke dus selama menunggu: harga dus tetap', () async {
+      repo.lastPriceOf[mykId()] = const Money(31000);
+      form.addByCode('MYK-2L');
+      final key = form.lines.single.key;
+      form.setUnit(key, form.lines.single.product.units[1].productUnitId);
+      await pumpEventQueue();
+      expect(form.lines.single.unitPrice, const Money(195000));
+    });
+
+    test(
+      'simpan sebelum riwayat terbaca: draf berisi harga terakhir',
+      () async {
+        repo.lastPriceOf[mykId()] = const Money(31000);
+        form.addByCode('MYK-2L');
+        await form.saveDraft.execute();
+        expect(form.saveDraft.completed, isTrue);
+        expect(form.lines.single.unitPrice, const Money(31000));
+        expect(repo.requests.single.lines.single.unitPrice, const Money(31000));
+      },
+    );
+
+    test('form baru membaca ulang riwayat', () async {
+      repo.lastPriceOf[mykId()] = const Money(31000);
+      form.addByCode('MYK-2L');
+      await pumpEventQueue();
+      expect(repo.lastPriceCalls, 1);
+      repo.lastPriceOf[mykId()] = const Money(30500);
+      await form.startNew();
+      form.addByCode('MYK-2L');
+      await pumpEventQueue();
+      expect(form.lines.single.unitPrice, const Money(30500));
+      expect(repo.lastPriceCalls, 2);
+    });
+
+    test(
+      'riwayat dari draf stok minimum dipakai lagi tanpa membaca ulang',
+      () async {
+        final variants = [for (final p in repo.products) ...p.variants];
+        repo.lastPriceOf[variants[0].id] = const Money(31500);
+        final vm = PurchaseFormViewModel(
+          repository: repo,
+          restock: PurchaseRestock(
+            locationId: repo.locations.first.id,
+            locationName: 'Toko',
+            lines: [(variantId: variants[0].id, quantity: Qty.one)],
+          ),
+        );
+        await vm.load.execute();
+        expect(repo.lastPriceCalls, 1);
+        vm.removeLine(vm.lines.single.key);
+        vm.addProduct(variants[0].id);
+        await pumpEventQueue();
+        expect(vm.lines.single.unitPrice, const Money(31500));
+        expect(repo.lastPriceCalls, 1);
+        vm.dispose();
+      },
+    );
+
+    test('draf yang dibuka lagi tidak berubah harganya', () async {
+      form.addByCode('MYK-2L');
+      form.setUnitPrice(form.lines.single.key, const Money(33000));
+      await form.saveDraft.execute();
+      repo.lastPriceOf[mykId()] = const Money(31000);
+      final again = PurchaseFormViewModel(
+        repository: repo,
+        draftId: form.draftId,
+      );
+      await again.load.execute();
+      await pumpEventQueue();
+      expect(again.lines.single.unitPrice, const Money(33000));
+      again.dispose();
+    });
+
+    test(
+      'galat baca: harga modal tetap, baris berikutnya mencoba lagi',
+      () async {
+        final myk2 = [
+          for (final p in repo.products) ...p.variants,
+        ].firstWhere((v) => v.sku == 'MYK-2L');
+        repo.lastPriceOf[myk2.id] = const Money(31000);
+        repo.nextError = Exception('baca gagal');
+        form.addByCode('MYK-2L');
+        await pumpEventQueue();
+        expect(form.lines.single.unitPrice, const Money(32500));
+        form.removeLine(form.lines.single.key);
+        form.addByCode('MYK-2L');
+        await pumpEventQueue();
+        expect(form.lines.single.unitPrice, const Money(31000));
+      },
+    );
+  });
+
   group('PurchaseDetailViewModel', () {
     Future<PurchaseDetailViewModel> received({int paid = 0}) async {
       form

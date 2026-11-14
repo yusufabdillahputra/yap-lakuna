@@ -71,7 +71,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.88.0 | Segarkan harga grup pelanggan di open bill (F1-10l) | #94 |
 | v0.89.0 | Harga beli terakhir di pembelian dari stok minimum (F1-08e) | #95 |
 | v0.90.0 | *Buat pembelian* tidak macet setelah keluar lewat menu samping (F1-08f) | #96 |
-| v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | |
+| v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | #97 |
+| v0.92.0 | Harga beli terakhir untuk barang yang ditambah manual (F1-12e) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -161,6 +162,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     diperbaiki v0.90.0 (F1-08f); ~~daftar Pembelian / Pelanggan /
     Supplier yang belum dimuat ulang setelah keluar dari detail lewat menu
     samping~~ — selesai v0.91.0 (F1-12d, juga Riwayat; `RouteReturnMixin`).
+35. ~~Harga beli terakhir untuk barang yang ditambah manual di form
+    pembelian~~ — selesai v0.92.0 (F1-12e); harga terakhir per satuan
+    konversi dan per supplier terpilih masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

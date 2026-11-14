@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -165,6 +167,20 @@ class PurchaseFormViewModel extends ChangeNotifier {
   final ImageFilePicker _picker;
 
   var _disposed = false;
+
+  /// Harga beli terakhir per satuan dasar yang sudah dibaca selama form
+  /// terbuka (`null` = belum pernah dibeli) (F1-08e, F1-12e).
+  final _lastPrices = <UuidValue, Money?>{};
+
+  /// Pengisian harga terakhir yang belum selesai; simpan/terima menunggunya
+  /// agar draf berisi harga yang tampil di form.
+  final _pendingFills = <Future<void>>{};
+
+  void _startFill(int key) {
+    final fill = _fillLastPrice(key);
+    _pendingFills.add(fill);
+    unawaited(fill.whenComplete(() => _pendingFills.remove(fill)));
+  }
 
   @override
   void dispose() {
@@ -488,10 +504,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
   Future<void> _applyRestockPrices() async {
     if (_lines.isEmpty) return;
     final before = {for (final l in _lines) l.key: l.unitPrice};
-    final result = await _repository.lastPurchasePrices({
-      for (final l in _lines) l.product.variantId,
-    });
+    final requested = {for (final l in _lines) l.product.variantId};
+    final result = await _repository.lastPurchasePrices(requested);
     if (result case Ok(:final value)) {
+      for (final id in requested) {
+        _lastPrices[id] = value[id];
+      }
       var count = 0;
       final lines = <PurchaseFormLine>[];
       for (final l in _lines) {
@@ -536,6 +554,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   void _blank() {
     final s = _setup!;
+    // Form baru: pembelian yang baru diterima bisa mengubah harga terakhir.
+    _lastPrices.clear();
     _draftId = null;
     _restockSupplierName = null;
     _restockSupplierCount = 0;
@@ -754,6 +774,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       ),
     ];
     _touched();
+    if (unit.isBase) _startFill(_lines.last.key);
     return PurchaseScanResult.added;
   }
 
@@ -805,6 +826,38 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _lines = [for (final l in _lines) l.key == line.key ? line : l];
   }
 
+  /// Harga beli terakhir untuk baris satuan dasar yang ditambah atau
+  /// dikembalikan ke satuan dasar oleh staf (F1-12e). Harga yang sudah
+  /// diubah staf selama menunggu tidak ditimpa; galat baca diabaikan (harga
+  /// modal tetap) dan dicoba lagi untuk baris berikutnya.
+  Future<void> _fillLastPrice(int key) async {
+    final line = _line(key);
+    if (line == null) return;
+    final variantId = line.product.variantId;
+    if (!_lastPrices.containsKey(variantId)) {
+      final result = await _repository.lastPurchasePrices({variantId});
+      if (result case Ok(:final value)) {
+        _lastPrices[variantId] = value[variantId];
+      } else {
+        return;
+      }
+    }
+    final price = _lastPrices[variantId];
+    final now = _line(key);
+    if (price == null ||
+        now == null ||
+        !now.unit.isBase ||
+        now.unitPrice != now.product.defaultPrice(now.unit) ||
+        now.unitPrice == price) {
+      return;
+    }
+    // priceRev naik agar isian harga yang sudah tampil ikut berganti.
+    _replace(now.copyWith(unitPrice: price, priceRev: now.priceRev + 1));
+    // Draf yang tersimpan sebelum harga terisi kini berbeda dari form.
+    if (saveDraft.completed) saveDraft.clearResult();
+    notifyListeners();
+  }
+
   void setQuantity(int key, Qty quantity) {
     final line = _line(key);
     if (line == null) return;
@@ -849,6 +902,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
           priceRev: line.priceRev + 1,
         ),
       );
+      if (unit.isBase) _startFill(key);
     }
     _generation++;
     _touched();
@@ -906,6 +960,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   Future<Result<Purchase>> _submit({required bool receiving}) async {
+    if (_pendingFills.isNotEmpty) await Future.wait([..._pendingFills]);
     _attempt = receiving;
     _actionError = null;
     if (_locationId == null) {

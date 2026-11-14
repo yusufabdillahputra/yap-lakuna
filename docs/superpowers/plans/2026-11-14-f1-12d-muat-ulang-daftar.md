@@ -15,4 +15,4 @@ Rilis: v0.91.0+94.
   `/mnt/project-files/lakuna/f1-12d/`.
 - [x] 6. Dokumen: spec, gap F1-08f, README spec, STATUS-JEDA, CHANGELOG,
   versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#97).

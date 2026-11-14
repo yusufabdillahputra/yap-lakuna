@@ -487,15 +487,19 @@ class FakePurchasesRepository extends PurchasesRepository {
   /// [lastPurchasePrices] (F1-08e).
   final lastPriceOf = <UuidValue, Money>{};
 
+  /// Jumlah panggilan [lastPurchasePrices] (F1-12e).
+  var lastPriceCalls = 0;
+
   @override
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds,
-  ) async => _guard(
-    () => {
+  ) async => _guard(() {
+    lastPriceCalls++;
+    return {
       for (final id in variantIds)
         if (lastPriceOf.containsKey(id)) id: lastPriceOf[id]!,
-    },
-  );
+    };
+  });
 
   @override
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id) async => _guard(() {
