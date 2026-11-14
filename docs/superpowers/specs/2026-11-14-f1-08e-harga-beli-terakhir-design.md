@@ -71,6 +71,6 @@ biasanya belum berubah sejak pembelian terakhir.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Harga beli terakhir di pembelian dari stok minimum | 1.18 / 1.19 | Rilis v0.89.0 | Per satuan dasar, pembelian diterima terbaru di cabang. |
-| Harga beli terakhir saat menambah barang manual di form pembelian | — | Belum | Barang yang ditambah manual tetap memakai harga modal. |
+| Harga beli terakhir saat menambah barang manual di form pembelian | — | Rilis v0.92.0 | [F1-12e](2026-11-14-f1-12e-harga-terakhir-barang-manual-design.md). |
 | Harga terakhir per supplier terpilih | — | Belum | Harga diambil dari pembelian terakhir mana pun, bukan dari supplier yang dipilih form. |
-| Harga terakhir setelah ganti satuan | — | Belum | Mengganti satuan baris lalu kembali ke satuan dasar memakai harga modal lagi. |
+| Harga terakhir setelah ganti satuan | — | Rilis v0.92.0 | Kembali ke satuan dasar memakai harga terakhir lagi ([F1-12e](2026-11-14-f1-12e-harga-terakhir-barang-manual-design.md)). |

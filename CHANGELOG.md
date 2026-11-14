@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.92.0] - 2026-11-14
+
+Barang yang discan atau dicari di form pembelian kini langsung terisi
+harga beli pada pembelian terakhirnya, sama dengan pembelian dari stok
+minimum sejak v0.89.0.
+
+### Ditambahkan
+
+- **Pembelian (1.19) › + Scan / cari produk:** baris baru dalam satuan
+  dasar terisi harga satuan pada pembelian **diterima** terbaru barang itu
+  di cabang ini (per satuan dasar, baris bonus Rp 0 dilewati), bukan harga
+  modal rata-rata. Barang yang belum pernah dibeli dan baris dalam satuan
+  konversi (mis. scan barcode dus) tetap memakai harga modal.
+- Mengganti satuan baris kembali ke satuan dasar memakai harga beli
+  terakhir lagi.
+- Panduan *Pembelian* menjelaskan asal harga (ID + EN).
+
+### Catatan teknis
+
+- `PurchaseFormViewModel._fillLastPrice`: dibaca lewat
+  `PurchasesRepository.lastPurchasePrices` (F1-08e) tanpa menunggu,
+  disimpan per varian di `_lastPrices` selama form terbuka (termasuk hasil
+  baca draf stok minimum; dikosongkan untuk form baru). Harga hanya diganti
+  bila baris masih satuan dasar dan masih memakai harga awal satuannya, dengan
+  `priceRev` naik agar isian harga ikut berganti. Galat baca diabaikan.
+- *Simpan draf* / *Terima* menunggu pengisian harga yang masih berjalan
+  (`_pendingFills`) agar yang tersimpan sama dengan yang tampil.
+- `_applyRestockPrices` hanya menyimpan varian yang diminta ke cache.
+- Draf yang dibuka lagi tidak berubah harganya.
+- Tes VM (harga terakhir / harga modal, ubah selama menunggu, ganti ke dus
+  selama menunggu, kembali ke satuan dasar tanpa membaca ulang, galat baca,
+  simpan sebelum riwayat terbaca, form baru, riwayat dari draf stok
+  minimum, draf yang dibuka lagi) dan alur widget 1440 / 360 px.
+- Gap F1-08e *Harga beli terakhir saat menambah barang manual* dan *Harga
+  terakhir setelah ganti satuan* ditutup.
+
 ## [0.91.0] - 2026-11-14
 
 Daftar Pembelian, Pelanggan, Supplier, dan Riwayat kini selalu segar
@@ -5904,7 +5940,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...HEAD
+[0.92.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...v0.92.0
 [0.91.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...v0.91.0
 [0.90.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...v0.90.0
 [0.89.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...v0.89.0

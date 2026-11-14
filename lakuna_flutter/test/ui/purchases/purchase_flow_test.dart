@@ -240,6 +240,21 @@ void main() {
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  for (final size in const [Size(1440, 900), Size(360, 780)]) {
+    testWidgets('${size.width.toInt()} px: barang yang discan memakai harga '
+        'beli terakhir (F1-12e)', (tester) async {
+      await pump(tester, size);
+      repo.lastPriceOf[kopVariant()] = const Money(1400);
+      if (size.width < 600) await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      expect(find.text('Rp 1.400'), findsWidgets);
+      await _tap(tester, _key('purchase-pay-full'));
+      await _tap(tester, _key('purchase-receive'));
+      expect(repo.requests.single.lines.single.unitPrice, const Money(1400));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('bayar dari laci melebihi perkiraan: peringatan (F1-03c)', (
     tester,
   ) async {
