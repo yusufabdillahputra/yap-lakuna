@@ -70,8 +70,10 @@ ReportTable stockPrintTable(
   );
 }
 
-/// `stok-<lokasi>-<yymmdd>.pdf`: lokasi huruf kecil, selain huruf/angka
-/// menjadi `-`; lokasi tanpa huruf/angka menjadi `lokasi`.
+/// `stok-<lokasi>-<yymmdd>-<HHmm>.pdf`: lokasi huruf kecil, deretan
+/// karakter selain a–z/0–9 menjadi satu `-`; lokasi tanpa huruf/angka
+/// menjadi `lokasi`. Jam mencegah cetakan kedua menimpa (atau gagal karena
+/// berkas lama masih terbuka di penampil PDF Windows).
 String stockPrintFileName(String location, DateTime at, String? timezone) {
   final slug = location
       .toLowerCase()
@@ -79,6 +81,8 @@ String stockPrintFileName(String location, DateTime at, String? timezone) {
       .replaceAll(RegExp(r'^-+|-+$'), '');
   final d = outletLocalTime(at, timezone);
   String two(int n) => n.toString().padLeft(2, '0');
-  final date = '${two(d.year % 100)}${two(d.month)}${two(d.day)}';
+  final date =
+      '${two(d.year % 100)}${two(d.month)}${two(d.day)}-'
+      '${two(d.hour)}${two(d.minute)}';
   return 'stok-${slug.isEmpty ? 'lokasi' : slug}-$date.pdf';
 }

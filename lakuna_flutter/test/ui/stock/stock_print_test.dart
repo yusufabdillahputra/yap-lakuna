@@ -77,12 +77,45 @@ void main() {
       timezone: 'Asia/Jakarta',
     );
     expect(t.title, 'Stock list · Gudang Belakang');
+    expect(t.notes.first, '3 items · 2 below minimum · 0 negative stock');
+    final one = stockPrintTable(
+      en,
+      rows: sampleStockRows().take(1).toList(),
+      location: 'Etalase',
+      outlet: 'Cabang Pusat',
+      staff: 'Yusuf',
+      printedAt: at,
+    );
+    expect(one.notes.first, '1 item · 1 below minimum · 0 negative stock');
     expect(t.headers.last, 'Counted');
     expect(cells(t.rows[2])[2], '12.5 kg');
     expect(
       stockPrintFileName('Gudang Belakang #2', at, 'Asia/Jakarta'),
-      'stok-gudang-belakang-2-261114.pdf',
+      'stok-gudang-belakang-2-261114-0930.pdf',
     );
-    expect(stockPrintFileName('***', at, null), 'stok-lokasi-261114.pdf');
+    expect(
+      stockPrintFileName('***', at, 'Asia/Jakarta'),
+      'stok-lokasi-261114-0930.pdf',
+    );
+  });
+
+  test('PDF lebih dari 20 halaman tetap dibuat (800 baris)', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final rows = [
+      for (var i = 0; i < 800; i++)
+        sampleRow(i, 'Barang $i', unit: 'pcs', stock: Qty.units(i)),
+    ];
+    final pdf = await reportPdf(
+      stockPrintTable(
+        id,
+        rows: rows,
+        location: 'Gudang',
+        outlet: 'Cabang Pusat',
+        staff: 'Yusuf',
+        printedAt: at,
+      ),
+      money: (v) => 'Rp $v',
+    );
+    expect(String.fromCharCodes(pdf.take(4)), '%PDF');
   });
 }

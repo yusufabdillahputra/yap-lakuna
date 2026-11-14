@@ -157,6 +157,9 @@ Future<Uint8List> reportPdf(
   final doc = pw.Document(title: t.title, creator: 'Lakuna');
   doc.addPage(
     pw.MultiPage(
+      // Bawaan 20 halaman (≈ 700 baris) terlalu kecil untuk daftar stok
+      // toko besar; batas ini hanya dicek di build debug.
+      maxPages: 1000,
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       pageFormat: PdfPageFormat.a4.copyWith(
         marginLeft: 16 * PdfPageFormat.mm,

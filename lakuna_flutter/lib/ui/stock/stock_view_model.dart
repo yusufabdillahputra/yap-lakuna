@@ -100,8 +100,25 @@ class StockViewModel extends ChangeNotifier {
   /// Lokasi PDF cetak stok terakhir (desktop).
   String? get printPath => _printPath;
 
-  /// Ada baris untuk dicetak dan tidak sedang menyimpan.
-  bool get canPrint => _loaded && _rows.isNotEmpty && !printList.running;
+  /// Lokasi milik [rows] (bisa tertinggal dari [location] selagi memuat
+  /// atau bila muat lokasi baru gagal).
+  UuidValue? _rowsLocationId;
+
+  /// Baris yang dicetak: semua baris lokasi, tanpa saringan pencarian.
+  List<StockRow> get printRows => _rows;
+
+  /// Nama lokasi milik [printRows].
+  String get printLocationName =>
+      _locations.where((l) => l.id == _rowsLocationId).firstOrNull?.name ?? '';
+
+  /// Ada baris untuk dicetak, baris itu milik lokasi terpilih, dan tidak
+  /// sedang memuat atau menyimpan.
+  bool get canPrint =>
+      _loaded &&
+      _rows.isNotEmpty &&
+      _rowsLocationId == _locationId &&
+      !load.running &&
+      !printList.running;
 
   Future<Result<String?>> _print(
     (Future<Uint8List> Function(), String) file,
@@ -112,9 +129,15 @@ class StockViewModel extends ChangeNotifier {
       final path = await _exporter.save(bytes, fileName: file.$2);
       _printPath = path;
       return Result.ok(path);
-    } on Object catch (e) {
-      // Termasuk Error dari pembuat PDF atau share sheet.
-      return Result.error(e is Exception ? e : Exception('$e'));
+    } on Exception catch (e) {
+      return Result.error(e);
+    } on Object catch (e, stack) {
+      // Error dari pembuat PDF atau share sheet: laporkan agar bisa
+      // ditelusuri, tampilkan pesan gagal biasa.
+      FlutterError.reportError(
+        FlutterErrorDetails(exception: e, stack: stack, library: 'stock'),
+      );
+      return Result.error(Exception('$e'));
     }
   }
 
@@ -135,6 +158,8 @@ class StockViewModel extends ChangeNotifier {
   StockTab get tab => _tab;
   void setTab(StockTab tab) {
     _tab = tab;
+    printList.clearResult();
+    _printPath = null;
     notifyListeners();
   }
 
@@ -422,6 +447,7 @@ class StockViewModel extends ChangeNotifier {
     _locations = list;
     _locationId = target;
     _rows = (rows as Ok<List<StockRow>>).value;
+    _rowsLocationId = target;
     _below = (below as Ok<List<StockRow>>).value;
     _recent = switch (recent) {
       Ok(:final value) => value,

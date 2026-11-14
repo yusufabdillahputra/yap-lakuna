@@ -7856,7 +7856,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stockPrintCounts(int items, int below, int minus) {
-    return '$items items · $below below minimum · $minus negative stock';
+    String _temp0 = intl.Intl.pluralLogic(
+      items,
+      locale: localeName,
+      other: '$items items',
+      one: '1 item',
+    );
+    return '$_temp0 · $below below minimum · $minus negative stock';
   }
 
   @override

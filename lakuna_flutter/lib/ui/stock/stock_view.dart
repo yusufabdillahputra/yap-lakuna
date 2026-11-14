@@ -197,9 +197,9 @@ class StockView extends StatelessWidget {
   void _print(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final vm = viewModel;
-    final location = vm.location?.name ?? '';
+    final location = vm.printLocationName;
     final now = DateTime.now();
-    final rows = vm.rows;
+    final rows = vm.printRows;
     vm.printList.execute((
       () => reportPdf(
         stockPrintTable(

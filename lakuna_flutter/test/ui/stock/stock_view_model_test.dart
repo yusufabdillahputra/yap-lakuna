@@ -256,4 +256,68 @@ void main() {
       },
     );
   });
+
+  group('cetak stok: baris & lokasi selaras (F1-08b)', () {
+    test(
+      'selama ganti lokasi tombol mati; baris cetak tidak ikut pencarian',
+      () async {
+        vm.setQuery('sabun');
+        expect(vm.filteredRows, hasLength(1));
+        expect(vm.printRows, hasLength(3));
+        expect(vm.printLocationName, 'Etalase');
+
+        await vm.addLocation('Gudang');
+        final gudang = vm.locations.last.id;
+        repo.rowsByLocation[gudang] = [
+          sampleRow(9, 'Beras', unit: 'kg', stock: Qty.units(50)),
+        ];
+        final gate = Completer<void>();
+        repo.stockGate = gate.future;
+        final loading = vm.selectLocation(gudang);
+        await Future<void>.delayed(Duration.zero);
+        // Nama lokasi baru, baris masih lokasi lama: jangan cetak.
+        expect(vm.canPrint, isFalse);
+        gate.complete();
+        repo.stockGate = null;
+        await loading;
+        expect(vm.canPrint, isTrue);
+        expect(vm.printLocationName, 'Gudang');
+        expect(vm.printRows.single.productName, 'Beras');
+      },
+    );
+
+    test(
+      'muat lokasi gagal: baris lama tidak dicetak atas nama lokasi baru',
+      () async {
+        await vm.addLocation('Gudang');
+        final gudang = vm.locations.last.id;
+        repo.nextError = Exception('db');
+        await vm.selectLocation(gudang);
+        expect(vm.load.error, isTrue);
+        expect(vm.canPrint, isFalse);
+      },
+    );
+
+    test(
+      'galat (Error) dari pembuat PDF ditangkap; ganti tab menghapus pesan',
+      () async {
+        final exporter = FakeSpreadsheetExporter();
+        final printing = StockViewModel(
+          repository: repo,
+          canAdjust: true,
+          exporter: exporter,
+        );
+        await printing.load.execute();
+        await printing.printList.execute((
+          () async => throw StateError('font'),
+          'stok.pdf',
+        ));
+        expect(printing.printList.error, isTrue);
+        expect(printing.canPrint, isTrue);
+        printing.setTab(StockTab.card);
+        expect(printing.printList.result, isNull);
+        printing.dispose();
+      },
+    );
+  });
 }

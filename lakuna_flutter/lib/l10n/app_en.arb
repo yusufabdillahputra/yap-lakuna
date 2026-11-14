@@ -4367,7 +4367,7 @@
   },
   "stockPrintColCode": "SKU / Barcode",
   "stockPrintColCounted": "Counted",
-  "stockPrintCounts": "{items} items · {below} below minimum · {minus} negative stock",
+  "stockPrintCounts": "{items, plural, =1{1 item} other{{items} items}} · {below} below minimum · {minus} negative stock",
   "@stockPrintCounts": {
     "placeholders": {
       "items": {

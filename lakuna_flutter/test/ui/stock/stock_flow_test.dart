@@ -228,7 +228,7 @@ void main() {
       });
       await tester.pumpAndSettle();
       final (name, bytes) = exporter.saved.single;
-      expect(name, matches(RegExp(r'^stok-etalase-\d{6}\.pdf$')));
+      expect(name, matches(RegExp(r'^stok-etalase-\d{6}-\d{4}\.pdf$')));
       expect(String.fromCharCodes(bytes.take(4)), '%PDF');
       expect(
         find.text(
@@ -247,6 +247,39 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('stock-print-failed')), findsOneWidget);
       expect(find.byKey(const ValueKey('stock-print-saved')), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('cetak stok + pilihan lokasi ${size.width.toInt()} px, '
+        'share sheet tanpa pesan', (tester) async {
+      final exporter = FakeSpreadsheetExporter()..path = null;
+      await pump(
+        tester,
+        size: size,
+        exporter: exporter,
+        stock: FakeStockRepository(
+          locations: [
+            sampleLocation(1, 'Etalase', true),
+            sampleLocation(2, 'Gudang', false),
+          ],
+        ),
+      );
+      expect(find.byKey(const ValueKey('stock-print')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('stock-location-select-Etalase|Gudang')),
+        findsOneWidget,
+      );
+      await tester.ensureVisible(find.byKey(const ValueKey('stock-print')));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('stock-print')));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      expect(exporter.saved, hasLength(1));
+      expect(find.byKey(const ValueKey('stock-print-saved')), findsNothing);
+      expect(find.byKey(const ValueKey('stock-print-failed')), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
