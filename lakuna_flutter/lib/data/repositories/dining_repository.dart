@@ -14,6 +14,8 @@ class DiningData {
     required this.categories,
     this.categoryParents = const {},
     required this.staffName,
+    this.businessName = '',
+    this.outletName = '',
     this.timezone,
     this.canPay = false,
     this.canVoid = false,
@@ -39,6 +41,10 @@ class DiningData {
 
   /// Staf yang sedang bertugas (pelayan).
   final String staffName;
+
+  /// Nama usaha dan cabang untuk kepala struk tagihan (F1-10k).
+  final String businessName;
+  final String outletName;
 
   /// Zona waktu cabang (ID IANA).
   final String? timezone;
@@ -89,6 +95,8 @@ class DiningData {
     categories: categories,
     categoryParents: categoryParents,
     staffName: staffName,
+    businessName: businessName,
+    outletName: outletName,
     timezone: timezone,
     canPay: canPay,
     canVoid: canVoid,

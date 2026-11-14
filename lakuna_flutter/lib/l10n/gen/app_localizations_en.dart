@@ -8448,4 +8448,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kuitansiBalanceTransferTo => 'Pay the balance to';
+
+  @override
+  String get receiptBannerBill => 'BILL - NOT PAID';
+
+  @override
+  String get receiptPaidSoFar => 'Paid so far';
+
+  @override
+  String get receiptBalanceDue => 'Balance due';
+
+  @override
+  String get diningPrintBill => 'Print bill';
+
+  @override
+  String diningBillPreviewTitle(String order) {
+    return 'Bill for $order';
+  }
+
+  @override
+  String get receiptPendingConfirm => 'Awaiting confirmation';
+
+  @override
+  String get diningBillShareFailed =>
+      'Could not create the bill PDF. Try again.';
 }

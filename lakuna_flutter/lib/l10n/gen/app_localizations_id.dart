@@ -8212,4 +8212,27 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get kuitansiBalanceTransferTo => 'Transfer sisa ke';
+
+  @override
+  String get receiptBannerBill => 'TAGIHAN - BELUM DIBAYAR';
+
+  @override
+  String get receiptPaidSoFar => 'Sudah dibayar';
+
+  @override
+  String get receiptBalanceDue => 'Sisa tagihan';
+
+  @override
+  String get diningPrintBill => 'Cetak tagihan';
+
+  @override
+  String diningBillPreviewTitle(String order) {
+    return 'Tagihan $order';
+  }
+
+  @override
+  String get receiptPendingConfirm => 'Menunggu konfirmasi';
+
+  @override
+  String get diningBillShareFailed => 'PDF tagihan gagal dibuat. Coba lagi.';
 }

@@ -17,4 +17,4 @@ Spec: [F1-05e](../specs/2026-11-14-f1-05e-rekening-di-struk-design.md)
       *Transfer sisa ke* di akhir isian.
 - [x] **Dokumen**: spec F1-05c, README, STATUS-JEDA, panduan, CHANGELOG
       0.79.0, versi 0.79.0+82.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #85 di-merge (13 cek hijau).

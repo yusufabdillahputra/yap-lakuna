@@ -4869,5 +4869,37 @@
   "kuitansiBalanceTransferTo": "Pay the balance to",
   "@kuitansiBalanceTransferTo": {
     "placeholders": {}
+  },
+  "receiptBannerBill": "BILL - NOT PAID",
+  "@receiptBannerBill": {
+    "placeholders": {}
+  },
+  "receiptPaidSoFar": "Paid so far",
+  "@receiptPaidSoFar": {
+    "placeholders": {}
+  },
+  "receiptBalanceDue": "Balance due",
+  "@receiptBalanceDue": {
+    "placeholders": {}
+  },
+  "diningPrintBill": "Print bill",
+  "@diningPrintBill": {
+    "placeholders": {}
+  },
+  "diningBillPreviewTitle": "Bill for {order}",
+  "@diningBillPreviewTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPendingConfirm": "Awaiting confirmation",
+  "@receiptPendingConfirm": {
+    "placeholders": {}
+  },
+  "diningBillShareFailed": "Could not create the bill PDF. Try again.",
+  "@diningBillShareFailed": {
+    "placeholders": {}
   }
 }

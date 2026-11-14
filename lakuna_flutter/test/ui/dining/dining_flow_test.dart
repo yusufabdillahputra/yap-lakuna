@@ -27,7 +27,7 @@ Finder _key(String key) => find.byKey(ValueKey(key));
 Finder _input(String key) =>
     find.descendant(of: _key(key), matching: find.byType(EditableText));
 
-Future<void> _tap(WidgetTester tester, String key) async {
+Future<void> _reveal(WidgetTester tester, String key) async {
   // Panel bill memakai ListView yang dibangun malas: di ponsel aksi
   // tambahan di bawah item belum dibangun sampai digulir.
   final panel = find.ancestor(
@@ -39,6 +39,10 @@ Future<void> _tap(WidgetTester tester, String key) async {
   }
   await tester.ensureVisible(_key(key));
   await tester.pumpAndSettle();
+}
+
+Future<void> _tap(WidgetTester tester, String key) async {
+  await _reveal(tester, key);
   await tester.tap(_key(key));
   await tester.pumpAndSettle();
 }
@@ -787,6 +791,67 @@ void main() {
       expect(dining.customerSets.last.$2, isNull);
       expect(tester.takeException(), isNull);
     });
+  }
+
+  for (final (size, platform) in const [
+    (Size(1280, 800), TargetPlatform.linux),
+    (Size(360, 740), TargetPlatform.android),
+  ]) {
+    testWidgets('cetak tagihan ${size.width.toInt()} px (F1-10k)', (
+      tester,
+    ) async {
+      await pump(tester, size: size);
+      await _tap(tester, 'dining-table-M1');
+      await _tap(tester, 'dining-guests-open');
+      // Bill kosong: belum ada yang ditagih.
+      await _reveal(tester, 'dining-print-bill');
+      expect(
+        tester.widget<FButton>(_key('dining-print-bill')).onPress,
+        isNull,
+      );
+      // Ponsel: gulir panel kembali ke atas ke tombol Tambah menu.
+      if (_key('dining-add-menu').evaluate().isEmpty) {
+        await tester.scrollUntilVisible(
+          _key('dining-add-menu'),
+          -120,
+          scrollable: find
+              .ancestor(
+                of: _key('dining-print-bill'),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        await tester.pumpAndSettle();
+      }
+      await addMenu(tester, ['Kopi Susu Aren']);
+
+      await _tap(tester, 'dining-print-bill');
+      expect(_key('dining-bill-dialog'), findsOneWidget);
+      expect(find.text('Tagihan Meja M1'), findsOneWidget);
+      expect(find.textContaining('TAGIHAN - BELUM DIBAYAR'), findsOneWidget);
+      expect(find.textContaining('KEDAI CONTOH'), findsOneWidget);
+      expect(find.textContaining('Kopi Susu Aren'), findsWidgets);
+      expect(find.textContaining('TOTAL'), findsOneWidget);
+      await _tap(tester, 'dining-bill-print');
+      expect(printer.prints, hasLength(1));
+      expect(
+        printer.prints.single.$2.map((l) => l.text),
+        contains(contains('TAGIHAN - BELUM DIBAYAR')),
+      );
+      await _tap(tester, 'dining-bill-share');
+      expect(printer.shares, hasLength(1));
+      expect(_key('dining-bill-pdf-saved'), findsOneWidget);
+      await _tap(tester, 'dining-bill-close');
+      expect(_key('dining-bill-dialog'), findsNothing);
+      // Tidak menandai Minta bill dan tidak menyimpan apa pun.
+      expect(find.text('Batal minta bill'), findsNothing);
+
+      // Dibuka lagi: hasil sebelumnya tidak ikut tampil.
+      await _tap(tester, 'dining-print-bill');
+      expect(_key('dining-bill-pdf-saved'), findsNothing);
+      await _tap(tester, 'dining-bill-close');
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(platform));
   }
 
   testWidgets('kirim ke dapur di ponsel lalu tombol kembali sistem', (

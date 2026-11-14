@@ -14303,6 +14303,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Transfer sisa ke'**
   String get kuitansiBalanceTransferTo;
+
+  /// No description provided for @receiptBannerBill.
+  ///
+  /// In id, this message translates to:
+  /// **'TAGIHAN - BELUM DIBAYAR'**
+  String get receiptBannerBill;
+
+  /// No description provided for @receiptPaidSoFar.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah dibayar'**
+  String get receiptPaidSoFar;
+
+  /// No description provided for @receiptBalanceDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Sisa tagihan'**
+  String get receiptBalanceDue;
+
+  /// No description provided for @diningPrintBill.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak tagihan'**
+  String get diningPrintBill;
+
+  /// No description provided for @diningBillPreviewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tagihan {order}'**
+  String diningBillPreviewTitle(String order);
+
+  /// No description provided for @receiptPendingConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu konfirmasi'**
+  String get receiptPendingConfirm;
+
+  /// No description provided for @diningBillShareFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF tagihan gagal dibuat. Coba lagi.'**
+  String get diningBillShareFailed;
 }
 
 class _AppLocalizationsDelegate

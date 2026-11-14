@@ -30,6 +30,16 @@
 2. Tap **Close & pay**. The Pay screen opens with a total that includes service and PB1.
 3. Finish as with [cash payment](pay-cash) or [static QRIS](pay-qris). For guests paying separately, use [Split bill](split-bill).
 
+## Printing the bill
+
+Guests can check the bill before paying.
+
+1. In the bill panel, tap **Print bill**. A preview appears with the order, Subtotal, discount, service, PB1, rounding, and TOTAL, under the banner *BILL - NOT PAID*.
+2. Tap **Print bill** in the dialog to print on the receipt printer, or **Share PDF** to send it via WhatsApp.
+3. If some guests have already paid through split bill, the bill shows *Paid so far* and *Balance due*. The store's transfer account is printed too when it is set in [Store settings](store-settings).
+
+> [!note] Printing the bill does not close it, does not change the *Request bill* status, and does not create a new receipt number. Guests can still order more; print the bill again afterwards.
+
 ## Moving and voiding
 
 - **Move table** moves the whole bill to an empty table.

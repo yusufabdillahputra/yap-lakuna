@@ -5403,5 +5403,37 @@
   "kuitansiBalanceTransferTo": "Transfer sisa ke",
   "@kuitansiBalanceTransferTo": {
     "placeholders": {}
+  },
+  "receiptBannerBill": "TAGIHAN - BELUM DIBAYAR",
+  "@receiptBannerBill": {
+    "placeholders": {}
+  },
+  "receiptPaidSoFar": "Sudah dibayar",
+  "@receiptPaidSoFar": {
+    "placeholders": {}
+  },
+  "receiptBalanceDue": "Sisa tagihan",
+  "@receiptBalanceDue": {
+    "placeholders": {}
+  },
+  "diningPrintBill": "Cetak tagihan",
+  "@diningPrintBill": {
+    "placeholders": {}
+  },
+  "diningBillPreviewTitle": "Tagihan {order}",
+  "@diningBillPreviewTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPendingConfirm": "Menunggu konfirmasi",
+  "@receiptPendingConfirm": {
+    "placeholders": {}
+  },
+  "diningBillShareFailed": "PDF tagihan gagal dibuat. Coba lagi.",
+  "@diningBillShareFailed": {
+    "placeholders": {}
   }
 }

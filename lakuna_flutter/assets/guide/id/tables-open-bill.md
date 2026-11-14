@@ -30,6 +30,16 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 2. Tekan **Tutup & bayar**. Layar Bayar terbuka dengan total termasuk service dan PB1.
 3. Selesaikan seperti [pembayaran tunai](pay-cash) atau [QRIS statis](pay-qris). Untuk tamu yang membayar sendiri-sendiri, pakai [Split bill](split-bill).
 
+## Cetak tagihan
+
+Tamu bisa memeriksa tagihan sebelum membayar.
+
+1. Di panel bill, tekan **Cetak tagihan**. Pratinjau tagihan tampil: pesanan, Subtotal, diskon, service, PB1, pembulatan, dan TOTAL, berbanner *TAGIHAN - BELUM DIBAYAR*.
+2. Tekan **Cetak tagihan** di dialog untuk mencetak ke printer struk, atau **Bagikan PDF** untuk mengirimnya lewat WhatsApp.
+3. Bila sebagian tamu sudah membayar lewat split bill, tagihan memuat *Sudah dibayar* dan *Sisa tagihan*. Rekening transfer toko ikut tercetak bila diisi di [Pengaturan toko](store-settings).
+
+> [!note] Mencetak tagihan tidak menutup bill, tidak mengubah status *Minta bill*, dan tidak membuat nomor nota baru. Tamu masih bisa menambah pesanan; cetak ulang tagihannya setelah itu.
+
 ## Pindah dan batal
 
 - **Pindah meja** memindahkan seluruh bill ke meja kosong.
