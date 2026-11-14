@@ -1,5 +1,6 @@
 import 'package:lakuna_client/lakuna_client.dart';
-import 'package:lakuna_data/lakuna_data.dart' show SessionSalesSummary;
+import 'package:lakuna_data/lakuna_data.dart'
+    show CashSessionLine, ClosedSessionRecap, SessionSalesSummary;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
@@ -67,4 +68,12 @@ abstract class CashDrawerRepository {
     required CashCount count,
     String note = '',
   });
+
+  /// Sesi tertutup terakhir perangkat ini, terbaru dulu (F1-03f). Butuh
+  /// `cash_session:close` atau `reports:view`.
+  Future<Result<List<CashSessionLine>>> recentClosed();
+
+  /// Rekap sesi tertutup [sessionId] untuk dicetak ulang (F1-03f). Tanpa
+  /// `reports:view` hanya sesi perangkat ini.
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(UuidValue sessionId);
 }

@@ -118,7 +118,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final ctx = widget.store?.current;
     return showSessionRecapDialog(
       context,
-      repository: widget.repository,
+      loadRecap: widget.repository.loadSessionRecap,
       sessionId: sessionId,
       businessName: ctx?.tenant.name ?? '',
       outletName: ctx?.outlet.name ?? '',

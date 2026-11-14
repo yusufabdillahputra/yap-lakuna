@@ -46,7 +46,7 @@ void main() {
     );
     printer = FakeReceiptPrinter();
     return vm = SessionRecapDialogViewModel(
-      repository: repo,
+      loadRecap: repo.loadSessionRecap,
       sessionId: sessionId ?? FakeReportsRepository.closedSessionId,
       receiptSettings: withPrinter ? settings : null,
       printer: withPrinter ? printer : null,

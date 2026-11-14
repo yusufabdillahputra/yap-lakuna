@@ -8305,4 +8305,16 @@ class AppLocalizationsId extends AppLocalizations {
   String storeSettingsTransferLineTooLong(int count) {
     return 'Satu rekening maksimal $count karakter.';
   }
+
+  @override
+  String get cashPreviousTitle => 'Sesi sebelumnya';
+
+  @override
+  String get cashPreviousNote =>
+      'Sesi yang sudah ditutup di perangkat ini. Ketuk untuk mencetak ulang rekapnya.';
+
+  @override
+  String cashPreviousDifference(String staff, String amount) {
+    return '$staff · Selisih $amount';
+  }
 }

@@ -301,16 +301,70 @@ class ClosedSessionRecap {
       drawer.expectedCash != Money(session.expectedCash ?? 0);
 }
 
-/// Rekap sesi tertutup [sessionId] di cabang [scope]. Butuh `reports:view`
-/// ([ReportActorNotPermitted]); sesi yang tidak ada di cabang ini atau
-/// masih buka ditolak dengan [CashSessionNotClosed].
+/// Sesi tertutup terakhir perangkat `scope.deviceId` untuk kartu *Sesi
+/// sebelumnya* di layar Sesi kasir (F1-03f), terbaru dulu. Butuh
+/// `cash_session:close` atau `reports:view`.
+Future<List<CashSessionLine>> listRecentClosedSessions(
+  LakunaStore store,
+  CatalogScope scope, {
+  required Set<Permission> permissions,
+  int limit = 5,
+}) async {
+  if (!permissions.contains(Permission.reportsView) &&
+      !permissions.contains(Permission.cashSessionClose)) {
+    throw const ReportActorNotPermitted();
+  }
+  final session = store.session;
+  final sessions = await CashSession.db.find(
+    session,
+    where: (s) =>
+        s.tenantId.equals(scope.tenantId) &
+        s.outletId.equals(scope.outletId) &
+        s.deviceId.equals(scope.deviceId) &
+        s.deletedAt.equals(null) &
+        s.closedAt.notEquals(null),
+    orderByList: (s) => [s.closedAt.desc(), s.id.desc()],
+    limit: limit,
+  );
+  if (sessions.isEmpty) return const [];
+  final outlet = await Outlet.db.findById(session, scope.outletId);
+  final tenant = await Tenant.db.findById(session, scope.tenantId);
+  final timezone = outlet?.timezone ?? tenant?.timezone;
+  final names = await _staffNames(
+    session,
+    scope.tenantId,
+    sessions.map((s) => s.openedBy),
+  );
+  return [
+    for (final s in sessions)
+      CashSessionLine(
+        id: s.id,
+        openedAt: outletLocalTime(s.openedAt, timezone),
+        closedAt: outletLocalTime(s.closedAt!, timezone),
+        staffName: names[s.openedBy] ?? '',
+        opening: Money(s.openingCash),
+        expected: Money(s.expectedCash ?? 0),
+        counted: Money(s.countedCash ?? 0),
+        difference: Money(s.difference ?? 0),
+      ),
+  ];
+}
+
+/// Rekap sesi tertutup [sessionId] di cabang [scope] (F1-03e).
+/// `reports:view` memuat sesi perangkat mana pun di cabang;
+/// `cash_session:close` hanya sesi yang dibuka di perangkat
+/// `scope.deviceId` (F1-03f). Tanpa izin itu: [ReportActorNotPermitted];
+/// sesi yang tidak ada di cabang ini atau masih buka ditolak dengan
+/// [CashSessionNotClosed].
 Future<ClosedSessionRecap> loadClosedSessionRecap(
   LakunaStore store,
   CatalogScope scope, {
   required Set<Permission> permissions,
   required UuidValue sessionId,
 }) async {
-  if (!permissions.contains(Permission.reportsView)) {
+  final anyDevice = permissions.contains(Permission.reportsView);
+  // Kasir penutup sesi boleh mencetak ulang rekap perangkatnya (F1-03f).
+  if (!anyDevice && !permissions.contains(Permission.cashSessionClose)) {
     throw const ReportActorNotPermitted();
   }
   final session = store.session;
@@ -324,6 +378,9 @@ Future<ClosedSessionRecap> loadClosedSessionRecap(
   );
   if (s == null || s.status != CashSessionStatus.closed) {
     throw const CashSessionNotClosed();
+  }
+  if (!anyDevice && s.deviceId != scope.deviceId) {
+    throw const ReportActorNotPermitted();
   }
   final cashScope = CashScope(
     tenantId: scope.tenantId,

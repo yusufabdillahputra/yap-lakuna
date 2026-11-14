@@ -19,6 +19,9 @@ import '../core/format.dart';
 import '../core/photo_attach_field.dart';
 import '../expenses/expense_labels.dart';
 import '../receipt/printer_labels.dart';
+import '../receipt/receipt_content.dart' show receiptDate;
+import '../reports/report_labels.dart' show signedMoneyLabel;
+import '../reports/session_recap_dialog.dart';
 import 'cash_session_view_model.dart';
 import 'session_recap_content.dart';
 
@@ -486,52 +489,181 @@ class _OpenForm extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
-        child: _Card(
-          key: const ValueKey('cash-open-card'),
-          title: l10n.cashOpenTitle,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 16,
-            children: [
-              if (store != null)
-                Text(
-                  '${_storeLine(store)} · ${store.device.code} · $staffName',
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.mutedForeground,
-                  ),
-                ),
-              Text(l10n.cashOpenBody, style: theme.typography.body.sm),
-              _MoneyField(
-                key: const ValueKey('cash-opening-cash'),
-                label: l10n.cashOpeningCash,
-                autofocus: true,
-                error: viewModel.openingCashError,
-                onChange: viewModel.setOpeningCash,
-                onSubmit: viewModel.canOpen
-                    ? (_) => viewModel.open.execute()
-                    : null,
-              ),
-              _NoteField(
-                key: const ValueKey('cash-opening-note'),
-                label: l10n.cashOpeningNote,
-                error: viewModel.openingNoteError,
-                onChange: viewModel.setOpeningNote,
-              ),
-              FButton(
-                key: const ValueKey('cash-open'),
-                onPress: viewModel.canOpen && !running
-                    ? viewModel.open.execute
-                    : null,
-                prefix: running
-                    ? const FCircularProgress()
-                    : const Icon(TablerIcons.lockOpen),
-                child: Flexible(child: Text(l10n.cashOpenButton)),
-              ),
-              if (!viewModel.canOpen)
-                _PermissionNote(permission: Permission.cashSessionOpen),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 16,
+          children: [
+            _openCard(context, l10n, theme, store, running),
+            if (viewModel.previous.isNotEmpty)
+              _PreviousSessions(viewModel: viewModel, store: store),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _openCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    FThemeData theme,
+    StoreContext? store,
+    bool running,
+  ) => _Card(
+    key: const ValueKey('cash-open-card'),
+    title: l10n.cashOpenTitle,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 16,
+      children: [
+        if (store != null)
+          Text(
+            '${_storeLine(store)} · ${store.device.code} · $staffName',
+            style: theme.typography.body.sm.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
+        Text(l10n.cashOpenBody, style: theme.typography.body.sm),
+        _MoneyField(
+          key: const ValueKey('cash-opening-cash'),
+          label: l10n.cashOpeningCash,
+          autofocus: true,
+          error: viewModel.openingCashError,
+          onChange: viewModel.setOpeningCash,
+          onSubmit: viewModel.canOpen ? (_) => viewModel.open.execute() : null,
+        ),
+        _NoteField(
+          key: const ValueKey('cash-opening-note'),
+          label: l10n.cashOpeningNote,
+          error: viewModel.openingNoteError,
+          onChange: viewModel.setOpeningNote,
+        ),
+        FButton(
+          key: const ValueKey('cash-open'),
+          onPress: viewModel.canOpen && !running
+              ? viewModel.open.execute
+              : null,
+          prefix: running
+              ? const FCircularProgress()
+              : const Icon(TablerIcons.lockOpen),
+          child: Flexible(child: Text(l10n.cashOpenButton)),
+        ),
+        if (!viewModel.canOpen)
+          _PermissionNote(permission: Permission.cashSessionOpen),
+      ],
+    ),
+  );
+}
+
+/// Kartu *Sesi sebelumnya* (F1-03f): sesi tertutup terakhir perangkat ini;
+/// ketuk untuk membuka dialog *Rekap sesi* dan mencetak ulang.
+class _PreviousSessions extends StatelessWidget {
+  const _PreviousSessions({required this.viewModel, required this.store});
+
+  final CashSessionViewModel viewModel;
+  final StoreContext? store;
+
+  void _open(BuildContext context, UuidValue id) {
+    final loadRecap = viewModel.loadRecap;
+    if (loadRecap == null) return;
+    showSessionRecapDialog(
+      context,
+      loadRecap: loadRecap,
+      sessionId: id,
+      businessName: store?.tenant.name ?? '',
+      outletName: store?.outlet.name ?? '',
+      timezone: viewModel.timezone,
+      receiptSettings: viewModel.receiptSettings,
+      printer: viewModel.printer,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final tone = _Tone.of(context);
+    String two(int n) => n.toString().padLeft(2, '0');
+    return _Card(
+      key: const ValueKey('cash-previous-card'),
+      title: l10n.cashPreviousTitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 4,
+        children: [
+          Text(
+            l10n.cashPreviousNote,
+            style: theme.typography.body.xs.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
+          for (final s in viewModel.previous)
+            FTappable(
+              key: ValueKey('cash-previous-${s.id}'),
+              semanticsLabel: l10n.reportsSessionRecapOpen,
+              onPress: () => _open(context, s.id),
+              builder: (context, states, child) => DecoratedBox(
+                decoration: BoxDecoration(
+                  color: states.contains(FTappableVariant.hovered)
+                      ? theme.colors.secondary
+                      : null,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: child,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 2,
+                        children: [
+                          Text(
+                            switch (s.closedAt) {
+                              final c? =>
+                                '${receiptDate(s.openedAt)}–'
+                                    '${two(c.hour)}.${two(c.minute)}',
+                              null => receiptDate(s.openedAt),
+                            },
+                            style: theme.typography.body.sm.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            l10n.cashPreviousDifference(
+                              s.staffName,
+                              switch (s.difference) {
+                                final d? when d != Money.zero =>
+                                  signedMoneyLabel(l10n, d),
+                                _ => l10n.cashDifferenceExact,
+                              },
+                            ),
+                            style: theme.typography.body.xs.copyWith(
+                              color: switch (s.difference) {
+                                final d? when d.isNegative => tone.negative,
+                                final d? when d != Money.zero => tone.positive,
+                                _ => theme.colors.mutedForeground,
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      TablerIcons.printer,
+                      size: 18,
+                      color: theme.colors.mutedForeground,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

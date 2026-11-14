@@ -80,6 +80,49 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
     ),
   );
 
+  @override
+  Future<Result<List<CashSessionLine>>> recentClosed() => _withPermissions(
+    (scope, permissions) =>
+        listRecentClosedSessions(_store, scope, permissions: permissions),
+  );
+
+  @override
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(UuidValue sessionId) =>
+      _withPermissions(
+        (scope, permissions) => loadClosedSessionRecap(
+          _store,
+          scope,
+          permissions: permissions,
+          sessionId: sessionId,
+        ),
+      );
+
+  /// Menjalankan [body] dengan izin staf yang dibaca ulang dari database
+  /// (F1-03f); izin dicek oleh fungsi data.
+  Future<Result<T>> _withPermissions<T>(
+    Future<T> Function(CatalogScope scope, Set<Permission> permissions) body,
+  ) async {
+    final ctx = _stores.current;
+    if (ctx == null) return const Result.error(StoreNotReady());
+    final staff = _session.current;
+    if (staff == null) {
+      return const Result.error(NotPermitted(Permission.cashSessionClose));
+    }
+    try {
+      final member = await findStaffById(
+        _store,
+        tenantId: ctx.tenant.id,
+        outletId: ctx.outlet.id,
+        staffId: staff.id,
+      );
+      return Result.ok(
+        await body(CatalogScope.of(ctx), member?.permissions ?? const {}),
+      );
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
   /// Memeriksa toko, staf, dan [permission] (`null` = cukup login), lalu
   /// menjalankan [body] dan membungkus galatnya.
   Future<Result<T>> _guard<T>(
