@@ -100,7 +100,13 @@ int? _exifOrientation(List<int> b, int start, int length) {
   final end = start + length;
   if (length < 14 || end > b.length) return null;
   if (_ascii(b, start, 6) != 'Exif\u0000\u0000') return null;
-  final tiff = start + 6;
+  return tiffOrientation(b, start + 6, end);
+}
+
+/// Tag Orientation (0x0112) dari IFD0 data TIFF di `b[tiff..end)` (isi
+/// Exif); `null` bila tidak ada atau rusak.
+int? tiffOrientation(List<int> b, int tiff, int end) {
+  if (tiff < 0 || end > b.length || end - tiff < 8) return null;
   final big = switch (_ascii(b, tiff, 2)) {
     'MM' => true,
     'II' => false,

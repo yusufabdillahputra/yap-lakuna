@@ -12,6 +12,9 @@ import 'sync_tx.dart';
 /// Menyimpan [bytes] (gambar yang sudah diperiksa, [header]) di folder media
 /// [store] dengan nama `<sha256>.<ext>` lalu mencatat barisnya. Berkas yang
 /// sama (hash, jenis, dan cabang sama) memakai baris yang sudah ada.
+///
+/// Metadata (lokasi GPS, model ponsel, XMP, komentar) dibuang lebih dulu
+/// tanpa mengubah piksel (F1-07n); hash dan ukuran dihitung dari hasilnya.
 Future<MediaFile> storeMediaFile(
   SyncTx w,
   LakunaStore store,
@@ -23,6 +26,7 @@ Future<MediaFile> storeMediaFile(
   required SyncStamp stamp,
   UuidValue? outletId,
 }) async {
+  bytes = stripImageMetadata(bytes);
   final hash = sha256.convert(bytes).toString();
   final existing = await MediaFile.db.findFirstRow(
     w.session,

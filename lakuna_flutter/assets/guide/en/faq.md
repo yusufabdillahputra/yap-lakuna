@@ -27,3 +27,7 @@ Make a [backup](backup-restore) on the old device. Install Lakuna on the new dev
 ## Where is the app data stored?
 
 The data location and device ID are shown under *Device info* on Home. Mention both when asking for technical help.
+
+## Is the location in phone photos saved too?
+
+No. Phone camera photos usually carry the GPS location, time, and phone model. When you save a product photo, invoice photo, receipt photo, payment proof, QRIS sticker, receipt logo, or floor plan image, Lakuna removes that data without changing the picture, so it never reaches backups or sync. Only the rotation is kept so the photo stays upright. Photos saved before version 0.72.0 are not changed; pick the photo again if you want to clean it.

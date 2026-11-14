@@ -11,4 +11,4 @@ Spec: [F1-07m](../specs/2026-11-14-f1-07m-pratinjau-harga-import-design.md).
 - [x] **Uji manual Xvfb** dengan CSV harga baru.
 - [x] **Dokumen**: spec F1-07k, README, STATUS-JEDA, panduan, CHANGELOG
   0.71.0, pubspec `0.71.0+74`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

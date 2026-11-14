@@ -27,3 +27,7 @@ Buat [backup](backup-restore) di perangkat lama. Pasang Lakuna di perangkat baru
 ## Di mana data aplikasi disimpan?
 
 Lokasi data dan ID perangkat ditampilkan di bagian *Info perangkat* di Beranda. Sebutkan keduanya saat meminta bantuan teknis.
+
+## Apakah lokasi foto dari ponsel ikut tersimpan?
+
+Tidak. Foto dari kamera ponsel biasanya membawa lokasi GPS, waktu, dan model ponsel. Saat Anda menyimpan foto produk, foto faktur, foto nota, bukti bayar, stiker QRIS, logo struk, atau gambar denah, Lakuna membuang data itu tanpa mengubah gambarnya, jadi tidak ikut ke backup atau sinkronisasi. Hanya arah putar foto yang disimpan agar foto tetap tegak. Foto yang disimpan sebelum versi 0.72.0 tidak diubah; pilih ulang fotonya bila ingin membersihkannya.

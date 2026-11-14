@@ -7,6 +7,63 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.72.0] - 2026-11-14
+
+Foto dari kamera ponsel tidak lagi menyimpan lokasi GPS, waktu, atau model
+ponsel di folder media Lakuna, jadi data itu tidak ikut ke backup atau ke
+sinkronisasi Fase 2.
+
+### Keamanan
+
+- **Semua gambar yang disimpan dibersihkan dari metadata:** foto produk
+  (1.16), foto faktur pembelian (1.19), foto nota pengeluaran, bukti bayar
+  supplier, stiker QRIS dan logo struk (1.26), serta gambar denah (1.17c).
+  Sebelumnya hanya foto yang dikecilkan (v0.62.0) yang bersih; foto kecil
+  (≤ 512 KB), stiker QRIS, logo, dan denah disimpan apa adanya beserta
+  Exif GPS-nya.
+- Pembersihan memakai daftar izin per format, jadi metadata jenis baru
+  ikut terbuang: Exif, XMP, IPTC/Photoshop, komentar JPEG, kredensial
+  konten C2PA/JUMBF, telemetri GPS kamera aksi, chunk teks/waktu PNG,
+  chunk privat vendor, serta gambar tambahan (peta kedalaman, gambar
+  kedua) setelah akhir gambar.
+
+### Diubah
+
+- Gambar dibersihkan tanpa didekode ulang: kualitas foto, ketajaman kode
+  QR, dan garis denah tidak berubah. Profil warna (ICC, sRGB, Adobe) dan
+  animasi APNG/WebP tetap.
+- Foto ponsel yang diputar tetap tegak: bila Exif asli menyatakan
+  orientasi selain 1, berkas hasil membawa Exif minimal yang hanya berisi
+  tag Orientation.
+- Ukuran berkas di folder `media/` sedikit lebih kecil untuk foto kamera.
+- Panduan *Pertanyaan umum* (ID + EN) menjelaskan bahwa lokasi foto tidak
+  disimpan.
+
+### Catatan teknis
+
+- `stripImageMetadata` baru di `lakuna_domain` (murni Dart, tanpa
+  dekode): JPEG (segmen APP0, APP2 ICC_PROFILE, APP14 Adobe, dan segmen
+  non-APP saja; pindai data scan termasuk JPEG progresif, isian FF 00/FF FF,
+  dan restart), PNG (chunk kritis, warna, transparansi, pHYs, APNG; CRC
+  chunk `eXIf` minimal dihitung dengan `hashlib`), WebP (VP8X, ICCP, ANIM,
+  ANMF, ALPH, VP8, VP8L; bit EXIF/XMP VP8X, bantalan chunk ganjil, ukuran
+  RIFF). Berkas yang tidak bisa diurai sampai akhir dikembalikan apa
+  adanya.
+- Orientasi dibaca dengan aturan yang sama dengan `readImageHeader` (Exif
+  sah pertama sebelum SOF) lewat `tiffOrientation` yang dipisahkan dari
+  pembaca header, jadi lebar/tinggi yang tercatat tetap cocok dengan
+  berkas.
+- `storeMediaFile` membersihkan gambar sebelum menghitung SHA-256 dan
+  ukuran; semua pemanggil (produk, pembelian, pengeluaran, supplier, QRIS,
+  logo struk, denah) ikut terlindungi tanpa perubahan.
+- Tes: domain (JPEG dengan Exif/XMP/IPTC/MPF/COM/C2PA/data setelah EOI,
+  orientasi big/little-endian, Exif setelah SOF diabaikan, JPEG progresif,
+  PNG teks/eXIf/C2PA/chunk privat, WebP EXIF/XMP/C2PA/chunk ganjil, berkas
+  terpotong dan diacak tidak melempar galat) dan data (foto produk kecil
+  ber-GPS tersimpan bersih dengan piksel sama, stiker QRIS berorientasi 6
+  tetap terbaca 48 × 64).
+- Gambar lama yang sudah tersimpan tidak diubah (dicatat sebagai gap).
+
 ## [0.71.0] - 2026-11-14
 
 Import produk dengan sakelar *Perbarui harga produk yang sudah ada* kini
@@ -5075,7 +5132,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...HEAD
+[0.72.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...v0.72.0
 [0.71.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...v0.71.0
 [0.70.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...v0.69.0
