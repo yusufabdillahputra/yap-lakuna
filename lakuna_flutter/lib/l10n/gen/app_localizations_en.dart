@@ -8126,4 +8126,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String labelsGenerateFailed(String names) {
     return 'Barcodes could not be saved for: $names';
   }
+
+  @override
+  String get productImportUpdate => 'Update prices of existing products';
+
+  @override
+  String get productImportUpdateNote =>
+      'Matching products (by SKU, barcode, or name when the row has no code) get their sell price, cost price, and minimum stock updated. Empty cells change nothing, stock is not changed, and rows with an unclear match are skipped.';
+
+  @override
+  String productImportDoneUpdate(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      created,
+      locale: localeName,
+      other: '$created new products',
+      one: '1 new product',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      updated,
+      locale: localeName,
+      other: '$updated prices updated',
+      one: '1 price updated',
+    );
+    return 'Done: $_temp0, $_temp1, $unchanged unchanged, $skipped skipped.';
+  }
+
+  @override
+  String productImportSkippedUnclear(String lines) {
+    return 'Rows skipped because the match is unclear (duplicate or conflicting codes, a product name with several variants, or a variant already updated by another row): $lines';
+  }
 }

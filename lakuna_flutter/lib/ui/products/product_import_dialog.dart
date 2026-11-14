@@ -172,7 +172,21 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(l10n.productImportSkipNote, style: muted),
+                  FSwitch(
+                    key: const ValueKey('product-import-update'),
+                    label: Text(l10n.productImportUpdate),
+                    value: vm.updateExisting,
+                    onChange: done == null && !vm.run.running
+                        ? vm.setUpdateExisting
+                        : null,
+                  ),
+                  Text(
+                    vm.updateExisting
+                        ? l10n.productImportUpdateNote
+                        : l10n.productImportSkipNote,
+                    key: const ValueKey('product-import-note'),
+                    style: muted,
+                  ),
                 ],
                 if (rejected.isNotEmpty &&
                     vm.problem != ImportFileProblem.missingName)
@@ -206,17 +220,28 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                   FAlert(
                     key: const ValueKey('product-import-done'),
                     title: Text(
-                      l10n.productImportDone(
-                        done.created,
-                        done.skippedLines.length,
-                      ),
+                      vm.updateExisting
+                          ? l10n.productImportDoneUpdate(
+                              done.created,
+                              done.updated,
+                              done.unchanged,
+                              done.skippedLines.length,
+                            )
+                          : l10n.productImportDone(
+                              done.created,
+                              done.skippedLines.length,
+                            ),
                     ),
                     subtitle: done.skippedLines.isEmpty
                         ? null
                         : Text(
-                            l10n.productImportSkippedLines(
-                              _lines(done.skippedLines),
-                            ),
+                            vm.updateExisting
+                                ? l10n.productImportSkippedUnclear(
+                                    _lines(done.skippedLines),
+                                  )
+                                : l10n.productImportSkippedLines(
+                                    _lines(done.skippedLines),
+                                  ),
                           ),
                   ),
                 if (vm.run.result case Error(:final error))

@@ -47,8 +47,12 @@ abstract class CatalogRepository {
   Future<Result<UuidValue>> save(ProductDraft draft);
 
   /// Import produk baru dari berkas (F1-07b). Produk yang sudah ada
-  /// dilewati. Gagal dengan `NotPermitted` atau `ProductInputInvalid`.
-  Future<Result<ProductImportSummary>> importRows(List<ProductImportRow> rows);
+  /// dilewati, atau diperbarui harganya bila [updateExisting] (F1-07k).
+  /// Gagal dengan `NotPermitted` atau `ProductInputInvalid`.
+  Future<Result<ProductImportSummary>> importRows(
+    List<ProductImportRow> rows, {
+    bool updateExisting = false,
+  });
 
   /// Mengarsipkan produk [id] (F1-07d). Gagal dengan `NotPermitted` atau
   /// `ProductNotFound`.

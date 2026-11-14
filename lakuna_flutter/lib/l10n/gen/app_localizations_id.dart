@@ -7913,4 +7913,26 @@ class AppLocalizationsId extends AppLocalizations {
   String labelsGenerateFailed(String names) {
     return 'Barcode gagal disimpan untuk: $names';
   }
+
+  @override
+  String get productImportUpdate => 'Perbarui harga produk yang sudah ada';
+
+  @override
+  String get productImportUpdateNote =>
+      'Produk yang cocok (SKU, barcode, atau nama bila baris tanpa kode) diperbarui harga jual, harga beli, dan stok minimumnya. Sel kosong tidak mengubah apa pun, stok tidak diubah, dan baris yang cocoknya ragu dilewati.';
+
+  @override
+  String productImportDoneUpdate(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  ) {
+    return 'Selesai: $created produk baru, $updated harga diperbarui, $unchanged tidak berubah, $skipped dilewati.';
+  }
+
+  @override
+  String productImportSkippedUnclear(String lines) {
+    return 'Baris dilewati karena cocoknya ragu (kode kembar atau bertentangan, nama produk banyak varian, atau varian sudah diperbarui baris lain): $lines';
+  }
 }

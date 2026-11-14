@@ -49,10 +49,16 @@ class LocalCatalogRepository extends CatalogRepository {
 
   @override
   Future<Result<ProductImportSummary>> importRows(
-    List<ProductImportRow> rows,
-  ) => _guard(
-    (scope, staffId) =>
-        importProducts(_store, scope, staffId: staffId, rows: rows),
+    List<ProductImportRow> rows, {
+    bool updateExisting = false,
+  }) => _guard(
+    (scope, staffId) => importProducts(
+      _store,
+      scope,
+      staffId: staffId,
+      rows: rows,
+      updateExisting: updateExisting,
+    ),
   );
 
   @override

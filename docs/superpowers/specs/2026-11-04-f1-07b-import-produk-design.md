@@ -82,7 +82,7 @@ sah dan yang ditolak sebelum disimpan.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Import produk baru CSV/XLSX | 1.15 | Rilis v0.31.0 | Selesai. |
-| Perbarui harga produk lama lewat import | — | Belum | Import hanya menambah; ubah harga lewat form. |
+| Perbarui harga produk lama lewat import | — | Rilis v0.59.0 | [F1-07k](2026-11-14-f1-07k-import-perbarui-harga-design.md): sakelar di dialog import. |
 | Varian / satuan konversi / grosir lewat import | — | Belum | Satu baris satu varian. |
 | Templat berkas untuk diunduh | — | Selesai v0.47.0 | Tombol *Unduh templat* ([F1-07g](2026-11-14-f1-07g-templat-import-design.md)). |
 | Berkas sangat besar (puluhan ribu baris) | — | Belum | Satu transaksi ±4 ms/baris (lokasi stok dan tautan modifier sudah tidak dikueri per baris); 20 ribu baris ±1 menit tanpa indikator progres. Pertimbangkan `compute` untuk mengurai dan import bertahap. |
