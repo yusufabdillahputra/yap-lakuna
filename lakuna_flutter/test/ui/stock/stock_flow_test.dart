@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -11,6 +13,7 @@ import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/products/product_widgets.dart';
 import 'package:lakuna_flutter/ui/settings/app_settings_view_model.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view.dart';
+import 'package:lakuna_flutter/utils/result.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_app_settings_repository.dart';
@@ -312,6 +315,8 @@ void main() {
     // Harga beli terakhir hanya untuk barang pertama (F1-08e).
     purchases.lastPriceOf[variants[0].$2.id] = const Money(31500);
     final stock = FakeStockRepository(
+      // Lokasi sama dengan Pembelian agar draf per lokasi cocok (F1-08g).
+      locations: purchases.locations,
       rows: [
         row(0, Qty.units(2), Qty.units(20)),
         row(1, Qty.units(1), Qty.units(3)),
@@ -465,6 +470,121 @@ void main() {
     await _tap(tester, 'purchase-back');
     expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
     expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
+  });
+
+  /// Draf berisi barang pertama di bawah minimum (F1-08g).
+  Future<Purchase> seedDraft(FakePurchasesRepository purchases) async {
+    final first = purchases.products.first.variants.first;
+    final saved = await purchases.saveDraft(
+      PurchaseRequest(
+        purchasedOn: DateTime(2026, 11, 2),
+        locationId: purchases.locations.first.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: first.id,
+            quantity: Qty.units(5),
+            unitPrice: const Money(30000),
+          ),
+        ],
+      ),
+    );
+    return (saved as Ok<Purchase>).value;
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('draf berisi barang yang sama: buka draf, buat baru, batal '
+        '${size.width.toInt()} px (F1-08g)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      final draft = await seedDraft(purchases);
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      final tab = size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum';
+      await _tap(tester, tab);
+      await _tap(tester, 'stock-restock');
+      expect(find.byKey(const ValueKey('stock-restock-draft')), findsOneWidget);
+      expect(find.textContaining(draft.number), findsOneWidget);
+      expect(find.textContaining('1 dari 2 barang'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      // Batal: tidak ada form.
+      await _tap(tester, 'stock-restock-cancel');
+      expect(find.byKey(const ValueKey('stock-restock-draft')), findsNothing);
+      expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
+
+      // Buka draf: form draf itu, tanpa catatan isian stok minimum.
+      await _tap(tester, 'stock-restock');
+      await _tap(tester, 'stock-restock-open-draft');
+      expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+      expect(find.textContaining(draft.number), findsWidgets);
+      expect(
+        find.byKey(const ValueKey('purchase-restock-note')),
+        findsNothing,
+      );
+      await _tap(tester, 'purchase-back');
+      if (size.width < 600) await _tap(tester, tab);
+
+      // Buat draf baru: form terisi dari stok minimum seperti biasa.
+      await _tap(tester, 'stock-restock');
+      await _tap(tester, 'stock-restock-new');
+      expect(
+        find.byKey(const ValueKey('purchase-restock-note')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('kembali lewat menu saat draf dicari: ketukan kedua tetap '
+      'diabaikan (F1-08g)', (tester) async {
+    final (stock, purchases) = restockSeed();
+    await seedDraft(purchases);
+    final gate = purchases.restockDraftsGate = Completer<void>();
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    await tester.tap(find.byKey(const ValueKey('stock-restock')));
+    await tester.pump();
+    // Router membangun ulang halaman Stok selagi draf masih dicari.
+    await _tap(tester, 'nav-stock');
+    await _tap(tester, 'stock-tab-minimum');
+    await tester.tap(find.byKey(const ValueKey('stock-restock')));
+    await tester.pump();
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('stock-restock-draft')), findsOneWidget);
+    await _tap(tester, 'stock-restock-cancel');
+    expect(find.byKey(const ValueKey('stock-restock-draft')), findsNothing);
+    expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
+  });
+
+  testWidgets('galat baca draf: langsung buka form baru (F1-08g)', (
+    tester,
+  ) async {
+    final (stock, purchases) = restockSeed();
+    await seedDraft(purchases);
+    purchases.restockDraftsError = Exception('baca gagal');
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    await _tap(tester, 'stock-restock');
+    expect(find.byKey(const ValueKey('stock-restock-draft')), findsNothing);
+    expect(find.byKey(const ValueKey('purchase-restock-note')), findsOneWidget);
   });
 
   testWidgets('tanpa izin pembelian: tombol buat pembelian tidak tampil', (

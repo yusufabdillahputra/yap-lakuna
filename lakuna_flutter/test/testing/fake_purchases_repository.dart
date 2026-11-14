@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -500,6 +501,50 @@ class FakePurchasesRepository extends PurchasesRepository {
         if (lastPriceOf.containsKey(id)) id: lastPriceOf[id]!,
     };
   });
+
+  /// Galat untuk [restockDrafts] (F1-08g).
+  Exception? restockDraftsError;
+
+  /// Bila diisi, [restockDrafts] menunggu gerbang ini dibuka (F1-08g).
+  Completer<void>? restockDraftsGate;
+
+  @override
+  Future<Result<List<RestockDraft>>> restockDrafts(
+    UuidValue locationId,
+    Iterable<UuidValue> variantIds,
+  ) async {
+    if (restockDraftsError case final e?) return Result.error(e);
+    if (restockDraftsGate case final gate?) await gate.future;
+    return _guard(() {
+      final ids = variantIds.toSet();
+      final drafts = <RestockDraft>[];
+      for (final p in purchases.reversed) {
+        if (p.status != PurchaseStatus.draft ||
+            p.deletedAt != null ||
+            p.stockLocationId != locationId) {
+          continue;
+        }
+        final matched = {
+          for (final i in items)
+            if (i.purchaseId == p.id && ids.contains(i.variantId)) i.variantId,
+        };
+        if (matched.isEmpty) continue;
+        drafts.add(
+          RestockDraft(
+            purchaseId: p.id,
+            number: p.number,
+            matched: matched.length,
+          ),
+        );
+      }
+      // Draf yang lebih baru tetap di depan bila sama banyak.
+      final order = {for (final (i, d) in drafts.indexed) d.purchaseId: i};
+      return drafts..sort((a, b) {
+        final m = b.matched - a.matched;
+        return m != 0 ? m : order[a.purchaseId]! - order[b.purchaseId]!;
+      });
+    });
+  }
 
   @override
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id) async => _guard(() {

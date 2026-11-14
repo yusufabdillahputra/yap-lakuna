@@ -8573,4 +8573,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseRestockPriceNote(int count, int total) {
     return 'Prices filled from the last purchase for $count of $total items.';
   }
+
+  @override
+  String get stockRestockDraftTitle => 'A purchase draft already exists';
+
+  @override
+  String stockRestockDraftBody(String number, int matched, int total) {
+    return 'Draft $number already has $matched of $total items below minimum. Open that draft to avoid a duplicate purchase?';
+  }
+
+  @override
+  String stockRestockDraftOthers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count other drafts also have these items (see Purchases).',
+      one: '1 other draft also has these items (see Purchases).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stockRestockDraftOpen => 'Open draft';
+
+  @override
+  String get stockRestockDraftNew => 'Create new draft';
+
+  @override
+  String get stockRestockDraftCancel => 'Cancel';
 }

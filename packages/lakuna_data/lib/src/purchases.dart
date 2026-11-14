@@ -530,6 +530,79 @@ Future<Map<UuidValue, Money>> lastPurchasePricesOf(
   };
 }
 
+/// Draf pembelian yang sudah memuat sebagian barang yang akan dibeli dari
+/// stok minimum (F1-08g).
+class RestockDraft {
+  const RestockDraft({
+    required this.purchaseId,
+    required this.number,
+    required this.matched,
+  });
+
+  final UuidValue purchaseId;
+  final String number;
+
+  /// Jumlah varian yang diminta yang ada di draf ini.
+  final int matched;
+}
+
+/// Draf pembelian cabang (belum dihapus) ke lokasi [locationId] yang memuat
+/// salah satu [variantIds]: paling banyak varian yang sama dulu, lalu yang
+/// terakhir diubah (F1-08g).
+Future<List<RestockDraft>> restockDraftsOf(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue locationId,
+  Iterable<UuidValue> variantIds,
+) async {
+  final ids = variantIds.toSet();
+  if (ids.isEmpty) return const [];
+  final session = store.session;
+  // Draf cabang biasanya sedikit; baca dulu agar tidak memindai seluruh
+  // riwayat item pembelian barang ini.
+  final open = await Purchase.db.find(
+    session,
+    where: (p) =>
+        p.tenantId.equals(scope.tenantId) &
+        p.outletId.equals(scope.outletId) &
+        p.stockLocationId.equals(locationId) &
+        p.status.equals(PurchaseStatus.draft) &
+        p.deletedAt.equals(null),
+  );
+  if (open.isEmpty) return const [];
+  final items = await PurchaseItem.db.find(
+    session,
+    where: (i) =>
+        i.tenantId.equals(scope.tenantId) &
+        i.purchaseId.inSet({for (final p in open) p.id}) &
+        i.variantId.inSet(ids) &
+        i.deletedAt.equals(null),
+  );
+  final matched = <UuidValue, Set<UuidValue>>{};
+  for (final i in items) {
+    (matched[i.purchaseId] ??= {}).add(i.variantId);
+  }
+  final drafts = [
+    for (final p in open)
+      if (matched.containsKey(p.id)) p,
+  ];
+  drafts.sort((a, b) {
+    final m = matched[b.id]!.length.compareTo(matched[a.id]!.length);
+    if (m != 0) return m;
+    final u = b.updatedAt.compareTo(a.updatedAt);
+    if (u != 0) return u;
+    return b.number.compareTo(a.number);
+  });
+  return [
+    for (final p in drafts)
+      RestockDraft(
+        purchaseId: p.id,
+        number: p.number,
+        matched: matched[p.id]!.length,
+      ),
+  ];
+}
+
 /// Retur pembelian cabang, terbaru dulu, disaring [query] (nomor RB, nomor
 /// PB, atau supplier).
 Future<List<PurchaseReturnRow>> listPurchaseReturns(

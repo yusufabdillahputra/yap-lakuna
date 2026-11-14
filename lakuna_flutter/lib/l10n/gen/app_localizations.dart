@@ -14495,6 +14495,42 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Harga diisi dari pembelian terakhir untuk {count} dari {total} barang.'**
   String purchaseRestockPriceNote(int count, int total);
+
+  /// No description provided for @stockRestockDraftTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah ada draf pembelian'**
+  String get stockRestockDraftTitle;
+
+  /// No description provided for @stockRestockDraftBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?'**
+  String stockRestockDraftBody(String number, int matched, int total);
+
+  /// No description provided for @stockRestockDraftOthers.
+  ///
+  /// In id, this message translates to:
+  /// **'{count, plural, other{Ada {count} draf lain yang juga memuat barang ini (lihat menu Pembelian).}}'**
+  String stockRestockDraftOthers(int count);
+
+  /// No description provided for @stockRestockDraftOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka draf'**
+  String get stockRestockDraftOpen;
+
+  /// No description provided for @stockRestockDraftNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat draf baru'**
+  String get stockRestockDraftNew;
+
+  /// No description provided for @stockRestockDraftCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get stockRestockDraftCancel;
 }
 
 class _AppLocalizationsDelegate

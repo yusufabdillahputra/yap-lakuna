@@ -8329,4 +8329,32 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseRestockPriceNote(int count, int total) {
     return 'Harga diisi dari pembelian terakhir untuk $count dari $total barang.';
   }
+
+  @override
+  String get stockRestockDraftTitle => 'Sudah ada draf pembelian';
+
+  @override
+  String stockRestockDraftBody(String number, int matched, int total) {
+    return 'Draf $number sudah berisi $matched dari $total barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?';
+  }
+
+  @override
+  String stockRestockDraftOthers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Ada $count draf lain yang juga memuat barang ini (lihat menu Pembelian).',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stockRestockDraftOpen => 'Buka draf';
+
+  @override
+  String get stockRestockDraftNew => 'Buat draf baru';
+
+  @override
+  String get stockRestockDraftCancel => 'Batal';
 }

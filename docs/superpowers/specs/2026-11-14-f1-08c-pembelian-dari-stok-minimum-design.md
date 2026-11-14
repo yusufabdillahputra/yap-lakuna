@@ -75,4 +75,4 @@ mencari produk satu per satu di form pembelian.
 | Supplier terakhir per barang | — | Rilis v0.83.0 | Supplier terbanyak dari pembelian diterima terakhir ([F1-08d](2026-11-14-f1-08d-supplier-terakhir-design.md)). |
 | Jumlah saran bisa diatur (kelipatan dus, target stok) | — | Belum | Rumus tetap 2 × minimum. Mengganti satuan baris (mis. pcs → dus) mempertahankan angka jumlah, jadi 38 pcs menjadi 38 dus; staf perlu mengubah jumlahnya. |
 | *Buat pembelian* macet setelah keluar lewat menu samping | — | Diperbaiki v0.90.0 | Penjaga ketukan ganda dilepas dan daftar dimuat ulang saat Stok kembali menjadi rute teratas ([F1-08f](2026-11-14-f1-08f-buat-pembelian-macet-design.md)). |
-| Catatan isian setelah *Simpan draf* | — | Belum | Catatan tetap tampil; mengetuk *Buat pembelian* lagi membuat draf kedua berisi barang yang sama. |
+| Catatan isian setelah *Simpan draf* | — | Rilis v0.93.0 | Catatan tetap tampil di form yang sama; mengetuk *Buat pembelian* lagi kini menawarkan membuka draf yang sudah berisi barang itu ([F1-08g](2026-11-14-f1-08g-draf-pembelian-ganda-design.md)). |

@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.93.0] - 2026-11-14
+
+*Buat pembelian* di Stok minimum kini mengingatkan bila sudah ada draf
+pembelian berisi barang yang sama, agar staf tidak memesan dua kali.
+
+### Ditambahkan
+
+- **Stok (1.18) › Stok minimum › Buat pembelian:** bila sudah ada draf
+  pembelian ke lokasi yang sama yang memuat sebagian barang di bawah
+  minimum, dialog *Sudah ada draf pembelian* menyebut nomor draf dan
+  "berisi X dari Y barang di bawah minimum", dengan tombol **Buka draf**,
+  **Buat draf baru**, dan **Batal**. Bila ada beberapa draf, yang paling
+  banyak memuat barang yang sama dipilih (lalu yang terakhir diubah), dan
+  dialog menyebut jumlah draf lainnya.
+- Panduan *Stok* menjelaskan dialog ini (ID + EN).
+
+### Diperbaiki
+
+- Menyimpan draf dari stok minimum lalu mengetuk *Buat pembelian* lagi
+  tidak lagi diam-diam membuat draf kedua berisi barang yang sama (gap
+  F1-08c *Catatan isian setelah Simpan draf*).
+
+### Catatan teknis
+
+- `restockDraftsOf(store, scope, locationId, variantIds)` di
+  `lakuna_data`: baca draf cabang ke lokasi itu dulu (biasanya sedikit),
+  lalu item draf untuk varian yang diminta; diekspos sebagai
+  `PurchasesRepository.restockDrafts` (izin *Kelola pembelian*).
+- `StockScreen._restock` mencari draf di bawah bendera `_checkingDraft`
+  sebelum masuk `whileAway`. Saat di-debug, mencari draf di dalam
+  `whileAway` membuka celah: halaman Stok masih rute teratas selama
+  kueri berjalan, sehingga pembangunan ulang router melepas penjaga ketukan
+  ganda dan ketukan kedua membuka dialog kedua. Tes balapan memakai gerbang
+  `restockDraftsGate` di repositori palsu dan gagal bila bendera dibuang.
+- Dialog 360 px: label tombol forui dibungkus `Flexible` (baris isi tombol
+  meluap 32 px tanpa itu); tombol ditumpuk dan isi bisa digulir.
+- Galat baca draf diabaikan: form baru langsung terbuka.
+- Tes data (urutan, draf dihapus, pembelian diterima, lokasi lain) dan alur
+  widget 1280 / 360 px.
+
 ## [0.92.0] - 2026-11-14
 
 Barang yang discan atau dicari di form pembelian kini langsung terisi
@@ -5940,7 +5980,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...HEAD
+[0.93.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...v0.93.0
 [0.92.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...v0.92.0
 [0.91.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...v0.91.0
 [0.90.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...v0.90.0

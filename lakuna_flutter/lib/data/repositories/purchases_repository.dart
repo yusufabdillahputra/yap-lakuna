@@ -115,6 +115,13 @@ abstract class PurchasesRepository {
     Iterable<UuidValue> variantIds,
   );
 
+  /// Draf pembelian cabang ke lokasi [locationId] yang sudah memuat
+  /// sebagian [variantIds], paling banyak barang yang sama dulu (F1-08g).
+  Future<Result<List<RestockDraft>>> restockDrafts(
+    UuidValue locationId,
+    Iterable<UuidValue> variantIds,
+  );
+
   /// Isi foto faktur pembelian [id] (F1-12b); `null` bila tidak ada atau
   /// berkasnya belum ada di perangkat ini.
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id);
