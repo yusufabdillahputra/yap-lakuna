@@ -15,4 +15,4 @@ referensi pembayaran, di semua tanggal.
 - [x] **Uji manual Xvfb**: cari nomor, pelanggan, referensi.
 - [x] **Dokumen**: spec F1-11, README, STATUS-JEDA, panduan riwayat id/en,
   CHANGELOG 0.66.0, pubspec `0.66.0+69`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**
