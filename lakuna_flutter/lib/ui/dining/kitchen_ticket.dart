@@ -11,12 +11,14 @@ String _qty(AppLocalizations l10n, int milli) =>
 
 /// Baris tiket dapur 1.7e: judul, meja/take away, nomor `K-0012`, jam,
 /// pelayan, lalu item baru (jumlah × nama) dengan modifier (`+ Besar`) dan
-/// catatan berawalan `*`, tanpa harga.
+/// catatan berawalan `*`, tanpa harga. [heading] mengganti judul (mis.
+/// *TIKET BAR*, F1-10j).
 List<ReceiptLine> kitchenTicketLines(
   AppLocalizations l10n, {
   required KitchenSendResult result,
   required String? timezone,
   required ReceiptPaper paper,
+  String? heading,
 }) {
   final w = paper.columns;
   final bill = result.bill;
@@ -26,7 +28,7 @@ List<ReceiptLine> kitchenTicketLines(
       ReceiptLine(l, align: ReceiptAlign.center, bold: bold),
   ];
   return [
-    ...centered(l10n.ticketHeading, bold: true),
+    ...centered(heading ?? l10n.ticketHeading, bold: true),
     ...centered(
       bill.isTakeAway
           ? l10n.ticketTakeAway(bill.label)
@@ -66,12 +68,14 @@ List<ReceiptLine> kitchenTicketLines(
   ];
 }
 
-/// Tiket contoh untuk *Tes cetak tiket* di Pengaturan (F1-10e).
+/// Tiket contoh untuk *Tes cetak tiket* di Pengaturan (F1-10e); [bar]
+/// untuk *Tes cetak tiket bar* (F1-10j).
 List<ReceiptLine> sampleKitchenTicketLines(
   AppLocalizations l10n, {
   required ReceiptPaper paper,
   required String staffName,
   required DateTime now,
+  bool bar = false,
 }) {
   final w = paper.columns;
   final rule = ReceiptLine('-' * w);
@@ -84,14 +88,14 @@ List<ReceiptLine> sampleKitchenTicketLines(
     for (final l in wrapText(extra, w - 2)) ReceiptLine('  $l'),
   ];
   return [
-    ...centered(l10n.ticketHeading, bold: true),
+    ...centered(bar ? l10n.barTicketHeading : l10n.ticketHeading, bold: true),
     ...centered(l10n.ticketDineIn('A1'), bold: true),
     rule,
     ...layoutPair(l10n.ticketNo, kitchenTicketLabel(1), w),
     ...layoutPair(l10n.ticketTime, receiptDate(now), w),
     ...layoutPair(l10n.ticketStaff, staffName, w),
     rule,
-    ...item('1 x Nasi Goreng', '+ Pedas'),
+    if (!bar) ...item('1 x Nasi Goreng', '+ Pedas'),
     ...item('2 x Es Teh Manis', '* Tanpa es'),
     rule,
     ...centered(l10n.ticketFooter),

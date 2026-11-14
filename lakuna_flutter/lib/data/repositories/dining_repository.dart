@@ -20,6 +20,7 @@ class DiningData {
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
     this.kitchenPrinter,
+    this.barPrinter,
     this.modifierGroups = const {},
     this.floorImages = const {},
     this.canArrange = false,
@@ -56,6 +57,9 @@ class DiningData {
   /// [printer] lewat *Cetak tiket*.
   final KitchenPrinter? kitchenPrinter;
 
+  /// Printer bar perangkat ini (F1-10j); `null` = semua tiket ke dapur.
+  final KitchenPrinter? barPrinter;
+
   /// Grup modifier per produk (urut 1.16b) untuk sheet 1.8; produk tanpa
   /// grup tidak ada di peta.
   final Map<UuidValue, List<ModifierGroupDetail>> modifierGroups;
@@ -91,6 +95,7 @@ class DiningData {
     receipt: receipt,
     printer: printer,
     kitchenPrinter: kitchenPrinter,
+    barPrinter: barPrinter,
     modifierGroups: modifierGroups,
     floorImages: floorImages,
     canArrange: canArrange,

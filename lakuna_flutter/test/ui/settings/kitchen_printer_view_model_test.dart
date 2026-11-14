@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart' show ProductCategory;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/receipt_settings_repository.dart';
@@ -6,6 +7,7 @@ import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/ui/settings/kitchen_printer_view_model.dart';
 
 import '../../testing/fake_receipt_printer.dart';
+import '../../testing/fake_stock_repository.dart' show fakeId;
 import '../../testing/fake_receipt_settings_repository.dart';
 
 void main() {
@@ -171,5 +173,89 @@ void main() {
     await vm.choose.execute(lan);
     expect(vm.choose.error, isTrue);
     expect(vm.kitchen, isNull);
+  });
+
+  group('printer bar (F1-10j)', () {
+    late ProductCategory minuman;
+    late ProductCategory kopi;
+
+    setUp(() async {
+      minuman = ProductCategory(
+        tenantId: fakeId(1),
+        name: 'Minuman',
+        sortOrder: 0,
+        hlc: '',
+      );
+      kopi = ProductCategory(
+        tenantId: fakeId(1),
+        name: 'Kopi',
+        sortOrder: 1,
+        hlc: '',
+      );
+      repo.categories = [minuman, kopi];
+      vm = KitchenPrinterViewModel(
+        repository: repo,
+        printer: printer,
+        station: PrinterStation.bar,
+      );
+      await vm.load.execute();
+    });
+
+    test('muat: kategori menu, belum ada printer bar', () {
+      expect(vm.station, PrinterStation.bar);
+      expect(vm.kitchen, isNull);
+      expect(vm.categories, [minuman, kopi]);
+      expect(vm.categoryIds, isEmpty);
+      expect(vm.needsCategory, isFalse);
+    });
+
+    test('kategori dipilih sebelum printer ikut tersimpan', () async {
+      vm.toggleCategory(minuman.id);
+      await pumpEventQueue();
+      expect(repo.barSaves, isEmpty);
+      await vm.choose.execute(lan);
+      expect(
+        repo.bar,
+        KitchenPrinter(printer: lan, categoryIds: {minuman.id}),
+      );
+      // Printer dapur tidak tersentuh.
+      expect(repo.kitchenSaves, isEmpty);
+    });
+
+    test(
+      'printer tanpa kategori: perlu kategori; chip langsung tersimpan',
+      () async {
+        await vm.choose.execute(lan);
+        expect(vm.needsCategory, isTrue);
+        vm.toggleCategory(kopi.id);
+        await pumpEventQueue();
+        expect(repo.bar?.categoryIds, {kopi.id});
+        expect(vm.needsCategory, isFalse);
+        vm.toggleCategory(kopi.id);
+        await pumpEventQueue();
+        expect(repo.bar?.categoryIds, isEmpty);
+      },
+    );
+
+    test('gagal simpan kategori: pilihan kembali', () async {
+      await vm.choose.execute(lan);
+      repo.nextError = const NotPermitted(Permission.settingsManage);
+      vm.toggleCategory(minuman.id);
+      await pumpEventQueue();
+      expect(vm.categoryIds, isEmpty);
+      expect(repo.bar?.categoryIds, isEmpty);
+    });
+
+    test('muat printer bar tersimpan dengan kategori', () async {
+      repo.bar = KitchenPrinter(printer: lan, categoryIds: {minuman.id});
+      vm = KitchenPrinterViewModel(
+        repository: repo,
+        printer: printer,
+        station: PrinterStation.bar,
+      );
+      await vm.load.execute();
+      expect(vm.categoryIds, {minuman.id});
+      expect(vm.kind, PrinterKind.network);
+    });
   });
 }

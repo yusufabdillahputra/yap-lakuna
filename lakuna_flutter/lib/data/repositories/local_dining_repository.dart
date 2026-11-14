@@ -53,6 +53,7 @@ class LocalDiningRepository extends DiningRepository {
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
       kitchenPrinter: await loadKitchenPrinter(_preferences),
+      barPrinter: await loadBarPrinter(_preferences),
       modifierGroups: await menuModifierGroups(_store, scope),
       floorImages: await floorImages(_store, scope, [
         for (final a in overview.areas)

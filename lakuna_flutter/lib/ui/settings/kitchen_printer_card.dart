@@ -12,7 +12,8 @@ import '../receipt/printer_labels.dart';
 import 'kitchen_printer_view_model.dart';
 import 'settings_card.dart';
 
-/// Kartu *Printer dapur* (F1-10e) di Pengaturan › Struk & printer (1.26).
+/// Kartu *Printer dapur* (F1-10e) atau *Printer bar* (F1-10j, menurut
+/// [KitchenPrinterViewModel.station]) di Pengaturan › Struk & printer (1.26).
 class KitchenPrinterCard extends StatelessWidget {
   const KitchenPrinterCard({
     super.key,
@@ -35,6 +36,10 @@ class KitchenPrinterCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final vm = viewModel;
+    final bar = vm.station == PrinterStation.bar;
+    final k = bar ? 'bar' : 'kitchen';
+    final title = bar ? l10n.barPrinterTitle : l10n.kitchenPrinterTitle;
+    final noneLabel = bar ? l10n.barPrinterNone : l10n.kitchenPrinterSame;
     final kitchen = vm.kitchen;
     final busy = vm.busy;
     final muted = theme.typography.body.sm.copyWith(
@@ -45,8 +50,8 @@ class KitchenPrinterCard extends StatelessWidget {
 
     if (!vm.loaded) {
       return SettingsCard(
-        key: const ValueKey('kitchen-printer'),
-        title: l10n.kitchenPrinterTitle,
+        key: ValueKey('$k-printer'),
+        title: title,
         child: vm.load.error
             ? Text(l10n.receiptSettingsLoadError, style: muted)
             : const Center(child: FCircularProgress()),
@@ -55,8 +60,8 @@ class KitchenPrinterCard extends StatelessWidget {
 
     final body = switch (vm.kind) {
       null => Text(
-        l10n.kitchenPrinterSameNote,
-        key: const ValueKey('kitchen-printer-same-note'),
+        bar ? l10n.barPrinterNoneNote : l10n.kitchenPrinterSameNote,
+        key: ValueKey('$k-printer-same-note'),
         style: muted,
       ),
       PrinterKind.bluetooth => Column(
@@ -66,7 +71,7 @@ class KitchenPrinterCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: FButton(
-              key: const ValueKey('kitchen-printer-search'),
+              key: ValueKey('$k-printer-search'),
               variant: .outline,
               mainAxisSize: .min,
               onPress: busy ? null : vm.searchBluetooth.execute,
@@ -83,7 +88,7 @@ class KitchenPrinterCard extends StatelessWidget {
           ),
           for (final (i, p) in vm.bluetoothPrinters.indexed)
             PrinterDeviceRow(
-              key: ValueKey('kitchen-printer-bt-$i'),
+              key: ValueKey('$k-printer-bt-$i'),
               title: p.name,
               subtitle: p.address,
               selected: p == kitchen?.printer,
@@ -98,7 +103,7 @@ class KitchenPrinterCard extends StatelessWidget {
         spacing: 10,
         children: [
           FTextField(
-            key: ValueKey('kitchen-printer-address-${vm.revision}'),
+            key: ValueKey('$k-printer-address-${vm.revision}'),
             label: Text(l10n.printerAddress),
             description: Text(l10n.printerAddressHint),
             error: vm.networkAddressInvalid
@@ -113,7 +118,7 @@ class KitchenPrinterCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: FButton(
-              key: const ValueKey('kitchen-printer-use-address'),
+              key: ValueKey('$k-printer-use-address'),
               variant: .outline,
               mainAxisSize: .min,
               onPress: busy ? null : vm.useNetworkAddress,
@@ -130,20 +135,20 @@ class KitchenPrinterCard extends StatelessWidget {
     };
 
     return SettingsCard(
-      key: const ValueKey('kitchen-printer'),
-      title: l10n.kitchenPrinterTitle,
-      subtitle: l10n.kitchenPrinterSubtitle,
+      key: ValueKey('$k-printer'),
+      title: title,
+      subtitle: bar ? l10n.barPrinterSubtitle : l10n.kitchenPrinterSubtitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 14,
         children: [
           Row(
-            key: const ValueKey('kitchen-printer-status'),
+            key: ValueKey('$k-printer-status'),
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 12,
             children: [
               Icon(
-                TablerIcons.toolsKitchen2,
+                bar ? TablerIcons.glassFull : TablerIcons.toolsKitchen2,
                 size: 22,
                 color: kitchen == null
                     ? theme.colors.mutedForeground
@@ -156,7 +161,7 @@ class KitchenPrinterCard extends StatelessWidget {
                   children: [
                     Text(
                       kitchen == null
-                          ? l10n.kitchenPrinterSame
+                          ? noneLabel
                           : printerSummary(
                               l10n,
                               kitchen.printer,
@@ -168,14 +173,16 @@ class KitchenPrinterCard extends StatelessWidget {
                     ),
                     if (kitchen != null)
                       FButton(
-                        key: const ValueKey('kitchen-printer-forget'),
+                        key: ValueKey('$k-printer-forget'),
                         variant: .outline,
                         size: .sm,
                         mainAxisSize: .min,
                         onPress: busy ? null : vm.forget.execute,
                         child: Flexible(
                           child: Text(
-                            l10n.kitchenPrinterForget,
+                            bar
+                                ? l10n.barPrinterForget
+                                : l10n.kitchenPrinterForget,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -190,20 +197,20 @@ class KitchenPrinterCard extends StatelessWidget {
             runSpacing: 8,
             children: [
               ChoicePill(
-                key: const ValueKey('kitchen-printer-kind-same'),
-                label: l10n.kitchenPrinterSame,
+                key: ValueKey('$k-printer-kind-same'),
+                label: noneLabel,
                 selected: vm.kind == null,
                 onTap: () => vm.setKind(null),
               ),
               ChoicePill(
-                key: const ValueKey('kitchen-printer-kind-network'),
+                key: ValueKey('$k-printer-kind-network'),
                 label: printerKindLabel(l10n, PrinterKind.network),
                 selected: vm.kind == PrinterKind.network,
                 onTap: () => vm.setKind(PrinterKind.network),
               ),
               if (vm.supportsBluetooth)
                 ChoicePill(
-                  key: const ValueKey('kitchen-printer-kind-bluetooth'),
+                  key: ValueKey('$k-printer-kind-bluetooth'),
                   label: printerKindLabel(l10n, PrinterKind.bluetooth),
                   selected: vm.kind == PrinterKind.bluetooth,
                   onTap: () => vm.setKind(PrinterKind.bluetooth),
@@ -211,6 +218,7 @@ class KitchenPrinterCard extends StatelessWidget {
             ],
           ),
           body,
+          if (bar && vm.kind != null) _categories(context, l10n, k),
           if (vm.kind != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +236,7 @@ class KitchenPrinterCard extends StatelessWidget {
                   children: [
                     for (final paper in ReceiptPaper.values)
                       ChoicePill(
-                        key: ValueKey('kitchen-paper-${paper.name}'),
+                        key: ValueKey('$k-paper-${paper.name}'),
                         label: l10n.receiptPaperOption(
                           paper == ReceiptPaper.mm58 ? 58 : 80,
                           paper.columns,
@@ -245,7 +253,7 @@ class KitchenPrinterCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: FButton(
-                key: const ValueKey('kitchen-printer-test'),
+                key: ValueKey('$k-printer-test'),
                 mainAxisSize: .min,
                 onPress: vm.canTest
                     ? () => vm.testPrint.execute(
@@ -254,6 +262,7 @@ class KitchenPrinterCard extends StatelessWidget {
                           paper: kitchen.paper,
                           staffName: staffName,
                           now: clock(),
+                          bar: bar,
                         ),
                       )
                     : null,
@@ -262,7 +271,7 @@ class KitchenPrinterCard extends StatelessWidget {
                     : const Icon(TablerIcons.printer),
                 child: Flexible(
                   child: Text(
-                    l10n.kitchenPrinterTest,
+                    bar ? l10n.barPrinterTest : l10n.kitchenPrinterTest,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -273,24 +282,74 @@ class KitchenPrinterCard extends StatelessWidget {
               vm.testPrint.error ||
               vm.searchBluetooth.error)
             FAlert(
-              key: const ValueKey('kitchen-printer-error'),
+              key: ValueKey('$k-printer-error'),
               variant: .destructive,
               title: Text(printerFailureMessage(l10n, vm.failure)),
             )
           else if (vm.choose.error || vm.forget.error)
             FAlert(
-              key: const ValueKey('kitchen-printer-save-error'),
+              key: ValueKey('$k-printer-save-error'),
               variant: .destructive,
               title: Text(l10n.settingsSaveError),
             )
           else if (vm.testSent)
             FAlert(
-              key: const ValueKey('kitchen-printer-test-sent'),
+              key: ValueKey('$k-printer-test-sent'),
               icon: const Icon(TablerIcons.circleCheck),
-              title: Text(l10n.kitchenPrinterTestSent),
+              title: Text(
+                bar ? l10n.barPrinterTestSent : l10n.kitchenPrinterTestSent,
+              ),
             ),
         ],
       ),
+    );
+  }
+
+  /// Chip *Kategori ke bar* (F1-10j).
+  Widget _categories(BuildContext context, AppLocalizations l10n, String k) {
+    final theme = context.theme;
+    final vm = viewModel;
+    final muted = theme.typography.body.sm.copyWith(
+      color: theme.colors.mutedForeground,
+    );
+    return Column(
+      key: ValueKey('$k-categories'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        Text(
+          l10n.barCategories,
+          style: theme.typography.body.sm.copyWith(fontWeight: FontWeight.w600),
+        ),
+        if (vm.categories.isEmpty)
+          Text(
+            l10n.barCategoriesEmpty,
+            key: ValueKey('$k-categories-empty'),
+            style: muted,
+          )
+        else ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final c in vm.categories)
+                ChoicePill(
+                  key: ValueKey('$k-category-${c.id}'),
+                  label: c.name,
+                  selected: vm.categoryIds.contains(c.id),
+                  onTap: () => vm.toggleCategory(c.id),
+                ),
+            ],
+          ),
+          Text(l10n.barCategoriesHint, style: muted),
+        ],
+        if (vm.categoryIds.isEmpty)
+          FAlert(
+            key: ValueKey('$k-categories-needed'),
+            icon: const Icon(TablerIcons.infoCircle),
+            title: Text(l10n.barCategoriesNeeded),
+          ),
+      ],
     );
   }
 }

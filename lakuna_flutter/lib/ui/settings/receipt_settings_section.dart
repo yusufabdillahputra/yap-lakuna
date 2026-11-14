@@ -25,6 +25,7 @@ class ReceiptSettingsSection extends StatelessWidget {
     required this.outletName,
     required this.staffName,
     this.kitchen,
+    this.bar,
     this.clock = DateTime.now,
   });
 
@@ -33,6 +34,9 @@ class ReceiptSettingsSection extends StatelessWidget {
   /// Kartu *Printer dapur* (F1-10e); `null` bila pengguna tidak boleh
   /// mengatur meja (tanpa repositori admin meja).
   final KitchenPrinterViewModel? kitchen;
+
+  /// Kartu *Printer bar* (F1-10j), sama syaratnya dengan [kitchen].
+  final KitchenPrinterViewModel? bar;
   final String businessName;
   final String outletName;
   final String staffName;
@@ -145,6 +149,12 @@ class ReceiptSettingsSection extends StatelessWidget {
                 if (kitchen case final k?)
                   KitchenPrinterCard(
                     viewModel: k,
+                    staffName: staffName,
+                    clock: clock,
+                  ),
+                if (bar case final b?)
+                  KitchenPrinterCard(
+                    viewModel: b,
                     staffName: staffName,
                     clock: clock,
                   ),

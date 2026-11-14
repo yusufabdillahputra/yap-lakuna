@@ -7982,4 +7982,59 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get backupWrongPassword => 'Kata sandi salah. Coba lagi.';
+
+  @override
+  String get barPrinterTitle => 'Printer bar';
+
+  @override
+  String get barPrinterSubtitle =>
+      'Minuman dari kategori pilihan dicetak otomatis di bar saat Kirim ke dapur. Disimpan di perangkat ini saja.';
+
+  @override
+  String get barPrinterNone => 'Tidak dipakai';
+
+  @override
+  String get barPrinterNoneNote => 'Semua item dicetak di tiket dapur.';
+
+  @override
+  String get barPrinterForget => 'Lupakan printer bar';
+
+  @override
+  String get barPrinterTest => 'Tes cetak tiket bar';
+
+  @override
+  String get barPrinterTestSent => 'Tiket contoh terkirim ke printer bar.';
+
+  @override
+  String get barCategories => 'Kategori ke bar';
+
+  @override
+  String get barCategoriesHint =>
+      'Sub-kategori ikut kategori induknya. Item lain tetap ke dapur.';
+
+  @override
+  String get barCategoriesNeeded =>
+      'Pilih minimal satu kategori; sampai itu semua tiket tetap ke dapur.';
+
+  @override
+  String get barCategoriesEmpty =>
+      'Belum ada kategori menu. Tambahkan kategori di Produk.';
+
+  @override
+  String get barTicketHeading => 'TIKET BAR';
+
+  @override
+  String get barTicketPrinting => 'Mencetak di printer bar…';
+
+  @override
+  String get barTicketPrinted => 'Tiket dicetak di printer bar.';
+
+  @override
+  String get barTicketReprint => 'Cetak ulang tiket bar';
+
+  @override
+  String get kitchenTicketSection => 'Dapur';
+
+  @override
+  String get barTicketSection => 'Bar';
 }

@@ -316,6 +316,53 @@ void main() {
       },
     );
 
+    test(
+      'printer bar (F1-10j): simpan dengan kategori, muat, lupakan',
+      () async {
+        final prefs = LocalPreferences(store.session);
+        expect(await loadBarPrinter(prefs), isNull);
+        final minuman = UuidValue.fromString(
+          '01a1a4fb-0000-7000-8000-0000000000b1',
+        );
+        final kopi = UuidValue.fromString(
+          '01a1a4fb-0000-7000-8000-0000000000b2',
+        );
+        final bar = KitchenPrinter(
+          printer: const PrinterSelection(
+            kind: PrinterKind.network,
+            name: '10.0.0.7',
+            address: '10.0.0.7:9100',
+          ),
+          categoryIds: {minuman, kopi},
+        );
+        await saveBarPrinter(prefs, bar);
+        expect(await loadBarPrinter(prefs), bar);
+        // Terpisah dari printer dapur.
+        expect(await loadKitchenPrinter(prefs), isNull);
+        await saveBarPrinter(prefs, null);
+        expect(await loadBarPrinter(prefs), isNull);
+      },
+    );
+
+    test('printer bar: id kategori rusak diabaikan, JSON rusak → null', () async {
+      final prefs = LocalPreferences(store.session);
+      await prefs.set(
+        barPrinterKey,
+        '{"kind":"network","name":"a","address":"a:9100",'
+        '"categories":["bukan-uuid","01a1a4fb-0000-7000-8000-0000000000b1",3]}',
+      );
+      expect((await loadBarPrinter(prefs))!.categoryIds, {
+        UuidValue.fromString('01a1a4fb-0000-7000-8000-0000000000b1'),
+      });
+      await prefs.set(
+        barPrinterKey,
+        '{"kind":"network","name":"a","address":"a:9100"}',
+      );
+      expect((await loadBarPrinter(prefs))!.categoryIds, isEmpty);
+      await prefs.set(barPrinterKey, 'bukan json');
+      expect(await loadBarPrinter(prefs), isNull);
+    });
+
     test('alamat jaringan host:port', () {
       expect(parseNetworkAddress('192.168.1.50:9100'), ('192.168.1.50', 9100));
       expect(parseNetworkAddress(' printer.lan '), ('printer.lan', 9100));

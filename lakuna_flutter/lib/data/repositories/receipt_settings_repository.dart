@@ -1,4 +1,5 @@
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_client/lakuna_client.dart' show ProductCategory;
 
 import '../../utils/result.dart';
 
@@ -34,4 +35,15 @@ abstract class ReceiptSettingsRepository {
   /// Memilih atau (dengan `null`) melupakan printer dapur. Gagal dengan
   /// `NotPermitted`.
   Future<Result<void>> saveKitchenPrinter(KitchenPrinter? kitchen);
+
+  /// Printer bar perangkat ini (F1-10j); `null` = tidak dipakai.
+  Future<Result<KitchenPrinter?>> loadBarPrinter();
+
+  /// Memilih atau (dengan `null`) melupakan printer bar beserta
+  /// kategorinya. Gagal dengan `NotPermitted`.
+  Future<Result<void>> saveBarPrinter(KitchenPrinter? bar);
+
+  /// Kategori menu induk (tanpa sub-kategori) untuk pilihan kategori
+  /// printer bar, urut seperti master data.
+  Future<Result<List<ProductCategory>>> menuCategories();
 }

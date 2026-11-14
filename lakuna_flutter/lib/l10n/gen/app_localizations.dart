@@ -13938,6 +13938,108 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kata sandi salah. Coba lagi.'**
   String get backupWrongPassword;
+
+  /// No description provided for @barPrinterTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Printer bar'**
+  String get barPrinterTitle;
+
+  /// No description provided for @barPrinterSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Minuman dari kategori pilihan dicetak otomatis di bar saat Kirim ke dapur. Disimpan di perangkat ini saja.'**
+  String get barPrinterSubtitle;
+
+  /// No description provided for @barPrinterNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dipakai'**
+  String get barPrinterNone;
+
+  /// No description provided for @barPrinterNoneNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua item dicetak di tiket dapur.'**
+  String get barPrinterNoneNote;
+
+  /// No description provided for @barPrinterForget.
+  ///
+  /// In id, this message translates to:
+  /// **'Lupakan printer bar'**
+  String get barPrinterForget;
+
+  /// No description provided for @barPrinterTest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tes cetak tiket bar'**
+  String get barPrinterTest;
+
+  /// No description provided for @barPrinterTestSent.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket contoh terkirim ke printer bar.'**
+  String get barPrinterTestSent;
+
+  /// No description provided for @barCategories.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori ke bar'**
+  String get barCategories;
+
+  /// No description provided for @barCategoriesHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Sub-kategori ikut kategori induknya. Item lain tetap ke dapur.'**
+  String get barCategoriesHint;
+
+  /// No description provided for @barCategoriesNeeded.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih minimal satu kategori; sampai itu semua tiket tetap ke dapur.'**
+  String get barCategoriesNeeded;
+
+  /// No description provided for @barCategoriesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada kategori menu. Tambahkan kategori di Produk.'**
+  String get barCategoriesEmpty;
+
+  /// No description provided for @barTicketHeading.
+  ///
+  /// In id, this message translates to:
+  /// **'TIKET BAR'**
+  String get barTicketHeading;
+
+  /// No description provided for @barTicketPrinting.
+  ///
+  /// In id, this message translates to:
+  /// **'Mencetak di printer bar…'**
+  String get barTicketPrinting;
+
+  /// No description provided for @barTicketPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Tiket dicetak di printer bar.'**
+  String get barTicketPrinted;
+
+  /// No description provided for @barTicketReprint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak ulang tiket bar'**
+  String get barTicketReprint;
+
+  /// No description provided for @kitchenTicketSection.
+  ///
+  /// In id, this message translates to:
+  /// **'Dapur'**
+  String get kitchenTicketSection;
+
+  /// No description provided for @barTicketSection.
+  ///
+  /// In id, this message translates to:
+  /// **'Bar'**
+  String get barTicketSection;
 }
 
 class _AppLocalizationsDelegate
