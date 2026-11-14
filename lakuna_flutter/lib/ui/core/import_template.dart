@@ -8,29 +8,51 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 
-/// Templat import yang bisa diunduh (F1-07g).
+/// Templat import yang bisa diunduh (F1-07g), dalam bahasa aplikasi:
+/// Inggris untuk `en`, selain itu Indonesia (F1-07p).
 enum ImportTemplateKind {
-  products('templat-import-produk.xlsx', 'Produk', productImportTemplate),
-  customers(
-    'templat-import-pelanggan.xlsx',
-    'Pelanggan',
-    customerImportTemplate,
+  products(
+    ('templat-import-produk.xlsx', 'import-template-products.xlsx'),
+    ('Produk', 'Products'),
+    (productImportTemplate, productImportTemplateEn),
   ),
-  suppliers('templat-import-supplier.xlsx', 'Supplier', supplierImportTemplate);
+  customers(
+    ('templat-import-pelanggan.xlsx', 'import-template-customers.xlsx'),
+    ('Pelanggan', 'Customers'),
+    (customerImportTemplate, customerImportTemplateEn),
+  ),
+  suppliers(
+    ('templat-import-supplier.xlsx', 'import-template-suppliers.xlsx'),
+    ('Supplier', 'Suppliers'),
+    (supplierImportTemplate, supplierImportTemplateEn),
+  );
 
-  const ImportTemplateKind(this.fileName, this.sheetName, this.rows);
+  const ImportTemplateKind(this._fileNames, this._sheetNames, this._rows);
 
-  final String fileName;
-  final String sheetName;
-  final List<List<String>> rows;
+  final (String, String) _fileNames;
+  final (String, String) _sheetNames;
+  final (List<List<String>>, List<List<String>>) _rows;
+
+  static bool _en(String languageCode) => languageCode == 'en';
+
+  String fileNameFor(String languageCode) =>
+      _en(languageCode) ? _fileNames.$2 : _fileNames.$1;
+
+  String sheetNameFor(String languageCode) =>
+      _en(languageCode) ? _sheetNames.$2 : _sheetNames.$1;
+
+  List<List<String>> rowsFor(String languageCode) =>
+      _en(languageCode) ? _rows.$2 : _rows.$1;
 
   /// Judul kolom yang berisi kode/nomor: berformat teks di Excel agar nol
   /// di depan (telepon rumah, barcode) tidak hilang.
-  static const _textHeaders = {'hp', 'telepon', 'sku', 'barcode'};
+  static const _textHeaders = {'hp', 'telepon', 'phone', 'sku', 'barcode'};
 
   /// Isi `.xlsx` templat: judul tebal & dibekukan, lebar kolom menurut isi,
   /// kolom kode berformat teks, angka contoh ditulis sebagai angka.
-  Uint8List get bytes {
+  Uint8List bytesFor(String languageCode) {
+    final rows = rowsFor(languageCode);
+    final sheetName = sheetNameFor(languageCode);
     final header = rows.first;
     final text = {
       for (var c = 0; c < header.length; c++)
@@ -96,9 +118,11 @@ class _ImportFileActionsState extends State<ImportFileActions> {
     String? path;
     var failed = false;
     try {
+      // Bahasa aplikasi saat tombol ditekan (F1-07p).
+      final lang = Localizations.localeOf(context).languageCode;
       path = await widget.exporter.save(
-        widget.kind.bytes,
-        fileName: widget.kind.fileName,
+        widget.kind.bytesFor(lang),
+        fileName: widget.kind.fileNameFor(lang),
       );
     } on Object {
       // Termasuk Error dari share sheet; tombol tidak boleh terkunci.

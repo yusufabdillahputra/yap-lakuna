@@ -143,7 +143,8 @@ SupplierImportResult supplierImportRows(List<List<String>> table) {
     }
 
     final name = cell('name') ?? '';
-    if (isImportTemplateSample(name, supplierImportTemplate)) {
+    if (isImportTemplateSample(name, supplierImportTemplate) ||
+        isImportTemplateSample(name, supplierImportTemplateEn)) {
       rejected.add(
         SupplierImportRejected(line, SupplierImportRejectReason.sample),
       );
@@ -222,4 +223,19 @@ const supplierImportTemplate = [
     'Kirim tiap Senin',
   ],
   ['Contoh UD Makmur', 'Bu Rina', '081377770202', 'Minuman', '', '', ''],
+];
+
+/// Templat import supplier berbahasa Inggris (F1-07p).
+const supplierImportTemplateEn = [
+  ['Name', 'Contact', 'Phone', 'Category', 'Term (days)', 'Address', 'Note'],
+  [
+    'Sample Fresh Foods Ltd',
+    'Mr Hendra',
+    '0215550101',
+    'Groceries',
+    '30',
+    '5 Industri St',
+    'Delivers every Monday',
+  ],
+  ['Sample Makmur Trading', 'Mrs Rina', '081377770202', 'Drinks', '', '', ''],
 ];

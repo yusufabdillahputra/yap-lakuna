@@ -11,6 +11,7 @@ import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/fake_app_settings_repository.dart';
 import '../../testing/fake_payment_settings_repository.dart'
     show FakeImagePicker;
 import '../../testing/fake_purchases_repository.dart';
@@ -338,6 +339,25 @@ void main() {
       );
     });
   }
+
+  testWidgets('aplikasi berbahasa Inggris: templat EN (F1-07p)', (
+    tester,
+  ) async {
+    final exporter = FakeSpreadsheetExporter()
+      ..path = '/home/kasir/Documents/Lakuna/import-template-suppliers.xlsx';
+    await pumpLakuna(
+      tester,
+      repository: FakeAppSettingsRepository(storedLocale: const Locale('en')),
+      initialLocation: Routes.suppliers,
+      suppliers: FakeSuppliersRepository(),
+      exporter: exporter,
+    );
+    await _tap(tester, _key('suppliers-import'));
+    await _tap(tester, _key('import-template-suppliers'));
+    final (name, bytes) = exporter.saved.single;
+    expect(name, 'import-template-suppliers.xlsx');
+    expect(readTableFile(name, bytes), supplierImportTemplateEn);
+  });
 
   testWidgets('templat gagal disimpan / share sheet: pesan & tombol aktif lagi '
       '(F1-07g)', (tester) async {
