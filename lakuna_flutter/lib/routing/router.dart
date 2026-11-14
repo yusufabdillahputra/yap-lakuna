@@ -380,7 +380,8 @@ GoRouter createRouter({
                   : null,
               // Draf yang sudah memuat barang ini (F1-08g).
               restockDrafts: purchases.restockDrafts,
-              onOpenDraft: (id) => context.push<void>(Routes.purchase(id.uuid)),
+              onOpenDraft: (id, r) =>
+                  context.push<void>(Routes.purchase(id.uuid), extra: r),
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])
                   .firstOrNull,
@@ -439,6 +440,10 @@ GoRouter createRouter({
                 key: ValueKey('purchase-$id'),
                 repository: purchases,
                 purchaseId: UuidValue.fromString(id),
+                // Dari Stok › Stok minimum › Buka draf (F1-08i).
+                restock: state.extra is PurchaseRestock
+                    ? state.extra! as PurchaseRestock
+                    : null,
                 imagePicker: imagePicker,
                 exporter: exporter,
                 // Kartu stok (F1-12c) butuh izin menu Stok.

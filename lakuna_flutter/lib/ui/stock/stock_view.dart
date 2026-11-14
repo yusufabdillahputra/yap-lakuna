@@ -53,8 +53,10 @@ class StockScreen extends StatefulWidget {
   )?
   restockDrafts;
 
-  /// Membuka draf pembelian [purchaseId]; selesai saat staf kembali.
-  final Future<void> Function(UuidValue purchaseId)? onOpenDraft;
+  /// Membuka draf pembelian [purchaseId] dengan barang [restock] yang belum
+  /// ada ditambahkan (F1-08i); selesai saat staf kembali.
+  final Future<void> Function(UuidValue purchaseId, PurchaseRestock restock)?
+  onOpenDraft;
 
   final StockRepository repository;
   final SessionRepository session;
@@ -136,7 +138,22 @@ class _StockScreenState extends State<StockScreen>
         if (found == null) return widget.onRestock!(r);
         switch (await _askDraft(found, r)) {
           case _DraftChoice.open:
-            await widget.onOpenDraft!(found.first.purchaseId);
+            // Barang yang sudah ada di draf lain tidak ditambahkan lagi,
+            // agar tidak dipesan dua kali (F1-08i).
+            final elsewhere = {
+              for (final d in found.skip(1)) ...d.variantIds,
+            };
+            await widget.onOpenDraft!(
+              found.first.purchaseId,
+              PurchaseRestock(
+                locationId: r.locationId,
+                locationName: r.locationName,
+                lines: [
+                  for (final l in r.lines)
+                    if (!elsewhere.contains(l.variantId)) l,
+                ],
+              ),
+            );
           case _DraftChoice.create:
             await widget.onRestock!(r);
           case null:

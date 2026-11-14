@@ -8335,7 +8335,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String stockRestockDraftBody(String number, int matched, int total) {
-    return 'Draf $number sudah berisi $matched dari $total barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?';
+    return 'Draf $number sudah berisi $matched dari $total barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda? Barang yang belum ada di draf akan ditambahkan.';
   }
 
   @override
@@ -8361,5 +8361,15 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String stockMinimumInDraft(String number) {
     return 'Sudah di draf $number';
+  }
+
+  @override
+  String purchaseRestockIntoDraft(String location, int added, int already) {
+    return 'Dari stok minimum $location: $added barang ditambahkan ke draf ini, $already barang sudah ada. Simpan draf agar tambahan tersimpan.';
+  }
+
+  @override
+  String purchaseRestockAllInDraft(String location) {
+    return 'Semua barang di bawah minimum $location sudah ada di draf ini.';
   }
 }

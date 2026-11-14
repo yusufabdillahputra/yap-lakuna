@@ -8579,7 +8579,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stockRestockDraftBody(String number, int matched, int total) {
-    return 'Draft $number already has $matched of $total items below minimum. Open that draft to avoid a duplicate purchase?';
+    return 'Draft $number already has $matched of $total items below minimum. Open that draft to avoid a duplicate purchase? Items not yet in it will be added.';
   }
 
   @override
@@ -8605,5 +8605,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String stockMinimumInDraft(String number) {
     return 'Already in draft $number';
+  }
+
+  @override
+  String purchaseRestockIntoDraft(String location, int added, int already) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added items',
+      one: '1 item',
+    );
+    return 'From minimum stock at $location: $_temp0 added to this draft, $already already in it. Save the draft to keep the additions.';
+  }
+
+  @override
+  String purchaseRestockAllInDraft(String location) {
+    return 'Every item below minimum at $location is already in this draft.';
   }
 }

@@ -85,5 +85,5 @@ kedua berisi barang yang sama, dan berisiko memesan dua kali ke supplier.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Peringatan draf berisi barang yang sama sebelum *Buat pembelian* | 1.18 | Rilis v0.93.0 | Dialog Buka draf / Buat draf baru / Batal; draf per lokasi terima. |
-| Gabungkan barang yang belum ada ke draf yang dibuka | — | Belum | *Buka draf* membuka draf apa adanya; barang di bawah minimum yang belum ada di draf harus ditambah manual. |
+| Gabungkan barang yang belum ada ke draf yang dibuka | — | Rilis v0.95.0 | *Buka draf* menambahkan barang yang belum ada di draf mana pun ([F1-08i](2026-11-14-f1-08i-tambah-ke-draf-design.md)). |
 | Tandai barang yang sudah ada di draf pada tab *Stok minimum* | — | Rilis v0.94.0 | *Sudah di draf {nomor}* di bawah tiap barang ([F1-08h](2026-11-14-f1-08h-tanda-sudah-di-draf-design.md)). |

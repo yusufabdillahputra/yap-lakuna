@@ -4982,7 +4982,7 @@
     }
   },
   "stockRestockDraftTitle": "A purchase draft already exists",
-  "stockRestockDraftBody": "Draft {number} already has {matched} of {total} items below minimum. Open that draft to avoid a duplicate purchase?",
+  "stockRestockDraftBody": "Draft {number} already has {matched} of {total} items below minimum. Open that draft to avoid a duplicate purchase? Items not yet in it will be added.",
   "@stockRestockDraftBody": {
     "placeholders": {
       "number": {
@@ -5011,6 +5011,28 @@
   "@stockMinimumInDraft": {
     "placeholders": {
       "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseRestockIntoDraft": "From minimum stock at {location}: {added, plural, =1{1 item} other{{added} items}} added to this draft, {already} already in it. Save the draft to keep the additions.",
+  "@purchaseRestockIntoDraft": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "added": {
+        "type": "int"
+      },
+      "already": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseRestockAllInDraft": "Every item below minimum at {location} is already in this draft.",
+  "@purchaseRestockAllInDraft": {
+    "placeholders": {
+      "location": {
         "type": "String"
       }
     }

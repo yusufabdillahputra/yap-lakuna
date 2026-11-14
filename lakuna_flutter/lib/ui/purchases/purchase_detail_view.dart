@@ -143,9 +143,22 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
             if (location == null) return const SizedBox.shrink();
             return FAlert(
               key: const ValueKey('purchase-restock-note'),
-              title: Text(
-                l10n.purchaseRestockNote(location, _form.restockApplied),
-              ),
+              title: Text(switch ((
+                _form.restockIntoDraft,
+                _form.restockApplied,
+              )) {
+                // Draf dibuka dari stok minimum (F1-08i).
+                (true, 0) => l10n.purchaseRestockAllInDraft(location),
+                (true, final added) => l10n.purchaseRestockIntoDraft(
+                  location,
+                  added,
+                  _form.restockInDraft,
+                ),
+                (false, final added) => l10n.purchaseRestockNote(
+                  location,
+                  added,
+                ),
+              }),
               subtitle: switch ((
                 _form.restockSupplierName,
                 _form.restockSkipped,
@@ -198,6 +211,7 @@ class PurchaseDetailScreen extends StatefulWidget {
     required this.repository,
     required this.purchaseId,
     required this.onBack,
+    this.restock,
     this.onPayDebt,
     this.imagePicker = const FileSelectorImagePicker(),
     this.exporter = const PlatformSpreadsheetExporter(),
@@ -206,6 +220,10 @@ class PurchaseDetailScreen extends StatefulWidget {
 
   final PurchasesRepository repository;
   final UuidValue purchaseId;
+
+  /// Barang stok minimum yang ditambahkan bila pembelian ini draf
+  /// (F1-08i).
+  final PurchaseRestock? restock;
 
   /// Foto faktur (F1-12b).
   final ImageFilePicker imagePicker;
@@ -280,6 +298,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
         return PurchaseFormPage(
           repository: widget.repository,
           draftId: widget.purchaseId,
+          restock: widget.restock,
           onReceived: (_) => _vm.load.execute(),
           onBack: widget.onBack,
           imagePicker: widget.imagePicker,

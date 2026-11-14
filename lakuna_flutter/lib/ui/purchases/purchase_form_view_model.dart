@@ -145,7 +145,8 @@ class PurchaseFormLine {
 
 /// Form *Pembelian baru* / *Draf* (1.19, F1-12). Dengan [draftId], form
 /// memuat draf itu. Dengan [restock] (F1-08c), form baru terisi baris dari
-/// daftar stok minimum sekali saat pertama dimuat.
+/// daftar stok minimum sekali saat pertama dimuat; bersama [draftId]
+/// (F1-08i), hanya barang yang belum ada di draf yang ditambahkan.
 class PurchaseFormViewModel extends ChangeNotifier {
   PurchaseFormViewModel({
     required this._repository,
@@ -238,6 +239,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
   PurchaseRestock? _restock;
   var _restockApplied = 0;
   var _restockSkipped = 0;
+  var _restockInDraft = 0;
+  var _restockIntoDraft = false;
   String? _restockLocationName;
   String? _restockSupplierName;
   var _restockSupplierCount = 0;
@@ -256,6 +259,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   /// Jumlah baris yang terisi dari stok minimum (0 = form biasa).
   int get restockApplied => _restockApplied;
+
+  /// Isian stok minimum ditambahkan ke draf yang sudah ada (F1-08i).
+  bool get restockIntoDraft => _restockIntoDraft;
+
+  /// Barang stok minimum yang sudah ada di draf itu (F1-08i).
+  int get restockInDraft => _restockInDraft;
 
   /// Varian stok minimum yang tidak bisa dibeli (diarsip, bukan barang).
   int get restockSkipped => _restockSkipped;
@@ -395,6 +404,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
         case Ok(:final value):
           _fill(value);
           await _loadInvoicePhoto(value);
+          if (_restock case final r?) {
+            _restock = null;
+            await _applyRestockToDraft(r);
+          }
         case Error(:final error):
           _error = error;
           return Result.error(error);
@@ -404,7 +417,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       if (_restock case final r?) {
         _restock = null;
         _applyRestock(r);
-        await _applyRestockPrices();
+        await _applyRestockPrices({for (final l in _lines) l.key});
         await _applyRestockSupplier();
       }
     }
@@ -465,8 +478,34 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _touched();
   }
 
-  void _applyRestock(PurchaseRestock r) {
-    if (_setup!.locations.any((l) => l.id == r.locationId)) {
+  /// Draf dibuka dari Stok › Stok minimum (F1-08i): barang yang belum ada
+  /// ditambahkan di akhir dengan jumlah saran dan harga beli terakhir.
+  /// Lokasi, supplier, dan baris draf yang sudah ada tidak diubah.
+  Future<void> _applyRestockToDraft(PurchaseRestock r) async {
+    final existing = {for (final l in _lines) l.product.variantId};
+    final missing = [
+      for (final l in r.lines)
+        if (!existing.contains(l.variantId)) l,
+    ];
+    final before = {for (final l in _lines) l.key};
+    _applyRestock(
+      PurchaseRestock(
+        locationId: r.locationId,
+        locationName: r.locationName,
+        lines: missing,
+      ),
+      keepLocation: true,
+    );
+    _restockIntoDraft = true;
+    _restockInDraft = r.lines.length - missing.length;
+    await _applyRestockPrices({
+      for (final l in _lines)
+        if (!before.contains(l.key)) l.key,
+    });
+  }
+
+  void _applyRestock(PurchaseRestock r, {bool keepLocation = false}) {
+    if (!keepLocation && _setup!.locations.any((l) => l.id == r.locationId)) {
       _locationId = r.locationId;
     }
     var applied = 0;
@@ -498,13 +537,17 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _restockLocationName = locationName ?? r.locationName;
   }
 
-  /// Harga beli terakhir untuk baris yang terisi dari stok minimum (F1-08e).
-  /// Hanya baris satuan dasar yang harganya belum diubah staf selama
-  /// menunggu; galat baca diabaikan (harga modal tetap dipakai).
-  Future<void> _applyRestockPrices() async {
-    if (_lines.isEmpty) return;
-    final before = {for (final l in _lines) l.key: l.unitPrice};
-    final requested = {for (final l in _lines) l.product.variantId};
+  /// Harga beli terakhir untuk baris [keys] yang terisi dari stok minimum
+  /// (F1-08e). Hanya baris satuan dasar yang harganya belum diubah staf
+  /// selama menunggu; galat baca diabaikan (harga modal tetap dipakai).
+  Future<void> _applyRestockPrices(Set<int> keys) async {
+    final targets = [
+      for (final l in _lines)
+        if (keys.contains(l.key)) l,
+    ];
+    if (targets.isEmpty) return;
+    final before = {for (final l in targets) l.key: l.unitPrice};
+    final requested = {for (final l in targets) l.product.variantId};
     final result = await _repository.lastPurchasePrices(requested);
     if (result case Ok(:final value)) {
       for (final id in requested) {
@@ -514,7 +557,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
       final lines = <PurchaseFormLine>[];
       for (final l in _lines) {
         final price = value[l.product.variantId];
-        if (price != null && l.unit.isBase && before[l.key] == l.unitPrice) {
+        if (price != null &&
+            l.unit.isBase &&
+            before.containsKey(l.key) &&
+            before[l.key] == l.unitPrice) {
           // priceRev naik agar isian harga yang sudah tampil ikut berganti.
           lines.add(l.copyWith(unitPrice: price, priceRev: l.priceRev + 1));
           count++;
@@ -562,6 +608,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _restockPriceCount = 0;
     _restockApplied = 0;
     _restockSkipped = 0;
+    _restockInDraft = 0;
+    _restockIntoDraft = false;
     _restockLocationName = null;
     _number = s.nextNumber;
     _supplierId = null;
@@ -983,6 +1031,16 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _number = value.number;
         _attempt = null;
         _invoicePhotoChanged = false;
+        // Tambahan stok minimum sudah tersimpan: catatan "simpan draf agar
+        // tambahan tersimpan" tidak berlaku lagi (F1-08i).
+        if (_restockIntoDraft) {
+          _restockIntoDraft = false;
+          _restockInDraft = 0;
+          _restockApplied = 0;
+          _restockSkipped = 0;
+          _restockPriceCount = 0;
+          _restockLocationName = null;
+        }
       case Error(:final error):
         _actionError = error;
     }

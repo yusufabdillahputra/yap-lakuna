@@ -525,15 +525,31 @@ void main() {
       expect(find.byKey(const ValueKey('stock-restock-draft')), findsNothing);
       expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
 
-      // Buka draf: form draf itu, tanpa catatan isian stok minimum.
+      // Buka draf: form draf itu, barang yang belum ada ditambahkan
+      // (F1-08i).
       await _tap(tester, 'stock-restock');
       await _tap(tester, 'stock-restock-open-draft');
       expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
       expect(find.textContaining(draft.number), findsWidgets);
       expect(
-        find.byKey(const ValueKey('purchase-restock-note')),
-        findsNothing,
+        find.descendant(
+          of: find.byKey(const ValueKey('purchase-restock-note')),
+          matching: find.textContaining(
+            '1 barang ditambahkan ke draf ini, 1 barang sudah ada',
+          ),
+        ),
+        findsOneWidget,
       );
+      // Baris draf + satu barang stok minimum yang belum ada.
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith('purchase-qty-'),
+        ),
+        findsNWidgets(2),
+      );
+      expect(tester.takeException(), isNull);
       await _tap(tester, 'purchase-back');
       if (size.width < 600) await _tap(tester, tab);
 
@@ -621,6 +637,55 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('barang di draf lain tidak ditambahkan ke draf yang dibuka '
+      '(F1-08i)', (tester) async {
+    final (stock, purchases) = restockSeed();
+    final vs = [for (final p in purchases.products) ...p.variants];
+    // Draf A berisi barang pertama, draf B (lebih baru) barang kedua.
+    for (final v in [vs[0], vs[1]]) {
+      await purchases.saveDraft(
+        PurchaseRequest(
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: purchases.locations.first.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: v.id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(30000),
+            ),
+          ],
+        ),
+      );
+    }
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    await _tap(tester, 'stock-restock');
+    await _tap(tester, 'stock-restock-open-draft');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+    // Barang pertama sudah dipesan di draf A: draf B tidak bertambah.
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith('purchase-qty-'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('purchase-restock-note')),
+        matching: find.textContaining('sudah ada di draf ini'),
+      ),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('galat baca draf: langsung buka form baru (F1-08g)', (
     tester,
