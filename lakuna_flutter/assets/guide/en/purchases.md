@@ -8,7 +8,7 @@ A purchase records goods coming in from a supplier: stock goes up, the average c
 
 1. Open **Purchases**, then **New purchase**.
 2. Choose the **Supplier**, or **+ New supplier** to type a new name. Fill in the **Supplier invoice no.**, **Date**, and **Receive into** location.
-3. Tap **+ Scan / search product**, then enter the unit, quantity, and cost price for each line. Items in their base unit are filled with the price from their last purchase (per base unit); items never bought before, or lines in a conversion unit such as a carton, use the cost price. A price you have already typed is never overwritten.
+3. Tap **+ Scan / search product**, then enter the unit, quantity, and cost price for each line. Items in their base unit are filled with the price from their last purchase (per base unit); items never bought before, or lines in a conversion unit such as a carton, use the cost price. A price you have already typed is never overwritten. On lines filled from *Minimum stock*, changing the unit also converts the suggested quantity (e.g. 38 bottles → 7 boxes of 6) as long as you have not changed the quantity.
 4. Enter the **Invoice discount** and **Shipping** if any. Shipping is added to the cost of the goods.
 5. Enter **Pay now** and its source (**Store cash**, **Cash drawer**, or **Bank account**), or tap **Pay in full**. The rest becomes a payable with a **Balance due on** date.
 6. If you have it, tap **Attach invoice photo** (or **Take invoice photo** on a phone) under *Invoice photo*. The photo is saved with the purchase.

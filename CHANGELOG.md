@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.96.0] - 2026-11-14
+
+Jumlah saran dari Stok minimum kini ikut satuan: mengganti baris botol ke
+dus tidak lagi membuat staf memesan enam kali lipat.
+
+### Ditambahkan
+
+- **Pembelian baru / Draf (1.19) dari Stok minimum:** baris yang terisi
+  dari stok minimum mengingat jumlah sarannya dalam satuan dasar. Mengganti
+  satuan baris mengonversi saran itu ke satuan baru, dibulatkan ke atas ke
+  satuan utuh (38 botol → 7 dus isi 6, 36 botol → 6 dus); kembali ke
+  satuan dasar mengembalikan 38. Berlaku juga untuk barang yang ditambahkan
+  ke draf lewat *Buka draf*.
+- Panduan *Stok* dan *Pembelian* menjelaskan konversi ini (ID + EN).
+
+### Diubah
+
+- Setelah staf mengetik jumlah sendiri atau menambah barang yang sama lewat
+  scan (+1), saran dilupakan dan mengganti satuan kembali mempertahankan
+  angka seperti sebelumnya. Barang yang ditambah manual tidak berubah.
+- Bila satuan baru sudah punya baris kembar untuk varian yang sama, baris
+  digabung dengan menambahkan saran yang sudah dikonversi (mis. 1 dus + 7
+  dus = 8 dus, bukan 39 dus).
+
+### Diperbaiki
+
+- Mengganti satuan baris saran dari botol ke dus mempertahankan angka 38,
+  sehingga baris menjadi 38 dus = 228 botol tanpa peringatan.
+
+### Catatan teknis
+
+- `PurchaseFormLine.suggested` (`Qty?`, satuan dasar) dan
+  `suggestedIn(unit)` = ⌈saran ÷ faktor⌉; diisi oleh `_applyRestock`.
+- `copyWith` kini melupakan saran setiap kali `quantity` diisi, kecuali
+  pemanggil memberi `keepSuggested: true` (hanya `setUnit`), agar
+  pemanggil baru tidak membawa saran basi (temuan review).
+- `setQuantity` tidak berbuat apa-apa bila angkanya sama, jadi
+  `onChange` isian yang tidak mengubah angka tidak melupakan saran.
+- Tes VM (38 → 7 → 38, 36 → 6, ketik jumlah, isian sama, scan ulang,
+  gabung baris kembar, barang manual) dan alur widget 1280 / 360 px; tes
+  widget, gabung kembar, dan isian sama diverifikasi mutasi.
+
 ## [0.95.0] - 2026-11-14
 
 *Buka draf* dari Stok minimum kini langsung menambahkan barang di bawah
@@ -6053,7 +6095,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...HEAD
+[0.96.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...v0.96.0
 [0.95.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...v0.95.0
 [0.94.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...v0.94.0
 [0.93.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...v0.93.0

@@ -687,6 +687,50 @@ void main() {
     );
   });
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('ganti satuan baris saran: 38 botol → 7 dus '
+        '${size.width.toInt()} px (F1-08j)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      await _tap(tester, 'stock-restock');
+      Finder keyed(String prefix) => find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(prefix),
+      );
+      String qtyText() => tester
+          .widget<EditableText>(
+            find.descendant(
+              of: keyed('purchase-qty-').first,
+              matching: find.byType(EditableText),
+            ),
+          )
+          .controller
+          .text;
+      expect(qtyText(), '38');
+      final unit = keyed('purchase-unit-').first;
+      await tester.ensureVisible(unit);
+      await tester.pumpAndSettle();
+      await tester.tap(unit);
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Dus').last);
+      await tester.pumpAndSettle();
+      expect(qtyText(), '7');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('galat baca draf: langsung buka form baru (F1-08g)', (
     tester,
   ) async {

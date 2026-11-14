@@ -111,6 +111,7 @@ class PurchaseFormLine {
     required this.quantity,
     required this.unitPrice,
     this.priceRev = 0,
+    this.suggested,
   });
 
   final int key;
@@ -120,6 +121,11 @@ class PurchaseFormLine {
   final Money unitPrice;
   final int priceRev;
 
+  /// Jumlah saran stok minimum dalam satuan dasar (F1-08j); `null` bila
+  /// baris ditambah manual atau jumlahnya sudah diubah staf. Selama ada,
+  /// mengganti satuan mengonversi jumlah dari saran ini.
+  final Qty? suggested;
+
   Money get lineTotal => unitPrice.timesMilli(quantity.milli);
 
   PurchaseFormLine copyWith({
@@ -127,6 +133,7 @@ class PurchaseFormLine {
     Qty? quantity,
     Money? unitPrice,
     int? priceRev,
+    bool? keepSuggested,
   }) => PurchaseFormLine(
     key: key,
     product: product,
@@ -134,7 +141,18 @@ class PurchaseFormLine {
     quantity: quantity ?? this.quantity,
     unitPrice: unitPrice ?? this.unitPrice,
     priceRev: priceRev ?? this.priceRev,
+    // Jumlah baru melupakan saran kecuali pemanggil sengaja menyimpannya.
+    suggested: (keepSuggested ?? quantity == null) ? suggested : null,
   );
+
+  /// [suggested] dalam satuan [unit], dibulatkan ke atas ke satuan utuh
+  /// (mis. 38 botol → 7 dus isi 6).
+  Qty? suggestedIn(PurchaseUnitOption unit) {
+    final base = suggested;
+    if (base == null) return null;
+    final factor = unit.factor.milli;
+    return Qty.units((base.milli + factor - 1) ~/ factor);
+  }
 
   PurchaseLineInput get input => PurchaseLineInput(
     quantity: quantity,
@@ -527,6 +545,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
           unit: unit,
           quantity: line.quantity,
           unitPrice: option.defaultPrice(unit),
+          suggested: line.quantity,
         ),
       ];
       applied++;
@@ -805,7 +824,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
         .firstOrNull;
     if (existing != null) {
       _replace(
-        existing.copyWith(quantity: existing.quantity + Qty.units(1)),
+        existing.copyWith(
+          quantity: existing.quantity + Qty.units(1),
+          keepSuggested: false,
+        ),
       );
       _generation++;
       _touched();
@@ -908,8 +930,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   void setQuantity(int key, Qty quantity) {
     final line = _line(key);
-    if (line == null) return;
-    _replace(line.copyWith(quantity: quantity));
+    if (line == null || quantity == line.quantity) return;
+    // Staf menentukan jumlahnya sendiri: saran tidak lagi dikonversi.
+    _replace(line.copyWith(quantity: quantity, keepSuggested: false));
     _touched();
   }
 
@@ -936,8 +959,15 @@ class PurchaseFormViewModel extends ChangeNotifier {
               l.unit.productUnitId == unit.productUnitId,
         )
         .firstOrNull;
+    // Saran stok minimum ikut satuan baru (F1-08j).
+    final converted = line.suggestedIn(unit);
     if (twin != null) {
-      _replace(twin.copyWith(quantity: twin.quantity + line.quantity));
+      _replace(
+        twin.copyWith(
+          quantity: twin.quantity + (converted ?? line.quantity),
+          keepSuggested: false,
+        ),
+      );
       _lines = [
         for (final l in _lines)
           if (l.key != key) l,
@@ -946,8 +976,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
       _replace(
         line.copyWith(
           unit: unit,
+          quantity: converted,
           unitPrice: line.product.defaultPrice(unit),
           priceRev: line.priceRev + 1,
+          keepSuggested: true,
         ),
       );
       if (unit.isBase) _startFill(key);

@@ -8,7 +8,7 @@ Pembelian mencatat barang masuk dari supplier: stok bertambah, harga pokok (HPP)
 
 1. Buka **Pembelian**, lalu **Pembelian baru**.
 2. Pilih **Supplier**, atau **+ Supplier baru** untuk mengetik nama baru. Isi **No. faktur supplier**, **Tanggal**, dan **Masuk ke lokasi**.
-3. Tekan **+ Scan / cari produk**, lalu isi satuan, qty, dan harga beli tiap baris. Barang dalam satuan dasar langsung terisi harga beli pada pembelian terakhirnya (per satuan dasar); barang yang belum pernah dibeli, atau baris dalam satuan konversi seperti dus, memakai harga modal. Harga yang sudah Anda ketik tidak ditimpa.
+3. Tekan **+ Scan / cari produk**, lalu isi satuan, qty, dan harga beli tiap baris. Barang dalam satuan dasar langsung terisi harga beli pada pembelian terakhirnya (per satuan dasar); barang yang belum pernah dibeli, atau baris dalam satuan konversi seperti dus, memakai harga modal. Harga yang sudah Anda ketik tidak ditimpa. Pada baris yang terisi dari *Stok minimum*, mengganti satuan juga mengonversi jumlah saran (mis. 38 botol → 7 dus isi 6) selama jumlahnya belum Anda ubah.
 4. Isi **Diskon faktur** dan **Ongkos kirim** bila ada. Ongkos kirim ikut dibebankan ke harga pokok barang.
 5. Isi **Bayar sekarang** dan sumbernya (**Kas toko**, **Kas laci**, atau **Rekening bank**), atau tekan **Bayar lunas**. Sisanya menjadi hutang dengan **Jatuh tempo sisa**.
 6. Bila ada, tekan **Lampirkan foto faktur** (atau **Ambil foto faktur** di ponsel) di bawah *Foto faktur*. Foto ikut tersimpan saat pembelian disimpan.
