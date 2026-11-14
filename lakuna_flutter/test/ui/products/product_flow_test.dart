@@ -180,7 +180,29 @@ void main() {
       await _tap(tester, 'products-archived');
       expect(find.text('Produk diarsipkan'), findsOneWidget);
       expect(find.text('Minyak Goreng'), findsOneWidget);
-      expect(find.text('Sembako · Stok 24 botol'), findsOneWidget);
+      // Tanggal arsip di zona cabang (WIB): 13/11 20.00 UTC = 14/11 (F1-07o).
+      expect(
+        find.text('Sembako · Stok 24 botol · Diarsipkan 14 November 2026'),
+        findsOneWidget,
+      );
+      // Ponsel: tombol Pulihkan di bawah teks, nama tidak terlipat per huruf.
+      expect(
+        tester
+            .getSize(find.byKey(ValueKey('archived-${minyak.id.uuid}')))
+            .height,
+        lessThan(200),
+      );
+      if (size.width < 600) {
+        // Tombol Pulihkan di bawah nama produk.
+        expect(
+          tester
+              .getTopLeft(
+                find.byKey(ValueKey('archived-restore-${minyak.id.uuid}')),
+              )
+              .dy,
+          greaterThan(tester.getBottomLeft(find.text('Minyak Goreng').last).dy),
+        );
+      }
       await _tap(tester, 'archived-restore-${minyak.id.uuid}');
       expect(
         find.text('Minyak Goreng dipulihkan ke daftar produk.'),

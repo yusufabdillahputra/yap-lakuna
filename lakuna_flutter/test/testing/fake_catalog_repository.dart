@@ -17,6 +17,9 @@ class FakeCatalogRepository extends CatalogRepository {
 
   /// Izin staf; `null` = semua izin.
   Set<Permission>? permissions;
+
+  /// Zona waktu cabang (tanggal arsip, F1-07o).
+  String? timezone = 'Asia/Jakarta';
   final _tenant = _id();
   final products = <CatalogProduct>[];
   final categories = <ProductCategory>[];
@@ -136,18 +139,20 @@ class FakeCatalogRepository extends CatalogRepository {
     if (i < 0) return Result.error(ProductNotFound());
     archiveCalls.add(id);
     archivedProducts.add(
-      _withArchivedAt(products.removeAt(i), DateTime.utc(2026, 11, 13, 9)),
+      // 20.00 UTC = 03.00 WIB keesokan harinya: tanggal mengikuti zona cabang.
+      _withArchivedAt(products.removeAt(i), DateTime.utc(2026, 11, 13, 20)),
     );
     return const Result.ok(null);
   }
 
   @override
-  Future<Result<List<CatalogProduct>>> archived() async {
+  Future<Result<ArchivedCatalog>> archived() async {
     if (_check() case final e?) return Result.error(e);
-    return Result.ok(
-      [...archivedProducts]
+    return Result.ok((
+      products: [...archivedProducts]
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
-    );
+      timezone: timezone,
+    ));
   }
 
   @override

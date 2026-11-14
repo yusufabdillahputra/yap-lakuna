@@ -70,8 +70,13 @@ class LocalCatalogRepository extends CatalogRepository {
   );
 
   @override
-  Future<Result<List<CatalogProduct>>> archived() =>
-      _guard((scope, _) => listArchivedProducts(_store, scope));
+  Future<Result<ArchivedCatalog>> archived() => _guard((scope, _) async {
+    final ctx = _stores.current;
+    return (
+      products: await listArchivedProducts(_store, scope),
+      timezone: ctx?.outlet.timezone ?? ctx?.tenant.timezone,
+    );
+  });
 
   @override
   Future<Result<void>> restore(UuidValue id) => _guard(

@@ -15,17 +15,21 @@ class ArchivedProductsViewModel extends ChangeNotifier {
 
   final CatalogRepository _repository;
 
-  late final Command0<List<CatalogProduct>> load;
+  late final Command0<ArchivedCatalog> load;
 
   /// Gagal dengan `ProductCodesTaken` bila kode sudah dipakai produk lain.
   late final Command1<void, UuidValue> restore;
 
   List<CatalogProduct>? _products;
+  String? _timezone;
   UuidValue? _failedId;
   String? _restoredName;
 
   /// `null` sebelum termuat.
   List<CatalogProduct>? get products => _products;
+
+  /// Zona waktu cabang untuk tanggal arsip (F1-07o).
+  String? get timezone => _timezone;
 
   /// Ada produk yang dipulihkan sejak dialog dibuka (daftar 1.15 dimuat
   /// ulang saat ditutup).
@@ -51,9 +55,12 @@ class ArchivedProductsViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<Result<List<CatalogProduct>>> _load() async {
+  Future<Result<ArchivedCatalog>> _load() async {
     final result = await _repository.archived();
-    if (result case Ok(:final value)) _products = value;
+    if (result case Ok(:final value)) {
+      _products = value.products;
+      _timezone = value.timezone;
+    }
     return result;
   }
 

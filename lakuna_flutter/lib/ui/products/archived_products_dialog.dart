@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show outletLocalTime;
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/catalog_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../customers/customer_labels.dart' show formatLongDate;
 import 'archived_products_view_model.dart';
 import 'product_widgets.dart';
 import 'product_form_view.dart' show productErrorMessage;
@@ -106,22 +108,27 @@ class _ArchivedProductsDialogState extends State<ArchivedProductsDialog> {
                   ),
                 )
               else
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 420),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: 10,
-                      children: [
-                        for (final p in products)
-                          _Row(
-                            product: p,
-                            busy: _vm.restore.running,
-                            error: _vm.errorFor(p.id),
-                            onRestore: () => _vm.restore.execute(p.id),
-                            muted: muted,
-                          ),
-                      ],
+                // Flexible: di layar pendek daftar menyusut dan digulir,
+                // tombol Tutup tetap terlihat.
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 420),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 10,
+                        children: [
+                          for (final p in products)
+                            _Row(
+                              product: p,
+                              timezone: _vm.timezone,
+                              busy: _vm.restore.running,
+                              error: _vm.errorFor(p.id),
+                              onRestore: () => _vm.restore.execute(p.id),
+                              muted: muted,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -145,9 +152,14 @@ class _ArchivedProductsDialogState extends State<ArchivedProductsDialog> {
   }
 }
 
+/// Di bawah lebar isi ini tombol *Pulihkan* turun ke bawah teks (dialog
+/// ponsel ±216 px; tombol sendiri ±170 px).
+const _stackedRowWidth = 360.0;
+
 class _Row extends StatelessWidget {
   const _Row({
     required this.product,
+    required this.timezone,
     required this.busy,
     required this.error,
     required this.onRestore,
@@ -155,6 +167,9 @@ class _Row extends StatelessWidget {
   });
 
   final CatalogProduct product;
+
+  /// Zona waktu cabang untuk tanggal arsip (F1-07o).
+  final String? timezone;
   final bool busy;
   final Exception? error;
   final VoidCallback onRestore;
@@ -171,34 +186,36 @@ class _Row extends StatelessWidget {
           formatQty(context, product.totalStock),
           product.baseUnit,
         ),
+      if (product.archivedAt case final at?)
+        l10n.productsArchivedOn(
+          formatLongDate(l10n, outletLocalTime(at, timezone)),
+        ),
     ];
     return Column(
       key: ValueKey('archived-${product.id.uuid}'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 4,
       children: [
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+        // Dialog ponsel sempit: tombol Pulihkan turun ke bawah teks agar
+        // nama dan keterangan tidak terlipat per huruf.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final text = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  product.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  if (details.isNotEmpty)
-                    Text(details.join(' · '), style: muted),
-                ],
-              ),
-            ),
-            FButton(
+                ),
+                if (details.isNotEmpty) Text(details.join(' · '), style: muted),
+              ],
+            );
+            final button = FButton(
               key: ValueKey('archived-restore-${product.id.uuid}'),
               variant: .outline,
               size: .sm,
@@ -206,8 +223,25 @@ class _Row extends StatelessWidget {
               onPress: busy ? null : onRestore,
               prefix: const Icon(TablerIcons.restore),
               child: Flexible(child: Text(l10n.productsRestore)),
-            ),
-          ],
+            );
+            if (constraints.maxWidth < _stackedRowWidth) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 6,
+                children: [
+                  text,
+                  Align(alignment: Alignment.centerRight, child: button),
+                ],
+              );
+            }
+            return Row(
+              spacing: 12,
+              children: [
+                Expanded(child: text),
+                button,
+              ],
+            );
+          },
         ),
         if (error case final e?)
           Text(

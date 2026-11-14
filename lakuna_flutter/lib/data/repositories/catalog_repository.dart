@@ -32,6 +32,10 @@ class ProductCatalog {
   final int archivedCount;
 }
 
+/// Produk diarsipkan (urut nama) dan zona waktu cabang untuk tanggal arsip
+/// (F1-07o).
+typedef ArchivedCatalog = ({List<CatalogProduct> products, String? timezone});
+
 /// Katalog produk (F1-07). Semua aksi butuh `products:manage`; izin dicek
 /// di sini juga, bukan hanya di menu.
 abstract class CatalogRepository {
@@ -60,8 +64,8 @@ abstract class CatalogRepository {
   /// `ProductNotFound`.
   Future<Result<void>> archive(UuidValue id);
 
-  /// Produk diarsipkan, urut nama.
-  Future<Result<List<CatalogProduct>>> archived();
+  /// Produk diarsipkan, urut nama, dengan zona waktu cabang.
+  Future<Result<ArchivedCatalog>> archived();
 
   /// Memulihkan produk diarsipkan [id]. Gagal dengan `NotPermitted`,
   /// `ProductNotFound`, atau `ProductCodesTaken`.

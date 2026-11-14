@@ -7,6 +7,33 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.78.0] - 2026-11-14
+
+Dialog *Produk diarsipkan* kini menunjukkan kapan tiap produk diarsipkan,
+dan nyaman dibaca di ponsel.
+
+### Ditambahkan
+
+- **Daftar produk (1.15) › Diarsipkan:** tiap produk menampilkan
+  *Diarsipkan {tanggal}* di zona waktu cabang, mis. *Sembako · Stok 24
+  botol · Diarsipkan 14 November 2026*.
+- Panduan *Menambah produk pertama* bagian *Mengarsipkan produk* (ID + EN).
+
+### Diperbaiki
+
+- **Ponsel:** di dialog *Produk diarsipkan* tombol *Pulihkan* di samping
+  teks membuat nama produk terlipat per huruf (baris setinggi ±480 px) dan
+  tombol *Tutup* bisa terdorong keluar layar. Kini tombol turun ke bawah
+  teks pada dialog sempit dan daftar menyusut lalu digulir.
+
+### Catatan teknis
+
+- `CatalogRepository.archived()` mengembalikan `ArchivedCatalog`
+  (`products` + `timezone` dari outlet, lalu tenant);
+  `ArchivedProductsViewModel.timezone`; l10n `productsArchivedOn`.
+- Tes VM (zona dimuat) dan widget 1280/360 (tanggal 20.00 UTC → 14 November
+  WIB, tinggi baris < 200 px, tanpa overflow).
+
 ## [0.77.0] - 2026-11-14
 
 Nomor HP pelanggan dan supplier kini bisa dicari seperti tertulis di
@@ -5353,7 +5380,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...HEAD
+[0.78.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...v0.78.0
 [0.77.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...v0.76.0
 [0.75.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...v0.75.0

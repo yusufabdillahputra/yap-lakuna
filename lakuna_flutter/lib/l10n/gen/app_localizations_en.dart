@@ -8435,4 +8435,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupAutoSaveFailed => 'Could not save the switch. Try again.';
+
+  @override
+  String productsArchivedOn(String date) {
+    return 'Archived $date';
+  }
 }
