@@ -12,6 +12,7 @@ import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
+import '../core/date_range_dialog.dart';
 import '../core/format.dart';
 import '../customers/customer_labels.dart' show formatLongDate;
 import '../history/history_labels.dart' show returnReasonLabel;
@@ -19,7 +20,6 @@ import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import '../receipt/receipt_content.dart' show receiptDate;
 import 'report_labels.dart';
-import 'report_range_dialog.dart';
 import 'reports_view_model.dart';
 
 part 'reports_extra_view.dart';
@@ -103,14 +103,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
   var _periodGeneration = 0;
 
   Future<void> _pickRange() async {
-    final picked = await showReportRangeDialog(
+    final picked = await showDateRangeDialog(
       context,
       initial: _vm.period.range(_vm.today),
       today: _vm.today,
+      keyPrefix: 'reports-range',
     );
     if (!mounted) return;
     setState(() => _periodGeneration++);
-    if (picked != null) await _vm.setPeriod(picked);
+    if (picked != null) {
+      await _vm.setPeriod(ReportPeriod.custom(picked.from, picked.to));
+    }
   }
 
   /// Selama berkas dibuat (font PDF dimuat sebelum ekspor berjalan), tombol

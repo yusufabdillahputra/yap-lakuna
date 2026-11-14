@@ -8,6 +8,7 @@ import '../../data/repositories/repository_errors.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
+import '../reports/report_labels.dart' show reportRangeLabel;
 
 /// Status nota di riwayat.
 String saleStatusLabel(AppLocalizations l10n, SaleStatus status) =>
@@ -18,12 +19,19 @@ String saleStatusLabel(AppLocalizations l10n, SaleStatus status) =>
       _ => l10n.historyStatusCompleted,
     };
 
-String historyRangeLabel(AppLocalizations l10n, HistoryRange range) =>
-    switch (range) {
-      HistoryRange.today => l10n.historyRangeToday,
-      HistoryRange.yesterday => l10n.historyRangeYesterday,
-      HistoryRange.week => l10n.historyRangeWeek,
-    };
+/// Label rentang; [HistoryRange.custom] memakai [days] (*1–15 Nov 2026*),
+/// atau *Rentang tanggal…* bila belum dipilih (F1-11c).
+String historyRangeLabel(
+  AppLocalizations l10n,
+  HistoryRange range, {
+  DateRange? days,
+}) => switch (range) {
+  HistoryRange.today => l10n.historyRangeToday,
+  HistoryRange.yesterday => l10n.historyRangeYesterday,
+  HistoryRange.week => l10n.historyRangeWeek,
+  HistoryRange.custom =>
+    days == null ? l10n.reportsPeriodCustom : reportRangeLabel(l10n, days),
+};
 
 String historyStatusFilterLabel(AppLocalizations l10n, HistoryStatus s) =>
     switch (s) {

@@ -178,6 +178,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('rentang tanggal bebas: batal lalu terapkan (F1-11c)', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'history-range-custom');
+    expect(_key('history-range-dialog'), findsOneWidget);
+    await _tap(tester, 'history-range-cancel');
+    expect(history.filters.last.range, HistoryRange.today);
+
+    await _tap(tester, 'history-range-custom');
+    await _tap(tester, 'history-range-apply');
+    expect(_key('history-range-dialog'), findsNothing);
+    final f = history.filters.last;
+    expect(f.range, HistoryRange.custom);
+    expect(f.days!.from, f.days!.to);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('ekspor Excel dari kepala layar', (tester) async {
     await pump(tester);
     await _tap(tester, 'history-export');

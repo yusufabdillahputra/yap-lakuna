@@ -153,6 +153,33 @@ class HistoryViewModel extends ChangeNotifier {
     setFilter(_filter.copyWith(query: query));
   }
 
+  /// Hari ini di cabang (tanggal UTC tengah malam).
+  DateTime get today {
+    final local = outletLocalTime(DateTime.now().toUtc(), _data?.timezone);
+    return DateTime.utc(local.year, local.month, local.day);
+  }
+
+  /// Rentang awal dialog *Pilih rentang tanggal*: rentang yang sedang
+  /// tampil (F1-11c).
+  DateRange get initialRange {
+    final t = today;
+    DateTime back(int n) => DateTime.utc(t.year, t.month, t.day - n);
+    return switch (_filter.range) {
+      HistoryRange.custom when _filter.days != null => _filter.days!,
+      HistoryRange.yesterday => DateRange(back(1), back(1)),
+      HistoryRange.week => DateRange(back(6), t),
+      _ => DateRange(t, t),
+    };
+  }
+
+  /// Pakai rentang tanggal bebas; pencarian dikosongkan (F1-11c).
+  void setCustomRange(DateRange days) {
+    if (_filter.query.isNotEmpty) _searchGeneration++;
+    setFilter(
+      _filter.copyWith(range: HistoryRange.custom, days: () => days, query: ''),
+    );
+  }
+
   /// Pilih rentang tanggal; pencarian yang aktif dikosongkan (F1-11b).
   void setRange(HistoryRange range) {
     if (_filter.query.isNotEmpty) _searchGeneration++;
@@ -428,16 +455,22 @@ class HistoryViewModel extends ChangeNotifier {
 
   // --- Ekspor --------------------------------------------------------------
 
-  /// Nama berkas ekspor: `riwayat-<rentang>-<yymmdd>.xlsx`; hasil cari
+  /// Nama berkas ekspor: `riwayat-<rentang>-<yymmdd>.xlsx` (rentang bebas
+  /// `yyyymmdd-yyyymmdd`); hasil cari
   /// memakai `riwayat-cari-<yymmdd>.xlsx`.
   String exportFileName(DateTime now) {
     String two(int n) => n.toString().padLeft(2, '0');
     final date = '${two(now.year % 100)}${two(now.month)}${two(now.day)}';
     if (_filter.searching) return 'riwayat-cari-$date.xlsx';
+    String compact(DateTime d) => '${d.year}${two(d.month)}${two(d.day)}';
+    final days = _filter.days;
     final range = switch (_filter.range) {
       HistoryRange.today => 'hari-ini',
       HistoryRange.yesterday => 'kemarin',
       HistoryRange.week => '7-hari',
+      HistoryRange.custom when days != null =>
+        '${compact(days.from)}-${compact(days.to)}',
+      HistoryRange.custom => 'hari-ini',
     };
     return 'riwayat-$range-$date.xlsx';
   }
