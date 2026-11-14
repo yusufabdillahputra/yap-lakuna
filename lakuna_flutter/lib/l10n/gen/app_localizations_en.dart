@@ -8280,4 +8280,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historySearchEmpty => 'No receipts match your search.';
+
+  @override
+  String get reportsPeriodCustom => 'Date range…';
+
+  @override
+  String get reportsRangeTitle => 'Choose a date range';
+
+  @override
+  String get reportsRangeFrom => 'From';
+
+  @override
+  String get reportsRangeTo => 'To';
+
+  @override
+  String get reportsRangeCancel => 'Cancel';
+
+  @override
+  String get reportsRangeApply => 'Apply';
+
+  @override
+  String get reportsRangeErrOrder =>
+      'The end date can\'t be before the start date.';
+
+  @override
+  String get reportsRangeErrFuture => 'The date can\'t be after today.';
+
+  @override
+  String reportsRangeErrTooLong(int days) {
+    return 'The range can be at most $days days.';
+  }
+
+  @override
+  String reportsPrevDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'the previous $count days',
+      one: 'the previous day',
+    );
+    return '$_temp0';
+  }
 }

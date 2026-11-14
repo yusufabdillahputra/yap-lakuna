@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -173,6 +174,101 @@ void main() {
       find.text('Belum ada penjualan pada periode ini.'),
       findsNWidgets(2),
     );
+  });
+
+  testWidgets('rentang tanggal bebas: pilih, galat, batal, terapkan (F1-16b)', (
+    tester,
+  ) async {
+    // Font uji (Ahem) jauh lebih lebar dari DM Sans: kepala kalender Forui
+    // ("November 2026" + tombol) meluap hanya di tes. Luapan selama kalender
+    // terbuka diabaikan; galat lain tetap dilaporkan. Tata letak asli
+    // diperiksa di uji manual.
+    final onError = FlutterError.onError;
+    var calendarOpen = false;
+    FlutterError.onError = (details) {
+      if (calendarOpen && details.exceptionAsString().contains('overflowed')) {
+        return;
+      }
+      onError?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = onError);
+    await pump(tester, const Size(1440, 900));
+    Future<void> pickRange() async {
+      await _tap(tester, _key('reports-period'));
+      final item = find.text('Rentang tanggal…').last;
+      await tester.scrollUntilVisible(
+        item,
+        50,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(item);
+      await tester.pumpAndSettle();
+    }
+
+    await pickRange();
+    expect(_key('reports-range-dialog'), findsOneWidget);
+    // Batal: periode tetap Hari ini.
+    await _tap(tester, _key('reports-range-cancel'));
+    expect(_key('reports-range-dialog'), findsNothing);
+    expect(repo.requests.last, ReportPeriod.today);
+
+    await pickRange();
+    // Sampai sebelum Dari (awal 4 Nov): galat, Terapkan nonaktif.
+    calendarOpen = true;
+    await _tap(tester, _key('reports-range-to'));
+    await tester.tap(
+      find
+          .descendant(of: find.byType(FCalendar), matching: find.text('2'))
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Tanggal akhir tidak boleh sebelum tanggal awal.'),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('reports-range-apply'));
+    expect(_key('reports-range-dialog'), findsOneWidget);
+    // Dari 1 Nov: rentang 1–2 Nov.
+    await _tap(tester, _key('reports-range-from'));
+    await tester.tap(
+      find
+          .descendant(of: find.byType(FCalendar), matching: find.text('1'))
+          .first,
+    );
+    await tester.pumpAndSettle();
+    calendarOpen = false;
+    expect(
+      find.text('Tanggal akhir tidak boleh sebelum tanggal awal.'),
+      findsNothing,
+    );
+    await _tap(tester, _key('reports-range-apply'));
+    expect(_key('reports-range-dialog'), findsNothing);
+    final range = ReportPeriod.custom(
+      DateTime.utc(2026, 11, 1),
+      DateTime.utc(2026, 11, 2),
+    );
+    expect(repo.requests.last, range);
+    expect(find.textContaining('1–2 Nov 2026'), findsWidgets);
+    FlutterError.onError = onError;
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('360 px: rentang tanggal bebas tanpa luapan (F1-16b)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(360, 780));
+    await _tap(tester, _key('reports-period'));
+    await tester.tap(find.text('Rentang tanggal…').last);
+    await tester.pumpAndSettle();
+    expect(_key('reports-range-dialog'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _tap(tester, _key('reports-range-apply'));
+    expect(
+      repo.requests.last,
+      ReportPeriod.custom(DateTime.utc(2026, 11, 4), DateTime.utc(2026, 11, 4)),
+    );
+    expect(find.textContaining('4 Nov 2026'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('tanpa izin laba: kartu laba kotor dan tab laba rugi hilang', (

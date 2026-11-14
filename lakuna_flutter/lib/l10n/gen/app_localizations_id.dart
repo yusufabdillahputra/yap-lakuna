@@ -8056,4 +8056,45 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get historySearchEmpty =>
       'Tidak ada nota yang cocok dengan pencarian.';
+
+  @override
+  String get reportsPeriodCustom => 'Rentang tanggal…';
+
+  @override
+  String get reportsRangeTitle => 'Pilih rentang tanggal';
+
+  @override
+  String get reportsRangeFrom => 'Dari';
+
+  @override
+  String get reportsRangeTo => 'Sampai';
+
+  @override
+  String get reportsRangeCancel => 'Batal';
+
+  @override
+  String get reportsRangeApply => 'Terapkan';
+
+  @override
+  String get reportsRangeErrOrder =>
+      'Tanggal akhir tidak boleh sebelum tanggal awal.';
+
+  @override
+  String get reportsRangeErrFuture => 'Tanggal tidak boleh melewati hari ini.';
+
+  @override
+  String reportsRangeErrTooLong(int days) {
+    return 'Rentang paling panjang $days hari.';
+  }
+
+  @override
+  String reportsPrevDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hari sebelumnya',
+      one: 'hari sebelumnya',
+    );
+    return '$_temp0';
+  }
 }

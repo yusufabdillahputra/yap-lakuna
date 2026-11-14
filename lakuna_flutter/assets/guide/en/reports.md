@@ -6,7 +6,8 @@ The **Reports** menu summarises sales, profit, stock, cash, receivables and paya
 
 ## Steps
 
-1. Open **Reports** and choose a **Period**: *Today*, *Last 7 days*, or *This month*.
+1. Open **Reports** and choose a **Period**: *Today*, *Last 7 days*, *This month*, one of the previous months, or *Date range…*.
+   - *Date range…* opens a **From** / **To** window (at most 366 days, not after today), e.g. Nov 1–15. Net profit is compared with the same number of days just before, and the download file name includes the dates (`…-20261101-20261115-…`).
 2. Choose a tab:
    - **Summary**: sales, gross profit, average per receipt, overdue receivables, sales by payment method, and best sellers.
    - **Sales**: by product, by cashier, or by category.

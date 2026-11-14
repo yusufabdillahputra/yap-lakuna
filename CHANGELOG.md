@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.67.0] - 2026-11-14
+
+Laporan kini bisa dibuka untuk rentang tanggal bebas, mis. 1–15 November
+atau satu minggu promo, selain Hari ini, 7 hari terakhir, dan per bulan.
+
+### Ditambahkan
+
+- **Laporan (1.23 / 1.24):** entri *Rentang tanggal…* di pilihan Periode
+  (setelah *Bulan ini*) membuka dialog *Pilih rentang tanggal* dengan
+  kalender **Dari** dan **Sampai**, tombol *Batal* dan *Terapkan*.
+- Validasi rentang: tanggal akhir tidak boleh sebelum tanggal awal, tidak
+  boleh melewati hari ini (tanggal cabang), dan paling panjang 366 hari;
+  *Terapkan* nonaktif selama ada galat.
+- Label rentang ringkas di pilihan, subjudul, judul laba rugi, PDF, dan
+  Excel: *5 Nov 2026*, *1–15 Nov 2026*, *28 Okt – 3 Nov 2026*,
+  *28 Des 2025 – 3 Jan 2026* (en: *Nov 1–15, 2026*, dst.).
+- Pembanding laba bersih dan KPI: jumlah hari yang sama tepat sebelum
+  awal rentang (*14 hari sebelumnya*).
+- Nama berkas unduhan memuat tanggal, mis.
+  `laporan-laba-rugi-20261101-20261114-261114.pdf`.
+- Panduan *Laporan* (id/en) menjelaskan rentang tanggal.
+
+### Catatan teknis
+
+- Domain: `ReportPeriodKind.custom`, `ReportPeriod.custom(from, to)`
+  (jam diabaikan), `days`, `previousRange` = `days` hari sebelum `from`,
+  `fileKey` `yyyymmdd-yyyymmdd`; `reportRangeError` →
+  `ReportRangeError.endBeforeStart / future / tooLong`,
+  `maxReportRangeDays` = 366. Lapisan data tidak berubah karena semua
+  query sudah memakai `range` / `previousRange`.
+- Flutter: `reportRangeLabel`, `showReportRangeDialog`
+  (`FDateField.calendar`), `ReportsViewModel.periods` menyisipkan rentang
+  aktif setelah *Bulan ini*, `ReportsViewModel.today`; pilihan Periode
+  dibangun ulang setelah dialog ditutup agar *Batal* kembali ke periode
+  aktif.
+- Kunci l10n baru `reportsPeriodCustom`, `reportsRangeTitle`,
+  `reportsRangeFrom`, `reportsRangeTo`, `reportsRangeCancel`,
+  `reportsRangeApply`, `reportsRangeErrOrder`, `reportsRangeErrFuture`,
+  `reportsRangeErrTooLong`, `reportsPrevDays` (id/en).
+- Tes domain (rentang, pembanding lintas bulan/tahun, kesetaraan,
+  validasi 366/367 hari), label id/en, VM, dan widget (pilih, galat,
+  batal, terapkan). Tes widget mengabaikan luapan kepala kalender Forui
+  yang hanya muncul dengan font uji selama kalender terbuka.
+
 ## [0.66.0] - 2026-11-14
 
 Riwayat transaksi kini punya kolom cari. Nota bisa ditemukan lewat nomor,
@@ -4849,7 +4893,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...HEAD
+[0.67.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...v0.67.0
 [0.66.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...v0.64.0

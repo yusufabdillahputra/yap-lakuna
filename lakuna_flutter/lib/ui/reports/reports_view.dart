@@ -19,6 +19,7 @@ import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 import '../receipt/receipt_content.dart' show receiptDate;
 import 'report_labels.dart';
+import 'report_range_dialog.dart';
 import 'reports_view_model.dart';
 
 part 'reports_extra_view.dart';
@@ -53,8 +54,12 @@ Color _positive(BuildContext context) =>
 
 String _periodKey(ReportPeriod p) => switch (p.kind) {
   ReportPeriodKind.month => 'm-${p.year}-${p.monthOfYear}',
+  ReportPeriodKind.custom => 'c-${p.fileKey(DateTime(0))}',
   _ => p.kind.name,
 };
+
+/// Entri *Rentang tanggal…* di pilihan Periode (F1-16b).
+const _pickRangeKey = 'pick-range';
 
 /// Layar *Laporan* (1.23 ringkasan, 1.24 laba rugi; F1-16).
 class ReportsScreen extends StatefulWidget {
@@ -91,6 +96,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
   void dispose() {
     _vm.dispose();
     super.dispose();
+  }
+
+  /// Naik setiap dialog rentang ditutup agar pilihan Periode kembali ke
+  /// periode aktif (Batal) atau menampilkan rentang baru (F1-16b).
+  var _periodGeneration = 0;
+
+  Future<void> _pickRange() async {
+    final picked = await showReportRangeDialog(
+      context,
+      initial: _vm.period.range(_vm.today),
+      today: _vm.today,
+    );
+    if (!mounted) return;
+    setState(() => _periodGeneration++);
+    if (picked != null) await _vm.setPeriod(picked);
   }
 
   /// Selama berkas dibuat (font PDF dimuat sebelum ekspor berjalan), tombol
@@ -154,18 +174,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
       );
       final periods = vm.periods;
       final period = SizedBox(
-        width: 200,
-        child: FSelect<String>(
-          key: const ValueKey('reports-period'),
-          items: {
-            for (final p in periods) reportPeriodLabel(l10n, p): _periodKey(p),
-          },
-          control: .managed(
-            initial: _periodKey(vm.period),
-            onChange: (key) {
-              final p = periods.where((p) => _periodKey(p) == key).firstOrNull;
-              if (p != null) unawaited(vm.setPeriod(p));
+        width: 220,
+        child: KeyedSubtree(
+          key: ValueKey(
+            'reports-period-${_periodKey(vm.period)}-$_periodGeneration',
+          ),
+          child: FSelect<String>(
+            key: const ValueKey('reports-period'),
+            items: {
+              for (final p in periods) ...{
+                reportPeriodLabel(l10n, p): _periodKey(p),
+                // *Rentang tanggal…* setelah Bulan ini / rentang aktif,
+                // sebelum daftar bulan.
+                if (p.kind == ReportPeriodKind.custom ||
+                    (p == ReportPeriod.thisMonth &&
+                        vm.period.kind != ReportPeriodKind.custom))
+                  l10n.reportsPeriodCustom: _pickRangeKey,
+              },
             },
+            control: .managed(
+              initial: _periodKey(vm.period),
+              onChange: (key) {
+                if (key == _pickRangeKey) {
+                  unawaited(_pickRange());
+                  return;
+                }
+                final p = periods
+                    .where((p) => _periodKey(p) == key)
+                    .firstOrNull;
+                if (p != null) unawaited(vm.setPeriod(p));
+              },
+            ),
           ),
         ),
       );
