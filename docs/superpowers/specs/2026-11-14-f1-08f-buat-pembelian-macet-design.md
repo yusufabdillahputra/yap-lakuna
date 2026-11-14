@@ -60,4 +60,4 @@ selesai. Akibatnya:
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | *Buat pembelian* tidak macet setelah keluar lewat menu samping | 1.18 | Rilis v0.90.0 | Penjaga dilepas dan daftar dimuat ulang saat Stok kembali menjadi rute teratas. |
-| Daftar Pembelian / Pelanggan / Supplier dimuat ulang setelah keluar dari detail lewat menu samping | — | Belum | Daftar itu hanya dimuat ulang saat detail ditutup; keluar lewat menu samping ke daftar yang sama memperlihatkan data lama sampai daftar disegarkan. |
+| Daftar Pembelian / Pelanggan / Supplier dimuat ulang setelah keluar dari detail lewat menu samping | — | Rilis v0.91.0 ([F1-12d](2026-11-14-f1-12d-muat-ulang-daftar-design.md)) | Daftar itu hanya dimuat ulang saat detail ditutup; keluar lewat menu samping ke daftar yang sama memperlihatkan data lama sampai daftar disegarkan. |

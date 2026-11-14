@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -14,6 +16,7 @@ import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import '../reports/report_labels.dart' show moneyLabel;
 import 'stock_print.dart';
@@ -57,7 +60,8 @@ class StockScreen extends StatefulWidget {
   State<StockScreen> createState() => _StockScreenState();
 }
 
-class _StockScreenState extends State<StockScreen> {
+class _StockScreenState extends State<StockScreen>
+    with RouteReturnMixin<StockScreen> {
   late final _viewModel = StockViewModel(
     repository: widget.repository,
     exporter: widget.exporter,
@@ -85,39 +89,16 @@ class _StockScreenState extends State<StockScreen> {
     super.dispose();
   }
 
-  /// Ketukan ganda tidak membuka dua form pembelian.
-  var _restocking = false;
-
-  /// Naik tiap kali form dibuka atau penjaga dilepas paksa, agar `finally`
-  /// dari form lama yang ditinggalkan tidak melepas penjaga form baru.
-  var _restockGen = 0;
-
   @override
-  void didUpdateWidget(StockScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Router membangun ulang Stok, mis. staf kembali lewat menu samping
-    // saat form pembelian dari stok minimum masih terbuka: push itu tidak
-    // pernah selesai, jadi penjaga dilepas dan daftar dimuat ulang (F1-08f).
-    // Saat push sendiri halaman Stok juga dibangun ulang, tetapi rutenya
-    // belum menjadi rute teratas lagi, jadi penjaga tetap dipegang.
-    if (_restocking && (ModalRoute.of(context)?.isCurrent ?? false)) {
-      _restockGen++;
-      _restocking = false;
-      _viewModel.load.execute();
-    }
-  }
+  void onRouteReturn() => unawaited(_viewModel.load.execute());
 
   Future<void> _restock(PurchaseRestock r) async {
-    if (_restocking) return;
-    _restocking = true;
-    final gen = ++_restockGen;
+    // Ketukan ganda tidak membuka dua form pembelian.
+    if (isAway) return;
     try {
-      await widget.onRestock!(r);
+      await whileAway(() => widget.onRestock!(r));
     } finally {
-      if (gen == _restockGen) {
-        _restocking = false;
-        if (mounted) await _viewModel.load.execute();
-      }
+      if (mounted) await _viewModel.load.execute();
     }
   }
 

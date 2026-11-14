@@ -12,6 +12,7 @@ import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import 'customer_form_dialog.dart';
 import 'customer_import_dialog.dart';
@@ -62,7 +63,8 @@ class CustomersScreen extends StatefulWidget {
   State<CustomersScreen> createState() => _CustomersScreenState();
 }
 
-class _CustomersScreenState extends State<CustomersScreen> {
+class _CustomersScreenState extends State<CustomersScreen>
+    with RouteReturnMixin<CustomersScreen> {
   late final _list = CustomersViewModel(repository: widget.repository);
   CustomerPanelViewModel? _panel;
 
@@ -77,6 +79,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
     _list.dispose();
     _panel?.dispose();
     super.dispose();
+  }
+
+  @override
+  void onRouteReturn() {
+    unawaited(_list.refresh());
+    unawaited(_panel?.load.execute());
   }
 
   void _select(UuidValue id) {
@@ -104,7 +112,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
       _select(id);
       return;
     }
-    await widget.onOpenCustomer(id);
+    await whileAway(() => widget.onOpenCustomer(id));
     if (mounted) await _list.refresh();
   }
 
@@ -127,7 +135,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   Future<void> _received(DebtPayment payment) async {
     unawaited(_list.refresh());
-    await widget.onOpenReceipt(payment.id);
+    await whileAway(() => widget.onOpenReceipt(payment.id));
     // Pengguna bisa pindah menu saat kuitansi terbuka.
     if (!mounted) return;
     await _list.refresh();

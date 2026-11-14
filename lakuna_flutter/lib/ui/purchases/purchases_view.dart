@@ -11,6 +11,7 @@ import '../../data/repositories/purchases_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import 'purchase_form_view.dart';
 import 'purchase_form_view_model.dart';
@@ -53,7 +54,8 @@ class PurchasesScreen extends StatefulWidget {
   State<PurchasesScreen> createState() => _PurchasesScreenState();
 }
 
-class _PurchasesScreenState extends State<PurchasesScreen> {
+class _PurchasesScreenState extends State<PurchasesScreen>
+    with RouteReturnMixin<PurchasesScreen> {
   late final _list = PurchasesViewModel(repository: widget.repository);
 
   /// Form di samping daftar; dibuat saat layar cukup lebar.
@@ -80,6 +82,9 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
     super.dispose();
   }
 
+  @override
+  void onRouteReturn() => unawaited(_list.refresh());
+
   void _replaceForm(UuidValue? draftId) {
     final old = _formVm;
     setState(() => _formVm = _newForm(draftId));
@@ -91,8 +96,8 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
       _replaceForm(row.purchase.id);
       return;
     }
-    await widget.onOpenPurchase(row.purchase.id);
-    await _list.refresh();
+    await whileAway(() => widget.onOpenPurchase(row.purchase.id));
+    if (mounted) await _list.refresh();
   }
 
   Future<void> _new(bool twoPane) async {
@@ -100,19 +105,20 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
       _replaceForm(null);
       return;
     }
-    final received = await widget.onNewPurchase();
+    final received = await whileAway(widget.onNewPurchase);
+    if (!mounted) return;
     await _list.refresh();
-    if (received != null) {
-      await widget.onOpenPurchase(received);
-      await _list.refresh();
+    if (received != null && mounted) {
+      await whileAway(() => widget.onOpenPurchase(received));
+      if (mounted) await _list.refresh();
     }
   }
 
   Future<void> _received(Purchase purchase) async {
     _replaceForm(null);
     unawaited(_list.refresh());
-    await widget.onOpenPurchase(purchase.id);
-    await _list.refresh();
+    await whileAway(() => widget.onOpenPurchase(purchase.id));
+    if (mounted) await _list.refresh();
   }
 
   @override

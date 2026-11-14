@@ -527,8 +527,17 @@ class HistoryViewModel extends ChangeNotifier {
     }
   }
 
+  var _disposed = false;
+
+  @override
+  void notifyListeners() {
+    // Muat ulang yang masih berjalan saat staf pindah menu (F1-12d).
+    if (!_disposed) super.notifyListeners();
+  }
+
   @override
   void dispose() {
+    _disposed = true;
     load.dispose();
     submitReturn.dispose();
     voidSale.dispose();

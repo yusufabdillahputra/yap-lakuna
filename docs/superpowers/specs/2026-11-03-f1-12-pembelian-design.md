@@ -273,6 +273,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pembelian`.
 | Bayar hutang belakangan | Tombol *Bayar hutang* | Nonaktif | F1-14. |
 | Foto faktur | *Lihat foto faktur* | Selesai v0.50.0 | Lihat spec F1-12b. |
 | Kartu stok terkait, cetak/bagikan PDF | Tombol di 1.19b | Selesai v0.51.0 | Lihat spec F1-12c. |
+| Daftar dimuat ulang setelah keluar dari detail lewat menu samping | — | Selesai v0.91.0 | Lihat spec [F1-12d](2026-11-14-f1-12d-muat-ulang-daftar-design.md) (juga Pelanggan, Supplier, Riwayat). |
 | Master supplier lengkap | 1.21 | Nama, telepon, catatan saja | F1-14. |
 
 ## Kriteria selesai

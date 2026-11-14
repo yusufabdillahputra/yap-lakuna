@@ -202,6 +202,23 @@ void main() {
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
   );
 
+  testWidgets('keluar dari detail pembelian lewat menu samping: daftar dimuat '
+      'ulang (F1-12d)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    await receiveKop(tester);
+    final id = repo.purchases.single.id;
+    await _tap(tester, _key('purchase-back'));
+    expect(_key('purchases-row-${id.uuid}'), findsOneWidget);
+    await _tap(tester, _key('purchases-row-${id.uuid}'));
+    expect(_key('purchase-detail'), findsOneWidget);
+    // Pembelian dihapus di tempat lain selama detail terbuka.
+    repo.purchases[0] = repo.purchases[0].copyWith(deletedAt: DateTime.now());
+    await _tap(tester, _key('nav-purchases'));
+    expect(_key('purchase-detail'), findsNothing);
+    expect(_key('purchases-row-${id.uuid}'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('desktop: berhutang dengan supplier baru, jatuh tempo +14', (
     tester,
   ) async {

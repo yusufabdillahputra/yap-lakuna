@@ -430,6 +430,22 @@ void main() {
     );
   });
 
+  testWidgets('keluar dari detail supplier lewat menu samping: daftar dimuat '
+      'ulang (F1-12d)', (tester) async {
+    await pump(tester, const Size(800, 1280));
+    final sumber = idOf('CV Sumber Pangan');
+    final rows = _keyPrefix('suppliers-row-').evaluate().length;
+    await _tap(tester, _key('suppliers-row-${sumber.uuid}'));
+    expect(_key('supplier-panel-${sumber.uuid}'), findsOneWidget);
+    // Supplier lain dihapus dari perangkat lain / menu lain.
+    repo.suppliers.removeWhere((s) => s.id != sumber);
+    await _tap(tester, _key('nav-suppliers'));
+    expect(_key('supplier-back'), findsNothing);
+    expect(_keyPrefix('suppliers-row-'), findsOneWidget);
+    expect(rows, greaterThan(1));
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in const [Size(360, 740), Size(800, 1280)]) {
     testWidgets(
       '${size.width.toInt()} px: buka supplier di halaman sendiri, bayar',

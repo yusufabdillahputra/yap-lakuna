@@ -168,6 +168,19 @@ void main() {
     expect(find.text('Void'), findsWidgets);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('keluar dari detail nota lewat menu samping: daftar dimuat '
+      'ulang (F1-12d)', (tester) async {
+    await pump(tester, size: const Size(800, 1280));
+    await _tap(tester, 'history-row-${roti.sale.id.uuid}');
+    expect(_key('history-detail-back'), findsOneWidget);
+    // Nota baru dari kasir lain selama detail terbuka.
+    final teh = history.addSale([('Es Teh', 1000, 5000)]);
+    await _tap(tester, 'nav-history');
+    expect(_key('history-detail-back'), findsNothing);
+    expect(_key('history-row-${teh.sale.id.uuid}'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('filter status memuat ulang daftar', (tester) async {
     await pump(tester);
     await tester.tap(_key('history-filter-status'));
