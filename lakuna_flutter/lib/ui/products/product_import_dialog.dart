@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
@@ -8,6 +9,7 @@ import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/format.dart';
 import '../core/import_template.dart';
 import '../customers/customer_import_view_model.dart' show ImportFileProblem;
 import 'product_form_view.dart' show productErrorMessage;
@@ -52,6 +54,9 @@ String productImportReasonLabel(
   ProductImportRejectReason.duplicateCode => l10n.productImportReasonCode,
   ProductImportRejectReason.duplicateName => l10n.productImportReasonName,
 };
+
+/// Paling banyak baris perubahan yang ditampilkan di pratinjau (F1-07m).
+const productImportPreviewLimit = 30;
 
 /// Nomor baris ringkas: sepuluh pertama lalu "…".
 String _lines(List<int> lines) =>
@@ -110,10 +115,12 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
         _ => null,
       };
       final rejected = vm.rejected;
+      final previewed = done == null ? vm.previewed : null;
+      final busy = vm.run.running || vm.preview.running;
       // Selama menyimpan, dialog tidak bisa ditutup (tombol, latar, atau
       // tombol kembali): transaksi tetap berjalan dan ringkasan harus tampil.
       return PopScope(
-        canPop: !vm.run.running,
+        canPop: !busy,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.85,
@@ -138,15 +145,13 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                     key: const ValueKey('product-import-pick'),
                     variant: .outline,
                     mainAxisSize: .min,
-                    onPress: vm.pick.running || vm.run.running
-                        ? null
-                        : vm.pick.execute,
+                    onPress: vm.pick.running || busy ? null : vm.pick.execute,
                     prefix: const Icon(TablerIcons.fileSpreadsheet),
                     child: Flexible(child: Text(l10n.importPick)),
                   ),
                   kind: ImportTemplateKind.products,
                   exporter: widget.exporter,
-                  enabled: !vm.run.running,
+                  enabled: !busy,
                 ),
                 if (vm.fileName case final name?)
                   Text(
@@ -176,7 +181,7 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                     key: const ValueKey('product-import-update'),
                     label: Text(l10n.productImportUpdate),
                     value: vm.updateExisting,
-                    onChange: done == null && !vm.run.running
+                    onChange: done == null && !busy
                         ? vm.setUpdateExisting
                         : null,
                   ),
@@ -215,6 +220,16 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                           style: muted,
                         ),
                     ],
+                  ),
+                if (previewed != null)
+                  _PreviewList(summary: previewed, muted: muted),
+                if (vm.preview.result case Error(:final error))
+                  Text(
+                    productErrorMessage(l10n, error),
+                    key: const ValueKey('product-import-preview-error'),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.destructive,
+                    ),
                   ),
                 if (done != null)
                   FAlert(
@@ -261,22 +276,31 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                       key: const ValueKey('product-import-close'),
                       variant: .outline,
                       mainAxisSize: .min,
-                      onPress: vm.run.running
-                          ? null
-                          : () => Navigator.of(context).pop(),
+                      onPress: busy ? null : () => Navigator.of(context).pop(),
                       child: Text(
                         done != null
                             ? l10n.importClose
                             : l10n.productImportCancel,
                       ),
                     ),
-                    if (done == null)
+                    if (done == null && vm.needsPreview)
+                      FButton(
+                        key: const ValueKey('product-import-preview'),
+                        mainAxisSize: .min,
+                        onPress: vm.canPreview ? vm.preview.execute : null,
+                        child: Flexible(child: Text(l10n.productImportPreview)),
+                      )
+                    else if (done == null)
                       FButton(
                         key: const ValueKey('product-import-run'),
                         mainAxisSize: .min,
                         onPress: vm.canRun ? vm.run.execute : null,
                         child: Flexible(
-                          child: Text(l10n.productImportRun(vm.rows.length)),
+                          child: Text(
+                            vm.updateExisting
+                                ? l10n.productImportSave
+                                : l10n.productImportRun(vm.rows.length),
+                          ),
                         ),
                       ),
                   ],
@@ -288,4 +312,97 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
       );
     },
   );
+}
+
+String _label(ProductPriceChange c) => c.variantName.isEmpty
+    ? c.productName
+    : '${c.productName} (${c.variantName})';
+
+/// Pratinjau perubahan sebelum simpan (F1-07m).
+class _PreviewList extends StatelessWidget {
+  const _PreviewList({required this.summary, required this.muted});
+
+  final ProductImportSummary summary;
+  final TextStyle muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final changes = summary.changes;
+    final nothing = summary.created + summary.updated == 0;
+    String money(Money m) => formatMoney(context, m);
+    return FCard(
+      key: const ValueKey('product-import-changes'),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 6,
+          children: [
+            Text(
+              l10n.productImportPreviewSummary(
+                summary.created,
+                summary.updated,
+                summary.unchanged,
+                summary.skippedLines.length,
+              ),
+              style: theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              nothing
+                  ? l10n.productImportPreviewNone
+                  : l10n.productImportPreviewNote,
+              style: muted,
+            ),
+            for (final c in changes.take(productImportPreviewLimit))
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    // Hanya stok minimum/harga beli yang berubah: harga jual
+                    // tidak ditulis "Rp X → Rp X".
+                    c.oldSell == c.newSell
+                        ? _label(c)
+                        : '${_label(c)} · ${money(c.oldSell)} → '
+                              '${money(c.newSell)}',
+                    style: theme.typography.body.sm,
+                  ),
+                  if ((c.oldCost, c.newCost) case (final old?, final value?))
+                    Text(
+                      l10n.productImportPreviewCost(money(old), money(value)),
+                      style: muted,
+                    ),
+                  if ((c.oldMinStock, c.newMinStock) case (
+                    final old?,
+                    final value?,
+                  ))
+                    Text(
+                      l10n.productImportPreviewMinStock(
+                        formatQty(context, old),
+                        '${formatQty(context, value)} ${c.unit}'.trim(),
+                      ),
+                      style: muted,
+                    ),
+                ],
+              ),
+            if (changes.length > productImportPreviewLimit)
+              Text(
+                l10n.productImportPreviewMore(
+                  changes.length - productImportPreviewLimit,
+                ),
+                style: muted,
+              ),
+            if (summary.skippedLines.isNotEmpty)
+              Text(
+                l10n.productImportSkippedUnclear(_lines(summary.skippedLines)),
+                style: muted,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

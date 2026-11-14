@@ -705,9 +705,13 @@ class ProductImportSummary {
     required this.skippedLines,
     this.updated = 0,
     this.unchanged = 0,
+    this.changes = const [],
   });
 
   final int created;
+
+  /// Rincian tiap varian yang berubah, urut baris berkas (F1-07m).
+  final List<ProductPriceChange> changes;
 
   /// Varian yang harganya diperbarui (F1-07k).
   final int updated;
@@ -720,16 +724,52 @@ class ProductImportSummary {
   final List<int> skippedLines;
 }
 
+/// Satu varian yang nilainya diubah import (F1-07m). Harga beli dan stok
+/// minimum hanya terisi bila ikut berubah.
+class ProductPriceChange {
+  const ProductPriceChange({
+    required this.line,
+    required this.productName,
+    required this.variantName,
+    required this.oldSell,
+    required this.newSell,
+    this.oldCost,
+    this.newCost,
+    this.oldMinStock,
+    this.newMinStock,
+    this.unit = '',
+  });
+
+  final int line;
+  final String productName;
+
+  /// Kosong untuk produk satu varian.
+  final String variantName;
+  final Money oldSell;
+  final Money newSell;
+  final Money? oldCost;
+  final Money? newCost;
+  final Qty? oldMinStock;
+  final Qty? newMinStock;
+
+  /// Nama satuan dasar produk, untuk stok minimum.
+  final String unit;
+}
+
 /// Menyimpan baris import sah sebagai produk baru dalam satu transaksi.
 /// Produk yang sudah ada (nama tanpa beda huruf/spasi, SKU, atau barcode)
 /// dilewati, bukan ditimpa, sehingga import ulang tidak menggandakan stok.
 /// Izin `products:manage` dicek di repositori, sama dengan [saveProduct].
+///
+/// [dryRun] (F1-07m) menjalankan aturan yang sama tanpa satu pun tulisan,
+/// untuk pratinjau sebelum simpan.
 Future<ProductImportSummary> importProducts(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required List<ProductImportRow> rows,
   bool updateExisting = false,
+  bool dryRun = false,
 }) async {
   // Baris dari luar aplikasi diperiksa ulang di sini; satu baris salah
   // membatalkan seluruh import.
@@ -754,6 +794,15 @@ Future<ProductImportSummary> importProducts(
       (byName[productImportNameKey(p.name)] ??= []).add(p);
     }
     final productById = {for (final p in products) p.id: p};
+    // Nama satuan untuk daftar perubahan stok minimum (F1-07m).
+    final unitNames = {
+      for (final u in await MeasureUnit.db.find(
+        w.session,
+        where: (u) => u.tenantId.equals(tenant),
+        transaction: w.transaction,
+      ))
+        u.id: u.name,
+    };
     final variants = await ProductVariant.db.find(
       w.session,
       where: (v) => v.tenantId.equals(tenant) & v.deletedAt.equals(null),
@@ -844,6 +893,7 @@ Future<ProductImportSummary> importProducts(
     var updated = 0;
     var unchanged = 0;
     final skipped = <int>[];
+    final changes = <ProductPriceChange>[];
     final touched = <UuidValue>{};
     for (final r in rows) {
       final d = r.draft;
@@ -870,18 +920,39 @@ Future<ProductImportSummary> importProducts(
         if (target == null || !touched.add(target.id)) {
           skipped.add(r.line);
         } else {
-          final tracks = _kindOf(productById[target.productId]!.type)
-              .tracksStock;
+          final product = productById[target.productId]!;
+          final tracks = _kindOf(product.type).tracksStock;
           final v = d.variants.single;
-          if (await writer.updatePrices(
-            target,
-            sell: v.sellPrice,
-            cost: r.hasCost ? v.costPrice : null,
-            minStock: r.hasMinStock && tracks ? v.minStock : null,
-          )) {
-            updated++;
-          } else {
+          final row = target.copyWith(
+            sellPrice: v.sellPrice.value,
+            costPrice: r.hasCost ? v.costPrice.value : target.costPrice,
+            minStockMilli: r.hasMinStock && tracks
+                ? v.minStock.milli
+                : target.minStockMilli,
+          );
+          if (row.sellPrice == target.sellPrice &&
+              row.costPrice == target.costPrice &&
+              row.minStockMilli == target.minStockMilli) {
             unchanged++;
+          } else {
+            final costChanged = row.costPrice != target.costPrice;
+            final minChanged = row.minStockMilli != target.minStockMilli;
+            changes.add(
+              ProductPriceChange(
+                line: r.line,
+                productName: product.name,
+                variantName: target.name,
+                oldSell: Money(target.sellPrice),
+                newSell: Money(row.sellPrice),
+                oldCost: costChanged ? Money(target.costPrice) : null,
+                newCost: costChanged ? Money(row.costPrice) : null,
+                oldMinStock: minChanged ? Qty(target.minStockMilli) : null,
+                newMinStock: minChanged ? Qty(row.minStockMilli) : null,
+                unit: unitNames[product.baseUnitId] ?? '',
+              ),
+            );
+            if (!dryRun) await writer.updateVariant(row);
+            updated++;
           }
         }
         continue;
@@ -890,7 +961,7 @@ Future<ProductImportSummary> importProducts(
         skipped.add(r.line);
         continue;
       }
-      await writer.save(d, checkCodes: false);
+      if (!dryRun) await writer.save(d, checkCodes: false);
       names.add(name);
       skus.addAll(rowSkus);
       barcodes.addAll(rowBarcodes);
@@ -901,6 +972,7 @@ Future<ProductImportSummary> importProducts(
       skippedLines: skipped,
       updated: updated,
       unchanged: unchanged,
+      changes: changes,
     );
   });
 }
@@ -1107,25 +1179,10 @@ class _ProductWriter {
 
   /// Memperbarui harga varian [old] dari import (F1-07k). `null` = tidak
   /// diubah. `false` bila nilainya sudah sama (tidak ditulis).
-  Future<bool> updatePrices(
-    ProductVariant old, {
-    required Money sell,
-    Money? cost,
-    Qty? minStock,
-  }) async {
-    final row = old.copyWith(
-      sellPrice: sell.value,
-      costPrice: cost?.value ?? old.costPrice,
-      minStockMilli: minStock?.milli ?? old.minStockMilli,
-    );
-    if (row.sellPrice == old.sellPrice &&
-        row.costPrice == old.costPrice &&
-        row.minStockMilli == old.minStockMilli) {
-      return false;
-    }
+  /// Menyimpan varian yang nilainya sudah diubah import (F1-07k).
+  Future<void> updateVariant(ProductVariant row) async {
     s = await w.stamp();
     await w.update(_stampVariant(row), s);
-    return true;
   }
 
   ProductVariant _stampVariant(ProductVariant r) => r.copyWith(

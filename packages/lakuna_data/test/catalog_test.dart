@@ -921,4 +921,151 @@ void main() {
       expect(v.minStock, Qty.zero);
     });
   });
+
+  group('pratinjau perubahan harga import (F1-07m)', () {
+    List<ProductImportRow> rows(List<List<String>> body) => productImportRows([
+      [
+        'nama',
+        'sku',
+        'barcode',
+        'harga beli',
+        'harga jual',
+        'stok',
+        'stok minimum',
+      ],
+      ...body,
+    ]).rows;
+
+    Future<ProductImportSummary> run(
+      List<ProductImportRow> r, {
+      bool dryRun = false,
+    }) => importProducts(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      rows: r,
+      updateExisting: true,
+      dryRun: dryRun,
+    );
+
+    Future<void> seed() async {
+      await save(_minyak());
+      await save(
+        const ProductDraft(
+          name: 'Kaos',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(name: 'S', sku: 'KAOS-S', sellPrice: Money(50000)),
+            VariantDraft(name: 'M', sku: 'KAOS-M', sellPrice: Money(50000)),
+          ],
+        ),
+      );
+    }
+
+    List<ProductImportRow> file() => rows([
+      // Harga jual dan beli berubah, stok minimum sama.
+      ['Minyak Goreng', 'MYK-2L', '', '33000', '38000', '', '12'],
+      // Varian M: harga jual sama, stok minimum berubah. Nama di berkas
+      // berbeda karena nama kembar dalam satu berkas ditolak.
+      ['Kaos M', 'KAOS-M', '', '', '50000', '', '5'],
+      // Varian S: tidak berubah.
+      ['Kaos S', 'KAOS-S', '', '', '50000', '', ''],
+      // Produk baru dengan stok awal.
+      ['Teh Baru', 'TEH-BARU', '', '', '4000', '10', ''],
+      // Nama ragu (dua varian): dilewati.
+      ['Kaos', '', '', '', '1000', '', ''],
+    ]);
+
+    test('dry run tidak menulis apa pun', () async {
+      await seed();
+      final products = await Product.db.count(store.session);
+      final outbox = await SyncOutboxEntry.db.count(store.session);
+      final moves = await StockMovement.db.count(store.session);
+      final hlc = await store.syncState(SyncStateKey.lastHlc);
+      final variants = await ProductVariant.db.find(store.session);
+      now = now.add(const Duration(minutes: 1));
+      await run(file(), dryRun: true);
+      expect(await Product.db.count(store.session), products);
+      expect(await SyncOutboxEntry.db.count(store.session), outbox);
+      expect(await StockMovement.db.count(store.session), moves);
+      expect(await store.syncState(SyncStateKey.lastHlc), hlc);
+      final after = await ProductVariant.db.find(store.session);
+      expect(
+        {for (final v in after) v.id: (v.version, v.sellPrice, v.costPrice)},
+        {for (final v in variants) v.id: (v.version, v.sellPrice, v.costPrice)},
+      );
+    });
+
+    test('hitungan dry run sama dengan import sungguhan', () async {
+      await seed();
+      final preview = await run(file(), dryRun: true);
+      final real = await run(file());
+      for (final s in [preview, real]) {
+        expect(s.created, 1);
+        expect(s.updated, 2);
+        expect(s.unchanged, 1);
+        expect(s.skippedLines, [6]);
+      }
+      List<Object?> flat(ProductPriceChange c) => [
+        c.line,
+        c.productName,
+        c.variantName,
+        c.oldSell,
+        c.newSell,
+        c.oldCost,
+        c.newCost,
+        c.oldMinStock,
+        c.newMinStock,
+        c.unit,
+      ];
+      expect(preview.changes.map(flat), real.changes.map(flat));
+      expect(real.changes, hasLength(2));
+    });
+
+    test('daftar perubahan: harga lama/baru, beli dan stok minimum hanya '
+        'bila berubah', () async {
+      await seed();
+      final s = await run(file(), dryRun: true);
+      expect(s.changes, hasLength(2));
+      final minyak = s.changes.first;
+      expect(minyak.line, 2);
+      expect(minyak.productName, 'Minyak Goreng');
+      expect(minyak.variantName, '2 L');
+      expect(minyak.oldSell, const Money(36000));
+      expect(minyak.newSell, const Money(38000));
+      expect(minyak.oldCost, const Money(32500));
+      expect(minyak.newCost, const Money(33000));
+      expect(minyak.oldMinStock, isNull);
+      expect(minyak.newMinStock, isNull);
+      final kaos = s.changes.last;
+      expect(kaos.line, 3);
+      expect(kaos.productName, 'Kaos');
+      expect(kaos.variantName, 'M');
+      expect(kaos.oldSell, const Money(50000));
+      expect(kaos.newSell, const Money(50000));
+      expect(kaos.oldCost, isNull);
+      expect(kaos.newCost, isNull);
+      expect(kaos.oldMinStock, Qty.zero);
+      expect(kaos.newMinStock, Qty.units(5));
+      expect(kaos.unit, 'pcs');
+    });
+
+    test(
+      'dry run tanpa sakelar perbarui hanya menghitung produk baru',
+      () async {
+        await seed();
+        final s = await importProducts(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          rows: file(),
+          dryRun: true,
+        );
+        expect(s.created, 1);
+        expect(s.skippedLines, [2, 3, 4, 6]);
+        expect(s.changes, isEmpty);
+        expect(await Product.db.count(store.session), 2);
+      },
+    );
+  });
 }

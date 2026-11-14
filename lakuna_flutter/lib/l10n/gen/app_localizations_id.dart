@@ -8102,4 +8102,43 @@ class AppLocalizationsId extends AppLocalizations {
   String drawerShortfallWarning(String cash, String over) {
     return 'Uang di laci diperkirakan $cash. Jumlah ini lebih $over dari perkiraan; pastikan uangnya ada sebelum melanjutkan.';
   }
+
+  @override
+  String get productImportPreview => 'Lihat perubahan';
+
+  @override
+  String productImportPreviewSummary(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  ) {
+    return '$created produk baru · $updated diperbarui · $unchanged tidak berubah · $skipped dilewati';
+  }
+
+  @override
+  String productImportPreviewMore(int count) {
+    return 'dan $count perubahan lainnya';
+  }
+
+  @override
+  String productImportPreviewCost(String old, String value) {
+    return 'Harga beli $old → $value';
+  }
+
+  @override
+  String productImportPreviewMinStock(String old, String value) {
+    return 'Stok minimum $old → $value';
+  }
+
+  @override
+  String get productImportPreviewNone =>
+      'Tidak ada yang berubah, jadi tidak ada yang perlu disimpan.';
+
+  @override
+  String get productImportPreviewNote =>
+      'Belum tersimpan. Periksa daftar ini, lalu tekan Simpan.';
+
+  @override
+  String get productImportSave => 'Simpan';
 }

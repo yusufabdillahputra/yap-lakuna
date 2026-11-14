@@ -14136,6 +14136,59 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Uang di laci diperkirakan {cash}. Jumlah ini lebih {over} dari perkiraan; pastikan uangnya ada sebelum melanjutkan.'**
   String drawerShortfallWarning(String cash, String over);
+
+  /// No description provided for @productImportPreview.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat perubahan'**
+  String get productImportPreview;
+
+  /// No description provided for @productImportPreviewSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{created} produk baru · {updated} diperbarui · {unchanged} tidak berubah · {skipped} dilewati'**
+  String productImportPreviewSummary(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  );
+
+  /// No description provided for @productImportPreviewMore.
+  ///
+  /// In id, this message translates to:
+  /// **'dan {count} perubahan lainnya'**
+  String productImportPreviewMore(int count);
+
+  /// No description provided for @productImportPreviewCost.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli {old} → {value}'**
+  String productImportPreviewCost(String old, String value);
+
+  /// No description provided for @productImportPreviewMinStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok minimum {old} → {value}'**
+  String productImportPreviewMinStock(String old, String value);
+
+  /// No description provided for @productImportPreviewNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada yang berubah, jadi tidak ada yang perlu disimpan.'**
+  String get productImportPreviewNone;
+
+  /// No description provided for @productImportPreviewNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum tersimpan. Periksa daftar ini, lalu tekan Simpan.'**
+  String get productImportPreviewNote;
+
+  /// No description provided for @productImportSave.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get productImportSave;
 }
 
 class _AppLocalizationsDelegate

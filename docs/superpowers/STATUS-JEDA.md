@@ -51,6 +51,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.68.0 | Rentang tanggal bebas di Riwayat (F1-11c) | #74 |
 | v0.69.0 | Peringatan uang di laci tidak cukup (F1-03c) | #75 |
 | v0.70.0 | Peringatan uang laci saat void (F1-03d) | #76 |
+| v0.71.0 | Pratinjau perubahan harga import (F1-07m) | #77 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -95,6 +96,7 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    ~~buat barcode massal~~ — selesai v0.58.0 (F1-07j); label ESC/POS
    masih gap.
 15. ~~Perbarui harga produk lewat import~~ — selesai v0.59.0 (F1-07k);
+   ~~pratinjau perubahan sebelum simpan~~ — selesai v0.71.0 (F1-07m);
    varian/satuan/grosir lewat import masih gap.
 16. ~~Referensi kartu/transfer di split payment dan struk~~ — selesai
     v0.64.0 (F1-05b).

@@ -173,32 +173,62 @@ class FakeCatalogRepository extends CatalogRepository {
   /// Nilai `updateExisting` import terakhir.
   bool? lastUpdateExisting;
 
+  /// Nilai `dryRun` tiap panggilan `importRows`, berurutan (F1-07m).
+  final importDryRuns = <bool>[];
+
   @override
   Future<Result<ProductImportSummary>> importRows(
     List<ProductImportRow> rows, {
     bool updateExisting = false,
+    bool dryRun = false,
   }) async {
     if (_check() case final e?) return Result.error(e);
     lastUpdateExisting = updateExisting;
+    importDryRuns.add(dryRun);
     var created = 0;
     var updated = 0;
     var unchanged = 0;
     final skipped = <int>[];
+    final changes = <ProductPriceChange>[];
+    final names = {for (final p in products) productImportNameKey(p.name)};
     for (final r in rows) {
       final name = productImportNameKey(r.draft.name);
       final match = products
           .where((p) => productImportNameKey(p.name) == name)
           .firstOrNull;
-      final exists = match != null || _conflicts(r.draft, null).isNotEmpty;
+      final exists =
+          match != null ||
+          names.contains(name) ||
+          _conflicts(r.draft, null).isNotEmpty;
       if (exists && updateExisting && match?.variants.length == 1) {
         // Versi sederhana F1-07k: cocok nama, satu varian.
         final price = r.draft.variants.single.sellPrice;
-        if (match!.variants.single.sellPrice == price) {
+        final d = match!.toDraft();
+        final v = d.variants.single;
+        final row = r.draft.variants.single;
+        final newCost = r.hasCost ? row.costPrice : v.costPrice;
+        final newMin = r.hasMinStock ? row.minStock : v.minStock;
+        if (v.sellPrice == price &&
+            newCost == v.costPrice &&
+            newMin == v.minStock) {
           unchanged++;
         } else {
-          final d = match.toDraft();
-          final v = d.variants.single;
-          final row = r.draft.variants.single;
+          changes.add(
+            ProductPriceChange(
+              line: r.line,
+              productName: match.name,
+              variantName: v.name,
+              oldSell: v.sellPrice,
+              newSell: price,
+              oldCost: newCost == v.costPrice ? null : v.costPrice,
+              newCost: newCost == v.costPrice ? null : newCost,
+              oldMinStock: newMin == v.minStock ? null : v.minStock,
+              newMinStock: newMin == v.minStock ? null : newMin,
+              unit: d.baseUnit,
+            ),
+          );
+          updated++;
+          if (dryRun) continue;
           _store(
             ProductDraft(
               id: d.id,
@@ -221,7 +251,7 @@ class FakeCatalogRepository extends CatalogRepository {
                   barcode: v.barcode,
                   costPrice: r.hasCost ? row.costPrice : v.costPrice,
                   sellPrice: price,
-                  minStock: r.hasMinStock ? row.minStock : v.minStock,
+                  minStock: newMin,
                   units: v.units,
                   tiers: v.tiers,
                 ),
@@ -229,7 +259,6 @@ class FakeCatalogRepository extends CatalogRepository {
             ),
             match,
           );
-          updated++;
         }
         continue;
       }
@@ -237,9 +266,11 @@ class FakeCatalogRepository extends CatalogRepository {
         skipped.add(r.line);
         continue;
       }
+      created++;
+      names.add(name);
+      if (dryRun) continue;
       imported.add(r);
       _store(r.draft, null);
-      created++;
     }
     return Result.ok(
       ProductImportSummary(
@@ -247,6 +278,7 @@ class FakeCatalogRepository extends CatalogRepository {
         skippedLines: skipped,
         updated: updated,
         unchanged: unchanged,
+        changes: changes,
       ),
     );
   }

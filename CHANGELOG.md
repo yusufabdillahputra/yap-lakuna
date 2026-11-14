@@ -7,6 +7,71 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.71.0] - 2026-11-14
+
+Import produk dengan sakelar *Perbarui harga produk yang sudah ada* kini
+menampilkan daftar perubahan harga lebih dulu. Pemilik melihat harga lama
+dan baru tiap produk, lalu baru menekan *Simpan*.
+
+### Ditambahkan
+
+- **Produk (1.15), dialog *Import produk*:** bila sakelar perbarui harga
+  menyala, tombol utama menjadi **Lihat perubahan**. Tombol ini menjalankan
+  import tanpa menyimpan apa pun dan menampilkan ringkasan *N produk baru ·
+  M diperbarui · K tidak berubah · L dilewati*, daftar perubahan
+  (*Nama (varian) · Rp lama → Rp baru*, dengan baris kecil untuk harga beli
+  dan stok minimum beserta satuannya bila ikut berubah; paling banyak 30
+  baris lalu *dan X perubahan lainnya*), serta nomor baris yang dilewati
+  karena cocoknya ragu. Varian yang hanya berubah harga beli atau stok
+  minimumnya ditampilkan tanpa panah harga jual.
+- Setelah pratinjau, tombol utama menjadi **Simpan** dan menjalankan import
+  sungguhan. Bila tidak ada yang berubah dan tidak ada produk baru, *Simpan*
+  nonaktif.
+
+### Diubah
+
+- Mengganti berkas atau menyalakan/mematikan sakelar menghapus pratinjau,
+  sehingga perubahan harus dilihat lagi sebelum disimpan.
+- Selama berkas dipilih atau pratinjau dihitung, tombol pilih berkas,
+  sakelar, dan tutup dialog nonaktif; berkas yang dipilih di tengah
+  pratinjau tidak menggantikan hasilnya. Pratinjau yang gagal menampilkan
+  pesan dan bisa diulang.
+- Dengan sakelar mati, alur import tetap seperti sebelumnya (langsung
+  *Import N produk*).
+- Panduan *Produk pertama* (ID + EN) menjelaskan langkah *Lihat perubahan*
+  lalu *Simpan*.
+
+### Catatan teknis
+
+- `importProducts(..., dryRun:)` di `lakuna_data` menjalankan aturan
+  pencocokan F1-07k yang sama di dalam transaksi tanpa satu pun tulisan
+  (tanpa cap HLC, tanpa outbox); produk baru hanya dihitung, tetapi nama,
+  SKU, dan barcode-nya tetap dicatat agar baris kembar di berkas dilewati
+  sama persis dengan import sungguhan.
+- `ProductImportSummary.changes` (`List<ProductPriceChange>`): baris, nama
+  produk, nama varian, harga jual lama/baru, serta harga beli dan stok
+  minimum lama/baru hanya bila berubah, plus nama satuan dasar. Selisih kini dihitung di loop
+  import; `_ProductWriter.updatePrices` diganti `updateVariant`.
+- `CatalogRepository.importRows(..., dryRun:)` (lokal + palsu).
+- `ProductImportViewModel.preview` (`Command0`), `previewed`,
+  `needsPreview`, `canPreview`; `canRun` dengan sakelar menyala menunggu
+  pratinjau yang punya perubahan.
+- Kunci l10n baru (ID + EN): `productImportPreview`,
+  `productImportPreviewSummary`, `productImportPreviewMore`,
+  `productImportPreviewCost`, `productImportPreviewMinStock`,
+  `productImportPreviewNone`, `productImportPreviewNote`,
+  `productImportSave`.
+- Tes: data (dry run tidak menulis produk, stok awal, outbox, maupun cap
+  HLC; hitungan dan isi daftar perubahan sama dengan import sungguhan; dry
+  run tanpa sakelar), repositori lokal, view model (pratinjau wajib,
+  pratinjau dihapus oleh sakelar/berkas baru, terkunci selama berjalan,
+  gagal lalu diulang, simpan nonaktif tanpa perubahan, plural EN), dan
+  widget 1280/360 (pratinjau lalu simpan, galat pratinjau, stok minimum
+  dengan satuan, daftar dipotong 30 baris).
+- Batasan tercatat di spec: galat penulis produk baru (kategori, satuan,
+  stok awal) baru terlihat saat *Simpan*, karena dry run tidak menjalankan
+  penulis itu.
+
 ## [0.70.0] - 2026-11-14
 
 Peringatan uang di laci tidak cukup (v0.69.0) kini juga muncul di dua
@@ -5010,7 +5075,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...HEAD
+[0.71.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...v0.71.0
 [0.70.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...v0.70.0
 [0.69.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...v0.68.0
