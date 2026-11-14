@@ -333,6 +333,10 @@ void main() {
 
     await vm.addLocation('Gudang');
     final gudang = vm.locations.last.id;
+    // Seperti data asli: minimum hanya berlaku di lokasi bawaan.
+    repo.rowsByLocation[gudang] = [
+      sampleRow(1, 'Kopi Sachet', unit: 'sachet', stock: Qty.units(1)),
+    ];
     final gate = Completer<void>();
     repo.stockGate = gate.future;
     final loading = vm.selectLocation(gudang);
@@ -341,6 +345,6 @@ void main() {
     gate.complete();
     repo.stockGate = null;
     await loading;
-    expect(vm.restock?.locationName, 'Gudang');
+    expect(vm.restock, isNull);
   });
 }

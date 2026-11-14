@@ -1,7 +1,7 @@
 # F1-08c · Buat pembelian dari daftar stok minimum
 
 - **Fase:** 1
-- **Status:** Dikerjakan
+- **Status:** Rilis v0.49.0
 - **Layar:** 1.18 Stok (panel/tab *Stok minimum*: tombol *Buat
   pembelian*) → 1.19 form pembelian baru yang sudah terisi.
 - **Acuan:** gap *Buat pesanan pembelian dari daftar ini* di F1-08 (kanvas
@@ -38,6 +38,15 @@ mencari produk satu per satu di form pembelian.
    dikosongkan untuk pembelian berikutnya, form kembali kosong.
 5. Tidak ada data baru di database: draf baru tercipta hanya saat staf
    menekan *Simpan draf* / *Terima barang*.
+6. **Kembali ke Stok**: setelah form ditutup, layar Stok memuat ulang data
+   lokasi sehingga daftar minimum tidak basi (barang yang baru diterima
+   hilang dari daftar). Bila pembelian diterima, detail pembelian dibuka
+   dulu (sama dengan daftar Pembelian). Ketukan ganda tidak membuka dua
+   form.
+7. Catatan menyebut lokasi yang benar-benar dipakai form; bila lokasi asal
+   sudah dihapus, form memakai lokasi bawaan dan catatan menyebutnya.
+8. Daftar di bawah minimum hanya ada di **lokasi bawaan** (minimum F1-08
+   berlaku di sana), jadi tombol tidak tampil di lokasi lain.
 
 ## Komponen
 
@@ -62,6 +71,7 @@ mencari produk satu per satu di form pembelian.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Pembelian dari stok minimum | 1.18 | Dikerjakan | |
+| Pembelian dari stok minimum | 1.18 | Selesai v0.49.0 | |
 | Supplier terakhir per barang | — | Belum | Belum ada data supplier per produk; staf memilih supplier di form. |
-| Jumlah saran bisa diatur (kelipatan dus, target stok) | — | Belum | Rumus tetap 2 × minimum. |
+| Jumlah saran bisa diatur (kelipatan dus, target stok) | — | Belum | Rumus tetap 2 × minimum. Mengganti satuan baris (mis. pcs → dus) mempertahankan angka jumlah, jadi 38 pcs menjadi 38 dus; staf perlu mengubah jumlahnya. |
+| Catatan isian setelah *Simpan draf* | — | Belum | Catatan tetap tampil; mengetuk *Buat pembelian* lagi membuat draf kedua berisi barang yang sama. |

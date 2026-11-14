@@ -7895,9 +7895,9 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count items were',
-      one: '1 item was',
+      other: '$count items were skipped',
+      one: '1 item was skipped',
     );
-    return '$_temp0 skipped because it can no longer be purchased (archived or not goods).';
+    return '$_temp0: no longer purchasable (archived or not goods).';
   }
 }

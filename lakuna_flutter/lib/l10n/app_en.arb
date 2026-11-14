@@ -4403,7 +4403,7 @@
       }
     }
   },
-  "purchaseRestockSkipped": "{count, plural, =1{1 item was} other{{count} items were}} skipped because it can no longer be purchased (archived or not goods).",
+  "purchaseRestockSkipped": "{count, plural, =1{1 item was skipped} other{{count} items were skipped}}: no longer purchasable (archived or not goods).",
   "@purchaseRestockSkipped": {
     "placeholders": {
       "count": {

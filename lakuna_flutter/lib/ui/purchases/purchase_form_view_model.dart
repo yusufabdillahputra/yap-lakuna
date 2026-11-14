@@ -370,7 +370,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
     }
     _restockApplied = applied;
     _restockSkipped = skipped;
-    _restockLocationName = r.locationName;
+    // Lokasi asal sudah dihapus: catatan menyebut lokasi yang dipakai form.
+    _restockLocationName = locationName ?? r.locationName;
   }
 
   void _blank() {

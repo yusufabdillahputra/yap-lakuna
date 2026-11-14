@@ -356,7 +356,17 @@ GoRouter createRouter({
               exporter: exporter,
               onRestock:
                   session.current?.can(Permission.purchasesManage) ?? false
-                  ? (r) => context.push<UuidValue>(Routes.purchaseNew, extra: r)
+                  ? (r) async {
+                      final id = await context.push<UuidValue>(
+                        Routes.purchaseNew,
+                        extra: r,
+                      );
+                      // Diterima: buka detail pembelian (sama dengan daftar
+                      // Pembelian), lalu Stok dimuat ulang saat kembali.
+                      if (id != null && context.mounted) {
+                        await context.push<void>(Routes.purchase(id.uuid));
+                      }
+                    }
                   : null,
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])

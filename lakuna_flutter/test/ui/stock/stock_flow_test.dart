@@ -335,11 +335,40 @@ void main() {
       );
       expect(
         find.text(
-          'Diisi dari stok minimum Etalase: 2 barang. Periksa jumlah dan '
+          // Lokasi Etalase (stok palsu) tidak ada di pembelian palsu: catatan
+          // menyebut lokasi yang dipakai form.
+          'Diisi dari stok minimum Toko: 2 barang. Periksa jumlah dan '
           'harga sebelum menyimpan.',
         ),
         findsOneWidget,
       );
+      // Jumlah saran: 2 × 20 − 2 = 38 dan 2 × 3 − 1 = 5.
+      final qty = find.descendant(
+        of: find.byKey(const ValueKey('purchase-form-page')),
+        matching: find.byType(EditableText),
+      );
+      final texts = [
+        for (final e in tester.widgetList<EditableText>(qty)) e.controller.text,
+      ];
+      expect(texts, containsAll(['38', '5']));
+
+      // Kembali ke Stok: daftar dimuat ulang (stok sudah bertambah).
+      stock.rows = [
+        for (final r in stock.rows)
+          StockRow(
+            variantId: r.variantId,
+            productId: r.productId,
+            productName: r.productName,
+            variantName: r.variantName,
+            baseUnit: r.baseUnit,
+            stock: r.minStock + r.minStock,
+            minStock: r.minStock,
+            unitCost: r.unitCost,
+          ),
+      ];
+      await _tap(tester, 'purchase-back');
+      expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
+      expect(find.byKey(const ValueKey('stock-restock')), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }

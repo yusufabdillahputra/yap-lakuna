@@ -33,8 +33,9 @@ class StockScreen extends StatefulWidget {
   });
 
   /// *Buat pembelian* dari daftar stok minimum (F1-08c); `null` bila staf
-  /// tidak boleh mengelola pembelian.
-  final ValueChanged<PurchaseRestock>? onRestock;
+  /// tidak boleh mengelola pembelian. Selesai saat staf kembali ke Stok;
+  /// layar lalu memuat ulang stok agar daftar minimum tidak basi.
+  final Future<void> Function(PurchaseRestock)? onRestock;
 
   final StockRepository repository;
   final SessionRepository session;
@@ -72,6 +73,20 @@ class _StockScreenState extends State<StockScreen> {
     super.dispose();
   }
 
+  /// Ketukan ganda tidak membuka dua form pembelian.
+  var _restocking = false;
+
+  Future<void> _restock(PurchaseRestock r) async {
+    if (_restocking) return;
+    _restocking = true;
+    try {
+      await widget.onRestock!(r);
+    } finally {
+      _restocking = false;
+      if (mounted) await _viewModel.load.execute();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final outlet = widget.store.current?.outlet;
@@ -80,7 +95,7 @@ class _StockScreenState extends State<StockScreen> {
       staffName: widget.session.current?.name ?? '',
       outletName: outlet?.name ?? '',
       timezone: outlet?.timezone,
-      onRestock: widget.onRestock,
+      onRestock: widget.onRestock == null ? null : _restock,
     );
   }
 }

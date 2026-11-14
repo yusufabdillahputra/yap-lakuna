@@ -6,10 +6,9 @@ import '../../utils/result.dart';
 
 export 'repository_errors.dart';
 
-/// Data awal layar Pembelian (F1-12, 1.19).
-@immutable
 /// Isian awal *Pembelian baru* dari daftar stok minimum (F1-08c): lokasi
 /// terima dan varian + jumlah saran (satuan dasar).
+@immutable
 class PurchaseRestock {
   const PurchaseRestock({
     required this.locationId,
@@ -22,6 +21,8 @@ class PurchaseRestock {
   final List<({UuidValue variantId, Qty quantity})> lines;
 }
 
+/// Data awal layar Pembelian (F1-12, 1.19).
+@immutable
 class PurchaseSetup {
   const PurchaseSetup({
     required this.locations,

@@ -31,6 +31,8 @@ Penyesuaian butuh izin *Penyesuaian stok*. Baris yang stok fisiknya kosong tidak
 
 Isi **Stok min** per varian di form produk. Tab **Stok minimum** dan Beranda menampilkan produk yang stoknya di bawah minimum, supaya Anda tahu kapan harus [membeli](purchases).
 
+Tekan **Buat pembelian** di bawah daftar itu untuk membuka *Pembelian baru* yang sudah berisi semua barang di bawah minimum, dengan lokasi terima = lokasi yang sedang dilihat. Jumlah sarannya **2 × stok minimum − stok sekarang**, dibulatkan ke atas (mis. stok 2, minimum 20 → beli 38). Harga memakai harga modal terakhir. Pilih supplier, sesuaikan jumlah dan harga, lalu simpan draf atau terima barang seperti biasa. Tombol ini hanya tampil untuk staf dengan izin *Kelola pembelian*.
+
 ## Lokasi stok
 
 Tab **Lokasi stok** untuk menambah etalase, gudang, atau rak terpisah di cabang ini.
