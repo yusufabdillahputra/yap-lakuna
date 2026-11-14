@@ -11,4 +11,4 @@ Spec: [F1-04i](../specs/2026-11-14-f1-04i-pemberi-diskon-tercatat-design.md).
 - [x] **Uji manual Xvfb**: diskon di Meja, bayar, lihat Riwayat.
 - [x] **Dokumen**: spec F1-04e, README, STATUS-JEDA, panduan, CHANGELOG
   0.73.0, pubspec `0.73.0+76`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**
