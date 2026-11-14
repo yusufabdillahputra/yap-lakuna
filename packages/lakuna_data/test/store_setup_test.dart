@@ -195,5 +195,56 @@ void main() {
       expect(await Tenant.db.count(store.session), 0);
       expect(await SyncOutboxEntry.db.count(store.session), 0);
     });
+
+    test(
+      'draf yang bisa gagal di tengah transaksi ditolak lebih dulu',
+      () async {
+        for (final draft in [
+          // Produk lama (id) tidak ada di toko baru.
+          ProductDraft(
+            id: newId(),
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: const [VariantDraft(sellPrice: Money(1000))],
+          ),
+          // Grup modifier dan grup pelanggan belum ada di toko baru.
+          ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            modifierGroupIds: [newId()],
+            variants: const [VariantDraft(sellPrice: Money(1000))],
+          ),
+          ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(
+                sellPrice: const Money(1000),
+                tiers: [
+                  PriceTier(
+                    minQty: Qty.units(10),
+                    price: const Money(900),
+                    groupId: newId(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Harga jual wajib lebih dari nol.
+          const ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: [VariantDraft()],
+          ),
+        ]) {
+          await expectLater(
+            setup(_input(), draft),
+            throwsA(isA<ProductInputInvalid>()),
+          );
+        }
+        expect(await Tenant.db.count(store.session), 0);
+        expect(await SyncOutboxEntry.db.count(store.session), 0);
+      },
+    );
   });
 }

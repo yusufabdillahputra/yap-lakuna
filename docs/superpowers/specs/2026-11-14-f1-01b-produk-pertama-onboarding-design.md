@@ -1,7 +1,7 @@
 # F1-01b · Produk pertama di onboarding
 
 - **Fase:** 1
-- **Status:** Rencana v0.52.0
+- **Status:** Rilis v0.52.0
 - **Layar:** 1.1 *Setup toko pertama*, langkah 4 "Produk pertama (atau
   import Excel)" di stepper kanvas.
 - **Acuan:** gap F1-01 "Langkah 4 Produk pertama (atau import Excel)" dan
@@ -37,46 +37,56 @@ Excel bila sudah punya daftar barang.
      *Mulai jualan* tidak menulis apa pun selama ada galat.
 3. **Satu transaksi**: toko, pemilik, perangkat, lokasi *Etalase*, dan
    produk pertama (beserta stok awal sebagai pergerakan stok `opening`)
-   ditulis dalam satu `LakunaStore.write`. Produk tidak valid → toko juga
-   tidak dibuat (`ProductInputInvalid`), pesan tampil di langkah 4.
+   ditulis dalam satu `LakunaStore.write`. Draf diperiksa **sebelum**
+   transaksi (`ProductInputInvalid`, toko juga tidak dibuat): aturan form
+   produk, harga jual > 0, dan hal yang belum ada di toko baru (id produk
+   lama, grup modifier, harga grup pelanggan) ditolak agar setup tidak gagal
+   di tengah jalan.
 4. **Import**: toko dibuat tanpa produk, lalu router membuka
-   `/produk?impor=1`; layar Produk membuka dialog import sekali (query
-   dibuang setelah dialog dibuka). Batal import → daftar produk kosong
+   `/produk?impor=1` dan layar Produk membuka dialog import sekali (saat
+   layar dibuat; query dibiarkan). Tujuan ini dipakai sekali: masuk
+   berikutnya kembali ke Beranda. Batal import → daftar produk kosong
    dengan tombol tambah seperti biasa.
 5. Pindah pilihan tidak menghapus isian yang sudah diketik; hanya pilihan
    pertama yang mengirim produk.
 6. Kembali ke langkah 3 lalu maju lagi mempertahankan pilihan dan isian.
 7. Stepper dan "Langkah 4 dari 4" tetap empat langkah.
+8. Bila toko ternyata sudah ada (`SetupAlreadyDone`) sementara produk
+   pertama diisi, pesan galat tetap tampil (produk tidak tersimpan diam-diam).
 
 ## Komponen
 
-- Data: `setupStore(..., firstProduct: ProductDraft?)` memvalidasi draf
-  sebelum menulis lalu menyimpan produk lewat `_ProductWriter` dalam
-  transaksi setup.
+- Data: `setupStore(..., firstProduct: ProductDraft?)` memeriksa draf lalu
+  menyimpan produk lewat `writeProductInTx` (internal, tidak diekspor dari
+  barrel) di dalam transaksi setup.
 - Flutter: `StoreRepository.setup(input, {ProductDraft? firstProduct})`;
-  `OnboardingViewModel`: `firstProductChoice`
-  (`FirstProductChoice.add/import/skip`), `firstProductValue`,
-  `setFirstProduct`, `firstProductDraft`, `firstProductError(field)`,
-  `landing` (`Routes.productsImport` bila import);
-  `OnboardingScreen(onLanding:)`; router menyimpan tujuan setelah setup;
+  `OnboardingViewModel`: `FirstProductChoice` (`add/import/skip`),
+  `firstProductChoice`, isian `productName/productSellPrice/
+  productCostPrice/productUnit/productBarcode/productOpeningStock` dengan
+  setter `set*`, `productKind`, `firstProductDraft`, `productError(field)`,
+  `opensImport`, `onBeforeSetup`; `OnboardingScreen(onBeforeSetup:)`;
+  router memegang `importAfterSetup` → `Routes.productsImport`;
   `ProductListScreen(openImport:)`.
 
 ## Pengujian
 
 - Data: setup dengan produk (produk, varian, stok awal, outbox satu
-  transaksi), draf tidak valid → tidak ada tenant, F&B menu tanpa stok.
+  transaksi), draf tidak valid atau yang bisa gagal di tengah transaksi →
+  tidak ada tenant, F&B menu tanpa stok.
 - VM: bawaan *Tambah*, validasi memblokir finish, draf dibangun dari isian
   (barang vs menu), lewati/import tidak mengirim produk, isian bertahan saat
-  pindah pilihan dan kembali.
+  pindah pilihan dan kembali, `onBeforeSetup` hanya saat setup berjalan.
 - Widget: alur 4 langkah dengan produk pertama → Beranda dan produk ada di
-  katalog (1280 px dan 360 px); pilihan import → dialog import terbuka.
-- Uji manual Xvfb: setup baru dengan produk pertama, lalu jual produk itu di
-  Kasir.
+  katalog (tablet dan ponsel 400 px), retail dengan harga beli dan stok
+  awal, produk kosong menahan, lewati; pilihan import → dialog import
+  terbuka.
+- Uji manual Xvfb: setup baru dengan produk pertama (tampil di Produk
+  dengan stok awal), dan setup baru dengan pilihan import.
 
 ## Status & gap
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Produk pertama di langkah 4 | "Produk pertama (atau import Excel)" | Rencana v0.52.0 | Satu produk, satu varian. |
-| Import Excel dari onboarding | Sama | Rencana v0.52.0 | Membuka dialog import produk setelah toko dibuat. |
+| Produk pertama di langkah 4 | "Produk pertama (atau import Excel)" | Rilis v0.52.0 | Satu produk, satu varian. |
+| Import Excel dari onboarding | Sama | Rilis v0.52.0 | Membuka dialog import produk setelah toko dibuat. |
 | Varian / satuan konversi di onboarding | — | Tidak direncanakan | Pakai form produk lengkap setelah setup. |

@@ -63,7 +63,9 @@ class LocalStoreRepository extends StoreRepository {
       return Result.ok(ctx);
     } on SetupAlreadyDone catch (e) {
       // Toko sudah ada (mis. konteks belum termuat): muat ulang agar router
-      // keluar dari wizard bila konteksnya lengkap.
+      // keluar dari wizard bila konteksnya lengkap. Produk pertama yang
+      // diketik tidak tersimpan, jadi pesan galat tetap ditampilkan.
+      if (firstProduct != null) return Result.error(e);
       final reloaded = await load();
       if (reloaded case Ok(value: final ctx?)) return Result.ok(ctx);
       return Result.error(e);

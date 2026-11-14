@@ -32,6 +32,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.49.0 | Buat pembelian dari stok minimum (F1-08c) | #55 |
 | v0.50.0 | Foto faktur pembelian (F1-12b) | #56 |
 | v0.51.0 | PDF pembelian + tautan kartu stok (F1-12c) | #57 |
+| v0.52.0 | Produk pertama di onboarding (F1-01b) | #58 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -66,6 +67,7 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    daftar stok minimum~~ — selesai v0.49.0 (F1-08c).
 12. ~~Foto faktur pembelian~~ — selesai v0.50.0 (F1-12b). ~~PDF pembelian
    dan tautan kartu stok~~ — selesai v0.51.0 (F1-12c).
+13. ~~Produk pertama di onboarding~~ — selesai v0.52.0 (F1-01b).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

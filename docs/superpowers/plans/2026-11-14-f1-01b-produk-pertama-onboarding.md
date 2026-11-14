@@ -18,8 +18,9 @@ Spec: `docs/superpowers/specs/2026-11-14-f1-01b-produk-pertama-onboarding-design
   `ProductListScreen(openImport:)` membuka dialog import sekali.
 - [x] Tes widget onboarding: alur lengkap dengan produk (tablet + 400 px),
   produk kosong menahan, lewati, import membuka dialog.
-- [ ] Uji penuh (format, analyze, domain/data/flutter).
-- [ ] Uji manual Xvfb: setup baru dengan produk pertama, jual di Kasir.
-- [ ] Review subagent, perbaikan temuan.
-- [ ] Dokumen rilis: spec status, README spec, STATUS-JEDA, spec F1-01 dan
+- [x] Uji penuh (format, analyze, domain/data/flutter).
+- [x] Uji manual Xvfb: setup baru dengan produk pertama (tampil di Produk,
+  stok 24); setup baru dengan pilihan import (dialog import terbuka).
+- [x] Review subagent, perbaikan temuan.
+- [x] Dokumen rilis: spec status, README spec, STATUS-JEDA, spec F1-01 dan
   F1-07 gap, panduan, CHANGELOG 0.52.0, pubspec.

@@ -12,7 +12,7 @@ export 'src/master_data.dart';
 export 'src/modifier_admin.dart';
 export 'src/media.dart';
 export 'src/payment_settings.dart';
-export 'src/catalog.dart';
+export 'src/catalog.dart' hide writeProductInTx;
 export 'src/dining_admin.dart';
 export 'src/floor_plan.dart';
 export 'src/history.dart';

@@ -334,4 +334,51 @@ void main() {
     expect(store.setupProducts.single, isNull);
     expect(find.byKey(const ValueKey('product-import')), findsOneWidget);
   });
+
+  testWidgets('retail: stok awal dan harga beli ikut produk pertama', (
+    tester,
+  ) async {
+    final store = FakeStoreRepository();
+    await pumpLakuna(tester, store: store, size: const Size(1280, 800));
+    await _next(tester);
+    await _type(tester, SetupField.businessName, 'Toko Berkah');
+    await _type(tester, SetupField.outletName, 'Pusat');
+    await _type(tester, SetupField.outletCode, 'PST');
+    await _next(tester);
+    await _type(tester, SetupField.ownerName, 'Yusuf');
+    await _type(tester, SetupField.email, 'yusuf@contoh.id');
+    await _type(tester, SetupField.password, 'rahasia123');
+    await _type(tester, SetupField.passwordConfirm, 'rahasia123');
+    await _type(tester, SetupField.pin, '123456');
+    await _type(tester, SetupField.pinConfirm, '123456');
+    await _next(tester);
+    await _typeKey(tester, 'first-product-name', 'Kopi Susu');
+    await _typeKey(tester, 'first-product-price', '15000');
+    await _typeKey(tester, 'first-product-cost', '9000');
+    await _typeKey(tester, 'first-product-stock', '24');
+    // Pindah pilihan lalu kembali: isian tetap.
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('first-product-skip')),
+    );
+    await tester.tap(find.byKey(const ValueKey('first-product-skip')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('first-product-name')), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('first-product-add')));
+    await tester.tap(find.byKey(const ValueKey('first-product-add')));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('first-product-name')),
+        matching: find.text('Kopi Susu'),
+      ),
+      findsOneWidget,
+    );
+    await _next(tester);
+    final product = store.setupProducts.single!;
+    expect(product.kind, ProductKind.goods);
+    expect(product.baseUnit, 'pcs');
+    expect(product.variants.single.costPrice, const Money(9000));
+    expect(product.variants.single.openingStock, Qty.units(24));
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
+  });
 }

@@ -99,7 +99,10 @@ Future<StoreContext> setupStore(
   final errors = input.validate();
   if (errors.isNotEmpty) throw SetupInvalid(errors);
   if (firstProduct != null) {
-    final issues = validateProductDraft(firstProduct);
+    final issues = [
+      ...validateProductDraft(firstProduct),
+      ..._firstProductIssues(firstProduct),
+    ];
     if (issues.isNotEmpty) throw ProductInputInvalid(issues);
   }
 
@@ -213,3 +216,29 @@ Future<StoreContext> setupStore(
     return ctx;
   });
 }
+
+/// Aturan tambahan produk pertama: produk baru (tanpa id), tanpa grup
+/// modifier atau harga grup pelanggan (belum ada di toko baru), dan harga
+/// jual lebih dari nol. Dicek sebelum transaksi agar setup tidak gagal di
+/// tengah jalan.
+List<ProductIssue> _firstProductIssues(ProductDraft d) => [
+  if (d.id != null) const ProductIssue(ProductField.name, ProductError.taken),
+  if (d.modifierGroupIds.isNotEmpty)
+    const ProductIssue(ProductField.modifierGroups, ProductError.missing),
+  for (final (i, v) in d.variants.indexed) ...[
+    if (v.sellPrice.value <= 0)
+      ProductIssue(
+        ProductField.sellPrice,
+        ProductError.notPositive,
+        variant: i,
+      ),
+    for (final (j, t) in v.tiers.indexed)
+      if (t.groupId != null)
+        ProductIssue(
+          ProductField.tierPrice,
+          ProductError.missing,
+          variant: i,
+          tier: j,
+        ),
+  ],
+];

@@ -117,7 +117,10 @@ GoRouter createRouter({
       if (staff == null) {
         return location == Routes.login ? null : Routes.login;
       }
-      if (location == Routes.setup && importAfterSetup) {
+      if (importAfterSetup &&
+          (location == Routes.setup || location == Routes.login)) {
+        // Sekali saja: masuk berikutnya kembali ke Beranda.
+        importAfterSetup = false;
         return Routes.productsImport;
       }
       if (location == Routes.login || location == Routes.setup) {

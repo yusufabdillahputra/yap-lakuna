@@ -236,5 +236,21 @@ void main() {
       expect(vm.finish.completed, isTrue);
       expect(repository.setupProducts.single, isNull);
     });
+
+    test('onBeforeSetup memberi tahu tujuan setelah setup', () async {
+      final calls = <bool>[];
+      vm = OnboardingViewModel(
+        repository: repository,
+        session: session,
+        onBeforeSetup: calls.add,
+      );
+      await toStep4();
+      // Validasi menahan: belum ada panggilan.
+      await vm.finish.execute();
+      expect(calls, isEmpty);
+      vm.setFirstProductChoice(FirstProductChoice.import);
+      await vm.finish.execute();
+      expect(calls, [true]);
+    });
   });
 }
