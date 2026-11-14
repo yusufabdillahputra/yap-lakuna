@@ -487,6 +487,7 @@ class SaleDetail {
     required this.returnedMilli,
     required this.shares,
     this.voidedByName,
+    this.discountApprovedByName,
     this.voidBlock,
     this.outstanding = Money.zero,
   });
@@ -496,6 +497,10 @@ class SaleDetail {
   final CheckoutResult receipt;
   final String staffName;
   final String? voidedByName;
+
+  /// Pemberi atau penyetuju diskon manual (F1-04i); `null` bila tidak
+  /// tercatat.
+  final String? discountApprovedByName;
   final List<SaleReturn> returns;
 
   /// Jumlah sudah diretur per baris (`sale_items.id`).
@@ -521,6 +526,10 @@ class SaleDetail {
 
   Sale get sale => receipt.sale;
   List<SaleItem> get items => receipt.items;
+
+  /// Diskon manual nota: diskon baris + diskon nota (tanpa grosir).
+  Money get manualDiscount =>
+      Money(sale.lineDiscountAmount + sale.discountAmount);
 
   Money get returnedTotal => Money.sum(returns.map((r) => Money(r.amount)));
 
@@ -684,6 +693,7 @@ Future<SaleDetail> loadSaleDetail(
   final names = await _names(session, scope.tenantId, [
     sale.staffId,
     sale.voidedBy,
+    sale.discountApprovedBy,
   ]);
   return SaleDetail(
     receipt: CheckoutResult(
@@ -698,6 +708,9 @@ Future<SaleDetail> loadSaleDetail(
     ),
     staffName: names[sale.staffId] ?? '',
     voidedByName: sale.voidedBy == null ? null : names[sale.voidedBy],
+    discountApprovedByName: sale.discountApprovedBy == null
+        ? null
+        : names[sale.discountApprovedBy],
     returns: returns,
     returnedMilli: await _returnedMilli(session, scope.tenantId, returns),
     shares: _shares(sale, items),

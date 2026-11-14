@@ -8141,4 +8141,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productImportSave => 'Simpan';
+
+  @override
+  String get historyManualDiscount => 'Diskon manual';
+
+  @override
+  String historyManualDiscountBy(String name) {
+    return 'Diskon manual · disetujui $name';
+  }
 }

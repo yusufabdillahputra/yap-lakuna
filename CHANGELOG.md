@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.73.0] - 2026-11-14
+
+Di open bill F&B, staf yang memberi diskon kini tercatat walau bill ditutup
+kasir lain, jadi pemilik bisa melihat siapa yang memberi potongan di
+Riwayat.
+
+### Ditambahkan
+
+- **Riwayat (1.14):** rincian nota menampilkan baris *Diskon manual*
+  (jumlah diskon baris + diskon nota). Bila pemberi atau penyetuju
+  tercatat, labelnya *Diskon manual · disetujui Nama*.
+- Panduan *Diskon* (ID + EN) menjelaskan pencatatan pemberi diskon.
+
+### Diubah
+
+- **Meja (1.7):** staf berizin *Diskon manual* yang menerapkan diskon nota
+  atau diskon baris kini dicatat sebagai pemberi. Label di panel bill dan
+  ringkasan pembayaran (1.5) menjadi mis. *Diskon nota 10% · disetujui
+  Rina*. Persetujuan PIN manajer tetap mencatat penyetujunya.
+- Kasir retail tidak berubah: staf nota adalah pemberi diskon.
+
+### Diperbaiki
+
+- Sebelumnya diskon dari pelayan/manajer berizin di open bill tidak
+  meninggalkan jejak: `discount_approved_by` kosong dan nota hanya
+  menunjukkan kasir penutup, sehingga diskon tampak diberikan kasir itu.
+
+### Catatan teknis
+
+- `open_bill.dart`: helper `_discountGiver` (`requireDiscountActor(...) ??
+  staffId`) dipakai `setBillDiscount` dan `setBillItemDiscount`. Aturan
+  lain tetap: pemberi terakhir menggantikan yang lama, hapus semua diskon
+  mengosongkan kolom.
+- `history.dart`: `SaleDetail.discountApprovedByName` dan
+  `SaleDetail.manualDiscount`; `loadSaleDetail` ikut mencari nama
+  `discount_approved_by`.
+- Tes data: pemberi berizin tercatat walau bill ditutup staf lain, detail
+  nota tanpa diskon; tes widget Riwayat 1280/360 (dengan dan tanpa
+  pemberi) serta label pemberi sendiri di panel bill dan pembayaran.
+- Palsu `FakeDiningRepository` mengikuti aturan baru (pemberi berizin
+  dicatat, nama staf sesungguhnya).
+
 ## [0.72.0] - 2026-11-14
 
 Foto dari kamera ponsel tidak lagi menyimpan lokasi GPS, waktu, atau model
@@ -5132,7 +5174,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...HEAD
+[0.73.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...v0.73.0
 [0.72.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...v0.72.0
 [0.71.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...v0.71.0
 [0.70.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...v0.70.0

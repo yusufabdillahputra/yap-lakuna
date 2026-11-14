@@ -269,6 +269,41 @@ void main() {
     expect(_key('history-export-saved'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('${size.width.toInt()} px: diskon manual dan pemberinya '
+        '(F1-04i)', (tester) async {
+      await pump(tester, size: size);
+      final discounted = history.addSale(
+        [('Nasi Goreng', 2000, 30000)],
+        discount: 6000,
+        discountBy: 'Rina',
+      );
+      // Nota lama sebelum F1-04i: diskon tanpa pemberi tercatat.
+      final older = history.addSale([('Teh', 1000, 9000)], discount: 1500);
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.history,
+        history: history,
+        receiptPrinter: printer,
+        session: session,
+      );
+      await _tap(tester, 'history-row-${discounted.sale.id.uuid}');
+      expect(_key('history-discount'), findsOneWidget);
+      expect(find.text('Diskon manual · disetujui Rina'), findsOneWidget);
+      expect(find.text('Rp 6.000'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      if (size.width < 600) await _tap(tester, 'history-detail-back');
+      await _tap(tester, 'history-row-${older.sale.id.uuid}');
+      expect(find.text('Diskon manual'), findsOneWidget);
+      expect(find.text('Rp 1.500'), findsOneWidget);
+      if (size.width < 600) await _tap(tester, 'history-detail-back');
+      // Nota tanpa diskon: tanpa baris diskon.
+      await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+      expect(_key('history-discount'), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
   for (final size in const [Size(360, 740), Size(820, 1180)]) {
     testWidgets('${size.width.toInt()} px: kartu/tabel lalu halaman rincian', (
       tester,

@@ -53,6 +53,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.70.0 | Peringatan uang laci saat void (F1-03d) | #76 |
 | v0.71.0 | Pratinjau perubahan harga import (F1-07m) | #77 |
 | v0.72.0 | Buang metadata lokasi dari gambar (F1-07n) | #78 |
+| v0.73.0 | Pemberi diskon open bill tercatat (F1-04i) | #79 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -61,7 +62,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 
 1. ~~Diskon di open bill / split bill F&B~~ — selesai v0.32.0 (F1-04e);
    ~~diskon per baris di bill~~ — selesai v0.53.0 (F1-04g); ~~membagi baris
-   berdiskon rupiah per tamu~~ — selesai v0.65.0 (F1-04h).
+   berdiskon rupiah per tamu~~ — selesai v0.65.0 (F1-04h); ~~pemberi
+   diskon tercatat~~ — selesai v0.73.0 (F1-04i).
 2. **Kredit per bagian split bill** — spec F1-13b. Butuh pelanggan per
    bagian tamu dan dokumen piutang per bagian, karena saat ini piutang
    melekat pada satu nota dengan satu pelanggan. Perlu desain model data

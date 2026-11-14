@@ -5306,5 +5306,14 @@
   },
   "productImportPreviewNone": "Tidak ada yang berubah, jadi tidak ada yang perlu disimpan.",
   "productImportPreviewNote": "Belum tersimpan. Periksa daftar ini, lalu tekan Simpan.",
-  "productImportSave": "Simpan"
+  "productImportSave": "Simpan",
+  "historyManualDiscount": "Diskon manual",
+  "historyManualDiscountBy": "Diskon manual · disetujui {name}",
+  "@historyManualDiscountBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

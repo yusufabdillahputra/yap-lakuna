@@ -12,4 +12,4 @@ Spec: [F1-07n](../specs/2026-11-14-f1-07n-buang-metadata-foto-design.md).
 - [x] **Uji manual Xvfb**: unggah foto ber-GPS, periksa berkas `media/`.
 - [x] **Dokumen**: spec F1-07l, README, STATUS-JEDA, panduan, CHANGELOG
   0.72.0, pubspec `0.72.0+75`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

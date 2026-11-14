@@ -24,6 +24,7 @@ Di layar **Meja**, panel bill punya tombol **Diskon** untuk diskon nota seluruh 
 - Service, PB1, dan diskon nota dihitung dari total setelah diskon baris.
 - Saat split bill per item, baris berdiskon bisa dibagi ke beberapa tamu. Diskon persen ikut ke tiap porsi; diskon rupiah dibagi sebanding jumlah (mis. Rp 1.000 untuk 3 porsi jadi Rp 333 + Rp 334 + Rp 333), jadi total bill tidak berubah. Porsi yang dipindah kembali digabung lagi.
 - Setelah ada pembayaran bagian di split bill, diskon tidak bisa diubah lagi.
+- Nama staf yang memberi diskon tercatat di bill (*Diskon nota 10% · disetujui Rina*), walau bill nanti ditutup kasir lain. Di **Riwayat**, rincian nota menampilkan baris *Diskon manual · disetujui Rina* dengan total diskon baris dan diskon nota.
 
 ## Persetujuan manajer
 

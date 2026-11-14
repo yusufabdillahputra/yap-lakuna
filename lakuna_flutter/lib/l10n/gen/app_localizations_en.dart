@@ -8371,4 +8371,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productImportSave => 'Save';
+
+  @override
+  String get historyManualDiscount => 'Manual discount';
+
+  @override
+  String historyManualDiscountBy(String name) {
+    return 'Manual discount · approved by $name';
+  }
 }

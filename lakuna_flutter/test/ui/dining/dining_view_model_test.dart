@@ -198,6 +198,8 @@ void main() {
       expect(bill.charges.discount, const Money(5300));
       expect(bill.charges.service, const Money(2385));
       expect(vm.discountBlocksPay, isFalse);
+      // F1-04i: staf berizin tercatat sebagai pemberi diskon.
+      expect(bill.discountApprovedByName, 'Dimas');
 
       await vm.setDiscount.execute((discount: null, approverId: null));
       expect(vm.selectedBill!.discount, isNull);

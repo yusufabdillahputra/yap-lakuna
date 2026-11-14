@@ -182,6 +182,9 @@ class FakeDiningRepository extends DiningRepository {
 
   bool _can(Permission p) => permissions?.contains(p) ?? true;
 
+  /// Staf sesi (Dimas) yang membuka bill dan memberi diskon tanpa PIN.
+  final actorId = fakeId(4);
+
   Future<Result<T>> _run<T>(T Function() body) async {
     final e = nextError;
     nextError = null;
@@ -218,7 +221,11 @@ class FakeDiningRepository extends DiningRepository {
       rates: rates,
       table: tables.where((t) => t.id == sale.diningTableId).firstOrNull,
       openedByName: 'Dimas',
-      discountApprovedByName: sale.discountApprovedBy == null ? '' : 'Rina',
+      discountApprovedByName: switch (sale.discountApprovedBy) {
+        null => '',
+        final id when id == actorId => 'Dimas',
+        _ => 'Rina',
+      },
       customer: _billCustomer(sale.customerId),
       modifiers: {for (final i in own) i.id: ?itemModifiers[i.id]},
       payments: [
@@ -779,7 +786,8 @@ class FakeDiningRepository extends DiningRepository {
       discountAmount: discount?.kind == DiscountKind.amount
           ? discount!.amount.value
           : 0,
-      discountApprovedBy: discount == null ? null : approverId,
+      // Pemberi diskon (F1-04i): penyetuju PIN atau staf berizin sendiri.
+      discountApprovedBy: discount == null ? null : approverId ?? actorId,
     );
     _replaceSale(next);
     final after = bill(billId);
@@ -820,9 +828,11 @@ class FakeDiningRepository extends DiningRepository {
       _replaceItem(item);
       throw const DiscountTooLarge();
     }
-    if (approverId != null && discount != null) {
-      itemDiscountApprovers[itemId] = approverId;
-      _replaceSale(b.sale.copyWith(discountApprovedBy: approverId));
+    if (discount != null) {
+      if (approverId != null) itemDiscountApprovers[itemId] = approverId;
+      _replaceSale(
+        b.sale.copyWith(discountApprovedBy: approverId ?? actorId),
+      );
     }
     _sync(item.saleId);
     return bill(item.saleId);
