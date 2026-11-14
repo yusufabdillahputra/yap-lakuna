@@ -7,6 +7,39 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.90.0] - 2026-11-14
+
+Tombol *Buat pembelian* di Stok tidak lagi macet setelah staf meninggalkan
+form pembelian lewat menu samping.
+
+### Diperbaiki
+
+- **Stok (1.18) › Stok minimum › Buat pembelian:** bila form pembelian baru
+  ditinggalkan lewat menu samping (mis. mengetuk *Stok* lagi) tanpa
+  disimpan atau dibatalkan, tombol *Buat pembelian* tidak bereaksi lagi
+  sampai aplikasi dibuka ulang, dan daftar stok tetap menampilkan angka
+  lama. Kini saat halaman Stok tampil kembali, tombol langsung bisa dipakai
+  dan daftar stok dimuat ulang.
+
+### Catatan teknis
+
+- Penyebab: form dibuka dengan `context.push`, dan penjaga ketukan ganda
+  `_restocking` baru dilepas (lalu daftar dimuat ulang) setelah future
+  `push` selesai. Menu samping memakai `context.go`, yang mengganti
+  tumpukan tanpa pernah menyelesaikan future itu, sementara state halaman
+  Stok di `ShellRoute` dipertahankan.
+- Perbaikan: `_StockScreenState.didUpdateWidget` melepas penjaga dan
+  memuat ulang daftar bila penjaga masih terpasang dan
+  `ModalRoute.of(context)?.isCurrent` bernilai `true`. Saat push sendiri
+  halaman Stok juga dibangun ulang tetapi bukan rute teratas, jadi
+  ketukan ganda tetap hanya membuka satu form. Nomor generasi
+  `_restockGen` memastikan `finally` dari form lama yang ditinggalkan
+  tidak melepas penjaga form baru.
+- Tes alur widget: buka *Buat pembelian*, stok berubah, ketuk menu
+  *Stok*; form hilang, tab *Stok minimum* menampilkan data baru, dan
+  *Buat pembelian* membuka form lagi; dua ketukan dalam satu frame hanya
+  membuka satu form.
+
 ## [0.89.0] - 2026-11-14
 
 Pembelian dari stok minimum kini mengisi harga tiap barang dengan harga
@@ -5835,7 +5868,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...HEAD
+[0.90.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...v0.90.0
 [0.89.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...v0.89.0
 [0.88.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...v0.88.0
 [0.87.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...v0.87.0
