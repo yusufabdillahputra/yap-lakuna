@@ -1,7 +1,7 @@
 # F1-07p · Templat import berbahasa Inggris
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.85.0)
+- **Status:** Rilis v0.85.0
 - **Layar:** dialog import di 1.15 Produk, 1.20 Pelanggan, 1.21 Supplier:
   tombol *Download template*.
 - **Acuan:** gap F1-07g "Templat berbahasa Inggris — judul Indonesia
@@ -55,4 +55,5 @@ dengan judul kolom dan contoh berbahasa Inggris, bukan templat Indonesia.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Templat import berbahasa Inggris | — | Dalam pengerjaan | |
+| Templat import berbahasa Inggris | — | Rilis v0.85.0 | |
+| Templat bahasa lain | — | Belum | Hanya ID dan EN, sama dengan bahasa aplikasi. |

@@ -4569,7 +4569,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importIntro =>
-      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Phone, Address, Group, Limit, Note. Headers can be in Indonesian or English.';
+      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Phone, Address, Group, Credit limit, Note. Headers can be in Indonesian or English.';
 
   @override
   String get importPick => 'Choose file';
@@ -7172,7 +7172,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productImportIntro =>
-      'Choose an Excel (.xlsx) or CSV file, one product per row. Columns: Name and Price (required), Category, Type (goods/service/menu), Unit, SKU, Barcode, Cost, Opening stock, Min stock. Headers may be in Indonesian or English.';
+      'Choose an Excel (.xlsx) or CSV file, one product per row. Columns: Name and Sell price (required), Category, Type (goods/service/menu), Unit, SKU, Barcode, Cost price, Opening stock, Min stock. Headers may be in Indonesian or English.';
 
   @override
   String get productImportMissingColumns =>
@@ -7764,7 +7764,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get supplierImportIntro =>
-      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Contact, Phone, Category, Term days, Address, Note. Headers can be in Indonesian or English.';
+      'Choose an Excel (.xlsx) or CSV file. Columns: Name (required), Contact, Phone, Category, Term (days), Address, Note. Headers can be in Indonesian or English.';
 
   @override
   String supplierImportUpdateNote(int days) {

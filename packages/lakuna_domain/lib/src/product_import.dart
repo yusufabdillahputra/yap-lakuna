@@ -318,7 +318,7 @@ const productImportTemplate = [
 ];
 
 /// Templat import produk berbahasa Inggris (F1-07p): kolom dan angka sama
-/// dengan [productImportTemplate].
+/// dengan [productImportTemplate]; contoh dan SKU berbahasa Inggris.
 const productImportTemplateEn = [
   [
     'Name',
@@ -337,7 +337,7 @@ const productImportTemplateEn = [
     'Groceries',
     'goods',
     'pcs',
-    'CTH-GULA-1KG',
+    'SMP-SUGAR-1KG',
     '8991234567890',
     '14000',
     '17500',
@@ -349,7 +349,7 @@ const productImportTemplateEn = [
     'Drinks',
     'menu',
     'cup',
-    'CTH-KOPI-SUSU',
+    'SMP-ICED-COFFEE',
     '',
     '6000',
     '15000',
