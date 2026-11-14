@@ -406,4 +406,149 @@ void main() {
     expect(after.sale.customerId, isNull);
     expect(after.items.single.unitPrice, 100000);
   });
+
+  group('segarkan harga grup (F1-10l)', () {
+    Future<Customer> regroup(Customer c, CustomerGroup? group) => saveCustomer(
+      store,
+      scope,
+      staffId: owner(),
+      input: CustomerInput(
+        id: c.id,
+        name: c.name,
+        groupId: group?.id,
+        creditLimit: const Money(5000000),
+      ),
+    );
+
+    Future<OpenBill> reload(OpenBill b) => loadOpenBill(store, scope, b.id);
+
+    test('grup pelanggan berubah: tanda grup lama, item baru grup baru, '
+        'pilih ulang menghitung ulang semua item', () async {
+      final budi = await customer('Budi');
+      var b = await setCustomer(await add(await open(m1), 2), budi);
+      expect(b.sale.priceGroupId, isNull);
+      expect(b.priceGroupStale, isFalse);
+      await sendToKitchen(store, scope, staffId: owner(), billId: b.id);
+
+      await regroup(budi, reseller);
+      b = await reload(b);
+      expect(b.customer?.groupName, 'Reseller');
+      expect(b.priceGroupStale, isTrue);
+      b = await add(b, 1);
+      expect(b.items.map((i) => i.unitPrice), [100000, 95000]);
+      expect(b.priceGroupStale, isTrue);
+
+      final before = (await SyncOutboxEntry.db.find(store.session)).length;
+      b = await setCustomer(b, budi);
+      expect(b.items.map((i) => i.unitPrice), [95000, 95000]);
+      expect(b.sale.priceGroupId, reseller.id);
+      expect(b.priceGroupStale, isFalse);
+      expect(b.charges.subtotal, const Money(285000));
+      final entries = (await SyncOutboxEntry.db.find(store.session))
+          .skip(before);
+      expect(
+        entries.map((e) => e.entity).toSet(),
+        containsAll(['sales', 'sale_items']),
+      );
+    });
+
+    test('pilih ulang tanpa perubahan grup: harga beku tetap', () async {
+      final budi = await customer('Budi');
+      var b = await setCustomer(await add(await open(m1), 2), budi);
+      await setSellPrice(110000);
+      b = await setCustomer(b, budi);
+      expect(b.items.single.unitPrice, 100000);
+      expect(b.priceGroupStale, isFalse);
+    });
+
+    test('ganti pelanggan membandingkan grup harga bill, bukan grup '
+        'pelanggan lama sekarang', () async {
+      final ani = await customer('Toko Ani', group: reseller);
+      final budi = await customer('Budi');
+      var b = await setCustomer(await add(await open(m1), 2), ani);
+      expect(b.items.single.unitPrice, 95000);
+      await regroup(ani, null);
+      b = await reload(b);
+      expect(b.priceGroupStale, isTrue);
+      b = await setCustomer(b, budi);
+      expect(b.items.single.unitPrice, 100000);
+      expect(b.sale.priceGroupId, isNull);
+      expect(b.priceGroupStale, isFalse);
+    });
+
+    test('gabung meja memakai grup harga tiap bill', () async {
+      final ani = await customer('Toko Ani', group: reseller);
+      final a = await setCustomer(await add(await open(m1), 1), ani);
+      await regroup(ani, null);
+      final b = await add(await open(m2), 1);
+      final merged = await mergeOpenBills(
+        store,
+        scope,
+        staffId: owner(),
+        targetBillId: a.id,
+        sourceBillId: b.id,
+      );
+      expect(merged.items.map((i) => i.unitPrice), [100000, 100000]);
+      expect(merged.sale.priceGroupId, isNull);
+      expect(merged.priceGroupStale, isFalse);
+    });
+
+    test('gabung: sumber berpelanggan dengan grup harga lama ikut dihitung '
+        'ulang', () async {
+      final c = await customer('Citra', group: reseller);
+      final a = await setCustomer(await add(await open(m1), 1), c);
+      await regroup(c, null);
+      final d = await add(await open(m2), 1);
+      final merged2 = await mergeOpenBills(
+        store,
+        scope,
+        staffId: owner(),
+        targetBillId: d.id,
+        sourceBillId: a.id,
+      );
+      expect(merged2.sale.customerId, c.id);
+      expect(merged2.items.map((i) => i.unitPrice), [100000, 100000]);
+      expect(merged2.priceGroupStale, isFalse);
+    });
+
+    test('bill kosong mencatat grup pelanggan saat item pertama', () async {
+      final ani = await customer('Toko Ani', group: reseller);
+      var b = await setCustomer(await open(m1), ani);
+      expect(b.sale.priceGroupId, reseller.id);
+      expect(b.priceGroupStale, isFalse);
+      await regroup(ani, null);
+      b = await add(await reload(b), 1);
+      expect(b.items.single.unitPrice, 100000);
+      expect(b.sale.priceGroupId, isNull);
+      expect(b.priceGroupStale, isFalse);
+    });
+
+    test('data lama tanpa grup harga: tanda tampil, pilih ulang mencatat '
+        'grup', () async {
+      final ani = await customer('Toko Ani', group: reseller);
+      var b = await setCustomer(await add(await open(m1), 1), ani);
+      await Sale.db.updateRow(
+        store.session,
+        b.sale.copyWith(priceGroupId: null),
+      );
+      b = await reload(b);
+      expect(b.priceGroupStale, isTrue);
+      b = await setCustomer(b, ani);
+      expect(b.sale.priceGroupId, reseller.id);
+      expect(b.items.single.unitPrice, 95000);
+      expect(b.priceGroupStale, isFalse);
+    });
+
+    test('pelanggan terhapus: tanpa tanda; bill tanpa pelanggan tanpa '
+        'tanda', () async {
+      final ani = await customer('Toko Ani', group: reseller);
+      var b = await setCustomer(await add(await open(m1), 1), ani);
+      await deleteCustomer(store, scope, staffId: owner(), customerId: ani.id);
+      b = await reload(b);
+      expect(b.customer, isNull);
+      expect(b.priceGroupStale, isFalse);
+      final plain = await add(await open(m2), 1);
+      expect(plain.priceGroupStale, isFalse);
+    });
+  });
 }

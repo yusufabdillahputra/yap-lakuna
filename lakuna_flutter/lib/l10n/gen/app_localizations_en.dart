@@ -8561,4 +8561,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String cashPreviousDifference(String staff, String amount) {
     return '$staff · Difference $amount';
   }
+
+  @override
+  String get diningCustomerStale =>
+      'Customer group changed. Bill prices still use the old group.';
+
+  @override
+  String get diningCustomerRefresh => 'Refresh prices';
 }

@@ -8317,4 +8317,11 @@ class AppLocalizationsId extends AppLocalizations {
   String cashPreviousDifference(String staff, String amount) {
     return '$staff · Selisih $amount';
   }
+
+  @override
+  String get diningCustomerStale =>
+      'Grup pelanggan berubah. Harga bill masih memakai grup lama.';
+
+  @override
+  String get diningCustomerRefresh => 'Segarkan harga';
 }

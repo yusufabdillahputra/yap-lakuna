@@ -793,6 +793,59 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('grup pelanggan berubah ${size.width.toInt()} px: '
+        'peringatan + Segarkan harga (F1-10l)', (tester) async {
+      final group = UuidValue.fromString(newId());
+      final ani = Customer(
+        id: UuidValue.fromString(newId()),
+        tenantId: UuidValue.fromString(newId()),
+        name: 'Ani',
+        customerGroupId: group,
+        creditLimit: 0,
+        createdAt: DateTime.utc(2026, 11, 1),
+        hlc: '',
+      );
+      CustomerRow row(Customer c, String? groupName) => CustomerRow(
+        customer: c,
+        groupName: groupName,
+        termDays: 14,
+        outstanding: Money.zero,
+        openCount: 0,
+        overdueCount: 0,
+      );
+      await pump(tester, size: size, customers: [row(ani, 'Karyawan')]);
+      if (size.width < 600) {
+        await _tapText(tester, 'Teras');
+        await _tap(tester, 'dining-table-M5');
+      } else {
+        await _tap(tester, 'dining-table-M1');
+      }
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Es Teh Manis']);
+      await _tap(tester, 'dining-customer');
+      await _tap(tester, 'dining-customer-option-Ani');
+      expect(_key('dining-customer-stale'), findsNothing);
+
+      // Ani dipindah ke tanpa grup di menu Pelanggan.
+      dining.customerRows = [row(ani.copyWith(customerGroupId: null), null)];
+      await addMenu(tester, ['Es Teh Manis']);
+      expect(_key('dining-customer-stale'), findsOneWidget);
+      expect(
+        find.text(
+          'Grup pelanggan berubah. Harga bill masih memakai grup lama.',
+        ),
+        findsOneWidget,
+      );
+      final sets = dining.customerSets.length;
+      await _tap(tester, 'dining-customer-refresh');
+      expect(dining.customerSets, hasLength(sets + 1));
+      expect(dining.customerSets.last.$2, ani.id);
+      expect(_key('dining-customer-stale'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final (size, platform) in const [
     (Size(1280, 800), TargetPlatform.linux),
     (Size(360, 740), TargetPlatform.android),

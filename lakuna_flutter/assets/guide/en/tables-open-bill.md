@@ -21,6 +21,7 @@
 
 - Tap **Choose customer** under the bill title, search by name or phone, then tap the customer. If the customer belongs to a group with [wholesale prices](first-product), every item on the bill switches to the group price right away, including items already sent to the kitchen.
 - **Change** picks another customer; the **×** button removes the customer and restores normal prices.
+- If the customer's group is changed under **Customers** while the bill is still open, the bill panel shows *Customer group changed. Bill prices still use the old group.* Tap **Refresh prices** to recalculate every item with the new group and the current menu prices. Until you refresh, newly added items already use the new group.
 - When you **Close & pay** with *Credit / receivable*, the bill's customer is selected automatically. Credit for a different customer is refused; change the bill's customer first.
 - The customer cannot be changed once the bill is split or has a part payment. Two bills with different customers cannot be merged.
 

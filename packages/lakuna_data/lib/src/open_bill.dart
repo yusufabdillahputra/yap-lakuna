@@ -161,6 +161,13 @@ class OpenBill {
   /// Pelanggan bill (F1-10f); harga grupnya berlaku untuk semua item.
   final BillCustomer? customer;
 
+  /// Grup pelanggan bill sudah berbeda dari grup yang dipakai saat harga
+  /// bill terakhir dihitung (F1-10l): tampilkan *Segarkan harga*.
+  bool get priceGroupStale =>
+      customer != null &&
+      items.isNotEmpty &&
+      customer!.groupId != sale.priceGroupId;
+
   /// Diskon nota yang dipilih (F1-04e); potongannya di [charges].
   ManualDiscount? get discount => billDiscountOf(sale);
 
@@ -959,13 +966,14 @@ Future<OpenBill> addBillItem(
         )
         .firstOrNull;
     final quantity = Qty(same?.quantityMilli ?? 0) + line.quantity;
+    final group = await _billGroup(w, scope, sale);
     final [priced] = await priceRequests(w.session, w.transaction, scope, [
       SaleLineRequest(
         variantId: line.variantId,
         productUnitId: line.productUnitId,
         quantity: quantity,
       ),
-    ], customerGroupId: await _billGroup(w, scope, sale));
+    ], customerGroupId: group);
     if (modifiedUnitPrice(priced.line.unitPrice, delta) == null) {
       throw ModifierPriceInvalid();
     }
@@ -1032,7 +1040,15 @@ Future<OpenBill> addBillItem(
         );
       }
     }
-    await _refreshTotals(w, scope, sale, s, staffId);
+    // Item pertama bill kosong: harganya memakai grup pelanggan sekarang
+    // (F1-10l).
+    await _refreshTotals(
+      w,
+      scope,
+      items.isEmpty ? sale.copyWith(priceGroupId: group) : sale,
+      s,
+      staffId,
+    );
   });
   return loadOpenBill(store, scope, billId);
 }
@@ -1668,14 +1684,20 @@ Future<OpenBill> mergeOpenBills(
           target.discountApprovedBy ?? source.discountApprovedBy,
       customerId: mergedCustomer?.id ?? target.customerId,
       customerName: target.customerName ?? source.customerName,
+      priceGroupId: mergedCustomer == null
+          ? target.priceGroupId
+          : mergedCustomer.groupId,
     );
-    // Satu bill berpelanggan: item bill lain ikut harga grupnya (F1-10f).
-    final group = mergedCustomer?.groupId;
-    if (targetCustomer?.groupId != group) {
-      await _repriceItems(w, scope, targetItems, group, s, staffId);
-    }
-    if (sourceCustomer?.groupId != group) {
-      await _repriceItems(w, scope, movedItems, group, s, staffId);
+    // Bill berpelanggan: item tiap bill yang grup harganya berbeda ikut
+    // harga grup pelanggan itu (F1-10f, F1-10l).
+    if (mergedCustomer != null) {
+      final group = mergedCustomer.groupId;
+      if (_appliedGroup(target, targetCustomer) != group) {
+        await _repriceItems(w, scope, targetItems, group, s, staffId);
+      }
+      if (_appliedGroup(source, sourceCustomer) != group) {
+        await _repriceItems(w, scope, movedItems, group, s, staffId);
+      }
     }
     await _refreshTotals(w, scope, merged, s, staffId);
   });
@@ -2074,6 +2096,12 @@ Future<Map<UuidValue, BillCustomer>> _billCustomers(
 Future<UuidValue?> _billGroup(SyncTx w, CatalogScope scope, Sale sale) async =>
     (await _liveCustomer(w, scope, sale))?.groupId;
 
+/// Grup yang dipakai harga bill [sale] (F1-10l): grup tercatat bila
+/// pelanggan [live] masih ada; bill tanpa pelanggan atau pelanggannya sudah
+/// dihapus dianggap memakai harga umum (harga beku tetap, F1-10f aturan 4).
+UuidValue? _appliedGroup(Sale sale, BillCustomer? live) =>
+    live == null ? null : sale.priceGroupId;
+
 /// Menghitung ulang harga [items] dengan grup pelanggan [groupId]. Harga
 /// dihitung per baris: item yang produknya sudah nonaktif/dihapus tetap
 /// memakai harga bekunya agar bill tidak terkunci.
@@ -2132,7 +2160,9 @@ String? _billName(String? name) =>
 
 /// Memilih ([customerId]) atau menghapus (`null`) pelanggan bill [billId]
 /// dan menghitung ulang harga semua item dengan grupnya (F1-10f). Nama
-/// pemesan kosong diisi nama pelanggan. Gagal dengan [BillCustomerBlocked]
+/// pemesan kosong diisi nama pelanggan. Memilih ulang pelanggan yang sama
+/// menyegarkan harga bila grupnya sudah berbeda dari grup harga bill
+/// (F1-10l). Gagal dengan [BillCustomerBlocked]
 /// saat bill di-split / punya pembayaran bagian, atau [CustomerNotFound].
 Future<OpenBill> setOpenBillCustomer(
   LakunaStore store,
@@ -2153,9 +2183,13 @@ Future<OpenBill> setOpenBillCustomer(
       sale.id,
     ], transaction: w.transaction);
     if (payments.isNotEmpty) throw BillCustomerBlocked();
-    if (customerId == sale.customerId) return;
-    if (customerId != null) await saleCustomer(w, scope, customerId);
     final previous = await _liveCustomer(w, scope, sale);
+    final applied = _appliedGroup(sale, previous);
+    if (customerId == sale.customerId &&
+        (previous == null || previous.groupId == applied)) {
+      return;
+    }
+    if (customerId != null) await saleCustomer(w, scope, customerId);
     final next = customerId == null
         ? null
         : (await _billCustomers(w.session, scope, {
@@ -2168,9 +2202,10 @@ Future<OpenBill> setOpenBillCustomer(
     final updated = sale.copyWith(
       customerId: customerId,
       customerName: keepName ? name : _billName(next?.name),
+      priceGroupId: next?.groupId,
     );
     // Harga beku hanya dihitung ulang bila grup harganya berubah.
-    if (previous?.groupId != next?.groupId) {
+    if (applied != next?.groupId) {
       final items = await _items(w.session, scope.tenantId, [
         sale.id,
       ], transaction: w.transaction);

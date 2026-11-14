@@ -56,6 +56,7 @@ abstract class Sale
     int? discountBp,
     int? lineDiscountAmount,
     this.discountApprovedBy,
+    this.priceGroupId,
     this.voidReason,
     this.voidedBy,
     this.voidedAt,
@@ -123,6 +124,7 @@ abstract class Sale
     int? discountBp,
     int? lineDiscountAmount,
     _is.UuidValue? discountApprovedBy,
+    _is.UuidValue? priceGroupId,
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -214,6 +216,11 @@ abstract class Sale
           ? null
           : _is.UuidValueJsonExtension.fromJson(
               jsonSerialization['discountApprovedBy'],
+            ),
+      priceGroupId: jsonSerialization['priceGroupId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['priceGroupId'],
             ),
       voidReason: jsonSerialization['voidReason'] as String?,
       voidedBy: jsonSerialization['voidedBy'] == null
@@ -351,6 +358,10 @@ abstract class Sale
   /// Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
   _is.UuidValue? discountApprovedBy;
 
+  /// Grup pelanggan yang dipakai saat harga open bill terakhir dihitung
+  /// (F1-10l); `null` = harga umum.
+  _is.UuidValue? priceGroupId;
+
   String? voidReason;
 
   _is.UuidValue? voidedBy;
@@ -426,6 +437,7 @@ abstract class Sale
     int? discountBp,
     int? lineDiscountAmount,
     _is.UuidValue? discountApprovedBy = const _is.$UndefinedUuidValue(),
+    _is.UuidValue? priceGroupId = const _is.$UndefinedUuidValue(),
     String? voidReason,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
@@ -482,6 +494,7 @@ abstract class Sale
       'lineDiscountAmount': lineDiscountAmount,
       if (discountApprovedBy != null)
         'discountApprovedBy': discountApprovedBy?.toJson(),
+      if (priceGroupId != null) 'priceGroupId': priceGroupId?.toJson(),
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -540,6 +553,7 @@ abstract class Sale
       'lineDiscountAmount': lineDiscountAmount,
       if (discountApprovedBy != null)
         'discountApprovedBy': discountApprovedBy?.toJson(),
+      if (priceGroupId != null) 'priceGroupId': priceGroupId?.toJson(),
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -625,6 +639,7 @@ class _SaleImpl extends Sale {
     int? discountBp,
     int? lineDiscountAmount,
     _is.UuidValue? discountApprovedBy,
+    _is.UuidValue? priceGroupId,
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
@@ -676,6 +691,7 @@ class _SaleImpl extends Sale {
          discountBp: discountBp,
          lineDiscountAmount: lineDiscountAmount,
          discountApprovedBy: discountApprovedBy,
+         priceGroupId: priceGroupId,
          voidReason: voidReason,
          voidedBy: voidedBy,
          voidedAt: voidedAt,
@@ -733,6 +749,7 @@ class _SaleImpl extends Sale {
     int? discountBp,
     int? lineDiscountAmount,
     _is.UuidValue? discountApprovedBy = const _is.$UndefinedUuidValue(),
+    _is.UuidValue? priceGroupId = const _is.$UndefinedUuidValue(),
     Object? voidReason = _Undefined,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
@@ -793,6 +810,9 @@ class _SaleImpl extends Sale {
       discountApprovedBy: discountApprovedBy is _is.UndefinedSentinel
           ? this.discountApprovedBy
           : discountApprovedBy,
+      priceGroupId: priceGroupId is _is.UndefinedSentinel
+          ? this.priceGroupId
+          : priceGroupId,
       voidReason: voidReason is String? ? voidReason : this.voidReason,
       voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
       voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
@@ -1011,6 +1031,13 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
     _is.UuidValue? value,
   ) => _is.ColumnValue(
     table.discountApprovedBy,
+    value,
+  );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> priceGroupId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.priceGroupId,
     value,
   );
 
@@ -1288,6 +1315,11 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'discountApprovedBy',
     );
+    priceGroupId = _is.ColumnUuid(
+      'price_group_id',
+      this,
+      fieldName: 'priceGroupId',
+    );
     voidReason = _is.ColumnString(
       'void_reason',
       this,
@@ -1452,6 +1484,10 @@ class SaleTable extends _is.Table<_is.UuidValue> {
   /// Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
   late final _is.ColumnUuid discountApprovedBy;
 
+  /// Grup pelanggan yang dipakai saat harga open bill terakhir dihitung
+  /// (F1-10l); `null` = harga umum.
+  late final _is.ColumnUuid priceGroupId;
+
   late final _is.ColumnString voidReason;
 
   late final _is.ColumnUuid voidedBy;
@@ -1522,6 +1558,7 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     discountBp,
     lineDiscountAmount,
     discountApprovedBy,
+    priceGroupId,
     voidReason,
     voidedBy,
     voidedAt,

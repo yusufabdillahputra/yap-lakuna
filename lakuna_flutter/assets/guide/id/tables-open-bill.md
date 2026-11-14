@@ -21,6 +21,7 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 
 - Tekan **Pilih pelanggan** di bawah judul bill, cari nama atau nomor HP, lalu ketuk pelanggannya. Bila pelanggan masuk grup dengan [harga grosir](first-product), semua item di bill langsung memakai harga grupnya, termasuk item yang sudah dikirim ke dapur.
 - **Ganti** memilih pelanggan lain; tombol **×** melepas pelanggan dan mengembalikan harga normal.
+- Bila grup pelanggan diubah di menu **Pelanggan** saat bill-nya masih terbuka, panel bill menampilkan *Grup pelanggan berubah. Harga bill masih memakai grup lama.* Tekan **Segarkan harga** agar semua item dihitung ulang dengan grup baru dan harga menu terkini. Selama belum disegarkan, item yang baru ditambah sudah memakai grup baru.
 - Saat **Tutup & bayar** dengan *Kredit / piutang*, pelanggan bill otomatis terpilih. Kredit untuk pelanggan lain ditolak; ganti dulu pelanggan bill.
 - Pelanggan tidak bisa diubah setelah bill di-split atau ada bayar bagian. Dua bill dengan pelanggan berbeda tidak bisa digabung.
 

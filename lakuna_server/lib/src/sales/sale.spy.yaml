@@ -54,6 +54,9 @@ fields:
   lineDiscountAmount: int, default=0, column=line_discount_amount
   ### Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
   discountApprovedBy: UuidValue?, column=discount_approved_by
+  ### Grup pelanggan yang dipakai saat harga open bill terakhir dihitung
+  ### (F1-10l); `null` = harga umum.
+  priceGroupId: UuidValue?, column=price_group_id
   voidReason: String?, column=void_reason
   voidedBy: UuidValue?, column=voided_by
   voidedAt: DateTime?, column=voided_at

@@ -68,6 +68,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.85.0 | Templat import berbahasa Inggris (F1-07p) | #91 |
 | v0.86.0 | Beberapa rekening transfer (F1-05f) | #92 |
 | v0.87.0 | Cetak ulang rekap dari layar Sesi kasir (F1-03f) | #93 |
+| v0.88.0 | Segarkan harga grup pelanggan di open bill (F1-10l) | — |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -149,6 +150,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     (F1-05f): satu rekening per baris, salin per rekening.
 31. ~~Cetak ulang rekap dari layar Sesi kasir~~ — selesai v0.87.0
     (F1-03f): kartu *Sesi sebelumnya*, izin `cash_session:close`.
+32. ~~Segarkan harga saat grup pelanggan diubah~~ — selesai v0.88.0
+    (F1-10l): grup harga bill tercatat, peringatan + *Segarkan harga*.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
