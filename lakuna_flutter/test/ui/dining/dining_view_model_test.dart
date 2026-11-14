@@ -953,4 +953,59 @@ void main() {
       expect(vm.selectedBill!.servedCount, 1);
     });
   });
+
+  group('cetak tagihan (F1-10k)', () {
+    const counter = PrinterSelection(
+      kind: PrinterKind.network,
+      name: 'Kasir',
+      address: '10.0.0.2:9100',
+    );
+    const lines = [ReceiptLine('TAGIHAN')];
+    late FakeReceiptPrinter printer;
+
+    setUp(() async {
+      printer = FakeReceiptPrinter();
+      repo.printer = counter;
+      vm = DiningViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+      await vm.openTable.execute((table('M1').id, 2));
+      await add('Kopi Susu Aren');
+    });
+
+    test('nama usaha dan cabang dimuat untuk kepala tagihan', () {
+      expect(vm.data!.businessName, isNotEmpty);
+      expect(vm.data!.outletName, isNotEmpty);
+    });
+
+    test('cetak ke printer struk dengan kertas struk', () async {
+      await vm.printBill.execute(lines);
+      expect(printer.prints.single, (counter, lines, ReceiptPaper.mm58));
+      expect(vm.billPrinted, isTrue);
+      expect(vm.billPrintFailure, isNull);
+    });
+
+    test(
+      'galat printer tercatat lalu dihapus saat dialog dibuka lagi',
+      () async {
+        printer.nextFailure = const PrinterFailure(
+          PrinterFailureReason.connect,
+        );
+        await vm.printBill.execute(lines);
+        expect(vm.billPrintFailure, PrinterFailureReason.connect);
+        expect(vm.billPrinted, isFalse);
+        vm.clearBillPrint();
+        expect(vm.billPrintFailure, isNull);
+        expect(vm.billPdfPath, isNull);
+      },
+    );
+
+    test('bagikan PDF menyimpan lokasi berkas bernama nomor bill', () async {
+      await vm.shareBill.execute(lines);
+      expect(vm.billPdfPath, printer.sharePath);
+      expect(
+        printer.shares.single.$3,
+        'tagihan-${vm.selectedBill!.sale.billNumber}.pdf',
+      );
+    });
+  });
 }

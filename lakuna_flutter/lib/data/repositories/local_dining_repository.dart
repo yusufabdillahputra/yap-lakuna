@@ -47,6 +47,8 @@ class LocalDiningRepository extends DiningRepository {
           if (c.parentId != null) c.id: c.parentId!,
       },
       staffName: staff.name,
+      businessName: ctx.tenant.name,
+      outletName: ctx.outlet.name,
       timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
       canPay: staff.can(Permission.salesCreate),
       canVoid: staff.can(Permission.salesVoid),

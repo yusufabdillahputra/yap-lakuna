@@ -14,13 +14,13 @@ import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show SaleOption, saleOptionsFor;
 import '../cashier/discount_dialog.dart';
-import '../cashier/payment_view.dart' show tabularFigures;
+import '../cashier/payment_view.dart' show billOrderLabel, tabularFigures;
 import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../floor_plan/floor_canvas.dart';
 import '../products/product_widgets.dart';
 import '../receipt/printer_labels.dart';
-import '../receipt/receipt_content.dart' show percentLabel;
+import '../receipt/receipt_content.dart' show billReceiptContent, percentLabel;
 import '../receipt/receipt_paper_view.dart';
 import 'dining_view_model.dart';
 import 'kitchen_ticket.dart';
@@ -1410,6 +1410,15 @@ class _BillPanel extends StatelessWidget {
                   ? null
                   : () => onSplit!(bill.id),
             ),
+            // Tagihan sebelum bayar (F1-10k); tidak mengubah bill.
+            textAction(
+              'dining-print-bill',
+              l10n.diningPrintBill,
+              TablerIcons.fileInvoice,
+              busy || bill.items.isEmpty
+                  ? null
+                  : () => _printBillDialog(context, vm),
+            ),
             if (bill.items.isEmpty)
               textAction(
                 'dining-delete-empty',
@@ -1794,6 +1803,100 @@ Widget _dialogFrame(
           children: actions,
         ),
       ],
+    ),
+  );
+}
+
+/// Dialog *Cetak tagihan* bill terpilih (F1-10k): pratinjau kertas, cetak
+/// ke printer struk, dan PDF.
+Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
+  vm.clearBillPrint();
+  return showFDialog<void>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 460),
+      builder: (context, style) => ListenableBuilder(
+        listenable: vm,
+        builder: (context, _) {
+          final l10n = AppLocalizations.of(context);
+          final bill = vm.selectedBill;
+          final data = vm.data;
+          if (bill == null || data == null) return const SizedBox.shrink();
+          final lines = layoutReceipt(
+            billReceiptContent(
+              l10n,
+              bill: bill,
+              businessName: data.businessName,
+              outletName: data.outletName,
+              staffName: data.staffName,
+              timezone: data.timezone,
+              config: data.receipt,
+              now: DateTime.now(),
+            ),
+            vm.paper,
+          );
+          final busy = vm.printBill.running || vm.shareBill.running;
+          return _dialogFrame(
+            context,
+            key: const ValueKey('dining-bill-dialog'),
+            title: l10n.diningBillPreviewTitle(billOrderLabel(l10n, bill)),
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: ReceiptPaperView(
+                      lines: lines,
+                      paper: vm.paper,
+                      logo: vm.receiptLogo,
+                    ),
+                  ),
+                ),
+              ),
+              if (vm.billPrintFailure != null || vm.printBill.error)
+                FAlert(
+                  key: const ValueKey('dining-bill-print-error'),
+                  variant: .destructive,
+                  title: Text(printerFailureMessage(l10n, vm.billPrintFailure)),
+                )
+              else if (vm.billPrinted)
+                FAlert(
+                  key: const ValueKey('dining-bill-printed'),
+                  title: Text(l10n.receiptPrinted),
+                ),
+              if (vm.shareBill.completed && vm.billPdfPath != null)
+                FAlert(
+                  key: const ValueKey('dining-bill-pdf-saved'),
+                  title: Text(l10n.receiptPdfSaved(vm.billPdfPath!)),
+                ),
+            ],
+            actions: [
+              FButton(
+                key: const ValueKey('dining-bill-close'),
+                variant: .outline,
+                mainAxisSize: .min,
+                onPress: () => Navigator.of(context).pop(),
+                child: Flexible(child: Text(l10n.historyClose)),
+              ),
+              FButton(
+                key: const ValueKey('dining-bill-share'),
+                variant: .outline,
+                mainAxisSize: .min,
+                onPress: busy ? null : () => vm.shareBill.execute(lines),
+                prefix: const Icon(TablerIcons.share),
+                child: Flexible(child: Text(l10n.receiptShare)),
+              ),
+              FButton(
+                key: const ValueKey('dining-bill-print'),
+                mainAxisSize: .min,
+                onPress: busy ? null : () => vm.printBill.execute(lines),
+                prefix: const Icon(TablerIcons.printer),
+                child: Flexible(child: Text(l10n.diningPrintBill)),
+              ),
+            ],
+          );
+        },
+      ),
     ),
   );
 }

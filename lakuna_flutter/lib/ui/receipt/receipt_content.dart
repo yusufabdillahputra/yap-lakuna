@@ -3,7 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../l10n/gen/app_localizations.dart';
-import '../cashier/payment_view.dart' show paymentMethodLabel;
+import '../cashier/payment_view.dart' show billOrderLabel, paymentMethodLabel;
 
 bool _english(AppLocalizations l10n) => l10n.localeName.startsWith('en');
 
@@ -86,36 +86,7 @@ ReceiptContent saleReceiptContent(
       if (sale.customerId != null && sale.customerName != null)
         ReceiptPair(l10n.receiptCustomer, sale.customerName!),
     ],
-    items: [
-      for (final item in mergeSplitPortions(result.items))
-        ReceiptItem(
-          name: '${item.productName} ${item.variantName}'.trim(),
-          extras: [
-            for (final m in result.modifiersOf(item))
-              m.priceDelta == 0
-                  ? '+ ${m.name}'
-                  : '+ ${m.name} ${_signed(l10n, m.priceDelta)}',
-          ],
-          // Harga satuan termasuk tambahan modifier agar jumlah × harga =
-          // total baris.
-          detail:
-              '${_qty(l10n, item.quantityMilli)}'
-              '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
-              ' x ${receiptAmount(l10n, item.unitPrice + item.modifierDelta)}',
-          // Jumlah sebelum diskon baris; potongannya di baris sendiri.
-          amount: receiptAmount(l10n, item.lineTotal + item.discountAmount),
-          discount: item.discountAmount == 0
-              ? null
-              : ReceiptPair(
-                  item.discountBp == 0
-                      ? l10n.receiptDiscount
-                      : l10n.receiptDiscountPct(
-                          percentLabel(l10n, item.discountBp),
-                        ),
-                  '-${receiptAmount(l10n, item.discountAmount)}',
-                ),
-        ),
-    ],
+    items: _receiptItems(l10n, result.items, result.modifiersOf),
     totals: [
       if (breakdown) ...[
         ReceiptPair(
@@ -212,6 +183,138 @@ ReceiptContent saleReceiptContent(
     ],
     footer: _footer(l10n, config),
   );
+}
+
+/// Isi struk tagihan open bill sebelum dibayar (F1-10k): pesanan dan
+/// rincian F&B dari [bill], dicetak pada [now]. Tidak menyimpan apa pun.
+ReceiptContent billReceiptContent(
+  AppLocalizations l10n, {
+  required OpenBill bill,
+  required String businessName,
+  required String outletName,
+  required String staffName,
+  required String? timezone,
+  required ReceiptConfig config,
+  required DateTime now,
+}) {
+  final sale = bill.sale;
+  final charges = bill.charges;
+  final paid = bill.split?.paid ?? Money.zero;
+  return ReceiptContent(
+    storeName: businessName.toUpperCase(),
+    outletName: outletName,
+    header: config.headerLines,
+    banner: l10n.receiptBannerBill,
+    meta: [
+      ReceiptPair(l10n.receiptNo, sale.billNumber ?? sale.number),
+      ReceiptPair(
+        l10n.receiptDate,
+        receiptDate(outletLocalTime(now, timezone)),
+      ),
+      ReceiptPair(l10n.receiptCashier, staffName),
+      ReceiptPair(l10n.receiptOrder, billOrderLabel(l10n, bill)),
+      // Pelanggan terdaftar (F1-10f), bukan nama pemesan take away.
+      if (bill.customer case final customer?)
+        ReceiptPair(l10n.receiptCustomer, customer.name),
+    ],
+    items: _receiptItems(l10n, bill.items, bill.modifiersOf),
+    totals: [
+      if (charges.discount != Money.zero ||
+          charges.service != Money.zero ||
+          charges.tax != Money.zero ||
+          charges.rounding != Money.zero) ...[
+        ReceiptPair(
+          l10n.receiptSubtotal,
+          receiptAmount(l10n, charges.subtotal.value),
+        ),
+        if (charges.discount != Money.zero)
+          ReceiptPair(
+            sale.discountBp == 0
+                ? l10n.receiptDiscount
+                : l10n.receiptDiscountPct(percentLabel(l10n, sale.discountBp)),
+            '-${receiptAmount(l10n, charges.discount.value)}',
+          ),
+        if (charges.service != Money.zero)
+          ReceiptPair(
+            l10n.receiptService(percentLabel(l10n, bill.rates.service.value)),
+            receiptAmount(l10n, charges.service.value),
+          ),
+        if (charges.tax != Money.zero)
+          ReceiptPair(
+            charges.taxInclusive
+                ? l10n.receiptTaxIncluded(
+                    percentLabel(l10n, bill.rates.tax.value),
+                  )
+                : l10n.receiptTax(percentLabel(l10n, bill.rates.tax.value)),
+            receiptAmount(l10n, charges.tax.value),
+          ),
+        if (charges.rounding != Money.zero)
+          ReceiptPair(
+            l10n.receiptRounding,
+            charges.rounding.value < 0
+                ? '-${receiptAmount(l10n, -charges.rounding.value)}'
+                : receiptAmount(l10n, charges.rounding.value),
+          ),
+      ],
+      ReceiptPair(
+        l10n.receiptTotal,
+        receiptAmount(l10n, charges.total.value),
+        bold: true,
+      ),
+      // Bagian split yang sudah lunas (F1-10c).
+      if (paid > Money.zero) ...[
+        ReceiptPair(
+          l10n.receiptPaidSoFar,
+          '-${receiptAmount(l10n, paid.value)}',
+        ),
+        ReceiptPair(
+          l10n.receiptBalanceDue,
+          receiptAmount(l10n, (charges.total - paid).value),
+          bold: true,
+        ),
+      ],
+      ?receiptTransferLine(l10n, config.transferAccount),
+    ],
+    footer: _footer(l10n, config),
+  );
+}
+
+/// Baris barang struk: porsi split digabung, modifier, diskon baris.
+List<ReceiptItem> _receiptItems(
+  AppLocalizations l10n,
+  List<SaleItem> items,
+  List<SaleItemModifier> Function(SaleItem) modifiersOf,
+) {
+  return [
+    for (final item in mergeSplitPortions(items))
+      ReceiptItem(
+        name: '${item.productName} ${item.variantName}'.trim(),
+        extras: [
+          for (final m in modifiersOf(item))
+            m.priceDelta == 0
+                ? '+ ${m.name}'
+                : '+ ${m.name} ${_signed(l10n, m.priceDelta)}',
+        ],
+        // Harga satuan termasuk tambahan modifier agar jumlah × harga =
+        // total baris.
+        detail:
+            '${_qty(l10n, item.quantityMilli)}'
+            '${item.productUnitId == null ? '' : ' ${item.unitName}'}'
+            ' x ${receiptAmount(l10n, item.unitPrice + item.modifierDelta)}',
+        // Jumlah sebelum diskon baris; potongannya di baris sendiri.
+        amount: receiptAmount(l10n, item.lineTotal + item.discountAmount),
+        discount: item.discountAmount == 0
+            ? null
+            : ReceiptPair(
+                item.discountBp == 0
+                    ? l10n.receiptDiscount
+                    : l10n.receiptDiscountPct(
+                        percentLabel(l10n, item.discountBp),
+                      ),
+                '-${receiptAmount(l10n, item.discountAmount)}',
+              ),
+      ),
+  ];
 }
 
 /// Porsi split bill (F1-10c) digabung kembali ke baris asalnya agar struk

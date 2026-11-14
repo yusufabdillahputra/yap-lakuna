@@ -260,6 +260,8 @@ class FakeDiningRepository extends DiningRepository {
         for (final c in catalog.categories) c.id: ?c.parentId,
       },
       staffName: 'Dimas',
+      businessName: 'Kedai Contoh',
+      outletName: 'Cabang Pusat',
       timezone: 'Asia/Jakarta',
       canPay: _can(Permission.salesCreate),
       canVoid: _can(Permission.salesVoid),

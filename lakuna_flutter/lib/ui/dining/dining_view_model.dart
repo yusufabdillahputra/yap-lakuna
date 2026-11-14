@@ -77,6 +77,8 @@ class DiningViewModel extends ChangeNotifier {
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
     printBarTicket = Command1(_printBarTicket)..addListener(notifyListeners);
+    printBill = Command1(_printBill)..addListener(notifyListeners);
+    shareBill = Command1(_shareBill)..addListener(notifyListeners);
     setDiscount = Command1(_setDiscount)..addListener(notifyListeners);
     setItemDiscount = Command1(_setItemDiscount)..addListener(notifyListeners);
   }
@@ -120,6 +122,12 @@ class DiningViewModel extends ChangeNotifier {
   /// Cetak (ulang) tiket bar ke printer bar (F1-10j).
   late final Command1<void, List<ReceiptLine>> printBarTicket;
 
+  /// Cetak tagihan bill terpilih ke printer struk (F1-10k).
+  late final Command1<void, List<ReceiptLine>> printBill;
+
+  /// Simpan / bagikan tagihan bill terpilih sebagai PDF (F1-10k).
+  late final Command1<String?, List<ReceiptLine>> shareBill;
+
   /// Terapkan / hapus diskon nota bill terpilih (F1-04e).
   late final Command1<OpenBill, BillDiscountChange> setDiscount;
 
@@ -143,6 +151,9 @@ class DiningViewModel extends ChangeNotifier {
   var _ticketPrinted = false;
   PrinterFailureReason? _barPrintFailure;
   var _barTicketPrinted = false;
+  PrinterFailureReason? _billPrintFailure;
+  var _billPrinted = false;
+  String? _billPdfPath;
   String _menuQuery = '';
   UuidValue? _menuCategory;
 
@@ -922,6 +933,71 @@ class DiningViewModel extends ChangeNotifier {
     } on PrinterFailure catch (e) {
       if (identical(_ticket, ticket)) _printFailure = e.reason;
       return Result.error(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  // --- Cetak tagihan (F1-10k) ----------------------------------------------
+
+  /// Logo struk (F1-06b), `null` bila tidak ditampilkan.
+  Uint8List? get receiptLogo => _data?.receipt.logoBytes;
+  PrinterFailureReason? get billPrintFailure => _billPrintFailure;
+
+  /// Tagihan terkirim ke printer langsung (bukan dialog cetak sistem).
+  bool get billPrinted => _billPrinted;
+
+  /// Lokasi PDF tagihan yang disimpan di desktop.
+  String? get billPdfPath => _billPdfPath;
+
+  /// Hapus hasil cetak/bagikan sebelumnya saat dialog tagihan dibuka.
+  void clearBillPrint() {
+    _billPrintFailure = null;
+    _billPrinted = false;
+    _billPdfPath = null;
+    printBill.clearResult();
+    shareBill.clearResult();
+    notifyListeners();
+  }
+
+  String get _billJobName =>
+      'tagihan-${selectedBill?.sale.billNumber ?? selectedBill?.sale.number ?? 'bill'}';
+
+  Future<Result<void>> _printBill(List<ReceiptLine> lines) async {
+    _billPrintFailure = null;
+    _billPrinted = false;
+    final printer =
+        _data?.printer ??
+        const PrinterSelection(kind: PrinterKind.system, name: '');
+    try {
+      await _printer.print(
+        printer,
+        lines,
+        paper,
+        jobName: _billJobName,
+        logo: receiptLogo,
+      );
+      _billPrinted = printer.isDirect;
+      return const Result.ok(null);
+    } on PrinterFailure catch (e) {
+      _billPrintFailure = e.reason;
+      return Result.error(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  Future<Result<String?>> _shareBill(List<ReceiptLine> lines) async {
+    _billPdfPath = null;
+    try {
+      final path = await _printer.sharePdf(
+        lines,
+        paper,
+        fileName: '$_billJobName.pdf',
+        logo: receiptLogo,
+      );
+      _billPdfPath = path;
+      return Result.ok(path);
     } on Exception catch (e) {
       return Result.error(e);
     }
