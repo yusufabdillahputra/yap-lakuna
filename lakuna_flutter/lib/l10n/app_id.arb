@@ -5399,5 +5399,9 @@
         "type": "String"
       }
     }
+  },
+  "kuitansiBalanceTransferTo": "Transfer sisa ke",
+  "@kuitansiBalanceTransferTo": {
+    "placeholders": {}
   }
 }

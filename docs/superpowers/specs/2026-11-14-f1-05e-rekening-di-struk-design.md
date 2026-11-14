@@ -32,7 +32,11 @@ piutang sebaiknya langsung memuat rekening itu.
    (opsi *Tampilkan sisa piutang* aktif, kuitansi tidak dibatalkan) dan
    sisanya lebih dari 0, cetak baris yang sama setelah *Sisa piutang*.
 5. **Kuitansi A5 (PDF)**: syarat sama dengan aturan 4; tambah isian
-   **Transfer ke** berisi rekening setelah isian *Metode*.
+   **Transfer sisa ke** (English *Pay the balance to*) berisi rekening
+   sebagai isian terakhir. Uji manual menunjukkan label *Transfer ke*
+   tepat di bawah *Metode: Tunai* terbaca seolah pembayaran tunai itu
+   ditransfer ke rekening, jadi labelnya menyebut *sisa* dan letaknya di
+   akhir.
 6. Struk contoh di Pengaturan › Struk tidak berubah (tanpa piutang).
 7. Cetak ulang nota piutang yang kemudian sudah dilunasi tetap memuat
    rekening, sama seperti baris *Piutang* yang mencatat keadaan saat
@@ -49,9 +53,11 @@ piutang sebaiknya langsung memuat rekening itu.
 - `receipt_content.dart`: helper `receiptTransferLine(l10n, account)`
   mengembalikan `ReceiptPair?` (`null` bila kosong), dipakai
   `saleReceiptContent` dan `kuitansiReceiptContent`.
-- `kuitansiDocument`: `KuitansiField(l10n.paymentTransferTo, rekening)`.
+- `kuitansiDocument`: `KuitansiField(l10n.kuitansiBalanceTransferTo,
+  rekening)` di akhir isian.
 - l10n baru: `receiptTransferTo` = "Transfer ke: {account}" /
-  "Transfer to: {account}".
+  "Transfer to: {account}"; `kuitansiBalanceTransferTo` = "Transfer sisa
+  ke" / "Pay the balance to".
 
 ## Tes
 

@@ -80,11 +80,13 @@ KuitansiDocument kuitansiDocument(
             : l10n.kuitansiForShort(receipt.lines.length),
       ),
       KuitansiField(l10n.kuitansiMethod, debtPaymentMethodLabel(l10n, p)),
-      if (_transferAccount(receipt, setup, showBalance) case final account?)
-        KuitansiField(l10n.paymentTransferTo, account),
       if (p.note case final note?) KuitansiField(l10n.kuitansiNote, note),
       if (p.voidReason case final reason?)
         KuitansiField(l10n.kuitansiVoidReason, reason),
+      // Di akhir, berlabel "sisa", agar tidak terbaca sebagai tujuan
+      // pembayaran ini (mis. kuitansi tunai).
+      if (_transferAccount(receipt, setup, showBalance) case final account?)
+        KuitansiField(l10n.kuitansiBalanceTransferTo, account),
     ],
     tableHead: showDetails
         ? [

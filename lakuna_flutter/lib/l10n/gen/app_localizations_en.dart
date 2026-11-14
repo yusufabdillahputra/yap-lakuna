@@ -8445,4 +8445,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String receiptTransferTo(String account) {
     return 'Transfer to: $account';
   }
+
+  @override
+  String get kuitansiBalanceTransferTo => 'Pay the balance to';
 }

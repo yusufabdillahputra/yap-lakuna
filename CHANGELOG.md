@@ -20,7 +20,9 @@ jadi pelanggan tahu ke mana melunasi sisanya tanpa kasir menulis tangan.
   dari Pengaturan › *Penjualan & stok* › *Rekening transfer* (F1-05c).
 - **Kuitansi pembayaran piutang (1.20b):** bila *Sisa piutang* tercetak
   dan masih lebih dari 0, kuitansi thermal mencetak baris yang sama dan
-  kuitansi A5 (PDF) menambah isian *Transfer ke* setelah *Metode*.
+  kuitansi A5 (PDF) menambah isian terakhir *Transfer sisa ke*. Label
+  ini sengaja menyebut *sisa* agar tidak terbaca sebagai tujuan
+  pembayaran tunai di kuitansi itu.
 - Panduan *Penjualan kredit*, *Pelanggan & piutang*, dan *Pengaturan
   toko* (ID + EN).
 
@@ -36,7 +38,7 @@ jadi pelanggan tahu ke mana melunasi sisanya tanpa kasir menulis tangan.
   `loadReceiptConfig` dari `loadSalesRules`, sehingga Kasir, Meja,
   Riwayat, dan Pelanggan mendapat rekening tanpa mengubah repositori.
 - Helper `receiptTransferLine` di `receipt_content.dart`; l10n
-  `receiptTransferTo`.
+  `receiptTransferTo` dan `kuitansiBalanceTransferTo`.
 - Baris tidak dicetak untuk nota lunas, nota tanpa pelanggan, nota void
   atau diretur penuh,
   kuitansi batal, opsi *Tampilkan sisa piutang* mati, sisa 0, atau

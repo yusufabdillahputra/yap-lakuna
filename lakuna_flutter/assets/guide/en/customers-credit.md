@@ -21,7 +21,7 @@ Manage groups in **Master data › Customer groups**. A group's standard term fi
 1. Choose the customer, then under *Receive payment* enter the **Amount received** or tap **Pay in full**.
 2. Choose the **Method**. Cash goes into the drawer when a cash session is open, otherwise it is recorded as store cash.
 3. Automatic allocation pays the oldest receipt first. Tap **Allocate manually** to fill in each receipt yourself.
-4. Tap **Save & print receipt**. The payment receipt comes as A5/PDF or a thermal slip. If a balance remains and a *Transfer account* is set, the receipt includes *Transfer to* with the store account.
+4. Tap **Save & print receipt**. The payment receipt comes as A5/PDF or a thermal slip. If a balance remains and a *Transfer account* is set, the receipt includes *Pay the balance to* (A5) or *Transfer to:* (thermal) with the store account.
 
 ## Voiding a receivable payment
 

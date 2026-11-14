@@ -8209,4 +8209,7 @@ class AppLocalizationsId extends AppLocalizations {
   String receiptTransferTo(String account) {
     return 'Transfer ke: $account';
   }
+
+  @override
+  String get kuitansiBalanceTransferTo => 'Transfer sisa ke';
 }

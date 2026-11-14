@@ -119,10 +119,8 @@ void main() {
     expect(has(thermal(receipt(), acc: '')), isFalse);
   });
 
-  test('A5: isian Transfer ke setelah Metode', () {
-    final fields = a5(receipt());
-    final method = fields.indexWhere((f) => f.startsWith('Metode|'));
-    expect(fields[method + 1], 'Transfer ke|$account');
+  test('A5: isian Transfer sisa ke di akhir isian', () {
+    expect(a5(receipt()).last, 'Transfer sisa ke|$account');
     final english = kuitansiDocument(
       en,
       receipt: receipt(),
@@ -132,9 +130,9 @@ void main() {
       showBalance: true,
       city: '',
     ).fields.map((f) => '${f.label}|${f.value}');
-    expect(english, contains('Transfer to|$account'));
+    expect(english.last, 'Pay the balance to|$account');
 
-    bool has(List<String> f) => f.any((l) => l.startsWith('Transfer ke|'));
+    bool has(List<String> f) => f.any((l) => l.startsWith('Transfer sisa'));
     expect(has(a5(receipt(balanceAfter: 0))), isFalse);
     expect(has(a5(receipt(), showBalance: false)), isFalse);
     expect(has(a5(receipt(voided: true))), isFalse);
