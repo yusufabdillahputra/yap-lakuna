@@ -64,4 +64,4 @@ rekening.
 | Referensi di bagian split payment | 1.5 | Rilis v0.64.0 | Selesai. |
 | Referensi di struk | — | Rilis v0.64.0 | Selesai. |
 | Ubah referensi setelah nota tersimpan | — | Belum | Void lalu ulang bila salah. |
-| Cari nota berdasarkan referensi di Riwayat | 1.14 | Belum | Pencarian Riwayat memakai nomor nota. |
+| Cari nota berdasarkan referensi di Riwayat | 1.14 | Rilis v0.66.0 ([F1-11b](2026-11-14-f1-11b-cari-nota-riwayat-design.md)) | Pencarian Riwayat mencakup nomor, pelanggan, dan referensi. |

@@ -14201,6 +14201,42 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Diskon manual · disetujui {name}'**
   String historyManualDiscountBy(String name);
+
+  /// No description provided for @storeSettingsTransferAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekening transfer'**
+  String get storeSettingsTransferAccount;
+
+  /// No description provided for @storeSettingsTransferAccountHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional. Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.'**
+  String get storeSettingsTransferAccountHint;
+
+  /// No description provided for @paymentTransferTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Transfer ke'**
+  String get paymentTransferTo;
+
+  /// No description provided for @paymentTransferCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin'**
+  String get paymentTransferCopy;
+
+  /// No description provided for @paymentTransferCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Disalin'**
+  String get paymentTransferCopied;
+
+  /// No description provided for @storeSettingsTransferAccountExample.
+  ///
+  /// In id, this message translates to:
+  /// **'BCA 123-456-7890 a.n. {name}'**
+  String storeSettingsTransferAccountExample(String name);
 }
 
 class _AppLocalizationsDelegate

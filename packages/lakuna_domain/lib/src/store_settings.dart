@@ -50,6 +50,7 @@ class SalesRules {
     this.allowNegativeStock = true,
     this.rounding = TotalRounding.none,
     this.discountNeedsPin = true,
+    this.transferAccount = '',
   });
 
   /// JSON tersimpan; kolom yang rusak memakai nilai bawaan.
@@ -57,11 +58,22 @@ class SalesRules {
     if (json is! Map) return const SalesRules();
     final negative = json['allowNegativeStock'];
     final pin = json['discountNeedsPin'];
+    final account = json['transferAccount'];
     return SalesRules(
       allowNegativeStock: negative is bool ? negative : true,
       rounding:
           TotalRounding.byNameOrNull(json['rounding']) ?? TotalRounding.none,
       discountNeedsPin: pin is bool ? pin : true,
+      // Nilai tersimpan dipangkas dan dibatasi agar simpan ulang aturan
+      // lain tidak gagal karena data lama/rusak.
+      transferAccount: account is String
+          ? account
+                .trim()
+                .characters
+                .take(ProfileLimits.transferAccount)
+                .toString()
+                .trim()
+          : '',
     );
   }
 
@@ -74,20 +86,27 @@ class SalesRules {
   /// untuk staf berizin.
   final bool discountNeedsPin;
 
+  /// Rekening transfer toko, teks bebas satu baris (F1-05c), mis.
+  /// `BCA 123-456-7890 a.n. Warung Contoh`. Kosong = belum diatur.
+  final String transferAccount;
+
   Map<String, Object> toJson() => {
     'allowNegativeStock': allowNegativeStock,
     'rounding': rounding.name,
     'discountNeedsPin': discountNeedsPin,
+    'transferAccount': transferAccount,
   };
 
   SalesRules copyWith({
     bool? allowNegativeStock,
     TotalRounding? rounding,
     bool? discountNeedsPin,
+    String? transferAccount,
   }) => SalesRules(
     allowNegativeStock: allowNegativeStock ?? this.allowNegativeStock,
     rounding: rounding ?? this.rounding,
     discountNeedsPin: discountNeedsPin ?? this.discountNeedsPin,
+    transferAccount: transferAccount ?? this.transferAccount,
   );
 
   @override
@@ -95,16 +114,22 @@ class SalesRules {
       other is SalesRules &&
       other.allowNegativeStock == allowNegativeStock &&
       other.rounding == rounding &&
-      other.discountNeedsPin == discountNeedsPin;
+      other.discountNeedsPin == discountNeedsPin &&
+      other.transferAccount == transferAccount;
 
   @override
-  int get hashCode =>
-      Object.hash(allowNegativeStock, rounding, discountNeedsPin);
+  int get hashCode => Object.hash(
+    allowNegativeStock,
+    rounding,
+    discountNeedsPin,
+    transferAccount,
+  );
 
   @override
   String toString() =>
       'SalesRules(allowNegativeStock: $allowNegativeStock, '
-      'rounding: ${rounding.name}, discountNeedsPin: $discountNeedsPin)';
+      'rounding: ${rounding.name}, discountNeedsPin: $discountNeedsPin, '
+      'transferAccount: $transferAccount)';
 }
 
 /// Batas isian profil toko & cabang.
@@ -112,6 +137,9 @@ abstract final class ProfileLimits {
   static const name = setupNameMaxLength;
   static const address = 160;
   static const phone = 20;
+
+  /// Rekening transfer di *Penjualan & stok* (F1-05c).
+  static const transferAccount = 100;
 }
 
 enum ProfileIssue { required, tooLong, invalidPhone }

@@ -4781,5 +4781,33 @@
         "type": "String"
       }
     }
+  },
+  "storeSettingsTransferAccount": "Transfer account",
+  "@storeSettingsTransferAccount": {
+    "placeholders": {}
+  },
+  "storeSettingsTransferAccountHint": "Optional. Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.",
+  "@storeSettingsTransferAccountHint": {
+    "placeholders": {}
+  },
+  "paymentTransferTo": "Transfer to",
+  "@paymentTransferTo": {
+    "placeholders": {}
+  },
+  "paymentTransferCopy": "Copy",
+  "@paymentTransferCopy": {
+    "placeholders": {}
+  },
+  "paymentTransferCopied": "Copied",
+  "@paymentTransferCopied": {
+    "placeholders": {}
+  },
+  "storeSettingsTransferAccountExample": "BCA 123-456-7890 ({name})",
+  "@storeSettingsTransferAccountExample": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

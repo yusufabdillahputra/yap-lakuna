@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.74.0] - 2026-11-14
+
+Kasir tidak perlu lagi menghafal nomor rekening toko: rekening transfer
+diatur sekali di Pengaturan dan tampil di layar bayar, siap disalin untuk
+pembeli.
+
+### Ditambahkan
+
+- **Pengaturan (1.26) › Penjualan & stok:** isian *Rekening transfer*
+  (opsional, satu baris, maks 100 karakter, per cabang), mis.
+  `BCA 123-456-7890 a.n. Warung Contoh`.
+- **Layar bayar (1.5):** tombol *Transfer bank* menampilkan rekening
+  menggantikan *Cek mutasi dulu* (layar lebar). Panel transfer menampilkan
+  kotak *Transfer ke* dengan tombol **Salin**; label berubah menjadi
+  *Disalin* setelah disalin. Berlaku di Kasir, bill Meja/take away, dan
+  bayar per bagian split bill.
+- Panduan *Pembayaran tunai* dan *Pengaturan toko* (ID + EN).
+
+### Diubah
+
+- Kunci pengaturan `sales.rules` kini menyimpan `transferAccount`. Data
+  lama tanpa kunci ini dibaca sebagai kosong.
+
+### Catatan teknis
+
+- `SalesRules.transferAccount` (dipangkas; nilai tersimpan dibatasi 100
+  karakter saat dibaca agar data lama/rusak tidak membuat simpan aturan
+  lain gagal). `ProfileLimits.transferAccount = 100`.
+- `saveSalesRules` memangkas dan menolak lebih dari 100 karakter dengan
+  `SalesRulesInvalid` (sebuah `Exception`, jadi tampil sebagai galat
+  simpan, bukan galat tak tertangkap).
+- `StoreSettingsViewModel.setTransferAccount`; `rulesDirty` membandingkan
+  teks yang sudah dipangkas; isian diisi ulang hanya bila teks dipangkas,
+  sehingga isian kartu lain tidak kehilangan fokus.
+- `TransferAccountBox` (`Clipboard.setData`) memakai `Wrap`, jadi di
+  ponsel tombol salin turun ke baris berikutnya tanpa memotong rekening.
+- Tes: domain (JSON lama, pangkas, batas), data (simpan/pangkas/tolak),
+  VM dan widget Pengaturan, layar bayar Kasir 1280/360 (clipboard), dan
+  bayar bill Meja lewat transfer.
+
 ## [0.73.0] - 2026-11-14
 
 Di open bill F&B, staf yang memberi diskon kini tercatat walau bill ditutup
@@ -5174,7 +5214,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...HEAD
+[0.74.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...v0.74.0
 [0.73.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...v0.73.0
 [0.72.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...v0.72.0
 [0.71.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.70.0...v0.71.0

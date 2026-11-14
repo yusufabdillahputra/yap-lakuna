@@ -142,5 +142,5 @@ dan `LocalCashierRepository`).
 | Kredit / piutang, DP, jatuh tempo | 1.5b | Belum | Setelah F1-13 Pelanggan |
 | Opsi struk (cetak otomatis, PDF) | 1.5 panel Struk, 1.5c | Pratinjau teks saja | F1-06 |
 | Pembulatan total | Pengaturan 1.26 | Belum | F1-18 |
-| Rekening transfer di tombol | "BCA 123-456-7890" | Belum | Pengaturan metode bayar F1-18 |
+| Rekening transfer di tombol | "BCA 123-456-7890" | Rilis v0.74.0 ([F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)) | Teks bebas di *Penjualan & stok*; kotak *Transfer ke* + tombol Salin. |
 | Scan barcode saat di layar bayar (desktop) | — | Masuk ke *Uang diterima* | Batasi nominal / abaikan input sangat cepat bersama F1-06 |

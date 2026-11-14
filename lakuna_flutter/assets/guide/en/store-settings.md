@@ -11,7 +11,7 @@
 - **Payment methods**: the [static QRIS](pay-qris) image and details.
 - **Receipt & printer**: see [Receipts & printers](receipt-printer).
 - **Tax & service** (F&B): service charge, PB1, and the *Prices include tax* option.
-- **Sales & stock**: *Allow negative stock*, *Total rounding* (Rp 100 or Rp 500), and *Manual discount needs manager PIN*.
+- **Sales & stock**: *Allow negative stock*, *Total rounding* (Rp 100 or Rp 500), *Manual discount needs manager PIN*, and *Transfer account* (e.g. `BCA 123-456-7890`, shown on the payment screen).
 - **Data & backup**: see [Backup & restore](backup-restore).
 - **Appearance & language**: Light/Dark/Follow system theme, language, and **Display size** Normal or Large.
 

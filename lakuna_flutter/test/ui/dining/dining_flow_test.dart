@@ -67,6 +67,7 @@ void main() {
     List<CustomerRow> customers = const [],
     List<String> plainMenus = const [],
     bool discountNeedsPin = true,
+    SalesRules rules = const SalesRules(),
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
@@ -90,7 +91,9 @@ void main() {
     for (final name in plainMenus) {
       await dining.setMenuFlags(name, sendToKitchen: false, allowNote: false);
     }
-    cashier = FakeCashierRepository()..dining = dining;
+    cashier = FakeCashierRepository()
+      ..dining = dining
+      ..salesRules = rules;
     printer = FakeReceiptPrinter();
     await pumpLakuna(
       tester,
@@ -411,6 +414,27 @@ void main() {
     await _tap(tester, 'discount-remove');
     expect(_key('dining-bill-discount'), findsNothing);
     expect(find.text('Rp 27.720'), findsWidgets);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('bayar bill lewat transfer: rekening toko tampil (F1-05c)', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      rules: const SalesRules(transferAccount: 'BCA 123-456-7890'),
+    );
+    await _tap(tester, 'dining-table-M4');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren']);
+    await _tap(tester, 'dining-pay');
+    await _tap(tester, 'payment-method-transfer');
+    expect(
+      find.descendant(
+        of: _key('payment-transfer-account'),
+        matching: find.text('BCA 123-456-7890'),
+      ),
+      findsOneWidget,
+    );
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('diskon nota 360 px: pelayan lewat PIN manajer', (tester) async {

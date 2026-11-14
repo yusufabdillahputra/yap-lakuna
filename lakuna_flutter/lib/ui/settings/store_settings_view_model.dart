@@ -77,7 +77,9 @@ class StoreSettingsViewModel extends ChangeNotifier {
           _address.trim() != _profile!.address ||
           _phone.trim() != _profile!.phone);
 
-  bool get rulesDirty => _rules != _storedRules;
+  bool get rulesDirty =>
+      _rules.copyWith(transferAccount: _rules.transferAccount.trim()) !=
+      _storedRules;
 
   void setBusinessName(String v) {
     _businessName = v;
@@ -111,6 +113,12 @@ class StoreSettingsViewModel extends ChangeNotifier {
 
   void setDiscountNeedsPin(bool v) {
     _rules = _rules.copyWith(discountNeedsPin: v);
+    saveRules.clearResult();
+    notifyListeners();
+  }
+
+  void setTransferAccount(String v) {
+    _rules = _rules.copyWith(transferAccount: v);
     saveRules.clearResult();
     notifyListeners();
   }
@@ -193,6 +201,9 @@ class StoreSettingsViewModel extends ChangeNotifier {
   Future<Result<SalesRules>> _saveRules() async {
     final result = await _repository.saveSalesRules(_rules);
     if (result case Ok(:final value)) {
+      // Isian rekening diisi ulang hanya bila teksnya dipangkas, agar
+      // isian kartu lain tidak kehilangan fokus.
+      if (value.transferAccount != _rules.transferAccount) _rev++;
       _storedRules = value;
       _rules = value;
     }

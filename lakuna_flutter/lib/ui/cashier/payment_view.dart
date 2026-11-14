@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -499,7 +500,12 @@ class _MethodChoice extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              _hint(l10n, m),
+                              m == PayMode.transfer &&
+                                      vm.transferAccount.isNotEmpty
+                                  ? vm.transferAccount
+                                  : _hint(l10n, m),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: theme.typography.body.xs.copyWith(
                                 color: theme.colors.mutedForeground,
                               ),
@@ -805,6 +811,8 @@ class _ReferencePanel extends StatelessWidget {
               color: theme.colors.mutedForeground,
             ),
           ),
+          if (!card && vm.transferAccount.isNotEmpty)
+            TransferAccountBox(account: vm.transferAccount),
           FTextField(
             key: const ValueKey('payment-reference'),
             label: Text(card ? l10n.paymentApproval : l10n.paymentReference),
@@ -819,6 +827,91 @@ class _ReferencePanel extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Rekening transfer toko dari *Penjualan & stok* (F1-05c) dengan tombol
+/// salin, agar kasir bisa mengirimkannya ke pembeli.
+class TransferAccountBox extends StatefulWidget {
+  const TransferAccountBox({super.key, required this.account});
+
+  final String account;
+
+  @override
+  State<TransferAccountBox> createState() => _TransferAccountBoxState();
+}
+
+class _TransferAccountBoxState extends State<TransferAccountBox> {
+  var _copied = false;
+
+  @override
+  void didUpdateWidget(TransferAccountBox old) {
+    super.didUpdateWidget(old);
+    if (old.account != widget.account) _copied = false;
+  }
+
+  Future<void> _copy() async {
+    await Clipboard.setData(ClipboardData(text: widget.account));
+    if (mounted) setState(() => _copied = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    return DecoratedBox(
+      key: const ValueKey('payment-transfer-account'),
+      decoration: BoxDecoration(
+        color: theme.colors.secondary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+        // Wrap: di ponsel atau teks besar tombol salin turun ke baris
+        // berikutnya, tidak memotong nomor rekening.
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    l10n.paymentTransferTo,
+                    style: theme.typography.body.xs.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                  ),
+                  Text(
+                    widget.account,
+                    style: theme.typography.body.md.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            FButton(
+              key: const ValueKey('payment-transfer-copy'),
+              variant: .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              onPress: _copy,
+              prefix: Icon(_copied ? TablerIcons.check : TablerIcons.copy),
+              child: Text(
+                _copied ? l10n.paymentTransferCopied : l10n.paymentTransferCopy,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

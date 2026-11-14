@@ -11,7 +11,7 @@ Menu **Pengaturan** dibagi menjadi beberapa bagian. Bagian toko hanya tampil unt
 - **Metode pembayaran**: gambar dan data [QRIS statis](pay-qris).
 - **Struk & printer**: lihat [Struk & printer](receipt-printer).
 - **Pajak & service** (F&B): service charge, PB1, dan pilihan *Harga sudah termasuk pajak*.
-- **Penjualan & stok**: *Izinkan stok minus*, *Pembulatan total* (Rp 100 atau Rp 500), dan *Diskon manual butuh PIN manajer*.
+- **Penjualan & stok**: *Izinkan stok minus*, *Pembulatan total* (Rp 100 atau Rp 500), *Diskon manual butuh PIN manajer*, dan *Rekening transfer* (mis. `BCA 123-456-7890 a.n. Warung Contoh`, tampil di layar bayar).
 - **Data & backup**: lihat [Backup & pulihkan](backup-restore).
 - **Tampilan & bahasa**: tema Terang/Gelap/Ikuti sistem, bahasa, dan **Ukuran tampilan** Normal atau Besar.
 
