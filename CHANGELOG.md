@@ -7,6 +7,41 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.79.0] - 2026-11-14
+
+Struk yang masih menyisakan piutang kini mencetak rekening transfer toko,
+jadi pelanggan tahu ke mana melunasi sisanya tanpa kasir menulis tangan.
+
+### Ditambahkan
+
+- **Struk nota (1.12):** nota kredit yang masih menyisakan piutang
+  mencetak *Transfer ke: {rekening}* setelah *Piutang* / *Jatuh tempo*,
+  di struk baru maupun cetak ulang dari Riwayat (1.14). Rekening diambil
+  dari Pengaturan › *Penjualan & stok* › *Rekening transfer* (F1-05c).
+- **Kuitansi pembayaran piutang (1.20b):** bila *Sisa piutang* tercetak
+  dan masih lebih dari 0, kuitansi thermal mencetak baris yang sama dan
+  kuitansi A5 (PDF) menambah isian *Transfer ke* setelah *Metode*.
+- Panduan *Penjualan kredit*, *Pelanggan & piutang*, dan *Pengaturan
+  toko* (ID + EN).
+
+### Diubah
+
+- Rekening panjang (maks 100 karakter) dibungkus rata kiri tanpa nilai
+  kanan, seperti referensi transfer F1-05b, agar tidak terbaca sebagai
+  nominal di kertas 58 mm. Spasi dan baris baru di rekening dirapikan.
+
+### Catatan teknis
+
+- `ReceiptConfig.transferAccount` (`lakuna_data`) diisi
+  `loadReceiptConfig` dari `loadSalesRules`, sehingga Kasir, Meja,
+  Riwayat, dan Pelanggan mendapat rekening tanpa mengubah repositori.
+- Helper `receiptTransferLine` di `receipt_content.dart`; l10n
+  `receiptTransferTo`.
+- Baris tidak dicetak untuk nota lunas, nota tanpa pelanggan, nota void
+  atau diretur penuh,
+  kuitansi batal, opsi *Tampilkan sisa piutang* mati, sisa 0, atau
+  rekening kosong. Tes data, unit struk, dan unit kuitansi thermal/A5.
+
 ## [0.78.0] - 2026-11-14
 
 Dialog *Produk diarsipkan* kini menunjukkan kapan tiap produk diarsipkan,
@@ -5380,7 +5415,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...HEAD
+[0.79.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...v0.78.0
 [0.77.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...v0.76.0

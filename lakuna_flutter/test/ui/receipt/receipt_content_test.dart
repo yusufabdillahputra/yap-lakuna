@@ -470,6 +470,7 @@ void main() {
           c.totals.any((p) => p.label.startsWith('Transfer ke'));
       expect(hasLine(content(credit(paid: 181500))), isFalse);
       expect(hasLine(content(credit(status: SaleStatus.voided))), isFalse);
+      expect(hasLine(content(credit(status: SaleStatus.returned))), isFalse);
       expect(
         hasLine(content(result([pay(PaymentMethod.cash, 81500)]))),
         isFalse,

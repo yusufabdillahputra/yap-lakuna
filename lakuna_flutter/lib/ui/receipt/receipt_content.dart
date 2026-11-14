@@ -194,8 +194,10 @@ ReceiptContent saleReceiptContent(
             '${due.day.toString().padLeft(2, '0')}/'
             '${due.month.toString().padLeft(2, '0')}/${due.year % 100}',
           ),
-        // Rekening untuk melunasi sisa (F1-05e); nota void tidak ditagih.
-        if (sale.status != SaleStatus.voided)
+        // Rekening untuk melunasi sisa (F1-05e); nota void atau diretur
+        // penuh tidak ditagih lagi.
+        if (sale.status != SaleStatus.voided &&
+            sale.status != SaleStatus.returned)
           ?receiptTransferLine(l10n, config.transferAccount),
       ],
       // Cetak ulang nota yang diretur (F1-11): nilai retur dan bersih.

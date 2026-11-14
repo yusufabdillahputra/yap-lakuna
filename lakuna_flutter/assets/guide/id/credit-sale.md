@@ -16,4 +16,6 @@ Pelanggan harus terdaftar dan punya **Limit kredit** lebih dari 0 di menu [Pelan
 
 > [!warning] Bila piutang berjalan ditambah piutang baru melebihi limit, nota tidak bisa disimpan. Kurangi nominal atau naikkan DP.
 
+Struk nota mencetak *Piutang* dan *Jatuh tempo*. Bila *Rekening transfer* diisi di [Pengaturan toko](store-settings), struk juga mencetak *Transfer ke:* diikuti rekening toko agar pelanggan tahu ke mana melunasi sisanya.
+
 Nota tercatat *Belum lunas* di Riwayat dan masuk daftar piutang pelanggan. Pembayaran berikutnya dicatat di [Pelanggan & piutang](customers-credit).

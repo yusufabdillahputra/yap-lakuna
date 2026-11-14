@@ -161,8 +161,8 @@ ReceiptContent kuitansiReceiptContent(
           l10n.kuitansiBalance,
           receiptAmount(l10n, receipt.balanceAfter.value),
         ),
-      if (_transferAccount(receipt, setup, showBalance) != null)
-        ?receiptTransferLine(l10n, setup.receipt.transferAccount),
+      if (_transferAccount(receipt, setup, showBalance) case final account?)
+        ?receiptTransferLine(l10n, account),
     ],
     footer: [l10n.receiptThanks],
   );

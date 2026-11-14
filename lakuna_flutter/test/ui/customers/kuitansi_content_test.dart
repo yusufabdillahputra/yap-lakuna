@@ -123,6 +123,16 @@ void main() {
     final fields = a5(receipt());
     final method = fields.indexWhere((f) => f.startsWith('Metode|'));
     expect(fields[method + 1], 'Transfer ke|$account');
+    final english = kuitansiDocument(
+      en,
+      receipt: receipt(),
+      setup: setup('BCA  1234567890\n a.n. Toko Maju'),
+      copy: false,
+      showDetails: true,
+      showBalance: true,
+      city: '',
+    ).fields.map((f) => '${f.label}|${f.value}');
+    expect(english, contains('Transfer to|$account'));
 
     bool has(List<String> f) => f.any((l) => l.startsWith('Transfer ke|'));
     expect(has(a5(receipt(balanceAfter: 0))), isFalse);

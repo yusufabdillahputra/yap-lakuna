@@ -72,6 +72,7 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
                 ? UuidValue.fromString(newId())
                 : config.settings.logoMediaId);
       return config = ReceiptConfig(
+        transferAccount: config.transferAccount,
         settings: ReceiptSettings(
           paper: settings.paper,
           header: settings.header,

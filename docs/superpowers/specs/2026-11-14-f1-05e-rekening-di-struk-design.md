@@ -1,7 +1,7 @@
 # F1-05e — Rekening transfer di struk piutang dan kuitansi
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.79.0)
+- **Status:** Rilis v0.79.0
 - **Layar:** 1.12 Struk (nota baru dan cetak ulang Riwayat 1.14),
   1.20b Kuitansi (thermal dan A5).
 - **Acuan:** gap [F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)
@@ -26,8 +26,8 @@ piutang sebaiknya langsung memuat rekening itu.
    referensi F1-05b, sehingga rekening panjang (maks 100 karakter) tidak
    terbaca sebagai nominal. Spasi dan baris baru di rekening dirapikan
    menjadi satu spasi.
-3. Nota lunas, nota tanpa pelanggan, nota void, atau rekening kosong:
-   baris tidak tercetak.
+3. Nota lunas, nota tanpa pelanggan, nota void, nota diretur penuh
+   (status *Diretur*), atau rekening kosong: baris tidak tercetak.
 4. **Kuitansi thermal** pembayaran piutang: bila *Sisa piutang* tercetak
    (opsi *Tampilkan sisa piutang* aktif, kuitansi tidak dibatalkan) dan
    sisanya lebih dari 0, cetak baris yang sama setelah *Sisa piutang*.
@@ -44,7 +44,8 @@ piutang sebaiknya langsung memuat rekening itu.
   `transferAccount` (bawaan `''`). `loadReceiptConfig` mengisinya dari
   `loadSalesRules(...).transferAccount`, sehingga kasir, Meja, Riwayat,
   dan Pelanggan otomatis mendapat rekening tanpa mengubah repositori.
-  `ReceiptSettingsViewModel.previewConfig` meneruskan nilainya.
+  `ReceiptSettingsViewModel.previewConfig` meneruskan nilainya agar
+  config pratinjau tetap utuh (struk contoh tidak memakainya).
 - `receipt_content.dart`: helper `receiptTransferLine(l10n, account)`
   mengembalikan `ReceiptPair?` (`null` bila kosong), dipakai
   `saleReceiptContent` dan `kuitansiReceiptContent`.
@@ -66,6 +67,6 @@ piutang sebaiknya langsung memuat rekening itu.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Rekening di struk nota piutang (baru + cetak ulang) | 1.12 | Dalam pengerjaan | — |
-| Rekening di kuitansi thermal dan A5 bila masih ada sisa | 1.20b | Dalam pengerjaan | — |
+| Rekening di struk nota piutang (baru + cetak ulang) | 1.12 | Rilis v0.79.0 | — |
+| Rekening di kuitansi thermal dan A5 bila masih ada sisa | 1.20b | Rilis v0.79.0 | — |
 | Rekening di struk tagihan open bill sebelum bayar | — | Belum | Lakuna belum punya cetak tagihan (pre-bill). |
