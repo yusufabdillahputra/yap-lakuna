@@ -117,12 +117,14 @@ class FakeReportsRepository extends ReportsRepository {
         return CashReport(
           sessions: [
             CashSessionLine(
+              id: openSessionId,
               openedAt: DateTime.utc(2026, 11, 4, 8),
               staffName: 'Sari',
               opening: const Money(100000),
               expected: const Money(179000),
             ),
             CashSessionLine(
+              id: closedSessionId,
               openedAt: DateTime.utc(2026, 11, 3, 8),
               closedAt: DateTime.utc(2026, 11, 3, 21),
               staffName: 'Budi',
@@ -141,6 +143,69 @@ class FakeReportsRepository extends ReportsRepository {
           ],
         );
       });
+
+  /// Sesi Sari yang masih buka dan sesi Budi kemarin (tutup) di tab Kas.
+  static final openSessionId = _uuid(901);
+  static final closedSessionId = _uuid(902);
+
+  /// Permintaan rekap sesi (F1-03e), urut.
+  final recapRequests = <UuidValue>[];
+
+  /// Galat muat rekap berikutnya, bila diisi.
+  Exception? recapError;
+
+  /// Seharusnya tersimpan 160.000, tidak cocok dengan rincian 150.000.
+  bool recapChanged = false;
+
+  /// Rekap sesi Budi: dibuka 03/11 08.00 WIB (Budi), ditutup 21.00 (Sari)
+  /// di K01; 5 nota 80.000 (tunai 50.000, non-tunai 30.000); seharusnya
+  /// 150.000, dihitung 145.000 (100.000 + 2 × 20.000 + 5.000).
+  @override
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(
+    UuidValue sessionId,
+  ) async {
+    recapRequests.add(sessionId);
+    if (!canView) {
+      return const Result.error(NotPermitted(Permission.reportsView));
+    }
+    if (recapError case final e?) return Result.error(e);
+    if (sessionId != closedSessionId) {
+      return const Result.error(CashSessionNotClosed());
+    }
+    final session = CashSession(
+      id: closedSessionId,
+      tenantId: _uuid(1),
+      outletId: _uuid(2),
+      deviceId: _uuid(3),
+      status: CashSessionStatus.closed,
+      openedBy: _uuid(4),
+      openedAt: DateTime.utc(2026, 11, 3, 1),
+      openingCash: 100000,
+      closedBy: _uuid(5),
+      closedAt: DateTime.utc(2026, 11, 3, 14),
+      expectedCash: recapChanged ? 160000 : 150000,
+      countedCash: 145000,
+      difference: recapChanged ? -15000 : -5000,
+      countedBreakdown: '{"sheets":{"100000":1,"20000":2,"5000":1},"coins":0}',
+      hlc: 'h',
+    );
+    return Result.ok(
+      ClosedSessionRecap(
+        session: session,
+        movements: const [],
+        sales: const SessionSalesSummary(
+          count: 5,
+          total: Money(80000),
+          cash: Money(50000),
+          nonCash: Money(30000),
+        ),
+        drawer: cashDrawerOf(session, const [], cashSales: const Money(50000)),
+        openedByName: 'Budi',
+        closedByName: 'Sari',
+        deviceCode: 'K01',
+      ),
+    );
+  }
 
   /// Piutang: Budi 150.000 (lewat tempo) dan Rina 50.000; hutang CV Sumber
   /// 120.000 jatuh tempo 10/11/2026.

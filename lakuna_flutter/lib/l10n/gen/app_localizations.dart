@@ -14405,6 +14405,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Supplier diisi dari pembelian terakhir: {supplier} ({count} dari {total} barang).'**
   String purchaseRestockSupplierNote(String supplier, int count, int total);
+
+  /// No description provided for @recapReprinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Dicetak ulang'**
+  String get recapReprinted;
+
+  /// No description provided for @recapChangedNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Rincian mengikuti data saat ini; ada data sesi yang berubah setelah ditutup.'**
+  String get recapChangedNote;
+
+  /// No description provided for @reportsSessionRecapTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekap sesi {date}'**
+  String reportsSessionRecapTitle(String date);
+
+  /// No description provided for @reportsSessionRecapLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekap sesi tidak bisa dimuat.'**
+  String get reportsSessionRecapLoadFailed;
+
+  /// No description provided for @reportsSessionRecapNotClosed.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi tidak ditemukan di cabang ini atau belum ditutup.'**
+  String get reportsSessionRecapNotClosed;
+
+  /// No description provided for @reportsSessionRecapOpen.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak ulang rekap sesi'**
+  String get reportsSessionRecapOpen;
+
+  /// No description provided for @reportsCashReprintHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya.'**
+  String get reportsCashReprintHint;
 }
 
 class _AppLocalizationsDelegate

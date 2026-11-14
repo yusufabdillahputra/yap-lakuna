@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart' show ClosedSessionRecap;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
@@ -15,14 +16,34 @@ class SessionRecap {
     required this.active,
     required this.closed,
     required this.closerName,
+    this.changedSinceClose = false,
   });
+
+  /// Rekap sesi lama dari Laporan › Kas & sesi (F1-03e).
+  factory SessionRecap.fromClosed(ClosedSessionRecap r) => SessionRecap(
+    active: ActiveCashSession(
+      session: r.session,
+      openedByName: r.openedByName,
+      movements: r.movements,
+      drawer: r.drawer,
+      sales: r.sales,
+    ),
+    closed: r.session,
+    closerName: r.closedByName,
+    changedSinceClose: r.changedSinceClose,
+  );
 
   final ActiveCashSession active;
   final CashSession closed;
   final String closerName;
+
+  /// Rincian dimuat ulang dan tidak lagi cocok dengan seharusnya di laci
+  /// yang tersimpan (F1-03e).
+  final bool changedSinceClose;
 }
 
 /// Isi struk rekap sesi kasir (F1-03b), dicetak dengan mesin struk F1-06.
+/// [reprintedAt] menandai cetak ulang dari Laporan (F1-03e).
 ReceiptContent sessionRecapContent(
   AppLocalizations l10n, {
   required SessionRecap recap,
@@ -30,6 +51,7 @@ ReceiptContent sessionRecapContent(
   required String outletName,
   required String deviceCode,
   required String? timezone,
+  DateTime? reprintedAt,
 }) {
   String amount(int value) => receiptAmount(l10n, value);
   String signed(int value) =>
@@ -64,6 +86,8 @@ ReceiptContent sessionRecapContent(
         date(closed.closedAt ?? closed.updatedAt),
       ),
       ReceiptPair(l10n.recapClosedBy, recap.closerName),
+      if (reprintedAt != null)
+        ReceiptPair(l10n.recapReprinted, date(reprintedAt)),
     ],
     sections: [
       [
@@ -127,6 +151,7 @@ ReceiptContent sessionRecapContent(
     ],
     footer: [
       if (closed.closingNote case final note?) l10n.recapNote(note),
+      if (recap.changedSinceClose) l10n.recapChangedNote,
     ],
   );
 }

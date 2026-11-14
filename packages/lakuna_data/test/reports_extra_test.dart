@@ -417,6 +417,118 @@ void main() {
     expect(week.totalDifference, const Money(-5000));
   });
 
+  group('loadClosedSessionRecap (F1-03e)', () {
+    Future<CashSession> closedYesterday() async {
+      final kemarin = await open(100000);
+      await sell({kopi: 1000}); // tunai 10.000
+      await recordCashMovement(
+        store,
+        cash(),
+        sessionId: kemarin.id,
+        staffId: owner(),
+        direction: CashDirection.outflow,
+        amount: const Money(15000),
+        note: 'Es batu',
+      );
+      return closeCashSession(
+        store,
+        cash(),
+        sessionId: kemarin.id,
+        staffId: owner(),
+        count: const CashCount(sheets: {50000: 1, 20000: 2}),
+        note: 'Kurang 5.000',
+      );
+    }
+
+    test('isi rekap sesi tertutup dan id baris laporan', () async {
+      final closed = await closedYesterday();
+      now = DateTime.utc(2026, 11, 4, 3);
+      final week = await loadCashReport(
+        store,
+        scope,
+        permissions: viewOnly,
+        period: ReportPeriod.last7Days,
+        now: now,
+      );
+      expect(week.sessions.single.id, closed.id);
+
+      final r = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: viewOnly,
+        sessionId: closed.id,
+      );
+      expect(r.session.id, closed.id);
+      expect(r.session.expectedCash, 100000 + 10000 - 15000);
+      expect(r.session.difference, -5000);
+      expect(r.movements.map((m) => m.note), ['Es batu']);
+      expect(r.sales.count, 1);
+      expect(r.sales.cash, const Money(10000));
+      expect(r.drawer.expectedCash, const Money(95000));
+      expect(r.openedByName, 'Yusuf');
+      expect(r.closedByName, 'Yusuf');
+      expect(r.deviceCode, 'K01');
+      expect(r.changedSinceClose, isFalse);
+    });
+
+    test('rincian berubah setelah tutup ditandai', () async {
+      final closed = await closedYesterday();
+      // Gerakan kas sesi itu terhapus (mis. dari sinkronisasi): rincian
+      // saat ini tidak lagi sama dengan seharusnya yang tersimpan.
+      final m = (await listCashMovements(store, cash(), closed.id)).single;
+      await CashMovement.db.updateRow(
+        store.session,
+        m.copyWith(deletedAt: now),
+      );
+      final r = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: viewOnly,
+        sessionId: closed.id,
+      );
+      expect(r.drawer.expectedCash, const Money(110000));
+      expect(r.session.expectedCash, 95000);
+      expect(r.changedSinceClose, isTrue);
+    });
+
+    test('sesi buka, cabang lain, atau tanpa izin ditolak', () async {
+      final closed = await closedYesterday();
+      final terbuka = await open(50000);
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          scope,
+          permissions: viewOnly,
+          sessionId: terbuka.id,
+        ),
+        throwsA(isA<CashSessionNotClosed>()),
+      );
+      final other = CatalogScope(
+        tenantId: scope.tenantId,
+        outletId: UuidValue.fromString(newId()),
+        deviceId: scope.deviceId,
+      );
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          other,
+          permissions: viewOnly,
+          sessionId: closed.id,
+        ),
+        throwsA(isA<CashSessionNotClosed>()),
+      );
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          scope,
+          permissions: const {Permission.reportsViewProfit},
+          sessionId: closed.id,
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
+    });
+  });
+
   test('kas & sesi: sesi kemarin yang belum ditutup tampil hari ini', () async {
     await open(100000); // kemarin
     now = DateTime.utc(2026, 11, 4, 3);

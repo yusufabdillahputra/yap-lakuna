@@ -8269,4 +8269,30 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseRestockSupplierNote(String supplier, int count, int total) {
     return 'Supplier diisi dari pembelian terakhir: $supplier ($count dari $total barang).';
   }
+
+  @override
+  String get recapReprinted => 'Dicetak ulang';
+
+  @override
+  String get recapChangedNote =>
+      'Rincian mengikuti data saat ini; ada data sesi yang berubah setelah ditutup.';
+
+  @override
+  String reportsSessionRecapTitle(String date) {
+    return 'Rekap sesi $date';
+  }
+
+  @override
+  String get reportsSessionRecapLoadFailed => 'Rekap sesi tidak bisa dimuat.';
+
+  @override
+  String get reportsSessionRecapNotClosed =>
+      'Sesi tidak ditemukan di cabang ini atau belum ditutup.';
+
+  @override
+  String get reportsSessionRecapOpen => 'Cetak ulang rekap sesi';
+
+  @override
+  String get reportsCashReprintHint =>
+      'Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya.';
 }

@@ -5458,5 +5458,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "recapReprinted": "Dicetak ulang",
+  "recapChangedNote": "Rincian mengikuti data saat ini; ada data sesi yang berubah setelah ditutup.",
+  "reportsSessionRecapTitle": "Rekap sesi {date}",
+  "@reportsSessionRecapTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsSessionRecapLoadFailed": "Rekap sesi tidak bisa dimuat.",
+  "reportsSessionRecapNotClosed": "Sesi tidak ditemukan di cabang ini atau belum ditutup.",
+  "reportsSessionRecapOpen": "Cetak ulang rekap sesi",
+  "reportsCashReprintHint": "Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya."
 }

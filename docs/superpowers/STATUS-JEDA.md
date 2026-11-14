@@ -64,6 +64,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.81.0 | Cari nota Riwayat lewat nama barang (F1-11d) | #87 |
 | v0.82.0 | Umur piutang & hutang di Laporan (F1-16c) | #88 |
 | v0.83.0 | Supplier terakhir di pembelian dari stok minimum (F1-08d) | #89 |
+| v0.84.0 | Cetak ulang rekap sesi lama dari Laporan (F1-03e) | #90 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -138,6 +139,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     umur per nama dan kelompok yang bisa diatur masih gap.
 27. ~~Supplier terakhir per barang di pembelian dari stok minimum~~ —
     selesai v0.83.0 (F1-08d); pecah draf per supplier masih gap.
+28. ~~Cetak ulang rekap sesi lama~~ — selesai v0.84.0 (F1-03e) dari
+    Laporan › Kas & sesi.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

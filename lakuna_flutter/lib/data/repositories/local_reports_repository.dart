@@ -1,3 +1,4 @@
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
@@ -73,6 +74,17 @@ class LocalReportsRepository extends ReportsRepository {
       now: now,
     ),
   );
+
+  @override
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(UuidValue sessionId) =>
+      _run(
+        (scope, permissions, now) => loadClosedSessionRecap(
+          _store,
+          scope,
+          permissions: permissions,
+          sessionId: sessionId,
+        ),
+      );
 
   Future<Result<T>> _run<T>(
     Future<T> Function(

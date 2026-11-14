@@ -7,6 +7,55 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.84.0] - 2026-11-14
+
+Rekap sesi kasir yang sudah ditutup kini bisa dicetak ulang dari Laporan,
+jadi kertas rekap yang hilang atau printer yang mati saat tutup tidak lagi
+membuat rekap hilang.
+
+### Ditambahkan
+
+- **Laporan (1.23) › Kas & sesi:** baris sesi yang sudah ditutup bisa
+  diketuk (ikon printer di ujung baris) dan membuka dialog *Rekap sesi*:
+  pratinjau kertas struk, **Cetak rekap**, dan **Bagikan PDF**. Sesi yang
+  masih buka tidak bisa diketuk. Kalimat petunjuk tampil di bawah tabel.
+- Rekap cetak ulang memakai isi rekap F1-03b (lebar kertas, logo, dan
+  printer dari *Pengaturan › Struk & printer*) dengan baris **Dicetak
+  ulang** (tanggal jam cetak, zona waktu cabang). Perangkat = kode
+  perangkat tempat sesi dibuka; *Ditutup oleh* = staf yang menutup sesi.
+- Bila rincian kas laci yang dimuat ulang tidak lagi sama dengan
+  *Seharusnya di laci* yang tersimpan saat tutup, rekap memuat catatan
+  *Rincian mengikuti data saat ini; ada data sesi yang berubah setelah
+  ditutup.*
+- Galat printer memakai pesan yang sama dengan struk; PDF di desktop
+  disimpan ke folder struk (`rekap-sesi-YYMMDD-HHMM.pdf`) dan lokasinya
+  ditampilkan. Sesi tidak ditemukan / gagal dimuat menampilkan pesan.
+- Panduan *Laporan* dan *Sesi kasir* menjelaskan cetak ulang rekap (ID +
+  EN).
+
+### Keamanan
+
+- Rekap dimuat lewat `ReportsRepository` yang memeriksa ulang izin
+  `reports:view` dari role staf di database; sesi cabang lain ditolak.
+
+### Catatan teknis
+
+- `lakuna_data`: `CashSessionLine.id`; `ClosedSessionRecap` dan
+  `loadClosedSessionRecap` (sesi tenant + cabang, status tutup; gerakan
+  kas, `sessionSalesSummary`, retur tunai, nama pembuka/penutup, kode
+  perangkat; `changedSinceClose`); galat `CashSessionNotClosed`.
+- Flutter: `ReportsRepository.loadSessionRecap`; `SessionRecap.fromClosed`
+  dan `changedSinceClose`; `sessionRecapContent(reprintedAt:)`;
+  `SessionRecapDialogViewModel` + `showSessionRecapDialog`
+  (`lib/ui/reports/session_recap_dialog.dart`); `_Line.onTap` di tabel tab
+  lanjutan (kolom ikon hanya bila ada baris yang bisa diketuk);
+  `ReportsScreen` menerima `store`, `receiptSettings`, dan `printer` dari
+  router.
+- Tes data (isi rekap, berubah setelah tutup, sesi buka / cabang lain /
+  tanpa izin), isi rekap cetak ulang (ID + EN), VM dialog (muat, cetak,
+  galat printer, PDF, galat muat), dan alur Laporan 1280 / 360 px.
+- Gap F1-03b *Cetak ulang rekap sesi lama* ditutup.
+
 ## [0.83.0] - 2026-11-14
 
 Draf pembelian dari stok minimum kini langsung memilih supplier langganan,
@@ -5557,7 +5606,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...HEAD
+[0.84.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...v0.84.0
 [0.83.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...v0.82.0
 [0.81.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...v0.81.0

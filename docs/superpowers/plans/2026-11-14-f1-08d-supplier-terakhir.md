@@ -11,4 +11,4 @@ Spec: [F1-08d](../specs/2026-11-14-f1-08d-supplier-terakhir-design.md)
 - [x] **Uji manual Xvfb**: Stok › Stok minimum › Buat pembelian.
 - [x] **Dokumen**: spec F1-08c, README, STATUS-JEDA, panduan, CHANGELOG
       0.83.0, versi 0.83.0+86.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** (#89)

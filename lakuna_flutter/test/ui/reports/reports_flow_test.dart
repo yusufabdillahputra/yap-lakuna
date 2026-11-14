@@ -5,6 +5,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_reports_repository.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_spreadsheet_exporter.dart';
@@ -33,6 +34,7 @@ void main() {
     Size size, {
     FakeReportsRepository? reports,
     FakeSessionRepository? session,
+    FakeReceiptPrinter? printer,
   }) async {
     repo = reports ?? FakeReportsRepository();
     exporter = FakeSpreadsheetExporter();
@@ -43,6 +45,7 @@ void main() {
       reports: repo,
       exporter: exporter,
       session: session,
+      receiptPrinter: printer,
     );
   }
 
@@ -171,6 +174,65 @@ void main() {
     await _choose(tester, _key('reports-period'), 'Oktober 2026');
     expect(find.text('Tidak ada retur pada periode ini.'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 780)]) {
+    testWidgets('${size.width.toInt()} px: cetak ulang rekap sesi (F1-03e)', (
+      tester,
+    ) async {
+      final printer = FakeReceiptPrinter();
+      await pump(tester, size, printer: printer);
+      await _tap(tester, _key('reports-tab-cash'));
+      // Sesi Sari masih buka: tidak bisa diketuk.
+      expect(_key('reports-cash-sessions-0'), findsOneWidget);
+      expect(_key('reports-cash-sessions-0-tap'), findsNothing);
+      expect(_key('reports-cash-reprint-hint'), findsOneWidget);
+
+      await _tap(tester, _key('reports-cash-sessions-1-tap'));
+      expect(repo.recapRequests, [FakeReportsRepository.closedSessionId]);
+      expect(_key('reports-recap-dialog'), findsOneWidget);
+      expect(find.text('Rekap sesi 03/11/26 08.00'), findsOneWidget);
+      expect(_key('reports-recap-paper'), findsOneWidget);
+      expect(find.textContaining('REKAP SESI KASIR'), findsOneWidget);
+      expect(find.textContaining('Dicetak ulang'), findsOneWidget);
+
+      await _tap(tester, _key('reports-recap-print'));
+      final printed = printer.prints.single.$2.map((l) => l.text).toList();
+      expect(printed, contains('REKAP SESI KASIR'));
+      expect(printed.any((l) => l.startsWith('Ditutup oleh')), isTrue);
+      expect(printed.any((l) => l.startsWith('Dicetak ulang')), isTrue);
+
+      await _tap(tester, _key('reports-recap-share'));
+      expect(printer.shares.single.$3, 'rekap-sesi-261103-2100.pdf');
+      expect(_key('reports-recap-pdf-saved'), findsOneWidget);
+
+      await _tap(tester, _key('reports-recap-close'));
+      expect(_key('reports-recap-dialog'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('rekap sesi berubah setelah tutup: catatan di pratinjau', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1280, 800));
+    repo.recapChanged = true;
+    await _tap(tester, _key('reports-tab-cash'));
+    await _tap(tester, _key('reports-cash-sessions-1-tap'));
+    expect(
+      find.textContaining('Rincian mengikuti data saat ini'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('rekap sesi gagal dimuat: pesan galat', (tester) async {
+    await pump(tester, const Size(1280, 800));
+    repo.recapError = Exception('db');
+    await _tap(tester, _key('reports-tab-cash'));
+    await _tap(tester, _key('reports-cash-sessions-1-tap'));
+    expect(_key('reports-recap-load-error'), findsOneWidget);
+    expect(find.text('Rekap sesi tidak bisa dimuat.'), findsOneWidget);
+    expect(_key('reports-recap-print'), findsNothing);
   });
 
   testWidgets('stok tanpa izin laba: nilai tidak tampil', (tester) async {

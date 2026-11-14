@@ -1,3 +1,4 @@
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
@@ -21,4 +22,8 @@ abstract class ReportsRepository {
 
   /// Tab Retur.
   Future<Result<ReturnsReport>> loadReturns(ReportPeriod period);
+
+  /// Rekap sesi kasir tertutup [sessionId] untuk cetak ulang (F1-03e).
+  /// Gagal dengan [NotPermitted] atau `CashSessionNotClosed`.
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(UuidValue sessionId);
 }

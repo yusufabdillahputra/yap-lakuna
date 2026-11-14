@@ -13,7 +13,14 @@ class _Col {
 
 /// Baris tabel: sel teks; sel terakhir di kartu 360 px tampil di kanan.
 class _Line {
-  const _Line(this.id, this.cells, {this.strong = false, this.tone});
+  const _Line(
+    this.id,
+    this.cells, {
+    this.strong = false,
+    this.tone,
+    this.onTap,
+    this.tapLabel,
+  });
 
   final String id;
   final List<String> cells;
@@ -21,6 +28,11 @@ class _Line {
 
   /// Warna sel terakhir (mis. selisih kurang).
   final Color? tone;
+
+  /// Baris bisa diketuk (mis. cetak ulang rekap sesi, F1-03e); ikon
+  /// printer di ujung baris.
+  final VoidCallback? onTap;
+  final String? tapLabel;
 }
 
 /// KPI berjajar seperti ringkasan: 4 kolom ≥ 900, 2 kolom ≥ 560, lalu 1.
@@ -84,6 +96,18 @@ class _Table extends StatelessWidget {
           : LayoutBuilder(
               builder: (context, c) {
                 final cards = c.maxWidth < cardWidth;
+                // Kolom ikon di ujung bila ada baris yang bisa diketuk.
+                final tappable = lines.any((l) => l.onTap != null);
+                Widget tapSlot(_Line? l) => SizedBox(
+                  width: 16,
+                  child: l?.onTap == null
+                      ? null
+                      : Icon(
+                          TablerIcons.printer,
+                          size: 16,
+                          color: theme.colors.mutedForeground,
+                        ),
+                );
                 Widget cell(String text, int i, {bool strong = false}) {
                   final col = columns[i];
                   return Expanded(
@@ -134,6 +158,7 @@ class _Table extends StatelessWidget {
                                 strong: true,
                               ).copyWith(color: l.tone),
                             ),
+                            if (tappable) tapSlot(l),
                           ],
                         )
                       : Row(
@@ -154,9 +179,10 @@ class _Table extends StatelessWidget {
                                 )
                               else
                                 cell(l.cells[i], i, strong: l.strong),
+                            if (tappable) tapSlot(l),
                           ],
                         );
-                  return DecoratedBox(
+                  final box = DecoratedBox(
                     key: ValueKey('reports-$id-${l.id}'),
                     decoration: BoxDecoration(
                       color: l.strong ? theme.colors.muted : null,
@@ -174,6 +200,15 @@ class _Table extends StatelessWidget {
                       child: child,
                     ),
                   );
+                  if (l.onTap case final onTap?) {
+                    return FTappable(
+                      key: ValueKey('reports-$id-${l.id}-tap'),
+                      semanticsLabel: l.tapLabel,
+                      onPress: onTap,
+                      child: box,
+                    );
+                  }
+                  return box;
                 }
 
                 return Column(
@@ -199,6 +234,7 @@ class _Table extends StatelessWidget {
                                   style: head,
                                 ),
                               ),
+                            if (tappable) tapSlot(null),
                           ],
                         ),
                       ),
@@ -328,9 +364,13 @@ class _Stock extends StatelessWidget {
 // --- Kas & sesi ---------------------------------------------------------------
 
 class _Cash extends StatelessWidget {
-  const _Cash({required this.viewModel});
+  const _Cash({required this.viewModel, this.onOpenRecap});
 
   final ReportsViewModel viewModel;
+
+  /// Buka rekap sesi tertutup untuk dicetak ulang (F1-03e); `null` =
+  /// baris tidak bisa diketuk.
+  final void Function(UuidValue sessionId)? onOpenRecap;
 
   @override
   Widget build(BuildContext context) =>
@@ -383,20 +423,28 @@ class _Cash extends StatelessWidget {
               ],
               lines: [
                 for (final (i, s) in r.sessions.indexed)
-                  _Line('$i', [
-                    receiptDate(s.openedAt),
-                    s.staffName,
-                    formatMoney(context, s.opening),
-                    formatMoney(context, s.expected),
-                    if (s.counted case final c?)
-                      formatMoney(context, c)
-                    else
-                      l10n.reportsCashOpen,
-                    if (s.difference case final d?)
-                      signedMoneyLabel(l10n, d)
-                    else
-                      '–',
-                  ], tone: tone(s.difference)),
+                  _Line(
+                    '$i',
+                    [
+                      receiptDate(s.openedAt),
+                      s.staffName,
+                      formatMoney(context, s.opening),
+                      formatMoney(context, s.expected),
+                      if (s.counted case final c?)
+                        formatMoney(context, c)
+                      else
+                        l10n.reportsCashOpen,
+                      if (s.difference case final d?)
+                        signedMoneyLabel(l10n, d)
+                      else
+                        '–',
+                    ],
+                    tone: tone(s.difference),
+                    onTap: s.isOpen || onOpenRecap == null
+                        ? null
+                        : () => onOpenRecap!(s.id),
+                    tapLabel: l10n.reportsSessionRecapOpen,
+                  ),
               ],
             ),
             _Table(
@@ -424,6 +472,12 @@ class _Cash extends StatelessWidget {
               ],
             ),
             Text(l10n.reportsCashNote, style: _muted(context)),
+            if (onOpenRecap != null && r.sessions.any((s) => !s.isOpen))
+              Text(
+                l10n.reportsCashReprintHint,
+                key: const ValueKey('reports-cash-reprint-hint'),
+                style: _muted(context),
+              ),
           ],
         );
       });
