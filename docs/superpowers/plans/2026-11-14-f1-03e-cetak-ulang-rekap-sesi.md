@@ -27,4 +27,4 @@ Spec: [F1-03e](../specs/2026-11-14-f1-03e-cetak-ulang-rekap-sesi-design.md)
       dan isinya benar.
 - [x] **Dokumen**: spec F1-03b / F1-03e, README, STATUS-JEDA, panduan,
       CHANGELOG 0.84.0, versi 0.84.0+87.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #90 di-merge (13 cek hijau).
