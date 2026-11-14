@@ -71,7 +71,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.88.0 | Segarkan harga grup pelanggan di open bill (F1-10l) | #94 |
 | v0.89.0 | Harga beli terakhir di pembelian dari stok minimum (F1-08e) | #95 |
 | v0.90.0 | *Buat pembelian* tidak macet setelah keluar lewat menu samping (F1-08f) | #96 |
-| v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | |
+| v0.91.0 | Daftar dimuat ulang setelah keluar dari detail lewat menu samping (F1-12d) | #97 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
