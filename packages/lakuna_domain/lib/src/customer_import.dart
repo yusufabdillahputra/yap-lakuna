@@ -208,7 +208,8 @@ CustomerImportResult customerImportRows(List<List<String>> table) {
     }
 
     final name = cell('name') ?? '';
-    if (isImportTemplateSample(name, customerImportTemplate)) {
+    if (isImportTemplateSample(name, customerImportTemplate) ||
+        isImportTemplateSample(name, customerImportTemplateEn)) {
       rejected.add(ImportRejected(line, ImportRejectReason.sample));
       continue;
     }
@@ -279,4 +280,18 @@ const customerImportTemplate = [
     'Langganan sejak 2024',
   ],
   ['Contoh Pak Budi', '085711112222', '', '', '', ''],
+];
+
+/// Templat import pelanggan berbahasa Inggris (F1-07p).
+const customerImportTemplateEn = [
+  ['Name', 'Phone', 'Address', 'Group', 'Credit limit', 'Note'],
+  [
+    'Sample Ani Grocery',
+    '081234567890',
+    '12 Pasar Baru St',
+    'Wholesale',
+    '2000000',
+    'Regular since 2024',
+  ],
+  ['Sample Mr Budi', '085711112222', '', '', '', ''],
 ];

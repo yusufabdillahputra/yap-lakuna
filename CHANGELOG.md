@@ -7,6 +7,47 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.85.0] - 2026-11-14
+
+Templat import produk, pelanggan, dan supplier kini tersedia dalam bahasa
+Inggris untuk pengguna yang memakai aplikasi berbahasa Inggris.
+
+### Ditambahkan
+
+- **Dialog import (1.15 Produk, 1.20 Pelanggan, 1.21 Supplier):** *Download
+  template* mengikuti bahasa aplikasi. Bahasa Inggris memberi
+  `import-template-products.xlsx` / `-customers` / `-suppliers` (lembar
+  *Products* / *Customers* / *Suppliers*) dengan judul kolom Inggris:
+  - Produk: Name, Category, Type, Unit, SKU, Barcode, Cost price, Sell
+    price, Opening stock, Min stock.
+  - Pelanggan: Name, Phone, Address, Group, Credit limit, Note.
+  - Supplier: Name, Contact, Phone, Category, Term (days), Address, Note.
+- Dua baris contoh berbahasa Inggris (*Sample Sugar 1 kg*, *Sample Ani
+  Grocery*, *Sample Fresh Foods Ltd*, …) dengan angka yang sama dengan
+  templat Indonesia. Kolom Phone, SKU, dan Barcode berformat teks.
+- Panduan *Produk pertama*, *Pelanggan & kredit*, dan *Supplier & hutang*
+  menyebut templat mengikuti bahasa aplikasi (ID + EN).
+
+### Diubah
+
+- Pembaca import melewati baris contoh dari templat **kedua** bahasa,
+  apa pun bahasa aplikasi saat import, jadi templat Inggris bisa diimport
+  di aplikasi berbahasa Indonesia dan sebaliknya.
+
+### Catatan teknis
+
+- `lakuna_domain`: `productImportTemplateEn`, `customerImportTemplateEn`,
+  `supplierImportTemplateEn`; pemeriksaan `isImportTemplateSample` untuk
+  kedua templat di ketiga pembaca.
+- Flutter: `ImportTemplateKind.fileNameFor` / `sheetNameFor` / `rowsFor` /
+  `bytesFor(bahasa)` menggantikan `fileName` / `rows` / `bytes`;
+  `ImportFileActions` membaca bahasa dari `Localizations` saat tombol
+  ditekan; judul *Phone* masuk kolom teks.
+- Tes domain (judul EN dikenali, contoh EN dilewati, nama diganti sah,
+  contoh EN di bawah judul Indonesia), `.xlsx` EN terbaca kembali dan kolom
+  teks, serta alur Supplier berbahasa Inggris.
+- Gap F1-07g *Templat berbahasa Inggris* ditutup.
+
 ## [0.84.0] - 2026-11-14
 
 Rekap sesi kasir yang sudah ditutup kini bisa dicetak ulang dari Laporan,
@@ -5606,7 +5647,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...HEAD
+[0.85.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...v0.85.0
 [0.84.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...v0.84.0
 [0.83.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...v0.82.0

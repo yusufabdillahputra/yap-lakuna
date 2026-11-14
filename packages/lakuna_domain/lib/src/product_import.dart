@@ -182,7 +182,8 @@ ProductImportResult productImportRows(List<List<String>> table) {
       reject(ProductImportRejectReason.name);
       continue;
     }
-    if (isImportTemplateSample(name, productImportTemplate)) {
+    if (isImportTemplateSample(name, productImportTemplate) ||
+        isImportTemplateSample(name, productImportTemplateEn)) {
       reject(ProductImportRejectReason.sample);
       continue;
     }
@@ -308,6 +309,47 @@ const productImportTemplate = [
     'menu',
     'gelas',
     'CTH-KOPI-SUSU',
+    '',
+    '6000',
+    '15000',
+    '',
+    '',
+  ],
+];
+
+/// Templat import produk berbahasa Inggris (F1-07p): kolom dan angka sama
+/// dengan [productImportTemplate]; contoh dan SKU berbahasa Inggris.
+const productImportTemplateEn = [
+  [
+    'Name',
+    'Category',
+    'Type',
+    'Unit',
+    'SKU',
+    'Barcode',
+    'Cost price',
+    'Sell price',
+    'Opening stock',
+    'Min stock',
+  ],
+  [
+    'Sample Sugar 1 kg',
+    'Groceries',
+    'goods',
+    'pcs',
+    'SMP-SUGAR-1KG',
+    '8991234567890',
+    '14000',
+    '17500',
+    '24',
+    '5',
+  ],
+  [
+    'Sample Iced Coffee',
+    'Drinks',
+    'menu',
+    'cup',
+    'SMP-ICED-COFFEE',
     '',
     '6000',
     '15000',
