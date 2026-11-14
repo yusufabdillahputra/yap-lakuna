@@ -8,6 +8,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show TableRow, Transaction;
 
 import 'media.dart';
+import 'photo_shrink.dart';
 import 'modifier_admin.dart' show productModifierLinks;
 import 'stock.dart';
 import 'store.dart';
@@ -583,8 +584,9 @@ class ProductPhotoUpload {
 /// berkas tidak bisa dibuka (mis. izin kamera ditolak).
 enum ProductPhotoError { unsupported, tooLarge, unreadable }
 
-/// Berkas foto bukan PNG/JPG/WebP atau lebih dari
-/// [ProductLimits.photoMaxBytes].
+/// Berkas foto bukan PNG/JPG/WebP, tidak bisa didekode, lebih dari
+/// [ProductLimits.photoInputMaxBytes], atau setelah dikecilkan masih lebih
+/// dari [ProductLimits.photoMaxBytes].
 class ProductPhotoInvalid implements Exception {
   const ProductPhotoInvalid(this.reason);
 
@@ -627,11 +629,29 @@ Future<void> setProductPhoto(
   required UuidValue productId,
   required ProductPhotoUpload photo,
 }) async {
-  final header = readImageHeader(photo.bytes);
-  if (header == null) {
+  if (readImageHeader(photo.bytes) == null) {
     throw const ProductPhotoInvalid(ProductPhotoError.unsupported);
   }
-  if (photo.bytes.length > ProductLimits.photoMaxBytes) {
+  if (photo.bytes.length > ProductLimits.photoInputMaxBytes) {
+    throw const ProductPhotoInvalid(ProductPhotoError.tooLarge);
+  }
+  // Dikecilkan dulu, di luar transaksi (F1-07l).
+  final Uint8List bytes;
+  try {
+    bytes = await shrinkPhoto(
+      photo.bytes,
+      maxSide: ProductLimits.photoMaxSide,
+      maxBytes: ProductLimits.photoMaxBytes,
+    );
+  } on PhotoShrinkFailure catch (e) {
+    throw ProductPhotoInvalid(
+      e.reason == PhotoShrinkError.tooManyPixels
+          ? ProductPhotoError.tooLarge
+          : ProductPhotoError.unsupported,
+    );
+  }
+  final header = readImageHeader(bytes)!;
+  if (bytes.length > ProductLimits.photoMaxBytes) {
     throw const ProductPhotoInvalid(ProductPhotoError.tooLarge);
   }
   await store.write(actor: staffId, (w) async {
@@ -641,7 +661,7 @@ Future<void> setProductPhoto(
       w,
       store,
       scope,
-      bytes: photo.bytes,
+      bytes: bytes,
       header: header,
       fileName: photo.fileName,
       kind: MediaKind.productPhoto,

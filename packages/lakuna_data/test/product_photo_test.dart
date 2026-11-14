@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -123,7 +125,7 @@ void main() {
         ),
       ),
     );
-    final big = Uint8List(ProductLimits.photoMaxBytes + 1)
+    final big = Uint8List(ProductLimits.photoInputMaxBytes + 1)
       ..setAll(0, pngBytes(10, 10));
     await expectLater(
       setPhoto(big),
@@ -136,6 +138,68 @@ void main() {
       ),
     );
     expect(await SyncOutboxEntry.db.count(store.session), before);
+  });
+
+  test(
+    'foto besar dikecilkan ke 1.024 px JPEG sebelum disimpan (F1-07l)',
+    () async {
+      // Derau acak membuat JPEG sebesar foto kamera (> 2 MB).
+      final rnd = Random(7);
+      final source = img.Image(width: 3000, height: 2250);
+      for (final p in source) {
+        p
+          ..r = p.x * 255 ~/ 3000
+          ..g = p.y * 255 ~/ 2250
+          ..b = rnd.nextInt(256);
+      }
+      final big = Uint8List.fromList(img.encodeJpg(source, quality: 98));
+      expect(big.length, greaterThan(ProductLimits.photoMaxBytes));
+      await setPhoto(big);
+      final row = await Product.db.findById(store.session, kopiId);
+      final media = await MediaFile.db.findById(
+        store.session,
+        row!.photoMediaId!,
+      );
+      expect((media!.width, media.height), (1024, 768));
+      expect(media.mimeType, 'image/jpeg');
+      expect(media.storageKey, endsWith('.jpg'));
+      expect(media.sizeBytes, lessThan(ProductLimits.photoMaxBytes));
+      final saved = File(
+        '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}',
+      ).readAsBytesSync();
+      expect(saved.length, media.sizeBytes);
+    },
+  );
+
+  test('foto di atas 50 MP ditolak sebagai terlalu besar', () async {
+    final huge = Uint8List.fromList(
+      img.encodePng(img.Image(width: 10000, height: 6000)),
+    );
+    await expectLater(
+      setPhoto(huge),
+      throwsA(
+        isA<ProductPhotoInvalid>().having(
+          (e) => e.reason,
+          'reason',
+          ProductPhotoError.tooLarge,
+        ),
+      ),
+    );
+  });
+
+  test('header gambar sah tapi isi rusak → unsupported', () async {
+    final broken = Uint8List(ProductLimits.photoMaxBytes)
+      ..setAll(0, pngBytes(4000, 3000));
+    await expectLater(
+      setPhoto(broken),
+      throwsA(
+        isA<ProductPhotoInvalid>().having(
+          (e) => e.reason,
+          'reason',
+          ProductPhotoError.unsupported,
+        ),
+      ),
+    );
   });
 
   test('produk tenant lain atau diarsipkan tidak bisa diberi foto', () async {

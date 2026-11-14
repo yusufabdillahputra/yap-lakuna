@@ -7422,7 +7422,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productPhotoHint =>
-      'PNG, JPG or WebP, up to 2 MB. Saved when you press Save.';
+      'PNG, JPG or WebP, up to 20 MB; resized automatically. Saved when you press Save.';
 
   @override
   String get productPhotoUnsupported =>
@@ -7430,7 +7430,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productPhotoTooLarge =>
-      'The photo is over 2 MB. Pick a smaller one.';
+      'The photo is over 20 MB. Pick a smaller one.';
 
   @override
   String get productPhotoNotSaved =>
@@ -7929,7 +7929,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseInvoicePhotoInvalid =>
-      'The invoice photo must be a PNG/JPEG/WebP image, up to 5 MB.';
+      'The invoice photo must be a PNG/JPEG/WebP image, up to 20 MB.';
 
   @override
   String get purchaseInvoicePhotoFailed =>

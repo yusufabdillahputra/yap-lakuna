@@ -106,8 +106,15 @@ abstract final class ProductLimits {
   static const barcode = 64;
   static const unitName = 30;
 
-  /// Ukuran maksimal berkas foto produk (F1-07f).
+  /// Ukuran maksimal berkas foto produk yang disimpan (F1-07f).
   static const photoMaxBytes = 2 * 1024 * 1024;
+
+  /// Ukuran maksimal foto yang boleh dipilih; dikecilkan sebelum disimpan
+  /// (F1-07l).
+  static const photoInputMaxBytes = 20 * 1024 * 1024;
+
+  /// Sisi terpanjang foto produk yang disimpan (F1-07l).
+  static const photoMaxSide = 1024;
 
   /// Lebar maksimal foto dari kamera (F1-07f).
   static const cameraMaxWidth = 1600;

@@ -12767,7 +12767,7 @@ abstract class AppLocalizations {
   /// No description provided for @productPhotoHint.
   ///
   /// In id, this message translates to:
-  /// **'PNG, JPG, atau WebP, maks. 2 MB. Tersimpan saat Simpan.'**
+  /// **'PNG, JPG, atau WebP, maks. 20 MB; dikecilkan otomatis. Tersimpan saat Simpan.'**
   String get productPhotoHint;
 
   /// No description provided for @productPhotoUnsupported.
@@ -12779,7 +12779,7 @@ abstract class AppLocalizations {
   /// No description provided for @productPhotoTooLarge.
   ///
   /// In id, this message translates to:
-  /// **'Foto lebih dari 2 MB. Pilih foto yang lebih kecil.'**
+  /// **'Foto lebih dari 20 MB. Pilih foto yang lebih kecil.'**
   String get productPhotoTooLarge;
 
   /// No description provided for @productPhotoNotSaved.
@@ -13571,7 +13571,7 @@ abstract class AppLocalizations {
   /// No description provided for @purchaseInvoicePhotoInvalid.
   ///
   /// In id, this message translates to:
-  /// **'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 5 MB.'**
+  /// **'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 20 MB.'**
   String get purchaseInvoicePhotoInvalid;
 
   /// No description provided for @purchaseInvoicePhotoFailed.

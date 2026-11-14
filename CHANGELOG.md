@@ -7,6 +7,53 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.62.0] - 2026-11-14
+
+Foto produk dan foto faktur dari galeri atau kamera ponsel (3–10 MB) kini
+bisa dipakai langsung: Lakuna mengecilkannya otomatis sebelum disimpan,
+jadi folder data dan berkas backup tetap ringan.
+
+### Ditambahkan
+
+- **Foto dikecilkan otomatis (1.16, 1.19, F1-07l).** Foto produk disimpan
+  dengan sisi terpanjang paling banyak 1.024 px, foto faktur 2.000 px
+  (tulisan faktur tetap terbaca), sebagai JPEG kualitas 85. Contoh uji
+  manual: foto 5,9 MB 4.000 × 3.000 px tersimpan 180 KB 1.024 × 768 px.
+  Gambar dengan latar transparan tetap PNG.
+- Orientasi foto kamera (EXIF) diterapkan ke gambar, jadi foto tegak
+  tetap tegak setelah dikecilkan.
+
+### Diubah
+
+- Batas pilih foto produk naik dari 2 MB ke **20 MB**, foto faktur dari
+  5 MB ke **20 MB**. Teks petunjuk dan pesan galat di form ikut berubah.
+  Batas berkas yang disimpan tetap 2 MB / 5 MB.
+- Foto kecil (≤ 512 KB dan sudah di dalam batas sisi) disimpan apa adanya
+  seperti sebelumnya.
+- Panduan *Pembelian* (ID/EN): batas 20 MB dan pengecilan otomatis.
+
+### Keamanan
+
+- Foto yang dikecilkan tidak lagi membawa data EXIF (lokasi GPS, model
+  ponsel).
+- Gambar yang menyatakan lebih dari 50 MP ditolak sebelum didekode, agar
+  berkas kecil berukuran piksel raksasa tidak menghabiskan memori ponsel.
+
+### Catatan teknis
+
+- Paket `image` (pure Dart, sudah ada di `pubspec.lock`) menjadi dependensi
+  langsung `lakuna_data`. `shrinkPhoto` berjalan di `Isolate.run` sebelum
+  transaksi database; animasi hanya bingkai pertama; galat apa pun di
+  isolate dilaporkan sebagai *bukan gambar*.
+- Review menemukan dan memperbaiki: tanpa batas piksel sebuah PNG 291 KB
+  berukuran 10.000 × 10.000 menaikkan memori proses ke ±940 MB; APNG
+  beranimasi mendekode semua bingkai; gambar 1 × 5.000 px menghasilkan
+  lebar 0 dan galat yang lolos sebagai pesan umum; PNG transparan yang
+  masih melebihi batas kini jatuh ke JPEG berlatar putih; izin pembelian
+  diperiksa sebelum foto didekode.
+- Belum: simpan WebP (belum ada encoder WebP pure Dart), dan JPEG
+  aritmetika / 12-bit yang perlu dikecilkan ditolak.
+
 ## [0.61.0] - 2026-11-14
 
 Kafe yang punya dapur dan bar kini bisa memasang printer bar: satu kali
@@ -4604,7 +4651,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...HEAD
+[0.62.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...v0.59.0

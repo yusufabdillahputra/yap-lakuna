@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -122,12 +123,45 @@ void main() {
     expect((await mediaOf(received))!.width, 200);
   });
 
+  test('foto faktur besar dikecilkan ke 2.000 px (F1-07l)', () async {
+    final source = img.Image(width: 2400, height: 4000);
+    for (final p in source) {
+      p
+        ..r = p.x * 255 ~/ 2400
+        ..g = p.y * 255 ~/ 4000
+        ..b = (p.y ~/ 30).isEven ? 230 : 30;
+    }
+    final big = Uint8List.fromList(img.encodePng(source));
+    final p = await draft(request(invoicePhoto: photo(big)));
+    final media = (await mediaOf(p))!;
+    expect((media.width, media.height), (1200, 2000));
+    expect(media.mimeType, 'image/jpeg');
+
+    // Ganti foto di pembelian yang ada juga dikecilkan.
+    final replaced = await setPurchaseInvoicePhoto(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: p.id,
+      photo: photo(Uint8List.fromList(img.encodeJpg(source))),
+    );
+    expect((await mediaOf(replaced))!.height, 2000);
+
+    final received = await receivePurchase(
+      store,
+      scope,
+      staffId: owner(),
+      request: request(id: p.id, invoicePhoto: photo(big)),
+    );
+    expect((await mediaOf(received))!.height, 2000);
+  });
+
   test('berkas bukan gambar atau terlalu besar ditolak', () async {
     await expectLater(
       draft(request(invoicePhoto: photo(Uint8List.fromList([1, 2, 3])))),
       throwsA(isA<PurchaseInvoicePhotoInvalid>()),
     );
-    final big = Uint8List(PurchaseLimits.invoicePhotoMaxBytes + 1)
+    final big = Uint8List(PurchaseLimits.invoicePhotoInputMaxBytes + 1)
       ..setAll(0, pngBytes(10, 10));
     await expectLater(
       draft(request(invoicePhoto: photo(big))),

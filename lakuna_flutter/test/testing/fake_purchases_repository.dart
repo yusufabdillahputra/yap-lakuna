@@ -445,7 +445,7 @@ class FakePurchasesRepository extends PurchasesRepository {
 
   void _checkPhoto(PurchaseInvoicePhoto photo) {
     if (readImageHeader(photo.bytes) == null ||
-        photo.bytes.length > PurchaseLimits.invoicePhotoMaxBytes) {
+        photo.bytes.length > PurchaseLimits.invoicePhotoInputMaxBytes) {
       throw const PurchaseInvoicePhotoInvalid();
     }
   }

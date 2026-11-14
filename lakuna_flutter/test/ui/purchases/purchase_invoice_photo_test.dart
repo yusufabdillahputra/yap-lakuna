@@ -86,6 +86,15 @@ void main() {
       expect(form.invoicePhoto, samplePng);
     });
 
+    test('foto faktur 12 MB diterima (dikecilkan saat disimpan)', () async {
+      final form = await openForm();
+      final big = Uint8List(12 * 1024 * 1024)..setAll(0, samplePng);
+      picker.next = picked(big);
+      await form.pickInvoicePhoto.execute(false);
+      expect(form.invoicePhotoRejected, isFalse);
+      expect(form.invoicePhoto, big);
+    });
+
     test('berkas bukan gambar atau terlalu besar ditolak', () async {
       final form = await openForm();
       picker.next = picked(Uint8List.fromList([1, 2, 3]));
@@ -175,6 +184,15 @@ void main() {
       await vm.removeInvoicePhoto.execute();
       expect(vm.detail!.hasInvoicePhoto, isFalse);
       expect(vm.invoicePhoto, isNull);
+    });
+
+    test('foto faktur 12 MB diterima di detail (F1-07l)', () async {
+      final vm = await received();
+      final big = Uint8List(12 * 1024 * 1024)..setAll(0, samplePng);
+      picker.next = picked(big);
+      await vm.attachInvoicePhoto.execute(false);
+      expect(vm.invoicePhotoRejected, isFalse);
+      expect(vm.detail!.hasInvoicePhoto, isTrue);
     });
 
     test('berkas ditolak, batal, dan galat repositori', () async {

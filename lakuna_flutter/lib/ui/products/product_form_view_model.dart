@@ -209,7 +209,7 @@ class ProductFormViewModel extends ChangeNotifier {
   ) async {
     final PickedImage? picked;
     try {
-      picked = await pick(maxBytes: ProductLimits.photoMaxBytes);
+      picked = await pick(maxBytes: ProductLimits.photoInputMaxBytes);
     } on Exception catch (e) {
       // Izin kamera ditolak, berkas tidak terbaca, dll.
       _photoError = ProductPhotoError.unreadable;

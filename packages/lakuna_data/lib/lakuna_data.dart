@@ -12,6 +12,7 @@ export 'src/expenses.dart';
 export 'src/master_data.dart';
 export 'src/modifier_admin.dart';
 export 'src/media.dart';
+export 'src/photo_shrink.dart';
 export 'src/payment_settings.dart';
 export 'src/catalog.dart' hide writeProductInTx;
 export 'src/dining_admin.dart';

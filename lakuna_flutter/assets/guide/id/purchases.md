@@ -22,7 +22,7 @@ Tekan **Cetak / bagikan PDF** di kartu *Tindakan* untuk membuat PDF pembelian (b
 
 Nama produk di *Barang diterima* bisa diketuk untuk membuka **kartu stok** produk itu di lokasi terima pembelian (butuh izin menu Stok).
 
-Kartu *Foto faktur* menampilkan foto faktur supplier. Tekan **Lihat foto faktur** untuk membukanya layar penuh (bisa diperbesar), **Ganti foto** untuk menggantinya, atau **Hapus foto**. Mengubah foto tidak mengubah stok, HPP, atau hutang. Foto berupa PNG, JPG, atau WebP sampai 5 MB.
+Kartu *Foto faktur* menampilkan foto faktur supplier. Tekan **Lihat foto faktur** untuk membukanya layar penuh (bisa diperbesar), **Ganti foto** untuk menggantinya, atau **Hapus foto**. Mengubah foto tidak mengubah stok, HPP, atau hutang. Foto berupa PNG, JPG, atau WebP sampai 20 MB; foto besar dikecilkan otomatis ke sisi terpanjang 2.000 px agar tulisan faktur tetap terbaca tetapi berkasnya kecil.
 
 ## Retur pembelian
 

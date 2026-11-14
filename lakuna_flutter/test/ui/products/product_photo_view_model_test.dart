@@ -117,6 +117,15 @@ void main() {
     expect(vm.photoBytes, samplePng);
   });
 
+  test('foto 5 MB diterima: dikecilkan saat disimpan (F1-07l)', () async {
+    final vm = await open(kopiId());
+    final big = Uint8List(5 * 1024 * 1024)..setAll(0, samplePng);
+    picker.next = PickedImage(name: 'galeri.jpg', size: big.length, bytes: big);
+    await vm.pickPhoto.execute();
+    expect(vm.photoError, isNull);
+    expect(vm.photoBytes, big);
+  });
+
   test('ambil foto dari kamera bila tersedia', () async {
     picker.camera = true;
     final vm = await open(kopiId());
