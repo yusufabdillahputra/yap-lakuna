@@ -347,4 +347,51 @@ void main() {
     await loading;
     expect(vm.restock, isNull);
   });
+
+  group('kartu stok dari pembelian (F1-12c)', () {
+    test('focusCard sebelum muat memilih lokasi, tab, dan produk', () async {
+      final gudang = sampleLocation(2, 'Gudang', false);
+      repo = FakeStockRepository(
+        locations: [sampleLocation(1, 'Etalase', true), gudang],
+      );
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: sabun, locationId: gudang.id);
+      await vm.load.execute();
+      expect(vm.tab, StockTab.card);
+      expect(vm.location!.name, 'Gudang');
+      expect(vm.cardVariantId, sabun);
+      expect(vm.card, isNotNull);
+      expect(vm.cardFocusMissing, isFalse);
+    });
+
+    test('produk atau lokasi yang tidak ada jatuh ke bawaan', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: fakeId(999), locationId: fakeId(998));
+      await vm.load.execute();
+      expect(vm.location!.name, 'Etalase');
+      expect(vm.cardVariantId, kopi);
+      // Staf diberi tahu tautan tidak ditemukan; hilang setelah memilih.
+      expect(vm.cardFocusMissing, isTrue);
+      await vm.selectCardVariant(sabun);
+      expect(vm.cardFocusMissing, isFalse);
+    });
+
+    test('hanya lokasi yang hilang juga diberi tahu', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: sabun, locationId: fakeId(998));
+      await vm.load.execute();
+      expect(vm.cardVariantId, sabun);
+      expect(vm.cardFocusMissing, isTrue);
+      // Muat ulang tidak memunculkan pemberitahuan lagi.
+      await vm.selectCardVariant(sabun);
+      await vm.load.execute();
+      expect(vm.cardFocusMissing, isFalse);
+    });
+
+    test('tanpa focusCard tidak ada pemberitahuan', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true);
+      await vm.load.execute();
+      expect(vm.cardFocusMissing, isFalse);
+    });
+  });
 }

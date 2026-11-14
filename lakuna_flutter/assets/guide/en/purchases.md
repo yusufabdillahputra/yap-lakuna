@@ -18,6 +18,10 @@ A purchase records goods coming in from a supplier: stock goes up, the average c
 
 The purchase detail shows the new average cost and a *Suggested price* that keeps your margin. Tick the products whose price you want to change, then **Apply sell price**.
 
+Tap **Print / share PDF** in the *Actions* card to create a purchase PDF (goods, payment summary, returns, and due date). On a computer the PDF is saved in the Lakuna documents folder; on a phone the share sheet opens so you can send it by WhatsApp or email.
+
+Tap a product name under *Goods received* to open that product's **stock card** at the purchase's receiving location (requires access to the Stock menu).
+
 The *Invoice photo* card shows the supplier's invoice. Tap **View invoice photo** to open it full screen (you can zoom), **Replace photo** to change it, or **Remove photo**. Changing the photo doesn't change stock, cost, or payables. Photos can be PNG, JPG, or WebP up to 5 MB.
 
 ## Purchase returns

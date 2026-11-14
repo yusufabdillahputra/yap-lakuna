@@ -7,6 +7,8 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/purchases_repository.dart';
 import '../../data/services/image_file_picker.dart';
+import '../../data/services/report_document.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
@@ -16,6 +18,8 @@ import 'purchase_detail_view_model.dart';
 import 'purchase_form_view.dart';
 import 'purchase_form_view_model.dart';
 import 'purchase_labels.dart';
+import 'purchase_print.dart';
+import '../reports/report_labels.dart' show moneyLabel;
 
 const _tabular = [FontFeature.tabularFigures()];
 
@@ -168,6 +172,8 @@ class PurchaseDetailScreen extends StatefulWidget {
     required this.onBack,
     this.onPayDebt,
     this.imagePicker = const FileSelectorImagePicker(),
+    this.exporter = const PlatformSpreadsheetExporter(),
+    this.onOpenStockCard,
   });
 
   final PurchasesRepository repository;
@@ -175,6 +181,14 @@ class PurchaseDetailScreen extends StatefulWidget {
 
   /// Foto faktur (F1-12b).
   final ImageFilePicker imagePicker;
+
+  /// Penyimpan PDF pembelian (F1-12c).
+  final SpreadsheetExporter exporter;
+
+  /// Membuka kartu stok varian di lokasi (F1-12c); `null` = tanpa izin
+  /// Stok.
+  final void Function(UuidValue variantId, UuidValue locationId)?
+  onOpenStockCard;
   final VoidCallback onBack;
 
   /// Membuka panel bayar hutang supplier (F1-14); `null` = tanpa izin.
@@ -189,6 +203,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
     repository: widget.repository,
     purchaseId: widget.purchaseId,
     picker: widget.imagePicker,
+    exporter: widget.exporter,
   )..load.execute();
 
   @override
@@ -246,6 +261,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
       return PurchaseDetailView(
         viewModel: _vm,
         onBack: widget.onBack,
+        onOpenStockCard: widget.onOpenStockCard,
         onPayDebt: pay == null
             ? null
             : (id) async {
@@ -264,11 +280,14 @@ class PurchaseDetailView extends StatelessWidget {
     required this.viewModel,
     this.onBack,
     this.onPayDebt,
+    this.onOpenStockCard,
   });
 
   final PurchaseDetailViewModel viewModel;
   final VoidCallback? onBack;
   final Future<void> Function(UuidValue supplierId)? onPayDebt;
+  final void Function(UuidValue variantId, UuidValue locationId)?
+  onOpenStockCard;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -309,7 +328,11 @@ class PurchaseDetailView extends StatelessWidget {
             ),
             _InfoCard(detail: d),
             _InvoicePhotoCard(viewModel: vm),
-            _ItemsCard(viewModel: vm, wide: wide),
+            _ItemsCard(
+              viewModel: vm,
+              wide: wide,
+              onOpenStockCard: onOpenStockCard,
+            ),
             if (vm.returning) _ReturnCard(viewModel: vm, wide: wide),
             if (wide)
               IntrinsicHeight(
@@ -578,10 +601,16 @@ String _qtyUnit(BuildContext context, PurchaseItem item, int milli) =>
     '${formatQty(context, Qty(milli))} ${item.unitName}';
 
 class _ItemsCard extends StatelessWidget {
-  const _ItemsCard({required this.viewModel, required this.wide});
+  const _ItemsCard({
+    required this.viewModel,
+    required this.wide,
+    this.onOpenStockCard,
+  });
 
   final PurchaseDetailViewModel viewModel;
   final bool wide;
+  final void Function(UuidValue variantId, UuidValue locationId)?
+  onOpenStockCard;
 
   static const _cols = [24, 10, 12, 13, 19, 11, 17, 8];
 
@@ -593,15 +622,47 @@ class _ItemsCard extends StatelessWidget {
     final d = vm.detail!;
     final count = vm.checked.length;
     final body = theme.typography.body.sm.copyWith(fontFeatures: _tabular);
+    Widget productName(PurchaseItem item) {
+      final name = item.variantName.isEmpty
+          ? item.productName
+          : '${item.productName} ${item.variantName}';
+      final open = onOpenStockCard;
+      // Barang yang melacak stok punya HPP sesudah (F1-12c).
+      if (open == null || item.avgCostAfter == null) {
+        return Text(name, style: body.copyWith(fontWeight: FontWeight.w600));
+      }
+      return FTappable(
+        key: ValueKey('purchase-stock-card-${item.id.uuid}'),
+        semanticsLabel: l10n.purchaseStockCard(name),
+        onPress: () => open(item.variantId, d.purchase.stockLocationId),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: '$name '),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(
+                  TablerIcons.history,
+                  size: 14,
+                  color: theme.colors.primary,
+                ),
+              ),
+            ],
+          ),
+          style: body.copyWith(
+            fontWeight: FontWeight.w600,
+            color: theme.colors.primary,
+            decoration: TextDecoration.underline,
+            decorationColor: theme.colors.primary,
+          ),
+        ),
+      );
+    }
+
     Widget productCell(PurchaseItem item) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          item.variantName.isEmpty
-              ? item.productName
-              : '${item.productName} ${item.variantName}',
-          style: body.copyWith(fontWeight: FontWeight.w600),
-        ),
+        productName(item),
         Text(
           [
             ?d.skus[item.variantId],
@@ -1153,6 +1214,30 @@ class _ActionsCard extends StatelessWidget {
             child: Flexible(child: Text(l10n.purchaseReturnAction)),
           ),
           Text(l10n.purchaseReturnActionNote, style: _muted(context)),
+          FButton(
+            key: const ValueKey('purchase-print'),
+            variant: .outline,
+            onPress: vm.canPrint ? () => _print(context) : null,
+            prefix: vm.printPdf.running
+                ? const SizedBox.square(
+                    dimension: 16,
+                    child: FCircularProgress(),
+                  )
+                : const Icon(TablerIcons.printer),
+            child: Flexible(child: Text(l10n.purchasePrint)),
+          ),
+          Text(l10n.purchasePrintHint, style: _muted(context)),
+          if (vm.printPdf.completed && vm.printPath != null)
+            FAlert(
+              key: const ValueKey('purchase-print-saved'),
+              title: Text(l10n.purchasePrintSaved(vm.printPath!)),
+            )
+          else if (vm.printPdf.error)
+            FAlert(
+              key: const ValueKey('purchase-print-failed'),
+              variant: .destructive,
+              title: Text(l10n.purchasePrintFailed),
+            ),
           if (vm.submitReturn.result case Ok(:final value))
             FAlert(
               key: const ValueKey('purchase-return-done'),
@@ -1194,6 +1279,28 @@ class _ActionsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+extension on _ActionsCard {
+  void _print(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final d = vm.detail!;
+    final now = DateTime.now();
+    vm.printPdf.execute((
+      () => reportPdf(
+        purchasePrintTable(
+          l10n,
+          d,
+          staff: vm.staffName,
+          printedAt: now,
+          timezone: vm.timezone,
+        ),
+        money: (v) => moneyLabel(l10n, Money(v)),
+      ),
+      purchasePrintFileName(d.purchase.number),
+    ));
   }
 }
 

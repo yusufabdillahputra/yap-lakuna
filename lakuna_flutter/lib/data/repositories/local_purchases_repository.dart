@@ -44,6 +44,7 @@ class LocalPurchasesRepository extends PurchasesRepository {
           await findOpenCashSession(_store, CashScope.of(ctx)) != null,
       canUseDrawer: staff.can(Permission.cashMovementsCreate),
       canEditPrices: staff.can(Permission.productsManage),
+      staffName: staff.name,
     );
   });
 

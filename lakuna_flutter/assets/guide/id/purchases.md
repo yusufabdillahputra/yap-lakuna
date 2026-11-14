@@ -18,6 +18,10 @@ Pembelian mencatat barang masuk dari supplier: stok bertambah, harga pokok (HPP)
 
 Detail pembelian menampilkan HPP rata-rata baru dan *Saran jual* agar margin tetap terjaga. Centang produk yang ingin diubah harganya, lalu **Terapkan harga jual**.
 
+Tekan **Cetak / bagikan PDF** di kartu *Tindakan* untuk membuat PDF pembelian (barang, ringkasan bayar, retur, dan jatuh tempo). Di komputer PDF disimpan di folder dokumen Lakuna; di ponsel lembar bagikan terbuka agar PDF bisa dikirim lewat WhatsApp atau email.
+
+Nama produk di *Barang diterima* bisa diketuk untuk membuka **kartu stok** produk itu di lokasi terima pembelian (butuh izin menu Stok).
+
 Kartu *Foto faktur* menampilkan foto faktur supplier. Tekan **Lihat foto faktur** untuk membukanya layar penuh (bisa diperbesar), **Ganti foto** untuk menggantinya, atau **Hapus foto**. Mengubah foto tidak mengubah stok, HPP, atau hutang. Foto berupa PNG, JPG, atau WebP sampai 5 MB.
 
 ## Retur pembelian

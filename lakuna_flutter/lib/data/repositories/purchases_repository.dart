@@ -36,6 +36,7 @@ class PurchaseSetup {
     this.hasOpenSession = false,
     this.canUseDrawer = true,
     this.canEditPrices = true,
+    this.staffName = '',
   });
 
   /// Lokasi stok cabang, bawaan dulu.
@@ -60,6 +61,9 @@ class PurchaseSetup {
 
   /// Staf boleh menerapkan harga jual (`products:manage`).
   final bool canEditPrices;
+
+  /// Nama staf yang bertugas (tercetak di PDF pembelian, F1-12c).
+  final String staffName;
 }
 
 /// Pembelian dan retur beli (F1-12). Semua aksi butuh `purchases:manage`,

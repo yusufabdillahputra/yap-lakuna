@@ -13603,6 +13603,102 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tutup'**
   String get purchaseInvoicePhotoClose;
+
+  /// No description provided for @purchasePrint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak / bagikan PDF'**
+  String get purchasePrint;
+
+  /// No description provided for @purchasePrintHint.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF berisi barang, ringkasan bayar, dan retur; bisa dikirim ke supplier.'**
+  String get purchasePrintHint;
+
+  /// No description provided for @purchasePrintSaved.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF pembelian disimpan di {path}'**
+  String purchasePrintSaved(String path);
+
+  /// No description provided for @purchasePrintFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF pembelian gagal dibuat. Coba lagi.'**
+  String get purchasePrintFailed;
+
+  /// No description provided for @purchasePrintTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian {number}'**
+  String purchasePrintTitle(String number);
+
+  /// No description provided for @purchasePrintInvoiceNo.
+  ///
+  /// In id, this message translates to:
+  /// **'No. faktur {number}'**
+  String purchasePrintInvoiceNo(String number);
+
+  /// No description provided for @purchasePrintPaidUpfront.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibayar di muka'**
+  String get purchasePrintPaidUpfront;
+
+  /// No description provided for @purchasePrintDebtPaid.
+  ///
+  /// In id, this message translates to:
+  /// **'Bayar hutang'**
+  String get purchasePrintDebtPaid;
+
+  /// No description provided for @purchasePrintDue.
+  ///
+  /// In id, this message translates to:
+  /// **'Jatuh tempo sisa hutang: {date}'**
+  String purchasePrintDue(String date);
+
+  /// No description provided for @purchasePrintNoteLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan: {note}'**
+  String purchasePrintNoteLine(String note);
+
+  /// No description provided for @purchasePrintReturn.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur {number} · {date} · {amount}'**
+  String purchasePrintReturn(String number, String date, String amount);
+
+  /// No description provided for @purchasePrintPrinted.
+  ///
+  /// In id, this message translates to:
+  /// **'Dicetak {date} oleh {staff}'**
+  String purchasePrintPrinted(String date, String staff);
+
+  /// No description provided for @purchaseStockCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka kartu stok {product}'**
+  String purchaseStockCard(String product);
+
+  /// No description provided for @purchasePrintReturnDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur memotong hutang'**
+  String get purchasePrintReturnDebt;
+
+  /// No description provided for @purchasePrintRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali dari retur: {amount}'**
+  String purchasePrintRefund(String amount);
+
+  /// No description provided for @stockCardFocusMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.'**
+  String get stockCardFocusMissing;
 }
 
 class _AppLocalizationsDelegate
