@@ -193,6 +193,22 @@ void main() {
     final f = history.filters.last;
     expect(f.range, HistoryRange.custom);
     expect(f.days!.from, f.days!.to);
+    // Pill keempat dan ringkasan menampilkan tanggalnya (mis. *4 Nov 2026*).
+    final date = RegExp(r'^\d{1,2} \w{3} \d{4}');
+    expect(
+      find.descendant(
+        of: _key('history-range-custom'),
+        matching: find.textContaining(date),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(RegExp(r'^\d{1,2} \w{3} \d{4} · 2 transaksi')),
+      findsOneWidget,
+    );
+    // Kembali ke Hari ini: pill keempat kembali berlabel Rentang tanggal….
+    await _tap(tester, 'history-range-today');
+    expect(find.text('Rentang tanggal…'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -6,7 +6,7 @@ Retur mengembalikan sebagian atau semua barang dari nota yang sudah dibayar. Voi
 
 1. Buka **Riwayat**, lalu pilih nota (pakai filter tanggal, kasir, metode, atau status).
 
-> [!note] Nota lama? Ketik nomor nota, nama atau HP pelanggan, atau no. approval kartu / referensi transfer di kolom **Cari**. Pencarian menjangkau semua tanggal (paling banyak 100 nota terbaru); filter kasir, metode, dan status tetap berlaku. Ketuk pill tanggal untuk kembali ke daftar per tanggal.
+> [!note] Nota lama? Ketik nomor nota, nama atau HP pelanggan, atau no. approval kartu / referensi transfer di kolom **Cari**. Pencarian menjangkau semua tanggal (paling banyak 100 nota terbaru); filter kasir, metode, dan status tetap berlaku. Ketuk pill tanggal untuk kembali ke daftar per tanggal, atau **Rentang tanggal…** untuk memilih tanggal **Dari** / **Sampai** sendiri (paling panjang 366 hari).
 2. Tekan **Retur barang**. Isi jumlah retur per item, atau **Retur semua**.
 3. Pilih **Alasan**. Untuk *Lainnya*, catatan wajib diisi.
 4. Pilih **Uang kembali**: *Tunai dari laci* (butuh sesi kasir terbuka), *Transfer*, atau *Potong piutang* untuk nota kredit.

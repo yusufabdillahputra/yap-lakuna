@@ -372,7 +372,12 @@ class _Filters extends StatelessWidget {
             for (final range in HistoryRange.values)
               ChoicePill(
                 key: ValueKey('history-range-${range.name}'),
-                label: historyRangeLabel(l10n, range, days: f.days),
+                // Rentang bebas tampil hanya saat pill itu yang aktif.
+                label: historyRangeLabel(
+                  l10n,
+                  range,
+                  days: f.range == range ? f.days : null,
+                ),
                 // Selama mencari, semua tanggal (tidak ada pill terpilih).
                 selected: !f.searching && f.range == range,
                 onTap: range == HistoryRange.custom

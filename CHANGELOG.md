@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.68.0] - 2026-11-14
+
+Riwayat transaksi kini bisa difilter dengan rentang tanggal bebas, memakai
+dialog yang sama dengan Laporan, sehingga semua nota satu tanggal lama atau
+satu bulan bisa dilihat dan diekspor sekaligus.
+
+### Ditambahkan
+
+- **Riwayat (1.14):** pill keempat *Rentang tanggal…* setelah *7 hari*
+  membuka dialog *Pilih rentang tanggal* (Dari / Sampai). Setelah
+  *Terapkan*, pill menampilkan rentangnya (mis. *4 Nov 2026*) dan daftar
+  memuat nota dengan tanggal lokal cabang di rentang itu.
+- Validasi sama dengan Laporan: akhir tidak sebelum awal, tidak melewati
+  hari ini, paling panjang 366 hari. Memilih rentang mengosongkan kolom
+  cari; filter Kasir, Metode, Status tetap berlaku.
+- Ringkasan *4 Nov 2026 · 9 transaksi · Rp …*, kolom Jam bertanggal, dan
+  ekspor Excel `riwayat-<yyyymmdd>-<yyyymmdd>-<tanggal>.xlsx`.
+- Panduan *Retur & void* (id/en) menyebut rentang tanggal.
+
+### Diubah
+
+- Dialog rentang tanggal Laporan (F1-16b) dipindah ke komponen bersama
+  `ui/core/date_range_dialog.dart` (`showDateRangeDialog`, kunci widget
+  ber-prefix). Perilaku Laporan tidak berubah.
+
+### Catatan teknis
+
+- `HistoryRange.custom`, `HistoryFilter.days` (tanggal kalender,
+  inklusif) dan `historyRangeBounds(..., days:)`: awal hari lokal dihitung
+  dari awal hari ini cabang dikurangi selisih tanggal.
+- `HistoryViewModel.today`, `initialRange`, `setCustomRange`;
+  `historyRangeLabel(..., days:)` memakai `reportRangeLabel`.
+- Tes data (satu tanggal lama, dua hari melintasi tengah malam WIB,
+  batas UTC, filter status), VM (rentang, cari dikosongkan, nama berkas),
+  dan widget (batal, terapkan).
+
 ## [0.67.0] - 2026-11-14
 
 Laporan kini bisa dibuka untuk rentang tanggal bebas, mis. 1–15 November
@@ -4893,7 +4929,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...HEAD
+[0.68.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...v0.68.0
 [0.67.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...v0.67.0
 [0.66.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...v0.65.0

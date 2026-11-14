@@ -48,6 +48,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.65.0 | Bagi baris berdiskon rupiah per tamu (F1-04h) | #71 |
 | v0.66.0 | Cari nota di Riwayat (F1-11b) | #72 |
 | v0.67.0 | Rentang tanggal bebas di Laporan (F1-16b) | #73 |
+| v0.68.0 | Rentang tanggal bebas di Riwayat (F1-11c) | #74 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -96,7 +97,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 16. ~~Referensi kartu/transfer di split payment dan struk~~ — selesai
     v0.64.0 (F1-05b).
 17. ~~Cari nota di Riwayat (nomor, pelanggan, referensi)~~ — selesai
-    v0.66.0 (F1-11b); rentang tanggal bebas di Riwayat masih gap.
+    v0.66.0 (F1-11b); ~~rentang tanggal bebas di Riwayat~~ — selesai
+    v0.68.0 (F1-11c).
 18. ~~Rentang tanggal bebas di Laporan~~ — selesai v0.67.0 (F1-16b).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.

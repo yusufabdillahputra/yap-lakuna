@@ -8,7 +8,7 @@ import '../../data/repositories/repository_errors.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
-import '../reports/report_labels.dart' show reportRangeLabel;
+import '../core/date_range_label.dart';
 
 /// Status nota di riwayat.
 String saleStatusLabel(AppLocalizations l10n, SaleStatus status) =>
