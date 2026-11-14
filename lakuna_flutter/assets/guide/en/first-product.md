@@ -18,6 +18,9 @@ Products must exist before they can be sold at the cashier. One product can have
 
 For home-made goods (cakes, blends, bulk goods), leave the **Barcode** field empty and tap the wand icon at the end of the field (**Generate barcode**). Lakuna fills in a store EAN-13 code starting with `20` that no other product uses. Save the product, then print its label with **Print labels**; the cashier simply scans that label.
 
+> [!warning]
+> Products without a barcode are printed with their SKU. A long SKU makes the barcode bars too thin to scan on small paper. The **Print labels** screen warns you when this happens; choose wider paper, shorten the SKU, or use **Generate barcode**.
+
 > [!note] Imported goods with a UPC-A barcode (12 digits) are still found when the scanner reads them as 13 digits starting with `0`, in Cashier, Stock, Purchases, and product search.
 
 ## Units & wholesale prices

@@ -8053,4 +8053,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productGenerateBarcode => 'Generate barcode';
+
+  @override
+  String labelsTooDense(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products use codes',
+      one: '1 product uses a code',
+    );
+    return '$_temp0 too long for this paper';
+  }
+
+  @override
+  String labelsTooDenseMore(String names, int count) {
+    return '$names, and $count more';
+  }
+
+  @override
+  String labelsTooDenseHint(String names) {
+    return 'The barcode bars for $names get too thin to scan. Use wider paper, a shorter SKU, or the Generate barcode button in the product form.';
+  }
 }

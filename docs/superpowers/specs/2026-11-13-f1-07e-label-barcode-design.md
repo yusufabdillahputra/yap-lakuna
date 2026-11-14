@@ -91,6 +91,6 @@ cukup memindai label itu.
 | Label langsung ke printer ESC/POS (Bluetooth/jaringan) | — | Belum | Perlu perintah barcode ESC/POS dan ukuran label per printer. |
 | Tab *Barcode & label* di form 1.16 | Ada | Diganti | Tombol *Cetak label* di form membuka 1.15b. |
 | Buat barcode otomatis untuk produk tanpa kode | — | Rilis v0.55.0 | Tombol *Buat barcode* di field Barcode varian, EAN-13 awalan 20 ([F1-07h](2026-11-14-f1-07h-barcode-otomatis-upc-design.md)). |
-| Peringatan kode terlalu panjang untuk label kecil | — | Belum | SKU Code 128 ±20 karakter di 38 × 25 mm membuat garis < 1 titik printer 203 dpi; pakai label 50 × 30 atau A4. |
+| Peringatan kode terlalu panjang untuk label kecil | — | Rilis v0.57.0 | [F1-07i](2026-11-14-f1-07i-peringatan-kode-label-design.md): peringatan bila garis < 0,25 mm untuk kertas terpilih. |
 | UPC-A dibaca pemindai sebagai 13 digit (awalan 0) | — | Rilis v0.55.0 | `barcodeKey` menyamakan `0` + UPC-A dengan kode 12 digit ([F1-07h](2026-11-14-f1-07h-barcode-otomatis-upc-design.md)). |
 | PDF ribuan label tanpa membekukan layar | — | Belum | Batas 2.000 label; PDF dibuat di isolate UI. |

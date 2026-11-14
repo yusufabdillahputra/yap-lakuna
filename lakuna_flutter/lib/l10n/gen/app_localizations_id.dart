@@ -7865,4 +7865,19 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get productGenerateBarcode => 'Buat barcode';
+
+  @override
+  String labelsTooDense(int count) {
+    return '$count produk memakai kode terlalu panjang untuk kertas ini';
+  }
+
+  @override
+  String labelsTooDenseMore(String names, int count) {
+    return '$names, dan $count lainnya';
+  }
+
+  @override
+  String labelsTooDenseHint(String names) {
+    return 'Garis barcode $names jadi terlalu tipis untuk dipindai. Pakai kertas yang lebih lebar, SKU yang lebih pendek, atau tombol Buat barcode di form produk.';
+  }
 }

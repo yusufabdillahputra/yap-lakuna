@@ -13765,6 +13765,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Buat barcode'**
   String get productGenerateBarcode;
+
+  /// No description provided for @labelsTooDense.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} produk memakai kode terlalu panjang untuk kertas ini'**
+  String labelsTooDense(int count);
+
+  /// No description provided for @labelsTooDenseMore.
+  ///
+  /// In id, this message translates to:
+  /// **'{names}, dan {count} lainnya'**
+  String labelsTooDenseMore(String names, int count);
+
+  /// No description provided for @labelsTooDenseHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Garis barcode {names} jadi terlalu tipis untuk dipindai. Pakai kertas yang lebih lebar, SKU yang lebih pendek, atau tombol Buat barcode di form produk.'**
+  String labelsTooDenseHint(String names);
 }
 
 class _AppLocalizationsDelegate

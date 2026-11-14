@@ -70,4 +70,4 @@ templat Excel, isi, lalu import.
 | --- | --- | --- | --- |
 | Templat import produk/pelanggan/supplier | — | Selesai v0.47.0 | |
 | Templat berbahasa Inggris | — | Belum | Judul Indonesia dikenali di kedua bahasa; templat EN bila diminta. |
-| Share sheet di iPad | — | Belum | `PlatformSpreadsheetExporter` belum memberi `sharePositionOrigin`; di iPad simpan templat (dan ekspor lain) tampil *gagal disimpan*. |
+| Share sheet di iPad | — | Catatan | Bukan gap: `share_plus` 13.3 (dipakai sejak v0.28) sudah memakai titik asal di tengah layar bila `sharePositionOrigin` kosong, jadi share sheet iPad tidak melempar galat. Belum diuji di iPad sungguhan. |

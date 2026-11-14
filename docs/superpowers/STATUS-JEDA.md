@@ -37,6 +37,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.54.0 | Tarif beku saat split bill dibayar (F1-10h) | #60 |
 | v0.55.0 | Barcode toko otomatis dan scan UPC-A 13 digit (F1-07h) | #61 |
 | v0.56.0 | Kas bagian split bill per sesi (F1-10i) | #62 |
+| v0.57.0 | Peringatan kode label terlalu panjang (F1-07i) | #63 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -76,6 +77,7 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    dan tautan kartu stok~~ — selesai v0.51.0 (F1-12c).
 13. ~~Produk pertama di onboarding~~ — selesai v0.52.0 (F1-01b).
 14. ~~Barcode otomatis & UPC-A 13 digit~~ — selesai v0.55.0 (F1-07h);
+   ~~peringatan kode label terlalu panjang~~ — selesai v0.57.0 (F1-07i);
    buat barcode massal dan label ESC/POS masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
