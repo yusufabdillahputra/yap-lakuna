@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -288,6 +290,66 @@ void main() {
       );
     });
 
+    test('foto nota besar dikecilkan ke 2.000 px JPEG (F1-15b)', () async {
+      final big = _tallPng();
+      final e = await spend(
+        'Plastik kresek',
+        120000,
+        category: 'Plastik & kemasan',
+        receipt: ExpenseReceipt(bytes: big, fileName: 'nota.png'),
+      );
+      final media = await MediaFile.db.findById(
+        store.session,
+        e.receiptMediaId!,
+      );
+      expect((media!.width, media.height), (1200, 2000));
+      expect(media.mimeType, 'image/jpeg');
+      final stored = (await loadExpenseReceipt(store, scope, e.id))!;
+      expect(readImageHeader(stored)!.width, 1200);
+    });
+
+    test('foto nota di atas 20 MB, > 50 MP, atau rusak ditolak', () async {
+      final before = await SyncOutboxEntry.db.count(store.session);
+      final tooBig = Uint8List(ExpenseLimits.receiptInputMaxBytes + 1)
+        ..setAll(0, pngBytes(400, 300));
+      final huge = Uint8List.fromList(
+        img.encodePng(img.Image(width: 10000, height: 6000)),
+      );
+      final broken = Uint8List(ExpenseLimits.receiptMaxBytes)
+        ..setAll(0, pngBytes(4000, 3000));
+      for (final bytes in [tooBig, huge, broken]) {
+        await expectLater(
+          spend(
+            'Rusak',
+            1000,
+            receipt: ExpenseReceipt(bytes: bytes, fileName: 'x.png'),
+          ),
+          throwsA(isA<ExpenseReceiptInvalid>()),
+        );
+      }
+      expect(await SyncOutboxEntry.db.count(store.session), before);
+    });
+
+    test('foto nota 6 MB dari kamera diterima (batas lama 5 MB)', () async {
+      final rnd = Random(3);
+      final source = img.Image(width: 1800, height: 1600);
+      for (final p in source) {
+        p
+          ..r = rnd.nextInt(256)
+          ..g = rnd.nextInt(256)
+          ..b = rnd.nextInt(256);
+      }
+      final png = Uint8List.fromList(img.encodePng(source, level: 0));
+      expect(png.length, greaterThan(ExpenseLimits.receiptMaxBytes));
+      final e = await spend(
+        'Galon',
+        20000,
+        receipt: ExpenseReceipt(bytes: png, fileName: 'nota.png'),
+      );
+      final stored = (await loadExpenseReceipt(store, scope, e.id))!;
+      expect(stored.length, lessThanOrEqualTo(ExpenseLimits.receiptMaxBytes));
+    });
+
     test('pengeluaran laci + gerakan kas masuk outbox bersama', () async {
       await openCashSession(
         store,
@@ -461,4 +523,16 @@ void main() {
       expect(back.source, expenseVoidCashSource);
     });
   });
+}
+
+/// Foto nota tegak 2400×4000 bergaris (di atas batas sisi).
+Uint8List _tallPng() {
+  final source = img.Image(width: 2400, height: 4000);
+  for (final p in source) {
+    p
+      ..r = p.x * 255 ~/ 2400
+      ..g = p.y * 255 ~/ 4000
+      ..b = (p.y ~/ 30).isEven ? 230 : 30;
+  }
+  return Uint8List.fromList(img.encodePng(source));
 }

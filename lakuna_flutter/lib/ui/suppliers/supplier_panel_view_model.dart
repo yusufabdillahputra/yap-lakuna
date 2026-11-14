@@ -265,8 +265,10 @@ class SupplierPanelViewModel extends ChangeNotifier {
   Future<Result<void>> _pickProof(bool camera) async {
     try {
       final picked = camera
-          ? await _picker.takePhoto(maxBytes: SupplierLimits.proofMaxBytes)
-          : await _picker.pickImage(maxBytes: SupplierLimits.proofMaxBytes);
+          ? await _picker.takePhoto(maxBytes: SupplierLimits.proofInputMaxBytes)
+          : await _picker.pickImage(
+              maxBytes: SupplierLimits.proofInputMaxBytes,
+            );
       if (picked == null) return const Result.ok(null);
       final bytes = picked.bytes;
       if (bytes == null) {

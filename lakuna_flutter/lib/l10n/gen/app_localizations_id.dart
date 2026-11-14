@@ -4997,7 +4997,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get supplierRemoveProof => 'Hapus foto';
 
   @override
-  String get supplierProofTooLarge => 'Foto bukti maksimal 5 MB.';
+  String get supplierProofTooLarge => 'Foto bukti maksimal 20 MB.';
 
   @override
   String get supplierProofInvalid => 'Pilih gambar PNG, JPG, atau WebP.';
@@ -5294,7 +5294,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get expenseReceiptInvalid =>
-      'Foto nota harus gambar PNG/JPEG/WebP, maksimal 5 MB.';
+      'Foto nota harus gambar PNG/JPEG/WebP, maksimal 20 MB.';
 
   @override
   String get expenseReceiptMissing => 'Foto nota belum ada di perangkat ini.';

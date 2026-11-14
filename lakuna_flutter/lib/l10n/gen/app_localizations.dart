@@ -8795,7 +8795,7 @@ abstract class AppLocalizations {
   /// No description provided for @supplierProofTooLarge.
   ///
   /// In id, this message translates to:
-  /// **'Foto bukti maksimal 5 MB.'**
+  /// **'Foto bukti maksimal 20 MB.'**
   String get supplierProofTooLarge;
 
   /// No description provided for @supplierProofInvalid.
@@ -9317,7 +9317,7 @@ abstract class AppLocalizations {
   /// No description provided for @expenseReceiptInvalid.
   ///
   /// In id, this message translates to:
-  /// **'Foto nota harus gambar PNG/JPEG/WebP, maksimal 5 MB.'**
+  /// **'Foto nota harus gambar PNG/JPEG/WebP, maksimal 20 MB.'**
   String get expenseReceiptInvalid;
 
   /// No description provided for @expenseReceiptMissing.
