@@ -16,4 +16,6 @@ The customer must be registered with a **Credit limit** above 0 in [Customers](c
 
 > [!warning] If the running balance plus the new receivable exceeds the limit, the receipt cannot be saved. Lower the amount or raise the down payment.
 
+The receipt prints the *On credit* and *Due* lines. If a *Transfer account* is set in [Store settings](store-settings), it also prints *Transfer to:* followed by the account so the customer knows where to pay the rest.
+
 The receipt is marked *Unpaid* in History and added to the customer's receivables. Later payments are recorded in [Customers & receivables](customers-credit).

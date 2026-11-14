@@ -93,6 +93,7 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
   ReceiptConfig get previewConfig => ReceiptConfig(
     settings: _draft,
     defaultHeader: _config?.defaultHeader ?? '',
+    transferAccount: _config?.transferAccount ?? '',
   );
 
   bool get canSave => loaded && !save.running;

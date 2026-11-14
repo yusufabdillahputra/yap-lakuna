@@ -9,6 +9,7 @@ import 'package:serverpod_database/serverpod_database.dart'
 import 'media.dart';
 import 'preferences.dart';
 import 'settings_scope.dart';
+import 'store_settings.dart' show loadSalesRules;
 import 'stock.dart';
 import 'store.dart';
 
@@ -105,9 +106,14 @@ class ReceiptConfig {
     required this.settings,
     this.defaultHeader = '',
     this.logoImage,
+    this.transferAccount = '',
   });
 
   final ReceiptSettings settings;
+
+  /// *Rekening transfer* cabang (F1-05c) untuk struk yang masih menyisakan
+  /// piutang (F1-05e); kosong bila belum diatur.
+  final String transferAccount;
 
   /// Berkas logo struk (F1-06b); `null` bila belum ada atau berkasnya belum
   /// ada di perangkat ini. Untuk pratinjau di pengaturan.
@@ -148,9 +154,11 @@ Future<ReceiptConfig> loadReceiptConfig(
   final outlet = await Outlet.db.findById(store.session, scope.outletId);
   final settings = row == null ? const ReceiptSettings() : _decode(row);
   final logo = await _logo(store.session, null, scope, settings.logoMediaId);
+  final rules = await loadSalesRules(store.session, scope);
   return ReceiptConfig(
     settings: settings,
     logoImage: logo == null ? null : await readMediaFile(store, logo),
+    transferAccount: rules.transferAccount,
     defaultHeader: [
       outlet?.address?.trim(),
       outlet?.phone?.trim(),

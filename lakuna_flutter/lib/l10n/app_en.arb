@@ -4857,5 +4857,17 @@
         "type": "String"
       }
     }
+  },
+  "receiptTransferTo": "Transfer to: {account}",
+  "@receiptTransferTo": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiBalanceTransferTo": "Pay the balance to",
+  "@kuitansiBalanceTransferTo": {
+    "placeholders": {}
   }
 }

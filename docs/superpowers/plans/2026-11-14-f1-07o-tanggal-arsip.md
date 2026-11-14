@@ -14,4 +14,4 @@ Spec: [F1-07o](../specs/2026-11-14-f1-07o-tanggal-arsip-design.md)
       November 14, 2026*; *Pulihkan* mengembalikan produk.
 - [x] **Dokumen**: spec F1-07d, README, STATUS-JEDA, panduan, CHANGELOG
       0.78.0, versi 0.78.0+81.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #84 di-merge (13 cek hijau).

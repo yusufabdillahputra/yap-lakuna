@@ -411,4 +411,107 @@ void main() {
     expect(merged.single.discountAmount, 1000);
     expect(merged.single.lineTotal, 19000);
   });
+
+  group('rekening transfer di struk piutang (F1-05e)', () {
+    const account = 'BCA 1234567890\n a.n.  Toko Maju';
+    const withAccount = ReceiptConfig(
+      settings: ReceiptSettings(),
+      transferAccount: account,
+    );
+
+    CheckoutResult credit({
+      int paid = 81500,
+      SaleStatus status = SaleStatus.completed,
+    }) {
+      final base = result([pay(PaymentMethod.cash, paid)]);
+      return CheckoutResult(
+        sale: base.sale.copyWith(
+          customerId: UuidValue.fromString(newId()),
+          customerName: 'Bu Rina',
+          dueOn: DateTime.utc(2026, 11, 30),
+          status: status,
+        ),
+        items: base.items,
+        payments: base.payments,
+      );
+    }
+
+    ReceiptContent content(
+      CheckoutResult r, {
+      AppLocalizations? l10n,
+      ReceiptConfig cfg = withAccount,
+    }) => saleReceiptContent(
+      l10n ?? id,
+      result: r,
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: cfg,
+    );
+
+    test('sisa piutang: baris setelah jatuh tempo, spasi dirapikan', () {
+      expect(content(credit()).totals.map((p) => (p.label, p.value)), [
+        ('TOTAL', '181.500'),
+        ('Tunai', '81.500'),
+        ('Kembali', '0'),
+        ('Piutang', '100.000'),
+        ('Jatuh tempo', '30/11/26'),
+        ('Transfer ke: BCA 1234567890 a.n. Toko Maju', ''),
+      ]);
+      expect(
+        content(credit(), l10n: en).totals.last.label,
+        'Transfer to: BCA 1234567890 a.n. Toko Maju',
+      );
+    });
+
+    test('lunas, void, tanpa pelanggan, atau rekening kosong: tanpa baris', () {
+      bool hasLine(ReceiptContent c) =>
+          c.totals.any((p) => p.label.startsWith('Transfer ke'));
+      expect(hasLine(content(credit(paid: 181500))), isFalse);
+      expect(hasLine(content(credit(status: SaleStatus.voided))), isFalse);
+      expect(hasLine(content(credit(status: SaleStatus.returned))), isFalse);
+      expect(
+        hasLine(content(result([pay(PaymentMethod.cash, 81500)]))),
+        isFalse,
+      );
+      expect(hasLine(content(credit(), cfg: config)), isFalse);
+      expect(
+        hasLine(
+          content(
+            credit(),
+            cfg: const ReceiptConfig(
+              settings: ReceiptSettings(),
+              transferAccount: '  \n ',
+            ),
+          ),
+        ),
+        isFalse,
+      );
+    });
+
+    test('rekening panjang di 58 mm: dibungkus rata kiri tanpa nilai', () {
+      final long = ReceiptConfig(
+        settings: const ReceiptSettings(),
+        transferAccount:
+            'Bank Rakyat Indonesia 0123-01-000123-30-1 a.n. '
+            'CV Warung Contoh Sejahtera',
+      );
+      final lines = layoutReceipt(
+        content(credit(), cfg: long),
+        ReceiptPaper.mm58,
+      );
+      final at = lines.indexWhere((l) => l.text.startsWith('Transfer ke:'));
+      expect(at, greaterThan(0));
+      final tail = lines.sublist(at).takeWhile((l) => l.text != '-' * 32);
+      expect(tail.length, greaterThan(1));
+      expect(tail.every((l) => l.align == ReceiptAlign.left), isTrue);
+      expect(
+        tail.map((l) => l.text.trim()).join(' '),
+        'Transfer ke: Bank Rakyat Indonesia 0123-01-000123-30-1 a.n. '
+        'CV Warung Contoh Sejahtera',
+      );
+      expect(lines.every((l) => l.text.length <= 32), isTrue);
+    });
+  });
 }

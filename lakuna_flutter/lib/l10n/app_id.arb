@@ -5391,5 +5391,17 @@
         "type": "String"
       }
     }
+  },
+  "receiptTransferTo": "Transfer ke: {account}",
+  "@receiptTransferTo": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "kuitansiBalanceTransferTo": "Transfer sisa ke",
+  "@kuitansiBalanceTransferTo": {
+    "placeholders": {}
   }
 }

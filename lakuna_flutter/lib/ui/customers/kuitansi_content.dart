@@ -16,6 +16,20 @@ String _dueNote(AppLocalizations l10n, DebtPaymentReceipt r) {
   return l10n.kuitansiFootnote(r.customer.name, _money(l10n, rest));
 }
 
+/// Rekening transfer (F1-05e) bila sisa piutang tercetak dan masih ada:
+/// opsi sisa aktif, kuitansi tidak batal, sisa > 0. Spasi dirapikan.
+String? _transferAccount(
+  DebtPaymentReceipt r,
+  CustomersSetup setup,
+  bool showBalance,
+) {
+  if (!showBalance || r.payment.voidedAt != null) return null;
+  if (r.balanceAfter.value <= 0) return null;
+  final text = setup.receipt.transferAccount.trim().split(RegExp(r'\s+'));
+  final account = text.join(' ');
+  return account.isEmpty ? null : account;
+}
+
 /// Cap kuitansi: *BATAL* untuk pembayaran yang dibatalkan (F1-13c),
 /// *SALINAN* untuk cetak ulang.
 String? _banner(AppLocalizations l10n, DebtPayment p, bool copy) {
@@ -69,6 +83,10 @@ KuitansiDocument kuitansiDocument(
       if (p.note case final note?) KuitansiField(l10n.kuitansiNote, note),
       if (p.voidReason case final reason?)
         KuitansiField(l10n.kuitansiVoidReason, reason),
+      // Di akhir, berlabel "sisa", agar tidak terbaca sebagai tujuan
+      // pembayaran ini (mis. kuitansi tunai).
+      if (_transferAccount(receipt, setup, showBalance) case final account?)
+        KuitansiField(l10n.kuitansiBalanceTransferTo, account),
     ],
     tableHead: showDetails
         ? [
@@ -145,6 +163,8 @@ ReceiptContent kuitansiReceiptContent(
           l10n.kuitansiBalance,
           receiptAmount(l10n, receipt.balanceAfter.value),
         ),
+      if (_transferAccount(receipt, setup, showBalance) case final account?)
+        ?receiptTransferLine(l10n, account),
     ],
     footer: [l10n.receiptThanks],
   );
