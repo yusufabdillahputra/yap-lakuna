@@ -5516,7 +5516,7 @@
     }
   },
   "stockRestockDraftTitle": "Sudah ada draf pembelian",
-  "stockRestockDraftBody": "Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?",
+  "stockRestockDraftBody": "Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda? Barang yang belum ada di draf akan ditambahkan.",
   "@stockRestockDraftBody": {
     "placeholders": {
       "number": {
@@ -5545,6 +5545,28 @@
   "@stockMinimumInDraft": {
     "placeholders": {
       "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseRestockIntoDraft": "Dari stok minimum {location}: {added} barang ditambahkan ke draf ini, {already} barang sudah ada. Simpan draf agar tambahan tersimpan.",
+  "@purchaseRestockIntoDraft": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "added": {
+        "type": "int"
+      },
+      "already": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseRestockAllInDraft": "Semua barang di bawah minimum {location} sudah ada di draf ini.",
+  "@purchaseRestockAllInDraft": {
+    "placeholders": {
+      "location": {
         "type": "String"
       }
     }

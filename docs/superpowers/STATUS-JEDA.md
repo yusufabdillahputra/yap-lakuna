@@ -75,6 +75,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.92.0 | Harga beli terakhir untuk barang yang ditambah manual (F1-12e) | #98 |
 | v0.93.0 | Peringatan draf pembelian ganda dari stok minimum (F1-08g) | #99 |
 | v0.94.0 | Tanda "sudah di draf" di tab Stok minimum (F1-08h) | #100 |
+| v0.95.0 | *Buka draf* menambahkan barang stok minimum yang belum ada (F1-08i) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -169,7 +170,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     konversi dan per supplier terpilih masih gap.
 36. ~~*Buat pembelian* dari stok minimum membuat draf kedua berisi barang
     yang sama~~ — selesai v0.93.0 (F1-08g): dialog Buka draf / Buat draf
-    baru / Batal, per lokasi terima. Gabung barang yang belum ada ke draf
+    baru / Batal, per lokasi terima. ~~Gabung barang yang belum ada ke
+    draf~~ — selesai v0.95.0 (F1-08i); peringatan keluar tanpa menyimpan
     masih gap.
 37. ~~Tanda "sudah di draf" di tab *Stok minimum*~~ — selesai v0.94.0
     (F1-08h); jumlah di draf dibanding jumlah saran masih gap.

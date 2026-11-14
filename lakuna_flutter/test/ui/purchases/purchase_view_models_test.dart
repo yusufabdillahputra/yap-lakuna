@@ -391,6 +391,128 @@ void main() {
     });
   });
 
+  group('buka draf dari stok minimum (F1-08i)', () {
+    Future<(FakePurchasesRepository, Purchase, List<UuidValue>)> seed() async {
+      final r = FakePurchasesRepository(
+        suppliers: const ['CV Sumber Pangan'],
+      );
+      final variants = [
+        for (final p in r.products) ...p.variants.map((v) => v.id),
+      ];
+      final saved = await r.saveDraft(
+        PurchaseRequest(
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: r.locations.first.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: variants[0],
+              quantity: Qty.units(5),
+              unitPrice: const Money(30000),
+            ),
+          ],
+        ),
+      );
+      // Riwayat yang tidak boleh mengubah baris draf atau suppliernya.
+      r.lastPriceOf
+        ..[variants[0]] = const Money(31500)
+        ..[variants[1]] = const Money(12000);
+      r.lastSupplierOf[variants[1]] = (
+        supplierId: r.suppliers.single.id,
+        at: DateTime.utc(2026, 11, 1),
+      );
+      return (r, (saved as Ok<Purchase>).value, variants);
+    }
+
+    PurchaseRestock restockOf(
+      FakePurchasesRepository r,
+      List<(UuidValue, int)> lines,
+    ) => PurchaseRestock(
+      locationId: r.locations.first.id,
+      locationName: 'Toko',
+      lines: [
+        for (final (id, qty) in lines)
+          (variantId: id, quantity: Qty.units(qty)),
+      ],
+    );
+
+    test('barang yang belum ada ditambahkan; baris draf, lokasi, dan '
+        'supplier tidak berubah', () async {
+      final (r, draft, v) = await seed();
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        draftId: draft.id,
+        restock: restockOf(r, [(v[0], 38), (v[1], 18), (v[2], 7)]),
+      );
+      await vm.load.execute();
+      expect(vm.isDraft, isTrue);
+      expect(vm.draftId, draft.id);
+      expect(vm.number, draft.number);
+      expect(vm.lines.map((l) => l.product.variantId), [v[0], v[1], v[2]]);
+      // Baris lama tetap: jumlah dan harga draf.
+      expect(vm.lines[0].quantity, Qty.units(5));
+      expect(vm.lines[0].unitPrice, const Money(30000));
+      expect(vm.lines[0].priceRev, 0);
+      // Baris baru: jumlah saran, harga beli terakhir atau harga modal.
+      expect(vm.lines[1].quantity, Qty.units(18));
+      expect(vm.lines[1].unitPrice, const Money(12000));
+      expect(vm.lines[2].quantity, Qty.units(7));
+      expect(
+        vm.lines[2].unitPrice,
+        r.products
+            .expand((p) => p.variants)
+            .firstWhere((x) => x.id == v[2])
+            .costPrice,
+      );
+      expect(vm.restockIntoDraft, isTrue);
+      expect(vm.restockApplied, 2);
+      expect(vm.restockInDraft, 1);
+      expect(vm.restockPriceCount, 1);
+      expect(vm.restockLocationName, 'Toko');
+      expect(vm.supplierId, isNull);
+      expect(vm.restockSupplierName, isNull);
+      expect(r.lastPriceCalls, 1);
+      vm.dispose();
+    });
+
+    test('semua barang sudah ada: tidak ada baris baru', () async {
+      final (r, draft, v) = await seed();
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        draftId: draft.id,
+        restock: restockOf(r, [(v[0], 38)]),
+      );
+      await vm.load.execute();
+      expect(vm.lines, hasLength(1));
+      expect(vm.lines.single.unitPrice, const Money(30000));
+      expect(vm.restockApplied, 0);
+      expect(vm.restockInDraft, 1);
+      expect(vm.restockIntoDraft, isTrue);
+      vm.dispose();
+    });
+
+    test('simpan draf menyimpan baris tambahan ke draf yang sama', () async {
+      final (r, draft, v) = await seed();
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        draftId: draft.id,
+        restock: restockOf(r, [(v[0], 38), (v[1], 18)]),
+      );
+      await vm.load.execute();
+      await vm.saveDraft.execute();
+      expect(vm.saveDraft.completed, isTrue);
+      expect(r.purchases.where((p) => p.number == draft.number), hasLength(1));
+      // Tambahan sudah tersimpan: catatan "simpan draf" hilang.
+      expect(vm.restockIntoDraft, isFalse);
+      expect(vm.restockLocationName, isNull);
+      final detail = await r.detail(draft.id);
+      expect(
+        (detail as Ok<PurchaseDetail>).value.items.map((i) => i.variantId),
+        [v[0], v[1]],
+      );
+      vm.dispose();
+    });
+  });
+
   group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
     UuidValue myk() => form.lines
         .firstWhere((l) => l.product.sku == 'MYK-2L')

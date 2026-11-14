@@ -14505,7 +14505,7 @@ abstract class AppLocalizations {
   /// No description provided for @stockRestockDraftBody.
   ///
   /// In id, this message translates to:
-  /// **'Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda?'**
+  /// **'Draf {number} sudah berisi {matched} dari {total} barang di bawah minimum. Buka draf itu agar tidak membuat pembelian ganda? Barang yang belum ada di draf akan ditambahkan.'**
   String stockRestockDraftBody(String number, int matched, int total);
 
   /// No description provided for @stockRestockDraftOthers.
@@ -14537,6 +14537,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Sudah di draf {number}'**
   String stockMinimumInDraft(String number);
+
+  /// No description provided for @purchaseRestockIntoDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari stok minimum {location}: {added} barang ditambahkan ke draf ini, {already} barang sudah ada. Simpan draf agar tambahan tersimpan.'**
+  String purchaseRestockIntoDraft(String location, int added, int already);
+
+  /// No description provided for @purchaseRestockAllInDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua barang di bawah minimum {location} sudah ada di draf ini.'**
+  String purchaseRestockAllInDraft(String location);
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,47 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.95.0] - 2026-11-14
+
+*Buka draf* dari Stok minimum kini langsung menambahkan barang di bawah
+minimum yang belum dipesan, sehingga staf tidak perlu mencarinya satu per
+satu.
+
+### Ditambahkan
+
+- **Stok (1.18) › Stok minimum › Buat pembelian › Buka draf:** form draf
+  (1.19) terbuka dengan barang di bawah minimum yang belum ada di draf itu
+  maupun di draf lain ke lokasi yang sama ditambahkan di akhir, dengan
+  jumlah saran dan harga beli terakhir (harga modal bila belum pernah
+  dibeli). Catatan di atas form: "{n} barang ditambahkan ke draf ini, {m}
+  barang sudah ada. Simpan draf agar tambahan tersimpan", atau "Semua
+  barang di bawah minimum sudah ada di draf ini".
+- Isi dialog *Sudah ada draf pembelian* menyebut bahwa barang yang belum
+  ada akan ditambahkan.
+- Panduan *Stok* diperbarui (ID + EN).
+
+### Diubah
+
+- Baris draf yang sudah ada, lokasi terima, supplier, dan isian lain draf
+  tidak diubah saat dibuka dari Stok minimum; tambahan baru tersimpan saat
+  *Simpan draf* / *Terima* ditekan, lalu catatannya hilang.
+
+### Catatan teknis
+
+- Rute `/pembelian/:id` meneruskan `extra` `PurchaseRestock` ke
+  `PurchaseDetailScreen.restock` → `PurchaseFormPage`;
+  `StockScreen.onOpenDraft` kini `(id, restock)`.
+- `PurchaseFormViewModel._applyRestockToDraft` (setelah `_fill`) memakai
+  `_applyRestock(keepLocation: true)` dan `_applyRestockPrices(keys)`.
+  Harga terakhir kini hanya diterapkan ke baris sasaran, agar baris draf
+  lama tidak tersentuh.
+- Saat di-review: membuka draf A dengan seluruh isian stok minimum ikut
+  menambahkan barang yang sudah dipesan di draf B (pesanan ganda yang
+  justru dicegah F1-08g). Isian kini membuang varian draf lain sebelum
+  dibuka; tes dua draf diverifikasi dengan mutasi.
+- Tes VM (tambahan + baris lama tetap, semua sudah ada, simpan ke draf yang
+  sama) dan alur widget 1280 / 360 px.
+
 ## [0.94.0] - 2026-11-14
 
 Daftar Stok minimum kini menandai barang yang sudah ada di draf pembelian,
@@ -6012,7 +6053,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...HEAD
+[0.95.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...v0.95.0
 [0.94.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...v0.94.0
 [0.93.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...v0.93.0
 [0.92.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...v0.92.0
