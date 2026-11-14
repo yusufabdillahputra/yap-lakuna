@@ -597,8 +597,11 @@ Future<void> _void(
     builder: (context, style, animation) => FDialog(
       animation: animation,
       constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
-      builder: (context, style) =>
-          SaleVoidDialog(number: vm.detail?.sale.number ?? ''),
+      builder: (context, style) => SaleVoidDialog(
+        number: vm.detail?.sale.number ?? '',
+        drawerCash: vm.drawerCash,
+        drawerShortfall: vm.voidDrawerShortfall,
+      ),
     ),
   );
   if (reason == null) return;
@@ -607,9 +610,19 @@ Future<void> _void(
 
 /// Alasan void nota (wajib, maks 120 karakter).
 class SaleVoidDialog extends StatefulWidget {
-  const SaleVoidDialog({super.key, required this.number});
+  const SaleVoidDialog({
+    super.key,
+    required this.number,
+    this.drawerCash,
+    this.drawerShortfall,
+  });
 
   final String number;
+
+  /// Perkiraan uang di laci dan kelebihan uang tunai nota di atasnya; bila
+  /// keduanya ada, dialog menampilkan peringatan (F1-03d).
+  final Money? drawerCash;
+  final Money? drawerShortfall;
 
   @override
   State<SaleVoidDialog> createState() => _SaleVoidDialogState();
@@ -647,6 +660,15 @@ class _SaleVoidDialogState extends State<SaleVoidDialog> {
             ),
           ),
           Text(l10n.historyVoidBody, style: _muted(context)),
+          if ((widget.drawerCash, widget.drawerShortfall) case (
+            final cash?,
+            final over?,
+          ))
+            DrawerShortfallNote(
+              keyPrefix: 'history-void',
+              drawerCash: cash,
+              shortfall: over,
+            ),
           FTextField(
             key: const ValueKey('history-void-reason'),
             label: Text(l10n.historyVoidReason),

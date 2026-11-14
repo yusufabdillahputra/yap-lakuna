@@ -8100,6 +8100,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String drawerShortfallWarning(String cash, String over) {
-    return 'Uang di laci diperkirakan $cash. Jumlah ini lebih $over dari perkiraan; pastikan uangnya ada sebelum menyimpan.';
+    return 'Uang di laci diperkirakan $cash. Jumlah ini lebih $over dari perkiraan; pastikan uangnya ada sebelum melanjutkan.';
   }
 }

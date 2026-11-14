@@ -5245,7 +5245,7 @@
       }
     }
   },
-  "drawerShortfallWarning": "Uang di laci diperkirakan {cash}. Jumlah ini lebih {over} dari perkiraan; pastikan uangnya ada sebelum menyimpan.",
+  "drawerShortfallWarning": "Uang di laci diperkirakan {cash}. Jumlah ini lebih {over} dari perkiraan; pastikan uangnya ada sebelum melanjutkan.",
   "@drawerShortfallWarning": {
     "placeholders": {
       "cash": {

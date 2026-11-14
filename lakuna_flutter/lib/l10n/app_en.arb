@@ -4711,7 +4711,7 @@
       }
     }
   },
-  "drawerShortfallWarning": "The drawer should hold about {cash}; this amount exceeds it by {over}. Make sure the cash is there before saving.",
+  "drawerShortfallWarning": "The drawer should hold about {cash}; this amount exceeds it by {over}. Make sure the cash is there before continuing.",
   "@drawerShortfallWarning": {
     "placeholders": {
       "cash": {

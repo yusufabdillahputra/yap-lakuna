@@ -591,6 +591,29 @@ Future<SessionSalesSummary> salesSummaryForSession(
   transaction: transaction,
 );
 
+/// Uang tunai bersih (dikurangi kembalian) dari [payments] satu nota yang
+/// masuk ke laci sesi [sessionId], dengan aturan yang sama dengan
+/// [sessionSalesSummary]: hanya pembayaran lunas, dan pembayaran lama tanpa
+/// sesi ikut sesi notanya ([saleSessionId]). Void nota mengurangi laci
+/// sebesar ini (F1-03d).
+Money saleCashInSession(
+  Iterable<Payment> payments,
+  UuidValue sessionId, {
+  UuidValue? saleSessionId,
+}) {
+  var cash = Money.zero;
+  for (final p in payments) {
+    if (p.method != PaymentMethod.cash ||
+        p.status != PaymentStatus.paid ||
+        p.deletedAt != null) {
+      continue;
+    }
+    if ((p.cashSessionId ?? saleSessionId) != sessionId) continue;
+    cash += Money(p.amount - p.changeAmount);
+  }
+  return cash;
+}
+
 /// Versi [salesSummaryForSession] untuk modul lain (rekap laci F1-03).
 Future<SessionSalesSummary> sessionSalesSummary(
   DatabaseSession session, {

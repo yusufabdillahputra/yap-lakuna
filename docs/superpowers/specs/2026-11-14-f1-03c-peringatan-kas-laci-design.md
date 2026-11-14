@@ -30,8 +30,9 @@ mengurangi kas laci tetapi belum diberi peringatan (lihat gap).
    itu, form menampilkan peringatan (ikon segitiga, gaya sama dengan peringatan
    label F1-07i):
    *"Uang di laci diperkirakan Rp X. Jumlah ini lebih Rp Y dari perkiraan;
-   pastikan uangnya ada sebelum menyimpan."* Sama dengan perkiraan = tidak ada
-   peringatan.
+   pastikan uangnya ada sebelum melanjutkan."* (v0.70.0: *menyimpan* →
+   *melanjutkan* agar cocok juga di dialog void, F1-03d). Sama dengan
+   perkiraan = tidak ada peringatan.
 3. Peringatan **tidak memblokir** simpan. Perkiraan bisa berbeda dengan
    isi laci nyata (mis. pemilik menambah uang tanpa mencatat kas masuk);
    keputusan tetap di kasir, dan selisihnya terlihat di tutup sesi.
@@ -75,5 +76,5 @@ mengurangi kas laci tetapi belum diberi peringatan (lihat gap).
 | --- | --- | --- | --- |
 | Peringatan uang keluar manual, retur tunai, pengeluaran, bayar supplier, pembelian dari laci | — | Rilis v0.69.0 | — |
 | Perkiraan berubah karena transaksi di layar lain saat form terbuka | — | Perkiraan dimuat saat layar dibuka dan setelah simpan | Cukup untuk satu perangkat. |
-| Void pembayaran piutang tunai, void nota tunai sesi ini | — | Belum diperingatkan (dialog konfirmasi) | Keduanya mengurangi *Kas seharusnya*; tambahkan catatan di dialog bila sering terjadi. |
+| Void pembayaran piutang tunai, void nota tunai sesi ini | — | Rilis v0.70.0 | [F1-03d](2026-11-14-f1-03d-peringatan-laci-saat-void-design.md) |
 | Blokir simpan bila laci kurang | — | Tidak (peringatan saja) | Jadikan pengaturan bila pemilik meminta. |

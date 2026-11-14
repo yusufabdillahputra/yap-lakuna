@@ -108,7 +108,7 @@ void main() {
     expect(
       find.text(
         'Uang di laci diperkirakan Rp 20.000. Jumlah ini lebih '
-        'Rp 16.000 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+        'Rp 16.000 dari perkiraan; pastikan uangnya ada sebelum melanjutkan.',
       ),
       findsOneWidget,
     );
@@ -118,6 +118,31 @@ void main() {
     await _tap(tester, 'history-return-submit');
     expect(history.returns.single.refundMethod, RefundMethod.cash);
     expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('void nota tunai melebihi laci: peringatan (F1-03d)', (
+    tester,
+  ) async {
+    await pump(tester, drawerCash: const Money(20000));
+    await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+    await _tap(tester, 'history-void');
+    expect(_key('history-void-dialog'), findsOneWidget);
+    expect(
+      find.text(
+        'Uang di laci diperkirakan Rp 20.000. Jumlah ini lebih '
+        'Rp 16.000 dari perkiraan; pastikan uangnya ada sebelum melanjutkan.',
+      ),
+      findsOneWidget,
+    );
+    await tester.enterText(_key('history-void-reason'), 'Salah input');
+    await _tap(tester, 'history-void-confirm');
+    expect(history.voids, hasLength(1));
+    expect(tester.takeException(), isNull);
+
+    // Nota QRIS tidak mengurangi laci.
+    await _tap(tester, 'history-row-${roti.sale.id.uuid}');
+    await _tap(tester, 'history-void');
+    expect(_key('history-void-drawer-short'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('kasir tanpa izin void: persetujuan PIN manajer lalu void', (

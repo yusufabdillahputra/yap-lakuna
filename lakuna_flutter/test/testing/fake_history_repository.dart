@@ -23,6 +23,9 @@ class FakeHistoryRepository extends HistoryRepository {
 
   /// Perkiraan uang di laci (F1-03c); berkurang oleh retur tunai.
   Money? drawerCash;
+
+  /// Sesi kasir terbuka; nota baru tercatat di sesi ini (F1-03d).
+  final openSessionId = _id();
   final List<HistoryStaff> staff;
   final _tenant = _id();
 
@@ -60,6 +63,7 @@ class FakeHistoryRepository extends HistoryRepository {
     String? customerName,
     int? paidAmount,
     DateTime? dueOn,
+    bool inOpenSession = true,
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -69,7 +73,7 @@ class FakeHistoryRepository extends HistoryRepository {
       tenantId: _tenant,
       outletId: _id(),
       deviceId: _id(),
-      cashSessionId: _id(),
+      cashSessionId: inOpenSession ? openSessionId : _id(),
       staffId: staffId,
       number: 'PST-K01-261103-${_counter.toString().padLeft(4, '0')}',
       status: SaleStatus.completed,
@@ -160,6 +164,7 @@ class FakeHistoryRepository extends HistoryRepository {
       canVoid: canVoid,
       hasOpenSession: hasOpenSession,
       drawerCash: hasOpenSession ? drawerCash : null,
+      openSessionId: hasOpenSession ? openSessionId : null,
       receipt: receipt,
     ),
   );

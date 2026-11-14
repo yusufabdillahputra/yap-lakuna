@@ -16,7 +16,7 @@ Tekan **Catat uang laci**, pilih **Uang masuk** atau **Uang keluar**, isi jumlah
 
 Pengeluaran, bayar hutang, dan retur tunai dari modul lain tercatat otomatis di sesi yang sedang buka.
 
-> [!note] Bila jumlah uang keluar (di sini, retur tunai, pengeluaran dari kas laci, bayar hutang supplier, atau pembelian yang dibayar dari laci) lebih besar dari *Perkiraan uang di laci*, form menampilkan peringatan. Simpan tetap bisa, karena isi laci nyata bisa berbeda dengan perkiraan; pastikan uangnya memang ada, dan selisihnya akan terlihat saat tutup sesi.
+> [!note] Bila jumlah uang keluar (di sini, retur tunai, pengeluaran dari kas laci, bayar hutang supplier, atau pembelian yang dibayar dari laci) lebih besar dari *Perkiraan uang di laci*, form menampilkan peringatan. Simpan tetap bisa, karena isi laci nyata bisa berbeda dengan perkiraan; pastikan uangnya memang ada, dan selisihnya akan terlihat saat tutup sesi. Peringatan yang sama muncul di dialog **Void transaksi** (nota tunai sesi ini) dan **Batal pembayaran** piutang tunai, karena keduanya juga mengurangi uang di laci.
 
 ## Menutup sesi
 

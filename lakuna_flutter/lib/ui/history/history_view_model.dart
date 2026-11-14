@@ -337,6 +337,23 @@ class HistoryViewModel extends ChangeNotifier {
       ? drawerShortfallOf(returnRefund, drawerCash)
       : null;
 
+  /// Void nota terpilih mengurangi laci lebih dari perkiraan: kelebihannya,
+  /// untuk peringatan di dialog void (F1-03d). Hanya uang tunai nota yang
+  /// diterima di sesi yang sedang buka.
+  Money? get voidDrawerShortfall {
+    final detail = _detail;
+    final sessionId = _data?.openSessionId;
+    if (detail == null || sessionId == null) return null;
+    return drawerShortfallOf(
+      saleCashInSession(
+        detail.receipt.payments,
+        sessionId,
+        saleSessionId: detail.sale.cashSessionId,
+      ),
+      drawerCash,
+    );
+  }
+
   void setRefundMethod(RefundMethod method) {
     _refund = method;
     _returnError = null;

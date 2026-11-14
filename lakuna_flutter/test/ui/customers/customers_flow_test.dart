@@ -268,6 +268,8 @@ void main() {
         ),
       );
       final payment = customers.payments.single;
+      // Uangnya sudah keluar lagi dari laci (F1-03d).
+      customers.drawerCash = const Money(100000);
       await pump(tester, size, customers: customers);
       await _tap(tester, _key('customers-row-${ani.id.uuid}'));
       expect(_openRows(), findsNWidgets(2));
@@ -280,6 +282,12 @@ void main() {
       await _tap(tester, _key('customer-payment-void-${payment.id.uuid}'));
       expect(_key('debt-void-dialog'), findsOneWidget);
       expect(_key('debt-void-drawer'), findsOneWidget);
+      // Uang keluar laci melebihi perkiraan (F1-03d).
+      expect(_key('debt-void-drawer-short'), findsOneWidget);
+      expect(
+        find.textContaining('Jumlah ini lebih Rp 550.000 dari perkiraan'),
+        findsOneWidget,
+      );
       // Alasan wajib.
       await _tap(tester, _key('debt-void-confirm'));
       expect(repo.voids, isEmpty);

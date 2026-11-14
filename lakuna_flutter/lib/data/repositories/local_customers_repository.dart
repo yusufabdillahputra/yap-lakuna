@@ -28,6 +28,7 @@ class LocalCustomersRepository extends CustomersRepository {
 
   @override
   Future<Result<CustomersSetup>> load() => _guard((ctx, scope, staff) async {
+    final drawerCash = await openDrawerCash(_store, CashScope.of(ctx));
     return CustomersSetup(
       today: await outletToday(_store.session, scope, _now),
       businessName: ctx.tenant.name,
@@ -38,8 +39,8 @@ class LocalCustomersRepository extends CustomersRepository {
       outletId: ctx.outlet.id,
       canManage: staff.can(Permission.customersManage),
       canReceive: staff.can(Permission.debtsManage),
-      hasOpenSession:
-          await findOpenCashSession(_store, CashScope.of(ctx)) != null,
+      hasOpenSession: drawerCash != null,
+      drawerCash: drawerCash,
       receipt: await loadReceiptConfig(_store, scope),
       printer: await loadPrinterSelection(_preferences),
     );

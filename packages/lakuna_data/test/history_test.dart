@@ -671,6 +671,21 @@ void main() {
       final session = await openSession();
       final sale = await sell({kopi: 2000});
       expect(await stock(kopi), const Qty(18000));
+      // Yang hilang dari laci saat void = uang tunai nota di sesi ini
+      // (F1-03d), sama dengan penurunan rekap.
+      final before = await cashDrawerFor(store, cashScope, session);
+      final loss = saleCashInSession(
+        (await loadSaleDetail(
+          store,
+          scope,
+          sale.sale.id,
+          now: now,
+        )).receipt.payments,
+        session.id,
+        saleSessionId: sale.sale.cashSessionId,
+      );
+      expect(loss, before.cashSales);
+      expect(loss > Money.zero, isTrue);
       final approver = await addStaff('Rina', 'manager');
       final voided = await voidSale(
         store,
@@ -681,6 +696,8 @@ void main() {
         reason: 'Salah input',
       );
       expect(voided.status, SaleStatus.voided);
+      final after = await cashDrawerFor(store, cashScope, session);
+      expect(before.expectedCash - after.expectedCash, loss);
       expect(voided.voidedBy, approver.id);
       expect(voided.voidReason, 'Salah input');
       expect(await stock(kopi), const Qty(20000));

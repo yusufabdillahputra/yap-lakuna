@@ -85,6 +85,9 @@ class CustomerPanelViewModel extends ChangeNotifier {
   bool get canManage => _setup?.canManage ?? false;
   bool get hasOpenSession => _setup?.hasOpenSession ?? false;
 
+  /// Perkiraan uang di laci sesi terbuka (F1-03d), `null` tanpa sesi.
+  Money? get drawerCash => _setup?.drawerCash;
+
   /// Tunai masuk laci hanya bila sesi terbuka dan tanggal bayar hari ini;
   /// selain itu dicatat sebagai kas toko.
   bool get cashToDrawer =>
@@ -135,14 +138,17 @@ class CustomerPanelViewModel extends ChangeNotifier {
           null;
 
   Future<Result<void>> _load() async {
-    if (_setup == null) {
-      switch (await _repository.load()) {
-        case Ok(:final value):
-          _setup = value;
-        case Error(:final error):
+    // Setup dimuat ulang setiap kali agar sesi kasir dan perkiraan uang laci
+    // (F1-03d) mengikuti terima/batal pembayaran; bila gagal saat setup lama
+    // sudah ada, setup lama dipakai terus.
+    switch (await _repository.load()) {
+      case Ok(:final value):
+        _setup = value;
+      case Error(:final error):
+        if (_setup == null) {
           _error = error;
           return Result.error(error);
-      }
+        }
     }
     switch (await _repository.detail(customerId)) {
       case Ok(:final value):

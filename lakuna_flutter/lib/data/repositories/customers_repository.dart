@@ -20,6 +20,7 @@ class CustomersSetup {
     this.canManage = false,
     this.canReceive = false,
     this.hasOpenSession = false,
+    this.drawerCash,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
   });
@@ -43,6 +44,10 @@ class CustomersSetup {
 
   /// Perangkat ini punya sesi kasir terbuka (tunai masuk laci).
   final bool hasOpenSession;
+
+  /// Perkiraan uang di laci sesi terbuka, `null` tanpa sesi. Untuk
+  /// peringatan batal pembayaran piutang tunai (F1-03d).
+  final Money? drawerCash;
   final ReceiptConfig receipt;
   final PrinterSelection? printer;
 

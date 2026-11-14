@@ -48,6 +48,9 @@ class FakeCustomersRepository extends CustomersRepository {
   bool canManage;
   bool canReceive;
   bool hasOpenSession;
+
+  /// Perkiraan uang di laci (F1-03d).
+  Money? drawerCash;
   final _tenant = _id();
   final _outlet = _id();
   final _device = _id();
@@ -194,6 +197,7 @@ class FakeCustomersRepository extends CustomersRepository {
       canManage: canManage,
       canReceive: canReceive,
       hasOpenSession: hasOpenSession,
+      drawerCash: hasOpenSession ? drawerCash : null,
     ),
   );
 
@@ -415,6 +419,9 @@ class FakeCustomersRepository extends CustomersRepository {
       hlc: '',
     );
     payments.add(payment);
+    if (payment.cashSessionId != null && drawerCash != null) {
+      drawerCash = drawerCash! + request.amount;
+    }
     receipts[payment.id] = DebtPaymentReceipt(
       payment: payment,
       customer: customers.firstWhere((c) => c.id == request.customerId),
@@ -463,6 +470,9 @@ class FakeCustomersRepository extends CustomersRepository {
     if (p.voidedAt != null) throw DebtPaymentAlreadyVoided();
     if (debtPaymentTouchesDrawer(p) && !hasOpenSession) {
       throw CashSessionNotOpen();
+    }
+    if (debtPaymentTouchesDrawer(p) && drawerCash != null) {
+      drawerCash = drawerCash! - Money(p.amount);
     }
     final list = sales[p.customerId] ?? [];
     for (final line in receipts[p.id]?.lines ?? const <DebtReceiptLine>[]) {
