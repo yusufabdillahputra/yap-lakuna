@@ -120,6 +120,6 @@ tidak bisa dibaca atau dipulihkan orang lain.
 | Kunci backup dengan kata sandi | 1.13 | Rilis v0.60.0 | Selesai. |
 | Ganti iterasi PBKDF2 / Argon2 | — | Belum | Iterasi dibaca dari berkas; naikkan bila perangkat lebih cepat. Argon2 butuh paket native. |
 | Ingat kata sandi backup di perangkat | — | Tidak direncanakan | Sengaja tidak disimpan. |
-| Backup otomatis terkunci | — | Belum | Menunggu backup otomatis. |
+| Backup otomatis terkunci | — | Belum | Backup otomatis harian ada sejak v0.75.0 ([F1-19d](2026-11-14-f1-19d-backup-otomatis-design.md)) tanpa kunci; kunci butuh penyimpanan kata sandi aman. |
 | Normalisasi Unicode kata sandi | — | Belum | Kata sandi dipakai apa adanya (UTF-8). Huruf beraksen yang diketik berbeda antar sistem (NFC/NFD) bisa dianggap beda; Dart belum punya normalisasi bawaan. |
 | AE-2 (tanpa CRC32) | — | Belum | Paket `archive` menulis AE-1; ditutup dengan `nonce` di manifest. |

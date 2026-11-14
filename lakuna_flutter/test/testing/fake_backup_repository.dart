@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart';
 import 'package:lakuna_flutter/data/services/backup_files.dart';
 import 'package:lakuna_flutter/utils/result.dart';
@@ -94,6 +96,55 @@ class FakeBackupRepository implements BackupRepository {
 
   @override
   Future<DateTime?> lastBackupAt() async => last;
+
+  // --- Backup otomatis (F1-19d) ---
+
+  bool autoEnabled = true;
+  DateTime? autoLast;
+  bool autoFailed = false;
+
+  /// Folder tiap [runAutoBackup].
+  final autoRuns = <String>[];
+
+  /// Galat [runAutoBackup] berikutnya (sekali pakai).
+  Exception? nextAutoError;
+
+  /// Bila diisi, [runAutoBackup] menunggu ini (tes tumpang tindih).
+  Future<void>? autoGate;
+
+  /// Dilempar [runAutoBackup] berikutnya (bukan `Result`, sekali pakai).
+  Object? nextAutoThrow;
+
+  @override
+  Future<AutoBackupState> autoBackup() async =>
+      (enabled: autoEnabled, lastAt: autoLast, failed: autoFailed);
+
+  @override
+  Future<Result<void>> setAutoBackup(bool enabled) async =>
+      _r(() => autoEnabled = enabled);
+
+  @override
+  Future<Result<String>> runAutoBackup(Directory folder) async {
+    autoRuns.add(folder.path);
+    final gate = autoGate;
+    if (gate != null) await gate;
+    if (nextAutoThrow case final t?) {
+      nextAutoThrow = null;
+      // Meniru galat yang lolos dari repositori (mis. StateError).
+      // ignore: only_throw_errors
+      throw t;
+    }
+    final e = nextAutoError;
+    nextAutoError = null;
+    if (e != null) {
+      autoFailed = true;
+      return Result.error(e);
+    }
+    autoFailed = false;
+    autoLast = now;
+    last = now;
+    return Result.ok('${folder.path}/lakuna-backup-PST-261104-1600.zip');
+  }
 
   @override
   Future<Result<BackupManifest>> inspect(

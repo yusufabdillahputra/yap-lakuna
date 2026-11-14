@@ -8400,4 +8400,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String storeSettingsTransferAccountExample(String name) {
     return 'BCA 123-456-7890 ($name)';
   }
+
+  @override
+  String get backupAutoTitle => 'Automatic backup';
+
+  @override
+  String get backupAutoSwitch => 'Daily automatic backup';
+
+  @override
+  String backupAutoHint(String folder) {
+    return 'Once a day while the app is open, to $folder. The last seven backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.';
+  }
+
+  @override
+  String get backupAutoLastNever => 'No automatic backup yet';
+
+  @override
+  String get backupAutoLastToday => 'Last automatic backup today';
+
+  @override
+  String backupAutoLastDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Last automatic backup $days days ago',
+      one: 'Last automatic backup 1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupAutoFailed =>
+      'The last automatic backup failed. It is retried every hour; make sure the disk is not full and the folder is writable.';
+
+  @override
+  String get backupAutoSaveFailed => 'Could not save the switch. Try again.';
 }

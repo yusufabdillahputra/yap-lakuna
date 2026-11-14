@@ -48,6 +48,7 @@ import 'data/repositories/store_settings_repository.dart';
 import 'data/repositories/session_repository.dart';
 import 'data/repositories/stock_repository.dart';
 import 'data/repositories/store_repository.dart';
+import 'data/services/auto_backup.dart';
 import 'data/services/receipt_printer.dart';
 import 'routing/router.dart';
 import 'utils/result.dart';
@@ -184,9 +185,19 @@ Future<AppInstance> bootstrap(String databasePath) async {
     appVersion: appVersion,
   );
   const backupFiles = PlatformBackupFiles();
+  // Backup otomatis harian di desktop (F1-19d).
+  final autoBackup = autoBackupSupported
+      ? (AutoBackupScheduler(
+          repository: backupRepository,
+          folder: autoBackupDirectory,
+        )..start())
+      : null;
 
   return AppInstance(
-    close: store.close,
+    close: () async {
+      await autoBackup?.dispose();
+      await store.close();
+    },
     app: MultiProvider(
       providers: [
         Provider<LakunaStore>.value(value: store),

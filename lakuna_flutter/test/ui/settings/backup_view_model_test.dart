@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart';
@@ -33,6 +34,56 @@ void main() {
     expect(vm.lastBackupAt, DateTime.utc(2026, 10, 26));
     expect(vm.daysSinceBackup, 9);
     expect(vm.overdue, isTrue);
+  });
+
+  group('backup otomatis (F1-19d)', () {
+    BackupViewModel make({required bool supported}) => BackupViewModel(
+      repository: repo,
+      files: files,
+      clock: () => DateTime.utc(2026, 11, 4, 9),
+      autoSupported: supported,
+      autoFolder: () async => Directory('/docs/Lakuna/Backup/Otomatis'),
+    );
+
+    test('desktop: status, folder, sakelar', () async {
+      repo
+        ..autoLast = DateTime.utc(2026, 11, 2, 8)
+        ..autoFailed = true;
+      final desk = make(supported: true);
+      await desk.load.execute();
+      expect(desk.autoBackup!.enabled, isTrue);
+      expect(desk.autoBackup!.failed, isTrue);
+      expect(desk.daysSinceAutoBackup, 2);
+      // Lokasi folder dimuat terpisah (layar tidak menunggu).
+      await Future<void>.delayed(Duration.zero);
+      expect(desk.autoFolderPath, '/docs/Lakuna/Backup/Otomatis');
+      await desk.setAuto.execute(false);
+      expect(repo.autoEnabled, isFalse);
+      expect(desk.autoBackup!.enabled, isFalse);
+    });
+
+    test('waktu terakhir di masa depan: 0 hari, bukan negatif', () async {
+      repo.autoLast = DateTime.utc(2026, 11, 7);
+      final desk = make(supported: true);
+      await desk.load.execute();
+      expect(desk.daysSinceAutoBackup, 0);
+    });
+
+    test('ponsel: tidak dimuat', () async {
+      final phone = make(supported: false);
+      await phone.load.execute();
+      expect(phone.autoBackup, isNull);
+      expect(phone.autoFolderPath, isNull);
+    });
+
+    test('gagal mengubah sakelar: status tetap', () async {
+      final desk = make(supported: true);
+      await desk.load.execute();
+      repo.nextError = const NotPermittedStub();
+      await desk.setAuto.execute(false);
+      expect(desk.setAuto.result, isA<Error<void>>());
+      expect(desk.autoBackup!.enabled, isTrue);
+    });
   });
 
   test('backup sekarang: simpan lalu catat waktu', () async {
@@ -205,4 +256,8 @@ void main() {
       expect(vm.unlockPassword, isEmpty);
     });
   });
+}
+
+class NotPermittedStub implements Exception {
+  const NotPermittedStub();
 }

@@ -4809,5 +4809,45 @@
         "type": "String"
       }
     }
+  },
+  "backupAutoTitle": "Automatic backup",
+  "@backupAutoTitle": {
+    "placeholders": {}
+  },
+  "backupAutoSwitch": "Daily automatic backup",
+  "@backupAutoSwitch": {
+    "placeholders": {}
+  },
+  "backupAutoHint": "Once a day while the app is open, to {folder}. The last seven backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.",
+  "@backupAutoHint": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupAutoLastNever": "No automatic backup yet",
+  "@backupAutoLastNever": {
+    "placeholders": {}
+  },
+  "backupAutoLastToday": "Last automatic backup today",
+  "@backupAutoLastToday": {
+    "placeholders": {}
+  },
+  "backupAutoLastDays": "{days, plural, =1{Last automatic backup 1 day ago} other{Last automatic backup {days} days ago}}",
+  "@backupAutoLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupAutoFailed": "The last automatic backup failed. It is retried every hour; make sure the disk is not full and the folder is writable.",
+  "@backupAutoFailed": {
+    "placeholders": {}
+  },
+  "backupAutoSaveFailed": "Could not save the switch. Try again.",
+  "@backupAutoSaveFailed": {
+    "placeholders": {}
   }
 }

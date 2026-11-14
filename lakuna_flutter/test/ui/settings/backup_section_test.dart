@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -54,6 +55,49 @@ void main() {
       expect(files.delivered, ['lakuna-backup-PST-261104-1600.zip']);
       expect(_text(tester, 'backup-result').data, contains('/docs/Lakuna'));
       expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in [const Size(1440, 900), const Size(360, 740)]) {
+    testWidgets('backup otomatis ${size.width.toInt()} px (F1-19d)', (
+      tester,
+    ) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        (call) async => '/docs',
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          null,
+        ),
+      );
+      final backup = FakeBackupRepository(last: DateTime.utc(2026, 10, 1))
+        ..autoLast = DateTime.utc(2026, 11, 1, 9)
+        ..autoFailed = true;
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.settingsBackup,
+        backup: backup,
+        backupFiles: FakeBackupFiles(),
+      );
+      await tester.ensureVisible(_key('backup-auto-card'));
+      await tester.pumpAndSettle();
+      expect(find.text('Backup otomatis harian'), findsOneWidget);
+      expect(find.textContaining('Lakuna/Backup/Otomatis'), findsOneWidget);
+      expect(find.textContaining('Backup otomatis terakhir'), findsWidgets);
+      expect(_key('backup-auto-failed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      final label = find.descendant(
+        of: _key('backup-auto'),
+        matching: find.text('Backup otomatis harian'),
+      );
+      await tester.tap(label);
+      await tester.pumpAndSettle();
+      expect(backup.autoEnabled, isFalse);
+      // Sakelar mati: pesan gagal lama tidak lagi relevan.
+      expect(_key('backup-auto-failed'), findsNothing);
     });
   }
 
