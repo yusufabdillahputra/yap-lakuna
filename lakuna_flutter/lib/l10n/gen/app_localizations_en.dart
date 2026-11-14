@@ -8262,4 +8262,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get barTicketSection => 'Bar';
+
+  @override
+  String get receiptApproval => 'Approval no.';
+
+  @override
+  String get receiptTransferRef => 'Transfer ref.';
 }

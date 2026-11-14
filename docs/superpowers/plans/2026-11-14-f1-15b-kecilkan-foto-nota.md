@@ -19,4 +19,4 @@ dikecilkan otomatis ke 2.000 px sebelum disimpan.
 - [x] **Dokumen**: spec F1-07l/F1-15/F1-14 (gap), README, STATUS-JEDA,
   panduan pengeluaran & supplier id/en, CHANGELOG 0.63.0, pubspec
   `0.63.0+66`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

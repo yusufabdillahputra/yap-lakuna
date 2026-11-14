@@ -8037,4 +8037,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get barTicketSection => 'Bar';
+
+  @override
+  String get receiptApproval => 'No. approval';
+
+  @override
+  String get receiptTransferRef => 'Ref. transfer';
 }

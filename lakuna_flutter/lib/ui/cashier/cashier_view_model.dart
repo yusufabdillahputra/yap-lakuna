@@ -24,10 +24,15 @@ class SplitPart {
     required this.method,
     required this.amount,
     this.confirmed = false,
+    this.reference = '',
   });
 
   final PaymentMethod method;
   final Money amount;
+
+  /// No. approval kartu / referensi transfer (F1-05b); kosong bila tidak
+  /// diisi atau metode lain.
+  final String reference;
 
   /// QRIS sudah dikonfirmasi; metode lain selalu dianggap diterima.
   final bool confirmed;
@@ -46,6 +51,9 @@ enum SplitDraftError {
 
   /// Non-tunai melebihi sisa (kembalian hanya dari tunai).
   overRemaining,
+
+  /// Referensi kartu/transfer lebih dari 40 karakter (F1-05b).
+  referenceTooLong,
 
   /// Sudah lunas.
   settled,
@@ -286,6 +294,8 @@ class CashierViewModel extends ChangeNotifier {
   final _parts = <SplitPart>[];
   PaymentMethod _draftMethod = PaymentMethod.cash;
   Money? _draftAmount;
+  String _draftReference = '';
+  var _draftReferenceRevision = 0;
   CheckoutResult? _result;
   Exception? _error;
   PrinterFailureReason? _printFailure;
@@ -1222,6 +1232,7 @@ class CashierViewModel extends ChangeNotifier {
     _parts.clear();
     _draftMethod = PaymentMethod.cash;
     _draftAmount = null;
+    _clearDraftReference();
     _error = null;
     _creditCustomerId = null;
     _creditDown = Money.zero;
@@ -1316,6 +1327,30 @@ class CashierViewModel extends ChangeNotifier {
   /// Nominal bagian baru; bawaan = sisa.
   Money get draftAmount => _draftAmount ?? splitSettlement.remaining;
 
+  /// Bagian baru kartu/transfer: isian referensi tampil (F1-05b).
+  bool get draftTakesReference =>
+      _draftMethod == PaymentMethod.card ||
+      _draftMethod == PaymentMethod.transfer;
+
+  /// Isian referensi bagian baru.
+  String get draftReference => _draftReference;
+
+  /// Naik saat isian referensi dikosongkan agar field membaca nilai awal.
+  int get draftReferenceRevision => _draftReferenceRevision;
+
+  void setDraftReference(String v) {
+    // Field yang dikosongkan saat build memanggil ini dengan nilai sama.
+    if (v == _draftReference) return;
+    _draftReference = v;
+    notifyListeners();
+  }
+
+  void _clearDraftReference() {
+    if (_draftReference.isEmpty) return;
+    _draftReference = '';
+    _draftReferenceRevision++;
+  }
+
   SplitDraftError? get draftError {
     final settlement = splitSettlement;
     if (_parts.isNotEmpty && settlement.remaining == Money.zero) {
@@ -1323,6 +1358,10 @@ class CashierViewModel extends ChangeNotifier {
     }
     final amount = draftAmount;
     if (amount <= Money.zero) return SplitDraftError.empty;
+    if (draftTakesReference &&
+        validatePaymentReference(_draftReference) != null) {
+      return SplitDraftError.referenceTooLong;
+    }
     if (_draftMethod == PaymentMethod.cash) {
       return _parts.any((p) => p.isCash) ? SplitDraftError.cashExists : null;
     }
@@ -1342,8 +1381,15 @@ class CashierViewModel extends ChangeNotifier {
   /// *Tambah metode*. QRIS masuk sebagai menunggu konfirmasi.
   void addPart() {
     if (pay.running || draftError != null) return;
-    _parts.add(SplitPart(method: _draftMethod, amount: draftAmount));
+    _parts.add(
+      SplitPart(
+        method: _draftMethod,
+        amount: draftAmount,
+        reference: draftTakesReference ? _draftReference.trim() : '',
+      ),
+    );
     _draftAmount = null;
+    _clearDraftReference();
     _draftMethod = _parts.any((p) => p.isCash)
         ? PaymentMethod.card
         : PaymentMethod.cash;
@@ -1368,6 +1414,7 @@ class CashierViewModel extends ChangeNotifier {
       method: p.method,
       amount: p.amount,
       confirmed: true,
+      reference: p.reference,
     );
     notifyListeners();
   }
@@ -1389,6 +1436,7 @@ class CashierViewModel extends ChangeNotifier {
           method: p.method,
           amount: p.amount,
           confirmed: p.confirmed,
+          reference: p.reference,
         ),
     ],
     // DP kredit dibuat lapisan data dari `SaleCredit.downPayment`.

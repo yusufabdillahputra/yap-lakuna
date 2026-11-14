@@ -14040,6 +14040,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Bar'**
   String get barTicketSection;
+
+  /// No description provided for @receiptApproval.
+  ///
+  /// In id, this message translates to:
+  /// **'No. approval'**
+  String get receiptApproval;
+
+  /// No description provided for @receiptTransferRef.
+  ///
+  /// In id, this message translates to:
+  /// **'Ref. transfer'**
+  String get receiptTransferRef;
 }
 
 class _AppLocalizationsDelegate

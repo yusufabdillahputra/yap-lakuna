@@ -149,7 +149,7 @@ ReceiptContent saleReceiptContent(
         receiptAmount(l10n, sale.total),
         bold: true,
       ),
-      for (final payment in result.payments)
+      for (final payment in result.payments) ...[
         ReceiptPair(
           switch (payment.guestLabel) {
             final label? => l10n.receiptGuestPayment(
@@ -160,6 +160,13 @@ ReceiptContent saleReceiptContent(
           },
           receiptAmount(l10n, payment.amount),
         ),
+        // No. approval / referensi transfer (F1-05b).
+        if (payment.reference?.trim() case final ref? when ref.isNotEmpty)
+          ReceiptPair(
+            '  ${payment.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef}',
+            ref,
+          ),
+      ],
       if (result.payments.any((p) => p.method == PaymentMethod.cash))
         ReceiptPair(l10n.receiptChange, receiptAmount(l10n, sale.changeAmount)),
       // Nota kredit (F1-13): sisa jadi piutang dan jatuh temponya.

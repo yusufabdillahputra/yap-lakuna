@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_client/lakuna_client.dart' show PaymentMethod;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
@@ -24,6 +25,8 @@ class SplitPanel extends StatefulWidget {
 
 class _SplitPanelState extends State<SplitPanel> {
   final _amount = TextEditingController();
+  final _reference = TextEditingController();
+  var _referenceRevision = 0;
 
   static String _text(Money m) =>
       m.value <= 0 ? '' : groupThousands(m.value, '.');
@@ -37,6 +40,8 @@ class _SplitPanelState extends State<SplitPanel> {
   void initState() {
     super.initState();
     _amount.text = _text(widget.viewModel.draftAmount);
+    _reference.text = widget.viewModel.draftReference;
+    _referenceRevision = widget.viewModel.draftReferenceRevision;
   }
 
   @override
@@ -47,6 +52,12 @@ class _SplitPanelState extends State<SplitPanel> {
 
   /// Nominal bawaan (sisa) berubah setelah tambah/hapus bagian.
   void _sync() {
+    // Isian referensi dikosongkan VM setelah bagian ditambah (F1-05b).
+    final vm = widget.viewModel;
+    if (vm.draftReferenceRevision != _referenceRevision) {
+      _referenceRevision = vm.draftReferenceRevision;
+      _reference.text = vm.draftReference;
+    }
     final amount = widget.viewModel.draftAmount;
     if (_parse(_amount.text) == amount) return;
     final text = _text(amount);
@@ -59,6 +70,7 @@ class _SplitPanelState extends State<SplitPanel> {
   @override
   void dispose() {
     _amount.dispose();
+    _reference.dispose();
     super.dispose();
   }
 
@@ -82,6 +94,7 @@ class _SplitPanelState extends State<SplitPanel> {
   String? _draftError(AppLocalizations l10n, SplitDraftError? e) => switch (e) {
     SplitDraftError.cashExists => l10n.splitCashExists,
     SplitDraftError.overRemaining => l10n.splitOverRemaining,
+    SplitDraftError.referenceTooLong => l10n.paymentReferenceTooLong,
     SplitDraftError.settled || SplitDraftError.empty || null => null,
   };
 
@@ -140,6 +153,16 @@ class _SplitPanelState extends State<SplitPanel> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  if (p.reference.isNotEmpty)
+                    Text(
+                      '${p.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef} ${p.reference}',
+                      key: ValueKey('split-part-$i-reference'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.typography.body.xs.copyWith(
+                        color: theme.colors.mutedForeground,
+                      ),
+                    ),
                   badge(p),
                 ],
               ),
@@ -196,7 +219,8 @@ class _SplitPanelState extends State<SplitPanel> {
       ],
     );
 
-    final error = _draftError(l10n, draftError);
+    final referenceError = draftError == SplitDraftError.referenceTooLong;
+    final error = referenceError ? null : _draftError(l10n, draftError);
     return PaymentPanel(
       panelKey: const ValueKey('payment-split'),
       child: Column(
@@ -258,6 +282,30 @@ class _SplitPanelState extends State<SplitPanel> {
               ),
               onSubmit: (_) => vm.addPart(),
             ),
+            if (vm.draftTakesReference)
+              FTextField(
+                key: const ValueKey('split-reference'),
+                label: Text(
+                  vm.draftMethod == PaymentMethod.card
+                      ? l10n.paymentApproval
+                      : l10n.paymentReference,
+                ),
+                hint: vm.draftMethod == PaymentMethod.card
+                    ? l10n.paymentApprovalHint
+                    : null,
+                enabled: !running,
+                error: referenceError
+                    ? Text(
+                        l10n.paymentReferenceTooLong,
+                        key: const ValueKey('split-reference-error'),
+                      )
+                    : null,
+                control: .managed(
+                  controller: _reference,
+                  onChange: (v) => vm.setDraftReference(v.text),
+                ),
+                onSubmit: (_) => vm.addPart(),
+              ),
             FButton(
               key: const ValueKey('split-add'),
               variant: .outline,
