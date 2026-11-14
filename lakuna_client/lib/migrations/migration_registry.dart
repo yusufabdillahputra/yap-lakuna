@@ -29,6 +29,7 @@ part '20261113120353032-foto-produk/migration.dart';
 part '20261113153626691-menu-dapur/migration.dart';
 part '20261113160850353-batal-bayar-utang/migration.dart';
 part '20261114003906842-foto-faktur/migration.dart';
+part '20261114025649422-tarif-beku/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -60,6 +61,7 @@ class MigrationRegistry {
     _Migration20261113153626691_menu_dapur(),
     _Migration20261113160850353_batal_bayar_utang(),
     _Migration20261114003906842_foto_faktur(),
+    _Migration20261114025649422_tarif_beku(),
   ];
 
   /// List of all client-side database migration versions.

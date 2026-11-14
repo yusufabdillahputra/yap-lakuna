@@ -19,4 +19,6 @@ Split bill membagi satu open bill ke beberapa tamu yang membayar sendiri-sendiri
 
 > [!warning] Setelah ada pembayaran bagian, pembagian terkunci. Untuk mengubahnya, batalkan dulu bagian QRIS yang menunggu. **Batalkan split** hanya tersedia selama belum ada pembayaran bagian.
 
+Service, PB1, *harga sudah termasuk pajak*, dan pembulatan total dikunci saat bagian pertama dibayar. Bila pengaturannya diubah di tengah split, tagihan tamu berikutnya tetap memakai tarif lama, jadi tidak ada tamu yang menanggung selisihnya. Bila semua bagian QRIS yang menunggu dibatalkan, bill kembali memakai tarif terbaru.
+
 Semua bagian tercatat sebagai pembayaran di nota yang sama, jadi laporan dan stok tetap satu nota.

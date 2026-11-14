@@ -219,4 +219,12 @@ void main() {
       expect(pl.netSales, const Money(130100));
     });
   });
+
+  test('TotalRounding.byStep: kelipatan tersimpan, 0/tak dikenal = null', () {
+    expect(TotalRounding.byStep(1), TotalRounding.none);
+    expect(TotalRounding.byStep(100), TotalRounding.nearest100);
+    expect(TotalRounding.byStep(500), TotalRounding.nearest500);
+    expect(TotalRounding.byStep(0), isNull);
+    expect(TotalRounding.byStep(250), isNull);
+  });
 }

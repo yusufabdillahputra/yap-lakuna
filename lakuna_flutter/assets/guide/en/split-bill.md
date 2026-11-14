@@ -19,4 +19,6 @@ Split bill divides one open bill between guests who pay separately. The bill sta
 
 > [!warning] Once a part is paid, the split is locked. To change it, cancel the waiting QRIS parts first. **Cancel split** is only available before any part payment.
 
+Service, PB1, *prices include tax*, and total rounding are locked when the first part is paid. If those settings change mid-split, the remaining guests are still billed at the old rates, so no guest absorbs the difference. If every waiting QRIS part is cancelled, the bill goes back to the latest rates.
+
 All parts are recorded as payments on the same receipt, so reports and stock stay on one receipt.
