@@ -47,6 +47,23 @@ void main() {
     expect(config.headerLines, ['Jl. Melati No. 12', '0812']);
   });
 
+  test('rekening transfer ikut dari aturan penjualan (F1-05e)', () async {
+    expect((await loadReceiptConfig(store, scope)).transferAccount, '');
+    await saveSalesRules(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      rules: const SalesRules(transferAccount: 'BCA 1234567890 a.n. Toko'),
+    );
+    expect(
+      (await loadReceiptConfig(store, scope)).transferAccount,
+      'BCA 1234567890 a.n. Toko',
+    );
+    // Simpan pengaturan struk mengembalikan config yang sama lengkapnya.
+    final saved = await save(const ReceiptSettings());
+    expect(saved.transferAccount, 'BCA 1234567890 a.n. Toko');
+  });
+
   test('simpan lalu muat; header kosong tetap kosong (bukan bawaan)', () async {
     await Outlet.db.updateRow(
       store.session,

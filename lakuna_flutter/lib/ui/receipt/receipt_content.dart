@@ -37,6 +37,14 @@ String receiptDate(DateTime local) {
       '${two(local.hour)}.${two(local.minute)}';
 }
 
+/// Baris `Transfer ke: <rekening>` (F1-05e) untuk struk yang masih
+/// menyisakan piutang: tanpa nilai kanan agar rekening panjang dibungkus
+/// rata kiri; spasi dan baris baru dirapikan. `null` bila rekening kosong.
+ReceiptPair? receiptTransferLine(AppLocalizations l10n, String account) {
+  final text = account.trim().split(RegExp(r'\s+')).join(' ');
+  return text.isEmpty ? null : ReceiptPair(l10n.receiptTransferTo(text), '');
+}
+
 List<String> _footer(AppLocalizations l10n, ReceiptConfig config) =>
     config.footerLines ?? [l10n.receiptThanks];
 
@@ -186,6 +194,9 @@ ReceiptContent saleReceiptContent(
             '${due.day.toString().padLeft(2, '0')}/'
             '${due.month.toString().padLeft(2, '0')}/${due.year % 100}',
           ),
+        // Rekening untuk melunasi sisa (F1-05e); nota void tidak ditagih.
+        if (sale.status != SaleStatus.voided)
+          ?receiptTransferLine(l10n, config.transferAccount),
       ],
       // Cetak ulang nota yang diretur (F1-11): nilai retur dan bersih.
       if (returned != 0) ...[

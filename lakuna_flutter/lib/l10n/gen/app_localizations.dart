@@ -14291,6 +14291,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Diarsipkan {date}'**
   String productsArchivedOn(String date);
+
+  /// No description provided for @receiptTransferTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Transfer ke: {account}'**
+  String receiptTransferTo(String account);
 }
 
 class _AppLocalizationsDelegate

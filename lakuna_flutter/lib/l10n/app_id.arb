@@ -5391,5 +5391,13 @@
         "type": "String"
       }
     }
+  },
+  "receiptTransferTo": "Transfer ke: {account}",
+  "@receiptTransferTo": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
   }
 }

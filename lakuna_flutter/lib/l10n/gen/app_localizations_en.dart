@@ -8440,4 +8440,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String productsArchivedOn(String date) {
     return 'Archived $date';
   }
+
+  @override
+  String receiptTransferTo(String account) {
+    return 'Transfer to: $account';
+  }
 }
