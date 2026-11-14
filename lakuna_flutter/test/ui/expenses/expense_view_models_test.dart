@@ -164,6 +164,20 @@ void main() {
       expect(vm.categoryId, repo.categoryByName('Bahan habis pakai').id);
     });
 
+    test('foto nota 12 MB diterima (dikecilkan saat disimpan)', () async {
+      final big = Uint8List(12 * 1024 * 1024)..setAll(0, tinyPortraitPng);
+      final picker = FakeImagePicker()
+        ..next = PickedImage(name: 'nota.jpg', size: big.length, bytes: big);
+      final vm = ExpenseFormViewModel(
+        repository: repo,
+        setup: await setup(),
+        picker: picker,
+      );
+      await vm.pickReceipt.execute(false);
+      expect(vm.receiptRejected, isFalse);
+      expect(vm.receipt!.bytes.length, big.length);
+    });
+
     test('foto bukan gambar ditolak', () async {
       final picker = FakeImagePicker()
         ..next = PickedImage(

@@ -8,6 +8,7 @@ import 'package:serverpod_database/serverpod_database.dart'
 
 import 'customers.dart' show outletToday;
 import 'media.dart';
+import 'photo_shrink.dart';
 import 'purchases.dart';
 import 'sale_core.dart' show requireOpenCashSession;
 import 'staff_access.dart';
@@ -733,6 +734,31 @@ Future<String> _nextPaymentNumber(
   return supplierPaymentNumber(outlet.code, device.code, local, counter);
 }
 
+/// Foto bukti dikecilkan ke [SupplierLimits.proofMaxSide] di luar
+/// transaksi (F1-15b); [SupplierPaymentProofInvalid] bila bukan gambar, di
+/// atas batas pilih, atau hasilnya masih di atas batas simpan.
+Future<SupplierPaymentProof> _shrinkProof(SupplierPaymentProof proof) async {
+  if (readImageHeader(proof.bytes) == null ||
+      proof.bytes.length > SupplierLimits.proofInputMaxBytes) {
+    throw SupplierPaymentProofInvalid();
+  }
+  final Uint8List bytes;
+  try {
+    bytes = await shrinkPhoto(
+      proof.bytes,
+      maxSide: SupplierLimits.proofMaxSide,
+      maxBytes: SupplierLimits.proofMaxBytes,
+    );
+  } on PhotoShrinkFailure {
+    throw SupplierPaymentProofInvalid();
+  }
+  if (readImageHeader(bytes) == null ||
+      bytes.length > SupplierLimits.proofMaxBytes) {
+    throw SupplierPaymentProofInvalid();
+  }
+  return SupplierPaymentProof(bytes: bytes, fileName: proof.fileName);
+}
+
 /// Membayar hutang supplier dalam satu transaksi: dokumen `BH-`, alokasi
 /// per pembelian, foto bukti, dan kas keluar bila dari laci.
 Future<DebtPayment> paySupplierDebt(
@@ -752,12 +778,10 @@ Future<DebtPayment> paySupplierDebt(
     Permission.debtsManage,
     if (drawer) Permission.cashMovementsCreate,
   ]);
-  final proof = request.proof;
+  final proof = request.proof == null
+      ? null
+      : await _shrinkProof(request.proof!);
   final header = proof == null ? null : readImageHeader(proof.bytes);
-  if (proof != null &&
-      (header == null || proof.bytes.length > SupplierLimits.proofMaxBytes)) {
-    throw SupplierPaymentProofInvalid();
-  }
   return store.write(actor: staffId, (w) async {
     final s = await w.stamp();
     final today = await outletToday(

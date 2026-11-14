@@ -20,7 +20,8 @@ Banyak supplier sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .c
 1. Pilih supplier. Total hutang dan daftar pembelian yang belum lunas tampil, yang terlambat ditandai.
 2. Isi **Jumlah dibayar**, atau tekan **Lunasi semua**.
 3. Pilih **Sumber dana**: kas toko, kas laci (butuh sesi kasir terbuka dan tanggal hari ini), atau rekening bank.
-4. Isi **No. bukti transfer** dan lampirkan foto bukti bila ada.
+4. Isi **No. bukti transfer** dan lampirkan foto bukti bila ada (foto
+   sampai 20 MB dikecilkan otomatis ke 2.000 px).
 5. Alokasi otomatis mendahulukan jatuh tempo terdekat. Tekan **Atur alokasi manual** untuk mengisi per pembelian.
 6. Tekan **Simpan pembayaran**.
 

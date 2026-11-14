@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:image/image.dart' as img;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -429,6 +430,51 @@ void main() {
       final media = await MediaFile.db.findById(store.session, p.proofMediaId!);
       expect(media!.kind, MediaKind.paymentProof);
       expect(await loadSupplierPaymentProof(store, scope, p.id), _png);
+    });
+
+    test('foto bukti besar dikecilkan ke 2.000 px (F1-15b)', () async {
+      final s = await supplier('CV Sumber Pangan');
+      await buy(s, kg: 10, dueOn: DateTime(2026, 11, 10));
+      final source = img.Image(width: 4000, height: 2400);
+      for (final p in source) {
+        p
+          ..r = p.x * 255 ~/ 4000
+          ..g = p.y * 255 ~/ 2400
+          ..b = (p.x ~/ 30).isEven ? 230 : 30;
+      }
+      final big = Uint8List.fromList(img.encodePng(source));
+      final p = await pay(
+        s,
+        1000,
+        proof: SupplierPaymentProof(bytes: big, fileName: 'bukti.png'),
+      );
+      final media = await MediaFile.db.findById(store.session, p.proofMediaId!);
+      expect((media!.width, media.height), (2000, 1200));
+      expect(media.mimeType, 'image/jpeg');
+    });
+
+    test('foto bukti di atas 20 MB, > 50 MP, atau rusak ditolak', () async {
+      final s = await supplier('CV Sumber Pangan');
+      await buy(s, kg: 10, dueOn: DateTime(2026, 11, 10));
+      final before = await SyncOutboxEntry.db.count(store.session);
+      final tooBig = Uint8List(SupplierLimits.proofInputMaxBytes + 1)
+        ..setAll(0, pngBytes(400, 300));
+      final huge = Uint8List.fromList(
+        img.encodePng(img.Image(width: 10000, height: 6000)),
+      );
+      final broken = Uint8List(SupplierLimits.proofMaxBytes)
+        ..setAll(0, pngBytes(4000, 3000));
+      for (final bytes in [tooBig, huge, broken]) {
+        await expectLater(
+          pay(
+            s,
+            1000,
+            proof: SupplierPaymentProof(bytes: bytes, fileName: 'x.png'),
+          ),
+          throwsA(isA<SupplierPaymentProofInvalid>()),
+        );
+      }
+      expect(await SyncOutboxEntry.db.count(store.session), before);
     });
 
     test('retur beli setelah bayar memotong sisa hutang saja', () async {

@@ -24,4 +24,4 @@ Spec: [F1-07l](../specs/2026-11-14-f1-07l-kecilkan-foto-design.md).
 - [x] **Uji manual Xvfb**: foto produk besar, cek ukuran di `media/`.
 - [x] **Dokumen**: spec F1-07f/F1-12b (gap), README, STATUS-JEDA, panduan
   produk & pembelian id/en, CHANGELOG 0.62.0, pubspec `0.62.0+65`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

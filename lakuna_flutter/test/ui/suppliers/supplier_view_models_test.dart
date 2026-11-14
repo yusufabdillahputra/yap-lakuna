@@ -205,11 +205,23 @@ void main() {
       },
     );
 
+    test('foto bukti 12 MB diterima (dikecilkan saat disimpan)', () async {
+      final big = Uint8List(12 * 1024 * 1024)..setAll(0, tinyPortraitPng);
+      picker.next = PickedImage(
+        name: 'bukti.jpg',
+        size: big.length,
+        bytes: big,
+      );
+      await vm.pickProof.execute(false);
+      expect(vm.proofIssue, isNull);
+      expect(vm.proof!.bytes.length, big.length);
+    });
+
     test('foto bukti terlalu besar atau bukan gambar ditolak', () async {
       picker.next = PickedImage(
         name: 'besar.png',
-        size: SupplierLimits.proofMaxBytes + 1,
-        bytes: Uint8List(SupplierLimits.proofMaxBytes + 1),
+        size: SupplierLimits.proofInputMaxBytes + 1,
+        bytes: Uint8List(SupplierLimits.proofInputMaxBytes + 1),
       );
       await vm.pickProof.execute(false);
       expect(vm.proofIssue, ProofIssue.tooLarge);

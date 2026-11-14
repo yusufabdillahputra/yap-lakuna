@@ -25,8 +25,15 @@ abstract final class SupplierLimits {
   /// Tempo standar supplier baru.
   static const defaultTermDays = 14;
 
-  /// Batas foto bukti bayar.
+  /// Batas foto bukti bayar yang disimpan (setelah dikecilkan).
   static const proofMaxBytes = 5 * 1024 * 1024;
+
+  /// Batas foto bukti bayar yang boleh dipilih; dikecilkan sebelum
+  /// disimpan (F1-15b).
+  static const proofInputMaxBytes = 20 * 1024 * 1024;
+
+  /// Sisi terpanjang foto bukti bayar yang disimpan.
+  static const proofMaxSide = 2000;
 }
 
 enum SupplierIssue {

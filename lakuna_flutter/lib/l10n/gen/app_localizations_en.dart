@@ -5112,7 +5112,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supplierRemoveProof => 'Remove photo';
 
   @override
-  String get supplierProofTooLarge => 'Proof photo must be 5 MB or less.';
+  String get supplierProofTooLarge => 'Proof photo must be 20 MB or less.';
 
   @override
   String get supplierProofInvalid => 'Choose a PNG, JPG, or WebP image.';
@@ -5407,7 +5407,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseReceiptInvalid =>
-      'Receipt photo must be a PNG/JPEG/WebP image up to 5 MB.';
+      'Receipt photo must be a PNG/JPEG/WebP image up to 20 MB.';
 
   @override
   String get expenseReceiptMissing =>

@@ -66,6 +66,8 @@ class PhotoAttachField extends StatelessWidget {
                   width: 56,
                   height: 56,
                   fit: BoxFit.cover,
+                  // Foto kamera sampai 20 MB: dekode kecil saja (F1-15b).
+                  cacheWidth: 168,
                 ),
               ),
               Expanded(

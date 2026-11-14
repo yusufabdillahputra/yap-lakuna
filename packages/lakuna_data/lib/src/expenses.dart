@@ -7,6 +7,7 @@ import 'package:serverpod_database/serverpod_database.dart'
 
 import 'customers.dart' show outletToday;
 import 'media.dart';
+import 'photo_shrink.dart';
 import 'sale_core.dart' show requireOpenCashSession;
 import 'staff_access.dart';
 import 'stock.dart';
@@ -378,6 +379,31 @@ Future<String> _nextExpenseNumber(
   return expenseNumber(outlet.code, device.code, local, counter);
 }
 
+/// Foto nota dikecilkan ke [ExpenseLimits.receiptMaxSide] di luar
+/// transaksi (F1-15b); [ExpenseReceiptInvalid] bila bukan gambar, di atas
+/// batas pilih, atau hasilnya masih di atas batas simpan.
+Future<ExpenseReceipt> _shrinkReceipt(ExpenseReceipt receipt) async {
+  if (readImageHeader(receipt.bytes) == null ||
+      receipt.bytes.length > ExpenseLimits.receiptInputMaxBytes) {
+    throw ExpenseReceiptInvalid();
+  }
+  final Uint8List bytes;
+  try {
+    bytes = await shrinkPhoto(
+      receipt.bytes,
+      maxSide: ExpenseLimits.receiptMaxSide,
+      maxBytes: ExpenseLimits.receiptMaxBytes,
+    );
+  } on PhotoShrinkFailure {
+    throw ExpenseReceiptInvalid();
+  }
+  if (readImageHeader(bytes) == null ||
+      bytes.length > ExpenseLimits.receiptMaxBytes) {
+    throw ExpenseReceiptInvalid();
+  }
+  return ExpenseReceipt(bytes: bytes, fileName: receipt.fileName);
+}
+
 /// Mencatat pengeluaran dalam satu transaksi: dokumen `EX-`, foto nota, dan
 /// kas keluar bila dari laci.
 Future<Expense> recordExpense(
@@ -397,13 +423,10 @@ Future<Expense> recordExpense(
     Permission.expensesManage,
     if (drawer) Permission.cashMovementsCreate,
   ]);
-  final receipt = request.receipt;
+  final receipt = request.receipt == null
+      ? null
+      : await _shrinkReceipt(request.receipt!);
   final header = receipt == null ? null : readImageHeader(receipt.bytes);
-  if (receipt != null &&
-      (header == null ||
-          receipt.bytes.length > ExpenseLimits.receiptMaxBytes)) {
-    throw ExpenseReceiptInvalid();
-  }
   final description = request.description.trim();
   return store.write(actor: staffId, (w) async {
     final s = await w.stamp();

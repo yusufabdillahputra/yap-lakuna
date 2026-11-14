@@ -7,6 +7,59 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.63.0] - 2026-11-14
+
+Foto nota pengeluaran dan foto bukti bayar hutang supplier yang dipotret
+langsung dengan kamera ponsel kini bisa dipakai tanpa dikecilkan dulu:
+Lakuna mengecilkannya otomatis sebelum disimpan, sama seperti foto faktur
+pembelian di v0.62.0.
+
+### Diubah
+
+- **Foto nota pengeluaran (1.22) dan kas keluar (1.3b):** batas pilih naik
+  dari 5 MB ke **20 MB**. Foto disimpan dengan sisi terpanjang paling
+  banyak **2.000 px** (JPEG kualitas 85, atau PNG bila transparan) agar
+  angka di nota tetap terbaca. Foto kecil (≤ 512 KB dan dalam batas sisi)
+  disimpan apa adanya. Orientasi kamera diterapkan dan data EXIF (lokasi
+  GPS, model ponsel) dibuang dari foto yang dikecilkan.
+- **Foto bukti bayar hutang supplier (1.21):** aturan yang sama, batas
+  pilih 20 MB dan simpan 2.000 px.
+- Pesan galat foto nota dan foto bukti menyebut batas baru 20 MB (id/en).
+- Panduan *Pengeluaran* dan *Hutang supplier* (id/en) menjelaskan foto
+  besar dikecilkan otomatis.
+
+### Diperbaiki
+
+- Pratinjau foto 56 px di form pengeluaran, kas keluar, pembelian, dan
+  bayar hutang kini didekode kecil (`cacheWidth`). Sebelumnya foto kamera
+  besar didekode penuh hanya untuk pratinjau, yang untuk foto 48 MP bisa
+  memakan sekitar 190 MB memori dan menutup aplikasi di ponsel murah
+  (ditemukan saat review).
+
+### Keamanan
+
+- Foto nota dan bukti di atas 50 MP menurut header ditolak sebelum
+  dibuka, sehingga berkas kecil yang mengaku berukuran raksasa tidak
+  menghabiskan memori.
+
+### Catatan teknis
+
+- `ExpenseLimits.receiptInputMaxBytes` / `receiptMaxSide` dan
+  `SupplierLimits.proofInputMaxBytes` / `proofMaxSide` baru di
+  `lakuna_domain`; batas simpan `receiptMaxBytes` / `proofMaxBytes` tetap
+  5 MB.
+- `recordExpense` dan `paySupplierDebt` memanggil `shrinkPhoto` (isolate
+  terpisah) setelah isian dan izin diperiksa, sebelum transaksi database.
+  Gagal dekode, > 50 MP, atau hasil > 5 MB menjadi
+  `ExpenseReceiptInvalid` / `SupplierPaymentProofInvalid`.
+- Tes data: nota 2400×4000 tersimpan 1200×2000 JPEG, bukti 4000×2400
+  tersimpan 2000×1200, berkas > 20 MB / > 50 MP / rusak ditolak tanpa
+  menulis outbox. Tes VM: foto 12 MB diterima di form pengeluaran dan bayar
+  hutang.
+- Uji manual Xvfb: foto kamera 4000×3000 berukuran 12,5 MB tersimpan
+  sebagai JPEG 2000×1500 (849 KB) di `media/`.
+- Spec [F1-15b](docs/superpowers/specs/2026-11-14-f1-15b-kecilkan-foto-nota-design.md).
+
 ## [0.62.0] - 2026-11-14
 
 Foto produk dan foto faktur dari galeri atau kamera ponsel (3–10 MB) kini
@@ -4651,7 +4704,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...HEAD
+[0.63.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...v0.60.0

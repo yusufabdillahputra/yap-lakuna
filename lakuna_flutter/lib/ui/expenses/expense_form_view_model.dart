@@ -148,8 +148,12 @@ class ExpenseFormViewModel extends ChangeNotifier {
   Future<Result<void>> _pickReceipt(bool camera) async {
     try {
       final picked = camera
-          ? await _picker.takePhoto(maxBytes: ExpenseLimits.receiptMaxBytes)
-          : await _picker.pickImage(maxBytes: ExpenseLimits.receiptMaxBytes);
+          ? await _picker.takePhoto(
+              maxBytes: ExpenseLimits.receiptInputMaxBytes,
+            )
+          : await _picker.pickImage(
+              maxBytes: ExpenseLimits.receiptInputMaxBytes,
+            );
       if (picked == null) return const Result.ok(null);
       final bytes = picked.bytes;
       if (bytes == null || readImageHeader(bytes) == null) {

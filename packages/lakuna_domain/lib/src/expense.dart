@@ -20,8 +20,15 @@ abstract final class ExpenseLimits {
   /// Jumlah maksimum satu pengeluaran (Rp 1 miliar).
   static const maxAmount = 1000000000;
 
-  /// Batas foto nota.
+  /// Batas foto nota yang disimpan (setelah dikecilkan).
   static const receiptMaxBytes = 5 * 1024 * 1024;
+
+  /// Batas foto nota yang boleh dipilih; dikecilkan sebelum disimpan
+  /// (F1-15b).
+  static const receiptInputMaxBytes = 20 * 1024 * 1024;
+
+  /// Sisi terpanjang foto nota yang disimpan, agar tulisan tetap terbaca.
+  static const receiptMaxSide = 2000;
 }
 
 enum ExpenseIssue { description, category, amount }
