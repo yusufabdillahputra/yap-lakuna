@@ -7,6 +7,59 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.77.0] - 2026-11-14
+
+Nomor HP pelanggan dan supplier kini bisa dicari seperti tertulis di
+WhatsApp, misalnya `+62 812-3456-7890`, di semua kolom cari.
+
+### Ditambahkan
+
+- **Cari HP format apa pun** di Riwayat (1.14), Pelanggan (1.20),
+  Supplier (1.21), pilih pelanggan di Kasir (1.4b), *Kredit* (1.5b), dan
+  bill Meja. Spasi, tanda hubung, kurung, dan awalan `+62` diabaikan;
+  potongan di tengah nomor (minimal 3 angka) tetap cocok. Nomor yang
+  disalin dari WhatsApp (dengan tanda arah tak terlihat dan tanda hubung
+  khusus) juga cocok.
+- Panduan *Pelanggan & kredit* dan *Retur & void* (ID + EN).
+
+### Diubah
+
+- Kata kunci yang memuat huruf (nama, nomor nota) tidak lagi dicocokkan
+  ke nomor HP, sehingga mis. `Toko 123` tidak memunculkan pelanggan yang
+  HP-nya memuat `123`.
+- Pilih pelanggan di Kasir, bill Meja, dan *Kredit* mencocokkan HP mulai 3
+  angka (sebelumnya 1 karakter), sama dengan layar Pelanggan.
+- Layar Pelanggan/Supplier: `62857` (tanpa `+`, kurang dari 10 angka)
+  kini dianggap potongan tengah apa adanya, bukan `0857`; ketik
+  `+62 857` atau `0857`.
+
+### Diperbaiki
+
+- Pilih pelanggan di Kasir dan bill Meja: `+62 812…` tidak menemukan
+  pelanggan karena `62812…` dibandingkan dengan HP tersimpan `0812…`.
+- *Kredit* (1.5b): nomor dengan spasi atau tanda hubung tidak menemukan
+  pelanggan karena teks dibandingkan apa adanya.
+- Riwayat: pencarian HP hanya cocok bila diketik persis seperti tersimpan.
+- Layar Pelanggan/Supplier: potongan tengah nomor yang berawalan 8 (mis.
+  `8194` dari `0819-4545`) tidak cocok karena kata kunci diberi nol di
+  depan.
+
+### Catatan teknis
+
+- `lakuna_domain`: `phoneSearchKeys` (digit apa adanya, atau hanya `0…`
+  untuk nomor internasional `+62…` / `62…` ≥ 10 digit; `62` di tengah
+  tidak diubah; tanda arah U+200E/F, U+202A–E, U+2066–9, U+FEFF dibuang,
+  tanda hubung U+2010–2015/U+2212 jadi `-`) dan `phoneMatchesQuery`;
+  `phoneQueryMinDigits = 3`.
+- Review sebelum rilis menemukan dan memperbaiki: nomor salinan WhatsApp
+  tidak menghasilkan kunci, dan kunci `62…` mentah ikut dipakai untuk
+  `+62…` sehingga cocok palsu di tengah nomor lain.
+- `_searchSales` menambah `phone ilike` per kunci HP lalu mengecek ulang di
+  Dart; view model Pelanggan, Supplier, Kasir (`customerCandidates`,
+  `creditCandidates`), dan Meja memakai `phoneMatchesQuery`.
+- Tes domain (format, potongan tengah, huruf, terlalu pendek, `62` di
+  tengah), data Riwayat, dan view model untuk semua kolom cari.
+
 ## [0.76.0] - 2026-11-14
 
 Pembeli yang membayar sebagian tunai dan sisanya transfer kini juga
@@ -5300,7 +5353,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...HEAD
+[0.77.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...v0.77.0
 [0.76.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...v0.76.0
 [0.75.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...v0.75.0
 [0.74.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...v0.74.0

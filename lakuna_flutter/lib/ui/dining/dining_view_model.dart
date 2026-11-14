@@ -483,12 +483,11 @@ class DiningViewModel extends ChangeNotifier {
   /// urut nama.
   List<CustomerRow> get customerCandidates {
     final q = _customerQuery.trim().toLowerCase();
-    final digits = q.replaceAll(RegExp(r'\D'), '');
     return [
       for (final r in _customerList?.rows ?? const <CustomerRow>[])
         if (q.isEmpty ||
             r.customer.name.toLowerCase().contains(q) ||
-            (digits.isNotEmpty && (r.customer.phone ?? '').contains(digits)))
+            phoneMatchesQuery(r.customer.phone, q))
           r,
     ]..sort(
       (a, b) => a.customer.name.toLowerCase().compareTo(

@@ -21,6 +21,60 @@ void main() {
     });
   });
 
+  group('phoneSearchKeys / phoneMatchesQuery (F1-13d)', () {
+    const phone = '081322221010';
+
+    test('format apa pun cocok dengan HP tersimpan', () {
+      for (final q in [
+        '0813',
+        '0813-2222',
+        '0813 2222 1010',
+        '+62 813 2222',
+        '+62-813-2222-1010',
+        '6281322221010',
+        '(0813) 2222',
+        '2222-1010',
+        '8132',
+      ]) {
+        expect(phoneMatchesQuery(phone, q), isTrue, reason: q);
+      }
+    });
+
+    test('bukan pola HP atau terlalu pendek: tidak dicocokkan', () {
+      expect(phoneSearchKeys('Bu Ani 0813'), isEmpty);
+      expect(phoneSearchKeys('PST-K01-2611'), isEmpty);
+      expect(phoneSearchKeys('08'), isEmpty);
+      expect(phoneSearchKeys('+62'), isEmpty);
+      expect(phoneSearchKeys('  '), isEmpty);
+      expect(phoneMatchesQuery(phone, '08'), isFalse);
+      expect(phoneMatchesQuery(null, '0813'), isFalse);
+    });
+
+    test('62 di tengah tidak diubah menjadi 0', () {
+      expect(phoneSearchKeys('6212'), ['6212']);
+      expect(phoneMatchesQuery('081262123', '6212'), isTrue);
+      expect(phoneMatchesQuery('081200012', '6212'), isFalse);
+      // Awalan + selalu kode negara: hanya kunci lokal; sisa terlalu
+      // pendek diabaikan.
+      expect(phoneSearchKeys('+628'), isEmpty);
+      expect(phoneSearchKeys('+62 8'), isEmpty);
+      expect(phoneSearchKeys('+62 81'), ['081']);
+      expect(phoneSearchKeys('6281322221010'), ['081322221010']);
+      expect(phoneMatchesQuery('085762813999', '+62 813'), isFalse);
+    });
+
+    test('salinan WhatsApp: tanda arah dan tanda hubung Unicode', () {
+      expect(phoneMatchesQuery(phone, '\u202A+62 813-2222-1010\u202C'), isTrue);
+      expect(phoneMatchesQuery(phone, '0813\u20112222'), isTrue);
+      expect(phoneMatchesQuery(phone, '0813\u00A02222'), isTrue);
+    });
+
+    test('tidak cocok', () {
+      expect(phoneMatchesQuery(phone, '0857'), isFalse);
+      expect(phoneMatchesQuery(phone, '+62 857'), isFalse);
+    });
+  });
+
   group('validateCustomer', () {
     test('nama wajib dan dibatasi', () {
       expect(validateCustomer(name: ' '), {CustomerIssue.name});

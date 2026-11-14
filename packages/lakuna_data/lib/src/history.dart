@@ -388,14 +388,21 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
   final q = query.toLowerCase();
   bool has(String? field) => field != null && field.toLowerCase().contains(q);
   final pattern = '%$query%';
+  // HP dengan format lain (+62, tanda hubung, spasi): kunci digit (F1-13d).
+  final phoneKeys = phoneSearchKeys(query);
   final customers = {
     for (final c in await Customer.db.find(
       session,
-      where: (c) =>
-          c.tenantId.equals(scope.tenantId) &
-          (c.name.ilike(pattern) | c.phone.ilike(pattern)),
+      where: (c) {
+        var match = c.name.ilike(pattern) | c.phone.ilike(pattern);
+        for (final key in phoneKeys) {
+          match = match | c.phone.ilike('%$key%');
+        }
+        return c.tenantId.equals(scope.tenantId) & match;
+      },
     ))
-      if (has(c.name) || has(c.phone)) c.id,
+      if (has(c.name) || has(c.phone) || phoneMatchesQuery(c.phone, query))
+        c.id,
   };
   final referenced = {
     for (final p in await Payment.db.find(

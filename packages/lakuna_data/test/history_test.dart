@@ -337,6 +337,10 @@ void main() {
       expect(await find(old.sale.number.toLowerCase()), [old.sale.id]);
       expect(await find('  budi '), [b.sale.id]);
       expect(await find('4567'), [b.sale.id]);
+      // HP dengan format lain (F1-13d): +62, tanda hubung, spasi.
+      expect(await find('+62 812-3456'), [b.sale.id]);
+      expect(await find('0812 3456 7890'), [b.sale.id]);
+      expect(await find('62812345678'), [b.sale.id]);
       expect(await find('trf-abc'), [c.sale.id]);
       // Semua nota memuat kode outlet; terbaru dulu.
       final prefix = old.sale.number.split('-').first;

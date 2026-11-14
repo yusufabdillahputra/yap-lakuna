@@ -795,6 +795,8 @@ void main() {
         'Ani',
         'Budi',
       ]);
+      vm.setCustomerQuery('+62 812');
+      expect(vm.customerCandidates.single, ani);
       vm.setCustomerQuery('0812');
       expect(vm.customerCandidates.single, ani);
       expect(vm.canSetCustomer(vm.selectedBill!), isTrue);

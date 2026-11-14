@@ -40,6 +40,8 @@ void main() {
       expect(vm.rows.single.supplier.name, 'UD Makmur');
       vm.setQuery('0813');
       expect(vm.rows.single.supplier.name, 'PT Segar Jaya');
+      vm.setQuery('+62 813');
+      expect(vm.rows.single.supplier.name, 'PT Segar Jaya');
       vm.setQuery('hendra');
       expect(vm.rows.single.supplier.name, 'CV Sumber Pangan');
       vm.select(idOf('UD Makmur'));

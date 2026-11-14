@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show normalizePhone;
+import 'package:lakuna_domain/lakuna_domain.dart' show phoneMatchesQuery;
 
 import '../../data/repositories/suppliers_repository.dart';
 import '../../utils/command.dart';
@@ -51,14 +51,13 @@ class SuppliersViewModel extends ChangeNotifier {
     final all = _overview?.rows ?? const <SupplierRow>[];
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return all;
-    final digits = normalizePhone(q);
     bool has(String? s) => (s ?? '').toLowerCase().contains(q);
     return [
       for (final r in all)
         if (has(r.supplier.name) ||
             has(r.supplier.contactName) ||
             has(r.supplier.category) ||
-            (digits.length >= 3 && (r.supplier.phone ?? '').contains(digits)))
+            phoneMatchesQuery(r.supplier.phone, q))
           r,
     ];
   }
