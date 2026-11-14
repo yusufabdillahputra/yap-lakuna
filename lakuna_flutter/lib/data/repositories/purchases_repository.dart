@@ -1,10 +1,25 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show Money;
+import 'package:lakuna_domain/lakuna_domain.dart' show Money, Qty;
 
 import '../../utils/result.dart';
 
 export 'repository_errors.dart';
+
+/// Isian awal *Pembelian baru* dari daftar stok minimum (F1-08c): lokasi
+/// terima dan varian + jumlah saran (satuan dasar).
+@immutable
+class PurchaseRestock {
+  const PurchaseRestock({
+    required this.locationId,
+    required this.locationName,
+    required this.lines,
+  });
+
+  final UuidValue locationId;
+  final String locationName;
+  final List<({UuidValue variantId, Qty quantity})> lines;
+}
 
 /// Data awal layar Pembelian (F1-12, 1.19).
 @immutable

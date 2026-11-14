@@ -77,12 +77,16 @@ class PurchaseFormPage extends StatefulWidget {
     super.key,
     required this.repository,
     this.draftId,
+    this.restock,
     required this.onReceived,
     required this.onBack,
   });
 
   final PurchasesRepository repository;
   final UuidValue? draftId;
+
+  /// Isian dari daftar stok minimum (F1-08c).
+  final PurchaseRestock? restock;
   final ValueChanged<Purchase> onReceived;
   final VoidCallback onBack;
 
@@ -94,6 +98,7 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
   late final _form = PurchaseFormViewModel(
     repository: widget.repository,
     draftId: widget.draftId,
+    restock: widget.restock,
   )..load.execute();
 
   @override
@@ -118,6 +123,23 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
                 : _form.number,
             onBack: widget.onBack,
           ),
+        ),
+        ListenableBuilder(
+          listenable: _form,
+          builder: (context, _) {
+            final l10n = AppLocalizations.of(context);
+            final location = _form.restockLocationName;
+            if (location == null) return const SizedBox.shrink();
+            return FAlert(
+              key: const ValueKey('purchase-restock-note'),
+              title: Text(
+                l10n.purchaseRestockNote(location, _form.restockApplied),
+              ),
+              subtitle: _form.restockSkipped > 0
+                  ? Text(l10n.purchaseRestockSkipped(_form.restockSkipped))
+                  : null,
+            );
+          },
         ),
         PurchaseFormPanel(
           viewModel: _form,

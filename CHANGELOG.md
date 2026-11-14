@@ -7,6 +7,55 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.49.0] - 2026-11-14
+
+Barang yang menipis bisa langsung dipesan ulang: satu ketukan dari daftar
+stok minimum membuka form pembelian yang sudah terisi.
+
+### Ditambahkan
+
+- **Buat pembelian dari stok minimum (1.18 → 1.19, F1-08c).** Tombol
+  **Buat pembelian** di bawah daftar *Di bawah stok minimum* (tab *Stok
+  minimum* dan panel di tab *Penyesuaian*) membuka *Pembelian baru* dengan:
+  - lokasi terima = lokasi stok yang sedang dilihat;
+  - satu baris per barang di bawah minimum, satuan dasar, harga modal
+    terakhir, dan jumlah saran **2 × minimum − stok** (stok minus dihitung
+    0), dibulatkan ke atas ke satuan utuh, minimal 1;
+  - catatan "Diisi dari stok minimum <lokasi>: N barang. Periksa jumlah dan
+    harga sebelum menyimpan.", plus jumlah barang yang dilewati bila produk
+    sudah diarsip atau bukan barang.
+  Supplier dan pembayaran dipilih seperti biasa; draf baru tersimpan hanya
+  saat *Simpan draf* / *Terima barang* ditekan.
+- Tombol hanya tampil untuk staf dengan izin *Kelola pembelian*
+  (`purchases:manage`) dan mati selama data lokasi baru dimuat.
+- Kembali ke Stok setelah form ditutup memuat ulang daftar, jadi barang
+  yang baru diterima tidak dipesan dua kali; pembelian yang diterima
+  membuka detailnya dulu. Ketukan ganda tidak membuka dua form (temuan
+  review).
+- Panduan *Penyesuaian & stok minimum* menjelaskan tombol dan rumus jumlah
+  saran (ID + EN).
+
+### Dihapus
+
+- Teks "Pesanan pembelian dari daftar ini menyusul bersama modul
+  Pembelian." di panel stok minimum.
+
+### Catatan teknis
+
+- Domain: `restockQuantity(stock, minimum)` di `stock.dart`.
+- `PurchaseRestock` (lokasi, nama lokasi, varian + jumlah) dikirim lewat
+  `extra` rute `/pembelian/baru`; `PurchaseFormViewModel(restock:)`
+  memakainya sekali setelah form kosong dibuat, dan `startNew` (setelah
+  terima barang) kembali ke form kosong.
+- `StockViewModel.restock` hanya terisi bila baris di bawah minimum milik
+  lokasi terpilih (selaras dengan pengaman *Cetak stok* v0.48.0).
+- `FakeStockRepository.belowMinimum`/`card` memakai baris per lokasi,
+  seperti data asli (minimum hanya di lokasi bawaan).
+- Anotasi `@immutable` dan dok `PurchaseSetup` dikembalikan ke kelasnya
+  (temuan review).
+- Uji manual Xvfb: Stok › Stok minimum (Keripik 0,5/5, Minyak 5/6) ›
+  *Buat pembelian* → form berisi 10 bungkus dan 7 botol, lokasi Etalase.
+
 ## [0.48.0] - 2026-11-14
 
 Daftar stok bisa dicetak untuk stock opname manual: hitung di rak, tulis
@@ -3927,7 +3976,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...HEAD
+[0.49.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...v0.48.0
 [0.47.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.46.0...v0.47.0
 [0.46.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.45.0...v0.46.0

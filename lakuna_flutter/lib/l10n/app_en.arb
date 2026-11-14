@@ -639,7 +639,6 @@
     }
   },
   "stockMinimumEmpty": "All stock is above minimum.",
-  "stockMinimumPurchaseSoon": "Purchase orders from this list will come with the Purchases module.",
   "stockLocationsHint": "Display, warehouse, or separate shelves in this branch.",
   "stockLocationDefault": "Default",
   "stockLocationNameLabel": "Location name",
@@ -4391,5 +4390,25 @@
       }
     }
   },
-  "stockPrintFailed": "Could not create the stock list. Try again."
+  "stockPrintFailed": "Could not create the stock list. Try again.",
+  "stockRestock": "Create purchase",
+  "purchaseRestockNote": "Filled from minimum stock at {location}: {count, plural, =1{1 item} other{{count} items}}. Check quantities and prices before saving.",
+  "@purchaseRestockNote": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseRestockSkipped": "{count, plural, =1{1 item was skipped} other{{count} items were skipped}}: no longer purchasable (archived or not goods).",
+  "@purchaseRestockSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

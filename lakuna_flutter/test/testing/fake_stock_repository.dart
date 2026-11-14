@@ -55,7 +55,7 @@ class FakeStockRepository extends StockRepository {
   Future<Result<List<StockRow>>> belowMinimum({UuidValue? locationId}) async =>
       _result(
         () => [
-          for (final r in rows)
+          for (final r in rowsByLocation[locationId] ?? rows)
             if (r.belowMinimum) r,
         ],
       );
@@ -67,7 +67,9 @@ class FakeStockRepository extends StockRepository {
   }) async {
     if (cardGate case final gate?) await gate;
     return _result(() {
-      final row = rows.firstWhere((r) => r.variantId == variantId);
+      final row = (rowsByLocation[locationId] ?? rows).firstWhere(
+        (r) => r.variantId == variantId,
+      );
       final entries = cards[variantId] ?? const <StockCardEntry>[];
       // Saldo awal + pergerakan = stok baris, seperti ledger asli.
       final moved = entries.fold(0, (sum, e) => sum + e.quantity.milli);

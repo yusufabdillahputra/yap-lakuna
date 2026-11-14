@@ -51,3 +51,13 @@ StockLocationNameError? validateLocationName(
 /// Panjang teks dalam karakter yang terlihat (emoji = 1), sama dengan
 /// penghitung `maxLength` di field teks.
 int textLength(String text) => text.characters.length;
+
+/// Jumlah saran beli ulang dari daftar stok minimum (F1-08c):
+/// `2 × minimum − stok` (stok minus dihitung 0), dibulatkan ke atas ke
+/// satuan utuh, minimal satu satuan.
+Qty restockQuantity(Qty stock, Qty minimum) {
+  final have = stock.milli < 0 ? 0 : stock.milli;
+  final need = minimum.milli * 2 - have;
+  final units = need <= 0 ? 1 : (need + 999) ~/ 1000;
+  return Qty.units(units < 1 ? 1 : units);
+}

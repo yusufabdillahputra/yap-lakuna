@@ -3380,12 +3380,6 @@ abstract class AppLocalizations {
   /// **'Semua stok di atas minimum.'**
   String get stockMinimumEmpty;
 
-  /// No description provided for @stockMinimumPurchaseSoon.
-  ///
-  /// In id, this message translates to:
-  /// **'Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.'**
-  String get stockMinimumPurchaseSoon;
-
   /// No description provided for @stockLocationsHint.
   ///
   /// In id, this message translates to:
@@ -13507,6 +13501,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Daftar stok gagal dibuat. Coba lagi.'**
   String get stockPrintFailed;
+
+  /// No description provided for @stockRestock.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat pembelian'**
+  String get stockRestock;
+
+  /// No description provided for @purchaseRestockNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Diisi dari stok minimum {location}: {count} barang. Periksa jumlah dan harga sebelum menyimpan.'**
+  String purchaseRestockNote(String location, int count);
+
+  /// No description provided for @purchaseRestockSkipped.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} barang dilewati karena tidak bisa dibeli lagi (diarsip atau bukan barang).'**
+  String purchaseRestockSkipped(int count);
 }
 
 class _AppLocalizationsDelegate

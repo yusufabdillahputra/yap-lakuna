@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/purchases_repository.dart';
 import 'package:lakuna_flutter/ui/purchases/purchase_detail_view_model.dart';
 import 'package:lakuna_flutter/ui/purchases/purchase_form_view_model.dart';
 import 'package:lakuna_flutter/ui/purchases/purchases_view_model.dart';
@@ -156,6 +157,45 @@ void main() {
       form.setDueOn(DateTime(2026, 12, 1));
       form.selectSupplier(segar.id);
       expect(form.dueOn, DateTime(2026, 12, 1));
+    });
+  });
+
+  group('pembelian dari stok minimum (F1-08c)', () {
+    test('baris terisi: jumlah saran, harga modal, lokasi; varian hilang '
+        'dilewati; startNew kosong', () async {
+      final variants = [
+        for (final p in repo.products)
+          for (final v in p.variants) v,
+      ];
+      final gudang = repo.locations.last;
+      final restock = PurchaseRestock(
+        locationId: gudang.id,
+        locationName: 'Gudang',
+        lines: [
+          (variantId: variants[0].id, quantity: Qty.units(38)),
+          (variantId: variants[1].id, quantity: Qty.units(18)),
+          (variantId: UuidValue.fromString(newId()), quantity: Qty.units(5)),
+        ],
+      );
+      final filled = PurchaseFormViewModel(repository: repo, restock: restock);
+      await filled.load.execute();
+      expect(filled.locationName, 'Gudang');
+      expect(filled.lines, hasLength(2));
+      expect(filled.lines.first.product.variantId, variants[0].id);
+      expect(filled.lines.first.quantity, Qty.units(38));
+      expect(filled.lines.first.unit.isBase, isTrue);
+      expect(filled.lines.first.unitPrice, variants[0].costPrice);
+      expect(filled.lines.last.quantity, Qty.units(18));
+      expect(filled.restockApplied, 2);
+      expect(filled.restockSkipped, 1);
+      expect(filled.restockLocationName, 'Gudang');
+      expect(filled.supplierId, isNull);
+
+      await filled.startNew();
+      expect(filled.lines, isEmpty);
+      expect(filled.restockApplied, 0);
+      expect(filled.locationName, 'Toko');
+      filled.dispose();
     });
   });
 

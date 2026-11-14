@@ -57,4 +57,17 @@ void main() {
     expect(StockLimits.lineNote, 60);
     expect(StockLimits.locationName, 40);
   });
+
+  test(
+    'jumlah saran beli ulang: 2 × minimum − stok, bulat ke atas (F1-08c)',
+    () {
+      expect(restockQuantity(Qty.units(2), Qty.units(20)), Qty.units(38));
+      expect(restockQuantity(const Qty(12500), Qty.units(15)), Qty.units(18));
+      // Stok minus dihitung 0.
+      expect(restockQuantity(Qty.units(-3), Qty.units(5)), Qty.units(10));
+      // Minimal satu satuan.
+      expect(restockQuantity(const Qty(9900), const Qty(5000)), Qty.units(1));
+      expect(restockQuantity(Qty.units(4), Qty.zero), Qty.units(1));
+    },
+  );
 }

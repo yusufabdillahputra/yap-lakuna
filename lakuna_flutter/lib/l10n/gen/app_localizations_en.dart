@@ -1857,10 +1857,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stockMinimumEmpty => 'All stock is above minimum.';
 
   @override
-  String get stockMinimumPurchaseSoon =>
-      'Purchase orders from this list will come with the Purchases module.';
-
-  @override
   String get stockLocationsHint =>
       'Display, warehouse, or separate shelves in this branch.';
 
@@ -7879,4 +7875,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stockPrintFailed => 'Could not create the stock list. Try again.';
+
+  @override
+  String get stockRestock => 'Create purchase';
+
+  @override
+  String purchaseRestockNote(String location, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Filled from minimum stock at $location: $_temp0. Check quantities and prices before saving.';
+  }
+
+  @override
+  String purchaseRestockSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items were skipped',
+      one: '1 item was skipped',
+    );
+    return '$_temp0: no longer purchasable (archived or not goods).';
+  }
 }

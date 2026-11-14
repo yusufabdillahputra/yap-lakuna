@@ -320,4 +320,31 @@ void main() {
       },
     );
   });
+
+  test('isian pembelian dari stok minimum (F1-08c)', () async {
+    final r = vm.restock!;
+    expect(r.locationName, 'Etalase');
+    expect(r.locationId, vm.location!.id);
+    // Kopi 2/20 → 38; Telur 12,5/15 → 18.
+    expect(r.lines.map((l) => (l.variantId, l.quantity)), [
+      (kopi, Qty.units(38)),
+      (telur, Qty.units(18)),
+    ]);
+
+    await vm.addLocation('Gudang');
+    final gudang = vm.locations.last.id;
+    // Seperti data asli: minimum hanya berlaku di lokasi bawaan.
+    repo.rowsByLocation[gudang] = [
+      sampleRow(1, 'Kopi Sachet', unit: 'sachet', stock: Qty.units(1)),
+    ];
+    final gate = Completer<void>();
+    repo.stockGate = gate.future;
+    final loading = vm.selectLocation(gudang);
+    await Future<void>.delayed(Duration.zero);
+    expect(vm.restock, isNull);
+    gate.complete();
+    repo.stockGate = null;
+    await loading;
+    expect(vm.restock, isNull);
+  });
 }

@@ -3,6 +3,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../data/repositories/purchases_repository.dart' show PurchaseRestock;
 import '../../data/repositories/stock_repository.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../utils/command.dart';
@@ -99,6 +100,31 @@ class StockViewModel extends ChangeNotifier {
 
   /// Lokasi PDF cetak stok terakhir (desktop).
   String? get printPath => _printPath;
+
+  /// Isian *Buat pembelian* dari daftar di bawah minimum (F1-08c): lokasi
+  /// yang sedang dilihat dan jumlah saran [restockQuantity]. `null` bila
+  /// daftar kosong atau data lokasi belum selaras (sedang memuat / gagal).
+  PurchaseRestock? get restock {
+    final locationId = _rowsLocationId;
+    if (!_loaded ||
+        _below.isEmpty ||
+        locationId == null ||
+        locationId != _locationId ||
+        load.running) {
+      return null;
+    }
+    return PurchaseRestock(
+      locationId: locationId,
+      locationName: printLocationName,
+      lines: [
+        for (final r in _below)
+          (
+            variantId: r.variantId,
+            quantity: restockQuantity(r.stock, r.minStock),
+          ),
+      ],
+    );
+  }
 
   /// Lokasi milik [rows] (bisa tertinggal dari [location] selagi memuat
   /// atau bila muat lokasi baru gagal).
