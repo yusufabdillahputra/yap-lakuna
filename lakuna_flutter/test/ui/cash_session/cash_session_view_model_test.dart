@@ -5,7 +5,10 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cash_drawer_repository.dart';
+import 'package:lakuna_flutter/ui/cash_session/cash_session_view.dart'
+    show cashSessionPeriodLabel;
 import 'package:lakuna_flutter/ui/cash_session/cash_session_view_model.dart';
+import 'package:lakuna_flutter/utils/result.dart';
 
 import '../../testing/fake_cash_drawer_repository.dart';
 import '../../testing/fake_expenses_repository.dart';
@@ -175,6 +178,87 @@ void main() {
 
     vm.startNew();
     expect(vm.stage, CashStage.openForm);
+  });
+
+  test('label waktu sesi: tanggal tutup bila beda hari (F1-03f)', () {
+    CashSessionLine line(DateTime closedAt) => CashSessionLine(
+      id: UuidValue.fromString(newId()),
+      openedAt: DateTime.utc(2026, 11, 4, 20),
+      closedAt: closedAt,
+      staffName: 'Sari',
+      opening: Money.zero,
+      expected: Money.zero,
+      counted: Money.zero,
+      difference: Money.zero,
+    );
+    expect(
+      cashSessionPeriodLabel(line(DateTime.utc(2026, 11, 4, 23, 5))),
+      '04/11/26 20.00–23.05',
+    );
+    expect(
+      cashSessionPeriodLabel(line(DateTime.utc(2026, 11, 5, 2))),
+      '04/11/26 20.00–05/11/26 02.00',
+    );
+  });
+
+  group('sesi sebelumnya (F1-03f)', () {
+    Future<void> openAndClose(String cash) async {
+      await openWith(cash);
+      vm
+        ..startClosing()
+        ..setSheets(100000, '1');
+      if (cash != '100000') vm.setClosingNote('Selisih');
+      await vm.close.execute();
+    }
+
+    test(
+      'dimuat saat tanpa sesi, dimuat ulang setelah Buka sesi baru',
+      () async {
+        await vm.load.execute();
+        expect(repo.recentCalls, 1);
+        expect(vm.previous, isEmpty);
+        await openAndClose('100000');
+        // Selama sesi buka dan di kartu hasil daftar tidak dipakai.
+        expect(vm.stage, CashStage.closed);
+        vm.startNew();
+        await pumpEventQueue();
+        expect(repo.recentCalls, 2);
+        expect(vm.previous.single.id, repo.closedRecaps.single.session.id);
+        expect(vm.previous.single.difference, Money.zero);
+        expect(vm.loadRecap, isNotNull);
+        final recap = await vm.loadRecap!(vm.previous.single.id);
+        expect(recap, isA<Ok<ClosedSessionRecap>>());
+      },
+    );
+
+    test('tanpa cash_session:close dan reports:view: tidak dimuat', () async {
+      vm.dispose();
+      vm = create(permissions: {Permission.cashSessionOpen});
+      await vm.load.execute();
+      expect(repo.recentCalls, 0);
+      expect(vm.previous, isEmpty);
+      expect(vm.loadRecap, isNull);
+    });
+
+    test('hanya reports:view tetap dimuat', () async {
+      vm.dispose();
+      vm = create(
+        permissions: {Permission.cashSessionOpen, Permission.reportsView},
+      );
+      await vm.load.execute();
+      expect(repo.recentCalls, 1);
+    });
+
+    test('gagal memuat daftar: kosong, formulir buka tetap jalan', () async {
+      await vm.load.execute();
+      await openAndClose('100000');
+      repo.nextError = Exception('db');
+      vm.startNew();
+      await pumpEventQueue();
+      expect(vm.previous, isEmpty);
+      expect(vm.stage, CashStage.openForm);
+      expect(vm.error, isNull);
+    });
   });
 
   test('selisih pas tidak butuh catatan', () async {

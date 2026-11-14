@@ -14459,6 +14459,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Satu rekening maksimal {count} karakter.'**
   String storeSettingsTransferLineTooLong(int count);
+
+  /// No description provided for @cashPreviousTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi sebelumnya'**
+  String get cashPreviousTitle;
+
+  /// No description provided for @cashPreviousNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi yang sudah ditutup di perangkat ini. Ketuk untuk mencetak ulang rekapnya.'**
+  String get cashPreviousNote;
+
+  /// No description provided for @cashPreviousDifference.
+  ///
+  /// In id, this message translates to:
+  /// **'{staff} · Selisih {amount}'**
+  String cashPreviousDifference(String staff, String amount);
 }
 
 class _AppLocalizationsDelegate

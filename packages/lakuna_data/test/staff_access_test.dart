@@ -163,6 +163,39 @@ void main() {
     expect(await find(elsewhere.id), isNull);
   });
 
+  test(
+    'findActingStaff: pemilik tanpa keanggotaan tetap owner (F1-03f)',
+    () async {
+      final other = await addOutlet();
+      final sari = await addStaff('Sari');
+      final off = await addStaff('Nonaktif', active: false);
+      Future<OutletStaff?> find(UuidValue id, UuidValue outletId) =>
+          findActingStaff(
+            store,
+            tenantId: ctx.tenant.id,
+            outletId: outletId,
+            staffId: id,
+          );
+      // Cabang lain tanpa baris keanggotaan pemilik.
+      expect(
+        await findStaffById(
+          store,
+          tenantId: ctx.tenant.id,
+          outletId: other.id,
+          staffId: ctx.owner.id,
+        ),
+        isNull,
+      );
+      final owner = await find(ctx.owner.id, other.id);
+      expect(owner!.roleKey, 'owner');
+      expect(owner.permissions, containsAll(Permission.values));
+      // Staf biasa tetap butuh keanggotaan; staf nonaktif ditolak.
+      expect(await find(sari.id, other.id), isNull);
+      expect((await find(sari.id, ctx.outlet.id))!.name, 'Sari');
+      expect(await find(off.id, ctx.outlet.id), isNull);
+    },
+  );
+
   test('findOwnerByEmail mengabaikan huruf besar/kecil dan spasi', () async {
     final owner = await findOwnerByEmail(
       store,

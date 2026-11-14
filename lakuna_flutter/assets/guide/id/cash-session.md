@@ -25,7 +25,7 @@ Pengeluaran, bayar hutang, dan retur tunai dari modul lain tercatat otomatis di 
 3. Bila ada selisih, isi **Catatan selisih** (wajib).
 4. Konfirmasi penutupan. Rekap tersimpan di perangkat ini.
 
-> [!note] Kertas rekap hilang atau printer mati saat tutup? Cetak ulang rekap sesi lama dari [Laporan](reports) › **Kas & sesi**: ketuk sesinya.
+> [!note] Kertas rekap hilang atau printer mati saat tutup? Saat belum ada sesi terbuka, kartu **Sesi sebelumnya** di bawah formulir *Buka sesi* menampilkan 5 sesi terakhir yang ditutup di perangkat ini: ketuk sesinya lalu **Cetak** atau **Bagikan PDF**. Pemilik dan manajer juga bisa mencetak ulang sesi perangkat mana pun dari [Laporan](reports) › **Kas & sesi**.
 
 > [!note] QRIS statis dan kartu tidak masuk laci. Keduanya ditampilkan terpisah di rekap untuk dicocokkan dengan mutasi rekening.
 

@@ -158,7 +158,63 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
       closingNote: note.trim().isEmpty ? null : note.trim(),
     );
     session = closed;
+    closedRecaps.insert(
+      0,
+      ClosedSessionRecap(
+        session: closed,
+        movements: List.of(movements),
+        sales: const SessionSalesSummary(),
+        drawer: drawer,
+        openedByName: staffName,
+        closedByName: staffName,
+        deviceCode: 'K01',
+      ),
+    );
     return Result.ok(closed);
+  }
+
+  /// Sesi yang sudah ditutup, terbaru dulu (F1-03f).
+  final closedRecaps = <ClosedSessionRecap>[];
+  var recentCalls = 0;
+  final recapRequests = <UuidValue>[];
+
+  bool get _canRecap {
+    final perms = permissions;
+    return perms == null ||
+        perms.contains(Permission.cashSessionClose) ||
+        perms.contains(Permission.reportsView);
+  }
+
+  @override
+  Future<Result<List<CashSessionLine>>> recentClosed() async {
+    recentCalls++;
+    if (_takeError() case final e?) return Result.error(e);
+    if (!_canRecap) return const Result.error(ReportActorNotPermitted());
+    return Result.ok([
+      for (final r in closedRecaps.take(5))
+        CashSessionLine(
+          id: r.session.id,
+          openedAt: outletLocalTime(r.session.openedAt, 'Asia/Jakarta'),
+          closedAt: outletLocalTime(r.session.closedAt!, 'Asia/Jakarta'),
+          staffName: r.openedByName,
+          opening: Money(r.session.openingCash),
+          expected: Money(r.session.expectedCash ?? 0),
+          counted: Money(r.session.countedCash ?? 0),
+          difference: Money(r.session.difference ?? 0),
+        ),
+    ]);
+  }
+
+  @override
+  Future<Result<ClosedSessionRecap>> loadSessionRecap(
+    UuidValue sessionId,
+  ) async {
+    recapRequests.add(sessionId);
+    if (!_canRecap) return const Result.error(ReportActorNotPermitted());
+    for (final r in closedRecaps) {
+      if (r.session.id == sessionId) return Result.ok(r);
+    }
+    return const Result.error(CashSessionNotClosed());
   }
 
   Exception? _check(Permission p) {

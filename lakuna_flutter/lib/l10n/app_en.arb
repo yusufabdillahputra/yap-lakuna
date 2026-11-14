@@ -4954,5 +4954,18 @@
         "type": "int"
       }
     }
+  },
+  "cashPreviousTitle": "Previous sessions",
+  "cashPreviousNote": "Closed sessions on this device. Tap one to reprint its recap.",
+  "cashPreviousDifference": "{staff} · Difference {amount}",
+  "@cashPreviousDifference": {
+    "placeholders": {
+      "staff": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

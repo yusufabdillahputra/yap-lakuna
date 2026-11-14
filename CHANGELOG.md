@@ -7,6 +7,52 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.87.0] - 2026-11-14
+
+Kasir kini bisa mencetak ulang rekap sesi yang sudah ditutup langsung dari
+layar Sesi kasir, tanpa izin laporan.
+
+### Ditambahkan
+
+- **Sesi kasir (1.3):** saat belum ada sesi terbuka, kartu *Sesi
+  sebelumnya* di bawah formulir *Buka sesi* menampilkan 5 sesi terakhir
+  yang ditutup di perangkat ini: tanggal dan jam buka–tutup, nama pembuka,
+  dan selisih kas (merah bila kurang, hijau bila lebih, *Pas* bila sama);
+  tanggal tutup ikut tampil bila sesi ditutup di hari lain.
+  Mengetuk sesi membuka dialog *Rekap sesi* yang sama dengan Laporan
+  (pratinjau, *Cetak*, *Bagikan PDF*, baris *Dicetak ulang*).
+- Sesi yang baru ditutup langsung masuk daftar setelah *Buka sesi baru*.
+- Panduan *Sesi kasir* menjelaskan kartu *Sesi sebelumnya* (ID + EN).
+
+### Diperbaiki
+
+- Pemilik yang masuk lewat email di cabang tempat ia belum terdaftar
+  sebagai anggota kini tetap dianggap pemilik saat memuat laporan dan rekap
+  sesi. Sebelumnya izinnya terbaca kosong sehingga dialog *Rekap sesi* di
+  Laporan gagal dimuat (`findActingStaff`).
+
+### Keamanan
+
+- Rekap sesi lama kini juga boleh dimuat dengan izin `cash_session:close`,
+  tetapi **hanya untuk sesi yang dibuka di perangkat yang sama**. Sesi
+  perangkat lain tetap butuh `reports:view` (dicek di lapisan data, izin
+  dibaca ulang dari role staf di database).
+
+### Catatan teknis
+
+- `lakuna_data`: `listRecentClosedSessions` (sesi tertutup perangkat ini,
+  urut waktu tutup terbaru, maks 5, waktu lokal cabang);
+  `loadClosedSessionRecap` menerima `cash_session:close` untuk
+  `scope.deviceId`.
+- Flutter: `CashDrawerRepository.recentClosed` / `loadSessionRecap`;
+  `SessionRecapDialogViewModel` dan `showSessionRecapDialog` menerima
+  fungsi `loadRecap` (dipakai Laporan dan Sesi kasir);
+  `CashSessionViewModel.previous` / `loadRecap`; widget `_PreviousSessions`.
+- Tes data (urutan, batas 5, perangkat lain, izin), VM (dimuat, tanpa
+  izin, setelah *Buka sesi baru*, galat), dan alur widget 1280 / 360 px
+  sampai cetak.
+- Gap F1-03e *Cetak ulang dari layar Sesi kasir* ditutup.
+
 ## [0.86.0] - 2026-11-14
 
 Toko dengan beberapa rekening bank kini bisa menuliskannya terpisah, satu
@@ -5703,7 +5749,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...HEAD
+[0.87.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...v0.87.0
 [0.86.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...v0.86.0
 [0.85.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...v0.85.0
 [0.84.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...v0.84.0

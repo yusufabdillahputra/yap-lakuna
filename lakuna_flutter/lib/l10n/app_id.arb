@@ -5488,5 +5488,18 @@
         "type": "int"
       }
     }
+  },
+  "cashPreviousTitle": "Sesi sebelumnya",
+  "cashPreviousNote": "Sesi yang sudah ditutup di perangkat ini. Ketuk untuk mencetak ulang rekapnya.",
+  "cashPreviousDifference": "{staff} · Selisih {amount}",
+  "@cashPreviousDifference": {
+    "placeholders": {
+      "staff": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

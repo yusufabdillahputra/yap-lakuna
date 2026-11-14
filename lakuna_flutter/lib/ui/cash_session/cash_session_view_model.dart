@@ -126,6 +126,43 @@ class CashSessionViewModel extends ChangeNotifier {
       _permissions.contains(Permission.expensesManage) &&
       canRecordMovement;
 
+  // --- Sesi sebelumnya (F1-03f) -------------------------------------------
+
+  List<CashSessionLine> _previous = const [];
+  var _disposed = false;
+
+  /// Sesi tertutup terakhir perangkat ini untuk kartu *Sesi sebelumnya*;
+  /// kosong bila tidak berizin atau gagal dimuat.
+  List<CashSessionLine> get previous => _previous;
+
+  /// Kasir penutup sesi atau staf berizin laporan boleh mencetak ulang
+  /// rekap sesi lama (F1-03f).
+  bool get canReprintRecap =>
+      _permissions.contains(Permission.cashSessionClose) ||
+      _permissions.contains(Permission.reportsView);
+
+  /// Kertas dan printer struk untuk dialog *Rekap sesi*.
+  ReceiptSettingsRepository? get receiptSettings => _receiptSettings;
+  ReceiptPrinter? get printer => _printer;
+
+  /// Zona waktu cabang.
+  String? get timezone => _timezone;
+
+  /// Pemuat rekap untuk dialog *Rekap sesi*; `null` tanpa izin.
+  Future<Result<ClosedSessionRecap>> Function(UuidValue sessionId)?
+  get loadRecap => canReprintRecap ? _repository.loadSessionRecap : null;
+
+  Future<void> _loadPrevious() async {
+    if (!canReprintRecap) return;
+    final result = await _repository.recentClosed();
+    if (_disposed) return;
+    _previous = switch (result) {
+      Ok(:final value) => value,
+      Error() => const [],
+    };
+    notifyListeners();
+  }
+
   CashStage get stage {
     if (_closed != null) return CashStage.closed;
     if (!_loaded) return _loadFailed ? CashStage.loadFailed : CashStage.loading;
@@ -481,6 +518,8 @@ class CashSessionViewModel extends ChangeNotifier {
     _openingCash = '';
     _openingNote = '';
     notifyListeners();
+    // Sesi yang baru ditutup ikut tampil di *Sesi sebelumnya*.
+    _loadPrevious();
   }
 
   // --- Perintah ------------------------------------------------------------
@@ -493,7 +532,10 @@ class CashSessionViewModel extends ChangeNotifier {
         _active = value;
         _loaded = true;
         _loadFailed = false;
-        if (value == null) _closing = false;
+        if (value == null) {
+          _closing = false;
+          await _loadPrevious();
+        }
       case Error():
         _loadFailed = !_loaded;
     }
@@ -712,6 +754,7 @@ class CashSessionViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     for (final c in [load, open, saveMovement, close]) {
       c.dispose();
     }

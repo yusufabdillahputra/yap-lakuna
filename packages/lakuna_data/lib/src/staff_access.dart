@@ -100,6 +100,30 @@ Future<OutletStaff?> findStaffById(
   return _withRole(store, staff, outletId);
 }
 
+/// Staf yang sedang bertugas untuk cek izin di repositori (F1-03f): sama
+/// dengan [findStaffById], tetapi pemilik aktif tanpa keanggotaan cabang
+/// ini tetap bertugas sebagai `owner`, sama dengan [findOwnerByEmail].
+Future<OutletStaff?> findActingStaff(
+  LakunaStore store, {
+  required UuidValue tenantId,
+  required UuidValue outletId,
+  required UuidValue staffId,
+}) async {
+  final staff = await StaffMember.db.findFirstRow(
+    store.session,
+    where: (s) =>
+        s.id.equals(staffId) &
+        s.tenantId.equals(tenantId) &
+        s.isActive.equals(true) &
+        s.deletedAt.equals(null),
+  );
+  if (staff == null) return null;
+  return await _withRole(store, staff, outletId) ??
+      (staff.isOwner
+          ? OutletStaff(staff: staff, roleKey: DefaultRole.owner.key)
+          : null);
+}
+
 /// Pemilik aktif dengan [email] (dipangkas, huruf kecil), atau `null`.
 /// Pemilik boleh masuk di cabang mana pun; role-nya diambil dari
 /// keanggotaan cabang bila ada, selain itu `owner`.

@@ -1,7 +1,7 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
-    show DatabaseSession;
+    show ColumnOrderingOperations, DatabaseSession;
 
 import 'cash.dart';
 import 'customers.dart';

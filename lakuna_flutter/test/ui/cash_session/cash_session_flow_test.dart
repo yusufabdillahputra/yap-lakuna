@@ -403,4 +403,54 @@ void main() {
     await _tap(tester, 'cash-recap-print');
     expect(printer.prints.single.$1.kind, PrinterKind.system);
   });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets(
+      'sesi sebelumnya ${size.width.toInt()} px: ketuk membuka Rekap sesi '
+      '(F1-03f)',
+      (tester) async {
+        final printer = FakeReceiptPrinter();
+        final repo = await pump(
+          tester,
+          size: size,
+          role: 'cashier',
+          printer: printer,
+          receiptSettings: FakeReceiptSettingsRepository(),
+        );
+        // Belum ada sesi tertutup: kartu tidak tampil.
+        expect(find.byKey(const ValueKey('cash-previous-card')), findsNothing);
+        await _type(tester, 'cash-opening-cash', '100000');
+        await _tap(tester, 'cash-open');
+        await _tap(tester, 'cash-start-close');
+        await _type(tester, 'cash-count-50000', '1');
+        await _type(tester, 'cash-closing-note', 'Kurang');
+        await _tap(tester, 'cash-close');
+        await _tap(tester, 'cash-start-new');
+        final id = repo.closedRecaps.single.session.id;
+        expect(
+          find.byKey(const ValueKey('cash-previous-card')),
+          findsOneWidget,
+        );
+        expect(find.text('Sesi sebelumnya'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byKey(ValueKey('cash-previous-$id')),
+            matching: find.textContaining('Selisih − Rp 50.000'),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        await _tap(tester, 'cash-previous-$id');
+        expect(repo.recapRequests, [id]);
+        expect(
+          find.byKey(const ValueKey('reports-recap-dialog')),
+          findsOneWidget,
+        );
+        expect(find.textContaining('Rekap sesi'), findsWidgets);
+        await _tap(tester, 'reports-recap-print');
+        expect(printer.prints, hasLength(1));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }

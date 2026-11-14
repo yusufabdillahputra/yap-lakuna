@@ -9,7 +9,6 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/receipt_settings_repository.dart';
-import '../../data/repositories/reports_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/command.dart';
@@ -19,11 +18,18 @@ import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart' show receiptDate;
 import '../receipt/receipt_paper_view.dart';
 
-/// Dialog *Rekap sesi* di Laporan › Kas & sesi (F1-03e): memuat rekap sesi
-/// tertutup, lalu cetak ulang atau bagikan PDF dengan mesin struk F1-06.
+/// Memuat rekap sesi tertutup: `ReportsRepository.loadSessionRecap`
+/// (Laporan) atau `CashDrawerRepository.loadSessionRecap` (Sesi kasir).
+typedef SessionRecapLoader = Future<Result<ClosedSessionRecap>> Function(
+  UuidValue sessionId,
+);
+
+/// Dialog *Rekap sesi* di Laporan › Kas & sesi (F1-03e) dan layar Sesi
+/// kasir (F1-03f): memuat rekap sesi tertutup, lalu cetak ulang atau
+/// bagikan PDF dengan mesin struk F1-06.
 class SessionRecapDialogViewModel extends ChangeNotifier {
   SessionRecapDialogViewModel({
-    required this._repository,
+    required this._loadRecap,
     required this._sessionId,
     this._receiptSettings,
     this._printer,
@@ -35,7 +41,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
     share = Command1(_share)..addListener(notifyListeners);
   }
 
-  final ReportsRepository _repository;
+  final SessionRecapLoader _loadRecap;
   final UuidValue _sessionId;
 
   /// Kertas, logo, dan printer struk; `null` = tidak bisa dicetak.
@@ -121,7 +127,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
         _printerSelection = value;
       }
     }
-    final result = await _repository.loadSessionRecap(_sessionId);
+    final result = await _loadRecap(_sessionId);
     switch (result) {
       case Ok(:final value):
         _recap = SessionRecap.fromClosed(value);
@@ -205,7 +211,7 @@ class SessionRecapDialogViewModel extends ChangeNotifier {
 /// Membuka dialog *Rekap sesi* untuk sesi tertutup [sessionId] (F1-03e).
 Future<void> showSessionRecapDialog(
   BuildContext context, {
-  required ReportsRepository repository,
+  required SessionRecapLoader loadRecap,
   required UuidValue sessionId,
   required String businessName,
   required String outletName,
@@ -220,7 +226,7 @@ Future<void> showSessionRecapDialog(
     // Builder ini bisa dipanggil ulang (tema, inset); view model dibuat
     // sekali di State dialog.
     builder: (context, style) => _SessionRecapDialog(
-      repository: repository,
+      loadRecap: loadRecap,
       sessionId: sessionId,
       receiptSettings: receiptSettings,
       printer: printer,
@@ -233,7 +239,7 @@ Future<void> showSessionRecapDialog(
 
 class _SessionRecapDialog extends StatefulWidget {
   const _SessionRecapDialog({
-    required this.repository,
+    required this.loadRecap,
     required this.sessionId,
     required this.receiptSettings,
     required this.printer,
@@ -242,7 +248,7 @@ class _SessionRecapDialog extends StatefulWidget {
     required this.timezone,
   });
 
-  final ReportsRepository repository;
+  final SessionRecapLoader loadRecap;
   final UuidValue sessionId;
   final ReceiptSettingsRepository? receiptSettings;
   final ReceiptPrinter? printer;
@@ -256,7 +262,7 @@ class _SessionRecapDialog extends StatefulWidget {
 
 class _SessionRecapDialogState extends State<_SessionRecapDialog> {
   late final _vm = SessionRecapDialogViewModel(
-    repository: widget.repository,
+    loadRecap: widget.loadRecap,
     sessionId: widget.sessionId,
     receiptSettings: widget.receiptSettings,
     printer: widget.printer,

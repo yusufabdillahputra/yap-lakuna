@@ -529,6 +529,172 @@ void main() {
     });
   });
 
+  group('rekap sesi dari layar Sesi kasir (F1-03f)', () {
+    const closer = {Permission.cashSessionClose};
+    late UuidValue otherDeviceId;
+    CashScope otherDevice() => CashScope(
+      tenantId: scope.tenantId,
+      outletId: scope.outletId,
+      deviceId: otherDeviceId,
+    );
+
+    setUp(() async {
+      final other = await store.write(actor: owner(), (w) async {
+        final s = await w.stamp();
+        return w.insert(
+          Device(
+            tenantId: ctx.tenant.id,
+            outletId: ctx.outlet.id,
+            code: 'K02',
+            name: 'Perangkat K02',
+            platform: DevicePlatform.android,
+            createdBy: owner(),
+            updatedBy: owner(),
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      });
+      otherDeviceId = other.id;
+    });
+
+    Future<CashSession> openClose(
+      CashScope at,
+      int opening, {
+      required DateTime openAt,
+      required DateTime closeAt,
+    }) async {
+      now = openAt;
+      final s = await openCashSession(
+        store,
+        at,
+        staffId: owner(),
+        openingCash: Money(opening),
+      );
+      now = closeAt;
+      return closeCashSession(
+        store,
+        at,
+        sessionId: s.id,
+        staffId: owner(),
+        count: CashCount(sheets: {opening: 1}),
+      );
+    }
+
+    test('5 sesi tertutup terakhir perangkat ini, terbaru dulu', () async {
+      final sessions = <CashSession>[];
+      for (var d = 0; d < 6; d++) {
+        sessions.add(
+          await openClose(
+            cash(),
+            50000,
+            openAt: DateTime.utc(2026, 11, 4 + d, 1),
+            closeAt: DateTime.utc(2026, 11, 4 + d, 14),
+          ),
+        );
+      }
+      await openClose(
+        otherDevice(),
+        20000,
+        openAt: DateTime.utc(2026, 11, 10, 2),
+        closeAt: DateTime.utc(2026, 11, 10, 15),
+      );
+      now = DateTime.utc(2026, 11, 11, 1);
+      await openCashSession(
+        store,
+        cash(),
+        staffId: owner(),
+        openingCash: const Money(10000),
+      );
+
+      final list = await listRecentClosedSessions(
+        store,
+        scope,
+        permissions: closer,
+      );
+      expect(list.map((l) => l.id), sessions.reversed.take(5).map((s) => s.id));
+      final first = list.first;
+      // Waktu lokal cabang (WIB).
+      expect(first.openedAt, DateTime.utc(2026, 11, 9, 8));
+      expect(first.closedAt, DateTime.utc(2026, 11, 9, 21));
+      expect(first.staffName, 'Yusuf');
+      expect(first.counted, const Money(50000));
+      expect(first.difference, Money.zero);
+      expect(first.isOpen, isFalse);
+
+      expect(
+        await listRecentClosedSessions(store, scope, permissions: viewOnly),
+        hasLength(5),
+      );
+      await expectLater(
+        listRecentClosedSessions(
+          store,
+          scope,
+          permissions: const {Permission.cashSessionOpen},
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
+    });
+
+    test('cash_session:close: rekap perangkat sendiri saja', () async {
+      final mine = await openClose(
+        cash(),
+        50000,
+        openAt: DateTime.utc(2026, 11, 4, 1),
+        closeAt: DateTime.utc(2026, 11, 4, 14),
+      );
+      final theirs = await openClose(
+        otherDevice(),
+        20000,
+        openAt: DateTime.utc(2026, 11, 4, 2),
+        closeAt: DateTime.utc(2026, 11, 4, 15),
+      );
+      final r = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: closer,
+        sessionId: mine.id,
+      );
+      expect(r.session.id, mine.id);
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          scope,
+          permissions: closer,
+          sessionId: theirs.id,
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
+      // Sesi perangkat lain yang masih buka: tetap ditolak karena izin,
+      // bukan karena status.
+      now = DateTime.utc(2026, 11, 5, 2);
+      final openElsewhere = await openCashSession(
+        store,
+        otherDevice(),
+        staffId: owner(),
+        openingCash: const Money(10000),
+      );
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          scope,
+          permissions: closer,
+          sessionId: openElsewhere.id,
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
+      // Dengan reports:view, sesi perangkat lain tetap boleh (F1-03e).
+      final other = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: viewOnly,
+        sessionId: theirs.id,
+      );
+      expect(other.session.id, theirs.id);
+    });
+  });
+
   test('kas & sesi: sesi kemarin yang belum ditutup tampil hari ini', () async {
     await open(100000); // kemarin
     now = DateTime.utc(2026, 11, 4, 3);

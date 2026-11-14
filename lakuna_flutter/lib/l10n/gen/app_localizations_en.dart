@@ -8549,4 +8549,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String storeSettingsTransferLineTooLong(int count) {
     return 'Each account can be at most $count characters.';
   }
+
+  @override
+  String get cashPreviousTitle => 'Previous sessions';
+
+  @override
+  String get cashPreviousNote =>
+      'Closed sessions on this device. Tap one to reprint its recap.';
+
+  @override
+  String cashPreviousDifference(String staff, String amount) {
+    return '$staff · Difference $amount';
+  }
 }
