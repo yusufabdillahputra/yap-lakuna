@@ -84,7 +84,8 @@ backup tetap kecil.
 | --- | --- | --- | --- |
 | Kecilkan foto produk dan faktur | 1.16, 1.19 | Rilis v0.62.0 | Selesai. |
 | Simpan WebP | Storeku F1-07 | Belum | Butuh encoder WebP; JPEG dipakai. |
-| Kecilkan foto nota pengeluaran / bukti bayar supplier / denah / QRIS | — | Belum | Tetap batas 5 MB. QRIS dan denah sengaja tidak dikecilkan agar kode QR dan garis denah tetap tajam. |
+| Kecilkan foto nota pengeluaran / bukti bayar supplier | — | Rilis v0.63.0 | [F1-15b](2026-11-14-f1-15b-kecilkan-foto-nota-design.md). |
+| Kecilkan denah / QRIS | — | Belum | Tetap batas 5 MB; sengaja tidak dikecilkan agar kode QR dan garis denah tetap tajam. |
 | Buang EXIF dari foto kecil yang tidak dikecilkan | — | Belum | Foto ≤ 512 KB dalam batas sisi disimpan apa adanya. |
 | JPEG/WebP yang tidak didukung paket `image` | — | Belum | JPEG aritmetika / 12-bit dan sebagian varian WebP ditolak bila perlu dikecilkan (> 512 KB atau di atas batas sisi); berkas kecil tetap diterima apa adanya. |
 | Pesan khusus *hasil kecil masih terlalu besar* | — | Belum | Jarang (PNG transparan sudah jatuh ke JPEG); memakai pesan *terlalu besar* / *bukan gambar* yang ada. |

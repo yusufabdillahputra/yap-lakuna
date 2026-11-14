@@ -20,7 +20,8 @@ Many suppliers at once? Tap **Import Excel** and choose an .xlsx or .csv file wi
 1. Choose the supplier. The total payable and unpaid purchases appear, with overdue ones marked.
 2. Enter the **Amount paid**, or tap **Pay in full**.
 3. Choose where it is **Paid from**: store cash, cash drawer (needs an open cash session and today's date), or bank account.
-4. Enter the **Transfer reference** and attach a proof photo if you have one.
+4. Enter the **Transfer reference** and attach a proof photo if you have one
+   (photos up to 20 MB are shrunk to 2,000 px automatically).
 5. Automatic allocation pays the nearest due date first. Tap **Allocate manually** to fill in each purchase yourself.
 6. Tap **Save payment**.
 

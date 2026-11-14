@@ -453,15 +453,18 @@ void main() {
       expect(media.mimeType, 'image/jpeg');
     });
 
-    test('foto bukti di atas 20 MB atau > 50 MP ditolak', () async {
+    test('foto bukti di atas 20 MB, > 50 MP, atau rusak ditolak', () async {
       final s = await supplier('CV Sumber Pangan');
       await buy(s, kg: 10, dueOn: DateTime(2026, 11, 10));
+      final before = await SyncOutboxEntry.db.count(store.session);
       final tooBig = Uint8List(SupplierLimits.proofInputMaxBytes + 1)
         ..setAll(0, pngBytes(400, 300));
       final huge = Uint8List.fromList(
         img.encodePng(img.Image(width: 10000, height: 6000)),
       );
-      for (final bytes in [tooBig, huge]) {
+      final broken = Uint8List(SupplierLimits.proofMaxBytes)
+        ..setAll(0, pngBytes(4000, 3000));
+      for (final bytes in [tooBig, huge, broken]) {
         await expectLater(
           pay(
             s,
@@ -471,6 +474,7 @@ void main() {
           throwsA(isA<SupplierPaymentProofInvalid>()),
         );
       }
+      expect(await SyncOutboxEntry.db.count(store.session), before);
     });
 
     test('retur beli setelah bayar memotong sisa hutang saja', () async {

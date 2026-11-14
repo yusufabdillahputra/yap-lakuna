@@ -65,7 +65,8 @@ Tidak termasuk (gap):
   - Info biru: "Setelah disimpan, sisa hutang ke <nama> Rp X (jatuh tempo
     dd/MM)." Bila kas laci: "Bayar dari kas laci akan tercatat sebagai uang
     keluar di sesi kasir yang sedang buka."
-  - *Lampirkan foto bukti* (PNG/JPG/WebP ≤ 5 MB, kamera di ponsel) dengan
+  - *Lampirkan foto bukti* (PNG/JPG/WebP ≤ 5 MB tersimpan; pilih sampai 20 MB, dikecilkan ke
+    2.000 px sejak v0.63.0 / F1-15b; kamera di ponsel) dengan
     pratinjau kecil dan tombol hapus; *Simpan pembayaran*.
   - Riwayat pembayaran: nomor `BH-…`, tanggal · sumber · no. bukti,
     jumlah, ikon foto bila ada bukti (membuka gambar).

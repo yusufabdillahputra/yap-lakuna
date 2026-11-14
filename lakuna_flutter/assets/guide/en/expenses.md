@@ -11,7 +11,9 @@ Create expense categories in **Master data › Expense categories**, for example
 1. Open **Expenses**, then **Record expense**.
 2. Enter the **Description**, choose the **Expense category**, and enter the **Amount**.
 3. Choose where it is **Paid from**: store cash, cash drawer (open session, today's date only), or bank account.
-4. Set the **Date** and attach a receipt photo if you have one.
+4. Set the **Date** and attach a receipt photo if you have one. Phone
+   camera photos up to 20 MB work as they are; Lakuna shrinks them to
+   2,000 px before saving.
 5. Tap **Save expense**.
 
 ## Voiding

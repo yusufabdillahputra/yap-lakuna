@@ -1,8 +1,8 @@
 # F1-15b — Kecilkan foto nota pengeluaran dan bukti bayar supplier
 
 - **Status:** Rilis v0.63.0
-- **Layar:** 1.21 *Pengeluaran* (form, foto nota), 1.3b *Kas keluar*
-  (catat sebagai pengeluaran + foto nota), 1.20 *Supplier* (bayar hutang,
+- **Layar:** 1.22 *Pengeluaran* (form, foto nota), 1.3b *Kas keluar*
+  (catat sebagai pengeluaran + foto nota), 1.21 *Supplier* (bayar hutang,
   foto bukti).
 - **Acuan:** gap [F1-07l](2026-11-14-f1-07l-kecilkan-foto-design.md)
   *Kecilkan foto nota pengeluaran / bukti bayar supplier*; spec
@@ -31,12 +31,14 @@ foto kamera bisa langsung dipakai dan folder `media/` tetap kecil.
    Gagal dekode, lebih dari 50 MP, atau hasil masih di atas 5 MB ditolak
    dengan pesan lama (`ExpenseReceiptInvalid`,
    `SupplierPaymentProofInvalid`).
-5. **Urutan:** isian dan izin diperiksa dulu, lalu foto dikecilkan, baru
+5. Pratinjau foto di form (56 px) didekode kecil (`cacheWidth`) agar foto
+   kamera 20 MB tidak memakan ratusan MB memori ponsel.
+6. **Urutan:** isian dan izin diperiksa dulu, lalu foto dikecilkan, baru
    transaksi database dimulai. Foto tidak dikecilkan bila isian atau izin
    sudah gagal.
-6. Berlaku juga untuk *Catat sebagai pengeluaran* di kas keluar sesi kasir
+7. Berlaku juga untuk *Catat sebagai pengeluaran* di kas keluar sesi kasir
    (1.3b), yang memakai `recordExpense` yang sama.
-7. Foto lama tidak diubah.
+8. Foto lama tidak diubah.
 
 ## Komponen
 
@@ -61,5 +63,6 @@ foto kamera bisa langsung dipakai dan folder `media/` tetap kecil.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Kecilkan foto nota dan bukti bayar | 1.21, 1.3b, 1.20 | Rilis v0.63.0 | Selesai. |
+| Kecilkan foto nota dan bukti bayar | 1.22, 1.3b, 1.21 | Rilis v0.63.0 | Selesai. |
 | Kecilkan denah / QRIS / logo struk | — | Belum | Sengaja tidak: kode QR, garis denah, dan logo harus tajam. |
+| Pesan khusus foto > 50 MP | — | Belum | Memakai pesan *maksimal 20 MB* / *bukan gambar*. |

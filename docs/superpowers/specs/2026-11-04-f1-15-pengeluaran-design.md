@@ -92,7 +92,8 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
    repositori aplikasi, dan lapisan data untuk semua aksi tulis.
 10. **Data per outlet**: daftar dan ringkasan dibatasi outlet ini; jenis
     dipakai bersama semua cabang.
-11. **Foto nota** ≤ 5 MB, gambar sah (PNG/JPEG/WebP), sama dengan bukti
+11. **Foto nota** ≤ 5 MB tersimpan (pilih sampai 20 MB, dikecilkan ke
+    2.000 px sejak v0.63.0, [F1-15b](2026-11-14-f1-15b-kecilkan-foto-nota-design.md)), gambar sah (PNG/JPEG/WebP), sama dengan bukti
     bayar hutang (F1-14). Foto di rincian bisa dibuka besar dan
     diperbesar; foto hanya dibaca untuk pengeluaran cabang ini.
 
