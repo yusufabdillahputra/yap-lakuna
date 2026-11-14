@@ -479,6 +479,13 @@ Future<Map<UuidValue, List<ReceivableSale>>> _receivables(
   return result;
 }
 
+/// Nota kredit bersisa per pelanggan pada [today] (umur piutang F1-16c).
+Future<Map<UuidValue, List<ReceivableSale>>> openReceivables(
+  DatabaseSession session,
+  UuidValue tenantId,
+  DateTime today,
+) => _receivables(session, tenantId, today);
+
 /// Sisa piutang nota kredit yang lewat jatuh tempo pada [today] dan jumlah
 /// pelanggannya (kartu *Piutang jatuh tempo* F1-16).
 Future<(Money, int)> overdueReceivables(

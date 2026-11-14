@@ -403,16 +403,36 @@ void main() {
       );
       expect(d.title, 'Piutang & hutang · Posisi per 4 November 2026');
       expect(d.rows.map((r) => r.cells.first), [
+        'Umur piutang',
+        'Belum jatuh tempo',
+        'Lewat 1–30 hari',
+        'Lewat 31–60 hari',
+        'Lewat 61–90 hari',
+        'Lewat > 90 hari',
+        'Total',
         'Piutang per pelanggan',
         'Budi',
         'Rina',
+        'Total',
+        'Umur hutang',
+        'Belum jatuh tempo',
+        'Lewat 1–30 hari',
+        'Lewat 31–60 hari',
+        'Lewat 61–90 hari',
+        'Lewat > 90 hari',
         'Total',
         'Hutang per supplier',
         'CV Sumber',
         'Total',
       ]);
-      expect((d.rows[3].cells[4]! as XlsxNumber).value, 200000);
-      expect(d.rows[5].cells[3], '10/11/2026');
+      // Umur piutang: 31–60 hari = Budi, total = 2 nota.
+      expect((d.rows[3].cells[4]! as XlsxNumber).value, 150000);
+      expect(d.rows[6].cells[1], 2);
+      expect((d.rows[6].cells[4]! as XlsxNumber).value, 200000);
+      expect((d.rows[17].cells[4]! as XlsxNumber).value, 120000);
+      expect((d.rows[10].cells[4]! as XlsxNumber).value, 200000);
+      expect(d.rows[19].cells[3], '10/11/2026');
+      expect(d.notes.last, startsWith('Umur dihitung'));
       expect(
         returnRefundLabel(
           id,

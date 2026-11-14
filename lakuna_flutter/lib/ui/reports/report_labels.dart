@@ -122,6 +122,15 @@ String salesGroupLabel(AppLocalizations l10n, SalesGroup g) => switch (g) {
   SalesGroup.category => l10n.reportsGroupCategory,
 };
 
+/// Nama kelompok umur piutang/hutang (F1-16c).
+String agingBucketLabel(AppLocalizations l10n, AgingBucket b) => switch (b) {
+  AgingBucket.notDue => l10n.agingNotDue,
+  AgingBucket.days1To30 => l10n.aging1To30,
+  AgingBucket.days31To60 => l10n.aging31To60,
+  AgingBucket.days61To90 => l10n.aging61To90,
+  AgingBucket.over90 => l10n.agingOver90,
+};
+
 String reportMethodLabel(AppLocalizations l10n, ReportPaymentMethod m) =>
     switch (m) {
       ReportPaymentMethod.cash => paymentMethodLabel(l10n, PaymentMethod.cash),
@@ -515,6 +524,27 @@ ReportTable reportTable(
       );
     case ReportTab.debts:
       final r = debts!;
+      // Bagian umur (F1-16c): kelompok, nota terbuka, sisa.
+      List<ReportRow> agingRows(String heading, Aging aging) => [
+        if (aging.count > 0) ...[
+          ReportRow([heading, null, null, null, null], strong: true),
+          for (final b in AgingBucket.values)
+            ReportRow([
+              agingBucketLabel(l10n, b),
+              aging.countOf(b),
+              null,
+              null,
+              money(aging.amountOf(b)),
+            ], indent: true),
+          ReportRow([
+            l10n.reportsTotal,
+            aging.count,
+            null,
+            null,
+            money(aging.total),
+          ], strong: true),
+        ],
+      ];
       return ReportTable(
         title:
             '${l10n.reportsTabDebts} · '
@@ -530,6 +560,7 @@ ReportTable reportTable(
         widths: const [36, 14, 14, 18, 18],
         flex: const [4, 2, 2, 2, 2],
         rows: [
+          ...agingRows(l10n.reportsAgingReceivable, r.receivableAging),
           ReportRow([
             l10n.reportsDebtCustomers,
             null,
@@ -552,6 +583,7 @@ ReportTable reportTable(
             null,
             money(r.receivable),
           ], strong: true),
+          ...agingRows(l10n.reportsAgingPayable, r.payableAging),
           ReportRow([
             l10n.reportsDebtSuppliers,
             null,
@@ -579,6 +611,7 @@ ReportTable reportTable(
           '${l10n.reportsKpiOverdue}: ${moneyLabel(l10n, r.overdue)} '
               '(${l10n.reportsKpiOverdueNote(r.overdueCustomers)})',
           l10n.reportsDebtNote,
+          l10n.reportsAgingNote,
         ],
       );
     case ReportTab.returns:

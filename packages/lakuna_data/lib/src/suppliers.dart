@@ -199,6 +199,13 @@ Future<Map<UuidValue, List<PayablePurchase>>> _payables(
   return result;
 }
 
+/// Pembelian berhutang per supplier pada [today] (umur hutang F1-16c).
+Future<Map<UuidValue, List<PayablePurchase>>> openPayables(
+  DatabaseSession session,
+  UuidValue tenantId,
+  DateTime today,
+) => _payables(session, tenantId, today);
+
 // --- Supplier -----------------------------------------------------------------
 
 /// Satu baris daftar supplier (1.21).

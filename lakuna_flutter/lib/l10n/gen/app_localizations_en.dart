@@ -8473,4 +8473,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diningBillShareFailed =>
       'Could not create the bill PDF. Try again.';
+
+  @override
+  String get reportsAgingReceivable => 'Receivables aging';
+
+  @override
+  String get reportsAgingPayable => 'Payables aging';
+
+  @override
+  String get reportsColAge => 'Age';
+
+  @override
+  String get agingNotDue => 'Not yet due';
+
+  @override
+  String get aging1To30 => '1–30 days overdue';
+
+  @override
+  String get aging31To60 => '31–60 days overdue';
+
+  @override
+  String get aging61To90 => '61–90 days overdue';
+
+  @override
+  String get agingOver90 => 'Over 90 days overdue';
+
+  @override
+  String get reportsAgingNote =>
+      'Age counts from each document\'s due date to today; documents without a due date count as Not yet due.';
 }

@@ -8236,4 +8236,32 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get diningBillShareFailed => 'PDF tagihan gagal dibuat. Coba lagi.';
+
+  @override
+  String get reportsAgingReceivable => 'Umur piutang';
+
+  @override
+  String get reportsAgingPayable => 'Umur hutang';
+
+  @override
+  String get reportsColAge => 'Umur';
+
+  @override
+  String get agingNotDue => 'Belum jatuh tempo';
+
+  @override
+  String get aging1To30 => 'Lewat 1–30 hari';
+
+  @override
+  String get aging31To60 => 'Lewat 31–60 hari';
+
+  @override
+  String get aging61To90 => 'Lewat 61–90 hari';
+
+  @override
+  String get agingOver90 => 'Lewat > 90 hari';
+
+  @override
+  String get reportsAgingNote =>
+      'Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.';
 }

@@ -129,6 +129,65 @@ DebtPaymentIssue? validateDebtPayment<K>(
 bool isOverdue(DateTime? dueOn, DateTime today) =>
     dueOn != null && dueOn.isBefore(today);
 
+/// Kelompok umur nota bersisa menurut hari lewat jatuh tempo (F1-16c).
+enum AgingBucket {
+  /// Jatuh tempo hari ini atau nanti, atau tanpa jatuh tempo.
+  notDue,
+  days1To30,
+  days31To60,
+  days61To90,
+  over90,
+}
+
+/// Kelompok umur nota dengan jatuh tempo [dueOn] pada [today] (tanggal
+/// kalender; jam diabaikan). Jatuh tempo kemarin = lewat 1 hari.
+AgingBucket agingBucketOf(DateTime? dueOn, DateTime today) {
+  if (dueOn == null) return AgingBucket.notDue;
+  final due = DateTime.utc(dueOn.year, dueOn.month, dueOn.day);
+  final now = DateTime.utc(today.year, today.month, today.day);
+  final days = now.difference(due).inDays;
+  return switch (days) {
+    <= 0 => AgingBucket.notDue,
+    <= 30 => AgingBucket.days1To30,
+    <= 60 => AgingBucket.days31To60,
+    <= 90 => AgingBucket.days61To90,
+    _ => AgingBucket.over90,
+  };
+}
+
+/// Satu nota bersisa untuk [Aging.of].
+typedef AgingDoc = ({DateTime? dueOn, Money outstanding});
+
+/// Ringkasan umur piutang/hutang: nilai sisa dan jumlah nota per kelompok.
+class Aging {
+  const Aging._(this._amounts, this._counts);
+
+  factory Aging.of(Iterable<AgingDoc> docs, DateTime today) {
+    final amounts = {for (final b in AgingBucket.values) b: Money.zero};
+    final counts = {for (final b in AgingBucket.values) b: 0};
+    for (final d in docs) {
+      final b = agingBucketOf(d.dueOn, today);
+      amounts[b] = amounts[b]! + d.outstanding;
+      counts[b] = counts[b]! + 1;
+    }
+    return Aging._(amounts, counts);
+  }
+
+  static const empty = Aging._({}, {});
+
+  final Map<AgingBucket, Money> _amounts;
+  final Map<AgingBucket, int> _counts;
+
+  Money amountOf(AgingBucket bucket) => _amounts[bucket] ?? Money.zero;
+  int countOf(AgingBucket bucket) => _counts[bucket] ?? 0;
+
+  Money get total => Money.sum(AgingBucket.values.map(amountOf));
+  int get count => AgingBucket.values.fold(0, (n, b) => n + countOf(b));
+
+  /// Sisa yang sudah lewat jatuh tempo.
+  Money get overdue => total - amountOf(AgingBucket.notDue);
+}
+
 /// `BP-PST-D01-261103-0007`.
 String debtPaymentNumber(
   String outletCode,

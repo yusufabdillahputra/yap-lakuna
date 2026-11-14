@@ -187,6 +187,21 @@ class FakeReportsRepository extends ReportsRepository {
       overdue: const Money(150000),
       overdueCustomers: 1,
       overduePurchases: 0,
+      // Budi lewat 40 hari, Rina belum jatuh tempo; dua nota beli belum.
+      receivableAging: Aging.of([
+        (
+          dueOn: today.subtract(const Duration(days: 40)),
+          outstanding: const Money(150000),
+        ),
+        (
+          dueOn: today.add(const Duration(days: 3)),
+          outstanding: const Money(50000),
+        ),
+      ], today),
+      payableAging: Aging.of([
+        (dueOn: DateTime.utc(2026, 11, 10), outstanding: const Money(70000)),
+        (dueOn: DateTime.utc(2026, 11, 18), outstanding: const Money(50000)),
+      ], today),
     );
   });
 
