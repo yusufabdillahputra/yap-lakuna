@@ -14,7 +14,7 @@ After tapping **Pay** at the Cashier, choose a payment method.
 ## Other methods
 
 - **Debit / credit card**: charged on a separate EDC terminal. The approval number is optional and is printed on the receipt.
-- **Bank transfer**: check the bank statement first. The transfer reference is optional and is printed on the receipt. If a *Transfer account* is set in [Store settings](store-settings), the account number shows on the button and in the *Transfer to* box; tap **Copy** to copy it and send it to the customer.
+- **Bank transfer**: check the bank statement first. The transfer reference is optional and is printed on the receipt. If a *Transfer account* is set in [Store settings](store-settings), the account number shows on the button and in the *Transfer to* box; tap **Copy** to copy it and send it to the customer. If the store has several accounts, each one shows on its own row with its own **Copy** button, so copy only the bank the customer picked.
 - **Static QRIS**: see [Accepting static QRIS](pay-qris).
 - **Split across methods**: see [Split payment](split-payment).
 - **Credit / receivable**: see [Credit sales](credit-sale).

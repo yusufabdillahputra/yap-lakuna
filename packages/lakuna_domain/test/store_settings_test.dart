@@ -97,6 +97,7 @@ void main() {
         'BCA 1\nMandiri 2',
       );
       expect(normalizeTransferAccounts('   '), '');
+      expect(normalizeTransferAccounts('A\rB\u2028C'), 'A\nB\nC');
       const two = SalesRules(transferAccount: 'BCA 1\nMandiri 2');
       expect(two.transferAccounts, ['BCA 1', 'Mandiri 2']);
       expect(const SalesRules().transferAccounts, isEmpty);

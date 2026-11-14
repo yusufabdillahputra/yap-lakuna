@@ -7,6 +7,62 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.86.0] - 2026-11-14
+
+Toko dengan beberapa rekening bank kini bisa menuliskannya terpisah, satu
+rekening per baris, dan kasir menyalin rekening bank yang dipilih pembeli
+saja.
+
+### Ditambahkan
+
+- **Pengaturan (1.26) › Penjualan & stok:** isian *Rekening transfer*
+  menjadi beberapa baris: satu rekening per baris, maksimal 3 rekening,
+  tiap baris maksimal 100 karakter. Lebih dari 3 rekening menampilkan
+  *Maksimal 3 rekening.*, baris terlalu panjang menampilkan *Satu rekening
+  maksimal 100 karakter.*, dan *Simpan* nonaktif sampai diperbaiki. Baris
+  kosong dan spasi di ujung baris dibuang saat disimpan.
+- **Pembayaran (1.5):** kotak *Transfer ke* (panel transfer dan baris
+  transfer *Bagi beberapa metode*) menampilkan satu baris per rekening,
+  masing-masing dengan tombol *Salin* sendiri; hanya tombol yang terakhir
+  ditekan yang berubah menjadi *Disalin*. Tombol metode *Transfer bank* di
+  layar lebar menampilkan semua rekening dipisah ` · `.
+- **Struk (1.12) dan kuitansi (1.20b):** nota piutang, tagihan pre-bill,
+  dan kuitansi thermal mencetak satu baris *Transfer ke: …* per rekening;
+  isian *Transfer sisa ke* di kuitansi A5 memuat semua rekening, satu per
+  baris.
+- Panduan *Pengaturan toko* dan *Bayar* menjelaskan beberapa rekening
+  (ID + EN).
+
+### Diubah
+
+- Baris baru di rekening transfer kini memisahkan rekening. Sebelumnya
+  baris baru dianggap spasi dan semua teks dicetak dalam satu baris
+  *Transfer ke*.
+- Rekening tersimpan yang rusak (lebih dari 3 baris atau baris lebih dari
+  100 karakter) dirapikan saat dimuat, agar simpan ulang aturan lain tidak
+  gagal. Data lama satu baris terbaca sebagai satu rekening tanpa
+  perubahan.
+
+### Catatan teknis
+
+- `lakuna_domain`: `ProfileLimits.transferAccountLines = 3`,
+  `normalizeTransferAccounts`, `transferAccountIssue` →
+  `TransferAccountIssue.tooMany` / `tooLong`, `SalesRules.transferAccounts`.
+  Kunci JSON tetap `transferAccount` (baris dipisah `\n`), jadi cadangan
+  lama tetap cocok.
+- `lakuna_data`: `saveSalesRules` merapikan baris dan melempar
+  `SalesRulesInvalid` untuk galat per baris; `ReceiptConfig.transferAccounts`.
+- Flutter: `StoreSettingsViewModel.transferAccountIssue` / `canSaveRules`;
+  `CashierViewModel.transferAccounts`; `TransferAccountBox(accounts:)`
+  dengan tombol `payment-transfer-copy-<i>`; `receiptTransferLines`
+  menggantikan `receiptTransferLine`.
+- Tes domain, data, VM dan widget pengaturan, layar bayar 1280/360 px,
+  *Bagi beberapa metode*, struk piutang, pre-bill, dan kuitansi.
+- Cadangan dari versi ini yang dipulihkan di aplikasi versi lama
+  menampilkan rekening dalam satu isian bergaris baru; struk versi lama
+  tetap mencetaknya sebagai satu baris.
+- Gap F1-05c *Beberapa rekening terpisah (pilih bank)* ditutup.
+
 ## [0.85.0] - 2026-11-14
 
 Templat import produk, pelanggan, dan supplier kini tersedia dalam bahasa
@@ -5647,7 +5703,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...HEAD
+[0.86.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...v0.86.0
 [0.85.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...v0.85.0
 [0.84.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...v0.84.0
 [0.83.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...v0.83.0

@@ -206,6 +206,8 @@ void main() {
       tester.widget<FButton>(_key('store-rules-save')).onPress,
       isNull,
     );
+    await _type(tester, 'store-rules-transfer', 'BCA 1\n${'x' * 101}');
+    expect(find.text('Satu rekening maksimal 100 karakter.'), findsOneWidget);
     await _type(tester, 'store-rules-transfer', 'BCA 1\nMandiri 2');
     expect(find.text('Maksimal 3 rekening.'), findsNothing);
     await _tap(tester, 'store-rules-save');

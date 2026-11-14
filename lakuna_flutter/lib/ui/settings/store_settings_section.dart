@@ -249,7 +249,9 @@ class StoreSettingsSection extends StatelessWidget {
             hint: l10n.storeSettingsTransferAccountExample(vm.businessName),
             // Satu rekening per baris (F1-05f); batas per baris dicek VM.
             minLines: 1,
-            maxLines: ProfileLimits.transferAccountLines,
+            // Rekening panjang terbungkus di ponsel: beri ruang 2 baris
+            // layar per rekening.
+            maxLines: ProfileLimits.transferAccountLines * 2,
             keyboardType: TextInputType.multiline,
             enabled: !busy,
             error: switch (vm.transferAccountIssue) {

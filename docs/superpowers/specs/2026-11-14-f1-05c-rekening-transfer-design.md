@@ -75,4 +75,4 @@ bayar, siap disalin.
 | Pindah ke halaman *Metode pembayaran* | 1.26 | Belum | Halaman itu kini khusus QRIS statis; pindahkan bila metode lain ikut diatur di sana. |
 | Rekening transfer di struk | 1.12, 1.20b | Rilis v0.79.0 | [F1-05e](2026-11-14-f1-05e-rekening-di-struk-design.md): struk nota piutang dan kuitansi yang masih menyisakan piutang. |
 | Rekening di baris transfer *Bagi metode* | 1.5 | Rilis v0.76.0 | [F1-05d](2026-11-14-f1-05d-rekening-split-payment-design.md): kotak *Transfer ke* saat metode transfer dipilih. |
-| Beberapa rekening terpisah (pilih bank) | — | Belum | Sekarang satu baris teks bebas, mis. `BCA 123 · Mandiri 456`. |
+| Beberapa rekening terpisah (pilih bank) | 1.5, 1.26 | Rilis v0.86.0 | [F1-05f](2026-11-14-f1-05f-beberapa-rekening-transfer-design.md): satu rekening per baris (maks 3), salin per rekening. |

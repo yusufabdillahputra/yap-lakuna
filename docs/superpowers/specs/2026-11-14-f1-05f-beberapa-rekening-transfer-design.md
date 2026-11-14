@@ -1,7 +1,7 @@
 # F1-05f · Beberapa rekening transfer
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.86.0)
+- **Status:** Rilis v0.86.0
 - **Layar:** 1.26 Pengaturan (*Penjualan & stok*), 1.5 Pembayaran (panel
   transfer dan *Bagi beberapa metode*), 1.12 struk, 1.20b kuitansi.
 - **Acuan:** gap [F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)
@@ -25,7 +25,8 @@ baris: kasir bisa menyalin rekening bank yang dipilih pembeli saja.
    panjang menampilkan galat di bawah isian dan tombol *Simpan* nonaktif.
    Data lama (satu baris) tetap terbaca sebagai satu rekening.
 2. **Tombol metode *Transfer bank*** (layar lebar): keterangan kecil berisi
-   semua rekening dipisah ` · ` (dipotong elipsis bila panjang).
+   semua rekening dipisah ` · ` (dipotong elipsis bila panjang; hanya
+   petunjuk, rekening utuh ada di kotak *Transfer ke*).
 3. **Kotak *Transfer ke*** (panel transfer dan baris transfer *Bagi
    beberapa metode*): satu baris per rekening, masing-masing dengan tombol
    *Salin* sendiri. Tombol yang ditekan berubah menjadi *Disalin*; tombol
@@ -91,5 +92,5 @@ baris: kasir bisa menyalin rekening bank yang dipilih pembeli saja.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Beberapa rekening transfer, salin per rekening | 1.5, 1.26 | Dalam pengerjaan | Maks 3 rekening, satu per baris. |
+| Beberapa rekening transfer, salin per rekening | 1.5, 1.26 | Rilis v0.86.0 | Maks 3 rekening, satu per baris. |
 | Catat rekening tujuan per pembayaran | — | Belum | Untuk rekonsiliasi mutasi per bank bila dibutuhkan. |

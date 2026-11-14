@@ -144,8 +144,11 @@ abstract final class ProfileLimits {
   static const transferAccountLines = 3;
 }
 
+/// Pemisah baris: `\r\n`, `\r`, `\n`, atau U+2028 dari teks yang ditempel.
+final _lineBreak = RegExp('\r\n?|\n|\u2028');
+
 List<String> _accountLines(String text) => [
-  for (final line in text.split('\n'))
+  for (final line in text.split(_lineBreak))
     if (line.trim() case final t when t.isNotEmpty) t,
 ];
 
