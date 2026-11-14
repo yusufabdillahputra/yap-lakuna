@@ -8,6 +8,8 @@ The **Customers** menu keeps customer details, credit limits, and receivables pe
 2. Enter the name, phone number, group, **Credit limit** (0 means no credit purchases), address, and note.
 3. Tap **Save**.
 
+To find a customer, type a name or phone number in the search field. The phone number can be in any format, for example `0812-3456`, `+62 812 3456`, or a part from the middle (at least 3 digits). The same rule applies when choosing a customer in Cashier, table bills, and *Credit*.
+
 Many customers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns Name, Phone, Address, Group, Limit, Note. No file yet? Tap **Download template** in the same dialog, fill in the rows under the headers, then import. The two sample rows ("Contoh …") are skipped automatically.
 
 ## Customer groups

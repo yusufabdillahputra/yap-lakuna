@@ -8,6 +8,8 @@ Menu **Pelanggan** menyimpan data pelanggan, limit kredit, dan piutang per nota,
 2. Isi nama, no. HP, grup, **Limit kredit** (0 berarti tidak boleh belanja kredit), alamat, dan catatan.
 3. Tekan **Simpan**.
 
+Untuk mencari pelanggan, ketik nama atau nomor HP di kolom cari. Nomor HP boleh ditulis dengan format apa pun, misalnya `0812-3456`, `+62 812 3456`, atau potongan di tengah (minimal 3 angka). Aturan yang sama berlaku saat memilih pelanggan di Kasir, bill Meja, dan *Kredit*.
+
 Banyak pelanggan sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .csv dengan kolom Nama, HP, Alamat, Grup, Limit, Catatan. Belum punya berkasnya? Tekan **Unduh templat** di dialog yang sama, isi baris di bawah judul, lalu import. Dua baris contoh ("Contoh …") otomatis dilewati saat import.
 
 ## Grup pelanggan

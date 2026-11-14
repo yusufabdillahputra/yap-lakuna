@@ -57,6 +57,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.74.0 | Rekening transfer di layar bayar (F1-05c) | #80 |
 | v0.75.0 | Backup otomatis harian desktop (F1-19d) | #81 |
 | v0.76.0 | Rekening transfer di Bagi beberapa metode (F1-05d) | #82 |
+| v0.77.0 | Cari nomor HP dengan format apa pun (F1-13d) | #83 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -118,6 +119,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     backup otomatis di ponsel dan backup otomatis terkunci masih gap.
 21. ~~Rekening transfer di Bagi beberapa metode~~ — selesai v0.76.0
     (F1-05d); rekening di struk dan beberapa rekening masih gap.
+22. ~~Cari HP dengan format lain (+62, tanda hubung)~~ — selesai v0.77.0
+    (F1-13d).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

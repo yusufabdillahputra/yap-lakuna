@@ -11,4 +11,4 @@ Spec: [F1-05d](../specs/2026-11-14-f1-05d-rekening-split-payment-design.md)
       metode* sisa Rp 0 dan kotak hilang; pembayaran selesai.
 - [x] **Dokumen**: spec F1-05c, README, STATUS-JEDA, panduan split payment,
       CHANGELOG 0.76.0, versi 0.76.0+79.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #82 di-merge (13 cek hijau).

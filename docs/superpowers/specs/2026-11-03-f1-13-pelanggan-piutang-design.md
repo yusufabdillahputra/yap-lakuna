@@ -214,6 +214,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Kuitansi A5 & thermal | 1.20b | Rilis v0.17.0 | Terbilang selalu Bahasa Indonesia (dokumen hukum); kota bawaan = bagian terakhir alamat cabang. |
 | Kredit *Tutup & bayar* open bill F&B | 1.5b | Rilis v0.30.0 | Lihat [F1-13b](2026-11-04-f1-13b-kredit-open-bill-design.md). |
 | Kredit bagian split bill F&B | 1.5b | Belum | Butuh pelanggan per bagian tamu. |
+| Cari HP format apa pun (+62, tanda hubung, spasi) | 1.20, 1.4b, 1.5b | Rilis v0.77.0 | [F1-13d](2026-11-14-f1-13d-cari-hp-format-design.md) |
 | Pilih pelanggan di kepala pesanan | 1.4b | Rilis v0.29.0 | [F1-04d](2026-11-04-f1-04d-pelanggan-nota-tersimpan-design.md) |
 | Harga grosir per grup pelanggan | 1.4b | Rilis v0.34.0 | [F1-07c](2026-11-13-f1-07c-grosir-grup-pelanggan-design.md). |
 | Persetujuan PIN melewati limit | Teks peringatan 1.5b | Limit dikunci | Pakai dialog persetujuan F1-11. |

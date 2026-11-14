@@ -1176,11 +1176,13 @@ void main() {
       int limit = 0,
       int debt = 0,
       int term = 14,
+      String? phone,
     }) => CustomerRow(
       customer: Customer(
         id: UuidValue.fromString(newId()),
         tenantId: UuidValue.fromString(newId()),
         name: name,
+        phone: phone,
         creditLimit: limit,
         createdAt: DateTime.utc(2026, 11, 1),
         hlc: '',
@@ -1196,7 +1198,12 @@ void main() {
     late CustomerRow darto;
 
     setUp(() {
-      ani = row('Toko Bu Ani', limit: 200000, debt: 100000);
+      ani = row(
+        'Toko Bu Ani',
+        limit: 200000,
+        debt: 100000,
+        phone: '081322221010',
+      );
       darto = row('Pak Darto');
       repo.creditRows = [darto, ani];
     });
@@ -1208,6 +1215,12 @@ void main() {
       vm.setMode(PayMode.credit);
       await Future<void>.delayed(Duration.zero);
       expect(vm.creditCandidates.first.customer.name, 'Toko Bu Ani');
+      // HP format lain (F1-13d).
+      vm.setCreditQuery('+62 813-2222');
+      expect(vm.creditCandidates.single.customer.name, 'Toko Bu Ani');
+      vm.setCreditQuery('0813 2222');
+      expect(vm.creditCandidates.single.customer.name, 'Toko Bu Ani');
+      vm.setCreditQuery('');
       expect(vm.canPay, isFalse);
       vm.selectCreditCustomer(ani.customer.id);
       expect(vm.creditDue, DateTime.utc(2026, 11, 17));
@@ -1285,6 +1298,11 @@ void main() {
       expect(vm.customerCandidates.single.customer.name, 'Ani Lestari');
       vm.setCustomerQuery('0813');
       expect(vm.customerCandidates, hasLength(2));
+      // HP format lain (F1-13d).
+      vm.setCustomerQuery('+62 813-2222');
+      expect(vm.customerCandidates, hasLength(2));
+      vm.setCustomerQuery('08'); // terlalu pendek untuk HP
+      expect(vm.customerCandidates, isEmpty);
       vm.selectCustomer(budi);
       expect(vm.customer?.name, 'Pak Budi');
       vm
