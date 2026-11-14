@@ -11,7 +11,9 @@ import 'purchase_labels.dart' show formatCalendarDate;
 
 /// Isi PDF *Cetak / bagikan PDF* pembelian [d] (F1-12c): barang, ringkasan
 /// bayar, retur, dan catatan. Baris ringkasan bernilai nol yang opsional
-/// (diskon, ongkir, bayar hutang, retur) tidak dicetak.
+/// (diskon, ongkir, bayar hutang, retur) tidak dicetak. Ringkasan tertutup
+/// secara hitungan: Total − Dibayar di muka − Bayar hutang − Retur memotong
+/// hutang = Sisa hutang; uang kembali dari retur dicatat di bawah tabel.
 ReportTable purchasePrintTable(
   AppLocalizations l10n,
   PurchaseDetail d, {
@@ -31,7 +33,8 @@ ReportTable purchasePrintTable(
       if (p.invoiceNo case final no?) l10n.purchasePrintInvoiceNo(no),
       formatCalendarDate(p.purchasedOn),
       d.locationName,
-      '${d.staffName} · ${d.deviceCode}',
+      if (d.staffName.trim().isNotEmpty) d.staffName,
+      d.deviceCode,
     ].join(' · '),
     headers: [
       l10n.purchaseColProduct,
@@ -53,20 +56,21 @@ ReportTable purchasePrintTable(
           [
             '${qtyLabel(l10n, Qty(item.quantityMilli))} ${item.unitName}',
             if (item.factorMilli != 1000)
-              '(${qtyLabel(l10n, Qty(item.factorMilli))} '
+              '(@ ${qtyLabel(l10n, Qty(item.factorMilli))} '
                   '${d.baseUnits[item.variantId] ?? ''})',
           ].join(' '),
           money(Money(item.unitPrice)),
           money(Money(item.lineTotal)),
         ]),
       sum(l10n.purchaseSubtotal, Money(p.subtotal)),
-      if (p.discount > 0) sum(l10n.purchaseDiscount, Money(-p.discount)),
+      if (p.discount > 0) sum(l10n.purchaseDiscount, Money(p.discount)),
       if (p.shipping > 0) sum(l10n.purchaseShipping, Money(p.shipping)),
       sum(l10n.purchaseTotal, Money(p.total), strong: true),
       sum(l10n.purchasePrintPaidUpfront, Money(p.paidAmount)),
       if (d.debtPayments.isNotEmpty)
         sum(l10n.purchasePrintDebtPaid, d.debtPaid),
-      if (d.returns.isNotEmpty) sum(l10n.purchaseReturned, d.returnedAmount),
+      if (d.debtReduction.value > 0)
+        sum(l10n.purchasePrintReturnDebt, d.debtReduction),
       sum(l10n.purchaseDebt, d.debt, strong: true),
     ],
     notes: [
@@ -80,6 +84,8 @@ ReportTable purchasePrintTable(
           formatCalendarDate(outletLocalTime(r.returnedAt, timezone)),
           moneyLabel(l10n, Money(r.amount)),
         ),
+      if (d.refunded.value > 0)
+        l10n.purchasePrintRefund(moneyLabel(l10n, d.refunded)),
       l10n.purchasePrintPrinted(
         '${formatLongDate(l10n, local)} ${formatClock(printedAt, timezone)}',
         staff,

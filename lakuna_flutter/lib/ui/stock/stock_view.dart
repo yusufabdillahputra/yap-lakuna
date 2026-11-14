@@ -1493,6 +1493,11 @@ class _StockCardPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
         children: [
+          if (vm.cardFocusMissing)
+            FAlert(
+              key: const ValueKey('stock-card-focus-missing'),
+              title: Text(l10n.stockCardFocusMissing),
+            ),
           if (vm.rows.isEmpty)
             Text(l10n.stockEmpty, style: _muted(context))
           else

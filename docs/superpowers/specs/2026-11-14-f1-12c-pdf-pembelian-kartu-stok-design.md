@@ -1,7 +1,7 @@
 # F1-12c · Cetak/bagikan PDF pembelian dan tautan kartu stok
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.51.0)
+- **Status:** Rilis v0.51.0
 - **Layar:** 1.19b detail pembelian (kartu *Tindakan*: *Cetak / bagikan
   PDF*; nama produk di *Barang diterima* membuka kartu stok) → 1.18 Stok
   tab *Kartu stok*.
@@ -27,14 +27,17 @@ mencari produk lagi di layar Stok.
 2. **Isi PDF** (A4 tegak, `reportPdf`):
    - Judul *Pembelian PB-…*; subjudul *Supplier · No. faktur · tanggal ·
      lokasi · staf · perangkat*.
-   - Tabel: Produk (nama + varian, SKU), Qty (dengan satuan), Harga beli,
-     Subtotal.
-   - Baris ringkasan tebal: Subtotal, Diskon faktur (bila ada), Ongkos
-     kirim (bila ada), Total, Dibayar di muka, Bayar hutang (bila ada),
-     Diretur (bila ada), Sisa hutang.
+   - Tabel: Produk (nama + varian, SKU), Qty (dengan satuan; satuan beli
+     berisi ditulis `4 dus (@ 6 btl)`), Harga beli, Subtotal.
+   - Baris ringkasan, tertutup secara hitungan (Total − Dibayar di muka −
+     Bayar hutang − Retur memotong hutang = Sisa hutang): Subtotal, Diskon
+     faktur (bila ada, positif seperti di layar), Ongkos kirim (bila ada),
+     **Total**, Dibayar di muka, Bayar hutang (bila ada), Retur memotong
+     hutang (bila ada), **Sisa hutang**.
    - Catatan: jatuh tempo (bila masih berhutang), catatan pembelian, daftar
-     retur (`RB-… · tanggal · −Rp`), dan "Dicetak <tanggal jam> oleh
-     <staf>".
+     retur (`Retur RB-… · tanggal · Rp…`), *Uang kembali dari retur: Rp…*
+     (bila ada retur yang dibayar tunai oleh supplier), dan "Dicetak
+     <tanggal jam> oleh <staf>". Nama staf kosong dilewati di subjudul.
    - Nama berkas `pembelian-<nomor huruf kecil>.pdf` (mis.
      `pembelian-pb-pst-k01-261114-0001.pdf`); mencetak ulang menimpa
      berkas lama (isi selalu yang terbaru).
@@ -45,12 +48,16 @@ mencari produk lagi di layar Stok.
    Stok). Barang yang tidak melacak stok (jasa) tidak bertautan.
 4. Layar Stok menerima `?tab=card&varian=<id>&lokasi=<id>`; varian atau
    lokasi yang tidak ada lagi jatuh ke perilaku bawaan (lokasi bawaan,
-   varian pertama di bawah minimum).
+   varian pertama di bawah minimum) dan kartu stok menampilkan pemberitahuan
+   *Produk atau lokasi dari tautan tidak ditemukan lagi* sampai staf memilih
+   produk atau lokasi sendiri.
+5. Pesan *PDF tersimpan* / *gagal* hilang setiap detail dimuat ulang (isi
+   pembelian bisa berubah); tombol cetak mati selama detail dimuat.
 
 ## Komponen
 
 - `lib/ui/purchases/purchase_print.dart`: `purchasePrintTable(l10n, detail,
-  {staff, printedAt, timezone, money})` → `ReportTable`;
+  {staff, printedAt, timezone})` → `ReportTable`;
   `purchasePrintFileName(number)`.
 - `PurchaseDetailViewModel(exporter:)`: `printPdf` (`Command1<String?,
   (Future<Uint8List> Function(), String)>`), `printPath`.
@@ -64,8 +71,8 @@ mencari produk lagi di layar Stok.
 - Tabel cetak: kolom, baris ringkasan, retur dan bayar hutang, catatan
   jatuh tempo, nama berkas.
 - VM detail: cetak menyimpan lewat exporter (path), galat → `printPdf.error`.
-- VM stok: `focusCard` sebelum muat memilih lokasi dan varian; varian tak
-  dikenal jatuh ke bawaan.
+- VM stok: `focusCard` sebelum muat memilih lokasi dan varian; varian atau
+  lokasi tak dikenal jatuh ke bawaan dengan `cardFocusMissing`.
 - Widget: tombol cetak + pesan tersimpan (1440 px dan 360 px), tautan kartu
   stok membuka tab *Kartu stok* produk itu; tanpa izin stok tidak ada
   tautan.
@@ -76,7 +83,7 @@ mencari produk lagi di layar Stok.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Cetak/bagikan PDF pembelian | Tombol di 1.19b | Dalam pengerjaan | — |
-| Tautan kartu stok dari detail pembelian | Tombol di 1.19b | Dalam pengerjaan | — |
+| Cetak/bagikan PDF pembelian | Tombol di 1.19b | Rilis v0.51.0 | — |
+| Tautan kartu stok dari detail pembelian | Tombol di 1.19b | Rilis v0.51.0 | Nama produk = tautan. |
 | PDF retur pembelian (RB-) tersendiri | — | Belum | Retur tercantum di PDF pembelian asal. |
 | Kirim langsung ke WhatsApp supplier | — | Belum | Lembar bagikan sistem sudah menawarkan WhatsApp di ponsel. |

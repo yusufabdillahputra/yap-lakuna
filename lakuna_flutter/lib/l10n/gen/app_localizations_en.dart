@@ -7977,11 +7977,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchasePrintPaidUpfront => 'Paid upfront';
 
   @override
-  String get purchasePrintDebtPaid => 'Payable payments';
+  String get purchasePrintDebtPaid => 'Debt payments';
 
   @override
   String purchasePrintDue(String date) {
-    return 'Balance due on: $date';
+    return 'Balance due $date';
   }
 
   @override
@@ -8003,4 +8003,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseStockCard(String product) {
     return 'Open the stock card for $product';
   }
+
+  @override
+  String get purchasePrintReturnDebt => 'Returns deducted from payable';
+
+  @override
+  String purchasePrintRefund(String amount) {
+    return 'Refund received from returns: $amount';
+  }
+
+  @override
+  String get stockCardFocusMissing =>
+      'The linked product or location no longer exists. Showing the default stock card.';
 }

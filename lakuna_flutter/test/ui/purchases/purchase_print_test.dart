@@ -59,6 +59,7 @@ void main() {
     List<PurchaseDebtPaymentLine> debtPayments = const [],
     int discount = 0,
     int shipping = 4000,
+    String staffName = 'Yusuf',
   }) => PurchaseDetail(
     purchase: Purchase(
       tenantId: tenant,
@@ -92,7 +93,7 @@ void main() {
       ),
     ],
     supplier: Supplier(tenantId: tenant, name: 'CV Sumber Pangan', hlc: ''),
-    staffName: 'Yusuf',
+    staffName: staffName,
     deviceCode: 'K01',
     locationName: 'Gudang',
     returns: returns,
@@ -129,7 +130,7 @@ void main() {
     ]);
     expect(t.rows[1].cells, [
       'Minyak Goreng 2 L',
-      '4 dus (6 btl)',
+      '4 dus (@ 6 btl)',
       const XlsxNumber(185000),
       const XlsxNumber(740000),
     ]);
@@ -169,6 +170,19 @@ void main() {
             refundAmount: 0,
             hlc: '',
           ),
+          PurchaseReturn(
+            tenantId: tenant,
+            outletId: _id(),
+            deviceId: _id(),
+            purchaseId: _id(),
+            staffId: _id(),
+            number: 'RB-PST-K01-261116-0001',
+            returnedAt: DateTime.utc(2026, 11, 16, 3),
+            amount: 50000,
+            debtReduction: 0,
+            refundAmount: 50000,
+            hlc: '',
+          ),
         ],
         debtPayments: [
           PurchaseDebtPaymentLine(
@@ -188,18 +202,60 @@ void main() {
       'Total',
       'Dibayar di muka',
       'Bayar hutang',
-      'Diretur',
+      'Retur memotong hutang',
       'Sisa hutang',
     ]);
-    // 880.000 − 100.000 − 200.000 − 145.000.
+    // Ringkasan tertutup: 880.000 − 100.000 − 200.000 − 145.000. Retur
+    // yang dibayar tunai (uang kembali) tidak memotong hutang.
     expect(t.rows.last.cells.last, const XlsxNumber(435000));
-    expect(t.rows[3].cells.last, const XlsxNumber(-5000));
+    expect(t.rows[7].cells.last, const XlsxNumber(145000));
+    // Diskon dicetak positif seperti di layar.
+    expect(t.rows[3].cells.last, const XlsxNumber(5000));
     expect(t.notes, [
       'Jatuh tempo sisa hutang: 28/11/2026',
       'Catatan: Barang datang sore',
       'Retur RB-PST-K01-261115-0001 · 15/11/2026 · Rp 145.000',
+      'Retur RB-PST-K01-261116-0001 · 16/11/2026 · Rp 50.000',
+      'Uang kembali dari retur: Rp 50.000',
       'Dicetak 14 November 2026 09.30 oleh Rina',
     ]);
+  });
+
+  test('retur seluruhnya uang kembali: tanpa baris potong hutang', () {
+    final t = table(
+      detail(
+        paid: 889000,
+        staffName: '',
+        returns: [
+          PurchaseReturn(
+            tenantId: tenant,
+            outletId: _id(),
+            deviceId: _id(),
+            purchaseId: _id(),
+            staffId: _id(),
+            number: 'RB-PST-K01-261115-0001',
+            returnedAt: DateTime.utc(2026, 11, 15, 3),
+            amount: 145000,
+            debtReduction: 0,
+            refundAmount: 145000,
+            hlc: '',
+          ),
+        ],
+      ),
+    );
+    // Nama staf kosong tidak meninggalkan pemisah menggantung.
+    expect(t.subtitle, endsWith('· Gudang · K01'));
+    expect(
+      [for (final r in t.rows.skip(2)) r.cells.first],
+      [
+        'Subtotal',
+        'Ongkos kirim',
+        'Total',
+        'Dibayar di muka',
+        'Sisa hutang',
+      ],
+    );
+    expect(t.notes, contains('Uang kembali dari retur: Rp 145.000'));
   });
 
   test('bahasa Inggris dan nama berkas', () {
@@ -261,6 +317,21 @@ void main() {
       ));
       expect(vm.printPdf.error, isTrue);
       expect(vm.printPath, isNull);
+    });
+
+    test('muat ulang menghapus pesan cetak lama', () async {
+      await vm.printPdf.execute((
+        () async => Uint8List.fromList([1]),
+        'a.pdf',
+      ));
+      expect(vm.printPath, isNotNull);
+      final reload = vm.load.execute();
+      // Selama memuat ulang tombol cetak mati.
+      expect(vm.canPrint, isFalse);
+      await reload;
+      expect(vm.printPdf.completed, isFalse);
+      expect(vm.printPath, isNull);
+      expect(vm.canPrint, isTrue);
     });
   });
 }

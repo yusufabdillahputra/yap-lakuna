@@ -13681,6 +13681,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Buka kartu stok {product}'**
   String purchaseStockCard(String product);
+
+  /// No description provided for @purchasePrintReturnDebt.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur memotong hutang'**
+  String get purchasePrintReturnDebt;
+
+  /// No description provided for @purchasePrintRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali dari retur: {amount}'**
+  String purchasePrintRefund(String amount);
+
+  /// No description provided for @stockCardFocusMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.'**
+  String get stockCardFocusMissing;
 }
 
 class _AppLocalizationsDelegate

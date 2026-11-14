@@ -89,7 +89,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   /// Lokasi PDF terakhir yang tersimpan (desktop).
   String? get printPath => _printPath;
 
-  bool get canPrint => _detail != null && !printPdf.running;
+  bool get canPrint => _detail != null && !load.running && !printPdf.running;
 
   Future<Result<String?>> _printPdf(
     (Future<Uint8List> Function(), String) file,
@@ -191,6 +191,9 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _fetch() async {
+    // Isi pembelian bisa berubah: pesan PDF lama tidak berlaku lagi.
+    printPdf.clearResult();
+    _printPath = null;
     final result = await _repository.detail(purchaseId);
     switch (result) {
       case Ok(:final value):

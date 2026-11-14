@@ -7816,4 +7816,16 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseStockCard(String product) {
     return 'Buka kartu stok $product';
   }
+
+  @override
+  String get purchasePrintReturnDebt => 'Retur memotong hutang';
+
+  @override
+  String purchasePrintRefund(String amount) {
+    return 'Uang kembali dari retur: $amount';
+  }
+
+  @override
+  String get stockCardFocusMissing =>
+      'Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.';
 }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart' show StockRow;
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -14,6 +15,7 @@ import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_purchases_repository.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_spreadsheet_exporter.dart';
+import '../../testing/fake_stock_repository.dart';
 import '../../testing/floor_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -56,8 +58,30 @@ void main() {
     WidgetTester tester,
     Size size, {
     FakeSessionRepository? session,
+    bool stockHasKop = true,
   }) async {
     repo = FakePurchasesRepository();
+    // Layar Stok memakai lokasi dan produk yang sama dengan pembelian.
+    final kop = repo.products.firstWhere(
+      (p) => p.variants.any((v) => v.sku == 'KOP'),
+    );
+    final stock = FakeStockRepository(
+      locations: repo.locations,
+      rows: [
+        if (stockHasKop)
+          StockRow(
+            variantId: kop.variants.single.id,
+            productId: kop.id,
+            productName: kop.name,
+            variantName: '',
+            baseUnit: kop.baseUnit,
+            stock: Qty.units(1),
+            minStock: Qty.zero,
+            unitCost: const Money(1500),
+          ),
+        ...sampleStockRows(),
+      ],
+    );
     picker = FakeImagePicker();
     exporter = FakeSpreadsheetExporter()
       ..path = '/home/kasir/Dokumen/Lakuna/pembelian.pdf';
@@ -69,8 +93,14 @@ void main() {
       imagePicker: picker,
       exporter: exporter,
       session: session,
+      stock: stock,
     );
   }
+
+  UuidValue kopVariant() => repo.products
+      .expand((p) => p.variants)
+      .firstWhere((v) => v.sku == 'KOP')
+      .id;
 
   /// Terima pembelian KOP lunas, lalu halaman detail terbuka.
   Future<void> receiveKop(WidgetTester tester, {bool narrow = false}) async {
@@ -302,6 +332,10 @@ void main() {
 
     await _tap(tester, _keyPrefix('purchase-stock-card-'));
     expect(_key('stock-card'), findsOneWidget);
+    // Kartu stok produk yang dibeli, di lokasi terima pembelian.
+    expect(_key('stock-card-product-${kopVariant().uuid}'), findsOneWidget);
+    expect(_key('stock-card-focus-missing'), findsNothing);
+    expect(find.text('Toko'), findsWidgets);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
@@ -314,6 +348,16 @@ void main() {
     expect(_key('purchase-print-saved'), findsNothing);
     expect(_key('purchase-print-failed'), findsNothing);
     expect(_keyPrefix('purchase-stock-card-'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('kartu stok: produk yang tidak ada lagi diberi tahu', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900), stockHasKop: false);
+    await receiveKop(tester);
+    await _tap(tester, _keyPrefix('purchase-stock-card-'));
+    expect(_key('stock-card-focus-missing'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

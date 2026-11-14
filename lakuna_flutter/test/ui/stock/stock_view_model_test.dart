@@ -361,6 +361,7 @@ void main() {
       expect(vm.location!.name, 'Gudang');
       expect(vm.cardVariantId, sabun);
       expect(vm.card, isNotNull);
+      expect(vm.cardFocusMissing, isFalse);
     });
 
     test('produk atau lokasi yang tidak ada jatuh ke bawaan', () async {
@@ -369,6 +370,28 @@ void main() {
       await vm.load.execute();
       expect(vm.location!.name, 'Etalase');
       expect(vm.cardVariantId, kopi);
+      // Staf diberi tahu tautan tidak ditemukan; hilang setelah memilih.
+      expect(vm.cardFocusMissing, isTrue);
+      await vm.selectCardVariant(sabun);
+      expect(vm.cardFocusMissing, isFalse);
+    });
+
+    test('hanya lokasi yang hilang juga diberi tahu', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true)
+        ..focusCard(variantId: sabun, locationId: fakeId(998));
+      await vm.load.execute();
+      expect(vm.cardVariantId, sabun);
+      expect(vm.cardFocusMissing, isTrue);
+      // Muat ulang tidak memunculkan pemberitahuan lagi.
+      await vm.selectCardVariant(sabun);
+      await vm.load.execute();
+      expect(vm.cardFocusMissing, isFalse);
+    });
+
+    test('tanpa focusCard tidak ada pemberitahuan', () async {
+      vm = StockViewModel(repository: repo, canAdjust: true);
+      await vm.load.execute();
+      expect(vm.cardFocusMissing, isFalse);
     });
   });
 }

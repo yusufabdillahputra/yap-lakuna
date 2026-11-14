@@ -366,9 +366,19 @@ class StockViewModel extends ChangeNotifier {
     _tab = StockTab.card;
     _cardVariantId = variantId;
     if (locationId != null) _locationId = locationId;
+    _focus = (variantId, locationId);
   }
 
+  /// Tautan [focusCard] yang belum diperiksa pada muat pertama.
+  (UuidValue, UuidValue?)? _focus;
+  bool _cardFocusMissing = false;
+
+  /// Produk atau lokasi dari tautan [focusCard] tidak ada lagi, sehingga
+  /// kartu stok bawaan yang tampil. Hilang setelah staf memilih sendiri.
+  bool get cardFocusMissing => _cardFocusMissing;
+
   Future<void> selectCardVariant(UuidValue variantId) async {
+    _cardFocusMissing = false;
     _cardVariantId = variantId;
     // Kartu produk sebelumnya tidak boleh tampil di bawah nama yang baru.
     _card = null;
@@ -404,6 +414,7 @@ class StockViewModel extends ChangeNotifier {
   Future<void> selectLocation(UuidValue id) async {
     if (id == _locationId) return;
     _locationId = id;
+    _cardFocusMissing = false;
     _clearDraft();
     printList.clearResult();
     _printPath = null;
@@ -502,6 +513,11 @@ class StockViewModel extends ChangeNotifier {
     if (_cardVariantId == null ||
         !_rows.any((r) => r.variantId == _cardVariantId)) {
       _cardVariantId = (_below.firstOrNull ?? _rows.firstOrNull)?.variantId;
+    }
+    if (_focus case (final variant, final location)?) {
+      _focus = null;
+      _cardFocusMissing =
+          variant != _cardVariantId || (location != null && location != target);
     }
     await _loadCard();
     _loaded = true;

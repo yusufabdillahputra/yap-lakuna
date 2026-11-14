@@ -4453,8 +4453,8 @@
     }
   },
   "purchasePrintPaidUpfront": "Paid upfront",
-  "purchasePrintDebtPaid": "Payable payments",
-  "purchasePrintDue": "Balance due on: {date}",
+  "purchasePrintDebtPaid": "Debt payments",
+  "purchasePrintDue": "Balance due {date}",
   "@purchasePrintDue": {
     "placeholders": {
       "date": {
@@ -4502,5 +4502,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "purchasePrintReturnDebt": "Returns deducted from payable",
+  "purchasePrintRefund": "Refund received from returns: {amount}",
+  "@purchasePrintRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardFocusMissing": "The linked product or location no longer exists. Showing the default stock card."
 }

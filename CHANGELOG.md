@@ -7,6 +7,61 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.51.0] - 2026-11-14
+
+Bukti pembelian kini bisa dicetak atau dibagikan sebagai PDF ke supplier
+atau rekan, dan pergerakan stok barang yang baru diterima bisa ditelusuri
+langsung dari detail pembelian.
+
+### Ditambahkan
+
+- **Cetak / bagikan PDF pembelian (1.19b, F1-12c).** Tombol baru di kartu
+  *Tindakan* detail pembelian. Di desktop PDF disimpan di folder dokumen
+  Lakuna (*PDF pembelian disimpan di …*); di Android/iOS lembar bagikan
+  sistem terbuka (WhatsApp, email, dll.). PDF A4 berisi supplier, no.
+  faktur, tanggal, lokasi, staf, perangkat; tabel barang (nama + varian,
+  SKU, qty dengan isi satuan beli mis. `4 dus (@ 6 btl)`, harga beli,
+  subtotal); ringkasan Subtotal, Diskon faktur, Ongkos kirim, **Total**,
+  Dibayar di muka, Bayar hutang, Retur memotong hutang, **Sisa hutang**;
+  serta catatan jatuh tempo, catatan pembelian, daftar retur, uang kembali
+  dari retur, dan siapa yang mencetak. Nama berkas
+  `pembelian-<nomor>.pdf`; mencetak ulang menimpa berkas lama.
+- **Tautan kartu stok dari detail pembelian.** Nama produk yang melacak
+  stok di *Barang diterima* membuka layar Stok tab *Kartu stok* untuk
+  produk itu di lokasi terima pembelian. Hanya untuk staf dengan izin
+  Stok; barang jasa tidak bertautan.
+- Layar Stok bisa dibuka langsung ke kartu stok produk dan lokasi tertentu
+  (`/stok?tab=card&varian=…&lokasi=…`). Bila produk atau lokasinya tidak
+  ada lagi, kartu stok bawaan tampil dengan pemberitahuan.
+- Panduan *Mencatat pembelian* menjelaskan cetak PDF dan tautan kartu stok
+  (ID + EN).
+
+### Diperbaiki (temuan review sebelum rilis)
+
+- Qty satuan beli di PDF ditulis `4 dus (@ 6 btl)` agar tidak terbaca
+  sebagai total 6 botol.
+- Ringkasan PDF kini tertutup secara hitungan: baris retur hanya memuat
+  bagian yang memotong hutang, sedangkan uang kembali dari retur dicatat di
+  bawah tabel. Diskon faktur dicetak positif seperti di layar.
+- Pesan *PDF tersimpan/gagal* hilang setelah detail dimuat ulang, dan
+  tombol cetak mati selama detail dimuat.
+- Nama staf yang kosong tidak meninggalkan pemisah ganda di subjudul PDF.
+- Teks bahasa Inggris *Debt payments* dan *Balance due …* diseragamkan.
+
+### Catatan teknis
+
+- `lib/ui/purchases/purchase_print.dart`: `purchasePrintTable` (→
+  `ReportTable` untuk `reportPdf`) dan `purchasePrintFileName`.
+- `PurchaseDetailViewModel(exporter:)`: `printPdf`, `printPath`,
+  `canPrint`; `PurchaseSetup.staffName` untuk baris *Dicetak oleh*.
+- `PurchaseDetailView(onOpenStockCard:)`, `Routes.stockCard`,
+  `StockScreen(initialVariantId:, initialLocationId:)`,
+  `StockViewModel.focusCard` dan `cardFocusMissing`.
+- Tes baru: isi tabel cetak (lunas, berhutang + retur campuran, retur uang
+  kembali, bahasa Inggris), VM cetak (simpan, lembar bagikan, galat, muat
+  ulang), VM stok (fokus, lokasi/produk hilang), dan widget 1440/360 px
+  (cetak, tautan kartu stok, tanpa izin Stok, produk hilang).
+
 ## [0.50.0] - 2026-11-14
 
 Foto faktur supplier kini tersimpan bersama pembelian, jadi saat mencocokkan
@@ -4037,7 +4092,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...HEAD
+[0.51.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.47.0...v0.48.0

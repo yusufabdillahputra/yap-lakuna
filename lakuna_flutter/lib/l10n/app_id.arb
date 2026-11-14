@@ -5036,5 +5036,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "purchasePrintReturnDebt": "Retur memotong hutang",
+  "purchasePrintRefund": "Uang kembali dari retur: {amount}",
+  "@purchasePrintRefund": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "stockCardFocusMissing": "Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan."
 }
