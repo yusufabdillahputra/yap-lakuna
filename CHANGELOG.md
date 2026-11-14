@@ -7,6 +7,38 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.94.0] - 2026-11-14
+
+Daftar Stok minimum kini menandai barang yang sudah ada di draf pembelian,
+sehingga staf tahu mana yang sudah dipesan dan mana yang belum.
+
+### Ditambahkan
+
+- **Stok (1.18) › Stok minimum:** barang di bawah minimum yang sudah ada
+  di draf pembelian ke lokasi yang sedang dilihat diberi keterangan biru
+  **Sudah di draf {nomor}**. Bila barang ada di beberapa draf, nomor draf
+  yang paling banyak memuat barang di bawah minimum (lalu yang terakhir
+  diubah) yang ditampilkan. Keterangan ini juga tampil di panel *Stok
+  minimum* tab *Penyesuaian* desktop.
+- Hanya staf dengan izin *Kelola pembelian* yang melihat keterangan ini.
+- Panduan *Stok* menjelaskan keterangan ini (ID + EN).
+
+### Catatan teknis
+
+- `RestockDraft` kini menyimpan `variantIds`; `matched` menjadi getter.
+- `StockViewModel` menerima `restockDrafts` opsional dan menyusun
+  `variantId → nomor draf` di `_loadOnce`, bersamaan dengan pembacaan
+  penyesuaian terakhir (tidak menambah dua kueri berurutan). Galat baca
+  diabaikan. Tanda selalu dipasang berpasangan dengan daftar minimum, jadi
+  tidak tertinggal saat lokasi diganti di tengah muat.
+- Saat di-debug di ponsel 360 px, nomor draf terpotong elipsis
+  ("Sudah di draf PB-PS…") sehingga draf tidak bisa dibedakan; teks kini
+  dibungkus utuh dan tes memeriksa `didExceedMaxLines`.
+- Warna teks memakai biru muda `#74D4FF` di tema gelap (kontras 4.5:1).
+- Tes VM (nomor draf pertama, galat, muat ulang), widget 1280 / 360 px,
+  dan tes izin dengan penghitung kueri (diverifikasi mutasi). Tes alur
+  F1-08g menyesuaikan karena nomor draf kini juga tampil di daftar.
+
 ## [0.93.0] - 2026-11-14
 
 *Buat pembelian* di Stok minimum kini mengingatkan bila sudah ada draf
@@ -5980,7 +6012,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...HEAD
+[0.94.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...v0.94.0
 [0.93.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.92.0...v0.93.0
 [0.92.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...v0.92.0
 [0.91.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...v0.91.0

@@ -35,6 +35,8 @@ Tekan **Buat pembelian** di bawah daftar itu untuk membuka *Pembelian baru* yang
 
 Draf tidak menambah stok, jadi barang yang sudah masuk draf tetap tampil di bawah minimum. Bila sudah ada **draf pembelian** ke lokasi yang sama yang memuat sebagian barang itu, **Buat pembelian** lebih dulu menampilkan *Sudah ada draf pembelian* dengan nomor draf dan berapa barang yang sudah ada di dalamnya. Pilih **Buka draf** untuk melanjutkan draf itu (barang yang belum ada di draf ditambah manual), **Buat draf baru** bila memang perlu pembelian terpisah, atau **Batal**. Bila ada beberapa draf, yang paling banyak memuat barang yang sama dibuka; draf lain bisa dilihat di menu *Pembelian*.
 
+Supaya tidak perlu menebak, barang di daftar *Di bawah stok minimum* yang sudah ada di draf pembelian ke lokasi ini diberi keterangan biru **Sudah di draf** beserta nomor drafnya. Barang tanpa keterangan itu belum dipesan. Keterangan ini hanya tampil untuk staf dengan izin *Kelola pembelian*.
+
 ## Lokasi stok
 
 Tab **Lokasi stok** untuk menambah etalase, gudang, atau rak terpisah di cabang ini.

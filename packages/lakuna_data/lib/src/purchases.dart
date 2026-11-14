@@ -536,14 +536,17 @@ class RestockDraft {
   const RestockDraft({
     required this.purchaseId,
     required this.number,
-    required this.matched,
+    required this.variantIds,
   });
 
   final UuidValue purchaseId;
   final String number;
 
+  /// Varian yang diminta yang ada di draf ini (F1-08h).
+  final Set<UuidValue> variantIds;
+
   /// Jumlah varian yang diminta yang ada di draf ini.
-  final int matched;
+  int get matched => variantIds.length;
 }
 
 /// Draf pembelian cabang (belum dihapus) ke lokasi [locationId] yang memuat
@@ -598,7 +601,7 @@ Future<List<RestockDraft>> restockDraftsOf(
       RestockDraft(
         purchaseId: p.id,
         number: p.number,
-        matched: matched[p.id]!.length,
+        variantIds: matched[p.id]!,
       ),
   ];
 }

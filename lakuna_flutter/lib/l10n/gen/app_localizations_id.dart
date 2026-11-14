@@ -8357,4 +8357,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get stockRestockDraftCancel => 'Batal';
+
+  @override
+  String stockMinimumInDraft(String number) {
+    return 'Sudah di draf $number';
+  }
 }

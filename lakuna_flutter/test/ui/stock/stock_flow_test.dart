@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -508,7 +509,14 @@ void main() {
       await _tap(tester, tab);
       await _tap(tester, 'stock-restock');
       expect(find.byKey(const ValueKey('stock-restock-draft')), findsOneWidget);
-      expect(find.textContaining(draft.number), findsOneWidget);
+      final dialog = find.byKey(const ValueKey('stock-restock-draft'));
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.textContaining(draft.number),
+        ),
+        findsOneWidget,
+      );
       expect(find.textContaining('1 dari 2 barang'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
@@ -544,7 +552,6 @@ void main() {
       'diabaikan (F1-08g)', (tester) async {
     final (stock, purchases) = restockSeed();
     await seedDraft(purchases);
-    final gate = purchases.restockDraftsGate = Completer<void>();
     await pumpLakuna(
       tester,
       initialLocation: Routes.stock,
@@ -553,6 +560,8 @@ void main() {
       session: FakeSessionRepository()..current = sampleStaff(),
     );
     await _tap(tester, 'stock-tab-minimum');
+    // Pencarian draf menunggu gerbang (muat daftar stok juga, F1-08h).
+    final gate = purchases.restockDraftsGate = Completer<void>();
     await tester.tap(find.byKey(const ValueKey('stock-restock')));
     await tester.pump();
     // Router membangun ulang halaman Stok selagi draf masih dicari.
@@ -567,6 +576,51 @@ void main() {
     expect(find.byKey(const ValueKey('stock-restock-draft')), findsNothing);
     expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
   });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('tanda sudah di draf di stok minimum '
+        '${size.width.toInt()} px (F1-08h)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      final draft = await seedDraft(purchases);
+      final vs = [
+        for (final p in purchases.products) ...p.variants,
+      ];
+      // Baris pertama di draf, baris kedua tidak.
+      final inDraft = vs[0].id;
+      final other = vs[1].id;
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      expect(
+        tester
+            .widget<Text>(
+              find.byKey(ValueKey('stock-min-draft-${inDraft.uuid}')),
+            )
+            .data,
+        'Sudah di draf ${draft.number}',
+      );
+      // Nomor draf utuh, tidak terpotong elipsis di ponsel.
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.byKey(ValueKey('stock-min-draft-${inDraft.uuid}')),
+      );
+      expect(paragraph.didExceedMaxLines, isFalse);
+      expect(paragraph.maxLines, isNull);
+      expect(
+        find.byKey(ValueKey('stock-min-draft-${other.uuid}')),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('galat baca draf: langsung buka form baru (F1-08g)', (
     tester,
@@ -587,10 +641,10 @@ void main() {
     expect(find.byKey(const ValueKey('purchase-restock-note')), findsOneWidget);
   });
 
-  testWidgets('tanpa izin pembelian: tombol buat pembelian tidak tampil', (
-    tester,
-  ) async {
+  testWidgets('tanpa izin pembelian: tombol buat pembelian dan tanda draf '
+      'tidak tampil (F1-08h)', (tester) async {
     final (stock, purchases) = restockSeed();
+    await seedDraft(purchases);
     final keeper = sampleStaff(role: 'stock_keeper');
     await pumpLakuna(
       tester,
@@ -611,6 +665,13 @@ void main() {
     await _tap(tester, 'stock-tab-minimum');
     expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
     expect(find.byKey(const ValueKey('stock-restock')), findsNothing);
+    expect(
+      find.byWidgetPredicate(
+        (w) => '${w.key}'.contains('stock-min-draft-'),
+      ),
+      findsNothing,
+    );
+    expect(purchases.restockDraftsCalls, 0);
   });
 
   testWidgets('cetak stok mati bila lokasi tanpa barang', (tester) async {

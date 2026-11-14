@@ -75,6 +75,7 @@ class StockViewModel extends ChangeNotifier {
     required this._repository,
     required this.canAdjust,
     this._exporter = const PlatformSpreadsheetExporter(),
+    this._restockDrafts,
   }) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
@@ -83,6 +84,20 @@ class StockViewModel extends ChangeNotifier {
 
   final StockRepository _repository;
   final SpreadsheetExporter _exporter;
+
+  /// Draf pembelian ke lokasi ini yang memuat barang di bawah minimum
+  /// (F1-08g/h); `null` bila staf tidak boleh membuat pembelian.
+  final Future<Result<List<RestockDraft>>> Function(
+    UuidValue locationId,
+    Iterable<UuidValue> variantIds,
+  )?
+  _restockDrafts;
+
+  var _inDraft = const <UuidValue, String>{};
+
+  /// Nomor draf pembelian yang sudah memuat barang [variantId] di bawah
+  /// minimum (F1-08h); `null` bila belum ada.
+  String? draftNumberOf(UuidValue variantId) => _inDraft[variantId];
 
   /// Staf boleh menyimpan penyesuaian dan mengubah lokasi.
   final bool canAdjust;
@@ -474,6 +489,28 @@ class StockViewModel extends ChangeNotifier {
     }
   }
 
+  /// Barang di bawah minimum yang sudah ada di draf pembelian ke [location]
+  /// (F1-08h): draf pertama (paling cocok, lalu terbaru) menang. Galat
+  /// diabaikan agar daftar stok tetap tampil.
+  Future<Map<UuidValue, String>> _draftsOf(
+    UuidValue? location,
+    List<StockRow> below,
+  ) async {
+    final find = _restockDrafts;
+    if (find == null || location == null || below.isEmpty) return const {};
+    final result = await find(location, {for (final r in below) r.variantId});
+    if (result case Ok(:final value)) {
+      final map = <UuidValue, String>{};
+      for (final d in value) {
+        for (final id in d.variantIds) {
+          map.putIfAbsent(id, () => d.number);
+        }
+      }
+      return map;
+    }
+    return const {};
+  }
+
   /// `true` bila hasilnya dipakai; `false` bila lokasi sudah diganti.
   Future<Result<bool>> _loadOnce(UuidValue? requested) async {
     final locations = await _repository.locations();
@@ -486,15 +523,21 @@ class StockViewModel extends ChangeNotifier {
     if (rows case Error(:final error)) return Result.error(error);
     final below = await _repository.belowMinimum(locationId: target);
     if (below case Error(:final error)) return Result.error(error);
+    final belowRows = (below as Ok<List<StockRow>>).value;
+    // Dibaca bersamaan dengan data penyesuaian agar daftar tidak menunggu
+    // dua kueri pembelian berturut-turut.
+    final drafts = _draftsOf(target, belowRows);
     final recent = await _repository.recentAdjustments();
     final number = await _repository.nextAdjustmentNumber();
+    final inDraft = await drafts;
     // Staf mengganti lokasi selagi memuat: jangan tampilkan data lama.
     if (_locationId != requested) return const Result.ok(false);
+    _inDraft = inDraft;
     _locations = list;
     _locationId = target;
     _rows = (rows as Ok<List<StockRow>>).value;
     _rowsLocationId = target;
-    _below = (below as Ok<List<StockRow>>).value;
+    _below = belowRows;
     _recent = switch (recent) {
       Ok(:final value) => value,
       Error() => const [],
