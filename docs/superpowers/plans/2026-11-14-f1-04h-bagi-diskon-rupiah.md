@@ -10,8 +10,8 @@ dibagi sebanding jumlah porsi.
 - [x] **Tes data** bagi rupiah (genap, ganjil, 100%, gabung, batal split,
   bayar bagian, nota akhir); lalu `_moveQuantity`.
 - [x] **Bersihkan** `BillItemDiscounted` dan kunci l10n; tes Flutter.
-- [ ] **Review** subagent baru; perbaiki Critical/Important.
-- [ ] **Uji manual Xvfb**: split per item bill berdiskon rupiah.
-- [ ] **Dokumen**: spec F1-04g (gap), README, STATUS-JEDA, panduan diskon
+- [x] **Review** subagent baru; perbaiki Critical/Important.
+- [x] **Uji manual Xvfb**: split per item bill berdiskon rupiah.
+- [x] **Dokumen**: spec F1-04g (gap), README, STATUS-JEDA, panduan diskon
   id/en, CHANGELOG 0.65.0, pubspec `0.65.0+68`.
 - [ ] **PR, merge, cek rilis.**

@@ -51,9 +51,9 @@ bill, dengan aturan dan izin yang sama dengan diskon baris di Kasir retail.
      memakai persen yang sama; potongan sisa dihitung dari persennya dan
      porsi yang pindah membawa selisihnya, sehingga jumlah potongan dan
      total bill tidak berubah karena pembulatan); baris berdiskon **rupiah**
-     tidak bisa dibagi (`BillItemDiscounted`, pesan *Hapus atau ubah diskon
-     rupiah item ini ke persen sebelum dibagi.*), tetapi porsi terakhir
-     pindah utuh. Porsi hanya digabung kembali bila diskonnya sama.
+     dibagi sebanding jumlah sejak v0.65.0 ([F1-04h](2026-11-14-f1-04h-bagi-diskon-rupiah-design.md)).
+     Porsi digabung kembali bila diskonnya sama (porsi rupiah dan porsi
+     tanpa potongan dianggap sama).
    - Struk dan tiket menggabung porsi berdiskon sama ke baris asalnya
      (potongan dijumlah); porsi dengan diskon berbeda tampil terpisah.
 8. **Tampilan:** di bawah nama item tampil *Diskon 10%* / *Diskon* dengan
@@ -89,4 +89,4 @@ bill, dengan aturan dan izin yang sama dengan diskon baris di Kasir retail.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Diskon per baris di open bill | 1.7 | Rilis v0.53.0 | Tombol persen di baris panel bill. |
-| Bagi baris berdiskon rupiah per tamu | — | Belum | Ubah ke persen atau hapus diskon dulu. |
+| Bagi baris berdiskon rupiah per tamu | v0.65.0 | Rilis | [F1-04h](2026-11-14-f1-04h-bagi-diskon-rupiah-design.md) |

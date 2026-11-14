@@ -7,6 +7,54 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.65.0] - 2026-11-14
+
+Baris open bill berdiskon rupiah kini bisa dibagi ke beberapa tamu saat
+split bill per item. Potongan dibagi sebanding jumlah sehingga total bill
+dan total potongan tidak berubah.
+
+### Diubah
+
+- **Split bill per item (1.26):** baris berdiskon rupiah tidak lagi
+  ditolak. Porsi yang pindah membawa potongan sebanding jumlahnya
+  (dibulatkan setengah ke atas), sisanya tetap di baris asal. Contoh:
+  Rp 1.000 untuk 3 porsi menjadi Rp 333 + Rp 334 + Rp 333; Es Teh ×3
+  diskon Rp 1.000 dibagi dua tamu menjadi Rp 4.834 dan Rp 4.832.
+- Potongan tiap porsi tidak pernah melebihi total porsinya dan tidak
+  pernah negatif.
+- Batal split dan memindahkan porsi kembali menggabungkan potongan ke
+  baris asal, jadi diskon rupiah semula pulih utuh.
+- Panduan *Diskon* (id/en) menjelaskan pembagian diskon rupiah.
+
+### Diperbaiki
+
+- Porsi diskon rupiah yang potongannya menjadi Rp 0 karena pembulatan
+  (mis. Rp 1 untuk 3 porsi) tetap digabung kembali ke baris asal dan ke
+  satu baris di struk/tiket, tidak tertinggal sebagai baris terpisah
+  (ditemukan saat review).
+
+### Dihapus
+
+- Galat `BillItemDiscounted` dan pesan *Hapus atau ubah diskon rupiah
+  item ini ke persen sebelum dibagi.* (kunci l10n
+  `billSplitErrorItemDiscounted`).
+
+### Catatan teknis
+
+- `_moveQuantity` di `split_bill.dart` menghitung potongan sisa lewat
+  `_rupiahLeftCut`: potongan pindah = `round(cut × moved / total)`,
+  dipangkas ke total kotor porsi pindah; potongan sisa dipangkas ke
+  [0, total kotor sisa]. Diskon persen tetap memakai `discount.cut` pada
+  sisa.
+- Aturan gabung porsi: diskon non-persen (rupiah atau tanpa diskon)
+  dianggap sama satu sama lain; persen hanya sama dengan persen yang
+  sama. `mergeSplitPortions` di struk mengelompokkan per
+  `(akar baris, discount_bp)`.
+- Tes data baru: bagi genap, ganjil (333/334/333), hampir 100%, potongan
+  Rp 0 tetap tergabung, rupiah tidak bergabung dengan persen, bayar bagian
+  memakai potongan porsi. Tes struk: porsi rupiah (termasuk Rp 0) jadi
+  satu baris.
+
 ## [0.64.0] - 2026-11-14
 
 Nomor approval kartu dan referensi transfer kini bisa dicatat per bagian di
@@ -4751,7 +4799,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...HEAD
+[0.65.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...v0.62.0

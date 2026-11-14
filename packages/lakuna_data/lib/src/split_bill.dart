@@ -354,10 +354,12 @@ Future<void> _moveQuantity(
   final movedCut = Money(source.discountAmount) - leftCut;
   final root = source.splitFromItemId ?? source.id;
   // Porsi rupiah dari akar yang sama digabung walau potongannya beda
-  // (bagian dari potongan asal); persen hanya dengan persen yang sama.
+  // (bagian dari potongan asal), termasuk porsi yang kebagian Rp 0 karena
+  // pembulatan (F1-04h); persen hanya dengan persen yang sama.
+  bool notPercent(ManualDiscount? d) => d?.kind != DiscountKind.percent;
   bool sameDiscount(SaleItem i) {
     final other = billItemDiscountOf(i);
-    return rupiah ? other?.kind == DiscountKind.amount : other == discount;
+    return (notPercent(discount) && notPercent(other)) || other == discount;
   }
 
   final target = rows

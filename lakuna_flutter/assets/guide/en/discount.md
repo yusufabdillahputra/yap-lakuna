@@ -22,7 +22,7 @@ On the **Tables** screen, the bill panel has a **Discount** button for an order 
 - A percentage discount follows the item when its quantity changes; an amount discount stays the same but never exceeds the line total.
 - Adding the same menu item again creates a new line without a discount.
 - Service, PB1, and the order discount are calculated from the total after line discounts.
-- When splitting a bill per item, lines with a percentage discount can be shared between guests. Remove an amount discount, or change it to a percentage, before splitting that line.
+- When splitting a bill per item, discounted lines can be shared between guests. A percentage discount applies to every portion; an amount discount is split in proportion to the quantity (e.g. Rp 1,000 over 3 portions becomes Rp 333 + Rp 334 + Rp 333), so the bill total does not change. Portions moved back are merged again.
 - Once a split bill has a part payment, discounts can no longer be changed.
 
 ## Manager approval

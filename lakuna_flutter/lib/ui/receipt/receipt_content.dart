@@ -203,16 +203,14 @@ ReceiptContent saleReceiptContent(
 
 /// Porsi split bill (F1-10c) digabung kembali ke baris asalnya agar struk
 /// sama dengan pesanan: jumlah, total baris, dan potongan diskon baris
-/// dijumlahkan, urutan ikut kemunculan pertama. Porsi dengan diskon baris
+/// dijumlahkan, urutan ikut kemunculan pertama. Porsi dengan diskon persen
 /// berbeda (F1-04g) tetap baris sendiri.
 List<SaleItem> mergeSplitPortions(List<SaleItem> items) {
-  final merged = <(UuidValue, int, bool), SaleItem>{};
+  // Porsi rupiah dan porsi yang kebagian Rp 0 (F1-04h) satu kelompok
+  // (`discount_bp` 0); porsi persen per nilai persennya.
+  final merged = <(UuidValue, int), SaleItem>{};
   for (final item in items) {
-    final key = (
-      item.splitFromItemId ?? item.id,
-      item.discountBp,
-      item.discountBp == 0 && item.discountAmount > 0,
-    );
+    final key = (item.splitFromItemId ?? item.id, item.discountBp);
     final prev = merged[key];
     merged[key] = prev == null
         ? item

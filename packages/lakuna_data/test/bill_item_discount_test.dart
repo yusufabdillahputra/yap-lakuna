@@ -489,6 +489,30 @@ void main() {
       }
     });
 
+    test('potongan Rp 0 karena pembulatan tetap digabung kembali', () async {
+      var b = await bill(3);
+      b = await itemDiscount(
+        b.items.single,
+        const ManualDiscount.amount(Money(1)),
+      );
+      b = await splitItems(b);
+      b = await give(b.items.single, 'A');
+      expect(of(b, 'A').discountAmount, 0);
+      expect(of(b, null).discountAmount, 1);
+      b = await give(of(b, null), 'A');
+      expect(of(b, 'A').quantityMilli, 2000);
+      expect(of(b, 'A').discountAmount, 1);
+      b = await setBillSplit(
+        store,
+        scope,
+        staffId: owner(),
+        billId: b.id,
+        mode: null,
+      );
+      expect(b.items.single.quantityMilli, 3000);
+      expect(b.items.single.discountAmount, 1);
+    });
+
     test('porsi rupiah tidak digabung dengan porsi persen', () async {
       var b = await bill(2);
       b = await itemDiscount(
