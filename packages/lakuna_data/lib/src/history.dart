@@ -33,7 +33,8 @@ const soldStatuses = {
   SaleStatus.returned,
 };
 
-enum HistoryRange { today, yesterday, week }
+/// Rentang riwayat; [custom] memakai [HistoryFilter.days] (F1-11c).
+enum HistoryRange { today, yesterday, week, custom }
 
 enum HistoryStatus { all, completed, returned, voided }
 
@@ -45,9 +46,14 @@ class HistoryFilter {
     this.method,
     this.status = HistoryStatus.all,
     this.query = '',
+    this.days,
   });
 
   final HistoryRange range;
+
+  /// Tanggal kalender (UTC tengah malam, inklusif) untuk
+  /// [HistoryRange.custom] (F1-11c).
+  final DateRange? days;
   final UuidValue? staffId;
   final PaymentMethod? method;
   final HistoryStatus status;
@@ -68,12 +74,14 @@ class HistoryFilter {
     PaymentMethod? Function()? method,
     HistoryStatus? status,
     String? query,
+    DateRange? Function()? days,
   }) => HistoryFilter(
     range: range ?? this.range,
     staffId: staffId == null ? this.staffId : staffId(),
     method: method == null ? this.method : method(),
     status: status ?? this.status,
     query: query ?? this.query,
+    days: days == null ? this.days : days(),
   );
 }
 
@@ -175,10 +183,19 @@ Future<String?> _timezone(
 (DateTime, DateTime) historyRangeBounds(
   HistoryRange range,
   DateTime now,
-  String? timezone,
-) {
+  String? timezone, {
+  DateRange? days,
+}) {
   final today = outletDayStart(now, timezone);
   const day = Duration(days: 1);
+  // Awal hari lokal [date]: awal hari ini dikurangi selisih tanggal.
+  DateTime startOf(DateTime date) {
+    final local = outletLocalTime(now, timezone);
+    final todayDate = DateTime.utc(local.year, local.month, local.day);
+    final target = DateTime.utc(date.year, date.month, date.day);
+    return today.subtract(Duration(days: todayDate.difference(target).inDays));
+  }
+
   return switch (range) {
     HistoryRange.today => (today, today.add(day)),
     HistoryRange.yesterday => (today.subtract(day), today),
@@ -186,6 +203,12 @@ Future<String?> _timezone(
       today.subtract(const Duration(days: 6)),
       today.add(day),
     ),
+    HistoryRange.custom when days != null => (
+      startOf(days.from),
+      startOf(days.to).add(day),
+    ),
+    // Tanpa tanggal: sama dengan hari ini.
+    HistoryRange.custom => (today, today.add(day)),
   };
 }
 
@@ -259,6 +282,7 @@ Future<HistoryPage> listSalesHistory(
     filter.range,
     now ?? DateTime.now().toUtc(),
     timezone,
+    days: filter.days,
   );
   final statuses = switch (filter.status) {
     HistoryStatus.all => historyStatuses,

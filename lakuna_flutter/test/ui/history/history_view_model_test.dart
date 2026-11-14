@@ -178,6 +178,35 @@ void main() {
     expect(vm.pdfPath, isNull);
   });
 
+  test(
+    'rentang tanggal bebas: filter, cari dikosongkan, ekspor (F1-11c)',
+    () async {
+      repo.addSale([('Kopi', 1000, 10000)]);
+      create();
+      await vm.load.execute();
+      vm.setQuery('kopi');
+      await settle();
+      final gen = vm.searchGeneration;
+      final days = DateRange(
+        DateTime.utc(2026, 11, 1),
+        DateTime.utc(2026, 11, 2),
+      );
+      vm.setCustomRange(days);
+      await settle();
+      expect(vm.filter.range, HistoryRange.custom);
+      expect(vm.filter.days, days);
+      expect(vm.filter.query, '');
+      expect(vm.searchGeneration, gen + 1);
+      expect(repo.filters.last.days, days);
+      expect(vm.initialRange, days);
+      await vm.export.execute(Uint8List.fromList([1]));
+      expect(
+        exporter.saved.single.$1,
+        matches(RegExp(r'^riwayat-20261101-20261102-\d{6}\.xlsx$')),
+      );
+    },
+  );
+
   group('cari nota (F1-11b)', () {
     test('kata kunci dikirim; pill tanggal mengosongkan cari', () async {
       final a = repo.addSale([('Kopi', 1000, 10000)]);

@@ -14,4 +14,4 @@ Spec: [F1-16b](../specs/2026-11-14-f1-16b-rentang-tanggal-laporan-design.md).
 - [x] **Uji manual Xvfb**: pilih rentang, galat, ekspor.
 - [x] **Dokumen**: spec F1-16, README, STATUS-JEDA, panduan laporan
   id/en, CHANGELOG 0.67.0, pubspec `0.67.0+70`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

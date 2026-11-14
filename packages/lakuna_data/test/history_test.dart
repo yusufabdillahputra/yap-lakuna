@@ -219,6 +219,67 @@ void main() {
     });
   });
 
+  group('rentang tanggal bebas (F1-11c)', () {
+    test('tanggal lokal cabang inklusif; filter lain tetap berlaku', () async {
+      final today = now; // 3 Nov 2026 16.00 WIB.
+      Future<CheckoutResult> sellAt(DateTime at) async {
+        now = at;
+        return sell({kopi: 1000});
+      }
+
+      now = DateTime.utc(2026, 10, 20, 1);
+      await openSession();
+      // 20 Okt 23.30 WIB = 20 Okt 16.30 UTC; 21 Okt 00.30 WIB = 20 Okt 17.30 UTC.
+      final late20 = await sellAt(DateTime.utc(2026, 10, 20, 16, 30));
+      final early21 = await sellAt(DateTime.utc(2026, 10, 20, 17, 30));
+      final on22 = await sellAt(DateTime.utc(2026, 10, 22, 5));
+      now = today;
+
+      Future<List<UuidValue>> within(
+        DateTime from,
+        DateTime to, {
+        HistoryStatus status = HistoryStatus.all,
+      }) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(
+            range: HistoryRange.custom,
+            days: DateRange(from, to),
+            status: status,
+          ),
+        )).rows)
+          r.sale.id,
+      ];
+
+      expect(
+        await within(DateTime.utc(2026, 10, 20), DateTime.utc(2026, 10, 20)),
+        [late20.sale.id],
+      );
+      expect(
+        await within(DateTime.utc(2026, 10, 21), DateTime.utc(2026, 10, 22)),
+        [on22.sale.id, early21.sale.id],
+      );
+      expect(
+        await within(
+          DateTime.utc(2026, 10, 1),
+          DateTime.utc(2026, 10, 31),
+          status: HistoryStatus.voided,
+        ),
+        isEmpty,
+      );
+      final (from, to) = historyRangeBounds(
+        HistoryRange.custom,
+        now,
+        'Asia/Jakarta',
+        days: DateRange(DateTime.utc(2026, 10, 21), DateTime.utc(2026, 10, 22)),
+      );
+      expect(from, DateTime.utc(2026, 10, 20, 17));
+      expect(to, DateTime.utc(2026, 10, 22, 17));
+    });
+  });
+
   group('cari nota (F1-11b)', () {
     test('cocok nomor, pelanggan, HP, referensi; semua tanggal', () async {
       final today = now;

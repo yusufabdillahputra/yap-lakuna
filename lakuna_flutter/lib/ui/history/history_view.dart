@@ -11,6 +11,7 @@ import '../../data/services/receipt_printer.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
+import '../core/date_range_dialog.dart';
 import '../core/format.dart';
 import '../products/product_widgets.dart';
 import 'history_detail.dart';
@@ -225,7 +226,7 @@ class _HistoryList extends StatelessWidget {
             formatMoney(context, page.total),
           )
         : l10n.historySummary(
-            historyRangeLabel(l10n, vm.filter.range),
+            historyRangeLabel(l10n, vm.filter.range, days: vm.filter.days),
             page.count,
             formatMoney(context, page.total),
           );
@@ -371,10 +372,17 @@ class _Filters extends StatelessWidget {
             for (final range in HistoryRange.values)
               ChoicePill(
                 key: ValueKey('history-range-${range.name}'),
-                label: historyRangeLabel(l10n, range),
+                // Rentang bebas tampil hanya saat pill itu yang aktif.
+                label: historyRangeLabel(
+                  l10n,
+                  range,
+                  days: f.range == range ? f.days : null,
+                ),
                 // Selama mencari, semua tanggal (tidak ada pill terpilih).
                 selected: !f.searching && f.range == range,
-                onTap: () => vm.setRange(range),
+                onTap: range == HistoryRange.custom
+                    ? () => _pickRange(context, vm)
+                    : () => vm.setRange(range),
               ),
           ],
         ),
@@ -445,6 +453,17 @@ class _Filters extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Dialog *Pilih rentang tanggal* untuk Riwayat (F1-11c).
+Future<void> _pickRange(BuildContext context, HistoryViewModel vm) async {
+  final days = await showDateRangeDialog(
+    context,
+    initial: vm.initialRange,
+    today: vm.today,
+    keyPrefix: 'history-range',
+  );
+  if (days != null) vm.setCustomRange(days);
 }
 
 /// Pilihan filter kasir; nama kembar diberi nomor agar kunci unik.

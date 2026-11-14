@@ -5,33 +5,41 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
 
-/// Dialog *Pilih rentang tanggal* laporan (F1-16b). Hasil = periode bebas,
-/// atau `null` bila dibatalkan.
-Future<ReportPeriod?> showReportRangeDialog(
+/// Dialog *Pilih rentang tanggal* (Laporan F1-16b, Riwayat F1-11c). Hasil =
+/// tanggal kalender (UTC tengah malam) yang lolos [reportRangeError], atau
+/// `null` bila dibatalkan. Kunci widget: `<keyPrefix>-dialog`, `-from`,
+/// `-to`, `-apply`, `-cancel`.
+Future<DateRange?> showDateRangeDialog(
   BuildContext context, {
   required DateRange initial,
   required DateTime today,
-}) => showFDialog<ReportPeriod>(
+  required String keyPrefix,
+}) => showFDialog<DateRange>(
   context: context,
   builder: (context, style, animation) => FDialog(
     animation: animation,
     constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
     builder: (context, style) =>
-        _ReportRangeForm(initial: initial, today: today),
+        _RangeForm(initial: initial, today: today, keyPrefix: keyPrefix),
   ),
 );
 
-class _ReportRangeForm extends StatefulWidget {
-  const _ReportRangeForm({required this.initial, required this.today});
+class _RangeForm extends StatefulWidget {
+  const _RangeForm({
+    required this.initial,
+    required this.today,
+    required this.keyPrefix,
+  });
 
   final DateRange initial;
   final DateTime today;
+  final String keyPrefix;
 
   @override
-  State<_ReportRangeForm> createState() => _ReportRangeFormState();
+  State<_RangeForm> createState() => _RangeFormState();
 }
 
-class _ReportRangeFormState extends State<_ReportRangeForm> {
+class _RangeFormState extends State<_RangeForm> {
   static DateTime _day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
   late final DateTime _today = _day(widget.today);
@@ -52,6 +60,7 @@ class _ReportRangeFormState extends State<_ReportRangeForm> {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final error = _error;
+    final k = widget.keyPrefix;
     Widget field(String key, String label, DateTime value, bool isFrom) =>
         FDateField.calendar(
           key: ValueKey(key),
@@ -85,7 +94,7 @@ class _ReportRangeFormState extends State<_ReportRangeForm> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        key: const ValueKey('reports-range-dialog'),
+        key: ValueKey('$k-dialog'),
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
@@ -96,28 +105,26 @@ class _ReportRangeFormState extends State<_ReportRangeForm> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          field('reports-range-from', l10n.reportsRangeFrom, _from, true),
-          field('reports-range-to', l10n.reportsRangeTo, _to, false),
+          field('$k-from', l10n.reportsRangeFrom, _from, true),
+          field('$k-to', l10n.reportsRangeTo, _to, false),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             alignment: WrapAlignment.end,
             children: [
               FButton(
-                key: const ValueKey('reports-range-cancel'),
+                key: ValueKey('$k-cancel'),
                 variant: .outline,
                 mainAxisSize: .min,
                 onPress: () => Navigator.of(context).pop(),
                 child: Flexible(child: Text(l10n.reportsRangeCancel)),
               ),
               FButton(
-                key: const ValueKey('reports-range-apply'),
+                key: ValueKey('$k-apply'),
                 mainAxisSize: .min,
                 onPress: error != null
                     ? null
-                    : () => Navigator.of(
-                        context,
-                      ).pop(ReportPeriod.custom(_from, _to)),
+                    : () => Navigator.of(context).pop(DateRange(_from, _to)),
                 child: Flexible(child: Text(l10n.reportsRangeApply)),
               ),
             ],

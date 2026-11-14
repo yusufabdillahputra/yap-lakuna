@@ -74,7 +74,7 @@ cari untuk nomor nota, pelanggan, atau referensi pembayaran.
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
 | Cari nomor nota, pelanggan, referensi | — | Rilis v0.66.0 | — |
-| Rentang tanggal bebas (kalender) | — | Belum | Tambah pemilih tanggal bila dibutuhkan; pencarian sudah menjangkau semua tanggal. |
+| Rentang tanggal bebas (kalender) | — | Rilis v0.68.0 | [F1-11c](2026-11-14-f1-11c-rentang-tanggal-riwayat-design.md) |
 | Cari nama item | — | Belum | Perlu join `sale_items`; tunggu kebutuhan. |
 | Huruf non-ASCII (é, ü) tanpa beda besar/kecil | — | Belum | Batas `LIKE` SQLite; kolom nama ternormalisasi bila dibutuhkan. |
 | Cari HP dengan format lain (+62, tanda hubung) | — | Belum | Normalisasi digit kata kunci untuk HP. |

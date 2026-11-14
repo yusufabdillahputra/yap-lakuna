@@ -72,6 +72,6 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
 | --- | --- | --- | --- |
 | Rentang tanggal bebas | — | Rilis v0.67.0 | — |
 | Simpan rentang terakhir | — | Belum | Simpan di preferensi lokal bila diminta. |
-| Rentang bebas di Riwayat | — | Belum | Pakai dialog yang sama di filter tanggal Riwayat. |
+| Rentang bebas di Riwayat | — | Rilis v0.68.0 | [F1-11c](2026-11-14-f1-11c-rentang-tanggal-riwayat-design.md) (dialog dipakai bersama). |
 | Kalender menolak tanggal masa depan sejak awal | — | Belum | `FDateField.calendar` Forui 0.27 belum punya batas tanggal; masa depan ditolak lewat validasi. |
 | *Hari ini* setelah lewat tengah malam | — | Diambil dari muatan laporan terakhir | Muat ulang laporan (sama dengan periode lain). |
