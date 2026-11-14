@@ -191,6 +191,7 @@ void main() {
       }
       onError?.call(details);
     };
+    addTearDown(() => FlutterError.onError = onError);
     await pump(tester, const Size(1440, 900));
     Future<void> pickRange() async {
       await _tap(tester, _key('reports-period'));
@@ -249,6 +250,24 @@ void main() {
     expect(repo.requests.last, range);
     expect(find.textContaining('1–2 Nov 2026'), findsWidgets);
     FlutterError.onError = onError;
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('360 px: rentang tanggal bebas tanpa luapan (F1-16b)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(360, 780));
+    await _tap(tester, _key('reports-period'));
+    await tester.tap(find.text('Rentang tanggal…').last);
+    await tester.pumpAndSettle();
+    expect(_key('reports-range-dialog'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _tap(tester, _key('reports-range-apply'));
+    expect(
+      repo.requests.last,
+      ReportPeriod.custom(DateTime.utc(2026, 11, 4), DateTime.utc(2026, 11, 4)),
+    );
+    expect(find.textContaining('4 Nov 2026'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 

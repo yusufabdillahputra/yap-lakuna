@@ -6,7 +6,8 @@ Menu **Laporan** merangkum penjualan, laba, stok, kas, piutang dan hutang, serta
 
 ## Langkah
 
-1. Buka **Laporan** dan pilih **Periode**: *Hari ini*, *7 hari terakhir*, atau *Bulan ini*.
+1. Buka **Laporan** dan pilih **Periode**: *Hari ini*, *7 hari terakhir*, *Bulan ini*, salah satu bulan sebelumnya, atau *Rentang tanggal…*.
+   - *Rentang tanggal…* membuka jendela **Dari** / **Sampai** (paling panjang 366 hari, tidak melewati hari ini), mis. 1–15 November. Laba bersih dibandingkan dengan jumlah hari yang sama tepat sebelumnya, dan nama berkas unduhan memuat tanggalnya (`…-20261101-20261115-…`).
 2. Pilih tab:
    - **Ringkasan**: penjualan, laba kotor, rata-rata per nota, piutang jatuh tempo, penjualan per metode bayar, dan produk terlaris.
    - **Penjualan**: per produk, per kasir, atau per kategori.

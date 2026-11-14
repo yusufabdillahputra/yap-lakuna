@@ -260,6 +260,7 @@ tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
 | Tab Stok, Kas & sesi, Piutang & hutang, Retur | 1.24 (nama tab) | Rilis v0.21.0 | Isi dirancang di bagian kedua spec ini; desain rinci bisa ditambahkan ke kanvas. |
 | Nilai stok historis | – | Nilai akhir periode lalu memakai harga pokok saat ini | Cukup untuk UMKM; simpan nilai per pergerakan bila dibutuhkan akurasi historis. |
 | Target margin toko | "Target toko 25%" | Belum ada pengaturan | Tambah di F1-18 Pengaturan, lalu tampilkan di panel. |
+| Rentang tanggal bebas | – | Rilis v0.67.0 | [F1-16b](2026-11-14-f1-16b-rentang-tanggal-laporan-design.md) |
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
 | Pembulatan total (F1-18) | Baris tersendiri | Belum ada pembulatan | Tambah baris saat pembulatan dibangun. |

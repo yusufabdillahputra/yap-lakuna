@@ -14,7 +14,9 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
 
 ## Aturan
 
-1. Pilihan **Periode** mendapat entri terakhir *Rentang tanggal…*. Memilihnya
+1. Pilihan **Periode** mendapat entri *Rentang tanggal…* tepat setelah
+   *Bulan ini* (atau setelah rentang aktif), sebelum daftar bulan, agar
+   terlihat tanpa menggulir. Memilihnya
    membuka dialog *Pilih rentang tanggal* dengan isian tanggal **Dari** dan
    **Sampai** (awal = rentang periode yang sedang tampil, dipangkas ke hari
    ini), tombol *Batal* dan *Terapkan*.
@@ -29,7 +31,8 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
    *28 Okt – 3 Nov 2026*; beda tahun *28 Des 2025 – 3 Jan 2026*
    (en: *Nov 5, 2026*, *Nov 1–15, 2026*, *Oct 28 – Nov 3, 2026*,
    *Dec 28, 2025 – Jan 3, 2026*). Rentang aktif tampil sebagai entri
-   tersendiri di pilihan Periode sehingga terlihat terpilih.
+   tersendiri di pilihan Periode (setelah *Bulan ini*) sehingga terlihat
+   terpilih; label panjang dipotong di kotak pilihan, lengkap di subjudul.
 4. **Pembanding** (Laba bersih vs periode sebelumnya, perubahan KPI):
    jumlah hari yang sama tepat sebelum *Dari*, label *N hari sebelumnya*
    (*hari sebelumnya* untuk satu hari).
@@ -70,3 +73,5 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
 | Rentang tanggal bebas | — | Rilis v0.67.0 | — |
 | Simpan rentang terakhir | — | Belum | Simpan di preferensi lokal bila diminta. |
 | Rentang bebas di Riwayat | — | Belum | Pakai dialog yang sama di filter tanggal Riwayat. |
+| Kalender menolak tanggal masa depan sejak awal | — | Belum | `FDateField.calendar` Forui 0.27 belum punya batas tanggal; masa depan ditolak lewat validasi. |
+| *Hari ini* setelah lewat tengah malam | — | Diambil dari muatan laporan terakhir | Muat ulang laporan (sama dengan periode lain). |
