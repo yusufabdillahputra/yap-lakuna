@@ -14,4 +14,4 @@ Spec: [F1-03c](../specs/2026-11-14-f1-03c-peringatan-kas-laci-design.md).
 - [x] **Uji manual Xvfb**.
 - [x] **Dokumen**: spec F1-03 / F1-11, README, STATUS-JEDA, panduan,
   CHANGELOG 0.69.0, pubspec `0.69.0+72`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**
