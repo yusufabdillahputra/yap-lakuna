@@ -12,4 +12,4 @@ Spec: [F1-05c](../specs/2026-11-14-f1-05c-rekening-transfer-design.md)
 - [x] **Uji manual Xvfb**: isi rekening, bayar transfer di Kasir.
 - [x] **Dokumen**: spec F1-05 dan F1-18, README, STATUS-JEDA, panduan,
       CHANGELOG 0.74.0, versi 0.74.0+77.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**
