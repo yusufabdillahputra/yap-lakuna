@@ -67,12 +67,7 @@ class SalesRules {
       // Nilai tersimpan dipangkas dan dibatasi agar simpan ulang aturan
       // lain tidak gagal karena data lama/rusak.
       transferAccount: account is String
-          ? account
-                .trim()
-                .characters
-                .take(ProfileLimits.transferAccount)
-                .toString()
-                .trim()
+          ? _storedTransferAccounts(account)
           : '',
     );
   }
@@ -86,9 +81,13 @@ class SalesRules {
   /// untuk staf berizin.
   final bool discountNeedsPin;
 
-  /// Rekening transfer toko, teks bebas satu baris (F1-05c), mis.
-  /// `BCA 123-456-7890 a.n. Warung Contoh`. Kosong = belum diatur.
+  /// Rekening transfer toko (F1-05c), mis. `BCA 123-456-7890 a.n.
+  /// Warung Contoh`; satu rekening per baris, maks
+  /// [ProfileLimits.transferAccountLines] (F1-05f). Kosong = belum diatur.
   final String transferAccount;
+
+  /// Rekening transfer per baris, tanpa baris kosong (F1-05f).
+  List<String> get transferAccounts => _accountLines(transferAccount);
 
   Map<String, Object> toJson() => {
     'allowNegativeStock': allowNegativeStock,
@@ -138,8 +137,44 @@ abstract final class ProfileLimits {
   static const address = 160;
   static const phone = 20;
 
-  /// Rekening transfer di *Penjualan & stok* (F1-05c).
+  /// Rekening transfer di *Penjualan & stok* (F1-05c), per baris.
   static const transferAccount = 100;
+
+  /// Jumlah rekening transfer, satu per baris (F1-05f).
+  static const transferAccountLines = 3;
+}
+
+List<String> _accountLines(String text) => [
+  for (final line in text.split('\n'))
+    if (line.trim() case final t when t.isNotEmpty) t,
+];
+
+/// Rekening transfer dirapikan (F1-05f): tiap baris dipangkas, baris
+/// kosong dibuang, digabung dengan `\n`.
+String normalizeTransferAccounts(String text) => _accountLines(text).join('\n');
+
+/// Data tersimpan dibatasi agar simpan ulang aturan lain tidak gagal
+/// karena data lama/rusak.
+String _storedTransferAccounts(String text) => [
+  for (final line in _accountLines(
+    text,
+  ).take(ProfileLimits.transferAccountLines))
+    line.characters.take(ProfileLimits.transferAccount).toString().trim(),
+].join('\n');
+
+/// Galat isian rekening transfer (F1-05f).
+enum TransferAccountIssue { tooMany, tooLong }
+
+/// Galat isian rekening [text] setelah dirapikan, atau `null`.
+TransferAccountIssue? transferAccountIssue(String text) {
+  final lines = _accountLines(text);
+  if (lines.length > ProfileLimits.transferAccountLines) {
+    return TransferAccountIssue.tooMany;
+  }
+  if (lines.any((l) => l.characters.length > ProfileLimits.transferAccount)) {
+    return TransferAccountIssue.tooLong;
+  }
+  return null;
 }
 
 enum ProfileIssue { required, tooLong, invalidPhone }

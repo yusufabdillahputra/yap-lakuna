@@ -38,12 +38,18 @@ String receiptDate(DateTime local) {
 }
 
 /// Baris `Transfer ke: <rekening>` (F1-05e) untuk struk yang masih
-/// menyisakan piutang: tanpa nilai kanan agar rekening panjang dibungkus
-/// rata kiri; spasi dan baris baru dirapikan. `null` bila rekening kosong.
-ReceiptPair? receiptTransferLine(AppLocalizations l10n, String account) {
-  final text = account.trim().split(RegExp(r'\s+')).join(' ');
-  return text.isEmpty ? null : ReceiptPair(l10n.receiptTransferTo(text), '');
-}
+/// menyisakan piutang, satu per rekening (F1-05f): tanpa nilai kanan agar
+/// rekening panjang dibungkus rata kiri; spasi dirapikan. Kosong bila
+/// tanpa rekening.
+List<ReceiptPair> receiptTransferLines(
+  AppLocalizations l10n,
+  List<String> accounts,
+) => [
+  for (final account in accounts)
+    if (account.trim().split(RegExp(r'\s+')).join(' ') case final text
+        when text.isNotEmpty)
+      ReceiptPair(l10n.receiptTransferTo(text), ''),
+];
 
 List<String> _footer(AppLocalizations l10n, ReceiptConfig config) =>
     config.footerLines ?? [l10n.receiptThanks];
@@ -169,7 +175,7 @@ ReceiptContent saleReceiptContent(
         // penuh tidak ditagih lagi.
         if (sale.status != SaleStatus.voided &&
             sale.status != SaleStatus.returned)
-          ?receiptTransferLine(l10n, config.transferAccount),
+          ...receiptTransferLines(l10n, config.transferAccounts),
       ],
       // Cetak ulang nota yang diretur (F1-11): nilai retur dan bersih.
       if (returned != 0) ...[
@@ -281,7 +287,7 @@ ReceiptContent billReceiptContent(
           l10n.receiptPendingConfirm,
           receiptAmount(l10n, pending.value),
         ),
-      ?receiptTransferLine(l10n, config.transferAccount),
+      ...receiptTransferLines(l10n, config.transferAccounts),
     ],
     footer: _footer(l10n, config),
   );

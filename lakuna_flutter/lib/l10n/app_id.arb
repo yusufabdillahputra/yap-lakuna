@@ -5320,7 +5320,7 @@
   "@storeSettingsTransferAccount": {
     "placeholders": {}
   },
-  "storeSettingsTransferAccountHint": "Opsional. Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.",
+  "storeSettingsTransferAccountHint": "Opsional. Satu rekening per baris, maksimal 3 (mis. BCA dan Mandiri). Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.",
   "@storeSettingsTransferAccountHint": {
     "placeholders": {}
   },
@@ -5472,5 +5472,21 @@
   "reportsSessionRecapLoadFailed": "Rekap sesi tidak bisa dimuat.",
   "reportsSessionRecapNotClosed": "Sesi tidak ditemukan di cabang ini atau belum ditutup.",
   "reportsSessionRecapOpen": "Cetak ulang rekap sesi",
-  "reportsCashReprintHint": "Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya."
+  "reportsCashReprintHint": "Ketuk sesi yang sudah ditutup untuk melihat dan mencetak ulang rekapnya.",
+  "storeSettingsTransferTooMany": "Maksimal {count} rekening.",
+  "@storeSettingsTransferTooMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storeSettingsTransferLineTooLong": "Satu rekening maksimal {count} karakter.",
+  "@storeSettingsTransferLineTooLong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

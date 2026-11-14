@@ -124,7 +124,7 @@ void main() {
     final english = kuitansiDocument(
       en,
       receipt: receipt(),
-      setup: setup('BCA  1234567890\n a.n. Toko Maju'),
+      setup: setup('BCA  1234567890\t a.n. Toko Maju'),
       copy: false,
       showDetails: true,
       showBalance: true,
@@ -137,5 +137,17 @@ void main() {
     expect(has(a5(receipt(), showBalance: false)), isFalse);
     expect(has(a5(receipt(voided: true))), isFalse);
     expect(has(a5(receipt(), acc: ' ')), isFalse);
+  });
+
+  test('beberapa rekening (F1-05f): satu baris per rekening', () {
+    const two = '$account\n\nMandiri  987 654';
+    expect(thermal(receipt(), acc: two).sublist(3), [
+      'Transfer ke: $account|',
+      'Transfer ke: Mandiri 987 654|',
+    ]);
+    expect(
+      a5(receipt(), acc: two).last,
+      'Transfer sisa ke|$account\nMandiri 987 654',
+    );
   });
 }

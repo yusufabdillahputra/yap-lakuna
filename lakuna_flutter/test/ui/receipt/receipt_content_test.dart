@@ -413,7 +413,7 @@ void main() {
   });
 
   group('rekening transfer di struk piutang (F1-05e)', () {
-    const account = 'BCA 1234567890\n a.n.  Toko Maju';
+    const account = 'BCA 1234567890\t a.n.  Toko Maju';
     const withAccount = ReceiptConfig(
       settings: ReceiptSettings(),
       transferAccount: account,
@@ -462,6 +462,23 @@ void main() {
       expect(
         content(credit(), l10n: en).totals.last.label,
         'Transfer to: BCA 1234567890 a.n. Toko Maju',
+      );
+    });
+
+    test('beberapa rekening (F1-05f): satu baris per rekening', () {
+      final c = content(
+        credit(),
+        cfg: const ReceiptConfig(
+          settings: ReceiptSettings(),
+          transferAccount: '$account\nMandiri 987 654',
+        ),
+      );
+      expect(
+        c.totals.map((p) => p.label).toList().sublist(c.totals.length - 2),
+        [
+          'Transfer ke: BCA 1234567890 a.n. Toko Maju',
+          'Transfer ke: Mandiri 987 654',
+        ],
       );
     });
 

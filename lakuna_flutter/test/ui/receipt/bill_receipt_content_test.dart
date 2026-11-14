@@ -166,6 +166,20 @@ void main() {
     expect(c.footer, ['Terima kasih, sampai jumpa lagi!']);
   });
 
+  test('beberapa rekening (F1-05f): satu baris per rekening', () {
+    final c = content(
+      bill(),
+      cfg: const ReceiptConfig(
+        settings: ReceiptSettings(),
+        transferAccount: 'BCA 1234567890\nMandiri 987 654',
+      ),
+    );
+    expect(c.totals.map((p) => p.label).skip(c.totals.length - 2), [
+      'Transfer ke: BCA 1234567890',
+      'Transfer ke: Mandiri 987 654',
+    ]);
+  });
+
   test('take away memakai label antrean; tanpa rekening tanpa baris', () {
     final c = content(
       bill(takeAway: true),

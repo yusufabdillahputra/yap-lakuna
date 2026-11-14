@@ -64,6 +64,20 @@ void main() {
     expect(saved.transferAccount, 'BCA 1234567890 a.n. Toko');
   });
 
+  test('beberapa rekening per baris (F1-05f)', () async {
+    expect((await loadReceiptConfig(store, scope)).transferAccounts, isEmpty);
+    await saveSalesRules(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      rules: const SalesRules(transferAccount: 'BCA 1\nMandiri 2'),
+    );
+    expect((await loadReceiptConfig(store, scope)).transferAccounts, [
+      'BCA 1',
+      'Mandiri 2',
+    ]);
+  });
+
   test('simpan lalu muat; header kosong tetap kosong (bukan bawaan)', () async {
     await Outlet.db.updateRow(
       store.session,

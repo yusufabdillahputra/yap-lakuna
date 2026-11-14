@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_domain/lakuna_domain.dart'
+    as domain
+    show transferAccountIssue;
 
 import '../../data/repositories/store_settings_repository.dart';
 import '../../utils/command.dart';
@@ -78,8 +81,17 @@ class StoreSettingsViewModel extends ChangeNotifier {
           _phone.trim() != _profile!.phone);
 
   bool get rulesDirty =>
-      _rules.copyWith(transferAccount: _rules.transferAccount.trim()) !=
+      _rules.copyWith(
+        transferAccount: normalizeTransferAccounts(_rules.transferAccount),
+      ) !=
       _storedRules;
+
+  /// Galat isian rekening transfer (F1-05f): lebih dari 3 rekening atau
+  /// baris lebih dari 100 karakter.
+  TransferAccountIssue? get transferAccountIssue =>
+      domain.transferAccountIssue(_rules.transferAccount);
+
+  bool get canSaveRules => rulesDirty && transferAccountIssue == null;
 
   void setBusinessName(String v) {
     _businessName = v;

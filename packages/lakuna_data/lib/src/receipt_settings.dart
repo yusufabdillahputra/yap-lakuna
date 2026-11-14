@@ -115,6 +115,10 @@ class ReceiptConfig {
   /// piutang (F1-05e); kosong bila belum diatur.
   final String transferAccount;
 
+  /// Rekening transfer per baris (F1-05f).
+  List<String> get transferAccounts =>
+      SalesRules(transferAccount: transferAccount).transferAccounts;
+
   /// Berkas logo struk (F1-06b); `null` bila belum ada atau berkasnya belum
   /// ada di perangkat ini. Untuk pratinjau di pengaturan.
   final Uint8List? logoImage;

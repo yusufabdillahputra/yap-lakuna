@@ -288,8 +288,8 @@ class _SplitPanelState extends State<SplitPanel> {
             ),
             // Rekening toko untuk bagian transfer (F1-05d).
             if (vm.draftMethod == PaymentMethod.transfer &&
-                vm.transferAccount.isNotEmpty)
-              TransferAccountBox(account: vm.transferAccount),
+                vm.transferAccounts.isNotEmpty)
+              TransferAccountBox(accounts: vm.transferAccounts),
             if (vm.draftTakesReference)
               FTextField(
                 key: const ValueKey('split-reference'),

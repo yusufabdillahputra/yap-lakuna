@@ -110,6 +110,36 @@ void main() {
       expect(full.transferAccount.length, 100);
     });
 
+    test('beberapa rekening (F1-05f): per baris, maks 3', () async {
+      final saved = await rules(
+        const SalesRules(transferAccount: ' BCA 1 \n\n Mandiri 2 \n'),
+      );
+      expect(saved.transferAccount, 'BCA 1\nMandiri 2');
+      expect((await loadSalesRules(store.session, scope)).transferAccounts, [
+        'BCA 1',
+        'Mandiri 2',
+      ]);
+      expect(
+        () => rules(const SalesRules(transferAccount: 'A\nB\nC\nD')),
+        throwsA(isA<SalesRulesInvalid>()),
+      );
+      expect(
+        () => rules(SalesRules(transferAccount: 'A\n${'x' * 101}')),
+        throwsA(isA<SalesRulesInvalid>()),
+      );
+      expect(
+        (await loadSalesRules(store.session, scope)).transferAccount,
+        'BCA 1\nMandiri 2',
+      );
+      // Tiga rekening, masing-masing 100 karakter, boleh.
+      final full = await rules(
+        SalesRules(
+          transferAccount: ['a' * 100, 'b' * 100, 'c' * 100].join('\n'),
+        ),
+      );
+      expect(full.transferAccounts, hasLength(3));
+    });
+
     test('pembulatan Rp 100: total, selisih, dan bayar pas', () async {
       await rules(const SalesRules(rounding: TotalRounding.nearest100));
       await openSession();

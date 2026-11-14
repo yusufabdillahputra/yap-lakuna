@@ -247,8 +247,24 @@ class StoreSettingsSection extends StatelessWidget {
             label: Text(l10n.storeSettingsTransferAccount),
             description: Text(l10n.storeSettingsTransferAccountHint),
             hint: l10n.storeSettingsTransferAccountExample(vm.businessName),
-            maxLength: ProfileLimits.transferAccount,
+            // Satu rekening per baris (F1-05f); batas per baris dicek VM.
+            minLines: 1,
+            maxLines: ProfileLimits.transferAccountLines,
+            keyboardType: TextInputType.multiline,
             enabled: !busy,
+            error: switch (vm.transferAccountIssue) {
+              TransferAccountIssue.tooMany => Text(
+                l10n.storeSettingsTransferTooMany(
+                  ProfileLimits.transferAccountLines,
+                ),
+              ),
+              TransferAccountIssue.tooLong => Text(
+                l10n.storeSettingsTransferLineTooLong(
+                  ProfileLimits.transferAccount,
+                ),
+              ),
+              null => null,
+            },
             control: .managed(
               initial: TextEditingValue(text: vm.rules.transferAccount),
               onChange: (v) => vm.setTransferAccount(v.text),
@@ -260,7 +276,7 @@ class StoreSettingsSection extends StatelessWidget {
             command: vm.saveRules,
             keyPrefix: 'store-rules',
             saved: l10n.storeSettingsRulesSaved,
-            canSave: vm.rulesDirty,
+            canSave: vm.canSaveRules,
           ),
         ],
       ),

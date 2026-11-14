@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forui/forui.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/app_settings_repository.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -108,6 +109,32 @@ void main() {
       },
     );
 
+    test('beberapa rekening (F1-05f): galat dan Simpan nonaktif', () async {
+      final repo = FakeStoreSettingsRepository();
+      final vm = StoreSettingsViewModel(repository: repo);
+      await vm.load.execute();
+      vm.setTransferAccount('BCA 1\nMandiri 2\nBRI 3\nBNI 4');
+      expect(vm.transferAccountIssue, TransferAccountIssue.tooMany);
+      expect(vm.rulesDirty, isTrue);
+      expect(vm.canSaveRules, isFalse);
+      vm.setTransferAccount('BCA 1\n${'x' * 101}');
+      expect(vm.transferAccountIssue, TransferAccountIssue.tooLong);
+      expect(vm.canSaveRules, isFalse);
+      // Baris kosong dan spasi tidak dihitung.
+      vm.setTransferAccount(' BCA 1 \n\n Mandiri 2 \n');
+      expect(vm.transferAccountIssue, isNull);
+      expect(vm.canSaveRules, isTrue);
+      final rev = vm.revision;
+      await vm.saveRules.execute();
+      expect(repo.rules.transferAccount, 'BCA 1\nMandiri 2');
+      expect(vm.rules.transferAccounts, ['BCA 1', 'Mandiri 2']);
+      expect(vm.rulesDirty, isFalse);
+      expect(vm.revision, greaterThan(rev));
+      // Hanya baris kosong ditambahkan: tidak kotor.
+      vm.setTransferAccount('BCA 1\n\nMandiri 2\n');
+      expect(vm.rulesDirty, isFalse);
+    });
+
     test('gagal simpan tetap kotor', () async {
       final repo = FakeStoreSettingsRepository(failSave: true);
       final vm = StoreSettingsViewModel(repository: repo);
@@ -167,6 +194,22 @@ void main() {
     expect(repo.calls.last, 'rules:false:nearest100');
     expect(repo.rules.discountNeedsPin, isFalse);
     expect(repo.rules.transferAccount, 'BCA 123-456-7890 a.n. Warung');
+
+    // Beberapa rekening (F1-05f): galat 4 rekening, lalu 2 rekening.
+    await _type(
+      tester,
+      'store-rules-transfer',
+      'BCA 1\nMandiri 2\nBRI 3\nBNI 4',
+    );
+    expect(find.text('Maksimal 3 rekening.'), findsOneWidget);
+    expect(
+      tester.widget<FButton>(_key('store-rules-save')).onPress,
+      isNull,
+    );
+    await _type(tester, 'store-rules-transfer', 'BCA 1\nMandiri 2');
+    expect(find.text('Maksimal 3 rekening.'), findsNothing);
+    await _tap(tester, 'store-rules-save');
+    expect(repo.rules.transferAccounts, ['BCA 1', 'Mandiri 2']);
   });
 
   testWidgets('360: pil bagian dan ukuran tampilan Besar', (tester) async {

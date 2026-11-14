@@ -17,17 +17,19 @@ String _dueNote(AppLocalizations l10n, DebtPaymentReceipt r) {
 }
 
 /// Rekening transfer (F1-05e) bila sisa piutang tercetak dan masih ada:
-/// opsi sisa aktif, kuitansi tidak batal, sisa > 0. Spasi dirapikan.
-String? _transferAccount(
+/// opsi sisa aktif, kuitansi tidak batal, sisa > 0. Satu per rekening
+/// (F1-05f); spasi dirapikan.
+List<String> _transferAccounts(
   DebtPaymentReceipt r,
   CustomersSetup setup,
   bool showBalance,
 ) {
-  if (!showBalance || r.payment.voidedAt != null) return null;
-  if (r.balanceAfter.value <= 0) return null;
-  final text = setup.receipt.transferAccount.trim().split(RegExp(r'\s+'));
-  final account = text.join(' ');
-  return account.isEmpty ? null : account;
+  if (!showBalance || r.payment.voidedAt != null) return const [];
+  if (r.balanceAfter.value <= 0) return const [];
+  return [
+    for (final account in setup.receipt.transferAccounts)
+      account.split(RegExp(r'\s+')).join(' '),
+  ];
 }
 
 /// Cap kuitansi: *BATAL* untuk pembayaran yang dibatalkan (F1-13c),
@@ -85,8 +87,9 @@ KuitansiDocument kuitansiDocument(
         KuitansiField(l10n.kuitansiVoidReason, reason),
       // Di akhir, berlabel "sisa", agar tidak terbaca sebagai tujuan
       // pembayaran ini (mis. kuitansi tunai).
-      if (_transferAccount(receipt, setup, showBalance) case final account?)
-        KuitansiField(l10n.kuitansiBalanceTransferTo, account),
+      if (_transferAccounts(receipt, setup, showBalance) case final accounts
+          when accounts.isNotEmpty)
+        KuitansiField(l10n.kuitansiBalanceTransferTo, accounts.join('\n')),
     ],
     tableHead: showDetails
         ? [
@@ -163,8 +166,10 @@ ReceiptContent kuitansiReceiptContent(
           l10n.kuitansiBalance,
           receiptAmount(l10n, receipt.balanceAfter.value),
         ),
-      if (_transferAccount(receipt, setup, showBalance) case final account?)
-        ?receiptTransferLine(l10n, account),
+      ...receiptTransferLines(
+        l10n,
+        _transferAccounts(receipt, setup, showBalance),
+      ),
     ],
     footer: [l10n.receiptThanks],
   );
