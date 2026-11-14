@@ -7,7 +7,7 @@ One order can be paid with several methods, for example part cash and the rest b
 ## Steps
 
 1. On the Pay screen, choose **Split across methods**.
-2. Choose the first method, enter the **Amount**, then tap **Add method** for the next one. The *Remaining* amount is shown below. For card and transfer, also fill in the **Card approval no.** or **Transfer reference** if you have one (optional, up to 40 characters).
+2. Choose the first method, enter the **Amount**, then tap **Add method** for the next one. The *Remaining* amount is shown below. For card and transfer, also fill in the **Card approval no.** or **Transfer reference** if you have one (optional, up to 40 characters). When you choose **Bank transfer**, the store account from [Store settings](store-settings) appears in the *Transfer to* box; tap **Copy** and send it to the buyer.
 3. For static QRIS, tap **Confirm** once the money arrives. A QRIS part stays *Waiting* until confirmed.
 4. When nothing remains, tap **Complete payment**.
 

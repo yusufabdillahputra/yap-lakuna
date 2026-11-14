@@ -74,5 +74,5 @@ bayar, siap disalin.
 | Rekening transfer di tombol dan panel bayar | 1.5 | Rilis v0.74.0 | Isian di *Penjualan & stok*. |
 | Pindah ke halaman *Metode pembayaran* | 1.26 | Belum | Halaman itu kini khusus QRIS statis; pindahkan bila metode lain ikut diatur di sana. |
 | Rekening transfer di struk | — | Belum | Berguna untuk nota piutang/pesanan yang dibayar nanti. |
-| Rekening di baris transfer *Bagi metode* | 1.5 | Belum | Panel split payment memakai daftar baris sendiri. |
+| Rekening di baris transfer *Bagi metode* | 1.5 | Rilis v0.76.0 | [F1-05d](2026-11-14-f1-05d-rekening-split-payment-design.md): kotak *Transfer ke* saat metode transfer dipilih. |
 | Beberapa rekening terpisah (pilih bank) | — | Belum | Sekarang satu baris teks bebas, mis. `BCA 123 · Mandiri 456`. |

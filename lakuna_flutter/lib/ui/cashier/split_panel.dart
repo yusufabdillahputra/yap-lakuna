@@ -9,7 +9,7 @@ import '../core/format.dart';
 import '../products/product_widgets.dart' show ChoicePill;
 import 'cashier_view_model.dart';
 import 'payment_view.dart'
-    show PaymentPanel, paymentMethodLabel, tabularFigures;
+    show PaymentPanel, TransferAccountBox, paymentMethodLabel, tabularFigures;
 import 'qris_panel.dart' show qrisAmber, qrisAmberInk, showQrisPartDialog;
 
 /// Split payment (panel kanan 1.5): bagian-bagian pembayaran, form tambah
@@ -286,6 +286,10 @@ class _SplitPanelState extends State<SplitPanel> {
               ),
               onSubmit: (_) => vm.addPart(),
             ),
+            // Rekening toko untuk bagian transfer (F1-05d).
+            if (vm.draftMethod == PaymentMethod.transfer &&
+                vm.transferAccount.isNotEmpty)
+              TransferAccountBox(account: vm.transferAccount),
             if (vm.draftTakesReference)
               FTextField(
                 key: const ValueKey('split-reference'),

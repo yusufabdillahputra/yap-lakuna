@@ -385,6 +385,60 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets(
+      'rekening di baris transfer Bagi metode ${size.width.toInt()} px '
+      '(F1-05d)',
+      (tester) async {
+        const account = 'BCA 123-456-7890 a.n. Warung Contoh';
+        final repo = await pump(
+          tester,
+          size: size,
+          rules: const SalesRules(transferAccount: account),
+        );
+        for (var i = 0; i < 2; i++) {
+          await _tap(tester, productKey(repo, 'Kopi Sachet'));
+        }
+        if (size.width < 600) await _tap(tester, 'cashier-view-order');
+        await _tap(tester, 'cashier-pay');
+        await _tap(tester, 'payment-method-split');
+        final box = find.descendant(
+          of: _key('payment-split'),
+          matching: _key('payment-transfer-account'),
+        );
+        // Tunai dan kartu: tanpa kotak rekening.
+        expect(box, findsNothing);
+        await _tap(tester, 'split-method-card');
+        expect(box, findsNothing);
+        await _tap(tester, 'split-method-transfer');
+        expect(box, findsOneWidget);
+        expect(
+          find.descendant(of: box, matching: find.text(account)),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        // Setelah bagian transfer ditambah, metode berganti (tunai, atau
+        // kartu bila sudah ada bagian tunai) sehingga kotak hilang.
+        await tester.enterText(_input('split-amount'), '2000');
+        await tester.pumpAndSettle();
+        await _tap(tester, 'split-add');
+        expect(box, findsNothing);
+      },
+    );
+  }
+
+  testWidgets('tanpa rekening: Bagi metode transfer tanpa kotak (F1-05d)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-split');
+    await _tap(tester, 'split-method-transfer');
+    expect(_key('split-reference'), findsOneWidget);
+    expect(_key('payment-transfer-account'), findsNothing);
+  });
+
   testWidgets('tanpa rekening: Cek mutasi dulu, tanpa kotak rekening', (
     tester,
   ) async {
