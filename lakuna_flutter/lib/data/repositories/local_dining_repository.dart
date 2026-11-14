@@ -229,6 +229,35 @@ class LocalDiningRepository extends DiningRepository {
   });
 
   @override
+  Future<Result<OpenBill>> setItemDiscount(
+    UuidValue itemId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  }) => _guard((ctx, staff) async {
+    if (discount != null &&
+        approverId == null &&
+        !staff.can(Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    final bill = await setBillItemDiscount(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      itemId: itemId,
+      discount: discount,
+      approverId: discount == null ? null : approverId,
+    );
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.salesDiscount);
+    }
+    return bill;
+  });
+
+  @override
   Future<Result<void>> voidBill(
     UuidValue billId,
     String reason, {

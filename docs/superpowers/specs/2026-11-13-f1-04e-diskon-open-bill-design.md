@@ -74,7 +74,7 @@ diskon nota di Kasir retail: persen atau rupiah, staf tanpa izin
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Diskon nota di open bill F&B | 1.7, 1.5 | Rilis v0.32.0 | Termasuk split bill dan kredit *Tutup & bayar*. |
-| Diskon per baris di open bill | — | Belum | Butuh menu per item di panel bill. |
+| Diskon per baris di open bill | 1.7 | Rilis v0.53.0 | [F1-04g](2026-11-14-f1-04g-diskon-baris-open-bill-design.md). |
 | Persetujuan ulang bila dasar diskon rupiah mengecil | — | Belum | Sama dengan keranjang Kasir: diskon rupiah tetap tercatat disetujui walau item berkurang (persentasenya naik). |
 | Pemberi diskon tercatat | — | Belum | Staf berizin yang menerapkan tidak dicatat (`discount_approved_by` kosong); nota memakai staf penutup bill. |
 | Persetujuan PIN Kasir dan Meja terpisah | — | Belum | Persetujuan sesi dikunci (penyetuju, izin); persetujuan diskon di Meja ikut memakai persetujuan diskon Kasir yang belum terpakai. |

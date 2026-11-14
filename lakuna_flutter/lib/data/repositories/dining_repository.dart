@@ -142,6 +142,15 @@ abstract class DiningRepository {
     UuidValue? approverId,
   });
 
+  /// Diskon baris item [itemId] (F1-04g); `null` menghapus. Izin dan
+  /// [approverId] sama dengan [setDiscount]. Gagal dengan `NotPermitted`,
+  /// `DiscountTooLarge`, atau `SplitLocked`.
+  Future<Result<OpenBill>> setItemDiscount(
+    UuidValue itemId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  });
+
   Future<Result<OpenBill>> moveBill(UuidValue billId, UuidValue tableId);
 
   /// *Gabung meja* (F1-10d): bill [sourceBillId] digabung ke

@@ -14,6 +14,17 @@ The cashier can give a discount on the whole order or per item, as a percentage 
 
 Long-press an order line, then enter the line discount the same way.
 
+## Discounts on table and take-away bills
+
+On the **Tables** screen, the bill panel has a **Discount** button for an order discount on the whole bill. For a single menu item (for example, a dish that came out late), tap the percent button on that item's row and enter the **Item discount** the same way.
+
+- Line discounts work for items that are *New*, *In kitchen*, or *Served*. The discount shows under the item name, and the price on the right is already net.
+- A percentage discount follows the item when its quantity changes; an amount discount stays the same but never exceeds the line total.
+- Adding the same menu item again creates a new line without a discount.
+- Service, PB1, and the order discount are calculated from the total after line discounts.
+- When splitting a bill per item, lines with a percentage discount can be shared between guests. Remove an amount discount, or change it to a percentage, before splitting that line.
+- Once a split bill has a part payment, discounts can no longer be changed.
+
 ## Manager approval
 
 Manual discounts need the *Manual discounts* permission. If the cashier lacks it and **Manual discount needs manager PIN** is on, a *Manager approval* window appears after **Apply**: a permitted staff member chooses their name and enters their PIN. The approver's name is recorded on the receipt.

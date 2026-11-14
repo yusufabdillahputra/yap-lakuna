@@ -33,6 +33,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.50.0 | Foto faktur pembelian (F1-12b) | #56 |
 | v0.51.0 | PDF pembelian + tautan kartu stok (F1-12c) | #57 |
 | v0.52.0 | Produk pertama di onboarding (F1-01b) | #58 |
+| v0.53.0 | Diskon per baris di open bill F&B (F1-04g) | #59 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -40,7 +41,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 ## Gap Fase 1 yang paling berguna untuk dilanjutkan
 
 1. ~~Diskon di open bill / split bill F&B~~ — selesai v0.32.0 (F1-04e);
-   diskon per baris di bill masih gap.
+   ~~diskon per baris di bill~~ — selesai v0.53.0 (F1-04g); membagi baris
+   berdiskon rupiah per tamu masih gap.
 2. **Kredit per bagian split bill** — spec F1-13b. Butuh pelanggan per
    bagian tamu dan dokumen piutang per bagian, karena saat ini piutang
    melekat pada satu nota dengan satu pelanggan. Perlu desain model data

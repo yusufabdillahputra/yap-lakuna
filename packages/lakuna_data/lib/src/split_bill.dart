@@ -320,22 +320,32 @@ Future<void> _moveQuantity(
     if (i >= 0) rows[i] = row;
   }
 
-  SaleItem sized(SaleItem row, Qty q) => row.copyWith(
-    quantityMilli: q.milli,
-    lineTotal: _lineTotal(Money(row.unitPrice), row.modifierDelta, q).value,
-  );
+  SaleItem sized(SaleItem row, Qty q) => _withGross(
+    row,
+    _lineTotal(Money(row.unitPrice), row.modifierDelta, q),
+  ).copyWith(quantityMilli: q.milli);
 
+  // Diskon baris rupiah tidak bisa dibagi (F1-04g); persen dibagi dengan
+  // persen yang sama.
+  final discount = billItemDiscountOf(source);
+  final rupiah = discount?.kind == DiscountKind.amount;
+  if (rupiah && qty.milli < source.quantityMilli) {
+    throw const BillItemDiscounted();
+  }
   final root = source.splitFromItemId ?? source.id;
-  final target = rows
-      .where(
-        (i) =>
-            i.id != source.id &&
-            (i.splitFromItemId ?? i.id) == root &&
-            i.guestLabel == label &&
-            i.kitchenStatus == source.kitchenStatus &&
-            i.kitchenTicketId == source.kitchenTicketId,
-      )
-      .firstOrNull;
+  final target = rupiah
+      ? null
+      : rows
+            .where(
+              (i) =>
+                  i.id != source.id &&
+                  (i.splitFromItemId ?? i.id) == root &&
+                  i.guestLabel == label &&
+                  i.kitchenStatus == source.kitchenStatus &&
+                  i.kitchenTicketId == source.kitchenTicketId &&
+                  billItemDiscountOf(i) == discount,
+            )
+            .firstOrNull;
   if (target != null) {
     replace(
       await w.update(
@@ -524,6 +534,12 @@ Future<OpenBill> assignPortion(
   return loadOpenBill(store, scope, billId);
 }
 
+/// Baris berdiskon rupiah tidak bisa dibagi per porsi (F1-04g): hapus
+/// diskonnya atau ubah ke persen dulu.
+class BillItemDiscounted implements Exception {
+  const BillItemDiscounted();
+}
+
 /// Hasil bayar bagian: bill terkini, atau [receipt] bila bill lunas.
 class SplitPayResult {
   const SplitPayResult({this.bill, this.receipt});
@@ -565,7 +581,7 @@ Future<SplitPayResult> paySplitPart(
       transaction: w.transaction,
     );
     final charges = _charges(sale, items, rates);
-    _assertPayable(sale, charges);
+    _assertPayable(sale, items, charges);
     final existing = await _billPayments(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);

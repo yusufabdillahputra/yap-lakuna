@@ -51,6 +51,13 @@ typedef BillDiscountChange = ({
   UuidValue? approverId,
 });
 
+/// Diskon baris item bill (F1-04g): `discount` `null` = hapus.
+typedef BillItemDiscountChange = ({
+  UuidValue itemId,
+  ManualDiscount? discount,
+  UuidValue? approverId,
+});
+
 /// View model layar Meja & open bill (1.7 / 1.7e, F1-10).
 class DiningViewModel extends ChangeNotifier {
   DiningViewModel({required this._repository, required this._printer}) {
@@ -70,6 +77,7 @@ class DiningViewModel extends ChangeNotifier {
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
     setDiscount = Command1(_setDiscount)..addListener(notifyListeners);
+    setItemDiscount = Command1(_setItemDiscount)..addListener(notifyListeners);
   }
 
   final DiningRepository _repository;
@@ -110,6 +118,9 @@ class DiningViewModel extends ChangeNotifier {
 
   /// Terapkan / hapus diskon nota bill terpilih (F1-04e).
   late final Command1<OpenBill, BillDiscountChange> setDiscount;
+
+  /// Terapkan / hapus diskon baris item bill terpilih (F1-04g).
+  late final Command1<OpenBill, BillItemDiscountChange> setItemDiscount;
 
   DiningData? _data;
   DiningMode _mode = DiningMode.dineIn;
@@ -185,10 +196,39 @@ class DiningViewModel extends ChangeNotifier {
     return after.total <= Money.zero ? DiscountIssue.tooLarge : null;
   }
 
+  /// Galat diskon baris [discount] untuk [item] bill terpilih; `null` bila
+  /// sah. Dasar = total baris sebelum diskon baris; total bill setelah
+  /// semua diskon harus > 0.
+  DiscountIssue? itemDiscountIssue(SaleItem item, ManualDiscount discount) {
+    final bill = selectedBill;
+    if (bill == null) return DiscountIssue.invalid;
+    final gross = Money(item.lineTotal + item.discountAmount);
+    final issue = discount.issue(gross);
+    if (issue != null) return issue;
+    final subtotal =
+        bill.charges.subtotal -
+        Money(item.lineTotal) +
+        gross -
+        discount.cut(gross);
+    final after = fnbCharges(
+      subtotal,
+      dineIn: !bill.isTakeAway,
+      serviceBp: bill.rates.service,
+      taxBp: bill.rates.tax,
+      taxInclusive: bill.rates.taxInclusive,
+      rounding: bill.rates.rounding,
+      discount: bill.discount,
+    );
+    return after.total <= Money.zero ? DiscountIssue.tooLarge : null;
+  }
+
   /// Diskon menghabiskan total bill terpilih (item berkurang): bayar ditolak
   /// sampai diskon diubah.
-  bool get discountBlocksPay => switch (selectedBill?.charges) {
-    final c? => c.discount > Money.zero && c.total <= Money.zero,
+  bool get discountBlocksPay => switch (selectedBill) {
+    final b? =>
+      (b.charges.discount > Money.zero ||
+              b.items.any((i) => billItemDiscountOf(i) != null)) &&
+          b.charges.total <= Money.zero,
     null => false,
   };
   FnbRates get rates => _overview?.rates ?? const FnbRates();
@@ -490,7 +530,8 @@ class DiningViewModel extends ChangeNotifier {
       setCustomer.running ||
       voidBill.running ||
       deleteEmpty.running ||
-      setDiscount.running;
+      setDiscount.running ||
+      setItemDiscount.running;
 
   // --- Menu ------------------------------------------------------------------
 
@@ -670,6 +711,16 @@ class DiningViewModel extends ChangeNotifier {
       onOk: _put,
     );
   }
+
+  Future<Result<OpenBill>> _setItemDiscount(BillItemDiscountChange change) =>
+      _act(
+        () => _repository.setItemDiscount(
+          change.itemId,
+          change.discount,
+          approverId: change.approverId,
+        ),
+        onOk: _put,
+      );
 
   Future<Result<void>> _deleteEmpty(UuidValue billId) async {
     final result = await _act(() => _repository.deleteEmptyBill(billId));

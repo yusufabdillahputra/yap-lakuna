@@ -7,6 +7,66 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.53.0] - 2026-11-14
+
+Pelayan dan kasir kini bisa memotong harga satu menu di bill meja atau take
+away tanpa mendiskon seluruh bill, dengan aturan dan izin yang sama dengan
+diskon baris di Kasir retail.
+
+### Ditambahkan
+
+- **Diskon per baris di open bill F&B (1.7, F1-04g).** Setiap baris panel
+  bill punya tombol persen (`dining-item-discount-<item>`) yang membuka
+  dialog *Diskon baris* yang sama dengan Kasir: persen atau rupiah,
+  pratinjau potongan, dan *Hapus diskon*. Dasarnya total baris sebelum
+  diskon baris (harga × jumlah + modifier, setelah harga grosir/grup).
+  - Berlaku untuk item *Baru*, *Di dapur*, maupun *Disajikan*.
+  - Di bawah nama item tampil *Diskon 10% · − Rp 2.400* (atau *Diskon* untuk
+    rupiah); harga di kanan sudah bersih.
+  - Tombol tampil untuk staf berizin *Diskon manual*, atau bila sakelar
+    *Diskon manual butuh PIN manajer* hidup (staf lain diminta PIN manajer
+    setelah *Terapkan*, sekali pakai).
+- Panduan *Diskon manual* (ID/EN) mendapat bagian *Diskon di bill meja dan
+  take away*.
+
+### Diubah
+
+- Diskon nota, service, dan PB1 bill dihitung dari total baris setelah
+  diskon baris.
+- Menambah menu yang sama ke bill tidak lagi menggabungkannya ke baris yang
+  berdiskon; baris baru tanpa diskon dibuat.
+- Mengubah jumlah item atau harga grup pelanggan (pilih pelanggan, gabung
+  meja) menghitung ulang potongan: persen mengikuti total baris, rupiah tetap
+  tetapi dipangkas ke total baris.
+- Split bill per item: baris berdiskon persen dibagi dengan persen yang
+  sama di setiap porsi. Baris berdiskon rupiah tidak bisa dibagi
+  (*Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi.*); bila
+  hanya satu porsi, baris pindah utuh.
+- Menghapus diskon nota tidak lagi menghapus nama penyetuju selama masih ada
+  baris berdiskon; gabung meja membawa penyetuju diskon baris bill sumber.
+- Bill yang totalnya habis karena diskon baris (jumlah item berkurang
+  setelah diskon rupiah) tidak bisa dibayar sampai diskonnya diubah, sama
+  dengan diskon nota.
+
+### Catatan teknis
+
+- Tanpa kolom atau migrasi baru: diskon baris disimpan di
+  `sale_items.discount_bp` (persen) dan `discount_amount` (potongan
+  efektif), dengan `line_total` = total kotor − potongan, sama dengan Kasir
+  retail. Struk, riwayat, retur, dan laporan tidak berubah.
+- Bill terbuka dan nota lunasnya kini mengisi `sales.line_discount_amount`
+  (Σ potongan baris), dan `tier_discount` dihitung dari total kotor
+  sehingga potongan baris tidak tercatat sebagai diskon grosir.
+- Data: `setBillItemDiscount`, `billItemDiscountOf`, `BillItemDiscounted`;
+  `_withGross` dipakai saat harga dihitung ulang dan saat porsi split
+  dipecah atau digabung (hanya digabung bila diskonnya sama).
+- Flutter: `DiningRepository.setItemDiscount`,
+  `DiningViewModel.setItemDiscount` / `itemDiscountIssue`;
+  `discountBlocksPay` ikut memeriksa diskon baris.
+- Tes: 9 tes data baru (`bill_item_discount_test`), 4 tes view model, dan 3
+  tes widget (1280 px setelah dapur, 360 px pelayan + PIN manajer, tanpa
+  izin dengan sakelar mati).
+
 ## [0.52.0] - 2026-11-14
 
 Pemilik yang baru memasang Lakuna kini bisa langsung punya produk untuk
@@ -4145,7 +4205,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...HEAD
+[0.53.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...v0.50.0
