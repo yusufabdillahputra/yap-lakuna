@@ -58,6 +58,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.75.0 | Backup otomatis harian desktop (F1-19d) | #81 |
 | v0.76.0 | Rekening transfer di Bagi beberapa metode (F1-05d) | #82 |
 | v0.77.0 | Cari nomor HP dengan format apa pun (F1-13d) | #83 |
+| v0.78.0 | Tanggal arsip di dialog Produk diarsipkan (F1-07o) | #84 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -121,6 +122,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     (F1-05d); rekening di struk dan beberapa rekening masih gap.
 22. ~~Cari HP dengan format lain (+62, tanda hubung)~~ — selesai v0.77.0
     (F1-13d).
+23. ~~Tanggal arsip di dialog produk diarsipkan~~ — selesai v0.78.0
+    (F1-07o).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

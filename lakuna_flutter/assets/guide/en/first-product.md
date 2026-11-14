@@ -38,4 +38,8 @@ Supplier prices went up? Change the price columns in the same file, import it ag
 
 > [!note] Categories and units can also be managed in **Master data**. The category order there becomes the tab order at the cashier.
 
+## Archiving a product
+
+A product you no longer sell can be archived: open it, then tap **Archive product** below the form. The product disappears from the cashier, product list, stock, and purchases, but sales and purchase history stay. To bring it back, tap **Archived** on the product list, then **Restore**. That list also shows the category, last stock, and the date the product was archived.
+
 Once the product is saved, continue with [Sales & wholesale prices](sale).

@@ -38,4 +38,8 @@ Harga dari pemasok naik? Ubah kolom harga di berkas yang sama, import lagi, lalu
 
 > [!note] Kategori dan satuan juga bisa diatur di **Master data**. Urutan kategori di sana menjadi urutan tab di layar kasir.
 
+## Mengarsipkan produk
+
+Produk yang tidak dijual lagi bisa diarsipkan: buka produknya, lalu tekan **Arsipkan produk** di bawah form. Produk hilang dari Kasir, daftar produk, stok, dan pembelian, tetapi riwayat penjualan dan pembelian tetap ada. Untuk mengembalikannya, tekan **Diarsipkan** di daftar produk, lalu **Pulihkan**. Daftar itu juga menunjukkan kategori, stok terakhir, dan tanggal produk diarsipkan.
+
 Setelah produk tersimpan, lanjutkan ke [Transaksi & harga grosir](sale).

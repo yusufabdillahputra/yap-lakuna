@@ -5383,5 +5383,13 @@
   "backupAutoSaveFailed": "Sakelar gagal disimpan. Coba lagi.",
   "@backupAutoSaveFailed": {
     "placeholders": {}
+  },
+  "productsArchivedOn": "Diarsipkan {date}",
+  "@productsArchivedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

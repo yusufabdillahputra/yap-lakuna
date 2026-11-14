@@ -64,6 +64,8 @@ void main() {
     final vm = ArchivedProductsViewModel(repository: repo);
     await vm.load.execute();
     expect(vm.products!.map((p) => p.name), ['Kopi Sachet', 'Minyak Goreng']);
+    // Zona waktu cabang untuk tanggal arsip (F1-07o).
+    expect(vm.timezone, 'Asia/Jakarta');
     expect(vm.changed, isFalse);
 
     await vm.restore.execute(minyak.id);

@@ -4849,5 +4849,13 @@
   "backupAutoSaveFailed": "Could not save the switch. Try again.",
   "@backupAutoSaveFailed": {
     "placeholders": {}
+  },
+  "productsArchivedOn": "Archived {date}",
+  "@productsArchivedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

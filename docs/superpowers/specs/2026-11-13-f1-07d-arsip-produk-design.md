@@ -85,5 +85,5 @@ hilang dari semua daftar kerja.
 | --- | --- | --- | --- |
 | Arsipkan produk dari form 1.16 | "Hapus = arsip" | Rilis v0.35.0 | |
 | Pulihkan produk diarsipkan | — | Rilis v0.35.0 | Dialog dari 1.15. |
-| Tanggal arsip di dialog | — | Belum | Layar produk belum memegang zona waktu cabang. |
+| Tanggal arsip di dialog | — | Rilis v0.78.0 | [F1-07o](2026-11-14-f1-07o-tanggal-arsip-design.md): tanggal di zona cabang; tata letak ponsel diperbaiki. |
 | Hapus permanen | — | Tidak direncanakan | Riwayat dan ledger menunjuk varian. |
