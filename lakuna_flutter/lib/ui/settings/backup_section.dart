@@ -203,6 +203,8 @@ class BackupSection extends StatelessWidget {
             ],
           ),
         ),
+        if (vm.autoSupported && vm.autoBackup != null)
+          _AutoBackupCard(viewModel: vm),
         if (vm.needsPassword) _UnlockPanel(viewModel: vm),
         if (vm.pendingRestore case final m?)
           _RestorePanel(
@@ -225,6 +227,65 @@ class BackupSection extends StatelessWidget {
       BackupDismissed() => l10n.backupDismissed,
       null => null,
     };
+  }
+}
+
+/// Backup otomatis harian di desktop (F1-19d).
+class _AutoBackupCard extends StatelessWidget {
+  const _AutoBackupCard({required this.viewModel});
+
+  final BackupViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    final state = vm.autoBackup!;
+    return SettingsCard(
+      key: const ValueKey('backup-auto-card'),
+      title: l10n.backupAutoTitle,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 12,
+        children: [
+          FSwitch(
+            key: const ValueKey('backup-auto'),
+            label: Text(l10n.backupAutoSwitch),
+            description: Text(l10n.backupAutoHint(vm.autoFolderPath ?? '')),
+            value: state.enabled,
+            onChange: vm.setAuto.running ? null : vm.setAuto.execute,
+          ),
+          Text(
+            switch (vm.daysSinceAutoBackup) {
+              null => l10n.backupAutoLastNever,
+              0 => l10n.backupAutoLastToday,
+              final d => l10n.backupAutoLastDays(d),
+            },
+            key: const ValueKey('backup-auto-last'),
+            style: theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (state.failed && state.enabled)
+            Text(
+              l10n.backupAutoFailed,
+              key: const ValueKey('backup-auto-failed'),
+              style: theme.typography.body.sm.copyWith(
+                color: theme.colors.destructive,
+              ),
+            ),
+          if (vm.setAuto.error)
+            Text(
+              l10n.backupAutoSaveFailed,
+              key: const ValueKey('backup-auto-error'),
+              style: theme.typography.body.sm.copyWith(
+                color: theme.colors.destructive,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

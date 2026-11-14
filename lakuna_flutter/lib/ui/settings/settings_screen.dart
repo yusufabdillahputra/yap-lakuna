@@ -12,6 +12,7 @@ import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/store_repository.dart';
 import '../../data/repositories/store_settings_repository.dart';
+import '../../data/services/auto_backup.dart' show autoBackupSupported;
 import '../../data/services/backup_files.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
@@ -161,6 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         repository: widget.backup!,
         files: widget.backupFiles,
         restart: () async => _restart?.call(),
+        autoSupported: autoBackupSupported,
       )..load.execute();
     }
   }

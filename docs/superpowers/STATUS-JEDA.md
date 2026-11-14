@@ -55,6 +55,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.72.0 | Buang metadata lokasi dari gambar (F1-07n) | #78 |
 | v0.73.0 | Pemberi diskon open bill tercatat (F1-04i) | #79 |
 | v0.74.0 | Rekening transfer di layar bayar (F1-05c) | #80 |
+| v0.75.0 | Backup otomatis harian desktop (F1-19d) | #81 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -112,6 +113,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 19. ~~Peringatan uang keluar melebihi perkiraan laci~~ — selesai v0.69.0
     (F1-03c); ~~juga saat void nota tunai dan batal piutang tunai~~ —
     selesai v0.70.0 (F1-03d).
+20. ~~Backup otomatis harian (desktop)~~ — selesai v0.75.0 (F1-19d);
+    backup otomatis di ponsel dan backup otomatis terkunci masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -83,6 +83,101 @@ class LocalBackupRepository implements BackupRepository {
     return now;
   });
 
+  static const _autoKey = 'backup.auto';
+  static const _autoLastKey = 'backup.autoLastAt';
+  static const _autoFailedKey = 'backup.autoFailed';
+
+  @override
+  Future<AutoBackupState> autoBackup() async {
+    final raw = await _preferences.get(_autoLastKey);
+    return (
+      enabled: await _preferences.get(_autoKey) != 'off',
+      lastAt: raw == null ? null : DateTime.tryParse(raw)?.toUtc(),
+      failed: await _preferences.get(_autoFailedKey) == '1',
+    );
+  }
+
+  @override
+  Future<Result<void>> setAutoBackup(bool enabled) =>
+      _guard((_) => _preferences.set(_autoKey, enabled ? 'on' : 'off'));
+
+  @override
+  Future<Result<String>> runAutoBackup(Directory folder) async {
+    final ctx = _stores.current;
+    if (ctx == null) return const Result.error(StoreNotReady());
+    // Folder sementara sendiri: tidak menghapus salinan backup manual yang
+    // mungkin masih dibagikan.
+    final temp = Directory('${_exports.path}-otomatis');
+    File? part;
+    try {
+      final now = _clock();
+      final fileName = backupFileName(ctx, now);
+      if (temp.existsSync()) await temp.delete(recursive: true);
+      await temp.create(recursive: true);
+      final staged = p.join(temp.path, fileName);
+      await data.createBackup(
+        _store,
+        ctx,
+        outPath: staged,
+        appVersion: _appVersion,
+        now: now,
+      );
+      await folder.create(recursive: true);
+      final target = p.join(folder.path, fileName);
+      // Disalin ke `.part` lalu diganti nama: berkas setengah jadi (disk
+      // penuh, aplikasi ditutup) tidak pernah tampak sebagai backup sah.
+      part = await File(staged).copy('$target.part');
+      await part.rename(target);
+      part = null;
+      await temp.delete(recursive: true);
+      await _pruneAuto(folder);
+      final at = now.toUtc().toIso8601String();
+      await _preferences.set(_autoLastKey, at);
+      await _preferences.set(backupLastAtKey, at);
+      await _preferences.set(_autoFailedKey, '0');
+      return Result.ok(target);
+      // Galat apa pun (termasuk Error) dicatat sebagai gagal agar terlihat
+      // di Pengaturan, bukan diam-diam hilang di penjadwal.
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      await _cleanAutoFailure(temp, part);
+      return Result.error(e is Exception ? e : AutoBackupFailed('$e'));
+    }
+  }
+
+  Future<void> _cleanAutoFailure(Directory temp, File? part) async {
+    try {
+      await _preferences.set(_autoFailedKey, '1');
+    } on Exception {
+      // Database tidak bisa ditulis: status gagal tidak tercatat.
+    }
+    try {
+      if (part != null && part.existsSync()) await part.delete();
+      if (temp.existsSync()) await temp.delete(recursive: true);
+    } on FileSystemException {
+      // Dibersihkan pada percobaan berikutnya.
+    }
+  }
+
+  static final _autoName = RegExp(
+    r'^lakuna-backup-.+-(\d{6}-\d{4}(?:-\d+)?)\.zip$',
+  );
+
+  /// Menyisakan [autoBackupKeep] berkas `lakuna-backup-*.zip` terbaru.
+  /// Diurutkan menurut cap waktu di akhir nama (bukan nama penuh): kode
+  /// cabang bisa berubah dan tidak boleh mendahului waktu.
+  Future<void> _pruneAuto(Directory folder) async {
+    final files = <(String, File)>[
+      for (final e in folder.listSync())
+        if (e is File)
+          if (_autoName.firstMatch(p.basename(e.path)) case final m?)
+            (m.group(1)!, e),
+    ]..sort((a, b) => b.$1.compareTo(a.$1));
+    for (final (_, old) in files.skip(autoBackupKeep)) {
+      await old.delete();
+    }
+  }
+
   @override
   Future<DateTime?> lastBackupAt() async {
     final raw = await _preferences.get(backupLastAtKey);

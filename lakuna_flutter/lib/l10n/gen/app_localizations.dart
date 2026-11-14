@@ -14237,6 +14237,54 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'BCA 123-456-7890 a.n. {name}'**
   String storeSettingsTransferAccountExample(String name);
+
+  /// No description provided for @backupAutoTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis'**
+  String get backupAutoTitle;
+
+  /// No description provided for @backupAutoSwitch.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis harian'**
+  String get backupAutoSwitch;
+
+  /// No description provided for @backupAutoHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Sekali sehari selama aplikasi terbuka, ke {folder}. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.'**
+  String backupAutoHint(String folder);
+
+  /// No description provided for @backupAutoLastNever.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada backup otomatis'**
+  String get backupAutoLastNever;
+
+  /// No description provided for @backupAutoLastToday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis terakhir hari ini'**
+  String get backupAutoLastToday;
+
+  /// No description provided for @backupAutoLastDays.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis terakhir {days} hari lalu'**
+  String backupAutoLastDays(int days);
+
+  /// No description provided for @backupAutoFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis terakhir gagal. Dicoba lagi tiap jam; pastikan disk tidak penuh dan folder bisa ditulis.'**
+  String get backupAutoFailed;
+
+  /// No description provided for @backupAutoSaveFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Sakelar gagal disimpan. Coba lagi.'**
+  String get backupAutoSaveFailed;
 }
 
 class _AppLocalizationsDelegate

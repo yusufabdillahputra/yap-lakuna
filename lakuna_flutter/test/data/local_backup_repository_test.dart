@@ -138,6 +138,121 @@ void main() {
     expect(exports.existsSync(), isFalse);
   });
 
+  group('backup otomatis (F1-19d)', () {
+    late Directory auto;
+    setUp(() => auto = Directory('${dir.path}/Otomatis'));
+
+    test('bawaan menyala; jalan tanpa staf; catat waktu', () async {
+      final state = await repo.autoBackup();
+      expect(state.enabled, isTrue);
+      expect(state.lastAt, isNull);
+      expect(state.failed, isFalse);
+
+      session.current = null;
+      final path = _ok(await repo.runAutoBackup(auto));
+      expect(path, '${auto.path}/lakuna-backup-PST-261104-1630.zip');
+      expect(File(path).existsSync(), isTrue);
+      session.current = owner;
+      expect(_ok(await repo.inspect(path)).tenantName, 'Toko Bu Ani');
+      expect((await repo.autoBackup()).lastAt, now);
+      // Backup otomatis juga mengisi *Backup terakhir* (pengingat Beranda).
+      expect(await repo.lastBackupAt(), now);
+      // Salinan sementara backup manual tidak disentuh.
+      expect(exports.existsSync(), isFalse);
+    });
+
+    test('pangkas ke 7 berkas terbaru, berkas lain tetap', () async {
+      auto.createSync(recursive: true);
+      for (var d = 1; d <= 8; d++) {
+        final day = d.toString().padLeft(2, '0');
+        File(
+          '${auto.path}/lakuna-backup-PST-2611$day-0100.zip',
+        ).writeAsStringSync('lama');
+      }
+      File('${auto.path}/catatan.txt').writeAsStringSync('punya pemilik');
+      _ok(await repo.runAutoBackup(auto));
+      final names = auto.listSync().map((e) => e.uri.pathSegments.last).toList()
+        ..sort();
+      expect(names, [
+        'catatan.txt',
+        'lakuna-backup-PST-261103-0100.zip',
+        'lakuna-backup-PST-261104-0100.zip',
+        'lakuna-backup-PST-261104-1630.zip',
+        'lakuna-backup-PST-261105-0100.zip',
+        'lakuna-backup-PST-261106-0100.zip',
+        'lakuna-backup-PST-261107-0100.zip',
+        'lakuna-backup-PST-261108-0100.zip',
+      ]);
+    });
+
+    test('pangkas menurut waktu, bukan kode cabang', () async {
+      auto.createSync(recursive: true);
+      // Kode cabang lama "ZZZ" (diurutkan lebih dulu menurut nama) lebih
+      // tua daripada berkas "AAA": yang dibuang tetap yang tertua.
+      for (var d = 1; d <= 4; d++) {
+        File(
+          '${auto.path}/lakuna-backup-ZZZ-26100$d-0100.zip',
+        ).writeAsStringSync('lama');
+        File(
+          '${auto.path}/lakuna-backup-AAA-26110$d-0100.zip',
+        ).writeAsStringSync('baru');
+      }
+      _ok(await repo.runAutoBackup(auto));
+      final names = auto.listSync().map((e) => e.uri.pathSegments.last).toSet();
+      expect(names, hasLength(7));
+      expect(names, contains('lakuna-backup-PST-261104-1630.zip'));
+      for (var d = 1; d <= 4; d++) {
+        expect(names, contains('lakuna-backup-AAA-26110$d-0100.zip'));
+      }
+      expect(names, isNot(contains('lakuna-backup-ZZZ-261001-0100.zip')));
+      expect(names, isNot(contains('lakuna-backup-ZZZ-261002-0100.zip')));
+    });
+
+    test('salinan setengah jadi dibuang; tidak ada yang dipangkas', () async {
+      auto.createSync(recursive: true);
+      for (var d = 1; d <= 8; d++) {
+        File(
+          '${auto.path}/lakuna-backup-PST-26110$d-0100.zip',
+        ).writeAsStringSync('lama');
+      }
+      // Nama tujuan sudah dipakai folder: ganti nama dari `.part` gagal.
+      Directory('${auto.path}/lakuna-backup-PST-261104-1630.zip').createSync();
+      expect(await repo.runAutoBackup(auto), isA<Error<String>>());
+      expect(
+        File('${auto.path}/lakuna-backup-PST-261104-1630.zip.part')
+            .existsSync(),
+        isFalse,
+      );
+      final zips = auto.listSync().whereType<File>().toList();
+      expect(zips, hasLength(8));
+      expect((await repo.autoBackup()).failed, isTrue);
+      expect(Directory('${exports.path}-otomatis').existsSync(), isFalse);
+    });
+
+    test('gagal dicatat lalu bersih setelah berhasil', () async {
+      // Folder tujuan berupa berkas: tidak bisa ditulis.
+      final blocked = File('${dir.path}/bukan-folder')..writeAsStringSync('x');
+      expect(
+        await repo.runAutoBackup(Directory(blocked.path)),
+        isA<Error<String>>(),
+      );
+      final failed = await repo.autoBackup();
+      expect(failed.failed, isTrue);
+      expect(failed.lastAt, isNull);
+      expect(await repo.lastBackupAt(), isNull);
+      _ok(await repo.runAutoBackup(auto));
+      expect((await repo.autoBackup()).failed, isFalse);
+    });
+
+    test('sakelar butuh backup:manage', () async {
+      _ok(await repo.setAutoBackup(false));
+      expect((await repo.autoBackup()).enabled, isFalse);
+      session.current = null;
+      expect(_err(await repo.setAutoBackup(true)), isA<NotPermitted>());
+      expect((await repo.autoBackup()).enabled, isFalse);
+    });
+  });
+
   test(
     'pulihkan dari onboarding: hanya sebelum toko dibuat (F1-19b)',
     () async {

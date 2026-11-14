@@ -7,6 +7,71 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.75.0] - 2026-11-14
+
+Pemilik yang lupa menekan *Backup sekarang* tetap punya titik pulih: di
+komputer kasir, Lakuna kini membuat backup sendiri sekali sehari dan
+menyimpan tujuh backup terakhir.
+
+### Ditambahkan
+
+- **Backup otomatis harian (desktop: Windows, Linux, macOS).** Pemeriksaan
+  pertama dua menit setelah aplikasi dibuka lalu setiap jam; backup dibuat
+  bila backup otomatis terakhir lebih dari 24 jam lalu atau belum pernah.
+  Berjalan tanpa staf masuk (juga di layar PIN). Berkas disimpan di
+  `Dokumen/Lakuna/Backup/Otomatis/` dengan nama yang sama dengan backup
+  manual; hanya 7 berkas terbaru di folder itu yang disimpan. Backup manual
+  tidak pernah dihapus.
+- **Pengaturan (1.13 / 1.26) › Data & backup:** kartu *Backup otomatis*
+  dengan sakelar *Backup otomatis harian* (bawaan menyala, butuh izin
+  *Backup & pulihkan*), lokasi folder, *Backup otomatis terakhir* (hari
+  ini / N hari lalu / belum ada), dan peringatan bila percobaan terakhir
+  gagal. Kartu tidak tampil di ponsel dan tablet.
+- Panduan *Backup & pulihkan* bagian *Backup otomatis harian* (ID + EN).
+
+### Diubah
+
+- Backup otomatis yang berhasil juga mengisi *Backup terakhir*, sehingga
+  pengingat Beranda (> 7 hari) tidak muncul selama backup otomatis jalan.
+- Saat aplikasi ditutup, penutupan database menunggu backup otomatis yang
+  sedang berjalan selesai.
+
+### Keamanan
+
+- Backup otomatis tidak dikunci kata sandi (kata sandi tidak disimpan di
+  perangkat). Keterangan sakelar menyebut bahwa salinan ikut tersimpan di
+  awan bila folder *Dokumen* disinkronkan (OneDrive, iCloud Drive), agar
+  pemilik bisa mematikannya dan memakai backup terkunci.
+
+### Catatan teknis
+
+- `BackupRepository`: `autoBackup()`, `setAutoBackup(bool)`,
+  `runAutoBackup(Directory)`; preferensi lokal `backup.auto`,
+  `backup.autoLastAt`, `backup.autoFailed`. Backup dibuat di folder
+  sementara khusus otomatis (salinan backup manual yang mungkin masih
+  dibagikan tidak terhapus), disalin ke `<nama>.zip.part` lalu diganti
+  nama, sehingga berkas setengah jadi (disk penuh, aplikasi ditutup) tidak
+  pernah tampak sebagai backup sah. Pemangkasan berjalan hanya setelah
+  berhasil dan mengurutkan menurut cap waktu di akhir nama, bukan nama
+  penuh (kode cabang yang berganti tidak membuat backup baru terhapus).
+- `AutoBackupScheduler` (`lib/data/services/auto_backup.dart`): tidak
+  menumpuk bila pemeriksaan tumpang tindih; galat apa pun (termasuk
+  `Error`) dicatat sebagai gagal, tidak lolos ke zona aplikasi; waktu
+  terakhir di masa depan (jam perangkat dimundurkan) dianggap jatuh tempo;
+  `dispose()` async menunggu backup yang sedang berjalan.
+- Review menemukan dan memperbaiki sebelum rilis: salinan langsung ke nama
+  akhir (berkas rusak bisa ikut dihitung 7 terakhir), pangkas urut nama
+  penuh (kode cabang "ZZZ" lama mendahului backup baru), `close` tidak
+  menunggu backup berjalan, dan hitungan hari negatif setelah jam
+  dimundurkan.
+- Tes baru: repositori dengan SQLite sungguhan (jalan tanpa staf, pangkas,
+  pangkas lintas kode cabang, `.part` dibuang, gagal lalu pulih, izin
+  sakelar), penjadwal (jatuh tempo, mati, gagal lalu ulang, tumpang tindih,
+  jam mundur, `StateError`, `dispose` menunggu, Timer dengan waktu palsu),
+  view model, dan widget 1440/360.
+- Gap tercatat di spec F1-19d: backup otomatis di ponsel, backup otomatis
+  terkunci, isolate terpisah untuk zip, preferensi ikut pulihkan.
+
 ## [0.74.0] - 2026-11-14
 
 Kasir tidak perlu lagi menghafal nomor rekening toko: rekening transfer
@@ -5214,7 +5279,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...HEAD
+[0.75.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...v0.75.0
 [0.74.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...v0.74.0
 [0.73.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...v0.73.0
 [0.72.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.71.0...v0.72.0

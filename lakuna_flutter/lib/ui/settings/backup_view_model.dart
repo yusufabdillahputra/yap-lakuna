@@ -1,8 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math' show max;
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_domain/lakuna_domain.dart'
     show BackupPasswordProblem, backupPasswordProblem;
 
 import '../../data/repositories/backup_repository.dart';
+import '../../data/services/auto_backup.dart' as auto;
 import '../../data/services/backup_files.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
@@ -25,12 +30,54 @@ class BackupViewModel extends ChangeNotifier {
     required this._files,
     this._restart,
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now {
+    this.autoSupported = false,
+    Future<Directory> Function()? autoFolder,
+  }) : _clock = clock ?? DateTime.now,
+       _autoFolder = autoFolder ?? auto.autoBackupDirectory {
     load = Command0(_load)..addListener(notifyListeners);
     backupNow = Command0(_backupNow)..addListener(notifyListeners);
     pickRestore = Command0(_pickRestore)..addListener(notifyListeners);
     restore = Command0(_restore)..addListener(notifyListeners);
     unlock = Command0(_unlock)..addListener(notifyListeners);
+    setAuto = Command1(_setAuto)..addListener(notifyListeners);
+  }
+
+  /// Backup otomatis harian tersedia di perangkat ini (desktop, F1-19d).
+  final bool autoSupported;
+  final Future<Directory> Function() _autoFolder;
+
+  /// Menyalakan/mematikan backup otomatis harian.
+  late final Command1<void, bool> setAuto;
+
+  AutoBackupState? _auto;
+  String? _autoFolderPath;
+
+  AutoBackupState? get autoBackup => _auto;
+
+  /// Lokasi folder backup otomatis (untuk keterangan).
+  String? get autoFolderPath => _autoFolderPath;
+
+  /// Hari sejak backup otomatis terakhir; `null` bila belum pernah.
+  /// Tidak pernah negatif (jam perangkat dimundurkan).
+  int? get daysSinceAutoBackup => switch (_auto?.lastAt) {
+    final t? => max(0, _clock().toUtc().difference(t).inDays),
+    null => null,
+  };
+
+  /// Lokasi folder dimuat terpisah agar layar tidak menunggu.
+  Future<void> _loadAutoFolder() async {
+    try {
+      _autoFolderPath = (await _autoFolder()).path;
+      notifyListeners();
+    } on Exception {
+      // Folder tidak bisa ditentukan: keterangan tanpa lokasi.
+    }
+  }
+
+  Future<Result<void>> _setAuto(bool enabled) async {
+    final result = await _repository.setAutoBackup(enabled);
+    if (result is Ok<void>) _auto = await _repository.autoBackup();
+    return result;
   }
 
   final BackupRepository _repository;
@@ -190,6 +237,10 @@ class BackupViewModel extends ChangeNotifier {
     if (result case Ok(:final value)) {
       _stats = value.stats;
       _lastBackupAt = value.lastBackupAt;
+      if (autoSupported) {
+        _auto = await _repository.autoBackup();
+        if (_autoFolderPath == null) unawaited(_loadAutoFolder());
+      }
     }
     return result;
   }

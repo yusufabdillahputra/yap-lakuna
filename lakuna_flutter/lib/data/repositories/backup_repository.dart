@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:lakuna_data/lakuna_data.dart' show BackupManifest, BackupStats;
 
 import '../../utils/result.dart';
@@ -24,8 +26,26 @@ typedef CreatedBackup = ({
   bool locked,
 });
 
+/// Status backup otomatis harian di perangkat ini (F1-19d).
+typedef AutoBackupState = ({
+  /// Sakelar *Backup otomatis harian* (bawaan menyala).
+  bool enabled,
+
+  /// Backup otomatis terakhir yang berhasil.
+  DateTime? lastAt,
+
+  /// Percobaan terakhir gagal (dicoba lagi pada pemeriksaan berikutnya).
+  bool failed,
+});
+
+/// Berapa berkas backup otomatis yang disimpan di folder *Otomatis*.
+const autoBackupKeep = 7;
+
+/// Jarak minimum antar backup otomatis.
+const autoBackupInterval = Duration(hours: 24);
+
 /// Backup & pulihkan data perangkat (F1-19). Semua aksi butuh
-/// `backup:manage`.
+/// `backup:manage`, kecuali backup otomatis yang dijalankan sistem.
 abstract class BackupRepository {
   Future<Result<BackupOverview>> load();
 
@@ -39,6 +59,17 @@ abstract class BackupRepository {
   /// Waktu backup terakhir di perangkat ini (tanpa cek izin; untuk
   /// pengingat Beranda).
   Future<DateTime?> lastBackupAt();
+
+  /// Status backup otomatis (F1-19d; tanpa cek izin).
+  Future<AutoBackupState> autoBackup();
+
+  /// Menyalakan/mematikan backup otomatis di perangkat ini.
+  Future<Result<void>> setAutoBackup(bool enabled);
+
+  /// Membuat backup otomatis ke [folder] (tanpa staf; toko harus siap),
+  /// lalu menyisakan [autoBackupKeep] berkas terbaru. Mengembalikan lokasi
+  /// berkas.
+  Future<Result<String>> runAutoBackup(Directory folder);
 
   /// Memeriksa berkas backup tanpa mengubah data. Backup terkunci tanpa
   /// [password] → `BackupLocked`; salah → `BackupWrongPassword`.
@@ -72,6 +103,16 @@ class StoreAlreadySetUp implements Exception {
 
   @override
   String toString() => 'StoreAlreadySetUp';
+}
+
+/// Backup otomatis gagal karena galat yang bukan [Exception] (F1-19d).
+class AutoBackupFailed implements Exception {
+  const AutoBackupFailed(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'AutoBackupFailed: $message';
 }
 
 /// Pengingat backup muncul bila backup terakhir lebih lama dari ini.

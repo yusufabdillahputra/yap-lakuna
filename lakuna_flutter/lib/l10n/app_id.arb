@@ -5343,5 +5343,45 @@
         "type": "String"
       }
     }
+  },
+  "backupAutoTitle": "Backup otomatis",
+  "@backupAutoTitle": {
+    "placeholders": {}
+  },
+  "backupAutoSwitch": "Backup otomatis harian",
+  "@backupAutoSwitch": {
+    "placeholders": {}
+  },
+  "backupAutoHint": "Sekali sehari selama aplikasi terbuka, ke {folder}. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.",
+  "@backupAutoHint": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "backupAutoLastNever": "Belum ada backup otomatis",
+  "@backupAutoLastNever": {
+    "placeholders": {}
+  },
+  "backupAutoLastToday": "Backup otomatis terakhir hari ini",
+  "@backupAutoLastToday": {
+    "placeholders": {}
+  },
+  "backupAutoLastDays": "Backup otomatis terakhir {days} hari lalu",
+  "@backupAutoLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupAutoFailed": "Backup otomatis terakhir gagal. Dicoba lagi tiap jam; pastikan disk tidak penuh dan folder bisa ditulis.",
+  "@backupAutoFailed": {
+    "placeholders": {}
+  },
+  "backupAutoSaveFailed": "Sakelar gagal disimpan. Coba lagi.",
+  "@backupAutoSaveFailed": {
+    "placeholders": {}
   }
 }

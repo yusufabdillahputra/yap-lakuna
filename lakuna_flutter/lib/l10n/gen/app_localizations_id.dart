@@ -8170,4 +8170,33 @@ class AppLocalizationsId extends AppLocalizations {
   String storeSettingsTransferAccountExample(String name) {
     return 'BCA 123-456-7890 a.n. $name';
   }
+
+  @override
+  String get backupAutoTitle => 'Backup otomatis';
+
+  @override
+  String get backupAutoSwitch => 'Backup otomatis harian';
+
+  @override
+  String backupAutoHint(String folder) {
+    return 'Sekali sehari selama aplikasi terbuka, ke $folder. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.';
+  }
+
+  @override
+  String get backupAutoLastNever => 'Belum ada backup otomatis';
+
+  @override
+  String get backupAutoLastToday => 'Backup otomatis terakhir hari ini';
+
+  @override
+  String backupAutoLastDays(int days) {
+    return 'Backup otomatis terakhir $days hari lalu';
+  }
+
+  @override
+  String get backupAutoFailed =>
+      'Backup otomatis terakhir gagal. Dicoba lagi tiap jam; pastikan disk tidak penuh dan folder bisa ditulis.';
+
+  @override
+  String get backupAutoSaveFailed => 'Sakelar gagal disimpan. Coba lagi.';
 }

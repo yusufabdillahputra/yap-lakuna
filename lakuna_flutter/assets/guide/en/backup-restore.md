@@ -14,6 +14,19 @@ The backup file holds the database and all images. Keep it somewhere safe becaus
 
 > [!note] Home reminds you when the last backup is more than 7 days old or there has never been one.
 
+## Daily automatic backup (computer)
+
+On Windows, Linux, and macOS, Lakuna makes its own backup once a day while the app is open, so your data stays safe even if you forget to tap **Back up now**.
+
+- Files are saved to *Documents › Lakuna › Backup › Otomatis*. The last seven backups are kept and older ones are deleted. Manual backups in the *Backup* folder are never deleted.
+- The first check runs two minutes after the app opens, then every hour. A backup is made when the last automatic backup is more than 24 hours old, also while the PIN screen is open.
+- **Settings › Data & backup** shows the **Daily automatic backup** switch (on by default), the folder location, and when the last automatic backup ran. If it fails (for example, the disk is full), a warning appears and the app retries every hour.
+- An automatic backup also counts as the last backup, so the Home reminder does not appear while automatic backups are running.
+
+> [!note] Automatic backups are not password-locked. If your Documents folder syncs to the cloud (for example OneDrive or iCloud Drive), copies are stored in your cloud account too. Turn the switch off if you do not want that, and use **Back up now** with a password lock.
+
+Automatic backup is not available on phones and tablets yet; keep using **Back up now** there.
+
 ## Locking a backup with a password
 
 If you keep backups in Google Drive, WhatsApp, or on a flash drive, lock them with a password so nobody else can read them.
@@ -28,7 +41,7 @@ When restoring a locked backup, the app asks for its password before showing the
 
 ## Restoring from a backup
 
-1. Open **Settings › Data & backup**, tap **Restore**, and choose the .zip file.
+1. Open **Settings › Data & backup**, tap **Restore**, and choose the .zip file (automatic backups are in the *Backup › Otomatis* folder).
 2. If the backup is locked, enter its password and tap **Unlock**.
 3. Check the backup summary: store, branch, device, date, number of sales and products.
 4. Type the store name exactly as asked, then tap **Restore & reload**.
