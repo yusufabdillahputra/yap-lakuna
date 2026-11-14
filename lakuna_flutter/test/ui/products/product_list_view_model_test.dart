@@ -79,6 +79,24 @@ void main() {
     expect(vm.isEmpty, isFalse);
   });
 
+  test('UPC-A terbaca 13 digit cocok persis (F1-07h)', () async {
+    final upc = ProductListViewModel(
+      repository: FakeCatalogRepository(
+        seed: [
+          ...sampleProducts(),
+          const ProductDraft(
+            name: 'Sereal Impor',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(barcode: '036000291452')],
+          ),
+        ],
+      ),
+    );
+    await upc.load.execute();
+    upc.setQuery('0036000291452');
+    expect(upc.products.single.name, 'Sereal Impor');
+  });
+
   test('filter kategori dan chip di bawah minimum saling mengganti', () {
     final minuman = vm.categories.firstWhere((c) => c.name == 'Minuman');
     vm.setCategory(minuman.id);

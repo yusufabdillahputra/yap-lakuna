@@ -3,6 +3,7 @@ import 'package:characters/characters.dart';
 import 'money.dart';
 import 'qty.dart';
 import 'rounding.dart';
+import 'barcode.dart' show barcodeKey;
 import 'setup.dart' show normalizeCode;
 
 /// Jenis produk (F1-07). Hanya barang yang melacak stok; menu F&B memakai
@@ -212,12 +213,12 @@ class ProductDraft {
       if (v.sku.trim().isNotEmpty) normalizeCode(v.sku),
   ];
 
-  /// Barcode varian dan satuan konversi yang terisi, dinormalkan.
+  /// Barcode varian dan satuan konversi yang terisi, sebagai [barcodeKey].
   List<String> get barcodes => [
     for (final v in variants) ...[
-      if (v.barcode.trim().isNotEmpty) normalizeCode(v.barcode),
+      if (v.barcode.trim().isNotEmpty) barcodeKey(v.barcode),
       for (final u in v.units)
-        if (u.barcode.trim().isNotEmpty) normalizeCode(u.barcode),
+        if (u.barcode.trim().isNotEmpty) barcodeKey(u.barcode),
     ],
   ];
 }
@@ -353,6 +354,8 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
   final barcodes = <String>{};
   bool seenCode(Set<String> seen, String code) =>
       code.trim().isNotEmpty && !seen.add(normalizeCode(code));
+  bool seenBarcode(String code) =>
+      code.trim().isNotEmpty && !barcodes.add(barcodeKey(code));
 
   for (var i = 0; i < d.variants.length; i++) {
     final v = d.variants[i];
@@ -374,7 +377,7 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
     }
     if (_len(v.barcode) > ProductLimits.barcode) {
       add(ProductField.variantBarcode, ProductError.tooLong, variant: i);
-    } else if (seenCode(barcodes, v.barcode)) {
+    } else if (seenBarcode(v.barcode)) {
       add(ProductField.variantBarcode, ProductError.duplicate, variant: i);
     }
     if (v.costPrice.isNegative) {
@@ -423,7 +426,7 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
           variant: i,
           unit: j,
         );
-      } else if (seenCode(barcodes, u.barcode)) {
+      } else if (seenBarcode(u.barcode)) {
         add(
           ProductField.unitBarcode,
           ProductError.duplicate,

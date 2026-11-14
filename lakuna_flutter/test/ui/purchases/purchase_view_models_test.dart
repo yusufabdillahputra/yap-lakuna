@@ -8,6 +8,7 @@ import 'package:lakuna_flutter/ui/purchases/purchase_form_view_model.dart';
 import 'package:lakuna_flutter/ui/purchases/purchases_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
+import '../../testing/cashier_seed.dart';
 import '../../testing/fake_purchases_repository.dart';
 
 void main() {
@@ -49,6 +50,26 @@ void main() {
       // Nama yang cocok dengan dua varian tidak dipilih otomatis.
       expect(form.addByCode('beras'), PurchaseScanResult.notFound);
       expect(form.suggestions('beras'), hasLength(2));
+    });
+
+    test('UPC-A 13 digit (awalan 0) memilih produknya (F1-07h)', () async {
+      final upc = PurchaseFormViewModel(
+        repository: FakePurchasesRepository(
+          products: [
+            ...cashierProducts(),
+            const ProductDraft(
+              name: 'Sereal Impor',
+              baseUnit: 'pcs',
+              variants: [
+                VariantDraft(barcode: '036000291452', sellPrice: Money(30000)),
+              ],
+            ),
+          ],
+        ),
+      );
+      await upc.load.execute();
+      expect(upc.addByCode('0036000291452'), PurchaseScanResult.added);
+      expect(upc.lines.single.product.productName, 'Sereal Impor');
     });
 
     test('ganti satuan mengisi ulang harga; satuan kembar digabung', () {

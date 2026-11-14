@@ -45,6 +45,32 @@ void main() {
     expect(vm.filteredRows, hasLength(3));
   });
 
+  test(
+    'UPC-A 13 digit (awalan 0) cocok dengan barcode 12 digit (F1-07h)',
+    () async {
+      final upc = StockViewModel(
+        repository: FakeStockRepository(
+          rows: [
+            ...sampleStockRows(),
+            sampleRow(
+              4,
+              'Sereal Impor',
+              unit: 'pcs',
+              stock: Qty.units(5),
+              barcode: '036000291452',
+            ),
+          ],
+        ),
+        canAdjust: true,
+      );
+      await upc.load.execute();
+      upc.setQuery('0036000291452');
+      expect(upc.filteredRows.single.productName, 'Sereal Impor');
+      expect(upc.addByCode('0036000291452'), AddByCodeResult.added);
+      expect(upc.lines.single.row.productName, 'Sereal Impor');
+    },
+  );
+
   group('penyesuaian', () {
     test('tambah baris, isi fisik, selisih dan nilai, total', () {
       vm

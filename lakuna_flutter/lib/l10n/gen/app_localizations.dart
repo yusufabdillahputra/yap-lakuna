@@ -13759,6 +13759,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi.'**
   String get billSplitErrorItemDiscounted;
+
+  /// No description provided for @productGenerateBarcode.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat barcode'**
+  String get productGenerateBarcode;
 }
 
 class _AppLocalizationsDelegate

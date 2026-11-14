@@ -2,6 +2,7 @@ import 'catalog.dart';
 import 'customer_import.dart' show isImportTemplateSample, parseImportMoney;
 import 'money.dart';
 import 'qty.dart';
+import 'barcode.dart' show barcodeKey;
 import 'setup.dart' show normalizeCode;
 
 // Import produk dari CSV/XLSX (F1-07b). Pembacaan berkas ada di aplikasi;
@@ -232,9 +233,9 @@ ProductImportResult productImportRows(List<List<String>> table) {
       continue;
     }
     final skuKey = sku.isEmpty ? null : normalizeCode(sku);
-    final barcodeKey = barcode.isEmpty ? null : normalizeCode(barcode);
+    final codeKey = barcode.isEmpty ? null : barcodeKey(barcode);
     if ((skuKey != null && skus.contains(skuKey)) ||
-        (barcodeKey != null && barcodes.contains(barcodeKey))) {
+        (codeKey != null && barcodes.contains(codeKey))) {
       reject(ProductImportRejectReason.duplicateCode);
       continue;
     }
@@ -243,7 +244,7 @@ ProductImportResult productImportRows(List<List<String>> table) {
       continue;
     }
     if (skuKey != null) skus.add(skuKey);
-    if (barcodeKey != null) barcodes.add(barcodeKey);
+    if (codeKey != null) barcodes.add(codeKey);
     rows.add(ProductImportRow(line: line, draft: draft));
   }
   return ProductImportResult(rows: rows, rejected: rejected);

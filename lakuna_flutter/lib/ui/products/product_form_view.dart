@@ -302,6 +302,7 @@ class _TextInput extends StatelessWidget {
     this.label,
     this.hint,
     this.problem,
+    this.suffix,
   });
 
   final ProductField field;
@@ -311,11 +312,20 @@ class _TextInput extends StatelessWidget {
   final String? hint;
   final FieldProblem? problem;
 
+  /// Tombol di ujung field (mis. *Buat barcode*, F1-07h).
+  final Widget? suffix;
+
   @override
   Widget build(BuildContext context) => FTextField(
     label: label == null ? null : Text(label!),
     hint: hint,
     error: _errorText(context, field, problem),
+    suffixBuilder: suffix == null
+        ? null
+        : (context, style, _) => Padding(
+            padding: const EdgeInsetsDirectional.only(end: 4),
+            child: suffix,
+          ),
     control: .managed(
       initial: TextEditingValue(text: initial),
       onChange: (v) => onChange(v.text),
@@ -1040,14 +1050,32 @@ class _VariantsTab extends StatelessWidget {
       _Col(
         l10n.productVariantBarcode,
         16,
-        (labeled) => _TextInput(
+        (labeled) => KeyedSubtree(
           key: ValueKey('variant-${v.key}-barcode'),
-          field: ProductField.variantBarcode,
-          label: l(labeled, l10n.productVariantBarcode),
-          initial: v.barcode,
-          problem: p(ProductField.variantBarcode),
-          onChange: (s) =>
-              edit(ProductField.variantBarcode, (v) => v.barcode = s),
+          child: _TextInput(
+            // Field dibuat ulang saat *Buat barcode* mengisi kode (F1-07h).
+            key: ValueKey(v.barcodeRevision),
+            field: ProductField.variantBarcode,
+            label: l(labeled, l10n.productVariantBarcode),
+            initial: v.barcode,
+            problem: p(ProductField.variantBarcode),
+            onChange: (s) =>
+                edit(ProductField.variantBarcode, (v) => v.barcode = s),
+            suffix: v.barcode.trim().isEmpty
+                ? FTooltip(
+                    tipBuilder: (context, _) =>
+                        Text(l10n.productGenerateBarcode),
+                    child: FButton.icon(
+                      key: ValueKey('variant-${v.key}-barcode-generate'),
+                      size: .sm,
+                      variant: .ghost,
+                      semanticsLabel: l10n.productGenerateBarcode,
+                      onPress: () => vm.generateBarcode(i),
+                      child: const Icon(TablerIcons.wand, size: 16),
+                    ),
+                  )
+                : null,
+          ),
         ),
       ),
       _Col(

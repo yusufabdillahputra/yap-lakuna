@@ -14,6 +14,12 @@ Produk harus ada sebelum bisa dijual di kasir. Satu produk boleh punya beberapa 
 4. Di tab **Varian**, isi harga beli, harga jual, stok minimum, dan stok awal. Tambah baris dengan **Tambah varian** bila perlu. SKU dan barcode boleh diisi untuk scan.
 5. Tekan **Simpan**.
 
+## Barang tanpa barcode
+
+Untuk barang buatan sendiri (kue, racikan, barang curah), kosongkan field **Barcode** lalu tekan ikon tongkat di ujung field (**Buat barcode**). Lakuna mengisi kode EAN-13 toko berawalan `20` yang belum dipakai produk lain. Simpan produk, lalu cetak labelnya lewat **Cetak label**; kasir cukup memindai label itu.
+
+> [!note] Barang impor dengan barcode UPC-A (12 digit) tetap ditemukan walau pemindai membacanya sebagai 13 digit berawalan `0`, di Kasir, Stok, Pembelian, dan pencarian produk.
+
 ## Satuan & harga grosir
 
 - Tab **Satuan & konversi**: tambah satuan seperti *dus* berisi 12 pcs. Menjual 1 dus mengurangi 12 pcs dari stok. Harga kosong berarti harga satuan dasar × isi.

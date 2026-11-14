@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -99,6 +101,10 @@ class EditableVariant {
   final List<EditableUnit> units;
   final List<EditableTier> tiers;
 
+  /// Naik setiap kali barcode diisi dari luar field (*Buat barcode*,
+  /// F1-07h) supaya field teks dibuat ulang dengan nilai baru.
+  int barcodeRevision = 0;
+
   bool get isNew => id == null;
 
   VariantDraft toDraft() => VariantDraft(
@@ -134,7 +140,9 @@ class ProductFormViewModel extends ChangeNotifier {
     required this._repository,
     String? productId,
     this._picker = const FileSelectorImagePicker(),
-  }) : _routeId = productId == null ? null : UuidValue.fromString(productId) {
+    Random? random,
+  }) : _routeId = productId == null ? null : UuidValue.fromString(productId),
+       _random = random ?? Random.secure() {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
     archive = Command0(_archive)..addListener(notifyListeners);
@@ -154,6 +162,7 @@ class ProductFormViewModel extends ChangeNotifier {
   final CatalogRepository _repository;
   final ImageFilePicker _picker;
   final UuidValue? _routeId;
+  final Random _random;
 
   /// Produk yang diubah: ID rute, atau produk baru yang sudah tersimpan
   /// tetapi fotonya gagal disimpan.
@@ -529,6 +538,38 @@ class ProductFormViewModel extends ChangeNotifier {
     edit(variants[index]);
     _clear(field, variant: variants[index].key, notify: false);
     // Judul baris, petunjuk harga satuan, dan teks bantu ikut nilai ini.
+    notifyListeners();
+  }
+
+  /// *Buat barcode* (F1-07h): isi barcode varian [index] dengan EAN-13 toko
+  /// yang belum dipakai di form ini maupun di katalog yang dimuat (produk
+  /// ini sendiri dilewati karena kodenya sudah ada di form).
+  void generateBarcode(int index) {
+    final taken = <String>{
+      for (final p in _catalog?.products ?? const <CatalogProduct>[])
+        if (p.id != productId)
+          for (final v in p.variants) ...[
+            // SKU ikut dihindari: Kasir juga mencocokkan scan dengan SKU.
+            if (v.sku case final sku? when sku.trim().isNotEmpty)
+              barcodeKey(sku),
+            if (v.barcode case final code? when code.trim().isNotEmpty)
+              barcodeKey(code),
+            for (final u in v.units)
+              if (u.barcode case final code? when code.trim().isNotEmpty)
+                barcodeKey(code),
+          ],
+      for (final v in variants) ...[
+        if (v.sku.trim().isNotEmpty) barcodeKey(v.sku),
+        if (v.barcode.trim().isNotEmpty) barcodeKey(v.barcode),
+        for (final u in v.units)
+          if (u.barcode.trim().isNotEmpty) barcodeKey(u.barcode),
+      ],
+    };
+    final variant = variants[index];
+    variant
+      ..barcode = generateStoreEan13(_random, isTaken: taken.contains)
+      ..barcodeRevision += 1;
+    _clear(ProductField.variantBarcode, variant: variant.key, notify: false);
     notifyListeners();
   }
 

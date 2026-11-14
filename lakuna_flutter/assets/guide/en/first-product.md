@@ -14,6 +14,12 @@ Products must exist before they can be sold at the cashier. One product can have
 4. On the **Variants** tab, enter the cost price, sell price, minimum stock, and opening stock. Add rows with **Add variant** if needed. SKU and barcode are optional for scanning.
 5. Tap **Save**.
 
+## Items without a barcode
+
+For home-made goods (cakes, blends, bulk goods), leave the **Barcode** field empty and tap the wand icon at the end of the field (**Generate barcode**). Lakuna fills in a store EAN-13 code starting with `20` that no other product uses. Save the product, then print its label with **Print labels**; the cashier simply scans that label.
+
+> [!note] Imported goods with a UPC-A barcode (12 digits) are still found when the scanner reads them as 13 digits starting with `0`, in Cashier, Stock, Purchases, and product search.
+
 ## Units & wholesale prices
 
 - **Units & conversion** tab: add a unit such as *box* holding 12 pcs. Selling 1 box takes 12 pcs out of stock. An empty price means base price × contents.

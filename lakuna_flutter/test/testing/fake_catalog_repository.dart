@@ -213,9 +213,9 @@ class FakeCatalogRepository extends CatalogRepository {
     for (final p in products.where((p) => p.id != self)) {
       for (final v in p.variants) {
         if (v.sku case final s?) skus[normalizeCode(s)] = p.name;
-        if (v.barcode case final b?) barcodes[normalizeCode(b)] = p.name;
+        if (v.barcode case final b?) barcodes[barcodeKey(b)] = p.name;
         for (final u in v.units) {
-          if (u.barcode case final b?) barcodes[normalizeCode(b)] = p.name;
+          if (u.barcode case final b?) barcodes[barcodeKey(b)] = p.name;
         }
       }
     }
@@ -227,7 +227,8 @@ class FakeCatalogRepository extends CatalogRepository {
       int i, [
       int? j,
     ]) {
-      final owner = code.trim().isEmpty ? null : m[normalizeCode(code)];
+      final key = f == ProductField.variantSku ? normalizeCode : barcodeKey;
+      final owner = code.trim().isEmpty ? null : m[key(code)];
       if (owner != null) {
         out.add(
           ProductCodeConflict(

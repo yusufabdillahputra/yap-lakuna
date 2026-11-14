@@ -168,7 +168,9 @@ class BarcodeLabelViewModel extends ChangeNotifier {
         if ((!_selectedOnly || _quantities.containsKey(r.key)) &&
             (q.isEmpty ||
                 r.title.toLowerCase().contains(q) ||
-                r.searchCodes.any((c) => c.toLowerCase().contains(q))))
+                r.searchCodes.any(
+                  (c) => c.toLowerCase().contains(q) || sameBarcode(c, q),
+                )))
           r,
     ];
   }

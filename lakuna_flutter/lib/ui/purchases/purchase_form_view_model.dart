@@ -685,13 +685,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
     if (q.isEmpty) return PurchaseScanResult.notFound;
     for (final o in _options) {
       for (final u in o.units.skip(1)) {
-        if (u.barcode?.toLowerCase() == q) {
+        if (sameBarcode(u.barcode, q)) {
           return addProduct(o.variantId, u.productUnitId);
         }
       }
     }
     final exact = _options.where(
-      (o) => o.barcode?.toLowerCase() == q || o.sku?.toLowerCase() == q,
+      (o) => sameBarcode(o.barcode, q) || o.sku?.toLowerCase() == q,
     );
     final byName = _options.where(
       (o) => o.displayName.toLowerCase().contains(q),
