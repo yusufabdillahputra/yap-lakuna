@@ -1,6 +1,8 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import 'catalog.dart';
+import 'stock.dart' show CatalogScope;
 import 'store.dart';
 
 /// Toko yang sedang dipakai perangkat ini: tenant, cabang, perangkat, dan
@@ -83,14 +85,26 @@ Future<StoreContext?> loadStoreContext(LakunaStore store) async {
 ///
 /// Melempar [SetupInvalid] bila input tidak valid dan [SetupAlreadyDone]
 /// bila perangkat sudah punya tenant; keduanya sebelum menulis apa pun.
+///
+/// [firstProduct] (langkah 4 onboarding, F1-01b) ikut ditulis dalam
+/// transaksi yang sama beserta stok awalnya; draf tidak valid melempar
+/// [ProductInputInvalid] sebelum menulis.
 Future<StoreContext> setupStore(
   LakunaStore store,
   SetupInput input, {
   required DevicePlatform platform,
   required SetupCredentials credentials,
+  ProductDraft? firstProduct,
 }) async {
   final errors = input.validate();
   if (errors.isNotEmpty) throw SetupInvalid(errors);
+  if (firstProduct != null) {
+    final issues = [
+      ...validateProductDraft(firstProduct),
+      ..._firstProductIssues(firstProduct),
+    ];
+    if (issues.isNotEmpty) throw ProductInputInvalid(issues);
+  }
 
   final ownerId = UuidValue.fromString(newId());
   return store.write(actor: ownerId, (w) async {
@@ -185,11 +199,46 @@ Future<StoreContext> setupStore(
       ),
       s,
     );
-    return StoreContext(
+    final ctx = StoreContext(
       tenant: tenant,
       outlet: outlet,
       device: device,
       owner: owner,
     );
+    if (firstProduct != null) {
+      await writeProductInTx(
+        w,
+        CatalogScope.of(ctx),
+        staffId: ownerId,
+        draft: firstProduct,
+      );
+    }
+    return ctx;
   });
 }
+
+/// Aturan tambahan produk pertama: produk baru (tanpa id), tanpa grup
+/// modifier atau harga grup pelanggan (belum ada di toko baru), dan harga
+/// jual lebih dari nol. Dicek sebelum transaksi agar setup tidak gagal di
+/// tengah jalan.
+List<ProductIssue> _firstProductIssues(ProductDraft d) => [
+  if (d.id != null) const ProductIssue(ProductField.name, ProductError.taken),
+  if (d.modifierGroupIds.isNotEmpty)
+    const ProductIssue(ProductField.modifierGroups, ProductError.missing),
+  for (final (i, v) in d.variants.indexed) ...[
+    if (v.sellPrice.value <= 0)
+      ProductIssue(
+        ProductField.sellPrice,
+        ProductError.notPositive,
+        variant: i,
+      ),
+    for (final (j, t) in v.tiers.indexed)
+      if (t.groupId != null)
+        ProductIssue(
+          ProductField.tierPrice,
+          ProductError.missing,
+          variant: i,
+          tier: j,
+        ),
+  ],
+];

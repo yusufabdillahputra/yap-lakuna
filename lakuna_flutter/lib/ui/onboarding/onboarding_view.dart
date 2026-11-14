@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
-import 'package:lakuna_data/lakuna_data.dart' show SetupAlreadyDone;
+import 'package:lakuna_data/lakuna_data.dart'
+    show ProductInputInvalid, SetupAlreadyDone;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
@@ -12,6 +13,9 @@ import '../../data/repositories/store_repository.dart';
 import '../../data/services/backup_files.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
+import '../core/format.dart';
+import '../products/product_form_view.dart' show productFieldError;
+import '../products/product_form_view_model.dart' show FieldProblem;
 import '../settings/app_settings_view_model.dart';
 import '../settings/appearance_tiles.dart';
 import '../../utils/result.dart';
@@ -28,9 +32,13 @@ class OnboardingScreen extends StatefulWidget {
     required this.settings,
     this.backup,
     this.backupFiles = const PlatformBackupFiles(),
+    this.onBeforeSetup,
   });
 
   final StoreRepository repository;
+
+  /// `true` = buka import produk setelah toko dibuat (F1-01b).
+  final ValueChanged<bool>? onBeforeSetup;
   final SessionRepository session;
   final AppSettingsViewModel settings;
 
@@ -46,6 +54,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   late final _viewModel = OnboardingViewModel(
     repository: widget.repository,
     session: widget.session,
+    onBeforeSetup: widget.onBeforeSetup,
   );
 
   @override
@@ -784,11 +793,14 @@ class _SummaryStep extends StatelessWidget {
             title: Text(
               switch (viewModel.finish.result) {
                 Error(error: SetupAlreadyDone()) => l10n.setupAlreadyDone,
+                Error(error: ProductInputInvalid()) => l10n.firstProductInvalid,
                 _ => l10n.setupFailed,
               },
             ),
           ),
+        _FirstProduct(viewModel: viewModel),
         FCard(
+          key: const ValueKey('setup-summary'),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -818,6 +830,209 @@ class _SummaryStep extends StatelessWidget {
             color: theme.colors.mutedForeground,
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Langkah 4: produk pertama, import, atau lewati (F1-01b).
+class _FirstProduct extends StatelessWidget {
+  const _FirstProduct({required this.viewModel});
+
+  final OnboardingViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    String? error(ProductField field) => switch (vm.productError(field)) {
+      final e? => productFieldError(l10n, field, FieldProblem(e)),
+      null => null,
+    };
+    Widget rp(BuildContext context, FTextFieldStyle style, Set<Object> _) =>
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 12),
+          child: Text(
+            'Rp',
+            style: context.theme.typography.body.md.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        );
+    Widget money(
+      String key,
+      String label,
+      Money? initial,
+      ValueChanged<Money?> onChange, {
+      String? hint,
+      ProductField? field,
+    }) => FTextField(
+      key: ValueKey(key),
+      label: Text(label),
+      hint: hint,
+      keyboardType: TextInputType.number,
+      inputFormatters: const [RupiahInputFormatter()],
+      prefixBuilder: rp,
+      error: switch (field) {
+        final f? => switch (error(f)) {
+          final text? => Text(text),
+          null => null,
+        },
+        null => null,
+      },
+      control: .managed(
+        initial: TextEditingValue(
+          text: initial == null ? '' : groupThousands(initial.value, '.'),
+        ),
+        onChange: (v) {
+          final digits = v.text.replaceAll(RegExp('[^0-9]'), '');
+          onChange(digits.isEmpty ? null : Money(int.parse(digits)));
+        },
+      ),
+    );
+    Widget text(
+      String key,
+      String label,
+      String initial,
+      ValueChanged<String> onChange, {
+      String? hint,
+      ProductField? field,
+      int? maxLength,
+    }) => FTextField(
+      key: ValueKey(key),
+      label: Text(label),
+      hint: hint,
+      maxLength: maxLength,
+      error: switch (field) {
+        final f? => switch (error(f)) {
+          final text? => Text(text),
+          null => null,
+        },
+        null => null,
+      },
+      control: .managed(
+        initial: TextEditingValue(text: initial),
+        onChange: (v) => onChange(v.text),
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 16,
+      children: [
+        FSelectTileGroup<FirstProductChoice>(
+          key: const ValueKey('first-product-choice'),
+          label: Text(l10n.firstProductLabel),
+          control: .managedRadio(
+            initial: vm.firstProductChoice,
+            onChange: (selected) {
+              if (selected.isNotEmpty) {
+                vm.setFirstProductChoice(selected.first);
+              }
+            },
+          ),
+          children: [
+            for (final (choice, title, subtitle) in [
+              (
+                FirstProductChoice.add,
+                l10n.firstProductAdd,
+                l10n.firstProductAddDesc,
+              ),
+              (
+                FirstProductChoice.import,
+                l10n.firstProductImport,
+                l10n.firstProductImportDesc,
+              ),
+              (
+                FirstProductChoice.skip,
+                l10n.firstProductSkip,
+                l10n.firstProductSkipDesc,
+              ),
+            ])
+              FSelectTile<FirstProductChoice>(
+                key: ValueKey('first-product-${choice.name}'),
+                title: Text(title),
+                subtitle: Text(subtitle),
+                value: choice,
+              ),
+          ],
+        ),
+        if (vm.firstProductChoice == FirstProductChoice.add)
+          _FieldGrid(
+            children: [
+              text(
+                'first-product-name',
+                l10n.productFormName,
+                vm.productName,
+                vm.setProductName,
+                hint: vm.productTracksStock
+                    ? 'Kopi Susu 250 ml'
+                    : 'Nasi Goreng',
+                field: ProductField.name,
+                maxLength: ProductLimits.name,
+              ),
+              money(
+                'first-product-price',
+                l10n.productSellPrice,
+                vm.productSellPrice,
+                vm.setProductSellPrice,
+                field: ProductField.sellPrice,
+              ),
+              money(
+                'first-product-cost',
+                l10n.productCostPrice,
+                vm.productCostPrice,
+                vm.setProductCostPrice,
+                hint: l10n.firstProductOptional,
+              ),
+              text(
+                'first-product-unit',
+                l10n.productUnitName,
+                vm.productUnit,
+                vm.setProductUnit,
+                field: ProductField.baseUnit,
+                maxLength: ProductLimits.baseUnit,
+              ),
+              text(
+                'first-product-barcode',
+                l10n.productVariantBarcode,
+                vm.productBarcode,
+                vm.setProductBarcode,
+                hint: l10n.firstProductOptional,
+                field: ProductField.variantBarcode,
+                maxLength: ProductLimits.barcode,
+              ),
+              if (vm.productTracksStock)
+                FTextField(
+                  key: const ValueKey('first-product-stock'),
+                  label: Text(l10n.productOpeningStock),
+                  hint: l10n.firstProductOptional,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    QtyInputFormatter(decimal: qtyDecimalSeparator(context)),
+                  ],
+                  error: switch (error(ProductField.openingStock)) {
+                    final text? => Text(text),
+                    null => null,
+                  },
+                  control: .managed(
+                    initial: TextEditingValue(
+                      text: vm.productOpeningStock.isPositive
+                          ? formatQty(
+                              context,
+                              vm.productOpeningStock,
+                              grouped: false,
+                            )
+                          : '',
+                    ),
+                    onChange: (v) => vm.setProductOpeningStock(
+                      parseQtyInput(context, v.text) ?? Qty.zero,
+                    ),
+                  ),
+                ),
+            ],
+          ),
       ],
     );
   }

@@ -103,6 +103,8 @@ GoRouter createRouter({
   final guideRepository = guide ?? AssetGuideRepository();
   // Keranjang kasir retail bertahan saat pindah menu (F1-04c).
   final cartDraft = CartDraft(session);
+  // Pemilik memilih *Import dari Excel/CSV* di langkah 4 setup (F1-01b).
+  var importAfterSetup = false;
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([store, session]),
@@ -114,6 +116,12 @@ GoRouter createRouter({
       final staff = session.current;
       if (staff == null) {
         return location == Routes.login ? null : Routes.login;
+      }
+      if (importAfterSetup &&
+          (location == Routes.setup || location == Routes.login)) {
+        // Sekali saja: masuk berikutnya kembali ke Beranda.
+        importAfterSetup = false;
+        return Routes.productsImport;
       }
       if (location == Routes.login || location == Routes.setup) {
         return Routes.home;
@@ -136,6 +144,7 @@ GoRouter createRouter({
           settings: settings,
           backup: backup,
           backupFiles: backupFiles,
+          onBeforeSetup: (open) => importAfterSetup = open,
         ),
       ),
       GoRoute(
@@ -318,6 +327,7 @@ GoRouter createRouter({
               repository: catalog,
               tablePicker: tablePicker,
               exporter: exporter,
+              openImport: state.uri.queryParameters['impor'] == '1',
             ),
           ),
           GoRoute(

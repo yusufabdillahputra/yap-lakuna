@@ -4,6 +4,8 @@ Produk harus ada sebelum bisa dijual di kasir. Satu produk boleh punya beberapa 
 
 ![Form Edit produk dengan tab varian, satuan, grosir, dan modifier.](product)
 
+> [!note] Saat setup toko, langkah 4 sudah bisa membuat satu produk pertama (nama, harga, satuan, barcode, stok awal) atau langsung membuka import Excel.
+
 ## Langkah
 
 1. Buka menu **Produk**, lalu tekan **Produk baru**.

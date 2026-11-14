@@ -10,12 +10,16 @@ import '../../utils/result.dart';
 /// Langkah wizard setup toko (layar 1.1).
 enum OnboardingStep { languageTheme, business, owner, summary }
 
+/// Pilihan langkah 4 *Produk pertama* (F1-01b).
+enum FirstProductChoice { add, import, skip }
+
 /// State wizard setup toko pertama (F1-01). Data baru ditulis saat [finish].
 class OnboardingViewModel extends ChangeNotifier {
   OnboardingViewModel({
     required this._repository,
     required this._session,
     DateTime Function()? now,
+    this.onBeforeSetup,
   }) : _now = now ?? DateTime.now {
     finish = Command0(_finish);
   }
@@ -23,6 +27,10 @@ class OnboardingViewModel extends ChangeNotifier {
   final StoreRepository _repository;
   final SessionRepository _session;
   final DateTime Function() _now;
+
+  /// Dipanggil tepat sebelum toko ditulis dengan `true` bila pengguna
+  /// memilih import, agar router tahu tujuan setelah setup (F1-01b).
+  final ValueChanged<bool>? onBeforeSetup;
 
   late final Command0<StoreContext> finish;
 
@@ -126,9 +134,101 @@ class OnboardingViewModel extends ChangeNotifier {
   /// harus dimulai pada giliran microtask yang sama agar layar login tidak
   /// sempat tampil. Tes alur onboarding memastikan Beranda langsung terbuka.
   Future<Result<StoreContext>> _finish() async {
-    final result = await _repository.setup(input);
+    ProductDraft? product;
+    if (_productChoice == FirstProductChoice.add) {
+      final issues = _productIssues;
+      if (issues.isNotEmpty) {
+        _productShown = true;
+        notifyListeners();
+        return Result.error(ProductInputInvalid(issues));
+      }
+      product = firstProductDraft;
+    }
+    onBeforeSetup?.call(opensImport);
+    final result = await _repository.setup(input, firstProduct: product);
     if (result case Ok(:final value)) _session.startOwnerSession(value);
     return result;
+  }
+
+  // --- Langkah 4: produk pertama (F1-01b) ---
+
+  FirstProductChoice _productChoice = FirstProductChoice.add;
+  String _productName = '';
+  Money? _productSellPrice;
+  Money? _productCostPrice;
+  String? _productUnit;
+  String _productBarcode = '';
+  Qty _productOpeningStock = Qty.zero;
+  bool _productShown = false;
+
+  FirstProductChoice get firstProductChoice => _productChoice;
+  String get productName => _productName;
+  Money? get productSellPrice => _productSellPrice;
+  Money? get productCostPrice => _productCostPrice;
+  String get productBarcode => _productBarcode;
+  Qty get productOpeningStock => _productOpeningStock;
+
+  /// Satuan yang diketik, atau bawaan jenis usaha (`porsi` untuk F&B).
+  String get productUnit =>
+      _productUnit ?? (_businessType == BusinessKind.fnb ? 'porsi' : 'pcs');
+
+  /// F&B mencatat *Menu* tanpa stok; Retail/Campuran mencatat *Barang*.
+  ProductKind get productKind =>
+      _businessType == BusinessKind.fnb ? ProductKind.menu : ProductKind.goods;
+  bool get productTracksStock => productKind.tracksStock;
+
+  /// Setelah toko dibuat, buka layar Produk dengan dialog import.
+  bool get opensImport => _productChoice == FirstProductChoice.import;
+
+  void setFirstProductChoice(FirstProductChoice choice) =>
+      _editProduct(() => _productChoice = choice);
+  void setProductName(String text) => _editProduct(() => _productName = text);
+  void setProductSellPrice(Money? value) =>
+      _editProduct(() => _productSellPrice = value);
+  void setProductCostPrice(Money? value) =>
+      _editProduct(() => _productCostPrice = value);
+  void setProductUnit(String text) => _editProduct(() => _productUnit = text);
+  void setProductBarcode(String text) =>
+      _editProduct(() => _productBarcode = text);
+  void setProductOpeningStock(Qty value) =>
+      _editProduct(() => _productOpeningStock = value);
+
+  void _editProduct(void Function() change) {
+    change();
+    // Galat setup lama (mis. produk tidak valid) tidak berlaku lagi.
+    if (finish.error) finish.clearResult();
+    notifyListeners();
+  }
+
+  /// Draf produk pertama dari isian langkah 4.
+  ProductDraft get firstProductDraft => ProductDraft(
+    name: _productName.trim(),
+    baseUnit: productUnit.trim(),
+    kind: productKind,
+    variants: [
+      VariantDraft(
+        barcode: _productBarcode.trim(),
+        costPrice: _productCostPrice ?? Money.zero,
+        sellPrice: _productSellPrice ?? Money.zero,
+        openingStock: productTracksStock ? _productOpeningStock : Qty.zero,
+      ),
+    ],
+  );
+
+  List<ProductIssue> get _productIssues => [
+    ...validateProductDraft(firstProductDraft),
+    if (_productSellPrice == null)
+      const ProductIssue(ProductField.sellPrice, ProductError.required)
+    else if (_productSellPrice!.value <= 0)
+      const ProductIssue(ProductField.sellPrice, ProductError.notPositive),
+  ];
+
+  /// Galat isian produk pertama, setelah pengguna mencoba *Mulai jualan*.
+  ProductError? productError(ProductField field) {
+    if (!_productShown || _productChoice != FirstProductChoice.add) {
+      return null;
+    }
+    return _productIssues.where((i) => i.field == field).firstOrNull?.error;
   }
 
   static List<SetupField> _fieldsOf(OnboardingStep step) => switch (step) {

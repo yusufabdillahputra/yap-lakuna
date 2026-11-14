@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingStepSummary.
   ///
   /// In id, this message translates to:
-  /// **'Siap jualan'**
+  /// **'Produk pertama'**
   String get onboardingStepSummary;
 
   /// No description provided for @onboardingTitleLanguage.
@@ -383,7 +383,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingTitleSummary.
   ///
   /// In id, this message translates to:
-  /// **'Periksa, lalu mulai jualan'**
+  /// **'Produk pertama, lalu mulai jualan'**
   String get onboardingTitleSummary;
 
   /// No description provided for @businessTypeLabel.
@@ -617,7 +617,7 @@ abstract class AppLocalizations {
   /// No description provided for @buttonNextSummary.
   ///
   /// In id, this message translates to:
-  /// **'Lanjut: ringkasan'**
+  /// **'Lanjut: produk'**
   String get buttonNextSummary;
 
   /// No description provided for @buttonStartSelling.
@@ -13699,6 +13699,60 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Produk atau lokasi dari tautan tidak ditemukan lagi. Menampilkan kartu stok bawaan.'**
   String get stockCardFocusMissing;
+
+  /// No description provided for @firstProductLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk pertama'**
+  String get firstProductLabel;
+
+  /// No description provided for @firstProductAdd.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah satu produk sekarang'**
+  String get firstProductAdd;
+
+  /// No description provided for @firstProductAddDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Langsung bisa dijual di Kasir. Produk lain bisa ditambah nanti.'**
+  String get firstProductAddDesc;
+
+  /// No description provided for @firstProductImport.
+  ///
+  /// In id, this message translates to:
+  /// **'Import dari Excel/CSV'**
+  String get firstProductImport;
+
+  /// No description provided for @firstProductImportDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Setelah toko dibuat, layar Produk terbuka dengan dialog import.'**
+  String get firstProductImportDesc;
+
+  /// No description provided for @firstProductSkip.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewati, tambah nanti'**
+  String get firstProductSkip;
+
+  /// No description provided for @firstProductSkipDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah produk kapan saja dari menu Produk.'**
+  String get firstProductSkipDesc;
+
+  /// No description provided for @firstProductInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa isian produk pertama.'**
+  String get firstProductInvalid;
+
+  /// No description provided for @firstProductOptional.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional'**
+  String get firstProductOptional;
 }
 
 class _AppLocalizationsDelegate

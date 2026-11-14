@@ -4,6 +4,8 @@ Products must exist before they can be sold at the cashier. One product can have
 
 ![The Edit product form with tabs for variants, units, wholesale and modifiers.](product)
 
+> [!note] During store setup, step 4 can already create one first product (name, price, unit, barcode, opening stock) or open the Excel import right away.
+
 ## Steps
 
 1. Open **Products**, then tap **New product**.

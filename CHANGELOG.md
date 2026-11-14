@@ -7,6 +7,59 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.52.0] - 2026-11-14
+
+Pemilik yang baru memasang Lakuna kini bisa langsung punya produk untuk
+dijual: langkah terakhir setup toko menawarkan produk pertama atau import
+Excel.
+
+### Ditambahkan
+
+- **Produk pertama di setup toko (1.1 langkah 4, F1-01b).** Langkah 4
+  kini berjudul *Produk pertama, lalu mulai jualan* dengan tiga pilihan:
+  - **Tambah satu produk sekarang** (bawaan): nama, harga jual, dan bila
+    perlu harga beli, satuan (bawaan `pcs`, F&B `porsi`), barcode, dan
+    stok awal. Toko Retail/Campuran mencatat *Barang*; toko F&B mencatat
+    *Menu* tanpa stok. Produk ditulis dalam **satu transaksi** dengan
+    toko, jadi tidak ada toko setengah jadi bila ada galat.
+  - **Import dari Excel/CSV**: setelah toko dibuat, layar Produk terbuka
+    dengan dialog import produk.
+  - **Lewati, tambah nanti**: perilaku lama.
+  Ringkasan toko tetap tampil di bawah pilihan. Isian kosong atau tidak sah
+  menahan *Mulai jualan* dengan pesan *Periksa isian produk pertama.*
+- Panduan *Instalasi & akun pemilik* dan *Menambah produk pertama* menjelaskan
+  langkah 4 yang baru (ID + EN).
+
+### Diubah
+
+- Label langkah 4 di stepper menjadi *Produk pertama*, tombol langkah 3
+  menjadi *Lanjut: produk*.
+
+### Diperbaiki (temuan review sebelum rilis)
+
+- Draf yang bisa gagal di tengah transaksi (id produk lama, grup modifier,
+  harga grup pelanggan) dan harga jual nol ditolak sebelum toko ditulis.
+- Tujuan *import setelah setup* dipakai sekali; masuk berikutnya kembali
+  ke Beranda.
+- Bila toko ternyata sudah ada saat setup ulang, produk pertama yang
+  diketik tidak hilang diam-diam: pesan galat tetap tampil.
+
+### Catatan teknis
+
+- Data: `setupStore(firstProduct:)` memakai `writeProductInTx` (internal,
+  disembunyikan dari barrel `lakuna_data`).
+- Flutter: `StoreRepository.setup(input, {firstProduct})`;
+  `OnboardingViewModel` (`FirstProductChoice`, isian produk,
+  `productError`, `opensImport`, `onBeforeSetup`); router
+  `importAfterSetup` → `Routes.productsImport` (`/produk?impor=1`);
+  `ProductListScreen(openImport:)`.
+- Tes: 4 tes data (produk + stok awal satu transaksi, menu F&B, draf tidak
+  valid, draf yang bisa gagal di tengah transaksi), 5 tes view model, 4 tes
+  widget (alur lengkap tablet/ponsel, retail dengan stok awal, produk
+  kosong + lewati, import membuka dialog).
+- Uji manual Xvfb: setup baru dengan produk pertama (tampil di Produk
+  dengan stok 24) dan setup baru dengan pilihan import.
+
 ## [0.51.0] - 2026-11-14
 
 Bukti pembelian kini bisa dicetak atau dibagikan sebagai PDF ke supplier
@@ -4092,7 +4145,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...HEAD
+[0.52.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.48.0...v0.49.0

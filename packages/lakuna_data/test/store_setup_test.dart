@@ -41,12 +41,14 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  Future<StoreContext> setup([SetupInput? input]) => setupStore(
-    store,
-    input ?? _input(),
-    platform: DevicePlatform.linux,
-    credentials: _credentials,
-  );
+  Future<StoreContext> setup([SetupInput? input, ProductDraft? firstProduct]) =>
+      setupStore(
+        store,
+        input ?? _input(),
+        platform: DevicePlatform.linux,
+        credentials: _credentials,
+        firstProduct: firstProduct,
+      );
 
   test('sebelum setup tidak ada konteks toko', () async {
     expect(await loadStoreContext(store), isNull);
@@ -129,5 +131,120 @@ void main() {
     );
     expect(await Tenant.db.count(store.session), 0);
     expect(await SyncOutboxEntry.db.count(store.session), 0);
+  });
+
+  group('produk pertama (F1-01b)', () {
+    const kopi = ProductDraft(
+      name: 'Kopi Susu',
+      baseUnit: 'pcs',
+      variants: [
+        VariantDraft(
+          barcode: '899100',
+          costPrice: Money(9000),
+          sellPrice: Money(15000),
+          openingStock: Qty(24000),
+        ),
+      ],
+    );
+
+    test('produk dan stok awal ditulis dalam transaksi setup', () async {
+      final ctx = await setup(_input(), kopi);
+      final scope = CatalogScope.of(ctx);
+      final products = await listProducts(store, scope);
+      expect(products.single.name, 'Kopi Susu');
+      final variant = products.single.variants.single;
+      expect(variant.sellPrice, const Money(15000));
+      expect(variant.barcode, '899100');
+      expect(variant.stock, Qty.units(24));
+      final movement = await StockMovement.db.findFirstRow(store.session);
+      expect(movement!.sourceType, StockSourceType.opening);
+      // Produk tercatat di outbox dan dibuat oleh pemilik.
+      final entries = await SyncOutboxEntry.db.find(store.session);
+      expect(entries.where((e) => e.entity == 'products'), hasLength(1));
+      final row = await Product.db.findFirstRow(store.session);
+      expect(row!.createdBy, ctx.owner.id);
+    });
+
+    test('menu F&B tanpa stok awal', () async {
+      final ctx = await setup(
+        _input(),
+        const ProductDraft(
+          name: 'Nasi Goreng',
+          baseUnit: 'porsi',
+          kind: ProductKind.menu,
+          variants: [VariantDraft(sellPrice: Money(18000))],
+        ),
+      );
+      final p = (await listProducts(store, CatalogScope.of(ctx))).single;
+      expect(p.kind, ProductKind.menu);
+      expect(await StockMovement.db.count(store.session), 0);
+    });
+
+    test('produk tidak valid: toko juga tidak dibuat', () async {
+      await expectLater(
+        setup(
+          _input(),
+          const ProductDraft(
+            name: ' ',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(sellPrice: Money(1000))],
+          ),
+        ),
+        throwsA(isA<ProductInputInvalid>()),
+      );
+      expect(await Tenant.db.count(store.session), 0);
+      expect(await SyncOutboxEntry.db.count(store.session), 0);
+    });
+
+    test(
+      'draf yang bisa gagal di tengah transaksi ditolak lebih dulu',
+      () async {
+        for (final draft in [
+          // Produk lama (id) tidak ada di toko baru.
+          ProductDraft(
+            id: newId(),
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: const [VariantDraft(sellPrice: Money(1000))],
+          ),
+          // Grup modifier dan grup pelanggan belum ada di toko baru.
+          ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            modifierGroupIds: [newId()],
+            variants: const [VariantDraft(sellPrice: Money(1000))],
+          ),
+          ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(
+                sellPrice: const Money(1000),
+                tiers: [
+                  PriceTier(
+                    minQty: Qty.units(10),
+                    price: const Money(900),
+                    groupId: newId(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Harga jual wajib lebih dari nol.
+          const ProductDraft(
+            name: 'Kopi',
+            baseUnit: 'pcs',
+            variants: [VariantDraft()],
+          ),
+        ]) {
+          await expectLater(
+            setup(_input(), draft),
+            throwsA(isA<ProductInputInvalid>()),
+          );
+        }
+        expect(await Tenant.db.count(store.session), 0);
+        expect(await SyncOutboxEntry.db.count(store.session), 0);
+      },
+    );
   });
 }

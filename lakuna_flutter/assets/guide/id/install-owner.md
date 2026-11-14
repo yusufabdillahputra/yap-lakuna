@@ -14,7 +14,7 @@ Lakuna berjalan offline: semua data toko tersimpan di perangkat ini. Saat pertam
 1. **Bahasa & tema**: pilih Bahasa Indonesia atau English, lalu tema Terang, Gelap, atau Ikuti sistem.
 2. **Jenis usaha & cabang**: pilih *Retail*, *F&B*, atau *Campuran*. Isi nama usaha, nama cabang, kode cabang (2–6 huruf/angka), kode perangkat, dan zona waktu.
 3. **Akun pemilik & PIN**: isi nama pemilik, email, kata sandi dan **Ulangi kata sandi**, lalu PIN 6 angka dan **Ulangi PIN**.
-4. **Siap jualan**: periksa ringkasan, lalu tekan **Mulai jualan**.
+4. **Produk pertama**: pilih **Tambah satu produk sekarang** (isi nama, harga jual, dan bila perlu harga beli, satuan, barcode, stok awal), **Import dari Excel/CSV** (layar Produk terbuka dengan dialog import setelah toko dibuat), atau **Lewati, tambah nanti**. Periksa ringkasan, lalu tekan **Mulai jualan**.
 
 > [!warning] Jenis usaha, zona waktu, kode cabang, dan kode perangkat tidak bisa diubah setelah setup karena menentukan menu, tanggal laporan, dan nomor nota.
 

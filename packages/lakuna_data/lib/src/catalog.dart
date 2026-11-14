@@ -253,6 +253,16 @@ Future<List<MeasureUnit>> listUnits(
   return rows..sort((a, b) => _byName(a.name, b.name));
 }
 
+/// Menyimpan [draft] baru di dalam transaksi [w] yang sudah berjalan
+/// (setup toko dengan produk pertama, F1-01b). Validasi draf dilakukan
+/// pemanggil sebelum transaksi dimulai.
+Future<UuidValue> writeProductInTx(
+  SyncTx w,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required ProductDraft draft,
+}) => _ProductWriter(w, scope, staffId).save(draft);
+
 /// Semua produk tenant yang belum dihapus beserta stok di lokasi bawaan
 /// cabang, urut nama tanpa beda huruf.
 Future<List<CatalogProduct>> listProducts(
