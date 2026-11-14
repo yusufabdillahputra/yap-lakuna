@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.56.0] - 2026-11-14
+
+Uang bagian split bill kini langsung masuk rekap laci sesi kasir yang
+menerimanya, tanpa menunggu bill lunas.
+
+### Diubah
+
+- **Kas bagian split bill per sesi (1.3, 1.9, F1-10i).** Setiap pembayaran
+  mencatat sesi kasir yang menerimanya: Kasir retail, bayar penuh open bill,
+  bayar bagian split, dan QRIS bagian (sesi yang menekan *Sudah terbayar*).
+  Rekap laci 1.3 (tunai dan non-tunai penjualan, *tunai seharusnya*, tutup
+  sesi) menjumlahkan pembayaran per sesi. Jumlah nota dan total penjualan
+  tetap dihitung di sesi yang menutup nota.
+- Tutup sesi hanya ditahan bila bill split yang belum lunas punya bagian
+  yang dibayar atau menunggu di sesi itu. Sesi perangkat lain di cabang yang
+  sama tetap bisa ditutup.
+- Void nota hanya bisa dilakukan bila semua pembayarannya diterima di sesi
+  kasir perangkat ini yang masih buka. Selain itu pakai *Retur*. Pesan tutup
+  sesi dan pesan void disesuaikan.
+- Panduan *Split bill* (ID/EN) menjelaskan laci per bagian.
+
+### Diperbaiki
+
+- Tunai bagian split yang sudah dibayar belum terhitung di *tunai seharusnya*
+  sampai bill lunas, sehingga rekap laci di tengah sesi tampak kurang.
+- Bila tamu membayar di dua perangkat, seluruh tunai tercatat di laci
+  perangkat yang menutup bill. Laci perangkat lain jadi lebih dan laci
+  penutup jadi kurang.
+
+### Catatan teknis
+
+- Kolom baru `payments.cash_session_id` (nullable, relasi `cash_sessions`,
+  indeks `payments_cash_session_idx`), migrasi `kas-per-pembayaran`.
+  Pembayaran lama tanpa sesi tetap dihitung di sesi notanya.
+- Data: `insertPayments(cashSessionId:)`; `sessionSalesSummary` membaca
+  pembayaran per sesi (tanpa nota batal atau bill terhapus);
+  `closeCashSession` membatasi cek split ke sesi itu; `_voidBlock` memakai
+  `paidInSession`. Batal bill split yang belum lunas tetap boleh dari
+  perangkat mana pun: tiap bagian keluar dari laci sesi penerimanya.
+- Tes: 8 tes data baru (`split_cash_session_test`).
+- Uji manual Xvfb: meja M4 Rp 11.000 dibagi rata empat tamu, tamu A bayar
+  tunai Rp 10.000. *Tunai seharusnya di laci* naik dari Rp 177.000 ke
+  Rp 179.750 sebelum bill lunas.
+
 ## [0.55.0] - 2026-11-14
 
 Barang tanpa barcode pabrik kini bisa diberi barcode toko dengan satu
@@ -4316,7 +4360,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...HEAD
+[0.56.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...v0.53.0

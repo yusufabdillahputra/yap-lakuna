@@ -5201,7 +5201,7 @@ abstract class AppLocalizations {
   /// No description provided for @cashSessionErrorOpenSplit.
   ///
   /// In id, this message translates to:
-  /// **'Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.'**
+  /// **'Masih ada split bill yang bagiannya dibayar di sesi ini. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.'**
   String get cashSessionErrorOpenSplit;
 
   /// No description provided for @billSplitTitle.
@@ -6443,7 +6443,7 @@ abstract class AppLocalizations {
   /// No description provided for @historyVoidBlockSession.
   ///
   /// In id, this message translates to:
-  /// **'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.'**
+  /// **'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini, dengan semua pembayaran diterima di sesi itu. Pakai Retur untuk nota lain.'**
   String get historyVoidBlockSession;
 
   /// No description provided for @historyErrReturnEmpty.

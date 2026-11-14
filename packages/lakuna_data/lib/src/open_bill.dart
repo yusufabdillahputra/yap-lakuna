@@ -1692,12 +1692,15 @@ Future<void> voidOpenBill(
       transaction: w.transaction,
     );
     final s = await w.stamp();
-    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
-    // batal (uang dikembalikan ke tamu; belum masuk sesi kasir karena sesi
-    // baru diisi saat nota selesai). QRIS yang masih menunggu dihapus.
-    for (final p in await _billPayments(w.session, scope.tenantId, [
+    final payments = await _billPayments(w.session, scope.tenantId, [
       sale.id,
-    ], transaction: w.transaction)) {
+    ], transaction: w.transaction);
+    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
+    // batal. Uangnya dikembalikan ke tamu dari laci sesi yang menerimanya
+    // dan keluar dari rekap laci sesi itu (F1-10i). Sesi penerima masih
+    // terbuka karena tutup sesi menunggu bill ini selesai. QRIS yang masih
+    // menunggu dihapus.
+    for (final p in payments) {
       if (p.status != PaymentStatus.pending) continue;
       await w.update(
         p.copyWith(
@@ -1831,6 +1834,7 @@ Future<CheckoutResult> payOpenBill(
       amounts: amounts,
       change: change,
       stamp: s,
+      cashSessionId: cash.id,
     );
     return _completeBill(
       w,

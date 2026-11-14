@@ -3035,7 +3035,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashSessionErrorOpenSplit =>
-      'A split bill is still partly paid. Settle it or cancel waiting parts before closing the session.';
+      'A split bill still has parts paid in this session. Settle it or cancel waiting parts before closing the session.';
 
   @override
   String billSplitTitle(String bill, int guests) {
@@ -3757,7 +3757,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyVoidBlockSession =>
-      'Only sales in this device\'s open cash session can be voided.';
+      'Only sales in this device\'s open cash session, with every payment received in that session, can be voided. Use Return for other sales.';
 
   @override
   String get historyErrReturnEmpty =>

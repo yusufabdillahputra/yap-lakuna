@@ -1853,7 +1853,7 @@
       }
     }
   },
-  "cashSessionErrorOpenSplit": "Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.",
+  "cashSessionErrorOpenSplit": "Masih ada split bill yang bagiannya dibayar di sesi ini. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.",
   "billSplitTitle": "Split bill · {bill} · {guests} tamu",
   "@billSplitTitle": {
     "placeholders": {
@@ -2284,7 +2284,7 @@
   "historyVoidBlockStatus": "Nota ini sudah void atau diretur.",
   "historyVoidBlockReturned": "Nota yang sudah diretur tidak bisa di-void.",
   "historyVoidBlockNotToday": "Void hanya untuk nota hari ini.",
-  "historyVoidBlockSession": "Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.",
+  "historyVoidBlockSession": "Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini, dengan semua pembayaran diterima di sesi itu. Pakai Retur untuk nota lain.",
   "historyErrReturnEmpty": "Isi jumlah retur minimal satu item.",
   "historyErrReturnQuantity": "Jumlah retur melebihi sisa item.",
   "historyErrReturnNote": "Catatan wajib untuk alasan Lainnya (maks. 200 karakter).",

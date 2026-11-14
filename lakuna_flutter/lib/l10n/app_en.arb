@@ -1319,7 +1319,7 @@
       }
     }
   },
-  "cashSessionErrorOpenSplit": "A split bill is still partly paid. Settle it or cancel waiting parts before closing the session.",
+  "cashSessionErrorOpenSplit": "A split bill still has parts paid in this session. Settle it or cancel waiting parts before closing the session.",
   "billSplitTitle": "Split bill · {bill} · {guests} guests",
   "@billSplitTitle": {
     "placeholders": {
@@ -1750,7 +1750,7 @@
   "historyVoidBlockStatus": "This sale is already voided or returned.",
   "historyVoidBlockReturned": "A sale with returns cannot be voided.",
   "historyVoidBlockNotToday": "Only today's sales can be voided.",
-  "historyVoidBlockSession": "Only sales in this device's open cash session can be voided.",
+  "historyVoidBlockSession": "Only sales in this device's open cash session, with every payment received in that session, can be voided. Use Return for other sales.",
   "historyErrReturnEmpty": "Enter a return quantity for at least one item.",
   "historyErrReturnQuantity": "Return quantity exceeds what is left.",
   "historyErrReturnNote": "A note is required for Other (max 200 characters).",

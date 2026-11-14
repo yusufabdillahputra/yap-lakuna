@@ -492,6 +492,17 @@ Future<VoidBlock?> _voidBlock(
     transaction: transaction,
   );
   if (open == null || open.id != sale.cashSessionId) return VoidBlock.session;
+  // Bagian split bill yang dibayar di sesi lain: uangnya di laci lain
+  // (F1-10i).
+  final payments = await Payment.db.find(
+    store.session,
+    where: (p) =>
+        p.tenantId.equals(scope.tenantId) &
+        p.saleId.equals(sale.id) &
+        p.deletedAt.equals(null),
+    transaction: transaction,
+  );
+  if (!paidInSession(payments, open.id)) return VoidBlock.session;
   return null;
 }
 

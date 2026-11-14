@@ -2941,7 +2941,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get cashSessionErrorOpenSplit =>
-      'Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.';
+      'Masih ada split bill yang bagiannya dibayar di sesi ini. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.';
 
   @override
   String billSplitTitle(String bill, int guests) {
@@ -3648,7 +3648,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get historyVoidBlockSession =>
-      'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.';
+      'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini, dengan semua pembayaran diterima di sesi itu. Pakai Retur untuk nota lain.';
 
   @override
   String get historyErrReturnEmpty => 'Isi jumlah retur minimal satu item.';
