@@ -379,10 +379,14 @@ void main() {
     await _tap(tester, 'discount-apply');
     expect(_key('discount-dialog'), findsNothing);
 
-    // 24.000 − 2.400 = 21.600; service 1.080; PB1 2.268.
+    // 24.000 − 2.400 = 21.600; service 1.080; PB1 2.268. Pemberi diskon
+    // berizin tercatat atas namanya sendiri (F1-04i).
     final totals = _key('dining-bill-totals');
     expect(
-      find.descendant(of: totals, matching: find.text('Diskon nota 10%')),
+      find.descendant(
+        of: totals,
+        matching: find.text('Diskon nota 10% · disetujui Dimas'),
+      ),
       findsOneWidget,
     );
     expect(
@@ -396,7 +400,7 @@ void main() {
     expect(
       find.descendant(
         of: _key('payment-bill-discount'),
-        matching: find.text('Diskon nota 10%'),
+        matching: find.text('Diskon nota 10% · disetujui Dimas'),
       ),
       findsOneWidget,
     );

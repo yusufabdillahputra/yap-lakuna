@@ -14189,6 +14189,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Simpan'**
   String get productImportSave;
+
+  /// No description provided for @historyManualDiscount.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual'**
+  String get historyManualDiscount;
+
+  /// No description provided for @historyManualDiscountBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Diskon manual · disetujui {name}'**
+  String historyManualDiscountBy(String name);
 }
 
 class _AppLocalizationsDelegate

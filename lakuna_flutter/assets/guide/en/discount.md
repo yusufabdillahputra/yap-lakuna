@@ -24,6 +24,7 @@ On the **Tables** screen, the bill panel has a **Discount** button for an order 
 - Service, PB1, and the order discount are calculated from the total after line discounts.
 - When splitting a bill per item, discounted lines can be shared between guests. A percentage discount applies to every portion; an amount discount is split in proportion to the quantity (e.g. Rp 1,000 over 3 portions becomes Rp 333 + Rp 334 + Rp 333), so the bill total does not change. Portions moved back are merged again.
 - Once a split bill has a part payment, discounts can no longer be changed.
+- The name of the staff member who gave the discount is recorded on the bill (*Order discount 10% · approved by Rina*), even when another cashier closes the bill later. In **History**, the sale details show a *Manual discount · approved by Rina* line with the total of line and order discounts.
 
 ## Manager approval
 

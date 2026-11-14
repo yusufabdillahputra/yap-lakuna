@@ -4772,5 +4772,14 @@
   },
   "productImportPreviewNone": "Nothing would change, so there is nothing to save.",
   "productImportPreviewNote": "Not saved yet. Check this list, then press Save.",
-  "productImportSave": "Save"
+  "productImportSave": "Save",
+  "historyManualDiscount": "Manual discount",
+  "historyManualDiscountBy": "Manual discount · approved by {name}",
+  "@historyManualDiscountBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

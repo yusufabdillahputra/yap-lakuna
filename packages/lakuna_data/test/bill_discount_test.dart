@@ -161,7 +161,8 @@ void main() {
       );
       expect(paid.sale.discountAmount, 12500);
       expect(paid.sale.discountBp, 1000);
-      expect(paid.sale.discountApprovedBy, isNull);
+      // Pemilik berizin yang memberi diskon tercatat (F1-04i).
+      expect(paid.sale.discountApprovedBy, owner());
       expect(paid.sale.total, b.charges.total.value);
       expect(paid.sale.serviceAmount, b.charges.service.value);
     },
@@ -289,4 +290,60 @@ void main() {
       expect(done.receipt!.sale.total, 103950);
     },
   );
+
+  test('pemberi diskon berizin tercatat walau bill ditutup staf lain '
+      '(F1-04i)', () async {
+    final rina = await addStaff('Rina', 'manager');
+    final sari = await addStaff('Sari', 'cashier');
+    var b = await bill();
+    b = await discount(
+      b,
+      const ManualDiscount.percent(BasisPoints(1000)),
+      staffId: rina.id,
+    );
+    expect(b.sale.discountApprovedBy, rina.id);
+    expect(b.discountApprovedByName, 'Rina');
+    // Diskon baris oleh pemilik menggantikan pemberi terakhir.
+    b = await setBillItemDiscount(
+      store,
+      scope,
+      staffId: owner(),
+      itemId: b.items.single.id,
+      discount: const ManualDiscount.amount(Money(5000)),
+    );
+    expect(b.sale.discountApprovedBy, owner());
+    b = await discount(
+      b,
+      const ManualDiscount.amount(Money(1000)),
+      staffId: rina.id,
+    );
+    final paid = await payOpenBill(
+      store,
+      scope,
+      staffId: sari.id,
+      billId: b.id,
+      payments: [SalePaymentRequest.cash(b.charges.total)],
+    );
+    expect(paid.sale.staffId, sari.id);
+    expect(paid.sale.discountApprovedBy, rina.id);
+
+    final detail = await loadSaleDetail(store, scope, paid.sale.id);
+    expect(detail.staffName, 'Sari');
+    expect(detail.discountApprovedByName, 'Rina');
+    expect(detail.manualDiscount, const Money(6000));
+  });
+
+  test('detail nota tanpa diskon: tanpa nama pemberi', () async {
+    final b = await bill(1);
+    final paid = await payOpenBill(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      payments: [SalePaymentRequest.cash(b.charges.total)],
+    );
+    final detail = await loadSaleDetail(store, scope, paid.sale.id);
+    expect(detail.discountApprovedByName, isNull);
+    expect(detail.manualDiscount, Money.zero);
+  });
 }

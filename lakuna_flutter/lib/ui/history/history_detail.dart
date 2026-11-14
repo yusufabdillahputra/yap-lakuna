@@ -156,6 +156,18 @@ class HistoryDetailPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 6,
             children: [
+              if (detail.manualDiscount > Money.zero)
+                KeyedSubtree(
+                  key: const ValueKey('history-discount'),
+                  child: amountLine(
+                    switch (detail.discountApprovedByName) {
+                      final name? when name.isNotEmpty =>
+                        l10n.historyManualDiscountBy(name),
+                      _ => l10n.historyManualDiscount,
+                    },
+                    detail.manualDiscount,
+                  ),
+                ),
               amountLine(l10n.historyTotalOriginal, Money(sale.total)),
               amountLine(l10n.historyReturnedTotal, detail.returnedTotal),
               amountLine(l10n.historyNet, detail.net, strong: true),

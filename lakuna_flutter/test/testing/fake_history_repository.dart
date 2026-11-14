@@ -53,6 +53,9 @@ class FakeHistoryRepository extends HistoryRepository {
   var _counter = 0;
   var _returnCounter = 0;
 
+  /// Nama pemberi diskon per nota (F1-04i).
+  final discountGivers = <UuidValue, String>{};
+
   /// Menambah nota lunas: [items] = (nama, jumlah milli, harga satuan).
   CheckoutResult addSale(
     List<(String, int, int)> items, {
@@ -64,6 +67,8 @@ class FakeHistoryRepository extends HistoryRepository {
     int? paidAmount,
     DateTime? dueOn,
     bool inOpenSession = true,
+    int discount = 0,
+    String? discountBy,
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -79,9 +84,11 @@ class FakeHistoryRepository extends HistoryRepository {
       status: SaleStatus.completed,
       subtotal: subtotal,
       tierDiscount: 0,
+      discountAmount: discount,
+      discountApprovedBy: discountBy == null ? null : _id(),
       changeAmount: 0,
-      total: total ?? subtotal,
-      paidAmount: paidAmount ?? total ?? subtotal,
+      total: total ?? subtotal - discount,
+      paidAmount: paidAmount ?? total ?? subtotal - discount,
       customerId: customerName == null ? null : _id(),
       customerName: customerName,
       dueOn: dueOn,
@@ -89,6 +96,7 @@ class FakeHistoryRepository extends HistoryRepository {
       soldAt: soldAt ?? DateTime.utc(2026, 11, 3, 3, _counter),
       hlc: '',
     );
+    if (discountBy != null) discountGivers[sale.id] = discountBy;
     final result = CheckoutResult(
       sale: sale,
       items: [
@@ -116,7 +124,7 @@ class FakeHistoryRepository extends HistoryRepository {
           tenantId: _tenant,
           saleId: sale.id,
           method: method,
-          amount: paidAmount ?? total ?? subtotal,
+          amount: paidAmount ?? total ?? subtotal - discount,
           changeAmount: 0,
           status: PaymentStatus.paid,
           paidAt: sale.soldAt,
@@ -246,6 +254,7 @@ class FakeHistoryRepository extends HistoryRepository {
           ? null
           : staff.where((e) => e.id == s.sale.voidedBy).firstOrNull?.name ??
                 'Manajer',
+      discountApprovedByName: discountGivers[saleId],
       returns: mine,
       returnedMilli: returned,
       outstanding: outstanding[saleId] ?? Money.zero,

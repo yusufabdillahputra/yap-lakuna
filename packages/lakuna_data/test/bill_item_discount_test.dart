@@ -244,11 +244,13 @@ void main() {
     expect(b.sale.discountApprovedBy, rina.id);
     expect(b.discountApprovedByName, 'Rina');
 
-    // Diskon nota oleh pemilik lalu dihapus: penyetuju baris tetap.
+    // Diskon nota oleh pemilik: pemilik menjadi pemberi terakhir (F1-04i;
+    // satu kolom per nota). Dihapus: pemberi tetap selama ada baris
+    // berdiskon.
     b = await billDiscount(b, const ManualDiscount.amount(Money(1000)));
-    expect(b.sale.discountApprovedBy, rina.id);
+    expect(b.sale.discountApprovedBy, ctx.owner.id);
     b = await billDiscount(b, null);
-    expect(b.sale.discountApprovedBy, rina.id);
+    expect(b.sale.discountApprovedBy, ctx.owner.id);
 
     // Hapus diskon baris tidak butuh izin diskon; penyetuju ikut hilang.
     b = await itemDiscount(b.items.single, null, staffId: sari.id);

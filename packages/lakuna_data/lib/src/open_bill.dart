@@ -1361,6 +1361,23 @@ Future<OpenBill> setBillRequested(
       sale.copyWith(billRequestedAt: requested ? s.now : null),
 );
 
+/// Pemberi diskon open bill (F1-04i): penyetuju PIN, atau staf itu sendiri
+/// bila berizin. Bill bisa ditutup staf lain, jadi pemberi harus dicatat
+/// (berbeda dengan Kasir retail, tempat staf nota adalah pemberinya).
+Future<UuidValue> _discountGiver(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  UuidValue? approverId,
+}) async =>
+    await requireDiscountActor(
+      store,
+      scope,
+      staffId: staffId,
+      approverId: approverId,
+    ) ??
+    staffId;
+
 /// Menerapkan diskon nota [discount] ke bill (F1-04e), atau menghapusnya
 /// bila `null`. Izin sama dengan Kasir retail ([requireDiscountActor]);
 /// ditolak bila bill sudah punya pembayaran bagian ([SplitLocked]) atau
@@ -1375,7 +1392,7 @@ Future<OpenBill> setBillDiscount(
 }) async {
   final approvedBy = discount == null
       ? null
-      : await requireDiscountActor(
+      : await _discountGiver(
           store,
           scope,
           staffId: staffId,
@@ -1445,7 +1462,7 @@ Future<OpenBill> setBillItemDiscount(
 }) async {
   final approvedBy = discount == null
       ? null
-      : await requireDiscountActor(
+      : await _discountGiver(
           store,
           scope,
           staffId: staffId,
