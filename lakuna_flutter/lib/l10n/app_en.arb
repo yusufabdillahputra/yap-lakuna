@@ -4522,7 +4522,6 @@
   "firstProductSkipDesc": "Add products any time from the Products menu.",
   "firstProductInvalid": "Check the first product fields.",
   "firstProductOptional": "Optional",
-  "billSplitErrorItemDiscounted": "Remove this item's rupiah discount or change it to a percentage before splitting it.",
   "productGenerateBarcode": "Generate barcode",
   "labelsTooDense": "{count, plural, =1{1 product uses a code} other{{count} products use codes}} too long for this paper",
   "@labelsTooDense": {

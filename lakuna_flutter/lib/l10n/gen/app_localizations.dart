@@ -13754,12 +13754,6 @@ abstract class AppLocalizations {
   /// **'Opsional'**
   String get firstProductOptional;
 
-  /// No description provided for @billSplitErrorItemDiscounted.
-  ///
-  /// In id, this message translates to:
-  /// **'Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi.'**
-  String get billSplitErrorItemDiscounted;
-
   /// No description provided for @productGenerateBarcode.
   ///
   /// In id, this message translates to:
