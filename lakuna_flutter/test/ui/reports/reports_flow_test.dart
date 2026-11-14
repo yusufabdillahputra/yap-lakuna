@@ -335,7 +335,21 @@ void main() {
             200,
             scrollable: find.byType(Scrollable).first,
           );
-          expect(find.text('Lewat > 90 hari'), findsWidgets);
+          // Mode kartu: kolom tampil sebagai "label: nilai".
+          expect(
+            find.descendant(
+              of: _key('reports-debt-aging-receivable-notDue'),
+              matching: find.text('Nota terbuka: 1'),
+            ),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(
+              of: _key('reports-debt-aging-payable-days31To60'),
+              matching: find.text('Rp 50.000'),
+            ),
+            findsOneWidget,
+          );
         }
       }
       expect(find.textContaining('RT-PST-K01-261104-0001'), findsOneWidget);

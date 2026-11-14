@@ -14,6 +14,7 @@ Menu **Laporan** merangkum penjualan, laba, stok, kas, piutang dan hutang, serta
    - **Produk terlaris**.
    - **Laba rugi**: penjualan bersih, HPP, laba kotor, beban operasional, dan laba bersih, dibanding periode sebelumnya.
    - **Stok**, **Kas & sesi**, **Piutang & hutang**, **Retur**.
+   - Di **Piutang & hutang**, tabel **Umur piutang** dan **Umur hutang** mengelompokkan sisa tiap nota menurut lamanya lewat jatuh tempo: *Belum jatuh tempo*, *Lewat 1–30 hari*, *31–60*, *61–90*, dan *> 90 hari*. Tagih atau bayar lebih dulu yang paling lama.
 3. Tekan **Unduh PDF** atau **Unduh Excel** untuk menyimpan atau membagikan laporan.
 
 ## Cara hitung

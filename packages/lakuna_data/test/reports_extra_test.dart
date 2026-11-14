@@ -534,6 +534,39 @@ void main() {
     await credit(DateTime.utc(2026, 11, 10)); // belum jatuh tempo
     await credit(DateTime.utc(2026, 9, 20)); // lewat 45 hari
     await credit(DateTime.utc(2026, 7, 1)); // lewat 126 hari
+    // Pelanggan terhapus yang masih berpiutang (mis. hasil sinkronisasi)
+    // tidak dihitung di daftar, kartu, maupun umur.
+    final ani = await saveCustomer(
+      store,
+      scope,
+      staffId: owner(),
+      input: const CustomerInput(name: 'Ani', creditLimit: Money(1000000)),
+    );
+    await checkoutSale(
+      store,
+      scope,
+      staffId: owner(),
+      lines: [SaleLineRequest(variantId: v(roti).id, quantity: Qty.one)],
+      payments: const [],
+      credit: SaleCredit(
+        customerId: ani.id,
+        downPayment: Money.zero,
+        dueOn: DateTime.utc(2026, 7, 1),
+      ),
+    );
+    await store.write(actor: owner(), (w) async {
+      final c = (await Customer.db.findById(w.session, ani.id))!;
+      final st = await w.stamp();
+      await w.update(
+        c.copyWith(
+          deletedAt: st.now,
+          version: c.version + 1,
+          updatedAt: st.now,
+          hlc: st.hlc.toString(),
+        ),
+        st,
+      );
+    });
     final supplier = await saveSupplier(
       store,
       scope,
@@ -578,6 +611,10 @@ void main() {
     expect(rec.amountOf(AgingBucket.over90), const Money(15000));
     expect(rec.count, 3);
     expect(rec.total, r.receivable);
+    expect(r.customers.map((c) => c.customer.name), ['Budi']);
+    expect(r.overdue, const Money(30000));
+    expect(r.overdue, rec.overdue);
+    expect(r.overdueCustomers, 1);
     final pay = r.payableAging;
     expect(pay.amountOf(AgingBucket.days61To90), const Money(12000));
     expect(pay.countOf(AgingBucket.days61To90), 2);

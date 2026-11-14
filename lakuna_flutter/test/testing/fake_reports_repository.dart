@@ -187,7 +187,8 @@ class FakeReportsRepository extends ReportsRepository {
       overdue: const Money(150000),
       overdueCustomers: 1,
       overduePurchases: 0,
-      // Budi lewat 40 hari, Rina belum jatuh tempo; dua nota beli belum.
+      // Budi lewat 40 hari, Rina belum jatuh tempo; nota beli belum jatuh
+      // tempo dan lewat 34 hari.
       receivableAging: Aging.of([
         (
           dueOn: today.subtract(const Duration(days: 40)),
@@ -200,7 +201,7 @@ class FakeReportsRepository extends ReportsRepository {
       ], today),
       payableAging: Aging.of([
         (dueOn: DateTime.utc(2026, 11, 10), outstanding: const Money(70000)),
-        (dueOn: DateTime.utc(2026, 11, 18), outstanding: const Money(50000)),
+        (dueOn: DateTime.utc(2026, 10, 1), outstanding: const Money(50000)),
       ], today),
     );
   });

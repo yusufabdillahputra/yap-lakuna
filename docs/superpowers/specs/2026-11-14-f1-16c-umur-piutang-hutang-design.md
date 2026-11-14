@@ -1,6 +1,6 @@
 # F1-16c — Umur piutang & hutang di Laporan
 
-- **Status:** Dalam pengerjaan (v0.82.0)
+- **Status:** Rilis v0.82.0
 - **Layar:** 1.24 *Laporan*, tab **Piutang & hutang**.
 - **Acuan:** gap [F1-14](2026-11-04-f1-14-supplier-hutang-design.md)
   *Umur hutang* dan tab Piutang & hutang
@@ -37,6 +37,11 @@ membayar.
    pelanggan / supplier (belum dihapus) yang dihitung.
 4. Unduhan PDF/Excel tab ini mendapat bagian *Umur piutang* dan *Umur
    hutang* (Nota terbuka, Sisa) sebelum daftar per pelanggan / supplier.
+   Bagian tanpa sisa sama sekali tidak ditulis di unduhan (di layar tampil
+   pesan kosong).
+6. Kartu *Piutang jatuh tempo* dihitung dari data yang sama dengan umur
+   (sisa lewat tempo pelanggan di daftar), jadi kartu = jumlah kelompok
+   *Lewat …*.
 5. Catatan di bawah tab: *Umur dihitung dari jatuh tempo tiap nota sampai
    hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.*
 
@@ -45,10 +50,12 @@ membayar.
 - `lakuna_domain` (`receivable.dart`): `enum AgingBucket` dan
   `agingBucketOf(dueOn, today)`; `Aging` (nilai + jumlah nota per
   kelompok, `total`, `count`, `Aging.of(docs, today)`), murni dan diuji.
-- `lakuna_data`: `openReceivables` (customers.dart) dan `openPayables`
-  (suppliers.dart) membuka peta nota bersisa per pelanggan / supplier
-  yang sudah dipakai daftar. `DebtReport` mendapat `receivableAging` dan
-  `payableAging`, disaring ke pelanggan / supplier di daftar.
+- `lakuna_data`: `customersWithReceivables` (customers.dart) dan
+  `suppliersWithPayables` (suppliers.dart) mengembalikan daftar beserta
+  peta nota bersisa dari **satu** pembacaan (`listCustomers` /
+  `loadSuppliersOverview` memakainya). `loadDebtReport` menghitung daftar,
+  kartu jatuh tempo, dan umur dari data itu; `DebtReport` mendapat
+  `receivableAging` dan `payableAging`.
 - UI `reports_extra_view.dart` (`_Debts`) dan `reportTable` debts di
   `report_labels.dart`. l10n baru ID + EN.
 
@@ -64,7 +71,7 @@ membayar.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Umur piutang & hutang per kelompok | 1.24 | Dalam pengerjaan | — |
+| Umur piutang & hutang per kelompok | 1.24 | Rilis v0.82.0 | Tab Piutang & hutang + unduhan PDF/Excel. |
 | Umur per pelanggan / supplier (kolom kelompok di tabel per nama) | — | Belum | Tabel per nama tetap Nota terbuka, Lewat tempo, Sisa. |
 | Kelompok umur bisa diatur (mis. 7/14/30 hari) | — | Belum | Tetap 30/60/90. |
 | Umur pada tanggal lampau | — | Belum | Posisi hari ini saja, seperti tab Piutang & hutang. |

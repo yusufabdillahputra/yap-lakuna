@@ -14,6 +14,7 @@ The **Reports** menu summarises sales, profit, stock, cash, receivables and paya
    - **Best sellers**.
    - **Profit & loss**: net sales, COGS, gross profit, operating expenses, and net profit, compared with the previous period.
    - **Stock**, **Cash & sessions**, **Receivables & payables**, **Returns**.
+   - In **Receivables & payables**, the **Receivables aging** and **Payables aging** tables group each document's balance by how long it is past due: *Not yet due*, *1–30 days overdue*, *31–60*, *61–90*, and *over 90 days*. Collect or pay the oldest first.
 3. Tap **Download PDF** or **Download Excel** to save or share the report.
 
 ## How it is calculated

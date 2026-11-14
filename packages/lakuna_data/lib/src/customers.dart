@@ -479,13 +479,6 @@ Future<Map<UuidValue, List<ReceivableSale>>> _receivables(
   return result;
 }
 
-/// Nota kredit bersisa per pelanggan pada [today] (umur piutang F1-16c).
-Future<Map<UuidValue, List<ReceivableSale>>> openReceivables(
-  DatabaseSession session,
-  UuidValue tenantId,
-  DateTime today,
-) => _receivables(session, tenantId, today);
-
 /// Sisa piutang nota kredit yang lewat jatuh tempo pada [today] dan jumlah
 /// pelanggannya (kartu *Piutang jatuh tempo* F1-16).
 Future<(Money, int)> overdueReceivables(
@@ -592,6 +585,17 @@ Future<CustomersOverview> listCustomers(
   LakunaStore store,
   CatalogScope scope, {
   DateTime? now,
+}) async => (await customersWithReceivables(store, scope, now: now)).overview;
+
+/// [listCustomers] beserta nota kredit bersisa per pelanggan, dari satu
+/// pembacaan (umur piutang di Laporan, F1-16c).
+Future<
+  ({CustomersOverview overview, Map<UuidValue, List<ReceivableSale>> open})
+>
+customersWithReceivables(
+  LakunaStore store,
+  CatalogScope scope, {
+  DateTime? now,
 }) async {
   final session = store.session;
   final today = await outletToday(
@@ -607,9 +611,14 @@ Future<CustomersOverview> listCustomers(
   customers.sort(
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
   );
-  return CustomersOverview(
-    today: today,
-    rows: [for (final c in customers) _row(c, groups, open[c.id] ?? const [])],
+  return (
+    overview: CustomersOverview(
+      today: today,
+      rows: [
+        for (final c in customers) _row(c, groups, open[c.id] ?? const []),
+      ],
+    ),
+    open: open,
   );
 }
 
