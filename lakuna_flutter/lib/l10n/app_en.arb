@@ -4910,5 +4910,19 @@
   "aging31To60": "31–60 days overdue",
   "aging61To90": "61–90 days overdue",
   "agingOver90": "Over 90 days overdue",
-  "reportsAgingNote": "Age counts from each document's due date to today; documents without a due date count as Not yet due."
+  "reportsAgingNote": "Age counts from each document's due date to today; documents without a due date count as Not yet due.",
+  "purchaseRestockSupplierNote": "Supplier filled from the last purchase: {supplier} ({count} of {total, plural, =1{1 item} other{{total} items}}).",
+  "@purchaseRestockSupplierNote": {
+    "placeholders": {
+      "supplier": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

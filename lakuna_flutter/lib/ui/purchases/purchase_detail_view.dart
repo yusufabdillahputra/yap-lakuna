@@ -146,9 +146,28 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
               title: Text(
                 l10n.purchaseRestockNote(location, _form.restockApplied),
               ),
-              subtitle: _form.restockSkipped > 0
-                  ? Text(l10n.purchaseRestockSkipped(_form.restockSkipped))
-                  : null,
+              subtitle: switch ((
+                _form.restockSupplierName,
+                _form.restockSkipped,
+              )) {
+                (null, 0) => null,
+                (final supplier, final skipped) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    if (supplier != null)
+                      Text(
+                        l10n.purchaseRestockSupplierNote(
+                          supplier,
+                          _form.restockSupplierCount,
+                          _form.restockApplied,
+                        ),
+                        key: const ValueKey('purchase-restock-supplier'),
+                      ),
+                    if (skipped > 0) Text(l10n.purchaseRestockSkipped(skipped)),
+                  ],
+                ),
+              },
             );
           },
         ),

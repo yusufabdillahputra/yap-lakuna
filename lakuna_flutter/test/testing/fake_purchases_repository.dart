@@ -471,6 +471,18 @@ class FakePurchasesRepository extends PurchasesRepository {
     return updated;
   }
 
+  /// Supplier terakhir per varian untuk [lastSuppliers] (F1-08d).
+  final lastSupplierOf = <UuidValue, ({UuidValue supplierId, DateTime at})>{};
+
+  @override
+  Future<Result<Map<UuidValue, ({UuidValue supplierId, DateTime at})>>>
+  lastSuppliers(Iterable<UuidValue> variantIds) async => _guard(
+    () => {
+      for (final id in variantIds)
+        if (lastSupplierOf.containsKey(id)) id: lastSupplierOf[id]!,
+    },
+  );
+
   @override
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id) async => _guard(() {
     final media = purchases

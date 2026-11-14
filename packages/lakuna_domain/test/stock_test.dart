@@ -70,4 +70,46 @@ void main() {
       expect(restockQuantity(Qty.units(4), Qty.zero), Qty.units(1));
     },
   );
+
+  group('supplier untuk draf stok minimum (F1-08d)', () {
+    final d1 = DateTime.utc(2026, 10, 1);
+    final d2 = DateTime.utc(2026, 11, 1);
+
+    test('supplier terakhir untuk barang terbanyak', () {
+      expect(
+        chooseRestockSupplier([
+          (supplier: 'A', at: d1),
+          (supplier: 'B', at: d2),
+          (supplier: 'A', at: d1),
+        ]),
+        (supplier: 'A', count: 2),
+      );
+    });
+
+    test('seri: pembelian terbaru menang', () {
+      expect(
+        chooseRestockSupplier([
+          (supplier: 'A', at: d1),
+          (supplier: 'B', at: d2),
+        ]),
+        (supplier: 'B', count: 1),
+      );
+      expect(
+        chooseRestockSupplier([
+          (supplier: 'B', at: d1),
+          (supplier: 'A', at: d2),
+          (supplier: 'B', at: d1),
+          (supplier: 'A', at: d1),
+        ]),
+        (supplier: 'A', count: 2),
+      );
+    });
+
+    test('tanpa riwayat: null', () {
+      expect(
+        chooseRestockSupplier(<({String supplier, DateTime at})>[]),
+        isNull,
+      );
+    });
+  });
 }

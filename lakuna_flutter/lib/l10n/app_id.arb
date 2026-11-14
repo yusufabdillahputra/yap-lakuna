@@ -5444,5 +5444,19 @@
   "aging31To60": "Lewat 31–60 hari",
   "aging61To90": "Lewat 61–90 hari",
   "agingOver90": "Lewat > 90 hari",
-  "reportsAgingNote": "Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo."
+  "reportsAgingNote": "Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.",
+  "purchaseRestockSupplierNote": "Supplier diisi dari pembelian terakhir: {supplier} ({count} dari {total} barang).",
+  "@purchaseRestockSupplierNote": {
+    "placeholders": {
+      "supplier": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

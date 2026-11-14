@@ -31,7 +31,7 @@ Adjustments need the *Stock adjustments* permission. Lines with an empty physica
 
 Enter **Min stock** per variant in the product form. The **Minimum stock** tab and Home list products below their minimum, so you know when to [buy more](purchases).
 
-Tap **Create purchase** under that list to open a *New purchase* already filled with every item below its minimum, received into the location you are viewing. The suggested quantity is **2 × minimum stock − current stock**, rounded up (e.g. stock 2, minimum 20 → buy 38). Prices use the latest cost price. Choose a supplier, adjust quantities and prices, then save a draft or receive the goods as usual. The button only appears for staff with the *Manage purchases* permission.
+Tap **Create purchase** under that list to open a *New purchase* already filled with every item below its minimum, received into the location you are viewing. The suggested quantity is **2 × minimum stock − current stock**, rounded up (e.g. stock 2, minimum 20 → buy 38). Prices use the latest cost price. The **supplier** is filled with the supplier of the last purchase for most of those items (the note above the form names it and how many items); change it if needed, adjust quantities and prices, then save a draft or receive the goods as usual. The button only appears for staff with the *Manage purchases* permission.
 
 ## Stock locations
 

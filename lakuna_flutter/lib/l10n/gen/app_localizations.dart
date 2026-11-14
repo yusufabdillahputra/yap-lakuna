@@ -14399,6 +14399,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.'**
   String get reportsAgingNote;
+
+  /// No description provided for @purchaseRestockSupplierNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier diisi dari pembelian terakhir: {supplier} ({count} dari {total} barang).'**
+  String purchaseRestockSupplierNote(String supplier, int count, int total);
 }
 
 class _AppLocalizationsDelegate

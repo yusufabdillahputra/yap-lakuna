@@ -305,6 +305,68 @@ void main() {
     expect(suppliers.map((s) => s.name), ['CV Sumber Pangan']);
   });
 
+  test(
+    'supplier terakhir per barang dari pembelian diterima (F1-08d)',
+    () async {
+      final first = await receivePurchase(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        request: request(
+          paid: const Money(889000),
+          funding: FundingSource.bank,
+        ),
+      );
+      now = now.add(const Duration(days: 1));
+      final second = await receivePurchase(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        request: PurchaseRequest(
+          newSupplierName: 'Toko Gula Jaya',
+          purchasedOn: today,
+          locationId: gudang.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: v(gula).id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(14000),
+            ),
+          ],
+          paid: const Money(70000),
+          funding: FundingSource.bank,
+        ),
+      );
+      // Draf lebih baru tidak dihitung.
+      now = now.add(const Duration(days: 1));
+      await savePurchaseDraft(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        request: request(supplier: 'CV Draf'),
+      );
+
+      var last = await lastSuppliersOf(store, scope, [
+        v(minyak).id,
+        v(gula).id,
+      ]);
+      expect(last[v(minyak).id]?.supplierId, first.supplierId);
+      expect(last[v(minyak).id]?.at, first.receivedAt);
+      expect(last[v(gula).id]?.supplierId, second.supplierId);
+      expect(await lastSuppliersOf(store, scope, const []), isEmpty);
+
+      // Supplier terhapus diabaikan: kembali ke pembelian sebelumnya.
+      await deleteSupplier(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        supplierId: second.supplierId!,
+      );
+      last = await lastSuppliersOf(store, scope, [v(gula).id]);
+      expect(last[v(gula).id]?.supplierId, first.supplierId);
+    },
+  );
+
   group('retur pembelian', () {
     late Purchase p;
     late PurchaseDetail d;

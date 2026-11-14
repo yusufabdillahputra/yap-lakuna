@@ -223,6 +223,15 @@ class PurchaseFormViewModel extends ChangeNotifier {
   var _restockApplied = 0;
   var _restockSkipped = 0;
   String? _restockLocationName;
+  String? _restockSupplierName;
+  var _restockSupplierCount = 0;
+
+  /// Supplier yang diisi dari pembelian terakhir (F1-08d), `null` bila
+  /// tidak ada riwayat.
+  String? get restockSupplierName => _restockSupplierName;
+
+  /// Jumlah barang yang supplier terakhirnya [restockSupplierName].
+  int get restockSupplierCount => _restockSupplierCount;
 
   /// Jumlah baris yang terisi dari stok minimum (0 = form biasa).
   int get restockApplied => _restockApplied;
@@ -374,6 +383,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       if (_restock case final r?) {
         _restock = null;
         _applyRestock(r);
+        await _applyRestockSupplier();
       }
     }
     return const Result.ok(null);
@@ -466,9 +476,36 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _restockLocationName = locationName ?? r.locationName;
   }
 
+  /// Supplier terakhir untuk barang yang terisi dari stok minimum (F1-08d).
+  /// Galat baca diabaikan: supplier tetap kosong seperti F1-08c.
+  Future<void> _applyRestockSupplier() async {
+    if (_lines.isEmpty) return;
+    final result = await _repository.lastSuppliers({
+      for (final l in _lines) l.product.variantId,
+    });
+    if (result case Ok(:final value)) {
+      final suppliers = {for (final s in _setup!.suppliers) s.id: s};
+      final choice = chooseRestockSupplier([
+        for (final last in value.values)
+          if (suppliers.containsKey(last.supplierId))
+            (supplier: last.supplierId, at: last.at),
+      ]);
+      // Staf sudah memilih supplier selama menunggu: pilihannya dipakai.
+      if (choice == null || _supplierId != null || _newSupplier) return;
+      _changeSupplier(() {
+        _supplierId = choice.supplier;
+        _newSupplier = false;
+      });
+      _restockSupplierName = suppliers[choice.supplier]!.name;
+      _restockSupplierCount = choice.count;
+    }
+  }
+
   void _blank() {
     final s = _setup!;
     _draftId = null;
+    _restockSupplierName = null;
+    _restockSupplierCount = 0;
     _restockApplied = 0;
     _restockSkipped = 0;
     _restockLocationName = null;
@@ -570,12 +607,14 @@ class PurchaseFormViewModel extends ChangeNotifier {
       DateTime(d.year, d.month, d.day + days);
 
   void selectSupplier(UuidValue? id) => _changeSupplier(() {
+    if (id != _supplierId) _restockSupplierName = null;
     _supplierId = id;
     _newSupplier = false;
   });
 
   /// Mengetik nama supplier baru (dibuat saat simpan).
   void useNewSupplier() => _changeSupplier(() {
+    _restockSupplierName = null;
     _supplierId = null;
     _newSupplier = true;
   });

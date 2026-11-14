@@ -13,4 +13,4 @@ Spec: [F1-16c](../specs/2026-11-14-f1-16c-umur-piutang-hutang-design.md)
 - [x] **Uji manual Xvfb**: Laporan › Piutang & hutang.
 - [x] **Dokumen**: spec F1-14 dan F1-16, README, STATUS-JEDA, panduan,
       CHANGELOG 0.82.0, versi 0.82.0+85.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** (#88)
