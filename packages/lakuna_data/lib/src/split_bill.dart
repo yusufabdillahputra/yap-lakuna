@@ -320,18 +320,30 @@ Future<void> _moveQuantity(
     if (i >= 0) rows[i] = row;
   }
 
-  SaleItem sized(SaleItem row, Qty q) => _withGross(
-    row,
-    _lineTotal(Money(row.unitPrice), row.modifierDelta, q),
-  ).copyWith(quantityMilli: q.milli);
+  Money gross(SaleItem row, Qty q) =>
+      _lineTotal(Money(row.unitPrice), row.modifierDelta, q);
+
+  /// [row] dengan jumlah [q] dan potongan diskon baris [cut].
+  SaleItem sized(SaleItem row, Qty q, Money cut) => row.copyWith(
+    quantityMilli: q.milli,
+    lineTotal: (gross(row, q) - cut).value,
+    discountAmount: cut.value,
+  );
 
   // Diskon baris rupiah tidak bisa dibagi (F1-04g); persen dibagi dengan
-  // persen yang sama.
+  // persen yang sama. Potongan sisa dihitung dari persennya dan porsi yang
+  // pindah membawa selisihnya, sehingga jumlah potongan tidak berubah oleh
+  // pembulatan saat dibagi.
   final discount = billItemDiscountOf(source);
   final rupiah = discount?.kind == DiscountKind.amount;
-  if (rupiah && qty.milli < source.quantityMilli) {
+  final left = Qty(source.quantityMilli) - qty;
+  if (rupiah && left.isPositive) {
     throw const BillItemDiscounted();
   }
+  final leftCut = left.isPositive && discount != null
+      ? discount.cut(gross(source, left))
+      : Money.zero;
+  final movedCut = Money(source.discountAmount) - leftCut;
   final root = source.splitFromItemId ?? source.id;
   final target = rupiah
       ? null
@@ -349,7 +361,11 @@ Future<void> _moveQuantity(
   if (target != null) {
     replace(
       await w.update(
-        sized(target, Qty(target.quantityMilli) + qty).copyWith(
+        sized(
+          target,
+          Qty(target.quantityMilli) + qty,
+          Money(target.discountAmount) + movedCut,
+        ).copyWith(
           version: target.version + 1,
           updatedAt: s.now,
           updatedBy: staffId,
@@ -361,7 +377,7 @@ Future<void> _moveQuantity(
     );
   } else {
     final inserted = await w.insert(
-      sized(source, qty).copyWith(
+      sized(source, qty, movedCut).copyWith(
         id: UuidValue.fromString(newId()),
         guestLabel: label,
         splitFromItemId: root,
@@ -397,11 +413,10 @@ Future<void> _moveQuantity(
     }
   }
 
-  final left = Qty(source.quantityMilli) - qty;
   if (left.isPositive) {
     replace(
       await w.update(
-        sized(source, left).copyWith(
+        sized(source, left, leftCut).copyWith(
           version: source.version + 1,
           updatedAt: s.now,
           updatedBy: staffId,

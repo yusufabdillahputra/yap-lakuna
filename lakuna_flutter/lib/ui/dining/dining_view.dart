@@ -1578,10 +1578,13 @@ class _BillItemRow extends StatelessWidget {
     // Diskon baris (F1-04g): untuk semua status dapur; terkunci setelah
     // ada pembayaran bagian.
     final discount = billItemDiscountOf(item);
+    // Menghapus diskon tidak butuh PIN manajer.
     final discountAction =
         busy ||
             locked ||
-            (vm.discountNeedsApproval && ApprovalScope.maybeOf(context) == null)
+            (discount == null &&
+                vm.discountNeedsApproval &&
+                ApprovalScope.maybeOf(context) == null)
         ? null
         : () => _editItemDiscount(context, vm, item, name);
 

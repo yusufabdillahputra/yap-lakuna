@@ -20,8 +20,12 @@ Spec: `docs/superpowers/specs/2026-11-14-f1-04g-diskon-baris-open-bill-design.md
   pesan `BillItemDiscounted` di split bill.
 - [x] Tes widget 1280 px (setelah dapur, bayar, hapus), 360 px (pelayan +
   PIN), tanpa izin dan sakelar mati.
-- [ ] Uji penuh (format, analyze, domain/data/flutter).
-- [ ] Uji manual Xvfb: diskon baris di meja, bayar, struk memuat diskon.
-- [ ] Review subagent, perbaikan temuan.
-- [ ] Dokumen rilis: spec status, README spec, STATUS-JEDA, spec F1-04b
+- [x] Uji penuh (format, analyze, domain/data/flutter).
+- [x] Uji manual Xvfb: diskon baris 10% di meja M1 (pelanggan grup), bayar
+  tunai, struk memuat *Discount 10% −4,950*, nota tersimpan dengan
+  `line_discount_amount` 4.950 dan `tier_discount` 3.000.
+- [x] Review subagent, perbaikan temuan (struk porsi split berdiskon,
+  pembulatan saat dibagi, penyetuju usang, hapus tanpa PIN, persetujuan
+  tidak terpakai saat hapus).
+- [x] Dokumen rilis: spec status, README spec, STATUS-JEDA, spec F1-04b
   dan F1-04e gap, panduan, CHANGELOG 0.53.0, pubspec.

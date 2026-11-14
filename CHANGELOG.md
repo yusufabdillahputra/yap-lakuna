@@ -47,6 +47,21 @@ diskon baris di Kasir retail.
 - Bill yang totalnya habis karena diskon baris (jumlah item berkurang
   setelah diskon rupiah) tidak bisa dibayar sampai diskonnya diubah, sama
   dengan diskon nota.
+- Membagi baris berdiskon persen ke tamu tidak mengubah total bill:
+  potongan sisa dihitung dari persennya dan porsi yang pindah membawa
+  selisihnya (pembulatan per porsi bisa menggeser Rp 1).
+- Nama penyetuju diskon dihapus otomatis bila bill tidak lagi punya diskon
+  (mis. item berdiskon dihapus), agar tidak tercatat di nota yang diskon
+  berikutnya diberikan staf berizin.
+- Menghapus diskon baris tidak butuh PIN manajer, dan persetujuan PIN tidak
+  terpakai saat diskon (nota atau baris) dihapus.
+
+### Diperbaiki
+
+- Struk dan tiket bill split: porsi yang digabung kembali ke baris asal kini
+  menjumlahkan potongan diskon barisnya; porsi dengan diskon berbeda tampil
+  di baris sendiri (ditemukan saat review: struk menampilkan potongan satu
+  porsi saja).
 
 ### Catatan teknis
 
@@ -63,9 +78,13 @@ diskon baris di Kasir retail.
 - Flutter: `DiningRepository.setItemDiscount`,
   `DiningViewModel.setItemDiscount` / `itemDiscountIssue`;
   `discountBlocksPay` ikut memeriksa diskon baris.
-- Tes: 9 tes data baru (`bill_item_discount_test`), 4 tes view model, dan 3
-  tes widget (1280 px setelah dapur, 360 px pelayan + PIN manajer, tanpa
-  izin dengan sakelar mati).
+- Tes: 11 tes data baru (`bill_item_discount_test`, termasuk pembulatan
+  split dan penyetuju), 4 tes view model, 3 tes widget (1280 px setelah
+  dapur, 360 px pelayan + PIN manajer, tanpa izin dengan sakelar mati), dan
+  1 tes struk untuk porsi berdiskon.
+- Uji manual Xvfb: diskon 10% di meja berpelanggan grup, bayar tunai, struk
+  memuat *Diskon 10%*; nota tersimpan dengan `line_discount_amount` 4.950
+  dan `tier_discount` 3.000.
 
 ## [0.52.0] - 2026-11-14
 

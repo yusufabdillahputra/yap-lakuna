@@ -804,8 +804,12 @@ Future<void> _refreshTotals(
   final charges = _charges(sale, items, rates);
   final list = Money.sum(items.map(_listTotal));
   final gross = Money.sum(items.map(_grossLine));
+  // Penyetuju hanya tercatat selama masih ada diskon (nota atau baris).
+  final discounted =
+      billDiscountOf(sale) != null || items.any(_hasLineDiscount);
   await w.update(
     sale.copyWith(
+      discountApprovedBy: discounted ? sale.discountApprovedBy : null,
       subtotal: list.value,
       tierDiscount: (list - gross).value,
       lineDiscountAmount: (gross - charges.subtotal).value,

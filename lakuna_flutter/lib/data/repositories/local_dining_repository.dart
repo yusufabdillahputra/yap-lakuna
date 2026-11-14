@@ -222,7 +222,8 @@ class LocalDiningRepository extends DiningRepository {
       discount: discount,
       approverId: discount == null ? null : approverId,
     );
-    if (approverId != null) {
+    // Hapus diskon tidak memakai persetujuan.
+    if (discount != null && approverId != null) {
       _session.consumeApproval(approverId, Permission.salesDiscount);
     }
     return bill;
@@ -251,7 +252,8 @@ class LocalDiningRepository extends DiningRepository {
       discount: discount,
       approverId: discount == null ? null : approverId,
     );
-    if (approverId != null) {
+    // Hapus diskon tidak memakai persetujuan.
+    if (discount != null && approverId != null) {
       _session.consumeApproval(approverId, Permission.salesDiscount);
     }
     return bill;

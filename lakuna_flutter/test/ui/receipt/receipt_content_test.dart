@@ -289,4 +289,33 @@ void main() {
     expect(merged.first.quantityMilli, 2000);
     expect(merged.first.lineTotal, 48000);
   });
+
+  test('porsi berdiskon baris: potongan dijumlah, diskon beda terpisah', () {
+    final kopi = item(
+      'Kopi',
+      '',
+      1000,
+      21600,
+    ).copyWith(discountBp: 1000, discountAmount: 2400);
+    final portion = kopi.copyWith(
+      id: UuidValue.fromString(newId()),
+      guestLabel: 'A',
+      splitFromItemId: kopi.id,
+    );
+    // Porsi ketiga diubah ke diskon rupiah setelah dibagi.
+    final other = item('Kopi', '', 1000, 19000).copyWith(
+      id: UuidValue.fromString(newId()),
+      guestLabel: 'B',
+      splitFromItemId: kopi.id,
+      discountAmount: 5000,
+    );
+    final merged = mergeSplitPortions([kopi, portion, other]);
+    expect(merged, hasLength(2));
+    expect(merged.first.quantityMilli, 2000);
+    expect(merged.first.lineTotal, 43200);
+    expect(merged.first.discountAmount, 4800);
+    expect(merged.first.discountBp, 1000);
+    expect(merged.last.discountAmount, 5000);
+    expect(merged.last.lineTotal, 19000);
+  });
 }

@@ -31,12 +31,15 @@ bill, dengan aturan dan izin yang sama dengan diskon baris di Kasir retail.
 3. **Hitung ulang** setiap kali baris dihitung ulang (ubah jumlah, harga
    grup pelanggan, gabung meja dengan pelanggan): persen mengikuti total
    baris (dibulatkan setengah ke atas), rupiah tetap tetapi dipangkas ke
-   total baris bila jumlah berkurang.
+   total baris bila jumlah berkurang. Yang tersimpan adalah potongan efektif,
+   jadi rupiah yang sudah dipangkas tidak kembali saat jumlah dinaikkan lagi
+   (beda dengan diskon nota yang menyimpan rupiah yang diminta).
 4. **Izin dan penyetuju:** `requireDiscountActor` seperti diskon nota.
    Penyetuju dicatat di `sales.discount_approved_by` bill (satu kolom untuk
-   diskon nota dan baris, sama dengan Kasir retail). Menghapus diskon nota
-   tidak menghapus penyetuju selama masih ada baris berdiskon. Menghapus
-   diskon baris boleh untuk staf yang bisa mengubah bill.
+   diskon nota dan baris, sama dengan Kasir retail). Penyetuju hanya
+   bertahan selama bill masih punya diskon nota atau baris berdiskon (juga
+   saat item berdiskon dihapus atau meja digabung). Menghapus diskon baris
+   boleh untuk staf yang bisa mengubah bill, tanpa PIN manajer.
 5. **Batas:** potongan rupiah tidak boleh melebihi total baris
    (`DiscountTooLarge`); total bill setelah semua diskon harus > 0.
 6. **Gabung baris:** item baru tidak digabung ke baris yang berdiskon
@@ -45,9 +48,14 @@ bill, dengan aturan dan izin yang sama dengan diskon baris di Kasir retail.
    - Terkunci setelah ada pembayaran bagian (`SplitLocked`), sama dengan
      diskon nota.
    - Split per item: baris berdiskon persen bisa dibagi (tiap porsi
-     memakai persen yang sama); baris berdiskon **rupiah** tidak bisa
-     dibagi (`BillItemDiscounted`, pesan *Hapus atau ubah diskon rupiah
-     item ini ke persen sebelum dibagi.*).
+     memakai persen yang sama; potongan sisa dihitung dari persennya dan
+     porsi yang pindah membawa selisihnya, sehingga jumlah potongan dan
+     total bill tidak berubah karena pembulatan); baris berdiskon **rupiah**
+     tidak bisa dibagi (`BillItemDiscounted`, pesan *Hapus atau ubah diskon
+     rupiah item ini ke persen sebelum dibagi.*), tetapi porsi terakhir
+     pindah utuh. Porsi hanya digabung kembali bila diskonnya sama.
+   - Struk dan tiket menggabung porsi berdiskon sama ke baris asalnya
+     (potongan dijumlah); porsi dengan diskon berbeda tampil terpisah.
 8. **Tampilan:** di bawah nama item tampil *Diskon 10%* / *Diskon* dengan
    potongan (−Rp…); harga kanan adalah total bersih.
 9. Diskon nota (F1-04e) dihitung dari Σ total baris bersih.
@@ -56,11 +64,13 @@ bill, dengan aturan dan izin yang sama dengan diskon baris di Kasir retail.
 
 - Data: `setBillItemDiscount(store, scope, staffId:, itemId:, discount:,
   approverId:)` → `OpenBill`; `billItemDiscountOf(SaleItem)`;
-  `_netLine` (kotor → bersih + potongan) dipakai `addBillItem`,
-  `_repriced`, dan pemecahan porsi split; `BillItemDiscounted`.
+  `_withGross` (kotor → bersih + potongan) dipakai `_repriced`; pemecahan
+  porsi split membagi potongan; `BillItemDiscounted`; `_refreshTotals`
+  mengisi `line_discount_amount` dan merapikan penyetuju.
 - Repositori meja: `setItemDiscount(itemId, discount, approverId)`; palsu.
 - VM meja: `setItemDiscount` (`Command1`), `itemDiscountIssue(item, d)`.
-- UI: tombol dan baris diskon di `_BillItemRow`, dialog `DiscountDialog`.
+- UI: tombol dan baris diskon di `_BillItemRow`, dialog `DiscountDialog`;
+  `mergeSplitPortions` (struk/tiket) menjumlah potongan.
 
 ## Pengujian
 

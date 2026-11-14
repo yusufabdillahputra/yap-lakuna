@@ -451,4 +451,76 @@ void main() {
     expect(done.receipt!.sale.lineDiscountAmount, 10000);
     expect(done.receipt!.sale.total, 103950);
   });
+
+  test('split persen: jumlah potongan tetap meski dibulatkan', () async {
+    var b = await bill(3);
+    // 75.000 × 3,33% = 2.497,5 → 2.498; per gelas 832,5 → 833.
+    b = await itemDiscount(
+      b.items.single,
+      const ManualDiscount.percent(BasisPoints(333)),
+    );
+    expect(b.items.single.discountAmount, 2498);
+    final total = b.charges.total;
+    b = await setBillSplit(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      mode: SplitMode.item,
+      guests: 3,
+    );
+    for (final guest in ['A', 'B']) {
+      final rest = b.items.firstWhere((i) => i.guestLabel == null);
+      b = await assignPortion(
+        store,
+        scope,
+        staffId: owner(),
+        itemId: rest.id,
+        guest: guest,
+      );
+    }
+    expect(b.items, hasLength(3));
+    expect(b.items.fold(0, (a, i) => a + i.discountAmount), 2498);
+    expect(b.charges.total, total);
+    b = await setBillSplit(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      mode: null,
+    );
+    expect(b.items.single.discountAmount, 2498);
+  });
+
+  test('item berdiskon dihapus: penyetuju ikut hilang', () async {
+    final sari = await addStaff('Sari', 'cashier');
+    final rina = await addStaff('Rina', 'manager');
+    var b = await bill(1);
+    b = await addBillItem(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      line: SaleLineRequest(
+        variantId: kopi.variants.single.id,
+        quantity: Qty.units(1),
+      ),
+    );
+    b = await itemDiscount(
+      b.items.single,
+      tenPercent,
+      staffId: sari.id,
+      approverId: rina.id,
+    );
+    expect(b.sale.discountApprovedBy, rina.id);
+    b = await setBillItemQuantity(
+      store,
+      scope,
+      staffId: owner(),
+      itemId: b.items.single.id,
+      quantity: Qty.zero,
+    );
+    expect(b.items, isEmpty);
+    expect(b.sale.discountApprovedBy, isNull);
+  });
 }
