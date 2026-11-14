@@ -407,8 +407,6 @@ Future<List<PurchaseRow>> purchaseRowsOf(
   ];
 }
 
-/// Retur pembelian cabang, terbaru dulu, disaring [query] (nomor RB, nomor
-/// PB, atau supplier).
 /// Supplier pembelian **diterima** terbaru di cabang [scope] untuk tiap
 /// varian [variantIds] (F1-08d). Terbaru menurut `received_at` (tanggal
 /// beli bila kosong), lalu nomor. Draf, pembelian tanpa supplier, dan
@@ -474,6 +472,8 @@ Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
   };
 }
 
+/// Retur pembelian cabang, terbaru dulu, disaring [query] (nomor RB, nomor
+/// PB, atau supplier).
 Future<List<PurchaseReturnRow>> listPurchaseReturns(
   LakunaStore store,
   CatalogScope scope, {

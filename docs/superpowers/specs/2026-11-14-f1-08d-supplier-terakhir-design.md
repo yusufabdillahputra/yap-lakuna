@@ -1,7 +1,7 @@
 # F1-08d — Supplier terakhir saat membuat pembelian dari stok minimum
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.83.0)
+- **Status:** Rilis v0.83.0
 - **Layar:** 1.18 *Stok* › *Buat pembelian* → 1.19 form pembelian baru.
 - **Acuan:** gap [F1-08c](2026-11-14-f1-08c-pembelian-dari-stok-minimum-design.md)
   *Supplier terakhir per barang*. Storeku belum membangunnya.
@@ -24,8 +24,10 @@ barang itu terakhir kali, sehingga staf cukup memeriksa lalu menyimpan.
    seri, supplier dengan pembelian terbaru. Barang tanpa riwayat tidak
    dihitung. Tidak ada riwayat sama sekali: supplier tetap kosong (sama
    dengan F1-08c).
-3. Supplier hanya diisi bila ada di daftar supplier form; staf tetap bisa
-   menggantinya.
+3. Supplier hanya diisi bila ada di daftar supplier form dan staf belum
+   memilih supplier sendiri; staf tetap bisa menggantinya. Mengganti
+   supplier menghapus kalimat supplier di catatan. Galat baca riwayat
+   diabaikan (supplier kosong seperti F1-08c).
 4. Catatan isian (`purchase-restock-note`) mendapat kalimat kedua:
    *Supplier diisi dari pembelian terakhir: {supplier} ({n} dari {m}
    barang).* / *Supplier filled from the last purchase: {supplier} ({n} of
@@ -47,15 +49,20 @@ barang itu terakhir kali, sehingga staf cukup memeriksa lalu menyimpan.
 ## Tes
 
 - Domain: pilihan terbanyak, seri → terbaru, kosong → null.
-- Data: draf tidak dihitung, pembelian lebih baru menang, cabang lain dan
-  supplier terhapus diabaikan.
-- VM / widget: form dari stok minimum memilih supplier dan menampilkan
-  catatan; tanpa riwayat supplier kosong; 1280 / 360 px.
+- Data: draf tidak dihitung, pembelian lebih baru menang, supplier
+  terhapus diabaikan (kembali ke pembelian sebelumnya). Saringan cabang
+  sama dengan kueri pembelian lain (`outlet_id`).
+- VM / widget: form dari stok minimum memilih supplier terbanyak dan
+  menampilkan catatan; ganti supplier menghapus catatan; tanpa riwayat,
+  supplier tidak ada lagi, atau galat baca: supplier kosong; 1280 /
+  360 px.
 
 ## Status & gap
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Supplier terakhir di pembelian dari stok minimum | 1.18 / 1.19 | Dalam pengerjaan | — |
+| Supplier terakhir di pembelian dari stok minimum | 1.18 / 1.19 | Rilis v0.83.0 | — |
 | Pecah draf per supplier | — | Belum | Satu draf satu supplier; barang dari supplier lain diubah atau dihapus staf. |
 | Harga beli terakhir sebagai harga baris | — | Belum | Harga modal varian (rata-rata) tetap dipakai. |
+| Abaikan pembelian yang seluruh barangnya diretur | — | Belum | Pembelian yang barangnya diretur ke supplier tetap dihitung sebagai supplier terakhir. |
+| Indeks `purchase_items(variant_id)` | — | Belum | Kueri membaca baris barang pembelian tenant lalu menyaring; cukup untuk skala UMKM, tambah indeks lewat migrasi bila lambat. |

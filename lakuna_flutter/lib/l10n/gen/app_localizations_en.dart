@@ -8504,6 +8504,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String purchaseRestockSupplierNote(String supplier, int count, int total) {
-    return 'Supplier filled from the last purchase: $supplier ($count of $total items).';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total items',
+      one: '1 item',
+    );
+    return 'Supplier filled from the last purchase: $supplier ($count of $_temp0).';
   }
 }

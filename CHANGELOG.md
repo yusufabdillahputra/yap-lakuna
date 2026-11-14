@@ -7,6 +7,35 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.83.0] - 2026-11-14
+
+Draf pembelian dari stok minimum kini langsung memilih supplier langganan,
+jadi pemilik cukup memeriksa jumlah lalu menyimpan.
+
+### Ditambahkan
+
+- **Stok (1.18) › Stok minimum › Buat pembelian:** form *Pembelian baru*
+  (1.19) langsung memilih supplier yang menjadi supplier pembelian
+  diterima terakhir untuk paling banyak barang di draf. Bila seri, yang
+  pembeliannya paling baru. Jatuh tempo ikut tempo supplier itu.
+- Catatan di atas form mendapat kalimat *Supplier diisi dari pembelian
+  terakhir: {supplier} ({n} dari {m} barang).*; kalimat ini hilang bila
+  staf mengganti supplier.
+- Panduan *Stok* menjelaskan supplier yang terisi otomatis (ID + EN).
+
+### Catatan teknis
+
+- `lakuna_domain`: `chooseRestockSupplier` (terbanyak, seri = terbaru).
+- `lakuna_data`: `lastSuppliersOf` — pembelian diterima cabang ini,
+  terbaru menurut `received_at` lalu nomor; draf, pembelian tanpa
+  supplier, baris terhapus, dan supplier terhapus diabaikan.
+- `PurchasesRepository.lastSuppliers`; `PurchaseFormViewModel` mengisi
+  supplier hanya bila staf belum memilih, dan mengabaikan galat baca.
+- Tes domain, data (draf, urutan, supplier terhapus), VM (terbanyak, ganti
+  supplier, galat baca, supplier tidak ada lagi), dan alur Stok 1280 /
+  360 px.
+- Gap F1-08c *Supplier terakhir per barang* ditutup.
+
 ## [0.82.0] - 2026-11-14
 
 Pemilik kini bisa melihat seberapa lama piutang pelanggan dan hutang ke
@@ -5528,7 +5557,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.83.0...HEAD
+[0.83.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.82.0...v0.83.0
 [0.82.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...v0.82.0
 [0.81.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...v0.80.0

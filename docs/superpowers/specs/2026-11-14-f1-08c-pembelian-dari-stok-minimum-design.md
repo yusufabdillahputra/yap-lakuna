@@ -72,6 +72,6 @@ mencari produk satu per satu di form pembelian.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Pembelian dari stok minimum | 1.18 | Selesai v0.49.0 | |
-| Supplier terakhir per barang | — | Belum | Belum ada data supplier per produk; staf memilih supplier di form. |
+| Supplier terakhir per barang | — | Rilis v0.83.0 | Supplier terbanyak dari pembelian diterima terakhir ([F1-08d](2026-11-14-f1-08d-supplier-terakhir-design.md)). |
 | Jumlah saran bisa diatur (kelipatan dus, target stok) | — | Belum | Rumus tetap 2 × minimum. Mengganti satuan baris (mis. pcs → dus) mempertahankan angka jumlah, jadi 38 pcs menjadi 38 dus; staf perlu mengubah jumlahnya. |
 | Catatan isian setelah *Simpan draf* | — | Belum | Catatan tetap tampil; mengetuk *Buat pembelian* lagi membuat draf kedua berisi barang yang sama. |

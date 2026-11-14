@@ -299,11 +299,35 @@ void main() {
       expect(vm.supplierId, sumber.id);
       expect(vm.restockSupplierName, 'CV Sumber Pangan');
       expect(vm.restockSupplierCount, 2);
+      // Mengganti supplier menghapus catatan supplier terakhir.
+      vm.selectSupplier(gula.id);
+      expect(vm.restockSupplierName, isNull);
       await vm.startNew();
       expect(vm.supplierId, isNull);
       expect(vm.restockSupplierName, isNull);
       vm.dispose();
     });
+
+    test(
+      'galat baca supplier terakhir: form tetap terisi tanpa supplier',
+      () async {
+        final r = FakePurchasesRepository();
+        r.lastSupplierOf[r.products.first.variants.first.id] = (
+          supplierId: r.suppliers.single.id,
+          at: DateTime.utc(2026, 11, 2),
+        );
+        final vm = _FailingLast(r);
+        final form = PurchaseFormViewModel(
+          repository: vm,
+          restock: restockOf(r),
+        );
+        await form.load.execute();
+        expect(form.restockApplied, greaterThan(0));
+        expect(form.supplierId, isNull);
+        expect(form.restockSupplierName, isNull);
+        form.dispose();
+      },
+    );
 
     test('tanpa riwayat atau supplier sudah tidak ada: kosong', () async {
       final r = FakePurchasesRepository();
@@ -423,4 +447,19 @@ void main() {
     expect(vm.tab, PurchaseTab.returns);
     expect(vm.returns, isEmpty);
   });
+}
+
+/// Repositori palsu yang gagal membaca supplier terakhir (F1-08d).
+class _FailingLast extends FakePurchasesRepository {
+  _FailingLast(this._inner);
+
+  final FakePurchasesRepository _inner;
+
+  @override
+  Future<Result<PurchaseSetup>> load() => _inner.load();
+
+  @override
+  Future<Result<Map<UuidValue, ({UuidValue supplierId, DateTime at})>>>
+  lastSuppliers(Iterable<UuidValue> variantIds) async =>
+      Result.error(Exception('baca gagal'));
 }

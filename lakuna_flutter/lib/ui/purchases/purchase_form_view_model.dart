@@ -490,7 +490,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
           if (suppliers.containsKey(last.supplierId))
             (supplier: last.supplierId, at: last.at),
       ]);
-      if (choice == null) return;
+      // Staf sudah memilih supplier selama menunggu: pilihannya dipakai.
+      if (choice == null || _supplierId != null || _newSupplier) return;
       _changeSupplier(() {
         _supplierId = choice.supplier;
         _newSupplier = false;
@@ -606,12 +607,14 @@ class PurchaseFormViewModel extends ChangeNotifier {
       DateTime(d.year, d.month, d.day + days);
 
   void selectSupplier(UuidValue? id) => _changeSupplier(() {
+    if (id != _supplierId) _restockSupplierName = null;
     _supplierId = id;
     _newSupplier = false;
   });
 
   /// Mengetik nama supplier baru (dibuat saat simpan).
   void useNewSupplier() => _changeSupplier(() {
+    _restockSupplierName = null;
     _supplierId = null;
     _newSupplier = true;
   });
