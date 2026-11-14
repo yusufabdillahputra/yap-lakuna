@@ -61,6 +61,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.78.0 | Tanggal arsip di dialog Produk diarsipkan (F1-07o) | #84 |
 | v0.79.0 | Rekening transfer di struk piutang dan kuitansi (F1-05e) | #85 |
 | v0.80.0 | Cetak tagihan (pre-bill) open bill (F1-10k) | #86 |
+| v0.81.0 | Cari nota Riwayat lewat nama barang (F1-11d) | #87 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -129,6 +130,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     (F1-07o).
 24. ~~Cetak tagihan (pre-bill) open bill~~ — selesai v0.80.0 (F1-10k);
     QRIS di tagihan dan tagihan per tamu split masih gap.
+25. ~~Cari nota Riwayat lewat nama barang~~ — selesai v0.81.0 (F1-11d);
+    kata kunci yang melintasi nama produk + varian masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

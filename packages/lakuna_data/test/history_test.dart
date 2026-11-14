@@ -453,7 +453,7 @@ void main() {
         store,
         scope,
         staffId: ctx.owner.id,
-        itemId: withRoti.items.single.id!,
+        itemId: withRoti.items.single.id,
         quantity: Qty.zero,
       );
       await addBillItem(
@@ -497,6 +497,23 @@ void main() {
         isEmpty,
       );
       expect(await find('%ubuk'), isEmpty);
+      expect(await find('_oti'), isEmpty);
+      // Filter metode dan kasir ikut berlaku untuk hasil nama barang.
+      expect(
+        await find('bubuk', const HistoryFilter(method: PaymentMethod.cash)),
+        [paid.sale.id, a.sale.id],
+      );
+      expect(
+        await find(
+          'bubuk',
+          const HistoryFilter(method: PaymentMethod.qrisStatic),
+        ),
+        isEmpty,
+      );
+      expect(await find('bubuk', HistoryFilter(staffId: ctx.owner.id)), [
+        paid.sale.id,
+        a.sale.id,
+      ]);
     });
 
     test('hasil dibatasi dan ditandai terpotong', () async {

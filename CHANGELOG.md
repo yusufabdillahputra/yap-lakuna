@@ -7,6 +7,39 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.81.0] - 2026-11-14
+
+Nota lama kini bisa ditemukan lewat nama barang yang dibeli, tanpa perlu
+ingat nomor nota atau pelanggannya.
+
+### Ditambahkan
+
+- **Riwayat (1.14) › Cari:** kolom cari kini juga mencocokkan nama produk
+  dan nama varian barang di nota (huruf besar/kecil diabaikan, potongan
+  kata boleh, mis. `gula` atau `es teh`). Seperti pencarian lain, hasil
+  menjangkau semua tanggal (100 nota terbaru) dan filter kasir, metode,
+  serta status tetap berlaku.
+- Panduan *Retur & void* menyebut pencarian nama barang (ID + EN).
+
+### Diubah
+
+- Petunjuk kolom cari Riwayat: *Cari no. nota, pelanggan, barang, atau
+  referensi* / *Search receipt no., customer, item, or reference*.
+
+### Catatan teknis
+
+- `HistoryRepository` lokal menambahkan subkueri `id IN (SELECT sale_id
+  FROM sale_items ...)` (nama produk atau varian, `LOWER ... LIKE`, tanpa
+  baris terhapus) ke kueri nota, sehingga tidak ada batas jumlah barang dan
+  filter cabang tetap dari kueri nota. Nota yang hanya cocok lewat barang
+  dicek ulang per kelompok di Dart agar `%` dan `_` literal. Barang yang
+  dihapus dari bill sebelum bayar tidak membuat nota cocok.
+- Tes data baru untuk produk, varian, barang terhapus, `%`/`_` literal,
+  serta filter status, metode, dan kasir;
+  tes alur Riwayat 1280/360 px untuk petunjuk kolom cari.
+- Gap F1-11b *Cari nama item* ditutup; kata kunci yang melintasi nama
+  produk + varian (mis. `Beras 5 kg`) masih gap.
+
 ## [0.80.0] - 2026-11-14
 
 Tamu restoran kini bisa menerima tagihan cetak sebelum membayar, lengkap
@@ -5456,7 +5489,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.81.0...HEAD
+[0.81.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.80.0...v0.81.0
 [0.80.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.79.0...v0.80.0
 [0.79.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.78.0...v0.79.0
 [0.78.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.77.0...v0.78.0

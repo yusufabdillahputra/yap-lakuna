@@ -2,7 +2,12 @@ import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
-    show ColumnOrderingOperations, DatabaseSession, Transaction;
+    show
+        ColumnOrderingOperations,
+        DatabaseSession,
+        EscapedExpression,
+        Expression,
+        Transaction;
 
 import 'cash.dart';
 import 'customers.dart';
@@ -369,15 +374,14 @@ Future<HistoryPage> listSalesHistory(
 }
 
 /// Nota cabang ini yang nomornya, nama pemesan/pelanggannya, HP
-/// pelanggannya, atau referensi pembayaran lunasnya memuat kata kunci [filter]
-/// (tanpa beda huruf besar/kecil), terbaru dulu, paling banyak [limit].
+/// pelanggannya, referensi pembayaran lunasnya, atau nama produk/varian
+/// barangnya (F1-11d) memuat kata kunci [filter] (tanpa beda huruf
+/// besar/kecil), terbaru dulu, paling banyak [limit].
 ///
 /// Kandidat dicari dengan `ilike` lalu dicek ulang di Dart agar `%` dan `_`
 /// di kata kunci tidak menjadi wildcard. Nota dibaca per kelompok
 /// (per [batch] baris) dan berhenti begitu hasil melewati [limit], jadi kata
 /// kunci yang cocok dengan semua nota (mis. kode outlet) tetap ringan.
-/// Maks baris barang yang dibaca saat mencari nama barang (F1-11d).
-const historyItemSearchLimit = 5000;
 
 Future<({List<Sale> sales, bool truncated})> _searchSales(
   DatabaseSession session,
@@ -418,26 +422,22 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     ))
       if (has(p.reference)) p.saleId,
   };
-  // Nama barang saat transaksi (F1-11d); baris terbaru dulu, dibatasi agar
-  // kata kunci umum tidak membuat daftar ID raksasa.
-  final withItem = <UuidValue>{
-    for (final i in await SaleItem.db.find(
-      session,
-      where: (i) =>
-          i.tenantId.equals(scope.tenantId) &
-          (i.productName.ilike(pattern) | i.variantName.ilike(pattern)) &
-          i.deletedAt.equals(null),
-      orderByList: (i) => [i.createdAt.desc()],
-      limit: historyItemSearchLimit,
-    ))
-      if (has(i.productName) || has(i.variantName)) i.saleId,
-  };
-  bool matches(Sale s) =>
+  // Nama barang saat transaksi (F1-11d): subkueri `sale_items` di SQL agar
+  // tidak ada batas jumlah baris barang; dicek ulang per kelompok di bawah.
+  // LOWER di kedua sisi: tanpa beda huruf di SQLite maupun Postgres.
+  final quoted = EscapedExpression(pattern);
+  Expression<Object?> withItem(SaleTable s) => Expression(
+    '${s.id} IN (SELECT "sale_id" FROM "sale_items" '
+    'WHERE "tenant_id" = ${EscapedExpression(scope.tenantId)} '
+    'AND "deleted_at" IS NULL '
+    'AND (LOWER("product_name") LIKE LOWER($quoted) '
+    'OR LOWER("variant_name") LIKE LOWER($quoted)))',
+  );
+  bool matchesHeader(Sale s) =>
       has(s.number) ||
       has(s.customerName) ||
       customers.contains(s.customerId) ||
-      referenced.contains(s.id) ||
-      withItem.contains(s.id);
+      referenced.contains(s.id);
   final staffId = filter.staffId;
   final found = <Sale>[];
   for (var offset = 0; found.length <= limit; offset += batch) {
@@ -447,7 +447,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
         var text = s.number.ilike(pattern) | s.customerName.ilike(pattern);
         if (customers.isNotEmpty) text = text | s.customerId.inSet(customers);
         if (referenced.isNotEmpty) text = text | s.id.inSet(referenced);
-        if (withItem.isNotEmpty) text = text | s.id.inSet(withItem);
+        text = text | withItem(s);
         var where =
             s.tenantId.equals(scope.tenantId) &
             s.outletId.equals(scope.outletId) &
@@ -461,9 +461,31 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
       limit: batch,
       offset: offset,
     );
-    var kept = [
+    final open = [
       for (final s in rows)
-        if (!_neverClosed(s) && matches(s)) s,
+        if (!_neverClosed(s)) s,
+    ];
+    // Nota yang hanya cocok lewat subkueri: cek ulang nama barangnya di Dart
+    // agar `%` dan `_` tidak menjadi wildcard.
+    final byItem = <UuidValue>{};
+    final unsure = {
+      for (final s in open)
+        if (!matchesHeader(s)) s.id,
+    };
+    if (unsure.isNotEmpty) {
+      for (final i in await SaleItem.db.find(
+        session,
+        where: (i) =>
+            i.tenantId.equals(scope.tenantId) &
+            i.saleId.inSet(unsure) &
+            i.deletedAt.equals(null),
+      )) {
+        if (has(i.productName) || has(i.variantName)) byItem.add(i.saleId);
+      }
+    }
+    var kept = [
+      for (final s in open)
+        if (matchesHeader(s) || byItem.contains(s.id)) s,
     ];
     if (filter.method case final m?) {
       final paid = await _paidPayments(session, scope.tenantId, {
