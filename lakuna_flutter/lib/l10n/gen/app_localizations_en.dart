@@ -8601,4 +8601,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stockRestockDraftCancel => 'Cancel';
+
+  @override
+  String stockMinimumInDraft(String number) {
+    return 'Already in draft $number';
+  }
 }

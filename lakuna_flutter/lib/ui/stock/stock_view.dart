@@ -82,6 +82,10 @@ class _StockScreenState extends State<StockScreen>
     canAdjust:
         widget.session.current?.permissions.contains(Permission.stockAdjust) ??
         false,
+    // Tanda "sudah di draf" hanya untuk staf yang boleh membuat pembelian
+    // (F1-08h). Ditangkap sekali: ganti kasir selalu lewat /login yang
+    // membuang layar ini, dan repositori tetap memeriksa izin.
+    restockDrafts: widget.onRestock == null ? null : widget.restockDrafts,
   );
 
   @override
@@ -1893,6 +1897,23 @@ class _MinimumPanel extends StatelessWidget {
                               [?r.sku, r.baseUnit].join(' · '),
                               style: _muted(context),
                             ),
+                            if (vm.draftNumberOf(r.variantId) case final n?)
+                              Text(
+                                l10n.stockMinimumInDraft(n),
+                                key: ValueKey(
+                                  'stock-min-draft-${r.variantId.uuid}',
+                                ),
+                                // Nomor draf dibungkus utuh (tanpa elipsis)
+                                // agar draf tetap bisa dibedakan di ponsel.
+                                style: theme.typography.body.xs.copyWith(
+                                  // Biru muda di tema gelap (kontras 4.5:1,
+                                  // spec F0).
+                                  color: theme.colors.brightness == .dark
+                                      ? const Color(0xFF74D4FF)
+                                      : theme.colors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                           ],
                         ),
                       ),

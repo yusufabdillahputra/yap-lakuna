@@ -5540,5 +5540,13 @@
   },
   "stockRestockDraftOpen": "Buka draf",
   "stockRestockDraftNew": "Buat draf baru",
-  "stockRestockDraftCancel": "Batal"
+  "stockRestockDraftCancel": "Batal",
+  "stockMinimumInDraft": "Sudah di draf {number}",
+  "@stockMinimumInDraft": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

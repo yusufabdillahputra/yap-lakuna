@@ -505,6 +505,9 @@ class FakePurchasesRepository extends PurchasesRepository {
   /// Galat untuk [restockDrafts] (F1-08g).
   Exception? restockDraftsError;
 
+  /// Jumlah panggilan [restockDrafts] (F1-08h).
+  var restockDraftsCalls = 0;
+
   /// Bila diisi, [restockDrafts] menunggu gerbang ini dibuka (F1-08g).
   Completer<void>? restockDraftsGate;
 
@@ -513,6 +516,7 @@ class FakePurchasesRepository extends PurchasesRepository {
     UuidValue locationId,
     Iterable<UuidValue> variantIds,
   ) async {
+    restockDraftsCalls++;
     if (restockDraftsError case final e?) return Result.error(e);
     if (restockDraftsGate case final gate?) await gate.future;
     return _guard(() {
@@ -533,7 +537,7 @@ class FakePurchasesRepository extends PurchasesRepository {
           RestockDraft(
             purchaseId: p.id,
             number: p.number,
-            matched: matched.length,
+            variantIds: matched,
           ),
         );
       }

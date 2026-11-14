@@ -527,7 +527,8 @@ void main() {
     expect([for (final d in drafts) d.purchaseId], [both.id, gulaOnly.id]);
     expect(drafts.first.number, both.number);
     expect(drafts.first.matched, 2);
-    expect(drafts.last.matched, 1);
+    expect(drafts.first.variantIds, {v(minyak).id, v(gula).id});
+    expect(drafts.last.variantIds, {v(gula).id});
     drafts = await restockDraftsOf(store, scope, gudang.id, [v(gula).id]);
     // Sama banyak: draf yang lebih baru dulu.
     expect([for (final d in drafts) d.purchaseId], [gulaOnly.id, both.id]);

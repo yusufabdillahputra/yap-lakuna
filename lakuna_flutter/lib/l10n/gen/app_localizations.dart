@@ -14531,6 +14531,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Batal'**
   String get stockRestockDraftCancel;
+
+  /// No description provided for @stockMinimumInDraft.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah di draf {number}'**
+  String stockMinimumInDraft(String number);
 }
 
 class _AppLocalizationsDelegate

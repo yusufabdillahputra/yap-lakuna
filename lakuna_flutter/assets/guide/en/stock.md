@@ -35,6 +35,8 @@ Tap **Create purchase** under that list to open a *New purchase* already filled 
 
 A draft does not add stock, so items already in a draft still show below minimum. If a **purchase draft** for the same location already has some of those items, **Create purchase** first shows *A purchase draft already exists* with the draft number and how many of the items it already has. Choose **Open draft** to continue that draft (add any missing items by hand), **Create new draft** if you really need a separate purchase, or **Cancel**. When several drafts match, the one with the most matching items opens; the others are in the *Purchases* menu.
 
+So you don't have to guess, items in the *Below minimum stock* list that are already in a purchase draft for this location show a blue **Already in draft** note with the draft number. Items without that note have not been ordered yet. The note only appears for staff with the *Manage purchases* permission.
+
 ## Stock locations
 
 Use the **Stock locations** tab to add a display shelf, warehouse, or separate rack in this branch.

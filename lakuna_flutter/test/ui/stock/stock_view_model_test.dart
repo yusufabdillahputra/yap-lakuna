@@ -6,6 +6,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view_model.dart';
+import 'package:lakuna_flutter/utils/result.dart';
 
 import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_stock_repository.dart';
@@ -372,6 +373,64 @@ void main() {
     repo.stockGate = null;
     await loading;
     expect(vm.restock, isNull);
+  });
+
+  group('tanda sudah di draf (F1-08h)', () {
+    RestockDraft draft(String number, Set<UuidValue> ids) => RestockDraft(
+      purchaseId: fakeId(900 + number.length),
+      number: number,
+      variantIds: ids,
+    );
+
+    test('barang di draf mendapat nomor draf pertama; lainnya null', () async {
+      final calls = <(UuidValue, Set<UuidValue>)>[];
+      final v = StockViewModel(
+        repository: repo,
+        canAdjust: true,
+        restockDrafts: (location, ids) async {
+          calls.add((location, ids.toSet()));
+          return Result.ok([
+            draft('PB-2', {kopi, telur}),
+            draft('PB-1', {kopi}),
+          ]);
+        },
+      );
+      await v.load.execute();
+      expect(calls.single.$1, v.location!.id);
+      expect(calls.single.$2, {kopi, telur});
+      expect(v.draftNumberOf(kopi), 'PB-2');
+      expect(v.draftNumberOf(telur), 'PB-2');
+      expect(v.draftNumberOf(sabun), isNull);
+    });
+
+    test('galat baca atau tanpa fungsi: tanpa tanda', () async {
+      expect(vm.draftNumberOf(kopi), isNull);
+      final v = StockViewModel(
+        repository: repo,
+        canAdjust: true,
+        restockDrafts: (_, _) async => Result.error(Exception('gagal')),
+      );
+      await v.load.execute();
+      expect(v.loaded, isTrue);
+      expect(v.below, hasLength(2));
+      expect(v.draftNumberOf(kopi), isNull);
+    });
+
+    test('muat ulang menyegarkan tanda', () async {
+      var drafts = [
+        draft('PB-1', {kopi}),
+      ];
+      final v = StockViewModel(
+        repository: repo,
+        canAdjust: true,
+        restockDrafts: (_, _) async => Result.ok(drafts),
+      );
+      await v.load.execute();
+      expect(v.draftNumberOf(kopi), 'PB-1');
+      drafts = [];
+      await v.load.execute();
+      expect(v.draftNumberOf(kopi), isNull);
+    });
   });
 
   group('kartu stok dari pembelian (F1-12c)', () {
