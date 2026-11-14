@@ -7,6 +7,55 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.88.0] - 2026-11-14
+
+Bill meja dan take away kini memberi tahu bila grup pelanggannya diubah
+saat bill masih terbuka, dan harga bisa disegarkan dengan satu tombol.
+
+### Ditambahkan
+
+- **Meja (1.7 / 1.8), panel bill:** bila grup pelanggan bill diubah di
+  menu Pelanggan (mis. dari tanpa grup ke *Reseller*, dilepas dari grup,
+  atau grupnya dihapus) setelah harga bill dihitung, di bawah baris
+  *Pelanggan* tampil *Grup pelanggan berubah. Harga bill masih memakai
+  grup lama.* dengan tombol **Segarkan harga**. Tombol ini menghitung ulang
+  semua item (termasuk yang sudah di dapur) dengan grup baru dan harga menu
+  terkini, lalu total, service, PB1, diskon, dan pembulatan ikut dihitung
+  ulang. Peringatan tidak tampil saat bill di-split atau sudah ada bayar
+  bagian.
+- Memilih ulang pelanggan yang sama di pemilih pelanggan bill juga
+  menyegarkan harga bila grupnya sudah berubah; bila grupnya sama, harga
+  beku item tetap.
+- Panduan *Meja & open bill* menjelaskan peringatan dan *Segarkan harga*
+  (ID + EN).
+
+### Diperbaiki
+
+- Mengganti pelanggan bill kini membandingkan grup pelanggan baru dengan
+  grup yang benar-benar dipakai harga bill. Sebelumnya yang dibandingkan
+  grup pelanggan lama saat ini, sehingga bila grup pelanggan lama sudah
+  diubah dan kebetulan sama dengan grup pelanggan baru, item tetap memakai
+  harga grup lama. Gabung meja memakai aturan yang sama.
+
+### Catatan teknis
+
+- Kolom baru `sales.price_group_id` (`Sale.priceGroupId`, tanpa relasi):
+  grup pelanggan saat harga open bill terakhir dihitung; migrasi
+  `segarkan-harga-grup` (Postgres `ADD COLUMN`, SQLite `ADD COLUMN`).
+  Diisi oleh `setOpenBillCustomer`, `mergeOpenBills`, dan item pertama
+  `addBillItem` pada bill kosong.
+- `OpenBill.priceGroupStale`: pelanggan masih ada, bill punya item, dan
+  grup pelanggan ≠ `priceGroupId`. Bill tanpa pelanggan atau pelanggannya
+  dihapus dianggap berharga umum (`_appliedGroup`), sehingga harga beku
+  F1-10f aturan 4 tetap berlaku.
+- Bill yang dibuka sebelum v0.88.0 dengan pelanggan bergrup belum punya
+  grup harga, jadi peringatannya tampil sekali; *Segarkan harga*
+  mencatatnya.
+- Tes data (tanda grup lama, item baru, pilih ulang, harga beku, ganti
+  pelanggan, gabung meja dua arah, bill kosong, data lama, pelanggan
+  terhapus, outbox) dan alur widget 1280 / 360 px.
+- Gap F1-10f *Segarkan harga saat grup pelanggan diubah di master* ditutup.
+
 ## [0.87.0] - 2026-11-14
 
 Kasir kini bisa mencetak ulang rekap sesi yang sudah ditutup langsung dari
@@ -5749,7 +5798,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...HEAD
+[0.88.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...v0.88.0
 [0.87.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.86.0...v0.87.0
 [0.86.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.85.0...v0.86.0
 [0.85.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.84.0...v0.85.0

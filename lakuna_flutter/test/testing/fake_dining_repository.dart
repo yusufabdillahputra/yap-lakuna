@@ -487,6 +487,14 @@ class FakeDiningRepository extends DiningRepository {
         ),
       );
     }
+    // Item pertama bill kosong mencatat grup harga (F1-10l).
+    if (b.items.isEmpty) {
+      _replaceSale(
+        b.sale.copyWith(
+          priceGroupId: _billCustomer(b.sale.customerId)?.groupId,
+        ),
+      );
+    }
     _sync(billId);
     return bill(billId);
   });
@@ -718,6 +726,7 @@ class FakeDiningRepository extends DiningRepository {
         ),
       );
     }
+    _replaceSale(b.sale.copyWith(priceGroupId: b.customer?.groupId));
     _sync(billId);
   }
 

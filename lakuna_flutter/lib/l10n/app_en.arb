@@ -4967,5 +4967,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "diningCustomerStale": "Customer group changed. Bill prices still use the old group.",
+  "diningCustomerRefresh": "Refresh prices"
 }

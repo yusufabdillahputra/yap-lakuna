@@ -14477,6 +14477,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{staff} · Selisih {amount}'**
   String cashPreviousDifference(String staff, String amount);
+
+  /// No description provided for @diningCustomerStale.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup pelanggan berubah. Harga bill masih memakai grup lama.'**
+  String get diningCustomerStale;
+
+  /// No description provided for @diningCustomerRefresh.
+  ///
+  /// In id, this message translates to:
+  /// **'Segarkan harga'**
+  String get diningCustomerRefresh;
 }
 
 class _AppLocalizationsDelegate

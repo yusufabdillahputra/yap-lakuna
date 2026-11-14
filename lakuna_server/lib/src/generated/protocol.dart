@@ -6743,6 +6743,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
+          name: 'price_group_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
           name: 'void_reason',
           columnType: _isp.ColumnType.text,
           isNullable: true,

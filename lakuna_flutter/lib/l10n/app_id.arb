@@ -5501,5 +5501,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "diningCustomerStale": "Grup pelanggan berubah. Harga bill masih memakai grup lama.",
+  "diningCustomerRefresh": "Segarkan harga"
 }

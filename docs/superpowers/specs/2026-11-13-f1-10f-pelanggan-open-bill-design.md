@@ -82,4 +82,4 @@ berlaku di bill, tiket, dan saat bayar, tanpa diskon manual.
 | --- | --- | --- | --- |
 | Pelanggan di open bill + harga grup | — | Rilis v0.42.0 | Baris kosong menampilkan *Pelanggan umum* seperti Kasir. |
 | Pelanggan per bagian split bill | — | Belum | Ikut gap kredit per bagian (F1-13b). |
-| Segarkan harga saat grup pelanggan diubah di master | — | Belum | Memilih ulang pelanggan yang sama tidak menghitung ulang; lepas lalu pilih lagi. |
+| Segarkan harga saat grup pelanggan diubah di master | — | Rilis v0.88.0 | [F1-10l](2026-11-14-f1-10l-segarkan-harga-grup-design.md): peringatan + *Segarkan harga*. |

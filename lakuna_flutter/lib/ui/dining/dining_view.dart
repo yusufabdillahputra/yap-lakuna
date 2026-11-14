@@ -2195,7 +2195,7 @@ class _BillCustomerRow extends StatelessWidget {
     final vm = viewModel;
     final customer = bill.customer;
     final enabled = !busy && vm.canSetCustomer(bill);
-    return Row(
+    final row = Row(
       key: const ValueKey('dining-customer-row'),
       spacing: 8,
       children: [
@@ -2246,6 +2246,47 @@ class _BillCustomerRow extends StatelessWidget {
               child: const Icon(TablerIcons.x, size: 16),
             ),
           ),
+      ],
+    );
+    // Grup pelanggan diubah setelah harga bill dihitung (F1-10l).
+    if (customer == null || !bill.priceGroupStale || !vm.canSetCustomer(bill)) {
+      return row;
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 6,
+      children: [
+        row,
+        Row(
+          key: const ValueKey('dining-customer-stale'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Icon(
+                TablerIcons.alertTriangle,
+                size: 14,
+                color: theme.colors.destructive,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                l10n.diningCustomerStale,
+                style: _errorStyle(context),
+              ),
+            ),
+          ],
+        ),
+        FButton(
+          key: const ValueKey('dining-customer-refresh'),
+          size: .sm,
+          mainAxisSize: .min,
+          variant: .outline,
+          prefix: const Icon(TablerIcons.refresh, size: 16),
+          onPress: enabled ? () => vm.setCustomer.execute(customer.id) : null,
+          child: Text(l10n.diningCustomerRefresh),
+        ),
       ],
     );
   }
