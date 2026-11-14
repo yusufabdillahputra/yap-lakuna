@@ -42,6 +42,10 @@ fields:
   taxInclusive: bool, default=false, column=tax_inclusive
   ### Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   roundingAmount: int, default=0, column=rounding_amount
+  ### Kelipatan pembulatan total yang dipakai (1/100/500, F1-10h). Pada bill
+  ### terbuka, > 0 berarti tarif service/PB1/pembulatan sudah dibekukan
+  ### karena ada pembayaran bagian split; 0 = ikut tarif cabang terkini.
+  roundingStep: int, default=0, column=rounding_step
   ### Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
   discountAmount: int, default=0, column=discount_amount
   ### Persen diskon nota (basis poin); 0 bila diskon rupiah.

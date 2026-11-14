@@ -580,7 +580,7 @@ Future<SplitPayResult> paySplitPart(
   checkPaymentRequests(payments);
   final receipt = await store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
-    final sale = await _openSale(
+    var sale = await _openSale(
       w.session,
       scope,
       billId,
@@ -590,11 +590,7 @@ Future<SplitPayResult> paySplitPart(
       sale.id,
     ], transaction: w.transaction);
     if (items.isEmpty) throw SaleEmpty();
-    final rates = await loadFnbRates(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final rates = await _ratesOf(w, scope, sale);
     final charges = _charges(sale, items, rates);
     _assertPayable(sale, items, charges);
     final existing = await _billPayments(w.session, scope.tenantId, [
@@ -633,6 +629,26 @@ Future<SplitPayResult> paySplitPart(
       due = part.due ?? Money.zero;
       if (due <= Money.zero) throw const SplitInvalid(SplitError.nothingDue);
       label = guest;
+    }
+
+    // Bagian pertama membekukan tarif bill (F1-10h): tamu berikutnya dan
+    // nota lunas memakai tarif yang sama walau pengaturan berubah.
+    if (sale.roundingStep == 0) {
+      final s = await w.stamp();
+      sale = await w.update(
+        sale.copyWith(
+          serviceBp: rates.service.value,
+          taxBp: rates.tax.value,
+          taxInclusive: rates.taxInclusive,
+          roundingStep: rates.rounding.step,
+          version: sale.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
     }
 
     if (pending) {
@@ -785,11 +801,7 @@ Future<SplitPayResult> confirmSplitPayment(
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
-    final rates = await loadFnbRates(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final rates = await _ratesOf(w, scope, sale);
     return _completeIfPaid(
       w,
       scope,
@@ -827,6 +839,26 @@ Future<OpenBill> cancelSplitPayment(
       ),
       s,
     );
+    // Tanpa pembayaran bagian lagi: tarif tidak beku (F1-10h).
+    final rest = await _billPayments(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction);
+    if (rest.isEmpty && sale.roundingStep != 0) {
+      await w.update(
+        sale.copyWith(
+          serviceBp: 0,
+          taxBp: 0,
+          taxInclusive: false,
+          roundingStep: 0,
+          version: sale.version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
     return sale.id;
   });
   return loadOpenBill(store, scope, billId);

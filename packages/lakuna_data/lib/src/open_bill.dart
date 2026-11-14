@@ -298,6 +298,26 @@ SaleItem _withGross(SaleItem item, Money gross) {
   );
 }
 
+/// Tarif yang berlaku untuk bill [sale] (F1-10h): tarif yang dibekukan saat
+/// bagian split pertama dibayar (`rounding_step` > 0), selain itu tarif
+/// cabang terkini [live].
+/// Kelipatan yang tidak dikenal (mis. dari versi lebih baru) tetap dianggap
+/// beku, tanpa pembulatan.
+FnbRates billRates(Sale sale, FnbRates live) => sale.roundingStep > 0
+    ? FnbRates(
+        service: BasisPoints(sale.serviceBp),
+        tax: BasisPoints(sale.taxBp),
+        taxInclusive: sale.taxInclusive,
+        rounding: TotalRounding.byStep(sale.roundingStep) ?? TotalRounding.none,
+      )
+    : live;
+
+Future<FnbRates> _ratesOf(SyncTx w, CatalogScope scope, Sale sale) async =>
+    billRates(
+      sale,
+      await loadFnbRates(w.session, scope, transaction: w.transaction),
+    );
+
 FnbCharges _charges(
   Sale sale,
   List<SaleItem> items,
@@ -438,11 +458,12 @@ Future<List<OpenBill>> _bills(
           for (final i in items)
             if (i.saleId == s.id) i,
         ];
+        final ownRates = billRates(s, rates);
         return OpenBill(
           sale: s,
           items: own,
-          charges: _charges(s, own, rates),
-          rates: rates,
+          charges: _charges(s, own, ownRates),
+          rates: ownRates,
           table: tables[s.diningTableId],
           openedByName: names[s.openedBy ?? s.staffId] ?? '',
           discountApprovedByName: names[s.discountApprovedBy] ?? '',
@@ -796,11 +817,7 @@ Future<void> _refreshTotals(
   final items = await _items(w.session, scope.tenantId, [
     sale.id,
   ], transaction: w.transaction);
-  final rates = await loadFnbRates(
-    w.session,
-    scope,
-    transaction: w.transaction,
-  );
+  final rates = await _ratesOf(w, scope, sale);
   final charges = _charges(sale, items, rates);
   final list = Money.sum(items.map(_listTotal));
   final gross = Money.sum(items.map(_grossLine));
@@ -1374,11 +1391,7 @@ Future<OpenBill> setBillDiscount(
       final items = await _items(w.session, scope.tenantId, [
         sale.id,
       ], transaction: w.transaction);
-      final rates = await loadFnbRates(
-        w.session,
-        scope,
-        transaction: w.transaction,
-      );
+      final rates = await _ratesOf(w, scope, sale);
       if (discount != null) {
         switch (discount.issue(
           Money.sum(items.map((i) => Money(i.lineTotal))),
@@ -1469,11 +1482,7 @@ Future<OpenBill> setBillItemDiscount(
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
-    final rates = await loadFnbRates(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final rates = await _ratesOf(w, scope, sale);
     if (discount != null && _charges(sale, items, rates).total <= Money.zero) {
       throw const DiscountTooLarge();
     }
@@ -1798,11 +1807,7 @@ Future<CheckoutResult> payOpenBill(
       sale.id,
     ], transaction: w.transaction);
     if (items.isEmpty) throw SaleEmpty();
-    final rates = await loadFnbRates(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final rates = await _ratesOf(w, scope, sale);
     final charges = _charges(sale, items, rates);
     _assertPayable(sale, items, charges);
     final total = charges.total;
@@ -1944,6 +1949,7 @@ Future<CheckoutResult> _completeBill(
       taxAmount: charges.tax.value,
       taxInclusive: charges.taxInclusive,
       roundingAmount: charges.rounding.value,
+      roundingStep: rates.rounding.step,
       version: sale.version + 1,
       updatedAt: s.now,
       updatedBy: staffId,
@@ -2153,11 +2159,7 @@ Future<OpenBill> setOpenBillCustomer(
     final items = await _items(w.session, scope.tenantId, [
       sale.id,
     ], transaction: w.transaction);
-    final rates = await loadFnbRates(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final rates = await _ratesOf(w, scope, sale);
     _assertPayable(updated, items, _charges(updated, items, rates));
   });
   return loadOpenBill(store, scope, billId);

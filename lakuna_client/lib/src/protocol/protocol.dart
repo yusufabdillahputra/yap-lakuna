@@ -6724,6 +6724,13 @@ class Protocol extends _isd.DatabaseSerializationManager
           columnDefault: '0',
         ),
         _isd.ColumnDefinition(
+          name: 'rounding_step',
+          columnType: _isd.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isd.ColumnDefinition(
           name: 'discount_amount',
           columnType: _isd.ColumnType.bigint,
           isNullable: false,

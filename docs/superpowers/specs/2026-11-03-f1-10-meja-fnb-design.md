@@ -545,7 +545,7 @@ dibuka dari chip *Belum ditempatkan*.
 | Modifier di kasir retail | — | Belum | Toko F&B memakai layar Meja / Take away. |
 | Toggle *Kirim ke tiket dapur* / *Catatan bebas* per menu | 1.16b | Rilis v0.43.0 | Spec F1-10g. |
 | Split bill | 1.9 | Dirilis v0.13.0 | Layar Bayar bagian menampilkan porsi tamu (mode per item) atau semua item (rata/nominal), subtotal, service, PB1, total bill, lalu baris *Bagian tamu X*. Panel bill menampilkan porsi bertamu sebagai baris sendiri dengan label tamu. Tombol *Tunggu konfirmasi* QRIS bernama *Simpan, tunggu konfirmasi*. |
-| Split bill: tarif beku | — | Belum | Tarif service/PB1 dibaca ulang tiap bayar bagian; perubahan tarif di tengah split ditanggung tamu terakhir. Bekukan tarif saat bagian pertama dibayar. |
+| Split bill: tarif beku | — | Rilis v0.54.0 | Tarif service/PB1/termasuk pajak/pembulatan dibekukan saat bagian pertama dibayar ([F1-10h](2026-11-14-f1-10h-tarif-beku-split-design.md)). |
 | Split bill: kas per sesi | — | Belum | Tunai bagian masuk sesi yang menyelesaikan nota; laci di tengah sesi belum menghitungnya. Cek tutup sesi berlaku per cabang. Catat `cash_session_id` per pembayaran sebelum sinkronisasi Fase 2. |
 | Split bill: baris porsi | — | Sederhana | Memindah baris satu porsi menyisipkan baris baru dan menghapus yang lama (outbox bertambah). Ubah label di tempat bila seluruh baris pindah. Ubah jumlah baris porsi memakai harga ulang baris itu saja. |
 | Split bill: retur bagian lunas | — | Belum | Void/retur nota di F1-13. |

@@ -51,6 +51,7 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? roundingStep,
     int? discountAmount,
     int? discountBp,
     int? lineDiscountAmount,
@@ -78,6 +79,7 @@ abstract class Sale
        taxAmount = taxAmount ?? 0,
        taxInclusive = taxInclusive ?? false,
        roundingAmount = roundingAmount ?? 0,
+       roundingStep = roundingStep ?? 0,
        discountAmount = discountAmount ?? 0,
        discountBp = discountBp ?? 0,
        lineDiscountAmount = lineDiscountAmount ?? 0,
@@ -116,6 +118,7 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? roundingStep,
     int? discountAmount,
     int? discountBp,
     int? lineDiscountAmount,
@@ -203,6 +206,7 @@ abstract class Sale
           ? null
           : _is.BoolJsonExtension.fromJson(jsonSerialization['taxInclusive']),
       roundingAmount: jsonSerialization['roundingAmount'] as int?,
+      roundingStep: jsonSerialization['roundingStep'] as int?,
       discountAmount: jsonSerialization['discountAmount'] as int?,
       discountBp: jsonSerialization['discountBp'] as int?,
       lineDiscountAmount: jsonSerialization['lineDiscountAmount'] as int?,
@@ -330,6 +334,11 @@ abstract class Sale
   /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   int roundingAmount;
 
+  /// Kelipatan pembulatan total yang dipakai (1/100/500, F1-10h). Pada bill
+  /// terbuka, > 0 berarti tarif service/PB1/pembulatan sudah dibekukan
+  /// karena ada pembayaran bagian split; 0 = ikut tarif cabang terkini.
+  int roundingStep;
+
   /// Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
   int discountAmount;
 
@@ -412,6 +421,7 @@ abstract class Sale
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? roundingStep,
     int? discountAmount,
     int? discountBp,
     int? lineDiscountAmount,
@@ -466,6 +476,7 @@ abstract class Sale
       'taxAmount': taxAmount,
       'taxInclusive': taxInclusive,
       'roundingAmount': roundingAmount,
+      'roundingStep': roundingStep,
       'discountAmount': discountAmount,
       'discountBp': discountBp,
       'lineDiscountAmount': lineDiscountAmount,
@@ -523,6 +534,7 @@ abstract class Sale
       'taxAmount': taxAmount,
       'taxInclusive': taxInclusive,
       'roundingAmount': roundingAmount,
+      'roundingStep': roundingStep,
       'discountAmount': discountAmount,
       'discountBp': discountBp,
       'lineDiscountAmount': lineDiscountAmount,
@@ -608,6 +620,7 @@ class _SaleImpl extends Sale {
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? roundingStep,
     int? discountAmount,
     int? discountBp,
     int? lineDiscountAmount,
@@ -658,6 +671,7 @@ class _SaleImpl extends Sale {
          taxAmount: taxAmount,
          taxInclusive: taxInclusive,
          roundingAmount: roundingAmount,
+         roundingStep: roundingStep,
          discountAmount: discountAmount,
          discountBp: discountBp,
          lineDiscountAmount: lineDiscountAmount,
@@ -714,6 +728,7 @@ class _SaleImpl extends Sale {
     int? taxAmount,
     bool? taxInclusive,
     int? roundingAmount,
+    int? roundingStep,
     int? discountAmount,
     int? discountBp,
     int? lineDiscountAmount,
@@ -771,6 +786,7 @@ class _SaleImpl extends Sale {
       taxAmount: taxAmount ?? this.taxAmount,
       taxInclusive: taxInclusive ?? this.taxInclusive,
       roundingAmount: roundingAmount ?? this.roundingAmount,
+      roundingStep: roundingStep ?? this.roundingStep,
       discountAmount: discountAmount ?? this.discountAmount,
       discountBp: discountBp ?? this.discountBp,
       lineDiscountAmount: lineDiscountAmount ?? this.lineDiscountAmount,
@@ -968,6 +984,11 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
 
   _is.ColumnValue<int, int> roundingAmount(int value) => _is.ColumnValue(
     table.roundingAmount,
+    value,
+  );
+
+  _is.ColumnValue<int, int> roundingStep(int value) => _is.ColumnValue(
+    table.roundingStep,
     value,
   );
 
@@ -1238,6 +1259,12 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       hasDefault: true,
       fieldName: 'roundingAmount',
     );
+    roundingStep = _is.ColumnInt(
+      'rounding_step',
+      this,
+      hasDefault: true,
+      fieldName: 'roundingStep',
+    );
     discountAmount = _is.ColumnInt(
       'discount_amount',
       this,
@@ -1408,6 +1435,11 @@ class SaleTable extends _is.Table<_is.UuidValue> {
   /// Selisih pembulatan total (F1-18), termasuk dalam total; boleh negatif.
   late final _is.ColumnInt roundingAmount;
 
+  /// Kelipatan pembulatan total yang dipakai (1/100/500, F1-10h). Pada bill
+  /// terbuka, > 0 berarti tarif service/PB1/pembulatan sudah dibekukan
+  /// karena ada pembayaran bagian split; 0 = ikut tarif cabang terkini.
+  late final _is.ColumnInt roundingStep;
+
   /// Diskon manual nota (F1-04b) dalam rupiah, dari jumlah total baris.
   late final _is.ColumnInt discountAmount;
 
@@ -1485,6 +1517,7 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     taxAmount,
     taxInclusive,
     roundingAmount,
+    roundingStep,
     discountAmount,
     discountBp,
     lineDiscountAmount,

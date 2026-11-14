@@ -17,6 +17,15 @@ enum TotalRounding {
   /// Kelipatan rupiah.
   final int step;
 
+  /// Pembulatan dengan kelipatan [step] (kolom `sales.rounding_step`,
+  /// F1-10h); `null` untuk 0 atau nilai yang tidak dikenal.
+  static TotalRounding? byStep(int step) {
+    for (final r in values) {
+      if (r.step == step) return r;
+    }
+    return null;
+  }
+
   static TotalRounding? byNameOrNull(Object? name) {
     for (final r in values) {
       if (r.name == name) return r;

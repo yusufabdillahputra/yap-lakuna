@@ -6680,6 +6680,13 @@ class Protocol extends _is.DatabaseSerializationManager
           columnDefault: '0',
         ),
         _isp.ColumnDefinition(
+          name: 'rounding_step',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
           name: 'discount_amount',
           columnType: _isp.ColumnType.bigint,
           isNullable: false,
