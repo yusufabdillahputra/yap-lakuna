@@ -1297,10 +1297,13 @@ Future<Purchase> _updateInvoicePhoto(
       purchaseId,
       transaction: w.transaction,
     );
+    if (photo == null && p.invoiceMediaId == null) return p;
     final s = await w.stamp();
     final media = photo == null
         ? null
         : await _storeInvoicePhoto(w, store, scope, photo, s);
+    // Foto yang sama (hash sama) tidak menulis ulang dokumen.
+    if (media != null && media.id == p.invoiceMediaId) return p;
     return w.update(
       p.copyWith(
         invoiceMediaId: media?.id,
@@ -1331,7 +1334,9 @@ Future<Uint8List?> loadPurchaseInvoicePhoto(
     return null;
   }
   final media = await MediaFile.db.findById(store.session, p.invoiceMediaId!);
-  return media == null ? null : readMediaFile(store, media);
+  return media == null || media.tenantId != scope.tenantId
+      ? null
+      : readMediaFile(store, media);
 }
 
 /// Menghapus (lunak) draf [purchaseId] beserta barisnya.

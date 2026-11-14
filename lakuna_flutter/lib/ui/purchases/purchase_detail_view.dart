@@ -476,8 +476,10 @@ class _InvoicePhotoCard extends StatelessWidget {
     );
     final error = vm.invoicePhotoRejected
         ? l10n.purchaseInvoicePhotoInvalid
-        : vm.attachInvoicePhoto.error || vm.removeInvoicePhoto.error
+        : vm.photoPickFailed
         ? l10n.purchaseInvoicePhotoFailed
+        : vm.photoError != null
+        ? purchaseErrorMessage(l10n, vm.photoError!)
         : null;
     return FCard(
       key: const ValueKey('purchase-invoice-photo-card'),

@@ -4955,7 +4955,6 @@
   "purchaseInvoicePhotoMissing": "Foto faktur belum ada di perangkat ini.",
   "purchaseInvoicePhotoInvalid": "Foto faktur harus gambar PNG/JPEG/WebP, maksimal 5 MB.",
   "purchaseInvoicePhotoFailed": "Foto faktur gagal disimpan. Periksa izin kamera atau coba berkas lain.",
-  "purchaseInvoicePhotoHint": "Tersimpan bersama pembelian saat disimpan.",
   "purchaseInvoicePhotoRemoveTitle": "Hapus foto faktur?",
   "purchaseInvoicePhotoRemoveBody": "Stok, harga pokok, dan hutang tidak berubah.",
   "purchaseInvoicePhotoCancel": "Batal",

@@ -244,4 +244,46 @@ void main() {
       throwsA(isA<PurchaseActorNotPermitted>()),
     );
   });
+
+  test('tanpa perubahan tidak menulis ulang; draf terhapus ditolak', () async {
+    final p = await draft(request());
+    final outbox = await SyncOutboxEntry.db.count(store.session);
+    final same = await clearPurchaseInvoicePhoto(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: p.id,
+    );
+    expect(same.version, p.version);
+    final set = await setPurchaseInvoicePhoto(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: p.id,
+      photo: photo(pngBytes(50, 50)),
+    );
+    final again = await setPurchaseInvoicePhoto(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: p.id,
+      photo: photo(pngBytes(50, 50)),
+    );
+    expect(again.version, set.version);
+    // Hanya baris media + dokumen dari pemasangan pertama.
+    expect(await SyncOutboxEntry.db.count(store.session), outbox + 2);
+
+    await deletePurchaseDraft(store, scope, staffId: owner(), purchaseId: p.id);
+    await expectLater(
+      setPurchaseInvoicePhoto(
+        store,
+        scope,
+        staffId: owner(),
+        purchaseId: p.id,
+        photo: photo(pngBytes(50, 50)),
+      ),
+      throwsA(isA<PurchaseNotFound>()),
+    );
+    expect(await loadPurchaseInvoicePhoto(store, scope, p.id), isNull);
+  });
 }

@@ -79,6 +79,14 @@ class PurchaseDetailViewModel extends ChangeNotifier {
 
   Uint8List? _invoicePhoto;
   var _invoicePhotoRejected = false;
+  var _photoPickFailed = false;
+  Exception? _photoError;
+
+  /// Kamera/berkas tidak bisa dibuka (mis. izin kamera ditolak).
+  bool get photoPickFailed => _photoPickFailed;
+
+  /// Galat repositori untuk aksi foto terakhir.
+  Exception? get photoError => _photoError;
 
   /// Isi foto faktur; `null` bila tidak ada atau berkasnya belum ada di
   /// perangkat ini (lihat `detail.hasInvoicePhoto`).
@@ -169,8 +177,14 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     return photo is Ok<Uint8List?> ? photo.value : null;
   }
 
-  Future<Result<void>> _attachInvoicePhoto(bool camera) async {
+  void _resetPhotoState() {
     _invoicePhotoRejected = false;
+    _photoPickFailed = false;
+    _photoError = null;
+  }
+
+  Future<Result<void>> _attachInvoicePhoto(bool camera) async {
+    _resetPhotoState();
     const max = PurchaseLimits.invoicePhotoMaxBytes;
     final PickedImage? picked;
     try {
@@ -178,6 +192,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
           ? await _picker.takePhoto(maxBytes: max)
           : await _picker.pickImage(maxBytes: max);
     } on Exception catch (e) {
+      _photoPickFailed = true;
       return Result.error(e);
     }
     if (picked == null) return const Result.ok(null);
@@ -190,24 +205,26 @@ class PurchaseDetailViewModel extends ChangeNotifier {
       purchaseId,
       PurchaseInvoicePhoto(bytes: bytes, fileName: picked.name),
     );
-    if (result case Error(:final error)) return Result.error(error);
-    return _refresh();
+    return _afterPhotoChange(result);
   }
 
   Future<Result<void>> _removeInvoicePhoto() async {
-    _invoicePhotoRejected = false;
-    final result = await _repository.clearInvoicePhoto(purchaseId);
-    if (result case Error(:final error)) return Result.error(error);
-    return _refresh();
+    _resetPhotoState();
+    return _afterPhotoChange(await _repository.clearInvoicePhoto(purchaseId));
   }
 
   /// Muat ulang detail setelah foto berubah; centang harga yang sudah
-  /// diubah pengguna tetap.
-  Future<Result<void>> _refresh() async {
+  /// diubah pengguna tetap. Galat muat ulang tidak dilaporkan sebagai foto
+  /// gagal disimpan.
+  Future<Result<void>> _afterPhotoChange(Result<Purchase> result) async {
+    if (result case Error(:final error)) {
+      _photoError = error;
+      return Result.error(error);
+    }
     final checked = _checked;
-    final result = await _fetch();
+    await _fetch();
     _checked = checked;
-    return result;
+    return const Result.ok(null);
   }
 
   /// Satu saran per varian, di baris pertamanya. Varian yang dibeli dalam

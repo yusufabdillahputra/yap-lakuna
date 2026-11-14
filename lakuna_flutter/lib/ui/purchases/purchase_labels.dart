@@ -52,6 +52,7 @@ String purchaseErrorMessage(AppLocalizations l10n, Exception error) =>
       NotPermitted() ||
       PurchaseActorNotPermitted() => l10n.purchaseErrNotPermitted,
       StockLocationNotFound() => l10n.purchaseErrLocation,
+      PurchaseInvoicePhotoInvalid() => l10n.purchaseInvoicePhotoInvalid,
       PurchaseReturnInvalid(:final error) => purchaseReturnErrorMessage(
         l10n,
         error,

@@ -7935,10 +7935,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t save the invoice photo. Check the camera permission or try another file.';
 
   @override
-  String get purchaseInvoicePhotoHint =>
-      'Saved with the purchase when you save it.';
-
-  @override
   String get purchaseInvoicePhotoRemoveTitle => 'Remove the invoice photo?';
 
   @override

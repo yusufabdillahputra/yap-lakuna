@@ -30,6 +30,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.47.0 | Templat import produk, pelanggan, supplier (F1-07g) | #53 |
 | v0.48.0 | Cetak stok per lokasi (F1-08b) | #54 |
 | v0.49.0 | Buat pembelian dari stok minimum (F1-08c) | #55 |
+| v0.50.0 | Foto faktur pembelian (F1-12b) | #56 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -62,6 +63,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    backup masih gap.
 11. ~~Cetak stok~~ — selesai v0.48.0 (F1-08b). ~~Buat pembelian dari
    daftar stok minimum~~ — selesai v0.49.0 (F1-08c).
+12. ~~Foto faktur pembelian~~ — selesai v0.50.0 (F1-12b); PDF pembelian
+   dan tautan kartu stok dari detail pembelian masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

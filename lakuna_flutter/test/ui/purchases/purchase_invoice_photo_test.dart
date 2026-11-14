@@ -64,6 +64,18 @@ void main() {
       },
     );
 
+    test('ganti foto setelah simpan draf menghapus pesan tersimpan', () async {
+      final form = await openForm();
+      fill(form);
+      await form.saveDraft.execute();
+      expect(form.saveDraft.completed, isTrue);
+      expect(form.invoicePhotoUnsaved, isFalse);
+      picker.next = picked(samplePng);
+      await form.pickInvoicePhoto.execute(false);
+      expect(form.saveDraft.completed, isFalse);
+      expect(form.invoicePhotoUnsaved, isTrue);
+    });
+
     test('kamera memakai batas foto faktur', () async {
       picker.camera = true;
       final form = await openForm();
@@ -181,6 +193,32 @@ void main() {
       await vm.attachInvoicePhoto.execute(false);
       expect(vm.attachInvoicePhoto.error, isTrue);
       expect(vm.detail!.hasInvoicePhoto, isFalse);
+    });
+
+    test('galat lama hilang setelah aksi berikutnya berhasil', () async {
+      final vm = await received(photo: true);
+      repo.nextError = PurchaseNotFound();
+      await vm.removeInvoicePhoto.execute();
+      expect(vm.photoError, isA<PurchaseNotFound>());
+      picker.next = picked(samplePng);
+      await vm.attachInvoicePhoto.execute(false);
+      expect(vm.photoError, isNull);
+      expect(vm.invoicePhoto, samplePng);
+
+      picker.throwNext = Exception('izin kamera ditolak');
+      await vm.attachInvoicePhoto.execute(true);
+      expect(vm.photoPickFailed, isTrue);
+      await vm.removeInvoicePhoto.execute();
+      expect(vm.photoPickFailed, isFalse);
+    });
+
+    test('centang Ubah harga tetap setelah foto berubah', () async {
+      final vm = await received();
+      final variant = vm.suggestions.first.item.variantId;
+      vm.toggle(variant, true);
+      picker.next = picked(samplePng);
+      await vm.attachInvoicePhoto.execute(false);
+      expect(vm.checked, contains(variant));
     });
   });
 }

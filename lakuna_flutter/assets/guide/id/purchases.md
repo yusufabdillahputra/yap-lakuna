@@ -11,11 +11,14 @@ Pembelian mencatat barang masuk dari supplier: stok bertambah, harga pokok (HPP)
 3. Tekan **+ Scan / cari produk**, lalu isi satuan, qty, dan harga beli tiap baris.
 4. Isi **Diskon faktur** dan **Ongkos kirim** bila ada. Ongkos kirim ikut dibebankan ke harga pokok barang.
 5. Isi **Bayar sekarang** dan sumbernya (**Kas toko**, **Kas laci**, atau **Rekening bank**), atau tekan **Bayar lunas**. Sisanya menjadi hutang dengan **Jatuh tempo sisa**.
-6. Tekan **Terima barang & simpan**. Pakai **Simpan draf** bila barang belum datang.
+6. Bila ada, tekan **Lampirkan foto faktur** (atau **Ambil foto faktur** di ponsel) di bawah *Foto faktur*. Foto ikut tersimpan saat pembelian disimpan.
+7. Tekan **Terima barang & simpan**. Pakai **Simpan draf** bila barang belum datang.
 
 ## Setelah disimpan
 
 Detail pembelian menampilkan HPP rata-rata baru dan *Saran jual* agar margin tetap terjaga. Centang produk yang ingin diubah harganya, lalu **Terapkan harga jual**.
+
+Kartu *Foto faktur* menampilkan foto faktur supplier. Tekan **Lihat foto faktur** untuk membukanya layar penuh (bisa diperbesar), **Ganti foto** untuk menggantinya, atau **Hapus foto**. Mengubah foto tidak mengubah stok, HPP, atau hutang. Foto berupa PNG, JPG, atau WebP sampai 5 MB.
 
 ## Retur pembelian
 

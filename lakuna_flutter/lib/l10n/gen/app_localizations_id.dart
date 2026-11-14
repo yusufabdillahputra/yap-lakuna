@@ -7749,10 +7749,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Foto faktur gagal disimpan. Periksa izin kamera atau coba berkas lain.';
 
   @override
-  String get purchaseInvoicePhotoHint =>
-      'Tersimpan bersama pembelian saat disimpan.';
-
-  @override
   String get purchaseInvoicePhotoRemoveTitle => 'Hapus foto faktur?';
 
   @override

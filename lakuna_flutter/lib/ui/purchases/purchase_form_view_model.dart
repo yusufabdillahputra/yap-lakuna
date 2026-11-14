@@ -292,6 +292,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   /// Draf punya foto tetapi berkasnya belum ada di perangkat ini.
   bool get invoicePhotoMissing => _invoicePhotoMissing;
+
+  /// Foto dipilih atau dihapus tetapi belum disimpan.
+  bool get invoicePhotoUnsaved => _invoicePhotoChanged;
   bool get canTakePhoto => _picker.canTakePhoto;
 
   /// Galat dari repositori untuk aksi terakhir.
@@ -373,8 +376,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _clearInvoicePhoto();
     if (!d.hasInvoicePhoto) return;
     final photo = await _repository.invoicePhoto(d.purchase.id);
-    _invoicePhoto = photo is Ok<Uint8List?> ? photo.value : null;
-    _invoicePhotoMissing = _invoicePhoto == null;
+    // Hanya `Ok(null)` berarti berkas belum ada; galat baca tidak
+    // ditampilkan sebagai "belum ada di perangkat" (foto tetap tersimpan).
+    if (photo case Ok(:final value)) {
+      _invoicePhoto = value;
+      _invoicePhotoMissing = value == null;
+    }
   }
 
   void _clearInvoicePhoto() {
@@ -401,6 +408,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _invoicePhotoName = picked.name;
         _invoicePhotoChanged = true;
         _invoicePhotoMissing = false;
+        _touched();
       }
       return const Result.ok(null);
     } on Exception catch (e) {
@@ -415,7 +423,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _invoicePhotoChanged = true;
     _invoicePhotoRejected = false;
     _invoicePhotoMissing = false;
-    notifyListeners();
+    _touched();
   }
 
   void _applyRestock(PurchaseRestock r) {

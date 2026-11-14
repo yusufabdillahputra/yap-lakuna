@@ -13580,12 +13580,6 @@ abstract class AppLocalizations {
   /// **'Foto faktur gagal disimpan. Periksa izin kamera atau coba berkas lain.'**
   String get purchaseInvoicePhotoFailed;
 
-  /// No description provided for @purchaseInvoicePhotoHint.
-  ///
-  /// In id, this message translates to:
-  /// **'Tersimpan bersama pembelian saat disimpan.'**
-  String get purchaseInvoicePhotoHint;
-
   /// No description provided for @purchaseInvoicePhotoRemoveTitle.
   ///
   /// In id, this message translates to:

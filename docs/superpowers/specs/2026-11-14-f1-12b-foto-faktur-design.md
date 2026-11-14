@@ -1,7 +1,7 @@
 # F1-12b · Foto faktur pembelian
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.50.0)
+- **Status:** Rilis v0.50.0
 - **Layar:** 1.19 form pembelian (lampiran di bawah *No. faktur supplier*),
   1.19b detail pembelian (baris *Foto faktur* dengan *Lihat foto faktur*).
 - **Acuan:** gap *Foto faktur* di F1-12 (tombol *Lihat foto faktur* di
@@ -49,7 +49,11 @@ mencocokkan hutang atau harga beli tidak perlu mencari kertas fakturnya.
 5. Retur beli, hapus draf, dan pembayaran hutang tidak mengubah foto.
    Backup sudah membawa folder `media/`.
 6. Izin: membaca dan mengubah foto memakai izin layar pembelian
-   (`purchases:manage`), dicek di repositori dan di data.
+   (`purchases:manage`). Mengubah dicek di repositori dan di data (aktor);
+   membaca dicek di repositori, data membatasi tenant dan cabang (sama
+   dengan foto nota pengeluaran).
+7. Mengosongkan foto yang sudah kosong, atau memasang foto yang sama
+   (hash sama), tidak menulis ulang dokumen.
 
 ## Komponen
 
@@ -82,6 +86,6 @@ mencocokkan hutang atau harga beli tidak perlu mencari kertas fakturnya.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Foto faktur di form dan detail pembelian | *Lihat foto faktur* (1.19b) | Dalam pengerjaan | — |
+| Foto faktur di form dan detail pembelian | *Lihat foto faktur* (1.19b) | Rilis v0.50.0 | Penampil foto layar penuh dipakai bersama foto nota pengeluaran. |
 | Lebih dari satu foto per faktur | — | Belum | Faktur berlembar banyak: satu foto dulu (bisa foto berdampingan). |
 | Kecilkan foto ke WebP | Storeku F1-07 | Belum | Sama dengan foto produk; batas 5 MB + kamera 2.400 px. |

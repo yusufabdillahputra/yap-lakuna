@@ -268,7 +268,8 @@ class _InvoicePhotoField extends StatelessWidget {
           pickLabel: l10n.purchaseInvoicePhotoPick,
           cameraLabel: l10n.purchaseInvoicePhotoCamera,
           bytes: vm.invoicePhoto,
-          fileName: vm.invoicePhotoName ?? l10n.purchaseInvoicePhotoHint,
+          // Nama berkas hanya untuk foto baru yang belum disimpan.
+          fileName: vm.invoicePhotoUnsaved ? vm.invoicePhotoName : null,
           busy: vm.pickInvoicePhoto.running || vm.busy,
           canTakePhoto: vm.canTakePhoto,
           onPick: vm.pickInvoicePhoto.execute,
