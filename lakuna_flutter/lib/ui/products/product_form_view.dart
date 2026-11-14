@@ -59,7 +59,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   Widget build(BuildContext context) => ProductFormView(
     viewModel: _viewModel,
     onDone: () => context.go(Routes.products),
-    onLabels: (id) => context.push<void>(Routes.productLabelsFor(id.uuid)),
+    onLabels: (id) async {
+      await context.push<void>(Routes.productLabelsFor(id.uuid));
+      // Barcode bisa dibuat di Cetak label (F1-07j); jangan sampai Simpan
+      // di form ini menimpanya dengan field kosong.
+      await _viewModel.refreshBarcodes();
+    },
   );
 }
 

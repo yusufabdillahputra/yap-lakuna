@@ -174,45 +174,47 @@ class CatalogProduct {
   bool get isLowStock => tracksStock && variants.any((v) => v.isBelowMinimum);
 
   /// Isi form ubah produk. Stok awal selalu nol karena hanya berlaku untuk
-  /// varian baru.
-  ProductDraft toDraft() => ProductDraft(
-    id: id.uuid,
-    name: name,
-    category: categoryName ?? '',
-    kind: kind,
-    baseUnit: baseUnit,
-    sku: sku ?? '',
-    brand: brand ?? '',
-    isActive: isActive,
-    isTaxable: isTaxable,
-    sendToKitchen: sendToKitchen,
-    allowNote: allowNote,
-    modifierGroupIds: [for (final id in modifierGroupIds) id.uuid],
-    variants: [
-      for (final v in variants)
-        VariantDraft(
-          id: v.id.uuid,
-          name: v.name,
-          sku: v.sku ?? '',
-          barcode: v.barcode ?? '',
-          costPrice: v.costPrice,
-          sellPrice: v.sellPrice,
-          minStock: v.minStock,
-          units: [
-            for (final u in v.units)
-              UnitDraft(
-                id: u.id.uuid,
-                name: u.name,
-                factor: u.factor,
-                barcode: u.barcode ?? '',
-                costPrice: u.costPrice,
-                sellPrice: u.sellPrice,
-              ),
-          ],
-          tiers: v.tiers,
-        ),
-    ],
-  );
+  /// varian baru. [barcodes] mengganti barcode varian per ID (buat barcode
+  /// massal, F1-07j).
+  ProductDraft toDraft({Map<UuidValue, String> barcodes = const {}}) =>
+      ProductDraft(
+        id: id.uuid,
+        name: name,
+        category: categoryName ?? '',
+        kind: kind,
+        baseUnit: baseUnit,
+        sku: sku ?? '',
+        brand: brand ?? '',
+        isActive: isActive,
+        isTaxable: isTaxable,
+        sendToKitchen: sendToKitchen,
+        allowNote: allowNote,
+        modifierGroupIds: [for (final id in modifierGroupIds) id.uuid],
+        variants: [
+          for (final v in variants)
+            VariantDraft(
+              id: v.id.uuid,
+              name: v.name,
+              sku: v.sku ?? '',
+              barcode: barcodes[v.id] ?? v.barcode ?? '',
+              costPrice: v.costPrice,
+              sellPrice: v.sellPrice,
+              minStock: v.minStock,
+              units: [
+                for (final u in v.units)
+                  UnitDraft(
+                    id: u.id.uuid,
+                    name: u.name,
+                    factor: u.factor,
+                    barcode: u.barcode ?? '',
+                    costPrice: u.costPrice,
+                    sellPrice: u.sellPrice,
+                  ),
+              ],
+              tiers: v.tiers,
+            ),
+        ],
+      );
 }
 
 ProductKind _kindOf(ProductType type) => ProductKind.values.byName(type.name);

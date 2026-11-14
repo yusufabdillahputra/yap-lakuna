@@ -13783,6 +13783,54 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Garis barcode {names} jadi terlalu tipis untuk dipindai. Pakai kertas yang lebih lebar, SKU yang lebih pendek, atau tombol Buat barcode di form produk.'**
   String labelsTooDenseHint(String names);
+
+  /// No description provided for @labelsGenerateMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat barcode untuk {count} produk tanpa kode'**
+  String labelsGenerateMissing(int count);
+
+  /// No description provided for @labelsGenerateDense.
+  ///
+  /// In id, this message translates to:
+  /// **'Ganti dengan barcode EAN-13'**
+  String get labelsGenerateDense;
+
+  /// No description provided for @labelsGenerateTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat {count} barcode?'**
+  String labelsGenerateTitle(int count);
+
+  /// No description provided for @labelsGenerateBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Lakuna membuat barcode EAN-13 toko berawalan 20 yang belum dipakai, lalu menyimpannya ke produk. SKU tidak berubah, dan barcode bisa diubah lagi di form produk.'**
+  String get labelsGenerateBody;
+
+  /// No description provided for @labelsGenerateConfirm.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat barcode'**
+  String get labelsGenerateConfirm;
+
+  /// No description provided for @labelsGenerateCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get labelsGenerateCancel;
+
+  /// No description provided for @labelsGenerated.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} barcode dibuat dan disimpan. Produknya sudah dipilih untuk dicetak.'**
+  String labelsGenerated(int count);
+
+  /// No description provided for @labelsGenerateFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Barcode gagal disimpan untuk: {names}'**
+  String labelsGenerateFailed(String names);
 }
 
 class _AppLocalizationsDelegate

@@ -5084,5 +5084,41 @@
         "type": "String"
       }
     }
+  },
+  "labelsGenerateMissing": "Buat barcode untuk {count} produk tanpa kode",
+  "@labelsGenerateMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateDense": "Ganti dengan barcode EAN-13",
+  "labelsGenerateTitle": "Buat {count} barcode?",
+  "@labelsGenerateTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateBody": "Lakuna membuat barcode EAN-13 toko berawalan 20 yang belum dipakai, lalu menyimpannya ke produk. SKU tidak berubah, dan barcode bisa diubah lagi di form produk.",
+  "labelsGenerateConfirm": "Buat barcode",
+  "labelsGenerateCancel": "Batal",
+  "labelsGenerated": "{count} barcode dibuat dan disimpan. Produknya sudah dipilih untuk dicetak.",
+  "@labelsGenerated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateFailed": "Barcode gagal disimpan untuk: {names}",
+  "@labelsGenerateFailed": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   }
 }

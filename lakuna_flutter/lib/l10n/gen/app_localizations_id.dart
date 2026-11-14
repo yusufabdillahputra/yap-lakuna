@@ -7880,4 +7880,37 @@ class AppLocalizationsId extends AppLocalizations {
   String labelsTooDenseHint(String names) {
     return 'Garis barcode $names jadi terlalu tipis untuk dipindai. Pakai kertas yang lebih lebar, SKU yang lebih pendek, atau tombol Buat barcode di form produk.';
   }
+
+  @override
+  String labelsGenerateMissing(int count) {
+    return 'Buat barcode untuk $count produk tanpa kode';
+  }
+
+  @override
+  String get labelsGenerateDense => 'Ganti dengan barcode EAN-13';
+
+  @override
+  String labelsGenerateTitle(int count) {
+    return 'Buat $count barcode?';
+  }
+
+  @override
+  String get labelsGenerateBody =>
+      'Lakuna membuat barcode EAN-13 toko berawalan 20 yang belum dipakai, lalu menyimpannya ke produk. SKU tidak berubah, dan barcode bisa diubah lagi di form produk.';
+
+  @override
+  String get labelsGenerateConfirm => 'Buat barcode';
+
+  @override
+  String get labelsGenerateCancel => 'Batal';
+
+  @override
+  String labelsGenerated(int count) {
+    return '$count barcode dibuat dan disimpan. Produknya sudah dipilih untuk dicetak.';
+  }
+
+  @override
+  String labelsGenerateFailed(String names) {
+    return 'Barcode gagal disimpan untuk: $names';
+  }
 }

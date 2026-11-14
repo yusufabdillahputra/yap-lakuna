@@ -75,5 +75,5 @@ dengan awalan `0`; kasir tetap harus menemukan produknya.
 | Pemindaian UPC-A 13 digit (awalan 0) | — | Rilis v0.55.0 | Kasir, Stok, Pembelian, cari produk, Cetak label. |
 | Buat barcode EAN-13 toko | — | Rilis v0.55.0 | Awalan 20, varian saja. |
 | Data lama dengan UPC-A dan 0 + UPC-A di dua produk | — | Terbatas | Sejak v0.55.0 dianggap kembar: menyimpan salah satunya ditolak *Sudah dipakai* sampai salah satu kode diubah; scan Kasir memilih produk pertama. |
-| Buat barcode massal untuk semua produk tanpa kode | — | Belum | Saat ini per varian di form. |
+| Buat barcode massal untuk semua produk tanpa kode | — | Rilis v0.58.0 | [F1-07j](2026-11-14-f1-07j-barcode-massal-design.md): dari layar Cetak label. |
 | Barcode timbangan berisi harga/berat (awalan 2x) | — | Tidak direncanakan Fase 1 | Awalan 20 dipakai untuk kode toko biasa. |

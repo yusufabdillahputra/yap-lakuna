@@ -21,6 +21,8 @@ Untuk barang buatan sendiri (kue, racikan, barang curah), kosongkan field **Barc
 > [!warning]
 > Produk tanpa barcode dicetak memakai SKU-nya. SKU yang panjang membuat garis barcode terlalu tipis di kertas kecil sehingga sulit dipindai. Layar **Cetak label** memberi peringatan bila ini terjadi; pilih kertas yang lebih lebar, pendekkan SKU, atau pakai **Buat barcode**.
 
+Punya banyak barang tanpa kode? Buka **Cetak label**, lalu tekan **Buat barcode untuk N produk tanpa kode**. Setelah dikonfirmasi, Lakuna membuat barcode EAN-13 toko untuk semuanya sekaligus, menyimpannya ke produk, dan langsung memilihnya untuk dicetak. Bila peringatan kode terlalu panjang muncul, tombol **Ganti dengan barcode EAN-13** di peringatan itu memberi barcode pada produk yang masih memakai SKU; SKU-nya sendiri tidak berubah.
+
 > [!note] Barang impor dengan barcode UPC-A (12 digit) tetap ditemukan walau pemindai membacanya sebagai 13 digit berawalan `0`, di Kasir, Stok, Pembelian, dan pencarian produk.
 
 ## Satuan & harga grosir
