@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.69.0] - 2026-11-14
+
+Setiap uang yang keluar dari laci kini diperiksa terhadap perkiraan uang di
+laci, sehingga kasir diperingatkan sebelum *Kas seharusnya* menjadi minus.
+
+### Ditambahkan
+
+- **Peringatan uang di laci tidak cukup** (ikon segitiga) bila jumlah yang
+  keluar lebih besar dari *Kas seharusnya* sesi yang terbuka: *"Uang di
+  laci diperkirakan Rp X. Jumlah ini lebih Rp Y dari perkiraan; pastikan
+  uangnya ada sebelum menyimpan."* Muncul di:
+  - **Sesi kasir (1.3):** tab *Uang keluar*;
+  - **Riwayat (1.14):** retur dengan uang kembali *Tunai* (setelah
+    potongan piutang);
+  - **Pengeluaran (1.22):** sumber dana *Kas laci*;
+  - **Supplier (1.21):** bayar hutang dari *Kas laci*;
+  - **Pembelian (1.20):** dibayar dari *Kas laci* saat terima barang.
+- Peringatan tidak memblokir simpan: isi laci nyata bisa berbeda dengan
+  perkiraan, dan selisihnya terlihat saat tutup sesi.
+- Panduan *Sesi kasir & kas laci* (id/en) menjelaskan peringatan ini.
+
+### Diperbaiki
+
+- Riwayat memuat ulang status sesi kasir dan perkiraan uang laci setelah
+  retur, void, dan muat ulang, jadi retur kedua memakai saldo setelah
+  retur pertama dan sesi yang baru ditutup tidak lagi menawarkan *Tunai*.
+
+### Catatan teknis
+
+- Domain `drawerShortfallOf(amount, drawerCash)`; data
+  `openDrawerCash(store, scope)` = *Kas seharusnya* sesi terbuka atau
+  `null`.
+- `HistoryData`, `ExpensesSetup`, `SuppliersSetup`, `PurchaseSetup`
+  mendapat `Money? drawerCash`; `hasOpenSession` kini diturunkan darinya.
+- Widget bersama `DrawerShortfallNote` (`ui/core/drawer_shortfall_note.dart`,
+  kunci `<prefix>-drawer-short`), kunci l10n `drawerShortfallWarning`.
+- Tes domain, data (setelah uang keluar dan setelah penjualan + retur
+  tunai), VM kelima layar, dan widget (Sesi kasir 360 px, retur,
+  pengeluaran, supplier, pembelian).
+- Belum diperingatkan (gap): void pembayaran piutang tunai dan void nota
+  tunai sesi berjalan.
+
 ## [0.68.0] - 2026-11-14
 
 Riwayat transaksi kini bisa difilter dengan rentang tanggal bebas, memakai
@@ -4929,7 +4971,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.69.0...HEAD
+[0.69.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.68.0...v0.69.0
 [0.68.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.67.0...v0.68.0
 [0.67.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...v0.67.0
 [0.66.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...v0.66.0

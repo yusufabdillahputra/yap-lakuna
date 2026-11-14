@@ -528,6 +528,8 @@ void main() {
         expect(drawer.cashSales, const Money(45000));
         expect(drawer.cashRefunds, const Money(10000));
         expect(drawer.expectedCash, const Money(135000));
+        // Perkiraan untuk peringatan laci (F1-03c) sama dengan rekap.
+        expect(await openDrawerCash(store, cashScope), const Money(135000));
         final summary = await salesSummaryForSession(
           store,
           scope,

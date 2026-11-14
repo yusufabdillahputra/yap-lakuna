@@ -314,6 +314,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
   /// Sisa yang menjadi hutang (tidak pernah minus).
   Money get debt => purchaseDebt(total: totals.total, paid: _paid);
 
+  /// Dibayar dari laci melebihi perkiraan uang di laci: kelebihannya, untuk
+  /// peringatan saat menerima barang (F1-03c). Tidak memblokir.
+  Money? get drawerShortfall =>
+      _funding == FundingKind.drawer && (_setup?.canUseDrawer ?? false)
+      ? drawerShortfallOf(_paid, _setup?.drawerCash)
+      : null;
+
   /// Galat isian untuk aksi terakhir yang dicoba (kosong sebelum mencoba).
   List<PurchaseIssue> get issues =>
       _attempt == null ? const [] : _validate(receiving: _attempt!);

@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../utils/result.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../core/photo_attach_field.dart';
 import '../products/product_widgets.dart';
@@ -983,6 +984,15 @@ class _PaymentAndTotals extends StatelessWidget {
               style: theme.typography.body.xs.copyWith(
                 color: theme.colors.destructive,
               ),
+            ),
+          if ((vm.setup?.drawerCash, vm.drawerShortfall) case (
+            final cash?,
+            final over?,
+          ))
+            DrawerShortfallNote(
+              keyPrefix: 'purchase',
+              drawerCash: cash,
+              shortfall: over,
             ),
         ],
         if (debt.value > 0)

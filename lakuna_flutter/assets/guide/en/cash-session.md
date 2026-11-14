@@ -16,6 +16,8 @@ Tap **Record drawer cash**, choose **Cash in** or **Cash out**, enter the amount
 
 Expenses, supplier payments, and cash refunds from other modules are recorded automatically in the open session.
 
+> [!note] When an amount leaving the drawer (here, a cash refund, an expense paid from the drawer, a supplier payment, or a purchase paid from the drawer) is larger than the *Expected cash in drawer*, the form shows a warning. You can still save, because the real drawer may differ from the estimate; make sure the cash is really there, and any difference shows up when you close the session.
+
 ## Closing a session
 
 1. Tap **Close session**. The recap shows the opening cash, cash sales, cash refunds, cash in and out, and the amount that should be in the drawer.

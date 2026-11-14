@@ -1,5 +1,6 @@
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../utils/result.dart';
 
@@ -21,6 +22,7 @@ class HistoryData {
     this.canReturn = false,
     this.canVoid = false,
     this.hasOpenSession = false,
+    this.drawerCash,
   });
 
   final List<HistoryStaff> staff;
@@ -38,6 +40,10 @@ class HistoryData {
 
   /// Perangkat ini punya sesi kasir terbuka (uang kembali tunai).
   final bool hasOpenSession;
+
+  /// Perkiraan uang di laci sesi terbuka (*Kas seharusnya*), `null` tanpa
+  /// sesi. Untuk peringatan uang laci tidak cukup (F1-03c).
+  final Money? drawerCash;
 }
 
 /// Riwayat transaksi, retur, dan void (F1-11). Melihat butuh `sales:create`

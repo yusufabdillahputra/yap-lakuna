@@ -129,6 +129,34 @@ void main() {
     expect(_text(tester, 'cash-expected'), 'Rp 150.000');
   });
 
+  testWidgets('uang keluar melebihi laci: peringatan, tetap tersimpan '
+      '(F1-03c)', (tester) async {
+    final repo = await pump(tester, size: const Size(360, 800));
+    await _type(tester, 'cash-opening-cash', '100000');
+    await _tap(tester, 'cash-open');
+    await _type(tester, 'cash-movement-amount', '100000');
+    expect(
+      find.byKey(const ValueKey('cash-movement-drawer-short')),
+      findsNothing,
+    );
+    await _type(tester, 'cash-movement-amount', '150000');
+    expect(
+      find.text(
+        'Uang di laci diperkirakan Rp 100.000. Jumlah ini lebih '
+        'Rp 50.000 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+      ),
+      findsOneWidget,
+    );
+    await _type(tester, 'cash-movement-note', 'Setor ke bank');
+    await _tap(tester, 'cash-movement-save');
+    expect(repo.movements.single.amount, 150000);
+    expect(
+      find.byKey(const ValueKey('cash-movement-drawer-short')),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('selisih pas ditandai Pas', (tester) async {
     await pump(tester);
     await _type(tester, 'cash-opening-cash', '100000');

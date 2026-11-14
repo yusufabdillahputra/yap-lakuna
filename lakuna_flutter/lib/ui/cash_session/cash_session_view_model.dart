@@ -189,9 +189,19 @@ class CashSessionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Uang keluar melebihi perkiraan uang di laci (*Kas seharusnya*):
+  /// kelebihannya, untuk peringatan (F1-03c). Tidak memblokir simpan.
+  Money? get movementShortfall => _direction == CashDirection.outflow
+      ? drawerShortfallOf(
+          parseRupiah(_movementAmount) ?? Money.zero,
+          _active?.drawer.expectedCash,
+        )
+      : null;
+
   void setMovementAmount(String text) {
+    final before = movementShortfall;
     _movementAmount = text;
-    if (_movementAmountError != null) {
+    if (_movementAmountError != null || movementShortfall != before) {
       _movementAmountError = null;
       notifyListeners();
     }

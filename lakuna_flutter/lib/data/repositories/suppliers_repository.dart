@@ -18,6 +18,7 @@ class SuppliersSetup {
     this.canPay = false,
     this.canUseDrawer = false,
     this.hasOpenSession = false,
+    this.drawerCash,
   });
 
   /// Tanggal lokal cabang hari ini (UTC tengah malam).
@@ -37,6 +38,10 @@ class SuppliersSetup {
 
   /// Perangkat ini punya sesi kasir terbuka.
   final bool hasOpenSession;
+
+  /// Perkiraan uang di laci sesi terbuka (*Kas seharusnya*), `null` tanpa
+  /// sesi. Untuk peringatan uang laci tidak cukup (F1-03c).
+  final Money? drawerCash;
 }
 
 /// Supplier dan pembayaran hutang (F1-14). Membuka modul butuh

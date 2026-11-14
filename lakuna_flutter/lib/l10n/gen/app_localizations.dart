@@ -14130,6 +14130,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{count, plural, =1{hari sebelumnya} other{{count} hari sebelumnya}}'**
   String reportsPrevDays(int count);
+
+  /// No description provided for @drawerShortfallWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang di laci diperkirakan {cash}. Jumlah ini lebih {over} dari perkiraan; pastikan uangnya ada sebelum menyimpan.'**
+  String drawerShortfallWarning(String cash, String over);
 }
 
 class _AppLocalizationsDelegate

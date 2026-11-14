@@ -8321,4 +8321,9 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String drawerShortfallWarning(String cash, String over) {
+    return 'The drawer should hold about $cash; this amount exceeds it by $over. Make sure the cash is there before saving.';
+  }
 }

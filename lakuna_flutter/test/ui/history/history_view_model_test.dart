@@ -247,6 +247,59 @@ void main() {
     });
   });
 
+  test('retur tunai melebihi uang di laci: peringatan (F1-03c)', () async {
+    final a = repo.addSale([('Kopi', 3000, 10000)]);
+    repo.drawerCash = const Money(25000);
+    create(initial: a);
+    await vm.load.execute();
+    final kopi = vm.detail!.items.single;
+    vm.setReturnQty(kopi, 2000);
+    expect(vm.returnTotal, const Money(20000));
+    expect(vm.drawerCash, const Money(25000));
+    expect(vm.drawerShortfall, isNull);
+    vm.setReturnQty(kopi, 3000);
+    expect(vm.drawerShortfall, const Money(5000));
+    // Transfer tidak mengambil uang laci.
+    vm.setRefundMethod(RefundMethod.transfer);
+    expect(vm.drawerShortfall, isNull);
+    vm.setRefundMethod(RefundMethod.cash);
+    // Peringatan tidak memblokir simpan.
+    vm.setReturnQty(kopi, 1000);
+    await vm.submitReturn.execute();
+    expect(vm.submitReturn.completed, isTrue);
+    // Perkiraan dimuat ulang setelah retur: 25.000 - 10.000.
+    expect(vm.drawerCash, const Money(15000));
+    vm.setReturnQty(vm.detail!.items.single, 2000);
+    expect(vm.drawerShortfall, const Money(5000));
+  });
+
+  test('muat ulang menyegarkan perkiraan uang laci (F1-03c)', () async {
+    final a = repo.addSale([('Kopi', 1000, 10000)]);
+    repo.drawerCash = const Money(50000);
+    create(initial: a);
+    await vm.load.execute();
+    expect(vm.drawerCash, const Money(50000));
+    repo.drawerCash = const Money(5000); // Mis. uang keluar di layar lain.
+    await vm.refresh();
+    expect(vm.drawerCash, const Money(5000));
+    repo.hasOpenSession = false; // Sesi ditutup.
+    await vm.refresh();
+    expect(vm.drawerCash, isNull);
+    expect(vm.cashRefundAvailable, isFalse);
+  });
+
+  test('tanpa sesi: tanpa perkiraan dan tanpa peringatan', () async {
+    final a = repo.addSale([('Kopi', 3000, 10000)]);
+    repo
+      ..hasOpenSession = false
+      ..drawerCash = Money.zero;
+    create(initial: a);
+    await vm.load.execute();
+    vm.returnAll();
+    expect(vm.drawerCash, isNull);
+    expect(vm.drawerShortfall, isNull);
+  });
+
   test('generasi form naik setelah retur dan saat ganti nota', () async {
     final a = repo.addSale([('Kopi', 3000, 10000)]);
     final b = repo.addSale([('Roti', 1000, 10000)]);

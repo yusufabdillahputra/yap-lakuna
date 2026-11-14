@@ -71,6 +71,9 @@ class FakeExpensesRepository extends ExpensesRepository {
   bool canManage;
   bool canUseDrawer;
   bool hasOpenSession;
+
+  /// Perkiraan uang di laci (F1-03c); berkurang oleh pengeluaran laci.
+  Money? drawerCash;
   final _tenant = _id();
   final _outlet = _id();
   final _device = _id();
@@ -177,6 +180,7 @@ class FakeExpensesRepository extends ExpensesRepository {
       categories: _active,
       canUseDrawer: canUseDrawer,
       hasOpenSession: hasOpenSession,
+      drawerCash: hasOpenSession ? drawerCash : null,
     ),
   );
 
@@ -211,6 +215,7 @@ class FakeExpensesRepository extends ExpensesRepository {
     final spentOn = drawer ? today : request.spentOn;
     if (spentOn.isAfter(today)) throw ExpenseDateInvalid();
     if (drawer && !hasOpenSession) throw CashSessionNotOpen();
+    if (drawer && drawerCash != null) drawerCash = drawerCash! - request.amount;
     final e = Expense(
       id: _id(),
       tenantId: _tenant,

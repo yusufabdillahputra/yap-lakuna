@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../core/photo_attach_field.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDate;
@@ -165,6 +166,15 @@ class ExpenseForm extends StatelessWidget {
               key: const ValueKey('expense-drawer-hint'),
               variant: .destructive,
               title: Text(expenseDrawerIssueMessage(l10n, drawerIssue)),
+            ),
+          if ((vm.setup.drawerCash, vm.drawerShortfall) case (
+            final cash?,
+            final over?,
+          ))
+            DrawerShortfallNote(
+              keyPrefix: 'expense',
+              drawerCash: cash,
+              shortfall: over,
             ),
           PhotoAttachField(
             keyPrefix: 'expense-receipt',

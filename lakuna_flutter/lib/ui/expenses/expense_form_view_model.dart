@@ -100,6 +100,13 @@ class ExpenseFormViewModel extends ChangeNotifier {
     return null;
   }
 
+  /// Jumlah dari laci melebihi perkiraan uang di laci: kelebihannya, untuk
+  /// peringatan (F1-03c). Tidak memblokir simpan.
+  Money? get drawerShortfall =>
+      _funding == FundingSource.drawer && drawerIssue == null
+      ? drawerShortfallOf(_amount, _setup.drawerCash)
+      : null;
+
   bool get _valid => _issues.isEmpty && !dateInFuture && drawerIssue == null;
 
   bool get canSubmit => _valid && !save.running;

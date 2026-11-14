@@ -182,6 +182,28 @@ void main() {
     expect(repo.requests, isEmpty);
   });
 
+  testWidgets('desktop: laci kurang diperingatkan, tetap bisa bayar (F1-03c)', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const Size(1280, 800),
+      suppliers: FakeSuppliersRepository()..drawerCash = const Money(1000),
+    );
+    final segar = idOf('PT Segar Jaya');
+    await _tap(tester, _key('suppliers-row-${segar.uuid}'));
+    await _tap(tester, _key('supplier-pay-all'));
+    await _choose(tester, _key('supplier-funding-1'), 'Kas laci');
+    expect(_key('supplier-drawer-short'), findsOneWidget);
+    expect(
+      find.textContaining('Uang di laci diperkirakan Rp 1.000.'),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('supplier-pay'));
+    expect(repo.requests.single.funding, FundingSource.drawer);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('desktop: alokasi manual harus sama dengan jumlah bayar', (
     tester,
   ) async {

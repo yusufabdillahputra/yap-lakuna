@@ -5244,5 +5244,16 @@
         "type": "int"
       }
     }
+  },
+  "drawerShortfallWarning": "Uang di laci diperkirakan {cash}. Jumlah ini lebih {over} dari perkiraan; pastikan uangnya ada sebelum menyimpan.",
+  "@drawerShortfallWarning": {
+    "placeholders": {
+      "cash": {
+        "type": "String"
+      },
+      "over": {
+        "type": "String"
+      }
+    }
   }
 }

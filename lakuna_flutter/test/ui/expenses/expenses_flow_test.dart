@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show Money;
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -188,6 +189,30 @@ void main() {
     expect(_key('expense-drawer-hint'), findsNothing);
     await _tap(tester, _key('expense-save'));
     expect(repo.expenses.last.fundingSource, FundingSource.bank);
+  });
+
+  testWidgets('laci kurang: peringatan lalu tetap tersimpan (F1-03c)', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      const Size(1440, 900),
+      expenses: FakeExpensesRepository()..drawerCash = const Money(20000),
+    );
+    await fill(tester, amount: '20000');
+    expect(_key('expense-drawer-short'), findsNothing);
+    await _type(tester, _key('expense-amount-0'), '25000');
+    expect(
+      find.text(
+        'Uang di laci diperkirakan Rp 20.000. Jumlah ini lebih '
+        'Rp 5.000 dari perkiraan; pastikan uangnya ada sebelum menyimpan.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('expense-save'));
+    expect(repo.expenses.last.amount, 25000);
+    expect(repo.expenses.last.fundingSource, FundingSource.drawer);
+    expect(tester.takeException(), isNull);
   });
 
   for (final size in const [Size(800, 900), Size(360, 740)]) {

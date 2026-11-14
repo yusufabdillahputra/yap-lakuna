@@ -14,6 +14,7 @@ import '../../data/repositories/store_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../core/photo_attach_field.dart';
 import '../expenses/expense_labels.dart';
@@ -889,6 +890,16 @@ class _MovementForm extends StatelessWidget {
                   error: viewModel.movementAmountError,
                   onChange: viewModel.setMovementAmount,
                 ),
+                if ((
+                      viewModel.active?.drawer.expectedCash,
+                      viewModel.movementShortfall,
+                    )
+                    case (final cash?, final over?))
+                  DrawerShortfallNote(
+                    keyPrefix: 'cash-movement',
+                    drawerCash: cash,
+                    shortfall: over,
+                  ),
                 _NoteField(
                   key: const ValueKey('cash-movement-note'),
                   label: l10n.cashNote,

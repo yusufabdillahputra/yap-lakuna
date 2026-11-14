@@ -34,6 +34,7 @@ class PurchaseSetup {
     required this.nextNumber,
     this.timezone,
     this.hasOpenSession = false,
+    this.drawerCash,
     this.canUseDrawer = true,
     this.canEditPrices = true,
     this.staffName = '',
@@ -55,6 +56,10 @@ class PurchaseSetup {
 
   /// Perangkat ini punya sesi kasir terbuka (bayar dari kas laci).
   final bool hasOpenSession;
+
+  /// Perkiraan uang di laci sesi terbuka (*Kas seharusnya*), `null` tanpa
+  /// sesi. Untuk peringatan uang laci tidak cukup (F1-03c).
+  final Money? drawerCash;
 
   /// Staf boleh memakai uang laci (`cash_movements:create`).
   final bool canUseDrawer;

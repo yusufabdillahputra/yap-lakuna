@@ -27,14 +27,15 @@ class LocalSuppliersRepository extends SuppliersRepository {
 
   @override
   Future<Result<SuppliersSetup>> load() => _guard((ctx, scope, staff) async {
+    final drawerCash = await openDrawerCash(_store, CashScope.of(ctx));
     return SuppliersSetup(
       today: await outletToday(_store.session, scope, _now),
       outletId: ctx.outlet.id,
       canManage: staff.can(Permission.suppliersManage),
       canPay: staff.can(Permission.debtsManage),
       canUseDrawer: staff.can(Permission.cashMovementsCreate),
-      hasOpenSession:
-          await findOpenCashSession(_store, CashScope.of(ctx)) != null,
+      hasOpenSession: drawerCash != null,
+      drawerCash: drawerCash,
     );
   });
 

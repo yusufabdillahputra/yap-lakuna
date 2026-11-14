@@ -215,6 +215,14 @@ Future<CashDrawer> cashDrawerFor(
   );
 }
 
+/// Perkiraan uang di laci (*Kas seharusnya*) sesi kasir yang terbuka di
+/// perangkat ini, atau `null` bila belum ada sesi (F1-03c).
+Future<Money?> openDrawerCash(LakunaStore store, CashScope scope) async {
+  final session = await findOpenCashSession(store, scope);
+  if (session == null) return null;
+  return (await cashDrawerFor(store, scope, session)).expectedCash;
+}
+
 /// Rekap [session] dari [movements] yang sudah dimuat.
 CashDrawer cashDrawerOf(
   CashSession session,

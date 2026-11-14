@@ -16,6 +16,7 @@ class ExpensesSetup {
     this.categories = const [],
     this.canUseDrawer = false,
     this.hasOpenSession = false,
+    this.drawerCash,
   });
 
   /// Tanggal lokal cabang hari ini (UTC tengah malam).
@@ -29,6 +30,10 @@ class ExpensesSetup {
 
   /// Perangkat ini punya sesi kasir terbuka.
   final bool hasOpenSession;
+
+  /// Perkiraan uang di laci sesi terbuka (*Kas seharusnya*), `null` tanpa
+  /// sesi. Untuk peringatan uang laci tidak cukup (F1-03c).
+  final Money? drawerCash;
 }
 
 /// Pengeluaran operasional dan jenisnya (F1-15). Semua aksi butuh
