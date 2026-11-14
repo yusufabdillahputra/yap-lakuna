@@ -532,6 +532,22 @@ class _Panel extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            if (vm.denseRows case final dense when dense.isNotEmpty)
+              FAlert(
+                key: const ValueKey('labels-too-dense'),
+                icon: const Icon(TablerIcons.alertTriangle),
+                title: Text(l10n.labelsTooDense(dense.length)),
+                subtitle: Text(
+                  l10n.labelsTooDenseHint(
+                    dense.length <= 3
+                        ? dense.map((r) => r.title).join(', ')
+                        : l10n.labelsTooDenseMore(
+                            dense.take(3).map((r) => r.title).join(', '),
+                            dense.length - 3,
+                          ),
+                  ),
+                ),
+              ),
             if (vm.overLimit)
               FAlert(
                 key: const ValueKey('labels-over-limit'),

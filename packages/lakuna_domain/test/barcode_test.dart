@@ -80,4 +80,17 @@ void main() {
       );
     });
   });
+
+  group('barcodeTooDense (F1-07i)', () {
+    test('garis lebih kecil dari 0,25 mm ditandai', () {
+      // SKU 14 karakter Code 128 = 189 modul.
+      expect(barcodeTooDense(189, 32), isTrue, reason: '0,17 mm');
+      expect(barcodeTooDense(189, 42), isTrue, reason: '0,22 mm');
+      expect(barcodeTooDense(189, 58), isFalse, reason: '0,31 mm');
+      // EAN-13 = 95 modul.
+      expect(barcodeTooDense(95, 32), isFalse, reason: '0,34 mm');
+      expect(barcodeTooDense(128, 32), isFalse, reason: 'tepat 0,25 mm');
+      expect(barcodeTooDense(0, 32), isFalse);
+    });
+  });
 }

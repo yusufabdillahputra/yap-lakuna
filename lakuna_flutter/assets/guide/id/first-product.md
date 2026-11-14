@@ -18,6 +18,9 @@ Produk harus ada sebelum bisa dijual di kasir. Satu produk boleh punya beberapa 
 
 Untuk barang buatan sendiri (kue, racikan, barang curah), kosongkan field **Barcode** lalu tekan ikon tongkat di ujung field (**Buat barcode**). Lakuna mengisi kode EAN-13 toko berawalan `20` yang belum dipakai produk lain. Simpan produk, lalu cetak labelnya lewat **Cetak label**; kasir cukup memindai label itu.
 
+> [!warning]
+> Produk tanpa barcode dicetak memakai SKU-nya. SKU yang panjang membuat garis barcode terlalu tipis di kertas kecil sehingga sulit dipindai. Layar **Cetak label** memberi peringatan bila ini terjadi; pilih kertas yang lebih lebar, pendekkan SKU, atau pakai **Buat barcode**.
+
 > [!note] Barang impor dengan barcode UPC-A (12 digit) tetap ditemukan walau pemindai membacanya sebagai 13 digit berawalan `0`, di Kasir, Stok, Pembelian, dan pencarian produk.
 
 ## Satuan & harga grosir

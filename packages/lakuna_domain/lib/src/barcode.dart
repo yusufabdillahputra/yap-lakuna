@@ -79,3 +79,14 @@ String generateStoreEan13(
   }
   throw StateError('Tidak ada kode EAN-13 toko yang belum dipakai');
 }
+
+/// Lebar garis terkecil yang masih aman dipindai (mm): 2 titik printer
+/// thermal 203 dpi (F1-07i).
+const minBarcodeModuleMm = 0.25;
+
+/// `true` bila barcode berisi [modules] modul (garis tersempit) yang dicetak
+/// selebar [widthMm] menghasilkan garis lebih sempit dari
+/// [minBarcodeModuleMm] (F1-07i). Jumlah modul dihitung oleh mesin gambar
+/// barcode di aplikasi.
+bool barcodeTooDense(int modules, double widthMm) =>
+    modules > 0 && widthMm / modules < minBarcodeModuleMm;

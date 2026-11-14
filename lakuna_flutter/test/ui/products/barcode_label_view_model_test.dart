@@ -126,6 +126,41 @@ void main() {
     expect(vm.quantity(kopi), 0);
   });
 
+  test('kode terlalu panjang untuk kertas kecil ditandai (F1-07i)', () async {
+    repo = FakeCatalogRepository(
+      seed: [
+        const ProductDraft(
+          name: 'Minyak Premium',
+          baseUnit: 'botol',
+          variants: [
+            VariantDraft(sku: 'MYK-2L-PREMIUM', sellPrice: Money(40000)),
+          ],
+        ),
+        const ProductDraft(
+          name: 'Teh',
+          baseUnit: 'pcs',
+          variants: [VariantDraft(barcode: '8990001000012')],
+        ),
+      ],
+    );
+    final vm = make();
+    await vm.load.execute();
+    final minyak = vm.rows.firstWhere((r) => r.title == 'Minyak Premium');
+    final teh = vm.rows.firstWhere((r) => r.title == 'Teh');
+    vm
+      ..toggle(minyak, true)
+      ..toggle(teh, true);
+    expect(vm.denseRows, isEmpty, reason: 'A4 cukup lebar');
+    vm.setPaper(BarcodeLabelPaper.roll38x25);
+    expect(vm.denseRows.map((r) => r.title), ['Minyak Premium']);
+    vm.setPaper(BarcodeLabelPaper.a4Sheet);
+    expect(vm.denseRows, isEmpty, reason: 'kembali ke A4');
+    vm.setPaper(BarcodeLabelPaper.roll50x30);
+    expect(vm.denseRows.map((r) => r.title), ['Minyak Premium']);
+    vm.toggle(minyak, false);
+    expect(vm.denseRows, isEmpty);
+  });
+
   test('cari UPC-A yang terbaca 13 digit (F1-07h)', () async {
     repo = FakeCatalogRepository(
       seed: [

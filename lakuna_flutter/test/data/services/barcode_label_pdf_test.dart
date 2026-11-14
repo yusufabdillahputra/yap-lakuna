@@ -23,6 +23,7 @@ Future<int> _pages(BarcodeLabelSheet sheet) async {
 }
 
 void main() {
+  _modulesTests();
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('A4 24 label per halaman; 25 label → 2 halaman', () async {
@@ -101,5 +102,54 @@ void main() {
       ),
       2,
     );
+  });
+}
+
+void _modulesTests() {
+  group('barcodeModules (F1-07i)', () {
+    test('EAN/UPC tetap', () {
+      expect(barcodeModules('8990001000012', BarcodeSymbology.ean13), 95);
+      expect(barcodeModules('036000291452', BarcodeSymbology.upcA), 95);
+      expect(barcodeModules('96385074', BarcodeSymbology.ean8), 67);
+    });
+
+    test('Code 128 mengikuti hasil gambar (set C untuk deret angka)', () {
+      // Start + 7 simbol + checksum = 9 × 11 + stop 13.
+      expect(barcodeModules('KOP-SCH', BarcodeSymbology.code128), 112);
+      expect(barcodeModules('MYK-2L-PREMIUM', BarcodeSymbology.code128), 189);
+      // Deret angka dipadatkan: lebih pendek dari 1 simbol per karakter.
+      expect(barcodeModules('MYK-2L-12345678', BarcodeSymbology.code128), 167);
+      expect(barcodeModules('8990001000012', BarcodeSymbology.code128), 123);
+    });
+
+    test('kode tak terbaca = 0, tidak dianggap terlalu rapat', () {
+      expect(barcodeModules('ABC', BarcodeSymbology.ean13), 0);
+      expect(
+        barcodeTooDenseOn(
+          BarcodeLabelPaper.roll38x25,
+          'ABC',
+          BarcodeSymbology.ean13,
+        ),
+        isFalse,
+      );
+    });
+
+    test('per kertas', () {
+      for (final (paper, dense) in const [
+        (BarcodeLabelPaper.a4Sheet, false),
+        (BarcodeLabelPaper.roll50x30, true),
+        (BarcodeLabelPaper.roll38x25, true),
+      ]) {
+        expect(
+          barcodeTooDenseOn(paper, 'MYK-2L-PREMIUM', BarcodeSymbology.code128),
+          dense,
+          reason: paper.name,
+        );
+        expect(
+          barcodeTooDenseOn(paper, '8990001000012', BarcodeSymbology.ean13),
+          isFalse,
+        );
+      }
+    });
   });
 }

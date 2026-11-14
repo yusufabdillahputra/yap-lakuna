@@ -4523,5 +4523,32 @@
   "firstProductInvalid": "Check the first product fields.",
   "firstProductOptional": "Optional",
   "billSplitErrorItemDiscounted": "Remove this item's rupiah discount or change it to a percentage before splitting it.",
-  "productGenerateBarcode": "Generate barcode"
+  "productGenerateBarcode": "Generate barcode",
+  "labelsTooDense": "{count, plural, =1{1 product uses a code} other{{count} products use codes}} too long for this paper",
+  "@labelsTooDense": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsTooDenseMore": "{names}, and {count} more",
+  "@labelsTooDenseMore": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsTooDenseHint": "The barcode bars for {names} get too thin to scan. Use wider paper, a shorter SKU, or the Generate barcode button in the product form.",
+  "@labelsTooDenseHint": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  }
 }

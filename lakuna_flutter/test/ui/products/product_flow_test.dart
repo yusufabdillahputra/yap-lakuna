@@ -228,6 +228,11 @@ void main() {
       await _tap(tester, 'labels-paper-roll50x30');
       expect(find.byKey(const ValueKey('labels-skip')), findsNothing);
       expect(find.text('30 label · 30 halaman'), findsWidgets);
+      expect(
+        find.byKey(const ValueKey('labels-too-dense')),
+        findsNothing,
+        reason: 'KOP-SCH muat di 50 × 30',
+      );
       await _tap(
         tester,
         size.width < 600 ? 'labels-bar-print' : 'labels-print',
@@ -244,6 +249,40 @@ void main() {
       await _tap(tester, 'labels-back');
       expect(find.byKey(const ValueKey('labels-list')), findsNothing);
       expect(find.byKey(const ValueKey('products-labels')), findsOneWidget);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('peringatan kode terlalu panjang di label kecil (F1-07i) '
+        '${size.width}', (tester) async {
+      final repo = await pump(
+        tester,
+        size: size,
+        seed: [
+          ...sampleProducts(),
+          const ProductDraft(
+            name: 'Minyak Premium',
+            baseUnit: 'botol',
+            variants: [
+              VariantDraft(sku: 'MYK-2L-PREMIUM', sellPrice: Money(40000)),
+            ],
+          ),
+        ],
+      );
+      await _tap(tester, 'products-labels');
+      final minyak = repo.products.firstWhere(
+        (p) => p.name == 'Minyak Premium',
+      );
+      await _tap(tester, 'labels-check-${minyak.variants.single.id.uuid}');
+      expect(find.byKey(const ValueKey('labels-too-dense')), findsNothing);
+      await _tap(tester, 'labels-paper-roll38x25');
+      expect(find.byKey(const ValueKey('labels-too-dense')), findsOneWidget);
+      expect(
+        find.textContaining('1 produk memakai kode terlalu panjang'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Minyak Premium'), findsWidgets);
+      expect(tester.takeException(), isNull);
     });
   }
 

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -31,6 +33,21 @@ enum BarcodeLabelPaper {
       25 * PdfPageFormat.mm,
     ),
   };
+
+  /// Lebar satu label (mm).
+  double get labelWidthMm => switch (this) {
+    a4Sheet => 210 / sheetColumns,
+    roll50x30 => 50,
+    roll38x25 => 38,
+  };
+
+  /// Lebar area barcode di label: lebar label dikurangi padding dan zona
+  /// tenang kiri-kanan (mm), dipakai peringatan kode terlalu panjang
+  /// (F1-07i).
+  double get barcodeWidthMm {
+    final scale = _scale(this);
+    return labelWidthMm - 2 * (scale.pad + scale.quiet);
+  }
 
   /// Label per lembar A4.
   static const sheetColumns = 3;
@@ -83,6 +100,34 @@ pw.Barcode _barcode(BarcodeSymbology s) => switch (s) {
   BarcodeSymbology.upcA => pw.Barcode.upcA(),
   BarcodeSymbology.code128 => pw.Barcode.code128(),
 };
+
+/// Jumlah modul (garis tersempit) [code] seperti yang digambar paket
+/// barcode, tanpa zona tenang (F1-07i). Code 128 memakai set C untuk deret
+/// angka, jadi dihitung dari hasil gambar, bukan dari panjang kode. Kode
+/// yang tidak bisa digambar menghasilkan 0.
+int barcodeModules(String code, BarcodeSymbology symbology) {
+  const width = 1000.0;
+  try {
+    final bars = _barcode(symbology)
+        .make(code, width: width, height: 10, drawText: false)
+        .whereType<pw.BarcodeBar>();
+    final narrowest = bars.map((b) => b.width).reduce(math.min);
+    return (width / narrowest).round();
+  } on pw.BarcodeException {
+    return 0;
+  } on StateError {
+    // Tidak ada garis sama sekali.
+    return 0;
+  }
+}
+
+/// `true` bila garis barcode [code] lebih tipis dari batas aman di
+/// [paper] (F1-07i).
+bool barcodeTooDenseOn(
+  BarcodeLabelPaper paper,
+  String code,
+  BarcodeSymbology symbology,
+) => barcodeTooDense(barcodeModules(code, symbology), paper.barcodeWidthMm);
 
 /// Ukuran huruf per kertas: nama, harga, teks barcode; padding label dan
 /// zona tenang kiri-kanan barcode (mm).

@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.57.0] - 2026-11-14
+
+Layar Cetak label kini memperingatkan bila kode produk terlalu panjang
+untuk kertas yang dipilih, sebelum label yang tidak bisa dipindai tercetak.
+
+### Ditambahkan
+
+- **Peringatan kode label terlalu panjang (1.15b, F1-07i).** Bila produk
+  terpilih memakai kode yang garis barcode-nya lebih tipis dari 0,25 mm
+  (2 titik printer termal 203 dpi) di kertas yang dipilih, muncul
+  peringatan berisi jumlah dan nama produknya (maks. 3 nama), dengan saran memakai kertas
+  lebih lebar, SKU lebih pendek, atau *Buat barcode*. Contoh: SKU 14
+  karakter aman di A4 tetapi terlalu rapat di 50 × 30 dan 38 × 25 mm.
+  Peringatan tidak memblokir cetak.
+- Panduan *Produk pertama* (ID + EN) menjelaskan peringatan ini.
+
+### Diperbaiki
+
+- Spec F1-07g: baris *Share sheet di iPad* dikoreksi menjadi catatan.
+  `share_plus` 13.3 sudah memakai titik asal di tengah layar bila
+  `sharePositionOrigin` kosong, jadi tidak ada perubahan kode.
+
+### Catatan teknis
+
+- `lakuna_domain`: `barcodeTooDense(modules, widthMm)` dan konstanta
+  `minBarcodeModuleMm`.
+- `barcodeModules` menghitung modul dari hasil gambar paket `barcode` yang
+  sama dengan pencetak label (Code 128 memadatkan deret angka ke set C),
+  bukan dari panjang kode. Rumus perkiraan awal meleset untuk SKU yang
+  memuat deret angka (mis. `MYK-2L-12345678` 167 modul, bukan 200).
+- `BarcodeLabelPaper.labelWidthMm` / `barcodeWidthMm` (A4 58 mm, 50 × 30
+  42 mm, 38 × 25 32 mm area barcode) dan `BarcodeLabelViewModel.denseRows`.
+- Kunci l10n baru: `labelsTooDense` (jamak di EN), `labelsTooDenseHint`,
+  `labelsTooDenseMore`. Jumlah modul di-cache per kode agar layar tetap
+  ringan saat ratusan produk dipilih (temuan review).
+
 ## [0.56.0] - 2026-11-14
 
 Uang bagian split bill kini langsung masuk rekap laci sesi kasir yang
@@ -4360,7 +4396,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...HEAD
+[0.57.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...v0.54.0

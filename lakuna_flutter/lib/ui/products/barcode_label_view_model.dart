@@ -157,6 +157,21 @@ class BarcodeLabelViewModel extends ChangeNotifier {
 
   bool get canPrint => total > 0 && !overLimit && !busy;
 
+  /// Baris terpilih yang garis barcodenya terlalu tipis di kertas ini
+  /// (F1-07i).
+  List<LabelRow> get denseRows => [
+    for (final r in selected)
+      if (r.printable && barcodeTooDense(_modules(r), _paper.barcodeWidthMm)) r,
+  ];
+
+  /// Jumlah modul per kode, dihitung sekali karena tidak bergantung pada
+  /// kertas (getter [denseRows] dipanggil di setiap rebuild).
+  final _moduleCache = <String, int>{};
+  int _modules(LabelRow r) => _moduleCache.putIfAbsent(
+    '${r.symbology!.name}|${r.code}',
+    () => barcodeModules(r.code!, r.symbology!),
+  );
+
   /// Label pertama yang dicetak, untuk pratinjau.
   LabelRow? get preview => selected.firstOrNull;
 
