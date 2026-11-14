@@ -61,3 +61,29 @@ Qty restockQuantity(Qty stock, Qty minimum) {
   final units = need <= 0 ? 1 : (need + 999) ~/ 1000;
   return Qty.units(units < 1 ? 1 : units);
 }
+
+/// Supplier untuk draf pembelian dari stok minimum (F1-08d): dari supplier
+/// terakhir tiap barang ([last], satu entri per barang yang punya riwayat),
+/// yang memasok paling banyak barang; seri = pembelian paling baru.
+/// `null` bila tidak ada riwayat.
+({K supplier, int count})? chooseRestockSupplier<K>(
+  Iterable<({K supplier, DateTime at})> last,
+) {
+  final counts = <K, int>{};
+  final latest = <K, DateTime>{};
+  for (final e in last) {
+    counts[e.supplier] = (counts[e.supplier] ?? 0) + 1;
+    final at = latest[e.supplier];
+    if (at == null || e.at.isAfter(at)) latest[e.supplier] = e.at;
+  }
+  K? best;
+  for (final k in counts.keys) {
+    if (best == null) {
+      best = k;
+      continue;
+    }
+    final c = counts[k]!.compareTo(counts[best]!);
+    if (c > 0 || (c == 0 && latest[k]!.isAfter(latest[best]!))) best = k;
+  }
+  return best == null ? null : (supplier: best, count: counts[best]!);
+}

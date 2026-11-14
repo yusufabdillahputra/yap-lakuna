@@ -260,6 +260,67 @@ void main() {
     });
   });
 
+  group('supplier terakhir untuk draf stok minimum (F1-08d)', () {
+    PurchaseRestock restockOf(FakePurchasesRepository r) => PurchaseRestock(
+      locationId: r.locations.first.id,
+      locationName: 'Toko',
+      lines: [
+        for (final v in [
+          for (final p in r.products) ...p.variants,
+        ].take(3))
+          (variantId: v.id, quantity: Qty.one),
+      ],
+    );
+
+    test('supplier terbanyak dipilih, catatan menyebut jumlahnya', () async {
+      final r = FakePurchasesRepository(
+        suppliers: const ['CV Sumber Pangan', 'Toko Gula Jaya'],
+      );
+      final variants = [
+        for (final p in r.products)
+          for (final v in p.variants) v.id,
+      ];
+      final sumber = r.suppliers.first;
+      final gula = r.suppliers.last;
+      r.lastSupplierOf
+        ..[variants[0]] = (supplierId: gula.id, at: DateTime.utc(2026, 11, 2))
+        ..[variants[1]] = (
+          supplierId: sumber.id,
+          at: DateTime.utc(2026, 10, 1),
+        );
+      r.lastSupplierOf[variants[2]] = (
+        supplierId: sumber.id,
+        at: DateTime.utc(2026, 9, 1),
+      );
+      final vm = PurchaseFormViewModel(repository: r, restock: restockOf(r));
+      await vm.load.execute();
+      // Sumber Pangan untuk 2 barang, Gula Jaya 1 barang (walau lebih baru).
+      expect(vm.restockApplied, 3);
+      expect(vm.supplierId, sumber.id);
+      expect(vm.restockSupplierName, 'CV Sumber Pangan');
+      expect(vm.restockSupplierCount, 2);
+      await vm.startNew();
+      expect(vm.supplierId, isNull);
+      expect(vm.restockSupplierName, isNull);
+      vm.dispose();
+    });
+
+    test('tanpa riwayat atau supplier sudah tidak ada: kosong', () async {
+      final r = FakePurchasesRepository();
+      final variant = r.products.first.variants.first.id;
+      r.lastSupplierOf[variant] = (
+        supplierId: UuidValue.fromString(newId()),
+        at: DateTime.utc(2026, 11, 2),
+      );
+      final vm = PurchaseFormViewModel(repository: r, restock: restockOf(r));
+      await vm.load.execute();
+      expect(vm.supplierId, isNull);
+      expect(vm.restockSupplierName, isNull);
+      expect(vm.restockApplied, greaterThan(0));
+      vm.dispose();
+    });
+  });
+
   group('PurchaseDetailViewModel', () {
     Future<PurchaseDetailViewModel> received({int paid = 0}) async {
       form

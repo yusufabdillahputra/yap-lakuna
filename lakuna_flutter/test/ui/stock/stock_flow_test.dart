@@ -302,6 +302,12 @@ void main() {
       minStock: min,
       unitCost: variants[i].$2.costPrice,
     );
+    for (final (_, v) in variants.take(2)) {
+      purchases.lastSupplierOf[v.id] = (
+        supplierId: purchases.suppliers.single.id,
+        at: DateTime.utc(2026, 11, 1),
+      );
+    }
     final stock = FakeStockRepository(
       rows: [
         row(0, Qty.units(2), Qty.units(20)),
@@ -339,6 +345,14 @@ void main() {
           // menyebut lokasi yang dipakai form.
           'Diisi dari stok minimum Toko: 2 barang. Periksa jumlah dan '
           'harga sebelum menyimpan.',
+        ),
+        findsOneWidget,
+      );
+      // Supplier terakhir (F1-08d) dipilih dan disebut di catatan.
+      expect(
+        find.text(
+          'Supplier diisi dari pembelian terakhir: CV Sumber Pangan '
+          '(2 dari 2 barang).',
         ),
         findsOneWidget,
       );

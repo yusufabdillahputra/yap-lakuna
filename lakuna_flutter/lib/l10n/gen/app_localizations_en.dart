@@ -8501,4 +8501,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportsAgingNote =>
       'Age counts from each document\'s due date to today; documents without a due date count as Not yet due.';
+
+  @override
+  String purchaseRestockSupplierNote(String supplier, int count, int total) {
+    return 'Supplier filled from the last purchase: $supplier ($count of $total items).';
+  }
 }

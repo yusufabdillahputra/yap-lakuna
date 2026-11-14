@@ -409,6 +409,71 @@ Future<List<PurchaseRow>> purchaseRowsOf(
 
 /// Retur pembelian cabang, terbaru dulu, disaring [query] (nomor RB, nomor
 /// PB, atau supplier).
+/// Supplier pembelian **diterima** terbaru di cabang [scope] untuk tiap
+/// varian [variantIds] (F1-08d). Terbaru menurut `received_at` (tanggal
+/// beli bila kosong), lalu nomor. Draf, pembelian tanpa supplier, dan
+/// supplier yang sudah dihapus diabaikan. Varian tanpa riwayat tidak ada
+/// di peta.
+Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
+  LakunaStore store,
+  CatalogScope scope,
+  Iterable<UuidValue> variantIds,
+) async {
+  final ids = variantIds.toSet();
+  if (ids.isEmpty) return const {};
+  final session = store.session;
+  final items = await PurchaseItem.db.find(
+    session,
+    where: (i) =>
+        i.tenantId.equals(scope.tenantId) &
+        i.variantId.inSet(ids) &
+        i.deletedAt.equals(null),
+  );
+  if (items.isEmpty) return const {};
+  final purchases = {
+    for (final p in await Purchase.db.find(
+      session,
+      where: (p) =>
+          p.id.inSet({for (final i in items) i.purchaseId}) &
+          p.tenantId.equals(scope.tenantId) &
+          p.outletId.equals(scope.outletId) &
+          p.status.equals(PurchaseStatus.received) &
+          p.supplierId.notEquals(null) &
+          p.deletedAt.equals(null),
+    ))
+      p.id: p,
+  };
+  final active = {
+    for (final s in await Supplier.db.find(
+      session,
+      where: (s) =>
+          s.id.inSet({for (final p in purchases.values) p.supplierId!}) &
+          s.tenantId.equals(scope.tenantId) &
+          s.deletedAt.equals(null),
+    ))
+      s.id,
+  };
+  DateTime at(Purchase p) => p.receivedAt ?? p.purchasedOn;
+  final best = <UuidValue, Purchase>{};
+  for (final i in items) {
+    final p = purchases[i.purchaseId];
+    if (p == null || !active.contains(p.supplierId)) continue;
+    final current = best[i.variantId];
+    if (current == null) {
+      best[i.variantId] = p;
+      continue;
+    }
+    final c = at(p).compareTo(at(current));
+    if (c > 0 || (c == 0 && p.number.compareTo(current.number) > 0)) {
+      best[i.variantId] = p;
+    }
+  }
+  return {
+    for (final MapEntry(:key, :value) in best.entries)
+      key: (supplierId: value.supplierId!, at: at(value)),
+  };
+}
+
 Future<List<PurchaseReturnRow>> listPurchaseReturns(
   LakunaStore store,
   CatalogScope scope, {

@@ -103,6 +103,11 @@ abstract class PurchasesRepository {
   /// Harga jual baru per varian (satuan dasar).
   Future<Result<void>> applySellPrices(Map<UuidValue, Money> prices);
 
+  /// Supplier pembelian diterima terbaru per varian [variantIds] (F1-08d);
+  /// varian tanpa riwayat tidak ada di peta.
+  Future<Result<Map<UuidValue, ({UuidValue supplierId, DateTime at})>>>
+  lastSuppliers(Iterable<UuidValue> variantIds);
+
   /// Isi foto faktur pembelian [id] (F1-12b); `null` bila tidak ada atau
   /// berkasnya belum ada di perangkat ini.
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id);

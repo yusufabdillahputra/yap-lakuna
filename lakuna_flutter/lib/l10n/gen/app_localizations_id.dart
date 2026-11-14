@@ -8264,4 +8264,9 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get reportsAgingNote =>
       'Umur dihitung dari jatuh tempo tiap nota sampai hari ini; nota tanpa jatuh tempo masuk Belum jatuh tempo.';
+
+  @override
+  String purchaseRestockSupplierNote(String supplier, int count, int total) {
+    return 'Supplier diisi dari pembelian terakhir: $supplier ($count dari $total barang).';
+  }
 }

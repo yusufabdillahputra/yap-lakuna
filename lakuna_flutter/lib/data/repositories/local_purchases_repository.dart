@@ -121,6 +121,11 @@ class LocalPurchasesRepository extends PurchasesRepository {
   );
 
   @override
+  Future<Result<Map<UuidValue, ({UuidValue supplierId, DateTime at})>>>
+  lastSuppliers(Iterable<UuidValue> variantIds) =>
+      _guard((_, scope, _) => lastSuppliersOf(_store, scope, variantIds));
+
+  @override
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id) =>
       _guard((_, scope, _) => loadPurchaseInvoicePhoto(_store, scope, id));
 
