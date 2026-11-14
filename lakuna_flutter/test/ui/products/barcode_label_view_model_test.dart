@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,7 @@ void main() {
 
   BarcodeLabelViewModel make({UuidValue? productId}) => BarcodeLabelViewModel(
     repository: repo,
+    random: Random(7),
     printer: printer,
     initialProduct: productId,
     now: () => DateTime(2026, 11, 13, 14, 5),
@@ -259,5 +261,224 @@ void main() {
     await vm.load.execute();
     expect(vm.error, isNull);
     expect(vm.rows, hasLength(4));
+  });
+
+  group('buat barcode massal (F1-07j)', () {
+    bool isStoreEan(String? c) =>
+        c != null && RegExp(r'^20\d{11}$').hasMatch(c);
+
+    test('assignStoreBarcodes hanya mengisi varian yang diminta dan kosong, '
+        'kode unik terhadap katalog', () {
+      final products = [
+        ...repo.products,
+        ...FakeCatalogRepository(
+          seed: [
+            const ProductDraft(
+              name: 'Roti',
+              baseUnit: 'pcs',
+              variants: [
+                VariantDraft(name: 'Coklat', sellPrice: Money(5000)),
+                VariantDraft(name: 'Keju', sellPrice: Money(6000)),
+                VariantDraft(
+                  name: 'Pandan',
+                  barcode: '2000000000008',
+                  sellPrice: Money(5000),
+                ),
+              ],
+            ),
+          ],
+        ).products,
+      ];
+      final roti = products.firstWhere((p) => p.name == 'Roti');
+      final jasa = products.firstWhere((p) => p.name == 'Jasa Antar');
+      final ids = {
+        for (final v in roti.variants) v.id,
+        jasa.variants.single.id,
+      };
+      final assigned = assignStoreBarcodes(products, ids, Random(1));
+      expect(
+        {for (final (d, n) in assigned) d.name: n},
+        {'Roti': 2, 'Jasa Antar': 1},
+      );
+      final drafts = [for (final (d, _) in assigned) d];
+      expect(
+        drafts.map((d) => d.name),
+        unorderedEquals(['Roti', 'Jasa Antar']),
+      );
+      final rotiDraft = drafts.firstWhere((d) => d.name == 'Roti');
+      expect(rotiDraft.variants[2].barcode, '2000000000008');
+      final codes = [
+        rotiDraft.variants[0].barcode,
+        rotiDraft.variants[1].barcode,
+        drafts
+            .firstWhere((d) => d.name == 'Jasa Antar')
+            .variants
+            .single
+            .barcode,
+      ];
+      expect(codes.every(isStoreEan), isTrue, reason: '$codes');
+      expect(codes.toSet(), hasLength(3));
+      final taken = {
+        for (final p in products)
+          for (final v in p.variants) ...[?v.sku, ?v.barcode],
+      };
+      expect(codes.any(taken.contains), isFalse);
+      // Data lain tidak berubah.
+      expect(rotiDraft.variants[1].sellPrice, const Money(6000));
+      expect(rotiDraft.id, roti.id.uuid);
+    });
+
+    test('produk tanpa kode mendapat barcode lalu terpilih', () async {
+      final vm = make();
+      await vm.load.execute();
+      expect(vm.missingCodeRows.map((r) => r.title), ['Jasa Antar']);
+      await vm.generateBarcodes.execute(vm.missingCodeRows);
+      final summary =
+          (vm.generateBarcodes.result! as Ok<BarcodeGenerateSummary>).value;
+      expect(summary.saved, 1);
+      expect(summary.failed, isEmpty);
+      expect(repo.saved, hasLength(1));
+      expect(isStoreEan(repo.saved.single.variants.single.barcode), isTrue);
+      expect(vm.missingCodeRows, isEmpty);
+      final jasa = vm.rows.firstWhere((r) => r.title == 'Jasa Antar');
+      expect(jasa.printable, isTrue);
+      expect(jasa.symbology, BarcodeSymbology.ean13);
+      expect(vm.quantity(jasa), 1);
+    });
+
+    test('SKU terlalu rapat diganti EAN-13, jumlah tetap', () async {
+      repo = FakeCatalogRepository(
+        seed: [
+          ...sampleProducts(),
+          const ProductDraft(
+            name: 'Minyak Premium',
+            baseUnit: 'botol',
+            variants: [
+              VariantDraft(sku: 'MYK-2L-PREMIUM', sellPrice: Money(40000)),
+            ],
+          ),
+        ],
+      );
+      final vm = make();
+      await vm.load.execute();
+      final minyak = vm.rows.firstWhere((r) => r.title == 'Minyak Premium');
+      vm
+        ..toggle(minyak, true)
+        ..setQuantity(minyak, 3)
+        ..setPaper(BarcodeLabelPaper.roll38x25);
+      expect(vm.denseWithoutBarcode.map((r) => r.title), ['Minyak Premium']);
+      await vm.generateBarcodes.execute(vm.denseWithoutBarcode);
+      final after = vm.rows.firstWhere((r) => r.title == 'Minyak Premium');
+      expect(isStoreEan(after.code), isTrue);
+      expect(vm.quantity(after), 3);
+      expect(vm.denseRows, isEmpty);
+      expect(
+        repo.saved.single.variants.single.sku,
+        'MYK-2L-PREMIUM',
+        reason: 'SKU tidak diubah',
+      );
+    });
+
+    test('baris padat yang sudah berbarcode tidak ditawarkan', () async {
+      repo = FakeCatalogRepository(
+        seed: [
+          const ProductDraft(
+            name: 'Kardus',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(
+                sku: 'X',
+                barcode: 'KARDUS-PANJANG-SEKALI-01',
+                sellPrice: Money(1000),
+              ),
+            ],
+          ),
+        ],
+      );
+      final vm = make();
+      await vm.load.execute();
+      vm
+        ..toggle(vm.rows.single, true)
+        ..setPaper(BarcodeLabelPaper.roll38x25);
+      expect(vm.denseRows, hasLength(1));
+      expect(vm.denseWithoutBarcode, isEmpty);
+    });
+
+    test('galat simpan semua: galat dan katalog dimuat ulang', () async {
+      final vm = make();
+      await vm.load.execute();
+      repo.failSaveFor.add('Jasa Antar');
+      await vm.generateBarcodes.execute(vm.missingCodeRows);
+      expect(vm.generateBarcodes.error, isTrue);
+      expect(repo.saved, isEmpty);
+      expect(vm.missingCodeRows.map((r) => r.title), ['Jasa Antar']);
+    });
+
+    test('satu produk gagal: yang lain tetap tersimpan dan disebut', () async {
+      repo = FakeCatalogRepository(
+        seed: [
+          ...sampleProducts(),
+          const ProductDraft(
+            name: 'Bolu',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(sellPrice: Money(20000))],
+          ),
+        ],
+      );
+      final vm = make();
+      await vm.load.execute();
+      expect(vm.missingCodeRows.map((r) => r.title), ['Bolu', 'Jasa Antar']);
+      repo.failSaveFor.add('Bolu');
+      await vm.generateBarcodes.execute(vm.missingCodeRows);
+      final summary =
+          (vm.generateBarcodes.result! as Ok<BarcodeGenerateSummary>).value;
+      expect(summary.saved, 1);
+      expect(summary.failed, ['Bolu']);
+      expect(summary.error, isNotNull);
+      expect(repo.saved.map((d) => d.name), ['Jasa Antar']);
+      expect(vm.missingCodeRows.map((r) => r.title), ['Bolu']);
+    });
+
+    test('memakai data terbaru, bukan saat layar dibuka', () async {
+      final vm = make();
+      await vm.load.execute();
+      // Harga diubah di tempat lain setelah layar dibuka.
+      final jasa = repo.products.firstWhere((p) => p.name == 'Jasa Antar');
+      final draft = jasa.toDraft();
+      await repo.save(
+        ProductDraft(
+          id: draft.id,
+          name: draft.name,
+          baseUnit: draft.baseUnit,
+          kind: draft.kind,
+          isActive: draft.isActive,
+          variants: [
+            VariantDraft(
+              id: draft.variants.single.id,
+              sellPrice: const Money(7500),
+            ),
+          ],
+        ),
+      );
+      repo.saved.clear();
+      await vm.generateBarcodes.execute(vm.missingCodeRows);
+      expect(repo.saved.single.variants.single.sellPrice, const Money(7500));
+    });
+
+    test('baris berbarcode tak tercetak tidak ditawarkan', () async {
+      repo = FakeCatalogRepository(
+        seed: [
+          const ProductDraft(
+            name: 'Aneh',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(barcode: 'ÄÖÜ', sellPrice: Money(1000))],
+          ),
+        ],
+      );
+      final vm = make();
+      await vm.load.execute();
+      expect(vm.rows.single.printable, isFalse);
+      expect(vm.missingCodeRows, isEmpty);
+    });
   });
 }

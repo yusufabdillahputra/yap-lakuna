@@ -15,6 +15,7 @@ import '../../utils/result.dart';
 import '../core/format.dart';
 import '../receipt/printer_labels.dart';
 import 'barcode_label_view_model.dart';
+import 'product_form_view.dart' show productErrorMessage;
 import 'product_widgets.dart';
 
 /// Lebar minimum untuk daftar dan panel berdampingan.
@@ -262,6 +263,25 @@ class _RowList extends StatelessWidget {
                 ),
               ],
             ),
+            if (vm.missingCodeRows case final missing when missing.isNotEmpty)
+              FButton(
+                key: const ValueKey('labels-generate-missing'),
+                variant: .outline,
+                size: .sm,
+                prefix: const Icon(TablerIcons.wand),
+                onPress: vm.busy
+                    ? null
+                    : () => generateLabelBarcodes(context, vm, missing),
+                child: Flexible(
+                  child: Text(
+                    l10n.labelsGenerateMissing(
+                      {for (final r in missing) r.productId}.length,
+                    ),
+                  ),
+                ),
+              ),
+            if (vm.generateBarcodes.result != null)
+              _GenerateResult(viewModel: vm),
             if (rows.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -537,15 +557,34 @@ class _Panel extends StatelessWidget {
                 key: const ValueKey('labels-too-dense'),
                 icon: const Icon(TablerIcons.alertTriangle),
                 title: Text(l10n.labelsTooDense(dense.length)),
-                subtitle: Text(
-                  l10n.labelsTooDenseHint(
-                    dense.length <= 3
-                        ? dense.map((r) => r.title).join(', ')
-                        : l10n.labelsTooDenseMore(
-                            dense.take(3).map((r) => r.title).join(', '),
-                            dense.length - 3,
-                          ),
-                  ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Text(
+                      l10n.labelsTooDenseHint(
+                        dense.length <= 3
+                            ? dense.map((r) => r.title).join(', ')
+                            : l10n.labelsTooDenseMore(
+                                dense.take(3).map((r) => r.title).join(', '),
+                                dense.length - 3,
+                              ),
+                      ),
+                    ),
+                    if (vm.denseWithoutBarcode case final fixable
+                        when fixable.isNotEmpty)
+                      FButton(
+                        key: const ValueKey('labels-generate-dense'),
+                        variant: .outline,
+                        size: .sm,
+                        mainAxisSize: .min,
+                        prefix: const Icon(TablerIcons.wand),
+                        onPress: vm.busy
+                            ? null
+                            : () => generateLabelBarcodes(context, vm, fixable),
+                        child: Flexible(child: Text(l10n.labelsGenerateDense)),
+                      ),
+                  ],
                 ),
               ),
             if (vm.overLimit)
@@ -693,5 +732,104 @@ class LabelPreview extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Konfirmasi lalu buat barcode EAN-13 toko untuk [rows] (F1-07j).
+Future<void> generateLabelBarcodes(
+  BuildContext context,
+  BarcodeLabelViewModel vm,
+  List<LabelRow> rows,
+) async {
+  final ok = await showFDialog<bool>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+      builder: (context, style) {
+        final l10n = AppLocalizations.of(context);
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('labels-generate-confirm'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Text(
+                l10n.labelsGenerateTitle(rows.length),
+                style: context.theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(l10n.labelsGenerateBody, style: _muted(context)),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  FButton(
+                    key: const ValueKey('labels-generate-cancel'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: () => Navigator.of(context).pop(false),
+                    child: Flexible(child: Text(l10n.labelsGenerateCancel)),
+                  ),
+                  FButton(
+                    key: const ValueKey('labels-generate-ok'),
+                    mainAxisSize: .min,
+                    prefix: const Icon(TablerIcons.wand),
+                    onPress: () => Navigator.of(context).pop(true),
+                    child: Flexible(child: Text(l10n.labelsGenerateConfirm)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+  if (ok ?? false) await vm.generateBarcodes.execute(rows);
+}
+
+/// Hasil *Buat barcode* terakhir (F1-07j).
+class _GenerateResult extends StatelessWidget {
+  const _GenerateResult({required this.viewModel});
+
+  final BarcodeLabelViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (viewModel.generateBarcodes.result) {
+      Ok(:final value) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          if (value.saved > 0)
+            Text(
+              l10n.labelsGenerated(value.saved),
+              key: const ValueKey('labels-generated'),
+              style: _muted(context),
+            ),
+          if (value.failed.isNotEmpty)
+            FAlert(
+              key: const ValueKey('labels-generate-failed'),
+              variant: .destructive,
+              title: Text(l10n.labelsGenerateFailed(value.failed.join(', '))),
+              subtitle: value.error == null
+                  ? null
+                  : Text(productErrorMessage(l10n, value.error!)),
+            ),
+        ],
+      ),
+      Error(:final error) => FAlert(
+        key: const ValueKey('labels-generate-failed'),
+        variant: .destructive,
+        title: Text(productErrorMessage(l10n, error)),
+      ),
+      null => const SizedBox.shrink(),
+    };
   }
 }

@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.58.0] - 2026-11-14
+
+Barcode toko kini bisa dibuat untuk banyak produk sekaligus dari layar Cetak
+label, tanpa membuka form produk satu per satu.
+
+### Ditambahkan
+
+- **Buat barcode massal (1.15b, F1-07j).** Tombol *Buat barcode untuk N
+  produk tanpa kode* di layar Cetak label membuat barcode EAN-13 toko
+  (awalan 20) untuk semua varian tanpa SKU dan barcode, setelah dialog
+  konfirmasi. Barcode disimpan ke produk (validasi, cek kode kembar, dan
+  outbox sinkronisasi sama dengan form produk), lalu barisnya langsung
+  dipilih untuk dicetak.
+- Peringatan kode terlalu panjang (F1-07i) kini punya tombol *Ganti dengan
+  barcode EAN-13* untuk produk terpilih yang masih memakai SKU. SKU tidak
+  diubah dan jumlah label tetap.
+- Panduan *Produk pertama* (ID + EN) menjelaskan kedua tombol.
+
+### Catatan teknis
+
+- `assignStoreBarcodes(products, variantIds, random)` membuat draft per
+  produk; kode dijamin tidak sama dengan SKU atau barcode varian/satuan
+  lain di katalog maupun satu sama lain. Satuan konversi tidak diberi kode.
+- `CatalogProduct.toDraft({barcodes})` di `lakuna_data`; `LabelRow` punya
+  `hasBarcode`, `isUnit`, `variantId`.
+- Katalog dimuat ulang tepat sebelum barcode dibuat, agar perubahan produk
+  dari tempat lain tidak tertimpa. Penyimpanan berurutan per produk; produk
+  yang gagal dilewati dan disebut namanya (`BarcodeGenerateSummary`).
+- Form produk mengisi field barcode yang masih kosong dari data tersimpan
+  setelah kembali dari Cetak label (`refreshBarcodes`), sehingga *Simpan*
+  di form tidak menghapus barcode yang baru dibuat (temuan review).
+- Kunci l10n baru: `labelsGenerateMissing`, `labelsGenerateDense`,
+  `labelsGenerateTitle`, `labelsGenerateBody`, `labelsGenerateConfirm`,
+  `labelsGenerateCancel`, `labelsGenerated`, `labelsGenerateFailed` (jamak
+  di EN).
+
 ## [0.57.0] - 2026-11-14
 
 Layar Cetak label kini memperingatkan bila kode produk terlalu panjang
@@ -4396,7 +4432,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...HEAD
+[0.58.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...v0.55.0

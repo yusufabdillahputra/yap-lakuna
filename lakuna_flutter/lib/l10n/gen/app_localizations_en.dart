@@ -8074,4 +8074,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String labelsTooDenseHint(String names) {
     return 'The barcode bars for $names get too thin to scan. Use wider paper, a shorter SKU, or the Generate barcode button in the product form.';
   }
+
+  @override
+  String labelsGenerateMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Generate barcodes for $count products without a code',
+      one: 'Generate a barcode for 1 product without a code',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get labelsGenerateDense => 'Replace with EAN-13 barcodes';
+
+  @override
+  String labelsGenerateTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Generate $count barcodes?',
+      one: 'Generate 1 barcode?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get labelsGenerateBody =>
+      'Lakuna generates unused store EAN-13 barcodes starting with 20 and saves them to the products. SKUs stay the same, and you can change the barcodes later in the product form.';
+
+  @override
+  String get labelsGenerateConfirm => 'Generate barcodes';
+
+  @override
+  String get labelsGenerateCancel => 'Cancel';
+
+  @override
+  String labelsGenerated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count barcodes generated and saved. The products are selected for printing.',
+      one: '1 barcode generated and saved. The product is selected for printing.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String labelsGenerateFailed(String names) {
+    return 'Barcodes could not be saved for: $names';
+  }
 }

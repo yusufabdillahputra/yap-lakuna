@@ -21,6 +21,8 @@ For home-made goods (cakes, blends, bulk goods), leave the **Barcode** field emp
 > [!warning]
 > Products without a barcode are printed with their SKU. A long SKU makes the barcode bars too thin to scan on small paper. The **Print labels** screen warns you when this happens; choose wider paper, shorten the SKU, or use **Generate barcode**.
 
+Have many items without a code? Open **Print labels** and tap **Generate barcodes for N products without a code**. After you confirm, Lakuna generates store EAN-13 barcodes for all of them at once, saves them to the products, and selects them for printing. When the code-too-long warning appears, the **Replace with EAN-13 barcodes** button in that warning gives a barcode to products that still use their SKU; the SKU itself stays the same.
+
 > [!note] Imported goods with a UPC-A barcode (12 digits) are still found when the scanner reads them as 13 digits starting with `0`, in Cashier, Stock, Purchases, and product search.
 
 ## Units & wholesale prices

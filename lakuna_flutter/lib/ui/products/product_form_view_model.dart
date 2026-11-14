@@ -389,6 +389,36 @@ class ProductFormViewModel extends ChangeNotifier {
     return result;
   }
 
+  /// Barcode varian yang masih kosong di form diisi dari data tersimpan,
+  /// mis. setelah dibuat massal di Cetak label (F1-07j). Isian lain di form
+  /// tidak disentuh.
+  Future<void> refreshBarcodes() async {
+    final id = productId;
+    if (id == null) return;
+    switch (await _repository.loadCatalog()) {
+      case Ok(:final value):
+        _catalog = value;
+        final product = value.products.where((p) => p.id == id).firstOrNull;
+        if (product == null) return;
+        var changed = false;
+        for (final v in variants) {
+          if (v.id == null || v.barcode.trim().isNotEmpty) continue;
+          final stored = product.variants
+              .where((s) => s.id.uuid == v.id)
+              .firstOrNull
+              ?.barcode;
+          if (stored == null || stored.trim().isEmpty) continue;
+          v
+            ..barcode = stored
+            ..barcodeRevision += 1;
+          changed = true;
+        }
+        if (changed) notifyListeners();
+      case Error():
+        break;
+    }
+  }
+
   void _fill(CatalogProduct p) {
     _photoPath = p.photoPath;
     _hasStoredPhoto = p.photoMediaId != null;

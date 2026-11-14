@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
@@ -22,6 +24,7 @@ class LabelRow {
     this.code,
     this.symbology,
     this.searchCodes = const [],
+    this.hasBarcode = false,
   });
 
   /// `<variantId>` atau `<variantId>/<unitId>`.
@@ -40,7 +43,16 @@ class LabelRow {
   final List<String> searchCodes;
   final BarcodeSymbology? symbology;
 
+  /// Kode baris ini barcode (bukan SKU).
+  final bool hasBarcode;
+
   bool get printable => code != null && symbology != null;
+
+  /// Baris satuan konversi (`<variantId>/<unitId>`).
+  bool get isUnit => key.contains('/');
+
+  /// Varian baris ini.
+  UuidValue get variantId => UuidValue.fromString(key.split('/').first);
 }
 
 /// Pembuat PDF; bisa diganti di tes.
@@ -56,10 +68,12 @@ class BarcodeLabelViewModel extends ChangeNotifier {
     this._initialProduct,
     this._now = DateTime.now,
     this._buildPdf = buildBarcodeLabelPdf,
-  }) {
+    Random? random,
+  }) : _random = random ?? Random.secure() {
     load = Command0(_load)..addListener(notifyListeners);
     print = Command1(_print)..addListener(notifyListeners);
     save = Command1(_save)..addListener(notifyListeners);
+    generateBarcodes = Command1(_generate)..addListener(notifyListeners);
   }
 
   /// Jumlah maksimal per baris.
@@ -73,17 +87,22 @@ class BarcodeLabelViewModel extends ChangeNotifier {
   final UuidValue? _initialProduct;
   final DateTime Function() _now;
   final BarcodeLabelPdfBuilder _buildPdf;
+  final Random _random;
 
   late final Command0<void> load;
   late final Command1<void, BarcodeLabelSheet> print;
   late final Command1<String?, BarcodeLabelSheet> save;
+
+  /// Buat barcode EAN-13 toko untuk varian di baris-baris ini lalu simpan
+  /// (F1-07j); hasilnya jumlah varian yang diberi barcode.
+  late final Command1<BarcodeGenerateSummary, List<LabelRow>> generateBarcodes;
 
   var _disposed = false;
 
   @override
   void dispose() {
     _disposed = true;
-    for (final c in [load, print, save]) {
+    for (final c in [load, print, save, generateBarcodes]) {
       c.dispose();
     }
     super.dispose();
@@ -95,6 +114,7 @@ class BarcodeLabelViewModel extends ChangeNotifier {
   }
 
   List<LabelRow> _rows = const [];
+  List<CatalogProduct> _products = const [];
   final _quantities = <String, int>{};
   Exception? _error;
   var _loaded = false;
@@ -119,7 +139,7 @@ class BarcodeLabelViewModel extends ChangeNotifier {
   /// Lokasi PDF di desktop setelah *Simpan PDF*; `null` di ponsel.
   String? get savedPath => _savedPath;
 
-  bool get busy => print.running || save.running;
+  bool get busy => print.running || save.running || generateBarcodes.running;
 
   /// Baris terpilih, urut seperti daftar.
   List<LabelRow> get selected => [
@@ -164,6 +184,19 @@ class BarcodeLabelViewModel extends ChangeNotifier {
       if (r.printable && barcodeTooDense(_modules(r), _paper.barcodeWidthMm)) r,
   ];
 
+  /// Baris varian tanpa SKU dan barcode (tidak bisa dicetak), kandidat
+  /// *Buat barcode* (F1-07j).
+  List<LabelRow> get missingCodeRows => [
+    for (final r in _rows)
+      if (!r.printable && !r.isUnit && !r.hasBarcode) r,
+  ];
+
+  /// Baris padat (F1-07i) yang masih memakai SKU, bisa diganti EAN-13.
+  List<LabelRow> get denseWithoutBarcode => [
+    for (final r in denseRows)
+      if (!r.isUnit && !r.hasBarcode) r,
+  ];
+
   /// Jumlah modul per kode, dihitung sekali karena tidak bergantung pada
   /// kertas (getter [denseRows] dipanggil di setiap rebuild).
   final _moduleCache = <String, int>{};
@@ -193,6 +226,7 @@ class BarcodeLabelViewModel extends ChangeNotifier {
   Future<Result<void>> _load() async {
     switch (await _repository.loadCatalog()) {
       case Ok(value: final catalog):
+        _products = catalog.products;
         _rows = labelRows(catalog.products);
         _error = null;
         final initial = _initialProduct;
@@ -288,6 +322,55 @@ class BarcodeLabelViewModel extends ChangeNotifier {
     ],
   );
 
+  Future<Result<BarcodeGenerateSummary>> _generate(
+    List<LabelRow> rows,
+  ) async {
+    final wanted = {
+      for (final r in rows)
+        if (!r.isUnit && !r.hasBarcode) r.variantId,
+    };
+    if (wanted.isEmpty) return const Result.ok(BarcodeGenerateSummary());
+    // Draft dibuat dari data terbaru, bukan dari saat layar dibuka, agar
+    // perubahan produk di tempat lain tidak tertimpa.
+    if (await _load() case Error(:final error)) return Result.error(error);
+    final selectedBefore = {..._quantities.keys};
+    var saved = 0;
+    final failed = <String>[];
+    Exception? firstError;
+    for (final (draft, count) in assignStoreBarcodes(
+      _products,
+      wanted,
+      _random,
+    )) {
+      switch (await _repository.save(draft)) {
+        case Ok():
+          saved += count;
+        case Error(:final error):
+          // Lanjut ke produk berikutnya; yang gagal disebut di pesan.
+          failed.add(draft.name);
+          firstError ??= error;
+      }
+    }
+    await _load();
+    // Baris yang baru bisa dicetak langsung dipilih.
+    for (final r in _rows) {
+      if (!r.isUnit &&
+          wanted.contains(r.variantId) &&
+          r.printable &&
+          !selectedBefore.contains(r.key)) {
+        _quantities[r.key] = 1;
+      }
+    }
+    final summary = BarcodeGenerateSummary(
+      saved: saved,
+      failed: failed,
+      error: firstError,
+    );
+    return saved == 0 && firstError != null
+        ? Result.error(firstError)
+        : Result.ok(summary);
+  }
+
   Future<Result<T>> _guard<T>(Future<T> Function() body) async {
     _printFailure = null;
     try {
@@ -344,7 +427,9 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
     required Qty stock,
     required String? code,
     required List<String?> searchCodes,
+    bool hasBarcode = true,
   }) => LabelRow(
+    hasBarcode: hasBarcode,
     key: key,
     productId: product.id,
     title: title,
@@ -369,6 +454,7 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
           price: v.sellPrice,
           stock: v.stock,
           code: nonEmpty(v.barcode) ?? nonEmpty(v.sku),
+          hasBarcode: nonEmpty(v.barcode) != null,
           searchCodes: [v.sku, v.barcode],
         ),
         for (final u in v.units)
@@ -392,5 +478,59 @@ List<LabelRow> labelRows(List<CatalogProduct> products) {
               searchCodes: [v.sku, code],
             ),
       ],
+  ];
+}
+
+/// Hasil *Buat barcode* (F1-07j): jumlah varian yang tersimpan dan nama
+/// produk yang gagal disimpan.
+@immutable
+class BarcodeGenerateSummary {
+  const BarcodeGenerateSummary({
+    this.saved = 0,
+    this.failed = const [],
+    this.error,
+  });
+
+  final int saved;
+  final List<String> failed;
+
+  /// Galat pertama, untuk pesan.
+  final Exception? error;
+}
+
+/// Draft produk (dan jumlah barcode barunya) dengan barcode EAN-13 toko untuk varian [variantIds] yang
+/// barcodenya kosong (F1-07j). Kode tidak sama dengan SKU atau barcode lain
+/// di [products] maupun kode lain yang dibuat di sini. Produk tanpa varian
+/// yang perlu diisi tidak ikut.
+List<(ProductDraft, int)> assignStoreBarcodes(
+  List<CatalogProduct> products,
+  Set<UuidValue> variantIds,
+  Random random,
+) {
+  bool empty(String? s) => s == null || s.trim().isEmpty;
+  final taken = <String>{
+    for (final p in products)
+      for (final v in p.variants) ...[
+        // SKU ikut dihindari: Kasir juga mencocokkan scan dengan SKU.
+        if (!empty(v.sku)) barcodeKey(v.sku!),
+        if (!empty(v.barcode)) barcodeKey(v.barcode!),
+        for (final u in v.units)
+          if (!empty(u.barcode)) barcodeKey(u.barcode!),
+      ],
+  };
+  String next() {
+    final code = generateStoreEan13(random, isTaken: taken.contains);
+    taken.add(code);
+    return code;
+  }
+
+  return [
+    for (final p in products)
+      if ({
+            for (final v in p.variants)
+              if (variantIds.contains(v.id) && empty(v.barcode)) v.id: next(),
+          }
+          case final codes when codes.isNotEmpty)
+        (p.toDraft(barcodes: codes), codes.length),
   ];
 }

@@ -421,6 +421,46 @@ void main() {
       expect(await StockMovement.db.count(store.session), 2);
     });
 
+    test(
+      'toDraft(barcodes) hanya mengubah barcode varian itu (F1-07j)',
+      () async {
+        final id = await save(
+          ProductDraft(
+            name: 'Roti',
+            baseUnit: 'pcs',
+            isActive: false,
+            variants: [
+              ..._minyak().variants,
+              VariantDraft(
+                name: 'Kecil',
+                sellPrice: const Money(5000),
+                openingStock: Qty.units(3),
+              ),
+            ],
+          ),
+        );
+        final loaded = (await loadProduct(store, scope, id))!;
+        final kecil = loaded.variants.firstWhere((v) => v.name == 'Kecil');
+        final movements = await StockMovement.db.count(store.session);
+        final before = (await outboxTables()).length;
+        now = now.add(const Duration(minutes: 1));
+        await save(loaded.toDraft(barcodes: {kecil.id: '2000000000008'}));
+        final after = (await loadProduct(store, scope, id))!;
+        expect(
+          after.variants.firstWhere((v) => v.name == 'Kecil').barcode,
+          '2000000000008',
+        );
+        final besar = after.variants.firstWhere((v) => v.name == '2 L');
+        final besarBefore = loaded.variants.firstWhere((v) => v.name == '2 L');
+        expect(besar.barcode, besarBefore.barcode);
+        expect(besar.units.single.barcode, '8991234500031');
+        expect(besar.tiers, hasLength(besarBefore.tiers.length));
+        expect(after.isActive, isFalse);
+        expect(await StockMovement.db.count(store.session), movements);
+        expect((await outboxTables()).skip(before), ['product_variants']);
+      },
+    );
+
     test('menyimpan ulang tanpa perubahan tidak menulis outbox', () async {
       final id = await save(_minyak());
       final before = (await outboxTables()).length;

@@ -253,6 +253,72 @@ void main() {
   }
 
   for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('buat barcode massal dari Cetak label (F1-07j) ${size.width}', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        size: size,
+        seed: [
+          ...sampleProducts(),
+          const ProductDraft(
+            name: 'Minyak Premium',
+            baseUnit: 'botol',
+            variants: [
+              VariantDraft(sku: 'MYK-2L-PREMIUM', sellPrice: Money(40000)),
+            ],
+          ),
+        ],
+      );
+      await _tap(tester, 'products-labels');
+      expect(
+        find.text('Buat barcode untuk 1 produk tanpa kode'),
+        findsOneWidget,
+      );
+      // Batal tidak menyimpan apa pun.
+      await _tap(tester, 'labels-generate-missing');
+      expect(
+        find.byKey(const ValueKey('labels-generate-confirm')),
+        findsOneWidget,
+      );
+      expect(find.text('Buat 1 barcode?'), findsOneWidget);
+      await _tap(tester, 'labels-generate-cancel');
+      expect(repo.saved, isEmpty);
+      // Konfirmasi: barcode tersimpan dan produknya terpilih.
+      await _tap(tester, 'labels-generate-missing');
+      await _tap(tester, 'labels-generate-ok');
+      expect(find.byKey(const ValueKey('labels-generated')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('labels-generate-missing')),
+        findsNothing,
+      );
+      expect(repo.saved.single.name, 'Jasa Antar');
+      final jasa = repo.products.firstWhere((p) => p.name == 'Jasa Antar');
+      expect(jasa.variants.single.barcode, matches(RegExp(r'^20\d{11}$')));
+      expect(find.text('1 label · 1 halaman'), findsWidgets);
+      // SKU terlalu panjang diganti dari peringatan.
+      final minyak = repo.products.firstWhere(
+        (p) => p.name == 'Minyak Premium',
+      );
+      await _tap(tester, 'labels-check-${minyak.variants.single.id.uuid}');
+      await _tap(tester, 'labels-paper-roll38x25');
+      expect(find.byKey(const ValueKey('labels-too-dense')), findsOneWidget);
+      await _tap(tester, 'labels-generate-dense');
+      await _tap(tester, 'labels-generate-ok');
+      expect(find.byKey(const ValueKey('labels-too-dense')), findsNothing);
+      expect(
+        repo.products
+            .firstWhere((p) => p.name == 'Minyak Premium')
+            .variants
+            .single
+            .sku,
+        'MYK-2L-PREMIUM',
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
     testWidgets('peringatan kode terlalu panjang di label kecil (F1-07i) '
         '${size.width}', (tester) async {
       final repo = await pump(
@@ -305,6 +371,52 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('barcode dari Cetak label tidak tertimpa Simpan di form '
+      '(F1-07j)', (tester) async {
+    final repo = await pump(
+      tester,
+      size: const Size(1280, 800),
+      seed: [
+        ...sampleProducts(),
+        const ProductDraft(
+          name: 'Minyak Premium',
+          baseUnit: 'botol',
+          variants: [
+            VariantDraft(sku: 'MYK-2L-PREMIUM', sellPrice: Money(40000)),
+          ],
+        ),
+      ],
+    );
+    final premium = repo.products.firstWhere((p) => p.name == 'Minyak Premium');
+    final variantKey = premium.variants.single.id.uuid;
+    await _type(tester, 'products-search', 'premium');
+    await _tap(tester, 'product-row-${premium.id.uuid}');
+    await _tap(tester, 'product-labels');
+    await _tap(tester, 'labels-paper-roll38x25');
+    await _tap(tester, 'labels-generate-dense');
+    await _tap(tester, 'labels-generate-ok');
+    final code = repo.products
+        .firstWhere((p) => p.name == 'Minyak Premium')
+        .variants
+        .single
+        .barcode;
+    expect(code, matches(RegExp(r'^20\d{11}$')));
+    await _tap(tester, 'labels-back');
+    // Form memuat barcode baru, jadi Simpan tidak mengosongkannya.
+    expect(find.text(code!), findsOneWidget);
+    await _tap(tester, 'product-save');
+    expect(
+      repo.products
+          .firstWhere((p) => p.name == 'Minyak Premium')
+          .variants
+          .single
+          .barcode,
+      code,
+    );
+    expect(variantKey, isNotEmpty);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final size in const [Size(1280, 800), Size(360, 760)]) {
     testWidgets('foto produk: pilih, simpan, tampil di daftar (F1-07f) '

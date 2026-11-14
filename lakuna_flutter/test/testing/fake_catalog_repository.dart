@@ -29,6 +29,9 @@ class FakeCatalogRepository extends CatalogRepository {
 
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
+
+  /// Nama produk yang selalu gagal disimpan (tes F1-07j).
+  final failSaveFor = <String>{};
   var loadCalls = 0;
 
   Exception? _check() {
@@ -193,6 +196,9 @@ class FakeCatalogRepository extends CatalogRepository {
   @override
   Future<Result<UuidValue>> save(ProductDraft draft) async {
     if (_check() case final e?) return Result.error(e);
+    if (failSaveFor.contains(draft.name)) {
+      return Result.error(ProductInputInvalid(const []));
+    }
     final issues = validateProductDraft(draft);
     if (issues.isNotEmpty) return Result.error(ProductInputInvalid(issues));
     final existing = draft.id == null

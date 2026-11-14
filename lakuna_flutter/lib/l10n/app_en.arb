@@ -4550,5 +4550,41 @@
         "type": "String"
       }
     }
+  },
+  "labelsGenerateMissing": "{count, plural, =1{Generate a barcode for 1 product without a code} other{Generate barcodes for {count} products without a code}}",
+  "@labelsGenerateMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateDense": "Replace with EAN-13 barcodes",
+  "labelsGenerateTitle": "{count, plural, =1{Generate 1 barcode?} other{Generate {count} barcodes?}}",
+  "@labelsGenerateTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateBody": "Lakuna generates unused store EAN-13 barcodes starting with 20 and saves them to the products. SKUs stay the same, and you can change the barcodes later in the product form.",
+  "labelsGenerateConfirm": "Generate barcodes",
+  "labelsGenerateCancel": "Cancel",
+  "labelsGenerated": "{count, plural, =1{1 barcode generated and saved. The product is selected for printing.} other{{count} barcodes generated and saved. The products are selected for printing.}}",
+  "@labelsGenerated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelsGenerateFailed": "Barcodes could not be saved for: {names}",
+  "@labelsGenerateFailed": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   }
 }
