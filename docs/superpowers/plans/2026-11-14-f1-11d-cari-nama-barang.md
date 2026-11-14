@@ -9,4 +9,4 @@ Spec: [F1-11d](../specs/2026-11-14-f1-11d-cari-nama-barang-design.md)
 - [x] **Uji manual Xvfb**: Riwayat › cari nama barang.
 - [x] **Dokumen**: spec F1-11b, README, STATUS-JEDA, panduan, CHANGELOG
       0.81.0, versi 0.81.0+84.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** (#87)
