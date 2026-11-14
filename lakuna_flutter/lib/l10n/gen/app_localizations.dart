@@ -5201,7 +5201,7 @@ abstract class AppLocalizations {
   /// No description provided for @cashSessionErrorOpenSplit.
   ///
   /// In id, this message translates to:
-  /// **'Masih ada split bill yang sebagian dibayar. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.'**
+  /// **'Masih ada split bill yang bagiannya dibayar di sesi ini. Lunasi atau batalkan bagian yang menunggu sebelum menutup sesi.'**
   String get cashSessionErrorOpenSplit;
 
   /// No description provided for @billSplitTitle.
@@ -6443,7 +6443,7 @@ abstract class AppLocalizations {
   /// No description provided for @historyVoidBlockSession.
   ///
   /// In id, this message translates to:
-  /// **'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini.'**
+  /// **'Void hanya untuk nota di sesi kasir yang masih buka di perangkat ini, dengan semua pembayaran diterima di sesi itu. Pakai Retur untuk nota lain.'**
   String get historyVoidBlockSession;
 
   /// No description provided for @historyErrReturnEmpty.
@@ -13765,6 +13765,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Buat barcode'**
   String get productGenerateBarcode;
+
+  /// No description provided for @diningErrorPaidOtherSession.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada bagian yang dibayar di sesi kasir lain. Batalkan bill dari perangkat yang menerima uangnya, atau selesaikan bill lalu pakai Retur.'**
+  String get diningErrorPaidOtherSession;
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,9 @@ fields:
   paidAt: DateTime, column=paid_at
   ### Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
   guestLabel: String?, column=guest_label
+  ### Sesi kasir yang menerima pembayaran ini (F1-10i); `null` = data lama
+  ### (dihitung di sesi notanya).
+  cashSessionId: UuidValue?, relation(parent=cash_sessions, onDelete=Restrict), column=cash_session_id
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at
@@ -29,3 +32,5 @@ fields:
 indexes:
   payments_sale_idx:
     fields: saleId
+  payments_cash_session_idx:
+    fields: cashSessionId

@@ -491,6 +491,7 @@ Future<CheckoutResult> checkoutSale(
       amounts: amounts,
       change: change,
       stamp: s,
+      cashSessionId: session.id,
     );
 
     final negative = await negativeStockAfterSale(w, location.id, {
@@ -625,18 +626,54 @@ Future<SessionSalesSummary> sessionSalesSummary(
         r.deletedAt.equals(null),
     transaction: transaction,
   );
-  if (sales.isEmpty) {
-    return SessionSalesSummary(voidCount: voidCount, returnCount: returnCount);
-  }
-  final payments = await Payment.db.find(
+  // Uang dihitung di sesi yang menerimanya (F1-10i), termasuk bagian split
+  // bill yang belum lunas atau notanya ditutup di sesi lain. Pembayaran lama
+  // tanpa sesi ikut sesi notanya.
+  final received = await Payment.db.find(
     session,
     where: (p) =>
         p.tenantId.equals(tenantId) &
-        p.saleId.inSet({for (final s in sales) s.id}) &
+        p.cashSessionId.equals(sessionId) &
         p.status.equals(PaymentStatus.paid) &
         p.deletedAt.equals(null),
     transaction: transaction,
   );
+  final legacy = sales.isEmpty
+      ? const <Payment>[]
+      : await Payment.db.find(
+          session,
+          where: (p) =>
+              p.tenantId.equals(tenantId) &
+              p.saleId.inSet({for (final s in sales) s.id}) &
+              p.cashSessionId.equals(null) &
+              p.status.equals(PaymentStatus.paid) &
+              p.deletedAt.equals(null),
+          transaction: transaction,
+        );
+  final counted = {for (final s in sales) s.id};
+  final others = {
+    for (final p in received)
+      if (!counted.contains(p.saleId)) p.saleId,
+  };
+  if (others.isNotEmpty) {
+    // Nota batal atau bill terhapus tidak dihitung.
+    counted.addAll([
+      for (final s in await Sale.db.find(
+        session,
+        where: (s) =>
+            s.id.inSet(others) &
+            s.status.inSet({...soldStatuses, SaleStatus.open}) &
+            s.deletedAt.equals(null),
+        transaction: transaction,
+      ))
+        s.id,
+    ]);
+  }
+  final payments = [
+    for (final p in received)
+      if (counted.contains(p.saleId)) p,
+    ...legacy,
+  ];
   var cash = Money.zero;
   var nonCash = Money.zero;
   for (final p in payments) {

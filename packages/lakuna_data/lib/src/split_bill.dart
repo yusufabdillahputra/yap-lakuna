@@ -551,6 +551,24 @@ Future<OpenBill> assignPortion(
 
 /// Baris berdiskon rupiah tidak bisa dibagi per porsi (F1-04g): hapus
 /// diskonnya atau ubah ke persen dulu.
+/// Bagian split bill sudah dibayar di sesi kasir lain (perangkat lain atau
+/// sesi yang sudah ditutup): bill tidak bisa dibatalkan dari perangkat ini
+/// karena uangnya ada di laci lain (F1-10i).
+class BillPaidInOtherSession implements Exception {
+  @override
+  String toString() => 'BillPaidInOtherSession';
+}
+
+/// `true` bila semua pembayaran lunas di [payments] diterima di sesi
+/// [sessionId], atau data lama tanpa sesi (F1-10i).
+bool paidInSession(Iterable<Payment> payments, UuidValue? sessionId) =>
+    payments.every(
+      (p) =>
+          p.status != PaymentStatus.paid ||
+          p.cashSessionId == null ||
+          p.cashSessionId == sessionId,
+    );
+
 class BillItemDiscounted implements Exception {
   const BillItemDiscounted();
 }
@@ -674,6 +692,8 @@ Future<SplitPayResult> paySplitPart(
           changeAmount: 0,
           status: PaymentStatus.pending,
           guestLabel: label,
+          // Diganti sesi yang mengonfirmasi saat *Sudah terbayar*.
+          cashSessionId: cash.id,
           paidAt: s.now,
           createdAt: s.now,
           updatedAt: s.now,
@@ -695,6 +715,7 @@ Future<SplitPayResult> paySplitPart(
         amounts: amounts,
         change: change,
         stamp: await w.stamp(),
+        cashSessionId: cash.id,
         guestLabel: label,
       );
     }
@@ -790,6 +811,8 @@ Future<SplitPayResult> confirmSplitPayment(
         confirmedBy: staffId,
         confirmedAt: s.now,
         paidAt: s.now,
+        // Uang diakui di sesi yang mengonfirmasi (F1-10i).
+        cashSessionId: cash.id,
         version: payment.version + 1,
         updatedAt: s.now,
         updatedBy: staffId,

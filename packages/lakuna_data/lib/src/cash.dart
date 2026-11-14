@@ -256,12 +256,17 @@ Future<CashSession> closeCashSession(
           s.deletedAt.equals(null),
       transaction: w.transaction,
     );
+    // Bill split yang bagiannya dibayar atau menunggu di sesi ini (atau data
+    // lama tanpa sesi) harus selesai dulu; sesi perangkat lain tidak
+    // terhalang (F1-10i).
     if (open.isNotEmpty &&
         await Payment.db.count(
               w.session,
               where: (p) =>
                   p.tenantId.equals(scope.tenantId) &
                   p.saleId.inSet({for (final s in open) s.id}) &
+                  (p.cashSessionId.equals(session.id) |
+                      p.cashSessionId.equals(null)) &
                   p.deletedAt.equals(null),
               transaction: w.transaction,
             ) >

@@ -33,6 +33,7 @@ abstract class Payment
     this.confirmedAt,
     required this.paidAt,
     this.guestLabel,
+    this.cashSessionId,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -59,6 +60,7 @@ abstract class Payment
     DateTime? confirmedAt,
     required DateTime paidAt,
     String? guestLabel,
+    _isc.UuidValue? cashSessionId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -99,6 +101,11 @@ abstract class Payment
             ),
       paidAt: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['paidAt']),
       guestLabel: jsonSerialization['guestLabel'] as String?,
+      cashSessionId: jsonSerialization['cashSessionId'] == null
+          ? null
+          : _isc.UuidValueJsonExtension.fromJson(
+              jsonSerialization['cashSessionId'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -159,6 +166,10 @@ abstract class Payment
   /// Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
   String? guestLabel;
 
+  /// Sesi kasir yang menerima pembayaran ini (F1-10i); `null` = data lama
+  /// (dihitung di sesi notanya).
+  _isc.UuidValue? cashSessionId;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -194,6 +205,7 @@ abstract class Payment
     DateTime? confirmedAt = const _isc.$UndefinedDateTime(),
     DateTime? paidAt,
     String? guestLabel,
+    _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -219,6 +231,7 @@ abstract class Payment
       if (confirmedAt != null) 'confirmedAt': confirmedAt?.toJson(),
       'paidAt': paidAt.toJson(),
       if (guestLabel != null) 'guestLabel': guestLabel,
+      if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -246,6 +259,7 @@ abstract class Payment
       if (confirmedAt != null) 'confirmedAt': confirmedAt?.toJson(),
       'paidAt': paidAt.toJson(),
       if (guestLabel != null) 'guestLabel': guestLabel,
+      if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -301,6 +315,7 @@ class _PaymentImpl extends Payment {
     DateTime? confirmedAt,
     required DateTime paidAt,
     String? guestLabel,
+    _isc.UuidValue? cashSessionId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -322,6 +337,7 @@ class _PaymentImpl extends Payment {
          confirmedAt: confirmedAt,
          paidAt: paidAt,
          guestLabel: guestLabel,
+         cashSessionId: cashSessionId,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -349,6 +365,7 @@ class _PaymentImpl extends Payment {
     DateTime? confirmedAt = const _isc.$UndefinedDateTime(),
     DateTime? paidAt,
     Object? guestLabel = _Undefined,
+    _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -375,6 +392,9 @@ class _PaymentImpl extends Payment {
           : confirmedAt,
       paidAt: paidAt ?? this.paidAt,
       guestLabel: guestLabel is String? ? guestLabel : this.guestLabel,
+      cashSessionId: cashSessionId is _isc.UndefinedSentinel
+          ? this.cashSessionId
+          : cashSessionId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -465,6 +485,13 @@ class PaymentUpdateTable extends _isd.UpdateTable<PaymentTable> {
         table.guestLabel,
         value,
       );
+
+  _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> cashSessionId(
+    _isc.UuidValue? value,
+  ) => _isd.ColumnValue(
+    table.cashSessionId,
+    value,
+  );
 
   _isd.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _isd.ColumnValue(
@@ -572,6 +599,11 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
       this,
       fieldName: 'guestLabel',
     );
+    cashSessionId = _isd.ColumnUuid(
+      'cash_session_id',
+      this,
+      fieldName: 'cashSessionId',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -641,6 +673,10 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
   /// Bagian tamu split bill (`A`–`H`); `null` = pembayaran biasa.
   late final _isd.ColumnString guestLabel;
 
+  /// Sesi kasir yang menerima pembayaran ini (F1-10i); `null` = data lama
+  /// (dihitung di sesi notanya).
+  late final _isd.ColumnUuid cashSessionId;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -671,6 +707,7 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
     confirmedAt,
     paidAt,
     guestLabel,
+    cashSessionId,
     createdAt,
     updatedAt,
     deletedAt,

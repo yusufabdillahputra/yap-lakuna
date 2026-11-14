@@ -3710,6 +3710,12 @@ class Protocol extends _isd.DatabaseSerializationManager
           dartType: 'String?',
         ),
         _isd.ColumnDefinition(
+          name: 'cash_session_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
           name: 'created_at',
           columnType: _isd.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -3782,6 +3788,16 @@ class Protocol extends _isd.DatabaseSerializationManager
           onDelete: _isd.ForeignKeyAction.restrict,
           matchType: null,
         ),
+        _isd.ForeignKeyDefinition(
+          constraintName: 'payments_fk_2',
+          columns: ['cash_session_id'],
+          referenceTable: 'cash_sessions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isd.ForeignKeyAction.noAction,
+          onDelete: _isd.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
       ],
       indexes: [
         _isd.IndexDefinition(
@@ -3791,6 +3807,19 @@ class Protocol extends _isd.DatabaseSerializationManager
             _isd.IndexElementDefinition(
               type: _isd.IndexElementDefinitionType.column,
               definition: 'sale_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isd.IndexDefinition(
+          indexName: 'payments_cash_session_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'cash_session_id',
             ),
           ],
           type: 'btree',

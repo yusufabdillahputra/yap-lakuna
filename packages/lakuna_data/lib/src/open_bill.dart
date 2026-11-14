@@ -4,6 +4,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
+import 'cash.dart' show CashScope, findOpenCashSession;
 import 'customers.dart'
     show SaleCredit, checkSaleCredit, requireCustomerActor, saleCustomer;
 import 'dining_admin.dart';
@@ -1692,12 +1693,27 @@ Future<void> voidOpenBill(
       transaction: w.transaction,
     );
     final s = await w.stamp();
-    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
-    // batal (uang dikembalikan ke tamu; belum masuk sesi kasir karena sesi
-    // baru diisi saat nota selesai). QRIS yang masih menunggu dihapus.
-    for (final p in await _billPayments(w.session, scope.tenantId, [
+    final payments = await _billPayments(w.session, scope.tenantId, [
       sale.id,
-    ], transaction: w.transaction)) {
+    ], transaction: w.transaction);
+    // Uang bagian dikembalikan dari laci perangkat ini, jadi semua bagian
+    // lunas harus diterima di sesi kasir perangkat ini (F1-10i).
+    if (payments.any((p) => p.status == PaymentStatus.paid)) {
+      final open = await findOpenCashSession(
+        store,
+        CashScope(
+          tenantId: scope.tenantId,
+          outletId: scope.outletId,
+          deviceId: scope.deviceId,
+        ),
+        transaction: w.transaction,
+      );
+      if (!paidInSession(payments, open?.id)) throw BillPaidInOtherSession();
+    }
+    // Split bill (F1-10c): bagian yang sudah lunas tetap tercatat pada bill
+    // batal (uang dikembalikan ke tamu dan tidak dihitung di rekap laci).
+    // QRIS yang masih menunggu dihapus.
+    for (final p in payments) {
       if (p.status != PaymentStatus.pending) continue;
       await w.update(
         p.copyWith(
@@ -1831,6 +1847,7 @@ Future<CheckoutResult> payOpenBill(
       amounts: amounts,
       change: change,
       stamp: s,
+      cashSessionId: cash.id,
     );
     return _completeBill(
       w,
