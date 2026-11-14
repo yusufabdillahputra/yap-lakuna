@@ -40,6 +40,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.57.0 | Peringatan kode label terlalu panjang (F1-07i) | #63 |
 | v0.58.0 | Buat barcode massal dari Cetak label (F1-07j) | #64 |
 | v0.59.0 | Perbarui harga produk lewat import (F1-07k) | #65 |
+| v0.60.0 | Enkripsi backup dengan kata sandi (F1-19c) | #66 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -71,8 +72,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    ubah pembayaran tanpa batal tetap tidak didukung (batal lalu catat ulang).
 9. ~~Import supplier dari Excel/CSV~~ — selesai v0.45.0 (F1-14b);
    templat berkas untuk diunduh selesai v0.47.0 (F1-07g).
-10. ~~Pulihkan dari onboarding~~ — selesai v0.46.0 (F1-19b); enkripsi
-   backup masih gap.
+10. ~~Pulihkan dari onboarding~~ — selesai v0.46.0 (F1-19b); ~~enkripsi
+   backup~~ — selesai v0.60.0 (F1-19c).
 11. ~~Cetak stok~~ — selesai v0.48.0 (F1-08b). ~~Buat pembelian dari
    daftar stok minimum~~ — selesai v0.49.0 (F1-08c).
 12. ~~Foto faktur pembelian~~ — selesai v0.50.0 (F1-12b). ~~PDF pembelian

@@ -5,6 +5,7 @@
 library;
 
 export 'src/cash_session.dart';
+export 'src/backup_password.dart';
 export 'src/barcode.dart';
 export 'src/catalog.dart';
 export 'src/credentials.dart';

@@ -4,6 +4,7 @@ library;
 export 'package:lakuna_domain/lakuna_domain.dart' show Hlc, newId;
 
 export 'src/backup.dart';
+export 'src/backup_crypto.dart';
 export 'src/cash.dart';
 export 'src/customers.dart';
 export 'src/debt_payment_void.dart';

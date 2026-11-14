@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:lakuna_domain/lakuna_domain.dart'
+    show BackupPasswordProblem, backupPasswordProblem;
 
 import '../../data/repositories/backup_repository.dart';
 import '../../data/services/backup_files.dart';
@@ -8,6 +10,12 @@ import '../../utils/result.dart';
 /// Konfirmasi pulihkan belum sesuai (nama toko tidak cocok).
 class RestoreNotConfirmed implements Exception {
   const RestoreNotConfirmed();
+}
+
+/// Kata sandi backup belum sah (F1-19c); tombol sudah nonaktif, ini
+/// penjaga bila perintah tetap dijalankan.
+class BackupPasswordInvalid implements Exception {
+  const BackupPasswordInvalid();
 }
 
 /// View model bagian *Data & backup* (1.13, F1-19).
@@ -22,6 +30,7 @@ class BackupViewModel extends ChangeNotifier {
     backupNow = Command0(_backupNow)..addListener(notifyListeners);
     pickRestore = Command0(_pickRestore)..addListener(notifyListeners);
     restore = Command0(_restore)..addListener(notifyListeners);
+    unlock = Command0(_unlock)..addListener(notifyListeners);
   }
 
   final BackupRepository _repository;
@@ -36,6 +45,9 @@ class BackupViewModel extends ChangeNotifier {
   late final Command0<void> pickRestore;
   late final Command0<void> restore;
 
+  /// Membuka backup terkunci dengan [unlockPassword] (F1-19c).
+  late final Command0<void> unlock;
+
   BackupStats? _stats;
   DateTime? _lastBackupAt;
   BackupDelivery? _lastDelivery;
@@ -43,6 +55,18 @@ class BackupViewModel extends ChangeNotifier {
   BackupManifest? _pendingRestore;
   var _confirmText = '';
   var _disposed = false;
+
+  // Kunci backup (F1-19c). Kata sandi hanya di memori dan dikosongkan
+  // setelah backup dibuat atau pulihkan dibatalkan.
+  var _lockEnabled = false;
+  var _password = '';
+  var _passwordRetype = '';
+  var _passwordRevision = 0;
+  var _lastBackupLocked = false;
+  var _needsPassword = false;
+  var _unlockPassword = '';
+  var _unlockRevision = 0;
+  String? _restorePassword;
 
   @override
   void dispose() {
@@ -53,6 +77,65 @@ class BackupViewModel extends ChangeNotifier {
   @override
   void notifyListeners() {
     if (!_disposed) super.notifyListeners();
+  }
+
+  bool get lockEnabled => _lockEnabled;
+  String get password => _password;
+  String get passwordRetype => _passwordRetype;
+
+  /// Naik setiap isian kata sandi dikosongkan (widget membuat ulang isian).
+  int get passwordRevision => _passwordRevision;
+
+  /// Masalah isian kata sandi; `null` bila sah atau sakelar mati.
+  BackupPasswordProblem? get passwordProblem =>
+      _lockEnabled ? backupPasswordProblem(_password, _passwordRetype) : null;
+
+  bool get _busy =>
+      backupNow.running ||
+      pickRestore.running ||
+      restore.running ||
+      unlock.running;
+
+  bool get canBackup => !_busy && passwordProblem == null;
+
+  /// Backup terakhir dikunci kata sandi.
+  bool get lastBackupLocked => _lastBackupLocked;
+
+  /// Berkas yang dipilih terkunci dan belum dibuka.
+  bool get needsPassword => _needsPassword;
+  String get unlockPassword => _unlockPassword;
+
+  /// Naik setiap pilihan pulihkan direset (widget membuat ulang isian kata
+  /// sandi; hasil buka kunci yang tertinggal diabaikan).
+  int get unlockRevision => _unlockRevision;
+  bool get canUnlock =>
+      _needsPassword && _unlockPassword.isNotEmpty && !unlock.running;
+
+  void setLock(bool value) {
+    _lockEnabled = value;
+    if (!value) _clearPassword();
+    notifyListeners();
+  }
+
+  void setPassword(String value) {
+    _password = value;
+    notifyListeners();
+  }
+
+  void setPasswordRetype(String value) {
+    _passwordRetype = value;
+    notifyListeners();
+  }
+
+  void setUnlockPassword(String value) {
+    _unlockPassword = value;
+    notifyListeners();
+  }
+
+  void _clearPassword() {
+    _password = '';
+    _passwordRetype = '';
+    _passwordRevision++;
   }
 
   BackupStats? get stats => _stats;
@@ -85,12 +168,21 @@ class BackupViewModel extends ChangeNotifier {
   }
 
   void cancelRestore() {
-    _restorePath = null;
-    _pendingRestore = null;
-    _confirmText = '';
+    _resetRestore();
     pickRestore.clearResult();
     restore.clearResult();
     notifyListeners();
+  }
+
+  void _resetRestore() {
+    _restorePath = null;
+    _pendingRestore = null;
+    _confirmText = '';
+    _needsPassword = false;
+    _unlockPassword = '';
+    _restorePassword = null;
+    _unlockRevision++;
+    unlock.clearResult();
   }
 
   Future<Result<void>> _load() async {
@@ -103,8 +195,12 @@ class BackupViewModel extends ChangeNotifier {
   }
 
   Future<Result<BackupDelivery>> _backupNow() async {
+    if (passwordProblem != null) {
+      return const Result.error(BackupPasswordInvalid());
+    }
     _lastDelivery = null;
-    final created = await _repository.createBackup();
+    final password = _lockEnabled ? _password : null;
+    final created = await _repository.createBackup(password: password);
     switch (created) {
       case Error(:final error):
         return Result.error(error);
@@ -116,6 +212,8 @@ class BackupViewModel extends ChangeNotifier {
           );
           _lastDelivery = delivery;
           if (delivery is! BackupDismissed) {
+            _lastBackupLocked = value.locked;
+            if (password != null) _clearPassword();
             if (await _repository.recordBackup() case Ok(value: final at)) {
               _lastBackupAt = at;
             }
@@ -128,14 +226,38 @@ class BackupViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _pickRestore() async {
-    _restorePath = null;
-    _pendingRestore = null;
-    _confirmText = '';
+    _resetRestore();
     final path = await _files.pickBackup();
     if (path == null) return const Result.ok(null);
     final result = await _repository.inspect(path);
+    switch (result) {
+      case Ok(:final value):
+        _restorePath = path;
+        _pendingRestore = value;
+      case Error(error: BackupLocked()):
+        // Terkunci (F1-19c): minta kata sandi dulu, bukan galat.
+        _restorePath = path;
+        _needsPassword = true;
+        return const Result.ok(null);
+      case Error():
+    }
+    return result;
+  }
+
+  Future<Result<void>> _unlock() async {
+    final path = _restorePath;
+    final password = _unlockPassword;
+    if (path == null || !_needsPassword || password.isEmpty) {
+      return const Result.error(BackupLocked());
+    }
+    final revision = _unlockRevision;
+    final result = await _repository.inspect(path, password: password);
+    // Dibatalkan atau berkas lain dipilih selagi kunci dibuka.
+    if (revision != _unlockRevision) return const Result.ok(null);
     if (result case Ok(:final value)) {
-      _restorePath = path;
+      _needsPassword = false;
+      _unlockPassword = '';
+      _restorePassword = password;
       _pendingRestore = value;
     }
     return result;
@@ -146,7 +268,10 @@ class BackupViewModel extends ChangeNotifier {
     if (path == null || !canConfirmRestore) {
       return const Result.error(RestoreNotConfirmed());
     }
-    final result = await _repository.stageRestore(path);
+    final result = await _repository.stageRestore(
+      path,
+      password: _restorePassword,
+    );
     if (result is Error<BackupManifest>) return result;
     await _restart?.call();
     return const Result.ok(null);

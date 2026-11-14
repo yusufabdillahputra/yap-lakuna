@@ -7,6 +7,84 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.60.0] - 2026-11-14
+
+Backup kini bisa dikunci dengan kata sandi, sehingga berkas yang disimpan
+di Google Drive, WhatsApp, atau flashdisk tidak bisa dibaca atau dipulihkan
+orang lain.
+
+### Ditambahkan
+
+- **Kunci backup dengan kata sandi (1.13, F1-19c).** Bagian *Data &
+  backup* di Pengaturan punya sakelar *Kunci dengan kata sandi* (mati
+  secara bawaan). Saat dinyalakan tampil isian *Kata sandi backup* dan
+  *Ulangi kata sandi*; *Backup sekarang* aktif setelah kata sandi 8–128
+  karakter (emoji dihitung satu) dan isian ulangi sama persis. Pesan
+  *Minimal 8 karakter* / *Kata sandi tidak sama* tampil di bawah isian.
+  Kata sandi tidak disimpan di perangkat; isian dikosongkan setelah backup
+  dibagikan atau disimpan, dan pesan hasil menyebut *Backup terkunci kata
+  sandi*.
+- **Pulihkan backup terkunci** dari Pengaturan maupun dari wizard
+  onboarding (*Pulihkan dari backup*). Setelah berkas dipilih, panel
+  *Backup ini terkunci kata sandi* meminta kata sandi dan tombol *Buka*.
+  Kata sandi salah menampilkan *Kata sandi salah. Coba lagi.* tanpa
+  memilih ulang berkas; setelah terbuka alurnya sama (ringkasan, ketik
+  nama toko, pulihkan) dan kata sandi yang sama dipakai untuk mengekstrak.
+- Panduan *Backup & pulihkan* (ID/EN): bagian *Mengunci backup dengan kata
+  sandi* dan langkah *Buka* saat memulihkan.
+
+### Keamanan
+
+- Isi zip (`manifest.json`, `lakuna.sqlite`, `media/…`) dienkripsi
+  AES-256 gaya WinZip (AE-1, dengan MAC per entri) oleh paket `archive`.
+  Karena AE-1 tetap mencatat CRC32 isi asli, manifest backup terkunci
+  memuat `nonce` acak agar CRC-nya tidak bisa dipakai menebak isinya.
+  Kata sandi zip bukan kata sandi pengguna, melainkan kunci turunan
+  PBKDF2-HMAC-SHA256 (salt acak 16 byte, 310.000 iterasi) yang dihitung di
+  isolate terpisah. Parameternya ada di komentar zip
+  (`lakuna-kunci:1:pbkdf2-sha256:<iterasi>:<salt>`), jadi iterasi bisa
+  dinaikkan nanti tanpa memecah backup lama; nilai di luar
+  10.000–2.000.000 ditolak agar berkas rusak tidak membuat aplikasi macet.
+- Backup terkunci menolak entri tanpa enkripsi (manifest, database,
+  gambar): entri biasa bisa disisipkan siapa saja tanpa kata sandi,
+  misalnya untuk mengganti gambar stiker QRIS. Komentar kunci palsu di zip
+  biasa ikut ditolak.
+- Nama toko dan isi database tidak lagi terbaca sebagai teks biasa di
+  berkas backup terkunci. Data terenkripsi yang diubah (MAC tidak cocok)
+  ditolak sebagai backup tidak sah tanpa mengubah data aktif, dan tidak
+  dilaporkan sebagai *kata sandi salah*.
+
+### Diperbaiki
+
+- Pulihkan (semua backup) hanya mengekstrak gambar yang tercantum di
+  manifest; entri `media/` tambahan diabaikan.
+
+### Catatan teknis
+
+- `lakuna_domain`: `backupPasswordProblem(password, retype)` →
+  `BackupPasswordProblem {tooShort, tooLong, mismatch}`.
+- `lakuna_data`: `backup_crypto.dart` (`pbkdf2Sha256` di atas
+  `package:crypto` tanpa dependensi baru, diuji dengan vektor RFC 7914;
+  `BackupLock`; `readZipComment`). `createBackup` menulis lewat
+  `ZipEncoder(password:, streamed: true)` agar komentar zip bisa ditulis;
+  entri tetap ditulis dan dibaca bertahap (diuji dengan berkas 80 MB,
+  memori puncak sama dengan backup tanpa kunci). `inspectBackup` dan
+  `stageRestore` menerima `password:`; galat baru `BackupLocked` dan
+  `BackupWrongPassword`. Format manifest tetap 1: versi lama melihat
+  backup terkunci sebagai bukan backup Lakuna dan tidak mengubah data.
+- `BackupRepository.createBackup/inspect/stageRestore` (dan versi
+  onboarding) menerima `password`; `CreatedBackup.locked`.
+- `BackupViewModel` dan `SetupRestoreViewModel`: sakelar kunci, isian
+  kata sandi + ulangi, perintah `unlock`; kata sandi dibuang saat batal
+  atau memilih berkas lain. Hasil buka kunci yang tertinggal (batal atau
+  berkas lain dipilih selagi PBKDF2 berjalan) diabaikan lewat nomor
+  revisi, dan tombol Pulihkan/Backup nonaktif selama kunci dibuka.
+- Kunci turunan terakhir di-cache di memori agar buka kunci lalu pulihkan
+  berkas yang sama hanya menghitung PBKDF2 sekali.
+- Ditinjau subagent baru: dua temuan Important (balapan buka kunci, entri
+  tanpa enkripsi di backup terkunci) dan temuan Minor (AE-1, MAC vs kata
+  sandi salah, isian tidak dikosongkan, PBKDF2 ganda) diperbaiki.
+
 ## [0.59.0] - 2026-11-14
 
 Harga produk yang sudah ada kini bisa diperbarui sekaligus lewat import
@@ -4468,7 +4546,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...HEAD
+[0.60.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...v0.57.0

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart';
 import 'package:lakuna_flutter/ui/onboarding/setup_restore_view_model.dart';
@@ -100,5 +102,63 @@ void main() {
     expect(manual.staged, isTrue);
     expect(manual.canConfirm, isFalse);
     expect(manual.busy, isTrue);
+  });
+
+  test('backup terkunci: buka dengan kata sandi (F1-19c)', () async {
+    repo.lockPassword = 'rahasia-toko';
+    await vm.pick.execute();
+    expect(vm.pick.result, isA<Ok<void>>());
+    expect(vm.needsPassword, isTrue);
+    expect(vm.manifest, isNull);
+    expect(vm.canUnlock, isFalse);
+    vm.setUnlockPassword('salah-sandi');
+    await vm.unlock.execute();
+    expect(
+      (vm.unlock.result! as Error<void>).error,
+      isA<BackupWrongPassword>(),
+    );
+    vm.setUnlockPassword('rahasia-toko');
+    await vm.unlock.execute();
+    expect(vm.needsPassword, isFalse);
+    expect(vm.manifest?.tenantName, 'Warung Contoh');
+    vm.setConfirmText('Warung Contoh');
+    await vm.restore.execute();
+    expect(repo.stagedPasswords, ['rahasia-toko']);
+    expect(restarts, 1);
+  });
+
+  test('pilih berkas lain saat membuka kunci: hasil lama dibuang', () async {
+    repo.lockPassword = 'rahasia-toko';
+    await vm.pick.execute();
+    final revision = vm.unlockRevision;
+    vm.setUnlockPassword('rahasia-toko');
+    final gate = Completer<void>();
+    repo.inspectGate = gate.future;
+    final pending = vm.unlock.execute();
+    expect(vm.busy, isTrue);
+    repo.inspectGate = null;
+    files.picked = '/tmp/lain.zip';
+    await vm.pick.execute();
+    expect(vm.unlockRevision, greaterThan(revision));
+    gate.complete();
+    await pending;
+    // Berkas baru juga terkunci: tetap minta kata sandi, bukan manifest lama.
+    expect(vm.needsPassword, isTrue);
+    expect(vm.manifest, isNull);
+  });
+
+  test('pilih berkas lain: kata sandi lama dibuang', () async {
+    repo.lockPassword = 'rahasia-toko';
+    await vm.pick.execute();
+    vm.setUnlockPassword('rahasia-toko');
+    await vm.unlock.execute();
+    repo.lockPassword = null;
+    files.picked = '/tmp/lain.zip';
+    await vm.pick.execute();
+    expect(vm.needsPassword, isFalse);
+    expect(vm.unlockPassword, isEmpty);
+    vm.setConfirmText('Warung Contoh');
+    await vm.restore.execute();
+    expect(repo.stagedPasswords, [null]);
   });
 }

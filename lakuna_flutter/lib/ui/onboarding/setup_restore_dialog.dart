@@ -8,7 +8,8 @@ import '../../data/services/backup_files.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
-import '../settings/backup_section.dart' show backupRestoreError;
+import '../settings/backup_section.dart'
+    show BackupUnlockFields, backupRestoreError;
 import 'setup_restore_view_model.dart';
 
 /// Dialog *Pulihkan dari backup* di onboarding (F1-19b). [restart] memuat
@@ -111,6 +112,27 @@ class _SetupRestoreDialogState extends State<SetupRestoreDialog> {
                     child: Flexible(child: Text(l10n.setupRestorePick)),
                   ),
                 ),
+                if (vm.needsPassword) ...[
+                  Text(
+                    l10n.backupUnlockTitle,
+                    key: const ValueKey('setup-restore-locked'),
+                    style: theme.typography.body.md.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(l10n.backupUnlockBody, style: muted),
+                  BackupUnlockFields(
+                    key: ValueKey('setup-restore-unlock-${vm.unlockRevision}'),
+                    keyPrefix: 'setup-restore-unlock',
+                    enabled: !vm.unlock.running,
+                    onChanged: vm.setUnlockPassword,
+                    onSubmit: vm.canUnlock ? vm.unlock.execute : null,
+                    error: switch (vm.unlock.result) {
+                      Error(:final error) => error,
+                      _ => null,
+                    },
+                  ),
+                ],
                 if (m != null) ...[
                   Text(
                     l10n.backupRestoreSummary(
@@ -168,6 +190,16 @@ class _SetupRestoreDialogState extends State<SetupRestoreDialog> {
                           : () => Navigator.of(context).pop(),
                       child: Flexible(child: Text(l10n.backupRestoreCancel)),
                     ),
+                    if (vm.needsPassword)
+                      FButton(
+                        key: const ValueKey('setup-restore-unlock'),
+                        mainAxisSize: .min,
+                        onPress: vm.canUnlock ? vm.unlock.execute : null,
+                        prefix: vm.unlock.running
+                            ? const FCircularProgress()
+                            : const Icon(TablerIcons.lockOpen),
+                        child: Flexible(child: Text(l10n.backupUnlock)),
+                      ),
                     if (m != null)
                       FButton(
                         key: const ValueKey('setup-restore-submit'),

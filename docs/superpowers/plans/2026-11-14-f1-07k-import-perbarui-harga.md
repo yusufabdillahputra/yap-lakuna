@@ -17,4 +17,4 @@ Spec: `docs/superpowers/specs/2026-11-14-f1-07k-import-perbarui-harga-design.md`
       dilewati, tes arsip/banyak varian.
 - [x] Uji manual Xvfb: CSV 4 baris → 1 baru, 2 diperbarui (UPC-A 13 digit
       dan nama), 1 tidak berubah.
-- [ ] PR, merge, cek rilis.
+- [x] PR, merge, cek rilis.

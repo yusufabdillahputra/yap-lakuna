@@ -230,6 +230,67 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('pulihkan backup terkunci ${size.width.toInt()} px '
+        '(F1-19c)', (tester) async {
+      final backup = FakeBackupRepository()..lockPassword = 'rahasia-toko';
+      final files = FakeBackupFiles();
+      var restarts = 0;
+      await pumpLakuna(
+        tester,
+        store: FakeStoreRepository(),
+        size: size,
+        backup: backup,
+        backupFiles: files,
+        restart: () async => restarts++,
+      );
+      Future<void> tap(String key) async {
+        final target = find.byKey(ValueKey(key));
+        await tester.ensureVisible(target);
+        await tester.pumpAndSettle();
+        await tester.tap(target);
+        await tester.pumpAndSettle();
+      }
+
+      Future<void> enter(String key, String text) async {
+        final field = find.descendant(
+          of: find.byKey(ValueKey(key)),
+          matching: find.byType(EditableText),
+        );
+        await tester.ensureVisible(field);
+        await tester.enterText(field, text);
+        await tester.pumpAndSettle();
+      }
+
+      await tap('onboarding-restore');
+      await tap('setup-restore-pick');
+      expect(
+        find.byKey(const ValueKey('setup-restore-locked')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('setup-restore-error')), findsNothing);
+      expect(find.byKey(const ValueKey('setup-restore-submit')), findsNothing);
+      await enter('setup-restore-unlock-password', 'salah-sandi');
+      await tap('setup-restore-unlock');
+      expect(
+        find.byKey(const ValueKey('setup-restore-unlock-error')),
+        findsOneWidget,
+      );
+      await enter('setup-restore-unlock-password', 'rahasia-toko');
+      await tap('setup-restore-unlock');
+      expect(find.byKey(const ValueKey('setup-restore-locked')), findsNothing);
+      expect(
+        find.text('Warung Contoh · Cabang Pusat · perangkat K01'),
+        findsOneWidget,
+      );
+      await enter('setup-restore-confirm', 'Warung Contoh');
+      await tap('setup-restore-submit');
+      expect(backup.stagedPasswords, ['rahasia-toko']);
+      expect(restarts, 1);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('tanpa muat ulang otomatis: minta buka ulang aplikasi', (
     tester,
   ) async {

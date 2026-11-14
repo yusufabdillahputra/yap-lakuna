@@ -7935,4 +7935,51 @@ class AppLocalizationsId extends AppLocalizations {
   String productImportSkippedUnclear(String lines) {
     return 'Baris dilewati karena cocoknya ragu (kode kembar atau bertentangan, nama produk banyak varian, atau varian sudah diperbarui baris lain): $lines';
   }
+
+  @override
+  String get backupLock => 'Kunci dengan kata sandi';
+
+  @override
+  String get backupLockNote =>
+      'Kata sandi tidak disimpan. Tanpa kata sandi ini backup tidak bisa dipulihkan.';
+
+  @override
+  String get backupPassword => 'Kata sandi backup';
+
+  @override
+  String get backupPasswordRetype => 'Ulangi kata sandi';
+
+  @override
+  String backupPasswordTooShort(int min) {
+    return 'Minimal $min karakter.';
+  }
+
+  @override
+  String backupPasswordTooLong(int max) {
+    return 'Maksimal $max karakter.';
+  }
+
+  @override
+  String get backupPasswordMismatch => 'Kata sandi tidak sama.';
+
+  @override
+  String backupSavedLockedTo(String path) {
+    return 'Backup terkunci kata sandi tersimpan di $path';
+  }
+
+  @override
+  String get backupSharedLocked => 'Backup terkunci kata sandi dibagikan.';
+
+  @override
+  String get backupUnlockTitle => 'Backup ini terkunci kata sandi';
+
+  @override
+  String get backupUnlockBody =>
+      'Masukkan kata sandi yang dipakai saat backup dibuat.';
+
+  @override
+  String get backupUnlock => 'Buka';
+
+  @override
+  String get backupWrongPassword => 'Kata sandi salah. Coba lagi.';
 }

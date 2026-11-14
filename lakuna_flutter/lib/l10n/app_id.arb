@@ -5147,5 +5147,39 @@
         "type": "String"
       }
     }
-  }
+  },
+  "backupLock": "Kunci dengan kata sandi",
+  "backupLockNote": "Kata sandi tidak disimpan. Tanpa kata sandi ini backup tidak bisa dipulihkan.",
+  "backupPassword": "Kata sandi backup",
+  "backupPasswordRetype": "Ulangi kata sandi",
+  "backupPasswordTooShort": "Minimal {min} karakter.",
+  "@backupPasswordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPasswordTooLong": "Maksimal {max} karakter.",
+  "@backupPasswordTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "backupPasswordMismatch": "Kata sandi tidak sama.",
+  "backupSavedLockedTo": "Backup terkunci kata sandi tersimpan di {path}",
+  "@backupSavedLockedTo": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "backupSharedLocked": "Backup terkunci kata sandi dibagikan.",
+  "backupUnlockTitle": "Backup ini terkunci kata sandi",
+  "backupUnlockBody": "Masukkan kata sandi yang dipakai saat backup dibuat.",
+  "backupUnlock": "Buka",
+  "backupWrongPassword": "Kata sandi salah. Coba lagi."
 }

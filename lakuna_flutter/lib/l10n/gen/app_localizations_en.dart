@@ -8160,4 +8160,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String productImportSkippedUnclear(String lines) {
     return 'Rows skipped because the match is unclear (duplicate or conflicting codes, a product name with several variants, or a variant already updated by another row): $lines';
   }
+
+  @override
+  String get backupLock => 'Lock with a password';
+
+  @override
+  String get backupLockNote =>
+      'The password is not saved. Without it this backup cannot be restored.';
+
+  @override
+  String get backupPassword => 'Backup password';
+
+  @override
+  String get backupPasswordRetype => 'Retype password';
+
+  @override
+  String backupPasswordTooShort(int min) {
+    return 'At least $min characters.';
+  }
+
+  @override
+  String backupPasswordTooLong(int max) {
+    return 'At most $max characters.';
+  }
+
+  @override
+  String get backupPasswordMismatch => 'Passwords do not match.';
+
+  @override
+  String backupSavedLockedTo(String path) {
+    return 'Password-locked backup saved to $path';
+  }
+
+  @override
+  String get backupSharedLocked => 'Password-locked backup shared.';
+
+  @override
+  String get backupUnlockTitle => 'This backup is locked with a password';
+
+  @override
+  String get backupUnlockBody =>
+      'Enter the password used when the backup was made.';
+
+  @override
+  String get backupUnlock => 'Unlock';
+
+  @override
+  String get backupWrongPassword => 'Wrong password. Try again.';
 }
