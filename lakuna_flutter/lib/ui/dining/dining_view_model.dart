@@ -76,6 +76,7 @@ class DiningViewModel extends ChangeNotifier {
     voidBill = Command1(_void)..addListener(notifyListeners);
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
+    printBarTicket = Command1(_printBarTicket)..addListener(notifyListeners);
     setDiscount = Command1(_setDiscount)..addListener(notifyListeners);
     setItemDiscount = Command1(_setItemDiscount)..addListener(notifyListeners);
   }
@@ -116,6 +117,9 @@ class DiningViewModel extends ChangeNotifier {
   late final Command1<void, UuidValue> deleteEmpty;
   late final Command1<void, List<ReceiptLine>> printTicket;
 
+  /// Cetak (ulang) tiket bar ke printer bar (F1-10j).
+  late final Command1<void, List<ReceiptLine>> printBarTicket;
+
   /// Terapkan / hapus diskon nota bill terpilih (F1-04e).
   late final Command1<OpenBill, BillDiscountChange> setDiscount;
 
@@ -129,9 +133,16 @@ class DiningViewModel extends ChangeNotifier {
   UuidValue? _floorAreaId;
   UuidValue? _selectedId;
   KitchenSendResult? _ticket;
+
+  /// Bagian tiket per stasiun (F1-10j); dapur `null` bila semua item ke
+  /// bar, bar `null` tanpa item bar.
+  KitchenSendResult? _kitchenPart;
+  KitchenSendResult? _barPart;
   Exception? _actionError;
   PrinterFailureReason? _printFailure;
   var _ticketPrinted = false;
+  PrinterFailureReason? _barPrintFailure;
+  var _barTicketPrinted = false;
   String _menuQuery = '';
   UuidValue? _menuCategory;
 
@@ -632,10 +643,16 @@ class DiningViewModel extends ChangeNotifier {
 
   void clearTicket() {
     _ticket = null;
+    _kitchenPart = null;
+    _barPart = null;
     _printFailure = null;
     _ticketPrinted = false;
     _autoPrintStarted = false;
+    _barPrintFailure = null;
+    _barTicketPrinted = false;
+    _barAutoPrintStarted = false;
     printTicket.clearResult();
+    printBarTicket.clearResult();
     notifyListeners();
   }
 
@@ -650,9 +667,15 @@ class DiningViewModel extends ChangeNotifier {
         // Semua item bukan menu dapur: tidak ada tiket untuk ditampilkan.
         if (r.ticket == null) return;
         _ticket = r;
+        final (kitchen, bar) = _splitTicket(r);
+        _kitchenPart = kitchen;
+        _barPart = bar;
         _printFailure = null;
         _ticketPrinted = false;
         _autoPrintStarted = false;
+        _barPrintFailure = null;
+        _barTicketPrinted = false;
+        _barAutoPrintStarted = false;
       },
     );
   }
@@ -749,7 +772,7 @@ class DiningViewModel extends ChangeNotifier {
 
   /// Tiket terakhir belum dicetak otomatis ke printer dapur.
   bool get shouldAutoPrintTicket =>
-      _ticket != null && ticketToKitchen && !_autoPrintStarted;
+      _kitchenPart != null && ticketToKitchen && !_autoPrintStarted;
 
   /// Cetak otomatis tiket [lines] ke printer dapur, sekali per tiket.
   ///
@@ -759,18 +782,108 @@ class DiningViewModel extends ChangeNotifier {
     if (!shouldAutoPrintTicket) return;
     _autoPrintStarted = true;
     final ticket = _ticket;
-    while (printTicket.running) {
-      final idle = Completer<void>();
-      void check() {
-        if (!printTicket.running && !idle.isCompleted) idle.complete();
-      }
-
-      printTicket.addListener(check);
-      await idle.future;
-      printTicket.removeListener(check);
-    }
+    await _idle(printTicket);
     if (!identical(_ticket, ticket)) return;
     await printTicket.execute(lines);
+  }
+
+  /// Tunggu sampai [command] tidak berjalan.
+  static Future<void> _idle(Command1<void, List<ReceiptLine>> command) async {
+    while (command.running) {
+      final idle = Completer<void>();
+      void check() {
+        if (!command.running && !idle.isCompleted) idle.complete();
+      }
+
+      command.addListener(check);
+      await idle.future;
+      command.removeListener(check);
+    }
+  }
+
+  /// Bagian tiket dapur dari kiriman terakhir; `null` bila semua item ke
+  /// bar (F1-10j). Tanpa printer bar sama dengan [lastTicket].
+  KitchenSendResult? get kitchenTicket => _kitchenPart;
+
+  /// Bagian tiket bar dari kiriman terakhir (F1-10j).
+  KitchenSendResult? get barTicket => _barPart;
+
+  /// Printer bar aktif (printer + minimal satu kategori).
+  KitchenPrinter? get _barPrinter => switch (_data?.barPrinter) {
+    final bar? when bar.routesBar => bar,
+    _ => null,
+  };
+
+  /// Lebar kertas tiket bar.
+  ReceiptPaper get barPaper => _data?.barPrinter?.paper ?? paper;
+
+  (KitchenSendResult?, KitchenSendResult?) _splitTicket(KitchenSendResult r) {
+    final bar = _barPrinter;
+    final data = _data;
+    if (bar == null || data == null) return (r, null);
+    final split = splitBarItems(
+      r.items,
+      variantCategories: {
+        for (final p in data.products)
+          for (final v in p.variants) v.id: p.categoryId,
+      },
+      categoryParents: data.categoryParents,
+      barCategories: bar.categoryIds,
+    );
+    KitchenSendResult part(List<SaleItem> items) => KitchenSendResult(
+      ticket: r.ticket,
+      items: items,
+      bill: r.bill,
+      served: r.served,
+      staffName: r.staffName,
+    );
+    if (split.bar.isEmpty) return (r, null);
+    return (
+      split.kitchen.isEmpty ? null : part(split.kitchen),
+      part(split.bar),
+    );
+  }
+
+  var _barAutoPrintStarted = false;
+
+  /// Tiket bar terakhir belum dicetak otomatis.
+  bool get shouldAutoPrintBar => _barPart != null && !_barAutoPrintStarted;
+
+  /// Cetak otomatis tiket bar [lines] sekali per tiket; menunggu cetak bar
+  /// sebelumnya seperti [autoPrintTicket].
+  Future<void> autoPrintBar(List<ReceiptLine> lines) async {
+    if (!shouldAutoPrintBar) return;
+    _barAutoPrintStarted = true;
+    final ticket = _ticket;
+    await _idle(printBarTicket);
+    if (!identical(_ticket, ticket)) return;
+    await printBarTicket.execute(lines);
+  }
+
+  PrinterFailureReason? get barPrintFailure => _barPrintFailure;
+  bool get barTicketPrinted => _barTicketPrinted;
+
+  Future<Result<void>> _printBarTicket(List<ReceiptLine> lines) async {
+    _barPrintFailure = null;
+    _barTicketPrinted = false;
+    final ticket = _ticket;
+    final bar = _data?.barPrinter;
+    if (bar == null) return const Result.ok(null);
+    try {
+      await _printer.print(
+        bar.printer,
+        lines,
+        bar.paper,
+        jobName: '${kitchenTicketLabel(ticket?.ticket?.number ?? 0)} bar',
+      );
+      if (identical(_ticket, ticket)) _barTicketPrinted = true;
+      return const Result.ok(null);
+    } on PrinterFailure catch (e) {
+      if (identical(_ticket, ticket)) _barPrintFailure = e.reason;
+      return Result.error(e);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 
   PrinterFailureReason? get printFailure => _printFailure;

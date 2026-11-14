@@ -535,6 +535,173 @@ void main() {
     );
   });
 
+  group('printer bar (F1-10j)', () {
+    const lan = PrinterSelection(
+      kind: PrinterKind.network,
+      name: 'Dapur',
+      address: '10.0.0.9:9100',
+    );
+    const barLan = PrinterSelection(
+      kind: PrinterKind.network,
+      name: 'Bar',
+      address: '10.0.0.7:9100',
+    );
+    late FakeReceiptPrinter printer;
+
+    UuidValue category(String name) =>
+        repo.catalog.categories.firstWhere((c) => c.name == name).id;
+
+    Future<void> start({
+      bool kitchen = true,
+      Set<UuidValue> Function()? bar,
+    }) async {
+      printer = FakeReceiptPrinter();
+      if (kitchen) {
+        repo.kitchenPrinter = const KitchenPrinter(printer: lan);
+      }
+      repo.barPrinter = KitchenPrinter(
+        printer: barLan,
+        paper: ReceiptPaper.mm80,
+        categoryIds: bar == null ? {category('Minuman')} : bar(),
+      );
+      vm = DiningViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+      await vm.openTable.execute((table('M1').id, 2));
+    }
+
+    test('tiket dibagi: minuman ke bar, makanan ke dapur', () async {
+      await start();
+      await add('Kopi Susu Aren');
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      expect(vm.kitchenTicket?.items.map((i) => i.productName), [
+        'Nasi Goreng Kampung',
+      ]);
+      expect(vm.barTicket?.items.map((i) => i.productName), [
+        'Kopi Susu Aren',
+      ]);
+      // Satu nomor tiket untuk keduanya.
+      expect(vm.barTicket?.ticket, same(vm.kitchenTicket?.ticket));
+      expect(vm.barPaper, ReceiptPaper.mm80);
+      expect(vm.selectedBill!.sentCount, 2);
+
+      expect(vm.shouldAutoPrintTicket, isTrue);
+      expect(vm.shouldAutoPrintBar, isTrue);
+      await vm.autoPrintBar(const [ReceiptLine('BAR')]);
+      await vm.autoPrintBar(const [ReceiptLine('BAR')]);
+      await vm.autoPrintTicket(const [ReceiptLine('DAPUR')]);
+      expect(printer.prints.map((p) => (p.$1, p.$2.single.text)), [
+        (barLan, 'BAR'),
+        (lan, 'DAPUR'),
+      ]);
+      expect(printer.prints.first.$3, ReceiptPaper.mm80);
+      expect(vm.barTicketPrinted, isTrue);
+      expect(vm.ticketPrinted, isTrue);
+      expect(vm.shouldAutoPrintBar, isFalse);
+
+      vm.clearTicket();
+      expect(vm.barTicket, isNull);
+      expect(vm.kitchenTicket, isNull);
+      expect(vm.barTicketPrinted, isFalse);
+    });
+
+    test('semua item ke bar: tidak ada tiket dapur', () async {
+      await start();
+      await add('Kopi Susu Aren');
+      await add('Es Teh Manis');
+      await vm.send.execute();
+      expect(vm.lastTicket, isNotNull);
+      expect(vm.kitchenTicket, isNull);
+      expect(vm.barTicket?.items, hasLength(2));
+      expect(vm.shouldAutoPrintTicket, isFalse);
+      await vm.autoPrintTicket(const [ReceiptLine('DAPUR')]);
+      expect(printer.prints, isEmpty);
+      expect(vm.shouldAutoPrintBar, isTrue);
+    });
+
+    test('tanpa item bar: tidak ada tiket bar', () async {
+      await start();
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      expect(vm.barTicket, isNull);
+      expect(vm.shouldAutoPrintBar, isFalse);
+      expect(vm.kitchenTicket?.items, hasLength(1));
+    });
+
+    test('printer bar tanpa kategori: semua ke dapur', () async {
+      await start(bar: () => {});
+      await add('Kopi Susu Aren');
+      await vm.send.execute();
+      expect(vm.barTicket, isNull);
+      expect(vm.kitchenTicket?.items, hasLength(1));
+    });
+
+    test('kategori induk membawa sub-kategori', () async {
+      final induk = ProductCategory(
+        tenantId: repo.catalog.categories.first.tenantId,
+        name: 'Bar',
+        sortOrder: 9,
+        hlc: '',
+      );
+      final minuman = repo.catalog.categories.indexWhere(
+        (c) => c.name == 'Minuman',
+      );
+      repo.catalog.categories
+        ..[minuman] = repo.catalog.categories[minuman].copyWith(
+          parentId: induk.id,
+        )
+        ..add(induk);
+      await start(bar: () => {induk.id});
+      await add('Es Teh Manis');
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      expect(vm.barTicket?.items.map((i) => i.productName), ['Es Teh Manis']);
+    });
+
+    test('galat bar terpisah dari dapur, cetak ulang bar', () async {
+      await start(kitchen: false);
+      await add('Kopi Susu Aren');
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      // Tanpa printer dapur tiket dapur lewat Cetak tiket.
+      expect(vm.shouldAutoPrintTicket, isFalse);
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await vm.autoPrintBar(const [ReceiptLine('BAR')]);
+      expect(vm.barPrintFailure, PrinterFailureReason.connect);
+      expect(vm.printBarTicket.error, isTrue);
+      expect(vm.barTicketPrinted, isFalse);
+      expect(vm.printFailure, isNull);
+      expect(vm.printTicket.error, isFalse);
+
+      await vm.printBarTicket.execute(const [ReceiptLine('BAR')]);
+      expect(printer.prints.single.$1, barLan);
+      expect(vm.barPrintFailure, isNull);
+      expect(vm.barTicketPrinted, isTrue);
+    });
+
+    test('tiket bar berikutnya menunggu cetak sebelumnya', () async {
+      await start();
+      await add('Kopi Susu Aren');
+      await vm.send.execute();
+      final hold = printer.hold = Completer<void>();
+      final first = vm.autoPrintBar(const [ReceiptLine('A')]);
+      await pumpEventQueue();
+      expect(vm.printBarTicket.running, isTrue);
+      vm.clearTicket();
+      await add('Es Teh Manis');
+      await vm.send.execute();
+      final second = vm.autoPrintBar(const [ReceiptLine('B')]);
+      await pumpEventQueue();
+      expect(vm.barTicketPrinted, isFalse);
+      printer.hold = null;
+      hold.complete();
+      await first;
+      await second;
+      expect(printer.prints.map((p) => p.$2.single.text), ['A', 'B']);
+      expect(vm.barTicketPrinted, isTrue);
+    });
+  });
+
   group('pelanggan bill (F1-10f)', () {
     final karyawan = UuidValue.fromString(
       '0192f3a1-7c00-7000-8000-00000000aa01',

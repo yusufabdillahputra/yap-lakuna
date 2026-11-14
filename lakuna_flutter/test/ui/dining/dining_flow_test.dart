@@ -63,6 +63,7 @@ void main() {
     bool modifiers = false,
     List<String> mergeable = const [],
     KitchenPrinter? kitchenPrinter,
+    KitchenPrinter Function(UuidValue Function(String) category)? barPrinter,
     List<CustomerRow> customers = const [],
     List<String> plainMenus = const [],
     bool discountNeedsPin = true,
@@ -76,6 +77,12 @@ void main() {
       ..discountNeedsPin = discountNeedsPin
       ..kitchenPrinter = kitchenPrinter
       ..customerRows = customers;
+    if (barPrinter != null) {
+      dining.barPrinter = barPrinter(
+        (name) =>
+            dining.catalog.categories.firstWhere((c) => c.name == name).id,
+      );
+    }
     if (modifiers) {
       dining.attachModifiers('Kopi Susu Aren', seedModifierGroups());
     }
@@ -614,6 +621,85 @@ void main() {
       await _tap(tester, 'dining-ticket-print');
       expect(printer.prints, hasLength(2));
       expect(find.text('Tiket dicetak di printer dapur.'), findsOneWidget);
+      await _tap(tester, 'dining-ticket-close');
+      expect(_key('dining-ticket'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('printer bar ${size.width.toInt()} px: minuman ke bar, '
+        'makanan ke dapur, galat bar lalu cetak ulang (F1-10j)', (
+      tester,
+    ) async {
+      const kitchen = KitchenPrinter(
+        printer: PrinterSelection(
+          kind: PrinterKind.network,
+          name: 'Dapur',
+          address: '10.0.0.9:9100',
+        ),
+      );
+      const barLan = PrinterSelection(
+        kind: PrinterKind.network,
+        name: 'Bar',
+        address: '10.0.0.7:9100',
+      );
+      await pump(
+        tester,
+        size: size,
+        kitchenPrinter: kitchen,
+        barPrinter: (category) => KitchenPrinter(
+          printer: barLan,
+          paper: ReceiptPaper.mm80,
+          categoryIds: {category('Minuman')},
+        ),
+      );
+      if (size.width < 600) {
+        await _tapText(tester, 'Teras');
+        await _tap(tester, 'dining-table-M5');
+      } else {
+        await _tap(tester, 'dining-table-M1');
+      }
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Kopi Susu Aren', 'Nasi Goreng Kampung']);
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket-kitchen'), findsOneWidget);
+      expect(_key('dining-ticket-bar'), findsOneWidget);
+      expect(find.text('Tiket dicetak di printer bar.'), findsOneWidget);
+      expect(find.text('Tiket dicetak di printer dapur.'), findsOneWidget);
+      final byAddress = {
+        for (final p in printer.prints)
+          p.$1.address: p.$2.map((l) => l.text).join('\n'),
+      };
+      expect(
+        byAddress.keys,
+        unorderedEquals(['10.0.0.9:9100', '10.0.0.7:9100']),
+      );
+      expect(byAddress['10.0.0.7:9100'], contains('TIKET BAR'));
+      expect(byAddress['10.0.0.7:9100'], contains('Kopi Susu Aren'));
+      expect(byAddress['10.0.0.7:9100'], isNot(contains('Nasi Goreng')));
+      expect(byAddress['10.0.0.9:9100'], contains('TIKET DAPUR'));
+      expect(byAddress['10.0.0.9:9100'], contains('Nasi Goreng'));
+      expect(byAddress['10.0.0.9:9100'], isNot(contains('Kopi Susu')));
+      expect(
+        printer.prints.firstWhere((p) => p.$1 == barLan).$3,
+        ReceiptPaper.mm80,
+      );
+      await _tap(tester, 'dining-ticket-close');
+
+      // Hanya minuman, printer bar mati: dapur tidak dicetak, cetak ulang
+      // bar.
+      printer.prints.clear();
+      printer.nextFailure = const PrinterFailure(PrinterFailureReason.connect);
+      await addMenu(tester, ['Es Teh Manis']);
+      await _tap(tester, 'dining-send');
+      expect(_key('dining-ticket-kitchen'), findsNothing);
+      expect(_key('dining-ticket-print'), findsNothing);
+      expect(_key('dining-ticket-bar-print-failed'), findsOneWidget);
+      expect(printer.prints, isEmpty);
+      await _tap(tester, 'dining-ticket-bar-reprint');
+      expect(printer.prints.single.$1, barLan);
+      expect(find.text('Tiket dicetak di printer bar.'), findsOneWidget);
       await _tap(tester, 'dining-ticket-close');
       expect(_key('dining-ticket'), findsNothing);
       expect(tester.takeException(), isNull);

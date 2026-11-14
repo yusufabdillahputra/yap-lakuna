@@ -249,6 +249,9 @@ class FakeDiningRepository extends DiningRepository {
       categories: cashierCategories(catalog.categories, {
         for (final p in products) p.categoryId,
       }),
+      categoryParents: {
+        for (final c in catalog.categories) c.id: ?c.parentId,
+      },
       staffName: 'Dimas',
       timezone: 'Asia/Jakarta',
       canPay: _can(Permission.salesCreate),
