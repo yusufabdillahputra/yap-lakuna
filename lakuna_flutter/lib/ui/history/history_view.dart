@@ -229,8 +229,9 @@ class _HistoryList extends StatelessWidget {
             page.count,
             formatMoney(context, page.total),
           );
+    // Ikut halaman yang tampil (bukan filter yang sedang dimuat).
     final withDate =
-        vm.filter.searching || vm.filter.range != HistoryRange.today;
+        (page?.searching ?? false) || vm.filter.range != HistoryRange.today;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 16,

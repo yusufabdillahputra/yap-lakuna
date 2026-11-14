@@ -197,6 +197,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `riwayat`.
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
 | Riwayat, retur, void, cetak ulang, ekspor | 1.14 | Rilis v0.15.0 | — |
+| Cari nota (nomor, pelanggan, referensi) di semua tanggal | — | Rilis v0.66.0 | [F1-11b](2026-11-14-f1-11b-cari-nota-riwayat-design.md) |
 | Open bill yang dibatalkan | — | Tidak tampil di riwayat (nomor OB- tanpa nota) | Lihat di layar Meja bila perlu laporan pembatalan bill. |
 | Rekap sesi *Void/retur* | Jumlah | Jumlah nota void + retur di sesi | — |
 | Sesi kasir dibuka/ditutup saat riwayat terbuka | — | `hasOpenSession` baru diperbarui saat layar dimuat ulang | Muat ulang saat sesi berubah. |

@@ -7,12 +7,12 @@ referensi pembayaran, di semua tanggal.
 
 ## Langkah
 
-- [ ] **Tes data** `listSalesHistory` dengan `query`; lalu implementasi
+- [x] **Tes data** `listSalesHistory` dengan `query`; lalu implementasi
   (`HistoryFilter.query`, kandidat `ilike`, cek ulang, batas 100).
-- [ ] **Tes VM + widget**; lalu `setQuery`, kolom cari, ringkasan, catatan
+- [x] **Tes VM + widget**; lalu `setQuery`, kolom cari, ringkasan, catatan
   batas, pill tanggal mengosongkan cari, nama file ekspor; l10n id/en.
-- [ ] **Review** subagent baru; perbaiki Critical/Important.
-- [ ] **Uji manual Xvfb**: cari nomor, pelanggan, referensi.
-- [ ] **Dokumen**: spec F1-11, README, STATUS-JEDA, panduan riwayat id/en,
+- [x] **Review** subagent baru; perbaiki Critical/Important.
+- [x] **Uji manual Xvfb**: cari nomor, pelanggan, referensi.
+- [x] **Dokumen**: spec F1-11, README, STATUS-JEDA, panduan riwayat id/en,
   CHANGELOG 0.66.0, pubspec `0.66.0+69`.
 - [ ] **PR, merge, cek rilis.**

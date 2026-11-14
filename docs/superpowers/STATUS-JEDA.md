@@ -46,6 +46,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.63.0 | Kecilkan foto nota pengeluaran dan bukti bayar (F1-15b) | #69 |
 | v0.64.0 | Referensi kartu/transfer di split payment dan struk (F1-05b) | #70 |
 | v0.65.0 | Bagi baris berdiskon rupiah per tamu (F1-04h) | #71 |
+| v0.66.0 | Cari nota di Riwayat (F1-11b) | #72 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -93,6 +94,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    varian/satuan/grosir lewat import masih gap.
 16. ~~Referensi kartu/transfer di split payment dan struk~~ — selesai
     v0.64.0 (F1-05b).
+17. ~~Cari nota di Riwayat (nomor, pelanggan, referensi)~~ — selesai
+    v0.66.0 (F1-11b); rentang tanggal bebas (kalender) masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

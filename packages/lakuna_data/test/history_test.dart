@@ -297,6 +297,61 @@ void main() {
       expect(await find('   '), [c.sale.id, b.sale.id]);
     });
 
+    test(
+      'nama pemesan bill F&B tanpa data pelanggan; bill OB- dan staf',
+      () async {
+        await openSession();
+        final bill = await openTakeAway(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          customerName: 'Rina Meja Lima',
+        );
+        await addBillItem(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          billId: bill.id,
+          line: SaleLineRequest(variantId: v(kopi).id, quantity: Qty(1000)),
+        );
+        final paid = await payOpenBill(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          billId: bill.id,
+          payments: const [SalePaymentRequest.cash(Money(100000))],
+        );
+        // Bill yang dibatalkan sebelum ditutup (nomor OB-) tidak ikut.
+        final batal = await openTakeAway(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          customerName: 'Rina Batal',
+        );
+        await voidOpenBill(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          billId: batal.id,
+          reason: 'Tamu batal',
+        );
+        Future<List<UuidValue>> find(String q, [UuidValue? staffId]) async => [
+          for (final r in (await listSalesHistory(
+            store,
+            scope,
+            now: now,
+            filter: HistoryFilter(query: q, staffId: staffId),
+          )).rows)
+            r.sale.id,
+        ];
+        expect(await find('rina'), [paid.sale.id]);
+        expect(await find('OB-'), isEmpty);
+        final other = await addStaff('Sari', 'cashier');
+        expect(await find('rina', other.id), isEmpty);
+        expect(await find('rina', ctx.owner.id), [paid.sale.id]);
+      },
+    );
+
     test('hasil dibatasi dan ditandai terpotong', () async {
       await openSession();
       final a = await sell({kopi: 1000});
@@ -321,6 +376,29 @@ void main() {
       );
       expect(all.rows, hasLength(3));
       expect(all.truncated, isFalse);
+      // Dibaca per kelompok kecil: hasil dan urutan sama.
+      final batched = await listSalesHistory(
+        store,
+        scope,
+        now: now,
+        filter: HistoryFilter(query: prefix),
+        searchLimit: 2,
+        searchBatch: 1,
+      );
+      expect(batched.rows.map((r) => r.sale.id), [c.sale.id, b.sale.id]);
+      expect(batched.truncated, isTrue);
+      final byMethod = await listSalesHistory(
+        store,
+        scope,
+        now: now,
+        filter: HistoryFilter(query: prefix, method: PaymentMethod.cash),
+        searchBatch: 1,
+      );
+      expect(byMethod.rows.map((r) => r.sale.id), [
+        c.sale.id,
+        b.sale.id,
+        a.sale.id,
+      ]);
     });
   });
 

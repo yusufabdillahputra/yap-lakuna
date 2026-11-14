@@ -148,7 +148,8 @@ class HistoryViewModel extends ChangeNotifier {
 
   /// Kata kunci cari (F1-11b); kosong = riwayat per tanggal.
   void setQuery(String query) {
-    if (query == _filter.query) return;
+    // Hanya spasi tepi yang berubah: kata kunci sama, tidak dimuat ulang.
+    if (query.trim() == _filter.trimmedQuery) return;
     setFilter(_filter.copyWith(query: query));
   }
 

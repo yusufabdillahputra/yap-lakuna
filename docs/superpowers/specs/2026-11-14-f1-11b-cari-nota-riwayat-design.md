@@ -21,8 +21,11 @@ cari untuk nomor nota, pelanggan, atau referensi pembayaran.
    kunci berganti selama memuat.
 2. **Kata kunci** dipangkas spasinya; kosong = riwayat biasa. Cocok bila
    salah satu ini **memuat** kata kunci (tanpa beda huruf besar/kecil):
-   nomor nota, nama pelanggan, nomor HP pelanggan, atau referensi
-   pembayaran lunas nota (no. approval kartu / ref. transfer, F1-05b).
+   nomor nota, nama pelanggan di nota (termasuk nama pemesan bill F&B yang
+   tidak punya data pelanggan), nama atau nomor HP data pelanggan, atau
+   referensi pembayaran lunas nota (no. approval kartu / ref. transfer,
+   F1-05b). Huruf besar/kecil hanya disamakan untuk huruf A–Z (batas
+   `LIKE` SQLite).
 3. **Semua tanggal:** selama mencari, filter tanggal diabaikan (tidak ada
    pill tanggal yang terpilih) sehingga nota lama bisa ditemukan. Filter
    Kasir, Metode, dan Status tetap berlaku. Mengetuk pill tanggal
@@ -41,22 +44,28 @@ cari untuk nomor nota, pelanggan, atau referensi pembayaran.
 ## Rancangan teknis
 
 - `HistoryFilter.query` (default `''`) + `searching`; `copyWith(query:)`.
-- `listSalesHistory`: bila `searching`, kandidat dicari lewat `ilike`
-  (SQLite: `LIKE`) pada `sales.number`, `customers.name/phone` →
-  `sales.customer_id`, dan `payments.reference` (lunas) → `sale_id`; lalu
-  dicek ulang di Dart dengan `contains` (karakter `%`/`_` di kata kunci
-  tidak jadi wildcard). Tanpa batas tanggal; urut `sold_at` turun; dipotong
-  `historySearchLimit` (100) setelah filter Kasir/Metode.
+- `listSalesHistory`: bila `searching`, `_searchSales` mencari
+  `customers.name/phone` dan `payments.reference` (lunas) yang cocok
+  (`ilike`, SQLite: `LIKE`), lalu membaca nota cabang yang
+  `number`/`customer_name` cocok **atau** `customer_id`/`id` ada di hasil
+  itu, dengan filter status dan kasir di SQL, tanpa batas tanggal, urut
+  `sold_at` turun, **per kelompok 200 baris** sampai hasil melewati
+  `historySearchLimit` (100). Semua kandidat dicek ulang di Dart dengan
+  `contains` (karakter `%`/`_` tidak jadi wildcard); filter Metode dan
+  bill `OB-` disaring per kelompok. Kata kunci yang cocok dengan semua nota
+  (mis. kode outlet) jadi hanya membaca satu kelompok.
 - `HistoryPage.truncated` dan `HistoryPage.searching`.
 - `HistoryViewModel.setQuery`; `setFilter` dengan range baru mengosongkan
   query (aturan 3).
 
 ## Tes
 
-- Data: cocok nomor (sebagian, huruf kecil), nama/HP pelanggan, referensi
-  transfer; nota di luar 7 hari ditemukan; filter status/metode tetap
-  berlaku; `%` tidak jadi wildcard; batas 100 + `truncated`; cabang lain
-  tidak ikut; kata kunci kosong = perilaku lama.
+- Data: cocok nomor (sebagian, huruf kecil), nama/HP pelanggan, nama
+  pemesan bill F&B tanpa data pelanggan, referensi transfer; nota di luar
+  7 hari ditemukan; filter status/metode/kasir tetap berlaku; bill `OB-`
+  batal tidak ikut; `%`/`_` tidak jadi wildcard; batas + `truncated`;
+  baca per kelompok kecil memberi hasil sama; kata kunci kosong = perilaku
+  lama.
 - VM/widget: ketik → daftar hasil + ringkasan pencarian; pill tanggal
   mengosongkan kolom cari; catatan batas; kosong → pesan tidak cocok.
 
@@ -67,3 +76,6 @@ cari untuk nomor nota, pelanggan, atau referensi pembayaran.
 | Cari nomor nota, pelanggan, referensi | — | Rilis v0.66.0 | — |
 | Rentang tanggal bebas (kalender) | — | Belum | Tambah pemilih tanggal bila dibutuhkan; pencarian sudah menjangkau semua tanggal. |
 | Cari nama item | — | Belum | Perlu join `sale_items`; tunggu kebutuhan. |
+| Huruf non-ASCII (é, ü) tanpa beda besar/kecil | — | Belum | Batas `LIKE` SQLite; kolom nama ternormalisasi bila dibutuhkan. |
+| Cari HP dengan format lain (+62, tanda hubung) | — | Belum | Normalisasi digit kata kunci untuk HP. |
+| Kata kunci berisi `\` di Postgres (Fase 2) | — | Belum | Escape `\` saat pencarian dipindah ke server. |

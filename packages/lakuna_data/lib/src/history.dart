@@ -251,6 +251,7 @@ Future<HistoryPage> listSalesHistory(
   HistoryFilter filter = const HistoryFilter(),
   DateTime? now,
   int searchLimit = historySearchLimit,
+  int searchBatch = 200,
 }) async {
   final session = store.session;
   final timezone = await _timezone(session, scope);
@@ -259,13 +260,6 @@ Future<HistoryPage> listSalesHistory(
     now ?? DateTime.now().toUtc(),
     timezone,
   );
-  final searching = filter.searching;
-  final matched = searching
-      ? await _searchSaleIds(session, scope, filter.trimmedQuery)
-      : null;
-  if (matched != null && matched.isEmpty) {
-    return HistoryPage(rows: const [], from: from, searching: true);
-  }
   final statuses = switch (filter.status) {
     HistoryStatus.all => historyStatuses,
     HistoryStatus.completed => {SaleStatus.completed},
@@ -275,26 +269,41 @@ Future<HistoryPage> listSalesHistory(
     },
     HistoryStatus.voided => {SaleStatus.voided},
   };
-  var sales = await Sale.db.find(
-    session,
-    where: (s) =>
-        s.tenantId.equals(scope.tenantId) &
-        s.outletId.equals(scope.outletId) &
-        s.status.inSet(statuses) &
-        (matched == null
-            ? (s.soldAt >= from) & (s.soldAt < to)
-            : s.id.inSet(matched)) &
-        s.deletedAt.equals(null),
-    orderByList: (s) => [s.soldAt.desc(), s.id.desc()],
-  );
-  sales = [
-    for (final s in sales)
-      // Bill F&B yang dibatalkan sebelum ditutup tidak pernah jadi nota
-      // (nomornya masih nomor bill `OB-`): tetap di jejak audit, bukan di
-      // riwayat transaksi.
-      if (!_neverClosed(s))
-        if (filter.staffId == null || s.staffId == filter.staffId) s,
-  ];
+  final searching = filter.searching;
+  var truncated = false;
+  List<Sale> sales;
+  if (searching) {
+    final found = await _searchSales(
+      session,
+      scope,
+      filter,
+      statuses,
+      limit: searchLimit,
+      batch: searchBatch,
+    );
+    sales = found.sales;
+    truncated = found.truncated;
+  } else {
+    sales = await Sale.db.find(
+      session,
+      where: (s) =>
+          s.tenantId.equals(scope.tenantId) &
+          s.outletId.equals(scope.outletId) &
+          s.status.inSet(statuses) &
+          (s.soldAt >= from) &
+          (s.soldAt < to) &
+          s.deletedAt.equals(null),
+      orderByList: (s) => [s.soldAt.desc(), s.id.desc()],
+    );
+    sales = [
+      for (final s in sales)
+        // Bill F&B yang dibatalkan sebelum ditutup tidak pernah jadi nota
+        // (nomornya masih nomor bill `OB-`): tetap di jejak audit, bukan di
+        // riwayat transaksi.
+        if (!_neverClosed(s))
+          if (filter.staffId == null || s.staffId == filter.staffId) s,
+    ];
+  }
   final ids = {for (final s in sales) s.id};
   final payments = await _paidPayments(session, scope.tenantId, ids);
   final methods = <UuidValue, List<PaymentMethod>>{};
@@ -307,11 +316,6 @@ Future<HistoryPage> listSalesHistory(
       for (final s in sales)
         if (methods[s.id]?.contains(m) ?? false) s,
     ];
-  }
-  var truncated = false;
-  if (searching && sales.length > searchLimit) {
-    sales = sales.sublist(0, searchLimit);
-    truncated = true;
   }
   final returned = <UuidValue, Money>{};
   for (final r in await _returns(session, scope.tenantId, ids)) {
@@ -340,29 +344,26 @@ Future<HistoryPage> listSalesHistory(
   );
 }
 
-/// Id nota cabang ini yang nomornya, nama/HP pelanggannya, atau referensi
-/// pembayaran lunasnya memuat [query] (tanpa beda huruf besar/kecil).
-/// Kandidat dicari dengan `ilike`, lalu dicek ulang di Dart agar `%` dan `_`
-/// di kata kunci tidak menjadi wildcard.
-Future<Set<UuidValue>> _searchSaleIds(
+/// Nota cabang ini yang nomornya, nama pemesan/pelanggannya, HP
+/// pelanggannya, atau referensi pembayaran lunasnya memuat kata kunci [filter]
+/// (tanpa beda huruf besar/kecil), terbaru dulu, paling banyak [limit].
+///
+/// Kandidat dicari dengan `ilike` lalu dicek ulang di Dart agar `%` dan `_`
+/// di kata kunci tidak menjadi wildcard. Nota dibaca per kelompok
+/// (per [batch] baris) dan berhenti begitu hasil melewati [limit], jadi kata
+/// kunci yang cocok dengan semua nota (mis. kode outlet) tetap ringan.
+Future<({List<Sale> sales, bool truncated})> _searchSales(
   DatabaseSession session,
   CatalogScope scope,
-  String query,
-) async {
+  HistoryFilter filter,
+  Set<SaleStatus> statuses, {
+  required int limit,
+  required int batch,
+}) async {
+  final query = filter.trimmedQuery;
   final q = query.toLowerCase();
   bool has(String? field) => field != null && field.toLowerCase().contains(q);
   final pattern = '%$query%';
-  final ids = <UuidValue>{
-    for (final s in await Sale.db.find(
-      session,
-      where: (s) =>
-          s.tenantId.equals(scope.tenantId) &
-          s.outletId.equals(scope.outletId) &
-          s.number.ilike(pattern) &
-          s.deletedAt.equals(null),
-    ))
-      if (has(s.number)) s.id,
-  };
   final customers = {
     for (final c in await Customer.db.find(
       session,
@@ -372,30 +373,67 @@ Future<Set<UuidValue>> _searchSaleIds(
     ))
       if (has(c.name) || has(c.phone)) c.id,
   };
-  if (customers.isNotEmpty) {
-    ids.addAll([
-      for (final s in await Sale.db.find(
-        session,
-        where: (s) =>
+  final referenced = {
+    for (final p in await Payment.db.find(
+      session,
+      where: (p) =>
+          p.tenantId.equals(scope.tenantId) &
+          p.reference.ilike(pattern) &
+          p.status.equals(PaymentStatus.paid) &
+          p.deletedAt.equals(null),
+    ))
+      if (has(p.reference)) p.saleId,
+  };
+  bool matches(Sale s) =>
+      has(s.number) ||
+      has(s.customerName) ||
+      customers.contains(s.customerId) ||
+      referenced.contains(s.id);
+  final staffId = filter.staffId;
+  final found = <Sale>[];
+  for (var offset = 0; found.length <= limit; offset += batch) {
+    final rows = await Sale.db.find(
+      session,
+      where: (s) {
+        var text = s.number.ilike(pattern) | s.customerName.ilike(pattern);
+        if (customers.isNotEmpty) text = text | s.customerId.inSet(customers);
+        if (referenced.isNotEmpty) text = text | s.id.inSet(referenced);
+        var where =
             s.tenantId.equals(scope.tenantId) &
             s.outletId.equals(scope.outletId) &
-            s.customerId.inSet(customers) &
-            s.deletedAt.equals(null),
-      ))
-        s.id,
-    ]);
+            s.status.inSet(statuses) &
+            text &
+            s.deletedAt.equals(null);
+        if (staffId != null) where = where & s.staffId.equals(staffId);
+        return where;
+      },
+      orderByList: (s) => [s.soldAt.desc(), s.id.desc()],
+      limit: batch,
+      offset: offset,
+    );
+    var kept = [
+      for (final s in rows)
+        if (!_neverClosed(s) && matches(s)) s,
+    ];
+    if (filter.method case final m?) {
+      final paid = await _paidPayments(session, scope.tenantId, {
+        for (final s in kept) s.id,
+      });
+      final withMethod = {
+        for (final p in paid)
+          if (p.method == m) p.saleId,
+      };
+      kept = [
+        for (final s in kept)
+          if (withMethod.contains(s.id)) s,
+      ];
+    }
+    found.addAll(kept);
+    if (rows.length < batch) break;
   }
-  for (final p in await Payment.db.find(
-    session,
-    where: (p) =>
-        p.tenantId.equals(scope.tenantId) &
-        p.reference.ilike(pattern) &
-        p.status.equals(PaymentStatus.paid) &
-        p.deletedAt.equals(null),
-  )) {
-    if (has(p.reference)) ids.add(p.saleId);
-  }
-  return ids;
+  return found.length > limit
+      ? (sales: found.sublist(0, limit), truncated: true)
+      : (sales: found, truncated: false);
 }
 
 /// Alasan nota tidak bisa di-void.

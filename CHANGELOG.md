@@ -7,6 +7,56 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.66.0] - 2026-11-14
+
+Riwayat transaksi kini punya kolom cari. Nota bisa ditemukan lewat nomor,
+nama pelanggan atau pemesan, nomor HP pelanggan, atau no. approval kartu /
+referensi transfer, termasuk nota yang lebih lama dari 7 hari.
+
+### Ditambahkan
+
+- **Riwayat (1.14):** kolom *Cari no. nota, pelanggan, atau referensi* di
+  atas filter tanggal. Pencarian tanpa beda huruf besar/kecil dan cocok
+  bila kata kunci termuat di nomor nota, nama pelanggan di nota (termasuk
+  nama pemesan bill F&B tanpa data pelanggan), nama atau HP data
+  pelanggan, atau referensi pembayaran lunas (F1-05b).
+- Selama mencari, semua tanggal dijangkau dan tidak ada pill tanggal yang
+  terpilih; filter Kasir, Metode, dan Status tetap berlaku. Mengetuk pill
+  tanggal mengosongkan kolom cari.
+- Ringkasan *Hasil pencarian · N transaksi · Rp X*, kolom Jam selalu
+  bertanggal, pesan *Tidak ada nota yang cocok dengan pencarian.*, dan
+  catatan *Menampilkan 100 nota terbaru…* bila hasil lebih dari 100.
+- Ekspor Excel hasil pencarian bernama `riwayat-cari-<tanggal>.xlsx`.
+- Panduan *Retur & void* (id/en) menjelaskan pencarian nota.
+
+### Diperbaiki
+
+- Nama pemesan bill F&B yang tidak terhubung ke data pelanggan ikut
+  dicari (ditemukan saat review).
+- Kata kunci yang cocok dengan semua nota (mis. kode outlet `PST`) tidak
+  lagi membaca seluruh nota cabang setiap ketikan: nota dibaca per
+  kelompok 200 dan berhenti setelah 100 hasil (ditemukan saat review).
+- Menambah spasi di ujung kata kunci tidak memuat ulang daftar, dan kolom
+  tanggal mengikuti hasil yang sedang tampil saat daftar dimuat ulang.
+
+### Catatan teknis
+
+- `HistoryFilter.query` / `trimmedQuery` / `searching`,
+  `HistoryPage.searching` / `truncated`, `historySearchLimit` (100), dan
+  parameter `searchLimit` / `searchBatch` pada `listSalesHistory`.
+- `_searchSales`: kandidat `customers.name/phone` dan `payments.reference`
+  lewat `ilike` (SQLite `LIKE`), lalu nota cabang dengan
+  `number`/`customer_name` `ilike` atau `customer_id`/`id` di kandidat,
+  filter status dan kasir di SQL, urut `sold_at` turun, `limit`/`offset`
+  per kelompok; semua dicek ulang di Dart agar `%`/`_` bukan wildcard.
+- `HistoryViewModel.setQuery`, `setRange` (mengosongkan cari), dan
+  `searchGeneration` sebagai kunci kolom cari.
+- Kunci l10n baru `historySearchHint`, `historySearchSummary`,
+  `historySearchTruncated`, `historySearchEmpty` (id/en).
+- Tes data (nomor, pelanggan, HP, referensi, pemesan F&B, bill `OB-`,
+  kasir, metode, status, wildcard, batas, kelompok kecil), VM, dan widget
+  (desktop dan 360 px).
+
 ## [0.65.0] - 2026-11-14
 
 Baris open bill berdiskon rupiah kini bisa dibagi ke beberapa tamu saat
@@ -4799,7 +4849,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.66.0...HEAD
+[0.66.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...v0.63.0

@@ -162,6 +162,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('360 px: kolom cari dan hasil tanpa luapan (F1-11b)', (
+    tester,
+  ) async {
+    await pump(tester, size: const Size(360, 780));
+    expect(_key('history-search'), findsOneWidget);
+    history.truncateSearch = true;
+    await tester.enterText(_input('history-search'), 'PST-K01');
+    await tester.pumpAndSettle();
+    expect(_key('history-search-truncated'), findsOneWidget);
+    expect(
+      find.text('Hasil pencarian · 2 transaksi · Rp 61.000'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('ekspor Excel dari kepala layar', (tester) async {
     await pump(tester);
     await _tap(tester, 'history-export');

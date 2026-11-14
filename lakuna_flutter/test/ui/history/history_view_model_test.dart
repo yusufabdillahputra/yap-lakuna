@@ -194,7 +194,7 @@ void main() {
       expect(vm.page!.rows.single.sale.id, b.sale.id);
       expect(vm.page!.searching, isTrue);
       final loads = repo.filters.length;
-      vm.setQuery('budi');
+      vm.setQuery('budi ');
       expect(repo.filters.length, loads, reason: 'kata kunci sama');
       vm.setRange(HistoryRange.week);
       await settle();
