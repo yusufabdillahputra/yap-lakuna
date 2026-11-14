@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/reports_repository.dart';
+import '../../data/repositories/store_repository.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
+import 'session_recap_dialog.dart';
 import '../core/date_range_dialog.dart';
 import '../core/format.dart';
 import '../customers/customer_labels.dart' show formatLongDate;
@@ -68,9 +73,19 @@ class ReportsScreen extends StatefulWidget {
     required this.repository,
     this.permissions = const {},
     this.exporter = const PlatformSpreadsheetExporter(),
+    this.store,
+    this.receiptSettings,
+    this.printer,
   });
 
   final ReportsRepository repository;
+
+  /// Nama toko/cabang dan zona waktu untuk rekap sesi (F1-03e).
+  final StoreRepository? store;
+
+  /// Kertas, logo, dan printer struk untuk cetak ulang rekap sesi.
+  final ReceiptSettingsRepository? receiptSettings;
+  final ReceiptPrinter? printer;
 
   /// Izin staf, untuk menyaring tautan *Laporan lengkap* ke layar lain.
   final Set<Permission> permissions;
@@ -96,6 +111,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
   void dispose() {
     _vm.dispose();
     super.dispose();
+  }
+
+  /// Rekap sesi tertutup untuk cetak ulang (F1-03e).
+  Future<void> _openRecap(UuidValue sessionId) {
+    final ctx = widget.store?.current;
+    return showSessionRecapDialog(
+      context,
+      repository: widget.repository,
+      sessionId: sessionId,
+      businessName: ctx?.tenant.name ?? '',
+      outletName: ctx?.outlet.name ?? '',
+      timezone: ctx?.outlet.timezone ?? ctx?.tenant.timezone,
+      receiptSettings: widget.receiptSettings,
+      printer: widget.printer,
+    );
   }
 
   /// Naik setiap dialog rentang ditutup agar pilihan Periode kembali ke
@@ -274,7 +304,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ReportTab.top => _Top(data: data),
                 ReportTab.profit => _Profit(data: data),
                 ReportTab.stock => _Stock(viewModel: vm),
-                ReportTab.cash => _Cash(viewModel: vm),
+                ReportTab.cash => _Cash(
+                  viewModel: vm,
+                  onOpenRecap: _openRecap,
+                ),
                 ReportTab.debts => _Debts(viewModel: vm),
                 ReportTab.returns => _Returns(viewModel: vm),
               },

@@ -4924,5 +4924,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "recapReprinted": "Reprinted",
+  "recapChangedNote": "Details follow current data; some session data changed after closing.",
+  "reportsSessionRecapTitle": "Session recap {date}",
+  "@reportsSessionRecapTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsSessionRecapLoadFailed": "Couldn't load the session recap.",
+  "reportsSessionRecapNotClosed": "Session not found in this branch or still open.",
+  "reportsSessionRecapOpen": "Reprint session recap",
+  "reportsCashReprintHint": "Tap a closed session to view and reprint its recap."
 }

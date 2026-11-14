@@ -232,6 +232,7 @@ Future<StockReport> loadStockReport(
 /// Satu sesi kasir di tab Kas & sesi.
 class CashSessionLine {
   const CashSessionLine({
+    required this.id,
     required this.openedAt,
     required this.staffName,
     required this.opening,
@@ -240,6 +241,9 @@ class CashSessionLine {
     this.counted,
     this.difference,
   });
+
+  /// Id sesi, untuk cetak ulang rekap (F1-03e).
+  final UuidValue id;
 
   /// Waktu lokal cabang.
   final DateTime openedAt;
@@ -255,6 +259,110 @@ class CashSessionLine {
   final Money? difference;
 
   bool get isOpen => counted == null;
+}
+
+/// Sesi tidak ditemukan di cabang ini atau belum ditutup (F1-03e).
+class CashSessionNotClosed implements Exception {
+  const CashSessionNotClosed();
+
+  @override
+  String toString() => 'CashSessionNotClosed';
+}
+
+/// Isi rekap sesi kasir yang sudah ditutup, untuk cetak ulang dari tab
+/// Kas & sesi (F1-03e). Rincian dimuat dari data saat ini; angka penutup
+/// (seharusnya, dihitung, selisih, pecahan, catatan) dari [session].
+class ClosedSessionRecap {
+  const ClosedSessionRecap({
+    required this.session,
+    required this.movements,
+    required this.sales,
+    required this.drawer,
+    required this.openedByName,
+    required this.closedByName,
+    required this.deviceCode,
+  });
+
+  final CashSession session;
+
+  /// Gerakan kas sesi ini, urut waktu catat.
+  final List<CashMovement> movements;
+  final SessionSalesSummary sales;
+  final CashDrawer drawer;
+  final String openedByName;
+  final String closedByName;
+
+  /// Kode perangkat tempat sesi dibuka.
+  final String deviceCode;
+
+  /// Rincian kas laci saat ini tidak lagi sama dengan *Seharusnya di laci*
+  /// yang tersimpan saat tutup (data sesi berubah sesudahnya).
+  bool get changedSinceClose =>
+      drawer.expectedCash != Money(session.expectedCash ?? 0);
+}
+
+/// Rekap sesi tertutup [sessionId] di cabang [scope]. Butuh `reports:view`
+/// ([ReportActorNotPermitted]); sesi yang tidak ada di cabang ini atau
+/// masih buka ditolak dengan [CashSessionNotClosed].
+Future<ClosedSessionRecap> loadClosedSessionRecap(
+  LakunaStore store,
+  CatalogScope scope, {
+  required Set<Permission> permissions,
+  required UuidValue sessionId,
+}) async {
+  if (!permissions.contains(Permission.reportsView)) {
+    throw const ReportActorNotPermitted();
+  }
+  final session = store.session;
+  final s = await CashSession.db.findFirstRow(
+    session,
+    where: (t) =>
+        t.id.equals(sessionId) &
+        t.tenantId.equals(scope.tenantId) &
+        t.outletId.equals(scope.outletId) &
+        t.deletedAt.equals(null),
+  );
+  if (s == null || s.status != CashSessionStatus.closed) {
+    throw const CashSessionNotClosed();
+  }
+  final cashScope = CashScope(
+    tenantId: scope.tenantId,
+    outletId: scope.outletId,
+    deviceId: s.deviceId,
+  );
+  final movements = await listCashMovements(store, cashScope, s.id);
+  final sales = await sessionSalesSummary(
+    session,
+    tenantId: scope.tenantId,
+    sessionId: s.id,
+  );
+  final drawer = cashDrawerOf(
+    s,
+    movements,
+    cashSales: sales.cash,
+    cashRefunds: await sessionCashRefunds(
+      session,
+      tenantId: scope.tenantId,
+      sessionId: s.id,
+    ),
+  );
+  final names = await _staffNames(session, scope.tenantId, [
+    s.openedBy,
+    ?s.closedBy,
+  ]);
+  final device = await Device.db.findFirstRow(
+    session,
+    where: (d) => d.id.equals(s.deviceId) & d.tenantId.equals(scope.tenantId),
+  );
+  return ClosedSessionRecap(
+    session: s,
+    movements: movements,
+    sales: sales,
+    drawer: drawer,
+    openedByName: names[s.openedBy] ?? '',
+    closedByName: s.closedBy == null ? '' : names[s.closedBy] ?? '',
+    deviceCode: device?.code ?? '',
+  );
 }
 
 /// Sumber gerakan kas di luar penjualan, menurut kolom `source`.
@@ -365,6 +473,7 @@ Future<CashReport> loadCashReport(
           )).expectedCash;
     lines.add(
       CashSessionLine(
+        id: s.id,
         openedAt: outletLocalTime(s.openedAt, ctx.timezone),
         closedAt: s.closedAt == null
             ? null

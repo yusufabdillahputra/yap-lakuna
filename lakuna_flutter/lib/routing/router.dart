@@ -559,6 +559,9 @@ GoRouter createRouter({
               repository: reports,
               permissions: session.current?.permissions ?? const {},
               exporter: exporter,
+              store: store,
+              receiptSettings: receiptSettings,
+              printer: receiptPrinter,
             ),
           ),
           GoRoute(

@@ -78,15 +78,19 @@ void main() {
     );
   }
 
-  ReceiptContent content(AppLocalizations l10n, SessionRecap r) =>
-      sessionRecapContent(
-        l10n,
-        recap: r,
-        businessName: 'Warung Contoh',
-        outletName: 'Cabang Pusat',
-        deviceCode: 'K01',
-        timezone: 'Asia/Jakarta',
-      );
+  ReceiptContent content(
+    AppLocalizations l10n,
+    SessionRecap r, {
+    DateTime? reprintedAt,
+  }) => sessionRecapContent(
+    l10n,
+    recap: r,
+    businessName: 'Warung Contoh',
+    outletName: 'Cabang Pusat',
+    deviceCode: 'K01',
+    timezone: 'Asia/Jakarta',
+    reprintedAt: reprintedAt,
+  );
 
   String p(String label, String value) =>
       '$label${' ' * (32 - label.length - value.length)}$value';
@@ -185,5 +189,72 @@ void main() {
     expect(lines, contains(p('Difference', 'Exact')));
     expect(lines, contains(p('Opening cash', '200,000')));
     expect(lines.last, isNot(startsWith('Note')));
+  });
+
+  group('cetak ulang (F1-03e)', () {
+    test('SessionRecap.fromClosed memakai isi rekap dari laporan', () {
+      final base = recap();
+      final loaded = ClosedSessionRecap(
+        session: base.closed,
+        movements: movements,
+        sales: base.active.sales,
+        drawer: base.active.drawer,
+        openedByName: 'Yusuf',
+        closedByName: 'Sari',
+        deviceCode: 'K02',
+      );
+      final r = SessionRecap.fromClosed(loaded);
+      expect(r.active.session, same(base.closed));
+      expect(r.active.openedByName, 'Yusuf');
+      expect(r.active.movements, same(movements));
+      expect(r.active.drawer, same(base.active.drawer));
+      expect(r.active.sales, same(base.active.sales));
+      expect(r.closed, same(base.closed));
+      expect(r.closerName, 'Sari');
+      expect(r.changedSinceClose, loaded.changedSinceClose);
+    });
+
+    test('baris Dicetak ulang dan catatan rincian berubah', () {
+      final base = recap();
+      final r = SessionRecap(
+        active: base.active,
+        closed: base.closed,
+        closerName: 'Sari',
+        changedSinceClose: true,
+      );
+      // 02.30 UTC = 09.30 WIB.
+      final reprint = DateTime.utc(2026, 11, 14, 2, 30);
+      final lines = layoutReceipt(
+        content(id, r, reprintedAt: reprint),
+        ReceiptPaper.mm58,
+      ).map((l) => l.text).toList();
+      final closedBy = lines.indexOf(p('Ditutup oleh', 'Sari'));
+      expect(lines[closedBy + 1], p('Dicetak ulang', '14/11/26 09.30'));
+      final footer = lines.skip(lines.lastIndexOf('-' * 32) + 1).join(' ');
+      expect(footer, contains('Catatan: Uang pas'));
+      expect(
+        footer,
+        contains(
+          'Rincian mengikuti data saat ini; ada data sesi yang berubah '
+          'setelah ditutup.',
+        ),
+      );
+
+      final english = layoutReceipt(
+        content(en, r, reprintedAt: reprint),
+        ReceiptPaper.mm58,
+      ).map((l) => l.text).join(' ');
+      expect(english, contains('Reprinted'));
+      expect(english, contains('Details follow current data'));
+    });
+
+    test('tanpa reprintedAt tidak ada baris cetak ulang', () {
+      final lines = layoutReceipt(
+        content(id, recap()),
+        ReceiptPaper.mm58,
+      ).map((l) => l.text);
+      expect(lines.where((l) => l.startsWith('Dicetak ulang')), isEmpty);
+      expect(lines.where((l) => l.startsWith('Rincian')), isEmpty);
+    });
   });
 }

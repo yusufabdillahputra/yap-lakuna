@@ -8512,4 +8512,31 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Supplier filled from the last purchase: $supplier ($count of $_temp0).';
   }
+
+  @override
+  String get recapReprinted => 'Reprinted';
+
+  @override
+  String get recapChangedNote =>
+      'Details follow current data; some session data changed after closing.';
+
+  @override
+  String reportsSessionRecapTitle(String date) {
+    return 'Session recap $date';
+  }
+
+  @override
+  String get reportsSessionRecapLoadFailed =>
+      'Couldn\'t load the session recap.';
+
+  @override
+  String get reportsSessionRecapNotClosed =>
+      'Session not found in this branch or still open.';
+
+  @override
+  String get reportsSessionRecapOpen => 'Reprint session recap';
+
+  @override
+  String get reportsCashReprintHint =>
+      'Tap a closed session to view and reprint its recap.';
 }
