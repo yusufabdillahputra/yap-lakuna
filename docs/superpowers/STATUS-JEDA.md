@@ -69,7 +69,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.86.0 | Beberapa rekening transfer (F1-05f) | #92 |
 | v0.87.0 | Cetak ulang rekap dari layar Sesi kasir (F1-03f) | #93 |
 | v0.88.0 | Segarkan harga grup pelanggan di open bill (F1-10l) | #94 |
-| v0.89.0 | Harga beli terakhir di pembelian dari stok minimum (F1-08e) | — |
+| v0.89.0 | Harga beli terakhir di pembelian dari stok minimum (F1-08e) | #95 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
