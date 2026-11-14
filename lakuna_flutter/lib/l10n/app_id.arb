@@ -5315,5 +5315,33 @@
         "type": "String"
       }
     }
+  },
+  "storeSettingsTransferAccount": "Rekening transfer",
+  "@storeSettingsTransferAccount": {
+    "placeholders": {}
+  },
+  "storeSettingsTransferAccountHint": "Opsional. Tampil di tombol Transfer bank saat bayar agar kasir bisa menyebutkan atau menyalinnya untuk pembeli.",
+  "@storeSettingsTransferAccountHint": {
+    "placeholders": {}
+  },
+  "paymentTransferTo": "Transfer ke",
+  "@paymentTransferTo": {
+    "placeholders": {}
+  },
+  "paymentTransferCopy": "Salin",
+  "@paymentTransferCopy": {
+    "placeholders": {}
+  },
+  "paymentTransferCopied": "Disalin",
+  "@paymentTransferCopied": {
+    "placeholders": {}
+  },
+  "storeSettingsTransferAccountExample": "BCA 123-456-7890 a.n. {name}",
+  "@storeSettingsTransferAccountExample": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

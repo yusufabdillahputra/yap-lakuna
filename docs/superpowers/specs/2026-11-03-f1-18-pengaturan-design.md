@@ -129,7 +129,7 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
 | *Foto stiker* (kamera), seret file | 1.26b | Belum, *Pilih file* saja | Bersama foto produk (F1-07) |
 | *Kasir boleh konfirmasi tanpa PIN manajer* | 1.26b | Belum | Bersama persetujuan PIN manajer |
 | *Tampilkan juga di layar mobile kasir* | 1.26b | Belum, selalu tampil | Bila ada permintaan |
-| Rekening transfer, kartu, kredit | 1.26 | Belum | Bersama kredit (F1-13) |
+| Rekening transfer, kartu, kredit | 1.26 | Rekening transfer rilis v0.74.0 ([F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)); kartu & kredit belum | Rekening di *Penjualan & stok*, bukan di halaman *Metode pembayaran* (QRIS). |
 | Struk & printer | 1.26 | Rilis v0.8.0 (lihat F1-06) | - |
 | Profil toko, Cabang ini | 1.26 | Rilis v0.23.0 | Jenis usaha dan zona waktu hanya dibaca |
 | Penjualan & stok: stok minus, wajib sesi, pembulatan | 1.26 | Rilis v0.23.0 | Wajib sesi selalu hidup |

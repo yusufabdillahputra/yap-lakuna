@@ -51,8 +51,43 @@ void main() {
         'allowNegativeStock': false,
         'rounding': 'nearest500',
         'discountNeedsPin': true,
+        'transferAccount': '',
       });
       expect(SalesRules.fromJson(json), rules);
+    });
+
+    test('rekening transfer (F1-05c): bawaan kosong, dipangkas', () {
+      expect(const SalesRules().transferAccount, '');
+      const rules = SalesRules(transferAccount: 'BCA 123-456-7890');
+      expect(rules.toJson()['transferAccount'], 'BCA 123-456-7890');
+      expect(SalesRules.fromJson(rules.toJson()), rules);
+      expect(
+        SalesRules.fromJson({'transferAccount': '  BCA 1  '}).transferAccount,
+        'BCA 1',
+      );
+      expect(SalesRules.fromJson({'transferAccount': 12}).transferAccount, '');
+      // JSON lama tanpa kunci rekening.
+      expect(
+        SalesRules.fromJson({
+          'allowNegativeStock': true,
+          'rounding': 'none',
+          'discountNeedsPin': true,
+        }).transferAccount,
+        '',
+      );
+      // Nilai tersimpan terlalu panjang dibatasi 100 karakter.
+      expect(
+        SalesRules.fromJson({'transferAccount': 'z' * 150})
+            .transferAccount
+            .length,
+        100,
+      );
+      expect(rules == const SalesRules(), isFalse);
+      expect(
+        rules.copyWith(transferAccount: 'Mandiri 9').transferAccount,
+        'Mandiri 9',
+      );
+      expect(ProfileLimits.transferAccount, 100);
     });
 
     test('JSON rusak memakai bawaan per kolom', () {

@@ -242,6 +242,18 @@ class StoreSettingsSection extends StatelessWidget {
                 ),
             ],
           ),
+          FTextField(
+            key: ValueKey('store-rules-transfer-${vm.revision}'),
+            label: Text(l10n.storeSettingsTransferAccount),
+            description: Text(l10n.storeSettingsTransferAccountHint),
+            hint: l10n.storeSettingsTransferAccountExample(vm.businessName),
+            maxLength: ProfileLimits.transferAccount,
+            enabled: !busy,
+            control: .managed(
+              initial: TextEditingValue(text: vm.rules.transferAccount),
+              onChange: (v) => vm.setTransferAccount(v.text),
+            ),
+          ),
           _footer(
             context,
             l10n,

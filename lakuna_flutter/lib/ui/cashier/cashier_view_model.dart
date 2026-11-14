@@ -543,6 +543,9 @@ class CashierViewModel extends ChangeNotifier {
 
   // --- Diskon manual (F1-04b) ---------------------------------------------
 
+  /// Rekening transfer toko (F1-05c); kosong bila belum diatur.
+  String get transferAccount => _data?.salesRules.transferAccount ?? '';
+
   DiscountAccess get discountAccess {
     final data = _data;
     if (data == null || billMode) return DiscountAccess.none;

@@ -88,6 +88,28 @@ void main() {
       expect(await SyncOutboxEntry.db.count(store.session) - before, 1);
     });
 
+    test('rekening transfer (F1-05c): dipangkas, maks 100', () async {
+      final saved = await rules(
+        const SalesRules(transferAccount: '  BCA 123-456-7890 a.n. Warung  '),
+      );
+      expect(saved.transferAccount, 'BCA 123-456-7890 a.n. Warung');
+      expect(
+        (await loadSalesRules(store.session, scope)).transferAccount,
+        'BCA 123-456-7890 a.n. Warung',
+      );
+      expect(
+        () => rules(SalesRules(transferAccount: 'x' * 101)),
+        throwsA(isA<SalesRulesInvalid>()),
+      );
+      expect(
+        (await loadSalesRules(store.session, scope)).transferAccount,
+        'BCA 123-456-7890 a.n. Warung',
+      );
+      // Tepat 100 karakter (setelah dipangkas) boleh.
+      final full = await rules(SalesRules(transferAccount: ' ${'y' * 100} '));
+      expect(full.transferAccount.length, 100);
+    });
+
     test('pembulatan Rp 100: total, selisih, dan bayar pas', () async {
       await rules(const SalesRules(rounding: TotalRounding.nearest100));
       await openSession();

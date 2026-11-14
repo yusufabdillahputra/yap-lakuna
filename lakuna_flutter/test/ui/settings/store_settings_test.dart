@@ -88,6 +88,26 @@ void main() {
       expect(vm.outletDirty, isFalse);
     });
 
+    test(
+      'rekening transfer (F1-05c): dipangkas, spasi saja tidak kotor',
+      () async {
+        final repo = FakeStoreSettingsRepository();
+        final vm = StoreSettingsViewModel(repository: repo);
+        await vm.load.execute();
+        vm.setTransferAccount('   ');
+        expect(vm.rulesDirty, isFalse);
+        vm.setTransferAccount('  BCA 123-456-7890 ');
+        expect(vm.rulesDirty, isTrue);
+        final rev = vm.revision;
+        await vm.saveRules.execute();
+        expect(repo.rules.transferAccount, 'BCA 123-456-7890');
+        expect(vm.rules.transferAccount, 'BCA 123-456-7890');
+        expect(vm.rulesDirty, isFalse);
+        // Isian diisi ulang dengan teks yang sudah dipangkas.
+        expect(vm.revision, greaterThan(rev));
+      },
+    );
+
     test('gagal simpan tetap kotor', () async {
       final repo = FakeStoreSettingsRepository(failSave: true);
       final vm = StoreSettingsViewModel(repository: repo);
@@ -140,10 +160,13 @@ void main() {
     await tester.tap(pin);
     await tester.pumpAndSettle();
     await _tap(tester, 'store-rules-rounding-nearest100');
+    expect(find.text('Rekening transfer'), findsOneWidget);
+    await _type(tester, 'store-rules-transfer', 'BCA 123-456-7890 a.n. Warung');
     await _tap(tester, 'store-rules-save');
     expect(_key('store-rules-saved'), findsOneWidget);
     expect(repo.calls.last, 'rules:false:nearest100');
     expect(repo.rules.discountNeedsPin, isFalse);
+    expect(repo.rules.transferAccount, 'BCA 123-456-7890 a.n. Warung');
   });
 
   testWidgets('360: pil bagian dan ukuran tampilan Besar', (tester) async {

@@ -45,6 +45,7 @@ void main() {
     ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings()),
     FakeSessionRepository? session,
     FakeCustomersRepository? customers,
+    SalesRules rules = const SalesRules(),
   }) async {
     final repo = FakeCashierRepository(
       seed: cashierProducts(),
@@ -53,7 +54,7 @@ void main() {
       permissions: permissions,
       printer: selected,
       receipt: receipt,
-    );
+    )..salesRules = rules;
     await pumpLakuna(
       tester,
       size: size,
@@ -323,6 +324,76 @@ void main() {
     expect(_key('success-title'), findsOneWidget);
     expect(find.text('Stok jadi minus'), findsOneWidget);
     expect(repo.checkouts.single.$2.single.method, PaymentMethod.transfer);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('rekening transfer ${size.width.toInt()} px (F1-05c)', (
+      tester,
+    ) async {
+      final copied = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied.add((call.arguments as Map)['text'] as String);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      const account = 'BCA 123-456-7890 a.n. Warung Contoh';
+      final repo = await pump(
+        tester,
+        size: size,
+        rules: const SalesRules(transferAccount: account),
+      );
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      if (size.width < 600) await _tap(tester, 'cashier-view-order');
+      await _tap(tester, 'cashier-pay');
+      // Tombol metode di layar lebar: rekening menggantikan *Cek mutasi
+      // dulu*. Di ponsel kartu metode hanya berisi ikon dan nama.
+      if (size.width >= 600) {
+        expect(
+          find.descendant(
+            of: _key('payment-method-transfer'),
+            matching: find.text(account),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Cek mutasi dulu'), findsNothing);
+      }
+      await _tap(tester, 'payment-method-transfer');
+      expect(
+        find.descendant(
+          of: _key('payment-transfer-account'),
+          matching: find.text(account),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Transfer ke'), findsOneWidget);
+      await _tap(tester, 'payment-transfer-copy');
+      expect(copied, [account]);
+      expect(find.text('Disalin'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _tap(tester, 'payment-finish');
+      expect(repo.checkouts.single.$2.single.method, PaymentMethod.transfer);
+    });
+  }
+
+  testWidgets('tanpa rekening: Cek mutasi dulu, tanpa kotak rekening', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, 'cashier-pay');
+    expect(find.text('Cek mutasi dulu'), findsOneWidget);
+    await _tap(tester, 'payment-method-transfer');
+    expect(_key('payment-transfer-account'), findsNothing);
   });
 
   testWidgets('tablet Android: tanpa fokus otomatis (keyboard tidak muncul)', (

@@ -8379,4 +8379,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyManualDiscountBy(String name) {
     return 'Manual discount · approved by $name';
   }
+
+  @override
+  String get storeSettingsTransferAccount => 'Transfer account';
+
+  @override
+  String get storeSettingsTransferAccountHint =>
+      'Optional. Shown on the Bank transfer button at payment so the cashier can read it out or copy it for the customer.';
+
+  @override
+  String get paymentTransferTo => 'Transfer to';
+
+  @override
+  String get paymentTransferCopy => 'Copy';
+
+  @override
+  String get paymentTransferCopied => 'Copied';
+
+  @override
+  String storeSettingsTransferAccountExample(String name) {
+    return 'BCA 123-456-7890 ($name)';
+  }
 }
