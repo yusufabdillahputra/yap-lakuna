@@ -13,6 +13,7 @@ import 'package:lakuna_flutter/ui/stock/stock_view.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_app_settings_repository.dart';
+import '../../testing/fake_purchases_repository.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_stock_repository.dart';
@@ -283,6 +284,91 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  /// Stok minimum yang varian-variannya ada di katalog pembelian palsu.
+  (FakeStockRepository, FakePurchasesRepository) restockSeed() {
+    final purchases = FakePurchasesRepository();
+    final variants = [
+      for (final p in purchases.products)
+        for (final v in p.variants) (p, v),
+    ];
+    StockRow row(int i, Qty stock, Qty min) => StockRow(
+      variantId: variants[i].$2.id,
+      productId: variants[i].$1.id,
+      productName: variants[i].$1.name,
+      variantName: '',
+      baseUnit: 'pcs',
+      stock: stock,
+      minStock: min,
+      unitCost: variants[i].$2.costPrice,
+    );
+    final stock = FakeStockRepository(
+      rows: [
+        row(0, Qty.units(2), Qty.units(20)),
+        row(1, Qty.units(1), Qty.units(3)),
+      ],
+    );
+    return (stock, purchases);
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('buat pembelian dari stok minimum ${size.width.toInt()} px '
+        '(F1-08c)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      await _tap(tester, 'stock-restock');
+      expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('purchase-restock-note')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Diisi dari stok minimum Etalase: 2 barang. Periksa jumlah dan '
+          'harga sebelum menyimpan.',
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('tanpa izin pembelian: tombol buat pembelian tidak tampil', (
+    tester,
+  ) async {
+    final (stock, purchases) = restockSeed();
+    final keeper = sampleStaff(role: 'stock_keeper');
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()
+        ..current = StaffProfile(
+          id: keeper.id,
+          name: keeper.name,
+          roleKey: 'custom',
+          isOwner: false,
+          hasPin: true,
+          permissions: {Permission.stockAdjust},
+        ),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
+    expect(find.byKey(const ValueKey('stock-restock')), findsNothing);
+  });
 
   testWidgets('cetak stok mati bila lokasi tanpa barang', (tester) async {
     await pump(tester, stock: FakeStockRepository()..rows = []);

@@ -141,9 +141,14 @@ class PurchaseFormLine {
 }
 
 /// Form *Pembelian baru* / *Draf* (1.19, F1-12). Dengan [draftId], form
-/// memuat draf itu.
+/// memuat draf itu. Dengan [restock] (F1-08c), form baru terisi baris dari
+/// daftar stok minimum sekali saat pertama dimuat.
 class PurchaseFormViewModel extends ChangeNotifier {
-  PurchaseFormViewModel({required this._repository, this._draftId}) {
+  PurchaseFormViewModel({
+    required this._repository,
+    this._draftId,
+    this._restock,
+  }) {
     load = Command0(_load)..addListener(notifyListeners);
     saveDraft = Command0(() => _submit(receiving: false))
       ..addListener(notifyListeners);
@@ -204,6 +209,19 @@ class PurchaseFormViewModel extends ChangeNotifier {
   var _options = const <PurchaseProductOption>[];
   UuidValue? _draftId;
   String _number = '';
+
+  /// Isian stok minimum yang belum dipakai (dipakai sekali, F1-08c).
+  PurchaseRestock? _restock;
+  var _restockApplied = 0;
+  var _restockSkipped = 0;
+  String? _restockLocationName;
+
+  /// Jumlah baris yang terisi dari stok minimum (0 = form biasa).
+  int get restockApplied => _restockApplied;
+
+  /// Varian stok minimum yang tidak bisa dibeli (diarsip, bukan barang).
+  int get restockSkipped => _restockSkipped;
+  String? get restockLocationName => _restockLocationName;
 
   UuidValue? _supplierId;
   var _newSupplier = false;
@@ -315,13 +333,52 @@ class PurchaseFormViewModel extends ChangeNotifier {
       }
     } else {
       _blank();
+      if (_restock case final r?) {
+        _restock = null;
+        _applyRestock(r);
+      }
     }
     return const Result.ok(null);
+  }
+
+  void _applyRestock(PurchaseRestock r) {
+    if (_setup!.locations.any((l) => l.id == r.locationId)) {
+      _locationId = r.locationId;
+    }
+    var applied = 0;
+    var skipped = 0;
+    for (final line in r.lines) {
+      final option = _options
+          .where((o) => o.variantId == line.variantId)
+          .firstOrNull;
+      if (option == null) {
+        skipped++;
+        continue;
+      }
+      final unit = option.unit(null);
+      _lines = [
+        ..._lines,
+        PurchaseFormLine(
+          key: _nextKey++,
+          product: option,
+          unit: unit,
+          quantity: line.quantity,
+          unitPrice: option.defaultPrice(unit),
+        ),
+      ];
+      applied++;
+    }
+    _restockApplied = applied;
+    _restockSkipped = skipped;
+    _restockLocationName = r.locationName;
   }
 
   void _blank() {
     final s = _setup!;
     _draftId = null;
+    _restockApplied = 0;
+    _restockSkipped = 0;
+    _restockLocationName = null;
     _number = s.nextNumber;
     _supplierId = null;
     _newSupplier = false;

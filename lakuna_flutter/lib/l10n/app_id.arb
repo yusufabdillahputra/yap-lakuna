@@ -1079,7 +1079,6 @@
     }
   },
   "stockMinimumEmpty": "Semua stok di atas minimum.",
-  "stockMinimumPurchaseSoon": "Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.",
   "stockLocationsHint": "Etalase, gudang, atau rak terpisah di cabang ini.",
   "stockLocationDefault": "Bawaan",
   "stockLocationNameLabel": "Nama lokasi",
@@ -4925,5 +4924,25 @@
       }
     }
   },
-  "stockPrintFailed": "Daftar stok gagal dibuat. Coba lagi."
+  "stockPrintFailed": "Daftar stok gagal dibuat. Coba lagi.",
+  "stockRestock": "Buat pembelian",
+  "purchaseRestockNote": "Diisi dari stok minimum {location}: {count} barang. Periksa jumlah dan harga sebelum menyimpan.",
+  "@purchaseRestockNote": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseRestockSkipped": "{count} barang dilewati karena tidak bisa dibeli lagi (diarsip atau bukan barang).",
+  "@purchaseRestockSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

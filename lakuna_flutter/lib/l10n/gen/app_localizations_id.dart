@@ -1841,10 +1841,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get stockMinimumEmpty => 'Semua stok di atas minimum.';
 
   @override
-  String get stockMinimumPurchaseSoon =>
-      'Pesanan pembelian dari daftar ini menyusul bersama modul Pembelian.';
-
-  @override
   String get stockLocationsHint =>
       'Etalase, gudang, atau rak terpisah di cabang ini.';
 
@@ -7705,4 +7701,17 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get stockPrintFailed => 'Daftar stok gagal dibuat. Coba lagi.';
+
+  @override
+  String get stockRestock => 'Buat pembelian';
+
+  @override
+  String purchaseRestockNote(String location, int count) {
+    return 'Diisi dari stok minimum $location: $count barang. Periksa jumlah dan harga sebelum menyimpan.';
+  }
+
+  @override
+  String purchaseRestockSkipped(int count) {
+    return '$count barang dilewati karena tidak bisa dibeli lagi (diarsip atau bukan barang).';
+  }
 }

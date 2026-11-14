@@ -6,6 +6,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/purchases_repository.dart' show PurchaseRestock;
 import '../../data/repositories/session_repository.dart';
 import '../../data/repositories/stock_repository.dart';
 import '../../data/repositories/store_repository.dart';
@@ -28,7 +29,12 @@ class StockScreen extends StatefulWidget {
     required this.store,
     this.exporter = const PlatformSpreadsheetExporter(),
     this.initialTab,
+    this.onRestock,
   });
+
+  /// *Buat pembelian* dari daftar stok minimum (F1-08c); `null` bila staf
+  /// tidak boleh mengelola pembelian.
+  final ValueChanged<PurchaseRestock>? onRestock;
 
   final StockRepository repository;
   final SessionRepository session;
@@ -74,6 +80,7 @@ class _StockScreenState extends State<StockScreen> {
       staffName: widget.session.current?.name ?? '',
       outletName: outlet?.name ?? '',
       timezone: outlet?.timezone,
+      onRestock: widget.onRestock,
     );
   }
 }
@@ -85,12 +92,14 @@ class StockView extends StatelessWidget {
     required this.staffName,
     required this.outletName,
     this.timezone,
+    this.onRestock,
   });
 
   final StockViewModel viewModel;
   final String staffName;
   final String outletName;
   final String? timezone;
+  final ValueChanged<PurchaseRestock>? onRestock;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -177,12 +186,16 @@ class StockView extends StatelessWidget {
                   timezone: timezone,
                   narrow: narrow,
                   sideBySide: width >= 900,
+                  onRestock: onRestock,
                 ),
                 StockTab.card => _StockCardPanel(
                   viewModel: vm,
                   timezone: timezone,
                 ),
-                StockTab.minimum => _MinimumPanel(viewModel: vm),
+                StockTab.minimum => _MinimumPanel(
+                  viewModel: vm,
+                  onRestock: onRestock,
+                ),
                 StockTab.locations => _LocationsTab(viewModel: vm),
               },
             ],
@@ -792,6 +805,7 @@ class _AdjustmentTab extends StatelessWidget {
     required this.timezone,
     required this.narrow,
     required this.sideBySide,
+    this.onRestock,
   });
 
   final StockViewModel viewModel;
@@ -799,11 +813,12 @@ class _AdjustmentTab extends StatelessWidget {
   final String? timezone;
   final bool narrow;
   final bool sideBySide;
+  final ValueChanged<PurchaseRestock>? onRestock;
 
   @override
   Widget build(BuildContext context) {
     final card = _StockCardPanel(viewModel: viewModel, timezone: timezone);
-    final minimum = _MinimumPanel(viewModel: viewModel);
+    final minimum = _MinimumPanel(viewModel: viewModel, onRestock: onRestock);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 16,
@@ -1660,9 +1675,10 @@ class _EntryTile extends StatelessWidget {
 // --- Stok minimum ------------------------------------------------------------
 
 class _MinimumPanel extends StatelessWidget {
-  const _MinimumPanel({required this.viewModel});
+  const _MinimumPanel({required this.viewModel, this.onRestock});
 
   final StockViewModel viewModel;
+  final ValueChanged<PurchaseRestock>? onRestock;
 
   @override
   Widget build(BuildContext context) {
@@ -1722,7 +1738,21 @@ class _MinimumPanel extends StatelessWidget {
                   ),
                 ),
               ),
-          Text(l10n.stockMinimumPurchaseSoon, style: _muted(context)),
+          if (onRestock case final open? when below.isNotEmpty)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FButton(
+                key: const ValueKey('stock-restock'),
+                variant: .outline,
+                mainAxisSize: .min,
+                onPress: switch (vm.restock) {
+                  final r? => () => open(r),
+                  null => null,
+                },
+                prefix: const Icon(TablerIcons.shoppingCartPlus),
+                child: Flexible(child: Text(l10n.stockRestock)),
+              ),
+            ),
         ],
       ),
     );

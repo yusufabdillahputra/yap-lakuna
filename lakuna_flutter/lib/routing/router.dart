@@ -354,6 +354,10 @@ GoRouter createRouter({
               session: session,
               store: store,
               exporter: exporter,
+              onRestock:
+                  session.current?.can(Permission.purchasesManage) ?? false
+                  ? (r) => context.push<UuidValue>(Routes.purchaseNew, extra: r)
+                  : null,
               initialTab: StockTab.values
                   .where((t) => t.name == state.uri.queryParameters['tab'])
                   .firstOrNull,
@@ -382,6 +386,10 @@ GoRouter createRouter({
             path: Routes.purchaseNew,
             builder: (context, state) => PurchaseFormPage(
               repository: purchases,
+              // Dari Stok › Stok minimum (F1-08c).
+              restock: state.extra is PurchaseRestock
+                  ? state.extra! as PurchaseRestock
+                  : null,
               // Setelah diterima, daftar membuka detail pembelian.
               onReceived: (p) => context.canPop()
                   ? context.pop(p.id)
