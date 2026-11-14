@@ -74,4 +74,4 @@ dicetak ulang dari Laporan › *Kas & sesi*.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Cetak ulang rekap sesi lama | 1.23 | Rilis v0.84.0 | Dari Laporan › Kas & sesi, izin `reports:view`. |
-| Cetak ulang dari layar Sesi kasir | — | Belum | Riwayat sesi di layar 1.3 bila dibutuhkan; kasir tanpa `reports:view` belum bisa mencetak ulang. |
+| Cetak ulang dari layar Sesi kasir | 1.3 | Rilis v0.87.0 | [F1-03f](2026-11-14-f1-03f-rekap-sesi-dari-layar-sesi-kasir-design.md): kartu *Sesi sebelumnya*, izin `cash_session:close` untuk sesi perangkat sendiri. |

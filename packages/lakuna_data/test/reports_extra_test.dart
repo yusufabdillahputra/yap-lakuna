@@ -666,6 +666,24 @@ void main() {
         ),
         throwsA(isA<ReportActorNotPermitted>()),
       );
+      // Sesi perangkat lain yang masih buka: tetap ditolak karena izin,
+      // bukan karena status.
+      now = DateTime.utc(2026, 11, 5, 2);
+      final openElsewhere = await openCashSession(
+        store,
+        otherDevice(),
+        staffId: owner(),
+        openingCash: const Money(10000),
+      );
+      await expectLater(
+        loadClosedSessionRecap(
+          store,
+          scope,
+          permissions: closer,
+          sessionId: openElsewhere.id,
+        ),
+        throwsA(isA<ReportActorNotPermitted>()),
+      );
       // Dengan reports:view, sesi perangkat lain tetap boleh (F1-03e).
       final other = await loadClosedSessionRecap(
         store,

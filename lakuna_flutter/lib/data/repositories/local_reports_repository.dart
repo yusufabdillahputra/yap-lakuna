@@ -102,7 +102,7 @@ class LocalReportsRepository extends ReportsRepository {
     }
     try {
       // Izin dibaca ulang dari role staf di database, bukan dari sesi.
-      final member = await findStaffById(
+      final member = await findActingStaff(
         _store,
         tenantId: ctx.tenant.id,
         outletId: ctx.outlet.id,

@@ -25,7 +25,7 @@ Expenses, supplier payments, and cash refunds from other modules are recorded au
 3. If there is a difference, fill in the **Difference note** (required).
 4. Confirm the closing. The recap is saved on this device.
 
-> [!note] Lost the recap slip, or the printer was off at closing? Reprint an old session recap from [Reports](reports) › **Cash & sessions**: tap the session.
+> [!note] Lost the recap slip, or the printer was off at closing? When no session is open, the **Previous sessions** card below the *Open session* form lists the last 5 sessions closed on this device: tap one, then **Print** or **Share PDF**. Owners and managers can also reprint a session from any device in [Reports](reports) › **Cash & sessions**.
 
 > [!note] Static QRIS and card payments do not go into the drawer. They are shown separately in the recap so you can match them with your bank statement.
 

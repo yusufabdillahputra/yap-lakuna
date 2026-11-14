@@ -1,7 +1,7 @@
 # F1-03f · Cetak ulang rekap dari layar Sesi kasir
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.87.0)
+- **Status:** Rilis v0.87.0
 - **Layar:** 1.3 Sesi kasir (formulir *Buka sesi*): kartu baru *Sesi
   sebelumnya* berisi sesi tertutup terakhir di perangkat ini.
 - **Acuan:** gap [F1-03e](2026-11-14-f1-03e-cetak-ulang-rekap-sesi-design.md)
@@ -68,5 +68,5 @@ layar Sesi kasir perangkat itu.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Cetak ulang rekap dari layar Sesi kasir | 1.3 | Dalam pengerjaan | 5 sesi tertutup terakhir perangkat ini; izin `cash_session:close`. |
+| Cetak ulang rekap dari layar Sesi kasir | 1.3 | Rilis v0.87.0 | 5 sesi tertutup terakhir perangkat ini; izin `cash_session:close`. |
 | Riwayat sesi lengkap dengan filter tanggal | — | Belum | Pakai Laporan › Kas & sesi (butuh `reports:view`). |

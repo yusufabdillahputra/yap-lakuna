@@ -376,11 +376,12 @@ Future<ClosedSessionRecap> loadClosedSessionRecap(
         t.outletId.equals(scope.outletId) &
         t.deletedAt.equals(null),
   );
+  // Perangkat dicek dulu agar status sesi perangkat lain tidak terbaca.
+  if (s != null && !anyDevice && s.deviceId != scope.deviceId) {
+    throw const ReportActorNotPermitted();
+  }
   if (s == null || s.status != CashSessionStatus.closed) {
     throw const CashSessionNotClosed();
-  }
-  if (!anyDevice && s.deviceId != scope.deviceId) {
-    throw const ReportActorNotPermitted();
   }
   final cashScope = CashScope(
     tenantId: scope.tenantId,

@@ -554,6 +554,18 @@ class _OpenForm extends StatelessWidget {
   );
 }
 
+/// Waktu sesi `dd/MM/yy HH.mm–HH.mm` (F1-03f); tanggal tutup ikut bila
+/// berbeda hari.
+String cashSessionPeriodLabel(CashSessionLine s) {
+  String two(int n) => n.toString().padLeft(2, '0');
+  final o = s.openedAt;
+  final c = s.closedAt;
+  if (c == null) return receiptDate(o);
+  final sameDay = c.year == o.year && c.month == o.month && c.day == o.day;
+  return '${receiptDate(o)}–'
+      '${sameDay ? '${two(c.hour)}.${two(c.minute)}' : receiptDate(c)}';
+}
+
 /// Kartu *Sesi sebelumnya* (F1-03f): sesi tertutup terakhir perangkat ini;
 /// ketuk untuk membuka dialog *Rekap sesi* dan mencetak ulang.
 class _PreviousSessions extends StatelessWidget {
@@ -577,12 +589,13 @@ class _PreviousSessions extends StatelessWidget {
     );
   }
 
+  static String _period(CashSessionLine s) => cashSessionPeriodLabel(s);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
     final tone = _Tone.of(context);
-    String two(int n) => n.toString().padLeft(2, '0');
     return _Card(
       key: const ValueKey('cash-previous-card'),
       title: l10n.cashPreviousTitle,
@@ -599,7 +612,9 @@ class _PreviousSessions extends StatelessWidget {
           for (final s in viewModel.previous)
             FTappable(
               key: ValueKey('cash-previous-${s.id}'),
-              semanticsLabel: l10n.reportsSessionRecapOpen,
+              semanticsLabel:
+                  '${l10n.reportsSessionRecapOpen}: ${_period(s)}, '
+                  '${s.staffName}',
               onPress: () => _open(context, s.id),
               builder: (context, states, child) => DecoratedBox(
                 decoration: BoxDecoration(
@@ -624,12 +639,7 @@ class _PreviousSessions extends StatelessWidget {
                         spacing: 2,
                         children: [
                           Text(
-                            switch (s.closedAt) {
-                              final c? =>
-                                '${receiptDate(s.openedAt)}–'
-                                    '${two(c.hour)}.${two(c.minute)}',
-                              null => receiptDate(s.openedAt),
-                            },
+                            _period(s),
                             style: theme.typography.body.sm.copyWith(
                               fontWeight: FontWeight.w600,
                             ),

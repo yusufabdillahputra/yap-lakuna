@@ -67,6 +67,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.84.0 | Cetak ulang rekap sesi lama dari Laporan (F1-03e) | #90 |
 | v0.85.0 | Templat import berbahasa Inggris (F1-07p) | #91 |
 | v0.86.0 | Beberapa rekening transfer (F1-05f) | #92 |
+| v0.87.0 | Cetak ulang rekap dari layar Sesi kasir (F1-03f) | #93 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -146,6 +147,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 29. ~~Templat import berbahasa Inggris~~ — selesai v0.85.0 (F1-07p).
 30. ~~Beberapa rekening transfer (pilih bank)~~ — selesai v0.86.0
     (F1-05f): satu rekening per baris, salin per rekening.
+31. ~~Cetak ulang rekap dari layar Sesi kasir~~ — selesai v0.87.0
+    (F1-03f): kartu *Sesi sebelumnya*, izin `cash_session:close`.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

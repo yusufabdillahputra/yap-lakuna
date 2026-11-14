@@ -109,7 +109,7 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       return const Result.error(NotPermitted(Permission.cashSessionClose));
     }
     try {
-      final member = await findStaffById(
+      final member = await findActingStaff(
         _store,
         tenantId: ctx.tenant.id,
         outletId: ctx.outlet.id,

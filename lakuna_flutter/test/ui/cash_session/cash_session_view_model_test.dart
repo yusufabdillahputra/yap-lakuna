@@ -5,6 +5,8 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/cash_drawer_repository.dart';
+import 'package:lakuna_flutter/ui/cash_session/cash_session_view.dart'
+    show cashSessionPeriodLabel;
 import 'package:lakuna_flutter/ui/cash_session/cash_session_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -176,6 +178,27 @@ void main() {
 
     vm.startNew();
     expect(vm.stage, CashStage.openForm);
+  });
+
+  test('label waktu sesi: tanggal tutup bila beda hari (F1-03f)', () {
+    CashSessionLine line(DateTime closedAt) => CashSessionLine(
+      id: UuidValue.fromString(newId()),
+      openedAt: DateTime.utc(2026, 11, 4, 20),
+      closedAt: closedAt,
+      staffName: 'Sari',
+      opening: Money.zero,
+      expected: Money.zero,
+      counted: Money.zero,
+      difference: Money.zero,
+    );
+    expect(
+      cashSessionPeriodLabel(line(DateTime.utc(2026, 11, 4, 23, 5))),
+      '04/11/26 20.00–23.05',
+    );
+    expect(
+      cashSessionPeriodLabel(line(DateTime.utc(2026, 11, 5, 2))),
+      '04/11/26 20.00–05/11/26 02.00',
+    );
   });
 
   group('sesi sebelumnya (F1-03f)', () {
