@@ -178,6 +178,46 @@ void main() {
     expect(vm.pdfPath, isNull);
   });
 
+  group('cari nota (F1-11b)', () {
+    test('kata kunci dikirim; pill tanggal mengosongkan cari', () async {
+      final a = repo.addSale([('Kopi', 1000, 10000)]);
+      final b = repo.addSale([
+        ('Roti', 1000, 15000),
+      ], customerName: 'Budi Santoso');
+      create();
+      await vm.load.execute();
+      expect(vm.page!.rows, hasLength(2));
+      final gen = vm.searchGeneration;
+      vm.setQuery('budi');
+      await settle();
+      expect(repo.filters.last.query, 'budi');
+      expect(vm.page!.rows.single.sale.id, b.sale.id);
+      expect(vm.page!.searching, isTrue);
+      final loads = repo.filters.length;
+      vm.setQuery('budi');
+      expect(repo.filters.length, loads, reason: 'kata kunci sama');
+      vm.setRange(HistoryRange.week);
+      await settle();
+      expect(vm.filter.query, '');
+      expect(vm.filter.range, HistoryRange.week);
+      expect(vm.searchGeneration, gen + 1);
+      expect(vm.page!.rows.map((r) => r.sale.id), [b.sale.id, a.sale.id]);
+    });
+
+    test('ekspor hasil cari memakai nama riwayat-cari', () async {
+      repo.addSale([('Kopi', 1000, 10000)]);
+      create();
+      await vm.load.execute();
+      vm.setQuery('0001');
+      await settle();
+      await vm.export.execute(Uint8List.fromList([1]));
+      expect(
+        exporter.saved.single.$1,
+        matches(RegExp(r'^riwayat-cari-\d{6}\.xlsx$')),
+      );
+    });
+  });
+
   test('generasi form naik setelah retur dan saat ganti nota', () async {
     final a = repo.addSale([('Kopi', 3000, 10000)]);
     final b = repo.addSale([('Roti', 1000, 10000)]);

@@ -219,11 +219,18 @@ class _HistoryList extends StatelessWidget {
     final page = vm.page;
     final summary = page == null
         ? null
+        : page.searching
+        ? l10n.historySearchSummary(
+            page.count,
+            formatMoney(context, page.total),
+          )
         : l10n.historySummary(
             historyRangeLabel(l10n, vm.filter.range),
             page.count,
             formatMoney(context, page.total),
           );
+    final withDate =
+        vm.filter.searching || vm.filter.range != HistoryRange.today;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 16,
@@ -271,15 +278,25 @@ class _HistoryList extends StatelessWidget {
             message: l10n.historyLoadFailed,
             onRetry: vm.refresh,
           ),
+        if (page != null && page.truncated)
+          Text(
+            l10n.historySearchTruncated(historySearchLimit),
+            key: const ValueKey('history-search-truncated'),
+            style: theme.typography.body.sm.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
         if (page == null)
           const Center(child: FCircularProgress())
         else if (page.rows.isEmpty)
           FCard(
-            key: const ValueKey('history-empty'),
+            key: ValueKey(
+              page.searching ? 'history-search-empty' : 'history-empty',
+            ),
             child: Padding(
               padding: const EdgeInsets.all(32),
               child: Text(
-                l10n.historyEmpty,
+                page.searching ? l10n.historySearchEmpty : l10n.historyEmpty,
                 textAlign: TextAlign.center,
                 style: theme.typography.body.sm.copyWith(
                   color: theme.colors.mutedForeground,
@@ -292,7 +309,7 @@ class _HistoryList extends StatelessWidget {
             _SaleCard(
               row: r,
               timezone: vm.data?.timezone,
-              withDate: vm.filter.range != HistoryRange.today,
+              withDate: withDate,
               selected: r.sale.id == vm.selectedId,
               onTap: () => onOpen(r.sale.id),
             )
@@ -300,7 +317,7 @@ class _HistoryList extends StatelessWidget {
           _SaleTable(
             rows: page.rows,
             timezone: vm.data?.timezone,
-            withDate: vm.filter.range != HistoryRange.today,
+            withDate: withDate,
             selectedId: vm.selectedId,
             onOpen: onOpen,
           ),
@@ -327,6 +344,25 @@ class _Filters extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
+        KeyedSubtree(
+          key: ValueKey('history-search-${vm.searchGeneration}'),
+          child: FTextField(
+            key: const ValueKey('history-search'),
+            hint: l10n.historySearchHint,
+            prefixBuilder: (context, style, _) => Padding(
+              padding: const EdgeInsetsDirectional.only(start: 12),
+              child: Icon(
+                TablerIcons.search,
+                size: 18,
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+            control: .managed(
+              initial: TextEditingValue(text: f.query),
+              onChange: (v) => vm.setQuery(v.text),
+            ),
+          ),
+        ),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -335,8 +371,9 @@ class _Filters extends StatelessWidget {
               ChoicePill(
                 key: ValueKey('history-range-${range.name}'),
                 label: historyRangeLabel(l10n, range),
-                selected: f.range == range,
-                onTap: () => vm.setFilter(f.copyWith(range: range)),
+                // Selama mencari, semua tanggal (tidak ada pill terpilih).
+                selected: !f.searching && f.range == range,
+                onTap: () => vm.setRange(range),
               ),
           ],
         ),

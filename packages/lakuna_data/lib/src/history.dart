@@ -44,6 +44,7 @@ class HistoryFilter {
     this.staffId,
     this.method,
     this.status = HistoryStatus.all,
+    this.query = '',
   });
 
   final HistoryRange range;
@@ -51,18 +52,33 @@ class HistoryFilter {
   final PaymentMethod? method;
   final HistoryStatus status;
 
+  /// Kata kunci cari (F1-11b): nomor nota, nama/HP pelanggan, atau
+  /// referensi pembayaran. Selama mencari, [range] diabaikan.
+  final String query;
+
+  /// Kata kunci tanpa spasi tepi.
+  String get trimmedQuery => query.trim();
+
+  /// Sedang mencari di semua tanggal.
+  bool get searching => trimmedQuery.isNotEmpty;
+
   HistoryFilter copyWith({
     HistoryRange? range,
     UuidValue? Function()? staffId,
     PaymentMethod? Function()? method,
     HistoryStatus? status,
+    String? query,
   }) => HistoryFilter(
     range: range ?? this.range,
     staffId: staffId == null ? this.staffId : staffId(),
     method: method == null ? this.method : method(),
     status: status ?? this.status,
+    query: query ?? this.query,
   );
 }
+
+/// Batas hasil pencarian riwayat (F1-11b).
+const historySearchLimit = 100;
 
 /// Satu baris daftar riwayat.
 class HistoryRow {
@@ -95,9 +111,20 @@ class HistoryRow {
 
 /// Hasil daftar riwayat beserta ringkasannya.
 class HistoryPage {
-  const HistoryPage({required this.rows, required this.from});
+  const HistoryPage({
+    required this.rows,
+    required this.from,
+    this.searching = false,
+    this.truncated = false,
+  });
 
   final List<HistoryRow> rows;
+
+  /// Hasil pencarian di semua tanggal (F1-11b).
+  final bool searching;
+
+  /// Hasil pencarian melebihi batas; hanya yang terbaru ditampilkan.
+  final bool truncated;
 
   /// Awal rentang (UTC) untuk label tanggal.
   final DateTime from;
@@ -223,6 +250,7 @@ Future<HistoryPage> listSalesHistory(
   CatalogScope scope, {
   HistoryFilter filter = const HistoryFilter(),
   DateTime? now,
+  int searchLimit = historySearchLimit,
 }) async {
   final session = store.session;
   final timezone = await _timezone(session, scope);
@@ -231,6 +259,13 @@ Future<HistoryPage> listSalesHistory(
     now ?? DateTime.now().toUtc(),
     timezone,
   );
+  final searching = filter.searching;
+  final matched = searching
+      ? await _searchSaleIds(session, scope, filter.trimmedQuery)
+      : null;
+  if (matched != null && matched.isEmpty) {
+    return HistoryPage(rows: const [], from: from, searching: true);
+  }
   final statuses = switch (filter.status) {
     HistoryStatus.all => historyStatuses,
     HistoryStatus.completed => {SaleStatus.completed},
@@ -246,8 +281,9 @@ Future<HistoryPage> listSalesHistory(
         s.tenantId.equals(scope.tenantId) &
         s.outletId.equals(scope.outletId) &
         s.status.inSet(statuses) &
-        (s.soldAt >= from) &
-        (s.soldAt < to) &
+        (matched == null
+            ? (s.soldAt >= from) & (s.soldAt < to)
+            : s.id.inSet(matched)) &
         s.deletedAt.equals(null),
     orderByList: (s) => [s.soldAt.desc(), s.id.desc()],
   );
@@ -272,6 +308,11 @@ Future<HistoryPage> listSalesHistory(
         if (methods[s.id]?.contains(m) ?? false) s,
     ];
   }
+  var truncated = false;
+  if (searching && sales.length > searchLimit) {
+    sales = sales.sublist(0, searchLimit);
+    truncated = true;
+  }
   final returned = <UuidValue, Money>{};
   for (final r in await _returns(session, scope.tenantId, ids)) {
     returned[r.saleId] = (returned[r.saleId] ?? Money.zero) + Money(r.amount);
@@ -284,6 +325,8 @@ Future<HistoryPage> listSalesHistory(
   final outstanding = await saleOutstandingOf(session, scope.tenantId, sales);
   return HistoryPage(
     from: from,
+    searching: searching,
+    truncated: truncated,
     rows: [
       for (final s in sales)
         HistoryRow(
@@ -295,6 +338,64 @@ Future<HistoryPage> listSalesHistory(
         ),
     ],
   );
+}
+
+/// Id nota cabang ini yang nomornya, nama/HP pelanggannya, atau referensi
+/// pembayaran lunasnya memuat [query] (tanpa beda huruf besar/kecil).
+/// Kandidat dicari dengan `ilike`, lalu dicek ulang di Dart agar `%` dan `_`
+/// di kata kunci tidak menjadi wildcard.
+Future<Set<UuidValue>> _searchSaleIds(
+  DatabaseSession session,
+  CatalogScope scope,
+  String query,
+) async {
+  final q = query.toLowerCase();
+  bool has(String? field) => field != null && field.toLowerCase().contains(q);
+  final pattern = '%$query%';
+  final ids = <UuidValue>{
+    for (final s in await Sale.db.find(
+      session,
+      where: (s) =>
+          s.tenantId.equals(scope.tenantId) &
+          s.outletId.equals(scope.outletId) &
+          s.number.ilike(pattern) &
+          s.deletedAt.equals(null),
+    ))
+      if (has(s.number)) s.id,
+  };
+  final customers = {
+    for (final c in await Customer.db.find(
+      session,
+      where: (c) =>
+          c.tenantId.equals(scope.tenantId) &
+          (c.name.ilike(pattern) | c.phone.ilike(pattern)),
+    ))
+      if (has(c.name) || has(c.phone)) c.id,
+  };
+  if (customers.isNotEmpty) {
+    ids.addAll([
+      for (final s in await Sale.db.find(
+        session,
+        where: (s) =>
+            s.tenantId.equals(scope.tenantId) &
+            s.outletId.equals(scope.outletId) &
+            s.customerId.inSet(customers) &
+            s.deletedAt.equals(null),
+      ))
+        s.id,
+    ]);
+  }
+  for (final p in await Payment.db.find(
+    session,
+    where: (p) =>
+        p.tenantId.equals(scope.tenantId) &
+        p.reference.ilike(pattern) &
+        p.status.equals(PaymentStatus.paid) &
+        p.deletedAt.equals(null),
+  )) {
+    if (has(p.reference)) ids.add(p.saleId);
+  }
+  return ids;
 }
 
 /// Alasan nota tidak bisa di-void.

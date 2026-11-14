@@ -129,6 +129,39 @@ void main() {
     expect(history.filters.last.range, HistoryRange.week);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('cari nota: hasil, batas, tidak cocok, pill tanggal (F1-11b)', (
+    tester,
+  ) async {
+    await pump(tester);
+    history.truncateSearch = true;
+    await tester.enterText(_input('history-search'), '0002');
+    await tester.pumpAndSettle();
+    expect(history.filters.last.query, '0002');
+    expect(
+      find.text('Hasil pencarian · 1 transaksi · Rp 25.000'),
+      findsOneWidget,
+    );
+    expect(_key('history-row-${roti.sale.id.uuid}'), findsOneWidget);
+    expect(_key('history-row-${kopi.sale.id.uuid}'), findsNothing);
+    expect(_key('history-search-truncated'), findsOneWidget);
+
+    await tester.enterText(_input('history-search'), 'tidak-ada');
+    await tester.pumpAndSettle();
+    expect(_key('history-search-empty'), findsOneWidget);
+    expect(
+      find.text('Tidak ada nota yang cocok dengan pencarian.'),
+      findsOneWidget,
+    );
+
+    await _tap(tester, 'history-range-week');
+    expect(history.filters.last.query, '');
+    expect(history.filters.last.range, HistoryRange.week);
+    final field = tester.widget<EditableText>(_input('history-search'));
+    expect(field.controller.text, isEmpty);
+    expect(find.text('7 hari · 2 transaksi · Rp 61.000'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('ekspor Excel dari kepala layar', (tester) async {
     await pump(tester);
     await _tap(tester, 'history-export');

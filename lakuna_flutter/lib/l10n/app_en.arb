@@ -4665,5 +4665,26 @@
   "kitchenTicketSection": "Kitchen",
   "barTicketSection": "Bar",
   "receiptApproval": "Approval no.",
-  "receiptTransferRef": "Transfer ref."
+  "receiptTransferRef": "Transfer ref.",
+  "historySearchHint": "Search receipt no., customer, or reference",
+  "historySearchSummary": "Search results · {count} transactions · {total}",
+  "@historySearchSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "historySearchTruncated": "Showing the latest {limit} receipts. Refine the keyword to narrow the results.",
+  "@historySearchTruncated": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "historySearchEmpty": "No receipts match your search."
 }

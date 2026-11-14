@@ -219,6 +219,111 @@ void main() {
     });
   });
 
+  group('cari nota (F1-11b)', () {
+    test('cocok nomor, pelanggan, HP, referensi; semua tanggal', () async {
+      final today = now;
+      // Nota lama: 10 hari lalu, di luar filter 7 hari.
+      now = today.subtract(const Duration(days: 10));
+      await openSession();
+      final old = await sell({kopi: 1000});
+      now = today;
+      final budi = await saveCustomer(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        input: const CustomerInput(name: 'Budi Santoso', phone: '081234567890'),
+      );
+      final b = await checkoutSale(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        customerId: budi.id,
+        lines: [SaleLineRequest(variantId: v(roti).id, quantity: Qty(1000))],
+        payments: const [SalePaymentRequest.cash(Money(1000000))],
+      );
+      final c = await sell(
+        {jasa: 1000},
+        payment: const SalePaymentRequest(
+          method: PaymentMethod.transfer,
+          reference: 'TRF-ABC99',
+        ),
+      );
+
+      Future<List<UuidValue>> find(
+        String query, [
+        HistoryFilter filter = const HistoryFilter(),
+      ]) async {
+        final page = await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: filter.copyWith(query: query),
+        );
+        expect(page.searching, query.trim().isNotEmpty);
+        return [for (final r in page.rows) r.sale.id];
+      }
+
+      expect(
+        (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: const HistoryFilter(range: HistoryRange.week),
+        )).rows.map((r) => r.sale.id),
+        isNot(contains(old.sale.id)),
+      );
+      // Nomor lengkap huruf kecil: nota lama ditemukan walau rentang hari ini.
+      expect(await find(old.sale.number.toLowerCase()), [old.sale.id]);
+      expect(await find('  budi '), [b.sale.id]);
+      expect(await find('4567'), [b.sale.id]);
+      expect(await find('trf-abc'), [c.sale.id]);
+      // Semua nota memuat kode outlet; terbaru dulu.
+      final prefix = old.sale.number.split('-').first;
+      expect(await find(prefix), [c.sale.id, b.sale.id, old.sale.id]);
+      // Filter metode dan status tetap berlaku.
+      expect(
+        await find(prefix, const HistoryFilter(method: PaymentMethod.transfer)),
+        [c.sale.id],
+      );
+      expect(
+        await find(prefix, const HistoryFilter(status: HistoryStatus.voided)),
+        isEmpty,
+      );
+      // Karakter wildcard SQL tidak jadi wildcard.
+      expect(await find('%'), isEmpty);
+      expect(await find('_'), isEmpty);
+      expect(await find('tidak-ada'), isEmpty);
+      // Kosong = riwayat biasa (hari ini).
+      expect(await find('   '), [c.sale.id, b.sale.id]);
+    });
+
+    test('hasil dibatasi dan ditandai terpotong', () async {
+      await openSession();
+      final a = await sell({kopi: 1000});
+      final b = await sell({kopi: 1000});
+      final c = await sell({kopi: 1000});
+      final prefix = a.sale.number.split('-').first;
+      final page = await listSalesHistory(
+        store,
+        scope,
+        now: now,
+        filter: HistoryFilter(query: prefix),
+        searchLimit: 2,
+      );
+      expect(page.rows.map((r) => r.sale.id), [c.sale.id, b.sale.id]);
+      expect(page.truncated, isTrue);
+      final all = await listSalesHistory(
+        store,
+        scope,
+        now: now,
+        filter: HistoryFilter(query: prefix),
+        searchLimit: 3,
+      );
+      expect(all.rows, hasLength(3));
+      expect(all.truncated, isFalse);
+    });
+  });
+
   group('retur', () {
     test(
       'sebagian lalu sisa: nomor RT, nilai, stok, status, kas sesi',

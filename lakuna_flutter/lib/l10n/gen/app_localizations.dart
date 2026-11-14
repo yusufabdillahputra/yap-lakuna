@@ -14046,6 +14046,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Ref. transfer'**
   String get receiptTransferRef;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Cari no. nota, pelanggan, atau referensi'**
+  String get historySearchHint;
+
+  /// No description provided for @historySearchSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'Hasil pencarian · {count} transaksi · {total}'**
+  String historySearchSummary(int count, String total);
+
+  /// No description provided for @historySearchTruncated.
+  ///
+  /// In id, this message translates to:
+  /// **'Menampilkan {limit} nota terbaru. Perjelas kata kunci untuk mempersempit hasil.'**
+  String historySearchTruncated(int limit);
+
+  /// No description provided for @historySearchEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada nota yang cocok dengan pencarian.'**
+  String get historySearchEmpty;
 }
 
 class _AppLocalizationsDelegate

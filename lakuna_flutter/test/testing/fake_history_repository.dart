@@ -36,6 +36,9 @@ class FakeHistoryRepository extends HistoryRepository {
   /// Galat berikutnya untuk [list] (sekali pakai).
   Exception? listError;
 
+  /// Hasil pencarian ditandai terpotong (F1-11b).
+  bool truncateSearch = false;
+
   /// Sisa piutang nota kredit (F1-13).
   final outstanding = <UuidValue, Money>{};
 
@@ -176,7 +179,12 @@ class FakeHistoryRepository extends HistoryRepository {
           ),
     ];
     return Result.ok(
-      HistoryPage(rows: rows, from: DateTime.utc(2026, 11, 2, 17)),
+      HistoryPage(
+        rows: rows,
+        from: DateTime.utc(2026, 11, 2, 17),
+        searching: filter.searching,
+        truncated: filter.searching && truncateSearch,
+      ),
     );
   }
 
@@ -192,7 +200,14 @@ class FakeHistoryRepository extends HistoryRepository {
     final okMethod =
         f.method == null || s.payments.any((p) => p.method == f.method);
     final okStaff = f.staffId == null || s.sale.staffId == f.staffId;
-    return okStatus && okMethod && okStaff;
+    final q = f.trimmedQuery.toLowerCase();
+    bool has(String? v) => v != null && v.toLowerCase().contains(q);
+    final okQuery =
+        q.isEmpty ||
+        has(s.sale.number) ||
+        has(s.sale.customerName) ||
+        s.payments.any((p) => has(p.reference));
+    return okStatus && okMethod && okStaff && okQuery;
   }
 
   @override

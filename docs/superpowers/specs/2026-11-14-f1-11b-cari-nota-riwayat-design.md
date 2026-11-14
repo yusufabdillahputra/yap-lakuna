@@ -1,0 +1,69 @@
+# F1-11b — Cari nota di Riwayat
+
+- **Status:** Rilis v0.66.0
+- **Layar:** 1.14 *Riwayat transaksi*.
+- **Acuan:** tujuan [F1-11](2026-11-03-f1-11-riwayat-void-retur-design.md)
+  ("Kasir dan manajer bisa mencari nota"); referensi kartu/transfer
+  [F1-05b](2026-11-14-f1-05b-referensi-split-struk-design.md).
+
+## Tujuan
+
+Riwayat hanya bisa difilter *Hari ini*, *Kemarin*, atau *7 hari*, jadi
+nota yang lebih lama tidak bisa dibuka untuk cetak ulang atau retur, dan
+kasir harus menggulir untuk menemukan satu nota. Modul ini menambah kolom
+cari untuk nomor nota, pelanggan, atau referensi pembayaran.
+
+## Aturan
+
+1. **Kolom cari** di atas filter tanggal: petunjuk *Cari no. nota,
+   pelanggan, atau referensi*, ikon kaca pembesar. Daftar dimuat ulang
+   setiap ketikan (seperti layar Pembelian); hasil lama dibuang bila kata
+   kunci berganti selama memuat.
+2. **Kata kunci** dipangkas spasinya; kosong = riwayat biasa. Cocok bila
+   salah satu ini **memuat** kata kunci (tanpa beda huruf besar/kecil):
+   nomor nota, nama pelanggan, nomor HP pelanggan, atau referensi
+   pembayaran lunas nota (no. approval kartu / ref. transfer, F1-05b).
+3. **Semua tanggal:** selama mencari, filter tanggal diabaikan (tidak ada
+   pill tanggal yang terpilih) sehingga nota lama bisa ditemukan. Filter
+   Kasir, Metode, dan Status tetap berlaku. Mengetuk pill tanggal
+   mengosongkan kolom cari dan memakai rentang itu.
+4. **Batas hasil:** paling banyak 100 nota terbaru. Bila lebih, tampil
+   catatan *Menampilkan 100 nota terbaru. Perjelas kata kunci untuk
+   mempersempit hasil.*
+5. **Ringkasan** berubah menjadi *Hasil pencarian · N transaksi · Rp X*,
+   dan kolom Jam selalu menampilkan tanggal. Bila tidak ada yang cocok
+   tampil *Tidak ada nota yang cocok dengan pencarian.*
+6. Ekspor Excel memakai hasil pencarian; nama file
+   `riwayat-cari-<tanggal>.xlsx`.
+7. Data tetap dibatasi tenant dan cabang; bill F&B yang dibatalkan sebelum
+   ditutup (nomor `OB-`) tetap tidak muncul.
+
+## Rancangan teknis
+
+- `HistoryFilter.query` (default `''`) + `searching`; `copyWith(query:)`.
+- `listSalesHistory`: bila `searching`, kandidat dicari lewat `ilike`
+  (SQLite: `LIKE`) pada `sales.number`, `customers.name/phone` →
+  `sales.customer_id`, dan `payments.reference` (lunas) → `sale_id`; lalu
+  dicek ulang di Dart dengan `contains` (karakter `%`/`_` di kata kunci
+  tidak jadi wildcard). Tanpa batas tanggal; urut `sold_at` turun; dipotong
+  `historySearchLimit` (100) setelah filter Kasir/Metode.
+- `HistoryPage.truncated` dan `HistoryPage.searching`.
+- `HistoryViewModel.setQuery`; `setFilter` dengan range baru mengosongkan
+  query (aturan 3).
+
+## Tes
+
+- Data: cocok nomor (sebagian, huruf kecil), nama/HP pelanggan, referensi
+  transfer; nota di luar 7 hari ditemukan; filter status/metode tetap
+  berlaku; `%` tidak jadi wildcard; batas 100 + `truncated`; cabang lain
+  tidak ikut; kata kunci kosong = perilaku lama.
+- VM/widget: ketik → daftar hasil + ringkasan pencarian; pill tanggal
+  mengosongkan kolom cari; catatan batas; kosong → pesan tidak cocok.
+
+## Status & gap
+
+| Topik | Desain | Kode | Rekomendasi |
+| --- | --- | --- | --- |
+| Cari nomor nota, pelanggan, referensi | — | Rilis v0.66.0 | — |
+| Rentang tanggal bebas (kalender) | — | Belum | Tambah pemilih tanggal bila dibutuhkan; pencarian sudah menjangkau semua tanggal. |
+| Cari nama item | — | Belum | Perlu join `sale_items`; tunggu kebutuhan. |
