@@ -472,6 +472,64 @@ Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
   };
 }
 
+/// Harga beli terakhir per varian [variantIds] dalam satuan dasar
+/// (F1-08e): harga satuan baris pada pembelian **diterima** terbaru cabang
+/// ini (`received_at` atau tanggal beli, lalu nomor; baris terakhir bila
+/// varian muncul beberapa kali) dibagi isi satuan baris. Baris bonus
+/// Rp 0 dilewati. Supplier tidak wajib ada. Varian tanpa riwayat tidak masuk peta.
+Future<Map<UuidValue, Money>> lastPurchasePricesOf(
+  LakunaStore store,
+  CatalogScope scope,
+  Iterable<UuidValue> variantIds,
+) async {
+  final ids = variantIds.toSet();
+  if (ids.isEmpty) return const {};
+  final session = store.session;
+  final items = await PurchaseItem.db.find(
+    session,
+    where: (i) =>
+        i.tenantId.equals(scope.tenantId) &
+        i.variantId.inSet(ids) &
+        i.deletedAt.equals(null),
+  );
+  if (items.isEmpty) return const {};
+  final purchases = {
+    for (final p in await Purchase.db.find(
+      session,
+      where: (p) =>
+          p.id.inSet({for (final i in items) i.purchaseId}) &
+          p.tenantId.equals(scope.tenantId) &
+          p.outletId.equals(scope.outletId) &
+          p.status.equals(PurchaseStatus.received) &
+          p.deletedAt.equals(null),
+    ))
+      p.id: p,
+  };
+  DateTime at(Purchase p) => p.receivedAt ?? p.purchasedOn;
+  // Urutan: pembelian lebih baru, lalu nomor, lalu baris lebih akhir.
+  int newer(PurchaseItem a, PurchaseItem b) {
+    final pa = purchases[a.purchaseId]!;
+    final pb = purchases[b.purchaseId]!;
+    final c = at(pa).compareTo(at(pb));
+    if (c != 0) return c;
+    final n = pa.number.compareTo(pb.number);
+    if (n != 0) return n;
+    return a.sortOrder.compareTo(b.sortOrder);
+  }
+
+  final best = <UuidValue, PurchaseItem>{};
+  for (final i in items) {
+    // Baris bonus (Rp 0) bukan harga beli.
+    if (!purchases.containsKey(i.purchaseId) || i.unitPrice <= 0) continue;
+    final current = best[i.variantId];
+    if (current == null || newer(i, current) > 0) best[i.variantId] = i;
+  }
+  return {
+    for (final MapEntry(:key, :value) in best.entries)
+      key: perBaseUnitPrice(Money(value.unitPrice), Qty(value.factorMilli)),
+  };
+}
+
 /// Retur pembelian cabang, terbaru dulu, disaring [query] (nomor RB, nomor
 /// PB, atau supplier).
 Future<List<PurchaseReturnRow>> listPurchaseReturns(

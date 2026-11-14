@@ -112,4 +112,27 @@ void main() {
       );
     });
   });
+
+  test('harga beli per satuan dasar (F1-08e)', () {
+    // Rp 185.000 per dus isi 6 = 30.833,3 → 30.833.
+    expect(
+      perBaseUnitPrice(const Money(185000), Qty.units(6)),
+      const Money(30833),
+    );
+    // 100.000 / 3 = 33.333,3; 50.000 / 3 = 16.666,7 → 16.667.
+    expect(
+      perBaseUnitPrice(const Money(50000), Qty.units(3)),
+      const Money(16667),
+    );
+    // Setengah ke atas: 15 / 2 = 7,5 → 8.
+    expect(perBaseUnitPrice(const Money(15), Qty.units(2)), const Money(8));
+    expect(perBaseUnitPrice(const Money(14500), Qty.one), const Money(14500));
+    // Isi pecahan: 1 pak = 0,5 kg seharga 10.000 → 20.000 per kg.
+    expect(
+      perBaseUnitPrice(const Money(10000), const Qty(500)),
+      const Money(20000),
+    );
+    // Isi tidak sah: harga apa adanya.
+    expect(perBaseUnitPrice(const Money(9000), Qty.zero), const Money(9000));
+  });
 }

@@ -149,12 +149,21 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
               subtitle: switch ((
                 _form.restockSupplierName,
                 _form.restockSkipped,
+                _form.restockPriceCount,
               )) {
-                (null, 0) => null,
-                (final supplier, final skipped) => Column(
+                (null, 0, 0) => null,
+                (final supplier, final skipped, final priced) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 4,
                   children: [
+                    if (priced > 0)
+                      Text(
+                        l10n.purchaseRestockPriceNote(
+                          priced,
+                          _form.restockApplied,
+                        ),
+                        key: const ValueKey('purchase-restock-price'),
+                      ),
                     if (supplier != null)
                       Text(
                         l10n.purchaseRestockSupplierNote(

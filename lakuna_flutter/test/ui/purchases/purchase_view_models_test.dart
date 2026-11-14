@@ -345,6 +345,52 @@ void main() {
     });
   });
 
+  group('harga beli terakhir untuk draf stok minimum (F1-08e)', () {
+    PurchaseRestock restockOf(FakePurchasesRepository r) => PurchaseRestock(
+      locationId: r.locations.first.id,
+      locationName: 'Toko',
+      lines: [
+        for (final v in [
+          for (final p in r.products) ...p.variants,
+        ].take(2))
+          (variantId: v.id, quantity: Qty.one),
+      ],
+    );
+
+    test('baris dengan riwayat memakai harga terakhir, lainnya harga '
+        'modal', () async {
+      final r = FakePurchasesRepository();
+      final variants = [for (final p in r.products) ...p.variants];
+      r.lastPriceOf[variants[0].id] = const Money(31500);
+      final vm = PurchaseFormViewModel(repository: r, restock: restockOf(r));
+      await vm.load.execute();
+      expect(vm.lines.first.unitPrice, const Money(31500));
+      // Isian harga dibangun ulang (kunci memuat priceRev).
+      expect(vm.lines.first.priceRev, 1);
+      expect(vm.lines.last.unitPrice, variants[1].costPrice);
+      expect(vm.lines.last.priceRev, 0);
+      expect(vm.restockApplied, 2);
+      expect(vm.restockPriceCount, 1);
+      await vm.startNew();
+      expect(vm.restockPriceCount, 0);
+      vm.dispose();
+    });
+
+    test('galat baca harga terakhir: harga modal tetap dipakai', () async {
+      final r = FakePurchasesRepository();
+      final variants = [for (final p in r.products) ...p.variants];
+      r.lastPriceOf[variants[0].id] = const Money(31500);
+      final form = PurchaseFormViewModel(
+        repository: _FailingPrices(r),
+        restock: restockOf(r),
+      );
+      await form.load.execute();
+      expect(form.lines.first.unitPrice, variants[0].costPrice);
+      expect(form.restockPriceCount, 0);
+      form.dispose();
+    });
+  });
+
   group('PurchaseDetailViewModel', () {
     Future<PurchaseDetailViewModel> received({int paid = 0}) async {
       form
@@ -462,4 +508,19 @@ class _FailingLast extends FakePurchasesRepository {
   Future<Result<Map<UuidValue, ({UuidValue supplierId, DateTime at})>>>
   lastSuppliers(Iterable<UuidValue> variantIds) async =>
       Result.error(Exception('baca gagal'));
+}
+
+/// Repositori palsu yang gagal membaca harga beli terakhir (F1-08e).
+class _FailingPrices extends FakePurchasesRepository {
+  _FailingPrices(this._inner);
+
+  final FakePurchasesRepository _inner;
+
+  @override
+  Future<Result<PurchaseSetup>> load() => _inner.load();
+
+  @override
+  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+    Iterable<UuidValue> variantIds,
+  ) async => Result.error(Exception('baca gagal'));
 }

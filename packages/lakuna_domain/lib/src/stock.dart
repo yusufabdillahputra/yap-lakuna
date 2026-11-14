@@ -87,3 +87,16 @@ Qty restockQuantity(Qty stock, Qty minimum) {
   }
   return best == null ? null : (supplier: best, count: counts[best]!);
 }
+
+/// Harga beli per satuan dasar (F1-08e): harga satuan baris dibagi isi
+/// satuan [factor], dibulatkan ke rupiah terdekat (setengah menjauhi nol). Isi
+/// tidak sah (≤ 0) mengembalikan harga apa adanya.
+Money perBaseUnitPrice(Money unitPrice, Qty factor) {
+  if (factor.milli <= 0) return unitPrice;
+  final scaled = unitPrice.value * 1000;
+  final half = factor.milli ~/ 2;
+  final q = scaled >= 0
+      ? (scaled + half) ~/ factor.milli
+      : -((-scaled + half) ~/ factor.milli);
+  return Money(q);
+}

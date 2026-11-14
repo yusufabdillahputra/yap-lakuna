@@ -8568,4 +8568,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diningCustomerRefresh => 'Refresh prices';
+
+  @override
+  String purchaseRestockPriceNote(int count, int total) {
+    return 'Prices filled from the last purchase for $count of $total items.';
+  }
 }

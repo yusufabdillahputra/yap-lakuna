@@ -308,6 +308,8 @@ void main() {
         at: DateTime.utc(2026, 11, 1),
       );
     }
+    // Harga beli terakhir hanya untuk barang pertama (F1-08e).
+    purchases.lastPriceOf[variants[0].$2.id] = const Money(31500);
     final stock = FakeStockRepository(
       rows: [
         row(0, Qty.units(2), Qty.units(20)),
@@ -365,6 +367,15 @@ void main() {
         for (final e in tester.widgetList<EditableText>(qty)) e.controller.text,
       ];
       expect(texts, containsAll(['38', '5']));
+      // Harga baris pertama dari pembelian terakhir (F1-08e).
+      expect(
+        find.text('Harga diisi dari pembelian terakhir untuk 1 dari 2 barang.'),
+        findsOneWidget,
+      );
+      expect(
+        texts.map((t) => t.replaceAll('.', '').replaceAll(',', '')),
+        contains('31500'),
+      );
 
       // Kembali ke Stok: daftar dimuat ulang (stok sudah bertambah).
       stock.rows = [

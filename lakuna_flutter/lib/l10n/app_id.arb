@@ -5503,5 +5503,16 @@
     }
   },
   "diningCustomerStale": "Grup pelanggan berubah. Harga bill masih memakai grup lama.",
-  "diningCustomerRefresh": "Segarkan harga"
+  "diningCustomerRefresh": "Segarkan harga",
+  "purchaseRestockPriceNote": "Harga diisi dari pembelian terakhir untuk {count} dari {total} barang.",
+  "@purchaseRestockPriceNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

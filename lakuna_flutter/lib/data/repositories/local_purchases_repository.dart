@@ -126,6 +126,13 @@ class LocalPurchasesRepository extends PurchasesRepository {
       _guard((_, scope, _) => lastSuppliersOf(_store, scope, variantIds));
 
   @override
+  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+    Iterable<UuidValue> variantIds,
+  ) => _guard(
+    (_, scope, _) => lastPurchasePricesOf(_store, scope, variantIds),
+  );
+
+  @override
   Future<Result<Uint8List?>> invoicePhoto(UuidValue id) =>
       _guard((_, scope, _) => loadPurchaseInvoicePhoto(_store, scope, id));
 
