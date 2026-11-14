@@ -118,6 +118,36 @@ void main() {
     expect(vm.lines, hasLength(3));
   });
 
+  test('UPC-A terbaca 13 digit (awalan 0) tetap ditemukan (F1-07h)', () async {
+    final upc = CashierViewModel(
+      repository: FakeCashierRepository(
+        seed: [
+          ...cashierProducts(),
+          const ProductDraft(
+            name: 'Sereal Impor',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(barcode: '036000291452', sellPrice: Money(30000)),
+            ],
+          ),
+          const ProductDraft(
+            name: 'Kacang Impor',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(barcode: '0012345678905', sellPrice: Money(15000)),
+            ],
+          ),
+        ],
+      ),
+      printer: printer,
+    );
+    await upc.load.execute();
+    expect(upc.scan('0036000291452'), ScanOutcome.added);
+    expect(upc.scan('012345678905'), ScanOutcome.added);
+    expect(upc.lines.map((l) => l.title), ['Sereal Impor', 'Kacang Impor']);
+    expect(upc.scan('0036000291453'), ScanOutcome.unknown);
+  });
+
   test('jumlah, grosir, total, dan diskon grosir', () {
     vm.scan('8991234500024');
     vm.setQuantity(0, Qty.units(6));

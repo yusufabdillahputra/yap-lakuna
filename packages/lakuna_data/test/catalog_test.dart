@@ -257,6 +257,42 @@ void main() {
       expect(await Product.db.count(store.session), 1);
     });
 
+    test('0 + UPC-A sama dengan UPC-A yang sudah dipakai (F1-07h)', () async {
+      await save(
+        const ProductDraft(
+          name: 'Sereal',
+          baseUnit: 'pcs',
+          variants: [VariantDraft(name: '', barcode: '036000291452')],
+        ),
+      );
+      await expectLater(
+        save(
+          const ProductDraft(
+            name: 'Sereal Impor',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(name: '', barcode: '0036000291452')],
+          ),
+        ),
+        throwsA(
+          isA<ProductCodesTaken>().having(
+            (e) => e.conflicts.map((c) => (c.issue.field, c.takenBy)),
+            'conflicts',
+            [(ProductField.variantBarcode, 'Sereal')],
+          ),
+        ),
+      );
+      final summary = await importProducts(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        rows: productImportRows([
+          ['nama', 'barcode', 'harga jual'],
+          ['Sereal Lain', '0036000291452', '30000'],
+        ]).rows,
+      );
+      expect(summary.skippedLines, [2]);
+    });
+
     test('produk sendiri boleh menyimpan ulang kodenya', () async {
       final id = await save(_minyak());
       final draft = (await loadProduct(store, scope, id))!.toDraft();

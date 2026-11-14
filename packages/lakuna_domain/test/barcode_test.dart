@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:test/test.dart';
 
@@ -30,6 +32,45 @@ void main() {
       expect(labelSymbology(''), isNull);
       expect(labelSymbology('Café'), isNull);
       expect(labelSymbology('a\tb'), isNull);
+    });
+  });
+
+  group('barcodeKey (F1-07h)', () {
+    test('EAN-13 awalan 0 dengan digit periksa benar = UPC-A', () {
+      expect(barcodeKey('0036000291452'), '036000291452');
+      expect(barcodeKey(' 036000291452 '), '036000291452');
+      expect(sameBarcode('036000291452', '0036000291452'), isTrue);
+      expect(sameBarcode('0036000291452', '036000291452'), isTrue);
+    });
+
+    test('kode lain hanya dinormalkan', () {
+      expect(barcodeKey('0036000291453'), '0036000291453');
+      expect(barcodeKey('8990001000012'), '8990001000012');
+      expect(barcodeKey(' kop-sch '), 'KOP-SCH');
+      expect(barcodeKey('0ABCDEFGHIJKL'), '0ABCDEFGHIJKL');
+      expect(sameBarcode('kop-sch', 'KOP-SCH'), isTrue);
+      expect(sameBarcode('8990001000012', '899000100001'), isFalse);
+      expect(sameBarcode(null, '899'), isFalse);
+      expect(sameBarcode('', ''), isFalse);
+    });
+  });
+
+  group('generateStoreEan13 (F1-07h)', () {
+    test('EAN-13 awalan 20 dengan digit periksa benar', () {
+      final random = Random(7);
+      for (var i = 0; i < 50; i++) {
+        final code = generateStoreEan13(random);
+        expect(code, hasLength(13));
+        expect(code, startsWith('20'));
+        expect(labelSymbology(code), BarcodeSymbology.ean13);
+      }
+    });
+
+    test('mengulang sampai kode belum dipakai', () {
+      final first = generateStoreEan13(Random(1));
+      final code = generateStoreEan13(Random(1), isTaken: (c) => c == first);
+      expect(code, isNot(first));
+      expect(labelSymbology(code), BarcodeSymbology.ean13);
     });
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart' show CustomerGroup, UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
@@ -30,6 +32,48 @@ void main() {
     expect(vm.variants.single.isNew, isTrue);
     expect(vm.categorySuggestions, containsAll(['Sembako', 'Minuman']));
     expect(vm.unitSuggestions, containsAll(['botol', 'dus']));
+  });
+
+  group('buat barcode (F1-07h)', () {
+    test('mengisi EAN-13 toko dan menaikkan revisi field', () async {
+      final vm = ProductFormViewModel(repository: repo, random: Random(3));
+      await vm.load.execute();
+      vm.generateBarcode(0);
+      final code = vm.variants.single.barcode;
+      expect(code, hasLength(13));
+      expect(code, startsWith('20'));
+      expect(labelSymbology(code), BarcodeSymbology.ean13);
+      expect(vm.variants.single.barcodeRevision, 1);
+    });
+
+    test('tidak memakai barcode di form atau di katalog', () async {
+      final first = generateStoreEan13(Random(3));
+      repo = FakeCatalogRepository(
+        seed: [
+          ...sampleProducts(),
+          ProductDraft(
+            name: 'Kue Lapis',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(barcode: first)],
+          ),
+        ],
+      );
+      final vm = ProductFormViewModel(repository: repo, random: Random(3));
+      await vm.load.execute();
+      vm.generateBarcode(0);
+      expect(vm.variants.single.barcode, isNot(first));
+
+      final again = ProductFormViewModel(
+        repository: FakeCatalogRepository(seed: sampleProducts()),
+        random: Random(3),
+      );
+      await again.load.execute();
+      again
+        ..addVariant()
+        ..editVariant(1, ProductField.variantBarcode, (v) => v.barcode = first)
+        ..generateBarcode(0);
+      expect(again.variants.first.barcode, isNot(first));
+    });
   });
 
   test('saran kategori hanya kategori aktif (F1-09)', () async {

@@ -470,6 +470,27 @@ void main() {
       ]);
     });
 
+    test('UPC-A dan 0 + UPC-A dianggap barcode kembar (F1-07h)', () {
+      final issues = validateProductDraft(
+        _draft(
+          variants: [
+            const VariantDraft(name: 'Kecil', barcode: '036000291452'),
+            const VariantDraft(name: 'Besar', barcode: '0036000291452'),
+          ],
+        ),
+      );
+      expect(
+        issues.map((i) => (i.field, i.error, i.variant)),
+        contains((ProductField.variantBarcode, ProductError.duplicate, 1)),
+      );
+      expect(
+        _draft(
+          variants: [const VariantDraft(name: '', barcode: '0036000291452')],
+        ).barcodes,
+        ['036000291452'],
+      );
+    });
+
     test('ProductDraft.codes mendaftar SKU dan barcode yang terisi', () {
       final draft = _draft(
         variants: [

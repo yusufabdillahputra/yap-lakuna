@@ -227,7 +227,7 @@ class StockViewModel extends ChangeNotifier {
   static bool _matches(StockRow r, String q) =>
       r.displayName.toLowerCase().contains(q) ||
       (r.sku?.toLowerCase() == q) ||
-      (r.barcode?.toLowerCase() == q);
+      sameBarcode(r.barcode, q);
 
   /// Nilai stok semua baris di lokasi ini.
   Money get stockValue => _rows.fold(Money.zero, (sum, r) => sum + r.value);
@@ -287,7 +287,7 @@ class StockViewModel extends ChangeNotifier {
     final q = code.trim().toLowerCase();
     if (q.isEmpty) return AddByCodeResult.notFound;
     final exact = _rows.where(
-      (r) => r.barcode?.toLowerCase() == q || r.sku?.toLowerCase() == q,
+      (r) => sameBarcode(r.barcode, q) || r.sku?.toLowerCase() == q,
     );
     final byName = _rows.where(
       (r) => r.displayName.toLowerCase().contains(q),

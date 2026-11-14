@@ -476,21 +476,22 @@ class CashierViewModel extends ChangeNotifier {
   }
 
   /// Enter di kolom cari: cocokkan persis barcode/SKU varian atau barcode
-  /// satuan konversi (tanpa peka huruf dan spasi tepi).
+  /// satuan konversi (tanpa peka huruf dan spasi tepi). Barcode memakai
+  /// [sameBarcode], jadi UPC-A yang terbaca 13 digit tetap cocok (F1-07h).
   ScanOutcome scan(String text) {
     final code = normalizeCode(text);
     if (code.isEmpty) return ScanOutcome.empty;
     _query = '';
-    bool same(String? s) => s != null && normalizeCode(s) == code;
+    bool sameSku(String? s) => s != null && normalizeCode(s) == code;
     for (final p in _data?.products ?? const <CatalogProduct>[]) {
       for (final v in p.variants) {
         for (final u in v.units) {
-          if (same(u.barcode)) {
+          if (sameBarcode(u.barcode, code)) {
             _add(p, v, u);
             return ScanOutcome.added;
           }
         }
-        if (same(v.barcode) || same(v.sku)) {
+        if (sameBarcode(v.barcode, code) || sameSku(v.sku)) {
           _add(p, v, null);
           return ScanOutcome.added;
         }

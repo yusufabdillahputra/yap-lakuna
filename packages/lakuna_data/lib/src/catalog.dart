@@ -730,7 +730,7 @@ Future<ProductImportSummary> importProducts(
       if (!live.contains(v.productId)) continue;
       liveVariants.add(v.id);
       if (v.sku case final sku?) skus.add(normalizeCode(sku));
-      if (v.barcode case final code?) barcodes.add(normalizeCode(code));
+      if (v.barcode case final code?) barcodes.add(barcodeKey(code));
     }
     for (final u in await ProductUnit.db.find(
       w.session,
@@ -738,7 +738,7 @@ Future<ProductImportSummary> importProducts(
       transaction: w.transaction,
     )) {
       if (liveVariants.contains(u.variantId) && u.barcode != null) {
-        barcodes.add(normalizeCode(u.barcode!));
+        barcodes.add(barcodeKey(u.barcode!));
       }
     }
 
@@ -754,9 +754,9 @@ Future<ProductImportSummary> importProducts(
       };
       final rowBarcodes = {
         for (final v in d.variants) ...[
-          if (v.barcode.trim().isNotEmpty) normalizeCode(v.barcode),
+          if (v.barcode.trim().isNotEmpty) barcodeKey(v.barcode),
           for (final u in v.units)
-            if (u.barcode.trim().isNotEmpty) normalizeCode(u.barcode),
+            if (u.barcode.trim().isNotEmpty) barcodeKey(u.barcode),
         ],
       };
       if (names.contains(name) ||
@@ -1216,7 +1216,7 @@ class _ProductWriter {
       final owner = ownerOfVariant[v.id];
       if (owner == null) continue;
       if (v.sku case final sku?) skus[normalizeCode(sku)] = owner;
-      if (v.barcode case final code?) barcodes[normalizeCode(code)] = owner;
+      if (v.barcode case final code?) barcodes[barcodeKey(code)] = owner;
     }
     for (final u in await ProductUnit.db.find(
       w.session,
@@ -1225,20 +1225,21 @@ class _ProductWriter {
     )) {
       final owner = ownerOfVariant[u.variantId];
       if (owner != null && u.barcode != null) {
-        barcodes[normalizeCode(u.barcode!)] = owner;
+        barcodes[barcodeKey(u.barcode!)] = owner;
       }
     }
 
     final conflicts = <ProductCodeConflict>[];
     void check(
       Map<String, String> taken,
+      String Function(String) key,
       String code,
       ProductField field,
       int variant, [
       int? unit,
     ]) {
       if (code.trim().isEmpty) return;
-      final owner = taken[normalizeCode(code)];
+      final owner = taken[key(code)];
       if (owner == null) return;
       conflicts.add(
         ProductCodeConflict(
@@ -1250,10 +1251,17 @@ class _ProductWriter {
 
     for (var i = 0; i < draft.variants.length; i++) {
       final v = draft.variants[i];
-      check(skus, v.sku, ProductField.variantSku, i);
-      check(barcodes, v.barcode, ProductField.variantBarcode, i);
+      check(skus, normalizeCode, v.sku, ProductField.variantSku, i);
+      check(barcodes, barcodeKey, v.barcode, ProductField.variantBarcode, i);
       for (var j = 0; j < v.units.length; j++) {
-        check(barcodes, v.units[j].barcode, ProductField.unitBarcode, i, j);
+        check(
+          barcodes,
+          barcodeKey,
+          v.units[j].barcode,
+          ProductField.unitBarcode,
+          i,
+          j,
+        );
       }
     }
     if (conflicts.isNotEmpty) throw ProductCodesTaken(conflicts);
