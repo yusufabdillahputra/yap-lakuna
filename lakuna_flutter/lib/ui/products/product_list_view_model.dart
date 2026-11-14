@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show sameBarcode;
 
 import '../../data/repositories/catalog_repository.dart';
 import '../../utils/command.dart';
@@ -91,11 +92,13 @@ class ProductListViewModel extends ChangeNotifier {
 }
 
 /// Cocok dengan kata kunci: nama (mengandung), SKU induk/varian, atau
-/// barcode varian/satuan (mengandung, tanpa beda huruf).
+/// barcode varian/satuan (mengandung, tanpa beda huruf; UPC-A yang terbaca
+/// 13 digit juga cocok persis, F1-07h).
 bool productMatches(CatalogProduct p, String query) {
   final q = query.trim().toLowerCase();
   if (q.isEmpty) return true;
-  bool has(String? s) => s != null && s.toLowerCase().contains(q);
+  bool has(String? s) =>
+      s != null && (s.toLowerCase().contains(q) || sameBarcode(s, q));
   return has(p.name) ||
       has(p.sku) ||
       p.variants.any(

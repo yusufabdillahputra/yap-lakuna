@@ -72,5 +72,12 @@ void main() {
       expect(code, isNot(first));
       expect(labelSymbology(code), BarcodeSymbology.ean13);
     });
+
+    test('berhenti dengan StateError bila semua kode ditolak', () {
+      expect(
+        () => generateStoreEan13(Random(1), isTaken: (_) => true),
+        throwsStateError,
+      );
+    });
   });
 }

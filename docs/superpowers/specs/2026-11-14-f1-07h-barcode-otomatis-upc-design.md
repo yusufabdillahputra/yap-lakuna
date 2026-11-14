@@ -1,7 +1,7 @@
 # F1-07h · Barcode otomatis & pemindaian UPC-A 13 digit
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan v0.55.0
+- **Status:** Rilis v0.55.0
 - **Layar:** 1.16 Form produk (field *Barcode* varian), 1.4 Kasir (scan),
   1.18 Stok (cari / penyesuaian), 1.20 Pembelian (scan).
 - **Acuan:** F1-07 (SKU/barcode unik per tenant), F1-07e (label barcode,
@@ -24,7 +24,9 @@ dengan awalan `0`; kasir tetap harus menemukan produknya.
    `0`, dan digit periksanya benar, awalan `0` dibuang sehingga sama dengan
    UPC-A 12 digit. Kode lain tetap.
 2. **Pemindaian** memakai kunci barcode: Kasir (scan Enter), Stok (cari
-   persis dan *Scan / tambah produk*), Pembelian (*Scan / cari produk*).
+   persis dan *Scan / tambah produk*), Pembelian (*Scan / cari produk*),
+   serta pencarian daftar produk (1.15) dan Cetak label (1.15b) sebagai
+   kecocokan persis di samping pencarian *mengandung*.
    `0012345678905` menemukan produk berbarcode `012345678905`, dan
    sebaliknya. SKU tetap dibandingkan dengan `normalizeCode` saja.
 3. **Keunikan**: barcode dianggap sama bila kuncinya sama, baik di dalam
@@ -34,8 +36,10 @@ dengan awalan `0`; kasir tetap harus menemukan produknya.
    tampil hanya selama field kosong. Kode = EAN-13 toko: awalan `20`
    (rentang GS1 untuk pemakaian internal toko) + 10 digit acak + digit
    periksa. Kode tidak boleh sama (menurut kunci barcode) dengan barcode
-   lain di form atau di katalog yang dimuat; generator mengulang sampai
-   unik. Pengecekan akhir tetap di simpan (aturan 3).
+   lain di form atau di katalog yang dimuat, dan tidak sama dengan SKU
+   (Kasir juga mencocokkan scan dengan SKU); generator mengulang sampai
+   unik (maks. 1.000 percobaan). Pengecekan akhir tetap di simpan
+   (aturan 3).
 5. Barcode satuan konversi tidak mendapat tombol: satuan konversi biasanya
    punya barcode dus dari pabrik; pemilik tetap bisa mengetik kode.
 6. Barcode buatan langsung dicetak sebagai EAN-13 di label (F1-07e).
@@ -68,7 +72,8 @@ dengan awalan `0`; kasir tetap harus menemukan produknya.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Pemindaian UPC-A 13 digit (awalan 0) | — | Dalam pengerjaan v0.55.0 | Kasir, Stok, Pembelian. |
-| Buat barcode EAN-13 toko | — | Dalam pengerjaan v0.55.0 | Awalan 20, varian saja. |
+| Pemindaian UPC-A 13 digit (awalan 0) | — | Rilis v0.55.0 | Kasir, Stok, Pembelian, cari produk, Cetak label. |
+| Buat barcode EAN-13 toko | — | Rilis v0.55.0 | Awalan 20, varian saja. |
+| Data lama dengan UPC-A dan 0 + UPC-A di dua produk | — | Terbatas | Sejak v0.55.0 dianggap kembar: menyimpan salah satunya ditolak *Sudah dipakai* sampai salah satu kode diubah; scan Kasir memilih produk pertama. |
 | Buat barcode massal untuk semua produk tanpa kode | — | Belum | Saat ini per varian di form. |
 | Barcode timbangan berisi harga/berat (awalan 2x) | — | Tidak direncanakan Fase 1 | Awalan 20 dipakai untuk kode toko biasa. |

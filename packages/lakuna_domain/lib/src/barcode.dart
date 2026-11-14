@@ -61,12 +61,15 @@ bool sameBarcode(String? stored, String scanned) =>
     barcodeKey(stored) == barcodeKey(scanned);
 
 /// EAN-13 toko (F1-07h): awalan `20` (rentang GS1 pemakaian internal) +
-/// 10 digit acak + digit periksa. Diulang selama [isTaken] menolak kode.
+/// 10 digit acak + digit periksa. Diulang selama [isTaken] menolak kode;
+/// [StateError] setelah [maxAttempts] percobaan (praktis tidak terjadi:
+/// ada 10^10 kode).
 String generateStoreEan13(
   Random random, {
   bool Function(String code)? isTaken,
+  int maxAttempts = 1000,
 }) {
-  while (true) {
+  for (var attempt = 0; attempt < maxAttempts; attempt++) {
     final body = StringBuffer('20');
     for (var i = 0; i < 10; i++) {
       body.write(random.nextInt(10));
@@ -74,4 +77,5 @@ String generateStoreEan13(
     final code = '$body${eanCheckDigit(body.toString())}';
     if (isTaken == null || !isTaken(code)) return code;
   }
+  throw StateError('Tidak ada kode EAN-13 toko yang belum dipakai');
 }

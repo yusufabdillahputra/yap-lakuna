@@ -549,6 +549,9 @@ class ProductFormViewModel extends ChangeNotifier {
       for (final p in _catalog?.products ?? const <CatalogProduct>[])
         if (p.id != productId)
           for (final v in p.variants) ...[
+            // SKU ikut dihindari: Kasir juga mencocokkan scan dengan SKU.
+            if (v.sku case final sku? when sku.trim().isNotEmpty)
+              barcodeKey(sku),
             if (v.barcode case final code? when code.trim().isNotEmpty)
               barcodeKey(code),
             for (final u in v.units)
@@ -556,6 +559,7 @@ class ProductFormViewModel extends ChangeNotifier {
                 barcodeKey(code),
           ],
       for (final v in variants) ...[
+        if (v.sku.trim().isNotEmpty) barcodeKey(v.sku),
         if (v.barcode.trim().isNotEmpty) barcodeKey(v.barcode),
         for (final u in v.units)
           if (u.barcode.trim().isNotEmpty) barcodeKey(u.barcode),

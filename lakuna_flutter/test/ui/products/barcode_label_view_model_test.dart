@@ -126,6 +126,23 @@ void main() {
     expect(vm.quantity(kopi), 0);
   });
 
+  test('cari UPC-A yang terbaca 13 digit (F1-07h)', () async {
+    repo = FakeCatalogRepository(
+      seed: [
+        ...sampleProducts(),
+        const ProductDraft(
+          name: 'Sereal Impor',
+          baseUnit: 'pcs',
+          variants: [VariantDraft(barcode: '036000291452')],
+        ),
+      ],
+    );
+    final vm = make();
+    await vm.load.execute();
+    vm.setQuery('0036000291452');
+    expect(vm.visible.single.title, 'Sereal Impor');
+  });
+
   test('lembar: urutan baris, harga opsional, lewati hanya di A4', () async {
     final vm = make();
     await vm.load.execute();

@@ -35,6 +35,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.52.0 | Produk pertama di onboarding (F1-01b) | #58 |
 | v0.53.0 | Diskon per baris di open bill F&B (F1-04g) | #59 |
 | v0.54.0 | Tarif beku saat split bill dibayar (F1-10h) | #60 |
+| v0.55.0 | Barcode toko otomatis dan scan UPC-A 13 digit (F1-07h) | #61 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -72,6 +73,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 12. ~~Foto faktur pembelian~~ — selesai v0.50.0 (F1-12b). ~~PDF pembelian
    dan tautan kartu stok~~ — selesai v0.51.0 (F1-12c).
 13. ~~Produk pertama di onboarding~~ — selesai v0.52.0 (F1-01b).
+14. ~~Barcode otomatis & UPC-A 13 digit~~ — selesai v0.55.0 (F1-07h);
+   buat barcode massal dan label ESC/POS masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

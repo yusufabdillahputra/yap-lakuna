@@ -325,23 +325,32 @@ void main() {
     });
   }
 
-  testWidgets('buat barcode EAN-13 toko di varian (F1-07h)', (tester) async {
-    final repo = await pump(tester, location: Routes.productNew);
-    await _type(tester, 'product-name', 'Kue Lapis');
-    await _type(tester, 'product-base-unit', 'pcs');
-    await _type(tester, 'variant-0-price', '5000');
-    await _tap(tester, 'variant-0-barcode-generate');
-    final text = tester.widget<EditableText>(_input('variant-0-barcode'));
-    final code = text.controller.text;
-    expect(code, hasLength(13));
-    expect(code, startsWith('20'));
-    expect(
-      find.byKey(const ValueKey('variant-0-barcode-generate')),
-      findsNothing,
-    );
-    await _tap(tester, 'product-save');
-    expect(repo.saved.single.variants.single.barcode, code);
-  });
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('buat barcode EAN-13 toko di varian (F1-07h) ${size.width}', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        size: size,
+        location: Routes.productNew,
+      );
+      await _type(tester, 'product-name', 'Kue Lapis');
+      await _type(tester, 'product-base-unit', 'pcs');
+      await _type(tester, 'variant-0-price', '5000');
+      await _tap(tester, 'variant-0-barcode-generate');
+      final text = tester.widget<EditableText>(_input('variant-0-barcode'));
+      final code = text.controller.text;
+      expect(code, hasLength(13));
+      expect(code, startsWith('20'));
+      expect(
+        find.byKey(const ValueKey('variant-0-barcode-generate')),
+        findsNothing,
+      );
+      await _tap(tester, 'product-save');
+      expect(repo.saved.single.variants.single.barcode, code);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('tombol buat barcode hilang saat barcode diketik', (
     tester,

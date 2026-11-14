@@ -7,6 +7,56 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.55.0] - 2026-11-14
+
+Barang tanpa barcode pabrik kini bisa diberi barcode toko dengan satu
+ketukan, dan barcode UPC-A tetap ditemukan walau pemindai membacanya
+13 digit.
+
+### Ditambahkan
+
+- **Buat barcode (1.16, F1-07h).** Field *Barcode* varian di form produk
+  punya tombol tongkat *Buat barcode* selama field kosong. Kode yang dibuat
+  adalah EAN-13 toko berawalan `20` (rentang GS1 untuk pemakaian internal)
+  dengan digit periksa benar, tidak sama dengan barcode atau SKU produk
+  lain maupun baris lain di form. Label 1.15b langsung mencetaknya sebagai
+  EAN-13.
+- Panduan *Menambah produk pertama* (ID/EN): bagian *Barang tanpa barcode*.
+
+### Diubah
+
+- Barcode `0` + UPC-A (13 digit, digit periksa benar) dianggap sama dengan
+  UPC-A 12 digit saat memeriksa kode kembar: di form produk, saat simpan,
+  saat pulihkan produk arsip, dan saat import Excel/CSV.
+
+### Diperbaiki
+
+- Kasir, Stok (cari dan *Scan / tambah produk*), Pembelian (*Scan / cari
+  produk*), pencarian daftar produk, dan Cetak label tidak menemukan barang
+  impor berbarcode UPC-A bila pemindai mengirim 13 digit berawalan `0`
+  (atau sebaliknya, kode tersimpan 13 digit dan pemindai mengirim 12).
+
+### Catatan teknis
+
+- Domain (`barcode.dart`): `barcodeKey`, `sameBarcode`,
+  `generateStoreEan13(Random, {isTaken, maxAttempts})`;
+  `ProductDraft.barcodes`, `validateProductDraft`, dan `productImportRows`
+  memakai `barcodeKey`. Data: `_checkCodes` dan `importProducts` memakai
+  `barcodeKey` untuk barcode (SKU tetap `normalizeCode`).
+- Flutter: `ProductFormViewModel.generateBarcode` (+ `random` yang bisa
+  disuntik), `EditableVariant.barcodeRevision` membuat ulang field saat kode
+  diisi dari tombol; `_TextInput` mendapat `suffix`. Kunci l10n baru
+  `productGenerateBarcode`.
+- Data lama yang menyimpan UPC-A dan `0` + UPC-A di dua produk kini
+  dianggap kembar: menyimpan salah satunya ditolak *Sudah dipakai* sampai
+  salah satu kode diubah.
+- Tes: 6 tes domain, 1 tes data, 7 tes view model, 3 tes widget (form
+  1280 dan 360 px).
+- Uji manual Xvfb: *Buat barcode* di produk *Kue Lapis Legit* menghasilkan
+  `2042063624845`, label 1.15b menampilkan EAN-13, scan di Kasir menambah
+  barang; barcode Kopi diubah ke UPC-A `036000291452`, scan
+  `0036000291452` di Kasir menambah Kopi.
+
 ## [0.54.0] - 2026-11-14
 
 Tagihan tamu split bill tidak lagi bergeser bila tarif service, PB1, atau
@@ -4266,7 +4316,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...HEAD
+[0.55.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.51.0...v0.52.0
