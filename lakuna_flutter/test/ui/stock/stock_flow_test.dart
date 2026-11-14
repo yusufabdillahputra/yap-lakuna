@@ -8,6 +8,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/app.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
+import 'package:lakuna_flutter/ui/products/product_widgets.dart';
 import 'package:lakuna_flutter/ui/settings/app_settings_view_model.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view.dart';
 
@@ -397,6 +398,74 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('buat pembelian lagi setelah keluar lewat menu samping '
+      '(F1-08f)', (tester) async {
+    final (stock, purchases) = restockSeed();
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    await _tap(tester, 'stock-restock');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+
+    // Stok bertambah di tempat lain, lalu staf kembali lewat menu samping
+    // (bukan tombol Kembali).
+    stock.rows = [
+      for (final r in stock.rows)
+        StockRow(
+          variantId: r.variantId,
+          productId: r.productId,
+          productName: r.productName,
+          variantName: r.variantName,
+          baseUnit: r.baseUnit,
+          stock: r == stock.rows.first ? r.minStock + r.minStock : r.stock,
+          minStock: r.minStock,
+          unitCost: r.unitCost,
+        ),
+    ];
+    await _tap(tester, 'nav-stock');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
+    // Daftar dimuat ulang: tinggal satu barang di bawah minimum.
+    await _tap(tester, 'stock-tab-minimum');
+    final rows = find.descendant(
+      of: find.byKey(const ValueKey('stock-minimum')),
+      matching: find.byType(StockPill),
+    );
+    expect(rows, findsOneWidget);
+    // Tombol tetap bisa membuka form lagi.
+    await _tap(tester, 'stock-restock');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ketukan ganda saat form dibuka hanya membuka satu form '
+      '(F1-08f)', (tester) async {
+    final (stock, purchases) = restockSeed();
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    await _tap(tester, 'stock-tab-minimum');
+    final restock = find.byKey(const ValueKey('stock-restock'));
+    // Dua ketukan sebelum frame berikutnya; setelah itu halaman Stok
+    // tertutup form dan tidak menerima ketukan lagi.
+    await tester.tap(restock);
+    await tester.tap(restock);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+    // Kembali sekali langsung ke Stok: tidak ada form kedua di bawahnya.
+    await _tap(tester, 'purchase-back');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
+    expect(find.byKey(const ValueKey('stock-minimum')), findsOneWidget);
+  });
 
   testWidgets('tanpa izin pembelian: tombol buat pembelian tidak tampil', (
     tester,
