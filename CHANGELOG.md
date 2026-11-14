@@ -7,6 +7,27 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.76.0] - 2026-11-14
+
+Pembeli yang membayar sebagian tunai dan sisanya transfer kini juga
+melihat rekening toko, tanpa kasir perlu menghafal nomornya.
+
+### Ditambahkan
+
+- **Layar bayar (1.5) › Bagi beberapa metode:** saat metode *Transfer
+  bank* dipilih untuk bagian baru dan *Rekening transfer* diisi di
+  Pengaturan, kotak *Transfer ke* dengan tombol **Salin** tampil di antara
+  isian *Nominal* dan *Referensi transfer*. Berlaku di Kasir, bill
+  Meja/take away, dan bayar per bagian split bill.
+- Panduan *Split payment* (ID + EN).
+
+### Catatan teknis
+
+- `SplitPanel` memakai ulang `TransferAccountBox` dari F1-05c; tidak ada
+  perubahan data, view model, atau l10n.
+- Tes widget alur kasir 1280 dan 360 px: kotak hanya untuk transfer, berisi
+  rekening, hilang setelah bagian ditambah, tanpa overflow.
+
 ## [0.75.0] - 2026-11-14
 
 Pemilik yang lupa menekan *Backup sekarang* tetap punya titik pulih: di
@@ -5279,7 +5300,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.76.0...HEAD
+[0.76.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.75.0...v0.76.0
 [0.75.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.74.0...v0.75.0
 [0.74.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.73.0...v0.74.0
 [0.73.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.72.0...v0.73.0
