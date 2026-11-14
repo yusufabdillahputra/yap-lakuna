@@ -15,4 +15,4 @@ Spec: [F1-13d](../specs/2026-11-14-f1-13d-cari-hp-format-design.md)
       `+62 813-2222-1010` → 5 nota Toko Bu Ani lintas tanggal.
 - [x] **Dokumen**: spec F1-11b / F1-13, README, STATUS-JEDA, panduan,
       CHANGELOG 0.77.0, versi 0.77.0+80.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.** PR #83 di-merge (13 cek hijau).
