@@ -22,6 +22,7 @@ export 'src/master_data.dart';
 export 'src/modifier.dart';
 export 'src/ids.dart';
 export 'src/image_header.dart';
+export 'src/image_metadata.dart';
 export 'src/money.dart';
 export 'src/payment.dart';
 export 'src/permission.dart';

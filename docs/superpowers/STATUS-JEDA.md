@@ -52,6 +52,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.69.0 | Peringatan uang di laci tidak cukup (F1-03c) | #75 |
 | v0.70.0 | Peringatan uang laci saat void (F1-03d) | #76 |
 | v0.71.0 | Pratinjau perubahan harga import (F1-07m) | #77 |
+| v0.72.0 | Buang metadata lokasi dari gambar (F1-07n) | #78 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -71,7 +72,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    (F1-04f).
 5. ~~Foto produk~~ — selesai v0.37.0 (F1-07f); ~~kecilkan foto~~ —
    selesai v0.62.0 (F1-07l, JPEG); foto nota & bukti bayar selesai
-   v0.63.0 (F1-15b); simpan WebP masih gap.
+   v0.63.0 (F1-15b); ~~buang metadata lokasi~~ — selesai v0.72.0
+   (F1-07n); simpan WebP masih gap.
 6. ~~Logo di struk~~ — selesai v0.39.0 (F1-06b); cetak rekap sesi
    selesai v0.38.0 (F1-03b).
 7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). ~~Printer dapur
