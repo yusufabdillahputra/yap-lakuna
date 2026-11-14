@@ -72,8 +72,12 @@ class KitchenPrinterViewModel extends ChangeNotifier {
 
   bool get loaded => _loaded;
 
-  /// Kategori menu induk yang bisa diarahkan ke bar.
-  List<ProductCategory> get categories => _categories;
+  /// Kategori menu induk yang bisa diarahkan ke bar: yang aktif, ditambah
+  /// yang nonaktif bila sudah terpilih agar bisa dilepas.
+  List<ProductCategory> get categories => [
+    for (final c in _categories)
+      if (c.isActive || _categoryIds.contains(c.id)) c,
+  ];
 
   /// Kategori yang dicetak di bar (tersimpan, atau dipakai saat printer
   /// dipilih).
@@ -83,22 +87,49 @@ class KitchenPrinterViewModel extends ChangeNotifier {
   bool get needsCategory => _isBar && _kitchen != null && _categoryIds.isEmpty;
 
   /// Kategori [id] masuk / keluar dari bar; langsung tersimpan bila printer
-  /// bar sudah dipilih.
+  /// bar sudah dipilih. Ketukan selagi menyimpan diantrekan.
   void toggleCategory(UuidValue id) {
-    if (!_isBar || busy) return;
-    final previous = _categoryIds;
-    _categoryIds = previous.contains(id)
-        ? ({...previous}..remove(id))
-        : {...previous, id};
+    if (!_isBar) return;
+    _categoryIds = _categoryIds.contains(id)
+        ? ({..._categoryIds}..remove(id))
+        : {..._categoryIds, id};
     notifyListeners();
-    final saved = _kitchen;
-    if (saved == null) return;
-    choose.execute(saved.printer).then((_) {
-      if (choose.error && identical(_kitchen, saved)) {
-        _categoryIds = previous;
-        notifyListeners();
-      }
-    });
+    _saveCategories();
+  }
+
+  var _categorySaving = false;
+  var _categoryDirty = false;
+
+  Future<void> _saveCategories() async {
+    if (_kitchen == null) return;
+    if (_categorySaving) {
+      _categoryDirty = true;
+      return;
+    }
+    _categorySaving = true;
+    try {
+      do {
+        _categoryDirty = false;
+        final saved = _kitchen;
+        if (saved == null) break;
+        await _idleChoose();
+        await choose.execute(saved.printer);
+        if (choose.error && !_categoryDirty) {
+          // Kembali ke kategori yang benar-benar tersimpan.
+          _categoryIds = _kitchen?.categoryIds ?? const {};
+          notifyListeners();
+        }
+      } while (_categoryDirty);
+    } finally {
+      _categorySaving = false;
+    }
+  }
+
+  /// Tunggu simpan lain (mis. lebar kertas) selesai.
+  Future<void> _idleChoose() async {
+    while (choose.running) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
   }
 
   bool get supportsBluetooth => _printer.supportsBluetooth;
@@ -207,7 +238,12 @@ class KitchenPrinterViewModel extends ChangeNotifier {
     _kitchen = kitchen;
     _kind = kitchen?.printer.kind;
     _paper = kitchen?.paper ?? _paper;
-    if (_isBar && kitchen != null) _categoryIds = kitchen.categoryIds;
+    // Ketukan chip yang menunggu simpan berikutnya tidak ditimpa.
+    if (_isBar && kitchen != null && !_categoryDirty) {
+      // Kategori yang sudah dihapus diabaikan.
+      final known = {for (final c in _categories) c.id};
+      _categoryIds = kitchen.categoryIds.intersection(known);
+    }
     if (kitchen?.printer case PrinterSelection(
       kind: PrinterKind.network,
       :final address,
@@ -238,6 +274,7 @@ class KitchenPrinterViewModel extends ChangeNotifier {
     if (result case Ok()) {
       _kitchen = null;
       _kind = null;
+      _categoryIds = const {};
       _failure = null;
       _testSent = false;
     }

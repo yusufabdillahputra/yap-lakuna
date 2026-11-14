@@ -41,6 +41,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.58.0 | Buat barcode massal dari Cetak label (F1-07j) | #64 |
 | v0.59.0 | Perbarui harga produk lewat import (F1-07k) | #65 |
 | v0.60.0 | Enkripsi backup dengan kata sandi (F1-19c) | #66 |
+| v0.61.0 | Printer bar per kategori (F1-10j) | #67 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -63,8 +64,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 6. ~~Logo di struk~~ — selesai v0.39.0 (F1-06b); cetak rekap sesi
    selesai v0.38.0 (F1-03b).
 7. ~~Gabung meja~~ — selesai v0.40.0 (F1-10d). ~~Printer dapur
-   terpisah~~ — selesai v0.41.0 (F1-10e); printer per stasiun (bar vs
-   dapur) masih gap. ~~Sakelar *Kirim ke tiket dapur* / *Catatan bebas*
+   terpisah~~ — selesai v0.41.0 (F1-10e); ~~printer per stasiun (bar vs
+   dapur)~~ — selesai v0.61.0 (F1-10j). ~~Sakelar *Kirim ke tiket dapur* / *Catatan bebas*
    per menu~~ — selesai v0.43.0 (F1-10g). ~~Tarif beku split bill~~ —
    selesai v0.54.0 (F1-10h); ~~kas per sesi untuk bagian split~~ — selesai
    v0.56.0 (F1-10i).

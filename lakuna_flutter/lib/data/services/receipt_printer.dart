@@ -197,6 +197,17 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
   final bool _btSupported;
   String? _connectedMac;
 
+  /// Cetak langsung (jaringan / Bluetooth) satu per satu: tiket dapur dan
+  /// bar (F1-10j) dikirim bersamaan, sedangkan sambungan Bluetooth plugin
+  /// hanya satu dan banyak printer LAN hanya menerima satu soket.
+  Future<void> _directQueue = Future.value();
+
+  Future<void> _serial(Future<void> Function() job) {
+    final next = _directQueue.then((_) => job());
+    _directQueue = next.then((_) {}, onError: (_) {});
+    return next;
+  }
+
   bool get _mobile => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   @override
@@ -251,9 +262,13 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
         if (address == null) {
           throw const PrinterFailure(PrinterFailureReason.connect);
         }
-        await sendToNetworkPrinter(address.$1, address.$2, await escPos());
+        final bytes = await escPos();
+        await _serial(
+          () => sendToNetworkPrinter(address.$1, address.$2, bytes),
+        );
       case PrinterKind.bluetooth:
-        await _bluetooth(printer.address, await escPos());
+        final bytes = await escPos();
+        await _serial(() => _bluetooth(printer.address, bytes));
     }
   }
 

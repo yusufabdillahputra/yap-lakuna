@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart' show ProductCategory;
 import 'package:lakuna_data/lakuna_data.dart';
@@ -256,6 +258,74 @@ void main() {
       await vm.load.execute();
       expect(vm.categoryIds, {minuman.id});
       expect(vm.kind, PrinterKind.network);
+    });
+
+    test('dua chip diketuk cepat: keduanya tersimpan', () async {
+      await vm.choose.execute(lan);
+      vm
+        ..toggleCategory(minuman.id)
+        ..toggleCategory(kopi.id);
+      await pumpEventQueue();
+      expect(repo.bar?.categoryIds, {minuman.id, kopi.id});
+      expect(vm.categoryIds, {minuman.id, kopi.id});
+    });
+
+    test('chip diketuk selagi menyimpan: diantrekan lalu tersimpan', () async {
+      await vm.choose.execute(lan);
+      final gate = repo.barSaveGate = Completer<void>();
+      vm.toggleCategory(minuman.id);
+      await pumpEventQueue();
+      expect(vm.choose.running, isTrue);
+      vm.toggleCategory(kopi.id);
+      expect(vm.categoryIds, {minuman.id, kopi.id});
+      repo.barSaveGate = null;
+      gate.complete();
+      await pumpEventQueue(times: 100);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(vm.categoryIds, {minuman.id, kopi.id});
+      expect(repo.bar?.categoryIds, {minuman.id, kopi.id});
+    });
+
+    test('kategori yang sudah dihapus diabaikan', () async {
+      repo.bar = KitchenPrinter(
+        printer: lan,
+        categoryIds: {minuman.id, fakeId(999)},
+      );
+      vm = KitchenPrinterViewModel(
+        repository: repo,
+        printer: printer,
+        station: PrinterStation.bar,
+      );
+      await vm.load.execute();
+      expect(vm.categoryIds, {minuman.id});
+      vm.toggleCategory(minuman.id);
+      await pumpEventQueue();
+      expect(vm.needsCategory, isTrue);
+      expect(repo.bar?.categoryIds, isEmpty);
+    });
+
+    test('kategori nonaktif tampil hanya bila sudah dipilih', () async {
+      final teh = ProductCategory(
+        tenantId: fakeId(1),
+        name: 'Teh',
+        sortOrder: 2,
+        isActive: false,
+        hlc: '',
+      );
+      repo.categories = [minuman, kopi, teh];
+      await vm.load.execute();
+      expect(vm.categories, [minuman, kopi]);
+      repo.bar = KitchenPrinter(printer: lan, categoryIds: {teh.id});
+      await vm.load.execute();
+      expect(vm.categories, [minuman, kopi, teh]);
+    });
+
+    test('lupakan printer bar mengosongkan kategori', () async {
+      vm.toggleCategory(minuman.id);
+      await vm.choose.execute(lan);
+      await vm.forget.execute();
+      expect(repo.bar, isNull);
+      expect(vm.categoryIds, isEmpty);
     });
   });
 }

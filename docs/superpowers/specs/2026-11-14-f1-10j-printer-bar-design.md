@@ -24,10 +24,13 @@ memisahkan pesanan.
    - *Tidak dipakai* (bawaan) / *Jaringan (LAN)* / *Bluetooth* (Android),
      alamat dan Bluetooth sama dengan printer dapur. Lebar kertas 58 / 80 mm
      (bawaan 58 mm).
-   - *Kategori ke bar*: chip kategori menu (kategori induk saja, urut
-     nama). Kategori induk ikut membawa sub-kategorinya. Perubahan chip
-     langsung tersimpan bila printer bar sudah dipilih; sebelum itu dipakai
-     saat printer dipilih.
+   - *Kategori ke bar*: chip kategori menu induk yang aktif, urut seperti
+     di Produk (urutan lalu nama); kategori nonaktif tampil hanya bila
+     sudah terpilih agar bisa dilepas. Kategori induk ikut membawa
+     sub-kategorinya. Perubahan chip langsung tersimpan bila printer bar
+     sudah dipilih (ketukan selagi menyimpan diantrekan); sebelum itu
+     dipakai saat printer dipilih. *Lupakan printer bar* mengosongkan
+     kategori.
    - Tanpa kategori terpilih, kartu menampilkan *Pilih minimal satu
      kategori; sampai itu semua tiket tetap ke dapur.*
    - *Tes cetak tiket bar* dan *Lupakan printer bar* seperti printer dapur.
@@ -50,9 +53,15 @@ memisahkan pesanan.
    galat printer dengan tombol *Cetak ulang tiket bar*. Galat bar tidak
    menghalangi tiket dapur, dan sebaliknya.
 5. Bila tiket bar sebelumnya masih tercetak saat tiket baru dikirim, tiket
-   baru menunggu lalu dicetak (sama dengan printer dapur).
+   baru menunggu lalu dicetak (sama dengan printer dapur), walau modalnya
+   sudah ditutup. Semua cetak langsung (jaringan / Bluetooth) di perangkat
+   dikirim satu per satu: sambungan Bluetooth hanya satu dan banyak printer
+   LAN hanya menerima satu soket, jadi tiket dapur dan bar tidak boleh
+   bertabrakan.
 6. Produk yang kategorinya dihapus atau tanpa kategori selalu ke dapur.
-   Id kategori bar yang sudah tidak ada diabaikan.
+   Id kategori bar yang sudah tidak ada diabaikan (dan hilang dari pilihan
+   saat kartu dibuka). Produk yang dinonaktifkan setelah dipesan juga ke
+   dapur karena kategorinya dibaca dari menu aktif.
 
 ## Komponen
 
@@ -63,8 +72,10 @@ memisahkan pesanan.
   palsu); `DiningData.barPrinter`.
 - `KitchenPrinterViewModel(station: PrinterStation.bar)` memakai VM yang
   sama dengan kategori; `KitchenPrinterCard` dengan stasiun bar.
-- `DiningViewModel`: `ticketParts`, `shouldAutoPrintBar`, `autoPrintBar`,
-  `printBarTicket`, `barPrintFailure`, `barTicketPrinted`.
+- `DiningViewModel`: `kitchenTicket` / `barTicket`, `shouldAutoPrintBar`,
+  `autoPrintBar`, `printBarTicket`, `barPrintFailure`, `barTicketPrinted`,
+  `barPaper`.
+- `PlatformReceiptPrinter`: antrean cetak langsung (`_serial`).
 - `kitchenTicketLines(..., heading:)` untuk judul *TIKET BAR*.
 
 ## Pengujian
@@ -86,3 +97,5 @@ memisahkan pesanan.
 | Lebih dari dua stasiun / nama stasiun bebas | — | Belum | Dapur + Bar dulu. |
 | Stasiun per produk (bukan kategori) | — | Belum | Kategori cukup untuk pemisahan makanan/minuman. |
 | Stasiun ikut sinkronisasi antar perangkat | — | Belum | Printer per perangkat seperti printer dapur. |
+| Produk nonaktif setelah dipesan | — | Belum | Ke dapur; kategori dibaca dari menu aktif. |
+| Galat cetak antrean setelah modal ditutup | — | Belum | Tiket tetap dikirim; bila gagal tidak ada pesan (sama dengan printer dapur). |

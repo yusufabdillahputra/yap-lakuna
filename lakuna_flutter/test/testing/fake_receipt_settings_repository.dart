@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -109,11 +111,17 @@ class FakeReceiptSettingsRepository extends ReceiptSettingsRepository {
   @override
   Future<Result<KitchenPrinter?>> loadBarPrinter() async => _result(() => bar);
 
+  /// Bila diisi, simpan printer bar menunggu sampai selesai.
+  Completer<void>? barSaveGate;
+
   @override
-  Future<Result<void>> saveBarPrinter(KitchenPrinter? bar) async => _result(() {
-    barSaves.add(bar);
-    this.bar = bar;
-  });
+  Future<Result<void>> saveBarPrinter(KitchenPrinter? bar) async {
+    await barSaveGate?.future;
+    return _result(() {
+      barSaves.add(bar);
+      this.bar = bar;
+    });
+  }
 
   @override
   Future<Result<List<ProductCategory>>> menuCategories() async =>

@@ -67,4 +67,4 @@ printer struk di kasir, tanpa kasir menekan *Cetak tiket* setiap kali.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Printer dapur terpisah | — | Rilis v0.41.0 | Kartu *Printer dapur* di 1.26; tiket otomatis + *Cetak ulang* di modal 1.7e. |
-| Printer per stasiun (bar vs dapur, per kategori) | — | Belum | Satu printer dapur per perangkat. |
+| Printer per stasiun (bar vs dapur, per kategori) | 1.26, 1.7e | Rilis v0.61.0 | [F1-10j](2026-11-14-f1-10j-printer-bar-design.md): printer bar per kategori. |

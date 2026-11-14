@@ -783,9 +783,14 @@ class DiningViewModel extends ChangeNotifier {
     _autoPrintStarted = true;
     final ticket = _ticket;
     await _idle(printTicket);
-    if (!identical(_ticket, ticket)) return;
+    // Tetap dicetak walau modal sudah ditutup: tiket tidak boleh hilang.
+    _jobTicket = ticket;
     await printTicket.execute(lines);
   }
+
+  /// Tiket milik cetak antrean berikutnya (bisa sudah bukan [lastTicket]).
+  KitchenSendResult? _jobTicket;
+  KitchenSendResult? _barJobTicket;
 
   /// Tunggu sampai [command] tidak berjalan.
   static Future<void> _idle(Command1<void, List<ReceiptLine>> command) async {
@@ -856,7 +861,7 @@ class DiningViewModel extends ChangeNotifier {
     _barAutoPrintStarted = true;
     final ticket = _ticket;
     await _idle(printBarTicket);
-    if (!identical(_ticket, ticket)) return;
+    _barJobTicket = ticket;
     await printBarTicket.execute(lines);
   }
 
@@ -864,9 +869,12 @@ class DiningViewModel extends ChangeNotifier {
   bool get barTicketPrinted => _barTicketPrinted;
 
   Future<Result<void>> _printBarTicket(List<ReceiptLine> lines) async {
-    _barPrintFailure = null;
-    _barTicketPrinted = false;
-    final ticket = _ticket;
+    final ticket = _barJobTicket ?? _ticket;
+    _barJobTicket = null;
+    if (identical(_ticket, ticket)) {
+      _barPrintFailure = null;
+      _barTicketPrinted = false;
+    }
     final bar = _data?.barPrinter;
     if (bar == null) return const Result.ok(null);
     try {
@@ -890,10 +898,13 @@ class DiningViewModel extends ChangeNotifier {
   bool get ticketPrinted => _ticketPrinted;
 
   Future<Result<void>> _printTicket(List<ReceiptLine> lines) async {
-    _printFailure = null;
-    _ticketPrinted = false;
     // Hasil cetak hanya berlaku untuk tiket yang sedang tampil.
-    final ticket = _ticket;
+    final ticket = _jobTicket ?? _ticket;
+    _jobTicket = null;
+    if (identical(_ticket, ticket)) {
+      _printFailure = null;
+      _ticketPrinted = false;
+    }
     final printer =
         _kitchenPrinter?.printer ??
         _data?.printer ??
@@ -903,9 +914,9 @@ class DiningViewModel extends ChangeNotifier {
         printer,
         lines,
         ticketPaper,
-        jobName: _ticket == null
+        jobName: ticket == null
             ? 'Tiket dapur'
-            : kitchenTicketLabel(_ticket?.ticket?.number ?? 0),
+            : kitchenTicketLabel(ticket.ticket?.number ?? 0),
       );
       if (identical(_ticket, ticket)) _ticketPrinted = printer.isDirect;
       return const Result.ok(null);

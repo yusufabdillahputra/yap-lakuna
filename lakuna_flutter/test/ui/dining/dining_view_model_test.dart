@@ -700,6 +700,35 @@ void main() {
       expect(printer.prints.map((p) => p.$2.single.text), ['A', 'B']);
       expect(vm.barTicketPrinted, isTrue);
     });
+
+    test('modal ditutup selagi tiket menunggu: tiket tetap dicetak', () async {
+      await start();
+      await add('Kopi Susu Aren');
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      final hold = printer.hold = Completer<void>();
+      final bar1 = vm.autoPrintBar(const [ReceiptLine('BAR A')]);
+      final kitchen1 = vm.autoPrintTicket(const [ReceiptLine('DAPUR A')]);
+      await pumpEventQueue();
+      vm.clearTicket();
+      await add('Es Teh Manis');
+      await add('Nasi Goreng Kampung');
+      await vm.send.execute();
+      final bar2 = vm.autoPrintBar(const [ReceiptLine('BAR B')]);
+      final kitchen2 = vm.autoPrintTicket(const [ReceiptLine('DAPUR B')]);
+      await pumpEventQueue();
+      // Modal B juga langsung ditutup.
+      vm.clearTicket();
+      printer.hold = null;
+      hold.complete();
+      await Future.wait([bar1, kitchen1, bar2, kitchen2]);
+      expect(
+        printer.prints.map((p) => p.$2.single.text),
+        unorderedEquals(['BAR A', 'DAPUR A', 'BAR B', 'DAPUR B']),
+      );
+      expect(vm.barPrintFailure, isNull);
+      expect(vm.barTicketPrinted, isFalse);
+    });
   });
 
   group('pelanggan bill (F1-10f)', () {

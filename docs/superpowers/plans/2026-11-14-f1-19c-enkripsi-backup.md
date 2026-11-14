@@ -31,4 +31,4 @@ dari Pengaturan maupun onboarding.
   salah lalu benar; tangkapan layar.
 - [x] **Dokumen**: spec F1-19 (gap), README spec, STATUS-JEDA, panduan
   backup id/en, CHANGELOG 0.60.0, pubspec `0.60.0+63`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**
