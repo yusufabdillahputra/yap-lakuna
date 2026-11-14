@@ -182,9 +182,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
           child: FSelect<String>(
             key: const ValueKey('reports-period'),
             items: {
-              for (final p in periods)
+              for (final p in periods) ...{
                 reportPeriodLabel(l10n, p): _periodKey(p),
-              l10n.reportsPeriodCustom: _pickRangeKey,
+                // *Rentang tanggal…* setelah Bulan ini / rentang aktif,
+                // sebelum daftar bulan.
+                if (p.kind == ReportPeriodKind.custom ||
+                    (p == ReportPeriod.thisMonth &&
+                        vm.period.kind != ReportPeriodKind.custom))
+                  l10n.reportsPeriodCustom: _pickRangeKey,
+              },
             },
             control: .managed(
               initial: _periodKey(vm.period),

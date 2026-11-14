@@ -215,7 +215,7 @@ void main() {
         expect(repo.requests.last, range);
         expect(vm.data!.period, range);
         expect(vm.periods, hasLength(16));
-        expect(vm.periods.last, range);
+        expect(vm.periods[3], range);
         expect(
           vm.exportFileName(ReportFormat.xlsx),
           'laporan-ringkasan-20261101-20261103-261104.xlsx',
