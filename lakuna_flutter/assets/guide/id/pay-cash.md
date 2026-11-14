@@ -13,8 +13,8 @@ Setelah menekan **Bayar** di Kasir, pilih metode pembayaran.
 
 ## Metode lain
 
-- **Kartu debit / kredit**: transaksi di mesin EDC terpisah. Nomor approval boleh dicatat.
-- **Transfer bank**: cek mutasi dulu. Referensi transfer boleh dicatat.
+- **Kartu debit / kredit**: transaksi di mesin EDC terpisah. Nomor approval boleh dicatat dan tercetak di struk.
+- **Transfer bank**: cek mutasi dulu. Referensi transfer boleh dicatat dan tercetak di struk.
 - **QRIS statis**: lihat [Menerima QRIS statis](pay-qris).
 - **Bagi beberapa metode**: lihat [Split payment](split-payment).
 - **Kredit / piutang**: lihat [Penjualan kredit](credit-sale).

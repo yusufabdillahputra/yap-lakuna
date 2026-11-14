@@ -571,6 +571,56 @@ void main() {
     expect(_key('success-title'), findsOneWidget);
   });
 
+  testWidgets('split kartu + transfer dengan referensi (F1-05b)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    for (var i = 0; i < 3; i++) {
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    }
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-split');
+    // Tunai: tanpa isian referensi.
+    expect(_key('split-reference'), findsNothing);
+
+    await _tap(tester, 'split-method-card');
+    expect(find.text('No. approval kartu (opsional)'), findsOneWidget);
+    await tester.enterText(_input('split-amount'), '4000');
+    await tester.enterText(_input('split-reference'), 'x' * 41);
+    await tester.pumpAndSettle();
+    expect(_key('split-reference-error'), findsOneWidget);
+    expect(tester.widget<FButton>(_key('split-add')).onPress, isNull);
+
+    await tester.enterText(_input('split-reference'), '004512');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'split-add');
+    expect(_text(tester, 'split-part-0-reference'), 'No. approval 004512');
+    // Metode kembali ke tunai: isian referensi tersembunyi.
+    expect(_key('split-reference'), findsNothing);
+
+    await _tap(tester, 'split-method-transfer');
+    expect(find.text('Referensi transfer (opsional)'), findsOneWidget);
+    expect(
+      tester.widget<EditableText>(_input('split-reference')).controller.text,
+      isEmpty,
+    );
+    await tester.enterText(_input('split-reference'), 'TRF-0211-883');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'split-add');
+    expect(
+      _text(tester, 'split-part-1-reference'),
+      'Ref. transfer TRF-0211-883',
+    );
+    expect(_text(tester, 'split-remaining'), 'Rp 0');
+
+    await _tap(tester, 'payment-finish');
+    expect(_key('success-title'), findsOneWidget);
+    expect(repo.checkouts.single.$2.map((p) => p.reference), [
+      '004512',
+      'TRF-0211-883',
+    ]);
+  });
+
   testWidgets('split tunai + QRIS: konfirmasi di dialog, kembalian', (
     tester,
   ) async {

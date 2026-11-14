@@ -4664,5 +4664,7 @@
   "barTicketPrinted": "Ticket printed on the bar printer.",
   "barTicketReprint": "Reprint bar ticket",
   "kitchenTicketSection": "Kitchen",
-  "barTicketSection": "Bar"
+  "barTicketSection": "Bar",
+  "receiptApproval": "Approval no.",
+  "receiptTransferRef": "Transfer ref."
 }

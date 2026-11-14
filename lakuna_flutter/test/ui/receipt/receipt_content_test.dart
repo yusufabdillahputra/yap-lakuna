@@ -38,12 +38,18 @@ void main() {
     hlc: '0',
   );
 
-  Payment pay(PaymentMethod method, int amount, {int change = 0}) => Payment(
+  Payment pay(
+    PaymentMethod method,
+    int amount, {
+    int change = 0,
+    String? reference,
+  }) => Payment(
     tenantId: tenantId,
     saleId: saleId,
     method: method,
     amount: amount,
     changeAmount: change,
+    reference: reference,
     status: PaymentStatus.paid,
     paidAt: DateTime.utc(2026, 11, 3, 9, 5),
     hlc: '0',
@@ -136,6 +142,66 @@ void main() {
     ]);
     expect(content.totals.first.value, '181,500');
     expect(content.footer, ['See you', 'IG @warung']);
+  });
+
+  test('referensi kartu/transfer tercetak di bawah pembayarannya (F1-05b)', () {
+    ReceiptContent content(AppLocalizations l10n) => saleReceiptContent(
+      l10n,
+      result: result([
+        pay(PaymentMethod.card, 100000, reference: '004512'),
+        pay(PaymentMethod.transfer, 50000, reference: 'TRF-0211-883'),
+        pay(PaymentMethod.transfer, 20000),
+        pay(PaymentMethod.cash, 20000, change: 8500),
+      ]),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    expect(content(id).totals.map((p) => (p.label, p.value)), [
+      ('TOTAL', '181.500'),
+      ('Kartu debit / kredit', '100.000'),
+      ('  No. approval 004512', ''),
+      ('Transfer bank', '50.000'),
+      ('  Ref. transfer TRF-0211-883', ''),
+      ('Transfer bank', '20.000'),
+      ('Tunai', '20.000'),
+      ('Kembali', '8.500'),
+    ]);
+    expect(
+      content(en).totals.map((p) => p.label),
+      containsAll(['  Approval no. 004512', '  Transfer ref. TRF-0211-883']),
+    );
+  });
+
+  test('referensi panjang di kertas 58 mm: rata kiri, metode lain tanpa '
+      'referensi (F1-05b)', () {
+    final long = 'A' * 40;
+    final content = saleReceiptContent(
+      id,
+      result: result([
+        pay(PaymentMethod.transfer, 161500, reference: long),
+        // Data lama/sinkron: referensi di QRIS tidak dicetak.
+        pay(PaymentMethod.qrisStatic, 20000, reference: 'QR-1'),
+      ]),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    expect(
+      content.totals.map((p) => p.label),
+      isNot(contains(contains('QR-1'))),
+    );
+    final lines = layoutReceipt(content, ReceiptPaper.mm58);
+    final at = lines.indexWhere((l) => l.text.startsWith('Ref. transfer'));
+    expect(at, greaterThan(0));
+    expect(lines[at].align, ReceiptAlign.left);
+    expect(lines[at + 1].text, 'A' * 32);
+    expect(lines[at + 1].align, ReceiptAlign.left);
+    expect(lines.every((l) => l.text.length <= 32), isTrue);
   });
 
   test('struk contoh untuk pratinjau dan tes cetak', () {

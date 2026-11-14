@@ -44,6 +44,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.61.0 | Printer bar per kategori (F1-10j) | #67 |
 | v0.62.0 | Kecilkan foto produk dan faktur (F1-07l) | #68 |
 | v0.63.0 | Kecilkan foto nota pengeluaran dan bukti bayar (F1-15b) | #69 |
+| v0.64.0 | Referensi kartu/transfer di split payment dan struk (F1-05b) | #70 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -89,6 +90,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    masih gap.
 15. ~~Perbarui harga produk lewat import~~ — selesai v0.59.0 (F1-07k);
    varian/satuan/grosir lewat import masih gap.
+16. ~~Referensi kartu/transfer di split payment dan struk~~ — selesai
+    v0.64.0 (F1-05b).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

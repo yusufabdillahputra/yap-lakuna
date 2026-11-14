@@ -766,6 +766,57 @@ void main() {
       },
     );
 
+    test('referensi bagian kartu/transfer ikut terkirim (F1-05b)', () async {
+      vm.setDraftMethod(PaymentMethod.card);
+      expect(vm.draftTakesReference, isTrue);
+      vm.setDraftReference('x' * 41);
+      vm.setDraftAmount(Money.zero);
+      // Pesan referensi tetap tampil walau nominal kosong.
+      expect(vm.draftError, SplitDraftError.referenceTooLong);
+      vm.setDraftAmount(const Money(1000));
+      expect(vm.draftError, SplitDraftError.referenceTooLong);
+      vm.addPart();
+      expect(vm.parts, isEmpty);
+
+      final revision = vm.draftReferenceRevision;
+      vm.setDraftReference('  004512 ');
+      vm.addPart();
+      expect(vm.parts.single.reference, '004512');
+      expect(vm.draftReference, isEmpty);
+      expect(vm.draftReferenceRevision, greaterThan(revision));
+
+      // Referensi yang diketik lalu metodenya diganti ke tunai dibuang.
+      vm.setDraftMethod(PaymentMethod.transfer);
+      vm.setDraftReference('TRF-1');
+      vm.setDraftAmount(const Money(2000));
+      vm.addPart();
+      vm.setDraftReference('sisa');
+      vm.setDraftMethod(PaymentMethod.cash);
+      expect(vm.draftTakesReference, isFalse);
+      expect(vm.draftError, isNull);
+      vm.addPart();
+      expect(vm.parts.map((p) => p.reference), ['004512', 'TRF-1', '']);
+
+      await vm.pay.execute();
+      final payments = repo.checkouts.single.$2;
+      expect(payments.map((p) => p.reference), ['004512', 'TRF-1', '']);
+    });
+
+    test(
+      'QRIS tanpa referensi; isian kosong saat tahap bayar dimulai lagi',
+      () {
+        vm.setDraftMethod(PaymentMethod.qrisStatic);
+        vm.setDraftReference('abc');
+        expect(vm.draftTakesReference, isFalse);
+        vm.addPart();
+        expect(vm.parts.single.reference, isEmpty);
+        vm.setDraftReference('sisa');
+        vm.backToCart();
+        vm.startPayment();
+        expect(vm.draftReference, isEmpty);
+      },
+    );
+
     test('tunai lebih memberi kembalian; hapus bagian mengembalikan sisa', () {
       vm.setDraftMethod(PaymentMethod.card);
       vm.setDraftAmount(const Money(1000));

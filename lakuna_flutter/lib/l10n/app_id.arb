@@ -5198,5 +5198,7 @@
   "barTicketPrinted": "Tiket dicetak di printer bar.",
   "barTicketReprint": "Cetak ulang tiket bar",
   "kitchenTicketSection": "Dapur",
-  "barTicketSection": "Bar"
+  "barTicketSection": "Bar",
+  "receiptApproval": "No. approval",
+  "receiptTransferRef": "Ref. transfer"
 }

@@ -7,6 +7,53 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.64.0] - 2026-11-14
+
+Nomor approval kartu dan referensi transfer kini bisa dicatat per bagian di
+split payment dan tercetak di struk, sehingga struk mudah dicocokkan
+dengan slip EDC atau mutasi rekening.
+
+### Ditambahkan
+
+- **Split payment (1.5):** saat metode bagian baru *Kartu debit / kredit*
+  atau *Transfer bank*, muncul isian opsional *No. approval kartu* /
+  *Referensi transfer* (maks. 40 karakter). Referensi tampil di bawah nama
+  metode pada daftar bagian dan ikut tersimpan di pembayaran nota.
+- **Struk:** di bawah baris pembayaran kartu/transfer yang punya
+  referensi tercetak baris menjorok *No. approval 004512* /
+  *Ref. transfer TRF-…*. Berlaku untuk bayar tunggal, split payment,
+  bagian split bill F&B, pratinjau, PDF, dan cetak ulang dari Riwayat.
+- Panduan *Split payment* dan *Pembayaran* (id/en) menjelaskan isian dan
+  baris struk baru.
+
+### Diperbaiki
+
+- Referensi panjang (sampai 40 karakter) di kertas 58 mm dicetak rata kiri
+  menyambung ke baris berikutnya, tidak dipecah rata kanan sehingga tidak
+  terbaca sebagai nominal (ditemukan saat review).
+- Pesan *Maksimal 40 karakter* di split tetap tampil walau nominal belum
+  diisi (ditemukan saat review).
+
+### Catatan teknis
+
+- `SplitPart.reference`, `CashierViewModel.draftReference` /
+  `setDraftReference` / `draftReferenceRevision` / `draftTakesReference`,
+  dan `SplitDraftError.referenceTooLong`. Tunai dan QRIS tidak pernah
+  membawa referensi walau isian sempat diketik.
+- `SplitPanel` memakai controller sendiri untuk isian referensi dan
+  membacanya ulang saat VM mengosongkannya (revisi naik) atau VM berganti;
+  `setDraftReference` tidak memberi tahu pendengar bila nilainya sama agar
+  tidak terjadi notifikasi saat build.
+- `saleReceiptContent` hanya mencetak referensi untuk metode kartu dan
+  transfer. Lapisan data tidak berubah (`payments.reference` sudah ada).
+- Kunci l10n baru `receiptApproval`, `receiptTransferRef` (id/en).
+- Tes: VM (referensi terkirim, terlalu panjang, tunai/QRIS tanpa
+  referensi, isian kosong setelah tambah), alur kasir split kartu +
+  transfer, struk id/en, dan tata letak 58 mm referensi 40 karakter.
+- Uji manual Xvfb: split kartu Rp 20.000 (approval 004512) + transfer
+  Rp 15.000 (TRF-1411-0093), struk menampilkan kedua referensi.
+- Spec [F1-05b](docs/superpowers/specs/2026-11-14-f1-05b-referensi-split-struk-design.md).
+
 ## [0.63.0] - 2026-11-14
 
 Foto nota pengeluaran dan foto bukti bayar hutang supplier yang dipotret
@@ -4704,7 +4751,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.64.0...HEAD
+[0.64.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.63.0...v0.64.0
 [0.63.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.60.0...v0.61.0
