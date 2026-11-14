@@ -349,6 +349,20 @@ void main() {
     expect(_key('debt-void-dialog'), findsNothing);
   });
 
+  testWidgets('keluar dari detail pelanggan lewat menu samping: daftar dimuat '
+      'ulang (F1-12d)', (tester) async {
+    await pump(tester, const Size(800, 1280));
+    final sri = idOf('Warung Mbak Sri');
+    expect(_keyPrefix('customers-row-'), findsNWidgets(4));
+    await _tap(tester, _key('customers-row-${sri.uuid}'));
+    expect(_key('customer-panel-${sri.uuid}'), findsOneWidget);
+    repo.customers.removeWhere((c) => c.id != sri);
+    await _tap(tester, _key('nav-customers'));
+    expect(_key('customer-back'), findsNothing);
+    expect(_keyPrefix('customers-row-'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('mobile: buka pelanggan di halaman sendiri, lalu kembali', (
     tester,
   ) async {

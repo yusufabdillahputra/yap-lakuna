@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -13,6 +15,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
 import '../core/date_range_dialog.dart';
 import '../core/format.dart';
+import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import 'history_detail.dart';
 import 'history_labels.dart';
@@ -54,7 +57,8 @@ class HistoryScreen extends StatefulWidget {
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class _HistoryScreenState extends State<HistoryScreen>
+    with RouteReturnMixin<HistoryScreen> {
   late final _viewModel = HistoryViewModel(
     repository: widget.repository,
     printer: widget.printer,
@@ -75,10 +79,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   @override
+  void onRouteReturn() => unawaited(_viewModel.refresh());
+
+  @override
   Widget build(BuildContext context) => HistoryView(
     viewModel: _viewModel,
     session: widget.session,
-    onOpenSale: widget.onOpenSale,
+    onOpenSale: switch (widget.onOpenSale) {
+      final open? => (id) => whileAway(() => open(id)),
+      null => null,
+    },
     onBack: widget.onBack,
     detailPage: widget.initialSale != null,
   );

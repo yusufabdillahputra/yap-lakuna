@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.91.0] - 2026-11-14
+
+Daftar Pembelian, Pelanggan, Supplier, dan Riwayat kini selalu segar
+setelah staf meninggalkan halaman detail lewat menu samping.
+
+### Diperbaiki
+
+- **Pembelian (1.19), Pelanggan (1.20), Supplier (1.21), Riwayat (1.10):**
+  bila halaman detail (atau pembelian baru, kuitansi, detail nota)
+  ditinggalkan lewat menu samping ke menu yang sama, misalnya mengetuk
+  *Pelanggan* saat kuitansi pembayaran piutang masih terbuka, daftar tetap
+  menampilkan data lama: piutang yang baru dibayar, hutang yang baru
+  dilunasi, pembelian yang baru diterima, atau nota yang baru di-void. Kini
+  daftar (dan panel detail yang terpilih) dimuat ulang begitu tampil lagi.
+
+### Catatan teknis
+
+- Penyebab sama dengan F1-08f: halaman detail dibuka dengan
+  `context.push` dan daftar baru dimuat ulang setelah future-nya selesai,
+  sedangkan menu samping memakai `context.go` yang membuang halaman itu
+  tanpa menyelesaikan future, sementara State daftar dipertahankan.
+- `RouteReturnMixin` baru (`lib/ui/core/route_return.dart`):
+  `whileAway(open)` menghitung halaman yang sedang dibuka (dua ketukan
+  cepat pada baris bisa membuka dua), dan `didUpdateWidget` memanggil
+  `onRouteReturn()` setelah frame bila masih ada halaman terbuka dan
+  `ModalRoute.isCurrentOf(context)`. Epoch memastikan future lama yang
+  selesai belakangan tidak mengurangi hitungan halaman sesudahnya.
+- `HistoryViewModel` tidak lagi memberi tahu pendengar setelah dibuang.
+- Dipakai `StockScreen` (menggantikan `_restocking` / `_restockGen`; tanda
+  tetap menjadi penjaga ketukan ganda *Buat pembelian*),
+  `PurchasesScreen`, `CustomersScreen`, `SuppliersScreen`, dan
+  `HistoryScreen`.
+- Tes alur widget: keluar dari detail lewat menu samping lalu daftar
+  memuat data baru, untuk Pembelian (1440 px), Pelanggan, Supplier, dan
+  Riwayat (800 px); tes unit mixin dengan go_router nyata.
+
 ## [0.90.0] - 2026-11-14
 
 Tombol *Buat pembelian* di Stok tidak lagi macet setelah staf meninggalkan
@@ -5868,7 +5904,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.91.0...HEAD
+[0.91.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.90.0...v0.91.0
 [0.90.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.89.0...v0.90.0
 [0.89.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.88.0...v0.89.0
 [0.88.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.87.0...v0.88.0

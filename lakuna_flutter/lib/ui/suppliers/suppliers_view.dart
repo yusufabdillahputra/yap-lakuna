@@ -13,6 +13,7 @@ import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
+import '../core/route_return.dart';
 import '../customers/customer_labels.dart' show formatPhone;
 import '../customers/customers_view.dart' show debtTone;
 import '../products/product_widgets.dart';
@@ -61,7 +62,8 @@ class SuppliersScreen extends StatefulWidget {
   State<SuppliersScreen> createState() => _SuppliersScreenState();
 }
 
-class _SuppliersScreenState extends State<SuppliersScreen> {
+class _SuppliersScreenState extends State<SuppliersScreen>
+    with RouteReturnMixin<SuppliersScreen> {
   late final _list = SuppliersViewModel(repository: widget.repository);
   SupplierPanelViewModel? _panel;
 
@@ -76,6 +78,12 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
     _list.dispose();
     _panel?.dispose();
     super.dispose();
+  }
+
+  @override
+  void onRouteReturn() {
+    unawaited(_list.refresh());
+    unawaited(_panel?.load.execute());
   }
 
   void _select(UuidValue id) {
@@ -104,7 +112,7 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
       _select(id);
       return;
     }
-    await widget.onOpenSupplier(id);
+    await whileAway(() => widget.onOpenSupplier(id));
     if (mounted) await _list.refresh();
   }
 
@@ -128,7 +136,7 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
   }
 
   Future<void> _openPurchase(UuidValue id) async {
-    await widget.onOpenPurchase(id);
+    await whileAway(() => widget.onOpenPurchase(id));
     // Pengguna bisa pindah menu saat detail pembelian terbuka.
     if (!mounted) return;
     await _list.refresh();
