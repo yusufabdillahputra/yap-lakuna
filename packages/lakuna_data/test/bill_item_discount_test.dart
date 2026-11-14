@@ -329,7 +329,7 @@ void main() {
     expect(b.items.last.lineTotal, 25000);
   });
 
-  test('split per item: persen dibagi, rupiah ditolak', () async {
+  test('split per item: persen dibagi, rupiah dibagi sebanding', () async {
     var b = await bill(2);
     b = await itemDiscount(b.items.single, tenPercent);
     b = await setBillSplit(
@@ -378,15 +378,193 @@ void main() {
       mode: SplitMode.item,
       guests: 2,
     );
-    await expectLater(
-      assignPortion(
+    // F1-04h: rupiah dibagi sebanding jumlah porsi.
+    b = await assignPortion(
+      store,
+      scope,
+      staffId: owner(),
+      itemId: b.items.single.id,
+      guest: 'A',
+    );
+    expect(b.items, hasLength(2));
+    for (final i in b.items) {
+      expect(i.discountBp, 0);
+      expect(i.discountAmount, 2500);
+      expect(i.lineTotal, 22500);
+    }
+    expect(b.charges.subtotal, const Money(45000));
+    b = await setBillSplit(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      mode: null,
+    );
+    expect(b.items.single.quantityMilli, 2000);
+    expect(b.items.single.discountAmount, 5000);
+    expect(b.items.single.lineTotal, 45000);
+  });
+
+  group('bagi diskon rupiah (F1-04h)', () {
+    Future<OpenBill> splitItems(OpenBill b, [int guests = 3]) => setBillSplit(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      mode: SplitMode.item,
+      guests: guests,
+    );
+
+    Future<OpenBill> give(SaleItem item, String? guest) => assignPortion(
+      store,
+      scope,
+      staffId: owner(),
+      itemId: item.id,
+      guest: guest,
+    );
+
+    SaleItem of(OpenBill b, String? guest) =>
+        b.items.singleWhere((i) => i.guestLabel == guest);
+
+    test(
+      'ganjil: 1.000 untuk 3 porsi jadi 333/334/333, gabung, batal',
+      () async {
+        var b = await bill(3);
+        b = await itemDiscount(
+          b.items.single,
+          const ManualDiscount.amount(Money(1000)),
+        );
+        final subtotal = b.charges.subtotal;
+        b = await splitItems(b);
+        b = await give(b.items.single, 'A');
+        expect(of(b, 'A').discountAmount, 333);
+        expect(of(b, null).discountAmount, 667);
+        b = await give(of(b, null), 'B');
+        expect(of(b, 'B').discountAmount, 334);
+        expect(of(b, null).discountAmount, 333);
+        expect(b.items.fold(0, (s, i) => s + i.discountAmount), 1000);
+        expect(b.charges.subtotal, subtotal);
+        for (final i in b.items) {
+          expect(i.discountBp, 0);
+          expect(i.lineTotal, 25000 - i.discountAmount);
+        }
+
+        // Porsi B pindah ke A: digabung, potongan dijumlah.
+        b = await give(of(b, 'B'), 'A');
+        expect(of(b, 'A').quantityMilli, 2000);
+        expect(of(b, 'A').discountAmount, 667);
+        expect(b.charges.subtotal, subtotal);
+
+        // Batal split: kembali satu baris dengan potongan asal.
+        b = await setBillSplit(
+          store,
+          scope,
+          staffId: owner(),
+          billId: b.id,
+          mode: null,
+        );
+        expect(b.items.single.quantityMilli, 3000);
+        expect(b.items.single.discountAmount, 1000);
+        expect(b.items.single.lineTotal, 74000);
+      },
+    );
+
+    test('diskon rupiah hampir penuh: tiap porsi ≤ total kotornya', () async {
+      var b = await bill(3);
+      b = await itemDiscount(
+        b.items.single,
+        const ManualDiscount.amount(Money(74998)),
+      );
+      b = await splitItems(b);
+      b = await give(b.items.single, 'A');
+      b = await give(of(b, null), 'B');
+      expect(b.items.map((i) => i.discountAmount).toList()..sort(), [
+        24999,
+        24999,
+        25000,
+      ]);
+      for (final i in b.items) {
+        expect(i.lineTotal, greaterThanOrEqualTo(0));
+        expect(i.lineTotal + i.discountAmount, 25000);
+      }
+    });
+
+    test('potongan Rp 0 karena pembulatan tetap digabung kembali', () async {
+      var b = await bill(3);
+      b = await itemDiscount(
+        b.items.single,
+        const ManualDiscount.amount(Money(1)),
+      );
+      b = await splitItems(b);
+      b = await give(b.items.single, 'A');
+      expect(of(b, 'A').discountAmount, 0);
+      expect(of(b, null).discountAmount, 1);
+      b = await give(of(b, null), 'A');
+      expect(of(b, 'A').quantityMilli, 2000);
+      expect(of(b, 'A').discountAmount, 1);
+      b = await setBillSplit(
         store,
         scope,
         staffId: owner(),
-        itemId: b.items.single.id,
-        guest: 'A',
-      ),
-      throwsA(isA<BillItemDiscounted>()),
+        billId: b.id,
+        mode: null,
+      );
+      expect(b.items.single.quantityMilli, 3000);
+      expect(b.items.single.discountAmount, 1);
+    });
+
+    test('porsi rupiah tidak digabung dengan porsi persen', () async {
+      var b = await bill(2);
+      b = await itemDiscount(
+        b.items.single,
+        const ManualDiscount.amount(Money(4000)),
+      );
+      b = await splitItems(b, 2);
+      b = await give(b.items.single, 'A');
+      // Porsi sisa diubah ke persen, lalu dipindah ke A.
+      b = await itemDiscount(of(b, null), tenPercent);
+      b = await give(of(b, null), 'A');
+      final a = b.items.where((i) => i.guestLabel == 'A').toList();
+      expect(a, hasLength(2));
+      expect(a.map((i) => i.discountBp).toSet(), {0, 1000});
+    });
+
+    test(
+      'bayar bagian memakai potongan porsi; nota akhir satu baris',
+      () async {
+        var b = await bill(2);
+        b = await itemDiscount(
+          b.items.single,
+          const ManualDiscount.amount(Money(5000)),
+        );
+        b = await splitItems(b, 2);
+        b = await give(b.items.single, 'A');
+        b = await give(of(b, null), 'B');
+        final first = await paySplitPart(
+          store,
+          scope,
+          staffId: owner(),
+          billId: b.id,
+          guest: 'A',
+          payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+        );
+        expect(first.bill!.split!.part('A').items.single.discountAmount, 2500);
+        final last = await paySplitPart(
+          store,
+          scope,
+          staffId: owner(),
+          billId: b.id,
+          guest: 'B',
+          payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+        );
+        final receipt = last.receipt!;
+        expect(
+          receipt.payments.fold(0, (s, p) => s + p.amount),
+          receipt.sale.total,
+        );
+        final lines = receipt.items;
+        expect(lines.fold(0, (s, i) => s + i.discountAmount), 5000);
+      },
     );
   });
 

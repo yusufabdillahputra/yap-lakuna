@@ -330,34 +330,49 @@ Future<void> _moveQuantity(
     discountAmount: cut.value,
   );
 
-  // Diskon baris rupiah tidak bisa dibagi (F1-04g); persen dibagi dengan
-  // persen yang sama. Potongan sisa dihitung dari persennya dan porsi yang
-  // pindah membawa selisihnya, sehingga jumlah potongan tidak berubah oleh
+  // Diskon persen dibagi dengan persen yang sama: potongan sisa dihitung
+  // dari persennya dan porsi yang pindah membawa selisihnya. Diskon rupiah
+  // dibagi sebanding jumlah (F1-04h). Jumlah potongan tidak berubah oleh
   // pembulatan saat dibagi.
   final discount = billItemDiscountOf(source);
   final rupiah = discount?.kind == DiscountKind.amount;
   final left = Qty(source.quantityMilli) - qty;
-  if (rupiah && left.isPositive) {
-    throw const BillItemDiscounted();
+  final Money leftCut;
+  if (!left.isPositive || discount == null) {
+    leftCut = Money.zero;
+  } else if (rupiah) {
+    leftCut = _rupiahLeftCut(
+      Money(source.discountAmount),
+      moved: qty,
+      total: Qty(source.quantityMilli),
+      movedGross: gross(source, qty),
+      leftGross: gross(source, left),
+    );
+  } else {
+    leftCut = discount.cut(gross(source, left));
   }
-  final leftCut = left.isPositive && discount != null
-      ? discount.cut(gross(source, left))
-      : Money.zero;
   final movedCut = Money(source.discountAmount) - leftCut;
   final root = source.splitFromItemId ?? source.id;
-  final target = rupiah
-      ? null
-      : rows
-            .where(
-              (i) =>
-                  i.id != source.id &&
-                  (i.splitFromItemId ?? i.id) == root &&
-                  i.guestLabel == label &&
-                  i.kitchenStatus == source.kitchenStatus &&
-                  i.kitchenTicketId == source.kitchenTicketId &&
-                  billItemDiscountOf(i) == discount,
-            )
-            .firstOrNull;
+  // Porsi rupiah dari akar yang sama digabung walau potongannya beda
+  // (bagian dari potongan asal), termasuk porsi yang kebagian Rp 0 karena
+  // pembulatan (F1-04h); persen hanya dengan persen yang sama.
+  bool notPercent(ManualDiscount? d) => d?.kind != DiscountKind.percent;
+  bool sameDiscount(SaleItem i) {
+    final other = billItemDiscountOf(i);
+    return (notPercent(discount) && notPercent(other)) || other == discount;
+  }
+
+  final target = rows
+      .where(
+        (i) =>
+            i.id != source.id &&
+            (i.splitFromItemId ?? i.id) == root &&
+            i.guestLabel == label &&
+            i.kitchenStatus == source.kitchenStatus &&
+            i.kitchenTicketId == source.kitchenTicketId &&
+            sameDiscount(i),
+      )
+      .firstOrNull;
   if (target != null) {
     replace(
       await w.update(
@@ -559,10 +574,28 @@ bool paidInSession(Iterable<Payment> payments, UuidValue? sessionId) =>
           p.cashSessionId == sessionId,
     );
 
-/// Baris berdiskon rupiah tidak bisa dibagi per porsi (F1-04g): hapus
-/// diskonnya atau ubah ke persen dulu.
-class BillItemDiscounted implements Exception {
-  const BillItemDiscounted();
+/// Potongan rupiah [cut] yang tetap di sisa baris saat [moved] dari
+/// [total] dipindah (F1-04h): porsi yang pindah mendapat `cut × moved /
+/// total` dibulatkan setengah ke atas; tidak ada bagian yang potongannya
+/// melebihi total kotornya.
+Money _rupiahLeftCut(
+  Money cut, {
+  required Qty moved,
+  required Qty total,
+  required Money movedGross,
+  required Money leftGross,
+}) {
+  var movedCut = Money(
+    (cut.value * moved.milli * 2 + total.milli) ~/ (total.milli * 2),
+  );
+  if (movedCut > movedGross) movedCut = movedGross;
+  var leftCut = cut - movedCut;
+  if (leftCut > leftGross) {
+    leftCut = leftGross;
+  } else if (leftCut < Money.zero) {
+    leftCut = Money.zero;
+  }
+  return leftCut;
 }
 
 /// Hasil bayar bagian: bill terkini, atau [receipt] bila bill lunas.

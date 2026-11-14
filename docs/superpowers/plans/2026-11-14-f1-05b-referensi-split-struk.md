@@ -17,4 +17,4 @@ approval/referensi, dan referensi tercetak di struk.
   struk.
 - [x] **Dokumen**: spec F1-05 (gap), README, STATUS-JEDA, panduan
   pembayaran id/en, CHANGELOG 0.64.0, pubspec `0.64.0+67`.
-- [ ] **PR, merge, cek rilis.**
+- [x] **PR, merge, cek rilis.**

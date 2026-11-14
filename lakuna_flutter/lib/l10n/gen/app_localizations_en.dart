@@ -8048,10 +8048,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstProductOptional => 'Optional';
 
   @override
-  String get billSplitErrorItemDiscounted =>
-      'Remove this item\'s rupiah discount or change it to a percentage before splitting it.';
-
-  @override
   String get productGenerateBarcode => 'Generate barcode';
 
   @override

@@ -22,7 +22,7 @@ Di layar **Meja**, panel bill punya tombol **Diskon** untuk diskon nota seluruh 
 - Diskon persen ikut berubah saat jumlah item diubah; diskon rupiah tetap, tetapi tidak pernah melebihi total baris.
 - Menambah menu yang sama ke bill membuat baris baru tanpa diskon.
 - Service, PB1, dan diskon nota dihitung dari total setelah diskon baris.
-- Saat split bill per item, baris berdiskon persen bisa dibagi ke beberapa tamu. Baris berdiskon rupiah harus dihapus diskonnya atau diubah ke persen dulu.
+- Saat split bill per item, baris berdiskon bisa dibagi ke beberapa tamu. Diskon persen ikut ke tiap porsi; diskon rupiah dibagi sebanding jumlah (mis. Rp 1.000 untuk 3 porsi jadi Rp 333 + Rp 334 + Rp 333), jadi total bill tidak berubah. Porsi yang dipindah kembali digabung lagi.
 - Setelah ada pembayaran bagian di split bill, diskon tidak bisa diubah lagi.
 
 ## Persetujuan manajer

@@ -384,4 +384,31 @@ void main() {
     expect(merged.last.discountAmount, 5000);
     expect(merged.last.lineTotal, 19000);
   });
+
+  test('porsi diskon rupiah (termasuk Rp 0) jadi satu baris (F1-04h)', () {
+    final teh = item('Es Teh', '', 1000, 5000).copyWith(discountAmount: 333);
+    SaleItem portion(String guest, int cut) =>
+        item(
+          'Es Teh',
+          '',
+          1000,
+          5000,
+        ).copyWith(
+          id: UuidValue.fromString(newId()),
+          guestLabel: guest,
+          splitFromItemId: teh.id,
+          lineTotal: 5000 - cut,
+          discountAmount: cut,
+        );
+    final merged = mergeSplitPortions([
+      teh.copyWith(lineTotal: 5000 - 333),
+      portion('A', 334),
+      portion('B', 333),
+      portion('C', 0),
+    ]);
+    expect(merged, hasLength(1));
+    expect(merged.single.quantityMilli, 4000);
+    expect(merged.single.discountAmount, 1000);
+    expect(merged.single.lineTotal, 19000);
+  });
 }
