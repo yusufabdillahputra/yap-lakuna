@@ -7858,4 +7858,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get firstProductOptional => 'Opsional';
+
+  @override
+  String get billSplitErrorItemDiscounted =>
+      'Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi.';
 }

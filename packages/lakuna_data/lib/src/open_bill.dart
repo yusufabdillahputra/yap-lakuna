@@ -274,6 +274,30 @@ ManualDiscount? billDiscountOf(Sale sale) => sale.discountBp > 0
     ? ManualDiscount.amount(Money(sale.discountAmount))
     : null;
 
+/// Diskon baris item bill (F1-04g): persen di `discount_bp`, potongan
+/// efektif di `discount_amount` (rupiah yang diminta, dipangkas ke total
+/// baris).
+ManualDiscount? billItemDiscountOf(SaleItem item) => item.discountBp > 0
+    ? ManualDiscount.percent(BasisPoints(item.discountBp))
+    : item.discountAmount > 0
+    ? ManualDiscount.amount(Money(item.discountAmount))
+    : null;
+
+bool _hasLineDiscount(SaleItem i) => i.discountBp > 0 || i.discountAmount > 0;
+
+/// Total baris sebelum diskon baris.
+Money _grossLine(SaleItem i) => Money(i.lineTotal + i.discountAmount);
+
+/// [item] dengan total kotor baru [gross]: potongan diskon barisnya
+/// dihitung ulang (persen mengikuti, rupiah dipangkas ke [gross]).
+SaleItem _withGross(SaleItem item, Money gross) {
+  final cut = billItemDiscountOf(item)?.cut(gross) ?? Money.zero;
+  return item.copyWith(
+    lineTotal: (gross - cut).value,
+    discountAmount: cut.value,
+  );
+}
+
 FnbCharges _charges(
   Sale sale,
   List<SaleItem> items,
@@ -290,10 +314,12 @@ FnbCharges _charges(
   discount: useSaleDiscount ? billDiscountOf(sale) : discount,
 );
 
-/// Bill berdiskon yang totalnya habis (item berkurang setelah diskon
-/// rupiah) tidak bisa dibayar sampai diskon diubah.
-void _assertPayable(Sale sale, FnbCharges charges) {
-  if (charges.discount > Money.zero && charges.total <= Money.zero) {
+/// Bill berdiskon (nota atau baris) yang totalnya habis (item berkurang
+/// setelah diskon rupiah) tidak bisa dibayar sampai diskon diubah.
+void _assertPayable(Sale sale, List<SaleItem> items, FnbCharges charges) {
+  final discounted =
+      charges.discount > Money.zero || items.any(_hasLineDiscount);
+  if (discounted && charges.total <= Money.zero) {
     throw const DiscountTooLarge();
   }
 }
@@ -777,10 +803,16 @@ Future<void> _refreshTotals(
   );
   final charges = _charges(sale, items, rates);
   final list = Money.sum(items.map(_listTotal));
+  final gross = Money.sum(items.map(_grossLine));
+  // Penyetuju hanya tercatat selama masih ada diskon (nota atau baris).
+  final discounted =
+      billDiscountOf(sale) != null || items.any(_hasLineDiscount);
   await w.update(
     sale.copyWith(
+      discountApprovedBy: discounted ? sale.discountApprovedBy : null,
       subtotal: list.value,
-      tierDiscount: (list - charges.subtotal).value,
+      tierDiscount: (list - gross).value,
+      lineDiscountAmount: (gross - charges.subtotal).value,
       total: charges.total.value,
       itemCount: items.length,
       version: sale.version + 1,
@@ -904,7 +936,9 @@ Future<OpenBill> addBillItem(
               i.modifierKey == key &&
               i.modifierDelta == delta.value &&
               i.guestLabel == null &&
-              i.splitFromItemId == null,
+              i.splitFromItemId == null &&
+              // Baris berdiskon tidak digabung (F1-04g).
+              !_hasLineDiscount(i),
         )
         .firstOrNull;
     final quantity = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -1032,21 +1066,24 @@ SaleItem _repriced(
   PricedRequest priced,
   SyncStamp s,
   UuidValue staffId,
-) => item.copyWith(
-  quantityMilli: priced.line.quantity.milli,
-  listPrice: priced.line.listPrice.value,
-  unitPrice: priced.line.unitPrice.value,
-  lineTotal: _lineTotal(
-    priced.line.unitPrice,
-    item.modifierDelta,
-    priced.line.quantity,
-  ).value,
-  version: item.version + 1,
-  updatedAt: s.now,
-  updatedBy: staffId,
-  hlc: s.hlc.toString(),
-  originDeviceId: s.deviceId,
-);
+) =>
+    _withGross(
+      item,
+      _lineTotal(
+        priced.line.unitPrice,
+        item.modifierDelta,
+        priced.line.quantity,
+      ),
+    ).copyWith(
+      quantityMilli: priced.line.quantity.milli,
+      listPrice: priced.line.listPrice.value,
+      unitPrice: priced.line.unitPrice.value,
+      version: item.version + 1,
+      updatedAt: s.now,
+      updatedBy: staffId,
+      hlc: s.hlc.toString(),
+      originDeviceId: s.deviceId,
+    );
 
 Future<(Sale, SaleItem)> _billItem(
   SyncTx w,
@@ -1368,11 +1405,92 @@ Future<OpenBill> setBillDiscount(
         discountAmount: discount?.kind == DiscountKind.amount
             ? discount!.amount.value
             : 0,
-        discountApprovedBy: approvedBy,
+        // Penyetuju diskon baris tetap tercatat selama ada baris berdiskon
+        // (F1-04g).
+        discountApprovedBy:
+            approvedBy ??
+            (items.any(_hasLineDiscount) ? sale.discountApprovedBy : null),
         total: charges.total.value,
       );
     },
   );
+}
+
+/// Menerapkan diskon baris [discount] ke item [itemId] (F1-04g), atau
+/// menghapusnya bila `null`. Dasar = total baris sebelum diskon baris.
+/// Izin sama dengan diskon nota ([requireDiscountActor]); menghapus tidak
+/// butuh izin diskon. Ditolak bila bill sudah punya pembayaran bagian
+/// ([SplitLocked]), potongan melebihi baris, atau total bill habis
+/// ([DiscountTooLarge]).
+Future<OpenBill> setBillItemDiscount(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue itemId,
+  required ManualDiscount? discount,
+  UuidValue? approverId,
+}) async {
+  final approvedBy = discount == null
+      ? null
+      : await requireDiscountActor(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: approverId,
+        );
+  final billId = await store.write(actor: staffId, (w) async {
+    final (sale, item) = await _billItem(w, scope, itemId);
+    await _assertUnlocked(w, scope, sale.id);
+    final gross = _grossLine(item);
+    if (discount != null) {
+      switch (discount.issue(gross)) {
+        case DiscountIssue.invalid:
+          throw const DiscountInvalid();
+        case DiscountIssue.tooLarge:
+          throw const DiscountTooLarge();
+        case null:
+      }
+    }
+    final cut = discount?.cut(gross) ?? Money.zero;
+    final s = await w.stamp();
+    await w.update(
+      item.copyWith(
+        discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
+        discountAmount: cut.value,
+        lineTotal: (gross - cut).value,
+        version: item.version + 1,
+        updatedAt: s.now,
+        updatedBy: staffId,
+        hlc: s.hlc.toString(),
+        originDeviceId: s.deviceId,
+      ),
+      s,
+    );
+    final items = await _items(w.session, scope.tenantId, [
+      sale.id,
+    ], transaction: w.transaction);
+    final rates = await loadFnbRates(
+      w.session,
+      scope,
+      transaction: w.transaction,
+    );
+    if (discount != null && _charges(sale, items, rates).total <= Money.zero) {
+      throw const DiscountTooLarge();
+    }
+    final keep = billDiscountOf(sale) != null || items.any(_hasLineDiscount);
+    await _refreshTotals(
+      w,
+      scope,
+      sale.copyWith(
+        discountApprovedBy:
+            approvedBy ?? (keep ? sale.discountApprovedBy : null),
+      ),
+      s,
+      staffId,
+    );
+    return sale.id;
+  });
+  return loadOpenBill(store, scope, billId);
 }
 
 /// *Pindah meja* bill dine in ke meja kosong [tableId].
@@ -1519,6 +1637,9 @@ Future<OpenBill> mergeOpenBills(
     );
     final merged = target.copyWith(
       guestCount: guests,
+      // Sumber tanpa diskon nota: penyetujunya dari diskon baris.
+      discountApprovedBy:
+          target.discountApprovedBy ?? source.discountApprovedBy,
       customerId: mergedCustomer?.id ?? target.customerId,
       customerName: target.customerName ?? source.customerName,
     );
@@ -1683,7 +1804,7 @@ Future<CheckoutResult> payOpenBill(
       transaction: w.transaction,
     );
     final charges = _charges(sale, items, rates);
-    _assertPayable(sale, charges);
+    _assertPayable(sale, items, charges);
     final total = charges.total;
     final s = await w.stamp();
     Customer? customer;
@@ -1788,6 +1909,7 @@ Future<CheckoutResult> _completeBill(
     }
   }
   final list = Money.sum(items.map(_listTotal));
+  final gross = Money.sum(items.map(_grossLine));
   final paid = await w.update(
     sale.copyWith(
       number: await nextReceiptNumber(w, scope, s.now),
@@ -1795,7 +1917,8 @@ Future<CheckoutResult> _completeBill(
       cashSessionId: cash.id,
       staffId: staffId,
       subtotal: list.value,
-      tierDiscount: (list - charges.subtotal).value,
+      tierDiscount: (list - gross).value,
+      lineDiscountAmount: (gross - charges.subtotal).value,
       total: charges.total.value,
       // Sama dengan penjualan retail: paid_amount = total nota (uang
       // diterima dan kembalian ada di baris payments).
@@ -2035,7 +2158,7 @@ Future<OpenBill> setOpenBillCustomer(
       scope,
       transaction: w.transaction,
     );
-    _assertPayable(updated, _charges(updated, items, rates));
+    _assertPayable(updated, items, _charges(updated, items, rates));
   });
   return loadOpenBill(store, scope, billId);
 }

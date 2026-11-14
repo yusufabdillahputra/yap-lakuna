@@ -116,6 +116,7 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
         items.map((i) => i.name).join(', '),
       ),
       SplitLocked() => l10n.diningErrorSplitLocked,
+      BillItemDiscounted() => l10n.billSplitErrorItemDiscounted,
       DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
       DiscountNotPermitted() => l10n.saleErrorDiscountNotPermitted,
       NotPermitted(permission: Permission.salesDiscount) =>
@@ -1574,6 +1575,18 @@ class _BillItemRow extends StatelessWidget {
     final unit = item.productUnitId == null ? '' : ' ${item.unitName}';
     final key = item.id.uuid;
     final modifierText = modifiers.map((m) => m.name).join(', ');
+    // Diskon baris (F1-04g): untuk semua status dapur; terkunci setelah
+    // ada pembayaran bagian.
+    final discount = billItemDiscountOf(item);
+    // Menghapus diskon tidak butuh PIN manajer.
+    final discountAction =
+        busy ||
+            locked ||
+            (discount == null &&
+                vm.discountNeedsApproval &&
+                ApprovalScope.maybeOf(context) == null)
+        ? null
+        : () => _editItemDiscount(context, vm, item, name);
 
     Widget qtyButton(String k, IconData icon, Qty to, String label) =>
         FButton.icon(
@@ -1645,6 +1658,16 @@ class _BillItemRow extends StatelessWidget {
                           fontStyle: FontStyle.italic,
                         ),
                       ),
+                    if (discount != null)
+                      Text(
+                        '${discountLabel(l10n, discount)} · '
+                        '− ${formatMoney(context, Money(item.discountAmount))}',
+                        key: ValueKey('dining-item-discount-line-$key'),
+                        style: theme.typography.body.xs.copyWith(
+                          color: theme.colors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -1702,6 +1725,15 @@ class _BillItemRow extends StatelessWidget {
                             ? null
                             : () => vm.markServed.execute(item.id),
                         child: Flexible(child: Text(l10n.diningMarkServed)),
+                      ),
+                    if (vm.canOfferDiscount)
+                      FButton.icon(
+                        key: ValueKey('dining-item-discount-$key'),
+                        size: .sm,
+                        variant: discount == null ? .outline : .secondary,
+                        semanticsLabel: l10n.cashierDiscountLineTitle,
+                        onPress: discountAction,
+                        child: const Icon(TablerIcons.percentage, size: 14),
                       ),
                   ],
                 ),
@@ -2226,6 +2258,51 @@ Future<void> _editBillDiscount(
     approverId = approver.id;
   }
   await vm.setDiscount.execute((
+    discount: choice.discount,
+    approverId: approverId,
+  ));
+}
+
+/// *Diskon* baris panel bill (F1-04g): dialog diskon baris Kasir dengan
+/// dasar total baris sebelum diskon; staf tanpa izin diminta PIN manajer.
+Future<void> _editItemDiscount(
+  BuildContext context,
+  DiningViewModel vm,
+  SaleItem item,
+  String name,
+) async {
+  final l10n = AppLocalizations.of(context);
+  final session = ApprovalScope.maybeOf(context);
+  final choice = await showFDialog<DiscountChoice>(
+    context: context,
+    builder: (context, style, animation) => FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+      builder: (context, style) => DiscountDialog(
+        title: l10n.cashierDiscountLineTitle,
+        subtitle: name,
+        base: Money(item.lineTotal + item.discountAmount),
+        initial: billItemDiscountOf(item),
+        needsApproval: vm.discountNeedsApproval,
+        issueOf: (d) => vm.itemDiscountIssue(item, d),
+      ),
+    ),
+  );
+  if (choice == null || !context.mounted) return;
+  UuidValue? approverId;
+  if (choice.discount != null && vm.discountNeedsApproval) {
+    if (session == null) return;
+    final approver = await requestApproval(
+      context,
+      session: session,
+      permission: Permission.salesDiscount,
+      reason: l10n.approvalDiscount,
+    );
+    if (approver == null) return;
+    approverId = approver.id;
+  }
+  await vm.setItemDiscount.execute((
+    itemId: item.id,
     discount: choice.discount,
     approverId: approverId,
   ));

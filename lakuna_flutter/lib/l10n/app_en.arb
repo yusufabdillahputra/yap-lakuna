@@ -4521,5 +4521,6 @@
   "firstProductSkip": "Skip, add later",
   "firstProductSkipDesc": "Add products any time from the Products menu.",
   "firstProductInvalid": "Check the first product fields.",
-  "firstProductOptional": "Optional"
+  "firstProductOptional": "Optional",
+  "billSplitErrorItemDiscounted": "Remove this item's rupiah discount or change it to a percentage before splitting it."
 }

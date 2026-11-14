@@ -410,7 +410,8 @@ class FakeDiningRepository extends DiningRepository {
               (i.note ?? '') == clean &&
               i.modifierKey == key &&
               i.guestLabel == null &&
-              i.splitFromItemId == null,
+              i.splitFromItemId == null &&
+              billItemDiscountOf(i) == null,
         )
         .firstOrNull;
     final qty = Qty(same?.quantityMilli ?? 0) + line.quantity;
@@ -485,12 +486,15 @@ class FakeDiningRepository extends DiningRepository {
         _unlocked(bill(item.saleId));
         if (item.kitchenStatus != KitchenStatus.pending) throw BillItemLocked();
         if (quantity.isPositive) {
+          final gross = Money(
+            item.unitPrice + item.modifierDelta,
+          ).timesMilli(quantity.milli);
+          final cut = billItemDiscountOf(item)?.cut(gross) ?? Money.zero;
           _replaceItem(
             item.copyWith(
               quantityMilli: quantity.milli,
-              lineTotal: Money(item.unitPrice + item.modifierDelta)
-                  .timesMilli(quantity.milli)
-                  .value,
+              lineTotal: (gross - cut).value,
+              discountAmount: cut.value,
             ),
           );
         } else {
@@ -742,6 +746,7 @@ class FakeDiningRepository extends DiningRepository {
 
   /// Penyetuju diskon terakhir per bill.
   final discountApprovers = <UuidValue, UuidValue>{};
+  final itemDiscountApprovers = <UuidValue, UuidValue>{};
 
   @override
   Future<Result<OpenBill>> setDiscount(
@@ -776,6 +781,44 @@ class FakeDiningRepository extends DiningRepository {
       throw const DiscountTooLarge();
     }
     return after;
+  });
+
+  @override
+  Future<Result<OpenBill>> setItemDiscount(
+    UuidValue itemId,
+    ManualDiscount? discount, {
+    UuidValue? approverId,
+  }) => _run(() {
+    if (discount != null &&
+        approverId == null &&
+        !_can(Permission.salesDiscount)) {
+      throw const NotPermitted(Permission.salesDiscount);
+    }
+    final item = items.firstWhere((i) => i.id == itemId);
+    final b = bill(item.saleId);
+    if (b.payments.isNotEmpty) throw SplitLocked();
+    final gross = Money(item.lineTotal + item.discountAmount);
+    if (discount != null && discount.issue(gross) != null) {
+      throw const DiscountTooLarge();
+    }
+    final cut = discount?.cut(gross) ?? Money.zero;
+    _replaceItem(
+      item.copyWith(
+        discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
+        discountAmount: cut.value,
+        lineTotal: (gross - cut).value,
+      ),
+    );
+    if (discount != null && bill(item.saleId).charges.total <= Money.zero) {
+      _replaceItem(item);
+      throw const DiscountTooLarge();
+    }
+    if (approverId != null && discount != null) {
+      itemDiscountApprovers[itemId] = approverId;
+      _replaceSale(b.sale.copyWith(discountApprovedBy: approverId));
+    }
+    _sync(item.saleId);
+    return bill(item.saleId);
   });
 
   @override

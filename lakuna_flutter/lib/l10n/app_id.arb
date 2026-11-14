@@ -5055,5 +5055,6 @@
   "firstProductSkip": "Lewati, tambah nanti",
   "firstProductSkipDesc": "Tambah produk kapan saja dari menu Produk.",
   "firstProductInvalid": "Periksa isian produk pertama.",
-  "firstProductOptional": "Opsional"
+  "firstProductOptional": "Opsional",
+  "billSplitErrorItemDiscounted": "Hapus atau ubah diskon rupiah item ini ke persen sebelum dibagi."
 }

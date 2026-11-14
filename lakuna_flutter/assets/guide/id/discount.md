@@ -14,6 +14,17 @@ Kasir bisa memberi potongan untuk seluruh nota atau per item, dalam persen atau 
 
 Tekan lama baris pesanan, lalu isi diskon baris dengan cara yang sama.
 
+## Diskon di bill meja dan take away
+
+Di layar **Meja**, panel bill punya tombol **Diskon** untuk diskon nota seluruh bill. Untuk satu menu saja (mis. menu terlambat keluar), tekan tombol persen di baris item tersebut, lalu isi **Diskon baris** dengan cara yang sama.
+
+- Diskon baris bisa diberikan untuk item *Baru*, *Di dapur*, maupun *Disajikan*. Potongannya tampil di bawah nama item, dan harga di kanan sudah bersih.
+- Diskon persen ikut berubah saat jumlah item diubah; diskon rupiah tetap, tetapi tidak pernah melebihi total baris.
+- Menambah menu yang sama ke bill membuat baris baru tanpa diskon.
+- Service, PB1, dan diskon nota dihitung dari total setelah diskon baris.
+- Saat split bill per item, baris berdiskon persen bisa dibagi ke beberapa tamu. Baris berdiskon rupiah harus dihapus diskonnya atau diubah ke persen dulu.
+- Setelah ada pembayaran bagian di split bill, diskon tidak bisa diubah lagi.
+
 ## Persetujuan manajer
 
 Diskon manual butuh izin *Diskon manual*. Bila kasir tidak punya izin dan pengaturan **Diskon manual butuh PIN manajer** aktif, setelah **Terapkan** muncul jendela *Persetujuan manajer*: staf yang berizin memilih namanya dan memasukkan PIN. Nama penyetuju tercatat di nota.

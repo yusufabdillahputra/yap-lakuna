@@ -268,6 +268,119 @@ void main() {
     });
   });
 
+  group('diskon baris bill (F1-04g)', () {
+    test('terapkan, ubah jumlah, dan hapus diskon baris', () async {
+      await vm.openTable.execute((table('M1').id, 2));
+      await add('Kopi Susu Aren');
+      var kopi = vm.selectedBill!.items.single;
+      await vm.setItemDiscount.execute((
+        itemId: kopi.id,
+        discount: const ManualDiscount.percent(BasisPoints(1000)),
+        approverId: null,
+      ));
+      expect(vm.actionError, isNull);
+      kopi = vm.selectedBill!.items.single;
+      expect(
+        billItemDiscountOf(kopi),
+        const ManualDiscount.percent(BasisPoints(1000)),
+      );
+      expect(kopi.discountAmount, 2400);
+      expect(kopi.lineTotal, 21600);
+      expect(vm.selectedBill!.charges.subtotal, const Money(21600));
+
+      // Menu sama menjadi baris baru tanpa diskon.
+      await add('Kopi Susu Aren');
+      expect(vm.selectedBill!.items, hasLength(2));
+      expect(vm.selectedBill!.items.last.discountAmount, 0);
+
+      await vm.setItemDiscount.execute((
+        itemId: kopi.id,
+        discount: null,
+        approverId: null,
+      ));
+      expect(vm.selectedBill!.items.first.discountAmount, 0);
+      expect(vm.selectedBill!.items.first.lineTotal, 24000);
+    });
+
+    test('staf tanpa izin butuh penyetuju', () async {
+      repo.permissions = {Permission.openBillsManage, Permission.salesCreate};
+      await vm.load.execute();
+      expect(vm.canOfferDiscount, isTrue);
+      expect(vm.discountNeedsApproval, isTrue);
+      await vm.openTable.execute((table('M2').id, 2));
+      await add('Kopi Susu Aren');
+      final kopi = vm.selectedBill!.items.single;
+      const d = ManualDiscount.amount(Money(4000));
+      await vm.setItemDiscount.execute((
+        itemId: kopi.id,
+        discount: d,
+        approverId: null,
+      ));
+      expect(vm.actionError, isA<NotPermitted>());
+      final rina = UuidValue.fromString('00000000-0000-4000-8000-0000000000aa');
+      await vm.setItemDiscount.execute((
+        itemId: kopi.id,
+        discount: d,
+        approverId: rina,
+      ));
+      expect(vm.actionError, isNull);
+      expect(repo.itemDiscountApprovers[kopi.id], rina);
+      expect(vm.selectedBill!.items.single.discountAmount, 4000);
+    });
+
+    test('pratinjau: batas baris dan total bill', () async {
+      await vm.openTable.execute((table('M3').id, 2));
+      await add('Kopi Susu Aren');
+      final kopi = vm.selectedBill!.items.single;
+      expect(
+        vm.itemDiscountIssue(kopi, const ManualDiscount.amount(Money(30000))),
+        DiscountIssue.tooLarge,
+      );
+      // Satu-satunya item gratis menghabiskan total bill.
+      expect(
+        vm.itemDiscountIssue(kopi, const ManualDiscount.amount(Money(24000))),
+        DiscountIssue.tooLarge,
+      );
+      expect(
+        vm.itemDiscountIssue(kopi, const ManualDiscount.amount(Money(20000))),
+        isNull,
+      );
+      await add('Nasi Goreng Kampung');
+      expect(
+        vm.itemDiscountIssue(
+          vm.selectedBill!.items.first,
+          const ManualDiscount.percent(BasisPoints.full),
+        ),
+        isNull,
+      );
+      expect(
+        vm.itemDiscountIssue(
+          kopi,
+          const ManualDiscount.percent(BasisPoints(0)),
+        ),
+        DiscountIssue.invalid,
+      );
+    });
+
+    test('rupiah dipangkas saat jumlah berkurang: bayar diblokir', () async {
+      await vm.openTable.execute((table('M4').id, 2));
+      await add('Kopi Susu Aren');
+      var kopi = vm.selectedBill!.items.single;
+      await vm.setQuantity.execute((kopi.id, Qty.units(2)));
+      await vm.setItemDiscount.execute((
+        itemId: kopi.id,
+        discount: const ManualDiscount.amount(Money(30000)),
+        approverId: null,
+      ));
+      expect(vm.discountBlocksPay, isFalse);
+      await vm.setQuantity.execute((kopi.id, Qty.units(1)));
+      kopi = vm.selectedBill!.items.single;
+      expect(kopi.discountAmount, 24000);
+      expect(kopi.lineTotal, 0);
+      expect(vm.discountBlocksPay, isTrue);
+    });
+  });
+
   test('take away bernomor; kosong dipakai ulang lalu dihapus', () async {
     vm.setMode(DiningMode.takeAway);
     await vm.openTakeAway.execute('Budi');

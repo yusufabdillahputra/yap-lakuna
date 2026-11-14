@@ -65,6 +65,7 @@ void main() {
     KitchenPrinter? kitchenPrinter,
     List<CustomerRow> customers = const [],
     List<String> plainMenus = const [],
+    bool discountNeedsPin = true,
   }) async {
     dining = FakeDiningRepository(
       permissions: role == 'owner'
@@ -72,6 +73,7 @@ void main() {
           : permissionsForRole(role, isOwner: false),
     )..allowMerge(mergeable);
     dining
+      ..discountNeedsPin = discountNeedsPin
       ..kitchenPrinter = kitchenPrinter
       ..customerRows = customers;
     if (modifiers) {
@@ -443,6 +445,85 @@ void main() {
     );
     expect(dining.discountApprovers.values, [session.staff.single.id]);
     expect(session.current!.name, 'Dimas');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('diskon baris 1280 px: persen, bayar, hapus', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'dining-table-M4');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren']);
+    final id = dining.items.single.id.uuid;
+    // Tetap bisa didiskon setelah dikirim ke dapur.
+    await _tap(tester, 'dining-send');
+    await _tap(tester, 'dining-ticket-close');
+    expect(_key('dining-item-served-$id'), findsOneWidget);
+    await _tap(tester, 'dining-item-discount-$id');
+    expect(_key('discount-dialog'), findsOneWidget);
+    expect(find.text('Diskon baris'), findsOneWidget);
+    expect(_key('discount-needs-pin'), findsNothing);
+    await tester.enterText(_input('discount-value-percent'), '10');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'discount-apply');
+    expect(_key('discount-dialog'), findsNothing);
+
+    expect(
+      tester.widget<Text>(_key('dining-item-discount-line-$id')).data,
+      'Diskon 10% · − Rp 2.400',
+    );
+    expect(find.text('Rp 21.600'), findsWidgets);
+    // 21.600 + service 1.080 + PB1 2.268.
+    expect(find.text('Rp 24.948'), findsWidgets);
+    await _tap(tester, 'dining-pay');
+    expect(find.text('Pembayaran · Total Rp 24.948'), findsOneWidget);
+    await _tap(tester, 'payment-back');
+
+    await _tap(tester, 'dining-item-discount-$id');
+    await _tap(tester, 'discount-remove');
+    expect(_key('dining-item-discount-line-$id'), findsNothing);
+    expect(find.text('Rp 27.720'), findsWidgets);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('diskon baris 360 px: pelayan lewat PIN manajer', (tester) async {
+    await pump(tester, size: const Size(360, 740), role: 'waiter');
+    await _tap(tester, 'dining-table-M3');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren']);
+    expect(tester.takeException(), isNull);
+    final id = dining.items.single.id.uuid;
+    await _tap(tester, 'dining-item-discount-$id');
+    expect(_key('discount-needs-pin'), findsOneWidget);
+    await _tap(tester, 'discount-kind-amount');
+    await tester.enterText(_input('discount-value-amount'), '30000');
+    await _tap(tester, 'discount-apply');
+    expect(
+      find.text('Diskon tidak boleh melebihi atau menghabiskan total.'),
+      findsOneWidget,
+    );
+    await tester.enterText(_input('discount-value-amount'), '5000');
+    await _tap(tester, 'discount-apply');
+    expect(_key('approval-dialog'), findsOneWidget);
+    await tester.enterText(_input('approval-pin'), '123456');
+    await _tap(tester, 'approval-submit');
+    expect(_key('approval-dialog'), findsNothing);
+    expect(
+      tester.widget<Text>(_key('dining-item-discount-line-$id')).data,
+      'Diskon · − Rp 5.000',
+    );
+    expect(dining.itemDiscountApprovers.values, [session.staff.single.id]);
+    expect(session.current!.name, 'Dimas');
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('diskon baris: tanpa izin dan sakelar mati tidak tampil', (
+    tester,
+  ) async {
+    await pump(tester, role: 'waiter', discountNeedsPin: false);
+    await _tap(tester, 'dining-table-M2');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren']);
+    final id = dining.items.single.id.uuid;
+    expect(_key('dining-item-discount-$id'), findsNothing);
+    expect(_key('dining-discount'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   for (final size in const [Size(360, 740), Size(820, 1180)]) {
