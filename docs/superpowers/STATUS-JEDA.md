@@ -75,7 +75,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.92.0 | Harga beli terakhir untuk barang yang ditambah manual (F1-12e) | #98 |
 | v0.93.0 | Peringatan draf pembelian ganda dari stok minimum (F1-08g) | #99 |
 | v0.94.0 | Tanda "sudah di draf" di tab Stok minimum (F1-08h) | #100 |
-| v0.95.0 | *Buka draf* menambahkan barang stok minimum yang belum ada (F1-08i) | |
+| v0.95.0 | *Buka draf* menambahkan barang stok minimum yang belum ada (F1-08i) | #101 |
+| v0.96.0 | Jumlah saran stok minimum ikut satuan saat satuan diganti (F1-08j) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -175,6 +176,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     masih gap.
 37. ~~Tanda "sudah di draf" di tab *Stok minimum*~~ — selesai v0.94.0
     (F1-08h); jumlah di draf dibanding jumlah saran masih gap.
+38. ~~Jumlah saran stok minimum tetap angka yang sama saat satuan baris
+    diganti (38 botol → 38 dus)~~ — selesai v0.96.0 (F1-08j), dibulatkan ke
+    atas; satuan beli bawaan per barang dan target stok selain 2 × minimum
+    masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

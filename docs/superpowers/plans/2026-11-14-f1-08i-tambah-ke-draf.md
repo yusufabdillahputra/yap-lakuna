@@ -18,4 +18,4 @@ Rilis: v0.95.0+98.
   `/mnt/project-files/lakuna/f1-08i/`.
 - [x] 6. Dokumen: spec, gap F1-08g, README spec, STATUS-JEDA, panduan
   stok ID/EN, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#101).

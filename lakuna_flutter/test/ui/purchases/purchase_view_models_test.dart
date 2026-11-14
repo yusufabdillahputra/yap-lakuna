@@ -513,6 +513,101 @@ void main() {
     });
   });
 
+  group('jumlah saran ikut satuan (F1-08j)', () {
+    Future<PurchaseFormViewModel> filled(int qty) async {
+      final r = FakePurchasesRepository();
+      final myk = r.products.first.variants.first;
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(qty))],
+        ),
+      );
+      await vm.load.execute();
+      return vm;
+    }
+
+    UuidValue dus(PurchaseFormLine l) =>
+        l.product.units.firstWhere((u) => !u.isBase).productUnitId!;
+
+    test('saran 38 botol → 7 dus (dibulatkan ke atas), kembali 38 '
+        'botol', () async {
+      final vm = await filled(38);
+      final line = vm.lines.single;
+      expect(line.suggested, Qty.units(38));
+      vm.setUnit(line.key, dus(line));
+      expect(vm.lines.single.unit.name, 'Dus');
+      expect(vm.lines.single.quantity, Qty.units(7));
+      vm.setUnit(line.key, null);
+      expect(vm.lines.single.unit.isBase, isTrue);
+      expect(vm.lines.single.quantity, Qty.units(38));
+      vm.dispose();
+    });
+
+    test('pas habis dibagi: 36 botol → 6 dus', () async {
+      final vm = await filled(36);
+      vm.setUnit(vm.lines.single.key, dus(vm.lines.single));
+      expect(vm.lines.single.quantity, Qty.units(6));
+      vm.dispose();
+    });
+
+    test('jumlah yang sudah diubah staf tidak dikonversi', () async {
+      final vm = await filled(38);
+      final key = vm.lines.single.key;
+      vm.setQuantity(key, Qty.units(2));
+      expect(vm.lines.single.suggested, isNull);
+      vm.setUnit(key, dus(vm.lines.single));
+      expect(vm.lines.single.quantity, Qty.units(2));
+      vm.dispose();
+    });
+
+    test('scan ulang barang saran (+1) menghentikan konversi', () async {
+      final vm = await filled(38);
+      expect(vm.addByCode('MYK-2L'), PurchaseScanResult.increased);
+      final line = vm.lines.single;
+      expect(line.quantity, Qty.units(39));
+      expect(line.suggested, isNull);
+      vm.setUnit(line.key, dus(line));
+      expect(vm.lines.single.quantity, Qty.units(39));
+      vm.dispose();
+    });
+
+    test('isian jumlah yang tidak berubah tidak melupakan saran', () async {
+      final vm = await filled(38);
+      final key = vm.lines.single.key;
+      vm.setQuantity(key, Qty.units(38));
+      expect(vm.lines.single.suggested, Qty.units(38));
+      vm.setUnit(key, dus(vm.lines.single));
+      expect(vm.lines.single.quantity, Qty.units(7));
+      vm.dispose();
+    });
+
+    test('digabung ke baris dus yang sudah ada: ditambah saran yang '
+        'dikonversi', () async {
+      final vm = await filled(38);
+      final saran = vm.lines.single;
+      final unitId = dus(saran);
+      expect(vm.addByCode('8991234500031'), PurchaseScanResult.added);
+      expect(vm.lines, hasLength(2));
+      vm.setUnit(saran.key, unitId);
+      final merged = vm.lines.single;
+      expect(merged.unit.name, 'Dus');
+      expect(merged.quantity, Qty.units(1 + 7));
+      vm.dispose();
+    });
+
+    test('barang yang ditambah manual tetap seperti dulu', () async {
+      expect(form.addByCode('MYK-2L'), PurchaseScanResult.added);
+      final line = form.lines.single;
+      expect(line.suggested, isNull);
+      form.setQuantity(line.key, Qty.units(3));
+      form.setUnit(line.key, dus(line));
+      expect(form.lines.single.quantity, Qty.units(3));
+    });
+  });
+
   group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
     UuidValue myk() => form.lines
         .firstWhere((l) => l.product.sku == 'MYK-2L')
