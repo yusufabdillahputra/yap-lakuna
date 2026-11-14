@@ -170,17 +170,70 @@ class FakeCatalogRepository extends CatalogRepository {
   /// Baris yang diterima `importRows`.
   final imported = <ProductImportRow>[];
 
+  /// Nilai `updateExisting` import terakhir.
+  bool? lastUpdateExisting;
+
   @override
   Future<Result<ProductImportSummary>> importRows(
-    List<ProductImportRow> rows,
-  ) async {
+    List<ProductImportRow> rows, {
+    bool updateExisting = false,
+  }) async {
     if (_check() case final e?) return Result.error(e);
+    lastUpdateExisting = updateExisting;
     var created = 0;
+    var updated = 0;
+    var unchanged = 0;
     final skipped = <int>[];
     for (final r in rows) {
       final name = productImportNameKey(r.draft.name);
-      final exists = products.any((p) => productImportNameKey(p.name) == name);
-      if (exists || _conflicts(r.draft, null).isNotEmpty) {
+      final match = products
+          .where((p) => productImportNameKey(p.name) == name)
+          .firstOrNull;
+      final exists = match != null || _conflicts(r.draft, null).isNotEmpty;
+      if (exists && updateExisting && match?.variants.length == 1) {
+        // Versi sederhana F1-07k: cocok nama, satu varian.
+        final price = r.draft.variants.single.sellPrice;
+        if (match!.variants.single.sellPrice == price) {
+          unchanged++;
+        } else {
+          final d = match.toDraft();
+          final v = d.variants.single;
+          final row = r.draft.variants.single;
+          _store(
+            ProductDraft(
+              id: d.id,
+              name: d.name,
+              category: d.category,
+              kind: d.kind,
+              baseUnit: d.baseUnit,
+              sku: d.sku,
+              brand: d.brand,
+              isActive: d.isActive,
+              isTaxable: d.isTaxable,
+              sendToKitchen: d.sendToKitchen,
+              allowNote: d.allowNote,
+              modifierGroupIds: d.modifierGroupIds,
+              variants: [
+                VariantDraft(
+                  id: v.id,
+                  name: v.name,
+                  sku: v.sku,
+                  barcode: v.barcode,
+                  costPrice: r.hasCost ? row.costPrice : v.costPrice,
+                  sellPrice: price,
+                  minStock: r.hasMinStock ? row.minStock : v.minStock,
+                  units: v.units,
+                  tiers: v.tiers,
+                ),
+              ],
+            ),
+            match,
+          );
+          updated++;
+        }
+        continue;
+      }
+      if (exists) {
         skipped.add(r.line);
         continue;
       }
@@ -189,7 +242,12 @@ class FakeCatalogRepository extends CatalogRepository {
       created++;
     }
     return Result.ok(
-      ProductImportSummary(created: created, skippedLines: skipped),
+      ProductImportSummary(
+        created: created,
+        skippedLines: skipped,
+        updated: updated,
+        unchanged: unchanged,
+      ),
     );
   }
 

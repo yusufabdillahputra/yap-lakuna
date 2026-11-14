@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.59.0] - 2026-11-14
+
+Harga produk yang sudah ada kini bisa diperbarui sekaligus lewat import
+Excel/CSV, misalnya setelah harga pemasok naik.
+
+### Ditambahkan
+
+- **Perbarui harga lewat import (1.15, F1-07k).** Dialog *Import Excel*
+  punya sakelar *Perbarui harga produk yang sudah ada* (mati secara bawaan).
+  Bila dinyalakan, baris yang cocok dengan varian yang ada lewat SKU atau
+  barcode (UPC-A 13 digit ikut cocok), atau lewat nama bila baris tanpa
+  kode dan produknya satu varian, memperbarui harga jual, harga beli, dan
+  stok minimum. Sel kosong tidak mengubah nilai lama, stok awal diabaikan,
+  dan nama/kategori/kode/grosir tidak diubah.
+- Kecocokan yang ragu dilewati: SKU dan barcode menunjuk varian berbeda,
+  kode lain di baris bertentangan dengan kode varian (mis. salah ketik),
+  kode yang dimiliki lebih dari satu varian di data lama, barcode milik
+  satuan konversi, nama produk dengan beberapa varian, kode yang tidak
+  cocok tetapi namanya sudah dipakai, atau varian yang sudah diperbarui
+  baris lain di berkas yang sama. Baris jenis jasa/menu tidak menimpa stok
+  minimum barang (temuan review).
+- Ringkasan import menyebut produk baru, harga diperbarui, tidak berubah,
+  dan dilewati. Panduan *Produk pertama* (ID + EN) diperbarui.
+
+### Catatan teknis
+
+- `ProductImportRow.hasCost` / `hasMinStock` (sel terisi) di
+  `lakuna_domain`.
+- `importProducts(..., updateExisting:)` dan `ProductImportSummary.updated`
+  / `unchanged` di `lakuna_data`; varian diperbarui lewat
+  `_ProductWriter.updatePrices` (cap versi/HLC, outbox) dalam transaksi yang
+  sama dengan produk baru. Varian yang nilainya sama tidak ditulis.
+- `CatalogRepository.importRows(rows, {updateExisting})`.
+- Kunci l10n baru: `productImportUpdate`, `productImportUpdateNote`,
+  `productImportDoneUpdate` (jamak di EN), `productImportSkippedUnclear`.
+
 ## [0.58.0] - 2026-11-14
 
 Barcode toko kini bisa dibuat untuk banyak produk sekaligus dari layar Cetak
@@ -4432,7 +4468,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.59.0...HEAD
+[0.59.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.55.0...v0.56.0

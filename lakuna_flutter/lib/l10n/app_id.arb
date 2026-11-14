@@ -5120,5 +5120,32 @@
         "type": "String"
       }
     }
+  },
+  "productImportUpdate": "Perbarui harga produk yang sudah ada",
+  "productImportUpdateNote": "Produk yang cocok (SKU, barcode, atau nama bila baris tanpa kode) diperbarui harga jual, harga beli, dan stok minimumnya. Sel kosong tidak mengubah apa pun, stok tidak diubah, dan baris yang cocoknya ragu dilewati.",
+  "productImportDoneUpdate": "Selesai: {created} produk baru, {updated} harga diperbarui, {unchanged} tidak berubah, {skipped} dilewati.",
+  "@productImportDoneUpdate": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "unchanged": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportSkippedUnclear": "Baris dilewati karena cocoknya ragu (kode kembar atau bertentangan, nama produk banyak varian, atau varian sudah diperbarui baris lain): {lines}",
+  "@productImportSkippedUnclear": {
+    "placeholders": {
+      "lines": {
+        "type": "String"
+      }
+    }
   }
 }

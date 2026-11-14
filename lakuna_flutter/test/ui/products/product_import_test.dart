@@ -77,6 +77,35 @@ void main() {
       expect(summary.created, 2);
       expect(repo.imported, hasLength(2));
       expect(vm.canRun, isFalse);
+      expect(repo.lastUpdateExisting, isFalse);
+      vm.dispose();
+    });
+
+    test('perbarui harga produk yang ada (F1-07k)', () async {
+      final repo = FakeCatalogRepository(
+        seed: [
+          const ProductDraft(
+            name: 'Gula Aren',
+            baseUnit: 'kg',
+            variants: [VariantDraft(sellPrice: Money(17000))],
+          ),
+        ],
+      );
+      final vm = ProductImportViewModel(
+        repository: repo,
+        picker: _Picker(_csv(_sample)),
+      );
+      await vm.pick.execute();
+      expect(vm.updateExisting, isFalse);
+      vm.setUpdateExisting(true);
+      await vm.run.execute();
+      expect(repo.lastUpdateExisting, isTrue);
+      final summary = (vm.run.result! as Ok<ProductImportSummary>).value;
+      expect(summary.created, 1);
+      expect(summary.updated, 1);
+      // Setelah selesai sakelar tidak bisa diubah lagi.
+      vm.setUpdateExisting(false);
+      expect(vm.updateExisting, isTrue);
       vm.dispose();
     });
   });
@@ -141,6 +170,49 @@ void main() {
       await _tap(tester, 'product-import-run');
       expect(repo.imported, hasLength(2));
       expect(_key('product-import-done'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('$label: sakelar perbarui harga (F1-07k)', (tester) async {
+      final repo = await pump(
+        tester,
+        size,
+        seed: [
+          const ProductDraft(
+            name: 'Gula Aren',
+            baseUnit: 'kg',
+            variants: [VariantDraft(sellPrice: Money(17000))],
+          ),
+        ],
+      );
+      await _tap(tester, 'products-import');
+      await _tap(tester, 'product-import-pick');
+      expect(
+        find.textContaining('Hanya menambah produk baru'),
+        findsOneWidget,
+      );
+      await _tap(tester, 'product-import-update');
+      expect(
+        find.textContaining('Sel kosong tidak mengubah apa pun'),
+        findsOneWidget,
+      );
+      await _tap(tester, 'product-import-run');
+      expect(repo.lastUpdateExisting, isTrue);
+      expect(
+        find.text(
+          'Selesai: 1 produk baru, 1 harga diperbarui, 0 tidak berubah, '
+          '0 dilewati.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        repo.products
+            .firstWhere((p) => p.name == 'Gula Aren')
+            .variants
+            .single
+            .sellPrice,
+        const Money(18000),
+      );
       expect(tester.takeException(), isNull);
     });
   }

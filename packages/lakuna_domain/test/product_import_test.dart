@@ -20,6 +20,29 @@ void main() {
   });
 
   group('productImportRows', () {
+    test('hasCost / hasMinStock mengikuti sel terisi (F1-07k)', () {
+      final result = productImportRows([
+        ['nama', 'harga beli', 'harga jual', 'stok minimum'],
+        ['A', '1000', '2000', '5'],
+        ['B', '', '2000', ''],
+      ]);
+      expect(result.rows.map((r) => (r.hasCost, r.hasMinStock)), [
+        (true, true),
+        (false, false),
+      ]);
+      final jasa = productImportRows([
+        ['nama', 'jenis', 'harga jual', 'stok minimum'],
+        ['Antar', 'jasa', '5000', '3'],
+      ]);
+      expect(jasa.rows.single.hasMinStock, isFalse);
+      final noColumns = productImportRows([
+        ['nama', 'harga jual'],
+        ['C', '2000'],
+      ]);
+      expect(noColumns.rows.single.hasCost, isFalse);
+      expect(noColumns.rows.single.hasMinStock, isFalse);
+    });
+
     test('judul Indonesia, bawaan, dan angka', () {
       final r = productImportRows([
         [

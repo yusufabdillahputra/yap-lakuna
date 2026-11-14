@@ -119,6 +119,21 @@ void main() {
     expect(_err(await repo.loadCatalog()), isA<NotPermitted>());
   });
 
+  test('import produk dengan perbarui harga (F1-07k)', () async {
+    _ok(await repo.save(_kopi));
+    final rows = productImportRows([
+      ['nama', 'harga jual'],
+      ['kopi sachet', '2500'],
+    ]).rows;
+    final summary = _ok(await repo.importRows(rows, updateExisting: true));
+    expect(summary.updated, 1);
+    final catalog = _ok(await repo.loadCatalog());
+    expect(
+      catalog.products.single.variants.single.sellPrice,
+      const Money(2500),
+    );
+  });
+
   test('import produk: baru disimpan, yang sudah ada dilewati', () async {
     _ok(await repo.save(_kopi));
     final rows = productImportRows([

@@ -34,6 +34,8 @@ Punya banyak barang tanpa kode? Buka **Cetak label**, lalu tekan **Buat barcode 
 
 Di **Produk**, tekan **Import Excel**. Tekan **Unduh templat** untuk berkas Excel berisi judul kolom (Nama, Kategori, Jenis, Satuan, SKU, Barcode, Harga beli, Harga jual, Stok awal, Stok minimum) dan dua baris contoh. Ganti baris contoh dengan produk Anda (baris contoh yang tertinggal otomatis dilewati), lalu tekan **Pilih berkas**. Pratinjau menampilkan baris yang siap dan baris yang dilewati beserta alasannya.
 
+Harga dari pemasok naik? Ubah kolom harga di berkas yang sama, import lagi, lalu nyalakan **Perbarui harga produk yang sudah ada** sebelum menekan import. Produk dicocokkan lewat SKU atau barcode (atau nama bila baris tanpa kode); harga jual, harga beli, dan stok minimum diperbarui. Sel yang kosong tidak mengubah apa pun, dan stok tidak berubah (pakai pembelian atau penyesuaian stok). Baris yang cocoknya ragu, misalnya nama produk dengan beberapa varian, dilewati. Harga grosir dan harga satuan konversi (mis. dus) tidak ikut berubah, jadi periksa lagi di form produk bila perlu.
+
 > [!note] Kategori dan satuan juga bisa diatur di **Master data**. Urutan kategori di sana menjadi urutan tab di layar kasir.
 
 Setelah produk tersimpan, lanjutkan ke [Transaksi & harga grosir](sale).

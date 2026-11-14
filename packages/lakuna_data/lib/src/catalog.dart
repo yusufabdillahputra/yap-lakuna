@@ -683,9 +683,17 @@ class ProductImportSummary {
   const ProductImportSummary({
     required this.created,
     required this.skippedLines,
+    this.updated = 0,
+    this.unchanged = 0,
   });
 
   final int created;
+
+  /// Varian yang harganya diperbarui (F1-07k).
+  final int updated;
+
+  /// Baris yang cocok dengan varian yang ada tetapi nilainya sama (F1-07k).
+  final int unchanged;
 
   /// Baris berkas yang dilewati karena nama, SKU, atau barcode-nya sudah
   /// dipakai produk yang ada.
@@ -701,6 +709,7 @@ Future<ProductImportSummary> importProducts(
   CatalogScope scope, {
   required UuidValue staffId,
   required List<ProductImportRow> rows,
+  bool updateExisting = false,
 }) async {
   // Baris dari luar aplikasi diperiksa ulang di sini; satu baris salah
   // membatalkan seluruh import.
@@ -720,19 +729,38 @@ Future<ProductImportSummary> importProducts(
     );
     final live = {for (final p in products) p.id};
     final names = {for (final p in products) productImportNameKey(p.name)};
+    final byName = <String, List<Product>>{};
+    for (final p in products) {
+      (byName[productImportNameKey(p.name)] ??= []).add(p);
+    }
+    final productById = {for (final p in products) p.id: p};
     final variants = await ProductVariant.db.find(
       w.session,
       where: (v) => v.tenantId.equals(tenant) & v.deletedAt.equals(null),
       transaction: w.transaction,
     );
     final liveVariants = <UuidValue>{};
+    final variantsOf = <UuidValue, List<ProductVariant>>{};
     final skus = <String>{};
     final barcodes = <String>{};
+    // Pemilik tiap kode (F1-07k). Daftar, bukan satu varian: data lama atau
+    // hasil sinkronisasi bisa punya kode kembar, dan kode kembar tidak boleh
+    // diam-diam memilih salah satunya.
+    final bySku = <String, List<ProductVariant>>{};
+    final byBarcode = <String, List<ProductVariant>>{};
+    final unitBarcodes = <String>{};
     for (final v in variants) {
       if (!live.contains(v.productId)) continue;
       liveVariants.add(v.id);
-      if (v.sku case final sku?) skus.add(normalizeCode(sku));
-      if (v.barcode case final code?) barcodes.add(barcodeKey(code));
+      (variantsOf[v.productId] ??= []).add(v);
+      if (v.sku case final sku?) {
+        skus.add(normalizeCode(sku));
+        (bySku[normalizeCode(sku)] ??= []).add(v);
+      }
+      if (v.barcode case final code?) {
+        barcodes.add(barcodeKey(code));
+        (byBarcode[barcodeKey(code)] ??= []).add(v);
+      }
     }
     for (final u in await ProductUnit.db.find(
       w.session,
@@ -741,12 +769,62 @@ Future<ProductImportSummary> importProducts(
     )) {
       if (liveVariants.contains(u.variantId) && u.barcode != null) {
         barcodes.add(barcodeKey(u.barcode!));
+        unitBarcodes.add(barcodeKey(u.barcode!));
       }
+    }
+
+    /// Varian yang diperbarui baris [r] (F1-07k); `null` = tidak ada
+    /// kecocokan yang pasti.
+    ProductVariant? match(ProductImportRow r) {
+      final v = r.draft.variants.single;
+      final sku = v.sku.trim().isEmpty ? null : normalizeCode(v.sku);
+      final code = v.barcode.trim().isEmpty ? null : barcodeKey(v.barcode);
+      // Barcode baris dipakai satuan konversi: harga baris adalah harga
+      // satuan dasar, jadi tidak dicocokkan.
+      if (code != null && unitBarcodes.contains(code)) return null;
+      final skuOwners = sku == null ? const <ProductVariant>[] : bySku[sku];
+      final codeOwners = code == null
+          ? const <ProductVariant>[]
+          : byBarcode[code];
+      if ((skuOwners?.length ?? 0) > 1 || (codeOwners?.length ?? 0) > 1) {
+        return null;
+      }
+      final bySkuHit = skuOwners?.firstOrNull;
+      final byCodeHit = codeOwners?.firstOrNull;
+      final target = switch ((bySkuHit, byCodeHit)) {
+        (final a?, final b?) => a.id == b.id ? a : null,
+        (final a?, null) => a,
+        (null, final b?) => b,
+        (null, null) => null,
+      };
+      if (target != null) {
+        // Kode lain di baris bertentangan dengan kode varian yang sudah
+        // terisi: kemungkinan salah ketik, jangan timpa produk lain.
+        if (code != null &&
+            target.barcode != null &&
+            barcodeKey(target.barcode!) != code) {
+          return null;
+        }
+        if (sku != null &&
+            target.sku != null &&
+            normalizeCode(target.sku!) != sku) {
+          return null;
+        }
+        return target;
+      }
+      if (sku != null || code != null) return null;
+      final sameName = byName[productImportNameKey(r.draft.name)];
+      if (sameName == null || sameName.length != 1) return null;
+      final only = variantsOf[sameName.single.id];
+      return only != null && only.length == 1 ? only.single : null;
     }
 
     final writer = _ProductWriter(w, scope, staffId);
     var created = 0;
+    var updated = 0;
+    var unchanged = 0;
     final skipped = <int>[];
+    final touched = <UuidValue>{};
     for (final r in rows) {
       final d = r.draft;
       final name = productImportNameKey(d.name);
@@ -761,9 +839,34 @@ Future<ProductImportSummary> importProducts(
             if (u.barcode.trim().isNotEmpty) barcodeKey(u.barcode),
         ],
       };
-      if (names.contains(name) ||
+      final exists =
+          names.contains(name) ||
           rowSkus.any(skus.contains) ||
-          rowBarcodes.any(barcodes.contains)) {
+          rowBarcodes.any(barcodes.contains);
+      if (exists && updateExisting) {
+        final target = match(r);
+        // Satu varian hanya diperbarui sekali per import (mis. baris kode
+        // dan baris nama yang menunjuk varian yang sama).
+        if (target == null || !touched.add(target.id)) {
+          skipped.add(r.line);
+        } else {
+          final tracks = _kindOf(productById[target.productId]!.type)
+              .tracksStock;
+          final v = d.variants.single;
+          if (await writer.updatePrices(
+            target,
+            sell: v.sellPrice,
+            cost: r.hasCost ? v.costPrice : null,
+            minStock: r.hasMinStock && tracks ? v.minStock : null,
+          )) {
+            updated++;
+          } else {
+            unchanged++;
+          }
+        }
+        continue;
+      }
+      if (exists) {
         skipped.add(r.line);
         continue;
       }
@@ -773,7 +876,12 @@ Future<ProductImportSummary> importProducts(
       barcodes.addAll(rowBarcodes);
       created++;
     }
-    return ProductImportSummary(created: created, skippedLines: skipped);
+    return ProductImportSummary(
+      created: created,
+      skippedLines: skipped,
+      updated: updated,
+      unchanged: unchanged,
+    );
   });
 }
 
@@ -975,6 +1083,29 @@ class _ProductWriter {
       await _saveModifierLinks(productId, draft.modifierGroupIds);
     }
     return productId;
+  }
+
+  /// Memperbarui harga varian [old] dari import (F1-07k). `null` = tidak
+  /// diubah. `false` bila nilainya sudah sama (tidak ditulis).
+  Future<bool> updatePrices(
+    ProductVariant old, {
+    required Money sell,
+    Money? cost,
+    Qty? minStock,
+  }) async {
+    final row = old.copyWith(
+      sellPrice: sell.value,
+      costPrice: cost?.value ?? old.costPrice,
+      minStockMilli: minStock?.milli ?? old.minStockMilli,
+    );
+    if (row.sellPrice == old.sellPrice &&
+        row.costPrice == old.costPrice &&
+        row.minStockMilli == old.minStockMilli) {
+      return false;
+    }
+    s = await w.stamp();
+    await w.update(_stampVariant(row), s);
+    return true;
   }
 
   ProductVariant _stampVariant(ProductVariant r) => r.copyWith(

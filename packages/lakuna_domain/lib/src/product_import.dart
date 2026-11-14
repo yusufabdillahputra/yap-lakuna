@@ -38,11 +38,23 @@ class ProductImportRejected {
 
 /// Baris sah: draf produk baru satu varian, siap disimpan.
 class ProductImportRow {
-  const ProductImportRow({required this.line, required this.draft});
+  const ProductImportRow({
+    required this.line,
+    required this.draft,
+    this.hasCost = false,
+    this.hasMinStock = false,
+  });
 
   /// Nomor baris di berkas (1 = baris judul).
   final int line;
   final ProductDraft draft;
+
+  /// Sel harga beli terisi: dipakai saat memperbarui produk yang ada
+  /// (F1-07k), agar sel kosong tidak menimpa harga beli lama dengan 0.
+  final bool hasCost;
+
+  /// Sel stok minimum terisi (F1-07k).
+  final bool hasMinStock;
 }
 
 class ProductImportResult {
@@ -245,7 +257,15 @@ ProductImportResult productImportRows(List<List<String>> table) {
     }
     if (skuKey != null) skus.add(skuKey);
     if (codeKey != null) barcodes.add(codeKey);
-    rows.add(ProductImportRow(line: line, draft: draft));
+    rows.add(
+      ProductImportRow(
+        line: line,
+        draft: draft,
+        hasCost: cell('cost') != null,
+        // Baris jasa/menu tidak membawa stok minimum (bernilai 0).
+        hasMinStock: cell('min') != null && tracks,
+      ),
+    );
   }
   return ProductImportResult(rows: rows, rejected: rejected);
 }

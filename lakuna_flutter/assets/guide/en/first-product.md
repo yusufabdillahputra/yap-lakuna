@@ -34,6 +34,8 @@ Have many items without a code? Open **Print labels** and tap **Generate barcode
 
 In **Products**, tap **Import Excel**. Tap **Download template** for an Excel file with the headers (Name, Category, Type, Unit, SKU, Barcode, Cost price, Sell price, Opening stock, Minimum stock) and two sample rows. Replace the sample rows with your products (leftover sample rows are skipped automatically), then tap **Choose file**. The preview shows the rows that are ready and the rows that are skipped, with the reason.
 
+Supplier prices went up? Change the price columns in the same file, import it again, and turn on **Update prices of existing products** before running the import. Products are matched by SKU or barcode (or by name when the row has no code); the sell price, cost price, and minimum stock are updated. Empty cells change nothing, and stock does not change (use purchases or stock adjustments). Rows with an unclear match, such as the name of a product with several variants, are skipped. Wholesale prices and conversion unit prices (such as a carton) do not change, so review them in the product form if needed.
+
 > [!note] Categories and units can also be managed in **Master data**. The category order there becomes the tab order at the cashier.
 
 Once the product is saved, continue with [Sales & wholesale prices](sale).

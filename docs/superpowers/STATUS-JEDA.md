@@ -39,6 +39,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.56.0 | Kas bagian split bill per sesi (F1-10i) | #62 |
 | v0.57.0 | Peringatan kode label terlalu panjang (F1-07i) | #63 |
 | v0.58.0 | Buat barcode massal dari Cetak label (F1-07j) | #64 |
+| v0.59.0 | Perbarui harga produk lewat import (F1-07k) | #65 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -81,6 +82,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    ~~peringatan kode label terlalu panjang~~ — selesai v0.57.0 (F1-07i);
    ~~buat barcode massal~~ — selesai v0.58.0 (F1-07j); label ESC/POS
    masih gap.
+15. ~~Perbarui harga produk lewat import~~ — selesai v0.59.0 (F1-07k);
+   varian/satuan/grosir lewat import masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

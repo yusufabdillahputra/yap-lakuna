@@ -4586,5 +4586,32 @@
         "type": "String"
       }
     }
+  },
+  "productImportUpdate": "Update prices of existing products",
+  "productImportUpdateNote": "Matching products (by SKU, barcode, or name when the row has no code) get their sell price, cost price, and minimum stock updated. Empty cells change nothing, stock is not changed, and rows with an unclear match are skipped.",
+  "productImportDoneUpdate": "Done: {created, plural, =1{1 new product} other{{created} new products}}, {updated, plural, =1{1 price updated} other{{updated} prices updated}}, {unchanged} unchanged, {skipped} skipped.",
+  "@productImportDoneUpdate": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "updated": {
+        "type": "int"
+      },
+      "unchanged": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "productImportSkippedUnclear": "Rows skipped because the match is unclear (duplicate or conflicting codes, a product name with several variants, or a variant already updated by another row): {lines}",
+  "@productImportSkippedUnclear": {
+    "placeholders": {
+      "lines": {
+        "type": "String"
+      }
+    }
   }
 }

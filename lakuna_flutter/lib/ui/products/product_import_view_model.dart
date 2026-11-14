@@ -60,6 +60,16 @@ class ProductImportViewModel extends ChangeNotifier {
 
   bool get canRun => rows.isNotEmpty && !run.running && !run.completed;
 
+  /// Perbarui harga produk yang sudah ada (F1-07k); bawaan mati.
+  bool get updateExisting => _updateExisting;
+  var _updateExisting = false;
+
+  void setUpdateExisting(bool value) {
+    if (run.running || run.completed) return;
+    _updateExisting = value;
+    notifyListeners();
+  }
+
   Future<Result<void>> _pick() async {
     final PickedTableFile? file;
     try {
@@ -93,7 +103,10 @@ class ProductImportViewModel extends ChangeNotifier {
 
   Future<Result<ProductImportSummary>> _run() async {
     if (rows.isEmpty) return const Result.error(StoreNotReady());
-    final result = await _repository.importRows(rows);
+    final result = await _repository.importRows(
+      rows,
+      updateExisting: _updateExisting,
+    );
     if (result is Ok) onSaved?.call();
     return result;
   }

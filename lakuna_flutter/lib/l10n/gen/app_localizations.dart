@@ -13831,6 +13831,35 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Barcode gagal disimpan untuk: {names}'**
   String labelsGenerateFailed(String names);
+
+  /// No description provided for @productImportUpdate.
+  ///
+  /// In id, this message translates to:
+  /// **'Perbarui harga produk yang sudah ada'**
+  String get productImportUpdate;
+
+  /// No description provided for @productImportUpdateNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk yang cocok (SKU, barcode, atau nama bila baris tanpa kode) diperbarui harga jual, harga beli, dan stok minimumnya. Sel kosong tidak mengubah apa pun, stok tidak diubah, dan baris yang cocoknya ragu dilewati.'**
+  String get productImportUpdateNote;
+
+  /// No description provided for @productImportDoneUpdate.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai: {created} produk baru, {updated} harga diperbarui, {unchanged} tidak berubah, {skipped} dilewati.'**
+  String productImportDoneUpdate(
+    int created,
+    int updated,
+    int unchanged,
+    int skipped,
+  );
+
+  /// No description provided for @productImportSkippedUnclear.
+  ///
+  /// In id, this message translates to:
+  /// **'Baris dilewati karena cocoknya ragu (kode kembar atau bertentangan, nama produk banyak varian, atau varian sudah diperbarui baris lain): {lines}'**
+  String productImportSkippedUnclear(String lines);
 }
 
 class _AppLocalizationsDelegate

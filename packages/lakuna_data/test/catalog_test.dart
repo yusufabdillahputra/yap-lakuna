@@ -618,4 +618,307 @@ void main() {
       expect(await listProducts(store, scope), isEmpty);
     });
   });
+
+  group('perbarui harga lewat import (F1-07k)', () {
+    List<ProductImportRow> rows(List<List<String>> body) => productImportRows([
+      [
+        'nama',
+        'sku',
+        'barcode',
+        'harga beli',
+        'harga jual',
+        'stok',
+        'stok minimum',
+      ],
+      ...body,
+    ]).rows;
+
+    Future<ProductImportSummary> run(
+      List<ProductImportRow> r, {
+      bool update = true,
+    }) => importProducts(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      rows: r,
+      updateExisting: update,
+    );
+
+    Future<CatalogVariant> variantOf(String name) async => (await listProducts(
+      store,
+      scope,
+    )).firstWhere((p) => p.name == name).variants.single;
+
+    test('cocok SKU: harga jual & beli diperbarui, isian kosong dan stok '
+        'awal diabaikan', () async {
+      await save(_minyak());
+      now = now.add(const Duration(minutes: 1));
+      final summary = await run(
+        rows([
+          ['Nama Lain', 'myk-2l', '', '33.000', '38000', '99', ''],
+        ]),
+      );
+      expect(summary.created, 0);
+      expect(summary.updated, 1);
+      expect(summary.unchanged, 0);
+      expect(summary.skippedLines, isEmpty);
+      final v = await variantOf('Minyak Goreng');
+      expect(v.sellPrice, const Money(38000));
+      expect(v.costPrice, const Money(33000));
+      expect(v.minStock, Qty.units(12));
+      expect(v.stock, Qty.units(24));
+      expect(v.units.single.sellPrice, const Money(210000));
+    });
+
+    test(
+      'cocok barcode (UPC-A dibaca 13 digit) dan nama satu varian',
+      () async {
+        await save(
+          const ProductDraft(
+            name: 'Sereal Impor',
+            baseUnit: 'pcs',
+            variants: [
+              VariantDraft(
+                barcode: '036000291452',
+                costPrice: Money(30000),
+                sellPrice: Money(40000),
+              ),
+            ],
+          ),
+        );
+        await save(_minyak());
+        final summary = await run(
+          rows([
+            ['Sereal', '', '0036000291452', '', '41000', '', ''],
+            ['minyak  goreng', '', '', '', '37000', '', '10'],
+          ]),
+        );
+        expect(summary.updated, 2);
+        final sereal = await variantOf('Sereal Impor');
+        expect(sereal.sellPrice, const Money(41000));
+        expect(sereal.costPrice, const Money(30000));
+        final minyak = await variantOf('Minyak Goreng');
+        expect(minyak.sellPrice, const Money(37000));
+        expect(minyak.minStock, Qty.units(10));
+        expect(minyak.costPrice, const Money(32500));
+      },
+    );
+
+    test('kecocokan ragu dilewati, baris lain tetap', () async {
+      await save(_minyak());
+      await save(
+        const ProductDraft(
+          name: 'Sereal Impor',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(barcode: '036000291452', sellPrice: Money(40000)),
+          ],
+        ),
+      );
+      await save(
+        const ProductDraft(
+          name: 'Kaos',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(name: 'S', sellPrice: Money(50000)),
+            VariantDraft(name: 'M', sellPrice: Money(50000)),
+          ],
+        ),
+      );
+      final summary = await run(
+        rows([
+          // SKU dan barcode menunjuk varian berbeda.
+          ['X', 'MYK-2L', '036000291452', '', '1000', '', ''],
+          // Barcode satuan dus.
+          ['Dus', '', '8991234500031', '', '1000', '', ''],
+          // Nama dengan dua varian.
+          ['Kaos', '', '', '', '1000', '', ''],
+          // Kode tidak cocok tetapi nama sudah dipakai.
+          ['Minyak Goreng', 'LAIN', '', '', '1000', '', ''],
+          ['Teh Baru', '', '', '', '4000', '', ''],
+        ]),
+      );
+      expect(summary.skippedLines, [2, 3, 4, 5]);
+      expect(summary.updated, 0);
+      expect(summary.created, 1);
+      expect((await variantOf('Minyak Goreng')).sellPrice, const Money(36000));
+      expect((await variantOf('Sereal Impor')).sellPrice, const Money(40000));
+    });
+
+    test('nilai sama: tidak berubah dan tidak menulis outbox', () async {
+      await save(_minyak());
+      final before = await SyncOutboxEntry.db.count(store.session);
+      final summary = await run(
+        rows([
+          ['Minyak Goreng', 'MYK-2L', '', '32500', '36000', '', '12'],
+        ]),
+      );
+      expect(summary.updated, 0);
+      expect(summary.unchanged, 1);
+      expect(await SyncOutboxEntry.db.count(store.session), before);
+    });
+
+    test('perubahan tercatat di outbox dengan versi naik', () async {
+      await save(_minyak());
+      final before = (await SyncOutboxEntry.db.find(store.session)).length;
+      await run(
+        rows([
+          ['Minyak Goreng', 'MYK-2L', '', '', '39000', '', ''],
+        ]),
+      );
+      final entries = await SyncOutboxEntry.db.find(store.session);
+      expect(entries.skip(before).map((e) => e.entity), ['product_variants']);
+      final row = (await ProductVariant.db.find(store.session)).single;
+      expect(row.version, 2);
+      expect(row.sellPrice, 39000);
+    });
+
+    test('sakelar mati: perilaku lama (dilewati)', () async {
+      await save(_minyak());
+      final summary = await run(
+        rows([
+          ['Minyak Goreng', 'MYK-2L', '', '', '39000', '', ''],
+        ]),
+        update: false,
+      );
+      expect(summary.updated, 0);
+      expect(summary.skippedLines, [2]);
+      expect((await variantOf('Minyak Goreng')).sellPrice, const Money(36000));
+    });
+
+    test('varian yang sama di dua baris hanya diperbarui sekali', () async {
+      await save(_minyak());
+      final summary = await run(
+        rows([
+          ['Minyak Lain', 'MYK-2L', '', '', '39000', '', ''],
+          ['Minyak Goreng', '', '', '', '40000', '', ''],
+        ]),
+      );
+      expect(summary.updated, 1);
+      expect(summary.skippedLines, [3]);
+      expect((await variantOf('Minyak Goreng')).sellPrice, const Money(39000));
+    });
+
+    test('kode lain bertentangan: dilewati', () async {
+      await save(_minyak());
+      final summary = await run(
+        rows([
+          // SKU cocok, tetapi barcode berbeda dari barcode varian itu.
+          ['Minyak Goreng', 'MYK-2L', '8990000000017', '', '1000', '', ''],
+        ]),
+      );
+      expect(summary.skippedLines, [2]);
+      expect(summary.updated, 0);
+      expect((await variantOf('Minyak Goreng')).sellPrice, const Money(36000));
+    });
+
+    test('produk banyak varian: hanya varian ber-SKU itu', () async {
+      await save(
+        const ProductDraft(
+          name: 'Kaos',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(name: 'S', sku: 'KAOS-S', sellPrice: Money(50000)),
+            VariantDraft(name: 'M', sku: 'KAOS-M', sellPrice: Money(50000)),
+          ],
+        ),
+      );
+      final summary = await run(
+        rows([
+          ['Kaos', 'kaos-m', '', '', '55000', '', ''],
+        ]),
+      );
+      expect(summary.updated, 1);
+      final kaos = (await listProducts(
+        store,
+        scope,
+      )).firstWhere((p) => p.name == 'Kaos');
+      expect(
+        {for (final v in kaos.variants) v.name: v.sellPrice},
+        {'S': const Money(50000), 'M': const Money(55000)},
+      );
+    });
+
+    test(
+      'kode kembar di data lama: dilewati, tidak memilih salah satu',
+      () async {
+        await save(_minyak());
+        final teh = await save(
+          const ProductDraft(
+            name: 'Teh',
+            baseUnit: 'pcs',
+            variants: [VariantDraft(sku: 'TEH', sellPrice: Money(4000))],
+          ),
+        );
+        // Data lama: dua varian ber-SKU sama (tanpa cek aplikasi).
+        final row = (await ProductVariant.db.find(
+          store.session,
+          where: (v) => v.productId.equals(teh),
+        )).single;
+        await ProductVariant.db.updateRow(
+          store.session,
+          row.copyWith(sku: 'MYK-2L'),
+        );
+        final summary = await run(
+          rows([
+            ['Apa Saja', 'MYK-2L', '', '', '1000', '', ''],
+          ]),
+        );
+        expect(summary.skippedLines, [2]);
+        expect((await variantOf('Teh')).sellPrice, const Money(4000));
+        expect(
+          (await variantOf('Minyak Goreng')).sellPrice,
+          const Money(36000),
+        );
+      },
+    );
+
+    test('produk diarsipkan tidak diperbarui', () async {
+      final id = await save(_minyak());
+      await archiveProduct(store, scope, staffId: ctx.owner.id, productId: id);
+      await run(
+        rows([
+          ['Minyak Goreng', 'MYK-2L', '', '', '1000', '', ''],
+        ]),
+      );
+      final archived = await ProductVariant.db.find(
+        store.session,
+        where: (v) => v.productId.equals(id),
+      );
+      expect(archived.single.sellPrice, 36000);
+    });
+
+    test('baris jenis jasa tidak menimpa stok minimum barang', () async {
+      await save(_minyak());
+      final table = productImportRows([
+        ['nama', 'sku', 'jenis', 'harga jual', 'stok minimum'],
+        ['Minyak Goreng', 'MYK-2L', 'jasa', '37000', '3'],
+      ]).rows;
+      final summary = await run(table);
+      expect(summary.updated, 1);
+      final v = await variantOf('Minyak Goreng');
+      expect(v.sellPrice, const Money(37000));
+      expect(v.minStock, Qty.units(12));
+    });
+
+    test('stok minimum tidak diisi untuk jasa', () async {
+      await save(
+        const ProductDraft(
+          name: 'Jasa Antar',
+          baseUnit: 'kali',
+          kind: ProductKind.service,
+          variants: [VariantDraft(sku: 'ANTAR', sellPrice: Money(5000))],
+        ),
+      );
+      final summary = await run(
+        rows([
+          ['Jasa Antar', 'ANTAR', '', '', '6000', '', '5'],
+        ]),
+      );
+      expect(summary.updated, 1);
+      final v = await variantOf('Jasa Antar');
+      expect(v.sellPrice, const Money(6000));
+      expect(v.minStock, Qty.zero);
+    });
+  });
 }
