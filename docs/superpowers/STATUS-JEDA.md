@@ -80,7 +80,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | #103 |
 | v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | #104 |
 | v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | #105 |
-| v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | |
+| v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | #106 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
