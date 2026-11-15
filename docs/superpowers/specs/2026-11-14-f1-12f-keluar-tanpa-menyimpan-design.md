@@ -88,7 +88,7 @@ padahal staf mudah mengira tambahan itu sudah masuk draf.
 | --- | --- | --- | --- |
 | Peringatan keluar dari form pembelian yang berubah | 1.19 | Rilis v0.97.0 | Kembali, tombol kembali sistem, menu samping, ganti draf di layar lebar. |
 | Simpan draf langsung dari dialog | — | Belum | Dialog hanya Batal / Buang. |
-| Peringatan saat ganti kasir | — | Belum | Isian hilang seperti sebelumnya. |
+| Peringatan saat ganti kasir | — | Rilis v0.110.0 | [F1-02b](2026-11-15-f1-02b-ganti-kasir-tanya-dulu-design.md): *Buang perubahan?* sebelum layar login. |
 | Form produk | 1.16 | Rilis v0.98.0 | [F1-07q](2026-11-15-f1-07q-keluar-form-produk-design.md). |
 | Pengeluaran | 1.22 | Rilis v0.99.0 | [F1-15c](2026-11-15-f1-15c-keluar-form-pengeluaran-design.md). |
 | Draf penyesuaian stok | 1.18 | Rilis v0.104.0 | [F1-08k](2026-11-15-f1-08k-keluar-draf-penyesuaian-design.md). |

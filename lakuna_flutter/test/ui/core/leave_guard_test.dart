@@ -50,4 +50,59 @@ void main() {
     await Future.wait([guard.canLeave(), guard.canLeave()]);
     expect(calls, 1);
   });
+
+  group('canLeaveAll (F1-02b)', () {
+    test('tanpa guard terpasang: boleh', () async {
+      final guards = LeaveGuards();
+      guards.of('belum-dipasang');
+      expect(await guards.canLeaveAll(), isTrue);
+    });
+
+    test('halaman teratas ditanya lebih dulu, berhenti pada Batal', () async {
+      final guards = LeaveGuards();
+      final asked = <String>[];
+      guards.of('bawah').check = () async {
+        asked.add('bawah');
+        return true;
+      };
+      guards.of('atas').check = () async {
+        asked.add('atas');
+        return false;
+      };
+      expect(await guards.canLeaveAll(), isFalse);
+      expect(asked, ['atas']);
+    });
+
+    test('semua halaman yang dijaga ditanya bila semuanya boleh', () async {
+      final guards = LeaveGuards();
+      final asked = <String>[];
+      for (final key in ['a', 'b', 'c']) {
+        guards.of(key).check = () async {
+          asked.add(key);
+          return true;
+        };
+      }
+      expect(await guards.canLeaveAll(), isTrue);
+      expect(asked, ['c', 'b', 'a']);
+    });
+
+    test('guard halaman yang sudah ditutup dilewati', () async {
+      final guards = LeaveGuards();
+      final closed = guards.of('tutup')..check = () async => false;
+      closed.check = null;
+      guards.of('buka').check = () async => true;
+      expect(await guards.canLeaveAll(), isTrue);
+    });
+
+    test('pertanyaan yang sedang tampil dipakai ulang', () async {
+      final guards = LeaveGuards();
+      var calls = 0;
+      guards.of('a').check = () async {
+        calls++;
+        return true;
+      };
+      await Future.wait([guards.canLeaveAll(), guards.canLeaveAll()]);
+      expect(calls, 1);
+    });
+  });
 }

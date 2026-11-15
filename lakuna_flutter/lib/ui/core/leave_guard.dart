@@ -52,4 +52,18 @@ class LeaveGuards {
   /// Dipanggil dari `onExit`.
   Future<bool> canLeave(Object pageKey) async =>
       await _guards[pageKey]?.canLeave() ?? true;
+
+  /// Semua halaman yang masih terpasang boleh ditinggalkan sekaligus
+  /// (*Ganti kasir*, F1-02b). Halaman teratas (guard terakhir dibuat)
+  /// ditanya lebih dulu; berhenti pada jawaban `false`.
+  Future<bool> canLeaveAll() async {
+    final attached = [
+      for (final g in _guards.values)
+        if (g.check != null) g,
+    ];
+    for (final guard in attached.reversed) {
+      if (!await guard.canLeave()) return false;
+    }
+    return true;
+  }
 }
