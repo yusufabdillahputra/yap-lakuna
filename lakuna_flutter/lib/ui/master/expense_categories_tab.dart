@@ -6,6 +6,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../expenses/expense_labels.dart';
 import '../products/product_widgets.dart';
 import '../expenses/expense_categories_view_model.dart';
@@ -25,11 +26,17 @@ class ExpenseCategoriesTab extends StatelessWidget {
     viewModel.save.clearResult();
     return showFDialog<void>(
       context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
-        builder: (context, style) =>
-            _CategoryDialog(viewModel: viewModel, row: row),
+      // Menutupi menu samping; ketukan di luar / Esc bertanya dulu
+      // (F1-09b).
+      useRootNavigator: true,
+      barrierDismissible: false,
+      builder: (context, style, animation) => TapOutsideToPop(
+        child: FDialog(
+          animation: animation,
+          constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+          builder: (context, style) =>
+              _CategoryDialog(viewModel: viewModel, row: row),
+        ),
       ),
     );
   }
@@ -158,6 +165,9 @@ class _CategoryDialogState extends State<_CategoryDialog> {
   late var _name = widget.row?.category.name ?? '';
   var _submitted = false;
 
+  /// Nama saat dialog dibuka (F1-09b).
+  late final _initial = (widget.row?.category.name ?? '').trim();
+
   Future<void> _save() async {
     setState(() => _submitted = true);
     if (!validateExpenseCategoryName(_name)) return;
@@ -177,65 +187,73 @@ class _CategoryDialogState extends State<_CategoryDialog> {
       final theme = context.theme;
       final vm = widget.viewModel;
       final invalid = _submitted && !validateExpenseCategoryName(_name);
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          key: const ValueKey('expense-category-form'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Text(
-              widget.row == null
-                  ? l10n.expenseCategoriesNewTitle
-                  : l10n.expenseCategoriesEditTitle,
-              style: theme.typography.display.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            FTextField(
-              key: const ValueKey('expense-category-name'),
-              label: Text(l10n.expenseCategoriesName),
-              autofocus: true,
-              maxLength: ExpenseLimits.categoryName,
-              error: invalid
-                  ? Text(
-                      l10n.expenseCategoryErrName(ExpenseLimits.categoryName),
-                    )
-                  : null,
-              control: .managed(
-                initial: TextEditingValue(text: _name),
-                onChange: (v) => setState(() => _name = v.text),
-              ),
-            ),
-            if (vm.save.result case Error(:final error))
+      return DiscardChangesScope(
+        dirty: _name.trim() != _initial,
+        busy: vm.save.running,
+        body: l10n.expenseCategoryDiscardBody,
+        dialogKey: 'expense-category-discard',
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('expense-category-form'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
               Text(
-                expenseErrorMessage(l10n, error),
-                key: const ValueKey('expense-category-error'),
-                style: theme.typography.body.sm.copyWith(
-                  color: theme.colors.destructive,
+                widget.row == null
+                    ? l10n.expenseCategoriesNewTitle
+                    : l10n.expenseCategoriesEditTitle,
+                style: theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.end,
-              children: [
-                FButton(
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(),
-                  child: Text(l10n.expenseCancel),
+              FTextField(
+                key: const ValueKey('expense-category-name'),
+                label: Text(l10n.expenseCategoriesName),
+                autofocus: true,
+                maxLength: ExpenseLimits.categoryName,
+                error: invalid
+                    ? Text(
+                        l10n.expenseCategoryErrName(ExpenseLimits.categoryName),
+                      )
+                    : null,
+                control: .managed(
+                  initial: TextEditingValue(text: _name),
+                  onChange: (v) => setState(() => _name = v.text),
                 ),
-                FButton(
-                  key: const ValueKey('expense-category-save'),
-                  mainAxisSize: .min,
-                  onPress: vm.save.running ? null : _save,
-                  child: Text(l10n.expenseCategorySave),
+              ),
+              if (vm.save.result case Error(:final error))
+                Text(
+                  expenseErrorMessage(l10n, error),
+                  key: const ValueKey('expense-category-error'),
+                  style: theme.typography.body.sm.copyWith(
+                    color: theme.colors.destructive,
+                  ),
                 ),
-              ],
-            ),
-          ],
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  FButton(
+                    key: const ValueKey('expense-category-cancel'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    // Ikut ditanyakan bila isian berubah (F1-09b).
+                    onPress: () => Navigator.of(context).maybePop(),
+                    child: Text(l10n.expenseCancel),
+                  ),
+                  FButton(
+                    key: const ValueKey('expense-category-save'),
+                    mainAxisSize: .min,
+                    onPress: vm.save.running ? null : _save,
+                    child: Text(l10n.expenseCategorySave),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     },

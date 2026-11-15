@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../customers/customer_labels.dart';
 import '../products/product_widgets.dart';
 import 'customer_groups_view_model.dart';
@@ -26,11 +27,17 @@ class CustomerGroupsTab extends StatelessWidget {
     viewModel.save.clearResult();
     return showFDialog<void>(
       context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
-        builder: (context, style) =>
-            _GroupDialog(viewModel: viewModel, row: row),
+      // Menutupi menu samping; ketukan di luar / Esc bertanya dulu
+      // (F1-09b).
+      useRootNavigator: true,
+      barrierDismissible: false,
+      builder: (context, style, animation) => TapOutsideToPop(
+        child: FDialog(
+          animation: animation,
+          constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+          builder: (context, style) =>
+              _GroupDialog(viewModel: viewModel, row: row),
+        ),
       ),
     );
   }
@@ -161,6 +168,17 @@ class _GroupDialogState extends State<_GroupDialog> {
   late var _term = widget.row?.group.termDays ?? CustomerLimits.defaultTermDays;
   var _submitted = false;
 
+  /// Isian saat dialog dibuka (F1-09b).
+  late final ({String name, int term}) _initial;
+
+  bool get _dirty => (name: _name.trim(), term: _term) != _initial;
+
+  @override
+  void initState() {
+    super.initState();
+    _initial = (name: _name.trim(), term: _term);
+  }
+
   Future<void> _save() async {
     setState(() => _submitted = true);
     if (validateCustomerGroup(name: _name, termDays: _term).isNotEmpty) return;
@@ -183,87 +201,98 @@ class _GroupDialogState extends State<_GroupDialog> {
       final issues = _submitted
           ? validateCustomerGroup(name: _name, termDays: _term)
           : const <CustomerGroupIssue>{};
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          key: const ValueKey('customer-group-form'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Text(
-              widget.row == null
-                  ? l10n.customerGroupsNewTitle
-                  : l10n.customerGroupsEditTitle,
-              style: theme.typography.display.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            FTextField(
-              key: const ValueKey('customer-group-name'),
-              label: Text(l10n.customerGroupsName),
-              autofocus: true,
-              error: issues.contains(CustomerGroupIssue.name)
-                  ? Text(
-                      customerGroupIssueMessage(l10n, CustomerGroupIssue.name),
-                    )
-                  : null,
-              control: .managed(
-                initial: TextEditingValue(text: _name),
-                onChange: (v) => setState(() => _name = v.text),
-              ),
-            ),
-            FTextField(
-              key: const ValueKey('customer-group-term'),
-              label: Text(l10n.customerGroupsTerm),
-              description: Text(l10n.customerGroupsTermHint),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(3),
-              ],
-              error: issues.contains(CustomerGroupIssue.termDays)
-                  ? Text(
-                      customerGroupIssueMessage(
-                        l10n,
-                        CustomerGroupIssue.termDays,
-                      ),
-                    )
-                  : null,
-              control: .managed(
-                initial: TextEditingValue(text: '$_term'),
-                onChange: (v) =>
-                    setState(() => _term = int.tryParse(v.text) ?? -1),
-              ),
-            ),
-            if (vm.save.result case Error(:final error))
+      return DiscardChangesScope(
+        dirty: _dirty,
+        busy: vm.save.running,
+        body: l10n.customerGroupDiscardBody,
+        dialogKey: 'customer-group-discard',
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('customer-group-form'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
               Text(
-                customerErrorMessage(l10n, error),
-                key: const ValueKey('customer-group-error'),
-                style: theme.typography.body.sm.copyWith(
-                  color: theme.colors.destructive,
+                widget.row == null
+                    ? l10n.customerGroupsNewTitle
+                    : l10n.customerGroupsEditTitle,
+                style: theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.end,
-              children: [
-                FButton(
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(),
-                  child: Text(l10n.customerCancel),
+              FTextField(
+                key: const ValueKey('customer-group-name'),
+                label: Text(l10n.customerGroupsName),
+                autofocus: true,
+                error: issues.contains(CustomerGroupIssue.name)
+                    ? Text(
+                        customerGroupIssueMessage(
+                          l10n,
+                          CustomerGroupIssue.name,
+                        ),
+                      )
+                    : null,
+                control: .managed(
+                  initial: TextEditingValue(text: _name),
+                  onChange: (v) => setState(() => _name = v.text),
                 ),
-                FButton(
-                  key: const ValueKey('customer-group-save'),
-                  mainAxisSize: .min,
-                  onPress: vm.save.running ? null : _save,
-                  child: Text(l10n.customerSave),
+              ),
+              FTextField(
+                key: const ValueKey('customer-group-term'),
+                label: Text(l10n.customerGroupsTerm),
+                description: Text(l10n.customerGroupsTermHint),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
+                error: issues.contains(CustomerGroupIssue.termDays)
+                    ? Text(
+                        customerGroupIssueMessage(
+                          l10n,
+                          CustomerGroupIssue.termDays,
+                        ),
+                      )
+                    : null,
+                control: .managed(
+                  initial: TextEditingValue(text: '$_term'),
+                  onChange: (v) =>
+                      setState(() => _term = int.tryParse(v.text) ?? -1),
                 ),
-              ],
-            ),
-          ],
+              ),
+              if (vm.save.result case Error(:final error))
+                Text(
+                  customerErrorMessage(l10n, error),
+                  key: const ValueKey('customer-group-error'),
+                  style: theme.typography.body.sm.copyWith(
+                    color: theme.colors.destructive,
+                  ),
+                ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                children: [
+                  FButton(
+                    key: const ValueKey('customer-group-cancel'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    // Ikut ditanyakan bila isian berubah (F1-09b).
+                    onPress: () => Navigator.of(context).maybePop(),
+                    child: Text(l10n.customerCancel),
+                  ),
+                  FButton(
+                    key: const ValueKey('customer-group-save'),
+                    mainAxisSize: .min,
+                    onPress: vm.save.running ? null : _save,
+                    child: Text(l10n.customerSave),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     },

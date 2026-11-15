@@ -110,7 +110,8 @@ class DiscardChangesScope extends StatelessWidget {
 /// Penghalang bawaan Forui memanggil `Navigator.pop` langsung (melewati
 /// `PopScope`), jadi dialog memakai `barrierDismissible: false` dan
 /// membungkus [FDialog]-nya dengan widget ini (F1-13e). Esc juga
-/// diteruskan ke `maybePop`.
+/// diteruskan ke `maybePop`, termasuk saat tidak ada isian berfokus
+/// (F1-09b).
 class TapOutsideToPop extends StatelessWidget {
   const TapOutsideToPop({super.key, required this.child});
 
@@ -131,22 +132,30 @@ class TapOutsideToPop extends StatelessWidget {
         onInvoke: (_) => _dismiss(context),
       ),
     },
-    child: Stack(
-      children: [
-        Positioned.fill(
-          child: Semantics(
-            label: FLocalizations.of(context)?.barrierLabel,
-            onTap: () => _dismiss(context),
-            child: GestureDetector(
-              key: const ValueKey('dialog-outside'),
-              behavior: HitTestBehavior.opaque,
-              excludeFromSemantics: true,
+    // Aksi Esc dicari dari fokus utama ke atas. Lingkup fokus sendiri di
+    // bawah `Actions` menjaga fokus tetap di sini walau tidak ada isian
+    // berfokus: dialog tanpa autofokus mengambil fokus lingkup ini, isian
+    // yang dilepas fokusnya mengembalikan fokus ke lingkup ini, dan setelah
+    // pertanyaan ditutup fokus kembali ke dalamnya (F1-09b).
+    child: FocusScope(
+      autofocus: true,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Semantics(
+              label: FLocalizations.of(context)?.barrierLabel,
               onTap: () => _dismiss(context),
+              child: GestureDetector(
+                key: const ValueKey('dialog-outside'),
+                behavior: HitTestBehavior.opaque,
+                excludeFromSemantics: true,
+                onTap: () => _dismiss(context),
+              ),
             ),
           ),
-        ),
-        child,
-      ],
+          child,
+        ],
+      ),
     ),
   );
 }

@@ -5129,5 +5129,8 @@
   "stockLocationDiscardBody": "The adjustment draft for this location will be cleared if you switch locations.",
   "@stockLocationDiscardBody": {
     "placeholders": {}
-  }
+  },
+  "modifierDiscardBody": "The modifier group you are filling in has not been saved and will be lost.",
+  "customerGroupDiscardBody": "The customer group you are filling in has not been saved and will be lost.",
+  "expenseCategoryDiscardBody": "The expense category you are filling in has not been saved and will be lost."
 }

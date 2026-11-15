@@ -1,3 +1,5 @@
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -139,4 +141,169 @@ void main() {
     expect(_key('modifier-option-name-1'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('dialog grup yang berubah bertanya sebelum ditutup (F1-09b)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    // Tanpa perubahan (satu opsi kosong bawaan): ketuk di luar menutup.
+    await _tap(tester, 'modifier-add');
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('modifier-dialog'), findsNothing);
+    expect(_key('modifier-discard'), findsNothing);
+
+    await _tap(tester, 'modifier-add');
+    await _type(tester, 'modifier-option-name-0', 'Pedas');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('modifier-discard'), findsOneWidget);
+    expect(
+      find.text(
+        'Grup modifier yang sedang diisi belum disimpan dan akan hilang.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'modifier-discard-cancel');
+    expect(_key('modifier-dialog'), findsOneWidget);
+
+    // Menu samping tertutup dialog: ketukannya ikut bertanya.
+    await tester.tap(_key('nav-stock'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(_key('modifier-dialog'), findsOneWidget);
+    expect(_key('modifier-discard'), findsOneWidget);
+    await _tap(tester, 'modifier-discard-cancel');
+
+    // Isian dikembalikan: tidak berubah lagi.
+    await _type(tester, 'modifier-option-name-0', '');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('modifier-dialog'), findsNothing);
+    expect(_key('modifier-discard'), findsNothing);
+
+    // Ubah grup lalu Batal: bertanya, Buang tidak menyimpan.
+    bool available() => repo.modifierGroupsData
+        .firstWhere((g) => g.name == 'Topping')
+        .options
+        .first
+        .isAvailable;
+    final before = available();
+    await _tap(tester, 'modifier-edit-Topping');
+    await _tap(tester, 'modifier-cancel');
+    expect(_key('modifier-dialog'), findsNothing);
+    await _tap(tester, 'modifier-edit-Topping');
+    await _toggle(tester, 'modifier-option-available-0', 'Tersedia');
+    await _tap(tester, 'modifier-cancel');
+    expect(_key('modifier-discard'), findsOneWidget);
+    await _tap(tester, 'modifier-discard-confirm');
+    expect(_key('modifier-dialog'), findsNothing);
+    expect(available(), before);
+    expect(tester.takeException(), isNull);
+  });
+
+  // Setiap isian yang ikut disimpan membuat dialog bertanya (F1-09b).
+  final changes = <String, (String, Future<void> Function(WidgetTester))>{
+    'nama grup': ('Topping', (t) => _type(t, 'modifier-name', 'Topping+')),
+    'maksimal pilih': ('Topping', (t) => _type(t, 'modifier-max', '1')),
+    'minimal pilih': ('Ukuran', (t) => _type(t, 'modifier-min-true', '2')),
+    'nama opsi': (
+      'Topping',
+      (t) => _type(t, 'modifier-option-name-0', 'Boba hitam'),
+    ),
+    'harga opsi': (
+      'Topping',
+      (t) => _type(t, 'modifier-option-price-0', '7000'),
+    ),
+    'bawaan': (
+      'Topping',
+      (t) => _toggle(t, 'modifier-option-default-0', 'Bawaan'),
+    ),
+    'tersedia': (
+      'Topping',
+      (t) => _toggle(t, 'modifier-option-available-1', 'Habis'),
+    ),
+    'tambah opsi': ('Topping', (t) => _tap(t, 'modifier-option-add')),
+    'hapus opsi': ('Topping', (t) => _tap(t, 'modifier-option-remove-1')),
+    'wajib dimatikan': (
+      'Ukuran',
+      (t) => _toggle(t, 'modifier-required', 'Wajib dipilih'),
+    ),
+  };
+  for (final MapEntry(key: what, value: (group, change)) in changes.entries) {
+    testWidgets('mengubah $what lalu Esc bertanya dulu (F1-09b)', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      final before = [...repo.modifierGroupsData];
+      await _tap(tester, 'modifier-edit-$group');
+      await change(tester);
+      // Sakelar dan kotak centang tidak memegang fokus isian: Esc tetap
+      // sampai ke dialog.
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(_key('modifier-discard'), findsOneWidget);
+      await _tap(tester, 'modifier-discard-confirm');
+      expect(_key('modifier-dialog'), findsNothing);
+      expect(repo.modifierGroupsData, orderedEquals(before));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('angka sama dengan nol di depan bukan perubahan (F1-09b)', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'modifier-edit-Topping');
+    await _type(tester, 'modifier-max', '02');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('modifier-discard'), findsNothing);
+    expect(_key('modifier-dialog'), findsNothing);
+  });
+
+  testWidgets('simpan yang gagal tidak menghapus pertanyaan (F1-09b)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    final before = [...repo.modifierGroupsData];
+    await _tap(tester, 'modifier-edit-Topping');
+    await _type(tester, 'modifier-name', '');
+    await _tap(tester, 'modifier-save');
+    expect(_key('modifier-dialog'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('modifier-discard'), findsOneWidget);
+    await _tap(tester, 'modifier-discard-confirm');
+    expect(_key('modifier-dialog'), findsNothing);
+    expect(repo.modifierGroupsData, orderedEquals(before));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'desktop: klik sakelar dengan tetikus lalu Esc tetap bertanya (F1-09b)',
+    (tester) async {
+      await pump(tester);
+      await _tap(tester, 'modifier-edit-Topping');
+      // Nama grup berfokus otomatis; klik tetikus di sakelar melepas
+      // fokusnya (onTapOutside bawaan desktop).
+      final target = find.descendant(
+        of: _key('modifier-option-available-1'),
+        matching: find.text('Habis'),
+      );
+      await tester.ensureVisible(target);
+      await tester.pumpAndSettle();
+      await tester.tap(target, kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(_key('modifier-discard'), findsOneWidget);
+      await _tap(tester, 'modifier-discard-cancel');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(_key('modifier-discard'), findsOneWidget);
+      await _tap(tester, 'modifier-discard-confirm');
+      expect(_key('modifier-dialog'), findsNothing);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
 }

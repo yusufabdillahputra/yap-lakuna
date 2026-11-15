@@ -8692,4 +8692,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get stockLocationDiscardBody =>
       'The adjustment draft for this location will be cleared if you switch locations.';
+
+  @override
+  String get modifierDiscardBody =>
+      'The modifier group you are filling in has not been saved and will be lost.';
+
+  @override
+  String get customerGroupDiscardBody =>
+      'The customer group you are filling in has not been saved and will be lost.';
+
+  @override
+  String get expenseCategoryDiscardBody =>
+      'The expense category you are filling in has not been saved and will be lost.';
 }

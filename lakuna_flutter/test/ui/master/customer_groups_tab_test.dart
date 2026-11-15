@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart' show Permission;
@@ -84,5 +85,59 @@ void main() {
     );
     expect(_key('master-tab-units'), findsOneWidget);
     expect(_key('master-tab-customerGroups'), findsNothing);
+  });
+
+  testWidgets('dialog grup yang berubah bertanya sebelum ditutup (F1-09b)', (
+    tester,
+  ) async {
+    final repo = FakeCustomersRepository();
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.master,
+      customers: repo,
+    );
+    await _tap(tester, 'master-tab-customerGroups');
+    final grosir = repo.groupList.firstWhere((g) => g.name == 'Grosir');
+    await _tap(tester, 'customer-group-edit-${grosir.id.uuid}');
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('customer-group-form'), findsNothing);
+
+    await _tap(tester, 'customer-group-edit-${grosir.id.uuid}');
+    await _type(tester, 'customer-group-term', '45');
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('customer-group-discard'), findsOneWidget);
+    expect(
+      find.text(
+        'Grup pelanggan yang sedang diisi belum disimpan dan akan hilang.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'customer-group-discard-cancel');
+    expect(_key('customer-group-form'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('customer-group-discard'), findsOneWidget);
+    await _tap(tester, 'customer-group-discard-cancel');
+
+    // Tempo dikembalikan: tidak berubah lagi, Esc langsung menutup.
+    await _type(tester, 'customer-group-term', '${grosir.termDays}');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('customer-group-discard'), findsNothing);
+    expect(_key('customer-group-form'), findsNothing);
+
+    await _tap(tester, 'customer-group-edit-${grosir.id.uuid}');
+    await _type(tester, 'customer-group-term', '45');
+    await _tap(tester, 'customer-group-cancel');
+    await _tap(tester, 'customer-group-discard-confirm');
+    expect(_key('customer-group-form'), findsNothing);
+    expect(
+      repo.groupList.firstWhere((g) => g.id == grosir.id).termDays,
+      grosir.termDays,
+    );
+    expect(tester.takeException(), isNull);
   });
 }

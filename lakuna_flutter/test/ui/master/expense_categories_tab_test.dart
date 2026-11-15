@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart' show Permission;
@@ -79,5 +80,102 @@ void main() {
     );
     expect(_key('master-tab-units'), findsOneWidget);
     expect(_key('master-tab-expenseCategories'), findsNothing);
+  });
+
+  testWidgets('dialog jenis yang berubah bertanya sebelum ditutup (F1-09b)', (
+    tester,
+  ) async {
+    final repo = FakeExpensesRepository();
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.master,
+      expenses: repo,
+    );
+    await _tap(tester, 'master-tab-expenseCategories');
+    await _tap(tester, 'expense-categories-new');
+    // Spasi saja bukan perubahan.
+    await _type(tester, 'expense-category-name', '  ');
+    await _tap(tester, 'expense-category-cancel');
+    expect(_key('expense-category-form'), findsNothing);
+
+    await _tap(tester, 'expense-categories-new');
+    await _type(tester, 'expense-category-name', 'Parkir');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-discard'), findsOneWidget);
+    expect(
+      find.text(
+        'Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'expense-category-discard-confirm');
+    expect(_key('expense-category-form'), findsNothing);
+    expect(repo.categoryList.any((c) => c.name == 'Parkir'), isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Esc tetap bertanya setelah ketuk di luar lalu Batal (F1-09b)', (
+    tester,
+  ) async {
+    final repo = FakeExpensesRepository();
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.master,
+      expenses: repo,
+    );
+    await _tap(tester, 'master-tab-expenseCategories');
+    await _tap(tester, 'expense-categories-new');
+    await _type(tester, 'expense-category-name', 'Parkir');
+    // Ketukan di luar melepas fokus isian, jadi tidak ada isian berfokus
+    // saat Esc ditekan.
+    await tester.tapAt(const Offset(20, 780));
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-discard'), findsOneWidget);
+    await _tap(tester, 'expense-category-discard-cancel');
+    expect(_key('expense-category-form'), findsOneWidget);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-discard'), findsOneWidget);
+    await _tap(tester, 'expense-category-discard-confirm');
+    expect(_key('expense-category-form'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Esc tanpa isian berfokus tetap menutup / bertanya (F1-09b)', (
+    tester,
+  ) async {
+    await pumpLakuna(
+      tester,
+      size: const Size(1280, 800),
+      initialLocation: Routes.master,
+      expenses: FakeExpensesRepository(),
+    );
+    await _tap(tester, 'master-tab-expenseCategories');
+    // Dialog baru belum berubah: Esc langsung menutup.
+    await _tap(tester, 'expense-categories-new');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-form'), findsNothing);
+
+    // Isian dilepas fokusnya (mis. klik area kosong): Esc tetap bertanya.
+    await _tap(tester, 'expense-categories-new');
+    await _type(tester, 'expense-category-name', 'Parkir');
+    FocusManager.instance.primaryFocus!.unfocus();
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-discard'), findsOneWidget);
+    await _tap(tester, 'expense-category-discard-cancel');
+    // Setelah Batal, Esc masih bekerja.
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('expense-category-discard'), findsOneWidget);
+    await _tap(tester, 'expense-category-discard-confirm');
+    expect(_key('expense-category-form'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

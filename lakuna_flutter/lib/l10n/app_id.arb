@@ -5663,5 +5663,8 @@
   "stockLocationDiscardBody": "Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.",
   "@stockLocationDiscardBody": {
     "placeholders": {}
-  }
+  },
+  "modifierDiscardBody": "Grup modifier yang sedang diisi belum disimpan dan akan hilang.",
+  "customerGroupDiscardBody": "Grup pelanggan yang sedang diisi belum disimpan dan akan hilang.",
+  "expenseCategoryDiscardBody": "Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang."
 }

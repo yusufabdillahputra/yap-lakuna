@@ -14645,6 +14645,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.'**
   String get stockLocationDiscardBody;
+
+  /// No description provided for @modifierDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup modifier yang sedang diisi belum disimpan dan akan hilang.'**
+  String get modifierDiscardBody;
+
+  /// No description provided for @customerGroupDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Grup pelanggan yang sedang diisi belum disimpan dan akan hilang.'**
+  String get customerGroupDiscardBody;
+
+  /// No description provided for @expenseCategoryDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.'**
+  String get expenseCategoryDiscardBody;
 }
 
 class _AppLocalizationsDelegate
