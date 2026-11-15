@@ -8386,4 +8386,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get productDiscardBodyNew =>
       'Produk baru ini belum disimpan dan akan hilang.';
+
+  @override
+  String get expenseDiscardBody =>
+      'Pengeluaran yang sedang diisi belum disimpan dan akan hilang.';
 }

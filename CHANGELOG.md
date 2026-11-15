@@ -7,6 +7,53 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.99.0] - 2026-11-15
+
+Isian *Catat pengeluaran* kini ditanyakan sebelum hilang karena pindah
+menu, melanjutkan peringatan yang sama di form pembelian dan produk.
+
+### Ditambahkan
+
+- **Pengeluaran (1.22):** meninggalkan layar Pengeluaran saat keterangan,
+  jumlah, foto nota, atau tanggal selain hari ini sudah diisi tetapi belum
+  disimpan menampilkan dialog **Buang perubahan?** ("Pengeluaran yang
+  sedang diisi belum disimpan dan akan hilang.") dengan **Batal** dan
+  **Buang**. Berlaku untuk menu samping / bawah dan tombol kembali sistem.
+- Di layar sempit, isian dialog *Catat pengeluaran* yang ditutup dengan
+  **Batal** tetap tersimpan, jadi pindah menu sesudahnya juga ditanyakan.
+  Mengetuk menu bawah saat dialog form masih terbuka juga ditanyakan;
+  **Buang** menutup dialog dan layar sekaligus.
+- Panduan *Pengeluaran* menjelaskan dialog ini (ID + EN).
+
+### Diubah
+
+- Jenis dan sumber dana tidak dihitung sebagai isian karena tetap terpilih
+  setelah simpan. Form kosong dan form yang baru disimpan tetap bisa
+  ditinggalkan tanpa bertanya.
+- Keluar saat simpan atau pilih foto nota masih berjalan ditahan sampai
+  selesai. Ganti kasir tidak ditahan.
+
+### Catatan teknis
+
+- `ExpenseFormViewModel.hasUnsavedChanges` (keterangan tanpa spasi,
+  jumlah bukan Rp0, foto, `spentOn != setup.today`) dan `busy`
+  (`save.running || pickReceipt.running`).
+- `/pengeluaran` memakai `GoRoute.onExit` + `LeaveGuards` (F1-12f);
+  `ExpensesScreen` memasang `check` di `initState` / `didUpdateWidget`,
+  melepasnya di `dispose`. View model form dimiliki layar, jadi satu
+  penjaga mencakup form samping (layar lebar) dan dialog (layar sempit).
+- Pengeluaran adalah rute menu tingkat atas: tombol kembali sistem tidak
+  punya halaman untuk di-*pop*, tetapi go_router tetap memanggil `onExit`.
+  Memilih **Buang** di sana menutup aplikasi, sama seperti sebelumnya.
+- Temuan review (Minor, diperbaiki): `busy` kini ikut menahan selama foto
+  nota dipilih (view model yang sudah dibuang tidak lagi menerima
+  `notifyListeners`); tes ditambah untuk tombol kembali sistem, keluar
+  saat simpan berjalan (`FakeExpensesRepository.recordGate`), dan menu
+  bawah saat dialog form terbuka.
+- Tes VM (kosong, jenis / sumber dana saja, keterangan spasi, jumlah,
+  tanggal, foto, simpan, galat simpan, sibuk) dan widget 1440 px serta
+  360 px; diverifikasi mutasi.
+
 ## [0.98.0] - 2026-11-15
 
 Form produk kini bertanya sebelum isian yang belum disimpan dibuang, sama
@@ -6206,7 +6253,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...HEAD
+[0.99.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...v0.99.0
 [0.98.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...v0.98.0
 [0.97.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...v0.97.0
 [0.96.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...v0.96.0

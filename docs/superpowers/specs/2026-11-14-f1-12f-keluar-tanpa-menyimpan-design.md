@@ -90,4 +90,5 @@ padahal staf mudah mengira tambahan itu sudah masuk draf.
 | Simpan draf langsung dari dialog | — | Belum | Dialog hanya Batal / Buang. |
 | Peringatan saat ganti kasir | — | Belum | Isian hilang seperti sebelumnya. |
 | Form produk | 1.16 | Rilis v0.98.0 | [F1-07q](2026-11-15-f1-07q-keluar-form-produk-design.md). |
-| Form lain (pengeluaran, pelanggan, supplier) | — | Belum | Pembelian, produk, dan denah meja sudah bertanya. |
+| Pengeluaran | 1.22 | Rilis v0.99.0 | [F1-15c](2026-11-15-f1-15c-keluar-form-pengeluaran-design.md). |
+| Form lain (pelanggan, supplier) | — | Belum | Pembelian, produk, pengeluaran, dan denah meja sudah bertanya. |

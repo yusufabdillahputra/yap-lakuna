@@ -16,6 +16,8 @@ Buat jenis pengeluaran di **Master data › Jenis pengeluaran**, misalnya *Listr
    2.000 px sebelum disimpan.
 5. Tekan **Simpan pengeluaran**.
 
+Bila Anda pindah menu saat keterangan, jumlah, foto nota, atau tanggal lain sudah diisi tetapi belum disimpan, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali lalu simpan, atau **Buang** untuk keluar tanpa menyimpan. Di ponsel, isian tetap ada saat dialog ditutup dengan **Batal**, jadi pertanyaan ini juga muncul setelah dialog ditutup. Jenis dan sumber dana yang dipilih tidak dihitung karena tetap terpilih untuk pengeluaran berikutnya.
+
 ## Membatalkan
 
 Buka rincian pengeluaran, tekan **Batalkan pengeluaran**, isi alasan, lalu **Ya, batalkan**. Bila dananya dari kas laci, uang dikembalikan ke laci di sesi yang sedang buka.

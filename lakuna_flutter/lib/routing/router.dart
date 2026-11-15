@@ -574,8 +574,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.expenses,
+            onExit: formExit,
             builder: (context, state) => ExpensesScreen(
               repository: expenses,
+              leaveGuard: leaveGuards.of(state.pageKey),
               imagePicker: imagePicker,
               exporter: exporter,
             ),

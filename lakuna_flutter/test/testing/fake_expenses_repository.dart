@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -91,6 +92,9 @@ class FakeExpensesRepository extends ExpensesRepository {
 
   /// Galat berikutnya untuk aksi apa pun (sekali pakai).
   Exception? nextError;
+
+  /// Bila diisi, [record] menunggu sampai selesai (simpan masih berjalan).
+  Completer<void>? recordGate;
 
   ExpenseCategory _category(String name) {
     final c = ExpenseCategory(
@@ -200,7 +204,12 @@ class FakeExpensesRepository extends ExpensesRepository {
   });
 
   @override
-  Future<Result<Expense>> record(ExpenseRequest request) async => _guard(() {
+  Future<Result<Expense>> record(ExpenseRequest request) async {
+    if (recordGate case final gate?) await gate.future;
+    return _record(request);
+  }
+
+  Future<Result<Expense>> _record(ExpenseRequest request) async => _guard(() {
     requests.add(request);
     final issues = validateExpense(
       description: request.description,

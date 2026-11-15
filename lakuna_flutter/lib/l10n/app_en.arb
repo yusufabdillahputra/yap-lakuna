@@ -5053,5 +5053,9 @@
       }
     }
   },
-  "productDiscardBodyNew": "This new product has not been saved and will be lost."
+  "productDiscardBodyNew": "This new product has not been saved and will be lost.",
+  "expenseDiscardBody": "The expense you are filling in has not been saved and will be lost.",
+  "@expenseDiscardBody": {
+    "placeholders": {}
+  }
 }

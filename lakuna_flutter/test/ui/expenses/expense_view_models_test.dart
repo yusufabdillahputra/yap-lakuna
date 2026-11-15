@@ -86,6 +86,75 @@ void main() {
     });
   });
 
+  group('isian belum disimpan (F1-15c)', () {
+    test('form kosong, jenis, dan sumber dana saja tidak dihitung', () async {
+      final vm = ExpenseFormViewModel(repository: repo, setup: await setup());
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm
+        ..setCategory(repo.categoryByName('Transport').id)
+        ..setFunding(FundingSource.bank)
+        ..setDescription('   ');
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.setSpentOn(DateTime(2026, 11, 4));
+      expect(vm.hasUnsavedChanges, isFalse, reason: 'hari ini');
+    });
+
+    test('keterangan, nominal, tanggal lain, atau foto dihitung', () async {
+      final picker = FakeImagePicker()
+        ..next = PickedImage(
+          name: 'nota.png',
+          size: tinyPortraitPng.length,
+          bytes: tinyPortraitPng,
+        );
+      final vm = ExpenseFormViewModel(
+        repository: repo,
+        setup: await setup(),
+        picker: picker,
+      );
+      vm.setDescription('Parkir');
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.setDescription('');
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.setAmount(const Money(2000));
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.setAmount(Money.zero);
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.setSpentOn(DateTime(2026, 11, 3));
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.setSpentOn(DateTime(2026, 11, 4));
+      expect(vm.hasUnsavedChanges, isFalse);
+      await vm.pickReceipt.execute(false);
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.removeReceipt();
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('setelah simpan kosong lagi; selama simpan sibuk', () async {
+      final vm = ExpenseFormViewModel(repository: repo, setup: await setup())
+        ..setDescription('Galon air')
+        ..setCategory(repo.categoryByName('Bahan habis pakai').id)
+        ..setAmount(const Money(25000));
+      expect(vm.busy, isFalse);
+      final saving = vm.save.execute();
+      expect(vm.busy, isTrue);
+      await saving;
+      expect(vm.save.result, isA<Ok<Expense>>());
+      expect(vm.busy, isFalse);
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('simpan gagal tetap dihitung berisi', () async {
+      final vm = ExpenseFormViewModel(repository: repo, setup: await setup())
+        ..setDescription('Galon air')
+        ..setCategory(repo.categoryByName('Bahan habis pakai').id)
+        ..setAmount(const Money(25000));
+      repo.nextError = Exception('disk');
+      await vm.save.execute();
+      expect(vm.save.result, isA<Error<Expense>>());
+      expect(vm.hasUnsavedChanges, isTrue);
+    });
+  });
+
   group('ExpenseFormViewModel', () {
     test('bawaan kas laci bila sesi terbuka, kas toko bila tidak', () async {
       final vm = ExpenseFormViewModel(repository: repo, setup: await setup());

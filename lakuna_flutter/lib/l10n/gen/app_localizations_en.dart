@@ -8636,4 +8636,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productDiscardBodyNew =>
       'This new product has not been saved and will be lost.';
+
+  @override
+  String get expenseDiscardBody =>
+      'The expense you are filling in has not been saved and will be lost.';
 }

@@ -111,6 +111,19 @@ class ExpenseFormViewModel extends ChangeNotifier {
 
   bool get canSubmit => _valid && !save.running;
 
+  /// Isian yang akan hilang bila layar ditinggalkan (F1-15c): keterangan,
+  /// nominal, foto nota, atau tanggal selain hari ini. Jenis dan sumber
+  /// dana tidak dihitung karena tetap terpilih setelah simpan.
+  bool get hasUnsavedChanges =>
+      _description.trim().isNotEmpty ||
+      _amount != Money.zero ||
+      _receipt != null ||
+      spentOn != _setup.today;
+
+  /// Simpan atau pilih foto nota sedang berjalan; layar belum boleh
+  /// ditinggalkan.
+  bool get busy => save.running || pickReceipt.running;
+
   /// Setup baru (mis. jenis ditambah atau sesi kasir dibuka).
   void updateSetup(ExpensesSetup setup) {
     _setup = setup;

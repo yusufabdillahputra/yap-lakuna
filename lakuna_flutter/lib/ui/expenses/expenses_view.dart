@@ -11,7 +11,9 @@ import '../../data/repositories/expenses_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart' show formatCalendarDayMonth;
 import 'expense_detail_dialog.dart';
@@ -38,9 +40,13 @@ class ExpensesScreen extends StatefulWidget {
     required this.repository,
     this.imagePicker = const FileSelectorImagePicker(),
     this.exporter = const PlatformSpreadsheetExporter(),
+    this.leaveGuard,
   });
 
   final ExpensesRepository repository;
+
+  /// Penjaga keluar rute: form yang berisi ditanyakan (F1-15c).
+  final LeaveGuard? leaveGuard;
   final ImageFilePicker imagePicker;
   final SpreadsheetExporter exporter;
 
@@ -61,6 +67,32 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     _list
       ..addListener(_syncForm)
       ..load.execute();
+    widget.leaveGuard?.check = _confirmLeave;
+  }
+
+  @override
+  void didUpdateWidget(ExpensesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.leaveGuard != widget.leaveGuard) {
+      if (oldWidget.leaveGuard?.check == _confirmLeave) {
+        oldWidget.leaveGuard?.check = null;
+      }
+      widget.leaveGuard?.check = _confirmLeave;
+    }
+  }
+
+  /// Form tetap hidup saat dialog ditutup (layar sempit), jadi isiannya
+  /// ditanyakan di kedua tata letak (F1-15c).
+  Future<bool> _confirmLeave() async {
+    final form = _form;
+    if (!mounted || form == null) return true;
+    if (form.busy) return false;
+    if (!form.hasUnsavedChanges) return true;
+    return confirmDiscardChanges(
+      context,
+      body: AppLocalizations.of(context).expenseDiscardBody,
+      key: 'expense-discard',
+    );
   }
 
   /// Form dibuat setelah setup (jenis, hari ini) dimuat.
@@ -83,6 +115,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
   @override
   void dispose() {
+    if (widget.leaveGuard?.check == _confirmLeave) {
+      widget.leaveGuard?.check = null;
+    }
     _list
       ..removeListener(_syncForm)
       ..dispose();
