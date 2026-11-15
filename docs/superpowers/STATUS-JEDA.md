@@ -94,7 +94,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
 | v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | #118 |
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
-| v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | |
+| v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | #120 |
+| v0.115.0 | Menutup jendela desktop bertanya dulu bila form belum disimpan (F1-02c) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -272,6 +273,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 56. ~~*Buat pembelian* memilih supplier yang barangnya sudah diretur
     semua~~ — selesai v0.114.0 (F1-08m): baris yang diretur penuh tidak
     dihitung sebagai pembelian terakhir; retur sebagian tetap dihitung.
+57. ~~Menutup jendela desktop membuang form yang belum disimpan tanpa
+    bertanya~~ — selesai v0.115.0 (F1-02c): *Buang perubahan?* dulu di
+    Windows, Linux, macOS (tombol ✕, Alt+F4, Cmd+Q).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
