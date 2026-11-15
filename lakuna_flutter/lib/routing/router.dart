@@ -39,6 +39,7 @@ import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
 import '../ui/coming_soon/coming_soon_view.dart';
 import '../ui/core/leave_guard.dart';
 import '../ui/core/app_shell.dart';
+import '../ui/core/exit_guard.dart';
 import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
 import '../ui/dining/split_bill_view.dart';
@@ -162,11 +163,16 @@ GoRouter createRouter({
             LoginScreen(session: session, store: store),
       ),
       ShellRoute(
-        builder: (context, state, child) => AppShell(
-          location: state.uri.path,
-          session: session,
-          canSwitch: leaveGuards.canLeaveAll,
-          child: child,
+        // Menutup jendela desktop bertanya dulu, sama dengan Ganti kasir
+        // (F1-02c).
+        builder: (context, state, child) => ExitGuard(
+          canExit: leaveGuards.canLeaveAll,
+          child: AppShell(
+            location: state.uri.path,
+            session: session,
+            canSwitch: leaveGuards.canLeaveAll,
+            child: child,
+          ),
         ),
         routes: [
           GoRoute(

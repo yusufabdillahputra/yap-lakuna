@@ -1,3 +1,5 @@
+import 'dart:ui' show AppExitResponse;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -370,6 +372,35 @@ void main() {
       expect(_key('purchase-discard'), findsNothing);
       expect(session.current, isNull);
       expect(repo.purchases, hasLength(1));
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
+  group('Tutup jendela aplikasi dari form yang berubah (F1-02c)', () {
+    testWidgets('desktop: bertanya; Batal tetap terbuka, Buang menutup', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      // Tanpa perubahan: langsung ditutup tanpa dialog.
+      expect(
+        await tester.binding.handleRequestAppExit(),
+        AppExitResponse.exit,
+      );
+      expect(_key('purchase-discard'), findsNothing);
+
+      await _scan(tester, 'KOP');
+      var response = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(await response, AppExitResponse.cancel);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+
+      response = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('purchase-discard-confirm'));
+      expect(await response, AppExitResponse.exit);
+      expect(repo.purchases, isEmpty);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });

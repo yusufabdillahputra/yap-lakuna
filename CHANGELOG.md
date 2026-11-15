@@ -7,6 +7,44 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.115.0] - 2026-11-15
+
+Menutup jendela aplikasi di komputer kini bertanya dulu bila ada form yang
+belum disimpan, sama seperti pindah menu dan **Ganti kasir**.
+
+### Diperbaiki
+
+- **Semua layar desktop (Windows, Linux, macOS):** tombol ✕ jendela,
+  Alt+F4, atau Cmd+Q saat form pembelian, produk, pengeluaran, atau draf
+  penyesuaian stok berubah kini menampilkan *Buang perubahan?*.
+  Sebelumnya aplikasi langsung tertutup dan isian hilang tanpa
+  peringatan. **Batal** membiarkan aplikasi terbuka dengan isian utuh;
+  **Buang** menutup aplikasi. Form tanpa perubahan atau layar masuk tetap
+  langsung tertutup. Menekan ✕ lagi selama dialog terbuka diabaikan.
+- **macOS:** tombol ✕ kini bertanya selagi jendela masih tampil. Tanpa
+  perubahan ini jendela tertutup lebih dulu, sehingga dialog akan muncul
+  di jendela yang sudah hilang, dan klik kedua langsung menutup aplikasi.
+
+### Catatan teknis
+
+- `ExitGuard` (`lib/ui/core/exit_guard.dart`) memasang
+  `AppLifecycleListener(onExitRequested:)` di bingkai `AppShell` dan
+  memakai `LeaveGuards.canLeaveAll` (F1-02b). Permintaan selagi
+  pemeriksaan berjalan ditolak.
+- Linux (`delete-event`) dan Windows (`WM_CLOSE` lewat
+  `HandleTopLevelWindowProc`) diteruskan embedder Flutter ke
+  `System.requestAppExit` tanpa perubahan runner.
+- macOS: `MainFlutterWindow.performClose` bertanya lewat kanal
+  `lakuna/window` (`requestClose` → `bool`) sebelum `NSApp.terminate`;
+  izinnya dipakai sekali oleh `onExitRequested` berikutnya.
+- Tes: `exit_guard_test.dart` (izin, tolak, permintaan ganda, kanal
+  macOS, dilepas), alur pembelian desktop; mutasi diverifikasi. Uji
+  manual Linux dengan `WM_DELETE_WINDOW` di Xvfb.
+- Gap tersisa: Cmd+Q kedua selama dialog di macOS, Windows dengan jendela
+  kedua, dialog isian (pelanggan, supplier, master data, meja).
+- Spec [F1-02c](docs/superpowers/specs/2026-11-15-f1-02c-tutup-jendela-tanya-dulu-design.md);
+  gap F1-02b *Tutup aplikasi (jendela desktop) bertanya* ditutup.
+
 ## [0.114.0] - 2026-11-15
 
 **Buat pembelian** dari Stok minimum tidak lagi memilih supplier yang
@@ -6890,7 +6928,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...HEAD
+[0.115.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...v0.115.0
 [0.114.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...v0.114.0
 [0.113.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...v0.113.0
 [0.112.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...v0.112.0

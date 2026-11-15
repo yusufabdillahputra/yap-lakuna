@@ -76,6 +76,6 @@ peringatan.
 | --- | --- | --- | --- |
 | *Ganti kasir* bertanya bila form berubah | 1.2 | Rilis v0.110.0 | `LeaveGuards.canLeaveAll`. |
 | Keranjang Kasir / open bill ditanyakan saat ganti kasir | — | Belum | Keranjang retail sengaja dikosongkan per staf (F1-04c); open bill tersimpan. |
-| Tutup aplikasi (jendela desktop) bertanya | — | Belum | Menutup jendela tetap membuang isian. |
+| Tutup aplikasi (jendela desktop) bertanya | — | Rilis v0.115.0 | [F1-02c](2026-11-15-f1-02c-tutup-jendela-tanya-dulu-design.md). |
 | Pesan saat ganti kasir ditahan simpan | — | Belum | Tombol diam selama simpan berjalan (biasanya sesaat). |
 | Halaman yang sedang ditutup ditanya lagi | — | Belum | Setelah *Buang* lewat Kembali, selama animasi keluar halaman masih terpasang; *Ganti kasir* di jeda itu bertanya sekali lagi. |
