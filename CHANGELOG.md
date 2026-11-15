@@ -7,6 +7,58 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.107.0] - 2026-11-15
+
+Grup modifier bisa berisi belasan opsi dengan harga masing-masing. Dialognya
+kini tidak lagi hilang karena ketukan yang tidak sengaja.
+
+### Ditambahkan
+
+- **Master data (1.17):** dialog **Grup modifier**, **Grup pelanggan**, dan
+  **Jenis pengeluaran** yang isiannya berubah menampilkan **Buang
+  perubahan?** sebelum ditutup lewat ketukan di luar dialog, Esc, tombol
+  kembali sistem, atau **Batal**. *Batal* kembali ke dialog; *Buang*
+  menutup tanpa menyimpan. Dialog yang tidak berubah (termasuk grup baru
+  dengan satu opsi kosong, nama yang hanya berisi spasi, atau isian yang
+  dikembalikan) tertutup langsung.
+- Ketiga dialog tampil di navigator akar sehingga menutupi menu samping;
+  selama *Simpan* berjalan dialog tidak bisa ditutup.
+- Panduan *Modifier*, *Pengeluaran*, dan *Pelanggan & piutang* menjelaskan
+  pertanyaan ini (ID + EN).
+
+### Diperbaiki
+
+- Dialog grup modifier kini dibangun ulang saat nama, minimal, maksimal,
+  atau nama/harga opsi diketik (sebelumnya nilainya disimpan tanpa
+  `setState`), sehingga keadaan "berubah" selalu terbaru.
+- Esc kini bekerja di dialog yang memakai pertanyaan *Buang perubahan?*
+  (termasuk dialog **Pelanggan** dan **Supplier** dari v0.100.0) walau tidak
+  ada isian berfokus: setelah sakelar/kotak centang diklik, setelah isian
+  dilepas fokusnya, atau setelah memilih *Batal* di pertanyaan. Sebelumnya
+  Esc diam saja dalam keadaan itu karena fokus jatuh ke lingkup rute dialog,
+  di atas aksi Esc yang dipasang ulang (ditemukan saat uji manual).
+- Minimal/maksimal grup modifier dibandingkan sebagai angka, jadi mengetik
+  "02" untuk maksimal 2 tidak dianggap perubahan.
+
+### Catatan teknis
+
+- Memakai ulang `TapOutsideToPop` dan `DiscardChangesScope` dari F1-13e;
+  tanda tangan isian dihitung di `State` dialog (grup modifier:
+  `listEquals` atas nama, wajib, min, maks, dan setiap opsi; grup
+  pelanggan: record nama + tempo; jenis pengeluaran: nama). Tombol Batal
+  memanggil `maybePop` dan diberi kunci `modifier-cancel`,
+  `customer-group-cancel`, `expense-category-cancel`.
+- l10n baru: `modifierDiscardBody`, `customerGroupDiscardBody`,
+  `expenseCategoryDiscardBody`.
+- `TapOutsideToPop` memasang `FocusScope(autofocus: true)` di bawah
+  `Actions` Esc, sehingga fokus utama selalu berada di bawah aksi Esc
+  (bukan pendengar `FocusManager` global, yang di desktop akan membuang
+  fokus isian saat jendela berpindah).
+- Tes widget baru per dialog, termasuk tabel per isian grup modifier, simpan
+  gagal lalu Esc, dan Esc tanpa isian berfokus; diverifikasi mutasi (tanpa
+  `dirty`, opsi tanpa nama/tersedia di tanda tangan, navigator cabang, Batal
+  `pop`, nama tanpa `trim`, min/maks sebagai teks, tanpa lingkup fokus).
+
 ## [0.106.0] - 2026-11-15
 
 Grosir biasanya dibeli per dus atau per pak. Form pembelian kini mengisi
@@ -6596,7 +6648,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...HEAD
+[0.107.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...v0.107.0
 [0.106.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...v0.106.0
 [0.105.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...v0.105.0
 [0.104.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...v0.104.0

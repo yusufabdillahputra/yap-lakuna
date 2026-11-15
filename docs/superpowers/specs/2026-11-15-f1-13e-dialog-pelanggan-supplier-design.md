@@ -79,6 +79,6 @@ membuang isian tanpa bertanya.
 | --- | --- | --- | --- |
 | Dialog pelanggan & supplier bertanya sebelum isian dibuang | 1.20, 1.21 | Rilis v0.100.0 | Ketuk di luar, Esc, kembali sistem, Batal. |
 | Simpan langsung dari dialog konfirmasi | — | Belum | Dialog hanya Batal / Buang. |
-| Dialog lain (jenis pengeluaran, grup, pembayaran piutang/hutang) | — | Belum | Isiannya pendek; tetap tertutup tanpa bertanya. |
+| Dialog lain (jenis pengeluaran, grup, pembayaran piutang/hutang) | 1.17 | Sebagian v0.107.0 | [F1-09b](2026-11-15-f1-09b-dialog-master-data-design.md): grup modifier, grup pelanggan, jenis pengeluaran. Pembayaran piutang/hutang ada di panel, bukan dialog; dialog meja masih gap. |
 | Ketuk di area aman ponsel (status bar, takik, indikator beranda) | — | Diterima | Latar yang bisa diketuk berada di dalam `SafeArea` rute Forui; ketukan di tepi itu tidak menutup dialog. |
 | Spasi di akhir isian | — | Diterima | Dihitung perubahan (hanya menambah satu pertanyaan). |

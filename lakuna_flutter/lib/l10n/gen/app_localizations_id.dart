@@ -8442,4 +8442,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get stockLocationDiscardBody =>
       'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.';
+
+  @override
+  String get modifierDiscardBody =>
+      'Grup modifier yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get customerGroupDiscardBody =>
+      'Grup pelanggan yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get expenseCategoryDiscardBody =>
+      'Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.';
 }

@@ -16,7 +16,7 @@ Banyak pelanggan sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .
 
 ## Grup pelanggan
 
-Atur grup di **Master data › Grup pelanggan**. Tempo standar grup mengisi jatuh tempo otomatis saat [penjualan kredit](credit-sale). Pelanggan tanpa grup memakai tempo 14 hari.
+Atur grup di **Master data › Grup pelanggan**. Tempo standar grup mengisi jatuh tempo otomatis saat [penjualan kredit](credit-sale). Pelanggan tanpa grup memakai tempo 14 hari. Dialog grup yang sudah diubah bertanya **Buang perubahan?** sebelum ditutup tanpa disimpan.
 
 ## Menerima pembayaran piutang
 

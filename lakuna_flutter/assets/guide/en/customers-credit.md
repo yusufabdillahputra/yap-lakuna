@@ -16,7 +16,7 @@ Many customers at once? Tap **Import Excel** and choose an .xlsx or .csv file wi
 
 ## Customer groups
 
-Manage groups in **Master data › Customer groups**. A group's standard term fills in the due date automatically for [credit sales](credit-sale). Customers without a group use a 14-day term.
+Manage groups in **Master data › Customer groups**. A group's standard term fills in the due date automatically for [credit sales](credit-sale). Customers without a group use a 14-day term. A group dialog with changes asks **Discard changes?** before closing without saving.
 
 ## Receiving a receivable payment
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -8,6 +9,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
 import '../products/product_widgets.dart';
 import 'modifier_groups_view_model.dart';
@@ -62,11 +64,17 @@ class ModifierGroupsTab extends StatelessWidget {
   Future<void> _edit(BuildContext context, {ModifierGroupDetail? group}) =>
       showFDialog<void>(
         context: context,
-        builder: (context, style, animation) => FDialog(
-          animation: animation,
-          constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
-          builder: (context, style) =>
-              _GroupDialog(viewModel: viewModel, group: group),
+        // Menutupi menu samping; ketukan di luar / Esc bertanya dulu
+        // (F1-09b).
+        useRootNavigator: true,
+        barrierDismissible: false,
+        builder: (context, style, animation) => TapOutsideToPop(
+          child: FDialog(
+            animation: animation,
+            constraints: const BoxConstraints(minWidth: 280, maxWidth: 560),
+            builder: (context, style) =>
+                _GroupDialog(viewModel: viewModel, group: group),
+          ),
         ),
       );
 
@@ -351,6 +359,31 @@ class _GroupDialogState extends State<_GroupDialog> {
   Map<int, ModifierGroupError> _optionErrors = const {};
   var _failed = false;
 
+  /// Isian saat dialog dibuka (F1-09b).
+  late final List<Object?> _initial;
+
+  @override
+  void initState() {
+    super.initState();
+    _initial = _signature;
+  }
+
+  /// Isian yang menentukan apakah dialog berubah (F1-09b).
+  List<Object?> get _signature => [
+    _name.trim(),
+    _required,
+    // Dibandingkan sebagai angka, seperti saat disimpan ("02" = "2").
+    if (_required) int.tryParse(_min) ?? 0,
+    int.tryParse(_max) ?? 0,
+    for (final o in _options) ...[
+      o.id,
+      o.name.trim(),
+      o.price,
+      o.isDefault,
+      o.isAvailable,
+    ],
+  ];
+
   ModifierGroupDraft get _draft {
     final max = int.tryParse(_max) ?? 0;
     final min = _required ? (int.tryParse(_min) ?? 0) : 0;
@@ -409,7 +442,6 @@ class _GroupDialogState extends State<_GroupDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
-    final busy = widget.viewModel.save.running;
     final nameError = _errorOf(const {
       ModifierGroupError.nameEmpty,
       ModifierGroupError.nameTooLong,
@@ -423,152 +455,168 @@ class _GroupDialogState extends State<_GroupDialog> {
       ModifierGroupError.optionCount,
       ModifierGroupError.defaultsAboveMax,
     });
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: SingleChildScrollView(
-        child: Column(
-          key: const ValueKey('modifier-dialog'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Text(
-              widget.group == null
-                  ? l10n.modifierNewGroup
-                  : l10n.modifierEditGroup,
-              style: theme.typography.display.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            FTextField(
-              key: const ValueKey('modifier-name'),
-              label: Text(l10n.modifierName),
-              autofocus: true,
-              maxLength: ModifierLimits.groupName,
-              error: nameError == null ? null : Text(nameError),
-              control: .managed(
-                initial: TextEditingValue(text: _name),
-                onChange: (v) => _name = v.text,
-              ),
-            ),
-            FSwitch(
-              key: const ValueKey('modifier-required'),
-              label: Text(l10n.modifierRequired),
-              description: Text(l10n.modifierRequiredHint),
-              value: _required,
-              onChange: (v) => setState(() {
-                _required = v;
-                if (v && (int.tryParse(_min) ?? 0) < 1) _min = '1';
-              }),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
-              children: [
-                if (_required)
-                  Expanded(
-                    child: FTextField(
-                      // Kunci ikut nilai agar teks ikut berubah saat saklar
-                      // Wajib menaikkan minimal ke 1.
-                      key: ValueKey('modifier-min-$_required'),
-                      label: Text(l10n.modifierMin),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: _digits,
-                      control: .managed(
-                        initial: TextEditingValue(text: _min),
-                        onChange: (v) => _min = v.text,
+    return ListenableBuilder(
+      // Simpan yang berjalan menahan penutupan dialog (F1-09b).
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        final busy = widget.viewModel.save.running;
+        return DiscardChangesScope(
+          dirty: !listEquals(_signature, _initial),
+          busy: busy,
+          body: l10n.modifierDiscardBody,
+          dialogKey: 'modifier-discard',
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                key: const ValueKey('modifier-dialog'),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 12,
+                children: [
+                  Text(
+                    widget.group == null
+                        ? l10n.modifierNewGroup
+                        : l10n.modifierEditGroup,
+                    style: theme.typography.display.lg.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  FTextField(
+                    key: const ValueKey('modifier-name'),
+                    label: Text(l10n.modifierName),
+                    autofocus: true,
+                    maxLength: ModifierLimits.groupName,
+                    error: nameError == null ? null : Text(nameError),
+                    control: .managed(
+                      initial: TextEditingValue(text: _name),
+                      onChange: (v) => setState(() => _name = v.text),
+                    ),
+                  ),
+                  FSwitch(
+                    key: const ValueKey('modifier-required'),
+                    label: Text(l10n.modifierRequired),
+                    description: Text(l10n.modifierRequiredHint),
+                    value: _required,
+                    onChange: (v) => setState(() {
+                      _required = v;
+                      if (v && (int.tryParse(_min) ?? 0) < 1) _min = '1';
+                    }),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      if (_required)
+                        Expanded(
+                          child: FTextField(
+                            // Kunci ikut nilai agar teks ikut berubah saat saklar
+                            // Wajib menaikkan minimal ke 1.
+                            key: ValueKey('modifier-min-$_required'),
+                            label: Text(l10n.modifierMin),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: _digits,
+                            control: .managed(
+                              initial: TextEditingValue(text: _min),
+                              onChange: (v) => setState(() => _min = v.text),
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: FTextField(
+                          key: const ValueKey('modifier-max'),
+                          label: Text(l10n.modifierMax),
+                          description: Text(l10n.modifierMaxHint),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: _digits,
+                          error: selectError == null ? null : Text(selectError),
+                          control: .managed(
+                            initial: TextEditingValue(text: _max),
+                            onChange: (v) => setState(() => _max = v.text),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    l10n.modifierOptions,
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(l10n.modifierOptionPriceHint, style: _muted(context)),
+                  if (listError != null)
+                    Text(
+                      listError,
+                      key: const ValueKey('modifier-options-error'),
+                      style: theme.typography.body.xs.copyWith(
+                        color: theme.colors.destructive,
                       ),
                     ),
-                  ),
-                Expanded(
-                  child: FTextField(
-                    key: const ValueKey('modifier-max'),
-                    label: Text(l10n.modifierMax),
-                    description: Text(l10n.modifierMaxHint),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: _digits,
-                    error: selectError == null ? null : Text(selectError),
-                    control: .managed(
-                      initial: TextEditingValue(text: _max),
-                      onChange: (v) => _max = v.text,
+                  for (final (i, o) in _options.indexed)
+                    _OptionRow(
+                      key: ValueKey('modifier-option-${o.key}'),
+                      index: i,
+                      option: o,
+                      error: switch (_optionErrors[i]) {
+                        final e? => modifierErrorMessage(l10n, e),
+                        null => null,
+                      },
+                      onChanged: () => setState(() {}),
+                      onRemove: _options.length <= 1
+                          ? null
+                          : () => setState(() {
+                              _options.remove(o);
+                              _optionErrors = const {};
+                            }),
+                    ),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FButton(
+                      key: const ValueKey('modifier-option-add'),
+                      size: .sm,
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      prefix: const Icon(TablerIcons.plus, size: 16),
+                      onPress: _options.length >= ModifierLimits.optionsMax
+                          ? null
+                          : () =>
+                                setState(() => _options.add(_Option(_next++))),
+                      child: Flexible(child: Text(l10n.modifierOptionAdd)),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Text(
-              l10n.modifierOptions,
-              style: theme.typography.body.sm.copyWith(
-                fontWeight: FontWeight.w600,
+                  if (_failed)
+                    FAlert(
+                      variant: .destructive,
+                      title: Text(l10n.modifierErrGeneric),
+                    ),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      FButton(
+                        key: const ValueKey('modifier-cancel'),
+                        variant: .outline,
+                        mainAxisSize: .min,
+                        // Ikut ditanyakan bila isian berubah (F1-09b).
+                        onPress: () => Navigator.of(context).maybePop(),
+                        child: Flexible(child: Text(l10n.diningSetupCancel)),
+                      ),
+                      FButton(
+                        key: const ValueKey('modifier-save'),
+                        mainAxisSize: .min,
+                        onPress: busy ? null : _save,
+                        child: Flexible(child: Text(l10n.diningSetupSave)),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            Text(l10n.modifierOptionPriceHint, style: _muted(context)),
-            if (listError != null)
-              Text(
-                listError,
-                key: const ValueKey('modifier-options-error'),
-                style: theme.typography.body.xs.copyWith(
-                  color: theme.colors.destructive,
-                ),
-              ),
-            for (final (i, o) in _options.indexed)
-              _OptionRow(
-                key: ValueKey('modifier-option-${o.key}'),
-                index: i,
-                option: o,
-                error: switch (_optionErrors[i]) {
-                  final e? => modifierErrorMessage(l10n, e),
-                  null => null,
-                },
-                onChanged: () => setState(() {}),
-                onRemove: _options.length <= 1
-                    ? null
-                    : () => setState(() {
-                        _options.remove(o);
-                        _optionErrors = const {};
-                      }),
-              ),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: FButton(
-                key: const ValueKey('modifier-option-add'),
-                size: .sm,
-                variant: .outline,
-                mainAxisSize: .min,
-                prefix: const Icon(TablerIcons.plus, size: 16),
-                onPress: _options.length >= ModifierLimits.optionsMax
-                    ? null
-                    : () => setState(() => _options.add(_Option(_next++))),
-                child: Flexible(child: Text(l10n.modifierOptionAdd)),
-              ),
-            ),
-            if (_failed)
-              FAlert(
-                variant: .destructive,
-                title: Text(l10n.modifierErrGeneric),
-              ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.end,
-              children: [
-                FButton(
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(),
-                  child: Flexible(child: Text(l10n.diningSetupCancel)),
-                ),
-                FButton(
-                  key: const ValueKey('modifier-save'),
-                  mainAxisSize: .min,
-                  onPress: busy ? null : _save,
-                  child: Flexible(child: Text(l10n.diningSetupSave)),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -614,7 +662,11 @@ class _OptionRow extends StatelessWidget {
                     error: error == null ? null : Text(error!),
                     control: .managed(
                       initial: TextEditingValue(text: o.name),
-                      onChange: (v) => o.name = v.text,
+                      onChange: (v) {
+                        o.name = v.text;
+                        // Penanda isian berubah (F1-09b).
+                        onChanged();
+                      },
                     ),
                   ),
                 ),
@@ -635,7 +687,10 @@ class _OptionRow extends StatelessWidget {
                             : '${price.isNegative ? '-' : ''}'
                                   '${groupThousands(price.value.abs(), '.')}',
                       ),
-                      onChange: (v) => o.price = parseSignedRupiah(v.text),
+                      onChange: (v) {
+                        o.price = parseSignedRupiah(v.text);
+                        onChanged();
+                      },
                     ),
                   ),
                 ),
