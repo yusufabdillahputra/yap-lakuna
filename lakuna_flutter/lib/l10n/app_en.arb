@@ -5121,5 +5121,13 @@
       }
     }
   },
-  "receiptBillAdjustment": "Bill adjustment"
+  "receiptBillAdjustment": "Bill adjustment",
+  "stockDiscardBody": "The stock adjustment draft you are filling in has not been saved and will be lost.",
+  "@stockDiscardBody": {
+    "placeholders": {}
+  },
+  "stockLocationDiscardBody": "The adjustment draft for this location will be cleared if you switch locations.",
+  "@stockLocationDiscardBody": {
+    "placeholders": {}
+  }
 }

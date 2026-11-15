@@ -84,6 +84,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | #107 |
 | v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | #108 |
 | v0.103.0 | Cari Riwayat lewat nama modifier, mis. `extra shot` (F1-11f) | #109 |
+| v0.104.0 | Tanya sebelum draf penyesuaian stok hilang saat pindah menu / ganti lokasi (F1-08k) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -221,6 +222,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 45. ~~Cari Riwayat `extra shot` tidak menemukan pesanan bermodifier~~ —
     selesai v0.103.0 (F1-11f): kata kunci juga dicocokkan ke nama opsi
     modifier baris barang yang sama (salinan di nota).
+46. ~~Draf penyesuaian stok (opname) hilang tanpa bertanya saat pindah
+    menu atau ganti lokasi~~ — selesai v0.104.0 (F1-08k): *Buang
+    perubahan?* seperti form pembelian/produk/pengeluaran; sekaligus
+    memperbaiki guard form pembelian yang dibuka dari Stok.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

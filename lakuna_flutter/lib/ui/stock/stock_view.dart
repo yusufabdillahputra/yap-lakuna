@@ -16,7 +16,9 @@ import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import '../reports/report_labels.dart' show moneyLabel;
@@ -38,7 +40,11 @@ class StockScreen extends StatefulWidget {
     this.onRestock,
     this.restockDrafts,
     this.onOpenDraft,
+    this.leaveGuard,
   });
+
+  /// Penjaga keluar rute: draf penyesuaian yang berisi ditanyakan (F1-08k).
+  final LeaveGuard? leaveGuard;
 
   /// *Buat pembelian* dari daftar stok minimum (F1-08c); `null` bila staf
   /// tidak boleh mengelola pembelian. Selesai saat staf kembali ke Stok;
@@ -101,10 +107,39 @@ class _StockScreenState extends State<StockScreen>
       );
     }
     _viewModel.load.execute();
+    widget.leaveGuard?.check = _confirmLeave;
+  }
+
+  @override
+  void didUpdateWidget(StockScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.leaveGuard != widget.leaveGuard) {
+      if (oldWidget.leaveGuard?.check == _confirmLeave) {
+        oldWidget.leaveGuard?.check = null;
+      }
+      widget.leaveGuard?.check = _confirmLeave;
+    }
+  }
+
+  /// Draf penyesuaian hidup di layar ini saja: tanya sebelum ditinggalkan
+  /// (F1-08k). Selama simpan berjalan, keluar ditahan.
+  Future<bool> _confirmLeave() async {
+    final vm = _viewModel;
+    if (!mounted) return true;
+    if (vm.busy) return false;
+    if (!vm.hasUnsavedChanges) return true;
+    return confirmDiscardChanges(
+      context,
+      body: AppLocalizations.of(context).stockDiscardBody,
+      key: 'stock-discard',
+    );
   }
 
   @override
   void dispose() {
+    if (widget.leaveGuard?.check == _confirmLeave) {
+      widget.leaveGuard?.check = null;
+    }
     _viewModel.dispose();
     super.dispose();
   }
@@ -590,26 +625,58 @@ Widget? _statusBadge(BuildContext context, StockRow r) {
 
 // --- Kepala: lokasi dan tab --------------------------------------------------
 
-class _LocationSelect extends StatelessWidget {
+class _LocationSelect extends StatefulWidget {
   const _LocationSelect({required this.viewModel});
 
   final StockViewModel viewModel;
 
   @override
+  State<_LocationSelect> createState() => _LocationSelectState();
+}
+
+class _LocationSelectState extends State<_LocationSelect> {
+  /// Naik saat ganti lokasi dibatalkan, agar pilihan kembali ke lokasi
+  /// semula (F1-08k).
+  var _revision = 0;
+
+  Future<void> _select(String id) async {
+    final vm = widget.viewModel;
+    final target = UuidValue.fromString(id);
+    if (target == vm.location?.id) return;
+    if (vm.hasUnsavedChanges) {
+      final discard =
+          !vm.busy &&
+          await confirmDiscardChanges(
+            context,
+            body: AppLocalizations.of(context).stockLocationDiscardBody,
+            key: 'stock-location-discard',
+          );
+      if (!mounted) return;
+      if (!discard) {
+        setState(() => _revision++);
+        return;
+      }
+    }
+    await vm.selectLocation(target);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final vm = viewModel;
+    final vm = widget.viewModel;
     return FSelect<String>(
-      // Dibangun ulang bila daftar atau nama lokasi berubah.
+      // Dibangun ulang bila daftar atau nama lokasi berubah, atau ganti
+      // lokasi dibatalkan.
       key: ValueKey(
-        'stock-location-select-${vm.locations.map((l) => l.name).join('|')}',
+        'stock-location-select-${vm.locations.map((l) => l.name).join('|')}'
+        '${_revision == 0 ? '' : '-$_revision'}',
       ),
       hint: l10n.stockLocation,
       items: {for (final l in vm.locations) l.name: l.id.uuid},
       control: .managed(
         initial: vm.location?.id.uuid,
         onChange: (id) {
-          if (id != null) vm.selectLocation(UuidValue.fromString(id));
+          if (id != null) unawaited(_select(id));
         },
       ),
     );

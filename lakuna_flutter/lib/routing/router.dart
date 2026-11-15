@@ -373,7 +373,9 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.stock,
+            onExit: formExit,
             builder: (context, state) => StockScreen(
+              leaveGuard: leaveGuards.of(state.pageKey),
               repository: stock,
               session: session,
               store: store,

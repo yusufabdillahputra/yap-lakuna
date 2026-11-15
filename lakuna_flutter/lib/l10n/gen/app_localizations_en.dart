@@ -8684,4 +8684,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptBillAdjustment => 'Bill adjustment';
+
+  @override
+  String get stockDiscardBody =>
+      'The stock adjustment draft you are filling in has not been saved and will be lost.';
+
+  @override
+  String get stockLocationDiscardBody =>
+      'The adjustment draft for this location will be cleared if you switch locations.';
 }

@@ -5655,5 +5655,13 @@
       }
     }
   },
-  "receiptBillAdjustment": "Penyesuaian bill"
+  "receiptBillAdjustment": "Penyesuaian bill",
+  "stockDiscardBody": "Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.",
+  "@stockDiscardBody": {
+    "placeholders": {}
+  },
+  "stockLocationDiscardBody": "Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.",
+  "@stockLocationDiscardBody": {
+    "placeholders": {}
+  }
 }

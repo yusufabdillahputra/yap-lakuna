@@ -160,6 +160,72 @@ void main() {
     });
   });
 
+  group('draf berisi (F1-08k)', () {
+    test('kosong, alasan saja, dan catatan spasi tidak dihitung', () {
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm
+        ..setReason(StockAdjustmentReason.damaged)
+        ..setNote('   ');
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.setNote('Opname akhir bulan');
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.setNote('');
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('baris tanpa fisik sudah dihitung; Batal mengosongkan', () {
+      vm.addLine(kopi);
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.removeLine(kopi);
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.addLine(sabun);
+      vm.clearDraft();
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('simpan: busy selama berjalan, kosong setelah berhasil, tetap '
+        'berisi bila gagal', () async {
+      vm
+        ..addLine(kopi)
+        ..setPhysical(kopi, Qty.units(2));
+      repo.nextError = const StockAdjustmentInvalid(
+        StockAdjustmentError.noChange,
+      );
+      await vm.save.execute();
+      expect(vm.hasUnsavedChanges, isTrue);
+
+      final gate = Completer<void>();
+      repo.saveGate = gate.future;
+      expect(vm.busy, isFalse);
+      final saving = vm.save.execute();
+      expect(vm.busy, isTrue);
+      gate.complete();
+      await saving;
+      expect(vm.busy, isFalse);
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('ganti lokasi mengosongkan draf', () async {
+      repo.locationList = [
+        sampleLocation(1, 'Etalase', true),
+        sampleLocation(2, 'Gudang', false),
+      ];
+      await vm.load.execute();
+      vm.addLine(telur);
+      await vm.selectLocation(repo.locationList[1].id);
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('tanpa izin stock:adjust tidak pernah berisi', () async {
+      vm = StockViewModel(repository: repo, canAdjust: false);
+      await vm.load.execute();
+      vm
+        ..addLine(kopi)
+        ..setNote('catatan');
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+  });
+
   test('kartu stok: pilih produk memuat pergerakannya', () async {
     vm
       ..addLine(sabun)
