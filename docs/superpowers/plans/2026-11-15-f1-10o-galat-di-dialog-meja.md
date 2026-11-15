@@ -12,4 +12,4 @@ Spec: [F1-10o](../specs/2026-11-15-f1-10o-galat-di-dialog-meja-design.md).
   `/mnt/project-files/lakuna/f1-10o/`.
 - [x] 6. Dokumen: spec, gap F1-10n, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#115).
