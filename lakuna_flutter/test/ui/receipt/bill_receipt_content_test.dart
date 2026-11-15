@@ -255,6 +255,233 @@ void main() {
     ]);
   });
 
+  group('tagihan per tamu (F1-10m)', () {
+    ReceiptContent guest(
+      OpenBill b,
+      String label, {
+      AppLocalizations? l10n,
+      ReceiptConfig cfg = config,
+    }) => guestBillReceiptContent(
+      l10n ?? id,
+      bill: b,
+      guest: label,
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: cfg,
+      now: DateTime.utc(2026, 11, 14, 8, 30),
+    );
+
+    // Per item: Nasi Goreng (45.000) tamu A, Es Teh (10.000) tamu B.
+    // Total 57.500 dibagi proporsional: A 47.045, B 10.455.
+    OpenBill byItem({
+      List<Payment> payments = const [],
+      FnbCharges c = charges,
+      FnbRates r = rates,
+    }) {
+      final b = bill(split: SplitMode.item, payments: payments);
+      return OpenBill(
+        sale: b.sale,
+        items: [
+          nasi.copyWith(guestLabel: 'A'),
+          teh.copyWith(guestLabel: 'B'),
+        ],
+        charges: c,
+        rates: r,
+        table: b.table,
+        modifiers: b.modifiers,
+        payments: payments,
+      );
+    }
+
+    List<(String, String, bool)> rows(ReceiptContent c) =>
+        c.totals.map((p) => (p.label, p.value, p.bold)).toList();
+
+    test('per item: porsi tamu, Subtotal, Bagian biaya, TAGIHAN TAMU', () {
+      final c = guest(byItem(), 'A');
+      expect(c.banner, 'TAGIHAN TAMU A - BELUM DIBAYAR');
+      expect(c.meta.map((p) => (p.label, p.value)), [
+        ('No', 'PST-K01-261114-0009'),
+        ('Tgl', '14/11/26 15.30'),
+        ('Kasir', 'Sari'),
+        ('Pesanan', 'Meja A5'),
+        ('Tamu', 'A dari 2'),
+      ]);
+      expect(c.items.map((i) => (i.name, i.extras.join(), i.amount)), [
+        ('Nasi Goreng', '+ Pedas', '50.000'),
+      ]);
+      expect(c.items.single.discount?.value, '-5.000');
+      expect(rows(c), [
+        ('Subtotal', '45.000', false),
+        ('Bagian Diskon 10%, Service 5%, PB1 10%, Pembulatan', '2.045', false),
+        ('TAGIHAN TAMU A', '47.045', true),
+        ('Transfer ke: BCA 1234567890 a.n. Warung Contoh', '', false),
+      ]);
+      expect(c.footer, ['Terima kasih, sampai jumpa lagi!']);
+      expect(
+        rows(guest(byItem(), 'B')).where((r) => r.$3),
+        [('TAGIHAN TAMU B', '10.455', true)],
+      );
+    });
+
+    test('per item tanpa biaya bill: tanpa Subtotal dan Bagian', () {
+      const plain = FnbCharges(
+        subtotal: Money(55000),
+        service: Money.zero,
+        tax: Money.zero,
+      );
+      final c = guest(
+        byItem(c: plain, r: const FnbRates()),
+        'B',
+        cfg: const ReceiptConfig(settings: ReceiptSettings()),
+      );
+      expect(rows(c), [('TAGIHAN TAMU B', '10.000', true)]);
+    });
+
+    test('PB1 termasuk harga tidak disebut di Bagian', () {
+      const inclusive = FnbCharges(
+        subtotal: Money(55000),
+        service: Money(2750),
+        tax: Money(5000),
+        taxInclusive: true,
+      );
+      final c = guest(
+        byItem(
+          c: inclusive,
+          r: const FnbRates(
+            service: BasisPoints(500),
+            tax: BasisPoints(1000),
+            taxInclusive: true,
+          ),
+        ),
+        'A',
+      );
+      expect(rows(c).map((r) => r.$1), contains('Bagian Service 5%'));
+    });
+
+    test('rata: seluruh pesanan, TOTAL, Dibagi rata, TAGIHAN TAMU', () {
+      final c = guest(bill(split: SplitMode.equal, customer: 'Bu Rina'), 'B');
+      expect(c.banner, 'TAGIHAN TAMU B - BELUM DIBAYAR');
+      expect(
+        c.meta.map((p) => (p.label, p.value)).skip(4),
+        [('Pelanggan', 'Bu Rina'), ('Tamu', 'B dari 2')],
+      );
+      expect(c.items.map((i) => i.name), ['Nasi Goreng', 'Es Teh']);
+      expect(rows(c), [
+        ('Subtotal', '55.000', false),
+        ('Diskon 10%', '-5.500', false),
+        ('Service 5%', '2.475', false),
+        ('PB1 10%', '5.198', false),
+        ('Pembulatan', '327', false),
+        ('TOTAL', '57.500', false),
+        ('Dibagi rata 2 tamu', '', false),
+        ('TAGIHAN TAMU B', '28.750', true),
+        ('Transfer ke: BCA 1234567890 a.n. Warung Contoh', '', false),
+      ]);
+    });
+
+    Payment cashA(int amount) => Payment(
+      tenantId: tenantId,
+      saleId: saleId,
+      method: PaymentMethod.cash,
+      amount: amount,
+      changeAmount: 0,
+      status: PaymentStatus.paid,
+      guestLabel: 'A',
+      paidAt: DateTime.utc(2026, 11, 14, 8),
+      hlc: '0',
+    );
+
+    test('tamu terakhir yang belum bayar menanggung sisa', () {
+      // A membayar 47.000 (bukan 47.045): B menanggung 57.500 − 47.000.
+      final c = guest(byItem(payments: [cashA(47000)]), 'B');
+      expect(rows(c).take(3), [
+        ('Subtotal', '10.000', false),
+        ('Bagian Diskon 10%, Service 5%, PB1 10%, Pembulatan', '500', false),
+        ('TAGIHAN TAMU B', '10.500', true),
+      ]);
+    });
+
+    test('selisih tanpa komponen biaya berlabel Penyesuaian bill', () {
+      const plain = FnbCharges(
+        subtotal: Money(55000),
+        service: Money.zero,
+        tax: Money.zero,
+      );
+      // A membayar 44.000 dari bagian 45.000: B menanggung 11.000.
+      final c = guest(
+        byItem(payments: [cashA(44000)], c: plain, r: const FnbRates()),
+        'B',
+      );
+      expect(rows(c).take(3), [
+        ('Subtotal', '10.000', false),
+        ('Penyesuaian bill', '1.000', false),
+        ('TAGIHAN TAMU B', '11.000', true),
+      ]);
+    });
+
+    test('porsi turunan bermodifier milik satu tamu digabung', () {
+      final b = bill(split: SplitMode.item);
+      final first = nasi.copyWith(
+        quantityMilli: 1000,
+        lineTotal: 22500,
+        discountAmount: 2500,
+        guestLabel: 'A',
+      );
+      final second = first.copyWith(
+        id: UuidValue.fromString(newId()),
+        splitFromItemId: nasi.id,
+      );
+      SaleItemModifier pedas(SaleItem i) => SaleItemModifier(
+        tenantId: tenantId,
+        saleItemId: i.id,
+        modifierId: UuidValue.fromString(newId()),
+        groupName: 'Level',
+        name: 'Pedas',
+        priceDelta: 0,
+        hlc: '0',
+      );
+      final split = OpenBill(
+        sale: b.sale,
+        items: [
+          first,
+          second,
+          teh.copyWith(guestLabel: 'B'),
+        ],
+        charges: charges,
+        rates: rates,
+        table: b.table,
+        modifiers: {
+          first.id: [pedas(first)],
+          second.id: [pedas(second)],
+        },
+      );
+      final c = guest(split, 'A');
+      expect(
+        c.items.map((i) => (i.name, i.extras.join(), i.detail, i.amount)),
+        [
+          ('Nasi Goreng', '+ Pedas', '2 x 25.000', '50.000'),
+        ],
+      );
+      expect(c.items.single.discount?.value, '-5.000');
+    });
+
+    test('bahasa Inggris', () {
+      final c = guest(bill(split: SplitMode.equal), 'A', l10n: en);
+      expect(c.banner, 'GUEST A BILL - NOT PAID');
+      expect(c.meta.last.label, 'Guest');
+      expect(c.meta.last.value, 'A of 2');
+      final r = rows(c);
+      expect(r.map((x) => x.$1), containsAll(['Split evenly, 2 guests']));
+      expect(r.where((x) => x.$3), [('GUEST A DUE', '28,750', true)]);
+      expect(
+        rows(guest(byItem(), 'A', l10n: en)).map((x) => x.$1),
+        contains('Share of Discount 10%, Service 5%, PB1 10%, Rounding'),
+      );
+    });
+  });
+
   test('bahasa Inggris dan tata letak 58 mm', () {
     final c = content(bill(), l10n: en);
     expect(c.banner, 'BILL - NOT PAID');

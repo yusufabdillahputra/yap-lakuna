@@ -8648,4 +8648,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get supplierDiscardBody =>
       'The supplier you are filling in has not been saved and will be lost.';
+
+  @override
+  String receiptBannerGuestBill(String guest) {
+    return 'GUEST $guest BILL - NOT PAID';
+  }
+
+  @override
+  String get receiptGuest => 'Guest';
+
+  @override
+  String receiptGuestOf(String guest, int count) {
+    return '$guest of $count';
+  }
+
+  @override
+  String receiptGuestShare(String charges) {
+    return 'Share of $charges';
+  }
+
+  @override
+  String receiptSplitEqually(int count) {
+    return 'Split evenly, $count guests';
+  }
+
+  @override
+  String receiptGuestDue(String guest) {
+    return 'GUEST $guest DUE';
+  }
+
+  @override
+  String billSplitBillTitle(String guest, String order) {
+    return 'Guest $guest bill · $order';
+  }
+
+  @override
+  String get receiptBillAdjustment => 'Bill adjustment';
 }

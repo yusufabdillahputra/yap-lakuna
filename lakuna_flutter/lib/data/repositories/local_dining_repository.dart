@@ -302,10 +302,17 @@ class LocalDiningRepository extends DiningRepository {
   @override
   Future<Result<SplitBillData>> loadSplit(UuidValue billId) =>
       _guard((ctx, staff) async {
+        final scope = CatalogScope.of(ctx);
         return SplitBillData(
-          bill: await loadOpenBill(_store, CatalogScope.of(ctx), billId),
+          bill: await loadOpenBill(_store, scope, billId),
           canPay: staff.can(Permission.salesCreate),
           canConfirm: staff.can(Permission.paymentsConfirm),
+          staffName: staff.name,
+          businessName: ctx.tenant.name,
+          outletName: ctx.outlet.name,
+          timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
+          receipt: await loadReceiptConfig(_store, scope),
+          printer: await loadPrinterSelection(_preferences),
         );
       });
 

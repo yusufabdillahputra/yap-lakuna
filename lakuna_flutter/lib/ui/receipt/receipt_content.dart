@@ -203,7 +203,6 @@ ReceiptContent billReceiptContent(
   required ReceiptConfig config,
   required DateTime now,
 }) {
-  final sale = bill.sale;
   final charges = bill.charges;
   final paid = bill.split?.paid ?? Money.zero;
   // QRIS bagian split yang belum dikonfirmasi tetap bagian dari sisa
@@ -214,57 +213,10 @@ ReceiptContent billReceiptContent(
     outletName: outletName,
     header: config.headerLines,
     banner: l10n.receiptBannerBill,
-    meta: [
-      ReceiptPair(l10n.receiptNo, sale.billNumber ?? sale.number),
-      ReceiptPair(
-        l10n.receiptDate,
-        receiptDate(outletLocalTime(now, timezone)),
-      ),
-      ReceiptPair(l10n.receiptCashier, staffName),
-      ReceiptPair(l10n.receiptOrder, billOrderLabel(l10n, bill)),
-      // Pelanggan terdaftar (F1-10f), bukan nama pemesan take away.
-      if (bill.customer case final customer?)
-        ReceiptPair(l10n.receiptCustomer, customer.name),
-    ],
+    meta: _billMeta(l10n, bill, staffName, timezone, now),
     items: _receiptItems(l10n, bill.items, bill.modifiersOf),
     totals: [
-      if (charges.discount != Money.zero ||
-          charges.service != Money.zero ||
-          charges.tax != Money.zero ||
-          charges.rounding != Money.zero) ...[
-        ReceiptPair(
-          l10n.receiptSubtotal,
-          receiptAmount(l10n, charges.subtotal.value),
-        ),
-        if (charges.discount != Money.zero)
-          ReceiptPair(
-            sale.discountBp == 0
-                ? l10n.receiptDiscount
-                : l10n.receiptDiscountPct(percentLabel(l10n, sale.discountBp)),
-            '-${receiptAmount(l10n, charges.discount.value)}',
-          ),
-        if (charges.service != Money.zero)
-          ReceiptPair(
-            l10n.receiptService(percentLabel(l10n, bill.rates.service.value)),
-            receiptAmount(l10n, charges.service.value),
-          ),
-        if (charges.tax != Money.zero)
-          ReceiptPair(
-            charges.taxInclusive
-                ? l10n.receiptTaxIncluded(
-                    percentLabel(l10n, bill.rates.tax.value),
-                  )
-                : l10n.receiptTax(percentLabel(l10n, bill.rates.tax.value)),
-            receiptAmount(l10n, charges.tax.value),
-          ),
-        if (charges.rounding != Money.zero)
-          ReceiptPair(
-            l10n.receiptRounding,
-            charges.rounding.value < 0
-                ? '-${receiptAmount(l10n, -charges.rounding.value)}'
-                : receiptAmount(l10n, charges.rounding.value),
-          ),
-      ],
+      ..._chargeLines(l10n, bill),
       ReceiptPair(
         l10n.receiptTotal,
         receiptAmount(l10n, charges.total.value),
@@ -287,6 +239,166 @@ ReceiptContent billReceiptContent(
           l10n.receiptPendingConfirm,
           receiptAmount(l10n, pending.value),
         ),
+      ...receiptTransferLines(l10n, config.transferAccounts),
+    ],
+    footer: _footer(l10n, config),
+  );
+}
+
+/// Meta tagihan open bill (F1-10k): nomor bill, waktu cetak, kasir,
+/// pesanan, dan pelanggan terdaftar.
+List<ReceiptPair> _billMeta(
+  AppLocalizations l10n,
+  OpenBill bill,
+  String staffName,
+  String? timezone,
+  DateTime now,
+) => [
+  ReceiptPair(l10n.receiptNo, bill.sale.billNumber ?? bill.sale.number),
+  ReceiptPair(l10n.receiptDate, receiptDate(outletLocalTime(now, timezone))),
+  ReceiptPair(l10n.receiptCashier, staffName),
+  ReceiptPair(l10n.receiptOrder, billOrderLabel(l10n, bill)),
+  // Pelanggan terdaftar (F1-10f), bukan nama pemesan take away.
+  if (bill.customer case final customer?)
+    ReceiptPair(l10n.receiptCustomer, customer.name),
+];
+
+/// Label diskon nota bill: *Diskon 10%* (persen) atau *Diskon* (rupiah).
+String _billDiscountLabel(AppLocalizations l10n, Sale sale) =>
+    sale.discountBp == 0
+    ? l10n.receiptDiscount
+    : l10n.receiptDiscountPct(percentLabel(l10n, sale.discountBp));
+
+String _serviceLabel(AppLocalizations l10n, OpenBill bill) =>
+    l10n.receiptService(percentLabel(l10n, bill.rates.service.value));
+
+String _taxLabel(AppLocalizations l10n, OpenBill bill) =>
+    l10n.receiptTax(percentLabel(l10n, bill.rates.tax.value));
+
+/// Rincian F&B tagihan (Subtotal, Diskon, Service, PB1, Pembulatan), hanya
+/// bila ada diskon/service/PB1/pembulatan, sama dengan struk nota.
+List<ReceiptPair> _chargeLines(AppLocalizations l10n, OpenBill bill) {
+  final charges = bill.charges;
+  if (charges.discount == Money.zero &&
+      charges.service == Money.zero &&
+      charges.tax == Money.zero &&
+      charges.rounding == Money.zero) {
+    return const [];
+  }
+  return [
+    ReceiptPair(
+      l10n.receiptSubtotal,
+      receiptAmount(l10n, charges.subtotal.value),
+    ),
+    if (charges.discount != Money.zero)
+      ReceiptPair(
+        _billDiscountLabel(l10n, bill.sale),
+        '-${receiptAmount(l10n, charges.discount.value)}',
+      ),
+    if (charges.service != Money.zero)
+      ReceiptPair(
+        _serviceLabel(l10n, bill),
+        receiptAmount(l10n, charges.service.value),
+      ),
+    if (charges.tax != Money.zero)
+      ReceiptPair(
+        charges.taxInclusive
+            ? l10n.receiptTaxIncluded(percentLabel(l10n, bill.rates.tax.value))
+            : _taxLabel(l10n, bill),
+        receiptAmount(l10n, charges.tax.value),
+      ),
+    if (charges.rounding != Money.zero)
+      ReceiptPair(
+        l10n.receiptRounding,
+        _signedAmount(l10n, charges.rounding.value),
+      ),
+  ];
+}
+
+/// Nominal bertanda minus bila negatif: `-327`, `2.045`.
+String _signedAmount(AppLocalizations l10n, int value) =>
+    value < 0 ? '-${receiptAmount(l10n, -value)}' : receiptAmount(l10n, value);
+
+/// Isi tagihan satu tamu split bill (F1-10m) [guest] di mode *Per item*
+/// atau *Rata*, dicetak pada [now]. Nominal = tagihan di kartu tamu.
+/// Tidak menyimpan apa pun.
+ReceiptContent guestBillReceiptContent(
+  AppLocalizations l10n, {
+  required OpenBill bill,
+  required String guest,
+  required String businessName,
+  required String outletName,
+  required String staffName,
+  required String? timezone,
+  required ReceiptConfig config,
+  required DateTime now,
+}) {
+  final split = bill.split!;
+  final part = split.part(guest);
+  final due = part.due ?? Money.zero;
+  final byItem = split.mode == SplitKind.item;
+  final List<ReceiptPair> body;
+  if (byItem) {
+    final subtotal = part.itemsTotal;
+    // Bagian diskon nota, service, PB1, dan pembulatan bill yang dibagi
+    // proporsional (tamu terakhir menanggung sisa).
+    final share = due - subtotal;
+    final charges = bill.charges;
+    final names = [
+      if (charges.discount != Money.zero) _billDiscountLabel(l10n, bill.sale),
+      if (charges.service != Money.zero) _serviceLabel(l10n, bill),
+      // PB1 termasuk harga sudah ada di harga porsi.
+      if (charges.tax != Money.zero && !charges.taxInclusive)
+        _taxLabel(l10n, bill),
+      if (charges.rounding != Money.zero) l10n.receiptRounding,
+    ];
+    body = [
+      if (share != Money.zero) ...[
+        ReceiptPair(l10n.receiptSubtotal, receiptAmount(l10n, subtotal.value)),
+        ReceiptPair(
+          // Tanpa komponen biaya (mis. tarif berubah setelah ada bagian
+          // yang dibayar dan tamu terakhir menanggung sisa): netral.
+          names.isEmpty
+              ? l10n.receiptBillAdjustment
+              : l10n.receiptGuestShare(names.join(', ')),
+          _signedAmount(l10n, share.value),
+        ),
+      ],
+    ];
+  } else {
+    body = [
+      ..._chargeLines(l10n, bill),
+      ReceiptPair(
+        l10n.receiptTotal,
+        receiptAmount(l10n, bill.charges.total.value),
+      ),
+      ReceiptPair(l10n.receiptSplitEqually(split.guests), ''),
+    ];
+  }
+  return ReceiptContent(
+    storeName: businessName.toUpperCase(),
+    outletName: outletName,
+    header: config.headerLines,
+    banner: l10n.receiptBannerGuestBill(guest),
+    meta: [
+      ..._billMeta(l10n, bill, staffName, timezone, now),
+      ReceiptPair(
+        l10n.receiptGuest,
+        l10n.receiptGuestOf(guest, split.parts.length),
+      ),
+    ],
+    items: _receiptItems(
+      l10n,
+      byItem ? part.items : bill.items,
+      bill.modifiersOf,
+    ),
+    totals: [
+      ...body,
+      ReceiptPair(
+        l10n.receiptGuestDue(guest),
+        receiptAmount(l10n, due.value),
+        bold: true,
+      ),
       ...receiptTransferLines(l10n, config.transferAccounts),
     ],
     footer: _footer(l10n, config),

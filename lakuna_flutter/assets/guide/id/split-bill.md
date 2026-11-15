@@ -15,6 +15,8 @@ Split bill membagi satu open bill ke beberapa tamu yang membayar sendiri-sendiri
 4. Tekan **Bayar bagian** tamu pertama dan selesaikan pembayarannya. Ulangi untuk tamu berikutnya.
 5. Setelah semua bagian lunas, layar menampilkan *Bill lunas* dan nota tersimpan.
 
+> [!note] Tamu ingin melihat bagiannya dulu? Tekan **Cetak tagihan** di kartu tamu (mode **Per item** atau **Bagi rata**). Tagihan tamu memuat porsinya (atau seluruh pesanan untuk bagi rata), bagian diskon, service, dan PB1 bila ada, lalu **TAGIHAN TAMU A**. Tagihan bisa dicetak ke printer struk atau dibagikan sebagai PDF, dan tidak menyimpan apa pun. Di mode Per item tombol aktif setelah semua porsi punya tamu. Mode **Nominal bebas** tidak punya tagihan per tamu; pakai **Cetak tagihan** di bill Meja.
+
 > [!note] Bagian yang dibayar dengan QRIS statis boleh disimpan dengan **Simpan, tunggu konfirmasi**. Jumlah QRIS yang menunggu tampil di Beranda sampai dikonfirmasi.
 
 > [!warning] Setelah ada pembayaran bagian, pembagian terkunci. Untuk mengubahnya, batalkan dulu bagian QRIS yang menunggu. **Batalkan split** hanya tersedia selama belum ada pembayaran bagian.

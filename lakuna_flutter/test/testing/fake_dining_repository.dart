@@ -101,6 +101,9 @@ class FakeDiningRepository extends DiningRepository {
 
   /// Printer struk dan printer dapur perangkat (F1-10e).
   PrinterSelection? printer;
+
+  /// Pengaturan struk (tagihan Meja F1-10k dan tagihan tamu F1-10m).
+  ReceiptConfig receipt = const ReceiptConfig(settings: ReceiptSettings());
   KitchenPrinter? kitchenPrinter;
 
   /// Printer bar (F1-10j).
@@ -270,6 +273,7 @@ class FakeDiningRepository extends DiningRepository {
       canArrange: _can(Permission.settingsManage),
       canDiscount: _can(Permission.salesDiscount),
       discountNeedsPin: discountNeedsPin,
+      receipt: receipt,
       printer: printer,
       kitchenPrinter: kitchenPrinter,
       barPrinter: barPrinter,
@@ -907,6 +911,12 @@ class FakeDiningRepository extends DiningRepository {
       bill: bill(billId),
       canPay: _can(Permission.salesCreate),
       canConfirm: _can(Permission.paymentsConfirm),
+      staffName: 'Dimas',
+      businessName: 'Kedai Contoh',
+      outletName: 'Cabang Pusat',
+      timezone: 'Asia/Jakarta',
+      receipt: receipt,
+      printer: printer,
     ),
   );
 

@@ -5599,5 +5599,61 @@
   "supplierDiscardBody": "Supplier yang sedang diisi belum disimpan dan akan hilang.",
   "@supplierDiscardBody": {
     "placeholders": {}
-  }
+  },
+  "receiptBannerGuestBill": "TAGIHAN TAMU {guest} - BELUM DIBAYAR",
+  "@receiptBannerGuestBill": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptGuest": "Tamu",
+  "receiptGuestOf": "{guest} dari {count}",
+  "@receiptGuestOf": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptGuestShare": "Bagian {charges}",
+  "@receiptGuestShare": {
+    "placeholders": {
+      "charges": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptSplitEqually": "Dibagi rata {count} tamu",
+  "@receiptSplitEqually": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptGuestDue": "TAGIHAN TAMU {guest}",
+  "@receiptGuestDue": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitBillTitle": "Tagihan tamu {guest} · {order}",
+  "@billSplitBillTitle": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      },
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptBillAdjustment": "Penyesuaian bill"
 }
