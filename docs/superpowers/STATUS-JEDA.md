@@ -81,7 +81,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | #104 |
 | v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | #105 |
 | v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | #106 |
-| v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | |
+| v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | #107 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
