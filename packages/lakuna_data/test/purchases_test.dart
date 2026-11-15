@@ -367,6 +367,115 @@ void main() {
     },
   );
 
+  test(
+    'supplier terakhir mengabaikan baris yang diretur penuh (F1-08m)',
+    () async {
+      final first = await receivePurchase(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        request: request(dueOn: DateTime(2026, 11, 16)),
+      );
+      now = now.add(const Duration(days: 1));
+      final second = await receivePurchase(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        request: PurchaseRequest(
+          newSupplierName: 'Toko Gula Jaya',
+          purchasedOn: today,
+          locationId: gudang.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: v(gula).id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(14000),
+            ),
+          ],
+          dueOn: DateTime(2026, 11, 16),
+        ),
+      );
+      final gulaItem = (await loadPurchaseDetail(
+        store,
+        scope,
+        second.id,
+      )).items.single;
+      Future<void> retur(Purchase p, UuidValue itemId, Qty qty) =>
+          returnPurchase(
+            store,
+            scope,
+            staffId: ctx.owner.id,
+            purchaseId: p.id,
+            lines: [PurchaseReturnLine(purchaseItemId: itemId, quantity: qty)],
+          );
+
+      // Retur sebagian: pembelian tetap yang terakhir.
+      await retur(second, gulaItem.id, Qty.units(2));
+      var last = await lastSuppliersOf(store, scope, [v(gula).id]);
+      expect(last[v(gula).id]?.supplierId, second.supplierId);
+
+      // Sisanya ikut diretur: kembali ke pembelian sebelumnya.
+      await retur(second, gulaItem.id, Qty.units(3));
+      last = await lastSuppliersOf(store, scope, [v(gula).id]);
+      expect(last[v(gula).id]?.supplierId, first.supplierId);
+      expect(last[v(gula).id]?.at, first.receivedAt);
+
+      // Satu-satunya pembelian minyak diretur penuh: tanpa riwayat.
+      final minyakItem = (await loadPurchaseDetail(
+        store,
+        scope,
+        first.id,
+      )).items.firstWhere((i) => i.variantId == v(minyak).id);
+      await retur(first, minyakItem.id, Qty.units(4));
+      last = await lastSuppliersOf(store, scope, [v(minyak).id, v(gula).id]);
+      expect(last.containsKey(v(minyak).id), isFalse);
+      expect(last[v(gula).id]?.supplierId, first.supplierId);
+    },
+  );
+
+  test('baris lain barang yang sama belum diretur: pembelian tetap dihitung (F1-08m)', () async {
+    final p = await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        newSupplierName: 'CV Minyak',
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            productUnitId: dus().id,
+            quantity: Qty.one,
+            unitPrice: const Money(186000),
+          ),
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            quantity: Qty.units(2),
+            unitPrice: const Money(31500),
+          ),
+        ],
+        dueOn: DateTime(2026, 11, 16),
+      ),
+    );
+    final dusItem = (await loadPurchaseDetail(
+      store,
+      scope,
+      p.id,
+    )).items.firstWhere((i) => i.productUnitId == dus().id);
+    await returnPurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      purchaseId: p.id,
+      lines: [
+        PurchaseReturnLine(purchaseItemId: dusItem.id, quantity: Qty.one),
+      ],
+    );
+    final last = await lastSuppliersOf(store, scope, [v(minyak).id]);
+    expect(last[v(minyak).id]?.supplierId, p.supplierId);
+  });
+
   test('harga beli terakhir per satuan dasar (F1-08e)', () async {
     expect(await lastPurchasePricesOf(store, scope, const []), isEmpty);
     expect(await lastPurchasePricesOf(store, scope, [v(gula).id]), isEmpty);

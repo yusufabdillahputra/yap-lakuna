@@ -11,4 +11,4 @@ Spec: [F1-13f](../specs/2026-11-15-f1-13f-garis-miring-hp-design.md).
   `/mnt/project-files/lakuna/f1-13f/`.
 - [x] 6. Dokumen: spec, gap F1-13d, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#119).
