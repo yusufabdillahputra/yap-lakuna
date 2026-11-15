@@ -8390,4 +8390,12 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get expenseDiscardBody =>
       'Pengeluaran yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get customerDiscardBody =>
+      'Pelanggan yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get supplierDiscardBody =>
+      'Supplier yang sedang diisi belum disimpan dan akan hilang.';
 }

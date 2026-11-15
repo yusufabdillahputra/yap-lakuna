@@ -14573,6 +14573,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pengeluaran yang sedang diisi belum disimpan dan akan hilang.'**
   String get expenseDiscardBody;
+
+  /// No description provided for @customerDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan yang sedang diisi belum disimpan dan akan hilang.'**
+  String get customerDiscardBody;
+
+  /// No description provided for @supplierDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Supplier yang sedang diisi belum disimpan dan akan hilang.'**
+  String get supplierDiscardBody;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -169,6 +170,113 @@ void main() {
       newest: Money(200000),
       oldest: Money(100000),
     });
+  });
+
+  testWidgets('desktop: dialog pelanggan yang berubah bertanya sebelum '
+      'ditutup (F1-13e)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    // Tanpa perubahan: ketuk di luar dialog langsung menutup.
+    await _tap(tester, _key('customers-new'));
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('customer-form'), findsNothing);
+    expect(_key('customer-discard'), findsNothing);
+
+    await _tap(tester, _key('customers-new'));
+    await _type(tester, _key('customer-form-name'), 'Bu Wati');
+    // Esc saat mengetik bertanya.
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('customer-discard'), findsOneWidget);
+    await _tap(tester, _key('customer-discard-cancel'));
+    expect(_key('customer-form'), findsOneWidget);
+
+    // Dialog menutupi menu samping (navigator akar).
+    await tester.tap(_key('nav-stock'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(_key('customer-form'), findsOneWidget);
+    expect(_key('customer-discard'), findsOneWidget);
+    expect(
+      find.text('Pelanggan yang sedang diisi belum disimpan dan akan hilang.'),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('customer-discard-cancel'));
+    expect(_key('customer-form'), findsOneWidget);
+
+    // Mengetuk bagian dalam dialog (tepi kosong) tidak menutup.
+    await tester.tapAt(
+      tester.getTopLeft(_key('customer-form')) + const Offset(2, 2),
+    );
+    await tester.pumpAndSettle();
+    expect(_key('customer-discard'), findsNothing);
+    expect(_key('customer-form'), findsOneWidget);
+
+    // Tombol kembali sistem bertanya.
+    final popping = tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(_key('customer-discard'), findsOneWidget);
+    await _tap(tester, _key('customer-discard-cancel'));
+    await popping;
+    expect(_key('customer-form'), findsOneWidget);
+
+    // Tombol Batal juga bertanya.
+    await _tap(tester, _key('customer-form-cancel'));
+    expect(_key('customer-discard'), findsOneWidget);
+    await _tap(tester, _key('customer-discard-confirm'));
+    expect(_key('customer-form'), findsNothing);
+    expect(repo.customers, hasLength(4));
+    expect(_key('customers-new'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('desktop: ubah pelanggan tanpa perubahan tertutup langsung; '
+      'simpan gagal tetap bertanya (F1-13e)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    final ani = repo.customers.firstWhere((c) => c.name == 'Toko Bu Ani');
+    final other = repo.customers.firstWhere(
+      (c) => c.id != ani.id && c.phone != null,
+    );
+    await _tap(tester, _key('customers-row-${ani.id.uuid}'));
+    await _tap(tester, _key('customer-edit'));
+    expect(_key('customer-form'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('customer-form'), findsNothing);
+    expect(_key('customer-discard'), findsNothing);
+
+    await _tap(tester, _key('customer-edit'));
+    await _type(tester, _key('customer-form-phone'), other.phone!);
+    await _tap(tester, _key('customer-form-save'));
+    expect(_key('customer-form-error'), findsOneWidget);
+    await _tap(tester, _key('customer-form-cancel'));
+    expect(_key('customer-discard'), findsOneWidget);
+    await _tap(tester, _key('customer-discard-confirm'));
+    expect(_key('customer-form'), findsNothing);
+    expect(
+      repo.customers.firstWhere((c) => c.id == ani.id).phone,
+      ani.phone,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('desktop: dialog pelanggan tidak bisa ditutup selama simpan '
+      '(F1-13e)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    await _tap(tester, _key('customers-new'));
+    await _type(tester, _key('customer-form-name'), 'Bu Wati');
+    final gate = repo.saveGate = Completer<void>();
+    await tester.tap(_key('customer-form-save'));
+    await tester.pump();
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(_key('customer-discard'), findsNothing);
+    expect(_key('customer-form'), findsOneWidget);
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(_key('customer-form'), findsNothing);
+    expect(repo.customers.where((c) => c.name == 'Bu Wati'), hasLength(1));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('desktop: tambah pelanggan baru dengan grup baru', (

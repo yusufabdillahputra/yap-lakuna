@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -224,6 +224,40 @@ void main() {
     await _type(tester, _key('supplier-alloc-${second.uuid}-1'), '500000');
     await _tap(tester, _key('supplier-pay'));
     expect(repo.requests.single.allocations, {second: const Money(500000)});
+  });
+
+  testWidgets('desktop: dialog supplier yang berubah bertanya sebelum '
+      'ditutup (F1-13e)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    final before = repo.suppliers.length;
+    await _tap(tester, _key('suppliers-new'));
+    await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('supplier-discard'), findsOneWidget);
+    expect(
+      find.text('Supplier yang sedang diisi belum disimpan dan akan hilang.'),
+      findsOneWidget,
+    );
+    await _tap(tester, _key('supplier-discard-cancel'));
+    expect(_key('supplier-form-name'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(_key('supplier-discard'), findsOneWidget);
+    await _tap(tester, _key('supplier-discard-cancel'));
+    await _tap(tester, _key('supplier-form-cancel'));
+    await _tap(tester, _key('supplier-discard-confirm'));
+    expect(_key('supplier-form-name'), findsNothing);
+    expect(repo.suppliers, hasLength(before));
+
+    // Simpan menutup tanpa bertanya.
+    await _tap(tester, _key('suppliers-new'));
+    await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+    await _tap(tester, _key('supplier-form-save'));
+    expect(_key('supplier-discard'), findsNothing);
+    expect(_key('supplier-form-name'), findsNothing);
+    expect(repo.suppliers, hasLength(before + 1));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('desktop: tambah supplier, ubah, lalu hapus', (tester) async {
