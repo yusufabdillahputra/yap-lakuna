@@ -289,7 +289,10 @@ class ProductFormViewModel extends ChangeNotifier {
   Future<Result<void>> _archive() async {
     final id = productId;
     if (id == null || save.running) return const Result.ok(null);
-    return _repository.archive(id);
+    final result = await _repository.archive(id);
+    // Produk diarsipkan: form boleh ditinggalkan (F1-07q).
+    if (result case Ok()) _markSaved();
+    return result;
   }
 
   /// Galat yang bukan milik satu field.
@@ -325,6 +328,74 @@ class ProductFormViewModel extends ChangeNotifier {
   ];
 
   int _key() => _nextKey++;
+
+  // --- Perubahan belum tersimpan (F1-07q) -----------------------------------
+
+  /// Isian data dan foto terakhir yang dimuat atau disimpan.
+  List<Object?>? _savedData;
+  List<Object?> _savedPhoto = const [0, false];
+
+  /// Isian berbeda dari keadaan terakhir yang dimuat atau disimpan, jadi
+  /// meninggalkan form perlu konfirmasi.
+  bool get hasUnsavedChanges {
+    final saved = _savedData;
+    if (saved == null) return false;
+    return !listEquals(_dataSignature(), saved) ||
+        !listEquals(_photoSignature(), _savedPhoto);
+  }
+
+  /// *Simpan* / *Arsipkan* sedang berjalan.
+  bool get busy => save.running || archive.running;
+
+  void _markSaved() {
+    _savedData = _dataSignature();
+    _savedPhoto = _photoSignature();
+  }
+
+  /// Isian produk yang tersimpan (tanpa foto), rata agar tidak ada dua
+  /// isian berbeda yang ringkasannya sama.
+  List<Object?> _dataSignature() => [
+    name,
+    category,
+    _kind,
+    baseUnit,
+    sku,
+    brand,
+    _isActive,
+    _isTaxable,
+    _sendToKitchen,
+    _allowNote,
+    _modifierGroupIds.length,
+    ..._modifierGroupIds,
+    variants.length,
+    for (final v in variants) ...[
+      v.id,
+      v.name,
+      v.sku,
+      v.barcode,
+      v.costPrice,
+      v.sellPrice,
+      v.minStock,
+      if (v.isNew) v.openingStock else null,
+      v.units.length,
+      for (final u in v.units) ...[
+        u.id,
+        u.name,
+        u.factor,
+        u.barcode,
+        u.costPrice,
+        u.sellPrice,
+      ],
+      v.tiers.length,
+      for (final t in v.tiers) ...[t.id, t.minQty, t.price, t.groupId],
+    ],
+  ];
+
+  /// Foto baru, atau foto tersimpan yang dilepas.
+  List<Object?> _photoSignature() => [
+    identityHashCode(_newPhoto),
+    _removePhoto && _hasStoredPhoto,
+  ];
 
   // --- Modifier (1.16b) ----------------------------------------------------
 
@@ -383,6 +454,7 @@ class ProductFormViewModel extends ChangeNotifier {
           }
         }
         _loaded = true;
+        _markSaved();
       case Error():
         break;
     }
@@ -397,6 +469,8 @@ class ProductFormViewModel extends ChangeNotifier {
     if (id == null) return;
     switch (await _repository.loadCatalog()) {
       case Ok(:final value):
+        // Barcode tersimpan bukan perubahan staf (F1-07q).
+        final wasClean = !hasUnsavedChanges;
         _catalog = value;
         final product = value.products.where((p) => p.id == id).firstOrNull;
         if (product == null) return;
@@ -413,6 +487,7 @@ class ProductFormViewModel extends ChangeNotifier {
             ..barcodeRevision += 1;
           changed = true;
         }
+        if (changed && wasClean) _markSaved();
         if (changed) notifyListeners();
       case Error():
         break;
@@ -800,6 +875,7 @@ class ProductFormViewModel extends ChangeNotifier {
     } else if (_removePhoto && _hasStoredPhoto) {
       result = await _repository.clearPhoto(id);
     } else {
+      _markSaved();
       return Result.ok(id);
     }
     if (result case Error(:final error)) {
@@ -808,8 +884,12 @@ class ProductFormViewModel extends ChangeNotifier {
       _savedId = id;
       await _reload(id);
       _error = ProductPhotoNotSaved(error);
+      // Data produk sudah tersimpan, fotonya belum: hanya isian data yang
+      // menjadi keadaan awal baru, foto tetap terhitung berubah (F1-07q).
+      _savedData = _dataSignature();
       return Result.error(_error!);
     }
+    _markSaved();
     return Result.ok(id);
   }
 

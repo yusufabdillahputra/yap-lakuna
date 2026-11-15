@@ -8627,4 +8627,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseDiscardBody(String number) {
     return 'Unsaved changes to purchase $number will be lost.';
   }
+
+  @override
+  String productDiscardBody(String name) {
+    return 'Unsaved changes to product $name will be lost.';
+  }
+
+  @override
+  String get productDiscardBodyNew =>
+      'This new product has not been saved and will be lost.';
 }

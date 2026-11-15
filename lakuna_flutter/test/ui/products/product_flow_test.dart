@@ -116,6 +116,71 @@ void main() {
     expect(find.text('24'), findsOneWidget);
   });
 
+  group('keluar dari form produk yang berubah (F1-07q)', () {
+    testWidgets('Batal dan menu samping bertanya; tanpa perubahan tidak', (
+      tester,
+    ) async {
+      final repo = await pump(tester, seed: sampleProducts());
+      final id = repo.products.firstWhere((p) => p.name == 'Minyak Goreng').id;
+      await tester.tap(find.text('Minyak Goreng'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+      // Tanpa perubahan: Batal langsung kembali.
+      await _tap(tester, 'product-cancel');
+      expect(find.byKey(const ValueKey('product-discard')), findsNothing);
+      expect(find.byKey(const ValueKey('product-save')), findsNothing);
+
+      await tester.tap(find.text('Minyak Goreng'));
+      await tester.pumpAndSettle();
+      await _type(tester, 'variant-0-price', '37000');
+      await _tap(tester, 'product-cancel');
+      expect(find.byKey(const ValueKey('product-discard')), findsOneWidget);
+      expect(
+        find.text(
+          'Perubahan produk Minyak Goreng belum disimpan dan akan hilang.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, 'product-discard-cancel');
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+
+      await _tap(tester, 'nav-stock');
+      expect(find.byKey(const ValueKey('product-discard')), findsOneWidget);
+      await _tap(tester, 'product-discard-confirm');
+      expect(find.byKey(const ValueKey('product-save')), findsNothing);
+      expect(
+        repo.products.firstWhere((p) => p.id == id).variants.first.sellPrice,
+        isNot(const Money(37000)),
+      );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('ponsel 360 px: produk baru, tombol kembali sistem; simpan '
+        'tidak bertanya', (tester) async {
+      final repo = await pump(
+        tester,
+        size: const Size(360, 760),
+        location: Routes.productNew,
+      );
+      await _type(tester, 'product-name', 'Teh Botol');
+      // Halaman ini satu-satunya di tumpukan: go_router menunggu `onExit`
+      // (dialog) sebelum `handlePopRoute` selesai.
+      final popping = tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('product-discard')), findsOneWidget);
+      await _tap(tester, 'product-discard-cancel');
+      await popping;
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+      await _type(tester, 'product-base-unit', 'botol');
+      await _type(tester, 'variant-0-price', '5000');
+      await _tap(tester, 'product-save');
+      expect(find.byKey(const ValueKey('product-discard')), findsNothing);
+      expect(repo.saved.single.name, 'Teh Botol');
+      expect(find.byKey(const ValueKey('product-save')), findsNothing);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
   for (final size in const [Size(1280, 800), Size(360, 760)]) {
     testWidgets('grosir untuk grup pelanggan (F1-07c) ${size.width}', (
       tester,

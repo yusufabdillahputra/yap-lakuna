@@ -5578,5 +5578,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productDiscardBody": "Perubahan produk {name} belum disimpan dan akan hilang.",
+  "@productDiscardBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDiscardBodyNew": "Produk baru ini belum disimpan dan akan hilang."
 }

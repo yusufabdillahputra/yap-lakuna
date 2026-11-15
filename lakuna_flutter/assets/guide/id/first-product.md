@@ -14,6 +14,8 @@ Produk harus ada sebelum bisa dijual di kasir. Satu produk boleh punya beberapa 
 4. Di tab **Varian**, isi harga beli, harga jual, stok minimum, dan stok awal. Tambah baris dengan **Tambah varian** bila perlu. SKU dan barcode boleh diisi untuk scan.
 5. Tekan **Simpan**.
 
+Bila Anda meninggalkan form produk yang isiannya belum disimpan (lewat **Batal**, **Kembali**, tombol kembali ponsel, atau menu samping), Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form lalu simpan, atau **Buang** untuk keluar tanpa menyimpan. Form yang hanya dibuka tanpa diubah langsung ditutup.
+
 ## Barang tanpa barcode
 
 Untuk barang buatan sendiri (kue, racikan, barang curah), kosongkan field **Barcode** lalu tekan ikon tongkat di ujung field (**Buat barcode**). Lakuna mengisi kode EAN-13 toko berawalan `20` yang belum dipakai produk lain. Simpan produk, lalu cetak labelnya lewat **Cetak label**; kasir cukup memindai label itu.
