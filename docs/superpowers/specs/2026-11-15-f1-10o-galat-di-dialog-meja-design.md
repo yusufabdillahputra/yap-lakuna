@@ -68,5 +68,5 @@ meja* staf harus mengatur ulang awalan, nomor, kursi, dan area.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Galat simpan area / meja / rentang di dialog, isian utuh | 1.17 | Rilis v0.109.0 | Mixin `_DialogSaving`. |
-| Galat per isian (mis. nama kembar di bawah kolom Nama) | — | Belum | Pesan tampil di atas tombol untuk semua jenis galat. |
+| Galat per isian (mis. nama kembar di bawah kolom Nama) | — | Rilis v0.111.0 | [F1-10p](2026-11-15-f1-10p-galat-per-isian-meja-design.md): nama di bawah Nama, kursi di bawah Kursi, nama rentang di pratinjau. |
 | Kunci isian selama simpan berjalan | — | Belum | Isian tetap bisa diketik selama simpan (biasanya sesaat); nilai yang disimpan adalah nilai saat Simpan ditekan. |

@@ -12,4 +12,4 @@ Spec: [F1-02b](../specs/2026-11-15-f1-02b-ganti-kasir-tanya-dulu-design.md).
   `/mnt/project-files/lakuna/f1-02b/`.
 - [x] 6. Dokumen: spec, gap F1-12f, spec F1-02, README spec, STATUS-JEDA,
   panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#116).
