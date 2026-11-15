@@ -96,6 +96,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
 | v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | #120 |
 | v0.115.0 | Menutup jendela desktop bertanya dulu bila form belum disimpan (F1-02c) | #121 |
+| v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -276,6 +277,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 57. ~~Menutup jendela desktop membuang form yang belum disimpan tanpa
     bertanya~~ — selesai v0.115.0 (F1-02c): *Buang perubahan?* dulu di
     Windows, Linux, macOS (tombol ✕, Alt+F4, Cmd+Q).
+58. ~~Menutup jendela saat dialog pelanggan/supplier/master data/meja
+    berisi isian membuang isian tanpa bertanya~~ — selesai v0.116.0
+    (F1-02d): dialog ditanya lebih dulu dari halaman.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

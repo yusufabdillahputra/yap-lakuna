@@ -86,4 +86,4 @@ penyesuaian stok hilang tanpa peringatan.
 | Tutup jendela desktop bertanya | — | Rilis v0.115.0 | Linux diuji manual; Windows/macOS hanya lewat build CI. |
 | Cmd+Q kedua selama dialog (macOS) | — | Belum | Embedder langsung keluar karena `shouldTerminate` sudah ditandai; butuh penanganan `applicationShouldTerminate` sendiri. |
 | Windows dengan jendela kedua (mis. dialog cetak plugin) | — | Belum | Engine Windows hanya menahan `WM_CLOSE` jendela terakhir proses. |
-| Dialog berisi isian (pelanggan, supplier, master data, meja) saat jendela ditutup | — | Belum | Dialog memakai `DiscardChangesScope`, belum terdaftar di `LeaveGuards`; isian dialog hilang bila jendela ditutup. |
+| Dialog berisi isian (pelanggan, supplier, master data, meja) saat jendela ditutup | — | Rilis v0.116.0 | [F1-02d](2026-11-15-f1-02d-tutup-jendela-dialog-isian-design.md). |
