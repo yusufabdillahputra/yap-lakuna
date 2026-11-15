@@ -5044,5 +5044,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productDiscardBody": "Unsaved changes to product {name} will be lost.",
+  "@productDiscardBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDiscardBodyNew": "This new product has not been saved and will be lost."
 }

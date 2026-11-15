@@ -108,9 +108,10 @@ GoRouter createRouter({
   final cartDraft = CartDraft(session);
   // Pemilik memilih *Import dari Excel/CSV* di langkah 4 setup (F1-01b).
   var importAfterSetup = false;
-  // Form pembelian yang berubah ditanyakan sebelum ditinggalkan (F1-12f).
+  // Form yang berubah ditanyakan sebelum ditinggalkan (pembelian F1-12f,
+  // produk F1-07q).
   final leaveGuards = LeaveGuards();
-  FutureOr<bool> purchaseExit(BuildContext context, GoRouterState state) =>
+  FutureOr<bool> formExit(BuildContext context, GoRouterState state) =>
       // Ganti kasir / keluar tidak ditahan.
       session.current == null ? true : leaveGuards.canLeave(state.pageKey);
   return GoRouter(
@@ -340,8 +341,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.productNew,
+            onExit: formExit,
             builder: (context, state) => ProductFormScreen(
               repository: catalog,
+              leaveGuard: leaveGuards.of(state.pageKey),
               picker: imagePicker,
             ),
           ),
@@ -358,9 +361,11 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: '${Routes.products}/:productId',
+            onExit: formExit,
             builder: (context, state) => ProductFormScreen(
               key: ValueKey(state.pathParameters['productId']),
               repository: catalog,
+              leaveGuard: leaveGuards.of(state.pageKey),
               productId: state.pathParameters['productId'],
               picker: imagePicker,
             ),
@@ -409,7 +414,7 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.purchases,
-            onExit: purchaseExit,
+            onExit: formExit,
             builder: (context, state) => PurchasesScreen(
               repository: purchases,
               leaveGuard: leaveGuards.of(state.pageKey),
@@ -421,7 +426,7 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.purchaseNew,
-            onExit: purchaseExit,
+            onExit: formExit,
             builder: (context, state) => PurchaseFormPage(
               repository: purchases,
               leaveGuard: leaveGuards.of(state.pageKey),
@@ -441,7 +446,7 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: '${Routes.purchases}/:purchase',
-            onExit: purchaseExit,
+            onExit: formExit,
             // Tautan rusak kembali ke daftar pembelian.
             redirect: (context, state) =>
                 _uuid(state.pathParameters['purchase']) == null

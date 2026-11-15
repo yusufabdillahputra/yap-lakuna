@@ -7,6 +7,60 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.98.0] - 2026-11-15
+
+Form produk kini bertanya sebelum isian yang belum disimpan dibuang, sama
+seperti form pembelian di v0.97.0. Varian, satuan, dan harga grosir yang
+sudah diketik tidak hilang karena salah ketuk **Batal** atau menu.
+
+### Ditambahkan
+
+- **Produk (1.16):** meninggalkan form *Produk baru* atau *Edit produk*
+  yang isiannya belum disimpan menampilkan dialog **Buang perubahan?**
+  dengan **Batal** dan **Buang**. Isinya "Perubahan produk {nama} belum
+  disimpan dan akan hilang.", atau "Produk baru ini belum disimpan dan
+  akan hilang." bila nama masih kosong. Berlaku untuk tombol **Batal** di
+  form, *Kembali*, tombol kembali sistem (Android), dan menu samping /
+  bawah.
+- Foto produk yang baru dipilih atau dihapus ikut dihitung perubahan.
+- Panduan *Menambah produk pertama* menjelaskan dialog ini (ID + EN).
+
+### Diubah
+
+- Form yang hanya dibuka tanpa diubah, form yang baru disimpan, dan produk
+  yang baru diarsipkan tetap bisa ditinggalkan tanpa bertanya. Mengetik
+  lalu mengembalikan isian ke semula tidak dihitung berubah.
+- Keluar saat simpan atau arsip masih berjalan ditahan sampai selesai.
+- Barcode yang diisi dari *Cetak label* pada form yang belum diubah
+  dianggap tersimpan (tidak memunculkan dialog).
+
+### Catatan teknis
+
+- `ProductFormViewModel.hasUnsavedChanges` membandingkan dua ringkasan
+  datar dengan `listEquals`: data (`_dataSignature`: nama, kategori, jenis,
+  satuan, SKU induk, merek, sakelar, modifier, varian beserta harga / stok
+  minimum / stok awal untuk varian baru, satuan konversi, harga grosir)
+  dan foto (`_photoSignature`: foto baru, hapus foto tersimpan). Salinan
+  diambil setelah muat, simpan, dan arsip.
+- `/produk/baru` dan `/produk/:productId` memakai `GoRoute.onExit` +
+  `LeaveGuards` yang sama dengan pembelian (F1-12f); `ProductFormScreen`
+  menerima `LeaveGuard` dan memasang `check` di `initState` /
+  `didUpdateWidget`, melepasnya di `dispose`. Tombol **Batal** di form
+  memakai `context.go`, yang juga memanggil `onExit`, jadi ikut
+  ditanyakan tanpa kode tambahan.
+- Temuan review: bila produk tersimpan tetapi menyimpan foto gagal,
+  salinan lama membuat form yang dimuat ulang terlihat berubah. Salinan
+  kini dipisah: data diperbarui setelah muat ulang, foto tetap dihitung
+  belum tersimpan sehingga staf masih diingatkan. Ringkasan juga diganti
+  dari string bersambung ke daftar datar agar tidak ada tabrakan
+  pemisah.
+- Saat di-debug: tes ponsel menggantung karena go_router menunggu
+  `onExit` di halaman tingkat akar sebelum `popRoute` selesai; tes kini
+  menjawab dialog dulu baru menunggu `handlePopRoute`.
+- Tes VM (form baru, edit, ketik lalu kembalikan, foto, simpan, arsip,
+  galat foto, barcode) dan widget desktop (Batal, menu samping) serta
+  ponsel (tombol kembali sistem); diverifikasi mutasi.
+
 ## [0.97.0] - 2026-11-14
 
 Form pembelian kini bertanya sebelum isian yang belum disimpan dibuang,
@@ -6152,7 +6206,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...HEAD
+[0.98.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...v0.98.0
 [0.97.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...v0.97.0
 [0.96.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...v0.96.0
 [0.95.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...v0.95.0

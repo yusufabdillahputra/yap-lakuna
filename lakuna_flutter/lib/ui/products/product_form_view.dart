@@ -10,7 +10,9 @@ import '../../data/repositories/catalog_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../../utils/result.dart';
 import '../master/modifier_groups_tab.dart'
     show modifierDeltaLabel, modifierRuleLabel;
@@ -24,10 +26,14 @@ class ProductFormScreen extends StatefulWidget {
     required this.repository,
     this.productId,
     this.picker = const FileSelectorImagePicker(),
+    this.leaveGuard,
   });
 
   final CatalogRepository repository;
   final String? productId;
+
+  /// Penjaga keluar rute: perubahan belum tersimpan ditanyakan (F1-07q).
+  final LeaveGuard? leaveGuard;
 
   /// Pemilih foto produk (F1-07f).
   final ImageFilePicker picker;
@@ -47,12 +53,44 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   void initState() {
     super.initState();
     _viewModel.load.execute();
+    widget.leaveGuard?.check = _confirmLeave;
+  }
+
+  @override
+  void didUpdateWidget(ProductFormScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.leaveGuard != widget.leaveGuard) {
+      if (oldWidget.leaveGuard?.check == _confirmLeave) {
+        oldWidget.leaveGuard?.check = null;
+      }
+      widget.leaveGuard?.check = _confirmLeave;
+    }
   }
 
   @override
   void dispose() {
+    if (widget.leaveGuard?.check == _confirmLeave) {
+      widget.leaveGuard?.check = null;
+    }
     _viewModel.dispose();
     super.dispose();
+  }
+
+  /// *Buang perubahan?* bila form berubah (F1-07q).
+  Future<bool> _confirmLeave() async {
+    if (!mounted) return true;
+    // Simpan / arsip sedang berjalan: tunggu selesai dulu.
+    if (_viewModel.busy) return false;
+    if (!_viewModel.hasUnsavedChanges) return true;
+    final l10n = AppLocalizations.of(context);
+    final name = _viewModel.name.trim();
+    return confirmDiscardChanges(
+      context,
+      body: name.isEmpty
+          ? l10n.productDiscardBodyNew
+          : l10n.productDiscardBody(name),
+      key: 'product-discard',
+    );
   }
 
   @override

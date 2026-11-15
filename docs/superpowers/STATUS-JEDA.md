@@ -77,7 +77,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.94.0 | Tanda "sudah di draf" di tab Stok minimum (F1-08h) | #100 |
 | v0.95.0 | *Buka draf* menambahkan barang stok minimum yang belum ada (F1-08i) | #101 |
 | v0.96.0 | Jumlah saran stok minimum ikut satuan saat satuan diganti (F1-08j) | #102 |
-| v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | |
+| v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | #103 |
+| v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -183,9 +184,13 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     masih gap.
 39. ~~Form pembelian dibuang tanpa bertanya saat ditinggalkan~~ — selesai
     v0.97.0 (F1-12f): Kembali, tombol kembali sistem, menu samping, ganti
-    draf di layar lebar (`LeaveGuard` + `GoRoute.onExit`). Form lain
-    (produk, pengeluaran, pelanggan) dan simpan langsung dari dialog masih
-    gap.
+    draf di layar lebar (`LeaveGuard` + `GoRoute.onExit`). ~~Form
+    produk~~ — selesai v0.98.0 (F1-07q). Form pengeluaran, pelanggan,
+    supplier, dan simpan langsung dari dialog masih gap.
+40. ~~Form produk dibuang tanpa bertanya saat ditinggalkan~~ — selesai
+    v0.98.0 (F1-07q): Batal, Kembali, tombol kembali sistem, menu samping;
+    perubahan foto ikut dihitung. Barcode dari *Cetak label* saat form
+    sudah berubah ikut terhitung perubahan (gap kecil).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -14,6 +14,8 @@ Products must exist before they can be sold at the cashier. One product can have
 4. On the **Variants** tab, enter the cost price, sell price, minimum stock, and opening stock. Add rows with **Add variant** if needed. SKU and barcode are optional for scanning.
 5. Tap **Save**.
 
+If you leave a product form with unsaved changes (via **Cancel**, **Back**, the phone's back button, or the side menu), Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the form and save, or **Discard** to leave without saving. A form you only opened without changing closes right away.
+
 ## Items without a barcode
 
 For home-made goods (cakes, blends, bulk goods), leave the **Barcode** field empty and tap the wand icon at the end of the field (**Generate barcode**). Lakuna fills in a store EAN-13 code starting with `20` that no other product uses. Save the product, then print its label with **Print labels**; the cashier simply scans that label.

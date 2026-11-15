@@ -8377,4 +8377,13 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseDiscardBody(String number) {
     return 'Perubahan pembelian $number belum disimpan dan akan hilang.';
   }
+
+  @override
+  String productDiscardBody(String name) {
+    return 'Perubahan produk $name belum disimpan dan akan hilang.';
+  }
+
+  @override
+  String get productDiscardBodyNew =>
+      'Produk baru ini belum disimpan dan akan hilang.';
 }

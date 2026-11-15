@@ -14555,6 +14555,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Perubahan pembelian {number} belum disimpan dan akan hilang.'**
   String purchaseDiscardBody(String number);
+
+  /// No description provided for @productDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Perubahan produk {name} belum disimpan dan akan hilang.'**
+  String productDiscardBody(String name);
+
+  /// No description provided for @productDiscardBodyNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk baru ini belum disimpan dan akan hilang.'**
+  String get productDiscardBodyNew;
 }
 
 class _AppLocalizationsDelegate
