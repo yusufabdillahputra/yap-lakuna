@@ -11,7 +11,9 @@ import '../../data/services/report_document.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../core/photo_viewer.dart';
 import '../products/product_widgets.dart';
 import 'purchase_detail_view_model.dart';
@@ -87,10 +89,14 @@ class PurchaseFormPage extends StatefulWidget {
     required this.onReceived,
     required this.onBack,
     this.imagePicker = const FileSelectorImagePicker(),
+    this.leaveGuard,
   });
 
   final PurchasesRepository repository;
   final UuidValue? draftId;
+
+  /// Penjaga keluar rute: perubahan belum tersimpan ditanyakan (F1-12f).
+  final LeaveGuard? leaveGuard;
 
   /// Foto faktur (F1-12b).
   final ImageFilePicker imagePicker;
@@ -113,9 +119,42 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
   )..load.execute();
 
   @override
+  void initState() {
+    super.initState();
+    widget.leaveGuard?.check = _confirmLeave;
+  }
+
+  @override
+  void didUpdateWidget(PurchaseFormPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.leaveGuard != widget.leaveGuard) {
+      if (oldWidget.leaveGuard?.check == _confirmLeave) {
+        oldWidget.leaveGuard?.check = null;
+      }
+      widget.leaveGuard?.check = _confirmLeave;
+    }
+  }
+
+  @override
   void dispose() {
+    if (widget.leaveGuard?.check == _confirmLeave) {
+      widget.leaveGuard?.check = null;
+    }
     _form.dispose();
     super.dispose();
+  }
+
+  /// *Buang perubahan?* bila form berubah (F1-12f).
+  Future<bool> _confirmLeave() async {
+    if (!mounted) return true;
+    // Simpan / terima sedang berjalan: tunggu selesai dulu.
+    if (_form.busy) return false;
+    if (!_form.hasUnsavedChanges) return true;
+    return confirmDiscardChanges(
+      context,
+      body: AppLocalizations.of(context).purchaseDiscardBody(_form.number),
+      key: 'purchase-discard',
+    );
   }
 
   @override
@@ -216,10 +255,14 @@ class PurchaseDetailScreen extends StatefulWidget {
     this.imagePicker = const FileSelectorImagePicker(),
     this.exporter = const PlatformSpreadsheetExporter(),
     this.onOpenStockCard,
+    this.leaveGuard,
   });
 
   final PurchasesRepository repository;
   final UuidValue purchaseId;
+
+  /// Penjaga keluar rute untuk form draf (F1-12f).
+  final LeaveGuard? leaveGuard;
 
   /// Barang stok minimum yang ditambahkan bila pembelian ini draf
   /// (F1-08i).
@@ -302,6 +345,7 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
           onReceived: (_) => _vm.load.execute(),
           onBack: widget.onBack,
           imagePicker: widget.imagePicker,
+          leaveGuard: widget.leaveGuard,
         );
       }
       final pay = widget.onPayDebt;

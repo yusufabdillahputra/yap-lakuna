@@ -7,6 +7,63 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.97.0] - 2026-11-14
+
+Form pembelian kini bertanya sebelum isian yang belum disimpan dibuang,
+sehingga baris yang sudah diketik satu per satu tidak hilang karena salah
+ketuk menu.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** meninggalkan form *Pembelian baru* atau *Draf* yang
+  isiannya belum disimpan menampilkan dialog **Buang perubahan?**
+  ("Perubahan pembelian {nomor} belum disimpan dan akan hilang.") dengan
+  **Batal** dan **Buang**. Berlaku untuk tombol *Kembali*, tombol kembali
+  sistem (Android), menu samping / bawah, serta memilih draf lain atau
+  *Pembelian baru* saat form tampil di samping daftar (layar lebar).
+- Draf yang dibuka dari *Stok minimum* dengan barang tambahan (F1-08i)
+  dianggap berubah sampai *Simpan draf* ditekan.
+- Panduan *Pembelian* menjelaskan dialog ini (ID + EN).
+
+### Diubah
+
+- Form yang tidak diubah, isian otomatis dari *Stok minimum* pada
+  pembelian baru, serta form yang baru disimpan, diterima, atau draf yang
+  dihapus tetap bisa ditinggalkan tanpa bertanya. Mengetik lalu
+  mengembalikan isian ke semula juga tidak dihitung berubah.
+- Ganti kasir tidak ditahan dialog (isian hilang seperti sebelumnya).
+
+### Catatan teknis
+
+- `PurchaseFormViewModel.hasUnsavedChanges` membandingkan ringkasan isian
+  (`_signature`: supplier, faktur, tanggal, lokasi, baris, biaya, bayar,
+  sumber dana, jatuh tempo, catatan, foto) dengan salinan setelah muat /
+  simpan / hapus draf.
+- `LeaveGuard` / `LeaveGuards` (`lib/ui/core/leave_guard.dart`): satu
+  penjaga per `GoRouterState.pageKey`; `GoRoute.onExit` di `/pembelian`,
+  `/pembelian/baru`, dan `/pembelian/:id`. go_router memanggil `onExit`
+  untuk `pop`, tombol kembali sistem, dan `go`, jadi satu titik menutup
+  semua jalan keluar. Halaman memasang `check` di `initState` dan
+  melepasnya di `dispose`.
+- Dialog *Buang perubahan?* editor denah dipindah ke
+  `lib/ui/core/confirm_discard.dart` (`confirmDiscardChanges`) dan dipakai
+  bersama.
+- Saat di-debug: tes F1-08g yang kembali dari draf berisi tambahan stok
+  minimum kini melewati dialog, sesuai aturan baru.
+- Temuan review: dialog semula hanya menutupi area isi, jadi mengetuk menu
+  samping lagi saat dialog terbuka membuka dialog kedua. Dialog kini
+  memakai navigator akar (menutupi menu) dan `LeaveGuard` memakai ulang
+  pertanyaan yang sedang tampil. Juga diperbaiki: keluar saat simpan /
+  terima masih berjalan ditahan sampai selesai; ubahan staf selama harga
+  atau foto dimuat tetap dihitung; supplier baru yang dibatalkan, sumber
+  dana tanpa bayar, dan jatuh tempo tanpa hutang tidak dihitung berubah;
+  form samping yang tersembunyi di layar sempit tidak ditanyakan; halaman
+  memasang ulang penjaga di `didUpdateWidget`.
+- Tes VM (form baru, ketik lalu kembalikan, stok minimum, draf + tambahan,
+  simpan, terima, hapus, galat simpan) dan widget ponsel 360 px (Kembali,
+  kembali sistem, menu bawah) serta desktop (menu samping, ganti form);
+  diverifikasi mutasi.
+
 ## [0.96.0] - 2026-11-14
 
 Jumlah saran dari Stok minimum kini ikut satuan: mengganti baris botol ke
@@ -6095,7 +6152,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...HEAD
+[0.97.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...v0.97.0
 [0.96.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.95.0...v0.96.0
 [0.95.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.94.0...v0.95.0
 [0.94.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.93.0...v0.94.0

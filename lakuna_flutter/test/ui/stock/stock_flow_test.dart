@@ -550,7 +550,10 @@ void main() {
         findsNWidgets(2),
       );
       expect(tester.takeException(), isNull);
+      // Tambahan belum disimpan: Kembali bertanya dulu (F1-12f).
       await _tap(tester, 'purchase-back');
+      expect(find.byKey(const ValueKey('purchase-discard')), findsOneWidget);
+      await _tap(tester, 'purchase-discard-confirm');
       if (size.width < 600) await _tap(tester, tab);
 
       // Buat draf baru: form terisi dari stok minimum seperti biasa.

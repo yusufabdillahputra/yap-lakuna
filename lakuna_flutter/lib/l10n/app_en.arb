@@ -5036,5 +5036,13 @@
         "type": "String"
       }
     }
+  },
+  "purchaseDiscardBody": "Unsaved changes to purchase {number} will be lost.",
+  "@purchaseDiscardBody": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
   }
 }

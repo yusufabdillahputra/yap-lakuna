@@ -14,6 +14,8 @@ Pembelian mencatat barang masuk dari supplier: stok bertambah, harga pokok (HPP)
 6. Bila ada, tekan **Lampirkan foto faktur** (atau **Ambil foto faktur** di ponsel) di bawah *Foto faktur*. Foto ikut tersimpan saat pembelian disimpan.
 7. Tekan **Terima barang & simpan**. Pakai **Simpan draf** bila barang belum datang.
 
+Bila Anda meninggalkan form yang isiannya belum disimpan (lewat **Kembali**, tombol kembali ponsel, menu samping, atau memilih draf lain di daftar), Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form lalu simpan, atau **Buang** untuk keluar tanpa menyimpan. Draf yang dibuka dari *Stok minimum* dengan barang tambahan juga ditanyakan sampai Anda menekan **Simpan draf**.
+
 ## Setelah disimpan
 
 Detail pembelian menampilkan HPP rata-rata baru dan *Saran jual* agar margin tetap terjaga. Centang produk yang ingin diubah harganya, lalu **Terapkan harga jual**.

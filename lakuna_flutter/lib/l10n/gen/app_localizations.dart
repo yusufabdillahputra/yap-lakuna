@@ -14549,6 +14549,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Semua barang di bawah minimum {location} sudah ada di draf ini.'**
   String purchaseRestockAllInDraft(String location);
+
+  /// No description provided for @purchaseDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Perubahan pembelian {number} belum disimpan dan akan hilang.'**
+  String purchaseDiscardBody(String number);
 }
 
 class _AppLocalizationsDelegate

@@ -10,7 +10,9 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/repositories/purchases_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../core/route_return.dart';
 import '../products/product_widgets.dart';
 import 'purchase_form_view.dart';
@@ -35,9 +37,13 @@ class PurchasesScreen extends StatefulWidget {
     required this.onOpenPurchase,
     required this.onNewPurchase,
     this.imagePicker = const FileSelectorImagePicker(),
+    this.leaveGuard,
   });
 
   final PurchasesRepository repository;
+
+  /// Penjaga keluar rute: form samping yang berubah ditanyakan (F1-12f).
+  final LeaveGuard? leaveGuard;
 
   /// Foto faktur di form samping (F1-12b).
   final ImageFilePicker imagePicker;
@@ -61,6 +67,9 @@ class _PurchasesScreenState extends State<PurchasesScreen>
   /// Form di samping daftar; dibuat saat layar cukup lebar.
   PurchaseFormViewModel? _formVm;
 
+  /// Form samping sedang tampil (lebar terakhir yang dibangun).
+  var _twoPane = false;
+
   PurchaseFormViewModel get _form => _formVm ??= _newForm(null);
 
   PurchaseFormViewModel _newForm(UuidValue? draftId) => PurchaseFormViewModel(
@@ -73,10 +82,25 @@ class _PurchasesScreenState extends State<PurchasesScreen>
   void initState() {
     super.initState();
     _list.load.execute();
+    widget.leaveGuard?.check = _confirmLeave;
+  }
+
+  @override
+  void didUpdateWidget(PurchasesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.leaveGuard != widget.leaveGuard) {
+      if (oldWidget.leaveGuard?.check == _confirmLeave) {
+        oldWidget.leaveGuard?.check = null;
+      }
+      widget.leaveGuard?.check = _confirmLeave;
+    }
   }
 
   @override
   void dispose() {
+    if (widget.leaveGuard?.check == _confirmLeave) {
+      widget.leaveGuard?.check = null;
+    }
     _list.dispose();
     _formVm?.dispose();
     super.dispose();
@@ -85,7 +109,24 @@ class _PurchasesScreenState extends State<PurchasesScreen>
   @override
   void onRouteReturn() => unawaited(_list.refresh());
 
-  void _replaceForm(UuidValue? draftId) {
+  /// *Buang perubahan?* bila form samping berubah (F1-12f).
+  Future<bool> _confirmLeave() async {
+    final form = _formVm;
+    // Form samping hanya tampil di layar lebar.
+    if (!mounted || !_twoPane || form == null) return true;
+    if (form.busy) return false;
+    if (!form.hasUnsavedChanges) return true;
+    return confirmDiscardChanges(
+      context,
+      body: AppLocalizations.of(context).purchaseDiscardBody(form.number),
+      key: 'purchase-discard',
+    );
+  }
+
+  /// Mengganti form samping; perubahan yang belum tersimpan ditanyakan
+  /// dulu (F1-12f).
+  Future<void> _replaceForm(UuidValue? draftId) async {
+    if (!await _confirmLeave() || !mounted) return;
     final old = _formVm;
     setState(() => _formVm = _newForm(draftId));
     old?.dispose();
@@ -93,7 +134,7 @@ class _PurchasesScreenState extends State<PurchasesScreen>
 
   Future<void> _open(PurchaseRow row, bool twoPane) async {
     if (row.isDraft && twoPane) {
-      _replaceForm(row.purchase.id);
+      await _replaceForm(row.purchase.id);
       return;
     }
     await whileAway(() => widget.onOpenPurchase(row.purchase.id));
@@ -102,7 +143,7 @@ class _PurchasesScreenState extends State<PurchasesScreen>
 
   Future<void> _new(bool twoPane) async {
     if (twoPane) {
-      _replaceForm(null);
+      await _replaceForm(null);
       return;
     }
     final received = await whileAway(widget.onNewPurchase);
@@ -115,7 +156,7 @@ class _PurchasesScreenState extends State<PurchasesScreen>
   }
 
   Future<void> _received(Purchase purchase) async {
-    _replaceForm(null);
+    await _replaceForm(null);
     unawaited(_list.refresh());
     await whileAway(() => widget.onOpenPurchase(purchase.id));
     if (mounted) await _list.refresh();
@@ -126,6 +167,7 @@ class _PurchasesScreenState extends State<PurchasesScreen>
     builder: (context, constraints) {
       final l10n = AppLocalizations.of(context);
       final twoPane = constraints.maxWidth >= purchasesTwoPaneWidth;
+      _twoPane = twoPane;
       final list = _PurchaseList(
         viewModel: _list,
         selectedDraft: twoPane ? _formVm?.draftId : null,
@@ -163,7 +205,7 @@ class _PurchasesScreenState extends State<PurchasesScreen>
                       onSaved: (_) => _list.refresh(),
                       onReceived: _received,
                       onDeleted: () {
-                        _replaceForm(null);
+                        unawaited(_replaceForm(null));
                         unawaited(_list.refresh());
                       },
                     ),

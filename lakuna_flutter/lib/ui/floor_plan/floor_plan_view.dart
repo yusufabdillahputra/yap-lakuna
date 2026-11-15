@@ -10,6 +10,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/repositories/dining_admin_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/confirm_discard.dart';
 import '../products/product_widgets.dart' show ChoicePill, PageHeader;
 import '../master/dining_tables_tab.dart' show diningSetupErrorMessage;
 import 'floor_canvas.dart';
@@ -109,56 +110,11 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
 }
 
 /// *Buang perubahan?* — `true` bila pengguna memilih buang.
-Future<bool> confirmDiscard(BuildContext context) async {
-  final l10n = AppLocalizations.of(context);
-  final result = await showFDialog<bool>(
-    context: context,
-    builder: (context, style, animation) => FDialog(
-      animation: animation,
-      constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
-      builder: (context, style) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          key: const ValueKey('floor-discard'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Text(
-              l10n.floorDiscardTitle,
-              style: context.theme.typography.display.lg.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(l10n.floorDiscardBody),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FButton(
-                  key: const ValueKey('floor-discard-cancel'),
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(false),
-                  child: Text(l10n.floorDiscardKeep),
-                ),
-                FButton(
-                  key: const ValueKey('floor-discard-confirm'),
-                  variant: .destructive,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(true),
-                  child: Text(l10n.floorDiscardConfirm),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-  return result ?? false;
-}
+Future<bool> confirmDiscard(BuildContext context) => confirmDiscardChanges(
+  context,
+  body: AppLocalizations.of(context).floorDiscardBody,
+  key: 'floor-discard',
+);
 
 class FloorPlanView extends StatelessWidget {
   const FloorPlanView({

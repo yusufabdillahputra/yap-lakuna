@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -605,6 +607,170 @@ void main() {
       form.setQuantity(line.key, Qty.units(3));
       form.setUnit(line.key, dus(line));
       expect(form.lines.single.quantity, Qty.units(3));
+    });
+  });
+
+  group('perubahan belum tersimpan (F1-12f)', () {
+    Future<(FakePurchasesRepository, Purchase)> draftOf() async {
+      final r = FakePurchasesRepository();
+      final myk = r.products.first.variants.first;
+      final saved = await r.saveDraft(
+        PurchaseRequest(
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: r.locations.first.id,
+          invoiceNo: 'SP-1',
+          lines: [
+            PurchaseLineRequest(
+              variantId: myk.id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(30000),
+            ),
+          ],
+        ),
+      );
+      return (r, (saved as Ok<Purchase>).value);
+    }
+
+    test('form baru kosong belum berubah; ketik lalu kembalikan', () {
+      expect(form.hasUnsavedChanges, isFalse);
+      form.setInvoiceNo('SP-9');
+      expect(form.hasUnsavedChanges, isTrue);
+      form.setInvoiceNo('');
+      expect(form.hasUnsavedChanges, isFalse);
+      form.setNote('titip');
+      expect(form.hasUnsavedChanges, isTrue);
+    });
+
+    test('tambah baris, ubah jumlah, harga, dan biaya terhitung berubah', () {
+      form.addByCode('MYK-2L');
+      expect(form.hasUnsavedChanges, isTrue);
+      final key = form.lines.single.key;
+      form.removeLine(key);
+      expect(form.hasUnsavedChanges, isFalse);
+      form.setShipping(const Money(5000));
+      expect(form.hasUnsavedChanges, isTrue);
+      form.setShipping(Money.zero);
+      form.useNewSupplier();
+      form.setNewSupplierName('CV Baru');
+      expect(form.hasUnsavedChanges, isTrue);
+    });
+
+    test('isian otomatis dari stok minimum bukan perubahan', () async {
+      final r = FakePurchasesRepository();
+      final myk = r.products.first.variants.first;
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(38))],
+        ),
+      );
+      await vm.load.execute();
+      expect(vm.lines, hasLength(1));
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.setQuantity(vm.lines.single.key, Qty.units(40));
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.dispose();
+    });
+
+    test(
+      'draf yang dibuka belum berubah; tambahan stok minimum berubah',
+      () async {
+        final (r, draft) = await draftOf();
+        final plain = PurchaseFormViewModel(repository: r, draftId: draft.id);
+        await plain.load.execute();
+        expect(plain.lines, hasLength(1));
+        expect(plain.hasUnsavedChanges, isFalse);
+        plain.dispose();
+
+        final kop = r.products
+            .expand((p) => p.variants)
+            .firstWhere((v) => v.sku == 'KOP');
+        final vm = PurchaseFormViewModel(
+          repository: r,
+          draftId: draft.id,
+          restock: PurchaseRestock(
+            locationId: r.locations.first.id,
+            locationName: 'Toko',
+            lines: [(variantId: kop.id, quantity: Qty.units(3))],
+          ),
+        );
+        await vm.load.execute();
+        expect(vm.lines, hasLength(2));
+        expect(vm.hasUnsavedChanges, isTrue);
+        // Tersimpan: keadaan awal baru.
+        await vm.saveDraft.execute();
+        expect(vm.saveDraft.completed, isTrue);
+        expect(vm.hasUnsavedChanges, isFalse);
+        vm.dispose();
+      },
+    );
+
+    test('terima dan hapus draf: boleh ditinggalkan', () async {
+      final (r, draft) = await draftOf();
+      final vm = PurchaseFormViewModel(repository: r, draftId: draft.id);
+      await vm.load.execute();
+      vm.setNote('cek ulang');
+      expect(vm.hasUnsavedChanges, isTrue);
+      await vm.deleteDraft.execute();
+      expect(vm.deleteDraft.completed, isTrue);
+      expect(vm.hasUnsavedChanges, isFalse);
+      vm.dispose();
+
+      form
+        ..addByCode('KOP')
+        ..setUnitPrice(form.lines.single.key, const Money(1500))
+        ..payInFull();
+      expect(form.hasUnsavedChanges, isTrue);
+      await form.receive.execute();
+      expect(form.receive.completed, isTrue);
+      expect(form.hasUnsavedChanges, isFalse);
+    });
+
+    test('supplier baru yang dibatalkan dan sumber dana tanpa bayar bukan '
+        'perubahan', () {
+      form
+        ..useNewSupplier()
+        ..setNewSupplierName('CV Baru')
+        ..selectSupplier(null);
+      expect(form.hasUnsavedChanges, isFalse);
+      // Tanpa bayar, sumber dana tidak tersimpan.
+      form.setFunding(FundingKind.bank);
+      expect(form.hasUnsavedChanges, isFalse);
+      form.setPaid(const Money(1000));
+      expect(form.hasUnsavedChanges, isTrue);
+    });
+
+    test('ubahan selama harga stok minimum dimuat tetap terhitung', () async {
+      final r = FakePurchasesRepository();
+      final myk = r.products.first.variants.first;
+      final gate = Completer<void>();
+      r.lastPricesGate = gate;
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(38))],
+        ),
+      );
+      final loading = vm.load.execute();
+      await pumpEventQueue();
+      expect(vm.lines, hasLength(1));
+      vm.setInvoiceNo('SP-7');
+      gate.complete();
+      await loading;
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.dispose();
+    });
+
+    test('galat simpan: tetap berubah', () async {
+      form.addByCode('MYK-2L');
+      repo.nextError = Exception("disk penuh");
+      await form.saveDraft.execute();
+      expect(form.saveDraft.error, isTrue);
+      expect(form.hasUnsavedChanges, isTrue);
     });
   });
 

@@ -8622,4 +8622,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String purchaseRestockAllInDraft(String location) {
     return 'Every item below minimum at $location is already in this draft.';
   }
+
+  @override
+  String purchaseDiscardBody(String number) {
+    return 'Unsaved changes to purchase $number will be lost.';
+  }
 }
