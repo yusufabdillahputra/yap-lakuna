@@ -10,7 +10,7 @@ Menu **Pelanggan** menyimpan data pelanggan, limit kredit, dan piutang per nota,
 
 Bila form sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, atau **Buang** untuk menutup tanpa menyimpan. Selama dialog terbuka, menu samping tertutup; simpan atau tutup dialog dulu sebelum pindah menu.
 
-Untuk mencari pelanggan, ketik nama atau nomor HP di kolom cari. Nomor HP boleh ditulis dengan format apa pun, misalnya `0812-3456`, `+62 812 3456`, atau potongan di tengah (minimal 3 angka). Aturan yang sama berlaku saat memilih pelanggan di Kasir, bill Meja, dan *Kredit*.
+Untuk mencari pelanggan, ketik nama atau nomor HP di kolom cari. Nomor HP boleh ditulis dengan format apa pun, misalnya `0812-3456`, `+62 812 3456`, `021/5551234`, atau potongan di tengah (minimal 3 angka). Aturan yang sama berlaku saat memilih pelanggan di Kasir, bill Meja, dan *Kredit*.
 
 Banyak pelanggan sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .csv dengan kolom Nama, HP, Alamat, Grup, Limit, Catatan. Belum punya berkasnya? Tekan **Unduh templat** di dialog yang sama, isi baris di bawah judul, lalu import. Templat mengikuti bahasa aplikasi (English bila aplikasi berbahasa Inggris), dan dua baris contoh ("Contoh …") otomatis dilewati saat import.
 

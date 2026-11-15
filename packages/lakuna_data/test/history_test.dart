@@ -341,6 +341,8 @@ void main() {
       expect(await find('+62 812-3456'), [b.sale.id]);
       expect(await find('0812 3456 7890'), [b.sale.id]);
       expect(await find('62812345678'), [b.sale.id]);
+      // Garis miring sebagai pemisah (F1-13f).
+      expect(await find('0812/3456/7890'), [b.sale.id]);
       expect(await find('trf-abc'), [c.sale.id]);
       // Semua nota memuat kode outlet; terbaru dulu.
       final prefix = old.sale.number.split('-').first;

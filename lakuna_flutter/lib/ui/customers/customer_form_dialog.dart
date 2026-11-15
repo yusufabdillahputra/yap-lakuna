@@ -41,14 +41,15 @@ Future<Customer?> showCustomerForm(
   ),
 );
 
-/// Kata pencarian → isian awal pelanggan baru: nomor (angka dengan `+`,
-/// spasi, `-`, `.`, atau kurung; minimal 6 digit) = HP yang dinormalisasi,
+/// Kata pencarian → isian awal pelanggan baru: nomor (pola yang sama
+/// dengan pencarian HP, [phoneSearchKeys]: angka dengan `+`, spasi, `-`,
+/// `.`, `/`, atau kurung, F1-13f; minimal 6 digit) = HP yang dinormalisasi,
 /// selain itu nama.
 ({String name, String phone}) customerDraftFromQuery(String query) {
   final q = query.trim();
   if (q.isEmpty) return (name: '', phone: '');
   final digits = q.replaceAll(RegExp(r'\D'), '');
-  final isPhone = RegExp(r'^[0-9+\s().-]+$').hasMatch(q) && digits.length >= 6;
+  final isPhone = phoneSearchKeys(q).isNotEmpty && digits.length >= 6;
   return isPhone ? (name: '', phone: normalizePhone(q)) : (name: q, phone: '');
 }
 

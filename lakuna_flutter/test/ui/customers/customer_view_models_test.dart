@@ -38,6 +38,9 @@ void main() {
       // HP format lain dan potongan tengah berawalan 8 (F1-13d).
       vm.setQuery('+62 857-1111');
       expect(vm.rows.single.customer.name, 'Kantin SD 2');
+      // Garis miring sebagai pemisah (F1-13f).
+      vm.setQuery('0857/1111');
+      expect(vm.rows.single.customer.name, 'Kantin SD 2');
       vm.setQuery('8194');
       expect(vm.rows.single.customer.name, 'Pak Darto');
       vm.setQuery('sri');

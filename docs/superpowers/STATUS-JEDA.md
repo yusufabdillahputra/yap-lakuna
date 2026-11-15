@@ -93,6 +93,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.110.0 | *Ganti kasir* bertanya dulu bila form belum disimpan (F1-02b) | #116 |
 | v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
 | v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | #118 |
+| v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -264,6 +265,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 54. ~~Keterangan *Sudah di draf* tidak menyebut berapa yang sudah dipesan~~
     — selesai v0.112.0 (F1-08l): *Sudah di draf PB-…: 5 dari saran 38
     pcs*, dijumlah dari semua draf ke lokasi itu.
+55. ~~Nomor HP bergaris miring (`021/5551234`) tidak ditemukan dan masuk
+    ke Nama saat *Pelanggan baru*~~ — selesai v0.113.0 (F1-13f): `/`
+    pemisah HP di semua kolom cari dan draf pelanggan baru.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
