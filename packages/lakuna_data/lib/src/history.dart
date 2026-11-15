@@ -379,8 +379,9 @@ const _maxSqlWords = 8;
 /// Nota cabang ini yang nomornya, nama pemesan/pelanggannya, HP
 /// pelanggannya, atau referensi pembayaran lunasnya memuat kata kunci
 /// [filter] utuh (tanpa beda huruf besar/kecil), atau yang salah satu baris
-/// barangnya memuat setiap kata kunci di nama produk/varian (F1-11d,
-/// F1-11e: urutan bebas), terbaru dulu, paling banyak [limit].
+/// barangnya memuat setiap kata kunci di nama produk/varian atau nama
+/// modifiernya (F1-11d, F1-11e: urutan bebas, F1-11f: modifier), terbaru
+/// dulu, paling banyak [limit].
 ///
 /// Kandidat dicari dengan `ilike` lalu dicek ulang di Dart agar `%` dan `_`
 /// di kata kunci tidak menjadi wildcard. Nota dibaca per kelompok
@@ -440,10 +441,19 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
       if (w.isNotEmpty) w,
   }.toList();
   final words = [for (final w in raw) w.toLowerCase()];
+  // Nama modifier baris yang sama (F1-11f), dari salinan di nota.
+  String modifierHas(String like) =>
+      '"sale_items"."id" IN (SELECT "sale_item_id" FROM "sale_item_modifiers" '
+      'WHERE "tenant_id" = ${EscapedExpression(scope.tenantId)} '
+      'AND "deleted_at" IS NULL AND LOWER("name") LIKE LOWER($like))';
+  final likes = [
+    for (final w in raw.take(_maxSqlWords)) '${EscapedExpression('%$w%')}',
+  ];
   final wordClauses = [
-    for (final w in raw.take(_maxSqlWords))
-      '(LOWER("product_name") LIKE LOWER(${EscapedExpression('%$w%')}) '
-          'OR LOWER("variant_name") LIKE LOWER(${EscapedExpression('%$w%')}))',
+    for (final like in likes)
+      '(LOWER("product_name") LIKE LOWER($like) '
+          'OR LOWER("variant_name") LIKE LOWER($like) '
+          'OR ${modifierHas(like)})',
   ].join(' AND ');
   Expression<Object?> withItem(SaleTable s) => Expression(
     '${s.id} IN (SELECT "sale_id" FROM "sale_items" '
@@ -451,10 +461,11 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     'AND "deleted_at" IS NULL '
     'AND $wordClauses)',
   );
-  bool itemMatches(SaleItem i) => words.every(
+  bool itemMatches(SaleItem i, List<String> modifiers) => words.every(
     (w) =>
         i.productName.toLowerCase().contains(w) ||
-        i.variantName.toLowerCase().contains(w),
+        i.variantName.toLowerCase().contains(w) ||
+        modifiers.any((m) => m.toLowerCase().contains(w)),
   );
   bool matchesHeader(Sale s) =>
       has(s.number) ||
@@ -496,14 +507,32 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
         if (!matchesHeader(s)) s.id,
     };
     if (unsure.isNotEmpty) {
-      for (final i in await SaleItem.db.find(
+      final items = await SaleItem.db.find(
         session,
         where: (i) =>
             i.tenantId.equals(scope.tenantId) &
             i.saleId.inSet(unsure) &
             i.deletedAt.equals(null),
-      )) {
-        if (itemMatches(i)) byItem.add(i.saleId);
+      );
+      // Modifier (F1-11f) hanya dimuat untuk baris yang belum cocok lewat
+      // nama produk/varian, di nota yang belum cocok.
+      for (final i in items) {
+        if (itemMatches(i, const [])) byItem.add(i.saleId);
+      }
+      final pending = [
+        for (final i in items)
+          if (!byItem.contains(i.saleId)) i,
+      ];
+      final modifiers = await itemModifiers(
+        session,
+        scope.tenantId,
+        pending.map((i) => i.id),
+      );
+      for (final i in pending) {
+        final names = [
+          for (final m in modifiers[i.id] ?? const <SaleItemModifier>[]) m.name,
+        ];
+        if (itemMatches(i, names)) byItem.add(i.saleId);
       }
     }
     var kept = [

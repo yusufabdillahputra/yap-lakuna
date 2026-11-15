@@ -7,6 +7,39 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.103.0] - 2026-11-15
+
+Pesanan F&B kini bisa dicari di Riwayat lewat modifier yang dipilih
+tamu, seperti cara kasir mengingatnya: "kopi yang extra shot".
+
+### Ditambahkan
+
+- **Riwayat (1.14):** kolom **Cari** juga mencocokkan nama modifier
+  barang (mis. *Extra Shot*, *Boba*). Setiap kata boleh ada di nama
+  produk, nama varian, atau nama modifier **baris barang yang sama**,
+  urutan bebas: `kopi extra shot` menemukan *Es Kopi Susu* + *Extra
+  Shot*.
+- Panduan *Retur & void* menyebut pencarian lewat modifier (ID + EN).
+
+### Diubah
+
+- Nama modifier dibaca dari salinan di nota, jadi mengubah nama opsi di
+  master tidak mengubah hasil pencarian nota lama. Nama grup modifier
+  (*Topping*, *Level*) tidak dicari. Kata yang tersebar di modifier satu
+  barang dan nama barang lain di nota yang sama tidak dihitung cocok.
+
+### Catatan teknis
+
+- `_searchSales` (`lakuna_data/lib/src/history.dart`): klausa tiap kata
+  di subkueri `sale_items` ditambah `"sale_items"."id" IN (SELECT
+  "sale_item_id" FROM "sale_item_modifiers" … LOWER("name") LIKE …)`.
+- Cek ulang Dart memakai `itemModifiers` (bersama open bill), hanya untuk
+  baris barang di nota yang belum cocok lewat nama produk/varian.
+- Temuan review subagent: tes barang bermodifier yang dihapus dari bill
+  dan wildcard `_` ditambah (Important), helper dipakai ulang dan modifier
+  dimuat lebih sedikit (Minor). Tes diverifikasi mutasi untuk klausa SQL
+  dan cek ulang Dart.
+
 ## [0.102.0] - 2026-11-15
 
 Tamu split bill kini bisa menerima tagihannya sendiri sebelum membayar,
@@ -6411,7 +6444,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...HEAD
+[0.103.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...v0.103.0
 [0.102.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...v0.102.0
 [0.101.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...v0.101.0
 [0.100.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...v0.100.0
