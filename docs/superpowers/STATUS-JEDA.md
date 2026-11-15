@@ -91,7 +91,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.108.0 | Dialog area, meja, dan rentang meja tanya sebelum ditutup (F1-10n) | #114 |
 | v0.109.0 | Simpan area/meja/rentang yang ditolak tidak menutup dialog; galat tampil di dialog (F1-10o) | #115 |
 | v0.110.0 | *Ganti kasir* bertanya dulu bila form belum disimpan (F1-02b) | #116 |
-| v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | |
+| v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
+| v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -260,6 +261,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 53. ~~Nama area/meja kembar tampil di kotak merah jauh dari kolom Nama~~ —
     selesai v0.111.0 (F1-10p): galat nama di bawah Nama, kursi di bawah
     Kursi, nama rentang menggantikan pratinjau.
+54. ~~Keterangan *Sudah di draf* tidak menyebut berapa yang sudah dipesan~~
+    — selesai v0.112.0 (F1-08l): *Sudah di draf PB-…: 5 dari saran 38
+    pcs*, dijumlah dari semua draf ke lokasi itu.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -8603,11 +8603,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stockRestockDraftCancel => 'Cancel';
 
   @override
-  String stockMinimumInDraft(String number) {
-    return 'Already in draft $number';
-  }
-
-  @override
   String purchaseRestockIntoDraft(String location, int added, int already) {
     String _temp0 = intl.Intl.pluralLogic(
       added,
@@ -8716,4 +8711,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diningRangeDiscardBody =>
       'The table range you are filling in has not been saved and will be lost.';
+
+  @override
+  String stockMinimumInDraftQty(
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  ) {
+    return 'In draft $number: $ordered of $suggested $unit suggested';
+  }
+
+  @override
+  String stockMinimumInDraftsQty(
+    int count,
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  ) {
+    return 'In $count drafts, incl. $number: $ordered of $suggested $unit suggested';
+  }
 }

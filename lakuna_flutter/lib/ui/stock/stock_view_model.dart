@@ -9,6 +9,11 @@ import '../../data/services/spreadsheet_exporter.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
+/// Tanda barang di bawah minimum yang sudah ada di draf pembelian
+/// (F1-08h/F1-08l): nomor draf pertama, banyaknya draf, dan jumlah dipesan
+/// dalam satuan dasar.
+typedef DraftMark = ({String number, int drafts, Qty ordered});
+
 /// Tab layar Stok (1.18).
 enum StockTab { list, adjustment, card, minimum, locations }
 
@@ -93,11 +98,16 @@ class StockViewModel extends ChangeNotifier {
   )?
   _restockDrafts;
 
-  var _inDraft = const <UuidValue, String>{};
+  var _inDraft = const <UuidValue, DraftMark>{};
 
-  /// Nomor draf pembelian yang sudah memuat barang [variantId] di bawah
-  /// minimum (F1-08h); `null` bila belum ada.
-  String? draftNumberOf(UuidValue variantId) => _inDraft[variantId];
+  /// Jumlah saran beli ulang barang [row] dalam satuan dasar: dipakai
+  /// *Buat pembelian* (F1-08c) dan keterangan *dari saran* (F1-08l).
+  static Qty suggestedOf(StockRow row) =>
+      restockQuantity(row.stock, row.minStock);
+
+  /// Draf pertama, banyaknya draf, dan jumlah yang sudah dipesan (satuan
+  /// dasar, semua draf) untuk barang [variantId] (F1-08l).
+  DraftMark? draftMarkOf(UuidValue variantId) => _inDraft[variantId];
 
   /// Staf boleh menyimpan penyesuaian dan mengubah lokasi.
   final bool canAdjust;
@@ -135,7 +145,7 @@ class StockViewModel extends ChangeNotifier {
         for (final r in _below)
           (
             variantId: r.variantId,
-            quantity: restockQuantity(r.stock, r.minStock),
+            quantity: suggestedOf(r),
           ),
       ],
     );
@@ -500,7 +510,7 @@ class StockViewModel extends ChangeNotifier {
   /// Barang di bawah minimum yang sudah ada di draf pembelian ke [location]
   /// (F1-08h): draf pertama (paling cocok, lalu terbaru) menang. Galat
   /// diabaikan agar daftar stok tetap tampil.
-  Future<Map<UuidValue, String>> _draftsOf(
+  Future<Map<UuidValue, DraftMark>> _draftsOf(
     UuidValue? location,
     List<StockRow> below,
   ) async {
@@ -508,10 +518,18 @@ class StockViewModel extends ChangeNotifier {
     if (find == null || location == null || below.isEmpty) return const {};
     final result = await find(location, {for (final r in below) r.variantId});
     if (result case Ok(:final value)) {
-      final map = <UuidValue, String>{};
+      final map = <UuidValue, DraftMark>{};
       for (final d in value) {
         for (final id in d.variantIds) {
-          map.putIfAbsent(id, () => d.number);
+          final ordered = d.quantities[id]?.milli ?? 0;
+          map[id] = switch (map[id]) {
+            null => (number: d.number, drafts: 1, ordered: Qty(ordered)),
+            final m => (
+              number: m.number,
+              drafts: m.drafts + 1,
+              ordered: Qty(m.ordered.milli + ordered),
+            ),
+          };
         }
       }
       return map;

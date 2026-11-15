@@ -605,6 +605,7 @@ class RestockDraft {
     required this.purchaseId,
     required this.number,
     required this.variantIds,
+    this.quantities = const {},
   });
 
   final UuidValue purchaseId;
@@ -612,6 +613,10 @@ class RestockDraft {
 
   /// Varian yang diminta yang ada di draf ini (F1-08h).
   final Set<UuidValue> variantIds;
+
+  /// Jumlah tiap varian di draf ini dalam satuan dasar, dijumlah dari semua
+  /// barisnya (F1-08l).
+  final Map<UuidValue, Qty> quantities;
 
   /// Jumlah varian yang diminta yang ada di draf ini.
   int get matched => variantIds.length;
@@ -650,8 +655,14 @@ Future<List<RestockDraft>> restockDraftsOf(
         i.deletedAt.equals(null),
   );
   final matched = <UuidValue, Set<UuidValue>>{};
+  final quantities = <UuidValue, Map<UuidValue, Qty>>{};
   for (final i in items) {
     (matched[i.purchaseId] ??= {}).add(i.variantId);
+    final base = Qty(i.quantityMilli).toBaseUnit(i.factorMilli);
+    final perDraft = quantities[i.purchaseId] ??= {};
+    perDraft[i.variantId] = Qty(
+      (perDraft[i.variantId]?.milli ?? 0) + base.milli,
+    );
   }
   final drafts = [
     for (final p in open)
@@ -670,6 +681,7 @@ Future<List<RestockDraft>> restockDraftsOf(
         purchaseId: p.id,
         number: p.number,
         variantIds: matched[p.id]!,
+        quantities: quantities[p.id]!,
       ),
   ];
 }

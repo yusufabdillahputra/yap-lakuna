@@ -823,7 +823,8 @@ void main() {
               find.byKey(ValueKey('stock-min-draft-${inDraft.uuid}')),
             )
             .data,
-        'Sudah di draf ${draft.number}',
+        // Stok 2, minimum 20: saran 38 (F1-08l).
+        'Sudah di draf ${draft.number}: 5 dari saran 38 pcs',
       );
       // Nomor draf utuh, tidak terpotong elipsis di ponsel.
       final paragraph = tester.renderObject<RenderParagraph>(
@@ -834,6 +835,39 @@ void main() {
       expect(
         find.byKey(ValueKey('stock-min-draft-${other.uuid}')),
         findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('barang di dua draf: jumlah dijumlah '
+        '${size.width.toInt()} px (F1-08l)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      await seedDraft(purchases);
+      final newer = await seedDraft(purchases);
+      final inDraft = purchases.products.first.variants.first.id;
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      final mark = find.byKey(ValueKey('stock-min-draft-${inDraft.uuid}'));
+      expect(
+        tester.widget<Text>(mark).data,
+        'Sudah di 2 draf, a.l. ${newer.number}: 10 dari saran 38 pcs',
+      );
+      // Teks terpanjang tetap utuh di ponsel.
+      expect(
+        tester.renderObject<RenderParagraph>(mark).didExceedMaxLines,
+        isFalse,
       );
       expect(tester.takeException(), isNull);
     });

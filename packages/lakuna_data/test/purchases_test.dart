@@ -727,6 +727,12 @@ void main() {
     expect(drafts.first.matched, 2);
     expect(drafts.first.variantIds, {v(minyak).id, v(gula).id});
     expect(drafts.last.variantIds, {v(gula).id});
+    // Jumlah per draf dalam satuan dasar: 4 dus isi 6 = 24 (F1-08l).
+    expect(drafts.first.quantities, {
+      v(minyak).id: Qty.units(24),
+      v(gula).id: Qty.units(10),
+    });
+    expect(drafts.last.quantities, {v(gula).id: Qty.units(3)});
     drafts = await restockDraftsOf(store, scope, gudang.id, [v(gula).id]);
     // Sama banyak: draf yang lebih baru dulu.
     expect([for (final d in drafts) d.purchaseId], [gulaOnly.id, both.id]);
@@ -734,6 +740,33 @@ void main() {
       await restockDraftsOf(store, scope, gudang.id, [v(minyak).id]),
       hasLength(1),
     );
+
+    // Dua baris barang yang sama (dus dan satuan dasar) dijumlah dalam
+    // satuan dasar: 1 dus isi 6 + 3 = 9 (F1-08l).
+    await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        purchasedOn: today,
+        locationId: rak.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            productUnitId: dus().id,
+            quantity: Qty.one,
+            unitPrice: const Money(185000),
+          ),
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            quantity: Qty.units(3),
+            unitPrice: const Money(31000),
+          ),
+        ],
+      ),
+    );
+    final mixed = await restockDraftsOf(store, scope, rak.id, [v(minyak).id]);
+    expect(mixed.single.quantities, {v(minyak).id: Qty.units(9)});
   });
 
   group('retur pembelian', () {

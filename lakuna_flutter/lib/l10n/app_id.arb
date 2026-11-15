@@ -5541,14 +5541,6 @@
   "stockRestockDraftOpen": "Buka draf",
   "stockRestockDraftNew": "Buat draf baru",
   "stockRestockDraftCancel": "Batal",
-  "stockMinimumInDraft": "Sudah di draf {number}",
-  "@stockMinimumInDraft": {
-    "placeholders": {
-      "number": {
-        "type": "String"
-      }
-    }
-  },
   "purchaseRestockIntoDraft": "Dari stok minimum {location}: {added} barang ditambahkan ke draf ini, {already} barang sudah ada. Simpan draf agar tambahan tersimpan.",
   "@purchaseRestockIntoDraft": {
     "placeholders": {
@@ -5669,5 +5661,42 @@
   "expenseCategoryDiscardBody": "Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.",
   "diningAreaDiscardBody": "Area yang sedang diisi belum disimpan dan akan hilang.",
   "diningTableDiscardBody": "Meja yang sedang diisi belum disimpan dan akan hilang.",
-  "diningRangeDiscardBody": "Rentang meja yang sedang diisi belum disimpan dan akan hilang."
+  "diningRangeDiscardBody": "Rentang meja yang sedang diisi belum disimpan dan akan hilang.",
+  "stockMinimumInDraftQty": "Sudah di draf {number}: {ordered} dari saran {suggested} {unit}",
+  "@stockMinimumInDraftQty": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "ordered": {
+        "type": "String"
+      },
+      "suggested": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockMinimumInDraftsQty": "Sudah di {count} draf, a.l. {number}: {ordered} dari saran {suggested} {unit}",
+  "@stockMinimumInDraftsQty": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      },
+      "ordered": {
+        "type": "String"
+      },
+      "suggested": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  }
 }

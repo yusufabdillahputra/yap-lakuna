@@ -14532,12 +14532,6 @@ abstract class AppLocalizations {
   /// **'Batal'**
   String get stockRestockDraftCancel;
 
-  /// No description provided for @stockMinimumInDraft.
-  ///
-  /// In id, this message translates to:
-  /// **'Sudah di draf {number}'**
-  String stockMinimumInDraft(String number);
-
   /// No description provided for @purchaseRestockIntoDraft.
   ///
   /// In id, this message translates to:
@@ -14681,6 +14675,29 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Rentang meja yang sedang diisi belum disimpan dan akan hilang.'**
   String get diningRangeDiscardBody;
+
+  /// No description provided for @stockMinimumInDraftQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah di draf {number}: {ordered} dari saran {suggested} {unit}'**
+  String stockMinimumInDraftQty(
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  );
+
+  /// No description provided for @stockMinimumInDraftsQty.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah di {count} draf, a.l. {number}: {ordered} dari saran {suggested} {unit}'**
+  String stockMinimumInDraftsQty(
+    int count,
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  );
 }
 
 class _AppLocalizationsDelegate

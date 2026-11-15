@@ -5007,14 +5007,6 @@
   "stockRestockDraftOpen": "Open draft",
   "stockRestockDraftNew": "Create new draft",
   "stockRestockDraftCancel": "Cancel",
-  "stockMinimumInDraft": "Already in draft {number}",
-  "@stockMinimumInDraft": {
-    "placeholders": {
-      "number": {
-        "type": "String"
-      }
-    }
-  },
   "purchaseRestockIntoDraft": "From minimum stock at {location}: {added, plural, =1{1 item} other{{added} items}} added to this draft, {already} already in it. Save the draft to keep the additions.",
   "@purchaseRestockIntoDraft": {
     "placeholders": {
@@ -5135,5 +5127,42 @@
   "expenseCategoryDiscardBody": "The expense category you are filling in has not been saved and will be lost.",
   "diningAreaDiscardBody": "The area you are filling in has not been saved and will be lost.",
   "diningTableDiscardBody": "The table you are filling in has not been saved and will be lost.",
-  "diningRangeDiscardBody": "The table range you are filling in has not been saved and will be lost."
+  "diningRangeDiscardBody": "The table range you are filling in has not been saved and will be lost.",
+  "stockMinimumInDraftQty": "In draft {number}: {ordered} of {suggested} {unit} suggested",
+  "@stockMinimumInDraftQty": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "ordered": {
+        "type": "String"
+      },
+      "suggested": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "stockMinimumInDraftsQty": "In {count} drafts, incl. {number}: {ordered} of {suggested} {unit} suggested",
+  "@stockMinimumInDraftsQty": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      },
+      "ordered": {
+        "type": "String"
+      },
+      "suggested": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  }
 }

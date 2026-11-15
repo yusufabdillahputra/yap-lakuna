@@ -8359,11 +8359,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get stockRestockDraftCancel => 'Batal';
 
   @override
-  String stockMinimumInDraft(String number) {
-    return 'Sudah di draf $number';
-  }
-
-  @override
   String purchaseRestockIntoDraft(String location, int added, int already) {
     return 'Dari stok minimum $location: $added barang ditambahkan ke draf ini, $already barang sudah ada. Simpan draf agar tambahan tersimpan.';
   }
@@ -8466,4 +8461,25 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get diningRangeDiscardBody =>
       'Rentang meja yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String stockMinimumInDraftQty(
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  ) {
+    return 'Sudah di draf $number: $ordered dari saran $suggested $unit';
+  }
+
+  @override
+  String stockMinimumInDraftsQty(
+    int count,
+    String number,
+    String ordered,
+    String suggested,
+    String unit,
+  ) {
+    return 'Sudah di $count draf, a.l. $number: $ordered dari saran $suggested $unit';
+  }
 }

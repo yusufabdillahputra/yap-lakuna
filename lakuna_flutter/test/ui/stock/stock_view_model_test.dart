@@ -442,11 +442,39 @@ void main() {
   });
 
   group('tanda sudah di draf (F1-08h)', () {
-    RestockDraft draft(String number, Set<UuidValue> ids) => RestockDraft(
+    RestockDraft draft(
+      String number,
+      Set<UuidValue> ids, [
+      Map<UuidValue, Qty> quantities = const {},
+    ]) => RestockDraft(
       purchaseId: fakeId(900 + number.length),
       number: number,
       variantIds: ids,
+      quantities: quantities,
     );
+
+    test('jumlah dipesan dijumlah dari semua draf (F1-08l)', () async {
+      final v = StockViewModel(
+        repository: repo,
+        canAdjust: true,
+        restockDrafts: (_, _) async => Result.ok([
+          draft('PB-2', {kopi, telur}, {kopi: Qty.units(5), telur: Qty(500)}),
+          draft('PB-1', {kopi}, {kopi: Qty.units(7)}),
+        ]),
+      );
+      await v.load.execute();
+      expect(v.draftMarkOf(kopi), (
+        number: 'PB-2',
+        drafts: 2,
+        ordered: Qty.units(12),
+      ));
+      expect(v.draftMarkOf(telur), (
+        number: 'PB-2',
+        drafts: 1,
+        ordered: Qty(500),
+      ));
+      expect(v.draftMarkOf(sabun), isNull);
+    });
 
     test('barang di draf mendapat nomor draf pertama; lainnya null', () async {
       final calls = <(UuidValue, Set<UuidValue>)>[];
@@ -464,13 +492,13 @@ void main() {
       await v.load.execute();
       expect(calls.single.$1, v.location!.id);
       expect(calls.single.$2, {kopi, telur});
-      expect(v.draftNumberOf(kopi), 'PB-2');
-      expect(v.draftNumberOf(telur), 'PB-2');
-      expect(v.draftNumberOf(sabun), isNull);
+      expect(v.draftMarkOf(kopi)?.number, 'PB-2');
+      expect(v.draftMarkOf(telur)?.number, 'PB-2');
+      expect(v.draftMarkOf(sabun)?.number, isNull);
     });
 
     test('galat baca atau tanpa fungsi: tanpa tanda', () async {
-      expect(vm.draftNumberOf(kopi), isNull);
+      expect(vm.draftMarkOf(kopi)?.number, isNull);
       final v = StockViewModel(
         repository: repo,
         canAdjust: true,
@@ -479,7 +507,7 @@ void main() {
       await v.load.execute();
       expect(v.loaded, isTrue);
       expect(v.below, hasLength(2));
-      expect(v.draftNumberOf(kopi), isNull);
+      expect(v.draftMarkOf(kopi)?.number, isNull);
     });
 
     test('muat ulang menyegarkan tanda', () async {
@@ -492,10 +520,10 @@ void main() {
         restockDrafts: (_, _) async => Result.ok(drafts),
       );
       await v.load.execute();
-      expect(v.draftNumberOf(kopi), 'PB-1');
+      expect(v.draftMarkOf(kopi)?.number, 'PB-1');
       drafts = [];
       await v.load.execute();
-      expect(v.draftNumberOf(kopi), isNull);
+      expect(v.draftMarkOf(kopi)?.number, isNull);
     });
   });
 
