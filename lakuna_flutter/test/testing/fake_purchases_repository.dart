@@ -491,16 +491,25 @@ class FakePurchasesRepository extends PurchasesRepository {
   /// Jumlah panggilan [lastPurchasePrices] (F1-12e).
   var lastPriceCalls = 0;
 
+  /// Menahan [lastPurchasePrices] sampai selesai (F1-12f).
+  Completer<void>? lastPricesGate;
+
   @override
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds,
-  ) async => _guard(() {
-    lastPriceCalls++;
-    return {
-      for (final id in variantIds)
-        if (lastPriceOf.containsKey(id)) id: lastPriceOf[id]!,
-    };
-  });
+  ) async {
+    if (lastPricesGate case final gate?) await gate.future;
+    return _lastPrices(variantIds);
+  }
+
+  Result<Map<UuidValue, Money>> _lastPrices(Iterable<UuidValue> variantIds) =>
+      _guard(() {
+        lastPriceCalls++;
+        return {
+          for (final id in variantIds)
+            if (lastPriceOf.containsKey(id)) id: lastPriceOf[id]!,
+        };
+      });
 
   /// Galat untuk [restockDrafts] (F1-08g).
   Exception? restockDraftsError;

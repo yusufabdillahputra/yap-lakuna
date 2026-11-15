@@ -219,6 +219,98 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  group('keluar dari form yang berubah (F1-12f)', () {
+    testWidgets('ponsel 360 px: Kembali dan tombol kembali sistem bertanya', (
+      tester,
+    ) async {
+      await pump(tester, const Size(360, 780));
+      // Form tanpa perubahan: langsung kembali.
+      await _tap(tester, _key('purchases-new'));
+      await _tap(tester, _key('purchase-back'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(_key('purchase-form-page'), findsNothing);
+
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('purchase-back'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      expect(
+        find.text(
+          'Perubahan pembelian PB-PST-D01-261103-0001 belum disimpan dan '
+          'akan hilang.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(_key('purchase-form-page'), findsOneWidget);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+
+      // Tombol kembali sistem (Android) lewat jalur yang sama.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-confirm'));
+      expect(_key('purchase-form-page'), findsNothing);
+      expect(repo.purchases, isEmpty);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('ponsel 360 px: menu bawah bertanya; tersimpan tidak', (
+      tester,
+    ) async {
+      await pump(tester, const Size(360, 780));
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('nav-home'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(_key('purchase-form-page'), findsOneWidget);
+      // Setelah disimpan, menu bawah langsung pindah.
+      await _tap(tester, _key('purchase-save-draft'));
+      await _tap(tester, _key('nav-home'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(_key('purchase-form-page'), findsNothing);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('desktop: form samping bertanya saat ganti form dan menu', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      // Dialog menutupi menu samping: ketukan menu kedua tidak membuka
+      // dialog kedua.
+      await tester.tap(_key('nav-products'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(
+        tester.widgetList(_key('purchase-discard')).length,
+        lessThanOrEqualTo(1),
+      );
+      if (tester.any(_key('purchase-discard'))) {
+        await _tap(tester, _key('purchase-discard-cancel'));
+      }
+      expect(_key('purchase-discard'), findsNothing);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+
+      // Pembelian baru di samping: ditanya, Batal mempertahankan isian.
+      await _tap(tester, _key('purchases-new'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+      await _tap(tester, _key('purchases-new'));
+      await _tap(tester, _key('purchase-discard-confirm'));
+      expect(_keyPrefix('purchase-qty-'), findsNothing);
+
+      // Form kosong: pindah menu tanpa ditanya.
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(_key('purchase-form'), findsNothing);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
   testWidgets('desktop: berhutang dengan supplier baru, jatuh tempo +14', (
     tester,
   ) async {

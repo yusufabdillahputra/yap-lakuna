@@ -8372,4 +8372,9 @@ class AppLocalizationsId extends AppLocalizations {
   String purchaseRestockAllInDraft(String location) {
     return 'Semua barang di bawah minimum $location sudah ada di draf ini.';
   }
+
+  @override
+  String purchaseDiscardBody(String number) {
+    return 'Perubahan pembelian $number belum disimpan dan akan hilang.';
+  }
 }

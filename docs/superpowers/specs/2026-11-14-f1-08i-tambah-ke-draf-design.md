@@ -80,5 +80,5 @@ menambahkannya baru sadar saat barang itu tetap tampil di bawah minimum.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | *Buka draf* menambahkan barang stok minimum yang belum ada | 1.19 | Rilis v0.95.0 | Baris draf lama tidak diubah; tambahan tersimpan saat draf disimpan. |
-| Peringatan saat keluar tanpa menyimpan tambahan | — | Belum | Form pembelian belum punya peringatan perubahan belum tersimpan. |
+| Peringatan saat keluar tanpa menyimpan tambahan | — | Rilis v0.97.0 | Dialog *Buang perubahan?* ([F1-12f](2026-11-14-f1-12f-keluar-tanpa-menyimpan-design.md)). |
 | Draf diterima / dihapus di perangkat lain di antara dialog dan form | — | Belum | Isian stok minimum diabaikan tanpa catatan (detail pembelian atau halaman galat yang tampil). |

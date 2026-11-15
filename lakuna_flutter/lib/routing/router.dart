@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
@@ -35,6 +37,7 @@ import '../ui/cashier/cart_draft.dart';
 import '../ui/cashier/cashier_view.dart';
 import '../ui/cashier/cashier_view_model.dart' show BillPart, CompletedBill;
 import '../ui/coming_soon/coming_soon_view.dart';
+import '../ui/core/leave_guard.dart';
 import '../ui/core/app_shell.dart';
 import '../ui/core/menu.dart';
 import '../ui/dining/dining_view.dart';
@@ -105,6 +108,11 @@ GoRouter createRouter({
   final cartDraft = CartDraft(session);
   // Pemilik memilih *Import dari Excel/CSV* di langkah 4 setup (F1-01b).
   var importAfterSetup = false;
+  // Form pembelian yang berubah ditanyakan sebelum ditinggalkan (F1-12f).
+  final leaveGuards = LeaveGuards();
+  FutureOr<bool> purchaseExit(BuildContext context, GoRouterState state) =>
+      // Ganti kasir / keluar tidak ditahan.
+      session.current == null ? true : leaveGuards.canLeave(state.pageKey);
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([store, session]),
@@ -401,8 +409,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.purchases,
+            onExit: purchaseExit,
             builder: (context, state) => PurchasesScreen(
               repository: purchases,
+              leaveGuard: leaveGuards.of(state.pageKey),
               onOpenPurchase: (id) =>
                   context.push<void>(Routes.purchase(id.uuid)),
               onNewPurchase: () => context.push<UuidValue>(Routes.purchaseNew),
@@ -411,8 +421,10 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: Routes.purchaseNew,
+            onExit: purchaseExit,
             builder: (context, state) => PurchaseFormPage(
               repository: purchases,
+              leaveGuard: leaveGuards.of(state.pageKey),
               // Dari Stok › Stok minimum (F1-08c).
               restock: state.extra is PurchaseRestock
                   ? state.extra! as PurchaseRestock
@@ -429,6 +441,7 @@ GoRouter createRouter({
           ),
           GoRoute(
             path: '${Routes.purchases}/:purchase',
+            onExit: purchaseExit,
             // Tautan rusak kembali ke daftar pembelian.
             redirect: (context, state) =>
                 _uuid(state.pathParameters['purchase']) == null
@@ -439,6 +452,7 @@ GoRouter createRouter({
               return PurchaseDetailScreen(
                 key: ValueKey('purchase-$id'),
                 repository: purchases,
+                leaveGuard: leaveGuards.of(state.pageKey),
                 purchaseId: UuidValue.fromString(id),
                 // Dari Stok › Stok minimum › Buka draf (F1-08i).
                 restock: state.extra is PurchaseRestock

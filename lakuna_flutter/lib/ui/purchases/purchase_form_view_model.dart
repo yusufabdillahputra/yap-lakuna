@@ -359,6 +359,39 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   bool get busy => saveDraft.running || receive.running || deleteDraft.running;
 
+  /// Isian terakhir yang dimuat atau disimpan (F1-12f).
+  String? _saved;
+
+  /// Isian berbeda dari keadaan terakhir yang dimuat atau disimpan, jadi
+  /// meninggalkan form perlu konfirmasi (F1-12f).
+  bool get hasUnsavedChanges => _saved != null && _signature() != _saved;
+
+  /// Bertambah setiap kali staf mengubah isian (F1-12f).
+  var _edits = 0;
+
+  /// Ringkasan isian yang tersimpan ke pembelian.
+  String _signature() => [
+    _supplierId?.uuid,
+    _newSupplier,
+    if (_newSupplier) _newSupplierName,
+    _invoiceNo,
+    _purchasedOn.toIso8601String(),
+    _locationId?.uuid,
+    for (final l in _lines)
+      '${l.product.variantId.uuid}/${l.unit.productUnitId?.uuid}/'
+          '${l.quantity.milli}/${l.unitPrice}',
+    _discount,
+    _shipping,
+    _paid,
+    // Sumber dana dan jatuh tempo hanya tersimpan bila dipakai.
+    if (_paid != Money.zero) _funding.name,
+    if (totals.total > _paid) _dueOn?.toIso8601String(),
+    _note,
+    _invoicePhotoChanged,
+  ].join('\u0001');
+
+  void _markSaved() => _saved = _signature();
+
   String? get locationName =>
       _setup?.locations.where((l) => l.id == _locationId).firstOrNull?.name;
 
@@ -421,6 +454,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
       switch (detail) {
         case Ok(:final value):
           _fill(value);
+          // Tambahan stok minimum di bawah belum tersimpan (F1-12f);
+          // isian yang diubah selama foto dimuat tetap terhitung.
+          _markSaved();
           await _loadInvoicePhoto(value);
           if (_restock case final r?) {
             _restock = null;
@@ -432,11 +468,16 @@ class PurchaseFormViewModel extends ChangeNotifier {
       }
     } else {
       _blank();
+      _markSaved();
       if (_restock case final r?) {
         _restock = null;
         _applyRestock(r);
+        final edits = _edits;
         await _applyRestockPrices({for (final l in _lines) l.key});
         await _applyRestockSupplier();
+        // Isian otomatis bisa dibuat ulang: bukan perubahan (F1-12f),
+        // kecuali staf sudah mengubah isian selama menunggu.
+        if (_edits == edits) _markSaved();
       }
     }
     return const Result.ok(null);
@@ -608,10 +649,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
       ]);
       // Staf sudah memilih supplier selama menunggu: pilihannya dipakai.
       if (choice == null || _supplierId != null || _newSupplier) return;
+      final edits = _edits;
       _changeSupplier(() {
         _supplierId = choice.supplier;
         _newSupplier = false;
       });
+      // Isian otomatis, bukan ubahan staf (F1-12f).
+      _edits = edits;
       _restockSupplierName = suppliers[choice.supplier]!.name;
       _restockSupplierCount = choice.count;
     }
@@ -717,6 +761,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   void _touched() {
+    _edits++;
     _actionError = null;
     // Pesan "Draf disimpan" hilang setelah isian berubah.
     if (saveDraft.completed) saveDraft.clearResult();
@@ -1063,6 +1108,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _number = value.number;
         _attempt = null;
         _invoicePhotoChanged = false;
+        _markSaved();
         // Tambahan stok minimum sudah tersimpan: catatan "simpan draf agar
         // tambahan tersimpan" tidak berlaku lagi (F1-08i).
         if (_restockIntoDraft) {
@@ -1083,7 +1129,13 @@ class PurchaseFormViewModel extends ChangeNotifier {
     final id = _draftId;
     if (id == null) return const Result.ok(null);
     final result = await _repository.deleteDraft(id);
-    if (result case Error(:final error)) _actionError = error;
+    switch (result) {
+      case Ok():
+        // Draf sudah dihapus: form boleh ditinggalkan (F1-12f).
+        _markSaved();
+      case Error(:final error):
+        _actionError = error;
+    }
     return result;
   }
 }
