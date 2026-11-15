@@ -12,4 +12,4 @@ Spec: [F1-10n](../specs/2026-11-15-f1-10n-dialog-meja-area-design.md).
   `/mnt/project-files/lakuna/f1-10n/`.
 - [x] 7. Dokumen: spec, gap F1-09b, README spec, STATUS-JEDA, panduan
   (ID + EN), CHANGELOG, versi.
-- [ ] 8. PR, CI hijau, squash-merge, rilis.
+- [x] 8. PR, CI hijau, squash-merge, rilis (#114).

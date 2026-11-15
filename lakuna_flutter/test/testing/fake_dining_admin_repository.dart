@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -66,7 +68,23 @@ class FakeDiningAdminRepository extends DiningAdminRepository {
     hlc: '',
   );
 
+  /// Menahan setiap panggilan sampai diselesaikan (uji simpan berjalan).
+  Completer<void>? gate;
+
+  /// Jumlah panggilan repositori (setelah [gate]).
+  var calls = 0;
+
+  /// Panggilan berikutnya melempar `StateError` (bukan `Exception`).
+  var throwNext = false;
+
   Future<Result<T>> _run<T>(T Function() body) async {
+    final g = gate;
+    if (g != null) await g.future;
+    calls++;
+    if (throwNext) {
+      throwNext = false;
+      throw StateError('rusak');
+    }
     final e = nextError;
     nextError = null;
     if (e != null) return Result.error(e);

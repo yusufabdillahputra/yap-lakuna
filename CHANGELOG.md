@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.109.0] - 2026-11-15
+
+Membuat M1–M30 lalu ternyata M7 sudah ada? Dialog *Rentang meja* kini tetap
+terbuka dengan isian utuh, jadi cukup ubah nomornya lalu simpan lagi.
+
+### Diperbaiki
+
+- **Master data › Meja & area (1.17):** simpan area, meja, atau rentang
+  meja yang ditolak (nama kembar, nama terlalu panjang, salah satu nama
+  rentang sudah dipakai) tidak lagi menutup dialog dan membuang isian.
+  Pesan galat tampil di dialog (mis. "Nama M7 sudah dipakai.") dan hilang
+  begitu isian diubah. Sebelumnya dialog tertutup dulu dan galat tampil di
+  tab, sehingga isian harus diketik ulang.
+- Selama simpan berjalan, tombol **Simpan** nonaktif dan dialog tidak bisa
+  ditutup lewat ketukan di luar, Esc, Batal, atau tombol kembali.
+
+### Diubah
+
+- Peringatan merah di tab Meja & area kini hanya untuk galat hapus dan
+  urut; galat simpan tampil di dialog.
+
+### Catatan teknis
+
+- Dialog menerima `onSave` (`Future<Exception?>`: `null` = berhasil) dan
+  berbagi mixin `_DialogSaving` (`saving`, `saveError`, `edit`,
+  `runSave`); `DiscardChangesScope(busy: saving)`. Dialog sendiri
+  mengubah galat menjadi pesan (`diningSetupErrorMessage` dengan nama
+  rentang dan batas nama area), karena tab bisa dibangun ulang saat lebar
+  jendela melewati 900 px. Galat dialog: `FAlert`
+  `dining-setup-dialog-error`.
+- Galat yang bukan `Exception` (mis. `StateError`) ditangkap menjadi *Aksi
+  gagal. Coba lagi.* agar dialog tidak terkunci; pesan galat hanya hilang
+  bila teks isian benar-benar berubah (bukan saat kursor digeser).
+- Tab menjalankan perintah VM lewat `_saveFromDialog` lalu `clearError()`
+  agar peringatan tab tidak ikut tampil. Kolom `_lastNames` / `_nameMax`
+  di tab dihapus.
+- Repo palsu `FakeDiningAdminRepository` mendapat `gate` (`Completer`),
+  `calls`, dan `throwNext` untuk menguji simpan yang berjalan, satu
+  panggilan simpan, dan galat tak terduga. Diverifikasi mutasi (tanpa
+  `clearError`, selalu menutup, `busy` mati, galat tidak hilang saat
+  mengetik, pesan dari `context` tab, hanya menangkap `Exception`).
+
 ## [0.108.0] - 2026-11-15
 
 *Rentang meja* bisa membuat puluhan meja sekaligus dengan awalan, nomor,
@@ -6688,7 +6730,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...HEAD
+[0.109.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...v0.109.0
 [0.108.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...v0.108.0
 [0.107.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...v0.107.0
 [0.106.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...v0.106.0
