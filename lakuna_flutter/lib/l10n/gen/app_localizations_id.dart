@@ -8434,4 +8434,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get receiptBillAdjustment => 'Penyesuaian bill';
+
+  @override
+  String get stockDiscardBody =>
+      'Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get stockLocationDiscardBody =>
+      'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.';
 }

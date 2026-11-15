@@ -27,6 +27,8 @@ Setelah menghitung, masukkan angka fisiknya di tab **Penyesuaian**.
 
 Penyesuaian butuh izin *Penyesuaian stok*. Baris yang stok fisiknya kosong tidak disimpan.
 
+> [!note] Draf penyesuaian hanya tersimpan selama layar Stok terbuka. Bila sudah ada produk di draf (atau catatan), pindah menu atau menekan tombol kembali menampilkan **Buang perubahan?**: pilih **Batal** untuk melanjutkan hitungan, atau **Buang** untuk keluar. Mengganti **lokasi** di bagian atas layar juga bertanya dulu, karena draf dikosongkan saat lokasi diganti. Berpindah tab (*Daftar produk*, *Kartu stok*, dan lainnya) atau membuka form pembelian dari *Stok minimum* tidak menghapus draf.
+
 ## Stok minimum
 
 Isi **Stok min** per varian di form produk. Tab **Stok minimum** dan Beranda menampilkan produk yang stoknya di bawah minimum, supaya Anda tahu kapan harus [membeli](purchases).

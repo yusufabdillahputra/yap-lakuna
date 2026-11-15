@@ -7,6 +7,62 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.104.0] - 2026-11-15
+
+Stock opname puluhan produk tidak lagi hilang karena salah ketuk menu
+atau lokasi.
+
+### Ditambahkan
+
+- **Stok › Penyesuaian (1.18):** bila draf penyesuaian sudah berisi
+  produk (fisiknya terisi atau belum) atau catatan, meninggalkan layar
+  Stok lewat menu samping / bawah atau tombol kembali sistem menampilkan
+  **Buang perubahan?** ("Draf penyesuaian stok yang sedang diisi belum
+  disimpan dan akan hilang.") dengan **Batal** dan **Buang**. Berlaku di
+  tab mana pun.
+- Mengganti **lokasi** di kepala layar Stok saat draf berisi juga
+  bertanya dulu ("Draf penyesuaian untuk lokasi ini akan dikosongkan bila
+  lokasi diganti."). **Batal** mempertahankan lokasi dan draf.
+- Panduan *Penyesuaian & stok minimum* menjelaskan peringatan ini (ID +
+  EN).
+
+### Diubah
+
+- Selama *Simpan penyesuaian* berjalan, keluar dari layar Stok ditahan
+  sampai selesai. Setelah simpan atau *Batal*, layar ditinggalkan tanpa
+  bertanya. *Alasan umum* saja tidak dihitung sebagai isian.
+
+### Diperbaiki
+
+- Form pembelian yang dibuka dari *Stok minimum* (**Buka draf** / **Buat
+  pembelian**) bisa kehilangan penjaga keluarnya bila halaman Stok di
+  bawahnya ikut dibangun ulang dalam frame yang sama: `LeaveGuards.of`
+  membuang semua guard lain yang belum memasang `check`, termasuk guard
+  form yang baru dibuat. Ditemukan saat halaman Stok diberi penjaga
+  keluar; tes *Buka draf* F1-08g gagal karena *Kembali* tidak lagi
+  bertanya.
+
+### Catatan teknis
+
+- `StockViewModel.hasUnsavedChanges` (baris atau catatan, hanya dengan
+  izin `stock:adjust`) dan `busy`; `StockScreen` memasang
+  `LeaveGuard.check` lewat `confirmDiscardChanges` (kunci
+  `stock-discard`), rute `/stok` memakai `onExit: formExit`.
+- `_LocationSelect` menjadi stateful: konfirmasi `stock-location-discard`,
+  batal menaikkan revisi kunci `FSelect` agar kembali ke lokasi semula.
+- `LeaveGuard` mencatat apakah `check` pernah dipasang; `LeaveGuards.of`
+  hanya membuang guard yang sudah dipasang lalu dilepas. Tes unit baru
+  `test/ui/core/leave_guard_test.dart`. Guard lama yang sudah dilepas
+  dengan `pageKey` sama diganti baru, agar Stok yang dibuka lagi tidak
+  kehilangan guard-nya dengan cara yang sama.
+- Tes widget F1-08k (1280 px dan 360 px, termasuk draf yang tetap ada
+  setelah membuka form pembelian dari *Stok minimum*) dan tes VM;
+  diverifikasi mutasi (tanpa `onExit`, tanpa konfirmasi lokasi, tanpa
+  penahan simpan, dan pembersihan guard lama).
+- Temuan review subagent (semua Minor): guard lama dengan `pageKey` sama,
+  cek `mounted` setelah dialog lokasi, tes aturan 5, dan baris gap dua
+  dialog berturut-turut; diperbaiki.
+
 ## [0.103.0] - 2026-11-15
 
 Pesanan F&B kini bisa dicari di Riwayat lewat modifier yang dipilih
@@ -6444,7 +6500,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...HEAD
+[0.104.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...v0.104.0
 [0.103.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...v0.103.0
 [0.102.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...v0.102.0
 [0.101.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...v0.101.0

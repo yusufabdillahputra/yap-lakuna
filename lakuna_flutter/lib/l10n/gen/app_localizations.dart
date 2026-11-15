@@ -14633,6 +14633,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Penyesuaian bill'**
   String get receiptBillAdjustment;
+
+  /// No description provided for @stockDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.'**
+  String get stockDiscardBody;
+
+  /// No description provided for @stockLocationDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.'**
+  String get stockLocationDiscardBody;
 }
 
 class _AppLocalizationsDelegate

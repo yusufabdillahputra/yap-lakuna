@@ -33,6 +33,9 @@ class FakeStockRepository extends StockRepository {
   /// Bila diisi, [stock] / [card] menunggu future ini dulu (uji balapan).
   Future<void>? stockGate;
   Future<void>? cardGate;
+
+  /// Bila diisi, [saveAdjustment] menunggu future ini dulu (F1-08k).
+  Future<void>? saveGate;
   var _counter = 0;
 
   Result<T> _result<T>(T Function() value) {
@@ -98,6 +101,7 @@ class FakeStockRepository extends StockRepository {
     required List<AdjustmentLine> lines,
     String? note,
   }) async {
+    if (saveGate case final gate?) await gate;
     if (!canAdjust) {
       return const Result.error(NotPermitted(Permission.stockAdjust));
     }

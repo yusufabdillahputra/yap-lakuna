@@ -136,6 +136,170 @@ void main() {
     expect(find.byKey(ValueKey('stock-line-$kopi')), findsOneWidget);
   });
 
+  group('draf penyesuaian belum disimpan (F1-08k)', () {
+    Finder key(String k) => find.byKey(ValueKey(k));
+    Finder locationSelect() => find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith(
+            'stock-location-select-',
+          ),
+    );
+
+    Future<void> addKopi(WidgetTester tester) async {
+      await _type(tester, 'stock-add', '8990001');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(key('stock-line-$kopi'), findsOneWidget);
+    }
+
+    Future<void> chooseLocation(WidgetTester tester, String name) async {
+      await tester.ensureVisible(locationSelect());
+      await tester.pumpAndSettle();
+      await tester.tap(locationSelect());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(name).last);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('1280 px: draf kosong keluar langsung; berisi bertanya', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(key('stock-save'), findsNothing);
+
+      await _tap(tester, 'nav-stock');
+      // Baris tanpa fisik sudah dihitung, tab lain pun tetap ditanya.
+      await addKopi(tester);
+      await _tap(tester, 'stock-tab-list');
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsOneWidget);
+      expect(
+        find.text(
+          'Draf penyesuaian stok yang sedang diisi belum disimpan dan '
+          'akan hilang.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, 'stock-discard-cancel');
+      await _tap(tester, 'stock-tab-adjustment');
+      expect(key('stock-line-$kopi'), findsOneWidget);
+
+      // Tombol kembali sistem: rute tingkat atas, go_router tetap
+      // memanggil `onExit`.
+      final popping = tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(key('stock-discard'), findsOneWidget);
+      await _tap(tester, 'stock-discard-cancel');
+      await popping;
+      expect(key('stock-line-$kopi'), findsOneWidget);
+
+      await _tap(tester, 'nav-products');
+      await _tap(tester, 'stock-discard-confirm');
+      expect(key('stock-save'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('setelah simpan atau Batal keluar tanpa bertanya; keluar '
+        'ditahan selama simpan', (tester) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await _tap(tester, 'stock-clear');
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(key('stock-save'), findsNothing);
+
+      await _tap(tester, 'nav-stock');
+      await addKopi(tester);
+      await _type(tester, 'stock-physical-$kopi-0', '3');
+      final gate = Completer<void>();
+      repo.saveGate = gate.future;
+      await tester.ensureVisible(key('stock-save'));
+      await tester.pumpAndSettle();
+      await tester.tap(key('stock-save'));
+      await tester.pump();
+      await tester.tap(key('nav-products'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(key('stock-discard'), findsNothing);
+      expect(key('stock-save'), findsOneWidget);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(repo.saves, hasLength(1));
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(key('stock-save'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ganti lokasi dengan draf: Batal tetap, Buang pindah', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        stock: FakeStockRepository(
+          locations: [
+            sampleLocation(1, 'Etalase', true),
+            sampleLocation(2, 'Gudang', false),
+          ],
+        ),
+      );
+      // Tanpa draf: langsung pindah.
+      await chooseLocation(tester, 'Gudang');
+      expect(key('stock-location-discard'), findsNothing);
+      expect(
+        find.descendant(of: locationSelect(), matching: find.text('Gudang')),
+        findsOneWidget,
+      );
+      await chooseLocation(tester, 'Etalase');
+
+      await addKopi(tester);
+      await chooseLocation(tester, 'Gudang');
+      expect(key('stock-location-discard'), findsOneWidget);
+      expect(
+        find.text(
+          'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi '
+          'diganti.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, 'stock-location-discard-cancel');
+      expect(key('stock-line-$kopi'), findsOneWidget);
+      expect(
+        find.descendant(of: locationSelect(), matching: find.text('Etalase')),
+        findsOneWidget,
+      );
+
+      await chooseLocation(tester, 'Gudang');
+      await _tap(tester, 'stock-location-discard-confirm');
+      expect(key('stock-line-$kopi'), findsNothing);
+      expect(key('stock-lines-empty'), findsOneWidget);
+      expect(
+        find.descendant(of: locationSelect(), matching: find.text('Gudang')),
+        findsOneWidget,
+      );
+      // Draf kosong: keluar tanpa bertanya.
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: menu bawah bertanya', (tester) async {
+      await pump(tester, size: const Size(360, 740));
+      await addKopi(tester);
+      await _tap(tester, 'nav-home');
+      expect(key('stock-discard'), findsOneWidget);
+      await _tap(tester, 'stock-discard-cancel');
+      expect(key('stock-line-$kopi'), findsOneWidget);
+      await _tap(tester, 'nav-home');
+      await _tap(tester, 'stock-discard-confirm');
+      expect(key('stock-line-$kopi'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   testWidgets('tab daftar, minimum, kartu stok, dan lokasi', (tester) async {
     await pump(tester);
 
@@ -446,6 +610,40 @@ void main() {
     // Tombol tetap bisa membuka form lagi.
     await _tap(tester, 'stock-restock');
     expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('draf penyesuaian tetap ada setelah membuka form pembelian dari '
+      'stok minimum (F1-08k)', (tester) async {
+    final (stock, purchases) = restockSeed();
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.stock,
+      stock: stock,
+      purchases: purchases,
+      session: FakeSessionRepository()..current = sampleStaff(),
+    );
+    final first = stock.rows.first;
+    await _type(tester, 'stock-add', first.productName);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    final line = ValueKey('stock-line-${first.variantId.uuid}');
+    expect(find.byKey(line), findsOneWidget);
+
+    await _tap(tester, 'stock-tab-minimum');
+    await _tap(tester, 'stock-restock');
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsOneWidget);
+    expect(find.byKey(const ValueKey('stock-discard')), findsNothing);
+
+    // Kembali ke Stok lewat menu samping: hanya form pembelian yang keluar.
+    await _tap(tester, 'nav-stock');
+    if (find.byKey(const ValueKey('purchase-discard')).evaluate().isNotEmpty) {
+      await _tap(tester, 'purchase-discard-confirm');
+    }
+    expect(find.byKey(const ValueKey('purchase-form-page')), findsNothing);
+    expect(find.byKey(const ValueKey('stock-discard')), findsNothing);
+    await _tap(tester, 'stock-tab-adjustment');
+    expect(find.byKey(line), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -269,6 +269,14 @@ class StockViewModel extends ChangeNotifier {
 
   bool get canSave => !save.running && _ready;
 
+  /// Draf penyesuaian berisi baris atau catatan yang akan hilang bila layar
+  /// ditinggalkan atau lokasi diganti (F1-08k). Alasan saja tidak dihitung.
+  bool get hasUnsavedChanges =>
+      canAdjust && (_lines.isNotEmpty || _note.trim().isNotEmpty);
+
+  /// Penyesuaian sedang disimpan: keluar ditahan (F1-08k).
+  bool get busy => save.running;
+
   bool get _ready =>
       canAdjust && location != null && _lines.any((l) => l.physical != null);
 
