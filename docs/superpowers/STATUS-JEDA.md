@@ -1,8 +1,16 @@
 # Status: titik lanjut pengembangan
 
-Pengembangan sempat dijeda pada 2026-11-04 dan **dilanjutkan lagi pada
-2026-11-13** atas permintaan pemilik. Dokumen ini mencatat titik terakhir
-agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
+Pengembangan sempat dijeda pada 2026-11-04, dilanjutkan lagi pada
+2026-11-13, dan **dijeda lagi pada 2026-11-15** atas permintaan pemilik
+sampai ia meminta lanjut. Dokumen ini mencatat titik terakhir agar
+pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
+
+**Titik jeda 2026-11-15:** v0.115.0 sudah rilis. PR #122 (v0.116.0,
+F1-02d, dialog berisi isian ikut bertanya saat jendela ditutup) terbuka
+dan **belum di-merge**; kode, tes (1327 lulus), review, uji manual, dan
+dokumen sudah selesai. Saat dilanjutkan: cek CI #122 (13 cek), merge
+squash, tunggu rilis v0.116.0 (8 aset), isi kolom PR baris v0.116.0,
+centang langkah 7 rencana F1-02d, lalu mulai gap nomor 59.
 
 ## Rilis terakhir
 
