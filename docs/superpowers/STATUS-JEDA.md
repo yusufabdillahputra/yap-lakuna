@@ -85,7 +85,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | #108 |
 | v0.103.0 | Cari Riwayat lewat nama modifier, mis. `extra shot` (F1-11f) | #109 |
 | v0.104.0 | Tanya sebelum draf penyesuaian stok hilang saat pindah menu / ganti lokasi (F1-08k) | #110 |
-| v0.105.0 | Harga beli terakhir dari supplier yang dipilih di form pembelian (F1-12g) | |
+| v0.105.0 | Harga beli terakhir dari supplier yang dipilih di form pembelian (F1-12g) | #111 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
