@@ -11,4 +11,4 @@ Spec: [F1-10p](../specs/2026-11-15-f1-10p-galat-per-isian-meja-design.md).
   `/mnt/project-files/lakuna/f1-10p/`.
 - [x] 6. Dokumen: spec, gap F1-10o, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#117).
