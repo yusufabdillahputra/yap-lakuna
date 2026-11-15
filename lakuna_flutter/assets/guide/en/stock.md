@@ -39,7 +39,7 @@ The suggested quantity is in the base unit. If the supplier sells by the box, ch
 
 A draft does not add stock, so items already in a draft still show below minimum. If a **purchase draft** for the same location already has some of those items, **Create purchase** first shows *A purchase draft already exists* with the draft number and how many of the items it already has. Choose **Open draft** to continue that draft: items below minimum that are not in any draft yet are added with the suggested quantity and last purchase price, while the draft's existing lines stay as they are (the note above the form says how many were added; tap **Save draft** to keep them), **Create new draft** if you really need a separate purchase, or **Cancel**. When several drafts match, the one with the most matching items opens; the others are in the *Purchases* menu.
 
-So you don't have to guess, items in the *Below minimum stock* list that are already in a purchase draft for this location show a blue **Already in draft** note with the draft number. Items without that note have not been ordered yet. The note only appears for staff with the *Manage purchases* permission.
+So you don't have to guess, items in the *Below minimum stock* list that are already in a purchase draft for this location show a blue note with the draft number and how much is already ordered compared with the suggestion, for example *In draft PB-…: 5 of 38 pcs suggested*. The amount is counted in the base unit across all drafts for this location (2 boxes of 6 = 12), and the suggestion is the same amount **Create purchase** fills in. Items without that note have not been ordered yet. The note only appears for staff with the *Manage purchases* permission.
 
 ## Stock locations
 

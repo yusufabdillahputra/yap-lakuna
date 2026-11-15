@@ -66,4 +66,4 @@ yang sudah ada di draf dan mana yang belum.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Tanda "sudah di draf" di tab *Stok minimum* | 1.18 | Rilis v0.94.0 | Nomor draf di bawah tiap barang; hanya untuk staf berizin pembelian. |
-| Jumlah di draf dibandingkan jumlah saran | — | Belum | Keterangan tidak menyebut berapa yang sudah dipesan. |
+| Jumlah di draf dibandingkan jumlah saran | — | Rilis v0.112.0 | [F1-08l](2026-11-15-f1-08l-jumlah-di-draf-design.md): *Sudah di draf …: 5 dari saran 38 pcs*. |

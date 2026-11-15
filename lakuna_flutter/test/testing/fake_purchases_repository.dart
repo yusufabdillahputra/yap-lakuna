@@ -575,11 +575,20 @@ class FakePurchasesRepository extends PurchasesRepository {
             if (i.purchaseId == p.id && ids.contains(i.variantId)) i.variantId,
         };
         if (matched.isEmpty) continue;
+        final quantities = <UuidValue, Qty>{};
+        for (final i in items) {
+          if (i.purchaseId != p.id || !ids.contains(i.variantId)) continue;
+          final base = Qty(i.quantityMilli).toBaseUnit(i.factorMilli);
+          quantities[i.variantId] = Qty(
+            (quantities[i.variantId]?.milli ?? 0) + base.milli,
+          );
+        }
         drafts.add(
           RestockDraft(
             purchaseId: p.id,
             number: p.number,
             variantIds: matched,
+            quantities: quantities,
           ),
         );
       }

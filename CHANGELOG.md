@@ -7,6 +7,39 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.112.0] - 2026-11-15
+
+Barang di bawah stok minimum kini menyebut berapa yang sudah dipesan di
+draf, jadi tidak perlu membuka draf satu per satu untuk tahu apakah sudah
+cukup.
+
+### Diubah
+
+- **Stok › Stok minimum (1.18):** keterangan **Sudah di draf** kini
+  menyebut jumlah yang sudah dipesan dibandingkan saran beli ulang, mis.
+  *Sudah di draf PB-PST-D01-261103-0001: 5 dari saran 38 pcs*. Jumlah
+  dipesan dihitung dalam satuan dasar dari semua draf pembelian ke lokasi
+  itu (2 dus isi 6 = 12; dua baris barang yang sama dijumlah). Bila barang
+  ada di beberapa draf: *Sudah di 2 draf, a.l. PB-…: 10 dari saran 38
+  pcs*. Saran sama dengan jumlah yang diisi **Buat pembelian**
+  (`2 × minimum − stok`, dibulatkan ke atas). Teks dibungkus utuh di
+  ponsel 360 px.
+
+### Catatan teknis
+
+- `RestockDraft.quantities` (satuan dasar per draf) diisi
+  `restockDraftsOf` dengan `Qty(quantityMilli).toBaseUnit(factorMilli)`,
+  pembulatan yang sama dengan saat barang diterima.
+- `StockViewModel.draftMarkOf` (`DraftMark`: nomor draf pertama, banyaknya
+  draf, jumlah dipesan) menggantikan `draftNumberOf`;
+  `StockViewModel.suggestedOf` dipakai bersama oleh *Buat pembelian* dan
+  keterangan.
+- l10n: `stockMinimumInDraftQty`, `stockMinimumInDraftsQty`
+  menggantikan `stockMinimumInDraft`.
+- Tes: data (dus × isi, dua baris sama), VM (jumlah dari semua draf),
+  widget 1280 / 360 px satu dan dua draf; diverifikasi mutasi. Uji manual
+  Xvfb.
+
 ## [0.111.0] - 2026-11-15
 
 Pesan "Nama sudah dipakai." kini tampil tepat di bawah kolom yang perlu
@@ -6792,7 +6825,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...HEAD
+[0.112.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...v0.112.0
 [0.111.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...v0.111.0
 [0.110.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...v0.110.0
 [0.109.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...v0.109.0

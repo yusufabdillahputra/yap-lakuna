@@ -39,7 +39,7 @@ Jumlah saran dihitung dalam satuan dasar. Bila supplier menjual per dus, ganti *
 
 Draf tidak menambah stok, jadi barang yang sudah masuk draf tetap tampil di bawah minimum. Bila sudah ada **draf pembelian** ke lokasi yang sama yang memuat sebagian barang itu, **Buat pembelian** lebih dulu menampilkan *Sudah ada draf pembelian* dengan nomor draf dan berapa barang yang sudah ada di dalamnya. Pilih **Buka draf** untuk melanjutkan draf itu: barang di bawah minimum yang belum ada di draf mana pun langsung ditambahkan dengan jumlah saran dan harga beli terakhir, sedangkan baris draf yang sudah ada tidak diubah (catatan di atas form menyebut berapa yang ditambahkan; tekan **Simpan draf** agar tambahan tersimpan), **Buat draf baru** bila memang perlu pembelian terpisah, atau **Batal**. Bila ada beberapa draf, yang paling banyak memuat barang yang sama dibuka; draf lain bisa dilihat di menu *Pembelian*.
 
-Supaya tidak perlu menebak, barang di daftar *Di bawah stok minimum* yang sudah ada di draf pembelian ke lokasi ini diberi keterangan biru **Sudah di draf** beserta nomor drafnya. Barang tanpa keterangan itu belum dipesan. Keterangan ini hanya tampil untuk staf dengan izin *Kelola pembelian*.
+Supaya tidak perlu menebak, barang di daftar *Di bawah stok minimum* yang sudah ada di draf pembelian ke lokasi ini diberi keterangan biru **Sudah di draf** beserta nomor drafnya dan jumlah yang sudah dipesan dibandingkan saran, mis. *Sudah di draf PB-…: 5 dari saran 38 pcs*. Jumlah dihitung dalam satuan dasar dari semua draf ke lokasi ini (2 dus isi 6 = 12), dan saran sama dengan jumlah yang diisi **Buat pembelian**. Barang tanpa keterangan itu belum dipesan. Keterangan ini hanya tampil untuk staf dengan izin *Kelola pembelian*.
 
 ## Lokasi stok
 

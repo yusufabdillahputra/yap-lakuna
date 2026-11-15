@@ -1936,6 +1936,32 @@ class _MinimumPanel extends StatelessWidget {
   final StockViewModel viewModel;
   final ValueChanged<PurchaseRestock>? onRestock;
 
+  /// *Sudah di draf …: dipesan dari saran …* (F1-08h/F1-08l). Saran sama
+  /// dengan jumlah yang diisi *Buat pembelian* (F1-08c).
+  static String _inDraftText(
+    BuildContext context,
+    AppLocalizations l10n,
+    StockRow r,
+    DraftMark m,
+  ) {
+    final ordered = formatQty(context, m.ordered);
+    final suggested = formatQty(context, StockViewModel.suggestedOf(r));
+    return m.drafts > 1
+        ? l10n.stockMinimumInDraftsQty(
+            m.drafts,
+            m.number,
+            ordered,
+            suggested,
+            r.baseUnit,
+          )
+        : l10n.stockMinimumInDraftQty(
+            m.number,
+            ordered,
+            suggested,
+            r.baseUnit,
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -1981,9 +2007,9 @@ class _MinimumPanel extends StatelessWidget {
                               [?r.sku, r.baseUnit].join(' · '),
                               style: _muted(context),
                             ),
-                            if (vm.draftNumberOf(r.variantId) case final n?)
+                            if (vm.draftMarkOf(r.variantId) case final m?)
                               Text(
-                                l10n.stockMinimumInDraft(n),
+                                _inDraftText(context, l10n, r, m),
                                 key: ValueKey(
                                   'stock-min-draft-${r.variantId.uuid}',
                                 ),
