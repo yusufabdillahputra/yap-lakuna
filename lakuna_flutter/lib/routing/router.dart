@@ -281,6 +281,7 @@ GoRouter createRouter({
               return SplitBillScreen(
                 key: ValueKey('split-$bill'),
                 repository: dining,
+                printer: receiptPrinter,
                 billId: UuidValue.fromString(bill),
                 onBack: () => context.go(Routes.tablesBill(bill)),
                 onCompleted: (done) =>

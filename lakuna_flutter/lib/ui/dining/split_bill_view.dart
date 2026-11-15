@@ -6,13 +6,16 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/dining_repository.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show CompletedBill;
 import '../cashier/payment_view.dart'
     show billOrderLabel, paymentMethodLabel, tabularFigures;
 import '../core/format.dart';
 import '../products/product_widgets.dart' show ChoicePill, PageHeader;
-import '../receipt/receipt_content.dart' show percentLabel;
+import '../receipt/bill_print_dialog.dart';
+import '../receipt/receipt_content.dart'
+    show guestBillReceiptContent, percentLabel;
 import 'split_bill_view_model.dart';
 
 /// Pesan galat aksi split bill.
@@ -42,6 +45,7 @@ class SplitBillScreen extends StatefulWidget {
   const SplitBillScreen({
     super.key,
     required this.repository,
+    required this.printer,
     required this.billId,
     required this.onBack,
     required this.onPay,
@@ -49,6 +53,9 @@ class SplitBillScreen extends StatefulWidget {
   });
 
   final DiningRepository repository;
+
+  /// Printer struk untuk tagihan per tamu (F1-10m).
+  final ReceiptPrinter printer;
   final UuidValue billId;
 
   /// Kembali ke layar Meja.
@@ -68,6 +75,7 @@ class SplitBillScreen extends StatefulWidget {
 class _SplitBillScreenState extends State<SplitBillScreen> {
   late final _viewModel = SplitBillViewModel(
     repository: widget.repository,
+    printer: widget.printer,
     billId: widget.billId,
   );
   var _doneShown = false;
@@ -741,7 +749,7 @@ class _GuestCard extends StatelessWidget {
                   ),
                 ],
               )
-            else if (part.payments.isEmpty)
+            else if (part.payments.isEmpty) ...[
               FButton(
                 key: ValueKey('split-pay-${part.label}'),
                 onPress: vm.canPayPart(part) ? onPay : null,
@@ -752,11 +760,70 @@ class _GuestCard extends StatelessWidget {
                   ),
                 ),
               ),
+              // Tagihan per tamu (F1-10m).
+              FButton(
+                key: ValueKey('split-print-${part.label}'),
+                variant: .outline,
+                onPress: vm.canPrintPart(part)
+                    ? () => _printPartDialog(context, vm, part.label)
+                    : null,
+                prefix: const Icon(TablerIcons.printer, size: 16),
+                child: Flexible(
+                  child: Text(
+                    l10n.diningPrintBill,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
+}
+
+/// Dialog tagihan tamu [guest] (F1-10m); menutup sendiri bila tagihan
+/// tamu tidak lagi bisa dicetak (sudah bayar, mode berubah, porsi lepas).
+Future<void> _printPartDialog(
+  BuildContext context,
+  SplitBillViewModel vm,
+  String guest,
+) {
+  vm.openPartPrint(guest);
+  return showBillPrintDialog(
+    context,
+    listenable: vm,
+    job: vm.partPrint,
+    keyPrefix: 'split-bill',
+    paper: () => vm.paper,
+    logo: () => vm.receiptLogo,
+    preview: (l10n) {
+      final bill = vm.bill;
+      final data = vm.data;
+      final part = vm.split?.parts.where((p) => p.label == guest).firstOrNull;
+      if (bill == null ||
+          data == null ||
+          part == null ||
+          !vm.canPrintPart(part)) {
+        return null;
+      }
+      return (
+        title: l10n.billSplitBillTitle(guest, billOrderLabel(l10n, bill)),
+        content: (now) => guestBillReceiptContent(
+          l10n,
+          bill: bill,
+          guest: guest,
+          businessName: data.businessName,
+          outletName: data.outletName,
+          staffName: data.staffName,
+          timezone: data.timezone,
+          config: data.receipt,
+          now: now,
+        ),
+      );
+    },
+  );
 }
 
 class _AmountCard extends StatelessWidget {

@@ -11,6 +11,7 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../cashier/cashier_view_model.dart' show SaleOption;
 import '../products/product_list_view_model.dart' show productMatches;
+import '../receipt/bill_print_job.dart';
 
 /// Dine in (grid meja) atau take away.
 enum DiningMode { dineIn, takeAway }
@@ -77,8 +78,7 @@ class DiningViewModel extends ChangeNotifier {
     deleteEmpty = Command1(_deleteEmpty)..addListener(notifyListeners);
     printTicket = Command1(_printTicket)..addListener(notifyListeners);
     printBarTicket = Command1(_printBarTicket)..addListener(notifyListeners);
-    printBill = Command1(_printBill)..addListener(notifyListeners);
-    shareBill = Command1(_shareBill)..addListener(notifyListeners);
+    billJob.addListener(notifyListeners);
     setDiscount = Command1(_setDiscount)..addListener(notifyListeners);
     setItemDiscount = Command1(_setItemDiscount)..addListener(notifyListeners);
   }
@@ -122,11 +122,21 @@ class DiningViewModel extends ChangeNotifier {
   /// Cetak (ulang) tiket bar ke printer bar (F1-10j).
   late final Command1<void, List<ReceiptLine>> printBarTicket;
 
+  /// Cetak / PDF tagihan bill terpilih (F1-10k).
+  late final billJob = BillPrintJob(
+    printer: _printer,
+    selection: () => _data?.printer,
+    paper: () => paper,
+    logo: () => receiptLogo,
+    jobName: () =>
+        'tagihan-${selectedBill?.sale.billNumber ?? selectedBill?.sale.number ?? 'bill'}',
+  );
+
   /// Cetak tagihan bill terpilih ke printer struk (F1-10k).
-  late final Command1<void, List<ReceiptLine>> printBill;
+  Command1<void, List<ReceiptLine>> get printBill => billJob.printBill;
 
   /// Simpan / bagikan tagihan bill terpilih sebagai PDF (F1-10k).
-  late final Command1<String?, List<ReceiptLine>> shareBill;
+  Command1<String?, List<ReceiptLine>> get shareBill => billJob.shareBill;
 
   /// Terapkan / hapus diskon nota bill terpilih (F1-04e).
   late final Command1<OpenBill, BillDiscountChange> setDiscount;
@@ -151,15 +161,6 @@ class DiningViewModel extends ChangeNotifier {
   var _ticketPrinted = false;
   PrinterFailureReason? _barPrintFailure;
   var _barTicketPrinted = false;
-  PrinterFailureReason? _billPrintFailure;
-  var _billPrinted = false;
-  var _billPrintError = false;
-  var _billShareError = false;
-  String? _billPdfPath;
-
-  /// Naik tiap dialog tagihan dibuka: hasil cetak/PDF dari dialog lama
-  /// (printer lambat) tidak ditampilkan di dialog bill lain.
-  var _billGen = 0;
   String _menuQuery = '';
   UuidValue? _menuCategory;
 
@@ -168,6 +169,7 @@ class DiningViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    billJob.dispose();
     super.dispose();
   }
 
@@ -948,82 +950,20 @@ class DiningViewModel extends ChangeNotifier {
 
   /// Logo struk (F1-06b), `null` bila tidak ditampilkan.
   Uint8List? get receiptLogo => _data?.receipt.logoBytes;
-  PrinterFailureReason? get billPrintFailure => _billPrintFailure;
+  PrinterFailureReason? get billPrintFailure => billJob.printFailure;
 
   /// Cetak gagal (galat printer atau lainnya).
-  bool get billPrintError => _billPrintError;
+  bool get billPrintError => billJob.printError;
 
   /// PDF tagihan gagal dibuat/dibagikan.
-  bool get billShareError => _billShareError;
+  bool get billShareError => billJob.shareError;
 
   /// Tagihan terkirim ke printer langsung (bukan dialog cetak sistem).
-  bool get billPrinted => _billPrinted;
+  bool get billPrinted => billJob.printed;
 
   /// Lokasi PDF tagihan yang disimpan di desktop.
-  String? get billPdfPath => _billPdfPath;
+  String? get billPdfPath => billJob.pdfPath;
 
   /// Hapus hasil cetak/bagikan sebelumnya saat dialog tagihan dibuka.
-  void clearBillPrint() {
-    _billGen++;
-    _billPrintFailure = null;
-    _billPrinted = false;
-    _billPrintError = false;
-    _billShareError = false;
-    _billPdfPath = null;
-    printBill.clearResult();
-    shareBill.clearResult();
-    notifyListeners();
-  }
-
-  String get _billJobName =>
-      'tagihan-${selectedBill?.sale.billNumber ?? selectedBill?.sale.number ?? 'bill'}';
-
-  Future<Result<void>> _printBill(List<ReceiptLine> lines) async {
-    final gen = _billGen;
-    _billPrintFailure = null;
-    _billPrinted = false;
-    _billPrintError = false;
-    final printer =
-        _data?.printer ??
-        const PrinterSelection(kind: PrinterKind.system, name: '');
-    try {
-      await _printer.print(
-        printer,
-        lines,
-        paper,
-        jobName: _billJobName,
-        logo: receiptLogo,
-      );
-      if (gen == _billGen) _billPrinted = printer.isDirect;
-      return const Result.ok(null);
-    } on PrinterFailure catch (e) {
-      if (gen == _billGen) {
-        _billPrintFailure = e.reason;
-        _billPrintError = true;
-      }
-      return Result.error(e);
-    } on Exception catch (e) {
-      if (gen == _billGen) _billPrintError = true;
-      return Result.error(e);
-    }
-  }
-
-  Future<Result<String?>> _shareBill(List<ReceiptLine> lines) async {
-    final gen = _billGen;
-    _billPdfPath = null;
-    _billShareError = false;
-    try {
-      final path = await _printer.sharePdf(
-        lines,
-        paper,
-        fileName: '$_billJobName.pdf',
-        logo: receiptLogo,
-      );
-      if (gen == _billGen) _billPdfPath = path;
-      return Result.ok(path);
-    } on Exception catch (e) {
-      if (gen == _billGen) _billShareError = true;
-      return Result.error(e);
-    }
-  }
+  void clearBillPrint() => billJob.reset();
 }

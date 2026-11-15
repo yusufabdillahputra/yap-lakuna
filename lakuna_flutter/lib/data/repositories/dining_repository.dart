@@ -223,9 +223,25 @@ class SplitBillData {
     required this.bill,
     required this.canPay,
     required this.canConfirm,
+    this.staffName = '',
+    this.businessName = '',
+    this.outletName = '',
+    this.timezone,
+    this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
+    this.printer,
   });
 
   final OpenBill bill;
+
+  /// Konteks tagihan per tamu (F1-10m), sama dengan [DiningData].
+  final String staffName;
+  final String businessName;
+  final String outletName;
+  final String? timezone;
+  final ReceiptConfig receipt;
+
+  /// Printer struk perangkat; `null` = dialog cetak sistem.
+  final PrinterSelection? printer;
 
   /// `sales:create`: boleh membayar bagian.
   final bool canPay;

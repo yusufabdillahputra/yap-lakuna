@@ -7,6 +7,61 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.102.0] - 2026-11-15
+
+Tamu split bill kini bisa menerima tagihannya sendiri sebelum membayar,
+bukan hanya mendengar nominalnya dibacakan dari layar.
+
+### Ditambahkan
+
+- **Split bill (1.9):** kartu tamu yang belum membayar di mode **Per
+  item** dan **Bagi rata** punya tombol **Cetak tagihan**. Dialog
+  *Tagihan tamu A · Meja M1* menampilkan pratinjau kertas dengan
+  **Tutup**, **Bagikan PDF**, dan **Cetak tagihan** ke printer struk
+  perangkat, sama seperti tagihan Meja (F1-10k).
+- Isi tagihan tamu: banner **TAGIHAN TAMU A - BELUM DIBAYAR**, baris
+  *Tamu: A dari 2*, lalu
+  - **Per item:** porsi milik tamu (porsi dari baris yang sama digabung,
+    modifier, diskon baris), *Subtotal*, *Bagian Diskon 10%, Service 5%,
+    PB1 10%, Pembulatan* (hanya komponen yang ada; PB1 yang termasuk
+    harga tidak disebut), dan **TAGIHAN TAMU A**;
+  - **Bagi rata:** seluruh pesanan, rincian F&B, *TOTAL*, *Dibagi rata 2
+    tamu*, dan **TAGIHAN TAMU A**;
+  - rekening transfer dan footer struk.
+- Nominal tagihan sama dengan kartu tamu, termasuk tamu terakhir yang
+  menanggung sisa. Selisih tanpa komponen biaya berlabel *Penyesuaian
+  bill*.
+- Panduan *Split bill* menjelaskan tagihan per tamu (ID + EN).
+
+### Diubah
+
+- Di mode Per item tombol **Cetak tagihan** baru aktif setelah semua
+  porsi punya tamu. Mode **Nominal bebas** tidak punya tagihan per tamu.
+- Dialog tagihan menutup sendiri bila tagihannya tidak lagi berlaku (mis.
+  tamu sudah membayar atau mode split diganti).
+
+### Catatan teknis
+
+- `guestBillReceiptContent` di `receipt_content.dart`; meta dan rincian
+  F&B tagihan dipisah ke `_billMeta` / `_chargeLines` agar dipakai tagihan
+  Meja dan tagihan tamu.
+- `BillPrintJob` (`lib/ui/receipt/bill_print_job.dart`) menggantikan
+  status cetak/PDF tagihan di `DiningViewModel` (API publik tetap) dan
+  dipakai `SplitBillViewModel.partPrint`; generasi dialog mencegah hasil
+  printer lambat tampil di dialog berikutnya, dan notifikasi setelah
+  dispose diabaikan.
+- `showBillPrintDialog` (`lib/ui/receipt/bill_print_dialog.dart`) dipakai
+  bersama tagihan Meja (`dining-bill-*`) dan tagihan tamu
+  (`split-bill-*`). Tutup otomatis memakai `pop` sinkron atau
+  `removeRoute` agar tidak terjadi pop ganda yang ikut menutup layar di
+  bawahnya.
+- `SplitBillData` membawa nama usaha, cabang, kasir, zona waktu,
+  pengaturan struk, dan printer perangkat.
+- Temuan review subagent (semua Minor, diperbaiki): label cadangan
+  *Bagian Pembulatan* yang menyesatkan, risiko pop ganda saat tutup
+  otomatis, dan celah tes (sisa tamu terakhir, porsi turunan bermodifier,
+  nama job lengkap, rute dialog benar-benar tertutup; diverifikasi mutasi).
+
 ## [0.101.0] - 2026-11-15
 
 Pencarian nama barang di Riwayat kini memahami beberapa kata yang
@@ -6356,7 +6411,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...HEAD
+[0.102.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...v0.102.0
 [0.101.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...v0.101.0
 [0.100.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...v0.100.0
 [0.99.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...v0.99.0

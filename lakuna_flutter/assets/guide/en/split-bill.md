@@ -15,6 +15,8 @@ Split bill divides one open bill between guests who pay separately. The bill sta
 4. Tap **Pay part** for the first guest and finish the payment. Repeat for the next guest.
 5. When every part is paid, the screen shows *Bill paid* and the receipt is saved.
 
+> [!note] Does a guest want to see their share first? Tap **Print bill** on the guest's card (**By item** or **Split evenly**). The guest bill lists their portions (or the whole order when split evenly), their share of the discount, service, and PB1 if any, then **GUEST A DUE**. Print it on the receipt printer or share it as a PDF; nothing is saved. In By item mode the button turns on once every portion has a guest. **Custom amount** has no per-guest bill; use **Print bill** on the table's bill instead.
+
 > [!note] A part paid with static QRIS can be saved with **Save and wait for confirmation**. The number of waiting QRIS payments appears on Home until confirmed.
 
 > [!warning] Once a part is paid, the split is locked. To change it, cancel the waiting QRIS parts first. **Cancel split** is only available before any part payment.

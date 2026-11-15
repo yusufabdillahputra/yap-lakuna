@@ -14585,6 +14585,54 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Supplier yang sedang diisi belum disimpan dan akan hilang.'**
   String get supplierDiscardBody;
+
+  /// No description provided for @receiptBannerGuestBill.
+  ///
+  /// In id, this message translates to:
+  /// **'TAGIHAN TAMU {guest} - BELUM DIBAYAR'**
+  String receiptBannerGuestBill(String guest);
+
+  /// No description provided for @receiptGuest.
+  ///
+  /// In id, this message translates to:
+  /// **'Tamu'**
+  String get receiptGuest;
+
+  /// No description provided for @receiptGuestOf.
+  ///
+  /// In id, this message translates to:
+  /// **'{guest} dari {count}'**
+  String receiptGuestOf(String guest, int count);
+
+  /// No description provided for @receiptGuestShare.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagian {charges}'**
+  String receiptGuestShare(String charges);
+
+  /// No description provided for @receiptSplitEqually.
+  ///
+  /// In id, this message translates to:
+  /// **'Dibagi rata {count} tamu'**
+  String receiptSplitEqually(int count);
+
+  /// No description provided for @receiptGuestDue.
+  ///
+  /// In id, this message translates to:
+  /// **'TAGIHAN TAMU {guest}'**
+  String receiptGuestDue(String guest);
+
+  /// No description provided for @billSplitBillTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tagihan tamu {guest} · {order}'**
+  String billSplitBillTitle(String guest, String order);
+
+  /// No description provided for @receiptBillAdjustment.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyesuaian bill'**
+  String get receiptBillAdjustment;
 }
 
 class _AppLocalizationsDelegate

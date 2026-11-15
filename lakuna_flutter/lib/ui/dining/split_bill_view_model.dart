@@ -4,12 +4,29 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/dining_repository.dart';
+import '../../data/services/receipt_printer.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
+import '../receipt/bill_print_job.dart';
 
 /// View model layar split bill 1.9 (F1-10c).
 class SplitBillViewModel extends ChangeNotifier {
-  SplitBillViewModel({required this._repository, required this.billId}) {
+  SplitBillViewModel({
+    required this._repository,
+    required ReceiptPrinter printer,
+    required this.billId,
+  }) {
+    partPrint = BillPrintJob(
+      printer: printer,
+      selection: () => _data?.printer,
+      paper: () => paper,
+      logo: () => receiptLogo,
+      jobName: () => [
+        'tagihan',
+        _bill?.sale.billNumber ?? _bill?.sale.number ?? 'bill',
+        ?_printGuest,
+      ].join('-'),
+    )..addListener(notifyListeners);
     load = Command0(_load)..addListener(notifyListeners);
     setMode = Command1(_setMode)..addListener(notifyListeners);
     setGuests = Command1(_setGuests)..addListener(notifyListeners);
@@ -34,16 +51,23 @@ class SplitBillViewModel extends ChangeNotifier {
   late final Command1<SplitPayResult, UuidValue> confirm;
   late final Command1<OpenBill, UuidValue> cancel;
 
+  /// Cetak / PDF tagihan satu tamu (F1-10m).
+  late final BillPrintJob partPrint;
+
   SplitBillData? _data;
   OpenBill? _bill;
   CheckoutResult? _completed;
   Exception? _error;
   Money _amount = Money.zero;
+
+  /// Tamu di dialog tagihan yang sedang terbuka (nama job cetak).
+  String? _printGuest;
   var _disposed = false;
 
   @override
   void dispose() {
     _disposed = true;
+    partPrint.dispose();
     super.dispose();
   }
 
@@ -100,6 +124,34 @@ class SplitBillViewModel extends ChangeNotifier {
       part.payments.isEmpty &&
       unassigned.isEmpty &&
       (part.due ?? Money.zero) > Money.zero;
+
+  // --- Tagihan per tamu (F1-10m) ----------------------------------------------
+
+  /// Konteks struk (nama usaha, cabang, kasir, zona, pengaturan struk).
+  SplitBillData? get data => _data;
+
+  ReceiptPaper get paper => _data?.receipt.settings.paper ?? ReceiptPaper.mm58;
+
+  /// Logo struk (F1-06b), `null` bila tidak ditampilkan.
+  Uint8List? get receiptLogo => _data?.receipt.logoBytes;
+
+  /// *Cetak tagihan* tamu aktif: mode per item (tanpa porsi tanpa tamu)
+  /// atau rata, tamu belum punya pembayaran, dan tagihannya > 0. Tidak
+  /// butuh izin bayar.
+  bool canPrintPart(GuestPart part) {
+    final s = split;
+    return s != null &&
+        s.mode != SplitKind.amount &&
+        (s.mode != SplitKind.item || s.unassigned.isEmpty) &&
+        part.payments.isEmpty &&
+        (part.due ?? Money.zero) > Money.zero;
+  }
+
+  /// Dialog tagihan tamu [guest] dibuka: hasil cetak sebelumnya dihapus.
+  void openPartPrint(String guest) {
+    _printGuest = guest;
+    partPrint.reset();
+  }
 
   // --- Nominal bebas ---------------------------------------------------------
 

@@ -1,7 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_client/lakuna_client.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
+import 'package:lakuna_flutter/ui/dining/split_bill_view.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_cashier_repository.dart';
@@ -11,6 +14,12 @@ import '../../testing/fake_session_repository.dart';
 import '../../testing/qris_seed.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
+
+/// Teks di dalam dialog tagihan tamu (bukan layar split di belakangnya).
+Finder _inBill(String text) => find.descendant(
+  of: find.byKey(const ValueKey('split-bill-dialog')),
+  matching: find.textContaining(text),
+);
 
 Finder _input(String key) =>
     find.descendant(of: _key(key), matching: find.byType(EditableText));
@@ -28,17 +37,19 @@ Future<void> _tap(WidgetTester tester, String key) async {
 void main() {
   late FakeDiningRepository dining;
   late FakeCashierRepository cashier;
+  late FakeReceiptPrinter printer;
 
   Future<void> pump(WidgetTester tester, {required Size size}) async {
     dining = FakeDiningRepository();
     cashier = FakeCashierRepository(qris: sampleQris())..dining = dining;
+    printer = FakeReceiptPrinter();
     await pumpLakuna(
       tester,
       size: size,
       initialLocation: Routes.tables,
       dining: dining,
       cashier: cashier,
-      receiptPrinter: FakeReceiptPrinter(),
+      receiptPrinter: printer,
       session: FakeSessionRepository()..current = sampleStaff(),
     );
   }
@@ -175,6 +186,104 @@ void main() {
       await tester.tap(find.text('Kembali ke meja').last);
       await tester.pumpAndSettle();
       expect(_key('dining-mode-take-away'), findsOneWidget);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
+
+  testWidgets(
+    'tablet: cetak tagihan per tamu per item (F1-10m)',
+    (tester) async {
+      await pump(tester, size: const Size(1280, 800));
+      dining.printer = const PrinterSelection(
+        kind: PrinterKind.bluetooth,
+        name: 'RPP02N',
+        address: '00:11',
+      );
+      await openBill(tester, 'M4');
+      await _tap(tester, 'dining-split');
+      await _tap(tester, 'split-mode-item');
+      // Porsi belum dibagi: tagihan masih sementara.
+      expect(tester.widget<FButton>(_key('split-print-A')).onPress, isNull);
+      await _tap(tester, 'split-chip-Kopi Susu Aren---A');
+      await _tap(tester, 'split-chip-Nasi Goreng Kampung---B');
+
+      await _tap(tester, 'split-print-A');
+      expect(_key('split-bill-dialog'), findsOneWidget);
+      expect(find.text('Tagihan tamu A · Meja M4'), findsOneWidget);
+      expect(
+        _inBill('TAGIHAN TAMU A - BELUM DIBAYAR'),
+        findsOneWidget,
+      );
+      expect(_inBill('Kopi Susu Aren'), findsWidgets);
+      expect(_inBill('Nasi Goreng'), findsNothing);
+      expect(_inBill('27.720'), findsWidgets);
+      await _tap(tester, 'split-bill-print');
+      expect(printer.prints, hasLength(1));
+      expect(
+        printer.prints.single.$2.map((l) => l.text),
+        contains(contains('TAGIHAN TAMU A')),
+      );
+      expect(_key('split-bill-printed'), findsOneWidget);
+      await _tap(tester, 'split-bill-share');
+      expect(printer.shares.single.$3, endsWith('-A.pdf'));
+      await _tap(tester, 'split-bill-close');
+      expect(_key('split-bill-dialog'), findsNothing);
+
+      // Dibuka untuk tamu B: hasil tamu A tidak ikut tampil.
+      await _tap(tester, 'split-print-B');
+      expect(find.text('Tagihan tamu B · Meja M4'), findsOneWidget);
+      expect(_key('split-bill-printed'), findsNothing);
+      expect(_key('split-bill-pdf-saved'), findsNothing);
+      await _tap(tester, 'split-bill-close');
+
+      // Tamu A lunas: tombol tagihan A hilang, B tetap.
+      await _tap(tester, 'split-pay-A');
+      await _tap(tester, 'payment-quick-0');
+      await _tap(tester, 'payment-finish');
+      expect(_key('split-print-A'), findsNothing);
+      expect(
+        tester.widget<FButton>(_key('split-print-B')).onPress,
+        isNotNull,
+      );
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
+
+  testWidgets(
+    'ponsel 360 px: tagihan tamu mode rata, nominal bebas tanpa tombol',
+    (tester) async {
+      await pump(tester, size: const Size(360, 740));
+      await openBill(tester, 'M2');
+      await tester.dragUntilVisible(
+        _key('dining-split'),
+        _key('dining-bill-title'),
+        const Offset(0, -200),
+      );
+      await _tap(tester, 'dining-split');
+      await _tap(tester, 'split-mode-amount');
+      expect(_key('split-print-A'), findsNothing);
+      await _tap(tester, 'split-mode-equal');
+      await _tap(tester, 'split-print-B');
+      expect(_key('split-bill-dialog'), findsOneWidget);
+      expect(_inBill('Dibagi rata 2 tamu'), findsOneWidget);
+      expect(_inBill('TAGIHAN TAMU B'), findsWidgets);
+      expect(_inBill('30.607'), findsWidgets);
+      expect(tester.takeException(), isNull);
+      await _tap(tester, 'split-bill-close');
+      expect(_key('split-bill-dialog'), findsNothing);
+
+      // Tagihan tidak lagi berlaku saat dialog terbuka (mode diganti ke
+      // nominal bebas): dialog menutup sendiri, layar split tetap.
+      await _tap(tester, 'split-print-A');
+      expect(_key('split-bill-dialog'), findsOneWidget);
+      final view = tester.widget<SplitBillView>(find.byType(SplitBillView));
+      await view.viewModel.setMode.execute(SplitMode.amount);
+      await tester.pumpAndSettle();
+      // Rute dialog ikut tertutup, bukan hanya isinya kosong.
+      expect(find.byType(FDialog), findsNothing);
+      expect(_key('split-back'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
   );

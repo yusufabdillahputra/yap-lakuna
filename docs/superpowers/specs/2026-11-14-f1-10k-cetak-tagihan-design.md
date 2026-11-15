@@ -83,4 +83,4 @@ tamu bisa memeriksa dan mentransfer sebelum kasir menutup bill.
 | Cetak tagihan open bill (pratinjau, cetak, PDF) | 1.7 | Rilis v0.80.0 | — |
 | Cetak tagihan otomatis menandai *Minta bill* | — | Belum | Sengaja terpisah; pelayan menekan *Minta bill* sendiri. |
 | QRIS statis di tagihan cetak | — | Belum | Butuh cetak gambar QR ESC/POS; tamu memakai stiker QRIS di meja. |
-| Tagihan per tamu split bill | — | Belum | Tagihan memuat seluruh bill; rincian per tamu ada di layar split. |
+| Tagihan per tamu split bill | 1.9 | Rilis v0.102.0 | [F1-10m](2026-11-15-f1-10m-tagihan-per-tamu-design.md): dari kartu tamu layar split (Per item, Rata); dialog pratinjau dipakai bersama. |

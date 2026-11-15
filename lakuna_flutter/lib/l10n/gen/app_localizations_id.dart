@@ -8398,4 +8398,40 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get supplierDiscardBody =>
       'Supplier yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String receiptBannerGuestBill(String guest) {
+    return 'TAGIHAN TAMU $guest - BELUM DIBAYAR';
+  }
+
+  @override
+  String get receiptGuest => 'Tamu';
+
+  @override
+  String receiptGuestOf(String guest, int count) {
+    return '$guest dari $count';
+  }
+
+  @override
+  String receiptGuestShare(String charges) {
+    return 'Bagian $charges';
+  }
+
+  @override
+  String receiptSplitEqually(int count) {
+    return 'Dibagi rata $count tamu';
+  }
+
+  @override
+  String receiptGuestDue(String guest) {
+    return 'TAGIHAN TAMU $guest';
+  }
+
+  @override
+  String billSplitBillTitle(String guest, String order) {
+    return 'Tagihan tamu $guest · $order';
+  }
+
+  @override
+  String get receiptBillAdjustment => 'Penyesuaian bill';
 }

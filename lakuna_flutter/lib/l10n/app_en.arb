@@ -5065,5 +5065,61 @@
   "supplierDiscardBody": "The supplier you are filling in has not been saved and will be lost.",
   "@supplierDiscardBody": {
     "placeholders": {}
-  }
+  },
+  "receiptBannerGuestBill": "GUEST {guest} BILL - NOT PAID",
+  "@receiptBannerGuestBill": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptGuest": "Guest",
+  "receiptGuestOf": "{guest} of {count}",
+  "@receiptGuestOf": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptGuestShare": "Share of {charges}",
+  "@receiptGuestShare": {
+    "placeholders": {
+      "charges": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptSplitEqually": "Split evenly, {count} guests",
+  "@receiptSplitEqually": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "receiptGuestDue": "GUEST {guest} DUE",
+  "@receiptGuestDue": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
+  "billSplitBillTitle": "Guest {guest} bill · {order}",
+  "@billSplitBillTitle": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      },
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptBillAdjustment": "Bill adjustment"
 }

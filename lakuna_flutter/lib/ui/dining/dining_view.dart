@@ -19,6 +19,7 @@ import '../core/approval_dialog.dart';
 import '../core/format.dart';
 import '../floor_plan/floor_canvas.dart';
 import '../products/product_widgets.dart';
+import '../receipt/bill_print_dialog.dart';
 import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart' show billReceiptContent, percentLabel;
 import '../receipt/receipt_paper_view.dart';
@@ -1811,107 +1812,31 @@ Widget _dialogFrame(
 /// ke printer struk, dan PDF.
 Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
   vm.clearBillPrint();
-  return showFDialog<void>(
-    context: context,
-    builder: (context, style, animation) => FDialog(
-      animation: animation,
-      constraints: const BoxConstraints(minWidth: 280, maxWidth: 460),
-      builder: (context, style) => ListenableBuilder(
-        listenable: vm,
-        builder: (context, _) {
-          final l10n = AppLocalizations.of(context);
-          final bill = vm.selectedBill;
-          final data = vm.data;
-          if (bill == null || data == null) {
-            // Bill sudah tidak terpilih: tutup dialog, jangan kosong.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) Navigator.of(context).maybePop();
-            });
-            return const SizedBox.shrink();
-          }
-          // Waktu cetak diambil saat tombol ditekan, bukan saat dialog dibuka.
-          List<ReceiptLine> build() => layoutReceipt(
-            billReceiptContent(
-              l10n,
-              bill: bill,
-              businessName: data.businessName,
-              outletName: data.outletName,
-              staffName: data.staffName,
-              timezone: data.timezone,
-              config: data.receipt,
-              now: DateTime.now(),
-            ),
-            vm.paper,
-          );
-          final lines = build();
-          final busy = vm.printBill.running || vm.shareBill.running;
-          return _dialogFrame(
-            context,
-            key: const ValueKey('dining-bill-dialog'),
-            title: l10n.diningBillPreviewTitle(billOrderLabel(l10n, bill)),
-            children: [
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Center(
-                    child: ReceiptPaperView(
-                      lines: lines,
-                      paper: vm.paper,
-                      logo: vm.receiptLogo,
-                    ),
-                  ),
-                ),
-              ),
-              if (vm.billPrintError)
-                FAlert(
-                  key: const ValueKey('dining-bill-print-error'),
-                  variant: .destructive,
-                  title: Text(printerFailureMessage(l10n, vm.billPrintFailure)),
-                )
-              else if (vm.billPrinted)
-                FAlert(
-                  key: const ValueKey('dining-bill-printed'),
-                  title: Text(l10n.receiptPrinted),
-                ),
-              if (vm.billShareError)
-                FAlert(
-                  key: const ValueKey('dining-bill-share-error'),
-                  variant: .destructive,
-                  title: Text(l10n.diningBillShareFailed),
-                )
-              else if (vm.billPdfPath case final path?)
-                FAlert(
-                  key: const ValueKey('dining-bill-pdf-saved'),
-                  title: Text(l10n.receiptPdfSaved(path)),
-                ),
-            ],
-            actions: [
-              FButton(
-                key: const ValueKey('dining-bill-close'),
-                variant: .outline,
-                mainAxisSize: .min,
-                onPress: () => Navigator.of(context).pop(),
-                child: Flexible(child: Text(l10n.historyClose)),
-              ),
-              FButton(
-                key: const ValueKey('dining-bill-share'),
-                variant: .outline,
-                mainAxisSize: .min,
-                onPress: busy ? null : () => vm.shareBill.execute(build()),
-                prefix: const Icon(TablerIcons.share),
-                child: Flexible(child: Text(l10n.receiptShare)),
-              ),
-              FButton(
-                key: const ValueKey('dining-bill-print'),
-                mainAxisSize: .min,
-                onPress: busy ? null : () => vm.printBill.execute(build()),
-                prefix: const Icon(TablerIcons.printer),
-                child: Flexible(child: Text(l10n.diningPrintBill)),
-              ),
-            ],
-          );
-        },
-      ),
-    ),
+  return showBillPrintDialog(
+    context,
+    listenable: vm,
+    job: vm.billJob,
+    keyPrefix: 'dining-bill',
+    paper: () => vm.paper,
+    logo: () => vm.receiptLogo,
+    preview: (l10n) {
+      final bill = vm.selectedBill;
+      final data = vm.data;
+      if (bill == null || data == null) return null;
+      return (
+        title: l10n.diningBillPreviewTitle(billOrderLabel(l10n, bill)),
+        content: (now) => billReceiptContent(
+          l10n,
+          bill: bill,
+          businessName: data.businessName,
+          outletName: data.outletName,
+          staffName: data.staffName,
+          timezone: data.timezone,
+          config: data.receipt,
+          now: now,
+        ),
+      );
+    },
   );
 }
 
