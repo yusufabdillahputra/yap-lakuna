@@ -56,6 +56,6 @@ hari. Mencari nama barang langsung menampilkan nota yang memuatnya.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Cari nota lewat nama produk / varian | 1.14 | Rilis v0.81.0 | Semua tanggal; barang yang dihapus dari bill tidak dihitung. |
-| Kata kunci melintasi nama produk + varian (mis. `Beras 5 kg`) | — | Belum | Dicocokkan per kolom; ketik nama produk saja atau nama varian saja. |
+| Kata kunci melintasi nama produk + varian (mis. `Beras 5 kg`) | 1.14 | Rilis v0.101.0 | [F1-11e](2026-11-15-f1-11e-cari-beberapa-kata-barang-design.md): setiap kata harus ada di nama produk atau varian satu baris barang, urutan bebas. |
 | Cari nama modifier (mis. `extra keju`) | — | Belum | Hanya nama produk dan varian. |
 | Sorot barang yang cocok di daftar | — | Belum | Daftar menampilkan nota; buka rinciannya untuk melihat barang. |

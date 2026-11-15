@@ -6,7 +6,7 @@ A return takes back some or all items from a paid receipt. A void cancels a whol
 
 1. Open **History** and choose the receipt (filter by date, cashier, method, or status).
 
-> [!note] Older receipt? Type the receipt number, the customer's name or phone (any format, e.g. `0812-3456` or `+62 812 3456`), the card approval no. / transfer reference, or an item name (product or variant name, e.g. `sugar` or `iced tea`) in the **Search** field. Search covers all dates (up to the latest 100 receipts); the cashier, method, and status filters still apply. Tap a date pill to go back to the list by date, or **Date range…** to choose your own **From** / **To** dates (at most 366 days).
+> [!note] Older receipt? Type the receipt number, the customer's name or phone (any format, e.g. `0812-3456` or `+62 812 3456`), the card approval no. / transfer reference, or an item name (product name, variant name, or both in any order, e.g. `sugar`, `iced tea`, or `rice 5 kg` for *Rice Premium · 5 kg*) in the **Search** field. With several words, every word must appear in the same item. Search covers all dates (up to the latest 100 receipts); the cashier, method, and status filters still apply. Tap a date pill to go back to the list by date, or **Date range…** to choose your own **From** / **To** dates (at most 366 days).
 2. Tap **Return items**. Enter the return quantity per item, or **Return all**.
 3. Choose a **Reason**. For *Other*, a note is required.
 4. Choose the **Refund**: *Cash from drawer* (needs an open cash session), *Transfer*, or *Deduct from credit* for credit receipts.

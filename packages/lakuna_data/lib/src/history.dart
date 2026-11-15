@@ -373,10 +373,14 @@ Future<HistoryPage> listSalesHistory(
   );
 }
 
+/// Kata nama barang terbanyak yang dikirim ke SQL (F1-11e).
+const _maxSqlWords = 8;
+
 /// Nota cabang ini yang nomornya, nama pemesan/pelanggannya, HP
-/// pelanggannya, referensi pembayaran lunasnya, atau nama produk/varian
-/// barangnya (F1-11d) memuat kata kunci [filter] (tanpa beda huruf
-/// besar/kecil), terbaru dulu, paling banyak [limit].
+/// pelanggannya, atau referensi pembayaran lunasnya memuat kata kunci
+/// [filter] utuh (tanpa beda huruf besar/kecil), atau yang salah satu baris
+/// barangnya memuat setiap kata kunci di nama produk/varian (F1-11d,
+/// F1-11e: urutan bebas), terbaru dulu, paling banyak [limit].
 ///
 /// Kandidat dicari dengan `ilike` lalu dicek ulang di Dart agar `%` dan `_`
 /// di kata kunci tidak menjadi wildcard. Nota dibaca per kelompok
@@ -425,13 +429,32 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
   // Nama barang saat transaksi (F1-11d): subkueri `sale_items` di SQL agar
   // tidak ada batas jumlah baris barang; dicek ulang per kelompok di bawah.
   // LOWER di kedua sisi: tanpa beda huruf di SQLite maupun Postgres.
-  final quoted = EscapedExpression(pattern);
+  // Beberapa kata (F1-11e): tiap kata harus ada di nama produk atau nama
+  // varian baris barang yang sama, urutan bebas (mis. `beras 5 kg`). SQL
+  // memakai kata seperti diketik (LOWER SQLite hanya melipat A–Z, jadi
+  // huruf besar non-ASCII tetap cocok seperti F1-11d), Dart mengecek ulang
+  // dengan huruf kecil. SQL hanya menyaring kandidat, jadi kata ke-9 dst.
+  // cukup dicek di Dart (rantai AND tidak tumbuh tanpa batas).
+  final raw = {
+    for (final w in query.split(RegExp(r'\s+')))
+      if (w.isNotEmpty) w,
+  }.toList();
+  final words = [for (final w in raw) w.toLowerCase()];
+  final wordClauses = [
+    for (final w in raw.take(_maxSqlWords))
+      '(LOWER("product_name") LIKE LOWER(${EscapedExpression('%$w%')}) '
+          'OR LOWER("variant_name") LIKE LOWER(${EscapedExpression('%$w%')}))',
+  ].join(' AND ');
   Expression<Object?> withItem(SaleTable s) => Expression(
     '${s.id} IN (SELECT "sale_id" FROM "sale_items" '
     'WHERE "tenant_id" = ${EscapedExpression(scope.tenantId)} '
     'AND "deleted_at" IS NULL '
-    'AND (LOWER("product_name") LIKE LOWER($quoted) '
-    'OR LOWER("variant_name") LIKE LOWER($quoted)))',
+    'AND $wordClauses)',
+  );
+  bool itemMatches(SaleItem i) => words.every(
+    (w) =>
+        i.productName.toLowerCase().contains(w) ||
+        i.variantName.toLowerCase().contains(w),
   );
   bool matchesHeader(Sale s) =>
       has(s.number) ||
@@ -447,7 +470,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
         var text = s.number.ilike(pattern) | s.customerName.ilike(pattern);
         if (customers.isNotEmpty) text = text | s.customerId.inSet(customers);
         if (referenced.isNotEmpty) text = text | s.id.inSet(referenced);
-        text = text | withItem(s);
+        if (raw.isNotEmpty) text = text | withItem(s);
         var where =
             s.tenantId.equals(scope.tenantId) &
             s.outletId.equals(scope.outletId) &
@@ -480,7 +503,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
             i.saleId.inSet(unsure) &
             i.deletedAt.equals(null),
       )) {
-        if (has(i.productName) || has(i.variantName)) byItem.add(i.saleId);
+        if (itemMatches(i)) byItem.add(i.saleId);
       }
     }
     var kept = [
