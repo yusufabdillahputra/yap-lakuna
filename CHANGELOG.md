@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.101.0] - 2026-11-15
+
+Pencarian nama barang di Riwayat kini memahami beberapa kata yang
+tersebar di nama produk dan nama varian, seperti cara kasir menyebut
+barang sehari-hari.
+
+### Ditambahkan
+
+- **Riwayat (1.14):** kolom **Cari** menemukan nota lewat beberapa kata
+  nama barang dalam urutan bebas, mis. `beras 5 kg` untuk *Beras Premium*
+  varian *5 kg*, atau `melati teh` untuk *Teh Celup · Melati*. Setiap kata
+  harus ada di nama produk atau nama varian **satu baris barang** yang
+  sama; kata yang tersebar di barang berbeda dalam satu nota tidak
+  dihitung cocok.
+- Panduan *Retur & void* menjelaskan contoh beberapa kata (ID + EN).
+
+### Diubah
+
+- Spasi ganda, tab, dan kata berulang di kata kunci diabaikan untuk
+  pencarian nama barang. Nomor nota, nama/HP pelanggan, nama pemesan, dan
+  referensi pembayaran tetap dicocokkan dengan kata kunci utuh.
+
+### Catatan teknis
+
+- `_searchSales` (`lakuna_data/lib/src/history.dart`): subkueri
+  `sale_items` memakai `AND` per kata atas `(LOWER(product_name) LIKE …
+  OR LOWER(variant_name) LIKE …)`, lalu dicek ulang di Dart
+  (`words.every`) agar `%` dan `_` tetap literal.
+- Kata dikirim ke SQL seperti diketik, bukan versi huruf kecil Dart,
+  karena `LOWER` SQLite hanya melipat A–Z. Temuan review (Important):
+  versi awal mengirim kata huruf kecil sehingga nama berhuruf besar
+  non-ASCII (mis. `KOPI ÉSPRESSO` dicari `ÉSPRESSO`) hilang dari hasil;
+  diperbaiki dan dites.
+- Paling banyak 8 kata masuk SQL (`_maxSqlWords`); kata selebihnya hanya
+  dicek di Dart, sehingga rantai `AND` tidak membengkak.
+- Tes data baru: frasa terbalik dengan spasi ganda dan huruf besar, kata
+  di barang berbeda, kata di nota berbeda, wildcard, nama pemesan tetap
+  utuh, huruf besar non-ASCII, 12 kata berulang, dan lebih dari 8 kata;
+  diverifikasi dengan mutasi (`every` → `any`, kata huruf kecil ke SQL).
+
 ## [0.100.0] - 2026-11-15
 
 Dialog *Pelanggan* dan *Supplier* tidak lagi membuang isian karena salah
@@ -6316,7 +6356,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...HEAD
+[0.101.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...v0.101.0
 [0.100.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...v0.100.0
 [0.99.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...v0.99.0
 [0.98.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...v0.98.0

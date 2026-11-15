@@ -14,4 +14,4 @@ Rilis: v0.100.0+103.
   `/mnt/project-files/lakuna/f1-13e/`.
 - [x] 8. Dokumen: spec, gap F1-12f / F1-15c / F1-13 / F1-14, README spec,
   STATUS-JEDA, panduan pelanggan & supplier ID/EN, CHANGELOG, versi.
-- [ ] 9. PR, CI hijau, squash-merge, rilis.
+- [x] 9. PR, CI hijau, squash-merge, rilis (#106).

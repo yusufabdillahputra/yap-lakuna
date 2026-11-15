@@ -410,7 +410,12 @@ void main() {
             r.sale.id,
         ];
         expect(await find('rina'), [paid.sale.id]);
+        expect(await find('meja lima'), [paid.sale.id]);
         expect(await find('OB-'), isEmpty);
+        // Nama pemesan tetap dicocokkan utuh (F1-11e): kata di pemesan dan
+        // di barang, atau urutan terbalik, tidak cocok.
+        expect(await find('rina kopi'), isEmpty);
+        expect(await find('lima meja'), isEmpty);
         final other = await addStaff('Sari', 'cashier');
         expect(await find('rina', other.id), isEmpty);
         expect(await find('rina', ctx.owner.id), [paid.sale.id]);
@@ -498,6 +503,15 @@ void main() {
       );
       expect(await find('%ubuk'), isEmpty);
       expect(await find('_oti'), isEmpty);
+      // Beberapa kata (F1-11e): tiap kata ada di nama produk atau varian
+      // barang yang sama, urutan bebas.
+      expect(await find('teh melati'), [b.sale.id]);
+      expect(await find('  MELATI   teh '), [b.sale.id]);
+      expect(await find('kopi bubuk'), [paid.sale.id, a.sale.id]);
+      // Kata di barang berbeda dalam satu nota tidak cocok.
+      expect(await find('bubuk pulsa'), isEmpty);
+      expect(await find('teh tawar'), isEmpty);
+      expect(await find('teh %elati'), isEmpty);
       // Filter metode dan kasir ikut berlaku untuk hasil nama barang.
       expect(
         await find('bubuk', const HistoryFilter(method: PaymentMethod.cash)),
@@ -514,6 +528,41 @@ void main() {
         paid.sale.id,
         a.sale.id,
       ]);
+    });
+
+    test('huruf besar non-ASCII dan banyak kata (F1-11e)', () async {
+      final esp = await product(
+        const ProductDraft(
+          name: 'KOPI ÉSPRESSO',
+          baseUnit: 'pcs',
+          variants: [
+            VariantDraft(
+              name: 'Dobel',
+              sellPrice: Money(20000),
+              openingStock: Qty(10000),
+            ),
+          ],
+        ),
+      );
+      await openSession();
+      final sale = await sell({esp: 1000});
+      Future<List<UuidValue>> find(String q) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id,
+      ];
+      expect(await find('ÉSPRESSO'), [sale.sale.id]);
+      expect(await find('dobel ÉSPRESSO'), [sale.sale.id]);
+      // Kata berulang dan lebih dari 8 kata: kata sisanya dicek di Dart.
+      expect(await find(List.filled(12, 'kopi').join(' ')), [sale.sale.id]);
+      expect(await find('${List.filled(8, 'kopi').join(' ')} dobel'), [
+        sale.sale.id,
+      ]);
+      expect(await find('k o p i d o b e l x'), isEmpty);
     });
 
     test('hasil dibatasi dan ditandai terpotong', () async {

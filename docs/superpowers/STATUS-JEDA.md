@@ -80,7 +80,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | #103 |
 | v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | #104 |
 | v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | #105 |
-| v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | |
+| v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | #106 |
+| v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -150,7 +151,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 24. ~~Cetak tagihan (pre-bill) open bill~~ — selesai v0.80.0 (F1-10k);
     QRIS di tagihan dan tagihan per tamu split masih gap.
 25. ~~Cari nota Riwayat lewat nama barang~~ — selesai v0.81.0 (F1-11d);
-    kata kunci yang melintasi nama produk + varian masih gap.
+    ~~kata kunci yang melintasi nama produk + varian~~ — selesai v0.101.0
+    (F1-11e). Nama modifier dan `5kg` tanpa spasi masih gap.
 26. ~~Umur hutang (dan piutang) di Laporan~~ — selesai v0.82.0 (F1-16c);
     umur per nama dan kelompok yang bisa diatur masih gap.
 27. ~~Supplier terakhir per barang di pembelian dari stok minimum~~ —
@@ -203,6 +205,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     menutupi menu samping. Juga diperbaiki: galat `FSelect` saat membuka
     *Ubah pelanggan* bergrup. Dialog pendek lain (jenis pengeluaran, grup,
     pembayaran) masih tertutup tanpa bertanya.
+43. ~~Cari Riwayat `beras 5 kg` tidak menemukan *Beras Premium · 5 kg*~~ —
+    selesai v0.101.0 (F1-11e): setiap kata dicocokkan ke nama produk atau
+    varian satu baris barang, urutan bebas. Huruf kecil non-ASCII di
+    SQLite dan `\` di `LIKE` Postgres (Fase 2) masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
