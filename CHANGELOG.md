@@ -7,6 +7,37 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.114.0] - 2026-11-15
+
+**Buat pembelian** dari Stok minimum tidak lagi memilih supplier yang
+barangnya sudah Anda retur semua.
+
+### Diperbaiki
+
+- **Stok › Stok minimum › Buat pembelian (1.18 → 1.19):** supplier yang
+  dipilih otomatis (F1-08d) kini mengabaikan baris pembelian yang seluruh
+  jumlahnya sudah diretur ke supplier lewat **Retur pembelian** (`RB-`),
+  mis. karena rusak atau salah kirim. Sebelumnya supplier itu tetap
+  dianggap pemasok terakhir sehingga staf harus menggantinya sendiri;
+  kini dipakai supplier pembelian sebelumnya, atau supplier dibiarkan
+  kosong bila tidak ada riwayat lain. Retur sebagian tidak mengubah
+  pilihan. Bila barang yang sama ada di dua baris pembelian (mis. dus dan
+  botol), pembelian tetap dihitung selama salah satu barisnya belum
+  diretur penuh.
+
+### Catatan teknis
+
+- `lastSuppliersOf` membaca retur lewat `purchaseReturnsOf` (per 500
+  pembelian, berindeks `purchase_returns_purchase_idx`) dan
+  `_returnedMilliOf`, lalu melewati baris dengan jumlah retur ≥ jumlah
+  baris (satuan baris).
+- Harga beli terakhir (F1-08e/F1-12g/F1-12h) sengaja tidak berubah:
+  harga pada pembelian yang diretur tetap harga yang ditawarkan supplier.
+- Tes data: retur sebagian lalu penuh, satu-satunya pembelian diretur
+  penuh, dua baris barang yang sama; diverifikasi mutasi.
+- Spec [F1-08m](docs/superpowers/specs/2026-11-15-f1-08m-supplier-terakhir-tanpa-retur-design.md);
+  gap F1-08d *Abaikan pembelian yang seluruh barangnya diretur* ditutup.
+
 ## [0.113.0] - 2026-11-15
 
 Nomor HP yang ditulis dengan garis miring, mis. `021/5551234` atau
@@ -6859,7 +6890,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...HEAD
+[0.114.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...v0.114.0
 [0.113.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...v0.113.0
 [0.112.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...v0.112.0
 [0.111.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...v0.111.0

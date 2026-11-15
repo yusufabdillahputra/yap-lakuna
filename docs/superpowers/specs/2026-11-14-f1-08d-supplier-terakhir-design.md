@@ -64,5 +64,5 @@ barang itu terakhir kali, sehingga staf cukup memeriksa lalu menyimpan.
 | Supplier terakhir di pembelian dari stok minimum | 1.18 / 1.19 | Rilis v0.83.0 | — |
 | Pecah draf per supplier | — | Belum | Satu draf satu supplier; barang dari supplier lain diubah atau dihapus staf. |
 | Harga beli terakhir sebagai harga baris | — | Rilis v0.89.0 | [F1-08e](2026-11-14-f1-08e-harga-beli-terakhir-design.md). |
-| Abaikan pembelian yang seluruh barangnya diretur | — | Belum | Pembelian yang barangnya diretur ke supplier tetap dihitung sebagai supplier terakhir. |
+| Abaikan pembelian yang seluruh barangnya diretur | — | Rilis v0.114.0 | [F1-08m](2026-11-15-f1-08m-supplier-terakhir-tanpa-retur-design.md): baris yang diretur penuh tidak dihitung; retur sebagian tetap. |
 | Indeks `purchase_items(variant_id)` | — | Belum | Kueri membaca baris barang pembelian tenant lalu menyaring; cukup untuk skala UMKM, tambah indeks lewat migrasi bila lambat. |

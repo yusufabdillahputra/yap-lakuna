@@ -410,8 +410,9 @@ Future<List<PurchaseRow>> purchaseRowsOf(
 /// Supplier pembelian **diterima** terbaru di cabang [scope] untuk tiap
 /// varian [variantIds] (F1-08d). Terbaru menurut `received_at` (tanggal
 /// beli bila kosong), lalu nomor. Draf, pembelian tanpa supplier, dan
-/// supplier yang sudah dihapus diabaikan. Varian tanpa riwayat tidak ada
-/// di peta.
+/// supplier yang sudah dihapus diabaikan, begitu pula baris yang seluruh
+/// jumlahnya sudah diretur ke supplier (F1-08m). Varian tanpa riwayat tidak
+/// ada di peta.
 Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
   LakunaStore store,
   CatalogScope scope,
@@ -451,11 +452,22 @@ Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
     ))
       s.id,
   };
+  // Jumlah diretur per baris (satuan baris) dari retur `RB-` aktif (F1-08m).
+  final returned = await _returnedMilliOf(session, scope.tenantId, [
+    for (final list in (await purchaseReturnsOf(
+      session,
+      scope.tenantId,
+      purchases.keys,
+    )).values)
+      ...list,
+  ]);
   DateTime at(Purchase p) => p.receivedAt ?? p.purchasedOn;
   final best = <UuidValue, Purchase>{};
   for (final i in items) {
     final p = purchases[i.purchaseId];
     if (p == null || !active.contains(p.supplierId)) continue;
+    // Diretur penuh: toko tidak jadi membeli barang ini dari sana.
+    if ((returned[i.id] ?? 0) >= i.quantityMilli) continue;
     final current = best[i.variantId];
     if (current == null) {
       best[i.variantId] = p;

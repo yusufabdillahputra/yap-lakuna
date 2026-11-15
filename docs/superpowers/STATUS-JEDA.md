@@ -94,6 +94,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
 | v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | #118 |
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
+| v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -268,6 +269,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 55. ~~Nomor HP bergaris miring (`021/5551234`) tidak ditemukan dan masuk
     ke Nama saat *Pelanggan baru*~~ — selesai v0.113.0 (F1-13f): `/`
     pemisah HP di semua kolom cari dan draf pelanggan baru.
+56. ~~*Buat pembelian* memilih supplier yang barangnya sudah diretur
+    semua~~ — selesai v0.114.0 (F1-08m): baris yang diretur penuh tidak
+    dihitung sebagai pembelian terakhir; retur sebagian tetap dihitung.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
