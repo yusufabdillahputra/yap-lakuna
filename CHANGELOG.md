@@ -7,6 +7,37 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.111.0] - 2026-11-15
+
+Pesan "Nama sudah dipakai." kini tampil tepat di bawah kolom yang perlu
+diubah, bukan di kotak merah di bawah dialog.
+
+### Diubah
+
+- **Master data › Meja & area (1.17):** galat simpan dialog area dan meja
+  tampil di bawah isiannya: nama kembar / terlalu panjang di bawah
+  **Nama**, kursi di luar batas di bawah **Kursi**. Di dialog *Rentang
+  meja*, nama yang bentrok (mis. "Nama M7 sudah dipakai.") menggantikan
+  baris pratinjau nama dengan warna merah, dan galat kursi tampil di bawah
+  **Kursi**. Galat lain (mis. *Aksi gagal. Coba lagi.*) tetap di kotak
+  merah di atas tombol. Pesan hilang begitu isian diubah.
+
+### Diperbaiki
+
+- Dialog area: pesan *Nama wajib diisi.* dari simpan sebelumnya tidak lagi
+  tertinggal setelah nama diisi; galat diperiksa ulang setiap **Simpan**.
+
+### Catatan teknis
+
+- Mixin `_DialogSaving` menyimpan `saveFailure` (galat asli) di samping
+  `saveError`; `errorIf(test)` memetakan galat ke isian dan
+  `fieldError(local, saved)` menggabungkan galat isian dengan galat simpan.
+  Hanya galat yang tidak terpetakan masuk `_frame(error:)`.
+- Tes: pesan nama di bawah Nama (tambah dan ubah nama area, meja), kursi
+  dari penyimpanan di bawah Kursi (meja, rentang), rentang kembar di
+  pratinjau, galat lain di kotak merah, kosong lalu kembar; diverifikasi
+  mutasi. Uji manual Xvfb.
+
 ## [0.110.0] - 2026-11-15
 
 Sedang mengisi pembelian belasan baris lalu tak sengaja menekan *Ganti
@@ -6761,7 +6792,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...HEAD
+[0.111.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...v0.111.0
 [0.110.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...v0.110.0
 [0.109.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...v0.109.0
 [0.108.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...v0.108.0

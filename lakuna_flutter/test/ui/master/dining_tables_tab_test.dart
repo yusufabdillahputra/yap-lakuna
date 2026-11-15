@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show DiningNameError;
 import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../../testing/app_harness.dart';
@@ -67,19 +69,20 @@ void main() {
     await _tap(tester, 'dining-setup-area-add');
     await _type(tester, 'dining-setup-area-name', ' teras ');
     await _tap(tester, 'dining-setup-area-save');
-    // Ditolak: dialog tetap terbuka dengan pesan di dialog (F1-10o).
+    // Ditolak: dialog tetap terbuka (F1-10o), pesan di bawah Nama (F1-10p).
     expect(
       find.descendant(
-        of: _key('dining-setup-dialog-error'),
+        of: _key('dining-setup-area-name'),
         matching: find.text('Nama sudah dipakai.'),
       ),
       findsOneWidget,
     );
+    expect(_key('dining-setup-dialog-error'), findsNothing);
     expect(_key('dining-setup-error'), findsNothing);
     expect(repo.areas, hasLength(2));
 
     await _type(tester, 'dining-setup-area-name', 'Lantai 2');
-    expect(_key('dining-setup-dialog-error'), findsNothing);
+    expect(find.text('Nama sudah dipakai.'), findsNothing);
     await _tap(tester, 'dining-setup-area-save');
     expect(repo.areas.map((a) => a.name), ['Indoor', 'Teras', 'Lantai 2']);
     expect(_key('dining-setup-error'), findsNothing);
@@ -148,16 +151,27 @@ void main() {
     await _type(tester, 'dining-setup-range-from', '7');
     await _type(tester, 'dining-setup-range-to', '8');
     await _tap(tester, 'dining-setup-range-save');
+    // Galat nama rentang menggantikan pratinjau (F1-10p).
     expect(
       find.descendant(
-        of: _key('dining-setup-dialog-error'),
+        of: _key('dining-setup-range-preview'),
+        matchRoot: true,
         matching: find.text('Nama M7 sudah dipakai.'),
       ),
       findsOneWidget,
     );
+    expect(_key('dining-setup-dialog-error'), findsNothing);
     expect(_key('dining-setup-error'), findsNothing);
     expect(repo.tables, hasLength(7));
-    expect(find.text('Akan dibuat: M7, M8'), findsOneWidget);
+    for (final (key, text) in [
+      ('dining-setup-range-from', '7'),
+      ('dining-setup-range-to', '8'),
+    ]) {
+      expect(
+        find.descendant(of: _key(key), matching: find.text(text)),
+        findsOneWidget,
+      );
+    }
     // Isian berubah: Esc tetap bertanya.
     await _esc(tester);
     expect(_key('dining-range-discard'), findsOneWidget);
@@ -384,11 +398,12 @@ void main() {
     expect(_key('dining-setup-table-dialog'), findsOneWidget);
     expect(
       find.descendant(
-        of: _key('dining-setup-dialog-error'),
+        of: _key('dining-setup-table-name'),
         matching: find.text('Nama sudah dipakai.'),
       ),
       findsOneWidget,
     );
+    expect(_key('dining-setup-dialog-error'), findsNothing);
     expect(
       find.descendant(
         of: _key('dining-setup-table-seats'),
@@ -434,7 +449,13 @@ void main() {
     await _type(tester, 'dining-setup-area-name', 'indoor');
     await _tap(tester, 'dining-setup-area-save');
     expect(_key('dining-setup-area-dialog'), findsOneWidget);
-    expect(_key('dining-setup-dialog-error'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: _key('dining-setup-area-name'),
+        matching: find.text('Nama sudah dipakai.'),
+      ),
+      findsOneWidget,
+    );
     expect(_key('dining-setup-error'), findsNothing);
     expect(repo.areas.map((a) => a.name), ['Indoor', 'Teras']);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
@@ -499,14 +520,118 @@ void main() {
     expect(_key('dining-setup-range-dialog'), findsOneWidget);
     expect(
       find.descendant(
-        of: _key('dining-setup-dialog-error'),
+        of: _key('dining-setup-range-preview'),
+        matchRoot: true,
         matching: find.text('Nama M1 sudah dipakai.'),
       ),
       findsOneWidget,
     );
     expect(repo.tables, hasLength(3));
-    // Mengubah isian rentang menghapus pesan.
+    // Mengubah isian rentang menghapus pesan dan pratinjau kembali.
     await _type(tester, 'dining-setup-range-from', '5');
-    expect(_key('dining-setup-dialog-error'), findsNothing);
+    expect(find.text('Nama M1 sudah dipakai.'), findsNothing);
+    await _type(tester, 'dining-setup-range-to', '6');
+    expect(find.textContaining('M5, M6'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  group('galat simpan di isiannya (F1-10p)', () {
+    testWidgets('kursi dari penyimpanan di bawah Kursi; galat lain di kotak', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-name', 'M9');
+      repo.nextError = DiningSeatsInvalid();
+      await _tap(tester, 'dining-setup-table-save');
+      expect(
+        find.descendant(
+          of: _key('dining-setup-table-seats'),
+          matching: find.text('Kursi 1–99.'),
+        ),
+        findsOneWidget,
+      );
+      expect(_key('dining-setup-dialog-error'), findsNothing);
+      expect(
+        find.descendant(
+          of: _key('dining-setup-table-name'),
+          matching: find.text('Kursi 1–99.'),
+        ),
+        findsNothing,
+      );
+
+      repo.nextError = DiningNotFound();
+      await _tap(tester, 'dining-setup-table-save');
+      expect(_key('dining-setup-dialog-error'), findsOneWidget);
+      expect(find.text('Kursi 1–99.'), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('nama area terlalu panjang dari penyimpanan di bawah Nama', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-area-add');
+      await _type(tester, 'dining-setup-area-name', 'Lantai 3');
+      repo.nextError = const DiningNameInvalid(DiningNameError.tooLong);
+      await _tap(tester, 'dining-setup-area-save');
+      expect(_key('dining-setup-dialog-error'), findsNothing);
+      expect(
+        find.descendant(
+          of: _key('dining-setup-area-name'),
+          matching: find.textContaining('Nama maks'),
+        ),
+        findsOneWidget,
+      );
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('nama kosong lalu kembar: pesan kembar yang tampil', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-area-add');
+      await _tap(tester, 'dining-setup-area-save');
+      expect(find.text('Nama wajib diisi.'), findsOneWidget);
+      await _type(tester, 'dining-setup-area-name', 'indoor');
+      await _tap(tester, 'dining-setup-area-save');
+      expect(find.text('Nama wajib diisi.'), findsNothing);
+      expect(
+        find.descendant(
+          of: _key('dining-setup-area-name'),
+          matching: find.text('Nama sudah dipakai.'),
+        ),
+        findsOneWidget,
+      );
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('kursi rentang dari penyimpanan di bawah Kursi', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      await _type(tester, 'dining-setup-range-from', '20');
+      await _type(tester, 'dining-setup-range-to', '21');
+      repo.nextError = DiningSeatsInvalid();
+      await _tap(tester, 'dining-setup-range-save');
+      expect(
+        find.descendant(
+          of: _key('dining-setup-range-seats'),
+          matching: find.text('Kursi 1–99.'),
+        ),
+        findsOneWidget,
+      );
+      expect(_key('dining-setup-dialog-error'), findsNothing);
+      // Mengubah isian menghapus galat kursi.
+      await _type(tester, 'dining-setup-range-seats', '6');
+      expect(find.text('Kursi 1–99.'), findsNothing);
+
+      // Galat lain tetap di kotak merah; pratinjau tidak berubah.
+      repo.nextError = DiningRangeInvalid();
+      await _tap(tester, 'dining-setup-range-save');
+      expect(_key('dining-setup-dialog-error'), findsOneWidget);
+      expect(find.textContaining('M20, M21'), findsOneWidget);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
 }

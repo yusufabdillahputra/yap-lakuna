@@ -512,12 +512,29 @@ class _SaveNotRun implements Exception {}
 /// isian diubah.
 mixin _DialogSaving<W extends StatefulWidget> on State<W> {
   var saving = false;
+
+  /// Pesan galat simpan terakhir dan galat aslinya.
   String? saveError;
+  Exception? saveFailure;
+
+  /// Pesan galat simpan bila galatnya cocok dengan [test]; dipakai untuk
+  /// menampilkan galat di bawah isiannya (F1-10p).
+  String? errorIf(bool Function(Exception error) test) {
+    final failure = saveFailure;
+    return failure != null && test(failure) ? saveError : null;
+  }
+
+  /// Galat isian (sebelum simpan) atau galat simpan untuk isian itu.
+  Widget? fieldError(String? local, String? saved) {
+    final message = local ?? saved;
+    return message == null ? null : Text(message);
+  }
 
   /// Mengubah isian sekaligus menghapus galat simpan.
   void edit(VoidCallback change) => setState(() {
     change();
     saveError = null;
+    saveFailure = null;
   });
 
   Future<void> runSave<T>(
@@ -529,6 +546,7 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
     setState(() {
       saving = true;
       saveError = null;
+      saveFailure = null;
     });
     Exception? error;
     try {
@@ -551,6 +569,7 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
     setState(() {
       saving = false;
       saveError = message;
+      saveFailure = error;
     });
   }
 }
@@ -575,16 +594,18 @@ class _AreaDialogState extends State<_AreaDialog>
 
   void _save() {
     if (saving) return;
-    if (_name.trim().isEmpty) {
-      setState(() => _empty = true);
-      return;
-    }
+    // Dihitung ulang setiap simpan, seperti dialog meja: galat kosong lama
+    // tidak boleh menutupi galat simpan nama (F1-10p).
+    setState(() => _empty = _name.trim().isEmpty);
+    if (_empty) return;
     runSave(widget.onSave, _name.trim(), nameMax: FnbLimits.areaName);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Galat nama dari penyimpanan tampil di bawah Nama (F1-10p).
+    final nameError = errorIf((e) => e is DiningNameInvalid);
     return DiscardChangesScope(
       dirty: _name.trim() != _initial,
       busy: saving,
@@ -596,14 +617,17 @@ class _AreaDialogState extends State<_AreaDialog>
         title: widget.area == null
             ? l10n.diningSetupNewArea
             : l10n.diningSetupRenameArea,
-        error: saveError,
+        error: nameError == null ? saveError : null,
         children: [
           FTextField(
             key: const ValueKey('dining-setup-area-name'),
             label: Text(l10n.diningSetupName),
             autofocus: true,
             maxLength: FnbLimits.areaName,
-            error: _empty ? Text(l10n.diningSetupErrNameEmpty) : null,
+            error: fieldError(
+              _empty ? l10n.diningSetupErrNameEmpty : null,
+              nameError,
+            ),
             control: .managed(
               initial: TextEditingValue(text: _name),
               onChange: (v) {
@@ -679,6 +703,9 @@ class _TableDialogState extends State<_TableDialog>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Galat nama dan kursi dari penyimpanan tampil di isiannya (F1-10p).
+    final nameError = errorIf((e) => e is DiningNameInvalid);
+    final seatsError = errorIf((e) => e is DiningSeatsInvalid);
     return DiscardChangesScope(
       dirty: _signature != _initial,
       busy: saving,
@@ -690,14 +717,17 @@ class _TableDialogState extends State<_TableDialog>
         title: widget.table == null
             ? l10n.diningSetupNewTable
             : l10n.diningSetupEditTable,
-        error: saveError,
+        error: nameError == null && seatsError == null ? saveError : null,
         children: [
           FTextField(
             key: const ValueKey('dining-setup-table-name'),
             label: Text(l10n.diningSetupName),
             autofocus: true,
             maxLength: FnbLimits.tableName,
-            error: _nameEmpty ? Text(l10n.diningSetupErrNameEmpty) : null,
+            error: fieldError(
+              _nameEmpty ? l10n.diningSetupErrNameEmpty : null,
+              nameError,
+            ),
             control: .managed(
               initial: TextEditingValue(text: _name),
               onChange: (v) {
@@ -721,7 +751,10 @@ class _TableDialogState extends State<_TableDialog>
             label: Text(l10n.diningSetupSeats),
             keyboardType: TextInputType.number,
             inputFormatters: _digits,
-            error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
+            error: fieldError(
+              _seatsBad ? l10n.diningSetupErrSeats : null,
+              seatsError,
+            ),
             control: .managed(
               initial: TextEditingValue(text: _seats),
               onChange: (v) {
@@ -832,13 +865,19 @@ class _RangeDialogState extends State<_RangeDialog>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final names = _names;
-    final preview = names == null
-        ? l10n.diningSetupRangeInvalid
-        : l10n.diningSetupPreview(
-            names.length <= 4
-                ? names.join(', ')
-                : '${names.first}, ${names[1]} … ${names.last} (${names.length})',
-          );
+    // Galat nama dari penyimpanan menggantikan pratinjau nama; galat kursi
+    // tampil di bawah Kursi (F1-10p).
+    final nameError = errorIf((e) => e is DiningNameInvalid);
+    final seatsError = errorIf((e) => e is DiningSeatsInvalid);
+    final preview =
+        nameError ??
+        (names == null
+            ? l10n.diningSetupRangeInvalid
+            : l10n.diningSetupPreview(
+                names.length <= 4
+                    ? names.join(', ')
+                    : '${names.first}, ${names[1]} … ${names.last} (${names.length})',
+              ));
     return DiscardChangesScope(
       dirty: _signature != _initial,
       busy: saving,
@@ -848,7 +887,7 @@ class _RangeDialogState extends State<_RangeDialog>
         context,
         key: const ValueKey('dining-setup-range-dialog'),
         title: l10n.diningSetupTableRange,
-        error: saveError,
+        error: nameError == null && seatsError == null ? saveError : null,
         children: [
           _field(
             'dining-setup-range-prefix',
@@ -884,7 +923,10 @@ class _RangeDialogState extends State<_RangeDialog>
             l10n.diningSetupSeats,
             () => _seats,
             (v) => _seats = v,
-            error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
+            error: fieldError(
+              _seatsBad ? l10n.diningSetupErrSeats : null,
+              seatsError,
+            ),
           ),
           if (widget.areas.isNotEmpty)
             FSelect<String>(
@@ -901,7 +943,7 @@ class _RangeDialogState extends State<_RangeDialog>
             preview,
             key: const ValueKey('dining-setup-range-preview'),
             style: context.theme.typography.body.sm.copyWith(
-              color: names == null
+              color: names == null || nameError != null
                   ? context.theme.colors.destructive
                   : context.theme.colors.mutedForeground,
             ),

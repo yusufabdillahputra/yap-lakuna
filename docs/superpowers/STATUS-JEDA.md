@@ -91,6 +91,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.108.0 | Dialog area, meja, dan rentang meja tanya sebelum ditutup (F1-10n) | #114 |
 | v0.109.0 | Simpan area/meja/rentang yang ditolak tidak menutup dialog; galat tampil di dialog (F1-10o) | #115 |
 | v0.110.0 | *Ganti kasir* bertanya dulu bila form belum disimpan (F1-02b) | #116 |
+| v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -256,6 +257,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 52. ~~*Ganti kasir* membuang isian form pembelian / produk / pengeluaran /
     draf penyesuaian tanpa bertanya~~ — selesai v0.110.0 (F1-02b): *Buang
     perubahan?* dulu, sama dengan pindah menu.
+53. ~~Nama area/meja kembar tampil di kotak merah jauh dari kolom Nama~~ —
+    selesai v0.111.0 (F1-10p): galat nama di bawah Nama, kursi di bawah
+    Kursi, nama rentang menggantikan pratinjau.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
