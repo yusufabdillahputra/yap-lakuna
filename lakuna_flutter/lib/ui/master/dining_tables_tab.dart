@@ -7,6 +7,8 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../../utils/command.dart';
+import '../../utils/result.dart';
 import '../core/confirm_discard.dart';
 import '../products/product_widgets.dart';
 import 'dining_setup_view_model.dart';
@@ -50,52 +52,53 @@ class DiningTablesTab extends StatefulWidget {
 }
 
 class _DiningTablesTabState extends State<DiningTablesTab> {
-  /// Nama dari *Tambah beberapa* terakhir, untuk pesan nama kembar.
-  List<String> _lastNames = const [];
-
-  /// Batas nama aksi terakhir (area 40, meja 20).
-  int _nameMax = FnbLimits.tableName;
-
   DiningSetupViewModel get _vm => widget.viewModel;
 
-  Future<void> _areaDialog({DiningArea? area}) async {
-    final name = await _showDialog<String>(
-      context,
-      (context) => _AreaDialog(area: area),
-    );
-    if (name == null) return;
-    _lastNames = const [];
-    _nameMax = FnbLimits.areaName;
-    if (area == null) {
-      await _vm.addArea.execute(name);
-    } else {
-      await _vm.renameArea.execute((area.id, name));
-    }
+  /// Menjalankan simpan dari dalam dialog (F1-10o): `null` bila berhasil,
+  /// selain itu galatnya, yang diubah menjadi pesan oleh dialog sendiri
+  /// (tab ini bisa dibangun ulang selama dialog terbuka, mis. saat jendela
+  /// melewati 900 px). Galat tidak ikut tampil di tab.
+  Future<Exception?> _saveFromDialog<A>(
+    Command1<void, A> command,
+    A argument,
+  ) async {
+    await command.execute(argument);
+    final result = command.result;
+    _vm.clearError();
+    return switch (result) {
+      Ok() => null,
+      Error(:final error) => error,
+      // Perintah yang sama masih berjalan: anggap gagal, dialog tetap buka.
+      null => _SaveNotRun(),
+    };
   }
 
-  Future<void> _tableDialog({DiningTable? table}) async {
-    final draft = await _showDialog<DiningTableDraft>(
-      context,
-      (context) => _TableDialog(table: table, areas: _vm.areas),
-    );
-    if (draft == null) return;
-    _lastNames = const [];
-    _nameMax = FnbLimits.tableName;
-    await _vm.saveTable.execute((table?.id, draft));
-  }
+  Future<void> _areaDialog({DiningArea? area}) => _showDialog<void>(
+    context,
+    (context) => _AreaDialog(
+      area: area,
+      onSave: (name) => area == null
+          ? _saveFromDialog(_vm.addArea, name)
+          : _saveFromDialog(_vm.renameArea, (area.id, name)),
+    ),
+  );
 
-  Future<void> _rangeDialog() async {
-    final range = await _showDialog<TableRange>(
-      context,
-      (context) => _RangeDialog(areas: _vm.areas),
-    );
-    if (range == null) return;
-    _nameMax = FnbLimits.tableName;
-    _lastNames =
-        DiningSetupViewModel.rangePreview(range.prefix, range.from, range.to) ??
-        const [];
-    await _vm.addRange.execute(range);
-  }
+  Future<void> _tableDialog({DiningTable? table}) => _showDialog<void>(
+    context,
+    (context) => _TableDialog(
+      table: table,
+      areas: _vm.areas,
+      onSave: (draft) => _saveFromDialog(_vm.saveTable, (table?.id, draft)),
+    ),
+  );
+
+  Future<void> _rangeDialog() => _showDialog<void>(
+    context,
+    (context) => _RangeDialog(
+      areas: _vm.areas,
+      onSave: (range) => _saveFromDialog(_vm.addRange, range),
+    ),
+  );
 
   Future<bool> _confirm(String name) async {
     final ok = await _showDialog<bool>(context, (context) {
@@ -208,12 +211,9 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
               key: const ValueKey('dining-setup-error'),
               variant: .destructive,
               title: Text(
-                diningSetupErrorMessage(
-                  l10n,
-                  error,
-                  names: _lastNames,
-                  nameMax: _nameMax,
-                ),
+                // Galat simpan tampil di dialog (F1-10o); di sini hanya
+                // galat hapus / urut.
+                diningSetupErrorMessage(l10n, error),
               ),
             ),
           SectionCard(
@@ -280,7 +280,6 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
                               l10n.diningSetupDelete,
                               () async {
                                 if (await _confirm(a.name)) {
-                                  _lastNames = const [];
                                   await vm.deleteArea.execute(a.id);
                                 }
                               },
@@ -368,7 +367,6 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
                                   l10n.diningSetupDelete,
                                   () async {
                                     if (await _confirm(t.name)) {
-                                      _lastNames = const [];
                                       await vm.deleteTable.execute(t.id);
                                     }
                                   },
@@ -411,6 +409,7 @@ Widget _frame(
   required List<Widget> children,
   required List<Widget> actions,
   Key? key,
+  String? error,
 }) {
   final theme = context.theme;
   return Padding(
@@ -436,6 +435,12 @@ Widget _frame(
               ),
             ),
           ...children,
+          if (error != null)
+            FAlert(
+              key: const ValueKey('dining-setup-dialog-error'),
+              variant: .destructive,
+              title: Text(error),
+            ),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -452,7 +457,7 @@ List<Widget> _saveCancel(
   BuildContext context, {
   required String saveKey,
   required String cancelKey,
-  required VoidCallback onSave,
+  required VoidCallback? onSave,
 }) {
   final l10n = AppLocalizations.of(context);
   return [
@@ -494,16 +499,74 @@ final _digits = [
   LengthLimitingTextInputFormatter(2),
 ];
 
+/// Simpan dari dalam dialog (F1-10o): `null` bila berhasil, selain itu
+/// galat penyimpanan.
+typedef _DialogSave<T> = Future<Exception?> Function(T value);
+
+/// Simpan yang tidak berjalan (perintah yang sama masih berjalan) atau
+/// gagal tanpa `Exception`; tampil sebagai *Aksi gagal. Coba lagi.*
+class _SaveNotRun implements Exception {}
+
+/// Keadaan simpan bersama dialog area, meja, dan rentang (F1-10o): simpan
+/// berjalan menahan dialog, galat simpan tampil di dialog dan hilang saat
+/// isian diubah.
+mixin _DialogSaving<W extends StatefulWidget> on State<W> {
+  var saving = false;
+  String? saveError;
+
+  /// Mengubah isian sekaligus menghapus galat simpan.
+  void edit(VoidCallback change) => setState(() {
+    change();
+    saveError = null;
+  });
+
+  Future<void> runSave<T>(
+    _DialogSave<T> onSave,
+    T value, {
+    List<String> names = const [],
+    int nameMax = FnbLimits.tableName,
+  }) async {
+    setState(() {
+      saving = true;
+      saveError = null;
+    });
+    Exception? error;
+    try {
+      error = await onSave(value);
+    } on Object {
+      // Galat tak terduga (mis. `StateError`) tidak boleh mengunci dialog.
+      error = _SaveNotRun();
+    }
+    if (!mounted) return;
+    if (error == null) {
+      Navigator.of(context).pop();
+      return;
+    }
+    final message = diningSetupErrorMessage(
+      AppLocalizations.of(context),
+      error,
+      names: names,
+      nameMax: nameMax,
+    );
+    setState(() {
+      saving = false;
+      saveError = message;
+    });
+  }
+}
+
 class _AreaDialog extends StatefulWidget {
-  const _AreaDialog({this.area});
+  const _AreaDialog({this.area, required this.onSave});
 
   final DiningArea? area;
+  final _DialogSave<String> onSave;
 
   @override
   State<_AreaDialog> createState() => _AreaDialogState();
 }
 
-class _AreaDialogState extends State<_AreaDialog> {
+class _AreaDialogState extends State<_AreaDialog>
+    with _DialogSaving<_AreaDialog> {
   late var _name = widget.area?.name ?? '';
   var _empty = false;
 
@@ -511,11 +574,12 @@ class _AreaDialogState extends State<_AreaDialog> {
   late final _initial = _name.trim();
 
   void _save() {
+    if (saving) return;
     if (_name.trim().isEmpty) {
       setState(() => _empty = true);
       return;
     }
-    Navigator.of(context).pop(_name.trim());
+    runSave(widget.onSave, _name.trim(), nameMax: FnbLimits.areaName);
   }
 
   @override
@@ -523,7 +587,7 @@ class _AreaDialogState extends State<_AreaDialog> {
     final l10n = AppLocalizations.of(context);
     return DiscardChangesScope(
       dirty: _name.trim() != _initial,
-      busy: false,
+      busy: saving,
       body: l10n.diningAreaDiscardBody,
       dialogKey: 'dining-area-discard',
       child: _frame(
@@ -532,6 +596,7 @@ class _AreaDialogState extends State<_AreaDialog> {
         title: widget.area == null
             ? l10n.diningSetupNewArea
             : l10n.diningSetupRenameArea,
+        error: saveError,
         children: [
           FTextField(
             key: const ValueKey('dining-setup-area-name'),
@@ -541,7 +606,10 @@ class _AreaDialogState extends State<_AreaDialog> {
             error: _empty ? Text(l10n.diningSetupErrNameEmpty) : null,
             control: .managed(
               initial: TextEditingValue(text: _name),
-              onChange: (v) => setState(() => _name = v.text),
+              onChange: (v) {
+                // Geser kursor saja bukan perubahan isian.
+                if (v.text != _name) edit(() => _name = v.text);
+              },
             ),
             onSubmit: (_) => _save(),
           ),
@@ -550,7 +618,7 @@ class _AreaDialogState extends State<_AreaDialog> {
           context,
           saveKey: 'dining-setup-area-save',
           cancelKey: 'dining-setup-area-cancel',
-          onSave: _save,
+          onSave: saving ? null : _save,
         ),
       ),
     );
@@ -558,16 +626,22 @@ class _AreaDialogState extends State<_AreaDialog> {
 }
 
 class _TableDialog extends StatefulWidget {
-  const _TableDialog({this.table, required this.areas});
+  const _TableDialog({
+    this.table,
+    required this.areas,
+    required this.onSave,
+  });
 
   final DiningTable? table;
   final List<DiningArea> areas;
+  final _DialogSave<DiningTableDraft> onSave;
 
   @override
   State<_TableDialog> createState() => _TableDialogState();
 }
 
-class _TableDialogState extends State<_TableDialog> {
+class _TableDialogState extends State<_TableDialog>
+    with _DialogSaving<_TableDialog> {
   late var _name = widget.table?.name ?? '';
   late var _seats = '${widget.table?.seats ?? 4}';
   late UuidValue? _area = widget.table?.diningAreaId;
@@ -584,13 +658,15 @@ class _TableDialogState extends State<_TableDialog> {
       (_name.trim(), _area, int.tryParse(_seats) ?? 0, _canMerge);
 
   void _save() {
+    if (saving) return;
     final seats = int.tryParse(_seats) ?? 0;
     setState(() {
       _nameEmpty = _name.trim().isEmpty;
       _seatsBad = seats < 1 || seats > FnbLimits.seatsMax;
     });
     if (_nameEmpty || _seatsBad) return;
-    Navigator.of(context).pop(
+    runSave(
+      widget.onSave,
       DiningTableDraft(
         name: _name.trim(),
         areaId: _area,
@@ -605,7 +681,7 @@ class _TableDialogState extends State<_TableDialog> {
     final l10n = AppLocalizations.of(context);
     return DiscardChangesScope(
       dirty: _signature != _initial,
-      busy: false,
+      busy: saving,
       body: l10n.diningTableDiscardBody,
       dialogKey: 'dining-table-discard',
       child: _frame(
@@ -614,6 +690,7 @@ class _TableDialogState extends State<_TableDialog> {
         title: widget.table == null
             ? l10n.diningSetupNewTable
             : l10n.diningSetupEditTable,
+        error: saveError,
         children: [
           FTextField(
             key: const ValueKey('dining-setup-table-name'),
@@ -623,7 +700,9 @@ class _TableDialogState extends State<_TableDialog> {
             error: _nameEmpty ? Text(l10n.diningSetupErrNameEmpty) : null,
             control: .managed(
               initial: TextEditingValue(text: _name),
-              onChange: (v) => setState(() => _name = v.text),
+              onChange: (v) {
+                if (v.text != _name) edit(() => _name = v.text);
+              },
             ),
           ),
           if (widget.areas.isNotEmpty)
@@ -634,7 +713,7 @@ class _TableDialogState extends State<_TableDialog> {
               items: _areaItems(l10n.diningSetupNoArea, widget.areas),
               control: .managed(
                 initial: _area?.uuid ?? '',
-                onChange: (v) => setState(() => _area = _areaId(v)),
+                onChange: (v) => edit(() => _area = _areaId(v)),
               ),
             ),
           FTextField(
@@ -645,7 +724,9 @@ class _TableDialogState extends State<_TableDialog> {
             error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
             control: .managed(
               initial: TextEditingValue(text: _seats),
-              onChange: (v) => setState(() => _seats = v.text),
+              onChange: (v) {
+                if (v.text != _seats) edit(() => _seats = v.text);
+              },
             ),
             onSubmit: (_) => _save(),
           ),
@@ -654,14 +735,14 @@ class _TableDialogState extends State<_TableDialog> {
             label: Text(l10n.floorCanMerge),
             description: Text(l10n.diningSetupCanMergeHint),
             value: _canMerge,
-            onChange: (v) => setState(() => _canMerge = v),
+            onChange: (v) => edit(() => _canMerge = v),
           ),
         ],
         actions: _saveCancel(
           context,
           saveKey: 'dining-setup-table-save',
           cancelKey: 'dining-setup-table-cancel',
-          onSave: _save,
+          onSave: saving ? null : _save,
         ),
       ),
     );
@@ -669,15 +750,17 @@ class _TableDialogState extends State<_TableDialog> {
 }
 
 class _RangeDialog extends StatefulWidget {
-  const _RangeDialog({required this.areas});
+  const _RangeDialog({required this.areas, required this.onSave});
 
   final List<DiningArea> areas;
+  final _DialogSave<TableRange> onSave;
 
   @override
   State<_RangeDialog> createState() => _RangeDialogState();
 }
 
-class _RangeDialogState extends State<_RangeDialog> {
+class _RangeDialogState extends State<_RangeDialog>
+    with _DialogSaving<_RangeDialog> {
   var _prefix = 'M';
   var _from = '1';
   var _to = '12';
@@ -705,10 +788,12 @@ class _RangeDialogState extends State<_RangeDialog> {
   );
 
   void _save() {
+    if (saving) return;
     final seats = int.tryParse(_seats) ?? 0;
     setState(() => _seatsBad = seats < 1 || seats > FnbLimits.seatsMax);
     if (_seatsBad || _names == null) return;
-    Navigator.of(context).pop(
+    runSave(
+      widget.onSave,
       TableRange(
         prefix: _prefix,
         from: int.parse(_from),
@@ -716,13 +801,14 @@ class _RangeDialogState extends State<_RangeDialog> {
         seats: seats,
         areaId: _area,
       ),
+      names: _names!,
     );
   }
 
   Widget _field(
     String key,
     String label,
-    String initial,
+    ValueGetter<String> value,
     ValueChanged<String> onChange, {
     bool digits = true,
     Widget? error,
@@ -734,8 +820,11 @@ class _RangeDialogState extends State<_RangeDialog> {
     maxLength: digits ? null : 10,
     error: error,
     control: .managed(
-      initial: TextEditingValue(text: initial),
-      onChange: (v) => setState(() => onChange(v.text)),
+      initial: TextEditingValue(text: value()),
+      onChange: (v) {
+        // Geser kursor saja bukan perubahan isian.
+        if (v.text != value()) edit(() => onChange(v.text));
+      },
     ),
   );
 
@@ -752,18 +841,19 @@ class _RangeDialogState extends State<_RangeDialog> {
           );
     return DiscardChangesScope(
       dirty: _signature != _initial,
-      busy: false,
+      busy: saving,
       body: l10n.diningRangeDiscardBody,
       dialogKey: 'dining-range-discard',
       child: _frame(
         context,
         key: const ValueKey('dining-setup-range-dialog'),
         title: l10n.diningSetupTableRange,
+        error: saveError,
         children: [
           _field(
             'dining-setup-range-prefix',
             l10n.diningSetupPrefix,
-            _prefix,
+            () => _prefix,
             (v) => _prefix = v,
             digits: false,
           ),
@@ -775,7 +865,7 @@ class _RangeDialogState extends State<_RangeDialog> {
                 child: _field(
                   'dining-setup-range-from',
                   l10n.diningSetupFrom,
-                  _from,
+                  () => _from,
                   (v) => _from = v,
                 ),
               ),
@@ -783,7 +873,7 @@ class _RangeDialogState extends State<_RangeDialog> {
                 child: _field(
                   'dining-setup-range-to',
                   l10n.diningSetupTo,
-                  _to,
+                  () => _to,
                   (v) => _to = v,
                 ),
               ),
@@ -792,7 +882,7 @@ class _RangeDialogState extends State<_RangeDialog> {
           _field(
             'dining-setup-range-seats',
             l10n.diningSetupSeats,
-            _seats,
+            () => _seats,
             (v) => _seats = v,
             error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
           ),
@@ -804,7 +894,7 @@ class _RangeDialogState extends State<_RangeDialog> {
               items: _areaItems(l10n.diningSetupNoArea, widget.areas),
               control: .managed(
                 initial: '',
-                onChange: (v) => setState(() => _area = _areaId(v)),
+                onChange: (v) => edit(() => _area = _areaId(v)),
               ),
             ),
           Text(
@@ -821,7 +911,7 @@ class _RangeDialogState extends State<_RangeDialog> {
           context,
           saveKey: 'dining-setup-range-save',
           cancelKey: 'dining-setup-range-cancel',
-          onSave: _save,
+          onSave: saving ? null : _save,
         ),
       ),
     );

@@ -89,6 +89,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.106.0 | Harga beli terakhir untuk satuan konversi (dus/pak) di form pembelian (F1-12h) | #112 |
 | v0.107.0 | Dialog grup modifier, grup pelanggan, jenis pengeluaran tanya sebelum ditutup (F1-09b) | #113 |
 | v0.108.0 | Dialog area, meja, dan rentang meja tanya sebelum ditutup (F1-10n) | #114 |
+| v0.109.0 | Simpan area/meja/rentang yang ditolak tidak menutup dialog; galat tampil di dialog (F1-10o) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -248,6 +249,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     diketuk di luar / Esc / Batal~~ — selesai v0.108.0 (F1-10n): *Buang
     perubahan?* juga untuk dialog area dan meja; nilai bawaan rentang bukan
     perubahan.
+51. ~~Rentang meja yang bentrok (mis. M7 sudah ada) menutup dialog dan
+    membuang isian~~ — selesai v0.109.0 (F1-10o): simpan dari dalam
+    dialog, galat tampil di dialog, isian utuh; juga dialog area dan meja.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
