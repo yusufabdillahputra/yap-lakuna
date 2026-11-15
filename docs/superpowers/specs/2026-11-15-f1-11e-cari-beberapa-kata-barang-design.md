@@ -64,7 +64,7 @@ produk *Teh Celup* varian *Melati*.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Beberapa kata melintasi nama produk + varian | 1.14 | Rilis v0.101.0 | Per baris barang, urutan bebas. |
-| Cari nama modifier | — | Belum | Sama seperti F1-11d. |
+| Cari nama modifier | 1.14 | Rilis v0.103.0 | [F1-11f](2026-11-15-f1-11f-cari-nama-modifier-design.md). |
 | Kata tanpa spasi (`5kg` vs `5 kg`) | — | Belum | Dicocokkan apa adanya. |
 | Huruf kecil non-ASCII yang diketik (`éspresso` untuk `ÉSPRESSO`) di SQLite | — | Belum | Sama seperti F1-11b: `LOWER` SQLite hanya A–Z. Postgres (Fase 2) melipat Unicode. |
 | Garis miring terbalik `\` di kata kunci pada Postgres | — | Belum (Fase 2) | `LIKE` Postgres memakai `\` sebagai escape; perlu `ESCAPE` eksplisit. SQLite tidak terpengaruh. |

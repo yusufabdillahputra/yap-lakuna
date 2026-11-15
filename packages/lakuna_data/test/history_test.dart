@@ -565,6 +565,144 @@ void main() {
       expect(await find('k o p i d o b e l x'), isEmpty);
     });
 
+    test('cocok nama modifier di baris barang yang sama (F1-11f)', () async {
+      await saveModifierGroup(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        draft: const ModifierGroupDraft(
+          name: 'Topping',
+          minSelect: 0,
+          maxSelect: 2,
+          options: [
+            ModifierOptionDraft(name: 'Extra Shot', priceDelta: Money(5000)),
+            ModifierOptionDraft(name: 'Boba', priceDelta: Money(4000)),
+          ],
+        ),
+      );
+      final [topping] = await modifierGroupRows(store, scope);
+      final shot = topping.options.firstWhere((o) => o.name == 'Extra Shot');
+      final es = await product(
+        ProductDraft(
+          name: 'Es Kopi Susu',
+          baseUnit: 'gelas',
+          variants: const [
+            VariantDraft(name: 'Reguler', sellPrice: Money(18000)),
+          ],
+          modifierGroupIds: [topping.id.uuid],
+        ),
+      );
+      await openSession();
+      Future<UuidValue> order(
+        List<(CatalogProduct, List<UuidValue>)> lines,
+      ) async {
+        final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
+        for (final (p, mods) in lines) {
+          await addBillItem(
+            store,
+            scope,
+            staffId: ctx.owner.id,
+            billId: bill.id,
+            line: SaleLineRequest(variantId: v(p).id, quantity: Qty(1000)),
+            modifierIds: mods,
+          );
+        }
+        final paid = await payOpenBill(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          billId: bill.id,
+          payments: const [SalePaymentRequest.cash(Money(100000))],
+        );
+        return paid.sale.id;
+      }
+
+      final plain = await order([(es, const [])]);
+      final withShot = await order([
+        (es, [shot.id]),
+        (roti, const []),
+      ]);
+      Future<List<UuidValue>> find(String q) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id,
+      ];
+
+      expect(await find('extra shot'), [withShot]);
+      expect(await find('SHOT'), [withShot]);
+      expect(await find('kopi extra'), [withShot]);
+      expect(await find('shot kopi susu'), [withShot]);
+      expect(await find('es kopi'), [withShot, plain]);
+      // Opsi yang tidak dipilih dan nama grup tidak dicari.
+      expect(await find('boba'), isEmpty);
+      expect(await find('topping'), isEmpty);
+      // Modifier satu barang + nama barang lain di nota yang sama.
+      expect(await find('roti shot'), isEmpty);
+      expect(await find('extra %hot'), isEmpty);
+      expect(await find('sh_t'), isEmpty);
+
+      // Barang bermodifier yang dihapus dari bill sebelum dibayar tidak
+      // ikut dicari.
+      final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
+      final added = await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(es).id, quantity: Qty(1000)),
+        modifierIds: [topping.options.firstWhere((o) => o.name == 'Boba').id],
+      );
+      await setBillItemQuantity(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        itemId: added.items.single.id,
+        quantity: Qty.zero,
+      );
+      await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(roti).id, quantity: Qty(1000)),
+      );
+      await payOpenBill(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        payments: const [SalePaymentRequest.cash(Money(100000))],
+      );
+      expect(await find('boba'), isEmpty);
+
+      // Nama opsi di master diubah: nota lama tetap memakai nama saat
+      // transaksi.
+      await saveModifierGroup(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: topping.id,
+        draft: ModifierGroupDraft(
+          name: 'Topping',
+          minSelect: 0,
+          maxSelect: 2,
+          options: [
+            ModifierOptionDraft(
+              id: shot.id.uuid,
+              name: 'Double Shot',
+              priceDelta: const Money(5000),
+            ),
+          ],
+        ),
+      );
+      expect(await find('extra shot'), [withShot]);
+      expect(await find('double'), isEmpty);
+    });
+
     test('hasil dibatasi dan ditandai terpotong', () async {
       await openSession();
       final a = await sell({kopi: 1000});

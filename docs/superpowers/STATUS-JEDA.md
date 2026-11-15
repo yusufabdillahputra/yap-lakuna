@@ -83,6 +83,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | #106 |
 | v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | #107 |
 | v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | #108 |
+| v0.103.0 | Cari Riwayat lewat nama modifier, mis. `extra shot` (F1-11f) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -155,7 +156,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     tamu sekaligus masih gap.
 25. ~~Cari nota Riwayat lewat nama barang~~ — selesai v0.81.0 (F1-11d);
     ~~kata kunci yang melintasi nama produk + varian~~ — selesai v0.101.0
-    (F1-11e). Nama modifier dan `5kg` tanpa spasi masih gap.
+    (F1-11e). ~~Nama modifier~~ — selesai v0.103.0 (F1-11f). `5kg` tanpa
+    spasi, nama grup modifier, dan catatan item masih gap.
 26. ~~Umur hutang (dan piutang) di Laporan~~ — selesai v0.82.0 (F1-16c);
     umur per nama dan kelompok yang bisa diatur masih gap.
 27. ~~Supplier terakhir per barang di pembelian dari stok minimum~~ —
@@ -216,6 +218,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     membayar~~ — selesai v0.102.0 (F1-10m): *Cetak tagihan* per kartu
     tamu (Per item, Rata) memuat porsi tamu, bagian diskon/service/PB1,
     dan TAGIHAN TAMU; dialog pratinjau dipakai bersama tagihan Meja.
+45. ~~Cari Riwayat `extra shot` tidak menemukan pesanan bermodifier~~ —
+    selesai v0.103.0 (F1-11f): kata kunci juga dicocokkan ke nama opsi
+    modifier baris barang yang sama (salinan di nota).
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
