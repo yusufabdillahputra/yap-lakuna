@@ -7,6 +7,56 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.105.0] - 2026-11-15
+
+Barang yang sama sering dibeli dari beberapa supplier dengan harga
+berbeda. Form pembelian kini mengisi harga dari supplier yang dipilih.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** harga beli baris satuan dasar diambil dari
+  pembelian diterima terakhir **dari supplier yang dipilih** di form.
+  Barang yang belum pernah dibeli dari supplier itu memakai harga
+  pembelian terakhir dari supplier mana pun, lalu harga modal.
+- Mengganti supplier (memilih supplier lain, mengosongkan, atau mengetik
+  supplier baru) menyegarkan harga semua baris yang harganya belum
+  diketik staf.
+- Panduan *Pembelian* menjelaskan asal harga per supplier (ID + EN).
+
+### Diubah
+
+- Form dari *Stok minimum* memilih supplier terakhir lebih dulu, lalu
+  mengisi harga dari supplier itu (sebelumnya harga diisi sebelum
+  supplier dipilih). *Buka draf* memakai supplier draf untuk barang yang
+  ditambahkan.
+- "Harga belum diubah staf" kini dicatat per baris (`autoPrice`), bukan
+  ditebak dari harga yang sama dengan harga modal. Baris draf tersimpan
+  dianggap sudah ditetapkan, jadi mengganti supplier draf tidak mengubah
+  harganya.
+
+### Catatan teknis
+
+- `lastPurchasePricesOf(..., {supplierId})` menyaring
+  `purchases.supplier_id`; repositori `lastPurchasePrices(ids,
+  {supplierId})`.
+- `PurchaseFormViewModel`: tembolok harga per supplier di samping
+  tembolok semua supplier (`_ensureLastPrices`, `_lastPriceFor`),
+  penyegaran `_refreshAutoPrices` dengan revisi `_priceRev` (hasil
+  supplier lama dibuang) dan ditunggu simpan/terima lewat
+  `_pendingFills`.
+- Hasil harga yang datang terlambat dibuang bila supplier sudah
+  berganti: penyegaran lama (`_priceRev`, naik juga saat form dikosongkan
+  atau draf dimuat), harga barang baru (`_fillLastPrice`), dan harga
+  baris stok minimum (`_applyRestockPrices`).
+- `setUnitPrice` mengabaikan harga yang sama. Isian harga Forui memanggil
+  `onChange` saat difokus atau seleksinya berubah; tanpa ini, baris yang
+  hanya diketuk dianggap diketik staf dan tidak lagi ikut ganti supplier
+  (ditemukan saat review).
+- Tes data, VM, dan widget baru. Setiap penjaga diverifikasi mutasi:
+  tanpa saringan supplier, tanpa penyegaran, urutan restock lama, tanpa
+  revisi penyegaran, tanpa penjaga supplier di harga barang baru dan
+  stok minimum, serta `setUnitPrice` tanpa cek harga sama.
+
 ## [0.104.0] - 2026-11-15
 
 Stock opname puluhan produk tidak lagi hilang karena salah ketuk menu
@@ -6500,7 +6550,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...HEAD
+[0.105.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...v0.105.0
 [0.104.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...v0.104.0
 [0.103.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...v0.103.0
 [0.102.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.101.0...v0.102.0

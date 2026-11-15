@@ -488,28 +488,46 @@ class FakePurchasesRepository extends PurchasesRepository {
   /// [lastPurchasePrices] (F1-08e).
   final lastPriceOf = <UuidValue, Money>{};
 
+  /// Harga beli terakhir per supplier lalu varian (F1-12g).
+  final lastPriceBySupplier = <UuidValue, Map<UuidValue, Money>>{};
+
   /// Jumlah panggilan [lastPurchasePrices] (F1-12e).
   var lastPriceCalls = 0;
+
+  /// Supplier yang diminta di tiap panggilan [lastPurchasePrices] (F1-12g).
+  final lastPriceSuppliers = <UuidValue?>[];
 
   /// Menahan [lastPurchasePrices] sampai selesai (F1-12f).
   Completer<void>? lastPricesGate;
 
+  /// Menahan [lastPurchasePrices] untuk satu supplier saja (`null` = semua
+  /// supplier) (F1-12g).
+  final lastPricesGateOf = <UuidValue?, Completer<void>>{};
+
   @override
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
-    Iterable<UuidValue> variantIds,
-  ) async {
+    Iterable<UuidValue> variantIds, {
+    UuidValue? supplierId,
+  }) async {
     if (lastPricesGate case final gate?) await gate.future;
-    return _lastPrices(variantIds);
+    if (lastPricesGateOf[supplierId] case final gate?) await gate.future;
+    return _lastPrices(variantIds, supplierId);
   }
 
-  Result<Map<UuidValue, Money>> _lastPrices(Iterable<UuidValue> variantIds) =>
-      _guard(() {
-        lastPriceCalls++;
-        return {
-          for (final id in variantIds)
-            if (lastPriceOf.containsKey(id)) id: lastPriceOf[id]!,
-        };
-      });
+  Result<Map<UuidValue, Money>> _lastPrices(
+    Iterable<UuidValue> variantIds,
+    UuidValue? supplierId,
+  ) => _guard(() {
+    lastPriceCalls++;
+    lastPriceSuppliers.add(supplierId);
+    final prices = supplierId == null
+        ? lastPriceOf
+        : (lastPriceBySupplier[supplierId] ?? const <UuidValue, Money>{});
+    return {
+      for (final id in variantIds)
+        if (prices.containsKey(id)) id: prices[id]!,
+    };
+  });
 
   /// Galat untuk [restockDrafts] (F1-08g).
   Exception? restockDraftsError;

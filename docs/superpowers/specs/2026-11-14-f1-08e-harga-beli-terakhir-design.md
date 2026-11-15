@@ -72,5 +72,5 @@ biasanya belum berubah sejak pembelian terakhir.
 | --- | --- | --- | --- |
 | Harga beli terakhir di pembelian dari stok minimum | 1.18 / 1.19 | Rilis v0.89.0 | Per satuan dasar, pembelian diterima terbaru di cabang. |
 | Harga beli terakhir saat menambah barang manual di form pembelian | — | Rilis v0.92.0 | [F1-12e](2026-11-14-f1-12e-harga-terakhir-barang-manual-design.md). |
-| Harga terakhir per supplier terpilih | — | Belum | Harga diambil dari pembelian terakhir mana pun, bukan dari supplier yang dipilih form. |
+| Harga terakhir per supplier terpilih | — | Selesai v0.105.0 | [F1-12g](2026-11-15-f1-12g-harga-terakhir-per-supplier-design.md): supplier terakhir dipilih dulu, lalu harga dari supplier itu. |
 | Harga terakhir setelah ganti satuan | — | Rilis v0.92.0 | Kembali ke satuan dasar memakai harga terakhir lagi ([F1-12e](2026-11-14-f1-12e-harga-terakhir-barang-manual-design.md)). |
