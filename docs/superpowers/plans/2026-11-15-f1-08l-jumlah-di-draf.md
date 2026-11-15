@@ -11,4 +11,4 @@ Spec: [F1-08l](../specs/2026-11-15-f1-08l-jumlah-di-draf-design.md).
   `/mnt/project-files/lakuna/f1-08l/`.
 - [x] 6. Dokumen: spec, gap F1-08h, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#118).

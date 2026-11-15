@@ -69,6 +69,23 @@ void main() {
       expect(phoneMatchesQuery(phone, '0813\u00A02222'), isTrue);
     });
 
+    test('garis miring sebagai pemisah (F1-13f)', () {
+      expect(phoneMatchesQuery(phone, '0813/2222/1010'), isTrue);
+      expect(phoneMatchesQuery(phone, '0813 / 2222'), isTrue);
+      expect(phoneSearchKeys('021/5551234'), ['0215551234']);
+      expect(phoneMatchesQuery('0215551234', '021/555'), isTrue);
+      expect(phoneSearchKeys('+62/813/2222'), ['08132222']);
+      expect(phoneMatchesQuery('085762813999', '+62/813'), isFalse);
+      // Garis miring Unicode yang tersalin dari aplikasi lain.
+      expect(phoneMatchesQuery(phone, '0813\u22152222'), isTrue);
+      expect(phoneMatchesQuery(phone, '0813\uFF0F2222'), isTrue);
+      // Tetap bukan pola HP: berhuruf, digit kurang, pemisah lain.
+      expect(phoneSearchKeys('0813/abc'), isEmpty);
+      expect(phoneSearchKeys('08/'), isEmpty);
+      expect(phoneSearchKeys('0813_2222'), isEmpty);
+      expect(phoneSearchKeys('0813\\2222'), isEmpty);
+    });
+
     test('tidak cocok', () {
       expect(phoneMatchesQuery(phone, '0857'), isFalse);
       expect(phoneMatchesQuery(phone, '+62 857'), isFalse);

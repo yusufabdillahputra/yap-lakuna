@@ -7,6 +7,40 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.113.0] - 2026-11-15
+
+Nomor HP yang ditulis dengan garis miring, mis. `021/5551234` atau
+`0812/3456/7890`, kini ditemukan di semua kolom cari.
+
+### Diperbaiki
+
+- **Cari nomor HP (1.14 Riwayat, 1.20 Pelanggan, 1.21 Supplier, 1.4b
+  pilih pelanggan Kasir, 1.5b *Kredit*, bill Meja):** garis miring `/`
+  diterima sebagai pemisah, sama seperti spasi dan `+ - ( ) .`.
+  Sebelumnya `0813/2222` dianggap teks biasa sehingga pelanggan dengan HP
+  `081322221010` tidak ditemukan. Garis miring Unicode yang bisa tersalin
+  dari aplikasi lain (U+2215, U+FF0F) dianggap `/`. Aturan lain tidak
+  berubah: minimal 3 angka, `+62` menjadi `0`, kata berhuruf tidak
+  dicocokkan ke HP.
+- **Pelanggan baru dari kolom cari (Kasir, *Kredit*, Meja):** kata
+  pencarian berupa nomor dengan garis miring, garis miring / tanda hubung
+  Unicode, atau salinan WhatsApp bertanda arah tak terlihat kini mengisi
+  kolom **HP**, bukan **Nama**. Sebelumnya mengetik `021/5551234` lalu
+  **Pelanggan baru** menyimpan nomor itu sebagai nama pelanggan.
+
+### Catatan teknis
+
+- `lakuna_domain` `phoneSearchKeys`: pola kata kunci HP
+  `^[\d\s+\-()./]+$`; U+2215 / U+FF0F diganti `/` sebelum dicek.
+- `customerDraftFromQuery` memakai `phoneSearchKeys(q).isNotEmpty` +
+  minimal 6 digit, menggantikan pola sendiri.
+- Tanggal yang diketik di kolom cari (`15/11`) kini juga menjadi kunci HP
+  `1511`; kunci HP hanya menambah hasil, tidak menyembunyikan yang lain.
+- Tes: domain (garis miring, Unicode, cocok palsu `+62/813`), Riwayat
+  `0812/3456/7890`, view model Pelanggan `0857/1111`, draf pelanggan baru.
+- Spec [F1-13f](docs/superpowers/specs/2026-11-15-f1-13f-garis-miring-hp-design.md);
+  gap F1-13d *Garis miring dan pemisah lain* ditutup.
+
 ## [0.112.0] - 2026-11-15
 
 Barang di bawah stok minimum kini menyebut berapa yang sudah dipesan di
@@ -6825,7 +6859,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...HEAD
+[0.113.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...v0.113.0
 [0.112.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.111.0...v0.112.0
 [0.111.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...v0.111.0
 [0.110.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...v0.110.0

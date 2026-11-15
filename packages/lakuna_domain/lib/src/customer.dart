@@ -29,7 +29,7 @@ String normalizePhone(String raw) {
 /// Digit minimum agar kata kunci dicocokkan dengan nomor HP (F1-13d).
 const phoneQueryMinDigits = 3;
 
-final _phoneQueryPattern = RegExp(r'^[\d\s+\-().]+$');
+final _phoneQueryPattern = RegExp(r'^[\d\s+\-()./]+$');
 
 /// Tanda arah tak terlihat yang ikut tersalin dari WhatsApp / kontak
 /// Android (U+200E/F, U+202A–E, U+2066–9, U+FEFF).
@@ -40,11 +40,16 @@ final _invisibleMarks = RegExp(
 /// Tanda hubung Unicode (U+2010–2015, minus U+2212) dan spasi tak putus.
 final _unicodeDashes = RegExp('[\u2010-\u2015\u2212]');
 
+/// Garis miring Unicode (U+2215 *division slash*, U+FF0F *fullwidth
+/// solidus*) yang bisa tersalin dari aplikasi lain (F1-13f).
+final _unicodeSlashes = RegExp('[\u2215\uFF0F]');
+
 /// Kunci pencarian HP dari kata kunci [raw] (F1-13d), dicocokkan secara
 /// "memuat" dengan nomor HP tersimpan (sudah dinormalisasi, `08…`).
 ///
-/// Kosong bila [raw] berisi selain digit, spasi, `+ - ( ) .` (tanda arah
-/// tak terlihat dibuang, tanda hubung Unicode dianggap `-`) atau digitnya
+/// Kosong bila [raw] berisi selain digit, spasi, `+ - ( ) . /` (tanda arah
+/// tak terlihat dibuang, tanda hubung Unicode dianggap `-`, garis miring
+/// Unicode dianggap `/`, F1-13f) atau digitnya
 /// kurang dari [phoneQueryMinDigits]. Nomor internasional Indonesia
 /// (`+62…`, atau `62…` minimal 10 digit) menjadi satu kunci dengan awalan
 /// `62` diganti `0`; selain itu kunci = digit apa adanya (cocok untuk
@@ -53,6 +58,7 @@ List<String> phoneSearchKeys(String raw) {
   final q = raw
       .replaceAll(_invisibleMarks, '')
       .replaceAll(_unicodeDashes, '-')
+      .replaceAll(_unicodeSlashes, '/')
       .replaceAll('\u00A0', ' ')
       .trim();
   if (!_phoneQueryPattern.hasMatch(q)) return const [];

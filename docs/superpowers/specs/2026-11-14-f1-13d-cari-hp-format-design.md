@@ -78,4 +78,4 @@ Pelanggan/Supplier menormalisasi sehingga potongan tengah yang berawalan 8
 | Cari HP format apa pun | — | Rilis v0.77.0 | — |
 | HP lama yang tersimpan tidak ternormalisasi | — | Belum | Semua jalur simpan sudah menormalisasi sejak F1-13; data sinkron Fase 2 perlu dicek. |
 | Kode negara selain +62 | — | Belum | Nomor `+60`/`+65` dicocokkan sebagai digit apa adanya. |
-| Garis miring dan pemisah lain (`0812/3456`) | — | Belum | Hanya spasi, `+ - ( ) .` yang diterima. |
+| Garis miring dan pemisah lain (`0812/3456`) | — | Rilis v0.113.0 | Garis miring diterima di [F1-13f](2026-11-15-f1-13f-garis-miring-hp-design.md); `_ , #` tetap tidak. |
