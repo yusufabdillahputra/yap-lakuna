@@ -93,7 +93,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.110.0 | *Ganti kasir* bertanya dulu bila form belum disimpan (F1-02b) | #116 |
 | v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
 | v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | #118 |
-| v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | |
+| v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
