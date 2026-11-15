@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -242,6 +244,109 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  group('keluar dengan isian belum disimpan (F1-15c)', () {
+    testWidgets('1440 px: form kosong keluar langsung; berisi bertanya', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      // Jenis saja bukan isian yang bisa hilang.
+      await _choose(tester, _keyPrefix('expense-category-0-'), 'Transport');
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('expense-discard'), findsNothing);
+      expect(_key('expenses-form-card'), findsNothing);
+
+      await _tap(tester, _key('nav-expenses'));
+      await _type(tester, _key('expense-description-0'), 'Parkir');
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('expense-discard'), findsOneWidget);
+      expect(
+        find.text(
+          'Pengeluaran yang sedang diisi belum disimpan dan akan '
+          'hilang.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, _key('expense-discard-cancel'));
+      expect(_key('expenses-form-card'), findsOneWidget);
+      expect(find.text('Parkir'), findsWidgets);
+
+      // Tombol kembali sistem: rute tingkat atas, go_router tetap
+      // memanggil `onExit`.
+      final popping = tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(_key('expense-discard'), findsOneWidget);
+      await _tap(tester, _key('expense-discard-cancel'));
+      await popping;
+      expect(_key('expenses-form-card'), findsOneWidget);
+
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('expense-discard-confirm'));
+      expect(_key('expenses-form-card'), findsNothing);
+      expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: keluar ditahan selama simpan berjalan', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester);
+      final gate = repo.recordGate = Completer<void>();
+      await tester.tap(_key('expense-save'));
+      await tester.pump();
+      await tester.tap(_key('nav-stock'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(_key('expense-discard'), findsNothing);
+      expect(_key('expenses-form-card'), findsOneWidget);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(repo.expenses.last.description, 'Galon air');
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('expense-discard'), findsNothing);
+      expect(_key('expenses-form-card'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: isian dialog yang ditutup tetap ditanyakan; '
+        'setelah simpan tidak', (tester) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await _type(tester, _key('expense-amount-0'), '5000');
+      await _tap(tester, _key('expense-cancel'));
+      expect(_key('expense-form-dialog'), findsNothing);
+      await _tap(tester, _key('nav-home'));
+      expect(_key('expense-discard'), findsOneWidget);
+      await _tap(tester, _key('expense-discard-cancel'));
+      expect(_key('expenses-new'), findsOneWidget);
+
+      await _tap(tester, _key('expenses-new'));
+      await fill(tester, description: 'Parkir', category: 'Transport');
+      await _tap(tester, _key('expense-save'));
+      expect(repo.expenses.last.description, 'Parkir');
+      await _tap(tester, _key('nav-home'));
+      expect(_key('expense-discard'), findsNothing);
+      expect(_key('expenses-new'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: menu bawah saat dialog form terbuka; Buang menutup '
+        'keduanya', (tester) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await _type(tester, _key('expense-description-0'), 'Parkir');
+      expect(_key('expense-form-dialog'), findsOneWidget);
+      await tester.tap(_key('nav-home'));
+      await tester.pumpAndSettle();
+      expect(_key('expense-discard'), findsOneWidget);
+      await _tap(tester, _key('expense-discard-confirm'));
+      expect(_key('expense-form-dialog'), findsNothing);
+      expect(_key('expenses-new'), findsNothing);
+      expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+  });
 
   testWidgets('tanpa izin tampil galat muat', (tester) async {
     await pump(

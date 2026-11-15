@@ -16,6 +16,8 @@ Create expense categories in **Master data › Expense categories**, for example
    2,000 px before saving.
 5. Tap **Save expense**.
 
+If you switch menus after entering a description, amount, receipt photo, or a different date without saving, Lakuna asks **Discard changes?** first. Choose **Cancel** to go back and save, or **Discard** to leave without saving. On a phone the entry stays when you close the dialog with **Cancel**, so you are asked after closing the dialog too. The chosen category and payment source do not count, because they stay selected for the next expense.
+
 ## Voiding
 
 Open the expense detail, tap **Void expense**, enter a reason, then **Yes, void**. If the money came from the cash drawer, it goes back to the drawer in the open session.

@@ -134,6 +134,7 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
 | Jumlah pakai per jenis | — | Dihitung di memori dari semua pengeluaran tenant | Ganti dengan kueri `GROUP BY` bila data besar. |
 | Sinkronisasi (Fase 2) | — | Belum | Jenis bawaan dibuat per perangkat saat offline: pakai ID deterministik (UUIDv5 tenant + nama) atau gabung saat sync. Batal pengeluaran laci dari perangkat lain mengembalikan uang ke laci perangkat itu; batasi ke perangkat asal. |
 | Isian cari hilang saat lebar melewati 520 px | — | Filter tetap berlaku | Pertahankan controller saat tata letak berganti. |
+| Peringatan keluar dengan isian belum disimpan | 1.22 | Rilis v0.99.0 | [F1-15c](2026-11-15-f1-15c-keluar-form-pengeluaran-design.md). |
 
 ## Kriteria selesai
 

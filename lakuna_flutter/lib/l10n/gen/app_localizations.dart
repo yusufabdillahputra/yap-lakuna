@@ -14567,6 +14567,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Produk baru ini belum disimpan dan akan hilang.'**
   String get productDiscardBodyNew;
+
+  /// No description provided for @expenseDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengeluaran yang sedang diisi belum disimpan dan akan hilang.'**
+  String get expenseDiscardBody;
 }
 
 class _AppLocalizationsDelegate

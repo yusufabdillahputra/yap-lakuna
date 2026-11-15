@@ -79,6 +79,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.96.0 | Jumlah saran stok minimum ikut satuan saat satuan diganti (F1-08j) | #102 |
 | v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | #103 |
 | v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | #104 |
+| v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -185,12 +186,17 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 39. ~~Form pembelian dibuang tanpa bertanya saat ditinggalkan~~ — selesai
     v0.97.0 (F1-12f): Kembali, tombol kembali sistem, menu samping, ganti
     draf di layar lebar (`LeaveGuard` + `GoRoute.onExit`). ~~Form
-    produk~~ — selesai v0.98.0 (F1-07q). Form pengeluaran, pelanggan,
-    supplier, dan simpan langsung dari dialog masih gap.
+    produk~~ — selesai v0.98.0 (F1-07q). ~~Pengeluaran~~ — selesai
+    v0.99.0 (F1-15c). Form pelanggan, supplier, dan simpan langsung dari
+    dialog masih gap.
 40. ~~Form produk dibuang tanpa bertanya saat ditinggalkan~~ — selesai
     v0.98.0 (F1-07q): Batal, Kembali, tombol kembali sistem, menu samping;
     perubahan foto ikut dihitung. Barcode dari *Cetak label* saat form
     sudah berubah ikut terhitung perubahan (gap kecil).
+41. ~~Isian Pengeluaran hilang tanpa bertanya saat pindah menu~~ — selesai
+    v0.99.0 (F1-15c): keterangan, jumlah, foto, atau tanggal lain; layar
+    lebar dan dialog ponsel. Dialog pelanggan / supplier yang tertutup
+    karena ketukan di luar dialog masih gap.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -5587,5 +5587,9 @@
       }
     }
   },
-  "productDiscardBodyNew": "Produk baru ini belum disimpan dan akan hilang."
+  "productDiscardBodyNew": "Produk baru ini belum disimpan dan akan hilang.",
+  "expenseDiscardBody": "Pengeluaran yang sedang diisi belum disimpan dan akan hilang.",
+  "@expenseDiscardBody": {
+    "placeholders": {}
+  }
 }
