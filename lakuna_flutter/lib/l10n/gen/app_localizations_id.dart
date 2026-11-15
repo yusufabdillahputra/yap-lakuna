@@ -8454,4 +8454,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get expenseCategoryDiscardBody =>
       'Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get diningAreaDiscardBody =>
+      'Area yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get diningTableDiscardBody =>
+      'Meja yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String get diningRangeDiscardBody =>
+      'Rentang meja yang sedang diisi belum disimpan dan akan hilang.';
 }

@@ -5666,5 +5666,8 @@
   },
   "modifierDiscardBody": "Grup modifier yang sedang diisi belum disimpan dan akan hilang.",
   "customerGroupDiscardBody": "Grup pelanggan yang sedang diisi belum disimpan dan akan hilang.",
-  "expenseCategoryDiscardBody": "Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang."
+  "expenseCategoryDiscardBody": "Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.",
+  "diningAreaDiscardBody": "Area yang sedang diisi belum disimpan dan akan hilang.",
+  "diningTableDiscardBody": "Meja yang sedang diisi belum disimpan dan akan hilang.",
+  "diningRangeDiscardBody": "Rentang meja yang sedang diisi belum disimpan dan akan hilang."
 }

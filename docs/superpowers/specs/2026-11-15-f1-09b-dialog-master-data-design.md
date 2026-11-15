@@ -98,5 +98,5 @@ diketuk dan membuang isian.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Tanya sebelum menutup dialog modifier, grup pelanggan, jenis pengeluaran | 1.17 | Rilis v0.107.0 | Sama dengan F1-13e. |
-| Dialog area / meja / rentang meja (tab Meja) | 1.17 | Belum | Isian pendek (nama, kursi). |
+| Dialog area / meja / rentang meja (tab Meja) | 1.17 | Rilis v0.108.0 | [F1-10n](2026-11-15-f1-10n-dialog-meja-area-design.md). |
 | Simpan langsung dari dialog konfirmasi | — | Belum | Sama dengan F1-12f. |

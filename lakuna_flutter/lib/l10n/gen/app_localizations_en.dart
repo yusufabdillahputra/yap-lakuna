@@ -8704,4 +8704,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get expenseCategoryDiscardBody =>
       'The expense category you are filling in has not been saved and will be lost.';
+
+  @override
+  String get diningAreaDiscardBody =>
+      'The area you are filling in has not been saved and will be lost.';
+
+  @override
+  String get diningTableDiscardBody =>
+      'The table you are filling in has not been saved and will be lost.';
+
+  @override
+  String get diningRangeDiscardBody =>
+      'The table range you are filling in has not been saved and will be lost.';
 }

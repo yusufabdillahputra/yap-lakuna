@@ -14663,6 +14663,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Jenis pengeluaran yang sedang diisi belum disimpan dan akan hilang.'**
   String get expenseCategoryDiscardBody;
+
+  /// No description provided for @diningAreaDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Area yang sedang diisi belum disimpan dan akan hilang.'**
+  String get diningAreaDiscardBody;
+
+  /// No description provided for @diningTableDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Meja yang sedang diisi belum disimpan dan akan hilang.'**
+  String get diningTableDiscardBody;
+
+  /// No description provided for @diningRangeDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang meja yang sedang diisi belum disimpan dan akan hilang.'**
+  String get diningRangeDiscardBody;
 }
 
 class _AppLocalizationsDelegate

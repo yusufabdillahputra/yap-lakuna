@@ -87,7 +87,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.104.0 | Tanya sebelum draf penyesuaian stok hilang saat pindah menu / ganti lokasi (F1-08k) | #110 |
 | v0.105.0 | Harga beli terakhir dari supplier yang dipilih di form pembelian (F1-12g) | #111 |
 | v0.106.0 | Harga beli terakhir untuk satuan konversi (dus/pak) di form pembelian (F1-12h) | #112 |
-| v0.107.0 | Dialog grup modifier, grup pelanggan, jenis pengeluaran tanya sebelum ditutup (F1-09b) | |
+| v0.107.0 | Dialog grup modifier, grup pelanggan, jenis pengeluaran tanya sebelum ditutup (F1-09b) | #113 |
+| v0.108.0 | Dialog area, meja, dan rentang meja tanya sebelum ditutup (F1-10n) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -214,8 +215,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     tombol kembali, atau Batal~~ — selesai v0.100.0 (F1-13e); dialog kini
     menutupi menu samping. Juga diperbaiki: galat `FSelect` saat membuka
     *Ubah pelanggan* bergrup. ~~Dialog grup modifier, grup pelanggan, jenis
-    pengeluaran~~ — selesai v0.107.0 (F1-09b); dialog area/meja masih
-    tertutup tanpa bertanya.
+    pengeluaran~~ — selesai v0.107.0 (F1-09b); ~~dialog area/meja~~ —
+    selesai v0.108.0 (F1-10n).
 43. ~~Cari Riwayat `beras 5 kg` tidak menemukan *Beras Premium · 5 kg*~~ —
     selesai v0.101.0 (F1-11e): setiap kata dicocokkan ke nama produk atau
     varian satu baris barang, urutan bebas. Huruf kecil non-ASCII di
@@ -243,6 +244,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     luar / Esc / Batal~~ — selesai v0.107.0 (F1-09b): *Buang perubahan?*
     seperti F1-13e, juga grup pelanggan dan jenis pengeluaran; dialog
     menutupi menu samping.
+50. ~~Dialog *Rentang meja* (awalan, nomor, kursi, area) hilang saat
+    diketuk di luar / Esc / Batal~~ — selesai v0.108.0 (F1-10n): *Buang
+    perubahan?* juga untuk dialog area dan meja; nilai bawaan rentang bukan
+    perubahan.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
