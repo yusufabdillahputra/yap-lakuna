@@ -7,6 +7,52 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.106.0] - 2026-11-15
+
+Grosir biasanya dibeli per dus atau per pak. Form pembelian kini mengisi
+harga dus dari harga dus yang dibayar terakhir.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** baris dalam satuan konversi (mis. scan barcode
+  dus) memakai harga per satuan itu pada pembelian diterima terakhir
+  **dalam satuan yang sama**, apa adanya. Bila supplier dipilih, harga
+  dari supplier itu didahulukan, lalu dari supplier mana pun, lalu HPP
+  satuan (atau HPP dasar × isi). Harga botol tidak dikalikan isi, karena
+  harga per dus biasanya berbeda.
+- Mengganti satuan baris (botol ↔ dus) mengisi harga terakhir satuan
+  baru tanpa membaca riwayat ulang; mengganti supplier menyegarkan baris
+  dus juga. Harga yang diketik staf tetap tidak ditimpa.
+- Panduan *Pembelian* menjelaskan harga satuan konversi (ID + EN).
+
+### Diubah
+
+- Baris satuan konversi kini ikut membaca riwayat harga (sebelumnya hanya
+  satuan dasar); *Simpan draf* / *Terima* menunggu pengisiannya seperti
+  satuan dasar.
+
+### Catatan teknis
+
+- `lastPurchasePriceSetOf(store, scope, ids, {supplierId})` →
+  `(perBase, perUnit)` dari satu bacaan riwayat (penyaring cabang,
+  status diterima, supplier, bonus Rp 0, urutan terbaru);
+  `lastPurchasePricesOf` dan `lastPurchaseUnitPricesOf` memakainya.
+  Harga dus hanya dipakai bila isi satuan di baris pembelian sama dengan
+  isi satuan sekarang: dus isi 6 yang diubah menjadi isi 12 tidak memakai
+  harga dus isi 6 lagi (ditemukan saat review).
+- Repositori `lastPurchasePrices` kini mengembalikan
+  `Map<UuidValue, LastPurchasePrice>` (`perBase`, `perUnit` tak bisa
+  diubah) dalam satu panggilan; tembolok VM menyimpan
+  `LastPurchasePrice?`, `_lastPriceFor(variant, unit, supplier)` memilih
+  harga sesuai satuan. Syarat `unit.isBase` dihapus dari pengisian
+  barang baru, ganti satuan, penyegaran supplier, dan stok minimum;
+  `_fillLastPrice` memakai satuan baris saat harga tiba.
+- Tes data, VM (8 baru), dan widget baru; diverifikasi mutasi (tanpa
+  pengisian untuk satuan konversi saat scan / ganti satuan, harga dasar
+  untuk semua satuan, penyegaran dan stok minimum hanya satuan dasar,
+  `_fillLastPrice` dengan satuan dasar, tanpa cek isi satuan, tanpa
+  penyaring status diterima).
+
 ## [0.105.0] - 2026-11-15
 
 Barang yang sama sering dibeli dari beberapa supplier dengan harga
@@ -6550,7 +6596,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...HEAD
+[0.106.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...v0.106.0
 [0.105.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...v0.105.0
 [0.104.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.103.0...v0.104.0
 [0.103.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.102.0...v0.103.0

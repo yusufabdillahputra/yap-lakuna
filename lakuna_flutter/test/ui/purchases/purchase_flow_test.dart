@@ -369,6 +369,25 @@ void main() {
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('scan barcode dus memakai harga dus terakhir (F1-12h)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    final myk = repo.products
+        .expand((p) => p.variants)
+        .firstWhere((v) => v.sku == 'MYK-2L');
+    repo.lastPriceOf[myk.id] = const Money(31000);
+    repo.lastUnitPriceOf[myk.id] = {myk.units.single.id: const Money(186000)};
+    await _scan(tester, '8991234500031');
+    expect(find.text('Rp 186.000'), findsWidgets);
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _key('purchase-receive'));
+    final line = repo.requests.single.lines.single;
+    expect(line.productUnitId, myk.units.single.id);
+    expect(line.unitPrice, const Money(186000));
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets('bayar dari laci melebihi perkiraan: peringatan (F1-03c)', (
     tester,
   ) async {

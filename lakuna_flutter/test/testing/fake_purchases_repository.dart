@@ -491,6 +491,13 @@ class FakePurchasesRepository extends PurchasesRepository {
   /// Harga beli terakhir per supplier lalu varian (F1-12g).
   final lastPriceBySupplier = <UuidValue, Map<UuidValue, Money>>{};
 
+  /// Harga beli terakhir per varian lalu satuan konversi (F1-12h).
+  final lastUnitPriceOf = <UuidValue, Map<UuidValue, Money>>{};
+
+  /// Seperti [lastUnitPriceOf], per supplier (F1-12h).
+  final lastUnitPriceBySupplier =
+      <UuidValue, Map<UuidValue, Map<UuidValue, Money>>>{};
+
   /// Jumlah panggilan [lastPurchasePrices] (F1-12e).
   var lastPriceCalls = 0;
 
@@ -505,7 +512,7 @@ class FakePurchasesRepository extends PurchasesRepository {
   final lastPricesGateOf = <UuidValue?, Completer<void>>{};
 
   @override
-  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+  Future<Result<Map<UuidValue, LastPurchasePrice>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds, {
     UuidValue? supplierId,
   }) async {
@@ -514,7 +521,7 @@ class FakePurchasesRepository extends PurchasesRepository {
     return _lastPrices(variantIds, supplierId);
   }
 
-  Result<Map<UuidValue, Money>> _lastPrices(
+  Result<Map<UuidValue, LastPurchasePrice>> _lastPrices(
     Iterable<UuidValue> variantIds,
     UuidValue? supplierId,
   ) => _guard(() {
@@ -523,9 +530,17 @@ class FakePurchasesRepository extends PurchasesRepository {
     final prices = supplierId == null
         ? lastPriceOf
         : (lastPriceBySupplier[supplierId] ?? const <UuidValue, Money>{});
+    final units = supplierId == null
+        ? lastUnitPriceOf
+        : (lastUnitPriceBySupplier[supplierId] ??
+              const <UuidValue, Map<UuidValue, Money>>{});
     return {
       for (final id in variantIds)
-        if (prices.containsKey(id)) id: prices[id]!,
+        if (prices.containsKey(id) || units.containsKey(id))
+          id: LastPurchasePrice(
+            perBase: prices[id],
+            perUnit: Map.unmodifiable({...?units[id]}),
+          ),
     };
   });
 

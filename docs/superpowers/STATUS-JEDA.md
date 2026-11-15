@@ -85,7 +85,8 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | #108 |
 | v0.103.0 | Cari Riwayat lewat nama modifier, mis. `extra shot` (F1-11f) | #109 |
 | v0.104.0 | Tanya sebelum draf penyesuaian stok hilang saat pindah menu / ganti lokasi (F1-08k) | #110 |
-| v0.105.0 | Harga beli terakhir dari supplier yang dipilih di form pembelian (F1-12g) | |
+| v0.105.0 | Harga beli terakhir dari supplier yang dipilih di form pembelian (F1-12g) | #111 |
+| v0.106.0 | Harga beli terakhir untuk satuan konversi (dus/pak) di form pembelian (F1-12h) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -180,8 +181,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     Supplier yang belum dimuat ulang setelah keluar dari detail lewat menu
     samping~~ — selesai v0.91.0 (F1-12d, juga Riwayat; `RouteReturnMixin`).
 35. ~~Harga beli terakhir untuk barang yang ditambah manual di form
-    pembelian~~ — selesai v0.92.0 (F1-12e); harga terakhir per satuan
-    konversi dan per supplier terpilih masih gap.
+    pembelian~~ — selesai v0.92.0 (F1-12e); ~~per supplier terpilih~~ —
+    selesai v0.105.0 (F1-12g); ~~per satuan konversi~~ — selesai v0.106.0
+    (F1-12h).
 36. ~~*Buat pembelian* dari stok minimum membuat draf kedua berisi barang
     yang sama~~ — selesai v0.93.0 (F1-08g): dialog Buka draf / Buat draf
     baru / Batal, per lokasi terima. ~~Gabung barang yang belum ada ke
@@ -231,6 +233,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     — selesai v0.105.0 (F1-12g): harga terakhir dari supplier terpilih,
     jatuh ke harga semua supplier; ganti supplier menyegarkan baris yang
     harganya belum diketik.
+48. ~~Scan barcode dus memakai HPP dus, bukan harga dus yang dibayar
+    terakhir~~ — selesai v0.106.0 (F1-12h): harga dari pembelian terakhir
+    dalam satuan yang sama (per supplier terpilih bila ada), tanpa
+    menghitung dari harga satuan dasar × isi.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

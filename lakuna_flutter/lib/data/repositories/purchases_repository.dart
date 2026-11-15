@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -71,6 +71,33 @@ class PurchaseSetup {
   final String staffName;
 }
 
+/// Harga beli terakhir satu varian (F1-08e, F1-12h).
+@immutable
+class LastPurchasePrice {
+  const LastPurchasePrice({this.perBase, this.perUnit = const {}});
+
+  /// Per satuan dasar, dari pembelian terakhir dalam satuan apa pun.
+  final Money? perBase;
+
+  /// `product_unit_id` → harga per satuan konversi itu, dari pembelian
+  /// terakhir dalam satuan yang sama.
+  final Map<UuidValue, Money> perUnit;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LastPurchasePrice &&
+      other.perBase == perBase &&
+      mapEquals(other.perUnit, perUnit);
+
+  @override
+  int get hashCode => Object.hash(
+    perBase,
+    Object.hashAllUnordered(
+      perUnit.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+  );
+}
+
 /// Pembelian dan retur beli (F1-12). Semua aksi butuh `purchases:manage`,
 /// dicek di sini juga.
 abstract class PurchasesRepository {
@@ -113,7 +140,8 @@ abstract class PurchasesRepository {
   /// di peta.
   ///
   /// Dengan [supplierId], hanya pembelian dari supplier itu (F1-12g).
-  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+  /// Juga harga per satuan konversi (F1-12h).
+  Future<Result<Map<UuidValue, LastPurchasePrice>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds, {
     UuidValue? supplierId,
   });

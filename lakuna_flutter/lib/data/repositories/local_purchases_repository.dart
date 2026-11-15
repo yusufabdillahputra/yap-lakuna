@@ -126,17 +126,25 @@ class LocalPurchasesRepository extends PurchasesRepository {
       _guard((_, scope, _) => lastSuppliersOf(_store, scope, variantIds));
 
   @override
-  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+  Future<Result<Map<UuidValue, LastPurchasePrice>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds, {
     UuidValue? supplierId,
-  }) => _guard(
-    (_, scope, _) => lastPurchasePricesOf(
+  }) => _guard((_, scope, _) async {
+    // Satu bacaan riwayat untuk kedua harga (F1-12h).
+    final (:perBase, :perUnit) = await lastPurchasePriceSetOf(
       _store,
       scope,
       variantIds,
       supplierId: supplierId,
-    ),
-  );
+    );
+    return {
+      for (final id in {...perBase.keys, ...perUnit.keys})
+        id: LastPurchasePrice(
+          perBase: perBase[id],
+          perUnit: Map.unmodifiable(perUnit[id] ?? const {}),
+        ),
+    };
+  });
 
   @override
   Future<Result<List<RestockDraft>>> restockDrafts(
