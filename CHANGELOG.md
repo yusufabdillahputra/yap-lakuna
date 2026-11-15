@@ -7,6 +7,37 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.110.0] - 2026-11-15
+
+Sedang mengisi pembelian belasan baris lalu tak sengaja menekan *Ganti
+kasir*? Kini aplikasi bertanya dulu sebelum isian hilang.
+
+### Diperbaiki
+
+- **Ganti kasir (1.2):** menekan **Ganti kasir** saat form pembelian
+  (1.20), produk (1.15), pengeluaran (1.22), atau draf penyesuaian stok
+  (1.18) berisi perubahan yang belum disimpan kini menampilkan **Buang
+  perubahan?** dengan teks halaman itu, sama seperti pindah menu.
+  **Batal** tetap di form dengan isian utuh dan staf tetap bertugas;
+  **Buang** membuka layar masuk. Form tanpa perubahan langsung berganti
+  seperti sebelumnya. Sebelumnya isian langsung hilang tanpa peringatan.
+- Selama simpan / terima barang berjalan, *Ganti kasir* diabaikan sampai
+  selesai (sama dengan menu samping).
+
+### Catatan teknis
+
+- `LeaveGuards.canLeaveAll()` menanyakan semua guard yang terpasang, mulai
+  dari halaman teratas, dan berhenti pada jawaban `false`; pertanyaan yang
+  sedang tampil dipakai ulang lewat `LeaveGuard.canLeave`.
+- `AppShell.canSwitch` (diisi `leaveGuards.canLeaveAll` di router)
+  dipanggil sebelum `session.logout()`. Setelah *Buang*, `onExit` semua
+  halaman lewat tanpa bertanya karena staf bertugas sudah kosong.
+- Keluar paksa (staf dihapus dari perangkat lain) tidak ditanyakan.
+- Tes: unit `canLeaveAll` (urutan, berhenti pada Batal, guard dilepas
+  dilewati, dialog dipakai ulang), widget pembelian desktop & ponsel dan
+  pengeluaran desktop, produk desktop. Uji manual Xvfb: Pengeluaran berisi → Ganti kasir →
+  Batal (isian utuh) → Buang (layar masuk).
+
 ## [0.109.0] - 2026-11-15
 
 Membuat M1–M30 lalu ternyata M7 sudah ada? Dialog *Rentang meja* kini tetap
@@ -6730,7 +6761,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.110.0...HEAD
+[0.110.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.109.0...v0.110.0
 [0.109.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...v0.109.0
 [0.108.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...v0.108.0
 [0.107.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...v0.107.0

@@ -246,6 +246,24 @@ void main() {
   }
 
   group('keluar dengan isian belum disimpan (F1-15c)', () {
+    testWidgets('1440 px: Ganti kasir bertanya bila form berisi (F1-02b)', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _type(tester, _key('expense-description-0'), 'Parkir');
+      await _tap(tester, _key('switch-cashier'));
+      expect(_key('expense-discard'), findsOneWidget);
+      await _tap(tester, _key('expense-discard-cancel'));
+      expect(find.text('Siapa yang bertugas?'), findsNothing);
+      expect(find.text('Parkir'), findsWidgets);
+
+      await _tap(tester, _key('switch-cashier'));
+      await _tap(tester, _key('expense-discard-confirm'));
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(repo.expenses.any((e) => e.description == 'Parkir'), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('1440 px: form kosong keluar langsung; berisi bertanya', (
       tester,
     ) async {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -20,12 +22,24 @@ class AppShell extends StatelessWidget {
     required this.location,
     required this.session,
     required this.child,
+    this.canSwitch,
   });
 
   /// Jalur yang sedang dibuka, untuk menandai menu terpilih.
   final String location;
   final SessionRepository session;
   final Widget child;
+
+  /// Halaman yang terbuka boleh ditinggalkan sebelum *Ganti kasir*
+  /// (F1-02b); `null` = langsung ganti.
+  final Future<bool> Function()? canSwitch;
+
+  /// *Ganti kasir*: form yang berubah ditanyakan dulu (F1-02b).
+  Future<void> _switchCashier() async {
+    final canSwitch = this.canSwitch;
+    if (canSwitch != null && !await canSwitch()) return;
+    session.logout();
+  }
 
   bool _isSelected(MenuEntry e) =>
       e.path == '/' ? location == '/' : location.startsWith(e.path);
@@ -52,7 +66,7 @@ class AppShell extends StatelessWidget {
                   staff: staff,
                   // Tablet sempit: sidebar 200 px menyisakan sedikit ruang.
                   compact: constraints.maxWidth < 900,
-                  onSwitch: session.logout,
+                  onSwitch: () => unawaited(_switchCashier()),
                 ),
             ],
           );

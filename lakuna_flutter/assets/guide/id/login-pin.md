@@ -10,6 +10,8 @@ Setiap staf masuk dengan PIN 6 angka di layar *Siapa yang bertugas?*. Pemilik ju
 2. Ketik PIN 6 angka di keypad.
 3. Untuk berganti staf di tengah shift, tekan **Ganti kasir** di kepala layar (di HP berupa ikon di kanan atas), lalu pilih staf berikutnya.
 
+> [!note] Bila form pembelian, produk, pengeluaran, atau draf penyesuaian stok sedang diisi dan belum disimpan, **Ganti kasir** bertanya dulu: **Batal** kembali ke form dengan isian utuh, **Buang** membuang isian lalu membuka layar masuk. Selama simpan berjalan, tunggu sampai selesai lalu tekan lagi.
+
 ## Masuk sebagai pemilik
 
 Tekan **Masuk dengan email & kata sandi (pemilik)**, isi email dan kata sandi, lalu **Masuk**. Cara ini berguna bila pemilik lupa PIN.

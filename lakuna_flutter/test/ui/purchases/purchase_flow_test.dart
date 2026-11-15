@@ -311,6 +311,69 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });
 
+  group('Ganti kasir dari form yang berubah (F1-02b)', () {
+    testWidgets('desktop: form samping bertanya; Batal tetap bertugas', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository()..current = sampleStaff();
+      await pump(tester, const Size(1440, 900), session: session);
+      final staff = session.current;
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('switch-cashier'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      expect(
+        find.text(
+          'Perubahan pembelian PB-PST-D01-261103-0001 belum disimpan dan '
+          'akan hilang.',
+        ),
+        findsOneWidget,
+      );
+      // Dialog menutupi bilah atas: ketukan kedua jatuh di latar dialog
+      // (sama dengan Batal), tidak membuka dialog kedua dan tidak keluar.
+      await tester.tap(_key('switch-cashier'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(_key('purchase-discard'), findsNothing);
+      expect(session.current, staff);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+
+      await _tap(tester, _key('switch-cashier'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(session.current, staff);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+
+      await _tap(tester, _key('switch-cashier'));
+      await _tap(tester, _key('purchase-discard-confirm'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(session.current, isNull);
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(repo.purchases, isEmpty);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('ponsel 360 px: halaman form bertanya; tersimpan tidak', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository()..current = sampleStaff();
+      await pump(tester, const Size(360, 780), session: session);
+      final staff = session.current;
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('switch-cashier'));
+      expect(_key('purchase-discard'), findsOneWidget);
+      await _tap(tester, _key('purchase-discard-cancel'));
+      expect(session.current, staff);
+      expect(_key('purchase-form-page'), findsOneWidget);
+      // Setelah disimpan, ganti kasir tanpa ditanya.
+      await _tap(tester, _key('purchase-save-draft'));
+      await _tap(tester, _key('switch-cashier'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(session.current, isNull);
+      expect(repo.purchases, hasLength(1));
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
   testWidgets('desktop: berhutang dengan supplier baru, jatuh tempo +14', (
     tester,
   ) async {

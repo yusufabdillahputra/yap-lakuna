@@ -165,6 +165,7 @@ GoRouter createRouter({
         builder: (context, state, child) => AppShell(
           location: state.uri.path,
           session: session,
+          canSwitch: leaveGuards.canLeaveAll,
           child: child,
         ),
         routes: [

@@ -155,6 +155,30 @@ void main() {
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+    testWidgets('Ganti kasir bertanya; Batal tetap di form (F1-02b)', (
+      tester,
+    ) async {
+      final repo = await pump(tester, seed: sampleProducts());
+      final id = repo.products.firstWhere((p) => p.name == 'Minyak Goreng').id;
+      await tester.tap(find.text('Minyak Goreng'));
+      await tester.pumpAndSettle();
+      await _type(tester, 'variant-0-price', '37000');
+      await _tap(tester, 'switch-cashier');
+      expect(find.byKey(const ValueKey('product-discard')), findsOneWidget);
+      await _tap(tester, 'product-discard-cancel');
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+      expect(find.text('Siapa yang bertugas?'), findsNothing);
+
+      await _tap(tester, 'switch-cashier');
+      await _tap(tester, 'product-discard-confirm');
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(
+        repo.products.firstWhere((p) => p.id == id).variants.first.sellPrice,
+        isNot(const Money(37000)),
+      );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
     testWidgets('ponsel 360 px: produk baru, tombol kembali sistem; simpan '
         'tidak bertanya', (tester) async {
       final repo = await pump(
