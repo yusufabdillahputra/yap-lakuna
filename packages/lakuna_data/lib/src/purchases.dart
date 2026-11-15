@@ -485,9 +485,50 @@ Future<Map<UuidValue, Money>> lastPurchasePricesOf(
   CatalogScope scope,
   Iterable<UuidValue> variantIds, {
   UuidValue? supplierId,
+}) async => (await lastPurchasePriceSetOf(
+  store,
+  scope,
+  variantIds,
+  supplierId: supplierId,
+)).perBase;
+
+/// Harga beli terakhir per **satuan konversi** varian [variantIds]
+/// (F1-12h): varian → `product_unit_id` → harga per satuan itu pada baris
+/// pembelian diterima terbaru **dalam satuan yang sama**, apa adanya.
+/// Penyaring dan urutannya sama dengan [lastPurchasePricesOf]. Satuan
+/// dasar tidak masuk peta; baris yang isi satuannya berbeda dari isi satuan
+/// sekarang (satuan diubah setelah pembelian) atau satuannya sudah dihapus
+/// dilewati.
+Future<Map<UuidValue, Map<UuidValue, Money>>> lastPurchaseUnitPricesOf(
+  LakunaStore store,
+  CatalogScope scope,
+  Iterable<UuidValue> variantIds, {
+  UuidValue? supplierId,
+}) async => (await lastPurchasePriceSetOf(
+  store,
+  scope,
+  variantIds,
+  supplierId: supplierId,
+)).perUnit;
+
+/// Harga beli terakhir per satuan dasar dan per satuan konversi.
+typedef LastPurchasePriceSet = ({
+  Map<UuidValue, Money> perBase,
+  Map<UuidValue, Map<UuidValue, Money>> perUnit,
+});
+
+/// [lastPurchasePricesOf] dan [lastPurchaseUnitPricesOf] dari satu bacaan
+/// riwayat (F1-12h).
+Future<LastPurchasePriceSet> lastPurchasePriceSetOf(
+  LakunaStore store,
+  CatalogScope scope,
+  Iterable<UuidValue> variantIds, {
+  UuidValue? supplierId,
 }) async {
+  final perBase = <UuidValue, Money>{};
+  final perUnit = <UuidValue, Map<UuidValue, Money>>{};
   final ids = variantIds.toSet();
-  if (ids.isEmpty) return const {};
+  if (ids.isEmpty) return (perBase: perBase, perUnit: perUnit);
   final session = store.session;
   final items = await PurchaseItem.db.find(
     session,
@@ -496,7 +537,7 @@ Future<Map<UuidValue, Money>> lastPurchasePricesOf(
         i.variantId.inSet(ids) &
         i.deletedAt.equals(null),
   );
-  if (items.isEmpty) return const {};
+  if (items.isEmpty) return (perBase: perBase, perUnit: perUnit);
   final purchases = {
     for (final p in await Purchase.db.find(
       session,
@@ -514,29 +555,47 @@ Future<Map<UuidValue, Money>> lastPurchasePricesOf(
     ))
       p.id: p,
   };
+  // Baris bonus (Rp 0) bukan harga beli.
+  final priced = [
+    for (final i in items)
+      if (purchases.containsKey(i.purchaseId) && i.unitPrice > 0) i,
+  ];
   DateTime at(Purchase p) => p.receivedAt ?? p.purchasedOn;
-  // Urutan: pembelian lebih baru, lalu nomor, lalu baris lebih akhir.
-  int newer(PurchaseItem a, PurchaseItem b) {
+  // Terbaru dulu: pembelian lebih baru, lalu nomor, lalu baris lebih akhir.
+  priced.sort((a, b) {
     final pa = purchases[a.purchaseId]!;
     final pb = purchases[b.purchaseId]!;
-    final c = at(pa).compareTo(at(pb));
+    final c = at(pb).compareTo(at(pa));
     if (c != 0) return c;
-    final n = pa.number.compareTo(pb.number);
+    final n = pb.number.compareTo(pa.number);
     if (n != 0) return n;
-    return a.sortOrder.compareTo(b.sortOrder);
+    return b.sortOrder.compareTo(a.sortOrder);
+  });
+  final unitIds = {for (final i in priced) ?i.productUnitId};
+  // Isi satuan sekarang: harga dus isi 6 bukan harga dus isi 12.
+  final factors = unitIds.isEmpty
+      ? const <UuidValue, int>{}
+      : {
+          for (final u in await ProductUnit.db.find(
+            session,
+            where: (u) =>
+                u.id.inSet(unitIds) &
+                u.tenantId.equals(scope.tenantId) &
+                u.deletedAt.equals(null),
+          ))
+            u.id: u.factorMilli,
+        };
+  for (final i in priced) {
+    perBase.putIfAbsent(
+      i.variantId,
+      () => perBaseUnitPrice(Money(i.unitPrice), Qty(i.factorMilli)),
+    );
+    final unit = i.productUnitId;
+    if (unit != null && factors[unit] == i.factorMilli) {
+      (perUnit[i.variantId] ??= {}).putIfAbsent(unit, () => Money(i.unitPrice));
+    }
   }
-
-  final best = <UuidValue, PurchaseItem>{};
-  for (final i in items) {
-    // Baris bonus (Rp 0) bukan harga beli.
-    if (!purchases.containsKey(i.purchaseId) || i.unitPrice <= 0) continue;
-    final current = best[i.variantId];
-    if (current == null || newer(i, current) > 0) best[i.variantId] = i;
-  }
-  return {
-    for (final MapEntry(:key, :value) in best.entries)
-      key: perBaseUnitPrice(Money(value.unitPrice), Qty(value.factorMilli)),
-  };
+  return (perBase: perBase, perUnit: perUnit);
 }
 
 /// Draf pembelian yang sudah memuat sebagian barang yang akan dibeli dari

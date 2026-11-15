@@ -1029,6 +1029,150 @@ void main() {
     );
   });
 
+  group('harga beli terakhir untuk satuan konversi (F1-12h)', () {
+    late FakePurchasesRepository r;
+    late PurchaseFormViewModel vm;
+    late Supplier sumber;
+    late Supplier jaya;
+    late CatalogVariant myk;
+    late UuidValue dus;
+
+    setUp(() async {
+      r = FakePurchasesRepository(
+        suppliers: const ['CV Sumber Pangan', 'Toko Gula Jaya'],
+      );
+      sumber = r.suppliers.first;
+      jaya = r.suppliers.last;
+      myk = [
+        for (final p in r.products) ...p.variants,
+      ].firstWhere((v) => v.sku == 'MYK-2L');
+      dus = myk.units.single.id;
+      // Botol terakhir 31.000; dus terakhir 186.000 (semua supplier).
+      r.lastPriceOf[myk.id] = const Money(31000);
+      r.lastUnitPriceOf[myk.id] = {dus: const Money(186000)};
+      vm = PurchaseFormViewModel(repository: r);
+      await vm.load.execute();
+    });
+
+    tearDown(() => vm.dispose());
+
+    PurchaseFormLine line() => vm.lines.single;
+
+    test('scan barcode dus memakai harga dus terakhir apa adanya', () async {
+      expect(vm.addByCode('8991234500031'), PurchaseScanResult.added);
+      // HPP dus tampil dulu, lalu diganti harga dus terakhir.
+      expect(line().unitPrice, const Money(195000));
+      await pumpEventQueue();
+      expect(line().unit.productUnitId, dus);
+      expect(line().unitPrice, const Money(186000));
+      expect(line().priceRev, 1);
+    });
+
+    test('ganti satuan bolak-balik tanpa membaca ulang', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(31000));
+      final calls = r.lastPriceCalls;
+      vm.setUnit(line().key, dus);
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(186000));
+      vm.setUnit(line().key, null);
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(31000));
+      expect(r.lastPriceCalls, calls);
+    });
+
+    test('satuan diganti ke dus selama riwayat dibaca: harga dus', () async {
+      final gate = r.lastPricesGate = Completer<void>();
+      vm.addByCode('MYK-2L');
+      vm.setUnit(line().key, dus);
+      gate.complete();
+      r.lastPricesGate = null;
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(186000));
+    });
+
+    test('ganti supplier menyegarkan baris dus; harga dus yang diketik '
+        'tetap', () async {
+      r.lastUnitPriceBySupplier[sumber.id] = {
+        myk.id: {dus: const Money(184000)},
+      };
+      // Jaya hanya pernah menjual botol: dus kembali ke harga dus semua
+      // supplier, bukan 32.000 × 6.
+      r.lastPriceBySupplier[jaya.id] = {myk.id: const Money(32000)};
+      vm.addByCode('8991234500031');
+      await pumpEventQueue();
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(184000));
+      vm.selectSupplier(jaya.id);
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(186000));
+
+      vm.setUnitPrice(line().key, const Money(180000));
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(180000));
+    });
+
+    test('supplier dipilih sebelum scan dus: harga dus supplier itu, lalu '
+        'harga dus semua supplier', () async {
+      r.lastUnitPriceBySupplier[sumber.id] = {
+        myk.id: {dus: const Money(184000)},
+      };
+      vm.selectSupplier(sumber.id);
+      vm.addByCode('8991234500031');
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(184000));
+      vm
+        ..removeLine(line().key)
+        ..selectSupplier(jaya.id)
+        ..addByCode('8991234500031');
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(186000));
+    });
+
+    test('stok minimum: baris diganti ke dus selama harga dibaca', () async {
+      final gate = r.lastPricesGate = Completer<void>();
+      final restock = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(12))],
+        ),
+      );
+      final loading = restock.load.execute();
+      await pumpEventQueue();
+      final key = restock.lines.single.key;
+      restock.setUnit(key, dus);
+      gate.complete();
+      r.lastPricesGate = null;
+      await loading;
+      await pumpEventQueue();
+      expect(restock.lines.single.unitPrice, const Money(186000));
+      expect(restock.restockPriceCount, 1);
+      restock.dispose();
+    });
+
+    test('tanpa riwayat dus: HPP dus tetap', () async {
+      r.lastUnitPriceOf.clear();
+      vm.addByCode('8991234500031');
+      await pumpEventQueue();
+      expect(line().unitPrice, const Money(195000));
+      expect(line().priceRev, 0);
+    });
+
+    test('simpan menunggu harga dus terakhir', () async {
+      final gate = r.lastPricesGate = Completer<void>();
+      vm.addByCode('8991234500031');
+      final saving = vm.saveDraft.execute();
+      gate.complete();
+      await saving;
+      expect(r.requests.single.lines.single.unitPrice, const Money(186000));
+    });
+  });
+
   group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
     UuidValue myk() => form.lines
         .firstWhere((l) => l.product.sku == 'MYK-2L')
@@ -1068,17 +1212,18 @@ void main() {
       expect(form.lines.single.unitPrice, const Money(30000));
     });
 
-    test('satuan konversi memakai harga modal; kembali ke satuan dasar '
-        'memakai harga terakhir lagi tanpa membaca ulang', () async {
+    test('satuan konversi tanpa riwayat memakai harga modal; kembali ke '
+        'satuan dasar memakai harga terakhir tanpa membaca ulang', () async {
       final myk2 = [
         for (final p in repo.products) ...p.variants,
       ].firstWhere((v) => v.sku == 'MYK-2L');
       repo.lastPriceOf[myk2.id] = const Money(31000);
       form.addByCode('8991234500031');
       await pumpEventQueue();
-      // Dus: HPP dasar 32.500 × 6, tidak dari riwayat.
+      // Dus belum pernah dibeli per dus: HPP dasar 32.500 × 6, bukan harga
+      // terakhir botol × 6 (F1-12h).
       expect(form.lines.single.unitPrice, const Money(195000));
-      expect(repo.lastPriceCalls, 0);
+      expect(repo.lastPriceCalls, 1);
       final key = form.lines.single.key;
       form.setUnit(key, null);
       await pumpEventQueue();
@@ -1319,7 +1464,7 @@ class _FailingPrices extends FakePurchasesRepository {
   Future<Result<PurchaseSetup>> load() => _inner.load();
 
   @override
-  Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
+  Future<Result<Map<UuidValue, LastPurchasePrice>>> lastPurchasePrices(
     Iterable<UuidValue> variantIds, {
     UuidValue? supplierId,
   }) async => Result.error(Exception('baca gagal'));

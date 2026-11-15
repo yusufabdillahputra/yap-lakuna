@@ -72,6 +72,6 @@ baris dikembalikan ke satuan dasar.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Harga beli terakhir untuk barang manual dan kembali ke satuan dasar | 1.19 | Rilis v0.92.0 | Per satuan dasar, dibaca sekali per varian. |
-| Harga terakhir per satuan konversi | — | Belum | Satuan dus tetap HPP satuan; riwayat per satuan belum dibaca. |
+| Harga terakhir per satuan konversi | 1.19 | Selesai v0.106.0 | [F1-12h](2026-11-15-f1-12h-harga-terakhir-satuan-konversi-design.md): pembelian terakhir dalam satuan yang sama. |
 | Harga terakhir per supplier terpilih | — | Selesai v0.105.0 | [F1-12g](2026-11-15-f1-12g-harga-terakhir-per-supplier-design.md). |
 | Penanda asal harga di baris | — | Belum | Tidak ada label *harga terakhir* di baris; panduan menjelaskan asalnya. |

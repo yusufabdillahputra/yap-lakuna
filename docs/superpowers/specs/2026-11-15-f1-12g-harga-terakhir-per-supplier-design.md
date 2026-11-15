@@ -98,4 +98,4 @@ supplier yang dipilih.
 | --- | --- | --- | --- |
 | Harga terakhir dari supplier terpilih | 1.19 | Rilis v0.105.0 | Jatuh ke harga semua supplier bila belum pernah dibeli dari supplier itu. |
 | Penanda asal harga di baris | — | Belum | Tidak ada label *harga terakhir · CV X*; panduan menjelaskan asalnya. |
-| Harga terakhir per satuan konversi | — | Belum | Sama dengan F1-12e. |
+| Harga terakhir per satuan konversi | 1.19 | Selesai v0.106.0 | [F1-12h](2026-11-15-f1-12h-harga-terakhir-satuan-konversi-design.md), termasuk per supplier. |

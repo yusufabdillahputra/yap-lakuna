@@ -195,12 +195,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   var _disposed = false;
 
-  /// Harga beli terakhir per satuan dasar yang sudah dibaca selama form
-  /// terbuka (`null` = belum pernah dibeli) (F1-08e, F1-12e).
-  final _lastPrices = <UuidValue, Money?>{};
+  /// Harga beli terakhir yang sudah dibaca selama form terbuka (`null` =
+  /// belum pernah dibeli) (F1-08e, F1-12e, F1-12h).
+  final _lastPrices = <UuidValue, LastPurchasePrice?>{};
 
   /// Seperti [_lastPrices], tetapi hanya dari satu supplier (F1-12g).
-  final _supplierPrices = <UuidValue, Map<UuidValue, Money?>>{};
+  final _supplierPrices = <UuidValue, Map<UuidValue, LastPurchasePrice?>>{};
 
   /// Naik setiap supplier berganti; penyegaran harga yang lebih lama
   /// dibuang (F1-12g).
@@ -251,11 +251,23 @@ class PurchaseFormViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// Harga terakhir [variantId] dari [supplier], atau dari semua supplier
-  /// bila belum pernah dibeli darinya (F1-12g).
-  Money? _lastPriceFor(UuidValue variantId, UuidValue? supplier) =>
-      (supplier == null ? null : _supplierPrices[supplier]?[variantId]) ??
-      _lastPrices[variantId];
+  /// Harga terakhir [variantId] dalam [unit] dari [supplier], atau dari
+  /// semua supplier bila belum pernah dibeli darinya (F1-12g). Satuan
+  /// konversi hanya memakai pembelian dalam satuan yang sama (F1-12h).
+  Money? _lastPriceFor(
+    UuidValue variantId,
+    PurchaseUnitOption unit,
+    UuidValue? supplier,
+  ) {
+    Money? of(LastPurchasePrice? p) => switch (unit.productUnitId) {
+      null => p?.perBase,
+      final id => p?.perUnit[id],
+    };
+    return (supplier == null
+            ? null
+            : of(_supplierPrices[supplier]?[variantId])) ??
+        of(_lastPrices[variantId]);
+  }
 
   /// Menyegarkan harga baris otomatis setelah supplier berganti (F1-12g).
   void _startRefresh() {
@@ -269,7 +281,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     final supplier = _priceSupplier;
     final ids = {
       for (final l in _lines)
-        if (l.autoPrice && l.unit.isBase) l.product.variantId,
+        if (l.autoPrice) l.product.variantId,
     };
     if (ids.isEmpty) return;
     if (!await _ensureLastPrices(ids, supplier)) return;
@@ -278,10 +290,10 @@ class PurchaseFormViewModel extends ChangeNotifier {
     var changed = false;
     _lines = [
       for (final l in _lines)
-        if (l.autoPrice && l.unit.isBase)
+        if (l.autoPrice)
           () {
             final price =
-                _lastPriceFor(l.product.variantId, supplier) ??
+                _lastPriceFor(l.product.variantId, l.unit, supplier) ??
                 l.product.defaultPrice(l.unit);
             if (price == l.unitPrice) return l;
             changed = true;
@@ -705,8 +717,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   /// Harga beli terakhir untuk baris [keys] yang terisi dari stok minimum
-  /// (F1-08e). Hanya baris satuan dasar yang harganya belum diubah staf
-  /// selama menunggu; galat baca diabaikan (harga modal tetap dipakai).
+  /// (F1-08e). Hanya baris yang harganya belum diubah staf selama menunggu,
+  /// dalam satuannya saat harga tiba (F1-12h); galat baca diabaikan (harga
+  /// modal tetap dipakai).
   Future<void> _applyRestockPrices(Set<int> keys) async {
     final targets = [
       for (final l in _lines)
@@ -723,12 +736,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
       var count = 0;
       final lines = <PurchaseFormLine>[];
       for (final l in _lines) {
-        final price = _lastPriceFor(l.product.variantId, supplier);
+        final price = _lastPriceFor(l.product.variantId, l.unit, supplier);
         // Harga yang diketik staf selama menunggu tidak ditimpa.
-        if (price != null &&
-            l.unit.isBase &&
-            keys.contains(l.key) &&
-            l.autoPrice) {
+        if (price != null && keys.contains(l.key) && l.autoPrice) {
           // priceRev naik agar isian harga yang sudah tampil ikut berganti.
           lines.add(l.copyWith(unitPrice: price, priceRev: l.priceRev + 1));
           count++;
@@ -1011,7 +1021,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
       ),
     ];
     _touched();
-    if (unit.isBase) _startFill(_lines.last.key);
+    _startFill(_lines.last.key);
     return PurchaseScanResult.added;
   }
 
@@ -1063,8 +1073,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _lines = [for (final l in _lines) l.key == line.key ? line : l];
   }
 
-  /// Harga beli terakhir untuk baris satuan dasar yang ditambah atau
-  /// dikembalikan ke satuan dasar oleh staf (F1-12e). Harga yang sudah
+  /// Harga beli terakhir untuk baris yang ditambah staf atau yang satuannya
+  /// diganti (F1-12e, F1-12h: satuan konversi memakai pembelian terakhir
+  /// dalam satuan yang sama). Harga yang sudah
   /// diubah staf selama menunggu tidak ditimpa; galat baca diabaikan (harga
   /// modal tetap) dan dicoba lagi untuk baris berikutnya.
   Future<void> _fillLastPrice(int key) async {
@@ -1075,13 +1086,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
     if (!await _ensureLastPrices({variantId}, supplier)) return;
     // Supplier berganti selama menunggu: penyegarannya yang mengisi.
     if (supplier != _priceSupplier) return;
-    final price = _lastPriceFor(variantId, supplier);
     final now = _line(key);
-    if (price == null ||
-        now == null ||
-        !now.unit.isBase ||
-        !now.autoPrice ||
-        now.unitPrice == price) {
+    if (now == null) return;
+    // Harga satuan baris saat ini; satuan bisa diganti selama menunggu.
+    final price = _lastPriceFor(variantId, now.unit, supplier);
+    if (price == null || !now.autoPrice || now.unitPrice == price) {
       return;
     }
     // priceRev naik agar isian harga yang sudah tampil ikut berganti.
@@ -1110,7 +1119,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   /// Mengganti satuan baris; harga beli diisi ulang dengan harga awal
-  /// satuan baru. Bila varian itu sudah punya baris dengan satuan yang sama,
+  /// satuan baru, lalu harga beli terakhir satuan itu bila ada (F1-12h).
+  /// Bila varian itu sudah punya baris dengan satuan yang sama,
   /// kedua baris digabung.
   void setUnit(int key, UuidValue? productUnitId) {
     final line = _line(key);
@@ -1149,7 +1159,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
           autoPrice: true,
         ),
       );
-      if (unit.isBase) _startFill(key);
+      _startFill(key);
     }
     _generation++;
     _touched();
