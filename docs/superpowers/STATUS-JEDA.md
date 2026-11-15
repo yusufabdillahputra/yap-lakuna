@@ -82,7 +82,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | #105 |
 | v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | #106 |
 | v0.101.0 | Cari Riwayat dengan beberapa kata nama barang, mis. `beras 5 kg` (F1-11e) | #107 |
-| v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | |
+| v0.102.0 | Cetak tagihan per tamu dari layar split bill (F1-10m) | #108 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
