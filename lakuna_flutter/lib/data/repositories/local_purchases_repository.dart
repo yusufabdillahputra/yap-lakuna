@@ -127,9 +127,15 @@ class LocalPurchasesRepository extends PurchasesRepository {
 
   @override
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
-    Iterable<UuidValue> variantIds,
-  ) => _guard(
-    (_, scope, _) => lastPurchasePricesOf(_store, scope, variantIds),
+    Iterable<UuidValue> variantIds, {
+    UuidValue? supplierId,
+  }) => _guard(
+    (_, scope, _) => lastPurchasePricesOf(
+      _store,
+      scope,
+      variantIds,
+      supplierId: supplierId,
+    ),
   );
 
   @override

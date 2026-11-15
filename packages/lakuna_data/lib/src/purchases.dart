@@ -477,11 +477,15 @@ Future<Map<UuidValue, ({UuidValue supplierId, DateTime at})>> lastSuppliersOf(
 /// ini (`received_at` atau tanggal beli, lalu nomor; baris terakhir bila
 /// varian muncul beberapa kali) dibagi isi satuan baris. Baris bonus
 /// Rp 0 dilewati. Supplier tidak wajib ada. Varian tanpa riwayat tidak masuk peta.
+///
+/// Dengan [supplierId], hanya pembelian dari supplier itu yang dihitung
+/// (F1-12g); varian yang belum pernah dibeli darinya tidak masuk peta.
 Future<Map<UuidValue, Money>> lastPurchasePricesOf(
   LakunaStore store,
   CatalogScope scope,
-  Iterable<UuidValue> variantIds,
-) async {
+  Iterable<UuidValue> variantIds, {
+  UuidValue? supplierId,
+}) async {
   final ids = variantIds.toSet();
   if (ids.isEmpty) return const {};
   final session = store.session;
@@ -496,12 +500,17 @@ Future<Map<UuidValue, Money>> lastPurchasePricesOf(
   final purchases = {
     for (final p in await Purchase.db.find(
       session,
-      where: (p) =>
-          p.id.inSet({for (final i in items) i.purchaseId}) &
-          p.tenantId.equals(scope.tenantId) &
-          p.outletId.equals(scope.outletId) &
-          p.status.equals(PurchaseStatus.received) &
-          p.deletedAt.equals(null),
+      where: (p) {
+        final received =
+            p.id.inSet({for (final i in items) i.purchaseId}) &
+            p.tenantId.equals(scope.tenantId) &
+            p.outletId.equals(scope.outletId) &
+            p.status.equals(PurchaseStatus.received) &
+            p.deletedAt.equals(null);
+        return supplierId == null
+            ? received
+            : received & p.supplierId.equals(supplierId);
+      },
     ))
       p.id: p,
   };

@@ -458,6 +458,100 @@ void main() {
     expect(prices.containsKey(v(gula).id), isFalse);
   });
 
+  test('harga beli terakhir dari supplier tertentu (F1-12g)', () async {
+    PurchaseRequest gulaFrom(String? supplier, int price) => PurchaseRequest(
+      newSupplierName: supplier,
+      purchasedOn: today,
+      locationId: gudang.id,
+      lines: [
+        PurchaseLineRequest(
+          variantId: v(gula).id,
+          quantity: Qty.units(5),
+          unitPrice: Money(price),
+        ),
+      ],
+      paid: Money(price * 5),
+      funding: FundingSource.bank,
+    );
+    final a = await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: gulaFrom('CV Sumber Pangan', 14500),
+    );
+    now = now.add(const Duration(days: 1));
+    final b = await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: gulaFrom('Toko Makmur', 15200),
+    );
+    // Pembelian terbaru tanpa supplier.
+    now = now.add(const Duration(days: 1));
+    await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: gulaFrom(null, 15000),
+    );
+    final sumber = a.supplierId!;
+    final makmur = b.supplierId!;
+    expect(sumber, isNot(makmur));
+
+    Future<Map<UuidValue, Money>> of(UuidValue? supplier) =>
+        lastPurchasePricesOf(store, scope, [
+          v(gula).id,
+          v(minyak).id,
+        ], supplierId: supplier);
+    expect(await of(null), {v(gula).id: const Money(15000)});
+    expect(await of(sumber), {v(gula).id: const Money(14500)});
+    expect(await of(makmur), {v(gula).id: const Money(15200)});
+
+    // Draf dari supplier itu tidak dihitung.
+    now = now.add(const Duration(days: 1));
+    await savePurchaseDraft(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        supplierId: sumber,
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(gula).id,
+            quantity: Qty.one,
+            unitPrice: const Money(99000),
+          ),
+        ],
+      ),
+    );
+    expect(await of(sumber), {v(gula).id: const Money(14500)});
+
+    // Supplier tanpa riwayat barang ini: kosong (form memakai harga semua
+    // supplier).
+    final other = await receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        newSupplierName: 'UD Lain',
+        purchasedOn: today,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(minyak).id,
+            quantity: Qty.units(2),
+            unitPrice: const Money(31000),
+          ),
+        ],
+        paid: const Money(62000),
+        funding: FundingSource.bank,
+      ),
+    );
+    expect(await of(other.supplierId), {v(minyak).id: const Money(31000)});
+  });
+
   test('draf pembelian yang memuat barang stok minimum (F1-08g)', () async {
     expect(await restockDraftsOf(store, scope, gudang.id, const []), isEmpty);
     expect(

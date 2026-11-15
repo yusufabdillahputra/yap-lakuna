@@ -774,6 +774,261 @@ void main() {
     });
   });
 
+  group('harga beli terakhir dari supplier terpilih (F1-12g)', () {
+    late FakePurchasesRepository r;
+    late PurchaseFormViewModel vm;
+    late Supplier sumber;
+    late Supplier jaya;
+    late CatalogVariant myk;
+    late CatalogVariant other;
+
+    setUp(() async {
+      r = FakePurchasesRepository(
+        suppliers: const ['CV Sumber Pangan', 'Toko Gula Jaya'],
+      );
+      sumber = r.suppliers.first;
+      jaya = r.suppliers.last;
+      final variants = [for (final p in r.products) ...p.variants];
+      myk = variants.firstWhere((v) => v.sku == 'MYK-2L');
+      other = variants.firstWhere((v) => v.id != myk.id);
+      // Terakhir dari semua supplier: 31.000; dari Sumber: 30.000.
+      r.lastPriceOf[myk.id] = const Money(31000);
+      r.lastPriceBySupplier[sumber.id] = {myk.id: const Money(30000)};
+      vm = PurchaseFormViewModel(repository: r);
+      await vm.load.execute();
+    });
+
+    tearDown(() => vm.dispose());
+
+    Money priceOf(CatalogVariant v) => vm.lines
+        .firstWhere((l) => l.product.variantId == v.id && l.unit.isBase)
+        .unitPrice;
+
+    test('barang ditambah setelah supplier dipilih memakai harga supplier '
+        'itu; tanpa riwayat di supplier itu memakai harga semua', () async {
+      vm.selectSupplier(sumber.id);
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+
+      vm.selectSupplier(jaya.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+    });
+
+    test('ganti supplier menyegarkan baris otomatis, bukan harga yang '
+        'diketik staf', () async {
+      vm
+        ..addByCode('MYK-2L')
+        ..addProduct(other.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+      r.lastPriceBySupplier[sumber.id]![other.id] = const Money(5000);
+      final typed = vm.lines.last.key;
+      vm.setUnitPrice(typed, const Money(7777));
+
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+      // Isian harga dibangun ulang.
+      expect(vm.lines.first.priceRev, 2);
+      expect(priceOf(other), const Money(7777));
+
+      // Supplier baru diketik: kembali ke harga semua supplier.
+      vm.useNewSupplier();
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+
+      // Supplier dikosongkan lalu dipilih lagi: harga dari tembolok.
+      vm.selectSupplier(null);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+      final calls = r.lastPriceCalls;
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+      expect(r.lastPriceCalls, calls);
+    });
+
+    test('tanpa riwayat sama sekali: kembali ke harga modal', () async {
+      r.lastPriceBySupplier[jaya.id] = {other.id: const Money(5000)};
+      vm.addProduct(other.id);
+      vm.selectSupplier(jaya.id);
+      await pumpEventQueue();
+      expect(priceOf(other), const Money(5000));
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(priceOf(other), other.costPrice);
+    });
+
+    test('ganti supplier dua kali cepat: hanya supplier terakhir', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      final slow = r.lastPricesGateOf[sumber.id] = Completer<void>();
+      final fast = r.lastPricesGateOf[jaya.id] = Completer<void>();
+      vm
+        ..selectSupplier(sumber.id)
+        ..selectSupplier(jaya.id);
+      // Jawaban supplier terakhir datang dulu, yang lama menyusul.
+      fast.complete();
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+      slow.complete();
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(31000));
+      expect(vm.supplierId, jaya.id);
+    });
+
+    test('isian harga yang hanya difokus tidak mengunci harga', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      final line = vm.lines.single;
+      // Fokus atau seleksi memanggil onChange dengan harga yang sama.
+      vm.setUnitPrice(line.key, line.unitPrice);
+      expect(vm.lines.single.autoPrice, isTrue);
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+    });
+
+    test('harga barang baru dari supplier lama dibuang bila supplier '
+        'berganti selama menunggu', () async {
+      vm.selectSupplier(jaya.id);
+      final gate = r.lastPricesGateOf[jaya.id] = Completer<void>();
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+      gate.complete();
+      await pumpEventQueue();
+      expect(priceOf(myk), const Money(30000));
+    });
+
+    test('stok minimum: supplier diganti selama harga dimuat', () async {
+      r.lastSupplierOf[myk.id] = (
+        supplierId: sumber.id,
+        at: DateTime.utc(2026, 11, 1),
+      );
+      final gate = r.lastPricesGateOf[sumber.id] = Completer<void>();
+      final restock = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(2))],
+        ),
+      );
+      final loading = restock.load.execute();
+      await pumpEventQueue();
+      expect(restock.supplierId, sumber.id);
+      restock.selectSupplier(jaya.id);
+      await pumpEventQueue();
+      expect(restock.lines.single.unitPrice, const Money(31000));
+      gate.complete();
+      await loading;
+      await pumpEventQueue();
+      expect(restock.lines.single.unitPrice, const Money(31000));
+      restock.dispose();
+    });
+
+    test('draf dibuka dari stok minimum memakai harga supplier draf', () async {
+      final saved = await r.saveDraft(
+        PurchaseRequest(
+          supplierId: sumber.id,
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: r.locations.first.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: other.id,
+              quantity: Qty.units(1),
+              unitPrice: const Money(4000),
+            ),
+          ],
+        ),
+      );
+      final draft = PurchaseFormViewModel(
+        repository: r,
+        draftId: (saved as Ok<Purchase>).value.id,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.units(2))],
+        ),
+      );
+      await draft.load.execute();
+      expect(draft.supplierId, sumber.id);
+      expect(
+        draft.lines.firstWhere((l) => l.product.variantId == myk.id).unitPrice,
+        const Money(30000),
+      );
+      draft.dispose();
+    });
+
+    test('simpan menunggu penyegaran harga', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      final gate = r.lastPricesGate = Completer<void>();
+      vm.selectSupplier(sumber.id);
+      final saving = vm.saveDraft.execute();
+      gate.complete();
+      await saving;
+      expect(r.requests.single.lines.single.unitPrice, const Money(30000));
+    });
+
+    test('baris draf tersimpan tidak berubah saat supplier diganti', () async {
+      final saved = await r.saveDraft(
+        PurchaseRequest(
+          supplierId: jaya.id,
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: r.locations.first.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: myk.id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(29000),
+            ),
+          ],
+        ),
+      );
+      final draft = PurchaseFormViewModel(
+        repository: r,
+        draftId: (saved as Ok<Purchase>).value.id,
+      );
+      await draft.load.execute();
+      draft.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(draft.lines.single.unitPrice, const Money(29000));
+      draft.dispose();
+    });
+
+    test(
+      'stok minimum: supplier terakhir dipilih dulu, lalu harganya',
+      () async {
+        r.lastSupplierOf[myk.id] = (
+          supplierId: sumber.id,
+          at: DateTime.utc(2026, 11, 1),
+        );
+        final restock = PurchaseFormViewModel(
+          repository: r,
+          restock: PurchaseRestock(
+            locationId: r.locations.first.id,
+            locationName: 'Toko',
+            lines: [(variantId: myk.id, quantity: Qty.units(2))],
+          ),
+        );
+        await restock.load.execute();
+        expect(restock.supplierId, sumber.id);
+        expect(restock.lines.single.unitPrice, const Money(30000));
+        expect(restock.restockPriceCount, 1);
+        // Isian otomatis: belum dihitung perubahan (F1-12f).
+        expect(restock.hasUnsavedChanges, isFalse);
+        restock.dispose();
+      },
+    );
+  });
+
   group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
     UuidValue myk() => form.lines
         .firstWhere((l) => l.product.sku == 'MYK-2L')
@@ -1065,6 +1320,7 @@ class _FailingPrices extends FakePurchasesRepository {
 
   @override
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
-    Iterable<UuidValue> variantIds,
-  ) async => Result.error(Exception('baca gagal'));
+    Iterable<UuidValue> variantIds, {
+    UuidValue? supplierId,
+  }) async => Result.error(Exception('baca gagal'));
 }

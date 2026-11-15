@@ -112,6 +112,7 @@ class PurchaseFormLine {
     required this.unitPrice,
     this.priceRev = 0,
     this.suggested,
+    this.autoPrice = false,
   });
 
   final int key;
@@ -126,6 +127,11 @@ class PurchaseFormLine {
   /// mengganti satuan mengonversi jumlah dari saran ini.
   final Qty? suggested;
 
+  /// Harga diisi otomatis (harga modal / harga beli terakhir) dan belum
+  /// diketik staf, jadi boleh diganti saat supplier berganti (F1-12g).
+  /// Baris dari draf tersimpan dianggap sudah ditetapkan.
+  final bool autoPrice;
+
   Money get lineTotal => unitPrice.timesMilli(quantity.milli);
 
   PurchaseFormLine copyWith({
@@ -134,6 +140,7 @@ class PurchaseFormLine {
     Money? unitPrice,
     int? priceRev,
     bool? keepSuggested,
+    bool? autoPrice,
   }) => PurchaseFormLine(
     key: key,
     product: product,
@@ -143,6 +150,7 @@ class PurchaseFormLine {
     priceRev: priceRev ?? this.priceRev,
     // Jumlah baru melupakan saran kecuali pemanggil sengaja menyimpannya.
     suggested: (keepSuggested ?? quantity == null) ? suggested : null,
+    autoPrice: autoPrice ?? this.autoPrice,
   );
 
   /// [suggested] dalam satuan [unit], dibulatkan ke atas ke satuan utuh
@@ -190,6 +198,103 @@ class PurchaseFormViewModel extends ChangeNotifier {
   /// Harga beli terakhir per satuan dasar yang sudah dibaca selama form
   /// terbuka (`null` = belum pernah dibeli) (F1-08e, F1-12e).
   final _lastPrices = <UuidValue, Money?>{};
+
+  /// Seperti [_lastPrices], tetapi hanya dari satu supplier (F1-12g).
+  final _supplierPrices = <UuidValue, Map<UuidValue, Money?>>{};
+
+  /// Naik setiap supplier berganti; penyegaran harga yang lebih lama
+  /// dibuang (F1-12g).
+  var _priceRev = 0;
+
+  /// Supplier yang harganya dipakai: supplier baru yang diketik belum
+  /// punya riwayat.
+  UuidValue? get _priceSupplier => _newSupplier ? null : _supplierId;
+
+  /// Membaca harga terakhir [ids] yang belum ada di tembolok, dari semua
+  /// supplier dan dari [supplier] (bila ada). `false` bila gagal dibaca.
+  Future<bool> _ensureLastPrices(
+    Set<UuidValue> ids,
+    UuidValue? supplier,
+  ) async {
+    final any = {
+      for (final id in ids)
+        if (!_lastPrices.containsKey(id)) id,
+    };
+    if (any.isNotEmpty) {
+      final result = await _repository.lastPurchasePrices(any);
+      if (result case Ok(:final value)) {
+        for (final id in any) {
+          _lastPrices[id] = value[id];
+        }
+      } else {
+        return false;
+      }
+    }
+    if (supplier == null) return true;
+    final known = _supplierPrices[supplier] ?? const {};
+    final missing = {
+      for (final id in ids)
+        if (!known.containsKey(id)) id,
+    };
+    if (missing.isEmpty) return true;
+    final result = await _repository.lastPurchasePrices(
+      missing,
+      supplierId: supplier,
+    );
+    if (result case Ok(:final value)) {
+      final map = _supplierPrices[supplier] ??= {};
+      for (final id in missing) {
+        map[id] = value[id];
+      }
+      return true;
+    }
+    return false;
+  }
+
+  /// Harga terakhir [variantId] dari [supplier], atau dari semua supplier
+  /// bila belum pernah dibeli darinya (F1-12g).
+  Money? _lastPriceFor(UuidValue variantId, UuidValue? supplier) =>
+      (supplier == null ? null : _supplierPrices[supplier]?[variantId]) ??
+      _lastPrices[variantId];
+
+  /// Menyegarkan harga baris otomatis setelah supplier berganti (F1-12g).
+  void _startRefresh() {
+    final refresh = _refreshAutoPrices();
+    _pendingFills.add(refresh);
+    unawaited(refresh.whenComplete(() => _pendingFills.remove(refresh)));
+  }
+
+  Future<void> _refreshAutoPrices() async {
+    final rev = ++_priceRev;
+    final supplier = _priceSupplier;
+    final ids = {
+      for (final l in _lines)
+        if (l.autoPrice && l.unit.isBase) l.product.variantId,
+    };
+    if (ids.isEmpty) return;
+    if (!await _ensureLastPrices(ids, supplier)) return;
+    // Supplier berganti lagi selama menunggu: penyegaran berikutnya menang.
+    if (rev != _priceRev || _disposed) return;
+    var changed = false;
+    _lines = [
+      for (final l in _lines)
+        if (l.autoPrice && l.unit.isBase)
+          () {
+            final price =
+                _lastPriceFor(l.product.variantId, supplier) ??
+                l.product.defaultPrice(l.unit);
+            if (price == l.unitPrice) return l;
+            changed = true;
+            // priceRev naik agar isian harga yang sudah tampil ikut berganti.
+            return l.copyWith(unitPrice: price, priceRev: l.priceRev + 1);
+          }()
+        else
+          l,
+    ];
+    if (!changed) return;
+    if (saveDraft.completed) saveDraft.clearResult();
+    notifyListeners();
+  }
 
   /// Pengisian harga terakhir yang belum selesai; simpan/terima menunggunya
   /// agar draf berisi harga yang tampil di form.
@@ -473,8 +578,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _restock = null;
         _applyRestock(r);
         final edits = _edits;
-        await _applyRestockPrices({for (final l in _lines) l.key});
+        // Supplier dulu, agar harga diambil dari supplier itu (F1-12g).
         await _applyRestockSupplier();
+        await _applyRestockPrices({for (final l in _lines) l.key});
         // Isian otomatis bisa dibuat ulang: bukan perubahan (F1-12f),
         // kecuali staf sudah mengubah isian selama menunggu.
         if (_edits == edits) _markSaved();
@@ -587,6 +693,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
           quantity: line.quantity,
           unitPrice: option.defaultPrice(unit),
           suggested: line.quantity,
+          autoPrice: true,
         ),
       ];
       applied++;
@@ -606,21 +713,22 @@ class PurchaseFormViewModel extends ChangeNotifier {
         if (keys.contains(l.key)) l,
     ];
     if (targets.isEmpty) return;
-    final before = {for (final l in targets) l.key: l.unitPrice};
     final requested = {for (final l in targets) l.product.variantId};
-    final result = await _repository.lastPurchasePrices(requested);
-    if (result case Ok(:final value)) {
-      for (final id in requested) {
-        _lastPrices[id] = value[id];
-      }
+    final supplier = _priceSupplier;
+    final rev = _priceRev;
+    if (await _ensureLastPrices(requested, supplier)) {
+      // Supplier berganti selama menunggu: penyegarannya yang mengisi
+      // harga baris otomatis (F1-12g).
+      if (rev != _priceRev || supplier != _priceSupplier) return;
       var count = 0;
       final lines = <PurchaseFormLine>[];
       for (final l in _lines) {
-        final price = value[l.product.variantId];
+        final price = _lastPriceFor(l.product.variantId, supplier);
+        // Harga yang diketik staf selama menunggu tidak ditimpa.
         if (price != null &&
             l.unit.isBase &&
-            before.containsKey(l.key) &&
-            before[l.key] == l.unitPrice) {
+            keys.contains(l.key) &&
+            l.autoPrice) {
           // priceRev naik agar isian harga yang sudah tampil ikut berganti.
           lines.add(l.copyWith(unitPrice: price, priceRev: l.priceRev + 1));
           count++;
@@ -665,6 +773,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
     final s = _setup!;
     // Form baru: pembelian yang baru diterima bisa mengubah harga terakhir.
     _lastPrices.clear();
+    _supplierPrices.clear();
+    // Penyegaran harga untuk form sebelumnya dibuang (F1-12g).
+    _priceRev++;
     _draftId = null;
     _restockSupplierName = null;
     _restockSupplierCount = 0;
@@ -696,6 +807,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   void _fill(PurchaseDetail d) {
     final p = d.purchase;
+    // Penyegaran harga untuk isian sebelumnya dibuang (F1-12g).
+    _priceRev++;
     _draftId = p.id;
     _number = p.number;
     _supplierId = p.supplierId;
@@ -772,18 +885,26 @@ class PurchaseFormViewModel extends ChangeNotifier {
   static DateTime _plusDays(DateTime d, int days) =>
       DateTime(d.year, d.month, d.day + days);
 
-  void selectSupplier(UuidValue? id) => _changeSupplier(() {
-    if (id != _supplierId) _restockSupplierName = null;
-    _supplierId = id;
-    _newSupplier = false;
-  });
+  void selectSupplier(UuidValue? id) {
+    final before = _priceSupplier;
+    _changeSupplier(() {
+      if (id != _supplierId) _restockSupplierName = null;
+      _supplierId = id;
+      _newSupplier = false;
+    });
+    if (_priceSupplier != before) _startRefresh();
+  }
 
   /// Mengetik nama supplier baru (dibuat saat simpan).
-  void useNewSupplier() => _changeSupplier(() {
-    _restockSupplierName = null;
-    _supplierId = null;
-    _newSupplier = true;
-  });
+  void useNewSupplier() {
+    final before = _priceSupplier;
+    _changeSupplier(() {
+      _restockSupplierName = null;
+      _supplierId = null;
+      _newSupplier = true;
+    });
+    if (_priceSupplier != before) _startRefresh();
+  }
 
   void setNewSupplierName(String v) {
     _newSupplierName = v;
@@ -886,6 +1007,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         unit: unit,
         quantity: Qty.units(1),
         unitPrice: option.defaultPrice(unit),
+        autoPrice: true,
       ),
     ];
     _touched();
@@ -949,20 +1071,16 @@ class PurchaseFormViewModel extends ChangeNotifier {
     final line = _line(key);
     if (line == null) return;
     final variantId = line.product.variantId;
-    if (!_lastPrices.containsKey(variantId)) {
-      final result = await _repository.lastPurchasePrices({variantId});
-      if (result case Ok(:final value)) {
-        _lastPrices[variantId] = value[variantId];
-      } else {
-        return;
-      }
-    }
-    final price = _lastPrices[variantId];
+    final supplier = _priceSupplier;
+    if (!await _ensureLastPrices({variantId}, supplier)) return;
+    // Supplier berganti selama menunggu: penyegarannya yang mengisi.
+    if (supplier != _priceSupplier) return;
+    final price = _lastPriceFor(variantId, supplier);
     final now = _line(key);
     if (price == null ||
         now == null ||
         !now.unit.isBase ||
-        now.unitPrice != now.product.defaultPrice(now.unit) ||
+        !now.autoPrice ||
         now.unitPrice == price) {
       return;
     }
@@ -983,8 +1101,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
 
   void setUnitPrice(int key, Money price) {
     final line = _line(key);
-    if (line == null) return;
-    _replace(line.copyWith(unitPrice: price));
+    // Isian harga memanggil ini juga saat fokus atau seleksi berubah;
+    // harga yang sama bukan ketikan staf (F1-12g).
+    if (line == null || price == line.unitPrice) return;
+    // Harga yang diketik staf tidak diganti otomatis lagi (F1-12g).
+    _replace(line.copyWith(unitPrice: price, autoPrice: false));
     _touched();
   }
 
@@ -1025,6 +1146,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
           unitPrice: line.product.defaultPrice(unit),
           priceRev: line.priceRev + 1,
           keepSuggested: true,
+          autoPrice: true,
         ),
       );
       if (unit.isBase) _startFill(key);

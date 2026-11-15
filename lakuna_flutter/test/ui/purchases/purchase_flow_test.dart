@@ -347,6 +347,28 @@ void main() {
     });
   }
 
+  testWidgets('harga ikut supplier yang dipilih walau isian harga sudah '
+      'difokus (F1-12g)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    final sumber = repo.suppliers.single;
+    repo.lastPriceOf[kopVariant()] = const Money(1400);
+    repo.lastPriceBySupplier[sumber.id] = {kopVariant(): const Money(1300)};
+    await _scan(tester, 'KOP');
+    expect(find.text('Rp 1.400'), findsWidgets);
+    // Staf mengetuk isian harga tanpa mengubahnya.
+    final price = _input(_keyPrefix('purchase-price-'));
+    await tester.ensureVisible(price);
+    await tester.tap(price);
+    await tester.pumpAndSettle();
+    await _tap(tester, _keyPrefix('purchase-supplier-'));
+    await _tap(tester, find.text('CV Sumber Pangan').last);
+    expect(find.text('Rp 1.300'), findsWidgets);
+    await _tap(tester, _key('purchase-pay-full'));
+    await _tap(tester, _key('purchase-receive'));
+    expect(repo.requests.single.lines.single.unitPrice, const Money(1300));
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets('bayar dari laci melebihi perkiraan: peringatan (F1-03c)', (
     tester,
   ) async {

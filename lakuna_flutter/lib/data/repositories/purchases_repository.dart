@@ -111,9 +111,12 @@ abstract class PurchasesRepository {
   /// Harga beli terakhir per varian [variantIds] dalam satuan dasar dari
   /// pembelian diterima terbaru (F1-08e); varian tanpa riwayat tidak ada
   /// di peta.
+  ///
+  /// Dengan [supplierId], hanya pembelian dari supplier itu (F1-12g).
   Future<Result<Map<UuidValue, Money>>> lastPurchasePrices(
-    Iterable<UuidValue> variantIds,
-  );
+    Iterable<UuidValue> variantIds, {
+    UuidValue? supplierId,
+  });
 
   /// Draf pembelian cabang ke lokasi [locationId] yang sudah memuat
   /// sebagian [variantIds], paling banyak barang yang sama dulu (F1-08g).
