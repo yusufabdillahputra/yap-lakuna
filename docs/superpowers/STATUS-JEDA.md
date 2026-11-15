@@ -94,7 +94,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.111.0 | Galat simpan area/meja/rentang tampil di isiannya (F1-10p) | #117 |
 | v0.112.0 | Jumlah di draf dibandingkan saran di Stok minimum (F1-08l) | #118 |
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
-| v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | |
+| v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | #120 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
