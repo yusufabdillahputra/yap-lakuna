@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -69,6 +71,9 @@ class FakeCustomersRepository extends CustomersRepository {
 
   /// Galat berikutnya untuk aksi apa pun (sekali pakai).
   Exception? nextError;
+
+  /// Bila diisi, [save] menunggu sampai selesai (simpan masih berjalan).
+  Completer<void>? saveGate;
 
   CustomerGroup _group(String name, int termDays) {
     final g = CustomerGroup(
@@ -231,7 +236,12 @@ class FakeCustomersRepository extends CustomersRepository {
   });
 
   @override
-  Future<Result<Customer>> save(CustomerInput input) async => _check(
+  Future<Result<Customer>> save(CustomerInput input) async {
+    if (saveGate case final gate?) await gate.future;
+    return _save(input);
+  }
+
+  Future<Result<Customer>> _save(CustomerInput input) async => _check(
     Permission.customersManage,
     () {
       final issues = validateCustomer(

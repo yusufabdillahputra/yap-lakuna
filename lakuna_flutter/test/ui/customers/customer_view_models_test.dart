@@ -7,6 +7,8 @@ import 'package:lakuna_flutter/data/repositories/customers_repository.dart'
     show NotPermitted;
 import 'package:lakuna_flutter/l10n/gen/app_localizations.dart';
 import 'package:lakuna_flutter/ui/customers/customer_form_view_model.dart';
+import 'package:lakuna_flutter/ui/customers/customer_labels.dart'
+    show formatPhone;
 import 'package:lakuna_flutter/ui/customers/customer_panel_view_model.dart';
 import 'package:lakuna_flutter/ui/customers/customers_view_model.dart';
 import 'package:lakuna_flutter/ui/customers/kuitansi_content.dart';
@@ -248,6 +250,77 @@ void main() {
         (vm.save.result! as Error<Customer>).error,
         isA<CustomerPhoneTaken>(),
       );
+    });
+
+    group('isian belum disimpan (F1-13e)', () {
+      test('baru: kosong, isian awal dari Kasir, ubah lalu kembalikan', () {
+        final blank = CustomerFormViewModel(repository: repo);
+        expect(blank.hasUnsavedChanges, isFalse);
+        final vm = CustomerFormViewModel(
+          repository: repo,
+          initialName: 'Bu Wati',
+        );
+        expect(vm.hasUnsavedChanges, isFalse, reason: 'isian awal Kasir');
+        vm.setName('Bu Wati S');
+        expect(vm.hasUnsavedChanges, isTrue);
+        vm.setName('Bu Wati');
+        expect(vm.hasUnsavedChanges, isFalse);
+        for (final change in <void Function(CustomerFormViewModel)>[
+          (vm) => vm.setAddress('Jl. Mawar 1'),
+          (vm) => vm.setNote('Langganan'),
+          (vm) => vm.setCreditLimit(const Money(500000)),
+          (vm) => vm.setGroup(customerNewGroupKey),
+        ]) {
+          final vm = CustomerFormViewModel(
+            repository: repo,
+            initialName: 'Bu Wati',
+          );
+          change(vm);
+          expect(vm.hasUnsavedChanges, isTrue);
+        }
+        final group = CustomerFormViewModel(repository: repo)
+          ..setGroup(customerNewGroupKey);
+        expect(group.hasUnsavedChanges, isTrue);
+        group.setGroup(customerNoGroupKey);
+        expect(group.hasUnsavedChanges, isFalse);
+        // Nama grup baru hanya dihitung selama *Grup baru* dipilih.
+        group
+          ..setGroup(customerNewGroupKey)
+          ..setNewGroup('Langganan')
+          ..setGroup(customerNoGroupKey);
+        expect(group.hasUnsavedChanges, isFalse);
+      });
+
+      test('ubah: HP beda format sama nomor tidak dihitung', () {
+        final ani = repo.customers.firstWhere((c) => c.name == 'Toko Bu Ani');
+        final vm = CustomerFormViewModel(repository: repo, customer: ani);
+        expect(vm.hasUnsavedChanges, isFalse);
+        vm.setPhone(formatPhone(ani.phone!));
+        expect(vm.hasUnsavedChanges, isFalse);
+        vm.setPhone('0813-0000-1111');
+        expect(vm.hasUnsavedChanges, isTrue);
+        vm
+          ..setPhone(ani.phone!)
+          ..setCreditLimit(Money(ani.creditLimit + 1000));
+        expect(vm.hasUnsavedChanges, isTrue);
+        vm
+          ..setCreditLimit(Money(ani.creditLimit))
+          ..setAddress('${ani.address ?? ''} baru');
+        expect(vm.hasUnsavedChanges, isTrue);
+        vm
+          ..setAddress(ani.address ?? '')
+          ..setNote('catatan');
+        expect(vm.hasUnsavedChanges, isTrue);
+      });
+
+      test('sibuk selama simpan', () async {
+        final vm = CustomerFormViewModel(repository: repo)..setName('Pak Joko');
+        expect(vm.busy, isFalse);
+        final saving = vm.save.execute();
+        expect(vm.busy, isTrue);
+        await saving;
+        expect(vm.busy, isFalse);
+      });
     });
   });
 

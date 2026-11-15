@@ -7,6 +7,69 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.100.0] - 2026-11-15
+
+Dialog *Pelanggan* dan *Supplier* tidak lagi membuang isian karena salah
+ketuk di luar dialog. Ini melengkapi rangkaian peringatan "Buang
+perubahan?" untuk semua form isian panjang di Fase 1.
+
+### Ditambahkan
+
+- **Pelanggan (1.20) & Supplier (1.21):** menutup dialog *Pelanggan baru*
+  / *Ubah pelanggan* atau *Supplier baru* / *Ubah supplier* yang isiannya
+  berubah, lewat ketukan di luar dialog, Esc, tombol kembali sistem, atau
+  tombol **Batal**, menampilkan **Buang perubahan?** ("Pelanggan / Supplier
+  yang sedang diisi belum disimpan dan akan hilang.") dengan **Batal** dan
+  **Buang**. Berlaku juga untuk *Pelanggan baru* dari Kasir dan panel
+  *Kredit* (F1-04f); **Buang** hanya menutup form, pemilih pelanggan tetap
+  terbuka.
+- Panduan *Pelanggan & piutang* dan *Supplier & hutang* menjelaskan dialog
+  ini (ID + EN).
+
+### Diubah
+
+- Dialog form pelanggan dan supplier kini menutupi menu samping / bawah:
+  simpan atau tutup dialog dulu sebelum pindah menu.
+- Isian awal dari kata pencarian Kasir bukan perubahan; nomor HP dibanding
+  setelah dinormalisasi, jadi menulis ulang nomor yang sama dengan format
+  lain tidak dihitung. Dialog yang tidak diubah tetap tertutup dengan satu
+  ketukan.
+- Selama simpan berjalan, dialog tidak bisa ditutup.
+
+### Diperbaiki
+
+- Membuka *Ubah pelanggan* untuk pelanggan yang punya grup memicu galat
+  pada pilihan *Grup* (nilai awal di luar daftar) sebelum daftar grup
+  selesai dimuat. Pilihan kini kosong sesaat lalu terisi setelah grup
+  dimuat.
+
+### Catatan teknis
+
+- `CustomerFormViewModel` / `SupplierFormViewModel`: `hasUnsavedChanges`
+  (daftar rata dibanding `listEquals` dengan salinan dari konstruktor;
+  nama grup baru hanya selama *Grup baru* dipilih) dan `busy`.
+- `DiscardChangesScope` (`PopScope`, `canPop: !dirty && !busy`) dan
+  `TapOutsideToPop` di `lib/ui/core/confirm_discard.dart`. Penghalang
+  bawaan Forui 0.27.7 memanggil `Navigator.pop` langsung sehingga
+  melewati `PopScope`; dialog kini `barrierDismissible: false` dengan latar
+  yang bisa diketuk (`maybePop`) di belakang `FDialog`. Karena rute
+  dengan `barrierDismissible: false` mematikan aksi Esc bawaan
+  (`_DismissModalAction`), Esc dipasang ulang lewat `DismissIntent`.
+  Tombol **Batal** memanggil `maybePop`; simpan tetap `pop(hasil)`.
+- `showCustomerForm` / `showSupplierForm` memakai `useRootNavigator: true`.
+- Temuan review: tes jalur Kasir ditambah (Important). Minor diperbaiki:
+  - tutup dan Buang hanya bekerja bila dialog masih rute teratas
+    (`ModalRoute.isCurrent`), jadi tidak menutup rute lain;
+  - latar diberi label semantik dan aksi ketuk;
+  - urutan impor dirapikan;
+  - tes ditambah untuk tombol kembali sistem, Esc di supplier, ketukan di
+    tepi dalam dialog, dialog ubah tanpa perubahan, dan simpan gagal.
+
+  Ketukan di area aman ponsel dan spasi di akhir isian dicatat sebagai gap
+  yang diterima.
+- Tes VM pelanggan dan supplier, serta tes widget daftar pelanggan,
+  supplier, dan Kasir. Sudah diverifikasi dengan uji mutasi.
+
 ## [0.99.0] - 2026-11-15
 
 Isian *Catat pengeluaran* kini ditanyakan sebelum hilang karena pindah
@@ -6253,7 +6316,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.100.0...HEAD
+[0.100.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.99.0...v0.100.0
 [0.99.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.98.0...v0.99.0
 [0.98.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.97.0...v0.98.0
 [0.97.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.96.0...v0.97.0

@@ -8640,4 +8640,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get expenseDiscardBody =>
       'The expense you are filling in has not been saved and will be lost.';
+
+  @override
+  String get customerDiscardBody =>
+      'The customer you are filling in has not been saved and will be lost.';
+
+  @override
+  String get supplierDiscardBody =>
+      'The supplier you are filling in has not been saved and will be lost.';
 }

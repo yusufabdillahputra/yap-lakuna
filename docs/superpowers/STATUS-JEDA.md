@@ -80,6 +80,7 @@ agar pekerjaan bisa dilanjutkan tanpa menelusuri ulang riwayat.
 | v0.97.0 | Peringatan keluar dari form pembelian tanpa menyimpan (F1-12f) | #103 |
 | v0.98.0 | Peringatan keluar dari form produk tanpa menyimpan (F1-07q) | #104 |
 | v0.99.0 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan (F1-15c) | #105 |
+| v0.100.0 | Dialog pelanggan & supplier bertanya sebelum isian dibuang (F1-13e) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -187,16 +188,21 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     v0.97.0 (F1-12f): Kembali, tombol kembali sistem, menu samping, ganti
     draf di layar lebar (`LeaveGuard` + `GoRoute.onExit`). ~~Form
     produk~~ — selesai v0.98.0 (F1-07q). ~~Pengeluaran~~ — selesai
-    v0.99.0 (F1-15c). Form pelanggan, supplier, dan simpan langsung dari
-    dialog masih gap.
+    v0.99.0 (F1-15c). ~~Dialog pelanggan & supplier~~ — selesai v0.100.0
+    (F1-13e). Simpan langsung dari dialog konfirmasi masih gap.
 40. ~~Form produk dibuang tanpa bertanya saat ditinggalkan~~ — selesai
     v0.98.0 (F1-07q): Batal, Kembali, tombol kembali sistem, menu samping;
     perubahan foto ikut dihitung. Barcode dari *Cetak label* saat form
     sudah berubah ikut terhitung perubahan (gap kecil).
 41. ~~Isian Pengeluaran hilang tanpa bertanya saat pindah menu~~ — selesai
     v0.99.0 (F1-15c): keterangan, jumlah, foto, atau tanggal lain; layar
-    lebar dan dialog ponsel. Dialog pelanggan / supplier yang tertutup
-    karena ketukan di luar dialog masih gap.
+    lebar dan dialog ponsel. ~~Dialog pelanggan / supplier yang tertutup
+    karena ketukan di luar dialog~~ — selesai v0.100.0 (F1-13e).
+42. ~~Dialog pelanggan & supplier membuang isian saat diketuk di luar, Esc,
+    tombol kembali, atau Batal~~ — selesai v0.100.0 (F1-13e); dialog kini
+    menutupi menu samping. Juga diperbaiki: galat `FSelect` saat membuka
+    *Ubah pelanggan* bergrup. Dialog pendek lain (jenis pengeluaran, grup,
+    pembayaran) masih tertutup tanpa bertanya.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

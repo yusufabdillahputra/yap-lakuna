@@ -29,7 +29,10 @@ class CustomerFormViewModel extends ChangeNotifier {
        _limit = Money(customer?.creditLimit ?? 0) {
     load = Command0(_load)..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
+    _initial = _signature();
   }
+
+  late final List<Object?> _initial;
 
   final CustomersRepository _repository;
   final Customer? _customer;
@@ -63,6 +66,23 @@ class CustomerFormViewModel extends ChangeNotifier {
   var _submitted = false;
 
   bool get isEdit => _customer != null;
+
+  /// Isian berbeda dari saat dialog dibuka (F1-13e). Isian awal dari Kasir
+  /// bukan perubahan; HP dibanding setelah dinormalisasi.
+  bool get hasUnsavedChanges => !listEquals(_signature(), _initial);
+
+  /// Simpan sedang berjalan; dialog belum boleh ditutup.
+  bool get busy => save.running;
+
+  List<Object?> _signature() => [
+    _name,
+    normalizePhone(_phone),
+    _address,
+    _note,
+    _groupKey,
+    if (_groupKey == customerNewGroupKey) _newGroup,
+    _limit.value,
+  ];
   List<CustomerGroupRow> get groups => _groups;
   String get name => _name;
   String get phone => _phone;

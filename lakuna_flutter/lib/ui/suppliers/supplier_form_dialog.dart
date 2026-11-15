@@ -8,6 +8,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import '../../data/repositories/suppliers_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../customers/customer_labels.dart' show formatPhone;
 import 'supplier_form_view_model.dart';
 import 'supplier_labels.dart';
@@ -20,11 +21,17 @@ Future<Supplier?> showSupplierForm(
   Supplier? supplier,
 }) => showFDialog<Supplier>(
   context: context,
-  builder: (context, style, animation) => FDialog(
-    animation: animation,
-    constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
-    builder: (context, style) =>
-        SupplierFormDialog(repository: repository, supplier: supplier),
+  // Menutupi menu samping agar isian tidak hilang karena pindah menu
+  // (F1-13e).
+  useRootNavigator: true,
+  barrierDismissible: false,
+  builder: (context, style, animation) => TapOutsideToPop(
+    child: FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
+      builder: (context, style) =>
+          SupplierFormDialog(repository: repository, supplier: supplier),
+    ),
   ),
 );
 
@@ -104,125 +111,133 @@ class _SupplierFormDialogState extends State<SupplierFormDialog> {
           onChange: (v) => onChange(v.text),
         ),
       );
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-                child: Column(
-                  key: const ValueKey('supplier-form'),
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 12,
-                  children: [
-                    Text(
-                      vm.isEdit ? l10n.supplierFormEdit : l10n.supplierFormNew,
-                      style: theme.typography.display.lg.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    field(
-                      'name',
-                      l10n.supplierFieldName,
-                      vm.name,
-                      vm.setName,
-                      issue: SupplierIssue.name,
-                      autofocus: true,
-                    ),
-                    field(
-                      'contact',
-                      l10n.supplierFieldContact,
-                      vm.contactName,
-                      vm.setContactName,
-                      issue: SupplierIssue.contactName,
-                    ),
-                    field(
-                      'phone',
-                      l10n.supplierFieldPhone,
-                      formatPhone(vm.phone),
-                      vm.setPhone,
-                      issue: SupplierIssue.phone,
-                      hint: '021-555-0101',
-                      keyboard: TextInputType.phone,
-                    ),
-                    field(
-                      'category',
-                      l10n.supplierFieldCategory,
-                      vm.category,
-                      vm.setCategory,
-                      issue: SupplierIssue.category,
-                      hint: l10n.supplierCategoryHint,
-                    ),
-                    field(
-                      'term',
-                      l10n.supplierFieldTerm,
-                      vm.termDays < 0 ? '' : '${vm.termDays}',
-                      vm.setTermDays,
-                      issue: SupplierIssue.termDays,
-                      description: l10n.supplierTermHint,
-                      keyboard: TextInputType.number,
-                      formatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(3),
-                      ],
-                    ),
-                    field(
-                      'address',
-                      l10n.supplierFieldAddress,
-                      vm.address,
-                      vm.setAddress,
-                      issue: SupplierIssue.address,
-                      maxLines: 2,
-                    ),
-                    field(
-                      'note',
-                      l10n.supplierFieldNote,
-                      vm.note,
-                      vm.setNote,
-                      issue: SupplierIssue.note,
-                    ),
-                    if (saveError != null)
+      return DiscardChangesScope(
+        dirty: vm.hasUnsavedChanges,
+        busy: vm.busy,
+        body: l10n.supplierDiscardBody,
+        dialogKey: 'supplier-discard',
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                  child: Column(
+                    key: const ValueKey('supplier-form'),
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 12,
+                    children: [
                       Text(
-                        saveError,
-                        key: const ValueKey('supplier-form-error'),
-                        style: theme.typography.body.sm.copyWith(
-                          color: theme.colors.destructive,
+                        vm.isEdit
+                            ? l10n.supplierFormEdit
+                            : l10n.supplierFormNew,
+                        style: theme.typography.display.lg.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                      field(
+                        'name',
+                        l10n.supplierFieldName,
+                        vm.name,
+                        vm.setName,
+                        issue: SupplierIssue.name,
+                        autofocus: true,
+                      ),
+                      field(
+                        'contact',
+                        l10n.supplierFieldContact,
+                        vm.contactName,
+                        vm.setContactName,
+                        issue: SupplierIssue.contactName,
+                      ),
+                      field(
+                        'phone',
+                        l10n.supplierFieldPhone,
+                        formatPhone(vm.phone),
+                        vm.setPhone,
+                        issue: SupplierIssue.phone,
+                        hint: '021-555-0101',
+                        keyboard: TextInputType.phone,
+                      ),
+                      field(
+                        'category',
+                        l10n.supplierFieldCategory,
+                        vm.category,
+                        vm.setCategory,
+                        issue: SupplierIssue.category,
+                        hint: l10n.supplierCategoryHint,
+                      ),
+                      field(
+                        'term',
+                        l10n.supplierFieldTerm,
+                        vm.termDays < 0 ? '' : '${vm.termDays}',
+                        vm.setTermDays,
+                        issue: SupplierIssue.termDays,
+                        description: l10n.supplierTermHint,
+                        keyboard: TextInputType.number,
+                        formatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ],
+                      ),
+                      field(
+                        'address',
+                        l10n.supplierFieldAddress,
+                        vm.address,
+                        vm.setAddress,
+                        issue: SupplierIssue.address,
+                        maxLines: 2,
+                      ),
+                      field(
+                        'note',
+                        l10n.supplierFieldNote,
+                        vm.note,
+                        vm.setNote,
+                        issue: SupplierIssue.note,
+                      ),
+                      if (saveError != null)
+                        Text(
+                          saveError,
+                          key: const ValueKey('supplier-form-error'),
+                          style: theme.typography.body.sm.copyWith(
+                            color: theme.colors.destructive,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    FButton(
+                      key: const ValueKey('supplier-form-cancel'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: () => Navigator.of(context).maybePop(),
+                      child: Text(l10n.supplierCancel),
+                    ),
+                    FButton(
+                      key: const ValueKey('supplier-form-save'),
+                      mainAxisSize: .min,
+                      onPress: vm.save.running ? null : _save,
+                      child: Text(l10n.supplierSave),
+                    ),
                   ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  FButton(
-                    key: const ValueKey('supplier-form-cancel'),
-                    variant: .outline,
-                    mainAxisSize: .min,
-                    onPress: () => Navigator.of(context).pop(),
-                    child: Text(l10n.supplierCancel),
-                  ),
-                  FButton(
-                    key: const ValueKey('supplier-form-save'),
-                    mainAxisSize: .min,
-                    onPress: vm.save.running ? null : _save,
-                    child: Text(l10n.supplierSave),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     },

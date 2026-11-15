@@ -5591,5 +5591,13 @@
   "expenseDiscardBody": "Pengeluaran yang sedang diisi belum disimpan dan akan hilang.",
   "@expenseDiscardBody": {
     "placeholders": {}
+  },
+  "customerDiscardBody": "Pelanggan yang sedang diisi belum disimpan dan akan hilang.",
+  "@customerDiscardBody": {
+    "placeholders": {}
+  },
+  "supplierDiscardBody": "Supplier yang sedang diisi belum disimpan dan akan hilang.",
+  "@supplierDiscardBody": {
+    "placeholders": {}
   }
 }

@@ -5057,5 +5057,13 @@
   "expenseDiscardBody": "The expense you are filling in has not been saved and will be lost.",
   "@expenseDiscardBody": {
     "placeholders": {}
+  },
+  "customerDiscardBody": "The customer you are filling in has not been saved and will be lost.",
+  "@customerDiscardBody": {
+    "placeholders": {}
+  },
+  "supplierDiscardBody": "The supplier you are filling in has not been saved and will be lost.",
+  "@supplierDiscardBody": {
+    "placeholders": {}
   }
 }

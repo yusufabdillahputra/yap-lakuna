@@ -222,6 +222,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `pelanggan`.
 | Nomor baris import saat berkas punya baris kosong | — | Bergeser | Bawa nomor baris asli dari CSV/XLSX (`row@r`). |
 | Piutang dihitung dari semua nota kredit pelanggan | — | Dipecah per 500 id | Indeks/ringkasan saat data Fase 2 membesar. |
 | Pembayaran tunai bertanggal mundur | — | Kas toko, tidak masuk laci hari ini | Buku kas F1-15. |
+| Dialog pelanggan bertanya sebelum isian dibuang | 1.20 | Rilis v0.100.0 | [F1-13e](2026-11-15-f1-13e-dialog-pelanggan-supplier-design.md). |
 
 ## Kriteria selesai
 

@@ -19,6 +19,7 @@ class SupplierFormViewModel extends ChangeNotifier {
       _note = supplier?.note ?? '',
       _termDays = supplier?.termDays ?? SupplierLimits.defaultTermDays {
     save = Command0(_save)..addListener(notifyListeners);
+    _initial = _signature();
   }
 
   final SuppliersRepository _repository;
@@ -48,6 +49,25 @@ class SupplierFormViewModel extends ChangeNotifier {
   String _note;
   int _termDays;
   var _submitted = false;
+
+  late final List<Object?> _initial;
+
+  /// Isian berbeda dari saat dialog dibuka (F1-13e); HP dibanding setelah
+  /// dinormalisasi.
+  bool get hasUnsavedChanges => !listEquals(_signature(), _initial);
+
+  /// Simpan sedang berjalan; dialog belum boleh ditutup.
+  bool get busy => save.running;
+
+  List<Object?> _signature() => [
+    _name,
+    normalizePhone(_phone),
+    _contact,
+    _category,
+    _address,
+    _note,
+    _termDays,
+  ];
 
   bool get isEdit => _supplier != null;
   String get name => _name;

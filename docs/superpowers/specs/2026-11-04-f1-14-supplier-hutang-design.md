@@ -170,6 +170,7 @@ bawaan 14), Alamat, Catatan.
 | Hapus supplier yang hanya punya draf pembelian | — | Diizinkan | Draf itu gagal diterima (supplier tidak ada); pertimbangkan blokir atau pesan jelas. |
 | Riwayat pembelian lintas cabang | — | Per cabang | Dashboard semua cabang di Fase 2. |
 | Daftar hutang membaca semua pembelian diterima | — | v0.18.0 | Saring `paid_amount < total` di SQL bila data besar. |
+| Dialog supplier bertanya sebelum isian dibuang | 1.21 | Rilis v0.100.0 | [F1-13e](2026-11-15-f1-13e-dialog-pelanggan-supplier-design.md). |
 
 ## Kriteria selesai
 

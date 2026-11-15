@@ -63,3 +63,93 @@ Future<bool> confirmDiscardChanges(
   );
   return result ?? false;
 }
+
+/// Menahan penutupan dialog form yang [dirty] (F1-13e): ketukan di luar
+/// dialog, Esc, tombol kembali sistem, dan `Navigator.maybePop` (mis. tombol
+/// Batal) menampilkan [confirmDiscardChanges] lebih dulu. Selama [busy]
+/// dialog tidak bisa ditutup. `Navigator.pop` (hasil simpan) tidak ditahan.
+class DiscardChangesScope extends StatelessWidget {
+  const DiscardChangesScope({
+    super.key,
+    required this.dirty,
+    required this.busy,
+    required this.body,
+    required this.dialogKey,
+    required this.child,
+  });
+
+  final bool dirty;
+  final bool busy;
+  final String body;
+
+  /// Awalan kunci widget dialog konfirmasi.
+  final String dialogKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => PopScope<Object?>(
+    canPop: !dirty && !busy,
+    onPopInvokedWithResult: (didPop, _) async {
+      if (didPop || busy) return;
+      final discard = await confirmDiscardChanges(
+        context,
+        body: body,
+        key: dialogKey,
+      );
+      // Hanya menutup dialog ini, bukan rute lain yang kebetulan di atas.
+      if (discard && context.mounted && _isCurrent(context)) {
+        Navigator.of(context).pop();
+      }
+    },
+    child: child,
+  );
+}
+
+/// Latar dialog form yang bisa diketuk untuk menutup lewat
+/// `Navigator.maybePop`, sehingga [DiscardChangesScope] ikut bertanya.
+/// Penghalang bawaan Forui memanggil `Navigator.pop` langsung (melewati
+/// `PopScope`), jadi dialog memakai `barrierDismissible: false` dan
+/// membungkus [FDialog]-nya dengan widget ini (F1-13e). Esc juga
+/// diteruskan ke `maybePop`.
+class TapOutsideToPop extends StatelessWidget {
+  const TapOutsideToPop({super.key, required this.child});
+
+  final Widget child;
+
+  void _dismiss(BuildContext context) {
+    // Rute yang sedang ditutup (animasi keluar) tidak meneruskan ke rute
+    // di bawahnya.
+    if (_isCurrent(context)) Navigator.of(context).maybePop();
+  }
+
+  @override
+  Widget build(BuildContext context) => Actions(
+    // Esc: rute dengan `barrierDismissible: false` mematikan aksi tutup
+    // bawaan, jadi dipasang ulang lewat `maybePop`.
+    actions: {
+      DismissIntent: CallbackAction<DismissIntent>(
+        onInvoke: (_) => _dismiss(context),
+      ),
+    },
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: Semantics(
+            label: FLocalizations.of(context)?.barrierLabel,
+            onTap: () => _dismiss(context),
+            child: GestureDetector(
+              key: const ValueKey('dialog-outside'),
+              behavior: HitTestBehavior.opaque,
+              excludeFromSemantics: true,
+              onTap: () => _dismiss(context),
+            ),
+          ),
+        ),
+        child,
+      ],
+    ),
+  );
+}
+
+bool _isCurrent(BuildContext context) =>
+    ModalRoute.of(context)?.isCurrent ?? false;

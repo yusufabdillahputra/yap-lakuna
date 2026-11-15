@@ -7,6 +7,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import '../../data/repositories/customers_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
+import '../core/confirm_discard.dart';
 import '../core/format.dart';
 import 'customer_form_view_model.dart';
 import 'customer_labels.dart';
@@ -22,14 +23,20 @@ Future<Customer?> showCustomerForm(
   String initialPhone = '',
 }) => showFDialog<Customer>(
   context: context,
-  builder: (context, style, animation) => FDialog(
-    animation: animation,
-    constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
-    builder: (context, style) => CustomerFormDialog(
-      repository: repository,
-      customer: customer,
-      initialName: initialName,
-      initialPhone: initialPhone,
+  // Menutupi menu samping agar isian tidak hilang karena pindah menu
+  // (F1-13e).
+  useRootNavigator: true,
+  barrierDismissible: false,
+  builder: (context, style, animation) => TapOutsideToPop(
+    child: FDialog(
+      animation: animation,
+      constraints: const BoxConstraints(minWidth: 280, maxWidth: 520),
+      builder: (context, style) => CustomerFormDialog(
+        repository: repository,
+        customer: customer,
+        initialName: initialName,
+        initialPhone: initialPhone,
+      ),
     ),
   ),
 );
@@ -115,6 +122,13 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
       final issues = vm.issues;
       Text? err(CustomerIssue i) =>
           issues.contains(i) ? Text(customerIssueMessage(l10n, i)) : null;
+      final groupItems = {
+        l10n.customerGroupNone: customerNoGroupKey,
+        for (final g in vm.groups)
+          l10n.customerGroupOption(g.group.name, g.group.termDays):
+              g.group.id.uuid,
+        l10n.customerGroupNew: customerNewGroupKey,
+      };
       final saveError = switch (vm.save.result) {
         Error(:final error) when error is! CustomerInvalid =>
           customerErrorMessage(
@@ -123,138 +137,144 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
           ),
         _ => null,
       };
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            key: const ValueKey('customer-form'),
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(
-                vm.isEdit ? l10n.customerFormEdit : l10n.customerFormNew,
-                style: theme.typography.display.lg.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              FTextField(
-                key: const ValueKey('customer-form-name'),
-                label: Text(l10n.customerFieldName),
-                autofocus: true,
-                error: err(CustomerIssue.name),
-                control: .managed(
-                  initial: TextEditingValue(text: vm.name),
-                  onChange: (v) => vm.setName(v.text),
-                ),
-              ),
-              FTextField(
-                key: const ValueKey('customer-form-phone'),
-                label: Text(l10n.customerFieldPhone),
-                hint: '0812-3456-7890',
-                keyboardType: TextInputType.phone,
-                error: err(CustomerIssue.phone),
-                control: .managed(
-                  initial: TextEditingValue(text: formatPhone(vm.phone)),
-                  onChange: (v) => vm.setPhone(v.text),
-                ),
-              ),
-              FSelect<String>(
-                key: ValueKey('customer-form-group-${vm.groups.length}'),
-                label: Text(l10n.customerFieldGroup),
-                items: {
-                  l10n.customerGroupNone: customerNoGroupKey,
-                  for (final g in vm.groups)
-                    l10n.customerGroupOption(g.group.name, g.group.termDays):
-                        g.group.id.uuid,
-                  l10n.customerGroupNew: customerNewGroupKey,
-                },
-                control: .managed(
-                  initial: vm.groupKey,
-                  onChange: (v) {
-                    if (v != null) vm.setGroup(v);
-                  },
-                ),
-              ),
-              if (vm.groupKey == customerNewGroupKey)
-                FTextField(
-                  key: const ValueKey('customer-form-new-group'),
-                  label: Text(l10n.customerFieldNewGroup),
-                  hint: l10n.customerNewGroupHint,
-                  error: err(CustomerIssue.group),
-                  control: .managed(
-                    initial: TextEditingValue(text: vm.newGroup),
-                    onChange: (v) => vm.setNewGroup(v.text),
-                  ),
-                ),
-              FTextField(
-                key: const ValueKey('customer-form-limit'),
-                label: Text(l10n.customerFieldLimit),
-                description: Text(l10n.customerLimitHint),
-                hint: '0',
-                keyboardType: TextInputType.number,
-                inputFormatters: const [RupiahInputFormatter()],
-                error: err(CustomerIssue.creditLimit),
-                control: .managed(
-                  initial: TextEditingValue(
-                    text: vm.creditLimit.value == 0
-                        ? ''
-                        : groupThousands(vm.creditLimit.value, '.'),
-                  ),
-                  onChange: (v) => vm.setCreditLimit(parseSignedRupiah(v.text)),
-                ),
-              ),
-              FTextField(
-                key: const ValueKey('customer-form-address'),
-                label: Text(l10n.customerFieldAddress),
-                maxLines: 2,
-                error: err(CustomerIssue.address),
-                control: .managed(
-                  initial: TextEditingValue(text: vm.address),
-                  onChange: (v) => vm.setAddress(v.text),
-                ),
-              ),
-              FTextField(
-                key: const ValueKey('customer-form-note'),
-                label: Text(l10n.customerFieldNote),
-                error: err(CustomerIssue.note),
-                control: .managed(
-                  initial: TextEditingValue(text: vm.note),
-                  onChange: (v) => vm.setNote(v.text),
-                ),
-              ),
-              if (saveError != null)
+      return DiscardChangesScope(
+        dirty: vm.hasUnsavedChanges,
+        busy: vm.busy,
+        body: l10n.customerDiscardBody,
+        dialogKey: 'customer-discard',
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              key: const ValueKey('customer-form'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
                 Text(
-                  saveError,
-                  key: const ValueKey('customer-form-error'),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.destructive,
+                  vm.isEdit ? l10n.customerFormEdit : l10n.customerFormNew,
+                  style: theme.typography.display.lg.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  FButton(
-                    key: const ValueKey('customer-form-cancel'),
-                    variant: .outline,
-                    mainAxisSize: .min,
-                    onPress: () => Navigator.of(context).pop(),
-                    child: Text(l10n.customerCancel),
+                FTextField(
+                  key: const ValueKey('customer-form-name'),
+                  label: Text(l10n.customerFieldName),
+                  autofocus: true,
+                  error: err(CustomerIssue.name),
+                  control: .managed(
+                    initial: TextEditingValue(text: vm.name),
+                    onChange: (v) => vm.setName(v.text),
                   ),
-                  FButton(
-                    key: const ValueKey('customer-form-save'),
-                    mainAxisSize: .min,
-                    onPress: vm.save.running ? null : _save,
-                    child: Text(l10n.customerSave),
+                ),
+                FTextField(
+                  key: const ValueKey('customer-form-phone'),
+                  label: Text(l10n.customerFieldPhone),
+                  hint: '0812-3456-7890',
+                  keyboardType: TextInputType.phone,
+                  error: err(CustomerIssue.phone),
+                  control: .managed(
+                    initial: TextEditingValue(text: formatPhone(vm.phone)),
+                    onChange: (v) => vm.setPhone(v.text),
                   ),
-                ],
-              ),
-            ],
+                ),
+                FSelect<String>(
+                  key: ValueKey('customer-form-group-${vm.groups.length}'),
+                  label: Text(l10n.customerFieldGroup),
+                  items: groupItems,
+                  control: .managed(
+                    // Grup pelanggan lama baru ada setelah daftar grup
+                    // dimuat; sebelum itu FSelect tidak boleh diberi nilai
+                    // di luar daftarnya.
+                    initial: groupItems.containsValue(vm.groupKey)
+                        ? vm.groupKey
+                        : null,
+                    onChange: (v) {
+                      if (v != null) vm.setGroup(v);
+                    },
+                  ),
+                ),
+                if (vm.groupKey == customerNewGroupKey)
+                  FTextField(
+                    key: const ValueKey('customer-form-new-group'),
+                    label: Text(l10n.customerFieldNewGroup),
+                    hint: l10n.customerNewGroupHint,
+                    error: err(CustomerIssue.group),
+                    control: .managed(
+                      initial: TextEditingValue(text: vm.newGroup),
+                      onChange: (v) => vm.setNewGroup(v.text),
+                    ),
+                  ),
+                FTextField(
+                  key: const ValueKey('customer-form-limit'),
+                  label: Text(l10n.customerFieldLimit),
+                  description: Text(l10n.customerLimitHint),
+                  hint: '0',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: const [RupiahInputFormatter()],
+                  error: err(CustomerIssue.creditLimit),
+                  control: .managed(
+                    initial: TextEditingValue(
+                      text: vm.creditLimit.value == 0
+                          ? ''
+                          : groupThousands(vm.creditLimit.value, '.'),
+                    ),
+                    onChange: (v) =>
+                        vm.setCreditLimit(parseSignedRupiah(v.text)),
+                  ),
+                ),
+                FTextField(
+                  key: const ValueKey('customer-form-address'),
+                  label: Text(l10n.customerFieldAddress),
+                  maxLines: 2,
+                  error: err(CustomerIssue.address),
+                  control: .managed(
+                    initial: TextEditingValue(text: vm.address),
+                    onChange: (v) => vm.setAddress(v.text),
+                  ),
+                ),
+                FTextField(
+                  key: const ValueKey('customer-form-note'),
+                  label: Text(l10n.customerFieldNote),
+                  error: err(CustomerIssue.note),
+                  control: .managed(
+                    initial: TextEditingValue(text: vm.note),
+                    onChange: (v) => vm.setNote(v.text),
+                  ),
+                ),
+                if (saveError != null)
+                  Text(
+                    saveError,
+                    key: const ValueKey('customer-form-error'),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.destructive,
+                    ),
+                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    FButton(
+                      key: const ValueKey('customer-form-cancel'),
+                      variant: .outline,
+                      mainAxisSize: .min,
+                      onPress: () => Navigator.of(context).maybePop(),
+                      child: Text(l10n.customerCancel),
+                    ),
+                    FButton(
+                      key: const ValueKey('customer-form-save'),
+                      mainAxisSize: .min,
+                      onPress: vm.save.running ? null : _save,
+                      child: Text(l10n.customerSave),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       );

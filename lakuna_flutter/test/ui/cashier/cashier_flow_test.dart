@@ -1058,6 +1058,35 @@ void main() {
       }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
     }
 
+    testWidgets('isian awal dari pencarian bukan perubahan; Buang hanya '
+        'menutup form (F1-13e)', (tester) async {
+      final customers = FakeCustomersRepository(seed: false);
+      final repo = await pump(tester, customers: customers);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-customer');
+      await tester.enterText(_input('customer-picker-search'), 'Siti Aminah');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-picker-new');
+      // Belum diubah: ketuk di luar langsung menutup, pemilih tetap.
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(_key('customer-discard'), findsNothing);
+      expect(_key('customer-form'), findsNothing);
+      expect(_key('customer-picker'), findsOneWidget);
+
+      await _tap(tester, 'customer-picker-new');
+      await tester.enterText(_input('customer-form-phone'), '081234567890');
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(_key('customer-discard'), findsOneWidget);
+      await _tap(tester, 'customer-discard-confirm');
+      expect(_key('customer-form'), findsNothing);
+      expect(_key('customer-picker'), findsOneWidget);
+      expect(customers.customers, isEmpty);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
     testWidgets('dari panel kredit: pelanggan baru langsung terpilih', (
       tester,
     ) async {

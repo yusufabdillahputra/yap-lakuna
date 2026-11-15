@@ -7,6 +7,8 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/suppliers_repository.dart'
     show NotPermitted;
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
+import 'package:lakuna_flutter/ui/customers/customer_labels.dart'
+    show formatPhone;
 import 'package:lakuna_flutter/ui/suppliers/supplier_form_view_model.dart';
 import 'package:lakuna_flutter/ui/suppliers/supplier_panel_view_model.dart';
 import 'package:lakuna_flutter/ui/suppliers/supplier_purchases_view_model.dart';
@@ -287,6 +289,40 @@ void main() {
       expect(saved.phone, '081299990000');
       expect(saved.termDays, 30);
       expect(repo.byName('Toko Plastik Jaya').category, 'Kemasan');
+    });
+
+    test('isian belum disimpan (F1-13e)', () async {
+      final vm = SupplierFormViewModel(repository: repo);
+      expect(vm.hasUnsavedChanges, isFalse);
+      for (final (set, undo) in <(void Function(), void Function())>[
+        (() => vm.setName('CV Baru'), () => vm.setName('')),
+        (() => vm.setPhone('0812 1'), () => vm.setPhone('')),
+        (() => vm.setContactName('Budi'), () => vm.setContactName('')),
+        (() => vm.setCategory('Kemasan'), () => vm.setCategory('')),
+        (() => vm.setAddress('Jl. A'), () => vm.setAddress('')),
+        (() => vm.setNote('x'), () => vm.setNote('')),
+        (
+          () => vm.setTermDays('30'),
+          () => vm.setTermDays('${SupplierLimits.defaultTermDays}'),
+        ),
+      ]) {
+        set();
+        expect(vm.hasUnsavedChanges, isTrue);
+        undo();
+        expect(vm.hasUnsavedChanges, isFalse);
+      }
+      final existing = repo.suppliers.firstWhere((s) => s.phone != null);
+      final edit = SupplierFormViewModel(repository: repo, supplier: existing);
+      expect(edit.hasUnsavedChanges, isFalse);
+      edit.setPhone(formatPhone(existing.phone!));
+      expect(edit.hasUnsavedChanges, isFalse);
+      edit.setName('${existing.name} 2');
+      expect(edit.hasUnsavedChanges, isTrue);
+      expect(edit.busy, isFalse);
+      final saving = edit.save.execute();
+      expect(edit.busy, isTrue);
+      await saving;
+      expect(edit.busy, isFalse);
     });
 
     test('nama sudah dipakai', () async {
