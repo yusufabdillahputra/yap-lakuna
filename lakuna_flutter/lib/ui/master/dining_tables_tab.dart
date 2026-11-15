@@ -7,6 +7,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../core/confirm_discard.dart';
 import '../products/product_widgets.dart';
 import 'dining_setup_view_model.dart';
 
@@ -390,10 +391,16 @@ class _DiningTablesTabState extends State<DiningTablesTab> {
 Future<T?> _showDialog<T>(BuildContext context, WidgetBuilder builder) =>
     showFDialog<T>(
       context: context,
-      builder: (context, style, animation) => FDialog(
-        animation: animation,
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 440),
-        builder: (context, style) => builder(context),
+      // Menutupi menu samping; ketukan di luar dan Esc lewat `maybePop`
+      // agar dialog yang berubah bertanya dulu (F1-10n).
+      useRootNavigator: true,
+      barrierDismissible: false,
+      builder: (context, style, animation) => TapOutsideToPop(
+        child: FDialog(
+          animation: animation,
+          constraints: const BoxConstraints(minWidth: 280, maxWidth: 440),
+          builder: (context, style) => builder(context),
+        ),
       ),
     );
 
@@ -444,14 +451,17 @@ Widget _frame(
 List<Widget> _saveCancel(
   BuildContext context, {
   required String saveKey,
+  required String cancelKey,
   required VoidCallback onSave,
 }) {
   final l10n = AppLocalizations.of(context);
   return [
     FButton(
+      key: ValueKey(cancelKey),
       variant: .outline,
       mainAxisSize: .min,
-      onPress: () => Navigator.of(context).pop(),
+      // Ikut ditanyakan bila isian berubah (F1-10n).
+      onPress: () => Navigator.of(context).maybePop(),
       child: Flexible(child: Text(l10n.diningSetupCancel)),
     ),
     FButton(
@@ -497,6 +507,9 @@ class _AreaDialogState extends State<_AreaDialog> {
   late var _name = widget.area?.name ?? '';
   var _empty = false;
 
+  /// Nama saat dialog dibuka (F1-10n).
+  late final _initial = _name.trim();
+
   void _save() {
     if (_name.trim().isEmpty) {
       setState(() => _empty = true);
@@ -508,30 +521,37 @@ class _AreaDialogState extends State<_AreaDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return _frame(
-      context,
-      key: const ValueKey('dining-setup-area-dialog'),
-      title: widget.area == null
-          ? l10n.diningSetupNewArea
-          : l10n.diningSetupRenameArea,
-      children: [
-        FTextField(
-          key: const ValueKey('dining-setup-area-name'),
-          label: Text(l10n.diningSetupName),
-          autofocus: true,
-          maxLength: FnbLimits.areaName,
-          error: _empty ? Text(l10n.diningSetupErrNameEmpty) : null,
-          control: .managed(
-            initial: TextEditingValue(text: _name),
-            onChange: (v) => _name = v.text,
-          ),
-          onSubmit: (_) => _save(),
-        ),
-      ],
-      actions: _saveCancel(
+    return DiscardChangesScope(
+      dirty: _name.trim() != _initial,
+      busy: false,
+      body: l10n.diningAreaDiscardBody,
+      dialogKey: 'dining-area-discard',
+      child: _frame(
         context,
-        saveKey: 'dining-setup-area-save',
-        onSave: _save,
+        key: const ValueKey('dining-setup-area-dialog'),
+        title: widget.area == null
+            ? l10n.diningSetupNewArea
+            : l10n.diningSetupRenameArea,
+        children: [
+          FTextField(
+            key: const ValueKey('dining-setup-area-name'),
+            label: Text(l10n.diningSetupName),
+            autofocus: true,
+            maxLength: FnbLimits.areaName,
+            error: _empty ? Text(l10n.diningSetupErrNameEmpty) : null,
+            control: .managed(
+              initial: TextEditingValue(text: _name),
+              onChange: (v) => setState(() => _name = v.text),
+            ),
+            onSubmit: (_) => _save(),
+          ),
+        ],
+        actions: _saveCancel(
+          context,
+          saveKey: 'dining-setup-area-save',
+          cancelKey: 'dining-setup-area-cancel',
+          onSave: _save,
+        ),
       ),
     );
   }
@@ -555,6 +575,14 @@ class _TableDialogState extends State<_TableDialog> {
   var _nameEmpty = false;
   var _seatsBad = false;
 
+  /// Isian saat dialog dibuka (F1-10n).
+  late final _initial = _signature;
+
+  /// Isian yang menentukan apakah dialog berubah, dibandingkan seperti saat
+  /// disimpan (nama tanpa spasi tepi, kursi sebagai angka).
+  (String, UuidValue?, int, bool) get _signature =>
+      (_name.trim(), _area, int.tryParse(_seats) ?? 0, _canMerge);
+
   void _save() {
     final seats = int.tryParse(_seats) ?? 0;
     setState(() {
@@ -575,59 +603,66 @@ class _TableDialogState extends State<_TableDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return _frame(
-      context,
-      key: const ValueKey('dining-setup-table-dialog'),
-      title: widget.table == null
-          ? l10n.diningSetupNewTable
-          : l10n.diningSetupEditTable,
-      children: [
-        FTextField(
-          key: const ValueKey('dining-setup-table-name'),
-          label: Text(l10n.diningSetupName),
-          autofocus: true,
-          maxLength: FnbLimits.tableName,
-          error: _nameEmpty ? Text(l10n.diningSetupErrNameEmpty) : null,
-          control: .managed(
-            initial: TextEditingValue(text: _name),
-            onChange: (v) => _name = v.text,
-          ),
-        ),
-        if (widget.areas.isNotEmpty)
-          FSelect<String>(
-            key: const ValueKey('dining-setup-table-area'),
-            label: Text(l10n.diningSetupArea),
-            hint: l10n.diningSetupNoArea,
-            items: _areaItems(l10n.diningSetupNoArea, widget.areas),
+    return DiscardChangesScope(
+      dirty: _signature != _initial,
+      busy: false,
+      body: l10n.diningTableDiscardBody,
+      dialogKey: 'dining-table-discard',
+      child: _frame(
+        context,
+        key: const ValueKey('dining-setup-table-dialog'),
+        title: widget.table == null
+            ? l10n.diningSetupNewTable
+            : l10n.diningSetupEditTable,
+        children: [
+          FTextField(
+            key: const ValueKey('dining-setup-table-name'),
+            label: Text(l10n.diningSetupName),
+            autofocus: true,
+            maxLength: FnbLimits.tableName,
+            error: _nameEmpty ? Text(l10n.diningSetupErrNameEmpty) : null,
             control: .managed(
-              initial: _area?.uuid ?? '',
-              onChange: (v) => _area = _areaId(v),
+              initial: TextEditingValue(text: _name),
+              onChange: (v) => setState(() => _name = v.text),
             ),
           ),
-        FTextField(
-          key: const ValueKey('dining-setup-table-seats'),
-          label: Text(l10n.diningSetupSeats),
-          keyboardType: TextInputType.number,
-          inputFormatters: _digits,
-          error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
-          control: .managed(
-            initial: TextEditingValue(text: _seats),
-            onChange: (v) => _seats = v.text,
+          if (widget.areas.isNotEmpty)
+            FSelect<String>(
+              key: const ValueKey('dining-setup-table-area'),
+              label: Text(l10n.diningSetupArea),
+              hint: l10n.diningSetupNoArea,
+              items: _areaItems(l10n.diningSetupNoArea, widget.areas),
+              control: .managed(
+                initial: _area?.uuid ?? '',
+                onChange: (v) => setState(() => _area = _areaId(v)),
+              ),
+            ),
+          FTextField(
+            key: const ValueKey('dining-setup-table-seats'),
+            label: Text(l10n.diningSetupSeats),
+            keyboardType: TextInputType.number,
+            inputFormatters: _digits,
+            error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
+            control: .managed(
+              initial: TextEditingValue(text: _seats),
+              onChange: (v) => setState(() => _seats = v.text),
+            ),
+            onSubmit: (_) => _save(),
           ),
-          onSubmit: (_) => _save(),
+          FSwitch(
+            key: const ValueKey('dining-setup-table-merge'),
+            label: Text(l10n.floorCanMerge),
+            description: Text(l10n.diningSetupCanMergeHint),
+            value: _canMerge,
+            onChange: (v) => setState(() => _canMerge = v),
+          ),
+        ],
+        actions: _saveCancel(
+          context,
+          saveKey: 'dining-setup-table-save',
+          cancelKey: 'dining-setup-table-cancel',
+          onSave: _save,
         ),
-        FSwitch(
-          key: const ValueKey('dining-setup-table-merge'),
-          label: Text(l10n.floorCanMerge),
-          description: Text(l10n.diningSetupCanMergeHint),
-          value: _canMerge,
-          onChange: (v) => setState(() => _canMerge = v),
-        ),
-      ],
-      actions: _saveCancel(
-        context,
-        saveKey: 'dining-setup-table-save',
-        onSave: _save,
       ),
     );
   }
@@ -649,6 +684,19 @@ class _RangeDialogState extends State<_RangeDialog> {
   var _seats = '4';
   UuidValue? _area;
   var _seatsBad = false;
+
+  /// Isian saat dialog dibuka (F1-10n).
+  late final _initial = _signature;
+
+  /// Isian yang menentukan apakah dialog berubah; angka dibandingkan sebagai
+  /// angka ("04" = 4).
+  (String, int?, int?, int?, UuidValue?) get _signature => (
+    _prefix.trim(),
+    int.tryParse(_from),
+    int.tryParse(_to),
+    int.tryParse(_seats),
+    _area,
+  );
 
   List<String>? get _names => DiningSetupViewModel.rangePreview(
     _prefix,
@@ -702,72 +750,79 @@ class _RangeDialogState extends State<_RangeDialog> {
                 ? names.join(', ')
                 : '${names.first}, ${names[1]} … ${names.last} (${names.length})',
           );
-    return _frame(
-      context,
-      key: const ValueKey('dining-setup-range-dialog'),
-      title: l10n.diningSetupTableRange,
-      children: [
-        _field(
-          'dining-setup-range-prefix',
-          l10n.diningSetupPrefix,
-          _prefix,
-          (v) => _prefix = v,
-          digits: false,
-        ),
-        Row(
-          spacing: 12,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _field(
-                'dining-setup-range-from',
-                l10n.diningSetupFrom,
-                _from,
-                (v) => _from = v,
-              ),
-            ),
-            Expanded(
-              child: _field(
-                'dining-setup-range-to',
-                l10n.diningSetupTo,
-                _to,
-                (v) => _to = v,
-              ),
-            ),
-          ],
-        ),
-        _field(
-          'dining-setup-range-seats',
-          l10n.diningSetupSeats,
-          _seats,
-          (v) => _seats = v,
-          error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
-        ),
-        if (widget.areas.isNotEmpty)
-          FSelect<String>(
-            key: const ValueKey('dining-setup-range-area'),
-            label: Text(l10n.diningSetupArea),
-            hint: l10n.diningSetupNoArea,
-            items: _areaItems(l10n.diningSetupNoArea, widget.areas),
-            control: .managed(
-              initial: '',
-              onChange: (v) => _area = _areaId(v),
-            ),
-          ),
-        Text(
-          preview,
-          key: const ValueKey('dining-setup-range-preview'),
-          style: context.theme.typography.body.sm.copyWith(
-            color: names == null
-                ? context.theme.colors.destructive
-                : context.theme.colors.mutedForeground,
-          ),
-        ),
-      ],
-      actions: _saveCancel(
+    return DiscardChangesScope(
+      dirty: _signature != _initial,
+      busy: false,
+      body: l10n.diningRangeDiscardBody,
+      dialogKey: 'dining-range-discard',
+      child: _frame(
         context,
-        saveKey: 'dining-setup-range-save',
-        onSave: _save,
+        key: const ValueKey('dining-setup-range-dialog'),
+        title: l10n.diningSetupTableRange,
+        children: [
+          _field(
+            'dining-setup-range-prefix',
+            l10n.diningSetupPrefix,
+            _prefix,
+            (v) => _prefix = v,
+            digits: false,
+          ),
+          Row(
+            spacing: 12,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _field(
+                  'dining-setup-range-from',
+                  l10n.diningSetupFrom,
+                  _from,
+                  (v) => _from = v,
+                ),
+              ),
+              Expanded(
+                child: _field(
+                  'dining-setup-range-to',
+                  l10n.diningSetupTo,
+                  _to,
+                  (v) => _to = v,
+                ),
+              ),
+            ],
+          ),
+          _field(
+            'dining-setup-range-seats',
+            l10n.diningSetupSeats,
+            _seats,
+            (v) => _seats = v,
+            error: _seatsBad ? Text(l10n.diningSetupErrSeats) : null,
+          ),
+          if (widget.areas.isNotEmpty)
+            FSelect<String>(
+              key: const ValueKey('dining-setup-range-area'),
+              label: Text(l10n.diningSetupArea),
+              hint: l10n.diningSetupNoArea,
+              items: _areaItems(l10n.diningSetupNoArea, widget.areas),
+              control: .managed(
+                initial: '',
+                onChange: (v) => setState(() => _area = _areaId(v)),
+              ),
+            ),
+          Text(
+            preview,
+            key: const ValueKey('dining-setup-range-preview'),
+            style: context.theme.typography.body.sm.copyWith(
+              color: names == null
+                  ? context.theme.colors.destructive
+                  : context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+        actions: _saveCancel(
+          context,
+          saveKey: 'dining-setup-range-save',
+          cancelKey: 'dining-setup-range-cancel',
+          onSave: _save,
+        ),
       ),
     );
   }

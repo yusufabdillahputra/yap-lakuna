@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -21,6 +22,17 @@ Future<void> _tap(WidgetTester tester, String key) async {
 
 Future<void> _type(WidgetTester tester, String key, String text) async {
   await tester.enterText(_input(key), text);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _esc(WidgetTester tester) async {
+  await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _choose(WidgetTester tester, String key, String label) async {
+  await _tap(tester, key);
+  await tester.tap(find.text(label).last);
   await tester.pumpAndSettle();
 }
 
@@ -153,4 +165,185 @@ void main() {
     expect(_key('dining-setup-range-preview'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('dialog area yang berubah bertanya sebelum ditutup (F1-10n)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    // Tanpa perubahan: ketuk di luar menutup.
+    await _tap(tester, 'dining-setup-area-add');
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('dining-setup-area-dialog'), findsNothing);
+
+    await _tap(tester, 'dining-setup-area-add');
+    await _type(tester, 'dining-setup-area-name', 'Lantai 2');
+    await _esc(tester);
+    expect(_key('dining-area-discard'), findsOneWidget);
+    expect(
+      find.text('Area yang sedang diisi belum disimpan dan akan hilang.'),
+      findsOneWidget,
+    );
+    await _tap(tester, 'dining-area-discard-cancel');
+    expect(_key('dining-setup-area-dialog'), findsOneWidget);
+
+    // Menu samping tertutup dialog: ketukannya ikut bertanya.
+    await tester.tap(_key('nav-stock'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(_key('dining-area-discard'), findsOneWidget);
+    await _tap(tester, 'dining-area-discard-confirm');
+    expect(_key('dining-setup-area-dialog'), findsNothing);
+    expect(repo.areas, hasLength(2));
+
+    // Nama dikembalikan (spasi diabaikan): Batal langsung menutup.
+    await _tap(tester, 'dining-setup-area-edit-Teras');
+    await _type(tester, 'dining-setup-area-name', 'Teras ');
+    await _tap(tester, 'dining-setup-area-cancel');
+    expect(_key('dining-area-discard'), findsNothing);
+    expect(_key('dining-setup-area-dialog'), findsNothing);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  // Setiap isian meja yang ikut disimpan membuat dialog bertanya (F1-10n).
+  final tableChanges = <String, Future<void> Function(WidgetTester)>{
+    'nama': (t) => _type(t, 'dining-setup-table-name', 'M9'),
+    'kursi': (t) => _type(t, 'dining-setup-table-seats', '6'),
+    'area': (t) => _choose(t, 'dining-setup-table-area', 'Teras'),
+    'boleh digabung': (t) => _tap(t, 'dining-setup-table-merge'),
+  };
+  for (final MapEntry(key: what, value: change) in tableChanges.entries) {
+    testWidgets('meja: ubah $what lalu Esc bertanya dulu (F1-10n)', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      final before = [...repo.tables];
+      await _tap(tester, 'dining-setup-table-edit-M1');
+      await change(tester);
+      await _esc(tester);
+      expect(_key('dining-table-discard'), findsOneWidget);
+      expect(
+        find.text('Meja yang sedang diisi belum disimpan dan akan hilang.'),
+        findsOneWidget,
+      );
+      await _tap(tester, 'dining-table-discard-confirm');
+      expect(_key('dining-setup-table-dialog'), findsNothing);
+      expect(repo.tables, orderedEquals(before));
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
+  testWidgets('meja: kursi dengan nol di depan bukan perubahan (F1-10n)', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    await _tap(tester, 'dining-setup-table-add');
+    await _type(tester, 'dining-setup-table-seats', '04');
+    await _esc(tester);
+    expect(_key('dining-table-discard'), findsNothing);
+    expect(_key('dining-setup-table-dialog'), findsNothing);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('rentang meja yang berubah bertanya sebelum ditutup (F1-10n)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    // Nilai bawaan bukan perubahan.
+    await _tap(tester, 'dining-setup-table-range');
+    await _esc(tester);
+    expect(_key('dining-setup-range-dialog'), findsNothing);
+
+    await _tap(tester, 'dining-setup-table-range');
+    await _type(tester, 'dining-setup-range-to', '30');
+    await _tap(tester, 'dining-setup-range-cancel');
+    expect(_key('dining-range-discard'), findsOneWidget);
+    expect(
+      find.text(
+        'Rentang meja yang sedang diisi belum disimpan dan akan hilang.',
+      ),
+      findsOneWidget,
+    );
+    await _tap(tester, 'dining-range-discard-cancel');
+    expect(_key('dining-setup-range-dialog'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('dining-range-discard'), findsOneWidget);
+    await _tap(tester, 'dining-range-discard-confirm');
+    expect(_key('dining-setup-range-dialog'), findsNothing);
+    expect(repo.tables, hasLength(3));
+
+    // Area rentang juga dihitung.
+    await _tap(tester, 'dining-setup-table-range');
+    await _choose(tester, 'dining-setup-range-area', 'Teras');
+    await _esc(tester);
+    expect(_key('dining-range-discard'), findsOneWidget);
+    await _tap(tester, 'dining-range-discard-confirm');
+    expect(repo.tables, hasLength(3));
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  // Setiap isian rentang ikut dihitung; nilai bawaan M, 1–12, 4 kursi.
+  final rangeChanges = <String, (String, String)>{
+    'awalan': ('dining-setup-range-prefix', 'T'),
+    'dari': ('dining-setup-range-from', '2'),
+    'sampai': ('dining-setup-range-to', '30'),
+    'kursi': ('dining-setup-range-seats', '6'),
+  };
+  for (final MapEntry(key: what, value: (field, text))
+      in rangeChanges.entries) {
+    testWidgets('rentang: ubah $what lalu Esc bertanya dulu (F1-10n)', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      await _type(tester, field, text);
+      await _esc(tester);
+      expect(_key('dining-range-discard'), findsOneWidget);
+      await _tap(tester, 'dining-range-discard-confirm');
+      expect(_key('dining-setup-range-dialog'), findsNothing);
+      expect(repo.tables, hasLength(3));
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
+  testWidgets('rentang: awalan dengan spasi tepi dan "01" bukan perubahan '
+      '(F1-10n)', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    await _tap(tester, 'dining-setup-table-range');
+    await _type(tester, 'dining-setup-range-prefix', ' M ');
+    await _type(tester, 'dining-setup-range-from', '01');
+    await _esc(tester);
+    expect(_key('dining-range-discard'), findsNothing);
+    expect(_key('dining-setup-range-dialog'), findsNothing);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('tombol kembali sistem ikut bertanya (F1-10n)', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    await _tap(tester, 'dining-setup-table-edit-M1');
+    await _type(tester, 'dining-setup-table-seats', '8');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(_key('dining-table-discard'), findsOneWidget);
+    expect(_key('dining-setup-table-dialog'), findsOneWidget);
+    await _tap(tester, 'dining-table-discard-cancel');
+    expect(_key('dining-setup-table-dialog'), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('konfirmasi hapus: ketuk di luar sama dengan Batal (F1-10n)', (
+    tester,
+  ) async {
+    final repo = await pump(tester);
+    await _tap(tester, 'master-tab-tables');
+    await _tap(tester, 'dining-setup-table-delete-T1');
+    expect(_key('dining-setup-confirm'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(_key('dining-setup-confirm'), findsNothing);
+    expect(repo.tables, hasLength(3));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 }

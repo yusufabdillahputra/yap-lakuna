@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.108.0] - 2026-11-15
+
+*Rentang meja* bisa membuat puluhan meja sekaligus dengan awalan, nomor,
+kursi, dan area yang sudah diatur. Dialognya kini tidak lagi hilang karena
+ketukan yang tidak sengaja.
+
+### Ditambahkan
+
+- **Master data › Meja & area (1.17):** dialog **Area**, **Meja**, dan
+  **Rentang meja** yang isiannya berubah menampilkan **Buang perubahan?**
+  sebelum ditutup lewat ketukan di luar dialog, Esc, tombol kembali sistem,
+  atau **Batal**. *Batal* kembali ke dialog; *Buang* menutup tanpa
+  menyimpan. Dialog yang tidak berubah (termasuk rentang dengan nilai bawaan
+  M, 1–12, 4 kursi, nama dengan spasi tepi saja, atau angka seperti "04"
+  untuk 4) tertutup langsung.
+- Ketiga dialog dan konfirmasi hapus area/meja tampil di navigator akar
+  sehingga menutupi menu samping.
+- Panduan *Meja & open bill* menjelaskan pertanyaan ini (ID + EN).
+
+### Diubah
+
+- Konfirmasi hapus area/meja: ketukan di luar dan Esc tetap berarti batal,
+  kini lewat `maybePop`.
+
+### Catatan teknis
+
+- `_showDialog` di `dining_tables_tab.dart` memakai `useRootNavigator`,
+  `barrierDismissible: false`, dan `TapOutsideToPop`; setiap dialog
+  membungkus isinya dengan `DiscardChangesScope` dan menyimpan tanda tangan
+  awal (`late final`): area = nama; meja = record nama, area, kursi,
+  *Boleh digabung*; rentang = record awalan, dari, sampai, kursi, area.
+  Isian memanggil `setState` saat berubah. Tombol Batal memanggil
+  `maybePop` dengan kunci eksplisit (`dining-setup-area-cancel`,
+  `-table-cancel`, `-range-cancel`).
+- l10n baru: `diningAreaDiscardBody`, `diningTableDiscardBody`,
+  `diningRangeDiscardBody`.
+- Tes widget per isian meja dan rentang, tombol kembali sistem, dan
+  konfirmasi hapus; diverifikasi mutasi (tanpa `dirty`, navigator cabang,
+  Batal `pop`, nama tanpa `trim`, kursi sebagai teks, area tidak dihitung).
+
 ## [0.107.0] - 2026-11-15
 
 Grup modifier bisa berisi belasan opsi dengan harga masing-masing. Dialognya
@@ -6648,7 +6688,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.108.0...HEAD
+[0.108.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.107.0...v0.108.0
 [0.107.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.106.0...v0.107.0
 [0.106.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.105.0...v0.106.0
 [0.105.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.104.0...v0.105.0
