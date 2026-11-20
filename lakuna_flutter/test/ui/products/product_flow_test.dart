@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -176,6 +178,50 @@ void main() {
         repo.products.firstWhere((p) => p.id == id).variants.first.sellPrice,
         isNot(const Money(37000)),
       );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('Ganti kasir saat form yang dibuang sedang ditutup tidak '
+        'bertanya lagi (F1-02e)', (tester) async {
+      await pump(tester, seed: sampleProducts());
+      await tester.tap(find.text('Minyak Goreng'));
+      await tester.pumpAndSettle();
+      await _type(tester, 'variant-0-price', '37000');
+      await _tap(tester, 'product-cancel');
+      await tester.tap(find.byKey(const ValueKey('product-discard-confirm')));
+      // Dialog tertutup, halaman form masih beranimasi keluar.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+      await tester.tap(
+        find.byKey(const ValueKey('switch-cashier')),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('product-discard')), findsNothing);
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('tutup jendela saat bingkai menu ditutup setelah Ganti kasir '
+        'tidak bertanya lagi (F1-02e)', (tester) async {
+      await pump(tester, seed: sampleProducts());
+      await tester.tap(find.text('Minyak Goreng'));
+      await tester.pumpAndSettle();
+      await _type(tester, 'variant-0-price', '37000');
+      await _tap(tester, 'switch-cashier');
+      await tester.tap(find.byKey(const ValueKey('product-discard-confirm')));
+      // Bingkai menu (rute `ShellRoute`) sedang beranimasi keluar; halaman
+      // form di dalamnya masih aktif di navigator bersarang.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(find.byKey(const ValueKey('product-save')), findsOneWidget);
+      var exit = AppExitResponse.cancel;
+      unawaited(tester.binding.handleRequestAppExit().then((r) => exit = r));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('product-discard')), findsNothing);
+      expect(exit, AppExitResponse.exit);
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

@@ -125,7 +125,7 @@ class _StockScreenState extends State<StockScreen>
   /// (F1-08k). Selama simpan berjalan, keluar ditahan.
   Future<bool> _confirmLeave() async {
     final vm = _viewModel;
-    if (!mounted) return true;
+    if (!mounted || isRouteClosing(context)) return true;
     if (vm.busy) return false;
     if (!vm.hasUnsavedChanges) return true;
     return confirmDiscardChanges(

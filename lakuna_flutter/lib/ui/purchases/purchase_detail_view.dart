@@ -146,7 +146,7 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
 
   /// *Buang perubahan?* bila form berubah (F1-12f).
   Future<bool> _confirmLeave() async {
-    if (!mounted) return true;
+    if (!mounted || isRouteClosing(context)) return true;
     // Simpan / terima sedang berjalan: tunggu selesai dulu.
     if (_form.busy) return false;
     if (!_form.hasUnsavedChanges) return true;

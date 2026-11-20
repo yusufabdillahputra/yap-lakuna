@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/ui/core/leave_guard.dart';
 
@@ -103,6 +104,55 @@ void main() {
       };
       await Future.wait([guards.canLeaveAll(), guards.canLeaveAll()]);
       expect(calls, 1);
+    });
+  });
+
+  group('isRouteClosing (F1-02e)', () {
+    testWidgets('aktif → tidak; animasi keluar → ya', (
+      tester,
+    ) async {
+      final navigator = GlobalKey<NavigatorState>();
+      late BuildContext page;
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Navigator(
+            key: navigator,
+            onGenerateRoute: (_) => PageRouteBuilder<void>(
+              pageBuilder: (_, _, _) => const SizedBox(),
+            ),
+          ),
+        ),
+      );
+      final outside = tester.element(find.byType(Navigator));
+      expect(isRouteClosing(outside), isFalse);
+
+      navigator.currentState!.push(
+        PageRouteBuilder<void>(
+          transitionDuration: const Duration(milliseconds: 300),
+          pageBuilder: (context, _, _) {
+            page = context;
+            return const SizedBox();
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(isRouteClosing(page), isFalse);
+
+      // Tertutup halaman lain: masih aktif, tetap bertanya.
+      navigator.currentState!.push(
+        PageRouteBuilder<void>(pageBuilder: (_, _, _) => const SizedBox()),
+      );
+      await tester.pumpAndSettle();
+      expect(isRouteClosing(page), isFalse);
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+
+      navigator.currentState!.pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(isRouteClosing(page), isTrue);
+      // Halaman go_router yang dilepas tanpa animasi diuji di alur produk.
     });
   });
 }

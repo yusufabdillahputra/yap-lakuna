@@ -85,7 +85,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   /// ditanyakan di kedua tata letak (F1-15c).
   Future<bool> _confirmLeave() async {
     final form = _form;
-    if (!mounted || form == null) return true;
+    if (!mounted || isRouteClosing(context) || form == null) return true;
     if (form.busy) return false;
     if (!form.hasUnsavedChanges) return true;
     return confirmDiscardChanges(

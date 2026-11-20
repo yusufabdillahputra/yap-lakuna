@@ -11,4 +11,4 @@ Spec: [F1-11h](../specs/2026-11-20-f1-11h-modifier-di-rincian-nota-design.md).
   ke `/mnt/project-files/lakuna/f1-11h/`.
 - [x] 6. Dokumen: spec, gap F1-11g, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#124).
