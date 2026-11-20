@@ -7,6 +7,45 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.122.0] - 2026-11-20
+
+Dialog *Buang perubahan?* di layar Pengeluaran kini punya tombol
+**Simpan**.
+
+### Ditambahkan
+
+- **Pengeluaran (1.21):** saat meninggalkan layar dengan pengeluaran yang
+  sudah diisi tetapi belum disimpan (menu lain, tombol kembali, **Ganti
+  kasir**, atau ✕ jendela), dialog *Buang perubahan?* menawarkan
+  **Batal**, **Buang**, dan **Simpan**. **Simpan** mencatat pengeluaran
+  lalu langsung meneruskan ke tujuan semula, seperti form produk di
+  v0.121.0.
+- Bila ada isian yang kurang (keterangan, jenis, jumlah, tanggal, atau
+  saldo laci), kasir tetap di layar Pengeluaran dengan pesan di bawah
+  isiannya. Di ponsel, bila dialog form sedang tertutup, dialog form
+  dibuka lagi agar pesannya terlihat.
+- Bila penyimpanan menolak (mis. sesi kasir sudah ditutup), kasir tetap
+  di layar dengan pesan galatnya dan setup dimuat ulang, sama dengan
+  tombol Simpan form; di ponsel dialog form dibuka lagi.
+- Selama simpan dari dialog berjalan, menu lain ditolak.
+
+### Catatan teknis
+
+- `ExpensesScreen._saveBeforeLeaving` memakai `confirmDiscardChanges
+  (onSave:)` dan `LeaveGuard.saving` dari F1-07r. Form pengeluaran sudah
+  mengosongkan isiannya setelah tercatat, jadi form yang tetap tampil tidak
+  menyimpan dua kali. Bila layar tetap tampil setelah berhasil, daftar dan
+  saldo laci dimuat ulang di callback pasca-frame (tidak saat halaman
+  ditutup, karena view model daftar sudah dibuang).
+- Ditemukan saat review: galat penyimpanan di ponsel dengan dialog form
+  tertutup tidak menampilkan apa pun; kini dialog form dibuka lagi.
+- Tes: grup F1-15d di `expenses_flow_test.dart` (1440 px: menu lain, isian
+  kurang, galat penyimpanan, Ganti kasir, menu lain selama simpan, ✕
+  jendela; 360 px: dialog form tertutup dan terbuka, galat penyimpanan);
+  mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-15d](docs/superpowers/specs/2026-11-20-f1-15d-simpan-dari-dialog-pengeluaran-design.md);
+  gap F1-15c *Simpan langsung dari dialog* ditutup.
+
 ## [0.121.0] - 2026-11-20
 
 Dialog *Buang perubahan?* di form produk kini punya tombol **Simpan**.
@@ -7140,7 +7179,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...HEAD
+[0.122.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...v0.122.0
 [0.121.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...v0.121.0
 [0.120.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...v0.120.0
 [0.119.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...v0.119.0
