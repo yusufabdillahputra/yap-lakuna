@@ -7,6 +7,30 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.118.0] - 2026-11-20
+
+Rincian nota di Riwayat kini menampilkan modifier pesanan F&B.
+
+### Ditambahkan
+
+- **Riwayat (1.14) › rincian nota:** baris barang bermodifier menampilkan
+  modifiernya di bawah nama, mis. *+ Besar, Boba*. Sebelumnya nota yang
+  ditemukan lewat nama modifier (v0.103.0) tidak menunjukkan modifier
+  apa pun, dan dua baris *Teh Botol* dengan modifier berbeda tampak sama
+  saat meretur. Tambahan harga modifier sudah termasuk di harga satuan;
+  struk cetak tetap merincinya.
+
+### Catatan teknis
+
+- `history_detail.dart` membaca `detail.receipt.modifiersOf(item)` yang
+  sudah dimuat `loadSaleDetail`; porsi split bill memakai modifier
+  salinannya sendiri. Tanpa perubahan data atau l10n.
+- Tes: `history_flow_test.dart` (modifier dan catatan di baris barangnya
+  saja, 360 px dengan modifier panjang); repositori palsu menerima
+  `modifiers`; mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-11h](docs/superpowers/specs/2026-11-20-f1-11h-modifier-di-rincian-nota-design.md);
+  gap F1-11g *Modifier di rincian nota Riwayat* ditutup.
+
 ## [0.117.0] - 2026-11-20
 
 Pesanan F&B kini bisa dicari di Riwayat lewat catatannya, mis. *tanpa es*.
@@ -7002,7 +7026,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...HEAD
+[0.118.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...v0.118.0
 [0.117.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...v0.117.0
 [0.116.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...v0.116.0
 [0.115.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...v0.115.0

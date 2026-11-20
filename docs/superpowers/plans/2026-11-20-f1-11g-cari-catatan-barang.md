@@ -10,4 +10,4 @@ Spec: [F1-11g](../specs/2026-11-20-f1-11g-cari-catatan-barang-design.md).
   `/mnt/project-files/lakuna/f1-11g/`.
 - [x] 6. Dokumen: spec, gap F1-11f, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#123).
