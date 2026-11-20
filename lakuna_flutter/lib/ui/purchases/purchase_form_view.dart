@@ -9,6 +9,7 @@ import '../../utils/result.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
+import '../core/leave_guard.dart';
 import '../core/photo_attach_field.dart';
 import '../products/product_widgets.dart';
 import 'purchase_form_view_model.dart';
@@ -39,6 +40,23 @@ String purchaseUnitLabel(BuildContext context, PurchaseUnitOption unit) =>
     unit.isBase
     ? unit.name
     : '${unit.name} (${formatQty(context, unit.factor)})';
+
+/// *Simpan draf* di dialog *Buang perubahan?* (F1-12i): selama simpan,
+/// navigasi lain ditolak lewat [guard]; `true` bila tersimpan. Bila gagal,
+/// pesan galat tampil di form seperti tombol *Simpan draf*. Isian yang
+/// diubah selama simpan menahan staf di form agar tidak hilang.
+Future<bool> savePurchaseDraftBeforeLeaving(
+  PurchaseFormViewModel form,
+  LeaveGuard? guard,
+) async {
+  guard?.saving = true;
+  try {
+    await form.saveDraft.execute();
+  } finally {
+    guard?.saving = false;
+  }
+  return form.saveDraft.result is Ok && !form.hasUnsavedChanges;
+}
 
 /// Panel form *Pembelian baru* / *Draf* (1.19). [onReceived] dipanggil
 /// setelah barang diterima; [onSaved] setelah draf disimpan atau dihapus.

@@ -12,12 +12,14 @@ enum _DiscardChoice { keep, discard, save }
 ///
 /// Bila [onSave] diisi, dialog juga punya tombol **Simpan** (`<key>-save`,
 /// F1-07r): dialog ditutup lalu hasil `onSave` (`true` = tersimpan, boleh
-/// pergi) menjadi jawabannya.
+/// pergi) menjadi jawabannya. [saveLabel] mengganti label "Simpan" (mis.
+/// "Simpan draf", F1-12i).
 Future<bool> confirmDiscardChanges(
   BuildContext context, {
   required String body,
   required String key,
   Future<bool> Function()? onSave,
+  String? saveLabel,
 }) async {
   final l10n = AppLocalizations.of(context);
   final result = await showFDialog<_DiscardChoice>(
@@ -78,7 +80,7 @@ Future<bool> confirmDiscardChanges(
                       'save',
                       .primary,
                       _DiscardChoice.save,
-                      l10n.discardSave,
+                      saveLabel ?? l10n.discardSave,
                       size,
                     ),
                 ];

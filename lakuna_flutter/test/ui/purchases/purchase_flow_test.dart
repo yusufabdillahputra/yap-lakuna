@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart' show StockRow;
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
@@ -309,6 +311,226 @@ void main() {
       await _tap(tester, _key('nav-stock'));
       expect(_key('purchase-discard'), findsNothing);
       expect(_key('purchase-form'), findsNothing);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
+  group('Simpan draf dari dialog Buang perubahan? (F1-12i)', () {
+    /// Jalur router sekarang (menu ada di kedua tata letak).
+    String path(WidgetTester tester) => GoRouter.of(
+      tester.element(_keyPrefix('nav-').first),
+    ).routerDelegate.currentConfiguration.uri.path;
+
+    testWidgets('1440 px: menu lain, Simpan draf menyimpan lalu pindah', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('nav-stock'));
+      expect(
+        find.descendant(
+          of: _key('purchase-discard-save'),
+          matching: find.text('Simpan draf'),
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases.single.status, PurchaseStatus.draft);
+      expect(repo.requests.single.lines.single.variantId, kopVariant());
+      expect(path(tester), Routes.stock);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('1440 px: Pembelian baru, Simpan draf: draf di daftar dan '
+        'form kosong', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('purchases-new'));
+      await _tap(tester, _key('purchase-discard-save'));
+      final draft = repo.purchases.single;
+      expect(draft.status, PurchaseStatus.draft);
+      expect(_key('purchases-row-${draft.id.uuid}'), findsOneWidget);
+      expect(_keyPrefix('purchase-qty-'), findsNothing);
+      expect(path(tester), Routes.purchases);
+
+      // Draf yang tersimpan dibuka lagi tanpa ditanya.
+      await _tap(tester, _key('purchases-row-${draft.id.uuid}'));
+      expect(_key('purchase-discard'), findsNothing);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('1440 px: pilih draf lain, Simpan draf lalu draf itu terbuka; '
+        'ketukan daftar selama simpan ditolak', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('purchase-save-draft'));
+      final first = repo.purchases.single;
+      await _tap(tester, _key('purchases-new'));
+      expect(_key('purchase-discard'), findsNothing);
+
+      await _scan(tester, 'MYK-2L');
+      await _tap(tester, _key('purchases-row-${first.id.uuid}'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases, hasLength(2));
+      final second = repo.purchases.last;
+      // Form samping kini draf pertama: simpan lagi memperbarui draf itu.
+      await _tap(tester, _key('purchase-save-draft'));
+      expect(repo.requests.last.id, first.id);
+
+      // Draf kedua diubah, Pembelian baru → Simpan draf; ketukan draf
+      // pertama selama simpan tidak membuka draf itu.
+      await _tap(tester, _key('purchases-row-${second.id.uuid}'));
+      await _scan(tester, 'KOP');
+      final gate = Completer<void>();
+      repo.saveDraftGate = gate;
+      await _tap(tester, _key('purchases-new'));
+      await tester.tap(_key('purchase-discard-save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(_key('purchases-row-${first.id.uuid}'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(_key('purchase-discard'), findsNothing);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(repo.requests.last.id, second.id);
+      expect(_keyPrefix('purchase-qty-'), findsNothing);
+      expect(repo.purchases, hasLength(2));
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('Ganti kasir, Simpan draf: tersimpan lalu layar login', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository()..current = sampleStaff();
+      await pump(tester, const Size(1440, 900), session: session);
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('switch-cashier'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases.single.status, PurchaseStatus.draft);
+      expect(session.current, isNull);
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('qty 0: tetap di form dengan pesan', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _type(tester, _keyPrefix('purchase-qty-'), '0');
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases, isEmpty);
+      expect(_key('purchase-discard'), findsNothing);
+      expect(find.text('Qty harus lebih dari 0.'), findsOneWidget);
+      expect(path(tester), Routes.purchases);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('galat penyimpanan: tetap di form dengan pesan', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      repo.nextError = Exception('disk penuh');
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases, isEmpty);
+      expect(_key('purchase-action-error'), findsOneWidget);
+      expect(_keyPrefix('purchase-qty-'), findsOneWidget);
+      expect(path(tester), Routes.purchases);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('menu lain selama simpan ditolak', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      final gate = Completer<void>();
+      repo.saveDraftGate = gate;
+      await _tap(tester, _key('nav-stock'));
+      await tester.tap(_key('purchase-discard-save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(_key('nav-products'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(_key('purchase-discard'), findsNothing);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(repo.purchases, hasLength(1));
+      expect(path(tester), Routes.stock);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets(
+      'isian yang diubah selama simpan: tetap di form, tidak hilang',
+      (
+        tester,
+      ) async {
+        await pump(tester, const Size(1440, 900));
+        await _scan(tester, 'KOP');
+        final gate = Completer<void>();
+        repo.saveDraftGate = gate;
+        await _tap(tester, _key('nav-stock'));
+        await tester.tap(_key('purchase-discard-save'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.enterText(_input(_keyPrefix('purchase-note-')), 'titip');
+        await tester.pump();
+        gate.complete();
+        await tester.pumpAndSettle();
+        final draft = repo.purchases.single;
+        expect(repo.requests.single.note, isNull);
+        expect(path(tester), Routes.purchases);
+        expect(find.text('titip'), findsOneWidget);
+
+        // Ditanya lagi; Simpan draf memperbarui draf yang sama.
+        await _tap(tester, _key('nav-stock'));
+        await _tap(tester, _key('purchase-discard-save'));
+        expect(repo.purchases, hasLength(1));
+        expect(repo.requests.last.id, draft.id);
+        expect(repo.requests.last.note, 'titip');
+        expect(path(tester), Routes.stock);
+        expect(tester.takeException(), isNull);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.linux),
+    );
+
+    testWidgets('tutup jendela, Simpan draf: tersimpan lalu keluar', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      var exit = AppExitResponse.cancel;
+      unawaited(tester.binding.handleRequestAppExit().then((r) => exit = r));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(repo.purchases, hasLength(1));
+      expect(exit, AppExitResponse.exit);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('360 px: Kembali, Simpan draf; draf yang dibuka lagi '
+        'diperbarui, bukan dobel', (tester) async {
+      await pump(tester, const Size(360, 780));
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _key('purchase-back'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(_key('purchase-form-page'), findsNothing);
+      final draft = repo.purchases.single;
+      expect(draft.status, PurchaseStatus.draft);
+      expect(_key('purchases-row-${draft.id.uuid}'), findsOneWidget);
+
+      await _tap(tester, _key('purchases-row-${draft.id.uuid}'));
+      expect(_key('purchase-form-page'), findsOneWidget);
+      await _type(tester, _keyPrefix('purchase-qty-'), '3');
+      await _tap(tester, _key('purchase-back'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(_key('purchase-form-page'), findsNothing);
+      expect(repo.purchases, hasLength(1));
+      expect(repo.requests.last.id, draft.id);
+      expect(repo.requests.last.lines.single.quantity, Qty.units(3));
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });

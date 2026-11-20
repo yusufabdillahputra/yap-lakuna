@@ -5575,6 +5575,10 @@
       }
     }
   },
+  "purchaseDiscardSaveDraft": "Simpan draf",
+  "@purchaseDiscardSaveDraft": {
+    "description": "Tombol Simpan draf di dialog Buang perubahan? form pembelian (F1-12i)."
+  },
   "purchaseDiscardBody": "Perubahan pembelian {number} belum disimpan dan akan hilang.",
   "@purchaseDiscardBody": {
     "placeholders": {

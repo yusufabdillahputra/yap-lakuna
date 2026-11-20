@@ -8627,6 +8627,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get purchaseDiscardSaveDraft => 'Save draft';
+
+  @override
   String purchaseDiscardBody(String number) {
     return 'Unsaved changes to purchase $number will be lost.';
   }

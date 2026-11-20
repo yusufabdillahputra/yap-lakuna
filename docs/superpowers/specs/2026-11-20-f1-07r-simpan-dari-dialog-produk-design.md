@@ -74,5 +74,5 @@ pilihan *Simpan* langsung di dialog yang sama.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Simpan dari dialog *Buang perubahan?* form produk | 1.15b | Rilis v0.121.0 | `confirmDiscardChanges(onSave:)`. |
-| Simpan dari dialog di form lain | — | Sebagian | Pengeluaran v0.122.0 ([F1-15d](2026-11-20-f1-15d-simpan-dari-dialog-pengeluaran-design.md)); penyesuaian stok v0.123.0 ([F1-08n](2026-11-20-f1-08n-simpan-dari-dialog-penyesuaian-design.md)); belum: pembelian (simpan draf), dialog master data / pelanggan / supplier. |
+| Simpan dari dialog di form lain | — | Sebagian | Pengeluaran v0.122.0 ([F1-15d](2026-11-20-f1-15d-simpan-dari-dialog-pengeluaran-design.md)); penyesuaian stok v0.123.0 ([F1-08n](2026-11-20-f1-08n-simpan-dari-dialog-penyesuaian-design.md)); pembelian v0.124.0 ([F1-12i](2026-11-20-f1-12i-simpan-draf-dari-dialog-pembelian-design.md)); belum: dialog master data / pelanggan / supplier. |
 | Simpan dari dialog saat form tertutup halaman lain | — | Belum | Mis. ✕ jendela saat Cetak label terbuka di atas form yang berubah: simpan berjalan di form yang tertutup; bila gagal, pesan galatnya baru terlihat setelah kembali ke form. |

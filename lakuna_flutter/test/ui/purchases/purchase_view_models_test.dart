@@ -631,6 +631,24 @@ void main() {
       return (r, (saved as Ok<Purchase>).value);
     }
 
+    test('isian yang diubah selama simpan draf tetap terhitung berubah '
+        '(F1-12i)', () async {
+      form.addByCode('MYK-2L');
+      final gate = Completer<void>();
+      repo.saveDraftGate = gate;
+      final saving = form.saveDraft.execute();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(form.busy, isTrue);
+      form.setNote('tambahan');
+      gate.complete();
+      await saving;
+      expect(form.saveDraft.result, isA<Ok<Purchase>>());
+      expect(repo.requests.single.note, isNull);
+      expect(form.hasUnsavedChanges, isTrue);
+      form.setNote('');
+      expect(form.hasUnsavedChanges, isFalse);
+    });
+
     test('form baru kosong belum berubah; ketik lalu kembalikan', () {
       expect(form.hasUnsavedChanges, isFalse);
       form.setInvoiceNo('SP-9');

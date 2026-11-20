@@ -8377,6 +8377,9 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get purchaseDiscardSaveDraft => 'Simpan draf';
+
+  @override
   String purchaseDiscardBody(String number) {
     return 'Perubahan pembelian $number belum disimpan dan akan hilang.';
   }
