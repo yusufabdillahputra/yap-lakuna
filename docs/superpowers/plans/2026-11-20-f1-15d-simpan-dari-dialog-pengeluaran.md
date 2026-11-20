@@ -12,4 +12,4 @@ Spec: [F1-15d](../specs/2026-11-20-f1-15d-simpan-dari-dialog-pengeluaran-design.
   `/mnt/project-files/lakuna/f1-15d/`.
 - [x] 6. Dokumen: spec, gap F1-15c dan F1-07r, README spec, STATUS-JEDA,
   panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#128).

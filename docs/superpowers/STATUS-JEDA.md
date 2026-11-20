@@ -103,7 +103,7 @@ ulang riwayat.
 | v0.119.0 | Halaman yang sedang ditutup tidak ditanya lagi saat Ganti kasir / tutup jendela (F1-02e) | #125 |
 | v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | #126 |
 | v0.121.0 | Tombol Simpan di dialog *Buang perubahan?* form produk (F1-07r) | #127 |
-| v0.122.0 | Tombol Simpan di dialog *Buang perubahan?* pengeluaran (F1-15d) | |
+| v0.122.0 | Tombol Simpan di dialog *Buang perubahan?* pengeluaran (F1-15d) | #128 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
