@@ -1700,6 +1700,14 @@
       }
     }
   },
+  "historyItemNote": "Note: {note}",
+  "@historyItemNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "historyReturnAll": "Return all",
   "historyReturnQty": "Return quantity ({left} left)",
   "@historyReturnQty": {

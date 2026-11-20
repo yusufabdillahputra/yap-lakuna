@@ -6266,6 +6266,12 @@ abstract class AppLocalizations {
   /// **'diretur {qty}'**
   String historyItemReturned(String qty);
 
+  /// No description provided for @historyItemNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan: {note}'**
+  String historyItemNote(String note);
+
   /// No description provided for @historyReturnAll.
   ///
   /// In id, this message translates to:

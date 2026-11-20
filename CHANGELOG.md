@@ -7,6 +7,35 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.117.0] - 2026-11-20
+
+Pesanan F&B kini bisa dicari di Riwayat lewat catatannya, mis. *tanpa es*.
+
+### Ditambahkan
+
+- **Riwayat (1.14) › Cari:** kata kunci kini juga dicocokkan dengan
+  catatan barang pesanan F&B (*tanpa es*, *bungkus terpisah*), selain
+  nomor nota, pelanggan, referensi, nama produk/varian, dan modifier.
+  Beberapa kata boleh tersebar di nama barang, modifier, dan catatan
+  barang yang sama (`kopi sedikit` untuk *Kopi* bercatatan *gula
+  sedikit*), tetapi tidak di barang lain di nota yang sama.
+- **Rincian nota di Riwayat:** catatan barang tampil di bawah jumlah ×
+  harga (*Catatan: tanpa es*), sehingga terlihat mengapa nota cocok.
+  Sebelumnya catatan hanya tercetak di tiket dapur.
+
+### Catatan teknis
+
+- `_searchSales` (`lakuna_data/lib/src/history.dart`): klausa per kata di
+  subkueri `sale_items` ditambah `LOWER("note") LIKE LOWER(%kata%)`; cek
+  ulang Dart `itemMatches` ikut membaca `SaleItem.note` sebelum modifier
+  dimuat, jadi `%` dan `_` tetap literal.
+- Kunci l10n baru `historyItemNote` (ID + EN).
+- Tes: `history_test.dart` (catatan, huruf besar, kata tersebar, barang
+  lain, wildcard, barang dihapus dari bill), `history_flow_test.dart`
+  (cari lalu rincian); mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-11g](docs/superpowers/specs/2026-11-20-f1-11g-cari-catatan-barang-design.md);
+  gap F1-11f *Cari catatan item* ditutup.
+
 ## [0.116.0] - 2026-11-20
 
 Menutup jendela aplikasi kini juga bertanya bila dialog pelanggan,
@@ -6973,7 +7002,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...HEAD
+[0.117.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...v0.117.0
 [0.116.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...v0.116.0
 [0.115.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...v0.115.0
 [0.114.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...v0.114.0

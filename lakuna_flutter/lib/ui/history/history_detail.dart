@@ -313,6 +313,12 @@ class _Items extends StatelessWidget {
                             ].join(' · '),
                             style: _muted(context),
                           ),
+                          // Catatan pesanan F&B, bisa dicari (F1-11g).
+                          if (item.note case final note?)
+                            Text(
+                              l10n.historyItemNote(note),
+                              style: _muted(context),
+                            ),
                         ],
                       ),
                     ),

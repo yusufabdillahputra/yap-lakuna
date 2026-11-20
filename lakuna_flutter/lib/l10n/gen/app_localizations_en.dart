@@ -3658,6 +3658,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String historyItemNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
   String get historyReturnAll => 'Return all';
 
   @override
