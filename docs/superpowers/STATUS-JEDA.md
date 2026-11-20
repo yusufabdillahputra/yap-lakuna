@@ -110,7 +110,7 @@ ulang riwayat.
 | v0.126.0 | Tombol Simpan di dialog *Buang perubahan?* master data (F1-09c) | #132 |
 | v0.127.0 | Gulir ke galat setelah simpan pembelian gagal (F1-12j) | #133 |
 | v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | #134 |
-| v0.129.0 | Asal harga di baris pembelian (F1-12l) | |
+| v0.129.0 | Asal harga di baris pembelian (F1-12l) | #135 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).

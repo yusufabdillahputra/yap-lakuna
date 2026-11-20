@@ -9,4 +9,4 @@ Spec: `docs/superpowers/specs/2026-11-20-f1-12l-asal-harga-baris-pembelian-desig
 - [x] 5. Uji mutasi, review subagen, perbaiki temuan.
 - [x] 6. Uji manual Xvfb dan tangkapan layar.
 - [x] 7. Dokumen (spec F1-12g/h, README, STATUS-JEDA, panduan), CHANGELOG, versi 0.129.0+132.
-- [ ] 8. PR, CI hijau, squash-merge, rilis.
+- [x] 8. PR, CI hijau, squash-merge, rilis (#135).
