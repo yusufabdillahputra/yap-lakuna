@@ -13,4 +13,4 @@ Spec: [F1-12j](../specs/2026-11-20-f1-12j-gulir-ke-galat-pembelian-design.md).
   `/mnt/project-files/lakuna/f1-12j/`.
 - [x] 6. Dokumen: spec, gap F1-12i, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#133).
