@@ -3672,6 +3672,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
+          name: 'transfer_account',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
           name: 'created_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,

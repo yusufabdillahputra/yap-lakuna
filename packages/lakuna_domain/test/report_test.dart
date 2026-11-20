@@ -502,4 +502,47 @@ void main() {
       expect(paymentMix(const []), isEmpty);
     });
   });
+
+  group('transferByAccount (F1-05g)', () {
+    ReportPayment transfer(int amount, [String? account]) => ReportPayment(
+      ReportPaymentMethod.transfer,
+      Money(amount),
+      Money.zero,
+      transferAccount: account,
+    );
+
+    test('per rekening urut terbesar, tanpa rekening terakhir', () {
+      final rows = transferByAccount([
+        sale(
+          [line('a', total: 60000)],
+          payments: [
+            transfer(10000, 'BCA 1'),
+            transfer(20000, 'Mandiri 2'),
+            transfer(5000),
+            ReportPayment(
+              ReportPaymentMethod.cash,
+              const Money(50000),
+              const Money(25000),
+            ),
+          ],
+        ),
+        sale([line('b', total: 15000)], payments: [transfer(15000, 'BCA 1')]),
+      ]);
+      expect(rows.map((r) => (r.account, r.amount)), [
+        ('BCA 1', const Money(25000)),
+        ('Mandiri 2', const Money(20000)),
+        (null, const Money(5000)),
+      ]);
+    });
+
+    test('tanpa transfer berekening: kosong', () {
+      expect(
+        transferByAccount([
+          sale([line('a', total: 5000)], payments: [transfer(5000)]),
+        ]),
+        isEmpty,
+      );
+      expect(transferByAccount(const []), isEmpty);
+    });
+  });
 }

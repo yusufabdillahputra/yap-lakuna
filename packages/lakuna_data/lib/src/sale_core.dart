@@ -1,3 +1,4 @@
+import 'package:characters/characters.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
@@ -202,6 +203,10 @@ void checkPaymentRequests(List<SalePaymentRequest> payments) {
     if (validatePaymentReference(payment.reference) != null) {
       throw SaleReferenceInvalid();
     }
+    if (payment.transferAccount.trim().characters.length >
+        ProfileLimits.transferAccount) {
+      throw SaleTransferAccountInvalid();
+    }
   }
 }
 
@@ -291,6 +296,9 @@ Future<List<Payment>> insertPayments(
   for (var i = 0; i < payments.length; i++) {
     final payment = payments[i];
     final reference = payment.reference.trim();
+    final account = payment.method == PaymentMethod.transfer
+        ? payment.transferAccount.trim()
+        : '';
     final confirms = payment.method == PaymentMethod.qrisStatic;
     paid.add(
       await w.insert(
@@ -301,6 +309,7 @@ Future<List<Payment>> insertPayments(
           amount: amounts[i].value,
           changeAmount: payment.isCash ? change.value : 0,
           reference: reference.isEmpty ? null : reference,
+          transferAccount: account.isEmpty ? null : account,
           status: PaymentStatus.paid,
           guestLabel: guestLabel,
           cashSessionId: cashSessionId,

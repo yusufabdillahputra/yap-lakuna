@@ -34,6 +34,7 @@ abstract class Payment
     required this.paidAt,
     this.guestLabel,
     this.cashSessionId,
+    this.transferAccount,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -61,6 +62,7 @@ abstract class Payment
     required DateTime paidAt,
     String? guestLabel,
     _isc.UuidValue? cashSessionId,
+    String? transferAccount,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -106,6 +108,7 @@ abstract class Payment
           : _isc.UuidValueJsonExtension.fromJson(
               jsonSerialization['cashSessionId'],
             ),
+      transferAccount: jsonSerialization['transferAccount'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _isc.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -170,6 +173,10 @@ abstract class Payment
   /// (dihitung di sesi notanya).
   _isc.UuidValue? cashSessionId;
 
+  /// Salinan baris rekening tujuan transfer yang dipilih kasir (F1-05g);
+  /// hanya untuk metode transfer, `null` = tanpa rekening / data lama.
+  String? transferAccount;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -206,6 +213,7 @@ abstract class Payment
     DateTime? paidAt,
     String? guestLabel,
     _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
+    String? transferAccount,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -232,6 +240,7 @@ abstract class Payment
       'paidAt': paidAt.toJson(),
       if (guestLabel != null) 'guestLabel': guestLabel,
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
+      if (transferAccount != null) 'transferAccount': transferAccount,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -260,6 +269,7 @@ abstract class Payment
       'paidAt': paidAt.toJson(),
       if (guestLabel != null) 'guestLabel': guestLabel,
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
+      if (transferAccount != null) 'transferAccount': transferAccount,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -316,6 +326,7 @@ class _PaymentImpl extends Payment {
     required DateTime paidAt,
     String? guestLabel,
     _isc.UuidValue? cashSessionId,
+    String? transferAccount,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -338,6 +349,7 @@ class _PaymentImpl extends Payment {
          paidAt: paidAt,
          guestLabel: guestLabel,
          cashSessionId: cashSessionId,
+         transferAccount: transferAccount,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -366,6 +378,7 @@ class _PaymentImpl extends Payment {
     DateTime? paidAt,
     Object? guestLabel = _Undefined,
     _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
+    Object? transferAccount = _Undefined,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _isc.$UndefinedDateTime(),
@@ -395,6 +408,9 @@ class _PaymentImpl extends Payment {
       cashSessionId: cashSessionId is _isc.UndefinedSentinel
           ? this.cashSessionId
           : cashSessionId,
+      transferAccount: transferAccount is String?
+          ? transferAccount
+          : this.transferAccount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _isc.UndefinedSentinel
@@ -492,6 +508,12 @@ class PaymentUpdateTable extends _isd.UpdateTable<PaymentTable> {
     table.cashSessionId,
     value,
   );
+
+  _isd.ColumnValue<String, String> transferAccount(String? value) =>
+      _isd.ColumnValue(
+        table.transferAccount,
+        value,
+      );
 
   _isd.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _isd.ColumnValue(
@@ -604,6 +626,11 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
       this,
       fieldName: 'cashSessionId',
     );
+    transferAccount = _isd.ColumnString(
+      'transfer_account',
+      this,
+      fieldName: 'transferAccount',
+    );
     createdAt = _isd.ColumnDateTime(
       'created_at',
       this,
@@ -677,6 +704,10 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
   /// (dihitung di sesi notanya).
   late final _isd.ColumnUuid cashSessionId;
 
+  /// Salinan baris rekening tujuan transfer yang dipilih kasir (F1-05g);
+  /// hanya untuk metode transfer, `null` = tanpa rekening / data lama.
+  late final _isd.ColumnString transferAccount;
+
   late final _isd.ColumnDateTime createdAt;
 
   late final _isd.ColumnDateTime updatedAt;
@@ -708,6 +739,7 @@ class PaymentTable extends _isd.Table<_isc.UuidValue> {
     paidAt,
     guestLabel,
     cashSessionId,
+    transferAccount,
     createdAt,
     updatedAt,
     deletedAt,
