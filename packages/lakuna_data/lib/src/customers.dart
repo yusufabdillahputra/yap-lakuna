@@ -5,6 +5,7 @@ import 'package:serverpod_database/serverpod_database.dart'
     show ColumnOrderingOperations, DatabaseSession, Transaction;
 
 import 'cash.dart';
+import 'sales.dart' show SaleTransferAccountInvalid;
 import 'staff_access.dart';
 import 'stock.dart';
 import 'store.dart';
@@ -926,11 +927,16 @@ class DebtPaymentRequest {
     required this.paidOn,
     this.allocations,
     this.note,
+    this.transferAccount = '',
   });
 
   final UuidValue customerId;
   final Money amount;
   final PaymentMethod method;
+
+  /// Rekening tujuan transfer (F1-13i): salinan baris rekening yang
+  /// dipilih; hanya disimpan untuk [PaymentMethod.transfer].
+  final String transferAccount;
 
   /// Tanggal bayar (kalender).
   final DateTime paidOn;
@@ -989,6 +995,12 @@ Future<DebtPayment> receiveDebtPayment(
   final note = _text(request.note);
   if ((note?.characters.length ?? 0) > CustomerLimits.note) {
     throw const CustomerInvalid({CustomerIssue.note});
+  }
+  final account = request.method == PaymentMethod.transfer
+      ? request.transferAccount.trim()
+      : '';
+  if (account.characters.length > ProfileLimits.transferAccount) {
+    throw SaleTransferAccountInvalid();
   }
   await requireCustomerActor(store, scope, staffId, Permission.debtsManage);
   return store.write(actor: staffId, (w) async {
@@ -1059,6 +1071,7 @@ Future<DebtPayment> receiveDebtPayment(
         cashSessionId: cash?.id,
         balanceAfter: (total - request.amount).value,
         note: note,
+        transferAccount: account.isEmpty ? null : account,
         createdAt: s.now,
         updatedAt: s.now,
         createdBy: staffId,

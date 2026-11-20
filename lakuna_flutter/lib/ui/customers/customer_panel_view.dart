@@ -8,7 +8,8 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../data/repositories/customers_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
-import '../cashier/payment_view.dart' show paymentMethodLabel;
+import '../cashier/payment_view.dart'
+    show TransferAccountBox, paymentMethodLabel;
 import '../core/format.dart';
 import '../products/product_widgets.dart';
 import '../purchases/purchase_labels.dart'
@@ -574,6 +575,16 @@ class _PaymentFields extends StatelessWidget {
             style: _muted(context),
           )
         : null;
+    // Rekening tujuan terima piutang transfer (F1-13i).
+    final transfer =
+        vm.method == PaymentMethod.transfer && vm.transferAccounts.isNotEmpty
+        ? TransferAccountBox(
+            accounts: vm.transferAccounts,
+            selected: vm.transferAccount,
+            onSelect: vm.selectTransferAccount,
+            enabled: !vm.receive.running,
+          )
+        : null;
     final note = FTextField(
       key: ValueKey('customer-note-$gen'),
       label: Text(l10n.customerNoteOptional),
@@ -587,7 +598,7 @@ class _PaymentFields extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
-        children: [amount, method, ?cashHint, date, note],
+        children: [amount, method, ?cashHint, ?transfer, date, note],
       );
     }
     return Column(
@@ -604,6 +615,7 @@ class _PaymentFields extends StatelessWidget {
           ],
         ),
         ?cashHint,
+        ?transfer,
         note,
         SizedBox(height: theme.typography.body.xs.fontSize),
       ],
@@ -934,6 +946,15 @@ class _Payments extends StatelessWidget {
                                       '${debtPaymentMethodLabel(l10n, p)}',
                                       style: _muted(context),
                                     ),
+                                    if (debtTransferAccount(p)
+                                        case final account?)
+                                      Text(
+                                        '${l10n.receiptPaidTo} $account',
+                                        key: ValueKey(
+                                          'customer-payment-account-${p.id.uuid}',
+                                        ),
+                                        style: _muted(context),
+                                      ),
                                     if (p.voidReason case final reason?)
                                       Text(
                                         l10n.debtVoidedInfo(reason),

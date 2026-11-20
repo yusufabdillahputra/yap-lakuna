@@ -14842,6 +14842,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Rekening tujuan'**
   String get paymentTransferSelected;
+
+  /// Kuitansi: rekening tujuan pembayaran piutang transfer (F1-13i).
+  ///
+  /// In id, this message translates to:
+  /// **'Ke rekening'**
+  String get kuitansiPaidTo;
+
+  /// Rekening tujuan terima piutang terlalu panjang (F1-13i).
+  ///
+  /// In id, this message translates to:
+  /// **'Rekening tujuan maksimal {max} karakter. Rapikan rekening di Pengaturan toko.'**
+  String debtErrTransferAccount(int max);
 }
 
 class _AppLocalizationsDelegate

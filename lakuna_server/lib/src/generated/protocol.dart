@@ -1509,6 +1509,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'String?',
         ),
         _isp.ColumnDefinition(
+          name: 'transfer_account',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
           name: 'proof_media_id',
           columnType: _isp.ColumnType.uuid,
           isNullable: true,

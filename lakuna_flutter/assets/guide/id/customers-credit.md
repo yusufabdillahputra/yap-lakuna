@@ -21,7 +21,7 @@ Atur grup di **Master data › Grup pelanggan**. Tempo standar grup mengisi jatu
 ## Menerima pembayaran piutang
 
 1. Pilih pelanggan, lalu di *Terima pembayaran* isi **Jumlah diterima** atau tekan **Lunasi semua**.
-2. Pilih **Metode**. Tunai masuk ke laci bila ada sesi kasir terbuka, selain itu dicatat sebagai kas toko.
+2. Pilih **Metode**. Tunai masuk ke laci bila ada sesi kasir terbuka, selain itu dicatat sebagai kas toko. Untuk **Transfer bank**, rekening toko dari [Pengaturan toko](store-settings) tampil di kotak *Rekening tujuan*: bila toko punya beberapa rekening, ketuk rekening yang menerima transfer (atau tekan **Salin** di barisnya). Tombol simpan baru aktif setelah rekening dipilih. Rekening ini tampil di riwayat bayar (*Ke: …*) dan di kuitansi (*Ke rekening*).
 3. Alokasi otomatis mendahulukan nota paling lama. Tekan **Atur alokasi manual** untuk mengisi per nota.
 4. Tekan **Simpan & cetak kuitansi**. Kuitansi tersedia dalam format A5/PDF atau struk thermal. Bila masih ada sisa piutang dan *Rekening transfer* diisi, kuitansi memuat *Transfer sisa ke* (A5) atau *Transfer ke:* (thermal) berisi rekening toko.
 

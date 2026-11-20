@@ -40,6 +40,7 @@ abstract class DebtPayment
     this.cashSessionId,
     required this.balanceAfter,
     this.reference,
+    this.transferAccount,
     this.proofMediaId,
     this.note,
     this.voidedAt,
@@ -76,6 +77,7 @@ abstract class DebtPayment
     _isc.UuidValue? cashSessionId,
     required int balanceAfter,
     String? reference,
+    String? transferAccount,
     _isc.UuidValue? proofMediaId,
     String? note,
     DateTime? voidedAt,
@@ -142,6 +144,7 @@ abstract class DebtPayment
             ),
       balanceAfter: jsonSerialization['balanceAfter'] as int,
       reference: jsonSerialization['reference'] as String?,
+      transferAccount: jsonSerialization['transferAccount'] as String?,
       proofMediaId: jsonSerialization['proofMediaId'] == null
           ? null
           : _isc.UuidValueJsonExtension.fromJson(
@@ -230,6 +233,10 @@ abstract class DebtPayment
   /// No. bukti transfer bayar hutang (F1-14).
   String? reference;
 
+  /// Rekening tujuan terima piutang transfer (F1-13i): salinan baris
+  /// rekening di Pengaturan saat bayar, bukan ID.
+  String? transferAccount;
+
   /// Foto bukti bayar hutang (F1-14).
   _isc.UuidValue? proofMediaId;
 
@@ -284,6 +291,7 @@ abstract class DebtPayment
     _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
     int? balanceAfter,
     String? reference,
+    String? transferAccount,
     _isc.UuidValue? proofMediaId = const _isc.$UndefinedUuidValue(),
     String? note,
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
@@ -319,6 +327,7 @@ abstract class DebtPayment
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'balanceAfter': balanceAfter,
       if (reference != null) 'reference': reference,
+      if (transferAccount != null) 'transferAccount': transferAccount,
       if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -357,6 +366,7 @@ abstract class DebtPayment
       if (cashSessionId != null) 'cashSessionId': cashSessionId?.toJson(),
       'balanceAfter': balanceAfter,
       if (reference != null) 'reference': reference,
+      if (transferAccount != null) 'transferAccount': transferAccount,
       if (proofMediaId != null) 'proofMediaId': proofMediaId?.toJson(),
       if (note != null) 'note': note,
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
@@ -423,6 +433,7 @@ class _DebtPaymentImpl extends DebtPayment {
     _isc.UuidValue? cashSessionId,
     required int balanceAfter,
     String? reference,
+    String? transferAccount,
     _isc.UuidValue? proofMediaId,
     String? note,
     DateTime? voidedAt,
@@ -454,6 +465,7 @@ class _DebtPaymentImpl extends DebtPayment {
          cashSessionId: cashSessionId,
          balanceAfter: balanceAfter,
          reference: reference,
+         transferAccount: transferAccount,
          proofMediaId: proofMediaId,
          note: note,
          voidedAt: voidedAt,
@@ -491,6 +503,7 @@ class _DebtPaymentImpl extends DebtPayment {
     _isc.UuidValue? cashSessionId = const _isc.$UndefinedUuidValue(),
     int? balanceAfter,
     Object? reference = _Undefined,
+    Object? transferAccount = _Undefined,
     _isc.UuidValue? proofMediaId = const _isc.$UndefinedUuidValue(),
     Object? note = _Undefined,
     DateTime? voidedAt = const _isc.$UndefinedDateTime(),
@@ -531,6 +544,9 @@ class _DebtPaymentImpl extends DebtPayment {
           : cashSessionId,
       balanceAfter: balanceAfter ?? this.balanceAfter,
       reference: reference is String? ? reference : this.reference,
+      transferAccount: transferAccount is String?
+          ? transferAccount
+          : this.transferAccount,
       proofMediaId: proofMediaId is _isc.UndefinedSentinel
           ? this.proofMediaId
           : proofMediaId,
@@ -658,6 +674,12 @@ class DebtPaymentUpdateTable extends _isd.UpdateTable<DebtPaymentTable> {
     table.reference,
     value,
   );
+
+  _isd.ColumnValue<String, String> transferAccount(String? value) =>
+      _isd.ColumnValue(
+        table.transferAccount,
+        value,
+      );
 
   _isd.ColumnValue<_isc.UuidValue, _isc.UuidValue> proofMediaId(
     _isc.UuidValue? value,
@@ -823,6 +845,11 @@ class DebtPaymentTable extends _isd.Table<_isc.UuidValue> {
       'reference',
       this,
     );
+    transferAccount = _isd.ColumnString(
+      'transfer_account',
+      this,
+      fieldName: 'transferAccount',
+    );
     proofMediaId = _isd.ColumnUuid(
       'proof_media_id',
       this,
@@ -931,6 +958,10 @@ class DebtPaymentTable extends _isd.Table<_isc.UuidValue> {
   /// No. bukti transfer bayar hutang (F1-14).
   late final _isd.ColumnString reference;
 
+  /// Rekening tujuan terima piutang transfer (F1-13i): salinan baris
+  /// rekening di Pengaturan saat bayar, bukan ID.
+  late final _isd.ColumnString transferAccount;
+
   /// Foto bukti bayar hutang (F1-14).
   late final _isd.ColumnUuid proofMediaId;
 
@@ -980,6 +1011,7 @@ class DebtPaymentTable extends _isd.Table<_isc.UuidValue> {
     cashSessionId,
     balanceAfter,
     reference,
+    transferAccount,
     proofMediaId,
     note,
     voidedAt,

@@ -5818,5 +5818,18 @@
   "paymentTransferChoose": "Pilih rekening tujuan transfer.",
   "receiptPaidTo": "Ke:",
   "reportsTransferNoAccount": "Tanpa rekening",
-  "paymentTransferSelected": "Rekening tujuan"
+  "paymentTransferSelected": "Rekening tujuan",
+  "kuitansiPaidTo": "Ke rekening",
+  "@kuitansiPaidTo": {
+    "description": "Kuitansi: rekening tujuan pembayaran piutang transfer (F1-13i)."
+  },
+  "debtErrTransferAccount": "Rekening tujuan maksimal {max} karakter. Rapikan rekening di Pengaturan toko.",
+  "@debtErrTransferAccount": {
+    "description": "Rekening tujuan terima piutang terlalu panjang (F1-13i).",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import '../../data/repositories/customers_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/payment_view.dart' show paymentMethodLabel;
+import 'customer_panel_view_model.dart' show DebtTransferAccountMissing;
 
 /// Nomor HP tampilan `0813-2222-1010` dari digit tersimpan.
 String formatPhone(String? phone) {
@@ -67,6 +68,14 @@ String formatMonthYear(AppLocalizations l10n, DateTime d) {
   final english = l10n.localeName.startsWith('en');
   final month = english ? long.split(' ').first : long.split(' ')[1];
   return '${month.substring(0, 3)} ${d.year}';
+}
+
+/// Rekening tujuan pembayaran piutang transfer (F1-13i); `null` untuk
+/// metode lain, pembayaran lama, atau toko tanpa rekening.
+String? debtTransferAccount(DebtPayment payment) {
+  if (payment.method != PaymentMethod.transfer) return null;
+  final account = payment.transferAccount?.trim() ?? '';
+  return account.isEmpty ? null : account;
 }
 
 /// Metode pembayaran piutang di kuitansi: tunai membedakan kas laci dan kas
@@ -141,6 +150,10 @@ String customerErrorMessage(AppLocalizations l10n, Exception error) =>
         debtPaymentVoidReasonMax,
       ),
       CashSessionNotOpen() => l10n.debtErrNoSession,
+      DebtTransferAccountMissing() => l10n.paymentTransferChoose,
+      SaleTransferAccountInvalid() => l10n.debtErrTransferAccount(
+        ProfileLimits.transferAccount,
+      ),
       SaleCreditInvalid(:final issue) => creditIssueMessage(l10n, issue),
       NotPermitted() ||
       CustomerActorNotPermitted() => l10n.customerErrNotPermitted,

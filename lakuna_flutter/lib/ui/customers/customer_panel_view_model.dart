@@ -14,6 +14,12 @@ const debtPaymentMethodOrder = [
   PaymentMethod.qrisStatic,
 ];
 
+/// Transfer belum memilih rekening tujuan padahal toko punya 2–3 rekening
+/// (F1-13i).
+class DebtTransferAccountMissing implements Exception {
+  const DebtTransferAccountMissing();
+}
+
 /// Panel satu pelanggan (1.20): ringkasan limit, nota belum lunas, terima
 /// pembayaran dengan alokasi otomatis atau manual, dan riwayat bayar.
 class CustomerPanelViewModel extends ChangeNotifier {
@@ -66,6 +72,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
   var _manual = false;
   final _allocations = <UuidValue, Money>{};
   var _note = '';
+  String? _transferChoice;
   var _submitted = false;
   var _generation = 0;
 
@@ -80,6 +87,36 @@ class CustomerPanelViewModel extends ChangeNotifier {
 
   /// Naik saat isian dikosongkan agar field dibuat ulang.
   int get generation => _generation;
+
+  /// Rekening transfer toko per baris (F1-05f); kosong bila belum diatur.
+  List<String> get transferAccounts =>
+      _setup?.receipt.transferAccounts ?? const [];
+
+  /// Rekening tujuan terima piutang transfer (F1-13i): satu rekening
+  /// otomatis, atau pilihan yang masih ada di Pengaturan. `null` untuk
+  /// metode lain.
+  String? get transferAccount {
+    if (_method != PaymentMethod.transfer) return null;
+    final accounts = transferAccounts;
+    if (accounts.length == 1) return accounts.single;
+    return accounts.contains(_transferChoice) ? _transferChoice : null;
+  }
+
+  /// Transfer dengan 2–3 rekening toko tapi tujuan belum dipilih.
+  bool get transferAccountMissing =>
+      _method == PaymentMethod.transfer &&
+      transferAccounts.isNotEmpty &&
+      transferAccount == null;
+
+  void selectTransferAccount(String account) {
+    if (_transferChoice == account) return;
+    _transferChoice = account;
+    // Galat "pilih rekening" dari simpan sebelumnya tidak berlaku lagi.
+    if (receive.result case Error(error: DebtTransferAccountMissing())) {
+      receive.clearResult();
+    }
+    notifyListeners();
+  }
 
   bool get canReceive => _setup?.canReceive ?? false;
   bool get canManage => _setup?.canManage ?? false;
@@ -128,6 +165,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
   /// karena [_receive] sendiri berjalan di dalam [receive]).
   bool get _valid =>
       canReceive &&
+      !transferAccountMissing &&
       (_detail?.open.isNotEmpty ?? false) &&
       _amount > Money.zero &&
       validateDebtPayment(
@@ -185,6 +223,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
   void setMethod(PaymentMethod method) {
     if (_method == method || !debtPaymentMethods.contains(method)) return;
     _method = method;
+    _transferChoice = null;
     notifyListeners();
   }
 
@@ -224,6 +263,16 @@ class CustomerPanelViewModel extends ChangeNotifier {
     _submitted = true;
     if (!_valid) {
       notifyListeners();
+      final issue = this.issue;
+      // Galat rekening hanya bila isian lain sudah sah, agar penyebab lain
+      // (tanpa izin, tanpa nota terbuka) tidak tertutup.
+      if (issue == null &&
+          transferAccountMissing &&
+          canReceive &&
+          (_detail?.open.isNotEmpty ?? false) &&
+          _amount > Money.zero) {
+        return const Result.error(DebtTransferAccountMissing());
+      }
       return Result.error(
         DebtPaymentInvalid(issue ?? DebtPaymentIssue.amount),
       );
@@ -237,6 +286,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
         paidOn: paidOn,
         allocations: _manual ? Map.of(_allocations) : null,
         note: note.isEmpty ? null : note,
+        transferAccount: transferAccount ?? '',
       ),
     );
     if (result is Ok<DebtPayment>) {
@@ -244,6 +294,7 @@ class CustomerPanelViewModel extends ChangeNotifier {
       _manual = false;
       _allocations.clear();
       _note = '';
+      _transferChoice = null;
       _submitted = false;
       _generation++;
       await _load();

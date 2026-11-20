@@ -26,6 +26,9 @@ fields:
   balanceAfter: int, column=balance_after
   ### No. bukti transfer bayar hutang (F1-14).
   reference: String?
+  ### Rekening tujuan terima piutang transfer (F1-13i): salinan baris
+  ### rekening di Pengaturan saat bayar, bukan ID.
+  transferAccount: String?, column=transfer_account
   ### Foto bukti bayar hutang (F1-14).
   proofMediaId: UuidValue?, relation(parent=media_files, onDelete=Restrict), column=proof_media_id
   note: String?

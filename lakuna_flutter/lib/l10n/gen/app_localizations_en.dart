@@ -8825,4 +8825,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentTransferSelected => 'Destination account';
+
+  @override
+  String get kuitansiPaidTo => 'To account';
+
+  @override
+  String debtErrTransferAccount(int max) {
+    return 'The destination account can be up to $max characters. Fix the account in Store settings.';
+  }
 }

@@ -21,7 +21,7 @@ Manage groups in **Master data › Customer groups**. A group's standard term fi
 ## Receiving a receivable payment
 
 1. Choose the customer, then under *Receive payment* enter the **Amount received** or tap **Pay in full**.
-2. Choose the **Method**. Cash goes into the drawer when a cash session is open, otherwise it is recorded as store cash.
+2. Choose the **Method**. Cash goes into the drawer when a cash session is open, otherwise it is recorded as store cash. For **Bank transfer**, the store accounts from [Store settings](store-settings) appear in the *Destination account* box: if the store has several accounts, tap the one that received the transfer (or tap **Copy** on its row). The save button turns on only once an account is selected. The account shows in the payment history (*To: …*) and on the receipt (*To account*).
 3. Automatic allocation pays the oldest receipt first. Tap **Allocate manually** to fill in each receipt yourself.
 4. Tap **Save & print receipt**. The payment receipt comes as A5/PDF or a thermal slip. If a balance remains and a *Transfer account* is set, the receipt includes *Pay the balance to* (A5) or *Transfer to:* (thermal) with the store account.
 

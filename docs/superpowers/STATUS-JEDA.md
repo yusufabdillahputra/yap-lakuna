@@ -116,7 +116,8 @@ ulang riwayat.
 | v0.132.0 | Barang yang cocok tampil di daftar Riwayat (F1-11i) | #138 |
 | v0.133.0 | Target margin toko di Laba rugi (F1-16d) | #139 |
 | v0.134.0 | Kredit untuk bagian terakhir split bill (F1-13h) | #140 |
-| v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | |
+| v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | #141 |
+| v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -347,6 +348,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 77. ~~Transfer tidak mencatat rekening tujuan~~ — selesai v0.135.0
     (F1-05g); rekening dipilih di layar Bayar, tercetak *Ke: …* di struk,
     rincian per rekening di Laporan › Ringkasan.
+78. ~~Pelunasan piutang lewat transfer tidak mencatat rekening tujuan~~ —
+    selesai v0.136.0 (F1-13i); dipilih di panel pelanggan, tercetak di
+    kuitansi A5 dan thermal.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

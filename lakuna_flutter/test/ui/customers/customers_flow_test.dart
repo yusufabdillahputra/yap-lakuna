@@ -572,6 +572,50 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('terima piutang transfer: pilih rekening tujuan '
+        '${size.width.toInt()} px (F1-13i)', (tester) async {
+      final customers = FakeCustomersRepository()
+        ..transferAccount = 'BCA 123 a.n. Warung\nMandiri 987 a.n. Warung';
+      await pump(tester, size, customers: customers);
+      final ani = idOf('Toko Bu Ani');
+      await _tap(tester, _key('customers-row-${ani.uuid}'));
+      await _type(tester, _key('customer-amount-0'), '100000');
+      expect(_key('payment-transfer-account'), findsNothing); // Tunai.
+
+      await _tap(tester, _key('customer-method-0'));
+      await tester.tap(find.text('Transfer bank').last);
+      await tester.pumpAndSettle();
+      expect(_key('payment-transfer-account'), findsOneWidget);
+      expect(_key('payment-transfer-choose'), findsOneWidget);
+      expect(tester.widget<FButton>(_key('customer-receive')).onPress, isNull);
+
+      await _tap(tester, _key('payment-transfer-copy-1'));
+      expect(_key('payment-transfer-choose'), findsNothing);
+      expect(
+        tester.getSemantics(_key('payment-transfer-pick-1')),
+        isSemantics(isSelected: true, isButton: true),
+      );
+      await _tap(tester, _key('customer-receive'));
+      expect(
+        repo.requests.single.transferAccount,
+        'Mandiri 987 a.n. Warung',
+      );
+      final payment = repo.payments.single;
+      expect(_key('kuitansi-panel'), findsOneWidget);
+      expect(find.text('Mandiri 987 a.n. Warung'), findsWidgets);
+
+      await _tap(tester, _key('kuitansi-back'));
+      expect(
+        tester
+            .widget<Text>(_key('customer-payment-account-${payment.id.uuid}'))
+            .data,
+        'Ke: Mandiri 987 a.n. Warung',
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('batal pembayaran: galat sesi kasir tampil di dialog', (
     tester,
   ) async {
