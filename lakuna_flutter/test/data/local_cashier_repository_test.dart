@@ -157,6 +157,28 @@ void main() {
     expect(_err(await repo.load()), isA<NotPermitted>());
   });
 
+  test('kredit bagian split butuh debts:manage (F1-13h)', () async {
+    session.current = staffWithPermissions({Permission.salesCreate});
+    final result = await repo.payBillPart(
+      UuidValue.fromString(newId()),
+      guest: 'B',
+      payments: const [],
+      credit: SaleCredit(
+        customerId: UuidValue.fromString(newId()),
+        downPayment: Money.zero,
+        dueOn: DateTime.utc(2026, 11, 17),
+      ),
+    );
+    expect(
+      _err(result),
+      isA<NotPermitted>().having(
+        (e) => e.permission,
+        'permission',
+        Permission.debtsManage,
+      ),
+    );
+  });
+
   test(
     'QRIS statis aktif ikut termuat; konfirmasi butuh payments:confirm',
     () async {

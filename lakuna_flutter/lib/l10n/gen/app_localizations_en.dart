@@ -8809,4 +8809,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String reportsMarginTargetExport(String margin, String target) {
     return '$margin · target $target';
   }
+
+  @override
+  String get billSplitErrorCreditNotLast =>
+      'Credit is only for the last part: the other guests must have paid and no QRIS may be waiting.';
 }

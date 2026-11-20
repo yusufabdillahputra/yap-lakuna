@@ -5275,5 +5275,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "billSplitErrorCreditNotLast": "Credit is only for the last part: the other guests must have paid and no QRIS may be waiting."
 }

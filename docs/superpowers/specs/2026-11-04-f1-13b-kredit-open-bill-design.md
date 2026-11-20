@@ -48,4 +48,4 @@ kredit di Kasir retail.
 | Topik | Desain | Kode | Catatan |
 | --- | --- | --- | --- |
 | Kredit *Tutup & bayar* open bill | 1.5b | Rilis v0.30.0 | Selesai. |
-| Kredit bagian split bill | 1.5b | Belum | Bagian split dibayar per tamu; kredit per tamu butuh pelanggan per bagian. |
+| Kredit bagian split bill | 1.5b | Rilis v0.134.0 (bagian terakhir) | Bagian terakhir tanpa QRIS menunggu ([F1-13h](2026-11-20-f1-13h-kredit-bagian-split-design.md)); kredit beberapa bagian / pelanggan per bagian masih Belum. |

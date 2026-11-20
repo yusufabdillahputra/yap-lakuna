@@ -206,7 +206,11 @@ class LocalCashierRepository extends CashierRepository {
     Money? amount,
     required List<SalePaymentRequest> payments,
     bool pending = false,
+    SaleCredit? credit,
   }) => _guard((ctx, staff) {
+    if (credit != null && !staff.can(Permission.debtsManage)) {
+      throw const NotPermitted(Permission.debtsManage);
+    }
     if (!pending &&
         payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
         !staff.can(Permission.paymentsConfirm)) {
@@ -221,6 +225,7 @@ class LocalCashierRepository extends CashierRepository {
       amount: amount,
       payments: payments,
       pending: pending,
+      credit: credit,
     );
   });
 

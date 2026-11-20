@@ -617,8 +617,14 @@ class FakeCashierRepository extends CashierRepository {
     Money? amount,
     required List<SalePaymentRequest> payments,
     bool pending = false,
+    SaleCredit? credit,
   }) async {
     if (_check() case final e?) return Result.error(e);
+    if (credit != null) {
+      if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
+        return const Result.error(NotPermitted(Permission.debtsManage));
+      }
+    }
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
     final d = dining;
     if (d == null) return Result.error(BillNotFound());
@@ -629,7 +635,10 @@ class FakeCashierRepository extends CashierRepository {
         amount: amount,
         requests: payments,
         pending: pending,
+        credit: credit,
+        customerName: _customerRow(credit?.customerId)?.customer.name,
       );
+      if (credit != null) credits.add(credit);
       paidParts.add((billId, guest, amount, payments, pending));
       return Result.ok(result);
     } on Exception catch (e) {

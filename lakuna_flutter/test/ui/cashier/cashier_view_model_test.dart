@@ -1162,11 +1162,75 @@ void main() {
       expect(vm.creditCustomer?.customer.id, ani.customer.id);
     });
 
-    test('bagian split bill: kredit tidak tersedia', () async {
+    test('bagian split bukan sisa terakhir: kredit tidak tersedia', () async {
       bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
       vm.setPart(const BillPart(guest: 'A'));
       await vm.openBill.execute(bill.id);
       expect(vm.canSellOnCredit, isFalse);
+      vm.setMode(PayMode.credit);
+      expect(vm.mode, isNot(PayMode.credit));
+    });
+
+    test('bagian terakhir split ditutup sebagai kredit (F1-13h)', () async {
+      bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
+      dining.payPart(
+        bill.id,
+        guest: 'A',
+        requests: const [SalePaymentRequest(method: PaymentMethod.card)],
+      );
+      vm.setPart(const BillPart(guest: 'B'));
+      await vm.openBill.execute(bill.id);
+      expect(vm.payTotal, const Money(27720));
+      expect(vm.canSellOnCredit, isTrue);
+      vm.setMode(PayMode.credit);
+      await Future<void>.delayed(Duration.zero);
+      vm
+        ..selectCreditCustomer(ani.customer.id)
+        ..setCreditDown(const Money(7720));
+      // Piutang = tagihan bagian − DP.
+      expect(vm.creditDebt, const Money(20000));
+      expect(vm.canPay, isTrue);
+      await vm.pay.execute();
+      expect(vm.stage, CashierStage.done);
+      expect(repo.credits.single.customerId, ani.customer.id);
+      expect(repo.credits.single.downPayment, const Money(7720));
+      final (_, guest, _, payments, _) = repo.paidParts.single;
+      expect(guest, 'B');
+      expect(payments, isEmpty);
+      final sale = vm.result!.sale;
+      expect(sale.customerName, 'Toko Bu Ani');
+      // Bagian A (kartu) + DP bagian B.
+      expect(sale.paidAmount, 27720 + 7720);
+      expect(
+        [for (final p in vm.result!.payments) (p.guestLabel, p.method)],
+        [('A', PaymentMethod.card), ('B', PaymentMethod.cash)],
+      );
+    });
+
+    test('QRIS bagian lain menunggu: kredit tidak tersedia', () async {
+      repo.qris = sampleQris();
+      bill = await ok(dining.setSplit(bill.id, SplitMode.equal, 2));
+      dining.payPart(
+        bill.id,
+        guest: 'A',
+        requests: const [SalePaymentRequest(method: PaymentMethod.qrisStatic)],
+        pending: true,
+      );
+      vm.setPart(const BillPart(guest: 'B'));
+      await vm.openBill.execute(bill.id);
+      expect(vm.canSellOnCredit, isFalse);
+    });
+
+    test('nominal bebas: kredit hanya untuk seluruh sisa', () async {
+      bill = await ok(dining.setSplit(bill.id, SplitMode.amount, 2));
+      vm.setPart(const BillPart(amount: Money(20000)));
+      await vm.openBill.execute(bill.id);
+      expect(vm.canSellOnCredit, isFalse);
+      final last = CashierViewModel(repository: repo, printer: printer)
+        ..setPart(const BillPart(amount: Money(55440)));
+      await last.load.execute();
+      await last.openBill.execute(bill.id);
+      expect(last.canSellOnCredit, isTrue);
     });
   });
 

@@ -31,6 +31,8 @@ String splitErrorMessage(
   SplitInvalid(error: SplitError.amount) => l10n.billSplitErrorAmount,
   SplitInvalid(error: SplitError.nothingDue) => l10n.billSplitErrorNothingDue,
   SplitInvalid(error: SplitError.pending) => l10n.billSplitErrorPending,
+  SplitInvalid(error: SplitError.creditNotLast) =>
+    l10n.billSplitErrorCreditNotLast,
   CashSessionNotOpen() => l10n.paymentErrorSession,
   SaleStockShort(:final items) => l10n.saleErrorStockShort(
     items.map((i) => i.name).join(', '),
@@ -327,10 +329,13 @@ class _Controls extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: 8,
             children: [
-              Text(
-                l10n.billSplitGuests,
-                style: theme.typography.body.sm.copyWith(
-                  fontWeight: FontWeight.w600,
+              // Label boleh turun baris di ponsel sempit (F1-13h).
+              Flexible(
+                child: Text(
+                  l10n.billSplitGuests,
+                  style: theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               FButton.icon(

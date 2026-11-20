@@ -8559,4 +8559,8 @@ class AppLocalizationsId extends AppLocalizations {
   String reportsMarginTargetExport(String margin, String target) {
     return '$margin · target $target';
   }
+
+  @override
+  String get billSplitErrorCreditNotLast =>
+      'Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu.';
 }

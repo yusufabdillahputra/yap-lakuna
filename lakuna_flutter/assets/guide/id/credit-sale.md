@@ -18,4 +18,6 @@ Pelanggan harus terdaftar dan punya **Limit kredit** lebih dari 0 di menu [Pelan
 
 Struk nota mencetak *Piutang* dan *Jatuh tempo*. Bila *Rekening transfer* diisi di [Pengaturan toko](store-settings), struk juga mencetak *Transfer ke:* diikuti rekening toko agar pelanggan tahu ke mana melunasi sisanya.
 
+Di F&B, kredit juga tersedia saat **Tutup & bayar** bill meja atau take away, dan untuk bagian terakhir [split bill](split-bill). Pada split bill, limit dihitung dari tagihan bagian itu dikurangi DP, sedangkan bagian tamu lain tetap tercatat sebagai pembayaran di nota yang sama.
+
 Nota tercatat *Belum lunas* di Riwayat dan masuk daftar piutang pelanggan. Pembayaran berikutnya dicatat di [Pelanggan & piutang](customers-credit).

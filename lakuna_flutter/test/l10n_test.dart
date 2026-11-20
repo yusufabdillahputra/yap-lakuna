@@ -3,7 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_flutter/l10n/gen/app_localizations.dart';
+import 'package:lakuna_flutter/ui/dining/split_bill_view.dart'
+    show splitErrorMessage;
 
 Set<String> _keys(String path) {
   final map = jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -24,5 +27,13 @@ void main() {
     expect(en.loginWrongPin(3), 'Wrong PIN. 3 attempts left.');
     final id = lookupAppLocalizations(const Locale('id'));
     expect(id.loginWrongPin(1), 'PIN salah. Sisa 1 percobaan.');
+  });
+
+  test('kredit bukan bagian terakhir punya pesan sendiri (F1-13h)', () {
+    final id = lookupAppLocalizations(const Locale('id'));
+    expect(
+      splitErrorMessage(id, const SplitInvalid(SplitError.creditNotLast)),
+      id.billSplitErrorCreditNotLast,
+    );
   });
 }

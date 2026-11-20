@@ -1043,12 +1043,17 @@ class CashierViewModel extends ChangeNotifier {
   // --- Kredit (F1-13, 1.5b) --------------------------------------------------
 
   /// Tombol *Kredit / piutang* tampil: staf `debts:manage`; untuk open bill
-  /// hanya *Tutup & bayar* utuh, bukan bagian split atau bill yang sudah
-  /// dibayar sebagian (F1-13b).
+  /// *Tutup & bayar* utuh (F1-13b) atau bagian split yang menjadi sisa
+  /// terakhir tanpa QRIS menunggu (F1-13h).
   bool get canSellOnCredit {
     if (!(_data?.canSellOnCredit ?? false)) return false;
     final bill = _bill;
-    return bill == null || (_part == null && bill.payments.isEmpty);
+    if (bill == null) return true;
+    if (_part == null) return bill.payments.isEmpty;
+    final split = bill.split;
+    return split != null &&
+        split.pending == Money.zero &&
+        split.remaining == payTotal;
   }
 
   CustomersOverview? get creditCustomers => _creditCustomers;
@@ -1451,6 +1456,7 @@ class CashierViewModel extends ChangeNotifier {
 
   Future<Result<CheckoutResult?>> _payPart(OpenBill bill, BillPart part) async {
     final pending = _waitQris;
+    final credit = _mode == PayMode.credit ? _saleCredit() : null;
     final result = await _repository.payBillPart(
       bill.id,
       guest: part.amount == null ? part.guest : null,
@@ -1459,10 +1465,13 @@ class CashierViewModel extends ChangeNotifier {
           ? const [SalePaymentRequest(method: PaymentMethod.qrisStatic)]
           : _payments(),
       pending: pending,
+      credit: credit,
     );
     switch (result) {
       case Ok(value: SplitPayResult(:final receipt?)):
         _result = receipt;
+        // Piutang pelanggan berubah: muat ulang saat kredit dipakai lagi.
+        if (credit != null) _creditCustomers = null;
         _stage = CashierStage.done;
         return Result.ok(receipt);
       case Ok():

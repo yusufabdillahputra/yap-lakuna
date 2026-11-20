@@ -271,6 +271,76 @@ void main() {
     );
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets(
+      '${size.width.toInt()} px: bagian terakhir split dibayar kredit (F1-13h)',
+      (tester) async {
+        final dining = FakeDiningRepository();
+        final ani = CustomerRow(
+          customer: Customer(
+            id: UuidValue.fromString(newId()),
+            tenantId: UuidValue.fromString(newId()),
+            name: 'Toko Bu Ani',
+            creditLimit: 1000000,
+            createdAt: DateTime.utc(2026, 11, 1),
+            hlc: '',
+          ),
+          groupName: null,
+          termDays: 14,
+          outstanding: Money.zero,
+          openCount: 0,
+          overdueCount: 0,
+        );
+        final repo = FakeCashierRepository(seed: cashierProducts())
+          ..dining = dining
+          ..creditRows = [ani];
+        await pumpLakuna(
+          tester,
+          size: size,
+          initialLocation: Routes.cashier,
+          cashier: repo,
+          dining: dining,
+        );
+        final kopi = dining.catalog.products
+            .firstWhere((p) => p.name == 'Kopi Susu Aren')
+            .variants
+            .single
+            .id;
+        final opened = await dining.openTable(dining.tables.first.id, 2);
+        final bill = (opened as Ok<OpenBill>).value;
+        await dining.addItem(
+          bill.id,
+          SaleLineRequest(variantId: kopi, quantity: Qty.units(2)),
+        );
+        await dining.setSplit(bill.id, SplitMode.equal, 2);
+
+        // Tamu A belum menjadi sisa terakhir: tanpa Kredit.
+        await tester.binding.handlePushRoute(
+          Routes.cashierBillPart(bill.id.uuid, guest: 'A'),
+        );
+        await tester.pumpAndSettle();
+        expect(_key('payment-method-credit'), findsNothing);
+        await _tap(tester, 'payment-method-card');
+        await _tap(tester, 'payment-finish');
+        expect(repo.paidParts.single.$2, 'A');
+
+        await tester.binding.handlePushRoute(
+          Routes.cashierBillPart(bill.id.uuid, guest: 'B'),
+        );
+        await tester.pumpAndSettle();
+        await _tap(tester, 'payment-method-credit');
+        expect(_key('credit-panel'), findsOneWidget);
+        await _tap(tester, 'credit-customer-${ani.customer.id.uuid}');
+        await _tap(tester, 'payment-finish');
+        expect(_key('success-title'), findsOneWidget);
+        expect(repo.credits.single.customerId, ani.customer.id);
+        expect(repo.paidParts.last.$2, 'B');
+        expect(find.textContaining('Toko Bu Ani'), findsWidgets);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('kartu: no. approval, galat simpan ditampilkan', (tester) async {
     final repo = await pump(tester);
     await scan(tester, 'KOP');
