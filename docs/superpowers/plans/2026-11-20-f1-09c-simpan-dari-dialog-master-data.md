@@ -13,4 +13,4 @@ Spec: [F1-09c](../specs/2026-11-20-f1-09c-simpan-dari-dialog-master-data-design.
   `/mnt/project-files/lakuna/f1-09c/`.
 - [x] 6. Dokumen: spec, gap F1-09b, F1-10n, F1-07r, F1-13g, README spec,
   STATUS-JEDA, panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#132).

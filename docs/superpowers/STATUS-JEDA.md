@@ -107,7 +107,7 @@ ulang riwayat.
 | v0.123.0 | Tombol Simpan di dialog *Buang perubahan?* penyesuaian stok (F1-08n) | #129 |
 | v0.124.0 | Tombol Simpan draf di dialog *Buang perubahan?* pembelian (F1-12i) | #130 |
 | v0.125.0 | Tombol Simpan di dialog *Buang perubahan?* pelanggan & supplier (F1-13g) | #131 |
-| v0.126.0 | Tombol Simpan di dialog *Buang perubahan?* master data (F1-09c) | |
+| v0.126.0 | Tombol Simpan di dialog *Buang perubahan?* master data (F1-09c) | #132 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
