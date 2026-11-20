@@ -10,4 +10,4 @@ Spec: [F1-02e](../specs/2026-11-20-f1-02e-halaman-ditutup-tidak-ditanya-lagi-des
   jendela) + tangkapan layar ke `/mnt/project-files/lakuna/f1-02e/`.
 - [x] 6. Dokumen: spec, gap F1-02b, README spec, STATUS-JEDA, CHANGELOG,
   versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#125).

@@ -100,7 +100,7 @@ ulang riwayat.
 | v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | #122 |
 | v0.117.0 | Cari Riwayat lewat catatan barang, catatan tampil di rincian (F1-11g) | #123 |
 | v0.118.0 | Modifier pesanan tampil di rincian nota Riwayat (F1-11h) | #124 |
-| v0.119.0 | Halaman yang sedang ditutup tidak ditanya lagi saat Ganti kasir / tutup jendela (F1-02e) | |
+| v0.119.0 | Halaman yang sedang ditutup tidak ditanya lagi saat Ganti kasir / tutup jendela (F1-02e) | #125 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
