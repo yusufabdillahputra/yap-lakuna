@@ -112,8 +112,9 @@ class _PurchasesScreenState extends State<PurchasesScreen>
   /// *Buang perubahan?* bila form samping berubah (F1-12f).
   Future<bool> _confirmLeave() async {
     final form = _formVm;
+    if (!mounted || isRouteClosing(context)) return true;
     // Form samping hanya tampil di layar lebar.
-    if (!mounted || !_twoPane || form == null) return true;
+    if (!_twoPane || form == null) return true;
     if (form.busy) return false;
     if (!form.hasUnsavedChanges) return true;
     return confirmDiscardChanges(

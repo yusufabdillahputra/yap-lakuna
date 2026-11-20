@@ -7,6 +7,35 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.119.0] - 2026-11-20
+
+*Buang perubahan?* tidak lagi muncul dua kali untuk form yang baru saja
+dibuang.
+
+### Diperbaiki
+
+- **Pembelian, rincian pembelian, produk, pengeluaran, stok:** setelah
+  **Buang** lewat **Batal**/Kembali, menekan **Ganti kasir** atau tombol ✕
+  jendela selagi halaman itu masih ditutup kini langsung lanjut.
+  Sebelumnya form yang sudah dibuang ditanyakan sekali lagi.
+- **Ganti kasir → Buang lalu ✕ jendela:** aplikasi langsung tertutup.
+  Sebelumnya dialog *Buang perubahan?* kedua muncul dan bisa tertinggal di
+  atas layar masuk, karena form di dalam bingkai menu yang sedang ditutup
+  masih dianggap aktif.
+
+### Catatan teknis
+
+- `isRouteClosing(context)` (`lib/ui/core/leave_guard.dart`) menelusuri
+  rute halaman dan rute leluhurnya (`route.navigator.context`); halaman
+  dilewati bila salah satunya `!isActive` (sedang di-pop, atau halaman
+  go_router yang sudah dihapus dari daftar halaman tetapi widget-nya belum
+  dibuang). Lima `_confirmLeave` berpenjaga memakainya sebelum cek lain.
+- Tes: `leave_guard_test.dart` (aktif, tertutup halaman lain, di-pop) dan
+  alur produk desktop (Ganti kasir selagi form ditutup; tutup jendela
+  selagi bingkai ditutup); mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-02e](docs/superpowers/specs/2026-11-20-f1-02e-halaman-ditutup-tidak-ditanya-lagi-design.md);
+  gap F1-02b *Halaman yang sedang ditutup ditanya lagi* ditutup.
+
 ## [0.118.0] - 2026-11-20
 
 Rincian nota di Riwayat kini menampilkan modifier pesanan F&B.
@@ -7026,7 +7055,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...HEAD
+[0.119.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...v0.119.0
 [0.118.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...v0.118.0
 [0.117.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...v0.117.0
 [0.116.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...v0.116.0

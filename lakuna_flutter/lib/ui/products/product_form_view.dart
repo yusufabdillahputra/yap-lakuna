@@ -78,7 +78,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   /// *Buang perubahan?* bila form berubah (F1-07q).
   Future<bool> _confirmLeave() async {
-    if (!mounted) return true;
+    if (!mounted || isRouteClosing(context)) return true;
     // Simpan / arsip sedang berjalan: tunggu selesai dulu.
     if (_viewModel.busy) return false;
     if (!_viewModel.hasUnsavedChanges) return true;

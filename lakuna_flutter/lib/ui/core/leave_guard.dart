@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 /// Penjaga keluar satu halaman rute (F1-12f).
 ///
 /// Halaman memasang [check] selama tampil; rute memanggil [canLeave] dari
@@ -66,4 +68,19 @@ class LeaveGuards {
     }
     return true;
   }
+}
+
+/// Rute halaman [context], atau rute yang memuatnya (mis. bingkai menu
+/// `ShellRoute` setelah *Ganti kasir*), sedang ditutup: sudah dilepas dari
+/// navigatornya (beranimasi keluar, atau halaman go_router yang dihapus
+/// dari daftar halaman) tetapi widget-nya belum dibuang. Perubahannya sudah
+/// dibuang atau disimpan, jadi penjaganya tidak bertanya lagi (F1-02e),
+/// mis. *Ganti kasir* atau tutup jendela di sela itu setelah *Buang*.
+bool isRouteClosing(BuildContext context) {
+  for (var route = ModalRoute.of(context); route != null;) {
+    if (!route.isActive) return true;
+    final outer = route.navigator?.context;
+    route = outer == null ? null : ModalRoute.of(outer);
+  }
+  return false;
 }
