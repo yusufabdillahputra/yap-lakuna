@@ -413,4 +413,33 @@ void main() {
     expect(sale.changeAmount, 22500);
     expect(await outstanding(ani), const Money(25000));
   });
+
+  test('rekening tujuan transfer di bill dan bagian split (F1-05g)', () async {
+    const transfer = SalePaymentRequest(
+      method: PaymentMethod.transfer,
+      transferAccount: 'BCA 123',
+    );
+    final whole = await payOpenBill(
+      store,
+      scope,
+      staffId: owner(),
+      billId: (await bill()).id,
+      payments: const [transfer],
+    );
+    expect(whole.payments.single.transferAccount, 'BCA 123');
+
+    var b = await split(await bill(), SplitMode.amount);
+    b = (await pay(
+      b,
+      amount: const Money(20000),
+      payments: const [
+        SalePaymentRequest(
+          method: PaymentMethod.transfer,
+          amount: Money(20000),
+          transferAccount: 'Mandiri 9',
+        ),
+      ],
+    )).bill!;
+    expect(b.payments.single.transferAccount, 'Mandiri 9');
+  });
 }

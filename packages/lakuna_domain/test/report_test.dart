@@ -545,4 +545,24 @@ void main() {
       expect(transferByAccount(const []), isEmpty);
     });
   });
+
+  test('transferByAccount: tanpa rekening tetap terakhir, seri urut nama', () {
+    ReportPayment transfer(int amount, [String? account]) => ReportPayment(
+      ReportPaymentMethod.transfer,
+      Money(amount),
+      Money.zero,
+      transferAccount: account,
+    );
+    final rows = transferByAccount([
+      sale(
+        [line('a', total: 90000)],
+        payments: [
+          transfer(50000),
+          transfer(20000, 'Mandiri'),
+          transfer(20000, 'BCA'),
+        ],
+      ),
+    ]);
+    expect(rows.map((r) => r.account), ['BCA', 'Mandiri', null]);
+  });
 }

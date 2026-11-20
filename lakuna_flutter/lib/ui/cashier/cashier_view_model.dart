@@ -1321,9 +1321,10 @@ class CashierViewModel extends ChangeNotifier {
     if (m == PayMode.credit && _mode != PayMode.credit && !loadCredit.running) {
       loadCredit.execute();
     }
+    // Mengetuk lagi metode yang sama tidak membuang rekening terpilih.
+    if (m != _mode) _transferChoice = null;
     _mode = m;
     _reference = '';
-    _transferChoice = null;
     _error = null;
     notifyListeners();
   }

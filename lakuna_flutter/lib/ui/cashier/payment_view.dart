@@ -816,7 +816,8 @@ class _ReferencePanel extends StatelessWidget {
             TransferAccountBox(
               accounts: vm.transferAccounts,
               selected: vm.transferAccount,
-              onSelect: vm.pay.running ? null : vm.selectTransferAccount,
+              onSelect: vm.selectTransferAccount,
+              enabled: !vm.pay.running,
             ),
           FTextField(
             key: const ValueKey('payment-reference'),
@@ -848,6 +849,7 @@ class TransferAccountBox extends StatefulWidget {
     required this.accounts,
     this.selected,
     this.onSelect,
+    this.enabled = true,
   });
 
   final List<String> accounts;
@@ -857,6 +859,10 @@ class TransferAccountBox extends StatefulWidget {
 
   /// Memilih rekening tujuan; `null` = tidak bisa dipilih.
   final ValueChanged<String>? onSelect;
+
+  /// `false` selama pembayaran disimpan: pilihan tetap tampil tapi tidak
+  /// bisa diubah.
+  final bool enabled;
 
   @override
   State<TransferAccountBox> createState() => _TransferAccountBoxState();
@@ -873,7 +879,7 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
   }
 
   Future<void> _copy(int i) async {
-    widget.onSelect?.call(widget.accounts[i]);
+    if (widget.enabled) widget.onSelect?.call(widget.accounts[i]);
     await Clipboard.setData(ClipboardData(text: widget.accounts[i]));
     if (mounted) setState(() => _copied = i);
   }
@@ -893,30 +899,27 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
       if (!choosing) {
         return Padding(padding: const EdgeInsets.only(right: 6), child: label);
       }
-      // Ketuk rekening untuk memilihnya sebagai tujuan transfer (F1-05g).
-      return Semantics(
+      // Ketuk rekening untuk memilihnya sebagai tujuan transfer (F1-05g);
+      // FTappable bisa difokus dan dipilih dengan keyboard.
+      return FTappable(
+        key: ValueKey('payment-transfer-pick-$i'),
         selected: selected,
-        button: true,
-        child: GestureDetector(
-          key: ValueKey('payment-transfer-pick-$i'),
-          behavior: HitTestBehavior.opaque,
-          onTap: () => widget.onSelect!(text),
-          child: Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                Icon(
-                  selected ? TablerIcons.circleCheckFilled : TablerIcons.circle,
-                  size: 20,
-                  color: selected
-                      ? theme.colors.primary
-                      : theme.colors.mutedForeground,
-                ),
-                Flexible(child: label),
-              ],
-            ),
+        onPress: widget.enabled ? () => widget.onSelect!(text) : null,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              Icon(
+                selected ? TablerIcons.circleCheckFilled : TablerIcons.circle,
+                size: 20,
+                color: selected
+                    ? theme.colors.primary
+                    : theme.colors.mutedForeground,
+              ),
+              Flexible(child: label),
+            ],
           ),
         ),
       );

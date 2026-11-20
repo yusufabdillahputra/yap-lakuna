@@ -1032,6 +1032,45 @@ void main() {
       expect(repo.checkouts.single.$2.single.transferAccount, bca);
     });
 
+    test(
+      'ketuk Transfer lagi menyimpan pilihan; pindah metode membuangnya',
+      () async {
+        await withAccounts('$bca\n$mandiri');
+        vm.setMode(PayMode.transfer);
+        vm.selectTransferAccount(mandiri);
+        vm.setMode(PayMode.transfer);
+        expect(vm.transferAccount, mandiri);
+        vm.setMode(PayMode.card);
+        vm.setMode(PayMode.transfer);
+        expect(vm.transferAccount, isNull);
+      },
+    );
+
+    test('bill Meja mengirim rekening tujuan', () async {
+      final dining = FakeDiningRepository();
+      repo
+        ..dining = dining
+        ..salesRules = const SalesRules(transferAccount: '$bca\n$mandiri');
+      final kopi = dining.catalog.products
+          .firstWhere((p) => p.name == 'Kopi Susu Aren')
+          .variants
+          .single
+          .id;
+      final opened = await dining.openTable(dining.tables.first.id, 2);
+      final bill = (opened as Ok<OpenBill>).value;
+      await dining.addItem(
+        bill.id,
+        SaleLineRequest(variantId: kopi, quantity: Qty.one),
+      );
+      vm = CashierViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+      await vm.openBill.execute(bill.id);
+      vm.setMode(PayMode.transfer);
+      vm.selectTransferAccount(bca);
+      await vm.pay.execute();
+      expect(repo.paidBills.single.$2.single.transferAccount, bca);
+    });
+
     test('tanpa rekening: transfer tetap bisa, tanpa rekening', () async {
       await withAccounts('');
       vm.setMode(PayMode.transfer);

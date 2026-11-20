@@ -307,7 +307,8 @@ class _SplitPanelState extends State<SplitPanel> {
               TransferAccountBox(
                 accounts: vm.transferAccounts,
                 selected: vm.draftTransferAccount,
-                onSelect: running ? null : vm.selectDraftTransferAccount,
+                onSelect: vm.selectDraftTransferAccount,
+                enabled: !running,
               ),
             if (vm.draftTakesReference)
               FTextField(
