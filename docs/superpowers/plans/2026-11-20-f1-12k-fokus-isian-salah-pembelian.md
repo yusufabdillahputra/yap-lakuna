@@ -8,4 +8,4 @@ Spec: `docs/superpowers/specs/2026-11-20-f1-12k-fokus-isian-salah-pembelian-desi
 - [x] 4. Review subagen; perbaiki temuan.
 - [x] 5. Uji manual Xvfb dan tangkapan layar.
 - [x] 6. Dokumen (spec F1-12j, README, STATUS-JEDA, panduan), CHANGELOG, versi 0.128.0+131.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#134).
