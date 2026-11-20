@@ -46,6 +46,11 @@ supplier, data master, atau meja sedang diisi.
   dengan `WM_DELETE_WINDOW` di Xvfb.
 - Spec [F1-02d](docs/superpowers/specs/2026-11-15-f1-02d-tutup-jendela-dialog-isian-design.md);
   gap F1-02c *Dialog berisi isian saat jendela ditutup* ditutup.
+- Tes `local_customers_repository_test.dart` (*pembayaran piutang dan
+  kuitansi*) gagal sejak 2026-11-18: `checkoutSale` memakai jam dinding,
+  sedangkan jatuh tempo kredit di tes tetap 17-11-2026 sehingga ditolak
+  `SaleCreditInvalid(dueOn)`. Jatuh tempo kini 14 hari dari hari tes
+  dijalankan.
 
 ## [0.115.0] - 2026-11-15
 
