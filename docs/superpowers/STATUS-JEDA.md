@@ -97,7 +97,7 @@ ulang riwayat.
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
 | v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | #120 |
 | v0.115.0 | Menutup jendela desktop bertanya dulu bila form belum disimpan (F1-02c) | #121 |
-| v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | |
+| v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | #122 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).

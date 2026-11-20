@@ -13,4 +13,4 @@ Spec: [F1-02d](../specs/2026-11-15-f1-02d-tutup-jendela-dialog-isian-design.md).
   berisi isian) + tangkapan layar ke `/mnt/project-files/lakuna/f1-02d/`.
 - [x] 6. Dokumen: spec, gap F1-02c, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#122).
