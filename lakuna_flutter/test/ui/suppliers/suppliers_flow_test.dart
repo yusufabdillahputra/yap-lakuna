@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -258,6 +259,79 @@ void main() {
     expect(_key('supplier-form-name'), findsNothing);
     expect(repo.suppliers, hasLength(before + 1));
     expect(tester.takeException(), isNull);
+  });
+
+  group('Simpan dari dialog Buang perubahan? (F1-13g)', () {
+    testWidgets('ketuk di luar lalu Simpan: tersimpan dan terpilih', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _tap(tester, _key('suppliers-new'));
+      await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('supplier-discard-save'));
+      expect(_key('supplier-form'), findsNothing);
+      final plastik = repo.byName('Toko Plastik Jaya');
+      expect(_key('supplier-panel-${plastik.id.uuid}'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('nama kosong atau galat penyimpanan: dialog tetap dengan '
+        'pesan', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      final before = repo.suppliers.length;
+      await _tap(tester, _key('suppliers-new'));
+      await _type(tester, _key('supplier-form-category'), 'Kemasan');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('supplier-discard-save'));
+      expect(_key('supplier-form'), findsOneWidget);
+      expect(find.textContaining('Nama wajib diisi'), findsOneWidget);
+
+      await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+      repo.nextError = Exception('disk penuh');
+      await _tap(tester, _key('supplier-form-cancel'));
+      await _tap(tester, _key('supplier-discard-save'));
+      expect(_key('supplier-form'), findsOneWidget);
+      expect(_key('supplier-form-error'), findsOneWidget);
+      expect(repo.suppliers, hasLength(before));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tutup jendela lalu Simpan: tersimpan lalu keluar', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _tap(tester, _key('suppliers-new'));
+      await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('supplier-discard-save'));
+      expect(await exit, AppExitResponse.exit);
+      expect(
+        repo.suppliers.where((s) => s.name == 'Toko Plastik Jaya'),
+        hasLength(1),
+      );
+      expect(_key('supplier-form'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tutup jendela, simpan gagal: tetap terbuka', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      final before = repo.suppliers.length;
+      await _tap(tester, _key('suppliers-new'));
+      await _type(tester, _key('supplier-form-name'), 'Toko Plastik Jaya');
+      repo.nextError = Exception('disk penuh');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('supplier-discard-save'));
+      expect(await exit, AppExitResponse.cancel);
+      expect(_key('supplier-form'), findsOneWidget);
+      expect(_key('supplier-form-error'), findsOneWidget);
+      expect(repo.suppliers, hasLength(before));
+      expect(tester.takeException(), isNull);
+    });
   });
 
   testWidgets('desktop: tambah supplier, ubah, lalu hapus', (tester) async {

@@ -8,7 +8,7 @@ Menu **Supplier** menyimpan data pemasok dan hutang per pembelian, lalu mencatat
 2. Isi nama supplier, kontak, telepon, kategori barang, dan **Tempo standar (hari)**. Tempo ini mengisi jatuh tempo bawaan di [Pembelian](purchases).
 3. Tekan **Simpan**.
 
-Bila form sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, atau **Buang** untuk menutup tanpa menyimpan. Selama dialog terbuka, menu samping tertutup; simpan atau tutup dialog dulu sebelum pindah menu.
+Bila form sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, **Buang** untuk menutup tanpa menyimpan, atau **Simpan** untuk langsung menyimpan isian (bila ada yang salah, form tetap terbuka dengan pesannya). Menutup jendela aplikasi saat form berisi juga menawarkan **Simpan**. Selama dialog terbuka, menu samping tertutup; simpan atau tutup dialog dulu sebelum pindah menu.
 
 Banyak supplier sekaligus? Tekan **Import Excel** dan pilih berkas .xlsx atau .csv dengan kolom **Nama** (wajib), Kontak, Telepon, Kategori, Tempo (hari), Alamat, Catatan. Judul kolom boleh Indonesia atau English. **Unduh templat** di dialog yang sama memberi berkas Excel (dalam bahasa aplikasi) berisi judul kolom dan dua baris contoh; baris contoh otomatis dilewati saat import.
 

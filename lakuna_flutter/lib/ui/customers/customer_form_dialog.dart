@@ -143,6 +143,11 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
         busy: vm.busy,
         body: l10n.customerDiscardBody,
         dialogKey: 'customer-discard',
+        // Simpan dari pertanyaan Buang perubahan? (F1-13g).
+        onSave: () async {
+          await _save();
+          return _vm.save.result is Ok;
+        },
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.85,

@@ -8,7 +8,7 @@ Menu **Pelanggan** menyimpan data pelanggan, limit kredit, dan piutang per nota,
 2. Isi nama, no. HP, grup, **Limit kredit** (0 berarti tidak boleh belanja kredit), alamat, dan catatan.
 3. Tekan **Simpan**.
 
-Bila form sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, atau **Buang** untuk menutup tanpa menyimpan. Selama dialog terbuka, menu samping tertutup; simpan atau tutup dialog dulu sebelum pindah menu.
+Bila form sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, **Buang** untuk menutup tanpa menyimpan, atau **Simpan** untuk langsung menyimpan isian (bila ada yang salah, form tetap terbuka dengan pesannya). Menutup jendela aplikasi saat form berisi juga menawarkan **Simpan**. Selama dialog terbuka, menu samping tertutup; simpan atau tutup dialog dulu sebelum pindah menu.
 
 Untuk mencari pelanggan, ketik nama atau nomor HP di kolom cari. Nomor HP boleh ditulis dengan format apa pun, misalnya `0812-3456`, `+62 812 3456`, `021/5551234`, atau potongan di tengah (minimal 3 angka). Aturan yang sama berlaku saat memilih pelanggan di Kasir, bill Meja, dan *Kredit*.
 

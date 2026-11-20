@@ -38,6 +38,7 @@ void main() {
       String name, {
       bool dirty = true,
       bool busy = false,
+      Future<bool> Function(BuildContext context)? onSave,
     }) async {
       navigator.currentState!.push(
         PageRouteBuilder<void>(
@@ -45,6 +46,7 @@ void main() {
           pageBuilder: (context, _, _) => DiscardChangesScope(
             dirty: dirty,
             busy: busy,
+            onSave: onSave == null ? null : () => onSave(context),
             body: 'Isian $name hilang.',
             dialogKey: '$name-discard',
             child: SizedBox(key: ValueKey('$name-form')),
@@ -112,6 +114,96 @@ void main() {
       expect(_key('a-discard'), findsOneWidget);
       await tap(tester, 'a-discard-cancel');
       expect(await ask(tester, answer), isFalse);
+    });
+
+    for (final saved in [true, false]) {
+      testWidgets('onSave: tombol Simpan, jawaban = hasil simpan ($saved) '
+          '(F1-13g)', (tester) async {
+        await pumpApp(tester);
+        var calls = 0;
+        await open(
+          tester,
+          'a',
+          onSave: (context) async {
+            calls++;
+            // Form menutup dirinya sendiri setelah tersimpan.
+            if (saved) Navigator.of(context).pop();
+            return saved;
+          },
+        );
+        final answer = DiscardChangesScope.canDiscardAll();
+        await tester.pumpAndSettle();
+        expect(_key('a-discard-save'), findsOneWidget);
+        await tap(tester, 'a-discard-save');
+        expect(await answer, saved);
+        expect(calls, 1);
+        expect(_key('a-form'), saved ? findsNothing : findsOneWidget);
+      });
+
+      testWidgets('maybePop lalu Simpan ($saved): hanya rute dialog itu yang '
+          'tertutup (F1-13g)', (tester) async {
+        await pumpApp(tester);
+        await open(tester, 'a');
+        await open(
+          tester,
+          'b',
+          onSave: (context) async {
+            if (saved) Navigator.of(context).pop();
+            return saved;
+          },
+        );
+        unawaited(navigator.currentState!.maybePop());
+        await tester.pumpAndSettle();
+        await tap(tester, 'b-discard-save');
+        expect(_key('b-form'), saved ? findsNothing : findsOneWidget);
+        expect(_key('a-form'), findsOneWidget);
+        expect(_key('a-discard'), findsNothing);
+      });
+    }
+
+    testWidgets('Simpan tidak pernah ditutup lingkup: form yang menutup '
+        'dirinya dengan hasil (F1-13g)', (tester) async {
+      await pumpApp(tester);
+      await open(tester, 'a');
+      // Simpan berhasil tetapi form belum menutup dirinya: lingkup tidak
+      // menutupnya tanpa hasil.
+      await open(tester, 'b', onSave: (_) async => true);
+      unawaited(navigator.currentState!.maybePop());
+      await tester.pumpAndSettle();
+      await tap(tester, 'b-discard-save');
+      expect(_key('b-form'), findsOneWidget);
+      expect(_key('a-form'), findsOneWidget);
+      // Pertanyaan berikutnya mulai baru: Buang tetap menutup dialognya.
+      unawaited(navigator.currentState!.maybePop());
+      await tester.pumpAndSettle();
+      await tap(tester, 'b-discard-confirm');
+      expect(_key('b-form'), findsNothing);
+      expect(_key('a-form'), findsOneWidget);
+    });
+
+    testWidgets('Esc lalu tutup jendela lalu Simpan: satu simpan, dua '
+        'jawaban sama (F1-13g)', (tester) async {
+      await pumpApp(tester);
+      var saves = 0;
+      await open(
+        tester,
+        'b',
+        onSave: (context) async {
+          saves++;
+          Navigator.of(context).pop();
+          return true;
+        },
+      );
+      unawaited(navigator.currentState!.maybePop());
+      await tester.pumpAndSettle();
+      final answer = DiscardChangesScope.canDiscardAll();
+      await tester.pumpAndSettle();
+      // Pertanyaan yang sama dipakai ulang, tidak bertumpuk.
+      expect(_key('b-discard'), findsOneWidget);
+      await tap(tester, 'b-discard-save');
+      expect(await answer, isTrue);
+      expect(saves, 1);
+      expect(_key('b-form'), findsNothing);
     });
 
     testWidgets('dialog teratas tanpa perubahan dilewati', (tester) async {

@@ -15,4 +15,4 @@ Spec: [F1-12i](../specs/2026-11-20-f1-12i-simpan-draf-dari-dialog-pembelian-desi
   `/mnt/project-files/lakuna/f1-12i/`.
 - [x] 6. Dokumen: spec, gap F1-12f dan F1-07r, README spec, STATUS-JEDA,
   panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#130).
