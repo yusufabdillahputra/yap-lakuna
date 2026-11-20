@@ -104,7 +104,7 @@ ulang riwayat.
 | v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | #126 |
 | v0.121.0 | Tombol Simpan di dialog *Buang perubahan?* form produk (F1-07r) | #127 |
 | v0.122.0 | Tombol Simpan di dialog *Buang perubahan?* pengeluaran (F1-15d) | #128 |
-| v0.123.0 | Tombol Simpan di dialog *Buang perubahan?* penyesuaian stok (F1-08n) | |
+| v0.123.0 | Tombol Simpan di dialog *Buang perubahan?* penyesuaian stok (F1-08n) | #129 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
