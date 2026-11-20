@@ -1815,6 +1815,15 @@
   "purchaseSupplier": "Supplier",
   "purchaseSupplierNew": "+ New supplier",
   "purchaseSupplierNewName": "New supplier name",
+  "purchasePriceOriginLast": "Last price {date} · {supplier}",
+  "@purchasePriceOriginLast": {
+    "placeholders": {
+      "supplier": {"type": "String"},
+      "date": {"type": "String"}
+    }
+  },
+  "purchasePriceOriginNoSupplier": "no supplier",
+  "purchasePriceOriginCost": "Cost price",
   "purchaseSupplierPick": "Pick from the list",
   "purchaseInvoiceNo": "Supplier invoice no.",
   "purchaseDate": "Date",

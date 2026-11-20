@@ -82,4 +82,4 @@ Staf harus mengingat dan mengetik ulang harga dus setiap kali.
 | --- | --- | --- | --- |
 | Harga terakhir per satuan konversi | 1.19 | Rilis v0.106.0 | Dari pembelian terakhir dalam satuan yang sama. |
 | Harga dasar × isi bila belum pernah dibeli dalam satuan itu | — | Tidak dipakai | Sengaja; harga awal satuan tetap (aturan 2). |
-| Penanda asal harga di baris | — | Belum | Sama dengan F1-12g. |
+| Penanda asal harga di baris | — | Rilis v0.129.0 | [F1-12l](2026-11-20-f1-12l-asal-harga-baris-pembelian-design.md); asal harga satuan konversi dari pembelian dalam satuan yang sama. |

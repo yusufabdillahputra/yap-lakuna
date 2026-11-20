@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart' show StockRow;
+import 'package:lakuna_flutter/data/repositories/purchases_repository.dart'
+    show PurchasePriceSource;
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -867,6 +869,81 @@ void main() {
     expect(repo.requests.single.lines.single.unitPrice, const Money(1300));
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  group('asal harga di baris (F1-12l)', () {
+    Finder origin() => _keyPrefix('purchase-origin-');
+
+    for (final size in const [Size(1440, 900), Size(360, 780)]) {
+      testWidgets('${size.width.toInt()} px: penanda ikut supplier dan '
+          'hilang saat harga diketik', (tester) async {
+        await pump(tester, size);
+        final sumber = repo.suppliers.single;
+        repo.lastPriceOf[kopVariant()] = const Money(1400);
+        repo.lastPriceSourceOf[kopVariant()] = PurchasePriceSource(
+          purchasedOn: DateTime.utc(2026, 11, 2),
+        );
+        repo.lastPriceBySupplier[sumber.id] = {
+          kopVariant(): const Money(1300),
+        };
+        repo.lastPriceSourceBySupplier[sumber.id] = {
+          kopVariant(): PurchasePriceSource(
+            purchasedOn: DateTime.utc(2026, 10, 28),
+            supplierName: 'CV Sumber Pangan',
+          ),
+        };
+        if (size.width < 600) await _tap(tester, _key('purchases-new'));
+        await _scan(tester, 'KOP');
+        expect(
+          find.descendant(
+            of: origin(),
+            matchRoot: true,
+            matching: find.text(
+              'Harga terakhir 02/11/2026 · tanpa supplier',
+            ),
+          ),
+          findsOneWidget,
+        );
+
+        await _tap(tester, _keyPrefix('purchase-supplier-'));
+        await _tap(tester, find.text('CV Sumber Pangan').last);
+        expect(
+          find.descendant(
+            of: origin(),
+            matchRoot: true,
+            matching: find.text(
+              'Harga terakhir 28/10/2026 · CV Sumber Pangan',
+            ),
+          ),
+          findsOneWidget,
+        );
+
+        await _type(tester, _keyPrefix('purchase-price-'), '1250');
+        expect(origin(), findsNothing);
+        expect(tester.takeException(), isNull);
+      }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+    }
+
+    testWidgets('barang tanpa riwayat: Harga modal setelah riwayat terbaca '
+        'walau harga tidak berubah', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      final gate = Completer<void>();
+      repo.lastPricesGate = gate;
+      await _scan(tester, 'KOP');
+      // Riwayat belum terbaca: tidak menebak.
+      expect(origin(), findsNothing);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: origin(),
+          matching: find.text('Harga modal'),
+          matchRoot: true,
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
 
   testWidgets('scan barcode dus memakai harga dus terakhir (F1-12h)', (
     tester,

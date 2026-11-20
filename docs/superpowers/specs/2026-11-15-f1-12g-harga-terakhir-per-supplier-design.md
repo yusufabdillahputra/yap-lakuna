@@ -97,5 +97,5 @@ supplier yang dipilih.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Harga terakhir dari supplier terpilih | 1.19 | Rilis v0.105.0 | Jatuh ke harga semua supplier bila belum pernah dibeli dari supplier itu. |
-| Penanda asal harga di baris | — | Belum | Tidak ada label *harga terakhir · CV X*; panduan menjelaskan asalnya. |
+| Penanda asal harga di baris | — | Rilis v0.129.0 | [F1-12l](2026-11-20-f1-12l-asal-harga-baris-pembelian-design.md): *Harga terakhir {tanggal} · {supplier}* atau *Harga modal* di bawah nama barang. |
 | Harga terakhir per satuan konversi | 1.19 | Selesai v0.106.0 | [F1-12h](2026-11-15-f1-12h-harga-terakhir-satuan-konversi-design.md), termasuk per supplier. |

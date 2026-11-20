@@ -3790,6 +3790,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get purchaseSupplierNewName => 'Nama supplier baru';
 
   @override
+  String purchasePriceOriginLast(String supplier, String date) {
+    return 'Harga terakhir $date · $supplier';
+  }
+
+  @override
+  String get purchasePriceOriginNoSupplier => 'tanpa supplier';
+
+  @override
+  String get purchasePriceOriginCost => 'Harga modal';
+
+  @override
   String get purchaseSupplierPick => 'Pilih dari daftar';
 
   @override

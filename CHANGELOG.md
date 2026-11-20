@@ -7,6 +7,53 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.129.0] - 2026-11-20
+
+Baris pembelian menyebut asal harga beli yang diisi otomatis.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** di bawah nama barang pada baris yang harganya
+  masih otomatis kini tertulis asal harganya: **Harga terakhir
+  {tanggal} · {supplier}** (pembelian diterima terakhir; *tanpa supplier*
+  bila pembelian itu tanpa supplier, supplier terhapus tetap disebut)
+  atau **Harga modal** (belum pernah dibeli dalam satuan itu). Bila
+  supplier yang dipilih belum pernah memasok barang itu, nama supplier
+  lain yang harganya dipakai ikut tampil, sehingga staf tahu harga perlu
+  dicek dengan faktur. Penanda ikut berganti saat supplier atau satuan
+  diganti, dan hilang begitu staf mengetik harga sendiri atau untuk baris
+  dari draf tersimpan. Tanggal ditulis lebih dulu agar nama supplier yang
+  panjang yang terpotong, bukan tanggalnya.
+
+### Catatan teknis
+
+- `lastPurchasePriceSetOf` (`lakuna_data`) juga mengembalikan asal tiap
+  harga (`baseFrom`, `unitFrom`: pembelian, tanggal beli, nama supplier,
+  termasuk supplier terhapus) dari bacaan riwayat yang sama.
+  `LastPurchasePrice` mendapat `perBaseFrom` / `perUnitFrom`
+  (`PurchasePriceSource`).
+- `PurchaseFormViewModel.priceOrigin(line)` (`PurchasePriceFromLast` /
+  `PurchasePriceFromCost`) memakai tembolok dan urutan supplier yang sama
+  dengan pengisian harga (`_lastEntryFor`). Tidak menebak *Harga modal*
+  selama riwayat belum atau gagal dibaca, dan hanya tampil bila harga
+  baris sama dengan harga asalnya.
+- Ditemukan saat review: bila riwayat terbaca setelah bingkai pertama dan
+  harga baris tidak berubah (belum ada riwayat, harga terakhir sama dengan
+  harga modal, atau supplier baru berharga sama), layar tidak dibangun
+  ulang sehingga penanda tidak muncul. `_fillLastPrice` dan
+  `_refreshAutoPrices` kini memberi tahu pendengar setelah riwayat
+  terbaca walau harga tetap. Placeholder ARB mengikuti urutan deklarasi
+  (`supplier`, `date`) walau teksnya menaruh tanggal lebih dulu.
+- Tes: data (asal satuan dasar / konversi, supplier tertentu, tanpa
+  supplier, supplier terhapus), repositori lokal, VM (11 kasus termasuk
+  supplier baru diketik, galat baca setelah ganti supplier, baris stok
+  minimum, dan pemberitahuan saat harga tetap), dan alur 1440 / 360 px
+  (riwayat terbaca belakangan lewat gerbang). Mutasi "tebak harga modal
+  sebelum terbaca", "abaikan supplier terhapus", dan "tanpa pemberitahuan
+  saat harga tetap" tertangkap. Uji manual Linux di Xvfb dengan data demo.
+- Spec [F1-12l](docs/superpowers/specs/2026-11-20-f1-12l-asal-harga-baris-pembelian-design.md);
+  gap *Penanda asal harga di baris* di F1-12g dan F1-12h ditutup.
+
 ## [0.128.0] - 2026-11-20
 
 Kursor pindah ke isian yang salah setelah simpan pembelian gagal.
@@ -7428,7 +7475,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...HEAD
+[0.129.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...v0.129.0
 [0.128.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...v0.128.0
 [0.127.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...v0.127.0
 [0.126.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...v0.126.0

@@ -3902,6 +3902,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseSupplierNewName => 'New supplier name';
 
   @override
+  String purchasePriceOriginLast(String supplier, String date) {
+    return 'Last price $date · $supplier';
+  }
+
+  @override
+  String get purchasePriceOriginNoSupplier => 'no supplier';
+
+  @override
+  String get purchasePriceOriginCost => 'Cost price';
+
+  @override
   String get purchaseSupplierPick => 'Pick from the list';
 
   @override
