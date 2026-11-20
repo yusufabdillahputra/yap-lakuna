@@ -111,6 +111,7 @@ ulang riwayat.
 | v0.127.0 | Gulir ke galat setelah simpan pembelian gagal (F1-12j) | #133 |
 | v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | #134 |
 | v0.129.0 | Asal harga di baris pembelian (F1-12l) | #135 |
+| v0.130.0 | Draf penyesuaian stok tersimpan di perangkat (F1-08o) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -326,6 +327,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 71. ~~Asal harga beli otomatis tidak terlihat di baris pembelian~~ —
     selesai v0.129.0 (F1-12l); *Harga terakhir {tanggal} · {supplier}*
     atau *Harga modal* di bawah nama barang.
+72. ~~Draf penyesuaian stok hilang saat layar Stok ditinggalkan~~ —
+    selesai v0.130.0 (F1-08o); tersimpan otomatis per lokasi di
+    perangkat, dialog keluar hanya bila draf gagal tersimpan.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

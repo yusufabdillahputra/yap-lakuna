@@ -279,10 +279,107 @@ class StockViewModel extends ChangeNotifier {
 
   bool get canSave => !save.running && _ready;
 
-  /// Draf penyesuaian berisi baris atau catatan yang akan hilang bila layar
-  /// ditinggalkan atau lokasi diganti (F1-08k). Alasan saja tidak dihitung.
-  bool get hasUnsavedChanges =>
-      canAdjust && (_lines.isNotEmpty || _note.trim().isNotEmpty);
+  /// Draf berisi baris atau catatan (F1-08k). Alasan saja tidak dihitung.
+  bool get hasDraftContent => _lines.isNotEmpty || _note.trim().isNotEmpty;
+
+  /// Draf berisi yang belum tersimpan di perangkat (F1-08o), sehingga akan
+  /// hilang bila layar ditinggalkan atau lokasi diganti (F1-08k).
+  bool get hasUnsavedChanges => canAdjust && hasDraftContent && !draftStored;
+
+  /// Perubahan draf terakhir sudah tersimpan di perangkat (F1-08o).
+  bool get draftStored => _draftStored == _draftChange;
+
+  /// Draf terakhir tidak tersimpan di perangkat (F1-08o): tulisnya gagal,
+  /// atau draf tersimpan lokasi ini gagal dibaca sehingga perubahan tidak
+  /// ditulis agar draf itu tidak tertimpa.
+  bool get draftWriteFailed =>
+      canAdjust &&
+      (_draftFailed == _draftChange ||
+          (_draftLocation == null && !draftStored));
+
+  /// Lokasi sedang dimuat: draf tersimpannya belum dibaca dan baris masih
+  /// milik lokasi lama, jadi isian draf nonaktif dan perubahan diabaikan
+  /// (F1-08o).
+  bool get draftLoading => canAdjust && _draftLocation == null && load.running;
+
+  /// Naik setiap draf berubah (F1-08o).
+  var _draftChange = 0;
+
+  /// [_draftChange] terakhir yang berhasil ditulis / gagal ditulis.
+  var _draftStored = 0;
+  var _draftFailed = -1;
+
+  /// Lokasi yang drafnya sudah dipulihkan, selalu lokasi yang tampil.
+  /// `null` selama lokasi baru dimuat: draf tidak ditulis sampai draf
+  /// tersimpan lokasi itu dibaca, agar tidak tertimpa.
+  UuidValue? _draftLocation;
+
+  /// Tulis draf berantai agar urutannya terjaga.
+  Future<void> _draftWrites = Future.value();
+
+  /// Menunggu tulis draf yang sedang berjalan, paling lama [timeout], agar
+  /// keluar layar sesaat setelah mengetik tidak bertanya (F1-08o).
+  Future<void> flushDraft({
+    Duration timeout = const Duration(seconds: 2),
+  }) => _draftWrites.timeout(timeout, onTimeout: () {});
+
+  /// Menulis draf sekarang ke perangkat (F1-08o).
+  void _persistDraft() {
+    final location = _draftLocation;
+    if (!canAdjust || location == null) return;
+    final change = _draftChange;
+    final draft = hasDraftContent
+        ? StockAdjustmentDraft(
+            reason: _reason,
+            note: _note,
+            lines: [
+              for (final l in _lines)
+                (
+                  variantId: l.row.variantId,
+                  physical: l.physical,
+                  note: l.note,
+                ),
+            ],
+          )
+        : null;
+    _draftWrites = _draftWrites.then((_) async {
+      final result = await _repository.saveAdjustmentDraft(location, draft);
+      switch (result) {
+        case Ok():
+          if (change > _draftStored) _draftStored = change;
+        case Error():
+          _draftFailed = change;
+      }
+      notifyListeners();
+    });
+  }
+
+  /// Memasang draf tersimpan [location] yang sudah dibaca (F1-08o). Galat
+  /// baca dianggap tanpa draf.
+  void _restoreDraft(
+    UuidValue location,
+    Result<StockAdjustmentDraft?> result,
+  ) {
+    // Galat baca: jangan menulis apa pun ke lokasi ini agar draf yang
+    // tersimpan tidak tertimpa; dibaca lagi saat muat berikutnya.
+    if (result is Error) return;
+    _draftLocation = location;
+    final draft = (result as Ok<StockAdjustmentDraft?>).value;
+    if (draft != null) {
+      _reason = draft.reason;
+      _note = draft.note;
+      _lines = [
+        for (final l in draft.lines)
+          if (_rows.where((r) => r.variantId == l.variantId).firstOrNull
+              case final row?)
+            AdjustmentDraftLine(row: row, physical: l.physical, note: l.note),
+      ];
+      _draftRevision++;
+    }
+    // Yang tampil sama dengan yang tersimpan.
+    _draftChange++;
+    _draftStored = _draftChange;
+  }
 
   /// Penyesuaian sedang disimpan: keluar ditahan (F1-08k).
   bool get busy => save.running;
@@ -297,17 +394,19 @@ class StockViewModel extends ChangeNotifier {
   ];
 
   void setReason(StockAdjustmentReason r) {
+    if (draftLoading) return;
     _reason = r;
     _touched();
   }
 
   void setNote(String v) {
+    if (draftLoading) return;
     _note = v;
     _touched();
   }
 
   void addLine(UuidValue variantId) {
-    if (_lines.any((l) => l.row.variantId == variantId)) return;
+    if (draftLoading || _lines.any((l) => l.row.variantId == variantId)) return;
     final row = _rows.where((r) => r.variantId == variantId).firstOrNull;
     if (row == null) return;
     _lines = [..._lines, AdjustmentDraftLine(row: row)];
@@ -337,6 +436,7 @@ class StockViewModel extends ChangeNotifier {
   }
 
   void removeLine(UuidValue variantId) {
+    if (draftLoading) return;
     _lines = [
       for (final l in _lines)
         if (l.row.variantId != variantId) l,
@@ -356,6 +456,7 @@ class StockViewModel extends ChangeNotifier {
     UuidValue variantId,
     AdjustmentDraftLine Function(AdjustmentDraftLine) change,
   ) {
+    if (draftLoading) return;
     _lines = [
       for (final l in _lines) l.row.variantId == variantId ? change(l) : l,
     ];
@@ -365,18 +466,31 @@ class StockViewModel extends ChangeNotifier {
   void _touched() {
     _saveError = null;
     _lastSaved = null;
+    _draftChange++;
+    _persistDraft();
     notifyListeners();
   }
 
-  void _clearDraft() {
+  /// Mengosongkan draf di layar saja (lokasi diganti: draf lokasi lama
+  /// tetap tersimpan, F1-08o).
+  void _resetDraft() {
     _lines = [];
     _note = '';
     _reason = StockAdjustmentReason.routineCheck;
     _saveError = null;
     _draftRevision++;
+    _draftChange++;
+    _draftStored = _draftChange;
   }
 
-  /// *Batal*: kosongkan draf.
+  /// Mengosongkan draf dan menghapus draf tersimpan lokasi ini.
+  void _clearDraft() {
+    _resetDraft();
+    _persistDraft();
+  }
+
+  /// *Batal*, atau *Buang* di dialog keluar / ganti lokasi: kosongkan draf
+  /// dan hapus draf tersimpan lokasi ini (F1-08o).
   void clearDraft() {
     _clearDraft();
     _lastSaved = null;
@@ -444,11 +558,14 @@ class StockViewModel extends ChangeNotifier {
   StockLocationNameError? _locationError;
   StockLocationNameError? get locationError => _locationError;
 
+  /// Ditolak selama penyesuaian disimpan, agar draf lokasi yang disimpan
+  /// tetap terhapus setelahnya (F1-08o).
   Future<void> selectLocation(UuidValue id) async {
-    if (id == _locationId) return;
+    if (id == _locationId || save.running) return;
     _locationId = id;
     _cardFocusMissing = false;
-    _clearDraft();
+    _resetDraft();
+    _draftLocation = null;
     printList.clearResult();
     _printPath = null;
     await load.execute();
@@ -556,6 +673,14 @@ class StockViewModel extends ChangeNotifier {
     final recent = await _repository.recentAdjustments();
     final number = await _repository.nextAdjustmentNumber();
     final inDraft = await drafts;
+    // Draf penyesuaian tersimpan lokasi ini, sekali per pemilihan lokasi
+    // (F1-08o).
+    // Perubahan yang belum tersimpan (draf gagal dibaca sebelumnya) tidak
+    // ditimpa draf lama.
+    final stored =
+        canAdjust && target != null && _draftLocation != target && draftStored
+        ? await _repository.adjustmentDraft(target)
+        : null;
     // Staf mengganti lokasi selagi memuat: jangan tampilkan data lama.
     if (_locationId != requested) return const Result.ok(false);
     _inDraft = inDraft;
@@ -572,6 +697,7 @@ class StockViewModel extends ChangeNotifier {
       Ok(:final value) => value,
       Error() => null,
     };
+    if (stored != null && target != null) _restoreDraft(target, stored);
     // Baris draf memakai stok sistem terbaru.
     _lines = [
       for (final l in _lines)

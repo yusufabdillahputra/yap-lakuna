@@ -13,9 +13,13 @@ class LocalStockRepository extends StockRepository {
     this._store, {
     required this._stores,
     required this._session,
+    required this._preferences,
   });
 
   final LakunaStore _store;
+
+  /// Draf penyesuaian per lokasi, hanya di perangkat ini (F1-08o).
+  final LocalPreferences _preferences;
   final StoreRepository _stores;
   final SessionRepository _session;
 
@@ -72,6 +76,31 @@ class LocalStockRepository extends StockRepository {
       lines: lines,
     ),
   );
+
+  static String _draftKey(CatalogScope scope, UuidValue locationId) =>
+      'stock.adjustmentDraft.${scope.tenantId.uuid}.${scope.outletId.uuid}.'
+      '${locationId.uuid}';
+
+  @override
+  Future<Result<StockAdjustmentDraft?>> adjustmentDraft(
+    UuidValue locationId,
+  ) => _guard(adjust: true, (scope, _) async {
+    final json = await _preferences.get(_draftKey(scope, locationId));
+    return json == null ? null : StockAdjustmentDraft.fromJson(json);
+  });
+
+  @override
+  Future<Result<void>> saveAdjustmentDraft(
+    UuidValue locationId,
+    StockAdjustmentDraft? draft,
+  ) => _guard(adjust: true, (scope, _) async {
+    final key = _draftKey(scope, locationId);
+    if (draft == null) {
+      await _preferences.remove(key);
+    } else {
+      await _preferences.set(key, draft.toJson());
+    }
+  });
 
   @override
   Future<Result<StockLocation>> createLocation(String name) => _guard(

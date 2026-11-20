@@ -100,6 +100,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
     store,
     stores: storeRepository,
     session: sessionRepository,
+    preferences: preferences,
   );
   final masterDataRepository = LocalMasterDataRepository(
     store,

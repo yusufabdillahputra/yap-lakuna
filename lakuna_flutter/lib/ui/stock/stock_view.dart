@@ -121,20 +121,39 @@ class _StockScreenState extends State<StockScreen>
     }
   }
 
-  /// Draf penyesuaian hidup di layar ini saja: tanya sebelum ditinggalkan
-  /// (F1-08k). Selama simpan berjalan, keluar ditahan.
+  /// Draf penyesuaian tersimpan di perangkat (F1-08o), jadi layar ini
+  /// hanya bertanya sebelum ditinggalkan bila draf belum tersimpan (F1-08k).
+  /// Selama simpan berjalan, keluar ditahan.
   Future<bool> _confirmLeave() async {
     final vm = _viewModel;
     if (!mounted || isRouteClosing(context)) return true;
     if (vm.busy) return false;
-    if (!vm.hasUnsavedChanges) return true;
-    return confirmDiscardChanges(
+    // Ketukan menu kedua selama menunggu memakai jawaban yang sama
+    // ([LeaveGuard.canLeave]).
+    await vm.flushDraft();
+    if (!mounted) return true;
+    if (!vm.hasUnsavedChanges) {
+      // Hapus draf yang gagal (baris terakhir dibuang) dicoba lagi.
+      if (vm.draftWriteFailed) await _discardStoredDraft();
+      return true;
+    }
+    final leave = await confirmDiscardChanges(
       context,
       body: AppLocalizations.of(context).stockDiscardBody,
       key: 'stock-discard',
       // Simpan hanya bila tombol Simpan penyesuaian sendiri aktif (F1-08n).
       onSave: vm.canSave ? _saveBeforeLeaving : null,
     );
+    // *Buang*: draf lama yang tersimpan ikut dibuang.
+    if (leave && vm.hasDraftContent) await _discardStoredDraft();
+    return leave;
+  }
+
+  /// Menghapus draf tersimpan sebelum layar ditinggalkan, selagi sesi staf
+  /// yang sekarang masih berlaku (ganti kasir) (F1-08o).
+  Future<void> _discardStoredDraft() async {
+    _viewModel.clearDraft();
+    await _viewModel.flushDraft();
   }
 
   /// *Simpan* di dialog keluar (F1-08n): selama simpan, navigasi lain
@@ -666,6 +685,13 @@ class _LocationSelectState extends State<_LocationSelect> {
     final vm = widget.viewModel;
     final target = UuidValue.fromString(id);
     if (target == vm.location?.id) return;
+    // Lokasi tidak bisa diganti selama penyesuaian disimpan (F1-08o).
+    if (vm.busy) {
+      setState(() => _revision++);
+      return;
+    }
+    await vm.flushDraft();
+    if (!mounted) return;
     if (vm.hasUnsavedChanges) {
       final discard =
           !vm.busy &&
@@ -681,6 +707,8 @@ class _LocationSelectState extends State<_LocationSelect> {
         setState(() => _revision++);
         return;
       }
+      // *Buang*: draf lama lokasi ini yang tersimpan ikut dibuang (F1-08o).
+      if (vm.hasDraftContent) vm.clearDraft();
     }
     await vm.selectLocation(target);
   }
@@ -1170,7 +1198,7 @@ class _AdjustmentCard extends StatelessWidget {
     );
     final note = FTextField(
       key: ValueKey('stock-note-$rev'),
-      enabled: !vm.save.running,
+      enabled: !vm.save.running && !vm.draftLoading,
       label: Text(l10n.stockNoteLabel),
       hint: l10n.stockNoteHint,
       maxLength: StockLimits.note,
@@ -1261,6 +1289,7 @@ class _AdjustmentCard extends StatelessWidget {
               icon: const Icon(TablerIcons.circleCheck),
               title: Text(l10n.stockSaved(number)),
             ),
+          if (vm.hasDraftContent) _DraftStatus(failed: vm.draftWriteFailed),
           Wrap(
             alignment: WrapAlignment.end,
             spacing: 8,
@@ -1287,6 +1316,38 @@ class _AdjustmentCard extends StatelessWidget {
           Text(l10n.stockPermissionNote, style: _muted(context)),
         ],
       ),
+    );
+  }
+}
+
+/// Keterangan draf tersimpan / gagal tersimpan di perangkat (F1-08o).
+class _DraftStatus extends StatelessWidget {
+  const _DraftStatus({required this.failed});
+
+  final bool failed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.theme.colors;
+    final color = failed ? colors.destructive : colors.mutedForeground;
+    return Row(
+      key: ValueKey(failed ? 'stock-draft-failed' : 'stock-draft-stored'),
+      mainAxisAlignment: MainAxisAlignment.end,
+      spacing: 6,
+      children: [
+        Icon(
+          failed ? TablerIcons.alertTriangle : TablerIcons.deviceFloppy,
+          size: 14,
+          color: color,
+        ),
+        Flexible(
+          child: Text(
+            failed ? l10n.stockDraftFailed : l10n.stockDraftStored,
+            style: context.theme.typography.body.xs.copyWith(color: color),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1320,7 +1381,7 @@ class _PhysicalField extends StatelessWidget {
     return FTextField(
       key: ValueKey('stock-physical-${id.uuid}-$revision'),
       // Isian selama menyimpan akan hilang saat draf dikosongkan.
-      enabled: !viewModel.save.running,
+      enabled: !viewModel.save.running && !viewModel.draftLoading,
       hint: AppLocalizations.of(context).stockColPhysical,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
@@ -1361,7 +1422,7 @@ class _LineNoteField extends StatelessWidget {
     final id = line.row.variantId;
     return FTextField(
       key: ValueKey('stock-line-note-${id.uuid}-$revision'),
-      enabled: !viewModel.save.running,
+      enabled: !viewModel.save.running && !viewModel.draftLoading,
       hint: AppLocalizations.of(context).stockLineNoteHint,
       maxLength: StockLimits.lineNote,
       control: .managed(
@@ -1656,7 +1717,8 @@ class _AddProductFieldState extends State<_AddProductField> {
       children: [
         FTextField(
           key: const ValueKey('stock-add'),
-          enabled: !widget.viewModel.save.running,
+          enabled:
+              !widget.viewModel.save.running && !widget.viewModel.draftLoading,
           label: Text(l10n.stockAddLabel),
           hint: l10n.stockAddHint,
           focusNode: _focus,

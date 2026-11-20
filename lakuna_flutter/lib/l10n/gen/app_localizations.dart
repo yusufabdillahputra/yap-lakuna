@@ -14667,14 +14667,26 @@ abstract class AppLocalizations {
   /// No description provided for @stockDiscardBody.
   ///
   /// In id, this message translates to:
-  /// **'Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.'**
+  /// **'Draf penyesuaian stok belum tersimpan di perangkat dan akan hilang.'**
   String get stockDiscardBody;
 
   /// No description provided for @stockLocationDiscardBody.
   ///
   /// In id, this message translates to:
-  /// **'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.'**
+  /// **'Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat dan akan dikosongkan bila lokasi diganti.'**
   String get stockLocationDiscardBody;
+
+  /// No description provided for @stockDraftStored.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf tersimpan di perangkat ini.'**
+  String get stockDraftStored;
+
+  /// No description provided for @stockDraftFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Draf belum tersimpan di perangkat.'**
+  String get stockDraftFailed;
 
   /// No description provided for @modifierDiscardBody.
   ///

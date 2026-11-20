@@ -21,6 +21,8 @@ void main() {
   late FakeSessionRepository session;
   late LocalStockRepository repo;
   late UuidValue kopi;
+  late LocalPreferences preferences;
+  late StoreContext ctx;
 
   setUp(() async {
     dir = await Directory.systemTemp.createTemp('lakuna_stock_');
@@ -30,7 +32,7 @@ void main() {
       hasher: const CredentialHasher.forTesting(),
       platform: DevicePlatform.linux,
     );
-    final ctx = _ok(
+    ctx = _ok(
       await stores.setup(
         SetupInput(
           businessType: BusinessKind.retail,
@@ -57,7 +59,13 @@ void main() {
         hasPin: true,
         permissions: Permission.values.toSet(),
       );
-    repo = LocalStockRepository(store, stores: stores, session: session);
+    preferences = LocalPreferences(store.session);
+    repo = LocalStockRepository(
+      store,
+      stores: stores,
+      session: session,
+      preferences: preferences,
+    );
     final scope = CatalogScope.of(ctx);
     final id = await saveProduct(
       store,
@@ -138,6 +146,51 @@ void main() {
       isA<NotPermitted>(),
     );
     expect(_err(await repo.createLocation('Gudang')), isA<NotPermitted>());
+  });
+
+  test('draf penyesuaian tersimpan per lokasi di perangkat (F1-08o)', () async {
+    final etalase = _ok(await repo.locations()).single;
+    final gudang = _ok(await repo.createLocation('Gudang'));
+    expect(_ok(await repo.adjustmentDraft(etalase.id)), isNull);
+
+    final draft = StockAdjustmentDraft(
+      reason: StockAdjustmentReason.lost,
+      note: 'Opname akhir bulan',
+      lines: [
+        (variantId: kopi, physical: const Qty(1500), note: 'rak atas'),
+        (
+          variantId: UuidValue.fromString(
+            '00000000-0000-7000-8000-000000000999',
+          ),
+          physical: null,
+          note: '',
+        ),
+      ],
+    );
+    expect(await repo.saveAdjustmentDraft(etalase.id, draft), isA<Ok<void>>());
+    expect(_ok(await repo.adjustmentDraft(etalase.id)), draft);
+    // Lokasi lain punya draf sendiri.
+    expect(_ok(await repo.adjustmentDraft(gudang.id)), isNull);
+
+    // Hapus.
+    await repo.saveAdjustmentDraft(etalase.id, null);
+    expect(_ok(await repo.adjustmentDraft(etalase.id)), isNull);
+
+    // JSON rusak dibaca sebagai tanpa draf.
+    await preferences.set(
+      'stock.adjustmentDraft.${ctx.tenant.id.uuid}.${ctx.outlet.id.uuid}.'
+          '${etalase.id.uuid}',
+      '{rusak',
+    );
+    expect(_ok(await repo.adjustmentDraft(etalase.id)), isNull);
+
+    // Tanpa stock:adjust: tidak membaca atau menyimpan draf.
+    session.current = staff({Permission.productsManage});
+    expect(_err(await repo.adjustmentDraft(etalase.id)), isA<NotPermitted>());
+    expect(
+      _err(await repo.saveAdjustmentDraft(etalase.id, draft)),
+      isA<NotPermitted>(),
+    );
   });
 
   test('tanpa izin stok/produk: semua ditolak', () async {

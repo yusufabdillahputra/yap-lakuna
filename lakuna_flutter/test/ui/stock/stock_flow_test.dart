@@ -162,11 +162,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Draf gagal tersimpan di perangkat, sehingga dialog F1-08k / F1-08n
+  /// tetap muncul (F1-08o).
+  FakeStockRepository failing({List<StockLocation>? locations}) =>
+      FakeStockRepository(locations: locations)
+        ..draftWriteError = Exception('disk penuh');
+
   group('draf penyesuaian belum disimpan (F1-08k)', () {
     testWidgets('1280 px: draf kosong keluar langsung; berisi bertanya', (
       tester,
     ) async {
-      await pump(tester);
+      await pump(tester, stock: failing());
       await _tap(tester, 'nav-products');
       expect(key('stock-discard'), findsNothing);
       expect(key('stock-save'), findsNothing);
@@ -179,8 +185,8 @@ void main() {
       expect(key('stock-discard'), findsOneWidget);
       expect(
         find.text(
-          'Draf penyesuaian stok yang sedang diisi belum disimpan dan '
-          'akan hilang.',
+          'Draf penyesuaian stok belum tersimpan di perangkat dan akan '
+          'hilang.',
         ),
         findsOneWidget,
       );
@@ -205,7 +211,7 @@ void main() {
 
     testWidgets('setelah simpan atau Batal keluar tanpa bertanya; keluar '
         'ditahan selama simpan', (tester) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await addKopi(tester);
       await _tap(tester, 'stock-clear');
       await _tap(tester, 'nav-products');
@@ -240,7 +246,7 @@ void main() {
     ) async {
       await pump(
         tester,
-        stock: FakeStockRepository(
+        stock: failing(
           locations: [
             sampleLocation(1, 'Etalase', true),
             sampleLocation(2, 'Gudang', false),
@@ -261,8 +267,8 @@ void main() {
       expect(key('stock-location-discard'), findsOneWidget);
       expect(
         find.text(
-          'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi '
-          'diganti.',
+          'Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat '
+          'dan akan dikosongkan bila lokasi diganti.',
         ),
         findsOneWidget,
       );
@@ -288,7 +294,11 @@ void main() {
     });
 
     testWidgets('360 px: menu bawah bertanya', (tester) async {
-      await pump(tester, size: const Size(360, 740));
+      await pump(
+        tester,
+        size: const Size(360, 740),
+        stock: failing(),
+      );
       await addKopi(tester);
       await _tap(tester, 'nav-home');
       expect(key('stock-discard'), findsOneWidget);
@@ -320,7 +330,7 @@ void main() {
       ),
     ).routerDelegate.currentConfiguration.uri.path;
 
-    FakeStockRepository twoLocations() => FakeStockRepository(
+    FakeStockRepository twoLocations() => failing(
       locations: [
         sampleLocation(1, 'Etalase', true),
         sampleLocation(2, 'Gudang', false),
@@ -330,7 +340,7 @@ void main() {
     testWidgets('1280 px: menu lain, Simpan menyimpan lalu pindah', (
       tester,
     ) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await fillKopi(tester);
       await _tap(tester, 'nav-products');
       expect(key('stock-discard-save'), findsOneWidget);
@@ -347,7 +357,7 @@ void main() {
     testWidgets('draf tanpa stok fisik atau hanya catatan: tanpa Simpan', (
       tester,
     ) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await addKopi(tester);
       await _tap(tester, 'nav-products');
       expect(key('stock-discard'), findsOneWidget);
@@ -365,7 +375,7 @@ void main() {
 
     testWidgets('isian ditolak dari tab lain: tetap, tab Penyesuaian dengan '
         'pesan; Simpan lagi lalu pindah', (tester) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await fillKopi(tester);
       await _tap(tester, 'stock-tab-list');
       expect(key('stock-line-$kopi'), findsNothing);
@@ -392,7 +402,7 @@ void main() {
     testWidgets('galat penyimpanan: tetap dengan pesan dan draf', (
       tester,
     ) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await fillKopi(tester);
       await _tap(tester, 'stock-tab-minimum');
       repo.nextError = Exception('disk penuh');
@@ -493,7 +503,7 @@ void main() {
     testWidgets('menu lain selama simpan dari dialog ditolak', (
       tester,
     ) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await fillKopi(tester);
       final gate = Completer<void>();
       repo.saveGate = gate.future;
@@ -515,7 +525,11 @@ void main() {
     });
 
     testWidgets('360 px: menu bawah, Simpan', (tester) async {
-      final repo = await pump(tester, size: const Size(360, 740));
+      final repo = await pump(
+        tester,
+        size: const Size(360, 740),
+        stock: failing(),
+      );
       await fillKopi(tester);
       await _tap(tester, 'nav-home');
       await _tap(tester, 'stock-discard-save');
@@ -528,7 +542,7 @@ void main() {
     testWidgets('tutup jendela, Simpan: tersimpan lalu keluar', (
       tester,
     ) async {
-      final repo = await pump(tester);
+      final repo = await pump(tester, stock: failing());
       await fillKopi(tester);
       var exit = AppExitResponse.cancel;
       unawaited(tester.binding.handleRequestAppExit().then((r) => exit = r));
@@ -536,6 +550,266 @@ void main() {
       await _tap(tester, 'stock-discard-save');
       expect(repo.saves, hasLength(1));
       expect(exit, AppExitResponse.exit);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('draf tersimpan di perangkat (F1-08o)', () {
+    /// Kunci field berakhiran revisi draf, yang naik saat draf dipulihkan.
+    String keyOf(String prefix) =>
+        (find
+                    .byWidgetPredicate(
+                      (w) =>
+                          w.key is ValueKey<String> &&
+                          (w.key! as ValueKey<String>).value.startsWith(prefix),
+                    )
+                    .evaluate()
+                    .first
+                    .widget
+                    .key!
+                as ValueKey<String>)
+            .value;
+
+    String path(WidgetTester tester) => GoRouter.of(
+      tester.element(key('nav-products').first),
+    ).routerDelegate.currentConfiguration.uri.path;
+
+    testWidgets('keluar menu tanpa dialog, draf kembali saat dibuka lagi', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      expect(key('stock-draft-stored'), findsNothing);
+      await addKopi(tester);
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await _type(tester, keyOf('stock-note-'), 'Opname rak A');
+      await tester.pumpAndSettle();
+      expect(key('stock-draft-stored'), findsOneWidget);
+      expect(find.text('Draf tersimpan di perangkat ini.'), findsOneWidget);
+      expect(repo.drafts, hasLength(1));
+
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(path(tester), Routes.products);
+
+      await _tap(tester, 'nav-stock');
+      expect(key('stock-line-$kopi'), findsOneWidget);
+      expect(
+        tester
+            .widget<EditableText>(_input(keyOf('stock-physical-$kopi-')))
+            .controller
+            .text,
+        '3',
+      );
+      expect(find.text('Opname rak A'), findsOneWidget);
+      expect(key('stock-draft-stored'), findsOneWidget);
+
+      // Batal menghapus draf tersimpan.
+      await _tap(tester, 'stock-clear');
+      expect(repo.drafts, isEmpty);
+      expect(key('stock-draft-stored'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ganti lokasi tanpa dialog; tiap lokasi punya draf sendiri', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        stock: FakeStockRepository(
+          locations: [
+            sampleLocation(1, 'Etalase', true),
+            sampleLocation(2, 'Gudang', false),
+          ],
+        ),
+      );
+      await addKopi(tester);
+      await chooseLocation(tester, 'Gudang');
+      expect(key('stock-location-discard'), findsNothing);
+      expect(
+        find.descendant(of: locationSelect(), matching: find.text('Gudang')),
+        findsOneWidget,
+      );
+      expect(key('stock-lines-empty'), findsOneWidget);
+      expect(key('stock-draft-stored'), findsNothing);
+
+      await chooseLocation(tester, 'Etalase');
+      expect(key('stock-line-$kopi'), findsOneWidget);
+      expect(repo.drafts.keys, [fakeId(101)]);
+
+      // Simpan penyesuaian menghapus draf lokasi itu.
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await _tap(tester, 'stock-save');
+      expect(repo.saves, hasLength(1));
+      expect(repo.drafts, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tulis draf gagal: keterangan galat, dialog, Buang menghapus '
+        'draf lama', (tester) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      expect(repo.drafts, hasLength(1));
+
+      repo.draftWriteError = Exception('disk penuh');
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.pumpAndSettle();
+      expect(key('stock-draft-stored'), findsNothing);
+      expect(key('stock-draft-failed'), findsOneWidget);
+      expect(find.text('Draf belum tersimpan di perangkat.'), findsOneWidget);
+
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsOneWidget);
+      repo.draftWriteError = null;
+      await _tap(tester, 'stock-discard-confirm');
+      expect(path(tester), Routes.products);
+      // Draf lama yang tersimpan ikut dibuang.
+      expect(repo.drafts, isEmpty);
+      await _tap(tester, 'nav-stock');
+      expect(key('stock-lines-empty'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ganti lokasi saat tulis gagal: Buang menghapus draf lama', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        stock: FakeStockRepository(
+          locations: [
+            sampleLocation(1, 'Etalase', true),
+            sampleLocation(2, 'Gudang', false),
+          ],
+        ),
+      );
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      repo.draftWriteError = Exception('disk penuh');
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.pumpAndSettle();
+      await chooseLocation(tester, 'Gudang');
+      expect(key('stock-location-discard'), findsOneWidget);
+      repo.draftWriteError = null;
+      await _tap(tester, 'stock-location-discard-confirm');
+      expect(repo.drafts, isEmpty);
+      await chooseLocation(tester, 'Etalase');
+      expect(key('stock-lines-empty'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('keluar saat tulis draf berjalan: menunggu, tanpa dialog', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      final gate = Completer<void>();
+      repo.draftWriteGate = gate.future;
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.tap(key('nav-products'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(key('stock-discard'), findsNothing);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(key('stock-discard'), findsNothing);
+      expect(path(tester), Routes.products);
+      expect(repo.drafts.values.single.lines.single.physical, const Qty(3000));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ganti lokasi saat tulis draf berjalan: menunggu, tanpa '
+        'dialog', (tester) async {
+      final repo = await pump(
+        tester,
+        stock: FakeStockRepository(
+          locations: [
+            sampleLocation(1, 'Etalase', true),
+            sampleLocation(2, 'Gudang', false),
+          ],
+        ),
+      );
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      final gate = Completer<void>();
+      repo.draftWriteGate = gate.future;
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.ensureVisible(locationSelect());
+      await tester.tap(locationSelect());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Gudang').last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(key('stock-location-discard'), findsNothing);
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(key('stock-location-discard'), findsNothing);
+      expect(
+        find.descendant(of: locationSelect(), matching: find.text('Gudang')),
+        findsOneWidget,
+      );
+      expect(repo.drafts[fakeId(101)]!.lines.single.physical, const Qty(3000));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('hapus draf gagal setelah baris terakhir dibuang: dicoba '
+        'lagi saat keluar, tanpa dialog', (tester) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      repo.draftWriteError = Exception('disk penuh');
+      await _tap(tester, 'stock-remove-$kopi');
+      expect(repo.drafts, hasLength(1));
+      repo.draftWriteError = null;
+      await _tap(tester, 'nav-products');
+      expect(key('stock-discard'), findsNothing);
+      expect(path(tester), Routes.products);
+      expect(repo.drafts, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ketukan menu kedua selama menunggu tulis draf diabaikan', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      final gate = Completer<void>();
+      repo.draftWriteGate = gate.future;
+      repo.draftWriteError = Exception('disk penuh');
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.tap(key('nav-products'));
+      await tester.pump();
+      await tester.tap(key('nav-expenses'));
+      await tester.pump();
+      gate.complete();
+      await tester.pumpAndSettle();
+      // Satu dialog saja; jawabannya berlaku untuk kedua ketukan.
+      expect(key('stock-discard'), findsOneWidget);
+      repo.draftWriteError = null;
+      await _tap(tester, 'stock-discard-confirm');
+      expect(key('stock-discard'), findsNothing);
+      expect(key('stock-save'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tulis draf macet: dialog setelah 2 detik', (tester) async {
+      final repo = await pump(tester);
+      await addKopi(tester);
+      await tester.pumpAndSettle();
+      final gate = Completer<void>();
+      repo.draftWriteGate = gate.future;
+      await _type(tester, keyOf('stock-physical-$kopi-'), '3');
+      await tester.tap(key('nav-products'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(key('stock-discard'), findsNothing);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(key('stock-discard'), findsOneWidget);
+      await _tap(tester, 'stock-discard-cancel');
+      gate.complete();
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
   });

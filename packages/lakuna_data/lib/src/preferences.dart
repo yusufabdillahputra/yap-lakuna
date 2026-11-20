@@ -16,6 +16,14 @@ class LocalPreferences {
     return row?.value;
   }
 
+  /// Menghapus [key] (tidak apa-apa bila tidak ada).
+  Future<void> remove(String key) async {
+    await LocalPreference.db.deleteWhere(
+      _session,
+      where: (t) => t.key.equals(key),
+    );
+  }
+
   Future<void> set(String key, String value) async {
     await _session.db.transaction((tx) async {
       final row = await LocalPreference.db.findFirstRow(

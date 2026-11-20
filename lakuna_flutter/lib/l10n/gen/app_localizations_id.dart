@@ -8454,11 +8454,17 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get stockDiscardBody =>
-      'Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.';
+      'Draf penyesuaian stok belum tersimpan di perangkat dan akan hilang.';
 
   @override
   String get stockLocationDiscardBody =>
-      'Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.';
+      'Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat dan akan dikosongkan bila lokasi diganti.';
+
+  @override
+  String get stockDraftStored => 'Draf tersimpan di perangkat ini.';
+
+  @override
+  String get stockDraftFailed => 'Draf belum tersimpan di perangkat.';
 
   @override
   String get modifierDiscardBody =>

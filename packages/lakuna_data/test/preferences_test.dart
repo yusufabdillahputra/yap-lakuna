@@ -31,4 +31,15 @@ void main() {
       expect(await SyncOutboxEntry.db.count(store.session), 0);
     },
   );
+
+  test('preferensi lokal bisa dihapus (F1-08o)', () async {
+    final prefs = LocalPreferences(store.session);
+    await prefs.remove('tidak_ada');
+    await prefs.set('a', '1');
+    await prefs.set('b', '2');
+    await prefs.remove('a');
+    expect(await prefs.get('a'), isNull);
+    expect(await prefs.get('b'), '2');
+    expect(await SyncOutboxEntry.db.count(store.session), 0);
+  });
 }
