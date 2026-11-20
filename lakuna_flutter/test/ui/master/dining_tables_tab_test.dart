@@ -34,6 +34,10 @@ Future<void> _esc(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Apakah isian [key] sedang berkursor (F1-10q).
+bool _focused(WidgetTester tester, String key) =>
+    tester.widget<EditableText>(_input(key)).focusNode.hasFocus;
+
 Future<void> _choose(WidgetTester tester, String key, String label) async {
   await _tap(tester, key);
   await tester.tap(find.text(label).last);
@@ -632,6 +636,228 @@ void main() {
       await _tap(tester, 'dining-setup-range-save');
       expect(_key('dining-setup-dialog-error'), findsOneWidget);
       expect(find.textContaining('M20, M21'), findsOneWidget);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
+  group('kursor pindah ke isian yang salah (F1-10q)', () {
+    testWidgets('area: nama kosong dan nama kembar ke Nama', (tester) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-area-add');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      await _tap(tester, 'dining-setup-area-save');
+      expect(find.text('Nama wajib diisi.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-area-name'), isTrue);
+
+      await _type(tester, 'dining-setup-area-name', 'indoor');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      await _tap(tester, 'dining-setup-area-save');
+      expect(find.text('Nama sudah dipakai.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-area-name'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('meja: nama kembar saat kursor di Kursi ke Nama', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-name', 'm1');
+      await _type(tester, 'dining-setup-table-seats', '6');
+      expect(_focused(tester, 'dining-setup-table-seats'), isTrue);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Nama sudah dipakai.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-table-name'), isTrue);
+      expect(_focused(tester, 'dining-setup-table-seats'), isFalse);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('meja: kursi 0 dan galat kursi penyimpanan ke Kursi', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-seats', '0');
+      await _type(tester, 'dining-setup-table-name', 'M9');
+      await _tap(tester, 'dining-setup-table-save');
+      expect(find.text('Kursi 1–99.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-table-seats'), isTrue);
+
+      await _type(tester, 'dining-setup-table-seats', '6');
+      await _type(tester, 'dining-setup-table-name', 'M10');
+      repo.nextError = DiningSeatsInvalid();
+      await _tap(tester, 'dining-setup-table-save');
+      expect(find.text('Kursi 1–99.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-table-seats'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('meja: nama kosong dan kursi 0 ke Nama (isian teratas)', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-seats', '0');
+      await _tap(tester, 'dining-setup-table-save');
+      expect(find.text('Nama wajib diisi.'), findsOneWidget);
+      expect(find.text('Kursi 1–99.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-table-name'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('galat di kotak merah tidak memindahkan kursor', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-name', 'M9');
+      await _type(tester, 'dining-setup-table-seats', '6');
+      repo.nextError = DiningNotFound();
+      await _tap(tester, 'dining-setup-table-save');
+      expect(_key('dining-setup-dialog-error'), findsOneWidget);
+      // Kursor tetap di tombol Simpan yang diketuk.
+      expect(_focused(tester, 'dining-setup-table-seats'), isFalse);
+      expect(_focused(tester, 'dining-setup-table-name'), isFalse);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('rentang: Dari, Sampai, nama kembar, lalu Kursi', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      // Nomor awal 0 → Dari.
+      await _type(tester, 'dining-setup-range-from', '0');
+      await _type(tester, 'dining-setup-range-prefix', 'B');
+      await _tap(tester, 'dining-setup-range-save');
+      expect(_focused(tester, 'dining-setup-range-from'), isTrue);
+
+      // Sampai lebih kecil dari Dari → Sampai.
+      await _type(tester, 'dining-setup-range-from', '5');
+      await _type(tester, 'dining-setup-range-to', '3');
+      await _type(tester, 'dining-setup-range-prefix', 'B');
+      await _tap(tester, 'dining-setup-range-save');
+      expect(_focused(tester, 'dining-setup-range-to'), isTrue);
+
+      // Rentang benar, kursi 0 → Kursi.
+      await _type(tester, 'dining-setup-range-to', '6');
+      await _type(tester, 'dining-setup-range-seats', '0');
+      await _type(tester, 'dining-setup-range-prefix', 'B');
+      await _tap(tester, 'dining-setup-range-save');
+      expect(find.text('Kursi 1–99.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-range-seats'), isTrue);
+
+      // Nama kembar dari penyimpanan → Dari.
+      await _type(tester, 'dining-setup-range-seats', '4');
+      await _type(tester, 'dining-setup-range-prefix', 'M');
+      await _type(tester, 'dining-setup-range-from', '1');
+      await _type(tester, 'dining-setup-range-to', '2');
+      await _tap(tester, 'dining-setup-range-save');
+      expect(find.text('Nama M1 sudah dipakai.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-range-from'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('rentang: galat kursi penyimpanan ke Kursi', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      await _type(tester, 'dining-setup-range-from', '20');
+      await _type(tester, 'dining-setup-range-to', '21');
+      repo.nextError = DiningSeatsInvalid();
+      await _tap(tester, 'dining-setup-range-save');
+      expect(find.text('Kursi 1–99.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-range-seats'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('area: Enter pada nama kembar tetap di Nama', (tester) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-area-add');
+      await _type(tester, 'dining-setup-area-name', 'indoor');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Nama sudah dipakai.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-area-name'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('galat tak terduga tidak memindahkan kursor (Enter)', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-add');
+      await _type(tester, 'dining-setup-table-name', 'M9');
+      await _type(tester, 'dining-setup-table-seats', '6');
+      repo.throwNext = true;
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Aksi gagal. Coba lagi.'), findsOneWidget);
+      expect(_focused(tester, 'dining-setup-table-name'), isFalse);
+      expect(_focused(tester, 'dining-setup-table-seats'), isFalse);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('rentang: lebih dari batas ke Sampai; galat rentang '
+        'penyimpanan tidak memindahkan kursor', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      await _type(tester, 'dining-setup-range-from', '1');
+      await _type(tester, 'dining-setup-range-to', '99');
+      await _type(tester, 'dining-setup-range-prefix', 'B');
+      await _tap(tester, 'dining-setup-range-save');
+      expect(_focused(tester, 'dining-setup-range-to'), isTrue);
+
+      await _type(tester, 'dining-setup-range-to', '3');
+      await _type(tester, 'dining-setup-range-prefix', 'C');
+      repo.nextError = DiningRangeInvalid();
+      await _tap(tester, 'dining-setup-range-save');
+      expect(_key('dining-setup-dialog-error'), findsOneWidget);
+      for (final k in ['from', 'to', 'seats']) {
+        expect(_focused(tester, 'dining-setup-range-$k'), isFalse);
+      }
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('rentang: isian diubah selama simpan, kursor ikut galat '
+        'penyimpanan', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      await _type(tester, 'dining-setup-range-from', '20');
+      await _type(tester, 'dining-setup-range-to', '21');
+      final gate = repo.gate = Completer<void>();
+      repo.nextError = DiningSeatsInvalid();
+      await tester.tap(_key('dining-setup-range-save'));
+      await tester.pump();
+      await tester.enterText(_input('dining-setup-range-from'), '0');
+      await tester.pump();
+      repo.gate = null;
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(_focused(tester, 'dining-setup-range-seats'), isTrue);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('rentang: pratinjau tepat di bawah Dari–Sampai', (
+      tester,
+    ) async {
+      await pump(tester);
+      await _tap(tester, 'master-tab-tables');
+      await _tap(tester, 'dining-setup-table-range');
+      final preview = tester.getRect(_key('dining-setup-range-preview'));
+      expect(
+        preview.top,
+        greaterThanOrEqualTo(
+          tester.getRect(_key('dining-setup-range-to')).bottom,
+        ),
+      );
+      expect(
+        preview.bottom,
+        lessThanOrEqualTo(
+          tester.getRect(_key('dining-setup-range-seats')).top,
+        ),
+      );
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });
 }

@@ -6,7 +6,7 @@
 
 ## Before you start
 
-- Create areas and tables in **Master data › Tables & areas**. Use **Add several** to create T1–T12 at once. If you have changed an area, table, or range dialog and press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the dialog, or **Discard** to close without saving. If a name is already used (for example a T1–T12 range when T7 exists), the dialog stays open and the message appears right under the **Name** field (for a range: in place of the name preview); change the fields and save again.
+- Create areas and tables in **Master data › Tables & areas**. Use **Add several** to create T1–T12 at once. If you have changed an area, table, or range dialog and press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the dialog, or **Discard** to close without saving. If a name is already used (for example a T1–T12 range when T7 exists), the dialog stays open and the message appears right under the **Name** field (for a range: in place of the name preview). The cursor moves straight to the wrong field (Name, Seats, or From/To for a range), so you can retype it and save again.
 - Set the service charge and PB1 restaurant tax in **Settings › Tax & service**. Service applies to dine in only.
 
 ## Opening a bill

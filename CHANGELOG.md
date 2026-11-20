@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.120.0] - 2026-11-20
+
+Simpan area, meja, atau rentang meja yang ditolak kini memindahkan kursor
+ke isian yang salah.
+
+### Diubah
+
+- **Master data (1.17) › Meja & area:** saat **Simpan** (tombol atau
+  Enter) ditolak, kursor langsung pindah ke isian pertama yang salah,
+  urut dari atas: **Nama** untuk nama kosong atau nama yang sudah dipakai,
+  lalu **Kursi** untuk kursi di luar 1–99. Pada **Tambah beberapa**, nomor
+  yang tidak sah memindahkan kursor ke **Dari** (nomor awal kurang dari 1)
+  atau **Sampai**, nama yang sudah dipakai ke **Dari**, dan kursi ke
+  **Kursi**. Di desktop teksnya langsung terpilih sehingga bisa diketik
+  ulang. Sebelumnya kursor tetap di tempatnya (mis. di Kursi setelah
+  Enter) dan kasir harus mengetuk kolom yang salah dulu.
+- **Tambah beberapa meja:** baris pratinjau nama (termasuk pesan "Rentang
+  tidak sah" dan "Nama M1 sudah dipakai.") kini tepat di bawah **Dari –
+  Sampai**, di atas **Kursi**, supaya pesannya tetap terlihat di ponsel
+  saat papan ketik terbuka untuk isian itu.
+- Galat yang tampil di kotak merah di atas tombol (mis. area tidak
+  ditemukan, "Aksi gagal. Coba lagi.") tidak memindahkan kursor.
+
+### Catatan teknis
+
+- Mixin `_DialogSaving` mendapat `focusInvalid()`, dipanggil `runSave`
+  setelah galat simpan diset dan oleh `_save` saat validasi isian menolak.
+  Dialog area, meja, dan rentang memegang `FocusNode` per isian
+  (`FTextField(focusNode:)`) dan membuangnya di `dispose`. Bila simpan
+  gagal di penyimpanan, kursor hanya mengikuti galat penyimpanan itu, jadi
+  isian yang diubah selama simpan berjalan tidak membelokkannya.
+- Tes: grup F1-10q di `dining_tables_tab_test.dart` (12 tes: area, Enter
+  pada nama kembar, meja, urutan Nama sebelum Kursi, rentang
+  Dari/Sampai/lebih dari 50/nama kembar/Kursi, isian diubah selama simpan,
+  letak pratinjau, galat kotak merah dan galat tak terduga tidak
+  memindahkan kursor); mutasi diverifikasi. Uji manual
+  Linux di Xvfb.
+- Spec [F1-10q](docs/superpowers/specs/2026-11-20-f1-10q-fokus-isian-salah-design.md);
+  gap F1-10p *Fokus otomatis ke isian yang salah* ditutup.
+
 ## [0.119.0] - 2026-11-20
 
 *Buang perubahan?* tidak lagi muncul dua kali untuk form yang baru saja
@@ -7055,7 +7095,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...HEAD
+[0.120.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...v0.120.0
 [0.119.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...v0.119.0
 [0.118.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...v0.118.0
 [0.117.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...v0.117.0

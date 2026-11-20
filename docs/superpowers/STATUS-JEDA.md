@@ -101,6 +101,7 @@ ulang riwayat.
 | v0.117.0 | Cari Riwayat lewat catatan barang, catatan tampil di rincian (F1-11g) | #123 |
 | v0.118.0 | Modifier pesanan tampil di rincian nota Riwayat (F1-11h) | #124 |
 | v0.119.0 | Halaman yang sedang ditutup tidak ditanya lagi saat Ganti kasir / tutup jendela (F1-02e) | #125 |
+| v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -291,6 +292,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     selesai v0.118.0 (F1-11h): `+ Besar, Boba` di bawah nama barang.
 61. ~~*Ganti kasir* / tutup jendela tepat setelah *Buang* bertanya lagi~~ —
     selesai v0.119.0 (F1-02e): halaman yang sedang ditutup dilewati.
+62. ~~Simpan meja/area yang ditolak tidak memindahkan kursor ke isian yang
+    salah~~ — selesai v0.120.0 (F1-10q): Nama, Kursi, Dari/Sampai.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
