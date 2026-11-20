@@ -4,7 +4,7 @@ Menu **Pengeluaran** mencatat biaya operasional di luar pembelian barang dagang,
 
 ## Sebelum mulai
 
-Buat jenis pengeluaran di **Master data › Jenis pengeluaran**, misalnya *Listrik*, *Gaji*, atau *Operasional*. Dialog yang namanya sudah diketik bertanya **Buang perubahan?** sebelum ditutup tanpa disimpan.
+Buat jenis pengeluaran di **Master data › Jenis pengeluaran**, misalnya *Listrik*, *Gaji*, atau *Operasional*. Dialog yang namanya sudah diketik bertanya **Buang perubahan?** sebelum ditutup tanpa disimpan; pilih **Simpan** di sana untuk langsung menyimpan jenisnya.
 
 ## Mencatat pengeluaran
 

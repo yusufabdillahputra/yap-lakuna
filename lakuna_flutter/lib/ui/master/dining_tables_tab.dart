@@ -542,7 +542,8 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
     saveFailure = null;
   });
 
-  Future<void> runSave<T>(
+  /// `true` bila tersimpan (dialog tertutup, F1-09c).
+  Future<bool> runSave<T>(
     _DialogSave<T> onSave,
     T value, {
     List<String> names = const [],
@@ -560,10 +561,10 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
       // Galat tak terduga (mis. `StateError`) tidak boleh mengunci dialog.
       error = _SaveNotRun();
     }
-    if (!mounted) return;
+    if (!mounted) return false;
     if (error == null) {
       Navigator.of(context).pop();
-      return;
+      return true;
     }
     final message = diningSetupErrorMessage(
       AppLocalizations.of(context),
@@ -577,6 +578,7 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
       saveFailure = error;
     });
     focusInvalid();
+    return false;
   }
 }
 
@@ -613,13 +615,17 @@ class _AreaDialogState extends State<_AreaDialog>
     }
   }
 
-  void _save() {
-    if (saving) return;
+  /// `true` bila tersimpan; isian salah tidak disimpan (F1-09c).
+  Future<bool> _save() async {
+    if (saving) return false;
     // Dihitung ulang setiap simpan, seperti dialog meja: galat kosong lama
     // tidak boleh menutupi galat simpan nama (F1-10p).
     setState(() => _empty = _name.trim().isEmpty);
-    if (_empty) return focusInvalid();
-    runSave(widget.onSave, _name.trim(), nameMax: FnbLimits.areaName);
+    if (_empty) {
+      focusInvalid();
+      return false;
+    }
+    return runSave(widget.onSave, _name.trim(), nameMax: FnbLimits.areaName);
   }
 
   @override
@@ -632,6 +638,7 @@ class _AreaDialogState extends State<_AreaDialog>
       busy: saving,
       body: l10n.diningAreaDiscardBody,
       dialogKey: 'dining-area-discard',
+      onSave: _save,
       child: _frame(
         context,
         key: const ValueKey('dining-setup-area-dialog'),
@@ -722,15 +729,19 @@ class _TableDialogState extends State<_TableDialog>
     }
   }
 
-  void _save() {
-    if (saving) return;
+  /// `true` bila tersimpan; isian salah tidak disimpan (F1-09c).
+  Future<bool> _save() async {
+    if (saving) return false;
     final seats = int.tryParse(_seats) ?? 0;
     setState(() {
       _nameEmpty = _name.trim().isEmpty;
       _seatsBad = seats < 1 || seats > FnbLimits.seatsMax;
     });
-    if (_nameEmpty || _seatsBad) return focusInvalid();
-    runSave(
+    if (_nameEmpty || _seatsBad) {
+      focusInvalid();
+      return false;
+    }
+    return runSave(
       widget.onSave,
       DiningTableDraft(
         name: _name.trim(),
@@ -752,6 +763,7 @@ class _TableDialogState extends State<_TableDialog>
       busy: saving,
       body: l10n.diningTableDiscardBody,
       dialogKey: 'dining-table-discard',
+      onSave: _save,
       child: _frame(
         context,
         key: const ValueKey('dining-setup-table-dialog'),
@@ -894,12 +906,16 @@ class _RangeDialogState extends State<_RangeDialog>
     }
   }
 
-  void _save() {
-    if (saving) return;
+  /// `true` bila tersimpan; isian salah tidak disimpan (F1-09c).
+  Future<bool> _save() async {
+    if (saving) return false;
     final seats = int.tryParse(_seats) ?? 0;
     setState(() => _seatsBad = seats < 1 || seats > FnbLimits.seatsMax);
-    if (_seatsBad || _names == null) return focusInvalid();
-    runSave(
+    if (_seatsBad || _names == null) {
+      focusInvalid();
+      return false;
+    }
+    return runSave(
       widget.onSave,
       TableRange(
         prefix: _prefix,
@@ -959,6 +975,7 @@ class _RangeDialogState extends State<_RangeDialog>
       busy: saving,
       body: l10n.diningRangeDiscardBody,
       dialogKey: 'dining-range-discard',
+      onSave: _save,
       child: _frame(
         context,
         key: const ValueKey('dining-setup-range-dialog'),

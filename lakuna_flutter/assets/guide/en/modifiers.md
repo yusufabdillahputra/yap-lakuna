@@ -10,7 +10,7 @@ Modifiers are extra choices on a menu item, such as size, sugar level, or toppin
 4. Add options with **Add option**: name, **Extra price** (negative for a discount), and mark **Default** if it is pre-selected.
 5. Save.
 
-If you have filled in the group and then press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the dialog, or **Discard** to close it without saving. The same applies to the **Customer groups** and **Expense categories** dialogs.
+If you have filled in the group and then press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the dialog, **Discard** to close it without saving, or **Save** to save the group straight away (if something is wrong, the dialog stays open with the message). Closing the app window while the dialog has entries also offers **Save**. The same applies to the **Customer groups** and **Expense categories** dialogs.
 
 ## Attaching it to a menu item
 

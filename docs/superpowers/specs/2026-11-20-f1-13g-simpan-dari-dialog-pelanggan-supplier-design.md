@@ -40,7 +40,7 @@ memilih Batal lalu mencari tombol Simpan di dialog form.
 - `CustomerFormDialog` dan `SupplierFormDialog`: `onSave` memanggil `_save`
   lalu `true` bila hasilnya `Ok`.
 - Dialog master data (grup pelanggan, jenis pengeluaran, grup modifier,
-  meja) menyusul di gap terpisah.
+  meja) menyusul di [F1-09c](2026-11-20-f1-09c-simpan-dari-dialog-master-data-design.md).
 
 ## Pengujian
 
@@ -58,4 +58,4 @@ memilih Batal lalu mencari tombol Simpan di dialog form.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Simpan dari dialog *Buang perubahan?* pelanggan & supplier | 1.20, 1.21 | Rilis v0.125.0 | Ketuk di luar, Esc, kembali sistem, Batal, ✕ jendela. |
-| Dialog master data | 1.17 | Belum | Grup pelanggan, jenis pengeluaran, grup modifier, meja / area. |
+| Dialog master data | 1.17 | Rilis v0.126.0 | [F1-09c](2026-11-20-f1-09c-simpan-dari-dialog-master-data-design.md). |

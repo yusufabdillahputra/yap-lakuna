@@ -1,3 +1,5 @@
+import 'dart:ui' show AppExitResponse;
+
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -306,4 +308,58 @@ void main() {
     },
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
   );
+
+  group('Simpan dari dialog Buang perubahan? (F1-09c)', () {
+    testWidgets('Batal lalu Simpan: tersimpan dan tampil', (tester) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'modifier-add');
+      await _type(tester, 'modifier-name', 'Nasi');
+      await _type(tester, 'modifier-option-name-0', 'Nasi merah');
+      await _tap(tester, 'modifier-cancel');
+      await _tap(tester, 'modifier-discard-save');
+      expect(_key('modifier-discard'), findsNothing);
+      expect(_key('modifier-dialog'), findsNothing);
+      expect(repo.modifierGroupsData.last.name, 'Nasi');
+      expect(_key('modifier-edit-Nasi'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('ditolak: tetap terbuka dengan pesan, aplikasi tidak '
+        'ditutup', (tester) async {
+      final repo = await pump(tester);
+      final before = [...repo.modifierGroupsData];
+      await _tap(tester, 'modifier-add');
+      await _type(tester, 'modifier-name', 'ukuran');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'modifier-discard-save');
+      expect(_key('modifier-dialog'), findsOneWidget);
+      expect(find.text('Nama grup sudah dipakai.'), findsOneWidget);
+      expect(find.text('Nama opsi wajib diisi.'), findsOneWidget);
+
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'modifier-discard-save');
+      expect(await exit, AppExitResponse.cancel);
+      expect(_key('modifier-dialog'), findsOneWidget);
+      expect(repo.modifierGroupsData, orderedEquals(before));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tutup jendela lalu Simpan: tersimpan lalu keluar', (
+      tester,
+    ) async {
+      final repo = await pump(tester);
+      await _tap(tester, 'modifier-add');
+      await _type(tester, 'modifier-name', 'Nasi');
+      await _type(tester, 'modifier-option-name-0', 'Nasi merah');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'modifier-discard-save');
+      expect(await exit, AppExitResponse.exit);
+      expect(repo.modifierGroupsData.last.name, 'Nasi');
+      expect(_key('modifier-dialog'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
 }

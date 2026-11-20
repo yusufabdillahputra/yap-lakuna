@@ -1,3 +1,5 @@
+import 'dart:ui' show AppExitResponse;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -177,5 +179,79 @@ void main() {
     await _tap(tester, 'expense-category-discard-confirm');
     expect(_key('expense-category-form'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  group('Simpan dari dialog Buang perubahan? (F1-09c)', () {
+    Future<FakeExpensesRepository> open(WidgetTester tester) async {
+      final repo = FakeExpensesRepository();
+      await pumpLakuna(
+        tester,
+        size: const Size(1280, 800),
+        initialLocation: Routes.master,
+        expenses: repo,
+      );
+      await _tap(tester, 'master-tab-expenseCategories');
+      return repo;
+    }
+
+    testWidgets('ketuk di luar lalu Simpan: tersimpan dan tampil', (
+      tester,
+    ) async {
+      final repo = await open(tester);
+      await _tap(tester, 'expense-categories-new');
+      await _type(tester, 'expense-category-name', 'Iuran keamanan');
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await _tap(tester, 'expense-category-discard-save');
+      expect(_key('expense-category-discard'), findsNothing);
+      expect(_key('expense-category-form'), findsNothing);
+      final iuran = repo.categoryByName('Iuran keamanan');
+      expect(_key('expense-category-${iuran.id.uuid}'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('isian salah atau nama ganda: tetap terbuka, aplikasi tidak '
+        'ditutup', (tester) async {
+      final repo = await open(tester);
+      final before = repo.categoryList.length;
+      final sewa = repo.categoryByName('Sewa tempat');
+
+      await _tap(tester, 'expense-category-edit-${sewa.id.uuid}');
+      await _type(tester, 'expense-category-name', ' ');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'expense-category-discard-save');
+      expect(await exit, AppExitResponse.cancel);
+      expect(_key('expense-category-form'), findsOneWidget);
+
+      await _type(tester, 'expense-category-name', 'TRANSPORT');
+      final again = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'expense-category-discard-save');
+      expect(await again, AppExitResponse.cancel);
+      expect(_key('expense-category-form'), findsOneWidget);
+      expect(_key('expense-category-error'), findsOneWidget);
+      expect(repo.categoryList, hasLength(before));
+      expect(repo.categoryByName('Sewa tempat').id, sewa.id);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tutup jendela lalu Simpan: tersimpan lalu keluar', (
+      tester,
+    ) async {
+      final repo = await open(tester);
+      await _tap(tester, 'expense-categories-new');
+      await _type(tester, 'expense-category-name', 'Iuran keamanan');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'expense-category-discard-save');
+      expect(await exit, AppExitResponse.exit);
+      expect(
+        repo.categoryList.where((c) => c.name == 'Iuran keamanan'),
+        hasLength(1),
+      );
+      expect(_key('expense-category-form'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

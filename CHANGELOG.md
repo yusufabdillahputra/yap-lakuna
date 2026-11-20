@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.126.0] - 2026-11-20
+
+Dialog *Buang perubahan?* dari dialog master data kini punya tombol
+**Simpan**.
+
+### Ditambahkan
+
+- **Master data (1.17):** saat menutup dialog grup pelanggan, jenis
+  pengeluaran, grup modifier, area, meja, atau rentang meja yang sudah
+  diubah (Batal, Esc, ketuk di luar dialog, tombol kembali, atau ✕ jendela
+  aplikasi), pertanyaan *Buang perubahan?* menawarkan **Batal**, **Buang**,
+  dan **Simpan**. **Simpan** menyimpan seperti tombol Simpan dialog: dialog
+  tertutup dan daftar diperbarui. Saat menutup jendela, aplikasi tertutup
+  setelah tersimpan.
+- Bila simpan gagal, baik isian salah (nama kosong, tempo atau kursi di
+  luar batas, opsi modifier kosong, rentang meja salah) maupun ditolak
+  penyimpanan (nama kembar), dialog tetap terbuka dengan pesannya, kursor
+  di isian yang salah untuk dialog meja (F1-10q), dan aplikasi tidak
+  ditutup.
+
+### Catatan teknis
+
+- Simpan di keenam dialog kini menjawab `Future<bool>`: `true` hanya bila
+  tersimpan dan dialog menutup dirinya. Isian yang ditolak validasi di
+  dialog menjawab `false` tanpa membaca hasil `save` view model (hasil itu
+  milik simpan sebelumnya). `runSave` di mixin dialog meja ikut menjawab
+  `bool`. Jawaban ini diteruskan ke `DiscardChangesScope(onSave:)`
+  (F1-13g).
+- Tes: grup F1-09c di `customer_groups_tab_test.dart`,
+  `expense_categories_tab_test.dart`, `modifier_groups_tab_test.dart`, dan
+  `dining_tables_tab_test.dart` (Esc / ketuk di luar / Batal → Simpan,
+  isian salah dan nama kembar tetap terbuka, ✕ jendela → Simpan berhasil;
+  isian salah dan nama kembar lewat ✕ jendela tidak keluar; kursor di Nama
+  setelah nama area kembar; simpan dari pertanyaan yang berjalan menahan
+  Esc, ketuk di luar, dan ✕ jendela). Kedua belas tes awal gagal tanpa
+  perubahan kode. Uji manual Linux di Xvfb.
+- Spec [F1-09c](docs/superpowers/specs/2026-11-20-f1-09c-simpan-dari-dialog-master-data-design.md);
+  gap *Simpan langsung dari dialog konfirmasi* di F1-09b dan *Simpan dari
+  dialog di form lain* di F1-07r ditutup.
+
 ## [0.125.0] - 2026-11-20
 
 Dialog *Buang perubahan?* dari form pelanggan dan supplier kini punya
@@ -7317,7 +7357,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...HEAD
+[0.126.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...v0.126.0
 [0.125.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...v0.125.0
 [0.124.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...v0.124.0
 [0.123.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...v0.123.0
