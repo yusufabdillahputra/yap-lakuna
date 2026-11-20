@@ -8760,4 +8760,12 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return 'In $count drafts, incl. $number: $ordered of $suggested $unit suggested';
   }
+
+  @override
+  String get stockMinimumDraftEnough => 'Covers the suggestion';
+
+  @override
+  String stockMinimumDraftShort(String qty, String unit) {
+    return '$qty $unit short of the suggestion';
+  }
 }

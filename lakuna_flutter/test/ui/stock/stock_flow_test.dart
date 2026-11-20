@@ -16,6 +16,7 @@ import 'package:lakuna_flutter/ui/products/product_widgets.dart';
 import 'package:lakuna_flutter/ui/settings/app_settings_view_model.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view.dart';
 import 'package:lakuna_flutter/utils/result.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_app_settings_repository.dart';
@@ -1350,6 +1351,75 @@ void main() {
         find.byKey(ValueKey('stock-min-draft-${other.uuid}')),
         findsNothing,
       );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('tanda cukup / kurang dari saran '
+        '${size.width.toInt()} px (F1-08p)', (tester) async {
+      final (stock, purchases) = restockSeed();
+      final vs = [for (final p in purchases.products) ...p.variants];
+      // Barang pertama: 5 dari saran 38 (kurang 33). Barang kedua: stok 1,
+      // minimum 3, saran 5; dipesan 6 (cukup).
+      await purchases.saveDraft(
+        PurchaseRequest(
+          purchasedOn: DateTime(2026, 11, 2),
+          locationId: purchases.locations.first.id,
+          lines: [
+            PurchaseLineRequest(
+              variantId: vs[0].id,
+              quantity: Qty.units(5),
+              unitPrice: const Money(30000),
+            ),
+            PurchaseLineRequest(
+              variantId: vs[1].id,
+              quantity: Qty.units(6),
+              unitPrice: const Money(30000),
+            ),
+          ],
+        ),
+      );
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      Finder cover(UuidValue id) => find.descendant(
+        of: find.byKey(ValueKey('stock-min-cover-${id.uuid}')),
+        matching: find.byType(Text),
+      );
+      expect(
+        tester.widget<Text>(cover(vs[0].id)).data,
+        'Kurang 33 pcs dari saran',
+      );
+      expect(tester.widget<Text>(cover(vs[1].id)).data, 'Cukup untuk saran');
+      expect(
+        find.descendant(
+          of: find.byKey(ValueKey('stock-min-cover-${vs[1].id.uuid}')),
+          matching: find.byIcon(TablerIcons.circleCheck),
+        ),
+        findsOneWidget,
+      );
+      // Teks dan ikon tetap di dalam baris stok minimum (dibungkus, tidak
+      // meluap) di ponsel.
+      for (final v in vs.take(2)) {
+        final tile = tester.getRect(
+          find.byKey(ValueKey('stock-min-${v.id.uuid}')),
+        );
+        final line = tester.getRect(
+          find.byKey(ValueKey('stock-min-cover-${v.id.uuid}')),
+        );
+        expect(line.left >= tile.left && line.right <= tile.right, isTrue);
+        expect(tester.getRect(cover(v.id)).right <= tile.right, isTrue);
+      }
       expect(tester.takeException(), isNull);
     });
   }

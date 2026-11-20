@@ -5732,5 +5732,20 @@
         "type": "String"
       }
     }
+  },
+  "stockMinimumDraftEnough": "Cukup untuk saran",
+  "@stockMinimumDraftEnough": {
+    "placeholders": {}
+  },
+  "stockMinimumDraftShort": "Kurang {qty} {unit} dari saran",
+  "@stockMinimumDraftShort": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
   }
 }

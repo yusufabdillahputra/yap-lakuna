@@ -2017,6 +2017,46 @@ class _EntryTile extends StatelessWidget {
 
 // --- Stok minimum ------------------------------------------------------------
 
+/// *Cukup untuk saran* / *Kurang … dari saran* di bawah keterangan draf
+/// stok minimum (F1-08p).
+class _DraftCover extends StatelessWidget {
+  const _DraftCover({required this.row, required this.mark});
+
+  final StockRow row;
+  final DraftMark mark;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final short = StockViewModel.shortfallOf(row, mark);
+    final enough = short == Qty.zero;
+    final color = enough
+        ? _diffColor(context, 1)
+        : context.theme.colors.mutedForeground;
+    return Row(
+      key: ValueKey('stock-min-cover-${row.variantId.uuid}'),
+      spacing: 4,
+      children: [
+        if (enough) Icon(TablerIcons.circleCheck, size: 14, color: color),
+        Flexible(
+          child: Text(
+            enough
+                ? l10n.stockMinimumDraftEnough
+                : l10n.stockMinimumDraftShort(
+                    formatQty(context, short),
+                    row.baseUnit,
+                  ),
+            style: context.theme.typography.body.xs.copyWith(
+              color: color,
+              fontWeight: enough ? FontWeight.w600 : null,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _MinimumPanel extends StatelessWidget {
   const _MinimumPanel({required this.viewModel, this.onRestock});
 
@@ -2094,7 +2134,7 @@ class _MinimumPanel extends StatelessWidget {
                               [?r.sku, r.baseUnit].join(' · '),
                               style: _muted(context),
                             ),
-                            if (vm.draftMarkOf(r.variantId) case final m?)
+                            if (vm.draftMarkOf(r.variantId) case final m?) ...[
                               Text(
                                 _inDraftText(context, l10n, r, m),
                                 key: ValueKey(
@@ -2111,6 +2151,8 @@ class _MinimumPanel extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              _DraftCover(row: r, mark: m),
+                            ],
                           ],
                         ),
                       ),

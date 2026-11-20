@@ -8510,4 +8510,12 @@ class AppLocalizationsId extends AppLocalizations {
   ) {
     return 'Sudah di $count draf, a.l. $number: $ordered dari saran $suggested $unit';
   }
+
+  @override
+  String get stockMinimumDraftEnough => 'Cukup untuk saran';
+
+  @override
+  String stockMinimumDraftShort(String qty, String unit) {
+    return 'Kurang $qty $unit dari saran';
+  }
 }
