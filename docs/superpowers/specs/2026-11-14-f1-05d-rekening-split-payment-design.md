@@ -49,4 +49,4 @@ menampilkannya, jadi kasir kembali harus menghafal.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Rekening di panel *Bagi beberapa metode* | 1.5 | Rilis v0.76.0 | — |
-| Rekening di baris bagian transfer yang sudah ditambah | — | Belum | Baris hanya menampilkan referensi; rekening tampil saat memilih metode. |
+| Rekening di baris bagian transfer yang sudah ditambah | — | Rilis v0.135.0 | [F1-05g](2026-11-20-f1-05g-rekening-tujuan-per-pembayaran-design.md): baris bagian menampilkan *Ke: \<rekening\>*. |

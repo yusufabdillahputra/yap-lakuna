@@ -144,12 +144,19 @@ List<ReceiptLine> layoutPair(
 }) {
   label = receiptAscii(label);
   value = receiptAscii(value);
+  if (value.isEmpty && label.length <= width) {
+    return [ReceiptLine(label, bold: bold)];
+  }
   final gap = width - label.length - value.length;
   if (gap >= 1) {
     return [ReceiptLine('$label${' ' * gap}$value', bold: bold)];
   }
+  // Label menjorok (mis. `  Ke: …`) tetap menjorok di setiap baris bungkus.
+  final indent = label.length - label.trimLeft().length;
+  final pad = indent < width ~/ 2 ? ' ' * indent : '';
   return [
-    for (final l in wrapText(label, width)) ReceiptLine(l, bold: bold),
+    for (final l in wrapText(label, width - pad.length))
+      ReceiptLine('$pad$l', bold: bold),
     for (final v in wrapText(value, width))
       ReceiptLine(v, align: ReceiptAlign.right, bold: bold),
   ];

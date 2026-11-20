@@ -7,6 +7,75 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.135.0] - 2026-11-20
+
+Setiap pembayaran transfer kini mencatat rekening tujuannya, jadi toko
+dengan beberapa rekening bisa mencocokkan mutasi tiap bank dengan
+penjualan.
+
+### Ditambahkan
+
+- **Pembayaran (1.5) → Transfer bank:** baris rekening di kotak
+  *Transfer ke* kini bisa dipilih (tanda centang, judul *Rekening
+  tujuan*). Toko dengan satu rekening otomatis terpilih; dengan 2–3
+  rekening kasir mengetuk baris atau menekan **Salin** (menyalin juga
+  memilih). Selama belum memilih, **Selesaikan pembayaran** nonaktif dan
+  petunjuk *Pilih rekening tujuan transfer.* tampil. Berlaku juga untuk
+  bill Meja. Toko tanpa rekening tetap seperti dulu.
+- **Bagi beberapa metode (1.5) dan bagian split bill:** bagian transfer
+  baru memilih rekening dengan cara yang sama; **Tambah metode** nonaktif
+  sampai rekening dipilih, dan baris bagian yang sudah ditambah
+  menampilkan *Ke: \<rekening\>*.
+- **Struk (cetak, pratinjau, cetak ulang dari Riwayat, bagian split
+  bill):** baris menjorok *Ke: \<rekening\>* di bawah pembayaran transfer,
+  sebelum *Ref. transfer*.
+- **Laporan › Ringkasan (1.24), *Penjualan per metode bayar*:** rincian
+  per rekening tujuan di bawah *Transfer bank* (nominal bersih, urut
+  terbesar, *Tanpa rekening* untuk transfer lama). Unduhan Excel/PDF
+  ringkasan memuat baris rincian yang sama.
+- Panduan *Bayar tunai, kartu, transfer*, *Bagi beberapa metode*, dan
+  *Laporan* (ID + EN) menjelaskan pilihan rekening tujuan.
+
+### Diubah
+
+- Pindah ke metode lain membuang pilihan rekening; mengetuk *Transfer
+  bank* lagi tetap menyimpannya. Pilihan di bagian split dikosongkan
+  setelah bagian ditambah.
+
+### Diperbaiki
+
+- **Struk:** baris menjorok yang terlalu panjang untuk lebar kertas
+  (mis. *Ref. transfer* panjang di kertas 58 mm, atau rekening lengkap
+  dengan nama pemilik di 80 mm) kehilangan jorokan saat dibungkus.
+  `layoutPair` kini mempertahankan jorokan di setiap baris bungkus, dan
+  baris tanpa nilai yang pas selebar kertas tidak lagi dibungkus.
+  Ditemukan saat uji manual cetak ulang struk transfer di Xvfb.
+
+### Catatan teknis
+
+- Model `Payment.transferAccount` (`transfer_account`, teks, nullable),
+  migrasi `rekening-tujuan` (server + klien). Disimpan sebagai salinan
+  teks baris rekening, bukan ID: mengganti rekening di Pengaturan tidak
+  mengubah nota lama.
+- `SalePaymentRequest.transferAccount` (default `''`);
+  `checkPaymentRequests` menolak lebih dari 100 karakter
+  (`SaleTransferAccountInvalid`); `insertPayments` menyimpan rekening
+  hanya untuk transfer (dirapikan, kosong = `null`). Berlaku untuk
+  penjualan, *Tutup & bayar* bill, dan `paySplitPart`.
+- Domain: `ReportPayment.transferAccount`, `transferByAccount(sales)` →
+  `TransferAccountRow(account?, amount)`; `ReportData.transferAccounts`.
+- `CashierViewModel`: `transferAccount`, `transferAccountMissing`,
+  `selectTransferAccount`, `draftTransferAccount`,
+  `selectDraftTransferAccount`, `SplitPart.transferAccount`,
+  `SplitDraftError.transferAccountMissing`; `canPay` dan `draftError`
+  memperhitungkan pilihan.
+- `TransferAccountBox(accounts, selected, onSelect, enabled)`: baris
+  `FTappable` (fokus keyboard, `Semantics` selected).
+- Kunci l10n baru: `paymentTransferChoose`, `paymentTransferSelected`,
+  `receiptPaidTo`, `reportsTransferNoAccount`.
+- Pembayaran piutang pelanggan, hutang supplier, dan pengeluaran belum
+  mencatat rekening (gap di spec F1-05g).
+
 ## [0.134.0] - 2026-11-20
 
 Tamu terakhir di split bill F&B kini bisa membayar belakangan sebagai
@@ -7709,7 +7778,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...HEAD
+[0.135.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...v0.135.0
 [0.134.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...v0.134.0
 [0.133.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...v0.133.0
 [0.132.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...v0.132.0

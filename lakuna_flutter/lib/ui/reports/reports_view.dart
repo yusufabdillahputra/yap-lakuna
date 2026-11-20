@@ -674,7 +674,9 @@ class _Methods extends StatelessWidget {
                         ),
                         Text(
                           formatMoney(context, a.amount),
-                          style: _amountStyle(context),
+                          style: _muted(
+                            context,
+                          ).copyWith(fontFeatures: _tabular),
                         ),
                       ],
                     ),

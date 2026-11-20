@@ -93,4 +93,4 @@ baris: kasir bisa menyalin rekening bank yang dipilih pembeli saja.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Beberapa rekening transfer, salin per rekening | 1.5, 1.26 | Rilis v0.86.0 | Maks 3 rekening, satu per baris. |
-| Catat rekening tujuan per pembayaran | — | Belum | Untuk rekonsiliasi mutasi per bank bila dibutuhkan. |
+| Catat rekening tujuan per pembayaran | — | Rilis v0.135.0 | [F1-05g](2026-11-20-f1-05g-rekening-tujuan-per-pembayaran-design.md): struk dan laporan per rekening. |

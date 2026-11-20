@@ -232,10 +232,11 @@ void main() {
       isNot(contains(contains('QR-1'))),
     );
     final lines = layoutReceipt(content, ReceiptPaper.mm58);
-    final at = lines.indexWhere((l) => l.text.startsWith('Ref. transfer'));
+    // Baris bungkus tetap menjorok (F1-05g).
+    final at = lines.indexWhere((l) => l.text.startsWith('  Ref. transfer'));
     expect(at, greaterThan(0));
     expect(lines[at].align, ReceiptAlign.left);
-    expect(lines[at + 1].text, 'A' * 32);
+    expect(lines[at + 1].text, '  ${'A' * 30}');
     expect(lines[at + 1].align, ReceiptAlign.left);
     expect(lines.every((l) => l.text.length <= 32), isTrue);
   });

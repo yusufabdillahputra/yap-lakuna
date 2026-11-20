@@ -7,10 +7,10 @@ Satu nota bisa dibayar dengan beberapa metode, misalnya sebagian tunai dan sisan
 ## Langkah
 
 1. Di layar Bayar, pilih **Bagi beberapa metode**.
-2. Pilih metode pertama, isi **Nominal**, lalu tekan **Tambah metode** untuk metode berikutnya. *Sisa* tagihan ditampilkan di bawah. Untuk kartu dan transfer, isi juga **No. approval kartu** atau **Referensi transfer** bila ada (opsional, maks. 40 karakter). Saat memilih **Transfer bank**, rekening toko dari [Pengaturan toko](store-settings) tampil di kotak *Transfer ke*; tekan **Salin** lalu kirim ke pembeli.
+2. Pilih metode pertama, isi **Nominal**, lalu tekan **Tambah metode** untuk metode berikutnya. *Sisa* tagihan ditampilkan di bawah. Untuk kartu dan transfer, isi juga **No. approval kartu** atau **Referensi transfer** bila ada (opsional, maks. 40 karakter). Saat memilih **Transfer bank**, rekening toko dari [Pengaturan toko](store-settings) tampil di kotak *Transfer ke*; tekan **Salin** lalu kirim ke pembeli. Bila toko punya beberapa rekening, ketuk rekening tujuannya dulu: **Tambah metode** baru aktif setelah rekening dipilih, dan baris bagian yang sudah ditambah menampilkan *Ke: \<rekening\>*.
 3. Untuk QRIS statis, tekan **Konfirmasi** setelah dana masuk. Bagian QRIS berstatus *Menunggu* sampai dikonfirmasi.
 4. Bila sisa sudah nol, tekan **Selesaikan pembayaran**.
 
 > [!note] Tunai hanya boleh satu baris, dan kembalian hanya dari tunai. Nominal metode non-tunai tidak boleh melebihi sisa.
 
-Struk mencantumkan setiap metode dan nominalnya, beserta no. approval atau referensi transfer di bawah baris kartu/transfer. Untuk membagi tagihan antartamu di restoran, pakai [Split bill](split-bill).
+Struk mencantumkan setiap metode dan nominalnya, beserta rekening tujuan (*Ke: …*) dan no. approval atau referensi transfer di bawah baris kartu/transfer. Untuk membagi tagihan antartamu di restoran, pakai [Split bill](split-bill).

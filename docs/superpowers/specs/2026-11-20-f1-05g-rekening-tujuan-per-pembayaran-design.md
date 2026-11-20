@@ -47,7 +47,9 @@ menampilkannya di struk dan laporan.
 4. **Struk.** Di bawah baris pembayaran transfer tercetak baris menjorok
    *Ke: \<rekening\>*, sebelum baris *Ref. transfer* bila ada. Berlaku untuk
    semua yang memakai `receiptContent` (struk, pratinjau, cetak ulang,
-   bagian split bill).
+   bagian split bill). Baris menjorok yang terlalu panjang dibungkus dan
+   tiap baris bungkusnya tetap menjorok (`layoutPair`), termasuk *Ref.
+   transfer* panjang (sebelumnya jorokan hilang saat dibungkus).
 5. **Laporan › Ringkasan, *Per metode bayar*.** Di bawah baris *Transfer
    bank* tampil rincian per rekening (nominal bersih), urut terbesar, dan
    *Tanpa rekening* untuk transfer lama atau toko tanpa rekening. Rincian
@@ -67,15 +69,19 @@ menampilkannya di struk dan laporan.
   `checkPaymentRequests` menolak > 100 karakter; `insertPayments` menyimpan
   hanya untuk transfer; laporan membawa rekening.
 - Flutter:
-  - VM Kasir: `transferAccountChoice` (rekening terpilih panel transfer),
-    `selectTransferAccount`, `transferAccountNeeded`; `SplitPart
-    .transferAccount`, `draftTransferAccount`; `canPay` / `canAddPart`
-    memperhitungkan pilihan; `_payments()` meneruskan rekening.
-  - `TransferAccountBox(accounts:, selected:, onSelect:)`.
+  - VM Kasir: `transferAccount` (rekening terpilih panel transfer; satu
+    rekening otomatis), `transferAccountMissing`, `selectTransferAccount`;
+    pindah metode membuang pilihan, mengetuk *Transfer* lagi menyimpannya.
+    `SplitPart.transferAccount`, `draftTransferAccount`,
+    `selectDraftTransferAccount`, `SplitDraftError.transferAccountMissing`;
+    `canPay` dan `draftError` memperhitungkan pilihan; `_payments()`
+    meneruskan rekening (transfer dan bagian split).
+  - `TransferAccountBox(accounts:, selected:, onSelect:, enabled:)`: baris
+    `FTappable` (fokus keyboard), judul *Rekening tujuan* saat memilih.
   - `receiptContent`: `ReceiptPair` *Ke:* di bawah pembayaran transfer.
-  - Laporan: sub-baris di `_Methods` dan ekspor.
-- l10n: `paymentTransferChoose`, `receiptPaidTo`,
-  `reportsTransferNoAccount`.
+  - Laporan: sub-baris di `_Methods` dan ekspor ringkasan.
+- l10n: `paymentTransferChoose`, `paymentTransferSelected`,
+  `receiptPaidTo`, `reportsTransferNoAccount`.
 
 ## Pengujian
 
