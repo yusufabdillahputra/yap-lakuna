@@ -132,7 +132,20 @@ class _StockScreenState extends State<StockScreen>
       context,
       body: AppLocalizations.of(context).stockDiscardBody,
       key: 'stock-discard',
+      // Simpan hanya bila tombol Simpan penyesuaian sendiri aktif (F1-08n).
+      onSave: vm.canSave ? _saveBeforeLeaving : null,
     );
+  }
+
+  /// *Simpan* di dialog keluar (F1-08n): selama simpan, navigasi lain
+  /// ditolak; bila gagal, tetap di layar.
+  Future<bool> _saveBeforeLeaving() async {
+    final guard = widget.leaveGuard?..saving = true;
+    try {
+      return await _saveAdjustmentFromDialog(_viewModel);
+    } finally {
+      guard?.saving = false;
+    }
   }
 
   @override
@@ -623,6 +636,16 @@ Widget? _statusBadge(BuildContext context, StockRow r) {
   return null;
 }
 
+/// Simpan penyesuaian dari dialog *Buang perubahan?* (F1-08n): `true` bila
+/// tersimpan. Bila gagal, tab *Penyesuaian* dibuka agar pesan galat di bawah
+/// draf terlihat.
+Future<bool> _saveAdjustmentFromDialog(StockViewModel vm) async {
+  await vm.save.execute();
+  if (vm.save.result is Ok) return true;
+  vm.setTab(StockTab.adjustment);
+  return false;
+}
+
 // --- Kepala: lokasi dan tab --------------------------------------------------
 
 class _LocationSelect extends StatefulWidget {
@@ -650,6 +673,8 @@ class _LocationSelectState extends State<_LocationSelect> {
             context,
             body: AppLocalizations.of(context).stockLocationDiscardBody,
             key: 'stock-location-discard',
+            // Simpan di lokasi lama lalu pindah (F1-08n).
+            onSave: vm.canSave ? () => _saveAdjustmentFromDialog(vm) : null,
           );
       if (!mounted) return;
       if (!discard) {
