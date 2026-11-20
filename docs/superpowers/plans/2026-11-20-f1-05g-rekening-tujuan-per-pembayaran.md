@@ -10,4 +10,4 @@ Spec: `docs/superpowers/specs/2026-11-20-f1-05g-rekening-tujuan-per-pembayaran-d
 - [x] 6. Struk *Ke:* dan laporan per rekening + ekspor (TDD).
 - [x] 7. Uji mutasi, review subagen, uji manual Xvfb.
 - [x] 8. Dokumen (spec F1-05d/F1-05f, README, STATUS-JEDA, panduan), CHANGELOG, versi 0.135.0+138.
-- [ ] 9. PR, CI hijau, squash-merge, rilis.
+- [x] 9. PR, CI hijau, squash-merge, rilis (#141).
