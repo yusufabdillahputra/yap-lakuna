@@ -2025,6 +2025,10 @@
   "floorDiscardBody": "Perubahan tata letak yang belum disimpan akan hilang.",
   "floorDiscardKeep": "Batal",
   "floorDiscardConfirm": "Buang",
+  "discardSave": "Simpan",
+  "@discardSave": {
+    "description": "Tombol Simpan di dialog Buang perubahan? (F1-07r)"
+  },
   "floorLoadFailed": "Denah gagal dimuat.",
   "floorBack": "Kembali",
   "floorNoArea": "Belum ada area. Tambah area dulu, mis. Indoor atau Teras.",

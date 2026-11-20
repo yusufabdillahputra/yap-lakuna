@@ -3269,6 +3269,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get floorDiscardConfirm => 'Discard';
 
   @override
+  String get discardSave => 'Save';
+
+  @override
   String get floorLoadFailed => 'Could not load the floor plan.';
 
   @override

@@ -14,7 +14,7 @@ Produk harus ada sebelum bisa dijual di kasir. Satu produk boleh punya beberapa 
 4. Di tab **Varian**, isi harga beli, harga jual, stok minimum, dan stok awal. Tambah baris dengan **Tambah varian** bila perlu. SKU dan barcode boleh diisi untuk scan.
 5. Tekan **Simpan**.
 
-Bila Anda meninggalkan form produk yang isiannya belum disimpan (lewat **Batal**, **Kembali**, tombol kembali ponsel, atau menu samping), Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form lalu simpan, atau **Buang** untuk keluar tanpa menyimpan. Form yang hanya dibuka tanpa diubah langsung ditutup.
+Bila Anda meninggalkan form produk yang isiannya belum disimpan (lewat **Batal**, **Kembali**, tombol kembali ponsel, atau menu samping), Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Simpan** untuk menyimpan lalu langsung lanjut ke tujuan Anda, **Buang** untuk keluar tanpa menyimpan, atau **Batal** untuk kembali ke form. Bila simpan gagal (mis. isian wajib belum diisi), Anda tetap di form dan pesan galatnya tampil. Form yang hanya dibuka tanpa diubah langsung ditutup.
 
 ## Barang tanpa barcode
 

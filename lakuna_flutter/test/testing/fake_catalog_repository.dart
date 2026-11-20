@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -32,6 +34,9 @@ class FakeCatalogRepository extends CatalogRepository {
 
   /// Galat berikutnya (sekali pakai).
   Exception? nextError;
+
+  /// Simpan produk menunggu gerbang ini (tes F1-07r).
+  Completer<void>? saveGate;
 
   /// Nama produk yang selalu gagal disimpan (tes F1-07j).
   final failSaveFor = <String>{};
@@ -290,6 +295,7 @@ class FakeCatalogRepository extends CatalogRepository {
 
   @override
   Future<Result<UuidValue>> save(ProductDraft draft) async {
+    if (saveGate case final gate?) await gate.future;
     if (_check() case final e?) return Result.error(e);
     if (failSaveFor.contains(draft.name)) {
       return Result.error(ProductInputInvalid(const []));

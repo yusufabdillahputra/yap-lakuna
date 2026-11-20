@@ -347,6 +347,24 @@ class ProductFormViewModel extends ChangeNotifier {
   /// *Simpan* / *Arsipkan* sedang berjalan.
   bool get busy => save.running || archive.running;
 
+  /// Simpan dari dialog *Buang perubahan?* (F1-07r). Bila berhasil, form
+  /// diisi ulang dari data tersimpan (ID produk dan varian, tanpa stok
+  /// awal), karena form bisa tetap tampil setelahnya (mis. tombol kembali
+  /// Android di halaman tunggal membawa aplikasi ke latar): *Simpan* lagi
+  /// harus mengubah produk yang sama, bukan membuat produk kedua.
+  Future<bool> saveBeforeLeaving() async {
+    await save.execute();
+    final id = save.result;
+    if (!save.completed || id is! Ok<UuidValue>) return false;
+    _savedId = id.value;
+    _newPhoto = null;
+    _removePhoto = false;
+    await _reload(id.value);
+    _markSaved();
+    notifyListeners();
+    return true;
+  }
+
   void _markSaved() {
     _savedData = _dataSignature();
     _savedPhoto = _photoSignature();

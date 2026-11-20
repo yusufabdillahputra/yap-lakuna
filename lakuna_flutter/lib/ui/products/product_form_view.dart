@@ -90,6 +90,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           ? l10n.productDiscardBodyNew
           : l10n.productDiscardBody(name),
       key: 'product-discard',
+      // Simpan lalu teruskan navigasi yang tertahan (F1-07r); gagal simpan
+      // tetap di form dengan galatnya.
+      onSave: () async {
+        final guard = widget.leaveGuard?..saving = true;
+        try {
+          return await _viewModel.saveBeforeLeaving();
+        } finally {
+          guard?.saving = false;
+        }
+      },
     );
   }
 

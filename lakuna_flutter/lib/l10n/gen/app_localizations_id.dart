@@ -3173,6 +3173,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get floorDiscardConfirm => 'Buang';
 
   @override
+  String get discardSave => 'Simpan';
+
+  @override
   String get floorLoadFailed => 'Denah gagal dimuat.';
 
   @override

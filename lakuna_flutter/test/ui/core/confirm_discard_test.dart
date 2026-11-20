@@ -191,4 +191,90 @@ void main() {
       expect(await answer, isTrue);
     });
   });
+
+  group('confirmDiscardChanges onSave (F1-07r)', () {
+    final navigator = GlobalKey<NavigatorState>();
+
+    Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: navigator,
+        locale: const Locale('id'),
+        supportedLocales: const [Locale('id'), Locale('en')],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          ...FLocalizations.localizationsDelegates,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        builder: (context, child) =>
+            FTheme(data: lakunaLightTheme(touch: false), child: child!),
+        home: const SizedBox(),
+      ),
+    );
+
+    testWidgets('tanpa onSave tidak ada tombol Simpan', (tester) async {
+      await pumpApp(tester);
+      unawaited(
+        confirmDiscardChanges(
+          navigator.currentContext!,
+          body: 'Isian hilang.',
+          key: 'x',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('x'), findsOneWidget);
+      expect(_key('x-save'), findsNothing);
+    });
+
+    for (final saved in [true, false]) {
+      testWidgets('Simpan menutup dialog lalu jawabannya hasil simpan '
+          '($saved)', (tester) async {
+        await pumpApp(tester);
+        var calls = 0;
+        bool? answer;
+        unawaited(
+          confirmDiscardChanges(
+            navigator.currentContext!,
+            body: 'Isian hilang.',
+            key: 'x',
+            onSave: () async {
+              calls++;
+              return saved;
+            },
+          ).then((v) => answer = v),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Simpan'), findsOneWidget);
+        await tester.tap(_key('x-save'));
+        await tester.pumpAndSettle();
+        expect(_key('x'), findsNothing);
+        expect(calls, 1);
+        expect(answer, saved);
+      });
+    }
+
+    testWidgets('Batal dan Buang tidak menyimpan', (tester) async {
+      await pumpApp(tester);
+      var calls = 0;
+      for (final (button, expected) in [('cancel', false), ('confirm', true)]) {
+        bool? answer;
+        unawaited(
+          confirmDiscardChanges(
+            navigator.currentContext!,
+            body: 'Isian hilang.',
+            key: 'x',
+            onSave: () async {
+              calls++;
+              return true;
+            },
+          ).then((v) => answer = v),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(_key('x-$button'));
+        await tester.pumpAndSettle();
+        expect(answer, expected);
+      }
+      expect(calls, 0);
+    });
+  });
 }

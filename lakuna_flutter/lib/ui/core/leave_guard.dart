@@ -26,11 +26,17 @@ class LeaveGuard {
 
   Future<bool>? _running;
 
+  /// Halaman sedang menyimpan atas pilihan **Simpan** di dialog keluar
+  /// (F1-07r): navigasi lain ditolak, bukan ikut menunggu jawaban navigasi
+  /// yang sedang ditahan (yang akan diteruskan bila simpan berhasil).
+  var saving = false;
+
   /// Pertanyaan yang sedang tampil dipakai ulang: navigasi kedua selama
   /// dialog terbuka tidak membuka dialog kedua.
   Future<bool> canLeave() {
     final check = this.check;
     if (check == null) return Future.value(true);
+    if (saving) return Future.value(false);
     return _running ??= check().whenComplete(() => _running = null);
   }
 }
