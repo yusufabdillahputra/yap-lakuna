@@ -474,6 +474,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
   /// Galat dari repositori untuk aksi terakhir.
   Exception? get actionError => _actionError;
 
+  /// Naik setiap simpan draf, terima barang, atau hapus draf gagal
+  /// (F1-12j): form menggulir ke galat paling atas.
+  int get failedSubmits => _failedSubmits;
+  var _failedSubmits = 0;
+
   bool get busy => saveDraft.running || receive.running || deleteDraft.running;
 
   /// Isian terakhir yang dimuat atau disimpan (F1-12f).
@@ -1224,10 +1229,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
     if (_locationId == null) {
       final error = StockLocationNotFound();
       _actionError = error;
+      _failedSubmits++;
       notifyListeners();
       return Result.error(error);
     }
     if (_validate(receiving: receiving).isNotEmpty) {
+      _failedSubmits++;
       notifyListeners();
       return Result.error(PurchaseInvalid(_validate(receiving: receiving)));
     }
@@ -1264,6 +1271,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         }
       case Error(:final error):
         _actionError = error;
+        _failedSubmits++;
     }
     return result;
   }
@@ -1278,6 +1286,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _markSaved();
       case Error(:final error):
         _actionError = error;
+        _failedSubmits++;
     }
     return result;
   }

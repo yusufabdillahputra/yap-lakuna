@@ -12,7 +12,7 @@ A purchase records goods coming in from a supplier: stock goes up, the average c
 4. Enter the **Invoice discount** and **Shipping** if any. Shipping is added to the cost of the goods.
 5. Enter **Pay now** and its source (**Store cash**, **Cash drawer**, or **Bank account**), or tap **Pay in full**. The rest becomes a payable with a **Balance due on** date.
 6. If you have it, tap **Attach invoice photo** (or **Take invoice photo** on a phone) under *Invoice photo*. The photo is saved with the purchase.
-7. Tap **Receive goods & save**. Use **Save draft** if the goods have not arrived yet.
+7. Tap **Receive goods & save**. Use **Save draft** if the goods have not arrived yet. If a field is wrong or saving fails, the form scrolls straight to the top-most error message (for example a supplier that has not been chosen).
 
 If you leave a form with unsaved changes (with **Back**, the phone's back button, the side menu, or by picking another draft in the list), Lakuna first asks **Discard changes?**. Choose **Cancel** to return to the form, **Discard** to leave without saving, or **Save draft** to save what you entered as a draft and go straight on (the goods are not received yet and stock does not change). If something is wrong, for example a quantity of 0, you stay on the form with the message. A draft opened from *Minimum stock* with added items also asks until you tap **Save draft**.
 

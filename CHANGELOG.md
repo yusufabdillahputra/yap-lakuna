@@ -7,6 +7,39 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.127.0] - 2026-11-20
+
+Form pembelian bergulir ke pesan galat setelah simpan gagal.
+
+### Diperbaiki
+
+- **Pembelian (1.19):** bila *Simpan draf* atau *Terima barang & simpan*
+  gagal, termasuk *Simpan draf* dari dialog *Buang perubahan?*, atau
+  *Hapus draf* gagal, pesannya bisa berada di luar layar (form panjang),
+  sehingga seolah tidak terjadi apa-apa. Kini form bergulir ke galat yang
+  tampil paling atas: isian yang salah (supplier, nomor faktur, jumlah /
+  harga barang, daftar barang kosong, diskon, dibayar, jatuh tempo,
+  catatan) atau kotak galat. Bila pesannya sudah terlihat, layar tidak
+  digeser.
+
+### Catatan teknis
+
+- `PurchaseFormViewModel.failedSubmits` naik setiap `_submit` gagal (lokasi
+  tidak ada, isian salah, galat penyimpanan) dan setiap hapus draf gagal. `PurchaseFormPanel` kini
+  `StatefulWidget`: isian yang bisa salah dibungkus `_IssueAnchor`
+  (`KeyedSubtree` dengan `GlobalKey` dari registri panel lewat
+  `InheritedWidget`), lalu setelah bingkai berikutnya jangkar dengan posisi
+  teratas digulir lewat `Scrollable.ensureVisible` (perataan 0,1).
+- Tes: VM (`failedSubmits` naik pada isian salah, galat penyimpanan, dan
+  hapus draf gagal; tetap pada simpan berhasil) dan grup F1-12j di `purchase_flow_test.dart`
+  (360 px supplier kosong, 1440 px kotak galat dari dialog, galat terlihat
+  tidak menggeser layar). Tes gagal tanpa perubahan kode; mutasi penghitung
+  dan cek terlihat tertangkap. Ditemukan saat review: hapus draf gagal ikut
+  digulir, dan tes mengukur "terlihat" terhadap area gulir halaman. Uji
+  manual Linux di Xvfb.
+- Spec [F1-12j](docs/superpowers/specs/2026-11-20-f1-12j-gulir-ke-galat-pembelian-design.md);
+  gap *Gulir ke pesan galat* di F1-12i ditutup.
+
 ## [0.126.0] - 2026-11-20
 
 Dialog *Buang perubahan?* dari dialog master data kini punya tombol
@@ -7357,7 +7390,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...HEAD
+[0.127.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...v0.127.0
 [0.126.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...v0.126.0
 [0.125.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...v0.125.0
 [0.124.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...v0.124.0

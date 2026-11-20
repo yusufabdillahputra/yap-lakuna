@@ -1455,6 +1455,36 @@ void main() {
     expect(vm.tab, PurchaseTab.returns);
     expect(vm.returns, isEmpty);
   });
+
+  test(
+    'simpan gagal menaikkan failedSubmits; berhasil tidak (F1-12j)',
+    () async {
+      expect(form.failedSubmits, 0);
+      // Terima tanpa barang: isian salah (draf kosong boleh disimpan).
+      await form.receive.execute();
+      expect(form.failedSubmits, 1);
+      form.setNote('x' * (PurchaseLimits.note + 1));
+      await form.saveDraft.execute();
+      expect(form.failedSubmits, 2);
+      form.setNote('');
+
+      form.addByCode('MYK-2L');
+      repo.nextError = Exception('disk penuh');
+      await form.saveDraft.execute();
+      expect(form.saveDraft.result, isA<Error<Purchase>>());
+      expect(form.failedSubmits, 3);
+
+      await form.saveDraft.execute();
+      expect(form.saveDraft.result, isA<Ok<Purchase>>());
+      expect(form.failedSubmits, 3);
+
+      // Hapus draf gagal: kotak galat ikut digulir.
+      repo.nextError = Exception('disk penuh');
+      await form.deleteDraft.execute();
+      expect(form.actionError, isNotNull);
+      expect(form.failedSubmits, 4);
+    },
+  );
 }
 
 /// Repositori palsu yang gagal membaca supplier terakhir (F1-08d).

@@ -315,6 +315,81 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });
 
+  group('gulir ke galat setelah simpan gagal (F1-12j)', () {
+    /// Seluruh [finder] berada di dalam area gulir halaman (bukan di bawah
+    /// kepala atau bilah bawah) dan di dalam layar [size].
+    bool onScreen(WidgetTester tester, Finder finder, Size size) {
+      final rect = tester.getRect(finder);
+      final view = tester.getRect(
+        find.ancestor(of: finder, matching: find.byType(Scrollable)).last,
+      );
+      return rect.top >= view.top &&
+          rect.bottom <= view.bottom &&
+          rect.top >= 0 &&
+          rect.bottom <= size.height;
+    }
+
+    testWidgets('360 px: Terima barang tanpa supplier menggulir ke supplier', (
+      tester,
+    ) async {
+      const size = Size(360, 740);
+      await pump(tester, size);
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      await _scan(tester, 'MYK-2L');
+      await _tap(tester, _key('purchase-receive'));
+      expect(_key('purchase-detail'), findsNothing);
+      final supplier = _keyPrefix('purchase-supplier-').first;
+      expect(onScreen(tester, supplier, size), isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: Simpan draf dari dialog gagal menggulir ke pesan', (
+      tester,
+    ) async {
+      const size = Size(1440, 640);
+      await pump(tester, size);
+      await _scan(tester, 'KOP');
+      await _scan(tester, 'MYK-2L');
+      await tester.ensureVisible(_key('purchase-form-title'));
+      await tester.pumpAndSettle();
+      repo.nextError = Exception('disk penuh');
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(_key('purchase-action-error'), findsOneWidget);
+      expect(onScreen(tester, _key('purchase-action-error'), size), isTrue);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('galat yang sudah terlihat tidak menggeser layar', (
+      tester,
+    ) async {
+      const size = Size(1440, 640);
+      await pump(tester, size);
+      await _scan(tester, 'KOP');
+      final qty = _keyPrefix('purchase-qty-');
+      await _type(tester, qty, '0');
+      final page = find
+          .ancestor(
+            of: _key('purchase-form'),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      double offset() => tester.state<ScrollableState>(page).position.pixels;
+      // Di tengah layar, bukan di ujung gulir: gulir yang tidak perlu akan
+      // menggeser layar.
+      tester.state<ScrollableState>(page).position.jumpTo(offset() - 60);
+      await tester.pumpAndSettle();
+      final before = offset();
+      expect(onScreen(tester, qty, size), isTrue);
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(find.text('Qty harus lebih dari 0.'), findsOneWidget);
+      expect(offset(), before);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
   group('Simpan draf dari dialog Buang perubahan? (F1-12i)', () {
     /// Jalur router sekarang (menu ada di kedua tata letak).
     String path(WidgetTester tester) => GoRouter.of(

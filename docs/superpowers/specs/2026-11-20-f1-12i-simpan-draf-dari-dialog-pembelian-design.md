@@ -86,4 +86,4 @@ mengulang navigasinya.
 | --- | --- | --- | --- |
 | Simpan draf dari dialog *Buang perubahan?* pembelian | 1.19 | Rilis v0.124.0 | Form samping dan halaman form. |
 | Simpan dari dialog saat form tertutup halaman lain | — | Belum | Layar lebar: detail pembelian diterima dibuka di atas form samping yang berubah, lalu ✕ jendela / Ganti kasir → Simpan draf gagal: pesannya di form yang tertutup. Sama dengan gap F1-07r. |
-| Gulir ke pesan galat | — | Belum | Pesan galat simpan di bawah form panjang bisa di luar layar setelah simpan dari dialog gagal (sama dengan tombol *Simpan draf*). |
+| Gulir ke pesan galat | — | Rilis v0.127.0 | [F1-12j](2026-11-20-f1-12j-gulir-ke-galat-pembelian-design.md): form bergulir ke galat paling atas setelah simpan gagal, dari tombol maupun dialog. |
