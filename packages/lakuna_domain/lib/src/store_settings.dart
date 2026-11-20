@@ -4,6 +4,7 @@ library;
 import 'package:characters/characters.dart';
 
 import 'money.dart';
+import 'rounding.dart';
 import 'setup.dart' show setupNameMaxLength;
 
 /// Pembulatan total nota.
@@ -51,6 +52,7 @@ class SalesRules {
     this.rounding = TotalRounding.none,
     this.discountNeedsPin = true,
     this.transferAccount = '',
+    this.targetMarginBp,
   });
 
   /// JSON tersimpan; kolom yang rusak memakai nilai bawaan.
@@ -59,6 +61,7 @@ class SalesRules {
     final negative = json['allowNegativeStock'];
     final pin = json['discountNeedsPin'];
     final account = json['transferAccount'];
+    final target = json['targetMarginBp'];
     return SalesRules(
       allowNegativeStock: negative is bool ? negative : true,
       rounding:
@@ -69,6 +72,9 @@ class SalesRules {
       transferAccount: account is String
           ? _storedTransferAccounts(account)
           : '',
+      targetMarginBp: target is int && validTargetMarginBp(target)
+          ? target
+          : null,
     );
   }
 
@@ -86,6 +92,10 @@ class SalesRules {
   /// [ProfileLimits.transferAccountLines] (F1-05f). Kosong = belum diatur.
   final String transferAccount;
 
+  /// Target margin kotor cabang dalam basis poin (F1-16d), kelipatan 100
+  /// dari 1% sampai 99%; `null` = tanpa target.
+  final int? targetMarginBp;
+
   /// Rekening transfer per baris, tanpa baris kosong (F1-05f).
   List<String> get transferAccounts => _accountLines(transferAccount);
 
@@ -94,6 +104,7 @@ class SalesRules {
     'rounding': rounding.name,
     'discountNeedsPin': discountNeedsPin,
     'transferAccount': transferAccount,
+    'targetMarginBp': ?targetMarginBp,
   };
 
   SalesRules copyWith({
@@ -101,11 +112,15 @@ class SalesRules {
     TotalRounding? rounding,
     bool? discountNeedsPin,
     String? transferAccount,
+    int? Function()? targetMarginBp,
   }) => SalesRules(
     allowNegativeStock: allowNegativeStock ?? this.allowNegativeStock,
     rounding: rounding ?? this.rounding,
     discountNeedsPin: discountNeedsPin ?? this.discountNeedsPin,
     transferAccount: transferAccount ?? this.transferAccount,
+    targetMarginBp: targetMarginBp == null
+        ? this.targetMarginBp
+        : targetMarginBp(),
   );
 
   @override
@@ -114,7 +129,8 @@ class SalesRules {
       other.allowNegativeStock == allowNegativeStock &&
       other.rounding == rounding &&
       other.discountNeedsPin == discountNeedsPin &&
-      other.transferAccount == transferAccount;
+      other.transferAccount == transferAccount &&
+      other.targetMarginBp == targetMarginBp;
 
   @override
   int get hashCode => Object.hash(
@@ -122,13 +138,48 @@ class SalesRules {
     rounding,
     discountNeedsPin,
     transferAccount,
+    targetMarginBp,
   );
 
   @override
   String toString() =>
       'SalesRules(allowNegativeStock: $allowNegativeStock, '
       'rounding: ${rounding.name}, discountNeedsPin: $discountNeedsPin, '
-      'transferAccount: $transferAccount)';
+      'transferAccount: $transferAccount, targetMarginBp: $targetMarginBp)';
+}
+
+/// Target margin sah (F1-16d): 1%–99%, persen bulat.
+bool validTargetMarginBp(int bp) => bp >= 100 && bp <= 9900 && bp % 100 == 0;
+
+/// Galat isian target margin (F1-16d).
+enum TargetMarginIssue { outOfRange }
+
+final _wholeNumber = RegExp(r'^[0-9]+$');
+
+/// Target margin dari isian persen bulat [text]; `null` bila kosong atau
+/// tidak sah.
+int? targetMarginBpOf(String text) {
+  final t = text.trim();
+  if (!_wholeNumber.hasMatch(t) || t.length > 3) return null;
+  final bp = int.parse(t) * 100;
+  return validTargetMarginBp(bp) ? bp : null;
+}
+
+/// Galat isian target margin: kosong (tanpa target) atau 1–99 sah.
+TargetMarginIssue? targetMarginIssue(String text) =>
+    text.trim().isEmpty || targetMarginBpOf(text) != null
+    ? null
+    : TargetMarginIssue.outOfRange;
+
+/// Teks isian untuk target tersimpan [bp] (`2500` → `25`).
+String targetMarginText(int? bp) => bp == null ? '' : '${bp ~/ 100}';
+
+/// Selisih poin (bp) margin [marginBp] di bawah target [targetBp]; 0 bila
+/// target tercapai. Margin dibulatkan dulu ke 0,1 poin seperti tampilannya
+/// (`formatPercentBp`), agar *69,0%* tidak ditulis *kurang 0,0 poin*.
+int marginGapBp(int marginBp, int targetBp) {
+  final shown = divRoundHalfAway(BigInt.from(marginBp), BigInt.from(10)) * 10;
+  return shown >= targetBp ? 0 : targetBp - shown;
 }
 
 /// Batas isian profil toko & cabang.

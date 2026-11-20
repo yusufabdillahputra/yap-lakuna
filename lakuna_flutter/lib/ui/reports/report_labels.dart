@@ -26,6 +26,21 @@ String percentLabel(AppLocalizations l10n, int? bp, {bool signed = false}) {
   return signed && bp > 0 ? '+$text' : text;
 }
 
+/// Target margin (F1-16d) sebagai persen bulat, mis. `25%`.
+String targetLabel(int bp) => '${targetMarginText(bp)}%';
+
+/// Keterangan kartu *Margin kotor* (F1-16d): cara hitung bila tanpa
+/// target; target saja bila margin kosong; tercapai atau kurang n poin.
+String marginNote(AppLocalizations l10n, int? marginBp, int? targetBp) {
+  if (targetBp == null) return l10n.reportsMarginNote;
+  final target = targetLabel(targetBp);
+  if (marginBp == null) return l10n.reportsMarginTarget(target);
+  final gap = marginGapBp(marginBp, targetBp);
+  if (gap == 0) return l10n.reportsMarginTargetMet(target);
+  final points = percentLabel(l10n, gap).replaceAll('%', '');
+  return l10n.reportsMarginTargetShort(target, points);
+}
+
 /// Uang tanpa `BuildContext` (ekspor): `Rp 12.500` / `IDR 12,500`.
 String moneyLabel(AppLocalizations l10n, Money m) =>
     _en(l10n) ? m.formatEn() : m.formatIdr();
@@ -318,7 +333,14 @@ ReportTable reportTable(
             ReportRow([
               l10n.reportsKpiGrossProfit,
               money(pl.grossProfit),
-              percentLabel(l10n, pl.grossMarginBp),
+              // Target hanya ditulis bila margin terhitung (F1-16d).
+              switch (pl.grossMarginBp == null ? null : data.targetMarginBp) {
+                final target? => l10n.reportsMarginTargetExport(
+                  percentLabel(l10n, pl.grossMarginBp),
+                  targetLabel(target),
+                ),
+                null => percentLabel(l10n, pl.grossMarginBp),
+              },
             ]),
           ReportRow([l10n.reportsKpiAverage, money(data.averagePerSale), '']),
           ReportRow([

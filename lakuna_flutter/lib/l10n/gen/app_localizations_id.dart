@@ -8528,4 +8528,35 @@ class AppLocalizationsId extends AppLocalizations {
   String historyMatchedItemsMore(int count) {
     return '+$count lainnya';
   }
+
+  @override
+  String get storeSettingsTargetMargin => 'Target margin kotor (%)';
+
+  @override
+  String get storeSettingsTargetMarginHint =>
+      'Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.';
+
+  @override
+  String get storeSettingsTargetMarginRange =>
+      'Isi 1–99, atau kosongkan bila tanpa target.';
+
+  @override
+  String reportsMarginTarget(String target) {
+    return 'Target toko $target';
+  }
+
+  @override
+  String reportsMarginTargetMet(String target) {
+    return 'Target toko $target · tercapai';
+  }
+
+  @override
+  String reportsMarginTargetShort(String target, String gap) {
+    return 'Target toko $target · kurang $gap poin';
+  }
+
+  @override
+  String reportsMarginTargetExport(String margin, String target) {
+    return '$margin · target $target';
+  }
 }

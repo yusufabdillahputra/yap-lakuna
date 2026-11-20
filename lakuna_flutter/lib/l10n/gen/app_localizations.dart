@@ -14770,6 +14770,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'+{count} lainnya'**
   String historyMatchedItemsMore(int count);
+
+  /// No description provided for @storeSettingsTargetMargin.
+  ///
+  /// In id, this message translates to:
+  /// **'Target margin kotor (%)'**
+  String get storeSettingsTargetMargin;
+
+  /// No description provided for @storeSettingsTargetMarginHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.'**
+  String get storeSettingsTargetMarginHint;
+
+  /// No description provided for @storeSettingsTargetMarginRange.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi 1–99, atau kosongkan bila tanpa target.'**
+  String get storeSettingsTargetMarginRange;
+
+  /// No description provided for @reportsMarginTarget.
+  ///
+  /// In id, this message translates to:
+  /// **'Target toko {target}'**
+  String reportsMarginTarget(String target);
+
+  /// No description provided for @reportsMarginTargetMet.
+  ///
+  /// In id, this message translates to:
+  /// **'Target toko {target} · tercapai'**
+  String reportsMarginTargetMet(String target);
+
+  /// No description provided for @reportsMarginTargetShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Target toko {target} · kurang {gap} poin'**
+  String reportsMarginTargetShort(String target, String gap);
+
+  /// No description provided for @reportsMarginTargetExport.
+  ///
+  /// In id, this message translates to:
+  /// **'{margin} · target {target}'**
+  String reportsMarginTargetExport(String margin, String target);
 }
 
 class _AppLocalizationsDelegate

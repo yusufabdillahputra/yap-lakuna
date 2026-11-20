@@ -135,6 +135,48 @@ void main() {
       expect(vm.rulesDirty, isFalse);
     });
 
+    test('target margin (F1-16d): isi, galat, kosongkan', () async {
+      final repo = FakeStoreSettingsRepository();
+      final vm = StoreSettingsViewModel(repository: repo);
+      await vm.load.execute();
+      expect(vm.targetMarginText, '');
+      vm.setTargetMargin(' ');
+      expect(vm.rulesDirty, isFalse);
+      vm.setTargetMargin('0');
+      expect(vm.targetMarginIssue, TargetMarginIssue.outOfRange);
+      expect(vm.rulesDirty, isTrue);
+      expect(vm.canSaveRules, isFalse);
+      vm.setTargetMargin('100');
+      expect(vm.targetMarginIssue, TargetMarginIssue.outOfRange);
+      expect(vm.canSaveRules, isFalse);
+      vm.setTargetMargin('025');
+      expect(vm.targetMarginIssue, isNull);
+      expect(vm.rules.targetMarginBp, 2500);
+      expect(vm.canSaveRules, isTrue);
+      final rev = vm.revision;
+      await vm.saveRules.execute();
+      expect(repo.rules.targetMarginBp, 2500);
+      expect(vm.rulesDirty, isFalse);
+      // Isian diisi ulang dengan teks rapi (`25`).
+      expect(vm.targetMarginText, '25');
+      expect(vm.revision, greaterThan(rev));
+      vm.setTargetMargin('25');
+      expect(vm.rulesDirty, isFalse);
+      vm.setTargetMargin('');
+      expect(vm.rulesDirty, isTrue);
+      await vm.saveRules.execute();
+      expect(repo.rules.targetMarginBp, isNull);
+
+      // Dimuat dari data tersimpan.
+      final vm2 = StoreSettingsViewModel(
+        repository: FakeStoreSettingsRepository()
+          ..rules = const SalesRules(targetMarginBp: 3000),
+      );
+      await vm2.load.execute();
+      expect(vm2.targetMarginText, '30');
+      expect(vm2.rulesDirty, isFalse);
+    });
+
     test('gagal simpan tetap kotor', () async {
       final repo = FakeStoreSettingsRepository(failSave: true);
       final vm = StoreSettingsViewModel(repository: repo);
@@ -212,6 +254,31 @@ void main() {
     expect(find.text('Maksimal 3 rekening.'), findsNothing);
     await _tap(tester, 'store-rules-save');
     expect(repo.rules.transferAccounts, ['BCA 1', 'Mandiri 2']);
+
+    // Target margin (F1-16d): hanya angka, 1–99, kosong = tanpa target.
+    expect(find.text('Target margin kotor (%)'), findsOneWidget);
+    await _type(tester, 'store-rules-target', '2x5');
+    expect(
+      tester.widget<EditableText>(_input('store-rules-target')).controller.text,
+      '25',
+    );
+    await _type(tester, 'store-rules-target', '0');
+    expect(
+      find.text('Isi 1–99, atau kosongkan bila tanpa target.'),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<FButton>(_key('store-rules-save')).onPress,
+      isNull,
+    );
+    await _type(tester, 'store-rules-target', '30');
+    expect(
+      find.text('Isi 1–99, atau kosongkan bila tanpa target.'),
+      findsNothing,
+    );
+    await _tap(tester, 'store-rules-save');
+    expect(repo.rules.targetMarginBp, 3000);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('360: pil bagian dan ukuran tampilan Besar', (tester) async {

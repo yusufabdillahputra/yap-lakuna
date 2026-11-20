@@ -354,6 +354,47 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final size in const [Size(1440, 900), Size(360, 780)]) {
+    testWidgets('${size.width.toInt()} px: kartu margin kotor menyebut target '
+        'toko (F1-16d)', (
+      tester,
+    ) async {
+      String? note() {
+        final texts = tester
+            .widgetList<Text>(
+              find.descendant(
+                of: _key('reports-side-margin'),
+                matching: find.byType(Text),
+              ),
+            )
+            .map((t) => t.data)
+            .toList();
+        return texts.length > 2 ? texts[2] : null;
+      }
+
+      Future<void> open(int? target) async {
+        await pump(
+          tester,
+          size,
+          reports: FakeReportsRepository()..targetMarginBp = target,
+        );
+        await _tap(tester, _key('reports-tab-profit'));
+      }
+
+      await open(null);
+      expect(note(), 'Laba kotor ÷ penjualan bersih');
+      // Margin 69,0% di bawah target 75%: kurang 6,0 poin.
+      await open(7500);
+      expect(note(), 'Target toko 75% · kurang 6,0 poin');
+      // Tanpa penjualan: margin kosong, target saja.
+      await _choose(tester, _key('reports-period'), 'Oktober 2026');
+      expect(note(), 'Target toko 75%');
+      await open(6900);
+      expect(note(), 'Target toko 69% · tercapai');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('tanpa izin laba: kartu laba kotor dan tab laba rugi hilang', (
     tester,
   ) async {

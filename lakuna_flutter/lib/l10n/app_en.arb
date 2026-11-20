@@ -5225,5 +5225,55 @@
         "type": "int"
       }
     }
+  },
+  "storeSettingsTargetMargin": "Gross margin target (%)",
+  "@storeSettingsTargetMargin": {
+    "placeholders": {}
+  },
+  "storeSettingsTargetMarginHint": "Optional, 1–99. The Gross margin card in Reports → Profit & loss shows whether the target is met.",
+  "@storeSettingsTargetMarginHint": {
+    "placeholders": {}
+  },
+  "storeSettingsTargetMarginRange": "Enter 1–99, or leave empty for no target.",
+  "@storeSettingsTargetMarginRange": {
+    "placeholders": {}
+  },
+  "reportsMarginTarget": "Store target {target}",
+  "@reportsMarginTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetMet": "Store target {target} · met",
+  "@reportsMarginTargetMet": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetShort": "Store target {target} · {gap} points short",
+  "@reportsMarginTargetShort": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetExport": "{margin} · target {target}",
+  "@reportsMarginTargetExport": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
   }
 }

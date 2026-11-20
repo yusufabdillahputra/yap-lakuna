@@ -12,7 +12,7 @@ Menu **Laporan** merangkum penjualan, laba, stok, kas, piutang dan hutang, serta
    - **Ringkasan**: penjualan, laba kotor, rata-rata per nota, piutang jatuh tempo, penjualan per metode bayar, dan produk terlaris.
    - **Penjualan**: per produk, per kasir, atau per kategori.
    - **Produk terlaris**.
-   - **Laba rugi**: penjualan bersih, HPP, laba kotor, beban operasional, dan laba bersih, dibanding periode sebelumnya.
+   - **Laba rugi**: penjualan bersih, HPP, laba kotor, beban operasional, dan laba bersih, dibanding periode sebelumnya. Bila **Target margin kotor** diisi di [Pengaturan](store-settings), kartu *Margin kotor* menulis *Target toko 25% · tercapai* atau *Target toko 25% · kurang 3,2 poin*.
    - **Stok**, **Kas & sesi**, **Piutang & hutang**, **Retur**.
    - Di **Piutang & hutang**, tabel **Umur piutang** dan **Umur hutang** mengelompokkan sisa tiap nota menurut lamanya lewat jatuh tempo: *Belum jatuh tempo*, *Lewat 1–30 hari*, *31–60*, *61–90*, dan *> 90 hari*. Tagih atau bayar lebih dulu yang paling lama.
    - Di **Kas & sesi**, ketuk sesi yang sudah ditutup (ikon printer di ujung baris) untuk melihat rekapnya, lalu **Cetak rekap** ke printer struk atau **Bagikan PDF**. Rekap cetak ulang diberi baris *Dicetak ulang* dengan tanggal jamnya. Sesi yang masih buka belum bisa dicetak.

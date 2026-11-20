@@ -8778,4 +8778,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyMatchedItemsMore(int count) {
     return '+$count more';
   }
+
+  @override
+  String get storeSettingsTargetMargin => 'Gross margin target (%)';
+
+  @override
+  String get storeSettingsTargetMarginHint =>
+      'Optional, 1–99. The Gross margin card in Reports → Profit & loss shows whether the target is met.';
+
+  @override
+  String get storeSettingsTargetMarginRange =>
+      'Enter 1–99, or leave empty for no target.';
+
+  @override
+  String reportsMarginTarget(String target) {
+    return 'Store target $target';
+  }
+
+  @override
+  String reportsMarginTargetMet(String target) {
+    return 'Store target $target · met';
+  }
+
+  @override
+  String reportsMarginTargetShort(String target, String gap) {
+    return 'Store target $target · $gap points short';
+  }
+
+  @override
+  String reportsMarginTargetExport(String margin, String target) {
+    return '$margin · target $target';
+  }
 }

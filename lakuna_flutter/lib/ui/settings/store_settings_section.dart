@@ -13,6 +13,7 @@ import 'settings_card.dart';
 import 'store_settings_view_model.dart';
 
 final _phoneFormatter = FilteringTextInputFormatter.allow(RegExp(r'[0-9+\- ]'));
+final _digits = FilteringTextInputFormatter.digitsOnly;
 
 String _issueLabel(AppLocalizations l10n, ProfileIssue issue) =>
     switch (issue) {
@@ -270,6 +271,23 @@ class StoreSettingsSection extends StatelessWidget {
             control: .managed(
               initial: TextEditingValue(text: vm.rules.transferAccount),
               onChange: (v) => vm.setTransferAccount(v.text),
+            ),
+          ),
+          FTextField(
+            key: ValueKey('store-rules-target-${vm.revision}'),
+            label: Text(l10n.storeSettingsTargetMargin),
+            description: Text(l10n.storeSettingsTargetMarginHint),
+            hint: '25',
+            keyboardType: TextInputType.number,
+            inputFormatters: [_digits],
+            maxLength: 3,
+            enabled: !busy,
+            error: vm.targetMarginIssue == null
+                ? null
+                : Text(l10n.storeSettingsTargetMarginRange),
+            control: .managed(
+              initial: TextEditingValue(text: vm.targetMarginText),
+              onChange: (v) => vm.setTargetMargin(v.text),
             ),
           ),
           _footer(
