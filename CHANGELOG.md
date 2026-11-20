@@ -7,7 +7,7 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
-## [0.116.0] - 2026-11-15
+## [0.116.0] - 2026-11-20
 
 Menutup jendela aplikasi kini juga bertanya bila dialog pelanggan,
 supplier, data master, atau meja sedang diisi.
