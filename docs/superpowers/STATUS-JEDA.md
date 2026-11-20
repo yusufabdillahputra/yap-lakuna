@@ -112,7 +112,7 @@ ulang riwayat.
 | v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | #134 |
 | v0.129.0 | Asal harga di baris pembelian (F1-12l) | #135 |
 | v0.130.0 | Draf penyesuaian stok tersimpan di perangkat (F1-08o) | #136 |
-| v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | |
+| v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | #137 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
