@@ -43,6 +43,10 @@ enum SplitError {
 
   /// Pembayaran bukan pembayaran bagian yang menunggu.
   notPending,
+
+  /// Kredit hanya untuk bagian terakhir (F1-13h): tamu lain belum lunas,
+  /// ada QRIS menunggu, atau nominal bebas bukan sisa tagihan.
+  creditNotLast,
 }
 
 class SplitInvalid implements Exception {
@@ -610,6 +614,10 @@ class SplitPayResult {
 /// sebesar [amount] (nominal bebas). Tagihan dihitung ulang dari data.
 /// [pending] menyimpan satu pembayaran QRIS statis sebagai *menunggu*.
 /// Bill lunas (Σ pembayaran lunas = total) langsung diselesaikan.
+///
+/// [credit] (F1-13h) menutup bagian terakhir sebagai piutang: [payments]
+/// harus kosong (DP tunai dibuat dari `credit.downPayment`), butuh
+/// `debts:manage`, dan bill langsung selesai sebagai nota kredit.
 Future<SplitPayResult> paySplitPart(
   LakunaStore store,
   CatalogScope scope, {
@@ -619,7 +627,19 @@ Future<SplitPayResult> paySplitPart(
   Money? amount,
   required List<SalePaymentRequest> payments,
   bool pending = false,
+  SaleCredit? credit,
 }) async {
+  if (credit != null) {
+    if (payments.isNotEmpty) {
+      throw const SalePaymentInvalid(TenderError.nonCashOver);
+    }
+    if (pending) throw const SplitInvalid(SplitError.pending);
+    await requireCustomerActor(store, scope, staffId, Permission.debtsManage);
+    payments = [
+      if (credit.downPayment > Money.zero)
+        SalePaymentRequest.cash(credit.downPayment),
+    ];
+  }
   checkPaymentRequests(payments);
   final receipt = await store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
@@ -672,6 +692,27 @@ Future<SplitPayResult> paySplitPart(
       due = part.due ?? Money.zero;
       if (due <= Money.zero) throw const SplitInvalid(SplitError.nothingDue);
       label = guest;
+    }
+
+    // Kredit hanya menutup bill (F1-13h): bagian ini harus sisa terakhir,
+    // tanpa QRIS menunggu.
+    if (credit != null &&
+        (split.pending > Money.zero || split.remaining != due)) {
+      throw const SplitInvalid(SplitError.creditNotLast);
+    }
+    Customer? customer;
+    if (credit != null) {
+      final billCustomer = await _liveCustomer(w, scope, sale);
+      if (billCustomer != null && credit.customerId != billCustomer.id) {
+        throw BillCustomerMismatch();
+      }
+      customer = await checkSaleCredit(
+        w,
+        scope,
+        credit,
+        due,
+        (await w.stamp()).now,
+      );
     }
 
     // Bagian pertama membekukan tarif bill (F1-10h): tamu berikutnya dan
@@ -728,6 +769,36 @@ Future<SplitPayResult> paySplitPart(
           originDeviceId: s.deviceId,
         ),
         s,
+      );
+    } else if (credit != null) {
+      await insertPayments(
+        w,
+        scope,
+        saleId: sale.id,
+        staffId: staffId,
+        payments: payments,
+        amounts: [for (final p in payments) p.amount!],
+        change: Money.zero,
+        stamp: await w.stamp(),
+        cashSessionId: cash.id,
+        guestLabel: label,
+      );
+      return _completeBill(
+        w,
+        scope,
+        cash: cash,
+        sale: sale,
+        items: items,
+        rates: rates,
+        charges: charges,
+        payments: await _billPayments(w.session, scope.tenantId, [
+          sale.id,
+        ], transaction: w.transaction),
+        staffId: staffId,
+        stamp: await w.stamp(),
+        credit: credit,
+        customer: customer,
+        credited: due - credit.downPayment,
       );
     } else {
       final (amounts, change) = await settlePayments(w, scope, due, payments);

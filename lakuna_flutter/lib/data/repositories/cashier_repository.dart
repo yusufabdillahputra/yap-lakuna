@@ -184,12 +184,14 @@ abstract class CashierRepository {
   /// Bagian split bill (F1-10c): tamu [guest] (per item / rata) atau
   /// nominal [amount] (nominal bebas). [pending] menyimpan QRIS sebagai
   /// *menunggu* (tanpa `payments:confirm`). Hasil memuat struk bila bill
-  /// lunas.
+  /// lunas. [credit] (F1-13h) menutup bagian terakhir sebagai piutang
+  /// (`payments` kosong, butuh `debts:manage`).
   Future<Result<SplitPayResult>> payBillPart(
     UuidValue billId, {
     String? guest,
     Money? amount,
     required List<SalePaymentRequest> payments,
     bool pending = false,
+    SaleCredit? credit,
   });
 }

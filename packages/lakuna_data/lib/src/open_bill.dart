@@ -1908,6 +1908,7 @@ Future<CheckoutResult> _completeBill(
   required SyncStamp stamp,
   SaleCredit? credit,
   Customer? customer,
+  Money? credited,
 }) async {
   final s = stamp;
   final location = await defaultStockLocationIn(w, scope);
@@ -1969,8 +1970,13 @@ Future<CheckoutResult> _completeBill(
       lineDiscountAmount: (gross - charges.subtotal).value,
       total: charges.total.value,
       // Sama dengan penjualan retail: paid_amount = total nota (uang
-      // diterima dan kembalian ada di baris payments).
-      paidAmount: credit?.downPayment.value ?? charges.total.value,
+      // diterima dan kembalian ada di baris payments). Kredit: total −
+      // piutang ([credited]; *Tutup & bayar* = total − DP, bagian
+      // terakhir split = tagihan bagian − DP, F1-13h).
+      paidAmount: credit == null
+          ? charges.total.value
+          : (charges.total - (credited ?? charges.total - credit.downPayment))
+                .value,
       customerId: customer?.id ?? sale.customerId,
       customerName: customer?.name ?? sale.customerName,
       dueOn: credit == null

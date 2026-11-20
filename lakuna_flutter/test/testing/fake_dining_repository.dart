@@ -1015,6 +1015,8 @@ class FakeDiningRepository extends DiningRepository {
     Money? amount,
     required List<SalePaymentRequest> requests,
     bool pending = false,
+    SaleCredit? credit,
+    String? customerName,
   }) {
     if (!sessionOpen) throw CashSessionNotOpen();
     final b = bill(billId);
@@ -1043,6 +1045,32 @@ class FakeDiningRepository extends DiningRepository {
       due = part.due ?? Money.zero;
       if (due <= Money.zero) throw const SplitInvalid(SplitError.nothingDue);
       label = guest;
+    }
+    if (credit != null) {
+      // Kredit hanya untuk sisa terakhir tanpa QRIS menunggu (F1-13h).
+      if (requests.isNotEmpty) {
+        throw const SalePaymentInvalid(TenderError.nonCashOver);
+      }
+      if (split.pending > Money.zero || split.remaining != due) {
+        throw const SplitInvalid(SplitError.creditNotLast);
+      }
+      if (credit.downPayment > Money.zero) {
+        payments.add(
+          _payment(
+            billId,
+            label,
+            PaymentMethod.cash,
+            credit.downPayment,
+            paid: true,
+          ),
+        );
+      }
+      return _finish(
+        billId,
+        credit: credit,
+        credited: due - credit.downPayment,
+        customerName: customerName,
+      );
     }
     if (pending) {
       if (requests.length != 1 ||
@@ -1100,10 +1128,15 @@ class FakeDiningRepository extends DiningRepository {
     hlc: '',
   );
 
-  SplitPayResult _finish(UuidValue billId) {
+  SplitPayResult _finish(
+    UuidValue billId, {
+    SaleCredit? credit,
+    Money credited = Money.zero,
+    String? customerName,
+  }) {
     final b = bill(billId);
     final split = b.split!;
-    if (split.pending > Money.zero || split.paid < b.charges.total) {
+    if (split.pending > Money.zero || split.paid + credited < b.charges.total) {
       return SplitPayResult(bill: b);
     }
     markPaid(billId);
@@ -1117,8 +1150,11 @@ class FakeDiningRepository extends DiningRepository {
       serviceAmount: b.charges.service.value,
       taxAmount: b.charges.tax.value,
       total: b.charges.total.value,
-      paidAmount: b.charges.total.value,
+      paidAmount: (b.charges.total - credited).value,
       changeAmount: own.fold<int>(0, (a, p) => a + p.changeAmount),
+      customerId: credit?.customerId ?? b.sale.customerId,
+      customerName: customerName ?? b.sale.customerName,
+      dueOn: credit?.dueOn,
       soldAt: now,
     );
     return SplitPayResult(
