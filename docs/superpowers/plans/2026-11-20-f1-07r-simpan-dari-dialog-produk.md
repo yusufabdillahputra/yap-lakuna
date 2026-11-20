@@ -15,4 +15,4 @@ Spec: [F1-07r](../specs/2026-11-20-f1-07r-simpan-dari-dialog-produk-design.md).
   `/mnt/project-files/lakuna/f1-07r/`.
 - [x] 6. Dokumen: spec, gap F1-07q, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#127).
