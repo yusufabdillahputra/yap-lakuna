@@ -1087,6 +1087,27 @@ void main() {
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+    testWidgets('Simpan dari Buang perubahan?: pelanggan baru terpasang ke '
+        'pesanan (F1-13g)', (tester) async {
+      final customers = FakeCustomersRepository(seed: false);
+      final repo = await pump(tester, customers: customers);
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-customer');
+      await tester.enterText(_input('customer-picker-search'), 'Siti Aminah');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-picker-new');
+      await tester.enterText(_input('customer-form-phone'), '081234567890');
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-discard-save');
+      expect(_key('customer-form'), findsNothing);
+      expect(_key('customer-picker'), findsNothing);
+      expect(_text(tester, 'cashier-customer-name'), 'Siti Aminah');
+      expect(customers.customers.single.phone, '081234567890');
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
     testWidgets('dari panel kredit: pelanggan baru langsung terpilih', (
       tester,
     ) async {

@@ -120,6 +120,10 @@ Future<bool> confirmDiscardChanges(
 ///
 /// Selama terpasang, dialog ini juga ditanya saat aplikasi diminta ditutup
 /// lewat [canDiscardAll] (F1-02d).
+///
+/// Bila [onSave] diisi, pertanyaannya juga punya tombol **Simpan** (F1-13g).
+/// `onSave` menjalankan simpan form, yang menutup dialog form sendiri lewat
+/// `Navigator.pop(hasil)` bila berhasil, lalu menjawab `true`.
 class DiscardChangesScope extends StatefulWidget {
   const DiscardChangesScope({
     super.key,
@@ -128,11 +132,13 @@ class DiscardChangesScope extends StatefulWidget {
     required this.body,
     required this.dialogKey,
     required this.child,
+    this.onSave,
   });
 
   final bool dirty;
   final bool busy;
   final String body;
+  final Future<bool> Function()? onSave;
 
   /// Awalan kunci widget dialog konfirmasi.
   final String dialogKey;
@@ -174,11 +180,24 @@ class _DiscardChangesScopeState extends State<DiscardChangesScope> {
   bool get _closing =>
       ModalRoute.of(context)?.animation?.status == AnimationStatus.reverse;
 
-  Future<bool> _ask() => _asking ??= confirmDiscardChanges(
-    context,
-    body: widget.body,
-    key: widget.dialogKey,
-  ).whenComplete(() => _asking = null);
+  /// Dialog form sudah ditutup oleh simpan dari pertanyaan (F1-13g).
+  var _saved = false;
+
+  Future<bool> _ask() => _asking ??= _newQuestion();
+
+  Future<bool> _newQuestion() {
+    // Jawaban simpan berlaku untuk pertanyaan ini saja.
+    _saved = false;
+    return confirmDiscardChanges(
+      context,
+      body: widget.body,
+      key: widget.dialogKey,
+      onSave: switch (widget.onSave) {
+        final save? => () async => _saved = await save(),
+        null => null,
+      },
+    ).whenComplete(() => _asking = null);
+  }
 
   @override
   void initState() {
@@ -199,7 +218,8 @@ class _DiscardChangesScopeState extends State<DiscardChangesScope> {
       if (didPop || widget.busy) return;
       final discard = await _ask();
       // Hanya menutup dialog ini, bukan rute lain yang kebetulan di atas.
-      if (discard && mounted && _isCurrent(this.context)) {
+      // Simpan sudah menutupnya sendiri dengan hasilnya.
+      if (discard && !_saved && mounted && _isCurrent(this.context)) {
         Navigator.of(this.context).pop();
       }
     },

@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.125.0] - 2026-11-20
+
+Dialog *Buang perubahan?* dari form pelanggan dan supplier kini punya
+tombol **Simpan**.
+
+### Ditambahkan
+
+- **Pelanggan (1.20) & Supplier (1.21):** saat menutup dialog form yang
+  sudah diisi (Batal, Esc, ketuk di luar dialog, tombol kembali, atau ✕
+  jendela aplikasi), pertanyaan *Buang perubahan?* menawarkan **Batal**,
+  **Buang**, dan **Simpan**. **Simpan** menyimpan pelanggan / supplier
+  seperti tombol Simpan form: daftar langsung memilihnya, dan dari Kasir ›
+  *Pelanggan baru* pelanggan itu langsung terpasang ke pesanan. Saat
+  menutup jendela, aplikasi tertutup setelah tersimpan.
+- Bila simpan gagal (mis. nama kosong atau nomor HP sudah dipakai), dialog
+  form tetap terbuka dengan pesannya, dan aplikasi tidak ditutup.
+
+### Catatan teknis
+
+- `DiscardChangesScope` mendapat `onSave` opsional yang diteruskan ke
+  `confirmDiscardChanges` (F1-07r). Simpan menutup dialog form sendiri
+  dengan hasilnya; lingkup mencatat `_saved` agar tidak menutupnya lagi
+  (atau menutup tanpa hasil). `canDiscardAll` (tutup jendela, F1-02d)
+  memakai jawaban yang sama.
+- Ditemukan saat review: `_saved` kini diatur ulang setiap pertanyaan baru.
+  Tanpa itu, simpan yang berhasil tanpa menutup form membuat **Buang**
+  berikutnya tidak lagi menutup dialog.
+- Tes: `confirm_discard_test.dart` (Simpan pada `canDiscardAll` dan
+  `maybePop`, rute di bawah tidak ikut tertutup, lingkup tidak menutup form
+  yang tersimpan lalu Buang berikutnya tetap menutup, Esc lalu ✕ jendela
+  memakai satu pertanyaan dan satu simpan), grup F1-13g di
+  `customers_flow_test.dart` dan `suppliers_flow_test.dart` (Esc / ketuk di
+  luar / Batal → Simpan dan baris terpilih, simpan gagal, ✕ jendela berhasil
+  dan gagal; pelanggan: selama simpan berjalan Esc, ketuk di luar, dan ✕
+  jendela ditolak), dan Kasir › *Pelanggan baru* di
+  `cashier_flow_test.dart`. Mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-13g](docs/superpowers/specs/2026-11-20-f1-13g-simpan-dari-dialog-pelanggan-supplier-design.md);
+  gap F1-13e *Simpan langsung dari dialog konfirmasi* ditutup. Dialog
+  master data menyusul.
+
 ## [0.124.0] - 2026-11-20
 
 Dialog *Buang perubahan?* di form pembelian kini punya tombol **Simpan
@@ -7277,7 +7317,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...HEAD
+[0.125.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...v0.125.0
 [0.124.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...v0.124.0
 [0.123.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...v0.123.0
 [0.122.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...v0.122.0

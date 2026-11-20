@@ -8,7 +8,7 @@ The **Suppliers** menu keeps supplier details and the payable for each purchase,
 2. Enter the supplier name, contact, phone, goods category, and **Standard term (days)**. The term fills in the default due date in [Purchases](purchases).
 3. Tap **Save**.
 
-If you have filled in the form and press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the form, or **Discard** to close without saving. While the dialog is open the side menu is covered; save or close the dialog before switching menus.
+If you have filled in the form and press **Cancel**, Esc, tap outside the dialog, or use the phone's back button, Lakuna asks **Discard changes?** first. Choose **Cancel** to return to the form, **Discard** to close without saving, or **Save** to save what you entered right away (if something is wrong, the form stays open with the message). Closing the app window while the form has changes also offers **Save**. While the dialog is open the side menu is covered; save or close the dialog before switching menus.
 
 Many suppliers at once? Tap **Import Excel** and choose an .xlsx or .csv file with the columns **Name** (required), Contact, Phone, Category, Term (days), Address, Note. Headers can be in Indonesian or English. **Download template** in the same dialog gives an Excel file in the app language with the headers and two sample rows; sample rows are skipped on import.
 
