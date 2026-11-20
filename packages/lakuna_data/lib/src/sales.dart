@@ -44,13 +44,15 @@ class SalePaymentRequest {
     this.amount,
     this.reference = '',
     this.confirmed = false,
+    this.transferAccount = '',
   });
 
   /// Tunai dengan uang diterima [amount].
   const SalePaymentRequest.cash(Money this.amount)
     : method = PaymentMethod.cash,
       reference = '',
-      confirmed = false;
+      confirmed = false,
+      transferAccount = '';
 
   final PaymentMethod method;
 
@@ -63,6 +65,10 @@ class SalePaymentRequest {
 
   /// Kasir sudah menekan *Sudah Terbayar* (wajib untuk QRIS statis).
   final bool confirmed;
+
+  /// Baris rekening tujuan transfer yang dipilih kasir (F1-05g). Hanya
+  /// disimpan untuk [PaymentMethod.transfer]; kosong = tanpa rekening.
+  final String transferAccount;
 
   bool get isCash => method == PaymentMethod.cash;
 }
@@ -108,6 +114,13 @@ class SalePaymentShort implements Exception {
 class SaleReferenceInvalid implements Exception {
   @override
   String toString() => 'SaleReferenceInvalid';
+}
+
+/// Rekening tujuan transfer lebih dari [ProfileLimits.transferAccount]
+/// karakter (F1-05g).
+class SaleTransferAccountInvalid implements Exception {
+  @override
+  String toString() => 'SaleTransferAccountInvalid';
 }
 
 /// Pembagian pembayaran tidak sah (lihat [TenderError]); kurang bayar

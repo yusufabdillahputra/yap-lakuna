@@ -349,12 +349,21 @@ ReportTable reportTable(
             l10n.reportsKpiOverdueNote(data.overdueCustomers),
           ]),
           ReportRow([l10n.reportsByMethod, null, null], strong: true),
-          for (final m in data.payments)
+          for (final m in data.payments) ...[
             ReportRow([
               reportMethodLabel(l10n, m.method),
               money(m.amount),
               percentLabel(l10n, m.shareBp),
             ], indent: true),
+            // Rincian transfer per rekening tujuan (F1-05g).
+            if (m.method == ReportPaymentMethod.transfer)
+              for (final a in data.transferAccounts)
+                ReportRow([
+                  '· ${a.account ?? l10n.reportsTransferNoAccount}',
+                  money(a.amount),
+                  '',
+                ], indent: true),
+          ],
           ReportRow([l10n.reportsTop, null, null], strong: true),
           for (final t in data.top.take(5))
             ReportRow([

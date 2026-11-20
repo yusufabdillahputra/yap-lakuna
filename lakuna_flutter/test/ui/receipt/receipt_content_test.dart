@@ -43,6 +43,7 @@ void main() {
     int amount, {
     int change = 0,
     String? reference,
+    String? account,
   }) => Payment(
     tenantId: tenantId,
     saleId: saleId,
@@ -50,6 +51,7 @@ void main() {
     amount: amount,
     changeAmount: change,
     reference: reference,
+    transferAccount: account,
     status: PaymentStatus.paid,
     paidAt: DateTime.utc(2026, 11, 3, 9, 5),
     hlc: '0',
@@ -175,6 +177,40 @@ void main() {
     );
   });
 
+  test('rekening tujuan transfer tercetak sebelum referensi (F1-05g)', () {
+    ReceiptContent content(AppLocalizations l10n) => saleReceiptContent(
+      l10n,
+      result: result([
+        pay(
+          PaymentMethod.transfer,
+          100000,
+          reference: 'TRF-1',
+          account: 'BCA 123 a.n. Warung',
+        ),
+        pay(PaymentMethod.transfer, 61500),
+        // Data sinkron/rusak: rekening di metode lain tidak dicetak.
+        pay(PaymentMethod.card, 20000, account: 'BCA 123 a.n. Warung'),
+      ]),
+      businessName: 'Warung Contoh',
+      outletName: 'Cabang Pusat',
+      staffName: 'Sari',
+      timezone: 'Asia/Jakarta',
+      config: config,
+    );
+    expect(content(id).totals.map((p) => (p.label, p.value)), [
+      ('TOTAL', '181.500'),
+      ('Transfer bank', '100.000'),
+      ('  Ke: BCA 123 a.n. Warung', ''),
+      ('  Ref. transfer TRF-1', ''),
+      ('Transfer bank', '61.500'),
+      ('Kartu debit / kredit', '20.000'),
+    ]);
+    expect(
+      content(en).totals.map((p) => p.label),
+      contains('  To: BCA 123 a.n. Warung'),
+    );
+  });
+
   test('referensi panjang di kertas 58 mm: rata kiri, metode lain tanpa '
       'referensi (F1-05b)', () {
     final long = 'A' * 40;
@@ -196,10 +232,11 @@ void main() {
       isNot(contains(contains('QR-1'))),
     );
     final lines = layoutReceipt(content, ReceiptPaper.mm58);
-    final at = lines.indexWhere((l) => l.text.startsWith('Ref. transfer'));
+    // Baris bungkus tetap menjorok (F1-05g).
+    final at = lines.indexWhere((l) => l.text.startsWith('  Ref. transfer'));
     expect(at, greaterThan(0));
     expect(lines[at].align, ReceiptAlign.left);
-    expect(lines[at + 1].text, 'A' * 32);
+    expect(lines[at + 1].text, '  ${'A' * 30}');
     expect(lines[at + 1].align, ReceiptAlign.left);
     expect(lines.every((l) => l.text.length <= 32), isTrue);
   });

@@ -9,7 +9,7 @@ The **Reports** menu summarises sales, profit, stock, cash, receivables and paya
 1. Open **Reports** and choose a **Period**: *Today*, *Last 7 days*, *This month*, one of the previous months, or *Date range…*.
    - *Date range…* opens a **From** / **To** window (at most 366 days, not after today), e.g. Nov 1–15. Net profit is compared with the same number of days just before, and the download file name includes the dates (`…-20261101-20261115-…`).
 2. Choose a tab:
-   - **Summary**: sales, gross profit, average per receipt, overdue receivables, sales by payment method, and best sellers.
+   - **Summary**: sales, gross profit, average per receipt, overdue receivables, sales by payment method, and best sellers. Under *Bank transfer* there is a breakdown per destination account (largest first; *No account* for older transfers), also in the Excel/PDF download.
    - **Sales**: by product, by cashier, or by category.
    - **Best sellers**.
    - **Profit & loss**: net sales, COGS, gross profit, operating expenses, and net profit, compared with the previous period. When a **Gross margin target** is set in [Settings](store-settings), the *Gross margin* card reads *Store target 25% · met* or *Store target 25% · 3.2 points short*.

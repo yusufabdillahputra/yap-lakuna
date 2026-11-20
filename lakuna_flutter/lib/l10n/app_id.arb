@@ -5814,5 +5814,9 @@
       }
     }
   },
-  "billSplitErrorCreditNotLast": "Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu."
+  "billSplitErrorCreditNotLast": "Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu.",
+  "paymentTransferChoose": "Pilih rekening tujuan transfer.",
+  "receiptPaidTo": "Ke:",
+  "reportsTransferNoAccount": "Tanpa rekening",
+  "paymentTransferSelected": "Rekening tujuan"
 }

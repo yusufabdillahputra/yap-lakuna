@@ -102,6 +102,11 @@ class ReportData {
   late final List<BreakdownRow> byStaff = salesByStaff(sales, returns);
   late final List<BreakdownRow> top = topProducts(byProduct);
   late final List<PaymentMixRow> payments = paymentMix(sales);
+
+  /// Rincian transfer per rekening tujuan (F1-05g).
+  late final List<TransferAccountRow> transferAccounts = transferByAccount(
+    sales,
+  );
 }
 
 DateTime _startUtc(DateTime day, String? timezone) {
@@ -282,6 +287,7 @@ Future<_Facts> _facts(
               _method(p.method),
               Money(p.amount),
               Money(p.changeAmount),
+              transferAccount: p.transferAccount,
             ),
         ],
         lines: [for (final i in lines) _line(i, withCost: withCost)],

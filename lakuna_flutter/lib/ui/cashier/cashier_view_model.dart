@@ -25,10 +25,15 @@ class SplitPart {
     required this.amount,
     this.confirmed = false,
     this.reference = '',
+    this.transferAccount = '',
   });
 
   final PaymentMethod method;
   final Money amount;
+
+  /// Rekening tujuan bagian transfer (F1-05g); kosong untuk metode lain
+  /// atau toko tanpa rekening.
+  final String transferAccount;
 
   /// No. approval kartu / referensi transfer (F1-05b); kosong bila tidak
   /// diisi atau metode lain.
@@ -54,6 +59,10 @@ enum SplitDraftError {
 
   /// Referensi kartu/transfer lebih dari 40 karakter (F1-05b).
   referenceTooLong,
+
+  /// Bagian transfer dengan 2–3 rekening toko belum memilih rekening
+  /// tujuan (F1-05g).
+  transferAccountMissing,
 
   /// Sudah lunas.
   settled,
@@ -296,6 +305,8 @@ class CashierViewModel extends ChangeNotifier {
   Money? _draftAmount;
   String _draftReference = '';
   var _draftReferenceRevision = 0;
+  String? _transferChoice;
+  String? _draftTransferChoice;
   CheckoutResult? _result;
   Exception? _error;
   PrinterFailureReason? _printFailure;
@@ -547,6 +558,36 @@ class CashierViewModel extends ChangeNotifier {
   /// diatur.
   List<String> get transferAccounts =>
       _data?.salesRules.transferAccounts ?? const [];
+
+  /// Rekening terpilih dari [choice]: satu rekening otomatis, pilihan yang
+  /// masih ada di Pengaturan, atau `null` (F1-05g).
+  String? _accountOf(String? choice) {
+    final accounts = transferAccounts;
+    if (accounts.length == 1) return accounts.single;
+    return accounts.contains(choice) ? choice : null;
+  }
+
+  /// Rekening tujuan panel *Transfer bank* (F1-05g).
+  String? get transferAccount => _accountOf(_transferChoice);
+
+  /// 2–3 rekening toko tapi kasir belum memilih tujuan transfer.
+  bool get transferAccountMissing =>
+      transferAccounts.isNotEmpty && transferAccount == null;
+
+  void selectTransferAccount(String account) {
+    if (_transferChoice == account) return;
+    _transferChoice = account;
+    notifyListeners();
+  }
+
+  /// Rekening tujuan bagian transfer baru di *Bagi beberapa metode*.
+  String? get draftTransferAccount => _accountOf(_draftTransferChoice);
+
+  void selectDraftTransferAccount(String account) {
+    if (_draftTransferChoice == account) return;
+    _draftTransferChoice = account;
+    notifyListeners();
+  }
 
   DiscountAccess get discountAccess {
     final data = _data;
@@ -1206,7 +1247,8 @@ class CashierViewModel extends ChangeNotifier {
       !pay.running &&
       switch (_mode) {
         PayMode.cash => change != null,
-        PayMode.card || PayMode.transfer => !referenceTooLong,
+        PayMode.card => !referenceTooLong,
+        PayMode.transfer => !referenceTooLong && !transferAccountMissing,
         PayMode.qris => false,
         PayMode.split => splitSettlement.isSettled && !hasPendingQris,
         PayMode.credit => _creditReady,
@@ -1238,6 +1280,8 @@ class CashierViewModel extends ChangeNotifier {
     _mode = PayMode.cash;
     _received = Money.zero;
     _reference = '';
+    _transferChoice = null;
+    _draftTransferChoice = null;
     _parts.clear();
     _draftMethod = PaymentMethod.cash;
     _draftAmount = null;
@@ -1277,6 +1321,8 @@ class CashierViewModel extends ChangeNotifier {
     if (m == PayMode.credit && _mode != PayMode.credit && !loadCredit.running) {
       loadCredit.execute();
     }
+    // Mengetuk lagi metode yang sama tidak membuang rekening terpilih.
+    if (m != _mode) _transferChoice = null;
     _mode = m;
     _reference = '';
     _error = null;
@@ -1376,7 +1422,12 @@ class CashierViewModel extends ChangeNotifier {
     if (_draftMethod == PaymentMethod.cash) {
       return _parts.any((p) => p.isCash) ? SplitDraftError.cashExists : null;
     }
-    return amount > settlement.remaining ? SplitDraftError.overRemaining : null;
+    if (amount > settlement.remaining) return SplitDraftError.overRemaining;
+    return _draftMethod == PaymentMethod.transfer &&
+            transferAccounts.isNotEmpty &&
+            draftTransferAccount == null
+        ? SplitDraftError.transferAccountMissing
+        : null;
   }
 
   void setDraftMethod(PaymentMethod m) {
@@ -1397,9 +1448,13 @@ class CashierViewModel extends ChangeNotifier {
         method: _draftMethod,
         amount: draftAmount,
         reference: draftTakesReference ? _draftReference.trim() : '',
+        transferAccount: _draftMethod == PaymentMethod.transfer
+            ? draftTransferAccount ?? ''
+            : '',
       ),
     );
     _draftAmount = null;
+    _draftTransferChoice = null;
     _clearDraftReference();
     _draftMethod = _parts.any((p) => p.isCash)
         ? PaymentMethod.card
@@ -1426,6 +1481,7 @@ class CashierViewModel extends ChangeNotifier {
       amount: p.amount,
       confirmed: true,
       reference: p.reference,
+      transferAccount: p.transferAccount,
     );
     notifyListeners();
   }
@@ -1436,7 +1492,11 @@ class CashierViewModel extends ChangeNotifier {
       SalePaymentRequest(method: PaymentMethod.card, reference: _reference),
     ],
     PayMode.transfer => [
-      SalePaymentRequest(method: PaymentMethod.transfer, reference: _reference),
+      SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        reference: _reference,
+        transferAccount: transferAccount ?? '',
+      ),
     ],
     PayMode.qris => const [
       SalePaymentRequest(method: PaymentMethod.qrisStatic, confirmed: true),
@@ -1448,6 +1508,7 @@ class CashierViewModel extends ChangeNotifier {
           amount: p.amount,
           confirmed: p.confirmed,
           reference: p.reference,
+          transferAccount: p.transferAccount,
         ),
     ],
     // DP kredit dibuat lapisan data dari `SaleCredit.downPayment`.

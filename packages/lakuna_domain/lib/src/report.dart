@@ -223,13 +223,21 @@ Money returnTaxShare({
 enum ReportPaymentMethod { cash, card, transfer, qris, credit }
 
 class ReportPayment {
-  const ReportPayment(this.method, this.amount, this.change);
+  const ReportPayment(
+    this.method,
+    this.amount,
+    this.change, {
+    this.transferAccount,
+  });
 
   final ReportPaymentMethod method;
   final Money amount;
 
   /// Kembalian (hanya tunai).
   final Money change;
+
+  /// Rekening tujuan transfer (F1-05g); `null` = tanpa rekening.
+  final String? transferAccount;
 
   Money get net => amount - change;
 }
@@ -628,6 +636,38 @@ List<PaymentMixRow> paymentMix(List<ReportSale> sales) {
     final c = b.amount.compareTo(a.amount);
     return c != 0 ? c : a.method.index.compareTo(b.method.index);
   });
+}
+
+/// Transfer bersih per rekening tujuan (F1-05g).
+class TransferAccountRow {
+  const TransferAccountRow(this.account, this.amount);
+
+  /// `null` = transfer tanpa rekening (data lama / toko tanpa rekening).
+  final String? account;
+  final Money amount;
+}
+
+/// Rincian *Transfer bank* per rekening, urut terbesar; *tanpa rekening*
+/// selalu terakhir. Kosong bila tidak ada transfer berekening.
+List<TransferAccountRow> transferByAccount(List<ReportSale> sales) {
+  final sums = <String?, Money>{};
+  for (final s in sales) {
+    for (final p in s.payments) {
+      if (p.method != ReportPaymentMethod.transfer || p.net.value == 0) {
+        continue;
+      }
+      sums[p.transferAccount] = (sums[p.transferAccount] ?? Money.zero) + p.net;
+    }
+  }
+  if (sums.keys.every((k) => k == null)) return const [];
+  return [for (final e in sums.entries) TransferAccountRow(e.key, e.value)]
+    ..sort((a, b) {
+      if ((a.account == null) != (b.account == null)) {
+        return a.account == null ? 1 : -1;
+      }
+      final c = b.amount.compareTo(a.amount);
+      return c != 0 ? c : (a.account ?? '').compareTo(b.account ?? '');
+    });
 }
 
 // --- Stok (v0.21.0) ---------------------------------------------------------

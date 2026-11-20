@@ -347,6 +347,31 @@ void main() {
     expect(week.saleCount, 5);
   });
 
+  test('transfer per rekening tujuan (F1-05g)', () async {
+    await sell(
+      {kopi: 1000},
+      payment: const SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        transferAccount: 'BCA 1',
+      ),
+    );
+    await sell({
+      kopi: 1000,
+    }, payment: const SalePaymentRequest(method: PaymentMethod.transfer));
+    await sell(
+      {jasa: 1000},
+      payment: const SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        transferAccount: 'BCA 1',
+      ),
+    );
+    final r = await report();
+    expect(r.transferAccounts.map((t) => (t.account, t.amount)), [
+      ('BCA 1', const Money(12000)),
+      (null, const Money(10000)),
+    ]);
+  });
+
   test('periode kosong = nol', () async {
     now = DateTime.utc(2026, 11, 4, 3);
     final r = await report(period: const ReportPeriod.month(2026, 1));

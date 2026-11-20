@@ -32,6 +32,7 @@ part '20261114003906842-foto-faktur/migration.dart';
 part '20261114025649422-tarif-beku/migration.dart';
 part '20261114035454004-kas-per-pembayaran/migration.dart';
 part '20261114195500605-segarkan-harga-grup/migration.dart';
+part '20261120211318719-rekening-tujuan/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -66,6 +67,7 @@ class MigrationRegistry {
     _Migration20261114025649422_tarif_beku(),
     _Migration20261114035454004_kas_per_pembayaran(),
     _Migration20261114195500605_segarkan_harga_grup(),
+    _Migration20261120211318719_rekening_tujuan(),
   ];
 
   /// List of all client-side database migration versions.

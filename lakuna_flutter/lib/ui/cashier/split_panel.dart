@@ -99,7 +99,11 @@ class _SplitPanelState extends State<SplitPanel> {
     SplitDraftError.cashExists => l10n.splitCashExists,
     SplitDraftError.overRemaining => l10n.splitOverRemaining,
     SplitDraftError.referenceTooLong => l10n.paymentReferenceTooLong,
-    SplitDraftError.settled || SplitDraftError.empty || null => null,
+    // Petunjuk pilih rekening tampil di kotak *Transfer ke* (F1-05g).
+    SplitDraftError.transferAccountMissing ||
+    SplitDraftError.settled ||
+    SplitDraftError.empty ||
+    null => null,
   };
 
   @override
@@ -157,6 +161,17 @@ class _SplitPanelState extends State<SplitPanel> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  // Rekening tujuan bagian transfer (F1-05d, F1-05g).
+                  if (p.transferAccount.isNotEmpty)
+                    Text(
+                      '${l10n.receiptPaidTo} ${p.transferAccount}',
+                      key: ValueKey('split-part-$i-account'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.typography.body.xs.copyWith(
+                        color: theme.colors.mutedForeground,
+                      ),
+                    ),
                   if (p.reference.isNotEmpty)
                     Text(
                       '${p.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef} ${p.reference}',
@@ -289,7 +304,12 @@ class _SplitPanelState extends State<SplitPanel> {
             // Rekening toko untuk bagian transfer (F1-05d).
             if (vm.draftMethod == PaymentMethod.transfer &&
                 vm.transferAccounts.isNotEmpty)
-              TransferAccountBox(accounts: vm.transferAccounts),
+              TransferAccountBox(
+                accounts: vm.transferAccounts,
+                selected: vm.draftTransferAccount,
+                onSelect: vm.selectDraftTransferAccount,
+                enabled: !running,
+              ),
             if (vm.draftTakesReference)
               FTextField(
                 key: const ValueKey('split-reference'),

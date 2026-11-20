@@ -8813,4 +8813,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get billSplitErrorCreditNotLast =>
       'Credit is only for the last part: the other guests must have paid and no QRIS may be waiting.';
+
+  @override
+  String get paymentTransferChoose => 'Choose the destination account.';
+
+  @override
+  String get receiptPaidTo => 'To:';
+
+  @override
+  String get reportsTransferNoAccount => 'No account';
+
+  @override
+  String get paymentTransferSelected => 'Destination account';
 }

@@ -813,7 +813,12 @@ class _ReferencePanel extends StatelessWidget {
             ),
           ),
           if (!card && vm.transferAccounts.isNotEmpty)
-            TransferAccountBox(accounts: vm.transferAccounts),
+            TransferAccountBox(
+              accounts: vm.transferAccounts,
+              selected: vm.transferAccount,
+              onSelect: vm.selectTransferAccount,
+              enabled: !vm.pay.running,
+            ),
           FTextField(
             key: const ValueKey('payment-reference'),
             label: Text(card ? l10n.paymentApproval : l10n.paymentReference),
@@ -835,11 +840,29 @@ class _ReferencePanel extends StatelessWidget {
 
 /// Rekening transfer toko dari *Penjualan & stok* (F1-05c), satu baris
 /// per rekening dengan tombol salin masing-masing (F1-05f), agar kasir
-/// bisa mengirimkan rekening bank yang dipilih pembeli.
+/// bisa mengirimkan rekening bank yang dipilih pembeli. Dengan 2–3
+/// rekening, baris bisa dipilih sebagai rekening tujuan; menyalin juga
+/// memilih (F1-05g).
 class TransferAccountBox extends StatefulWidget {
-  const TransferAccountBox({super.key, required this.accounts});
+  const TransferAccountBox({
+    super.key,
+    required this.accounts,
+    this.selected,
+    this.onSelect,
+    this.enabled = true,
+  });
 
   final List<String> accounts;
+
+  /// Rekening tujuan terpilih.
+  final String? selected;
+
+  /// Memilih rekening tujuan; `null` = tidak bisa dipilih.
+  final ValueChanged<String>? onSelect;
+
+  /// `false` selama pembayaran disimpan: pilihan tetap tampil tapi tidak
+  /// bisa diubah.
+  final bool enabled;
 
   @override
   State<TransferAccountBox> createState() => _TransferAccountBoxState();
@@ -856,6 +879,7 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
   }
 
   Future<void> _copy(int i) async {
+    if (widget.enabled) widget.onSelect?.call(widget.accounts[i]);
     await Clipboard.setData(ClipboardData(text: widget.accounts[i]));
     if (mounted) setState(() => _copied = i);
   }
@@ -864,6 +888,43 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = context.theme;
+    final choosing = widget.onSelect != null && widget.accounts.length > 1;
+    final missing = choosing && widget.selected == null;
+    Widget account(int i, String text) {
+      final selected = choosing && widget.selected == text;
+      final label = Text(
+        text,
+        style: theme.typography.body.md.copyWith(fontWeight: FontWeight.w700),
+      );
+      if (!choosing) {
+        return Padding(padding: const EdgeInsets.only(right: 6), child: label);
+      }
+      // Ketuk rekening untuk memilihnya sebagai tujuan transfer (F1-05g);
+      // FTappable bisa difokus dan dipilih dengan keyboard.
+      return FTappable(
+        key: ValueKey('payment-transfer-pick-$i'),
+        selected: selected,
+        onPress: widget.enabled ? () => widget.onSelect!(text) : null,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: [
+              Icon(
+                selected ? TablerIcons.circleCheckFilled : TablerIcons.circle,
+                size: 20,
+                color: selected
+                    ? theme.colors.primary
+                    : theme.colors.mutedForeground,
+              ),
+              Flexible(child: label),
+            ],
+          ),
+        ),
+      );
+    }
+
     return DecoratedBox(
       key: const ValueKey('payment-transfer-account'),
       decoration: BoxDecoration(
@@ -877,12 +938,12 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
           spacing: 8,
           children: [
             Text(
-              l10n.paymentTransferTo,
+              choosing ? l10n.paymentTransferSelected : l10n.paymentTransferTo,
               style: theme.typography.body.xs.copyWith(
                 color: theme.colors.mutedForeground,
               ),
             ),
-            for (final (i, account) in widget.accounts.indexed)
+            for (final (i, text) in widget.accounts.indexed)
               // Wrap: di ponsel atau teks besar tombol salin turun ke baris
               // berikutnya, tidak memotong nomor rekening.
               Wrap(
@@ -891,15 +952,7 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
                 alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: Text(
-                      account,
-                      style: theme.typography.body.md.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
+                  account(i, text),
                   FButton(
                     key: ValueKey('payment-transfer-copy-$i'),
                     variant: .outline,
@@ -916,6 +969,14 @@ class _TransferAccountBoxState extends State<TransferAccountBox> {
                     ),
                   ),
                 ],
+              ),
+            if (missing)
+              Text(
+                l10n.paymentTransferChoose,
+                key: const ValueKey('payment-transfer-choose'),
+                style: theme.typography.body.xs.copyWith(
+                  color: theme.colors.destructive,
+                ),
               ),
           ],
         ),

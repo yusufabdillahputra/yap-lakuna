@@ -454,9 +454,14 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('Transfer ke'), findsOneWidget);
-      // Tiap rekening punya tombol salin sendiri.
+      // Dua rekening: kasir wajib memilih tujuan (F1-05g).
+      expect(find.text('Rekening tujuan'), findsOneWidget);
+      expect(_key('payment-transfer-choose'), findsOneWidget);
+      await _tap(tester, 'payment-finish');
+      expect(repo.checkouts, isEmpty);
+      // Tiap rekening punya tombol salin sendiri; menyalin juga memilih.
       await _tap(tester, 'payment-transfer-copy-1');
+      expect(_key('payment-transfer-choose'), findsNothing);
       expect(copied, [second]);
       expect(find.text('Disalin'), findsOneWidget);
       await _tap(tester, 'payment-transfer-copy-0');
@@ -464,8 +469,16 @@ void main() {
       expect(find.text('Disalin'), findsOneWidget);
       expect(find.text('Salin'), findsOneWidget);
       expect(tester.takeException(), isNull);
+      // Ketuk rekening kedua lagi: pilihan pindah tanpa menyalin.
+      await _tap(tester, 'payment-transfer-pick-1');
+      expect(copied, [second, account]);
+      expect(
+        tester.getSemantics(_key('payment-transfer-pick-1')),
+        isSemantics(isSelected: true, isButton: true),
+      );
       await _tap(tester, 'payment-finish');
       expect(repo.checkouts.single.$2.single.method, PaymentMethod.transfer);
+      expect(repo.checkouts.single.$2.single.transferAccount, second);
     });
   }
 
@@ -510,8 +523,21 @@ void main() {
         // kartu bila sudah ada bagian tunai) sehingga kotak hilang.
         await tester.enterText(_input('split-amount'), '2000');
         await tester.pumpAndSettle();
+        // Rekening tujuan wajib dipilih dulu (F1-05g).
+        // Petunjuk cukup sekali, di kotak rekening.
+        expect(find.text('Pilih rekening tujuan transfer.'), findsOneWidget);
+        expect(
+          find.descendant(of: box, matching: _key('payment-transfer-choose')),
+          findsOneWidget,
+        );
+        await _tap(tester, 'split-add');
+        expect(_key('split-part-0'), findsNothing);
+        await _tap(tester, 'payment-transfer-pick-1');
         await _tap(tester, 'split-add');
         expect(box, findsNothing);
+        // Baris bagian menampilkan rekeningnya (gap F1-05d).
+        expect(_text(tester, 'split-part-0-account'), 'Ke: BRI 555');
+        expect(tester.takeException(), isNull);
       },
     );
   }

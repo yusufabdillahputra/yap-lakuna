@@ -53,6 +53,23 @@ void main() {
         '${'A' * 20} ${'B' * 11}',
       );
     });
+
+    test('label menjorok tanpa nilai: muat selebar kolom (F1-05g)', () {
+      final label = '  To: ${'M' * 26}';
+      expect(layoutPair(label, '', 32).single.text, label);
+    });
+
+    test('label menjorok yang dibungkus tetap menjorok (F1-05g)', () {
+      final lines = layoutPair(
+        '  Ke: Mandiri 987-654-3210 a.n. Warung Contoh Jaya',
+        '',
+        32,
+      );
+      expect(lines.map((l) => l.text), [
+        '  Ke: Mandiri 987-654-3210 a.n.',
+        '  Warung Contoh Jaya',
+      ]);
+    });
   });
 
   group('layoutReceipt', () {

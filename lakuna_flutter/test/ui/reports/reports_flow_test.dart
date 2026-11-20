@@ -49,6 +49,37 @@ void main() {
     );
   }
 
+  for (final size in const [Size(1440, 900), Size(360, 740)]) {
+    testWidgets(
+      '${size.width.toInt()} px: transfer dirinci per rekening (F1-05g)',
+      (tester) async {
+        await pump(
+          tester,
+          size,
+          reports: FakeReportsRepository()..transferSale = true,
+        );
+        await tester.ensureVisible(_key('reports-transfer-account-1'));
+        await tester.pumpAndSettle();
+        final rows = [
+          for (final i in [0, 1])
+            find.descendant(
+              of: _key('reports-transfer-account-$i'),
+              matching: find.byType(Text),
+            ),
+        ];
+        expect(
+          [for (final t in tester.widgetList<Text>(rows[0])) t.data],
+          ['BCA 123', 'Rp 10.000'],
+        );
+        expect(
+          [for (final t in tester.widgetList<Text>(rows[1])) t.data],
+          ['Tanpa rekening', 'Rp 6.000'],
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('1440 px: ringkasan, penjualan, terlaris, laba rugi, unduh', (
     tester,
   ) async {
@@ -68,6 +99,8 @@ void main() {
     );
     expect(_key('reports-method-cash'), findsOneWidget);
     expect(find.text('75,2%'), findsOneWidget);
+    // Tanpa transfer berekening: tanpa rincian (F1-05g).
+    expect(_key('reports-transfer-account-0'), findsNothing);
     expect(_key('reports-top-kopi'), findsOneWidget);
     expect(find.text('3 gelas'), findsOneWidget);
 

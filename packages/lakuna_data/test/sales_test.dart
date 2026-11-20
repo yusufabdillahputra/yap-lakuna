@@ -228,6 +228,66 @@ void main() {
     expect(transfer.sale.number, 'PST-K01-261103-0002');
   });
 
+  test('rekening tujuan hanya tersimpan untuk transfer (F1-05g)', () async {
+    await openSession();
+    final line = SaleLineRequest(variantId: v(jasa).id, quantity: Qty.one);
+    final transfer = await checkout(
+      [line],
+      payment: const SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        transferAccount: '  Mandiri 987-654 a.n. Toko  ',
+      ),
+    );
+    expect(
+      transfer.payments.single.transferAccount,
+      'Mandiri 987-654 a.n. Toko',
+    );
+    final blank = await checkout(
+      [line],
+      payment: const SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        transferAccount: '   ',
+      ),
+    );
+    expect(blank.payments.single.transferAccount, isNull);
+    final mixed = await checkout(
+      [line],
+      payments: const [
+        SalePaymentRequest(
+          method: PaymentMethod.cash,
+          amount: Money(1000),
+          transferAccount: 'BCA 1',
+        ),
+        SalePaymentRequest(
+          method: PaymentMethod.transfer,
+          amount: Money(1000),
+          transferAccount: 'BCA 1',
+        ),
+      ],
+    );
+    expect(
+      [for (final p in mixed.payments) p.transferAccount],
+      [null, 'BCA 1'],
+    );
+    await expectLater(
+      checkout(
+        [line],
+        payment: SalePaymentRequest(
+          method: PaymentMethod.transfer,
+          transferAccount: 'x' * 101,
+        ),
+      ),
+      throwsA(isA<SaleTransferAccountInvalid>()),
+    );
+    await checkout(
+      [line],
+      payment: SalePaymentRequest(
+        method: PaymentMethod.transfer,
+        transferAccount: 'x' * 100,
+      ),
+    );
+  });
+
   test('input tidak sah ditolak tanpa menulis apa pun', () async {
     await openSession();
     final line = SaleLineRequest(variantId: v(jasa).id, quantity: Qty.one);
