@@ -101,6 +101,7 @@ class HistoryRow {
     required this.methods,
     required this.returned,
     this.outstanding = Money.zero,
+    this.matchedItems = const [],
   });
 
   final Sale sale;
@@ -114,6 +115,11 @@ class HistoryRow {
 
   /// Sisa piutang nota kredit (F1-13); 0 untuk nota lunas.
   final Money outstanding;
+
+  /// Nama barang nota yang cocok dengan kata kunci pencarian (F1-11i),
+  /// urut seperti di nota, tanpa kembar. Kosong di luar pencarian atau bila
+  /// nota cocok lewat nomor, pelanggan, atau referensi saja.
+  final List<String> matchedItems;
 
   Money get total => Money(sale.total);
 
@@ -300,6 +306,7 @@ Future<HistoryPage> listSalesHistory(
   };
   final searching = filter.searching;
   var truncated = false;
+  var matched = const <UuidValue, List<String>>{};
   List<Sale> sales;
   if (searching) {
     final found = await _searchSales(
@@ -312,6 +319,7 @@ Future<HistoryPage> listSalesHistory(
     );
     sales = found.sales;
     truncated = found.truncated;
+    matched = found.matched;
   } else {
     sales = await Sale.db.find(
       session,
@@ -368,6 +376,7 @@ Future<HistoryPage> listSalesHistory(
           methods: methods[s.id] ?? const [],
           returned: returned[s.id] ?? Money.zero,
           outstanding: outstanding[s.id] ?? Money.zero,
+          matchedItems: matched[s.id] ?? const [],
         ),
     ],
   );
@@ -389,7 +398,10 @@ const _maxSqlWords = 8;
 /// (per [batch] baris) dan berhenti begitu hasil melewati [limit], jadi kata
 /// kunci yang cocok dengan semua nota (mis. kode outlet) tetap ringan.
 
-Future<({List<Sale> sales, bool truncated})> _searchSales(
+Future<
+  ({List<Sale> sales, bool truncated, Map<UuidValue, List<String>> matched})
+>
+_searchSales(
   DatabaseSession session,
   CatalogScope scope,
   HistoryFilter filter,
@@ -559,9 +571,72 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     found.addAll(kept);
     if (rows.length < batch) break;
   }
-  return found.length > limit
-      ? (sales: found.sublist(0, limit), truncated: true)
-      : (sales: found, truncated: false);
+  final truncated = found.length > limit;
+  final sales = truncated ? found.sublist(0, limit) : found;
+  return (
+    sales: sales,
+    truncated: truncated,
+    // `raw` kosong hanya bila kata kunci kosong; klausa SQL kosong tidak sah.
+    matched: raw.isEmpty
+        ? const <UuidValue, List<String>>{}
+        : await _matchedItems(
+            session,
+            scope,
+            sales,
+            itemMatches,
+            candidates: Expression(wordClauses),
+          ),
+  );
+}
+
+/// Nama barang tiap nota [sales] yang cocok dengan [matches] (F1-11i):
+/// produk + varian salinan nota, urut seperti di nota, tanpa kembar.
+/// Modifier hanya dimuat untuk baris yang belum cocok lewat nama/catatan.
+/// [candidates] = saringan kata yang sama dengan pencarian nota, jadi hanya
+/// baris kandidat yang dibaca (kata kunci yang cocok di nomor semua nota
+/// tetap ringan).
+Future<Map<UuidValue, List<String>>> _matchedItems(
+  DatabaseSession session,
+  CatalogScope scope,
+  List<Sale> sales,
+  bool Function(SaleItem item, List<String> modifiers) matches, {
+  required Expression<Object?> candidates,
+}) async {
+  if (sales.isEmpty) return const {};
+  final items = await SaleItem.db.find(
+    session,
+    where: (i) =>
+        i.tenantId.equals(scope.tenantId) &
+        i.saleId.inSet({for (final s in sales) s.id}) &
+        i.deletedAt.equals(null) &
+        candidates,
+    orderByList: (i) => [i.sortOrder.asc(), i.createdAt.asc(), i.id.asc()],
+  );
+  final direct = {
+    for (final i in items)
+      if (matches(i, const [])) i.id,
+  };
+  final modifiers = await itemModifiers(session, scope.tenantId, [
+    for (final i in items)
+      if (!direct.contains(i.id)) i.id,
+  ]);
+  final result = <UuidValue, List<String>>{};
+  for (final i in items) {
+    final hit =
+        direct.contains(i.id) ||
+        matches(i, [
+          for (final m in modifiers[i.id] ?? const <SaleItemModifier>[]) m.name,
+        ]);
+    if (!hit) continue;
+    final variant = i.variantName.trim();
+    final name = [
+      i.productName.trim(),
+      if (variant.isNotEmpty) variant,
+    ].join(' ');
+    final names = result.putIfAbsent(i.saleId, () => []);
+    if (!names.contains(name)) names.add(name);
+  }
+  return result;
 }
 
 /// Alasan nota tidak bisa di-void.

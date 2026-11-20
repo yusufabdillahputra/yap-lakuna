@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -239,6 +240,68 @@ void main() {
       await tester.pumpAndSettle();
       expect(_key('history-row-${roti.sale.id.uuid}'), findsOneWidget);
       expect(_key('history-row-${kopi.sale.id.uuid}'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('barang cocok di baris hasil ${size.width.toInt()} px '
+        '(F1-11i)', (tester) async {
+      await pump(tester, size: size);
+      Finder match(CheckoutResult s) => find.descendant(
+        of: _key('history-match-${s.sale.id.uuid}'),
+        matching: find.byType(Text),
+        matchRoot: true,
+      );
+      // Tanpa cari: tidak ada baris barang cocok.
+      expect(match(roti), findsNothing);
+      await tester.enterText(_input('history-search'), 'ROTI');
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Text>(match(roti)).data,
+        'Barang cocok: Roti Bakar',
+      );
+      // Lebih dari dua barang: dua nama + n lainnya.
+      history.matchedOverride[roti.sale.id] = [
+        'Roti Bakar Cokelat Keju Spesial',
+        'Roti Bakar Srikaya',
+        'Roti Tawar',
+        'Roti Sobek',
+      ];
+      await tester.enterText(_input('history-search'), 'roti b');
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Text>(match(roti)).data,
+        'Barang cocok: Roti Bakar Cokelat Keju Spesial, Roti Bakar Srikaya',
+      );
+      final more = _key('history-match-more-${roti.sale.id.uuid}');
+      expect(tester.widget<Text>(more).data, '+2 lainnya');
+      // *+n lainnya* tidak ikut terpotong: utuh di dalam baris, di kanan
+      // atau di bawah nama.
+      final row = tester.getRect(_key('history-row-${roti.sale.id.uuid}'));
+      final moreRect = tester.getRect(more);
+      final names = tester.getRect(match(roti));
+      expect(row.contains(moreRect.topLeft), isTrue);
+      expect(row.contains(moreRect.bottomRight - const Offset(1, 1)), isTrue);
+      expect(
+        moreRect.left >= names.right - 0.5 || moreRect.top >= names.bottom,
+        isTrue,
+      );
+      // Tabel: *+n* selebar teksnya (tidak terpotong elipsis nama).
+      if (size.width > 600) {
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(of: more, matching: find.byType(RichText)),
+        );
+        expect(
+          paragraph.getMaxIntrinsicWidth(double.infinity),
+          lessThanOrEqualTo(paragraph.size.width + 0.5),
+        );
+      }
+      // Cocok lewat nomor nota saja: tanpa baris barang.
+      history.matchedOverride.clear();
+      await tester.enterText(_input('history-search'), roti.sale.number);
+      await tester.pumpAndSettle();
+      expect(_key('history-row-${roti.sale.id.uuid}'), findsOneWidget);
+      expect(match(roti), findsNothing);
+      expect(_key('history-match-more-${roti.sale.id.uuid}'), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }

@@ -212,6 +212,7 @@ class FakeHistoryRepository extends HistoryRepository {
             methods: [for (final p in s.payments) p.method],
             returned: _returned(s.sale.id),
             outstanding: outstanding[s.sale.id] ?? Money.zero,
+            matchedItems: _matchedItems(s, filter),
           ),
     ];
     return Result.ok(
@@ -222,6 +223,23 @@ class FakeHistoryRepository extends HistoryRepository {
         truncated: filter.searching && truncateSearch,
       ),
     );
+  }
+
+  /// Nama barang yang cocok (F1-11i); [matchedOverride] dipakai bila diisi.
+  final matchedOverride = <UuidValue, List<String>>{};
+
+  List<String> _matchedItems(CheckoutResult s, HistoryFilter f) {
+    if (!f.searching) return const [];
+    if (matchedOverride[s.sale.id] case final names?) return names;
+    final q = f.trimmedQuery.toLowerCase();
+    return {
+      for (final i in s.items)
+        if ('${i.productName} ${i.variantName}'.toLowerCase().contains(q))
+          [
+            i.productName,
+            if (i.variantName.isNotEmpty) i.variantName,
+          ].join(' '),
+    }.toList();
   }
 
   bool _matches(CheckoutResult s, HistoryFilter f) {

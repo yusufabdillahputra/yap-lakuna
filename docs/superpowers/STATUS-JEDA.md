@@ -112,7 +112,8 @@ ulang riwayat.
 | v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | #134 |
 | v0.129.0 | Asal harga di baris pembelian (F1-12l) | #135 |
 | v0.130.0 | Draf penyesuaian stok tersimpan di perangkat (F1-08o) | #136 |
-| v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | |
+| v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | #137 |
+| v0.132.0 | Barang yang cocok tampil di daftar Riwayat (F1-11i) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -333,6 +334,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     perangkat, dialog keluar hanya bila draf gagal tersimpan.
 73. ~~Staf membandingkan sendiri jumlah di draf dengan saran~~ — selesai
     v0.131.0 (F1-08p); *Cukup untuk saran* / *Kurang … dari saran*.
+74. ~~Hasil cari barang di Riwayat tidak menyebut barangnya~~ — selesai
+    v0.132.0 (F1-11i); *Barang cocok: …* di baris hasil.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

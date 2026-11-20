@@ -14758,6 +14758,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kurang {qty} {unit} dari saran'**
   String stockMinimumDraftShort(String qty, String unit);
+
+  /// No description provided for @historyMatchedItems.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang cocok: {items}'**
+  String historyMatchedItems(String items);
+
+  /// No description provided for @historyMatchedItemsMore.
+  ///
+  /// In id, this message translates to:
+  /// **'+{count} lainnya'**
+  String historyMatchedItemsMore(int count);
 }
 
 class _AppLocalizationsDelegate

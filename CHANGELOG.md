@@ -7,6 +7,43 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.132.0] - 2026-11-20
+
+Daftar Riwayat menampilkan barang yang cocok dengan kata pencarian.
+
+### Ditambahkan
+
+- **Riwayat (1.11):** saat mencari nama barang, varian, modifier, atau
+  catatan barang, setiap nota di daftar hasil kini menampilkan baris
+  **Barang cocok: …** di bawah nomor nota (tabel desktop dan kartu
+  ponsel), mis. *Barang cocok: Es Kopi Susu Reguler* untuk pencarian
+  `extra shot`. Paling banyak dua nama ditampilkan, sisanya diringkas
+  *+N lainnya* (di tabel desktop nama paling banyak dua baris lalu
+  dipotong, tetapi *+N lainnya* tetap utuh); nama kembar dalam satu nota hanya sekali, urut sesuai
+  urutan barang di nota. Nota yang cocok karena nomor, pelanggan, atau
+  referensi pembayaran saja tidak menampilkan baris ini. Staf tidak perlu
+  membuka nota satu per satu untuk tahu kenapa nota itu muncul.
+
+### Catatan teknis
+
+- `HistoryRow.matchedItems` (bawaan kosong) diisi `listSalesHistory` saat
+  mencari: `_matchedItems` memuat barang nota hasil (urut `sortOrder`,
+  `createdAt`, `id`) dengan saringan kata SQL yang sama dengan pencarian
+  nota (hanya baris kandidat), memakai pencocokan yang sama dengan
+  F1-11d/F1-11f/F1-11g, dan hanya memuat modifier untuk barang yang belum
+  cocok langsung. Nama = produk + varian (bila ada), di-*trim*.
+- Kunci l10n `historyMatchedItems` dan `historyMatchedItemsMore` (ID + EN).
+  Widget `_MatchedItems` (kunci `history-match-<nota>` dan
+  `history-match-more-<nota>`): di tabel `Row` dengan nama dua baris
+  berelipsis dan *+N* utuh, di kartu `Wrap`; warna primary (biru muda di
+  tema gelap).
+- Tes: data (urutan, kembar, modifier, catatan, barang dihapus dari bill,
+  cocok nomor saja, cocok nomor dan barang, lebih dari 8 kata, tanpa cari)
+  dan alur 1280 / 360 px (*+N lainnya* tidak terpotong di tabel). Mutasi urutan, semua barang, tiga nama, tanpa baris
+  di tabel/kartu, tanpa dedupe, dan tanpa modifier tertangkap. Uji manual
+  Linux di Xvfb.
+- Spec [F1-11i](docs/superpowers/specs/2026-11-20-f1-11i-barang-cocok-di-riwayat-design.md).
+
 ## [0.131.0] - 2026-11-20
 
 Daftar stok minimum menandai barang yang pesanannya di draf sudah cukup.
@@ -7567,7 +7604,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...HEAD
+[0.132.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...v0.132.0
 [0.131.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...v0.131.0
 [0.130.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...v0.130.0
 [0.129.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...v0.129.0
