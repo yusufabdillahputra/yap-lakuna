@@ -110,6 +110,7 @@ ulang riwayat.
 | v0.126.0 | Tombol Simpan di dialog *Buang perubahan?* master data (F1-09c) | #132 |
 | v0.127.0 | Gulir ke galat setelah simpan pembelian gagal (F1-12j) | #133 |
 | v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | #134 |
+| v0.129.0 | Asal harga di baris pembelian (F1-12l) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -322,6 +323,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     (F1-12j); form bergulir ke galat paling atas.
 70. ~~Kursor tetap di tempat lain setelah simpan pembelian gagal~~ —
     selesai v0.128.0 (F1-12k); kursor ke isian teks yang salah.
+71. ~~Asal harga beli otomatis tidak terlihat di baris pembelian~~ —
+    selesai v0.129.0 (F1-12l); *Harga terakhir {tanggal} · {supplier}*
+    atau *Harga modal* di bawah nama barang.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

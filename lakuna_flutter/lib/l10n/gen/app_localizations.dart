@@ -6704,6 +6704,24 @@ abstract class AppLocalizations {
   /// **'Nama supplier baru'**
   String get purchaseSupplierNewName;
 
+  /// Asal harga baris pembelian: pembelian diterima terakhir (F1-12l).
+  ///
+  /// In id, this message translates to:
+  /// **'Harga terakhir {date} · {supplier}'**
+  String purchasePriceOriginLast(String supplier, String date);
+
+  /// No description provided for @purchasePriceOriginNoSupplier.
+  ///
+  /// In id, this message translates to:
+  /// **'tanpa supplier'**
+  String get purchasePriceOriginNoSupplier;
+
+  /// No description provided for @purchasePriceOriginCost.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga modal'**
+  String get purchasePriceOriginCost;
+
   /// No description provided for @purchaseSupplierPick.
   ///
   /// In id, this message translates to:

@@ -523,10 +523,22 @@ Future<Map<UuidValue, Map<UuidValue, Money>>> lastPurchaseUnitPricesOf(
   supplierId: supplierId,
 )).perUnit;
 
-/// Harga beli terakhir per satuan dasar dan per satuan konversi.
+/// Pembelian asal sebuah harga beli terakhir (F1-12l): tanggal beli dan
+/// nama supplier (`null` = tanpa supplier; supplier terhapus tetap
+/// disebut).
+typedef LastPriceSource = ({
+  UuidValue purchaseId,
+  DateTime purchasedOn,
+  String? supplierName,
+});
+
+/// Harga beli terakhir per satuan dasar dan per satuan konversi, beserta
+/// asalnya (F1-12l) dengan kunci yang sama.
 typedef LastPurchasePriceSet = ({
   Map<UuidValue, Money> perBase,
   Map<UuidValue, Map<UuidValue, Money>> perUnit,
+  Map<UuidValue, LastPriceSource> baseFrom,
+  Map<UuidValue, Map<UuidValue, LastPriceSource>> unitFrom,
 });
 
 /// [lastPurchasePricesOf] dan [lastPurchaseUnitPricesOf] dari satu bacaan
@@ -539,8 +551,16 @@ Future<LastPurchasePriceSet> lastPurchasePriceSetOf(
 }) async {
   final perBase = <UuidValue, Money>{};
   final perUnit = <UuidValue, Map<UuidValue, Money>>{};
+  final baseFrom = <UuidValue, LastPriceSource>{};
+  final unitFrom = <UuidValue, Map<UuidValue, LastPriceSource>>{};
+  LastPurchasePriceSet result() => (
+    perBase: perBase,
+    perUnit: perUnit,
+    baseFrom: baseFrom,
+    unitFrom: unitFrom,
+  );
   final ids = variantIds.toSet();
-  if (ids.isEmpty) return (perBase: perBase, perUnit: perUnit);
+  if (ids.isEmpty) return result();
   final session = store.session;
   final items = await PurchaseItem.db.find(
     session,
@@ -549,7 +569,7 @@ Future<LastPurchasePriceSet> lastPurchasePriceSetOf(
         i.variantId.inSet(ids) &
         i.deletedAt.equals(null),
   );
-  if (items.isEmpty) return (perBase: perBase, perUnit: perUnit);
+  if (items.isEmpty) return result();
   final purchases = {
     for (final p in await Purchase.db.find(
       session,
@@ -597,17 +617,47 @@ Future<LastPurchasePriceSet> lastPurchasePriceSetOf(
           ))
             u.id: u.factorMilli,
         };
-  for (final i in priced) {
-    perBase.putIfAbsent(
-      i.variantId,
-      () => perBaseUnitPrice(Money(i.unitPrice), Qty(i.factorMilli)),
+  // Nama supplier asal, termasuk yang sudah dihapus (F1-12l).
+  final supplierIds = {
+    for (final i in priced) ?purchases[i.purchaseId]!.supplierId,
+  };
+  final supplierNames = supplierIds.isEmpty
+      ? const <UuidValue, String>{}
+      : {
+          for (final s in await Supplier.db.find(
+            session,
+            where: (s) =>
+                s.id.inSet(supplierIds) & s.tenantId.equals(scope.tenantId),
+          ))
+            s.id: s.name,
+        };
+  LastPriceSource sourceOf(PurchaseItem i) {
+    final p = purchases[i.purchaseId]!;
+    return (
+      purchaseId: p.id,
+      purchasedOn: p.purchasedOn,
+      supplierName: supplierNames[p.supplierId],
     );
+  }
+
+  for (final i in priced) {
+    if (!perBase.containsKey(i.variantId)) {
+      perBase[i.variantId] = perBaseUnitPrice(
+        Money(i.unitPrice),
+        Qty(i.factorMilli),
+      );
+      baseFrom[i.variantId] = sourceOf(i);
+    }
     final unit = i.productUnitId;
     if (unit != null && factors[unit] == i.factorMilli) {
-      (perUnit[i.variantId] ??= {}).putIfAbsent(unit, () => Money(i.unitPrice));
+      final prices = perUnit[i.variantId] ??= {};
+      if (!prices.containsKey(unit)) {
+        prices[unit] = Money(i.unitPrice);
+        (unitFrom[i.variantId] ??= {})[unit] = sourceOf(i);
+      }
     }
   }
-  return (perBase: perBase, perUnit: perUnit);
+  return result();
 }
 
 /// Draf pembelian yang sudah memuat sebagian barang yang akan dibeli dari

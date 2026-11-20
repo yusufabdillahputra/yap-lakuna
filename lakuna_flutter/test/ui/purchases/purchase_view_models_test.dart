@@ -1191,6 +1191,162 @@ void main() {
     });
   });
 
+  group('asal harga di baris pembelian (F1-12l)', () {
+    late FakePurchasesRepository r;
+    late PurchaseFormViewModel vm;
+    late Supplier sumber;
+    late Supplier jaya;
+    late CatalogVariant myk;
+    late CatalogVariant other;
+    late UuidValue dus;
+    final fromJaya = PurchasePriceSource(
+      purchasedOn: DateTime.utc(2026, 11, 10),
+      supplierName: 'Toko Gula Jaya',
+    );
+    final fromSumber = PurchasePriceSource(
+      purchasedOn: DateTime.utc(2026, 11, 1),
+      supplierName: 'CV Sumber Pangan',
+    );
+
+    setUp(() async {
+      r = FakePurchasesRepository(
+        suppliers: const ['CV Sumber Pangan', 'Toko Gula Jaya'],
+      );
+      sumber = r.suppliers.first;
+      jaya = r.suppliers.last;
+      final variants = [for (final p in r.products) ...p.variants];
+      myk = variants.firstWhere((v) => v.sku == 'MYK-2L');
+      other = variants.firstWhere((v) => v.id != myk.id);
+      dus = myk.units.single.id;
+      // Terakhir dari semua supplier: Jaya 31.000 (dus 186.000); dari
+      // Sumber: 30.000.
+      r.lastPriceOf[myk.id] = const Money(31000);
+      r.lastUnitPriceOf[myk.id] = {dus: const Money(186000)};
+      r.lastPriceSourceOf[myk.id] = fromJaya;
+      r.lastPriceBySupplier[sumber.id] = {myk.id: const Money(30000)};
+      r.lastPriceSourceBySupplier[sumber.id] = {myk.id: fromSumber};
+      vm = PurchaseFormViewModel(repository: r);
+      await vm.load.execute();
+    });
+
+    tearDown(() => vm.dispose());
+
+    PurchaseFormLine lineOf(CatalogVariant v) =>
+        vm.lines.firstWhere((l) => l.product.variantId == v.id);
+
+    test('harga terakhir: asal mengikuti supplier dan satuan', () async {
+      vm.addByCode('MYK-2L');
+      // Riwayat belum terbaca: tidak menebak harga modal.
+      expect(vm.priceOrigin(lineOf(myk)), isNull);
+      await pumpEventQueue();
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromJaya));
+
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(lineOf(myk).unitPrice, const Money(30000));
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromSumber));
+
+      // Jaya belum pernah dicatat untuk barang ini: harga dan asal dari
+      // pembelian semua supplier.
+      vm.selectSupplier(jaya.id);
+      await pumpEventQueue();
+      expect(lineOf(myk).unitPrice, const Money(31000));
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromJaya));
+
+      vm.setUnit(lineOf(myk).key, dus);
+      await pumpEventQueue();
+      expect(lineOf(myk).unitPrice, const Money(186000));
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromJaya));
+    });
+
+    test('tanpa riwayat: harga modal; harga diketik: tanpa penanda', () async {
+      vm.addProduct(other.id);
+      await pumpEventQueue();
+      expect(lineOf(other).unitPrice, other.costPrice);
+      expect(vm.priceOrigin(lineOf(other)), const PurchasePriceFromCost());
+
+      vm.setUnitPrice(lineOf(other).key, const Money(7777));
+      expect(vm.priceOrigin(lineOf(other)), isNull);
+    });
+
+    test('supplier baru diketik: asal dari semua supplier', () async {
+      vm.selectSupplier(sumber.id);
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromSumber));
+      vm.useNewSupplier();
+      await pumpEventQueue();
+      expect(vm.priceOrigin(lineOf(myk)), PurchasePriceFromLast(fromJaya));
+    });
+
+    test('harga tetap setelah riwayat terbaca tetap memberi tahu', () async {
+      // Harga terakhir sama dengan harga modal: baris tidak berubah, tetapi
+      // asal harga baru diketahui.
+      r.lastPriceOf[other.id] = other.costPrice;
+      r.lastPriceSourceOf[other.id] = fromJaya;
+      vm.addProduct(other.id);
+      var notified = 0;
+      vm.addListener(() => notified++);
+      await pumpEventQueue();
+      expect(notified, greaterThan(0));
+      expect(vm.priceOrigin(lineOf(other)), PurchasePriceFromLast(fromJaya));
+
+      // Ganti supplier tanpa riwayat: harga tetap, asal tetap diumumkan.
+      notified = 0;
+      vm.selectSupplier(jaya.id);
+      final after = notified;
+      await pumpEventQueue();
+      expect(notified, greaterThan(after));
+    });
+
+    test('riwayat supplier gagal dibaca setelah ganti supplier: tanpa '
+        'penanda', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      r.nextError = Exception('baca gagal');
+      vm.selectSupplier(sumber.id);
+      await pumpEventQueue();
+      expect(lineOf(myk).unitPrice, const Money(31000));
+      expect(vm.priceOrigin(lineOf(myk)), isNull);
+    });
+
+    test('baris dari stok minimum memakai asal harga terakhir', () async {
+      final restock = PurchaseFormViewModel(
+        repository: r,
+        restock: PurchaseRestock(
+          locationId: r.locations.first.id,
+          locationName: 'Toko',
+          lines: [(variantId: myk.id, quantity: Qty.one)],
+        ),
+      );
+      addTearDown(restock.dispose);
+      await restock.load.execute();
+      await pumpEventQueue();
+      final line = restock.lines.single;
+      expect(line.unitPrice, const Money(31000));
+      expect(restock.priceOrigin(line), PurchasePriceFromLast(fromJaya));
+    });
+
+    test('riwayat gagal dibaca: tanpa penanda', () async {
+      r.nextError = Exception('baca gagal');
+      vm.addProduct(other.id);
+      await pumpEventQueue();
+      expect(lineOf(other).unitPrice, other.costPrice);
+      expect(vm.priceOrigin(lineOf(other)), isNull);
+    });
+
+    test('baris dari draf tersimpan: tanpa penanda', () async {
+      vm.addByCode('MYK-2L');
+      await pumpEventQueue();
+      await vm.saveDraft.execute();
+      final again = PurchaseFormViewModel(repository: r, draftId: vm.draftId);
+      addTearDown(again.dispose);
+      await again.load.execute();
+      await pumpEventQueue();
+      expect(again.priceOrigin(again.lines.single), isNull);
+    });
+  });
+
   group('harga beli terakhir untuk barang yang ditambah manual (F1-12e)', () {
     UuidValue myk() => form.lines
         .firstWhere((l) => l.product.sku == 'MYK-2L')

@@ -695,7 +695,10 @@ class _Lines extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: _cols[0],
-                      child: _ProductName(line: line),
+                      child: _ProductName(
+                        line: line,
+                        origin: vm.priceOrigin(line),
+                      ),
                     ),
                     Expanded(
                       flex: _cols[1],
@@ -731,13 +734,17 @@ class _Lines extends StatelessWidget {
 }
 
 class _ProductName extends StatelessWidget {
-  const _ProductName({required this.line});
+  const _ProductName({required this.line, this.origin});
 
   final PurchaseFormLine line;
+
+  /// Asal harga yang masih otomatis (F1-12l).
+  final PurchasePriceOrigin? origin;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final l10n = AppLocalizations.of(context);
     final p = line.product;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,6 +759,23 @@ class _ProductName extends StatelessWidget {
           Text(
             code,
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: _muted(context),
+          ),
+        if (origin case final origin?)
+          Text(
+            switch (origin) {
+              PurchasePriceFromLast(:final source) =>
+                // Tanggal di depan: nama supplier yang panjang terpotong
+                // tanpa menghilangkan tanggal.
+                l10n.purchasePriceOriginLast(
+                  source.supplierName ?? l10n.purchasePriceOriginNoSupplier,
+                  formatCalendarDate(source.purchasedOn),
+                ),
+              PurchasePriceFromCost() => l10n.purchasePriceOriginCost,
+            },
+            key: ValueKey('purchase-origin-${line.key}'),
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: _muted(context),
           ),
@@ -927,7 +951,12 @@ class _LineCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: _ProductName(line: line)),
+                Expanded(
+                  child: _ProductName(
+                    line: line,
+                    origin: viewModel.priceOrigin(line),
+                  ),
+                ),
                 _RemoveButton(viewModel: viewModel, line: line),
               ],
             ),

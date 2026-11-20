@@ -100,6 +100,42 @@ List<PurchaseProductOption> purchaseOptions(List<CatalogProduct> products) => [
       ),
 ];
 
+/// Asal harga baris pembelian yang masih otomatis (F1-12l).
+sealed class PurchasePriceOrigin {
+  const PurchasePriceOrigin();
+}
+
+/// Harga dari pembelian diterima terakhir.
+final class PurchasePriceFromLast extends PurchasePriceOrigin {
+  const PurchasePriceFromLast(this.source);
+
+  final PurchasePriceSource source;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PurchasePriceFromLast && other.source == source;
+
+  @override
+  int get hashCode => source.hashCode;
+
+  @override
+  String toString() => 'PurchasePriceFromLast($source)';
+}
+
+/// Belum pernah dibeli dalam satuan itu: harga modal produk.
+final class PurchasePriceFromCost extends PurchasePriceOrigin {
+  const PurchasePriceFromCost();
+
+  @override
+  bool operator ==(Object other) => other is PurchasePriceFromCost;
+
+  @override
+  int get hashCode => (PurchasePriceFromCost).hashCode;
+
+  @override
+  String toString() => 'PurchasePriceFromCost()';
+}
+
 /// Satu baris form pembelian. [key] stabil selama form terbuka; [priceRev]
 /// naik bila harga diganti dari luar field (mis. ganti satuan).
 @immutable
@@ -258,15 +294,58 @@ class PurchaseFormViewModel extends ChangeNotifier {
     UuidValue variantId,
     PurchaseUnitOption unit,
     UuidValue? supplier,
+  ) => _lastEntryFor(variantId, unit, supplier)?.price;
+
+  /// Seperti [_lastPriceFor], beserta asal harganya (F1-12l).
+  ({Money price, PurchasePriceSource? from})? _lastEntryFor(
+    UuidValue variantId,
+    PurchaseUnitOption unit,
+    UuidValue? supplier,
   ) {
-    Money? of(LastPurchasePrice? p) => switch (unit.productUnitId) {
-      null => p?.perBase,
-      final id => p?.perUnit[id],
-    };
+    ({Money price, PurchasePriceSource? from})? of(LastPurchasePrice? p) {
+      if (p == null) return null;
+      return switch (unit.productUnitId) {
+        null => switch (p.perBase) {
+          final price? => (price: price, from: p.perBaseFrom),
+          null => null,
+        },
+        final id => switch (p.perUnit[id]) {
+          final price? => (price: price, from: p.perUnitFrom[id]),
+          null => null,
+        },
+      };
+    }
+
     return (supplier == null
             ? null
             : of(_supplierPrices[supplier]?[variantId])) ??
         of(_lastPrices[variantId]);
+  }
+
+  /// Asal harga [line] yang masih otomatis (F1-12l): pembelian terakhir
+  /// atau harga modal. `null` bila harga diketik staf / dimuat dari draf,
+  /// riwayat belum atau gagal dibaca, atau harga baris tidak sama dengan
+  /// harga dari asal itu.
+  PurchasePriceOrigin? priceOrigin(PurchaseFormLine line) {
+    if (!line.autoPrice) return null;
+    final variantId = line.product.variantId;
+    final supplier = _priceSupplier;
+    if (!_lastPrices.containsKey(variantId)) return null;
+    if (supplier != null &&
+        !(_supplierPrices[supplier]?.containsKey(variantId) ?? false)) {
+      return null;
+    }
+    if (_lastEntryFor(variantId, line.unit, supplier) case final last?) {
+      return switch (last.from) {
+        final from? when last.price == line.unitPrice => PurchasePriceFromLast(
+          from,
+        ),
+        _ => null,
+      };
+    }
+    return line.unitPrice == line.product.defaultPrice(line.unit)
+        ? const PurchasePriceFromCost()
+        : null;
   }
 
   /// Menyegarkan harga baris otomatis setelah supplier berganti (F1-12g).
@@ -303,7 +382,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
         else
           l,
     ];
-    if (!changed) return;
+    // Harga tetap, tetapi asal harga kini diketahui (F1-12l).
+    if (!changed) {
+      notifyListeners();
+      return;
+    }
     if (saveDraft.completed) saveDraft.clearResult();
     notifyListeners();
   }
@@ -1097,6 +1180,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
     // Harga satuan baris saat ini; satuan bisa diganti selama menunggu.
     final price = _lastPriceFor(variantId, now.unit, supplier);
     if (price == null || !now.autoPrice || now.unitPrice == price) {
+      // Harga tetap, tetapi asal harga kini diketahui (F1-12l).
+      if (now.autoPrice) notifyListeners();
       return;
     }
     // priceRev naik agar isian harga yang sudah tampil ikut berganti.

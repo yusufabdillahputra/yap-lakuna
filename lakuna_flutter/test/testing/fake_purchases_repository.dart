@@ -503,6 +503,14 @@ class FakePurchasesRepository extends PurchasesRepository {
   final lastUnitPriceBySupplier =
       <UuidValue, Map<UuidValue, Map<UuidValue, Money>>>{};
 
+  /// Asal harga per varian untuk semua supplier, dipakai untuk harga satuan
+  /// dasar dan satuan konversi varian itu (F1-12l).
+  final lastPriceSourceOf = <UuidValue, PurchasePriceSource>{};
+
+  /// Seperti [lastPriceSourceOf], per supplier (F1-12l).
+  final lastPriceSourceBySupplier =
+      <UuidValue, Map<UuidValue, PurchasePriceSource>>{};
+
   /// Jumlah panggilan [lastPurchasePrices] (F1-12e).
   var lastPriceCalls = 0;
 
@@ -539,12 +547,21 @@ class FakePurchasesRepository extends PurchasesRepository {
         ? lastUnitPriceOf
         : (lastUnitPriceBySupplier[supplierId] ??
               const <UuidValue, Map<UuidValue, Money>>{});
+    final sources = supplierId == null
+        ? lastPriceSourceOf
+        : (lastPriceSourceBySupplier[supplierId] ??
+              const <UuidValue, PurchasePriceSource>{});
     return {
       for (final id in variantIds)
         if (prices.containsKey(id) || units.containsKey(id))
           id: LastPurchasePrice(
             perBase: prices[id],
             perUnit: Map.unmodifiable({...?units[id]}),
+            perBaseFrom: prices.containsKey(id) ? sources[id] : null,
+            perUnitFrom: Map.unmodifiable({
+              if (sources[id] case final source?)
+                for (final unit in (units[id] ?? const {}).keys) unit: source,
+            }),
           ),
     };
   });

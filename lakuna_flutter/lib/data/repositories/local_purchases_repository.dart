@@ -131,17 +131,35 @@ class LocalPurchasesRepository extends PurchasesRepository {
     UuidValue? supplierId,
   }) => _guard((_, scope, _) async {
     // Satu bacaan riwayat untuk kedua harga (F1-12h).
-    final (:perBase, :perUnit) = await lastPurchasePriceSetOf(
+    final (
+      :perBase,
+      :perUnit,
+      :baseFrom,
+      :unitFrom,
+    ) = await lastPurchasePriceSetOf(
       _store,
       scope,
       variantIds,
       supplierId: supplierId,
+    );
+    PurchasePriceSource source(LastPriceSource s) => PurchasePriceSource(
+      purchasedOn: s.purchasedOn,
+      supplierName: s.supplierName,
     );
     return {
       for (final id in {...perBase.keys, ...perUnit.keys})
         id: LastPurchasePrice(
           perBase: perBase[id],
           perUnit: Map.unmodifiable(perUnit[id] ?? const {}),
+          perBaseFrom: switch (baseFrom[id]) {
+            final s? => source(s),
+            null => null,
+          },
+          perUnitFrom: Map.unmodifiable({
+            for (final MapEntry(:key, :value)
+                in (unitFrom[id] ?? const {}).entries)
+              key: source(value),
+          }),
         ),
     };
   });

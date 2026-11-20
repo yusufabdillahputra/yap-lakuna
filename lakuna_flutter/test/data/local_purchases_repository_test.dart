@@ -122,6 +122,17 @@ void main() {
     expect(detail.items.single.sellPriceBefore, 2000);
     expect(_ok(await repo.list()).single.debt, Money.zero);
 
+    // Harga terakhir beserta asalnya (F1-12l).
+    expect(_ok(await repo.lastPurchasePrices([variant.id])), {
+      variant.id: LastPurchasePrice(
+        perBase: const Money(1600),
+        perBaseFrom: PurchasePriceSource(
+          purchasedOn: received.purchasedOn,
+          supplierName: 'UD Makmur',
+        ),
+      ),
+    });
+
     final ret = _ok(
       await repo.returnPurchase(
         purchaseId: received.id,

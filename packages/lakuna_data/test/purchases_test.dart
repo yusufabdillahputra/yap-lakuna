@@ -765,6 +765,73 @@ void main() {
     expect(both.perUnit, isEmpty);
   });
 
+  test('asal harga beli terakhir (F1-12l)', () async {
+    Future<Purchase> buy(String? supplier, DateTime on) => receivePurchase(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      request: PurchaseRequest(
+        newSupplierName: supplier,
+        purchasedOn: on,
+        locationId: gudang.id,
+        lines: [
+          PurchaseLineRequest(
+            variantId: v(gula).id,
+            quantity: Qty.units(5),
+            unitPrice: const Money(14500),
+          ),
+          if (supplier != null)
+            PurchaseLineRequest(
+              variantId: v(minyak).id,
+              productUnitId: dus().id,
+              quantity: Qty.one,
+              unitPrice: const Money(185000),
+            ),
+        ],
+        paid: Money(supplier == null ? 72500 : 257500),
+        funding: FundingSource.bank,
+      ),
+    );
+    final a = await buy(
+      'CV Sumber Pangan',
+      today.subtract(const Duration(days: 2)),
+    );
+    now = now.add(const Duration(days: 1));
+    final b = await buy(null, today.subtract(const Duration(days: 1)));
+    LastPriceSource from(Purchase p, String? name) =>
+        (purchaseId: p.id, purchasedOn: p.purchasedOn, supplierName: name);
+
+    final all = await lastPurchasePriceSetOf(store, scope, [
+      v(gula).id,
+      v(minyak).id,
+    ]);
+    // Gula terakhir dibeli tanpa supplier; minyak dari CV Sumber Pangan.
+    expect(all.baseFrom, {
+      v(gula).id: from(b, null),
+      v(minyak).id: from(a, 'CV Sumber Pangan'),
+    });
+    expect(all.unitFrom, {
+      v(minyak).id: {dus().id: from(a, 'CV Sumber Pangan')},
+    });
+
+    // Supplier tertentu: asal dari pembelian supplier itu.
+    final sumber = a.supplierId!;
+    final bySupplier = await lastPurchasePriceSetOf(store, scope, [
+      v(gula).id,
+    ], supplierId: sumber);
+    expect(bySupplier.baseFrom, {v(gula).id: from(a, 'CV Sumber Pangan')});
+
+    // Supplier yang sudah dihapus tetap disebut namanya.
+    await deleteSupplier(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      supplierId: sumber,
+    );
+    final after = await lastPurchasePriceSetOf(store, scope, [v(minyak).id]);
+    expect(after.baseFrom, {v(minyak).id: from(a, 'CV Sumber Pangan')});
+  });
+
   test('draf pembelian yang memuat barang stok minimum (F1-08g)', () async {
     expect(await restockDraftsOf(store, scope, gudang.id, const []), isEmpty);
     expect(

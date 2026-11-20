@@ -71,10 +71,39 @@ class PurchaseSetup {
   final String staffName;
 }
 
-/// Harga beli terakhir satu varian (F1-08e, F1-12h).
+/// Pembelian asal sebuah harga beli terakhir (F1-12l).
+@immutable
+class PurchasePriceSource {
+  const PurchasePriceSource({required this.purchasedOn, this.supplierName});
+
+  /// Tanggal beli (tanggal kalender).
+  final DateTime purchasedOn;
+
+  /// `null` = pembelian tanpa supplier.
+  final String? supplierName;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PurchasePriceSource &&
+      other.purchasedOn == purchasedOn &&
+      other.supplierName == supplierName;
+
+  @override
+  int get hashCode => Object.hash(purchasedOn, supplierName);
+
+  @override
+  String toString() => 'PurchasePriceSource($supplierName, $purchasedOn)';
+}
+
+/// Harga beli terakhir satu varian (F1-08e, F1-12h) dan asalnya (F1-12l).
 @immutable
 class LastPurchasePrice {
-  const LastPurchasePrice({this.perBase, this.perUnit = const {}});
+  const LastPurchasePrice({
+    this.perBase,
+    this.perUnit = const {},
+    this.perBaseFrom,
+    this.perUnitFrom = const {},
+  });
 
   /// Per satuan dasar, dari pembelian terakhir dalam satuan apa pun.
   final Money? perBase;
@@ -83,17 +112,29 @@ class LastPurchasePrice {
   /// terakhir dalam satuan yang sama.
   final Map<UuidValue, Money> perUnit;
 
+  /// Asal [perBase].
+  final PurchasePriceSource? perBaseFrom;
+
+  /// Asal tiap harga di [perUnit], dengan kunci yang sama.
+  final Map<UuidValue, PurchasePriceSource> perUnitFrom;
+
   @override
   bool operator ==(Object other) =>
       other is LastPurchasePrice &&
       other.perBase == perBase &&
-      mapEquals(other.perUnit, perUnit);
+      mapEquals(other.perUnit, perUnit) &&
+      other.perBaseFrom == perBaseFrom &&
+      mapEquals(other.perUnitFrom, perUnitFrom);
 
   @override
   int get hashCode => Object.hash(
     perBase,
     Object.hashAllUnordered(
       perUnit.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+    perBaseFrom,
+    Object.hashAllUnordered(
+      perUnitFrom.entries.map((e) => Object.hash(e.key, e.value)),
     ),
   );
 }

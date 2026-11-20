@@ -2352,6 +2352,16 @@
   "purchaseSupplier": "Supplier",
   "purchaseSupplierNew": "+ Supplier baru",
   "purchaseSupplierNewName": "Nama supplier baru",
+  "purchasePriceOriginLast": "Harga terakhir {date} · {supplier}",
+  "@purchasePriceOriginLast": {
+    "description": "Asal harga baris pembelian: pembelian diterima terakhir (F1-12l).",
+    "placeholders": {
+      "supplier": {"type": "String"},
+      "date": {"type": "String"}
+    }
+  },
+  "purchasePriceOriginNoSupplier": "tanpa supplier",
+  "purchasePriceOriginCost": "Harga modal",
   "purchaseSupplierPick": "Pilih dari daftar",
   "purchaseInvoiceNo": "No. faktur supplier",
   "purchaseDate": "Tanggal",
