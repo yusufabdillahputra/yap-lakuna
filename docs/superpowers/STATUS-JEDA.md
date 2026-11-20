@@ -115,6 +115,7 @@ ulang riwayat.
 | v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | #137 |
 | v0.132.0 | Barang yang cocok tampil di daftar Riwayat (F1-11i) | #138 |
 | v0.133.0 | Target margin toko di Laba rugi (F1-16d) | #139 |
+| v0.134.0 | Kredit untuk bagian terakhir split bill (F1-13h) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -125,10 +126,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
    ~~diskon per baris di bill~~ — selesai v0.53.0 (F1-04g); ~~membagi baris
    berdiskon rupiah per tamu~~ — selesai v0.65.0 (F1-04h); ~~pemberi
    diskon tercatat~~ — selesai v0.73.0 (F1-04i).
-2. **Kredit per bagian split bill** — spec F1-13b. Butuh pelanggan per
-   bagian tamu dan dokumen piutang per bagian, karena saat ini piutang
-   melekat pada satu nota dengan satu pelanggan. Perlu desain model data
-   sendiri (tabel baru + alokasi pembayaran piutang).
+2. ~~Kredit untuk bagian terakhir split bill~~ — selesai v0.134.0
+   (F1-13h). Kredit beberapa bagian / pelanggan berbeda per bagian masih
+   gap: butuh dokumen piutang per bagian (tabel baru + alokasi pembayaran
+   piutang), karena piutang melekat pada satu nota dengan satu pelanggan.
 3. ~~Harga grosir per grup pelanggan~~ — selesai v0.34.0 (F1-07c);
    harga grup di open bill F&B selesai v0.42.0 (F1-10f).
 4. ~~*Pelanggan baru* dari pemilih pelanggan Kasir~~ — selesai v0.33.0
@@ -340,6 +341,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 75. ~~Kartu *Margin kotor* tanpa target toko~~ — selesai v0.133.0
     (F1-16d); isian *Target margin kotor (%)* per cabang, *tercapai* /
     *kurang n poin*.
+76. ~~Tamu terakhir split bill tidak bisa berutang~~ — selesai v0.134.0
+    (F1-13h); *Kredit / piutang* di bagian sisa terakhir.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -374,4 +374,43 @@ void main() {
     );
     expect(done.receipt!.sale.customerId, ani.id);
   });
+
+  test('DP dibanding tagihan bagian, bukan total bill', () async {
+    final ani = await customer('Bu Ani');
+    var b = await split(await bill(), SplitMode.equal);
+    b = (await pay(b, guest: 'A')).bill!;
+    // DP 30.000 < total 55.000 tapi ≥ bagian 27.500.
+    await expectLater(
+      pay(b, guest: 'B', payments: const [], credit: credit(ani, down: 30000)),
+      throwsA(
+        isA<SaleCreditInvalid>().having(
+          (e) => e.issue,
+          'issue',
+          CreditIssue.downPayment,
+        ),
+      ),
+    );
+  });
+
+  test('kembalian bagian lain tidak ikut paid_amount', () async {
+    final ani = await customer('Bu Ani');
+    var b = await split(await bill(), SplitMode.equal);
+    b = (await pay(
+      b,
+      guest: 'A',
+      payments: const [
+        SalePaymentRequest(method: PaymentMethod.cash, amount: Money(50000)),
+      ],
+    )).bill!;
+    final done = await pay(
+      b,
+      guest: 'B',
+      payments: const [],
+      credit: credit(ani, down: 2500),
+    );
+    final sale = done.receipt!.sale;
+    expect(sale.paidAmount, 27500 + 2500);
+    expect(sale.changeAmount, 22500);
+    expect(await outstanding(ani), const Money(25000));
+  });
 }

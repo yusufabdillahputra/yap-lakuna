@@ -18,4 +18,6 @@ The customer must be registered with a **Credit limit** above 0 in [Customers](c
 
 The receipt prints the *On credit* and *Due* lines. If a *Transfer account* is set in [Store settings](store-settings), it also prints *Transfer to:* followed by the account so the customer knows where to pay the rest.
 
+In F&B, credit is also available from **Close & pay** on a table or takeaway bill, and for the last part of a [split bill](split-bill). For a split bill, the limit is checked against that part's amount minus the down payment, while the other guests' parts stay recorded as payments on the same receipt.
+
 The receipt is marked *Unpaid* in History and added to the customer's receivables. Later payments are recorded in [Customers & receivables](customers-credit).

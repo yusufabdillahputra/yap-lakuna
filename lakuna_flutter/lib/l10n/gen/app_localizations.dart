@@ -14812,6 +14812,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'{margin} · target {target}'**
   String reportsMarginTargetExport(String margin, String target);
+
+  /// No description provided for @billSplitErrorCreditNotLast.
+  ///
+  /// In id, this message translates to:
+  /// **'Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu.'**
+  String get billSplitErrorCreditNotLast;
 }
 
 class _AppLocalizationsDelegate

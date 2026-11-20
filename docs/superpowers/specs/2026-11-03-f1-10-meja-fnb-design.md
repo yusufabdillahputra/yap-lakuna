@@ -549,6 +549,7 @@ dibuka dari chip *Belum ditempatkan*.
 | Split bill: kas per sesi | — | Rilis v0.56.0 | Tunai bagian masuk sesi yang menerimanya (`payments.cash_session_id`); tutup sesi hanya ditahan di sesi penerima ([F1-10i](2026-11-14-f1-10i-kas-bagian-split-design.md)). |
 | Split bill: baris porsi | — | Sederhana | Memindah baris satu porsi menyisipkan baris baru dan menghapus yang lama (outbox bertambah). Ubah label di tempat bila seluruh baris pindah. Ubah jumlah baris porsi memakai harga ulang baris itu saja. |
 | Split bill: retur bagian lunas | — | Belum | Void/retur nota di F1-13. |
+| Split bill: kredit bagian terakhir | 1.5b | Rilis v0.134.0 | Bagian sisa terakhir ditutup sebagai nota kredit ([F1-13h](2026-11-20-f1-13h-kredit-bagian-split-design.md)). |
 | Denah | 1.7b–d | Dirilis v0.14.0 | Layar *Atur denah* (`/meja/denah`) untuk pemegang `settings:manage`: unggah PNG/JPG/WebP/SVG ≤ 5 MB (kamera di Android/iOS), preset meja, chip *Belum ditempatkan*, geser + ubah ukuran dengan snap 20 px, undo/redo, simpan sekali per area dalam satu transaksi. Layar Meja: pilihan Grid / Denah, kanvas terkunci, warna & total sama dengan grid. Layout lebar (≥ 1100 px) tiga kolom; di bawahnya satu kolom bergulir. |
 | Denah: tarik dari palet | 1.7d | Ketuk | Preset dan meja belum ditempatkan ditaruh di tengah tampilan lalu digeser; tarik langsung dari palet belum ada. |
 | Denah: garis bantu, LOD | 1.7d | Belum | `LodPlugin` dan garis perataan antar meja belum dipakai; cukup untuk denah ≤ 50 meja. |

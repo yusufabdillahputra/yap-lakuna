@@ -5813,5 +5813,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "billSplitErrorCreditNotLast": "Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu."
 }

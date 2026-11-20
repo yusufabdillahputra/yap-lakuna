@@ -624,7 +624,6 @@ class FakeCashierRepository extends CashierRepository {
       if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
         return const Result.error(NotPermitted(Permission.debtsManage));
       }
-      credits.add(credit);
     }
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
     final d = dining;
@@ -639,6 +638,7 @@ class FakeCashierRepository extends CashierRepository {
         credit: credit,
         customerName: _customerRow(credit?.customerId)?.customer.name,
       );
+      if (credit != null) credits.add(credit);
       paidParts.add((billId, guest, amount, payments, pending));
       return Result.ok(result);
     } on Exception catch (e) {

@@ -7,6 +7,69 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.134.0] - 2026-11-20
+
+Tamu terakhir di split bill F&B kini bisa membayar belakangan sebagai
+piutang.
+
+### Ditambahkan
+
+- **Bayar bagian split bill (1.9) → Kredit / piutang (1.5b):** pilihan
+  kredit muncul untuk staf `debts:manage` saat bagian yang dibayar adalah
+  sisa terakhir bill: tamu lain sudah lunas, tidak ada QRIS yang menunggu
+  konfirmasi, dan (mode *Nominal bebas*) nominalnya sama dengan seluruh
+  sisa tagihan. Kasir memilih pelanggan, mengisi DP tunai (boleh 0) dan
+  jatuh tempo, lalu menyimpan. Bill langsung selesai sebagai satu nota
+  kredit atas nama pelanggan itu (nomor nota, stok, HPP, service & PB1
+  beku, sesi kasir seperti bill lunas biasa).
+- Aturan kredit F1-13 berlaku pada tagihan bagian: DP < tagihan bagian,
+  jatuh tempo ≥ hari ini, `piutang berjalan + (tagihan bagian − DP) ≤
+  limit`. Bila bill sudah punya pelanggan (F1-10f), pelanggan kredit harus
+  sama.
+- Nota menyimpan `paid_amount` = pembayaran bagian tamu lain + DP, jadi
+  piutang pelanggan = tagihan bagian − DP. DP tunai tercatat sebagai
+  pembayaran tamu itu (label tamu tampil di struk) dan masuk laci sesi
+  yang menerimanya.
+- Panduan *Split bill* dan *Penjualan kredit* (ID + EN) menjelaskan
+  kredit bagian terakhir.
+- Pesan galat sendiri bila kredit ditolak karena bagian itu ternyata bukan
+  sisa terakhir (mis. perangkat lain baru menyimpan QRIS menunggu): *Kredit
+  hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS
+  yang menunggu.* (kunci `billSplitErrorCreditNotLast`).
+
+### Diperbaiki
+
+- **Split bill (1.9) di ponsel 360 px:** label *Jumlah tamu* bersama
+  tombol − / + meluap 4 px setelah kembali dari membayar satu bagian
+  (lebar kontrol 304 px). Label kini boleh turun baris. Ditemukan oleh tes
+  widget alur kredit bagian di 360 px.
+
+### Catatan teknis
+
+- `paySplitPart(..., credit:)` (lapisan data): `payments` harus kosong
+  bila `credit` diisi (DP dibuat dari `credit.downPayment`), butuh
+  `debts:manage` (`requireCustomerActor`), menolak `pending`. Di dalam
+  transaksi: `SplitInvalid(SplitError.creditNotLast)` bila ada QRIS
+  menunggu atau `split.remaining != tagihan bagian`;
+  `BillCustomerMismatch` bila pelanggan bill berbeda; `checkSaleCredit`
+  memakai tagihan bagian. Pembayaran DP disisipkan dengan `guestLabel`,
+  lalu `_completeBill` dipanggil langsung.
+- `_completeBill` mendapat parameter `credited` (jumlah yang menjadi
+  piutang). *Tutup & bayar* (F1-13b) tetap `paid_amount = DP`.
+- `CashierRepository.payBillPart(..., credit:)`; repositori lokal menolak
+  tanpa `debts:manage` sebelum menyentuh data. `CashierViewModel
+  .canSellOnCredit` untuk bagian split memeriksa `split.pending == 0` dan
+  `split.remaining == payTotal`; `_payPart` mengirim `SaleCredit` dan
+  memuat ulang daftar pelanggan kredit setelah berhasil.
+- Kredit beberapa bagian atau pelanggan berbeda per bagian masih gap
+  (butuh dokumen piutang per bagian).
+- Tes: data (`split_credit_test.dart`: bagi rata dengan DP, per item tanpa
+  DP, nominal bebas, QRIS menunggu, limit / pembayaran + kredit / pelayan
+  tanpa izin, pelanggan bill berbeda, DP ≥ tagihan bagian walau < total
+  bill, kembalian tunai bagian lain tidak ikut `paid_amount`), view model,
+  repositori lokal, pesan galat, dan alur widget 1280 + 360 px. Uji mutasi pada syarat bagian terakhir,
+  `credited`, label tamu DP, cek pelanggan, izin, dan VM: semua tertangkap.
+
 ## [0.133.0] - 2026-11-20
 
 Laba rugi menandai apakah margin kotor sudah mencapai target toko.
@@ -7646,7 +7709,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...HEAD
+[0.134.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...v0.134.0
 [0.133.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...v0.133.0
 [0.132.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...v0.132.0
 [0.131.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...v0.131.0
