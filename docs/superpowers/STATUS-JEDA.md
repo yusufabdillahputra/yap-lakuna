@@ -117,7 +117,7 @@ ulang riwayat.
 | v0.133.0 | Target margin toko di Laba rugi (F1-16d) | #139 |
 | v0.134.0 | Kredit untuk bagian terakhir split bill (F1-13h) | #140 |
 | v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | #141 |
-| v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | |
+| v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | #142 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
