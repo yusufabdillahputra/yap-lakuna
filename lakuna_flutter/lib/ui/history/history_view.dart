@@ -622,11 +622,18 @@ class _SaleTable extends StatelessWidget {
                     children: [
                       cell(
                         0,
-                        Text(
-                          r.sale.number,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: body.copyWith(fontWeight: FontWeight.w600),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r.sale.number,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: body.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            if (r.matchedItems.isNotEmpty)
+                              _MatchedItems(row: r, compact: true),
+                          ],
                         ),
                       ),
                       cell(
@@ -704,6 +711,60 @@ class _SaleTable extends StatelessWidget {
   }
 }
 
+/// *Barang cocok: …* di baris hasil pencarian (F1-11i): dua nama pertama,
+/// sisanya *+n lainnya* dalam teks sendiri agar tidak ikut terpotong.
+class _MatchedItems extends StatelessWidget {
+  const _MatchedItems({required this.row, this.compact = false});
+
+  final HistoryRow row;
+
+  /// Tabel desktop: nama paling banyak dua baris berelipsis (kolom nomor
+  /// sempit), *+n* tetap utuh di kanannya. Kartu ponsel: dibungkus.
+  final bool compact;
+
+  static const _shown = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final names = row.matchedItems;
+    final style = theme.typography.body.xs.copyWith(
+      // Biru muda di tema gelap (kontras 4.5:1, spec F0).
+      color: theme.colors.brightness == Brightness.dark
+          ? const Color(0xFF74D4FF)
+          : theme.colors.primary,
+      fontWeight: FontWeight.w600,
+    );
+    final id = row.sale.id.uuid;
+    final listed = Text(
+      l10n.historyMatchedItems(names.take(_shown).join(', ')),
+      key: ValueKey('history-match-$id'),
+      maxLines: compact ? 2 : null,
+      overflow: compact ? TextOverflow.ellipsis : null,
+      style: style,
+    );
+    if (names.length <= _shown) return listed;
+    final more = Text(
+      l10n.historyMatchedItemsMore(names.length - _shown),
+      key: ValueKey('history-match-more-$id'),
+      // Tabel: tidak pernah dipotong; kartu sempit: boleh turun baris.
+      softWrap: !compact,
+      style: style,
+    );
+    return compact
+        ? Row(
+            spacing: 4,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Flexible(child: listed),
+              more,
+            ],
+          )
+        : Wrap(spacing: 4, children: [listed, more]);
+  }
+}
+
 class _SaleCard extends StatelessWidget {
   const _SaleCard({
     required this.row,
@@ -771,6 +832,7 @@ class _SaleCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: _muted(context),
                     ),
+                    if (r.matchedItems.isNotEmpty) _MatchedItems(row: r),
                   ],
                 ),
               ),

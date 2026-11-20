@@ -8768,4 +8768,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String stockMinimumDraftShort(String qty, String unit) {
     return '$qty $unit short of the suggestion';
   }
+
+  @override
+  String historyMatchedItems(String items) {
+    return 'Matching items: $items';
+  }
+
+  @override
+  String historyMatchedItemsMore(int count) {
+    return '+$count more';
+  }
 }

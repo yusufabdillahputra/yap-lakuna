@@ -5747,5 +5747,21 @@
         "type": "String"
       }
     }
+  },
+  "historyMatchedItems": "Barang cocok: {items}",
+  "@historyMatchedItems": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMatchedItemsMore": "+{count} lainnya",
+  "@historyMatchedItemsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

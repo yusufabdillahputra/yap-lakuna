@@ -8518,4 +8518,14 @@ class AppLocalizationsId extends AppLocalizations {
   String stockMinimumDraftShort(String qty, String unit) {
     return 'Kurang $qty $unit dari saran';
   }
+
+  @override
+  String historyMatchedItems(String items) {
+    return 'Barang cocok: $items';
+  }
+
+  @override
+  String historyMatchedItemsMore(int count) {
+    return '+$count lainnya';
+  }
 }

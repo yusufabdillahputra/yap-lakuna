@@ -567,6 +567,59 @@ void main() {
       expect(await find('k o p i d o b e l x'), isEmpty);
     });
 
+    test('barang yang cocok ikut di baris hasil (F1-11i)', () async {
+      await openSession();
+      final a = await sell({kopi: 1000, roti: 1000, jasa: 1000});
+      final b = await sell({roti: 2000, kopi: 1000});
+      Future<Map<UuidValue, List<String>>> matched(String q) async => {
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id: r.matchedItems,
+      };
+
+      expect(await matched('kopi'), {
+        b.sale.id: ['Kopi Bubuk'],
+        a.sale.id: ['Kopi Bubuk'],
+      });
+      // Urutan seperti di nota; hanya barang yang memuat setiap kata.
+      expect(await matched('i'), {
+        b.sale.id: ['Roti Tawar', 'Kopi Bubuk'],
+        a.sale.id: ['Kopi Bubuk', 'Roti Tawar', 'Isi Pulsa'],
+      });
+      expect(await matched('ROTI tawar'), {
+        b.sale.id: ['Roti Tawar'],
+        a.sale.id: ['Roti Tawar'],
+      });
+      // Barang yang sama di dua baris nota ditulis sekali.
+      final c = await checkoutSale(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        lines: [
+          SaleLineRequest(variantId: v(kopi).id, quantity: Qty(1000)),
+          SaleLineRequest(variantId: v(kopi).id, quantity: Qty(2000)),
+        ],
+        payments: const [SalePaymentRequest.cash(Money(1000000))],
+      );
+      expect((await matched('bubuk'))[c.sale.id], ['Kopi Bubuk']);
+      // Cocok lewat nomor nota saja: tanpa barang.
+      expect(await matched(a.sale.number), {a.sale.id: <String>[]});
+      // Cocok lewat nomor nota dan barang: barangnya tetap ditulis.
+      expect(a.sale.number.toLowerCase(), contains('k'));
+      expect((await matched('k'))[a.sale.id], ['Kopi Bubuk']);
+      // Lebih dari 8 kata: kata ke-9 tetap menyaring barang.
+      final eight = List.filled(8, 'kopi').join(' ');
+      expect((await matched('$eight bubuk'))[a.sale.id], ['Kopi Bubuk']);
+      expect(await matched('$eight tawar'), isEmpty);
+      // Di luar pencarian: tanpa barang.
+      final page = await listSalesHistory(store, scope, now: now);
+      expect(page.rows.every((r) => r.matchedItems.isEmpty), isTrue);
+    });
+
     test('cocok nama modifier di baris barang yang sama (F1-11f)', () async {
       await saveModifierGroup(
         store,
@@ -635,6 +688,16 @@ void main() {
       ];
 
       expect(await find('extra shot'), [withShot]);
+      // Hanya barang bermodifier yang cocok ditulis di baris (F1-11i).
+      expect(
+        (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: const HistoryFilter(query: 'extra shot'),
+        )).rows.single.matchedItems,
+        ['Es Kopi Susu Reguler'],
+      );
       expect(await find('SHOT'), [withShot]);
       expect(await find('kopi extra'), [withShot]);
       expect(await find('shot kopi susu'), [withShot]);
@@ -745,6 +808,19 @@ void main() {
       ];
 
       expect(await find('tanpa es'), [noIce]);
+      // Barang yang cocok lewat catatan ikut ditulis (F1-11i).
+      Future<Map<UuidValue, List<String>>> matched(String q) async => {
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id: r.matchedItems,
+      };
+      expect(await matched('tanpa es'), {
+        noIce: ['Kopi Bubuk'],
+      });
       expect(await find('GULA'), [noIce]);
       expect(await find('sedikit kopi'), [noIce]);
       expect(await find('kopi bubuk'), [noIce, plain]);
@@ -778,7 +854,7 @@ void main() {
         billId: bill.id,
         line: SaleLineRequest(variantId: v(roti).id, quantity: Qty(1000)),
       );
-      await payOpenBill(
+      final last = await payOpenBill(
         store,
         scope,
         staffId: ctx.owner.id,
@@ -786,6 +862,8 @@ void main() {
         payments: const [SalePaymentRequest.cash(Money(100000))],
       );
       expect(await find('bungkus'), isEmpty);
+      // Barang yang dihapus dari bill tidak ditulis di baris (F1-11i).
+      expect((await matched('o'))[last.sale.id], ['Roti Tawar']);
     });
 
     test('hasil dibatasi dan ditandai terpotong', () async {

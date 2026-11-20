@@ -5209,5 +5209,21 @@
         "type": "String"
       }
     }
+  },
+  "historyMatchedItems": "Matching items: {items}",
+  "@historyMatchedItems": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMatchedItemsMore": "+{count} more",
+  "@historyMatchedItemsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
