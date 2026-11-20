@@ -109,6 +109,7 @@ ulang riwayat.
 | v0.125.0 | Tombol Simpan di dialog *Buang perubahan?* pelanggan & supplier (F1-13g) | #131 |
 | v0.126.0 | Tombol Simpan di dialog *Buang perubahan?* master data (F1-09c) | #132 |
 | v0.127.0 | Gulir ke galat setelah simpan pembelian gagal (F1-12j) | #133 |
+| v0.128.0 | Kursor ke isian salah setelah simpan pembelian gagal (F1-12k) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -319,6 +320,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     modifier, area, meja, rentang meja.
 69. ~~Pesan galat simpan pembelian di luar layar~~ — selesai v0.127.0
     (F1-12j); form bergulir ke galat paling atas.
+70. ~~Kursor tetap di tempat lain setelah simpan pembelian gagal~~ —
+    selesai v0.128.0 (F1-12k); kursor ke isian teks yang salah.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

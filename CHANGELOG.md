@@ -7,6 +7,44 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.128.0] - 2026-11-20
+
+Kursor pindah ke isian yang salah setelah simpan pembelian gagal.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** setelah *Simpan draf* atau *Terima barang &
+  simpan* gagal (termasuk *Simpan draf* dari dialog *Buang perubahan?*),
+  form bergulir ke galat paling atas (v0.127.0) lalu kursor pindah ke
+  isian itu bila berupa isian teks: nomor faktur, jumlah, harga, diskon,
+  ongkir, dibayar, catatan, atau nama supplier dalam mode *Supplier
+  baru*. Staf bisa langsung mengetik ulang tanpa mengklik. Bila galat
+  paling atas berupa pilihan supplier, jatuh tempo, daftar barang kosong,
+  atau kotak galat simpan, kursor tidak pindah, agar papan ketik ponsel
+  tidak menggulir layar menjauhi galat itu.
+
+### Catatan teknis
+
+- `_revealFirstIssue` di `PurchaseFormPanel` kini `async`: menunggu
+  `Scrollable.ensureVisible` selesai, lalu bila sasarannya `PurchaseIssue`
+  dengan field di `_textIssueFields` (atau supplier saat `newSupplier`),
+  memanggil `requestFocus()` pada
+  `focusNode` milik `EditableText` pertama di bawah jangkar. Kursor
+  diberikan setelah gulir agar isian yang menerima kursor tidak menggeser
+  posisi gulir 10% dari F1-12j. Panggilan yang sudah usang (simpan gagal
+  lagi selama gulir) tidak memberi kursor. Tanpa `FocusNode` baru.
+- Tes: grup F1-12k di `purchase_flow_test.dart` (360 px qty 0 dari bawah
+  → qty berkursor dan tetap di 10% area gulir; 1440 px dari dialog
+  *Buang perubahan?*; supplier kosong di atas → tidak ada isian teks
+  berkursor; nama *Supplier baru* kosong berkursor; diskon ber-prefix Rp
+  berkursor). Tes gagal tanpa perubahan kode; mutasi "tanpa kursor",
+  "kursor sebelum gulir", "kursor ke isian teks pertama walau bukan galat
+  teratas", dan "nama supplier baru tidak menerima kursor" tertangkap.
+  Ditemukan saat review: nama *Supplier baru* adalah isian teks, panggilan
+  usang selama gulir, dan tes isian ber-prefix. Uji manual Linux di Xvfb.
+- Spec [F1-12k](docs/superpowers/specs/2026-11-20-f1-12k-fokus-isian-salah-pembelian-design.md);
+  gap *Fokus keyboard ke isian salah* di F1-12j ditutup.
+
 ## [0.127.0] - 2026-11-20
 
 Form pembelian bergulir ke pesan galat setelah simpan gagal.
@@ -7390,7 +7428,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...HEAD
+[0.128.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...v0.128.0
 [0.127.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...v0.127.0
 [0.126.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.125.0...v0.126.0
 [0.125.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...v0.125.0

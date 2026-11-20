@@ -109,14 +109,18 @@ class _PurchaseFormPanelState extends State<PurchaseFormPanel> {
   }
 
   /// Menggulir ke galat yang tampil paling atas (lalu paling kiri) setelah
-  /// simpan gagal, dari tombol form maupun dialog *Buang perubahan?*.
-  void _revealFirstIssue() {
+  /// simpan gagal, dari tombol form maupun dialog *Buang perubahan?*
+  /// (F1-12j), lalu memberi kursor ke galat itu bila berupa isian teks
+  /// (F1-12k).
+  Future<void> _revealFirstIssue() async {
     if (!mounted) return;
+    final round = _revealed;
     final vm = viewModel;
     final ids = <Object>[
       ...vm.issues,
       if (vm.actionError != null) _actionErrorAnchor,
     ];
+    Object? firstId;
     BuildContext? first;
     Offset? firstAt;
     for (final id in ids) {
@@ -127,28 +131,54 @@ class _PurchaseFormPanelState extends State<PurchaseFormPanel> {
       if (firstAt == null ||
           at.dy < firstAt.dy ||
           (at.dy == firstAt.dy && at.dx < firstAt.dx)) {
+        firstId = id;
         first = target;
         firstAt = at;
       }
     }
     if (first == null) return;
-    // Sudah terlihat seluruhnya: layar tidak digeser.
-    final viewport = Scrollable.maybeOf(first)?.context.findRenderObject();
-    final box = first.findRenderObject()! as RenderBox;
-    if (viewport is RenderBox) {
-      final view = viewport.localToGlobal(Offset.zero) & viewport.size;
-      final rect = box.localToGlobal(Offset.zero) & box.size;
-      if (rect.top >= view.top && rect.bottom <= view.bottom) return;
-    }
-    unawaited(
-      Scrollable.ensureVisible(
+    if (!_isVisible(first)) {
+      await Scrollable.ensureVisible(
         first,
         alignment: 0.1,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
-      ),
-    );
+      );
+    }
+    // Simpan gagal lagi selama gulir: sasaran ini sudah usang.
+    if (!mounted || !first.mounted || round != _revealed) return;
+    if (firstId case PurchaseIssue(:final field)
+        when _textIssueFields.contains(field) ||
+            (field == PurchaseField.supplier && vm.newSupplier)) {
+      _editableIn(first)?.focusNode.requestFocus();
+    }
+  }
+
+  /// Seluruh [target] sudah terlihat di area gulirnya.
+  static bool _isVisible(BuildContext target) {
+    final viewport = Scrollable.maybeOf(target)?.context.findRenderObject();
+    final box = target.findRenderObject()! as RenderBox;
+    if (viewport is! RenderBox) return false;
+    final view = viewport.localToGlobal(Offset.zero) & viewport.size;
+    final rect = box.localToGlobal(Offset.zero) & box.size;
+    return rect.top >= view.top && rect.bottom <= view.bottom;
+  }
+
+  /// `EditableText` pertama di bawah [context].
+  static EditableText? _editableIn(BuildContext context) {
+    EditableText? found;
+    void visit(Element element) {
+      if (found != null) return;
+      if (element.widget case final EditableText editable) {
+        found = editable;
+        return;
+      }
+      element.visitChildElements(visit);
+    }
+
+    context.visitChildElements(visit);
+    return found;
   }
 
   @override
@@ -158,7 +188,7 @@ class _PurchaseFormPanelState extends State<PurchaseFormPanel> {
       if (viewModel.failedSubmits != _revealed) {
         _revealed = viewModel.failedSubmits;
         WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _revealFirstIssue(),
+          (_) => unawaited(_revealFirstIssue()),
         );
       }
       return _IssueAnchors(anchors: _anchors, child: _form(context));
@@ -300,6 +330,19 @@ class _IssueAnchors extends InheritedWidget {
   @override
   bool updateShouldNotify(_IssueAnchors old) => anchors != old.anchors;
 }
+
+/// Galat yang berupa isian teks: menerima kursor setelah simpan gagal
+/// (F1-12k). Supplier menerima kursor hanya dalam mode *Supplier baru*
+/// (nama supplier diketik).
+const _textIssueFields = {
+  PurchaseField.invoiceNo,
+  PurchaseField.quantity,
+  PurchaseField.price,
+  PurchaseField.discount,
+  PurchaseField.shipping,
+  PurchaseField.paid,
+  PurchaseField.note,
+};
 
 /// Penanda [_actionErrorAnchor]: kotak galat simpan.
 const _actionErrorAnchor = 'purchase-action-error';
