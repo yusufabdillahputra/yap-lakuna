@@ -85,6 +85,69 @@ void main() {
       expect(vm.drawerCash, const Money(500000));
     });
 
+    group('rekening tujuan transfer (F1-13i)', () {
+      Future<void> reload(String accounts) async {
+        repo.transferAccount = accounts;
+        await vm.load.execute();
+        vm.setAmount(const Money(100000));
+      }
+
+      test('satu rekening otomatis terpilih', () async {
+        await reload('BCA 123');
+        expect(vm.transferAccount, isNull); // Tunai tanpa rekening.
+        vm.setMethod(PaymentMethod.transfer);
+        expect(vm.transferAccounts, ['BCA 123']);
+        expect(vm.transferAccount, 'BCA 123');
+        expect(vm.transferAccountMissing, isFalse);
+        await vm.receive.execute();
+        expect(repo.requests.single.transferAccount, 'BCA 123');
+        expect(repo.payments.single.transferAccount, 'BCA 123');
+      });
+
+      test('dua rekening wajib dipilih, lalu dikosongkan', () async {
+        await reload('BCA 123\nBRI 555');
+        expect(vm.transferAccountMissing, isFalse); // Tunai.
+        vm.setMethod(PaymentMethod.transfer);
+        expect(vm.transferAccount, isNull);
+        expect(vm.transferAccountMissing, isTrue);
+        expect(vm.canSubmit, isFalse);
+        await vm.receive.execute();
+        expect(
+          (vm.receive.result! as Error<DebtPayment>).error,
+          isA<DebtTransferAccountMissing>(),
+        );
+        expect(repo.requests, isEmpty);
+        vm.selectTransferAccount('BRI 555');
+        expect(vm.canSubmit, isTrue);
+        await vm.receive.execute();
+        expect(repo.requests.single.transferAccount, 'BRI 555');
+        expect(vm.transferAccount, isNull); // Pilihan dikosongkan.
+      });
+
+      test('pindah metode membuang pilihan; tunai tanpa rekening', () async {
+        await reload('BCA 123\nBRI 555');
+        vm
+          ..setMethod(PaymentMethod.transfer)
+          ..selectTransferAccount('BCA 123')
+          ..setMethod(PaymentMethod.cash);
+        expect(vm.transferAccountMissing, isFalse);
+        vm.setMethod(PaymentMethod.transfer);
+        expect(vm.transferAccount, isNull);
+        vm.setMethod(PaymentMethod.cash);
+        await vm.receive.execute();
+        expect(repo.requests.single.transferAccount, '');
+      });
+
+      test('tanpa rekening: transfer tetap bisa disimpan', () async {
+        await reload('');
+        vm.setMethod(PaymentMethod.transfer);
+        expect(vm.transferAccountMissing, isFalse);
+        expect(vm.canSubmit, isTrue);
+        await vm.receive.execute();
+        expect(repo.requests.single.transferAccount, '');
+      });
+    });
+
     test('alokasi otomatis nota terlama dulu, sisa setelah bayar', () {
       final open = vm.detail!.open;
       expect(open, hasLength(3));

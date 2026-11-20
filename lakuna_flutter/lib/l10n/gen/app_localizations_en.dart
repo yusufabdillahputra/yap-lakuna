@@ -8825,4 +8825,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentTransferSelected => 'Destination account';
+
+  @override
+  String get kuitansiPaidTo => 'To account';
 }

@@ -14842,6 +14842,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Rekening tujuan'**
   String get paymentTransferSelected;
+
+  /// Kuitansi: rekening tujuan pembayaran piutang transfer (F1-13i).
+  ///
+  /// In id, this message translates to:
+  /// **'Ke rekening'**
+  String get kuitansiPaidTo;
 }
 
 class _AppLocalizationsDelegate

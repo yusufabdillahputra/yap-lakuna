@@ -13,7 +13,12 @@ void main() {
   final en = lookupAppLocalizations(const Locale('en'));
   final tenantId = UuidValue.fromString(newId());
 
-  DebtPaymentReceipt receipt({int balanceAfter = 250000, bool voided = false}) {
+  DebtPaymentReceipt receipt({
+    int balanceAfter = 250000,
+    bool voided = false,
+    PaymentMethod method = PaymentMethod.cash,
+    String? paidTo,
+  }) {
     final customerId = UuidValue.fromString(newId());
     return DebtPaymentReceipt(
       payment: DebtPayment(
@@ -25,8 +30,9 @@ void main() {
         customerId: customerId,
         number: 'BP-PST-K01-261114-0001',
         amount: 100000,
-        method: PaymentMethod.cash,
+        method: method,
         paidOn: DateTime.utc(2026, 11, 14),
+        transferAccount: paidTo,
         balanceAfter: balanceAfter,
         voidedAt: voided ? DateTime.utc(2026, 11, 14, 5) : null,
         voidReason: voided ? 'Salah pelanggan' : null,
@@ -148,6 +154,36 @@ void main() {
     expect(
       a5(receipt(), acc: two).last,
       'Transfer sisa ke|$account\nMandiri 987 654',
+    );
+  });
+
+  test('rekening tujuan pembayaran transfer (F1-13i)', () {
+    final paid = receipt(
+      method: PaymentMethod.transfer,
+      paidTo: 'Mandiri 987 a.n. Toko',
+    );
+    expect(thermal(paid), [
+      'DIBAYAR|100.000',
+      'Transfer bank|',
+      '  Ke: Mandiri 987 a.n. Toko|',
+      'Sisa piutang|250.000',
+      'Transfer ke: $account|',
+    ]);
+    expect(thermal(paid, l10n: en)[2], '  To: Mandiri 987 a.n. Toko|');
+    final fields = a5(paid);
+    final method = fields.indexOf('Metode|Transfer bank');
+    expect(method, greaterThanOrEqualTo(0));
+    expect(fields[method + 1], 'Ke rekening|Mandiri 987 a.n. Toko');
+    expect(fields.last, 'Transfer sisa ke|$account');
+
+    // Tunai (data sinkron aneh) atau transfer tanpa rekening: tanpa baris.
+    bool has(List<String> l) =>
+        l.any((x) => x.contains('Mandiri 987') || x.startsWith('Ke rekening'));
+    expect(has(thermal(receipt(paidTo: 'Mandiri 987'))), isFalse);
+    expect(has(a5(receipt(paidTo: 'Mandiri 987'))), isFalse);
+    expect(
+      has(a5(receipt(method: PaymentMethod.transfer, paidTo: '  '))),
+      isFalse,
     );
   });
 }

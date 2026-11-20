@@ -599,6 +599,47 @@ void main() {
       expect(payment.cashSessionId, isNull);
     });
 
+    test('rekening tujuan hanya tersimpan untuk transfer (F1-13i)', () async {
+      Future<DebtPayment> pay(PaymentMethod method, String account) =>
+          receiveDebtPayment(
+            store,
+            scope,
+            staffId: owner(),
+            request: DebtPaymentRequest(
+              customerId: ani.id,
+              amount: const Money(10000),
+              method: method,
+              paidOn: DateTime.utc(2026, 11, 4),
+              transferAccount: account,
+            ),
+          );
+
+      final t = await pay(PaymentMethod.transfer, '  BCA 123 a.n. Ani  ');
+      expect(t.transferAccount, 'BCA 123 a.n. Ani');
+      final saved = await loadDebtPaymentReceipt(store, scope, t.id);
+      expect(saved.payment.transferAccount, 'BCA 123 a.n. Ani');
+      expect(
+        (await pay(PaymentMethod.transfer, '   ')).transferAccount,
+        isNull,
+      );
+      expect(
+        (await pay(PaymentMethod.cash, 'BCA 123')).transferAccount,
+        isNull,
+      );
+      expect(
+        (await pay(PaymentMethod.qrisStatic, 'BCA 123')).transferAccount,
+        isNull,
+      );
+      await expectLater(
+        pay(PaymentMethod.transfer, 'B' * 101),
+        throwsA(isA<SaleTransferAccountInvalid>()),
+      );
+      expect(
+        (await pay(PaymentMethod.transfer, 'B' * 100)).transferAccount,
+        'B' * 100,
+      );
+    });
+
     test('manual, transfer tanpa laci, galat', () async {
       Future<DebtPayment> pay(
         int amount, {

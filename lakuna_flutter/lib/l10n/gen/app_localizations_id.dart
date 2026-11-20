@@ -8575,4 +8575,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get paymentTransferSelected => 'Rekening tujuan';
+
+  @override
+  String get kuitansiPaidTo => 'Ke rekening';
 }

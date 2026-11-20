@@ -82,6 +82,8 @@ KuitansiDocument kuitansiDocument(
             : l10n.kuitansiForShort(receipt.lines.length),
       ),
       KuitansiField(l10n.kuitansiMethod, debtPaymentMethodLabel(l10n, p)),
+      if (debtTransferAccount(p) case final account?)
+        KuitansiField(l10n.kuitansiPaidTo, account),
       if (p.note case final note?) KuitansiField(l10n.kuitansiNote, note),
       if (p.voidReason case final reason?)
         KuitansiField(l10n.kuitansiVoidReason, reason),
@@ -161,6 +163,8 @@ ReceiptContent kuitansiReceiptContent(
         bold: true,
       ),
       ReceiptPair(debtPaymentMethodLabel(l10n, p), ''),
+      if (debtTransferAccount(p) case final account?)
+        ReceiptPair('  ${l10n.receiptPaidTo} $account', ''),
       if (showBalance && p.voidedAt == null)
         ReceiptPair(
           l10n.kuitansiBalance,

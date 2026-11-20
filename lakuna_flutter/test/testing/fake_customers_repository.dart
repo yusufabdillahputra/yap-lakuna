@@ -53,6 +53,9 @@ class FakeCustomersRepository extends CustomersRepository {
 
   /// Perkiraan uang di laci (F1-03d).
   Money? drawerCash;
+
+  /// *Rekening transfer* toko (satu per baris, F1-05f).
+  String transferAccount = '';
   final _tenant = _id();
   final _outlet = _id();
   final _device = _id();
@@ -203,6 +206,10 @@ class FakeCustomersRepository extends CustomersRepository {
       canReceive: canReceive,
       hasOpenSession: hasOpenSession,
       drawerCash: hasOpenSession ? drawerCash : null,
+      receipt: ReceiptConfig(
+        settings: const ReceiptSettings(),
+        transferAccount: transferAccount,
+      ),
     ),
   );
 
@@ -425,6 +432,11 @@ class FakeCustomersRepository extends CustomersRepository {
           : null,
       balanceAfter: balance.value,
       note: request.note,
+      transferAccount:
+          request.method == PaymentMethod.transfer &&
+              request.transferAccount.trim().isNotEmpty
+          ? request.transferAccount.trim()
+          : null,
       createdAt: DateTime.utc(2026, 11, 3, 2, 12),
       hlc: '',
     );
