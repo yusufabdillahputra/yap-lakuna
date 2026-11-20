@@ -138,6 +138,43 @@ void main() {
         expect(repo.requests.single.transferAccount, '');
       });
 
+      test(
+        'rekening terpilih hilang dari Pengaturan: wajib pilih lagi',
+        () async {
+          await reload('BCA 123\nBRI 555');
+          vm
+            ..setMethod(PaymentMethod.transfer)
+            ..selectTransferAccount('BRI 555');
+          expect(vm.canSubmit, isTrue);
+          await reload('BCA 123\nMandiri 987');
+          expect(vm.transferAccount, isNull);
+          expect(vm.canSubmit, isFalse);
+        },
+      );
+
+      test(
+        'galat rekening tidak menutupi galat jumlah; hilang saat memilih',
+        () async {
+          await reload('BCA 123\nBRI 555');
+          vm
+            ..setAmount(Money.zero)
+            ..setMethod(PaymentMethod.transfer);
+          await vm.receive.execute();
+          expect(
+            (vm.receive.result! as Error<DebtPayment>).error,
+            isA<DebtPaymentInvalid>(),
+          );
+          vm.setAmount(const Money(100000));
+          await vm.receive.execute();
+          expect(
+            (vm.receive.result! as Error<DebtPayment>).error,
+            isA<DebtTransferAccountMissing>(),
+          );
+          vm.selectTransferAccount('BCA 123');
+          expect(vm.receive.result, isNull);
+        },
+      );
+
       test('tanpa rekening: transfer tetap bisa disimpan', () async {
         await reload('');
         vm.setMethod(PaymentMethod.transfer);

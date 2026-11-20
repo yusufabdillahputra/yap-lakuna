@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.136.0] - 2026-11-20
+
+Pelunasan piutang lewat transfer kini mencatat rekening tujuannya, sama
+dengan pembayaran transfer penjualan di v0.135.0.
+
+### Ditambahkan
+
+- **Pelanggan (1.20) → Terima pembayaran:** saat metode *Transfer bank*
+  dipilih, kotak *Rekening tujuan* (komponen yang sama dengan layar Bayar)
+  tampil di bawah isian. Satu rekening otomatis terpilih; dengan 2–3
+  rekening kasir mengetuk baris atau menekan **Salin**, dan **Simpan &
+  cetak kuitansi** nonaktif sampai rekening dipilih. Pindah metode atau
+  setelah tersimpan, pilihan dikosongkan. Toko tanpa rekening tetap
+  seperti dulu.
+- **Riwayat bayar** di panel pelanggan menampilkan *Ke: \<rekening\>* di
+  bawah metode untuk pembayaran transfer.
+- **Kuitansi (1.20b):** A5 memuat isian *Ke rekening* tepat di bawah
+  *Metode*; struk thermal memuat baris menjorok *Ke: \<rekening\>* di
+  bawah baris metode. *Transfer sisa ke* (F1-05e) tetap di akhir.
+- Pesan galat sendiri bila rekening tujuan lebih dari 100 karakter
+  (*Rekening tujuan maksimal 100 karakter. Rapikan rekening di Pengaturan
+  toko.*).
+- Panduan *Pelanggan & piutang* (ID + EN) menjelaskan pilihan rekening.
+
+### Catatan teknis
+
+- Model `DebtPayment.transferAccount` (`transfer_account`, teks,
+  nullable), migrasi `rekening-piutang` (server + klien). Salinan teks
+  baris rekening, bukan ID.
+- `DebtPaymentRequest.transferAccount` (default `''`);
+  `receiveDebtPayment` menolak lebih dari 100 karakter
+  (`SaleTransferAccountInvalid`, sama dengan F1-05g) dan menyimpan hanya
+  untuk transfer (dirapikan, kosong = `null`). Bayar hutang supplier
+  tidak berubah.
+- `CustomerPanelViewModel`: `transferAccounts` (dari
+  `setup.receipt.transferAccounts`), `transferAccount`,
+  `transferAccountMissing`, `selectTransferAccount`; `canSubmit`
+  memperhitungkan pilihan. `_receive` mengembalikan
+  `DebtTransferAccountMissing` hanya bila isian lain sah, dan memilih
+  rekening menghapus galat itu.
+- `debtTransferAccount(p)` dipakai riwayat bayar, `kuitansiDocument`, dan
+  `kuitansiReceiptContent`.
+- Kunci l10n baru: `kuitansiPaidTo`, `debtErrTransferAccount`.
+
 ## [0.135.0] - 2026-11-20
 
 Setiap pembayaran transfer kini mencatat rekening tujuannya, jadi toko
@@ -7778,7 +7822,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...HEAD
+[0.136.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...v0.136.0
 [0.135.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...v0.135.0
 [0.134.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...v0.134.0
 [0.133.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...v0.133.0

@@ -111,6 +111,10 @@ class CustomerPanelViewModel extends ChangeNotifier {
   void selectTransferAccount(String account) {
     if (_transferChoice == account) return;
     _transferChoice = account;
+    // Galat "pilih rekening" dari simpan sebelumnya tidak berlaku lagi.
+    if (receive.result case Error(error: DebtTransferAccountMissing())) {
+      receive.clearResult();
+    }
     notifyListeners();
   }
 
@@ -260,7 +264,13 @@ class CustomerPanelViewModel extends ChangeNotifier {
     if (!_valid) {
       notifyListeners();
       final issue = this.issue;
-      if (issue == null && transferAccountMissing) {
+      // Galat rekening hanya bila isian lain sudah sah, agar penyebab lain
+      // (tanpa izin, tanpa nota terbuka) tidak tertutup.
+      if (issue == null &&
+          transferAccountMissing &&
+          canReceive &&
+          (_detail?.open.isNotEmpty ?? false) &&
+          _amount > Money.zero) {
         return const Result.error(DebtTransferAccountMissing());
       }
       return Result.error(

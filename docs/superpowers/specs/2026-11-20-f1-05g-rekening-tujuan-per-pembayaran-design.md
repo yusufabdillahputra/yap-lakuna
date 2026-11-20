@@ -100,5 +100,6 @@ menampilkannya di struk dan laporan.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Rekening tujuan per pembayaran transfer penjualan | 1.5 | Rilis v0.135.0 | Struk dan laporan per rekening. |
-| Rekening tujuan untuk pembayaran piutang / hutang | 1.20, 1.21 | Belum | Metode bayar piutang/hutang tetap tanpa rekening. |
+| Rekening tujuan untuk pembayaran piutang | 1.20 | Rilis v0.136.0 | [F1-13i](2026-11-20-f1-13i-rekening-tujuan-piutang-design.md). |
+| Rekening sumber bayar hutang supplier | 1.21 | Belum | Uang keluar; pakai *Sumber dana* dan *No. bukti*. |
 | Rekening sebagai master (ID) | 1.26 | Belum | Disimpan sebagai salinan teks; ganti nama rekening tidak mengubah nota lama. |

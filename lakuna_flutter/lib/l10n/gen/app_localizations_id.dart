@@ -8578,4 +8578,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get kuitansiPaidTo => 'Ke rekening';
+
+  @override
+  String debtErrTransferAccount(int max) {
+    return 'Rekening tujuan maksimal $max karakter. Rapikan rekening di Pengaturan toko.';
+  }
 }

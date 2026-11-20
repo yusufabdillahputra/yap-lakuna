@@ -5284,5 +5284,14 @@
   "kuitansiPaidTo": "To account",
   "@kuitansiPaidTo": {
     "description": "Kuitansi: rekening tujuan pembayaran piutang transfer (F1-13i)."
+  },
+  "debtErrTransferAccount": "The destination account can be up to {max} characters. Fix the account in Store settings.",
+  "@debtErrTransferAccount": {
+    "description": "Rekening tujuan terima piutang terlalu panjang (F1-13i).",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   }
 }

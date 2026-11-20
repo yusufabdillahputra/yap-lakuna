@@ -1,7 +1,7 @@
 # F1-13i · Rekening tujuan pembayaran piutang transfer
 
 - **Fase:** 1
-- **Status:** Dalam pengerjaan (v0.136.0)
+- **Status:** Rilis v0.136.0
 - **Layar:** 1.20 Pelanggan › panel pelanggan (*Terima pembayaran* dan
   riwayat bayar), 1.20b kuitansi A5 (pratinjau, PDF, cetak ulang).
 - **Acuan:** gap [F1-05g](2026-11-20-f1-05g-rekening-tujuan-per-pembayaran-design.md)
@@ -61,7 +61,12 @@ aturan yang sama untuk pembayaran piutang pelanggan.
   - `_PaymentFields` menampilkan `TransferAccountBox` saat transfer.
   - `debtTransferAccount(p)`: riwayat bayar, `kuitansiDocument`, dan
     `kuitansiReceiptContent` (thermal).
-- l10n: `kuitansiPaidTo` (*Ke rekening* / *To account*); memakai ulang
+  - `customerErrorMessage`: `DebtTransferAccountMissing` →
+    `paymentTransferChoose`, `SaleTransferAccountInvalid` →
+    `debtErrTransferAccount`. Galat *pilih rekening* hanya bila isian lain
+    sah, dan hilang saat rekening dipilih.
+- l10n: `kuitansiPaidTo` (*Ke rekening* / *To account*),
+  `debtErrTransferAccount`; memakai ulang
   `paymentTransferChoose` dan `receiptPaidTo`.
 
 ## Pengujian
@@ -77,6 +82,7 @@ aturan yang sama untuk pembayaran piutang pelanggan.
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Rekening tujuan pembayaran piutang transfer | 1.20 | Dalam pengerjaan | Panel, riwayat, kuitansi. |
+| Rekening tujuan pembayaran piutang transfer | 1.20 | Rilis v0.136.0 | Panel, riwayat, kuitansi A5 dan thermal. |
 | Rekening sumber bayar hutang supplier | 1.21 | Belum | Pakai *Sumber dana* dan *No. bukti*. |
 | Rincian piutang per rekening di laporan | 1.24 | Belum | Laporan per metode bayar hanya membaca penjualan. |
+| Daftar rekening segar saat panel terbuka | — | Belum | Rekening dibaca saat panel dibuka / setelah simpan; ubahan di jendela lain terbaca setelah dimuat ulang (sama dengan Kasir). |

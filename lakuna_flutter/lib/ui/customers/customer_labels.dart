@@ -70,8 +70,6 @@ String formatMonthYear(AppLocalizations l10n, DateTime d) {
   return '${month.substring(0, 3)} ${d.year}';
 }
 
-/// Metode pembayaran piutang di kuitansi: tunai membedakan kas laci dan kas
-/// toko.
 /// Rekening tujuan pembayaran piutang transfer (F1-13i); `null` untuk
 /// metode lain, pembayaran lama, atau toko tanpa rekening.
 String? debtTransferAccount(DebtPayment payment) {
@@ -80,6 +78,8 @@ String? debtTransferAccount(DebtPayment payment) {
   return account.isEmpty ? null : account;
 }
 
+/// Metode pembayaran piutang di kuitansi: tunai membedakan kas laci dan kas
+/// toko.
 String debtPaymentMethodLabel(AppLocalizations l10n, DebtPayment payment) =>
     switch (payment.method) {
       PaymentMethod.cash when payment.cashSessionId != null =>
@@ -151,6 +151,9 @@ String customerErrorMessage(AppLocalizations l10n, Exception error) =>
       ),
       CashSessionNotOpen() => l10n.debtErrNoSession,
       DebtTransferAccountMissing() => l10n.paymentTransferChoose,
+      SaleTransferAccountInvalid() => l10n.debtErrTransferAccount(
+        ProfileLimits.transferAccount,
+      ),
       SaleCreditInvalid(:final issue) => creditIssueMessage(l10n, issue),
       NotPermitted() ||
       CustomerActorNotPermitted() => l10n.customerErrNotPermitted,
