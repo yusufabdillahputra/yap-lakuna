@@ -14818,6 +14818,30 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu.'**
   String get billSplitErrorCreditNotLast;
+
+  /// No description provided for @paymentTransferChoose.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih rekening tujuan transfer.'**
+  String get paymentTransferChoose;
+
+  /// No description provided for @receiptPaidTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Ke:'**
+  String get receiptPaidTo;
+
+  /// No description provided for @reportsTransferNoAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa rekening'**
+  String get reportsTransferNoAccount;
+
+  /// No description provided for @paymentTransferSelected.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekening tujuan'**
+  String get paymentTransferSelected;
 }
 
 class _AppLocalizationsDelegate

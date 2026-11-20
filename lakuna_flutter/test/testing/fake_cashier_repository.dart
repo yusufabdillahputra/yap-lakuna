@@ -481,6 +481,11 @@ class FakeCashierRepository extends CashierRepository {
               reference: payment.reference.trim().isEmpty
                   ? null
                   : payment.reference.trim(),
+              transferAccount:
+                  payment.method == PaymentMethod.transfer &&
+                      payment.transferAccount.trim().isNotEmpty
+                  ? payment.transferAccount.trim()
+                  : null,
               status: PaymentStatus.paid,
               confirmedBy: payment.method == PaymentMethod.qrisStatic
                   ? _session

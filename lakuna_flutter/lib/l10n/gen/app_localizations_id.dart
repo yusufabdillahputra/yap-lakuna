@@ -8563,4 +8563,16 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get billSplitErrorCreditNotLast =>
       'Kredit hanya untuk bagian terakhir: tamu lain harus lunas dan tidak ada QRIS yang menunggu.';
+
+  @override
+  String get paymentTransferChoose => 'Pilih rekening tujuan transfer.';
+
+  @override
+  String get receiptPaidTo => 'Ke:';
+
+  @override
+  String get reportsTransferNoAccount => 'Tanpa rekening';
+
+  @override
+  String get paymentTransferSelected => 'Rekening tujuan';
 }

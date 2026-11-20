@@ -346,6 +346,35 @@ void main() {
       expect(t.rows[1].cells[2], '–');
     });
 
+    test('ringkasan ekspor merinci transfer per rekening (F1-05g)', () async {
+      List<(Object?, Object?)> methods(ReportData data) {
+        final t = reportTable(id, data, ReportTab.summary, SalesGroup.product);
+        final start = t.rows.indexWhere(
+          (r) => r.cells[0] == id.reportsByMethod,
+        );
+        final end = t.rows.indexWhere((r) => r.strong, start + 1);
+        return [
+          for (final r in t.rows.sublist(start + 1, end))
+            (r.cells[0], (r.cells[1]! as XlsxNumber).value),
+        ];
+      }
+
+      final before = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      expect(
+        methods(before).map((m) => m.$1),
+        isNot(contains(startsWith('·'))),
+      );
+      repo.transferSale = true;
+      final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      expect(methods(data), [
+        ('Tunai', 79000),
+        ('Transfer bank', 16000),
+        ('· BCA 123', 10000),
+        ('· Tanpa rekening', 6000),
+        (reportMethodLabel(id, ReportPaymentMethod.qris), 10000),
+      ]);
+    });
+
     test('penjualan per kasir dan kategori', () async {
       final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
       final staff = reportTable(id, data, ReportTab.sales, SalesGroup.staff);

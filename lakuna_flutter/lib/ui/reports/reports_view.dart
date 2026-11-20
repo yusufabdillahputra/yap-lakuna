@@ -657,6 +657,27 @@ class _Methods extends StatelessWidget {
                 ),
                 _Bar(permille: m.shareBp ~/ 10),
                 Text(percentLabel(l10n, m.shareBp), style: _muted(context)),
+                // Rincian transfer per rekening tujuan (F1-05g).
+                if (m.method == ReportPaymentMethod.transfer)
+                  for (final (i, a) in data.transferAccounts.indexed)
+                    Row(
+                      key: ValueKey('reports-transfer-account-$i'),
+                      spacing: 8,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            a.account ?? l10n.reportsTransferNoAccount,
+                            style: _muted(context),
+                          ),
+                        ),
+                        Text(
+                          formatMoney(context, a.amount),
+                          style: _amountStyle(context),
+                        ),
+                      ],
+                    ),
               ],
             ),
           if (rows.isNotEmpty)

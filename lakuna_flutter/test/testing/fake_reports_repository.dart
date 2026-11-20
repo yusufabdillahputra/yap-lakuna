@@ -43,6 +43,10 @@ class FakeReportsRepository extends ReportsRepository {
 
   /// Target margin cabang (F1-16d), ikut laporan berizin laba.
   int? targetMarginBp;
+
+  /// Nota kartu diganti dua transfer: BCA 10.000 + tanpa rekening 6.000
+  /// (F1-05g).
+  bool transferSale = false;
   final today = DateTime.utc(2026, 11, 4);
   final requests = <ReportPeriod>[];
 
@@ -354,13 +358,27 @@ class FakeReportsRepository extends ReportsRepository {
               total: const Money(16000),
               credit: false,
               paidAtSale: const Money(16000),
-              payments: const [
-                ReportPayment(
-                  ReportPaymentMethod.card,
-                  Money(16000),
-                  Money.zero,
-                ),
-              ],
+              payments: transferSale
+                  ? const [
+                      ReportPayment(
+                        ReportPaymentMethod.transfer,
+                        Money(10000),
+                        Money.zero,
+                        transferAccount: 'BCA 123',
+                      ),
+                      ReportPayment(
+                        ReportPaymentMethod.transfer,
+                        Money(6000),
+                        Money.zero,
+                      ),
+                    ]
+                  : const [
+                      ReportPayment(
+                        ReportPaymentMethod.card,
+                        Money(16000),
+                        Money.zero,
+                      ),
+                    ],
               lines: [_line('k2', 'kopi', 'Kopi Susu', 1000, 16000, 6000)],
             ),
           ];

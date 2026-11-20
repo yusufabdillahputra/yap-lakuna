@@ -992,6 +992,85 @@ void main() {
     });
   });
 
+  group('rekening tujuan transfer (F1-05g)', () {
+    const bca = 'BCA 123';
+    const mandiri = 'Mandiri 987';
+
+    Future<void> withAccounts(String text) async {
+      repo.salesRules = SalesRules(transferAccount: text);
+      vm = CashierViewModel(repository: repo, printer: printer);
+      await vm.load.execute();
+      vm.scan('8990001');
+      vm.startPayment();
+    }
+
+    test('satu rekening otomatis terpilih dan ikut tersimpan', () async {
+      await withAccounts(bca);
+      vm.setMode(PayMode.transfer);
+      expect(vm.transferAccount, bca);
+      expect(vm.transferAccountMissing, isFalse);
+      expect(vm.canPay, isTrue);
+      await vm.pay.execute();
+      expect(repo.checkouts.single.$2.single.transferAccount, bca);
+    });
+
+    test('dua rekening: wajib pilih, pilihan ikut tersimpan', () async {
+      await withAccounts('$bca\n$mandiri');
+      vm.setMode(PayMode.transfer);
+      expect(vm.transferAccount, isNull);
+      expect(vm.transferAccountMissing, isTrue);
+      expect(vm.canPay, isFalse);
+      vm.selectTransferAccount(mandiri);
+      expect(vm.transferAccount, mandiri);
+      expect(vm.canPay, isTrue);
+      // Mulai bayar lagi: pilihan kosong.
+      vm.startPayment();
+      vm.setMode(PayMode.transfer);
+      expect(vm.transferAccount, isNull);
+      vm.selectTransferAccount(bca);
+      await vm.pay.execute();
+      expect(repo.checkouts.single.$2.single.transferAccount, bca);
+    });
+
+    test('tanpa rekening: transfer tetap bisa, tanpa rekening', () async {
+      await withAccounts('');
+      vm.setMode(PayMode.transfer);
+      expect(vm.transferAccountMissing, isFalse);
+      await vm.pay.execute();
+      expect(repo.checkouts.single.$2.single.transferAccount, isEmpty);
+    });
+
+    test(
+      'bagian split transfer membawa rekening, pilihan dikosongkan',
+      () async {
+        await withAccounts('$bca\n$mandiri');
+        vm.setMode(PayMode.split);
+        vm.setDraftAmount(const Money(50000));
+        vm.setDraftMethod(PaymentMethod.transfer);
+        expect(vm.draftError, SplitDraftError.transferAccountMissing);
+        vm.addPart();
+        expect(vm.parts, isEmpty);
+        vm.selectDraftTransferAccount(mandiri);
+        expect(vm.draftTransferAccount, mandiri);
+        expect(vm.draftError, isNull);
+        vm.addPart();
+        expect(vm.parts.single.transferAccount, mandiri);
+        expect(vm.draftTransferAccount, isNull);
+        // Kartu tidak membawa rekening walau sempat dipilih.
+        vm.setDraftMethod(PaymentMethod.transfer);
+        vm.selectDraftTransferAccount(bca);
+        vm.setDraftMethod(PaymentMethod.card);
+        vm.addPart();
+        expect(vm.parts.last.transferAccount, isEmpty);
+        await vm.pay.execute();
+        expect(
+          [for (final p in repo.checkouts.single.$2) p.transferAccount],
+          [mandiri, ''],
+        );
+      },
+    );
+  });
+
   group('bagian split bill', () {
     late FakeDiningRepository dining;
     late OpenBill bill;

@@ -74,7 +74,7 @@ menampilkannya di struk dan laporan.
   - `TransferAccountBox(accounts:, selected:, onSelect:)`.
   - `receiptContent`: `ReceiptPair` *Ke:* di bawah pembayaran transfer.
   - Laporan: sub-baris di `_Methods` dan ekspor.
-- l10n: `paymentTransferChoose`, `receiptTransferTo`,
+- l10n: `paymentTransferChoose`, `receiptPaidTo`,
   `reportsTransferNoAccount`.
 
 ## Pengujian

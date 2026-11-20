@@ -145,6 +145,13 @@ ReceiptContent saleReceiptContent(
           },
           receiptAmount(l10n, payment.amount),
         ),
+        // Rekening tujuan transfer (F1-05g), menjorok seperti referensi.
+        if (payment.method == PaymentMethod.transfer &&
+            (payment.transferAccount?.trim() ?? '').isNotEmpty)
+          ReceiptPair(
+            '  ${l10n.receiptPaidTo} ${payment.transferAccount!.trim()}',
+            '',
+          ),
         // No. approval / referensi transfer (F1-05b), satu baris menjorok
         // tanpa nilai kanan agar referensi panjang tidak terbaca sebagai
         // nominal saat dibungkus.
