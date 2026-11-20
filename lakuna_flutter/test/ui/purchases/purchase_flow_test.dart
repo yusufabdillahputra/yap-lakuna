@@ -390,6 +390,114 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });
 
+  group('kursor ke isian salah setelah simpan gagal (F1-12k)', () {
+    bool focused(WidgetTester tester, Finder field) =>
+        tester.widget<EditableText>(_input(field)).focusNode.hasFocus;
+
+    testWidgets('360 px: Simpan draf di bawah memberi kursor ke qty 0', (
+      tester,
+    ) async {
+      const size = Size(360, 740);
+      await pump(tester, size);
+      await _tap(tester, _key('purchases-new'));
+      await _scan(tester, 'KOP');
+      final qty = _keyPrefix('purchase-qty-');
+      await _type(tester, qty, '0');
+      await _scan(tester, 'MYK-2L');
+      expect(focused(tester, _key('purchase-scan')), isTrue);
+      await _tap(tester, _key('purchase-save-draft'));
+      expect(find.text('Qty harus lebih dari 0.'), findsOneWidget);
+      expect(focused(tester, qty.first), isTrue);
+      // Kursor diberikan setelah gulir F1-12j selesai: qty tetap di 10%
+      // area gulir, tidak digeser lagi oleh isian yang menerima kursor.
+      final rect = tester.getRect(qty.first);
+      final view = tester.getRect(
+        find.ancestor(of: qty.first, matching: find.byType(Scrollable)).last,
+      );
+      expect(
+        rect.top - view.top,
+        moreOrLessEquals(view.height * 0.1, epsilon: 5),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: Simpan draf dari dialog memberi kursor ke qty', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      final qty = _keyPrefix('purchase-qty-');
+      await _type(tester, qty, '0');
+      await _scan(tester, 'MYK-2L');
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('purchase-discard-save'));
+      expect(find.text('Qty harus lebih dari 0.'), findsOneWidget);
+      expect(focused(tester, qty.first), isTrue);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('supplier kosong di atas: kursor tidak pindah ke qty', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      final qty = _keyPrefix('purchase-qty-');
+      await _type(tester, qty, '0');
+      await _scan(tester, 'MYK-2L');
+      await _tap(tester, _key('purchase-receive'));
+      expect(find.text('Qty harus lebih dari 0.'), findsOneWidget);
+      expect(
+        find.text('Pilih atau ketik supplier untuk pembelian yang berhutang.'),
+        findsOneWidget,
+      );
+      // Kursor tetap di tombol yang ditekan: tidak ada isian teks yang
+      // menerima kursor.
+      expect(
+        tester
+            .widgetList<EditableText>(find.byType(EditableText))
+            .any((e) => e.focusNode.hasFocus),
+        isFalse,
+      );
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('supplier baru kosong: kursor ke nama supplier', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      await _tap(tester, _keyPrefix('purchase-supplier-'));
+      await _tap(tester, find.text('+ Supplier baru').last);
+      await _scan(tester, 'MYK-2L');
+      final name = _keyPrefix('purchase-supplier-name-');
+      expect(focused(tester, name), isFalse);
+      await _tap(tester, _key('purchase-receive'));
+      expect(
+        find.text('Pilih atau ketik supplier untuk pembelian yang berhutang.'),
+        findsOneWidget,
+      );
+      expect(focused(tester, name), isTrue);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('isian ber-prefix Rp: diskon melebihi subtotal berkursor', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await _scan(tester, 'KOP');
+      final discount = _keyPrefix('purchase-discount');
+      await _type(tester, discount, '999999');
+      await _scan(tester, 'MYK-2L');
+      await _tap(tester, _key('purchase-save-draft'));
+      expect(
+        find.text('Diskon tidak boleh melebihi subtotal.'),
+        findsOneWidget,
+      );
+      expect(focused(tester, discount.first), isTrue);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
   group('Simpan draf dari dialog Buang perubahan? (F1-12i)', () {
     /// Jalur router sekarang (menu ada di kedua tata letak).
     String path(WidgetTester tester) => GoRouter.of(

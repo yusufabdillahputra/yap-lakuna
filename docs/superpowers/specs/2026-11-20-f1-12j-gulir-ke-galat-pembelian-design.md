@@ -71,4 +71,4 @@ itu di luar layar dan seolah tidak terjadi apa-apa.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Gulir ke galat setelah simpan pembelian gagal | 1.19 | Rilis v0.127.0 | Tombol form dan dialog *Buang perubahan?*. |
-| Fokus keyboard ke isian salah | — | Belum | Hanya digulir; pilihan supplier dan tanggal bukan isian teks. |
+| Fokus keyboard ke isian salah | — | Rilis v0.128.0 | [F1-12k](2026-11-20-f1-12k-fokus-isian-salah-pembelian-design.md): isian teks saja; supplier dan tanggal tidak menerima kursor. |

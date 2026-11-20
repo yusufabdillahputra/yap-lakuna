@@ -12,7 +12,7 @@ Pembelian mencatat barang masuk dari supplier: stok bertambah, harga pokok (HPP)
 4. Isi **Diskon faktur** dan **Ongkos kirim** bila ada. Ongkos kirim ikut dibebankan ke harga pokok barang.
 5. Isi **Bayar sekarang** dan sumbernya (**Kas toko**, **Kas laci**, atau **Rekening bank**), atau tekan **Bayar lunas**. Sisanya menjadi hutang dengan **Jatuh tempo sisa**.
 6. Bila ada, tekan **Lampirkan foto faktur** (atau **Ambil foto faktur** di ponsel) di bawah *Foto faktur*. Foto ikut tersimpan saat pembelian disimpan.
-7. Tekan **Terima barang & simpan**. Pakai **Simpan draf** bila barang belum datang. Bila ada isian yang salah atau simpan gagal, form langsung bergulir ke pesan galat paling atas (mis. supplier yang belum dipilih).
+7. Tekan **Terima barang & simpan**. Pakai **Simpan draf** bila barang belum datang. Bila ada isian yang salah atau simpan gagal, form langsung bergulir ke pesan galat paling atas (mis. supplier yang belum dipilih). Bila galat itu isian teks (mis. jumlah 0), kursor langsung berada di isian itu sehingga bisa diketik ulang.
 
 Bila Anda meninggalkan form yang isiannya belum disimpan (lewat **Kembali**, tombol kembali ponsel, menu samping, atau memilih draf lain di daftar), Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke form, **Buang** untuk keluar tanpa menyimpan, atau **Simpan draf** untuk menyimpan isian sebagai draf lalu langsung lanjut ke tujuan Anda (barang belum diterima dan stok belum bertambah). Bila ada isian yang salah, misalnya qty 0, Anda tetap di form dengan pesannya. Draf yang dibuka dari *Stok minimum* dengan barang tambahan juga ditanyakan sampai Anda menekan **Simpan draf**.
 
