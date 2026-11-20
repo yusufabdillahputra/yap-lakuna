@@ -5674,12 +5674,20 @@
     }
   },
   "receiptBillAdjustment": "Penyesuaian bill",
-  "stockDiscardBody": "Draf penyesuaian stok yang sedang diisi belum disimpan dan akan hilang.",
+  "stockDiscardBody": "Draf penyesuaian stok belum tersimpan di perangkat dan akan hilang.",
   "@stockDiscardBody": {
     "placeholders": {}
   },
-  "stockLocationDiscardBody": "Draf penyesuaian untuk lokasi ini akan dikosongkan bila lokasi diganti.",
+  "stockLocationDiscardBody": "Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat dan akan dikosongkan bila lokasi diganti.",
   "@stockLocationDiscardBody": {
+    "placeholders": {}
+  },
+  "stockDraftStored": "Draf tersimpan di perangkat ini.",
+  "@stockDraftStored": {
+    "placeholders": {}
+  },
+  "stockDraftFailed": "Draf belum tersimpan di perangkat.",
+  "@stockDraftFailed": {
     "placeholders": {}
   },
   "modifierDiscardBody": "Grup modifier yang sedang diisi belum disimpan dan akan hilang.",

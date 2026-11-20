@@ -7,6 +7,68 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.130.0] - 2026-11-20
+
+Draf penyesuaian stok tersimpan di perangkat dan bisa dilanjutkan nanti.
+
+### Ditambahkan
+
+- **Stok (1.18):** draf penyesuaian (barang, stok fisik, catatan baris,
+  alasan, dan catatan umum) kini **tersimpan otomatis di perangkat ini**,
+  terpisah per lokasi stok, setiap kali berubah. Stok opname yang panjang
+  bisa ditinggal: pindah menu, ganti kasir, mengganti lokasi, atau menutup
+  aplikasi tidak lagi menghapus hitungan, dan draf muncul lagi saat layar
+  Stok dibuka atau lokasinya dipilih kembali. Stok sistem dan selisih
+  dihitung ulang dari stok terbaru; barang yang sudah dihapus dibuang dari
+  draf. *Simpan penyesuaian* yang berhasil dan *Batal* menghapus draf
+  lokasi itu. Keterangan kecil *Draf tersimpan di perangkat ini.* tampil di
+  atas tombol selama draf berisi. Draf milik perangkat (staf lain dengan
+  izin penyesuaian stok di perangkat yang sama melanjutkannya) dan belum
+  ikut sinkronisasi.
+
+### Diubah
+
+- **Stok (1.18):** dialog *Buang perubahan?* saat meninggalkan layar Stok
+  atau mengganti lokasi (F1-08k / F1-08n) kini hanya muncul bila draf gagal
+  disimpan di perangkat; keterangannya berubah merah menjadi *Draf belum
+  tersimpan di perangkat.* Teks dialog menyebut draf *belum tersimpan di
+  perangkat*, dan **Buang** ikut menghapus draf lama yang sempat tersimpan.
+  Tulis draf yang masih berjalan ditunggu dulu (paling lama 2 detik)
+  sebelum memutuskan bertanya.
+- Lokasi stok tidak bisa diganti selama penyesuaian sedang disimpan, dan
+  isian draf nonaktif sesaat selama lokasi baru dimuat.
+
+### Catatan teknis
+
+- `StockRepository.adjustmentDraft` / `saveAdjustmentDraft`: JSON
+  `StockAdjustmentDraft` di `LocalPreferences` (tabel perangkat, tanpa
+  outbox) dengan kunci `stock.adjustmentDraft.<tenant>.<outlet>.<lokasi>`;
+  keduanya butuh `stock:adjust`. `LocalPreferences.remove` baru.
+  `LocalStockRepository` mendapat `preferences`.
+- `StockViewModel`: penghitung perubahan draf (`_draftChange`), tulis
+  berantai berurutan, `draftStored` / `draftWriteFailed`, `flushDraft`, dan
+  pemulihan sekali per pemilihan lokasi di `_loadOnce`.
+  `hasUnsavedChanges` kini berarti draf berisi yang belum tersimpan.
+- Ditemukan saat review dan diperbaiki: (1) mengganti lokasi selama simpan
+  membuat draf lokasi yang sudah disimpan tidak terhapus, atau menghapus
+  draf lokasi baru; (2) perubahan selama lokasi baru dimuat ditandai
+  tersimpan padahal tidak ditulis; (3) galat baca draf membuat perubahan
+  berikutnya menimpa draf tersimpan, kini tidak ditulis dan dibaca lagi
+  saat muat ulang; (4) JSON dengan jumlah negatif, UUID rusak, atau varian
+  kembar kini ditolak / dipakai sekali; (5) hapus draf yang gagal setelah
+  baris terakhir dibuang dicoba lagi saat keluar, dan hapus setelah
+  **Buang** ditunggu selagi sesi staf masih berlaku (ganti kasir).
+- Tes: JSON draf, repositori lokal (per lokasi, JSON rusak, izin), VM (11
+  kasus termasuk urutan tulis, galat baca / tulis, ganti lokasi selama
+  simpan dan selama memuat), dan alur layar (keluar dan ganti lokasi tanpa
+  dialog, draf kembali, keterangan, **Buang** saat tulis gagal, menunggu
+  tulis yang berjalan, tulis macet 2 detik). Tes F1-08k / F1-08n memakai
+  repositori yang gagal menulis draf. Mutasi pada semua aturan di atas
+  tertangkap. Uji manual Linux di Xvfb: draf kembali setelah aplikasi
+  ditutup dan dibuka lagi.
+- Spec [F1-08o](docs/superpowers/specs/2026-11-20-f1-08o-draf-penyesuaian-tersimpan-design.md);
+  gap *Simpan draf penyesuaian untuk dilanjutkan nanti* di F1-08k ditutup.
+
 ## [0.129.0] - 2026-11-20
 
 Baris pembelian menyebut asal harga beli yang diisi otomatis.
@@ -7475,7 +7537,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...HEAD
+[0.130.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...v0.130.0
 [0.129.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...v0.129.0
 [0.128.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...v0.128.0
 [0.127.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.126.0...v0.127.0

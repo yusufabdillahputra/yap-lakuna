@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/data/repositories/stock_repository.dart';
 import 'package:lakuna_flutter/ui/stock/stock_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -191,8 +192,12 @@ void main() {
       repo.nextError = const StockAdjustmentInvalid(
         StockAdjustmentError.noChange,
       );
+      // Draf tersimpan di perangkat (F1-08o) sebelum simpan dicoba.
+      repo.draftWriteError = Exception('disk penuh');
       await vm.save.execute();
+      expect(vm.lines, isNotEmpty);
       expect(vm.hasUnsavedChanges, isTrue);
+      repo.draftWriteError = null;
 
       final gate = Completer<void>();
       repo.saveGate = gate.future;
@@ -205,7 +210,7 @@ void main() {
       expect(vm.hasUnsavedChanges, isFalse);
     });
 
-    test('ganti lokasi mengosongkan draf', () async {
+    test('ganti lokasi mengosongkan draf di layar', () async {
       repo.locationList = [
         sampleLocation(1, 'Etalase', true),
         sampleLocation(2, 'Gudang', false),
@@ -213,6 +218,7 @@ void main() {
       await vm.load.execute();
       vm.addLine(telur);
       await vm.selectLocation(repo.locationList[1].id);
+      expect(vm.lines, isEmpty);
       expect(vm.hasUnsavedChanges, isFalse);
     });
 
@@ -223,6 +229,245 @@ void main() {
         ..addLine(kopi)
         ..setNote('catatan');
       expect(vm.hasUnsavedChanges, isFalse);
+    });
+  });
+
+  group('draf tersimpan di perangkat (F1-08o)', () {
+    late StockLocation etalase;
+    late StockLocation gudang;
+
+    setUp(() async {
+      etalase = sampleLocation(1, 'Etalase', true);
+      gudang = sampleLocation(2, 'Gudang', false);
+      repo.locationList = [etalase, gudang];
+      repo.rowsByLocation[gudang.id] = [
+        sampleRow(9, 'Beras', unit: 'kg', stock: Qty.units(50)),
+      ];
+      await vm.load.execute();
+    });
+
+    test('setiap perubahan ditulis; tersimpan berarti tidak ada perubahan '
+        'yang hilang', () async {
+      vm
+        ..addLine(kopi)
+        ..setPhysical(kopi, Qty.units(3))
+        ..setLineNote(kopi, 'rak atas')
+        ..setReason(StockAdjustmentReason.damaged)
+        ..setNote('Opname');
+      // Tulis belum selesai: masih dianggap belum tersimpan.
+      expect(vm.hasUnsavedChanges, isTrue);
+      await pumpEventQueue();
+      expect(vm.hasUnsavedChanges, isFalse);
+      expect(vm.draftStored, isTrue);
+      expect(
+        repo.drafts[etalase.id],
+        StockAdjustmentDraft(
+          reason: StockAdjustmentReason.damaged,
+          note: 'Opname',
+          lines: [(variantId: kopi, physical: Qty.units(3), note: 'rak atas')],
+        ),
+      );
+    });
+
+    test('dipulihkan saat dibuka lagi dengan stok sistem terbaru; barang '
+        'yang hilang dibuang', () async {
+      repo.drafts[etalase.id] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.lost,
+        note: 'Lanjut besok',
+        lines: [
+          (variantId: sabun, physical: Qty.units(1), note: ''),
+          (variantId: fakeId(999), physical: Qty.one, note: 'dihapus'),
+          (variantId: kopi, physical: null, note: ''),
+        ],
+      );
+      final again = StockViewModel(repository: repo, canAdjust: true);
+      addTearDown(again.dispose);
+      await again.load.execute();
+      expect(again.reason, StockAdjustmentReason.lost);
+      expect(again.note, 'Lanjut besok');
+      expect(again.lines.map((l) => l.row.variantId), [sabun, kopi]);
+      expect(again.lines.first.physical, Qty.units(1));
+      expect(
+        again.lines.first.row.stock,
+        repo.rows.firstWhere((r) => r.variantId == sabun).stock,
+      );
+      expect(again.hasUnsavedChanges, isFalse);
+      expect(again.draftStored, isTrue);
+    });
+
+    test('ganti lokasi: draf lokasi lama tetap, lokasi baru memuat '
+        'drafnya sendiri', () async {
+      vm.addLine(kopi);
+      await pumpEventQueue();
+      final beras = repo.rowsByLocation[gudang.id]!.single.variantId;
+      repo.drafts[gudang.id] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.routineCheck,
+        lines: [(variantId: beras, physical: Qty.units(48), note: '')],
+      );
+      await vm.selectLocation(gudang.id);
+      expect(vm.lines.single.row.variantId, beras);
+      expect(repo.drafts[etalase.id]!.lines.single.variantId, kopi);
+
+      await vm.selectLocation(etalase.id);
+      expect(vm.lines.single.row.variantId, kopi);
+      expect(repo.drafts[gudang.id]!.lines.single.variantId, beras);
+    });
+
+    test('simpan berhasil dan Batal menghapus draf lokasi itu', () async {
+      vm
+        ..addLine(kopi)
+        ..setPhysical(kopi, Qty.units(2));
+      await pumpEventQueue();
+      expect(repo.drafts, contains(etalase.id));
+      await vm.save.execute();
+      await pumpEventQueue();
+      expect(repo.drafts, isNot(contains(etalase.id)));
+
+      vm.addLine(sabun);
+      await pumpEventQueue();
+      expect(repo.drafts, contains(etalase.id));
+      vm.clearDraft();
+      await pumpEventQueue();
+      expect(repo.drafts, isEmpty);
+    });
+
+    test(
+      'tulis gagal: belum tersimpan sampai tulis berikutnya berhasil',
+      () async {
+        repo.draftWriteError = Exception('disk penuh');
+        vm.addLine(kopi);
+        await pumpEventQueue();
+        expect(vm.hasUnsavedChanges, isTrue);
+        expect(vm.draftWriteFailed, isTrue);
+        repo.draftWriteError = null;
+        vm.setPhysical(kopi, Qty.one);
+        await pumpEventQueue();
+        expect(vm.hasUnsavedChanges, isFalse);
+        expect(vm.draftWriteFailed, isFalse);
+      },
+    );
+
+    test('tulis berurutan: tulis lama yang selesai belakangan tidak '
+        'menimpa', () async {
+      final gate = Completer<void>();
+      repo.draftWriteGate = gate.future;
+      vm.addLine(kopi);
+      vm.setPhysical(kopi, Qty.units(7));
+      repo.draftWriteGate = null;
+      gate.complete();
+      await pumpEventQueue();
+      expect(repo.drafts[etalase.id]!.lines.single.physical, Qty.units(7));
+      expect(vm.hasUnsavedChanges, isFalse);
+    });
+
+    test('ganti lokasi ditolak selama simpan; draf lokasi itu tetap '
+        'terhapus', () async {
+      vm
+        ..addLine(kopi)
+        ..setPhysical(kopi, Qty.units(2));
+      await pumpEventQueue();
+      final gate = Completer<void>();
+      repo.saveGate = gate.future;
+      final saving = vm.save.execute();
+      await vm.selectLocation(gudang.id);
+      expect(vm.location, etalase);
+      gate.complete();
+      await saving;
+      await pumpEventQueue();
+      expect(repo.saves.single.$1, etalase.id);
+      expect(repo.drafts, isEmpty);
+      expect(vm.location, etalase);
+    });
+
+    test('perubahan selama lokasi baru dimuat diabaikan', () async {
+      final gate = Completer<void>();
+      repo.stockGate = gate.future;
+      final switching = vm.selectLocation(gudang.id);
+      vm
+        ..addLine(kopi)
+        ..setNote('salah lokasi');
+      expect(vm.lines, isEmpty);
+      expect(vm.note, isEmpty);
+      repo.stockGate = null;
+      gate.complete();
+      await switching;
+      await pumpEventQueue();
+      expect(vm.lines, isEmpty);
+      expect(vm.hasUnsavedChanges, isFalse);
+      expect(repo.drafts, isEmpty);
+      // Setelah termuat, perubahan ditulis seperti biasa.
+      final beras = repo.rowsByLocation[gudang.id]!.single.variantId;
+      vm.addLine(beras);
+      await pumpEventQueue();
+      expect(repo.drafts[gudang.id]!.lines.single.variantId, beras);
+    });
+
+    test('galat baca draf: draf tersimpan tidak ditimpa, perubahan belum '
+        'tersimpan, dibaca lagi saat muat ulang', () async {
+      final stored = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.lost,
+        lines: [(variantId: sabun, physical: Qty.one, note: '')],
+      );
+      repo.drafts[etalase.id] = stored;
+      repo.draftReadError = Exception('disk rusak');
+      final again = StockViewModel(repository: repo, canAdjust: true);
+      addTearDown(again.dispose);
+      await again.load.execute();
+      expect(again.lines, isEmpty);
+      expect(again.hasUnsavedChanges, isFalse);
+      expect(again.draftWriteFailed, isFalse);
+
+      // Tanpa perubahan: muat ulang membaca lagi.
+      repo.draftReadError = null;
+      await again.load.execute();
+      expect(again.lines.single.row.variantId, sabun);
+
+      // Galat baca lalu ada perubahan: tidak ditulis dan dijaga dialog.
+      repo.draftReadError = Exception('disk rusak');
+      final third = StockViewModel(repository: repo, canAdjust: true);
+      addTearDown(third.dispose);
+      await third.load.execute();
+      third.addLine(kopi);
+      await pumpEventQueue();
+      expect(repo.drafts[etalase.id], stored);
+      expect(third.hasUnsavedChanges, isTrue);
+      expect(third.draftWriteFailed, isTrue);
+      // Muat ulang tidak menimpa perubahan di layar dengan draf lama.
+      repo.draftReadError = null;
+      await third.load.execute();
+      expect(third.lines.single.row.variantId, kopi);
+      expect(third.hasUnsavedChanges, isTrue);
+    });
+
+    test('hapus draf gagal setelah baris terakhir dibuang: tercatat '
+        'gagal tanpa dianggap perubahan', () async {
+      vm.addLine(kopi);
+      await pumpEventQueue();
+      repo.draftWriteError = Exception('disk penuh');
+      vm.removeLine(kopi);
+      await pumpEventQueue();
+      expect(vm.hasUnsavedChanges, isFalse);
+      expect(vm.draftWriteFailed, isTrue);
+      repo.draftWriteError = null;
+      vm.clearDraft();
+      await vm.flushDraft();
+      expect(repo.drafts, isEmpty);
+      expect(vm.draftWriteFailed, isFalse);
+    });
+
+    test('tanpa izin stock:adjust: draf tidak dibaca atau ditulis', () async {
+      repo.drafts[etalase.id] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.lost,
+        lines: [(variantId: kopi, physical: Qty.one, note: '')],
+      );
+      final viewer = StockViewModel(repository: repo, canAdjust: false);
+      addTearDown(viewer.dispose);
+      await viewer.load.execute();
+      expect(viewer.lines, isEmpty);
+      final writes = repo.draftWrites;
+      viewer.addLine(sabun);
+      await pumpEventQueue();
+      expect(repo.draftWrites, writes);
     });
   });
 
@@ -298,7 +543,7 @@ void main() {
       },
     );
 
-    test('pilih lokasi memuat ulang daftar dan mengosongkan draf', () async {
+    test('pilih lokasi memuat ulang daftar; draf lokasi baru kosong', () async {
       await vm.addLocation('Gudang');
       vm.addLine(kopi);
       await vm.selectLocation(vm.locations.last.id);

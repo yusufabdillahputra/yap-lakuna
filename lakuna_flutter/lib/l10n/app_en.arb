@@ -5136,12 +5136,20 @@
     }
   },
   "receiptBillAdjustment": "Bill adjustment",
-  "stockDiscardBody": "The stock adjustment draft you are filling in has not been saved and will be lost.",
+  "stockDiscardBody": "The stock adjustment draft has not been saved on this device and will be lost.",
   "@stockDiscardBody": {
     "placeholders": {}
   },
-  "stockLocationDiscardBody": "The adjustment draft for this location will be cleared if you switch locations.",
+  "stockLocationDiscardBody": "The adjustment draft for this location has not been saved on this device and will be cleared if you switch locations.",
   "@stockLocationDiscardBody": {
+    "placeholders": {}
+  },
+  "stockDraftStored": "Draft saved on this device.",
+  "@stockDraftStored": {
+    "placeholders": {}
+  },
+  "stockDraftFailed": "Draft not saved on this device.",
+  "@stockDraftFailed": {
     "placeholders": {}
   },
   "modifierDiscardBody": "The modifier group you are filling in has not been saved and will be lost.",

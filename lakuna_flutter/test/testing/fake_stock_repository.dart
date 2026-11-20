@@ -84,6 +84,50 @@ class FakeStockRepository extends StockRepository {
     });
   }
 
+  /// Draf penyesuaian per lokasi di "perangkat" (F1-08o).
+  final drafts = <UuidValue, StockAdjustmentDraft>{};
+
+  /// Banyaknya tulis draf (simpan dan hapus).
+  var draftWrites = 0;
+
+  /// Galat tetap untuk baca / tulis draf; tidak memakai [nextError] agar
+  /// tulis draf otomatis tidak menghabiskan galat yang disiapkan tes lain.
+  Exception? draftReadError;
+  Exception? draftWriteError;
+
+  /// Bila diisi, tulis draf menunggu future ini dulu.
+  Future<void>? draftWriteGate;
+
+  @override
+  Future<Result<StockAdjustmentDraft?>> adjustmentDraft(
+    UuidValue locationId,
+  ) async {
+    if (!canAdjust) {
+      return const Result.error(NotPermitted(Permission.stockAdjust));
+    }
+    if (draftReadError case final e?) return Result.error(e);
+    return Result.ok(drafts[locationId]);
+  }
+
+  @override
+  Future<Result<void>> saveAdjustmentDraft(
+    UuidValue locationId,
+    StockAdjustmentDraft? draft,
+  ) async {
+    if (draftWriteGate case final gate?) await gate;
+    if (!canAdjust) {
+      return const Result.error(NotPermitted(Permission.stockAdjust));
+    }
+    if (draftWriteError case final e?) return Result.error(e);
+    draftWrites++;
+    if (draft == null) {
+      drafts.remove(locationId);
+    } else {
+      drafts[locationId] = draft;
+    }
+    return const Result.ok(null);
+  }
+
   String get _next =>
       'SA-PST-K01-261103-${(_counter + 1).toString().padLeft(4, '0')}';
 

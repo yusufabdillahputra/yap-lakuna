@@ -88,6 +88,6 @@ mengisi jumlah fisik satu per satu. Draf hanya hidup di layar Stok:
 | --- | --- | --- | --- |
 | Peringatan keluar dari Stok dengan draf penyesuaian | 1.18 | Rilis v0.104.0 | Menu samping / bawah, tombol kembali sistem. |
 | Peringatan ganti lokasi dengan draf penyesuaian | 1.18 | Rilis v0.104.0 | *Batal* mempertahankan lokasi dan draf. |
-| Simpan draf penyesuaian untuk dilanjutkan nanti | — | Belum | Draf hanya hidup selama layar Stok terbuka. |
+| Simpan draf penyesuaian untuk dilanjutkan nanti | 1.18 | Rilis v0.130.0 | [F1-08o](2026-11-20-f1-08o-draf-penyesuaian-tersimpan-design.md): tersimpan otomatis per lokasi di perangkat; dialog hanya bila draf gagal tersimpan. |
 | Simpan langsung dari dialog | 1.18 | Rilis v0.123.0 | [F1-08n](2026-11-20-f1-08n-simpan-dari-dialog-penyesuaian-design.md): keluar dan ganti lokasi. |
 | Dua dialog berturut-turut | — | Belum | Form pembelian berisi yang dibuka dari Stok berdraf, lalu menu samping: dialog form pembelian lalu dialog Stok. *Batal* di dialog kedua tetap di form pembelian dengan isiannya utuh. |
