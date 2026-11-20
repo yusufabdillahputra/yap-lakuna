@@ -27,7 +27,7 @@ After counting, enter the physical numbers on the **Adjustment** tab.
 
 Adjustments need the *Stock adjustments* permission. Lines with an empty physical count are not saved.
 
-> [!note] The adjustment draft only lives while the Stock screen is open. Once the draft has products (or a note), switching menus or pressing back shows **Discard changes?**: choose **Cancel** to keep counting, or **Discard** to leave. Changing the **location** at the top of the screen also asks first, because the draft is cleared when the location changes. Switching tabs (*Product list*, *Stock card*, and so on) or opening a purchase form from *Minimum stock* keeps the draft.
+> [!note] The adjustment draft only lives while the Stock screen is open. Once the draft has products (or a note), switching menus or pressing back shows **Discard changes?**: choose **Cancel** to keep counting, **Discard** to leave, or **Save** to save the adjustment and go straight on. **Save** only appears once at least one line has a physical count (lines without one are not saved). If saving is rejected, for example because nothing changed, you stay on the *Adjustment* tab with the message. Changing the **location** at the top of the screen also asks first, because the draft is cleared when the location changes; **Save** there saves the adjustment at the old location and then switches to the new one. Switching tabs (*Product list*, *Stock card*, and so on) or opening a purchase form from *Minimum stock* keeps the draft.
 
 ## Minimum stock
 

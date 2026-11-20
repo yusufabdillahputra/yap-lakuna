@@ -7,6 +7,52 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.123.0] - 2026-11-20
+
+Dialog *Buang perubahan?* di layar Stok kini punya tombol **Simpan** untuk
+draf penyesuaian stok.
+
+### Ditambahkan
+
+- **Stok (1.18) › Penyesuaian:** saat meninggalkan layar Stok dengan draf
+  penyesuaian yang belum disimpan (menu lain, tombol kembali, **Ganti
+  kasir**, atau ✕ jendela), dialog *Buang perubahan?* menawarkan
+  **Batal**, **Buang**, dan **Simpan**. **Simpan** menyimpan penyesuaian
+  (nomor penyesuaian dan ledger stok sama dengan tombol *Simpan
+  penyesuaian*) lalu langsung meneruskan ke tujuan semula.
+- Mengganti **lokasi** dengan draf berisi juga menawarkan **Simpan**:
+  penyesuaian disimpan di lokasi lama, lalu layar pindah ke lokasi yang
+  dipilih.
+- **Simpan** hanya muncul bila tombol *Simpan penyesuaian* sendiri aktif,
+  yaitu minimal satu baris sudah diisi stok fisik. Draf yang baru berisi
+  catatan atau baris tanpa stok fisik tetap hanya Batal / Buang.
+- Bila simpan ditolak (mis. tidak ada selisih) atau penyimpanan gagal,
+  kasir tetap di layar Stok di lokasi lama dengan draf utuh, dan layar
+  pindah ke tab *Penyesuaian* agar pesan galatnya terlihat walau dialog
+  dibuka dari tab lain.
+- Selama simpan dari dialog berjalan, menu lain ditolak.
+
+### Catatan teknis
+
+- `StockScreen._saveBeforeLeaving` dan `_LocationSelect._select` memakai
+  `confirmDiscardChanges(onSave:)` (F1-07r) hanya bila `vm.canSave`;
+  `_saveAdjustmentFromDialog` menjalankan `vm.save` dan membuka tab
+  *Penyesuaian* bila gagal. Keluar memakai `LeaveGuard.saving`. View model
+  sudah mengosongkan draf dan memuat ulang setelah tersimpan, jadi layar
+  yang tetap tampil tidak menyimpan dua kali.
+- Tes: grup F1-08n di `stock_flow_test.dart` (1280 px: menu lain, tanpa
+  stok fisik / hanya catatan, isian ditolak dari tab lain, galat
+  penyimpanan, ganti lokasi berhasil / gagal / tanpa stok fisik, menu lain
+  selama simpan dari kedua dialog, ✕ jendela; 360 px menu bawah); tujuan
+  navigasi diperiksa lewat jalur router; tujuh mutasi diverifikasi.
+  Pembantu tes F1-08k dipindah ke tingkat `main`. Uji manual Linux di
+  Xvfb.
+- Spec [F1-08n](docs/superpowers/specs/2026-11-20-f1-08n-simpan-dari-dialog-penyesuaian-design.md);
+  gap F1-08k *Simpan langsung dari dialog* ditutup.
+- Ditemukan saat review: tes ganti lokasi lewat Simpan tidak
+  membuktikan layar benar-benar pindah lokasi; kini simpan berikutnya
+  diperiksa tercatat di lokasi baru.
+
 ## [0.122.0] - 2026-11-20
 
 Dialog *Buang perubahan?* di layar Pengeluaran kini punya tombol
@@ -7179,7 +7225,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...HEAD
+[0.123.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...v0.123.0
 [0.122.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...v0.122.0
 [0.121.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...v0.121.0
 [0.120.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...v0.120.0
