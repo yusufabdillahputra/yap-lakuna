@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
@@ -60,7 +62,7 @@ Future<bool> savePurchaseDraftBeforeLeaving(
 
 /// Panel form *Pembelian baru* / *Draf* (1.19). [onReceived] dipanggil
 /// setelah barang diterima; [onSaved] setelah draf disimpan atau dihapus.
-class PurchaseFormPanel extends StatelessWidget {
+class PurchaseFormPanel extends StatefulWidget {
   const PurchaseFormPanel({
     super.key,
     required this.viewModel,
@@ -74,145 +76,253 @@ class PurchaseFormPanel extends StatelessWidget {
   final ValueChanged<Purchase>? onSaved;
   final VoidCallback? onDeleted;
 
+  @override
+  State<PurchaseFormPanel> createState() => _PurchaseFormPanelState();
+}
+
+class _PurchaseFormPanelState extends State<PurchaseFormPanel> {
+  PurchaseFormViewModel get viewModel => widget.viewModel;
+
+  /// Jangkar galat yang terpasang, per isian (F1-12j).
+  final _anchors = <Object, GlobalKey>{};
+
+  /// `failedSubmits` yang sudah digulir.
+  late var _revealed = viewModel.failedSubmits;
+
   Future<void> _saveDraft() async {
     await viewModel.saveDraft.execute();
-    if (viewModel.saveDraft.result case Ok(:final value)) onSaved?.call(value);
+    if (viewModel.saveDraft.result case Ok(:final value)) {
+      widget.onSaved?.call(value);
+    }
   }
 
   Future<void> _receive() async {
     await viewModel.receive.execute();
     if (viewModel.receive.result case Ok(:final value)) {
-      onReceived?.call(value);
+      widget.onReceived?.call(value);
     }
   }
 
   Future<void> _delete() async {
     await viewModel.deleteDraft.execute();
-    if (viewModel.deleteDraft.completed) onDeleted?.call();
+    if (viewModel.deleteDraft.completed) widget.onDeleted?.call();
+  }
+
+  /// Menggulir ke galat yang tampil paling atas (lalu paling kiri) setelah
+  /// simpan gagal, dari tombol form maupun dialog *Buang perubahan?*.
+  void _revealFirstIssue() {
+    if (!mounted) return;
+    final vm = viewModel;
+    final ids = <Object>[
+      ...vm.issues,
+      if (vm.actionError != null) _actionErrorAnchor,
+    ];
+    BuildContext? first;
+    Offset? firstAt;
+    for (final id in ids) {
+      final target = _anchors[id]?.currentContext;
+      final box = target?.findRenderObject();
+      if (target == null || box is! RenderBox || !box.attached) continue;
+      final at = box.localToGlobal(Offset.zero);
+      if (firstAt == null ||
+          at.dy < firstAt.dy ||
+          (at.dy == firstAt.dy && at.dx < firstAt.dx)) {
+        first = target;
+        firstAt = at;
+      }
+    }
+    if (first == null) return;
+    // Sudah terlihat seluruhnya: layar tidak digeser.
+    final viewport = Scrollable.maybeOf(first)?.context.findRenderObject();
+    final box = first.findRenderObject()! as RenderBox;
+    if (viewport is RenderBox) {
+      final view = viewport.localToGlobal(Offset.zero) & viewport.size;
+      final rect = box.localToGlobal(Offset.zero) & box.size;
+      if (rect.top >= view.top && rect.bottom <= view.bottom) return;
+    }
+    unawaited(
+      Scrollable.ensureVisible(
+        first,
+        alignment: 0.1,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: viewModel,
     builder: (context, _) {
-      final l10n = AppLocalizations.of(context);
-      final theme = context.theme;
-      final vm = viewModel;
-      if (vm.setup == null) {
-        if (vm.error case final error?) {
-          return LoadFailedAlert(
-            key: const ValueKey('purchase-form-error'),
-            message: purchaseErrorMessage(l10n, error),
-            onRetry: vm.load.execute,
-          );
-        }
-        return const Center(child: FCircularProgress());
+      if (viewModel.failedSubmits != _revealed) {
+        _revealed = viewModel.failedSubmits;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _revealFirstIssue(),
+        );
       }
-      return FCard(
-        key: const ValueKey('purchase-form'),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final narrow = constraints.maxWidth < purchaseFormNarrowWidth;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 16,
-                children: [
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          vm.isDraft
-                              ? l10n.purchaseFormDraft(vm.number)
-                              : l10n.purchaseFormNew(vm.number),
-                          key: const ValueKey('purchase-form-title'),
-                          style: theme.typography.display.lg.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+      return _IssueAnchors(anchors: _anchors, child: _form(context));
+    },
+  );
+
+  Widget _form(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final vm = viewModel;
+    if (vm.setup == null) {
+      if (vm.error case final error?) {
+        return LoadFailedAlert(
+          key: const ValueKey('purchase-form-error'),
+          message: purchaseErrorMessage(l10n, error),
+          onRetry: vm.load.execute,
+        );
+      }
+      return const Center(child: FCircularProgress());
+    }
+    return FCard(
+      key: const ValueKey('purchase-form'),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final narrow = constraints.maxWidth < purchaseFormNarrowWidth;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        vm.isDraft
+                            ? l10n.purchaseFormDraft(vm.number)
+                            : l10n.purchaseFormNew(vm.number),
+                        key: const ValueKey('purchase-form-title'),
+                        style: theme.typography.display.lg.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      if (vm.isDraft)
-                        FButton(
-                          key: const ValueKey('purchase-delete-draft'),
-                          variant: .ghost,
-                          size: .sm,
-                          mainAxisSize: .min,
-                          onPress: vm.busy ? null : _delete,
-                          prefix: const Icon(TablerIcons.trash),
-                          child: Flexible(
-                            child: Text(l10n.purchaseDeleteDraft),
-                          ),
+                    ),
+                    if (vm.isDraft)
+                      FButton(
+                        key: const ValueKey('purchase-delete-draft'),
+                        variant: .ghost,
+                        size: .sm,
+                        mainAxisSize: .min,
+                        onPress: vm.busy ? null : _delete,
+                        prefix: const Icon(TablerIcons.trash),
+                        child: Flexible(
+                          child: Text(l10n.purchaseDeleteDraft),
                         ),
-                    ],
-                  ),
-                  _HeaderFields(viewModel: vm, narrow: narrow),
-                  _InvoicePhotoField(viewModel: vm),
-                  _Lines(viewModel: vm, narrow: narrow),
-                  _ScanField(viewModel: vm),
-                  if (vm.hasIssue(PurchaseField.lines))
-                    Text(
+                      ),
+                  ],
+                ),
+                _HeaderFields(viewModel: vm, narrow: narrow),
+                _InvoicePhotoField(viewModel: vm),
+                _Lines(viewModel: vm, narrow: narrow),
+                _ScanField(viewModel: vm),
+                if (vm.hasIssue(PurchaseField.lines))
+                  _IssueAnchor(
+                    id: const PurchaseIssue(PurchaseField.lines),
+                    child: Text(
                       l10n.purchaseErrLines,
                       key: const ValueKey('purchase-error-lines'),
                       style: theme.typography.body.xs.copyWith(
                         color: theme.colors.destructive,
                       ),
                     ),
-                  _PaymentAndTotals(viewModel: vm, narrow: narrow),
-                  if (vm.actionError case final error?)
-                    FAlert(
+                  ),
+                _PaymentAndTotals(viewModel: vm, narrow: narrow),
+                if (vm.actionError case final error?)
+                  _IssueAnchor(
+                    id: _actionErrorAnchor,
+                    child: FAlert(
                       key: const ValueKey('purchase-action-error'),
                       variant: .destructive,
                       title: Text(purchaseErrorMessage(l10n, error)),
                     ),
-                  if (vm.saveDraft.completed)
-                    FAlert(
-                      key: const ValueKey('purchase-draft-saved'),
-                      title: Text(l10n.purchaseDraftSaved(vm.number)),
+                  ),
+                if (vm.saveDraft.completed)
+                  FAlert(
+                    key: const ValueKey('purchase-draft-saved'),
+                    title: Text(l10n.purchaseDraftSaved(vm.number)),
+                  ),
+                Flex(
+                  direction: narrow ? Axis.vertical : Axis.horizontal,
+                  crossAxisAlignment: narrow
+                      ? CrossAxisAlignment.stretch
+                      : CrossAxisAlignment.center,
+                  spacing: 8,
+                  children: [
+                    FButton(
+                      key: const ValueKey('purchase-save-draft'),
+                      variant: .outline,
+                      mainAxisSize: narrow ? .max : .min,
+                      onPress: vm.busy ? null : _saveDraft,
+                      child: Text(l10n.purchaseSaveDraft),
                     ),
-                  Flex(
-                    direction: narrow ? Axis.vertical : Axis.horizontal,
-                    crossAxisAlignment: narrow
-                        ? CrossAxisAlignment.stretch
-                        : CrossAxisAlignment.center,
-                    spacing: 8,
-                    children: [
+                    _expandedIf(
+                      !narrow,
                       FButton(
-                        key: const ValueKey('purchase-save-draft'),
-                        variant: .outline,
-                        mainAxisSize: narrow ? .max : .min,
-                        onPress: vm.busy ? null : _saveDraft,
-                        child: Text(l10n.purchaseSaveDraft),
+                        key: const ValueKey('purchase-receive'),
+                        onPress: vm.busy ? null : _receive,
+                        prefix: vm.receive.running
+                            ? const SizedBox.square(
+                                dimension: 16,
+                                child: FCircularProgress(),
+                              )
+                            : const Icon(TablerIcons.packageImport),
+                        child: Flexible(child: Text(l10n.purchaseReceive)),
                       ),
-                      _expandedIf(
-                        !narrow,
-                        FButton(
-                          key: const ValueKey('purchase-receive'),
-                          onPress: vm.busy ? null : _receive,
-                          prefix: vm.receive.running
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child: FCircularProgress(),
-                                )
-                              : const Icon(TablerIcons.packageImport),
-                          child: Flexible(child: Text(l10n.purchaseReceive)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    l10n.purchaseReceiveNote(vm.locationName ?? ''),
-                    style: _muted(context),
-                  ),
-                ],
-              );
-            },
-          ),
+                    ),
+                  ],
+                ),
+                Text(
+                  l10n.purchaseReceiveNote(vm.locationName ?? ''),
+                  style: _muted(context),
+                ),
+              ],
+            );
+          },
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
+}
+
+/// Jangkar [_IssueAnchor] milik form (F1-12j).
+class _IssueAnchors extends InheritedWidget {
+  const _IssueAnchors({required this.anchors, required super.child});
+
+  final Map<Object, GlobalKey> anchors;
+
+  @override
+  bool updateShouldNotify(_IssueAnchors old) => anchors != old.anchors;
+}
+
+/// Penanda [_actionErrorAnchor]: kotak galat simpan.
+const _actionErrorAnchor = 'purchase-action-error';
+
+/// Membungkus isian yang bisa salah agar form bisa menggulir ke sana
+/// setelah simpan gagal (F1-12j). [id] berupa [PurchaseIssue] isian itu.
+class _IssueAnchor extends StatelessWidget {
+  const _IssueAnchor({required this.id, required this.child});
+
+  final Object id;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final anchors = context
+        .getInheritedWidgetOfExactType<_IssueAnchors>()
+        ?.anchors;
+    if (anchors == null) return child;
+    return KeyedSubtree(
+      key: anchors.putIfAbsent(id, GlobalKey.new),
+      child: child,
+    );
+  }
 }
 
 Widget _expandedIf(bool expand, Widget child) =>
@@ -392,18 +502,24 @@ class _HeaderFields extends StatelessWidget {
     return _Grid(
       narrow: narrow,
       children: [
-        supplier,
-        FTextField(
-          key: ValueKey('purchase-invoice-$gen'),
-          label: Text(l10n.purchaseInvoiceNo),
-          hint: 'SP/XI/0457',
-          maxLength: PurchaseLimits.invoiceNo,
-          error: vm.hasIssue(PurchaseField.invoiceNo)
-              ? Text(l10n.purchaseErrInvoiceNo(PurchaseLimits.invoiceNo))
-              : null,
-          control: .managed(
-            initial: TextEditingValue(text: vm.invoiceNo),
-            onChange: (v) => vm.setInvoiceNo(v.text),
+        _IssueAnchor(
+          id: const PurchaseIssue(PurchaseField.supplier),
+          child: supplier,
+        ),
+        _IssueAnchor(
+          id: const PurchaseIssue(PurchaseField.invoiceNo),
+          child: FTextField(
+            key: ValueKey('purchase-invoice-$gen'),
+            label: Text(l10n.purchaseInvoiceNo),
+            hint: 'SP/XI/0457',
+            maxLength: PurchaseLimits.invoiceNo,
+            error: vm.hasIssue(PurchaseField.invoiceNo)
+                ? Text(l10n.purchaseErrInvoiceNo(PurchaseLimits.invoiceNo))
+                : null,
+            control: .managed(
+              initial: TextEditingValue(text: vm.invoiceNo),
+              onChange: (v) => vm.setInvoiceNo(v.text),
+            ),
           ),
         ),
         FDateField.calendar(
@@ -651,24 +767,29 @@ class _QtyField extends StatelessWidget {
   final int index;
 
   @override
-  Widget build(BuildContext context) => FTextField(
-    key: ValueKey('purchase-qty-${line.key}-${viewModel.generation}'),
-    hint: '0',
-    textAlign: TextAlign.end,
-    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-    inputFormatters: [QtyInputFormatter(decimal: qtyDecimalSeparator(context))],
-    error: viewModel.hasIssue(PurchaseField.quantity, index)
-        ? Text(AppLocalizations.of(context).purchaseErrQty)
-        : null,
-    control: .managed(
-      initial: TextEditingValue(
-        text: formatQty(context, line.quantity, grouped: false),
+  Widget build(BuildContext context) => _IssueAnchor(
+    id: PurchaseIssue(PurchaseField.quantity, index),
+    child: FTextField(
+      key: ValueKey('purchase-qty-${line.key}-${viewModel.generation}'),
+      hint: '0',
+      textAlign: TextAlign.end,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        QtyInputFormatter(decimal: qtyDecimalSeparator(context)),
+      ],
+      error: viewModel.hasIssue(PurchaseField.quantity, index)
+          ? Text(AppLocalizations.of(context).purchaseErrQty)
+          : null,
+      control: .managed(
+        initial: TextEditingValue(
+          text: formatQty(context, line.quantity, grouped: false),
+        ),
+        onChange: (v) {
+          if (parseQtyInput(context, v.text) case final q?) {
+            viewModel.setQuantity(line.key, q);
+          }
+        },
       ),
-      onChange: (v) {
-        if (parseQtyInput(context, v.text) case final q?) {
-          viewModel.setQuantity(line.key, q);
-        }
-      },
     ),
   );
 }
@@ -685,26 +806,29 @@ class _PriceField extends StatelessWidget {
   final int index;
 
   @override
-  Widget build(BuildContext context) => FTextField(
-    key: ValueKey(
-      'purchase-price-${line.key}-${line.priceRev}-${viewModel.generation}',
-    ),
-    hint: '0',
-    textAlign: TextAlign.end,
-    keyboardType: TextInputType.number,
-    inputFormatters: const [RupiahInputFormatter()],
-    prefixBuilder: _rpPrefix,
-    error: viewModel.hasIssue(PurchaseField.price, index)
-        ? Text(AppLocalizations.of(context).purchaseErrPrice)
-        : null,
-    control: .managed(
-      initial: TextEditingValue(
-        text: line.unitPrice.value == 0
-            ? ''
-            : groupThousands(line.unitPrice.value, '.'),
+  Widget build(BuildContext context) => _IssueAnchor(
+    id: PurchaseIssue(PurchaseField.price, index),
+    child: FTextField(
+      key: ValueKey(
+        'purchase-price-${line.key}-${line.priceRev}-${viewModel.generation}',
       ),
-      onChange: (v) =>
-          viewModel.setUnitPrice(line.key, parseSignedRupiah(v.text)),
+      hint: '0',
+      textAlign: TextAlign.end,
+      keyboardType: TextInputType.number,
+      inputFormatters: const [RupiahInputFormatter()],
+      prefixBuilder: _rpPrefix,
+      error: viewModel.hasIssue(PurchaseField.price, index)
+          ? Text(AppLocalizations.of(context).purchaseErrPrice)
+          : null,
+      control: .managed(
+        initial: TextEditingValue(
+          text: line.unitPrice.value == 0
+              ? ''
+              : groupThousands(line.unitPrice.value, '.'),
+        ),
+        onChange: (v) =>
+            viewModel.setUnitPrice(line.key, parseSignedRupiah(v.text)),
+      ),
     ),
   );
 }
@@ -946,23 +1070,26 @@ class _PaymentAndTotals extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
-        FTextField(
-          key: ValueKey('purchase-paid-$gen'),
-          label: Text(l10n.purchasePaidNow),
-          hint: '0',
-          keyboardType: TextInputType.number,
-          inputFormatters: const [RupiahInputFormatter()],
-          prefixBuilder: _rpPrefix,
-          error: vm.hasIssue(PurchaseField.paid)
-              ? Text(l10n.purchaseErrPaid)
-              : null,
-          control: .managed(
-            initial: TextEditingValue(
-              text: vm.paid.value == 0
-                  ? ''
-                  : groupThousands(vm.paid.value, '.'),
+        _IssueAnchor(
+          id: const PurchaseIssue(PurchaseField.paid),
+          child: FTextField(
+            key: ValueKey('purchase-paid-$gen'),
+            label: Text(l10n.purchasePaidNow),
+            hint: '0',
+            keyboardType: TextInputType.number,
+            inputFormatters: const [RupiahInputFormatter()],
+            prefixBuilder: _rpPrefix,
+            error: vm.hasIssue(PurchaseField.paid)
+                ? Text(l10n.purchaseErrPaid)
+                : null,
+            control: .managed(
+              initial: TextEditingValue(
+                text: vm.paid.value == 0
+                    ? ''
+                    : groupThousands(vm.paid.value, '.'),
+              ),
+              onChange: (v) => vm.setPaid(parseSignedRupiah(v.text)),
             ),
-            onChange: (v) => vm.setPaid(parseSignedRupiah(v.text)),
           ),
         ),
         Align(
@@ -977,21 +1104,24 @@ class _PaymentAndTotals extends StatelessWidget {
           ),
         ),
         if (vm.paid.value > 0) ...[
-          FSelect<String>(
-            key: ValueKey('purchase-funding-$gen'),
-            label: Text(l10n.purchaseFundingFrom),
-            items: {
-              for (final k in FundingKind.values)
-                if (k != FundingKind.drawer ||
-                    (vm.setup?.canUseDrawer ?? false) ||
-                    vm.funding == k)
-                  fundingLabel(l10n, k): k.name,
-            },
-            control: .managed(
-              initial: vm.funding.name,
-              onChange: (v) {
-                if (v != null) vm.setFunding(FundingKind.values.byName(v));
+          _IssueAnchor(
+            id: const PurchaseIssue(PurchaseField.funding),
+            child: FSelect<String>(
+              key: ValueKey('purchase-funding-$gen'),
+              label: Text(l10n.purchaseFundingFrom),
+              items: {
+                for (final k in FundingKind.values)
+                  if (k != FundingKind.drawer ||
+                      (vm.setup?.canUseDrawer ?? false) ||
+                      vm.funding == k)
+                    fundingLabel(l10n, k): k.name,
               },
+              control: .managed(
+                initial: vm.funding.name,
+                onChange: (v) {
+                  if (v != null) vm.setFunding(FundingKind.values.byName(v));
+                },
+              ),
             ),
           ),
           if (vm.funding == FundingKind.drawer &&
@@ -1014,32 +1144,38 @@ class _PaymentAndTotals extends StatelessWidget {
             ),
         ],
         if (debt.value > 0)
-          FDateField.calendar(
-            key: ValueKey('purchase-due-$gen'),
-            label: Text(l10n.purchaseDueOn),
-            clearable: false,
-            format: (context, value, _) => formatCalendarDate(value),
-            forceErrorText: vm.hasIssue(PurchaseField.dueOn)
-                ? l10n.purchaseErrDueOn
-                : null,
-            selectionControl: .managedSingle(
-              initial: vm.dueOn,
-              toggleable: false,
-              onChange: (d) {
-                if (d != null) vm.setDueOn(d);
-              },
+          _IssueAnchor(
+            id: const PurchaseIssue(PurchaseField.dueOn),
+            child: FDateField.calendar(
+              key: ValueKey('purchase-due-$gen'),
+              label: Text(l10n.purchaseDueOn),
+              clearable: false,
+              format: (context, value, _) => formatCalendarDate(value),
+              forceErrorText: vm.hasIssue(PurchaseField.dueOn)
+                  ? l10n.purchaseErrDueOn
+                  : null,
+              selectionControl: .managedSingle(
+                initial: vm.dueOn,
+                toggleable: false,
+                onChange: (d) {
+                  if (d != null) vm.setDueOn(d);
+                },
+              ),
             ),
           ),
-        FTextField(
-          key: ValueKey('purchase-note-$gen'),
-          label: Text(l10n.purchaseNote),
-          maxLength: PurchaseLimits.note,
-          error: vm.hasIssue(PurchaseField.note)
-              ? Text(l10n.purchaseErrNote(PurchaseLimits.note))
-              : null,
-          control: .managed(
-            initial: TextEditingValue(text: vm.note),
-            onChange: (v) => vm.setNote(v.text),
+        _IssueAnchor(
+          id: const PurchaseIssue(PurchaseField.note),
+          child: FTextField(
+            key: ValueKey('purchase-note-$gen'),
+            label: Text(l10n.purchaseNote),
+            maxLength: PurchaseLimits.note,
+            error: vm.hasIssue(PurchaseField.note)
+                ? Text(l10n.purchaseErrNote(PurchaseLimits.note))
+                : null,
+            control: .managed(
+              initial: TextEditingValue(text: vm.note),
+              onChange: (v) => vm.setNote(v.text),
+            ),
           ),
         ),
       ],
@@ -1100,18 +1236,28 @@ class _PaymentAndTotals extends StatelessWidget {
         row(l10n.purchaseSubtotal, money(totals.subtotal)),
         row(
           l10n.purchaseDiscount,
-          amountField(
-            'purchase-discount',
-            vm.discount,
-            vm.setDiscount,
-            error: vm.hasIssue(PurchaseField.discount)
-                ? l10n.purchaseErrDiscount
-                : null,
+          _IssueAnchor(
+            id: const PurchaseIssue(PurchaseField.discount),
+            child: amountField(
+              'purchase-discount',
+              vm.discount,
+              vm.setDiscount,
+              error: vm.hasIssue(PurchaseField.discount)
+                  ? l10n.purchaseErrDiscount
+                  : null,
+            ),
           ),
         ),
         row(
           l10n.purchaseShipping,
-          amountField('purchase-shipping', vm.shipping, vm.setShipping),
+          _IssueAnchor(
+            id: const PurchaseIssue(PurchaseField.shipping),
+            child: amountField(
+              'purchase-shipping',
+              vm.shipping,
+              vm.setShipping,
+            ),
+          ),
         ),
         Container(height: 1, color: theme.colors.border),
         row(l10n.purchaseTotal, money(totals.total), strong: true),
