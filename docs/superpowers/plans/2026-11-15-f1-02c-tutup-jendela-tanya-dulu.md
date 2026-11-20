@@ -12,4 +12,4 @@ Spec: [F1-02c](../specs/2026-11-15-f1-02c-tutup-jendela-tanya-dulu-design.md).
   `/mnt/project-files/lakuna/f1-02c/`.
 - [x] 6. Dokumen: spec, gap F1-02b, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau (termasuk build Windows/macOS), squash-merge, rilis.
+- [x] 7. PR, CI hijau (termasuk build Windows/macOS), squash-merge, rilis (#121).

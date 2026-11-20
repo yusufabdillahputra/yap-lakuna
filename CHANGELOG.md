@@ -7,6 +7,51 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.116.0] - 2026-11-20
+
+Menutup jendela aplikasi kini juga bertanya bila dialog pelanggan,
+supplier, data master, atau meja sedang diisi.
+
+### Diperbaiki
+
+- **Dialog pelanggan, supplier, grup pelanggan, modifier, jenis
+  pengeluaran, area/meja/rentang meja (desktop):** tombol ✕ jendela,
+  Alt+F4, atau Cmd+Q saat dialog berisi isian yang belum disimpan kini
+  menampilkan *Buang perubahan?* dengan pesan dialog itu. Sebelumnya
+  v0.115.0 hanya menanyakan halaman (pembelian, produk, pengeluaran, stok),
+  sehingga isian dialog hilang tanpa peringatan. Dialog ditanya lebih dulu
+  (teratas dulu), lalu halaman di bawahnya. **Batal** di pertanyaan mana
+  pun membiarkan aplikasi terbuka dengan dialog dan isiannya utuh.
+- Bila pertanyaan *Buang perubahan?* dialog sudah terbuka (dari Esc,
+  Batal, atau ketukan di luar), ✕ jendela memakai pertanyaan itu, tidak
+  membuka yang kedua.
+- Selama dialog menyimpan, ✕ jendela diabaikan agar pertanyaan tidak
+  tertutup oleh hasil simpan; tekan ✕ lagi setelah simpan selesai.
+
+### Catatan teknis
+
+- `DiscardChangesScope` (`lib/ui/core/confirm_discard.dart`) kini
+  `StatefulWidget` yang mendaftar ke daftar statis dialog terbuka (dialog
+  memakai navigator akar, di luar pohon `ExitGuard`).
+  `DiscardChangesScope.canDiscardAll()` menanyai dialog berubah dari yang
+  teratas, melewati dialog yang beranimasi keluar, dan menolak bila ada
+  yang sibuk. Pertanyaan disimpan sebagai `Future<bool>` bersama untuk
+  `PopScope` dan penutupan aplikasi.
+- `router.dart`: `ExitGuard.canExit` = `canDiscardAll()` lalu
+  `LeaveGuards.canLeaveAll()`.
+- Tes: `confirm_discard_test.dart` (8 tes: tanpa perubahan, Batal/Buang,
+  bertumpuk, dialog atas bersih, sibuk, pertanyaan Esc dipakai ulang,
+  dialog yang sedang ditutup, dialog dilepas) dan alur pelanggan desktop
+  dengan `handleRequestAppExit`; mutasi diverifikasi. Uji manual Linux
+  dengan `WM_DELETE_WINDOW` di Xvfb.
+- Spec [F1-02d](docs/superpowers/specs/2026-11-15-f1-02d-tutup-jendela-dialog-isian-design.md);
+  gap F1-02c *Dialog berisi isian saat jendela ditutup* ditutup.
+- Tes `local_customers_repository_test.dart` (*pembayaran piutang dan
+  kuitansi*) gagal sejak 2026-11-18: `checkoutSale` memakai jam dinding,
+  sedangkan jatuh tempo kredit di tes tetap 17-11-2026 sehingga ditolak
+  `SaleCreditInvalid(dueOn)`. Jatuh tempo kini 14 hari dari hari tes
+  dijalankan.
+
 ## [0.115.0] - 2026-11-15
 
 Menutup jendela aplikasi di komputer kini bertanya dulu bila ada form yang
@@ -6928,7 +6973,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.116.0...HEAD
+[0.116.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.115.0...v0.116.0
 [0.115.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.114.0...v0.115.0
 [0.114.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.113.0...v0.114.0
 [0.113.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.112.0...v0.113.0

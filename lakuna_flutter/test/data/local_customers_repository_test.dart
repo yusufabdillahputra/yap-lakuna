@@ -186,7 +186,9 @@ void main() {
       credit: SaleCredit(
         customerId: ani.id,
         downPayment: const Money(50000),
-        dueOn: DateTime.utc(2026, 11, 17),
+        // `checkoutSale` memakai jam dinding: jatuh tempo tetap di masa
+        // depan berapa pun tanggal tes dijalankan.
+        dueOn: DateTime.now().toUtc().add(const Duration(days: 14)),
       ),
     );
     final before = _ok(await repo.detail(ani.id));

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -226,6 +227,33 @@ void main() {
     expect(_key('customer-form'), findsNothing);
     expect(repo.customers, hasLength(4));
     expect(_key('customers-new'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('desktop: tutup jendela saat dialog pelanggan berisi isian '
+      'bertanya dulu (F1-02d)', (tester) async {
+    await pump(tester, const Size(1440, 900));
+    await _tap(tester, _key('customers-new'));
+    // Tanpa isian: aplikasi langsung boleh ditutup.
+    expect(
+      await tester.binding.handleRequestAppExit(),
+      AppExitResponse.exit,
+    );
+    await _type(tester, _key('customer-form-name'), 'Bu Wati');
+
+    var exit = tester.binding.handleRequestAppExit();
+    await tester.pumpAndSettle();
+    expect(_key('customer-discard'), findsOneWidget);
+    await _tap(tester, _key('customer-discard-cancel'));
+    expect(await exit, AppExitResponse.cancel);
+    expect(_key('customer-form'), findsOneWidget);
+    expect(find.text('Bu Wati'), findsOneWidget);
+
+    exit = tester.binding.handleRequestAppExit();
+    await tester.pumpAndSettle();
+    await _tap(tester, _key('customer-discard-confirm'));
+    expect(await exit, AppExitResponse.exit);
+    expect(repo.customers, hasLength(4));
     expect(tester.takeException(), isNull);
   });
 

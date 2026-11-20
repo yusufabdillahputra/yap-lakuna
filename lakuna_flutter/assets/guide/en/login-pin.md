@@ -10,7 +10,7 @@ Every staff member signs in with a 6-digit PIN on the *Who's on duty?* screen. T
 2. Type your 6-digit PIN on the keypad.
 3. To hand over mid-shift, tap **Switch cashier** in the header (an icon at the top right on phones), then choose the next staff member.
 
-> [!note] If a purchase, product, expense, or stock adjustment draft is being filled in and has not been saved, **Switch cashier** asks first: **Cancel** returns to the form with your input intact, **Discard** drops the input and opens the sign-in screen. While a save is running, wait for it to finish and tap again. The same applies on a computer when you close the app window (the ✕ button, Alt+F4, or Cmd+Q): **Cancel** keeps the app open, **Discard** closes it.
+> [!note] If a purchase, product, expense, or stock adjustment draft is being filled in and has not been saved, **Switch cashier** asks first: **Cancel** returns to the form with your input intact, **Discard** drops the input and opens the sign-in screen. While a save is running, wait for it to finish and tap again. The same applies on a computer when you close the app window (the ✕ button, Alt+F4, or Cmd+Q): **Cancel** keeps the app open, **Discard** closes it. A dialog being filled in (customer, supplier, master data, table) is asked about first, with its own message. If a dialog is still saving, the window stays open; press ✕ again once the save finishes.
 
 ## Signing in as the owner
 

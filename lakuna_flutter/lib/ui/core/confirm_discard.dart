@@ -68,7 +68,10 @@ Future<bool> confirmDiscardChanges(
 /// dialog, Esc, tombol kembali sistem, dan `Navigator.maybePop` (mis. tombol
 /// Batal) menampilkan [confirmDiscardChanges] lebih dulu. Selama [busy]
 /// dialog tidak bisa ditutup. `Navigator.pop` (hasil simpan) tidak ditahan.
-class DiscardChangesScope extends StatelessWidget {
+///
+/// Selama terpasang, dialog ini juga ditanya saat aplikasi diminta ditutup
+/// lewat [canDiscardAll] (F1-02d).
+class DiscardChangesScope extends StatefulWidget {
   const DiscardChangesScope({
     super.key,
     required this.dirty,
@@ -86,22 +89,72 @@ class DiscardChangesScope extends StatelessWidget {
   final String dialogKey;
   final Widget child;
 
+  /// Dialog yang sedang terpasang, urutan dipasang. Dialog form memakai
+  /// navigator akar, di luar pohon `ExitGuard`, jadi tidak terjangkau
+  /// lewat widget leluhur.
+  static final _open = <_DiscardChangesScopeState>[];
+
+  /// Semua dialog yang berubah boleh dibuang sekaligus (menutup jendela
+  /// aplikasi, F1-02d). Dialog teratas ditanya lebih dulu; berhenti pada
+  /// jawaban `false`. Dialog form tidak ditutup di sini: bila penjaga lain
+  /// menolak, isiannya tetap ada.
+  ///
+  /// Dialog yang sedang menyimpan langsung `false` tanpa bertanya: form
+  /// menutup dirinya dengan `Navigator.pop` setelah simpan, yang akan
+  /// mengenai pertanyaan bila pertanyaan itu ada di atasnya.
+  static Future<bool> canDiscardAll() async {
+    for (final scope in _open.reversed.toList()) {
+      if (scope.widget.busy) return false;
+      if (!scope.widget.dirty || scope._closing) continue;
+      if (!await scope._ask()) return false;
+    }
+    return true;
+  }
+
+  @override
+  State<DiscardChangesScope> createState() => _DiscardChangesScopeState();
+}
+
+class _DiscardChangesScopeState extends State<DiscardChangesScope> {
+  /// Pertanyaan yang sedang tampil dipakai ulang: Esc lalu tutup jendela
+  /// tidak membuka dialog kedua.
+  Future<bool>? _asking;
+
+  /// Rute dialog ini sedang ditutup (animasi keluar setelah *Buang* atau
+  /// simpan): isiannya sudah dilepas, tidak perlu ditanya lagi.
+  bool get _closing =>
+      ModalRoute.of(context)?.animation?.status == AnimationStatus.reverse;
+
+  Future<bool> _ask() => _asking ??= confirmDiscardChanges(
+    context,
+    body: widget.body,
+    key: widget.dialogKey,
+  ).whenComplete(() => _asking = null);
+
+  @override
+  void initState() {
+    super.initState();
+    DiscardChangesScope._open.add(this);
+  }
+
+  @override
+  void dispose() {
+    DiscardChangesScope._open.remove(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => PopScope<Object?>(
-    canPop: !dirty && !busy,
+    canPop: !widget.dirty && !widget.busy,
     onPopInvokedWithResult: (didPop, _) async {
-      if (didPop || busy) return;
-      final discard = await confirmDiscardChanges(
-        context,
-        body: body,
-        key: dialogKey,
-      );
+      if (didPop || widget.busy) return;
+      final discard = await _ask();
       // Hanya menutup dialog ini, bukan rute lain yang kebetulan di atas.
-      if (discard && context.mounted && _isCurrent(context)) {
-        Navigator.of(context).pop();
+      if (discard && mounted && _isCurrent(this.context)) {
+        Navigator.of(this.context).pop();
       }
     },
-    child: child,
+    child: widget.child,
   );
 }
 
