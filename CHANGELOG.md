@@ -7,6 +7,36 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.131.0] - 2026-11-20
+
+Daftar stok minimum menandai barang yang pesanannya di draf sudah cukup.
+
+### Ditambahkan
+
+- **Stok (1.18):** di daftar *Di bawah stok minimum* (tab *Stok minimum*
+  dan panel samping tab *Penyesuaian*), barang yang sudah ada di draf
+  pembelian kini mendapat baris status di bawah keterangan *Sudah di draf
+  …*: **Cukup untuk saran** (hijau, bertanda centang) bila jumlah di semua
+  draf ke lokasi itu sudah mencapai saran, atau **Kurang {selisih} {satuan}
+  dari saran** bila masih perlu ditambah (mis. *Kurang 33 pcs dari
+  saran*). Saran dan jumlah dipesan sama dengan keterangan F1-08l (satuan
+  dasar, saran = isian *Buat pembelian*), sehingga staf tidak perlu
+  membandingkan angka baris demi baris.
+
+### Catatan teknis
+
+- `StockViewModel.shortfallOf(row, mark)` menghitung kekurangan dalam
+  mili-satuan dari `suggestedOf`, 0 bila cukup. Widget `_DraftCover`
+  (kunci `stock-min-cover-<varian>`) memakai hijau yang sama dengan
+  selisih positif penyesuaian (kontras ≥ 4.5:1 di tema terang dan gelap).
+  Pencarian tanda draf per baris kini sekali untuk keterangan dan status.
+- Tes: VM (kurang, kurang pecahan, sama, lebih) dan alur 1280 / 360 px
+  (status kurang dan cukup, ikon centang, tetap di dalam baris di ponsel).
+  Mutasi "selalu kurang", "tanpa ikon", "tanpa batas 0", dan "tanpa
+  status" tertangkap. Uji manual Linux di Xvfb.
+- Spec [F1-08p](docs/superpowers/specs/2026-11-20-f1-08p-tanda-cukup-draf-design.md);
+  gap *Tanda cukup bila draf sudah memenuhi saran* di F1-08l ditutup.
+
 ## [0.130.0] - 2026-11-20
 
 Draf penyesuaian stok tersimpan di perangkat dan bisa dilanjutkan nanti.
@@ -7537,7 +7567,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...HEAD
+[0.131.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...v0.131.0
 [0.130.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...v0.130.0
 [0.129.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.128.0...v0.129.0
 [0.128.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.127.0...v0.128.0

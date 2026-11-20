@@ -105,6 +105,13 @@ class StockViewModel extends ChangeNotifier {
   static Qty suggestedOf(StockRow row) =>
       restockQuantity(row.stock, row.minStock);
 
+  /// Kekurangan jumlah di draf [mark] dari saran barang [row], satuan dasar;
+  /// [Qty.zero] bila draf sudah cukup (F1-08p).
+  static Qty shortfallOf(StockRow row, DraftMark mark) {
+    final short = suggestedOf(row).milli - mark.ordered.milli;
+    return short > 0 ? Qty(short) : Qty.zero;
+  }
+
   /// Draf pertama, banyaknya draf, dan jumlah yang sudah dipesan (satuan
   /// dasar, semua draf) untuk barang [variantId] (F1-08l).
   DraftMark? draftMarkOf(UuidValue variantId) => _inDraft[variantId];

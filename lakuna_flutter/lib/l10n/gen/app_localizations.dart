@@ -14746,6 +14746,18 @@ abstract class AppLocalizations {
     String suggested,
     String unit,
   );
+
+  /// No description provided for @stockMinimumDraftEnough.
+  ///
+  /// In id, this message translates to:
+  /// **'Cukup untuk saran'**
+  String get stockMinimumDraftEnough;
+
+  /// No description provided for @stockMinimumDraftShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Kurang {qty} {unit} dari saran'**
+  String stockMinimumDraftShort(String qty, String unit);
 }
 
 class _AppLocalizationsDelegate

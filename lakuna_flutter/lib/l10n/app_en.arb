@@ -5194,5 +5194,20 @@
         "type": "String"
       }
     }
+  },
+  "stockMinimumDraftEnough": "Covers the suggestion",
+  "@stockMinimumDraftEnough": {
+    "placeholders": {}
+  },
+  "stockMinimumDraftShort": "{qty} {unit} short of the suggestion",
+  "@stockMinimumDraftShort": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
   }
 }

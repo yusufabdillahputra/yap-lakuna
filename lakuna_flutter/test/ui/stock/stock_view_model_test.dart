@@ -498,6 +498,26 @@ void main() {
     },
   );
 
+  test('kekurangan draf dari saran (F1-08p)', () {
+    // Stok 2, minimum 20: saran 38.
+    final row = sampleRow(
+      1,
+      'Teh Botol',
+      unit: 'btl',
+      stock: Qty.units(2),
+      minStock: Qty.units(20),
+    );
+    DraftMark mark(Qty ordered) =>
+        (number: 'PB-PST-K01-261120-0001', drafts: 1, ordered: ordered);
+    expect(StockViewModel.shortfallOf(row, mark(Qty.units(5))), Qty.units(33));
+    expect(
+      StockViewModel.shortfallOf(row, mark(const Qty(37500))),
+      const Qty(500),
+    );
+    expect(StockViewModel.shortfallOf(row, mark(Qty.units(38))), Qty.zero);
+    expect(StockViewModel.shortfallOf(row, mark(Qty.units(50))), Qty.zero);
+  });
+
   test('nama produk kembar tetap bisa dibedakan di pilihan', () {
     final rows = [
       sampleRow(1, 'Teh Botol', unit: 'btl', stock: Qty.one, barcode: '111'),

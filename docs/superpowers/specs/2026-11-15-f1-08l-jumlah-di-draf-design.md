@@ -58,5 +58,5 @@ Staf tidak tahu apakah draf itu sudah cukup (mis. 5 botol, padahal saran
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Jumlah di draf dibandingkan saran | 1.18 | Rilis v0.112.0 | `RestockDraft.quantities`, `draftMarkOf`. |
-| Tanda *cukup* bila draf sudah memenuhi saran | — | Belum | Angka ditampilkan apa adanya; staf membandingkan sendiri. |
+| Tanda *cukup* bila draf sudah memenuhi saran | 1.18 | Rilis v0.131.0 | [F1-08p](2026-11-20-f1-08p-tanda-cukup-draf-design.md): *Cukup untuk saran* / *Kurang … dari saran*. |
 | Tes konversi satuan di repositori palsu | — | Belum | Produk palsu tanpa satuan konversi; konversi diuji di `lakuna_data`. |
