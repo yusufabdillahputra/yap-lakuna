@@ -64,5 +64,5 @@ transaksi).
 | --- | --- | --- | --- |
 | Cari nama modifier | 1.14 | Rilis v0.103.0 | Per baris barang bersama nama produk/varian. |
 | Cari nama grup modifier | — | Belum | Hanya nama opsi. |
-| Cari catatan item (*tanpa es*) | — | Belum | Catatan bebas tidak dicari. |
+| Cari catatan item (*tanpa es*) | — | Rilis v0.117.0 | [F1-11g](2026-11-20-f1-11g-cari-catatan-barang-design.md). |
 | `\` di kata kunci pada Postgres | — | Belum (Fase 2) | Sama seperti F1-11e; perlu `ESCAPE` eksplisit. |

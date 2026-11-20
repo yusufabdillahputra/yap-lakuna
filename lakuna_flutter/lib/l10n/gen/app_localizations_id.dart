@@ -3550,6 +3550,11 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String historyItemNote(String note) {
+    return 'Catatan: $note';
+  }
+
+  @override
   String get historyReturnAll => 'Retur semua';
 
   @override

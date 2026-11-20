@@ -69,6 +69,7 @@ class FakeHistoryRepository extends HistoryRepository {
     bool inOpenSession = true,
     int discount = 0,
     String? discountBy,
+    Map<int, String> notes = const {},
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -116,6 +117,7 @@ class FakeHistoryRepository extends HistoryRepository {
             unitCost: 0,
             tracksStock: true,
             sortOrder: i,
+            note: notes[i],
             hlc: '',
           ),
       ],
@@ -225,7 +227,9 @@ class FakeHistoryRepository extends HistoryRepository {
         has(s.sale.customerName) ||
         s.payments.any((p) => has(p.reference)) ||
         // Nama barang (F1-11d).
-        s.items.any((i) => has(i.productName) || has(i.variantName));
+        s.items.any(
+          (i) => has(i.productName) || has(i.variantName) || has(i.note),
+        );
     return okStatus && okMethod && okStaff && okQuery;
   }
 

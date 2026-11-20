@@ -97,7 +97,8 @@ ulang riwayat.
 | v0.113.0 | Garis miring di pencarian nomor HP (F1-13f) | #119 |
 | v0.114.0 | Supplier terakhir mengabaikan barang yang diretur penuh (F1-08m) | #120 |
 | v0.115.0 | Menutup jendela desktop bertanya dulu bila form belum disimpan (F1-02c) | #121 |
-| v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | |
+| v0.116.0 | Menutup jendela saat dialog berisi isian terbuka ikut bertanya (F1-02d) | #122 |
+| v0.117.0 | Cari Riwayat lewat catatan barang, catatan tampil di rincian (F1-11g) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -281,6 +282,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 58. ~~Menutup jendela saat dialog pelanggan/supplier/master data/meja
     berisi isian membuang isian tanpa bertanya~~ — selesai v0.116.0
     (F1-02d): dialog ditanya lebih dulu dari halaman.
+59. ~~Pesanan F&B tidak bisa dicari lewat catatannya (*tanpa es*)~~ —
+    selesai v0.117.0 (F1-11g): catatan barang dicari dan tampil di
+    rincian nota.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

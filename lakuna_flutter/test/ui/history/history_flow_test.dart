@@ -243,6 +243,36 @@ void main() {
     });
   }
 
+  testWidgets('cari catatan barang lalu catatannya tampil di rincian '
+      '(F1-11g)', (tester) async {
+    await pump(tester);
+    final iced = history.addSale(
+      [('Es Kopi', 1000, 18000), ('Roti Bakar', 1000, 25000)],
+      notes: {0: 'Tanpa es'},
+    );
+    await tester.enterText(_input('history-search'), 'tanpa es');
+    await tester.pumpAndSettle();
+    expect(_key('history-row-${iced.sale.id.uuid}'), findsOneWidget);
+    expect(_key('history-row-${kopi.sale.id.uuid}'), findsNothing);
+    await _tap(tester, 'history-row-${iced.sale.id.uuid}');
+    final [es, bakar] = iced.items;
+    expect(
+      find.descendant(
+        of: _key('history-item-${es.id.uuid}'),
+        matching: find.text('Catatan: Tanpa es'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: _key('history-item-${bakar.id.uuid}'),
+        matching: find.textContaining('Catatan'),
+      ),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('360 px: kolom cari dan hasil tanpa luapan (F1-11b)', (
     tester,
   ) async {

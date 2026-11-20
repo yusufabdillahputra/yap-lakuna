@@ -705,6 +705,89 @@ void main() {
       expect(await find('double'), isEmpty);
     });
 
+    test('cocok catatan barang di baris yang sama (F1-11g)', () async {
+      await openSession();
+      Future<UuidValue> order(List<(CatalogProduct, String?)> lines) async {
+        final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
+        for (final (p, note) in lines) {
+          await addBillItem(
+            store,
+            scope,
+            staffId: ctx.owner.id,
+            billId: bill.id,
+            line: SaleLineRequest(variantId: v(p).id, quantity: Qty(1000)),
+            note: note,
+          );
+        }
+        final paid = await payOpenBill(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          billId: bill.id,
+          payments: const [SalePaymentRequest.cash(Money(100000))],
+        );
+        return paid.sale.id;
+      }
+
+      final plain = await order([(kopi, null)]);
+      final noIce = await order([
+        (kopi, 'Tanpa es, gula sedikit'),
+        (roti, null),
+      ]);
+      Future<List<UuidValue>> find(String q) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id,
+      ];
+
+      expect(await find('tanpa es'), [noIce]);
+      expect(await find('GULA'), [noIce]);
+      expect(await find('sedikit kopi'), [noIce]);
+      expect(await find('kopi bubuk'), [noIce, plain]);
+      // Catatan satu barang + nama barang lain di nota yang sama.
+      expect(await find('roti gula'), isEmpty);
+      expect(await find('tanpa%es'), isEmpty);
+      expect(await find('gul_'), isEmpty);
+
+      // Barang bercatatan yang dihapus dari bill sebelum dibayar tidak ikut
+      // dicari.
+      final bill = await openTakeAway(store, scope, staffId: ctx.owner.id);
+      final added = await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(kopi).id, quantity: Qty(1000)),
+        note: 'Bungkus terpisah',
+      );
+      await setBillItemQuantity(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        itemId: added.items.single.id,
+        quantity: Qty.zero,
+      );
+      await addBillItem(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        line: SaleLineRequest(variantId: v(roti).id, quantity: Qty(1000)),
+      );
+      await payOpenBill(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        billId: bill.id,
+        payments: const [SalePaymentRequest.cash(Money(100000))],
+      );
+      expect(await find('bungkus'), isEmpty);
+    });
+
     test('hasil dibatasi dan ditandai terpotong', () async {
       await openSession();
       final a = await sell({kopi: 1000});

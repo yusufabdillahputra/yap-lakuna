@@ -380,7 +380,8 @@ const _maxSqlWords = 8;
 /// pelanggannya, atau referensi pembayaran lunasnya memuat kata kunci
 /// [filter] utuh (tanpa beda huruf besar/kecil), atau yang salah satu baris
 /// barangnya memuat setiap kata kunci di nama produk/varian atau nama
-/// modifiernya (F1-11d, F1-11e: urutan bebas, F1-11f: modifier), terbaru
+/// modifiernya (F1-11d, F1-11e: urutan bebas, F1-11f: modifier, F1-11g:
+/// catatan barang), terbaru
 /// dulu, paling banyak [limit].
 ///
 /// Kandidat dicari dengan `ilike` lalu dicek ulang di Dart agar `%` dan `_`
@@ -441,7 +442,8 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
       if (w.isNotEmpty) w,
   }.toList();
   final words = [for (final w in raw) w.toLowerCase()];
-  // Nama modifier baris yang sama (F1-11f), dari salinan di nota.
+  // Nama modifier baris yang sama (F1-11f), dari salinan di nota. Catatan
+  // barang (*tanpa es*) di baris yang sama juga dicari (F1-11g).
   String modifierHas(String like) =>
       '"sale_items"."id" IN (SELECT "sale_item_id" FROM "sale_item_modifiers" '
       'WHERE "tenant_id" = ${EscapedExpression(scope.tenantId)} '
@@ -453,6 +455,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     for (final like in likes)
       '(LOWER("product_name") LIKE LOWER($like) '
           'OR LOWER("variant_name") LIKE LOWER($like) '
+          'OR LOWER("note") LIKE LOWER($like) '
           'OR ${modifierHas(like)})',
   ].join(' AND ');
   Expression<Object?> withItem(SaleTable s) => Expression(
@@ -465,6 +468,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
     (w) =>
         i.productName.toLowerCase().contains(w) ||
         i.variantName.toLowerCase().contains(w) ||
+        (i.note?.toLowerCase().contains(w) ?? false) ||
         modifiers.any((m) => m.toLowerCase().contains(w)),
   );
   bool matchesHeader(Sale s) =>
@@ -515,7 +519,7 @@ Future<({List<Sale> sales, bool truncated})> _searchSales(
             i.deletedAt.equals(null),
       );
       // Modifier (F1-11f) hanya dimuat untuk baris yang belum cocok lewat
-      // nama produk/varian, di nota yang belum cocok.
+      // nama produk/varian/catatan, di nota yang belum cocok.
       for (final i in items) {
         if (itemMatches(i, const [])) byItem.add(i.saleId);
       }
