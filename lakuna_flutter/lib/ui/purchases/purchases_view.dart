@@ -117,11 +117,27 @@ class _PurchasesScreenState extends State<PurchasesScreen>
     if (!_twoPane || form == null) return true;
     if (form.busy) return false;
     if (!form.hasUnsavedChanges) return true;
+    final l10n = AppLocalizations.of(context);
     return confirmDiscardChanges(
       context,
-      body: AppLocalizations.of(context).purchaseDiscardBody(form.number),
+      body: l10n.purchaseDiscardBody(form.number),
       key: 'purchase-discard',
+      saveLabel: l10n.purchaseDiscardSaveDraft,
+      onSave: () => _saveDraftBeforeLeaving(form),
     );
+  }
+
+  /// *Simpan draf* dari dialog (F1-12i). Bila layar Pembelian tetap tampil
+  /// (ganti form samping, atau tombol kembali Android), daftar dimuat ulang
+  /// agar draf baru terlihat; tidak saat halaman sedang ditutup.
+  Future<bool> _saveDraftBeforeLeaving(PurchaseFormViewModel form) async {
+    if (!await savePurchaseDraftBeforeLeaving(form, widget.leaveGuard)) {
+      return false;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !isRouteClosing(context)) unawaited(_list.refresh());
+    });
+    return true;
   }
 
   /// Mengganti form samping; perubahan yang belum tersimpan ditanyakan

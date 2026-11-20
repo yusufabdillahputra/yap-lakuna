@@ -14,7 +14,7 @@ A purchase records goods coming in from a supplier: stock goes up, the average c
 6. If you have it, tap **Attach invoice photo** (or **Take invoice photo** on a phone) under *Invoice photo*. The photo is saved with the purchase.
 7. Tap **Receive goods & save**. Use **Save draft** if the goods have not arrived yet.
 
-If you leave a form with unsaved changes (with **Back**, the phone's back button, the side menu, or by picking another draft in the list), Lakuna first asks **Discard changes?**. Choose **Cancel** to return to the form and save it, or **Discard** to leave without saving. A draft opened from *Minimum stock* with added items also asks until you tap **Save draft**.
+If you leave a form with unsaved changes (with **Back**, the phone's back button, the side menu, or by picking another draft in the list), Lakuna first asks **Discard changes?**. Choose **Cancel** to return to the form, **Discard** to leave without saving, or **Save draft** to save what you entered as a draft and go straight on (the goods are not received yet and stock does not change). If something is wrong, for example a quantity of 0, you stay on the form with the message. A draft opened from *Minimum stock* with added items also asks until you tap **Save draft**.
 
 ## After saving
 

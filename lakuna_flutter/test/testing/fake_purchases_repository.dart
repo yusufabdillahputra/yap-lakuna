@@ -229,9 +229,14 @@ class FakePurchasesRepository extends PurchasesRepository {
   Future<Result<PurchaseDetail>> detail(UuidValue id) async =>
       _guard(() => _detail(id));
 
+  /// Menahan [saveDraft] sampai selesai (F1-12i).
+  Completer<void>? saveDraftGate;
+
   @override
-  Future<Result<Purchase>> saveDraft(PurchaseRequest request) async =>
-      _guard(() => _write(request, receiving: false));
+  Future<Result<Purchase>> saveDraft(PurchaseRequest request) async {
+    if (saveDraftGate case final gate?) await gate.future;
+    return _guard(() => _write(request, receiving: false));
+  }
 
   @override
   Future<Result<Purchase>> receive(PurchaseRequest request) async =>

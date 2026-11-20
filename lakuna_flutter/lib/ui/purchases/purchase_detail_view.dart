@@ -150,10 +150,14 @@ class _PurchaseFormPageState extends State<PurchaseFormPage> {
     // Simpan / terima sedang berjalan: tunggu selesai dulu.
     if (_form.busy) return false;
     if (!_form.hasUnsavedChanges) return true;
+    final l10n = AppLocalizations.of(context);
     return confirmDiscardChanges(
       context,
-      body: AppLocalizations.of(context).purchaseDiscardBody(_form.number),
+      body: l10n.purchaseDiscardBody(_form.number),
       key: 'purchase-discard',
+      saveLabel: l10n.purchaseDiscardSaveDraft,
+      // Simpan draf dari dialog (F1-12i).
+      onSave: () => savePurchaseDraftBeforeLeaving(_form, widget.leaveGuard),
     );
   }
 

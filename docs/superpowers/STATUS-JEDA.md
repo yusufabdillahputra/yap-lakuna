@@ -104,7 +104,8 @@ ulang riwayat.
 | v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | #126 |
 | v0.121.0 | Tombol Simpan di dialog *Buang perubahan?* form produk (F1-07r) | #127 |
 | v0.122.0 | Tombol Simpan di dialog *Buang perubahan?* pengeluaran (F1-15d) | #128 |
-| v0.123.0 | Tombol Simpan di dialog *Buang perubahan?* penyesuaian stok (F1-08n) | |
+| v0.123.0 | Tombol Simpan di dialog *Buang perubahan?* penyesuaian stok (F1-08n) | #129 |
+| v0.124.0 | Tombol Simpan draf di dialog *Buang perubahan?* pembelian (F1-12i) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -306,6 +307,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 65. ~~Dialog *Buang perubahan?* penyesuaian stok tanpa pilihan Simpan~~ —
     selesai v0.123.0 (F1-08n); juga saat ganti lokasi, gagal membuka tab
     *Penyesuaian*.
+66. ~~Dialog *Buang perubahan?* pembelian tanpa pilihan Simpan draf~~ —
+    selesai v0.124.0 (F1-12i); form samping dan halaman form.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

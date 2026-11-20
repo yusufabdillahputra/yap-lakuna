@@ -14556,6 +14556,12 @@ abstract class AppLocalizations {
   /// **'Semua barang di bawah minimum {location} sudah ada di draf ini.'**
   String purchaseRestockAllInDraft(String location);
 
+  /// Tombol Simpan draf di dialog Buang perubahan? form pembelian (F1-12i).
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan draf'**
+  String get purchaseDiscardSaveDraft;
+
   /// No description provided for @purchaseDiscardBody.
   ///
   /// In id, this message translates to:

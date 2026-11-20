@@ -13,4 +13,4 @@ Spec: [F1-08n](../specs/2026-11-20-f1-08n-simpan-dari-dialog-penyesuaian-design.
   `/mnt/project-files/lakuna/f1-08n/`.
 - [x] 6. Dokumen: spec, gap F1-08k dan F1-07r, README spec, STATUS-JEDA,
   panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#129).

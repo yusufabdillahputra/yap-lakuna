@@ -253,6 +253,25 @@ void main() {
       });
     }
 
+    testWidgets('saveLabel mengganti label Simpan (F1-12i)', (tester) async {
+      await pumpApp(tester);
+      unawaited(
+        confirmDiscardChanges(
+          navigator.currentContext!,
+          body: 'Isian hilang.',
+          key: 'x',
+          onSave: () async => true,
+          saveLabel: 'Simpan draf',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: _key('x-save'), matching: find.text('Simpan draf')),
+        findsOneWidget,
+      );
+      expect(find.text('Simpan'), findsNothing);
+    });
+
     testWidgets('Batal dan Buang tidak menyimpan', (tester) async {
       await pumpApp(tester);
       var calls = 0;

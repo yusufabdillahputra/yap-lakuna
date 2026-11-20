@@ -7,6 +7,58 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.124.0] - 2026-11-20
+
+Dialog *Buang perubahan?* di form pembelian kini punya tombol **Simpan
+draf**.
+
+### Ditambahkan
+
+- **Pembelian (1.19):** saat meninggalkan form pembelian yang belum
+  disimpan (menu lain, **Kembali**, tombol kembali, **Ganti kasir**, ✕
+  jendela, *Pembelian baru*, atau memilih draf lain di daftar), dialog
+  *Buang perubahan?* menawarkan **Batal**, **Buang**, dan **Simpan
+  draf**. **Simpan draf** menyimpan isian sebagai draf (barang belum
+  diterima, stok tidak berubah) lalu langsung meneruskan ke tujuan semula.
+  Berlaku di form samping (layar lebar) dan halaman form (layar sempit).
+- Draf yang baru disimpan langsung tampil di daftar pembelian bila layar
+  Pembelian tetap tampil. Draf yang dibuka lagi lalu disimpan dari dialog
+  memperbarui draf yang sama, tidak membuat pembelian kedua.
+- Bila ada isian yang salah (mis. qty 0) atau penyimpanan menolak, staf
+  tetap di form dengan pesan galat yang sama dengan tombol *Simpan draf*.
+- Selama simpan dari dialog berjalan, menu lain dan ketukan daftar
+  ditolak.
+
+### Diperbaiki
+
+- **Pembelian:** isian yang diubah selama *Simpan draf* berjalan (mis.
+  scan atau catatan yang diketik sebelum simpan selesai) dianggap sudah
+  tersimpan padahal tidak ikut terkirim, jadi keluar tanpa ditanya
+  membuangnya. Kini isian itu tetap terhitung belum tersimpan; simpan dari
+  dialog menahan staf di form agar isian tidak hilang.
+
+### Catatan teknis
+
+- `confirmDiscardChanges` mendapat parameter opsional `saveLabel`;
+  pembelian memakai kunci l10n baru `purchaseDiscardSaveDraft`
+  ("Simpan draf" / "Save draft").
+- `savePurchaseDraftBeforeLeaving` di `purchase_form_view.dart` dipakai
+  `PurchasesScreen` (form samping, juga saat `_replaceForm`) dan
+  `PurchaseFormPage`, dengan `LeaveGuard.saving` dari F1-07r. Form samping
+  memuat ulang daftar di callback pasca-frame bila halaman tidak sedang
+  ditutup.
+- `PurchaseFormViewModel._submit` mengambil ringkasan isian sebelum
+  menunggu simpan draf (ditemukan saat review).
+- Tes: grup F1-12i di `purchase_flow_test.dart` (1440 px: menu lain,
+  *Pembelian baru*, pilih draf lain, ketukan daftar selama simpan, Ganti
+  kasir, qty 0, galat penyimpanan, menu lain selama simpan, isian yang
+  diubah selama simpan, ✕ jendela; 360 px: Kembali lalu draf yang dibuka
+  lagi diperbarui), view model, dan label di `confirm_discard_test.dart`;
+  `FakePurchasesRepository.saveDraftGate`. Mutasi diverifikasi. Uji
+  manual Linux di Xvfb.
+- Spec [F1-12i](docs/superpowers/specs/2026-11-20-f1-12i-simpan-draf-dari-dialog-pembelian-design.md);
+  gap F1-12f *Simpan draf langsung dari dialog* ditutup.
+
 ## [0.123.0] - 2026-11-20
 
 Dialog *Buang perubahan?* di layar Stok kini punya tombol **Simpan** untuk
@@ -7225,7 +7277,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.124.0...HEAD
+[0.124.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.123.0...v0.124.0
 [0.123.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.122.0...v0.123.0
 [0.122.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...v0.122.0
 [0.121.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...v0.121.0

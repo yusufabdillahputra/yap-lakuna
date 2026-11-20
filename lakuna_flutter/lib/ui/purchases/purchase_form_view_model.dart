@@ -486,8 +486,9 @@ class PurchaseFormViewModel extends ChangeNotifier {
   /// Bertambah setiap kali staf mengubah isian (F1-12f).
   var _edits = 0;
 
-  /// Ringkasan isian yang tersimpan ke pembelian.
-  String _signature() => [
+  /// Ringkasan isian yang tersimpan ke pembelian. [photoChanged] mengganti
+  /// tanda foto faktur yang belum tersimpan (F1-12i).
+  String _signature({bool? photoChanged}) => [
     _supplierId?.uuid,
     _newSupplier,
     if (_newSupplier) _newSupplierName,
@@ -504,7 +505,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     if (_paid != Money.zero) _funding.name,
     if (totals.total > _paid) _dueOn?.toIso8601String(),
     _note,
-    _invoicePhotoChanged,
+    photoChanged ?? _invoicePhotoChanged,
   ].join('\u0001');
 
   void _markSaved() => _saved = _signature();
@@ -1231,6 +1232,11 @@ class PurchaseFormViewModel extends ChangeNotifier {
       return Result.error(PurchaseInvalid(_validate(receiving: receiving)));
     }
     final request = _request();
+    // Ringkasan isian yang dikirim, diambil sebelum menunggu penyimpanan:
+    // isian yang diubah selama simpan tetap terhitung belum tersimpan, jadi
+    // simpan dari dialog Buang perubahan? tidak membuangnya diam-diam
+    // (F1-12i). Foto faktur ikut tersimpan, jadi tandanya dianggap bersih.
+    final sent = _signature(photoChanged: false);
     final result = receiving
         ? await _repository.receive(request)
         : await _repository.saveDraft(request);
@@ -1240,7 +1246,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _number = value.number;
         _attempt = null;
         _invoicePhotoChanged = false;
-        _markSaved();
+        // Barang diterima: form diganti, isian sisa tidak berarti lagi.
+        if (receiving) {
+          _markSaved();
+        } else {
+          _saved = sent;
+        }
         // Tambahan stok minimum sudah tersimpan: catatan "simpan draf agar
         // tambahan tersimpan" tidak berlaku lagi (F1-08i).
         if (_restockIntoDraft) {
