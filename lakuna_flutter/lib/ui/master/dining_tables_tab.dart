@@ -530,6 +530,11 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
     return message == null ? null : Text(message);
   }
 
+  /// Memindahkan kursor ke isian pertama yang salah (F1-10q): dipanggil
+  /// saat validasi isian atau penyimpanan menolak simpan. Galat yang tidak
+  /// terpetakan ke isian tidak memindahkan kursor.
+  void focusInvalid() {}
+
   /// Mengubah isian sekaligus menghapus galat simpan.
   void edit(VoidCallback change) => setState(() {
     change();
@@ -571,6 +576,7 @@ mixin _DialogSaving<W extends StatefulWidget> on State<W> {
       saveError = message;
       saveFailure = error;
     });
+    focusInvalid();
   }
 }
 
@@ -592,12 +598,27 @@ class _AreaDialogState extends State<_AreaDialog>
   /// Nama saat dialog dibuka (F1-10n).
   late final _initial = _name.trim();
 
+  final _nameFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _nameFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  void focusInvalid() {
+    if (_empty || errorIf((e) => e is DiningNameInvalid) != null) {
+      _nameFocus.requestFocus();
+    }
+  }
+
   void _save() {
     if (saving) return;
     // Dihitung ulang setiap simpan, seperti dialog meja: galat kosong lama
     // tidak boleh menutupi galat simpan nama (F1-10p).
     setState(() => _empty = _name.trim().isEmpty);
-    if (_empty) return;
+    if (_empty) return focusInvalid();
     runSave(widget.onSave, _name.trim(), nameMax: FnbLimits.areaName);
   }
 
@@ -622,6 +643,7 @@ class _AreaDialogState extends State<_AreaDialog>
           FTextField(
             key: const ValueKey('dining-setup-area-name'),
             label: Text(l10n.diningSetupName),
+            focusNode: _nameFocus,
             autofocus: true,
             maxLength: FnbLimits.areaName,
             error: fieldError(
@@ -681,6 +703,25 @@ class _TableDialogState extends State<_TableDialog>
   (String, UuidValue?, int, bool) get _signature =>
       (_name.trim(), _area, int.tryParse(_seats) ?? 0, _canMerge);
 
+  final _nameFocus = FocusNode();
+  final _seatsFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _nameFocus.dispose();
+    _seatsFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  void focusInvalid() {
+    if (_nameEmpty || errorIf((e) => e is DiningNameInvalid) != null) {
+      _nameFocus.requestFocus();
+    } else if (_seatsBad || errorIf((e) => e is DiningSeatsInvalid) != null) {
+      _seatsFocus.requestFocus();
+    }
+  }
+
   void _save() {
     if (saving) return;
     final seats = int.tryParse(_seats) ?? 0;
@@ -688,7 +729,7 @@ class _TableDialogState extends State<_TableDialog>
       _nameEmpty = _name.trim().isEmpty;
       _seatsBad = seats < 1 || seats > FnbLimits.seatsMax;
     });
-    if (_nameEmpty || _seatsBad) return;
+    if (_nameEmpty || _seatsBad) return focusInvalid();
     runSave(
       widget.onSave,
       DiningTableDraft(
@@ -722,6 +763,7 @@ class _TableDialogState extends State<_TableDialog>
           FTextField(
             key: const ValueKey('dining-setup-table-name'),
             label: Text(l10n.diningSetupName),
+            focusNode: _nameFocus,
             autofocus: true,
             maxLength: FnbLimits.tableName,
             error: fieldError(
@@ -749,6 +791,7 @@ class _TableDialogState extends State<_TableDialog>
           FTextField(
             key: const ValueKey('dining-setup-table-seats'),
             label: Text(l10n.diningSetupSeats),
+            focusNode: _seatsFocus,
             keyboardType: TextInputType.number,
             inputFormatters: _digits,
             error: fieldError(
@@ -820,11 +863,42 @@ class _RangeDialogState extends State<_RangeDialog>
     int.tryParse(_to) ?? 0,
   );
 
+  final _fromFocus = FocusNode();
+  final _toFocus = FocusNode();
+  final _seatsFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _fromFocus.dispose();
+    _toFocus.dispose();
+    _seatsFocus.dispose();
+    super.dispose();
+  }
+
+  /// Nomor tidak sah ke Dari (nomor awal < 1) atau Sampai; nama kembar ke
+  /// Dari karena nama dibentuk dari nomor; lalu Kursi (F1-10q).
+  @override
+  void focusInvalid() {
+    // Galat penyimpanan berlaku untuk isian yang dikirim; isian yang diubah
+    // selama simpan berjalan tidak boleh membelokkan kursor.
+    if (saveFailure != null) {
+      if (errorIf((e) => e is DiningNameInvalid) != null) {
+        _fromFocus.requestFocus();
+      } else if (errorIf((e) => e is DiningSeatsInvalid) != null) {
+        _seatsFocus.requestFocus();
+      }
+    } else if (_names == null) {
+      ((int.tryParse(_from) ?? 0) < 1 ? _fromFocus : _toFocus).requestFocus();
+    } else if (_seatsBad) {
+      _seatsFocus.requestFocus();
+    }
+  }
+
   void _save() {
     if (saving) return;
     final seats = int.tryParse(_seats) ?? 0;
     setState(() => _seatsBad = seats < 1 || seats > FnbLimits.seatsMax);
-    if (_seatsBad || _names == null) return;
+    if (_seatsBad || _names == null) return focusInvalid();
     runSave(
       widget.onSave,
       TableRange(
@@ -845,9 +919,11 @@ class _RangeDialogState extends State<_RangeDialog>
     ValueChanged<String> onChange, {
     bool digits = true,
     Widget? error,
+    FocusNode? focusNode,
   }) => FTextField(
     key: ValueKey(key),
     label: Text(label),
+    focusNode: focusNode,
     keyboardType: digits ? TextInputType.number : null,
     inputFormatters: digits ? _digits : null,
     maxLength: digits ? null : 10,
@@ -906,6 +982,7 @@ class _RangeDialogState extends State<_RangeDialog>
                   l10n.diningSetupFrom,
                   () => _from,
                   (v) => _from = v,
+                  focusNode: _fromFocus,
                 ),
               ),
               Expanded(
@@ -914,15 +991,28 @@ class _RangeDialogState extends State<_RangeDialog>
                   l10n.diningSetupTo,
                   () => _to,
                   (v) => _to = v,
+                  focusNode: _toFocus,
                 ),
               ),
             ],
+          ),
+          // Pratinjau (dan galat nomor/nama) tepat di bawah Dari–Sampai,
+          // isian yang menerima kursor saat rentang ditolak (F1-10q).
+          Text(
+            preview,
+            key: const ValueKey('dining-setup-range-preview'),
+            style: context.theme.typography.body.sm.copyWith(
+              color: names == null || nameError != null
+                  ? context.theme.colors.destructive
+                  : context.theme.colors.mutedForeground,
+            ),
           ),
           _field(
             'dining-setup-range-seats',
             l10n.diningSetupSeats,
             () => _seats,
             (v) => _seats = v,
+            focusNode: _seatsFocus,
             error: fieldError(
               _seatsBad ? l10n.diningSetupErrSeats : null,
               seatsError,
@@ -939,15 +1029,6 @@ class _RangeDialogState extends State<_RangeDialog>
                 onChange: (v) => edit(() => _area = _areaId(v)),
               ),
             ),
-          Text(
-            preview,
-            key: const ValueKey('dining-setup-range-preview'),
-            style: context.theme.typography.body.sm.copyWith(
-              color: names == null || nameError != null
-                  ? context.theme.colors.destructive
-                  : context.theme.colors.mutedForeground,
-            ),
-          ),
         ],
         actions: _saveCancel(
           context,

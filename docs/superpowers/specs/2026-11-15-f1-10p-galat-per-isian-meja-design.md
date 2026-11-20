@@ -56,4 +56,4 @@ jadi dua galat nama tampil di dua tempat berbeda.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Galat simpan di isiannya (Nama, Kursi, pratinjau rentang) | 1.17 | Rilis v0.111.0 | `_DialogSaving.errorIf`. |
-| Fokus otomatis ke isian yang salah | — | Belum | Kursor tetap di tempatnya; pesan merah di bawah isian. |
+| Fokus otomatis ke isian yang salah | 1.17 | Rilis v0.120.0 | [F1-10q](2026-11-20-f1-10q-fokus-isian-salah-design.md). |
