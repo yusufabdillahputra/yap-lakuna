@@ -13,4 +13,4 @@ Spec: [F1-10q](../specs/2026-11-20-f1-10q-fokus-isian-salah-design.md).
   `/mnt/project-files/lakuna/f1-10q/`.
 - [x] 6. Dokumen: spec, gap F1-10p, README spec, STATUS-JEDA, panduan,
   CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#126).
