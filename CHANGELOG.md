@@ -7,6 +7,51 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.121.0] - 2026-11-20
+
+Dialog *Buang perubahan?* di form produk kini punya tombol **Simpan**.
+
+### Ditambahkan
+
+- **Produk (1.15b) › form produk:** saat meninggalkan form yang belum
+  disimpan (Batal, menu samping, tombol kembali, **Ganti kasir**, atau ✕
+  jendela), dialog *Buang perubahan?* menawarkan **Batal**, **Buang**, dan
+  **Simpan**. **Simpan** menyimpan produk lalu langsung meneruskan ke
+  tujuan semula (menu yang diketuk, layar masuk, atau aplikasi tertutup).
+  Sebelumnya staf harus memilih Batal, menekan Simpan, lalu mengulang
+  navigasinya.
+- Bila simpan dari dialog gagal (mis. isian wajib kosong atau SKU kembar),
+  staf tetap di form dengan pesan galatnya; navigasi dibatalkan tanpa
+  dialog kedua.
+- Di ponsel ketiga tombol tersusun ke bawah selebar dialog, **Simpan**
+  paling atas.
+- Selama simpan dari dialog berjalan, mengetuk menu lain, Ganti kasir,
+  atau ✕ jendela ditolak; hanya tujuan pertama yang dibuka.
+
+### Catatan teknis
+
+- `confirmDiscardChanges(..., onSave:)`: tombol `<key>-save` hanya tampil
+  bila `onSave` diisi; pilihan Simpan menutup dialog lalu hasil `onSave`
+  menjadi jawaban penjaga. Dialog lain tetap dua tombol sampai gap-nya
+  dikerjakan. Lebar isi < 300 px menyusun tombol ke bawah.
+- `ProductFormViewModel.saveBeforeLeaving()` mengisi ulang form dari
+  produk tersimpan setelah berhasil. Ditemukan saat review: form yang tetap
+  tampil setelah tombol kembali Android (halaman tunggal, aplikasi ke
+  latar) masih berstatus *produk baru*, sehingga Simpan berikutnya membuat
+  produk kedua dengan stok awal ganda.
+- `LeaveGuard.saving`: selama simpan dari dialog berjalan `canLeave`
+  langsung `false`. Ditemukan saat review: navigasi kedua ikut menunggu
+  jawaban yang sama lalu ikut diteruskan, sehingga tujuan terakhir yang
+  terbuka.
+- Kunci l10n baru `discardSave` (ID + EN).
+- Tes: `confirm_discard_test.dart` (tanpa `onSave` tanpa tombol; jawaban
+  mengikuti hasil simpan; Batal/Buang tidak menyimpan) dan grup F1-07r di
+  `product_flow_test.dart` (menu samping, Batal, simpan gagal, galat
+  penyimpanan, menu lain selama simpan, Ganti kasir, ✕ jendela, ponsel
+  360 px dengan tombol kembali sistem); mutasi diverifikasi. Uji manual Linux di Xvfb.
+- Spec [F1-07r](docs/superpowers/specs/2026-11-20-f1-07r-simpan-dari-dialog-produk-design.md);
+  gap F1-07q *Simpan langsung dari dialog* ditutup.
+
 ## [0.120.0] - 2026-11-20
 
 Simpan area, meja, atau rentang meja yang ditolak kini memindahkan kursor
@@ -7095,7 +7140,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.121.0...HEAD
+[0.121.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.120.0...v0.121.0
 [0.120.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.119.0...v0.120.0
 [0.119.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.118.0...v0.119.0
 [0.118.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.117.0...v0.118.0

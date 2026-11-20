@@ -1491,6 +1491,7 @@
   "floorDiscardBody": "Unsaved layout changes will be lost.",
   "floorDiscardKeep": "Cancel",
   "floorDiscardConfirm": "Discard",
+  "discardSave": "Save",
   "floorLoadFailed": "Could not load the floor plan.",
   "floorBack": "Back",
   "floorNoArea": "No areas yet. Add one first, e.g. Indoor or Terrace.",

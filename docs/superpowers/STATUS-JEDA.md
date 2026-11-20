@@ -101,7 +101,8 @@ ulang riwayat.
 | v0.117.0 | Cari Riwayat lewat catatan barang, catatan tampil di rincian (F1-11g) | #123 |
 | v0.118.0 | Modifier pesanan tampil di rincian nota Riwayat (F1-11h) | #124 |
 | v0.119.0 | Halaman yang sedang ditutup tidak ditanya lagi saat Ganti kasir / tutup jendela (F1-02e) | #125 |
-| v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | |
+| v0.120.0 | Simpan meja yang ditolak memindahkan kursor ke isian yang salah (F1-10q) | #126 |
+| v0.121.0 | Tombol Simpan di dialog *Buang perubahan?* form produk (F1-07r) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -294,6 +295,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     selesai v0.119.0 (F1-02e): halaman yang sedang ditutup dilewati.
 62. ~~Simpan meja/area yang ditolak tidak memindahkan kursor ke isian yang
     salah~~ — selesai v0.120.0 (F1-10q): Nama, Kursi, Dari/Sampai.
+63. ~~Dialog *Buang perubahan?* form produk tanpa pilihan Simpan~~ —
+    selesai v0.121.0 (F1-07r). Form lain (pembelian, penyesuaian stok,
+    pengeluaran, dialog master data / pelanggan / supplier) menyusul.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

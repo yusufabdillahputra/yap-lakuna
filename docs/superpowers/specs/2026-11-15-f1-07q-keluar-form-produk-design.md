@@ -66,7 +66,7 @@ kembali sistem, dan menu samping langsung membuang semuanya tanpa bertanya.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Peringatan keluar dari form produk yang berubah | 1.16 | Rilis v0.98.0 | Kembali, Batal, tombol kembali sistem, menu samping. |
-| Simpan langsung dari dialog | — | Belum | Dialog hanya Batal / Buang. |
+| Simpan langsung dari dialog | 1.15b | Rilis v0.121.0 | [F1-07r](2026-11-20-f1-07r-simpan-dari-dialog-produk-design.md). |
 | Form pengeluaran, pelanggan, supplier | — | Belum | Belum bertanya. |
 | Barcode dari Cetak label saat form sudah berubah | — | Belum | Ikut terhitung perubahan staf; membatalkan ubahan lain tetap bertanya. |
 | Tombol kembali sistem di halaman form yang dibuka langsung | — | Belum | Bila form tidak berubah atau dipilih Buang, aplikasi tertutup (perilaku go_router tanpa halaman di bawahnya), sama seperti sebelumnya. |

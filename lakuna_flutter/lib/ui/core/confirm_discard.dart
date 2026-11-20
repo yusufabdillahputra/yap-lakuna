@@ -3,16 +3,24 @@ import 'package:forui/forui.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 
+/// Pilihan di dialog *Buang perubahan?*.
+enum _DiscardChoice { keep, discard, save }
+
 /// Dialog *Buang perubahan?* dengan isi [body]; `true` bila pengguna
 /// memilih buang. Kunci widget memakai awalan [key] (`<key>`,
 /// `<key>-cancel`, `<key>-confirm`).
+///
+/// Bila [onSave] diisi, dialog juga punya tombol **Simpan** (`<key>-save`,
+/// F1-07r): dialog ditutup lalu hasil `onSave` (`true` = tersimpan, boleh
+/// pergi) menjadi jawabannya.
 Future<bool> confirmDiscardChanges(
   BuildContext context, {
   required String body,
   required String key,
+  Future<bool> Function()? onSave,
 }) async {
   final l10n = AppLocalizations.of(context);
-  final result = await showFDialog<bool>(
+  final result = await showFDialog<_DiscardChoice>(
     context: context,
     // Menutupi menu samping juga, agar ketukan menu kedua tidak membuka
     // dialog kedua.
@@ -35,33 +43,72 @@ Future<bool> confirmDiscardChanges(
               ),
             ),
             Text(body),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FButton(
-                  key: ValueKey('$key-cancel'),
-                  variant: .outline,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(false),
-                  child: Text(l10n.floorDiscardKeep),
-                ),
-                FButton(
-                  key: ValueKey('$key-confirm'),
-                  variant: .destructive,
-                  mainAxisSize: .min,
-                  onPress: () => Navigator.of(context).pop(true),
-                  child: Text(l10n.floorDiscardConfirm),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                Widget button(
+                  String suffix,
+                  FButtonVariant variant,
+                  _DiscardChoice choice,
+                  String label,
+                  MainAxisSize size,
+                ) => FButton(
+                  key: ValueKey('$key-$suffix'),
+                  variant: variant,
+                  mainAxisSize: size,
+                  onPress: () => Navigator.of(context).pop(choice),
+                  child: Text(label),
+                );
+                List<Widget> buttons(MainAxisSize size) => [
+                  button(
+                    'cancel',
+                    .outline,
+                    _DiscardChoice.keep,
+                    l10n.floorDiscardKeep,
+                    size,
+                  ),
+                  button(
+                    'confirm',
+                    .destructive,
+                    _DiscardChoice.discard,
+                    l10n.floorDiscardConfirm,
+                    size,
+                  ),
+                  if (onSave != null)
+                    button(
+                      'save',
+                      .primary,
+                      _DiscardChoice.save,
+                      l10n.discardSave,
+                      size,
+                    ),
+                ];
+                // Tiga tombol tidak muat sebaris di ponsel (F1-07r): susun
+                // ke bawah selebar dialog, Simpan paling atas.
+                if (onSave != null && constraints.maxWidth < 300) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 8,
+                    children: buttons(.max).reversed.toList(),
+                  );
+                }
+                return Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: buttons(.min),
+                );
+              },
             ),
           ],
         ),
       ),
     ),
   );
-  return result ?? false;
+  return switch (result) {
+    _DiscardChoice.discard => true,
+    _DiscardChoice.save => await onSave!(),
+    _DiscardChoice.keep || null => false,
+  };
 }
 
 /// Menahan penutupan dialog form yang [dirty] (F1-13e): ketukan di luar

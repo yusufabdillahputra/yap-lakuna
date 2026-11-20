@@ -5588,6 +5588,12 @@ abstract class AppLocalizations {
   /// **'Buang'**
   String get floorDiscardConfirm;
 
+  /// Tombol Simpan di dialog Buang perubahan? (F1-07r)
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get discardSave;
+
   /// No description provided for @floorLoadFailed.
   ///
   /// In id, this message translates to:
