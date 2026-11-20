@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.133.0] - 2026-11-20
+
+Laba rugi menandai apakah margin kotor sudah mencapai target toko.
+
+### Ditambahkan
+
+- **Pengaturan (1.26) → Penjualan & stok:** isian **Target margin kotor
+  (%)** per cabang, opsional, bilangan bulat 1–99 (hanya angka; 0 atau
+  lebih dari 99 menampilkan *Isi 1–99, atau kosongkan bila tanpa target*
+  dan tombol *Simpan* nonaktif). Kosong = tanpa target.
+- **Laporan (1.24) → Laba rugi:** kartu *Margin kotor* kini menulis
+  **Target toko 25% · tercapai** atau **Target toko 25% · kurang 3,2
+  poin** sesuai kanvas, dan *Target toko 25%* saja bila periode belum ada
+  penjualan. Tanpa target, keterangan tetap *Laba kotor ÷ penjualan
+  bersih*.
+- **Unduh Excel/PDF tab Ringkasan:** baris *Laba kotor* menulis
+  `69,0% · target 25%` bila target diatur dan margin terhitung.
+
+### Catatan teknis
+
+- `SalesRules.targetMarginBp` (JSON `targetMarginBp`, tidak ditulis bila
+  kosong; data rusak, di luar 1–99%, atau bukan persen bulat dibaca tanpa
+  target). `copyWith(targetMarginBp: () => …)` bisa mengosongkan.
+  `saveSalesRules` menolak target tidak sah (`SalesRulesInvalid`).
+- `marginGapBp` membandingkan margin setelah dibulatkan ke 0,1 poin
+  seperti tampilannya, sehingga *69,0%* dengan target 69% tertulis
+  *tercapai*, bukan *kurang 0,0 poin* (ditemukan saat tes widget).
+- `ReportData.targetMarginBp` dimuat `loadReport` hanya untuk staf
+  berizin *Lihat laba rugi*.
+- `StoreSettingsViewModel.setTargetMargin`, `targetMarginIssue`; isian
+  target yang salah dihitung berubah. Isian aturan diisi ulang setelah
+  aturan dimuat walau profil gagal dimuat.
+- Kunci l10n `storeSettingsTargetMargin*` dan `reportsMarginTarget*`
+  (ID + EN).
+- Tes: domain (JSON, data rusak, isian, selisih poin), data (simpan,
+  tolak, izin laba), VM pengaturan, alur pengaturan 1440 px, kartu margin
+  1440 / 360 px (tanpa target, kurang, tanpa penjualan, tercapai), sel
+  ekspor. Mutasi "target tanpa izin laba", "isian salah tidak kotor", dan
+  "tanpa pemformat angka" tertangkap. Uji manual Linux di Xvfb.
+- Spec [F1-16d](docs/superpowers/specs/2026-11-20-f1-16d-target-margin-toko-design.md);
+  gap *Target margin toko* di F1-16 ditutup.
+
 ## [0.132.0] - 2026-11-20
 
 Daftar Riwayat menampilkan barang yang cocok dengan kata pencarian.
@@ -7604,7 +7646,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...HEAD
+[0.133.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.132.0...v0.133.0
 [0.132.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.131.0...v0.132.0
 [0.131.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.130.0...v0.131.0
 [0.130.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.129.0...v0.130.0

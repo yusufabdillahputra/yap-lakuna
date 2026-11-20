@@ -137,6 +137,81 @@ void main() {
     });
   });
 
+  group('target margin (F1-16d)', () {
+    test('bawaan tanpa target; JSON bolak-balik; kunci hanya bila diatur', () {
+      expect(const SalesRules().targetMarginBp, isNull);
+      expect(
+        const SalesRules().toJson().containsKey('targetMarginBp'),
+        isFalse,
+      );
+      const rules = SalesRules(targetMarginBp: 2500);
+      expect(rules.toJson()['targetMarginBp'], 2500);
+      expect(SalesRules.fromJson(rules.toJson()), rules);
+      expect(rules, isNot(const SalesRules()));
+      expect(rules.hashCode, isNot(const SalesRules().hashCode));
+    });
+
+    test('data rusak dibaca tanpa target', () {
+      for (final bad in [0, 99, 2550, 9901, 10000, -2500, '2500', 25.5, true]) {
+        expect(
+          SalesRules.fromJson({'targetMarginBp': bad}).targetMarginBp,
+          isNull,
+          reason: '$bad',
+        );
+      }
+      expect(SalesRules.fromJson({'targetMarginBp': 100}).targetMarginBp, 100);
+      expect(
+        SalesRules.fromJson({'targetMarginBp': 9900}).targetMarginBp,
+        9900,
+      );
+    });
+
+    test('copyWith bisa mengosongkan target', () {
+      const rules = SalesRules(targetMarginBp: 2500);
+      expect(
+        rules.copyWith(rounding: TotalRounding.nearest100).targetMarginBp,
+        2500,
+      );
+      expect(rules.copyWith(targetMarginBp: () => null).targetMarginBp, isNull);
+      expect(
+        const SalesRules().copyWith(targetMarginBp: () => 3000).targetMarginBp,
+        3000,
+      );
+    });
+
+    test('isian target: kosong atau 1–99', () {
+      expect(targetMarginIssue(''), isNull);
+      expect(targetMarginIssue('  '), isNull);
+      expect(targetMarginIssue('1'), isNull);
+      expect(targetMarginIssue('25'), isNull);
+      expect(targetMarginIssue(' 99 '), isNull);
+      for (final bad in ['0', '00', '100', '250', '-5', '2,5', 'x']) {
+        expect(
+          targetMarginIssue(bad),
+          TargetMarginIssue.outOfRange,
+          reason: bad,
+        );
+      }
+      expect(targetMarginBpOf(''), isNull);
+      expect(targetMarginBpOf(' 25 '), 2500);
+      expect(targetMarginBpOf('07'), 700);
+      expect(targetMarginBpOf('100'), isNull);
+      expect(targetMarginText(null), '');
+      expect(targetMarginText(2500), '25');
+    });
+
+    test('selisih poin di bawah target', () {
+      expect(marginGapBp(2180, 2500), 320);
+      expect(marginGapBp(2500, 2500), 0);
+      expect(marginGapBp(3100, 2500), 0);
+      expect(marginGapBp(-500, 2500), 3000);
+      // Dibandingkan pada 0,1 poin seperti tampilan: 24,96% = 25,0%.
+      expect(marginGapBp(2496, 2500), 0);
+      expect(marginGapBp(2494, 2500), 10);
+      expect(marginGapBp(2185, 2500), 310);
+    });
+  });
+
   group('fnbCharges', () {
     test('pajak eksklusif + pembulatan', () {
       // 45.500 + service 5% 2.275 = 47.775; PB1 10% 4.778 → 52.553.

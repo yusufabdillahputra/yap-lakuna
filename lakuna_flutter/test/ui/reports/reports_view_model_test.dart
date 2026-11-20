@@ -329,6 +329,23 @@ void main() {
       expect(xlsx.length, greaterThan(100));
     });
 
+    test('ringkasan ekspor menyebut target margin (F1-16d)', () async {
+      Future<String?> marginCell() async {
+        final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
+        final t = reportTable(id, data, ReportTab.summary, SalesGroup.product);
+        return t.rows[1].cells[2] as String?;
+      }
+
+      expect(await marginCell(), '69,0%');
+      repo.targetMarginBp = 2500;
+      expect(await marginCell(), '69,0% · target 25%');
+      // Tanpa penjualan: margin kosong, tanpa keterangan target.
+      final empty =
+          ((await repo.load(const ReportPeriod.month(2026, 10))) as Ok).value;
+      final t = reportTable(id, empty, ReportTab.summary, SalesGroup.product);
+      expect(t.rows[1].cells[2], '–');
+    });
+
     test('penjualan per kasir dan kategori', () async {
       final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
       final staff = reportTable(id, data, ReportTab.sales, SalesGroup.staff);

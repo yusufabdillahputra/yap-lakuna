@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_domain/lakuna_domain.dart'
     as domain
-    show transferAccountIssue;
+    show targetMarginIssue, targetMarginText, transferAccountIssue;
 
 import '../../data/repositories/store_settings_repository.dart';
 import '../../utils/command.dart';
@@ -37,6 +37,7 @@ class StoreSettingsViewModel extends ChangeNotifier {
   var _outletName = '';
   var _address = '';
   var _phone = '';
+  var _targetText = '';
   var _businessSubmitted = false;
   var _outletSubmitted = false;
   var _rev = 0;
@@ -64,6 +65,9 @@ class StoreSettingsViewModel extends ChangeNotifier {
   String get phone => _phone;
   SalesRules get rules => _rules;
 
+  /// Teks isian target margin (F1-16d), persen bulat atau kosong.
+  String get targetMarginText => _targetText;
+
   ProfileIssue? get businessIssue =>
       _businessSubmitted ? storeNameIssue(_businessName) : null;
 
@@ -80,18 +84,26 @@ class StoreSettingsViewModel extends ChangeNotifier {
           _address.trim() != _profile!.address ||
           _phone.trim() != _profile!.phone);
 
+  // Isian target yang salah (mis. `0`) juga dihitung berubah: aturannya
+  // belum tersimpan, jadi pemeriksa keluar tetap bertanya (F1-16d).
   bool get rulesDirty =>
+      targetMarginIssue != null ||
       _rules.copyWith(
-        transferAccount: normalizeTransferAccounts(_rules.transferAccount),
-      ) !=
-      _storedRules;
+            transferAccount: normalizeTransferAccounts(_rules.transferAccount),
+          ) !=
+          _storedRules;
 
   /// Galat isian rekening transfer (F1-05f): lebih dari 3 rekening atau
   /// baris lebih dari 100 karakter.
   TransferAccountIssue? get transferAccountIssue =>
       domain.transferAccountIssue(_rules.transferAccount);
 
-  bool get canSaveRules => rulesDirty && transferAccountIssue == null;
+  /// Galat isian target margin (F1-16d): bukan 1–99 dan tidak kosong.
+  TargetMarginIssue? get targetMarginIssue =>
+      domain.targetMarginIssue(_targetText);
+
+  bool get canSaveRules =>
+      rulesDirty && transferAccountIssue == null && targetMarginIssue == null;
 
   void setBusinessName(String v) {
     _businessName = v;
@@ -135,6 +147,13 @@ class StoreSettingsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setTargetMargin(String v) {
+    _targetText = v;
+    _rules = _rules.copyWith(targetMarginBp: () => targetMarginBpOf(v));
+    saveRules.clearResult();
+    notifyListeners();
+  }
+
   void setRounding(TotalRounding r) {
     _rules = _rules.copyWith(rounding: r);
     saveRules.clearResult();
@@ -165,6 +184,9 @@ class StoreSettingsViewModel extends ChangeNotifier {
     if (rules case Ok(:final value)) {
       _storedRules = value;
       _rules = value;
+      _targetText = domain.targetMarginText(value.targetMarginBp);
+      // Isian aturan diisi ulang walau profil gagal dimuat.
+      _rev++;
     }
     return switch ((profile, rules)) {
       (Error(:final error), _) || (_, Error(:final error)) => Result.error(
@@ -215,9 +237,14 @@ class StoreSettingsViewModel extends ChangeNotifier {
     if (result case Ok(:final value)) {
       // Isian rekening diisi ulang hanya bila teksnya dipangkas, agar
       // isian kartu lain tidak kehilangan fokus.
-      if (value.transferAccount != _rules.transferAccount) _rev++;
+      final target = domain.targetMarginText(value.targetMarginBp);
+      if (value.transferAccount != _rules.transferAccount ||
+          target != _targetText) {
+        _rev++;
+      }
       _storedRules = value;
       _rules = value;
+      _targetText = target;
     }
     return result;
   }

@@ -44,8 +44,9 @@ class StoreProfileInvalid implements Exception {
 }
 
 /// Aturan *Penjualan & stok* ditolak: rekening transfer lebih dari
-/// [ProfileLimits.transferAccount] karakter per baris (F1-05c) atau lebih
-/// dari [ProfileLimits.transferAccountLines] rekening (F1-05f).
+/// [ProfileLimits.transferAccount] karakter per baris (F1-05c), lebih
+/// dari [ProfileLimits.transferAccountLines] rekening (F1-05f), atau
+/// target margin di luar 1–99% (F1-16d).
 class SalesRulesInvalid implements Exception {
   const SalesRulesInvalid();
 
@@ -147,6 +148,9 @@ Future<SalesRules> saveSalesRules(
 }) async {
   final account = normalizeTransferAccounts(rules.transferAccount);
   if (transferAccountIssue(account) != null) {
+    throw const SalesRulesInvalid();
+  }
+  if (rules.targetMarginBp case final bp? when !validTargetMarginBp(bp)) {
     throw const SalesRulesInvalid();
   }
   rules = rules.copyWith(transferAccount: account);

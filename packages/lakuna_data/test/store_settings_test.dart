@@ -110,6 +110,26 @@ void main() {
       expect(full.transferAccount.length, 100);
     });
 
+    test('target margin (F1-16d): tersimpan, bisa dikosongkan', () async {
+      final saved = await rules(const SalesRules(targetMarginBp: 2500));
+      expect(saved.targetMarginBp, 2500);
+      expect((await loadSalesRules(store.session, scope)).targetMarginBp, 2500);
+      for (final bad in [0, 2550, 10000]) {
+        expect(
+          () => rules(SalesRules(targetMarginBp: bad)),
+          throwsA(isA<SalesRulesInvalid>()),
+          reason: '$bad',
+        );
+      }
+      expect((await loadSalesRules(store.session, scope)).targetMarginBp, 2500);
+      final cleared = await rules(saved.copyWith(targetMarginBp: () => null));
+      expect(cleared.targetMarginBp, isNull);
+      expect(
+        (await loadSalesRules(store.session, scope)).targetMarginBp,
+        isNull,
+      );
+    });
+
     test('beberapa rekening (F1-05f): per baris, maks 3', () async {
       final saved = await rules(
         const SalesRules(transferAccount: ' BCA 1 \n\n Mandiri 2 \n'),

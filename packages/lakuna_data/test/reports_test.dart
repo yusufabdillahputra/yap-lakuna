@@ -367,6 +367,25 @@ void main() {
     final manajer = await addStaff('Manajer', 'manager');
     final r = await report(staffId: manajer.id);
     expect(r.canViewProfit, isTrue);
+    expect(r.targetMarginBp, isNull);
+  });
+
+  test('target margin cabang ikut laporan berizin laba (F1-16d)', () async {
+    await saveSalesRules(
+      store,
+      scope,
+      staffId: owner(),
+      rules: const SalesRules(targetMarginBp: 2500),
+    );
+    expect((await report()).targetMarginBp, 2500);
+    final noProfit = await buildReport(
+      store,
+      scope,
+      permissions: {Permission.reportsView},
+      period: ReportPeriod.today,
+      now: now,
+    );
+    expect(noProfit.targetMarginBp, isNull);
   });
 
   test(

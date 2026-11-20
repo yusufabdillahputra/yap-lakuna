@@ -1208,7 +1208,7 @@ class _Profit extends StatelessWidget {
           'margin',
           l10n.reportsMargin,
           percentLabel(l10n, pl.grossMarginBp),
-          l10n.reportsMarginNote,
+          marginNote(l10n, pl.grossMarginBp, data.targetMarginBp),
         ),
         side(
           'expense-ratio',

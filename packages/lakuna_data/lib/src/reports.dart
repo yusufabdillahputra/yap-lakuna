@@ -13,6 +13,7 @@ import 'sales.dart' show SessionSalesSummary, sessionSalesSummary;
 import 'staff_access.dart';
 import 'stock.dart';
 import 'store.dart';
+import 'store_settings.dart' show loadSalesRules;
 import 'suppliers.dart';
 
 part 'reports_extra.dart';
@@ -50,6 +51,7 @@ class ReportData {
     required this.overdueCustomers,
     required this.profit,
     required this.previousProfit,
+    this.targetMarginBp,
   });
 
   final ReportPeriod period;
@@ -76,6 +78,9 @@ class ReportData {
 
   final ProfitAndLoss? profit;
   final ProfitAndLoss? previousProfit;
+
+  /// Target margin kotor cabang (F1-16d); hanya dimuat bersama [profit].
+  final int? targetMarginBp;
 
   bool get canViewProfit => profit != null;
 
@@ -495,5 +500,8 @@ Future<ReportData> buildReport(
     overdueCustomers: overdueCustomers,
     profit: profit,
     previousProfit: previous,
+    targetMarginBp: withProfit
+        ? (await loadSalesRules(session, scope)).targetMarginBp
+        : null,
   );
 }

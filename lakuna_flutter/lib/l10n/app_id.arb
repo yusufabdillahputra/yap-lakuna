@@ -5763,5 +5763,55 @@
         "type": "int"
       }
     }
+  },
+  "storeSettingsTargetMargin": "Target margin kotor (%)",
+  "@storeSettingsTargetMargin": {
+    "placeholders": {}
+  },
+  "storeSettingsTargetMarginHint": "Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.",
+  "@storeSettingsTargetMarginHint": {
+    "placeholders": {}
+  },
+  "storeSettingsTargetMarginRange": "Isi 1–99, atau kosongkan bila tanpa target.",
+  "@storeSettingsTargetMarginRange": {
+    "placeholders": {}
+  },
+  "reportsMarginTarget": "Target toko {target}",
+  "@reportsMarginTarget": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetMet": "Target toko {target} · tercapai",
+  "@reportsMarginTargetMet": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetShort": "Target toko {target} · kurang {gap} poin",
+  "@reportsMarginTargetShort": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "gap": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsMarginTargetExport": "{margin} · target {target}",
+  "@reportsMarginTargetExport": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
   }
 }

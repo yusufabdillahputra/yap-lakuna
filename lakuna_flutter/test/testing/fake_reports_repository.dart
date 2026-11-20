@@ -40,6 +40,9 @@ class FakeReportsRepository extends ReportsRepository {
 
   bool canView;
   bool canViewProfit;
+
+  /// Target margin cabang (F1-16d), ikut laporan berizin laba.
+  int? targetMarginBp;
   final today = DateTime.utc(2026, 11, 4);
   final requests = <ReportPeriod>[];
 
@@ -418,6 +421,7 @@ class FakeReportsRepository extends ReportsRepository {
         overdueCustomers: empty ? 0 : 2,
         profit: canViewProfit ? profit : null,
         previousProfit: canViewProfit ? previous : null,
+        targetMarginBp: canViewProfit ? targetMarginBp : null,
       ),
     );
   }
