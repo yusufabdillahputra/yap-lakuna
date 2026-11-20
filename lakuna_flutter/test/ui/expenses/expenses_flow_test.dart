@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -362,6 +363,157 @@ void main() {
       expect(_key('expense-form-dialog'), findsNothing);
       expect(_key('expenses-new'), findsNothing);
       expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Simpan dari dialog Buang perubahan? (F1-15d)', () {
+    testWidgets('1440 px: menu lain → Simpan mencatat lalu membuka tujuan', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester);
+      await _tap(tester, _key('nav-stock'));
+      expect(_key('expense-discard'), findsOneWidget);
+      await _tap(tester, _key('expense-discard-save'));
+      expect(repo.expenses.last.description, 'Galon air');
+      expect(_key('expenses-form-card'), findsNothing);
+      expect(_key('stock-print'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: isian kurang → tetap dengan pesan', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _type(tester, _key('expense-description-0'), 'Parkir');
+      await _tap(tester, _key('nav-stock'));
+      await _tap(tester, _key('expense-discard-save'));
+      expect(_key('expense-discard'), findsNothing);
+      expect(_key('expenses-form-card'), findsOneWidget);
+      expect(find.text('Pilih jenis pengeluaran.'), findsOneWidget);
+      expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: galat penyimpanan → tetap di layar', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester);
+      await _tap(tester, _key('nav-stock'));
+      repo.nextError = Exception('disk penuh');
+      await _tap(tester, _key('expense-discard-save'));
+      expect(_key('expenses-form-card'), findsOneWidget);
+      expect(_key('expense-save-error'), findsOneWidget);
+      expect(_key('stock-print'), findsNothing);
+      expect(repo.expenses.any((e) => e.description == 'Galon air'), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: Ganti kasir → Simpan mencatat lalu layar masuk', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester, description: 'Parkir', category: 'Transport');
+      await _tap(tester, _key('switch-cashier'));
+      await _tap(tester, _key('expense-discard-save'));
+      expect(repo.expenses.last.description, 'Parkir');
+      expect(find.text('Siapa yang bertugas?'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: dialog form tertutup, isian kurang → dialog form '
+        'terbuka lagi dengan pesan', (tester) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await _type(tester, _key('expense-amount-0'), '5000');
+      await _tap(tester, _key('expense-cancel'));
+      expect(_key('expense-form-dialog'), findsNothing);
+      await _tap(tester, _key('nav-home'));
+      await _tap(tester, _key('expense-discard-save'));
+      expect(_key('expense-form-dialog'), findsOneWidget);
+      expect(find.text('Pilih jenis pengeluaran.'), findsOneWidget);
+      expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: dialog form terbuka → Simpan mencatat lalu Beranda', (
+      tester,
+    ) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await fill(tester, description: 'Parkir', category: 'Transport');
+      await tester.tap(_key('nav-home'));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('expense-discard-save'));
+      expect(repo.expenses.last.description, 'Parkir');
+      expect(_key('expense-form-dialog'), findsNothing);
+      expect(_key('expenses-new'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Simpan dari dialog: kasus tepi (F1-15d)', () {
+    testWidgets('360 px: galat penyimpanan dengan dialog form tertutup → '
+        'dialog form terbuka dengan pesannya', (tester) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await fill(tester, description: 'Parkir', category: 'Transport');
+      await _tap(tester, _key('expense-cancel'));
+      await _tap(tester, _key('nav-home'));
+      repo.nextError = Exception('disk penuh');
+      await _tap(tester, _key('expense-discard-save'));
+      expect(_key('expense-form-dialog'), findsOneWidget);
+      expect(_key('expense-save-error'), findsOneWidget);
+      expect(_key('expenses-new'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('360 px: isian kurang dengan dialog form terbuka → tetap satu '
+        'dialog', (tester) async {
+      await pump(tester, const Size(360, 740));
+      await _tap(tester, _key('expenses-new'));
+      await _type(tester, _key('expense-description-0'), 'Parkir');
+      await tester.tap(_key('nav-home'));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('expense-discard-save'));
+      expect(_key('expense-form-dialog'), findsOneWidget);
+      expect(find.text('Pilih jenis pengeluaran.'), findsOneWidget);
+      expect(_key('expenses-new'), findsOneWidget);
+      expect(repo.requests, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: menu lain selama simpan berjalan ditolak', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester);
+      await _tap(tester, _key('nav-stock'));
+      final gate = repo.recordGate = Completer<void>();
+      await tester.tap(_key('expense-discard-save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(_key('nav-reports'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(_key('expense-discard'), findsNothing);
+      repo.recordGate = null;
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(repo.expenses.last.description, 'Galon air');
+      expect(_key('stock-print'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('1440 px: tutup jendela → Simpan mencatat lalu keluar', (
+      tester,
+    ) async {
+      await pump(tester, const Size(1440, 900));
+      await fill(tester);
+      var exit = AppExitResponse.cancel;
+      unawaited(tester.binding.handleRequestAppExit().then((r) => exit = r));
+      await tester.pumpAndSettle();
+      await _tap(tester, _key('expense-discard-save'));
+      expect(repo.expenses.last.description, 'Galon air');
+      expect(exit, AppExitResponse.exit);
       expect(tester.takeException(), isNull);
     });
   });

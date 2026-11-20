@@ -66,6 +66,6 @@ saat staf pindah menu.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Peringatan keluar dari Pengeluaran dengan isian belum disimpan | 1.22 | Rilis v0.99.0 | Menu samping / bawah, tombol kembali sistem. |
-| Simpan langsung dari dialog | — | Belum | Dialog hanya Batal / Buang. |
+| Simpan langsung dari dialog | 1.21 | Rilis v0.122.0 | [F1-15d](2026-11-20-f1-15d-simpan-dari-dialog-pengeluaran-design.md). |
 | Form pelanggan & supplier (dialog) | 1.20, 1.21 | Rilis v0.100.0 | [F1-13e](2026-11-15-f1-13e-dialog-pelanggan-supplier-design.md). |
 | Tanggal hari ini yang dipilih manual lewat tengah malam | — | Diterima | Setelah muat ulang esok hari, tanggal itu menjadi kemarin dan dihitung berisi (menyimpan akan mencatat kemarin). |

@@ -11,6 +11,7 @@ import '../../data/repositories/expenses_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../../utils/result.dart';
 import '../core/confirm_discard.dart';
 import '../core/format.dart';
 import '../core/leave_guard.dart';
@@ -92,8 +93,45 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       context,
       body: AppLocalizations.of(context).expenseDiscardBody,
       key: 'expense-discard',
+      onSave: () => _saveBeforeLeaving(form),
     );
   }
+
+  /// Simpan dari dialog *Buang perubahan?* (F1-15d); `true` bila tercatat
+  /// sehingga navigasi yang tertahan diteruskan.
+  Future<bool> _saveBeforeLeaving(ExpenseFormViewModel form) async {
+    final guard = widget.leaveGuard?..saving = true;
+    try {
+      await form.save.execute();
+    } finally {
+      guard?.saving = false;
+    }
+    switch (form.save.result) {
+      case Ok():
+        // Layar bisa tetap tampil (mis. tombol kembali Android di halaman
+        // tunggal): muat ulang daftar dan saldo laci seperti `onSaved`,
+        // tetapi hanya bila halaman tidak sedang ditutup.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && !isRouteClosing(context)) unawaited(_list.refresh());
+        });
+        return true;
+      case Error(:final error):
+        if (!mounted) return false;
+        // Sama dengan tombol Simpan form (`onFailed`): muat ulang setup.
+        if (error is! ExpenseInvalid) unawaited(_list.refresh());
+        // Layar sempit dengan dialog form tertutup: buka lagi agar pesan
+        // isian atau galat simpannya terlihat.
+        if (!_twoPane && !_dialogOpen) unawaited(_newDialog());
+      case null:
+    }
+    return false;
+  }
+
+  /// Tata letak terakhir yang dibangun: form di samping daftar.
+  var _twoPane = false;
+
+  /// Dialog form (layar sempit) sedang terbuka.
+  var _dialogOpen = false;
 
   /// Form dibuat setelah setup (jenis, hari ini) dimuat.
   void _syncForm() {
@@ -130,6 +168,15 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   Future<void> _newDialog() async {
     final form = _form;
     if (form == null) return;
+    _dialogOpen = true;
+    try {
+      await _showFormDialog(form);
+    } finally {
+      _dialogOpen = false;
+    }
+  }
+
+  Future<void> _showFormDialog(ExpenseFormViewModel form) async {
     await showFDialog<void>(
       context: context,
       builder: (context, style, animation) => FDialog(
@@ -182,7 +229,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final twoPane = constraints.maxWidth >= expensesTwoPaneWidth;
+      final twoPane = _twoPane = constraints.maxWidth >= expensesTwoPaneWidth;
       return ListenableBuilder(
         listenable: _list,
         builder: (context, _) {
