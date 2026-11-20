@@ -114,7 +114,7 @@ ulang riwayat.
 | v0.130.0 | Draf penyesuaian stok tersimpan di perangkat (F1-08o) | #136 |
 | v0.131.0 | Tanda cukup / kurang untuk barang di draf pembelian (F1-08p) | #137 |
 | v0.132.0 | Barang yang cocok tampil di daftar Riwayat (F1-11i) | #138 |
-| v0.133.0 | Target margin toko di Laba rugi (F1-16d) | |
+| v0.133.0 | Target margin toko di Laba rugi (F1-16d) | #139 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
