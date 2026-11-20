@@ -63,5 +63,5 @@ referensi, nama produk/varian, dan nama modifier.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Cari catatan barang di Riwayat | — | Rilis v0.117.0 | Diuji manual (Linux). |
-| Modifier di rincian nota Riwayat | — | Belum | Rincian menampilkan catatan, belum nama modifier; nota cocok lewat modifier (F1-11f) tidak terlihat alasannya. |
+| Modifier di rincian nota Riwayat | — | Rilis v0.118.0 | [F1-11h](2026-11-20-f1-11h-modifier-di-rincian-nota-design.md). |
 | Tes kata modifier + kata catatan di barang yang sama | — | Belum | Klausa per kata berupa OR sehingga kombinasi tercakup; belum ada tes khusus. |

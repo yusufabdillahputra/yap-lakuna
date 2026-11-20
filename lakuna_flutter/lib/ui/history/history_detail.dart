@@ -299,6 +299,14 @@ class _Items extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          // Modifier pesanan F&B, bisa dicari (F1-11h);
+                          // tambahan harganya sudah di harga satuan.
+                          if (detail.receipt.modifiersOf(item) case final mods
+                              when mods.isNotEmpty)
+                            Text(
+                              '+ ${mods.map((m) => m.name).join(', ')}',
+                              style: _muted(context),
+                            ),
                           Text(
                             [
                               '${formatQty(context, Qty(item.quantityMilli))} × '

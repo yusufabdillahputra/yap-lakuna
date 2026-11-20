@@ -70,6 +70,7 @@ class FakeHistoryRepository extends HistoryRepository {
     int discount = 0,
     String? discountBy,
     Map<int, String> notes = const {},
+    Map<int, List<String>> modifiers = const {},
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -98,29 +99,45 @@ class FakeHistoryRepository extends HistoryRepository {
       hlc: '',
     );
     if (discountBy != null) discountGivers[sale.id] = discountBy;
+    final saleItems = [
+      for (final (i, (name, q, p)) in items.indexed)
+        SaleItem(
+          tenantId: _tenant,
+          saleId: sale.id,
+          variantId: _id(),
+          productName: name,
+          variantName: '',
+          unitName: 'pcs',
+          factorMilli: 1000,
+          quantityMilli: q,
+          listPrice: p,
+          unitPrice: p,
+          lineTotal: lines[i],
+          unitCost: 0,
+          tracksStock: true,
+          sortOrder: i,
+          note: notes[i],
+          hlc: '',
+        ),
+    ];
     final result = CheckoutResult(
       sale: sale,
-      items: [
-        for (final (i, (name, q, p)) in items.indexed)
-          SaleItem(
-            tenantId: _tenant,
-            saleId: sale.id,
-            variantId: _id(),
-            productName: name,
-            variantName: '',
-            unitName: 'pcs',
-            factorMilli: 1000,
-            quantityMilli: q,
-            listPrice: p,
-            unitPrice: p,
-            lineTotal: lines[i],
-            unitCost: 0,
-            tracksStock: true,
-            sortOrder: i,
-            note: notes[i],
-            hlc: '',
-          ),
-      ],
+      items: saleItems,
+      modifiers: {
+        for (final MapEntry(key: i, value: names) in modifiers.entries)
+          saleItems[i].id: [
+            for (final name in names)
+              SaleItemModifier(
+                tenantId: _tenant,
+                saleItemId: saleItems[i].id,
+                modifierId: _id(),
+                groupName: 'Topping',
+                name: name,
+                priceDelta: 0,
+                hlc: '',
+              ),
+          ],
+      },
       payments: [
         Payment(
           tenantId: _tenant,
@@ -228,7 +245,11 @@ class FakeHistoryRepository extends HistoryRepository {
         s.payments.any((p) => has(p.reference)) ||
         // Nama barang (F1-11d).
         s.items.any(
-          (i) => has(i.productName) || has(i.variantName) || has(i.note),
+          (i) =>
+              has(i.productName) ||
+              has(i.variantName) ||
+              has(i.note) ||
+              s.modifiersOf(i).any((m) => has(m.name)),
         );
     return okStatus && okMethod && okStaff && okQuery;
   }

@@ -273,6 +273,58 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('rincian nota menampilkan modifier barang (F1-11h)', (
+    tester,
+  ) async {
+    await pump(tester);
+    final shot = history.addSale(
+      [('Es Kopi', 1000, 23000), ('Roti Bakar', 1000, 25000)],
+      modifiers: {
+        0: ['Extra Shot', 'Boba'],
+      },
+      notes: {0: 'Tanpa es'},
+    );
+    await tester.enterText(_input('history-search'), 'extra shot');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'history-row-${shot.sale.id.uuid}');
+    final [es, bakar] = shot.items;
+    Finder inItem(SaleItem item, Finder finder) => find.descendant(
+      of: _key('history-item-${item.id.uuid}'),
+      matching: finder,
+    );
+    expect(inItem(es, find.text('+ Extra Shot, Boba')), findsOneWidget);
+    expect(inItem(es, find.text('Catatan: Tanpa es')), findsOneWidget);
+    expect(inItem(bakar, find.textContaining('+ ')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('360 px: modifier panjang di rincian tanpa luapan (F1-11h)', (
+    tester,
+  ) async {
+    await pump(tester, size: const Size(360, 780));
+    final many = history.addSale(
+      [('Es Kopi Susu Gula Aren Spesial', 1000, 30000)],
+      modifiers: {
+        0: [
+          'Extra Shot Espresso',
+          'Susu Oat Barista',
+          'Sirup Karamel Asin',
+          'Boba Gula Merah',
+          'Krim Keju Tebal',
+          'Ukuran Jumbo',
+        ],
+      },
+    );
+    await tester.enterText(_input('history-search'), 'oat');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'history-row-${many.sale.id.uuid}');
+    expect(
+      find.textContaining('+ Extra Shot Espresso, Susu Oat Barista'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('360 px: kolom cari dan hasil tanpa luapan (F1-11b)', (
     tester,
   ) async {
