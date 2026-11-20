@@ -179,16 +179,22 @@ class _GroupDialogState extends State<_GroupDialog> {
     _initial = (name: _name.trim(), term: _term);
   }
 
-  Future<void> _save() async {
+  /// `true` bila tersimpan (dialog tertutup, F1-09c). Isian yang salah
+  /// menjawab `false` langsung: simpan tidak berjalan, jadi hasil `save`
+  /// view model bukan milik isian ini.
+  Future<bool> _save() async {
     setState(() => _submitted = true);
-    if (validateCustomerGroup(name: _name, termDays: _term).isNotEmpty) return;
+    if (validateCustomerGroup(name: _name, termDays: _term).isNotEmpty) {
+      return false;
+    }
     await widget.viewModel.save.execute((
       id: widget.row?.group.id,
       name: _name,
       termDays: _term,
     ));
-    if (!mounted) return;
-    if (widget.viewModel.save.result is Ok) Navigator.of(context).pop();
+    if (!mounted || widget.viewModel.save.result is! Ok) return false;
+    Navigator.of(context).pop();
+    return true;
   }
 
   @override
@@ -206,6 +212,7 @@ class _GroupDialogState extends State<_GroupDialog> {
         busy: vm.save.running,
         body: l10n.customerGroupDiscardBody,
         dialogKey: 'customer-group-discard',
+        onSave: _save,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

@@ -12,4 +12,4 @@ Spec: [F1-13g](../specs/2026-11-20-f1-13g-simpan-dari-dialog-pelanggan-supplier-
   `/mnt/project-files/lakuna/f1-13g/`.
 - [x] 6. Dokumen: spec, gap F1-13e dan F1-07r, README spec, STATUS-JEDA,
   panduan, CHANGELOG, versi.
-- [ ] 7. PR, CI hijau, squash-merge, rilis.
+- [x] 7. PR, CI hijau, squash-merge, rilis (#131).

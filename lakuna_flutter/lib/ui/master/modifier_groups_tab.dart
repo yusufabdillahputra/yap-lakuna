@@ -404,13 +404,15 @@ class _GroupDialogState extends State<_GroupDialog> {
     );
   }
 
-  Future<void> _save() async {
+  /// `true` bila tersimpan (dialog tertutup, F1-09c).
+  Future<bool> _save() async {
     final vm = widget.viewModel;
     await vm.save.execute((widget.group?.id, _draft));
-    if (!mounted) return;
+    if (!mounted) return false;
     switch (vm.save.result) {
       case Ok():
         Navigator.of(context).pop();
+        return true;
       case Error(:final error):
         setState(() {
           if (error case ModifierGroupInvalid(
@@ -429,6 +431,7 @@ class _GroupDialogState extends State<_GroupDialog> {
       case null:
         break;
     }
+    return false;
   }
 
   String? _errorOf(Set<ModifierGroupError> kinds) {
@@ -465,6 +468,7 @@ class _GroupDialogState extends State<_GroupDialog> {
           busy: busy,
           body: l10n.modifierDiscardBody,
           dialogKey: 'modifier-discard',
+          onSave: _save,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: SingleChildScrollView(

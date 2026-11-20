@@ -86,3 +86,4 @@ sehingga menu samping masih bisa diketuk.
 | --- | --- | --- | --- |
 | Tanya sebelum menutup dialog area, meja, rentang meja | 1.17 | Rilis v0.108.0 | Sama dengan F1-09b. |
 | Isian dialog hilang saat simpan ditolak (nama kembar, meja sibuk) | — | Rilis v0.109.0 | [F1-10o](2026-11-15-f1-10o-galat-di-dialog-meja-design.md). |
+| Simpan langsung dari dialog *Buang perubahan?* | — | Rilis v0.126.0 | [F1-09c](2026-11-20-f1-09c-simpan-dari-dialog-master-data-design.md). |

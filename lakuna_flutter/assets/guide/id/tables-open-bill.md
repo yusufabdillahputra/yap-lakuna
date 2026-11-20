@@ -6,7 +6,7 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 
 ## Sebelum mulai
 
-- Buat area dan meja di **Master data › Meja & area**. Pakai **Tambah beberapa** untuk membuat M1–M12 sekaligus. Bila dialog area, meja, atau rentang sudah diubah lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke dialog, atau **Buang** untuk menutup tanpa menyimpan. Bila nama sudah dipakai (mis. rentang M1–M12 padahal M7 sudah ada), dialog tetap terbuka dan pesannya tampil tepat di bawah kolom **Nama** (untuk rentang: menggantikan pratinjau nama). Kursor langsung pindah ke isian yang salah (Nama, Kursi, atau Dari/Sampai untuk rentang), jadi Anda bisa mengetik ulang lalu menyimpan lagi.
+- Buat area dan meja di **Master data › Meja & area**. Pakai **Tambah beberapa** untuk membuat M1–M12 sekaligus. Bila dialog area, meja, atau rentang sudah diubah lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke dialog, **Buang** untuk menutup tanpa menyimpan, atau **Simpan** untuk langsung menyimpannya. Bila nama sudah dipakai (mis. rentang M1–M12 padahal M7 sudah ada), dialog tetap terbuka dan pesannya tampil tepat di bawah kolom **Nama** (untuk rentang: menggantikan pratinjau nama). Kursor langsung pindah ke isian yang salah (Nama, Kursi, atau Dari/Sampai untuk rentang), jadi Anda bisa mengetik ulang lalu menyimpan lagi.
 - Atur service charge dan PB1 di **Pengaturan › Pajak & service**. Service hanya untuk dine in.
 
 ## Membuka bill

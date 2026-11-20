@@ -168,15 +168,19 @@ class _CategoryDialogState extends State<_CategoryDialog> {
   /// Nama saat dialog dibuka (F1-09b).
   late final _initial = (widget.row?.category.name ?? '').trim();
 
-  Future<void> _save() async {
+  /// `true` bila tersimpan (dialog tertutup, F1-09c). Isian yang salah
+  /// menjawab `false` langsung: simpan tidak berjalan, jadi hasil `save`
+  /// view model bukan milik isian ini.
+  Future<bool> _save() async {
     setState(() => _submitted = true);
-    if (!validateExpenseCategoryName(_name)) return;
+    if (!validateExpenseCategoryName(_name)) return false;
     await widget.viewModel.save.execute((
       id: widget.row?.category.id,
       name: _name,
     ));
-    if (!mounted) return;
-    if (widget.viewModel.save.result is Ok) Navigator.of(context).pop();
+    if (!mounted || widget.viewModel.save.result is! Ok) return false;
+    Navigator.of(context).pop();
+    return true;
   }
 
   @override
@@ -192,6 +196,7 @@ class _CategoryDialogState extends State<_CategoryDialog> {
         busy: vm.save.running,
         body: l10n.expenseCategoryDiscardBody,
         dialogKey: 'expense-category-discard',
+        onSave: _save,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

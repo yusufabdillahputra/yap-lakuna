@@ -4,7 +4,7 @@ The **Expenses** menu records operating costs other than buying stock, such as e
 
 ## Before you start
 
-Create expense categories in **Master data › Expense categories**, for example *Electricity*, *Wages*, or *Operations*. Once a name is typed, the dialog asks **Discard changes?** before closing without saving.
+Create expense categories in **Master data › Expense categories**, for example *Electricity*, *Wages*, or *Operations*. Once a name is typed, the dialog asks **Discard changes?** before closing without saving; choose **Save** there to save the category straight away.
 
 ## Recording an expense
 

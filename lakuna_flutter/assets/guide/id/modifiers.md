@@ -10,7 +10,7 @@ Modifier adalah pilihan tambahan pada menu, misalnya ukuran, level gula, atau to
 4. Tambah opsi dengan **Tambah opsi**: nama, **Tambahan harga** (boleh minus untuk potongan), tandai **Bawaan** bila terpilih otomatis.
 5. Simpan.
 
-Bila grup sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke dialog, atau **Buang** untuk menutup tanpa menyimpan. Hal yang sama berlaku untuk dialog **Grup pelanggan** dan **Jenis pengeluaran**.
+Bila grup sudah diisi lalu Anda menekan **Batal**, Esc, mengetuk di luar dialog, atau tombol kembali ponsel, Lakuna bertanya **Buang perubahan?** lebih dulu. Pilih **Batal** untuk kembali ke dialog, **Buang** untuk menutup tanpa menyimpan, atau **Simpan** untuk langsung menyimpan grup (bila ada yang salah, dialog tetap terbuka dengan pesannya). Menutup jendela aplikasi saat dialog berisi juga menawarkan **Simpan**. Hal yang sama berlaku untuk dialog **Grup pelanggan** dan **Jenis pengeluaran**.
 
 ## Memasang ke menu
 

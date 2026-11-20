@@ -1,3 +1,5 @@
+import 'dart:ui' show AppExitResponse;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -139,5 +141,75 @@ void main() {
       grosir.termDays,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  group('Simpan dari dialog Buang perubahan? (F1-09c)', () {
+    Future<FakeCustomersRepository> open(WidgetTester tester) async {
+      final repo = FakeCustomersRepository();
+      await pumpLakuna(
+        tester,
+        size: const Size(1280, 800),
+        initialLocation: Routes.master,
+        customers: repo,
+      );
+      await _tap(tester, 'master-tab-customerGroups');
+      return repo;
+    }
+
+    testWidgets('Esc lalu Simpan: tersimpan dan tampil', (tester) async {
+      final repo = await open(tester);
+      await _tap(tester, 'customer-groups-new');
+      await _type(tester, 'customer-group-name', 'Reseller');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-group-discard-save');
+      expect(_key('customer-group-discard'), findsNothing);
+      expect(_key('customer-group-form'), findsNothing);
+      final reseller = repo.groupList.singleWhere((g) => g.name == 'Reseller');
+      expect(_key('customer-group-${reseller.id.uuid}'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('isian salah atau nama ganda: tetap terbuka, aplikasi tidak '
+        'ditutup', (tester) async {
+      final repo = await open(tester);
+      final before = repo.groupList.length;
+
+      await _tap(tester, 'customer-groups-new');
+      await _type(tester, 'customer-group-term', '45');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-group-discard-save');
+      expect(await exit, AppExitResponse.cancel);
+      expect(_key('customer-group-form'), findsOneWidget);
+      expect(find.textContaining('Nama grup wajib diisi'), findsOneWidget);
+
+      // Nama ganda ditolak penyimpanan: tetap dengan pesan.
+      await _type(tester, 'customer-group-name', 'grosir');
+      final again = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-group-discard-save');
+      expect(await again, AppExitResponse.cancel);
+      expect(_key('customer-group-form'), findsOneWidget);
+      expect(_key('customer-group-error'), findsOneWidget);
+      expect(repo.groupList, hasLength(before));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tutup jendela lalu Simpan: tersimpan lalu keluar', (
+      tester,
+    ) async {
+      final repo = await open(tester);
+      final grosir = repo.groupList.firstWhere((g) => g.name == 'Grosir');
+      await _tap(tester, 'customer-group-edit-${grosir.id.uuid}');
+      await _type(tester, 'customer-group-term', '45');
+      final exit = tester.binding.handleRequestAppExit();
+      await tester.pumpAndSettle();
+      await _tap(tester, 'customer-group-discard-save');
+      expect(await exit, AppExitResponse.exit);
+      expect(repo.groupList.firstWhere((g) => g.id == grosir.id).termDays, 45);
+      expect(_key('customer-group-form'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   });
 }
