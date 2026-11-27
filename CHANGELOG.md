@@ -22,7 +22,10 @@ pesanan dikurangi. Ini gap 26, gap terakhir di daftar rapikan Fase 1
   diskon Rp 20.000 disetujui (dari Rp 200.000 menjadi Rp 40.000). Setujui
   ulang atau ubah diskon.*, tombol **Bayar** dan **Split** nonaktif, dan
   tombol **Setujui ulang diskon** muncul. Staf berizin diskon cukup sekali
-  ketuk; staf lain diminta PIN manajer.
+  ketuk; staf lain diminta PIN manajer. Bila staf tanpa izin diskon dan
+  PIN manajer tidak dipakai, panel menampilkan petunjuk *Minta manajer
+  atau staf yang berizin diskon untuk menyetujui ulang.* sebagai ganti
+  tombol.
 - Pesan hilang sendiri bila pesanan ditambah lagi sampai sebesar semula,
   atau bila diskon diubah/dihapus.
 
@@ -32,6 +35,10 @@ pesanan dikurangi. Ini gap 26, gap terakhir di daftar rapikan Fase 1
   dengan pesan *Pesanan berkurang sejak diskon disetujui. Setujui ulang
   atau ubah diskon.* (juga bila bill dibayar dari perangkat lain yang
   belum memuat ulang).
+- Ganti pelanggan ke grup harga yang lebih murah, kurangi qty, atau beri
+  diskon baris tetap tersimpan walau dasar diskon nota rupiah mengecil;
+  tanda setujui ulang tampil sesudahnya. Hanya diskon yang menghabiskan
+  total yang menolak perubahan bill.
 - Panduan *Diskon* (ID dan EN) menjelaskan persetujuan ulang.
 
 ### Catatan teknis
@@ -41,8 +48,12 @@ pesanan dikurangi. Ini gap 26, gap terakhir di daftar rapikan Fase 1
   persen, tanpa diskon, dan bill lama (tidak diperiksa).
 - Domain: `discountReapprovalDue`. Data: `setBillDiscount` menulis
   dasar; `_assertPayable` melempar `DiscountNeedsReapproval` setelah
-  pemeriksaan `DiscountTooLarge`; `OpenBill.discountNeedsReapproval` dan
+  pemeriksaan `DiscountTooLarge`; ganti pelanggan memakai
+  `_assertDiscountFits` saja; `OpenBill.discountNeedsReapproval` dan
   `discountBase`.
+- Klien versi lama yang menyinkronkan baris penjualan tanpa
+  `discount_base` (Fase 2) menulis `null`, jadi pemeriksaan mati untuk
+  bill itu; ini dicatat di spec.
 - Hanya open bill. Di Kasir retail persetujuan PIN berlaku untuk seluruh
   keranjang (F1-04b), jadi tidak diubah. Diskon baris rupiah belum
   diperiksa (gap di spec F1-04j).

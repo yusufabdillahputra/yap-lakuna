@@ -4010,6 +4010,7 @@
   },
   "saleErrorDiscountReapproval": "The order got smaller after the discount was approved. Approve it again or change the discount.",
   "diningDiscountReapproveAction": "Approve discount again",
+  "diningDiscountReapproveNoPermission": "Ask a manager or staff with discount permission to approve it again.",
   "diningDiscountReapprove": "The order got smaller after the {amount} discount was approved (from {approved} to {now}). Approve it again or change the discount.",
   "@diningDiscountReapprove": {
     "placeholders": {

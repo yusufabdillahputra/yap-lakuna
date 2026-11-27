@@ -7382,6 +7382,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diningDiscountReapproveAction => 'Approve discount again';
 
   @override
+  String get diningDiscountReapproveNoPermission =>
+      'Ask a manager or staff with discount permission to approve it again.';
+
+  @override
   String diningDiscountReapprove(String amount, String approved, String now) {
     return 'The order got smaller after the $amount discount was approved (from $approved to $now). Approve it again or change the discount.';
   }

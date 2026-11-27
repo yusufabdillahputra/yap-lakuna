@@ -7232,6 +7232,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get diningDiscountReapproveAction => 'Setujui ulang diskon';
 
   @override
+  String get diningDiscountReapproveNoPermission =>
+      'Minta manajer atau staf yang berizin diskon untuk menyetujui ulang.';
+
+  @override
   String diningDiscountReapprove(String amount, String approved, String now) {
     return 'Pesanan berkurang sejak diskon $amount disetujui (dari $approved menjadi $now). Setujui ulang atau ubah diskon.';
   }

@@ -14,5 +14,7 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-04j-setujui-ulang-diskon-rupiah-desi
   repositori; tes VM dan widget 1280/360.
 - [x] 5. Dokumen: spec F1-04e gap, README specs, STATUS-JEDA, GAP-FASE1,
   panduan ID/EN Diskon, CHANGELOG, pubspec.
-- [ ] 6. Format, analyze, semua tes, review subagent, uji Xvfb.
+- [x] 6. Format, analyze, semua tes, review subagent, uji Xvfb. Review:
+  ganti pelanggan tidak lagi ditolak (`_assertDiscountFits`), petunjuk
+  untuk staf tanpa izin diskon, dok komentar, spec diperbarui.
 - [ ] 7. PR dan rilis.

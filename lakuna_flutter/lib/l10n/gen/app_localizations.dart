@@ -12716,6 +12716,12 @@ abstract class AppLocalizations {
   /// **'Setujui ulang diskon'**
   String get diningDiscountReapproveAction;
 
+  /// Petunjuk bila staf tanpa izin diskon (dan sakelar PIN mati) melihat diskon yang perlu disetujui ulang (F1-04j)
+  ///
+  /// In id, this message translates to:
+  /// **'Minta manajer atau staf yang berizin diskon untuk menyetujui ulang.'**
+  String get diningDiscountReapproveNoPermission;
+
   /// No description provided for @diningDiscountReapprove.
   ///
   /// In id, this message translates to:

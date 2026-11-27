@@ -407,6 +407,23 @@ void main() {
     expect(after.items.single.unitPrice, 100000);
   });
 
+  test('diskon nota rupiah tetap sah saat harga grup menurunkan dasar: '
+      'pelanggan tersimpan, bill perlu disetujui ulang (F1-04j)', () async {
+    final ani = await customer('Toko Ani', group: reseller);
+    var b = await add(await open(m1), 1);
+    b = await setBillDiscount(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      discount: const ManualDiscount.amount(Money(1000)),
+    );
+    final after = await setCustomer(b, ani);
+    expect(after.sale.customerId, ani.id);
+    expect(after.items.single.unitPrice, 95000);
+    expect(after.discountNeedsReapproval, isTrue);
+  });
+
   group('segarkan harga grup (F1-10l)', () {
     Future<Customer> regroup(Customer c, CustomerGroup? group) => saveCustomer(
       store,

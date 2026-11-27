@@ -357,14 +357,22 @@ bool _reapprovalDue(Sale sale, Money base) => discountReapprovalDue(
 );
 
 /// Bill berdiskon (nota atau baris) yang totalnya habis (item berkurang
-/// setelah diskon rupiah) tidak bisa dibayar sampai diskon diubah. Diskon
-/// nota rupiah yang dasarnya mengecil perlu disetujui ulang (F1-04j).
-void _assertPayable(Sale sale, List<SaleItem> items, FnbCharges charges) {
+/// setelah diskon rupiah) tidak bisa disimpan atau dibayar sampai diskon
+/// diubah.
+void _assertDiscountFits(List<SaleItem> items, FnbCharges charges) {
   final discounted =
       charges.discount > Money.zero || items.any(_hasLineDiscount);
   if (discounted && charges.total <= Money.zero) {
     throw const DiscountTooLarge();
   }
+}
+
+/// Syarat bayar: diskon muat di total, dan diskon nota rupiah yang dasarnya
+/// mengecil sudah disetujui ulang (F1-04j). Perubahan bill (mis. ganti
+/// pelanggan) cukup memakai [_assertDiscountFits] agar tetap tersimpan;
+/// tanda setujui ulang muncul sesudahnya.
+void _assertPayable(Sale sale, List<SaleItem> items, FnbCharges charges) {
+  _assertDiscountFits(items, charges);
   if (_reapprovalDue(sale, charges.subtotal)) {
     throw const DiscountNeedsReapproval();
   }
@@ -2256,7 +2264,7 @@ Future<OpenBill> setOpenBillCustomer(
       sale.id,
     ], transaction: w.transaction);
     final rates = await _ratesOf(w, scope, sale);
-    _assertPayable(updated, items, _charges(updated, items, rates));
+    _assertDiscountFits(items, _charges(updated, items, rates));
   });
   return loadOpenBill(store, scope, billId);
 }

@@ -1468,18 +1468,27 @@ class _BillPanel extends StatelessWidget {
             key: const ValueKey('dining-discount-reapproval'),
             style: _errorStyle(context),
           ),
-          FButton(
-            key: const ValueKey('dining-discount-reapprove'),
-            variant: .outline,
-            prefix: const Icon(TablerIcons.discountCheck, size: 18),
-            onPress:
-                busy ||
-                    (vm.discountNeedsApproval &&
-                        ApprovalScope.maybeOf(context) == null)
-                ? null
-                : () => _reapproveBillDiscount(context, vm, bill),
-            child: Flexible(child: Text(l10n.diningDiscountReapproveAction)),
-          ),
+          // Staf tanpa izin dan tanpa jalur PIN manajer: petunjuk saja,
+          // karena menekan tombol hanya akan ditolak repositori.
+          if (!vm.canOfferDiscount || locked)
+            Text(
+              l10n.diningDiscountReapproveNoPermission,
+              key: const ValueKey('dining-discount-reapprove-hint'),
+              style: _muted(context),
+            )
+          else
+            FButton(
+              key: const ValueKey('dining-discount-reapprove'),
+              variant: .outline,
+              prefix: const Icon(TablerIcons.discountCheck, size: 18),
+              onPress:
+                  busy ||
+                      (vm.discountNeedsApproval &&
+                          ApprovalScope.maybeOf(context) == null)
+                  ? null
+                  : () => _reapproveBillDiscount(context, vm, bill),
+              child: Flexible(child: Text(l10n.diningDiscountReapproveAction)),
+            ),
         ] else if (blocksPay)
           Text(
             l10n.diningDiscountBlocksPay,
@@ -2342,8 +2351,6 @@ Future<void> _pickCustomer(
   if (picked != null) await vm.setCustomer.execute(picked);
 }
 
-/// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;
-/// staf tanpa izin diminta PIN manajer setelah *Terapkan*.
 /// Menerapkan lagi diskon yang sama untuk pesanan sekarang (F1-04j); staf
 /// tanpa izin diskon diminta PIN manajer seperti saat memberi diskon.
 Future<void> _reapproveBillDiscount(
@@ -2370,6 +2377,8 @@ Future<void> _reapproveBillDiscount(
   await vm.setDiscount.execute((discount: discount, approverId: approverId));
 }
 
+/// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;
+/// staf tanpa izin diminta PIN manajer setelah *Terapkan*.
 Future<void> _editBillDiscount(
   BuildContext context,
   DiningViewModel vm,
