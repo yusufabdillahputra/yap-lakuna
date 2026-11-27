@@ -75,4 +75,4 @@ toko, karena aturan penjualan Lakuna sudah per cabang (`sales.rules`).
 | Topik | Desain | Kode | Catatan |
 | --- | --- | --- | --- |
 | Target margin kotor per cabang | 1.24 "Target toko 25%" | Rilis v0.133.0 | Pengaturan 1.26, kartu Laba rugi, ekspor Ringkasan. |
-| Target di tab Ringkasan (layar) | – | Belum | Kartu KPI *Laba kotor* belum menyebut target; tambah bila diminta. |
+| Target di tab Ringkasan (layar) | – | Rilis v0.145.0 | [F1-16e](2026-11-27-f1-16e-target-di-ringkasan-design.md): KPI *Laba kotor* menyebut margin dan target. |

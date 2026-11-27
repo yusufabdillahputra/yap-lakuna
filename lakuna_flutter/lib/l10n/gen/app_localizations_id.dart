@@ -8669,11 +8669,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get storeSettingsTargetMarginHint =>
-      'Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.';
+      'Opsional, 1–99. Kartu Laba kotor di Laporan → Ringkasan dan Margin kotor di Laba rugi menandai apakah target tercapai.';
 
   @override
   String get storeSettingsTargetMarginRange =>
       'Isi 1–99, atau kosongkan bila tanpa target.';
+
+  @override
+  String reportsKpiGrossProfitTarget(String margin, String target) {
+    return 'Margin $margin · $target';
+  }
 
   @override
   String reportsMarginTarget(String target) {

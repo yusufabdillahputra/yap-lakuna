@@ -15002,7 +15002,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeSettingsTargetMarginHint.
   ///
   /// In id, this message translates to:
-  /// **'Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.'**
+  /// **'Opsional, 1–99. Kartu Laba kotor di Laporan → Ringkasan dan Margin kotor di Laba rugi menandai apakah target tercapai.'**
   String get storeSettingsTargetMarginHint;
 
   /// No description provided for @storeSettingsTargetMarginRange.
@@ -15010,6 +15010,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Isi 1–99, atau kosongkan bila tanpa target.'**
   String get storeSettingsTargetMarginRange;
+
+  /// No description provided for @reportsKpiGrossProfitTarget.
+  ///
+  /// In id, this message translates to:
+  /// **'Margin {margin} · {target}'**
+  String reportsKpiGrossProfitTarget(String margin, String target);
 
   /// No description provided for @reportsMarginTarget.
   ///

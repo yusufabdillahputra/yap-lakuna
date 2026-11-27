@@ -428,6 +428,35 @@ void main() {
     });
   }
 
+  for (final size in const [Size(1440, 900), Size(360, 780)]) {
+    testWidgets('${size.width.toInt()} px: KPI laba kotor di Ringkasan '
+        'menyebut margin dan target (F1-16e)', (tester) async {
+      Future<void> open(int? target) => pump(
+        tester,
+        size,
+        reports: FakeReportsRepository()..targetMarginBp = target,
+      );
+      Finder note(String text) => find.descendant(
+        of: _key('reports-kpi-gross-profit'),
+        matching: find.text(text),
+      );
+
+      await open(null);
+      expect(note('Dari harga pokok saat jual'), findsOneWidget);
+      await open(7500);
+      expect(
+        note('Margin 69,0% · Target toko 75% · kurang 6,0 poin'),
+        findsOneWidget,
+      );
+      await open(6900);
+      expect(note('Margin 69,0% · Target toko 69% · tercapai'), findsOneWidget);
+      // Tanpa penjualan: target saja.
+      await _choose(tester, _key('reports-period'), 'Oktober 2026');
+      expect(note('Target toko 69%'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('tanpa izin laba: kartu laba kotor dan tab laba rugi hilang', (
     tester,
   ) async {

@@ -5835,13 +5835,24 @@
   "@storeSettingsTargetMargin": {
     "placeholders": {}
   },
-  "storeSettingsTargetMarginHint": "Opsional, 1–99. Kartu Margin kotor di Laporan → Laba rugi menandai apakah target tercapai.",
+  "storeSettingsTargetMarginHint": "Opsional, 1–99. Kartu Laba kotor di Laporan → Ringkasan dan Margin kotor di Laba rugi menandai apakah target tercapai.",
   "@storeSettingsTargetMarginHint": {
     "placeholders": {}
   },
   "storeSettingsTargetMarginRange": "Isi 1–99, atau kosongkan bila tanpa target.",
   "@storeSettingsTargetMarginRange": {
     "placeholders": {}
+  },
+  "reportsKpiGrossProfitTarget": "Margin {margin} · {target}",
+  "@reportsKpiGrossProfitTarget": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
   },
   "reportsMarginTarget": "Target toko {target}",
   "@reportsMarginTarget": {

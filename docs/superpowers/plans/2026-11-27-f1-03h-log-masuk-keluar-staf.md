@@ -13,4 +13,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-03h-log-masuk-keluar-staf-design.md`
 - [x] 6. Spec F1-02/F1-03/README/STATUS-JEDA/GAP-FASE1, panduan
       users-roles ID/EN, CHANGELOG, versi 0.144.0+147.
 - [x] 7. Format, analyze, semua tes, review subagent, uji Xvfb.
-- [ ] 8. PR dan rilis.
+- [x] 8. PR dan rilis.

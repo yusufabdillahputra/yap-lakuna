@@ -11,7 +11,7 @@
 - **Payment methods**: the [static QRIS](pay-qris) image and details, the manager PIN for Paid, and whether phone cashiers show the QRIS image.
 - **Receipt & printer**: see [Receipts & printers](receipt-printer).
 - **Tax & service** (F&B): service charge, PB1, and the *Prices include tax* option.
-- **Sales & stock**: *Allow negative stock*, *Total rounding* (Rp 100 or Rp 500), *Manual discount needs manager PIN*, and *Transfer account* (e.g. `BCA 123-456-7890`, shown on the payment screen and on receipts that still leave a receivable). Have several accounts? Write **one account per line**, up to 3 (e.g. BCA on the first line, Mandiri on the second); each line can be at most 100 characters. **Gross margin target (%)** (optional, 1–99, e.g. `25`) is used by the *Gross margin* card in [Reports → Profit & loss](reports) to show whether the target is met; leave it empty for no target.
+- **Sales & stock**: *Allow negative stock*, *Total rounding* (Rp 100 or Rp 500), *Manual discount needs manager PIN*, and *Transfer account* (e.g. `BCA 123-456-7890`, shown on the payment screen and on receipts that still leave a receivable). Have several accounts? Write **one account per line**, up to 3 (e.g. BCA on the first line, Mandiri on the second); each line can be at most 100 characters. **Gross margin target (%)** (optional, 1–99, e.g. `25`) is used by the *Gross profit* card in [Reports → Summary](reports) and the *Gross margin* card in Profit & loss to show whether the target is met; leave it empty for no target.
 - **Data & backup**: see [Backup & restore](backup-restore).
 - **Appearance & language**: Light/Dark/Follow system theme, language, and **Display size** Normal or Large.
 

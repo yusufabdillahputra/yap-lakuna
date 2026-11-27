@@ -7,6 +7,29 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.145.0] - 2026-11-27
+
+Kartu *Laba kotor* di tab Ringkasan Laporan kini menyebut margin periode
+dan target margin toko. Ini gap kesembilan di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Laporan › Ringkasan** (1.23): bila **Target margin kotor** diatur di
+  Pengaturan (F1-16d), keterangan kartu KPI *Laba kotor* berubah
+  menjadi, misalnya, *Margin 24,0% · Target toko 25% · kurang 1,0 poin*
+  atau *Margin 25,3% · Target toko 25% · tercapai*.
+  - Bila periode belum punya penjualan, keterangannya *Target toko 25%*.
+  - Tanpa target, keterangannya tetap *Dari harga pokok saat jual*.
+- Panduan *Laporan* (ID dan EN) menyebut keterangan baru ini.
+
+### Catatan teknis
+
+- `grossProfitKpiNote` memakai ulang `marginNote` dan `percentLabel`,
+  sehingga teks dan pembulatannya sama dengan kartu *Margin kotor* di tab
+  Laba rugi.
+- Kunci l10n baru: `reportsKpiGrossProfitTarget`.
+
 ## [0.144.0] - 2026-11-27
 
 Masuk dan keluar staf kini dicatat di database. Pemilik dan manajer bisa
@@ -8312,7 +8335,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...HEAD
+[0.145.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...v0.145.0
 [0.144.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...v0.144.0
 [0.143.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...v0.143.0
 [0.142.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...v0.142.0
