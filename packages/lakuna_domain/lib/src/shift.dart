@@ -73,12 +73,18 @@ bool shiftContains(int start, int end, int minute) => start < end
     : minute >= start || minute < end;
 
 /// Indeks shift yang sedang berjalan pada [minute]; bila beberapa shift
-/// tumpang tindih, yang jam mulainya paling awal. `null` bila tidak ada.
+/// tumpang tindih (serah terima), yang paling baru mulai, karena kasir yang
+/// membuka sesi biasanya kasir shift berikutnya. `null` bila tidak ada.
 int? currentShiftIndex(List<({int start, int end})> shifts, int minute) {
   int? best;
+  int? bestElapsed;
   for (final (i, s) in shifts.indexed) {
     if (!shiftContains(s.start, s.end, minute)) continue;
-    if (best == null || s.start < shifts[best].start) best = i;
+    final elapsed = (minute - s.start) % ShiftLimits.minutesPerDay;
+    if (bestElapsed == null || elapsed < bestElapsed) {
+      best = i;
+      bestElapsed = elapsed;
+    }
   }
   return best;
 }

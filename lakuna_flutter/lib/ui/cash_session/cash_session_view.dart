@@ -90,6 +90,23 @@ class _CashSessionScreenState extends State<CashSessionScreen> {
   );
 }
 
+/// Pilihan shift buka sesi: label → id, *Tanpa shift* = `''`. Label ganda
+/// (shift bernama sama dibuat di dua perangkat sebelum sinkron) diberi
+/// nomor agar tidak saling menimpa.
+Map<String, String> _shiftItems(AppLocalizations l10n, List<Shift> shifts) {
+  final items = <String, String>{};
+  for (final s in shifts) {
+    final base = l10n.cashShiftOption(s.name, shiftRange(s));
+    var label = base;
+    for (var n = 2; items.containsKey(label); n++) {
+      label = '$base ($n)';
+    }
+    items[label] = s.id.uuid;
+  }
+  items[l10n.cashShiftNone] = '';
+  return items;
+}
+
 /// Pesan galat umum (bukan milik satu field).
 String cashErrorMessage(AppLocalizations l10n, Exception error) =>
     switch (error) {
@@ -530,11 +547,7 @@ class _OpenForm extends StatelessWidget {
             key: ValueKey('cash-shift-${viewModel.shiftVersion}'),
             label: Text(l10n.cashShift),
             description: Text(l10n.cashShiftHint),
-            items: {
-              for (final s in viewModel.shifts)
-                l10n.cashShiftOption(s.name, shiftRange(s)): s.id.uuid,
-              l10n.cashShiftNone: '',
-            },
+            items: _shiftItems(l10n, viewModel.shifts),
             forceErrorText: viewModel.shiftMissing
                 ? l10n.cashShiftMissing
                 : null,

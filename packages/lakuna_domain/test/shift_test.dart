@@ -52,11 +52,7 @@ void main() {
     test('nama kosong atau terlalu panjang', () {
       expect(validateShift(name: '  ', start: 0, end: 60), {ShiftIssue.name});
       expect(
-        validateShift(
-          name: 'x' * (ShiftLimits.name + 1),
-          start: 0,
-          end: 60,
-        ),
+        validateShift(name: 'x' * (ShiftLimits.name + 1), start: 0, end: 60),
         {ShiftIssue.name},
       );
       expect(
@@ -99,13 +95,25 @@ void main() {
     });
   });
 
-  test('currentShiftIndex memilih shift berjalan, jam mulai paling awal', () {
+  test('currentShiftIndex memilih shift berjalan, yang paling baru mulai', () {
     final shifts = [(start: 900, end: 1320), (start: 420, end: 960)];
     expect(currentShiftIndex(shifts, 600), 1);
-    // 15.30 di kedua shift: jam mulai paling awal (07.00) menang.
-    expect(currentShiftIndex(shifts, 930), 1);
+    // 15.30 di kedua shift (serah terima): Siang yang baru mulai menang.
+    expect(currentShiftIndex(shifts, 930), 0);
     expect(currentShiftIndex(shifts, 1000), 0);
     expect(currentShiftIndex(shifts, 1400), isNull);
     expect(currentShiftIndex(const [], 600), isNull);
+  });
+
+  test('currentShiftIndex: serah terima di sekitar tengah malam', () {
+    // Siang 15–23 dan Malam 22–07, Pagi 06–14.
+    final shifts = [
+      (start: 900, end: 1380),
+      (start: 1320, end: 420),
+      (start: 360, end: 840),
+    ];
+    expect(currentShiftIndex(shifts, 1350), 1); // 22.30 → Malam
+    expect(currentShiftIndex(shifts, 120), 1); // 02.00 → Malam
+    expect(currentShiftIndex(shifts, 390), 2); // 06.30 → Pagi
   });
 }

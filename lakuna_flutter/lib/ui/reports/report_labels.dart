@@ -126,7 +126,6 @@ String unitQty(
   return unit == null ? text : '$text $unit';
 }
 
-/// Uang bertanda untuk tampilan: `+ Rp 5.000` / `− Rp 5.000` / `Rp 0`.
 /// Nama kasir sesi, dengan shift bila ada (F1-03g): `Sari · Pagi`.
 String cashSessionStaffLabel(CashSessionLine s) => switch (s.shift) {
   final shift? => '${s.staffName} · ${shift.name}',
@@ -137,6 +136,7 @@ String cashSessionStaffLabel(CashSessionLine s) => switch (s.shift) {
 String shiftSummaryLabel(AppLocalizations l10n, ShiftSummary g) =>
     g.shift?.name ?? l10n.reportsShiftNone;
 
+/// Uang bertanda untuk tampilan: `+ Rp 5.000` / `− Rp 5.000` / `Rp 0`.
 String signedMoneyLabel(AppLocalizations l10n, Money m) => m.value == 0
     ? moneyLabel(l10n, m)
     : '${m.isNegative ? '−' : '+'} ${moneyLabel(l10n, Money(m.value.abs()))}';

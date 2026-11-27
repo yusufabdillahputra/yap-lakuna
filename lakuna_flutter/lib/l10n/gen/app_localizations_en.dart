@@ -8911,7 +8911,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shiftErrInUse(int count) {
-    return 'This shift is used by $count cash sessions, so it can\'t be deleted.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cash sessions',
+      one: '1 cash session',
+    );
+    return 'This shift is used by $_temp0, so it can\'t be deleted.';
   }
 
   @override
@@ -8968,6 +8974,12 @@ class AppLocalizationsEn extends AppLocalizations {
     String sales,
     String difference,
   ) {
-    return '$shift: $count sessions, sales $sales, difference $difference';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions',
+      one: '1 session',
+    );
+    return '$shift: $_temp0, sales $sales, difference $difference';
   }
 }

@@ -664,6 +664,55 @@ void main() {
       expect(svm.shiftMissing, isFalse);
     });
 
+    test('lewat tengah malam dan serah terima memilih shift baru', () async {
+      repo.addShift('Siang', 15 * 60, 23 * 60);
+      final malam = repo.addShift('Malam', 22 * 60, 7 * 60);
+      final pagi = repo.addShift('Pagi', 6 * 60, 14 * 60);
+      for (final (utc, want) in [
+        (DateTime.utc(2026, 11, 3, 15, 30), malam.id), // 22.30 WIB
+        (DateTime.utc(2026, 11, 3, 19), malam.id), // 02.00 WIB
+        (DateTime.utc(2026, 11, 3, 23, 30), pagi.id), // 06.30 WIB
+      ]) {
+        clock = utc;
+        final svm = withClock();
+        addTearDown(svm.dispose);
+        await svm.load.execute();
+        expect(svm.shiftId, want, reason: '$utc');
+      }
+    });
+
+    test('shift berjalan dihitung ulang saat menekan Buka', () async {
+      final pagi = repo.addShift('Pagi', 7 * 60, 15 * 60);
+      clock = DateTime.utc(2026, 11, 2, 23, 50); // 06.50 WIB
+      final svm = withClock();
+      addTearDown(svm.dispose);
+      await svm.load.execute();
+      expect(svm.shiftId, isNull);
+      clock = DateTime.utc(2026, 11, 3, 0, 5); // 07.05 WIB
+      svm.setOpeningCash('0');
+      await svm.open.execute();
+      expect(repo.session!.shiftId, pagi.id);
+    });
+
+    test('shift terhapus: tidak diganti shift lain diam-diam', () async {
+      final pagi = repo.addShift('Pagi', 7 * 60, 15 * 60);
+      final svm = withClock();
+      addTearDown(svm.dispose);
+      await svm.load.execute();
+      repo.shiftList.clear();
+      final pagi2 = repo.addShift('Pagi baru', 7 * 60, 15 * 60);
+      expect(svm.shiftId, pagi.id);
+      svm.setOpeningCash('0');
+      await svm.open.execute();
+      expect(svm.shiftMissing, isTrue);
+      expect(svm.shiftId, isNull);
+      expect(svm.shifts.single.id, pagi2.id);
+      // Buka lagi tanpa memilih: sesi tanpa shift, pesan hilang.
+      await svm.open.execute();
+      expect(svm.shiftMissing, isFalse);
+      expect(repo.session!.shiftId, isNull);
+    });
+
     test('mulai sesi baru menghitung ulang shift berjalan', () async {
       repo.addShift('Pagi', 7 * 60, 15 * 60);
       final siang = repo.addShift('Siang', 15 * 60, 22 * 60);

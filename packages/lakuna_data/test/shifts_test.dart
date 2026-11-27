@@ -131,10 +131,7 @@ void main() {
           }),
         ),
       );
-      await expectLater(
-        save('Pagi', 420, 1440),
-        throwsA(isA<ShiftInvalid>()),
-      );
+      await expectLater(save('Pagi', 420, 1440), throwsA(isA<ShiftInvalid>()));
       expect(await listShifts(store, scope), isEmpty);
     });
 
@@ -189,9 +186,10 @@ void main() {
         throwsA(isA<ShiftInUse>().having((e) => e.sessions, 'sessions', 1)),
       );
       await deleteShift(store, scope, staffId: owner(), shiftId: siang.id);
-      expect([
-        for (final r in await listShifts(store, scope)) r.shift.name,
-      ], ['Pagi']);
+      expect(
+        [for (final r in await listShifts(store, scope)) r.shift.name],
+        ['Pagi'],
+      );
       final gone = await Shift.db.findById(store.session, siang.id);
       expect(gone!.deletedAt, now);
       // Nama shift yang dihapus boleh dipakai lagi.

@@ -26,8 +26,10 @@ sesi per shift. Ini gap pertama di daftar `docs/superpowers/GAP-FASE1.md`.
   **Simpan** di dialog *Buang perubahan?* seperti master data lain.
 - **Sesi kasir (1.3) → Buka sesi:** pilihan **Shift** (*Dari Master data ›
   Shift (opsional).*) di atas saldo awal, hanya bila cabang punya shift.
-  Shift yang sedang berjalan menurut jam cabang terpilih otomatis; kasir
-  bisa menggantinya atau memilih *Tanpa shift*. Setelah tutup sesi dan
+  Shift yang sedang berjalan menurut jam cabang terpilih otomatis (saat
+  serah terima yang tumpang tindih, shift yang baru mulai) dan dihitung
+  ulang saat **Buka sesi** ditekan; kasir bisa menggantinya atau memilih
+  *Tanpa shift*. Setelah tutup sesi dan
   **Buka sesi baru**, shift berjalan dihitung ulang.
 - Kartu sesi aktif menampilkan *Shift Pagi · 07.00–15.00*; judul tutup sesi
   menjadi *Tutup sesi kasir · Sari · Shift Pagi*; kartu *Sesi sebelumnya*
@@ -38,13 +40,16 @@ sesi per shift. Ini gap pertama di daftar `docs/superpowers/GAP-FASE1.md`.
   Pagi*), dan tabel baru **Per shift** (Shift, Sesi, Penjualan, Selisih)
   tampil bila ada sesi bershift di periode; sesi tanpa shift digabung
   sebagai *Tanpa shift*. Unduhan PDF/Excel membawa catatan per shift.
+- Shift bernama sama (dibuat di dua perangkat sebelum sinkron) diberi nomor
+  di pilihan buka sesi agar tidak saling menutupi.
 - Panduan *Sesi kasir* dan *Laporan* (ID/EN) menjelaskan shift.
 
 ### Diubah
 
 - Membuka sesi dengan shift yang baru saja dihapus (mis. dari perangkat
-  lain) ditolak tanpa membuka sesi; pilihan shift dimuat ulang dan pesan
-  *Shift sudah dihapus. Pilih shift lain.* tampil di field-nya.
+  lain) ditolak tanpa membuka sesi; pilihan shift dimuat ulang tanpa
+  diganti shift lain diam-diam, dan pesan *Shift sudah dihapus. Pilih shift
+  lain.* tampil di field-nya.
 
 ### Catatan teknis
 
@@ -54,15 +59,18 @@ sesi per shift. Ini gap pertama di daftar `docs/superpowers/GAP-FASE1.md`.
   `20261127021134605-shift`.
 - `lakuna_domain`: `parseShiftTime`, `formatShiftTime`, `shiftRangeLabel`,
   `validateShift` (`ShiftIssue.name/start/end/sameTime`), `shiftContains`
-  (lewat tengah malam), `currentShiftIndex` (jam mulai paling awal menang
-  bila tumpang tindih).
-- `lakuna_data`: `listShifts`, `saveShift`, `deleteShift` (nama unik per
+  (lewat tengah malam), `currentShiftIndex` (bila tumpang tindih, shift
+  yang paling baru mulai).
+- `lakuna_data`: `activeShifts` (pilihan buka sesi, tanpa hitung
+  pemakai), `listShifts` (dengan jumlah sesi per shift), `saveShift`, `deleteShift` (nama unik per
   cabang tanpa beda huruf, soft delete, `ShiftInUse(sessions)`,
   `ShiftActorNotPermitted`), `shiftsById`, `requireActiveShift`;
   `openCashSession(shiftId:)` menolak shift terhapus atau milik cabang lain
   (`ShiftNotFound`). `CashSessionLine.shift`, `ClosedSessionRecap.shift`,
   dan `CashReport.shifts` (`ShiftSummary`: sesi, penjualan nota lunas,
-  selisih). Nama shift dibaca dari baris shift termasuk yang terhapus, jadi
+  selisih; penjualan semua sesi diambil dalam satu query, dan berupa total
+  nota lunas sesi sehingga sesi lewat tengah malam tidak dipotong per
+  tanggal). Nama shift dibaca dari baris shift termasuk yang terhapus, jadi
   ganti nama ikut tampil di sesi lama.
 - Aplikasi: `ShiftsRepository` + `LocalShiftsRepository` (cek
   `settings:manage` juga di repositori), `CashDrawerRepository.shifts()` dan

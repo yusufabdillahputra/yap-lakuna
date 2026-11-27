@@ -77,24 +77,31 @@ void _sort(List<Shift> shifts) => shifts.sort((a, b) {
       : a.name.toLowerCase().compareTo(b.name.toLowerCase());
 });
 
-/// Shift aktif cabang, urut jam mulai lalu nama. Boleh dibaca semua staf
-/// (pilihan shift saat buka sesi).
-Future<List<ShiftRow>> listShifts(LakunaStore store, CatalogScope scope) async {
+/// Shift aktif cabang, urut jam mulai lalu nama, tanpa jumlah pemakai
+/// (pilihan shift saat buka sesi; boleh dibaca semua staf).
+Future<List<Shift>> activeShifts(LakunaStore store, CatalogScope scope) async {
   final shifts = await _shifts(store.session, scope);
   _sort(shifts);
-  if (shifts.isEmpty) return const [];
-  final sessions = await CashSession.db.find(
-    store.session,
-    where: (c) =>
-        c.tenantId.equals(scope.tenantId) &
-        c.shiftId.inSet({for (final s in shifts) s.id}) &
-        c.deletedAt.equals(null),
-  );
-  final usage = <UuidValue, int>{};
-  for (final c in sessions) {
-    if (c.shiftId case final id?) usage[id] = (usage[id] ?? 0) + 1;
-  }
-  return [for (final s in shifts) ShiftRow(shift: s, usage: usage[s.id] ?? 0)];
+  return shifts;
+}
+
+/// [activeShifts] beserta jumlah sesi kasir pemakai tiap shift (tab
+/// Master data › Shift).
+Future<List<ShiftRow>> listShifts(LakunaStore store, CatalogScope scope) async {
+  final shifts = await activeShifts(store, scope);
+  return [
+    for (final s in shifts)
+      ShiftRow(
+        shift: s,
+        usage: await CashSession.db.count(
+          store.session,
+          where: (c) =>
+              c.tenantId.equals(scope.tenantId) &
+              c.shiftId.equals(s.id) &
+              c.deletedAt.equals(null),
+        ),
+      ),
+  ];
 }
 
 /// Shift [ids] cabang [scope] termasuk yang sudah dihapus lunak, untuk
@@ -109,7 +116,10 @@ Future<Map<UuidValue, Shift>> shiftsById(
   if (wanted.isEmpty) return const {};
   final rows = await Shift.db.find(
     session,
-    where: (s) => s.tenantId.equals(scope.tenantId) & s.id.inSet(wanted),
+    where: (s) =>
+        s.tenantId.equals(scope.tenantId) &
+        s.outletId.equals(scope.outletId) &
+        s.id.inSet(wanted),
     transaction: transaction,
   );
   return {for (final s in rows) s.id: s};
@@ -146,8 +156,7 @@ Future<void> _requireActor(
     outletId: scope.outletId,
     staffId: staffId,
   );
-  if (staff == null ||
-      !staff.permissions.contains(Permission.settingsManage)) {
+  if (staff == null || !staff.permissions.contains(Permission.settingsManage)) {
     throw const ShiftActorNotPermitted(Permission.settingsManage);
   }
 }
@@ -163,20 +172,12 @@ Future<Shift> saveShift(
   required int startMinute,
   required int endMinute,
 }) async {
-  final issues = validateShift(
-    name: name,
-    start: startMinute,
-    end: endMinute,
-  );
+  final issues = validateShift(name: name, start: startMinute, end: endMinute);
   if (issues.isNotEmpty) throw ShiftInvalid(issues);
   await _requireActor(store, scope, staffId);
   final clean = name.trim();
   return store.write(actor: staffId, (w) async {
-    final shifts = await _shifts(
-      w.session,
-      scope,
-      transaction: w.transaction,
-    );
+    final shifts = await _shifts(w.session, scope, transaction: w.transaction);
     if (shifts.any(
       (s) => s.id != id && s.name.toLowerCase() == clean.toLowerCase(),
     )) {

@@ -1017,12 +1017,10 @@ void main() {
         period: ReportPeriod.last7Days,
         now: now,
       );
-      expect([for (final s in week.sessions) s.shift?.name], [
-        null,
-        'Pagi awal',
-        'Malam',
-        'Pagi awal',
-      ]);
+      expect(
+        [for (final s in week.sessions) s.shift?.name],
+        [null, 'Pagi awal', 'Malam', 'Pagi awal'],
+      );
       expect(
         [
           for (final g in week.shifts)
@@ -1040,11 +1038,10 @@ void main() {
         scope,
         permissions: all,
       );
-      expect([for (final s in recent) s.shift?.name], [
-        'Pagi awal',
-        'Malam',
-        'Pagi awal',
-      ]);
+      expect(
+        [for (final s in recent) s.shift?.name],
+        ['Pagi awal', 'Malam', 'Pagi awal'],
+      );
       final recap = await loadClosedSessionRecap(
         store,
         scope,

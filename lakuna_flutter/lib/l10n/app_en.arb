@@ -5313,7 +5313,7 @@
   "shiftErrSameTime": "The end time must differ from the start time.",
   "shiftErrNameTaken": "This shift name is already used at this branch.",
   "shiftErrNotFound": "Shift not found or already deleted.",
-  "shiftErrInUse": "This shift is used by {count} cash sessions, so it can't be deleted.",
+  "shiftErrInUse": "This shift is used by {count, plural, =1{1 cash session} other{{count} cash sessions}}, so it can't be deleted.",
   "shiftErrNotPermitted": "Managing shifts needs the Settings permission.",
   "shiftErrGeneric": "Couldn't save the shift. Try again.",
   "cashShift": "Shift",
@@ -5328,5 +5328,5 @@
   "reportsColSessions": "Sessions",
   "reportsColSales": "Sales",
   "reportsShiftNone": "No shift",
-  "reportsShiftExportLine": "{shift}: {count} sessions, sales {sales}, difference {difference}"
+  "reportsShiftExportLine": "{shift}: {count, plural, =1{1 session} other{{count} sessions}}, sales {sales}, difference {difference}"
 }

@@ -597,17 +597,25 @@ Future<CashReport> loadCashReport(
   final shifts = await shiftsById(session, scope, [
     for (final s in sessions) ?s.shiftId,
   ]);
+  // Penjualan per sesi (nota lunas, sama dengan rekap sesi) hanya untuk
+  // ringkasan per shift; satu query untuk semua sesi.
   final salesBySession = <UuidValue, Money>{};
+  if (shifts.isNotEmpty) {
+    for (final sale in await Sale.db.find(
+      session,
+      where: (x) =>
+          x.tenantId.equals(scope.tenantId) &
+          x.cashSessionId.inSet({for (final s in sessions) s.id}) &
+          x.status.inSet(soldStatuses) &
+          x.deletedAt.equals(null),
+    )) {
+      final id = sale.cashSessionId!;
+      salesBySession[id] =
+          (salesBySession[id] ?? Money.zero) + Money(sale.total);
+    }
+  }
   final lines = <CashSessionLine>[];
   for (final s in sessions.reversed) {
-    // Penjualan per sesi hanya untuk ringkasan per shift.
-    if (shifts.isNotEmpty) {
-      salesBySession[s.id] = (await sessionSalesSummary(
-        session,
-        tenantId: scope.tenantId,
-        sessionId: s.id,
-      )).total;
-    }
     final closed = s.status == CashSessionStatus.closed;
     final expected = closed
         ? Money(s.expectedCash ?? 0)

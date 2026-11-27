@@ -55,8 +55,8 @@ merangkum sesi per shift.
 - `validateShift(name:, start:, end:) → Set<ShiftIssue>` (`name`, `start`,
   `end`, `sameTime`).
 - `shiftContains(start, end, minute)` termasuk shift lewat tengah malam;
-  `currentShiftIndex(list, minute)` memilih shift berjalan (jam mulai
-  paling awal bila tumpang tindih).
+  `currentShiftIndex(list, minute)` memilih shift berjalan; bila tumpang
+  tindih (serah terima), shift yang paling baru mulai.
 
 ## Data (`lakuna_data`, `shifts.dart`)
 
@@ -69,7 +69,9 @@ merangkum sesi per shift.
 - `CashSessionLine.shift`, `ClosedSessionRecap.shift`, dan
   `CashReport.shifts` (per shift: jumlah sesi, penjualan sesi, selisih;
   sesi tanpa shift digabung sebagai *Tanpa shift*; hanya terisi bila ada
-  sesi bershift di periode).
+  sesi bershift di periode). Penjualan = seluruh nota lunas sesi itu
+  (sesi lewat tengah malam tidak dipotong per tanggal), jadi bisa berbeda
+  dengan tab Penjualan.
 
 ## UI
 

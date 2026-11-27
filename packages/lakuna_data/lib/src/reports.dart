@@ -7,7 +7,7 @@ import 'cash.dart';
 import 'customers.dart';
 import 'debt_payment_void.dart';
 import 'expenses.dart';
-import 'history.dart' show sessionCashRefunds;
+import 'history.dart' show sessionCashRefunds, soldStatuses;
 import 'purchases.dart' show purchaseCashSource;
 import 'sales.dart' show SessionSalesSummary, sessionSalesSummary;
 import 'shifts.dart' show shiftsById;

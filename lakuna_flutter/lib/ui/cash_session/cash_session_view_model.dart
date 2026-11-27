@@ -232,14 +232,22 @@ class CashSessionViewModel extends ChangeNotifier {
       _shiftId = null;
       _shiftTouched = false;
     }
-    if (!_shiftTouched) {
-      final local = outletLocalTime(_clock().toUtc(), _timezone);
-      final i = currentShiftIndex([
-        for (final s in _shifts) (start: s.startMinute, end: s.endMinute),
-      ], local.hour * 60 + local.minute);
-      _shiftId = i == null ? null : _shifts[i].id;
-    }
+    _pickRunningShift();
     _shiftVersion++;
+  }
+
+  /// Selama kasir belum memilih, [shiftId] = shift berjalan saat ini.
+  void _pickRunningShift() {
+    if (_shiftTouched) return;
+    final local = outletLocalTime(_clock().toUtc(), _timezone);
+    final i = currentShiftIndex([
+      for (final s in _shifts) (start: s.startMinute, end: s.endMinute),
+    ], local.hour * 60 + local.minute);
+    final next = i == null ? null : _shifts[i].id;
+    if (next != _shiftId) {
+      _shiftId = next;
+      _shiftVersion++;
+    }
   }
 
   void setOpeningNote(String text) {
@@ -614,6 +622,9 @@ class CashSessionViewModel extends ChangeNotifier {
     if (_openingNoteError case final e?) {
       return Result.error(CashInputInvalid(CashField.note, e));
     }
+    // Jam bisa sudah masuk shift lain sejak formulir dimuat.
+    _pickRunningShift();
+    _shiftMissing = false;
     final result = await _repository.open(
       openingCash: cash!,
       note: _openingNote,
@@ -780,6 +791,9 @@ class CashSessionViewModel extends ChangeNotifier {
         _error = error;
         await _load();
       case ShiftNotFound():
+        // Kasir memilih ulang; jangan diam-diam diganti shift lain.
+        _shiftId = null;
+        _shiftTouched = true;
         await _loadShifts();
         _shiftMissing = true;
       default:
@@ -788,6 +802,8 @@ class CashSessionViewModel extends ChangeNotifier {
   }
 
   void _resetForms() {
+    _shiftTouched = false;
+    _shiftMissing = false;
     _clearCount();
     _clearMovementForm();
     _direction = CashDirection.outflow;

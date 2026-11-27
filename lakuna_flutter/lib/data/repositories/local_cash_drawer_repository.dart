@@ -47,9 +47,7 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
   @override
   Future<Result<List<Shift>>> shifts() => _guard(
     null,
-    (scope, _) async => [
-      for (final r in await listShifts(_store, _catalog(scope))) r.shift,
-    ],
+    (scope, _) => activeShifts(_store, _catalog(scope)),
   );
 
   CatalogScope _catalog(CashScope scope) => CatalogScope(
