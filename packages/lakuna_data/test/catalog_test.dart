@@ -160,6 +160,61 @@ void main() {
       expect(v.tiers.map((t) => t.minQty), [Qty.units(6), Qty.units(24)]);
     });
 
+    test('satuan beli bawaan tersimpan, satu per varian (F1-08s)', () async {
+      VariantDraft variant(List<UnitDraft> units, {String? id}) =>
+          VariantDraft(id: id, sellPrice: const Money(36000), units: units);
+      final id = await save(
+        _minyak(
+          variants: [
+            variant([
+              UnitDraft(name: 'Pak', factor: Qty.units(3)),
+              UnitDraft(
+                name: 'Dus',
+                factor: Qty.units(6),
+                purchaseDefault: true,
+              ),
+              // Kedua yang ditandai diabaikan: hanya satu per varian.
+              UnitDraft(
+                name: 'Karton',
+                factor: Qty.units(12),
+                purchaseDefault: true,
+              ),
+            ]),
+          ],
+        ),
+      );
+      var units = (await loadProduct(store, scope, id))!.variants.single.units;
+      expect(
+        {for (final u in units) u.name: u.purchaseDefault},
+        {'Pak': false, 'Dus': true, 'Karton': false},
+      );
+      final draft = (await loadProduct(store, scope, id))!.toDraft();
+      expect(draft.variants.single.units.map((u) => u.purchaseDefault), [
+        false,
+        true,
+        false,
+      ]);
+
+      // Kembali ke satuan dasar: tanda dihapus.
+      final v = draft.variants.single;
+      await save(
+        ProductDraft(
+          id: draft.id,
+          name: draft.name,
+          category: draft.category,
+          baseUnit: draft.baseUnit,
+          variants: [
+            variant([
+              for (final u in v.units)
+                UnitDraft(id: u.id, name: u.name, factor: u.factor),
+            ], id: v.id),
+          ],
+        ),
+      );
+      units = (await loadProduct(store, scope, id))!.variants.single.units;
+      expect(units.map((u) => u.purchaseDefault), everyElement(isFalse));
+    });
+
     test('kategori dan satuan dipakai ulang tanpa beda huruf', () async {
       await save(_minyak());
       await save(

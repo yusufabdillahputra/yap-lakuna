@@ -25,6 +25,7 @@ abstract class ProductUnit
     this.barcode,
     this.costPrice,
     this.sellPrice,
+    bool? purchaseDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
     this.deletedAt,
@@ -34,6 +35,7 @@ abstract class ProductUnit
     required this.hlc,
     this.originDeviceId,
   }) : id = id ?? const _is.Uuid().v7obj(),
+       purchaseDefault = purchaseDefault ?? false,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now(),
        version = version ?? 1;
@@ -47,6 +49,7 @@ abstract class ProductUnit
     String? barcode,
     int? costPrice,
     int? sellPrice,
+    bool? purchaseDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -73,6 +76,11 @@ abstract class ProductUnit
       barcode: jsonSerialization['barcode'] as String?,
       costPrice: jsonSerialization['costPrice'] as int?,
       sellPrice: jsonSerialization['sellPrice'] as int?,
+      purchaseDefault: jsonSerialization['purchaseDefault'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(
+              jsonSerialization['purchaseDefault'],
+            ),
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -121,6 +129,11 @@ abstract class ProductUnit
 
   int? sellPrice;
 
+  /// Satuan beli bawaan varian (F1-08s): baris pembelian dan saran stok
+  /// minimum memakai satuan ini. Paling banyak satu per varian; tidak ada =
+  /// satuan dasar.
+  bool purchaseDefault;
+
   DateTime createdAt;
 
   DateTime updatedAt;
@@ -152,6 +165,7 @@ abstract class ProductUnit
     String? barcode,
     int? costPrice,
     int? sellPrice,
+    bool? purchaseDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -173,6 +187,7 @@ abstract class ProductUnit
       if (barcode != null) 'barcode': barcode,
       if (costPrice != null) 'costPrice': costPrice,
       if (sellPrice != null) 'sellPrice': sellPrice,
+      'purchaseDefault': purchaseDefault,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -196,6 +211,7 @@ abstract class ProductUnit
       if (barcode != null) 'barcode': barcode,
       if (costPrice != null) 'costPrice': costPrice,
       if (sellPrice != null) 'sellPrice': sellPrice,
+      'purchaseDefault': purchaseDefault,
       'createdAt': createdAt.toJson(),
       'updatedAt': updatedAt.toJson(),
       if (deletedAt != null) 'deletedAt': deletedAt?.toJson(),
@@ -247,6 +263,7 @@ class _ProductUnitImpl extends ProductUnit {
     String? barcode,
     int? costPrice,
     int? sellPrice,
+    bool? purchaseDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -264,6 +281,7 @@ class _ProductUnitImpl extends ProductUnit {
          barcode: barcode,
          costPrice: costPrice,
          sellPrice: sellPrice,
+         purchaseDefault: purchaseDefault,
          createdAt: createdAt,
          updatedAt: updatedAt,
          deletedAt: deletedAt,
@@ -287,6 +305,7 @@ class _ProductUnitImpl extends ProductUnit {
     Object? barcode = _Undefined,
     Object? costPrice = _Undefined,
     Object? sellPrice = _Undefined,
+    bool? purchaseDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt = const _is.$UndefinedDateTime(),
@@ -305,6 +324,7 @@ class _ProductUnitImpl extends ProductUnit {
       barcode: barcode is String? ? barcode : this.barcode,
       costPrice: costPrice is int? ? costPrice : this.costPrice,
       sellPrice: sellPrice is int? ? sellPrice : this.sellPrice,
+      purchaseDefault: purchaseDefault ?? this.purchaseDefault,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt is _is.UndefinedSentinel
@@ -364,6 +384,11 @@ class ProductUnitUpdateTable extends _is.UpdateTable<ProductUnitTable> {
 
   _is.ColumnValue<int, int> sellPrice(int? value) => _is.ColumnValue(
     table.sellPrice,
+    value,
+  );
+
+  _is.ColumnValue<bool, bool> purchaseDefault(bool value) => _is.ColumnValue(
+    table.purchaseDefault,
     value,
   );
 
@@ -454,6 +479,12 @@ class ProductUnitTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'sellPrice',
     );
+    purchaseDefault = _is.ColumnBool(
+      'purchase_default',
+      this,
+      hasDefault: true,
+      fieldName: 'purchaseDefault',
+    );
     createdAt = _is.ColumnDateTime(
       'created_at',
       this,
@@ -515,6 +546,11 @@ class ProductUnitTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnInt sellPrice;
 
+  /// Satuan beli bawaan varian (F1-08s): baris pembelian dan saran stok
+  /// minimum memakai satuan ini. Paling banyak satu per varian; tidak ada =
+  /// satuan dasar.
+  late final _is.ColumnBool purchaseDefault;
+
   late final _is.ColumnDateTime createdAt;
 
   late final _is.ColumnDateTime updatedAt;
@@ -541,6 +577,7 @@ class ProductUnitTable extends _is.Table<_is.UuidValue> {
     barcode,
     costPrice,
     sellPrice,
+    purchaseDefault,
     createdAt,
     updatedAt,
     deletedAt,

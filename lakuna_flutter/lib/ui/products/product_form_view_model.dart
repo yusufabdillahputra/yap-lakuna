@@ -24,6 +24,7 @@ class EditableUnit {
     this.barcode = '',
     this.costPrice,
     this.sellPrice,
+    this.purchaseDefault = false,
   });
 
   final int key;
@@ -34,6 +35,9 @@ class EditableUnit {
   Money? costPrice;
   Money? sellPrice;
 
+  /// Satuan beli bawaan varian (F1-08s).
+  bool purchaseDefault;
+
   UnitDraft toDraft() => UnitDraft(
     id: id,
     name: name,
@@ -41,6 +45,7 @@ class EditableUnit {
     barcode: barcode,
     costPrice: costPrice,
     sellPrice: sellPrice,
+    purchaseDefault: purchaseDefault,
   );
 }
 
@@ -403,6 +408,7 @@ class ProductFormViewModel extends ChangeNotifier {
         u.barcode,
         u.costPrice,
         u.sellPrice,
+        u.purchaseDefault,
       ],
       v.tiers.length,
       for (final t in v.tiers) ...[t.id, t.minQty, t.price, t.groupId],
@@ -553,6 +559,7 @@ class ProductFormViewModel extends ChangeNotifier {
                   barcode: u.barcode,
                   costPrice: u.costPrice,
                   sellPrice: u.sellPrice,
+                  purchaseDefault: u.purchaseDefault,
                 ),
             ],
             tiers: [
@@ -719,6 +726,24 @@ class ProductFormViewModel extends ChangeNotifier {
     final u = variants[variant].units[index];
     edit(u);
     _clear(field, variant: variants[variant].key, unit: u.key, notify: false);
+    notifyListeners();
+  }
+
+  /// Satuan beli bawaan varian [variant] (key [EditableUnit.key]); `null`
+  /// = satuan dasar (F1-08s).
+  /// Satuan tanpa nama tidak dihitung (tidak punya pilihan di layar).
+  int? purchaseUnitKey(int variant) => variants[variant].units
+      .where((u) => u.purchaseDefault && u.name.trim().isNotEmpty)
+      .firstOrNull
+      ?.key;
+
+  /// Memilih satuan beli bawaan; [unitKey] `null` = satuan dasar. Hanya satu
+  /// satuan per varian yang ditandai.
+  void setPurchaseUnit(int variant, int? unitKey) {
+    if (save.running) return;
+    for (final u in variants[variant].units) {
+      u.purchaseDefault = u.key == unitKey;
+    }
     notifyListeners();
   }
 

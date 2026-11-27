@@ -190,6 +190,50 @@ void main() {
     expect(updated.variants.last.stock, Qty.units(5));
   });
 
+  test('satuan beli bawaan (F1-08s): satu per varian, tersimpan, termuat, '
+      'kembali ke dasar', () async {
+    final existing = repo.products.firstWhere((p) => p.name == 'Minyak Goreng');
+    final vm = await open(existing.id.uuid);
+    expect(vm.purchaseUnitKey(0), isNull, reason: 'bawaan satuan dasar');
+    vm.addUnit(0);
+    vm.editUnit(0, 1, ProductField.unitName, (u) => u.name = 'karton');
+    vm.editUnit(0, 1, ProductField.unitFactor, (u) => u.factor = Qty.units(12));
+    expect(vm.hasUnsavedChanges, isTrue);
+    final dus = vm.variants.single.units.first.key;
+    final karton = vm.variants.single.units.last.key;
+    vm.setPurchaseUnit(0, karton);
+    vm.setPurchaseUnit(0, dus);
+    expect(vm.purchaseUnitKey(0), dus);
+    expect(
+      vm.variants.single.units.map((u) => u.purchaseDefault),
+      [true, false],
+      reason: 'hanya satu satuan beli bawaan',
+    );
+    await vm.save.execute();
+    expect(vm.save.completed, isTrue);
+    expect(
+      repo.saved.last.variants.single.units.map((u) => u.purchaseDefault),
+      [true, false],
+    );
+
+    final again = await open(existing.id.uuid);
+    expect(again.purchaseUnitKey(0), again.variants.single.units.first.key);
+    expect(again.hasUnsavedChanges, isFalse);
+    again.setPurchaseUnit(0, null);
+    expect(again.purchaseUnitKey(0), isNull);
+    expect(again.hasUnsavedChanges, isTrue);
+    // Nama dikosongkan: satuan dasar yang tampak terpilih.
+    again.setPurchaseUnit(0, again.variants.single.units.first.key);
+    again.editUnit(0, 0, ProductField.unitName, (u) => u.name = ' ');
+    expect(again.purchaseUnitKey(0), isNull);
+    // Satuan yang dihapus ikut membawa tandanya.
+    again.setPurchaseUnit(0, again.variants.single.units.last.key);
+    again.removeUnit(0, 1);
+    expect(again.purchaseUnitKey(0), isNull);
+    vm.dispose();
+    again.dispose();
+  });
+
   test('sakelar dapur & catatan (F1-10g): bawaan aktif, termuat, '
       'tersimpan', () async {
     expect((await open()).sendToKitchen, isTrue);

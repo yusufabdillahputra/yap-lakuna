@@ -20,6 +20,7 @@ import 'package:lakuna_flutter/utils/result.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../testing/app_harness.dart';
+import '../../testing/cashier_seed.dart';
 import '../../testing/fake_app_settings_repository.dart';
 import '../../testing/fake_purchases_repository.dart';
 import '../../testing/fake_session_repository.dart';
@@ -1030,8 +1031,12 @@ void main() {
   }
 
   /// Stok minimum yang varian-variannya ada di katalog pembelian palsu.
-  (FakeStockRepository, FakePurchasesRepository) restockSeed() {
-    final purchases = FakePurchasesRepository();
+  (FakeStockRepository, FakePurchasesRepository) restockSeed({
+    bool minyakByDus = false,
+  }) {
+    final purchases = FakePurchasesRepository(
+      products: minyakByDus ? cashierProducts(minyakByDus: true) : null,
+    );
     final variants = [
       for (final p in purchases.products)
         for (final v in p.variants) (p, v),
@@ -1606,6 +1611,47 @@ void main() {
       await tester.tap(find.textContaining('Dus').last);
       await tester.pumpAndSettle();
       expect(qtyText(), '7');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('saran langsung dalam satuan beli bawaan '
+        '${size.width.toInt()} px (F1-08s)', (tester) async {
+      final (stock, purchases) = restockSeed(minyakByDus: true);
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.stock,
+        stock: stock,
+        purchases: purchases,
+        session: FakeSessionRepository()..current = sampleStaff(),
+      );
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      await _tap(tester, 'stock-restock');
+      Finder keyed(String prefix) => find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(prefix),
+      );
+      final qty = tester.widget<EditableText>(
+        find.descendant(
+          of: keyed('purchase-qty-').first,
+          matching: find.byType(EditableText),
+        ),
+      );
+      // Saran 38 botol → 7 dus (isi 6), dibulatkan ke atas.
+      expect(qty.controller.text, '7');
+      expect(
+        find.descendant(
+          of: keyed('purchase-unit-').first,
+          matching: find.textContaining('Dus'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
   }

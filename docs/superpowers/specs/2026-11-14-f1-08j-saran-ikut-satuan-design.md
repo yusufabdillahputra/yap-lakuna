@@ -59,7 +59,7 @@ menghitung sendiri 38 ÷ 6 dan mudah kebablasan memesan enam kali lipat.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Jumlah saran ikut satuan saat satuan diganti | 1.19 | Rilis v0.96.0 | Dibulatkan ke atas ke satuan utuh. |
-| Satuan beli bawaan per barang (langsung dus) | — | Belum | Saran selalu mulai dalam satuan dasar. |
+| Satuan beli bawaan per barang (langsung dus) | — | Rilis v0.159.0 | [F1-08s](2026-11-27-f1-08s-satuan-beli-bawaan-design.md): saran langsung dalam satuan beli bawaan. |
 | Target stok selain 2 × minimum | — | Belum | Rumus tetap 2 × minimum − stok. |
 | Saran setelah draf disimpan lalu dibuka lagi | — | Belum | Draf yang dibuka ulang tidak menyimpan saran, jadi ganti satuan kembali mempertahankan angka. |
 | Gabung baris kembar tanpa saran | — | Belum | Perilaku lama: angka satuan lama ditambahkan apa adanya (2 dus + baris 5 botol → 7 botol). |

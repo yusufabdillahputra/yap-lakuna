@@ -29,7 +29,7 @@ Punya banyak barang tanpa kode? Buka **Cetak label**, lalu tekan **Buat barcode 
 
 ## Satuan & harga grosir
 
-- Tab **Satuan & konversi**: tambah satuan seperti *dus* berisi 12 pcs. Menjual 1 dus mengurangi 12 pcs dari stok. Harga kosong berarti harga satuan dasar × isi.
+- Tab **Satuan & konversi**: tambah satuan seperti *dus* berisi 12 pcs. Menjual 1 dus mengurangi 12 pcs dari stok. Harga kosong berarti harga satuan dasar × isi. Bila supplier menjual per dus, pilih *dus* di **Satuan beli bawaan**: barang ini langsung masuk pembelian dalam dus, termasuk saran dari *Stok minimum* (dibulatkan ke atas ke dus utuh). Setiap varian punya pilihannya sendiri.
 - Tab **Harga grosir**: atur harga per satuan mulai jumlah tertentu. Kasir memakainya otomatis.
 
 ## Banyak produk sekaligus

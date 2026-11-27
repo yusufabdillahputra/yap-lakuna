@@ -1299,6 +1299,10 @@ class _UnitsTab extends StatelessWidget {
             label: l10n.productAddUnit,
             onPress: () => vm.addUnit(vi),
           ),
+          // Hanya barang berstok yang bisa dibeli (F1-08s).
+          if (vm.kind.tracksStock &&
+              v.units.any((u) => u.name.trim().isNotEmpty))
+            _PurchaseUnitPicker(viewModel: vm, base: base),
           _Help(
             first == null ||
                     first.name.trim().isEmpty ||
@@ -1403,6 +1407,60 @@ class _UnitsTab extends StatelessWidget {
         ),
       ),
     ];
+  }
+}
+
+/// *Satuan beli bawaan* varian terpilih (F1-08s): satuan dasar atau salah
+/// satu satuan konversi yang sudah bernama.
+class _PurchaseUnitPicker extends StatelessWidget {
+  const _PurchaseUnitPicker({required this.viewModel, required this.base});
+
+  final ProductFormViewModel viewModel;
+  final String base;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final vi = vm.selectedVariant;
+    final selected = vm.purchaseUnitKey(vi);
+    return Column(
+      key: const ValueKey('unit-purchase'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        Text(
+          l10n.productPurchaseUnit,
+          style: context.theme.typography.body.sm.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoicePill(
+              key: const ValueKey('unit-purchase-base'),
+              label: base,
+              selected: selected == null,
+              semanticsLabel: '${l10n.productPurchaseUnit}: $base',
+              onTap: () => vm.setPurchaseUnit(vi, null),
+            ),
+            for (final u in vm.variants[vi].units)
+              if (u.name.trim().isNotEmpty)
+                ChoicePill(
+                  key: ValueKey('unit-purchase-${u.key}'),
+                  label: u.name.trim(),
+                  selected: selected == u.key,
+                  semanticsLabel:
+                      '${l10n.productPurchaseUnit}: ${u.name.trim()}',
+                  onTap: () => vm.setPurchaseUnit(vi, u.key),
+                ),
+          ],
+        ),
+        _Help(l10n.productPurchaseUnitHelp),
+      ],
+    );
   }
 }
 

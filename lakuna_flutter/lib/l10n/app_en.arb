@@ -248,6 +248,8 @@
   "productUnitsHelp": "Stock is always kept in the base unit ({unit}). Selling 1 {conversion} takes {factor} {unit} off the stock card.",
   "productUnitsHelpBase": "Stock is always kept in the base unit ({unit}).",
   "productUnitsEmpty": "No conversion units yet, e.g. a box of 12.",
+  "productPurchaseUnit": "Default purchase unit",
+  "productPurchaseUnitHelp": "Used when this item is added to a purchase, including minimum-stock suggestions (rounded up to whole units).",
   "productTierMinQty": "From quantity ({unit})",
   "productTierPrice": "Price per {unit}",
   "productTierAppliesTo": "Applies to",

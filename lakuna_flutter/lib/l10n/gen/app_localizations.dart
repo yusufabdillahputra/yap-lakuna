@@ -1586,6 +1586,18 @@ abstract class AppLocalizations {
   /// **'Belum ada satuan konversi, mis. dus berisi 12.'**
   String get productUnitsEmpty;
 
+  /// No description provided for @productPurchaseUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan beli bawaan'**
+  String get productPurchaseUnit;
+
+  /// No description provided for @productPurchaseUnitHelp.
+  ///
+  /// In id, this message translates to:
+  /// **'Dipakai saat barang ini ditambahkan ke pembelian, termasuk dari saran stok minimum (dibulatkan ke atas ke satuan utuh).'**
+  String get productPurchaseUnitHelp;
+
   /// No description provided for @productTierMinQty.
   ///
   /// In id, this message translates to:

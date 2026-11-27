@@ -827,6 +827,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productUnitsEmpty => 'No conversion units yet, e.g. a box of 12.';
 
   @override
+  String get productPurchaseUnit => 'Default purchase unit';
+
+  @override
+  String get productPurchaseUnitHelp =>
+      'Used when this item is added to a purchase, including minimum-stock suggestions (rounded up to whole units).';
+
+  @override
   String productTierMinQty(String unit) {
     return 'From quantity ($unit)';
   }

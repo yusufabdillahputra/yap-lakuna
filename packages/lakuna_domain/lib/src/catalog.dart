@@ -129,10 +129,15 @@ class UnitDraft {
     this.barcode = '',
     this.costPrice,
     this.sellPrice,
+    this.purchaseDefault = false,
   });
 
   final String? id;
   final String name;
+
+  /// Satuan beli bawaan varian (F1-08s): pembelian dan saran stok minimum
+  /// memakai satuan ini. Paling banyak satu per varian.
+  final bool purchaseDefault;
 
   /// Isi satu satuan ini dalam satuan dasar.
   final Qty factor;

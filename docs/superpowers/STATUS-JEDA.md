@@ -139,7 +139,8 @@ ulang riwayat.
 | v0.155.0 | Jejak gabung meja (F1-10s) | #161 |
 | v0.156.0 | Atur backup otomatis (F1-19e) | #162 |
 | v0.157.0 | Spasi ganda di nama kategori dan satuan (F1-07t) | #163 |
-| v0.158.0 | Backup dan PDF besar di isolate terpisah (F1-19f) | |
+| v0.158.0 | Backup dan PDF besar di isolate terpisah (F1-19f) | #164 |
+| v0.159.0 | Satuan beli bawaan per barang (F1-08s) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -433,6 +434,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 101. ~~PDF label / stok dan zip backup membekukan layar~~ — selesai
      v0.158.0 (F1-19f); `VACUUM INTO` dan ekstrak pulihkan tetap di isolate
      utama.
+102. ~~Saran stok minimum di form pembelian selalu dalam satuan dasar~~ —
+     selesai v0.159.0 (F1-08s); `product_units.purchase_default`, migrasi
+     `satuan-beli`. Daftar dan PDF stok minimum tetap dalam satuan dasar.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

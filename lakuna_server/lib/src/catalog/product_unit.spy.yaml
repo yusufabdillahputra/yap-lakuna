@@ -13,6 +13,10 @@ fields:
   ### Harga yang diisi sendiri; null = harga varian × isi.
   costPrice: int?, column=cost_price
   sellPrice: int?, column=sell_price
+  ### Satuan beli bawaan varian (F1-08s): baris pembelian dan saran stok
+  ### minimum memakai satuan ini. Paling banyak satu per varian; tidak ada =
+  ### satuan dasar.
+  purchaseDefault: bool, default=false, column=purchase_default
   createdAt: DateTime, default=now, column=created_at
   updatedAt: DateTime, default=now, column=updated_at
   deletedAt: DateTime?, column=deleted_at
