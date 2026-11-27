@@ -7,6 +7,41 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.158.0] - 2026-11-27
+
+Cetak label, cetak stok, ekspor PDF, dan backup tidak lagi membekukan
+layar. Ini gap 21 di daftar rapikan Fase 1 (F1-19f, Label barcode 1.15b,
+Stok 1.18, rincian pembelian 1.19b, Laporan 1.23/1.24, Data & backup
+1.13).
+
+### Diperbaiki
+
+- PDF ribuan label barcode atau ribuan baris stok kini dibuat di latar:
+  putaran progres tetap berputar dan layar tetap menanggapi klik selama
+  PDF disiapkan. Berlaku juga untuk *Stok minimum*, ekspor PDF Laporan,
+  dan cetak pembelian.
+- *Backup sekarang* dan backup otomatis (tiap 6–24 jam) memampatkan
+  database dan gambar di latar. Sebelumnya kasir bisa merasakan layar
+  macet sesaat di tengah transaksi ketika backup otomatis berjalan pada
+  toko dengan banyak foto produk.
+
+### Catatan teknis
+
+- `Isolate.run` untuk `buildBarcodeLabelPdf`, `reportPdf`, serta SHA-256
+  dan zip di `createBackup` (`lakuna_data`). Font PDF dimuat di isolate
+  utama (`pdf_fonts.dart`, `loadPdfFontBytes`) lalu dikirim sebagai
+  `ByteData`; rupiah diformat lebih dulu menjadi peta nilai → teks.
+- Closure isolate dibuat di fungsi tingkat atas yang hanya menerima data
+  yang bisa dikirim, agar tidak ikut menangkap `LakunaStore`.
+- `VACUUM INTO` dan hitungan nota/produk tetap di isolate utama (koneksi
+  database); periksa/ekstrak berkas pulihkan juga belum dipindah (gap).
+- Tes baru mengukur jeda terlama isolate utama (timer 5 ms) untuk PDF
+  3.000 baris, 2.000 label, dan backup dengan gambar 64 MB; galat menulis
+  zip di isolate tetap sampai sebagai `FileSystemException`.
+- Tes widget yang mencetak PDF pembelian dan label memakai
+  `tapAndWaitForIsolate` (waktu nyata lewat `runAsync`), karena isolate
+  tidak bisa selesai di waktu palsu `testWidgets`.
+
 ## [0.157.0] - 2026-11-27
 
 Spasi ganda di nama kategori dan satuan tidak lagi membuat data kembar. Ini
@@ -8801,7 +8836,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...HEAD
+[0.158.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...v0.158.0
 [0.157.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...v0.157.0
 [0.156.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...v0.156.0
 [0.155.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...v0.155.0

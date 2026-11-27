@@ -15,6 +15,7 @@ import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_receipt_printer.dart';
 import '../../testing/fake_session_repository.dart';
 import '../../testing/floor_seed.dart';
+import '../../testing/isolate_tap.dart';
 import '../../testing/modifier_seed.dart';
 import 'product_list_view_model_test.dart' show sampleProducts;
 
@@ -559,16 +560,23 @@ void main() {
         findsNothing,
         reason: 'KOP-SCH muat di 50 × 30',
       );
-      await _tap(
+      await tapAndWaitForIsolate(
         tester,
-        size.width < 600 ? 'labels-bar-print' : 'labels-print',
+        find.byKey(
+          ValueKey(size.width < 600 ? 'labels-bar-print' : 'labels-print'),
+        ),
+        () => printer.documentPrints.isNotEmpty,
       );
       expect(printer.documentPrints.single.$2, 'Label barcode');
       expect(
         find.byKey(const ValueKey('labels-bar')),
         size.width < 600 ? findsOneWidget : findsNothing,
       );
-      await _tap(tester, 'labels-save');
+      await tapAndWaitForIsolate(
+        tester,
+        find.byKey(const ValueKey('labels-save')),
+        () => printer.documentShares.isNotEmpty,
+      );
       expect(printer.documentShares, hasLength(1));
       expect(find.byKey(const ValueKey('labels-saved')), findsOneWidget);
       expect(tester.takeException(), isNull);
