@@ -24,6 +24,11 @@ class FakeReceiptPrinter implements ReceiptPrinter {
   /// Bila diisi, [print] menunggu sampai completer ini selesai.
   Completer<void>? hold;
 
+  /// Galat untuk panggilan [print] ke-n (dari 0), mis. job kedua dari
+  /// cetak semua tagihan (F1-10r).
+  final printFailures = <int, PrinterFailure>{};
+  var _printCalls = 0;
+
   final prints = <(PrinterSelection, List<ReceiptLine>, ReceiptPaper)>[];
   final shares = <(List<ReceiptLine>, ReceiptPaper, String)>[];
 
@@ -55,7 +60,9 @@ class FakeReceiptPrinter implements ReceiptPrinter {
     required String jobName,
     Uint8List? logo,
   }) async {
+    final call = _printCalls++;
     _fail();
+    if (printFailures[call] case final f?) throw f;
     if (hold case final h?) await h.future;
     prints.add((printer, lines, paper));
     logos.add(logo);

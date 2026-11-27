@@ -5180,6 +5180,22 @@
       }
     }
   },
+  "billSplitPrintAll": "Print all bills ({count})",
+  "@billSplitPrintAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitAllBillsTitle": "All guest bills · {order}",
+  "@billSplitAllBillsTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
   "billSplitBillTitle": "Guest {guest} bill · {order}",
   "@billSplitBillTitle": {
     "placeholders": {

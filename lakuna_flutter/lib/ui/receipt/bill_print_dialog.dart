@@ -9,14 +9,16 @@ import 'bill_print_job.dart';
 import 'printer_labels.dart';
 import 'receipt_paper_view.dart';
 
-/// Judul dan isi tagihan pada waktu cetak tertentu.
+/// Judul dan isi tagihan pada waktu cetak tertentu. Lebih dari satu
+/// tagihan (semua tamu, F1-10r) ditampilkan berurutan dan dicetak sebagai
+/// job terpisah.
 typedef BillPrintPreview = ({
   String title,
-  ReceiptContent Function(DateTime now) content,
+  List<ReceiptContent> Function(DateTime now) bills,
 });
 
 /// Dialog pratinjau tagihan yang belum dibayar (F1-10k Meja, F1-10m tamu
-/// split): pratinjau kertas, **Tutup**, **Bagikan PDF**, **Cetak
+/// split, F1-10r semua tamu): pratinjau kertas, **Tutup**, **Bagikan PDF**, **Cetak
 /// tagihan**. [preview] dibaca ulang tiap [listenable] berubah; `null`
 /// berarti tagihan tidak lagi berlaku dan dialog menutup sendiri. Pemanggil
 /// mereset [job] sebelum membuka dialog. Kunci widget berawalan
@@ -58,9 +60,25 @@ Future<void> showBillPrintDialog(
           return const SizedBox.shrink();
         }
         // Waktu cetak diambil saat tombol ditekan, bukan saat dialog dibuka.
-        List<ReceiptLine> build() =>
-            layoutReceipt(current.content(DateTime.now()), paper());
-        final lines = build();
+        List<List<ReceiptLine>> build() => [
+          for (final bill in current.bills(DateTime.now()))
+            layoutReceipt(bill, paper()),
+        ];
+        final bills = build();
+        void startPrint() {
+          final all = build();
+          all.length == 1
+              ? job.printBill.execute(all.single)
+              : job.printBills.execute(all);
+        }
+
+        void startShare() {
+          final all = build();
+          all.length == 1
+              ? job.shareBill.execute(all.single)
+              : job.shareBills.execute(all);
+        }
+
         final busy = job.running;
         ValueKey<String> key(String name) => ValueKey('$keyPrefix-$name');
         return Padding(
@@ -79,12 +97,18 @@ Future<void> showBillPrintDialog(
               ),
               Flexible(
                 child: SingleChildScrollView(
-                  child: Center(
-                    child: ReceiptPaperView(
-                      lines: lines,
-                      paper: paper(),
-                      logo: logo(),
-                    ),
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      for (final lines in bills)
+                        Center(
+                          child: ReceiptPaperView(
+                            lines: lines,
+                            paper: paper(),
+                            logo: logo(),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -123,14 +147,14 @@ Future<void> showBillPrintDialog(
                     key: key('share'),
                     variant: .outline,
                     mainAxisSize: .min,
-                    onPress: busy ? null : () => job.shareBill.execute(build()),
+                    onPress: busy ? null : startShare,
                     prefix: const Icon(TablerIcons.share),
                     child: Flexible(child: Text(l10n.receiptShare)),
                   ),
                   FButton(
                     key: key('print'),
                     mainAxisSize: .min,
-                    onPress: busy ? null : () => job.printBill.execute(build()),
+                    onPress: busy ? null : startPrint,
                     prefix: const Icon(TablerIcons.printer),
                     child: Flexible(child: Text(l10n.diningPrintBill)),
                   ),

@@ -8587,6 +8587,16 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String billSplitPrintAll(int count) {
+    return 'Cetak semua tagihan ($count)';
+  }
+
+  @override
+  String billSplitAllBillsTitle(String order) {
+    return 'Tagihan semua tamu · $order';
+  }
+
+  @override
   String billSplitBillTitle(String guest, String order) {
     return 'Tagihan tamu $guest · $order';
   }

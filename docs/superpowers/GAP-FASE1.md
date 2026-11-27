@@ -37,7 +37,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 14 | Sorot kata kunci di barang cocok Riwayat | F1-11i | v0.150.0 (F1-11k) |
 | 15 | Tambahan harga per modifier di rincian nota | F1-11h | v0.151.0 (F1-11l) |
 | 16 | Cetak stok hanya di bawah minimum | F1-08b | v0.152.0 (F1-08r) |
-| 17 | Cetak semua tagihan tamu sekaligus | F1-10m | |
+| 17 | Cetak semua tagihan tamu sekaligus | F1-10m | v0.153.0 (F1-10r) |
 | 18 | Siapa yang mengarsipkan produk; jejak gabung meja | F1-07o, F1-10d | |
 | 19 | Backup otomatis: jam dan jumlah simpanan bisa diatur; *hari ini* menurut kalender; preferensi tidak ikut pulihkan | F1-19d | |
 | 20 | Import: rapatkan spasi ganda nama kategori | F1-07b | |

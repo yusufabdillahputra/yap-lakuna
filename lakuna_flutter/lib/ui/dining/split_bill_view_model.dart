@@ -171,6 +171,19 @@ class SplitBillViewModel extends ChangeNotifier {
     partPrint.reset();
   }
 
+  /// Tamu yang tagihannya bisa dicetak, urut A, B, … (F1-10r *Cetak semua
+  /// tagihan*).
+  List<GuestPart> get printableParts => [
+    for (final p in split?.parts ?? const <GuestPart>[])
+      if (canPrintPart(p)) p,
+  ];
+
+  /// Dialog tagihan semua tamu dibuka (F1-10r): nama job `…-semua`.
+  void openAllPrint() {
+    _printGuest = 'semua';
+    partPrint.reset();
+  }
+
   // --- Nominal bebas ---------------------------------------------------------
 
   Money get amount => _amount;

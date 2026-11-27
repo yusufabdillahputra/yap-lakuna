@@ -336,4 +336,127 @@ void main() {
     },
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
   );
+
+  Finder inAll(String text) => find.descendant(
+    of: _key('split-bill-all-dialog'),
+    matching: find.textContaining(text),
+  );
+
+  testWidgets(
+    'tablet: cetak semua tagihan tamu per item (F1-10r)',
+    (tester) async {
+      await pump(tester, size: const Size(1280, 800));
+      dining.printer = const PrinterSelection(
+        kind: PrinterKind.bluetooth,
+        name: 'RPP02N',
+        address: '00:11',
+      );
+      await openBill(tester, 'M4');
+      await _tap(tester, 'dining-split');
+      await _tap(tester, 'split-mode-item');
+      // Porsi belum dibagi: belum ada tagihan yang bisa dicetak.
+      expect(find.text('Cetak semua tagihan (0)'), findsOneWidget);
+      expect(tester.widget<FButton>(_key('split-print-all')).onPress, isNull);
+      await _tap(tester, 'split-chip-Kopi Susu Aren---A');
+      await _tap(tester, 'split-chip-Nasi Goreng Kampung---B');
+      expect(find.text('Cetak semua tagihan (2)'), findsOneWidget);
+
+      await _tap(tester, 'split-print-all');
+      expect(_key('split-bill-all-dialog'), findsOneWidget);
+      expect(find.text('Tagihan semua tamu · Meja M4'), findsOneWidget);
+      expect(inAll('TAGIHAN TAMU A - BELUM DIBAYAR'), findsOneWidget);
+      expect(inAll('TAGIHAN TAMU B - BELUM DIBAYAR'), findsOneWidget);
+      expect(inAll('27.720'), findsWidgets);
+      expect(inAll('33.495'), findsWidgets);
+
+      // Printer struk langsung: satu job per tamu, A lalu B.
+      await _tap(tester, 'split-bill-all-print');
+      expect(printer.prints, hasLength(2));
+      expect(
+        printer.prints[0].$2.map((l) => l.text),
+        contains(contains('TAGIHAN TAMU A')),
+      );
+      expect(
+        printer.prints[0].$2.map((l) => l.text),
+        isNot(contains(contains('TAGIHAN TAMU B'))),
+      );
+      expect(
+        printer.prints[1].$2.map((l) => l.text),
+        contains(contains('TAGIHAN TAMU B')),
+      );
+      expect(_key('split-bill-all-printed'), findsOneWidget);
+
+      // Satu PDF berisi semua tagihan.
+      await tester.runAsync(() async {
+        await tester.tap(_key('split-bill-all-share'));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      final (pdf, file) = printer.documentShares.single;
+      expect(file, endsWith('-semua.pdf'));
+      expect(String.fromCharCodes(pdf.take(5)), '%PDF-');
+      expect(_key('split-bill-all-pdf-saved'), findsOneWidget);
+      await _tap(tester, 'split-bill-all-close');
+      expect(_key('split-bill-all-dialog'), findsNothing);
+
+      // Tagihan satu tamu tidak menampilkan hasil dialog semua tagihan.
+      await _tap(tester, 'split-print-A');
+      expect(_key('split-bill-printed'), findsNothing);
+      expect(_key('split-bill-pdf-saved'), findsNothing);
+      await _tap(tester, 'split-bill-close');
+
+      // Tamu A lunas: tinggal B.
+      await _tap(tester, 'split-pay-A');
+      await _tap(tester, 'payment-quick-0');
+      await _tap(tester, 'payment-finish');
+      expect(find.text('Cetak semua tagihan (1)'), findsOneWidget);
+      await _tap(tester, 'split-print-all');
+      expect(inAll('TAGIHAN TAMU A'), findsNothing);
+      expect(inAll('TAGIHAN TAMU B'), findsWidgets);
+      await _tap(tester, 'split-bill-all-close');
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
+
+  testWidgets(
+    'ponsel 360 px: cetak semua tagihan mode rata, nominal bebas tanpa '
+    'tombol (F1-10r)',
+    (tester) async {
+      await pump(tester, size: const Size(360, 740));
+      await openBill(tester, 'M2');
+      await tester.dragUntilVisible(
+        _key('dining-split'),
+        _key('dining-bill-title'),
+        const Offset(0, -200),
+      );
+      await _tap(tester, 'dining-split');
+      await _tap(tester, 'split-mode-amount');
+      expect(_key('split-print-all'), findsNothing);
+      await _tap(tester, 'split-mode-equal');
+      expect(find.text('Cetak semua tagihan (2)'), findsOneWidget);
+      await _tap(tester, 'split-print-all');
+      expect(inAll('Dibagi rata 2 tamu'), findsNWidgets(2));
+      expect(inAll('TAGIHAN TAMU A'), findsWidgets);
+      expect(inAll('TAGIHAN TAMU B'), findsWidgets);
+      // Tanpa printer struk: dialog cetak sistem, satu dokumen.
+      await tester.runAsync(() async {
+        await tester.tap(_key('split-bill-all-print'));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      expect(printer.prints, isEmpty);
+      expect(printer.documentPrints.single.$2, endsWith('-semua'));
+      expect(tester.takeException(), isNull);
+
+      // Mode diganti ke nominal bebas saat dialog terbuka: dialog tertutup.
+      final view = tester.widget<SplitBillView>(find.byType(SplitBillView));
+      await view.viewModel.setMode.execute(SplitMode.amount);
+      await tester.pumpAndSettle();
+      expect(find.byType(FDialog), findsNothing);
+      expect(_key('split-back'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
 }

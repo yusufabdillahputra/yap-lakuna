@@ -16,6 +16,8 @@ Split bill membagi satu open bill ke beberapa tamu yang membayar sendiri-sendiri
 5. Setelah semua bagian lunas, layar menampilkan *Bill lunas* dan nota tersimpan.
 
 > [!note] Tamu ingin melihat bagiannya dulu? Tekan **Cetak tagihan** di kartu tamu (mode **Per item** atau **Bagi rata**). Tagihan tamu memuat porsinya (atau seluruh pesanan untuk bagi rata), bagian diskon, service, dan PB1 bila ada, lalu **TAGIHAN TAMU A**. Tagihan bisa dicetak ke printer struk atau dibagikan sebagai PDF, dan tidak menyimpan apa pun. Di mode Per item tombol aktif setelah semua porsi punya tamu. Mode **Nominal bebas** tidak punya tagihan per tamu; pakai **Cetak tagihan** di bill Meja.
+>
+> Ingin membagikan semua tagihan sekaligus? Tekan **Cetak semua tagihan (n)** di bawah kartu tamu. Dialognya memuat tagihan setiap tamu yang belum membayar, berurutan A, B, dan seterusnya. Printer struk mencetak satu potongan per tamu; dialog cetak sistem dan **Bagikan PDF** membuat satu PDF dengan satu halaman per tamu. Tamu yang sudah membayar atau menunggu konfirmasi QRIS dilewati.
 
 > [!note] Tamu terakhir ingin membayar belakangan? Saat bagiannya menjadi sisa terakhir bill (tamu lain sudah lunas dan tidak ada QRIS yang menunggu), layar Bayar bagian menampilkan **Kredit / piutang** untuk staf yang boleh mengelola piutang. Pilih pelanggan, isi DP bila ada, lalu simpan: bill selesai sebagai satu nota kredit atas nama pelanggan itu, dan piutangnya sebesar tagihan bagian dikurangi DP. Lihat [Penjualan kredit](credit-sale). Di mode **Nominal bebas**, kredit hanya tersedia bila nominalnya sama dengan seluruh sisa tagihan.
 

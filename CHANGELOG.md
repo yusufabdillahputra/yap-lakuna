@@ -7,6 +7,54 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.153.0] - 2026-11-27
+
+Layar split bill kini bisa mencetak tagihan semua tamu sekaligus. Ini gap
+ketujuh belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Meja › Split bill** (1.9): tombol **Cetak semua tagihan (n)** di bawah
+  kartu tamu, di mode *Per item* dan *Bagi rata*. n = tamu yang tagihannya
+  bisa dicetak (belum membayar, tagihan lebih dari nol, dan semua porsi
+  sudah punya tamu).
+  - Dialog **Tagihan semua tamu · Meja 5** memuat tagihan tiap tamu
+    berurutan, isinya sama dengan tagihan per kartu (F1-10m).
+  - Printer struk Bluetooth atau jaringan mencetak satu job per tamu, jadi
+    tiap tamu mendapat potongan kertas sendiri. Bila satu job gagal,
+    pengiriman berhenti dan galat tampil di dialog. Menutup dialog di
+    tengah pengiriman menghentikan sisa tagihan.
+  - Dialog cetak sistem dan *Bagikan PDF* membuat satu PDF dengan satu
+    halaman per tamu (`tagihan-<bill>-semua.pdf`).
+  - Tamu yang sudah membayar atau menunggu konfirmasi QRIS dilewati.
+    Tombol mati bila belum ada tagihan yang bisa dicetak, dan tidak ada di
+    mode *Nominal bebas*.
+  - Dialog menutup sendiri bila tidak ada lagi tagihan yang bisa dicetak
+    (mis. mode diganti ke *Nominal bebas*).
+
+### Diubah
+
+- Panduan *Split bill* (ID dan EN) menjelaskan *Cetak semua tagihan*.
+
+### Catatan teknis
+
+- `receipt_pdf.dart`: `buildReceiptsPdf` membuat satu halaman per struk;
+  `buildReceiptPdf` kini memanggilnya dengan satu struk.
+- `BillPrintJob`: perintah `printBills` / `shareBills`. Satu tagihan tetap
+  lewat `print` / `sharePdf`; beberapa tagihan ke printer langsung = satu
+  `print` per tagihan, ke sistem = satu `printDocument`, bagikan = satu
+  `shareDocument`. Pembuat PDF bisa disuntikkan untuk tes.
+- `BillPrintPreview.bills` (daftar `ReceiptContent`) menggantikan
+  `content`; tagihan Meja (F1-10k) dan tamu (F1-10m) mengirim satu isi.
+- `SplitBillViewModel.printableParts` dan `openAllPrint()` (nama job
+  `tagihan-<bill>-semua`).
+- `FakeReceiptPrinter.printFailures` untuk galat di job ke-n.
+- Temuan review: sisa job berhenti saat dialog di-reset, nama job dibaca
+  sekali, galat bukan `Exception` saat membuat PDF dicatat (`logError`) dan
+  tampil di dialog.
+- Kunci l10n baru: `billSplitPrintAll`, `billSplitAllBillsTitle`.
+- Tanpa perubahan data atau skema.
+
 ## [0.152.0] - 2026-11-27
 
 Layar Stok kini bisa mencetak hanya barang di bawah minimum. Ini gap keenam
@@ -8605,7 +8653,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...HEAD
+[0.153.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...v0.153.0
 [0.152.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...v0.152.0
 [0.151.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...v0.151.0
 [0.150.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...v0.150.0

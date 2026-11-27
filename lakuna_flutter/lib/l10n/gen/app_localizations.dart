@@ -14886,6 +14886,18 @@ abstract class AppLocalizations {
   /// **'TAGIHAN TAMU {guest}'**
   String receiptGuestDue(String guest);
 
+  /// No description provided for @billSplitPrintAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak semua tagihan ({count})'**
+  String billSplitPrintAll(int count);
+
+  /// No description provided for @billSplitAllBillsTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tagihan semua tamu · {order}'**
+  String billSplitAllBillsTitle(String order);
+
   /// No description provided for @billSplitBillTitle.
   ///
   /// In id, this message translates to:

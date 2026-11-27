@@ -96,19 +96,27 @@ Future<Uint8List> buildReceiptPdf(
   List<ReceiptLine> lines,
   ReceiptPaper paper, {
   Uint8List? logo,
+}) => buildReceiptsPdf([lines], paper, logo: logo);
+
+/// PDF beberapa struk (mis. tagihan semua tamu, F1-10r): satu halaman
+/// gulungan per struk, logo di tiap halaman.
+Future<Uint8List> buildReceiptsPdf(
+  List<List<ReceiptLine>> receipts,
+  ReceiptPaper paper, {
+  Uint8List? logo,
 }) async {
   if (logo != null) {
     try {
-      return await _buildReceiptPdf(lines, paper, logo);
+      return await _buildReceiptPdf(receipts, paper, logo);
     } on Object {
       // Dekode gambar terjadi saat `save`; ulangi tanpa logo.
     }
   }
-  return _buildReceiptPdf(lines, paper, null);
+  return _buildReceiptPdf(receipts, paper, null);
 }
 
 Future<Uint8List> _buildReceiptPdf(
-  List<ReceiptLine> lines,
+  List<List<ReceiptLine>> receipts,
   ReceiptPaper paper,
   Uint8List? logo,
 ) async {
@@ -126,46 +134,48 @@ Future<Uint8List> _buildReceiptPdf(
     }
   }
   final doc = pw.Document(title: 'Struk', creator: 'Lakuna');
-  doc.addPage(
-    pw.Page(
-      pageFormat: receiptPageFormat(
-        paper,
-        lines.length,
-        extraPt: logoSize == null ? 0 : logoSize.height + _logoGapPt,
-      ),
-      build: (_) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-        children: [
-          if (logoSize != null && image != null)
-            pw.Padding(
-              padding: const pw.EdgeInsets.only(bottom: _logoGapPt),
-              child: pw.Center(
-                child: pw.Image(
-                  image,
-                  width: logoSize.width,
-                  height: logoSize.height,
+  for (final lines in receipts) {
+    doc.addPage(
+      pw.Page(
+        pageFormat: receiptPageFormat(
+          paper,
+          lines.length,
+          extraPt: logoSize == null ? 0 : logoSize.height + _logoGapPt,
+        ),
+        build: (_) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            if (logoSize != null && image != null)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: _logoGapPt),
+                child: pw.Center(
+                  child: pw.Image(
+                    image,
+                    width: logoSize.width,
+                    height: logoSize.height,
+                  ),
                 ),
               ),
-            ),
-          for (final line in lines)
-            pw.SizedBox(
-              height: receiptLineHeightPt(paper),
-              child: pw.Text(
-                line.text,
-                textAlign: switch (line.align) {
-                  ReceiptAlign.left => pw.TextAlign.left,
-                  ReceiptAlign.center => pw.TextAlign.center,
-                  ReceiptAlign.right => pw.TextAlign.right,
-                },
-                style: pw.TextStyle(
-                  font: line.bold ? medium : regular,
-                  fontSize: size,
+            for (final line in lines)
+              pw.SizedBox(
+                height: receiptLineHeightPt(paper),
+                child: pw.Text(
+                  line.text,
+                  textAlign: switch (line.align) {
+                    ReceiptAlign.left => pw.TextAlign.left,
+                    ReceiptAlign.center => pw.TextAlign.center,
+                    ReceiptAlign.right => pw.TextAlign.right,
+                  },
+                  style: pw.TextStyle(
+                    font: line.bold ? medium : regular,
+                    fontSize: size,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
   return await doc.save();
 }

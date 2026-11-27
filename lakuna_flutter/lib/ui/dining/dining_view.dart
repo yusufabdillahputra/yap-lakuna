@@ -1825,16 +1825,18 @@ Future<void> _printBillDialog(BuildContext context, DiningViewModel vm) {
       if (bill == null || data == null) return null;
       return (
         title: l10n.diningBillPreviewTitle(billOrderLabel(l10n, bill)),
-        content: (now) => billReceiptContent(
-          l10n,
-          bill: bill,
-          businessName: data.businessName,
-          outletName: data.outletName,
-          staffName: data.staffName,
-          timezone: data.timezone,
-          config: data.receipt,
-          now: now,
-        ),
+        bills: (now) => [
+          billReceiptContent(
+            l10n,
+            bill: bill,
+            businessName: data.businessName,
+            outletName: data.outletName,
+            staffName: data.staffName,
+            timezone: data.timezone,
+            config: data.receipt,
+            now: now,
+          ),
+        ],
       );
     },
   );

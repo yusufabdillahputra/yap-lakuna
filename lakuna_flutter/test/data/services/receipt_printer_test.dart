@@ -64,6 +64,21 @@ void main() {
     },
   );
 
+  test('PDF banyak tagihan: satu halaman per tagihan (F1-10r)', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    int pages(Uint8List pdf) => RegExp(
+      r'/Type\s*/Page(?![a-zA-Z])',
+    ).allMatches(String.fromCharCodes(pdf)).length;
+    const a = [ReceiptLine('TAGIHAN TAMU A'), ReceiptLine('TOTAL 10.000')];
+    const b = [ReceiptLine('TAGIHAN TAMU B')];
+    const c = [ReceiptLine('TAGIHAN TAMU C')];
+    final one = await buildReceiptPdf(a, ReceiptPaper.mm58);
+    expect(pages(one), 1);
+    final three = await buildReceiptsPdf([a, b, c], ReceiptPaper.mm80);
+    expect(String.fromCharCodes(three.take(5)), '%PDF-');
+    expect(pages(three), 3);
+  });
+
   test('halaman PDF selalu sedikit lebih tinggi dari isi agar baris '
       'terakhir tidak terbuang karena pembulatan', () {
     for (final paper in ReceiptPaper.values) {
