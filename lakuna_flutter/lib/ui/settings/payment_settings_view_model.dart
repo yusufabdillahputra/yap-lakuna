@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -13,6 +15,9 @@ const qrisCameraMaxWidth = 2000;
 
 /// Asal gambar stiker: *Pilih file* atau *Foto stiker* (F1-18f).
 enum QrisPickSource { file, camera }
+
+/// Isian yang bisa diisi otomatis dari QR (F1-18g).
+enum QrisAutoField { merchantName, nmid, terminalCode }
 
 /// Pengaturan › Metode pembayaran › QRIS statis (1.26b, F1-18).
 class PaymentSettingsViewModel extends ChangeNotifier {
@@ -53,6 +58,22 @@ class PaymentSettingsViewModel extends ChangeNotifier {
   Set<QrisSettingsError> _errors = const {};
   var _saved = false;
   QrisPickSource? _pickFailed;
+
+  /// Hasil baca QR gambar tersimpan dan gambar baru (F1-18g).
+  QrisQrRead? _savedQr;
+  QrisQrRead? _pickedQr;
+  var _savedReading = false;
+  var _pickedReading = false;
+
+  /// Token per sumber: hasil baca yang basi (gambar sudah berganti)
+  /// dibuang. Baca gambar tersimpan tidak dibatalkan oleh *Batal*/simpan
+  /// isian, karena gambarnya tetap.
+  var _savedToken = 0;
+  var _pickedToken = 0;
+
+  /// Naik hanya untuk isian yang diisi dari QR, supaya field lain (yang
+  /// mungkin sedang diketik) tidak kehilangan fokus.
+  final _fills = <QrisAutoField, int>{};
   var _revision = 0;
   var _disposed = false;
 
@@ -113,8 +134,31 @@ class PaymentSettingsViewModel extends ChangeNotifier {
 
   bool get picking => pickImage.running || takePhoto.running;
 
+  /// Sedang membaca QR gambar yang tampil (*Membaca QR…*).
+  bool get qrReading => _picked != null ? _pickedReading : _savedReading;
+
+  /// Naik setiap [field] diisi dari QR; dipakai di kunci field teks.
+  int fillRevision(QrisAutoField field) => _fills[field] ?? 0;
+
+  /// Hasil baca QR gambar yang tampil; `null` = belum dibaca / tanpa gambar.
+  QrisQrRead? get qr => _picked != null ? _pickedQr : _savedQr;
+
+  /// NMID di QR bila berbeda dengan NMID isian yang tidak kosong.
+  String? get qrNmidMismatch {
+    final qrNmid = qr?.payload?.nmid;
+    if (qrNmid == null || _draft.nmid.trim().isEmpty) return null;
+    final fromQr = normalizeNmid(qrNmid);
+    return normalizeNmid(_draft.nmid) == fromQr ? null : fromQr;
+  }
+
+  /// Simpan menunggu baca QR gambar baru selesai, supaya isian otomatis
+  /// tidak datang setelah tersimpan.
   bool get canSave =>
-      loaded && !save.running && !picking && _pickedCheck?.error == null;
+      loaded &&
+      !save.running &&
+      !picking &&
+      !(_picked != null && _pickedReading) &&
+      _pickedCheck?.error == null;
 
   void setEnabled(bool v) => _edit(_draft.copyWith(enabled: v));
 
@@ -136,6 +180,7 @@ class PaymentSettingsViewModel extends ChangeNotifier {
   /// *Batal*: kembali ke nilai tersimpan.
   void cancel() {
     _reset();
+    if (_savedQr == null && !_savedReading) _readSavedQr();
     notifyListeners();
   }
 
@@ -143,6 +188,9 @@ class PaymentSettingsViewModel extends ChangeNotifier {
     _draft = _config?.settings ?? const QrisStaticSettings();
     _picked = null;
     _pickedCheck = null;
+    _pickedQr = null;
+    _pickedToken++;
+    _pickedReading = false;
     _pickFailed = null;
     _errors = const {};
     _saved = false;
@@ -154,8 +202,75 @@ class PaymentSettingsViewModel extends ChangeNotifier {
     if (result case Ok(:final value)) {
       _config = value;
       _reset();
+      _readSavedQr();
     }
     return result;
+  }
+
+  /// Gambar tersimpan: hasil pemeriksaan saja, tanpa isi otomatis.
+  void _readSavedQr() {
+    _savedQr = null;
+    final token = ++_savedToken;
+    final bytes = _config?.imageBytes;
+    _savedReading = bytes != null;
+    if (bytes == null) return;
+    notifyListeners();
+    unawaited(() async {
+      final read = await _repository.readQr(bytes);
+      if (token != _savedToken) return;
+      _savedReading = false;
+      _savedQr = read;
+      notifyListeners();
+    }());
+  }
+
+  /// Gambar baru: hasil pemeriksaan + isi otomatis isian yang kosong.
+  void _readPickedQr(Uint8List bytes) {
+    final token = ++_pickedToken;
+    _pickedReading = true;
+    notifyListeners();
+    unawaited(() async {
+      final read = await _repository.readQr(bytes);
+      if (token != _pickedToken) return;
+      _pickedReading = false;
+      _pickedQr = read;
+      _fillFromQr(read.payload);
+      notifyListeners();
+    }());
+  }
+
+  /// Isi *Nama merchant*, *NMID*, *Kode terminal* dari QR bila isiannya
+  /// masih kosong; isian yang sudah diketik tidak ditimpa.
+  void _fillFromQr(QrisPayload? payload) {
+    if (payload == null) return;
+    String cut(String v, int max) => v.length > max ? v.substring(0, max) : v;
+    var next = _draft;
+    final filled = <QrisAutoField>{};
+    if (next.merchantName.trim().isEmpty && payload.merchantName.isNotEmpty) {
+      next = next.copyWith(
+        merchantName: cut(payload.merchantName, maxQrisMerchantNameLength),
+      );
+      filled.add(QrisAutoField.merchantName);
+    }
+    if (next.nmid.trim().isEmpty) {
+      next = next.copyWith(
+        nmid: cut(normalizeNmid(payload.nmid), maxQrisNmidLength),
+      );
+      filled.add(QrisAutoField.nmid);
+    }
+    if (next.terminalCode.trim().isEmpty && payload.terminalLabel.isNotEmpty) {
+      next = next.copyWith(
+        terminalCode: cut(payload.terminalLabel, maxQrisTerminalCodeLength),
+      );
+      filled.add(QrisAutoField.terminalCode);
+    }
+    if (filled.isEmpty) return;
+    _draft = next;
+    _saved = false;
+    // Hanya field yang diisi membaca nilai awal lagi.
+    for (final field in filled) {
+      _fills[field] = fillRevision(field) + 1;
+    }
   }
 
   Future<Result<void>> _choose(
@@ -172,6 +287,12 @@ class PaymentSettingsViewModel extends ChangeNotifier {
           ? const QrisImageCheck(error: QrisImageError.tooLarge)
           : checkQrisImage(bytes);
       _saved = false;
+      _pickedQr = null;
+      _pickedToken++;
+      _pickedReading = false;
+      if (bytes != null && _pickedCheck?.error == null) {
+        _readPickedQr(bytes);
+      }
       return const Result.ok(null);
     } on Exception catch (e) {
       _pickFailed = source;
@@ -201,9 +322,19 @@ class PaymentSettingsViewModel extends ChangeNotifier {
     );
     switch (result) {
       case Ok(:final value):
+        final newImage = _picked != null && _pickedQr != null;
+        final pickedQr = _pickedQr;
         _config = value;
         _reset();
         _saved = true;
+        // Gambar baru kini tersimpan: pakai hasil bacanya, atau baca ulang.
+        if (newImage) {
+          _savedToken++;
+          _savedReading = false;
+          _savedQr = pickedQr;
+        } else if (picked != null) {
+          _readSavedQr();
+        }
       case Error(:final error):
         if (error case QrisSettingsInvalid(:final errors)) _errors = errors;
     }

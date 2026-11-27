@@ -106,4 +106,15 @@ void main() {
       isA<NotPermitted>(),
     );
   });
+
+  test('readQr membaca QR stiker di isolate (F1-18g)', () async {
+    final png = File(
+      '../packages/lakuna_data/test/fixtures/qris-statis.png',
+    ).readAsBytesSync();
+    final read = await repo.readQr(png);
+    expect(read.status, QrisQrStatus.qris);
+    expect(read.payload!.nmid, 'ID10234567890');
+    final none = await repo.readQr(Uint8List.fromList(const [1, 2, 3]));
+    expect(none.status, QrisQrStatus.notFound);
+  });
 }

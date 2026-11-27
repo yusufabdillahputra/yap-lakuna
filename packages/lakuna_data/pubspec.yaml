@@ -18,6 +18,7 @@ dependencies:
     path: ../lakuna_domain
   serverpod_client: 4.1.0
   serverpod_database: 4.1.0
+  zxing2: ^0.2.4
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

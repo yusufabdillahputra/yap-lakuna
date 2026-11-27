@@ -28,6 +28,7 @@ export 'src/payment.dart';
 export 'src/permission.dart';
 export 'src/pin_guard.dart';
 export 'src/qris.dart';
+export 'src/qris_payload.dart';
 export 'src/purchase.dart';
 export 'src/product_import.dart';
 export 'src/qty.dart';

@@ -312,7 +312,7 @@ class _ImageCard extends StatelessWidget {
       spacing: 12,
       children: [
         upload,
-        if (vm.check case final check?) _CheckResults(check: check),
+        if (vm.check case final check?) _CheckResults(check: check, vm: vm),
         if (vm.errors.contains(QrisSettingsError.imageMissing))
           Text(
             l10n.qrisSettingsImageMissing,
@@ -386,9 +386,10 @@ class _ImageCard extends StatelessWidget {
 /// Daftar hasil pemeriksaan gambar: ok (hijau), peringatan (kuning), galat
 /// (merah).
 class _CheckResults extends StatelessWidget {
-  const _CheckResults({required this.check});
+  const _CheckResults({required this.check, required this.vm});
 
   final QrisImageCheck check;
+  final PaymentSettingsViewModel vm;
 
   @override
   Widget build(BuildContext context) {
@@ -447,6 +448,54 @@ class _CheckResults extends StatelessWidget {
             l10n.qrisSettingsResolution(header.width, header.height),
             'qris-check-resolution',
           ),
+        // *QR terbaca* (F1-18g): tidak memblokir Simpan.
+        if (vm.qrReading)
+          line(
+            TablerIcons.scan,
+            theme.colors.mutedForeground,
+            l10n.qrisSettingsQrReading,
+            'qris-check-qr',
+          )
+        else if (vm.qr case final read?)
+          switch (read.status) {
+            QrisQrStatus.notFound => line(
+              TablerIcons.alertTriangle,
+              warn,
+              l10n.qrisSettingsQrNotFound,
+              'qris-check-qr',
+            ),
+            QrisQrStatus.notQris => line(
+              TablerIcons.alertTriangle,
+              warn,
+              l10n.qrisSettingsQrNotQris,
+              'qris-check-qr',
+            ),
+            QrisQrStatus.qris when !read.payload!.isStatic => line(
+              TablerIcons.alertTriangle,
+              warn,
+              l10n.qrisSettingsQrDynamic,
+              'qris-check-qr',
+            ),
+            QrisQrStatus.qris => line(
+              TablerIcons.circleCheck,
+              ok,
+              l10n.qrisSettingsQrRead(
+                read.payload!.nmid,
+                read.payload!.merchantName,
+              ),
+              'qris-check-qr',
+            ),
+          },
+        if (!vm.qrReading && vm.qrNmidMismatch != null)
+          line(
+            TablerIcons.alertTriangle,
+            warn,
+            l10n.qrisSettingsQrNmidMismatch(
+              normalizeNmid(vm.draft.nmid),
+              vm.qrNmidMismatch!,
+            ),
+            'qris-check-qr-nmid',
+          ),
       ],
     ];
     return Column(
@@ -483,7 +532,7 @@ class _MerchantCard extends StatelessWidget {
     // Kunci memuat [revision] agar *Batal*/simpan mengisi ulang field.
     final r = vm.revision;
     final name = FTextField(
-      key: ValueKey('qris-merchant-$r'),
+      key: ValueKey('qris-merchant-$r-${vm.fillRevision(.merchantName)}'),
       label: Text(l10n.qrisSettingsMerchantName),
       error: tooLong(
         QrisSettingsError.merchantNameTooLong,
@@ -495,7 +544,7 @@ class _MerchantCard extends StatelessWidget {
       ),
     );
     final nmid = FTextField(
-      key: ValueKey('qris-nmid-$r'),
+      key: ValueKey('qris-nmid-$r-${vm.fillRevision(.nmid)}'),
       label: Text(l10n.qrisSettingsNmid),
       description: Text(l10n.qrisSettingsNmidHint),
       error: errors.contains(QrisSettingsError.nmidInvalid)
@@ -507,7 +556,7 @@ class _MerchantCard extends StatelessWidget {
       ),
     );
     final terminal = FTextField(
-      key: ValueKey('qris-terminal-$r'),
+      key: ValueKey('qris-terminal-$r-${vm.fillRevision(.terminalCode)}'),
       label: Text(l10n.qrisSettingsTerminal),
       error: tooLong(
         QrisSettingsError.terminalCodeTooLong,

@@ -29,6 +29,7 @@ export 'src/shifts.dart';
 export 'src/staff_access.dart';
 export 'src/stock.dart';
 export 'src/purchases.dart';
+export 'src/qris_qr_reader.dart';
 export 'src/stock_admin.dart';
 export 'src/store.dart';
 export 'src/store_settings.dart';

@@ -2462,6 +2462,42 @@ abstract class AppLocalizations {
   /// **'Hasil pemeriksaan'**
   String get qrisSettingsCheckTitle;
 
+  /// No description provided for @qrisSettingsQrReading.
+  ///
+  /// In id, this message translates to:
+  /// **'Membaca QR…'**
+  String get qrisSettingsQrReading;
+
+  /// No description provided for @qrisSettingsQrRead.
+  ///
+  /// In id, this message translates to:
+  /// **'QR terbaca: QRIS statis, NMID {nmid}, merchant {merchant}.'**
+  String qrisSettingsQrRead(String nmid, String merchant);
+
+  /// No description provided for @qrisSettingsQrDynamic.
+  ///
+  /// In id, this message translates to:
+  /// **'QR ini QRIS dinamis (nominal sekali pakai). Pakai stiker QRIS statis dari bank/PJP.'**
+  String get qrisSettingsQrDynamic;
+
+  /// No description provided for @qrisSettingsQrNotQris.
+  ///
+  /// In id, this message translates to:
+  /// **'QR terbaca tapi bukan QRIS. Pastikan gambar yang dipilih adalah stiker QRIS toko.'**
+  String get qrisSettingsQrNotQris;
+
+  /// No description provided for @qrisSettingsQrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'QR tidak terbaca dari gambar. Pastikan seluruh stiker tajam dan tidak terpotong; NMID bisa diketik manual.'**
+  String get qrisSettingsQrNotFound;
+
+  /// No description provided for @qrisSettingsQrNmidMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'NMID di isian ({typed}) berbeda dengan QR ({fromQr}).'**
+  String qrisSettingsQrNmidMismatch(String typed, String fromQr);
+
   /// No description provided for @qrisSettingsPortrait.
   ///
   /// In id, this message translates to:

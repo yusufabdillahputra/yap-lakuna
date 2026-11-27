@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart' show QrisQrRead;
 
 import '../../utils/result.dart';
 
@@ -17,4 +20,8 @@ abstract class PaymentSettingsRepository {
     QrisStaticSettings settings, {
     QrisImageUpload? image,
   });
+
+  /// Baca kode QR stiker [bytes] secara offline (F1-18g, *QR terbaca*).
+  /// Tidak pernah gagal: QR tak terbaca = `QrisQrStatus.notFound`.
+  Future<QrisQrRead> readQr(Uint8List bytes);
 }
