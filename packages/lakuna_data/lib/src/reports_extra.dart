@@ -682,6 +682,8 @@ class DebtReport {
     required this.overduePurchases,
     this.receivableAging = Aging.empty,
     this.payableAging = Aging.empty,
+    this.customerAging = const {},
+    this.supplierAging = const {},
   });
 
   final DateTime today;
@@ -704,6 +706,15 @@ class DebtReport {
 
   /// Umur hutang supplier di [suppliers] per nota beli (F1-16c).
   final Aging payableAging;
+
+  /// Umur piutang per pelanggan di [customers] (F1-16g).
+  final Map<UuidValue, Aging> customerAging;
+
+  /// Umur hutang per supplier di [suppliers] (F1-16g).
+  final Map<UuidValue, Aging> supplierAging;
+
+  Aging agingOfCustomer(UuidValue id) => customerAging[id] ?? Aging.empty;
+  Aging agingOfSupplier(UuidValue id) => supplierAging[id] ?? Aging.empty;
 
   Money get receivable => Money.sum(customers.map((c) => c.outstanding));
   Money get payable => Money.sum(suppliers.map((s) => s.debt));
@@ -733,10 +744,16 @@ Future<DebtReport> loadDebtReport(
     for (final s in suppliers.rows)
       if (s.debt > Money.zero) s,
   ]..sort((a, b) => b.debt.compareTo(a.debt));
+  List<AgingDoc> receivableDocs(CustomerRow c) => [
+    for (final r in receivables[c.customer.id] ?? const <ReceivableSale>[])
+      (dueOn: r.sale.dueOn, outstanding: r.outstanding),
+  ];
+  List<AgingDoc> payableDocs(SupplierRow s) => [
+    for (final p in payables[s.supplier.id] ?? const <PayablePurchase>[])
+      (dueOn: p.purchase.dueOn, outstanding: p.outstanding),
+  ];
   final receivableAging = Aging.of([
-    for (final c in owing)
-      for (final r in receivables[c.customer.id] ?? const <ReceivableSale>[])
-        (dueOn: r.sale.dueOn, outstanding: r.outstanding),
+    for (final c in owing) ...receivableDocs(c),
   ], ctx.today);
   return DebtReport(
     today: ctx.today,
@@ -744,10 +761,15 @@ Future<DebtReport> loadDebtReport(
     suppliers: owed,
     receivableAging: receivableAging,
     payableAging: Aging.of([
-      for (final s in owed)
-        for (final p in payables[s.supplier.id] ?? const <PayablePurchase>[])
-          (dueOn: p.purchase.dueOn, outstanding: p.outstanding),
+      for (final s in owed) ...payableDocs(s),
     ], ctx.today),
+    customerAging: {
+      for (final c in owing)
+        c.customer.id: Aging.of(receivableDocs(c), ctx.today),
+    },
+    supplierAging: {
+      for (final s in owed) s.supplier.id: Aging.of(payableDocs(s), ctx.today),
+    },
     overdue: receivableAging.overdue,
     overdueCustomers: owing.where((c) => c.overdueCount > 0).length,
     overduePurchases: suppliers.overdueCount,

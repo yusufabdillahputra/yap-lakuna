@@ -7,6 +7,38 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.147.0] - 2026-11-27
+
+Tabel per pelanggan dan per supplier di tab Piutang & hutang kini merinci
+umur sisanya. Ini gap kesebelas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Diubah
+
+- **Laporan › Piutang & hutang** (1.24): tabel **Piutang per pelanggan**
+  dan **Hutang per supplier** mendapat kolom *Belum jatuh tempo*, *Lewat
+  1–30 hari*, *Lewat 31–60 hari*, *Lewat 61–90 hari*, dan *Lewat > 90
+  hari*, berisi sisa nota nama itu di tiap kelompok. Pemilik kini tahu
+  siapa pemilik piutang yang lewat lebih dari 90 hari.
+  - Kelompok tanpa sisa dibiarkan kosong.
+  - Kolom *Lewat tempo* (jumlah nota) dihapus, karena kolom kelompok
+    sudah menunjukkannya.
+  - Kedua tabel menjadi kartu bila lebar isinya di bawah 900 px; di
+    jendela 1280 px keduanya masih berkolom. Kartu hanya menulis
+    kelompok yang berisi, mis. *Lewat 31–60 hari: Rp 150.000*.
+- Unduhan PDF/Excel tab Piutang & hutang memakai kolom yang sama. Baris
+  *Total* per pelanggan/supplier menjumlahkan tiap kelompok, dan PDF-nya
+  kini dicetak mendatar (A4 landscape) agar 9 kolom muat.
+- Panduan *Laporan* (ID dan EN) menjelaskan kolom baru.
+
+### Catatan teknis
+
+- `DebtReport.customerAging` / `supplierAging` dan `agingOfCustomer` /
+  `agingOfSupplier`. `loadDebtReport` mengisinya dari peta nota bersisa
+  yang sama dengan `receivableAging` / `payableAging`, sehingga jumlah
+  baris = *Sisa* dan jumlah kolom = tabel umur.
+- `ReportTable.landscape`; `reportPdf` memakai `PdfPageFormat.a4.landscape`
+  bila `true`.
+
 ## [0.146.0] - 2026-11-27
 
 Laporan kini mengingat periode yang terakhir dipilih. Ini gap kesepuluh di
@@ -8373,7 +8405,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...HEAD
+[0.147.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...v0.147.0
 [0.146.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...v0.146.0
 [0.145.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...v0.145.0
 [0.144.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...v0.144.0

@@ -591,23 +591,29 @@ ReportTable reportTable(
       );
     case ReportTab.debts:
       final r = debts!;
-      // Bagian umur (F1-16c): kelompok, nota terbuka, sisa.
+      // Bagian umur (F1-16c): kelompok, nota terbuka, sisa. Kolom
+      // kelompok (F1-16g) hanya terisi di baris per nama dan Total-nya.
+      const blank = [null, null, null, null, null];
+      List<Object?> buckets(Aging a, {bool zeros = false}) => [
+        for (final b in AgingBucket.values)
+          zeros || a.amountOf(b) != Money.zero ? money(a.amountOf(b)) : null,
+      ];
       List<ReportRow> agingRows(String heading, Aging aging) => [
         if (aging.count > 0) ...[
-          ReportRow([heading, null, null, null, null], strong: true),
+          ReportRow([heading, null, null, ...blank, null], strong: true),
           for (final b in AgingBucket.values)
             ReportRow([
               agingBucketLabel(l10n, b),
               aging.countOf(b),
               null,
-              null,
+              ...blank,
               money(aging.amountOf(b)),
             ], indent: true),
           ReportRow([
             l10n.reportsTotal,
             aging.count,
             null,
-            null,
+            ...blank,
             money(aging.total),
           ], strong: true),
         ],
@@ -620,34 +626,36 @@ ReportTable reportTable(
         headers: [
           l10n.reportsColLine,
           l10n.reportsColOpenCount,
-          l10n.reportsColOverdueCount,
           l10n.reportsColNearestDue,
+          for (final b in AgingBucket.values) agingBucketLabel(l10n, b),
           l10n.reportsColRemaining,
         ],
-        widths: const [36, 14, 14, 18, 18],
-        flex: const [4, 2, 2, 2, 2],
+        widths: const [32, 12, 14, 16, 16, 16, 16, 16, 18],
+        flex: const [5, 2, 3, 3, 3, 3, 3, 3, 3],
+        landscape: true,
         rows: [
           ...agingRows(l10n.reportsAgingReceivable, r.receivableAging),
           ReportRow([
             l10n.reportsDebtCustomers,
             null,
             null,
-            null,
+            ...blank,
             null,
           ], strong: true),
           for (final c in r.customers)
             ReportRow([
               c.customer.name,
               c.openCount,
-              c.overdueCount,
               null,
+              ...buckets(r.agingOfCustomer(c.customer.id)),
               money(c.outstanding),
             ], indent: true),
           ReportRow([
             l10n.reportsTotal,
             null,
             null,
-            null,
+            // Jumlah per kolom = tabel umur (sumber nota yang sama).
+            ...buckets(r.receivableAging, zeros: true),
             money(r.receivable),
           ], strong: true),
           ...agingRows(l10n.reportsAgingPayable, r.payableAging),
@@ -655,22 +663,22 @@ ReportTable reportTable(
             l10n.reportsDebtSuppliers,
             null,
             null,
-            null,
+            ...blank,
             null,
           ], strong: true),
           for (final x in r.suppliers)
             ReportRow([
               x.supplier.name,
               x.openCount,
-              x.overdueCount,
               if (x.nearestDue case final d?) formatCalendarDate(d) else null,
+              ...buckets(r.agingOfSupplier(x.supplier.id)),
               money(x.debt),
             ], indent: true),
           ReportRow([
             l10n.reportsTotal,
             null,
             null,
-            null,
+            ...buckets(r.payableAging, zeros: true),
             money(r.payable),
           ], strong: true),
         ],

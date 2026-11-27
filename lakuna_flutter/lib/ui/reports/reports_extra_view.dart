@@ -565,10 +565,11 @@ class _Debts extends StatelessWidget {
               id: 'debt-customers',
               title: l10n.reportsDebtCustomers,
               empty: l10n.reportsDebtNoReceivable,
+              cardWidth: _debtNamesCardWidth,
               columns: [
-                _Col(l10n.reportsColCustomer, flex: 4, right: false),
-                _Col(l10n.reportsColOpenCount),
-                _Col(l10n.reportsColOverdueCount),
+                _Col(l10n.reportsColCustomer, flex: 3, right: false),
+                _Col(l10n.reportsColOpenCount, flex: 2),
+                ..._agingColumns(l10n),
                 _Col(l10n.reportsColRemaining, flex: 3),
               ],
               lines: [
@@ -576,7 +577,7 @@ class _Debts extends StatelessWidget {
                   _Line(c.customer.id.uuid, [
                     c.customer.name,
                     '${c.openCount}',
-                    '${c.overdueCount}',
+                    ..._agingCells(context, r.agingOfCustomer(c.customer.id)),
                     formatMoney(context, c.outstanding),
                   ]),
               ],
@@ -591,11 +592,12 @@ class _Debts extends StatelessWidget {
               id: 'debt-suppliers',
               title: l10n.reportsDebtSuppliers,
               empty: l10n.reportsDebtNoPayable,
+              cardWidth: _debtNamesCardWidth,
               columns: [
-                _Col(l10n.reportsColSupplier, flex: 4, right: false),
-                _Col(l10n.reportsColOpenCount),
-                _Col(l10n.reportsColOverdueCount),
+                _Col(l10n.reportsColSupplier, flex: 3, right: false),
+                _Col(l10n.reportsColOpenCount, flex: 2),
                 _Col(l10n.reportsColNearestDue, flex: 3),
+                ..._agingColumns(l10n),
                 _Col(l10n.reportsColRemaining, flex: 3),
               ],
               lines: [
@@ -603,11 +605,11 @@ class _Debts extends StatelessWidget {
                   _Line(s.supplier.id.uuid, [
                     s.supplier.name,
                     '${s.openCount}',
-                    '${s.overdueCount}',
                     if (s.nearestDue case final d?)
                       formatCalendarDate(d)
                     else
                       '–',
+                    ..._agingCells(context, r.agingOfSupplier(s.supplier.id)),
                     formatMoney(context, s.debt),
                   ]),
               ],
@@ -618,6 +620,23 @@ class _Debts extends StatelessWidget {
         );
       });
 }
+
+// Tabel per nama berkolom umur (F1-16g) menjadi kartu lebih awal. Satu
+// batas untuk kedua tabel agar keduanya berupa tabel di jendela 1280 px.
+const _debtNamesCardWidth = 900.0;
+
+/// Kolom kelompok umur di tabel per pelanggan/supplier (F1-16g).
+List<_Col> _agingColumns(AppLocalizations l10n) => [
+  for (final b in AgingBucket.values) _Col(agingBucketLabel(l10n, b), flex: 3),
+];
+
+/// Sisa per kelompok; kelompok kosong `''` agar kartu menyembunyikannya.
+List<String> _agingCells(BuildContext context, Aging aging) => [
+  for (final b in AgingBucket.values)
+    aging.amountOf(b) == Money.zero
+        ? ''
+        : formatMoney(context, aging.amountOf(b)),
+];
 
 /// Tabel umur piutang/hutang per kelompok (F1-16c).
 class _AgingTable extends StatelessWidget {

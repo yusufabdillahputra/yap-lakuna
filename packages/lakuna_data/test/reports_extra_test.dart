@@ -897,6 +897,18 @@ void main() {
     expect(pay.amountOf(AgingBucket.days61To90), const Money(12000));
     expect(pay.countOf(AgingBucket.days61To90), 2);
     expect(pay.total, r.payable);
+
+    // Umur per pelanggan dan supplier (F1-16g): baris = sisa, kolom = umur.
+    final perBudi = r.agingOfCustomer(r.customers.single.customer.id);
+    for (final b in AgingBucket.values) {
+      expect(perBudi.amountOf(b), rec.amountOf(b), reason: '$b');
+    }
+    expect(perBudi.total, r.customers.single.outstanding);
+    expect(r.agingOfCustomer(ani.id), same(Aging.empty));
+    final sumber = r.agingOfSupplier(supplier.id);
+    expect(sumber.amountOf(AgingBucket.days61To90), const Money(12000));
+    expect(sumber.countOf(AgingBucket.days61To90), 2);
+    expect(sumber.total, r.suppliers.single.debt);
   });
 
   test('retur: daftar, alasan, kembali ke stok', () async {

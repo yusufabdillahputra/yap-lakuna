@@ -12,6 +12,26 @@ import '../../testing/fake_spreadsheet_exporter.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
+/// Baris tabel [table] yang memuat teks [name].
+Finder _rowOf(String table, String name) => find.ancestor(
+  of: find.text(name),
+  matching: find.byWidgetPredicate(
+    (w) => switch (w.key) {
+      ValueKey<String>(:final value) =>
+        value.startsWith('reports-$table-') && !value.endsWith('-tap'),
+      _ => false,
+    },
+  ),
+);
+
+/// Semua teks di dalam [row], berurutan.
+List<String?> _textsIn(WidgetTester tester, Finder row) => [
+  for (final t in tester.widgetList<Text>(
+    find.descendant(of: row, matching: find.byType(Text)),
+  ))
+    t.data,
+];
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
@@ -186,7 +206,29 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text('Lewat 31–60 hari'), findsNWidgets(2));
+    // Dua tabel umur + judul kolom per pelanggan dan supplier (F1-16g).
+    expect(find.text('Lewat 31–60 hari'), findsNWidgets(4));
+    expect(_textsIn(tester, _rowOf('debt-customers', 'Budi')), [
+      'Budi',
+      '1',
+      '',
+      '',
+      'Rp 150.000',
+      '',
+      '',
+      'Rp 150.000',
+    ]);
+    expect(_textsIn(tester, _rowOf('debt-suppliers', 'CV Sumber')), [
+      'CV Sumber',
+      '2',
+      '10/11/2026',
+      'Rp 70.000',
+      '',
+      'Rp 50.000',
+      '',
+      '',
+      'Rp 120.000',
+    ]);
     expect(
       tester.getTopLeft(_key('reports-debt-aging-receivable')).dy,
       lessThan(tester.getTopLeft(_key('reports-debt-customers')).dy),
@@ -502,6 +544,28 @@ void main() {
     expect(_key('reports-error'), findsOneWidget);
   });
 
+  for (final size in const [
+    Size(1024, 768),
+    Size(1280, 800),
+    Size(1440, 900),
+  ]) {
+    testWidgets('${size.width.toInt()} px: kolom umur per nama tanpa luapan '
+        '(F1-16g)', (tester) async {
+      await pump(tester, size);
+      await _tap(tester, _key('reports-tab-debts'));
+      await tester.ensureVisible(_rowOf('debt-suppliers', 'CV Sumber'));
+      await tester.pumpAndSettle();
+      expect(_rowOf('debt-customers', 'Budi'), findsOneWidget);
+      // Dari 1280 px kedua tabel per nama berkolom: judul kolom kelompok
+      // tampil di tabel umur dan di kedua tabel per nama.
+      expect(
+        find.text('Lewat 31–60 hari'),
+        findsNWidgets(size.width >= 1280 ? 4 : 2),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final size in const [Size(800, 900), Size(360, 740)]) {
     testWidgets('${size.width.toInt()} px: tata letak sempit', (tester) async {
       await pump(tester, size);
@@ -538,6 +602,23 @@ void main() {
             ),
             findsOneWidget,
           );
+          // Kartu per nama hanya menulis kelompok yang berisi (F1-16g).
+          await tester.ensureVisible(_rowOf('debt-suppliers', 'CV Sumber'));
+          await tester.pumpAndSettle();
+          expect(_textsIn(tester, _rowOf('debt-customers', 'Budi')), [
+            'Budi',
+            'Nota terbuka: 1',
+            'Lewat 31–60 hari: Rp 150.000',
+            'Rp 150.000',
+          ]);
+          expect(_textsIn(tester, _rowOf('debt-suppliers', 'CV Sumber')), [
+            'CV Sumber',
+            'Nota terbuka: 2',
+            'Jatuh tempo terdekat: 10/11/2026',
+            'Belum jatuh tempo: Rp 70.000',
+            'Lewat 31–60 hari: Rp 50.000',
+            'Rp 120.000',
+          ]);
         }
       }
       expect(find.textContaining('RT-PST-K01-261104-0001'), findsOneWidget);

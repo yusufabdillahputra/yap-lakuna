@@ -326,6 +326,27 @@ class FakeReportsRepository extends ReportsRepository {
         (dueOn: DateTime.utc(2026, 11, 10), outstanding: const Money(70000)),
         (dueOn: DateTime.utc(2026, 10, 1), outstanding: const Money(50000)),
       ], today),
+      // Per nama (F1-16g).
+      customerAging: {
+        _uuid(1): Aging.of([
+          (
+            dueOn: today.subtract(const Duration(days: 40)),
+            outstanding: const Money(150000),
+          ),
+        ], today),
+        _uuid(2): Aging.of([
+          (
+            dueOn: today.add(const Duration(days: 3)),
+            outstanding: const Money(50000),
+          ),
+        ], today),
+      },
+      supplierAging: {
+        _uuid(3): Aging.of([
+          (dueOn: DateTime.utc(2026, 11, 10), outstanding: const Money(70000)),
+          (dueOn: DateTime.utc(2026, 10, 1), outstanding: const Money(50000)),
+        ], today),
+      },
     );
   });
 

@@ -127,7 +127,8 @@ ulang riwayat.
 | v0.143.0 | Peringatan stok sistem berubah sejak dihitung (F1-08q) | #149 |
 | v0.144.0 | Log masuk/keluar staf (F1-03h) | #150 |
 | v0.145.0 | Target margin di KPI Laba kotor tab Ringkasan (F1-16e) | #151 |
-| v0.146.0 | Periode laporan terakhir diingat (F1-16f) | |
+| v0.146.0 | Periode laporan terakhir diingat (F1-16f) | #152 |
+| v0.147.0 | Umur piutang/hutang per pelanggan dan supplier (F1-16g) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -392,6 +393,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     (F1-16e); KPI *Laba kotor* menyebut margin dan target.
 89. ~~Periode laporan kembali ke *Hari ini* setiap dibuka~~ — selesai
     v0.146.0 (F1-16f); periode diingat per cabang di perangkat, tab tidak.
+90. ~~Umur piutang/hutang hanya per kelompok, tidak per nama~~ — selesai
+    v0.147.0 (F1-16g); kolom kelompok di tabel per pelanggan dan supplier,
+    PDF tab Piutang & hutang mendatar.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
