@@ -80,7 +80,7 @@ Urutan pengerjaan sama dengan Storeku.
 
 | # | Modul | Status |
 | --- | --- | --- |
-| 1 | Server sync & aktivasi hosting | Belum |
+| 1 | [Server sync & aktivasi hosting](2026-11-27-f2-01-server-sync-design.md) | Spec + [rencana](../plans/2026-11-27-f2-01-server-sync.md) (5 tahap, v0.164.0–v0.168.0); belum dikerjakan |
 | 2 | Versi web: login & dashboard semua cabang | Belum |
 | 3 | Status sync & tinjau konflik | Belum |
 | 4 | Cabang & perangkat | Belum |
