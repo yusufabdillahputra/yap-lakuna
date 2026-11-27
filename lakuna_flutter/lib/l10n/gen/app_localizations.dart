@@ -14778,6 +14778,24 @@ abstract class AppLocalizations {
   /// **'Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat dan akan dikosongkan bila lokasi diganti.'**
   String get stockLocationDiscardBody;
 
+  /// No description provided for @stockSystemChanged.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok sistem berubah dari {from} jadi {to} sejak dihitung. Selisih memakai stok terbaru; hitung ulang bila perlu.'**
+  String stockSystemChanged(String from, String to);
+
+  /// No description provided for @stockSystemChecked.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah dicek'**
+  String get stockSystemChecked;
+
+  /// No description provided for @stockSystemChangedSummary.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} barang: stok sistem berubah sejak dihitung.'**
+  String stockSystemChangedSummary(int count);
+
   /// No description provided for @stockDraftStored.
   ///
   /// In id, this message translates to:

@@ -1289,6 +1289,12 @@ class _AdjustmentCard extends StatelessWidget {
               icon: const Icon(TablerIcons.circleCheck),
               title: Text(l10n.stockSaved(number)),
             ),
+          if (vm.systemChangedCount > 0)
+            _WarnText(
+              key: const ValueKey('stock-system-changed-summary'),
+              text: l10n.stockSystemChangedSummary(vm.systemChangedCount),
+              alignEnd: true,
+            ),
           if (vm.hasDraftContent) _DraftStatus(failed: vm.draftWriteFailed),
           Wrap(
             alignment: WrapAlignment.end,
@@ -1316,6 +1322,86 @@ class _AdjustmentCard extends StatelessWidget {
           Text(l10n.stockPermissionNote, style: _muted(context)),
         ],
       ),
+    );
+  }
+}
+
+/// Warna peringatan kuning tua (sama dengan pemeriksaan QRIS dan status
+/// meja *Baru*).
+Color _warnColor(BuildContext context) =>
+    context.theme.colors.brightness == Brightness.dark
+    ? const Color(0xFFFFD230)
+    : const Color(0xFF973C00);
+
+/// Teks kecil berikon peringatan.
+class _WarnText extends StatelessWidget {
+  const _WarnText({super.key, required this.text, this.alignEnd = false});
+
+  final String text;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _warnColor(context);
+    return Row(
+      // Di dalam Wrap, ukuran minimum agar tombol bisa di sampingnya.
+      mainAxisSize: alignEnd ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisAlignment: alignEnd
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 6,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(TablerIcons.alertTriangle, size: 14, color: color),
+        ),
+        Flexible(
+          child: Text(
+            text,
+            style: context.theme.typography.body.xs.copyWith(color: color),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Stok sistem berubah sejak baris dihitung (F1-08q): peringatan dan
+/// tombol *Sudah dicek*.
+class _SystemChangedNote extends StatelessWidget {
+  const _SystemChangedNote({required this.viewModel, required this.line});
+
+  final StockViewModel viewModel;
+  final AdjustmentDraftLine line;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final id = line.row.variantId;
+    return Wrap(
+      key: ValueKey('stock-system-changed-${id.uuid}'),
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 4,
+      children: [
+        _WarnText(
+          text: l10n.stockSystemChanged(
+            formatQty(context, line.countedSystem!),
+            formatQty(context, line.row.stock),
+          ),
+        ),
+        FButton(
+          key: ValueKey('stock-system-ok-${id.uuid}'),
+          variant: .outline,
+          size: .sm,
+          mainAxisSize: .min,
+          onPress: viewModel.draftLoading || viewModel.save.running
+              ? null
+              : () => viewModel.acknowledgeSystemChange(id),
+          child: Text(l10n.stockSystemChecked),
+        ),
+      ],
     );
   }
 }
@@ -1487,74 +1573,86 @@ class _LineRow extends StatelessWidget {
     final theme = context.theme;
     final r = line.row;
     final body = theme.typography.body.sm.copyWith(fontFeatures: _tabular);
+    final row = Row(
+      spacing: 12,
+      children: [
+        Expanded(
+          flex: _lineFlex.product,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                r.displayName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: body.copyWith(fontWeight: FontWeight.w600),
+              ),
+              Text(
+                [?r.sku, r.baseUnit].join(' · '),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _muted(context),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: _lineFlex.system,
+          child: Text(
+            formatQty(context, r.stock),
+            textAlign: TextAlign.end,
+            style: body,
+          ),
+        ),
+        Expanded(
+          flex: _lineFlex.physical,
+          child: _PhysicalField(
+            viewModel: viewModel,
+            line: line,
+            revision: revision,
+          ),
+        ),
+        Expanded(
+          flex: _lineFlex.diff,
+          child: _DiffText(line: line),
+        ),
+        Expanded(
+          flex: _lineFlex.note,
+          child: _LineNoteField(
+            viewModel: viewModel,
+            line: line,
+            revision: revision,
+          ),
+        ),
+        Expanded(
+          flex: _lineFlex.value,
+          child: Text(
+            formatMoney(context, line.value),
+            textAlign: TextAlign.end,
+            style: body.copyWith(
+              color: _diffColor(context, line.value.value.sign),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 32,
+          child: _RemoveLineButton(viewModel: viewModel, line: line),
+        ),
+      ],
+    );
     return Padding(
       key: ValueKey('stock-line-${r.variantId.uuid}'),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        spacing: 12,
+      // Bentuk pohon tetap sama (selalu Column) agar kolom fisik tidak
+      // dibangun ulang dan kehilangan fokus saat peringatan muncul/hilang.
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            flex: _lineFlex.product,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  r.displayName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: body.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  [?r.sku, r.baseUnit].join(' · '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _muted(context),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: _lineFlex.system,
-            child: Text(
-              formatQty(context, r.stock),
-              textAlign: TextAlign.end,
-              style: body,
-            ),
-          ),
-          Expanded(
-            flex: _lineFlex.physical,
-            child: _PhysicalField(
-              viewModel: viewModel,
-              line: line,
-              revision: revision,
-            ),
-          ),
-          Expanded(
-            flex: _lineFlex.diff,
-            child: _DiffText(line: line),
-          ),
-          Expanded(
-            flex: _lineFlex.note,
-            child: _LineNoteField(
-              viewModel: viewModel,
-              line: line,
-              revision: revision,
-            ),
-          ),
-          Expanded(
-            flex: _lineFlex.value,
-            child: Text(
-              formatMoney(context, line.value),
-              textAlign: TextAlign.end,
-              style: body.copyWith(
-                color: _diffColor(context, line.value.value.sign),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 32,
-            child: _RemoveLineButton(viewModel: viewModel, line: line),
-          ),
+          row,
+          if (line.systemChanged) ...[
+            const SizedBox(height: 6),
+            _SystemChangedNote(viewModel: viewModel, line: line),
+          ],
         ],
       ),
     );
@@ -1634,6 +1732,8 @@ class _LineCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (line.systemChanged)
+              _SystemChangedNote(viewModel: viewModel, line: line),
             _LineNoteField(
               viewModel: viewModel,
               line: line,

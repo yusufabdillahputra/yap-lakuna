@@ -12,8 +12,12 @@ void main() {
       reason: StockAdjustmentReason.damaged,
       note: 'Opname',
       lines: [
-        (variantId: kopi, physical: const Qty(1500), note: 'rak atas'),
-        (variantId: sabun, physical: null, note: ''),
+        StockAdjustmentDraftLine(
+          variantId: kopi,
+          physical: const Qty(1500),
+          note: 'rak atas',
+        ),
+        StockAdjustmentDraftLine(variantId: sabun, physical: null, note: ''),
       ],
     );
     expect(StockAdjustmentDraft.fromJson(draft.toJson()), draft);
@@ -56,6 +60,35 @@ void main() {
       '{"variantId":"${kopi.uuid}","physical":1000,"note":"a"},'
       '{"variantId":"${kopi.uuid}","physical":2000,"note":"b"}]}',
     );
-    expect(draft!.lines, [(variantId: kopi, physical: Qty.one, note: 'a')]);
+    expect(draft!.lines, [
+      StockAdjustmentDraftLine(variantId: kopi, physical: Qty.one, note: 'a'),
+    ]);
+  });
+
+  test('stok saat dihitung ikut JSON; draf lama dan nilai rusak → null '
+      '(F1-08q)', () {
+    final draft = StockAdjustmentDraft(
+      reason: StockAdjustmentReason.routineCheck,
+      lines: [
+        StockAdjustmentDraftLine(
+          variantId: kopi,
+          physical: Qty.units(3),
+          note: '',
+          countedSystem: Qty.units(5),
+        ),
+      ],
+    );
+    final back = StockAdjustmentDraft.fromJson(draft.toJson())!;
+    expect(back, draft);
+    expect(back.lines.single.countedSystem, Qty.units(5));
+
+    String doc(String extra) =>
+        '{"reason":"lost","note":"","lines":[{"variantId":"${kopi.uuid}",'
+        '"physical":1000,"note":""$extra}]}';
+    for (final extra in ['', ',"countedSystem":-1', ',"countedSystem":"5"']) {
+      final old = StockAdjustmentDraft.fromJson(doc(extra));
+      expect(old!.lines.single.physical, Qty.one, reason: extra);
+      expect(old.lines.single.countedSystem, isNull, reason: extra);
+    }
   });
 }

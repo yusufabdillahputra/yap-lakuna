@@ -11,11 +11,39 @@ export 'repository_errors.dart';
 
 /// Satu baris draf penyesuaian yang disimpan di perangkat (F1-08o):
 /// `physical` kosong = belum dihitung.
-typedef StockAdjustmentDraftLine = ({
-  UuidValue variantId,
-  Qty? physical,
-  String note,
-});
+@immutable
+class StockAdjustmentDraftLine {
+  const StockAdjustmentDraftLine({
+    required this.variantId,
+    required this.physical,
+    required this.note,
+    this.countedSystem,
+  });
+
+  final UuidValue variantId;
+  final Qty? physical;
+  final String note;
+
+  /// Stok sistem saat jumlah fisik diisi (F1-08q); `null` = tidak diketahui
+  /// (draf lama) atau belum dihitung.
+  final Qty? countedSystem;
+
+  @override
+  bool operator ==(Object other) =>
+      other is StockAdjustmentDraftLine &&
+      other.variantId == variantId &&
+      other.physical == physical &&
+      other.note == note &&
+      other.countedSystem == countedSystem;
+
+  @override
+  int get hashCode => Object.hash(variantId, physical, note, countedSystem);
+
+  @override
+  String toString() =>
+      'StockAdjustmentDraftLine($variantId, $physical, $note, '
+      '$countedSystem)';
+}
 
 /// Draf penyesuaian satu lokasi yang disimpan di perangkat (F1-08o).
 @immutable
@@ -39,6 +67,7 @@ class StockAdjustmentDraft {
           'variantId': l.variantId.uuid,
           'physical': l.physical?.milli,
           'note': l.note,
+          'countedSystem': l.countedSystem?.milli,
         },
     ],
   });
@@ -66,11 +95,20 @@ class StockAdjustmentDraft {
             when physical == null || physical >= 0) {
           final variantId = UuidValue.withValidation(id);
           if (parsed.any((p) => p.variantId == variantId)) continue;
-          parsed.add((
-            variantId: variantId,
-            physical: physical == null ? null : Qty(physical),
-            note: lineNote,
-          ));
+          // Draf lama tanpa stok saat dihitung, atau nilainya rusak: tidak
+          // diketahui (F1-08q).
+          final counted = switch (l['countedSystem']) {
+            final int milli when milli >= 0 => Qty(milli),
+            _ => null,
+          };
+          parsed.add(
+            StockAdjustmentDraftLine(
+              variantId: variantId,
+              physical: physical == null ? null : Qty(physical),
+              note: lineNote,
+              countedSystem: counted,
+            ),
+          );
         } else {
           return null;
         }

@@ -8779,6 +8779,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'The adjustment draft for this location has not been saved on this device and will be cleared if you switch locations.';
 
   @override
+  String stockSystemChanged(String from, String to) {
+    return 'System stock changed from $from to $to since it was counted. The difference uses the latest stock; recount if needed.';
+  }
+
+  @override
+  String get stockSystemChecked => 'Checked';
+
+  @override
+  String stockSystemChangedSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items: system stock changed since they were counted.',
+      one: '1 item: system stock changed since it was counted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get stockDraftStored => 'Draft saved on this device.';
 
   @override

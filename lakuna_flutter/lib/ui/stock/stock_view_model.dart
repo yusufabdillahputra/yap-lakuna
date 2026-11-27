@@ -45,13 +45,25 @@ Map<UuidValue, String> uniqueStockLabels(List<StockRow> rows) {
 
 /// Satu baris draf penyesuaian.
 class AdjustmentDraftLine {
-  const AdjustmentDraftLine({required this.row, this.physical, this.note = ''});
+  const AdjustmentDraftLine({
+    required this.row,
+    this.physical,
+    this.note = '',
+    this.countedSystem,
+  });
 
   final StockRow row;
 
   /// `null` = belum diisi (tidak ikut disimpan).
   final Qty? physical;
   final String note;
+
+  /// Stok sistem saat jumlah fisik diisi (F1-08q).
+  final Qty? countedSystem;
+
+  /// Stok sistem sudah berubah sejak baris ini dihitung (F1-08q).
+  bool get systemChanged =>
+      physical != null && countedSystem != null && countedSystem != row.stock;
 
   /// Selisih terhadap stok sistem yang terakhir dimuat.
   Qty? get difference => physical == null
@@ -66,10 +78,12 @@ class AdjustmentDraftLine {
     StockRow? row,
     Qty? Function()? physical,
     String? note,
+    Qty? Function()? countedSystem,
   }) => AdjustmentDraftLine(
     row: row ?? this.row,
     physical: physical == null ? this.physical : physical(),
     note: note ?? this.note,
+    countedSystem: countedSystem == null ? this.countedSystem : countedSystem(),
   );
 }
 
@@ -341,10 +355,11 @@ class StockViewModel extends ChangeNotifier {
             note: _note,
             lines: [
               for (final l in _lines)
-                (
+                StockAdjustmentDraftLine(
                   variantId: l.row.variantId,
                   physical: l.physical,
                   note: l.note,
+                  countedSystem: l.countedSystem,
                 ),
             ],
           )
@@ -379,7 +394,12 @@ class StockViewModel extends ChangeNotifier {
         for (final l in draft.lines)
           if (_rows.where((r) => r.variantId == l.variantId).firstOrNull
               case final row?)
-            AdjustmentDraftLine(row: row, physical: l.physical, note: l.note),
+            AdjustmentDraftLine(
+              row: row,
+              physical: l.physical,
+              note: l.note,
+              countedSystem: l.countedSystem,
+            ),
       ];
       _draftRevision++;
     }
@@ -451,10 +471,27 @@ class StockViewModel extends ChangeNotifier {
     _touched();
   }
 
+  /// Angka baru mencatat stok sistem saat ini sebagai stok saat dihitung
+  /// (F1-08q). Angka sama tidak: Forui memanggil `onChange` saat fokus.
   void setPhysical(UuidValue variantId, Qty? qty) => _updateLine(
     variantId,
-    (l) => l.copyWith(physical: () => qty),
+    (l) => qty == l.physical
+        ? l
+        : l.copyWith(
+            physical: () => qty,
+            countedSystem: () => qty == null ? null : l.row.stock,
+          ),
   );
+
+  /// *Sudah dicek*: stok sistem terbaru menjadi stok saat dihitung
+  /// (F1-08q).
+  void acknowledgeSystemChange(UuidValue variantId) => _updateLine(
+    variantId,
+    (l) => l.copyWith(countedSystem: () => l.row.stock),
+  );
+
+  /// Baris yang stok sistemnya berubah sejak dihitung (F1-08q).
+  int get systemChangedCount => _lines.where((l) => l.systemChanged).length;
 
   void setLineNote(UuidValue variantId, String note) =>
       _updateLine(variantId, (l) => l.copyWith(note: note));
@@ -464,9 +501,13 @@ class StockViewModel extends ChangeNotifier {
     AdjustmentDraftLine Function(AdjustmentDraftLine) change,
   ) {
     if (draftLoading) return;
-    _lines = [
-      for (final l in _lines) l.row.variantId == variantId ? change(l) : l,
-    ];
+    final i = _lines.indexWhere((l) => l.row.variantId == variantId);
+    if (i < 0) return;
+    final next = change(_lines[i]);
+    // Tanpa perubahan (mis. `onChange` Forui saat fokus): draf tidak
+    // ditulis ulang.
+    if (identical(next, _lines[i])) return;
+    _lines = [..._lines]..[i] = next;
     _touched();
   }
 

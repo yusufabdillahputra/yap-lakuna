@@ -5708,6 +5708,23 @@
   "@stockLocationDiscardBody": {
     "placeholders": {}
   },
+  "stockSystemChanged": "Stok sistem berubah dari {from} jadi {to} sejak dihitung. Selisih memakai stok terbaru; hitung ulang bila perlu.",
+  "@stockSystemChanged": {
+    "placeholders": {
+      "from": {"type": "String"},
+      "to": {"type": "String"}
+    }
+  },
+  "stockSystemChecked": "Sudah dicek",
+  "@stockSystemChecked": {
+    "placeholders": {}
+  },
+  "stockSystemChangedSummary": "{count} barang: stok sistem berubah sejak dihitung.",
+  "@stockSystemChangedSummary": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "stockDraftStored": "Draf tersimpan di perangkat ini.",
   "@stockDraftStored": {
     "placeholders": {}

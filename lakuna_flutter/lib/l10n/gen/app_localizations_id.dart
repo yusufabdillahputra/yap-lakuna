@@ -8528,6 +8528,19 @@ class AppLocalizationsId extends AppLocalizations {
       'Draf penyesuaian untuk lokasi ini belum tersimpan di perangkat dan akan dikosongkan bila lokasi diganti.';
 
   @override
+  String stockSystemChanged(String from, String to) {
+    return 'Stok sistem berubah dari $from jadi $to sejak dihitung. Selisih memakai stok terbaru; hitung ulang bila perlu.';
+  }
+
+  @override
+  String get stockSystemChecked => 'Sudah dicek';
+
+  @override
+  String stockSystemChangedSummary(int count) {
+    return '$count barang: stok sistem berubah sejak dihitung.';
+  }
+
+  @override
   String get stockDraftStored => 'Draf tersimpan di perangkat ini.';
 
   @override
