@@ -141,7 +141,8 @@ ulang riwayat.
 | v0.157.0 | Spasi ganda di nama kategori dan satuan (F1-07t) | #163 |
 | v0.158.0 | Backup dan PDF besar di isolate terpisah (F1-19f) | #164 |
 | v0.159.0 | Satuan beli bawaan per barang (F1-08s) | #165 |
-| v0.160.0 | Sampai 5 foto per faktur pembelian (F1-12m) | |
+| v0.160.0 | Sampai 5 foto per faktur pembelian (F1-12m) | #166 |
+| v0.161.0 | PDF retur pembelian per retur (F1-12n) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -442,6 +443,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
      sampai 5 foto, lembar ke-2 dst. di `purchase_invoice_pages`, migrasi
      `foto-faktur-lembar`. Ubah urutan foto dan pilih beberapa berkas
      sekaligus belum.
+104. ~~Retur pembelian hanya tercantum di PDF pembelian asal~~ — selesai
+     v0.161.0 (F1-12n); tombol PDF per retur di rincian pembelian, berkas
+     `retur-<nomor>.pdf`. Tanda tangan penerima di PDF belum.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

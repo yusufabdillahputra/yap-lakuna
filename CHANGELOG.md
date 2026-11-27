@@ -7,6 +7,52 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.161.0] - 2026-11-27
+
+Bukti retur untuk supplier kini bisa dicetak sendiri tanpa seluruh
+pembelian. Ini gap 24 di daftar rapikan Fase 1 (F1-12n, rincian pembelian
+1.19b).
+
+### Ditambahkan
+
+- **PDF retur pembelian per retur.** Setiap baris di *Retur yang sudah
+  dibuat* punya tombol **PDF**. Isinya: judul *Retur pembelian RB-…*,
+  supplier, *Dari pembelian PB-…*, No. faktur supplier, tanggal retur,
+  lokasi, staf yang mencatat retur, dan kode perangkat; tabel Produk | Qty
+  | Nilai untuk setiap barang yang diretur (qty dalam satuan baris
+  pembelian, mis. *1 dus (@ 6 btl)*); ringkasan **Total retur**, *Retur
+  memotong hutang*, dan *Uang kembali (Kas laci / Kas toko / Rekening
+  bank)*; catatan retur dan baris *Dicetak … oleh …*.
+- Berkas bernama `retur-<nomor>.pdf` huruf kecil. Di komputer disimpan di
+  folder dokumen Lakuna, di ponsel lembar bagikan terbuka.
+
+### Diubah
+
+- Pesan hasil cetak di kartu *Tindakan* menjadi umum (*PDF disimpan di …*
+  / *PDF gagal dibuat. Coba lagi.*) karena dipakai PDF pembelian dan PDF
+  retur.
+- Panduan *Pembelian* (ID dan EN) menjelaskan tombol PDF retur.
+
+### Diperbaiki
+
+- Tombol **Proses retur · Rp …** di form retur pembelian meluap 22 px di
+  ponsel 360 px saat nominalnya panjang; labelnya kini turun baris.
+  Ditemukan lewat tes widget baru PDF retur di 360 px.
+
+### Catatan teknis
+
+- Baris retur yang barangnya tidak ada di perangkat ini (mis. belum
+  tersinkron) tetap dicetak sebagai *Barang tidak ditemukan* agar jumlah
+  baris sama dengan **Total retur**.
+- Data: `PurchaseDetail.returnItems` (baris `purchase_return_items` per id
+  retur, hanya yang aktif) dan `returnStaffNames` (nama staf pencatat per
+  retur), dimuat bersama rincian pembelian. `returnedMilli` kini dihitung
+  dari baris yang sama (satu query). Nama staf dibatasi tenant; staf yang
+  diarsipkan tetap tercetak. Tanpa tabel atau migrasi baru.
+- Flutter: `purchaseReturnPrintTable` dan `purchaseReturnPrintFileName` di
+  `purchase_print.dart`; PDF dibuat lewat `reportPdf` di isolate seperti
+  PDF pembelian (F1-19f).
+
 ## [0.160.0] - 2026-11-27
 
 Faktur supplier yang berlembar banyak kini bisa difoto per lembar. Ini gap
@@ -8918,7 +8964,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...HEAD
+[0.161.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...v0.161.0
 [0.160.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...v0.160.0
 [0.159.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...v0.159.0
 [0.158.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...v0.158.0

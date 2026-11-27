@@ -859,6 +859,8 @@ class PurchaseDetail {
     required this.baseUnits,
     this.debtPayments = const [],
     this.invoiceMediaIds = const [],
+    this.returnItems = const {},
+    this.returnStaffNames = const {},
   });
 
   final Purchase purchase;
@@ -897,6 +899,12 @@ class PurchaseDetail {
 
   /// Semua foto faktur berurutan (F1-12m): foto dokumen lalu lembar.
   final List<UuidValue> invoiceMediaIds;
+
+  /// Baris tiap retur (id retur → baris), untuk PDF retur (F1-12n).
+  final Map<UuidValue, List<PurchaseReturnItem>> returnItems;
+
+  /// Nama staf yang mencatat tiap retur (id retur → nama).
+  final Map<UuidValue, String> returnStaffNames;
 
   int remainingMilli(PurchaseItem item) =>
       item.quantityMilli - (returnedMilli[item.id] ?? 0);
@@ -958,20 +966,39 @@ Future<Map<UuidValue, int>> _returnedMilliOf(
   List<PurchaseReturn> returns, {
   Transaction? transaction,
 }) async {
-  if (returns.isEmpty) return const {};
-  final rows = await PurchaseReturnItem.db.find(
+  final rows = await _returnItemsOf(
     session,
-    where: (i) =>
-        i.tenantId.equals(tenantId) &
-        i.purchaseReturnId.inSet({for (final r in returns) r.id}) &
-        i.deletedAt.equals(null),
+    tenantId,
+    returns,
     transaction: transaction,
   );
+  return _sumReturnedMilli(rows);
+}
+
+Map<UuidValue, int> _sumReturnedMilli(List<PurchaseReturnItem> rows) {
   final out = <UuidValue, int>{};
   for (final r in rows) {
     out[r.purchaseItemId] = (out[r.purchaseItemId] ?? 0) + r.quantityMilli;
   }
   return out;
+}
+
+Future<List<PurchaseReturnItem>> _returnItemsOf(
+  DatabaseSession session,
+  UuidValue tenantId,
+  List<PurchaseReturn> returns, {
+  Transaction? transaction,
+}) async {
+  if (returns.isEmpty) return const [];
+  return PurchaseReturnItem.db.find(
+    session,
+    where: (i) =>
+        i.tenantId.equals(tenantId) &
+        i.purchaseReturnId.inSet({for (final r in returns) r.id}) &
+        i.deletedAt.equals(null),
+    orderBy: (i) => i.createdAt,
+    transaction: transaction,
+  );
 }
 
 /// Rincian pembelian [id]; [PurchaseNotFound] bila bukan milik cabang ini.
@@ -1013,6 +1040,7 @@ Future<PurchaseDetail> loadPurchaseDetail(
   final staff = await StaffMember.db.findById(session, p.staffId);
   final device = await Device.db.findById(session, p.deviceId);
   final location = await StockLocation.db.findById(session, p.stockLocationId);
+  final returnRows = await _returnItemsOf(session, scope.tenantId, returns);
   return PurchaseDetail(
     purchase: p,
     items: items,
@@ -1021,7 +1049,7 @@ Future<PurchaseDetail> loadPurchaseDetail(
     deviceCode: device?.code ?? '',
     locationName: location?.name ?? '',
     returns: returns,
-    returnedMilli: await _returnedMilliOf(session, scope.tenantId, returns),
+    returnedMilli: _sumReturnedMilli(returnRows),
     sellPrices: {for (final v in variants) v.id: Money(v.sellPrice)},
     skus: {for (final v in variants) v.id: v.sku},
     baseUnits: {
@@ -1030,7 +1058,41 @@ Future<PurchaseDetail> loadPurchaseDetail(
     },
     debtPayments: await _debtPaymentLines(session, scope.tenantId, p.id),
     invoiceMediaIds: await _invoiceMediaIds(session, p),
+    returnItems: _groupReturnItems(returnRows),
+    returnStaffNames: await _staffNames(session, scope.tenantId, {
+      for (final r in returns) r.id: r.staffId,
+    }),
   );
+}
+
+Map<UuidValue, List<PurchaseReturnItem>> _groupReturnItems(
+  List<PurchaseReturnItem> rows,
+) {
+  final out = <UuidValue, List<PurchaseReturnItem>>{};
+  for (final row in rows) {
+    (out[row.purchaseReturnId] ??= []).add(row);
+  }
+  return out;
+}
+
+/// Nama staf per kunci ([staffByKey] kunci → id staf).
+/// Staf yang diarsipkan tetap ikut agar namanya tercetak.
+Future<Map<UuidValue, String>> _staffNames(
+  DatabaseSession session,
+  UuidValue tenantId,
+  Map<UuidValue, UuidValue> staffByKey,
+) async {
+  if (staffByKey.isEmpty) return const {};
+  final staff = await StaffMember.db.find(
+    session,
+    where: (m) =>
+        m.tenantId.equals(tenantId) & m.id.inSet(staffByKey.values.toSet()),
+  );
+  final names = {for (final m in staff) m.id: m.name};
+  return {
+    for (final MapEntry(:key, :value) in staffByKey.entries)
+      key: names[value] ?? '',
+  };
 }
 
 /// Bagian pembayaran hutang `BH-` untuk satu pembelian.

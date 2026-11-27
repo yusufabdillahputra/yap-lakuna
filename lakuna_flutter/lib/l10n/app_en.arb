@@ -4541,7 +4541,7 @@
   "purchaseInvoicePhotoClose": "Close",
   "purchasePrint": "Print / share PDF",
   "purchasePrintHint": "The PDF lists the goods, payment summary, and returns; you can send it to the supplier.",
-  "purchasePrintSaved": "Purchase PDF saved to {path}",
+  "purchasePrintSaved": "PDF saved to {path}",
   "@purchasePrintSaved": {
     "placeholders": {
       "path": {
@@ -4549,7 +4549,7 @@
       }
     }
   },
-  "purchasePrintFailed": "Could not create the purchase PDF. Try again.",
+  "purchasePrintFailed": "Could not create the PDF. Try again.",
   "purchasePrintTitle": "Purchase {number}",
   "@purchasePrintTitle": {
     "placeholders": {
@@ -4618,6 +4618,42 @@
     }
   },
   "purchasePrintReturnDebt": "Returns deducted from payable",
+  "purchaseReturnPrintTitle": "Purchase return {number}",
+  "@purchaseReturnPrintTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintFrom": "From purchase {number}",
+  "@purchaseReturnPrintFrom": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintValue": "Value",
+  "purchaseReturnPrintTotal": "Return total",
+  "purchaseReturnPrintRefund": "Refund ({source})",
+  "@purchaseReturnPrintRefund": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintRefundPlain": "Refund",
+  "purchaseReturnPrintUnknownItem": "Item not found",
+  "purchaseReturnPrintAction": "Return PDF {number}",
+  "@purchaseReturnPrintAction": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "purchasePrintRefund": "Refund received from returns: {amount}",
   "@purchasePrintRefund": {
     "placeholders": {

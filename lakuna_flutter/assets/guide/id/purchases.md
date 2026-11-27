@@ -30,4 +30,6 @@ Kartu *Foto faktur* menampilkan foto faktur supplier. Tekan **Lihat foto faktur*
 
 Di detail pembelian, tekan **Retur pembelian**, isi qty retur, lalu **Proses retur**. Retur mengurangi stok dan hutang; bila pembelian sudah lunas, pilih ke mana uang kembali.
 
+Setiap retur di daftar *Retur yang sudah dibuat* punya tombol **PDF** untuk membuat bukti retur itu saja: barang dan qty yang dikembalikan, nilainya, potongan hutang, dan uang kembali beserta sumbernya. Berikan PDF ini ke supplier atau sopirnya. Nama berkasnya `retur-<nomor retur>.pdf`.
+
 > [!note] Bayar dari kas laci butuh sesi kasir terbuka di perangkat ini. Pembelian yang sudah diterima tidak bisa dihapus, hanya diretur.

@@ -987,6 +987,12 @@ void main() {
       d = await loadPurchaseDetail(store, scope, p.id);
       expect(d.debt, const Money(189000 - 185836));
       expect(d.remainingMilli(d.items.first), 3000);
+      // Baris dan staf per retur untuk PDF retur (F1-12n).
+      final returnRows = d.returnItems[first.id]!;
+      expect(returnRows.single.purchaseItemId, minyakItem.id);
+      expect(returnRows.single.quantityMilli, 1000);
+      expect(returnRows.single.amount, 185836);
+      expect(d.returnStaffNames[first.id], ctx.owner.name);
 
       // Retur kedua melebihi sisa hutang: wajib pilih sumber uang kembali.
       final lines = [

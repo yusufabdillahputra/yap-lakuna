@@ -30,4 +30,6 @@ The *Invoice photo* card shows the supplier's invoice. Tap **View invoice photo*
 
 In the purchase detail, tap **Purchase return**, enter the return quantities, then **Process return**. A return lowers stock and the payable; if the purchase is already paid, choose where the refund goes.
 
+Each return in the *Returns made* list has a **PDF** button that creates a slip for that return only: the goods and quantities sent back, their value, the payable reduction, and the refund with its source. Give this PDF to the supplier or their driver. The file is named `retur-<return number>.pdf`.
+
 > [!note] Paying from the cash drawer needs an open cash session on this device. A received purchase cannot be deleted, only returned.

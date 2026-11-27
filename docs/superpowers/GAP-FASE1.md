@@ -44,7 +44,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 21 | PDF label / stok dan backup di isolate terpisah | F1-07e, F1-08b, F1-19d | v0.158.0 (F1-19f) |
 | 22 | Satuan beli bawaan per barang (saran langsung dus) | F1-08j | v0.159.0 (F1-08s) |
 | 23 | Lebih dari satu foto per faktur pembelian | F1-12b | v0.160.0 (F1-12m) |
-| 24 | PDF retur pembelian (RB-) tersendiri | F1-12c | |
+| 24 | PDF retur pembelian (RB-) tersendiri | F1-12c | v0.161.0 (F1-12n) |
 | 25 | Ekspor pratinjau import harga ke Excel | F1-07m | |
 | 26 | Persetujuan ulang bila dasar diskon rupiah mengecil | F1-04e | |
 
