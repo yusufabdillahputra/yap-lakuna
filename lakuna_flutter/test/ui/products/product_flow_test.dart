@@ -481,9 +481,12 @@ void main() {
       await _tap(tester, 'products-archived');
       expect(find.text('Produk diarsipkan'), findsOneWidget);
       expect(find.text('Minyak Goreng'), findsOneWidget);
-      // Tanggal arsip di zona cabang (WIB): 13/11 20.00 UTC = 14/11 (F1-07o).
+      // Tanggal arsip di zona cabang (WIB): 13/11 20.00 UTC = 14/11 (F1-07o),
+      // lalu nama staf yang mengarsipkan (F1-07s).
       expect(
-        find.text('Sembako · Stok 24 botol · Diarsipkan 14 November 2026'),
+        find.text(
+          'Sembako · Stok 24 botol · Diarsipkan 14 November 2026 oleh Yusuf',
+        ),
         findsOneWidget,
       );
       // Ponsel: tombol Pulihkan di bawah teks, nama tidak terlipat per huruf.

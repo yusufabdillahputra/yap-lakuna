@@ -129,6 +129,7 @@ class CatalogProduct {
     this.brand,
     this.modifierGroupIds = const [],
     this.archivedAt,
+    this.archivedByName,
     this.photoMediaId,
     this.photoPath,
   });
@@ -157,6 +158,11 @@ class CatalogProduct {
 
   /// Waktu diarsipkan (F1-07d); `null` = produk aktif di katalog.
   final DateTime? archivedAt;
+
+  /// Nama staf yang mengarsipkan (F1-07s): pengubah terakhir produk arsip,
+  /// karena produk arsip tidak bisa diubah selain dipulihkan. `null` untuk
+  /// produk aktif atau bila stafnya tidak ditemukan.
+  final String? archivedByName;
 
   /// Foto produk (F1-07f).
   final UuidValue? photoMediaId;
@@ -376,6 +382,19 @@ Future<List<CatalogProduct>> _loadProducts(
       l.variantId: Qty(l.quantityMilli),
   };
 
+  final archiverIds = {
+    for (final p in products)
+      if (p.deletedAt != null) ?p.updatedBy,
+  };
+  final archiverNames = <UuidValue, String>{
+    if (archiverIds.isNotEmpty)
+      for (final s in await StaffMember.db.find(
+        session,
+        where: (s) => s.tenantId.equals(tenant) & s.id.inSet(archiverIds),
+      ))
+        s.id: s.name,
+  };
+
   final photoIds = {for (final p in products) ?p.photoMediaId};
   final photoPaths = <UuidValue?, String>{
     if (photoIds.isNotEmpty)
@@ -405,6 +424,7 @@ Future<List<CatalogProduct>> _loadProducts(
         sendToKitchen: p.sendToKitchen,
         allowNote: p.allowNote,
         archivedAt: p.deletedAt,
+        archivedByName: p.deletedAt == null ? null : archiverNames[p.updatedBy],
         photoMediaId: p.photoMediaId,
         photoPath: photoPaths[p.photoMediaId],
         modifierGroupIds: [

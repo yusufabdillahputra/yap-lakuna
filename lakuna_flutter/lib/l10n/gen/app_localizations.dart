@@ -14550,6 +14550,12 @@ abstract class AppLocalizations {
   /// **'Sakelar gagal disimpan. Coba lagi.'**
   String get backupAutoSaveFailed;
 
+  /// No description provided for @productsArchivedOnBy.
+  ///
+  /// In id, this message translates to:
+  /// **'Diarsipkan {date} oleh {name}'**
+  String productsArchivedOnBy(String date, String name);
+
   /// No description provided for @productsArchivedOn.
   ///
   /// In id, this message translates to:

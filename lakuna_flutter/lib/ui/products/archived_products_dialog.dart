@@ -187,9 +187,7 @@ class _Row extends StatelessWidget {
           product.baseUnit,
         ),
       if (product.archivedAt case final at?)
-        l10n.productsArchivedOn(
-          formatLongDate(l10n, outletLocalTime(at, timezone)),
-        ),
+        archivedOnLabel(l10n, at, timezone, product.archivedByName),
     ];
     return Column(
       key: ValueKey('archived-${product.id.uuid}'),
@@ -254,4 +252,18 @@ class _Row extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Keterangan *Diarsipkan 14 November 2026 oleh Rina* (F1-07o, F1-07s):
+/// tanggal di zona cabang, lalu nama staf pengarsip bila diketahui.
+String archivedOnLabel(
+  AppLocalizations l10n,
+  DateTime at,
+  String? timezone,
+  String? by,
+) {
+  final date = formatLongDate(l10n, outletLocalTime(at, timezone));
+  return by == null
+      ? l10n.productsArchivedOn(date)
+      : l10n.productsArchivedOnBy(date, by);
 }

@@ -7,6 +7,35 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.154.0] - 2026-11-27
+
+Dialog *Produk diarsipkan* kini menulis siapa yang mengarsipkan produk. Ini
+bagian pertama gap kedelapan belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Produk › Diarsipkan** (1.15): keterangan tiap baris menulis nama staf
+  pengarsip, mis. *Sembako · Stok 24 botol · Diarsipkan 14 November 2026
+  oleh Rina*. Pemilik bisa menelusuri kenapa barang hilang dari Kasir tanpa
+  bertanya ke semua staf.
+  - Produk yang dipulihkan lalu diarsipkan lagi menulis pengarsip terbaru.
+  - Bila stafnya tidak ditemukan, keterangan tetap menulis tanggal saja.
+
+### Diubah
+
+- Panduan *Produk pertama* (ID dan EN) menyebut nama pengarsip.
+
+### Catatan teknis
+
+- Tanpa migrasi: pengarsip diambil dari `products.updated_by`, yang sudah
+  diisi saat arsip dan pulih; produk arsip tidak bisa diubah selain
+  dipulihkan.
+- `CatalogProduct.archivedByName` dimuat `_loadProducts` hanya untuk produk
+  arsip.
+- `archivedOnLabel` di `archived_products_dialog.dart`; kunci l10n baru
+  `productsArchivedOnBy`.
+- `FakeCatalogRepository.archiverName` untuk tes.
+
 ## [0.153.0] - 2026-11-27
 
 Layar split bill kini bisa mencetak tagihan semua tamu sekaligus. Ini gap
@@ -8653,7 +8682,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...HEAD
+[0.154.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...v0.154.0
 [0.153.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...v0.153.0
 [0.152.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...v0.152.0
 [0.151.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...v0.151.0

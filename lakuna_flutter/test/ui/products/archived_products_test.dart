@@ -1,6 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:lakuna_flutter/l10n/gen/app_localizations.dart';
+import 'package:lakuna_flutter/ui/products/archived_products_dialog.dart'
+    show archivedOnLabel;
 import 'package:lakuna_flutter/ui/products/archived_products_view_model.dart';
 import 'package:lakuna_flutter/ui/products/product_form_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
@@ -84,5 +88,23 @@ void main() {
     expect(vm.changed, isTrue);
     expect(vm.products!.single.name, 'Minyak Goreng');
     expect(repo.products.map((p) => p.name), contains('Kopi Sachet'));
+  });
+
+  test('keterangan arsip: tanggal, lalu nama pengarsip bila ada (F1-07s)', () {
+    final id = lookupAppLocalizations(const Locale('id'));
+    final en = lookupAppLocalizations(const Locale('en'));
+    final at = DateTime.utc(2026, 11, 13, 20);
+    expect(
+      archivedOnLabel(id, at, 'Asia/Jakarta', 'Rina'),
+      'Diarsipkan 14 November 2026 oleh Rina',
+    );
+    expect(
+      archivedOnLabel(id, at, 'Asia/Jakarta', null),
+      'Diarsipkan 14 November 2026',
+    );
+    expect(
+      archivedOnLabel(en, at, 'Asia/Jakarta', 'Rina'),
+      'Archived November 14, 2026 by Rina',
+    );
   });
 }
