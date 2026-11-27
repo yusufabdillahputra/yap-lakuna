@@ -240,6 +240,7 @@ class CashSessionLine {
     this.closedAt,
     this.counted,
     this.difference,
+    this.shift,
   });
 
   /// Id sesi, untuk cetak ulang rekap (F1-03e).
@@ -258,7 +259,69 @@ class CashSessionLine {
   final Money? counted;
   final Money? difference;
 
+  /// Shift yang dipilih saat buka (F1-03g); nama terkini, termasuk shift
+  /// yang sudah dihapus.
+  final Shift? shift;
+
   bool get isOpen => counted == null;
+}
+
+/// Ringkasan sesi satu shift di tab Kas & sesi (F1-03g); [shift] `null` =
+/// sesi tanpa shift.
+class ShiftSummary {
+  const ShiftSummary({
+    required this.shift,
+    required this.sessions,
+    required this.sales,
+    required this.difference,
+  });
+
+  final Shift? shift;
+
+  /// Jumlah sesi pada periode.
+  final int sessions;
+
+  /// Σ penjualan nota lunas sesi-sesi itu.
+  final Money sales;
+
+  /// Σ selisih sesi yang sudah ditutup.
+  final Money difference;
+}
+
+/// Ringkasan per shift dari [lines] beserta penjualan tiap sesi; kosong bila
+/// tidak ada sesi bershift. Urut jam mulai lalu nama, *Tanpa shift* akhir.
+List<ShiftSummary> _shiftSummaries(
+  List<CashSessionLine> lines,
+  Map<UuidValue, Money> salesBySession,
+) {
+  if (lines.every((l) => l.shift == null)) return const [];
+  final groups = <UuidValue?, List<CashSessionLine>>{};
+  for (final l in lines) {
+    (groups[l.shift?.id] ??= []).add(l);
+  }
+  final keys = groups.keys.toList()
+    ..sort((a, b) {
+      if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
+      final x = groups[a]!.first.shift!;
+      final y = groups[b]!.first.shift!;
+      final byStart = x.startMinute.compareTo(y.startMinute);
+      return byStart != 0
+          ? byStart
+          : x.name.toLowerCase().compareTo(y.name.toLowerCase());
+    });
+  return [
+    for (final k in keys)
+      ShiftSummary(
+        shift: groups[k]!.first.shift,
+        sessions: groups[k]!.length,
+        sales: Money.sum(
+          groups[k]!.map((l) => salesBySession[l.id] ?? Money.zero),
+        ),
+        difference: Money.sum(
+          groups[k]!.map((l) => l.difference ?? Money.zero),
+        ),
+      ),
+  ];
 }
 
 /// Sesi tidak ditemukan di cabang ini atau belum ditutup (F1-03e).
@@ -281,9 +344,13 @@ class ClosedSessionRecap {
     required this.openedByName,
     required this.closedByName,
     required this.deviceCode,
+    this.shift,
   });
 
   final CashSession session;
+
+  /// Shift sesi (F1-03g), atau `null`.
+  final Shift? shift;
 
   /// Gerakan kas sesi ini, urut waktu catat.
   final List<CashMovement> movements;
@@ -335,6 +402,9 @@ Future<List<CashSessionLine>> listRecentClosedSessions(
     scope.tenantId,
     sessions.map((s) => s.openedBy),
   );
+  final shifts = await shiftsById(session, scope, [
+    for (final s in sessions) ?s.shiftId,
+  ]);
   return [
     for (final s in sessions)
       CashSessionLine(
@@ -346,6 +416,7 @@ Future<List<CashSessionLine>> listRecentClosedSessions(
         expected: Money(s.expectedCash ?? 0),
         counted: Money(s.countedCash ?? 0),
         difference: Money(s.difference ?? 0),
+        shift: shifts[s.shiftId],
       ),
   ];
 }
@@ -420,6 +491,10 @@ Future<ClosedSessionRecap> loadClosedSessionRecap(
     openedByName: names[s.openedBy] ?? '',
     closedByName: s.closedBy == null ? '' : names[s.closedBy] ?? '',
     deviceCode: device?.code ?? '',
+    shift: switch (s.shiftId) {
+      final id? => (await shiftsById(session, scope, [id]))[id],
+      null => null,
+    },
   );
 }
 
@@ -468,6 +543,7 @@ class CashReport {
     required this.sessions,
     required this.inflows,
     required this.outflows,
+    this.shifts = const [],
   });
 
   /// Sesi yang aktif pada periode (dibuka sebelum akhir periode, belum
@@ -479,6 +555,9 @@ class CashReport {
 
   /// Kas keluar per sumber.
   final List<GroupTotal<CashSourceKind>> outflows;
+
+  /// Ringkasan per shift (F1-03g); kosong bila tidak ada sesi bershift.
+  final List<ShiftSummary> shifts;
 
   int get openCount => sessions.where((s) => s.isOpen).length;
 
@@ -515,6 +594,26 @@ Future<CashReport> loadCashReport(
     scope.tenantId,
     sessions.map((s) => s.openedBy),
   );
+  final shifts = await shiftsById(session, scope, [
+    for (final s in sessions) ?s.shiftId,
+  ]);
+  // Penjualan per sesi (nota lunas, sama dengan rekap sesi) hanya untuk
+  // ringkasan per shift; satu query untuk semua sesi.
+  final salesBySession = <UuidValue, Money>{};
+  if (shifts.isNotEmpty) {
+    for (final sale in await Sale.db.find(
+      session,
+      where: (x) =>
+          x.tenantId.equals(scope.tenantId) &
+          x.cashSessionId.inSet({for (final s in sessions) s.id}) &
+          x.status.inSet(soldStatuses) &
+          x.deletedAt.equals(null),
+    )) {
+      final id = sale.cashSessionId!;
+      salesBySession[id] =
+          (salesBySession[id] ?? Money.zero) + Money(sale.total);
+    }
+  }
   final lines = <CashSessionLine>[];
   for (final s in sessions.reversed) {
     final closed = s.status == CashSessionStatus.closed;
@@ -541,6 +640,7 @@ Future<CashReport> loadCashReport(
         expected: expected,
         counted: closed ? Money(s.countedCash ?? 0) : null,
         difference: closed ? Money(s.difference ?? 0) : null,
+        shift: shifts[s.shiftId],
       ),
     );
   }
@@ -565,6 +665,7 @@ Future<CashReport> loadCashReport(
         if (m.direction == CashDirection.outflow)
           (_cashKind(m), Money(m.amount)),
     ]),
+    shifts: _shiftSummaries(lines, salesBySession),
   );
 }
 

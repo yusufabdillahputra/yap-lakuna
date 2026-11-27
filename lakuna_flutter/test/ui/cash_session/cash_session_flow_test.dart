@@ -453,4 +453,53 @@ void main() {
       },
     );
   }
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('${size.width.toInt()} px: pilih shift saat buka (F1-03g)', (
+      tester,
+    ) async {
+      final repo = FakeCashDrawerRepository(
+        permissions: permissionsForRole('owner', isOwner: true),
+      );
+      repo.addShift('Pagi', 7 * 60, 15 * 60);
+      final malam = repo.addShift('Malam', 22 * 60, 6 * 60);
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.cashSession,
+        cashDrawer: repo,
+      );
+      expect(find.text('Dari Master data › Shift (opsional).'), findsOneWidget);
+      // Pilihan awal mengikuti jam sekarang; pilih Malam secara eksplisit.
+      final select = find.byWidgetPredicate(
+        (w) => '${w.key}'.contains('cash-shift-'),
+      );
+      await tester.ensureVisible(select);
+      await tester.pumpAndSettle();
+      await tester.tap(select);
+      await tester.pumpAndSettle();
+      expect(find.text('Tanpa shift'), findsWidgets);
+      await tester.tap(find.text('Malam · 22.00–06.00').last);
+      await tester.pumpAndSettle();
+      await _type(tester, 'cash-opening-cash', '100000');
+      await _tap(tester, 'cash-open');
+      expect(repo.session!.shiftId, malam.id);
+      expect(
+        _text(tester, 'cash-active-shift'),
+        'Shift Malam · 22.00–06.00',
+      );
+      await _tap(tester, 'cash-start-close');
+      expect(find.textContaining('· Shift Malam'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('tanpa master shift pilihan shift tidak tampil', (tester) async {
+    await pump(tester);
+    expect(
+      find.byWidgetPredicate((w) => '${w.key}'.contains('cash-shift-')),
+      findsNothing,
+    );
+    expect(find.text('Dari Master data › Shift (opsional).'), findsNothing);
+  });
 }

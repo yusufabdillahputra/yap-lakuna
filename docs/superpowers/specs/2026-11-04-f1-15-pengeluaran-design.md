@@ -129,7 +129,7 @@ Tidak termasuk: penggajian otomatis (F3), pengeluaran berulang, anggaran.
 | --- | --- | --- | --- |
 | Jenis pengeluaran, catat, batal, per jenis, ekspor, kas laci | 1.22, 1.3b, 1.17 | Rilis v0.19.0 | — |
 | Pengeluaran berulang (sewa bulanan) | — | Belum | Fase 3. |
-| Laba rugi | 1.24 | Belum | F1-16 membaca `expenses` tidak batal. |
+| Laba rugi | 1.24 | Rilis v0.21.0 | [F1-16](2026-11-04-f1-16-laporan-design.md) membaca `expenses` tidak batal. |
 | Peran khusus dengan `expenses:manage` tanpa `cash_movements:create` | — | Dicek di UI, repositori, data | Peran bawaan belum punya kombinasi ini; tambah tes data saat peran khusus (F1-17) ada. |
 | Jumlah pakai per jenis | — | Dihitung di memori dari semua pengeluaran tenant | Ganti dengan kueri `GROUP BY` bila data besar. |
 | Sinkronisasi (Fase 2) | — | Belum | Jenis bawaan dibuat per perangkat saat offline: pakai ID deterministik (UUIDv5 tenant + nama) atau gabung saat sync. Batal pengeluaran laci dari perangkat lain mengembalikan uang ke laci perangkat itu; batasi ke perangkat asal. |

@@ -31,6 +31,7 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
   Future<Result<ActiveCashSession>> open({
     required Money openingCash,
     String note = '',
+    UuidValue? shiftId,
   }) => _guard(Permission.cashSessionOpen, (scope, staffId) async {
     final session = await openCashSession(
       _store,
@@ -38,9 +39,22 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       staffId: staffId,
       openingCash: openingCash,
       note: note,
+      shiftId: shiftId,
     );
     return _active(scope, session);
   });
+
+  @override
+  Future<Result<List<Shift>>> shifts() => _guard(
+    null,
+    (scope, _) => activeShifts(_store, _catalog(scope)),
+  );
+
+  CatalogScope _catalog(CashScope scope) => CatalogScope(
+    tenantId: scope.tenantId,
+    outletId: scope.outletId,
+    deviceId: scope.deviceId,
+  );
 
   @override
   Future<Result<ActiveCashSession>> recordMovement(
@@ -172,19 +186,22 @@ class LocalCashDrawerRepository extends CashDrawerRepository {
       where: (s) =>
           s.id.equals(session.openedBy) & s.tenantId.equals(scope.tenantId),
     );
+    final shift = switch (session.shiftId) {
+      final id? => (await shiftsById(_store.session, _catalog(scope), [
+        id,
+      ]))[id],
+      null => null,
+    };
     return ActiveCashSession(
       session: session,
+      shift: shift,
       openedByName: opener?.name ?? '',
       movements: movements,
       drawer: drawer,
       sales: sales,
       expenseLabels: await expenseLabelsForSession(
         _store,
-        CatalogScope(
-          tenantId: scope.tenantId,
-          outletId: scope.outletId,
-          deviceId: scope.deviceId,
-        ),
+        _catalog(scope),
         session.id,
       ),
     );

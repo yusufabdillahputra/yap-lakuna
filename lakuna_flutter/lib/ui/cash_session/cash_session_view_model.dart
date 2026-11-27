@@ -49,6 +49,7 @@ class CashSessionViewModel extends ChangeNotifier {
     this._printer,
     this._staffName = '',
     this._timezone,
+    this._clock = DateTime.now,
   }) {
     printRecap = Command1(_printRecap)..addListener(notifyListeners);
     shareRecap = Command1(_shareRecap)..addListener(notifyListeners);
@@ -76,6 +77,9 @@ class CashSessionViewModel extends ChangeNotifier {
 
   /// Zona waktu cabang untuk nama berkas PDF rekap.
   final String? _timezone;
+
+  /// Jam sekarang, untuk memilih shift yang sedang berjalan (F1-03g).
+  final DateTime Function() _clock;
 
   /// Cetak / bagikan PDF rekap sesi yang baru ditutup; argumen = baris
   /// rekap dari `sessionRecapContent`.
@@ -189,6 +193,62 @@ class CashSessionViewModel extends ChangeNotifier {
   CashError? _openingNoteError;
 
   CashError? get openingNoteError => _openingNoteError;
+
+  // --- Shift (F1-03g) --------------------------------------------------------
+
+  List<Shift> _shifts = const [];
+  UuidValue? _shiftId;
+  var _shiftTouched = false;
+  var _shiftMissing = false;
+
+  /// Shift cabang untuk pilihan buka sesi; kosong = pilihan tidak tampil.
+  List<Shift> get shifts => _shifts;
+
+  /// Shift terpilih; `null` = tanpa shift.
+  UuidValue? get shiftId => _shiftId;
+
+  /// Shift yang dipilih sudah dihapus di perangkat lain/layar lain.
+  bool get shiftMissing => _shiftMissing;
+
+  var _shiftVersion = 0;
+
+  /// Naik setiap daftar/pilihan shift dimuat ulang; view memasang ulang
+  /// pilihan shift agar sama dengan [shiftId].
+  int get shiftVersion => _shiftVersion;
+
+  void selectShift(UuidValue? id) {
+    _shiftTouched = true;
+    _shiftMissing = false;
+    _shiftId = id;
+    notifyListeners();
+  }
+
+  /// Memuat shift; selama kasir belum memilih, shift yang sedang berjalan
+  /// menurut jam cabang dipilih otomatis.
+  Future<void> _loadShifts() async {
+    final result = await _repository.shifts();
+    if (result case Ok(:final value)) _shifts = value;
+    if (_shiftId != null && !_shifts.any((s) => s.id == _shiftId)) {
+      _shiftId = null;
+      _shiftTouched = false;
+    }
+    _pickRunningShift();
+    _shiftVersion++;
+  }
+
+  /// Selama kasir belum memilih, [shiftId] = shift berjalan saat ini.
+  void _pickRunningShift() {
+    if (_shiftTouched) return;
+    final local = outletLocalTime(_clock().toUtc(), _timezone);
+    final i = currentShiftIndex([
+      for (final s in _shifts) (start: s.startMinute, end: s.endMinute),
+    ], local.hour * 60 + local.minute);
+    final next = i == null ? null : _shifts[i].id;
+    if (next != _shiftId) {
+      _shiftId = next;
+      _shiftVersion++;
+    }
+  }
 
   void setOpeningNote(String text) {
     _openingNote = text;
@@ -517,7 +577,13 @@ class CashSessionViewModel extends ChangeNotifier {
     shareRecap.clearResult();
     _openingCash = '';
     _openingNote = '';
+    _shiftTouched = false;
+    _shiftMissing = false;
     notifyListeners();
+    // Shift berjalan dihitung ulang untuk sesi berikutnya.
+    _loadShifts().then((_) {
+      if (!_disposed) notifyListeners();
+    });
     // Sesi yang baru ditutup ikut tampil di *Sesi sebelumnya*.
     _loadPrevious();
   }
@@ -534,6 +600,7 @@ class CashSessionViewModel extends ChangeNotifier {
         _loadFailed = false;
         if (value == null) {
           _closing = false;
+          await _loadShifts();
           await _loadPrevious();
         }
       case Error():
@@ -555,9 +622,13 @@ class CashSessionViewModel extends ChangeNotifier {
     if (_openingNoteError case final e?) {
       return Result.error(CashInputInvalid(CashField.note, e));
     }
+    // Jam bisa sudah masuk shift lain sejak formulir dimuat.
+    _pickRunningShift();
+    _shiftMissing = false;
     final result = await _repository.open(
       openingCash: cash!,
       note: _openingNote,
+      shiftId: _shiftId,
     );
     await _apply(result, onOk: _resetForms);
     return result;
@@ -719,12 +790,20 @@ class CashSessionViewModel extends ChangeNotifier {
       case CashSessionAlreadyOpen() || CashSessionNotOpen():
         _error = error;
         await _load();
+      case ShiftNotFound():
+        // Kasir memilih ulang; jangan diam-diam diganti shift lain.
+        _shiftId = null;
+        _shiftTouched = true;
+        await _loadShifts();
+        _shiftMissing = true;
       default:
         _error = error;
     }
   }
 
   void _resetForms() {
+    _shiftTouched = false;
+    _shiftMissing = false;
     _clearCount();
     _clearMovementForm();
     _direction = CashDirection.outflow;

@@ -257,4 +257,41 @@ void main() {
       expect(lines.where((l) => l.startsWith('Rincian')), isEmpty);
     });
   });
+
+  test('rekap memuat shift sesi (F1-03g)', () {
+    final base = recap();
+    final shift = Shift(
+      tenantId: tenant,
+      outletId: outlet,
+      name: 'Malam',
+      startMinute: 22 * 60,
+      endMinute: 6 * 60,
+      hlc: 'h',
+    );
+    final r = SessionRecap(
+      active: ActiveCashSession(
+        session: base.active.session,
+        openedByName: base.active.openedByName,
+        movements: base.active.movements,
+        drawer: base.active.drawer,
+        sales: base.active.sales,
+        shift: shift,
+      ),
+      closed: base.closed,
+      closerName: base.closerName,
+    );
+    final lines = layoutReceipt(
+      content(id, r),
+      ReceiptPaper.mm58,
+    ).map((l) => l.text).toList();
+    final device = lines.indexOf(p('Perangkat', 'K01'));
+    expect(lines[device + 1], p('Shift', 'Malam 22.00-06.00'));
+    expect(
+      layoutReceipt(
+        content(id, recap()),
+        ReceiptPaper.mm58,
+      ).where((l) => l.text.startsWith('Shift')),
+      isEmpty,
+    );
+  });
 }

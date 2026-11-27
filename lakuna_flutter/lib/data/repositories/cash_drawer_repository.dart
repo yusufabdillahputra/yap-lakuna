@@ -17,9 +17,13 @@ class ActiveCashSession {
     required this.drawer,
     this.sales = const SessionSalesSummary(),
     this.expenseLabels = const {},
+    this.shift,
   });
 
   final CashSession session;
+
+  /// Shift yang dipilih saat buka (F1-03g), atau `null`.
+  final Shift? shift;
 
   /// Nama staf yang membuka sesi.
   final String openedByName;
@@ -45,11 +49,15 @@ abstract class CashDrawerRepository {
   Future<Result<ActiveCashSession?>> loadCurrent();
 
   /// Butuh `cash_session:open`. Gagal dengan [NotPermitted],
-  /// `CashInputInvalid`, atau `CashSessionAlreadyOpen`.
+  /// `CashInputInvalid`, `ShiftNotFound`, atau `CashSessionAlreadyOpen`.
   Future<Result<ActiveCashSession>> open({
     required Money openingCash,
     String note = '',
+    UuidValue? shiftId,
   });
+
+  /// Shift aktif cabang untuk pilihan buka sesi (F1-03g), urut jam mulai.
+  Future<Result<List<Shift>>> shifts();
 
   /// Butuh `cash_movements:create`. Gagal dengan [NotPermitted],
   /// `CashInputInvalid`, atau `CashSessionNotOpen`.

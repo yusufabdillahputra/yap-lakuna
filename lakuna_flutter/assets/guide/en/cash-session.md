@@ -7,8 +7,11 @@ Sales are recorded in a cash session on this device so the drawer cash can be re
 ## Opening a session
 
 1. Open **Cash session**.
-2. Count the cash in the drawer and enter it as **Opening cash**. The note is optional.
-3. Tap **Open session**.
+2. If the store uses shifts, pick a **Shift**. The shift running now by the branch clock is already selected; change it if needed, or pick *No shift*.
+3. Count the cash in the drawer and enter it as **Opening cash**. The note is optional.
+4. Tap **Open session**.
+
+> [!note] Owners and managers create the shift list (e.g. *Morning 07.00–15.00*, *Night 22.00–06.00*) in **Master data › Shifts**: enter a name, a start time, and an end time. An end time earlier than the start time means the shift crosses midnight. A shift already used by a session cannot be deleted. The session's shift shows on the active session card, the close-session title, the printed recap, and in [Reports](reports) › **Cash & sessions**.
 
 ## Cash in and out of the drawer
 

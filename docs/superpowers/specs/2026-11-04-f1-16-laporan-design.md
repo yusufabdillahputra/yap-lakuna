@@ -264,7 +264,7 @@ tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
 | Umur piutang & hutang | – | Rilis v0.82.0 | [F1-16c](2026-11-14-f1-16c-umur-piutang-hutang-design.md) |
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
-| Pembulatan total (F1-18) | Baris tersendiri | Belum ada pembulatan | Tambah baris saat pembulatan dibangun. |
+| Pembulatan total (F1-18) | Baris tersendiri | Rilis v0.23.0 | Baris *Pembulatan total* di Laba rugi. |
 | Service charge di rincian | – | Per produk/kategori tanpa service, per kasir dengan service (catatan di tab) | Tambah baris *Service charge* di tabel per produk bila pemilik meminta total yang sama. |
 | Indeks pergerakan stok per waktu | – | Tab Stok memuat pergerakan sejak awal periode tanpa indeks `occurred_at` | Tambah indeks `(outlet_id, occurred_at)` bila tab terasa lambat di data besar. |
 | Biaya muat | – | Tiap ganti periode memuat periode + pembanding + piutang | Cukup untuk skala UMKM; simpan piutang jatuh tempo di cache bila terasa lambat. |

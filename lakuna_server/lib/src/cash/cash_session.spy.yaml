@@ -14,6 +14,8 @@ fields:
   ### Saldo awal laci (rupiah).
   openingCash: int, column=opening_cash
   openingNote: String?, column=opening_note
+  ### Shift yang dipilih saat buka (F1-03g), opsional.
+  shiftId: UuidValue?, relation(parent=shifts, onDelete=Restrict), column=shift_id
   closedBy: UuidValue?, relation(parent=staff_members, onDelete=Restrict), column=closed_by
   closedAt: DateTime?, column=closed_at
   ### Seharusnya di laci saat tutup (rupiah).

@@ -126,6 +126,16 @@ String unitQty(
   return unit == null ? text : '$text $unit';
 }
 
+/// Nama kasir sesi, dengan shift bila ada (F1-03g): `Sari · Pagi`.
+String cashSessionStaffLabel(CashSessionLine s) => switch (s.shift) {
+  final shift? => '${s.staffName} · ${shift.name}',
+  null => s.staffName,
+};
+
+/// Nama shift ringkasan, atau *Tanpa shift*.
+String shiftSummaryLabel(AppLocalizations l10n, ShiftSummary g) =>
+    g.shift?.name ?? l10n.reportsShiftNone;
+
 /// Uang bertanda untuk tampilan: `+ Rp 5.000` / `− Rp 5.000` / `Rp 0`.
 String signedMoneyLabel(AppLocalizations l10n, Money m) => m.value == 0
     ? moneyLabel(l10n, m)
@@ -524,7 +534,7 @@ ReportTable reportTable(
           for (final x in r.sessions)
             ReportRow([
               receiptDate(x.openedAt),
-              x.staffName,
+              cashSessionStaffLabel(x),
               money(x.opening),
               money(x.expected),
               if (x.counted case final c?) money(c) else null,
@@ -549,6 +559,16 @@ ReportTable reportTable(
                 '${signedMoneyLabel(l10n, -g.total)}',
           if (r.inflows.isEmpty && r.outflows.isEmpty)
             l10n.reportsCashNoMovements,
+          if (r.shifts.isNotEmpty) ...[
+            '${l10n.reportsShiftTitle}:',
+            for (final g in r.shifts)
+              l10n.reportsShiftExportLine(
+                shiftSummaryLabel(l10n, g),
+                g.sessions,
+                moneyLabel(l10n, g.sales),
+                signedMoneyLabel(l10n, g.difference),
+              ),
+          ],
           if (r.openCount > 0) l10n.reportsCashOpenNote,
           l10n.reportsCashNote,
         ],

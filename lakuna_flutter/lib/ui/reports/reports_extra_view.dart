@@ -427,7 +427,7 @@ class _Cash extends StatelessWidget {
                     '$i',
                     [
                       receiptDate(s.openedAt),
-                      s.staffName,
+                      cashSessionStaffLabel(s),
                       formatMoney(context, s.opening),
                       formatMoney(context, s.expected),
                       if (s.counted case final c?)
@@ -447,6 +447,31 @@ class _Cash extends StatelessWidget {
                   ),
               ],
             ),
+            if (r.shifts.isNotEmpty)
+              _Table(
+                id: 'cash-shifts',
+                title: l10n.reportsShiftTitle,
+                empty: l10n.reportsCashEmpty,
+                columns: [
+                  _Col(l10n.reportsColShift, flex: 3, right: false),
+                  _Col(l10n.reportsColSessions),
+                  _Col(l10n.reportsColSales, flex: 3),
+                  _Col(l10n.reportsColDifference, flex: 3),
+                ],
+                lines: [
+                  for (final g in r.shifts)
+                    _Line(
+                      g.shift?.id.uuid ?? 'none',
+                      [
+                        shiftSummaryLabel(l10n, g),
+                        '${g.sessions}',
+                        formatMoney(context, g.sales),
+                        signedMoneyLabel(l10n, g.difference),
+                      ],
+                      tone: tone(g.difference),
+                    ),
+                ],
+              ),
             _Table(
               id: 'cash-movements',
               title: l10n.reportsCashMovements,

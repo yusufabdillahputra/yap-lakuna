@@ -61,10 +61,31 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
     return Result.ok(_active(s));
   }
 
+  /// Shift cabang untuk pilihan buka sesi (F1-03g).
+  final shiftList = <Shift>[];
+
+  /// Tambah shift [name] [start]–[end] (menit) ke [shiftList].
+  Shift addShift(String name, int start, int end) {
+    final s = Shift(
+      tenantId: _tenant,
+      outletId: _outlet,
+      name: name,
+      startMinute: start,
+      endMinute: end,
+      hlc: 'h',
+    );
+    shiftList.add(s);
+    return s;
+  }
+
+  @override
+  Future<Result<List<Shift>>> shifts() async => Result.ok(List.of(shiftList));
+
   @override
   Future<Result<ActiveCashSession>> open({
     required Money openingCash,
     String note = '',
+    UuidValue? shiftId,
   }) async {
     if (_check(Permission.cashSessionOpen) case final e?) {
       return Result.error(e);
@@ -74,6 +95,9 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
     }
     if (session?.status == CashSessionStatus.opened) {
       return Result.error(CashSessionAlreadyOpen());
+    }
+    if (shiftId != null && !shiftList.any((s) => s.id == shiftId)) {
+      return Result.error(ShiftNotFound());
     }
     movements.clear();
     final s = CashSession(
@@ -85,6 +109,7 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
       openedAt: _clock(),
       openingCash: openingCash.value,
       openingNote: note.trim().isEmpty ? null : note.trim(),
+      shiftId: shiftId,
       hlc: 'h',
     );
     session = s;
@@ -238,5 +263,6 @@ class FakeCashDrawerRepository extends CashDrawerRepository {
     movements: List.of(movements),
     drawer: _drawer(s),
     expenseLabels: Map.of(expenseLabels),
+    shift: shiftList.where((x) => x.id == s.shiftId).firstOrNull,
   );
 }

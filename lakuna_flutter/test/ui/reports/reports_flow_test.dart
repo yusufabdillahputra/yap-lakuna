@@ -502,4 +502,42 @@ void main() {
     );
     expect(_key('reports-kpi-sales'), findsNothing);
   });
+
+  for (final size in const [Size(1440, 900), Size(360, 740)]) {
+    testWidgets('${size.width.toInt()} px: Kas & sesi per shift (F1-03g)', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        size,
+        reports: FakeReportsRepository()..withShifts = true,
+      );
+      await _tap(tester, _key('reports-tab-cash'));
+      expect(find.textContaining('Sari · Pagi'), findsOneWidget);
+      expect(_key('reports-cash-shifts'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: _key('reports-cash-shifts-none'),
+          matching: find.text('Tanpa shift'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: _key('reports-cash-shifts'),
+          matching: find.textContaining('Rp 84.000'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('tanpa sesi bershift tabel Per shift tidak tampil', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await _tap(tester, _key('reports-tab-cash'));
+    expect(_key('reports-cash-shifts'), findsNothing);
+  });
 }

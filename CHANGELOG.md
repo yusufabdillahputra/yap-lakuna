@@ -7,6 +7,80 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.137.0] - 2026-11-27
+
+Sesi kasir kini bisa memakai shift: pemilik membuat daftar shift cabang,
+kasir memilihnya saat membuka sesi, dan Laporan › Kas & sesi merangkum
+sesi per shift. Ini gap pertama di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Master data (1.17) → tab Shift** (ikon jam, butuh izin
+  `settings:manage`): daftar shift cabang urut jam mulai dengan rentang jam
+  dan jumlah sesi pemakainya (*07.00–15.00 · dipakai 3 sesi*). Tombol
+  **+ Shift** dan ikon pensil membuka dialog *Nama shift*, *Jam mulai*,
+  *Jam selesai*. Jam bisa diketik `7`, `07.00`, `7:30`, atau `0730` dan
+  ditampilkan `07.00`. Jam selesai lebih awal dari jam mulai berarti shift
+  lewat tengah malam (keterangan *Lewat tengah malam: 22.00–06.00.* tampil
+  di dialog). Dialog yang berubah bertanya sebelum ditutup, dengan tombol
+  **Simpan** di dialog *Buang perubahan?* seperti master data lain.
+- **Sesi kasir (1.3) → Buka sesi:** pilihan **Shift** (*Dari Master data ›
+  Shift (opsional).*) di atas saldo awal, hanya bila cabang punya shift.
+  Shift yang sedang berjalan menurut jam cabang terpilih otomatis (saat
+  serah terima yang tumpang tindih, shift yang baru mulai) dan dihitung
+  ulang saat **Buka sesi** ditekan; kasir bisa menggantinya atau memilih
+  *Tanpa shift*. Setelah tutup sesi dan
+  **Buka sesi baru**, shift berjalan dihitung ulang.
+- Kartu sesi aktif menampilkan *Shift Pagi · 07.00–15.00*; judul tutup sesi
+  menjadi *Tutup sesi kasir · Sari · Shift Pagi*; kartu *Sesi sebelumnya*
+  menambahkan *Shift Pagi* di baris waktunya.
+- **Rekap sesi cetak** (baru ditutup maupun cetak ulang) memuat baris
+  *Shift  Pagi 07.00-15.00* di bawah *Perangkat*.
+- **Laporan (1.19) → Kas & sesi:** kolom kasir menyebut shift (*Sari ·
+  Pagi*), dan tabel baru **Per shift** (Shift, Sesi, Penjualan, Selisih)
+  tampil bila ada sesi bershift di periode; sesi tanpa shift digabung
+  sebagai *Tanpa shift*. Unduhan PDF/Excel membawa catatan per shift.
+- Shift bernama sama (dibuat di dua perangkat sebelum sinkron) diberi nomor
+  di pilihan buka sesi agar tidak saling menutupi.
+- Panduan *Sesi kasir* dan *Laporan* (ID/EN) menjelaskan shift.
+
+### Diubah
+
+- Membuka sesi dengan shift yang baru saja dihapus (mis. dari perangkat
+  lain) ditolak tanpa membuka sesi; pilihan shift dimuat ulang tanpa
+  diganti shift lain diam-diam, dan pesan *Shift sudah dihapus. Pilih shift
+  lain.* tampil di field-nya.
+
+### Catatan teknis
+
+- Model baru `Shift` (`shifts`: `tenant_id`, `outlet_id`, `name`,
+  `start_minute`, `end_minute`, kolom sinkron baku) dan kolom
+  `cash_sessions.shift_id` (relasi `Restrict`); migrasi
+  `20261127021134605-shift`.
+- `lakuna_domain`: `parseShiftTime`, `formatShiftTime`, `shiftRangeLabel`,
+  `validateShift` (`ShiftIssue.name/start/end/sameTime`), `shiftContains`
+  (lewat tengah malam), `currentShiftIndex` (bila tumpang tindih, shift
+  yang paling baru mulai).
+- `lakuna_data`: `activeShifts` (pilihan buka sesi, tanpa hitung
+  pemakai), `listShifts` (dengan jumlah sesi per shift), `saveShift`, `deleteShift` (nama unik per
+  cabang tanpa beda huruf, soft delete, `ShiftInUse(sessions)`,
+  `ShiftActorNotPermitted`), `shiftsById`, `requireActiveShift`;
+  `openCashSession(shiftId:)` menolak shift terhapus atau milik cabang lain
+  (`ShiftNotFound`). `CashSessionLine.shift`, `ClosedSessionRecap.shift`,
+  dan `CashReport.shifts` (`ShiftSummary`: sesi, penjualan nota lunas,
+  selisih; penjualan semua sesi diambil dalam satu query, dan berupa total
+  nota lunas sesi sehingga sesi lewat tengah malam tidak dipotong per
+  tanggal). Nama shift dibaca dari baris shift termasuk yang terhapus, jadi
+  ganti nama ikut tampil di sesi lama.
+- Aplikasi: `ShiftsRepository` + `LocalShiftsRepository` (cek
+  `settings:manage` juga di repositori), `CashDrawerRepository.shifts()` dan
+  `open(shiftId:)`, `ActiveCashSession.shift`, `ShiftsViewModel` /
+  `ShiftsTab`, `CashSessionViewModel` (`shifts`, `shiftId`, `selectShift`,
+  `shiftMissing`, `shiftVersion`, jam bisa disuntik lewat `clock`).
+- Tes baru: domain `shift_test`, data `shifts_test` dan grup shift di
+  `reports_extra_test`, VM sesi kasir, widget tab Shift, alur buka sesi
+  dengan shift dan laporan per shift di 1280/1440 dan 360 px, rekap cetak.
+
 ## [0.136.0] - 2026-11-20
 
 Pelunasan piutang lewat transfer kini mencatat rekening tujuannya, sama
@@ -7822,7 +7896,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...HEAD
+[0.137.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...v0.137.0
 [0.136.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...v0.136.0
 [0.135.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...v0.135.0
 [0.134.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.133.0...v0.134.0

@@ -946,4 +946,131 @@ void main() {
     );
     expect(empty.lines, isEmpty);
   });
+
+  group('shift di Kas & sesi (F1-03g)', () {
+    Future<Shift> shift(String name, int start, int end) => saveShift(
+      store,
+      scope,
+      staffId: owner(),
+      name: name,
+      startMinute: start,
+      endMinute: end,
+    );
+
+    Future<CashSession> openWith(UuidValue? shiftId, int amount) =>
+        openCashSession(
+          store,
+          cash(),
+          staffId: owner(),
+          openingCash: Money(amount),
+          shiftId: shiftId,
+        );
+
+    Future<CashSession> close(CashSession s, Map<int, int> sheets) =>
+        closeCashSession(
+          store,
+          cash(),
+          sessionId: s.id,
+          staffId: owner(),
+          count: CashCount(sheets: sheets),
+          note: 'Hitung',
+        );
+
+    test('baris sesi membawa shift, ringkasan per shift', () async {
+      final pagi = await shift('Pagi', 7 * 60, 15 * 60);
+      final malam = await shift('Malam', 22 * 60, 6 * 60);
+
+      now = DateTime.utc(2026, 11, 2, 1);
+      final a = await openWith(pagi.id, 100000);
+      await sell({kopi: 1000}); // 10.000
+      await close(a, {100000: 1, 5000: 1}); // kurang 5.000
+
+      now = DateTime.utc(2026, 11, 2, 15);
+      final b = await openWith(malam.id, 50000);
+      await sell({kopi: 2000}); // 20.000
+      await close(b, {50000: 1, 20000: 1, 1000: 1}); // lebih 1.000
+
+      now = DateTime.utc(2026, 11, 3, 1);
+      final c = await openWith(pagi.id, 0);
+      await sell({roti: 1000}); // 15.000
+      await close(c, {10000: 1, 5000: 1});
+
+      now = DateTime.utc(2026, 11, 3, 5);
+      await openWith(null, 0);
+      await sell({kopi: 1000});
+
+      // Ganti nama ikut tampil di sesi lama.
+      await saveShift(
+        store,
+        scope,
+        staffId: owner(),
+        id: pagi.id,
+        name: 'Pagi awal',
+        startMinute: 7 * 60,
+        endMinute: 15 * 60,
+      );
+
+      final week = await loadCashReport(
+        store,
+        scope,
+        permissions: viewOnly,
+        period: ReportPeriod.last7Days,
+        now: now,
+      );
+      expect(
+        [for (final s in week.sessions) s.shift?.name],
+        [null, 'Pagi awal', 'Malam', 'Pagi awal'],
+      );
+      expect(
+        [
+          for (final g in week.shifts)
+            (g.shift?.name, g.sessions, g.sales, g.difference),
+        ],
+        [
+          ('Pagi awal', 2, const Money(25000), const Money(-5000)),
+          ('Malam', 1, const Money(20000), const Money(1000)),
+          (null, 1, const Money(10000), Money.zero),
+        ],
+      );
+
+      final recent = await listRecentClosedSessions(
+        store,
+        scope,
+        permissions: all,
+      );
+      expect(
+        [for (final s in recent) s.shift?.name],
+        ['Pagi awal', 'Malam', 'Pagi awal'],
+      );
+      final recap = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: all,
+        sessionId: b.id,
+      );
+      expect(recap.shift?.id, malam.id);
+    });
+
+    test('tanpa sesi bershift, ringkasan per shift kosong', () async {
+      await shift('Pagi', 7 * 60, 15 * 60);
+      final a = await openWith(null, 10000);
+      await close(a, {10000: 1});
+      final r = await loadCashReport(
+        store,
+        scope,
+        permissions: viewOnly,
+        period: ReportPeriod.today,
+        now: now,
+      );
+      expect(r.sessions.single.shift, isNull);
+      expect(r.shifts, isEmpty);
+      final recap = await loadClosedSessionRecap(
+        store,
+        scope,
+        permissions: all,
+        sessionId: a.id,
+      );
+      expect(recap.shift, isNull);
+    });
+  });
 }

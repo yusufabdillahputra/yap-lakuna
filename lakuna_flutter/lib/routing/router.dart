@@ -13,6 +13,7 @@ import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/dining_admin_repository.dart';
 import '../data/repositories/dining_repository.dart';
 import '../data/repositories/customers_repository.dart';
+import '../data/repositories/shifts_repository.dart';
 import '../data/repositories/expenses_repository.dart';
 import '../data/repositories/reports_repository.dart';
 import '../data/repositories/users_repository.dart';
@@ -98,6 +99,7 @@ GoRouter createRouter({
   required StoreSettingsRepository storeSettings,
   required ReceiptPrinter receiptPrinter,
   required BackupRepository backup,
+  ShiftsRepository? shifts,
   BackupFiles backupFiles = const PlatformBackupFiles(),
   GuideRepository? guide,
   ImageFilePicker imagePicker = const FileSelectorImagePicker(),
@@ -423,6 +425,7 @@ GoRouter createRouter({
               diningAdmin: diningAdmin,
               customers: customers,
               expenses: expenses,
+              shifts: shifts,
             ),
           ),
           GoRoute(

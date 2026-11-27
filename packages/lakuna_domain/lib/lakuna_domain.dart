@@ -38,6 +38,7 @@ export 'src/report.dart';
 export 'src/sale.dart';
 export 'src/sale_return.dart';
 export 'src/setup.dart';
+export 'src/shift.dart';
 export 'src/split_bill.dart';
 export 'src/staff.dart';
 export 'src/stock.dart';

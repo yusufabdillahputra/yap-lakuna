@@ -7,6 +7,8 @@ import 'package:serverpod_database/serverpod_database.dart' show Transaction;
 
 import 'history.dart';
 import 'sales.dart';
+import 'shifts.dart';
+import 'stock.dart' show CatalogScope;
 import 'store.dart';
 import 'store_setup.dart';
 import 'sync_tx.dart';
@@ -80,8 +82,9 @@ Future<CashSession?> findOpenCashSession(
   transaction: transaction,
 );
 
-/// Membuka sesi kasir dengan saldo awal [openingCash]. Melempar
-/// [CashInputInvalid] bila saldo/catatan tidak sah dan
+/// Membuka sesi kasir dengan saldo awal [openingCash] dan [shiftId]
+/// opsional (F1-03g). Melempar [CashInputInvalid] bila saldo/catatan tidak
+/// sah, [ShiftNotFound] bila shift tidak aktif di cabang ini, dan
 /// [CashSessionAlreadyOpen] bila perangkat sudah punya sesi terbuka.
 Future<CashSession> openCashSession(
   LakunaStore store,
@@ -89,6 +92,7 @@ Future<CashSession> openCashSession(
   required UuidValue staffId,
   required Money openingCash,
   String note = '',
+  UuidValue? shiftId,
 }) async {
   _reject(CashField.openingCash, validateOpeningCash(openingCash));
   _reject(CashField.note, validateOpeningNote(note));
@@ -99,6 +103,18 @@ Future<CashSession> openCashSession(
       transaction: w.transaction,
     );
     if (existing != null) throw CashSessionAlreadyOpen();
+    if (shiftId != null) {
+      await requireActiveShift(
+        w.session,
+        CatalogScope(
+          tenantId: scope.tenantId,
+          outletId: scope.outletId,
+          deviceId: scope.deviceId,
+        ),
+        shiftId,
+        transaction: w.transaction,
+      );
+    }
     final s = await w.stamp();
     return w.insert(
       CashSession(
@@ -110,6 +126,7 @@ Future<CashSession> openCashSession(
         openedAt: s.now,
         openingCash: openingCash.value,
         openingNote: _noteOrNull(note),
+        shiftId: shiftId,
         createdAt: s.now,
         updatedAt: s.now,
         createdBy: staffId,
