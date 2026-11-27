@@ -17,4 +17,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-04j-setujui-ulang-diskon-rupiah-desi
 - [x] 6. Format, analyze, semua tes, review subagent, uji Xvfb. Review:
   ganti pelanggan tidak lagi ditolak (`_assertDiscountFits`), petunjuk
   untuk staf tanpa izin diskon, dok komentar, spec diperbarui.
-- [ ] 7. PR dan rilis.
+- [x] 7. PR #169 dan rilis.
