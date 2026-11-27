@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -9,7 +11,7 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 
 /// Tab layar Pengguna & role (1.25).
-enum UsersTab { users, roles }
+enum UsersTab { users, roles, accessLog }
 
 /// Layar Pengguna & role (1.25): daftar pengguna, kunci PIN, matriks izin,
 /// dan role custom.
@@ -77,6 +79,86 @@ class UsersViewModel extends ChangeNotifier {
   void setTab(UsersTab tab) {
     if (_tab == tab) return;
     _tab = tab;
+    notifyListeners();
+    if (tab == UsersTab.accessLog && !_accessLoaded && !_accessLoading) {
+      unawaited(loadAccess());
+    }
+  }
+
+  // --- Log masuk (F1-03h) ------------------------------------------------
+
+  List<StaffAccessRow> _accessRows = const [];
+  var _accessHasMore = false;
+  UuidValue? _accessStaff;
+  var _accessLoaded = false;
+  var _accessLoading = false;
+  var _accessLoadingMore = false;
+  Exception? _accessError;
+
+  /// Naik setiap muat dari awal: jawaban muat lama (filter sebelumnya)
+  /// diabaikan.
+  var _accessToken = 0;
+
+  /// Log masuk/keluar yang sudah dimuat, terbaru dulu.
+  List<StaffAccessRow> get accessRows => _accessRows;
+  bool get accessHasMore => _accessHasMore;
+
+  /// Filter staf, `null` = semua staf.
+  UuidValue? get accessStaff => _accessStaff;
+  bool get accessLoading => _accessLoading;
+  bool get accessLoadingMore => _accessLoadingMore;
+  Exception? get accessError => _accessError;
+
+  void setAccessStaff(UuidValue? staffId) {
+    if (_accessStaff == staffId && _accessLoaded) return;
+    _accessStaff = staffId;
+    unawaited(loadAccess());
+  }
+
+  /// Memuat halaman pertama log dengan filter saat ini.
+  Future<void> loadAccess() async {
+    final token = ++_accessToken;
+    _accessLoading = true;
+    _accessLoadingMore = false;
+    _accessError = null;
+    notifyListeners();
+    final result = await _repository.accessLog(staffId: _accessStaff);
+    if (token != _accessToken) return;
+    _accessLoading = false;
+    switch (result) {
+      case Ok(:final value):
+        _accessRows = value.rows;
+        _accessHasMore = value.hasMore;
+        _accessLoaded = true;
+      case Error(:final error):
+        _accessRows = const [];
+        _accessHasMore = false;
+        _accessError = error;
+    }
+    notifyListeners();
+  }
+
+  /// *Muat lagi*: halaman berikutnya setelah baris terakhir.
+  Future<void> loadMoreAccess() async {
+    if (_accessLoading || _accessLoadingMore || !_accessHasMore) return;
+    final token = _accessToken;
+    final before = StaffAccessPage(rows: _accessRows, hasMore: true).next;
+    _accessLoadingMore = true;
+    _accessError = null;
+    notifyListeners();
+    final result = await _repository.accessLog(
+      staffId: _accessStaff,
+      before: before,
+    );
+    if (token != _accessToken) return;
+    _accessLoadingMore = false;
+    switch (result) {
+      case Ok(:final value):
+        _accessRows = [..._accessRows, ...value.rows];
+        _accessHasMore = value.hasMore;
+      case Error(:final error):
+        _accessError = error;
+    }
     notifyListeners();
   }
 

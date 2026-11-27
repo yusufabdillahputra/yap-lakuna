@@ -83,8 +83,8 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 - `findStaffById(store, tenantId, outletId, id)` dan
   `findOwnerByEmail(store, tenantId, outletId, email)` mengembalikan staf
   yang sama bentuknya (`OutletStaff`) termasuk hash untuk diverifikasi.
-- Login tidak menulis apa pun ke database. Log masuk/keluar staf dicatat
-  bersama sesi kasir (F1-03).
+- Login tidak menulis data akun. Sejak v0.144.0 (F1-03h) kejadian masuk
+  dan keluar dicatat di `staff_access_logs`.
 
 ## Aplikasi (`lakuna_flutter`)
 
@@ -150,7 +150,7 @@ aplikasi selalu menampilkan layar login (sama dengan Storeku).
 | --- | --- | --- | --- |
 | Persetujuan PIN manajer | Void dan diskon "butuh PIN manajer" | Rilis v0.24.0 | Diskon manual [F1-04b](2026-11-04-f1-04b-diskon-manual-design.md); void v0.15.0 (F1-11). |
 | Kunci per perangkat | "Dikunci 1 mnt" | `PinGuard` di memori, hilang saat aplikasi ditutup | Cukup untuk Fase 1 |
-| Log masuk/keluar | - | Tidak dicatat; sesi kasir F1-03 hanya mencatat `opened_by`/`closed_by` | Tabel log bila laporan F1-16 membutuhkannya (gap F1-03) |
+| Log masuk/keluar | - | Ada v0.144.0 ([F1-03h](2026-11-27-f1-03h-log-masuk-keluar-staf-design.md)): masuk PIN/kata sandi/setelah penyiapan, keluar manual/otomatis, tab *Log masuk* | Percobaan gagal belum dicatat |
 | Ganti/atur ulang PIN | Kanvas 1.25b: setiap ganti atau atur ulang PIN menghapus hitungan salah dan kunci sementara | Rilis v0.22.0 | Reset PIN di Pengguna & role, *Ganti PIN* di Akun saya ([F1-17](2026-11-04-f1-17-pengguna-role-design.md)). |
 | Ganti kasir dengan form belum disimpan | - | Rilis v0.110.0 ([F1-02b](2026-11-15-f1-02b-ganti-kasir-tanya-dulu-design.md)): *Buang perubahan?* dulu | - |
 | Nama staf di bilah atas mobile | Kanvas 1.2 hanya tablet | Mobile: ikon *Ganti kasir* saja (nama di label aksesibilitas); nama tampil di Beranda | Pertahankan; bilah atas ponsel sempit |

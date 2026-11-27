@@ -1,29 +1,71 @@
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'repository_errors.dart';
 import 'session_repository.dart';
 import 'store_repository.dart';
 
+/// Penulis log masuk/keluar (F1-03h); bisa diganti di tes.
+typedef StaffAccessRecorder = Future<void> Function(
+  CatalogScope scope,
+  UuidValue staffId,
+  StaffAccessKind kind,
+);
+
 /// [SessionRepository] yang memverifikasi hash Argon2id di database
-/// perangkat. Sesi dan [PinGuard] hanya di memori.
+/// perangkat. Sesi dan [PinGuard] hanya di memori; kejadian masuk/keluar
+/// dicatat di `staff_access_logs` (F1-03h).
 class LocalSessionRepository extends SessionRepository {
   LocalSessionRepository(
     this._store, {
     required this._stores,
     this._hasher = const CredentialHasher(),
     PinGuard? guard,
+    this._recordAccess,
   }) : _guard = guard ?? PinGuard();
 
   final LakunaStore _store;
   final StoreRepository _stores;
   final CredentialHasher _hasher;
   final PinGuard _guard;
+  final StaffAccessRecorder? _recordAccess;
   StaffProfile? _current;
+
+  /// Penulisan log berurutan: *Keluar* A selalu sebelum *Masuk* B.
+  Future<void> _logChain = Future<void>.value();
+
+  /// Selesai setelah semua log yang sudah diminta tertulis (untuk tes).
+  @visibleForTesting
+  Future<void> get pendingLog => _logChain;
+
+  /// Mencatat [kind] untuk [staffId] tanpa menunggu dan tanpa pernah
+  /// menggagalkan login/keluar: galat hanya dicatat (F1-03h).
+  void _record(
+    UuidValue staffId,
+    StaffAccessKind kind, {
+    StoreContext? context,
+  }) {
+    final ctx = context ?? _stores.current;
+    if (ctx == null) return;
+    final scope = CatalogScope.of(ctx);
+    final record =
+        _recordAccess ??
+        (scope, staffId, kind) =>
+            recordStaffAccess(_store, scope, staffId: staffId, kind: kind);
+    _logChain = _logChain.then((_) async {
+      try {
+        await record(scope, staffId, kind);
+      } on Object catch (e, st) {
+        logError('Log masuk/keluar gagal dicatat', e, st);
+      }
+    });
+  }
 
   /// Percobaan yang sedang berjalan per kunci [PinGuard]. Percobaan untuk
   /// kunci yang sama diantrekan agar pemeriksaan kunci dan pencatatan gagal
@@ -65,7 +107,11 @@ class LocalSessionRepository extends SessionRepository {
   Future<Result<StaffProfile>> loginWithPin(UuidValue staffId, String pin) =>
       _serialized(
         pinGuardKey(staffId),
-        () => _checkPin(staffId, pin, (key, staff) => _signIn(key, staff)),
+        () => _checkPin(
+          staffId,
+          pin,
+          (key, staff) => _signIn(key, staff, StaffAccessKind.signInPin),
+        ),
       );
 
   @override
@@ -151,7 +197,7 @@ class LocalSessionRepository extends SessionRepository {
         // email mana yang terdaftar.
         await _verify(password, await (_dummyHash ??= _hashDummy()));
       } else if (await _verify(password, hash)) {
-        return _signIn(key, owner);
+        return _signIn(key, owner, StaffAccessKind.signInPassword);
       }
       // Email tidak dikenal diperlakukan sama dengan kata sandi salah agar
       // tidak membocorkan email yang terdaftar.
@@ -176,14 +222,19 @@ class LocalSessionRepository extends SessionRepository {
       hasPin: owner.pinHash?.isNotEmpty ?? false,
       permissions: permissionsForRole(DefaultRole.owner.key, isOwner: true),
     );
+    _record(owner.id, StaffAccessKind.signInSetup, context: context);
     notifyListeners();
   }
 
   @override
-  void logout() {
+  void logout() => _logout(StaffAccessKind.signOut);
+
+  void _logout(StaffAccessKind kind) {
     clearApprovals();
-    if (_current == null) return;
+    final me = _current;
+    if (me == null) return;
     _current = null;
+    _record(me.id, kind);
     notifyListeners();
   }
 
@@ -207,7 +258,7 @@ class LocalSessionRepository extends SessionRepository {
       // Pemilik yang masuk dengan email tanpa keanggotaan cabang tetap
       // bertugas sebagai pemilik.
       if (me.isOwner) return;
-      logout();
+      _logout(StaffAccessKind.signOutRemoved);
       return;
     }
     _current = StaffProfile.fromOutletStaff(staff);
@@ -267,11 +318,16 @@ class LocalSessionRepository extends SessionRepository {
     });
   }
 
-  Result<StaffProfile> _signIn(String key, OutletStaff staff) {
+  Result<StaffProfile> _signIn(
+    String key,
+    OutletStaff staff,
+    StaffAccessKind kind,
+  ) {
     _guard.recordSuccess(key);
     clearApprovals();
     final profile = StaffProfile.fromOutletStaff(staff);
     _current = profile;
+    _record(profile.id, kind);
     notifyListeners();
     return Result.ok(profile);
   }

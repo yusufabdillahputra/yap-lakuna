@@ -6203,6 +6203,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usersTabRoles => 'Roles & permissions';
 
   @override
+  String get usersTabAccessLog => 'Sign-in log';
+
+  @override
+  String get usersAccessTitle => 'Sign-in and sign-out log';
+
+  @override
+  String get usersAccessHint =>
+      'Recorded every time staff sign in or out on a cashier device. If the app is closed without Switch cashier, there is no Signed out row; the next sign-in marks the end.';
+
+  @override
+  String get usersAccessStaff => 'Staff';
+
+  @override
+  String get usersAccessAllStaff => 'All staff';
+
+  @override
+  String get usersAccessEmpty => 'No sign-ins yet.';
+
+  @override
+  String get usersAccessMore => 'Load more';
+
+  @override
+  String get usersAccessColTime => 'Time';
+
+  @override
+  String get usersAccessColStaff => 'Staff';
+
+  @override
+  String get usersAccessColEvent => 'Event';
+
+  @override
+  String get usersAccessColDevice => 'Device';
+
+  @override
+  String get usersAccessSignInPin => 'Signed in with PIN';
+
+  @override
+  String get usersAccessSignInPassword => 'Signed in with password';
+
+  @override
+  String get usersAccessSignInSetup => 'Signed in after store setup';
+
+  @override
+  String get usersAccessSignOut => 'Signed out (Switch cashier)';
+
+  @override
+  String get usersAccessSignOutRemoved =>
+      'Signed out automatically: account deactivated or removed';
+
+  @override
+  String usersAccessDevice(String code) {
+    return 'Device $code';
+  }
+
+  @override
   String get usersListTitle => 'Outlet users';
 
   @override

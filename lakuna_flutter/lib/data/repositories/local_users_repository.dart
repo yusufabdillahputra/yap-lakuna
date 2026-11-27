@@ -36,6 +36,15 @@ class LocalUsersRepository extends UsersRepository {
       _manage((scope, _) => listRoles(_store, scope));
 
   @override
+  Future<Result<StaffAccessPage>> accessLog({
+    UuidValue? staffId,
+    StaffAccessCursor? before,
+  }) => _manage(
+    (scope, _) =>
+        listStaffAccess(_store, scope, staffId: staffId, before: before),
+  );
+
+  @override
   Duration? pinLockedFor(UuidValue staffId) => _session.pinRetryAfter(staffId);
 
   @override

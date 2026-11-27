@@ -6080,6 +6080,61 @@ class AppLocalizationsId extends AppLocalizations {
   String get usersTabRoles => 'Role & izin';
 
   @override
+  String get usersTabAccessLog => 'Log masuk';
+
+  @override
+  String get usersAccessTitle => 'Log masuk dan keluar';
+
+  @override
+  String get usersAccessHint =>
+      'Tercatat setiap kali staf masuk atau keluar di perangkat kasir. Aplikasi yang ditutup tanpa Ganti kasir tidak punya baris Keluar; login berikutnya menjadi batasnya.';
+
+  @override
+  String get usersAccessStaff => 'Staf';
+
+  @override
+  String get usersAccessAllStaff => 'Semua staf';
+
+  @override
+  String get usersAccessEmpty => 'Belum ada log masuk.';
+
+  @override
+  String get usersAccessMore => 'Muat lagi';
+
+  @override
+  String get usersAccessColTime => 'Jam';
+
+  @override
+  String get usersAccessColStaff => 'Staf';
+
+  @override
+  String get usersAccessColEvent => 'Kejadian';
+
+  @override
+  String get usersAccessColDevice => 'Perangkat';
+
+  @override
+  String get usersAccessSignInPin => 'Masuk dengan PIN';
+
+  @override
+  String get usersAccessSignInPassword => 'Masuk dengan kata sandi';
+
+  @override
+  String get usersAccessSignInSetup => 'Masuk setelah penyiapan toko';
+
+  @override
+  String get usersAccessSignOut => 'Keluar (Ganti kasir)';
+
+  @override
+  String get usersAccessSignOutRemoved =>
+      'Keluar otomatis: akun dinonaktifkan atau dikeluarkan';
+
+  @override
+  String usersAccessDevice(String code) {
+    return 'Perangkat $code';
+  }
+
+  @override
   String get usersListTitle => 'Pengguna outlet';
 
   @override

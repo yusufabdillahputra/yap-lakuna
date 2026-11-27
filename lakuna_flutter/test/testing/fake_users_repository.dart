@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -35,6 +37,27 @@ StaffAccount sampleAccount(
     permissions: permissionsForRole(role, isOwner: isOwner),
   );
 }
+
+/// Baris log masuk/keluar contoh (F1-03h).
+StaffAccessRow sampleAccess(
+  StaffAccount staff,
+  StaffAccessKind kind,
+  DateTime at, {
+  String device = 'K01',
+}) => StaffAccessRow(
+  log: StaffAccessLog(
+    id: UuidValue.fromString(newId()),
+    tenantId: _tenant,
+    outletId: _tenant,
+    deviceId: _tenant,
+    staffId: staff.id,
+    kind: kind,
+    occurredAt: at,
+    hlc: '0',
+  ),
+  staffName: staff.name,
+  deviceCode: device,
+);
 
 /// Repositori pengguna palsu di memori: pemilik Yusuf (email + PIN), Rina
 /// manajer, Sari kasir, Dimas pelayan nonaktif.
@@ -109,6 +132,46 @@ class FakeUsersRepository extends UsersRepository {
       permissions: _permissions(key),
     );
   }
+
+  /// Log masuk/keluar (F1-03h), terbaru dulu; dibagi per [accessPageSize].
+  List<StaffAccessRow> access = [];
+  int accessPageSize = 50;
+
+  /// `true`: tiap `accessLog` menunggu di [pendingAccess] (urutan balas
+  /// diatur tes).
+  bool holdAccess = false;
+  final pendingAccess = <Completer<void>>[];
+
+  @override
+  Future<Result<StaffAccessPage>> accessLog({
+    UuidValue? staffId,
+    StaffAccessCursor? before,
+  }) async {
+    if (holdAccess) {
+      final gate = Completer<void>();
+      pendingAccess.add(gate);
+      await gate.future;
+    }
+    return _accessLog(staffId, before);
+  }
+
+  Future<Result<StaffAccessPage>> _accessLog(
+    UuidValue? staffId,
+    StaffAccessCursor? before,
+  ) => _run('accessLog', () {
+    final rows = [
+      for (final r in access)
+        if (staffId == null || r.log.staffId == staffId) r,
+    ];
+    final start = before == null
+        ? 0
+        : rows.indexWhere((r) => r.log.id == before.id) + 1;
+    final page = rows.skip(start).take(accessPageSize).toList();
+    return StaffAccessPage(
+      rows: page,
+      hasMore: start + page.length < rows.length,
+    );
+  });
 
   @override
   Future<Result<List<StaffAccount>>> accounts() =>

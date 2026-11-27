@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart' show StaffAccessKind;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/core/menu.dart';
@@ -8,6 +9,7 @@ import 'package:lakuna_flutter/data/repositories/session_repository.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_session_repository.dart';
+import '../../testing/fake_store_repository.dart';
 import '../../testing/fake_users_repository.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -258,6 +260,98 @@ void main() {
         menuEntryByPath(Routes.account)!.allows(kasir.permissions),
         isTrue,
       );
+    });
+  });
+
+  group('log masuk (F1-03h)', () {
+    for (final (label, size) in [
+      ('1440', const Size(1440, 900)),
+      ('400', const Size(400, 800)),
+    ]) {
+      testWidgets('$label: daftar per tanggal, filter staf, Muat lagi', (
+        tester,
+      ) async {
+        repo = FakeUsersRepository()..accessPageSize = 3;
+        final yusuf = repo.list[0];
+        final sari = repo.list[2];
+        // 27/11 09.05 WIB, 09.00 WIB, lalu 26/11 malam.
+        repo.access = [
+          sampleAccess(
+            sari,
+            StaffAccessKind.signOut,
+            DateTime.utc(2026, 11, 27, 2, 5),
+          ),
+          sampleAccess(
+            sari,
+            StaffAccessKind.signInPin,
+            DateTime.utc(2026, 11, 27, 2),
+          ),
+          sampleAccess(
+            yusuf,
+            StaffAccessKind.signInPassword,
+            DateTime.utc(2026, 11, 26, 14, 30),
+          ),
+          sampleAccess(
+            yusuf,
+            StaffAccessKind.signOutRemoved,
+            DateTime.utc(2026, 11, 26, 13),
+            device: 'K02',
+          ),
+        ];
+        await pumpLakuna(
+          tester,
+          size: size,
+          users: repo,
+          store: FakeStoreRepository(
+            current: sampleStoreContext(timezone: 'Asia/Jakarta'),
+          ),
+          initialLocation: Routes.users,
+        );
+        expect(repo.calls, isNot(contains('accessLog')));
+        await _tap(tester, _key('users-tab-accessLog'));
+        expect(_key('users-access'), findsOneWidget);
+        expect(_key('users-access-day-27 November 2026'), findsOneWidget);
+        expect(_key('users-access-day-26 November 2026'), findsOneWidget);
+        expect(find.text('09.05'), findsOneWidget);
+        expect(find.text('Keluar (Ganti kasir)'), findsOneWidget);
+        expect(find.text('Masuk dengan PIN'), findsOneWidget);
+        expect(find.text('21.30'), findsOneWidget);
+        // Halaman pertama 3 baris; Muat lagi menambah sisanya.
+        expect(
+          find.text('Keluar otomatis: akun dinonaktifkan atau dikeluarkan'),
+          findsNothing,
+        );
+        await _tap(tester, _key('users-access-more'));
+        expect(
+          find.text('Keluar otomatis: akun dinonaktifkan atau dikeluarkan'),
+          findsOneWidget,
+        );
+        expect(_key('users-access-more'), findsNothing);
+
+        // Pilihan popover ada di bawah FSelect, sebelum baris log yang juga
+        // bertuliskan "Sari".
+        await _tap(tester, _key('users-access-staff'));
+        await tester.tap(
+          find
+              .descendant(
+                of: _key('users-access-staff'),
+                matching: find.text('Sari'),
+              )
+              .last,
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Masuk dengan kata sandi'), findsNothing);
+        expect(find.text('Masuk dengan PIN'), findsOneWidget);
+        expect(_key('users-access-day-26 November 2026'), findsNothing);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('kosong', (tester) async {
+      await pump(tester, const Size(1440, 900));
+      await _tap(tester, _key('users-tab-accessLog'));
+      expect(_key('users-access-empty'), findsOneWidget);
+      expect(find.text('Belum ada log masuk.'), findsOneWidget);
     });
   });
 }

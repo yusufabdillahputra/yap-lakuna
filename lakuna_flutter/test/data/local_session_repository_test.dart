@@ -267,4 +267,126 @@ void main() {
       expect(session.hasApproval(owner, Permission.salesVoid), isFalse);
     });
   });
+
+  group('log masuk/keluar (F1-03h)', () {
+    Future<List<StaffAccessKind>> kinds() async {
+      await session.pendingLog;
+      final page = await listStaffAccess(store, CatalogScope.of(ctx));
+      return [for (final r in page.rows.reversed) r.log.kind];
+    }
+
+    Future<StaffMember> addCashier() {
+      final actor = ctx.owner.id;
+      return store.write(actor: actor, (w) async {
+        final s = await w.stamp();
+        final staff = await w.insert(
+          StaffMember(
+            tenantId: ctx.tenant.id,
+            name: 'Sari',
+            pinHash: const CredentialHasher.forTesting().hash('654321'),
+            isActive: true,
+            createdBy: actor,
+            updatedBy: actor,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+        await w.insert(
+          OutletMember(
+            tenantId: ctx.tenant.id,
+            outletId: ctx.outlet.id,
+            staffMemberId: staff.id,
+            roleName: DefaultRole.cashier.key,
+            createdBy: actor,
+            updatedBy: actor,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+        return staff;
+      });
+    }
+
+    test('PIN, kata sandi, dan keluar tercatat berurutan', () async {
+      await session.loginWithPin(ctx.owner.id, '123456');
+      session.logout();
+      await session.loginWithPassword('ani@contoh.id', 'rahasia123');
+      session.logout();
+      // Keluar kedua tanpa staf bertugas tidak dicatat.
+      session.logout();
+      expect(await kinds(), [
+        StaffAccessKind.signInPin,
+        StaffAccessKind.signOut,
+        StaffAccessKind.signInPassword,
+        StaffAccessKind.signOut,
+      ]);
+      final page = await listStaffAccess(store, CatalogScope.of(ctx));
+      expect(page.rows.every((r) => r.log.staffId == ctx.owner.id), isTrue);
+      expect(page.rows.first.log.deviceId, ctx.device.id);
+    });
+
+    test(
+      'login gagal, persetujuan manajer, dan cek PIN tidak dicatat',
+      () async {
+        await session.loginWithPin(ctx.owner.id, '000000');
+        await session.loginWithPassword('ani@contoh.id', 'salah');
+        await session.verifyApprover(
+          ctx.owner.id,
+          '123456',
+          Permission.salesVoid,
+        );
+        expect(await kinds(), isEmpty);
+        await session.loginWithPin(ctx.owner.id, '123456');
+        await session.verifyCurrentPin('123456');
+        expect(await kinds(), [StaffAccessKind.signInPin]);
+      },
+    );
+
+    test('startOwnerSession dicatat sebagai masuk setelah penyiapan', () async {
+      session.startOwnerSession(ctx);
+      expect(await kinds(), [StaffAccessKind.signInSetup]);
+    });
+
+    test('staf dinonaktifkan saat bertugas: keluar otomatis', () async {
+      final cashier = await addCashier();
+      await session.loginWithPin(cashier.id, '654321');
+      await store.write(actor: ctx.owner.id, (w) async {
+        final s = await w.stamp();
+        final row = (await StaffMember.db.findById(w.session, cashier.id))!;
+        await w.update(
+          row.copyWith(
+            isActive: false,
+            version: row.version + 1,
+            hlc: s.hlc.toString(),
+          ),
+          s,
+        );
+      });
+      await session.refreshCurrent();
+      expect(session.current, isNull);
+      expect(await kinds(), [
+        StaffAccessKind.signInPin,
+        StaffAccessKind.signOutRemoved,
+      ]);
+      final page = await listStaffAccess(store, CatalogScope.of(ctx));
+      expect(page.rows.first.log.staffId, cashier.id);
+    });
+
+    test('galat tulis log tidak menggagalkan login', () async {
+      final failing = LocalSessionRepository(
+        store,
+        stores: stores,
+        hasher: const CredentialHasher.forTesting(),
+        recordAccess: (scope, staffId, kind) async =>
+            throw StateError('disk penuh'),
+      );
+      final result = await failing.loginWithPin(ctx.owner.id, '123456');
+      expect(result, isA<Ok<StaffProfile>>());
+      failing.logout();
+      await failing.pendingLog;
+      expect(failing.current, isNull);
+    });
+  });
 }

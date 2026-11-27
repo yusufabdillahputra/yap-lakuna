@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
@@ -125,6 +126,109 @@ void main() {
       final vm = UsersViewModel(repository: repo, actor: sampleStaff());
       await vm.load.execute();
       expect(vm.load.error, isTrue);
+    });
+
+    group('log masuk (F1-03h)', () {
+      void seed(int count) {
+        final yusuf = repo.list[0];
+        final sari = repo.list[2];
+        final start = DateTime.utc(2026, 11, 27, 9);
+        repo.access = [
+          for (var i = 0; i < count; i++)
+            sampleAccess(
+              i.isEven ? yusuf : sari,
+              i.isEven ? StaffAccessKind.signInPin : StaffAccessKind.signOut,
+              start.subtract(Duration(minutes: i)),
+            ),
+        ];
+      }
+
+      test('dimuat saat tab dibuka pertama kali, tidak dimuat ulang', () async {
+        seed(3);
+        final vm = await loaded();
+        expect(repo.calls.where((c) => c == 'accessLog'), isEmpty);
+        vm.setTab(UsersTab.accessLog);
+        await pumpEventQueue();
+        expect(vm.accessRows, hasLength(3));
+        expect(vm.accessHasMore, isFalse);
+        vm
+          ..setTab(UsersTab.users)
+          ..setTab(UsersTab.accessLog);
+        await pumpEventQueue();
+        expect(repo.calls.where((c) => c == 'accessLog'), hasLength(1));
+      });
+
+      test('Muat lagi menambah halaman berikutnya', () async {
+        seed(5);
+        repo.accessPageSize = 2;
+        final vm = await loaded();
+        await vm.loadAccess();
+        expect(vm.accessRows, hasLength(2));
+        expect(vm.accessHasMore, isTrue);
+        await vm.loadMoreAccess();
+        await vm.loadMoreAccess();
+        expect(vm.accessRows, hasLength(5));
+        expect(vm.accessHasMore, isFalse);
+        expect(
+          vm.accessRows.map((r) => r.log.id).toSet(),
+          hasLength(5),
+        );
+      });
+
+      test('Muat lagi gagal lalu berhasil: galat hilang', () async {
+        seed(5);
+        repo.accessPageSize = 2;
+        final vm = await loaded();
+        await vm.loadAccess();
+        repo.failNext = const NotPermitted(Permission.usersManage);
+        await vm.loadMoreAccess();
+        expect(vm.accessError, isA<NotPermitted>());
+        expect(vm.accessRows, hasLength(2));
+        await vm.loadMoreAccess();
+        expect(vm.accessError, isNull);
+        expect(vm.accessRows, hasLength(4));
+      });
+
+      test('filter staf memuat ulang dari awal', () async {
+        seed(4);
+        final vm = await loaded();
+        await vm.loadAccess();
+        vm.setAccessStaff(repo.list[2].id);
+        await pumpEventQueue();
+        expect(vm.accessStaff, repo.list[2].id);
+        expect(vm.accessRows, hasLength(2));
+        expect(vm.accessRows.every((r) => r.staffName == 'Sari'), isTrue);
+        vm.setAccessStaff(null);
+        await pumpEventQueue();
+        expect(vm.accessRows, hasLength(4));
+      });
+
+      test('hasil filter lama yang datang terlambat diabaikan', () async {
+        seed(4);
+        final vm = await loaded();
+        repo.holdAccess = true;
+        vm.setAccessStaff(repo.list[2].id);
+        vm.setAccessStaff(repo.list[0].id);
+        await pumpEventQueue();
+        expect(repo.pendingAccess, hasLength(2));
+        // Jawaban filter Yusuf dulu, lalu Sari yang terlambat.
+        repo.pendingAccess[1].complete();
+        await pumpEventQueue();
+        repo.pendingAccess[0].complete();
+        await pumpEventQueue();
+        expect(vm.accessStaff, repo.list[0].id);
+        expect(vm.accessRows, isNotEmpty);
+        expect(vm.accessRows.every((r) => r.staffName == 'Yusuf'), isTrue);
+      });
+
+      test('galat memuat log tampil sebagai hasil Error', () async {
+        final vm = await loaded();
+        repo.failNext = const NotPermitted(Permission.usersManage);
+        await vm.loadAccess();
+        expect(vm.accessError, isA<NotPermitted>());
+        expect(vm.accessLoading, isFalse);
+        expect(vm.accessRows, isEmpty);
+      });
     });
   });
 

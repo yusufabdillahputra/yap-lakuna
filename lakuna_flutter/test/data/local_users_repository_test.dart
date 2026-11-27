@@ -82,6 +82,37 @@ void main() {
     expect(_err(await users.accounts()), isA<NotPermitted>());
   });
 
+  test('log masuk/keluar butuh users:manage (F1-03h)', () async {
+    _ok(
+      await users.createStaff(
+        name: 'Sari',
+        roleKey: 'cashier',
+        pin: '246810',
+        active: true,
+      ),
+    );
+    final sari = byName(_ok(await users.accounts()), 'Sari');
+    session.logout();
+    _ok(await session.loginWithPin(sari.id, '246810'));
+    await session.pendingLog;
+    expect(_err(await users.accessLog()), isA<NotPermitted>());
+    session.logout();
+    _ok(await session.loginWithPin(ctx.owner.id, '123456'));
+    await session.pendingLog;
+    final page = _ok(await users.accessLog());
+    expect(
+      [for (final r in page.rows) r.staffName],
+      [
+        'Ani',
+        'Sari',
+        'Sari',
+        'Ani',
+        'Ani',
+      ],
+    );
+    expect(_ok(await users.accessLog(staffId: sari.id)).rows, hasLength(2));
+  });
+
   test('ganti PIN sendiri: PIN saat ini salah memakai kunci login', () async {
     for (var left = 4; left >= 1; left--) {
       final e = _err(await users.changeMyPin(current: '000000', pin: '111111'));

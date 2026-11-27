@@ -616,6 +616,7 @@ GoRouter createRouter({
               repository: users,
               session: session,
               outletName: store.current?.outlet.name ?? '',
+              timezone: store.current?.outlet.timezone,
             ),
           ),
           GoRoute(

@@ -124,7 +124,8 @@ ulang riwayat.
 | v0.140.0 | Foto stiker QRIS dari kamera (F1-18f) | #146 |
 | v0.141.0 | Baca QR stiker QRIS, NMID otomatis (F1-18g) | #147 |
 | v0.142.0 | Kasir tetap terbuka bila pengaturan struk rusak, galat cetak dicatat (F1-06c) | #148 |
-| v0.143.0 | Peringatan stok sistem berubah sejak dihitung (F1-08q) | |
+| v0.143.0 | Peringatan stok sistem berubah sejak dihitung (F1-08q) | #149 |
+| v0.144.0 | Log masuk/keluar staf (F1-03h) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -382,6 +383,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 86. ~~Selisih penyesuaian berubah diam-diam saat stok sistem berubah~~ —
     selesai v0.143.0 (F1-08q); peringatan per baris, ringkasan, tombol
     *Sudah dicek*.
+87. ~~Log masuk/keluar staf~~ — selesai v0.144.0 (F1-03h); tabel
+    `staff_access_logs`, tab *Log masuk* di Pengguna & role. Percobaan
+    gagal dan keluar saat aplikasi ditutup belum dicatat.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

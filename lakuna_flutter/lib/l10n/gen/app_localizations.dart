@@ -10724,6 +10724,108 @@ abstract class AppLocalizations {
   /// **'Role & izin'**
   String get usersTabRoles;
 
+  /// No description provided for @usersTabAccessLog.
+  ///
+  /// In id, this message translates to:
+  /// **'Log masuk'**
+  String get usersTabAccessLog;
+
+  /// No description provided for @usersAccessTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Log masuk dan keluar'**
+  String get usersAccessTitle;
+
+  /// No description provided for @usersAccessHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tercatat setiap kali staf masuk atau keluar di perangkat kasir. Aplikasi yang ditutup tanpa Ganti kasir tidak punya baris Keluar; login berikutnya menjadi batasnya.'**
+  String get usersAccessHint;
+
+  /// No description provided for @usersAccessStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf'**
+  String get usersAccessStaff;
+
+  /// No description provided for @usersAccessAllStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua staf'**
+  String get usersAccessAllStaff;
+
+  /// No description provided for @usersAccessEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada log masuk.'**
+  String get usersAccessEmpty;
+
+  /// No description provided for @usersAccessMore.
+  ///
+  /// In id, this message translates to:
+  /// **'Muat lagi'**
+  String get usersAccessMore;
+
+  /// No description provided for @usersAccessColTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get usersAccessColTime;
+
+  /// No description provided for @usersAccessColStaff.
+  ///
+  /// In id, this message translates to:
+  /// **'Staf'**
+  String get usersAccessColStaff;
+
+  /// No description provided for @usersAccessColEvent.
+  ///
+  /// In id, this message translates to:
+  /// **'Kejadian'**
+  String get usersAccessColEvent;
+
+  /// No description provided for @usersAccessColDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat'**
+  String get usersAccessColDevice;
+
+  /// No description provided for @usersAccessSignInPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk dengan PIN'**
+  String get usersAccessSignInPin;
+
+  /// No description provided for @usersAccessSignInPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk dengan kata sandi'**
+  String get usersAccessSignInPassword;
+
+  /// No description provided for @usersAccessSignInSetup.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk setelah penyiapan toko'**
+  String get usersAccessSignInSetup;
+
+  /// No description provided for @usersAccessSignOut.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar (Ganti kasir)'**
+  String get usersAccessSignOut;
+
+  /// No description provided for @usersAccessSignOutRemoved.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar otomatis: akun dinonaktifkan atau dikeluarkan'**
+  String get usersAccessSignOutRemoved;
+
+  /// No description provided for @usersAccessDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat {code}'**
+  String usersAccessDevice(String code);
+
   /// No description provided for @usersListTitle.
   ///
   /// In id, this message translates to:
