@@ -54,6 +54,10 @@ fields:
   lineDiscountAmount: int, default=0, column=line_discount_amount
   ### Staf yang menyetujui diskon manual lewat PIN; null bila staf sendiri berizin.
   discountApprovedBy: UuidValue?, column=discount_approved_by
+  ### Dasar (Σ total baris) saat diskon nota rupiah terakhir disetujui
+  ### (F1-04j); dasar sekarang lebih kecil = perlu disetujui ulang. `null`
+  ### untuk diskon persen, tanpa diskon, atau bill lama.
+  discountBase: int?, column=discount_base
   ### Grup pelanggan yang dipakai saat harga open bill terakhir dihitung
   ### (F1-10l); `null` = harga umum.
   priceGroupId: UuidValue?, column=price_group_id

@@ -48,6 +48,7 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
         permission: Permission.salesDiscount,
       ) => l10n.saleErrorDiscountNotPermitted,
       DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
+      DiscountNeedsReapproval() => l10n.saleErrorDiscountReapproval,
       SaleItemUnavailable() => l10n.paymentErrorUnavailable,
       SalePaymentShort() => l10n.paymentErrorShort,
       SalePaymentUnsupported() => l10n.paymentErrorQrisOff,

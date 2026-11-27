@@ -7375,6 +7375,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'For the whole bill. Service charge and tax are applied after the discount.';
 
   @override
+  String get saleErrorDiscountReapproval =>
+      'The order got smaller after the discount was approved. Approve it again or change the discount.';
+
+  @override
+  String get diningDiscountReapproveAction => 'Approve discount again';
+
+  @override
+  String diningDiscountReapprove(String amount, String approved, String now) {
+    return 'The order got smaller after the $amount discount was approved (from $approved to $now). Approve it again or change the discount.';
+  }
+
+  @override
   String get diningDiscountBlocksPay =>
       'The discount uses up the bill total. Change or remove it before paying.';
 

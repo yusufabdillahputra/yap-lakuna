@@ -226,6 +226,114 @@ void main() {
     );
   });
 
+  test(
+    'diskon rupiah: pesanan berkurang perlu disetujui ulang (F1-04j)',
+    () async {
+      final sari = await addStaff('Sari', 'cashier');
+      final rina = await addStaff('Rina', 'manager');
+      var b = await bill(8);
+      // Persen tidak menyimpan dasar.
+      b = await discount(b, const ManualDiscount.percent(BasisPoints(1000)));
+      expect(b.sale.discountBase, isNull);
+      b = await discount(
+        b,
+        const ManualDiscount.amount(Money(20000)),
+        staffId: sari.id,
+        approverId: rina.id,
+      );
+      expect(b.sale.discountBase, 200000);
+      expect(b.discountNeedsReapproval, isFalse);
+
+      Future<OpenBill> qty(int n) => setBillItemQuantity(
+        store,
+        scope,
+        staffId: sari.id,
+        itemId: b.items.single.id,
+        quantity: Qty.units(n),
+      );
+      Future<CheckoutResult> pay(OpenBill b) => payOpenBill(
+        store,
+        scope,
+        staffId: sari.id,
+        billId: b.id,
+        payments: [SalePaymentRequest.cash(b.charges.total)],
+      );
+
+      b = await qty(2);
+      // Potongan tetap 20.000 (kini 40%): bayar dan bayar bagian ditolak.
+      expect(b.charges.discount, const Money(20000));
+      expect(b.discountNeedsReapproval, isTrue);
+      await expectLater(pay(b), throwsA(isA<DiscountNeedsReapproval>()));
+      final split = await setBillSplit(
+        store,
+        scope,
+        staffId: sari.id,
+        billId: b.id,
+        mode: SplitMode.equal,
+        guests: 2,
+      );
+      await expectLater(
+        paySplitPart(
+          store,
+          scope,
+          staffId: sari.id,
+          billId: split.id,
+          guest: 'A',
+          payments: const [SalePaymentRequest(method: PaymentMethod.card)],
+        ),
+        throwsA(isA<DiscountNeedsReapproval>()),
+      );
+      b = await setBillSplit(
+        store,
+        scope,
+        staffId: sari.id,
+        billId: b.id,
+        mode: null,
+      );
+
+      // Pesanan kembali ≥ dasar: tanda hilang sendiri.
+      b = await qty(9);
+      expect(b.discountNeedsReapproval, isFalse);
+      b = await qty(2);
+      expect(b.discountNeedsReapproval, isTrue);
+
+      // Setujui ulang: kasir tetap butuh penyetuju; dasar baru tersimpan.
+      await expectLater(
+        discount(b, b.discount, staffId: sari.id),
+        throwsA(isA<DiscountNotPermitted>()),
+      );
+      b = await discount(b, b.discount, staffId: sari.id, approverId: rina.id);
+      expect(b.sale.discountBase, 50000);
+      expect(b.discountNeedsReapproval, isFalse);
+      final paid = await pay(b);
+      expect(paid.sale.discountAmount, 20000);
+      expect(paid.sale.discountApprovedBy, rina.id);
+    },
+  );
+
+  test('bill lama tanpa dasar tersimpan tidak diperiksa (F1-04j)', () async {
+    var b = await bill(8);
+    b = await discount(b, const ManualDiscount.amount(Money(20000)));
+    final row = await Sale.db.findById(store.session, b.id);
+    await Sale.db.updateRow(store.session, row!.copyWith(discountBase: null));
+    b = await setBillItemQuantity(
+      store,
+      scope,
+      staffId: owner(),
+      itemId: b.items.single.id,
+      quantity: Qty.units(2),
+    );
+    expect(b.discountNeedsReapproval, isFalse);
+    final paid = await payOpenBill(
+      store,
+      scope,
+      staffId: owner(),
+      billId: b.id,
+      payments: [SalePaymentRequest.cash(b.charges.total)],
+    );
+    expect(paid.sale.discountAmount, 20000);
+  });
+
   test('item berkurang sampai total habis: bayar ditolak', () async {
     var b = await bill(2);
     b = await discount(b, const ManualDiscount.amount(Money(40000)));

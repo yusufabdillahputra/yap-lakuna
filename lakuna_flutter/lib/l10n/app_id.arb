@@ -4562,6 +4562,16 @@
   "@diningDiscountHint": {
     "placeholders": {}
   },
+  "saleErrorDiscountReapproval": "Pesanan berkurang sejak diskon disetujui. Setujui ulang atau ubah diskon.",
+  "diningDiscountReapproveAction": "Setujui ulang diskon",
+  "diningDiscountReapprove": "Pesanan berkurang sejak diskon {amount} disetujui (dari {approved} menjadi {now}). Setujui ulang atau ubah diskon.",
+  "@diningDiscountReapprove": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "approved": {"type": "String"},
+      "now": {"type": "String"}
+    }
+  },
   "diningDiscountBlocksPay": "Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.",
   "@diningDiscountBlocksPay": {
     "placeholders": {}

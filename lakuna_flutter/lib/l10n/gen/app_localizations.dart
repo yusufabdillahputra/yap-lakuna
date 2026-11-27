@@ -12704,6 +12704,24 @@ abstract class AppLocalizations {
   /// **'Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.'**
   String get diningDiscountHint;
 
+  /// No description provided for @saleErrorDiscountReapproval.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesanan berkurang sejak diskon disetujui. Setujui ulang atau ubah diskon.'**
+  String get saleErrorDiscountReapproval;
+
+  /// No description provided for @diningDiscountReapproveAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Setujui ulang diskon'**
+  String get diningDiscountReapproveAction;
+
+  /// No description provided for @diningDiscountReapprove.
+  ///
+  /// In id, this message translates to:
+  /// **'Pesanan berkurang sejak diskon {amount} disetujui (dari {approved} menjadi {now}). Setujui ulang atau ubah diskon.'**
+  String diningDiscountReapprove(String amount, String approved, String now);
+
   /// No description provided for @diningDiscountBlocksPay.
   ///
   /// In id, this message translates to:

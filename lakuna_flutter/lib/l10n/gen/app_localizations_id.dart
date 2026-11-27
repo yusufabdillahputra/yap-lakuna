@@ -7225,6 +7225,18 @@ class AppLocalizationsId extends AppLocalizations {
       'Untuk seluruh bill. Service dan PB1 dihitung setelah diskon.';
 
   @override
+  String get saleErrorDiscountReapproval =>
+      'Pesanan berkurang sejak diskon disetujui. Setujui ulang atau ubah diskon.';
+
+  @override
+  String get diningDiscountReapproveAction => 'Setujui ulang diskon';
+
+  @override
+  String diningDiscountReapprove(String amount, String approved, String now) {
+    return 'Pesanan berkurang sejak diskon $amount disetujui (dari $approved menjadi $now). Setujui ulang atau ubah diskon.';
+  }
+
+  @override
   String get diningDiscountBlocksPay =>
       'Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.';
 

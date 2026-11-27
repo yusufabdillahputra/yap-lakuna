@@ -7,6 +7,46 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.163.0] - 2026-11-27
+
+Diskon rupiah di bill meja tidak lagi diam-diam membesar persentasenya saat
+pesanan dikurangi. Ini gap 26, gap terakhir di daftar rapikan Fase 1
+(F1-04j, panel bill Meja 1.7).
+
+### Ditambahkan
+
+- **Setujui ulang diskon rupiah bila pesanan berkurang.** Diskon nota
+  rupiah di open bill kini mengingat besar pesanan saat disetujui. Bila
+  pesanan lalu dikurangi (mis. Rp 20.000 disetujui untuk Rp 200.000, lalu
+  pesanan tinggal Rp 40.000), panel bill menulis *Pesanan berkurang sejak
+  diskon Rp 20.000 disetujui (dari Rp 200.000 menjadi Rp 40.000). Setujui
+  ulang atau ubah diskon.*, tombol **Bayar** dan **Split** nonaktif, dan
+  tombol **Setujui ulang diskon** muncul. Staf berizin diskon cukup sekali
+  ketuk; staf lain diminta PIN manajer.
+- Pesan hilang sendiri bila pesanan ditambah lagi sampai sebesar semula,
+  atau bila diskon diubah/dihapus.
+
+### Diubah
+
+- *Tutup & bayar* dan bayar bagian split menolak bill seperti di atas
+  dengan pesan *Pesanan berkurang sejak diskon disetujui. Setujui ulang
+  atau ubah diskon.* (juga bila bill dibayar dari perangkat lain yang
+  belum memuat ulang).
+- Panduan *Diskon* (ID dan EN) menjelaskan persetujuan ulang.
+
+### Catatan teknis
+
+- Kolom baru `sales.discount_base` (`int?`), migrasi `dasar-diskon`:
+  Σ total baris saat diskon nota rupiah diterapkan; `null` untuk diskon
+  persen, tanpa diskon, dan bill lama (tidak diperiksa).
+- Domain: `discountReapprovalDue`. Data: `setBillDiscount` menulis
+  dasar; `_assertPayable` melempar `DiscountNeedsReapproval` setelah
+  pemeriksaan `DiscountTooLarge`; `OpenBill.discountNeedsReapproval` dan
+  `discountBase`.
+- Hanya open bill. Di Kasir retail persetujuan PIN berlaku untuk seluruh
+  keranjang (F1-04b), jadi tidak diubah. Diskon baris rupiah belum
+  diperiksa (gap di spec F1-04j).
+
 ## [0.162.0] - 2026-11-27
 
 Daftar harga panjang dari supplier kini bisa diperiksa lengkap sebelum
@@ -8999,7 +9039,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...HEAD
+[0.163.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...v0.163.0
 [0.162.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...v0.162.0
 [0.161.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...v0.161.0
 [0.160.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...v0.160.0

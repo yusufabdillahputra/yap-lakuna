@@ -102,4 +102,19 @@ void main() {
     expect(pl.discount, const Money(6900));
     expect(pl.netSales, const Money(93100));
   });
+
+  test('setujui ulang diskon rupiah bila dasar mengecil (F1-04j)', () {
+    bool needs(int amount, int base, int? approved) => discountReapprovalDue(
+      amount: Money(amount),
+      base: Money(base),
+      approvedBase: approved == null ? null : Money(approved),
+    );
+    expect(needs(20000, 200000, 200000), isFalse);
+    expect(needs(20000, 250000, 200000), isFalse);
+    expect(needs(20000, 40000, 200000), isTrue);
+    expect(needs(20000, 199999, 200000), isTrue);
+    // Tanpa dasar tersimpan (bill lama) atau tanpa diskon rupiah.
+    expect(needs(20000, 40000, null), isFalse);
+    expect(needs(0, 40000, 200000), isFalse);
+  });
 }

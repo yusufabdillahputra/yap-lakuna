@@ -85,3 +85,13 @@ ManualDiscount? parseDiscountValue(String text, DiscountKind kind) {
       return ManualDiscount.amount(Money(int.parse(digits)));
   }
 }
+
+/// Diskon nota rupiah [amount] yang disetujui untuk dasar [approvedBase]
+/// perlu disetujui ulang bila dasar sekarang [base] lebih kecil: persentase
+/// efektifnya naik dari yang disetujui (F1-04j). `null` = bill lama tanpa
+/// dasar tersimpan, tidak diperiksa.
+bool discountReapprovalDue({
+  required Money amount,
+  required Money base,
+  required Money? approvedBase,
+}) => amount > Money.zero && approvedBase != null && base < approvedBase;

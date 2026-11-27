@@ -6956,6 +6956,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'UuidValue?',
         ),
         _isp.ColumnDefinition(
+          name: 'discount_base',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
           name: 'price_group_id',
           columnType: _isp.ColumnType.uuid,
           isNullable: true,

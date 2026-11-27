@@ -256,11 +256,17 @@ class DiningViewModel extends ChangeNotifier {
   /// sampai diskon diubah.
   bool get discountBlocksPay => switch (selectedBill) {
     final b? =>
-      (b.charges.discount > Money.zero ||
-              b.items.any((i) => billItemDiscountOf(i) != null)) &&
-          b.charges.total <= Money.zero,
+      ((b.charges.discount > Money.zero ||
+                  b.items.any((i) => billItemDiscountOf(i) != null)) &&
+              b.charges.total <= Money.zero) ||
+          b.discountNeedsReapproval,
     null => false,
   };
+
+  /// Pesanan bill terpilih berkurang sejak diskon nota rupiah disetujui
+  /// (F1-04j): bayar dan split ditolak sampai disetujui ulang.
+  bool get discountNeedsReapproval =>
+      selectedBill?.discountNeedsReapproval ?? false;
   FnbRates get rates => _overview?.rates ?? const FnbRates();
 
   Future<Result<DiningData>> _load() async {
