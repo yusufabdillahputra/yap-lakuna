@@ -11,4 +11,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-16f-periode-laporan-diingat-design.m
 - [x] 4. Spec F1-16b/README/STATUS-JEDA/GAP-FASE1, panduan reports ID/EN,
       CHANGELOG, versi 0.146.0+149.
 - [x] 5. Format, analyze, semua tes, review subagent, uji Xvfb.
-- [ ] 6. PR dan rilis.
+- [x] 6. PR dan rilis.

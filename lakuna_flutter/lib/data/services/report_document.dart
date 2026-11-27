@@ -36,6 +36,7 @@ class ReportTable {
     this.notes = const [],
     this.widths = const [],
     this.flex = const [],
+    this.landscape = false,
   });
 
   /// Mis. `Laba rugi · Oktober 2026`.
@@ -54,6 +55,9 @@ class ReportTable {
 
   /// Lebar relatif kolom PDF; kosong = kolom pertama 3, lainnya 1.
   final List<int> flex;
+
+  /// PDF dicetak mendatar (A4 landscape) untuk tabel berkolom banyak.
+  final bool landscape;
 }
 
 /// Nama lembar Excel: maks 31 karakter, tanpa `[]:*?/\`. Judul
@@ -102,7 +106,8 @@ Uint8List reportXlsx(ReportTable t) => buildXlsx(
   widths: t.widths,
 );
 
-/// PDF A4 tegak: judul, subjudul, tabel, catatan. [money] memformat sel
+/// PDF A4 (tegak, atau mendatar bila [ReportTable.landscape]): judul,
+/// subjudul, tabel, catatan. [money] memformat sel
 /// [XlsxNumber] (mis. `Rp 12.500`). Kolom angka rata kanan.
 Future<Uint8List> reportPdf(
   ReportTable t, {
@@ -161,12 +166,13 @@ Future<Uint8List> reportPdf(
       // toko besar; batas ini hanya dicek di build debug.
       maxPages: 1000,
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-      pageFormat: PdfPageFormat.a4.copyWith(
-        marginLeft: 16 * PdfPageFormat.mm,
-        marginRight: 16 * PdfPageFormat.mm,
-        marginTop: 16 * PdfPageFormat.mm,
-        marginBottom: 16 * PdfPageFormat.mm,
-      ),
+      pageFormat: (t.landscape ? PdfPageFormat.a4.landscape : PdfPageFormat.a4)
+          .copyWith(
+            marginLeft: 16 * PdfPageFormat.mm,
+            marginRight: 16 * PdfPageFormat.mm,
+            marginTop: 16 * PdfPageFormat.mm,
+            marginBottom: 16 * PdfPageFormat.mm,
+          ),
       footer: (context) => pw.Align(
         alignment: pw.Alignment.centerRight,
         child: pw.Text(

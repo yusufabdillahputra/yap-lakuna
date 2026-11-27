@@ -597,13 +597,74 @@ void main() {
         'CV Sumber',
         'Total',
       ]);
-      // Umur piutang: 31–60 hari = Budi, total = 2 nota.
-      expect((d.rows[3].cells[4]! as XlsxNumber).value, 150000);
+      // Kolom umur per nama (F1-16g); PDF mendatar.
+      expect(d.headers, [
+        'Keterangan',
+        'Nota terbuka',
+        'Jatuh tempo terdekat',
+        'Belum jatuh tempo',
+        'Lewat 1–30 hari',
+        'Lewat 31–60 hari',
+        'Lewat 61–90 hari',
+        'Lewat > 90 hari',
+        'Sisa',
+      ]);
+      expect(d.landscape, isTrue);
+      num? at(int row, int col) =>
+          (d.rows[row].cells[col] as XlsxNumber?)?.value;
+      // Umur piutang: 31–60 hari = Budi, total = 2 nota; kolom kelompok
+      // kosong di baris umur.
+      expect(at(3, 8), 150000);
+      expect(d.rows[3].cells.sublist(2, 8), everyElement(isNull));
       expect(d.rows[6].cells[1], 2);
-      expect((d.rows[6].cells[4]! as XlsxNumber).value, 200000);
-      expect((d.rows[17].cells[4]! as XlsxNumber).value, 120000);
-      expect((d.rows[10].cells[4]! as XlsxNumber).value, 200000);
-      expect(d.rows[19].cells[3], '10/11/2026');
+      expect(at(6, 8), 200000);
+      expect(at(17, 8), 120000);
+      // Budi lewat 31–60 hari, Rina belum jatuh tempo; Total per kolom.
+      expect(
+        [for (var c = 3; c <= 8; c++) at(8, c)],
+        [
+          null,
+          null,
+          150000,
+          null,
+          null,
+          150000,
+        ],
+      );
+      expect(
+        [for (var c = 3; c <= 8; c++) at(9, c)],
+        [
+          50000,
+          null,
+          null,
+          null,
+          null,
+          50000,
+        ],
+      );
+      expect(
+        [for (var c = 3; c <= 8; c++) at(10, c)],
+        [
+          50000,
+          0,
+          150000,
+          0,
+          0,
+          200000,
+        ],
+      );
+      expect(d.rows[19].cells[2], '10/11/2026');
+      expect(
+        [for (var c = 3; c <= 8; c++) at(19, c)],
+        [
+          70000,
+          null,
+          50000,
+          null,
+          null,
+          120000,
+        ],
+      );
       expect(d.notes.last, startsWith('Umur dihitung'));
       expect(
         returnRefundLabel(

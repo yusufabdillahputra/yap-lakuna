@@ -72,6 +72,6 @@ membayar.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Umur piutang & hutang per kelompok | 1.24 | Rilis v0.82.0 | Tab Piutang & hutang + unduhan PDF/Excel. |
-| Umur per pelanggan / supplier (kolom kelompok di tabel per nama) | — | Belum | Tabel per nama tetap Nota terbuka, Lewat tempo, Sisa. |
+| Umur per pelanggan / supplier (kolom kelompok di tabel per nama) | — | Rilis v0.147.0 | [F1-16g](2026-11-27-f1-16g-umur-per-nama-design.md); kolom *Lewat tempo* diganti kolom kelompok. |
 | Kelompok umur bisa diatur (mis. 7/14/30 hari) | — | Belum | Tetap 30/60/90. |
 | Umur pada tanggal lampau | — | Belum | Posisi hari ini saja, seperti tab Piutang & hutang. |
