@@ -21,7 +21,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 
 | # | Gap | Spec asal | Rilis |
 | --- | --- | --- | --- |
-| 1 | Shift: master Shift (1.17b), pilih shift saat buka sesi (1.3), rekap dan laporan per shift | F1-03, F1-09 | |
+| 1 | Shift: master Shift (1.17b), pilih shift saat buka sesi (1.3), rekap dan laporan per shift | F1-03, F1-09 | v0.137.0 (F1-03g) |
 | 2 | PIN manajer untuk *Sudah Terbayar* QRIS + sakelar *Kasir boleh konfirmasi tanpa PIN manajer* (1.26b) | F1-05, F1-18 | |
 | 3 | *Tampilkan juga di layar mobile kasir* (1.26b) | F1-18 | |
 | 4 | Foto stiker QRIS dari kamera (1.26b) | F1-18 | |

@@ -47,6 +47,10 @@ class FakeReportsRepository extends ReportsRepository {
   /// Nota kartu diganti dua transfer: BCA 10.000 + tanpa rekening 6.000
   /// (F1-05g).
   bool transferSale = false;
+
+  /// Sesi Sari di shift Pagi, Budi tanpa shift; tabel *Per shift*
+  /// (F1-03g).
+  bool withShifts = false;
   final today = DateTime.utc(2026, 11, 4);
   final requests = <ReportPeriod>[];
 
@@ -121,7 +125,33 @@ class FakeReportsRepository extends ReportsRepository {
         if (period.kind == ReportPeriodKind.month) {
           return const CashReport(sessions: [], inflows: [], outflows: []);
         }
+        final pagi = withShifts
+            ? Shift(
+                tenantId: _uuid(990),
+                outletId: _uuid(991),
+                name: 'Pagi',
+                startMinute: 7 * 60,
+                endMinute: 15 * 60,
+                hlc: 'h',
+              )
+            : null;
         return CashReport(
+          shifts: [
+            if (pagi != null) ...[
+              ShiftSummary(
+                shift: pagi,
+                sessions: 1,
+                sales: const Money(84000),
+                difference: Money.zero,
+              ),
+              const ShiftSummary(
+                shift: null,
+                sessions: 1,
+                sales: Money(80000),
+                difference: Money(-5000),
+              ),
+            ],
+          ],
           sessions: [
             CashSessionLine(
               id: openSessionId,
@@ -129,6 +159,7 @@ class FakeReportsRepository extends ReportsRepository {
               staffName: 'Sari',
               opening: const Money(100000),
               expected: const Money(179000),
+              shift: pagi,
             ),
             CashSessionLine(
               id: closedSessionId,

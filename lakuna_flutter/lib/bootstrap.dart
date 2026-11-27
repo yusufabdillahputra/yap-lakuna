@@ -25,6 +25,7 @@ import 'data/repositories/suppliers_repository.dart';
 import 'data/repositories/history_repository.dart';
 import 'data/repositories/purchases_repository.dart';
 import 'data/repositories/local_customers_repository.dart';
+import 'data/repositories/local_shifts_repository.dart';
 import 'data/repositories/local_expenses_repository.dart';
 import 'data/repositories/local_reports_repository.dart';
 import 'data/repositories/local_users_repository.dart';
@@ -135,6 +136,11 @@ Future<AppInstance> bootstrap(String databasePath) async {
     stores: storeRepository,
     session: sessionRepository,
     preferences: preferences,
+  );
+  final shiftsRepository = LocalShiftsRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
   );
   final suppliersRepository = LocalSuppliersRepository(
     store,
@@ -252,6 +258,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
           history: historyRepository,
           purchases: purchasesRepository,
           customers: customersRepository,
+          shifts: shiftsRepository,
           suppliers: suppliersRepository,
           expenses: expensesRepository,
           reports: reportsRepository,

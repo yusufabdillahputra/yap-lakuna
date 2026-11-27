@@ -14854,6 +14854,221 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Rekening tujuan maksimal {max} karakter. Rapikan rekening di Pengaturan toko.'**
   String debtErrTransferAccount(int max);
+
+  /// No description provided for @masterTabShifts.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift'**
+  String get masterTabShifts;
+
+  /// No description provided for @shiftsNew.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift'**
+  String get shiftsNew;
+
+  /// No description provided for @shiftsHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift dipilih saat membuka sesi kasir dan tampil di rekap serta Laporan › Kas & sesi.'**
+  String get shiftsHint;
+
+  /// No description provided for @shiftsEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada shift. Sesi kasir dibuka tanpa shift.'**
+  String get shiftsEmpty;
+
+  /// No description provided for @shiftsRowSub.
+  ///
+  /// In id, this message translates to:
+  /// **'{range} · {count, plural, =0{belum dipakai} other{dipakai {count} sesi}}'**
+  String shiftsRowSub(String range, int count);
+
+  /// No description provided for @shiftsNewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift baru'**
+  String get shiftsNewTitle;
+
+  /// No description provided for @shiftsEditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Ubah shift'**
+  String get shiftsEditTitle;
+
+  /// No description provided for @shiftsName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama shift'**
+  String get shiftsName;
+
+  /// No description provided for @shiftsStart.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam mulai'**
+  String get shiftsStart;
+
+  /// No description provided for @shiftsEnd.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam selesai'**
+  String get shiftsEnd;
+
+  /// No description provided for @shiftsTimeHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Mis. 07.00'**
+  String get shiftsTimeHint;
+
+  /// No description provided for @shiftsOvernight.
+  ///
+  /// In id, this message translates to:
+  /// **'Lewat tengah malam: {range}.'**
+  String shiftsOvernight(String range);
+
+  /// No description provided for @shiftsLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift gagal dimuat.'**
+  String get shiftsLoadFailed;
+
+  /// No description provided for @shiftDiscardBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift yang sedang diisi belum disimpan dan akan hilang.'**
+  String get shiftDiscardBody;
+
+  /// No description provided for @shiftErrName.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi nama shift, paling banyak {max} karakter.'**
+  String shiftErrName(int max);
+
+  /// No description provided for @shiftErrTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Isi jam 00.00–23.59, mis. 07.00.'**
+  String get shiftErrTime;
+
+  /// No description provided for @shiftErrSameTime.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam selesai harus berbeda dengan jam mulai.'**
+  String get shiftErrSameTime;
+
+  /// No description provided for @shiftErrNameTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama shift sudah dipakai di cabang ini.'**
+  String get shiftErrNameTaken;
+
+  /// No description provided for @shiftErrNotFound.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift tidak ditemukan atau sudah dihapus.'**
+  String get shiftErrNotFound;
+
+  /// No description provided for @shiftErrInUse.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift dipakai {count} sesi kasir, jadi tidak bisa dihapus.'**
+  String shiftErrInUse(int count);
+
+  /// No description provided for @shiftErrNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengatur shift butuh izin Pengaturan.'**
+  String get shiftErrNotPermitted;
+
+  /// No description provided for @shiftErrGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift gagal disimpan. Coba lagi.'**
+  String get shiftErrGeneric;
+
+  /// No description provided for @cashShift.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift'**
+  String get cashShift;
+
+  /// No description provided for @cashShiftHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari Master data › Shift (opsional).'**
+  String get cashShiftHint;
+
+  /// No description provided for @cashShiftNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa shift'**
+  String get cashShiftNone;
+
+  /// No description provided for @cashShiftName.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift {name}'**
+  String cashShiftName(String name);
+
+  /// No description provided for @cashShiftOption.
+  ///
+  /// In id, this message translates to:
+  /// **'{name} · {range}'**
+  String cashShiftOption(String name, String range);
+
+  /// No description provided for @cashShiftMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift sudah dihapus. Pilih shift lain.'**
+  String get cashShiftMissing;
+
+  /// No description provided for @recapShift.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift'**
+  String get recapShift;
+
+  /// No description provided for @reportsShiftTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Per shift'**
+  String get reportsShiftTitle;
+
+  /// No description provided for @reportsColShift.
+  ///
+  /// In id, this message translates to:
+  /// **'Shift'**
+  String get reportsColShift;
+
+  /// No description provided for @reportsColSessions.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi'**
+  String get reportsColSessions;
+
+  /// No description provided for @reportsColSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan'**
+  String get reportsColSales;
+
+  /// No description provided for @reportsShiftNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa shift'**
+  String get reportsShiftNone;
+
+  /// No description provided for @reportsShiftExportLine.
+  ///
+  /// In id, this message translates to:
+  /// **'{shift}: {count} sesi, penjualan {sales}, selisih {difference}'**
+  String reportsShiftExportLine(
+    String shift,
+    int count,
+    String sales,
+    String difference,
+  );
 }
 
 class _AppLocalizationsDelegate

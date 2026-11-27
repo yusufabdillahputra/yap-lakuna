@@ -8833,4 +8833,141 @@ class AppLocalizationsEn extends AppLocalizations {
   String debtErrTransferAccount(int max) {
     return 'The destination account can be up to $max characters. Fix the account in Store settings.';
   }
+
+  @override
+  String get masterTabShifts => 'Shifts';
+
+  @override
+  String get shiftsNew => 'Shift';
+
+  @override
+  String get shiftsHint =>
+      'A shift is picked when opening a cash session and shows on the recap and in Reports › Cash & sessions.';
+
+  @override
+  String get shiftsEmpty =>
+      'No shifts yet. Cash sessions open without a shift.';
+
+  @override
+  String shiftsRowSub(String range, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'used by $count sessions',
+      one: 'used by 1 session',
+      zero: 'not used yet',
+    );
+    return '$range · $_temp0';
+  }
+
+  @override
+  String get shiftsNewTitle => 'New shift';
+
+  @override
+  String get shiftsEditTitle => 'Edit shift';
+
+  @override
+  String get shiftsName => 'Shift name';
+
+  @override
+  String get shiftsStart => 'Start time';
+
+  @override
+  String get shiftsEnd => 'End time';
+
+  @override
+  String get shiftsTimeHint => 'E.g. 07.00';
+
+  @override
+  String shiftsOvernight(String range) {
+    return 'Crosses midnight: $range.';
+  }
+
+  @override
+  String get shiftsLoadFailed => 'Couldn\'t load shifts.';
+
+  @override
+  String get shiftDiscardBody =>
+      'The shift you are filling in has not been saved and will be lost.';
+
+  @override
+  String shiftErrName(int max) {
+    return 'Enter a shift name of up to $max characters.';
+  }
+
+  @override
+  String get shiftErrTime => 'Enter a time from 00.00 to 23.59, e.g. 07.00.';
+
+  @override
+  String get shiftErrSameTime =>
+      'The end time must differ from the start time.';
+
+  @override
+  String get shiftErrNameTaken =>
+      'This shift name is already used at this branch.';
+
+  @override
+  String get shiftErrNotFound => 'Shift not found or already deleted.';
+
+  @override
+  String shiftErrInUse(int count) {
+    return 'This shift is used by $count cash sessions, so it can\'t be deleted.';
+  }
+
+  @override
+  String get shiftErrNotPermitted =>
+      'Managing shifts needs the Settings permission.';
+
+  @override
+  String get shiftErrGeneric => 'Couldn\'t save the shift. Try again.';
+
+  @override
+  String get cashShift => 'Shift';
+
+  @override
+  String get cashShiftHint => 'From Master data › Shifts (optional).';
+
+  @override
+  String get cashShiftNone => 'No shift';
+
+  @override
+  String cashShiftName(String name) {
+    return '$name shift';
+  }
+
+  @override
+  String cashShiftOption(String name, String range) {
+    return '$name · $range';
+  }
+
+  @override
+  String get cashShiftMissing => 'That shift was deleted. Pick another shift.';
+
+  @override
+  String get recapShift => 'Shift';
+
+  @override
+  String get reportsShiftTitle => 'By shift';
+
+  @override
+  String get reportsColShift => 'Shift';
+
+  @override
+  String get reportsColSessions => 'Sessions';
+
+  @override
+  String get reportsColSales => 'Sales';
+
+  @override
+  String get reportsShiftNone => 'No shift';
+
+  @override
+  String reportsShiftExportLine(
+    String shift,
+    int count,
+    String sales,
+    String difference,
+  ) {
+    return '$shift: $count sessions, sales $sales, difference $difference';
+  }
 }

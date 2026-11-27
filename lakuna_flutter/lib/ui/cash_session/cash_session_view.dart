@@ -14,6 +14,7 @@ import '../../data/repositories/store_repository.dart';
 import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../master/shift_labels.dart';
 import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../core/photo_attach_field.dart';
@@ -106,6 +107,7 @@ String cashErrorMessage(AppLocalizations l10n, Exception error) =>
       ExpenseReceiptInvalid() => l10n.expenseReceiptInvalid,
       ExpenseDateInvalid() => l10n.expenseErrDate,
       ExpenseCategoryNotFound() => l10n.expenseErrCategory,
+      ShiftNotFound() => l10n.cashShiftMissing,
       _ => l10n.cashErrorFailed,
     };
 
@@ -523,6 +525,26 @@ class _OpenForm extends StatelessWidget {
             ),
           ),
         Text(l10n.cashOpenBody, style: theme.typography.body.sm),
+        if (viewModel.shifts.isNotEmpty)
+          FSelect<String>(
+            key: ValueKey('cash-shift-${viewModel.shiftVersion}'),
+            label: Text(l10n.cashShift),
+            description: Text(l10n.cashShiftHint),
+            items: {
+              for (final s in viewModel.shifts)
+                l10n.cashShiftOption(s.name, shiftRange(s)): s.id.uuid,
+              l10n.cashShiftNone: '',
+            },
+            forceErrorText: viewModel.shiftMissing
+                ? l10n.cashShiftMissing
+                : null,
+            control: .managed(
+              initial: viewModel.shiftId?.uuid ?? '',
+              onChange: (v) => viewModel.selectShift(
+                v == null || v.isEmpty ? null : UuidValue.fromString(v),
+              ),
+            ),
+          ),
         _MoneyField(
           key: const ValueKey('cash-opening-cash'),
           label: l10n.cashOpeningCash,
@@ -639,7 +661,12 @@ class _PreviousSessions extends StatelessWidget {
                         spacing: 2,
                         children: [
                           Text(
-                            _period(s),
+                            [
+                              _period(s),
+                              if (s.shift case final shift?)
+                                l10n.cashShiftName(shift.name),
+                            ].join(' · '),
+                            key: ValueKey('cash-previous-period-${s.id}'),
                             style: theme.typography.body.sm.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -767,6 +794,17 @@ class _ActiveCard extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        if (active.shift case final shift?)
+          Text(
+            l10n.cashShiftOption(
+              l10n.cashShiftName(shift.name),
+              shiftRange(shift),
+            ),
+            key: const ValueKey('cash-active-shift'),
+            style: theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         Text(
           l10n.cashOpenedBy(
             formatClock(session.openedAt, store?.outlet.timezone),
@@ -1168,7 +1206,11 @@ class _CloseForm extends StatelessWidget {
       spacing: 16,
       children: [
         _Header(
-          title: l10n.cashCloseTitle(staffName),
+          title: [
+            l10n.cashCloseTitle(staffName),
+            if (viewModel.active?.shift case final shift?)
+              l10n.cashShiftName(shift.name),
+          ].join(' · '),
           subtitle: _storeLine(store),
           action: FButton(
             key: const ValueKey('cash-back-to-drawer'),

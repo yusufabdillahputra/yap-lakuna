@@ -34,6 +34,7 @@ part '20261114035454004-kas-per-pembayaran/migration.dart';
 part '20261114195500605-segarkan-harga-grup/migration.dart';
 part '20261120211318719-rekening-tujuan/migration.dart';
 part '20261120215928857-rekening-piutang/migration.dart';
+part '20261127021134605-shift/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -70,6 +71,7 @@ class MigrationRegistry {
     _Migration20261114195500605_segarkan_harga_grup(),
     _Migration20261120211318719_rekening_tujuan(),
     _Migration20261120215928857_rekening_piutang(),
+    _Migration20261127021134605_shift(),
   ];
 
   /// List of all client-side database migration versions.

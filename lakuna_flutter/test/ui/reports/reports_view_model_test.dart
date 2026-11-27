@@ -438,6 +438,30 @@ void main() {
       expect((c.rows[1].cells[5]! as XlsxNumber).value, -5000);
       expect(c.notes, contains('Pengeluaran (2×): − Rp 25.000'));
       expect(c.notes, contains('Kas masuk manual (1×): + Rp 5.000'));
+      expect(c.notes.where((n) => n.startsWith('Per shift')), isEmpty);
+
+      // Shift di kolom kasir dan catatan per shift (F1-03g).
+      repo.withShifts = true;
+      final shifted =
+          ((await repo.loadCash(ReportPeriod.today)) as Ok<CashReport>).value;
+      final cs = reportTable(
+        id,
+        data,
+        ReportTab.cash,
+        SalesGroup.product,
+        cash: shifted,
+      );
+      expect(cs.rows.first.cells[1], 'Sari · Pagi');
+      expect(cs.rows[1].cells[1], 'Budi');
+      expect(
+        cs.notes,
+        containsAllInOrder([
+          'Per shift:',
+          'Pagi: 1 sesi, penjualan Rp 84.000, selisih Rp 0',
+          'Tanpa shift: 1 sesi, penjualan Rp 80.000, selisih − Rp 5.000',
+        ]),
+      );
+      repo.withShifts = false;
 
       final debts = ((await repo.loadDebts()) as Ok<DebtReport>).value;
       final d = reportTable(

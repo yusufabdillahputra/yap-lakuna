@@ -6,6 +6,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/cash_drawer_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../master/shift_labels.dart';
 import '../receipt/receipt_content.dart';
 
 /// Data rekap sesi yang baru ditutup (F1-03b): isi sesi saat tombol tutup
@@ -27,6 +28,7 @@ class SessionRecap {
       movements: r.movements,
       drawer: r.drawer,
       sales: r.sales,
+      shift: r.shift,
     ),
     closed: r.session,
     closerName: r.closedByName,
@@ -79,6 +81,8 @@ ReceiptContent sessionRecapContent(
     banner: l10n.recapTitle,
     meta: [
       ReceiptPair(l10n.recapDevice, deviceCode),
+      if (active.shift case final shift?)
+        ReceiptPair(l10n.recapShift, '${shift.name} ${shiftRange(shift)}'),
       ReceiptPair(l10n.recapOpened, date(active.session.openedAt)),
       ReceiptPair(l10n.recapOpenedBy, active.openedByName),
       ReceiptPair(

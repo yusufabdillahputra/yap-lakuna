@@ -132,7 +132,7 @@ Pengaturan* butuh `settings:manage`.
 | Jenis pengeluaran | Ada | Rilis v0.19.0 | [F1-15](2026-11-04-f1-15-pengeluaran-design.md). |
 | Grup pelanggan | Ada | Rilis v0.17.0 | [F1-13](2026-11-03-f1-13-pelanggan-piutang-design.md). |
 | Meja & area, Grup modifier (1.17b) | Ada | Rilis v0.11.0 / v0.12.0 | [F1-10](2026-11-03-f1-10-meja-fnb-design.md). |
-| Shift | Ada di 1.17b | Belum | Bersama shift sesi kasir (F1-03 lanjutan). |
+| Shift | Ada di 1.17b | Rilis v0.137.0 | [F1-03g](2026-11-27-f1-03g-shift-design.md): tab *Shift* (`settings:manage`). |
 
 ### Penyesuaian tata letak (dicatat saat rilis)
 

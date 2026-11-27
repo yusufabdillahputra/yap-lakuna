@@ -8583,4 +8583,136 @@ class AppLocalizationsId extends AppLocalizations {
   String debtErrTransferAccount(int max) {
     return 'Rekening tujuan maksimal $max karakter. Rapikan rekening di Pengaturan toko.';
   }
+
+  @override
+  String get masterTabShifts => 'Shift';
+
+  @override
+  String get shiftsNew => 'Shift';
+
+  @override
+  String get shiftsHint =>
+      'Shift dipilih saat membuka sesi kasir dan tampil di rekap serta Laporan › Kas & sesi.';
+
+  @override
+  String get shiftsEmpty => 'Belum ada shift. Sesi kasir dibuka tanpa shift.';
+
+  @override
+  String shiftsRowSub(String range, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dipakai $count sesi',
+      zero: 'belum dipakai',
+    );
+    return '$range · $_temp0';
+  }
+
+  @override
+  String get shiftsNewTitle => 'Shift baru';
+
+  @override
+  String get shiftsEditTitle => 'Ubah shift';
+
+  @override
+  String get shiftsName => 'Nama shift';
+
+  @override
+  String get shiftsStart => 'Jam mulai';
+
+  @override
+  String get shiftsEnd => 'Jam selesai';
+
+  @override
+  String get shiftsTimeHint => 'Mis. 07.00';
+
+  @override
+  String shiftsOvernight(String range) {
+    return 'Lewat tengah malam: $range.';
+  }
+
+  @override
+  String get shiftsLoadFailed => 'Shift gagal dimuat.';
+
+  @override
+  String get shiftDiscardBody =>
+      'Shift yang sedang diisi belum disimpan dan akan hilang.';
+
+  @override
+  String shiftErrName(int max) {
+    return 'Isi nama shift, paling banyak $max karakter.';
+  }
+
+  @override
+  String get shiftErrTime => 'Isi jam 00.00–23.59, mis. 07.00.';
+
+  @override
+  String get shiftErrSameTime => 'Jam selesai harus berbeda dengan jam mulai.';
+
+  @override
+  String get shiftErrNameTaken => 'Nama shift sudah dipakai di cabang ini.';
+
+  @override
+  String get shiftErrNotFound => 'Shift tidak ditemukan atau sudah dihapus.';
+
+  @override
+  String shiftErrInUse(int count) {
+    return 'Shift dipakai $count sesi kasir, jadi tidak bisa dihapus.';
+  }
+
+  @override
+  String get shiftErrNotPermitted => 'Mengatur shift butuh izin Pengaturan.';
+
+  @override
+  String get shiftErrGeneric => 'Shift gagal disimpan. Coba lagi.';
+
+  @override
+  String get cashShift => 'Shift';
+
+  @override
+  String get cashShiftHint => 'Dari Master data › Shift (opsional).';
+
+  @override
+  String get cashShiftNone => 'Tanpa shift';
+
+  @override
+  String cashShiftName(String name) {
+    return 'Shift $name';
+  }
+
+  @override
+  String cashShiftOption(String name, String range) {
+    return '$name · $range';
+  }
+
+  @override
+  String get cashShiftMissing => 'Shift sudah dihapus. Pilih shift lain.';
+
+  @override
+  String get recapShift => 'Shift';
+
+  @override
+  String get reportsShiftTitle => 'Per shift';
+
+  @override
+  String get reportsColShift => 'Shift';
+
+  @override
+  String get reportsColSessions => 'Sesi';
+
+  @override
+  String get reportsColSales => 'Penjualan';
+
+  @override
+  String get reportsShiftNone => 'Tanpa shift';
+
+  @override
+  String reportsShiftExportLine(
+    String shift,
+    int count,
+    String sales,
+    String difference,
+  ) {
+    return '$shift: $count sesi, penjualan $sales, selisih $difference';
+  }
 }

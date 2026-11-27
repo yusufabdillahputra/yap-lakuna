@@ -7,8 +7,11 @@ Penjualan dicatat ke sesi kasir di perangkat ini supaya uang laci bisa direkap s
 ## Membuka sesi
 
 1. Buka menu **Sesi kasir**.
-2. Hitung uang di laci, lalu isi **Saldo awal laci**. Catatan boleh dikosongkan.
-3. Tekan **Buka sesi**.
+2. Bila toko memakai shift, pilih **Shift**. Shift yang sedang berjalan menurut jam cabang sudah terpilih; ganti bila perlu, atau pilih *Tanpa shift*.
+3. Hitung uang di laci, lalu isi **Saldo awal laci**. Catatan boleh dikosongkan.
+4. Tekan **Buka sesi**.
+
+> [!note] Daftar shift (mis. *Pagi 07.00–15.00*, *Malam 22.00–06.00*) dibuat pemilik atau manajer di **Master data › Shift**: isi nama, jam mulai, dan jam selesai. Jam selesai lebih awal dari jam mulai berarti shift lewat tengah malam. Shift yang sudah dipakai sesi tidak bisa dihapus. Shift sesi tampil di kartu sesi aktif, judul tutup sesi, rekap cetak, dan [Laporan](reports) › **Kas & sesi**.
 
 ## Uang masuk dan keluar laci
 

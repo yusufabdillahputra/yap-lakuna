@@ -1,0 +1,24 @@
+### Shift kasir cabang (F1-03g), mis. *Pagi 07.00–15.00*. Jam dalam menit
+### sejak tengah malam; [endMinute] < [startMinute] = lewat tengah malam.
+### Nama unik per cabang tanpa membedakan huruf (dicek di lakuna_data).
+class: Shift
+table: shifts
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  name: String
+  startMinute: int, column=start_minute
+  endMinute: int, column=end_minute
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  shifts_outlet_idx:
+    fields: outletId

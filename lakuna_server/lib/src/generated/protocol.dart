@@ -21,6 +21,7 @@ import 'cash/cash_direction.dart' as _i728pu70;
 import 'cash/cash_movement.dart' as _iepnwe9z;
 import 'cash/cash_session.dart' as _iepiq7d7;
 import 'cash/cash_session_status.dart' as _itp0bn28;
+import 'cash/shift.dart' as _icdvezwl;
 import 'catalog/category.dart' as _i3vicioi;
 import 'catalog/modifier_group.dart' as _i0tnb6lw;
 import 'catalog/modifier_option.dart' as _i4wvaayq;
@@ -93,6 +94,7 @@ export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
 export 'cash/cash_session_status.dart';
+export 'cash/shift.dart';
 export 'catalog/category.dart';
 export 'catalog/modifier_group.dart';
 export 'catalog/modifier_option.dart';
@@ -179,6 +181,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iepnwe9z.CashMovement>,
           _is.getType<_iepiq7d7.CashSession>,
           _is.getType<_itp0bn28.CashSessionStatus>,
+          _is.getType<_icdvezwl.Shift>,
           _is.getType<_i3vicioi.ProductCategory>,
           _is.getType<_i0tnb6lw.ModifierGroup>,
           _is.getType<_i4wvaayq.ModifierOption>,
@@ -251,6 +254,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iepnwe9z.CashMovement?>,
           _is.getType<_iepiq7d7.CashSession?>,
           _is.getType<_itp0bn28.CashSessionStatus?>,
+          _is.getType<_icdvezwl.Shift?>,
           _is.getType<_i3vicioi.ProductCategory?>,
           _is.getType<_i0tnb6lw.ModifierGroup?>,
           _is.getType<_i4wvaayq.ModifierOption?>,
@@ -330,6 +334,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'CashMovement',
           'CashSession',
           'CashSessionStatus',
+          'Shift',
           'ProductCategory',
           'ModifierGroup',
           'ModifierOption',
@@ -621,6 +626,12 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'String?',
         ),
         _isp.ColumnDefinition(
+          name: 'shift_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
           name: 'closed_by',
           columnType: _isp.ColumnType.uuid,
           isNullable: true,
@@ -757,6 +768,16 @@ class Protocol extends _is.DatabaseSerializationManager
         ),
         _isp.ForeignKeyDefinition(
           constraintName: 'cash_sessions_fk_4',
+          columns: ['shift_id'],
+          referenceTable: 'shifts',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'cash_sessions_fk_5',
           columns: ['closed_by'],
           referenceTable: 'staff_members',
           referenceTableSchema: 'public',
@@ -7151,6 +7172,140 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'shifts',
+      dartName: 'Shift',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'start_minute',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'end_minute',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'shifts_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'shifts_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'shifts_outlet_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'staff_members',
       dartName: 'StaffMember',
       schema: 'public',
@@ -8337,6 +8492,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _itp0bn28.CashSessionStatus) {
       return _itp0bn28.CashSessionStatus.fromJson(data) as T;
     }
+    if (t == _icdvezwl.Shift) {
+      return _icdvezwl.Shift.fromJson(data) as T;
+    }
     if (t == _i3vicioi.ProductCategory) {
       return _i3vicioi.ProductCategory.fromJson(data) as T;
     }
@@ -8554,6 +8712,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_itp0bn28.CashSessionStatus?>()) {
       return (data != null ? _itp0bn28.CashSessionStatus.fromJson(data) : null)
           as T;
+    }
+    if (t == _is.getType<_icdvezwl.Shift?>()) {
+      return (data != null ? _icdvezwl.Shift.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i3vicioi.ProductCategory?>()) {
       return (data != null ? _i3vicioi.ProductCategory.fromJson(data) : null)
@@ -8818,6 +8979,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _iepnwe9z.CashMovement => 'CashMovement',
       _iepiq7d7.CashSession => 'CashSession',
       _itp0bn28.CashSessionStatus => 'CashSessionStatus',
+      _icdvezwl.Shift => 'Shift',
       _i3vicioi.ProductCategory => 'ProductCategory',
       _i0tnb6lw.ModifierGroup => 'ModifierGroup',
       _i4wvaayq.ModifierOption => 'ModifierOption',
@@ -8908,6 +9070,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'CashSession';
       case _itp0bn28.CashSessionStatus():
         return 'CashSessionStatus';
+      case _icdvezwl.Shift():
+        return 'Shift';
       case _i3vicioi.ProductCategory():
         return 'ProductCategory';
       case _i0tnb6lw.ModifierGroup():
@@ -9081,6 +9245,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'CashSessionStatus') {
       return deserialize<_itp0bn28.CashSessionStatus>(data['data']);
+    }
+    if (dataClassName == 'Shift') {
+      return deserialize<_icdvezwl.Shift>(data['data']);
     }
     if (dataClassName == 'ProductCategory') {
       return deserialize<_i3vicioi.ProductCategory>(data['data']);
@@ -9337,6 +9504,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return _iepnwe9z.CashMovement.t;
       case _iepiq7d7.CashSession:
         return _iepiq7d7.CashSession.t;
+      case _icdvezwl.Shift:
+        return _icdvezwl.Shift.t;
       case _i3vicioi.ProductCategory:
         return _i3vicioi.ProductCategory.t;
       case _i0tnb6lw.ModifierGroup:

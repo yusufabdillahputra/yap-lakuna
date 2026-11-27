@@ -204,7 +204,7 @@ Migrasi `sesi-kasir`.
 
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
-| Shift | "Shift Pagi", pilih shift saat buka | Tanpa shift | Tambah kolom `shift_id` dan pilihan shift saat F1-09 menyediakan master Shift |
+| Shift | "Shift Pagi", pilih shift saat buka | Rilis v0.137.0 | [F1-03g](2026-11-27-f1-03g-shift-design.md): `cash_sessions.shift_id`, shift berjalan terpilih otomatis, tampil di rekap dan Kas & sesi |
 | Catat sebagai pengeluaran + foto nota | Sakelar dan pilihan jenis di 1.3b | Rilis v0.19.0 | [F1-15](2026-11-04-f1-15-pengeluaran-design.md): *Catat juga sebagai pengeluaran*. |
 | Cetak rekap | "Tutup sesi & cetak rekap" | Rilis v0.38.0 | [F1-03b](2026-11-13-f1-03b-cetak-rekap-sesi-design.md): cetak otomatis ke printer langsung, *Cetak rekap* / *Bagikan PDF* di kartu hasil |
 | Angka penjualan/QRIS/kartu/void/retur | Terisi | v0.6.0: jumlah nota, penjualan, penjualan tunai di laci, kartu/transfer di baris non-tunai; void/retur 0 | F1-11 mengisi void/retur, QRIS bersama F1-05 lanjutan |

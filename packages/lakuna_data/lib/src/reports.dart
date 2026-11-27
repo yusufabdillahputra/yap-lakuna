@@ -10,6 +10,7 @@ import 'expenses.dart';
 import 'history.dart' show sessionCashRefunds;
 import 'purchases.dart' show purchaseCashSource;
 import 'sales.dart' show SessionSalesSummary, sessionSalesSummary;
+import 'shifts.dart' show shiftsById;
 import 'staff_access.dart';
 import 'stock.dart';
 import 'store.dart';

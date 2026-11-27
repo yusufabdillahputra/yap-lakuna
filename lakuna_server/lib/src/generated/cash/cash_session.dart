@@ -28,6 +28,7 @@ abstract class CashSession
     required this.openedAt,
     required this.openingCash,
     this.openingNote,
+    this.shiftId,
     this.closedBy,
     this.closedAt,
     this.expectedCash,
@@ -58,6 +59,7 @@ abstract class CashSession
     required DateTime openedAt,
     required int openingCash,
     String? openingNote,
+    _is.UuidValue? shiftId,
     _is.UuidValue? closedBy,
     DateTime? closedAt,
     int? expectedCash,
@@ -100,6 +102,9 @@ abstract class CashSession
       ),
       openingCash: jsonSerialization['openingCash'] as int,
       openingNote: jsonSerialization['openingNote'] as String?,
+      shiftId: jsonSerialization['shiftId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(jsonSerialization['shiftId']),
       closedBy: jsonSerialization['closedBy'] == null
           ? null
           : _is.UuidValueJsonExtension.fromJson(jsonSerialization['closedBy']),
@@ -160,6 +165,9 @@ abstract class CashSession
 
   String? openingNote;
 
+  /// Shift yang dipilih saat buka (F1-03g), opsional.
+  _is.UuidValue? shiftId;
+
   _is.UuidValue? closedBy;
 
   DateTime? closedAt;
@@ -210,6 +218,7 @@ abstract class CashSession
     DateTime? openedAt,
     int? openingCash,
     String? openingNote,
+    _is.UuidValue? shiftId = const _is.$UndefinedUuidValue(),
     _is.UuidValue? closedBy = const _is.$UndefinedUuidValue(),
     DateTime? closedAt = const _is.$UndefinedDateTime(),
     int? expectedCash,
@@ -239,6 +248,7 @@ abstract class CashSession
       'openedAt': openedAt.toJson(),
       'openingCash': openingCash,
       if (openingNote != null) 'openingNote': openingNote,
+      if (shiftId != null) 'shiftId': shiftId?.toJson(),
       if (closedBy != null) 'closedBy': closedBy?.toJson(),
       if (closedAt != null) 'closedAt': closedAt?.toJson(),
       if (expectedCash != null) 'expectedCash': expectedCash,
@@ -270,6 +280,7 @@ abstract class CashSession
       'openedAt': openedAt.toJson(),
       'openingCash': openingCash,
       if (openingNote != null) 'openingNote': openingNote,
+      if (shiftId != null) 'shiftId': shiftId?.toJson(),
       if (closedBy != null) 'closedBy': closedBy?.toJson(),
       if (closedAt != null) 'closedAt': closedAt?.toJson(),
       if (expectedCash != null) 'expectedCash': expectedCash,
@@ -329,6 +340,7 @@ class _CashSessionImpl extends CashSession {
     required DateTime openedAt,
     required int openingCash,
     String? openingNote,
+    _is.UuidValue? shiftId,
     _is.UuidValue? closedBy,
     DateTime? closedAt,
     int? expectedCash,
@@ -354,6 +366,7 @@ class _CashSessionImpl extends CashSession {
          openedAt: openedAt,
          openingCash: openingCash,
          openingNote: openingNote,
+         shiftId: shiftId,
          closedBy: closedBy,
          closedAt: closedAt,
          expectedCash: expectedCash,
@@ -385,6 +398,7 @@ class _CashSessionImpl extends CashSession {
     DateTime? openedAt,
     int? openingCash,
     Object? openingNote = _Undefined,
+    _is.UuidValue? shiftId = const _is.$UndefinedUuidValue(),
     _is.UuidValue? closedBy = const _is.$UndefinedUuidValue(),
     DateTime? closedAt = const _is.$UndefinedDateTime(),
     Object? expectedCash = _Undefined,
@@ -411,6 +425,7 @@ class _CashSessionImpl extends CashSession {
       openedAt: openedAt ?? this.openedAt,
       openingCash: openingCash ?? this.openingCash,
       openingNote: openingNote is String? ? openingNote : this.openingNote,
+      shiftId: shiftId is _is.UndefinedSentinel ? this.shiftId : shiftId,
       closedBy: closedBy is _is.UndefinedSentinel ? this.closedBy : closedBy,
       closedAt: closedAt is _is.UndefinedSentinel ? this.closedAt : closedAt,
       expectedCash: expectedCash is int? ? expectedCash : this.expectedCash,
@@ -488,6 +503,12 @@ class CashSessionUpdateTable extends _is.UpdateTable<CashSessionTable> {
     table.openingNote,
     value,
   );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> shiftId(_is.UuidValue? value) =>
+      _is.ColumnValue(
+        table.shiftId,
+        value,
+      );
 
   _is.ColumnValue<_is.UuidValue, _is.UuidValue> closedBy(
     _is.UuidValue? value,
@@ -621,6 +642,11 @@ class CashSessionTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'openingNote',
     );
+    shiftId = _is.ColumnUuid(
+      'shift_id',
+      this,
+      fieldName: 'shiftId',
+    );
     closedBy = _is.ColumnUuid(
       'closed_by',
       this,
@@ -717,6 +743,9 @@ class CashSessionTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnString openingNote;
 
+  /// Shift yang dipilih saat buka (F1-03g), opsional.
+  late final _is.ColumnUuid shiftId;
+
   late final _is.ColumnUuid closedBy;
 
   late final _is.ColumnDateTime closedAt;
@@ -762,6 +791,7 @@ class CashSessionTable extends _is.Table<_is.UuidValue> {
     openedAt,
     openingCash,
     openingNote,
+    shiftId,
     closedBy,
     closedAt,
     expectedCash,

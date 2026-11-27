@@ -24,6 +24,9 @@ import '../../data/repositories/customers_repository.dart';
 import '../../data/repositories/expenses_repository.dart';
 import '../expenses/expense_categories_view_model.dart';
 import 'expense_categories_tab.dart';
+import '../../data/repositories/shifts_repository.dart';
+import 'shifts_tab.dart';
+import 'shifts_view_model.dart';
 
 /// Layar *Master data* (1.17, F1-09). Memiliki [MasterDataViewModel].
 class MasterDataScreen extends StatefulWidget {
@@ -34,9 +37,13 @@ class MasterDataScreen extends StatefulWidget {
     this.diningAdmin,
     this.customers,
     this.expenses,
+    this.shifts,
   });
 
   final MasterDataRepository repository;
+
+  /// Shift (F1-03g); tab tampil untuk staf dengan `settings:manage`.
+  final ShiftsRepository? shifts;
 
   /// Jenis pengeluaran (F1-15); tab tampil untuk staf dengan
   /// `expenses:manage`.
@@ -62,10 +69,16 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
   DiningSetupViewModel? _dining;
   CustomerGroupsViewModel? _groups;
   ExpenseCategoriesViewModel? _expenseCategories;
+  ShiftsViewModel? _shifts;
 
   @override
   void initState() {
     super.initState();
+    final shifts = widget.shifts;
+    if (shifts != null &&
+        (widget.session.current?.can(Permission.settingsManage) ?? false)) {
+      _shifts = ShiftsViewModel(repository: shifts)..load.execute();
+    }
     final expenses = widget.expenses;
     if (expenses != null &&
         (widget.session.current?.can(Permission.expensesManage) ?? false)) {
@@ -93,6 +106,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
     _dining?.dispose();
     _groups?.dispose();
     _expenseCategories?.dispose();
+    _shifts?.dispose();
     super.dispose();
   }
 
@@ -107,6 +121,7 @@ class _MasterDataScreenState extends State<MasterDataScreen> {
       modifiers: _modifiers,
       customerGroups: _groups,
       expenseCategories: _expenseCategories,
+      shifts: _shifts,
     );
   }
 }
@@ -121,6 +136,7 @@ class MasterDataView extends StatelessWidget {
     this.modifiers,
     this.customerGroups,
     this.expenseCategories,
+    this.shifts,
   });
 
   final MasterDataViewModel viewModel;
@@ -139,6 +155,9 @@ class MasterDataView extends StatelessWidget {
   /// Tab Jenis pengeluaran; `null` = tab tidak tampil.
   final ExpenseCategoriesViewModel? expenseCategories;
 
+  /// Tab Shift; `null` = tab tidak tampil.
+  final ShiftsViewModel? shifts;
+
   List<MasterTab> get _tabs => [
     for (final t in MasterTab.values)
       if (switch (t) {
@@ -146,6 +165,7 @@ class MasterDataView extends StatelessWidget {
         MasterTab.modifiers => modifiers != null,
         MasterTab.customerGroups => customerGroups != null,
         MasterTab.expenseCategories => expenseCategories != null,
+        MasterTab.shifts => shifts != null,
         _ => true,
       })
         t,
@@ -203,6 +223,10 @@ class MasterDataView extends StatelessWidget {
             viewModel: vm,
             canManage: canManageStock,
           ),
+          MasterTab.shifts => switch (shifts) {
+            final s? => ShiftsTab(viewModel: s),
+            null => const SizedBox.shrink(),
+          },
           MasterTab.payments => _PaymentsTab(canManage: canManageSettings),
           MasterTab.tables => switch (dining) {
             final d? => DiningTablesTab(
@@ -250,6 +274,7 @@ String _tabLabel(AppLocalizations l10n, MasterTab tab) => switch (tab) {
   MasterTab.customerGroups => l10n.masterTabCustomerGroups,
   MasterTab.expenseCategories => l10n.masterTabExpenseCategories,
   MasterTab.locations => l10n.masterTabLocations,
+  MasterTab.shifts => l10n.masterTabShifts,
   MasterTab.payments => l10n.masterTabPayments,
   MasterTab.tables => l10n.masterTabTables,
 };
@@ -261,6 +286,7 @@ IconData _tabIcon(MasterTab tab) => switch (tab) {
   MasterTab.customerGroups => TablerIcons.usersGroup,
   MasterTab.expenseCategories => TablerIcons.receipt2,
   MasterTab.locations => TablerIcons.buildingWarehouse,
+  MasterTab.shifts => TablerIcons.clock,
   MasterTab.payments => TablerIcons.creditCard,
   MasterTab.tables => TablerIcons.armchair,
 };

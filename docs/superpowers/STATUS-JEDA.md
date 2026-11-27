@@ -118,6 +118,7 @@ ulang riwayat.
 | v0.134.0 | Kredit untuk bagian terakhir split bill (F1-13h) | #140 |
 | v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | #141 |
 | v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | #142 |
+| v0.137.0 | Shift kasir: master, pilih saat buka sesi, laporan per shift (F1-03g) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -351,6 +352,10 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 78. ~~Pelunasan piutang lewat transfer tidak mencatat rekening tujuan~~ —
     selesai v0.136.0 (F1-13i); dipilih di panel pelanggan, tercetak di
     kuitansi A5 dan thermal.
+79. ~~Sesi kasir tanpa shift~~ — selesai v0.137.0 (F1-03g); Master data ›
+    Shift, shift berjalan terpilih saat buka sesi, tabel *Per shift* di
+    Laporan › Kas & sesi. Gap kecil berikutnya mengikuti
+    `docs/superpowers/GAP-FASE1.md`.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

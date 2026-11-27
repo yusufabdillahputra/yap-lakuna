@@ -15,6 +15,7 @@ enum MasterTab {
   customerGroups,
   expenseCategories,
   locations,
+  shifts,
   payments,
   tables,
 }
