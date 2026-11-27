@@ -5,6 +5,12 @@ lalu mulai persiapan Fase 2. Dokumen ini memilah semua baris `Belum` di
 tabel **Status & gap** spec (`specs/*.md`). Urutan kerja ada di bagian A.
 Centang dan isi versi saat rilis; baris spec asal juga diperbarui.
 
+**Status 27 November 2026:** ke-26 gap di bagian A selesai (terakhir
+v0.163.0, F1-04j). Persiapan Fase 2 dimulai dengan spec
+[F2-01](specs/2026-11-27-f2-01-server-sync-design.md) dan
+[rencananya](plans/2026-11-27-f2-01-server-sync.md). Bagian C tetap
+menunggu Fase 2/3 atau perangkat nyata.
+
 ## Sudah selesai di modul lain (dirapikan 27 November 2026)
 
 Baris ini ditulis sebelum modul penggantinya dirilis. Tabel spec asal
