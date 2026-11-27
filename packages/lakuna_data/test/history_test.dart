@@ -693,6 +693,16 @@ void main() {
       // Di luar pencarian: tanpa barang.
       final page = await listSalesHistory(store, scope, now: now);
       expect(page.rows.every((r) => r.matchedItems.isEmpty), isTrue);
+      // Kata kunci halaman untuk sorotan (F1-11k): dirapikan, kosong di
+      // luar pencarian.
+      expect(page.query, '');
+      final searched = await listSalesHistory(
+        store,
+        scope,
+        now: now,
+        filter: const HistoryFilter(query: '  roti TAWAR '),
+      );
+      expect(searched.query, 'roti TAWAR');
     });
 
     test('cocok nama modifier di baris barang yang sama (F1-11f)', () async {

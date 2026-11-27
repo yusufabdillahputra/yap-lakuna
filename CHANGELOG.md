@@ -7,6 +7,49 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.150.0] - 2026-11-27
+
+Barang yang cocok di hasil cari Riwayat kini menandai kata kuncinya. Ini
+gap keempat belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Riwayat › Cari** (1.14): di baris *Barang cocok* (tabel desktop dan
+  kartu ponsel), bagian nama barang yang cocok dengan kata kunci disorot
+  dengan huruf tebal dan latar biru tipis. Kasir tidak perlu membaca ulang
+  setiap nama untuk melihat kenapa nota itu muncul.
+  - Pencocokannya sama dengan pencarian: tanpa beda huruf, setiap kata
+    disorot, dan spasi di nama diabaikan (`5kg` menyorot `5 kg`).
+  - Sorotan yang bertumpuk atau bersentuhan digabung.
+  - Barang yang cocok lewat catatan, modifier, atau grup modifier tetap
+    ditulis tanpa sorotan, karena yang cocok ada di rincian nota.
+  - Sorotan memakai kata kunci yang menghasilkan daftar, jadi tidak
+    berubah selama daftar baru dimuat.
+
+### Diubah
+
+- Panduan *Retur & void* (ID dan EN) menyebut sorotan kata kunci.
+
+### Catatan teknis
+
+- `lakuna_domain` `search.dart` (baru): `searchHighlights(text, query)`
+  mengembalikan rentang `(awal, akhir)` yang urut dan tidak bertumpuk.
+  Teks dipetakan per karakter ke huruf kecil tanpa spasi beserta indeks
+  asalnya, jadi huruf yang lebih panjang saat dikecilkan (`İ`) dan
+  karakter di luar BMP tidak menggeser rentang.
+- Temuan review (semua Minor): latar sorotan 10% di tema terang agar
+  kontras tetap ≥ 4.5:1 di baris terpilih, pelipatan per karakter (bukan
+  per unit UTF-16), cadangan bila teks l10n tidak memuat `{items}` tepat
+  sekali, dan catatan sorotan yang melintasi batas produk/varian.
+- `lakuna_data` `HistoryPage.query`: kata kunci yang menghasilkan halaman
+  (kosong di luar pencarian).
+- `history_view.dart` `_MatchedItems`: `Text.rich` dengan awalan l10n
+  yang dipisah lewat placeholder penanda, jadi tanpa kunci l10n baru.
+  Kunci widget `history-match-<nota>` tetap.
+- Palsu `FakeHistoryRepository`: nota dengan `matchedOverride` dianggap
+  cocok dengan kata kunci apa pun, agar tes sorotan bisa memakai beberapa
+  kata.
+
 ## [0.149.0] - 2026-11-27
 
 Pencarian Riwayat kini mengenal nama grup modifier dan kata yang ditulis
@@ -8491,7 +8534,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...HEAD
+[0.150.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...v0.150.0
 [0.149.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...v0.149.0
 [0.148.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...v0.148.0
 [0.147.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...v0.147.0

@@ -256,7 +256,7 @@ void main() {
       await tester.enterText(_input('history-search'), 'ROTI');
       await tester.pumpAndSettle();
       expect(
-        tester.widget<Text>(match(roti)).data,
+        _plain(tester.widget<Text>(match(roti))),
         'Barang cocok: Roti Bakar',
       );
       // Lebih dari dua barang: dua nama + n lainnya.
@@ -269,7 +269,7 @@ void main() {
       await tester.enterText(_input('history-search'), 'roti b');
       await tester.pumpAndSettle();
       expect(
-        tester.widget<Text>(match(roti)).data,
+        _plain(tester.widget<Text>(match(roti))),
         'Barang cocok: Roti Bakar Cokelat Keju Spesial, Roti Bakar Srikaya',
       );
       final more = _key('history-match-more-${roti.sale.id.uuid}');
@@ -302,6 +302,41 @@ void main() {
       expect(_key('history-row-${roti.sale.id.uuid}'), findsOneWidget);
       expect(match(roti), findsNothing);
       expect(_key('history-match-more-${roti.sale.id.uuid}'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final size in const [Size(1280, 800), Size(360, 780)]) {
+    testWidgets('kata kunci disorot di barang cocok ${size.width.toInt()} px '
+        '(F1-11k)', (tester) async {
+      await pump(tester, size: size);
+      Text match(CheckoutResult s) => tester.widget<Text>(
+        find.descendant(
+          of: _key('history-match-${s.sale.id.uuid}'),
+          matching: find.byType(Text),
+          matchRoot: true,
+        ),
+      );
+      history.matchedOverride[roti.sale.id] = [
+        'Roti Bakar 5 kg',
+        'Roti Tawar',
+        'Kue Roti',
+      ];
+      await tester.enterText(_input('history-search'), 'ROTI 5kg');
+      await tester.pumpAndSettle();
+      final text = match(roti);
+      expect(
+        _plain(text),
+        'Barang cocok: Roti Bakar 5 kg, Roti Tawar',
+      );
+      // Bagian yang cocok saja, termasuk spasi di `5 kg` (F1-11j);
+      // awalan dan pemisah tidak disorot.
+      expect(_highlighted(text), ['Roti', '5 kg', 'Roti']);
+      // Kata lain: hanya bagian yang cocok dengan kata itu yang disorot.
+      history.matchedOverride.clear();
+      await tester.enterText(_input('history-search'), 'bakar');
+      await tester.pumpAndSettle();
+      expect(_highlighted(match(roti)), ['Bakar']);
       expect(tester.takeException(), isNull);
     });
   }
@@ -533,4 +568,21 @@ void main() {
       },
     );
   }
+}
+
+/// Teks utuh [Text] biasa atau [Text.rich].
+String _plain(Text t) => t.data ?? t.textSpan!.toPlainText();
+
+/// Potongan teks tersorot (berlatar) di [Text.rich] barang cocok (F1-11k).
+List<String> _highlighted(Text t) {
+  final parts = <String>[];
+  t.textSpan?.visitChildren((span) {
+    if (span is TextSpan &&
+        span.text != null &&
+        span.style?.backgroundColor != null) {
+      parts.add(span.text!);
+    }
+    return true;
+  });
+  return parts;
 }

@@ -11,4 +11,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-11j-cari-grup-tanpa-spasi-design.md`
 - [x] 4. Panduan Riwayat ID/EN, spec F1-11e/F1-11f/F1-13f, README specs,
       STATUS-JEDA, GAP-FASE1, CHANGELOG, pubspec 0.149.0+152.
 - [x] 5. Format, analyze, semua tes, review subagent, uji Xvfb.
-- [ ] 6. PR dan rilis.
+- [x] 6. PR dan rilis.

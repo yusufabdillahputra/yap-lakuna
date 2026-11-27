@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show Money;
+import 'package:lakuna_domain/lakuna_domain.dart' show Money, searchHighlights;
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/history_repository.dart';
@@ -320,6 +320,7 @@ class _HistoryList extends StatelessWidget {
           for (final r in page.rows)
             _SaleCard(
               row: r,
+              query: page.query,
               timezone: vm.data?.timezone,
               withDate: withDate,
               selected: r.sale.id == vm.selectedId,
@@ -328,6 +329,7 @@ class _HistoryList extends StatelessWidget {
         else
           _SaleTable(
             rows: page.rows,
+            query: page.query,
             timezone: vm.data?.timezone,
             withDate: withDate,
             selectedId: vm.selectedId,
@@ -533,6 +535,7 @@ class SaleStatusBadge extends StatelessWidget {
 class _SaleTable extends StatelessWidget {
   const _SaleTable({
     required this.rows,
+    required this.query,
     required this.timezone,
     required this.withDate,
     required this.selectedId,
@@ -540,6 +543,9 @@ class _SaleTable extends StatelessWidget {
   });
 
   final List<HistoryRow> rows;
+
+  /// Kata kunci halaman, untuk sorotan barang cocok (F1-11k).
+  final String query;
   final String? timezone;
 
   /// Rentang lebih dari hari ini: tanggal di bawah jam.
@@ -632,7 +638,11 @@ class _SaleTable extends StatelessWidget {
                               style: body.copyWith(fontWeight: FontWeight.w600),
                             ),
                             if (r.matchedItems.isNotEmpty)
-                              _MatchedItems(row: r, compact: true),
+                              _MatchedItems(
+                                row: r,
+                                query: query,
+                                compact: true,
+                              ),
                           ],
                         ),
                       ),
@@ -713,10 +723,18 @@ class _SaleTable extends StatelessWidget {
 
 /// *Barang cocok: …* di baris hasil pencarian (F1-11i): dua nama pertama,
 /// sisanya *+n lainnya* dalam teks sendiri agar tidak ikut terpotong.
+/// Bagian nama yang cocok dengan kata kunci disorot (F1-11k).
 class _MatchedItems extends StatelessWidget {
-  const _MatchedItems({required this.row, this.compact = false});
+  const _MatchedItems({
+    required this.row,
+    required this.query,
+    this.compact = false,
+  });
 
   final HistoryRow row;
+
+  /// Kata kunci yang menghasilkan daftar (bukan teks yang sedang diketik).
+  final String query;
 
   /// Tabel desktop: nama paling banyak dua baris berelipsis (kolom nomor
   /// sempit), *+n* tetap utuh di kanannya. Kartu ponsel: dibungkus.
@@ -737,8 +755,31 @@ class _MatchedItems extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
     final id = row.sale.id.uuid;
-    final listed = Text(
-      l10n.historyMatchedItems(names.take(_shown).join(', ')),
+    final mark = style.copyWith(
+      fontWeight: FontWeight.w800,
+      // Latar tipis: di tema terang tetap ≥ 4.5:1 walau di baris terpilih
+      // (latar primer 8%).
+      backgroundColor: style.color!.withValues(
+        alpha: theme.colors.brightness == Brightness.dark ? 0.16 : 0.10,
+      ),
+    );
+    // Awalan dan akhiran l10n di sekitar daftar nama.
+    const slot = '\u0000';
+    final parts = l10n.historyMatchedItems(slot).split(slot);
+    final (before, after) = parts.length == 2
+        ? (parts[0], parts[1])
+        : ('${parts.first} ', '');
+    final listed = Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: before),
+          for (final (i, name) in names.take(_shown).indexed) ...[
+            if (i > 0) const TextSpan(text: ', '),
+            ..._marked(name, mark),
+          ],
+          TextSpan(text: after),
+        ],
+      ),
       key: ValueKey('history-match-$id'),
       maxLines: compact ? 2 : null,
       overflow: compact ? TextOverflow.ellipsis : null,
@@ -763,11 +804,25 @@ class _MatchedItems extends StatelessWidget {
           )
         : Wrap(spacing: 4, children: [listed, more]);
   }
+
+  /// [name] dipecah menjadi bagian biasa dan bagian tersorot [mark].
+  List<TextSpan> _marked(String name, TextStyle mark) {
+    final spans = <TextSpan>[];
+    var at = 0;
+    for (final (start, end) in searchHighlights(name, query)) {
+      if (start > at) spans.add(TextSpan(text: name.substring(at, start)));
+      spans.add(TextSpan(text: name.substring(start, end), style: mark));
+      at = end;
+    }
+    if (at < name.length) spans.add(TextSpan(text: name.substring(at)));
+    return spans;
+  }
 }
 
 class _SaleCard extends StatelessWidget {
   const _SaleCard({
     required this.row,
+    required this.query,
     required this.timezone,
     required this.withDate,
     required this.selected,
@@ -775,6 +830,9 @@ class _SaleCard extends StatelessWidget {
   });
 
   final HistoryRow row;
+
+  /// Kata kunci halaman, untuk sorotan barang cocok (F1-11k).
+  final String query;
   final String? timezone;
   final bool withDate;
   final bool selected;
@@ -832,7 +890,8 @@ class _SaleCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: _muted(context),
                     ),
-                    if (r.matchedItems.isNotEmpty) _MatchedItems(row: r),
+                    if (r.matchedItems.isNotEmpty)
+                      _MatchedItems(row: r, query: query),
                   ],
                 ),
               ),

@@ -92,4 +92,4 @@ Tiga celah kecil di pencarian yang tercatat di spec sebelumnya:
 | Kata tanpa spasi (`5kg` = `5 kg`) | Rilis v0.149.0 | Hanya di Riwayat. Pencarian produk di Kasir dan Produk masih apa adanya. |
 | Garis miring Unicode U+2044 dan U+29F8 di HP | Rilis v0.149.0 | — |
 | Kata tanpa spasi di pencarian produk Kasir/Produk | Belum | Ajukan bila pemilik memintanya. |
-| Sorot kata kunci (gap 14) | Belum | Barang yang cocok lewat grup modifier atau tanpa spasi tidak memuat kata kunci apa adanya; sorotan perlu menangani keduanya. |
+| Sorot kata kunci (gap 14) | Rilis v0.150.0 ([F1-11k](2026-11-27-f1-11k-sorot-kata-kunci-design.md)) | Cocok tanpa spasi disorot beserta spasinya; cocok lewat grup atau modifier tidak punya bagian nama untuk disorot. |

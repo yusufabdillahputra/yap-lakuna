@@ -221,11 +221,14 @@ class FakeHistoryRepository extends HistoryRepository {
         from: DateTime.utc(2026, 11, 2, 17),
         searching: filter.searching,
         truncated: filter.searching && truncateSearch,
+        query: filter.searching ? filter.trimmedQuery : '',
       ),
     );
   }
 
   /// Nama barang yang cocok (F1-11i); [matchedOverride] dipakai bila diisi.
+  /// Nota yang punya isian di sini cocok dengan kata kunci apa pun (F1-11k),
+  /// jadi kosongkan sebelum menguji nota yang seharusnya tidak cocok.
   final matchedOverride = <UuidValue, List<String>>{};
 
   List<String> _matchedItems(CheckoutResult s, HistoryFilter f) {
@@ -258,6 +261,8 @@ class FakeHistoryRepository extends HistoryRepository {
     bool has(String? v) => v != null && v.toLowerCase().contains(q);
     final okQuery =
         q.isEmpty ||
+        // Barang cocok yang diisi tes (F1-11i/k) dianggap cocok.
+        matchedOverride.containsKey(s.sale.id) ||
         has(s.sale.number) ||
         has(s.sale.customerName) ||
         s.payments.any((p) => has(p.reference)) ||

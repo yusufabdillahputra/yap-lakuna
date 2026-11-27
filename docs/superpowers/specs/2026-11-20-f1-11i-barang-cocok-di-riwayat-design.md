@@ -65,4 +65,4 @@ banyak nota yang benar-benar memuat barang itu.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Barang cocok di daftar hasil | 1.14 | Rilis v0.132.0 | Maks dua nama + *n lainnya*. |
-| Sorot kata kunci di dalam nama | — | Belum | Nama ditulis utuh tanpa penanda huruf. |
+| Sorot kata kunci di dalam nama | — | Rilis v0.150.0 | [F1-11k](2026-11-27-f1-11k-sorot-kata-kunci-design.md) |
