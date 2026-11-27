@@ -10,7 +10,7 @@ Buka **Stok**. Tab **Daftar produk** menampilkan stok per lokasi, minimum, dan n
 
 ## Cetak daftar stok untuk opname
 
-Tekan **Cetak stok** di bagian atas layar Stok. Lakuna membuat PDF A4 berisi semua barang di lokasi terpilih: SKU/barcode, stok, minimum, nilai, dan kolom **Fisik** yang kosong untuk ditulis tangan saat menghitung di rak. Kata pencarian tidak menyaring cetakan, jadi daftarnya selalu lengkap.
+Tekan **Cetak stok** di bagian atas layar Stok. Lakuna membuat PDF A4 berisi semua barang di lokasi terpilih: SKU/barcode, stok, minimum, nilai, dan kolom **Fisik** yang kosong untuk ditulis tangan saat menghitung di rak. Kata pencarian tidak menyaring cetakan, jadi daftarnya selalu lengkap. Di tab **Stok minimum**, tombolnya menjadi **Cetak stok minimum**: PDF hanya berisi barang di bawah minimum, dengan kolom **Saran beli** (**2 × minimum − stok**, stok minus dihitung 0, dibulatkan ke atas, sama dengan **Buat pembelian**) dan tanpa kolom nilai.
 
 - Di komputer, PDF disimpan di folder dokumen Lakuna dan lokasinya ditampilkan di layar. Buka lalu cetak dari penampil PDF.
 - Di HP/tablet, lembar bagikan terbuka: pilih printer, simpan, atau kirim.

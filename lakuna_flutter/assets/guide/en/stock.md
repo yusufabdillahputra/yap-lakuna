@@ -10,7 +10,7 @@ Open **Stock**. The **Product list** tab shows stock per location, the minimum, 
 
 ## Printing a stock list for counting
 
-Tap **Print stock** at the top of the Stock screen. Lakuna creates an A4 PDF with every item at the selected location: SKU/barcode, stock, minimum, value, and an empty **Counted** column to fill in by hand at the shelf. The search box does not filter the printout, so the list is always complete.
+Tap **Print stock** at the top of the Stock screen. Lakuna creates an A4 PDF with every item at the selected location: SKU/barcode, stock, minimum, value, and an empty **Counted** column to fill in by hand at the shelf. The search box does not filter the printout, so the list is always complete. On the **Minimum stock** tab the button becomes **Print minimum stock**: the PDF lists only items below minimum, with a **Suggested order** column (**2 × minimum − stock**, negative stock counted as 0, rounded up, same as **Create purchase**) and no value column.
 
 - On a computer, the PDF is saved in the Lakuna documents folder and its location is shown on screen. Open it and print from your PDF viewer.
 - On a phone or tablet, the share sheet opens: choose a printer, save, or send.

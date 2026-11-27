@@ -8,4 +8,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-11l-harga-modifier-di-rincian-design
 - [x] 3. Panduan, spec F1-11h, README specs, STATUS-JEDA, GAP-FASE1,
       CHANGELOG, pubspec 0.151.0+154.
 - [x] 4. Format, analyze, semua tes, review subagent, uji Xvfb.
-- [ ] 5. PR dan rilis.
+- [x] 5. PR dan rilis.

@@ -4988,6 +4988,28 @@
   },
   "stockPrintNote": "Tulis hasil hitung di kolom Fisik, lalu catat selisihnya di menu Stok, tab Penyesuaian.",
   "stockPrint": "Cetak stok",
+  "stockPrintMinimum": "Cetak stok minimum",
+  "stockPrintMinimumTitle": "Stok di bawah minimum · {location}",
+  "@stockPrintMinimumTitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintColSuggested": "Saran beli",
+  "stockPrintMinimumCounts": "{items} item · {minus} stok minus",
+  "@stockPrintMinimumCounts": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "minus": {
+        "type": "int"
+      }
+    }
+  },
+  "stockPrintMinimumNote": "Saran beli = 2 × minimum − stok (stok minus dihitung 0), dibulatkan ke atas, sama dengan Buat pembelian.",
   "stockPrintSaved": "Daftar stok disimpan di {path}",
   "@stockPrintSaved": {
     "placeholders": {

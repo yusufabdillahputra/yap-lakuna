@@ -938,6 +938,65 @@ void main() {
   }
 
   for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('cetak stok minimum ${size.width.toInt()} px (F1-08r)', (
+      tester,
+    ) async {
+      final exporter = FakeSpreadsheetExporter()
+        ..path = '/home/kasir/Dokumen/Lakuna/stok-minimum-etalase.pdf';
+      await pump(tester, size: size, exporter: exporter);
+      expect(find.text('Cetak stok'), findsOneWidget);
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-minimum' : 'stock-tab-minimum',
+      );
+      expect(find.text('Cetak stok minimum'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('stock-print')));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const ValueKey('stock-print')));
+        await Future<void>.delayed(const Duration(seconds: 2));
+      });
+      await tester.pumpAndSettle();
+      final (name, bytes) = exporter.saved.single;
+      expect(
+        name,
+        matches(RegExp(r'^stok-minimum-etalase-\d{6}-\d{4}\.pdf$')),
+      );
+      expect(String.fromCharCodes(bytes.take(4)), '%PDF');
+      expect(find.byKey(const ValueKey('stock-print-saved')), findsOneWidget);
+
+      // Kembali ke tab daftar: tombol mencetak semua barang lagi.
+      await _tap(
+        tester,
+        size.width < 600 ? 'stock-pill-list' : 'stock-tab-list',
+      );
+      expect(find.text('Cetak stok'), findsOneWidget);
+      expect(find.text('Cetak stok minimum'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('cetak stok minimum mati bila daftar minimum kosong (F1-08r)', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      stock: FakeStockRepository(
+        rows: [
+          for (final r in sampleStockRows())
+            if (!r.belowMinimum) r,
+        ],
+      ),
+    );
+    FButton button() =>
+        tester.widget<FButton>(find.byKey(const ValueKey('stock-print')));
+    expect(button().onPress, isNotNull);
+    await _tap(tester, 'stock-tab-minimum');
+    expect(find.text('Cetak stok minimum'), findsOneWidget);
+    expect(button().onPress, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
     testWidgets('cetak stok + pilihan lokasi ${size.width.toInt()} px, '
         'share sheet tanpa pesan', (tester) async {
       final exporter = FakeSpreadsheetExporter()..path = null;

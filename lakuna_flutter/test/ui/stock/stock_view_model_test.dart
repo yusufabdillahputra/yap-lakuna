@@ -745,6 +745,40 @@ void main() {
     );
   });
 
+  group('cetak stok minimum (F1-08r)', () {
+    test('tab Stok minimum mencetak hanya baris di bawah minimum', () async {
+      expect(vm.printsMinimum, isFalse);
+      expect(vm.printRows, hasLength(3));
+      vm.setTab(StockTab.minimum);
+      expect(vm.printsMinimum, isTrue);
+      expect(vm.printRows.map((r) => r.productName), [
+        for (final r in vm.below) r.productName,
+      ]);
+      expect(vm.printRows, hasLength(2));
+      expect(vm.canPrint, isTrue);
+      // Pencarian tetap tidak menyaring.
+      vm.setQuery('kopi');
+      expect(vm.printRows, hasLength(2));
+      vm.setTab(StockTab.list);
+      expect(vm.printsMinimum, isFalse);
+      expect(vm.printRows, hasLength(3));
+    });
+
+    test('tanpa barang di bawah minimum tombol mati', () async {
+      await vm.addLocation('Gudang');
+      final gudang = vm.locations.last.id;
+      repo.rowsByLocation[gudang] = [
+        sampleRow(9, 'Beras', unit: 'kg', stock: Qty.units(50)),
+      ];
+      await vm.selectLocation(gudang);
+      vm.setTab(StockTab.minimum);
+      expect(vm.below, isEmpty);
+      expect(vm.canPrint, isFalse);
+      vm.setTab(StockTab.list);
+      expect(vm.canPrint, isTrue);
+    });
+  });
+
   group('cetak stok: baris & lokasi selaras (F1-08b)', () {
     test(
       'selama ganti lokasi tombol mati; baris cetak tidak ikut pencarian',

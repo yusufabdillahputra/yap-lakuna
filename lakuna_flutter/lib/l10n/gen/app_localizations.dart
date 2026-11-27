@@ -13724,6 +13724,36 @@ abstract class AppLocalizations {
   /// **'Cetak stok'**
   String get stockPrint;
 
+  /// No description provided for @stockPrintMinimum.
+  ///
+  /// In id, this message translates to:
+  /// **'Cetak stok minimum'**
+  String get stockPrintMinimum;
+
+  /// No description provided for @stockPrintMinimumTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok di bawah minimum · {location}'**
+  String stockPrintMinimumTitle(String location);
+
+  /// No description provided for @stockPrintColSuggested.
+  ///
+  /// In id, this message translates to:
+  /// **'Saran beli'**
+  String get stockPrintColSuggested;
+
+  /// No description provided for @stockPrintMinimumCounts.
+  ///
+  /// In id, this message translates to:
+  /// **'{items} item · {minus} stok minus'**
+  String stockPrintMinimumCounts(int items, int minus);
+
+  /// No description provided for @stockPrintMinimumNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Saran beli = 2 × minimum − stok (stok minus dihitung 0), dibulatkan ke atas, sama dengan Buat pembelian.'**
+  String get stockPrintMinimumNote;
+
   /// No description provided for @stockPrintSaved.
   ///
   /// In id, this message translates to:

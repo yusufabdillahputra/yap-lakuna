@@ -4434,6 +4434,28 @@
   },
   "stockPrintNote": "Write the counted quantity in the Counted column, then record the difference in the Stock menu, Adjustment tab.",
   "stockPrint": "Print stock",
+  "stockPrintMinimum": "Print minimum stock",
+  "stockPrintMinimumTitle": "Below minimum stock · {location}",
+  "@stockPrintMinimumTitle": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "stockPrintColSuggested": "Suggested order",
+  "stockPrintMinimumCounts": "{items, plural, =1{1 item} other{{items} items}} · {minus} negative stock",
+  "@stockPrintMinimumCounts": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "minus": {
+        "type": "int"
+      }
+    }
+  },
+  "stockPrintMinimumNote": "Suggested order = 2 × minimum − stock (negative stock counts as 0), rounded up, same as Create purchase.",
   "stockPrintSaved": "Stock list saved to {path}",
   "@stockPrintSaved": {
     "placeholders": {

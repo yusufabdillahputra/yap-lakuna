@@ -7836,6 +7836,26 @@ class AppLocalizationsId extends AppLocalizations {
   String get stockPrint => 'Cetak stok';
 
   @override
+  String get stockPrintMinimum => 'Cetak stok minimum';
+
+  @override
+  String stockPrintMinimumTitle(String location) {
+    return 'Stok di bawah minimum · $location';
+  }
+
+  @override
+  String get stockPrintColSuggested => 'Saran beli';
+
+  @override
+  String stockPrintMinimumCounts(int items, int minus) {
+    return '$items item · $minus stok minus';
+  }
+
+  @override
+  String get stockPrintMinimumNote =>
+      'Saran beli = 2 × minimum − stok (stok minus dihitung 0), dibulatkan ke atas, sama dengan Buat pembelian.';
+
+  @override
   String stockPrintSaved(String path) {
     return 'Daftar stok disimpan di $path';
   }
