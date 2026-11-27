@@ -477,6 +477,50 @@ void main() {
       ]);
     });
 
+    test('ringkasan ekspor menulis pelunasan piutang (F1-16h)', () async {
+      final plain = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      final without = reportTable(
+        id,
+        plain,
+        ReportTab.summary,
+        SalesGroup.product,
+      );
+      expect(
+        without.rows.map((r) => r.cells[0]),
+        isNot(contains(id.reportsDebtCollections)),
+      );
+      expect(without.notes, isNot(contains(id.reportsDebtCollectionsNote)));
+
+      repo.collections = true;
+      final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
+      final t = reportTable(id, data, ReportTab.summary, SalesGroup.product);
+      final start = t.rows.indexWhere(
+        (r) => r.cells[0] == id.reportsDebtCollections,
+      );
+      // Setelah metode bayar, sebelum Terlaris.
+      expect(
+        start,
+        greaterThan(t.rows.indexWhere((r) => r.cells[0] == id.reportsByMethod)),
+      );
+      expect(t.rows[start].strong, isTrue);
+      expect((t.rows[start].cells[1]! as XlsxNumber).value, 45000);
+      final end = t.rows.indexWhere((r) => r.strong, start + 1);
+      expect(t.rows[end].cells[0], id.reportsTop);
+      expect(
+        [
+          for (final r in t.rows.sublist(start + 1, end))
+            (r.cells[0], (r.cells[1]! as XlsxNumber).value, r.indent),
+        ],
+        [
+          ('Transfer bank', 35000, true),
+          ('· BCA 123', 30000, true),
+          ('· Tanpa rekening', 5000, true),
+          ('Tunai', 10000, true),
+        ],
+      );
+      expect(t.notes, contains(id.reportsDebtCollectionsNote));
+    });
+
     test('penjualan per kasir dan kategori', () async {
       final data = ((await repo.load(ReportPeriod.today)) as Ok).value;
       final staff = reportTable(id, data, ReportTab.sales, SalesGroup.staff);

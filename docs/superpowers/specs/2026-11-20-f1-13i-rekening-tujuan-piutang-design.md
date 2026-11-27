@@ -84,5 +84,5 @@ aturan yang sama untuk pembayaran piutang pelanggan.
 | --- | --- | --- | --- |
 | Rekening tujuan pembayaran piutang transfer | 1.20 | Rilis v0.136.0 | Panel, riwayat, kuitansi A5 dan thermal. |
 | Rekening sumber bayar hutang supplier | 1.21 | Belum | Pakai *Sumber dana* dan *No. bukti*. |
-| Rincian piutang per rekening di laporan | 1.24 | Belum | Laporan per metode bayar hanya membaca penjualan. |
+| Rincian piutang per rekening di laporan | 1.23 | Rilis v0.148.0 | [F1-16h](2026-11-27-f1-16h-pelunasan-piutang-di-laporan-design.md): bagian *Pelunasan piutang* di Ringkasan. |
 | Daftar rekening segar saat panel terbuka | — | Belum | Rekening dibaca saat panel dibuka / setelah simpan; ubahan di jendela lain terbaca setelah dimuat ulang (sama dengan Kasir). |

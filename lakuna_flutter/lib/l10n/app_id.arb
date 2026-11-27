@@ -5951,5 +5951,7 @@
   "reportsColSales": "Penjualan",
   "reportsShiftNone": "Tanpa shift",
   "reportsShiftExportLine": "{shift}: {count} sesi, penjualan {sales}, selisih {difference}",
-  "@reportsShiftExportLine": {"placeholders": {"shift": {"type": "String"}, "count": {"type": "int"}, "sales": {"type": "String"}, "difference": {"type": "String"}}}
+  "@reportsShiftExportLine": {"placeholders": {"shift": {"type": "String"}, "count": {"type": "int"}, "sales": {"type": "String"}, "difference": {"type": "String"}}},
+  "reportsDebtCollections": "Pelunasan piutang",
+  "reportsDebtCollectionsNote": "Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung."
 }

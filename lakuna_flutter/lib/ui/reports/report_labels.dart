@@ -390,6 +390,28 @@ ReportTable reportTable(
                   '',
                 ], indent: true),
           ],
+          // Pelunasan piutang per metode dan rekening (F1-16h).
+          if (!data.collections.isEmpty) ...[
+            ReportRow([
+              l10n.reportsDebtCollections,
+              money(data.collections.total),
+              '',
+            ], strong: true),
+            for (final (method, amount) in data.collections.methods) ...[
+              ReportRow([
+                reportMethodLabel(l10n, method),
+                money(amount),
+                '',
+              ], indent: true),
+              if (method == ReportPaymentMethod.transfer)
+                for (final a in data.collections.transferAccounts)
+                  ReportRow([
+                    '· ${a.account ?? l10n.reportsTransferNoAccount}',
+                    money(a.amount),
+                    '',
+                  ], indent: true),
+            ],
+          ],
           ReportRow([l10n.reportsTop, null, null], strong: true),
           for (final t in data.top.take(5))
             ReportRow([
@@ -398,7 +420,11 @@ ReportTable reportTable(
               breakdownQty(l10n, data, t),
             ], indent: true),
         ],
-        notes: [l10n.reportsByMethodNote, l10n.reportsSalesNote],
+        notes: [
+          l10n.reportsByMethodNote,
+          if (!data.collections.isEmpty) l10n.reportsDebtCollectionsNote,
+          l10n.reportsSalesNote,
+        ],
       );
     case ReportTab.sales:
       final rows = breakdownRows(data, group);

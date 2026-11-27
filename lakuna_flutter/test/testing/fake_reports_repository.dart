@@ -48,6 +48,10 @@ class FakeReportsRepository extends ReportsRepository {
   /// (F1-05g).
   bool transferSale = false;
 
+  /// Pelunasan piutang hari ini (F1-16h): transfer BCA 123 30.000 +
+  /// tanpa rekening 5.000, tunai 10.000.
+  bool collections = false;
+
   /// Sesi Sari di shift Pagi, Budi tanpa shift; tabel *Per shift*
   /// (F1-03g).
   bool withShifts = false;
@@ -512,6 +516,17 @@ class FakeReportsRepository extends ReportsRepository {
         profit: canViewProfit ? profit : null,
         previousProfit: canViewProfit ? previous : null,
         targetMarginBp: canViewProfit ? targetMarginBp : null,
+        debtPayments: collections && !empty
+            ? const [
+                ReportDebtPayment(
+                  ReportPaymentMethod.transfer,
+                  Money(30000),
+                  transferAccount: 'BCA 123',
+                ),
+                ReportDebtPayment(ReportPaymentMethod.cash, Money(10000)),
+                ReportDebtPayment(ReportPaymentMethod.transfer, Money(5000)),
+              ]
+            : const [],
       ),
     );
   }
