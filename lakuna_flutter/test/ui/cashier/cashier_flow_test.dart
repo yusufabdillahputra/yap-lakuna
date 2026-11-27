@@ -9,6 +9,7 @@ import 'package:lakuna_flutter/data/repositories/cashier_repository.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/utils/result.dart';
+import 'package:lakuna_flutter/ui/cashier/qris_panel.dart' show QrisSticker;
 
 import '../../testing/app_harness.dart';
 import '../../testing/cashier_seed.dart';
@@ -864,6 +865,91 @@ void main() {
     await _tap(tester, 'qris-confirm');
     expect(_key('success-title'), findsOneWidget);
   });
+
+  testWidgets('ponsel QRIS tanpa gambar bila sakelar mati (F1-18e)', (
+    tester,
+  ) async {
+    final qris = sampleQris(showOnPhone: false);
+    final repo = await pump(tester, size: const Size(360, 740), qris: qris);
+    await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    await _tap(tester, 'cashier-view-order');
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-qris');
+    expect(_key('qris-image'), findsNothing);
+    expect(find.byType(QrisSticker), findsNothing);
+    expect(find.text('Ketuk gambar untuk layar penuh'), findsNothing);
+    expect(_key('qris-scan-sticker'), findsOneWidget);
+    expect(_key('qris-amount'), findsOneWidget);
+
+    // Dialog bagian QRIS split di ponsel juga tanpa gambar.
+    await _tap(tester, 'payment-method-split');
+    await _tap(tester, 'split-method-qrisStatic');
+    await tester.enterText(_input('split-amount'), '1000');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'split-add');
+    await _tap(tester, 'split-part-0-confirm');
+    expect(_key('qris-dialog'), findsOneWidget);
+    expect(find.byType(QrisSticker), findsNothing);
+    expect(_key('qris-scan-sticker'), findsOneWidget);
+    await _tap(tester, 'qris-dialog-reject');
+
+    await _tap(tester, 'payment-method-qris');
+    await _tap(tester, 'qris-confirm');
+    expect(_key('success-title'), findsOneWidget);
+  });
+
+  for (final size in const [Size(1280, 800), Size(768, 1024)]) {
+    testWidgets('tablet ${size.width.toInt()} px tetap bergambar (F1-18e)', (
+      tester,
+    ) async {
+      final repo = await pump(
+        tester,
+        size: size,
+        qris: sampleQris(showOnPhone: false),
+      );
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      await _tap(tester, 'cashier-pay');
+      await _tap(tester, 'payment-method-qris');
+      expect(find.byType(QrisSticker), findsOneWidget);
+      expect(_key('qris-scan-sticker'), findsNothing);
+
+      // Dialog bagian QRIS split juga bergambar; baris bagian menunggu
+      // tidak meluap di lebar tablet mana pun.
+      await _tap(tester, 'payment-method-split');
+      await _tap(tester, 'split-method-qrisStatic');
+      await tester.enterText(_input('split-amount'), '1000');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'split-add');
+      await _tap(tester, 'split-part-0-confirm');
+      expect(find.byType(QrisSticker), findsOneWidget);
+      expect(_key('qris-scan-sticker'), findsNothing);
+    });
+  }
+
+  for (final size in const [
+    Size(1024, 768),
+    Size(660, 900),
+    Size(600, 960),
+    Size(480, 900),
+    Size(412, 915),
+  ]) {
+    testWidgets('baris bagian QRIS menunggu muat di ${size.width.toInt()} px', (
+      tester,
+    ) async {
+      final repo = await pump(tester, size: size, qris: sampleQris());
+      for (var i = 0; i < 3; i++) {
+        await _tap(tester, productKey(repo, 'Kopi Sachet'));
+      }
+      if (size.width < 600) await _tap(tester, 'cashier-view-order');
+      await _tap(tester, 'cashier-pay');
+      await _tap(tester, 'payment-method-split');
+      await _tap(tester, 'split-method-qrisStatic');
+      await tester.enterText(_input('split-amount'), '6000');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'split-add');
+      expect(_key('split-part-0-confirm'), findsOneWidget);
+    });
+  }
 
   testWidgets('split kartu + transfer dengan referensi (F1-05b)', (
     tester,

@@ -2558,6 +2558,24 @@ abstract class AppLocalizations {
   /// **'Bila mati, kasir tanpa izin Pengaturan memasukkan PIN manajer setiap menekan Sudah Terbayar.'**
   String get qrisSettingsWithoutPinHint;
 
+  /// No description provided for @qrisSettingsShowOnPhone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan juga di layar mobile kasir'**
+  String get qrisSettingsShowOnPhone;
+
+  /// No description provided for @qrisSettingsShowOnPhoneHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Bila mati, kasir di ponsel tidak menampilkan gambar QRIS; pelanggan memindai stiker cetak di toko.'**
+  String get qrisSettingsShowOnPhoneHint;
+
+  /// No description provided for @qrisScanSticker.
+  ///
+  /// In id, this message translates to:
+  /// **'Minta pelanggan memindai stiker QRIS yang terpasang di toko.'**
+  String get qrisScanSticker;
+
   /// No description provided for @qrisSettingsSave.
   ///
   /// In id, this message translates to:

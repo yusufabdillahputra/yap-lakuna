@@ -65,6 +65,8 @@ class FakePaymentSettingsRepository extends PaymentSettingsRepository {
         nmid: normalizeNmid(settings.nmid),
         terminalCode: settings.terminalCode.trim(),
         settlementNote: settings.settlementNote.trim(),
+        cashierConfirmWithoutPin: settings.cashierConfirmWithoutPin,
+        showOnPhone: settings.showOnPhone,
       ),
       media: media,
       imageBytes: image?.bytes ?? config.imageBytes,

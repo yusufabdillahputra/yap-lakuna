@@ -7,6 +7,60 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.139.0] - 2026-11-27
+
+Pemilik kini bisa memilih apakah gambar QRIS ikut tampil di kasir ukuran
+ponsel, sesuai sakelar di desain 1.26b. Ini gap ketiga di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Pengaturan › Metode pembayaran › QRIS statis (1.26b):** sakelar
+  **Tampilkan juga di layar mobile kasir** di bawah *Kasir boleh
+  konfirmasi tanpa PIN manajer*, dengan keterangan *Bila mati, kasir di
+  ponsel tidak menampilkan gambar QRIS; pelanggan memindai stiker cetak
+  di toko.* Bawaan hidup, jadi toko yang sudah berjalan tidak berubah.
+- **Kasir › Bayar › QRIS statis (1.6m) dan dialog bagian QRIS di *Bagi
+  beberapa metode*, di ponsel (lebar < 600 px):** bila sakelar mati,
+  gambar stiker dan teks *Ketuk gambar untuk layar penuh* diganti kotak
+  petunjuk *Minta pelanggan memindai stiker QRIS yang terpasang di toko.*
+  Nominal, data merchant, *Dana masuk ke*, peringatan, *Belum masuk*,
+  *Sudah Terbayar*, dan PIN manajer tetap sama. Tablet dan desktop selalu
+  menampilkan gambar.
+- Panduan *Menerima QRIS statis* (ID/EN): bagian *QRIS di kasir ponsel*.
+  Panduan *Pengaturan toko* menyebut sakelar PIN manajer dan tampilan
+  QRIS di ponsel.
+
+### Diperbaiki
+
+- **Kasir › Bagi beberapa metode di ponsel 360 px:** baris bagian QRIS
+  yang menunggu meluap ke kanan 134 px (*RenderFlex overflowed*) karena
+  nama metode, nominal, tombol **Sudah Terbayar**, dan tombol hapus
+  berbagi satu baris (di ponsel 480 px masih meluap 14 px). Bila baris
+  lebih sempit dari 440 px, tombol **Sudah Terbayar** kini turun ke
+  baris sendiri selebar kartu. Ditemukan saat menulis tes widget ponsel
+  untuk sakelar baru; tes baru memeriksa lebar 412, 480, 600, 660, dan
+  1024 px.
+
+### Catatan teknis
+
+- `QrisStaticSettings.showOnPhone` di `payments.qris_static`
+  (`showOnPhone`, JSON tanpa kunci = `true`); `CashierQris.showOnPhone`
+  dibawa dari `LocalCashierRepository`. Tanpa migrasi (isi
+  `settings.value_json`).
+- Panel QRIS dan dialog bagian QRIS sama-sama mengenali ponsel dari
+  lebar **layar** (`LayoutSize.of(MediaQuery.sizeOf(context).width)`),
+  bukan `narrow` layar Bayar yang diukur dari lebar konten: tablet potret
+  768 px (konten 568 px di samping sidebar) memakai tata letak ringkas
+  tapi tetap menampilkan gambar. Temuan review subagent.
+- Tes: data (sakelar tersimpan, bawaan hidup, `copyWith`), repositori
+  (sakelar terbawa ke `CashierQris`), widget (sakelar di Pengaturan,
+  ponsel tanpa gambar termasuk dialog bagian split, tablet 1280 dan
+  768 px tetap bergambar). Repositori pengaturan palsu kini menyimpan
+  `cashierConfirmWithoutPin` dan `showOnPhone`.
+- Spec baru `docs/superpowers/specs/2026-11-27-f1-18e-qris-di-ponsel-design.md`
+  dan rencananya.
+
 ## [0.138.0] - 2026-11-27
 
 *Sudah Terbayar* QRIS statis kini bisa memakai PIN manajer, sesuai sakelar
@@ -7975,7 +8029,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...HEAD
+[0.139.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...v0.139.0
 [0.138.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...v0.138.0
 [0.137.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...v0.137.0
 [0.136.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...v0.136.0

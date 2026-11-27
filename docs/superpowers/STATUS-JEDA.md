@@ -119,7 +119,8 @@ ulang riwayat.
 | v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | #141 |
 | v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | #142 |
 | v0.137.0 | Shift kasir: master, pilih saat buka sesi, laporan per shift (F1-03g) | #143 |
-| v0.138.0 | PIN manajer untuk Sudah Terbayar QRIS (F1-05h) | |
+| v0.138.0 | PIN manajer untuk Sudah Terbayar QRIS (F1-05h) | #144 |
+| v0.139.0 | Gambar QRIS di kasir ponsel bisa dimatikan (F1-18e) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -360,6 +361,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 80. ~~*Sudah Terbayar* QRIS tanpa PIN manajer~~ — selesai v0.138.0
     (F1-05h); staf tanpa izin minta PIN manajer, sakelar *Kasir boleh
     konfirmasi tanpa PIN manajer* di Pengaturan › Metode pembayaran.
+81. ~~Gambar QRIS selalu tampil di kasir ponsel~~ — selesai v0.139.0
+    (F1-18e); sakelar *Tampilkan juga di layar mobile kasir*, ponsel
+    memakai kotak petunjuk bila mati.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

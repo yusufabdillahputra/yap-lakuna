@@ -91,6 +91,7 @@ class PaymentSettingsViewModel extends ChangeNotifier {
   /// *Kasir boleh konfirmasi tanpa PIN manajer* (F1-05h).
   void setCashierWithoutPin(bool v) =>
       _edit(_draft.copyWith(cashierConfirmWithoutPin: v));
+  void setShowOnPhone(bool v) => _edit(_draft.copyWith(showOnPhone: v));
   void setMerchantName(String v) => _edit(_draft.copyWith(merchantName: v));
   void setNmid(String v) => _edit(_draft.copyWith(nmid: v));
   void setTerminalCode(String v) => _edit(_draft.copyWith(terminalCode: v));

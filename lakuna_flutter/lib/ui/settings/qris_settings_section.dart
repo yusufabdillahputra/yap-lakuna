@@ -544,6 +544,13 @@ class _MerchantCard extends StatelessWidget {
             value: d.cashierConfirmWithoutPin,
             onChange: vm.setCashierWithoutPin,
           ),
+          FSwitch(
+            key: const ValueKey('qris-show-on-phone'),
+            label: Text(l10n.qrisSettingsShowOnPhone),
+            description: Text(l10n.qrisSettingsShowOnPhoneHint),
+            value: d.showOnPhone,
+            onChange: vm.setShowOnPhone,
+          ),
         ],
       ),
     );

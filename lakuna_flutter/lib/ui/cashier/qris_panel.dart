@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/cashier_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/breakpoints.dart';
 import '../core/format.dart';
 import 'cashier_view_model.dart';
 import 'payment_view.dart' show PaymentPanel, tabularFigures;
@@ -214,6 +215,40 @@ class _ScreenshotWarning extends StatelessWidget {
   }
 }
 
+/// Pengganti gambar stiker di ponsel saat *Tampilkan juga di layar mobile
+/// kasir* mati (F1-18e): pelanggan memindai stiker cetak di toko.
+class _ScanStickerNote extends StatelessWidget {
+  const _ScanStickerNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return DecoratedBox(
+      key: const ValueKey('qris-scan-sticker'),
+      decoration: BoxDecoration(
+        color: theme.colors.muted,
+        border: Border.all(color: theme.colors.border),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          spacing: 12,
+          children: [
+            Icon(TablerIcons.qrcode, size: 28, color: theme.colors.primary),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context).qrisScanSticker,
+                style: theme.typography.body.sm,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Panel QRIS statis (1.6 tablet/desktop, 1.6m ponsel): stiker utuh,
 /// nominal yang harus diketik pelanggan, langkah, dan peringatan.
 class QrisPanel extends StatelessWidget {
@@ -228,6 +263,11 @@ class QrisPanel extends StatelessWidget {
     final theme = context.theme;
     final qris = viewModel.qris!;
     final total = viewModel.payTotal;
+    // Sakelar F1-18e menurut lebar layar (bukan lebar konten): tablet
+    // potret 600–799 px tetap memakai tata letak ringkas tapi bergambar.
+    final phone =
+        LayoutSize.of(MediaQuery.sizeOf(context).width) == LayoutSize.mobile;
+    final showImage = qris.showOnPhone || !phone;
     void open() => showQrisFullscreen(context, qris.image);
 
     Widget amount({required bool withMerchant}) => Column(
@@ -307,19 +347,22 @@ class QrisPanel extends StatelessWidget {
             const _PendingBadge(),
             // Ponsel (1.6m): stiker langsung di bawah nominal.
             amount(withMerchant: false),
-            QrisSticker(
-              image: qris.image,
-              maxHeight: 460,
-              onTap: open,
-              semanticsLabel: l10n.qrisImageLabel,
-            ),
-            Text(
-              l10n.qrisTapFullscreen,
-              textAlign: TextAlign.center,
-              style: theme.typography.body.xs.copyWith(
-                color: theme.colors.mutedForeground,
+            if (showImage) ...[
+              QrisSticker(
+                image: qris.image,
+                maxHeight: 460,
+                onTap: open,
+                semanticsLabel: l10n.qrisImageLabel,
               ),
-            ),
+              Text(
+                l10n.qrisTapFullscreen,
+                textAlign: TextAlign.center,
+                style: theme.typography.body.xs.copyWith(
+                  color: theme.colors.mutedForeground,
+                ),
+              ),
+            ] else
+              const _ScanStickerNote(),
             ..._merchantLines(context, qris),
             const _ScreenshotWarning(),
           ],
@@ -473,6 +516,9 @@ Future<bool?> showQrisPartDialog(
     builder: (context, style) {
       final l10n = AppLocalizations.of(context);
       final theme = context.theme;
+      // Ponsel mengikuti *Tampilkan juga di layar mobile kasir* (F1-18e).
+      final phone =
+          LayoutSize.of(MediaQuery.sizeOf(context).width) == LayoutSize.mobile;
       return ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 380),
         child: SingleChildScrollView(
@@ -498,11 +544,14 @@ Future<bool?> showQrisPartDialog(
                 ),
               ),
               ..._merchantLines(context, qris),
-              QrisSticker(
-                image: qris.image,
-                maxHeight: 340,
-                semanticsLabel: l10n.qrisImageLabel,
-              ),
+              if (phone && !qris.showOnPhone)
+                const _ScanStickerNote()
+              else
+                QrisSticker(
+                  image: qris.image,
+                  maxHeight: 340,
+                  semanticsLabel: l10n.qrisImageLabel,
+                ),
               const _ScreenshotWarning(),
               if (needsApproval)
                 Text(

@@ -111,11 +111,15 @@ void main() {
     // Sakelar PIN manajer Sudah Terbayar (F1-05h): bawaan hidup.
     expect(tester.widget<FSwitch>(_key('qris-without-pin')).value, isTrue);
     await _tap(tester, 'qris-without-pin');
+    // Tampilkan di ponsel kasir (F1-18e): bawaan hidup.
+    expect(tester.widget<FSwitch>(_key('qris-show-on-phone')).value, isTrue);
+    await _tap(tester, 'qris-show-on-phone');
     await _tap(tester, 'qris-settings-save');
     expect(_key('qris-settings-saved'), findsOneWidget);
     final (settings, image) = repo.saves.single;
     expect(settings.enabled, isTrue);
     expect(settings.cashierConfirmWithoutPin, isFalse);
+    expect(settings.showOnPhone, isFalse);
     expect(settings.merchantName, 'WARUNG CONTOH');
     expect(image!.fileName, 'qris-warung.png');
     expect(image.bytes, bytes);

@@ -196,11 +196,14 @@ void main() {
           merchantName: 'TOKO BU ANI',
           nmid: 'ID1023',
           settlementNote: 'BCA 123',
+          showOnPhone: false,
         ),
         image: QrisImageUpload(bytes: image, fileName: 'qris.png'),
       );
       data = _ok(await repo.load());
       expect(data.qris!.image, image);
+      // Sakelar gambar di ponsel kasir (F1-18e) ikut terbawa.
+      expect(data.qris!.showOnPhone, isFalse);
       expect(data.qris!.merchantName, 'TOKO BU ANI');
       expect(data.qris!.nmid, 'ID1023');
       expect(data.qris!.settlementNote, 'BCA 123');

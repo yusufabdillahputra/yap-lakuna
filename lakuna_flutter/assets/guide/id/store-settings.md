@@ -8,7 +8,7 @@ Menu **Pengaturan** dibagi menjadi beberapa bagian. Bagian toko hanya tampil unt
 
 - **Profil toko**: nama usaha. Jenis usaha dan zona waktu hanya ditampilkan.
 - **Cabang ini**: nama cabang, alamat, dan telepon yang tampil di kepala struk. Kode cabang dan perangkat tidak bisa diubah.
-- **Metode pembayaran**: gambar dan data [QRIS statis](pay-qris).
+- **Metode pembayaran**: gambar dan data [QRIS statis](pay-qris), PIN manajer untuk Sudah Terbayar, dan tampilan gambar QRIS di kasir ponsel.
 - **Struk & printer**: lihat [Struk & printer](receipt-printer).
 - **Pajak & service** (F&B): service charge, PB1, dan pilihan *Harga sudah termasuk pajak*.
 - **Penjualan & stok**: *Izinkan stok minus*, *Pembulatan total* (Rp 100 atau Rp 500), *Diskon manual butuh PIN manajer*, dan *Rekening transfer* (mis. `BCA 123-456-7890 a.n. Warung Contoh`, tampil di layar bayar dan di struk/kuitansi yang masih menyisakan piutang). Punya beberapa rekening? Tulis **satu rekening per baris**, maksimal 3 (mis. BCA di baris pertama, Mandiri di baris kedua); tiap baris maksimal 100 karakter. **Target margin kotor (%)** (opsional, 1–99, mis. `25`) dipakai kartu *Margin kotor* di [Laporan → Laba rugi](reports) untuk menandai apakah target tercapai; kosongkan bila tanpa target.
