@@ -8588,6 +8588,51 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get productImportPreviewExport => 'Download Excel';
+
+  @override
+  String get productImportXlsxSheet => 'Price preview';
+
+  @override
+  String get productImportColLine => 'Row';
+
+  @override
+  String get productImportColProduct => 'Product';
+
+  @override
+  String get productImportColVariant => 'Variant';
+
+  @override
+  String get productImportColOldSell => 'Old selling price';
+
+  @override
+  String get productImportColNewSell => 'New selling price';
+
+  @override
+  String get productImportColOldCost => 'Old cost price';
+
+  @override
+  String get productImportColNewCost => 'New cost price';
+
+  @override
+  String get productImportColOldMin => 'Old minimum stock';
+
+  @override
+  String get productImportColNewMin => 'New minimum stock';
+
+  @override
+  String get productImportColUnit => 'Unit';
+
+  @override
+  String get productImportColNote => 'Note';
+
+  @override
+  String get productImportXlsxUpdated => 'Updated';
+
+  @override
+  String get productImportXlsxSkipped => 'Skipped: unclear match';
+
+  @override
   String get productImportPreviewNone =>
       'Nothing would change, so there is nothing to save.';
 

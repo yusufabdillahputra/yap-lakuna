@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -10,6 +11,7 @@ import 'package:lakuna_flutter/data/services/table_file.dart';
 import 'package:lakuna_flutter/l10n/gen/app_localizations.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/customers/customer_import_view_model.dart';
+import 'package:lakuna_flutter/ui/products/product_import_dialog.dart';
 import 'package:lakuna_flutter/ui/products/product_import_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -166,6 +168,195 @@ void main() {
       expect(repo.importDryRuns, [true, true, true, false]);
       expect(repo.imported, hasLength(1));
       vm.dispose();
+    });
+
+    test('ekspor pratinjau ke Excel (F1-07u)', () async {
+      final repo = FakeCatalogRepository(
+        seed: [
+          const ProductDraft(
+            name: 'Gula Aren',
+            baseUnit: 'kg',
+            variants: [VariantDraft(sellPrice: Money(17000))],
+          ),
+        ],
+      );
+      final exporter = FakeSpreadsheetExporter()..path = '/docs/x.xlsx';
+      final picker = _Picker(_csv(_sample, name: 'Harga Baru 2026.csv'));
+      final vm = ProductImportViewModel(
+        repository: repo,
+        picker: picker,
+        exporter: exporter,
+      );
+      await vm.pick.execute();
+      vm.setUpdateExisting(true);
+      expect(vm.canExport, isFalse);
+      await vm.preview.execute();
+      expect(vm.canExport, isTrue);
+      expect(vm.exportFileName, 'pratinjau-harga-harga-baru-2026.xlsx');
+      await vm.export.execute(() => Uint8List.fromList([1, 2]));
+      expect(exporter.saved.single.$1, 'pratinjau-harga-harga-baru-2026.xlsx');
+      expect(vm.exportPath, '/docs/x.xlsx');
+
+      // Pratinjau baru menghapus lokasi ekspor lama.
+      vm.setUpdateExisting(false);
+      expect(vm.exportPath, isNull);
+      expect(vm.canExport, isFalse);
+      vm.setUpdateExisting(true);
+      await vm.preview.execute();
+      exporter.error = Exception('disk penuh');
+      await vm.export.execute(() => Uint8List.fromList([1]));
+      expect(vm.export.error, isTrue);
+      expect(vm.exportPath, isNull);
+      await vm.pick.execute();
+      expect(vm.export.result, isNull);
+
+      // Pembuat berkas yang gagal tampil sebagai ekspor gagal.
+      await vm.preview.execute();
+      await vm.export.execute(() => throw const FormatException('rusak'));
+      expect(vm.export.error, isTrue);
+
+      // Berkas diganti saat Excel masih disimpan: hasil lama dibuang.
+      final slow = Completer<void>();
+      exporter.gate = slow.future;
+      final pending = vm.export.execute(() => Uint8List.fromList([3]));
+      vm.setUpdateExisting(false);
+      vm.setUpdateExisting(true);
+      await vm.preview.execute();
+      slow.complete();
+      await pending;
+      exporter.gate = null;
+      expect(vm.exportPath, isNull);
+      expect(vm.export.error, isFalse);
+
+      // Nama berkas: tanpa ekstensi, berkas titik, nama panjang, non-ASCII.
+      Future<String> nameOf(String file) async {
+        picker.file = _csv(_sample, name: file);
+        await vm.pick.execute();
+        return vm.exportFileName;
+      }
+
+      expect(await nameOf('harga'), 'pratinjau-harga-harga.xlsx');
+      expect(await nameOf('.csv'), 'pratinjau-harga.xlsx');
+      expect(
+        await nameOf('${'a' * 200}.csv'),
+        'pratinjau-harga-${'a' * 60}.xlsx',
+      );
+      expect(await nameOf('价格.csv'), 'pratinjau-harga.xlsx');
+      vm.setUpdateExisting(true);
+
+      // Setelah simpan pratinjau tidak bisa diekspor lagi.
+      await vm.preview.execute();
+      await vm.run.execute();
+      expect(vm.canExport, isFalse);
+      vm.dispose();
+    });
+
+    test('isi Excel pratinjau: semua perubahan dan baris dilewati', () {
+      final id = lookupAppLocalizations(const Locale('id'));
+      final summary = ProductImportSummary(
+        created: 1,
+        updated: 2,
+        skippedLines: const [3],
+        changes: [
+          const ProductPriceChange(
+            line: 2,
+            productName: 'Gula Aren',
+            variantName: '',
+            oldSell: Money(17000),
+            newSell: Money(18000),
+            oldCost: Money(15000),
+            newCost: Money(15500),
+          ),
+          ProductPriceChange(
+            line: 5,
+            productName: 'Kopi',
+            variantName: '250 g',
+            oldSell: const Money(30000),
+            newSell: const Money(30000),
+            oldMinStock: Qty(1500),
+            newMinStock: Qty(4000),
+            unit: 'pak',
+          ),
+        ],
+      );
+      // Lebih dari 30 perubahan (batas layar) ikut semua di Excel.
+      final many = ProductImportSummary(
+        created: 0,
+        updated: 35,
+        skippedLines: const [],
+        changes: [
+          for (var i = 2; i <= 36; i++)
+            ProductPriceChange(
+              line: i,
+              productName: 'Produk $i',
+              variantName: '',
+              oldSell: const Money(1000),
+              newSell: const Money(1100),
+            ),
+        ],
+      );
+      final manyRows = readTableFile(
+        'x.xlsx',
+        productImportPreviewWorkbook(id, many),
+      );
+      expect(manyRows, hasLength(36));
+      expect(manyRows.last.take(2), ['36', 'Produk 36']);
+
+      final bytes = productImportPreviewWorkbook(id, summary);
+      expect(readTableFile('x.xlsx', bytes), [
+        [
+          'Baris',
+          'Produk',
+          'Varian',
+          'Harga jual lama',
+          'Harga jual baru',
+          'Harga beli lama',
+          'Harga beli baru',
+          'Stok minimum lama',
+          'Stok minimum baru',
+          'Satuan',
+          'Keterangan',
+        ],
+        [
+          '2',
+          'Gula Aren',
+          '',
+          '17000',
+          '18000',
+          '15000',
+          '15500',
+          '',
+          '',
+          '',
+          'Diperbarui',
+        ],
+        [
+          '3',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          'Dilewati: cocoknya ragu',
+        ],
+        [
+          '5',
+          'Kopi',
+          '250 g',
+          '30000',
+          '30000',
+          '',
+          '',
+          '1,5',
+          '4',
+          'pak',
+          'Diperbarui',
+        ],
+      ]);
     });
 
     test('pratinjau berjalan atau gagal (F1-07m)', () async {
@@ -354,9 +545,11 @@ void main() {
     });
 
     testWidgets('$label: sakelar perbarui harga (F1-07k)', (tester) async {
+      final exporter = FakeSpreadsheetExporter()..path = '/docs/p.xlsx';
       final repo = await pump(
         tester,
         size,
+        exporter: exporter,
         seed: [
           const ProductDraft(
             name: 'Gula Aren',
@@ -388,6 +581,24 @@ void main() {
       );
       expect(find.text('Gula Aren · Rp 17.000 → Rp 18.000'), findsOneWidget);
       expect(repo.products, hasLength(1));
+      // Ekspor pratinjau ke Excel (F1-07u). Ponsel: lembar bagikan, tanpa
+      // pesan lokasi.
+      final phone = size.width < 600;
+      if (phone) exporter.path = null;
+      await _tap(tester, 'product-import-preview-export');
+      expect(exporter.saved.single.$1, 'pratinjau-harga-produk.xlsx');
+      expect(
+        readTableFile('p.xlsx', exporter.saved.single.$2)[1].take(5),
+        ['2', 'Gula Aren', '', '17000', '18000'],
+      );
+      expect(
+        _key('product-import-export-saved'),
+        phone ? findsNothing : findsOneWidget,
+      );
+      exporter.error = Exception('disk penuh');
+      await _tap(tester, 'product-import-preview-export');
+      expect(_key('product-import-export-failed'), findsOneWidget);
+      expect(_key('product-import-export-saved'), findsNothing);
       await _tap(tester, 'product-import-run');
       expect(repo.lastUpdateExisting, isTrue);
       expect(_key('product-import-changes'), findsNothing);

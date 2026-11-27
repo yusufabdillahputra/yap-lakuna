@@ -3,6 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import '../../data/repositories/catalog_repository.dart';
+import '../../data/services/spreadsheet_exporter.dart';
 import '../../data/services/table_file.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
@@ -17,14 +18,17 @@ class ProductImportViewModel extends ChangeNotifier {
     required this._repository,
     required this._picker,
     this.onSaved,
+    this._exporter = const PlatformSpreadsheetExporter(),
   }) {
     pick = Command0(_pick)..addListener(notifyListeners);
     preview = Command0(_preview)..addListener(notifyListeners);
     run = Command0(_run)..addListener(notifyListeners);
+    export = Command1(_export)..addListener(notifyListeners);
   }
 
   final CatalogRepository _repository;
   final TableFilePicker _picker;
+  final SpreadsheetExporter _exporter;
 
   /// Dipanggil setiap kali import tersimpan (lihat import pelanggan).
   final VoidCallback? onSaved;
@@ -37,6 +41,7 @@ class ProductImportViewModel extends ChangeNotifier {
     pick.dispose();
     preview.dispose();
     run.dispose();
+    export.dispose();
     super.dispose();
   }
 
@@ -50,6 +55,46 @@ class ProductImportViewModel extends ChangeNotifier {
   /// Import tanpa menyimpan untuk melihat perubahan harga (F1-07m).
   late final Command0<ProductImportSummary> preview;
   late final Command0<ProductImportSummary> run;
+
+  /// Menyimpan pratinjau sebagai Excel (F1-07u); hasil = lokasi berkas
+  /// (desktop) atau `null` (lembar bagikan).
+  ///
+  /// Argumen = pembuat berkas, dijalankan di dalam perintah agar galatnya
+  /// tampil sebagai *Ekspor gagal*.
+  late final Command1<String?, Uint8List Function()> export;
+
+  /// Naik setiap pratinjau berubah; hasil ekspor untuk pratinjau lama
+  /// dibuang (berkas diganti di tengah penyimpanan).
+  var _exportGeneration = 0;
+
+  String? _exportPath;
+
+  /// Lokasi Excel pratinjau yang terakhir disimpan (desktop).
+  String? get exportPath => _exportPath;
+
+  /// Pratinjau masih berlaku dan belum disimpan.
+  bool get canExport => previewed != null && !_busy && !export.running;
+
+  /// `pratinjau-harga-<nama berkas import>.xlsx`, huruf kecil.
+  String get exportFileName {
+    final name = _fileName ?? '';
+    final dot = name.lastIndexOf('.');
+    var base = (dot >= 0 ? name.substring(0, dot) : name)
+        .toLowerCase()
+        .replaceAll(RegExp('[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    // Nama berkas sistem paling panjang 255 byte; sisakan ruang awalan.
+    if (base.length > 60) {
+      base = base.substring(0, 60).replaceAll(RegExp(r'-+$'), '');
+    }
+    return base.isEmpty ? 'pratinjau-harga.xlsx' : 'pratinjau-harga-$base.xlsx';
+  }
+
+  void _clearExport() {
+    _exportGeneration++;
+    _exportPath = null;
+    export.clearResult();
+  }
 
   String? _fileName;
   ProductImportResult? _result;
@@ -96,6 +141,7 @@ class ProductImportViewModel extends ChangeNotifier {
     _updateExisting = value;
     // Pratinjau hanya berlaku untuk sakelar saat dibuat.
     preview.clearResult();
+    _clearExport();
     notifyListeners();
   }
 
@@ -116,6 +162,7 @@ class ProductImportViewModel extends ChangeNotifier {
     _problem = null;
     run.clearResult();
     preview.clearResult();
+    _clearExport();
     final bytes = file.bytes;
     if (bytes == null) {
       _problem = ImportFileProblem.tooLarge;
@@ -137,6 +184,7 @@ class ProductImportViewModel extends ChangeNotifier {
 
   Future<Result<ProductImportSummary>> _preview() async {
     if (rows.isEmpty) return const Result.error(StoreNotReady());
+    _clearExport();
     return _repository.importRows(
       rows,
       updateExisting: _updateExisting,
@@ -152,5 +200,20 @@ class ProductImportViewModel extends ChangeNotifier {
     );
     if (result is Ok) onSaved?.call();
     return result;
+  }
+
+  Future<Result<String?>> _export(Uint8List Function() build) async {
+    _exportPath = null;
+    final generation = _exportGeneration;
+    final name = exportFileName;
+    try {
+      final path = await _exporter.save(build(), fileName: name);
+      if (generation != _exportGeneration) return const Result.ok(null);
+      _exportPath = path;
+      return Result.ok(path);
+    } on Exception catch (e) {
+      if (generation != _exportGeneration) return const Result.ok(null);
+      return Result.error(e);
+    }
   }
 }

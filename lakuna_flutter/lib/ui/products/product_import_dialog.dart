@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -12,6 +14,7 @@ import '../../utils/result.dart';
 import '../core/format.dart';
 import '../core/import_template.dart';
 import '../customers/customer_import_view_model.dart' show ImportFileProblem;
+import '../reports/report_labels.dart' show qtyLabel;
 import 'product_form_view.dart' show productErrorMessage;
 import 'product_import_view_model.dart';
 
@@ -85,6 +88,7 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
     repository: widget.repository,
     picker: widget.picker,
     onSaved: widget.onSaved,
+    exporter: widget.exporter,
   );
 
   @override
@@ -222,7 +226,29 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                     ],
                   ),
                 if (previewed != null)
-                  _PreviewList(summary: previewed, muted: muted),
+                  _PreviewList(
+                    summary: previewed,
+                    muted: muted,
+                    exporting: vm.export.running,
+                    onExport: vm.canExport
+                        ? () => vm.export.execute(
+                            () => productImportPreviewWorkbook(l10n, previewed),
+                          )
+                        : null,
+                  ),
+                if (previewed != null &&
+                    vm.export.completed &&
+                    vm.exportPath != null)
+                  FAlert(
+                    key: const ValueKey('product-import-export-saved'),
+                    title: Text(l10n.historyExportSaved(vm.exportPath!)),
+                  )
+                else if (previewed != null && vm.export.error)
+                  FAlert(
+                    key: const ValueKey('product-import-export-failed'),
+                    variant: .destructive,
+                    title: Text(l10n.historyExportFailed),
+                  ),
                 if (vm.preview.result case Error(:final error))
                   Text(
                     productErrorMessage(l10n, error),
@@ -314,16 +340,95 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
   );
 }
 
+/// Excel pratinjau import (F1-07u): semua perubahan (tanpa batas 30
+/// baris di layar) dan baris yang dilewati, urut nomor baris berkas.
+Uint8List productImportPreviewWorkbook(
+  AppLocalizations l10n,
+  ProductImportSummary summary,
+) {
+  final rows = <(int, List<Object?>)>[
+    for (final c in summary.changes)
+      (
+        c.line,
+        [
+          c.line,
+          c.productName,
+          c.variantName,
+          XlsxNumber(c.oldSell.value),
+          XlsxNumber(c.newSell.value),
+          if ((c.oldCost, c.newCost) case (final old?, final value?)) ...[
+            XlsxNumber(old.value),
+            XlsxNumber(value.value),
+          ] else ...[
+            null,
+            null,
+          ],
+          if ((c.oldMinStock, c.newMinStock) case (
+            final old?,
+            final value?,
+          )) ...[
+            qtyLabel(l10n, old),
+            qtyLabel(l10n, value),
+            c.unit,
+          ] else ...[
+            null,
+            null,
+            null,
+          ],
+          l10n.productImportXlsxUpdated,
+        ],
+      ),
+    for (final line in summary.skippedLines)
+      (
+        line,
+        [
+          line,
+          for (var i = 0; i < 9; i++) null,
+          l10n.productImportXlsxSkipped,
+        ],
+      ),
+  ]..sort((a, b) => a.$1.compareTo(b.$1));
+  return buildXlsx(
+    l10n.productImportXlsxSheet,
+    [
+      [
+        l10n.productImportColLine,
+        l10n.productImportColProduct,
+        l10n.productImportColVariant,
+        l10n.productImportColOldSell,
+        l10n.productImportColNewSell,
+        l10n.productImportColOldCost,
+        l10n.productImportColNewCost,
+        l10n.productImportColOldMin,
+        l10n.productImportColNewMin,
+        l10n.productImportColUnit,
+        l10n.productImportColNote,
+      ],
+      for (final (_, cells) in rows) cells,
+    ],
+    widths: const [8, 30, 16, 16, 16, 16, 16, 18, 18, 10, 26],
+  );
+}
+
 String _label(ProductPriceChange c) => c.variantName.isEmpty
     ? c.productName
     : '${c.productName} (${c.variantName})';
 
 /// Pratinjau perubahan sebelum simpan (F1-07m).
 class _PreviewList extends StatelessWidget {
-  const _PreviewList({required this.summary, required this.muted});
+  const _PreviewList({
+    required this.summary,
+    required this.muted,
+    required this.exporting,
+    required this.onExport,
+  });
 
   final ProductImportSummary summary;
   final TextStyle muted;
+  final bool exporting;
+
+  /// `null` = tombol Unduh Excel nonaktif.
+  final VoidCallback? onExport;
 
   @override
   Widget build(BuildContext context) {
@@ -399,6 +504,22 @@ class _PreviewList extends StatelessWidget {
               Text(
                 l10n.productImportSkippedUnclear(_lines(summary.skippedLines)),
                 style: muted,
+              ),
+            // Daftar panjang diperiksa di Excel (F1-07u).
+            if (changes.isNotEmpty || summary.skippedLines.isNotEmpty)
+              FButton(
+                key: const ValueKey('product-import-preview-export'),
+                variant: .outline,
+                size: .sm,
+                mainAxisSize: .min,
+                onPress: exporting ? null : onExport,
+                prefix: exporting
+                    ? const SizedBox.square(
+                        dimension: 16,
+                        child: FCircularProgress(),
+                      )
+                    : const Icon(TablerIcons.fileSpreadsheet),
+                child: Flexible(child: Text(l10n.productImportPreviewExport)),
               ),
           ],
         ),

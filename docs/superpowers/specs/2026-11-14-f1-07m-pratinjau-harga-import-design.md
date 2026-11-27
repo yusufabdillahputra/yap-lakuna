@@ -70,5 +70,5 @@ harga dulu, lalu pemilik menekan *Simpan* bila sudah benar.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Pratinjau perubahan harga sebelum simpan | — | Rilis v0.71.0 | Dry run di transaksi yang sama, tanpa tulisan. |
-| Ekspor pratinjau ke Excel | — | Belum | Bila daftar sering panjang. |
+| Ekspor pratinjau ke Excel | Tombol *Unduh Excel* di kartu pratinjau | Rilis v0.162.0 | [F1-07u](2026-11-27-f1-07u-ekspor-pratinjau-harga-design.md). |
 | Galat simpan produk baru terlihat di pratinjau | — | Belum | Dry run tidak menjalankan penulis produk baru (kategori, satuan, stok awal); validasi draf sudah dijalankan untuk keduanya, jadi galat lain baru muncul saat *Simpan*. Opsi: jalankan jalur penuh lalu batalkan transaksi. |

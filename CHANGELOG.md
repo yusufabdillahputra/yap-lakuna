@@ -7,6 +7,41 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.162.0] - 2026-11-27
+
+Daftar harga panjang dari supplier kini bisa diperiksa lengkap sebelum
+disimpan. Ini gap 25 di daftar rapikan Fase 1 (F1-07u, dialog *Import
+Excel* di Produk 1.15).
+
+### Ditambahkan
+
+- **Unduh Excel di pratinjau import harga.** Setelah **Lihat perubahan**,
+  kartu pratinjau punya tombol **Unduh Excel**. Berkasnya memuat **semua**
+  perubahan (layar hanya menampilkan 30 pertama): Baris, Produk, Varian,
+  harga jual lama/baru, harga beli lama/baru dan stok minimum lama/baru
+  bila ikut berubah, Satuan, dan Keterangan *Diperbarui*; baris yang
+  dilewati ikut dengan Keterangan *Dilewati: cocoknya ragu*. Urut nomor
+  baris berkas, judul kolom tebal dan dibekukan, harga berformat ribuan.
+- Nama berkas `pratinjau-harga-<nama berkas import>.xlsx`. Di komputer
+  disimpan di folder dokumen Lakuna dengan pesan *Excel disimpan di …*, di
+  ponsel lembar bagikan terbuka.
+
+### Diubah
+
+- Pesan ekspor hilang saat pratinjau dihapus (ganti berkas, ubah sakelar,
+  atau lihat perubahan lagi).
+- Panduan *Produk pertama* (ID dan EN) menjelaskan Unduh Excel.
+
+### Catatan teknis
+
+- `ProductImportViewModel`: `export` (`Command1<String?, Uint8List>`),
+  `canExport`, `exportPath`, `exportFileName`, `SpreadsheetExporter`
+  diteruskan dari dialog. `productImportPreviewWorkbook` di
+  `product_import_dialog.dart` memakai `buildXlsx` dan dijalankan di
+  dalam perintah ekspor agar galatnya tampil. Hasil ekspor untuk pratinjau
+  yang sudah berganti dibuang (penanda generasi), dan nama berkas dibatasi
+  60 karakter. Tanpa perubahan data atau migrasi.
+
 ## [0.161.0] - 2026-11-27
 
 Bukti retur untuk supplier kini bisa dicetak sendiri tanpa seluruh
@@ -8964,7 +8999,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...HEAD
+[0.162.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...v0.162.0
 [0.161.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...v0.161.0
 [0.160.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...v0.160.0
 [0.159.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...v0.159.0
