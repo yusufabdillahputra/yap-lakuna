@@ -46,7 +46,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 23 | Lebih dari satu foto per faktur pembelian | F1-12b | v0.160.0 (F1-12m) |
 | 24 | PDF retur pembelian (RB-) tersendiri | F1-12c | v0.161.0 (F1-12n) |
 | 25 | Ekspor pratinjau import harga ke Excel | F1-07m | v0.162.0 (F1-07u) |
-| 26 | Persetujuan ulang bila dasar diskon rupiah mengecil | F1-04e | |
+| 26 | Persetujuan ulang bila dasar diskon rupiah mengecil | F1-04e | v0.163.0 (F1-04j) |
 
 ## B. Sengaja tidak (keputusan produk, tetap `Belum` di spec)
 

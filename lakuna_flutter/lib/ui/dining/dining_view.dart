@@ -118,6 +118,7 @@ String diningErrorMessage(AppLocalizations l10n, Exception error) =>
       ),
       SplitLocked() => l10n.diningErrorSplitLocked,
       DiscountTooLarge() || DiscountInvalid() => l10n.saleErrorDiscountTooLarge,
+      DiscountNeedsReapproval() => l10n.saleErrorDiscountReapproval,
       DiscountNotPermitted() => l10n.saleErrorDiscountNotPermitted,
       NotPermitted(permission: Permission.salesDiscount) =>
         l10n.saleErrorDiscountNotPermitted,
@@ -1457,7 +1458,38 @@ class _BillPanel extends StatelessWidget {
             key: const ValueKey('dining-served-only'),
             style: _muted(context),
           ),
-        if (blocksPay)
+        if (vm.discountNeedsReapproval) ...[
+          Text(
+            l10n.diningDiscountReapprove(
+              formatMoney(context, bill.discount?.amount ?? Money.zero),
+              formatMoney(context, bill.discountBase ?? Money.zero),
+              formatMoney(context, charges.subtotal),
+            ),
+            key: const ValueKey('dining-discount-reapproval'),
+            style: _errorStyle(context),
+          ),
+          // Staf tanpa izin dan tanpa jalur PIN manajer: petunjuk saja,
+          // karena menekan tombol hanya akan ditolak repositori.
+          if (!vm.canOfferDiscount || locked)
+            Text(
+              l10n.diningDiscountReapproveNoPermission,
+              key: const ValueKey('dining-discount-reapprove-hint'),
+              style: _muted(context),
+            )
+          else
+            FButton(
+              key: const ValueKey('dining-discount-reapprove'),
+              variant: .outline,
+              prefix: const Icon(TablerIcons.discountCheck, size: 18),
+              onPress:
+                  busy ||
+                      (vm.discountNeedsApproval &&
+                          ApprovalScope.maybeOf(context) == null)
+                  ? null
+                  : () => _reapproveBillDiscount(context, vm, bill),
+              child: Flexible(child: Text(l10n.diningDiscountReapproveAction)),
+            ),
+        ] else if (blocksPay)
           Text(
             l10n.diningDiscountBlocksPay,
             key: const ValueKey('dining-discount-blocks'),
@@ -2317,6 +2349,32 @@ Future<void> _pickCustomer(
     ),
   );
   if (picked != null) await vm.setCustomer.execute(picked);
+}
+
+/// Menerapkan lagi diskon yang sama untuk pesanan sekarang (F1-04j); staf
+/// tanpa izin diskon diminta PIN manajer seperti saat memberi diskon.
+Future<void> _reapproveBillDiscount(
+  BuildContext context,
+  DiningViewModel vm,
+  OpenBill bill,
+) async {
+  final discount = bill.discount;
+  if (discount == null) return;
+  final l10n = AppLocalizations.of(context);
+  UuidValue? approverId;
+  if (vm.discountNeedsApproval) {
+    final session = ApprovalScope.maybeOf(context);
+    if (session == null) return;
+    final approver = await requestApproval(
+      context,
+      session: session,
+      permission: Permission.salesDiscount,
+      reason: l10n.approvalDiscount,
+    );
+    if (approver == null) return;
+    approverId = approver.id;
+  }
+  await vm.setDiscount.execute((discount: discount, approverId: approverId));
 }
 
 /// *Diskon* panel bill (F1-04e): dialog diskon nota yang sama dengan Kasir;

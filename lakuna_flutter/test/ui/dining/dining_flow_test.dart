@@ -14,6 +14,7 @@ import 'package:lakuna_data/lakuna_data.dart'
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/receipt_printer.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
+import 'package:lakuna_flutter/ui/dining/dining_view.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_cashier_repository.dart';
@@ -418,6 +419,94 @@ void main() {
     await _tap(tester, 'discount-remove');
     expect(_key('dining-bill-discount'), findsNothing);
     expect(find.text('Rp 27.720'), findsWidgets);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('diskon rupiah, pesanan berkurang: setujui ulang dulu '
+        '(F1-04j) ${size.width.toInt()} px', (tester) async {
+      await pump(tester, size: size);
+      await _tap(tester, 'dining-table-M4');
+      await _tap(tester, 'dining-guests-open');
+      await addMenu(tester, ['Kopi Susu Aren', 'Nasi Goreng Kampung']);
+      await _tap(tester, 'dining-discount');
+      await _tap(tester, 'discount-kind-amount');
+      await tester.enterText(_input('discount-value-amount'), '5000');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'discount-apply');
+      expect(_key('dining-discount-reapproval'), findsNothing);
+
+      // Nasi goreng dibatalkan: potongan tetap Rp 5.000 untuk pesanan yang
+      // lebih kecil.
+      final remove = find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(
+              'dining-item-remove-',
+            ),
+      );
+      await tester.ensureVisible(remove.last);
+      await tester.tap(remove.last);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining(
+          'Pesanan berkurang sejak diskon Rp 5.000 disetujui (dari Rp ',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Setujui ulang diskon'), findsOneWidget);
+      expect(tester.widget<FButton>(_key('dining-pay')).onPress, isNull);
+
+      await _tap(tester, 'dining-discount-reapprove');
+      expect(_key('dining-discount-reapproval'), findsNothing);
+      expect(_key('dining-discount-reapprove'), findsNothing);
+      expect(tester.widget<FButton>(_key('dining-pay')).onPress, isNotNull);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
+  testWidgets('setujui ulang diskon: staf tanpa izin diskon melihat '
+      'petunjuk, bukan tombol (F1-04j)', (tester) async {
+    await pump(tester);
+    await _tap(tester, 'dining-table-M4');
+    await _tap(tester, 'dining-guests-open');
+    await addMenu(tester, ['Kopi Susu Aren', 'Nasi Goreng Kampung']);
+    await _tap(tester, 'dining-discount');
+    await _tap(tester, 'discount-kind-amount');
+    await tester.enterText(_input('discount-value-amount'), '5000');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'discount-apply');
+
+    final remove = find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('dining-item-remove-'),
+    );
+    await tester.ensureVisible(remove.last);
+    await tester.tap(remove.last);
+    await tester.pumpAndSettle();
+    expect(_key('dining-discount-reapprove'), findsOneWidget);
+
+    // Pelayan tanpa `sales:discount` dan sakelar PIN mati membuka bill ini.
+    dining
+      ..permissions = permissionsForRole('waiter', isOwner: false)
+      ..discountNeedsPin = false;
+    await tester.runAsync(
+      () => tester
+          .widget<DiningView>(find.byType(DiningView))
+          .viewModel
+          .load
+          .execute(),
+    );
+    await tester.pumpAndSettle();
+    expect(_key('dining-discount-reapproval'), findsOneWidget);
+    expect(_key('dining-discount-reapprove'), findsNothing);
+    expect(
+      find.text(
+        'Minta manajer atau staf yang berizin diskon untuk menyetujui ulang.',
+      ),
+      findsOneWidget,
+    );
+    expect(tester.widget<FButton>(_key('dining-pay')).onPress, isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('bayar bill lewat transfer: rekening toko tampil (F1-05c)', (

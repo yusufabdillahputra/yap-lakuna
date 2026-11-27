@@ -159,6 +159,14 @@ class DiscountTooLarge implements Exception {
   String toString() => 'DiscountTooLarge';
 }
 
+/// Diskon nota rupiah di open bill disetujui untuk pesanan yang lebih besar
+/// dari sekarang; bayar ditolak sampai disetujui ulang atau diubah (F1-04j).
+class DiscountNeedsReapproval implements Exception {
+  const DiscountNeedsReapproval();
+  @override
+  String toString() => 'DiscountNeedsReapproval';
+}
+
 /// Nilai diskon manual tidak sah (nol, negatif, atau > 100%).
 class DiscountInvalid implements Exception {
   const DiscountInvalid();

@@ -797,6 +797,10 @@ class FakeDiningRepository extends DiningRepository {
       if (approverId != null) discountApprovers[billId] = approverId;
     }
     final next = b.sale.copyWith(
+      // Dasar saat disetujui (F1-04j).
+      discountBase: discount?.kind == DiscountKind.amount
+          ? b.charges.subtotal.value
+          : null,
       discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
       discountAmount: discount?.kind == DiscountKind.amount
           ? discount!.amount.value

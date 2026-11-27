@@ -4562,6 +4562,20 @@
   "@diningDiscountHint": {
     "placeholders": {}
   },
+  "saleErrorDiscountReapproval": "Pesanan berkurang sejak diskon disetujui. Setujui ulang atau ubah diskon.",
+  "diningDiscountReapproveAction": "Setujui ulang diskon",
+  "diningDiscountReapproveNoPermission": "Minta manajer atau staf yang berizin diskon untuk menyetujui ulang.",
+  "@diningDiscountReapproveNoPermission": {
+    "description": "Petunjuk bila staf tanpa izin diskon (dan sakelar PIN mati) melihat diskon yang perlu disetujui ulang (F1-04j)"
+  },
+  "diningDiscountReapprove": "Pesanan berkurang sejak diskon {amount} disetujui (dari {approved} menjadi {now}). Setujui ulang atau ubah diskon.",
+  "@diningDiscountReapprove": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "approved": {"type": "String"},
+      "now": {"type": "String"}
+    }
+  },
   "diningDiscountBlocksPay": "Diskon menghabiskan total bill. Ubah atau hapus diskon sebelum membayar.",
   "@diningDiscountBlocksPay": {
     "placeholders": {}

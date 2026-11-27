@@ -268,6 +268,33 @@ void main() {
       expect(vm.selectedBill!.discount, isNull);
       expect(vm.discountBlocksPay, isFalse);
     });
+
+    test(
+      'diskon rupiah, pesanan berkurang: perlu disetujui ulang (F1-04j)',
+      () async {
+        await vm.openTable.execute((table('M4').id, 2));
+        await add('Kopi Susu Aren');
+        await add('Nasi Goreng Kampung');
+        await vm.setDiscount.execute((
+          discount: const ManualDiscount.amount(Money(5000)),
+          approverId: null,
+        ));
+        final approved = vm.selectedBill!.discountBase;
+        expect(approved, vm.selectedBill!.charges.subtotal);
+        expect(vm.discountNeedsReapproval, isFalse);
+        final nasi = vm.selectedBill!.items.last;
+        await vm.setQuantity.execute((nasi.id, Qty.zero));
+        expect(vm.discountNeedsReapproval, isTrue);
+        expect(vm.discountBlocksPay, isTrue);
+        await vm.setDiscount.execute((
+          discount: vm.selectedBill!.discount,
+          approverId: null,
+        ));
+        expect(vm.discountNeedsReapproval, isFalse);
+        expect(vm.discountBlocksPay, isFalse);
+        expect(vm.selectedBill!.discountBase, isNot(approved));
+      },
+    );
   });
 
   group('diskon baris bill (F1-04g)', () {

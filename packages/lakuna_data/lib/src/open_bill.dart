@@ -196,6 +196,15 @@ class OpenBill {
       modifiers[item.id] ?? const [];
 
   UuidValue get id => sale.id;
+
+  /// Pesanan berkurang sejak diskon nota rupiah disetujui (F1-04j): bayar
+  /// ditolak sampai disetujui ulang atau diubah.
+  bool get discountNeedsReapproval => _reapprovalDue(sale, charges.subtotal);
+
+  /// Dasar saat diskon nota rupiah disetujui; `null` bila tidak ada.
+  Money? get discountBase =>
+      sale.discountBase == null ? null : Money(sale.discountBase!);
+
   bool get isTakeAway => sale.orderType == OrderType.takeAway;
   bool get billRequested => sale.billRequestedAt != null;
 
@@ -341,13 +350,31 @@ FnbCharges _charges(
   discount: useSaleDiscount ? billDiscountOf(sale) : discount,
 );
 
+bool _reapprovalDue(Sale sale, Money base) => discountReapprovalDue(
+  amount: sale.discountBp == 0 ? Money(sale.discountAmount) : Money.zero,
+  base: base,
+  approvedBase: sale.discountBase == null ? null : Money(sale.discountBase!),
+);
+
 /// Bill berdiskon (nota atau baris) yang totalnya habis (item berkurang
-/// setelah diskon rupiah) tidak bisa dibayar sampai diskon diubah.
-void _assertPayable(Sale sale, List<SaleItem> items, FnbCharges charges) {
+/// setelah diskon rupiah) tidak bisa disimpan atau dibayar sampai diskon
+/// diubah.
+void _assertDiscountFits(List<SaleItem> items, FnbCharges charges) {
   final discounted =
       charges.discount > Money.zero || items.any(_hasLineDiscount);
   if (discounted && charges.total <= Money.zero) {
     throw const DiscountTooLarge();
+  }
+}
+
+/// Syarat bayar: diskon muat di total, dan diskon nota rupiah yang dasarnya
+/// mengecil sudah disetujui ulang (F1-04j). Perubahan bill (mis. ganti
+/// pelanggan) cukup memakai [_assertDiscountFits] agar tetap tersimpan;
+/// tanda setujui ulang muncul sesudahnya.
+void _assertPayable(Sale sale, List<SaleItem> items, FnbCharges charges) {
+  _assertDiscountFits(items, charges);
+  if (_reapprovalDue(sale, charges.subtotal)) {
+    throw const DiscountNeedsReapproval();
   }
 }
 
@@ -1446,7 +1473,10 @@ Future<OpenBill> setBillDiscount(
       if (discount != null && charges.total <= Money.zero) {
         throw const DiscountTooLarge();
       }
+      final rupiah = discount?.kind == DiscountKind.amount;
       return sale.copyWith(
+        // Dasar saat disetujui, untuk persetujuan ulang (F1-04j).
+        discountBase: rupiah ? charges.subtotal.value : null,
         discountBp: discount?.kind == DiscountKind.percent ? discount!.bp : 0,
         discountAmount: discount?.kind == DiscountKind.amount
             ? discount!.amount.value
@@ -2234,7 +2264,7 @@ Future<OpenBill> setOpenBillCustomer(
       sale.id,
     ], transaction: w.transaction);
     final rates = await _ratesOf(w, scope, sale);
-    _assertPayable(updated, items, _charges(updated, items, rates));
+    _assertDiscountFits(items, _charges(updated, items, rates));
   });
   return loadOpenBill(store, scope, billId);
 }

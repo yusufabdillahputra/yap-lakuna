@@ -143,7 +143,8 @@ ulang riwayat.
 | v0.159.0 | Satuan beli bawaan per barang (F1-08s) | #165 |
 | v0.160.0 | Sampai 5 foto per faktur pembelian (F1-12m) | #166 |
 | v0.161.0 | PDF retur pembelian per retur (F1-12n) | #167 |
-| v0.162.0 | Ekspor pratinjau import harga ke Excel (F1-07u) | |
+| v0.162.0 | Ekspor pratinjau import harga ke Excel (F1-07u) | #168 |
+| v0.163.0 | Setujui ulang diskon rupiah bila pesanan berkurang (F1-04j) | #169 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -450,6 +451,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 105. ~~Pratinjau import harga hanya 30 baris di layar~~ — selesai v0.162.0
      (F1-07u); tombol *Unduh Excel* berisi semua perubahan dan baris yang
      dilewati. Produk baru belum ikut di Excel.
+106. ~~Diskon rupiah open bill tetap berlaku walau pesanan berkurang~~ —
+     selesai v0.163.0 (F1-04j); `sales.discount_base`, migrasi
+     `dasar-diskon`. Diskon baris rupiah belum diperiksa.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
