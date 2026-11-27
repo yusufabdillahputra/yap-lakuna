@@ -33,7 +33,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 10 | Rentang tanggal laporan terakhir diingat | F1-16b | v0.146.0 (F1-16f) |
 | 11 | Umur piutang/hutang per pelanggan dan supplier | F1-16c | v0.147.0 (F1-16g) |
 | 12 | Pelunasan piutang per rekening di laporan | F1-13i | v0.148.0 (F1-16h) |
-| 13 | Cari: nama grup modifier, `5kg` = `5 kg`, garis miring Unicode lain di HP | F1-11f, F1-11e, F1-13f | |
+| 13 | Cari: nama grup modifier, `5kg` = `5 kg`, garis miring Unicode lain di HP | F1-11f, F1-11e, F1-13f | v0.149.0 (F1-11j) |
 | 14 | Sorot kata kunci di barang cocok Riwayat | F1-11i | |
 | 15 | Tambahan harga per modifier di rincian nota | F1-11h | |
 | 16 | Cetak stok hanya di bawah minimum | F1-08b | |

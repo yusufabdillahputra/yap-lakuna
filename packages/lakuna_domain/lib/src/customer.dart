@@ -41,8 +41,9 @@ final _invisibleMarks = RegExp(
 final _unicodeDashes = RegExp('[\u2010-\u2015\u2212]');
 
 /// Garis miring Unicode (U+2215 *division slash*, U+FF0F *fullwidth
-/// solidus*) yang bisa tersalin dari aplikasi lain (F1-13f).
-final _unicodeSlashes = RegExp('[\u2215\uFF0F]');
+/// solidus*, F1-13f; U+2044 *fraction slash*, U+29F8 *big solidus*,
+/// F1-11j) yang bisa tersalin dari aplikasi lain.
+final _unicodeSlashes = RegExp('[\u2215\uFF0F\u2044\u29F8]');
 
 /// Kunci pencarian HP dari kata kunci [raw] (F1-13d), dicocokkan secara
 /// "memuat" dengan nomor HP tersimpan (sudah dinormalisasi, `08…`).

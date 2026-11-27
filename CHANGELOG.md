@@ -7,6 +7,56 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.149.0] - 2026-11-27
+
+Pencarian Riwayat kini mengenal nama grup modifier dan kata yang ditulis
+tanpa spasi, dan pencarian HP menerima dua garis miring Unicode lagi. Ini
+gap ketiga belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Riwayat › Cari** (1.14): nama grup modifier yang dipilih di baris
+  barang ikut dicari. `topping` menemukan nota dengan opsi topping apa pun,
+  dan `kopi topping` menemukan kopi bertopping. Grup di barang lain pada
+  nota yang sama tidak cocok, dan barang yang cocok ikut ditulis di baris
+  hasil (*Barang cocok*).
+
+### Diubah
+
+- **Riwayat › Cari**: kata kunci juga cocok bila spasi di nama produk,
+  varian, catatan, modifier, atau grupnya dibuang. `5kg` kini menemukan
+  *Beras 5 kg*, dan `kopisusu` menemukan *Es Kopi Susu*. Arah sebaliknya
+  (`5 kg` untuk *Gula 5kg*) sudah cocok sejak F1-11e. Nomor nota, nama
+  pemesan, nama dan HP pelanggan, serta referensi bayar tetap dicocokkan
+  apa adanya.
+- Pencarian HP di semua layar (Riwayat, Pelanggan, Supplier, pilih
+  pelanggan di Kasir, Kredit, dan Meja) menganggap garis miring U+2044
+  (*fraction slash*) dan U+29F8 (*big solidus*) sebagai `/`, sama dengan
+  U+2215 dan U+FF0F (F1-13f). *Pelanggan baru* dari kata pencarian juga
+  mengisi kolom HP untuk nomor seperti `021⁄5551234`.
+- Panduan *Retur & void* (ID dan EN) menyebut nama grup dan kata tanpa
+  spasi.
+
+### Catatan teknis
+
+- `lakuna_data` `history.dart` `_searchSales`: klausa tiap kata memakai
+  `REPLACE(LOWER(kolom), ' ', '') LIKE LOWER(%kata%)` (ada di SQLite dan
+  Postgres). Kata kunci tidak berisi spasi, jadi bentuk ini mencakup
+  pencocokan lama. Subkueri modifier memeriksa `name` atau `group_name`.
+- Cek ulang Dart (`itemMatches`, `_matchedItems`) membuang spasi dengan
+  cara yang sama dan menerima nama grup lewat `_modifierTexts`, jadi `%`
+  dan `_` tetap literal.
+- `lakuna_domain` `customer.dart`: `_unicodeSlashes` mendapat U+2044 dan
+  U+29F8.
+- Tes data baru untuk nama grup dan kata tanpa spasi (nama produk, varian,
+  modifier, dan catatan), diverifikasi dengan mutasi (SQL dan Dart,
+  masing-masing untuk grup dan spasi).
+- Temuan review (semua Minor): tes `%` satu kolom, tes tanpa spasi di
+  modifier dan catatan, kalimat panduan dipersempit ke nama barang, dan
+  catatan di spec tentang kata yang cocok melintasi batas kata serta nama
+  grup yang umum.
+- Tanpa perubahan skema atau kunci l10n.
+
 ## [0.148.0] - 2026-11-27
 
 Pelunasan piutang kini tampil di Laporan, per metode dan per rekening
@@ -8441,7 +8491,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...HEAD
+[0.149.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...v0.149.0
 [0.148.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...v0.148.0
 [0.147.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...v0.147.0
 [0.146.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...v0.146.0

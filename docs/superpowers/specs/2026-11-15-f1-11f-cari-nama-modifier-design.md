@@ -63,6 +63,6 @@ transaksi).
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Cari nama modifier | 1.14 | Rilis v0.103.0 | Per baris barang bersama nama produk/varian. |
-| Cari nama grup modifier | — | Belum | Hanya nama opsi. |
+| Cari nama grup modifier | — | Rilis v0.149.0 | [F1-11j](2026-11-27-f1-11j-cari-grup-tanpa-spasi-design.md): grup dari modifier yang dipilih di baris itu. |
 | Cari catatan item (*tanpa es*) | — | Rilis v0.117.0 | [F1-11g](2026-11-20-f1-11g-cari-catatan-barang-design.md). |
 | `\` di kata kunci pada Postgres | — | Belum (Fase 2) | Sama seperti F1-11e; perlu `ESCAPE` eksplisit. |

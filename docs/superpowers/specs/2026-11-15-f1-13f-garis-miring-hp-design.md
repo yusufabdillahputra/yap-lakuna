@@ -68,4 +68,4 @@ menganggapnya teks biasa sehingga pelanggan tidak ditemukan.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Garis miring di pencarian HP | — | Rilis v0.113.0 | — |
-| Garis miring Unicode lain (U+2044 *fraction slash*, U+29F8) | — | Belum | Jarang tersalin dari aplikasi pesan; kata kunci tidak dicocokkan ke HP. |
+| Garis miring Unicode lain (U+2044 *fraction slash*, U+29F8) | — | Rilis v0.149.0 | [F1-11j](2026-11-27-f1-11j-cari-grup-tanpa-spasi-design.md) |

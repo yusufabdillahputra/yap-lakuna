@@ -443,8 +443,9 @@ _searchSales(
   // Nama barang saat transaksi (F1-11d): subkueri `sale_items` di SQL agar
   // tidak ada batas jumlah baris barang; dicek ulang per kelompok di bawah.
   // LOWER di kedua sisi: tanpa beda huruf di SQLite maupun Postgres.
-  // Beberapa kata (F1-11e): tiap kata harus ada di nama produk atau nama
-  // varian baris barang yang sama, urutan bebas (mis. `beras 5 kg`). SQL
+  // Beberapa kata (F1-11e): tiap kata harus ada di nama produk, varian,
+  // catatan, modifier, atau grup modifier baris barang yang sama, urutan
+  // bebas (mis. `beras 5 kg`). SQL
   // memakai kata seperti diketik (LOWER SQLite hanya melipat A–Z, jadi
   // huruf besar non-ASCII tetap cocok seperti F1-11d), Dart mengecek ulang
   // dengan huruf kecil. SQL hanya menyaring kandidat, jadi kata ke-9 dst.
@@ -454,20 +455,27 @@ _searchSales(
       if (w.isNotEmpty) w,
   }.toList();
   final words = [for (final w in raw) w.toLowerCase()];
-  // Nama modifier baris yang sama (F1-11f), dari salinan di nota. Catatan
-  // barang (*tanpa es*) di baris yang sama juga dicari (F1-11g).
+  // Kata tanpa spasi (F1-11j): spasi di kolom dibuang sebelum dicocokkan,
+  // jadi `5kg` cocok dengan *Beras 5 kg*. Kata kunci tidak berisi spasi,
+  // jadi bentuk ini mencakup pencocokan apa adanya.
+  String fieldHas(String column, String like) =>
+      "REPLACE(LOWER($column), ' ', '') LIKE LOWER($like)";
+  // Nama modifier baris yang sama (F1-11f) dan nama grupnya (F1-11j), dari
+  // salinan di nota. Catatan barang (*tanpa es*) di baris yang sama juga
+  // dicari (F1-11g).
   String modifierHas(String like) =>
       '"sale_items"."id" IN (SELECT "sale_item_id" FROM "sale_item_modifiers" '
       'WHERE "tenant_id" = ${EscapedExpression(scope.tenantId)} '
-      'AND "deleted_at" IS NULL AND LOWER("name") LIKE LOWER($like))';
+      'AND "deleted_at" IS NULL AND (${fieldHas('"name"', like)} '
+      'OR ${fieldHas('"group_name"', like)}))';
   final likes = [
     for (final w in raw.take(_maxSqlWords)) '${EscapedExpression('%$w%')}',
   ];
   final wordClauses = [
     for (final like in likes)
-      '(LOWER("product_name") LIKE LOWER($like) '
-          'OR LOWER("variant_name") LIKE LOWER($like) '
-          'OR LOWER("note") LIKE LOWER($like) '
+      '(${fieldHas('"product_name"', like)} '
+          'OR ${fieldHas('"variant_name"', like)} '
+          'OR ${fieldHas('"note"', like)} '
           'OR ${modifierHas(like)})',
   ].join(' AND ');
   Expression<Object?> withItem(SaleTable s) => Expression(
@@ -476,12 +484,15 @@ _searchSales(
     'AND "deleted_at" IS NULL '
     'AND $wordClauses)',
   );
+  // Huruf kecil tanpa spasi, sama dengan klausa SQL (F1-11j).
+  bool textHas(String? field, String w) =>
+      field != null && field.toLowerCase().replaceAll(' ', '').contains(w);
   bool itemMatches(SaleItem i, List<String> modifiers) => words.every(
     (w) =>
-        i.productName.toLowerCase().contains(w) ||
-        i.variantName.toLowerCase().contains(w) ||
-        (i.note?.toLowerCase().contains(w) ?? false) ||
-        modifiers.any((m) => m.toLowerCase().contains(w)),
+        textHas(i.productName, w) ||
+        textHas(i.variantName, w) ||
+        textHas(i.note, w) ||
+        modifiers.any((m) => textHas(m, w)),
   );
   bool matchesHeader(Sale s) =>
       has(s.number) ||
@@ -545,9 +556,7 @@ _searchSales(
         pending.map((i) => i.id),
       );
       for (final i in pending) {
-        final names = [
-          for (final m in modifiers[i.id] ?? const <SaleItemModifier>[]) m.name,
-        ];
+        final names = _modifierTexts(modifiers[i.id]);
         if (itemMatches(i, names)) byItem.add(i.saleId);
       }
     }
@@ -589,6 +598,14 @@ _searchSales(
   );
 }
 
+/// Teks modifier yang dicari: nama opsi (F1-11f) dan nama grupnya (F1-11j).
+List<String> _modifierTexts(List<SaleItemModifier>? modifiers) => [
+  for (final m in modifiers ?? const <SaleItemModifier>[]) ...[
+    m.name,
+    m.groupName,
+  ],
+];
+
 /// Nama barang tiap nota [sales] yang cocok dengan [matches] (F1-11i):
 /// produk + varian salinan nota, urut seperti di nota, tanpa kembar.
 /// Modifier hanya dimuat untuk baris yang belum cocok lewat nama/catatan.
@@ -623,10 +640,7 @@ Future<Map<UuidValue, List<String>>> _matchedItems(
   final result = <UuidValue, List<String>>{};
   for (final i in items) {
     final hit =
-        direct.contains(i.id) ||
-        matches(i, [
-          for (final m in modifiers[i.id] ?? const <SaleItemModifier>[]) m.name,
-        ]);
+        direct.contains(i.id) || matches(i, _modifierTexts(modifiers[i.id]));
     if (!hit) continue;
     final variant = i.variantName.trim();
     final name = [
