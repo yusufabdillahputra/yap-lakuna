@@ -5267,13 +5267,24 @@
   "@storeSettingsTargetMargin": {
     "placeholders": {}
   },
-  "storeSettingsTargetMarginHint": "Optional, 1–99. The Gross margin card in Reports → Profit & loss shows whether the target is met.",
+  "storeSettingsTargetMarginHint": "Optional, 1–99. The Gross profit card in Reports → Summary and the Gross margin card in Profit & loss show whether the target is met.",
   "@storeSettingsTargetMarginHint": {
     "placeholders": {}
   },
   "storeSettingsTargetMarginRange": "Enter 1–99, or leave empty for no target.",
   "@storeSettingsTargetMarginRange": {
     "placeholders": {}
+  },
+  "reportsKpiGrossProfitTarget": "Margin {margin} · {target}",
+  "@reportsKpiGrossProfitTarget": {
+    "placeholders": {
+      "margin": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
   },
   "reportsMarginTarget": "Store target {target}",
   "@reportsMarginTarget": {

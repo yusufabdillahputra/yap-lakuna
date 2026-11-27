@@ -8926,11 +8926,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeSettingsTargetMarginHint =>
-      'Optional, 1–99. The Gross margin card in Reports → Profit & loss shows whether the target is met.';
+      'Optional, 1–99. The Gross profit card in Reports → Summary and the Gross margin card in Profit & loss show whether the target is met.';
 
   @override
   String get storeSettingsTargetMarginRange =>
       'Enter 1–99, or leave empty for no target.';
+
+  @override
+  String reportsKpiGrossProfitTarget(String margin, String target) {
+    return 'Margin $margin · $target';
+  }
 
   @override
   String reportsMarginTarget(String target) {

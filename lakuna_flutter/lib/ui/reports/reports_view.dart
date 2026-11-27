@@ -466,7 +466,11 @@ class _Summary extends StatelessWidget {
           id: 'gross-profit',
           label: l10n.reportsKpiGrossProfit,
           value: formatMoney(context, pl.grossProfit),
-          note: l10n.reportsKpiGrossProfitNote,
+          note: grossProfitKpiNote(
+            l10n,
+            pl.grossMarginBp,
+            data.targetMarginBp,
+          ),
         ),
       _Kpi(
         id: 'average',

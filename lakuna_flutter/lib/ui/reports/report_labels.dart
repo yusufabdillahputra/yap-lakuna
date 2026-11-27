@@ -41,6 +41,22 @@ String marginNote(AppLocalizations l10n, int? marginBp, int? targetBp) {
   return l10n.reportsMarginTargetShort(target, points);
 }
 
+/// Keterangan KPI *Laba kotor* di Ringkasan (F1-16e): cara hitung bila
+/// tanpa target; target saja bila margin kosong; selain itu margin periode
+/// beserta keterangan target kartu *Margin kotor*.
+String grossProfitKpiNote(
+  AppLocalizations l10n,
+  int? marginBp,
+  int? targetBp,
+) {
+  if (targetBp == null) return l10n.reportsKpiGrossProfitNote;
+  if (marginBp == null) return l10n.reportsMarginTarget(targetLabel(targetBp));
+  return l10n.reportsKpiGrossProfitTarget(
+    percentLabel(l10n, marginBp),
+    marginNote(l10n, marginBp, targetBp),
+  );
+}
+
 /// Uang tanpa `BuildContext` (ekspor): `Rp 12.500` / `IDR 12,500`.
 String moneyLabel(AppLocalizations l10n, Money m) =>
     _en(l10n) ? m.formatEn() : m.formatIdr();
