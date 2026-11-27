@@ -135,9 +135,14 @@ class HistoryPage {
     required this.from,
     this.searching = false,
     this.truncated = false,
+    this.query = '',
   });
 
   final List<HistoryRow> rows;
+
+  /// Kata kunci (dirapikan) yang menghasilkan halaman ini, kosong di luar
+  /// pencarian; dipakai untuk menyorot barang cocok (F1-11k).
+  final String query;
 
   /// Hasil pencarian di semua tanggal (F1-11b).
   final bool searching;
@@ -368,6 +373,7 @@ Future<HistoryPage> listSalesHistory(
     from: from,
     searching: searching,
     truncated: truncated,
+    query: searching ? filter.trimmedQuery : '',
     rows: [
       for (final s in sales)
         HistoryRow(
