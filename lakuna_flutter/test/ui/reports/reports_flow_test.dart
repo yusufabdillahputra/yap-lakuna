@@ -292,6 +292,29 @@ void main() {
     );
   });
 
+  testWidgets('periode terakhir diingat saat Laporan dibuka lagi (F1-16f)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await _choose(tester, _key('reports-period'), 'Oktober 2026');
+    expect(repo.saved, const ReportPeriod.month(2026, 10));
+
+    await pump(
+      tester,
+      const Size(1440, 900),
+      reports: FakeReportsRepository()..saved = ReportPeriod.last7Days,
+    );
+    expect(repo.requests, [ReportPeriod.last7Days]);
+    expect(
+      find.descendant(
+        of: _key('reports-period'),
+        matching: find.text('7 hari terakhir'),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('rentang tanggal bebas: pilih, galat, batal, terapkan (F1-16b)', (
     tester,
   ) async {

@@ -30,7 +30,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 7 | Peringatan stok sistem berubah saat mengisi penyesuaian | F1-08 | v0.143.0 (F1-08q) |
 | 8 | Log masuk/keluar staf | F1-03 | v0.144.0 (F1-03h) |
 | 9 | Target margin di tab Ringkasan | F1-16d | v0.145.0 (F1-16e) |
-| 10 | Rentang tanggal laporan terakhir diingat | F1-16b | |
+| 10 | Rentang tanggal laporan terakhir diingat | F1-16b | v0.146.0 (F1-16f) |
 | 11 | Umur piutang/hutang per pelanggan dan supplier | F1-16c | |
 | 12 | Pelunasan piutang per rekening di laporan | F1-13i | |
 | 13 | Cari: nama grup modifier, `5kg` = `5 kg`, garis miring Unicode lain di HP | F1-11f, F1-11e, F1-13f | |

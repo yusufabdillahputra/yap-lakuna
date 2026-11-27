@@ -126,7 +126,8 @@ ulang riwayat.
 | v0.142.0 | Kasir tetap terbuka bila pengaturan struk rusak, galat cetak dicatat (F1-06c) | #148 |
 | v0.143.0 | Peringatan stok sistem berubah sejak dihitung (F1-08q) | #149 |
 | v0.144.0 | Log masuk/keluar staf (F1-03h) | #150 |
-| v0.145.0 | Target margin di KPI Laba kotor tab Ringkasan (F1-16e) | |
+| v0.145.0 | Target margin di KPI Laba kotor tab Ringkasan (F1-16e) | #151 |
+| v0.146.0 | Periode laporan terakhir diingat (F1-16f) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -389,6 +390,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     gagal dan keluar saat aplikasi ditutup belum dicatat.
 88. ~~Target margin tidak tampil di tab Ringkasan~~ — selesai v0.145.0
     (F1-16e); KPI *Laba kotor* menyebut margin dan target.
+89. ~~Periode laporan kembali ke *Hari ini* setiap dibuka~~ — selesai
+    v0.146.0 (F1-16f); periode diingat per cabang di perangkat, tab tidak.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

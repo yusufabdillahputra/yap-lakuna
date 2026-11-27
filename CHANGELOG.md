@@ -7,6 +7,44 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.146.0] - 2026-11-27
+
+Laporan kini mengingat periode yang terakhir dipilih. Ini gap kesepuluh di
+daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Diubah
+
+- **Laporan** (1.23 / 1.24): periode yang dipilih (*Hari ini*, *7 hari
+  terakhir*, *Bulan ini*, satu bulan, atau *Rentang tanggal…*) disimpan
+  di perangkat ini untuk tiap cabang. Membuka Laporan lagi, juga setelah
+  aplikasi ditutup, memakai periode itu. Sebelumnya Laporan selalu
+  kembali ke *Hari ini* (aturan 7 F1-16b).
+  - *Bulan ini* dan *7 hari terakhir* tetap relatif ke hari ini.
+  - Rentang tanggal tetap berupa tanggal yang sama.
+  - Bulan yang sudah keluar dari daftar pilihan, rentang yang melewati
+    hari ini atau lebih dari 366 hari, atau data yang rusak kembali ke
+    *Hari ini* tanpa pesan.
+  - Tab yang aktif tidak diingat; Laporan tetap dibuka di *Ringkasan*.
+- Panduan *Laporan* (ID dan EN) menjelaskan periode yang diingat.
+
+### Catatan teknis
+
+- `ReportPeriod.toJson` / `fromJson` / `restorable(today)` di
+  `lakuna_domain`. `fromJson` menolak tanggal yang tidak ada (mis. 30
+  Februari).
+- `ReportsRepository.savedPeriod` / `savePeriod`; versi lokal memakai
+  `LocalPreferences` dengan kunci `reports.period.<tenant>.<outlet>` dan
+  menelan galat baca/tulis (dicatat ke log debug, kecuali JSON rusak).
+- `ReportsViewModel` membaca periode tersimpan sekali, di muat pertama.
+  Bila staf memilih periode selagi pembacaan berjalan, pilihan staf yang
+  dipakai, termasuk bila staf memilih periode yang sedang tampil.
+  `setPeriod` menyimpan tanpa menunggu; galatnya dicatat ke log debug.
+- Daftar **Periode** kini selalu memuat periode aktif. Bulan yang
+  dipulihkan memakai tanggal perangkat, sedangkan daftar memakai tanggal
+  cabang, sehingga di sekitar pergantian bulan dengan zona waktu berbeda
+  bulan itu bisa tidak ada di daftar dan pilihan gagal digambar (temuan
+  review).
+
 ## [0.145.0] - 2026-11-27
 
 Kartu *Laba kotor* di tab Ringkasan Laporan kini menyebut margin periode
@@ -8335,7 +8373,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...HEAD
+[0.146.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...v0.146.0
 [0.145.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...v0.145.0
 [0.144.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...v0.144.0
 [0.143.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...v0.143.0

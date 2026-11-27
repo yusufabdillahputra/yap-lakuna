@@ -41,7 +41,8 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
 6. Berlaku untuk semua tab yang memakai periode (Ringkasan, Penjualan,
    Produk terlaris, Laba rugi, Stok, Kas & sesi, Retur); Piutang & hutang
    tetap tanpa periode. Batal tidak mengubah periode.
-7. Rentang tidak disimpan; membuka Laporan lagi kembali ke *Hari ini*.
+7. ~~Rentang tidak disimpan.~~ Diganti F1-16f (v0.146.0): periode terakhir
+   diingat per cabang di perangkat ([spec](2026-11-27-f1-16f-periode-laporan-diingat-design.md)).
 
 ## Rancangan teknis
 
@@ -71,7 +72,7 @@ bulan kalender. Modul ini menambah rentang tanggal bebas.
 | Topik | Desain | Kode | Rekomendasi |
 | --- | --- | --- | --- |
 | Rentang tanggal bebas | — | Rilis v0.67.0 | — |
-| Simpan rentang terakhir | — | Belum | Simpan di preferensi lokal bila diminta. |
+| Simpan rentang terakhir | — | Rilis v0.146.0 | [F1-16f](2026-11-27-f1-16f-periode-laporan-diingat-design.md), per cabang di perangkat. |
 | Rentang bebas di Riwayat | — | Rilis v0.68.0 | [F1-11c](2026-11-14-f1-11c-rentang-tanggal-riwayat-design.md) (dialog dipakai bersama). |
 | Kalender menolak tanggal masa depan sejak awal | — | Belum | `FDateField.calendar` Forui 0.27 belum punya batas tanggal; masa depan ditolak lewat validasi. |
 | *Hari ini* setelah lewat tengah malam | — | Diambil dari muatan laporan terakhir | Muat ulang laporan (sama dengan periode lain). |

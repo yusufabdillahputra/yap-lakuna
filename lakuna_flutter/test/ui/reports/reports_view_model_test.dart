@@ -226,6 +226,108 @@ void main() {
     );
   });
 
+  group('periode diingat (F1-16f)', () {
+    // Relatif ke jam dinding: periode tersimpan dicek sebelum data (dan
+    // tanggal cabang) dimuat.
+    final now = DateTime.now();
+    final lastMonth = () {
+      final d = DateTime.utc(now.year, now.month - 1);
+      return ReportPeriod.month(d.year, d.month);
+    }();
+
+    test('muat pertama memakai periode tersimpan', () async {
+      repo.saved = lastMonth;
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      expect(vm.period, lastMonth);
+      expect(repo.requests, [lastMonth]);
+      expect(vm.data!.period, lastMonth);
+    });
+
+    test('periode yang tidak lagi berlaku diganti Hari ini', () async {
+      final old = DateTime.utc(now.year, now.month - 24);
+      for (final stale in [
+        ReportPeriod.month(old.year, old.month),
+        ReportPeriod.custom(
+          // +2 agar tidak menjadi "hari ini" bila tes melewati tengah malam.
+          DateTime.utc(now.year, now.month, now.day + 2),
+          DateTime.utc(now.year, now.month, now.day + 3),
+        ),
+      ]) {
+        repo
+          ..saved = stale
+          ..requests.clear();
+        final vm = ReportsViewModel(repository: repo);
+        await vm.load.execute();
+        expect(vm.period, ReportPeriod.today, reason: '$stale');
+        expect(repo.requests, [ReportPeriod.today]);
+      }
+    });
+
+    test('ganti periode menyimpan; muat ulang tidak membaca lagi', () async {
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      expect(repo.savedHistory, isEmpty);
+      await vm.setPeriod(ReportPeriod.last7Days);
+      expect(repo.savedHistory, [ReportPeriod.last7Days]);
+      // Muat ulang (mis. tombol Coba lagi) tetap di periode terpilih.
+      repo.saved = ReportPeriod.thisMonth;
+      await vm.load.execute();
+      expect(vm.period, ReportPeriod.last7Days);
+    });
+
+    test('bulan dipulihkan dengan tanggal perangkat tetap ada di pilihan '
+        'meski di luar daftar tanggal cabang', () async {
+      // Tanggal cabang (zona waktu lain) sudah jauh di depan perangkat.
+      repo
+        ..saved = lastMonth
+        ..today = DateTime.utc(now.year + 2, now.month);
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      expect(vm.period, lastMonth);
+      expect(reportPeriodChoices(vm.today), isNot(contains(lastMonth)));
+      expect(vm.periods, contains(lastMonth));
+      expect(vm.periods.where((p) => p == lastMonth), hasLength(1));
+    });
+
+    test(
+      'memilih Hari ini selagi periode tersimpan dibaca tetap menang',
+      () async {
+        final read = Completer<ReportPeriod?>();
+        repo.savedRead = read.future;
+        final vm = ReportsViewModel(repository: repo);
+        final loading = vm.load.execute();
+        await vm.setPeriod(ReportPeriod.today);
+        read.complete(lastMonth);
+        await loading;
+        expect(vm.period, ReportPeriod.today);
+        expect(repo.savedHistory, [ReportPeriod.today]);
+      },
+    );
+
+    test('galat simpan dari repositori tidak bocor', () async {
+      repo.saveError = StateError('disk penuh');
+      final vm = ReportsViewModel(repository: repo);
+      await vm.load.execute();
+      await vm.setPeriod(ReportPeriod.last7Days);
+      await pumpEventQueue();
+      expect(vm.period, ReportPeriod.last7Days);
+      expect(vm.data!.period, ReportPeriod.last7Days);
+    });
+
+    test('periode dipilih saat periode tersimpan masih dibaca', () async {
+      final read = Completer<ReportPeriod?>();
+      repo.savedRead = read.future;
+      final vm = ReportsViewModel(repository: repo);
+      final loading = vm.load.execute();
+      await vm.setPeriod(ReportPeriod.last7Days);
+      read.complete(lastMonth);
+      await loading;
+      expect(vm.period, ReportPeriod.last7Days);
+      expect(vm.data!.period, ReportPeriod.last7Days);
+    });
+  });
+
   group('label dan tabel ekspor', () {
     test('persen dan periode', () {
       expect(percentLabel(id, 2570), '25,7%');

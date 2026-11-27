@@ -7,6 +7,7 @@ The **Reports** menu summarises sales, profit, stock, cash, receivables and paya
 ## Steps
 
 1. Open **Reports** and choose a **Period**: *Today*, *Last 7 days*, *This month*, one of the previous months, or *Date range…*.
+   - The last period you chose is remembered on this device for each branch, even after the app is closed. *This month* always means the current month, while a date range keeps its dates. A month that has dropped off the list goes back to *Today*.
    - *Date range…* opens a **From** / **To** window (at most 366 days, not after today), e.g. Nov 1–15. Net profit is compared with the same number of days just before, and the download file name includes the dates (`…-20261101-20261115-…`).
 2. Choose a tab:
    - **Summary**: sales, gross profit, average per receipt, overdue receivables, sales by payment method, and best sellers. Under *Bank transfer* there is a breakdown per destination account (largest first; *No account* for older transfers), also in the Excel/PDF download.
