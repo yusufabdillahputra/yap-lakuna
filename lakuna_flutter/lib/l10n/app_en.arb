@@ -5161,6 +5161,9 @@
   "@stockLocationDiscardBody": {
     "placeholders": {}
   },
+  "stockSystemChanged": "System stock changed from {from} to {to} since it was counted. The difference uses the latest stock; recount if needed.",
+  "stockSystemChecked": "Checked",
+  "stockSystemChangedSummary": "{count, plural, =1{1 item: system stock changed since it was counted.} other{{count} items: system stock changed since they were counted.}}",
   "stockDraftStored": "Draft saved on this device.",
   "@stockDraftStored": {
     "placeholders": {}

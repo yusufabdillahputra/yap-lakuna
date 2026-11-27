@@ -7,6 +7,50 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.143.0] - 2026-11-27
+
+Penyesuaian stok kini memperingatkan bila stok sistem sebuah barang
+berubah setelah stok fisiknya dihitung. Ini gap ketujuh di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Stok › Penyesuaian (1.18):** setiap baris mencatat stok sistem saat
+  stok fisiknya diisi. Bila stok sistem terbaru berbeda (mis. ada penjualan
+  saat draf ditinggal sejak v0.130.0), baris itu menampilkan *Stok sistem
+  berubah dari … jadi … sejak dihitung. Selisih memakai stok terbaru;
+  hitung ulang bila perlu.* dengan tombol **Sudah dicek**. Ini berlaku di
+  tabel desktop dan kartu ponsel.
+- Di atas tombol simpan muncul ringkasan *{n} barang: stok sistem berubah
+  sejak dihitung.* Peringatan tidak memblokir simpan; selisih tetap
+  memakai stok sistem saat disimpan.
+- Mengetik jumlah fisik baru (angka lain) dianggap hitung ulang, sehingga
+  peringatannya hilang. Angka yang sama tidak, karena Forui memanggil
+  `onChange` saat field mendapat fokus.
+- Panduan *Stok* (ID/EN): peringatan dan **Sudah dicek**.
+
+### Catatan teknis
+
+- `StockAdjustmentDraftLine` kini kelas (sebelumnya record) dengan
+  `countedSystem`. Di JSON draf perangkat ini disimpan sebagai
+  `countedSystem` (mili-satuan, opsional). Draf lama, atau nilai yang
+  negatif / bukan angka, dibaca `null` (tanpa peringatan).
+- `AdjustmentDraftLine.countedSystem` / `systemChanged`;
+  `StockViewModel.setPhysical` mencatat stok bila angka berubah,
+  `acknowledgeSystemChange`, `systemChangedCount`.
+- Debug dari review: baris tabel berganti antara `Row` dan `Column` saat
+  peringatan muncul/hilang, sehingga kolom fisik dibangun ulang dan fokus
+  serta ketikan berikutnya hilang (mengetik "12" tersimpan "1"). Kini baris
+  selalu `Column`; tes widget memastikan `EditableTextState` dan fokus
+  tetap di tabel dan ponsel.
+- `_updateLine` tidak lagi menulis ulang draf bila baris tidak berubah
+  (`onChange` Forui saat fokus).
+- Tes: JSON draf (bolak-balik, draf lama, nilai rusak); view model (catat,
+  muat ulang dengan stok berubah, *Sudah dicek*, angka sama / beda,
+  kosongkan, draf dipulihkan); widget tabel dan kartu ponsel.
+- Spec baru `docs/superpowers/specs/2026-11-27-f1-08q-stok-sistem-berubah-design.md`
+  dan rencananya.
+
 ## [0.142.0] - 2026-11-27
 
 Kasir tidak lagi gagal dibuka karena pengaturan struk yang rusak, dan galat
@@ -8213,7 +8257,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...HEAD
+[0.143.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...v0.143.0
 [0.142.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...v0.142.0
 [0.141.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...v0.141.0
 [0.140.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...v0.140.0

@@ -11,6 +11,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/app.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
+import 'package:lakuna_flutter/data/repositories/stock_repository.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/products/product_widgets.dart';
 import 'package:lakuna_flutter/ui/settings/app_settings_view_model.dart';
@@ -1650,4 +1651,114 @@ void main() {
     await _tap(tester, 'stock-tab-locations');
     expect(find.byKey(const ValueKey('stock-location-add')), findsNothing);
   });
+
+  for (final (label, size) in [
+    ('tabel', const Size(1280, 800)),
+    ('kartu ponsel', const Size(400, 800)),
+  ]) {
+    testWidgets('stok sistem berubah sejak dihitung: peringatan, ringkasan, '
+        'Sudah dicek ($label, F1-08q)', (tester) async {
+      final repo = FakeStockRepository();
+      final current = repo.rows
+          .firstWhere((r) => r.variantId == fakeId(201))
+          .stock;
+      repo.drafts[repo.locationList.first.id] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.routineCheck,
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: fakeId(201),
+            physical: Qty.units(3),
+            note: '',
+            countedSystem: current + Qty.units(2),
+          ),
+        ],
+      );
+      await pump(tester, size: size, stock: repo);
+      expect(key('stock-system-changed-$kopi'), findsOneWidget);
+      expect(
+        find.textContaining('Stok sistem berubah dari 4 jadi 2 sejak dihitung'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('1 barang: stok sistem berubah sejak dihitung.'),
+        findsOneWidget,
+      );
+      // Tidak memblokir simpan.
+      expect(
+        tester.widget<FButton>(key('stock-save')).onPress,
+        isNotNull,
+      );
+
+      await _tap(tester, 'stock-system-ok-$kopi');
+      expect(key('stock-system-changed-$kopi'), findsNothing);
+      expect(key('stock-system-changed-summary'), findsNothing);
+      expect(repo.drafts.values.single.lines.single.countedSystem, current);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('mengetik angka baru di baris berperingatan tidak '
+        'menghilangkan fokus ($label, F1-08q)', (tester) async {
+      final repo = FakeStockRepository();
+      final current = repo.rows
+          .firstWhere((r) => r.variantId == fakeId(201))
+          .stock;
+      repo.drafts[repo.locationList.first.id] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.routineCheck,
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: fakeId(201),
+            physical: Qty.units(3),
+            note: '',
+            countedSystem: current + Qty.units(2),
+          ),
+        ],
+      );
+      await pump(tester, size: size, stock: repo);
+      expect(key('stock-system-changed-$kopi'), findsOneWidget);
+      // Revisi kolom berubah saat draf dipulihkan; cocokkan awalannya.
+      final field = find.byWidgetPredicate(
+        (w) =>
+            w.key is ValueKey<String> &&
+            (w.key! as ValueKey<String>).value.startsWith(
+              'stock-physical-$kopi-',
+            ),
+      );
+      final input = find.descendant(
+        of: field,
+        matching: find.byType(EditableText),
+      );
+      await tester.ensureVisible(input);
+      await tester.tap(input);
+      await tester.pump();
+      final before = tester.state<EditableTextState>(input);
+      expect(before.widget.focusNode.hasFocus, isTrue);
+
+      // Ketikan pertama mencatat ulang stok sistem: peringatan hilang.
+      tester.testTextInput.updateEditingValue(
+        const TextEditingValue(
+          text: '1',
+          selection: TextSelection.collapsed(offset: 1),
+        ),
+      );
+      await tester.pump();
+      expect(key('stock-system-changed-$kopi'), findsNothing);
+      final after = tester.state<EditableTextState>(input);
+      expect(identical(before, after), isTrue);
+      expect(after.widget.focusNode.hasFocus, isTrue);
+
+      // Ketikan berikutnya tetap masuk.
+      tester.testTextInput.updateEditingValue(
+        const TextEditingValue(
+          text: '12',
+          selection: TextSelection.collapsed(offset: 2),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        repo.drafts.values.single.lines.single.physical,
+        Qty.units(12),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

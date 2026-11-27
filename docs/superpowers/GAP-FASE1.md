@@ -27,7 +27,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 4 | Foto stiker QRIS dari kamera (1.26b) | F1-18 | v0.140.0 (F1-18f) |
 | 5 | Baca NMID dari gambar QRIS (1.26b *QR terbaca*) | F1-18 | v0.141.0 (F1-18g) |
 | 6 | Kasir tetap terbuka bila pengaturan struk gagal dibaca; galat cetak non-printer tercatat | F1-06 | v0.142.0 (F1-06c) |
-| 7 | Peringatan stok sistem berubah saat mengisi penyesuaian | F1-08 | |
+| 7 | Peringatan stok sistem berubah saat mengisi penyesuaian | F1-08 | v0.143.0 (F1-08q) |
 | 8 | Log masuk/keluar staf | F1-03 | |
 | 9 | Target margin di tab Ringkasan | F1-16d | |
 | 10 | Rentang tanggal laporan terakhir diingat | F1-16b | |

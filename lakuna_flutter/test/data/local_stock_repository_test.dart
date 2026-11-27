@@ -157,8 +157,12 @@ void main() {
       reason: StockAdjustmentReason.lost,
       note: 'Opname akhir bulan',
       lines: [
-        (variantId: kopi, physical: const Qty(1500), note: 'rak atas'),
-        (
+        StockAdjustmentDraftLine(
+          variantId: kopi,
+          physical: const Qty(1500),
+          note: 'rak atas',
+        ),
+        StockAdjustmentDraftLine(
           variantId: UuidValue.fromString(
             '00000000-0000-7000-8000-000000000999',
           ),

@@ -232,6 +232,100 @@ void main() {
     });
   });
 
+  group('stok sistem berubah sejak dihitung (F1-08q)', () {
+    Qty stockOf(UuidValue id) =>
+        repo.rows.firstWhere((r) => r.variantId == id).stock;
+
+    void changeStock(UuidValue id, Qty stock) {
+      final i = repo.rows.indexWhere((r) => r.variantId == id);
+      final r = repo.rows[i];
+      repo.rows[i] = StockRow(
+        variantId: r.variantId,
+        productId: r.productId,
+        productName: r.productName,
+        variantName: r.variantName,
+        baseUnit: r.baseUnit,
+        stock: stock,
+        minStock: r.minStock,
+        unitCost: r.unitCost,
+        sku: r.sku,
+        barcode: r.barcode,
+      );
+    }
+
+    test('isi fisik mencatat stok; stok berubah lalu dimuat ulang → '
+        'peringatan', () async {
+      final before = stockOf(kopi);
+      vm
+        ..addLine(kopi)
+        ..addLine(sabun)
+        ..setPhysical(kopi, Qty.units(3));
+      expect(vm.lines.first.countedSystem, before);
+      expect(vm.lines.last.countedSystem, isNull);
+      expect(vm.systemChangedCount, 0);
+
+      changeStock(kopi, before - Qty.one);
+      changeStock(sabun, Qty.units(99));
+      await vm.load.execute();
+      final line = vm.lines.first;
+      expect(line.row.stock, before - Qty.one);
+      expect(line.countedSystem, before);
+      expect(line.systemChanged, isTrue);
+      // Belum dihitung: tidak berperingatan.
+      expect(vm.lines.last.systemChanged, isFalse);
+      expect(vm.systemChangedCount, 1);
+      // Selisih memakai stok terbaru.
+      expect(line.difference, Qty.units(3) - (before - Qty.one));
+    });
+
+    test('Sudah dicek dan angka baru menghapus peringatan; angka sama '
+        'tidak; kosongkan menghapus stok saat dihitung', () async {
+      final before = stockOf(kopi);
+      vm
+        ..addLine(kopi)
+        ..setPhysical(kopi, Qty.units(3));
+      changeStock(kopi, before + Qty.one);
+      await vm.load.execute();
+      expect(vm.systemChangedCount, 1);
+
+      vm.setPhysical(kopi, Qty.units(3));
+      expect(vm.systemChangedCount, 1);
+      vm.acknowledgeSystemChange(kopi);
+      expect(vm.systemChangedCount, 0);
+      expect(vm.lines.single.countedSystem, before + Qty.one);
+
+      changeStock(kopi, before);
+      await vm.load.execute();
+      expect(vm.systemChangedCount, 1);
+      vm.setPhysical(kopi, Qty.units(4));
+      expect(vm.systemChangedCount, 0);
+      expect(vm.lines.single.countedSystem, before);
+
+      vm.setPhysical(kopi, null);
+      expect(vm.lines.single.countedSystem, isNull);
+    });
+
+    test('draf dipulihkan membawa stok saat dihitung', () async {
+      final etalase = vm.location!.id;
+      repo.drafts[etalase] = StockAdjustmentDraft(
+        reason: StockAdjustmentReason.routineCheck,
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: kopi,
+            physical: Qty.units(3),
+            note: '',
+            countedSystem: stockOf(kopi) + Qty.units(2),
+          ),
+        ],
+      );
+      final again = StockViewModel(repository: repo, canAdjust: true);
+      addTearDown(again.dispose);
+      await again.load.execute();
+      expect(again.lines.single.systemChanged, isTrue);
+      expect(again.systemChangedCount, 1);
+    });
+  });
+
   group('draf tersimpan di perangkat (F1-08o)', () {
     late StockLocation etalase;
     late StockLocation gudang;
@@ -264,7 +358,17 @@ void main() {
         StockAdjustmentDraft(
           reason: StockAdjustmentReason.damaged,
           note: 'Opname',
-          lines: [(variantId: kopi, physical: Qty.units(3), note: 'rak atas')],
+          lines: [
+            StockAdjustmentDraftLine(
+              variantId: kopi,
+              physical: Qty.units(3),
+              note: 'rak atas',
+              // Stok sistem saat dihitung (F1-08q).
+              countedSystem: repo.rows
+                  .firstWhere((r) => r.variantId == kopi)
+                  .stock,
+            ),
+          ],
         ),
       );
     });
@@ -275,9 +379,17 @@ void main() {
         reason: StockAdjustmentReason.lost,
         note: 'Lanjut besok',
         lines: [
-          (variantId: sabun, physical: Qty.units(1), note: ''),
-          (variantId: fakeId(999), physical: Qty.one, note: 'dihapus'),
-          (variantId: kopi, physical: null, note: ''),
+          StockAdjustmentDraftLine(
+            variantId: sabun,
+            physical: Qty.units(1),
+            note: '',
+          ),
+          StockAdjustmentDraftLine(
+            variantId: fakeId(999),
+            physical: Qty.one,
+            note: 'dihapus',
+          ),
+          StockAdjustmentDraftLine(variantId: kopi, physical: null, note: ''),
         ],
       );
       final again = StockViewModel(repository: repo, canAdjust: true);
@@ -302,7 +414,13 @@ void main() {
       final beras = repo.rowsByLocation[gudang.id]!.single.variantId;
       repo.drafts[gudang.id] = StockAdjustmentDraft(
         reason: StockAdjustmentReason.routineCheck,
-        lines: [(variantId: beras, physical: Qty.units(48), note: '')],
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: beras,
+            physical: Qty.units(48),
+            note: '',
+          ),
+        ],
       );
       await vm.selectLocation(gudang.id);
       expect(vm.lines.single.row.variantId, beras);
@@ -406,7 +524,13 @@ void main() {
         'tersimpan, dibaca lagi saat muat ulang', () async {
       final stored = StockAdjustmentDraft(
         reason: StockAdjustmentReason.lost,
-        lines: [(variantId: sabun, physical: Qty.one, note: '')],
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: sabun,
+            physical: Qty.one,
+            note: '',
+          ),
+        ],
       );
       repo.drafts[etalase.id] = stored;
       repo.draftReadError = Exception('disk rusak');
@@ -458,7 +582,13 @@ void main() {
     test('tanpa izin stock:adjust: draf tidak dibaca atau ditulis', () async {
       repo.drafts[etalase.id] = StockAdjustmentDraft(
         reason: StockAdjustmentReason.lost,
-        lines: [(variantId: kopi, physical: Qty.one, note: '')],
+        lines: [
+          StockAdjustmentDraftLine(
+            variantId: kopi,
+            physical: Qty.one,
+            note: '',
+          ),
+        ],
       );
       final viewer = StockViewModel(repository: repo, canAdjust: false);
       addTearDown(viewer.dispose);
