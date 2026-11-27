@@ -910,7 +910,8 @@ class FakeDiningRepository extends DiningRepository {
     () => SplitBillData(
       bill: bill(billId),
       canPay: _can(Permission.salesCreate),
-      canConfirm: _can(Permission.paymentsConfirm),
+      canConfirm: _directQris,
+      qrisWithoutPin: qrisWithoutPin,
       staffName: 'Dimas',
       businessName: 'Kedai Contoh',
       outletName: 'Cabang Pusat',
@@ -1181,19 +1182,36 @@ class FakeDiningRepository extends DiningRepository {
   void _replacePayment(Payment p) =>
       payments[payments.indexWhere((x) => x.id == p.id)] = p;
 
+  /// Sakelar *Kasir boleh konfirmasi tanpa PIN manajer* (F1-05h).
+  var qrisWithoutPin = true;
+
+  /// Penyetuju tiap konfirmasi bagian menunggu yang berhasil.
+  final confirmApprovers = <UuidValue?>[];
+
+  bool get _directQris =>
+      _can(Permission.paymentsConfirm) &&
+      (qrisWithoutPin || _can(Permission.settingsManage));
+
   @override
-  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId) =>
-      _run(() {
-        for (final p in [Permission.salesCreate, Permission.paymentsConfirm]) {
-          if (!_can(p)) throw NotPermitted(p);
-        }
-        if (!sessionOpen) throw CashSessionNotOpen();
-        final p = _pending(paymentId);
-        _replacePayment(
-          p.copyWith(status: PaymentStatus.paid, confirmedBy: fakeId(4)),
-        );
-        return _finish(p.saleId);
-      });
+  Future<Result<SplitPayResult>> confirmSplitPayment(
+    UuidValue paymentId, {
+    UuidValue? approverId,
+  }) => _run(() {
+    _needSales();
+    if (approverId == null && !_directQris) {
+      throw const QrisConfirmNotPermitted();
+    }
+    if (!sessionOpen) throw CashSessionNotOpen();
+    final p = _pending(paymentId);
+    _replacePayment(
+      p.copyWith(
+        status: PaymentStatus.paid,
+        confirmedBy: approverId ?? fakeId(4),
+      ),
+    );
+    confirmApprovers.add(approverId);
+    return _finish(p.saleId);
+  });
 
   @override
   Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) => _run(() {

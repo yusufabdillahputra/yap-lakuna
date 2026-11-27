@@ -137,7 +137,7 @@ dan `LocalCashierRepository`).
 | QRIS statis (stiker vertikal) | 1.6, 1.6m, 1.26b | Rilis v0.7.0 | - |
 | Split payment | 1.5 panel kanan | Rilis v0.7.0 | - |
 | Referensi kartu/transfer di bagian split | 1.5 | Rilis v0.64.0 | [F1-05b](2026-11-14-f1-05b-referensi-split-struk-design.md); referensi juga tercetak di struk. |
-| PIN manajer untuk *Sudah Terbayar* | 1.26b sakelar | Belum (izin `payments:confirm` saja) | Bersama persetujuan PIN manajer (void/diskon) |
+| PIN manajer untuk *Sudah Terbayar* | 1.26b sakelar | Rilis v0.138.0 | [F1-05h](2026-11-27-f1-05h-pin-sudah-terbayar-design.md): staf tanpa izin minta PIN manajer; sakelar mewajibkan PIN untuk kasir. |
 | QRIS dinamis / cek mutasi otomatis | - | Belum | Fase 3 |
 | Kredit / piutang, DP, jatuh tempo | 1.5b | Rilis v0.17.0 | [F1-13](2026-11-03-f1-13-pelanggan-piutang-design.md). |
 | Opsi struk (cetak otomatis, PDF) | 1.5 panel Struk, 1.5c | Pratinjau teks saja | F1-06 |

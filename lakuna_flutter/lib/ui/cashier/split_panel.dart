@@ -10,6 +10,7 @@ import '../products/product_widgets.dart' show ChoicePill;
 import 'cashier_view_model.dart';
 import 'payment_view.dart'
     show PaymentPanel, TransferAccountBox, paymentMethodLabel, tabularFigures;
+import 'qris_approval.dart';
 import 'qris_panel.dart' show qrisAmber, qrisAmberInk, showQrisPartDialog;
 
 /// Split payment (panel kanan 1.5): bagian-bagian pembayaran, form tambah
@@ -85,10 +86,20 @@ class _SplitPanelState extends State<SplitPanel> {
       context,
       qris: vm.qris!,
       amount: part.amount,
-      canConfirm: vm.canConfirmPayments,
+      needsApproval: vm.qrisNeedsApproval,
     );
     if (!mounted || ok == null) return;
     if (ok) {
+      // Satu PIN manajer berlaku untuk semua bagian QRIS nota ini (F1-05h).
+      if (vm.qrisNeedsApproval) {
+        final approver = await requestQrisApproval(
+          context,
+          amount: vm.qrisApprovalAmount,
+          canApprove: vm.canApproveQris,
+        );
+        if (approver == null) return;
+        vm.approveQris((id: approver.id, name: approver.name));
+      }
       vm.confirmPart(index);
     } else {
       vm.removePart(index);

@@ -157,6 +157,9 @@ enum DiscountAccess {
 /// Penyetuju diskon manual yang PIN-nya sudah diperiksa.
 typedef DiscountApprover = ({UuidValue id, String name});
 
+/// Manajer yang memasukkan PIN untuk *Sudah Terbayar* QRIS (F1-05h).
+typedef QrisApprover = ({UuidValue id, String name});
+
 /// Pelanggan nota di kepala Pesanan (1.4b, F1-04d).
 typedef SaleCustomer = ({UuidValue id, String name, UuidValue? groupId});
 
@@ -374,6 +377,7 @@ class CashierViewModel extends ChangeNotifier {
     final result = await _repository.load();
     if (result case Ok(:final value)) {
       _data = value;
+      _qrisStrict = false;
       if (_categoryId != null &&
           !value.categories.any((c) => c.id == _categoryId)) {
         _categoryId = null;
@@ -1221,8 +1225,61 @@ class CashierViewModel extends ChangeNotifier {
   /// QRIS statis cabang; `null` bila nonaktif.
   CashierQris? get qris => _data?.qris;
 
-  /// Staf boleh menekan *Sudah Terbayar*.
-  bool get canConfirmPayments => _data?.canConfirmPayments ?? false;
+  /// Staf boleh menekan *Sudah Terbayar* tanpa PIN manajer (F1-05h).
+  bool get canConfirmPayments =>
+      (_data?.canConfirmPayments ?? false) && !_qrisStrict;
+
+  /// Sakelar *Kasir boleh konfirmasi tanpa PIN manajer* cabang.
+  bool get qrisWithoutPin => (_data?.qrisWithoutPin ?? true) && !_qrisStrict;
+
+  /// Lapisan data menolak konfirmasi (sakelar baru dimatikan di perangkat
+  /// lain): sampai data dimuat ulang, *Sudah Terbayar* selalu meminta PIN
+  /// dan penyetuju memakai aturan ketat.
+  var _qrisStrict = false;
+
+  /// Nominal QRIS yang disetujui satu PIN: semua bagian QRIS di split,
+  /// atau total yang dibayar.
+  Money get qrisApprovalAmount => _mode == PayMode.split
+      ? _parts
+            .where((p) => p.method == PaymentMethod.qrisStatic)
+            .fold(Money.zero, (sum, p) => sum + p.amount)
+      : payTotal;
+
+  /// Membuang persetujuan QRIS dan mengembalikan bagian QRIS yang sudah
+  /// dikonfirmasi dengannya ke *Menunggu*, agar PIN diminta lagi.
+  void _dropQrisApproval() {
+    if (_qrisApprover == null) return;
+    _qrisApprover = null;
+    for (var i = 0; i < _parts.length; i++) {
+      final p = _parts[i];
+      if (p.method != PaymentMethod.qrisStatic || !p.confirmed) continue;
+      _parts[i] = SplitPart(
+        method: p.method,
+        amount: p.amount,
+        reference: p.reference,
+        transferAccount: p.transferAccount,
+      );
+    }
+  }
+
+  QrisApprover? _qrisApprover;
+
+  /// Manajer yang menyetujui *Sudah Terbayar* pembayaran ini (F1-05h).
+  QrisApprover? get qrisApprover => _qrisApprover;
+
+  /// *Sudah Terbayar* harus didahului dialog PIN manajer.
+  bool get qrisNeedsApproval => !canConfirmPayments && _qrisApprover == null;
+
+  /// Staf [permissions] boleh menyetujui QRIS: aturannya sama dengan
+  /// konfirmasi langsung.
+  bool canApproveQris(Set<Permission> permissions) =>
+      canConfirmQrisDirectly(permissions, cashierWithoutPin: qrisWithoutPin);
+
+  /// Mencatat penyetuju QRIS setelah PIN-nya benar.
+  void approveQris(QrisApprover approver) {
+    _qrisApprover = approver;
+    notifyListeners();
+  }
 
   /// Galat simpan terakhir (sesi tertutup, produk tidak tersedia, dll.).
   Exception? get error => _error;
@@ -1255,8 +1312,8 @@ class CashierViewModel extends ChangeNotifier {
       };
 
   /// *Sudah Terbayar* untuk QRIS tunggal aktif.
-  bool get canConfirmQris =>
-      !_nothingToPay && !pay.running && qris != null && canConfirmPayments;
+  /// Bila [qrisNeedsApproval], tampilan meminta PIN manajer dulu.
+  bool get canConfirmQris => !_nothingToPay && !pay.running && qris != null;
 
   /// *Simpan, tunggu konfirmasi* (QRIS bagian split): bagian tersimpan
   /// sebagai menunggu dan dikonfirmasi nanti di layar split.
@@ -1278,6 +1335,7 @@ class CashierViewModel extends ChangeNotifier {
     if (_nothingToPay) return;
     _stage = CashierStage.pay;
     _mode = PayMode.cash;
+    _qrisApprover = null;
     _received = Money.zero;
     _reference = '';
     _transferChoice = null;
@@ -1322,7 +1380,11 @@ class CashierViewModel extends ChangeNotifier {
       loadCredit.execute();
     }
     // Mengetuk lagi metode yang sama tidak membuang rekening terpilih.
-    if (m != _mode) _transferChoice = null;
+    if (m != _mode) {
+      _transferChoice = null;
+      // PIN QRIS disetujui untuk nominal mode sebelumnya (F1-05h).
+      _dropQrisApproval();
+    }
     _mode = m;
     _reference = '';
     _error = null;
@@ -1373,8 +1435,8 @@ class CashierViewModel extends ChangeNotifier {
     PaymentMethod.cash,
     PaymentMethod.card,
     PaymentMethod.transfer,
-    // Bagian QRIS harus dikonfirmasi; tanpa izin tidak ditawarkan.
-    if (qris != null && canConfirmPayments) PaymentMethod.qrisStatic,
+    // Staf tanpa izin konfirmasi meminta PIN manajer (F1-05h).
+    if (qris != null) PaymentMethod.qrisStatic,
   ];
 
   PaymentMethod get draftMethod => _draftMethod;
@@ -1443,6 +1505,9 @@ class CashierViewModel extends ChangeNotifier {
   /// *Tambah metode*. QRIS masuk sebagai menunggu konfirmasi.
   void addPart() {
     if (pay.running || draftError != null) return;
+    // Bagian QRIS baru menambah nominal yang belum dilihat penyetuju: semua
+    // bagian QRIS dikonfirmasi ulang dengan PIN baru (F1-05h).
+    if (_draftMethod == PaymentMethod.qrisStatic) _dropQrisApproval();
     _parts.add(
       SplitPart(
         method: _draftMethod,
@@ -1474,7 +1539,7 @@ class CashierViewModel extends ChangeNotifier {
 
   /// *Sudah Terbayar* untuk bagian QRIS [index].
   void confirmPart(int index) {
-    if (pay.running || !canConfirmPayments) return;
+    if (pay.running || qrisNeedsApproval) return;
     final p = _parts[index];
     _parts[index] = SplitPart(
       method: p.method,
@@ -1527,7 +1592,9 @@ class CashierViewModel extends ChangeNotifier {
           : _payments(),
       pending: pending,
       credit: credit,
+      qrisApproverId: pending ? null : _qrisApprover?.id,
     );
+    _afterQrisAttempt(result);
     switch (result) {
       case Ok(value: SplitPayResult(:final receipt?)):
         _result = receipt;
@@ -1541,6 +1608,23 @@ class CashierViewModel extends ChangeNotifier {
       case Error(:final error):
         _error = error;
         return Result.error(error);
+    }
+  }
+
+  /// Persetujuan QRIS sekali pakai: habis setelah tersimpan, dan dibuang
+  /// bila ditolak (kedaluwarsa atau penyetuju tidak berhak) agar PIN
+  /// diminta lagi.
+  void _afterQrisAttempt(Result<Object?> result) {
+    switch (result) {
+      case Ok():
+        _qrisApprover = null;
+      case Error(error: QrisConfirmNotPermitted()):
+        _qrisStrict = true;
+        _dropQrisApproval();
+      case Error(error: NotPermitted(permission: Permission.paymentsConfirm)):
+        _dropQrisApproval();
+      case Error():
+        break;
     }
   }
 
@@ -1559,6 +1643,7 @@ class CashierViewModel extends ChangeNotifier {
             bill.id,
             _payments(),
             credit: _mode == PayMode.credit ? _saleCredit() : null,
+            qrisApproverId: _qrisApprover?.id,
           )
         : await _repository.checkout(
             lines: _requests(),
@@ -1569,7 +1654,9 @@ class CashierViewModel extends ChangeNotifier {
             credit: _mode == PayMode.credit ? _saleCredit() : null,
             customerId: _customer?.id,
             parkedSaleId: _parkedId,
+            qrisApproverId: _qrisApprover?.id,
           );
+    _afterQrisAttempt(result);
     switch (result) {
       case Ok(:final value):
         _result = value;

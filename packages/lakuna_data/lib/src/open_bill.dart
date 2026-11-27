@@ -1818,6 +1818,7 @@ Future<CheckoutResult> payOpenBill(
   required UuidValue billId,
   required List<SalePaymentRequest> payments,
   SaleCredit? credit,
+  UuidValue? qrisApproverId,
 }) async {
   if (credit != null) {
     if (payments.isNotEmpty) {
@@ -1830,6 +1831,14 @@ Future<CheckoutResult> payOpenBill(
     ];
   }
   checkPaymentRequests(payments);
+  final confirmer = confirmsQris(payments)
+      ? await requireQrisConfirmer(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: qrisApproverId,
+        )
+      : null;
   return store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
     final sale = await _openSale(
@@ -1869,6 +1878,7 @@ Future<CheckoutResult> payOpenBill(
       scope,
       saleId: sale.id,
       staffId: staffId,
+      confirmerId: confirmer,
       payments: payments,
       amounts: amounts,
       change: change,

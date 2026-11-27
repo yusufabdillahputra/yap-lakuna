@@ -10,6 +10,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart';
 import 'cashier_view_model.dart';
 import 'payment_view.dart' show PaymentPanel, tabularFigures;
+import 'qris_approval.dart';
 
 /// Warna status tetap (sama di tema terang dan gelap) agar terbaca.
 const qrisAmber = Color(0xFFFEF3C6);
@@ -364,6 +365,21 @@ class QrisPanel extends StatelessWidget {
   }
 }
 
+/// *Sudah Terbayar* QRIS tunggal: staf yang tidak boleh konfirmasi langsung
+/// meminta PIN manajer dulu (F1-05h).
+Future<void> confirmQrisPaid(BuildContext context, CashierViewModel vm) async {
+  if (vm.qrisNeedsApproval) {
+    final approver = await requestQrisApproval(
+      context,
+      amount: vm.qrisApprovalAmount,
+      canApprove: vm.canApproveQris,
+    );
+    if (approver == null) return;
+    vm.approveQris((id: approver.id, name: approver.name));
+  }
+  await vm.pay.execute();
+}
+
 /// *Belum masuk* dan *Sudah Terbayar* untuk QRIS tunggal.
 class QrisActions extends StatelessWidget {
   const QrisActions({super.key, required this.viewModel});
@@ -379,12 +395,12 @@ class QrisActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
-        if (!vm.canConfirmPayments)
+        if (vm.qrisNeedsApproval)
           Text(
-            l10n.qrisNoPermission,
-            key: const ValueKey('qris-no-permission'),
+            l10n.qrisNeedsApproval,
+            key: const ValueKey('qris-needs-approval'),
             style: theme.typography.body.xs.copyWith(
-              color: theme.colors.destructive,
+              color: theme.colors.mutedForeground,
             ),
           ),
         if (vm.partMode && vm.qris != null)
@@ -422,7 +438,9 @@ class QrisActions extends StatelessWidget {
               child: FButton(
                 key: const ValueKey('qris-confirm'),
                 size: .lg,
-                onPress: vm.canConfirmQris ? vm.pay.execute : null,
+                onPress: vm.canConfirmQris
+                    ? () => confirmQrisPaid(context, vm)
+                    : null,
                 prefix: vm.pay.running
                     ? const SizedBox.square(
                         dimension: 16,
@@ -447,7 +465,7 @@ Future<bool?> showQrisPartDialog(
   BuildContext context, {
   required CashierQris qris,
   required Money amount,
-  required bool canConfirm,
+  required bool needsApproval,
 }) => showFDialog<bool>(
   context: context,
   builder: (context, style, animation) => FDialog(
@@ -486,11 +504,11 @@ Future<bool?> showQrisPartDialog(
                 semanticsLabel: l10n.qrisImageLabel,
               ),
               const _ScreenshotWarning(),
-              if (!canConfirm)
+              if (needsApproval)
                 Text(
-                  l10n.qrisNoPermission,
+                  l10n.qrisNeedsApproval,
                   style: theme.typography.body.xs.copyWith(
-                    color: theme.colors.destructive,
+                    color: theme.colors.mutedForeground,
                   ),
                 ),
               Row(
@@ -512,9 +530,7 @@ Future<bool?> showQrisPartDialog(
                   Expanded(
                     child: FButton(
                       key: const ValueKey('qris-dialog-confirm'),
-                      onPress: canConfirm
-                          ? () => Navigator.of(context).pop(true)
-                          : null,
+                      onPress: () => Navigator.of(context).pop(true),
                       prefix: const Icon(TablerIcons.check),
                       child: Flexible(
                         child: Text(

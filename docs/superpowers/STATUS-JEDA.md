@@ -118,7 +118,8 @@ ulang riwayat.
 | v0.134.0 | Kredit untuk bagian terakhir split bill (F1-13h) | #140 |
 | v0.135.0 | Rekening tujuan per pembayaran transfer (F1-05g) | #141 |
 | v0.136.0 | Rekening tujuan pembayaran piutang transfer (F1-13i) | #142 |
-| v0.137.0 | Shift kasir: master, pilih saat buka sesi, laporan per shift (F1-03g) | |
+| v0.137.0 | Shift kasir: master, pilih saat buka sesi, laporan per shift (F1-03g) | #143 |
+| v0.138.0 | PIN manajer untuk Sudah Terbayar QRIS (F1-05h) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -356,6 +357,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     Shift, shift berjalan terpilih saat buka sesi, tabel *Per shift* di
     Laporan › Kas & sesi. Gap kecil berikutnya mengikuti
     `docs/superpowers/GAP-FASE1.md`.
+80. ~~*Sudah Terbayar* QRIS tanpa PIN manajer~~ — selesai v0.138.0
+    (F1-05h); staf tanpa izin minta PIN manajer, sakelar *Kasir boleh
+    konfirmasi tanpa PIN manajer* di Pengaturan › Metode pembayaran.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

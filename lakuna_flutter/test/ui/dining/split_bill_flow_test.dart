@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/dining/split_bill_view.dart';
 
@@ -39,7 +40,11 @@ void main() {
   late FakeCashierRepository cashier;
   late FakeReceiptPrinter printer;
 
-  Future<void> pump(WidgetTester tester, {required Size size}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    required Size size,
+    FakeSessionRepository? session,
+  }) async {
     dining = FakeDiningRepository();
     cashier = FakeCashierRepository(qris: sampleQris())..dining = dining;
     printer = FakeReceiptPrinter();
@@ -50,7 +55,7 @@ void main() {
       dining: dining,
       cashier: cashier,
       receiptPrinter: printer,
-      session: FakeSessionRepository()..current = sampleStaff(),
+      session: session ?? (FakeSessionRepository()..current = sampleStaff()),
     );
   }
 
@@ -65,6 +70,50 @@ void main() {
     await _tap(tester, 'dining-menu-Nasi Goreng Kampung');
     await _tap(tester, 'dining-menu-done');
   }
+
+  testWidgets(
+    'ponsel: sakelar PIN mati, konfirmasi QRIS menunggu butuh PIN (F1-05h)',
+    (tester) async {
+      final rina = sampleStaff(name: 'Rina', role: 'manager');
+      await pump(
+        tester,
+        size: const Size(360, 740),
+        session: FakeSessionRepository(staff: [rina])
+          ..current = sampleStaff(name: 'Sari', role: 'cashier'),
+      );
+      await openBill(tester, 'M4');
+      dining
+        ..permissions = DefaultRole.cashier.permissions
+        ..qrisWithoutPin = false;
+      await tester.dragUntilVisible(
+        _key('dining-split'),
+        _key('dining-bill-title'),
+        const Offset(0, -200),
+      );
+      await _tap(tester, 'dining-split');
+      await _tap(tester, 'split-mode-equal');
+      await _tap(tester, 'split-pay-A');
+      await _tap(tester, 'payment-method-qris');
+      await _tap(tester, 'qris-wait');
+      expect(_text(tester, 'split-status-A'), 'QRIS statis · menunggu');
+
+      // Batal di dialog PIN: tetap menunggu.
+      await _tap(tester, 'split-confirm-A');
+      expect(_key('approval-dialog'), findsOneWidget);
+      Navigator.of(tester.element(_key('approval-dialog'))).pop();
+      await tester.pumpAndSettle();
+      expect(dining.confirmApprovers, isEmpty);
+      expect(_text(tester, 'split-status-A'), 'QRIS statis · menunggu');
+
+      await _tap(tester, 'split-confirm-A');
+      await tester.enterText(_input('approval-pin'), '123456');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'approval-submit');
+      expect(dining.confirmApprovers, [rina.id]);
+      expect(_text(tester, 'split-status-A'), startsWith('Lunas'));
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
 
   testWidgets(
     'tablet: per item, bayar tunai tamu A, QRIS menunggu tamu B, konfirmasi',

@@ -7,7 +7,9 @@ import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
 import 'media.dart';
+import 'sales.dart' show SalePaymentRequest;
 import 'settings_scope.dart';
+import 'staff_access.dart';
 import 'stock.dart';
 import 'store.dart';
 
@@ -23,6 +25,7 @@ class QrisStaticSettings {
     this.nmid = '',
     this.terminalCode = '',
     this.settlementNote = '',
+    this.cashierConfirmWithoutPin = true,
   });
 
   factory QrisStaticSettings.fromJson(Map<String, Object?> json) {
@@ -35,6 +38,8 @@ class QrisStaticSettings {
       nmid: text('nmid'),
       terminalCode: text('terminalCode'),
       settlementNote: text('settlementNote'),
+      // Bawaan hidup: baris lama sebelum F1-05h tidak berubah perilakunya.
+      cashierConfirmWithoutPin: json['cashierConfirmWithoutPin'] != false,
     );
   }
 
@@ -52,6 +57,10 @@ class QrisStaticSettings {
   /// *Dana masuk ke*: petunjuk kasir saat cek mutasi.
   final String settlementNote;
 
+  /// *Kasir boleh konfirmasi tanpa PIN manajer* (F1-05h, bawaan hidup).
+  /// Lihat `canConfirmQrisDirectly`.
+  final bool cashierConfirmWithoutPin;
+
   Map<String, Object?> toJson() => {
     'enabled': enabled,
     'mediaId': mediaId?.uuid,
@@ -59,6 +68,7 @@ class QrisStaticSettings {
     'nmid': nmid,
     'terminalCode': terminalCode,
     'settlementNote': settlementNote,
+    'cashierConfirmWithoutPin': cashierConfirmWithoutPin,
   };
 
   QrisStaticSettings copyWith({
@@ -67,6 +77,7 @@ class QrisStaticSettings {
     String? nmid,
     String? terminalCode,
     String? settlementNote,
+    bool? cashierConfirmWithoutPin,
   }) => QrisStaticSettings(
     enabled: enabled ?? this.enabled,
     mediaId: mediaId,
@@ -74,6 +85,8 @@ class QrisStaticSettings {
     nmid: nmid ?? this.nmid,
     terminalCode: terminalCode ?? this.terminalCode,
     settlementNote: settlementNote ?? this.settlementNote,
+    cashierConfirmWithoutPin:
+        cashierConfirmWithoutPin ?? this.cashierConfirmWithoutPin,
   );
 
   QrisStaticSettings _normalized(UuidValue? media) => QrisStaticSettings(
@@ -83,6 +96,7 @@ class QrisStaticSettings {
     nmid: normalizeNmid(nmid),
     terminalCode: terminalCode.trim(),
     settlementNote: settlementNote.trim(),
+    cashierConfirmWithoutPin: cashierConfirmWithoutPin,
   );
 }
 
@@ -126,6 +140,48 @@ class QrisSettingsInvalid implements Exception {
 
   @override
   String toString() => 'QrisSettingsInvalid($errors)';
+}
+
+/// Pengonfirmasi QRIS tidak boleh menekan *Sudah Terbayar* langsung
+/// (F1-05h): butuh penyetuju ber-PIN, atau penyetujunya tidak berhak.
+class QrisConfirmNotPermitted implements Exception {
+  const QrisConfirmNotPermitted();
+
+  @override
+  String toString() => 'QrisConfirmNotPermitted';
+}
+
+/// Ada pembayaran QRIS statis yang dikonfirmasi di [payments].
+bool confirmsQris(List<SalePaymentRequest> payments) =>
+    payments.any((p) => p.method == PaymentMethod.qrisStatic && p.confirmed);
+
+/// Siapa yang mengonfirmasi QRIS (F1-05h): [approverId] bila ada, selain
+/// itu [staffId]. Orang itu harus staf aktif cabang yang
+/// `canConfirmQrisDirectly` menurut sakelar cabang, selain itu
+/// [QrisConfirmNotPermitted]. Hasilnya dicatat di `payments.confirmed_by`.
+Future<UuidValue> requireQrisConfirmer(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  UuidValue? approverId,
+}) async {
+  final settings = await readQrisSettings(store.session, scope);
+  final confirmer = approverId ?? staffId;
+  // Pemilik tanpa keanggotaan cabang tetap bertugas sebagai `owner`.
+  final staff = await findActingStaff(
+    store,
+    tenantId: scope.tenantId,
+    outletId: scope.outletId,
+    staffId: confirmer,
+  );
+  if (staff == null ||
+      !canConfirmQrisDirectly(
+        staff.permissions,
+        cashierWithoutPin: settings.cashierConfirmWithoutPin,
+      )) {
+    throw const QrisConfirmNotPermitted();
+  }
+  return confirmer;
 }
 
 /// Pengaturan QRIS statis cabang [scope].

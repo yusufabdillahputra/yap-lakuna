@@ -7,6 +7,85 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.138.0] - 2026-11-27
+
+*Sudah Terbayar* QRIS statis kini bisa memakai PIN manajer, sesuai sakelar
+di desain 1.26b. Ini gap kedua di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Pengaturan › Metode pembayaran › QRIS statis (1.26b):** sakelar
+  **Kasir boleh konfirmasi tanpa PIN manajer** di bawah *Wajib tekan
+  "Sudah Terbayar"* (bawaan hidup, jadi toko yang sudah berjalan tidak
+  berubah). Bila dimatikan, staf tanpa izin *Kelola pengaturan*
+  memasukkan PIN manajer setiap menekan **Sudah Terbayar**; pemilik dan
+  manajer tetap langsung.
+- **Kasir › QRIS, bagian QRIS di *Bagi beberapa metode*, bayar bill dan
+  bagian split, serta Meja › Split bill (bagian menunggu):** staf yang
+  tidak boleh konfirmasi langsung melihat *Sudah Terbayar butuh PIN
+  manajer.* Menekan **Sudah Terbayar** membuka dialog **Persetujuan
+  manajer** (1.2b) dengan alasan *Sudah Terbayar QRIS Rp … butuh PIN
+  manajer*. Penyetuju yang ditawarkan hanya staf lain ber-PIN yang boleh
+  konfirmasi langsung menurut aturan yang sama. Batal di dialog tidak
+  menyimpan apa pun. Satu PIN berlaku untuk semua bagian QRIS satu
+  pembayaran (dialog menyebut total QRIS-nya); menambah bagian QRIS baru
+  atau mengganti metode bayar meminta PIN lagi dan mengembalikan bagian
+  QRIS ke *Menunggu*. Bagian menunggu di Meja › Split bill meminta PIN
+  per bagian.
+- `payments.confirmed_by` mencatat manajer yang menyetujui, bukan kasir.
+- Panduan *Menerima QRIS statis* (ID/EN): bagian *PIN manajer untuk Sudah
+  Terbayar*.
+
+### Diubah
+
+- Staf tanpa izin `payments:confirm` (mis. pelayan atau role buatan
+  sendiri) kini tetap bisa memilih QRIS di layar Bayar dan di *Bagi
+  beberapa metode*. Sebelumnya QRIS disembunyikan dan tombol *Sudah
+  Terbayar* mati dengan pesan *Butuh izin konfirmasi pembayaran*.
+- Tombol *Sudah Terbayar* bagian menunggu di Meja › Split bill tampil
+  untuk semua staf yang boleh membayar, lalu meminta PIN bila perlu.
+
+### Diperbaiki
+
+- Dialog **Persetujuan manajer** bisa digulir. Di ponsel 360 px dengan
+  alasan dua baris, isi dialog melebihi tinggi layar (*RenderFlex
+  overflowed*) sehingga tombol **Setujui** terpotong dan tidak bisa
+  ditekan.
+
+### Catatan teknis
+
+- Aturan bersama `canConfirmQrisDirectly(permissions,
+  cashierWithoutPin:)` di `lakuna_domain`: `payments:confirm` dan (sakelar
+  hidup atau `settings:manage`). Dipakai untuk konfirmasi langsung dan
+  untuk menyaring penyetuju.
+- `QrisStaticSettings.cashierConfirmWithoutPin` di JSON
+  `payments.qris_static` (baris lama terbaca `true`); tanpa migrasi.
+- Lapisan data memeriksa ulang di setiap jalur konfirmasi
+  (`checkoutSale`, `payOpenBill`, `paySplitPart`, `confirmSplitPayment`)
+  lewat `requireQrisConfirmer` dan menolak dengan
+  `QrisConfirmNotPermitted`. Bagian split *Simpan, tunggu konfirmasi*
+  tidak diperiksa karena belum dikonfirmasi.
+- Repositori menerima `qrisApproverId` / `approverId` hanya bila PIN-nya
+  baru diperiksa (`SessionRepository.hasApproval`, sekali pakai, 2 menit),
+  dan memakainya habis setelah tersimpan. Pemeriksaan izin
+  `payments:confirm` lama di repositori pindah ke lapisan data.
+- `ApprovalDialog` / `requestApproval` menerima `eligible` untuk syarat
+  penyetuju tambahan. `SplitBillScreen` menerima `session` agar dialog
+  PIN tersedia di layar split.
+- `CashierViewModel`: `qrisNeedsApproval`, `approveQris`,
+  `canApproveQris`, `qrisApprovalAmount`; persetujuan dibuang saat masuk
+  layar bayar lagi, ganti mode, bagian QRIS baru, setelah tersimpan, atau
+  saat ditolak. Tolakan `QrisConfirmNotPermitted` (sakelar baru dimatikan
+  di perangkat lain) memaksa PIN dengan aturan ketat sampai data dimuat
+  ulang, juga di `SplitBillViewModel`.
+- Persetujuan `payments:confirm` berlaku 30 menit seperti diskon (bukan
+  2 menit seperti void), karena bagian split dikonfirmasi lalu dibayar
+  belakangan.
+- `requireQrisConfirmer` memakai `findActingStaff`, jadi pemilik yang
+  masuk di cabang tanpa keanggotaan tetap bisa konfirmasi langsung.
+  Ditemukan saat review: dengan `findStaffById` pemilik itu ditolak di
+  setiap penjualan QRIS.
+
 ## [0.137.0] - 2026-11-27
 
 Sesi kasir kini bisa memakai shift: pemilik membuat daftar shift cabang,
@@ -7896,7 +7975,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...HEAD
+[0.138.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...v0.138.0
 [0.137.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...v0.137.0
 [0.136.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.135.0...v0.136.0
 [0.135.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.134.0...v0.135.0

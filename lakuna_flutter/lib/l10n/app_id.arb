@@ -735,7 +735,7 @@
   "qrisClose": "Tutup",
   "qrisNotReceived": "Belum masuk",
   "qrisPaid": "Sudah Terbayar",
-  "qrisNoPermission": "Butuh izin konfirmasi pembayaran (payments:confirm).",
+  "qrisNeedsApproval": "Sudah Terbayar butuh PIN manajer.",
   "splitTitle": "Split payment",
   "splitHint": "Contoh: sebagian tunai, sisa QRIS atau kartu.",
   "splitAmount": "Nominal",
@@ -831,6 +831,8 @@
   "qrisSettingsEnabled": "QRIS statis aktif di kasir",
   "qrisSettingsRequirePaid": "Wajib tekan \"Sudah Terbayar\"",
   "qrisSettingsRequirePaidHint": "Selalu aktif untuk QRIS statis; tidak bisa dimatikan",
+  "qrisSettingsWithoutPin": "Kasir boleh konfirmasi tanpa PIN manajer",
+  "qrisSettingsWithoutPinHint": "Bila mati, kasir tanpa izin Pengaturan memasukkan PIN manajer setiap menekan Sudah Terbayar.",
   "qrisSettingsSave": "Simpan",
   "qrisSettingsCancel": "Batal",
   "qrisSettingsSaved": "Pengaturan QRIS tersimpan",
@@ -4465,6 +4467,15 @@
   "cashierResumedFrom": "Dari nota tersimpan",
   "paymentErrorParked": "Nota tersimpan ini sudah dibayar atau dihapus di tempat lain. Selesaikan lagi untuk mencatatnya sebagai penjualan baru.",
   "cashierResumeDiscountDropped": "Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.",
+  "approvalQris": "Sudah Terbayar QRIS {amount} butuh PIN manajer. Minta manajer memeriksa mutasi lalu memasukkan PIN-nya.",
+  "@approvalQris": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentErrorQrisApproval": "Sudah Terbayar butuh PIN manajer. Tekan lagi lalu minta manajer memasukkan PIN-nya.",
   "approvalDiscountResumed": "Diskon dari nota tersimpan",
   "productsImport": "Import Excel",
   "productImportTitle": "Import produk",

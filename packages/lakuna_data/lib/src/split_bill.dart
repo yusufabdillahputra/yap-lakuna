@@ -628,6 +628,7 @@ Future<SplitPayResult> paySplitPart(
   required List<SalePaymentRequest> payments,
   bool pending = false,
   SaleCredit? credit,
+  UuidValue? qrisApproverId,
 }) async {
   if (credit != null) {
     if (payments.isNotEmpty) {
@@ -641,6 +642,15 @@ Future<SplitPayResult> paySplitPart(
     ];
   }
   checkPaymentRequests(payments);
+  // Bagian menunggu belum dikonfirmasi, jadi tidak butuh PIN (F1-05h).
+  final confirmer = !pending && confirmsQris(payments)
+      ? await requireQrisConfirmer(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: qrisApproverId,
+        )
+      : null;
   final receipt = await store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
     var sale = await _openSale(
@@ -807,6 +817,7 @@ Future<SplitPayResult> paySplitPart(
         scope,
         saleId: sale.id,
         staffId: staffId,
+        confirmerId: confirmer,
         payments: payments,
         amounts: amounts,
         change: change,
@@ -888,13 +899,21 @@ Future<(Sale, Payment)> _pendingPayment(
 }
 
 /// *Sudah Terbayar* untuk bagian QRIS yang menunggu. Bill lunas langsung
-/// diselesaikan. Izin `payments:confirm` diperiksa di repositori.
+/// diselesaikan. Pengonfirmasi = [qrisApproverId] atau [staffId], harus
+/// boleh konfirmasi langsung (`requireQrisConfirmer`, F1-05h).
 Future<SplitPayResult> confirmSplitPayment(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required UuidValue paymentId,
+  UuidValue? qrisApproverId,
 }) async {
+  final confirmer = await requireQrisConfirmer(
+    store,
+    scope,
+    staffId: staffId,
+    approverId: qrisApproverId,
+  );
   late UuidValue billId;
   final receipt = await store.write(actor: staffId, (w) async {
     final cash = await requireOpenCashSession(store, w, scope);
@@ -904,7 +923,7 @@ Future<SplitPayResult> confirmSplitPayment(
     await w.update(
       payment.copyWith(
         status: PaymentStatus.paid,
-        confirmedBy: staffId,
+        confirmedBy: confirmer,
         confirmedAt: s.now,
         paidAt: s.now,
         // Uang diakui di sesi yang mengonfirmasi (F1-10i).

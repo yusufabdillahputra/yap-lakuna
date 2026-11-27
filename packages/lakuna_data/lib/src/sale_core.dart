@@ -278,7 +278,8 @@ Future<(List<Money>, Money)> settlePayments(
 }
 
 /// Menyimpan baris `payments` nota [saleId], urut permintaan, di sesi kasir
-/// [cashSessionId] yang menerima uangnya (F1-10i).
+/// [cashSessionId] yang menerima uangnya (F1-10i). QRIS dicatat
+/// dikonfirmasi oleh [confirmerId] (penyetuju PIN, F1-05h) atau [staffId].
 Future<List<Payment>> insertPayments(
   SyncTx w,
   CatalogScope scope, {
@@ -290,6 +291,7 @@ Future<List<Payment>> insertPayments(
   required SyncStamp stamp,
   required UuidValue cashSessionId,
   String? guestLabel,
+  UuidValue? confirmerId,
 }) async {
   final s = stamp;
   final paid = <Payment>[];
@@ -313,7 +315,7 @@ Future<List<Payment>> insertPayments(
           status: PaymentStatus.paid,
           guestLabel: guestLabel,
           cashSessionId: cashSessionId,
-          confirmedBy: confirms ? staffId : null,
+          confirmedBy: confirms ? confirmerId ?? staffId : null,
           confirmedAt: confirms ? s.now : null,
           paidAt: s.now,
           createdAt: s.now,

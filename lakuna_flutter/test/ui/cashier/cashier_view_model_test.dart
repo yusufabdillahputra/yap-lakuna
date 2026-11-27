@@ -697,7 +697,7 @@ void main() {
       expect(repo.checkouts, isEmpty);
     });
 
-    test('tanpa payments:confirm tombol Sudah Terbayar mati', () async {
+    test('tanpa payments:confirm: Sudah Terbayar minta PIN manajer', () async {
       repo
         ..qris = sticker
         ..permissions = {Permission.salesCreate};
@@ -706,9 +706,40 @@ void main() {
       vm.startPayment();
       vm.setMode(PayMode.qris);
       expect(vm.canConfirmPayments, isFalse);
-      expect(vm.canConfirmQris, isFalse);
-      // Bagian split QRIS tidak bisa dikonfirmasi, jadi tidak ditawarkan.
-      expect(vm.splitMethods, isNot(contains(PaymentMethod.qrisStatic)));
+      expect(vm.qrisNeedsApproval, isTrue);
+      expect(vm.canConfirmQris, isTrue);
+      // QRIS tetap ditawarkan di split (F1-05h).
+      expect(vm.splitMethods, contains(PaymentMethod.qrisStatic));
+
+      // Tanpa penyetuju lapisan data menolak.
+      await vm.pay.execute();
+      expect(vm.error, isA<QrisConfirmNotPermitted>());
+      expect(repo.checkouts, isEmpty);
+
+      final rina = UuidValue.fromString(newId());
+      vm.approveQris((id: rina, name: 'Rina'));
+      expect(vm.qrisNeedsApproval, isFalse);
+      await vm.pay.execute();
+      expect(repo.qrisApprovals, [rina]);
+      // Persetujuan sekali pakai.
+      expect(vm.qrisApprover, isNull);
+    });
+
+    test('sakelar PIN mati: penyetuju harus manajer', () async {
+      repo
+        ..qris = sticker
+        ..permissions = DefaultRole.cashier.permissions
+        ..qrisWithoutPin = false;
+      await vm.load.execute();
+      expect(vm.canConfirmPayments, isFalse);
+      expect(vm.canApproveQris(DefaultRole.cashier.permissions), isFalse);
+      expect(vm.canApproveQris(DefaultRole.manager.permissions), isTrue);
+      vm.scan('KOP');
+      vm.startPayment();
+      vm.approveQris((id: UuidValue.fromString(newId()), name: 'Rina'));
+      // Masuk layar bayar lagi: persetujuan lama dibuang.
+      vm.startPayment();
+      expect(vm.qrisNeedsApproval, isTrue);
     });
   });
 
@@ -722,6 +753,54 @@ void main() {
       }
       vm.startPayment();
       vm.setMode(PayMode.split);
+    });
+
+    test('PIN QRIS: bagian baru atau galat mengembalikan ke Menunggu '
+        '(F1-05h)', () async {
+      repo.permissions = {Permission.salesCreate};
+      await vm.load.execute();
+      vm.setDraftMethod(PaymentMethod.qrisStatic);
+      vm.setDraftAmount(const Money(1000));
+      vm.addPart();
+      expect(vm.qrisNeedsApproval, isTrue);
+      vm.confirmPart(0);
+      expect(vm.parts.single.confirmed, isFalse);
+
+      vm.approveQris((id: UuidValue.fromString(newId()), name: 'Rina'));
+      vm.confirmPart(0);
+      expect(vm.parts.single.confirmed, isTrue);
+      // Bagian QRIS baru: penyetuju belum melihat nominalnya.
+      vm.setDraftMethod(PaymentMethod.qrisStatic);
+      vm.setDraftAmount(const Money(5000));
+      vm.addPart();
+      expect(vm.qrisApprover, isNull);
+      expect(vm.parts.every((p) => p.isPending), isTrue);
+      expect(vm.qrisApprovalAmount, const Money(6000));
+
+      // Persetujuan ditolak repositori: bagian kembali menunggu.
+      vm.approveQris((id: UuidValue.fromString(newId()), name: 'Rina'));
+      vm.confirmPart(0);
+      vm.confirmPart(1);
+      repo.nextError = const NotPermitted(Permission.paymentsConfirm);
+      await vm.pay.execute();
+      expect(vm.qrisApprover, isNull);
+      expect(vm.parts.every((p) => p.isPending), isTrue);
+    });
+
+    test('sakelar baru dimatikan: tolakan data memaksa PIN', () async {
+      repo.qrisWithoutPin = false;
+      repo.permissions = DefaultRole.cashier.permissions;
+      // Data lama di VM masih mengizinkan langsung.
+      expect(vm.canConfirmPayments, isTrue);
+      vm.setMode(PayMode.qris);
+      await vm.pay.execute();
+      expect(vm.error, isA<QrisConfirmNotPermitted>());
+      expect(vm.qrisNeedsApproval, isTrue);
+      expect(vm.canApproveQris(DefaultRole.cashier.permissions), isFalse);
+      // Dimuat ulang: kembali mengikuti data.
+      await vm.load.execute();
+      expect(vm.qrisNeedsApproval, isTrue);
+      expect(vm.canApproveQris(DefaultRole.manager.permissions), isTrue);
     });
 
     test(

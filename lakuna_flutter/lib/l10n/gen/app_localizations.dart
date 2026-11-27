@@ -2276,11 +2276,11 @@ abstract class AppLocalizations {
   /// **'Sudah Terbayar'**
   String get qrisPaid;
 
-  /// No description provided for @qrisNoPermission.
+  /// No description provided for @qrisNeedsApproval.
   ///
   /// In id, this message translates to:
-  /// **'Butuh izin konfirmasi pembayaran (payments:confirm).'**
-  String get qrisNoPermission;
+  /// **'Sudah Terbayar butuh PIN manajer.'**
+  String get qrisNeedsApproval;
 
   /// No description provided for @splitTitle.
   ///
@@ -2545,6 +2545,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Selalu aktif untuk QRIS statis; tidak bisa dimatikan'**
   String get qrisSettingsRequirePaidHint;
+
+  /// No description provided for @qrisSettingsWithoutPin.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir boleh konfirmasi tanpa PIN manajer'**
+  String get qrisSettingsWithoutPin;
+
+  /// No description provided for @qrisSettingsWithoutPinHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Bila mati, kasir tanpa izin Pengaturan memasukkan PIN manajer setiap menekan Sudah Terbayar.'**
+  String get qrisSettingsWithoutPinHint;
 
   /// No description provided for @qrisSettingsSave.
   ///
@@ -12379,6 +12391,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.'**
   String get cashierResumeDiscountDropped;
+
+  /// No description provided for @approvalQris.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah Terbayar QRIS {amount} butuh PIN manajer. Minta manajer memeriksa mutasi lalu memasukkan PIN-nya.'**
+  String approvalQris(String amount);
+
+  /// No description provided for @paymentErrorQrisApproval.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah Terbayar butuh PIN manajer. Tekan lagi lalu minta manajer memasukkan PIN-nya.'**
+  String get paymentErrorQrisApproval;
 
   /// No description provided for @approvalDiscountResumed.
   ///

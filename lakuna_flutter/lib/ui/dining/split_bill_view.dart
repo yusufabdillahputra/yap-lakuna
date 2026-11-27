@@ -6,6 +6,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/dining_repository.dart';
+import '../../data/repositories/session_repository.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../cashier/cashier_view_model.dart' show CompletedBill;
@@ -16,6 +17,8 @@ import '../products/product_widgets.dart' show ChoicePill, PageHeader;
 import '../receipt/bill_print_dialog.dart';
 import '../receipt/receipt_content.dart'
     show guestBillReceiptContent, percentLabel;
+import '../cashier/qris_approval.dart';
+import '../core/approval_dialog.dart';
 import 'split_bill_view_model.dart';
 
 /// Pesan galat aksi split bill.
@@ -37,6 +40,9 @@ String splitErrorMessage(
   SaleStockShort(:final items) => l10n.saleErrorStockShort(
     items.map((i) => i.name).join(', '),
   ),
+  QrisConfirmNotPermitted() => l10n.paymentErrorQrisApproval,
+  NotPermitted(permission: Permission.paymentsConfirm) =>
+    l10n.paymentErrorConfirmPermission,
   NotPermitted() => l10n.diningErrorPermission,
   BillNotFound() => l10n.diningErrorNotFound,
   _ => l10n.billSplitErrorGeneric,
@@ -52,9 +58,13 @@ class SplitBillScreen extends StatefulWidget {
     required this.onBack,
     required this.onPay,
     this.onCompleted,
+    this.session,
   });
 
   final DiningRepository repository;
+
+  /// Untuk PIN manajer *Sudah Terbayar* (F1-05h).
+  final SessionRepository? session;
 
   /// Printer struk untuk tagihan per tamu (F1-10m).
   final ReceiptPrinter printer;
@@ -150,12 +160,18 @@ class _SplitBillScreenState extends State<SplitBillScreen> {
     child: LayoutBuilder(
       builder: (context, constraints) => ListenableBuilder(
         listenable: _viewModel,
-        builder: (context, _) => SplitBillView(
-          viewModel: _viewModel,
-          narrow: constraints.maxWidth < 900,
-          onBack: widget.onBack,
-          onPay: widget.onPay,
-        ),
+        builder: (context, _) {
+          final view = SplitBillView(
+            viewModel: _viewModel,
+            narrow: constraints.maxWidth < 900,
+            onBack: widget.onBack,
+            onPay: widget.onPay,
+          );
+          return switch (widget.session) {
+            final session? => ApprovalScope(session: session, child: view),
+            null => view,
+          };
+        },
       ),
     ),
   );
@@ -731,14 +747,14 @@ class _GuestCard extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  if (vm.canConfirm)
+                  if (vm.canPay)
                     FButton(
                       key: ValueKey('split-confirm-${part.label}'),
                       size: .sm,
                       mainAxisSize: .min,
                       onPress: vm.busy
                           ? null
-                          : () => vm.confirm.execute(waiting.id),
+                          : () => _confirmWaiting(context, vm, waiting),
                       prefix: const Icon(TablerIcons.check, size: 16),
                       child: Text(l10n.qrisPaid),
                     ),
@@ -959,4 +975,24 @@ class _Summary extends StatelessWidget {
       ),
     );
   }
+}
+
+/// *Sudah Terbayar* bagian QRIS menunggu [payment]: staf yang tidak boleh
+/// konfirmasi langsung meminta PIN manajer dulu (F1-05h).
+Future<void> _confirmWaiting(
+  BuildContext context,
+  SplitBillViewModel vm,
+  Payment payment,
+) async {
+  UuidValue? approverId;
+  if (!vm.canConfirm) {
+    final approver = await requestQrisApproval(
+      context,
+      amount: Money(payment.amount),
+      canApprove: vm.canApproveQris,
+    );
+    if (approver == null) return;
+    approverId = approver.id;
+  }
+  await vm.confirm.execute((paymentId: payment.id, approverId: approverId));
 }

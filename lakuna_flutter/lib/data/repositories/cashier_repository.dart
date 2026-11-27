@@ -55,6 +55,7 @@ class CashierData {
     this.session,
     this.qris,
     this.canConfirmPayments = false,
+    this.qrisWithoutPin = true,
     this.canSellOnCredit = false,
     this.receipt = const ReceiptConfig(settings: ReceiptSettings()),
     this.printer,
@@ -87,8 +88,14 @@ class CashierData {
   /// `null` bila QRIS statis nonaktif atau gambarnya belum ada.
   final CashierQris? qris;
 
-  /// Staf boleh menekan *Sudah Terbayar* (`payments:confirm`).
+  /// Staf boleh menekan *Sudah Terbayar* tanpa PIN manajer
+  /// (`canConfirmQrisDirectly`, F1-05h). Bila `false`, QRIS tetap bisa
+  /// dipilih dan *Sudah Terbayar* meminta persetujuan manajer.
   final bool canConfirmPayments;
+
+  /// Sakelar *Kasir boleh konfirmasi tanpa PIN manajer* cabang (F1-05h),
+  /// untuk memilih penyetuju dengan aturan yang sama.
+  final bool qrisWithoutPin;
 
   /// Staf boleh menyimpan nota sebagai piutang (`debts:manage`, F1-13).
   final bool canSellOnCredit;
@@ -137,6 +144,7 @@ abstract class CashierRepository {
     UuidValue? discountApproverId,
     UuidValue? customerId,
     UuidValue? parkedSaleId,
+    UuidValue? qrisApproverId,
   });
 
   /// Pelanggan untuk pemilih kredit (1.5b), dengan limit dan piutangnya.
@@ -179,6 +187,7 @@ abstract class CashierRepository {
     UuidValue billId,
     List<SalePaymentRequest> payments, {
     SaleCredit? credit,
+    UuidValue? qrisApproverId,
   });
 
   /// Bagian split bill (F1-10c): tamu [guest] (per item / rata) atau
@@ -193,5 +202,6 @@ abstract class CashierRepository {
     required List<SalePaymentRequest> payments,
     bool pending = false,
     SaleCredit? credit,
+    UuidValue? qrisApproverId,
   });
 }
