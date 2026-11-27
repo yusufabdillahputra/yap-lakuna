@@ -71,6 +71,9 @@ class FakeHistoryRepository extends HistoryRepository {
     String? discountBy,
     Map<int, String> notes = const {},
     Map<int, List<String>> modifiers = const {},
+
+    /// Tambahan harga per nama modifier (F1-11l), sama untuk semua baris.
+    Map<String, int> modifierDeltas = const {},
   }) {
     _counter++;
     final lines = [for (final (_, q, p) in items) q * p ~/ 1000];
@@ -99,6 +102,12 @@ class FakeHistoryRepository extends HistoryRepository {
       hlc: '',
     );
     if (discountBy != null) discountGivers[sale.id] = discountBy;
+    // Seperti data asli: harga satuan = harga dasar, tambahan modifier di
+    // `modifierDelta`; harga di [items] sudah termasuk modifier.
+    int deltaOf(int i) => [
+      for (final name in modifiers[i] ?? const <String>[])
+        modifierDeltas[name] ?? 0,
+    ].fold(0, (a, b) => a + b);
     final saleItems = [
       for (final (i, (name, q, p)) in items.indexed)
         SaleItem(
@@ -110,8 +119,9 @@ class FakeHistoryRepository extends HistoryRepository {
           unitName: 'pcs',
           factorMilli: 1000,
           quantityMilli: q,
-          listPrice: p,
-          unitPrice: p,
+          listPrice: p - deltaOf(i),
+          unitPrice: p - deltaOf(i),
+          modifierDelta: deltaOf(i),
           lineTotal: lines[i],
           unitCost: 0,
           tracksStock: true,
@@ -133,7 +143,7 @@ class FakeHistoryRepository extends HistoryRepository {
                 modifierId: _id(),
                 groupName: 'Topping',
                 name: name,
-                priceDelta: 0,
+                priceDelta: modifierDeltas[name] ?? 0,
                 hlc: '',
               ),
           ],

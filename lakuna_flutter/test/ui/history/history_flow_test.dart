@@ -396,6 +396,48 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final size in const [Size(1280, 800), Size(360, 780)]) {
+    testWidgets('rincian nota menulis tambahan harga modifier '
+        '${size.width.toInt()} px (F1-11l)', (tester) async {
+      await pump(tester, size: size);
+      final shot = history.addSale(
+        [('Es Kopi Susu', 1000, 28000), ('Teh Tawar', 1000, 4000)],
+        modifiers: {
+          0: ['Extra Shot', 'Boba', 'Reguler'],
+          1: ['Tanpa Gula'],
+        },
+        modifierDeltas: {'Extra Shot': 5000, 'Boba': 4000, 'Tanpa Gula': -1000},
+      );
+      await tester.enterText(_input('history-search'), 'extra shot');
+      await tester.pumpAndSettle();
+      await _tap(tester, 'history-row-${shot.sale.id.uuid}');
+      final [kopi, teh] = shot.items;
+      Finder inItem(SaleItem item, Finder finder) => find.descendant(
+        of: _key('history-item-${item.id.uuid}'),
+        matching: finder,
+      );
+      // Angka sama dengan struk: tambahan per modifier, tanpa harga untuk
+      // Rp 0; nama dan tambahannya disambung spasi tak putus.
+      expect(
+        inItem(
+          kopi,
+          find.text(
+            '+ Extra Shot\u00A0+Rp\u00A05.000, Boba\u00A0+Rp\u00A04.000, '
+            'Reguler',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        inItem(teh, find.text('+ Tanpa Gula\u00A0-Rp\u00A01.000')),
+        findsOneWidget,
+      );
+      // Harga satuan tetap termasuk modifier (dasar 19.000 + 9.000).
+      expect(inItem(kopi, find.textContaining('× Rp 28.000')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('360 px: modifier panjang di rincian tanpa luapan (F1-11h)', (
     tester,
   ) async {
