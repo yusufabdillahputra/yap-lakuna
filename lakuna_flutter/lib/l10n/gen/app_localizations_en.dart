@@ -8012,6 +8012,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stockPrint => 'Print stock';
 
   @override
+  String get stockPrintMinimum => 'Print minimum stock';
+
+  @override
+  String stockPrintMinimumTitle(String location) {
+    return 'Below minimum stock · $location';
+  }
+
+  @override
+  String get stockPrintColSuggested => 'Suggested order';
+
+  @override
+  String stockPrintMinimumCounts(int items, int minus) {
+    String _temp0 = intl.Intl.pluralLogic(
+      items,
+      locale: localeName,
+      other: '$items items',
+      one: '1 item',
+    );
+    return '$_temp0 · $minus negative stock';
+  }
+
+  @override
+  String get stockPrintMinimumNote =>
+      'Suggested order = 2 × minimum − stock (negative stock counts as 0), rounded up, same as Create purchase.';
+
+  @override
   String stockPrintSaved(String path) {
     return 'Stock list saved to $path';
   }

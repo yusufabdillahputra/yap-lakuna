@@ -7,6 +7,48 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.152.0] - 2026-11-27
+
+Layar Stok kini bisa mencetak hanya barang di bawah minimum. Ini gap keenam
+belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Stok › Stok minimum** (1.18): tombol di kepala layar menjadi **Cetak
+  stok minimum** saat tab *Stok minimum* terbuka. PDF A4 hanya berisi
+  barang di daftar tab itu, dengan urutan yang sama, untuk dibawa belanja
+  ke supplier atau mengecek rak.
+  - Judul `Stok di bawah minimum · <lokasi>`; subjudul cabang, waktu
+    cetak, dan staf seperti *Cetak stok*.
+  - Kolom Produk, SKU / Barcode, Stok, Minimum, **Saran beli** (jumlah +
+    satuan dasar, sama dengan *Buat pembelian*), dan Fisik kosong untuk
+    ditulis tangan.
+  - Tanpa kolom Nilai dan baris Total; catatan menulis jumlah item, stok
+    minus, dan arti *Saran beli*.
+  - Nama berkas `stok-minimum-<lokasi>-<yymmdd>-<HHmm>.pdf`.
+  - Tombol mati bila daftar minimum kosong. Di tab lain tombol tetap
+    *Cetak stok* dan mencetak semua barang.
+
+### Diubah
+
+- Panduan *Stok* (ID dan EN) menjelaskan *Cetak stok minimum*.
+
+### Catatan teknis
+
+- `stock_print.dart`: `stockMinimumPrintTable` dan
+  `stockPrintFileName(minimum:)`; saran beli memakai `restockQuantity`
+  yang sama dengan *Buat pembelian*.
+- `StockViewModel.printsMinimum` dan `printRows` (daftar `below` di tab
+  minimum); `canPrint` ikut `printRows`.
+- Kunci l10n baru: `stockPrintMinimum`, `stockPrintMinimumTitle`,
+  `stockPrintColSuggested`, `stockPrintMinimumCounts`,
+  `stockPrintMinimumNote` (ID dan EN).
+- Temuan review: catatan *Saran beli* kini menulis rumusnya (`2 × minimum −
+  stok`, stok minus dihitung 0, dibulatkan ke atas) karena kalimat "mengisi
+  sampai dua kali minimum" keliru untuk stok minus; tes widget untuk tombol
+  mati di daftar minimum kosong dan label kembali ke *Cetak stok*.
+- Tanpa perubahan data atau skema.
+
 ## [0.151.0] - 2026-11-27
 
 Rincian nota di Riwayat kini menulis tambahan harga tiap modifier. Ini gap
@@ -8563,7 +8605,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...HEAD
+[0.152.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...v0.152.0
 [0.151.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...v0.151.0
 [0.150.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...v0.150.0
 [0.149.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...v0.149.0

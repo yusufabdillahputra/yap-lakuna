@@ -70,11 +70,69 @@ ReportTable stockPrintTable(
   );
 }
 
+/// Isi *Cetak stok minimum* (F1-08r): hanya [rows] di bawah minimum,
+/// dengan saran beli seperti *Buat pembelian* (F1-08c) dan kolom *Fisik*
+/// kosong untuk cek rak. Tanpa nilai dan total: daftar ini untuk belanja.
+ReportTable stockMinimumPrintTable(
+  AppLocalizations l10n, {
+  required List<StockRow> rows,
+  required String location,
+  required String outlet,
+  required String staff,
+  required DateTime printedAt,
+  String? timezone,
+}) {
+  final local = outletLocalTime(printedAt, timezone);
+  return ReportTable(
+    title: l10n.stockPrintMinimumTitle(location),
+    subtitle: l10n.stockPrintSubtitle(
+      outlet,
+      '${formatLongDate(l10n, local)} ${formatClock(printedAt, timezone)}',
+      staff,
+    ),
+    headers: [
+      l10n.stockColProduct,
+      l10n.stockPrintColCode,
+      l10n.stockColStock,
+      l10n.stockColMinimum,
+      l10n.stockPrintColSuggested,
+      l10n.stockPrintColCounted,
+    ],
+    widths: [36, 16, 14, 12, 16, 12],
+    flex: [5, 3, 3, 2, 3, 2],
+    rows: [
+      for (final r in rows)
+        ReportRow([
+          r.displayName,
+          r.sku ?? r.barcode ?? '',
+          '${qtyLabel(l10n, r.stock)} ${r.baseUnit}',
+          qtyLabel(l10n, r.minStock),
+          '${qtyLabel(l10n, restockQuantity(r.stock, r.minStock))} '
+              '${r.baseUnit}',
+          '',
+        ]),
+    ],
+    notes: [
+      l10n.stockPrintMinimumCounts(
+        rows.length,
+        rows.where((r) => r.stock.milli < 0).length,
+      ),
+      l10n.stockPrintMinimumNote,
+    ],
+  );
+}
+
 /// `stok-<lokasi>-<yymmdd>-<HHmm>.pdf`: lokasi huruf kecil, deretan
 /// karakter selain a–z/0–9 menjadi satu `-`; lokasi tanpa huruf/angka
 /// menjadi `lokasi`. Jam mencegah cetakan kedua menimpa (atau gagal karena
-/// berkas lama masih terbuka di penampil PDF Windows).
-String stockPrintFileName(String location, DateTime at, String? timezone) {
+/// berkas lama masih terbuka di penampil PDF Windows). [minimum]:
+/// `stok-minimum-…` untuk cetak stok minimum (F1-08r).
+String stockPrintFileName(
+  String location,
+  DateTime at,
+  String? timezone, {
+  bool minimum = false,
+}) {
   final slug = location
       .toLowerCase()
       .replaceAll(RegExp('[^a-z0-9]+'), '-')
@@ -84,5 +142,6 @@ String stockPrintFileName(String location, DateTime at, String? timezone) {
   final date =
       '${two(d.year % 100)}${two(d.month)}${two(d.day)}-'
       '${two(d.hour)}${two(d.minute)}';
-  return 'stok-${slug.isEmpty ? 'lokasi' : slug}-$date.pdf';
+  final kind = minimum ? 'stok-minimum' : 'stok';
+  return '$kind-${slug.isEmpty ? 'lokasi' : slug}-$date.pdf';
 }

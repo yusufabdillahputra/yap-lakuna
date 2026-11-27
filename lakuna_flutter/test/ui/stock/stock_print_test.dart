@@ -99,6 +99,76 @@ void main() {
     );
   });
 
+  test('cetak stok minimum: kolom saran beli, tanpa nilai (F1-08r)', () {
+    final below = [
+      sampleStockRows()[0],
+      sampleStockRows()[2],
+      sampleRow(
+        4,
+        'Gas 3 kg',
+        unit: 'tabung',
+        stock: Qty.units(-2),
+        minStock: Qty.units(5),
+      ),
+    ];
+    final t = stockMinimumPrintTable(
+      id,
+      rows: below,
+      location: 'Etalase',
+      outlet: 'Cabang Pusat',
+      staff: 'Yusuf',
+      printedAt: at,
+      timezone: 'Asia/Jakarta',
+    );
+    expect(t.title, 'Stok di bawah minimum · Etalase');
+    expect(t.subtitle, 'Cabang Pusat · dicetak 14 November 2026 09.30 · Yusuf');
+    expect(t.headers, [
+      'Produk',
+      'SKU / Barcode',
+      'Stok',
+      'Minimum',
+      'Saran beli',
+      'Fisik',
+    ]);
+    // Tanpa baris Total.
+    expect(t.rows, hasLength(3));
+    expect(t.rows.any((r) => r.strong), isFalse);
+    // Saran = 2 × minimum − stok, dibulatkan ke atas (F1-08c).
+    expect(cells(t.rows[0]), [
+      'Kopi Sachet',
+      '8990001',
+      '2 sachet',
+      '20',
+      '38 sachet',
+      '',
+    ]);
+    expect(cells(t.rows[1])[4], '18 kg');
+    // Stok minus dihitung 0.
+    expect(cells(t.rows[2])[2], '-2 tabung');
+    expect(cells(t.rows[2])[4], '10 tabung');
+    expect(t.notes, [
+      '3 item · 1 stok minus',
+      'Saran beli = 2 × minimum − stok (stok minus dihitung 0), dibulatkan '
+          'ke atas, sama dengan Buat pembelian.',
+    ]);
+
+    final e = stockMinimumPrintTable(
+      en,
+      rows: below.take(1).toList(),
+      location: 'Etalase',
+      outlet: 'Cabang Pusat',
+      staff: 'Yusuf',
+      printedAt: at,
+    );
+    expect(e.title, 'Below minimum stock · Etalase');
+    expect(e.headers[4], 'Suggested order');
+    expect(e.notes.first, '1 item · 0 negative stock');
+    expect(
+      stockPrintFileName('Gudang Belakang', at, 'Asia/Jakarta', minimum: true),
+      'stok-minimum-gudang-belakang-261114-0930.pdf',
+    );
+  });
+
   test('PDF lebih dari 20 halaman tetap dibuat (800 baris)', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     final rows = [

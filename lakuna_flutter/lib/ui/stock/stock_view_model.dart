@@ -176,8 +176,12 @@ class StockViewModel extends ChangeNotifier {
   /// atau bila muat lokasi baru gagal).
   UuidValue? _rowsLocationId;
 
-  /// Baris yang dicetak: semua baris lokasi, tanpa saringan pencarian.
-  List<StockRow> get printRows => _rows;
+  /// Tab *Stok minimum* mencetak hanya barang di bawah minimum (F1-08r).
+  bool get printsMinimum => _tab == StockTab.minimum;
+
+  /// Baris yang dicetak: semua baris lokasi, atau baris di bawah minimum di
+  /// tab *Stok minimum* (F1-08r); tanpa saringan pencarian.
+  List<StockRow> get printRows => printsMinimum ? _below : _rows;
 
   /// Nama lokasi milik [printRows].
   String get printLocationName =>
@@ -187,7 +191,7 @@ class StockViewModel extends ChangeNotifier {
   /// sedang memuat atau menyimpan.
   bool get canPrint =>
       _loaded &&
-      _rows.isNotEmpty &&
+      printRows.isNotEmpty &&
       _rowsLocationId == _locationId &&
       !load.running &&
       !printList.running;

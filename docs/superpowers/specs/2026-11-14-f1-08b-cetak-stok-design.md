@@ -74,6 +74,6 @@ kosong ditambahkan agar cetakan langsung bisa dipakai opname.
 | --- | --- | --- | --- |
 | Cetak stok per lokasi (PDF) | 1.18 | Selesai v0.48.0 | |
 | Cetak langsung ke printer tanpa berkas | — | Belum | Desktop menyimpan PDF; cetak dari penampil PDF. |
-| Cetak hanya di bawah minimum | — | Belum | Bila diminta; tab *Stok minimum* sudah menampilkannya. |
+| Cetak hanya di bawah minimum | — | Rilis v0.152.0 | [F1-08r](2026-11-27-f1-08r-cetak-stok-minimum-design.md): tombol *Cetak stok minimum* di tab *Stok minimum*, dengan kolom *Saran beli*. |
 | PDF ribuan baris di isolate terpisah | — | Belum | PDF dibuat di isolate UI; ribuan baris membuat putaran progres tersendat. Pakai `compute` bila perlu. |
 | Font cadangan untuk emoji/aksara lain | — | Belum | Nama produk berisi glif yang tidak ada di DM Sans tercetak kosong (sama dengan PDF laporan). |

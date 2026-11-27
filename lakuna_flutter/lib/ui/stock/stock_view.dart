@@ -397,7 +397,13 @@ class StockView extends StatelessWidget {
                             child: FCircularProgress(),
                           )
                         : const Icon(TablerIcons.printer),
-                    child: Flexible(child: Text(l10n.stockPrint)),
+                    child: Flexible(
+                      child: Text(
+                        vm.printsMinimum
+                            ? l10n.stockPrintMinimum
+                            : l10n.stockPrint,
+                      ),
+                    ),
                   ),
                   location: vm.locations.length > 1
                       ? IgnorePointer(
@@ -457,16 +463,19 @@ class StockView extends StatelessWidget {
   );
 
   /// *Cetak stok* (F1-08b): semua baris lokasi terpilih, tanpa saringan
-  /// pencarian.
+  /// pencarian; di tab *Stok minimum* hanya barang di bawah minimum
+  /// (F1-08r).
   void _print(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final vm = viewModel;
     final location = vm.printLocationName;
     final now = DateTime.now();
     final rows = vm.printRows;
+    final minimum = vm.printsMinimum;
+    final table = minimum ? stockMinimumPrintTable : stockPrintTable;
     vm.printList.execute((
       () => reportPdf(
-        stockPrintTable(
+        table(
           l10n,
           rows: rows,
           location: location,
@@ -477,7 +486,7 @@ class StockView extends StatelessWidget {
         ),
         money: (v) => moneyLabel(l10n, Money(v)),
       ),
-      stockPrintFileName(location, now, timezone),
+      stockPrintFileName(location, now, timezone, minimum: minimum),
     ));
   }
 }

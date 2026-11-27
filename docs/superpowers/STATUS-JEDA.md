@@ -132,7 +132,8 @@ ulang riwayat.
 | v0.148.0 | Pelunasan piutang per metode dan rekening di Laporan (F1-16h) | #154 |
 | v0.149.0 | Cari Riwayat: nama grup modifier, kata tanpa spasi, garis miring Unicode (F1-11j) | #155 |
 | v0.150.0 | Sorot kata kunci di barang cocok Riwayat (F1-11k) | #156 |
-| v0.151.0 | Tambahan harga per modifier di rincian nota Riwayat (F1-11l) | |
+| v0.151.0 | Tambahan harga per modifier di rincian nota Riwayat (F1-11l) | #157 |
+| v0.152.0 | Cetak stok di bawah minimum (F1-08r) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -411,6 +412,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     `5kg`.
 94. ~~Rincian nota Riwayat tidak menulis tambahan harga modifier~~ —
     selesai v0.151.0 (F1-11l); `+ Extra Shot +Rp 5.000`, angka sama dengan struk.
+95. ~~Cetak stok selalu memuat semua barang~~ — selesai v0.152.0 (F1-08r);
+    tab *Stok minimum* mencetak barang di bawah minimum dengan *Saran beli*.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
