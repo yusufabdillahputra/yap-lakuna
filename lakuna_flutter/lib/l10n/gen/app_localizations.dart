@@ -14520,6 +14520,96 @@ abstract class AppLocalizations {
   /// **'Stok minimum {old} → {value}'**
   String productImportPreviewMinStock(String old, String value);
 
+  /// No description provided for @productImportPreviewExport.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh Excel'**
+  String get productImportPreviewExport;
+
+  /// No description provided for @productImportXlsxSheet.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau harga'**
+  String get productImportXlsxSheet;
+
+  /// No description provided for @productImportColLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Baris'**
+  String get productImportColLine;
+
+  /// No description provided for @productImportColProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get productImportColProduct;
+
+  /// No description provided for @productImportColVariant.
+  ///
+  /// In id, this message translates to:
+  /// **'Varian'**
+  String get productImportColVariant;
+
+  /// No description provided for @productImportColOldSell.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual lama'**
+  String get productImportColOldSell;
+
+  /// No description provided for @productImportColNewSell.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga jual baru'**
+  String get productImportColNewSell;
+
+  /// No description provided for @productImportColOldCost.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli lama'**
+  String get productImportColOldCost;
+
+  /// No description provided for @productImportColNewCost.
+  ///
+  /// In id, this message translates to:
+  /// **'Harga beli baru'**
+  String get productImportColNewCost;
+
+  /// No description provided for @productImportColOldMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok minimum lama'**
+  String get productImportColOldMin;
+
+  /// No description provided for @productImportColNewMin.
+  ///
+  /// In id, this message translates to:
+  /// **'Stok minimum baru'**
+  String get productImportColNewMin;
+
+  /// No description provided for @productImportColUnit.
+  ///
+  /// In id, this message translates to:
+  /// **'Satuan'**
+  String get productImportColUnit;
+
+  /// No description provided for @productImportColNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Keterangan'**
+  String get productImportColNote;
+
+  /// No description provided for @productImportXlsxUpdated.
+  ///
+  /// In id, this message translates to:
+  /// **'Diperbarui'**
+  String get productImportXlsxUpdated;
+
+  /// No description provided for @productImportXlsxSkipped.
+  ///
+  /// In id, this message translates to:
+  /// **'Dilewati: cocoknya ragu'**
+  String get productImportXlsxSkipped;
+
   /// No description provided for @productImportPreviewNone.
   ///
   /// In id, this message translates to:

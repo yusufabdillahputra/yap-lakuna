@@ -8352,6 +8352,51 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get productImportPreviewExport => 'Unduh Excel';
+
+  @override
+  String get productImportXlsxSheet => 'Pratinjau harga';
+
+  @override
+  String get productImportColLine => 'Baris';
+
+  @override
+  String get productImportColProduct => 'Produk';
+
+  @override
+  String get productImportColVariant => 'Varian';
+
+  @override
+  String get productImportColOldSell => 'Harga jual lama';
+
+  @override
+  String get productImportColNewSell => 'Harga jual baru';
+
+  @override
+  String get productImportColOldCost => 'Harga beli lama';
+
+  @override
+  String get productImportColNewCost => 'Harga beli baru';
+
+  @override
+  String get productImportColOldMin => 'Stok minimum lama';
+
+  @override
+  String get productImportColNewMin => 'Stok minimum baru';
+
+  @override
+  String get productImportColUnit => 'Satuan';
+
+  @override
+  String get productImportColNote => 'Keterangan';
+
+  @override
+  String get productImportXlsxUpdated => 'Diperbarui';
+
+  @override
+  String get productImportXlsxSkipped => 'Dilewati: cocoknya ragu';
+
+  @override
   String get productImportPreviewNone =>
       'Tidak ada yang berubah, jadi tidak ada yang perlu disimpan.';
 
