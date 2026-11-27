@@ -153,6 +153,14 @@ ReportTable purchaseReturnPrintTable(
                     '${d.baseUnits[item.variantId] ?? ''})',
             ].join(' '),
             money(Money(row.amount)),
+          ])
+        else
+          // Baris pembelian tidak ada di perangkat ini (mis. belum
+          // tersinkron): tetap dicetak agar baris berjumlah sama dengan total.
+          ReportRow([
+            l10n.purchaseReturnPrintUnknownItem,
+            qtyLabel(l10n, Qty(row.quantityMilli)),
+            money(Money(row.amount)),
           ]),
       sum(l10n.purchaseReturnPrintTotal, Money(r.amount), strong: true),
       if (r.debtReduction > 0)

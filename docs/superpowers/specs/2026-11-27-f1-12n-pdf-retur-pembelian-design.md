@@ -40,6 +40,9 @@ diretur.
 5. Izin dan cabang sama dengan rincian pembelian; tidak ada tulis data.
 6. Pesan hasil di kartu *Tindakan* dibuat umum (*PDF disimpan di …* /
    *PDF gagal dibuat*) karena dipakai PDF pembelian dan PDF retur.
+7. Baris retur yang barangnya tidak ada di perangkat (belum tersinkron)
+   dicetak *Barang tidak ditemukan* dengan qty dan nilainya, agar baris
+   berjumlah sama dengan total.
 
 ## Komponen
 
@@ -52,7 +55,9 @@ diretur.
 
 - Data: detail memuat baris retur per retur dan nama staf.
 - Flutter: tabel cetak (baris, ringkasan, sumber uang kembali, catatan),
-  nama berkas, widget desktop (retur → tombol PDF → berkas tersimpan).
+  nama berkas, tanggal menurut zona toko, tanpa supplier, baris barang
+  yang tidak ditemukan; widget desktop dan 360 px (retur → tombol PDF →
+  berkas tersimpan / lembar bagikan).
 - Uji manual Xvfb.
 
 ## Status & gap

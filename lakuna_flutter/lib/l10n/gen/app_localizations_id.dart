@@ -8032,6 +8032,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get purchaseReturnPrintRefundPlain => 'Uang kembali';
 
   @override
+  String get purchaseReturnPrintUnknownItem => 'Barang tidak ditemukan';
+
+  @override
   String purchaseReturnPrintAction(String number) {
     return 'PDF retur $number';
   }

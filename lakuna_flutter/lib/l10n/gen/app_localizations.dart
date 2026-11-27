@@ -14024,6 +14024,12 @@ abstract class AppLocalizations {
   /// **'Uang kembali'**
   String get purchaseReturnPrintRefundPlain;
 
+  /// No description provided for @purchaseReturnPrintUnknownItem.
+  ///
+  /// In id, this message translates to:
+  /// **'Barang tidak ditemukan'**
+  String get purchaseReturnPrintUnknownItem;
+
   /// No description provided for @purchaseReturnPrintAction.
   ///
   /// In id, this message translates to:

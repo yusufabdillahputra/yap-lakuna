@@ -8226,6 +8226,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseReturnPrintRefundPlain => 'Refund';
 
   @override
+  String get purchaseReturnPrintUnknownItem => 'Item not found';
+
+  @override
   String purchaseReturnPrintAction(String number) {
     return 'Return PDF $number';
   }

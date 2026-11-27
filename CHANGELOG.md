@@ -33,12 +33,22 @@ pembelian. Ini gap 24 di daftar rapikan Fase 1 (F1-12n, rincian pembelian
   retur.
 - Panduan *Pembelian* (ID dan EN) menjelaskan tombol PDF retur.
 
+### Diperbaiki
+
+- Tombol **Proses retur · Rp …** di form retur pembelian meluap 22 px di
+  ponsel 360 px saat nominalnya panjang; labelnya kini turun baris.
+  Ditemukan lewat tes widget baru PDF retur di 360 px.
+
 ### Catatan teknis
 
+- Baris retur yang barangnya tidak ada di perangkat ini (mis. belum
+  tersinkron) tetap dicetak sebagai *Barang tidak ditemukan* agar jumlah
+  baris sama dengan **Total retur**.
 - Data: `PurchaseDetail.returnItems` (baris `purchase_return_items` per id
   retur, hanya yang aktif) dan `returnStaffNames` (nama staf pencatat per
   retur), dimuat bersama rincian pembelian. `returnedMilli` kini dihitung
-  dari baris yang sama. Tanpa tabel atau migrasi baru.
+  dari baris yang sama (satu query). Nama staf dibatasi tenant; staf yang
+  diarsipkan tetap tercetak. Tanpa tabel atau migrasi baru.
 - Flutter: `purchaseReturnPrintTable` dan `purchaseReturnPrintFileName` di
   `purchase_print.dart`; PDF dibuat lewat `reportPdf` di isolate seperti
   PDF pembelian (F1-19f).

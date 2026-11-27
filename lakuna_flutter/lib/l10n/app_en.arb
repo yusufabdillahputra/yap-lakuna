@@ -4645,6 +4645,7 @@
     }
   },
   "purchaseReturnPrintRefundPlain": "Refund",
+  "purchaseReturnPrintUnknownItem": "Item not found",
   "purchaseReturnPrintAction": "Return PDF {number}",
   "@purchaseReturnPrintAction": {
     "placeholders": {

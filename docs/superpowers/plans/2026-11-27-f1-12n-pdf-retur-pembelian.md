@@ -10,5 +10,7 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-12n-pdf-retur-pembelian-design.md`
   baris retur; tes widget desktop.
 - [x] 4. Dokumen: spec F1-12c gap, README specs, STATUS-JEDA, GAP-FASE1,
   panduan ID/EN Pembelian, CHANGELOG, pubspec.
-- [ ] 5. Format, analyze, semua tes, review subagent, uji Xvfb.
+- [x] 5. Format, analyze, semua tes, review subagent (temuan: filter tenant
+  nama staf, baris barang hilang, tombol Proses retur meluap di 360 px), uji
+  Xvfb.
 - [ ] 6. PR dan rilis.

@@ -5199,6 +5199,7 @@
     }
   },
   "purchaseReturnPrintRefundPlain": "Uang kembali",
+  "purchaseReturnPrintUnknownItem": "Barang tidak ditemukan",
   "purchaseReturnPrintAction": "PDF retur {number}",
   "@purchaseReturnPrintAction": {
     "placeholders": {

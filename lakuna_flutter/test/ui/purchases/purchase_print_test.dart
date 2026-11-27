@@ -63,6 +63,7 @@ void main() {
     Map<UuidValue, List<PurchaseReturnItem>> Function(List<PurchaseItem>)?
     returnItems,
     Map<UuidValue, String> returnStaffNames = const {},
+    bool withSupplier = true,
   }) {
     final items = [
       item(gula, 'Gula Pasir', 'kg', 10000, 14500),
@@ -97,7 +98,9 @@ void main() {
         hlc: '',
       ),
       items: items,
-      supplier: Supplier(tenantId: tenant, name: 'CV Sumber Pangan', hlc: ''),
+      supplier: withSupplier
+          ? Supplier(tenantId: tenant, name: 'CV Sumber Pangan', hlc: '')
+          : null,
       staffName: staffName,
       deviceCode: 'K01',
       locationName: 'Gudang',
@@ -283,6 +286,7 @@ void main() {
       int refund = 185000 + 14500,
       FundingSource? source = FundingSource.drawer,
       String? note,
+      DateTime? returnedAt,
     }) => PurchaseReturn(
       id: _id(),
       tenantId: tenant,
@@ -292,7 +296,7 @@ void main() {
       staffId: _id(),
       number: 'RB-PST-K01-261115-0001',
       // 03.00 UTC = 10.00 WIB, tanggal 15.
-      returnedAt: DateTime.utc(2026, 11, 15, 3),
+      returnedAt: returnedAt ?? DateTime.utc(2026, 11, 15, 3),
       amount: amount,
       debtReduction: debt,
       refundAmount: refund,
@@ -305,8 +309,11 @@ void main() {
       PurchaseReturn r, {
       String recorder = 'Dewi',
       bool withItems = true,
+      bool withSupplier = true,
+      bool missingItem = false,
     }) {
       final d = detail(
+        withSupplier: withSupplier,
         returns: [r],
         returnStaffNames: {r.id: recorder},
         returnItems: (items) => {
@@ -323,7 +330,7 @@ void main() {
               PurchaseReturnItem(
                 tenantId: tenant,
                 purchaseReturnId: r.id,
-                purchaseItemId: items[1].id,
+                purchaseItemId: missingItem ? _id() : items[1].id,
                 quantityMilli: 1000,
                 amount: 185000,
                 hlc: '',
@@ -400,6 +407,30 @@ void main() {
         ],
       );
       expect(t.notes, hasLength(1));
+    });
+
+    test('tanggal menurut zona toko, tanpa supplier, barang hilang', () {
+      final t = printOf(
+        build(
+          // 18.00 UTC = 01.00 WIB tanggal 16.
+          ret(returnedAt: DateTime.utc(2026, 11, 15, 18)),
+          withSupplier: false,
+          missingItem: true,
+        ),
+      );
+      expect(
+        t.subtitle,
+        'Tanpa supplier · Dari pembelian PB-PST-K01-261114-0001 · '
+        'No. faktur SP/XI/0457 · 16/11/2026 · Gudang · Dewi · K01',
+      );
+      // Baris yang barangnya tidak ada tetap tercetak agar jumlahnya sama
+      // dengan total.
+      expect(t.rows[1].cells, [
+        'Barang tidak ditemukan',
+        '1',
+        const XlsxNumber(185000),
+      ]);
+      expect(t.rows[2].cells.first, 'Total retur');
     });
 
     test('tanpa baris barang tetap mencetak total', () {

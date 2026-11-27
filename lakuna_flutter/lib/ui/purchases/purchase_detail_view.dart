@@ -1577,9 +1577,13 @@ class _ReturnCard extends StatelessWidget {
                   onPress: vm.submitReturn.running
                       ? null
                       : vm.submitReturn.execute,
-                  child: Text(
-                    l10n.purchaseReturnSubmit(
-                      formatMoney(context, vm.returnTotal),
+                  // Label + nominal bisa lebih lebar dari kartu di ponsel
+                  // 360 px: dibungkus, bukan meluap (F1-12n).
+                  child: Flexible(
+                    child: Text(
+                      l10n.purchaseReturnSubmit(
+                        formatMoney(context, vm.returnTotal),
+                      ),
                     ),
                   ),
                 ),

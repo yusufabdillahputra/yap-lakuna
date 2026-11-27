@@ -1182,6 +1182,28 @@ void main() {
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('ponsel 360 px: PDF retur lewat lembar bagikan (F1-12n)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(360, 780));
+    exporter.path = null;
+    await receiveKop(tester, narrow: true);
+    await _tap(tester, _key('purchase-return-open'));
+    await _type(tester, _keyPrefix('purchase-return-qty-'), '1');
+    await _tap(tester, _keyPrefix('purchase-refund-source-'));
+    await _tap(tester, find.text('Rekening bank').last);
+    await _tap(tester, _key('purchase-return-submit'));
+    final r = repo.returns.single;
+    await tapAndWaitForIsolate(
+      tester,
+      _key('purchase-return-print-${r.id.uuid}'),
+      () => exporter.saved.isNotEmpty,
+    );
+    expect(exporter.saved.single.$1, 'retur-rb-pst-d01-261103-0001.pdf');
+    expect(_key('purchase-print-saved'), findsNothing);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets('ponsel 360 px: cetak PDF lewat lembar bagikan', (tester) async {
     await pump(tester, const Size(360, 780));
     exporter.path = null;

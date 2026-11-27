@@ -972,6 +972,10 @@ Future<Map<UuidValue, int>> _returnedMilliOf(
     returns,
     transaction: transaction,
   );
+  return _sumReturnedMilli(rows);
+}
+
+Map<UuidValue, int> _sumReturnedMilli(List<PurchaseReturnItem> rows) {
   final out = <UuidValue, int>{};
   for (final r in rows) {
     out[r.purchaseItemId] = (out[r.purchaseItemId] ?? 0) + r.quantityMilli;
@@ -1036,6 +1040,7 @@ Future<PurchaseDetail> loadPurchaseDetail(
   final staff = await StaffMember.db.findById(session, p.staffId);
   final device = await Device.db.findById(session, p.deviceId);
   final location = await StockLocation.db.findById(session, p.stockLocationId);
+  final returnRows = await _returnItemsOf(session, scope.tenantId, returns);
   return PurchaseDetail(
     purchase: p,
     items: items,
@@ -1044,7 +1049,7 @@ Future<PurchaseDetail> loadPurchaseDetail(
     deviceCode: device?.code ?? '',
     locationName: location?.name ?? '',
     returns: returns,
-    returnedMilli: await _returnedMilliOf(session, scope.tenantId, returns),
+    returnedMilli: _sumReturnedMilli(returnRows),
     sellPrices: {for (final v in variants) v.id: Money(v.sellPrice)},
     skus: {for (final v in variants) v.id: v.sku},
     baseUnits: {
@@ -1053,34 +1058,35 @@ Future<PurchaseDetail> loadPurchaseDetail(
     },
     debtPayments: await _debtPaymentLines(session, scope.tenantId, p.id),
     invoiceMediaIds: await _invoiceMediaIds(session, p),
-    returnItems: await _returnItemsByReturn(session, scope.tenantId, returns),
-    returnStaffNames: await _staffNames(session, {
+    returnItems: _groupReturnItems(returnRows),
+    returnStaffNames: await _staffNames(session, scope.tenantId, {
       for (final r in returns) r.id: r.staffId,
     }),
   );
 }
 
-Future<Map<UuidValue, List<PurchaseReturnItem>>> _returnItemsByReturn(
-  DatabaseSession session,
-  UuidValue tenantId,
-  List<PurchaseReturn> returns,
-) async {
+Map<UuidValue, List<PurchaseReturnItem>> _groupReturnItems(
+  List<PurchaseReturnItem> rows,
+) {
   final out = <UuidValue, List<PurchaseReturnItem>>{};
-  for (final row in await _returnItemsOf(session, tenantId, returns)) {
+  for (final row in rows) {
     (out[row.purchaseReturnId] ??= []).add(row);
   }
   return out;
 }
 
 /// Nama staf per kunci ([staffByKey] kunci → id staf).
+/// Staf yang diarsipkan tetap ikut agar namanya tercetak.
 Future<Map<UuidValue, String>> _staffNames(
   DatabaseSession session,
+  UuidValue tenantId,
   Map<UuidValue, UuidValue> staffByKey,
 ) async {
   if (staffByKey.isEmpty) return const {};
   final staff = await StaffMember.db.find(
     session,
-    where: (m) => m.id.inSet(staffByKey.values.toSet()),
+    where: (m) =>
+        m.tenantId.equals(tenantId) & m.id.inSet(staffByKey.values.toSet()),
   );
   final names = {for (final m in staff) m.id: m.name};
   return {
