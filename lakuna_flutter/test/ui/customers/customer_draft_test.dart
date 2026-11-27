@@ -28,6 +28,10 @@ void main() {
       name: '',
       phone: '081322221010',
     ));
+    expect(customerDraftFromQuery('021\u20445551234'), (
+      name: '',
+      phone: '0215551234',
+    ));
     expect(customerDraftFromQuery('\u202A+62 813-2222-1010\u202C'), (
       name: '',
       phone: '081322221010',

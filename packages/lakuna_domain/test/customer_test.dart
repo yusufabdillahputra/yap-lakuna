@@ -79,6 +79,10 @@ void main() {
       // Garis miring Unicode yang tersalin dari aplikasi lain.
       expect(phoneMatchesQuery(phone, '0813\u22152222'), isTrue);
       expect(phoneMatchesQuery(phone, '0813\uFF0F2222'), isTrue);
+      // U+2044 fraction slash dan U+29F8 big solidus (F1-11j).
+      expect(phoneMatchesQuery(phone, '0813\u20442222'), isTrue);
+      expect(phoneMatchesQuery(phone, '0813\u29F82222'), isTrue);
+      expect(phoneSearchKeys('021\u20445551234'), ['0215551234']);
       // Tetap bukan pola HP: berhuruf, digit kurang, pemisah lain.
       expect(phoneSearchKeys('0813/abc'), isEmpty);
       expect(phoneSearchKeys('08/'), isEmpty);

@@ -567,6 +567,81 @@ void main() {
       expect(await find('k o p i d o b e l x'), isEmpty);
     });
 
+    test('kata tanpa spasi cocok dengan nama berspasi (F1-11j)', () async {
+      final beras = await product(
+        const ProductDraft(
+          name: 'Beras Pandan',
+          baseUnit: 'karung',
+          variants: [
+            VariantDraft(
+              name: '5 kg',
+              sellPrice: Money(70000),
+              openingStock: Qty(10000),
+            ),
+          ],
+        ),
+      );
+      final gula = await product(
+        const ProductDraft(
+          name: 'Gula 5kg',
+          baseUnit: 'pak',
+          variants: [
+            VariantDraft(
+              name: '',
+              sellPrice: Money(80000),
+              openingStock: Qty(10000),
+            ),
+          ],
+        ),
+      );
+      await openSession();
+      final a = await sell({beras: 1000});
+      final b = await sell({gula: 1000});
+      final c = await sell({kopi: 1000});
+      Future<List<UuidValue>> find(String q) async => [
+        for (final r in (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: HistoryFilter(query: q),
+        )).rows)
+          r.sale.id,
+      ];
+
+      // Spasi di nama dibuang sebelum dicocokkan.
+      expect(await find('5kg'), [b.sale.id, a.sale.id]);
+      expect(await find('BERAS 5KG'), [a.sale.id]);
+      expect(await find('beraspandan'), [a.sale.id]);
+      expect(await find('kopibubuk'), [c.sale.id]);
+      // Arah sebaliknya sudah cocok lewat beberapa kata (F1-11e).
+      expect(await find('gula 5 kg'), [b.sale.id]);
+      // `%` dan `_` tetap literal.
+      expect(await find('5k_'), isEmpty);
+      // Satu kolom: `%` di SQL cocok dengan string kosong, Dart menolak.
+      expect(await find('gula%5kg'), isEmpty);
+      expect(
+        (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: const HistoryFilter(query: 'pandan5kg'),
+        )).rows,
+        isEmpty,
+      );
+      expect(
+        (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: const HistoryFilter(query: '5kg'),
+        )).rows.map((r) => r.matchedItems),
+        [
+          ['Gula 5kg'],
+          ['Beras Pandan 5 kg'],
+        ],
+      );
+    });
+
     test('barang yang cocok ikut di baris hasil (F1-11i)', () async {
       await openSession();
       final a = await sell({kopi: 1000, roti: 1000, jasa: 1000});
@@ -702,9 +777,28 @@ void main() {
       expect(await find('kopi extra'), [withShot]);
       expect(await find('shot kopi susu'), [withShot]);
       expect(await find('es kopi'), [withShot, plain]);
-      // Opsi yang tidak dipilih dan nama grup tidak dicari.
+      // Opsi yang tidak dipilih tidak dicari.
       expect(await find('boba'), isEmpty);
-      expect(await find('topping'), isEmpty);
+      // Nama grup modifier yang dipilih di baris itu (F1-11j).
+      expect(await find('topping'), [withShot]);
+      expect(await find('kopi TOPPING'), [withShot]);
+      expect(await find('boba topping'), isEmpty);
+      // Kata tanpa spasi di nama modifier dan nama produk (F1-11j).
+      expect(await find('extrashot'), [withShot]);
+      expect(await find('kopisusu'), [withShot, plain]);
+      expect(await find('topping shot'), [withShot]);
+      expect(
+        (await listSalesHistory(
+          store,
+          scope,
+          now: now,
+          filter: const HistoryFilter(query: 'topping'),
+        )).rows.single.matchedItems,
+        ['Es Kopi Susu Reguler'],
+      );
+      // Grup di barang lain di nota yang sama.
+      expect(await find('roti topping'), isEmpty);
+      expect(await find('topp%ng'), isEmpty);
       // Modifier satu barang + nama barang lain di nota yang sama.
       expect(await find('roti shot'), isEmpty);
       expect(await find('extra %hot'), isEmpty);
@@ -808,6 +902,8 @@ void main() {
       ];
 
       expect(await find('tanpa es'), [noIce]);
+      // Kata tanpa spasi di catatan (F1-11j).
+      expect(await find('tanpaes'), [noIce]);
       // Barang yang cocok lewat catatan ikut ditulis (F1-11i).
       Future<Map<UuidValue, List<String>>> matched(String q) async => {
         for (final r in (await listSalesHistory(

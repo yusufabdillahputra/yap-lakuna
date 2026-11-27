@@ -129,7 +129,8 @@ ulang riwayat.
 | v0.145.0 | Target margin di KPI Laba kotor tab Ringkasan (F1-16e) | #151 |
 | v0.146.0 | Periode laporan terakhir diingat (F1-16f) | #152 |
 | v0.147.0 | Umur piutang/hutang per pelanggan dan supplier (F1-16g) | #153 |
-| v0.148.0 | Pelunasan piutang per metode dan rekening di Laporan (F1-16h) | |
+| v0.148.0 | Pelunasan piutang per metode dan rekening di Laporan (F1-16h) | #154 |
+| v0.149.0 | Cari Riwayat: nama grup modifier, kata tanpa spasi, garis miring Unicode (F1-11j) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -400,6 +401,9 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 91. ~~Pelunasan piutang transfer tidak tampil di laporan~~ — selesai
     v0.148.0 (F1-16h); bagian *Pelunasan piutang* di Ringkasan per metode
     dan rekening. Pembayaran hutang supplier per sumber dana belum.
+92. ~~Cari Riwayat tidak mengenal nama grup modifier, `5kg` vs `5 kg`, dan
+    garis miring U+2044/U+29F8 di HP~~ — selesai v0.149.0 (F1-11j). Kata
+    tanpa spasi di pencarian produk Kasir/Produk belum.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,
