@@ -126,7 +126,7 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
 | Tampilan & bahasa | 1.26 | Rilis v0.1.0 | - |
 | QRIS statis | 1.26b | Rilis v0.7.0 | - |
 | Pembacaan QR (NMID otomatis) | 1.26b "QR terbaca" | Belum, NMID diketik | Dekoder QR offline Dart murni |
-| *Foto stiker* (kamera), seret file | 1.26b | Belum, *Pilih file* saja | Bersama foto produk (F1-07) |
+| *Foto stiker* (kamera), seret file | 1.26b | Kamera rilis v0.140.0 ([F1-18f](2026-11-27-f1-18f-foto-stiker-qris-design.md)); seret file belum | Kamera hanya Android/iOS, seperti foto produk (F1-07f) |
 | *Kasir boleh konfirmasi tanpa PIN manajer* | 1.26b | Rilis v0.138.0 | [F1-05h](2026-11-27-f1-05h-pin-sudah-terbayar-design.md); bawaan hidup. |
 | *Tampilkan juga di layar mobile kasir* | 1.26b | Rilis v0.139.0 | [F1-18e](2026-11-27-f1-18e-qris-di-ponsel-design.md); hanya gambar stiker di ponsel, bawaan hidup. |
 | Rekening transfer, kartu, kredit | 1.26 | Rekening transfer rilis v0.74.0 ([F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)); kartu & kredit belum | Rekening di *Penjualan & stok*, bukan di halaman *Metode pembayaran* (QRIS). |

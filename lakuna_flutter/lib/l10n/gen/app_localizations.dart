@@ -2426,6 +2426,30 @@ abstract class AppLocalizations {
   /// **'Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.'**
   String get qrisSettingsUploadHint;
 
+  /// No description provided for @qrisSettingsUploadHintCamera.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih file stiker atau foto lurus seluruh stiker. PNG, JPG, atau WebP, maks 5 MB.'**
+  String get qrisSettingsUploadHintCamera;
+
+  /// No description provided for @qrisSettingsCamera.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto stiker'**
+  String get qrisSettingsCamera;
+
+  /// No description provided for @qrisSettingsFileFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'File tidak bisa dibuka. Pilih file lain.'**
+  String get qrisSettingsFileFailed;
+
+  /// No description provided for @qrisSettingsCameraFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Kamera tidak bisa dibuka. Periksa izin kamera di pengaturan perangkat, atau pilih file.'**
+  String get qrisSettingsCameraFailed;
+
   /// No description provided for @qrisSettingsPick.
   ///
   /// In id, this message translates to:

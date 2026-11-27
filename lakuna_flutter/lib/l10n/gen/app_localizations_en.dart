@@ -1321,6 +1321,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the sticker file from this device. PNG, JPG, or WebP, up to 5 MB.';
 
   @override
+  String get qrisSettingsUploadHintCamera =>
+      'Choose the sticker file or take a straight photo of the whole sticker. PNG, JPG, or WebP, up to 5 MB.';
+
+  @override
+  String get qrisSettingsCamera => 'Photo sticker';
+
+  @override
+  String get qrisSettingsFileFailed =>
+      'The file could not be opened. Choose another file.';
+
+  @override
+  String get qrisSettingsCameraFailed =>
+      'The camera could not be opened. Check the camera permission in the device settings, or choose a file.';
+
+  @override
   String get qrisSettingsPick => 'Choose file';
 
   @override
