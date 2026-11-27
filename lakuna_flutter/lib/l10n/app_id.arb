@@ -5044,7 +5044,46 @@
   "purchaseInvoicePhoto": "Foto faktur",
   "purchaseInvoicePhotoPick": "Lampirkan foto faktur",
   "purchaseInvoicePhotoCamera": "Ambil foto faktur",
-  "purchaseInvoicePhotoReplace": "Ganti foto",
+  "purchaseInvoicePhotoAdd": "Tambah foto",
+  "purchaseInvoicePhotoCount": "{count} dari {max} foto",
+  "@purchaseInvoicePhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoPage": "Foto {index} dari {count}",
+  "@purchaseInvoicePhotoPage": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoRemoveAt": "Hapus foto {index}",
+  "@purchaseInvoicePhotoRemoveAt": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoMissingShort": "Belum ada di perangkat ini",
+  "purchaseInvoicePhotoLimit": "Paling banyak {max} foto per faktur.",
+  "@purchaseInvoicePhotoLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "purchaseInvoicePhotoRemove": "Hapus foto",
   "purchaseInvoicePhotoView": "Lihat foto faktur",
   "purchaseInvoicePhotoNone": "Belum ada foto faktur.",

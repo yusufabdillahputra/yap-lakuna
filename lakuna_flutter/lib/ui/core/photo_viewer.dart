@@ -4,12 +4,14 @@ import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 
 /// Foto (nota, faktur) layar penuh yang bisa diperbesar. Kunci widget:
-/// `<keyPrefix>-full` dan `<keyPrefix>-full-close`.
+/// `<keyPrefix>-full` dan `<keyPrefix>-full-close`. [title] (mis. *Foto 2
+/// dari 3*) tampil di atas foto.
 Future<void> showPhotoViewer(
   BuildContext context, {
   required Uint8List bytes,
   required String keyPrefix,
   required String closeLabel,
+  String? title,
 }) => showFDialog<void>(
   context: context,
   builder: (context, style, animation) => FDialog(
@@ -23,6 +25,14 @@ Future<void> showPhotoViewer(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 12,
         children: [
+          if (title != null)
+            Text(
+              title,
+              key: ValueKey('$keyPrefix-full-title'),
+              style: context.theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           Flexible(
             child: InteractiveViewer(
               maxScale: 5,

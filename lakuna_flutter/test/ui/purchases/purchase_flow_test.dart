@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart';
-import 'package:lakuna_data/lakuna_data.dart' show StockRow;
+import 'package:lakuna_data/lakuna_data.dart' show AddInvoicePhoto, StockRow;
 import 'package:lakuna_flutter/data/repositories/purchases_repository.dart'
     show PurchasePriceSource;
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
@@ -1023,25 +1023,57 @@ void main() {
       expect(_key('purchase-invoice-photo-error'), findsOneWidget);
       picker.next = png();
       await _tap(tester, _key('purchase-invoice-photo-pick'));
-      expect(_key('purchase-invoice-photo-preview'), findsOneWidget);
-      expect(find.text('faktur-sp.png'), findsOneWidget);
+      expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
+      expect(find.text('1 dari 5 foto'), findsOneWidget);
+      // Foto kedua (F1-12m), lalu hapus dari form tanpa konfirmasi.
+      picker.next = PickedImage(
+        name: 'faktur-2.png',
+        size: shadePng(2).length,
+        bytes: shadePng(2),
+      );
+      await _tap(tester, _key('purchase-invoice-photo-pick'));
+      expect(find.text('Tambah foto'), findsOneWidget);
+      expect(find.text('2 dari 5 foto'), findsOneWidget);
+      picker.next = PickedImage(
+        name: 'faktur-3.png',
+        size: shadePng(3).length,
+        bytes: shadePng(3),
+      );
+      await _tap(tester, _key('purchase-invoice-photo-pick'));
+      await _tap(tester, _key('purchase-invoice-photo-remove-2'));
+      expect(find.text('2 dari 5 foto'), findsOneWidget);
       await _type(tester, _keyPrefix('purchase-price-'), '1500');
       await _tap(tester, _key('purchase-pay-full'));
       await _tap(tester, _key('purchase-receive'));
-      expect(repo.requests.single.invoicePhoto!.fileName, 'faktur-sp.png');
+      final sent = repo.requests.single.invoicePhotos!.cast<AddInvoicePhoto>();
+      expect(
+        [for (final a in sent) a.photo.fileName],
+        [
+          'faktur-sp.png',
+          'faktur-2.png',
+        ],
+      );
 
       // Detail 1.19b: gambar kecil + *Lihat foto faktur*.
-      expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
+      expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
+      expect(_key('purchase-invoice-photo-thumb-1'), findsOneWidget);
       await _tap(tester, _key('purchase-invoice-photo-view'));
       expect(_key('purchase-invoice-photo-full'), findsOneWidget);
+      expect(find.text('Foto 1 dari 2'), findsOneWidget);
+      await _tap(tester, _key('purchase-invoice-photo-full-close'));
+      await _tap(tester, _key('purchase-invoice-photo-thumb-1'));
+      expect(find.text('Foto 2 dari 2'), findsOneWidget);
       await _tap(tester, _key('purchase-invoice-photo-full-close'));
       expect(_key('purchase-invoice-photo-full'), findsNothing);
 
       // Hapus butuh konfirmasi; batal tidak menghapus.
-      await _tap(tester, _key('purchase-invoice-photo-remove'));
+      await _tap(tester, _key('purchase-invoice-photo-remove-0'));
       await _tap(tester, _key('purchase-invoice-photo-cancel'));
-      expect(repo.purchases.single.invoiceMediaId, isNotNull);
-      await _tap(tester, _key('purchase-invoice-photo-remove'));
+      expect(repo.photoLists.values.single.length, 2);
+      await _tap(tester, _key('purchase-invoice-photo-remove-0'));
+      await _tap(tester, _key('purchase-invoice-photo-confirm-remove'));
+      expect(repo.photoLists.values.single.length, 1);
+      await _tap(tester, _key('purchase-invoice-photo-remove-0'));
       await _tap(tester, _key('purchase-invoice-photo-confirm-remove'));
       expect(repo.purchases.single.invoiceMediaId, isNull);
       expect(find.text('Belum ada foto faktur.'), findsOneWidget);
@@ -1049,8 +1081,8 @@ void main() {
 
       picker.next = png();
       await _tap(tester, _key('purchase-invoice-photo-pick'));
-      expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
-      expect(find.text('Ganti foto'), findsOneWidget);
+      expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
+      expect(find.text('Tambah foto'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
@@ -1064,12 +1096,12 @@ void main() {
     picker.next = png();
     await _tap(tester, _key('purchase-invoice-photo-camera'));
     expect(picker.photoCalls, 1);
-    expect(_key('purchase-invoice-photo-preview'), findsOneWidget);
+    expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
     await _type(tester, _keyPrefix('purchase-price-'), '1500');
     await _tap(tester, _key('purchase-pay-full'));
     await _tap(tester, _key('purchase-receive'));
     expect(_key('purchase-detail'), findsOneWidget);
-    expect(_key('purchase-invoice-photo-thumb'), findsOneWidget);
+    expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
     expect(_key('purchase-invoice-photo-camera'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));

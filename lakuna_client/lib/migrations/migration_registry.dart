@@ -38,6 +38,7 @@ part '20261127021134605-shift/migration.dart';
 part '20261127051527184-log-masuk/migration.dart';
 part '20261127085032331-jejak-gabung/migration.dart';
 part '20261127102702568-satuan-beli/migration.dart';
+part '20261127110008679-foto-faktur-lembar/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -78,6 +79,7 @@ class MigrationRegistry {
     _Migration20261127051527184_log_masuk(),
     _Migration20261127085032331_jejak_gabung(),
     _Migration20261127102702568_satuan_beli(),
+    _Migration20261127110008679_foto_faktur_lembar(),
   ];
 
   /// List of all client-side database migration versions.

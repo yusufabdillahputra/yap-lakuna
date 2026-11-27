@@ -8087,7 +8087,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseInvoicePhotoCamera => 'Take invoice photo';
 
   @override
-  String get purchaseInvoicePhotoReplace => 'Replace photo';
+  String get purchaseInvoicePhotoAdd => 'Add photo';
+
+  @override
+  String purchaseInvoicePhotoCount(int count, int max) {
+    return '$count of $max photos';
+  }
+
+  @override
+  String purchaseInvoicePhotoPage(int index, int count) {
+    return 'Photo $index of $count';
+  }
+
+  @override
+  String purchaseInvoicePhotoRemoveAt(int index) {
+    return 'Remove photo $index';
+  }
+
+  @override
+  String get purchaseInvoicePhotoMissingShort => 'Not on this device yet';
+
+  @override
+  String purchaseInvoicePhotoLimit(int max) {
+    return 'Up to $max photos per invoice.';
+  }
 
   @override
   String get purchaseInvoicePhotoRemove => 'Remove photo';

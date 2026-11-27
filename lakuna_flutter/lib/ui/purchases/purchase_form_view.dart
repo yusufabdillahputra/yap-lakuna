@@ -12,8 +12,8 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
 import '../core/leave_guard.dart';
-import '../core/photo_attach_field.dart';
 import '../products/product_widgets.dart';
+import 'invoice_photo_strip.dart';
 import 'purchase_form_view_model.dart';
 import 'purchase_labels.dart';
 
@@ -409,7 +409,8 @@ class _Grid extends StatelessWidget {
   }
 }
 
-/// Lampiran foto faktur (F1-12b); tersimpan bersama pembelian.
+/// Lampiran foto faktur (F1-12b, sampai 5 foto F1-12m); tersimpan bersama
+/// pembelian.
 class _InvoicePhotoField extends StatelessWidget {
   const _InvoicePhotoField({required this.viewModel});
 
@@ -419,15 +420,28 @@ class _InvoicePhotoField extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final vm = viewModel;
+    final photos = vm.invoicePhotos;
+    final busy = vm.pickInvoicePhoto.running || vm.busy;
     final error = vm.invoicePhotoRejected
         ? l10n.purchaseInvoicePhotoInvalid
         : vm.pickInvoicePhoto.error
         ? l10n.purchaseInvoicePhotoFailed
         : null;
+    Widget button(String suffix, IconData icon, String label, bool camera) =>
+        FButton(
+          key: ValueKey('purchase-invoice-photo-$suffix'),
+          variant: .outline,
+          mainAxisSize: .min,
+          onPress: busy ? null : () => vm.pickInvoicePhoto.execute(camera),
+          prefix: Icon(icon),
+          child: Flexible(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        );
     return Column(
       key: const ValueKey('purchase-invoice-photo-field'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 6,
+      spacing: 8,
       children: [
         Text(
           l10n.purchaseInvoicePhoto,
@@ -435,39 +449,55 @@ class _InvoicePhotoField extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        PhotoAttachField(
-          keyPrefix: 'purchase-invoice-photo',
-          pickLabel: l10n.purchaseInvoicePhotoPick,
-          cameraLabel: l10n.purchaseInvoicePhotoCamera,
-          bytes: vm.invoicePhoto,
-          // Nama berkas hanya untuk foto baru yang belum disimpan.
-          fileName: vm.invoicePhotoUnsaved ? vm.invoicePhotoName : null,
-          busy: vm.pickInvoicePhoto.running || vm.busy,
-          canTakePhoto: vm.canTakePhoto,
-          onPick: vm.pickInvoicePhoto.execute,
-          onRemove: vm.removeInvoicePhoto,
-          error: error,
-        ),
-        if (vm.invoicePhotoMissing)
-          Row(
+        if (photos.isNotEmpty)
+          Padding(
+            // Ruang tombol hapus yang menjorok ke atas.
+            padding: const EdgeInsets.only(top: 6),
+            child: InvoicePhotoStrip(
+              photos: [for (final p in photos) p.bytes],
+              size: 64,
+              busy: busy,
+              onRemove: vm.removeInvoicePhotoAt,
+            ),
+          ),
+        if (vm.canAddInvoicePhoto)
+          Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: Text(
-                  l10n.purchaseInvoicePhotoMissing,
-                  key: const ValueKey('purchase-invoice-photo-missing'),
-                  style: _muted(context),
+              button(
+                'pick',
+                TablerIcons.photo,
+                photos.isEmpty
+                    ? l10n.purchaseInvoicePhotoPick
+                    : l10n.purchaseInvoicePhotoAdd,
+                false,
+              ),
+              if (vm.canTakePhoto)
+                button(
+                  'camera',
+                  TablerIcons.camera,
+                  l10n.purchaseInvoicePhotoCamera,
+                  true,
                 ),
-              ),
-              FButton(
-                key: const ValueKey('purchase-invoice-photo-clear'),
-                variant: .ghost,
-                size: .sm,
-                mainAxisSize: .min,
-                onPress: vm.busy ? null : vm.removeInvoicePhoto,
-                child: Text(l10n.purchaseInvoicePhotoRemove),
-              ),
             ],
+          ),
+        if (photos.isNotEmpty)
+          Text(
+            l10n.purchaseInvoicePhotoCount(
+              photos.length,
+              PurchaseLimits.invoicePhotoMaxCount,
+            ),
+            key: const ValueKey('purchase-invoice-photo-count'),
+            style: _muted(context),
+          ),
+        if (error case final message?)
+          Text(
+            message,
+            key: const ValueKey('purchase-invoice-photo-error'),
+            style: context.theme.typography.body.xs.copyWith(
+              color: context.theme.colors.destructive,
+            ),
           ),
       ],
     );

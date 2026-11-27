@@ -47,7 +47,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     load = Command0(_load)..addListener(notifyListeners);
     attachInvoicePhoto = Command1(_attachInvoicePhoto)
       ..addListener(notifyListeners);
-    removeInvoicePhoto = Command0(_removeInvoicePhoto)
+    removeInvoicePhoto = Command1(_removeInvoicePhoto)
       ..addListener(notifyListeners);
     applyPrices = Command0(_applyPrices)..addListener(notifyListeners);
     submitReturn = Command0(_submitReturn)..addListener(notifyListeners);
@@ -79,7 +79,9 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   /// Melampirkan atau mengganti foto faktur; argumen `true` = kamera
   /// (F1-12b).
   late final Command1<void, bool> attachInvoicePhoto;
-  late final Command0<void> removeInvoicePhoto;
+
+  /// Melepas foto faktur dengan id media (F1-12m).
+  late final Command1<void, UuidValue> removeInvoicePhoto;
 
   /// *Cetak / bagikan PDF* (F1-12c): pembuat PDF dan nama berkas. Hasilnya
   /// lokasi berkas (desktop) atau `null` (lembar bagikan ponsel).
@@ -112,7 +114,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     }
   }
 
-  Uint8List? _invoicePhoto;
+  var _invoicePhotos = const <PurchaseInvoicePhotoFile>[];
   var _invoicePhotoRejected = false;
   var _photoPickFailed = false;
   Exception? _photoError;
@@ -123,9 +125,17 @@ class PurchaseDetailViewModel extends ChangeNotifier {
   /// Galat repositori untuk aksi foto terakhir.
   Exception? get photoError => _photoError;
 
-  /// Isi foto faktur; `null` bila tidak ada atau berkasnya belum ada di
-  /// perangkat ini (lihat `detail.hasInvoicePhoto`).
-  Uint8List? get invoicePhoto => _invoicePhoto;
+  /// Foto faktur berurutan (F1-12m); `bytes` kosong bila berkasnya belum
+  /// ada di perangkat ini. Galat baca = id dari `detail` tanpa isi.
+  List<PurchaseInvoicePhotoFile> get invoicePhotos => _invoicePhotos;
+
+  /// Isi foto faktur pertama; `null` bila tidak ada atau berkasnya belum
+  /// ada di perangkat ini.
+  Uint8List? get invoicePhoto => _invoicePhotos.firstOrNull?.bytes;
+
+  /// Masih boleh menambah foto faktur.
+  bool get canAddInvoicePhoto =>
+      _invoicePhotos.length < PurchaseLimits.invoicePhotoMaxCount;
 
   /// Berkas terakhir yang dipilih bukan gambar atau terlalu besar.
   bool get invoicePhotoRejected => _invoicePhotoRejected;
@@ -199,7 +209,7 @@ class PurchaseDetailViewModel extends ChangeNotifier {
       case Ok(:final value):
         _detail = value;
         _error = null;
-        _invoicePhoto = await _photoOf(value);
+        _invoicePhotos = await _photosOf(value);
         _suggestions = _suggest(value);
         _checked = {
           for (final s in _suggestions)
@@ -212,10 +222,16 @@ class PurchaseDetailViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Uint8List?> _photoOf(PurchaseDetail d) async {
-    if (!d.hasInvoicePhoto) return null;
-    final photo = await _repository.invoicePhoto(d.purchase.id);
-    return photo is Ok<Uint8List?> ? photo.value : null;
+  Future<List<PurchaseInvoicePhotoFile>> _photosOf(PurchaseDetail d) async {
+    if (d.invoiceMediaIds.isEmpty) return const [];
+    final photos = await _repository.invoicePhotos(d.purchase.id);
+    return switch (photos) {
+      Ok(:final value) => value,
+      Error() => [
+        for (final id in d.invoiceMediaIds)
+          PurchaseInvoicePhotoFile(mediaId: id),
+      ],
+    };
   }
 
   void _resetPhotoState() {
@@ -242,16 +258,18 @@ class PurchaseDetailViewModel extends ChangeNotifier {
       _invoicePhotoRejected = true;
       return const Result.ok(null);
     }
-    final result = await _repository.setInvoicePhoto(
+    final result = await _repository.addInvoicePhoto(
       purchaseId,
       PurchaseInvoicePhoto(bytes: bytes, fileName: picked.name),
     );
     return _afterPhotoChange(result);
   }
 
-  Future<Result<void>> _removeInvoicePhoto() async {
+  Future<Result<void>> _removeInvoicePhoto(UuidValue mediaId) async {
     _resetPhotoState();
-    return _afterPhotoChange(await _repository.clearInvoicePhoto(purchaseId));
+    return _afterPhotoChange(
+      await _repository.removeInvoicePhoto(purchaseId, mediaId),
+    );
   }
 
   /// Muat ulang detail setelah foto berubah; centang harga yang sudah

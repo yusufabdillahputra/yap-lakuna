@@ -24,6 +24,10 @@ abstract final class PurchaseLimits {
   /// Sisi terpanjang foto faktur yang disimpan; cukup untuk tulisan faktur
   /// (F1-07l).
   static const invoicePhotoMaxSide = 2000;
+
+  /// Jumlah foto faktur per pembelian (F1-12m): foto pertama di dokumen,
+  /// sisanya lembar `purchase_invoice_pages`.
+  static const invoicePhotoMaxCount = 5;
 }
 
 /// Sumber dana bayar di muka atau uang kembali retur beli (salinan domain

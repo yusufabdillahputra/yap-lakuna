@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
@@ -173,15 +171,15 @@ class LocalPurchasesRepository extends PurchasesRepository {
   );
 
   @override
-  Future<Result<Uint8List?>> invoicePhoto(UuidValue id) =>
-      _guard((_, scope, _) => loadPurchaseInvoicePhoto(_store, scope, id));
+  Future<Result<List<PurchaseInvoicePhotoFile>>> invoicePhotos(UuidValue id) =>
+      _guard((_, scope, _) => loadPurchaseInvoicePhotos(_store, scope, id));
 
   @override
-  Future<Result<Purchase>> setInvoicePhoto(
+  Future<Result<Purchase>> addInvoicePhoto(
     UuidValue id,
     PurchaseInvoicePhoto photo,
   ) => _guard(
-    (_, scope, staff) => setPurchaseInvoicePhoto(
+    (_, scope, staff) => addPurchaseInvoicePhoto(
       _store,
       scope,
       staffId: staff.id,
@@ -191,12 +189,16 @@ class LocalPurchasesRepository extends PurchasesRepository {
   );
 
   @override
-  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id) => _guard(
-    (_, scope, staff) => clearPurchaseInvoicePhoto(
+  Future<Result<Purchase>> removeInvoicePhoto(
+    UuidValue id,
+    UuidValue mediaId,
+  ) => _guard(
+    (_, scope, staff) => removePurchaseInvoicePhoto(
       _store,
       scope,
       staffId: staff.id,
       purchaseId: id,
+      mediaId: mediaId,
     ),
   );
 

@@ -84,6 +84,10 @@ class FakePurchasesRepository extends PurchasesRepository {
 
   /// Foto tercatat tetapi berkasnya belum ada di perangkat.
   var photoFileMissing = false;
+
+  /// Daftar foto faktur per pembelian (F1-12m); foto pertama juga di
+  /// `invoiceMediaId`.
+  final photoLists = <UuidValue, List<UuidValue>>{};
   final applied = <Map<UuidValue, Money>>[];
 
   /// Galat berikutnya untuk aksi tulis (sekali pakai).
@@ -219,6 +223,7 @@ class FakePurchasesRepository extends PurchasesRepository {
               .firstWhere((p) => p.variants.any((v) => v.id == i.variantId))
               .baseUnit,
       },
+      invoiceMediaIds: _photosOf(p.id),
     );
   }
 
@@ -266,7 +271,15 @@ class FakePurchasesRepository extends PurchasesRepository {
       receiving: receiving,
     );
     if (issues.isNotEmpty) throw PurchaseInvalid(issues);
-    if (r.invoicePhoto case final photo?) _checkPhoto(photo);
+    final slots = r.invoicePhotoSlots;
+    if (slots != null) {
+      if (slots.length > PurchaseLimits.invoicePhotoMaxCount) {
+        throw const PurchaseInvoicePhotoLimit();
+      }
+      for (final slot in slots) {
+        if (slot case AddInvoicePhoto(:final photo)) _checkPhoto(photo);
+      }
+    }
     if (receiving && r.funding == FundingSource.drawer && !hasOpenSession) {
       throw CashSessionNotOpen();
     }
@@ -312,14 +325,13 @@ class FakePurchasesRepository extends PurchasesRepository {
       fundingSource: r.funding,
       dueOn: r.dueOn,
       note: r.note,
-      invoiceMediaId: r.invoicePhoto != null
-          ? _storePhoto(r.invoicePhoto!)
-          : r.removeInvoicePhoto
-          ? null
-          : old?.invoiceMediaId,
+      invoiceMediaId: slots == null
+          ? old?.invoiceMediaId
+          : _resolveSlots(old?.id, slots).firstOrNull,
       receivedAt: receiving ? DateTime.utc(2026, 11, 3, 4) : null,
       hlc: '',
     );
+    if (slots != null) photoLists[p.id] = _resolved;
     if (old != null) {
       purchases[purchases.indexOf(old)] = p;
       items.removeWhere((i) => i.purchaseId == p.id);
@@ -460,17 +472,64 @@ class FakePurchasesRepository extends PurchasesRepository {
     }
   }
 
+  /// Berkas yang sama memakai media yang sama (hash sama di data asli).
   UuidValue _storePhoto(PurchaseInvoicePhoto photo) {
+    for (final MapEntry(:key, :value) in photoFiles.entries) {
+      if (_sameBytes(value, photo.bytes)) return key;
+    }
     final id = _id();
     photoFiles[id] = photo.bytes;
     return id;
   }
 
-  Purchase _setPhoto(UuidValue id, UuidValue? mediaId) {
+  static bool _sameBytes(Uint8List a, Uint8List b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  var _resolved = const <UuidValue>[];
+
+  List<UuidValue> _resolveSlots(
+    UuidValue? purchaseId,
+    List<PurchaseInvoicePhotoSlot> slots,
+  ) {
+    final current = purchaseId == null
+        ? const <UuidValue>[]
+        : _photosOf(purchaseId);
+    final ids = <UuidValue>[];
+    for (final slot in slots) {
+      final id = switch (slot) {
+        KeepInvoicePhoto(:final mediaId) =>
+          current.contains(mediaId)
+              ? mediaId
+              : throw const PurchaseInvoicePhotoInvalid(),
+        AddInvoicePhoto(:final photo) => _storePhoto(photo),
+      };
+      if (!ids.contains(id)) ids.add(id);
+    }
+    return _resolved = ids;
+  }
+
+  List<UuidValue> _photosOf(UuidValue purchaseId) {
+    final p = purchases.where((p) => p.id == purchaseId).firstOrNull;
+    if (p?.invoiceMediaId == null) return const [];
+    return photoLists[purchaseId] ?? [p!.invoiceMediaId!];
+  }
+
+  Purchase _setPhotos(UuidValue id, List<UuidValue> photos) {
     final p = purchases.where((p) => p.id == id).firstOrNull;
     if (p == null) throw PurchaseNotFound();
+    final current = _photosOf(id);
+    if (current.length == photos.length &&
+        current.indexed.every((e) => photos[e.$1] == e.$2)) {
+      return p;
+    }
+    photoLists[id] = photos;
     final updated = p.copyWith(
-      invoiceMediaId: mediaId,
+      invoiceMediaId: photos.firstOrNull,
       version: p.version + 1,
     );
     purchases[purchases.indexOf(p)] = updated;
@@ -624,24 +683,41 @@ class FakePurchasesRepository extends PurchasesRepository {
   }
 
   @override
-  Future<Result<Uint8List?>> invoicePhoto(UuidValue id) async => _guard(() {
-    final media = purchases
-        .where((p) => p.id == id)
-        .firstOrNull
-        ?.invoiceMediaId;
-    return media == null || photoFileMissing ? null : photoFiles[media];
-  });
+  Future<Result<List<PurchaseInvoicePhotoFile>>> invoicePhotos(
+    UuidValue id,
+  ) async => _guard(
+    () => [
+      for (final media in _photosOf(id))
+        PurchaseInvoicePhotoFile(
+          mediaId: media,
+          bytes: photoFileMissing ? null : photoFiles[media],
+        ),
+    ],
+  );
 
   @override
-  Future<Result<Purchase>> setInvoicePhoto(
+  Future<Result<Purchase>> addInvoicePhoto(
     UuidValue id,
     PurchaseInvoicePhoto photo,
   ) async => _guard(() {
     _checkPhoto(photo);
-    return _setPhoto(id, _storePhoto(photo));
+    final current = _photosOf(id);
+    final media = _storePhoto(photo);
+    if (current.contains(media)) return _setPhotos(id, current);
+    if (current.length >= PurchaseLimits.invoicePhotoMaxCount) {
+      throw const PurchaseInvoicePhotoLimit();
+    }
+    return _setPhotos(id, [...current, media]);
   });
 
   @override
-  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id) async =>
-      _guard(() => _setPhoto(id, null));
+  Future<Result<Purchase>> removeInvoicePhoto(
+    UuidValue id,
+    UuidValue mediaId,
+  ) async => _guard(
+    () => _setPhotos(id, [
+      for (final m in _photosOf(id))
+        if (m != mediaId) m,
+    ]),
+  );
 }

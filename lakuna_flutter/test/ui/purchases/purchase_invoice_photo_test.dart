@@ -11,7 +11,7 @@ import '../../testing/fake_payment_settings_repository.dart';
 import '../../testing/fake_purchases_repository.dart';
 import '../../testing/floor_seed.dart';
 
-/// F1-12b: foto faktur di form dan detail pembelian.
+/// F1-12b, F1-12m: foto faktur di form dan detail pembelian.
 void main() {
   late FakePurchasesRepository repo;
   late FakeImagePicker picker;
@@ -47,19 +47,21 @@ void main() {
         picker.next = picked(samplePng);
         await form.pickInvoicePhoto.execute(false);
         expect(picker.lastWebp, isTrue);
-        expect(form.invoicePhoto, samplePng);
-        expect(form.invoicePhotoName, 'faktur.png');
+        expect(form.invoicePhotos.single.bytes, samplePng);
+        expect(form.invoicePhotos.single.fileName, 'faktur.png');
+        expect(form.invoicePhotos.single.isNew, isTrue);
 
         await form.saveDraft.execute();
-        final sent = repo.requests.single;
-        expect(sent.invoicePhoto!.bytes, samplePng);
-        expect(sent.invoicePhoto!.fileName, 'faktur.png');
-        expect(sent.removeInvoicePhoto, isFalse);
+        final sent = repo.requests.single.invoicePhotos!;
+        final added = sent.single as AddInvoicePhoto;
+        expect(added.photo.bytes, samplePng);
+        expect(added.photo.fileName, 'faktur.png');
+        // Foto baru kini punya id media tersimpan.
+        expect(form.invoicePhotos.single.isNew, isFalse);
 
         // Simpan lagi tanpa menyentuh foto: foto lama tetap.
         await form.saveDraft.execute();
-        expect(repo.requests.last.invoicePhoto, isNull);
-        expect(repo.requests.last.removeInvoicePhoto, isFalse);
+        expect(repo.requests.last.invoicePhotos, isNull);
         expect(repo.purchases.single.invoiceMediaId, isNotNull);
       },
     );
@@ -83,7 +85,7 @@ void main() {
       picker.next = picked(samplePng);
       await form.pickInvoicePhoto.execute(true);
       expect(picker.photoCalls, 1);
-      expect(form.invoicePhoto, samplePng);
+      expect(form.invoicePhotos.single.bytes, samplePng);
     });
 
     test('foto faktur 12 MB diterima (dikecilkan saat disimpan)', () async {
@@ -92,14 +94,14 @@ void main() {
       picker.next = picked(big);
       await form.pickInvoicePhoto.execute(false);
       expect(form.invoicePhotoRejected, isFalse);
-      expect(form.invoicePhoto, big);
+      expect(form.invoicePhotos.single.bytes, big);
     });
 
     test('berkas bukan gambar atau terlalu besar ditolak', () async {
       final form = await openForm();
       picker.next = picked(Uint8List.fromList([1, 2, 3]));
       await form.pickInvoicePhoto.execute(false);
-      expect(form.invoicePhoto, isNull);
+      expect(form.invoicePhotos, isEmpty);
       expect(form.invoicePhotoRejected, isTrue);
       picker.next = picked(null);
       await form.pickInvoicePhoto.execute(false);
@@ -109,7 +111,7 @@ void main() {
       expect(form.invoicePhotoRejected, isFalse);
       // Batal memilih tidak mengubah foto.
       await form.pickInvoicePhoto.execute(false);
-      expect(form.invoicePhoto, samplePng);
+      expect(form.invoicePhotos.single.bytes, samplePng);
     });
 
     test('draf dengan foto: pratinjau dimuat; hapus foto dikirim', () async {
@@ -120,13 +122,53 @@ void main() {
       await first.saveDraft.execute();
 
       final form = await openForm(draftId: first.draftId);
-      expect(form.invoicePhoto, samplePng);
-      expect(form.invoicePhotoMissing, isFalse);
-      form.removeInvoicePhoto();
-      expect(form.invoicePhoto, isNull);
+      expect(form.invoicePhotos.single.bytes, samplePng);
+      expect(form.invoicePhotos.single.missing, isFalse);
+      form.removeInvoicePhotoAt(0);
+      expect(form.invoicePhotos, isEmpty);
       await form.saveDraft.execute();
-      expect(repo.requests.last.removeInvoicePhoto, isTrue);
+      expect(repo.requests.last.invoicePhotos, isEmpty);
       expect(repo.purchases.single.invoiceMediaId, isNull);
+    });
+
+    test('sampai 5 foto: urutan tetap, kembar diabaikan, hapus satu', () async {
+      final form = await openForm();
+      fill(form);
+      for (var i = 1; i <= 5; i++) {
+        picker.next = picked(shadePng(i), name: 'faktur-$i.png');
+        await form.pickInvoicePhoto.execute(false);
+      }
+      expect(form.invoicePhotos.length, 5);
+      expect(form.canAddInvoicePhoto, isFalse);
+      picker.next = picked(shadePng(6));
+      await form.pickInvoicePhoto.execute(false);
+      expect(form.invoicePhotos.length, 5);
+
+      form.removeInvoicePhotoAt(1);
+      expect(form.canAddInvoicePhoto, isTrue);
+      picker.next = picked(shadePng(1));
+      await form.pickInvoicePhoto.execute(false);
+      expect(form.invoicePhotos.length, 4, reason: 'foto kembar');
+      await form.saveDraft.execute();
+      expect(
+        [for (final f in repo.photoLists[form.draftId]!) repo.photoFiles[f]],
+        [shadePng(1), shadePng(3), shadePng(4), shadePng(5)],
+      );
+
+      // Draf dibuka ulang: foto lama dikirim sebagai foto lama.
+      final again = await openForm(draftId: form.draftId);
+      expect(again.invoicePhotos.length, 4);
+      again.removeInvoicePhotoAt(0);
+      picker.next = picked(shadePng(2));
+      await again.pickInvoicePhoto.execute(false);
+      await again.saveDraft.execute();
+      final slots = repo.requests.last.invoicePhotos!;
+      expect(slots.whereType<KeepInvoicePhoto>().length, 3);
+      expect(slots.last, isA<AddInvoicePhoto>());
+      expect(
+        [for (final f in repo.photoLists[form.draftId]!) repo.photoFiles[f]],
+        [shadePng(3), shadePng(4), shadePng(5), shadePng(2)],
+      );
     });
 
     test('foto draf yang berkasnya belum ada di perangkat', () async {
@@ -138,12 +180,18 @@ void main() {
       repo.photoFileMissing = true;
 
       final form = await openForm(draftId: first.draftId);
-      expect(form.invoicePhoto, isNull);
-      expect(form.invoicePhotoMissing, isTrue);
+      expect(form.invoicePhotos.single.missing, isTrue);
       // Tidak disentuh: foto tercatat tetap.
       await form.saveDraft.execute();
-      expect(repo.requests.last.removeInvoicePhoto, isFalse);
+      expect(repo.requests.last.invoicePhotos, isNull);
       expect(repo.purchases.single.invoiceMediaId, isNotNull);
+
+      // Menambah foto tetap menyimpan foto yang berkasnya belum ada.
+      repo.photoFileMissing = false;
+      picker.next = picked(shadePng(2));
+      await form.pickInvoicePhoto.execute(false);
+      await form.saveDraft.execute();
+      expect(repo.photoLists[form.draftId]!.length, 2);
     });
   });
 
@@ -181,9 +229,33 @@ void main() {
       expect(vm.detail!.hasInvoicePhoto, isTrue);
       expect(vm.invoicePhoto, samplePng);
 
-      await vm.removeInvoicePhoto.execute();
+      await vm.removeInvoicePhoto.execute(vm.invoicePhotos.single.mediaId);
       expect(vm.detail!.hasInvoicePhoto, isFalse);
       expect(vm.invoicePhoto, isNull);
+    });
+
+    test('tambah sampai 5 foto, hapus foto pertama, batas', () async {
+      final vm = await received(photo: true);
+      for (var i = 1; i <= 4; i++) {
+        picker.next = picked(shadePng(i));
+        await vm.attachInvoicePhoto.execute(false);
+      }
+      expect(vm.invoicePhotos.length, 5);
+      expect(vm.canAddInvoicePhoto, isFalse);
+      expect(vm.detail!.invoiceMediaIds.length, 5);
+
+      await vm.removeInvoicePhoto.execute(vm.invoicePhotos.first.mediaId);
+      expect(vm.invoicePhoto, shadePng(1));
+      expect(vm.invoicePhotos.length, 4);
+
+      // Batas dari repositori tampil sebagai galat foto.
+      picker.next = picked(shadePng(5));
+      await vm.attachInvoicePhoto.execute(false);
+      picker.next = picked(shadePng(6));
+      repo.nextError = const PurchaseInvoicePhotoLimit();
+      await vm.attachInvoicePhoto.execute(false);
+      expect(vm.photoError, isA<PurchaseInvoicePhotoLimit>());
+      expect(vm.invoicePhotos.length, 5);
     });
 
     test('foto faktur 12 MB diterima di detail (F1-07l)', () async {
@@ -216,7 +288,7 @@ void main() {
     test('galat lama hilang setelah aksi berikutnya berhasil', () async {
       final vm = await received(photo: true);
       repo.nextError = PurchaseNotFound();
-      await vm.removeInvoicePhoto.execute();
+      await vm.removeInvoicePhoto.execute(vm.invoicePhotos.single.mediaId);
       expect(vm.photoError, isA<PurchaseNotFound>());
       picker.next = picked(samplePng);
       await vm.attachInvoicePhoto.execute(false);
@@ -226,7 +298,7 @@ void main() {
       picker.throwNext = Exception('izin kamera ditolak');
       await vm.attachInvoicePhoto.execute(true);
       expect(vm.photoPickFailed, isTrue);
-      await vm.removeInvoicePhoto.execute();
+      await vm.removeInvoicePhoto.execute(vm.invoicePhotos.single.mediaId);
       expect(vm.photoPickFailed, isFalse);
     });
 

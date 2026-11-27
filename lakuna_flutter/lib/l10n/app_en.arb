@@ -4490,7 +4490,46 @@
   "purchaseInvoicePhoto": "Invoice photo",
   "purchaseInvoicePhotoPick": "Attach invoice photo",
   "purchaseInvoicePhotoCamera": "Take invoice photo",
-  "purchaseInvoicePhotoReplace": "Replace photo",
+  "purchaseInvoicePhotoAdd": "Add photo",
+  "purchaseInvoicePhotoCount": "{count} of {max} photos",
+  "@purchaseInvoicePhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoPage": "Photo {index} of {count}",
+  "@purchaseInvoicePhotoPage": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoRemoveAt": "Remove photo {index}",
+  "@purchaseInvoicePhotoRemoveAt": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoMissingShort": "Not on this device yet",
+  "purchaseInvoicePhotoLimit": "Up to {max} photos per invoice.",
+  "@purchaseInvoicePhotoLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "purchaseInvoicePhotoRemove": "Remove photo",
   "purchaseInvoicePhotoView": "View invoice photo",
   "purchaseInvoicePhotoNone": "No invoice photo yet.",
