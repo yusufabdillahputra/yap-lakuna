@@ -7,6 +7,85 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.141.0] - 2026-11-27
+
+Lakuna kini membaca kode QR di gambar stiker QRIS secara offline, sesuai
+baris *QR terbaca* di desain 1.26b. Ini gap kelima di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Pengaturan › Metode pembayaran › QRIS statis (1.26b):** setelah gambar
+  dipilih atau dipotret, *Hasil pemeriksaan* menampilkan *Membaca QR…*,
+  lalu salah satu baris berikut. Tidak satu pun memblokir **Simpan**,
+  sesuai catatan desain:
+  - *QR terbaca: QRIS statis, NMID …, merchant ….* (centang hijau).
+  - *QR ini QRIS dinamis (nominal sekali pakai).* Diminta memakai stiker
+    QRIS statis.
+  - *QR terbaca tapi bukan QRIS.* Muncul untuk URL, CRC salah, atau GUID
+    lain.
+  - *QR tidak terbaca dari gambar.* NMID bisa diketik manual.
+- **Isi otomatis:** *Nama merchant di QRIS*, *NMID*, dan *Kode terminal*
+  yang masih kosong diisi dari QR (tag 59, NMID template
+  `ID.CO.QRIS.WWW`, *terminal label* tag 62/07). Isian yang sudah diketik
+  tidak ditimpa. Bila NMID isian berbeda dengan QR, muncul *NMID di
+  isian (…) berbeda dengan QR (…).*
+- Gambar yang sudah tersimpan ikut dibaca saat halaman dibuka, hanya
+  untuk hasil pemeriksaan (tanpa isi otomatis).
+- Panduan *Menerima QRIS statis* (ID/EN): pembacaan QR dan isi otomatis.
+
+### Diperbaiki
+
+Temuan review sebelum rilis:
+
+- PNG 1-bit, PNG 16-bit, dan PNG berlatar transparan (ekspor QR yang
+  umum) sebelumnya gagal dibaca; yang 1-bit bahkan melempar `RangeError`.
+  Piksel kini diubah ke 8-bit RGBA dan alfa dicampur di atas putih.
+- Isi otomatis dulu memuat ulang keempat field teks, sehingga field yang
+  sedang diketik (mis. *Catatan settlement*) kehilangan fokus. Kini hanya
+  field yang diisi yang dimuat ulang.
+- Menyimpan isian teks saat gambar tersimpan masih dibaca membuat baris
+  QR hilang sampai *Batal*. Baca gambar tersimpan kini tidak dibatalkan
+  oleh simpan isian.
+- Nama merchant non-ASCII membuat QRIS sah terbaca *bukan QRIS*: CRC dan
+  panjang TLV kini dihitung dalam byte UTF-8. Panjang TLV yang bukan dua
+  digit (mis. `-1`) kini ditolak tanpa melempar galat.
+
+### Catatan teknis
+
+- `parseQrisPayload` dan `qrisCrc16` di `lakuna_domain` membaca TLV
+  EMVCo:
+  - CRC16-CCITT-FALSE tag 63 harus cocok;
+  - template merchant tag 26–51 ber-GUID `ID.CO.QRIS.WWW`;
+  - tag 01 `11` statis atau `12` dinamis.
+  `QrisQrRead.fromText` memetakan hasil dekoder ke `notFound` / `notQris`
+  / `qris`.
+- `readQrisFromImage` di `lakuna_data` memakai paket baru `zxing2` (Dart
+  murni, BSD-3-Clause, dicatat di NOTICE) dan paket `image`:
+  - urutan piksel BGRA untuk `RGBLuminanceSource`;
+  - `tryHarder`, `HybridBinarizer` lalu `GlobalHistogramBinarizer`;
+  - sisi terpanjang diperkecil ke 1600 px;
+  - gambar di atas `photoMaxPixels` ditolak sebelum didekode.
+- `PaymentSettingsRepository.readQr` menjalankannya lewat `Isolate.run`.
+  Repositori palsu mengembalikan hasil yang diatur tes. View model
+  memakai token terpisah untuk gambar tersimpan dan gambar baru, agar
+  hasil baca gambar lama tidak menimpa gambar baru.
+- **Simpan** menunggu baca QR gambar baru selesai (biasanya kurang dari
+  sedetik), supaya isi otomatis tidak datang setelah tersimpan.
+
+- Tes:
+  - domain: statis, dinamis, CRC, tag 26–50, TLV rusak, contoh CRC
+    EMVCo `29B1`;
+  - data: fixture PNG/JPEG QR asli dibuat sekali dengan `qrcode` Python
+    (termasuk PNG 1-bit, 16-bit, dan transparan), gambar tanpa QR;
+  - view model: balapan baca QR (pilih ulang, Batal, Simpan, tutup
+    halaman saat membaca) dengan repositori palsu yang menahan hasil;
+  - repositori: lewat isolate;
+  - widget: tiap hasil pemeriksaan, isi otomatis isian kosong, NMID beda,
+    gambar tersimpan dibaca saat dibuka.
+- Spec baru `docs/superpowers/specs/2026-11-27-f1-18g-baca-qr-qris-design.md`
+  dan rencananya.
+
 ## [0.140.0] - 2026-11-27
 
 Stiker QRIS kini bisa dipotret langsung dari Pengaturan, sesuai tombol
@@ -3965,7 +4044,9 @@ Excel.
 - Label langkah 4 di stepper menjadi *Produk pertama*, tombol langkah 3
   menjadi *Lanjut: produk*.
 
-### Diperbaiki (temuan review sebelum rilis)
+### Diperbaiki
+
+Temuan review sebelum rilis:
 
 - Draf yang bisa gagal di tengah transaksi (id produk lama, grup modifier,
   harga grup pelanggan) dan harga jual nol ditolak sebelum toko ditulis.
@@ -4019,7 +4100,9 @@ langsung dari detail pembelian.
 - Panduan *Mencatat pembelian* menjelaskan cetak PDF dan tautan kartu stok
   (ID + EN).
 
-### Diperbaiki (temuan review sebelum rilis)
+### Diperbaiki
+
+Temuan review sebelum rilis:
 
 - Qty satuan beli di PDF ditulis `4 dus (@ 6 btl)` agar tidak terbaca
   sebagai total 6 botol.
@@ -4072,7 +4155,9 @@ hutang atau harga beli tidak perlu mencari kertas fakturnya.
 - Penampil foto layar penuh dipakai bersama oleh foto nota pengeluaran dan
   foto faktur (`showPhotoViewer`).
 
-### Diperbaiki (temuan review sebelum rilis)
+### Diperbaiki
+
+Temuan review sebelum rilis:
 
 - Pesan galat foto lama tidak lagi tertinggal setelah aksi berikutnya
   berhasil; galat repositori memakai pesan yang sesuai, dan pesan "periksa
@@ -8075,7 +8160,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...HEAD
+[0.141.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...v0.141.0
 [0.140.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...v0.140.0
 [0.139.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...v0.139.0
 [0.138.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...v0.138.0

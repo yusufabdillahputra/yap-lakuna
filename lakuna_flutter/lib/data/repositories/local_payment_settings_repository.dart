@@ -1,3 +1,6 @@
+import 'dart:isolate';
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -36,6 +39,16 @@ class LocalPaymentSettingsRepository extends PaymentSettingsRepository {
       image: image,
     ),
   );
+
+  /// Dekoder zxing2 di isolate agar UI tidak tersendat (F1-18g).
+  @override
+  Future<QrisQrRead> readQr(Uint8List bytes) async {
+    try {
+      return await Isolate.run(() => readQrisFromImage(bytes));
+    } on Object {
+      return QrisQrRead.fromText(null);
+    }
+  }
 
   Future<Result<T>> _guard<T>(
     Future<T> Function(CatalogScope scope, UuidValue staffId) body,

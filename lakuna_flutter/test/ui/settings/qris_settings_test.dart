@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:lakuna_data/lakuna_data.dart';
+import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/image_file_picker.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/settings/qris_settings_section.dart';
@@ -97,13 +98,13 @@ void main() {
     expect(find.text('Resolusi 1080 × 1528 px.'), findsOneWidget);
     expect(find.text('qris-warung.png · 412 KB'), findsOneWidget);
 
-    await tester.enterText(_input('qris-merchant-1'), 'WARUNG CONTOH');
-    await tester.enterText(_input('qris-nmid-1'), 'id-1');
+    await tester.enterText(_input('qris-merchant-1-0'), 'WARUNG CONTOH');
+    await tester.enterText(_input('qris-nmid-1-0'), 'id-1');
     await tester.pumpAndSettle();
     await _tap(tester, 'qris-settings-save');
     expect(find.text('Hanya huruf dan angka, maks 20'), findsOneWidget);
 
-    await tester.enterText(_input('qris-nmid-1'), 'id10234567890');
+    await tester.enterText(_input('qris-nmid-1-0'), 'id10234567890');
     await tester.enterText(
       _input('qris-settlement-1'),
       'Rekening BCA 123-456-7890',
@@ -126,7 +127,7 @@ void main() {
     expect(image.bytes, bytes);
     // Field diisi ulang dari nilai tersimpan (NMID huruf besar).
     expect(
-      tester.widget<EditableText>(_input('qris-nmid-2')).controller.text,
+      tester.widget<EditableText>(_input('qris-nmid-2-0')).controller.text,
       'ID10234567890',
     );
   });
@@ -169,11 +170,11 @@ void main() {
       ),
       findsOneWidget,
     );
-    await tester.enterText(_input('qris-merchant-1'), 'UBAH');
+    await tester.enterText(_input('qris-merchant-1-0'), 'UBAH');
     await tester.pumpAndSettle();
     await _tap(tester, 'qris-settings-cancel');
     expect(
-      tester.widget<EditableText>(_input('qris-merchant-2')).controller.text,
+      tester.widget<EditableText>(_input('qris-merchant-2-0')).controller.text,
       'TOKO',
     );
     expect(find.text('a.png · 34 B'), findsNothing);
@@ -309,6 +310,168 @@ void main() {
       tester.widget<FButton>(_key('qris-settings-pick')).onPress,
       isNotNull,
     );
+  });
+
+  group('QR terbaca (F1-18g)', () {
+    // QRIS statis nyata: NMID ID10234567890, WARUNG CONTOH, terminal A01.
+    const statis =
+        '00020101021126580011ID.DANA.WWW0118936009150000000001021012345678900'
+        '303UMI51420014ID.CO.QRIS.WWW0213ID102345678900303UMI52045812530336058'
+        '02ID5913WARUNG CONTOH6007BANDUNG61054011162070703A016304FD1E';
+    String dinamis() {
+      final body = statis
+          .substring(0, statis.length - 4)
+          .replaceFirst('010211', '010212');
+      return body + qrisCrc16(body);
+    }
+
+    Future<(FakePaymentSettingsRepository, FakeImagePicker)> open(
+      WidgetTester tester, {
+      QrisConfig? initial,
+    }) async {
+      final repo = FakePaymentSettingsRepository(initial: initial);
+      final picker = FakeImagePicker();
+      await pumpLakuna(
+        tester,
+        initialLocation: Routes.settings,
+        paymentSettings: repo,
+        imagePicker: picker,
+      );
+      await _tap(tester, 'settings-section-payments');
+      return (repo, picker);
+    }
+
+    Future<void> pick(WidgetTester tester, FakeImagePicker picker) async {
+      final bytes = _pngHeader(1080, 1528);
+      picker.next = PickedImage(
+        name: 'q.png',
+        size: bytes.length,
+        bytes: bytes,
+      );
+      await _tap(tester, 'qris-settings-pick');
+    }
+
+    String field(WidgetTester tester, String key) => tester
+        .widget<EditableText>(
+          find.descendant(
+            of: find.byWidgetPredicate(
+              (w) =>
+                  w.key is ValueKey<String> &&
+                  (w.key! as ValueKey<String>).value.startsWith('$key-'),
+            ),
+            matching: find.byType(EditableText),
+          ),
+        )
+        .controller
+        .text;
+
+    testWidgets('QRIS statis: hasil pemeriksaan dan isian kosong terisi', (
+      tester,
+    ) async {
+      final (repo, picker) = await open(tester);
+      repo.qr = QrisQrRead.fromText(statis);
+      await pick(tester, picker);
+      expect(repo.qrReads, hasLength(1));
+      expect(
+        find.text(
+          'QR terbaca: QRIS statis, NMID ID10234567890, merchant WARUNG '
+          'CONTOH.',
+        ),
+        findsOneWidget,
+      );
+      expect(field(tester, 'qris-merchant'), 'WARUNG CONTOH');
+      expect(field(tester, 'qris-nmid'), 'ID10234567890');
+      expect(field(tester, 'qris-terminal'), 'A01');
+      expect(_key('qris-check-qr-nmid'), findsNothing);
+
+      await _tap(tester, 'qris-settings-save');
+      final (settings, _) = repo.saves.single;
+      expect(settings.nmid, 'ID10234567890');
+      expect(settings.merchantName, 'WARUNG CONTOH');
+      expect(settings.terminalCode, 'A01');
+      // Gambar baru tersimpan: hasil QR tetap tampil tanpa baca ulang.
+      expect(_key('qris-check-qr'), findsOneWidget);
+      expect(repo.qrReads, hasLength(1));
+    });
+
+    testWidgets('isian yang sudah diketik tidak ditimpa; NMID beda', (
+      tester,
+    ) async {
+      final (repo, picker) = await open(tester);
+      await tester.enterText(_input('qris-merchant-1-0'), 'TOKO BU ANI');
+      await tester.enterText(_input('qris-nmid-1-0'), 'ID999');
+      await tester.pumpAndSettle();
+      repo.qr = QrisQrRead.fromText(statis);
+      await pick(tester, picker);
+      expect(field(tester, 'qris-merchant'), 'TOKO BU ANI');
+      expect(field(tester, 'qris-nmid'), 'ID999');
+      expect(field(tester, 'qris-terminal'), 'A01');
+      expect(
+        find.text('NMID di isian (ID999) berbeda dengan QR (ID10234567890).'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+      'dinamis, bukan QRIS, tidak terbaca: peringatan, Simpan aktif',
+      (
+        tester,
+      ) async {
+        final (repo, picker) = await open(tester);
+        repo.qr = QrisQrRead.fromText(dinamis());
+        await pick(tester, picker);
+        expect(
+          find.text(
+            'QR ini QRIS dinamis (nominal sekali pakai). Pakai stiker QRIS '
+            'statis dari bank/PJP.',
+          ),
+          findsOneWidget,
+        );
+
+        repo.qr = QrisQrRead.fromText('https://warung.example');
+        await pick(tester, picker);
+        expect(
+          find.text(
+            'QR terbaca tapi bukan QRIS. Pastikan gambar yang dipilih adalah '
+            'stiker QRIS toko.',
+          ),
+          findsOneWidget,
+        );
+
+        repo.qr = QrisQrRead.fromText(null);
+        await pick(tester, picker);
+        expect(
+          find.text(
+            'QR tidak terbaca dari gambar. Pastikan seluruh stiker tajam dan '
+            'tidak terpotong; NMID bisa diketik manual.',
+          ),
+          findsOneWidget,
+        );
+        // NMID tetap dari QR dinamis (merchant sama), tidak dihapus.
+        expect(field(tester, 'qris-nmid'), 'ID10234567890');
+        expect(
+          tester.widget<FButton>(_key('qris-settings-save')).onPress,
+          isNotNull,
+        );
+      },
+    );
+
+    testWidgets('gambar tersimpan dibaca saat dibuka, tanpa isi otomatis', (
+      tester,
+    ) async {
+      final saved = _pngHeader(1080, 1528);
+      final (repo, _) = await open(
+        tester,
+        initial: QrisConfig(
+          settings: const QrisStaticSettings(enabled: true),
+          imageBytes: saved,
+        ),
+      );
+      // Hasil bawaan fake: QR tidak terbaca.
+      expect(repo.qrReads.single, saved);
+      expect(_key('qris-check-qr'), findsOneWidget);
+      expect(field(tester, 'qris-nmid'), isEmpty);
+    });
   });
 
   testWidgets('kasir tanpa settings:manage hanya melihat Tampilan', (

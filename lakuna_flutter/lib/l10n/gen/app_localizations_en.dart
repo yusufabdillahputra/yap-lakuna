@@ -1342,6 +1342,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qrisSettingsCheckTitle => 'Check results';
 
   @override
+  String get qrisSettingsQrReading => 'Reading the QR…';
+
+  @override
+  String qrisSettingsQrRead(String nmid, String merchant) {
+    return 'QR read: static QRIS, NMID $nmid, merchant $merchant.';
+  }
+
+  @override
+  String get qrisSettingsQrDynamic =>
+      'This QR is a dynamic QRIS (one-time amount). Use the static QRIS sticker from your bank/PJP.';
+
+  @override
+  String get qrisSettingsQrNotQris =>
+      'A QR was read but it is not a QRIS. Make sure the image is the store\'s QRIS sticker.';
+
+  @override
+  String get qrisSettingsQrNotFound =>
+      'The QR could not be read from the image. Make sure the whole sticker is sharp and not cut off; you can type the NMID by hand.';
+
+  @override
+  String qrisSettingsQrNmidMismatch(String typed, String fromQr) {
+    return 'The NMID in the field ($typed) differs from the QR ($fromQr).';
+  }
+
+  @override
   String qrisSettingsPortrait(String ratio) {
     return 'Portrait ratio detected ($ratio). The image is shown whole, never cropped.';
   }

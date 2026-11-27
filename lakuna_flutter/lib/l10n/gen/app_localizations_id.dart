@@ -1327,6 +1327,31 @@ class AppLocalizationsId extends AppLocalizations {
   String get qrisSettingsCheckTitle => 'Hasil pemeriksaan';
 
   @override
+  String get qrisSettingsQrReading => 'Membaca QR…';
+
+  @override
+  String qrisSettingsQrRead(String nmid, String merchant) {
+    return 'QR terbaca: QRIS statis, NMID $nmid, merchant $merchant.';
+  }
+
+  @override
+  String get qrisSettingsQrDynamic =>
+      'QR ini QRIS dinamis (nominal sekali pakai). Pakai stiker QRIS statis dari bank/PJP.';
+
+  @override
+  String get qrisSettingsQrNotQris =>
+      'QR terbaca tapi bukan QRIS. Pastikan gambar yang dipilih adalah stiker QRIS toko.';
+
+  @override
+  String get qrisSettingsQrNotFound =>
+      'QR tidak terbaca dari gambar. Pastikan seluruh stiker tajam dan tidak terpotong; NMID bisa diketik manual.';
+
+  @override
+  String qrisSettingsQrNmidMismatch(String typed, String fromQr) {
+    return 'NMID di isian ($typed) berbeda dengan QR ($fromQr).';
+  }
+
+  @override
   String qrisSettingsPortrait(String ratio) {
     return 'Rasio vertikal terdeteksi ($ratio). Gambar ditampilkan utuh, tidak dipotong.';
   }

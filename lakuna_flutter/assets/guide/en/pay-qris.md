@@ -8,6 +8,8 @@ The free version uses the store's own static QRIS image. The app does not receiv
 
 The owner uploads the QRIS sticker image in **Settings › Payment methods**, fills in the merchant details, then turns on **Static QRIS active at the cashier**. One image per branch. Upload the whole sticker (not just the QR code) as PNG, JPG, or WebP, up to 5 MB. On an Android or iOS phone or tablet, **Photo sticker** opens the camera: photograph the whole sticker straight on, including the QRIS header, the store name, the NMID, and the text below the QR. If the camera does not open, check the camera permission in the device settings or use **Choose file**.
 
+After you choose the image, Lakuna reads its QR code without the internet. When it reads as a static QRIS, *Check results* shows **QR read** with the NMID and merchant name, and the empty *Merchant name*, *NMID*, and *Terminal code* fields are filled in for you (anything you already typed is kept). If the QR cannot be read, is not a QRIS, or is a dynamic QRIS, a warning appears; you can still save the image, but it is better to replace it with a sharp static QRIS sticker.
+
 ## Steps
 
 1. On the Pay screen, choose **Static QRIS**. The QRIS image and the total appear on screen. Tap **Enlarge QRIS image** so the customer can scan it more easily.

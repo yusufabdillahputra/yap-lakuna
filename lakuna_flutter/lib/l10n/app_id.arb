@@ -783,6 +783,14 @@
   "qrisSettingsCameraFailed": "Kamera tidak bisa dibuka. Periksa izin kamera di pengaturan perangkat, atau pilih file.",
   "qrisSettingsPick": "Pilih file",
   "qrisSettingsCheckTitle": "Hasil pemeriksaan",
+  "qrisSettingsQrReading": "Membaca QR…",
+  "qrisSettingsQrRead": "QR terbaca: QRIS statis, NMID {nmid}, merchant {merchant}.",
+  "@qrisSettingsQrRead": {"placeholders": {"nmid": {"type": "String"}, "merchant": {"type": "String"}}},
+  "qrisSettingsQrDynamic": "QR ini QRIS dinamis (nominal sekali pakai). Pakai stiker QRIS statis dari bank/PJP.",
+  "qrisSettingsQrNotQris": "QR terbaca tapi bukan QRIS. Pastikan gambar yang dipilih adalah stiker QRIS toko.",
+  "qrisSettingsQrNotFound": "QR tidak terbaca dari gambar. Pastikan seluruh stiker tajam dan tidak terpotong; NMID bisa diketik manual.",
+  "qrisSettingsQrNmidMismatch": "NMID di isian ({typed}) berbeda dengan QR ({fromQr}).",
+  "@qrisSettingsQrNmidMismatch": {"placeholders": {"typed": {"type": "String"}, "fromQr": {"type": "String"}}},
   "qrisSettingsPortrait": "Rasio vertikal terdeteksi ({ratio}). Gambar ditampilkan utuh, tidak dipotong.",
   "@qrisSettingsPortrait": {
     "placeholders": {

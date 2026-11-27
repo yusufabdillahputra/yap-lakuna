@@ -121,7 +121,8 @@ ulang riwayat.
 | v0.137.0 | Shift kasir: master, pilih saat buka sesi, laporan per shift (F1-03g) | #143 |
 | v0.138.0 | PIN manajer untuk Sudah Terbayar QRIS (F1-05h) | #144 |
 | v0.139.0 | Gambar QRIS di kasir ponsel bisa dimatikan (F1-18e) | #145 |
-| v0.140.0 | Foto stiker QRIS dari kamera (F1-18f) | |
+| v0.140.0 | Foto stiker QRIS dari kamera (F1-18f) | #146 |
+| v0.141.0 | Baca QR stiker QRIS, NMID otomatis (F1-18g) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -367,6 +368,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     memakai kotak petunjuk bila mati.
 82. ~~Stiker QRIS hanya dari file~~ — selesai v0.140.0 (F1-18f); tombol
     *Foto stiker* di perangkat berkamera, galat pilih gambar kini tampil.
+83. ~~NMID QRIS diketik manual~~ — selesai v0.141.0 (F1-18g); QR stiker
+    dibaca offline (zxing2), isian kosong terisi, peringatan QR salah.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

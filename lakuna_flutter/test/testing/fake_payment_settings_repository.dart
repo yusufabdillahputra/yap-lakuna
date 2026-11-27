@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -20,6 +21,24 @@ class FakePaymentSettingsRepository extends PaymentSettingsRepository {
 
   @override
   Future<Result<QrisConfig>> loadQris() async => Result.ok(config);
+
+  /// Hasil [readQr] (F1-18g); bawaan QR tidak terbaca.
+  QrisQrRead qr = QrisQrRead.fromText(null);
+  final qrReads = <Uint8List>[];
+
+  /// Bila `true`, [readQr] menunggu sampai [pendingQr] diselesaikan tes
+  /// (uji balapan baca QR).
+  var holdQr = false;
+  final pendingQr = <Completer<QrisQrRead>>[];
+
+  @override
+  Future<QrisQrRead> readQr(Uint8List bytes) async {
+    qrReads.add(bytes);
+    if (!holdQr) return qr;
+    final completer = Completer<QrisQrRead>();
+    pendingQr.add(completer);
+    return completer.future;
+  }
 
   @override
   Future<Result<QrisConfig>> saveQris(

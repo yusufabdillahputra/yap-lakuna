@@ -20,6 +20,7 @@ paket masing-masing.
 | Forui (komponen UI) | MIT |
 | `pdf`, `printing` (PDF dan dialog cetak struk) | Apache-2.0 |
 | `print_bluetooth_thermal` (printer Bluetooth) | BSD-3-Clause |
+| `zxing2` (membaca QR stiker QRIS, offline) | BSD-3-Clause |
 | Paket klien Serverpod yang ikut di aplikasi (`serverpod_client`, `serverpod_database`, dll.) | BSD-3-Clause |
 | Paket server `serverpod` (hanya di `lakuna_server`, tidak ikut di aplikasi) | Server Side Public License v1 |
 | Flutter dan Dart SDK | BSD-3-Clause |
