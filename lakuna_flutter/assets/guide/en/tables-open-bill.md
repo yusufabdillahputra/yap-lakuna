@@ -25,6 +25,12 @@
 - When you **Close & pay** with *Credit / receivable*, the bill's customer is selected automatically. Credit for a different customer is refused; change the bill's customer first.
 - The customer cannot be changed once the bill is split or has a part payment. Two bills with different customers cannot be merged.
 
+## Merging tables
+
+A group sitting at two tables can pay on one bill. On the bill panel, tap **Merge tables**, then pick the other table whose bill should move into this one. Both tables must allow merging (set it on the floor plan or in **Master data › Tables & areas**). Every item moves to this bill and the source table becomes free.
+
+The merge leaves a trail. Once the bill is paid, its receipt detail in [History](return-void) reads *Merged from table M3 (OB-…) · 03/11/26 09.10 · Rina*: the source table and bill number, the time, and the staff member who merged it. Bills that had already taken in another table are listed too.
+
 ## Closing a bill
 
 1. When the guests ask for the bill, tap **Request bill** (the table changes colour).

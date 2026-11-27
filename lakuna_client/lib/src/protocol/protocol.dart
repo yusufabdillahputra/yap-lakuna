@@ -6854,6 +6854,12 @@ class Protocol extends _isd.DatabaseSerializationManager
           dartType: 'DateTime?',
         ),
         _isd.ColumnDefinition(
+          name: 'merged_into_id',
+          columnType: _isd.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isd.ColumnDefinition(
           name: 'split_mode',
           columnType: _isd.ColumnType.text,
           isNullable: true,
@@ -7073,6 +7079,19 @@ class Protocol extends _isd.DatabaseSerializationManager
             _isd.IndexElementDefinition(
               type: _isd.IndexElementDefinitionType.column,
               definition: 'customer_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isd.IndexDefinition(
+          indexName: 'sales_merged_into_idx',
+          tableSpace: null,
+          elements: [
+            _isd.IndexElementDefinition(
+              type: _isd.IndexElementDefinitionType.column,
+              definition: 'merged_into_id',
             ),
           ],
           type: 'btree',

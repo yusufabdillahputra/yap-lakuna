@@ -1669,6 +1669,8 @@ Future<OpenBill> mergeOpenBills(
     await w.update(
       source.copyWith(
         deletedAt: s.now,
+        // Jejak gabung (F1-10s): bill sumber menunjuk bill tujuan.
+        mergedIntoId: target.id,
         version: source.version + 1,
         updatedAt: s.now,
         updatedBy: staffId,

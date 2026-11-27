@@ -556,6 +556,58 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   }
 
+  for (final size in const [Size(1280, 800), Size(360, 740)]) {
+    testWidgets('${size.width.toInt()} px: jejak gabung meja (F1-10s)', (
+      tester,
+    ) async {
+      await pump(tester, size: size);
+      final merged = history.addSale([('Nasi Goreng', 2000, 30000)]);
+      history.mergedBills[merged.sale.id] = [
+        MergedBill(
+          billNumber: 'OB-PST-K01-261103-0002',
+          tableName: 'M3',
+          mergedAt: DateTime.utc(2026, 11, 3, 2, 10),
+          staffName: 'Rina',
+        ),
+        MergedBill(
+          billNumber: 'OB-PST-K01-261103-0003',
+          mergedAt: DateTime.utc(2026, 11, 3, 2, 20),
+          staffName: 'Yusuf',
+        ),
+      ];
+      await pumpLakuna(
+        tester,
+        size: size,
+        initialLocation: Routes.history,
+        history: history,
+        receiptPrinter: printer,
+        session: session,
+      );
+      await _tap(tester, 'history-row-${merged.sale.id.uuid}');
+      expect(_key('history-merged'), findsOneWidget);
+      // Waktu gabung di zona cabang (WIB).
+      expect(
+        find.text(
+          'Gabungan dari meja M3 (OB-PST-K01-261103-0002) · 03/11/26 09.10 · '
+          'Rina',
+        ),
+        findsOneWidget,
+      );
+      // Meja sudah dihapus: nomor bill saja.
+      expect(
+        find.text(
+          'Gabungan dari bill OB-PST-K01-261103-0003 · 03/11/26 09.20 · Yusuf',
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+      if (size.width < 600) await _tap(tester, 'history-detail-back');
+      // Nota tanpa gabung: tanpa bagian jejak.
+      await _tap(tester, 'history-row-${kopi.sale.id.uuid}');
+      expect(_key('history-merged'), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  }
+
   for (final size in const [Size(360, 740), Size(820, 1180)]) {
     testWidgets('${size.width.toInt()} px: kartu/tabel lalu halaman rincian', (
       tester,

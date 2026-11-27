@@ -75,5 +75,5 @@ dalam satu tagihan, tanpa membatalkan bill lalu memasukkan ulang pesanan.
 | Gabung bill dua meja | `can_merge` | Rilis v0.40.0 | Sakelar juga di form *Data master › Meja & area*. |
 | Gabung meja kosong ke bill (satu bill menempati dua meja) | — | Belum | Butuh relasi bill ke banyak meja; sementara buka bill di satu meja lalu gabung bila meja kedua sudah punya pesanan. |
 | Pisah kembali bill yang sudah digabung | — | Belum | Pakai split bill untuk membayar terpisah. |
-| Jejak gabung | — | Belum | Bill sumber hanya di-soft delete, belum ada kolom penanda bill tujuan; tambahkan bila audit butuh. |
+| Jejak gabung | — | Rilis v0.155.0 | [F1-10s](2026-11-27-f1-10s-jejak-gabung-meja-design.md): `sales.merged_into_id`, tampil di rincian nota Riwayat. |
 | Diskon persen tujuan | — | Sesuai desain | Diskon persen ikut berlaku atas total gabungan tanpa persetujuan ulang. |

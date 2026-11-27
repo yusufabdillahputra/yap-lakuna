@@ -4847,6 +4847,37 @@
   "productImportPreviewNone": "Nothing would change, so there is nothing to save.",
   "productImportPreviewNote": "Not saved yet. Check this list, then press Save.",
   "productImportSave": "Save",
+  "historyMergedFromTable": "Merged from table {table} ({bill}) · {time} · {name}",
+  "@historyMergedFromTable": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      },
+      "bill": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMergedFromBill": "Merged from bill {bill} · {time} · {name}",
+  "@historyMergedFromBill": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "historyManualDiscount": "Manual discount",
   "historyManualDiscountBy": "Manual discount · approved by {name}",
   "@historyManualDiscountBy": {

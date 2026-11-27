@@ -14454,6 +14454,23 @@ abstract class AppLocalizations {
   /// **'Simpan'**
   String get productImportSave;
 
+  /// No description provided for @historyMergedFromTable.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabungan dari meja {table} ({bill}) · {time} · {name}'**
+  String historyMergedFromTable(
+    String table,
+    String bill,
+    String time,
+    String name,
+  );
+
+  /// No description provided for @historyMergedFromBill.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabungan dari bill {bill} · {time} · {name}'**
+  String historyMergedFromBill(String bill, String time, String name);
+
   /// No description provided for @historyManualDiscount.
   ///
   /// In id, this message translates to:

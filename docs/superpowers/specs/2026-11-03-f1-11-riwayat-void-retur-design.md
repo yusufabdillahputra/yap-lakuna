@@ -204,6 +204,7 @@ Semua tulis lewat `LakunaStore.write` + `SyncTx`. Migrasi `riwayat`.
 | Sesi kasir dibuka/ditutup saat riwayat terbuka | — | `hasOpenSession` diperbarui saat layar dimuat, setelah retur/void, dan saat muat ulang dari rincian (v0.69.0) | Dengarkan perubahan sesi bila perlu. |
 | Retur tunai melebihi uang di laci | — | Rilis v0.69.0: peringatan, tidak memblokir | [F1-03c](2026-11-14-f1-03c-peringatan-kas-laci-design.md) |
 | Retur/void dari dua perangkat | — | Data per perangkat | Konflik ditangani sinkronisasi Fase 2. |
+| Jejak gabung meja di rincian nota | — | Rilis v0.155.0 | [F1-10s](2026-11-27-f1-10s-jejak-gabung-meja-design.md): *Gabungan dari meja M3 (OB-…) · waktu · staf*. |
 | Retur ke piutang | "Potong piutang" | Enum siap, opsi disembunyikan | Aktifkan di F1-13. |
 | Status *Belum lunas* | Ada di daftar | Rilis v0.17.0 | [F1-13](2026-11-03-f1-13-pelanggan-piutang-design.md). *Menunggu konfirmasi* tidak perlu: nota baru tersimpan setelah QRIS dikonfirmasi. |
 
