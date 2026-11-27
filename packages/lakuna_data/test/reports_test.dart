@@ -372,6 +372,120 @@ void main() {
     ]);
   });
 
+  test('pelunasan piutang per metode dan rekening (F1-16h)', () async {
+    final budi = await saveCustomer(
+      store,
+      scope,
+      staffId: owner(),
+      input: const CustomerInput(name: 'Budi', creditLimit: Money(1000000)),
+    );
+    await checkoutSale(
+      store,
+      scope,
+      staffId: owner(),
+      lines: [SaleLineRequest(variantId: v(kopi).id, quantity: Qty.units(9))],
+      payments: const [],
+      credit: SaleCredit(
+        customerId: budi.id,
+        downPayment: Money.zero,
+        dueOn: DateTime.utc(2026, 11, 30),
+      ),
+    );
+    final before = await report();
+    final today = DateTime.utc(2026, 11, 3);
+    Future<DebtPayment> pay(
+      int amount,
+      PaymentMethod method, {
+      String account = '',
+      DateTime? paidOn,
+    }) => receiveDebtPayment(
+      store,
+      scope,
+      staffId: owner(),
+      request: DebtPaymentRequest(
+        customerId: budi.id,
+        amount: Money(amount),
+        method: method,
+        paidOn: paidOn ?? today,
+        transferAccount: account,
+      ),
+    );
+    await pay(30000, PaymentMethod.transfer, account: 'BCA 1');
+    await pay(20000, PaymentMethod.transfer, account: 'Mandiri 2');
+    await pay(5000, PaymentMethod.transfer);
+    await pay(10000, PaymentMethod.cash);
+    await pay(4000, PaymentMethod.qrisStatic);
+    // Di luar periode (kemarin) dan dibatalkan: tidak dihitung.
+    await pay(
+      1000,
+      PaymentMethod.transfer,
+      account: 'BCA 1',
+      paidOn: DateTime.utc(2026, 11, 2),
+    );
+    final voided = await pay(2000, PaymentMethod.transfer, account: 'BCA 1');
+    await voidDebtPayment(
+      store,
+      scope,
+      staffId: owner(),
+      paymentId: voided.id,
+      reason: 'Salah input',
+    );
+
+    // Uang keluar ke supplier (meski bermetode transfer) tidak dihitung.
+    final sumber = await saveSupplier(
+      store,
+      scope,
+      staffId: owner(),
+      input: const SupplierInput(name: 'CV Sumber'),
+    );
+    await store.write(actor: owner(), (w) async {
+      final st = await w.stamp();
+      await w.insert(
+        DebtPayment(
+          tenantId: ctx.tenant.id,
+          outletId: ctx.outlet.id,
+          deviceId: st.deviceId,
+          staffId: owner(),
+          party: DebtParty.supplier,
+          supplierId: sumber.id,
+          number: 'BH-UJI-0001',
+          amount: 7000,
+          method: PaymentMethod.transfer,
+          paidOn: today,
+          balanceAfter: 0,
+          transferAccount: 'BCA 1',
+          createdBy: owner(),
+          updatedBy: owner(),
+          hlc: st.hlc.toString(),
+          originDeviceId: st.deviceId,
+        ),
+        st,
+      );
+    });
+
+    final r = await report();
+    final c = r.collections;
+    expect(c.methods, [
+      (ReportPaymentMethod.transfer, const Money(55000)),
+      (ReportPaymentMethod.cash, const Money(10000)),
+      (ReportPaymentMethod.qris, const Money(4000)),
+    ]);
+    expect(c.total, const Money(69000));
+    expect(c.transferAccounts.map((t) => (t.account, t.amount)), [
+      ('BCA 1', const Money(30000)),
+      ('Mandiri 2', const Money(20000)),
+      (null, const Money(5000)),
+    ]);
+    // Pelunasan bukan penjualan baru.
+    expect(r.netSales, before.netSales);
+    expect(r.saleCount, before.saleCount);
+
+    final week = await report(period: ReportPeriod.last7Days);
+    expect(week.collections.total, const Money(70000));
+    final jan = await report(period: const ReportPeriod.month(2026, 1));
+    expect(jan.collections.isEmpty, isTrue);
+  });
+
   test('periode kosong = nol', () async {
     now = DateTime.utc(2026, 11, 4, 3);
     final r = await report(period: const ReportPeriod.month(2026, 1));

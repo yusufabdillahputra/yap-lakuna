@@ -8855,4 +8855,11 @@ class AppLocalizationsId extends AppLocalizations {
   ) {
     return '$shift: $count sesi, penjualan $sales, selisih $difference';
   }
+
+  @override
+  String get reportsDebtCollections => 'Pelunasan piutang';
+
+  @override
+  String get reportsDebtCollectionsNote =>
+      'Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.';
 }

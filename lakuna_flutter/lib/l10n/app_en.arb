@@ -5376,5 +5376,7 @@
   "reportsColSessions": "Sessions",
   "reportsColSales": "Sales",
   "reportsShiftNone": "No shift",
-  "reportsShiftExportLine": "{shift}: {count, plural, =1{1 session} other{{count} sessions}}, sales {sales}, difference {difference}"
+  "reportsShiftExportLine": "{shift}: {count, plural, =1{1 session} other{{count} sessions}}, sales {sales}, difference {difference}",
+  "reportsDebtCollections": "Receivable payments",
+  "reportsDebtCollectionsNote": "Customer receivable payments by payment date, not included in the sales above. Voided payments are not counted."
 }

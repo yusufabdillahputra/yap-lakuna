@@ -261,7 +261,9 @@ tebal. Nama berkas: `laporan-stok-…`, `laporan-kas-sesi-…`,
 | Nilai stok historis | – | Nilai akhir periode lalu memakai harga pokok saat ini | Cukup untuk UMKM; simpan nilai per pergerakan bila dibutuhkan akurasi historis. |
 | Target margin toko | "Target toko 25%" | Rilis v0.133.0 | [F1-16d](2026-11-20-f1-16d-target-margin-toko-design.md): isian di *Penjualan & stok*, kartu *Margin kotor*, ekspor Ringkasan; v0.145.0 KPI *Laba kotor* di Ringkasan ([F1-16e](2026-11-27-f1-16e-target-di-ringkasan-design.md)). |
 | Rentang tanggal bebas | – | Rilis v0.67.0 | [F1-16b](2026-11-14-f1-16b-rentang-tanggal-laporan-design.md) |
-| Umur piutang & hutang | – | Rilis v0.82.0 | [F1-16c](2026-11-14-f1-16c-umur-piutang-hutang-design.md) |
+| Umur piutang & hutang | – | Rilis v0.82.0 | [F1-16c](2026-11-14-f1-16c-umur-piutang-hutang-design.md); v0.147.0 kolom kelompok per pelanggan/supplier ([F1-16g](2026-11-27-f1-16g-umur-per-nama-design.md)) |
+| Pelunasan piutang per metode dan rekening | – | Rilis v0.148.0 | [F1-16h](2026-11-27-f1-16h-pelunasan-piutang-di-laporan-design.md): bagian di kartu *Penjualan per metode bayar* dan ekspor Ringkasan. |
+| Periode laporan diingat | – | Rilis v0.146.0 | [F1-16f](2026-11-27-f1-16f-periode-laporan-diingat-design.md) |
 | Filter per kasir | Subjudul "semua kasir" | Rincian per kasir di tab Penjualan | Filter kasir untuk seluruh laporan bila diminta. |
 | Semua cabang | Pilihan cabang | Hanya cabang ini (data per perangkat) | Fase 2. |
 | Pembulatan total (F1-18) | Baris tersendiri | Rilis v0.23.0 | Baris *Pembulatan total* di Laba rugi. |

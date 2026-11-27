@@ -9129,4 +9129,11 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$shift: $_temp0, sales $sales, difference $difference';
   }
+
+  @override
+  String get reportsDebtCollections => 'Receivable payments';
+
+  @override
+  String get reportsDebtCollectionsNote =>
+      'Customer receivable payments by payment date, not included in the sales above. Voided payments are not counted.';
 }

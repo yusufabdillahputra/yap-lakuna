@@ -544,6 +544,48 @@ void main() {
     expect(_key('reports-error'), findsOneWidget);
   });
 
+  for (final size in const [Size(1440, 900), Size(360, 740)]) {
+    testWidgets('${size.width.toInt()} px: pelunasan piutang di kartu metode '
+        'bayar (F1-16h)', (tester) async {
+      await pump(tester, size);
+      expect(_key('reports-collections'), findsNothing);
+
+      await pump(
+        tester,
+        size,
+        reports: FakeReportsRepository()..collections = true,
+      );
+      await tester.ensureVisible(_key('reports-collections'));
+      await tester.pumpAndSettle();
+      List<String?> texts(String key) => _textsIn(tester, _key(key));
+      expect(texts('reports-collections-total'), [
+        'Pelunasan piutang',
+        'Rp 45.000',
+      ]);
+      expect(texts('reports-collection-transfer'), [
+        'Transfer bank',
+        'Rp 35.000',
+      ]);
+      expect(texts('reports-collection-account-0'), ['BCA 123', 'Rp 30.000']);
+      expect(texts('reports-collection-account-1'), [
+        'Tanpa rekening',
+        'Rp 5.000',
+      ]);
+      expect(texts('reports-collection-cash'), ['Tunai', 'Rp 10.000']);
+      expect(
+        find.descendant(
+          of: _key('reports-collections'),
+          matching: find.text(
+            'Pembayaran piutang pelanggan menurut tanggal bayar, di luar '
+            'penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final size in const [
     Size(1024, 768),
     Size(1280, 800),

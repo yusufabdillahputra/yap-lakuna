@@ -15297,6 +15297,18 @@ abstract class AppLocalizations {
     String sales,
     String difference,
   );
+
+  /// No description provided for @reportsDebtCollections.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelunasan piutang'**
+  String get reportsDebtCollections;
+
+  /// No description provided for @reportsDebtCollectionsNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.'**
+  String get reportsDebtCollectionsNote;
 }
 
 class _AppLocalizationsDelegate

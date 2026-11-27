@@ -715,15 +715,20 @@ class TransferAccountRow {
 
 /// Rincian *Transfer bank* per rekening, urut terbesar; *tanpa rekening*
 /// selalu terakhir. Kosong bila tidak ada transfer berekening.
-List<TransferAccountRow> transferByAccount(List<ReportSale> sales) {
+List<TransferAccountRow> transferByAccount(List<ReportSale> sales) =>
+    _byAccount([
+      for (final s in sales)
+        for (final p in s.payments)
+          if (p.method == ReportPaymentMethod.transfer && p.net.value != 0)
+            (p.transferAccount, p.net),
+    ]);
+
+/// Jumlah per rekening: urut terbesar, seri urut nama, *tanpa rekening*
+/// terakhir; kosong bila tidak ada yang berekening.
+List<TransferAccountRow> _byAccount(Iterable<(String?, Money)> amounts) {
   final sums = <String?, Money>{};
-  for (final s in sales) {
-    for (final p in s.payments) {
-      if (p.method != ReportPaymentMethod.transfer || p.net.value == 0) {
-        continue;
-      }
-      sums[p.transferAccount] = (sums[p.transferAccount] ?? Money.zero) + p.net;
-    }
+  for (final (account, amount) in amounts) {
+    sums[account] = (sums[account] ?? Money.zero) + amount;
   }
   if (sums.keys.every((k) => k == null)) return const [];
   return [for (final e in sums.entries) TransferAccountRow(e.key, e.value)]
@@ -734,6 +739,56 @@ List<TransferAccountRow> transferByAccount(List<ReportSale> sales) {
       final c = b.amount.compareTo(a.amount);
       return c != 0 ? c : (a.account ?? '').compareTo(b.account ?? '');
     });
+}
+
+/// Satu pembayaran piutang pelanggan pada periode laporan (F1-16h).
+class ReportDebtPayment {
+  const ReportDebtPayment(this.method, this.amount, {this.transferAccount});
+
+  final ReportPaymentMethod method;
+  final Money amount;
+
+  /// Rekening tujuan transfer (F1-13i); `null` = tanpa rekening.
+  final String? transferAccount;
+}
+
+/// Pelunasan piutang per metode dan rekening (F1-16h).
+class DebtCollection {
+  const DebtCollection({
+    required this.methods,
+    required this.total,
+    required this.transferAccounts,
+  });
+
+  /// Jumlah per metode, urut terbesar.
+  final List<(ReportPaymentMethod, Money)> methods;
+  final Money total;
+
+  /// Rincian *Transfer bank* per rekening, format sama dengan F1-05g.
+  final List<TransferAccountRow> transferAccounts;
+
+  bool get isEmpty => methods.isEmpty;
+}
+
+DebtCollection debtCollection(List<ReportDebtPayment> payments) {
+  final sums = <ReportPaymentMethod, Money>{};
+  for (final p in payments) {
+    if (p.amount.value == 0) continue;
+    sums[p.method] = (sums[p.method] ?? Money.zero) + p.amount;
+  }
+  return DebtCollection(
+    methods: [for (final e in sums.entries) (e.key, e.value)]
+      ..sort((a, b) {
+        final c = b.$2.compareTo(a.$2);
+        return c != 0 ? c : a.$1.index.compareTo(b.$1.index);
+      }),
+    total: Money.sum(sums.values),
+    transferAccounts: _byAccount([
+      for (final p in payments)
+        if (p.method == ReportPaymentMethod.transfer && p.amount.value != 0)
+          (p.transferAccount, p.amount),
+    ]),
+  );
 }
 
 // --- Stok (v0.21.0) ---------------------------------------------------------

@@ -688,8 +688,81 @@ class _Methods extends StatelessWidget {
             ),
           if (rows.isNotEmpty)
             Text(l10n.reportsByMethodNote, style: _muted(context)),
+          if (!data.collections.isEmpty)
+            _Collections(collection: data.collections),
         ],
       ),
+    );
+  }
+}
+
+/// Pelunasan piutang per metode dan rekening (F1-16h).
+class _Collections extends StatelessWidget {
+  const _Collections({required this.collection});
+
+  final DebtCollection collection;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    final strong = theme.typography.body.sm.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+    Widget line(
+      String key,
+      String label,
+      Money amount, {
+      TextStyle? style,
+      double indent = 0,
+    }) => Row(
+      key: ValueKey(key),
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (indent > 0) SizedBox(width: indent),
+        Expanded(child: Text(label, style: style)),
+        Text(
+          formatMoney(context, amount),
+          style: (style ?? theme.typography.body.sm).copyWith(
+            fontFeatures: _tabular,
+          ),
+        ),
+      ],
+    );
+
+    return Column(
+      key: const ValueKey('reports-collections'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        const FDivider(),
+        line(
+          'reports-collections-total',
+          l10n.reportsDebtCollections,
+          collection.total,
+          style: strong,
+        ),
+        for (final (method, amount) in collection.methods) ...[
+          line(
+            'reports-collection-${method.name}',
+            reportMethodLabel(l10n, method),
+            amount,
+            style: theme.typography.body.sm,
+            indent: 12,
+          ),
+          if (method == ReportPaymentMethod.transfer)
+            for (final (i, a) in collection.transferAccounts.indexed)
+              line(
+                'reports-collection-account-$i',
+                a.account ?? l10n.reportsTransferNoAccount,
+                a.amount,
+                style: _muted(context),
+                indent: 24,
+              ),
+        ],
+        Text(l10n.reportsDebtCollectionsNote, style: _muted(context)),
+      ],
     );
   }
 }

@@ -637,6 +637,49 @@ void main() {
     });
   });
 
+  group('debtCollection (F1-16h)', () {
+    ReportDebtPayment pay(
+      ReportPaymentMethod m,
+      int amount, [
+      String? account,
+    ]) => ReportDebtPayment(m, Money(amount), transferAccount: account);
+
+    test('per metode urut terbesar, total, rincian rekening', () {
+      final c = debtCollection([
+        pay(ReportPaymentMethod.transfer, 50000, 'BCA 1'),
+        pay(ReportPaymentMethod.cash, 30000),
+        pay(ReportPaymentMethod.transfer, 20000, 'Mandiri 2'),
+        pay(ReportPaymentMethod.qris, 10000),
+        pay(ReportPaymentMethod.transfer, 5000),
+        pay(ReportPaymentMethod.transfer, 15000, 'BCA 1'),
+      ]);
+      expect(c.methods, [
+        (ReportPaymentMethod.transfer, const Money(90000)),
+        (ReportPaymentMethod.cash, const Money(30000)),
+        (ReportPaymentMethod.qris, const Money(10000)),
+      ]);
+      expect(c.total, const Money(130000));
+      expect(c.transferAccounts.map((r) => (r.account, r.amount)), [
+        ('BCA 1', const Money(65000)),
+        ('Mandiri 2', const Money(20000)),
+        (null, const Money(5000)),
+      ]);
+      expect(c.isEmpty, isFalse);
+    });
+
+    test(
+      'transfer tanpa rekening saja: rincian kosong; tanpa bayar: kosong',
+      () {
+        final c = debtCollection([pay(ReportPaymentMethod.transfer, 5000)]);
+        expect(c.methods, [(ReportPaymentMethod.transfer, const Money(5000))]);
+        expect(c.transferAccounts, isEmpty);
+        final none = debtCollection(const []);
+        expect(none.isEmpty, isTrue);
+        expect(none.total, Money.zero);
+      },
+    );
+  });
+
   test('transferByAccount: tanpa rekening tetap terakhir, seri urut nama', () {
     ReportPayment transfer(int amount, [String? account]) => ReportPayment(
       ReportPaymentMethod.transfer,

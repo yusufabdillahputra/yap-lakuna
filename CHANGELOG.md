@@ -7,6 +7,42 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.148.0] - 2026-11-27
+
+Pelunasan piutang kini tampil di Laporan, per metode dan per rekening
+tujuan. Ini gap kedua belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Laporan › Ringkasan** (1.23): kartu *Penjualan per metode bayar*
+  mendapat bagian **Pelunasan piutang** bila ada pelanggan yang membayar
+  piutang pada periode itu. Isinya:
+  - total pelunasan;
+  - jumlah per metode (Tunai, Transfer bank, QRIS statis), urut terbesar;
+  - rincian *Transfer bank* per rekening tujuan (F1-13i), dengan format
+    yang sama dengan rincian penjualan F1-05g.
+
+  Sebelumnya pelunasan lewat transfer atau QRIS tidak tampil di laporan
+  mana pun, sehingga uang masuk di mutasi rekening tidak bisa dicocokkan.
+  - Dihitung menurut tanggal bayar, hanya piutang pelanggan di cabang ini.
+    Pembayaran yang dibatalkan tidak dihitung.
+  - Angka *Penjualan*, laba rugi, dan porsi metode bayar penjualan tidak
+    berubah, karena nota kreditnya sudah dihitung pada tanggal jual.
+- Unduhan PDF/Excel tab Ringkasan mendapat bagian yang sama beserta
+  catatannya.
+- Panduan *Laporan* (ID dan EN) menjelaskan bagian baru dan cara
+  memakainya untuk mencocokkan mutasi rekening.
+
+### Catatan teknis
+
+- `lakuna_domain`: `ReportDebtPayment`, `DebtCollection`, dan
+  `debtCollection`. Pengelompokan per rekening kini satu fungsi bersama
+  dengan `transferByAccount`.
+- `lakuna_data`: `ReportData.debtPayments` dan `collections`.
+  `buildReport` membaca `debt_payments` pelanggan yang belum dibatalkan
+  atau dihapus, dengan `paid_on` di rentang tanggal laporan.
+- Kunci l10n baru: `reportsDebtCollections`, `reportsDebtCollectionsNote`.
+
 ## [0.147.0] - 2026-11-27
 
 Tabel per pelanggan dan per supplier di tab Piutang & hutang kini merinci
@@ -8405,7 +8441,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...HEAD
+[0.148.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...v0.148.0
 [0.147.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.146.0...v0.147.0
 [0.146.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.145.0...v0.146.0
 [0.145.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...v0.145.0

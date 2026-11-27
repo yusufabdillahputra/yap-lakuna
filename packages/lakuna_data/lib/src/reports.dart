@@ -50,6 +50,7 @@ class ReportData {
     required this.unitOf,
     required this.overdue,
     required this.overdueCustomers,
+    this.debtPayments = const [],
     required this.profit,
     required this.previousProfit,
     this.targetMarginBp,
@@ -83,6 +84,9 @@ class ReportData {
   /// Target margin kotor cabang (F1-16d); hanya dimuat bersama [profit].
   final int? targetMarginBp;
 
+  /// Pembayaran piutang pelanggan bertanggal bayar di periode (F1-16h).
+  final List<ReportDebtPayment> debtPayments;
+
   bool get canViewProfit => profit != null;
 
   int get saleCount => sales.length;
@@ -108,6 +112,9 @@ class ReportData {
   late final List<TransferAccountRow> transferAccounts = transferByAccount(
     sales,
   );
+
+  /// Pelunasan piutang per metode dan rekening (F1-16h).
+  late final DebtCollection collections = debtCollection(debtPayments);
 }
 
 DateTime _startUtc(DateTime day, String? timezone) {
@@ -493,8 +500,33 @@ Future<ReportData> buildReport(
     today,
   );
 
+  // Pelunasan piutang pelanggan (F1-16h): tanggal bayar kalender, jadi
+  // dibandingkan langsung dengan rentang tanggal laporan.
+  final debtPayments = [
+    for (final p in await DebtPayment.db.find(
+      session,
+      where: (p) =>
+          p.tenantId.equals(scope.tenantId) &
+          p.outletId.equals(scope.outletId) &
+          p.party.equals(DebtParty.customer) &
+          p.voidedAt.equals(null) &
+          p.deletedAt.equals(null) &
+          (p.paidOn >= range.from) &
+          (p.paidOn <= range.to),
+    ))
+      if (p.method case final method?)
+        ReportDebtPayment(
+          _method(method),
+          Money(p.amount),
+          transferAccount: p.transferAccount?.isEmpty ?? true
+              ? null
+              : p.transferAccount,
+        ),
+  ];
+
   return ReportData(
     period: period,
+    debtPayments: debtPayments,
     range: range,
     today: today,
     outletName: outlet?.name ?? '',
