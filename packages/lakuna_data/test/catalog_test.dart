@@ -597,6 +597,81 @@ void main() {
       expect(kecap.variants.single.stock, Qty.units(12));
     });
 
+    test(
+      'spasi ganda di nama kategori dan satuan dirapatkan (F1-07t)',
+      () async {
+        await save(
+          ProductDraft(
+            name: 'Es Teh',
+            category: 'Minuman Dingin',
+            baseUnit: 'gelas besar',
+            variants: const [VariantDraft(sellPrice: Money(5000))],
+          ),
+        );
+        final summary = await run(
+          rows([
+            [
+              'Es Jeruk',
+              'minuman   dingin',
+              'Gelas  Besar',
+              '',
+              '',
+              '6000',
+              '',
+            ],
+            ['Kopi Susu', 'Kopi\tSusu  Panas', 'cup', '', '', '9000', ''],
+            ['Kopi Hitam', 'kopi susu panas', 'cup', '', '', '8000', ''],
+          ]),
+        );
+        expect(summary.created, 3);
+        final categories = await listCategories(store, scope);
+        expect(categories.map((c) => c.name).toSet(), {
+          'Minuman Dingin',
+          'Kopi Susu Panas',
+        });
+        final units = await MeasureUnit.db.find(store.session);
+        expect(units.map((u) => u.name).toSet(), {'gelas besar', 'cup'});
+      },
+    );
+
+    test(
+      'kategori lama kembar beda spasi: yang persis dipakai (F1-07t)',
+      () async {
+        final a = await createCategory(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          draft: const CategoryDraft(name: 'Minuman Dingin'),
+        );
+        final tmp = await createCategory(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          draft: const CategoryDraft(name: 'Sementara'),
+        );
+        final b = await ProductCategory.db.updateRow(
+          store.session,
+          tmp.copyWith(name: 'Minuman  Dingin'),
+        );
+        Future<UuidValue?> categoryOf(String category, String name) async {
+          await save(
+            ProductDraft(
+              name: name,
+              category: category,
+              baseUnit: 'gelas',
+              variants: const [VariantDraft(sellPrice: Money(5000))],
+            ),
+          );
+          final list = await listProducts(store, scope);
+          return list.firstWhere((p) => p.name == name).categoryId;
+        }
+
+        expect(await categoryOf('Minuman  Dingin', 'Es Teh'), b.id);
+        expect(await categoryOf('minuman dingin', 'Es Jeruk'), a.id);
+        expect(await ProductCategory.db.count(store.session), 2);
+      },
+    );
+
     test('draf tidak sah membatalkan seluruh import', () async {
       final bad = ProductImportRow(
         line: 2,

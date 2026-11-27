@@ -136,8 +136,7 @@ Qty? parseImportQty(String text) {
   return Qty.tryParse(t) ?? Qty.tryParse(t, decimal: '.', group: ',');
 }
 
-String _nameKey(String name) =>
-    name.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
+String _nameKey(String name) => squishName(name).toLowerCase();
 
 /// Kunci nama produk untuk mencocokkan produk yang sudah ada (tanpa beda
 /// huruf dan spasi berlebih).

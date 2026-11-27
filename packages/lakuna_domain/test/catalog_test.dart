@@ -387,6 +387,32 @@ void main() {
       ]);
     });
 
+    test('satuan konversi dibandingkan setelah spasi dirapatkan (F1-07t)', () {
+      final issues = validateProductDraft(
+        _draft(
+          baseUnit: 'gelas  besar',
+          variants: [
+            VariantDraft(
+              units: [
+                UnitDraft(name: 'Gelas Besar', factor: Qty.units(6)),
+                UnitDraft(name: 'dus  besar', factor: Qty.units(12)),
+                UnitDraft(name: 'Dus Besar', factor: Qty.units(24)),
+              ],
+            ),
+          ],
+        ),
+      );
+      expect(issues.map((i) => (i.field, i.error, i.unit)), [
+        (ProductField.unitName, ProductError.sameAsBase, 0),
+        (ProductField.unitName, ProductError.duplicate, 2),
+      ]);
+      // Panjang dihitung setelah spasi dirapatkan.
+      final long = validateProductDraft(
+        _draft(category: 'A${' ' * 80}B', baseUnit: 'pcs${' ' * 40}x'),
+      );
+      expect(long, isEmpty);
+    });
+
     test('tingkat grosir: jumlah > 1, unik, harga > 0', () {
       final issues = validateProductDraft(
         _draft(

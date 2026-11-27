@@ -131,4 +131,32 @@ void main() {
     expect(moveInOrder(items, 2, 1), items);
     expect(moveInOrder(items, 5, 1), items);
   });
+
+  group('spasi ganda di nama kategori dan satuan (F1-07t)', () {
+    test('squishName', () {
+      expect(squishName('  Minuman \t  Dingin '), 'Minuman Dingin');
+      expect(squishName('Kopi'), 'Kopi');
+    });
+
+    test('nama kembar walau beda spasi', () {
+      expect(
+        validateCategory(
+          const CategoryDraft(name: 'minuman   dingin'),
+          existing: const [CategoryRef(id: 'a', name: 'Minuman Dingin')],
+        ),
+        contains(CategoryError.nameDuplicate),
+      );
+      expect(
+        validateCategory(
+          const CategoryDraft(name: 'Minuman Dingin'),
+          existing: const [CategoryRef(id: 'a', name: 'Minuman  Dingin')],
+        ),
+        contains(CategoryError.nameDuplicate),
+      );
+      expect(
+        validateUnitName('Gelas  Besar', existing: const ['gelas besar']),
+        UnitNameError.duplicate,
+      );
+    });
+  });
 }

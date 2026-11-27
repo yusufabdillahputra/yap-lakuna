@@ -319,6 +319,13 @@ class ProductIssue {
 
 int _len(String s) => s.trim().characters.length;
 
+/// Nama kategori / satuan tanpa spasi di ujung dan tanpa spasi ganda
+/// (F1-07t): `Minuman   Dingin` sama dengan `Minuman Dingin`.
+String squishName(String name) => name.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+/// Panjang nama kategori / satuan setelah spasi dirapatkan.
+int _nameLen(String s) => squishName(s).characters.length;
+
 /// Semua masalah draf produk, urut seperti field di form. Kosong = sah.
 List<ProductIssue> validateProductDraft(ProductDraft d) {
   final issues = <ProductIssue>[];
@@ -336,12 +343,12 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
   } else if (_len(d.name) > ProductLimits.name) {
     add(ProductField.name, ProductError.tooLong);
   }
-  if (_len(d.category) > ProductLimits.category) {
+  if (_nameLen(d.category) > ProductLimits.category) {
     add(ProductField.category, ProductError.tooLong);
   }
   if (d.baseUnit.trim().isEmpty) {
     add(ProductField.baseUnit, ProductError.required);
-  } else if (_len(d.baseUnit) > ProductLimits.baseUnit) {
+  } else if (_nameLen(d.baseUnit) > ProductLimits.baseUnit) {
     add(ProductField.baseUnit, ProductError.tooLong);
   }
   if (_len(d.sku) > ProductLimits.sku) {
@@ -355,7 +362,7 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
     return issues;
   }
 
-  final baseUnit = d.baseUnit.trim().toLowerCase();
+  final baseUnit = squishName(d.baseUnit).toLowerCase();
   final variantNames = <String>{};
   final skus = <String>{};
   final barcodes = <String>{};
@@ -403,10 +410,10 @@ List<ProductIssue> validateProductDraft(ProductDraft d) {
     final unitNames = <String>{};
     for (var j = 0; j < v.units.length; j++) {
       final u = v.units[j];
-      final uName = u.name.trim().toLowerCase();
+      final uName = squishName(u.name).toLowerCase();
       if (uName.isEmpty) {
         add(ProductField.unitName, ProductError.required, variant: i, unit: j);
-      } else if (_len(uName) > ProductLimits.unitName) {
+      } else if (_nameLen(uName) > ProductLimits.unitName) {
         add(ProductField.unitName, ProductError.tooLong, variant: i, unit: j);
       } else if (uName == baseUnit) {
         add(

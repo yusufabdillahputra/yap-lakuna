@@ -79,6 +79,91 @@ void main() {
       expect(rows[2].parentName, 'Minuman');
     });
 
+    test('spasi ganda dirapatkan; kembar walau beda spasi (F1-07t)', () async {
+      final c = await create(const CategoryDraft(name: ' Minuman   Dingin '));
+      expect(c.name, 'Minuman Dingin');
+      await expectLater(
+        create(const CategoryDraft(name: 'minuman  dingin')),
+        throwsA(isA<CategoryInvalid>()),
+      );
+      final u = await createUnit(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        name: 'gelas  besar',
+      );
+      expect(u.name, 'gelas besar');
+    });
+
+    test('nama lama berspasi ganda tetap bisa diubah (F1-07t)', () async {
+      final a = await create(const CategoryDraft(name: 'Minuman Dingin'));
+      final tmp = await create(const CategoryDraft(name: 'Sementara'));
+      // Data lama dari sebelum F1-07t: kembar beda spasi.
+      final b = await ProductCategory.db.updateRow(
+        store.session,
+        tmp.copyWith(name: 'Minuman  Dingin'),
+      );
+      Future<ProductCategory> update(ProductCategory c, CategoryDraft d) =>
+          updateCategory(
+            store,
+            scope,
+            staffId: ctx.owner.id,
+            id: c.id,
+            draft: d,
+          );
+      final a2 = await update(
+        a,
+        const CategoryDraft(name: 'Minuman Dingin', color: '#059669'),
+      );
+      expect(a2.color, '#059669');
+      final b2 = await update(
+        b,
+        const CategoryDraft(name: 'Minuman  Dingin', showInCashier: false),
+      );
+      expect((b2.name, b2.showInCashier), ('Minuman  Dingin', false));
+      // Merapikan B menjadi kembar persis A tetap ditolak.
+      await expectLater(
+        update(b2, const CategoryDraft(name: 'Minuman Dingin')),
+        throwsA(isA<CategoryInvalid>()),
+      );
+
+      final u = await createUnit(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        name: 'gelas besar',
+      );
+      final uTmp = await createUnit(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        name: 'sementara',
+      );
+      final uOld = await MeasureUnit.db.updateRow(
+        store.session,
+        uTmp.copyWith(name: 'gelas  besar'),
+      );
+      final same = await renameUnit(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        id: uOld.id,
+        name: 'gelas  besar',
+      );
+      expect(same.name, 'gelas  besar');
+      await expectLater(
+        renameUnit(
+          store,
+          scope,
+          staffId: ctx.owner.id,
+          id: uOld.id,
+          name: 'Gelas Besar',
+        ),
+        throwsA(isA<UnitInvalid>()),
+      );
+      expect(u.name, 'gelas besar');
+    });
+
     test('validasi ditolak dengan semua galat', () async {
       await create(const CategoryDraft(name: 'Sembako'));
       await expectLater(
