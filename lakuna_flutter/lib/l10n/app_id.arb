@@ -440,6 +440,8 @@
     }
   },
   "productUnitsEmpty": "Belum ada satuan konversi, mis. dus berisi 12.",
+  "productPurchaseUnit": "Satuan beli bawaan",
+  "productPurchaseUnitHelp": "Dipakai saat barang ini ditambahkan ke pembelian, termasuk dari saran stok minimum (dibulatkan ke atas ke satuan utuh).",
   "productTierMinQty": "Mulai jumlah ({unit})",
   "@productTierMinQty": {
     "placeholders": {

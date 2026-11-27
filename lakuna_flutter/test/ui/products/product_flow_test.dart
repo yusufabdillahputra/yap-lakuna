@@ -46,8 +46,10 @@ void main() {
     List<CustomerGroup> groups = const [],
     FakeReceiptPrinter? printer,
     FakeImagePicker? picker,
+    FakeCatalogRepository? catalog,
   }) async {
-    final repo = FakeCatalogRepository(seed: seed)..customerGroups = groups;
+    final repo =
+        catalog ?? (FakeCatalogRepository(seed: seed)..customerGroups = groups);
     await pumpLakuna(
       tester,
       size: size,
@@ -117,6 +119,81 @@ void main() {
     expect(find.text('≥6: Rp 35.000'), findsOneWidget);
     expect(find.text('Rp 36.000'), findsOneWidget);
     expect(find.text('24'), findsOneWidget);
+  });
+
+  for (final size in const [Size(1280, 800), Size(360, 760)]) {
+    testWidgets('pilih satuan beli bawaan (F1-08s) ${size.width}', (
+      tester,
+    ) async {
+      final repo = FakeCatalogRepository(seed: sampleProducts());
+      final id = repo.products.firstWhere((p) => p.name == 'Minyak Goreng').id;
+      await pump(
+        tester,
+        size: size,
+        catalog: repo,
+        location: Routes.product(id.uuid),
+      );
+      await _tap(tester, 'product-tab-units');
+      expect(find.byKey(const ValueKey('unit-purchase')), findsOneWidget);
+      expect(find.text('Satuan beli bawaan'), findsOneWidget);
+      final dus = find.byWidgetPredicate((w) {
+        final key = w.key;
+        return key is ValueKey<String> &&
+            key.value.startsWith('unit-purchase-') &&
+            key.value != 'unit-purchase-base';
+      });
+      expect(dus, findsOneWidget);
+      await tester.ensureVisible(dus);
+      await tester.tap(dus);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'product-save');
+      expect(
+        repo.saved.single.variants.single.units.single.purchaseDefault,
+        isTrue,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('pilihan satuan beli tidak tampil untuk jasa (F1-08s)', (
+    tester,
+  ) async {
+    final repo = FakeCatalogRepository(
+      seed: [
+        ProductDraft(
+          name: 'Jasa Antar',
+          baseUnit: 'kali',
+          kind: ProductKind.service,
+          variants: [
+            VariantDraft(
+              sellPrice: const Money(5000),
+              units: [UnitDraft(name: 'paket', factor: Qty.units(5))],
+            ),
+          ],
+        ),
+      ],
+    );
+    await pump(
+      tester,
+      catalog: repo,
+      location: Routes.product(repo.products.single.id.uuid),
+    );
+    await _tap(tester, 'product-tab-units');
+    expect(find.byKey(const ValueKey('unit-purchase')), findsNothing);
+  });
+
+  testWidgets('pilihan satuan beli tidak tampil tanpa satuan konversi', (
+    tester,
+  ) async {
+    await pump(tester);
+    await _tap(tester, 'products-empty-add');
+    await _tap(tester, 'product-tab-units');
+    expect(find.byKey(const ValueKey('unit-purchase')), findsNothing);
+    await _tap(tester, 'product-add-unit');
+    expect(find.byKey(const ValueKey('unit-purchase')), findsNothing);
+    await _type(tester, 'unit-1-name', 'dus');
+    expect(find.byKey(const ValueKey('unit-purchase')), findsOneWidget);
+    expect(find.byKey(const ValueKey('unit-purchase-1')), findsOneWidget);
   });
 
   group('keluar dari form produk yang berubah (F1-07q)', () {

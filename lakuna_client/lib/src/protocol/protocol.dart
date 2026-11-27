@@ -4224,6 +4224,13 @@ class Protocol extends _isd.DatabaseSerializationManager
           dartType: 'int?',
         ),
         _isd.ColumnDefinition(
+          name: 'purchase_default',
+          columnType: _isd.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isd.ColumnDefinition(
           name: 'created_at',
           columnType: _isd.ColumnType.timestampWithoutTimeZone,
           isNullable: false,

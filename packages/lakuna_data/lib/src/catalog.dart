@@ -66,6 +66,7 @@ class CatalogUnit {
     this.barcode,
     this.costPrice,
     this.sellPrice,
+    this.purchaseDefault = false,
   });
 
   final UuidValue id;
@@ -75,6 +76,9 @@ class CatalogUnit {
   final String? barcode;
   final Money? costPrice;
   final Money? sellPrice;
+
+  /// Satuan beli bawaan varian (F1-08s).
+  final bool purchaseDefault;
 }
 
 /// Varian produk beserta satuan, grosir, dan saldo stok di lokasi bawaan.
@@ -216,6 +220,7 @@ class CatalogProduct {
                     barcode: u.barcode ?? '',
                     costPrice: u.costPrice,
                     sellPrice: u.sellPrice,
+                    purchaseDefault: u.purchaseDefault,
                   ),
               ],
               tiers: v.tiers,
@@ -452,6 +457,7 @@ Future<List<CatalogProduct>> _loadProducts(
                     barcode: u.barcode,
                     costPrice: u.costPrice == null ? null : Money(u.costPrice!),
                     sellPrice: u.sellPrice == null ? null : Money(u.sellPrice!),
+                    purchaseDefault: u.purchaseDefault,
                   ),
               ],
               // Tingkat semua pelanggan dulu, lalu tingkat grup (F1-07c).
@@ -1267,8 +1273,13 @@ class _ProductWriter {
       originDeviceId: s.deviceId,
     );
     final kept = <UuidValue>{};
+    // Satuan beli bawaan paling banyak satu per varian (F1-08s): tanda
+    // berikutnya diabaikan.
+    var purchaseDefaultTaken = false;
     for (final d in drafts) {
       final old = olds.where((o) => o.id.uuid == d.id).firstOrNull;
+      final purchaseDefault = d.purchaseDefault && !purchaseDefaultTaken;
+      if (purchaseDefault) purchaseDefaultTaken = true;
       final row = ProductUnit(
         id: old?.id,
         tenantId: tenant,
@@ -1278,6 +1289,7 @@ class _ProductWriter {
         barcode: _orNull(d.barcode),
         costPrice: d.costPrice?.value,
         sellPrice: d.sellPrice?.value,
+        purchaseDefault: purchaseDefault,
         createdAt: old?.createdAt ?? s.now,
         updatedAt: old?.updatedAt ?? s.now,
         createdBy: old?.createdBy ?? staffId,

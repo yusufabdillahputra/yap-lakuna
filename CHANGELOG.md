@@ -7,6 +7,40 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.159.0] - 2026-11-27
+
+Barang yang dibeli per dus kini langsung masuk pembelian dalam dus. Ini gap
+22 di daftar rapikan Fase 1 (F1-08s, form produk 1.16, Pembelian 1.19,
+Stok minimum 1.18).
+
+### Ditambahkan
+
+- **Satuan beli bawaan** di form produk, tab *Satuan & konversi*: pilih
+  satuan dasar atau salah satu satuan konversi (mis. dus) per varian.
+  Pilihan muncul setelah varian punya satuan konversi bernama.
+- Menambah barang ke pembelian lewat pencarian, nama, SKU, atau barcode
+  satuan dasar memakai satuan beli bawaan; barcode dus tetap memilih dus.
+- *Buat pembelian* dari *Stok minimum* (juga menambah ke draf) mengisi
+  baris langsung dalam satuan beli bawaan, jumlah saran dibulatkan ke atas
+  ke satuan utuh (38 botol → 7 dus isi 6). Mengganti ke botol tetap
+  mengembalikan 38.
+
+### Diubah
+
+- Panduan *Produk pertama*, *Pembelian*, dan *Stok* (ID dan EN) menjelaskan
+  satuan beli bawaan.
+
+### Catatan teknis
+
+- Kolom `product_units.purchase_default` (bawaan `false`), migrasi
+  `satuan-beli`; `UnitDraft` / `CatalogUnit.purchaseDefault`. Penyimpanan
+  hanya menerima satu tanda per varian.
+- `PurchaseProductOption.purchaseUnit`; `addProduct` tanpa satuan dan
+  `_applyRestock` memakainya, `suggested` tetap dalam satuan dasar
+  (F1-08j).
+- Form produk: `setPurchaseUnit` / `purchaseUnitKey`, pilihan ikut tanda
+  perubahan belum disimpan.
+
 ## [0.158.0] - 2026-11-27
 
 Cetak label, cetak stok, ekspor PDF, dan backup tidak lagi membekukan
@@ -8836,7 +8870,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...HEAD
+[0.159.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...v0.159.0
 [0.158.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...v0.158.0
 [0.157.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...v0.157.0
 [0.156.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...v0.156.0

@@ -42,7 +42,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 19 | Backup otomatis: jam dan jumlah simpanan bisa diatur; *hari ini* menurut kalender; preferensi tidak ikut pulihkan | F1-19d | v0.156.0 (F1-19e) |
 | 20 | Import: rapatkan spasi ganda nama kategori | F1-07b | v0.157.0 (F1-07t) |
 | 21 | PDF label / stok dan backup di isolate terpisah | F1-07e, F1-08b, F1-19d | v0.158.0 (F1-19f) |
-| 22 | Satuan beli bawaan per barang (saran langsung dus) | F1-08j | |
+| 22 | Satuan beli bawaan per barang (saran langsung dus) | F1-08j | v0.159.0 (F1-08s) |
 | 23 | Lebih dari satu foto per faktur pembelian | F1-12b | |
 | 24 | PDF retur pembelian (RB-) tersendiri | F1-12c | |
 | 25 | Ekspor pratinjau import harga ke Excel | F1-07m | |

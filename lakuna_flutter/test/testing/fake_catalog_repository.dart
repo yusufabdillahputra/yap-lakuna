@@ -443,6 +443,7 @@ class FakeCatalogRepository extends CatalogRepository {
                   barcode: orNull(u.barcode),
                   costPrice: u.costPrice,
                   sellPrice: u.sellPrice,
+                  purchaseDefault: u.purchaseDefault,
                 ),
             ],
             tiers: [

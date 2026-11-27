@@ -29,7 +29,7 @@ Have many items without a code? Open **Print labels** and tap **Generate barcode
 
 ## Units & wholesale prices
 
-- **Units & conversion** tab: add a unit such as *box* holding 12 pcs. Selling 1 box takes 12 pcs out of stock. An empty price means base price × contents.
+- **Units & conversion** tab: add a unit such as *box* holding 12 pcs. Selling 1 box takes 12 pcs out of stock. An empty price means base price × contents. If the supplier sells by the box, choose *box* under **Default purchase unit**: the item is then added to purchases in boxes, including suggestions from *Minimum stock* (rounded up to whole boxes). Each variant has its own choice.
 - **Wholesale prices** tab: set a unit price from a given quantity. The cashier applies it automatically.
 
 ## Many products at once

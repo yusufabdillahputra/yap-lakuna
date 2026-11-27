@@ -23,9 +23,13 @@ class PurchaseUnitOption {
     this.productUnitId,
     this.barcode,
     this.costPrice,
+    this.purchaseDefault = false,
   });
 
   final UuidValue? productUnitId;
+
+  /// Satuan beli bawaan varian (F1-08s).
+  final bool purchaseDefault;
   final String name;
 
   /// Isi satuan dalam satuan dasar.
@@ -66,6 +70,11 @@ class PurchaseProductOption {
 
   PurchaseUnitOption get baseUnit => units.first;
 
+  /// Satuan saat varian ditambahkan ke pembelian: satuan beli bawaan, atau
+  /// satuan dasar bila tidak ada (F1-08s).
+  PurchaseUnitOption get purchaseUnit =>
+      units.where((u) => u.purchaseDefault).firstOrNull ?? baseUnit;
+
   PurchaseUnitOption unit(UuidValue? productUnitId) =>
       units.where((u) => u.productUnitId == productUnitId).firstOrNull ??
       baseUnit;
@@ -95,6 +104,7 @@ List<PurchaseProductOption> purchaseOptions(List<CatalogProduct> products) => [
               factor: u.factor,
               barcode: u.barcode,
               costPrice: u.costPrice,
+              purchaseDefault: u.purchaseDefault,
             ),
         ],
       ),
@@ -784,17 +794,23 @@ class PurchaseFormViewModel extends ChangeNotifier {
         skipped++;
         continue;
       }
-      final unit = option.unit(null);
+      // Satuan beli bawaan (F1-08s); saran tetap diingat dalam satuan
+      // dasar agar mengganti satuan tetap mengonversi (F1-08j).
+      final unit = option.purchaseUnit;
+      final draft = PurchaseFormLine(
+        key: _nextKey++,
+        product: option,
+        unit: unit,
+        quantity: line.quantity,
+        unitPrice: option.defaultPrice(unit),
+        suggested: line.quantity,
+        autoPrice: true,
+      );
       _lines = [
         ..._lines,
-        PurchaseFormLine(
-          key: _nextKey++,
-          product: option,
-          unit: unit,
-          quantity: line.quantity,
-          unitPrice: option.defaultPrice(unit),
-          suggested: line.quantity,
-          autoPrice: true,
+        draft.copyWith(
+          quantity: draft.suggestedIn(unit),
+          keepSuggested: true,
         ),
       ];
       applied++;
@@ -1071,15 +1087,18 @@ class PurchaseFormViewModel extends ChangeNotifier {
     _touched();
   }
 
-  /// Menambah varian dalam satuan [productUnitId] (`null` = dasar). Bila
-  /// baris yang sama sudah ada, qty-nya bertambah satu.
+  /// Menambah varian dalam satuan [productUnitId]; tanpa itu dalam satuan
+  /// beli bawaan, atau satuan dasar bila tidak ada (F1-08s). Bila baris
+  /// yang sama sudah ada, qty-nya bertambah satu.
   PurchaseScanResult addProduct(
     UuidValue variantId, [
     UuidValue? productUnitId,
   ]) {
     final option = _options.where((o) => o.variantId == variantId).firstOrNull;
     if (option == null) return PurchaseScanResult.notFound;
-    final unit = option.unit(productUnitId);
+    final unit = productUnitId == null
+        ? option.purchaseUnit
+        : option.unit(productUnitId);
     final existing = _lines
         .where(
           (l) =>
@@ -1115,8 +1134,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
   }
 
   /// *Scan / cari produk*: barcode satuan konversi memilih satuannya,
-  /// barcode/SKU varian memilih satuan dasar, atau nama yang hanya cocok
-  /// dengan satu varian.
+  /// barcode/SKU varian memilih satuan beli bawaan (satuan dasar bila tidak
+  /// ada, F1-08s), atau nama yang hanya cocok dengan satu varian.
   PurchaseScanResult addByCode(String code) {
     final q = code.trim().toLowerCase();
     if (q.isEmpty) return PurchaseScanResult.notFound;

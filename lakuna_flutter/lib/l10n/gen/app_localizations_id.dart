@@ -820,6 +820,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Belum ada satuan konversi, mis. dus berisi 12.';
 
   @override
+  String get productPurchaseUnit => 'Satuan beli bawaan';
+
+  @override
+  String get productPurchaseUnitHelp =>
+      'Dipakai saat barang ini ditambahkan ke pembelian, termasuk dari saran stok minimum (dibulatkan ke atas ke satuan utuh).';
+
+  @override
   String productTierMinQty(String unit) {
     return 'Mulai jumlah ($unit)';
   }

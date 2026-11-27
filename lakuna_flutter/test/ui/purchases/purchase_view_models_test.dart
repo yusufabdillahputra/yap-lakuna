@@ -515,6 +515,71 @@ void main() {
     });
   });
 
+  group('satuan beli bawaan (F1-08s)', () {
+    Future<(PurchaseFormViewModel, FakePurchasesRepository)> open({
+      int? restock,
+    }) async {
+      final r = FakePurchasesRepository(
+        products: cashierProducts(minyakByDus: true),
+      );
+      final myk = r.products.first.variants.first;
+      final vm = PurchaseFormViewModel(
+        repository: r,
+        restock: restock == null
+            ? null
+            : PurchaseRestock(
+                locationId: r.locations.first.id,
+                locationName: 'Toko',
+                lines: [(variantId: myk.id, quantity: Qty.units(restock))],
+              ),
+      );
+      await vm.load.execute();
+      return (vm, r);
+    }
+
+    test('saran stok minimum langsung dalam dus, dibulatkan ke atas', () async {
+      final (vm, _) = await open(restock: 38);
+      final line = vm.lines.single;
+      expect(line.unit.name, 'Dus');
+      expect(line.quantity, Qty.units(7));
+      expect(line.unitPrice, const Money(195000), reason: 'HPP × isi');
+      // Saran tetap diingat dalam satuan dasar: kembali ke botol = 38.
+      expect(line.suggested, Qty.units(38));
+      vm.setUnit(line.key, null);
+      expect(vm.lines.single.unit.isBase, isTrue);
+      expect(vm.lines.single.quantity, Qty.units(38));
+      vm.dispose();
+    });
+
+    test(
+      'tambah dari pencarian, barcode botol, atau SKU memakai dus',
+      () async {
+        final (vm, r) = await open();
+        final myk = r.products.first.variants.first;
+        expect(vm.addProduct(myk.id), PurchaseScanResult.added);
+        expect(vm.lines.single.unit.name, 'Dus');
+        expect(vm.lines.single.quantity, Qty.units(1));
+        expect(vm.addByCode('8991234500024'), PurchaseScanResult.increased);
+        expect(vm.addByCode('myk-2l'), PurchaseScanResult.increased);
+        expect(vm.addByCode('8991234500031'), PurchaseScanResult.increased);
+        expect(vm.lines.single.quantity, Qty.units(4));
+        // Botol tetap bisa dipilih lewat satuan baris.
+        vm.setUnit(vm.lines.single.key, null);
+        expect(vm.lines.single.unit.isBase, isTrue);
+        vm.dispose();
+      },
+    );
+
+    test('tanpa satuan beli bawaan tetap satuan dasar', () async {
+      final r = FakePurchasesRepository();
+      final vm = PurchaseFormViewModel(repository: r);
+      await vm.load.execute();
+      vm.addProduct(r.products.first.variants.first.id);
+      expect(vm.lines.single.unit.isBase, isTrue);
+      vm.dispose();
+    });
+  });
+
   group('jumlah saran ikut satuan (F1-08j)', () {
     Future<PurchaseFormViewModel> filled(int qty) async {
       final r = FakePurchasesRepository();
