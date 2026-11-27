@@ -58,7 +58,14 @@ class ProductImportViewModel extends ChangeNotifier {
 
   /// Menyimpan pratinjau sebagai Excel (F1-07u); hasil = lokasi berkas
   /// (desktop) atau `null` (lembar bagikan).
-  late final Command1<String?, Uint8List> export;
+  ///
+  /// Argumen = pembuat berkas, dijalankan di dalam perintah agar galatnya
+  /// tampil sebagai *Ekspor gagal*.
+  late final Command1<String?, Uint8List Function()> export;
+
+  /// Naik setiap pratinjau berubah; hasil ekspor untuk pratinjau lama
+  /// dibuang (berkas diganti di tengah penyimpanan).
+  var _exportGeneration = 0;
 
   String? _exportPath;
 
@@ -72,14 +79,19 @@ class ProductImportViewModel extends ChangeNotifier {
   String get exportFileName {
     final name = _fileName ?? '';
     final dot = name.lastIndexOf('.');
-    final base = (dot > 0 ? name.substring(0, dot) : name)
+    var base = (dot >= 0 ? name.substring(0, dot) : name)
         .toLowerCase()
         .replaceAll(RegExp('[^a-z0-9]+'), '-')
         .replaceAll(RegExp(r'^-+|-+$'), '');
+    // Nama berkas sistem paling panjang 255 byte; sisakan ruang awalan.
+    if (base.length > 60) {
+      base = base.substring(0, 60).replaceAll(RegExp(r'-+$'), '');
+    }
     return base.isEmpty ? 'pratinjau-harga.xlsx' : 'pratinjau-harga-$base.xlsx';
   }
 
   void _clearExport() {
+    _exportGeneration++;
     _exportPath = null;
     export.clearResult();
   }
@@ -190,13 +202,17 @@ class ProductImportViewModel extends ChangeNotifier {
     return result;
   }
 
-  Future<Result<String?>> _export(Uint8List bytes) async {
+  Future<Result<String?>> _export(Uint8List Function() build) async {
     _exportPath = null;
+    final generation = _exportGeneration;
+    final name = exportFileName;
     try {
-      final path = await _exporter.save(bytes, fileName: exportFileName);
+      final path = await _exporter.save(build(), fileName: name);
+      if (generation != _exportGeneration) return const Result.ok(null);
       _exportPath = path;
       return Result.ok(path);
     } on Exception catch (e) {
+      if (generation != _exportGeneration) return const Result.ok(null);
       return Result.error(e);
     }
   }

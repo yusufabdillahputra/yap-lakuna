@@ -37,8 +37,10 @@ Excel* di Produk 1.15).
 - `ProductImportViewModel`: `export` (`Command1<String?, Uint8List>`),
   `canExport`, `exportPath`, `exportFileName`, `SpreadsheetExporter`
   diteruskan dari dialog. `productImportPreviewWorkbook` di
-  `product_import_dialog.dart` memakai `buildXlsx`. Tanpa perubahan data
-  atau migrasi.
+  `product_import_dialog.dart` memakai `buildXlsx` dan dijalankan di
+  dalam perintah ekspor agar galatnya tampil. Hasil ekspor untuk pratinjau
+  yang sudah berganti dibuang (penanda generasi), dan nama berkas dibatasi
+  60 karakter. Tanpa perubahan data atau migrasi.
 
 ## [0.161.0] - 2026-11-27
 

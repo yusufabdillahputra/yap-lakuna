@@ -34,13 +34,15 @@ bisa membagikan daftar itu ke orang lain untuk dicek.
    - Produk baru tidak dicantumkan (pratinjau hanya menghitungnya).
 3. Nama berkas `pratinjau-harga-<nama berkas import>.xlsx` huruf kecil,
    tanpa ekstensi asal (mis. `Harga Baru 2026.csv` →
-   `pratinjau-harga-harga-baru-2026.xlsx`).
+   `pratinjau-harga-harga-baru-2026.xlsx`), paling panjang 60 karakter
+   nama; nama tanpa huruf/angka ASCII menjadi `pratinjau-harga.xlsx`.
 4. Desktop menyimpan di folder dokumen Lakuna dan menampilkan *Excel
    disimpan di …*; ponsel membuka lembar bagikan. Galat: *Ekspor gagal.
    Coba lagi.*
 5. Pesan ekspor hilang saat pratinjau dihapus (ganti berkas, ubah sakelar,
-   lihat pratinjau ulang). Setelah *Simpan*, pratinjau dan tombol ekspor
-   tidak tampil lagi.
+   lihat pratinjau ulang). Hasil ekspor yang selesai setelah pratinjau
+   berganti dibuang. Setelah *Simpan*, pratinjau dan tombol ekspor tidak
+   tampil lagi.
 6. Tidak ada tulisan data; izin sama dengan pratinjau.
 
 ## Komponen
@@ -68,3 +70,4 @@ bisa membagikan daftar itu ke orang lain untuk dicek.
 | --- | --- | --- | --- |
 | Ekspor pratinjau import harga ke Excel | — | Rilis v0.162.0 | Semua perubahan + baris dilewati. |
 | Produk baru di Excel pratinjau | — | Belum | Dry run hanya menghitung produk baru. |
+| Stok minimum sebagai angka di Excel | — | Belum | Ditulis seperti di layar (`1,5`) agar pecahan terbaca; belum bisa dijumlah di Excel. |

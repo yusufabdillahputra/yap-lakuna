@@ -232,7 +232,7 @@ class _ProductImportDialogState extends State<ProductImportDialog> {
                     exporting: vm.export.running,
                     onExport: vm.canExport
                         ? () => vm.export.execute(
-                            productImportPreviewWorkbook(l10n, previewed),
+                            () => productImportPreviewWorkbook(l10n, previewed),
                           )
                         : null,
                   ),

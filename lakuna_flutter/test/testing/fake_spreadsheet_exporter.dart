@@ -12,8 +12,12 @@ class FakeSpreadsheetExporter implements SpreadsheetExporter {
   /// Galat yang dilempar [save] berikutnya (sekali pakai).
   Object? error;
 
+  /// Bila diisi, [save] menunggu ini dulu (uji penyimpanan lambat).
+  Future<void>? gate;
+
   @override
   Future<String?> save(Uint8List bytes, {required String fileName}) async {
+    if (gate case final g?) await g;
     if (error case final e?) {
       error = null;
       throw e;

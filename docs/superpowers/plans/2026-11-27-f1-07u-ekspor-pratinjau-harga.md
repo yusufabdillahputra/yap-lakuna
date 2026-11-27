@@ -10,5 +10,6 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-07u-ekspor-pratinjau-harga-design.md
   widget desktop dan 360 px.
 - [x] 4. Dokumen: spec F1-07m gap, README specs, STATUS-JEDA, GAP-FASE1,
   panduan ID/EN Produk, CHANGELOG, pubspec.
-- [ ] 5. Format, analyze, semua tes, review subagent, uji Xvfb.
+- [x] 5. Format, analyze, semua tes, review subagent (temuan: tes > 30
+  perubahan, ekspor lama setelah ganti berkas, nama berkas), uji Xvfb.
 - [ ] 6. PR dan rilis.

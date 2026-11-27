@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -192,7 +193,7 @@ void main() {
       await vm.preview.execute();
       expect(vm.canExport, isTrue);
       expect(vm.exportFileName, 'pratinjau-harga-harga-baru-2026.xlsx');
-      await vm.export.execute(Uint8List.fromList([1, 2]));
+      await vm.export.execute(() => Uint8List.fromList([1, 2]));
       expect(exporter.saved.single.$1, 'pratinjau-harga-harga-baru-2026.xlsx');
       expect(vm.exportPath, '/docs/x.xlsx');
 
@@ -203,11 +204,45 @@ void main() {
       vm.setUpdateExisting(true);
       await vm.preview.execute();
       exporter.error = Exception('disk penuh');
-      await vm.export.execute(Uint8List.fromList([1]));
+      await vm.export.execute(() => Uint8List.fromList([1]));
       expect(vm.export.error, isTrue);
       expect(vm.exportPath, isNull);
       await vm.pick.execute();
       expect(vm.export.result, isNull);
+
+      // Pembuat berkas yang gagal tampil sebagai ekspor gagal.
+      await vm.preview.execute();
+      await vm.export.execute(() => throw const FormatException('rusak'));
+      expect(vm.export.error, isTrue);
+
+      // Berkas diganti saat Excel masih disimpan: hasil lama dibuang.
+      final slow = Completer<void>();
+      exporter.gate = slow.future;
+      final pending = vm.export.execute(() => Uint8List.fromList([3]));
+      vm.setUpdateExisting(false);
+      vm.setUpdateExisting(true);
+      await vm.preview.execute();
+      slow.complete();
+      await pending;
+      exporter.gate = null;
+      expect(vm.exportPath, isNull);
+      expect(vm.export.error, isFalse);
+
+      // Nama berkas: tanpa ekstensi, berkas titik, nama panjang, non-ASCII.
+      Future<String> nameOf(String file) async {
+        picker.file = _csv(_sample, name: file);
+        await vm.pick.execute();
+        return vm.exportFileName;
+      }
+
+      expect(await nameOf('harga'), 'pratinjau-harga-harga.xlsx');
+      expect(await nameOf('.csv'), 'pratinjau-harga.xlsx');
+      expect(
+        await nameOf('${'a' * 200}.csv'),
+        'pratinjau-harga-${'a' * 60}.xlsx',
+      );
+      expect(await nameOf('价格.csv'), 'pratinjau-harga.xlsx');
+      vm.setUpdateExisting(true);
 
       // Setelah simpan pratinjau tidak bisa diekspor lagi.
       await vm.preview.execute();
@@ -244,6 +279,29 @@ void main() {
           ),
         ],
       );
+      // Lebih dari 30 perubahan (batas layar) ikut semua di Excel.
+      final many = ProductImportSummary(
+        created: 0,
+        updated: 35,
+        skippedLines: const [],
+        changes: [
+          for (var i = 2; i <= 36; i++)
+            ProductPriceChange(
+              line: i,
+              productName: 'Produk $i',
+              variantName: '',
+              oldSell: const Money(1000),
+              newSell: const Money(1100),
+            ),
+        ],
+      );
+      final manyRows = readTableFile(
+        'x.xlsx',
+        productImportPreviewWorkbook(id, many),
+      );
+      expect(manyRows, hasLength(36));
+      expect(manyRows.last.take(2), ['36', 'Produk 36']);
+
       final bytes = productImportPreviewWorkbook(id, summary);
       expect(readTableFile('x.xlsx', bytes), [
         [
@@ -523,7 +581,10 @@ void main() {
       );
       expect(find.text('Gula Aren · Rp 17.000 → Rp 18.000'), findsOneWidget);
       expect(repo.products, hasLength(1));
-      // Ekspor pratinjau ke Excel (F1-07u).
+      // Ekspor pratinjau ke Excel (F1-07u). Ponsel: lembar bagikan, tanpa
+      // pesan lokasi.
+      final phone = size.width < 600;
+      if (phone) exporter.path = null;
       await _tap(tester, 'product-import-preview-export');
       expect(exporter.saved.single.$1, 'pratinjau-harga-produk.xlsx');
       expect(
@@ -532,8 +593,12 @@ void main() {
       );
       expect(
         _key('product-import-export-saved'),
-        findsOneWidget,
+        phone ? findsNothing : findsOneWidget,
       );
+      exporter.error = Exception('disk penuh');
+      await _tap(tester, 'product-import-preview-export');
+      expect(_key('product-import-export-failed'), findsOneWidget);
+      expect(_key('product-import-export-saved'), findsNothing);
       await _tap(tester, 'product-import-run');
       expect(repo.lastUpdateExisting, isTrue);
       expect(_key('product-import-changes'), findsNothing);
