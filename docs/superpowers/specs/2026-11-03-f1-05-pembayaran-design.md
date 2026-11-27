@@ -139,8 +139,8 @@ dan `LocalCashierRepository`).
 | Referensi kartu/transfer di bagian split | 1.5 | Rilis v0.64.0 | [F1-05b](2026-11-14-f1-05b-referensi-split-struk-design.md); referensi juga tercetak di struk. |
 | PIN manajer untuk *Sudah Terbayar* | 1.26b sakelar | Belum (izin `payments:confirm` saja) | Bersama persetujuan PIN manajer (void/diskon) |
 | QRIS dinamis / cek mutasi otomatis | - | Belum | Fase 3 |
-| Kredit / piutang, DP, jatuh tempo | 1.5b | Belum | Setelah F1-13 Pelanggan |
+| Kredit / piutang, DP, jatuh tempo | 1.5b | Rilis v0.17.0 | [F1-13](2026-11-03-f1-13-pelanggan-piutang-design.md). |
 | Opsi struk (cetak otomatis, PDF) | 1.5 panel Struk, 1.5c | Pratinjau teks saja | F1-06 |
-| Pembulatan total | Pengaturan 1.26 | Belum | F1-18 |
+| Pembulatan total | Pengaturan 1.26 | Rilis v0.23.0 | [F1-18](2026-11-03-f1-18-pengaturan-design.md). |
 | Rekening transfer di tombol | "BCA 123-456-7890" | Rilis v0.74.0 ([F1-05c](2026-11-14-f1-05c-rekening-transfer-design.md)) | Teks bebas di *Penjualan & stok*; kotak *Transfer ke* + tombol Salin. |
 | Scan barcode saat di layar bayar (desktop) | — | Masuk ke *Uang diterima* | Batasi nominal / abaikan input sangat cepat bersama F1-06 |

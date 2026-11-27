@@ -136,7 +136,7 @@ Keputusan brainstorming (jawaban dari desain 1.26 dan spec Storeku F1-18):
 | Diskon manual butuh PIN manajer | 1.26 | v0.24.0 | - |
 | Harga sudah termasuk pajak | 1.26 | Rilis v0.23.0 | F&B saja (pajak hanya di F&B) |
 | Ukuran tampilan Normal/Besar | 1.26 | Rilis v0.23.0 | Skala teks perangkat |
-| Data & backup | 1.26 | Belum | F1-19 |
+| Data & backup | 1.26 | Rilis v0.25.0 | [F1-19](2026-11-04-f1-19-data-backup-design.md). |
 | Stok minus dimatikan: split bill / QRIS | - | Stok dicek saat bill ditutup; bila stok habis di antara pembayaran bagian split (mis. penjualan retail di perangkat yang sama), bagian terakhir ditolak setelah bagian lain dibayar | Pra-cek stok sebelum bayar bagian pertama; untuk sekarang sesuaikan stok lalu ulangi |
 | Stok minus dimatikan: bill lain | - | Tambah / ubah jumlah item hanya menghitung bill ini, bukan open bill meja lain | Reservasi stok per bill bila diperlukan |
 | Pembulatan bagian split bill | - | Tagihan per tamu dibagi dari total yang sudah dibulatkan, bisa tidak kelipatan Rp 100/500 | Bulatkan per bagian bila ada permintaan |

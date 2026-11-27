@@ -135,7 +135,7 @@ sesi (F1-03), struk WhatsApp (F3-03).
 | Bluetooth Android | *Cari printer* | Rilis v0.8.0 (belum diuji di perangkat fisik) | Uji dengan printer RPP02N/sejenis |
 | Bluetooth iOS/macOS/Windows (BLE) | - | Belum | Bila ada permintaan; paket sudah mendukung BLE |
 | Logo di struk | *Tampilkan logo* | Rilis v0.39.0 | [F1-06b](2026-11-13-f1-06b-logo-struk-design.md): logo per cabang, raster `GS v 0`, PDF, pratinjau |
-| Cetak ulang dari riwayat | 1.14 | Belum | Bersama F1-11, label CETAK ULANG |
+| Cetak ulang dari riwayat | 1.14 | Rilis v0.15.0 | [F1-11](2026-11-03-f1-11-riwayat-void-retur-design.md), label CETAK ULANG. |
 | Cetak rekap sesi | 1.3 | Rilis v0.38.0 | [F1-03b](2026-11-13-f1-03b-cetak-rekap-sesi-design.md), mesin baris yang sama (`ReceiptContent.sections`) |
 | USB langsung tanpa driver | - | Lewat dialog cetak sistem | Bila ada permintaan |
 | Kasir tetap terbuka bila pengaturan struk gagal dibaca | - | Belum: galat baca membuat layar kasir gagal dimuat | Jatuh ke bawaan + log |

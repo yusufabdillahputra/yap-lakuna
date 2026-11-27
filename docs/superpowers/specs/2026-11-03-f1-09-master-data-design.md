@@ -129,9 +129,9 @@ Pengaturan* butuh `settings:manage`.
 | Lokasi stok | Ada | Baca + tautan ke Stok (v0.9.0) | *Jadikan default* dan hapus lokasi menyusul. |
 | Metode pembayaran | Ada | Ringkasan + tautan ke Pengaturan (v0.10.0) | Selesai. |
 | Alasan penyesuaian | Ada | Enum bawaan F1-08 | Master alasan sendiri menyusul (butuh tabel baru + migrasi data). |
-| Jenis pengeluaran | Ada | Belum | Dibangun bersama F1-15. |
-| Grup pelanggan | Ada | Belum | Dibangun bersama F1-13. |
-| Meja & area, Grup modifier (1.17b) | Ada | Belum | Dibangun bersama F1-10. |
+| Jenis pengeluaran | Ada | Rilis v0.19.0 | [F1-15](2026-11-04-f1-15-pengeluaran-design.md). |
+| Grup pelanggan | Ada | Rilis v0.17.0 | [F1-13](2026-11-03-f1-13-pelanggan-piutang-design.md). |
+| Meja & area, Grup modifier (1.17b) | Ada | Rilis v0.11.0 / v0.12.0 | [F1-10](2026-11-03-f1-10-meja-fnb-design.md). |
 | Shift | Ada di 1.17b | Belum | Bersama shift sesi kasir (F1-03 lanjutan). |
 
 ### Penyesuaian tata letak (dicatat saat rilis)
