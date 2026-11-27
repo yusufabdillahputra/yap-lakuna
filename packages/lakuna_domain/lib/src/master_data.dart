@@ -1,5 +1,7 @@
 import 'package:characters/characters.dart';
 
+import 'catalog.dart' show squishName;
+
 /// Batas panjang (karakter terlihat) data master (F1-09).
 abstract final class MasterLimits {
   /// Sama dengan field kategori di form produk.
@@ -74,14 +76,21 @@ List<CategoryError> validateCategory(
   required List<CategoryRef> existing,
 }) {
   final errors = <CategoryError>[];
-  final name = d.name.trim();
+  final name = squishName(d.name);
   if (name.isEmpty) {
     errors.add(CategoryError.nameEmpty);
   } else if (name.characters.length > MasterLimits.categoryName) {
     errors.add(CategoryError.nameTooLong);
   } else {
     final key = name.toLowerCase();
-    if (existing.any((c) => c.id != id && c.name.trim().toLowerCase() == key)) {
+    // Nama yang tidak diubah tidak memunculkan galat baru, walau ada data
+    // lama yang kembar beda spasi (F1-07t).
+    final self = existing.where((c) => c.id == id).firstOrNull;
+    final unchanged = self != null && self.name.trim() == d.name.trim();
+    if (!unchanged &&
+        existing.any(
+          (c) => c.id != id && squishName(c.name).toLowerCase() == key,
+        )) {
       errors.add(CategoryError.nameDuplicate);
     }
   }
@@ -113,13 +122,13 @@ UnitNameError? validateUnitName(
   String name, {
   required Iterable<String> existing,
 }) {
-  final t = name.trim();
+  final t = squishName(name);
   if (t.isEmpty) return UnitNameError.empty;
   if (t.characters.length > MasterLimits.unitName) {
     return UnitNameError.tooLong;
   }
   final key = t.toLowerCase();
-  if (existing.any((e) => e.trim().toLowerCase() == key)) {
+  if (existing.any((e) => squishName(e).toLowerCase() == key)) {
     return UnitNameError.duplicate;
   }
   return null;

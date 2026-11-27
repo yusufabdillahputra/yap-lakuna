@@ -155,7 +155,7 @@ Future<ProductCategory> createCategory(
     ProductCategory(
       tenantId: scope.tenantId,
       parentId: _parent(d.parentId),
-      name: d.name.trim(),
+      name: squishName(d.name),
       color: d.color,
       showInCashier: d.showInCashier,
       isActive: d.isActive,
@@ -220,7 +220,11 @@ Future<ProductCategory> updateCategory(
     current,
     staffId,
     (row, _) => row.copyWith(
-      name: d.name.trim(),
+      // Nama yang tidak diubah dibiarkan apa adanya (data lama berspasi
+      // ganda tidak diam-diam menjadi kembar persis).
+      name: current.name.trim() == d.name.trim()
+          ? current.name
+          : squishName(d.name),
       parentId: _parent(d.parentId),
       color: d.color,
       showInCashier: d.showInCashier,
@@ -402,7 +406,7 @@ Future<MeasureUnit> createUnit(
   return w.insert(
     MeasureUnit(
       tenantId: scope.tenantId,
-      name: name.trim(),
+      name: squishName(name),
       createdAt: s.now,
       updatedAt: s.now,
       createdBy: staffId,
@@ -449,17 +453,18 @@ Future<MeasureUnit> renameUnit(
   );
   final current = existing.where((u) => u.id == id).firstOrNull;
   if (current == null) throw MasterNotFound();
+  if (current.name.trim() == name.trim()) return current;
   final error = validateUnitName(
     name,
     existing: existing.where((u) => u.id != id).map((u) => u.name),
   );
   if (error != null) throw UnitInvalid(error);
-  if (current.name == name.trim()) return current;
+  if (current.name == squishName(name)) return current;
   return _touchUnit(
     w,
     current,
     staffId,
-    (r, _) => r.copyWith(name: name.trim()),
+    (r, _) => r.copyWith(name: squishName(name)),
   );
 });
 

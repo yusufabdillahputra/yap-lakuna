@@ -7,6 +7,40 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.157.0] - 2026-11-27
+
+Spasi ganda di nama kategori dan satuan tidak lagi membuat data kembar. Ini
+gap 20 di daftar rapikan Fase 1 (F1-07t, import produk 1.15, form produk
+1.16, Data master 1.17).
+
+### Diperbaiki
+
+- Import produk dengan kategori `minuman  dingin` (spasi ganda, sering
+  terbawa saat menyalin dari Excel atau WhatsApp) kini memakai kategori
+  *Minuman Dingin* yang sudah ada, bukan membuat kategori baru. Hal yang
+  sama berlaku untuk satuan dan form produk.
+- Kategori atau satuan baru disimpan dengan spasi yang sudah dirapatkan.
+- Data master › Kategori dan Satuan menolak nama kembar walau beda spasi.
+  Kategori/satuan lama yang terlanjur kembar beda spasi tetap bisa diubah
+  (mis. warnanya) dan tidak dipindah diam-diam saat produk disimpan ulang.
+- Satuan konversi `gelas  besar` pada produk bersatuan dasar *gelas
+  besar* kini ditolak (*sama dengan satuan dasar*), tidak lagi tersimpan
+  sebagai satuan yang sama.
+
+### Diubah
+
+- Panduan *Produk pertama* (ID dan EN) menyebut pencocokan kategori dan
+  satuan tanpa beda huruf dan spasi berlebih.
+
+### Catatan teknis
+
+- `squishName` di `lakuna_domain`, dipakai `validateCategory`,
+  `validateUnitName`, `saveProduct`/`importProducts` (`_ensureCategory`,
+  `_ensureUnit`), dan Data master (`createCategory`, `updateCategory`,
+  `createUnit`, `renameUnit`), serta `validateProductDraft`. Nama lama
+  yang berspasi ganda tidak diubah, tetapi ikut dicocokkan; nama persis
+  didahulukan.
+
 ## [0.156.0] - 2026-11-27
 
 Backup otomatis di komputer kini bisa diatur. Ini gap 19 di daftar rapikan
@@ -8767,7 +8801,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...HEAD
+[0.157.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...v0.157.0
 [0.156.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...v0.156.0
 [0.155.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...v0.155.0
 [0.154.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...v0.154.0

@@ -1096,8 +1096,8 @@ class _ProductWriter {
     s = await w.stamp();
     final categoryId = _orNull(draft.category) == null
         ? null
-        : await _ensureCategory(draft.category.trim());
-    final baseUnitId = await _ensureUnit(draft.baseUnit.trim());
+        : await _ensureCategory(draft.category);
+    final baseUnitId = await _ensureUnit(draft.baseUnit);
 
     final product = Product(
       id: existing?.id,
@@ -1273,7 +1273,7 @@ class _ProductWriter {
         id: old?.id,
         tenantId: tenant,
         variantId: variantId,
-        unitId: await _ensureUnit(d.name.trim()),
+        unitId: await _ensureUnit(d.name),
         factorMilli: d.factor.milli,
         barcode: _orNull(d.barcode),
         costPrice: d.costPrice?.value,
@@ -1365,17 +1365,28 @@ class _ProductWriter {
     }
   }
 
-  Future<UuidValue> _ensureCategory(String name) async {
-    final cached = _categories[name.toLowerCase()];
+  /// Kategori bernama [raw]: yang namanya persis sama (tanpa beda huruf)
+  /// didahulukan, lalu yang sama setelah spasi dirapatkan (F1-07t); bila
+  /// tidak ada, dibuat dengan nama yang dirapatkan.
+  Future<UuidValue> _ensureCategory(String raw) async {
+    final exact = raw.trim().toLowerCase();
+    final cached = _categories[exact];
     if (cached != null) return cached;
     final rows = await ProductCategory.db.find(
       w.session,
       where: (c) => c.tenantId.equals(tenant) & c.deletedAt.equals(null),
+      orderBy: (c) => c.createdAt,
       transaction: tx,
     );
-    final key = name.toLowerCase();
-    final found = rows.where((c) => c.name.trim().toLowerCase() == key);
-    if (found.isNotEmpty) return _categories[key] = found.first.id;
+    final name = squishName(raw);
+    final found =
+        rows.where((c) => c.name.trim().toLowerCase() == exact).firstOrNull ??
+        rows
+            .where(
+              (c) => squishName(c.name).toLowerCase() == name.toLowerCase(),
+            )
+            .firstOrNull;
+    if (found != null) return _categories[exact] = found.id;
     final row = await w.insert(
       ProductCategory(
         tenantId: tenant,
@@ -1391,21 +1402,30 @@ class _ProductWriter {
       ),
       s,
     );
-    return _categories[key] = row.id;
+    return _categories[exact] = row.id;
   }
 
-  Future<UuidValue> _ensureUnit(String name) async {
-    final key = name.toLowerCase();
-    final cached = _units[key];
+  /// Satuan bernama [raw], aturan sama dengan [_ensureCategory].
+  Future<UuidValue> _ensureUnit(String raw) async {
+    final exact = raw.trim().toLowerCase();
+    final cached = _units[exact];
     if (cached != null) return cached;
     final rows = await MeasureUnit.db.find(
       w.session,
       where: (u) => u.tenantId.equals(tenant) & u.deletedAt.equals(null),
+      orderBy: (u) => u.createdAt,
       transaction: tx,
     );
-    final found = rows.where((u) => u.name.trim().toLowerCase() == key);
-    final id = found.isNotEmpty
-        ? found.first.id
+    final name = squishName(raw);
+    final found =
+        rows.where((u) => u.name.trim().toLowerCase() == exact).firstOrNull ??
+        rows
+            .where(
+              (u) => squishName(u.name).toLowerCase() == name.toLowerCase(),
+            )
+            .firstOrNull;
+    final id = found != null
+        ? found.id
         : (await w.insert(
             MeasureUnit(
               tenantId: tenant,
@@ -1419,7 +1439,7 @@ class _ProductWriter {
             ),
             s,
           )).id;
-    return _units[key] = id;
+    return _units[exact] = id;
   }
 
   Future<void> _checkCodes(ProductDraft draft, UuidValue? productId) async {

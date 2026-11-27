@@ -87,4 +87,4 @@ sah dan yang ditolak sebelum disimpan.
 | Templat berkas untuk diunduh | — | Selesai v0.47.0 | Tombol *Unduh templat* ([F1-07g](2026-11-14-f1-07g-templat-import-design.md)). |
 | Berkas sangat besar (puluhan ribu baris) | — | Belum | Satu transaksi ±4 ms/baris (lokasi stok dan tautan modifier sudah tidak dikueri per baris); 20 ribu baris ±1 menit tanpa indikator progres. Pertimbangkan `compute` untuk mengurai dan import bertahap. |
 | Import dari dua perangkat (Fase 2) | — | Belum | Nama unik dicek per perangkat; dua perangkat yang mengimpor berkas sama akan menghasilkan produk ganda setelah sync. |
-| Spasi ganda di nama kategori | — | Belum | Kategori dicocokkan tanpa beda huruf tapi tidak merapatkan spasi (perilaku `saveProduct`). |
+| Spasi ganda di nama kategori | — | Rilis v0.157.0 | [F1-07t](2026-11-27-f1-07t-spasi-nama-kategori-design.md): kategori dan satuan dirapatkan di import, form produk, dan Data master. |
