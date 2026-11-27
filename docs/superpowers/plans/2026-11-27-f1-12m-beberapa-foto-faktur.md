@@ -14,5 +14,5 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-12m-beberapa-foto-faktur-design.md`
   judul; l10n ID/EN; tes widget 1280/360.
 - [x] 6. Dokumen: spec F1-12b gap, README specs, STATUS-JEDA, GAP-FASE1,
   panduan ID/EN Pembelian, CHANGELOG, pubspec.
-- [ ] 7. Format, analyze, semua tes, review subagent, uji Xvfb.
+- [x] 7. Format, analyze, semua tes, review subagent, uji Xvfb.
 - [ ] 8. PR dan rilis.
