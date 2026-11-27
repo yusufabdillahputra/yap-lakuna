@@ -9,6 +9,10 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../receipt/bill_print_job.dart';
 
+/// *Sudah Terbayar* pembayaran menunggu [paymentId]; [approverId] = manajer
+/// yang memasukkan PIN (F1-05h).
+typedef SplitConfirm = ({UuidValue paymentId, UuidValue? approverId});
+
 /// View model layar split bill 1.9 (F1-10c).
 class SplitBillViewModel extends ChangeNotifier {
   SplitBillViewModel({
@@ -47,8 +51,9 @@ class SplitBillViewModel extends ChangeNotifier {
   /// (item, tamu) — satu porsi; tamu `null` = kembali ke belum dibagi.
   late final Command1<OpenBill, (UuidValue, String?)> assign;
 
-  /// *Sudah Terbayar* pembayaran menunggu [UuidValue].
-  late final Command1<SplitPayResult, UuidValue> confirm;
+  /// *Sudah Terbayar* pembayaran menunggu, dengan penyetuju PIN bila staf
+  /// tidak boleh konfirmasi langsung (F1-05h).
+  late final Command1<SplitPayResult, SplitConfirm> confirm;
   late final Command1<OpenBill, UuidValue> cancel;
 
   /// Cetak / PDF tagihan satu tamu (F1-10m).
@@ -81,7 +86,20 @@ class SplitBillViewModel extends ChangeNotifier {
   BillSplit? get split => _bill?.split;
   SplitMode? get mode => _bill?.sale.splitMode;
   bool get canPay => _data?.canPay ?? false;
-  bool get canConfirm => _data?.canConfirm ?? false;
+
+  /// Boleh *Sudah Terbayar* tanpa PIN manajer (F1-05h).
+  bool get canConfirm => (_data?.canConfirm ?? false) && !_qrisStrict;
+
+  /// Lapisan data menolak konfirmasi (sakelar baru dimatikan): sampai data
+  /// dimuat ulang, selalu minta PIN dengan aturan penyetuju ketat.
+  var _qrisStrict = false;
+
+  /// Staf [permissions] boleh menyetujui *Sudah Terbayar* (aturan yang sama
+  /// dengan konfirmasi langsung).
+  bool canApproveQris(Set<Permission> permissions) => canConfirmQrisDirectly(
+    permissions,
+    cashierWithoutPin: (_data?.qrisWithoutPin ?? true) && !_qrisStrict,
+  );
 
   /// Bill lunas lewat *Sudah Terbayar* di layar ini.
   CheckoutResult? get completed => _completed;
@@ -182,6 +200,7 @@ class SplitBillViewModel extends ChangeNotifier {
     final result = await _repository.loadSplit(billId);
     if (result case Ok(:final value)) {
       _data = value;
+      _qrisStrict = false;
       _bill = value.bill;
     }
     return result;
@@ -218,8 +237,17 @@ class SplitBillViewModel extends ChangeNotifier {
   Future<Result<OpenBill>> _assign((UuidValue, String?) a) =>
       _act(() => _repository.assignPortion(a.$1, a.$2), _setBill);
 
-  Future<Result<SplitPayResult>> _confirm(UuidValue paymentId) => _act(
-    () => _repository.confirmSplitPayment(paymentId),
+  Future<Result<SplitPayResult>> _confirm(SplitConfirm c) => _act(
+    () async {
+      final result = await _repository.confirmSplitPayment(
+        c.paymentId,
+        approverId: c.approverId,
+      );
+      if (result case Error(error: QrisConfirmNotPermitted())) {
+        _qrisStrict = true;
+      }
+      return result;
+    },
     (r) {
       if (r.bill case final b?) _bill = b;
       _completed = r.receipt;

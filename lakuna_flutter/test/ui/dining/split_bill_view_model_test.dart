@@ -114,7 +114,10 @@ void main() {
       }
       await vm.load.execute();
       expect(vm.split!.remaining, Money.zero);
-      await vm.confirm.execute(vm.split!.part('A').payments.single.id);
+      await vm.confirm.execute((
+        paymentId: vm.split!.part('A').payments.single.id,
+        approverId: null,
+      ));
       expect(vm.completed, isNotNull);
       expect(vm.completed!.sale.status, SaleStatus.completed);
     },

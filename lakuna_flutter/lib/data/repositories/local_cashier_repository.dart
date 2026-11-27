@@ -70,7 +70,11 @@ class LocalCashierRepository extends CashierRepository {
               settlementNote: qris.settings.settlementNote,
             )
           : null,
-      canConfirmPayments: staff.can(Permission.paymentsConfirm),
+      canConfirmPayments: canConfirmQrisDirectly(
+        staff.permissions,
+        cashierWithoutPin: qris.settings.cashierConfirmWithoutPin,
+      ),
+      qrisWithoutPin: qris.settings.cashierConfirmWithoutPin,
       canSellOnCredit: staff.can(Permission.debtsManage),
       canDiscount: staff.can(Permission.salesDiscount),
       canAddCustomer: staff.can(Permission.customersManage),
@@ -88,11 +92,9 @@ class LocalCashierRepository extends CashierRepository {
     UuidValue? discountApproverId,
     UuidValue? customerId,
     UuidValue? parkedSaleId,
+    UuidValue? qrisApproverId,
   }) => _guard((ctx, staff) async {
-    if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
-        !staff.can(Permission.paymentsConfirm)) {
-      throw const NotPermitted(Permission.paymentsConfirm);
-    }
+    _requireQrisApproval(qrisApproverId);
     if (credit != null && !staff.can(Permission.debtsManage)) {
       throw const NotPermitted(Permission.debtsManage);
     }
@@ -112,12 +114,29 @@ class LocalCashierRepository extends CashierRepository {
       discountApproverId: discountApproverId,
       customerId: customerId,
       parkedSaleId: parkedSaleId,
+      qrisApproverId: qrisApproverId,
     );
     if (discountApproverId != null) {
       _session.consumeApproval(discountApproverId, Permission.salesDiscount);
     }
+    _consumeQrisApproval(qrisApproverId);
     return result;
   });
+
+  /// Penyetuju QRIS (F1-05h) harus baru memasukkan PIN-nya; aturan siapa
+  /// yang boleh menyetujui diperiksa lapisan data.
+  void _requireQrisApproval(UuidValue? approverId) {
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.paymentsConfirm)) {
+      throw const NotPermitted(Permission.paymentsConfirm);
+    }
+  }
+
+  void _consumeQrisApproval(UuidValue? approverId) {
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.paymentsConfirm);
+    }
+  }
 
   @override
   Future<Result<CustomersOverview>> creditCustomers() => _guard((ctx, staff) {
@@ -181,22 +200,23 @@ class LocalCashierRepository extends CashierRepository {
     UuidValue billId,
     List<SalePaymentRequest> payments, {
     SaleCredit? credit,
-  }) => _guard((ctx, staff) {
-    if (payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
-        !staff.can(Permission.paymentsConfirm)) {
-      throw const NotPermitted(Permission.paymentsConfirm);
-    }
+    UuidValue? qrisApproverId,
+  }) => _guard((ctx, staff) async {
+    _requireQrisApproval(qrisApproverId);
     if (credit != null && !staff.can(Permission.debtsManage)) {
       throw const NotPermitted(Permission.debtsManage);
     }
-    return payOpenBill(
+    final result = await payOpenBill(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
       billId: billId,
       payments: payments,
       credit: credit,
+      qrisApproverId: qrisApproverId,
     );
+    _consumeQrisApproval(qrisApproverId);
+    return result;
   });
 
   @override
@@ -207,16 +227,13 @@ class LocalCashierRepository extends CashierRepository {
     required List<SalePaymentRequest> payments,
     bool pending = false,
     SaleCredit? credit,
-  }) => _guard((ctx, staff) {
+    UuidValue? qrisApproverId,
+  }) => _guard((ctx, staff) async {
     if (credit != null && !staff.can(Permission.debtsManage)) {
       throw const NotPermitted(Permission.debtsManage);
     }
-    if (!pending &&
-        payments.any((p) => p.method == PaymentMethod.qrisStatic) &&
-        !staff.can(Permission.paymentsConfirm)) {
-      throw const NotPermitted(Permission.paymentsConfirm);
-    }
-    return paySplitPart(
+    _requireQrisApproval(qrisApproverId);
+    final result = await paySplitPart(
       _store,
       CatalogScope.of(ctx),
       staffId: staff.id,
@@ -226,7 +243,10 @@ class LocalCashierRepository extends CashierRepository {
       payments: payments,
       pending: pending,
       credit: credit,
+      qrisApproverId: qrisApproverId,
     );
+    _consumeQrisApproval(qrisApproverId);
+    return result;
   });
 
   Future<Result<T>> _guard<T>(

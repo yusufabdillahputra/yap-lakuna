@@ -75,3 +75,14 @@ enum DefaultRole {
     },
   };
 }
+
+/// *Sudah Terbayar* QRIS statis tanpa PIN manajer (F1-05h): staf punya
+/// `payments:confirm`, dan sakelar *Kasir boleh konfirmasi tanpa PIN
+/// manajer* hidup atau staf punya `settings:manage` (pemilik/manajer).
+/// Penyetuju PIN memakai aturan yang sama.
+bool canConfirmQrisDirectly(
+  Set<Permission> permissions, {
+  required bool cashierWithoutPin,
+}) =>
+    permissions.contains(Permission.paymentsConfirm) &&
+    (cashierWithoutPin || permissions.contains(Permission.settingsManage));

@@ -33,6 +33,7 @@ Future<StaffProfile?> requestApproval(
   required SessionRepository session,
   required Permission permission,
   required String reason,
+  bool Function(StaffProfile staff)? eligible,
 }) => showFDialog<StaffProfile>(
   context: context,
   builder: (context, style, animation) => FDialog(
@@ -42,6 +43,7 @@ Future<StaffProfile?> requestApproval(
       session: session,
       permission: permission,
       reason: reason,
+      eligible: eligible,
     ),
   ),
 );
@@ -52,10 +54,15 @@ class ApprovalDialog extends StatefulWidget {
     required this.session,
     required this.permission,
     required this.reason,
+    this.eligible,
   });
 
   final SessionRepository session;
   final Permission permission;
+
+  /// Syarat penyetuju selain [permission] (mis. QRIS saat sakelar
+  /// *Kasir boleh konfirmasi tanpa PIN manajer* mati, F1-05h).
+  final bool Function(StaffProfile staff)? eligible;
 
   /// Kalimat yang menjelaskan apa yang disetujui.
   final String reason;
@@ -95,7 +102,11 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
       _approvers = switch (result) {
         Ok(:final value) => [
           for (final s in value)
-            if (s.id != me && s.hasPin && s.can(widget.permission)) s,
+            if (s.id != me &&
+                s.hasPin &&
+                s.can(widget.permission) &&
+                (widget.eligible?.call(s) ?? true))
+              s,
         ],
         Error() => const [],
       };
@@ -172,7 +183,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     final locked =
         _selected != null &&
         widget.session.pinRetryAfter(_selected!.id) != null;
-    return Padding(
+    // Bisa digulir: alasan panjang di ponsel kecil tidak terpotong.
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         key: const ValueKey('approval-dialog'),

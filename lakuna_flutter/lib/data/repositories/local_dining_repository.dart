@@ -303,10 +303,15 @@ class LocalDiningRepository extends DiningRepository {
   Future<Result<SplitBillData>> loadSplit(UuidValue billId) =>
       _guard((ctx, staff) async {
         final scope = CatalogScope.of(ctx);
+        final qris = await readQrisSettings(_store.session, scope);
         return SplitBillData(
           bill: await loadOpenBill(_store, scope, billId),
           canPay: staff.can(Permission.salesCreate),
-          canConfirm: staff.can(Permission.paymentsConfirm),
+          canConfirm: canConfirmQrisDirectly(
+            staff.permissions,
+            cashierWithoutPin: qris.cashierConfirmWithoutPin,
+          ),
+          qrisWithoutPin: qris.cashierConfirmWithoutPin,
           staffName: staff.name,
           businessName: ctx.tenant.name,
           outletName: ctx.outlet.name,
@@ -354,18 +359,29 @@ class LocalDiningRepository extends DiningRepository {
       });
 
   @override
-  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId) =>
-      _guard((ctx, staff) {
-        for (final p in [Permission.salesCreate, Permission.paymentsConfirm]) {
-          if (!staff.can(p)) throw NotPermitted(p);
-        }
-        return data.confirmSplitPayment(
-          _store,
-          CatalogScope.of(ctx),
-          staffId: staff.id,
-          paymentId: paymentId,
-        );
-      });
+  Future<Result<SplitPayResult>> confirmSplitPayment(
+    UuidValue paymentId, {
+    UuidValue? approverId,
+  }) => _guard((ctx, staff) async {
+    _needSales(staff);
+    // PIN penyetuju harus baru diperiksa; siapa yang boleh menyetujui
+    // diperiksa lapisan data (F1-05h).
+    if (approverId != null &&
+        !_session.hasApproval(approverId, Permission.paymentsConfirm)) {
+      throw const NotPermitted(Permission.paymentsConfirm);
+    }
+    final result = await data.confirmSplitPayment(
+      _store,
+      CatalogScope.of(ctx),
+      staffId: staff.id,
+      paymentId: paymentId,
+      qrisApproverId: approverId,
+    );
+    if (approverId != null) {
+      _session.consumeApproval(approverId, Permission.paymentsConfirm);
+    }
+    return result;
+  });
 
   @override
   Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId) =>

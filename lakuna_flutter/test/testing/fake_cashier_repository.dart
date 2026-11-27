@@ -240,8 +240,8 @@ class FakeCashierRepository extends CashierRepository {
         receipt: receipt,
         printer: printer,
         salesRules: salesRules,
-        canConfirmPayments:
-            permissions?.contains(Permission.paymentsConfirm) ?? true,
+        canConfirmPayments: _directQris,
+        qrisWithoutPin: qrisWithoutPin,
         canSellOnCredit: permissions?.contains(Permission.debtsManage) ?? true,
         canDiscount: permissions?.contains(Permission.salesDiscount) ?? true,
         canAddCustomer:
@@ -268,6 +268,34 @@ class FakeCashierRepository extends CashierRepository {
     );
   }
 
+  /// Sakelar *Kasir boleh konfirmasi tanpa PIN manajer* (F1-05h).
+  var qrisWithoutPin = true;
+
+  /// Penyetuju QRIS tiap pembayaran yang berhasil, urut panggilan.
+  final qrisApprovals = <UuidValue?>[];
+
+  bool get _directQris => canConfirmQrisDirectly(
+    permissions ?? Permission.values.toSet(),
+    cashierWithoutPin: qrisWithoutPin,
+  );
+
+  /// Aturan lapisan data F1-05h: QRIS terkonfirmasi butuh staf yang boleh
+  /// langsung atau penyetuju.
+  Exception? _qrisConfirm(
+    List<SalePaymentRequest> payments,
+    UuidValue? approverId,
+  ) {
+    final confirms = payments.any(
+      (p) => p.method == PaymentMethod.qrisStatic && p.confirmed,
+    );
+    if (!confirms) return null;
+    if (approverId == null && !_directQris) {
+      return const QrisConfirmNotPermitted();
+    }
+    qrisApprovals.add(approverId);
+    return null;
+  }
+
   @override
   Future<Result<CheckoutResult>> checkout({
     required List<SaleLineRequest> lines,
@@ -277,6 +305,7 @@ class FakeCashierRepository extends CashierRepository {
     UuidValue? discountApproverId,
     UuidValue? customerId,
     UuidValue? parkedSaleId,
+    UuidValue? qrisApproverId,
   }) async {
     if (checkoutGate case final gate?) await gate.future;
     if (_check() case final e?) return Result.error(e);
@@ -307,9 +336,8 @@ class FakeCashierRepository extends CashierRepository {
     }
     if (!sessionOpen) return Result.error(CashSessionNotOpen());
     final qrisUsed = payments.any((p) => p.method == PaymentMethod.qrisStatic);
-    final p = permissions;
-    if (qrisUsed && p != null && !p.contains(Permission.paymentsConfirm)) {
-      return const Result.error(NotPermitted(Permission.paymentsConfirm));
+    if (_qrisConfirm(payments, qrisApproverId) case final e?) {
+      return Result.error(e);
     }
     if (qrisUsed && qris == null) {
       return const Result.error(
@@ -519,8 +547,12 @@ class FakeCashierRepository extends CashierRepository {
     UuidValue billId,
     List<SalePaymentRequest> payments, {
     SaleCredit? credit,
+    UuidValue? qrisApproverId,
   }) async {
     if (_check() case final e?) return Result.error(e);
+    if (_qrisConfirm(payments, qrisApproverId) case final e?) {
+      return Result.error(e);
+    }
     if (credit != null) {
       if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
         return const Result.error(NotPermitted(Permission.debtsManage));
@@ -623,8 +655,14 @@ class FakeCashierRepository extends CashierRepository {
     required List<SalePaymentRequest> payments,
     bool pending = false,
     SaleCredit? credit,
+    UuidValue? qrisApproverId,
   }) async {
     if (_check() case final e?) return Result.error(e);
+    if (!pending) {
+      if (_qrisConfirm(payments, qrisApproverId) case final e?) {
+        return Result.error(e);
+      }
+    }
     if (credit != null) {
       if (!(permissions?.contains(Permission.debtsManage) ?? true)) {
         return const Result.error(NotPermitted(Permission.debtsManage));

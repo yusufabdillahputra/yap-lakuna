@@ -210,8 +210,13 @@ abstract class DiningRepository {
   /// Satu porsi item [itemId] ke tamu [guest] (`null` = belum dibagi).
   Future<Result<OpenBill>> assignPortion(UuidValue itemId, String? guest);
 
-  /// *Sudah Terbayar* bagian QRIS menunggu; butuh `payments:confirm`.
-  Future<Result<SplitPayResult>> confirmSplitPayment(UuidValue paymentId);
+  /// *Sudah Terbayar* bagian QRIS menunggu. Staf yang tidak boleh
+  /// konfirmasi langsung mengirim [approverId] yang PIN-nya baru diperiksa
+  /// (F1-05h).
+  Future<Result<SplitPayResult>> confirmSplitPayment(
+    UuidValue paymentId, {
+    UuidValue? approverId,
+  });
 
   /// Membatalkan bagian QRIS yang menunggu.
   Future<Result<OpenBill>> cancelSplitPayment(UuidValue paymentId);
@@ -223,6 +228,7 @@ class SplitBillData {
     required this.bill,
     required this.canPay,
     required this.canConfirm,
+    this.qrisWithoutPin = true,
     this.staffName = '',
     this.businessName = '',
     this.outletName = '',
@@ -246,6 +252,10 @@ class SplitBillData {
   /// `sales:create`: boleh membayar bagian.
   final bool canPay;
 
-  /// `payments:confirm`: boleh menekan *Sudah Terbayar*.
+  /// Boleh menekan *Sudah Terbayar* tanpa PIN manajer
+  /// (`canConfirmQrisDirectly`, F1-05h).
   final bool canConfirm;
+
+  /// Sakelar *Kasir boleh konfirmasi tanpa PIN manajer* cabang (F1-05h).
+  final bool qrisWithoutPin;
 }

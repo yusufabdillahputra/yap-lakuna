@@ -537,6 +537,13 @@ class _MerchantCard extends StatelessWidget {
             enabled: false,
             onChange: (_) {},
           ),
+          FSwitch(
+            key: const ValueKey('qris-without-pin'),
+            label: Text(l10n.qrisSettingsWithoutPin),
+            description: Text(l10n.qrisSettingsWithoutPinHint),
+            value: d.cashierConfirmWithoutPin,
+            onChange: vm.setCashierWithoutPin,
+          ),
         ],
       ),
     );

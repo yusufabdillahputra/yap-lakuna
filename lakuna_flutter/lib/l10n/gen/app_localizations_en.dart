@@ -1238,8 +1238,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qrisPaid => 'Paid';
 
   @override
-  String get qrisNoPermission =>
-      'Requires payment confirmation permission (payments:confirm).';
+  String get qrisNeedsApproval => 'Marking as paid needs a manager PIN.';
 
   @override
   String get splitTitle => 'Split payment';
@@ -1392,6 +1391,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qrisSettingsRequirePaidHint =>
       'Always on for static QRIS; cannot be turned off';
+
+  @override
+  String get qrisSettingsWithoutPin =>
+      'Cashiers may confirm without a manager PIN';
+
+  @override
+  String get qrisSettingsWithoutPinHint =>
+      'When off, cashiers without the Settings permission enter a manager PIN each time they press Paid.';
 
   @override
   String get qrisSettingsSave => 'Save';
@@ -7179,6 +7186,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cashierResumeDiscountDropped =>
       'The saved bill\'s discounts were removed because you don\'t have discount permission.';
+
+  @override
+  String approvalQris(String amount) {
+    return 'Marking QRIS $amount as paid needs a manager PIN. Ask a manager to check the transfer and enter their PIN.';
+  }
+
+  @override
+  String get paymentErrorQrisApproval =>
+      'Marking as paid needs a manager PIN. Press it again and ask a manager to enter their PIN.';
 
   @override
   String get approvalDiscountResumed => 'Discount from a saved bill';

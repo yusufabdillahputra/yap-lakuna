@@ -58,6 +58,7 @@ String paymentErrorMessage(AppLocalizations l10n, Exception error) =>
       CustomerNotFound() => l10n.customerErrNotFound,
       BillCustomerMismatch() => l10n.cashierErrorBillCustomerMismatch,
       ParkedSaleNotFound() => l10n.paymentErrorParked,
+      QrisConfirmNotPermitted() => l10n.paymentErrorQrisApproval,
       NotPermitted(permission: Permission.paymentsConfirm) =>
         l10n.paymentErrorConfirmPermission,
       NotPermitted() => l10n.paymentErrorPermission,

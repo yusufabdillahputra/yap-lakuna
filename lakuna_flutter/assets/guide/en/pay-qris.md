@@ -17,4 +17,10 @@ The owner uploads the QRIS sticker image in **Settings › Payment methods**, fi
 
 > [!warning] Do not tap Paid based only on the customer's screenshot. Make sure the money has really arrived.
 
-If the money has not arrived, tap **Not received** and choose another method or wait a moment. Confirming needs the *Confirm manual payments* permission.
+If the money has not arrived, tap **Not received** and choose another method or wait a moment.
+
+## Manager PIN for Paid
+
+Staff with the *Confirm manual payments* permission tap **Paid** directly. Staff without it can still accept QRIS: after they tap **Paid**, the **Manager approval** dialog opens, and a manager checks the statement and enters their PIN. That manager is recorded as the one who confirmed.
+
+The owner can require a PIN from every cashier by turning off **Cashiers may confirm without a manager PIN** in **Settings › Payment methods**. After that, only staff who also have the *Manage settings* permission (owners and managers) tap Paid directly, and only they can approve. One PIN covers every QRIS part of a payment; adding another QRIS part or switching the payment method asks for the PIN again. Waiting split bill parts on the Tables screen ask for a PIN per part.

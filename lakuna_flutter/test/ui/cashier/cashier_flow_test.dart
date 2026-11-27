@@ -765,22 +765,76 @@ void main() {
     expect(payment.confirmed, isTrue);
   });
 
-  testWidgets('QRIS tanpa izin konfirmasi: Sudah Terbayar mati', (
+  testWidgets('QRIS tanpa izin konfirmasi: PIN manajer (F1-05h)', (
     tester,
   ) async {
-    await pump(
+    final session = FakeSessionRepository()
+      ..current = sampleStaff(name: 'Sari', role: 'cashier');
+    final repo = await pump(
       tester,
       qris: sampleQris(),
       permissions: {Permission.salesCreate},
+      session: session,
     );
     await scan(tester, 'KOP');
     await _tap(tester, 'cashier-pay');
     await _tap(tester, 'payment-method-qris');
-    expect(_key('qris-no-permission'), findsOneWidget);
+    expect(_key('qris-needs-approval'), findsOneWidget);
+
+    // Batal di dialog PIN: tidak ada yang tersimpan.
+    await _tap(tester, 'qris-confirm');
+    expect(_key('approval-dialog'), findsOneWidget);
+    expect(find.textContaining('Rp 2.000'), findsWidgets);
+    Navigator.of(tester.element(_key('approval-dialog'))).pop();
+    await tester.pumpAndSettle();
+    expect(repo.checkouts, isEmpty);
+
+    await _tap(tester, 'qris-confirm');
+    await tester.enterText(_input('approval-pin'), '123456');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'approval-submit');
+    expect(_key('success-title'), findsOneWidget);
+    final yusuf = session.staff.single.id;
+    expect(repo.qrisApprovals, [yusuf]);
     expect(
-      tester.widget<FButton>(_key('qris-confirm')).onPress,
-      isNull,
+      session.approvals.single,
+      (yusuf, '123456', Permission.paymentsConfirm),
     );
+  });
+
+  testWidgets('sakelar PIN mati: kasir minta PIN, kasir lain bukan penyetuju', (
+    tester,
+  ) async {
+    final rina = sampleStaff(name: 'Rina', role: 'manager');
+    final dimas = sampleStaff(name: 'Dimas', role: 'cashier');
+    final session = FakeSessionRepository(staff: [dimas, rina])
+      ..current = sampleStaff(name: 'Sari', role: 'cashier');
+    final repo = FakeCashierRepository(
+      seed: cashierProducts(),
+      qris: sampleQris(),
+      permissions: DefaultRole.cashier.permissions,
+    )..qrisWithoutPin = false;
+    await pumpLakuna(
+      tester,
+      size: const Size(360, 740),
+      initialLocation: Routes.cashier,
+      cashier: repo,
+      session: session,
+    );
+    await scan(tester, 'KOP');
+    await _tap(tester, 'cashier-view-order');
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-qris');
+    expect(_key('qris-needs-approval'), findsOneWidget);
+    await _tap(tester, 'qris-confirm');
+    // Hanya manajer yang ditawarkan sebagai penyetuju.
+    expect(find.text('Rina'), findsWidgets);
+    expect(find.text('Dimas'), findsNothing);
+    await tester.enterText(_input('approval-pin'), '123456');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'approval-submit');
+    expect(_key('success-title'), findsOneWidget);
+    expect(repo.qrisApprovals, [rina.id]);
   });
 
   testWidgets('QRIS nonaktif: pilihan QRIS tidak muncul', (tester) async {
@@ -919,6 +973,45 @@ void main() {
       (PaymentMethod.cash, 5000),
       (PaymentMethod.qrisStatic, 1000),
     ]);
+  });
+
+  testWidgets('split QRIS tanpa izin: PIN manajer sekali (F1-05h)', (
+    tester,
+  ) async {
+    final session = FakeSessionRepository()
+      ..current = sampleStaff(name: 'Sari', role: 'cashier');
+    final repo = await pump(
+      tester,
+      qris: sampleQris(),
+      permissions: {Permission.salesCreate},
+      session: session,
+    );
+    for (var i = 0; i < 2; i++) {
+      await _tap(tester, productKey(repo, 'Kopi Sachet'));
+    }
+    await _tap(tester, 'cashier-pay');
+    await _tap(tester, 'payment-method-split');
+    for (final amount in ['1000', '3000']) {
+      await _tap(tester, 'split-method-qrisStatic');
+      await tester.enterText(_input('split-amount'), amount);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'split-add');
+    }
+    await _tap(tester, 'split-part-0-confirm');
+    expect(find.text('Sudah Terbayar butuh PIN manajer.'), findsOneWidget);
+    await _tap(tester, 'qris-dialog-confirm');
+    expect(_key('approval-dialog'), findsOneWidget);
+    await tester.enterText(_input('approval-pin'), '123456');
+    await tester.pumpAndSettle();
+    await _tap(tester, 'approval-submit');
+    // Bagian kedua tidak meminta PIN lagi.
+    await _tap(tester, 'split-part-1-confirm');
+    await _tap(tester, 'qris-dialog-confirm');
+    expect(_key('approval-dialog'), findsNothing);
+    expect(find.text('Menunggu'), findsNothing);
+    await _tap(tester, 'payment-finish');
+    expect(_key('success-title'), findsOneWidget);
+    expect(repo.qrisApprovals, [session.staff.single.id]);
   });
 
   group('kredit / piutang (1.5b)', () {

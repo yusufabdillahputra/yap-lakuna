@@ -17,4 +17,10 @@ Pemilik mengunggah gambar stiker QRIS di **Pengaturan › Metode pembayaran**, m
 
 > [!warning] Jangan tekan Sudah Terbayar hanya dari tangkapan layar pelanggan. Pastikan dana benar-benar masuk.
 
-Bila dana belum masuk, tekan **Belum masuk** dan pilih metode lain atau tunggu sebentar. Konfirmasi butuh izin *Konfirmasi bayar manual*.
+Bila dana belum masuk, tekan **Belum masuk** dan pilih metode lain atau tunggu sebentar.
+
+## PIN manajer untuk Sudah Terbayar
+
+Staf dengan izin *Konfirmasi bayar manual* menekan **Sudah Terbayar** langsung. Staf tanpa izin itu tetap bisa menerima QRIS: setelah **Sudah Terbayar** ditekan, muncul dialog **Persetujuan manajer**, lalu manajer memeriksa mutasi dan memasukkan PIN-nya. Yang tercatat sebagai pengonfirmasi adalah manajer itu.
+
+Pemilik bisa mewajibkan PIN untuk semua kasir dengan mematikan **Kasir boleh konfirmasi tanpa PIN manajer** di **Pengaturan › Metode pembayaran**. Setelah itu hanya staf yang juga punya izin *Kelola pengaturan* (pemilik dan manajer) yang menekan Sudah Terbayar langsung, dan hanya mereka yang bisa menyetujui. Satu PIN berlaku untuk semua bagian QRIS di satu pembayaran; bila bagian QRIS baru ditambahkan atau metode bayar diganti, PIN diminta lagi. Bagian split bill yang menunggu di layar Meja meminta PIN per bagian.

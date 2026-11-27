@@ -180,7 +180,7 @@ void main() {
   });
 
   test(
-    'QRIS statis aktif ikut termuat; konfirmasi butuh payments:confirm',
+    'QRIS statis aktif ikut termuat; konfirmasi butuh izin atau PIN manajer',
     () async {
       var data = _ok(await repo.load());
       expect(data.qris, isNull);
@@ -220,13 +220,64 @@ void main() {
 
       session.current = staffWithPermissions({Permission.salesCreate});
       expect(_ok(await repo.load()).canConfirmPayments, isFalse);
+      // Tanpa penyetuju: lapisan data menolak (F1-05h).
       expect(
         _err(await repo.checkout(lines: lines, payments: const [qris])),
+        isA<QrisConfirmNotPermitted>(),
+      );
+      // Id penyetuju tanpa PIN yang baru diperiksa ditolak repositori.
+      expect(
+        _err(
+          await repo.checkout(
+            lines: lines,
+            payments: const [qris],
+            qrisApproverId: ctx.owner.id,
+          ),
+        ),
         isA<NotPermitted>().having(
           (e) => e.permission,
           'permission',
           Permission.paymentsConfirm,
         ),
+      );
+
+      // PIN penyetuju baru diperiksa: berhasil, lalu habis (F1-05h).
+      final manager = StaffProfile(
+        id: ctx.owner.id,
+        name: 'Rina',
+        roleKey: 'owner',
+        isOwner: true,
+        hasPin: true,
+        permissions: Permission.values.toSet(),
+      );
+      session
+        ..staff = [manager]
+        ..current = StaffProfile(
+          id: ctx.owner.id,
+          name: 'Ani',
+          roleKey: 'waiter',
+          isOwner: false,
+          hasPin: true,
+          permissions: {Permission.salesCreate},
+        );
+      _ok(
+        await session.verifyApprover(
+          manager.id,
+          '123456',
+          Permission.paymentsConfirm,
+        ),
+      );
+      final approved = _ok(
+        await repo.checkout(
+          lines: lines,
+          payments: const [qris],
+          qrisApproverId: manager.id,
+        ),
+      );
+      expect(approved.payments.single.confirmedBy, manager.id);
+      expect(
+        session.hasApproval(manager.id, Permission.paymentsConfirm),
+        isFalse,
       );
 
       // Staf nyata (FK nota) dengan izin kasir bawaan.

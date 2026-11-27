@@ -7,6 +7,7 @@ import 'cash.dart';
 import 'customers.dart';
 import 'history.dart' show requireApprover, soldStatuses;
 import 'parked_sales.dart' show removeParkedSale;
+import 'payment_settings.dart' show confirmsQris, requireQrisConfirmer;
 import 'sale_core.dart';
 import 'staff_access.dart' show findStaffById;
 import 'stock.dart';
@@ -313,7 +314,9 @@ Future<PricedSale> priceSaleLines(
 /// dalam satu transaksi: nota, item, pembayaran, pergerakan stok, dan
 /// outbox. Butuh sesi kasir terbuka di perangkat ini
 /// ([CashSessionNotOpen]). Harga dihitung ulang dari database. QRIS statis
-/// harus aktif di cabang dan sudah dikonfirmasi; `confirmed_by` = [staffId].
+/// harus aktif di cabang dan sudah dikonfirmasi; `confirmed_by` = staf yang
+/// boleh konfirmasi langsung: [qrisApproverId] atau [staffId]
+/// (`requireQrisConfirmer`, F1-05h).
 ///
 /// Nota kredit (F1-13): [credit] diisi dan [payments] kosong. DP tunai
 /// dicatat sebagai pembayaran tunai; sisanya menjadi piutang pelanggan.
@@ -330,6 +333,7 @@ Future<CheckoutResult> checkoutSale(
   UuidValue? discountApproverId,
   UuidValue? customerId,
   UuidValue? parkedSaleId,
+  UuidValue? qrisApproverId,
 }) async {
   if (lines.isEmpty) throw SaleEmpty();
   for (var i = 0; i < lines.length; i++) {
@@ -346,6 +350,14 @@ Future<CheckoutResult> checkoutSale(
     ];
   }
   checkPaymentRequests(payments);
+  final confirmer = confirmsQris(payments)
+      ? await requireQrisConfirmer(
+          store,
+          scope,
+          staffId: staffId,
+          approverId: qrisApproverId,
+        )
+      : null;
   final discounted = discount != null || lines.any((l) => l.discount != null);
   final approvedBy = discounted
       ? await requireDiscountActor(
@@ -500,6 +512,7 @@ Future<CheckoutResult> checkoutSale(
       scope,
       saleId: sale.id,
       staffId: staffId,
+      confirmerId: confirmer,
       payments: payments,
       amounts: amounts,
       change: change,

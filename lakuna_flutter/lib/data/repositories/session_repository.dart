@@ -86,8 +86,8 @@ abstract class SessionRepository extends ChangeNotifier {
   /// mengisi alasan void.
   static const approvalTtl = Duration(minutes: 2);
 
-  /// Persetujuan diskon manual berlaku untuk satu keranjang: cukup lama
-  /// sampai pembayaran selesai (F1-04b).
+  /// Persetujuan diskon manual (F1-04b) dan *Sudah Terbayar* QRIS (F1-05h)
+  /// berlaku untuk satu keranjang: cukup lama sampai pembayaran selesai.
   static const discountApprovalTtl = Duration(minutes: 30);
 
   /// Jam untuk masa berlaku persetujuan (bisa diganti di tes).
@@ -101,7 +101,9 @@ abstract class SessionRepository extends ChangeNotifier {
   @protected
   void grantApproval(UuidValue staffId, Permission permission) =>
       _approvals[(staffId, permission)] = approvalClock().add(
-        permission == Permission.salesDiscount
+        // QRIS (F1-05h): bagian split dikonfirmasi lalu dibayar belakangan.
+        permission == Permission.salesDiscount ||
+                permission == Permission.paymentsConfirm
             ? discountApprovalTtl
             : approvalTtl,
       );

@@ -1224,8 +1224,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qrisPaid => 'Sudah Terbayar';
 
   @override
-  String get qrisNoPermission =>
-      'Butuh izin konfirmasi pembayaran (payments:confirm).';
+  String get qrisNeedsApproval => 'Sudah Terbayar butuh PIN manajer.';
 
   @override
   String get splitTitle => 'Split payment';
@@ -1376,6 +1375,14 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get qrisSettingsRequirePaidHint =>
       'Selalu aktif untuk QRIS statis; tidak bisa dimatikan';
+
+  @override
+  String get qrisSettingsWithoutPin =>
+      'Kasir boleh konfirmasi tanpa PIN manajer';
+
+  @override
+  String get qrisSettingsWithoutPinHint =>
+      'Bila mati, kasir tanpa izin Pengaturan memasukkan PIN manajer setiap menekan Sudah Terbayar.';
 
   @override
   String get qrisSettingsSave => 'Simpan';
@@ -7029,6 +7036,15 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get cashierResumeDiscountDropped =>
       'Diskon nota tersimpan dilepas karena Anda tidak punya izin diskon.';
+
+  @override
+  String approvalQris(String amount) {
+    return 'Sudah Terbayar QRIS $amount butuh PIN manajer. Minta manajer memeriksa mutasi lalu memasukkan PIN-nya.';
+  }
+
+  @override
+  String get paymentErrorQrisApproval =>
+      'Sudah Terbayar butuh PIN manajer. Tekan lagi lalu minta manajer memasukkan PIN-nya.';
 
   @override
   String get approvalDiscountResumed => 'Diskon dari nota tersimpan';
