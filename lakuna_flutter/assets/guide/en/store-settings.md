@@ -8,7 +8,7 @@
 
 - **Store profile**: the business name. Business type and time zone are shown only.
 - **This branch**: branch name, address, and phone shown in the receipt header. Branch and device codes cannot be changed.
-- **Payment methods**: the [static QRIS](pay-qris) image and details.
+- **Payment methods**: the [static QRIS](pay-qris) image and details, the manager PIN for Paid, and whether phone cashiers show the QRIS image.
 - **Receipt & printer**: see [Receipts & printers](receipt-printer).
 - **Tax & service** (F&B): service charge, PB1, and the *Prices include tax* option.
 - **Sales & stock**: *Allow negative stock*, *Total rounding* (Rp 100 or Rp 500), *Manual discount needs manager PIN*, and *Transfer account* (e.g. `BCA 123-456-7890`, shown on the payment screen and on receipts that still leave a receivable). Have several accounts? Write **one account per line**, up to 3 (e.g. BCA on the first line, Mandiri on the second); each line can be at most 100 characters. **Gross margin target (%)** (optional, 1–99, e.g. `25`) is used by the *Gross margin* card in [Reports → Profit & loss](reports) to show whether the target is met; leave it empty for no target.

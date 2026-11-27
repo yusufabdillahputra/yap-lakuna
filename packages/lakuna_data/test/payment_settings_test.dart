@@ -36,6 +36,16 @@ void main() {
     image: image,
   );
 
+  test('tampilkan di ponsel (F1-18e): tersimpan, bawaan hidup', () async {
+    expect(QrisStaticSettings.fromJson(const {}).showOnPhone, isTrue);
+    expect((await loadQrisConfig(store, scope)).settings.showOnPhone, isTrue);
+    await save(const QrisStaticSettings(showOnPhone: false));
+    final loaded = await loadQrisConfig(store, scope);
+    expect(loaded.settings.showOnPhone, isFalse);
+    expect(loaded.settings.copyWith(showOnPhone: true).showOnPhone, isTrue);
+    expect(loaded.settings.copyWith(nmid: 'A1').showOnPhone, isFalse);
+  });
+
   test('belum diatur: nonaktif tanpa gambar', () async {
     final config = await loadQrisConfig(store, scope);
     expect(config.settings.enabled, isFalse);

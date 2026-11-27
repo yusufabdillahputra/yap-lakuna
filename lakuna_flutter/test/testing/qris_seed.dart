@@ -9,10 +9,11 @@ final Uint8List tinyPortraitPng = base64Decode(
   '/rgAAAAASUVORK5CYII=',
 );
 
-CashierQris sampleQris() => CashierQris(
+CashierQris sampleQris({bool showOnPhone = true}) => CashierQris(
   image: tinyPortraitPng,
   merchantName: 'WARUNG CONTOH',
   nmid: 'ID10234567890',
   terminalCode: 'A01',
   settlementNote: 'Rekening BCA 123-456-7890',
+  showOnPhone: showOnPhone,
 );

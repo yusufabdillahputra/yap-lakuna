@@ -1385,6 +1385,17 @@ class AppLocalizationsId extends AppLocalizations {
       'Bila mati, kasir tanpa izin Pengaturan memasukkan PIN manajer setiap menekan Sudah Terbayar.';
 
   @override
+  String get qrisSettingsShowOnPhone => 'Tampilkan juga di layar mobile kasir';
+
+  @override
+  String get qrisSettingsShowOnPhoneHint =>
+      'Bila mati, kasir di ponsel tidak menampilkan gambar QRIS; pelanggan memindai stiker cetak di toko.';
+
+  @override
+  String get qrisScanSticker =>
+      'Minta pelanggan memindai stiker QRIS yang terpasang di toko.';
+
+  @override
   String get qrisSettingsSave => 'Simpan';
 
   @override

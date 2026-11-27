@@ -68,6 +68,7 @@ class LocalCashierRepository extends CashierRepository {
               nmid: qris.settings.nmid,
               terminalCode: qris.settings.terminalCode,
               settlementNote: qris.settings.settlementNote,
+              showOnPhone: qris.settings.showOnPhone,
             )
           : null,
       canConfirmPayments: canConfirmQrisDirectly(

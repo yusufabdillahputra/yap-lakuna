@@ -30,6 +30,7 @@ class CashierQris {
     this.nmid = '',
     this.terminalCode = '',
     this.settlementNote = '',
+    this.showOnPhone = true,
   });
 
   /// Stiker utuh (PNG/JPG/WebP).
@@ -40,6 +41,10 @@ class CashierQris {
 
   /// *Dana masuk ke*.
   final String settlementNote;
+
+  /// *Tampilkan juga di layar mobile kasir* (F1-18e): mati = layar ponsel
+  /// memakai kotak petunjuk, bukan gambar stiker.
+  final bool showOnPhone;
 }
 
 /// Isi layar kasir: produk yang bisa dijual, kategorinya, dan sesi kasir.

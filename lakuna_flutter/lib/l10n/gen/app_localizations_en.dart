@@ -1401,6 +1401,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'When off, cashiers without the Settings permission enter a manager PIN each time they press Paid.';
 
   @override
+  String get qrisSettingsShowOnPhone =>
+      'Also show on the cashier\'s phone screen';
+
+  @override
+  String get qrisSettingsShowOnPhoneHint =>
+      'When off, the cashier on a phone does not show the QRIS image; customers scan the printed sticker in the store.';
+
+  @override
+  String get qrisScanSticker =>
+      'Ask the customer to scan the QRIS sticker displayed in the store.';
+
+  @override
   String get qrisSettingsSave => 'Save';
 
   @override

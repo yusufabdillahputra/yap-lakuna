@@ -26,6 +26,7 @@ class QrisStaticSettings {
     this.terminalCode = '',
     this.settlementNote = '',
     this.cashierConfirmWithoutPin = true,
+    this.showOnPhone = true,
   });
 
   factory QrisStaticSettings.fromJson(Map<String, Object?> json) {
@@ -40,6 +41,8 @@ class QrisStaticSettings {
       settlementNote: text('settlementNote'),
       // Bawaan hidup: baris lama sebelum F1-05h tidak berubah perilakunya.
       cashierConfirmWithoutPin: json['cashierConfirmWithoutPin'] != false,
+      // Bawaan hidup: baris lama sebelum F1-18e tetap menampilkan gambar.
+      showOnPhone: json['showOnPhone'] != false,
     );
   }
 
@@ -61,6 +64,10 @@ class QrisStaticSettings {
   /// Lihat `canConfirmQrisDirectly`.
   final bool cashierConfirmWithoutPin;
 
+  /// *Tampilkan juga di layar mobile kasir* (F1-18e, bawaan hidup): gambar
+  /// stiker di tata letak ponsel kasir. Mati = kotak petunjuk saja.
+  final bool showOnPhone;
+
   Map<String, Object?> toJson() => {
     'enabled': enabled,
     'mediaId': mediaId?.uuid,
@@ -69,6 +76,7 @@ class QrisStaticSettings {
     'terminalCode': terminalCode,
     'settlementNote': settlementNote,
     'cashierConfirmWithoutPin': cashierConfirmWithoutPin,
+    'showOnPhone': showOnPhone,
   };
 
   QrisStaticSettings copyWith({
@@ -78,6 +86,7 @@ class QrisStaticSettings {
     String? terminalCode,
     String? settlementNote,
     bool? cashierConfirmWithoutPin,
+    bool? showOnPhone,
   }) => QrisStaticSettings(
     enabled: enabled ?? this.enabled,
     mediaId: mediaId,
@@ -87,6 +96,7 @@ class QrisStaticSettings {
     settlementNote: settlementNote ?? this.settlementNote,
     cashierConfirmWithoutPin:
         cashierConfirmWithoutPin ?? this.cashierConfirmWithoutPin,
+    showOnPhone: showOnPhone ?? this.showOnPhone,
   );
 
   QrisStaticSettings _normalized(UuidValue? media) => QrisStaticSettings(
@@ -97,6 +107,7 @@ class QrisStaticSettings {
     terminalCode: terminalCode.trim(),
     settlementNote: settlementNote.trim(),
     cashierConfirmWithoutPin: cashierConfirmWithoutPin,
+    showOnPhone: showOnPhone,
   );
 }
 

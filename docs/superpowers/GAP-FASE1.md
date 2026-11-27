@@ -23,7 +23,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | --- | --- | --- | --- |
 | 1 | Shift: master Shift (1.17b), pilih shift saat buka sesi (1.3), rekap dan laporan per shift | F1-03, F1-09 | v0.137.0 (F1-03g) |
 | 2 | PIN manajer untuk *Sudah Terbayar* QRIS + sakelar *Kasir boleh konfirmasi tanpa PIN manajer* (1.26b) | F1-05, F1-18 | v0.138.0 (F1-05h) |
-| 3 | *Tampilkan juga di layar mobile kasir* (1.26b) | F1-18 | |
+| 3 | *Tampilkan juga di layar mobile kasir* (1.26b) | F1-18 | v0.139.0 (F1-18e) |
 | 4 | Foto stiker QRIS dari kamera (1.26b) | F1-18 | |
 | 5 | Baca NMID dari gambar QRIS (1.26b *QR terbaca*) | F1-18 | |
 | 6 | Kasir tetap terbuka bila pengaturan struk gagal dibaca; galat cetak non-printer tercatat | F1-06 | |

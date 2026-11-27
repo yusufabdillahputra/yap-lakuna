@@ -148,6 +148,91 @@ class _SplitPanelState extends State<SplitPanel> {
       );
     }
 
+    // Ponsel sempit: tombol *Sudah Terbayar* turun ke baris sendiri agar
+    // nama metode dan nominal tidak terhimpit (F1-18e).
+    Widget partRow(int i, SplitPart p, BoxConstraints constraints) {
+      final stacked = constraints.maxWidth < 440;
+      final confirm = FButton(
+        key: ValueKey('split-part-$i-confirm'),
+        size: .sm,
+        mainAxisSize: stacked ? .max : .min,
+        onPress: running ? null : () => _confirm(i),
+        child: Text(l10n.splitConfirm),
+      );
+      final line = Row(
+        spacing: 8,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  paymentMethodLabel(l10n, p.method),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                // Rekening tujuan bagian transfer (F1-05d, F1-05g).
+                if (p.transferAccount.isNotEmpty)
+                  Text(
+                    '${l10n.receiptPaidTo} ${p.transferAccount}',
+                    key: ValueKey('split-part-$i-account'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.xs.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                  ),
+                if (p.reference.isNotEmpty)
+                  Text(
+                    '${p.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef} ${p.reference}',
+                    key: ValueKey('split-part-$i-reference'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.xs.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                  ),
+                badge(p),
+              ],
+            ),
+          ),
+          Text(
+            formatMoney(context, p.amount),
+            style: tabularFigures(
+              theme.typography.body.md.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          if (p.isPending && !stacked) confirm,
+          SizedBox.square(
+            dimension: 36,
+            child: FButton.icon(
+              key: ValueKey('split-part-$i-remove'),
+              variant: .ghost,
+              semanticsLabel: l10n.splitRemove,
+              onPress: running ? null : () => vm.removePart(i),
+              child: const Icon(TablerIcons.trash, size: 16),
+            ),
+          ),
+        ],
+      );
+      if (!p.isPending || !stacked) return line;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          line,
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 6),
+            child: confirm,
+          ),
+        ],
+      );
+    }
+
     Widget row(int i, SplitPart p) => DecoratedBox(
       key: ValueKey('split-part-$i'),
       decoration: BoxDecoration(
@@ -156,72 +241,8 @@ class _SplitPanelState extends State<SplitPanel> {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
-        child: Row(
-          spacing: 8,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Text(
-                    paymentMethodLabel(l10n, p.method),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  // Rekening tujuan bagian transfer (F1-05d, F1-05g).
-                  if (p.transferAccount.isNotEmpty)
-                    Text(
-                      '${l10n.receiptPaidTo} ${p.transferAccount}',
-                      key: ValueKey('split-part-$i-account'),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.typography.body.xs.copyWith(
-                        color: theme.colors.mutedForeground,
-                      ),
-                    ),
-                  if (p.reference.isNotEmpty)
-                    Text(
-                      '${p.method == PaymentMethod.card ? l10n.receiptApproval : l10n.receiptTransferRef} ${p.reference}',
-                      key: ValueKey('split-part-$i-reference'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.typography.body.xs.copyWith(
-                        color: theme.colors.mutedForeground,
-                      ),
-                    ),
-                  badge(p),
-                ],
-              ),
-            ),
-            Text(
-              formatMoney(context, p.amount),
-              style: tabularFigures(
-                theme.typography.body.md.copyWith(fontWeight: FontWeight.w700),
-              ),
-            ),
-            if (p.isPending)
-              FButton(
-                key: ValueKey('split-part-$i-confirm'),
-                size: .sm,
-                mainAxisSize: .min,
-                onPress: running ? null : () => _confirm(i),
-                child: Text(l10n.splitConfirm),
-              ),
-            SizedBox.square(
-              dimension: 36,
-              child: FButton.icon(
-                key: ValueKey('split-part-$i-remove'),
-                variant: .ghost,
-                semanticsLabel: l10n.splitRemove,
-                onPress: running ? null : () => vm.removePart(i),
-                child: const Icon(TablerIcons.trash, size: 16),
-              ),
-            ),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraints) => partRow(i, p, constraints),
         ),
       ),
     );
