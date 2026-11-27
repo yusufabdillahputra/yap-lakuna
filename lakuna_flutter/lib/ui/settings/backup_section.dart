@@ -13,6 +13,7 @@ import '../../data/services/backup_files.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
+import '../products/product_widgets.dart' show ChoicePill;
 import 'backup_view_model.dart';
 import 'settings_card.dart';
 
@@ -142,6 +143,7 @@ class BackupSection extends StatelessWidget {
                       switch (days) {
                         null => l10n.backupLastNever,
                         0 => l10n.backupLastToday,
+                        1 => l10n.backupLastYesterday,
                         final d => l10n.backupLastDays(d),
                       },
                       key: const ValueKey('backup-last'),
@@ -230,7 +232,7 @@ class BackupSection extends StatelessWidget {
   }
 }
 
-/// Backup otomatis harian di desktop (F1-19d).
+/// Backup otomatis di desktop (F1-19d, F1-19e).
 class _AutoBackupCard extends StatelessWidget {
   const _AutoBackupCard({required this.viewModel});
 
@@ -252,14 +254,39 @@ class _AutoBackupCard extends StatelessWidget {
           FSwitch(
             key: const ValueKey('backup-auto'),
             label: Text(l10n.backupAutoSwitch),
-            description: Text(l10n.backupAutoHint(vm.autoFolderPath ?? '')),
+            description: Text(
+              l10n.backupAutoHint(
+                vm.autoFolderPath ?? '',
+                state.everyHours,
+                state.keep,
+              ),
+            ),
             value: state.enabled,
-            onChange: vm.setAuto.running ? null : vm.setAuto.execute,
+            onChange: vm.autoSaving ? null : vm.setAuto.execute,
           ),
+          if (state.enabled) ...[
+            _AutoChoices(
+              id: 'every',
+              label: l10n.backupAutoEvery,
+              choices: autoBackupEveryChoices,
+              selected: state.everyHours,
+              text: l10n.backupAutoEveryHours,
+              onSelect: vm.autoSaving ? null : vm.setAutoEvery.execute,
+            ),
+            _AutoChoices(
+              id: 'keep',
+              label: l10n.backupAutoKeep,
+              choices: autoBackupKeepChoices,
+              selected: state.keep,
+              text: l10n.backupAutoKeepCount,
+              onSelect: vm.autoSaving ? null : vm.setAutoKeep.execute,
+            ),
+          ],
           Text(
             switch (vm.daysSinceAutoBackup) {
               null => l10n.backupAutoLastNever,
               0 => l10n.backupAutoLastToday,
+              1 => l10n.backupAutoLastYesterday,
               final d => l10n.backupAutoLastDays(d),
             },
             key: const ValueKey('backup-auto-last'),
@@ -275,7 +302,7 @@ class _AutoBackupCard extends StatelessWidget {
                 color: theme.colors.destructive,
               ),
             ),
-          if (vm.setAuto.error)
+          if (vm.autoSaveFailed)
             Text(
               l10n.backupAutoSaveFailed,
               key: const ValueKey('backup-auto-error'),
@@ -285,6 +312,64 @@ class _AutoBackupCard extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Pilihan jarak / jumlah simpanan backup otomatis (F1-19e).
+class _AutoChoices extends StatelessWidget {
+  const _AutoChoices({
+    required this.id,
+    required this.label,
+    required this.choices,
+    required this.selected,
+    required this.text,
+    required this.onSelect,
+  });
+
+  final String id;
+  final String label;
+  final List<int> choices;
+  final int selected;
+  final String Function(int) text;
+
+  /// `null` saat pengaturan sedang disimpan.
+  final void Function(int)? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return Column(
+      key: ValueKey('backup-auto-$id'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        Text(
+          label,
+          style: theme.typography.body.sm.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final c in choices)
+              ChoicePill(
+                key: ValueKey('backup-auto-$id-$c'),
+                label: text(c),
+                semanticsLabel: '$label: ${text(c)}',
+                selected: c == selected,
+                onTap: switch (onSelect) {
+                  null => null,
+                  final select => () {
+                    if (c != selected) select(c);
+                  },
+                },
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

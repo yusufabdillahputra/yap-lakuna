@@ -6,7 +6,7 @@ import 'package:lakuna_flutter/data/services/auto_backup.dart';
 
 import '../testing/fake_backup_repository.dart';
 
-/// F1-19d: penjadwal backup otomatis harian.
+/// F1-19d: penjadwal backup otomatis.
 void main() {
   late FakeBackupRepository repo;
   late DateTime now;
@@ -31,6 +31,17 @@ void main() {
     expect(await scheduler.runIfDue(), isFalse);
     expect(repo.autoRuns, hasLength(1));
     now = repo.autoLast!.add(const Duration(hours: 24));
+    repo.now = now;
+    expect(await scheduler.runIfDue(), isTrue);
+    expect(repo.autoRuns, hasLength(2));
+  });
+
+  test('jarak pilihan 6 jam: 5 jam belum, 6 jam jalan (F1-19e)', () async {
+    repo.autoEvery = 6;
+    expect(await scheduler.runIfDue(), isTrue);
+    now = now.add(const Duration(hours: 5, minutes: 59));
+    expect(await scheduler.runIfDue(), isFalse);
+    now = repo.autoLast!.add(const Duration(hours: 6));
     repo.now = now;
     expect(await scheduler.runIfDue(), isTrue);
     expect(repo.autoRuns, hasLength(2));

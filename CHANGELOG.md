@@ -7,6 +7,61 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.156.0] - 2026-11-27
+
+Backup otomatis di komputer kini bisa diatur. Ini gap 19 di daftar rapikan
+Fase 1 (F1-19e, Pengaturan › Data & backup 1.13).
+
+### Ditambahkan
+
+- Saat *Backup otomatis* menyala, kartunya punya pilihan **Setiap** (*6
+  jam*, *12 jam*, *24 jam*) dan **Simpan** (*3*, *7*, *14*, *30* backup
+  terakhir). Bawaan tetap 24 jam dan 7 berkas. Keterangan sakelar
+  mengikuti pilihan, misalnya *Setiap 6 jam … Menyimpan 14 backup
+  terakhir*.
+- Label *Backup terakhir kemarin* dan *Backup otomatis terakhir kemarin*.
+
+### Diubah
+
+- Sakelar *Backup otomatis harian* berganti nama menjadi *Backup
+  otomatis*, karena jaraknya kini bisa kurang dari sehari.
+- *Backup terakhir …* dan *Backup otomatis terakhir …* di Data & backup
+  dihitung menurut tanggal kalender cabang, sama dengan pengingat Beranda.
+  Sebelumnya backup pukul 22.00 masih tertulis *hari ini* keesokan
+  paginya.
+- Pesan gagal simpan kini *Pengaturan backup otomatis gagal disimpan*,
+  karena berlaku untuk sakelar dan kedua pilihan.
+- Panduan *Backup & pulihkan* (ID dan EN) menjelaskan pilihan jadwal dan
+  jumlah simpanan.
+
+### Diperbaiki
+
+- Pulihkan tidak lagi mengembalikan sakelar, jadwal, waktu terakhir, dan
+  tanda gagal backup otomatis ke keadaan saat berkas backup dibuat.
+  Pengaturan itu milik perangkat, jadi nilainya tetap seperti sebelum
+  pulihkan. Kunci yang belum pernah diisi di perangkat kembali ke bawaan.
+  Ini berlaku untuk pulihkan dari Pengaturan dan dari onboarding.
+
+### Catatan teknis
+
+- `AutoBackupState.everyHours` dan `keep`; `setAutoBackupEvery` dan
+  `setAutoBackupKeep` (izin `backup:manage`, nilai di luar pilihan →
+  `AutoBackupChoiceInvalid`); preferensi `backup.autoEvery` dan
+  `backup.autoKeep` (nilai rusak dibaca sebagai bawaan). Penjadwal memakai
+  jarak pilihan, pemangkasan memakai jumlah pilihan.
+- `calendarDaysAgo` di `lakuna_domain` dipakai Data & backup dan Beranda.
+  `BackupOverview.timezone` membawa zona cabang.
+- `lakuna_data`: `deviceBackupPreferenceKeys`, `readDevicePreferences`,
+  `stageRestore(devicePreferences:)` menulis `restore/perangkat.json`,
+  `applyPendingRestore` memindahkannya ke `pulihkan-perangkat.json`, dan
+  `finishRestore` mengembalikan nilainya. Berkas yang rusak atau tak
+  terbaca diabaikan agar pulihkan tetap jalan; `undoRestore` membuang
+  berkas itu. Kunci `backup.auto*` kini konstanta bersama (`autoBackupKey`,
+  …) di `lakuna_data`.
+- `ChoicePill` mendapat `onTap` nullable (nonaktif, redup) dan
+  `semanticsLabel`; pilihan jadwal terbaca *Setiap: 6 jam* oleh pembaca
+  layar.
+
 ## [0.155.0] - 2026-11-27
 
 Gabung meja kini meninggalkan jejak di rincian nota. Ini bagian kedua gap
@@ -8712,7 +8767,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...HEAD
+[0.156.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...v0.156.0
 [0.155.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...v0.155.0
 [0.154.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...v0.154.0
 [0.153.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...v0.153.0

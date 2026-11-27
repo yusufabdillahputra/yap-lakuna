@@ -21,9 +21,38 @@ const _mediaDir = 'media';
 const _restoreDir = 'restore';
 const _readyMarker = 'ready';
 const _restoreDone = 'pulihkan-selesai';
+const _devicePrefsStaged = 'perangkat.json';
+const _devicePrefsDone = 'pulihkan-perangkat.json';
 
 /// Kunci [LocalPreferences]: waktu backup terakhir (ISO UTC).
 const backupLastAtKey = 'backup.last_at';
+
+/// Preferensi milik perangkat yang tidak ikut berkas pulihkan (F1-19e):
+/// sakelar, jadwal, dan status backup otomatis.
+const deviceBackupPreferenceKeys = [
+  autoBackupKey,
+  autoBackupEveryKey,
+  autoBackupKeepKey,
+  autoBackupLastAtKey,
+  autoBackupFailedKey,
+];
+
+/// Kunci [LocalPreferences] backup otomatis (F1-19d/F1-19e). Kunci
+/// `backup.auto*` baru wajib masuk [deviceBackupPreferenceKeys].
+const autoBackupKey = 'backup.auto';
+const autoBackupEveryKey = 'backup.autoEvery';
+const autoBackupKeepKey = 'backup.autoKeep';
+const autoBackupLastAtKey = 'backup.autoLastAt';
+const autoBackupFailedKey = 'backup.autoFailed';
+
+/// Nilai [deviceBackupPreferenceKeys] di [store] (`null` = belum diisi),
+/// untuk dikirim ke [stageRestore].
+Future<Map<String, String?>> readDevicePreferences(LakunaStore store) async {
+  final prefs = LocalPreferences(store.session);
+  return {
+    for (final key in deviceBackupPreferenceKeys) key: await prefs.get(key),
+  };
+}
 
 /// Versi skema (migrasi) yang dikenal aplikasi ini.
 List<String> get lakunaSchemaVersions => MigrationRegistry.versions;
@@ -461,11 +490,14 @@ String _join(String a, String b) => '$a${Platform.pathSeparator}$b';
 /// siap. Database ditulis langsung ke berkas (tidak ditampung di memori)
 /// lalu checksum-nya dicocokkan. Data aktif belum berubah;
 /// [applyPendingRestore] memasangnya setelah database ditutup.
+/// [devicePreferences] (lihat [readDevicePreferences]) dikembalikan
+/// [finishRestore] ke database hasil pulihkan (F1-19e).
 Future<BackupManifest> stageRestore(
   String zipPath, {
   required String dataDir,
   required List<String> knownVersions,
   String? password,
+  Map<String, String?>? devicePreferences,
 }) => _withArchive(zipPath, password, (archive, {required locked}) async {
   final manifest = _validate(archive, knownVersions, locked: locked);
   final target = Directory(_join(dataDir, _restoreDir));
@@ -500,6 +532,10 @@ Future<BackupManifest> stageRestore(
     if (db.lengthSync() != manifest.dbSizeBytes ||
         digest.toString() != manifest.dbSha256) {
       throw const BackupInvalid('checksum');
+    }
+    if (devicePreferences != null) {
+      await File(_join(target.path, _devicePrefsStaged))
+          .writeAsString(jsonEncode(devicePreferences), flush: true);
     }
     await File(_join(target.path, _readyMarker))
         .writeAsString(manifest.createdAt.toIso8601String(), flush: true);
@@ -570,7 +606,12 @@ Future<String?> applyPendingRestore(String dataDir, {DateTime? now}) async {
   if (!media.existsSync()) {
     await _moveIfExists(Directory(_join(staged, _mediaDir)), media.path);
   }
-  // Waktu backup dicatat [finishRestore] setelah database dibuka.
+  // Preferensi perangkat dan waktu backup dicatat [finishRestore] setelah
+  // database dibuka.
+  await _moveIfExists(
+    File(_join(staged, _devicePrefsStaged)),
+    _join(dataDir, _devicePrefsDone),
+  );
   await File(_join(dataDir, _restoreDone)).writeAsString(
     File(_join(staged, _readyMarker)).readAsStringSync(),
     flush: true,
@@ -583,7 +624,12 @@ Future<String?> applyPendingRestore(String dataDir, {DateTime? now}) async {
 /// diisi waktu backup yang dipasang (nilai di dalam backup sendiri lebih
 /// lama dari backup itu).
 Future<void> finishRestore(LakunaStore store) async {
-  final done = File(_join(File(store.path).parent.path, _restoreDone));
+  final dataDir = File(store.path).parent.path;
+  await _restoreDevicePreferences(
+    store,
+    File(_join(dataDir, _devicePrefsDone)),
+  );
+  final done = File(_join(dataDir, _restoreDone));
   if (!done.existsSync()) return;
   final at = DateTime.tryParse(done.readAsStringSync().trim());
   if (at != null) {
@@ -591,6 +637,36 @@ Future<void> finishRestore(LakunaStore store) async {
         .set(backupLastAtKey, at.toUtc().toIso8601String());
   }
   await done.delete();
+}
+
+/// Mengembalikan preferensi perangkat dari [file] (F1-19e): kunci bernilai
+/// `null` dihapus agar kembali ke bawaan. Langkah ini tidak boleh
+/// menggagalkan pulihkan: berkas rusak, tak terbaca, atau galat tulis hanya
+/// membuat preferensi perangkat tidak dikembalikan.
+Future<void> _restoreDevicePreferences(LakunaStore store, File file) async {
+  if (!file.existsSync()) return;
+  try {
+    final decoded = jsonDecode(await file.readAsString());
+    if (decoded is Map<String, Object?>) {
+      final prefs = LocalPreferences(store.session);
+      for (final key in deviceBackupPreferenceKeys) {
+        if (!decoded.containsKey(key)) continue;
+        switch (decoded[key]) {
+          case final String value:
+            await prefs.set(key, value);
+          case null:
+            await prefs.remove(key);
+        }
+      }
+    }
+    // Preferensi tidak penting dibanding data hasil pulihkan.
+    // ignore: avoid_catches_without_on_clauses
+  } catch (_) {}
+  try {
+    await file.delete();
+  } on FileSystemException {
+    // Dicoba lagi saat aplikasi dibuka berikutnya.
+  }
 }
 
 /// Membatalkan pemasangan backup (mis. database backup gagal dibuka):
@@ -628,8 +704,10 @@ Future<String> undoRestore(
     Directory(_join(keepPath, _mediaDir)),
     _join(dataDir, _mediaDir),
   );
-  final done = File(_join(dataDir, _restoreDone));
-  if (done.existsSync()) await done.delete();
+  for (final marker in [_restoreDone, _devicePrefsDone]) {
+    final file = File(_join(dataDir, marker));
+    if (file.existsSync()) await file.delete();
+  }
   final keep = Directory(keepPath);
   if (keep.existsSync() && keep.listSync().isEmpty) await keep.delete();
   return failed.path;

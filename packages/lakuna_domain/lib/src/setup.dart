@@ -31,6 +31,19 @@ DateTime outletLocalTime(DateTime time, String? timezone) {
       : time.toUtc().add(Duration(hours: zone.utcOffsetHours));
 }
 
+/// Selisih tanggal kalender cabang antara [at] dan [now] (0 = hari ini,
+/// 1 = kemarin), bukan kelipatan 24 jam. Tidak pernah negatif (jam
+/// perangkat dimundurkan).
+int calendarDaysAgo(DateTime at, DateTime now, String? timezone) {
+  DateTime day(DateTime t) {
+    final l = outletLocalTime(t, timezone);
+    return DateTime.utc(l.year, l.month, l.day);
+  }
+
+  final days = day(now).difference(day(at)).inDays;
+  return days < 0 ? 0 : days;
+}
+
 /// Field wizard setup, dikelompokkan per langkah.
 enum SetupField {
   businessName,

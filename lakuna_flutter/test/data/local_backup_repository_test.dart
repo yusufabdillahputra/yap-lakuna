@@ -5,7 +5,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart'
-    show StoreAlreadySetUp;
+    show AutoBackupChoiceInvalid, StoreAlreadySetUp;
 import 'package:lakuna_flutter/data/repositories/local_backup_repository.dart';
 import 'package:lakuna_flutter/data/repositories/local_store_repository.dart';
 import 'package:lakuna_flutter/data/repositories/session_repository.dart';
@@ -242,6 +242,70 @@ void main() {
       expect(await repo.lastBackupAt(), isNull);
       _ok(await repo.runAutoBackup(auto));
       expect((await repo.autoBackup()).failed, isFalse);
+    });
+
+    test('jarak dan jumlah simpanan: bawaan, simpan, izin (F1-19e)', () async {
+      var state = await repo.autoBackup();
+      expect((state.everyHours, state.keep), (24, 7));
+      _ok(await repo.setAutoBackupEvery(6));
+      _ok(await repo.setAutoBackupKeep(3));
+      state = await repo.autoBackup();
+      expect((state.everyHours, state.keep), (6, 3));
+      // Nilai di luar pilihan ditolak.
+      expect(
+        _err(await repo.setAutoBackupEvery(5)),
+        isA<AutoBackupChoiceInvalid>(),
+      );
+      expect(
+        _err(await repo.setAutoBackupKeep(0)),
+        isA<AutoBackupChoiceInvalid>(),
+      );
+      // Data rusak dibaca sebagai bawaan.
+      final prefs = LocalPreferences(store.session);
+      await prefs.set('backup.autoEvery', 'x');
+      await prefs.set('backup.autoKeep', '5');
+      state = await repo.autoBackup();
+      expect((state.everyHours, state.keep), (24, 7));
+      session.current = null;
+      expect(_err(await repo.setAutoBackupEvery(12)), isA<NotPermitted>());
+      expect(_err(await repo.setAutoBackupKeep(14)), isA<NotPermitted>());
+    });
+
+    test('pangkas ke jumlah pilihan (F1-19e)', () async {
+      _ok(await repo.setAutoBackupKeep(3));
+      auto.createSync(recursive: true);
+      for (var d = 1; d <= 5; d++) {
+        File(
+          '${auto.path}/lakuna-backup-PST-26110$d-0100.zip',
+        ).writeAsStringSync('lama');
+      }
+      _ok(await repo.runAutoBackup(auto));
+      final names = auto.listSync().map((e) => e.uri.pathSegments.last).toList()
+        ..sort();
+      expect(
+        names,
+        [
+          'lakuna-backup-PST-261104-1630.zip',
+          'lakuna-backup-PST-261105-0100.zip',
+          'lakuna-backup-PST-261104-0100.zip',
+        ]..sort(),
+      );
+    });
+
+    test('siapkan pulihkan membawa preferensi perangkat (F1-19e)', () async {
+      // Berkas backup dibuat saat jarak 12 jam; perangkat lalu diubah ke
+      // 6 jam sebelum pulihkan: yang berlaku tetap nilai perangkat.
+      _ok(await repo.setAutoBackupEvery(12));
+      final created = _ok(await repo.createBackup());
+      _ok(await repo.setAutoBackupEvery(6));
+      _ok(await repo.stageRestore(created.path));
+      await store.close();
+      await applyPendingRestore('${dir.path}/data');
+      store = await LakunaStore.open('${dir.path}/data/lakuna.sqlite');
+      final prefs = LocalPreferences(store.session);
+      expect(await prefs.get('backup.autoEvery'), '12');
+      await finishRestore(store);
+      expect(await prefs.get('backup.autoEvery'), '6');
     });
 
     test('sakelar butuh backup:manage', () async {

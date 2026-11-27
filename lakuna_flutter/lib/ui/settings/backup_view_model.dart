@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' show max;
 
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_domain/lakuna_domain.dart'
-    show BackupPasswordProblem, backupPasswordProblem;
+    show BackupPasswordProblem, backupPasswordProblem, calendarDaysAgo;
 
 import '../../data/repositories/backup_repository.dart';
 import '../../data/services/auto_backup.dart' as auto;
@@ -40,14 +39,30 @@ class BackupViewModel extends ChangeNotifier {
     restore = Command0(_restore)..addListener(notifyListeners);
     unlock = Command0(_unlock)..addListener(notifyListeners);
     setAuto = Command1(_setAuto)..addListener(notifyListeners);
+    setAutoEvery = Command1(_setAutoEvery)..addListener(notifyListeners);
+    setAutoKeep = Command1(_setAutoKeep)..addListener(notifyListeners);
   }
 
-  /// Backup otomatis harian tersedia di perangkat ini (desktop, F1-19d).
+  /// Backup otomatis tersedia di perangkat ini (desktop, F1-19d).
   final bool autoSupported;
   final Future<Directory> Function() _autoFolder;
 
-  /// Menyalakan/mematikan backup otomatis harian.
+  /// Menyalakan/mematikan backup otomatis.
   late final Command1<void, bool> setAuto;
+
+  /// Jarak backup otomatis dalam jam (F1-19e).
+  late final Command1<void, int> setAutoEvery;
+
+  /// Jumlah berkas backup otomatis yang disimpan (F1-19e).
+  late final Command1<void, int> setAutoKeep;
+
+  /// Ada pengaturan backup otomatis yang sedang disimpan.
+  bool get autoSaving =>
+      setAuto.running || setAutoEvery.running || setAutoKeep.running;
+
+  /// Pengaturan backup otomatis terakhir gagal disimpan.
+  bool get autoSaveFailed =>
+      setAuto.error || setAutoEvery.error || setAutoKeep.error;
 
   AutoBackupState? _auto;
   String? _autoFolderPath;
@@ -57,10 +72,10 @@ class BackupViewModel extends ChangeNotifier {
   /// Lokasi folder backup otomatis (untuk keterangan).
   String? get autoFolderPath => _autoFolderPath;
 
-  /// Hari sejak backup otomatis terakhir; `null` bila belum pernah.
-  /// Tidak pernah negatif (jam perangkat dimundurkan).
+  /// Hari kalender cabang sejak backup otomatis terakhir (0 = hari ini,
+  /// 1 = kemarin, F1-19e); `null` bila belum pernah. Tidak pernah negatif.
   int? get daysSinceAutoBackup => switch (_auto?.lastAt) {
-    final t? => max(0, _clock().toUtc().difference(t).inDays),
+    final t? => calendarDaysAgo(t, _clock(), _timezone),
     null => null,
   };
 
@@ -74,8 +89,21 @@ class BackupViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<void>> _setAuto(bool enabled) async {
-    final result = await _repository.setAutoBackup(enabled);
+  Future<Result<void>> _setAuto(bool enabled) =>
+      _saveAuto(() => _repository.setAutoBackup(enabled));
+
+  Future<Result<void>> _setAutoEvery(int hours) =>
+      _saveAuto(() => _repository.setAutoBackupEvery(hours));
+
+  Future<Result<void>> _setAutoKeep(int count) =>
+      _saveAuto(() => _repository.setAutoBackupKeep(count));
+
+  /// Hanya galat simpan terakhir yang tampil: perintah lain dibersihkan.
+  Future<Result<void>> _saveAuto(Future<Result<void>> Function() save) async {
+    for (final c in [setAuto, setAutoEvery, setAutoKeep]) {
+      if (!c.running) c.clearResult();
+    }
+    final result = await save();
     if (result is Ok<void>) _auto = await _repository.autoBackup();
     return result;
   }
@@ -97,6 +125,7 @@ class BackupViewModel extends ChangeNotifier {
 
   BackupStats? _stats;
   DateTime? _lastBackupAt;
+  String? _timezone;
   BackupDelivery? _lastDelivery;
   String? _restorePath;
   BackupManifest? _pendingRestore;
@@ -188,9 +217,10 @@ class BackupViewModel extends ChangeNotifier {
   BackupStats? get stats => _stats;
   DateTime? get lastBackupAt => _lastBackupAt;
 
-  /// Hari sejak backup terakhir; `null` bila belum pernah.
+  /// Hari kalender cabang sejak backup terakhir (0 = hari ini, 1 = kemarin,
+  /// F1-19e); `null` bila belum pernah.
   int? get daysSinceBackup => switch (_lastBackupAt) {
-    final t? => _clock().toUtc().difference(t).inDays,
+    final t? => calendarDaysAgo(t, _clock(), _timezone),
     null => null,
   };
 
@@ -237,6 +267,7 @@ class BackupViewModel extends ChangeNotifier {
     if (result case Ok(:final value)) {
       _stats = value.stats;
       _lastBackupAt = value.lastBackupAt;
+      _timezone = value.timezone;
       if (autoSupported) {
         _auto = await _repository.autoBackup();
         if (_autoFolderPath == null) unawaited(_loadAutoFolder());

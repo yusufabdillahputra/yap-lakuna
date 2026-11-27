@@ -14528,14 +14528,14 @@ abstract class AppLocalizations {
   /// No description provided for @backupAutoSwitch.
   ///
   /// In id, this message translates to:
-  /// **'Backup otomatis harian'**
+  /// **'Backup otomatis'**
   String get backupAutoSwitch;
 
   /// No description provided for @backupAutoHint.
   ///
   /// In id, this message translates to:
-  /// **'Sekali sehari selama aplikasi terbuka, ke {folder}. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.'**
-  String backupAutoHint(String folder);
+  /// **'Setiap {hours} jam selama aplikasi terbuka, ke {folder}. Menyimpan {keep} backup terakhir, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.'**
+  String backupAutoHint(String folder, int hours, int keep);
 
   /// No description provided for @backupAutoLastNever.
   ///
@@ -14564,7 +14564,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupAutoSaveFailed.
   ///
   /// In id, this message translates to:
-  /// **'Sakelar gagal disimpan. Coba lagi.'**
+  /// **'Pengaturan backup otomatis gagal disimpan. Coba lagi.'**
   String get backupAutoSaveFailed;
 
   /// No description provided for @productsArchivedOnBy.
@@ -15374,6 +15374,42 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.'**
   String get reportsDebtCollectionsNote;
+
+  /// No description provided for @backupAutoEvery.
+  ///
+  /// In id, this message translates to:
+  /// **'Setiap'**
+  String get backupAutoEvery;
+
+  /// No description provided for @backupAutoEveryHours.
+  ///
+  /// In id, this message translates to:
+  /// **'{hours} jam'**
+  String backupAutoEveryHours(int hours);
+
+  /// No description provided for @backupAutoKeep.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan'**
+  String get backupAutoKeep;
+
+  /// No description provided for @backupAutoKeepCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} terakhir'**
+  String backupAutoKeepCount(int count);
+
+  /// No description provided for @backupLastYesterday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup terakhir kemarin'**
+  String get backupLastYesterday;
+
+  /// No description provided for @backupAutoLastYesterday.
+  ///
+  /// In id, this message translates to:
+  /// **'Backup otomatis terakhir kemarin'**
+  String get backupAutoLastYesterday;
 }
 
 class _AppLocalizationsDelegate

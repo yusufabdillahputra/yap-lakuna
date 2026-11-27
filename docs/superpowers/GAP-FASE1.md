@@ -39,7 +39,7 @@ pengeluaran/pelanggan/supplier (F1-07q → F1-15c, F1-13e).
 | 16 | Cetak stok hanya di bawah minimum | F1-08b | v0.152.0 (F1-08r) |
 | 17 | Cetak semua tagihan tamu sekaligus | F1-10m | v0.153.0 (F1-10r) |
 | 18 | Siapa yang mengarsipkan produk; jejak gabung meja | F1-07o, F1-10d | v0.154.0 (F1-07s), v0.155.0 (F1-10s) |
-| 19 | Backup otomatis: jam dan jumlah simpanan bisa diatur; *hari ini* menurut kalender; preferensi tidak ikut pulihkan | F1-19d | |
+| 19 | Backup otomatis: jam dan jumlah simpanan bisa diatur; *hari ini* menurut kalender; preferensi tidak ikut pulihkan | F1-19d | v0.156.0 (F1-19e) |
 | 20 | Import: rapatkan spasi ganda nama kategori | F1-07b | |
 | 21 | PDF label / stok dan backup di isolate terpisah | F1-07e, F1-08b, F1-19d | |
 | 22 | Satuan beli bawaan per barang (saran langsung dus) | F1-08j | |

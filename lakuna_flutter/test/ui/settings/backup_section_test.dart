@@ -84,20 +84,50 @@ void main() {
       );
       await tester.ensureVisible(_key('backup-auto-card'));
       await tester.pumpAndSettle();
-      expect(find.text('Backup otomatis harian'), findsOneWidget);
+      final label = find.descendant(
+        of: _key('backup-auto'),
+        matching: find.text('Backup otomatis'),
+      );
+      expect(label, findsOneWidget);
       expect(find.textContaining('Lakuna/Backup/Otomatis'), findsOneWidget);
+      expect(
+        find.textContaining('Setiap 24 jam selama aplikasi terbuka'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Menyimpan 7 backup terakhir'),
+        findsOneWidget,
+      );
       expect(find.textContaining('Backup otomatis terakhir'), findsWidgets);
       expect(_key('backup-auto-failed'), findsOneWidget);
       expect(tester.takeException(), isNull);
-      final label = find.descendant(
-        of: _key('backup-auto'),
-        matching: find.text('Backup otomatis harian'),
+
+      // Jarak dan jumlah simpanan (F1-19e).
+      expect(_key('backup-auto-every'), findsOneWidget);
+      expect(find.text('24 jam'), findsOneWidget);
+      await _tap(tester, 'backup-auto-every-6');
+      expect(backup.autoEvery, 6);
+      expect(
+        find.textContaining('Setiap 6 jam selama aplikasi terbuka'),
+        findsOneWidget,
       );
+      await _tap(tester, 'backup-auto-keep-14');
+      expect(backup.autoKeep, 14);
+      expect(
+        find.textContaining('Menyimpan 14 backup terakhir'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+
+      await tester.ensureVisible(label);
+      await tester.pumpAndSettle();
       await tester.tap(label);
       await tester.pumpAndSettle();
       expect(backup.autoEnabled, isFalse);
-      // Sakelar mati: pesan gagal lama tidak lagi relevan.
+      // Sakelar mati: pesan gagal lama dan pilihan jadwal disembunyikan.
       expect(_key('backup-auto-failed'), findsNothing);
+      expect(_key('backup-auto-every'), findsNothing);
+      expect(_key('backup-auto-keep'), findsNothing);
     });
   }
 

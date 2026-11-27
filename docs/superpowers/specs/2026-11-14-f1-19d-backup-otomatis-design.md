@@ -101,8 +101,8 @@ jadi selalu ada titik pulih tanpa langkah dari pemilik.
 | Backup otomatis harian desktop | 1.13 | Rilis v0.75.0 | — |
 | Backup otomatis di ponsel | — | Belum | Butuh folder pilihan pengguna (SAF Android / Files iOS). |
 | Backup otomatis terkunci | — | Belum | Butuh penyimpanan kata sandi aman (keychain/keystore). |
-| Jam dan jumlah simpanan bisa diatur | — | Belum | Tetap 24 jam dan 7 berkas. |
+| Jam dan jumlah simpanan bisa diatur | — | Rilis v0.156.0 | [F1-19e](2026-11-27-f1-19e-atur-backup-otomatis-design.md): setiap 6/12/24 jam, simpan 3/7/14/30. |
 | Backup di isolate terpisah | — | Belum | Zip dibuat di isolate UI (sama dengan *Backup sekarang*); database besar bisa membuat layar tersendat sesaat sekali sehari. |
-| Preferensi ikut pulihkan | — | Belum | `backup.auto*` tersimpan di database, jadi status sakelar dan gagal ikut kembali ke keadaan berkas yang dipulihkan. |
-| "Hari ini" menurut kalender | — | Belum | *Terakhir hari ini* berarti kurang dari 24 jam lalu. |
+| Preferensi ikut pulihkan | — | Rilis v0.156.0 | [F1-19e](2026-11-27-f1-19e-atur-backup-otomatis-design.md): `backup.auto*` perangkat dikembalikan setelah pulihkan. |
+| "Hari ini" menurut kalender | — | Rilis v0.156.0 | [F1-19e](2026-11-27-f1-19e-atur-backup-otomatis-design.md): tanggal kalender cabang, ditambah *kemarin*. |
 | Salin ke flashdisk / folder awan (Google Drive desktop) | — | Belum | Pemilik bisa mengarahkan folder sinkron awan ke `Dokumen/Lakuna/Backup`. |

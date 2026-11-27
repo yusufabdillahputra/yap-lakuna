@@ -15,10 +15,10 @@ Future<Directory> autoBackupDirectory() async =>
 bool get autoBackupSupported =>
     Platform.isLinux || Platform.isWindows || Platform.isMacOS;
 
-/// Menjalankan backup otomatis harian (F1-19d): pemeriksaan pertama
-/// [firstCheck] setelah [start], lalu setiap [period]; backup dibuat bila
-/// sakelar menyala dan backup otomatis terakhir ≥ [autoBackupInterval]
-/// lalu (atau belum pernah).
+/// Menjalankan backup otomatis (F1-19d): pemeriksaan pertama [firstCheck]
+/// setelah [start], lalu setiap [period]; backup dibuat bila sakelar
+/// menyala dan backup otomatis terakhir sudah lewat jarak pilihan
+/// (`AutoBackupState.everyHours`, F1-19e) atau belum pernah.
 class AutoBackupScheduler {
   AutoBackupScheduler({
     required this._repository,
@@ -79,7 +79,7 @@ class AutoBackupScheduler {
       // jatuh tempo agar backup tidak berhenti berhari-hari.
       if (last != null &&
           !last.isAfter(now) &&
-          now.difference(last) < autoBackupInterval) {
+          now.difference(last) < Duration(hours: state.everyHours)) {
         return false;
       }
       final result = await _repository.runAutoBackup(await _folder());

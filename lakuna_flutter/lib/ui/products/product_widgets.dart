@@ -236,11 +236,17 @@ class ChoicePill extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.dot,
+    this.semanticsLabel,
   });
 
   final String label;
   final bool selected;
-  final VoidCallback onTap;
+
+  /// `null` = nonaktif (tampil redup, tidak bisa ditekan).
+  final VoidCallback? onTap;
+
+  /// Label pembaca layar bila berbeda dari [label] (mis. dengan nama grup).
+  final String? semanticsLabel;
 
   /// Titik warna di depan label (warna kategori, F1-09).
   final Color? dot;
@@ -257,9 +263,9 @@ class ChoicePill extends StatelessWidget {
             : theme.colors.secondaryForeground,
       ),
     );
-    return FTappable(
+    final pill = FTappable(
       onPress: onTap,
-      semanticsLabel: label,
+      semanticsLabel: semanticsLabel ?? label,
       selected: selected,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -282,6 +288,7 @@ class ChoicePill extends StatelessWidget {
         ),
       ),
     );
+    return onTap == null ? Opacity(opacity: 0.5, child: pill) : pill;
   }
 }
 

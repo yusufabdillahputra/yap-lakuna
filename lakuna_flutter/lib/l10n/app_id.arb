@@ -5473,15 +5473,21 @@
   "@backupAutoTitle": {
     "placeholders": {}
   },
-  "backupAutoSwitch": "Backup otomatis harian",
+  "backupAutoSwitch": "Backup otomatis",
   "@backupAutoSwitch": {
     "placeholders": {}
   },
-  "backupAutoHint": "Sekali sehari selama aplikasi terbuka, ke {folder}. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.",
+  "backupAutoHint": "Setiap {hours} jam selama aplikasi terbuka, ke {folder}. Menyimpan {keep} backup terakhir, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.",
   "@backupAutoHint": {
     "placeholders": {
       "folder": {
         "type": "String"
+      },
+      "hours": {
+        "type": "int"
+      },
+      "keep": {
+        "type": "int"
       }
     }
   },
@@ -5505,7 +5511,7 @@
   "@backupAutoFailed": {
     "placeholders": {}
   },
-  "backupAutoSaveFailed": "Sakelar gagal disimpan. Coba lagi.",
+  "backupAutoSaveFailed": "Pengaturan backup otomatis gagal disimpan. Coba lagi.",
   "@backupAutoSaveFailed": {
     "placeholders": {}
   },
@@ -6033,5 +6039,37 @@
   "reportsShiftExportLine": "{shift}: {count} sesi, penjualan {sales}, selisih {difference}",
   "@reportsShiftExportLine": {"placeholders": {"shift": {"type": "String"}, "count": {"type": "int"}, "sales": {"type": "String"}, "difference": {"type": "String"}}},
   "reportsDebtCollections": "Pelunasan piutang",
-  "reportsDebtCollectionsNote": "Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung."
+  "reportsDebtCollectionsNote": "Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.",
+  "backupAutoEvery": "Setiap",
+  "@backupAutoEvery": {
+    "placeholders": {}
+  },
+  "backupAutoEveryHours": "{hours} jam",
+  "@backupAutoEveryHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "backupAutoKeep": "Simpan",
+  "@backupAutoKeep": {
+    "placeholders": {}
+  },
+  "backupAutoKeepCount": "{count} terakhir",
+  "@backupAutoKeepCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupLastYesterday": "Backup terakhir kemarin",
+  "@backupLastYesterday": {
+    "placeholders": {}
+  },
+  "backupAutoLastYesterday": "Backup otomatis terakhir kemarin",
+  "@backupAutoLastYesterday": {
+    "placeholders": {}
+  }
 }

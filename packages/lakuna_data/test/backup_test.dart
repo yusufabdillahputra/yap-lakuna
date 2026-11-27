@@ -295,6 +295,81 @@ void main() {
     }
   });
 
+  test(
+    'pulihkan: preferensi backup otomatis perangkat tetap (F1-19e)',
+    () async {
+      // Berkas backup membawa preferensi perangkat asalnya.
+      final prefs = LocalPreferences(store.session);
+      await prefs.set('backup.auto', 'off');
+      await prefs.set('backup.autoKeep', '30');
+      await prefs.set('backup.autoFailed', '1');
+      final (path, _) = await backup();
+
+      final (other, otherDir) = await openTempStore();
+      try {
+        await setupTestStore(other, outletCode: 'BRU', email: 'lain@contoh.id');
+        final device = LocalPreferences(other.session);
+        await device.set('backup.auto', 'on');
+        await device.set('backup.autoEvery', '6');
+        await device.set('backup.autoLastAt', '2026-11-26T15:00:00.000Z');
+        final kept = await readDevicePreferences(other);
+        expect(kept, {
+          'backup.auto': 'on',
+          'backup.autoEvery': '6',
+          'backup.autoKeep': null,
+          'backup.autoLastAt': '2026-11-26T15:00:00.000Z',
+          'backup.autoFailed': null,
+        });
+        await stageRestore(
+          path,
+          dataDir: otherDir.path,
+          knownVersions: versions,
+          devicePreferences: kept,
+        );
+        await other.close();
+        await applyPendingRestore(otherDir.path);
+
+        final restored = await LakunaStore.open(
+          '${otherDir.path}/lakuna.sqlite',
+        );
+        try {
+          await finishRestore(restored);
+          expect(await readDevicePreferences(restored), kept);
+          // Preferensi lain tetap dari berkas backup.
+          expect(
+            await LocalPreferences(restored.session).get(backupLastAtKey),
+            isNotNull,
+          );
+          expect(
+            File('${otherDir.path}/pulihkan-perangkat.json').existsSync(),
+            isFalse,
+          );
+        } finally {
+          await restored.close();
+        }
+      } finally {
+        await otherDir.delete(recursive: true);
+      }
+    },
+  );
+
+  test('berkas preferensi perangkat rusak diabaikan (F1-19e)', () async {
+    final prefs = LocalPreferences(store.session);
+    await prefs.set('backup.auto', 'off');
+    final file = File('${dir.path}/pulihkan-perangkat.json');
+    for (final bytes in [
+      [0xff, 0xfe, 0x00, 0xc3],
+      utf8.encode('bukan json'),
+      utf8.encode('["backup.auto"]'),
+      utf8.encode('{"backup.auto": 3}'),
+    ]) {
+      file.writeAsBytesSync(bytes);
+      await finishRestore(store);
+      expect(file.existsSync(), isFalse);
+      expect(await prefs.get('backup.auto'), 'off');
+    }
+  });
+
   group('pemasangan tahan crash', () {
     late Directory target;
     late String path;
@@ -354,6 +429,8 @@ void main() {
         target.path,
         now: DateTime.utc(2026, 11, 5, 1, 2),
       );
+      // Preferensi perangkat (F1-19e) tidak tertinggal untuk data lama.
+      File('${target.path}/pulihkan-perangkat.json').writeAsStringSync('{}');
       final failed = await undoRestore(
         target.path,
         keep!,
@@ -364,6 +441,10 @@ void main() {
       expect(File('${target.path}/media/lama.png').existsSync(), isTrue);
       expect(File('$failed/lakuna.sqlite').existsSync(), isTrue);
       expect(Directory(keep).existsSync(), isFalse);
+      expect(
+        File('${target.path}/pulihkan-perangkat.json').existsSync(),
+        isFalse,
+      );
     });
   });
 

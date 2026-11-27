@@ -14,7 +14,13 @@ export 'package:lakuna_data/lakuna_data.dart'
         BackupWrongPassword;
 
 /// Ringkasan layar *Data & backup* (1.13).
-typedef BackupOverview = ({BackupStats stats, DateTime? lastBackupAt});
+typedef BackupOverview = ({
+  BackupStats stats,
+  DateTime? lastBackupAt,
+
+  /// Zona waktu cabang untuk tanggal kalender (F1-19e).
+  String? timezone,
+});
 
 /// Berkas backup yang baru dibuat di folder sementara.
 typedef CreatedBackup = ({
@@ -26,9 +32,9 @@ typedef CreatedBackup = ({
   bool locked,
 });
 
-/// Status backup otomatis harian di perangkat ini (F1-19d).
+/// Status backup otomatis di perangkat ini (F1-19d, F1-19e).
 typedef AutoBackupState = ({
-  /// Sakelar *Backup otomatis harian* (bawaan menyala).
+  /// Sakelar *Backup otomatis* (bawaan menyala).
   bool enabled,
 
   /// Backup otomatis terakhir yang berhasil.
@@ -36,13 +42,25 @@ typedef AutoBackupState = ({
 
   /// Percobaan terakhir gagal (dicoba lagi pada pemeriksaan berikutnya).
   bool failed,
+
+  /// Jarak antar backup otomatis dalam jam (F1-19e).
+  int everyHours,
+
+  /// Jumlah berkas yang disimpan di folder *Otomatis* (F1-19e).
+  int keep,
 });
 
-/// Berapa berkas backup otomatis yang disimpan di folder *Otomatis*.
-const autoBackupKeep = 7;
+/// Pilihan jarak backup otomatis (jam, F1-19e).
+const autoBackupEveryChoices = [6, 12, 24];
 
-/// Jarak minimum antar backup otomatis.
-const autoBackupInterval = Duration(hours: 24);
+/// Jarak bawaan antar backup otomatis (jam).
+const autoBackupDefaultEvery = 24;
+
+/// Pilihan jumlah berkas backup otomatis yang disimpan (F1-19e).
+const autoBackupKeepChoices = [3, 7, 14, 30];
+
+/// Jumlah bawaan berkas backup otomatis yang disimpan.
+const autoBackupKeep = 7;
 
 /// Backup & pulihkan data perangkat (F1-19). Semua aksi butuh
 /// `backup:manage`, kecuali backup otomatis yang dijalankan sistem.
@@ -66,9 +84,17 @@ abstract class BackupRepository {
   /// Menyalakan/mematikan backup otomatis di perangkat ini.
   Future<Result<void>> setAutoBackup(bool enabled);
 
+  /// Jarak backup otomatis; [hours] salah satu [autoBackupEveryChoices]
+  /// (selain itu [AutoBackupChoiceInvalid]).
+  Future<Result<void>> setAutoBackupEvery(int hours);
+
+  /// Jumlah berkas yang disimpan; [count] salah satu
+  /// [autoBackupKeepChoices] (selain itu [AutoBackupChoiceInvalid]).
+  Future<Result<void>> setAutoBackupKeep(int count);
+
   /// Membuat backup otomatis ke [folder] (tanpa staf; toko harus siap),
-  /// lalu menyisakan [autoBackupKeep] berkas terbaru. Mengembalikan lokasi
-  /// berkas.
+  /// lalu menyisakan berkas terbaru sebanyak [AutoBackupState.keep].
+  /// Mengembalikan lokasi berkas.
   Future<Result<String>> runAutoBackup(Directory folder);
 
   /// Memeriksa berkas backup tanpa mengubah data. Backup terkunci tanpa
@@ -103,6 +129,17 @@ class StoreAlreadySetUp implements Exception {
 
   @override
   String toString() => 'StoreAlreadySetUp';
+}
+
+/// Nilai jarak / jumlah simpanan backup otomatis bukan salah satu
+/// pilihan (F1-19e).
+class AutoBackupChoiceInvalid implements Exception {
+  const AutoBackupChoiceInvalid(this.value);
+
+  final int value;
+
+  @override
+  String toString() => 'AutoBackupChoiceInvalid($value)';
 }
 
 /// Backup otomatis gagal karena galat yang bukan [Exception] (F1-19d).
