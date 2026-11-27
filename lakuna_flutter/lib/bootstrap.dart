@@ -193,7 +193,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
     appVersion: appVersion,
   );
   const backupFiles = PlatformBackupFiles();
-  // Backup otomatis harian di desktop (F1-19d).
+  // Backup otomatis di desktop (F1-19d, F1-19e).
   final autoBackup = autoBackupSupported
       ? (AutoBackupScheduler(
           repository: backupRepository,

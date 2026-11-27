@@ -8352,11 +8352,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get backupAutoTitle => 'Backup otomatis';
 
   @override
-  String get backupAutoSwitch => 'Backup otomatis harian';
+  String get backupAutoSwitch => 'Backup otomatis';
 
   @override
-  String backupAutoHint(String folder) {
-    return 'Sekali sehari selama aplikasi terbuka, ke $folder. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.';
+  String backupAutoHint(String folder, int hours, int keep) {
+    return 'Setiap $hours jam selama aplikasi terbuka, ke $folder. Menyimpan $keep backup terakhir, yang lebih lama dihapus. Backup otomatis tidak dikunci kata sandi; bila folder Dokumen disinkronkan ke awan (mis. OneDrive), salinannya ikut tersimpan di sana.';
   }
 
   @override
@@ -8375,7 +8375,8 @@ class AppLocalizationsId extends AppLocalizations {
       'Backup otomatis terakhir gagal. Dicoba lagi tiap jam; pastikan disk tidak penuh dan folder bisa ditulis.';
 
   @override
-  String get backupAutoSaveFailed => 'Sakelar gagal disimpan. Coba lagi.';
+  String get backupAutoSaveFailed =>
+      'Pengaturan backup otomatis gagal disimpan. Coba lagi.';
 
   @override
   String productsArchivedOnBy(String date, String name) {
@@ -8912,4 +8913,26 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get reportsDebtCollectionsNote =>
       'Pembayaran piutang pelanggan menurut tanggal bayar, di luar penjualan di atas. Pembayaran yang dibatalkan tidak dihitung.';
+
+  @override
+  String get backupAutoEvery => 'Setiap';
+
+  @override
+  String backupAutoEveryHours(int hours) {
+    return '$hours jam';
+  }
+
+  @override
+  String get backupAutoKeep => 'Simpan';
+
+  @override
+  String backupAutoKeepCount(int count) {
+    return '$count terakhir';
+  }
+
+  @override
+  String get backupLastYesterday => 'Backup terakhir kemarin';
+
+  @override
+  String get backupAutoLastYesterday => 'Backup otomatis terakhir kemarin';
 }

@@ -8589,11 +8589,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupAutoTitle => 'Automatic backup';
 
   @override
-  String get backupAutoSwitch => 'Daily automatic backup';
+  String get backupAutoSwitch => 'Automatic backup';
 
   @override
-  String backupAutoHint(String folder) {
-    return 'Once a day while the app is open, to $folder. The last seven backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.';
+  String backupAutoHint(String folder, int hours, int keep) {
+    return 'Every $hours hours while the app is open, to $folder. The last $keep backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.';
   }
 
   @override
@@ -8618,7 +8618,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'The last automatic backup failed. It is retried every hour; make sure the disk is not full and the folder is writable.';
 
   @override
-  String get backupAutoSaveFailed => 'Could not save the switch. Try again.';
+  String get backupAutoSaveFailed =>
+      'Could not save the automatic backup settings. Try again.';
 
   @override
   String productsArchivedOnBy(String date, String name) {
@@ -9192,4 +9193,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reportsDebtCollectionsNote =>
       'Customer receivable payments by payment date, not included in the sales above. Voided payments are not counted.';
+
+  @override
+  String get backupAutoEvery => 'Every';
+
+  @override
+  String backupAutoEveryHours(int hours) {
+    return '$hours hours';
+  }
+
+  @override
+  String get backupAutoKeep => 'Keep';
+
+  @override
+  String backupAutoKeepCount(int count) {
+    return 'Last $count';
+  }
+
+  @override
+  String get backupLastYesterday => 'Last backup yesterday';
+
+  @override
+  String get backupAutoLastYesterday => 'Last automatic backup yesterday';
 }

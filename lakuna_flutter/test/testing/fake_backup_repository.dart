@@ -75,7 +75,7 @@ class FakeBackupRepository implements BackupRepository {
 
   @override
   Future<Result<BackupOverview>> load() async =>
-      _r(() => (stats: stats, lastBackupAt: last));
+      _r(() => (stats: stats, lastBackupAt: last, timezone: timezone));
 
   @override
   Future<Result<CreatedBackup>> createBackup({String? password}) async =>
@@ -102,6 +102,11 @@ class FakeBackupRepository implements BackupRepository {
   bool autoEnabled = true;
   DateTime? autoLast;
   bool autoFailed = false;
+  int autoEvery = 24;
+  int autoKeep = 7;
+
+  /// Zona waktu cabang di [load] (F1-19e).
+  String? timezone = 'Asia/Jakarta';
 
   /// Folder tiap [runAutoBackup].
   final autoRuns = <String>[];
@@ -116,12 +121,29 @@ class FakeBackupRepository implements BackupRepository {
   Object? nextAutoThrow;
 
   @override
-  Future<AutoBackupState> autoBackup() async =>
-      (enabled: autoEnabled, lastAt: autoLast, failed: autoFailed);
+  Future<AutoBackupState> autoBackup() async => (
+    enabled: autoEnabled,
+    lastAt: autoLast,
+    failed: autoFailed,
+    everyHours: autoEvery,
+    keep: autoKeep,
+  );
 
   @override
   Future<Result<void>> setAutoBackup(bool enabled) async =>
       _r(() => autoEnabled = enabled);
+
+  @override
+  Future<Result<void>> setAutoBackupEvery(int hours) async =>
+      autoBackupEveryChoices.contains(hours)
+      ? _r(() => autoEvery = hours)
+      : Result.error(AutoBackupChoiceInvalid(hours));
+
+  @override
+  Future<Result<void>> setAutoBackupKeep(int count) async =>
+      autoBackupKeepChoices.contains(count)
+      ? _r(() => autoKeep = count)
+      : Result.error(AutoBackupChoiceInvalid(count));
 
   @override
   Future<Result<String>> runAutoBackup(Directory folder) async {

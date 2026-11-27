@@ -69,6 +69,42 @@ void main() {
       expect(desk.daysSinceAutoBackup, 0);
     });
 
+    test('hari menurut tanggal cabang: kurang dari 24 jam = kemarin '
+        '(F1-19e)', () async {
+      // 23.00 WIB 3 Nov; sekarang 16.00 WIB 4 Nov.
+      repo
+        ..autoLast = DateTime.utc(2026, 11, 3, 16)
+        ..last = DateTime.utc(2026, 11, 3, 16);
+      final desk = make(supported: true);
+      await desk.load.execute();
+      expect(desk.daysSinceAutoBackup, 1);
+      expect(desk.daysSinceBackup, 1);
+      // Zona lain (WIT): 3 Nov 16.00 UTC sudah 4 Nov 01.00.
+      repo.timezone = 'Asia/Jayapura';
+      await desk.load.execute();
+      expect(desk.daysSinceAutoBackup, 0);
+      expect(desk.daysSinceBackup, 0);
+    });
+
+    test('jarak dan jumlah simpanan (F1-19e)', () async {
+      final desk = make(supported: true);
+      await desk.load.execute();
+      expect((desk.autoBackup!.everyHours, desk.autoBackup!.keep), (24, 7));
+      await desk.setAutoEvery.execute(6);
+      await desk.setAutoKeep.execute(30);
+      expect((repo.autoEvery, repo.autoKeep), (6, 30));
+      expect((desk.autoBackup!.everyHours, desk.autoBackup!.keep), (6, 30));
+      // Gagal simpan: pesan tampil; simpan berikutnya yang berhasil
+      // membersihkannya.
+      repo.nextError = const NotPermittedStub();
+      await desk.setAutoKeep.execute(3);
+      expect(desk.autoSaveFailed, isTrue);
+      expect(desk.autoBackup!.keep, 30);
+      await desk.setAutoEvery.execute(12);
+      expect(desk.autoSaveFailed, isFalse);
+      expect(desk.autoBackup!.everyHours, 12);
+    });
+
     test('ponsel: tidak dimuat', () async {
       final phone = make(supported: false);
       await phone.load.execute();

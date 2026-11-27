@@ -144,14 +144,11 @@ class HomeViewModel extends ChangeNotifier {
     final at = _lastBackupAt;
     if (at == null) return null;
     final ctx = _store.current;
-    final tz = ctx?.outlet.timezone ?? ctx?.tenant.timezone;
-    DateTime day(DateTime t) {
-      final l = outletLocalTime(t, tz);
-      return DateTime.utc(l.year, l.month, l.day);
-    }
-
-    final days = day(_clock()).difference(day(at)).inDays;
-    return days < 0 ? 0 : days;
+    return calendarDaysAgo(
+      at,
+      _clock(),
+      ctx?.outlet.timezone ?? ctx?.tenant.timezone,
+    );
   }
 
   bool get backupOverdue =>

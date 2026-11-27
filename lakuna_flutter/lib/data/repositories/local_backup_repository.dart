@@ -49,6 +49,7 @@ class LocalBackupRepository implements BackupRepository {
     (ctx) async => (
       stats: await backupStats(_store, ctx),
       lastBackupAt: await lastBackupAt(),
+      timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
     ),
   );
 
@@ -83,9 +84,19 @@ class LocalBackupRepository implements BackupRepository {
     return now;
   });
 
-  static const _autoKey = 'backup.auto';
-  static const _autoLastKey = 'backup.autoLastAt';
-  static const _autoFailedKey = 'backup.autoFailed';
+  // Kunci bersama dengan `lakuna_data` agar ikut dijaga saat pulihkan
+  // (`deviceBackupPreferenceKeys`, F1-19e).
+  static const _autoKey = autoBackupKey;
+  static const _autoLastKey = autoBackupLastAtKey;
+  static const _autoFailedKey = autoBackupFailedKey;
+  static const _autoEveryKey = autoBackupEveryKey;
+  static const _autoKeepKey = autoBackupKeepKey;
+
+  /// Pilihan tersimpan; nilai rusak atau di luar [choices] → [fallback].
+  Future<int> _choice(String key, List<int> choices, int fallback) async {
+    final value = int.tryParse(await _preferences.get(key) ?? '');
+    return choices.contains(value) ? value! : fallback;
+  }
 
   @override
   Future<AutoBackupState> autoBackup() async {
@@ -94,12 +105,32 @@ class LocalBackupRepository implements BackupRepository {
       enabled: await _preferences.get(_autoKey) != 'off',
       lastAt: raw == null ? null : DateTime.tryParse(raw)?.toUtc(),
       failed: await _preferences.get(_autoFailedKey) == '1',
+      everyHours: await _choice(
+        _autoEveryKey,
+        autoBackupEveryChoices,
+        autoBackupDefaultEvery,
+      ),
+      keep: await _choice(_autoKeepKey, autoBackupKeepChoices, autoBackupKeep),
     );
   }
 
   @override
   Future<Result<void>> setAutoBackup(bool enabled) =>
       _guard((_) => _preferences.set(_autoKey, enabled ? 'on' : 'off'));
+
+  @override
+  Future<Result<void>> setAutoBackupEvery(int hours) =>
+      _setChoice(_autoEveryKey, hours, autoBackupEveryChoices);
+
+  @override
+  Future<Result<void>> setAutoBackupKeep(int count) =>
+      _setChoice(_autoKeepKey, count, autoBackupKeepChoices);
+
+  Future<Result<void>> _setChoice(String key, int value, List<int> choices) =>
+      _guard((_) async {
+        if (!choices.contains(value)) throw AutoBackupChoiceInvalid(value);
+        await _preferences.set(key, '$value');
+      });
 
   @override
   Future<Result<String>> runAutoBackup(Directory folder) async {
@@ -130,7 +161,7 @@ class LocalBackupRepository implements BackupRepository {
       await part.rename(target);
       part = null;
       await temp.delete(recursive: true);
-      await _pruneAuto(folder);
+      await _pruneAuto(folder, (await autoBackup()).keep);
       final at = now.toUtc().toIso8601String();
       await _preferences.set(_autoLastKey, at);
       await _preferences.set(backupLastAtKey, at);
@@ -163,17 +194,17 @@ class LocalBackupRepository implements BackupRepository {
     r'^lakuna-backup-.+-(\d{6}-\d{4}(?:-\d+)?)\.zip$',
   );
 
-  /// Menyisakan [autoBackupKeep] berkas `lakuna-backup-*.zip` terbaru.
-  /// Diurutkan menurut cap waktu di akhir nama (bukan nama penuh): kode
-  /// cabang bisa berubah dan tidak boleh mendahului waktu.
-  Future<void> _pruneAuto(Directory folder) async {
+  /// Menyisakan [keep] berkas `lakuna-backup-*.zip` terbaru. Diurutkan
+  /// menurut cap waktu di akhir nama (bukan nama penuh): kode cabang bisa
+  /// berubah dan tidak boleh mendahului waktu.
+  Future<void> _pruneAuto(Directory folder, int keep) async {
     final files = <(String, File)>[
       for (final e in folder.listSync())
         if (e is File)
           if (_autoName.firstMatch(p.basename(e.path)) case final m?)
             (m.group(1)!, e),
     ]..sort((a, b) => b.$1.compareTo(a.$1));
-    for (final (_, old) in files.skip(autoBackupKeep)) {
+    for (final (_, old) in files.skip(keep)) {
       await old.delete();
     }
   }
@@ -213,12 +244,15 @@ class LocalBackupRepository implements BackupRepository {
         password: password,
       );
 
-  Future<BackupManifest> _stage(String path, String? password) =>
+  /// Preferensi backup otomatis perangkat ikut disiapkan agar tidak
+  /// tertimpa isi berkas (F1-19e).
+  Future<BackupManifest> _stage(String path, String? password) async =>
       data.stageRestore(
         path,
         dataDir: _dataDir,
         knownVersions: lakunaSchemaVersions,
         password: password,
+        devicePreferences: await readDevicePreferences(_store),
       );
 
   /// Onboarding belum punya staf; satu-satunya syarat adalah belum ada toko,

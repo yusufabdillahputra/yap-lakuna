@@ -4919,15 +4919,21 @@
   "@backupAutoTitle": {
     "placeholders": {}
   },
-  "backupAutoSwitch": "Daily automatic backup",
+  "backupAutoSwitch": "Automatic backup",
   "@backupAutoSwitch": {
     "placeholders": {}
   },
-  "backupAutoHint": "Once a day while the app is open, to {folder}. The last seven backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.",
+  "backupAutoHint": "Every {hours} hours while the app is open, to {folder}. The last {keep} backups are kept and older ones are deleted. Automatic backups are not password-locked; if your Documents folder syncs to the cloud (e.g. OneDrive), copies are stored there too.",
   "@backupAutoHint": {
     "placeholders": {
       "folder": {
         "type": "String"
+      },
+      "hours": {
+        "type": "int"
+      },
+      "keep": {
+        "type": "int"
       }
     }
   },
@@ -4951,7 +4957,7 @@
   "@backupAutoFailed": {
     "placeholders": {}
   },
-  "backupAutoSaveFailed": "Could not save the switch. Try again.",
+  "backupAutoSaveFailed": "Could not save the automatic backup settings. Try again.",
   "@backupAutoSaveFailed": {
     "placeholders": {}
   },
@@ -5458,5 +5464,37 @@
   "reportsShiftNone": "No shift",
   "reportsShiftExportLine": "{shift}: {count, plural, =1{1 session} other{{count} sessions}}, sales {sales}, difference {difference}",
   "reportsDebtCollections": "Receivable payments",
-  "reportsDebtCollectionsNote": "Customer receivable payments by payment date, not included in the sales above. Voided payments are not counted."
+  "reportsDebtCollectionsNote": "Customer receivable payments by payment date, not included in the sales above. Voided payments are not counted.",
+  "backupAutoEvery": "Every",
+  "@backupAutoEvery": {
+    "placeholders": {}
+  },
+  "backupAutoEveryHours": "{hours} hours",
+  "@backupAutoEveryHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "backupAutoKeep": "Keep",
+  "@backupAutoKeep": {
+    "placeholders": {}
+  },
+  "backupAutoKeepCount": "Last {count}",
+  "@backupAutoKeepCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupLastYesterday": "Last backup yesterday",
+  "@backupLastYesterday": {
+    "placeholders": {}
+  },
+  "backupAutoLastYesterday": "Last automatic backup yesterday",
+  "@backupAutoLastYesterday": {
+    "placeholders": {}
+  }
 }

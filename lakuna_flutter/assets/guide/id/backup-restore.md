@@ -14,13 +14,13 @@ File backup berisi database dan semua gambar. Simpan di tempat aman karena isiny
 
 > [!note] Beranda mengingatkan bila backup terakhir lebih dari 7 hari lalu atau belum pernah backup.
 
-## Backup otomatis harian (komputer)
+## Backup otomatis (komputer)
 
-Di Windows, Linux, dan macOS, Lakuna membuat backup sendiri sekali sehari selama aplikasi terbuka, jadi data tetap aman walau Anda lupa menekan **Backup sekarang**.
+Di Windows, Linux, dan macOS, Lakuna membuat backup sendiri secara berkala selama aplikasi terbuka (bawaan sekali sehari), jadi data tetap aman walau Anda lupa menekan **Backup sekarang**.
 
-- File disimpan di *Dokumen › Lakuna › Backup › Otomatis*. Tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup manual di folder *Backup* tidak pernah dihapus.
-- Pemeriksaan pertama dua menit setelah aplikasi dibuka, lalu setiap jam. Backup dibuat bila backup otomatis terakhir lebih dari 24 jam lalu, juga saat layar PIN terbuka.
-- **Pengaturan › Data & backup** menampilkan sakelar **Backup otomatis harian** (bawaan menyala), lokasi folder, dan kapan backup otomatis terakhir. Bila gagal (mis. disk penuh), tampil peringatan dan aplikasi mencoba lagi tiap jam.
+- File disimpan di *Dokumen › Lakuna › Backup › Otomatis*. Bawaannya tujuh backup terakhir disimpan, yang lebih lama dihapus. Backup manual di folder *Backup* tidak pernah dihapus.
+- Pemeriksaan pertama dua menit setelah aplikasi dibuka, lalu setiap jam. Backup dibuat bila backup otomatis terakhir sudah lewat jarak yang dipilih (bawaan 24 jam), juga saat layar PIN terbuka.
+- **Pengaturan › Data & backup** menampilkan sakelar **Backup otomatis** (bawaan menyala), lokasi folder, dan kapan backup otomatis terakhir (*hari ini*, *kemarin*, atau *n hari lalu* menurut tanggal kalender). Saat sakelar menyala, pilih **Setiap** *6 jam*, *12 jam*, atau *24 jam*, dan **Simpan** *3*, *7*, *14*, atau *30* backup terakhir. Menurunkan jumlah simpanan baru menghapus berkas lama pada backup otomatis berikutnya. Bila gagal (mis. disk penuh), tampil peringatan dan aplikasi mencoba lagi tiap jam.
 - Backup otomatis juga menghitung sebagai backup terakhir, jadi pengingat di Beranda tidak muncul selama backup otomatis berjalan.
 
 > [!note] Backup otomatis tidak dikunci kata sandi. Bila folder Dokumen disinkronkan ke awan (mis. OneDrive atau iCloud Drive), salinannya ikut tersimpan di akun awan Anda. Matikan sakelar bila tidak diinginkan, lalu pakai **Backup sekarang** dengan kunci kata sandi.
@@ -41,7 +41,7 @@ Saat memulihkan backup terkunci, aplikasi meminta kata sandinya dulu sebelum men
 
 ## Memulihkan dari backup
 
-1. Buka **Pengaturan › Data & backup**, lalu tekan **Pulihkan** dan pilih file .zip (backup otomatis ada di folder *Backup › Otomatis*).
+1. Buka **Pengaturan › Data & backup**, lalu tekan **Pulihkan** dan pilih file .zip (backup otomatis ada di folder *Backup › Otomatis*). Pengaturan backup otomatis perangkat ini (sakelar, jadwal, jumlah simpanan) tidak ikut berubah oleh isi file yang dipulihkan.
 2. Bila backup terkunci, isi kata sandinya lalu tekan **Buka**.
 3. Periksa ringkasan backup: toko, cabang, perangkat, tanggal, jumlah transaksi dan produk.
 4. Ketik nama toko persis seperti yang diminta, lalu tekan **Pulihkan & muat ulang**.

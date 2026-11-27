@@ -14,13 +14,13 @@ The backup file holds the database and all images. Keep it somewhere safe becaus
 
 > [!note] Home reminds you when the last backup is more than 7 days old or there has never been one.
 
-## Daily automatic backup (computer)
+## Automatic backup (computer)
 
-On Windows, Linux, and macOS, Lakuna makes its own backup once a day while the app is open, so your data stays safe even if you forget to tap **Back up now**.
+On Windows, Linux, and macOS, Lakuna makes its own backups regularly while the app is open (once a day by default), so your data stays safe even if you forget to tap **Back up now**.
 
-- Files are saved to *Documents › Lakuna › Backup › Otomatis*. The last seven backups are kept and older ones are deleted. Manual backups in the *Backup* folder are never deleted.
-- The first check runs two minutes after the app opens, then every hour. A backup is made when the last automatic backup is more than 24 hours old, also while the PIN screen is open.
-- **Settings › Data & backup** shows the **Daily automatic backup** switch (on by default), the folder location, and when the last automatic backup ran. If it fails (for example, the disk is full), a warning appears and the app retries every hour.
+- Files are saved to *Documents › Lakuna › Backup › Otomatis*. By default the last seven backups are kept and older ones are deleted. Manual backups in the *Backup* folder are never deleted.
+- The first check runs two minutes after the app opens, then every hour. A backup is made when the chosen interval (24 hours by default) has passed since the last automatic backup, also while the PIN screen is open.
+- **Settings › Data & backup** shows the **Automatic backup** switch (on by default), the folder location, and when the last automatic backup ran (*today*, *yesterday*, or *n days ago* by calendar date). While the switch is on, choose **Every** *6 hours*, *12 hours*, or *24 hours*, and **Keep** the *last 3*, *7*, *14*, or *30* backups. Lowering the number only deletes old files at the next automatic backup. If it fails (for example, the disk is full), a warning appears and the app retries every hour.
 - An automatic backup also counts as the last backup, so the Home reminder does not appear while automatic backups are running.
 
 > [!note] Automatic backups are not password-locked. If your Documents folder syncs to the cloud (for example OneDrive or iCloud Drive), copies are stored in your cloud account too. Turn the switch off if you do not want that, and use **Back up now** with a password lock.
@@ -41,7 +41,7 @@ When restoring a locked backup, the app asks for its password before showing the
 
 ## Restoring from a backup
 
-1. Open **Settings › Data & backup**, tap **Restore**, and choose the .zip file (automatic backups are in the *Backup › Otomatis* folder).
+1. Open **Settings › Data & backup**, tap **Restore**, and choose the .zip file (automatic backups are in the *Backup › Otomatis* folder). This device's automatic backup settings (switch, interval, number kept) are not changed by the restored file.
 2. If the backup is locked, enter its password and tap **Unlock**.
 3. Check the backup summary: store, branch, device, date, number of sales and products.
 4. Type the store name exactly as asked, then tap **Restore & reload**.
