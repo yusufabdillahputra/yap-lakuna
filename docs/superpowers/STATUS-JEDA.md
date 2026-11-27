@@ -131,7 +131,8 @@ ulang riwayat.
 | v0.147.0 | Umur piutang/hutang per pelanggan dan supplier (F1-16g) | #153 |
 | v0.148.0 | Pelunasan piutang per metode dan rekening di Laporan (F1-16h) | #154 |
 | v0.149.0 | Cari Riwayat: nama grup modifier, kata tanpa spasi, garis miring Unicode (F1-11j) | #155 |
-| v0.150.0 | Sorot kata kunci di barang cocok Riwayat (F1-11k) | |
+| v0.150.0 | Sorot kata kunci di barang cocok Riwayat (F1-11k) | #156 |
+| v0.151.0 | Tambahan harga per modifier di rincian nota Riwayat (F1-11l) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -408,6 +409,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
 93. ~~Barang cocok di Riwayat ditulis tanpa penanda kata kunci~~ — selesai
     v0.150.0 (F1-11k); bagian yang cocok disorot, termasuk `5 kg` untuk
     `5kg`.
+94. ~~Rincian nota Riwayat tidak menulis tambahan harga modifier~~ —
+    selesai v0.151.0 (F1-11l); `+ Extra Shot +Rp 5.000`, angka sama dengan struk.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

@@ -48,4 +48,4 @@ Botol* dengan modifier berbeda saat meretur.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Modifier di rincian nota Riwayat | — | Rilis v0.118.0 | Diuji manual (Linux). |
-| Tambahan harga per modifier di rincian | — | Belum | Harga satuan sudah termasuk; struk cetak merincinya. |
+| Tambahan harga per modifier di rincian | — | Rilis v0.151.0 | [F1-11l](2026-11-27-f1-11l-harga-modifier-di-rincian-design.md) |

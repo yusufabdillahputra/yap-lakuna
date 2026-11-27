@@ -11,6 +11,7 @@ import '../../utils/result.dart';
 import '../core/approval_dialog.dart';
 import '../core/drawer_shortfall_note.dart';
 import '../core/format.dart';
+import '../master/modifier_groups_tab.dart' show modifierDeltaLabel;
 import '../products/product_widgets.dart';
 import '../receipt/printer_labels.dart';
 import '../receipt/receipt_content.dart';
@@ -299,12 +300,14 @@ class _Items extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          // Modifier pesanan F&B, bisa dicari (F1-11h);
-                          // tambahan harganya sudah di harga satuan.
+                          // Modifier pesanan F&B, bisa dicari (F1-11h),
+                          // dengan tambahan harga dari salinan nota (angka
+                          // struk, format sheet modifier; F1-11l). Harga
+                          // satuan di bawah sudah termasuk tambahan itu.
                           if (detail.receipt.modifiersOf(item) case final mods
                               when mods.isNotEmpty)
                             Text(
-                              '+ ${mods.map((m) => m.name).join(', ')}',
+                              _modifierLine(context, mods),
                               style: _muted(context),
                             ),
                           Text(
@@ -857,4 +860,21 @@ class _ReprintDialog extends StatelessWidget {
       },
     );
   }
+}
+
+/// `+ Extra Shot +Rp 5.000, Boba` (F1-11h/l): nama modifier dan tambahan
+/// harganya (angka sama dengan struk, format seperti sheet modifier);
+/// modifier Rp 0 ditulis namanya saja. Nama dan tambahannya disambung
+/// spasi tak putus agar tidak terpisah saat dibungkus.
+String _modifierLine(BuildContext context, List<SaleItemModifier> mods) {
+  final parts = <String>[];
+  for (final m in mods) {
+    final delta = modifierDeltaLabel(context, Money(m.priceDelta));
+    parts.add(
+      delta.isEmpty
+          ? m.name
+          : '${m.name}\u00A0${delta.replaceAll(' ', '\u00A0')}',
+    );
+  }
+  return '+ ${parts.join(', ')}';
 }

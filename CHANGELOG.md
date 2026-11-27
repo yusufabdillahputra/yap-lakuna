@@ -7,6 +7,35 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.151.0] - 2026-11-27
+
+Rincian nota di Riwayat kini menulis tambahan harga tiap modifier. Ini gap
+kelima belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Diubah
+
+- **Riwayat › rincian nota** (1.14): baris modifier di bawah nama barang
+  menulis tambahan harganya (angka sama dengan struk cetak, format seperti
+  sheet modifier): `+ Extra Shot +Rp 5.000, Boba +Rp 4.000, Reguler`. Kasir bisa menjawab
+  "kenapa kopinya Rp 28.000?" tanpa mencetak ulang struk.
+  - Modifier tanpa tambahan ditulis namanya saja; potongan ditulis
+    `-Rp 1.000`.
+  - Harga dari salinan di nota, jadi perubahan harga opsi di master tidak
+    mengubah nota lama.
+  - Baris jumlah × harga tetap memakai harga satuan termasuk modifier.
+- Panduan *Retur & void* (ID dan EN) memakai contoh dengan tambahan harga.
+
+### Catatan teknis
+
+- `history_detail.dart`: `_modifierLine` memakai `modifierDeltaLabel`
+  (format yang sama dengan sheet modifier dan master modifier).
+- `FakeHistoryRepository.addSale(modifierDeltas:)` untuk tes; baris barang
+  palsu ikut menyimpan `modifierDelta` seperti data asli.
+- Temuan review: kalimat "sama dengan struk" diperjelas (angka sama,
+  format seperti sheet modifier), spasi tak putus antara nama dan
+  tambahannya, dan tes jumlah × harga termasuk modifier.
+- Tanpa perubahan data, skema, atau kunci l10n.
+
 ## [0.150.0] - 2026-11-27
 
 Barang yang cocok di hasil cari Riwayat kini menandai kata kuncinya. Ini
@@ -8534,7 +8563,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...HEAD
+[0.151.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.150.0...v0.151.0
 [0.150.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.149.0...v0.150.0
 [0.149.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.148.0...v0.149.0
 [0.148.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.147.0...v0.148.0
