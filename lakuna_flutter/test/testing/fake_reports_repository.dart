@@ -51,8 +51,28 @@ class FakeReportsRepository extends ReportsRepository {
   /// Sesi Sari di shift Pagi, Budi tanpa shift; tabel *Per shift*
   /// (F1-03g).
   bool withShifts = false;
-  final today = DateTime.utc(2026, 11, 4);
+  DateTime today = DateTime.utc(2026, 11, 4);
   final requests = <ReportPeriod>[];
+
+  /// Periode yang diingat (F1-16f).
+  ReportPeriod? saved;
+  final savedHistory = <ReportPeriod>[];
+
+  /// Bila diisi, [savedPeriod] menunggu ini alih-alih [saved].
+  Future<ReportPeriod?>? savedRead;
+
+  @override
+  Future<ReportPeriod?> savedPeriod() => savedRead ?? Future.value(saved);
+
+  /// Bila diisi, [savePeriod] gagal dengan galat ini.
+  Object? saveError;
+
+  @override
+  Future<void> savePeriod(ReportPeriod period) async {
+    if (saveError case final e?) throw e;
+    saved = period;
+    savedHistory.add(period);
+  }
 
   /// Muatan periode ini ditahan sampai completer-nya selesai.
   final holds = <ReportPeriod, Completer<void>>{};

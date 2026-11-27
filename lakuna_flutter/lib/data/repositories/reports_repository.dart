@@ -23,6 +23,13 @@ abstract class ReportsRepository {
   /// Tab Retur.
   Future<Result<ReturnsReport>> loadReturns(ReportPeriod period);
 
+  /// Periode Laporan terakhir di perangkat ini untuk cabang ini (F1-16f);
+  /// `null` bila belum ada, rusak, atau gagal dibaca.
+  Future<ReportPeriod?> savedPeriod();
+
+  /// Mengingat [period]; galat diabaikan (laporan tetap jalan).
+  Future<void> savePeriod(ReportPeriod period);
+
   /// Rekap sesi kasir tertutup [sessionId] untuk cetak ulang (F1-03e).
   /// Gagal dengan [NotPermitted] atau `CashSessionNotClosed`.
   Future<Result<ClosedSessionRecap>> loadSessionRecap(UuidValue sessionId);

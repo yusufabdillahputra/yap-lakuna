@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:test/test.dart';
 
@@ -177,6 +179,95 @@ void main() {
       expect(
         reportRangeError(d(2025, 11, 14), today, today),
         ReportRangeError.tooLong,
+      );
+    });
+  });
+
+  group('periode diingat (F1-16f)', () {
+    final today = DateTime.utc(2026, 11, 27);
+
+    test('JSON bolak-balik untuk semua jenis periode', () {
+      for (final p in [
+        ReportPeriod.today,
+        ReportPeriod.last7Days,
+        ReportPeriod.thisMonth,
+        const ReportPeriod.month(2026, 10),
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1),
+          DateTime.utc(2026, 11, 15),
+        ),
+      ]) {
+        expect(ReportPeriod.fromJson(jsonDecode(jsonEncode(p.toJson()))), p);
+      }
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1),
+          DateTime.utc(2026, 11, 15),
+        ).toJson(),
+        {'kind': 'custom', 'from': '2026-11-01', 'to': '2026-11-15'},
+      );
+      expect(const ReportPeriod.month(2026, 3).toJson(), {
+        'kind': 'month',
+        'year': 2026,
+        'month': 3,
+      });
+    });
+
+    test('data rusak dibaca null', () {
+      for (final bad in <Object?>[
+        null,
+        'today',
+        <String, Object?>{},
+        {'kind': 'kemarin'},
+        {'kind': 'month', 'year': 2026},
+        {'kind': 'month', 'year': 2026, 'month': 13},
+        {'kind': 'month', 'year': '2026', 'month': 3},
+        {'kind': 'custom', 'from': '2026-11-01'},
+        {'kind': 'custom', 'from': '2026-11-01', 'to': 'besok'},
+        {'kind': 'custom', 'from': '2026-02-30', 'to': '2026-03-01'},
+        {'kind': 3},
+      ]) {
+        expect(ReportPeriod.fromJson(bad), isNull, reason: '$bad');
+      }
+    });
+
+    test('restorable: bulan di daftar pilihan, rentang lolos validasi', () {
+      expect(ReportPeriod.today.restorable(today), isTrue);
+      expect(ReportPeriod.thisMonth.restorable(today), isTrue);
+      // 12 bulan sebelumnya ada di daftar, ke-13 tidak.
+      expect(const ReportPeriod.month(2025, 11).restorable(today), isTrue);
+      expect(const ReportPeriod.month(2025, 10).restorable(today), isFalse);
+      // Bulan berjalan diwakili *Bulan ini*.
+      expect(const ReportPeriod.month(2026, 11).restorable(today), isFalse);
+      expect(const ReportPeriod.month(2026, 12).restorable(today), isFalse);
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1),
+          DateTime.utc(2026, 11, 27),
+        ).restorable(today),
+        isTrue,
+      );
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 1),
+          DateTime.utc(2026, 11, 28),
+        ).restorable(today),
+        isFalse,
+      );
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2025, 11, 1),
+          DateTime.utc(2026, 11, 2),
+        ).restorable(today),
+        isFalse,
+      );
+      // Rentang terbalik (data disunting tangan) juga ditolak.
+      expect(
+        ReportPeriod.custom(
+          DateTime.utc(2026, 11, 10),
+          DateTime.utc(2026, 11, 1),
+        ).restorable(today),
+        isFalse,
       );
     });
   });

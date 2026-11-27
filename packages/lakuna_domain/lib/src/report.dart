@@ -108,6 +108,72 @@ class ReportPeriod {
     }(),
   };
 
+  /// JSON untuk mengingat periode di perangkat (F1-16f).
+  Map<String, Object> toJson() => switch (kind) {
+    ReportPeriodKind.month => {
+      'kind': kind.name,
+      'year': year,
+      'month': monthOfYear,
+    },
+    ReportPeriodKind.custom => {
+      'kind': kind.name,
+      'from': _iso(_from!),
+      'to': _iso(_to!),
+    },
+    _ => {'kind': kind.name},
+  };
+
+  /// Kebalikan [toJson]; `null` bila data rusak (F1-16f).
+  static ReportPeriod? fromJson(Object? json) {
+    if (json is! Map) return null;
+    return switch (json['kind']) {
+      'today' => today,
+      'last7Days' => last7Days,
+      'thisMonth' => thisMonth,
+      'month' => switch ((json['year'], json['month'])) {
+        (final int y, final int m) when m >= 1 && m <= 12 => ReportPeriod.month(
+          y,
+          m,
+        ),
+        _ => null,
+      },
+      'custom' => switch ((_parseIso(json['from']), _parseIso(json['to']))) {
+        (final DateTime from, final DateTime to) => ReportPeriod.custom(
+          from,
+          to,
+        ),
+        _ => null,
+      },
+      _ => null,
+    };
+  }
+
+  /// Periode tersimpan masih boleh dipakai pada [today] (F1-16f): bulan
+  /// harus ada di [reportPeriodChoices], rentang lolos [reportRangeError].
+  bool restorable(DateTime today) => switch (kind) {
+    ReportPeriodKind.month => reportPeriodChoices(today).contains(this),
+    ReportPeriodKind.custom => reportRangeError(_from!, _to!, today) == null,
+    _ => true,
+  };
+
+  static String _iso(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+
+  static DateTime? _parseIso(Object? text) {
+    if (text is! String) return null;
+    final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(text);
+    if (m == null) return null;
+    final d = DateTime.utc(
+      int.parse(m[1]!),
+      int.parse(m[2]!),
+      int.parse(m[3]!),
+    );
+    // Tanggal tidak ada (mis. 30 Februari) bergeser saat dibuat: tolak.
+    return _iso(d) == text ? d : null;
+  }
+
   @override
   bool operator ==(Object other) =>
       other is ReportPeriod &&

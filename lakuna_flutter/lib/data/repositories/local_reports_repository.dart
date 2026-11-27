@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'reports_repository.dart';
 import 'session_repository.dart';
@@ -13,13 +16,48 @@ class LocalReportsRepository extends ReportsRepository {
     this._store, {
     required this._stores,
     required this._session,
+    required this._preferences,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
   final LakunaStore _store;
   final StoreRepository _stores;
   final SessionRepository _session;
+  final LocalPreferences _preferences;
   final DateTime Function() _clock;
+
+  /// Kunci preferensi periode per cabang (F1-16f).
+  String? _periodKey() {
+    final ctx = _stores.current;
+    if (ctx == null) return null;
+    return 'reports.period.${ctx.tenant.id.uuid}.${ctx.outlet.id.uuid}';
+  }
+
+  @override
+  Future<ReportPeriod?> savedPeriod() async {
+    final key = _periodKey();
+    if (key == null) return null;
+    try {
+      final text = await _preferences.get(key);
+      return text == null ? null : ReportPeriod.fromJson(jsonDecode(text));
+    } on Object catch (e, st) {
+      if (e is! FormatException) {
+        logError('Periode laporan gagal dibaca', e, st);
+      }
+      return null;
+    }
+  }
+
+  @override
+  Future<void> savePeriod(ReportPeriod period) async {
+    final key = _periodKey();
+    if (key == null) return;
+    try {
+      await _preferences.set(key, jsonEncode(period.toJson()));
+    } on Object catch (e, st) {
+      logError('Periode laporan gagal disimpan', e, st);
+    }
+  }
 
   @override
   Future<Result<ReportData>> load(ReportPeriod period) => _run(

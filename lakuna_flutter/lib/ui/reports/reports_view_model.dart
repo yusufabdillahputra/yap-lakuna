@@ -7,6 +7,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import '../../data/repositories/reports_repository.dart';
 import '../../data/services/spreadsheet_exporter.dart';
 import '../../utils/command.dart';
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 
 /// Tab layar Laporan (F1-16).
@@ -73,6 +74,11 @@ class ReportsViewModel extends ChangeNotifier {
   String? _exportPath;
   var _loadToken = 0;
 
+  // Periode tersimpan dibaca sekali, di muat pertama (F1-16f).
+  var _restored = false;
+  var _restoring = false;
+  var _periodPicks = 0;
+
   // Data tab lanjutan: satu tab + periode terakhir yang dimuat.
   Object? _extra;
   (ReportTab, ReportPeriod?)? _extraKey;
@@ -126,13 +132,15 @@ class ReportsViewModel extends ChangeNotifier {
       (!_tab.isExtra || (_extraKey == _keyOf(_tab) && _extra != null));
 
   /// Pilihan periode relatif ke hari ini di cabang.
-  /// Rentang bebas yang aktif ikut setelah *Bulan ini* agar tampil
-  /// terpilih (F1-16b).
+  /// Periode aktif yang tidak ada di daftar ikut setelah *Bulan ini* agar
+  /// tampil terpilih: rentang bebas (F1-16b), atau bulan yang dipulihkan
+  /// dengan tanggal perangkat tetapi di luar daftar tanggal cabang
+  /// (F1-16f).
   List<ReportPeriod> get periods {
     final choices = reportPeriodChoices(today);
     return [
       ...choices.take(3),
-      if (_period.kind == ReportPeriodKind.custom) _period,
+      if (!choices.contains(_period)) _period,
       ...choices.skip(3),
     ];
   }
@@ -146,8 +154,15 @@ class ReportsViewModel extends ChangeNotifier {
       }();
 
   Future<void> setPeriod(ReportPeriod period) async {
-    if (period == _period) return;
+    // Dihitung juga bila sama: pilihan staf mengalahkan periode tersimpan
+    // yang masih dibaca (F1-16f).
+    _periodPicks++;
+    if (period == _period) {
+      if (_restoring) _savePeriod(period);
+      return;
+    }
     _period = period;
+    _savePeriod(period);
     export.clearResult();
     notifyListeners();
     await Future.wait([
@@ -156,6 +171,12 @@ class ReportsViewModel extends ChangeNotifier {
       if (_tab != ReportTab.debts) _fetchExtra(),
     ]);
   }
+
+  void _savePeriod(ReportPeriod period) => unawaited(
+    _repository.savePeriod(period).catchError((Object e, StackTrace st) {
+      logError('Periode laporan gagal disimpan', e, st);
+    }),
+  );
 
   void setTab(ReportTab tab) {
     if (tab == _tab || !tabs.contains(tab)) return;
@@ -173,6 +194,25 @@ class ReportsViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _load() async {
+    if (!_restored) {
+      _restored = true;
+      final picks = _periodPicks;
+      _restoring = true;
+      ReportPeriod? saved;
+      try {
+        saved = await _repository.savedPeriod();
+      } on Object catch (e, st) {
+        logError('Periode laporan gagal dibaca', e, st);
+      } finally {
+        _restoring = false;
+      }
+      // Periode yang dipilih selama membaca menang.
+      if (picks != _periodPicks) return const Result.ok(null);
+      if (saved != null && saved != _period && saved.restorable(today)) {
+        _period = saved;
+        notifyListeners();
+      }
+    }
     final results = await Future.wait([_fetch(), _fetchExtra()]);
     return results.first;
   }
