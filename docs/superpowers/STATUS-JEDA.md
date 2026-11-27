@@ -134,7 +134,8 @@ ulang riwayat.
 | v0.150.0 | Sorot kata kunci di barang cocok Riwayat (F1-11k) | #156 |
 | v0.151.0 | Tambahan harga per modifier di rincian nota Riwayat (F1-11l) | #157 |
 | v0.152.0 | Cetak stok di bawah minimum (F1-08r) | #158 |
-| v0.153.0 | Cetak semua tagihan tamu sekaligus (F1-10r) | |
+| v0.153.0 | Cetak semua tagihan tamu sekaligus (F1-10r) | #159 |
+| v0.154.0 | Siapa yang mengarsipkan produk (F1-07s) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -417,6 +418,8 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     tab *Stok minimum* mencetak barang di bawah minimum dengan *Saran beli*.
 96. ~~Tagihan tamu split dicetak satu per kartu~~ — selesai v0.153.0
     (F1-10r); *Cetak semua tagihan (n)*, satu potongan per tamu.
+97. ~~Dialog *Produk diarsipkan* tidak menulis siapa pengarsipnya~~ —
+    selesai v0.154.0 (F1-07s); dari `updated_by`, tanpa migrasi.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

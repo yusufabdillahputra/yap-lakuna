@@ -5478,6 +5478,17 @@
   "@backupAutoSaveFailed": {
     "placeholders": {}
   },
+  "productsArchivedOnBy": "Diarsipkan {date} oleh {name}",
+  "@productsArchivedOnBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "productsArchivedOn": "Diarsipkan {date}",
   "@productsArchivedOn": {
     "placeholders": {

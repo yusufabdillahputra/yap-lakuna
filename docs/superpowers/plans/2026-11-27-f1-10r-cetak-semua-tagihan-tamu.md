@@ -12,4 +12,4 @@ Spec: `docs/superpowers/specs/2026-11-27-f1-10r-cetak-semua-tagihan-tamu-design.
 - [x] 5. Panduan ID/EN, spec F1-10m, README specs, STATUS-JEDA, GAP-FASE1,
   CHANGELOG 0.153.0, pubspec 0.153.0+156.
 - [x] 6. Format, analyze, semua tes, review subagent, uji Xvfb.
-- [ ] 7. PR dan rilis.
+- [x] 7. PR dan rilis.

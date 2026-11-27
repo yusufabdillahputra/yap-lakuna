@@ -8363,6 +8363,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get backupAutoSaveFailed => 'Sakelar gagal disimpan. Coba lagi.';
 
   @override
+  String productsArchivedOnBy(String date, String name) {
+    return 'Diarsipkan $date oleh $name';
+  }
+
+  @override
   String productsArchivedOn(String date) {
     return 'Diarsipkan $date';
   }

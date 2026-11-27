@@ -75,17 +75,25 @@ class FakeCatalogRepository extends CatalogRepository {
   final archivedProducts = <CatalogProduct>[];
   final archiveCalls = <UuidValue>[];
 
-  static CatalogProduct _withArchivedAt(CatalogProduct p, DateTime? at) =>
-      _copy(
-        p,
-        archivedAt: at,
-        photoMediaId: p.photoMediaId,
-        photoPath: p.photoPath,
-      );
+  /// Nama staf pengarsip yang dicatat [archive] (F1-07s).
+  String? archiverName = 'Yusuf';
+
+  static CatalogProduct _withArchivedAt(
+    CatalogProduct p,
+    DateTime? at, {
+    String? by,
+  }) => _copy(
+    p,
+    archivedAt: at,
+    archivedByName: by,
+    photoMediaId: p.photoMediaId,
+    photoPath: p.photoPath,
+  );
 
   static CatalogProduct _copy(
     CatalogProduct p, {
     required DateTime? archivedAt,
+    String? archivedByName,
     required UuidValue? photoMediaId,
     required String? photoPath,
   }) => CatalogProduct(
@@ -105,6 +113,7 @@ class FakeCatalogRepository extends CatalogRepository {
     brand: p.brand,
     modifierGroupIds: p.modifierGroupIds,
     archivedAt: archivedAt,
+    archivedByName: archivedByName,
     photoMediaId: photoMediaId,
     photoPath: photoPath,
   );
@@ -145,7 +154,11 @@ class FakeCatalogRepository extends CatalogRepository {
     archiveCalls.add(id);
     archivedProducts.add(
       // 20.00 UTC = 03.00 WIB keesokan harinya: tanggal mengikuti zona cabang.
-      _withArchivedAt(products.removeAt(i), DateTime.utc(2026, 11, 13, 20)),
+      _withArchivedAt(
+        products.removeAt(i),
+        DateTime.utc(2026, 11, 13, 20),
+        by: archiverName,
+      ),
     );
     return const Result.ok(null);
   }

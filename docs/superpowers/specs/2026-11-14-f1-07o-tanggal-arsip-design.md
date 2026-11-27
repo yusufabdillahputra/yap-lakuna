@@ -48,4 +48,4 @@ Waktu arsip sudah tersimpan (`products.deleted_at`) tetapi belum tampil.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Tanggal arsip di dialog | — | Rilis v0.78.0 | — |
-| Siapa yang mengarsipkan | — | Belum | Tidak ada kolom `archived_by`; butuh migrasi. |
+| Siapa yang mengarsipkan | — | Rilis v0.154.0 | [F1-07s](2026-11-27-f1-07s-pengarsip-produk-design.md): dari `updated_by` produk arsip, tanpa migrasi. |

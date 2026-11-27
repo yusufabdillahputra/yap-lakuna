@@ -4924,6 +4924,17 @@
   "@backupAutoSaveFailed": {
     "placeholders": {}
   },
+  "productsArchivedOnBy": "Archived {date} by {name}",
+  "@productsArchivedOnBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "productsArchivedOn": "Archived {date}",
   "@productsArchivedOn": {
     "placeholders": {

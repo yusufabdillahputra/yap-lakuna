@@ -54,6 +54,36 @@ void main() {
   Future<void> archive(UuidValue id) =>
       archiveProduct(store, scope, staffId: owner(), productId: id);
 
+  test('nama staf yang mengarsipkan ikut dimuat (F1-07s)', () async {
+    final rina = await store.write(actor: owner(), (w) async {
+      final s = await w.stamp();
+      return w.insert(
+        StaffMember(
+          tenantId: ctx.tenant.id,
+          name: 'Rina',
+          pinHash: r'$argon2id$x',
+          isActive: true,
+          createdBy: owner(),
+          updatedBy: owner(),
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    });
+    expect(kopi.archivedByName, isNull);
+    await archiveProduct(store, scope, staffId: rina.id, productId: kopi.id);
+    var archived = await listArchivedProducts(store, scope);
+    expect(archived.single.archivedByName, 'Rina');
+
+    // Dipulihkan lalu diarsipkan lagi oleh pemilik: nama terbaru.
+    await restoreProduct(store, scope, staffId: rina.id, productId: kopi.id);
+    expect((await loadProduct(store, scope, kopi.id))!.archivedByName, isNull);
+    await archive(kopi.id);
+    archived = await listArchivedProducts(store, scope);
+    expect(archived.single.archivedByName, ctx.owner.name);
+  });
+
   test('arsip menyembunyikan produk, riwayat nota tetap', () async {
     await openCashSession(
       store,
