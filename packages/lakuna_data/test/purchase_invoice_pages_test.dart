@@ -333,4 +333,72 @@ void main() {
       expect(await loadPurchaseInvoicePhotos(store, otherScope, p.id), isEmpty);
     },
   );
+
+  test('cabang lain di toko yang sama tidak melihat foto', () async {
+    final p = await draft(request(invoicePhotos: [add(1), add(2)]));
+    final actor = owner();
+    final outlet = await store.write(actor: actor, (w) async {
+      final s = await w.stamp();
+      return w.insert(
+        Outlet(
+          tenantId: ctx.tenant.id,
+          code: 'CB2',
+          name: 'Cabang Dua',
+          timezone: 'Asia/Jakarta',
+          createdBy: actor,
+          updatedBy: actor,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    });
+    final branch = CatalogScope(
+      tenantId: ctx.tenant.id,
+      outletId: outlet.id,
+      deviceId: store.deviceId,
+    );
+    expect(await loadPurchaseInvoicePhotos(store, branch, p.id), isEmpty);
+    await expectLater(
+      addPurchaseInvoicePhoto(
+        store,
+        branch,
+        staffId: owner(),
+        purchaseId: p.id,
+        photo: photo(3),
+      ),
+      // Pemilik belum anggota cabang baru: ditolak sebelum dokumen dibaca.
+      throwsA(isA<PurchaseActorNotPermitted>()),
+    );
+  });
+
+  test('hapus draf ikut menghapus lunak lembar foto', () async {
+    final p = await draft(request(invoicePhotos: [add(1), add(2), add(3)]));
+    await deletePurchaseDraft(store, scope, staffId: owner(), purchaseId: p.id);
+    expect(await pages(p.id), isEmpty);
+    expect(
+      await PurchaseInvoicePage.db.count(
+        store.session,
+        where: (r) => r.purchaseId.equals(p.id),
+      ),
+      2,
+    );
+  });
+
+  test('lembar tanpa foto pertama tetap terlihat dan bisa dilepas', () async {
+    final p = await draft(request(invoicePhotos: [add(1), add(2)]));
+    final page = (await pages(p.id)).single;
+    // Keadaan setelah konflik sync: foto pertama kosong, lembar tetap.
+    await store.session.db.updateRow(p.copyWith(invoiceMediaId: null));
+    expect(await ids(p.id), [page.mediaId]);
+    final cleared = await removePurchaseInvoicePhoto(
+      store,
+      scope,
+      staffId: owner(),
+      purchaseId: p.id,
+      mediaId: page.mediaId,
+    );
+    expect(cleared.invoiceMediaId, isNull);
+    expect(await pages(p.id), isEmpty);
+  });
 }

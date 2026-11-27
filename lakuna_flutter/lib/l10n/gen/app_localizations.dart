@@ -13868,12 +13868,6 @@ abstract class AppLocalizations {
   /// **'Belum ada foto faktur.'**
   String get purchaseInvoicePhotoNone;
 
-  /// No description provided for @purchaseInvoicePhotoMissing.
-  ///
-  /// In id, this message translates to:
-  /// **'Foto faktur belum ada di perangkat ini.'**
-  String get purchaseInvoicePhotoMissing;
-
   /// No description provided for @purchaseInvoicePhotoInvalid.
   ///
   /// In id, this message translates to:

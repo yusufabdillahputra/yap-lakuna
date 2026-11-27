@@ -1097,6 +1097,19 @@ void main() {
     await _tap(tester, _key('purchase-invoice-photo-camera'));
     expect(picker.photoCalls, 1);
     expect(_key('purchase-invoice-photo-thumb-0'), findsOneWidget);
+    // Lima foto berjajar di 360 px tanpa meluap; tombol tambah hilang.
+    for (var i = 2; i <= 5; i++) {
+      picker.next = PickedImage(
+        name: 'f$i.png',
+        size: shadePng(i).length,
+        bytes: shadePng(i),
+      );
+      await _tap(tester, _key('purchase-invoice-photo-camera'));
+    }
+    expect(find.text('5 dari 5 foto'), findsOneWidget);
+    expect(_key('purchase-invoice-photo-camera'), findsNothing);
+    await _tap(tester, _key('purchase-invoice-photo-remove-4'));
+    expect(_key('purchase-invoice-photo-camera'), findsOneWidget);
     await _type(tester, _keyPrefix('purchase-price-'), '1500');
     await _tap(tester, _key('purchase-pay-full'));
     await _tap(tester, _key('purchase-receive'));

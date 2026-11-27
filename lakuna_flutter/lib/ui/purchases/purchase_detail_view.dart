@@ -567,7 +567,8 @@ class _InvoicePhotoCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final vm = viewModel;
     final photos = vm.invoicePhotos;
-    final first = vm.invoicePhoto;
+    // Foto pertama yang berkasnya ada di perangkat ini.
+    final firstAt = photos.indexWhere((p) => p.bytes != null);
     final busy = vm.photoBusy;
     Widget button(
       String key,
@@ -609,13 +610,10 @@ class _InvoicePhotoCard extends StatelessWidget {
                 style: context.theme.typography.body.sm,
               )
             else ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: InvoicePhotoStrip(
-                  photos: [for (final p in photos) p.bytes],
-                  busy: busy,
-                  onRemove: (i) => _remove(context, photos[i].mediaId),
-                ),
+              InvoicePhotoStrip(
+                photos: [for (final p in photos) p.bytes],
+                busy: busy,
+                onRemove: (i) => _remove(context, photos[i].mediaId),
               ),
               Text(
                 l10n.purchaseInvoicePhotoCount(
@@ -630,15 +628,15 @@ class _InvoicePhotoCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                if (first != null)
+                if (firstAt >= 0)
                   button(
                     'purchase-invoice-photo-view',
                     TablerIcons.photoSearch,
                     l10n.purchaseInvoicePhotoView,
                     () => showInvoicePhoto(
                       context,
-                      bytes: first,
-                      index: 0,
+                      bytes: photos[firstAt].bytes!,
+                      index: firstAt,
                       count: photos.length,
                     ),
                     variant: .primary,

@@ -35,13 +35,18 @@ class InvoicePhotoStrip extends StatelessWidget {
       runSpacing: 10,
       children: [
         for (final (i, bytes) in photos.indexed)
+          // Ruang [_overhang] di kanan atas agar tombol hapus utuh bisa
+          // diketuk (Stack hanya menerima ketukan di dalam ukurannya).
           SizedBox(
-            width: size,
-            height: size,
+            width: size + _overhang,
+            height: size + _overhang,
             child: Stack(
-              clipBehavior: Clip.none,
               children: [
-                Positioned.fill(
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  width: size,
+                  height: size,
                   child: bytes == null
                       ? _MissingTile(
                           key: ValueKey('purchase-invoice-photo-missing-$i'),
@@ -72,26 +77,28 @@ class InvoicePhotoStrip extends StatelessWidget {
                 ),
                 if (onRemove case final remove?)
                   Positioned(
-                    top: -6,
-                    right: -6,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.colors.background,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: theme.colors.border),
-                      ),
-                      child: FTappable(
-                        key: ValueKey('purchase-invoice-photo-remove-$i'),
-                        semanticsLabel: l10n.purchaseInvoicePhotoRemoveAt(
-                          i + 1,
-                        ),
-                        onPress: busy ? null : () => remove(i),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(
-                            TablerIcons.x,
-                            size: 14,
-                            color: theme.colors.destructive,
+                    top: 0,
+                    right: 0,
+                    // Area ketuk 40 × 40 px, lingkaran tampak 24 px.
+                    child: FTappable(
+                      key: ValueKey('purchase-invoice-photo-remove-$i'),
+                      semanticsLabel: l10n.purchaseInvoicePhotoRemoveAt(i + 1),
+                      onPress: busy ? null : () => remove(i),
+                      child: SizedBox.square(
+                        dimension: 40,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: theme.colors.background,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: theme.colors.border),
+                            ),
+                            child: Icon(
+                              TablerIcons.x,
+                              size: 14,
+                              color: theme.colors.destructive,
+                            ),
                           ),
                         ),
                       ),
@@ -104,6 +111,9 @@ class InvoicePhotoStrip extends StatelessWidget {
     );
   }
 }
+
+/// Jarak tombol hapus menjorok dari gambar kecil.
+const _overhang = 8.0;
 
 /// Foto faktur ke-[index] layar penuh dengan judul *Foto 2 dari 3*.
 Future<void> showInvoicePhoto(

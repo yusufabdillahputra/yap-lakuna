@@ -1725,10 +1725,14 @@ Future<List<UuidValue>> _invoiceMediaIds(
   Purchase p, {
   Transaction? transaction,
 }) async {
-  final first = p.invoiceMediaId;
-  if (first == null) return const [];
+  // Lembar tanpa foto pertama (mis. setelah konflik sync) tetap terlihat
+  // agar bisa dilepas atau naik ke depan.
   final pages = await _invoicePages(session, p.id, transaction: transaction);
-  return [first, for (final page in pages) page.mediaId];
+  return [
+    ?p.invoiceMediaId,
+    for (final page in pages)
+      if (page.mediaId != p.invoiceMediaId) page.mediaId,
+  ];
 }
 
 Future<List<PurchaseInvoicePage>> _invoicePages(
@@ -2062,6 +2066,8 @@ Future<void> deletePurchaseDraft(
         s,
       );
     }
+    // Lembar foto ikut terhapus lunak seperti baris (F1-12m).
+    await _syncInvoicePages(w, scope, p, const [], s, staffId);
     await w.update(
       p.copyWith(
         deletedAt: s.now,

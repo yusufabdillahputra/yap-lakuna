@@ -7928,10 +7928,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get purchaseInvoicePhotoNone => 'Belum ada foto faktur.';
 
   @override
-  String get purchaseInvoicePhotoMissing =>
-      'Foto faktur belum ada di perangkat ini.';
-
-  @override
   String get purchaseInvoicePhotoInvalid =>
       'Foto faktur harus gambar PNG/JPEG/WebP, maksimal 20 MB.';
 

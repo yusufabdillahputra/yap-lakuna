@@ -8122,10 +8122,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchaseInvoicePhotoNone => 'No invoice photo yet.';
 
   @override
-  String get purchaseInvoicePhotoMissing =>
-      'The invoice photo isn\'t on this device yet.';
-
-  @override
   String get purchaseInvoicePhotoInvalid =>
       'The invoice photo must be a PNG/JPEG/WebP image, up to 20 MB.';
 

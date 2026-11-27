@@ -78,6 +78,23 @@ void main() {
       expect(form.invoicePhotoUnsaved, isTrue);
     });
 
+    test(
+      'pilih lalu lepas foto: tidak ada perubahan belum tersimpan',
+      () async {
+        final first = await openForm();
+        fill(first);
+        await first.saveDraft.execute();
+        final form = await openForm(draftId: first.draftId);
+        expect(form.hasUnsavedChanges, isFalse);
+        picker.next = picked(samplePng);
+        await form.pickInvoicePhoto.execute(false);
+        expect(form.hasUnsavedChanges, isTrue);
+        form.removeInvoicePhotoAt(0);
+        expect(form.hasUnsavedChanges, isFalse);
+        expect(form.invoicePhotoUnsaved, isFalse);
+      },
+    );
+
     test('kamera memakai batas foto faktur', () async {
       picker.camera = true;
       final form = await openForm();

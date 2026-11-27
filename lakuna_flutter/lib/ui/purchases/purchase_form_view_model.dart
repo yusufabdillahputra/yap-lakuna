@@ -215,10 +215,6 @@ class PurchaseFormLine {
   );
 }
 
-/// Form *Pembelian baru* / *Draf* (1.19, F1-12). Dengan [draftId], form
-/// memuat draf itu. Dengan [restock] (F1-08c), form baru terisi baris dari
-/// daftar stok minimum sekali saat pertama dimuat; bersama [draftId]
-/// (F1-08i), hanya barang yang belum ada di draf yang ditambahkan.
 /// Satu foto faktur di form (F1-12m). [mediaId] `null` = foto baru yang
 /// belum tersimpan; [bytes] `null` = foto tersimpan yang berkasnya belum
 /// ada di perangkat ini.
@@ -233,6 +229,10 @@ class InvoicePhotoDraft {
   bool get missing => bytes == null;
 }
 
+/// Form *Pembelian baru* / *Draf* (1.19, F1-12). Dengan [draftId], form
+/// memuat draf itu. Dengan [restock] (F1-08c), form baru terisi baris dari
+/// daftar stok minimum sekali saat pertama dimuat; bersama [draftId]
+/// (F1-08i), hanya barang yang belum ada di draf yang ditambahkan.
 class PurchaseFormViewModel extends ChangeNotifier {
   PurchaseFormViewModel({
     required this._repository,
@@ -530,7 +530,14 @@ class PurchaseFormViewModel extends ChangeNotifier {
   // Foto faktur (F1-12b, F1-12m): yang tampil berurutan, dan apakah
   // berbeda dari yang tersimpan (dikirim saat simpan).
   var _invoicePhotos = const <InvoicePhotoDraft>[];
-  var _invoicePhotoChanged = false;
+
+  /// Id foto yang tersimpan di draf (urutan); foto berbeda dari daftar ini
+  /// dikirim saat simpan.
+  var _savedPhotoIds = const <UuidValue>[];
+
+  bool get _invoicePhotoChanged =>
+      _invoicePhotos.length != _savedPhotoIds.length ||
+      _invoicePhotos.indexed.any((e) => e.$2.mediaId != _savedPhotoIds[e.$1]);
   var _invoicePhotoRejected = false;
 
   /// Aksi terakhir yang dicoba; galat isian tampil setelahnya.
@@ -729,11 +736,12 @@ class PurchaseFormViewModel extends ChangeNotifier {
         for (final id in d.invoiceMediaIds) InvoicePhotoDraft(mediaId: id),
       ],
     };
+    _savedPhotoIds = [for (final p in _invoicePhotos) p.mediaId!];
   }
 
   void _clearInvoicePhoto() {
     _invoicePhotos = const [];
-    _invoicePhotoChanged = false;
+    _savedPhotoIds = const [];
     _invoicePhotoRejected = false;
   }
 
@@ -754,7 +762,6 @@ class PurchaseFormViewModel extends ChangeNotifier {
           ..._invoicePhotos,
           InvoicePhotoDraft(bytes: bytes, fileName: picked.name),
         ];
-        _invoicePhotoChanged = true;
         _touched();
       }
       return const Result.ok(null);
@@ -775,7 +782,6 @@ class PurchaseFormViewModel extends ChangeNotifier {
   void removeInvoicePhotoAt(int index) {
     if (index < 0 || index >= _invoicePhotos.length) return;
     _invoicePhotos = [..._invoicePhotos]..removeAt(index);
-    _invoicePhotoChanged = true;
     _invoicePhotoRejected = false;
     _touched();
   }
@@ -1381,6 +1387,7 @@ class PurchaseFormViewModel extends ChangeNotifier {
     // simpan dari dialog Buang perubahan? tidak membuangnya diam-diam
     // (F1-12i). Foto faktur ikut tersimpan, jadi tandanya dianggap bersih.
     final sent = _signature(photoChanged: false);
+    final sentPhotos = _invoicePhotos;
     final result = receiving
         ? await _repository.receive(request)
         : await _repository.saveDraft(request);
@@ -1389,9 +1396,8 @@ class PurchaseFormViewModel extends ChangeNotifier {
         _draftId = value.id;
         _number = value.number;
         _attempt = null;
-        _invoicePhotoChanged = false;
         if (!receiving && request.invoicePhotos != null) {
-          await _adoptSavedPhotos(value.id, request.invoicePhotos!);
+          await _adoptSavedPhotos(value.id, sentPhotos);
         }
         // Barang diterima: form diganti, isian sisa tidak berarti lagi.
         if (receiving) {
@@ -1416,21 +1422,27 @@ class PurchaseFormViewModel extends ChangeNotifier {
     return result;
   }
 
-  /// Foto baru yang baru tersimpan diberi id media agar simpan berikutnya
-  /// mengirimnya sebagai foto lama (F1-12m). Foto yang diubah selama simpan
-  /// tetap belum tersimpan.
+  /// Setelah simpan draf: daftar foto tersimpan dicatat, dan foto baru
+  /// yang baru tersimpan diberi id media agar simpan berikutnya mengirimnya
+  /// sebagai foto lama (F1-12m). Foto yang diubah selama simpan tetap
+  /// belum tersimpan.
   Future<void> _adoptSavedPhotos(
     UuidValue purchaseId,
-    List<PurchaseInvoicePhotoSlot> sent,
+    List<InvoicePhotoDraft> sent,
   ) async {
-    if (sent.every((s) => s is KeepInvoicePhoto)) return;
+    if (sent.every((p) => !p.isNew)) {
+      _savedPhotoIds = [for (final p in sent) p.mediaId!];
+      return;
+    }
     final saved = await _repository.invoicePhotos(purchaseId);
-    if (_invoicePhotoChanged) return;
     if (saved case Ok(:final value)) {
-      _invoicePhotos = [
-        for (final f in value)
-          InvoicePhotoDraft(mediaId: f.mediaId, bytes: f.bytes),
-      ];
+      _savedPhotoIds = [for (final f in value) f.mediaId];
+      if (identical(_invoicePhotos, sent)) {
+        _invoicePhotos = [
+          for (final f in value)
+            InvoicePhotoDraft(mediaId: f.mediaId, bytes: f.bytes),
+        ];
+      }
     }
   }
 

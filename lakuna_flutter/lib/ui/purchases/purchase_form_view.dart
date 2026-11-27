@@ -450,15 +450,11 @@ class _InvoicePhotoField extends StatelessWidget {
           ),
         ),
         if (photos.isNotEmpty)
-          Padding(
-            // Ruang tombol hapus yang menjorok ke atas.
-            padding: const EdgeInsets.only(top: 6),
-            child: InvoicePhotoStrip(
-              photos: [for (final p in photos) p.bytes],
-              size: 64,
-              busy: busy,
-              onRemove: vm.removeInvoicePhotoAt,
-            ),
+          InvoicePhotoStrip(
+            photos: [for (final p in photos) p.bytes],
+            size: 64,
+            busy: busy,
+            onRemove: vm.removeInvoicePhotoAt,
           ),
         if (vm.canAddInvoicePhoto)
           Wrap(
