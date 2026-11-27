@@ -6,7 +6,7 @@ The free version uses the store's own static QRIS image. The app does not receiv
 
 ## Before you start
 
-The owner uploads the QRIS sticker image in **Settings › Payment methods**, fills in the merchant details, then turns on **Static QRIS active at the cashier**. One image per branch. Upload the whole sticker (not just the QR code) as PNG, JPG, or WebP, up to 5 MB.
+The owner uploads the QRIS sticker image in **Settings › Payment methods**, fills in the merchant details, then turns on **Static QRIS active at the cashier**. One image per branch. Upload the whole sticker (not just the QR code) as PNG, JPG, or WebP, up to 5 MB. On an Android or iOS phone or tablet, **Photo sticker** opens the camera: photograph the whole sticker straight on, including the QRIS header, the store name, the NMID, and the text below the QR. If the camera does not open, check the camera permission in the device settings or use **Choose file**.
 
 ## Steps
 

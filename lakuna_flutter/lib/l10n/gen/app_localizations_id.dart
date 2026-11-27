@@ -1306,6 +1306,21 @@ class AppLocalizationsId extends AppLocalizations {
       'Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.';
 
   @override
+  String get qrisSettingsUploadHintCamera =>
+      'Pilih file stiker atau foto lurus seluruh stiker. PNG, JPG, atau WebP, maks 5 MB.';
+
+  @override
+  String get qrisSettingsCamera => 'Foto stiker';
+
+  @override
+  String get qrisSettingsFileFailed =>
+      'File tidak bisa dibuka. Pilih file lain.';
+
+  @override
+  String get qrisSettingsCameraFailed =>
+      'Kamera tidak bisa dibuka. Periksa izin kamera di pengaturan perangkat, atau pilih file.';
+
+  @override
   String get qrisSettingsPick => 'Pilih file';
 
   @override

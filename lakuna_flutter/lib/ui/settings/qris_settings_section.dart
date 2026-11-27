@@ -4,6 +4,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../../utils/command.dart';
 import '../cashier/qris_panel.dart' show QrisSticker;
 import 'payment_settings_view_model.dart';
 import 'settings_card.dart';
@@ -124,7 +125,7 @@ class _Actions extends StatelessWidget {
           child: FButton(
             key: const ValueKey('qris-settings-cancel'),
             variant: .outline,
-            onPress: vm.save.running ? null : vm.cancel,
+            onPress: vm.save.running || vm.picking ? null : vm.cancel,
             child: Flexible(
               child: Text(
                 l10n.qrisSettingsCancel,
@@ -225,6 +226,22 @@ class _ImageCard extends StatelessWidget {
       ],
     );
 
+    Widget pickButton({
+      required String key,
+      required Command0<void> command,
+      required IconData icon,
+      required String label,
+    }) => FButton(
+      key: ValueKey(key),
+      variant: .outline,
+      mainAxisSize: .min,
+      prefix: command.running
+          ? const SizedBox.square(dimension: 16, child: FCircularProgress())
+          : Icon(icon),
+      onPress: vm.picking || vm.save.running ? null : command.execute,
+      child: Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+    );
+
     final upload = DecoratedBox(
       decoration: BoxDecoration(
         color: theme.colors.background,
@@ -246,30 +263,45 @@ class _ImageCard extends StatelessWidget {
               ),
             ),
             Text(
-              l10n.qrisSettingsUploadHint,
+              vm.canTakePhoto
+                  ? l10n.qrisSettingsUploadHintCamera
+                  : l10n.qrisSettingsUploadHint,
               textAlign: TextAlign.center,
               style: muted,
             ),
-            FButton(
-              key: const ValueKey('qris-settings-pick'),
-              variant: .outline,
-              mainAxisSize: .min,
-              prefix: vm.pickImage.running
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: FCircularProgress(),
-                    )
-                  : const Icon(TablerIcons.photo),
-              onPress: vm.pickImage.running || vm.save.running
-                  ? null
-                  : vm.pickImage.execute,
-              child: Flexible(
-                child: Text(
-                  l10n.qrisSettingsPick,
-                  overflow: TextOverflow.ellipsis,
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                pickButton(
+                  key: 'qris-settings-pick',
+                  command: vm.pickImage,
+                  icon: TablerIcons.photo,
+                  label: l10n.qrisSettingsPick,
+                ),
+                // *Foto stiker* (F1-18f): hanya di perangkat berkamera.
+                if (vm.canTakePhoto)
+                  pickButton(
+                    key: 'qris-settings-camera',
+                    command: vm.takePhoto,
+                    icon: TablerIcons.camera,
+                    label: l10n.qrisSettingsCamera,
+                  ),
+              ],
+            ),
+            if (vm.pickFailed case final source?)
+              Text(
+                switch (source) {
+                  QrisPickSource.file => l10n.qrisSettingsFileFailed,
+                  QrisPickSource.camera => l10n.qrisSettingsCameraFailed,
+                },
+                key: const ValueKey('qris-settings-pick-failed'),
+                textAlign: TextAlign.center,
+                style: theme.typography.body.sm.copyWith(
+                  color: theme.colors.destructive,
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -7,11 +7,32 @@ import '../../data/services/image_file_picker.dart';
 import '../../utils/command.dart';
 import '../../utils/result.dart';
 
+/// Lebar maks foto kamera stiker QRIS (F1-18f): cukup tajam untuk tablet
+/// (disarankan >= 1000 px) tanpa membuat file besar.
+const qrisCameraMaxWidth = 2000;
+
+/// Asal gambar stiker: *Pilih file* atau *Foto stiker* (F1-18f).
+enum QrisPickSource { file, camera }
+
 /// Pengaturan › Metode pembayaran › QRIS statis (1.26b, F1-18).
 class PaymentSettingsViewModel extends ChangeNotifier {
   PaymentSettingsViewModel({required this._repository, required this._picker}) {
     load = Command0(_load)..addListener(notifyListeners);
-    pickImage = Command0(_pickImage)..addListener(notifyListeners);
+    pickImage = Command0(
+      () => _choose(
+        QrisPickSource.file,
+        ({required maxBytes}) => _picker.pickImage(maxBytes: maxBytes),
+      ),
+    )..addListener(notifyListeners);
+    takePhoto = Command0(
+      () => _choose(
+        QrisPickSource.camera,
+        ({required maxBytes}) => _picker.takePhoto(
+          maxBytes: maxBytes,
+          maxWidth: qrisCameraMaxWidth,
+        ),
+      ),
+    )..addListener(notifyListeners);
     save = Command0(_save)..addListener(notifyListeners);
   }
 
@@ -20,6 +41,9 @@ class PaymentSettingsViewModel extends ChangeNotifier {
 
   late final Command0<QrisConfig> load;
   late final Command0<void> pickImage;
+
+  /// *Foto stiker* dari kamera (F1-18f, 1.26b).
+  late final Command0<void> takePhoto;
   late final Command0<QrisConfig> save;
 
   QrisConfig? _config;
@@ -28,6 +52,7 @@ class PaymentSettingsViewModel extends ChangeNotifier {
   QrisImageCheck? _pickedCheck;
   Set<QrisSettingsError> _errors = const {};
   var _saved = false;
+  QrisPickSource? _pickFailed;
   var _revision = 0;
   var _disposed = false;
 
@@ -80,11 +105,16 @@ class PaymentSettingsViewModel extends ChangeNotifier {
 
   bool get hasImage => previewBytes != null;
 
+  /// Perangkat punya kamera untuk *Foto stiker* (Android/iOS).
+  bool get canTakePhoto => _picker.canTakePhoto;
+
+  /// Sumber yang gagal dibuka (mis. izin kamera ditolak); `null` = tidak ada.
+  QrisPickSource? get pickFailed => _pickFailed;
+
+  bool get picking => pickImage.running || takePhoto.running;
+
   bool get canSave =>
-      loaded &&
-      !save.running &&
-      !pickImage.running &&
-      _pickedCheck?.error == null;
+      loaded && !save.running && !picking && _pickedCheck?.error == null;
 
   void setEnabled(bool v) => _edit(_draft.copyWith(enabled: v));
 
@@ -113,6 +143,7 @@ class PaymentSettingsViewModel extends ChangeNotifier {
     _draft = _config?.settings ?? const QrisStaticSettings();
     _picked = null;
     _pickedCheck = null;
+    _pickFailed = null;
     _errors = const {};
     _saved = false;
     _revision++;
@@ -127,10 +158,14 @@ class PaymentSettingsViewModel extends ChangeNotifier {
     return result;
   }
 
-  Future<Result<void>> _pickImage() async {
+  Future<Result<void>> _choose(
+    QrisPickSource source,
+    Future<PickedImage?> Function({required int maxBytes}) pick,
+  ) async {
     try {
-      final picked = await _picker.pickImage(maxBytes: maxQrisImageBytes);
+      final picked = await pick(maxBytes: maxQrisImageBytes);
       if (picked == null) return const Result.ok(null);
+      _pickFailed = null;
       _picked = picked;
       final bytes = picked.bytes;
       _pickedCheck = bytes == null
@@ -139,6 +174,7 @@ class PaymentSettingsViewModel extends ChangeNotifier {
       _saved = false;
       return const Result.ok(null);
     } on Exception catch (e) {
+      _pickFailed = source;
       return Result.error(e);
     }
   }

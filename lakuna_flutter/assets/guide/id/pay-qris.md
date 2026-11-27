@@ -6,7 +6,7 @@ Versi gratis memakai gambar QRIS statis milik toko. Aplikasi tidak menerima bukt
 
 ## Sebelum mulai
 
-Pemilik mengunggah gambar stiker QRIS di **Pengaturan › Metode pembayaran**, mengisi data merchant, lalu menyalakan **QRIS statis aktif di kasir**. Satu gambar per cabang. Unggah stiker utuh (bukan potongan kode QR) dalam format PNG, JPG, atau WebP, maksimal 5 MB.
+Pemilik mengunggah gambar stiker QRIS di **Pengaturan › Metode pembayaran**, mengisi data merchant, lalu menyalakan **QRIS statis aktif di kasir**. Satu gambar per cabang. Unggah stiker utuh (bukan potongan kode QR) dalam format PNG, JPG, atau WebP, maksimal 5 MB. Di HP atau tablet Android/iOS, tombol **Foto stiker** membuka kamera: potret seluruh stiker lurus dari depan, termasuk header QRIS, nama toko, NMID, dan tulisan di bawah QR. Bila kamera tidak bisa dibuka, periksa izin kamera di pengaturan perangkat atau pakai **Pilih file**.
 
 ## Langkah
 

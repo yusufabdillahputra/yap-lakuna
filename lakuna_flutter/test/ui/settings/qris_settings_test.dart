@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
@@ -194,6 +195,120 @@ void main() {
     await _tap(tester, 'settings-section-payments');
     await _tap(tester, 'qris-settings-pick');
     expect(find.text('File lebih dari 5 MB.'), findsOneWidget);
+  });
+
+  testWidgets('Foto stiker dari kamera (F1-18f)', (tester) async {
+    final repo = FakePaymentSettingsRepository();
+    final picker = FakeImagePicker();
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.settings,
+      paymentSettings: repo,
+      imagePicker: picker,
+    );
+    await _tap(tester, 'settings-section-payments');
+    // Tanpa kamera (desktop): hanya Pilih file.
+    expect(_key('qris-settings-camera'), findsNothing);
+    expect(
+      find.text(
+        'Pilih file stiker dari perangkat. PNG, JPG, atau WebP, maks 5 MB.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Foto stiker: kamera ada, galat izin, lalu foto tersimpan', (
+    tester,
+  ) async {
+    final repo = FakePaymentSettingsRepository();
+    final picker = FakeImagePicker()..camera = true;
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.settings,
+      paymentSettings: repo,
+      imagePicker: picker,
+    );
+    await _tap(tester, 'settings-section-payments');
+    expect(_key('qris-settings-camera'), findsOneWidget);
+    expect(
+      find.text(
+        'Pilih file stiker atau foto lurus seluruh stiker. PNG, JPG, atau '
+        'WebP, maks 5 MB.',
+      ),
+      findsOneWidget,
+    );
+
+    // Izin kamera ditolak: pesan galat, tidak ada gambar.
+    picker.throwNext = Exception('camera_access_denied');
+    await _tap(tester, 'qris-settings-camera');
+    expect(_key('qris-settings-pick-failed'), findsOneWidget);
+    expect(
+      find.text(
+        'Kamera tidak bisa dibuka. Periksa izin kamera di pengaturan '
+        'perangkat, atau pilih file.',
+      ),
+      findsOneWidget,
+    );
+
+    // Batal di kamera: tidak terjadi apa-apa, galat tetap.
+    await _tap(tester, 'qris-settings-camera');
+    expect(picker.photoCalls, 2);
+    expect(find.text('Belum ada gambar QRIS'), findsOneWidget);
+
+    final bytes = _pngHeader(1080, 1528);
+    picker.next = PickedImage(
+      name: 'image_picker_1.jpg',
+      size: bytes.length,
+      bytes: bytes,
+    );
+    await _tap(tester, 'qris-settings-camera');
+    expect(picker.lastPhotoWidth, 2000);
+    expect(_key('qris-settings-pick-failed'), findsNothing);
+    expect(find.text('Resolusi 1080 × 1528 px.'), findsOneWidget);
+
+    await _tap(tester, 'qris-settings-save');
+    expect(_key('qris-settings-saved'), findsOneWidget);
+    expect(repo.saves.single.$2!.bytes, bytes);
+  });
+
+  testWidgets('galat Pilih file tampil, hilang saat Batal; tombol mati '
+      'selama memilih (F1-18f)', (tester) async {
+    final picker = FakeImagePicker()..camera = true;
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.settings,
+      imagePicker: picker,
+    );
+    await _tap(tester, 'settings-section-payments');
+    picker.throwNext = Exception('read failed');
+    await _tap(tester, 'qris-settings-pick');
+    expect(
+      find.text('File tidak bisa dibuka. Pilih file lain.'),
+      findsOneWidget,
+    );
+    await _tap(tester, 'qris-settings-cancel');
+    expect(_key('qris-settings-pick-failed'), findsNothing);
+
+    // Selama kamera terbuka: kedua tombol, Simpan, dan Batal mati.
+    picker.gate = Completer<void>();
+    await tester.ensureVisible(_key('qris-settings-camera'));
+    await tester.tap(_key('qris-settings-camera'));
+    await tester.pump();
+    for (final key in [
+      'qris-settings-pick',
+      'qris-settings-camera',
+      'qris-settings-save',
+      'qris-settings-cancel',
+    ]) {
+      expect(tester.widget<FButton>(_key(key)).onPress, isNull, reason: key);
+    }
+    picker.gate!.complete();
+    picker.gate = null;
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<FButton>(_key('qris-settings-pick')).onPress,
+      isNotNull,
+    );
   });
 
   testWidgets('kasir tanpa settings:manage hanya melihat Tampilan', (

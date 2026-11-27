@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -92,6 +94,9 @@ class FakeImagePicker extends ImageFilePicker {
   /// Galat yang dilempar panggilan berikutnya (mis. izin kamera ditolak).
   Exception? throwNext;
 
+  /// Bila diisi, pemilihan menunggu sampai selesai (uji tombol sibuk).
+  Completer<void>? gate;
+
   @override
   bool get canTakePhoto => camera;
 
@@ -111,6 +116,7 @@ class FakeImagePicker extends ImageFilePicker {
     calls++;
     lastVector = vector;
     lastWebp = webp;
+    if (gate case final g?) await g.future;
     if (throwNext case final e?) {
       throwNext = null;
       throw e;

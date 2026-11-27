@@ -7,6 +7,52 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.140.0] - 2026-11-27
+
+Stiker QRIS kini bisa dipotret langsung dari Pengaturan, sesuai tombol
+*Foto stiker* di desain 1.26b. Ini gap keempat di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Pengaturan › Metode pembayaran › QRIS statis (1.26b):** tombol
+  **Foto stiker** di samping **Pilih file**, hanya di perangkat berkamera
+  (Android/iOS, sama seperti foto produk). Foto diperkecil ke lebar maks
+  2000 px lalu melewati pemeriksaan yang sama dengan file: format, batas
+  5 MB, rasio vertikal, dan resolusi. Teks petunjuk kotak unggah menjadi
+  *Pilih file stiker atau foto lurus seluruh stiker* bila tombol kamera
+  ada.
+- Panduan *Menerima QRIS statis* (ID/EN): cara memotret stiker dan izin
+  kamera.
+
+### Diperbaiki
+
+- **Pengaturan › QRIS statis:** file yang gagal dibuka kini menampilkan
+  *File tidak bisa dibuka. Pilih file lain.*, dan kamera yang gagal
+  dibuka (mis. izin kamera iOS ditolak) menampilkan *Kamera tidak bisa
+  dibuka. Periksa izin kamera di pengaturan perangkat, atau pilih file.*
+  Sebelumnya galat **Pilih file** ditelan tanpa pesan. Pesan hilang
+  setelah gambar berhasil dipilih, atau saat **Batal**.
+- **Batal** kini mati selama dialog file atau kamera masih terbuka.
+  Sebelumnya Batal di tengah pemilihan mengosongkan isian, lalu gambar
+  yang baru dipilih muncul lagi setelahnya.
+- Teks izin kamera iOS (`NSCameraUsageDescription`) kini menyebut foto
+  produk, stiker QRIS, dan faktur, bukan hanya nota, bukti bayar
+  supplier, dan denah meja.
+
+### Catatan teknis
+
+- `PaymentSettingsViewModel.takePhoto` dan `pickImage` memakai satu
+  `_choose(QrisPickSource, …)` bersama; `pickFailed` menyimpan sumber yang
+  gagal; `picking` mematikan kedua tombol dan **Simpan**
+  selama salah satunya berjalan. `qrisCameraMaxWidth = 2000`.
+- Tes widget: tombol kamera tersembunyi di perangkat tanpa kamera, galat
+  kamera dan galat file, batal, pesan hilang saat **Batal**, semua tombol
+  mati selama kamera terbuka (`FakeImagePicker.gate`), foto masuk
+  pratinjau dan tersimpan dengan lebar maks 2000. Temuan review subagent.
+- Spec baru `docs/superpowers/specs/2026-11-27-f1-18f-foto-stiker-qris-design.md`
+  dan rencananya. Seret file ke kotak unggah tetap belum.
+
 ## [0.139.0] - 2026-11-27
 
 Pemilik kini bisa memilih apakah gambar QRIS ikut tampil di kasir ukuran
@@ -8029,7 +8075,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...HEAD
+[0.140.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...v0.140.0
 [0.139.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...v0.139.0
 [0.138.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.137.0...v0.138.0
 [0.137.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.136.0...v0.137.0
