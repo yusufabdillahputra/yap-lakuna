@@ -13919,13 +13919,13 @@ abstract class AppLocalizations {
   /// No description provided for @purchasePrintSaved.
   ///
   /// In id, this message translates to:
-  /// **'PDF pembelian disimpan di {path}'**
+  /// **'PDF disimpan di {path}'**
   String purchasePrintSaved(String path);
 
   /// No description provided for @purchasePrintFailed.
   ///
   /// In id, this message translates to:
-  /// **'PDF pembelian gagal dibuat. Coba lagi.'**
+  /// **'PDF gagal dibuat. Coba lagi.'**
   String get purchasePrintFailed;
 
   /// No description provided for @purchasePrintTitle.
@@ -13987,6 +13987,48 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Retur memotong hutang'**
   String get purchasePrintReturnDebt;
+
+  /// No description provided for @purchaseReturnPrintTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Retur pembelian {number}'**
+  String purchaseReturnPrintTitle(String number);
+
+  /// No description provided for @purchaseReturnPrintFrom.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari pembelian {number}'**
+  String purchaseReturnPrintFrom(String number);
+
+  /// No description provided for @purchaseReturnPrintValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Nilai'**
+  String get purchaseReturnPrintValue;
+
+  /// No description provided for @purchaseReturnPrintTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total retur'**
+  String get purchaseReturnPrintTotal;
+
+  /// No description provided for @purchaseReturnPrintRefund.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali ({source})'**
+  String purchaseReturnPrintRefund(String source);
+
+  /// No description provided for @purchaseReturnPrintRefundPlain.
+  ///
+  /// In id, this message translates to:
+  /// **'Uang kembali'**
+  String get purchaseReturnPrintRefundPlain;
+
+  /// No description provided for @purchaseReturnPrintAction.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF retur {number}'**
+  String purchaseReturnPrintAction(String number);
 
   /// No description provided for @purchasePrintRefund.
   ///

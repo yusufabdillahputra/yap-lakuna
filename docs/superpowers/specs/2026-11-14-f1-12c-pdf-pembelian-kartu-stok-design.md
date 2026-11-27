@@ -85,5 +85,5 @@ mencari produk lagi di layar Stok.
 | --- | --- | --- | --- |
 | Cetak/bagikan PDF pembelian | Tombol di 1.19b | Rilis v0.51.0 | — |
 | Tautan kartu stok dari detail pembelian | Tombol di 1.19b | Rilis v0.51.0 | Nama produk = tautan. |
-| PDF retur pembelian (RB-) tersendiri | — | Belum | Retur tercantum di PDF pembelian asal. |
+| PDF retur pembelian (RB-) tersendiri | Tombol per retur di 1.19b | Rilis v0.161.0 | [F1-12n](2026-11-27-f1-12n-pdf-retur-pembelian-design.md). |
 | Kirim langsung ke WhatsApp supplier | — | Belum | Lembar bagikan sistem sudah menawarkan WhatsApp di ponsel. |

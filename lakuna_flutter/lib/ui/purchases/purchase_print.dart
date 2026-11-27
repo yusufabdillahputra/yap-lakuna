@@ -1,3 +1,4 @@
+import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
@@ -7,7 +8,7 @@ import '../../l10n/gen/app_localizations.dart';
 import '../core/format.dart' show formatClock;
 import '../customers/customer_labels.dart' show formatLongDate;
 import '../reports/report_labels.dart' show moneyLabel, qtyLabel;
-import 'purchase_labels.dart' show formatCalendarDate;
+import 'purchase_labels.dart' show formatCalendarDate, fundingLabel;
 
 /// Isi PDF *Cetak / bagikan PDF* pembelian [d] (F1-12c): barang, ringkasan
 /// bayar, retur, dan catatan. Baris ringkasan bernilai nol yang opsional
@@ -98,3 +99,85 @@ ReportTable purchasePrintTable(
 /// lama dengan isi terbaru.
 String purchasePrintFileName(String number) =>
     'pembelian-${number.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-')}.pdf';
+
+/// Isi PDF retur pembelian [r] dari pembelian [d] (F1-12n): barang yang
+/// diretur dengan qty dan nilainya, total, bagian yang memotong hutang, dan
+/// uang kembali beserta sumbernya.
+ReportTable purchaseReturnPrintTable(
+  AppLocalizations l10n,
+  PurchaseDetail d,
+  PurchaseReturn r, {
+  required String staff,
+  required DateTime printedAt,
+  String? timezone,
+}) {
+  final p = d.purchase;
+  XlsxNumber money(Money m) => XlsxNumber(m.value);
+  ReportRow sum(String label, Money value, {bool strong = false}) =>
+      ReportRow([label, '', money(value)], strong: strong);
+  final items = {for (final i in d.items) i.id: i};
+  final local = outletLocalTime(printedAt, timezone);
+  final recorder = d.returnStaffNames[r.id]?.trim() ?? '';
+  return ReportTable(
+    title: l10n.purchaseReturnPrintTitle(r.number),
+    subtitle: [
+      d.supplier?.name ?? l10n.purchasesNoSupplier,
+      l10n.purchaseReturnPrintFrom(p.number),
+      if (p.invoiceNo case final no?) l10n.purchasePrintInvoiceNo(no),
+      formatCalendarDate(outletLocalTime(r.returnedAt, timezone)),
+      d.locationName,
+      if (recorder.isNotEmpty) recorder,
+      d.deviceCode,
+    ].join(' · '),
+    headers: [
+      l10n.purchaseColProduct,
+      l10n.purchaseColQty,
+      l10n.purchaseReturnPrintValue,
+    ],
+    widths: [46, 22, 18],
+    flex: [6, 3, 3],
+    rows: [
+      for (final row in d.returnItems[r.id] ?? const <PurchaseReturnItem>[])
+        if (items[row.purchaseItemId] case final item?)
+          ReportRow([
+            [
+              item.variantName.isEmpty
+                  ? item.productName
+                  : '${item.productName} ${item.variantName}',
+              ?d.skus[item.variantId],
+            ].join(' · '),
+            [
+              '${qtyLabel(l10n, Qty(row.quantityMilli))} ${item.unitName}',
+              if (item.factorMilli != 1000)
+                '(@ ${qtyLabel(l10n, Qty(item.factorMilli))} '
+                    '${d.baseUnits[item.variantId] ?? ''})',
+            ].join(' '),
+            money(Money(row.amount)),
+          ]),
+      sum(l10n.purchaseReturnPrintTotal, Money(r.amount), strong: true),
+      if (r.debtReduction > 0)
+        sum(l10n.purchasePrintReturnDebt, Money(r.debtReduction)),
+      if (r.refundAmount > 0)
+        sum(
+          r.refundSource == null
+              ? l10n.purchaseReturnPrintRefundPlain
+              : l10n.purchaseReturnPrintRefund(
+                  fundingLabel(l10n, fundingKind(r.refundSource!)),
+                ),
+          Money(r.refundAmount),
+        ),
+    ],
+    notes: [
+      if (r.note case final note? when note.trim().isNotEmpty)
+        l10n.purchasePrintNoteLine(note.trim()),
+      l10n.purchasePrintPrinted(
+        '${formatLongDate(l10n, local)} ${formatClock(printedAt, timezone)}',
+        staff,
+      ),
+    ],
+  );
+}
+
+/// `retur-<nomor>.pdf`, nomor huruf kecil (F1-12n).
+String purchaseReturnPrintFileName(String number) =>
+    'retur-${number.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-')}.pdf';

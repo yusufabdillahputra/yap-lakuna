@@ -1136,7 +1136,7 @@ void main() {
     expect(exporter.saved.single.$2.take(4), '%PDF'.codeUnits);
     expect(
       find.text(
-        'PDF pembelian disimpan di /home/kasir/Dokumen/Lakuna/pembelian.pdf',
+        'PDF disimpan di /home/kasir/Dokumen/Lakuna/pembelian.pdf',
       ),
       findsOneWidget,
     );
@@ -1155,6 +1155,30 @@ void main() {
     expect(_key('stock-card-product-${kopVariant().uuid}'), findsOneWidget);
     expect(_key('stock-card-focus-missing'), findsNothing);
     expect(find.text('Toko'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('desktop: PDF retur pembelian per retur (F1-12n)', (
+    tester,
+  ) async {
+    await pump(tester, const Size(1440, 900));
+    await receiveKop(tester);
+    expect(_keyPrefix('purchase-return-print-'), findsNothing);
+    await _tap(tester, _key('purchase-return-open'));
+    await _type(tester, _keyPrefix('purchase-return-qty-'), '1');
+    await _tap(tester, _keyPrefix('purchase-refund-source-'));
+    await _tap(tester, find.text('Rekening bank').last);
+    await _tap(tester, _key('purchase-return-submit'));
+    final r = repo.returns.single;
+    expect(repo.returnItems[r.id]!.single.quantityMilli, 1000);
+    await tapAndWaitForIsolate(
+      tester,
+      _key('purchase-return-print-${r.id.uuid}'),
+      () => exporter.saved.isNotEmpty,
+    );
+    expect(exporter.saved.single.$1, 'retur-rb-pst-d01-261103-0001.pdf');
+    expect(exporter.saved.single.$2.take(4), '%PDF'.codeUnits);
+    expect(_key('purchase-print-saved'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 

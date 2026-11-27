@@ -74,6 +74,7 @@ class FakePurchasesRepository extends PurchasesRepository {
   final items = <PurchaseItem>[];
   final returns = <PurchaseReturn>[];
   final returnedMilli = <UuidValue, int>{};
+  final returnItems = <UuidValue, List<PurchaseReturnItem>>{};
   final costs = <UuidValue, Money>{};
   final sellPrices = <UuidValue, Money>{};
   final stock = <UuidValue, Qty>{};
@@ -224,6 +225,14 @@ class FakePurchasesRepository extends PurchasesRepository {
               .baseUnit,
       },
       invoiceMediaIds: _photosOf(p.id),
+      returnItems: {
+        for (final r in returns)
+          if (r.purchaseId == id) r.id: returnItems[r.id] ?? const [],
+      },
+      returnStaffNames: {
+        for (final r in returns)
+          if (r.purchaseId == id) r.id: 'Yusuf',
+      },
     );
   }
 
@@ -415,17 +424,20 @@ class FakePurchasesRepository extends PurchasesRepository {
       throw const PurchaseReturnInvalid(PurchaseReturnError.empty);
     }
     var amount = Money.zero;
+    final lineAmounts = <Money>[];
     for (final (i, l) in lines.indexed) {
       final item = d.items.firstWhere((x) => x.id == l.purchaseItemId);
       if (l.quantity.milli > d.remainingMilli(item)) {
         throw PurchaseReturnInvalid(PurchaseReturnError.quantity, index: i);
       }
-      amount += returnAmount(
+      final lineAmount = returnAmount(
         share: d.landedTotal(item),
         soldMilli: item.quantityMilli,
         returnedMilli: d.returnedMilli[item.id] ?? 0,
         returningMilli: l.quantity.milli,
       );
+      lineAmounts.add(lineAmount);
+      amount += lineAmount;
     }
     final split = purchaseReturnSplit(amount: amount, debt: d.debt);
     if (split.refund.value > 0 && refundSource == null) {
@@ -455,6 +467,18 @@ class FakePurchasesRepository extends PurchasesRepository {
       hlc: '',
     );
     returns.add(r);
+    returnItems[r.id] = [
+      for (final (i, l) in lines.indexed)
+        if (l.quantity.milli > 0)
+          PurchaseReturnItem(
+            tenantId: _tenant,
+            purchaseReturnId: r.id,
+            purchaseItemId: l.purchaseItemId,
+            quantityMilli: l.quantity.milli,
+            amount: lineAmounts[i].value,
+            hlc: '',
+          ),
+    ];
     return r;
   });
 

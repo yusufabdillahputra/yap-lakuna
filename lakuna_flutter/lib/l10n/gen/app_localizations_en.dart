@@ -8151,12 +8151,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String purchasePrintSaved(String path) {
-    return 'Purchase PDF saved to $path';
+    return 'PDF saved to $path';
   }
 
   @override
-  String get purchasePrintFailed =>
-      'Could not create the purchase PDF. Try again.';
+  String get purchasePrintFailed => 'Could not create the PDF. Try again.';
 
   @override
   String purchasePrintTitle(String number) {
@@ -8201,6 +8200,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchasePrintReturnDebt => 'Returns deducted from payable';
+
+  @override
+  String purchaseReturnPrintTitle(String number) {
+    return 'Purchase return $number';
+  }
+
+  @override
+  String purchaseReturnPrintFrom(String number) {
+    return 'From purchase $number';
+  }
+
+  @override
+  String get purchaseReturnPrintValue => 'Value';
+
+  @override
+  String get purchaseReturnPrintTotal => 'Return total';
+
+  @override
+  String purchaseReturnPrintRefund(String source) {
+    return 'Refund ($source)';
+  }
+
+  @override
+  String get purchaseReturnPrintRefundPlain => 'Refund';
+
+  @override
+  String purchaseReturnPrintAction(String number) {
+    return 'Return PDF $number';
+  }
 
   @override
   String purchasePrintRefund(String amount) {

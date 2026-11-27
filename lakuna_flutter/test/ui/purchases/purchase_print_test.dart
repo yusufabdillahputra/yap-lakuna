@@ -60,27 +60,11 @@ void main() {
     int discount = 0,
     int shipping = 4000,
     String staffName = 'Yusuf',
-  }) => PurchaseDetail(
-    purchase: Purchase(
-      tenantId: tenant,
-      outletId: _id(),
-      deviceId: _id(),
-      stockLocationId: _id(),
-      staffId: _id(),
-      number: 'PB-PST-K01-261114-0001',
-      invoiceNo: invoiceNo,
-      status: PurchaseStatus.received,
-      purchasedOn: DateTime.utc(2026, 11, 14),
-      subtotal: 885000,
-      discount: discount,
-      shipping: shipping,
-      total: 885000 - discount + shipping,
-      paidAmount: paid,
-      dueOn: dueOn,
-      note: note,
-      hlc: '',
-    ),
-    items: [
+    Map<UuidValue, List<PurchaseReturnItem>> Function(List<PurchaseItem>)?
+    returnItems,
+    Map<UuidValue, String> returnStaffNames = const {},
+  }) {
+    final items = [
       item(gula, 'Gula Pasir', 'kg', 10000, 14500),
       item(
         minyak,
@@ -91,18 +75,42 @@ void main() {
         variantName: '2 L',
         factorMilli: 6000,
       ),
-    ],
-    supplier: Supplier(tenantId: tenant, name: 'CV Sumber Pangan', hlc: ''),
-    staffName: staffName,
-    deviceCode: 'K01',
-    locationName: 'Gudang',
-    returns: returns,
-    returnedMilli: const {},
-    sellPrices: const {},
-    skus: {gula: 'GLA-1', minyak: null},
-    baseUnits: {gula: 'kg', minyak: 'btl'},
-    debtPayments: debtPayments,
-  );
+    ];
+    return PurchaseDetail(
+      purchase: Purchase(
+        tenantId: tenant,
+        outletId: _id(),
+        deviceId: _id(),
+        stockLocationId: _id(),
+        staffId: _id(),
+        number: 'PB-PST-K01-261114-0001',
+        invoiceNo: invoiceNo,
+        status: PurchaseStatus.received,
+        purchasedOn: DateTime.utc(2026, 11, 14),
+        subtotal: 885000,
+        discount: discount,
+        shipping: shipping,
+        total: 885000 - discount + shipping,
+        paidAmount: paid,
+        dueOn: dueOn,
+        note: note,
+        hlc: '',
+      ),
+      items: items,
+      supplier: Supplier(tenantId: tenant, name: 'CV Sumber Pangan', hlc: ''),
+      staffName: staffName,
+      deviceCode: 'K01',
+      locationName: 'Gudang',
+      returns: returns,
+      returnedMilli: const {},
+      sellPrices: const {},
+      skus: {gula: 'GLA-1', minyak: null},
+      baseUnits: {gula: 'kg', minyak: 'btl'},
+      debtPayments: debtPayments,
+      returnItems: returnItems?.call(items) ?? const {},
+      returnStaffNames: returnStaffNames,
+    );
+  }
 
   ReportTable table(PurchaseDetail d, [AppLocalizations? l10n]) =>
       purchasePrintTable(
@@ -266,6 +274,150 @@ void main() {
       purchasePrintFileName('PB-PST-K01-261114-0001'),
       'pembelian-pb-pst-k01-261114-0001.pdf',
     );
+  });
+
+  group('PDF retur (F1-12n)', () {
+    PurchaseReturn ret({
+      int amount = 185000 + 14500,
+      int debt = 0,
+      int refund = 185000 + 14500,
+      FundingSource? source = FundingSource.drawer,
+      String? note,
+    }) => PurchaseReturn(
+      id: _id(),
+      tenantId: tenant,
+      outletId: _id(),
+      deviceId: _id(),
+      purchaseId: _id(),
+      staffId: _id(),
+      number: 'RB-PST-K01-261115-0001',
+      // 03.00 UTC = 10.00 WIB, tanggal 15.
+      returnedAt: DateTime.utc(2026, 11, 15, 3),
+      amount: amount,
+      debtReduction: debt,
+      refundAmount: refund,
+      refundSource: source,
+      note: note,
+      hlc: '',
+    );
+
+    (PurchaseDetail, PurchaseReturn) build(
+      PurchaseReturn r, {
+      String recorder = 'Dewi',
+      bool withItems = true,
+    }) {
+      final d = detail(
+        returns: [r],
+        returnStaffNames: {r.id: recorder},
+        returnItems: (items) => {
+          r.id: [
+            if (withItems) ...[
+              PurchaseReturnItem(
+                tenantId: tenant,
+                purchaseReturnId: r.id,
+                purchaseItemId: items[0].id,
+                quantityMilli: 1000,
+                amount: 14500,
+                hlc: '',
+              ),
+              PurchaseReturnItem(
+                tenantId: tenant,
+                purchaseReturnId: r.id,
+                purchaseItemId: items[1].id,
+                quantityMilli: 1000,
+                amount: 185000,
+                hlc: '',
+              ),
+            ],
+          ],
+        },
+      );
+      return (d, r);
+    }
+
+    ReportTable printOf(
+      (PurchaseDetail, PurchaseReturn) x, [
+      AppLocalizations? l10n,
+    ]) => purchaseReturnPrintTable(
+      l10n ?? id,
+      x.$1,
+      x.$2,
+      staff: 'Rina',
+      printedAt: at,
+      timezone: 'Asia/Jakarta',
+    );
+
+    test('judul, asal pembelian, baris barang, uang kembali', () {
+      final t = printOf(build(ret(note: ' Kemasan bocor ')));
+      expect(t.title, 'Retur pembelian RB-PST-K01-261115-0001');
+      expect(
+        t.subtitle,
+        'CV Sumber Pangan · Dari pembelian PB-PST-K01-261114-0001 · '
+        'No. faktur SP/XI/0457 · 15/11/2026 · Gudang · Dewi · K01',
+      );
+      expect(t.headers, ['Produk', 'Qty', 'Nilai']);
+      expect(t.rows[0].cells, [
+        'Gula Pasir · GLA-1',
+        '1 kg',
+        const XlsxNumber(14500),
+      ]);
+      expect(t.rows[1].cells, [
+        'Minyak Goreng 2 L',
+        '1 dus (@ 6 btl)',
+        const XlsxNumber(185000),
+      ]);
+      expect(
+        [
+          for (final r in t.rows.skip(2))
+            (r.cells.first, r.cells.last, r.strong),
+        ],
+        [
+          ('Total retur', const XlsxNumber(199500), true),
+          ('Uang kembali (Kas laci)', const XlsxNumber(199500), false),
+        ],
+      );
+      expect(t.notes, [
+        'Catatan: Kemasan bocor',
+        'Dicetak 14 November 2026 09.30 oleh Rina',
+      ]);
+    });
+
+    test('memotong hutang dan sebagian uang kembali tanpa sumber', () {
+      final t = printOf(
+        build(
+          ret(debt: 150000, refund: 49500, source: null),
+          recorder: '  ',
+        ),
+      );
+      // Pencatat kosong tidak meninggalkan pemisah menggantung.
+      expect(t.subtitle, endsWith('· 15/11/2026 · Gudang · K01'));
+      expect(
+        [for (final r in t.rows.skip(2)) (r.cells.first, r.cells.last)],
+        [
+          ('Total retur', const XlsxNumber(199500)),
+          ('Retur memotong hutang', const XlsxNumber(150000)),
+          ('Uang kembali', const XlsxNumber(49500)),
+        ],
+      );
+      expect(t.notes, hasLength(1));
+    });
+
+    test('tanpa baris barang tetap mencetak total', () {
+      final t = printOf(build(ret(), withItems: false));
+      expect(t.rows.first.cells.first, 'Total retur');
+    });
+
+    test('bahasa Inggris dan nama berkas', () {
+      final t = printOf(build(ret()), en);
+      expect(t.title, 'Purchase return RB-PST-K01-261115-0001');
+      expect(t.headers, ['Product', 'Qty', 'Value']);
+      expect(t.rows[2].cells.first, 'Return total');
+      expect(t.rows[3].cells.first, startsWith('Refund ('));
+      expect(
+        purchaseReturnPrintFileName('RB-PST-K01-261115-0001'),
+        'retur-rb-pst-k01-261115-0001.pdf',
+      );
+    });
   });
 
   group('PurchaseDetailViewModel.printPdf', () {

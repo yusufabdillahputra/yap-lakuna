@@ -7957,11 +7957,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String purchasePrintSaved(String path) {
-    return 'PDF pembelian disimpan di $path';
+    return 'PDF disimpan di $path';
   }
 
   @override
-  String get purchasePrintFailed => 'PDF pembelian gagal dibuat. Coba lagi.';
+  String get purchasePrintFailed => 'PDF gagal dibuat. Coba lagi.';
 
   @override
   String purchasePrintTitle(String number) {
@@ -8006,6 +8006,35 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchasePrintReturnDebt => 'Retur memotong hutang';
+
+  @override
+  String purchaseReturnPrintTitle(String number) {
+    return 'Retur pembelian $number';
+  }
+
+  @override
+  String purchaseReturnPrintFrom(String number) {
+    return 'Dari pembelian $number';
+  }
+
+  @override
+  String get purchaseReturnPrintValue => 'Nilai';
+
+  @override
+  String get purchaseReturnPrintTotal => 'Total retur';
+
+  @override
+  String purchaseReturnPrintRefund(String source) {
+    return 'Uang kembali ($source)';
+  }
+
+  @override
+  String get purchaseReturnPrintRefundPlain => 'Uang kembali';
+
+  @override
+  String purchaseReturnPrintAction(String number) {
+    return 'PDF retur $number';
+  }
 
   @override
   String purchasePrintRefund(String amount) {

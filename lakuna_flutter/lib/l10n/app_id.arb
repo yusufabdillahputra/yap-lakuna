@@ -5095,7 +5095,7 @@
   "purchaseInvoicePhotoClose": "Tutup",
   "purchasePrint": "Cetak / bagikan PDF",
   "purchasePrintHint": "PDF berisi barang, ringkasan bayar, dan retur; bisa dikirim ke supplier.",
-  "purchasePrintSaved": "PDF pembelian disimpan di {path}",
+  "purchasePrintSaved": "PDF disimpan di {path}",
   "@purchasePrintSaved": {
     "placeholders": {
       "path": {
@@ -5103,7 +5103,7 @@
       }
     }
   },
-  "purchasePrintFailed": "PDF pembelian gagal dibuat. Coba lagi.",
+  "purchasePrintFailed": "PDF gagal dibuat. Coba lagi.",
   "purchasePrintTitle": "Pembelian {number}",
   "@purchasePrintTitle": {
     "placeholders": {
@@ -5172,6 +5172,41 @@
     }
   },
   "purchasePrintReturnDebt": "Retur memotong hutang",
+  "purchaseReturnPrintTitle": "Retur pembelian {number}",
+  "@purchaseReturnPrintTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintFrom": "Dari pembelian {number}",
+  "@purchaseReturnPrintFrom": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintValue": "Nilai",
+  "purchaseReturnPrintTotal": "Total retur",
+  "purchaseReturnPrintRefund": "Uang kembali ({source})",
+  "@purchaseReturnPrintRefund": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseReturnPrintRefundPlain": "Uang kembali",
+  "purchaseReturnPrintAction": "PDF retur {number}",
+  "@purchaseReturnPrintAction": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "purchasePrintRefund": "Uang kembali dari retur: {amount}",
   "@purchasePrintRefund": {
     "placeholders": {

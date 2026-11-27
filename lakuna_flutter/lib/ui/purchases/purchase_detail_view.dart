@@ -1351,6 +1351,24 @@ class _ActionsCard extends StatelessWidget {
                       fontFeatures: _tabular,
                     ),
                   ),
+                  // PDF retur tersendiri untuk supplier (F1-12n).
+                  FTooltip(
+                    tipBuilder: (context, _) =>
+                        Text(l10n.purchaseReturnPrintAction(r.number)),
+                    child: FButton.icon(
+                      key: ValueKey('purchase-return-print-${r.id.uuid}'),
+                      variant: .ghost,
+                      onPress: vm.canPrint
+                          ? () => _printReturn(context, r)
+                          : null,
+                      child: Icon(
+                        TablerIcons.fileTypePdf,
+                        semanticLabel: l10n.purchaseReturnPrintAction(
+                          r.number,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
           ],
@@ -1378,6 +1396,27 @@ extension on _ActionsCard {
         money: (v) => moneyLabel(l10n, Money(v)),
       ),
       purchasePrintFileName(d.purchase.number),
+    ));
+  }
+
+  void _printReturn(BuildContext context, PurchaseReturn r) {
+    final l10n = AppLocalizations.of(context);
+    final vm = viewModel;
+    final d = vm.detail!;
+    final now = DateTime.now();
+    vm.printPdf.execute((
+      () => reportPdf(
+        purchaseReturnPrintTable(
+          l10n,
+          d,
+          r,
+          staff: vm.staffName,
+          printedAt: now,
+          timezone: vm.timezone,
+        ),
+        money: (v) => moneyLabel(l10n, Money(v)),
+      ),
+      purchaseReturnPrintFileName(r.number),
     ));
   }
 }
