@@ -138,5 +138,5 @@ sesi (F1-03), struk WhatsApp (F3-03).
 | Cetak ulang dari riwayat | 1.14 | Rilis v0.15.0 | [F1-11](2026-11-03-f1-11-riwayat-void-retur-design.md), label CETAK ULANG. |
 | Cetak rekap sesi | 1.3 | Rilis v0.38.0 | [F1-03b](2026-11-13-f1-03b-cetak-rekap-sesi-design.md), mesin baris yang sama (`ReceiptContent.sections`) |
 | USB langsung tanpa driver | - | Lewat dialog cetak sistem | Bila ada permintaan |
-| Kasir tetap terbuka bila pengaturan struk gagal dibaca | - | Belum: galat baca membuat layar kasir gagal dimuat | Jatuh ke bawaan + log |
-| Log galat cetak non-printer (PlatformException) | - | Belum: pesan umum "Struk gagal dicetak" | Catat ke log diagnostik |
+| Kasir tetap terbuka bila pengaturan struk gagal dibaca | - | Rilis v0.142.0 | [F1-06c](2026-11-27-f1-06c-struk-tahan-galat-design.md): bawaan + `debugPrint`; Kasir, Meja, Riwayat, Pelanggan |
+| Log galat cetak non-printer (PlatformException) | - | Rilis v0.142.0 | [F1-06c](2026-11-27-f1-06c-struk-tahan-galat-design.md): dicatat lewat `debugPrint`, pesan layar tetap umum; log di dalam aplikasi belum ada |

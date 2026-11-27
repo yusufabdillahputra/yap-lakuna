@@ -3,6 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'dining_repository.dart';
 import 'session_repository.dart';
@@ -52,7 +53,11 @@ class LocalDiningRepository extends DiningRepository {
       timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
       canPay: staff.can(Permission.salesCreate),
       canVoid: staff.can(Permission.salesVoid),
-      receipt: await loadReceiptConfig(_store, scope),
+      receipt: await loadReceiptConfigOrDefault(
+        _store,
+        scope,
+        onError: logReceiptError,
+      ),
       printer: await loadPrinterSelection(_preferences),
       kitchenPrinter: await loadKitchenPrinter(_preferences),
       barPrinter: await loadBarPrinter(_preferences),
@@ -316,7 +321,11 @@ class LocalDiningRepository extends DiningRepository {
           businessName: ctx.tenant.name,
           outletName: ctx.outlet.name,
           timezone: ctx.outlet.timezone ?? ctx.tenant.timezone,
-          receipt: await loadReceiptConfig(_store, scope),
+          receipt: await loadReceiptConfigOrDefault(
+            _store,
+            scope,
+            onError: logReceiptError,
+          ),
           printer: await loadPrinterSelection(_preferences),
         );
       });

@@ -225,4 +225,22 @@ void main() {
     final saved = await save(const QrisStaticSettings(merchantName: 'BARU'));
     expect(saved.settings.merchantName, 'BARU');
   });
+
+  test('id gambar rusak diabaikan, isian lain tetap (F1-06c)', () async {
+    await save(const QrisStaticSettings(merchantName: 'WARUNG'));
+    final row = await Setting.db.findFirstRow(
+      store.session,
+      where: (t) => t.key.equals(qrisStaticSettingKey),
+    );
+    await Setting.db.updateRow(
+      store.session,
+      row!.copyWith(
+        valueJson: '{"merchantName":"WARUNG","mediaId":"bukan-uuid"}',
+      ),
+    );
+    final loaded = await loadQrisConfig(store, scope);
+    expect(loaded.settings.merchantName, 'WARUNG');
+    expect(loaded.settings.mediaId, isNull);
+    expect(loaded.imageBytes, isNull);
+  });
 }

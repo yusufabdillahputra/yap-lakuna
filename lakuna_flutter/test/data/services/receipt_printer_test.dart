@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -139,6 +140,38 @@ void main() {
       expect(bt.written, encodeEscPos(lines));
     });
 
+    test('galat plugin dicatat lalu dilempar ulang; PrinterFailure tidak '
+        'dicatat (F1-06c)', () async {
+      final logs = <String>[];
+      final original = debugPrint;
+      debugPrint = (message, {wrapWidth}) => logs.add(message ?? '');
+      addTearDown(() => debugPrint = original);
+
+      final bt = _FakeBluetooth(
+        writeError: PlatformException(code: 'write_error', message: 'putus'),
+      );
+      final printer = PlatformReceiptPrinter(
+        bluetooth: bt,
+        bluetoothSupported: true,
+      );
+      await expectLater(
+        printer.print(rpp, lines, ReceiptPaper.mm58, jobName: 'PST-1'),
+        throwsA(isA<PlatformException>()),
+      );
+      expect(logs.single, startsWith('Cetak gagal (print bluetooth PST-1)'));
+      expect(logs.single, contains('write_error'));
+
+      logs.clear();
+      bt
+        ..writeError = null
+        ..permission = false;
+      await expectLater(
+        printer.print(rpp, lines, ReceiptPaper.mm58, jobName: 'PST-2'),
+        throwsA(isA<PrinterFailure>()),
+      );
+      expect(logs, isEmpty);
+    });
+
     test(
       'dua cetak bersamaan ke dua printer tidak tertukar (F1-10j)',
       () async {
@@ -272,9 +305,12 @@ void main() {
 }
 
 class _FakeBluetooth implements BluetoothThermal {
-  _FakeBluetooth({this.permission = true});
+  _FakeBluetooth({this.permission = true, this.writeError});
 
   bool permission;
+
+  /// Galat plugin yang dilempar [write] (F1-06c).
+  Object? writeError;
   final calls = <String>[];
   List<int>? written;
 
@@ -318,6 +354,7 @@ class _FakeBluetooth implements BluetoothThermal {
   @override
   Future<bool> write(List<int> bytes) async {
     calls.add('write');
+    if (writeError case final e?) throw e;
     written = bytes;
     await Future<void>.delayed(const Duration(milliseconds: 5));
     writes.add((current, bytes));

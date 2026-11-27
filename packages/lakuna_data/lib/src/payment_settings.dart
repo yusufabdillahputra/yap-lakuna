@@ -6,6 +6,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
+import 'json_uuid.dart';
 import 'media.dart';
 import 'sales.dart' show SalePaymentRequest;
 import 'settings_scope.dart';
@@ -34,7 +35,7 @@ class QrisStaticSettings {
     final media = json['mediaId'];
     return QrisStaticSettings(
       enabled: json['enabled'] == true,
-      mediaId: media is String ? UuidValue.fromString(media) : null,
+      mediaId: media is String ? tryUuid(media) : null,
       merchantName: text('merchantName'),
       nmid: text('nmid'),
       terminalCode: text('terminalCode'),
@@ -195,15 +196,25 @@ Future<UuidValue> requireQrisConfirmer(
   return confirmer;
 }
 
-/// Pengaturan QRIS statis cabang [scope].
-Future<QrisConfig> loadQrisConfig(LakunaStore store, CatalogScope scope) async {
+/// Pengaturan QRIS statis cabang [scope]. Berkas gambar yang tidak bisa
+/// dibaca dilewati (QRIS tidak siap dipakai) dan dilaporkan ke [onError],
+/// supaya Kasir tetap terbuka (F1-06c).
+Future<QrisConfig> loadQrisConfig(
+  LakunaStore store,
+  CatalogScope scope, {
+  void Function(Object error, StackTrace stack)? onError,
+}) async {
   final settings = await readQrisSettings(store.session, scope);
   final media = await _media(store.session, null, scope, settings.mediaId);
-  return QrisConfig(
-    settings: settings,
-    media: media,
-    imageBytes: media == null ? null : await readMediaFile(store, media),
-  );
+  Uint8List? imageBytes;
+  if (media != null) {
+    try {
+      imageBytes = await readMediaFile(store, media);
+    } on Object catch (e, st) {
+      onError?.call(e, st);
+    }
+  }
+  return QrisConfig(settings: settings, media: media, imageBytes: imageBytes);
 }
 
 /// Membaca isian QRIS statis cabang [scope] (bawaan: nonaktif).

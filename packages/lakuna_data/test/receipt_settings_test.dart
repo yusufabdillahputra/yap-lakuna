@@ -269,6 +269,41 @@ void main() {
     );
   });
 
+  test('id logo rusak diabaikan, isian lain tetap (F1-06c)', () async {
+    await save(const ReceiptSettings(paper: ReceiptPaper.mm80));
+    final row = await Setting.db.findFirstRow(
+      store.session,
+      where: (t) => t.key.equals(receiptSettingKey),
+    );
+    await Setting.db.updateRow(
+      store.session,
+      row!.copyWith(
+        valueJson: '{"paper":"mm80","logoMediaId":"bukan-uuid","header":7}',
+      ),
+    );
+    final config = await loadReceiptConfig(store, scope);
+    expect(config.settings.paper, ReceiptPaper.mm80);
+    expect(config.settings.logoMediaId, isNull);
+    expect(config.settings.header, isNull);
+  });
+
+  test('galat lain saat memuat → konfigurasi bawaan, galat dicatat '
+      '(F1-06c)', () async {
+    await save(const ReceiptSettings(paper: ReceiptPaper.mm80));
+    await store.close();
+    final errors = <Object>[];
+    final config = await loadReceiptConfigOrDefault(
+      store,
+      scope,
+      onError: (e, _) => errors.add(e),
+    );
+    expect(config.settings.paper, ReceiptPaper.mm58);
+    expect(config.logoImage, isNull);
+    expect(errors, hasLength(1));
+    // tearDown menutup store lagi.
+    store = await LakunaStore.open('${dir.path}/lakuna.sqlite');
+  });
+
   test('cabang lain tidak terbaca', () async {
     await save(const ReceiptSettings(paper: ReceiptPaper.mm80));
     final other = CatalogScope(

@@ -7,6 +7,59 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.142.0] - 2026-11-27
+
+Kasir tidak lagi gagal dibuka karena pengaturan struk yang rusak, dan galat
+cetak yang bukan dari printer kini tercatat. Ini gap keenam di daftar
+`docs/superpowers/GAP-FASE1.md`.
+
+### Diperbaiki
+
+- **Kasir, Meja, Riwayat, Pelanggan:** pengaturan struk yang tidak bisa
+  dibaca dulu membuat seluruh layar gagal dimuat, padahal struk baru
+  dipakai setelah bayar. Kini layar tetap terbuka dengan struk bawaan
+  (58 mm, tanpa header dan rekening khusus), dan galatnya dicatat.
+- Id gambar yang rusak di pengaturan struk atau QRIS (mis. dari sinkron
+  atau backup lama) membuat query SQLite gagal (`unrecognized token`),
+  sehingga Kasir tidak terbuka. `UuidValue.fromString` tidak memeriksa isi;
+  id kini divalidasi dan id rusak diabaikan, isian lain tetap dipakai.
+- Berkas logo struk yang tidak bisa dibaca dilewati: struk tetap dicetak
+  tanpa logo. Berkas gambar QRIS yang tidak bisa dibaca juga dilewati
+  (QRIS tidak tampil di Kasir), bukan membuat Kasir gagal dimuat.
+  Keduanya dicatat.
+- **Galat cetak non-printer** (mis. `PlatformException` dari plugin
+  Bluetooth atau dialog cetak) dulu hanya menampilkan *Struk gagal
+  dicetak* tanpa jejak. Kini operasi, jenis printer, nomor nota, galat,
+  dan stack-nya dicatat. Pesan di layar tidak berubah.
+
+### Catatan teknis
+
+- `loadReceiptConfig(..., onError:)` melaporkan galat yang dilewati.
+  `loadReceiptConfigOrDefault` memberi `ReceiptConfig` bawaan untuk galat
+  lain; dipakai repositori Kasir, Meja (dua tempat), Riwayat, dan
+  Pelanggan. Pengaturan › Struk & printer tetap memakai
+  `loadReceiptConfig`, sehingga galat muatnya masih tampil di sana.
+- `tryUuid` (`UuidValue.withFormatValidation`) dipakai
+  `ReceiptSettings.fromJson` dan `QrisStaticSettings.fromJson`.
+- `loadQrisConfig(..., onError:)` melewati berkas gambar yang tidak bisa
+  dibaca; repositori Kasir mencatatnya.
+- `PlatformReceiptPrinter` membungkus `print`, `sharePdf`,
+  `printDocument`, dan `shareDocument` dengan `_logged`: `PrinterFailure`
+  dilempar ulang tanpa log, galat lain dicatat lalu dilempar ulang.
+- Log = `logError` baru di `lib/utils/log_error.dart` (`debugPrint`:
+  stdout di desktop, logcat di Android), sama seperti galat muat di
+  `bootstrap.dart`. Log di dalam aplikasi belum ada.
+- Tes:
+  - data: id logo rusak, galat lain saat memuat (store tertutup), id
+    gambar QRIS rusak;
+  - repositori kasir: pengaturan struk rusak (galat tercatat), id logo
+    dan id gambar QRIS rusak (gagal sebelum perubahan ini), kasir tetap
+    termuat;
+  - printer Bluetooth: `PlatformException` dicatat dan dilempar ulang,
+    `PrinterFailure` tidak dicatat.
+- Spec baru `docs/superpowers/specs/2026-11-27-f1-06c-struk-tahan-galat-design.md`
+  dan rencananya.
+
 ## [0.141.0] - 2026-11-27
 
 Lakuna kini membaca kode QR di gambar stiker QRIS secara offline, sesuai
@@ -8160,7 +8213,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...HEAD
+[0.142.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...v0.142.0
 [0.141.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...v0.141.0
 [0.140.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.139.0...v0.140.0
 [0.139.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.138.0...v0.139.0

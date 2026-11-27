@@ -2,6 +2,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'cashier_repository.dart';
 import 'session_repository.dart';
@@ -46,7 +47,7 @@ class LocalCashierRepository extends CashierRepository {
         openedByName: opener?.name ?? '',
       );
     }
-    final qris = await loadQrisConfig(_store, scope);
+    final qris = await loadQrisConfig(_store, scope, onError: logQrisError);
     final salesRules = await loadSalesRules(_store.session, scope);
     return CashierData(
       salesRules: salesRules,
@@ -79,7 +80,11 @@ class LocalCashierRepository extends CashierRepository {
       canSellOnCredit: staff.can(Permission.debtsManage),
       canDiscount: staff.can(Permission.salesDiscount),
       canAddCustomer: staff.can(Permission.customersManage),
-      receipt: await loadReceiptConfig(_store, scope),
+      receipt: await loadReceiptConfigOrDefault(
+        _store,
+        scope,
+        onError: logReceiptError,
+      ),
       printer: await loadPrinterSelection(_preferences),
     );
   });
