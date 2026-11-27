@@ -87,5 +87,5 @@ mencocokkan hutang atau harga beli tidak perlu mencari kertas fakturnya.
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
 | Foto faktur di form dan detail pembelian | *Lihat foto faktur* (1.19b) | Rilis v0.50.0 | Penampil foto layar penuh dipakai bersama foto nota pengeluaran. |
-| Lebih dari satu foto per faktur | — | Belum | Faktur berlembar banyak: satu foto dulu (bisa foto berdampingan). |
+| Lebih dari satu foto per faktur | — | Rilis v0.160.0 | [F1-12m](2026-11-27-f1-12m-beberapa-foto-faktur-design.md): sampai 5 foto, lembar ke-2 dst. di `purchase_invoice_pages`. |
 | Kecilkan foto | Storeku F1-07 | Rilis v0.62.0 | [F1-07l](2026-11-14-f1-07l-kecilkan-foto-design.md): JPEG 2.000 px, pilih sampai 20 MB; WebP masih gap. |

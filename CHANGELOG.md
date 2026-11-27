@@ -7,6 +7,54 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.160.0] - 2026-11-27
+
+Faktur supplier yang berlembar banyak kini bisa difoto per lembar. Ini gap
+23 di daftar rapikan Fase 1 (F1-12m, form pembelian 1.19 dan rincian
+pembelian 1.19b).
+
+### Ditambahkan
+
+- **Sampai 5 foto per faktur pembelian.** Di form *Pembelian baru* / draf,
+  setelah foto pertama muncul tombol **Tambah foto** (dan *Ambil foto
+  faktur* di ponsel) untuk lembar berikutnya. Foto tampil sebagai deretan
+  gambar kecil dengan keterangan *2 dari 5 foto*; tanda × melepas satu
+  foto sebelum disimpan.
+- Rincian pembelian (1.19b): deretan gambar kecil semua foto, ketuk untuk
+  layar penuh dengan judul *Foto 2 dari 3*, **Tambah foto** untuk pembelian
+  yang sudah diterima, dan tanda × per foto dengan konfirmasi *Hapus foto
+  faktur?*. Menghapus foto pertama menaikkan foto kedua ke depan.
+- Foto yang sama dipilih dua kali hanya tersimpan sekali; foto ke-6
+  ditolak dengan pesan *Paling banyak 5 foto per faktur*.
+
+### Diubah
+
+- Tombol *Ganti foto* di rincian pembelian diganti **Tambah foto** dan
+  tanda × per foto.
+- Foto draf yang berkasnya belum ada di perangkat ini tampil sebagai kotak
+  *Belum ada di perangkat ini* di deretan foto dan tetap tersimpan saat
+  foto lain ditambah.
+- Panduan *Pembelian* (ID dan EN) menjelaskan beberapa foto faktur.
+
+### Catatan teknis
+
+- Tabel baru `purchase_invoice_pages` (`purchase_id`, `media_id`,
+  `position` 2..5, kolom sync lengkap, hapus lunak), migrasi
+  `foto-faktur-lembar`. Foto pertama tetap di `purchases.invoice_media_id`,
+  jadi pembelian lama tidak perlu dipindah. Lembar yang posisinya tidak
+  berubah tidak ditulis ulang; semua perubahan foto berada di transaksi
+  dokumen pembelian (versi naik, outbox).
+- Data: `PurchaseRequest.invoicePhotos` (`KeepInvoicePhoto` /
+  `AddInvoicePhoto`, `null` = tidak diubah), `PurchaseDetail.invoiceMediaIds`,
+  `addPurchaseInvoicePhoto`, `removePurchaseInvoicePhoto`,
+  `loadPurchaseInvoicePhotos`, `PurchaseInvoicePhotoLimit`,
+  `PurchaseLimits.invoicePhotoMaxCount`. API satu foto F1-12b tetap
+  (`invoicePhoto` / `setPurchaseInvoicePhoto` mengganti semua foto).
+- Form: setelah simpan draf, foto baru diberi id media agar simpan
+  berikutnya mengirimnya sebagai foto lama; galat baca foto draf tetap
+  mencatat id foto agar menambah foto tidak melepas foto lama diam-diam.
+- Widget bersama `InvoicePhotoStrip`; `showPhotoViewer` menerima `title`.
+
 ## [0.159.0] - 2026-11-27
 
 Barang yang dibeli per dus kini langsung masuk pembelian dalam dus. Ini gap
@@ -8870,7 +8918,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...HEAD
+[0.160.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.159.0...v0.160.0
 [0.159.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.158.0...v0.159.0
 [0.158.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.157.0...v0.158.0
 [0.157.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.156.0...v0.157.0

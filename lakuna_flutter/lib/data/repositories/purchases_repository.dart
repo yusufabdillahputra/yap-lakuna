@@ -194,17 +194,18 @@ abstract class PurchasesRepository {
     Iterable<UuidValue> variantIds,
   );
 
-  /// Isi foto faktur pembelian [id] (F1-12b); `null` bila tidak ada atau
-  /// berkasnya belum ada di perangkat ini.
-  Future<Result<Uint8List?>> invoicePhoto(UuidValue id);
+  /// Semua foto faktur pembelian [id] berurutan (F1-12b, F1-12m);
+  /// `bytes` kosong bila berkasnya belum ada di perangkat ini.
+  Future<Result<List<PurchaseInvoicePhotoFile>>> invoicePhotos(UuidValue id);
 
-  /// Memasang atau mengganti foto faktur. Gagal dengan
-  /// `PurchaseInvoicePhotoInvalid` atau `PurchaseNotFound`.
-  Future<Result<Purchase>> setInvoicePhoto(
+  /// Menambah foto faktur di akhir daftar. Gagal dengan
+  /// `PurchaseInvoicePhotoInvalid`, `PurchaseInvoicePhotoLimit`, atau
+  /// `PurchaseNotFound`.
+  Future<Result<Purchase>> addInvoicePhoto(
     UuidValue id,
     PurchaseInvoicePhoto photo,
   );
 
-  /// Mengosongkan foto faktur.
-  Future<Result<Purchase>> clearInvoicePhoto(UuidValue id);
+  /// Melepas foto faktur [mediaId] dari pembelian [id].
+  Future<Result<Purchase>> removeInvoicePhoto(UuidValue id, UuidValue mediaId);
 }

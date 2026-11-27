@@ -4490,11 +4490,49 @@
   "purchaseInvoicePhoto": "Invoice photo",
   "purchaseInvoicePhotoPick": "Attach invoice photo",
   "purchaseInvoicePhotoCamera": "Take invoice photo",
-  "purchaseInvoicePhotoReplace": "Replace photo",
+  "purchaseInvoicePhotoAdd": "Add photo",
+  "purchaseInvoicePhotoCount": "{count} of {max} photos",
+  "@purchaseInvoicePhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoPage": "Photo {index} of {count}",
+  "@purchaseInvoicePhotoPage": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoRemoveAt": "Remove photo {index}",
+  "@purchaseInvoicePhotoRemoveAt": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "purchaseInvoicePhotoMissingShort": "Not on this device yet",
+  "purchaseInvoicePhotoLimit": "Up to {max} photos per invoice.",
+  "@purchaseInvoicePhotoLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "purchaseInvoicePhotoRemove": "Remove photo",
   "purchaseInvoicePhotoView": "View invoice photo",
   "purchaseInvoicePhotoNone": "No invoice photo yet.",
-  "purchaseInvoicePhotoMissing": "The invoice photo isn't on this device yet.",
   "purchaseInvoicePhotoInvalid": "The invoice photo must be a PNG/JPEG/WebP image, up to 20 MB.",
   "purchaseInvoicePhotoFailed": "Couldn't save the invoice photo. Check the camera permission or try another file.",
   "purchaseInvoicePhotoRemoveTitle": "Remove the invoice photo?",

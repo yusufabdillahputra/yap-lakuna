@@ -74,6 +74,15 @@ class PurchaseInvoicePhotoInvalid implements Exception {
   String toString() => 'PurchaseInvoicePhotoInvalid';
 }
 
+/// Pembelian sudah punya [PurchaseLimits.invoicePhotoMaxCount] foto faktur
+/// (F1-12m).
+class PurchaseInvoicePhotoLimit implements Exception {
+  const PurchaseInvoicePhotoLimit();
+
+  @override
+  String toString() => 'PurchaseInvoicePhotoLimit';
+}
+
 class PurchaseNotFound implements Exception {
   @override
   String toString() => 'PurchaseNotFound';
@@ -141,11 +150,40 @@ class PurchaseInvoicePhoto {
   final String fileName;
 }
 
+/// Satu foto di daftar foto faktur (F1-12m): foto yang sudah tersimpan di
+/// pembelian ini ([KeepInvoicePhoto]) atau foto baru ([AddInvoicePhoto]).
+sealed class PurchaseInvoicePhotoSlot {
+  const PurchaseInvoicePhotoSlot();
+}
+
+final class KeepInvoicePhoto extends PurchaseInvoicePhotoSlot {
+  const KeepInvoicePhoto(this.mediaId);
+
+  final UuidValue mediaId;
+}
+
+final class AddInvoicePhoto extends PurchaseInvoicePhotoSlot {
+  const AddInvoicePhoto(this.photo);
+
+  final PurchaseInvoicePhoto photo;
+}
+
+/// Foto faktur tersimpan; [bytes] `null` bila berkasnya belum ada di
+/// perangkat ini (mis. baru tersinkron).
+class PurchaseInvoicePhotoFile {
+  const PurchaseInvoicePhotoFile({required this.mediaId, this.bytes});
+
+  final UuidValue mediaId;
+  final Uint8List? bytes;
+}
+
 /// Isi form pembelian. [id] = draf yang diubah atau diterima. Supplier dari
 /// [supplierId], atau [newSupplierName] yang dibuat (atau dipakai ulang bila
 /// namanya sudah ada). Foto faktur: [invoicePhoto] baru, atau
 /// [removeInvoicePhoto] untuk mengosongkan; keduanya kosong = foto draf
-/// tetap.
+/// tetap. [invoicePhotos] (F1-12m) menggantikan keduanya: daftar lengkap
+/// foto faktur berurutan, `null` = tidak diubah. [invoicePhoto] sama dengan
+/// daftar berisi satu foto baru, [removeInvoicePhoto] daftar kosong.
 class PurchaseRequest {
   const PurchaseRequest({
     this.id,
@@ -163,6 +201,7 @@ class PurchaseRequest {
     this.note,
     this.invoicePhoto,
     this.removeInvoicePhoto = false,
+    this.invoicePhotos,
   });
 
   final UuidValue? id;
@@ -182,6 +221,16 @@ class PurchaseRequest {
   final String? note;
   final PurchaseInvoicePhoto? invoicePhoto;
   final bool removeInvoicePhoto;
+  final List<PurchaseInvoicePhotoSlot>? invoicePhotos;
+
+  /// Daftar foto yang diminta; `null` = foto tidak diubah.
+  List<PurchaseInvoicePhotoSlot>? get invoicePhotoSlots =>
+      invoicePhotos ??
+      (invoicePhoto != null
+          ? [AddInvoicePhoto(invoicePhoto!)]
+          : removeInvoicePhoto
+          ? const []
+          : null);
 
   bool get hasSupplier =>
       supplierId != null || (newSupplierName?.trim().isNotEmpty ?? false);
@@ -809,6 +858,7 @@ class PurchaseDetail {
     required this.skus,
     required this.baseUnits,
     this.debtPayments = const [],
+    this.invoiceMediaIds = const [],
   });
 
   final Purchase purchase;
@@ -844,6 +894,9 @@ class PurchaseDetail {
 
   /// Pembelian punya foto faktur (berkasnya bisa belum ada di perangkat).
   bool get hasInvoicePhoto => purchase.invoiceMediaId != null;
+
+  /// Semua foto faktur berurutan (F1-12m): foto dokumen lalu lembar.
+  final List<UuidValue> invoiceMediaIds;
 
   int remainingMilli(PurchaseItem item) =>
       item.quantityMilli - (returnedMilli[item.id] ?? 0);
@@ -976,6 +1029,7 @@ Future<PurchaseDetail> loadPurchaseDetail(
         v.id: unitById[productById[v.productId]?.baseUnitId] ?? '',
     },
     debtPayments: await _debtPaymentLines(session, scope.tenantId, p.id),
+    invoiceMediaIds: await _invoiceMediaIds(session, p),
   );
 }
 
@@ -1242,7 +1296,14 @@ void _validate(PurchaseRequest r, {required bool receiving}) {
     receiving: receiving,
   );
   if (issues.isNotEmpty) throw PurchaseInvalid(issues);
-  if (r.invoicePhoto case final photo?) _checkInvoiceInput(photo);
+  final slots = r.invoicePhotoSlots;
+  if (slots == null) return;
+  if (slots.length > PurchaseLimits.invoicePhotoMaxCount) {
+    throw const PurchaseInvoicePhotoLimit();
+  }
+  for (final slot in slots) {
+    if (slot case AddInvoicePhoto(:final photo)) _checkInvoiceInput(photo);
+  }
 }
 
 String? _text(String? s) {
@@ -1261,7 +1322,7 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
   PurchaseRequest r, {
   required UuidValue staffId,
   required bool receiving,
-  PurchaseInvoicePhoto? invoicePhoto,
+  List<PurchaseInvoicePhotoSlot>? invoicePhotos,
 }) async {
   final s = await w.stamp();
   Purchase? existing;
@@ -1305,12 +1366,15 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
       : null;
   final number =
       existing?.number ?? await _nextNumber(w, scope, s.now, isReturn: false);
-  final photo = invoicePhoto ?? r.invoicePhoto;
-  final invoiceMediaId = photo != null
-      ? (await _storeInvoicePhoto(w, store, scope, photo, s)).id
-      : r.removeInvoicePhoto
+  final current = existing == null
+      ? const <UuidValue>[]
+      : await _invoiceMediaIds(w.session, existing, transaction: w.transaction);
+  final photos = invoicePhotos == null
       ? null
-      : existing?.invoiceMediaId;
+      : await _resolveInvoiceSlots(w, store, scope, invoicePhotos, current, s);
+  final invoiceMediaId = photos == null
+      ? existing?.invoiceMediaId
+      : photos.firstOrNull;
   final debt = receiving && totals.total > r.paid;
   final fields = (
     supplierId: supplierId,
@@ -1407,6 +1471,9 @@ Future<(Purchase, List<PurchaseItem>)> _writePurchase(
         s,
       );
     }
+  }
+  if (photos != null) {
+    await _syncInvoicePages(w, scope, doc, photos.skip(1).toList(), s, staffId);
   }
 
   final items = <PurchaseItem>[];
@@ -1531,9 +1598,7 @@ Future<Purchase> savePurchaseDraft(
 }) async {
   _validate(request, receiving: false);
   await _requireActor(store, scope, staffId, _needed());
-  final photo = request.invoicePhoto == null
-      ? null
-      : await _shrinkInvoice(request.invoicePhoto!);
+  final photos = await _shrinkSlots(request.invoicePhotoSlots);
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -1542,7 +1607,7 @@ Future<Purchase> savePurchaseDraft(
       request,
       staffId: staffId,
       receiving: false,
-      invoicePhoto: photo,
+      invoicePhotos: photos,
     );
     return doc;
   });
@@ -1565,9 +1630,7 @@ Future<Purchase> receivePurchase(
       drawer: request.paid.value > 0 && request.funding == FundingSource.drawer,
     ),
   );
-  final photo = request.invoicePhoto == null
-      ? null
-      : await _shrinkInvoice(request.invoicePhoto!);
+  final photos = await _shrinkSlots(request.invoicePhotoSlots);
   return store.write(actor: staffId, (w) async {
     final (doc, _) = await _writePurchase(
       store,
@@ -1576,7 +1639,7 @@ Future<Purchase> receivePurchase(
       request,
       staffId: staffId,
       receiving: true,
-      invoicePhoto: photo,
+      invoicePhotos: photos,
     );
     return doc;
   });
@@ -1640,8 +1703,145 @@ Future<MediaFile> _storeInvoicePhoto(
   outletId: scope.outletId,
 );
 
-/// Memasang atau mengganti foto faktur [purchaseId] (draf atau diterima).
-/// Stok, HPP, kas, dan hutang tidak berubah.
+/// Foto baru di [slots] dikecilkan di luar transaksi (F1-07l).
+Future<List<PurchaseInvoicePhotoSlot>?> _shrinkSlots(
+  List<PurchaseInvoicePhotoSlot>? slots,
+) async {
+  if (slots == null) return null;
+  return [
+    for (final slot in slots)
+      switch (slot) {
+        AddInvoicePhoto(:final photo) => AddInvoicePhoto(
+          await _shrinkInvoice(photo),
+        ),
+        KeepInvoicePhoto() => slot,
+      },
+  ];
+}
+
+/// Foto faktur [p] berurutan: `invoice_media_id` lalu lembar (F1-12m).
+Future<List<UuidValue>> _invoiceMediaIds(
+  DatabaseSession session,
+  Purchase p, {
+  Transaction? transaction,
+}) async {
+  // Lembar tanpa foto pertama (mis. setelah konflik sync) tetap terlihat
+  // agar bisa dilepas atau naik ke depan.
+  final pages = await _invoicePages(session, p.id, transaction: transaction);
+  return [
+    ?p.invoiceMediaId,
+    for (final page in pages)
+      if (page.mediaId != p.invoiceMediaId) page.mediaId,
+  ];
+}
+
+Future<List<PurchaseInvoicePage>> _invoicePages(
+  DatabaseSession session,
+  UuidValue purchaseId, {
+  Transaction? transaction,
+}) => PurchaseInvoicePage.db.find(
+  session,
+  where: (r) => r.purchaseId.equals(purchaseId) & r.deletedAt.equals(null),
+  orderBy: (r) => r.position,
+  transaction: transaction,
+);
+
+/// Daftar media dari [slots]: foto baru disimpan, foto lama harus milik
+/// [current], foto kembar (hash sama) diabaikan.
+Future<List<UuidValue>> _resolveInvoiceSlots(
+  SyncTx w,
+  LakunaStore store,
+  CatalogScope scope,
+  List<PurchaseInvoicePhotoSlot> slots,
+  List<UuidValue> current,
+  SyncStamp s,
+) async {
+  final ids = <UuidValue>[];
+  for (final slot in slots) {
+    final id = switch (slot) {
+      KeepInvoicePhoto(:final mediaId) =>
+        current.contains(mediaId)
+            ? mediaId
+            : throw const PurchaseInvoicePhotoInvalid(),
+      AddInvoicePhoto(:final photo) => (await _storeInvoicePhoto(
+        w,
+        store,
+        scope,
+        photo,
+        s,
+      )).id,
+    };
+    if (!ids.contains(id)) ids.add(id);
+  }
+  if (ids.length > PurchaseLimits.invoicePhotoMaxCount) {
+    throw const PurchaseInvoicePhotoLimit();
+  }
+  return ids;
+}
+
+/// Menyamakan lembar aktif [p] dengan [rest] (foto ke-2 dst.): posisi
+/// 2..N berurutan, baris yang tidak berubah tidak ditulis ulang, sisanya
+/// dihapus lunak.
+Future<void> _syncInvoicePages(
+  SyncTx w,
+  CatalogScope scope,
+  Purchase p,
+  List<UuidValue> rest,
+  SyncStamp s,
+  UuidValue staffId,
+) async {
+  final old = await _invoicePages(w.session, p.id, transaction: w.transaction);
+  for (var i = 0; i < old.length || i < rest.length; i++) {
+    final position = i + 2;
+    if (i >= rest.length) {
+      await w.update(
+        old[i].copyWith(
+          deletedAt: s.now,
+          version: old[i].version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    } else if (i >= old.length) {
+      await w.insert(
+        PurchaseInvoicePage(
+          tenantId: scope.tenantId,
+          outletId: p.outletId,
+          purchaseId: p.id,
+          mediaId: rest[i],
+          position: position,
+          createdAt: s.now,
+          updatedAt: s.now,
+          createdBy: staffId,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    } else if (old[i].mediaId != rest[i] || old[i].position != position) {
+      await w.update(
+        old[i].copyWith(
+          mediaId: rest[i],
+          position: position,
+          version: old[i].version + 1,
+          updatedAt: s.now,
+          updatedBy: staffId,
+          hlc: s.hlc.toString(),
+          originDeviceId: s.deviceId,
+        ),
+        s,
+      );
+    }
+  }
+}
+
+/// Memasang atau mengganti foto faktur [purchaseId] (draf atau diterima)
+/// dengan satu foto; foto lain dilepas. Stok, HPP, kas, dan hutang tidak
+/// berubah.
 Future<Purchase> setPurchaseInvoicePhoto(
   LakunaStore store,
   CatalogScope scope, {
@@ -1652,24 +1852,86 @@ Future<Purchase> setPurchaseInvoicePhoto(
   // Izin dulu agar staf tanpa izin tidak memicu dekode foto.
   await _requireActor(store, scope, staffId, _needed());
   final shrunk = await _shrinkInvoice(photo);
-  return _updateInvoicePhoto(store, scope, staffId, purchaseId, shrunk);
+  return _rewriteInvoicePhotos(
+    store,
+    scope,
+    staffId,
+    purchaseId,
+    photo: shrunk,
+    (current, added) => [added!],
+  );
 }
 
-/// Mengosongkan foto faktur [purchaseId].
+/// Menambah foto faktur di akhir daftar [purchaseId] (F1-12m); foto yang
+/// sama tidak ditambah dua kali, foto ke-6 [PurchaseInvoicePhotoLimit].
+Future<Purchase> addPurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue purchaseId,
+  required PurchaseInvoicePhoto photo,
+}) async {
+  await _requireActor(store, scope, staffId, _needed());
+  final shrunk = await _shrinkInvoice(photo);
+  return _rewriteInvoicePhotos(
+    store,
+    scope,
+    staffId,
+    purchaseId,
+    photo: shrunk,
+    (current, added) {
+      if (current.contains(added)) return current;
+      if (current.length >= PurchaseLimits.invoicePhotoMaxCount) {
+        throw const PurchaseInvoicePhotoLimit();
+      }
+      return [...current, added!];
+    },
+  );
+}
+
+/// Melepas satu foto faktur [mediaId] dari [purchaseId] (F1-12m); foto
+/// berikutnya naik.
+Future<Purchase> removePurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope, {
+  required UuidValue staffId,
+  required UuidValue purchaseId,
+  required UuidValue mediaId,
+}) => _rewriteInvoicePhotos(
+  store,
+  scope,
+  staffId,
+  purchaseId,
+  (current, _) => [
+    for (final id in current)
+      if (id != mediaId) id,
+  ],
+);
+
+/// Mengosongkan semua foto faktur [purchaseId].
 Future<Purchase> clearPurchaseInvoicePhoto(
   LakunaStore store,
   CatalogScope scope, {
   required UuidValue staffId,
   required UuidValue purchaseId,
-}) => _updateInvoicePhoto(store, scope, staffId, purchaseId, null);
+}) => _rewriteInvoicePhotos(
+  store,
+  scope,
+  staffId,
+  purchaseId,
+  (_, _) => const [],
+);
 
-Future<Purchase> _updateInvoicePhoto(
+/// Menulis daftar foto baru dari [change] (daftar lama, media [photo] yang
+/// baru disimpan). Daftar yang sama tidak menulis ulang dokumen.
+Future<Purchase> _rewriteInvoicePhotos(
   LakunaStore store,
   CatalogScope scope,
   UuidValue staffId,
   UuidValue purchaseId,
+  List<UuidValue> Function(List<UuidValue> current, UuidValue? added) change, {
   PurchaseInvoicePhoto? photo,
-) async {
+}) async {
   await _requireActor(store, scope, staffId, _needed());
   return store.write(actor: staffId, (w) async {
     final p = await _purchase(
@@ -1678,16 +1940,21 @@ Future<Purchase> _updateInvoicePhoto(
       purchaseId,
       transaction: w.transaction,
     );
-    if (photo == null && p.invoiceMediaId == null) return p;
+    final current = await _invoiceMediaIds(
+      w.session,
+      p,
+      transaction: w.transaction,
+    );
+    if (photo == null && current.isEmpty) return p;
     final s = await w.stamp();
     final media = photo == null
         ? null
         : await _storeInvoicePhoto(w, store, scope, photo, s);
-    // Foto yang sama (hash sama) tidak menulis ulang dokumen.
-    if (media != null && media.id == p.invoiceMediaId) return p;
-    return w.update(
+    final next = change(current, media?.id);
+    if (_sameIds(next, current)) return p;
+    final doc = await w.update(
       p.copyWith(
-        invoiceMediaId: media?.id,
+        invoiceMediaId: next.firstOrNull,
         version: p.version + 1,
         updatedAt: s.now,
         updatedBy: staffId,
@@ -1696,25 +1963,69 @@ Future<Purchase> _updateInvoicePhoto(
       ),
       s,
     );
+    await _syncInvoicePages(w, scope, doc, next.skip(1).toList(), s, staffId);
+    return doc;
   });
 }
 
-/// Isi foto faktur [purchaseId]; `null` bila tidak ada, bukan milik cabang
-/// ini, atau berkasnya belum ada di perangkat ini.
-Future<Uint8List?> loadPurchaseInvoicePhoto(
+bool _sameIds(List<UuidValue> a, List<UuidValue> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
+Future<Purchase?> _visiblePurchase(
   LakunaStore store,
   CatalogScope scope,
   UuidValue purchaseId,
 ) async {
   final p = await Purchase.db.findById(store.session, purchaseId);
-  if (p == null ||
-      p.tenantId != scope.tenantId ||
-      p.outletId != scope.outletId ||
-      p.deletedAt != null ||
-      p.invoiceMediaId == null) {
-    return null;
-  }
-  final media = await MediaFile.db.findById(store.session, p.invoiceMediaId!);
+  return p == null ||
+          p.tenantId != scope.tenantId ||
+          p.outletId != scope.outletId ||
+          p.deletedAt != null
+      ? null
+      : p;
+}
+
+/// Isi foto faktur pertama [purchaseId]; `null` bila tidak ada, bukan milik
+/// cabang ini, atau berkasnya belum ada di perangkat ini.
+Future<Uint8List?> loadPurchaseInvoicePhoto(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue purchaseId,
+) async {
+  final p = await _visiblePurchase(store, scope, purchaseId);
+  if (p?.invoiceMediaId == null) return null;
+  return _readInvoiceMedia(store, scope, p!.invoiceMediaId!);
+}
+
+/// Semua foto faktur [purchaseId] berurutan (F1-12m); kosong bila bukan
+/// milik cabang ini.
+Future<List<PurchaseInvoicePhotoFile>> loadPurchaseInvoicePhotos(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue purchaseId,
+) async {
+  final p = await _visiblePurchase(store, scope, purchaseId);
+  if (p == null) return const [];
+  return [
+    for (final id in await _invoiceMediaIds(store.session, p))
+      PurchaseInvoicePhotoFile(
+        mediaId: id,
+        bytes: await _readInvoiceMedia(store, scope, id),
+      ),
+  ];
+}
+
+Future<Uint8List?> _readInvoiceMedia(
+  LakunaStore store,
+  CatalogScope scope,
+  UuidValue mediaId,
+) async {
+  final media = await MediaFile.db.findById(store.session, mediaId);
   return media == null || media.tenantId != scope.tenantId
       ? null
       : readMediaFile(store, media);
@@ -1755,6 +2066,8 @@ Future<void> deletePurchaseDraft(
         s,
       );
     }
+    // Lembar foto ikut terhapus lunak seperti baris (F1-12m).
+    await _syncInvoicePages(w, scope, p, const [], s, staffId);
     await w.update(
       p.copyWith(
         deletedAt: s.now,

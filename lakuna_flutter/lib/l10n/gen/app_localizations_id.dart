@@ -7893,7 +7893,30 @@ class AppLocalizationsId extends AppLocalizations {
   String get purchaseInvoicePhotoCamera => 'Ambil foto faktur';
 
   @override
-  String get purchaseInvoicePhotoReplace => 'Ganti foto';
+  String get purchaseInvoicePhotoAdd => 'Tambah foto';
+
+  @override
+  String purchaseInvoicePhotoCount(int count, int max) {
+    return '$count dari $max foto';
+  }
+
+  @override
+  String purchaseInvoicePhotoPage(int index, int count) {
+    return 'Foto $index dari $count';
+  }
+
+  @override
+  String purchaseInvoicePhotoRemoveAt(int index) {
+    return 'Hapus foto $index';
+  }
+
+  @override
+  String get purchaseInvoicePhotoMissingShort => 'Belum ada di perangkat ini';
+
+  @override
+  String purchaseInvoicePhotoLimit(int max) {
+    return 'Paling banyak $max foto per faktur.';
+  }
 
   @override
   String get purchaseInvoicePhotoRemove => 'Hapus foto';
@@ -7903,10 +7926,6 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchaseInvoicePhotoNone => 'Belum ada foto faktur.';
-
-  @override
-  String get purchaseInvoicePhotoMissing =>
-      'Foto faktur belum ada di perangkat ini.';
 
   @override
   String get purchaseInvoicePhotoInvalid =>

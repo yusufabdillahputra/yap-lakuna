@@ -65,6 +65,7 @@ import 'organization/tenant.dart' as _icpow00o;
 import 'organization/tenant_plan.dart' as _ii59gw8o;
 import 'purchases/funding_source.dart' as _id2grjc2;
 import 'purchases/purchase.dart' as _i5r1fky7;
+import 'purchases/purchase_invoice_page.dart' as _ia7sya6q;
 import 'purchases/purchase_item.dart' as _i1isbml7;
 import 'purchases/purchase_return.dart' as _ir7vjzgr;
 import 'purchases/purchase_return_item.dart' as _i1em6cmt;
@@ -140,6 +141,7 @@ export 'organization/tenant.dart';
 export 'organization/tenant_plan.dart';
 export 'purchases/funding_source.dart';
 export 'purchases/purchase.dart';
+export 'purchases/purchase_invoice_page.dart';
 export 'purchases/purchase_item.dart';
 export 'purchases/purchase_return.dart';
 export 'purchases/purchase_return_item.dart';
@@ -229,6 +231,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_ii59gw8o.TenantPlan>,
           _is.getType<_id2grjc2.FundingSource>,
           _is.getType<_i5r1fky7.Purchase>,
+          _is.getType<_ia7sya6q.PurchaseInvoicePage>,
           _is.getType<_i1isbml7.PurchaseItem>,
           _is.getType<_ir7vjzgr.PurchaseReturn>,
           _is.getType<_i1em6cmt.PurchaseReturnItem>,
@@ -304,6 +307,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_ii59gw8o.TenantPlan?>,
           _is.getType<_id2grjc2.FundingSource?>,
           _is.getType<_i5r1fky7.Purchase?>,
+          _is.getType<_ia7sya6q.PurchaseInvoicePage?>,
           _is.getType<_i1isbml7.PurchaseItem?>,
           _is.getType<_ir7vjzgr.PurchaseReturn?>,
           _is.getType<_i1em6cmt.PurchaseReturnItem?>,
@@ -386,6 +390,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'TenantPlan',
           'FundingSource',
           'Purchase',
+          'PurchaseInvoicePage',
           'PurchaseItem',
           'PurchaseReturn',
           'PurchaseReturnItem',
@@ -4662,6 +4667,164 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'purchase_invoice_pages',
+      dartName: 'PurchaseInvoicePage',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'purchase_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'media_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'position',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'purchase_invoice_pages_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'purchase_invoice_pages_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'purchase_invoice_pages_fk_2',
+          columns: ['purchase_id'],
+          referenceTable: 'purchases',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'purchase_invoice_pages_fk_3',
+          columns: ['media_id'],
+          referenceTable: 'media_files',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'purchase_invoice_pages_purchase_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'purchase_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'position',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'purchase_items',
       dartName: 'PurchaseItem',
       schema: 'public',
@@ -8824,6 +8987,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i5r1fky7.Purchase) {
       return _i5r1fky7.Purchase.fromJson(data) as T;
     }
+    if (t == _ia7sya6q.PurchaseInvoicePage) {
+      return _ia7sya6q.PurchaseInvoicePage.fromJson(data) as T;
+    }
     if (t == _i1isbml7.PurchaseItem) {
       return _i1isbml7.PurchaseItem.fromJson(data) as T;
     }
@@ -9074,6 +9240,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_i5r1fky7.Purchase?>()) {
       return (data != null ? _i5r1fky7.Purchase.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_ia7sya6q.PurchaseInvoicePage?>()) {
+      return (data != null
+              ? _ia7sya6q.PurchaseInvoicePage.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_i1isbml7.PurchaseItem?>()) {
       return (data != null ? _i1isbml7.PurchaseItem.fromJson(data) : null) as T;
     }
@@ -9237,6 +9409,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _ii59gw8o.TenantPlan => 'TenantPlan',
       _id2grjc2.FundingSource => 'FundingSource',
       _i5r1fky7.Purchase => 'Purchase',
+      _ia7sya6q.PurchaseInvoicePage => 'PurchaseInvoicePage',
       _i1isbml7.PurchaseItem => 'PurchaseItem',
       _ir7vjzgr.PurchaseReturn => 'PurchaseReturn',
       _i1em6cmt.PurchaseReturnItem => 'PurchaseReturnItem',
@@ -9374,6 +9547,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'FundingSource';
       case _i5r1fky7.Purchase():
         return 'Purchase';
+      case _ia7sya6q.PurchaseInvoicePage():
+        return 'PurchaseInvoicePage';
       case _i1isbml7.PurchaseItem():
         return 'PurchaseItem';
       case _ir7vjzgr.PurchaseReturn():
@@ -9598,6 +9773,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'Purchase') {
       return deserialize<_i5r1fky7.Purchase>(data['data']);
     }
+    if (dataClassName == 'PurchaseInvoicePage') {
+      return deserialize<_ia7sya6q.PurchaseInvoicePage>(data['data']);
+    }
     if (dataClassName == 'PurchaseItem') {
       return deserialize<_i1isbml7.PurchaseItem>(data['data']);
     }
@@ -9792,6 +9970,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return _icpow00o.Tenant.t;
       case _i5r1fky7.Purchase:
         return _i5r1fky7.Purchase.t;
+      case _ia7sya6q.PurchaseInvoicePage:
+        return _ia7sya6q.PurchaseInvoicePage.t;
       case _i1isbml7.PurchaseItem:
         return _i1isbml7.PurchaseItem.t;
       case _ir7vjzgr.PurchaseReturn:

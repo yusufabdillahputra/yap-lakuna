@@ -1,0 +1,24 @@
+### Foto faktur ke-2 dan seterusnya (F1-12m). Foto pertama tetap di
+### `purchases.invoice_media_id`; `position` 2..5 berurutan tanpa celah di
+### antara baris yang tidak dihapus.
+class: PurchaseInvoicePage
+table: purchase_invoice_pages
+database: all
+fields:
+  id: UuidValue, defaultModel=random_v7
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  outletId: UuidValue, relation(parent=outlets, onDelete=Restrict), column=outlet_id
+  purchaseId: UuidValue, relation(parent=purchases, onDelete=Restrict), column=purchase_id
+  mediaId: UuidValue, relation(parent=media_files, onDelete=Restrict), column=media_id
+  position: int
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+  deletedAt: DateTime?, column=deleted_at
+  createdBy: UuidValue?, column=created_by
+  updatedBy: UuidValue?, column=updated_by
+  version: int, default=1
+  hlc: String
+  originDeviceId: UuidValue?, column=origin_device_id
+indexes:
+  purchase_invoice_pages_purchase_idx:
+    fields: purchaseId, position

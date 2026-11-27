@@ -13814,11 +13814,41 @@ abstract class AppLocalizations {
   /// **'Ambil foto faktur'**
   String get purchaseInvoicePhotoCamera;
 
-  /// No description provided for @purchaseInvoicePhotoReplace.
+  /// No description provided for @purchaseInvoicePhotoAdd.
   ///
   /// In id, this message translates to:
-  /// **'Ganti foto'**
-  String get purchaseInvoicePhotoReplace;
+  /// **'Tambah foto'**
+  String get purchaseInvoicePhotoAdd;
+
+  /// No description provided for @purchaseInvoicePhotoCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} dari {max} foto'**
+  String purchaseInvoicePhotoCount(int count, int max);
+
+  /// No description provided for @purchaseInvoicePhotoPage.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto {index} dari {count}'**
+  String purchaseInvoicePhotoPage(int index, int count);
+
+  /// No description provided for @purchaseInvoicePhotoRemoveAt.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus foto {index}'**
+  String purchaseInvoicePhotoRemoveAt(int index);
+
+  /// No description provided for @purchaseInvoicePhotoMissingShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada di perangkat ini'**
+  String get purchaseInvoicePhotoMissingShort;
+
+  /// No description provided for @purchaseInvoicePhotoLimit.
+  ///
+  /// In id, this message translates to:
+  /// **'Paling banyak {max} foto per faktur.'**
+  String purchaseInvoicePhotoLimit(int max);
 
   /// No description provided for @purchaseInvoicePhotoRemove.
   ///
@@ -13837,12 +13867,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Belum ada foto faktur.'**
   String get purchaseInvoicePhotoNone;
-
-  /// No description provided for @purchaseInvoicePhotoMissing.
-  ///
-  /// In id, this message translates to:
-  /// **'Foto faktur belum ada di perangkat ini.'**
-  String get purchaseInvoicePhotoMissing;
 
   /// No description provided for @purchaseInvoicePhotoInvalid.
   ///
