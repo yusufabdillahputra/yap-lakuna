@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart' show PdfPageFormat;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:printing/printing.dart';
 
+import '../../utils/log_error.dart';
 import 'receipt_logo_raster.dart';
 import 'receipt_pdf.dart';
 
@@ -233,8 +234,33 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     ];
   }
 
+  /// Galat selain [PrinterFailure] (mis. `PlatformException` plugin)
+  /// dicatat sebelum dilempar ulang; layar tetap menampilkan pesan umum
+  /// (F1-06c).
+  Future<T> _logged<T>(String operation, Future<T> Function() job) async {
+    try {
+      return await job();
+    } on PrinterFailure {
+      rethrow;
+    } on Object catch (e, st) {
+      logError('Cetak gagal ($operation)', e, st);
+      rethrow;
+    }
+  }
+
   @override
   Future<void> print(
+    PrinterSelection printer,
+    List<ReceiptLine> lines,
+    ReceiptPaper paper, {
+    required String jobName,
+    Uint8List? logo,
+  }) => _logged(
+    'print ${printer.kind.name} $jobName',
+    () => _print(printer, lines, paper, jobName: jobName, logo: logo),
+  );
+
+  Future<void> _print(
     PrinterSelection printer,
     List<ReceiptLine> lines,
     ReceiptPaper paper, {
@@ -301,26 +327,36 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     ReceiptPaper paper, {
     required String fileName,
     Uint8List? logo,
-  }) async {
-    return shareDocument(
+  }) => _logged(
+    'sharePdf $fileName',
+    () async => _shareDocument(
       await buildReceiptPdf(lines, paper, logo: logo),
       fileName: fileName,
-    );
-  }
+    ),
+  );
 
   @override
   Future<void> printDocument(
     Uint8List pdf, {
     required String jobName,
     PdfPageFormat format = PdfPageFormat.a5,
-  }) => Printing.layoutPdf(
-    name: jobName,
-    format: format,
-    onLayout: (_) async => pdf,
+  }) => _logged(
+    'printDocument $jobName',
+    () => Printing.layoutPdf(
+      name: jobName,
+      format: format,
+      onLayout: (_) async => pdf,
+    ),
   );
 
   @override
-  Future<String?> shareDocument(
+  Future<String?> shareDocument(Uint8List pdf, {required String fileName}) =>
+      _logged(
+        'shareDocument $fileName',
+        () => _shareDocument(pdf, fileName: fileName),
+      );
+
+  Future<String?> _shareDocument(
     Uint8List pdf, {
     required String fileName,
   }) async {

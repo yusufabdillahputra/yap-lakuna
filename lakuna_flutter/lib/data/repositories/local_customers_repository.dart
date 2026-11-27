@@ -3,6 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'customers_repository.dart';
 import 'session_repository.dart';
@@ -41,7 +42,11 @@ class LocalCustomersRepository extends CustomersRepository {
       canReceive: staff.can(Permission.debtsManage),
       hasOpenSession: drawerCash != null,
       drawerCash: drawerCash,
-      receipt: await loadReceiptConfig(_store, scope),
+      receipt: await loadReceiptConfigOrDefault(
+        _store,
+        scope,
+        onError: logReceiptError,
+      ),
       printer: await loadPrinterSelection(_preferences),
     );
   });

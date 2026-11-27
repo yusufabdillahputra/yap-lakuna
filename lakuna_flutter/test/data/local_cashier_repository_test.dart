@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -89,6 +89,68 @@ void main() {
     await store.close();
     await dir.delete(recursive: true);
   });
+
+  test('pengaturan struk rusak: kasir tetap termuat dengan struk bawaan, '
+      'galat dicatat (F1-06c)', () async {
+    final scope = CatalogScope.of(ctx);
+    await saveReceiptSettings(
+      store,
+      scope,
+      staffId: ctx.owner.id,
+      settings: const ReceiptSettings(paper: ReceiptPaper.mm80),
+    );
+    final row = await Setting.db.findFirstRow(
+      store.session,
+      where: (t) => t.key.equals(receiptSettingKey),
+    );
+    await Setting.db.updateRow(store.session, row!.copyWith(valueJson: '{'));
+    final logs = <String>[];
+    final original = debugPrint;
+    debugPrint = (message, {wrapWidth}) => logs.add(message ?? '');
+    addTearDown(() => debugPrint = original);
+
+    final data = _ok(await repo.load());
+    expect(data.products.single.name, 'Kopi Sachet');
+    expect(data.receipt.settings.paper, ReceiptPaper.mm58);
+    expect(logs.single, startsWith('Pengaturan atau logo struk gagal dibaca'));
+  });
+
+  test(
+    'id logo dan id gambar QRIS rusak: kasir tetap termuat (F1-06c)',
+    () async {
+      final scope = CatalogScope.of(ctx);
+      await saveReceiptSettings(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        settings: const ReceiptSettings(paper: ReceiptPaper.mm80),
+      );
+      await saveQrisSettings(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        settings: const QrisStaticSettings(merchantName: 'WARUNG'),
+      );
+      for (final (key, json) in [
+        (receiptSettingKey, '{"paper":"mm80","logoMediaId":"bukan-uuid"}'),
+        (qrisStaticSettingKey, '{"merchantName":"WARUNG","mediaId":"bukan"}'),
+      ]) {
+        final row = await Setting.db.findFirstRow(
+          store.session,
+          where: (t) => t.key.equals(key),
+        );
+        await Setting.db.updateRow(
+          store.session,
+          row!.copyWith(valueJson: json),
+        );
+      }
+      final data = _ok(await repo.load());
+      expect(data.products.single.name, 'Kopi Sachet');
+      expect(data.receipt.settings.paper, ReceiptPaper.mm80);
+      expect(data.receipt.logoImage, isNull);
+      expect(data.qris, isNull);
+    },
+  );
 
   test('muat katalog kasir tanpa sesi, lalu dengan sesi terbuka', () async {
     var data = _ok(await repo.load());

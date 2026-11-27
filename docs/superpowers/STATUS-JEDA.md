@@ -122,7 +122,8 @@ ulang riwayat.
 | v0.138.0 | PIN manajer untuk Sudah Terbayar QRIS (F1-05h) | #144 |
 | v0.139.0 | Gambar QRIS di kasir ponsel bisa dimatikan (F1-18e) | #145 |
 | v0.140.0 | Foto stiker QRIS dari kamera (F1-18f) | #146 |
-| v0.141.0 | Baca QR stiker QRIS, NMID otomatis (F1-18g) | |
+| v0.141.0 | Baca QR stiker QRIS, NMID otomatis (F1-18g) | #147 |
+| v0.142.0 | Kasir tetap terbuka bila pengaturan struk rusak, galat cetak dicatat (F1-06c) | |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
@@ -370,6 +371,13 @@ gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
     *Foto stiker* di perangkat berkamera, galat pilih gambar kini tampil.
 83. ~~NMID QRIS diketik manual~~ — selesai v0.141.0 (F1-18g); QR stiker
     dibaca offline (zxing2), isian kosong terisi, peringatan QR salah.
+84. ~~Pengaturan struk rusak membuat Kasir gagal dimuat~~ — selesai v0.142.0
+    (F1-06c); struk bawaan + log, id media rusak di JSON pengaturan
+    diabaikan, galat cetak non-printer dicatat.
+85. Id di `catalog.dart` (`_uuidOrNull`, `_existingProduct`) dan id
+    perangkat di `store.dart` masih memakai `UuidValue.fromString` yang
+    tidak memeriksa isi: id rusak memberi galat SQL, bukan `null` /
+    `ProductNotFound`. Ganti dengan `tryUuid` saat menyentuh modulnya.
 
 Beberapa baris `Belum` di spec lama sudah selesai di modul lain (mis.
 persetujuan PIN manajer di F1-04b, cetak ulang dari riwayat di F1-11,

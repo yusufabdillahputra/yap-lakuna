@@ -3,6 +3,7 @@ import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
 import 'package:lakuna_domain/lakuna_domain.dart';
 
+import '../../utils/log_error.dart';
 import '../../utils/result.dart';
 import 'receipt_settings_repository.dart';
 import 'session_repository.dart';
@@ -23,8 +24,10 @@ class LocalReceiptSettingsRepository extends ReceiptSettingsRepository {
   final LocalPreferences _preferences;
 
   @override
-  Future<Result<ReceiptConfig>> loadReceipt() =>
-      _guard(manage: false, (scope, _) => loadReceiptConfig(_store, scope));
+  Future<Result<ReceiptConfig>> loadReceipt() => _guard(
+    manage: false,
+    (scope, _) => loadReceiptConfig(_store, scope, onError: logReceiptError),
+  );
 
   @override
   Future<Result<ReceiptConfig>> saveReceipt(

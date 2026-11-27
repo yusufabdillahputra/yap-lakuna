@@ -6,6 +6,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart'
     show DatabaseSession, Transaction;
 
+import 'json_uuid.dart';
 import 'media.dart';
 import 'preferences.dart';
 import 'settings_scope.dart';
@@ -40,7 +41,7 @@ class ReceiptSettings {
       footer: text('footer'),
       autoPrint: json['autoPrint'] == true,
       logoMediaId: switch (json['logoMediaId']) {
-        final String id => UuidValue.fromString(id),
+        final String id => tryUuid(id),
         _ => null,
       },
       showLogo: json['showLogo'] == true,
@@ -150,24 +151,58 @@ class ReceiptSettingsInvalid implements Exception {
 }
 
 /// Pengaturan struk cabang [scope] (bawaan: 58 mm, header dari cabang).
+///
+/// Pengaturan yang tidak bisa didekode dibaca sebagai bawaan, dan berkas
+/// logo yang tidak bisa dibaca dilewati (F1-06c); keduanya dilaporkan ke
+/// [onError] bila ada.
 Future<ReceiptConfig> loadReceiptConfig(
   LakunaStore store,
-  CatalogScope scope,
-) async {
+  CatalogScope scope, {
+  ReceiptErrorHandler? onError,
+}) async {
   final row = await _row(store.session, null, scope);
   final outlet = await Outlet.db.findById(store.session, scope.outletId);
-  final settings = row == null ? const ReceiptSettings() : _decode(row);
+  final settings = row == null
+      ? const ReceiptSettings()
+      : _decode(row, onError);
   final logo = await _logo(store.session, null, scope, settings.logoMediaId);
+  Uint8List? logoImage;
+  if (logo != null) {
+    try {
+      logoImage = await readMediaFile(store, logo);
+    } on Object catch (e, st) {
+      onError?.call(e, st);
+    }
+  }
   final rules = await loadSalesRules(store.session, scope);
   return ReceiptConfig(
     settings: settings,
-    logoImage: logo == null ? null : await readMediaFile(store, logo),
+    logoImage: logoImage,
     transferAccount: rules.transferAccount,
     defaultHeader: [
       outlet?.address?.trim(),
       outlet?.phone?.trim(),
     ].whereType<String>().where((s) => s.isNotEmpty).join('\n'),
   );
+}
+
+/// Penerima galat yang dilewati saat memuat konfigurasi struk (F1-06c).
+typedef ReceiptErrorHandler = void Function(Object error, StackTrace stack);
+
+/// [loadReceiptConfig] untuk layar yang memakai struk hanya untuk mencetak
+/// (Kasir, Meja, Riwayat, Pelanggan): galat apa pun memberi konfigurasi
+/// bawaan, supaya layarnya tetap terbuka (F1-06c).
+Future<ReceiptConfig> loadReceiptConfigOrDefault(
+  LakunaStore store,
+  CatalogScope scope, {
+  ReceiptErrorHandler? onError,
+}) async {
+  try {
+    return await loadReceiptConfig(store, scope, onError: onError);
+  } on Object catch (e, st) {
+    onError?.call(e, st);
+    return const ReceiptConfig(settings: ReceiptSettings());
+  }
 }
 
 /// Logo struk baru yang dipilih pemilik (F1-06b).
@@ -290,13 +325,15 @@ Future<MediaFile?> _logo(
   );
 }
 
-ReceiptSettings _decode(Setting row) {
+ReceiptSettings _decode(Setting row, [ReceiptErrorHandler? onError]) {
   try {
     final json = jsonDecode(row.valueJson);
     return json is Map<String, Object?>
         ? ReceiptSettings.fromJson(json)
         : const ReceiptSettings();
-  } on FormatException {
+  } on Object catch (e, st) {
+    // JSON rusak atau bentuknya salah: struk tetap bisa dicetak (F1-06c).
+    onError?.call(e, st);
     return const ReceiptSettings();
   }
 }
