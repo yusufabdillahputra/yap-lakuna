@@ -5734,6 +5734,22 @@
       }
     }
   },
+  "billSplitPrintAll": "Cetak semua tagihan ({count})",
+  "@billSplitPrintAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "billSplitAllBillsTitle": "Tagihan semua tamu · {order}",
+  "@billSplitAllBillsTitle": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
   "billSplitBillTitle": "Tagihan tamu {guest} · {order}",
   "@billSplitBillTitle": {
     "placeholders": {

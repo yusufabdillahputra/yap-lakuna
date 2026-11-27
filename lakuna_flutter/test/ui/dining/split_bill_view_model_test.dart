@@ -240,4 +240,48 @@ void main() {
       expect(vm.partPrint.printed, isFalse);
     });
   });
+
+  group('cetak semua tagihan (F1-10r)', () {
+    test('printableParts mengikuti canPrintPart', () async {
+      final vm = await loaded();
+      expect(vm.printableParts, isEmpty);
+      await vm.setMode.execute(SplitMode.item);
+      // Porsi belum dibagi: belum ada yang bisa dicetak.
+      expect(vm.printableParts, isEmpty);
+      await vm.assign.execute((vm.unassigned.first.id, 'A'));
+      await vm.assign.execute((vm.unassigned.first.id, 'A'));
+      expect(vm.printableParts, isEmpty);
+      await vm.assign.execute((vm.unassigned.first.id, 'B'));
+      // C tanpa porsi (nol) dilewati.
+      expect(vm.printableParts.map((p) => p.label), ['A', 'B']);
+
+      await vm.setMode.execute(SplitMode.amount);
+      expect(vm.printableParts, isEmpty);
+
+      await vm.setMode.execute(SplitMode.equal);
+      expect(vm.printableParts.map((p) => p.label), ['A', 'B', 'C']);
+      dining.payPart(
+        bill.id,
+        guest: 'B',
+        requests: const [SalePaymentRequest(method: PaymentMethod.card)],
+      );
+      await vm.load.execute();
+      expect(vm.printableParts.map((p) => p.label), ['A', 'C']);
+    });
+
+    test('nama job -semua; dialog tamu sesudahnya memakai nama tamu', () async {
+      final vm = await loaded();
+      final number = bill.sale.billNumber ?? bill.sale.number;
+      vm.openAllPrint();
+      await vm.partPrint.shareBills.execute(const [
+        [ReceiptLine('A')],
+      ]);
+      expect(printer.shares.single.$3, 'tagihan-$number-semua.pdf');
+      expect(vm.partPrint.pdfPath, isNotNull);
+      vm.openPartPrint('A');
+      expect(vm.partPrint.pdfPath, isNull);
+      await vm.partPrint.shareBill.execute(const [ReceiptLine('A')]);
+      expect(printer.shares.last.$3, 'tagihan-$number-A.pdf');
+    });
+  });
 }

@@ -8844,6 +8844,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String billSplitPrintAll(int count) {
+    return 'Print all bills ($count)';
+  }
+
+  @override
+  String billSplitAllBillsTitle(String order) {
+    return 'All guest bills · $order';
+  }
+
+  @override
   String billSplitBillTitle(String guest, String order) {
     return 'Guest $guest bill · $order';
   }

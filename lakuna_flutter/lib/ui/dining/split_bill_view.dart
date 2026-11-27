@@ -258,6 +258,7 @@ class SplitBillView extends StatelessWidget {
         ),
     ];
     final items = _ItemsCard(viewModel: vm);
+    final printable = vm.printableParts.length;
     final guests = split == null
         ? null
         : Column(
@@ -278,6 +279,18 @@ class SplitBillView extends StatelessWidget {
                         part: part,
                         onPay: () => onPay(part.label, null),
                       ),
+              if (split.mode != SplitKind.amount)
+                FButton(
+                  key: const ValueKey('split-print-all'),
+                  variant: .outline,
+                  onPress: printable == 0
+                      ? null
+                      : () => _printAllDialog(context, vm),
+                  prefix: const Icon(TablerIcons.printer),
+                  child: Flexible(
+                    child: Text(l10n.billSplitPrintAll(printable)),
+                  ),
+                ),
               _Summary(split: split),
             ],
           );
@@ -831,17 +844,56 @@ Future<void> _printPartDialog(
       }
       return (
         title: l10n.billSplitBillTitle(guest, billOrderLabel(l10n, bill)),
-        content: (now) => guestBillReceiptContent(
-          l10n,
-          bill: bill,
-          guest: guest,
-          businessName: data.businessName,
-          outletName: data.outletName,
-          staffName: data.staffName,
-          timezone: data.timezone,
-          config: data.receipt,
-          now: now,
-        ),
+        bills: (now) => [
+          guestBillReceiptContent(
+            l10n,
+            bill: bill,
+            guest: guest,
+            businessName: data.businessName,
+            outletName: data.outletName,
+            staffName: data.staffName,
+            timezone: data.timezone,
+            config: data.receipt,
+            now: now,
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// Dialog tagihan semua tamu yang bisa dicetak (F1-10r); menutup sendiri
+/// bila tidak ada lagi tagihan yang bisa dicetak.
+Future<void> _printAllDialog(BuildContext context, SplitBillViewModel vm) {
+  vm.openAllPrint();
+  return showBillPrintDialog(
+    context,
+    listenable: vm,
+    job: vm.partPrint,
+    keyPrefix: 'split-bill-all',
+    paper: () => vm.paper,
+    logo: () => vm.receiptLogo,
+    preview: (l10n) {
+      final bill = vm.bill;
+      final data = vm.data;
+      final parts = vm.printableParts;
+      if (bill == null || data == null || parts.isEmpty) return null;
+      return (
+        title: l10n.billSplitAllBillsTitle(billOrderLabel(l10n, bill)),
+        bills: (now) => [
+          for (final part in parts)
+            guestBillReceiptContent(
+              l10n,
+              bill: bill,
+              guest: part.label,
+              businessName: data.businessName,
+              outletName: data.outletName,
+              staffName: data.staffName,
+              timezone: data.timezone,
+              config: data.receipt,
+              now: now,
+            ),
+        ],
       );
     },
   );

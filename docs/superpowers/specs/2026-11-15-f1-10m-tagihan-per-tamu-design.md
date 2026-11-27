@@ -106,5 +106,5 @@ mana yang ia bayar atau berapa bagian service/PB1-nya.
 | --- | --- | --- | --- |
 | Tagihan per tamu (Per item, Rata) | 1.9 | Rilis v0.102.0 | Dari kartu tamu layar split. |
 | Tagihan per tamu mode Nominal bebas | — | Belum | Nominal baru diketahui saat bayar; pakai tagihan seluruh bill. |
-| Cetak semua tagihan tamu sekaligus | — | Belum | Satu per kartu. |
+| Cetak semua tagihan tamu sekaligus | — | Rilis v0.153.0 | [F1-10r](2026-11-27-f1-10r-cetak-semua-tagihan-tamu-design.md): *Cetak semua tagihan (n)* di bawah kartu tamu. |
 | QRIS statis di tagihan cetak | — | Belum | Sama seperti F1-10k. |
