@@ -104,8 +104,10 @@ jadi tidak diubah saat masuk server, dan unggahan dilanjutkan bila koneksi
 putus.                                   [Jeda unggahan]
 ```
 
-1. **Server & kode aktivasi:** alamat server (https wajib, kecuali
-   `localhost` untuk uji) dan kode aktivasi dari admin server; tombol
+1. **Server & kode aktivasi:** pilih **Server Lakuna** atau **Server
+   sendiri** (lihat *Pengoperasian server*); untuk server sendiri ketik
+   alamatnya (https wajib, kecuali `localhost` untuk uji). Lalu kode
+   aktivasi dari admin server; tombol
    **Periksa** memanggil `status` dan menampilkan versi server.
 2. **Login pemilik:** email + kata sandi akun pemilik di server (auth email
    Serverpod yang sudah ada di `lakuna_server`, OTP email saat daftar).
@@ -296,13 +298,41 @@ hosting). Mobile: ikon saja dengan titik warna.
 
 ## Pengoperasian server
 
-*Keputusan Claude, menunggu konfirmasi Yusuf:* satu server di VPS Yusuf
-melayani banyak toko (multi-tenant), sesuai rencana versi hosting atas
-permintaan dan dashboard semua cabang di F2-02. Admin server membuat kode
-aktivasi lewat perintah CLI di container (`lakuna-admin activation-code
---note "Toko Ani"`), memberikannya ke pemilik toko, dan kode itu dipakai di
-langkah 1 layar 2.1. Panduan pasang tetap ditulis umum sehingga toko yang
-ingin server sendiri bisa memakai paket yang sama.
+*Keputusan Yusuf 2026-11-27 (kartu keputusan, pilihan "Keduanya"):* server
+dirancang **multi-tenant** dan dipakai dengan dua cara, dari image dan
+paket deploy yang **sama**:
+
+- **Server hosting Yusuf.** Satu server di VPS Yusuf melayani banyak toko
+  pelanggan versi hosting (dasar dashboard semua cabang di F2-02). Yusuf
+  sebagai admin server membuat kode aktivasi lewat CLI di container
+  (`lakuna-admin activation-code --note "Toko Ani"`) dan memberikannya ke
+  pemilik toko.
+- **Server sendiri.** Toko yang ingin datanya di VPS sendiri memasang paket
+  yang sama mengikuti panduan pasang. Pemilik toko itu sendiri yang menjadi
+  admin server dan menjalankan perintah CLI yang sama untuk membuat kode
+  aktivasinya. Tidak ada mode server khusus atau kata sandi setup: kode
+  aktivasi sekali pakai sudah menjaga siapa yang boleh membuat tenant,
+  sehingga server sendiri yang alamatnya diketahui orang lain tetap aman.
+
+Akibatnya di aplikasi dan dokumen:
+
+- Langkah 1 layar 2.1 punya pilihan **Server Lakuna** (alamat bawaan dari
+  `--dart-define=LAKUNA_HOSTING_URL` saat build rilis; pilihan ini
+  disembunyikan bila nilainya kosong) dan **Server sendiri** (alamat
+  diketik). Keduanya memakai kode aktivasi. Gabung perangkat lain memakai
+  alamat yang tersimpan di perangkat pertama lewat kode pasang, jadi
+  pengguna tidak perlu mengetik alamat lagi bila memindai/menyalin kode
+  pasang lengkap (`<alamat>#<kode>`); mengetik alamat + kode tetap bisa.
+- Tidak ada alamat server yang ditanam di kode selain nilai `dart-define`
+  itu, dan aplikasi tidak pernah menghubungi server sebelum pemilik
+  mengaktifkan hosting.
+- Panduan pasang `docs/server/` ditulis untuk dua pembaca: **admin server
+  hosting** (banyak toko, pemantauan, kuota disk) dan **pemilik toko yang
+  memasang sendiri** (satu toko, langkah dari sewa VPS sampai kode
+  aktivasi pertama).
+- `status` mengembalikan versi server dan versi protokol sync. Aplikasi
+  menolak server dengan protokol lebih lama dari yang didukung (*Server
+  perlu diperbarui*), karena server sendiri bisa tertinggal versi.
 
 - **Email OTP:** konfigurasi sekarang memakai `ServerpodCloudEmailIdpConfig`
   (mengirim email lewat Serverpod Cloud) dan diganti ke
@@ -400,7 +430,7 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Mesin sync klien | — | Belum | Tahap 2. |
 | Aktivasi + pasang perangkat + chip status | 2.1 | Belum | Tahap 3. |
 | Aset ke object storage | — | Belum | Tahap 4. |
-| Paket deploy VPS + panduan | — | Belum | Tahap 5. |
+| Paket deploy VPS + panduan | — | Belum | Tahap 5; satu paket untuk server hosting Yusuf dan server sendiri toko. |
 | Izin per aksi di server | — | Belum | Gap; perangkat sudah menjaga izin di repositori. |
 | Pull per outlet | — | Belum | Modul ini menarik semua outlet tenant (aturan 2). |
 | Keunikan tingkat aplikasi di server | — | Belum | Duplikat SKU/nama dari dua perangkat dilaporkan di F2-03 (aturan 8c). |
