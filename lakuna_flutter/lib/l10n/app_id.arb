@@ -3783,6 +3783,30 @@
   "usersSubtitle": "Tambah staf, reset PIN, dan atur izin per role.",
   "usersTabUsers": "Pengguna",
   "usersTabRoles": "Role & izin",
+  "usersTabAccessLog": "Log masuk",
+  "usersAccessTitle": "Log masuk dan keluar",
+  "usersAccessHint": "Tercatat setiap kali staf masuk atau keluar di perangkat kasir. Aplikasi yang ditutup tanpa Ganti kasir tidak punya baris Keluar; login berikutnya menjadi batasnya.",
+  "usersAccessStaff": "Staf",
+  "usersAccessAllStaff": "Semua staf",
+  "usersAccessEmpty": "Belum ada log masuk.",
+  "usersAccessMore": "Muat lagi",
+  "usersAccessColTime": "Jam",
+  "usersAccessColStaff": "Staf",
+  "usersAccessColEvent": "Kejadian",
+  "usersAccessColDevice": "Perangkat",
+  "usersAccessSignInPin": "Masuk dengan PIN",
+  "usersAccessSignInPassword": "Masuk dengan kata sandi",
+  "usersAccessSignInSetup": "Masuk setelah penyiapan toko",
+  "usersAccessSignOut": "Keluar (Ganti kasir)",
+  "usersAccessSignOutRemoved": "Keluar otomatis: akun dinonaktifkan atau dikeluarkan",
+  "usersAccessDevice": "Perangkat {code}",
+  "@usersAccessDevice": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "usersListTitle": "Pengguna outlet",
   "usersListCount": "{outlet} · {count} pengguna aktif",
   "@usersListCount": {

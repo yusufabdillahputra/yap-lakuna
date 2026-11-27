@@ -7,6 +7,61 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.144.0] - 2026-11-27
+
+Masuk dan keluar staf kini dicatat di database. Pemilik dan manajer bisa
+melihatnya di tab **Log masuk** pada Pengguna & role. Ini gap kedelapan
+di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- Setiap masuk dan keluar staf di perangkat kasir dicatat. Jenis
+  kejadiannya:
+  - *Masuk dengan PIN*;
+  - *Masuk dengan kata sandi*;
+  - *Masuk setelah penyiapan toko*;
+  - *Keluar (Ganti kasir)*;
+  - *Keluar otomatis*, bila akun staf dinonaktifkan atau dikeluarkan dari
+    cabang saat sedang bertugas.
+- Tab **Log masuk** di **Pengguna & role** (1.25), khusus izin
+  `users:manage`:
+  - log dikelompokkan per tanggal menurut zona waktu cabang;
+  - tiap baris berisi jam, staf, kejadian, dan kode perangkat;
+  - filter **Staf**, termasuk staf nonaktif;
+  - **Muat lagi** untuk 50 baris berikutnya;
+  - tampil sebagai tabel di layar lebar dan kartu di ponsel.
+- Panduan *Pengguna & role* (ID dan EN) mendapat bagian *Log masuk dan
+  keluar*.
+
+### Catatan teknis
+
+- Tabel baru `staff_access_logs` (model `StaffAccessLog`, enum
+  `StaffAccessKind` disimpan berdasarkan nama), dengan migrasi
+  `log-masuk` dan indeks `(outlet_id, occurred_at)`.
+  - Baris ditulis lewat `store.write`, sehingga ikut outbox sinkron.
+  - Baris tidak pernah diubah.
+- `lakuna_data`:
+  - `recordStaffAccess` mencatat di perangkat `CatalogScope.deviceId`.
+  - `listStaffAccess` memakai urutan dan kursor `(occurredAt, hlc, id)`.
+    Baris yang waktunya sama dengan kursor dipilah di Dart, sehingga
+    halaman tidak pernah memuat baris ganda. Debug dari review: UUID v7
+    acak di dalam satu milidetik, jadi tanpa HLC dua kejadian di
+    milidetik yang sama bisa tampil terbalik.
+  - Nama staf yang sudah dihapus tetap tampil.
+- `LocalSessionRepository` mencatat lewat rantai `Future`, sehingga
+  urutan *Keluar* lalu *Masuk* terjaga.
+  - Galat tulis hanya dicatat (`logError`) dan tidak pernah menggagalkan
+    login.
+  - Persetujuan PIN manajer, cek PIN di *Akun saya*, dan login yang gagal
+    tidak dicatat.
+- `UsersRepository.accessLog` menolak pemanggil tanpa `users:manage`.
+- `UsersViewModel`:
+  - muat log saat tab pertama kali dibuka;
+  - galat *Muat lagi* hilang setelah percobaan berikutnya berhasil;
+  - jawaban filter lama yang datang terlambat diabaikan (token muat).
+- Belum dicatat: percobaan PIN/kata sandi yang gagal, dan keluar saat
+  aplikasi ditutup tanpa Ganti kasir (gap di spec F1-03h).
+
 ## [0.143.0] - 2026-11-27
 
 Penyesuaian stok kini memperingatkan bila stok sistem sebuah barang
@@ -8257,7 +8312,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.144.0...HEAD
+[0.144.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.143.0...v0.144.0
 [0.143.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.142.0...v0.143.0
 [0.142.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.141.0...v0.142.0
 [0.141.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.140.0...v0.141.0

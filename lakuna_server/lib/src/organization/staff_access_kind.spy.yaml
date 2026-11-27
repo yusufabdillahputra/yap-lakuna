@@ -1,0 +1,9 @@
+### Jenis kejadian di log masuk/keluar staf (F1-03h).
+enum: StaffAccessKind
+serialized: byName
+values:
+  - signInPin
+  - signInPassword
+  - signInSetup
+  - signOut
+  - signOutRemoved

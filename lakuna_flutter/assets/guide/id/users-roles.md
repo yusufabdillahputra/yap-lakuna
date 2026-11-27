@@ -24,3 +24,18 @@ Setiap staf punya nama, role, dan PIN sendiri. Role menentukan izin: tombol dan 
 3. Tekan **Role custom** untuk membuat role baru, misalnya *Barista*.
 
 > [!note] Pemilik selalu punya semua izin. Pemilik mengganti PIN dan kata sandinya sendiri di **Akun saya**, dengan kolom ulangi untuk keduanya.
+
+## Log masuk dan keluar
+
+Tab **Log masuk** mencatat setiap kali staf masuk atau keluar di perangkat kasir. Tab ini hanya untuk pengguna dengan izin *Pengguna & role* (pemilik dan manajer).
+
+- Log dikelompokkan per tanggal, dengan yang terbaru di atas. Tiap baris berisi jam, nama staf, kejadian, dan kode perangkat (mis. *K01*).
+- Ada beberapa jenis kejadian:
+  - *Masuk dengan PIN*;
+  - *Masuk dengan kata sandi*;
+  - *Masuk setelah penyiapan toko*;
+  - *Keluar (Ganti kasir)*;
+  - *Keluar otomatis*, bila akun staf dinonaktifkan atau dikeluarkan dari cabang saat sedang bertugas.
+- Pilih nama di **Staf** untuk melihat log satu staf saja. Tekan **Muat lagi** untuk melihat log yang lebih lama.
+
+> [!note] Aplikasi yang ditutup tanpa **Ganti kasir** tidak punya baris *Keluar*. Login berikutnya di perangkat itu menjadi batasnya. PIN yang salah tidak dicatat di log ini.

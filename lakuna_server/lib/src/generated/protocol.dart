@@ -56,6 +56,8 @@ import 'organization/device_platform.dart' as _ide5u809;
 import 'organization/outlet.dart' as _iqoqqr0f;
 import 'organization/outlet_member.dart' as _igpgya6r;
 import 'organization/setting.dart' as _if597mfg;
+import 'organization/staff_access_kind.dart' as _i11v55hv;
+import 'organization/staff_access_log.dart' as _i3ligbkw;
 import 'organization/staff_member.dart' as _iy6hfkoy;
 import 'organization/staff_role.dart' as _i0bmhm5c;
 import 'organization/stock_location.dart' as _iwbn33ao;
@@ -129,6 +131,8 @@ export 'organization/device_platform.dart';
 export 'organization/outlet.dart';
 export 'organization/outlet_member.dart';
 export 'organization/setting.dart';
+export 'organization/staff_access_kind.dart';
+export 'organization/staff_access_log.dart';
 export 'organization/staff_member.dart';
 export 'organization/staff_role.dart';
 export 'organization/stock_location.dart';
@@ -216,6 +220,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iqoqqr0f.Outlet>,
           _is.getType<_igpgya6r.OutletMember>,
           _is.getType<_if597mfg.Setting>,
+          _is.getType<_i11v55hv.StaffAccessKind>,
+          _is.getType<_i3ligbkw.StaffAccessLog>,
           _is.getType<_iy6hfkoy.StaffMember>,
           _is.getType<_i0bmhm5c.StaffRole>,
           _is.getType<_iwbn33ao.StockLocation>,
@@ -289,6 +295,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iqoqqr0f.Outlet?>,
           _is.getType<_igpgya6r.OutletMember?>,
           _is.getType<_if597mfg.Setting?>,
+          _is.getType<_i11v55hv.StaffAccessKind?>,
+          _is.getType<_i3ligbkw.StaffAccessLog?>,
           _is.getType<_iy6hfkoy.StaffMember?>,
           _is.getType<_i0bmhm5c.StaffRole?>,
           _is.getType<_iwbn33ao.StockLocation?>,
@@ -369,6 +377,8 @@ class Protocol extends _is.DatabaseSerializationManager
           'Outlet',
           'OutletMember',
           'Setting',
+          'StaffAccessKind',
+          'StaffAccessLog',
           'StaffMember',
           'StaffRole',
           'StockLocation',
@@ -7306,6 +7316,170 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'staff_access_logs',
+      dartName: 'StaffAccessLog',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'random_v7',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'staff_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kind',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:StaffAccessKind',
+        ),
+        _isp.ColumnDefinition(
+          name: 'occurred_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_by',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'staff_access_logs_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'staff_access_logs_fk_1',
+          columns: ['outlet_id'],
+          referenceTable: 'outlets',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'staff_access_logs_fk_2',
+          columns: ['device_id'],
+          referenceTable: 'devices',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'staff_access_logs_fk_3',
+          columns: ['staff_id'],
+          referenceTable: 'staff_members',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'staff_access_logs_outlet_time_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'outlet_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'occurred_at',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'staff_members',
       dartName: 'StaffMember',
       schema: 'public',
@@ -8597,6 +8771,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _if597mfg.Setting) {
       return _if597mfg.Setting.fromJson(data) as T;
     }
+    if (t == _i11v55hv.StaffAccessKind) {
+      return _i11v55hv.StaffAccessKind.fromJson(data) as T;
+    }
+    if (t == _i3ligbkw.StaffAccessLog) {
+      return _i3ligbkw.StaffAccessLog.fromJson(data) as T;
+    }
     if (t == _iy6hfkoy.StaffMember) {
       return _iy6hfkoy.StaffMember.fromJson(data) as T;
     }
@@ -8837,6 +9017,14 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_if597mfg.Setting?>()) {
       return (data != null ? _if597mfg.Setting.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i11v55hv.StaffAccessKind?>()) {
+      return (data != null ? _i11v55hv.StaffAccessKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i3ligbkw.StaffAccessLog?>()) {
+      return (data != null ? _i3ligbkw.StaffAccessLog.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iy6hfkoy.StaffMember?>()) {
       return (data != null ? _iy6hfkoy.StaffMember.fromJson(data) : null) as T;
     }
@@ -9014,6 +9202,8 @@ class Protocol extends _is.DatabaseSerializationManager
       _iqoqqr0f.Outlet => 'Outlet',
       _igpgya6r.OutletMember => 'OutletMember',
       _if597mfg.Setting => 'Setting',
+      _i11v55hv.StaffAccessKind => 'StaffAccessKind',
+      _i3ligbkw.StaffAccessLog => 'StaffAccessLog',
       _iy6hfkoy.StaffMember => 'StaffMember',
       _i0bmhm5c.StaffRole => 'StaffRole',
       _iwbn33ao.StockLocation => 'StockLocation',
@@ -9140,6 +9330,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'OutletMember';
       case _if597mfg.Setting():
         return 'Setting';
+      case _i11v55hv.StaffAccessKind():
+        return 'StaffAccessKind';
+      case _i3ligbkw.StaffAccessLog():
+        return 'StaffAccessLog';
       case _iy6hfkoy.StaffMember():
         return 'StaffMember';
       case _i0bmhm5c.StaffRole():
@@ -9351,6 +9545,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'Setting') {
       return deserialize<_if597mfg.Setting>(data['data']);
     }
+    if (dataClassName == 'StaffAccessKind') {
+      return deserialize<_i11v55hv.StaffAccessKind>(data['data']);
+    }
+    if (dataClassName == 'StaffAccessLog') {
+      return deserialize<_i3ligbkw.StaffAccessLog>(data['data']);
+    }
     if (dataClassName == 'StaffMember') {
       return deserialize<_iy6hfkoy.StaffMember>(data['data']);
     }
@@ -9554,6 +9754,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return _igpgya6r.OutletMember.t;
       case _if597mfg.Setting:
         return _if597mfg.Setting.t;
+      case _i3ligbkw.StaffAccessLog:
+        return _i3ligbkw.StaffAccessLog.t;
       case _iy6hfkoy.StaffMember:
         return _iy6hfkoy.StaffMember.t;
       case _i0bmhm5c.StaffRole:

@@ -80,6 +80,13 @@ abstract class UsersRepository {
 
   Future<Result<void>> deleteRole(String key);
 
+  /// Log masuk/keluar staf cabang ini, terbaru dulu (F1-03h). [staffId]
+  /// menyaring satu staf; [before] = kursor halaman sebelumnya.
+  Future<Result<StaffAccessPage>> accessLog({
+    UuidValue? staffId,
+    StaffAccessCursor? before,
+  });
+
   /// Akun staf yang bertugas (tanpa izin khusus).
   Future<Result<MyAccount>> myAccount();
 

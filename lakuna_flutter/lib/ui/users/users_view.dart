@@ -16,6 +16,7 @@ import '../../utils/command.dart';
 import '../../utils/result.dart';
 import '../login/login_view.dart' show roleLabel;
 import '../products/product_widgets.dart';
+import 'access_log_tab.dart';
 import 'users_labels.dart';
 import 'users_view_model.dart';
 
@@ -46,11 +47,15 @@ class UsersScreen extends StatefulWidget {
     required this.repository,
     required this.session,
     required this.outletName,
+    this.timezone,
   });
 
   final UsersRepository repository;
   final SessionRepository session;
   final String outletName;
+
+  /// Zona waktu cabang untuk log masuk (F1-03h).
+  final String? timezone;
 
   @override
   State<UsersScreen> createState() => _UsersScreenState();
@@ -182,6 +187,7 @@ class _UsersScreenState extends State<UsersScreen> {
                           switch (tab) {
                             UsersTab.users => l10n.usersTabUsers,
                             UsersTab.roles => l10n.usersTabRoles,
+                            UsersTab.accessLog => l10n.usersTabAccessLog,
                           },
                           key: ValueKey('users-tab-${tab.name}'),
                         ),
@@ -197,6 +203,10 @@ class _UsersScreenState extends State<UsersScreen> {
                   onOpen: (a) => _openStaff(account: a),
                 ),
                 UsersTab.roles => _RolesMatrix(viewModel: vm),
+                UsersTab.accessLog => AccessLogTab(
+                  viewModel: vm,
+                  timezone: widget.timezone,
+                ),
               },
             ],
           ],
