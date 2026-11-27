@@ -60,6 +60,7 @@ abstract class Sale
     this.voidReason,
     this.voidedBy,
     this.voidedAt,
+    this.mergedIntoId,
     this.splitMode,
     this.splitGuests,
     this.customerId,
@@ -128,6 +129,7 @@ abstract class Sale
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
+    _is.UuidValue? mergedIntoId,
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
     _is.UuidValue? customerId,
@@ -229,6 +231,11 @@ abstract class Sale
       voidedAt: jsonSerialization['voidedAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['voidedAt']),
+      mergedIntoId: jsonSerialization['mergedIntoId'] == null
+          ? null
+          : _is.UuidValueJsonExtension.fromJson(
+              jsonSerialization['mergedIntoId'],
+            ),
       splitMode: jsonSerialization['splitMode'] == null
           ? null
           : _ixxw9kq3.SplitMode.fromJson(
@@ -368,6 +375,10 @@ abstract class Sale
 
   DateTime? voidedAt;
 
+  /// Gabung meja (F1-10s): bill sumber yang digabung menunjuk bill tujuan;
+  /// bill sumber sekaligus dihapus (soft delete).
+  _is.UuidValue? mergedIntoId;
+
   /// Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
   _ixxw9kq3.SplitMode? splitMode;
 
@@ -441,6 +452,7 @@ abstract class Sale
     String? voidReason,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    _is.UuidValue? mergedIntoId = const _is.$UndefinedUuidValue(),
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
     _is.UuidValue? customerId = const _is.$UndefinedUuidValue(),
@@ -498,6 +510,7 @@ abstract class Sale
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (mergedIntoId != null) 'mergedIntoId': mergedIntoId?.toJson(),
       if (splitMode != null) 'splitMode': splitMode?.toJson(),
       if (splitGuests != null) 'splitGuests': splitGuests,
       if (customerId != null) 'customerId': customerId?.toJson(),
@@ -557,6 +570,7 @@ abstract class Sale
       if (voidReason != null) 'voidReason': voidReason,
       if (voidedBy != null) 'voidedBy': voidedBy?.toJson(),
       if (voidedAt != null) 'voidedAt': voidedAt?.toJson(),
+      if (mergedIntoId != null) 'mergedIntoId': mergedIntoId?.toJson(),
       if (splitMode != null) 'splitMode': splitMode?.toJson(),
       if (splitGuests != null) 'splitGuests': splitGuests,
       if (customerId != null) 'customerId': customerId?.toJson(),
@@ -643,6 +657,7 @@ class _SaleImpl extends Sale {
     String? voidReason,
     _is.UuidValue? voidedBy,
     DateTime? voidedAt,
+    _is.UuidValue? mergedIntoId,
     _ixxw9kq3.SplitMode? splitMode,
     int? splitGuests,
     _is.UuidValue? customerId,
@@ -695,6 +710,7 @@ class _SaleImpl extends Sale {
          voidReason: voidReason,
          voidedBy: voidedBy,
          voidedAt: voidedAt,
+         mergedIntoId: mergedIntoId,
          splitMode: splitMode,
          splitGuests: splitGuests,
          customerId: customerId,
@@ -753,6 +769,7 @@ class _SaleImpl extends Sale {
     Object? voidReason = _Undefined,
     _is.UuidValue? voidedBy = const _is.$UndefinedUuidValue(),
     DateTime? voidedAt = const _is.$UndefinedDateTime(),
+    _is.UuidValue? mergedIntoId = const _is.$UndefinedUuidValue(),
     Object? splitMode = _Undefined,
     Object? splitGuests = _Undefined,
     _is.UuidValue? customerId = const _is.$UndefinedUuidValue(),
@@ -816,6 +833,9 @@ class _SaleImpl extends Sale {
       voidReason: voidReason is String? ? voidReason : this.voidReason,
       voidedBy: voidedBy is _is.UndefinedSentinel ? this.voidedBy : voidedBy,
       voidedAt: voidedAt is _is.UndefinedSentinel ? this.voidedAt : voidedAt,
+      mergedIntoId: mergedIntoId is _is.UndefinedSentinel
+          ? this.mergedIntoId
+          : mergedIntoId,
       splitMode: splitMode is _ixxw9kq3.SplitMode? ? splitMode : this.splitMode,
       splitGuests: splitGuests is int? ? splitGuests : this.splitGuests,
       customerId: customerId is _is.UndefinedSentinel
@@ -1058,6 +1078,13 @@ class SaleUpdateTable extends _is.UpdateTable<SaleTable> {
         table.voidedAt,
         value,
       );
+
+  _is.ColumnValue<_is.UuidValue, _is.UuidValue> mergedIntoId(
+    _is.UuidValue? value,
+  ) => _is.ColumnValue(
+    table.mergedIntoId,
+    value,
+  );
 
   _is.ColumnValue<_ixxw9kq3.SplitMode, _ixxw9kq3.SplitMode> splitMode(
     _ixxw9kq3.SplitMode? value,
@@ -1335,6 +1362,11 @@ class SaleTable extends _is.Table<_is.UuidValue> {
       this,
       fieldName: 'voidedAt',
     );
+    mergedIntoId = _is.ColumnUuid(
+      'merged_into_id',
+      this,
+      fieldName: 'mergedIntoId',
+    );
     splitMode = _is.ColumnEnum(
       'split_mode',
       this,
@@ -1494,6 +1526,10 @@ class SaleTable extends _is.Table<_is.UuidValue> {
 
   late final _is.ColumnDateTime voidedAt;
 
+  /// Gabung meja (F1-10s): bill sumber yang digabung menunjuk bill tujuan;
+  /// bill sumber sekaligus dihapus (soft delete).
+  late final _is.ColumnUuid mergedIntoId;
+
   /// Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
   late final _is.ColumnEnum<_ixxw9kq3.SplitMode> splitMode;
 
@@ -1562,6 +1598,7 @@ class SaleTable extends _is.Table<_is.UuidValue> {
     voidReason,
     voidedBy,
     voidedAt,
+    mergedIntoId,
     splitMode,
     splitGuests,
     customerId,

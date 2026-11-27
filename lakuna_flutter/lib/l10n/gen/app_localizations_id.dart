@@ -8305,6 +8305,21 @@ class AppLocalizationsId extends AppLocalizations {
   String get productImportSave => 'Simpan';
 
   @override
+  String historyMergedFromTable(
+    String table,
+    String bill,
+    String time,
+    String name,
+  ) {
+    return 'Gabungan dari meja $table ($bill) · $time · $name';
+  }
+
+  @override
+  String historyMergedFromBill(String bill, String time, String name) {
+    return 'Gabungan dari bill $bill · $time · $name';
+  }
+
+  @override
   String get historyManualDiscount => 'Diskon manual';
 
   @override

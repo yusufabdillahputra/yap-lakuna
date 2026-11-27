@@ -689,6 +689,7 @@ class SaleDetail {
     this.discountApprovedByName,
     this.voidBlock,
     this.outstanding = Money.zero,
+    this.mergedBills = const [],
   });
 
   /// Nota, item, pembayaran lunas, modifier (bentuk yang sama dengan hasil
@@ -713,6 +714,10 @@ class SaleDetail {
 
   /// Sisa piutang nota kredit (F1-13).
   final Money outstanding;
+
+  /// Bill meja yang digabung ke nota ini (F1-10s), termasuk yang lebih dulu
+  /// digabung ke bill sumbernya; urut waktu gabung.
+  final List<MergedBill> mergedBills;
 
   /// Nama pelanggan nota kredit (salinan saat jual).
   String? get customerName => sale.customerName;
@@ -877,6 +882,82 @@ Future<VoidBlock?> _voidBlock(
   return null;
 }
 
+/// Bill meja yang digabung ke bill lain (F1-10s).
+class MergedBill {
+  const MergedBill({
+    required this.billNumber,
+    required this.mergedAt,
+    required this.staffName,
+    this.tableName,
+  });
+
+  /// Nomor bill sumber (`OB-…`).
+  final String billNumber;
+
+  /// Nama meja bill sumber; `null` bila mejanya sudah dihapus.
+  final String? tableName;
+  final DateTime mergedAt;
+
+  /// Staf yang menggabungkan; kosong bila tidak ditemukan.
+  final String staffName;
+}
+
+/// Bill sumber yang digabung ke [saleId], berantai (sumber dari sumber),
+/// urut waktu gabung. Batas kedalaman menjaga data rusak yang melingkar.
+Future<List<MergedBill>> _mergedBills(
+  DatabaseSession session,
+  CatalogScope scope,
+  UuidValue saleId,
+) async {
+  final found = <Sale>[];
+  final seen = <UuidValue>{saleId};
+  var frontier = {saleId};
+  for (var depth = 0; depth < 20 && frontier.isNotEmpty; depth++) {
+    final rows = await Sale.db.find(
+      session,
+      where: (s) =>
+          s.tenantId.equals(scope.tenantId) &
+          s.outletId.equals(scope.outletId) &
+          s.mergedIntoId.inSet(frontier),
+    );
+    frontier = {
+      for (final r in rows)
+        if (seen.add(r.id)) r.id,
+    };
+    found.addAll(rows.where((r) => frontier.contains(r.id)));
+  }
+  if (found.isEmpty) return const [];
+  final tableIds = {for (final s in found) ?s.diningTableId};
+  final tables = <UuidValue, String>{
+    if (tableIds.isNotEmpty)
+      for (final t in await DiningTable.db.find(
+        session,
+        where: (t) =>
+            t.tenantId.equals(scope.tenantId) &
+            t.id.inSet(tableIds) &
+            t.deletedAt.equals(null),
+      ))
+        t.id: t.name,
+  };
+  final names = await _names(session, scope.tenantId, [
+    for (final s in found) s.updatedBy,
+  ]);
+  final result =
+      [
+        for (final s in found)
+          MergedBill(
+            billNumber: s.billNumber ?? s.number,
+            tableName: tables[s.diningTableId],
+            mergedAt: s.deletedAt ?? s.updatedAt,
+            staffName: names[s.updatedBy] ?? '',
+          ),
+      ]..sort((a, b) {
+        final byTime = a.mergedAt.compareTo(b.mergedAt);
+        return byTime != 0 ? byTime : a.billNumber.compareTo(b.billNumber);
+      });
+  return result;
+}
+
 /// Rincian nota [saleId] di cabang ini.
 Future<SaleDetail> loadSaleDetail(
   LakunaStore store,
@@ -923,6 +1004,7 @@ Future<SaleDetail> loadSaleDetail(
     outstanding:
         (await saleOutstandingOf(session, scope.tenantId, [sale]))[sale.id] ??
         Money.zero,
+    mergedBills: await _mergedBills(session, scope, sale.id),
   );
 }
 

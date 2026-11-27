@@ -7,6 +7,36 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.155.0] - 2026-11-27
+
+Gabung meja kini meninggalkan jejak di rincian nota. Ini bagian kedua gap
+kedelapan belas di daftar `docs/superpowers/GAP-FASE1.md`.
+
+### Ditambahkan
+
+- **Riwayat › rincian nota** (1.14): nota hasil gabung meja menulis satu
+  baris per bill yang digabung di bawah nomor nota, mis. *Gabungan dari meja
+  M3 (OB-PST-K01-261103-0002) · 03/11/26 09.10 · Rina*: meja dan nomor bill
+  sumber, waktu gabung di zona cabang, dan staf yang menggabungkan.
+  - Berantai: bila M3 digabung ke M2 lalu M2 ke M1, nota M1 menulis
+    keduanya, urut waktu.
+  - Meja yang sudah dihapus ditulis sebagai *Gabungan dari bill OB-…*.
+  - Gabung sebelum versi ini tidak punya jejak.
+- Panduan *Meja & open bill* (ID dan EN) mendapat bagian *Gabung meja*.
+
+### Catatan teknis
+
+- Kolom baru `sales.merged_into_id` dengan indeks `sales_merged_into_idx`
+  (migrasi `jejak-gabung`, server dan klien). `mergeOpenBills` mengisinya pada bill sumber dalam transaksi yang
+  sama, jadi ikut outbox sync.
+- `SaleDetail.mergedBills` (`MergedBill`) dimuat per tingkat dengan batas
+  kedalaman 20, hanya di cabang yang sama; meja yang dihapus (soft delete)
+  tidak dipakai namanya, dan urutan waktu yang sama diurutkan menurut
+  nomor bill.
+- `mergedBillLabel` di `history_detail.dart`; kunci l10n baru
+  `historyMergedFromTable` dan `historyMergedFromBill`.
+- `FakeHistoryRepository.mergedBills` untuk tes.
+
 ## [0.154.0] - 2026-11-27
 
 Dialog *Produk diarsipkan* kini menulis siapa yang mengarsipkan produk. Ini
@@ -8682,7 +8712,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.155.0...HEAD
+[0.155.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.154.0...v0.155.0
 [0.154.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.153.0...v0.154.0
 [0.153.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.152.0...v0.153.0
 [0.152.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.151.0...v0.152.0

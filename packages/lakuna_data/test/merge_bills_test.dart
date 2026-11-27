@@ -18,6 +18,7 @@ void main() {
   late DiningTable m1;
   late DiningTable m2;
   late DiningTable m3;
+  late DateTime now;
 
   UuidValue staff() => ctx.owner.id;
 
@@ -32,7 +33,7 @@ void main() {
   );
 
   setUp(() async {
-    final now = DateTime.utc(2026, 11, 3, 9);
+    now = DateTime.utc(2026, 11, 3, 9);
     (store, dir) = await openTempStore(clock: () => now);
     ctx = await setupTestStore(store);
     scope = CatalogScope.of(ctx);
@@ -236,5 +237,117 @@ void main() {
     );
     expect(items, hasLength(1));
     expect((await Sale.db.findById(store.session, b.id))!.deletedAt, isNull);
+  });
+
+  group('jejak gabung (F1-10s)', () {
+    Future<StaffMember> addStaff(String name) =>
+        store.write(actor: staff(), (w) async {
+          final s = await w.stamp();
+          return w.insert(
+            StaffMember(
+              tenantId: ctx.tenant.id,
+              name: name,
+              pinHash: r'$argon2id$x',
+              isActive: true,
+              createdBy: staff(),
+              updatedBy: staff(),
+              hlc: s.hlc.toString(),
+              originDeviceId: s.deviceId,
+            ),
+            s,
+          );
+        });
+
+    test('bill sumber menunjuk tujuan; rincian nota memuat sumber berantai, '
+        'urut waktu gabung', () async {
+      await DiningTable.db.updateRow(
+        store.session,
+        m3.copyWith(canMerge: true),
+      );
+      final rina = await addStaff('Rina');
+      var a = await add(await open(m1), line(kopi));
+      var b = await add(await open(m2), line(nasi));
+      final c = await add(await open(m3), line(kopi));
+      final cNumber = c.sale.billNumber ?? c.sale.number;
+      final bNumber = b.sale.billNumber ?? b.sale.number;
+
+      // M3 ke M2 oleh Rina, lalu M2 ke M1 oleh pemilik.
+      now = DateTime.utc(2026, 11, 3, 9, 10);
+      b = await mergeOpenBills(
+        store,
+        scope,
+        staffId: rina.id,
+        targetBillId: b.id,
+        sourceBillId: c.id,
+      );
+      now = DateTime.utc(2026, 11, 3, 9, 20);
+      a = await merge(a, b);
+
+      final rows = await Sale.db.find(
+        store.session,
+        where: (s) => s.id.inSet({b.id, c.id}),
+      );
+      final byId = {for (final r in rows) r.id: r};
+      expect(byId[c.id]!.mergedIntoId, b.id);
+      expect(byId[b.id]!.mergedIntoId, a.id);
+      expect(byId[b.id]!.deletedAt, isNotNull);
+      expect(
+        (await Sale.db.findById(store.session, a.id))!.mergedIntoId,
+        isNull,
+      );
+
+      await openCashSession(
+        store,
+        CashScope.of(ctx),
+        staffId: staff(),
+        openingCash: Money.zero,
+      );
+      final paid = await payOpenBill(
+        store,
+        scope,
+        staffId: staff(),
+        billId: a.id,
+        payments: [SalePaymentRequest.cash(Money(a.sale.total))],
+      );
+      final detail = await loadSaleDetail(store, scope, paid.sale.id);
+      expect(
+        [
+          for (final m in detail.mergedBills)
+            (m.billNumber, m.tableName, m.mergedAt, m.staffName),
+        ],
+        [
+          (cNumber, 'M3', DateTime.utc(2026, 11, 3, 9, 10), 'Rina'),
+          (bNumber, 'M2', DateTime.utc(2026, 11, 3, 9, 20), ctx.owner.name),
+        ],
+      );
+
+      // Meja M3 dihapus (soft delete): sumbernya tampil tanpa nama meja.
+      final m3Row = await DiningTable.db.findById(store.session, m3.id);
+      await DiningTable.db.updateRow(
+        store.session,
+        m3Row!.copyWith(deletedAt: DateTime.utc(2026, 11, 3, 10)),
+      );
+      final after = await loadSaleDetail(store, scope, paid.sale.id);
+      expect([for (final m in after.mergedBills) m.tableName], [null, 'M2']);
+    });
+
+    test('nota tanpa gabung: daftar kosong', () async {
+      await openCashSession(
+        store,
+        CashScope.of(ctx),
+        staffId: staff(),
+        openingCash: Money.zero,
+      );
+      final a = await add(await open(m1), line(kopi));
+      final paid = await payOpenBill(
+        store,
+        scope,
+        staffId: staff(),
+        billId: a.id,
+        payments: [SalePaymentRequest.cash(Money(a.sale.total))],
+      );
+      final detail = await loadSaleDetail(store, scope, paid.sale.id);
+      expect(detail.mergedBills, isEmpty);
+    });
   });
 }

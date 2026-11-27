@@ -152,6 +152,16 @@ class HistoryDetailPanel extends StatelessWidget {
             ),
           ],
         ),
+        if (detail.mergedBills.isNotEmpty)
+          Column(
+            key: const ValueKey('history-merged'),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              for (final m in detail.mergedBills)
+                Text(mergedBillLabel(l10n, m, tz), style: _muted(context)),
+            ],
+          ),
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -877,4 +887,20 @@ String _modifierLine(BuildContext context, List<SaleItemModifier> mods) {
     );
   }
   return '+ ${parts.join(', ')}';
+}
+
+/// Jejak gabung meja (F1-10s): *Gabungan dari meja M3 (OB-…) · 03/11/26
+/// 09.10 · Rina*; tanpa meja bila mejanya sudah dihapus.
+String mergedBillLabel(AppLocalizations l10n, MergedBill m, String? timezone) {
+  final time = receiptDate(outletLocalTime(m.mergedAt, timezone));
+  final name = m.staffName.isEmpty ? '—' : m.staffName;
+  return switch (m.tableName) {
+    final table? => l10n.historyMergedFromTable(
+      table,
+      m.billNumber,
+      time,
+      name,
+    ),
+    null => l10n.historyMergedFromBill(m.billNumber, time, name),
+  };
 }

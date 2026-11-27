@@ -56,6 +56,9 @@ class FakeHistoryRepository extends HistoryRepository {
   /// Nama pemberi diskon per nota (F1-04i).
   final discountGivers = <UuidValue, String>{};
 
+  /// Bill meja yang digabung ke nota (F1-10s).
+  final mergedBills = <UuidValue, List<MergedBill>>{};
+
   /// Menambah nota lunas: [items] = (nama, jumlah milli, harga satuan).
   CheckoutResult addSale(
     List<(String, int, int)> items, {
@@ -315,6 +318,7 @@ class FakeHistoryRepository extends HistoryRepository {
           : staff.where((e) => e.id == s.sale.voidedBy).firstOrNull?.name ??
                 'Manajer',
       discountApprovedByName: discountGivers[saleId],
+      mergedBills: mergedBills[saleId] ?? const [],
       returns: mine,
       returnedMilli: returned,
       outstanding: outstanding[saleId] ?? Money.zero,

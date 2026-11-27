@@ -36,6 +36,7 @@ part '20261120211318719-rekening-tujuan/migration.dart';
 part '20261120215928857-rekening-piutang/migration.dart';
 part '20261127021134605-shift/migration.dart';
 part '20261127051527184-log-masuk/migration.dart';
+part '20261127085032331-jejak-gabung/migration.dart';
 
 /// Migration registry for the client-side database.
 class MigrationRegistry {
@@ -74,6 +75,7 @@ class MigrationRegistry {
     _Migration20261120215928857_rekening_piutang(),
     _Migration20261127021134605_shift(),
     _Migration20261127051527184_log_masuk(),
+    _Migration20261127085032331_jejak_gabung(),
   ];
 
   /// List of all client-side database migration versions.

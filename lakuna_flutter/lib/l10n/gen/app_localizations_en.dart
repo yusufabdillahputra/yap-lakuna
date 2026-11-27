@@ -8542,6 +8542,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productImportSave => 'Save';
 
   @override
+  String historyMergedFromTable(
+    String table,
+    String bill,
+    String time,
+    String name,
+  ) {
+    return 'Merged from table $table ($bill) · $time · $name';
+  }
+
+  @override
+  String historyMergedFromBill(String bill, String time, String name) {
+    return 'Merged from bill $bill · $time · $name';
+  }
+
+  @override
   String get historyManualDiscount => 'Manual discount';
 
   @override

@@ -60,6 +60,9 @@ fields:
   voidReason: String?, column=void_reason
   voidedBy: UuidValue?, column=voided_by
   voidedAt: DateTime?, column=voided_at
+  ### Gabung meja (F1-10s): bill sumber yang digabung menunjuk bill tujuan;
+  ### bill sumber sekaligus dihapus (soft delete).
+  mergedIntoId: UuidValue?, column=merged_into_id
   ### Split bill (F1-10c): mode dan jumlah tamu (2–8, label A–H).
   splitMode: SplitMode?, column=split_mode
   splitGuests: int?, column=split_guests
@@ -87,3 +90,5 @@ indexes:
     fields: outletId, status
   sales_customer_idx:
     fields: customerId
+  sales_merged_into_idx:
+    fields: mergedIntoId

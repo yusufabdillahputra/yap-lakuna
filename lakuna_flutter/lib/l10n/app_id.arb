@@ -5401,6 +5401,37 @@
   "productImportPreviewNone": "Tidak ada yang berubah, jadi tidak ada yang perlu disimpan.",
   "productImportPreviewNote": "Belum tersimpan. Periksa daftar ini, lalu tekan Simpan.",
   "productImportSave": "Simpan",
+  "historyMergedFromTable": "Gabungan dari meja {table} ({bill}) · {time} · {name}",
+  "@historyMergedFromTable": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      },
+      "bill": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMergedFromBill": "Gabungan dari bill {bill} · {time} · {name}",
+  "@historyMergedFromBill": {
+    "placeholders": {
+      "bill": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "historyManualDiscount": "Diskon manual",
   "historyManualDiscountBy": "Diskon manual · disetujui {name}",
   "@historyManualDiscountBy": {

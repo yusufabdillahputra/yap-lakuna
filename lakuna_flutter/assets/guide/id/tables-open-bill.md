@@ -25,6 +25,12 @@ Usaha *F&B* dan *Campuran* memakai layar **Meja** untuk mencatat pesanan per mej
 - Saat **Tutup & bayar** dengan *Kredit / piutang*, pelanggan bill otomatis terpilih. Kredit untuk pelanggan lain ditolak; ganti dulu pelanggan bill.
 - Pelanggan tidak bisa diubah setelah bill di-split atau ada bayar bagian. Dua bill dengan pelanggan berbeda tidak bisa digabung.
 
+## Gabung meja
+
+Rombongan yang duduk di dua meja bisa dibayar dalam satu tagihan. Di panel bill, tekan **Gabung meja**, lalu pilih meja lain yang bill-nya mau digabung ke bill ini. Kedua meja harus *Boleh digabung* (atur di denah atau **Master data › Meja & area**). Semua item pindah ke bill ini dan meja sumber kosong.
+
+Jejak gabung tersimpan. Setelah bill dibayar, rincian notanya di [Riwayat](return-void) menulis *Gabungan dari meja M3 (OB-…) · 03/11/26 09.10 · Rina*: meja dan nomor bill sumber, waktu, dan staf yang menggabungkan. Bill yang sebelumnya sudah menerima gabungan dari meja lain ikut tertulis.
+
 ## Menutup bill
 
 1. Saat tamu meminta tagihan, tekan **Minta bill** (meja berubah warna).
