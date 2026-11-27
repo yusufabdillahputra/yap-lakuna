@@ -1,13 +1,11 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'pdf_fonts.dart';
 import 'spreadsheet_exporter.dart';
-
-const _regular = 'assets/fonts/pdf/DMSans-Regular.ttf';
-const _semiBold = 'assets/fonts/pdf/DMSans-SemiBold.ttf';
-const _heading = 'assets/fonts/pdf/Montserrat-Bold.ttf';
 
 /// Satu baris tabel laporan. Sel: `String`, `int`, [XlsxNumber] (rupiah),
 /// atau `null`.
@@ -109,13 +107,36 @@ Uint8List reportXlsx(ReportTable t) => buildXlsx(
 /// PDF A4 (tegak, atau mendatar bila [ReportTable.landscape]): judul,
 /// subjudul, tabel, catatan. [money] memformat sel
 /// [XlsxNumber] (mis. `Rp 12.500`). Kolom angka rata kanan.
+///
+/// PDF dibuat di isolate terpisah agar daftar ribuan baris tidak membekukan
+/// layar (F1-19f). [money] dijalankan di isolate ini lebih dulu (biasanya
+/// memakai terjemahan), hasilnya ikut dikirim.
 Future<Uint8List> reportPdf(
   ReportTable t, {
   required String Function(int value) money,
 }) async {
-  final regular = pw.Font.ttf(await rootBundle.load(_regular));
-  final semi = pw.Font.ttf(await rootBundle.load(_semiBold));
-  final heading = pw.Font.ttf(await rootBundle.load(_heading));
+  final amounts = <int, String>{
+    for (final r in t.rows)
+      for (final c in r.cells)
+        if (c case XlsxNumber(:final value)) value: money(value),
+  };
+  return _reportPdfInIsolate(t, amounts, await loadPdfFontBytes());
+}
+
+// Fungsi tersendiri agar closure hanya membawa argumen yang bisa dikirim
+// ke isolate lain.
+Future<Uint8List> _reportPdfInIsolate(
+  ReportTable t,
+  Map<int, String> amounts,
+  PdfFontBytes fonts,
+) => Isolate.run(() => _reportDocument(t, amounts, pdfFonts(fonts)).save());
+
+pw.Document _reportDocument(
+  ReportTable t,
+  Map<int, String> amounts,
+  PdfFonts fonts,
+) {
+  final (:regular, :semi, :heading) = fonts;
   const ink = PdfColor.fromInt(0xFF18181B);
   const muted = PdfColor.fromInt(0xFF52525B);
   const rule = PdfColor.fromInt(0xFFE4E4E7);
@@ -125,7 +146,7 @@ Future<Uint8List> reportPdf(
 
   String text(Object? cell) => switch (cell) {
     null => '',
-    final XlsxNumber n => money(n.value),
+    final XlsxNumber n => amounts[n.value]!,
     final int n => '$n',
     _ => '$cell',
   };
@@ -233,5 +254,5 @@ Future<Uint8List> reportPdf(
       ],
     ),
   );
-  return doc.save();
+  return doc;
 }

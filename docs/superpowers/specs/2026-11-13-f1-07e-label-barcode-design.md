@@ -93,4 +93,4 @@ cukup memindai label itu.
 | Buat barcode otomatis untuk produk tanpa kode | — | Rilis v0.55.0 | Tombol *Buat barcode* di field Barcode varian, EAN-13 awalan 20 ([F1-07h](2026-11-14-f1-07h-barcode-otomatis-upc-design.md)). |
 | Peringatan kode terlalu panjang untuk label kecil | — | Rilis v0.57.0 | [F1-07i](2026-11-14-f1-07i-peringatan-kode-label-design.md): peringatan bila garis < 0,25 mm untuk kertas terpilih. |
 | UPC-A dibaca pemindai sebagai 13 digit (awalan 0) | — | Rilis v0.55.0 | `barcodeKey` menyamakan `0` + UPC-A dengan kode 12 digit ([F1-07h](2026-11-14-f1-07h-barcode-otomatis-upc-design.md)). |
-| PDF ribuan label tanpa membekukan layar | — | Belum | Batas 2.000 label; PDF dibuat di isolate UI. |
+| PDF ribuan label tanpa membekukan layar | — | Rilis v0.158.0 | [F1-19f](2026-11-27-f1-19f-isolate-backup-pdf-design.md): PDF dibuat di isolate terpisah; batas tetap 2.000 label. |

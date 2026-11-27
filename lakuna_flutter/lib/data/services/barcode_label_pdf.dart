@@ -1,14 +1,12 @@
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-const _regular = 'assets/fonts/pdf/DMSans-Regular.ttf';
-const _semiBold = 'assets/fonts/pdf/DMSans-SemiBold.ttf';
-const _heading = 'assets/fonts/pdf/Montserrat-Bold.ttf';
+import 'pdf_fonts.dart';
 
 /// Kertas label barcode (F1-07e).
 enum BarcodeLabelPaper {
@@ -90,9 +88,17 @@ class BarcodeLabelSheet {
   final int skip;
 }
 
-/// PDF label barcode.
+/// PDF label barcode, dibuat di isolate terpisah agar layar tidak membeku
+/// untuk ribuan label (F1-19f).
 Future<Uint8List> buildBarcodeLabelPdf(BarcodeLabelSheet sheet) async =>
-    (await barcodeLabelPdfDocument(sheet)).save();
+    _labelPdfInIsolate(sheet, await loadPdfFontBytes());
+
+// Fungsi tersendiri agar closure hanya membawa argumen yang bisa dikirim
+// ke isolate lain.
+Future<Uint8List> _labelPdfInIsolate(
+  BarcodeLabelSheet sheet,
+  PdfFontBytes fonts,
+) => Isolate.run(() => _labelDocument(sheet, pdfFonts(fonts)).save());
 
 pw.Barcode _barcode(BarcodeSymbology s) => switch (s) {
   BarcodeSymbology.ean13 => pw.Barcode.ean13(),
@@ -163,11 +169,13 @@ _Scale _scale(BarcodeLabelPaper paper) => switch (paper) {
   ),
 };
 
-/// Dokumen PDF label.
-Future<pw.Document> barcodeLabelPdfDocument(BarcodeLabelSheet sheet) async {
-  final regular = pw.Font.ttf(await rootBundle.load(_regular));
-  final semi = pw.Font.ttf(await rootBundle.load(_semiBold));
-  final heading = pw.Font.ttf(await rootBundle.load(_heading));
+/// Dokumen PDF label (di isolate ini; untuk tes).
+@visibleForTesting
+Future<pw.Document> barcodeLabelPdfDocument(BarcodeLabelSheet sheet) async =>
+    _labelDocument(sheet, pdfFonts(await loadPdfFontBytes()));
+
+pw.Document _labelDocument(BarcodeLabelSheet sheet, PdfFonts fonts) {
+  final (:regular, :semi, :heading) = fonts;
   const ink = PdfColor.fromInt(0xFF18181B);
   final scale = _scale(sheet.paper);
 

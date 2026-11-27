@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/services/barcode_label_pdf.dart';
 
+import '../../testing/main_isolate_stall.dart';
+
 const _kopi = BarcodeLabel(
   title: 'Kopi Sachet Susu Gula Aren Ekstra Panjang Sekali Namanya',
   price: 'Rp 2.000',
@@ -25,6 +27,23 @@ Future<int> _pages(BarcodeLabelSheet sheet) async {
 void main() {
   _modulesTests();
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('2.000 label dibuat di isolate terpisah (F1-19f)', () async {
+    final sheet = BarcodeLabelSheet(
+      paper: BarcodeLabelPaper.a4Sheet,
+      labels: [for (var i = 0; i < 2000; i++) i.isEven ? _kopi : _gula],
+    );
+    final run = await measureMainIsolateStall(
+      () => buildBarcodeLabelPdf(sheet),
+    );
+    expect(String.fromCharCodes(run.result.take(5)), '%PDF-');
+    expect(run.elapsed, greaterThan(const Duration(milliseconds: 200)));
+    expect(
+      run.longestStall,
+      lessThan(run.elapsed * 0.5),
+      reason: 'layar tidak boleh membeku selama PDF dibuat',
+    );
+  });
 
   test('A4 24 label per halaman; 25 label → 2 halaman', () async {
     final sheet = BarcodeLabelSheet(

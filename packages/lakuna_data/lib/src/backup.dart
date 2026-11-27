@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart' show sha256;
@@ -295,7 +296,7 @@ Future<BackupManifest> createBackup(
   try {
     final escaped = snapshot.path.replaceAll("'", "''");
     await store.session.db.unsafeExecute("VACUUM INTO '$escaped'");
-    final digest = await sha256.bind(snapshot.openRead()).first;
+    final digest = await _sha256InIsolate(snapshot.path);
     final media = _mediaFiles(store.mediaDirectory);
     final manifest = BackupManifest(
       appVersion: appVersion,
@@ -311,43 +312,25 @@ Future<BackupManifest> createBackup(
       sales: await _salesCount(store, ctx),
       products: await _productsCount(store, ctx),
       dbSizeBytes: snapshot.lengthSync(),
-      dbSha256: digest.toString(),
+      dbSha256: digest,
       media: [for (final f in media) _baseName(f.path)],
     );
     await out.parent.create(recursive: true);
-    // ZipEncoder langsung (bukan ZipFileEncoder) agar komentar zip bisa
-    // ditulis; `streamed` menulis entri bertahap tanpa ditampung di memori.
-    final output = OutputFileStream(out.path);
-    try {
-      final encoder = ZipEncoder(password: zipPassword, streamed: true)
-        ..startEncode(output);
-      final manifestJson = manifest.toJson();
-      // AES gaya WinZip (AE-1) tetap mencatat CRC32 isi asli. Nonce acak
-      // membuat CRC manifest tidak bisa dipakai menebak isinya.
-      if (lock != null) manifestJson['nonce'] = randomToken();
-      encoder.add(
-        ArchiveFile.string(
-          _manifestName,
-          const JsonEncoder.withIndent('  ').convert(manifestJson),
-        ),
-      );
-      Future<void> addFile(File file, String name) async {
-        final input = InputFileStream(file.path);
-        try {
-          encoder.add(ArchiveFile.stream(name, input));
-        } finally {
-          await input.close();
-        }
-      }
-
-      await addFile(snapshot, _dbName);
-      for (final f in media) {
-        await addFile(f, '$_mediaDir/${_baseName(f.path)}');
-      }
-      encoder.endEncode(comment: lock?.toComment() ?? '');
-    } finally {
-      await output.close();
-    }
+    final manifestJson = manifest.toJson();
+    // AES gaya WinZip (AE-1) tetap mencatat CRC32 isi asli. Nonce acak
+    // membuat CRC manifest tidak bisa dipakai menebak isinya.
+    if (lock != null) manifestJson['nonce'] = randomToken();
+    await _writeZipInIsolate(
+      outPath: out.path,
+      manifest: const JsonEncoder.withIndent('  ').convert(manifestJson),
+      entries: [
+        (path: snapshot.path, name: _dbName),
+        for (final f in media)
+          (path: f.path, name: '$_mediaDir/${_baseName(f.path)}'),
+      ],
+      zipPassword: zipPassword,
+      comment: lock?.toComment() ?? '',
+    );
     return manifest;
   } catch (_) {
     if (out.existsSync()) await out.delete();
@@ -356,6 +339,42 @@ Future<BackupManifest> createBackup(
     await temp.delete(recursive: true);
   }
 }
+
+/// SHA-256 berkas di isolate terpisah (F1-19f).
+Future<String> _sha256InIsolate(String path) => Isolate.run(
+  () async => (await sha256.bind(File(path).openRead()).first).toString(),
+);
+
+/// Menulis zip backup di isolate terpisah agar layar tidak tersendat untuk
+/// database dan gambar besar (F1-19f). Semua argumen bisa dikirim antar
+/// isolate (teks dan daftar teks).
+Future<void> _writeZipInIsolate({
+  required String outPath,
+  required String manifest,
+  required List<({String path, String name})> entries,
+  required String? zipPassword,
+  required String comment,
+}) => Isolate.run(() async {
+  // ZipEncoder langsung (bukan ZipFileEncoder) agar komentar zip bisa
+  // ditulis; `streamed` menulis entri bertahap tanpa ditampung di memori.
+  final output = OutputFileStream(outPath);
+  try {
+    final encoder = ZipEncoder(password: zipPassword, streamed: true)
+      ..startEncode(output);
+    encoder.add(ArchiveFile.string(_manifestName, manifest));
+    for (final e in entries) {
+      final input = InputFileStream(e.path);
+      try {
+        encoder.add(ArchiveFile.stream(e.name, input));
+      } finally {
+        await input.close();
+      }
+    }
+    encoder.endEncode(comment: comment);
+  } finally {
+    await output.close();
+  }
+});
 
 /// Kunci turunan terakhir: buka kunci lalu pulihkan memakai berkas dan
 /// kata sandi yang sama, jadi PBKDF2 cukup dihitung sekali.

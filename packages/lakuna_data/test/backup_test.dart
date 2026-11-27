@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:lakuna_client/lakuna_client.dart';
@@ -129,6 +132,55 @@ void main() {
 
     // Pemeriksaan ulang berkas yang sama lolos.
     expect(await inspectBackup(path, knownVersions: versions), manifest);
+  });
+
+  test('zip dibuat di isolate terpisah (F1-19f)', () async {
+    // Gambar besar acak (tidak bisa dimampatkan) agar zip butuh waktu.
+    final random = Random(7);
+    final big = Uint8List(64 << 20);
+    for (var i = 0; i < big.length; i++) {
+      big[i] = random.nextInt(256);
+    }
+    await File('${store.mediaDirectory}/besar.jpg').writeAsBytes(big);
+
+    final clock = Stopwatch()..start();
+    var last = Duration.zero;
+    var longest = Duration.zero;
+    final timer = Timer.periodic(const Duration(milliseconds: 5), (_) {
+      final t = clock.elapsed;
+      if (t - last > longest) longest = t - last;
+      last = t;
+    });
+    addTearDown(timer.cancel);
+    final (path, manifest) = await backup();
+    timer.cancel();
+    final elapsed = clock.elapsed;
+    if (elapsed - last > longest) longest = elapsed - last;
+
+    expect(manifest.media, containsAll(['abc.png', 'besar.jpg']));
+    expect(await inspectBackup(path, knownVersions: versions), manifest);
+    expect(elapsed, greaterThan(const Duration(milliseconds: 100)));
+    expect(
+      longest,
+      lessThan(elapsed * 0.5),
+      reason: 'layar tidak boleh membeku selama zip dibuat',
+    );
+  });
+
+  test('galat menulis zip di isolate diteruskan (F1-19f)', () async {
+    // Tujuan berupa folder: berkas zip tidak bisa dibuat.
+    final target = Directory('${out.path}/bukan-berkas.zip')..createSync();
+    await expectLater(
+      createBackup(
+        store,
+        ctx,
+        outPath: target.path,
+        appVersion: '0.25.0',
+        now: now,
+      ),
+      throwsA(isA<FileSystemException>()),
+    );
+    expect(target.existsSync(), isTrue, reason: 'folder lain tidak dihapus');
   });
 
   group('pemeriksaan berkas', () {

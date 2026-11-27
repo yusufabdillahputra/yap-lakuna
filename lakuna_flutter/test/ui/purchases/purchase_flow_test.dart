@@ -23,6 +23,7 @@ import '../../testing/fake_session_repository.dart';
 import '../../testing/fake_spreadsheet_exporter.dart';
 import '../../testing/fake_stock_repository.dart';
 import '../../testing/floor_seed.dart';
+import '../../testing/isolate_tap.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
@@ -1078,7 +1079,11 @@ void main() {
   ) async {
     await pump(tester, const Size(1440, 900));
     await receiveKop(tester);
-    await _tap(tester, _key('purchase-print'));
+    await tapAndWaitForIsolate(
+      tester,
+      _key('purchase-print'),
+      () => exporter.saved.isNotEmpty,
+    );
     expect(
       exporter.saved.single.$1,
       'pembelian-pb-pst-d01-261103-0001.pdf',
@@ -1092,7 +1097,11 @@ void main() {
     );
 
     exporter.error = Exception('disk penuh');
-    await _tap(tester, _key('purchase-print'));
+    await tapAndWaitForIsolate(
+      tester,
+      _key('purchase-print'),
+      () => exporter.error == null,
+    );
     expect(_key('purchase-print-failed'), findsOneWidget);
 
     await _tap(tester, _keyPrefix('purchase-stock-card-'));
@@ -1108,7 +1117,11 @@ void main() {
     await pump(tester, const Size(360, 780));
     exporter.path = null;
     await receiveKop(tester, narrow: true);
-    await _tap(tester, _key('purchase-print'));
+    await tapAndWaitForIsolate(
+      tester,
+      _key('purchase-print'),
+      () => exporter.saved.isNotEmpty,
+    );
     expect(exporter.saved, hasLength(1));
     expect(_key('purchase-print-saved'), findsNothing);
     expect(_key('purchase-print-failed'), findsNothing);
