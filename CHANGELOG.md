@@ -58,8 +58,19 @@ aplikasi untuk pengguna Fase 1.
 - Token perangkat 256 bit acak; server hanya menyimpan hash SHA-256 token,
   kode aktivasi, dan kode pasang. Token yang dicabut ditolak.
 - Perangkat hasil salinan backup (ID perangkat yang sudah punya token
-  aktif) tidak bisa diaktifkan lagi. HLC lebih dari 5 menit di depan jam
-  server ditolak.
+  aktif) tidak bisa diaktifkan lagi, juga bila salinan itu membawa tenant
+  yang sama (pesan *salinan*, bukan *tenant sudah aktif*). HLC lebih dari
+  5 menit di depan jam server ditolak.
+- Setiap kolom rujukan (FK) baris yang di-push diperiksa: induk milik
+  tenant lain ditolak `tenant`, jadi perangkat satu tenant tidak bisa
+  menautkan barisnya ke cabang atau nota tenant lain.
+- Item, pembayaran, dan item pembelian **baru** dari perangkat lain untuk
+  nota/pembelian yang sudah final ditolak `final`; baris yang merujuk baris
+  yang ditolak di batch yang sama ditolak `dependency`.
+- Payload rusak (nilai kosong untuk kolom wajib, waktu atau UUID tidak sah)
+  hanya menolak entri itu (`table`), batch lain tetap diterapkan.
+- Pasang perangkat memakai kunci tenant yang sama dengan push, sehingga
+  pull tidak pernah melompati baris perangkat baru.
 
 ### Catatan teknis
 
