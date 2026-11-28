@@ -434,6 +434,9 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Izin per aksi di server | — | Belum | Gap; perangkat sudah menjaga izin di repositori. |
 | Pull per outlet | — | Belum | Modul ini menarik semua outlet tenant (aturan 2). |
 | Keunikan tingkat aplikasi di server | — | Belum | Duplikat SKU/nama dari dua perangkat dilaporkan di F2-03 (aturan 8c). |
+| Baris isi baru di dokumen final | — | Rilis v0.164.0 | `sale_items`, `payments`, `purchase_items` baru dari perangkat lain untuk nota/pembelian final ditolak `final`; anak dari baris yang ditolak di batch yang sama ditolak `dependency` (aturan 7a, 8d). Pembaruan baris anak yang sudah ada (mis. QRIS `pending` → `paid`) tetap LWW: gap. |
+| Penjaga tenant di `ON CONFLICT` | — | Belum | Dua tenant yang berlomba menyisipkan ID sama (butuh UUID bocor); penerap sudah memeriksa tenant baris lama dan semua induk FK. |
+| Batas percobaan kode pasang/aktivasi | — | Belum | 31^8 kombinasi; batas laju di Caddy (tahap 5). |
 | Gabung data dua tenant lokal | — | Tidak direncanakan | Perangkat yang bergabung memulai dari data server (aturan 10). |
 
 ## Kriteria selesai

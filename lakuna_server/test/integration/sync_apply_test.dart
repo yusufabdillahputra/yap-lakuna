@@ -124,6 +124,44 @@ Sale sale({
   originDeviceId: origin ?? deviceA,
 );
 
+Payment payment({
+  required String hlc,
+  UuidValue? id,
+  UuidValue? origin,
+}) => Payment(
+  id: id ?? UuidValue.fromString('01900000-0000-7000-8000-000000000040'),
+  tenantId: tenantId,
+  saleId: saleId,
+  method: PaymentMethod.cash,
+  amount: 50000,
+  changeAmount: 0,
+  status: PaymentStatus.paid,
+  paidAt: DateTime.utc(2026, 11, 28, 4),
+  createdAt: DateTime.utc(2026, 11, 28, 4),
+  updatedAt: DateTime.utc(2026, 11, 28, 4),
+  hlc: hlc,
+  originDeviceId: origin ?? deviceA,
+);
+
+Future<List<SyncPushResult>> applyBatch(
+  Session session,
+  DeviceAuth auth,
+  List<SyncPushEntry> entries,
+) => session.db.transaction((tx) async {
+  final rejected = <UuidValue>{};
+  return [
+    for (final e in entries)
+      await applyPushEntry(
+        session,
+        tx,
+        auth,
+        e,
+        serverNow: serverNow,
+        rejectedInBatch: rejected,
+      ),
+  ];
+});
+
 Future<SyncPushResult> apply(
   Session session,
   DeviceAuth auth,
@@ -405,6 +443,134 @@ void main() {
       expect(results[1].reason, SyncRejectReason.dependency);
       expect(results[2].kind, SyncResultKind.applied);
       expect(await Outlet.db.findById(session, fine.id), isNotNull);
+    });
+
+    test('outlet milik tenant lain di baris ditolak (tenant)', () async {
+      final foreign = Outlet(
+        id: UuidValue.fromString('01900000-0000-7000-8000-000000000019'),
+        tenantId: otherTenantId,
+        code: 'LN1',
+        name: 'Cabang lain',
+        hlc: seedHlc,
+      );
+      await Outlet.db.insertRow(session, foreign);
+      final location = StockLocation(
+        id: UuidValue.fromString('01900000-0000-7000-8000-000000000052'),
+        tenantId: tenantId,
+        outletId: foreign.id,
+        name: 'Gudang',
+        hlc: h(1),
+        originDeviceId: deviceA,
+      );
+      final r = await apply(
+        session,
+        authA(),
+        entry('stock_locations', location, h(1)),
+      );
+      expect(r.reason, SyncRejectReason.tenant);
+      expect(await StockLocation.db.findById(session, location.id), isNull);
+    });
+
+    test(
+      'induk ditolak di batch, walau ada di server: anak dependency',
+      () async {
+        await apply(
+          session,
+          authB(),
+          entry(
+            'sales',
+            sale(
+              hlc: h(5, node: deviceB),
+              origin: deviceB,
+            ),
+            h(5, node: deviceB),
+          ),
+        );
+        final results = await applyBatch(session, authA(), [
+          entry('sales', sale(hlc: h(6), total: 70000), h(6)),
+          entry('payments', payment(hlc: h(7)), h(7)),
+        ]);
+        expect(results[0].reason, SyncRejectReason.finalDocument);
+        expect(results[1].reason, SyncRejectReason.dependency);
+        expect(await Payment.db.count(session), 0);
+      },
+    );
+
+    test(
+      'pembayaran baru untuk nota final perangkat lain ditolak (final)',
+      () async {
+        await apply(
+          session,
+          authB(),
+          entry(
+            'sales',
+            sale(
+              hlc: h(5, node: deviceB),
+              origin: deviceB,
+            ),
+            h(5, node: deviceB),
+          ),
+        );
+        final r = await apply(
+          session,
+          authA(),
+          entry('payments', payment(hlc: h(7)), h(7)),
+        );
+        expect(r.reason, SyncRejectReason.finalDocument);
+        expect(await Payment.db.count(session), 0);
+      },
+    );
+
+    test(
+      'pembayaran nota final milik perangkat sendiri tetap diterapkan',
+      () async {
+        await apply(session, authA(), entry('sales', sale(hlc: h(5)), h(5)));
+        final r = await apply(
+          session,
+          authA(),
+          entry('payments', payment(hlc: h(7)), h(7)),
+        );
+        expect(r.kind, SyncResultKind.applied);
+      },
+    );
+
+    test('payload rusak ditolak (table) tanpa membatalkan batch', () async {
+      final nullName = outlet(hlc: h(1)).toJson()..['name'] = null;
+      final badTime = sale(hlc: h(2)).toJson()..['soldAt'] = 'bukan waktu';
+      final badUuid = outlet(
+        id: UuidValue.fromString('01900000-0000-7000-8000-000000000013'),
+        code: 'CB3',
+        hlc: h(3),
+      ).toJson()..['tenantId'] = tenantId.uuid;
+      badUuid['createdBy'] = 'bukan-uuid';
+      final fine = outlet(
+        id: UuidValue.fromString('01900000-0000-7000-8000-000000000012'),
+        code: 'CB2',
+        hlc: h(4),
+      );
+      SyncPushEntry raw(String table, Map<String, dynamic> json, String hlc) =>
+          SyncPushEntry(
+            tableName: table,
+            rowId: UuidValue.fromString(json['id'] as String),
+            op: SyncOp.upsert,
+            payloadJson: jsonEncode(json),
+            hlc: hlc,
+          );
+      final results = await applyBatch(session, authA(), [
+        raw('outlets', nullName, h(1)),
+        raw('sales', badTime, h(2)),
+        raw('outlets', badUuid, h(3)),
+        entry('outlets', fine, h(4)),
+      ]);
+      expect(
+        [for (final r in results.take(3)) r.reason],
+        [
+          SyncRejectReason.table,
+          SyncRejectReason.table,
+          SyncRejectReason.table,
+        ],
+      );
+      expect(results[3].kind, SyncResultKind.applied);
     });
 
     test('payload tanpa kolom baru yang boleh kosong: kolom null', () async {

@@ -27,17 +27,21 @@ class SyncEndpoint extends Endpoint {
     }
     final now = DateTime.now().toUtc();
     final results = await session.db.transaction((tx) async {
-      // Satu push per tenant pada satu waktu: `seq` (bigserial) dibagikan
-      // saat sisip tetapi terlihat saat commit, jadi tanpa kunci ini pull
-      // bisa melompati seq kecil yang belum di-commit.
-      await session.db.unsafeExecute(
-        'SELECT pg_advisory_xact_lock(hashtext(@tenant))',
-        parameters: QueryParameters.named({'tenant': auth.tenantId.uuid}),
-        transaction: tx,
-      );
+      // Satu penulis log perubahan per tenant pada satu waktu.
+      await lockTenantChanges(session, tx, auth.tenantId);
       final out = <SyncPushResult>[];
+      final rejected = <UuidValue>{};
       for (final entry in entries) {
-        out.add(await applyPushEntry(session, tx, auth, entry, serverNow: now));
+        out.add(
+          await applyPushEntry(
+            session,
+            tx,
+            auth,
+            entry,
+            serverNow: now,
+            rejectedInBatch: rejected,
+          ),
+        );
       }
       return out;
     });

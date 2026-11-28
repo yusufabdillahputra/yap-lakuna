@@ -138,6 +138,17 @@ void main() {
       );
     });
 
+    test(
+      'salinan backup (tenant dan perangkat sama): perangkat salinan',
+      () async {
+        await activate(await code());
+        await expectLater(
+          activate(await code()),
+          failsWith(ActivationFailure.copiedDevice),
+        );
+      },
+    );
+
     group('kode pasang', () {
       late ActivationResult first;
       setUp(() async {
@@ -192,6 +203,27 @@ void main() {
           0,
         );
         expect(page.changes.single.rowId, r.deviceId);
+      });
+
+      test('pasang memegang kunci tenant seperti push (urutan seq)', () async {
+        final pairing = await endpoints.activation.createPairingCode(
+          sessionBuilder,
+          first.deviceToken,
+        );
+        final session = sessionBuilder.build();
+        Future<int> tenantLocks() async {
+          final rows = await session.db.unsafeQuery(
+            "SELECT count(*) FROM pg_locks WHERE locktype = 'advisory' "
+            'AND pid = pg_backend_pid() '
+            'AND objid = (hashtext(@t)::bigint & 4294967295)::oid',
+            parameters: QueryParameters.named({'t': tenantId.uuid}),
+          );
+          return rows.first.first! as int;
+        }
+
+        expect(await tenantLocks(), 0);
+        await join(pairing);
+        expect(await tenantLocks(), 1);
       });
 
       test('kode pasang hanya sekali pakai', () async {

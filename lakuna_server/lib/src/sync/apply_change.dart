@@ -34,6 +34,29 @@ final Map<String, TableDefinition> _definitions = {
     if (t.module == 'lakuna') t.name: t,
 };
 
+/// Mengunci log perubahan tenant [tenantId] sampai [tx] selesai. Wajib
+/// dipanggil setiap transaksi yang menyisipkan `sync_changes`: `seq`
+/// (bigserial) dibagikan saat sisip tetapi terlihat saat commit, jadi tanpa
+/// kunci ini pull bisa melompati seq kecil yang belum di-commit.
+Future<void> lockTenantChanges(
+  Session session,
+  Transaction tx,
+  UuidValue tenantId,
+) => session.db.unsafeExecute(
+  'SELECT pg_advisory_xact_lock(hashtext(@tenant))',
+  parameters: QueryParameters.named({'tenant': tenantId.uuid}),
+  transaction: tx,
+);
+
+/// Tabel isi dokumen final dan field induknya: baris baru di sini tidak
+/// boleh ditambahkan perangkat lain setelah dokumennya final (aturan 7a).
+/// Pembaruan baris yang sudah ada (mis. QRIS `pending` → `paid`) tetap LWW.
+const finalContentChildren = {
+  'sale_items': 'saleId',
+  'payments': 'saleId',
+  'purchase_items': 'purchaseId',
+};
+
 /// Nama field Dart untuk kolom [column] (`tenant_id` → `tenantId`).
 String dartNameOf(String column) {
   final parts = column.split('_');
@@ -43,14 +66,37 @@ String dartNameOf(String column) {
 
 /// Menerapkan [entry] dari perangkat [auth] di dalam [tx]. Setiap entri
 /// dijalankan di savepoint sendiri, jadi galat satu entri tidak membatalkan
-/// entri lain di batch yang sama.
+/// entri lain di batch yang sama. [rejectedInBatch] mengumpulkan ID baris
+/// yang ditolak di batch ini; baris yang merujuknya ditolak `dependency`
+/// (aturan 8d) walau induknya sudah ada di server.
 Future<SyncPushResult> applyPushEntry(
   Session session,
   Transaction tx,
   DeviceAuth auth,
   SyncPushEntry entry, {
   required DateTime serverNow,
+  Set<UuidValue>? rejectedInBatch,
 }) async {
+  final result = await _applyEntry(
+    session,
+    tx,
+    auth,
+    entry,
+    serverNow,
+    rejectedInBatch ?? const {},
+  );
+  if (result.kind == SyncResultKind.rejected) rejectedInBatch?.add(entry.rowId);
+  return result;
+}
+
+Future<SyncPushResult> _applyEntry(
+  Session session,
+  Transaction tx,
+  DeviceAuth auth,
+  SyncPushEntry entry,
+  DateTime serverNow,
+  Set<UuidValue> rejectedInBatch,
+) async {
   SyncPushResult reject(SyncRejectReason reason) => SyncPushResult(
     rowId: entry.rowId,
     hlc: entry.hlc,
@@ -86,7 +132,16 @@ Future<SyncPushResult> applyPushEntry(
     return reject(SyncRejectReason.clock);
   }
 
-  final applier = _Applier(session, tx, auth, table, def, entry, serverNow);
+  final applier = _Applier(
+    session,
+    tx,
+    auth,
+    table,
+    def,
+    entry,
+    serverNow,
+    rejectedInBatch,
+  );
   if (await applier.alreadyApplied()) {
     return SyncPushResult(
       rowId: entry.rowId,
@@ -94,7 +149,13 @@ Future<SyncPushResult> applyPushEntry(
       kind: SyncResultKind.applied,
     );
   }
-  final incoming = _Row.fromPayload(def, payload);
+  final _Row incoming;
+  try {
+    incoming = _Row.fromPayload(def, payload);
+  } on Object catch (e) {
+    if (e is! TypeError && e is! FormatException) rethrow;
+    return reject(SyncRejectReason.table);
+  }
   final savepoint = await tx.createSavepoint();
   try {
     final result = await applier.apply(incoming, hlc);
@@ -112,6 +173,13 @@ Future<SyncPushResult> applyPushEntry(
         }
         await applier.logConflict(incoming, winnerHlc: null, reason: 'unique');
         return reject(SyncRejectReason.unique);
+    }
+    // Nilai tidak sah untuk kolomnya (kelas 22, NOT NULL, CHECK): entri ini
+    // saja yang ditolak, batch jalan terus (aturan 1).
+    final code = e.code ?? '';
+    if (code.startsWith('22') || code == '23502' || code == '23514') {
+      await applier.logConflict(incoming, winnerHlc: null, reason: 'invalid');
+      return reject(SyncRejectReason.table);
     }
     rethrow;
   }
@@ -180,6 +248,7 @@ class _Applier {
     this.def,
     this.entry,
     this.serverNow,
+    this.rejectedInBatch,
   );
 
   final Session session;
@@ -189,6 +258,10 @@ class _Applier {
   final TableDefinition def;
   final SyncPushEntry entry;
   final DateTime serverNow;
+  final Set<UuidValue> rejectedInBatch;
+
+  SyncPushResult _reject(SyncRejectReason reason) =>
+      _result(SyncResultKind.rejected).copyWith(reason: reason);
 
   SyncPushResult _result(SyncResultKind kind, [_Row? server]) => SyncPushResult(
     rowId: entry.rowId,
@@ -207,6 +280,8 @@ class _Applier {
 
   Future<SyncPushResult> apply(_Row incoming, Hlc hlc) async {
     final existing = await _load(entry.rowId);
+    final refused = await _checkReferences(incoming, isNew: existing == null);
+    if (refused != null) return refused;
     if (existing == null) {
       await _write(incoming, origin: auth.deviceId);
       return _result(SyncResultKind.applied);
@@ -215,9 +290,7 @@ class _Applier {
         ? existing['id']
         : existing['tenantId'];
     if (existingTenant != auth.tenantId.uuid) {
-      return _result(SyncResultKind.rejected).copyWith(
-        reason: SyncRejectReason.tenant,
-      );
+      return _reject(SyncRejectReason.tenant);
     }
     final incomingNewer = hlc > Hlc.parse(existing.hlc);
     final rule = table.finalStatus;
@@ -259,6 +332,53 @@ class _Applier {
     if (!incomingNewer) return _stale(existing, incoming);
     await _write(incoming, origin: auth.deviceId);
     return _result(SyncResultKind.applied);
+  }
+
+  /// Memeriksa setiap kolom FK baris: induk yang ditolak di batch ini →
+  /// `dependency`; induk milik tenant lain → `tenant` (aturan 12; FK
+  /// Postgres hanya memastikan induknya ada); baris isi baru untuk dokumen
+  /// final dari perangkat lain → `final` (aturan 7a).
+  Future<SyncPushResult?> _checkReferences(
+    _Row incoming, {
+    required bool isNew,
+  }) async {
+    for (final fk in def.foreignKeys) {
+      final value = incoming[dartNameOf(fk.columns.single)];
+      if (value is! String) continue;
+      final parentId = UuidValue.fromString(value);
+      if (rejectedInBatch.contains(parentId)) {
+        return _reject(SyncRejectReason.dependency);
+      }
+      if (fk.referenceTable == 'tenants') {
+        if (value != auth.tenantId.uuid) {
+          return _reject(SyncRejectReason.tenant);
+        }
+        continue;
+      }
+      final parentDef = _definitions[fk.referenceTable];
+      if (parentDef == null || syncTableByName(fk.referenceTable) == null) {
+        continue;
+      }
+      final parent = await _loadFrom(parentDef, parentId);
+      if (parent == null) continue;
+      if (parent['tenantId'] != auth.tenantId.uuid) {
+        return _reject(SyncRejectReason.tenant);
+      }
+      final parentRule = syncTableByName(fk.referenceTable)!.finalStatus;
+      if (isNew &&
+          finalContentChildren[table.name] == dartNameOf(fk.columns.single) &&
+          parentRule != null &&
+          parentRule.isFinal(parent.values) &&
+          parent['originDeviceId'] != auth.deviceId.uuid) {
+        await logConflict(
+          incoming,
+          winnerHlc: parent.hlc,
+          reason: 'final',
+        );
+        return _reject(SyncRejectReason.finalDocument);
+      }
+    }
+    return null;
   }
 
   /// Bentrok kunci alami `settings` (aturan 8b): gabung LWW ke baris server
@@ -344,7 +464,9 @@ class _Applier {
     ).tick(serverNow.millisecondsSinceEpoch).toString();
   }
 
-  Future<_Row?> _load(UuidValue id) async {
+  Future<_Row?> _load(UuidValue id) => _loadFrom(def, id);
+
+  Future<_Row?> _loadFrom(TableDefinition def, UuidValue id) async {
     final rows = await session.db.unsafeQuery(
       'SELECT row_to_json(t)::text FROM "${def.name}" t WHERE id = @id',
       parameters: QueryParameters.named({'id': id.uuid}),

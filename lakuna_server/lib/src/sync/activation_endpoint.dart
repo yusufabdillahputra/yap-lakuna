@@ -5,6 +5,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 
 import '../generated/protocol.dart';
 import 'activation.dart';
+import 'apply_change.dart' show lockTenantChanges;
 import 'device_auth.dart';
 
 /// Umur kode pasang perangkat (aturan 10).
@@ -39,11 +40,13 @@ class ActivationEndpoint extends Endpoint {
       if (code == null) _fail(ActivationFailure.codeInvalid);
       if (code.usedAt != null) _fail(ActivationFailure.codeUsed);
       if (!code.expiresAt.isAfter(now)) _fail(ActivationFailure.codeExpired);
+      // Salinan backup membawa tenant yang sama, jadi cek salinan lebih dulu
+      // agar pesannya tepat (aturan 10a).
+      await _assertNotCopied(session, tx, deviceId);
       if (await Tenant.db.findById(session, tenantId, transaction: tx) !=
           null) {
         _fail(ActivationFailure.tenantActive);
       }
-      await _assertNotCopied(session, tx, deviceId);
       await Tenant.db.insertRow(
         session,
         Tenant(
@@ -135,6 +138,7 @@ class ActivationEndpoint extends Endpoint {
       if (outlet == null || outlet.tenantId != pairing.tenantId) {
         _fail(ActivationFailure.outletUnknown);
       }
+      await lockTenantChanges(session, tx, pairing.tenantId);
       final taken = await Device.db.count(
         session,
         where: (d) => d.outletId.equals(outletId) & d.code.equals(code),
