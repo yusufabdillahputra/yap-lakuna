@@ -10100,7 +10100,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardKpiSalesNote(int transactions, int outlets) {
-    return '$transactions transactions · $outlets outlets';
+    String _temp0 = intl.Intl.pluralLogic(
+      transactions,
+      locale: localeName,
+      other: '$transactions transactions',
+      one: '1 transaction',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      outlets,
+      locale: localeName,
+      other: '$outlets outlets',
+      one: '1 outlet',
+    );
+    return '$_temp0 · $_temp1';
   }
 
   @override
@@ -10125,12 +10137,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardDevicesStaleMany(int count) {
-    return '$count devices not synced for over 1 hour';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices not synced for over 1 hour',
+      one: '1 device not synced for over 1 hour',
+    );
+    return '$_temp0';
   }
 
   @override
   String dashboardDevicesSomeOffline(int count) {
-    return '$count devices offline';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices offline',
+      one: '1 device offline',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -10165,7 +10189,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardOutletMeta(String code, int count) {
-    return '$code · $count devices';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
+    );
+    return '$code · $_temp0';
   }
 
   @override
@@ -10204,7 +10234,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardAttentionConflicts(int count) {
-    return '$count sync conflicts awaiting review';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sync conflicts awaiting review',
+      one: '1 sync conflict awaiting review',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -10219,7 +10255,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardAttentionStock(int count, String outlet) {
-    return '$count products below minimum stock · $outlet';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products below minimum stock',
+      one: '1 product below minimum stock',
+    );
+    return '$_temp0 · $outlet';
   }
 
   @override
@@ -10244,7 +10286,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardAgoDays(int count) {
-    return '$count days ago';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
   }
 
   @override

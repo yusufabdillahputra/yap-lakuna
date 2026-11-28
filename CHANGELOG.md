@@ -7,6 +7,71 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.171.0] - 2026-11-29
+
+Tahap 3 modul F2-02 (versi web dan dashboard): **Dashboard semua cabang**
+(layar 2.3) di versi web dan di perangkat yang versi hostingnya aktif.
+Paket web di VPS menyusul di v0.172.0.
+
+### Ditambahkan
+
+- **Menu *Dashboard semua cabang*** tepat di bawah *Beranda*, untuk staf
+  dengan izin *Lihat laporan*. Tampil di web dan di perangkat setelah
+  versi hosting aktif (langsung muncul begitu aktivasi selesai); sebelum
+  itu menu disembunyikan dan rute `/dashboard` kembali ke Beranda.
+- **Layar Dashboard semua cabang 2.3**: subjudul tanggal hari ini "· data
+  tersinkron dari semua perangkat", pilihan *Semua cabang (n)* / satu
+  cabang, tombol *Unduh laporan*.
+  - Kartu *Penjualan hari ini* (rupiah, n transaksi, n cabang), *Rata-rata
+    per nota*, *Perangkat online* (x / y; "1 perangkat terakhir sync 3 jam
+    lalu", "n perangkat offline", "Belum ada perangkat kasir"), *Konflik
+    sync* (n, "Perlu ditinjau").
+  - Tabel *Per cabang hari ini*: cabang (nama, kode, n perangkat),
+    penjualan, transaksi, sync terakhir ("baru saja", "5 menit lalu", "3
+    jam lalu"), status (*Online* / *n perangkat offline* / *Tanpa
+    perangkat*), baris **Total**. Di bawah 720 px tabel menjadi kartu.
+  - Grafik *Penjualan per jam · semua cabang* (atau nama cabang) dengan
+    sumbu minimal 08–17; di ponsel label jam ditampilkan tiap 2–3 jam.
+  - *Terlaris minggu ini*: 5 produk teratas 7 hari terakhir, varian
+    digabung ke produk.
+  - *Perlu perhatian*: konflik menunggu tinjauan (ke kartu *Versi hosting*
+    bila berizin *Sync & hosting*), perangkat belum sync > 1 jam, produk di
+    bawah stok minimum per cabang (cabang ini membuka *Stok minimum*).
+    Kosong → *Semua beres*.
+- **Unduh laporan**: Excel ringkasan dashboard untuk pilihan cabang saat
+  ini (KPI, per cabang, per jam, terlaris), nama berkas
+  `dashboard-semua-cabang-261129.xlsx` / `dashboard-PST-261129.xlsx` dengan
+  tanggal di zona waktu cabang.
+- Status perangkat dan konflik diambil dari server saat dashboard dibuka
+  dan setiap 60 detik. Tanpa internet kartu menampilkan *Status perangkat
+  butuh internet*; angka penjualan tetap tampil dari data tersinkron.
+- Server: endpoint `sync.tenantStatus(token)` (perangkat kasir tenant
+  dengan `last_seen_at` terbaru, tanpa perangkat web dan perangkat yang
+  dicabut; jumlah konflik belum diselesaikan).
+- Panduan: artikel *Dashboard semua cabang* (ID + EN) dengan tangkapan
+  layar.
+
+### Catatan teknis
+
+- `lakuna_domain/dashboard.dart`: `OutletDay`, `averagePerReceipt`
+  (pembulatan ke bawah), `hourAxis` (minimal 08–17), `deviceLiveness`
+  (online ≤ 10 menit), `deviceStale` (> 1 jam atau belum pernah),
+  `topSellingProducts`, `outletDayStart`.
+- `lakuna_data`: `loadDashboard` memakai fakta Laporan per cabang
+  (`outletToday`, `_facts` dengan jam penjualan/retur), terlaris 7 hari,
+  `belowMinimumStock` per cabang; `outletInfo` selalu berisi semua cabang
+  tenant agar pilihan cabang lengkap walau satu cabang terpilih.
+- Model server `DeviceStatus` dan `TenantStatus` (tanpa tabel),
+  `SyncTransport.tenantStatus`, `HostingRepository.tenantStatus`.
+- Aplikasi: `DashboardRepository` + `LocalDashboardRepository` (izin
+  `reports:view`), `DashboardViewModel` (`Command0 load`, `Command1
+  exportExcel`, timer 60 detik), `MenuEntry.hostingOnly` +
+  `hostingMenuOn`, `AppShell` ikut mendengarkan status hosting.
+- Uji manual: perangkat Linux (Xvfb) dengan versi hosting aktif ke server
+  lokal, data demo dua cabang (Pusat dan Kemang): pilih cabang, Unduh
+  laporan (isi Excel diperiksa), tautan Stok minimum; terang, gelap,
+  ponsel 390 px, Bahasa Inggris.
+
 ## [0.170.0] - 2026-11-28
 
 Tahap 2 modul F2-02 (versi web dan dashboard): pemilik toko masuk ke
@@ -9719,7 +9784,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.170.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.171.0...HEAD
+[0.171.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.170.0...v0.171.0
 [0.170.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.169.0...v0.170.0
 [0.169.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.168.0...v0.169.0
 [0.168.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...v0.168.0

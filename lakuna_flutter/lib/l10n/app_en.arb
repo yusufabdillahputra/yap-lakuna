@@ -6102,7 +6102,7 @@
   "@dashboardKpiSales": {
     "placeholders": {}
   },
-  "dashboardKpiSalesNote": "{transactions} transactions · {outlets} outlets",
+  "dashboardKpiSalesNote": "{transactions, plural, =1{1 transaction} other{{transactions} transactions}} · {outlets, plural, =1{1 outlet} other{{outlets} outlets}}",
   "@dashboardKpiSalesNote": {
     "placeholders": {
       "transactions": {
@@ -6141,7 +6141,7 @@
       }
     }
   },
-  "dashboardDevicesStaleMany": "{count} devices not synced for over 1 hour",
+  "dashboardDevicesStaleMany": "{count, plural, =1{1 device not synced for over 1 hour} other{{count} devices not synced for over 1 hour}}",
   "@dashboardDevicesStaleMany": {
     "placeholders": {
       "count": {
@@ -6149,7 +6149,7 @@
       }
     }
   },
-  "dashboardDevicesSomeOffline": "{count} devices offline",
+  "dashboardDevicesSomeOffline": "{count, plural, =1{1 device offline} other{{count} devices offline}}",
   "@dashboardDevicesSomeOffline": {
     "placeholders": {
       "count": {
@@ -6197,7 +6197,7 @@
   "@dashboardColStatus": {
     "placeholders": {}
   },
-  "dashboardOutletMeta": "{code} · {count} devices",
+  "dashboardOutletMeta": "{code} · {count, plural, =1{1 device} other{{count} devices}}",
   "@dashboardOutletMeta": {
     "placeholders": {
       "code": {
@@ -6256,7 +6256,7 @@
   "@dashboardAttentionTitle": {
     "placeholders": {}
   },
-  "dashboardAttentionConflicts": "{count} sync conflicts awaiting review",
+  "dashboardAttentionConflicts": "{count, plural, =1{1 sync conflict awaiting review} other{{count} sync conflicts awaiting review}}",
   "@dashboardAttentionConflicts": {
     "placeholders": {
       "count": {
@@ -6289,7 +6289,7 @@
       }
     }
   },
-  "dashboardAttentionStock": "{count} products below minimum stock · {outlet}",
+  "dashboardAttentionStock": "{count, plural, =1{1 product below minimum stock} other{{count} products below minimum stock}} · {outlet}",
   "@dashboardAttentionStock": {
     "placeholders": {
       "count": {
@@ -6328,7 +6328,7 @@
       }
     }
   },
-  "dashboardAgoDays": "{count} days ago",
+  "dashboardAgoDays": "{count, plural, =1{1 day ago} other{{count} days ago}}",
   "@dashboardAgoDays": {
     "placeholders": {
       "count": {

@@ -33,7 +33,7 @@
     {
       "id": "data",
       "title": { "id": "Data", "en": "Data" },
-      "articles": ["backup-restore", "hosting", "faq"]
+      "articles": ["backup-restore", "hosting", "dashboard", "faq"]
     }
   ]
 }
