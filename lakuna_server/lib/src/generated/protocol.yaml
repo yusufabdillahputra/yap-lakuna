@@ -13,3 +13,7 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+sync:
+  - push:
+  - pull:
+  - status:

@@ -12,6 +12,14 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
+import 'package:lakuna_client/src/protocol/sync/sync_pull_page.dart'
+    as _izun0ovl;
+import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
+    as _ipv8demw;
+import 'package:lakuna_client/src/protocol/sync/sync_push_reply.dart'
+    as _ia4kk4ai;
+import 'package:lakuna_client/src/protocol/sync/sync_server_status.dart'
+    as _ikbjecyu;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -347,6 +355,52 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Push/pull sync perangkat versi hosting (F2-01). Semua panggilan memakai
+/// token perangkat, bukan sesi staf.
+/// {@category Endpoint}
+class EndpointSync extends _isc.EndpointRef {
+  EndpointSync(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'sync';
+
+  /// Menerapkan [entries] (urutan outbox) dalam satu transaksi; setiap
+  /// entri punya savepoint sendiri. Hasil per entri urut sama.
+  _ida.Future<_ia4kk4ai.SyncPushReply> push(
+    String deviceToken,
+    List<_ipv8demw.SyncPushEntry> entries,
+  ) => caller.callServerEndpoint<_ia4kk4ai.SyncPushReply>(
+    'sync',
+    'push',
+    {
+      'deviceToken': deviceToken,
+      'entries': entries,
+    },
+  );
+
+  /// Perubahan tenant token dengan `seq > afterSeq`, maks [pullPageSize].
+  /// Perubahan asal perangkat ini dilewati, tetapi kursor tetap maju.
+  _ida.Future<_izun0ovl.SyncPullPage> pull(
+    String deviceToken,
+    int afterSeq,
+  ) => caller.callServerEndpoint<_izun0ovl.SyncPullPage>(
+    'sync',
+    'pull',
+    {
+      'deviceToken': deviceToken,
+      'afterSeq': afterSeq,
+    },
+  );
+
+  /// Versi server dan protokol; `tenantKnown` bila [deviceToken] aktif.
+  _ida.Future<_ikbjecyu.SyncServerStatus> status(String? deviceToken) =>
+      caller.callServerEndpoint<_ikbjecyu.SyncServerStatus>(
+        'sync',
+        'status',
+        {'deviceToken': deviceToken},
+      );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -387,6 +441,7 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    sync = EndpointSync(this);
     modules = Modules(this);
   }
 
@@ -394,12 +449,15 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointSync sync;
+
   late final Modules modules;
 
   @override
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'sync': sync,
   };
 
   @override

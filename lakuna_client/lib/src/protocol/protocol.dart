@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
+    as _ipv8demw;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -102,6 +104,7 @@ import 'sync/sync_push_entry.dart' as _iw6hqtxz;
 import 'sync/sync_push_reply.dart' as _i5h2p3kl;
 import 'sync/sync_push_result.dart' as _i4jawf6o;
 import 'sync/sync_reject_reason.dart' as _iz3ys7vh;
+import 'sync/sync_request_exception.dart' as _iem4qssj;
 import 'sync/sync_result_kind.dart' as _if9conde;
 import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
@@ -190,6 +193,7 @@ export 'sync/sync_push_entry.dart';
 export 'sync/sync_push_reply.dart';
 export 'sync/sync_push_result.dart';
 export 'sync/sync_reject_reason.dart';
+export 'sync/sync_request_exception.dart';
 export 'sync/sync_result_kind.dart';
 export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
@@ -293,6 +297,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i5h2p3kl.SyncPushReply>,
           _isc.getType<_i4jawf6o.SyncPushResult>,
           _isc.getType<_iz3ys7vh.SyncRejectReason>,
+          _isc.getType<_iem4qssj.SyncRequestException>,
           _isc.getType<_if9conde.SyncResultKind>,
           _isc.getType<_iog1z1ed.SyncServerStatus>,
           _isc.getType<_iwwr3hpi.SyncStateEntry>,
@@ -381,11 +386,13 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i5h2p3kl.SyncPushReply?>,
           _isc.getType<_i4jawf6o.SyncPushResult?>,
           _isc.getType<_iz3ys7vh.SyncRejectReason?>,
+          _isc.getType<_iem4qssj.SyncRequestException?>,
           _isc.getType<_if9conde.SyncResultKind?>,
           _isc.getType<_iog1z1ed.SyncServerStatus?>,
           _isc.getType<_iwwr3hpi.SyncStateEntry?>,
           _isc.getType<List<_i4xb7gek.SyncPullChange>>,
           _isc.getType<List<_i4jawf6o.SyncPushResult>>,
+          _isc.getType<List<_ipv8demw.SyncPushEntry>>,
         ],
         modules: const [
           _iaic.Protocol.new,
@@ -477,6 +484,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           'SyncPushReply',
           'SyncPushResult',
           'SyncRejectReason',
+          'SyncRequestException',
           'SyncResultKind',
           'SyncServerStatus',
           'SyncStateEntry',
@@ -9408,6 +9416,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _iz3ys7vh.SyncRejectReason) {
       return _iz3ys7vh.SyncRejectReason.fromJson(data) as T;
     }
+    if (t == _iem4qssj.SyncRequestException) {
+      return _iem4qssj.SyncRequestException.fromJson(data) as T;
+    }
     if (t == _if9conde.SyncResultKind) {
       return _if9conde.SyncResultKind.fromJson(data) as T;
     }
@@ -9729,6 +9740,12 @@ class Protocol extends _isd.DatabaseSerializationManager
       return (data != null ? _iz3ys7vh.SyncRejectReason.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iem4qssj.SyncRequestException?>()) {
+      return (data != null
+              ? _iem4qssj.SyncRequestException.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _isc.getType<_if9conde.SyncResultKind?>()) {
       return (data != null ? _if9conde.SyncResultKind.fromJson(data) : null)
           as T;
@@ -9750,6 +9767,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == List<_i4jawf6o.SyncPushResult>) {
       return (data as List)
               .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ipv8demw.SyncPushEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_ipv8demw.SyncPushEntry>(e))
               .toList()
           as T;
     }
@@ -9853,6 +9876,7 @@ class Protocol extends _isd.DatabaseSerializationManager
       _i5h2p3kl.SyncPushReply => 'SyncPushReply',
       _i4jawf6o.SyncPushResult => 'SyncPushResult',
       _iz3ys7vh.SyncRejectReason => 'SyncRejectReason',
+      _iem4qssj.SyncRequestException => 'SyncRequestException',
       _if9conde.SyncResultKind => 'SyncResultKind',
       _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
@@ -10040,6 +10064,8 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'SyncPushResult';
       case _iz3ys7vh.SyncRejectReason():
         return 'SyncRejectReason';
+      case _iem4qssj.SyncRequestException():
+        return 'SyncRequestException';
       case _if9conde.SyncResultKind():
         return 'SyncResultKind';
       case _iog1z1ed.SyncServerStatus():
@@ -10322,6 +10348,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'SyncRejectReason') {
       return deserialize<_iz3ys7vh.SyncRejectReason>(data['data']);
+    }
+    if (dataClassName == 'SyncRequestException') {
+      return deserialize<_iem4qssj.SyncRequestException>(data['data']);
     }
     if (dataClassName == 'SyncResultKind') {
       return deserialize<_if9conde.SyncResultKind>(data['data']);
