@@ -7,7 +7,32 @@ enum SyncStateKey {
   tenantId('tenant_id'),
   outletId('outlet_id'),
   lastHlc('last_hlc'),
-  pullCursor('pull_cursor');
+
+  /// `last_seq` pull terakhir dari server (F2-01 aturan 2).
+  pullCursor('pull_cursor'),
+
+  /// Alamat server versi hosting (F2-01).
+  serverUrl('server_url'),
+
+  /// Token perangkat dari aktivasi atau pasang (F2-01 aturan 11).
+  deviceToken('device_token'),
+
+  /// Unggah data awal: `pending`/`restamp` (sedang dipadatkan) atau `done`
+  /// (aturan 13, 15).
+  initialUpload('initial_upload'),
+
+  /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
+  initialUploadCursor('initial_upload_cursor'),
+
+  /// Waktu siklus sync terakhir yang berhasil (ISO UTC).
+  lastSyncAt('last_sync_at'),
+
+  /// Galat siklus sync terakhir (kosong bila berhasil).
+  lastError('last_error'),
+
+  /// Perubahan pull yang belum bisa diterapkan (JSON daftar), dicoba lagi
+  /// setiap siklus (aturan 2).
+  pullParked('pull_parked');
 
   const SyncStateKey(this.key);
   final String key;
