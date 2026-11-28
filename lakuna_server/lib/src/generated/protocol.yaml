@@ -26,3 +26,13 @@ sync:
   - push:
   - pull:
   - status:
+totp:
+  - status:
+  - begin:
+  - confirm:
+  - disable:
+webAccess:
+  - tenants:
+  - open:
+  - logout:
+  - twoFactorEnabled:

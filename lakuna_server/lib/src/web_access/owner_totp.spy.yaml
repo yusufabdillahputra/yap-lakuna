@@ -1,0 +1,20 @@
+### Verifikasi 2 langkah (TOTP) akun pemilik untuk login web (F2-02 aturan
+### 12–13). Rahasia terenkripsi AES-GCM dengan `totpEncryptionKey`.
+### `confirmedAt` kosong = rahasia belum berlaku. Hanya ada di server.
+class: OwnerTotp
+table: owner_totp
+database: server
+serverOnly: true
+fields:
+  authUserId: UuidValue, column=auth_user_id
+  secretEncrypted: String, column=secret_encrypted
+  confirmedAt: DateTime?, column=confirmed_at
+  lastUsedStep: int?, column=last_used_step
+  failedAttempts: int, default=0, column=failed_attempts
+  lockedUntil: DateTime?, column=locked_until
+  createdAt: DateTime, default=now, column=created_at
+  updatedAt: DateTime, default=now, column=updated_at
+indexes:
+  owner_totp_user_idx:
+    fields: authUserId
+    unique: true

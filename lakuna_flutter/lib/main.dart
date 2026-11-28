@@ -5,7 +5,7 @@ import 'config/app_environment.dart';
 import 'config/bundled_licenses.dart';
 import 'data/repositories/web_join_repository.dart';
 import 'data/services/web_page.dart';
-import 'ui/web/web_join_view.dart';
+import 'ui/web/web_login_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +13,11 @@ void main() {
   final webJoin = RemoteWebJoinRepository(appVersion: appVersion);
   runApp(
     LakunaRoot(
-      webJoin: (context, sessions, onJoined) => WebJoinApp(
-        repository: webJoin,
+      // Web tanpa sesi: login pemilik 2.2; kode pasang lewat tautan kecil
+      // (F2-02 tugas 11).
+      webJoin: (context, sessions, onJoined) => WebLoginApp(
+        join: webJoin,
+        login: webJoin,
         sessions: sessions,
         onJoined: onJoined,
         initialServer: defaultWebServerUrl(),

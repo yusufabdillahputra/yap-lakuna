@@ -102,6 +102,27 @@ class _LocalStorageWebSessionStore implements WebSessionStore {
     }
   }
 
+  JSFunction? _beforeUnload;
+
+  @override
+  void setUnsentGuard(bool enabled) {
+    if (enabled == (_beforeUnload != null)) return;
+    if (enabled) {
+      final handler = ((web.Event event) {
+        // Browser menampilkan peringatan bawaannya sendiri.
+        event.preventDefault();
+        if (event.isA<web.BeforeUnloadEvent>()) {
+          (event as web.BeforeUnloadEvent).returnValue = '1';
+        }
+      }).toJS;
+      _beforeUnload = handler;
+      web.window.addEventListener('beforeunload', handler);
+    } else {
+      web.window.removeEventListener('beforeunload', _beforeUnload);
+      _beforeUnload = null;
+    }
+  }
+
   @override
   Future<void> purgeStale() async {
     for (final name in staleDatabases) {

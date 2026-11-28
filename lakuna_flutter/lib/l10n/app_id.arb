@@ -6793,5 +6793,341 @@
   "webProblemOtherTabBody": "Pakai tab yang sudah terbuka, atau tutup tab itu lalu muat ulang halaman ini.",
   "@webProblemOtherTabBody": {
     "placeholders": {}
+  },
+  "twoFactorRowTitle": "Verifikasi 2 langkah",
+  "@twoFactorRowTitle": {
+    "placeholders": {}
+  },
+  "twoFactorOn": "Aktif",
+  "@twoFactorOn": {
+    "placeholders": {}
+  },
+  "twoFactorOff": "Belum aktif",
+  "@twoFactorOff": {
+    "placeholders": {}
+  },
+  "twoFactorUnknown": "Status butuh internet",
+  "@twoFactorUnknown": {
+    "placeholders": {}
+  },
+  "twoFactorRowBody": "Wajib untuk masuk ke Lakuna versi web dengan akun pemilik.",
+  "@twoFactorRowBody": {
+    "placeholders": {}
+  },
+  "twoFactorEnable": "Aktifkan",
+  "@twoFactorEnable": {
+    "placeholders": {}
+  },
+  "twoFactorDisable": "Nonaktifkan",
+  "@twoFactorDisable": {
+    "placeholders": {}
+  },
+  "twoFactorReset": "Atur ulang",
+  "@twoFactorReset": {
+    "placeholders": {}
+  },
+  "twoFactorDialogTitle": "Verifikasi 2 langkah",
+  "@twoFactorDialogTitle": {
+    "placeholders": {}
+  },
+  "twoFactorPinBody": "Masukkan PIN Anda untuk melanjutkan.",
+  "@twoFactorPinBody": {
+    "placeholders": {}
+  },
+  "twoFactorPinLabel": "PIN",
+  "@twoFactorPinLabel": {
+    "placeholders": {}
+  },
+  "twoFactorAccountBody": "Masuk dengan akun pemilik toko di server Lakuna.",
+  "@twoFactorAccountBody": {
+    "placeholders": {}
+  },
+  "twoFactorEmail": "Email",
+  "@twoFactorEmail": {
+    "placeholders": {}
+  },
+  "twoFactorPassword": "Kata sandi",
+  "@twoFactorPassword": {
+    "placeholders": {}
+  },
+  "twoFactorScanBody": "Pindai kode QR dengan aplikasi authenticator (mis. Google Authenticator, Microsoft Authenticator, Aegis), lalu ketik kode 6 angka yang muncul.",
+  "@twoFactorScanBody": {
+    "placeholders": {}
+  },
+  "twoFactorSecretLabel": "Tidak bisa memindai? Ketik kunci ini di aplikasi authenticator:",
+  "@twoFactorSecretLabel": {
+    "placeholders": {}
+  },
+  "twoFactorCopy": "Salin",
+  "@twoFactorCopy": {
+    "placeholders": {}
+  },
+  "twoFactorCopied": "Disalin",
+  "@twoFactorCopied": {
+    "placeholders": {}
+  },
+  "twoFactorCodeLabel": "Kode 6 angka",
+  "@twoFactorCodeLabel": {
+    "placeholders": {}
+  },
+  "twoFactorBackupTitle": "Simpan kode cadangan",
+  "@twoFactorBackupTitle": {
+    "placeholders": {}
+  },
+  "twoFactorBackupBody": "Setiap kode bisa dipakai sekali untuk masuk bila ponsel authenticator hilang. Kode ini hanya tampil sekarang: salin atau catat di tempat aman.",
+  "@twoFactorBackupBody": {
+    "placeholders": {}
+  },
+  "twoFactorBackupCopy": "Salin semua",
+  "@twoFactorBackupCopy": {
+    "placeholders": {}
+  },
+  "twoFactorBackupDone": "Sudah saya simpan",
+  "@twoFactorBackupDone": {
+    "placeholders": {}
+  },
+  "twoFactorDisableBody": "Ketik kode dari aplikasi authenticator atau salah satu kode cadangan.",
+  "@twoFactorDisableBody": {
+    "placeholders": {}
+  },
+  "twoFactorDisableCodeLabel": "Kode authenticator atau kode cadangan",
+  "@twoFactorDisableCodeLabel": {
+    "placeholders": {}
+  },
+  "twoFactorDoneEnabled": "Verifikasi 2 langkah aktif. Sekarang Anda bisa masuk ke Lakuna versi web.",
+  "@twoFactorDoneEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorDoneDisabled": "Verifikasi 2 langkah dinonaktifkan. Login web tidak bisa dipakai sampai diaktifkan lagi.",
+  "@twoFactorDoneDisabled": {
+    "placeholders": {}
+  },
+  "twoFactorAlreadyEnabled": "Verifikasi 2 langkah akun ini sudah aktif.",
+  "@twoFactorAlreadyEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorNext": "Lanjut",
+  "@twoFactorNext": {
+    "placeholders": {}
+  },
+  "twoFactorCancel": "Batal",
+  "@twoFactorCancel": {
+    "placeholders": {}
+  },
+  "twoFactorClose": "Tutup",
+  "@twoFactorClose": {
+    "placeholders": {}
+  },
+  "twoFactorErrInvalid": "Kode salah atau sudah dipakai. Tunggu kode berikutnya lalu coba lagi.",
+  "@twoFactorErrInvalid": {
+    "placeholders": {}
+  },
+  "twoFactorErrLocked": "Terlalu banyak kode salah. Coba lagi pukul {time}.",
+  "@twoFactorErrLocked": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "twoFactorErrKeyMissing": "Server belum diatur untuk verifikasi 2 langkah (TOTP_ENCRYPTION_KEY kosong). Hubungi admin server.",
+  "@twoFactorErrKeyMissing": {
+    "placeholders": {}
+  },
+  "twoFactorErrNotEnabled": "Verifikasi 2 langkah belum aktif. Aktifkan dari kartu Versi hosting di aplikasi kasir.",
+  "@twoFactorErrNotEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorErrNotOwner": "Akun ini bukan pemilik toko di server ini.",
+  "@twoFactorErrNotOwner": {
+    "placeholders": {}
+  },
+  "twoFactorErrNoTenant": "Akun ini belum punya toko versi hosting.",
+  "@twoFactorErrNoTenant": {
+    "placeholders": {}
+  },
+  "twoFactorErrSessionExpired": "Sesi login berakhir. Masuk lagi.",
+  "@twoFactorErrSessionExpired": {
+    "placeholders": {}
+  },
+  "hostingWrongCredentials": "Email atau kata sandi salah.",
+  "@hostingWrongCredentials": {
+    "placeholders": {}
+  },
+  "hostingTooManyAttempts": "Terlalu banyak percobaan masuk. Coba lagi beberapa menit lagi.",
+  "@hostingTooManyAttempts": {
+    "placeholders": {}
+  },
+  "webSessionEndedTitle": "Sesi berakhir",
+  "@webSessionEndedTitle": {
+    "placeholders": {}
+  },
+  "webSessionEndedExpired": "Sesi browser ini sudah habis. Masuk lagi dengan akun pemilik untuk melanjutkan.",
+  "@webSessionEndedExpired": {
+    "placeholders": {}
+  },
+  "webSessionEndedRevoked": "Server menolak sesi browser ini, mungkin karena sudah dikeluarkan dari perangkat lain.",
+  "@webSessionEndedRevoked": {
+    "placeholders": {}
+  },
+  "webUnsentChanges": "{count} perubahan belum terkirim akan hilang dari browser ini.",
+  "@webUnsentChanges": {
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "webSignOutNow": "Keluar sekarang",
+  "@webSignOutNow": {
+    "placeholders": {}
+  },
+  "webSignInAgain": "Masuk lagi",
+  "@webSignInAgain": {
+    "placeholders": {}
+  },
+  "webLogout": "Keluar",
+  "@webLogout": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmTitle": "Keluar dari browser ini?",
+  "@webLogoutConfirmTitle": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmBody": "Sync belum berhasil mengirim semua perubahan. Periksa jaringan lalu coba lagi, atau keluar sekarang.",
+  "@webLogoutConfirmBody": {
+    "placeholders": {}
+  },
+  "webLogoutCancel": "Batal",
+  "@webLogoutCancel": {
+    "placeholders": {}
+  },
+  "webLoginHeadline": "Pantau semua cabang dari mana saja.",
+  "@webLoginHeadline": {
+    "placeholders": {}
+  },
+  "webLoginTagline": "Penjualan, stok, dan laporan semua cabang di browser, tersinkron dengan kasir di toko.",
+  "@webLoginTagline": {
+    "placeholders": {}
+  },
+  "webLoginBadgeBranches": "Semua cabang",
+  "@webLoginBadgeBranches": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSync": "Data tersinkron",
+  "@webLoginBadgeSync": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSecure": "Verifikasi 2 langkah",
+  "@webLoginBadgeSecure": {
+    "placeholders": {}
+  },
+  "webLoginTitle": "Masuk",
+  "@webLoginTitle": {
+    "placeholders": {}
+  },
+  "webLoginBody": "Pakai akun pemilik yang dibuat saat mengaktifkan versi hosting.",
+  "@webLoginBody": {
+    "placeholders": {}
+  },
+  "webLoginEmail": "Email",
+  "@webLoginEmail": {
+    "placeholders": {}
+  },
+  "webLoginPassword": "Kata sandi",
+  "@webLoginPassword": {
+    "placeholders": {}
+  },
+  "webLoginRemember": "Ingat perangkat ini 30 hari",
+  "@webLoginRemember": {
+    "placeholders": {}
+  },
+  "webLoginForgot": "Lupa kata sandi?",
+  "@webLoginForgot": {
+    "placeholders": {}
+  },
+  "webLoginCodeTitle": "Verifikasi 2 langkah",
+  "@webLoginCodeTitle": {
+    "placeholders": {}
+  },
+  "webLoginCodeBody": "Masukkan 6 angka dari aplikasi authenticator, atau satu kode cadangan.",
+  "@webLoginCodeBody": {
+    "placeholders": {}
+  },
+  "webLoginCodeLabel": "Kode verifikasi",
+  "@webLoginCodeLabel": {
+    "placeholders": {}
+  },
+  "webLoginTenantLabel": "Toko",
+  "@webLoginTenantLabel": {
+    "placeholders": {}
+  },
+  "webLoginCodeSubmit": "Verifikasi",
+  "@webLoginCodeSubmit": {
+    "placeholders": {}
+  },
+  "webLoginBack": "Kembali",
+  "@webLoginBack": {
+    "placeholders": {}
+  },
+  "webLoginNote": "Hanya pemilik toko yang bisa masuk dari browser. Kasir tetap memakai aplikasi di perangkat toko.",
+  "@webLoginNote": {
+    "placeholders": {}
+  },
+  "webLoginPairingLink": "Pakai kode pasang",
+  "@webLoginPairingLink": {
+    "placeholders": {}
+  },
+  "webLoginOwnerLink": "Masuk dengan akun pemilik",
+  "@webLoginOwnerLink": {
+    "placeholders": {}
+  },
+  "webLoginLanguage": "Bahasa",
+  "@webLoginLanguage": {
+    "placeholders": {}
+  },
+  "webResetTitle": "Atur ulang kata sandi",
+  "@webResetTitle": {
+    "placeholders": {}
+  },
+  "webResetBody": "Kode dikirim ke email akun pemilik.",
+  "@webResetBody": {
+    "placeholders": {}
+  },
+  "webResetSend": "Kirim kode",
+  "@webResetSend": {
+    "placeholders": {}
+  },
+  "webResetCodeBody": "Masukkan kode yang dikirim ke {email}, lalu kata sandi baru.",
+  "@webResetCodeBody": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "webResetCode": "Kode dari email",
+  "@webResetCode": {
+    "placeholders": {}
+  },
+  "webResetNewPassword": "Kata sandi baru",
+  "@webResetNewPassword": {
+    "placeholders": {}
+  },
+  "webResetNewPasswordAgain": "Ketik ulang kata sandi baru",
+  "@webResetNewPasswordAgain": {
+    "placeholders": {}
+  },
+  "webResetSave": "Simpan kata sandi",
+  "@webResetSave": {
+    "placeholders": {}
+  },
+  "webResetDone": "Kata sandi diganti. Masuk dengan kata sandi baru.",
+  "@webResetDone": {
+    "placeholders": {}
+  },
+  "webResetErrInvalid": "Kode salah.",
+  "@webResetErrInvalid": {
+    "placeholders": {}
+  },
+  "webResetErrExpired": "Kode sudah kedaluwarsa. Minta kode baru.",
+  "@webResetErrExpired": {
+    "placeholders": {}
+  },
+  "webResetErrTooMany": "Terlalu banyak percobaan. Coba lagi nanti.",
+  "@webResetErrTooMany": {
+    "placeholders": {}
+  },
+  "webResetErrPolicy": "Kata sandi baru belum memenuhi aturan server.",
+  "@webResetErrPolicy": {
+    "placeholders": {}
   }
 }

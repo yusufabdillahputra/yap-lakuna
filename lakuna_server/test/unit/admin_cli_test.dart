@@ -46,4 +46,20 @@ void main() {
       throwsA(isA<AdminUsageException>()),
     );
   });
+
+  test('totp-reset: email wajib, mode bawaan production', () {
+    final cmd =
+        parseAdminCommand(['totp-reset', '--email', ' Sari@Contoh.id '])
+            as TotpResetCommand;
+    expect(cmd.email, 'sari@contoh.id');
+    expect(cmd.mode, 'production');
+    expect(
+      () => parseAdminCommand(['totp-reset']),
+      throwsA(isA<AdminUsageException>()),
+    );
+    expect(
+      () => parseAdminCommand(['totp-reset', '--email', 'bukan-email']),
+      throwsA(isA<AdminUsageException>()),
+    );
+  });
 }

@@ -291,7 +291,7 @@ Tugas 3 dan 6.
   gabung, Beranda + Produk + pemilih cabang; ubah harga produk di web →
   tampil di perangkat Linux setelah sync. Tangkapan layar terang dan gelap
   ke `/tmp/claude-0/webtest/`.
-- [ ] Rilis: CHANGELOG 0.169.0, versi, dokumen status; PR, CI hijau,
+- [x] Rilis: CHANGELOG 0.169.0, versi, dokumen status; PR, CI hijau,
   review subagent, merge, cek rilis 8 aset.
 
 ## Tahap 2 · Login web pemilik (v0.170.0)
@@ -318,7 +318,7 @@ Tugas 3 dan 6.
 - `List<String> newBackupCodes(Random random)` → 8 kode `xxxx-xxxx`
   (huruf/angka tanpa `0 O 1 I L`), `String normalizeBackupCode(String s)`.
 
-- [ ] Tes gagal: vektor RFC 6238 SHA-1 (rahasia ASCII
+- [x] Tes gagal: vektor RFC 6238 SHA-1 (rahasia ASCII
   `12345678901234567890`, 8 digit): T=59 → `94287082`, T=1111111109 →
   `07081804`, T=1111111111 → `14050471`, T=1234567890 → `89005924`,
   T=2000000000 → `69279037`, T=20000000000 → `65353130`; 6 digit = 6 angka
@@ -326,7 +326,7 @@ Tugas 3 dan 6.
   menolak langkah ≤ `lastUsedStep`. Base32 bolak-balik untuk 20 byte acak;
   `base32Decode('JBSWY3DPEHPK3PXP')` = `Hello!\xDE\xAD\xBE\xEF`.
   `newBackupCodes` 8 kode unik pola `^[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}$`.
-- [ ] Implementasi, `dart test test/totp_test.dart` lulus. Commit.
+- [x] Implementasi, `dart test test/totp_test.dart` lulus. Commit.
 
 ### Tugas 8: Model server TOTP, enkripsi rahasia, token berumur
 
@@ -355,12 +355,12 @@ Tugas 3 dan 6.
   `base64(nonce ‖ ciphertext ‖ tag)`; `fromSession` `null` bila
   `totpEncryptionKey` kosong.
 
-- [ ] Tes gagal: enkripsi lalu dekripsi = rahasia asal; dua enkripsi
+- [x] Tes gagal: enkripsi lalu dekripsi = rahasia asal; dua enkripsi
   rahasia sama berbeda; teks diubah satu byte → `decrypt` melempar;
   kata sandi lain → melempar. `sync.push` dengan token yang `expiresAt`
   lewat → `SyncAuthException(reason: 'expired')`.
-- [ ] `serverpod generate`, migrasi hanya menambah 2 tabel + 1 kolom.
-- [ ] Implementasi, tes lulus. Commit (migrasi di commit sendiri).
+- [x] `serverpod generate`, migrasi hanya menambah 2 tabel + 1 kolom.
+- [x] Implementasi, tes lulus. Commit (migrasi di commit sendiri).
 
 ### Tugas 9: Endpoint `totp` dan `webAccess`, admin `totp-reset`
 
@@ -398,21 +398,21 @@ Tugas 3 dan 6.
 - *Ruling rencana:* pilihan toko (aturan 13a) tampil bersama kotak kode di
   langkah 2, karena daftar tenant sudah diketahui setelah kata sandi.
 
-- [ ] Tes gagal `totp`: tanpa login ditolak; `begin` → `confirm` kode
+- [x] Tes gagal `totp`: tanpa login ditolak; `begin` → `confirm` kode
   benar → 8 kode; `confirm` salah → `totpInvalid`; `begin` saat aktif
   ditolak; `totpEncryptionKey` kosong → `totpKeyMissing`; `disable` dengan
   kode cadangan.
-- [ ] Tes gagal `webAccess`: akun tanpa tenant → `noTenant`; tanpa TOTP
+- [x] Tes gagal `webAccess`: akun tanpa tenant → `noTenant`; tanpa TOTP
   aktif → `totpNotEnabled`; kode benar → perangkat `web` `W01` di outlet
   pertama, token bisa `sync.pull`, `expiresAt` 30 hari / 12 jam; kode sama
   dipakai lagi → `totpInvalid`; 5 salah → `locked`, kode benar pun ditolak
   sampai 15 menit (jam disuntik); kode cadangan sekali pakai; tenant bukan
   milik akun → `noTenant`; `logout` mencabut token.
-- [ ] Tes gagal (Fokus review 3): dua `open` paralel dengan kode yang sama
+- [x] Tes gagal (Fokus review 3): dua `open` paralel dengan kode yang sama
   → tepat satu berhasil.
-- [ ] Tes gagal admin: `totp-reset --email` menghapus `owner_totp` dan kode
+- [x] Tes gagal admin: `totp-reset --email` menghapus `owner_totp` dan kode
   cadangan akun itu; email tak dikenal → keluar kode 1.
-- [ ] Implementasi, tes lulus, `caddy validate` (CI) lulus. Commit.
+- [x] Implementasi, tes lulus, `caddy validate` (CI) lulus. Commit.
 
 ### Tugas 10: Atur verifikasi 2 langkah di kartu *Versi hosting*
 
@@ -437,12 +437,12 @@ Tugas 3 dan 6.
   *Salin*, *Sudah saya simpan*). Status *Aktif* dengan *Nonaktifkan* /
   *Atur ulang*.
 
-- [ ] Tes gagal VM: langkah berurutan; kata sandi salah → galat di langkah
+- [x] Tes gagal VM: langkah berurutan; kata sandi salah → galat di langkah
   akun; kode salah → tetap di langkah kode dengan pesan; sukses →
   langkah kode cadangan berisi 8 kode; *Nonaktifkan* butuh kode.
-- [ ] Tes gagal widget: kartu *Versi hosting* aktif menampilkan baris
+- [x] Tes gagal widget: kartu *Versi hosting* aktif menampilkan baris
   *Verifikasi 2 langkah · Belum aktif* + tombol *Aktifkan*; QR tampil.
-- [ ] Implementasi, tes lulus; uji Xvfb dengan server lokal, tangkapan
+- [x] Implementasi, tes lulus; uji Xvfb dengan server lokal, tangkapan
   layar setiap langkah. Commit.
 
 ### Tugas 11: Layar login web 2.2, sesi web, rilis 0.170.0

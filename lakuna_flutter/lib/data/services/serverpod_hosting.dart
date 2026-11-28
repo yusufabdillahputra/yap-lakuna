@@ -52,6 +52,37 @@ abstract interface class HostingConnection implements HostingClient {
 
   /// Unggah dan unduh berkas media dengan [deviceToken] (aturan 19–20).
   MediaTransport mediaTransport(String deviceToken);
+
+  // --- Verifikasi 2 langkah pemilik (F2-02 aturan 12–14) -----------------
+  // Butuh [login] lebih dulu, kecuali [twoFactorEnabled].
+
+  Future<bool> totpStatus();
+  // Atur 2FA butuh token perangkat toko milik akun itu (review C1).
+  Future<TotpEnrollment> totpBegin(String deviceToken);
+  Future<List<String>> totpConfirm(String deviceToken, String code);
+  Future<void> totpDisable(String deviceToken, String code);
+
+  /// Status verifikasi 2 langkah pemilik tenant perangkat [deviceToken].
+  Future<bool> twoFactorEnabled(String deviceToken);
+
+  // --- Login web pemilik (F2-02 aturan 11–13a) ---------------------------
+
+  /// Toko milik akun yang login (butuh [login]).
+  Future<List<WebTenant>> webTenants();
+
+  /// Kode verifikasi → perangkat web baru (butuh [login]).
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  });
+
+  /// Mencabut token web [deviceToken] (*Keluar*).
+  Future<void> webLogout(String deviceToken);
+
+  Future<UuidValue> startPasswordReset(String email);
+  Future<String> verifyPasswordReset(UuidValue requestId, String code);
+  Future<void> finishPasswordReset(String token, String password);
   void close();
 }
 
@@ -151,6 +182,61 @@ class ServerpodHosting implements HostingConnection {
       platform,
     ),
   );
+
+  @override
+  Future<bool> totpStatus() => _guard(() => client.totp.status());
+
+  @override
+  Future<TotpEnrollment> totpBegin(String deviceToken) =>
+      _guard(() => client.totp.begin(deviceToken));
+
+  @override
+  Future<List<String>> totpConfirm(String deviceToken, String code) =>
+      _guard(() => client.totp.confirm(deviceToken, code.trim()));
+
+  @override
+  Future<void> totpDisable(String deviceToken, String code) =>
+      _guard(() => client.totp.disable(deviceToken, code.trim()));
+
+  @override
+  Future<List<WebTenant>> webTenants() =>
+      _guard(() => client.webAccess.tenants());
+
+  @override
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  }) => _guard(() => client.webAccess.open(code.trim(), tenantId, remember));
+
+  @override
+  Future<void> webLogout(String deviceToken) =>
+      _guard(() => client.webAccess.logout(deviceToken));
+
+  @override
+  Future<UuidValue> startPasswordReset(String email) =>
+      _guard(() => client.emailIdp.startPasswordReset(email: email.trim()));
+
+  @override
+  Future<String> verifyPasswordReset(UuidValue requestId, String code) =>
+      _guard(
+        () => client.emailIdp.verifyPasswordResetCode(
+          passwordResetRequestId: requestId,
+          verificationCode: code.trim(),
+        ),
+      );
+
+  @override
+  Future<void> finishPasswordReset(String token, String password) => _guard(
+    () => client.emailIdp.finishPasswordReset(
+      finishPasswordResetToken: token,
+      newPassword: password,
+    ),
+  );
+
+  @override
+  Future<bool> twoFactorEnabled(String deviceToken) =>
+      _guard(() => client.webAccess.twoFactorEnabled(deviceToken));
 
   /// Transport sync dengan [deviceToken].
   @override

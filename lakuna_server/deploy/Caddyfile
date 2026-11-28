@@ -10,7 +10,7 @@
 	encode zstd gzip
 
 	# Aktivasi, kode pasang, dan login/daftar pemilik: per alamat IP.
-	@auth path /activation/* /emailIdp/* /jwtRefresh/*
+	@auth path /activation/* /emailIdp/* /jwtRefresh/* /totp/* /webAccess/*
 	rate_limit @auth {
 		zone auth {
 			key {remote_host}

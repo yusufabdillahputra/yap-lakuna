@@ -26,6 +26,12 @@ import 'package:lakuna_client/src/protocol/sync/sync_push_reply.dart'
     as _ia4kk4ai;
 import 'package:lakuna_client/src/protocol/sync/sync_server_status.dart'
     as _ikbjecyu;
+import 'package:lakuna_client/src/protocol/web_access/totp_enrollment.dart'
+    as _ib8bg96t;
+import 'package:lakuna_client/src/protocol/web_access/web_access_result.dart'
+    as _iwkl0izw;
+import 'package:lakuna_client/src/protocol/web_access/web_tenant.dart'
+    as _ib69tvb5;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -531,6 +537,122 @@ class EndpointSync extends _isc.EndpointRef {
       );
 }
 
+/// Verifikasi 2 langkah akun pemilik untuk login web (F2-02 aturan 12–14),
+/// diatur dari kartu *Versi hosting* di aplikasi perangkat.
+/// {@category Endpoint}
+class EndpointTotp extends _isc.EndpointRef {
+  EndpointTotp(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'totp';
+
+  /// `true` bila TOTP akun ini sudah dikonfirmasi.
+  _ida.Future<bool> status() => caller.callServerEndpoint<bool>(
+    'totp',
+    'status',
+    {},
+  );
+
+  /// Rahasia baru yang belum berlaku sampai [confirm]. Menimpa rahasia lama
+  /// yang belum dikonfirmasi; ditolak bila TOTP sudah aktif.
+  ///
+  /// [deviceToken] = token perangkat toko milik akun ini: kata sandi saja
+  /// tidak cukup untuk mengaktifkan verifikasi 2 langkah, karena siapa pun
+  /// yang mengaktifkannya bisa membuka toko di web (review C1).
+  _ida.Future<_ib8bg96t.TotpEnrollment> begin(String deviceToken) =>
+      caller.callServerEndpoint<_ib8bg96t.TotpEnrollment>(
+        'totp',
+        'begin',
+        {'deviceToken': deviceToken},
+      );
+
+  /// Mengonfirmasi rahasia dari [begin] dengan satu kode; membalas 8 kode
+  /// cadangan (ditampilkan sekali, server menyimpan hash-nya).
+  _ida.Future<List<String>> confirm(
+    String deviceToken,
+    String code,
+  ) => caller.callServerEndpoint<List<String>>(
+    'totp',
+    'confirm',
+    {
+      'deviceToken': deviceToken,
+      'code': code,
+    },
+  );
+
+  /// Mematikan TOTP dengan kode authenticator atau kode cadangan (aturan
+  /// 14); rahasia dan kode cadangan dihapus.
+  _ida.Future<void> disable(
+    String deviceToken,
+    String code,
+  ) => caller.callServerEndpoint<void>(
+    'totp',
+    'disable',
+    {
+      'deviceToken': deviceToken,
+      'code': code,
+    },
+  );
+}
+
+/// Login web pemilik (F2-02 aturan 11–13a): akun email + kata sandi (JWT
+/// Serverpod), lalu kode TOTP atau kode cadangan membuat perangkat web
+/// tenant dengan token berumur.
+///
+/// Tidak memakai `requireLogin` karena [logout] dipanggil dengan token
+/// perangkat saja; [tenants] dan [open] memeriksa login sendiri.
+/// {@category Endpoint}
+class EndpointWebAccess extends _isc.EndpointRef {
+  EndpointWebAccess(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'webAccess';
+
+  /// Toko milik akun yang sedang login. Melempar `noTenant` bila tidak ada
+  /// dan `totpNotEnabled` bila verifikasi 2 langkah belum aktif.
+  _ida.Future<List<_ib69tvb5.WebTenant>> tenants() =>
+      caller.callServerEndpoint<List<_ib69tvb5.WebTenant>>(
+        'webAccess',
+        'tenants',
+        {},
+      );
+
+  /// Memverifikasi [code] lalu mendaftarkan perangkat web baru tenant
+  /// [tenantId] di cabang tertua, kode `W..`, token berlaku
+  /// [webTokenRemembered] atau [webTokenSession].
+  _ida.Future<_iwkl0izw.WebAccessResult> open(
+    String code,
+    _isc.UuidValue tenantId,
+    bool remember,
+  ) => caller.callServerEndpoint<_iwkl0izw.WebAccessResult>(
+    'webAccess',
+    'open',
+    {
+      'code': code,
+      'tenantId': tenantId,
+      'remember': remember,
+    },
+  );
+
+  /// Mencabut token web [deviceToken] (menu *Keluar*). Token perangkat
+  /// biasa (tanpa batas berlaku) tidak bisa dicabut dari sini.
+  _ida.Future<void> logout(String deviceToken) =>
+      caller.callServerEndpoint<void>(
+        'webAccess',
+        'logout',
+        {'deviceToken': deviceToken},
+      );
+
+  /// `true` bila pemilik tenant perangkat [deviceToken] sudah mengaktifkan
+  /// verifikasi 2 langkah (baris di kartu *Versi hosting*).
+  _ida.Future<bool> twoFactorEnabled(String deviceToken) =>
+      caller.callServerEndpoint<bool>(
+        'webAccess',
+        'twoFactorEnabled',
+        {'deviceToken': deviceToken},
+      );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -574,6 +696,8 @@ class Client extends _isc.ServerpodClientShared {
     mediaSync = EndpointMediaSync(this);
     activation = EndpointActivation(this);
     sync = EndpointSync(this);
+    totp = EndpointTotp(this);
+    webAccess = EndpointWebAccess(this);
     modules = Modules(this);
   }
 
@@ -587,6 +711,10 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointSync sync;
 
+  late final EndpointTotp totp;
+
+  late final EndpointWebAccess webAccess;
+
   late final Modules modules;
 
   @override
@@ -596,6 +724,8 @@ class Client extends _isc.ServerpodClientShared {
     'mediaSync': mediaSync,
     'activation': activation,
     'sync': sync,
+    'totp': totp,
+    'webAccess': webAccess,
   };
 
   @override

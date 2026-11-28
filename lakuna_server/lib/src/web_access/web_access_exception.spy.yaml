@@ -1,0 +1,6 @@
+### Login web atau pengaturan verifikasi 2 langkah ditolak. `lockedUntil`
+### diisi bila `failure` = `locked`.
+exception: WebAccessException
+fields:
+  failure: WebAccessFailure
+  lockedUntil: DateTime?

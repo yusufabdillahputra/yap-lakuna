@@ -14,8 +14,15 @@ Future<DeviceCredential?> findDeviceCredential(
       c.tokenHash.equals(secretHash(deviceToken)) & c.revokedAt.equals(null),
 );
 
+/// Token web (F2-02) dengan `expires_at` yang sudah lewat pada [now].
+bool credentialExpired(DeviceCredential credential, DateTime now) {
+  final expiresAt = credential.expiresAt;
+  return expiresAt != null && !now.toUtc().isBefore(expiresAt);
+}
+
 /// Tenant dan perangkat pemilik [deviceToken]; memperbarui `last_seen_at`.
-/// Token salah atau dicabut melempar [SyncAuthException].
+/// Token salah atau dicabut melempar [SyncAuthException] `invalidToken`;
+/// token web lewat `expires_at` melempar `expired` (F2-02 aturan 11).
 Future<DeviceAuth> authenticateDevice(
   Session session,
   String deviceToken,
@@ -24,9 +31,13 @@ Future<DeviceAuth> authenticateDevice(
   if (credential == null) {
     throw SyncAuthException(reason: 'invalidToken');
   }
+  final now = DateTime.now().toUtc();
+  if (credentialExpired(credential, now)) {
+    throw SyncAuthException(reason: 'expired');
+  }
   await DeviceCredential.db.updateRow(
     session,
-    credential.copyWith(lastSeenAt: DateTime.now().toUtc()),
+    credential.copyWith(lastSeenAt: now),
   );
   return DeviceAuth(
     tenantId: credential.tenantId,

@@ -222,17 +222,7 @@ class ActivationEndpoint extends Endpoint {
       // Perangkat web berasal dari cabang tertua tenant (F2-02 aturan 2);
       // cabang lain dipilih di bilah atas web.
       final outlet = platform == DevicePlatform.web
-          ? await Outlet.db.findFirstRow(
-              session,
-              where: (o) =>
-                  o.tenantId.equals(pairing.tenantId) &
-                  o.deletedAt.equals(null),
-              orderByList: (o) => [
-                o.createdAt.asc(),
-                o.id.asc(),
-              ],
-              transaction: tx,
-            )
+          ? await oldestOutlet(session, tx, pairing.tenantId)
           : await Outlet.db.findById(session, outletId, transaction: tx);
       if (outlet == null || outlet.tenantId != pairing.tenantId) {
         _fail(ActivationFailure.outletUnknown);
@@ -254,36 +244,15 @@ class ActivationEndpoint extends Endpoint {
         transaction: tx,
       );
       if (taken > 0) _fail(ActivationFailure.deviceCodeTaken);
-      final hlc = Hlc(now.millisecondsSinceEpoch, 0, 'server').toString();
-      final device = await Device.db.insertRow(
+      final device = await registerDevice(
         session,
-        Device(
-          id: const Uuid().v7obj(),
-          tenantId: pairing.tenantId,
-          outletId: outlet.id,
-          code: code,
-          name: deviceName.trim(),
-          platform: platform,
-          createdAt: now,
-          updatedAt: now,
-          hlc: hlc,
-        ),
-        transaction: tx,
-      );
-      await SyncChange.db.insertRow(
-        session,
-        SyncChange(
-          tenantId: device.tenantId,
-          outletId: outlet.id,
-          entity: 'devices',
-          rowId: device.id,
-          hlc: hlc,
-          payloadJson: SerializationManager.encode(
-            device.toJson()..remove('__className__'),
-          ),
-          receivedAt: now,
-        ),
-        transaction: tx,
+        tx,
+        tenantId: pairing.tenantId,
+        outletId: outlet.id,
+        code: code,
+        name: deviceName,
+        platform: platform,
+        now: now,
       );
       await PairingCode.db.updateRow(
         session,
@@ -325,6 +294,66 @@ class ActivationEndpoint extends Endpoint {
 
   Never _fail(ActivationFailure reason) =>
       throw ActivationException(reason: reason);
+}
+
+/// Cabang aktif tertua tenant (dibuat paling awal, lalu ID): asal perangkat
+/// web (F2-02 aturan 2).
+Future<Outlet?> oldestOutlet(
+  Session session,
+  Transaction tx,
+  UuidValue tenantId,
+) => Outlet.db.findFirstRow(
+  session,
+  where: (o) => o.tenantId.equals(tenantId) & o.deletedAt.equals(null),
+  orderByList: (o) => [o.createdAt.asc(), o.id.asc()],
+  transaction: tx,
+);
+
+/// Baris `devices` baru dengan ID dari server beserta `sync_changes`-nya
+/// agar ditarik perangkat lain. Pemanggil memegang [lockTenantChanges] dan
+/// sudah memastikan [code] belum dipakai di cabang itu.
+Future<Device> registerDevice(
+  Session session,
+  Transaction tx, {
+  required UuidValue tenantId,
+  required UuidValue outletId,
+  required String code,
+  required String name,
+  required DevicePlatform platform,
+  required DateTime now,
+}) async {
+  final hlc = Hlc(now.millisecondsSinceEpoch, 0, 'server').toString();
+  final device = await Device.db.insertRow(
+    session,
+    Device(
+      id: const Uuid().v7obj(),
+      tenantId: tenantId,
+      outletId: outletId,
+      code: code,
+      name: name.trim(),
+      platform: platform,
+      createdAt: now,
+      updatedAt: now,
+      hlc: hlc,
+    ),
+    transaction: tx,
+  );
+  await SyncChange.db.insertRow(
+    session,
+    SyncChange(
+      tenantId: tenantId,
+      outletId: outletId,
+      entity: 'devices',
+      rowId: device.id,
+      hlc: hlc,
+      payloadJson: SerializationManager.encode(
+        device.toJson()..remove('__className__'),
+      ),
+      receivedAt: now,
+    ),
+    transaction: tx,
+  );
+  return device;
 }
 
 /// Kode `W` + angka dicadangkan untuk perangkat web (F2-02 aturan 2).

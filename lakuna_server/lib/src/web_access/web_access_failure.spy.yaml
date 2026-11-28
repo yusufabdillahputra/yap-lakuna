@@ -1,0 +1,13 @@
+### Alasan login web atau pengaturan verifikasi 2 langkah ditolak
+### (F2-02 aturan 11–14).
+enum: WebAccessFailure
+serialized: byName
+values:
+  - noTenant
+  - totpNotEnabled
+  - totpInvalid
+  - locked
+  - sessionExpired
+  - totpKeyMissing
+  - totpAlreadyEnabled
+  - notOwner

@@ -1,0 +1,13 @@
+### Kode cadangan sekali pakai verifikasi 2 langkah (F2-02 aturan 14).
+### Server hanya menyimpan hash. Hanya ada di server.
+class: OwnerBackupCode
+table: owner_backup_codes
+database: server
+serverOnly: true
+fields:
+  authUserId: UuidValue, column=auth_user_id
+  codeHash: String, column=code_hash
+  usedAt: DateTime?, column=used_at
+indexes:
+  owner_backup_codes_user_idx:
+    fields: authUserId

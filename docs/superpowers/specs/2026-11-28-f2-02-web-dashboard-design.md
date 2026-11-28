@@ -165,7 +165,9 @@ Empat tahap, masing-masing satu rilis:
 7. Tulis dari web memakai `LakunaStore.write` + outbox yang sama; sync
    web berjalan saat tab terbuka dan langsung setelah setiap tulis.
    Menutup tab dengan perubahan belum terkirim memunculkan konfirmasi
-   browser (`beforeunload`).
+   browser (`beforeunload`). *Perubahan belum terkirim* = entri outbox
+   yang belum diterima server (termasuk konflik yang dikirim ulang atau
+   menunggu) + gambar tersemat (aturan 8).
 
 ### Layanan berbasis berkas di web
 
@@ -196,7 +198,10 @@ Empat tahap, masing-masing satu rilis:
     digit, 30 detik, 160 bit), aplikasi menampilkan kode QR
     `otpauth://totp/Lakuna:<email>?secret=…&issuer=Lakuna` dan rahasia
     teks, pemilik memasukkan satu kode untuk mengonfirmasi. Sebelum
-    dikonfirmasi rahasia tidak berlaku. Login web akun tanpa TOTP aktif
+    dikonfirmasi rahasia tidak berlaku. *Keputusan review:* server hanya
+    menerima mulai / konfirmasi / nonaktifkan TOTP bersama token perangkat
+    tenant yang dimiliki akun itu, jadi email + kata sandi saja (mis. bocor)
+    tidak cukup untuk mengaktifkan 2 langkah lalu membuka toko di web. Login web akun tanpa TOTP aktif
     ditolak dengan petunjuk mengaktifkannya di aplikasi.
 13. Kode TOTP diterima untuk langkah waktu sekarang ±1; kode yang sudah
     dipakai (langkah yang sama) ditolak. Lima kode salah berturut-turut
@@ -333,15 +338,21 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 | Aplikasi jalan di browser | — | Dirilis v0.169.0 | Tahap 1: masuk dengan kode pasang perangkat (login web di tahap 2), pemilih cabang, kode perangkat W01 dari server, tab kedua dan mode privat ditolak dengan pesan. |
 | Ikon web Lakuna | — | Belum | `favicon.png` dan ikon manifest masih bawaan Flutter. |
 | Batal saat pull berjalan | — | Sebagian | Halaman dimuat ulang dan database dihapus; perangkat web di server tetap ada sampai F2-04 (cabut perangkat). |
-| Gabung web dengan kode pasang | — | Sementara | Tahap 1 saja: kode pasang membuka sesi pemilik tanpa PIN dan token tanpa batas waktu. Tahap 2 menggantinya dengan login pemilik + TOTP; build web tidak disajikan (paket VPS tahap 4) sebelum tahap 2 selesai. |
+| Gabung web dengan kode pasang | — | Sebagian | Tetap ada lewat tautan *Pakai kode pasang* di layar login; token kode pasang masih tanpa batas waktu (token login web berumur 30 hari / 12 jam). |
 | Menambah cabang dari aplikasi | — | Belum | Pemilih cabang hanya menampilkan cabang yang sudah ada di data toko. |
-| Login web + TOTP | 2.2 | Belum | Tahap 2. |
+| Login web + TOTP | 2.2 | Dirilis v0.170.0 | Email + kata sandi pemilik, kode TOTP / cadangan, kunci 15 menit setelah 5 salah, *Ingat perangkat ini 30 hari*, *Lupa kata sandi?*, pilihan bahasa. Atur 2 langkah di kartu *Versi hosting*; admin `totp-reset`. |
+| Sesi berakhir dan *Keluar* | — | Dirilis v0.170.0 | Token habis/dicabut → layar *Sesi berakhir* dengan jumlah perubahan belum terkirim; database dihapus setelah ditekan. *Keluar* sync dulu, lalu cabut token. Peringatan `beforeunload`. |
+| Pilihan bahasa layar login diingat | 2.2 | Belum | Kembali ke bahasa browser setiap kunjungan (belum ada database). |
+| Atur 2 langkah oleh manajer | — | Belum | Baris *Verifikasi 2 langkah* hanya untuk staf pemilik. |
 | Dashboard semua cabang | 2.3 | Belum | Tahap 3. |
 | Web di paket VPS | — | Belum | Tahap 4. |
 | Login web manajer | 2.2 | Belum | Hanya pemilik (akun email tenant). |
 | Kasir di web | — | Tidak direncanakan | Kasir tetap di perangkat dengan PIN. |
 | Item menu F2-03–05 | 2.3 | Belum | Muncul bersama modulnya. |
 | Pull snapshot untuk perangkat baru | — | Belum | Login web menarik seluruh log perubahan tenant. |
+| Kunci TOTP bertingkat | — | Belum | Setiap 5 kode salah mengunci 15 menit lalu hitungan mulai lagi; belum ada kunci yang makin lama atau pemberitahuan ke pemilik. |
+| Cabut token web hasil kode pasang | — | Belum | *Keluar* hanya mencabut token login web (berumur); token perangkat web dari kode pasang tetap berlaku sampai F2-04. Token web juga masih bisa membuat kode pasang. |
+| Sesi akun pemilik di tab web | — | Sebagian | Koneksi akun setelah login web tetap di memori tab sampai tab ditutup. |
 
 ## Kriteria selesai
 

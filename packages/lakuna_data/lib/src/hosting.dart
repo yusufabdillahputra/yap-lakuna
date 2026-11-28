@@ -263,6 +263,18 @@ int compareVersions(String a, String b) {
   return 0;
 }
 
+/// Perubahan perangkat ini yang belum ada di server: entri outbox yang belum
+/// `acked` (termasuk `conflict`, yang dikirim ulang atau menunggu
+/// diselesaikan) + gambar yang belum terunggah. Semuanya hilang bila
+/// database web dihapus (F2-02 aturan 7–8).
+Future<int> countUnsentChanges(LakunaStore store) async {
+  final outbox = await SyncOutboxEntry.db.count(
+    store.session,
+    where: (e) => e.status.notEquals(OutboxStatus.acked),
+  );
+  return outbox + store.media.pinnedCount;
+}
+
 Future<HostingState> loadHostingState(LakunaStore store) async {
   final session = store.session;
   final serverUrl = await store.syncState(SyncStateKey.serverUrl);

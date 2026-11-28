@@ -7,4 +7,6 @@ const Set<String> serverOnlyTables = {
   'pairing_codes',
   'activation_codes',
   'tenant_owners',
+  'owner_totp',
+  'owner_backup_codes',
 };

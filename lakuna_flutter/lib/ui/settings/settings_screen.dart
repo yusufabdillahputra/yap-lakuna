@@ -22,6 +22,8 @@ import '../core/breakpoints.dart';
 import '../hosting/hosting_section.dart';
 import '../hosting/hosting_view_model.dart';
 import '../hosting/join_view.dart';
+import '../hosting/two_factor_dialog.dart';
+import '../hosting/two_factor_view_model.dart';
 import '../products/product_widgets.dart' show ChoicePill;
 import 'about_section.dart';
 import 'about_view_model.dart';
@@ -140,6 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   FnbRatesViewModel? _rates;
   BackupViewModel? _backup;
   HostingViewModel? _hosting;
+  TwoFactorStatusViewModel? _twoFactor;
   late final _about = AboutViewModel(licenses: widget.licenses);
 
   @override
@@ -172,6 +175,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     if (_canHosting) {
       _hosting = HostingViewModel(repository: widget.hosting!)..load.execute();
+      if (widget.session.current?.isOwner ?? false) {
+        _twoFactor = TwoFactorStatusViewModel(hosting: widget.hosting!)
+          ..load.execute();
+      }
     }
     if (_canBackup) {
       _backup = BackupViewModel(
@@ -283,6 +290,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       SettingsSection.hosting => HostingSection(
         viewModel: _hosting!,
         timezone: widget.store.current?.outlet.timezone,
+        twoFactor: _twoFactor,
+        onTwoFactor: _twoFactor == null
+            ? null
+            : (mode) async {
+                final changed = await showTwoFactorDialog(
+                  context,
+                  hosting: widget.hosting!,
+                  session: widget.session,
+                  mode: mode,
+                );
+                if (changed) await _twoFactor?.load.execute();
+              },
         onJoin: () => showJoinHosting(
           context,
           repository: widget.hosting!,

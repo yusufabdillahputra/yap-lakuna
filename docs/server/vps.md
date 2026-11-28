@@ -82,13 +82,15 @@ Buka `nano .env` dan isi:
 - `LAKUNA_DOMAIN`: domain dari langkah 1, tanpa `https://`, mis.
   `sync.tokoanda.id`.
 - `ACME_EMAIL`: email Anda (pemberitahuan sertifikat HTTPS).
-- Lima rahasia (`POSTGRES_PASSWORD`, `SERVICE_SECRET`,
+- Enam rahasia (`POSTGRES_PASSWORD`, `SERVICE_SECRET`,
   `EMAIL_SECRET_HASH_PEPPER`, `JWT_HMAC_SHA512_PRIVATE_KEY`,
-  `JWT_REFRESH_TOKEN_HASH_PEPPER`): isi masing-masing dengan teks acak
-  berbeda. Buat dengan:
+  `JWT_REFRESH_TOKEN_HASH_PEPPER`, `TOTP_ENCRYPTION_KEY`): isi
+  masing-masing dengan teks acak berbeda. `TOTP_ENCRYPTION_KEY` dipakai
+  untuk login web pemilik; jangan diganti setelah server dipakai. Buat
+  dengan:
 
   ```bash
-  for k in POSTGRES_PASSWORD SERVICE_SECRET EMAIL_SECRET_HASH_PEPPER JWT_HMAC_SHA512_PRIVATE_KEY JWT_REFRESH_TOKEN_HASH_PEPPER; do
+  for k in POSTGRES_PASSWORD SERVICE_SECRET EMAIL_SECRET_HASH_PEPPER JWT_HMAC_SHA512_PRIVATE_KEY JWT_REFRESH_TOKEN_HASH_PEPPER TOTP_ENCRYPTION_KEY; do
     sed -i "s|^$k=.*|$k=$(openssl rand -hex 32)|" .env
   done
   ```

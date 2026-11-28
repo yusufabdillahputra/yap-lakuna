@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_flutter/data/repositories/hosting_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
@@ -159,6 +161,27 @@ class FakeHostingRepository extends HostingRepository {
   @override
   void syncNow() => syncNowCalls++;
 
+  /// Balasan [unsentChanges]; [unsentAfterSync] dipakai bila `syncFirst`.
+  int unsent = 0;
+  int? unsentAfterSync;
+  var logoutWebCalls = 0;
+
+  @override
+  Future<Result<int>> unsentChanges({bool syncFirst = false}) async {
+    calls.add(syncFirst ? 'unsent:sync' : 'unsent');
+    return Result.ok(syncFirst ? (unsentAfterSync ?? unsent) : unsent);
+  }
+
+  /// Bila diisi, [logoutWeb] menunggu sampai selesai (server lambat).
+  Completer<void>? logoutGate;
+
+  @override
+  Future<Result<void>> logoutWeb() async {
+    logoutWebCalls++;
+    await logoutGate?.future;
+    return const Result.ok(null);
+  }
+
   @override
   Future<Result<PairingCodeShare>> createPairingCode() async {
     calls.add('pairing');
@@ -199,5 +222,90 @@ class FakeHostingRepository extends HostingRepository {
       deviceName: deviceName,
     );
     return const Result.ok(null);
+  }
+
+  // --- Verifikasi 2 langkah: kode `123456` benar, kode cadangan
+  // `AAAA-BBBB` benar, kata sandi `rahasia123` benar.
+
+  var twoFactorOn = false;
+  Exception? twoFactorStatusError;
+  var twoFactorSession = false;
+
+  @override
+  Future<Result<bool>> twoFactorEnabled() async {
+    calls.add('twoFactorEnabled');
+    final e = twoFactorStatusError;
+    if (e != null) return Result.error(e);
+    return Result.ok(twoFactorOn);
+  }
+
+  @override
+  Future<Result<bool>> twoFactorSignIn({
+    required String email,
+    required String password,
+  }) async {
+    calls.add('twoFactorSignIn:$email');
+    if (password != 'rahasia123') {
+      return Result.error(
+        loginError ?? const HostingNotPermitted(),
+      );
+    }
+    twoFactorSession = true;
+    return Result.ok(twoFactorOn);
+  }
+
+  /// Galat berikutnya dari [beginTwoFactor] (sekali pakai).
+  Exception? beginError;
+
+  @override
+  Future<Result<TotpEnrollment>> beginTwoFactor() async {
+    calls.add('beginTwoFactor');
+    if (beginError case final e?) {
+      beginError = null;
+      return Result.error(e);
+    }
+    if (twoFactorOn) {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpAlreadyEnabled),
+      );
+    }
+    return Result.ok(
+      TotpEnrollment(
+        secretBase32: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+        otpauthUri:
+            'otpauth://totp/Lakuna:sari%40contoh.id?secret='
+            'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Lakuna',
+      ),
+    );
+  }
+
+  @override
+  Future<Result<List<String>>> confirmTwoFactor(String code) async {
+    calls.add('confirmTwoFactor:$code');
+    if (code != '123456') {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpInvalid),
+      );
+    }
+    twoFactorOn = true;
+    return Result.ok([for (var i = 1; i <= 8; i++) 'KODE-000$i']);
+  }
+
+  @override
+  Future<Result<void>> disableTwoFactor(String code) async {
+    calls.add('disableTwoFactor:$code');
+    if (code != '123456' && code != 'AAAA-BBBB') {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpInvalid),
+      );
+    }
+    twoFactorOn = false;
+    return const Result.ok(null);
+  }
+
+  @override
+  void endTwoFactor() {
+    calls.add('endTwoFactor');
+    twoFactorSession = false;
   }
 }

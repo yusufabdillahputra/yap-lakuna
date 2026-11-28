@@ -18,6 +18,7 @@ import 'breakpoints.dart';
 import 'menu.dart';
 import '../../routing/routes.dart';
 import '../hosting/sync_status_chip.dart';
+import '../web/web_session_ended_view.dart' show signOutWeb;
 
 /// Kerangka aplikasi: bilah atas (dengan staf bertugas dan *Ganti kasir*),
 /// sidebar (tablet/desktop) atau navigasi bawah (mobile), dan isi halaman.
@@ -64,6 +65,15 @@ class AppShell extends StatelessWidget {
     session.logout();
   }
 
+  /// *Keluar* di web: form yang berubah ditanyakan dulu, lalu sesi
+  /// browser diakhiri (F2-02 aturan 5).
+  Future<void> _signOutWeb(BuildContext context) async {
+    final canSwitch = this.canSwitch;
+    if (canSwitch != null && !await canSwitch()) return;
+    if (!context.mounted) return;
+    await signOutWeb(context, hosting: hosting!);
+  }
+
   bool _isSelected(MenuEntry e) =>
       e.path == '/' ? location == '/' : location.startsWith(e.path);
 
@@ -93,6 +103,19 @@ class AppShell extends StatelessWidget {
               ),
               if (platform.isWeb && store != null)
                 _OutletPicker(store: store!, canSwitch: canSwitch),
+              if (platform.isWeb && hosting != null)
+                FTooltip(
+                  tipBuilder: (context, _) => Text(l10n.webLogout),
+                  child: FButton.icon(
+                    key: const ValueKey('web-logout'),
+                    variant: .ghost,
+                    onPress: () => unawaited(_signOutWeb(context)),
+                    child: Icon(
+                      TablerIcons.logout,
+                      semanticLabel: l10n.webLogout,
+                    ),
+                  ),
+                ),
               if (staff != null && platform.supportsCashier)
                 _StaffSwitcher(
                   staff: staff,

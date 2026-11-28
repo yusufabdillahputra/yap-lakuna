@@ -31,8 +31,48 @@ abstract interface class WebJoinRepository {
   Future<Result<void>> discard(String database);
 }
 
-/// [WebJoinRepository] lewat klien Serverpod.
-class RemoteWebJoinRepository implements WebJoinRepository {
+/// Login web pemilik (F2-02 aturan 11–13a): akun email + kata sandi, lalu
+/// kode verifikasi 2 langkah membuat perangkat web tenant. Pull pertama
+/// memakai [WebJoinRepository.pull].
+abstract interface class WebLoginRepository {
+  /// Login akun di [serverUrl] (versi server diperiksa lebih dulu) dan
+  /// membalas toko miliknya. `WebAccessException(totpNotEnabled)` bila
+  /// verifikasi 2 langkah belum aktif.
+  Future<Result<List<WebTenant>>> signIn(
+    String serverUrl, {
+    required String email,
+    required String password,
+  });
+
+  /// Kode authenticator atau kode cadangan → perangkat web baru tenant
+  /// [tenantId], kredensialnya disimpan di database sesi kosong. Membalas
+  /// nama database.
+  Future<Result<String>> open(
+    String serverUrl, {
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  });
+
+  /// *Lupa kata sandi?*: kirim kode ke [email].
+  Future<Result<UuidValue>> startPasswordReset(String serverUrl, String email);
+
+  /// Kode dari email → token untuk kata sandi baru.
+  Future<Result<String>> verifyPasswordReset(
+    String serverUrl, {
+    required UuidValue requestId,
+    required String code,
+  });
+
+  Future<Result<void>> finishPasswordReset(
+    String serverUrl, {
+    required String token,
+    required String password,
+  });
+}
+
+/// [WebJoinRepository] dan [WebLoginRepository] lewat klien Serverpod.
+class RemoteWebJoinRepository implements WebJoinRepository, WebLoginRepository {
   RemoteWebJoinRepository({
     required this._appVersion,
     HostingConnection Function(Uri server)? connect,
@@ -91,6 +131,65 @@ class RemoteWebJoinRepository implements WebJoinRepository {
     );
     return name;
   });
+
+  @override
+  Future<Result<List<WebTenant>>> signIn(
+    String serverUrl, {
+    required String email,
+    required String password,
+  }) => _guard(() async {
+    final connection = _connection(serverUrl);
+    await data.checkHostingServer(connection, appVersion: _appVersion);
+    await connection.login(email: email, password: password);
+    return connection.webTenants();
+  });
+
+  @override
+  Future<Result<String>> open(
+    String serverUrl, {
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  }) => _guard(() async {
+    final connection = _connection(serverUrl);
+    final result = await connection.webOpen(
+      code: code,
+      tenantId: tenantId,
+      remember: remember,
+    );
+    final name = data.webDatabaseName(result.deviceId);
+    await data.prepareWebSession(
+      databasePath: name,
+      deviceId: result.deviceId,
+      deviceToken: result.deviceToken,
+      serverUrl: data.parseServerUrl(serverUrl)!.toString(),
+    );
+    return name;
+  });
+
+  @override
+  Future<Result<UuidValue>> startPasswordReset(
+    String serverUrl,
+    String email,
+  ) => _guard(() => _connection(serverUrl).startPasswordReset(email));
+
+  @override
+  Future<Result<String>> verifyPasswordReset(
+    String serverUrl, {
+    required UuidValue requestId,
+    required String code,
+  }) => _guard(
+    () => _connection(serverUrl).verifyPasswordReset(requestId, code),
+  );
+
+  @override
+  Future<Result<void>> finishPasswordReset(
+    String serverUrl, {
+    required String token,
+    required String password,
+  }) => _guard(
+    () => _connection(serverUrl).finishPasswordReset(token, password),
+  );
 
   @override
   Future<Result<void>> pull(String database, {data.PullProgress? onPull}) =>

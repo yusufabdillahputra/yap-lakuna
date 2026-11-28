@@ -15,6 +15,8 @@ import 'package:lakuna_client/src/protocol/sync/pairing_outlet.dart'
     as _i5ptjowb;
 import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
     as _ipv8demw;
+import 'package:lakuna_client/src/protocol/web_access/web_tenant.dart'
+    as _ib69tvb5;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -111,6 +113,11 @@ import 'sync/sync_request_exception.dart' as _iem4qssj;
 import 'sync/sync_result_kind.dart' as _if9conde;
 import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
+import 'web_access/totp_enrollment.dart' as _i8e22xza;
+import 'web_access/web_access_exception.dart' as _iivbwcf5;
+import 'web_access/web_access_failure.dart' as _i9szp5fc;
+import 'web_access/web_access_result.dart' as _inbdny5f;
+import 'web_access/web_tenant.dart' as _iqnq1hc4;
 export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
@@ -201,6 +208,11 @@ export 'sync/sync_request_exception.dart';
 export 'sync/sync_result_kind.dart';
 export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
+export 'web_access/totp_enrollment.dart';
+export 'web_access/web_access_exception.dart';
+export 'web_access/web_access_failure.dart';
+export 'web_access/web_access_result.dart';
+export 'web_access/web_tenant.dart';
 export 'client.dart';
 
 class Protocol extends _isd.DatabaseSerializationManager
@@ -306,6 +318,11 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_if9conde.SyncResultKind>,
           _isc.getType<_iog1z1ed.SyncServerStatus>,
           _isc.getType<_iwwr3hpi.SyncStateEntry>,
+          _isc.getType<_i8e22xza.TotpEnrollment>,
+          _isc.getType<_iivbwcf5.WebAccessException>,
+          _isc.getType<_i9szp5fc.WebAccessFailure>,
+          _isc.getType<_inbdny5f.WebAccessResult>,
+          _isc.getType<_iqnq1hc4.WebTenant>,
           _isc.getType<_i728pu70.CashDirection?>,
           _isc.getType<_iepnwe9z.CashMovement?>,
           _isc.getType<_iepiq7d7.CashSession?>,
@@ -396,10 +413,17 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_if9conde.SyncResultKind?>,
           _isc.getType<_iog1z1ed.SyncServerStatus?>,
           _isc.getType<_iwwr3hpi.SyncStateEntry?>,
+          _isc.getType<_i8e22xza.TotpEnrollment?>,
+          _isc.getType<_iivbwcf5.WebAccessException?>,
+          _isc.getType<_i9szp5fc.WebAccessFailure?>,
+          _isc.getType<_inbdny5f.WebAccessResult?>,
+          _isc.getType<_iqnq1hc4.WebTenant?>,
           _isc.getType<List<_i4xb7gek.SyncPullChange>>,
           _isc.getType<List<_i4jawf6o.SyncPushResult>>,
           _isc.getType<List<_i5ptjowb.PairingOutlet>>,
           _isc.getType<List<_ipv8demw.SyncPushEntry>>,
+          _isc.getType<List<String>>,
+          _isc.getType<List<_ib69tvb5.WebTenant>>,
         ],
         modules: const [
           _iaic.Protocol.new,
@@ -496,6 +520,11 @@ class Protocol extends _isd.DatabaseSerializationManager
           'SyncResultKind',
           'SyncServerStatus',
           'SyncStateEntry',
+          'TotpEnrollment',
+          'WebAccessException',
+          'WebAccessFailure',
+          'WebAccessResult',
+          'WebTenant',
         ],
       );
 
@@ -9439,6 +9468,21 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _iwwr3hpi.SyncStateEntry) {
       return _iwwr3hpi.SyncStateEntry.fromJson(data) as T;
     }
+    if (t == _i8e22xza.TotpEnrollment) {
+      return _i8e22xza.TotpEnrollment.fromJson(data) as T;
+    }
+    if (t == _iivbwcf5.WebAccessException) {
+      return _iivbwcf5.WebAccessException.fromJson(data) as T;
+    }
+    if (t == _i9szp5fc.WebAccessFailure) {
+      return _i9szp5fc.WebAccessFailure.fromJson(data) as T;
+    }
+    if (t == _inbdny5f.WebAccessResult) {
+      return _inbdny5f.WebAccessResult.fromJson(data) as T;
+    }
+    if (t == _iqnq1hc4.WebTenant) {
+      return _iqnq1hc4.WebTenant.fromJson(data) as T;
+    }
     if (t == _isc.getType<_i728pu70.CashDirection?>()) {
       return (data != null ? _i728pu70.CashDirection.fromJson(data) : null)
           as T;
@@ -9773,6 +9817,25 @@ class Protocol extends _isd.DatabaseSerializationManager
       return (data != null ? _iwwr3hpi.SyncStateEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_i8e22xza.TotpEnrollment?>()) {
+      return (data != null ? _i8e22xza.TotpEnrollment.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iivbwcf5.WebAccessException?>()) {
+      return (data != null ? _iivbwcf5.WebAccessException.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i9szp5fc.WebAccessFailure?>()) {
+      return (data != null ? _i9szp5fc.WebAccessFailure.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_inbdny5f.WebAccessResult?>()) {
+      return (data != null ? _inbdny5f.WebAccessResult.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iqnq1hc4.WebTenant?>()) {
+      return (data != null ? _iqnq1hc4.WebTenant.fromJson(data) : null) as T;
+    }
     if (t == List<_i4xb7gek.SyncPullChange>) {
       return (data as List)
               .map((e) => deserialize<_i4xb7gek.SyncPullChange>(e))
@@ -9794,6 +9857,15 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == List<_ipv8demw.SyncPushEntry>) {
       return (data as List)
               .map((e) => deserialize<_ipv8demw.SyncPushEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_ib69tvb5.WebTenant>) {
+      return (data as List)
+              .map((e) => deserialize<_ib69tvb5.WebTenant>(e))
               .toList()
           as T;
     }
@@ -9902,6 +9974,11 @@ class Protocol extends _isd.DatabaseSerializationManager
       _if9conde.SyncResultKind => 'SyncResultKind',
       _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
+      _i8e22xza.TotpEnrollment => 'TotpEnrollment',
+      _iivbwcf5.WebAccessException => 'WebAccessException',
+      _i9szp5fc.WebAccessFailure => 'WebAccessFailure',
+      _inbdny5f.WebAccessResult => 'WebAccessResult',
+      _iqnq1hc4.WebTenant => 'WebTenant',
       _ => null,
     };
   }
@@ -10096,6 +10173,16 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'SyncServerStatus';
       case _iwwr3hpi.SyncStateEntry():
         return 'SyncStateEntry';
+      case _i8e22xza.TotpEnrollment():
+        return 'TotpEnrollment';
+      case _iivbwcf5.WebAccessException():
+        return 'WebAccessException';
+      case _i9szp5fc.WebAccessFailure():
+        return 'WebAccessFailure';
+      case _inbdny5f.WebAccessResult():
+        return 'WebAccessResult';
+      case _iqnq1hc4.WebTenant():
+        return 'WebTenant';
     }
     className = _iaic.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -10387,6 +10474,21 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'SyncStateEntry') {
       return deserialize<_iwwr3hpi.SyncStateEntry>(data['data']);
+    }
+    if (dataClassName == 'TotpEnrollment') {
+      return deserialize<_i8e22xza.TotpEnrollment>(data['data']);
+    }
+    if (dataClassName == 'WebAccessException') {
+      return deserialize<_iivbwcf5.WebAccessException>(data['data']);
+    }
+    if (dataClassName == 'WebAccessFailure') {
+      return deserialize<_i9szp5fc.WebAccessFailure>(data['data']);
+    }
+    if (dataClassName == 'WebAccessResult') {
+      return deserialize<_inbdny5f.WebAccessResult>(data['data']);
+    }
+    if (dataClassName == 'WebTenant') {
+      return deserialize<_iqnq1hc4.WebTenant>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       return _iaic.Protocol().deserializeByClassName({

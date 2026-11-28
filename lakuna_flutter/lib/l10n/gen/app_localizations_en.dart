@@ -9788,4 +9788,285 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webProblemOtherTabBody =>
       'Use the tab that is already open, or close it and reload this page.';
+
+  @override
+  String get twoFactorRowTitle => '2-step verification';
+
+  @override
+  String get twoFactorOn => 'On';
+
+  @override
+  String get twoFactorOff => 'Not set up';
+
+  @override
+  String get twoFactorUnknown => 'Status needs internet';
+
+  @override
+  String get twoFactorRowBody =>
+      'Required to sign in to Lakuna on the web with the owner account.';
+
+  @override
+  String get twoFactorEnable => 'Turn on';
+
+  @override
+  String get twoFactorDisable => 'Turn off';
+
+  @override
+  String get twoFactorReset => 'Reset';
+
+  @override
+  String get twoFactorDialogTitle => '2-step verification';
+
+  @override
+  String get twoFactorPinBody => 'Enter your PIN to continue.';
+
+  @override
+  String get twoFactorPinLabel => 'PIN';
+
+  @override
+  String get twoFactorAccountBody =>
+      'Sign in with the store owner account on the Lakuna server.';
+
+  @override
+  String get twoFactorEmail => 'Email';
+
+  @override
+  String get twoFactorPassword => 'Password';
+
+  @override
+  String get twoFactorScanBody =>
+      'Scan the QR code with an authenticator app (e.g. Google Authenticator, Microsoft Authenticator, Aegis), then type the 6-digit code it shows.';
+
+  @override
+  String get twoFactorSecretLabel =>
+      'Can\'t scan? Type this key in the authenticator app:';
+
+  @override
+  String get twoFactorCopy => 'Copy';
+
+  @override
+  String get twoFactorCopied => 'Copied';
+
+  @override
+  String get twoFactorCodeLabel => '6-digit code';
+
+  @override
+  String get twoFactorBackupTitle => 'Save your backup codes';
+
+  @override
+  String get twoFactorBackupBody =>
+      'Each code can be used once to sign in if you lose your authenticator phone. They are shown only now: copy them or write them down somewhere safe.';
+
+  @override
+  String get twoFactorBackupCopy => 'Copy all';
+
+  @override
+  String get twoFactorBackupDone => 'I\'ve saved them';
+
+  @override
+  String get twoFactorDisableBody =>
+      'Type a code from the authenticator app or one of your backup codes.';
+
+  @override
+  String get twoFactorDisableCodeLabel => 'Authenticator code or backup code';
+
+  @override
+  String get twoFactorDoneEnabled =>
+      '2-step verification is on. You can now sign in to Lakuna on the web.';
+
+  @override
+  String get twoFactorDoneDisabled =>
+      '2-step verification is off. Web sign-in is unavailable until you turn it on again.';
+
+  @override
+  String get twoFactorAlreadyEnabled =>
+      '2-step verification is already on for this account.';
+
+  @override
+  String get twoFactorNext => 'Next';
+
+  @override
+  String get twoFactorCancel => 'Cancel';
+
+  @override
+  String get twoFactorClose => 'Close';
+
+  @override
+  String get twoFactorErrInvalid =>
+      'Wrong or already used code. Wait for the next code and try again.';
+
+  @override
+  String twoFactorErrLocked(String time) {
+    return 'Too many wrong codes. Try again at $time.';
+  }
+
+  @override
+  String get twoFactorErrKeyMissing =>
+      'The server is not set up for 2-step verification (TOTP_ENCRYPTION_KEY is empty). Contact the server admin.';
+
+  @override
+  String get twoFactorErrNotEnabled =>
+      '2-step verification is not on. Turn it on from the Hosted version card in the cashier app.';
+
+  @override
+  String get twoFactorErrNotOwner =>
+      'This account does not own a store on this server.';
+
+  @override
+  String get twoFactorErrNoTenant => 'This account has no hosted store yet.';
+
+  @override
+  String get twoFactorErrSessionExpired =>
+      'Your sign-in session ended. Sign in again.';
+
+  @override
+  String get hostingWrongCredentials => 'Wrong email or password.';
+
+  @override
+  String get hostingTooManyAttempts =>
+      'Too many sign-in attempts. Try again in a few minutes.';
+
+  @override
+  String get webSessionEndedTitle => 'Session ended';
+
+  @override
+  String get webSessionEndedExpired =>
+      'This browser session has expired. Sign in again with the owner account to continue.';
+
+  @override
+  String get webSessionEndedRevoked =>
+      'The server rejected this browser session, perhaps because it was signed out elsewhere.';
+
+  @override
+  String webUnsentChanges(String count) {
+    return '$count unsent changes will be lost from this browser.';
+  }
+
+  @override
+  String get webSignOutNow => 'Sign out now';
+
+  @override
+  String get webSignInAgain => 'Sign in again';
+
+  @override
+  String get webLogout => 'Sign out';
+
+  @override
+  String get webLogoutConfirmTitle => 'Sign out of this browser?';
+
+  @override
+  String get webLogoutConfirmBody =>
+      'Sync could not send every change. Check the network and try again, or sign out now.';
+
+  @override
+  String get webLogoutCancel => 'Cancel';
+
+  @override
+  String get webLoginHeadline => 'Watch every branch from anywhere.';
+
+  @override
+  String get webLoginTagline =>
+      'Sales, stock and reports for every branch in your browser, synced with the cashiers in store.';
+
+  @override
+  String get webLoginBadgeBranches => 'All branches';
+
+  @override
+  String get webLoginBadgeSync => 'Synced data';
+
+  @override
+  String get webLoginBadgeSecure => 'Two-step verification';
+
+  @override
+  String get webLoginTitle => 'Sign in';
+
+  @override
+  String get webLoginBody =>
+      'Use the owner account created when hosting was activated.';
+
+  @override
+  String get webLoginEmail => 'Email';
+
+  @override
+  String get webLoginPassword => 'Password';
+
+  @override
+  String get webLoginRemember => 'Remember this device for 30 days';
+
+  @override
+  String get webLoginForgot => 'Forgot password?';
+
+  @override
+  String get webLoginCodeTitle => 'Two-step verification';
+
+  @override
+  String get webLoginCodeBody =>
+      'Enter the 6 digits from your authenticator app, or one backup code.';
+
+  @override
+  String get webLoginCodeLabel => 'Verification code';
+
+  @override
+  String get webLoginTenantLabel => 'Store';
+
+  @override
+  String get webLoginCodeSubmit => 'Verify';
+
+  @override
+  String get webLoginBack => 'Back';
+
+  @override
+  String get webLoginNote =>
+      'Only the store owner can sign in from a browser. Cashiers keep using the app on store devices.';
+
+  @override
+  String get webLoginPairingLink => 'Use a pairing code';
+
+  @override
+  String get webLoginOwnerLink => 'Sign in with the owner account';
+
+  @override
+  String get webLoginLanguage => 'Language';
+
+  @override
+  String get webResetTitle => 'Reset password';
+
+  @override
+  String get webResetBody => 'A code is sent to the owner account\'s email.';
+
+  @override
+  String get webResetSend => 'Send code';
+
+  @override
+  String webResetCodeBody(String email) {
+    return 'Enter the code sent to $email, then a new password.';
+  }
+
+  @override
+  String get webResetCode => 'Code from email';
+
+  @override
+  String get webResetNewPassword => 'New password';
+
+  @override
+  String get webResetNewPasswordAgain => 'Retype new password';
+
+  @override
+  String get webResetSave => 'Save password';
+
+  @override
+  String get webResetDone => 'Password changed. Sign in with the new password.';
+
+  @override
+  String get webResetErrInvalid => 'Wrong code.';
+
+  @override
+  String get webResetErrExpired => 'The code has expired. Request a new one.';
+
+  @override
+  String get webResetErrTooMany => 'Too many attempts. Try again later.';
+
+  @override
+  String get webResetErrPolicy =>
+      'The new password does not meet the server rules.';
 }

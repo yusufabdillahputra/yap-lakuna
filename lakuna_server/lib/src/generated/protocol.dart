@@ -15,6 +15,8 @@ import 'package:lakuna_server/src/generated/sync/pairing_outlet.dart'
     as _i0r4fwb4;
 import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
     as _iybq0mvn;
+import 'package:lakuna_server/src/generated/web_access/web_tenant.dart'
+    as _iw5pnrx0;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -117,6 +119,13 @@ import 'sync/sync_result_kind.dart' as _if9conde;
 import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
 import 'sync/tenant_owner.dart' as _ixgfksw5;
+import 'web_access/owner_backup_code.dart' as _irfmwj9h;
+import 'web_access/owner_totp.dart' as _ib54y7c1;
+import 'web_access/totp_enrollment.dart' as _i8e22xza;
+import 'web_access/web_access_exception.dart' as _iivbwcf5;
+import 'web_access/web_access_failure.dart' as _i9szp5fc;
+import 'web_access/web_access_result.dart' as _inbdny5f;
+import 'web_access/web_tenant.dart' as _iqnq1hc4;
 export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
@@ -213,6 +222,13 @@ export 'sync/sync_result_kind.dart';
 export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
 export 'sync/tenant_owner.dart';
+export 'web_access/owner_backup_code.dart';
+export 'web_access/owner_totp.dart';
+export 'web_access/totp_enrollment.dart';
+export 'web_access/web_access_exception.dart';
+export 'web_access/web_access_failure.dart';
+export 'web_access/web_access_result.dart';
+export 'web_access/web_tenant.dart';
 
 class Protocol extends _is.DatabaseSerializationManager
     implements _is.DatabaseProtocolDeserializationProvider {
@@ -323,6 +339,13 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iog1z1ed.SyncServerStatus>,
           _is.getType<_iwwr3hpi.SyncStateEntry>,
           _is.getType<_ixgfksw5.TenantOwner>,
+          _is.getType<_irfmwj9h.OwnerBackupCode>,
+          _is.getType<_ib54y7c1.OwnerTotp>,
+          _is.getType<_i8e22xza.TotpEnrollment>,
+          _is.getType<_iivbwcf5.WebAccessException>,
+          _is.getType<_i9szp5fc.WebAccessFailure>,
+          _is.getType<_inbdny5f.WebAccessResult>,
+          _is.getType<_iqnq1hc4.WebTenant>,
           _is.getType<_i728pu70.CashDirection?>,
           _is.getType<_iepnwe9z.CashMovement?>,
           _is.getType<_iepiq7d7.CashSession?>,
@@ -419,10 +442,19 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iog1z1ed.SyncServerStatus?>,
           _is.getType<_iwwr3hpi.SyncStateEntry?>,
           _is.getType<_ixgfksw5.TenantOwner?>,
+          _is.getType<_irfmwj9h.OwnerBackupCode?>,
+          _is.getType<_ib54y7c1.OwnerTotp?>,
+          _is.getType<_i8e22xza.TotpEnrollment?>,
+          _is.getType<_iivbwcf5.WebAccessException?>,
+          _is.getType<_i9szp5fc.WebAccessFailure?>,
+          _is.getType<_inbdny5f.WebAccessResult?>,
+          _is.getType<_iqnq1hc4.WebTenant?>,
           _is.getType<List<_i4xb7gek.SyncPullChange>>,
           _is.getType<List<_i4jawf6o.SyncPushResult>>,
           _is.getType<List<_i0r4fwb4.PairingOutlet>>,
           _is.getType<List<_iybq0mvn.SyncPushEntry>>,
+          _is.getType<List<String>>,
+          _is.getType<List<_iw5pnrx0.WebTenant>>,
         ],
         modules: const [
           _iais.Protocol.new,
@@ -526,6 +558,13 @@ class Protocol extends _is.DatabaseSerializationManager
           'SyncServerStatus',
           'SyncStateEntry',
           'TenantOwner',
+          'OwnerBackupCode',
+          'OwnerTotp',
+          'TotpEnrollment',
+          'WebAccessException',
+          'WebAccessFailure',
+          'WebAccessResult',
+          'WebTenant',
         ],
       );
 
@@ -2013,6 +2052,12 @@ class Protocol extends _is.DatabaseSerializationManager
         ),
         _isp.ColumnDefinition(
           name: 'revoked_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'expires_at',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
           dartType: 'DateTime?',
@@ -3889,6 +3934,139 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'code',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'owner_backup_codes',
+      dartName: 'OwnerBackupCode',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'auth_user_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'code_hash',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'used_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'owner_backup_codes_user_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'auth_user_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'owner_totp',
+      dartName: 'OwnerTotp',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'auth_user_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'secret_encrypted',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'confirmed_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'last_used_step',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'failed_attempts',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'locked_until',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updated_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'owner_totp_user_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'auth_user_id',
             ),
           ],
           type: 'btree',
@@ -9774,6 +9952,27 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _ixgfksw5.TenantOwner) {
       return _ixgfksw5.TenantOwner.fromJson(data) as T;
     }
+    if (t == _irfmwj9h.OwnerBackupCode) {
+      return _irfmwj9h.OwnerBackupCode.fromJson(data) as T;
+    }
+    if (t == _ib54y7c1.OwnerTotp) {
+      return _ib54y7c1.OwnerTotp.fromJson(data) as T;
+    }
+    if (t == _i8e22xza.TotpEnrollment) {
+      return _i8e22xza.TotpEnrollment.fromJson(data) as T;
+    }
+    if (t == _iivbwcf5.WebAccessException) {
+      return _iivbwcf5.WebAccessException.fromJson(data) as T;
+    }
+    if (t == _i9szp5fc.WebAccessFailure) {
+      return _i9szp5fc.WebAccessFailure.fromJson(data) as T;
+    }
+    if (t == _inbdny5f.WebAccessResult) {
+      return _inbdny5f.WebAccessResult.fromJson(data) as T;
+    }
+    if (t == _iqnq1hc4.WebTenant) {
+      return _iqnq1hc4.WebTenant.fromJson(data) as T;
+    }
     if (t == _is.getType<_i728pu70.CashDirection?>()) {
       return (data != null ? _i728pu70.CashDirection.fromJson(data) : null)
           as T;
@@ -10128,6 +10327,32 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_ixgfksw5.TenantOwner?>()) {
       return (data != null ? _ixgfksw5.TenantOwner.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_irfmwj9h.OwnerBackupCode?>()) {
+      return (data != null ? _irfmwj9h.OwnerBackupCode.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ib54y7c1.OwnerTotp?>()) {
+      return (data != null ? _ib54y7c1.OwnerTotp.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i8e22xza.TotpEnrollment?>()) {
+      return (data != null ? _i8e22xza.TotpEnrollment.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iivbwcf5.WebAccessException?>()) {
+      return (data != null ? _iivbwcf5.WebAccessException.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i9szp5fc.WebAccessFailure?>()) {
+      return (data != null ? _i9szp5fc.WebAccessFailure.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_inbdny5f.WebAccessResult?>()) {
+      return (data != null ? _inbdny5f.WebAccessResult.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iqnq1hc4.WebTenant?>()) {
+      return (data != null ? _iqnq1hc4.WebTenant.fromJson(data) : null) as T;
+    }
     if (t == List<_i4xb7gek.SyncPullChange>) {
       return (data as List)
               .map((e) => deserialize<_i4xb7gek.SyncPullChange>(e))
@@ -10149,6 +10374,15 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == List<_iybq0mvn.SyncPushEntry>) {
       return (data as List)
               .map((e) => deserialize<_iybq0mvn.SyncPushEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_iw5pnrx0.WebTenant>) {
+      return (data as List)
+              .map((e) => deserialize<_iw5pnrx0.WebTenant>(e))
               .toList()
           as T;
     }
@@ -10263,6 +10497,13 @@ class Protocol extends _is.DatabaseSerializationManager
       _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
       _ixgfksw5.TenantOwner => 'TenantOwner',
+      _irfmwj9h.OwnerBackupCode => 'OwnerBackupCode',
+      _ib54y7c1.OwnerTotp => 'OwnerTotp',
+      _i8e22xza.TotpEnrollment => 'TotpEnrollment',
+      _iivbwcf5.WebAccessException => 'WebAccessException',
+      _i9szp5fc.WebAccessFailure => 'WebAccessFailure',
+      _inbdny5f.WebAccessResult => 'WebAccessResult',
+      _iqnq1hc4.WebTenant => 'WebTenant',
       _ => null,
     };
   }
@@ -10469,6 +10710,20 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'SyncStateEntry';
       case _ixgfksw5.TenantOwner():
         return 'TenantOwner';
+      case _irfmwj9h.OwnerBackupCode():
+        return 'OwnerBackupCode';
+      case _ib54y7c1.OwnerTotp():
+        return 'OwnerTotp';
+      case _i8e22xza.TotpEnrollment():
+        return 'TotpEnrollment';
+      case _iivbwcf5.WebAccessException():
+        return 'WebAccessException';
+      case _i9szp5fc.WebAccessFailure():
+        return 'WebAccessFailure';
+      case _inbdny5f.WebAccessResult():
+        return 'WebAccessResult';
+      case _iqnq1hc4.WebTenant():
+        return 'WebTenant';
     }
     className = _iais.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -10783,6 +11038,27 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'TenantOwner') {
       return deserialize<_ixgfksw5.TenantOwner>(data['data']);
     }
+    if (dataClassName == 'OwnerBackupCode') {
+      return deserialize<_irfmwj9h.OwnerBackupCode>(data['data']);
+    }
+    if (dataClassName == 'OwnerTotp') {
+      return deserialize<_ib54y7c1.OwnerTotp>(data['data']);
+    }
+    if (dataClassName == 'TotpEnrollment') {
+      return deserialize<_i8e22xza.TotpEnrollment>(data['data']);
+    }
+    if (dataClassName == 'WebAccessException') {
+      return deserialize<_iivbwcf5.WebAccessException>(data['data']);
+    }
+    if (dataClassName == 'WebAccessFailure') {
+      return deserialize<_i9szp5fc.WebAccessFailure>(data['data']);
+    }
+    if (dataClassName == 'WebAccessResult') {
+      return deserialize<_inbdny5f.WebAccessResult>(data['data']);
+    }
+    if (dataClassName == 'WebTenant') {
+      return deserialize<_iqnq1hc4.WebTenant>(data['data']);
+    }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       return _iais.Protocol().deserializeByClassName({
         ...data,
@@ -10934,6 +11210,10 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i0azdsf8.SyncConflict.t;
       case _ixgfksw5.TenantOwner:
         return _ixgfksw5.TenantOwner.t;
+      case _irfmwj9h.OwnerBackupCode:
+        return _irfmwj9h.OwnerBackupCode.t;
+      case _ib54y7c1.OwnerTotp:
+        return _ib54y7c1.OwnerTotp.t;
     }
     return null;
   }

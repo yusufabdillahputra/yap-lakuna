@@ -58,8 +58,17 @@ class LocalHostingRepository extends HostingRepository {
   /// Koneksi per alamat selama aktivasi (sesi login pemilik di memori).
   final _connections = <String, HostingConnection>{};
   HostingConnection? _syncConnection;
+
+  /// Siklus sync perangkat ini (untuk sync sebelum *Keluar* di web).
+  Future<SyncCycleResult> Function()? _cycle;
+
+  /// Koneksi dengan sesi akun pemilik untuk verifikasi 2 langkah.
+  HostingConnection? _twoFactor;
   SyncScheduler? _scheduler;
   SyncStatus _status = SyncStatus.local;
+
+  /// [data.countUnsentChanges] setelah siklus terakhir (untuk [SyncStatus]).
+  var _unsent = 0;
   var _syncing = false;
   var _disposed = false;
 
@@ -79,6 +88,7 @@ class LocalHostingRepository extends HostingRepository {
       _setStatus(SyncStatus.local);
       return;
     }
+    _unsent = await data.countUnsentChanges(_store);
     _setStatus(_fromState(state, SyncChipKind.syncing));
     if (_scheduler != null) {
       _scheduler!.syncNow();
@@ -93,6 +103,11 @@ class LocalHostingRepository extends HostingRepository {
     // Gambar dari perangkat lain diunduh saat pertama dibutuhkan: satu
     // unduhan per gambar, paling banyak 3 bersamaan, jeda setelah gagal.
     _store.fetchMedia = data.MediaFetcher(_store, media).fetch;
+    _cycle = () async {
+      final result = await data.runHostingCycle(engine, media: media);
+      _unsent = await data.countUnsentChanges(_store);
+      return result;
+    };
     final scheduler = _scheduler = SyncScheduler(
       () async {
         _syncing = true;
@@ -103,12 +118,13 @@ class LocalHostingRepository extends HostingRepository {
               kind: SyncChipKind.syncing,
               pending: _status.pending,
               conflicts: _status.conflicts,
+              unsent: _status.unsent,
               lastSyncAt: _status.lastSyncAt,
             ),
           );
         }
         try {
-          return await data.runHostingCycle(engine, media: media);
+          return await _cycle!();
         } finally {
           _syncing = false;
         }
@@ -123,6 +139,7 @@ class LocalHostingRepository extends HostingRepository {
     kind: s.paused ? SyncChipKind.paused : kind,
     pending: s.pending,
     conflicts: s.conflicts,
+    unsent: _unsent,
     lastSyncAt: s.lastSyncAt,
     error: s.lastError,
   );
@@ -137,6 +154,7 @@ class LocalHostingRepository extends HostingRepository {
     },
     pending: r.pending,
     conflicts: r.conflicts,
+    unsent: _unsent,
     lastSyncAt: r.at,
     error: r.error,
   );
@@ -151,6 +169,7 @@ class LocalHostingRepository extends HostingRepository {
   Future<void> stop() async {
     final scheduler = _scheduler;
     _scheduler = null;
+    _cycle = null;
     _store.afterWrite = null;
     _store.fetchMedia = null;
     // Siklus yang sedang berjalan selesai dulu sebelum koneksi (dan
@@ -158,6 +177,7 @@ class LocalHostingRepository extends HostingRepository {
     await scheduler?.stop();
     _syncConnection?.close();
     _syncConnection = null;
+    endTwoFactor();
     for (final c in _connections.values) {
       c.close();
     }
@@ -323,6 +343,64 @@ class LocalHostingRepository extends HostingRepository {
       });
 
   @override
+  Future<Result<bool>> twoFactorEnabled() => _guard(() async {
+    final connection = _syncConnection;
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) throw const HostingNotActive();
+    return connection.twoFactorEnabled(token);
+  });
+
+  @override
+  Future<Result<bool>> twoFactorSignIn({
+    required String email,
+    required String password,
+  }) => _manage((ctx, staff) async {
+    final state = await data.loadHostingState(_store);
+    final server = data.parseServerUrl(state.serverUrl ?? '');
+    if (!state.active || server == null) throw const HostingNotActive();
+    endTwoFactor();
+    final connection = _connect(server);
+    try {
+      await connection.login(email: email, password: password);
+      final enabled = await connection.totpStatus();
+      _twoFactor = connection;
+      return enabled;
+    } on Object {
+      connection.close();
+      rethrow;
+    }
+  });
+
+  /// Sesi akun dari [twoFactorSignIn] + token perangkat ini: server hanya
+  /// mengizinkan atur 2FA dari perangkat toko milik akun itu (review C1).
+  Future<Result<T>> _withTwoFactor<T>(
+    Future<T> Function(HostingConnection c, String deviceToken) body,
+  ) => _manage((ctx, staff) async {
+    final connection = _twoFactor;
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) throw const HostingNotActive();
+    return body(connection, token);
+  });
+
+  @override
+  Future<Result<TotpEnrollment>> beginTwoFactor() =>
+      _withTwoFactor((c, token) => c.totpBegin(token));
+
+  @override
+  Future<Result<List<String>>> confirmTwoFactor(String code) =>
+      _withTwoFactor((c, token) => c.totpConfirm(token, code));
+
+  @override
+  Future<Result<void>> disableTwoFactor(String code) =>
+      _withTwoFactor((c, token) => c.totpDisable(token, code));
+
+  @override
+  void endTwoFactor() {
+    _twoFactor?.close();
+    _twoFactor = null;
+  }
+
+  @override
   Future<Result<List<PairingOutlet>>> pairingOutlets(
     String serverUrl,
     String code,
@@ -330,6 +408,25 @@ class LocalHostingRepository extends HostingRepository {
     final connection = _connection(serverUrl);
     await data.checkHostingServer(connection, appVersion: _appVersion);
     return connection.pairingOutlets(code);
+  });
+
+  @override
+  Future<Result<int>> unsentChanges({bool syncFirst = false}) =>
+      _guard(() async {
+        final cycle = _cycle;
+        if (syncFirst && cycle != null) {
+          final result = await cycle();
+          _setStatus(_fromResult(result));
+        }
+        return _unsent = await data.countUnsentChanges(_store);
+      });
+
+  @override
+  Future<Result<void>> logoutWeb() => _guard(() async {
+    final connection = _syncConnection;
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) return;
+    await connection.webLogout(token);
   });
 
   @override

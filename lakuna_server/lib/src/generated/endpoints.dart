@@ -24,6 +24,8 @@ import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../media/media_sync_endpoint.dart' as _ikc7jxb6;
 import '../sync/activation_endpoint.dart' as _iy791v73;
 import '../sync/sync_endpoint.dart' as _imb49tzk;
+import '../web_access/totp_endpoint.dart' as _ibfvzck9;
+import '../web_access/web_access_endpoint.dart' as _ij74wem3;
 
 class Endpoints extends _is.EndpointDispatch {
   @override
@@ -57,6 +59,18 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'sync',
+          null,
+        ),
+      'totp': _ibfvzck9.TotpEndpoint()
+        ..initialize(
+          server,
+          'totp',
+          null,
+        ),
+      'webAccess': _ij74wem3.WebAccessEndpoint()
+        ..initialize(
+          server,
+          'webAccess',
           null,
         ),
     };
@@ -638,6 +652,173 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
                 params['deviceToken'],
               ),
+        ),
+      },
+    );
+    connectors['totp'] = _is.EndpointConnector(
+      name: 'totp',
+      endpoint: endpoints['totp']!,
+      methodConnectors: {
+        'status': _is.MethodConnector(
+          name: 'status',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['totp'] as _ibfvzck9.TotpEndpoint).status(session),
+        ),
+        'begin': _is.MethodConnector(
+          name: 'begin',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).begin(
+                session,
+                params['deviceToken'],
+              ),
+        ),
+        'confirm': _is.MethodConnector(
+          name: 'confirm',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'code': _is.ParameterDescription(
+              name: 'code',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).confirm(
+                session,
+                params['deviceToken'],
+                params['code'],
+              ),
+        ),
+        'disable': _is.MethodConnector(
+          name: 'disable',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'code': _is.ParameterDescription(
+              name: 'code',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).disable(
+                session,
+                params['deviceToken'],
+                params['code'],
+              ),
+        ),
+      },
+    );
+    connectors['webAccess'] = _is.EndpointConnector(
+      name: 'webAccess',
+      endpoint: endpoints['webAccess']!,
+      methodConnectors: {
+        'tenants': _is.MethodConnector(
+          name: 'tenants',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['webAccess'] as _ij74wem3.WebAccessEndpoint)
+                  .tenants(session),
+        ),
+        'open': _is.MethodConnector(
+          name: 'open',
+          params: {
+            'code': _is.ParameterDescription(
+              name: 'code',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'tenantId': _is.ParameterDescription(
+              name: 'tenantId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'remember': _is.ParameterDescription(
+              name: 'remember',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['webAccess'] as _ij74wem3.WebAccessEndpoint).open(
+                    session,
+                    params['code'],
+                    params['tenantId'],
+                    params['remember'],
+                  ),
+        ),
+        'logout': _is.MethodConnector(
+          name: 'logout',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['webAccess'] as _ij74wem3.WebAccessEndpoint)
+                  .logout(
+                    session,
+                    params['deviceToken'],
+                  ),
+        ),
+        'twoFactorEnabled': _is.MethodConnector(
+          name: 'twoFactorEnabled',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['webAccess'] as _ij74wem3.WebAccessEndpoint)
+                  .twoFactorEnabled(
+                    session,
+                    params['deviceToken'],
+                  ),
         ),
       },
     );

@@ -19,8 +19,12 @@ class FakeHostingConnection implements HostingConnection {
   String? mediaToken;
 
   @override
-  Future<void> login({required String email, required String password}) async =>
-      calls.add('login:$email');
+  Future<void> login({required String email, required String password}) async {
+    calls.add('login:$email');
+    final e = loginFailure;
+    if (e != null) throw e;
+    signedIn = true;
+  }
 
   @override
   Future<UuidValue> startRegistration(String email) async =>
@@ -94,6 +98,125 @@ class FakeHostingConnection implements HostingConnection {
   MediaTransport mediaTransport(String deviceToken) {
     mediaToken = deviceToken;
     return const _OfflineMedia();
+  }
+
+  /// Server verifikasi 2 langkah palsu: kode `123456` benar, kode cadangan
+  /// `AAAA-BBBB` benar.
+  var totpEnabled = false;
+  var signedIn = false;
+  Object? loginFailure;
+
+  void _needLogin() {
+    if (!signedIn) throw StateError('belum login');
+  }
+
+  @override
+  Future<bool> totpStatus() async {
+    _needLogin();
+    return totpEnabled;
+  }
+
+  @override
+  Future<TotpEnrollment> totpBegin(String deviceToken) async {
+    _needLogin();
+    calls.add('totpBegin:$deviceToken');
+    return TotpEnrollment(
+      secretBase32: 'JBSWY3DPEHPK3PXP',
+      otpauthUri: 'otpauth://totp/Lakuna:a%40b.id?secret=JBSWY3DPEHPK3PXP',
+    );
+  }
+
+  @override
+  Future<List<String>> totpConfirm(String deviceToken, String code) async {
+    _needLogin();
+    calls.add('totpConfirm:$deviceToken:$code');
+    if (code != '123456') {
+      throw WebAccessException(failure: WebAccessFailure.totpInvalid);
+    }
+    totpEnabled = true;
+    return [for (var i = 0; i < 8; i++) 'AAAA-BBB$i'];
+  }
+
+  @override
+  Future<void> totpDisable(String deviceToken, String code) async {
+    _needLogin();
+    calls.add('totpDisable:$deviceToken:$code');
+    if (code != '123456' && code != 'AAAA-BBBB') {
+      throw WebAccessException(failure: WebAccessFailure.totpInvalid);
+    }
+    totpEnabled = false;
+  }
+
+  @override
+  Future<bool> twoFactorEnabled(String deviceToken) async {
+    calls.add('twoFactorEnabled:$deviceToken');
+    return totpEnabled;
+  }
+
+  /// Token yang dicabut lewat [webLogout].
+  final loggedOut = <String>[];
+
+  /// Galat berikutnya dari [webLogout] (sekali pakai).
+  Exception? webLogoutError;
+
+  @override
+  Future<List<WebTenant>> webTenants() async {
+    _needLogin();
+    calls.add('webTenants');
+    return [
+      WebTenant(
+        tenantId: UuidValue.fromString('01900000-0000-7000-8000-000000000001'),
+        name: 'Toko Bu Ani',
+      ),
+    ];
+  }
+
+  @override
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  }) async {
+    _needLogin();
+    calls.add('webOpen:$code:$remember');
+    if (code != '123456') {
+      throw WebAccessException(failure: WebAccessFailure.totpInvalid);
+    }
+    return WebAccessResult(
+      deviceToken: 'token-web',
+      tenantId: tenantId,
+      deviceId: UuidValue.fromString('01900000-0000-7000-8000-0000000000e1'),
+      deviceCode: 'W01',
+      outletId: UuidValue.fromString('01900000-0000-7000-8000-000000000010'),
+      expiresAt: DateTime.utc(2026, 12, 28),
+    );
+  }
+
+  @override
+  Future<void> webLogout(String deviceToken) async {
+    calls.add('webLogout:$deviceToken');
+    if (webLogoutError case final e?) {
+      webLogoutError = null;
+      throw e;
+    }
+    loggedOut.add(deviceToken);
+  }
+
+  @override
+  Future<UuidValue> startPasswordReset(String email) async {
+    calls.add('startPasswordReset:$email');
+    return UuidValue.fromString('01900000-0000-7000-8000-0000000000f1');
+  }
+
+  @override
+  Future<String> verifyPasswordReset(UuidValue requestId, String code) async {
+    calls.add('verifyPasswordReset:$code');
+    return 'token-reset';
+  }
+
+  @override
+  Future<void> finishPasswordReset(String token, String password) async {
+    calls.add('finishPasswordReset:$token');
   }
 
   @override

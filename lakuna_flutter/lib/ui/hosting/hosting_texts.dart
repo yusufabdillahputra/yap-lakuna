@@ -1,8 +1,11 @@
 import 'package:lakuna_client/lakuna_client.dart' show ServerpodClientException;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    show EmailAccountLoginException, EmailAccountLoginExceptionReason;
 
 import '../../data/repositories/hosting_repository.dart';
 import '../../data/repositories/repository_errors.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../core/format.dart' show formatClock;
 
 /// Pesan galat versi hosting untuk pengguna.
 String hostingErrorText(AppLocalizations l10n, Object error) => switch (error) {
@@ -28,6 +31,22 @@ String hostingErrorText(AppLocalizations l10n, Object error) => switch (error) {
     ActivationFailure.outletUnknown => l10n.hostingFailOutletUnknown,
     ActivationFailure.deviceCodeTaken => l10n.hostingFailDeviceCodeTaken,
   },
+  WebAccessException(:final failure, :final lockedUntil) => switch (failure) {
+    WebAccessFailure.totpInvalid => l10n.twoFactorErrInvalid,
+    WebAccessFailure.locked => l10n.twoFactorErrLocked(
+      lockedUntil == null ? '–' : formatClock(lockedUntil, null),
+    ),
+    WebAccessFailure.totpKeyMissing => l10n.twoFactorErrKeyMissing,
+    WebAccessFailure.totpNotEnabled => l10n.twoFactorErrNotEnabled,
+    WebAccessFailure.totpAlreadyEnabled => l10n.twoFactorAlreadyEnabled,
+    WebAccessFailure.notOwner => l10n.twoFactorErrNotOwner,
+    WebAccessFailure.noTenant => l10n.twoFactorErrNoTenant,
+    WebAccessFailure.sessionExpired => l10n.twoFactorErrSessionExpired,
+  },
+  EmailAccountLoginException(:final reason) =>
+    reason == EmailAccountLoginExceptionReason.tooManyAttempts
+        ? l10n.hostingTooManyAttempts
+        : l10n.hostingWrongCredentials,
   ServerpodClientException(:final message) => l10n.hostingErrorGeneric(
     message,
   ),
