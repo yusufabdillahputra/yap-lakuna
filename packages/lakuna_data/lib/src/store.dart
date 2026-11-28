@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -59,6 +60,10 @@ class LakunaStore {
   /// Dipanggil setelah setiap transaksi [write] berhasil (mis. penjadwal
   /// sync versi hosting, F2-01).
   void Function()? afterWrite;
+
+  /// Mengambil berkas media yang belum ada di perangkat ini (versi hosting:
+  /// unduh dari server, F2-01 aturan 20). `null` = gambar placeholder.
+  Future<Uint8List?> Function(MediaFile media)? fetchMedia;
 
   /// Menjalankan [body] dalam satu transaksi tulis yang tercatat di outbox.
   Future<R> write<R>(

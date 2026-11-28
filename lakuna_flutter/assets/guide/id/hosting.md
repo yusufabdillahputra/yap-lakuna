@@ -50,6 +50,12 @@ Setelah aktif, kartu menampilkan server, waktu sync terakhir, dan jumlah perubah
 
 > [!warning] Gabung mengganti data di perangkat ini dengan data toko dari server. Bila perangkat sudah berisi penjualan, aplikasi memperingatkan dan membuat backup otomatis di folder data (*backup-sebelum-gabung*) sebelum mengganti. Data lama juga disimpan di folder *sebelum-gabung-…*.
 
+## Foto dan gambar
+
+Semua gambar toko ikut tersinkron: foto produk, foto faktur pembelian, foto bukti pengeluaran, bukti bayar hutang supplier, stiker QRIS, logo struk, dan gambar denah. Setelah datanya terkirim, berkas gambar diunggah ke penyimpanan server satu per satu; gambar yang sama persis tidak diunggah dua kali. Perangkat lain mengunduh gambar saat pertama kali dibutuhkan, misalnya saat produk atau pembelian itu dibuka, lalu menyimpannya di perangkat.
+
+Selama gambar belum terunduh (perangkat offline, atau perangkat asal belum mengunggahnya), tampil gambar pengganti. Setelah gambar terunduh, gambar asli tampil saat layar itu dibuka lagi. Unduhan diperiksa keasliannya; berkas yang rusak di jalan dibuang dan dicoba lagi nanti.
+
 ## Bila ada masalah
 
 - **Jam perangkat tidak sesuai**: atur tanggal dan jam otomatis di perangkat, lalu tekan **Sync sekarang**.

@@ -230,4 +230,29 @@ void main() {
     expect(again.photoMediaId, kopi.photoMediaId);
     expect(again.photoPath, isNull);
   });
+
+  test(
+    'foto dari perangkat lain belum ada: diunduh di latar (F2-01)',
+    () async {
+      await setPhoto(pngBytes(40, 30));
+      final row = await Product.db.findById(store.session, kopiId);
+      final media = await MediaFile.db.findById(
+        store.session,
+        row!.photoMediaId!,
+      );
+      // Seolah baris tersinkron dari perangkat lain tanpa berkasnya.
+      File('${store.mediaDirectory}/${media!.storageKey}').deleteSync();
+      final fetched = <UuidValue>[];
+      store.fetchMedia = (m) async {
+        fetched.add(m.id);
+        return null;
+      };
+      final item = (await listProducts(
+        store,
+        scope,
+      )).firstWhere((p) => p.id == kopiId);
+      expect(item.photoPath, isNull);
+      expect(fetched, [media.id]);
+    },
+  );
 }

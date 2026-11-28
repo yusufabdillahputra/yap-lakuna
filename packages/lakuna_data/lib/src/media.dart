@@ -73,12 +73,14 @@ Future<MediaFile> storeMediaFile(
 }
 
 /// Isi berkas [media], `null` bila berkasnya belum ada di perangkat ini
-/// (mis. baru tersinkron dari perangkat lain).
+/// (mis. baru tersinkron dari perangkat lain) dan tidak bisa diambil lewat
+/// [LakunaStore.fetchMedia].
 Future<Uint8List?> readMediaFile(LakunaStore store, MediaFile media) async {
   final file = File(
     '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}',
   );
-  return file.existsSync() ? file.readAsBytes() : null;
+  if (file.existsSync()) return file.readAsBytes();
+  return store.fetchMedia?.call(media);
 }
 
 String _baseName(String name) {

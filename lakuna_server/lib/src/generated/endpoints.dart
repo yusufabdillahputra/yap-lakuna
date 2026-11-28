@@ -21,6 +21,7 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
+import '../media/media_sync_endpoint.dart' as _ikc7jxb6;
 import '../sync/activation_endpoint.dart' as _iy791v73;
 import '../sync/sync_endpoint.dart' as _imb49tzk;
 
@@ -38,6 +39,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'jwtRefresh',
+          null,
+        ),
+      'mediaSync': _ikc7jxb6.MediaSyncEndpoint()
+        ..initialize(
+          server,
+          'mediaSync',
           null,
         ),
       'activation': _iy791v73.ActivationEndpoint()
@@ -344,6 +351,87 @@ class Endpoints extends _is.EndpointDispatch {
                         session,
                         refreshToken: params['refreshToken'],
                       ),
+        ),
+      },
+    );
+    connectors['mediaSync'] = _is.EndpointConnector(
+      name: 'mediaSync',
+      endpoint: endpoints['mediaSync']!,
+      methodConnectors: {
+        'uploadDescription': _is.MethodConnector(
+          name: 'uploadDescription',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'mediaFileId': _is.ParameterDescription(
+              name: 'mediaFileId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['mediaSync'] as _ikc7jxb6.MediaSyncEndpoint)
+                  .uploadDescription(
+                    session,
+                    params['deviceToken'],
+                    params['mediaFileId'],
+                  ),
+        ),
+        'markUploaded': _is.MethodConnector(
+          name: 'markUploaded',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'mediaFileId': _is.ParameterDescription(
+              name: 'mediaFileId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['mediaSync'] as _ikc7jxb6.MediaSyncEndpoint)
+                  .markUploaded(
+                    session,
+                    params['deviceToken'],
+                    params['mediaFileId'],
+                  ),
+        ),
+        'downloadUrl': _is.MethodConnector(
+          name: 'downloadUrl',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'mediaFileId': _is.ParameterDescription(
+              name: 'mediaFileId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['mediaSync'] as _ikc7jxb6.MediaSyncEndpoint)
+                  .downloadUrl(
+                    session,
+                    params['deviceToken'],
+                    params['mediaFileId'],
+                  ),
         ),
       },
     );

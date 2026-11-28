@@ -50,6 +50,12 @@ Once active, the card shows the server, the last sync time and how many changes 
 
 > [!warning] Joining replaces the data on this device with the store's data from the server. If the device already has sales, the app warns you and makes a backup in the data folder (*backup-sebelum-gabung*) before replacing it. The old data is also kept in a *sebelum-gabung-…* folder.
 
+## Photos and images
+
+All store images are synced too: product photos, purchase invoice photos, expense receipt photos, supplier payment proofs, QRIS stickers, the receipt logo, and floor plan images. After their data is sent, the image files are uploaded to the server storage one by one; an identical image is never uploaded twice. Other devices download an image the first time it is needed, for example when that product or purchase is opened, and keep it on the device.
+
+Until an image is downloaded (the device is offline, or the source device has not uploaded it yet), a placeholder is shown. Once downloaded, the real image shows the next time that screen is opened. Downloads are checked against the original; a file damaged on the way is discarded and retried later.
+
 ## Troubleshooting
 
 - **Device clock is off**: turn on automatic date and time on the device, then tap **Sync now**.

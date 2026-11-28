@@ -361,6 +361,59 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Berkas media di object storage dengan kunci
+/// `<tenant_id>/<storage_key>`. Baris `media_files` harus sudah di-push
+/// lebih dulu; berkas dengan hash sama di tenant yang sama hanya diunggah
+/// sekali.
+/// {@category Endpoint}
+class EndpointMediaSync extends _isc.EndpointRef {
+  EndpointMediaSync(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'mediaSync';
+
+  /// Deskripsi unggah untuk `FileUploader`, atau `null` bila berkasnya
+  /// sudah ada di storage.
+  _ida.Future<String?> uploadDescription(
+    String deviceToken,
+    _isc.UuidValue mediaFileId,
+  ) => caller.callServerEndpoint<String?>(
+    'mediaSync',
+    'uploadDescription',
+    {
+      'deviceToken': deviceToken,
+      'mediaFileId': mediaFileId,
+    },
+  );
+
+  /// Dipanggil setelah unggah selesai; `true` bila berkas ada di storage.
+  _ida.Future<bool> markUploaded(
+    String deviceToken,
+    _isc.UuidValue mediaFileId,
+  ) => caller.callServerEndpoint<bool>(
+    'mediaSync',
+    'markUploaded',
+    {
+      'deviceToken': deviceToken,
+      'mediaFileId': mediaFileId,
+    },
+  );
+
+  /// URL unduh sementara, atau `null` bila berkas belum diunggah perangkat
+  /// asalnya.
+  _ida.Future<Uri?> downloadUrl(
+    String deviceToken,
+    _isc.UuidValue mediaFileId,
+  ) => caller.callServerEndpoint<Uri?>(
+    'mediaSync',
+    'downloadUrl',
+    {
+      'deviceToken': deviceToken,
+      'mediaFileId': mediaFileId,
+    },
+  );
+}
+
 /// Aktivasi versi hosting dan pasang perangkat berikutnya (F2-01 aturan
 /// 9–11).
 /// {@category Endpoint}
@@ -518,6 +571,7 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    mediaSync = EndpointMediaSync(this);
     activation = EndpointActivation(this);
     sync = EndpointSync(this);
     modules = Modules(this);
@@ -526,6 +580,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointMediaSync mediaSync;
 
   late final EndpointActivation activation;
 
@@ -537,6 +593,7 @@ class Client extends _isc.ServerpodClientShared {
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'mediaSync': mediaSync,
     'activation': activation,
     'sync': sync,
   };

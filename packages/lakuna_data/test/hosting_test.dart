@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart' show sha256;
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -7,6 +10,7 @@ import 'package:test/test.dart';
 
 import 'helpers.dart';
 import 'testing/fake_hosting_client.dart';
+import 'testing/fake_media_transport.dart';
 import 'testing/fake_sync_transport.dart';
 
 void main() {
@@ -272,6 +276,47 @@ void main() {
       );
       addTearDown(joined.close);
       expect(await initialUploadProgress(joined), isEmpty);
+    });
+
+    test('siklus mengunggah berkas media setelah barisnya di-push', () async {
+      await activate();
+      final bytes = Uint8List.fromList([1, 2, 3]);
+      final key = '${sha256.convert(bytes)}.png';
+      final file = await File('${store.mediaDirectory}/$key')
+          .create(recursive: true);
+      file.writeAsBytesSync(bytes);
+      final media = await store.write(actor: ctx.owner.id, (w) async {
+        final s = await w.stamp();
+        return w.insert(
+          MediaFile(
+            tenantId: ctx.tenant.id,
+            kind: MediaKind.qrisSticker,
+            fileName: 'qris.png',
+            mimeType: 'image/png',
+            sizeBytes: 3,
+            sha256: sha256.convert(bytes).toString(),
+            width: 1,
+            height: 1,
+            storageKey: key,
+            createdAt: s.now,
+            updatedAt: s.now,
+            createdBy: s.actor,
+            updatedBy: s.actor,
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      });
+      final transport = FakeSyncTransport(serverTime: now);
+      final mediaServer = FakeMediaTransport(ctx.tenant.id)
+        ..rows[media.id] = media;
+      final r = await runHostingCycle(
+        SyncEngine(store, transport),
+        media: mediaServer,
+      );
+      expect(r.outcome, SyncCycleOutcome.synced);
+      expect(mediaServer.uploads, ['${ctx.tenant.id.uuid}/$key']);
     });
 
     test('siklus melanjutkan pemadatan yang terputus', () async {

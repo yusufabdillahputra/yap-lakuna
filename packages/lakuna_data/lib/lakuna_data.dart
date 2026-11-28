@@ -39,6 +39,7 @@ export 'src/store_setup.dart';
 export 'src/suppliers.dart';
 export 'src/sync/apply_incoming.dart' show applyIncoming, IncomingResult;
 export 'src/sync/initial_upload.dart';
+export 'src/sync/media_sync.dart';
 export 'src/sync/sync_engine.dart';
 export 'src/sync/sync_rows.dart' show syncRowType, SyncRowType;
 export 'src/sync/sync_transport.dart';

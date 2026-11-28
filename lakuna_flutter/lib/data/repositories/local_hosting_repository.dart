@@ -89,6 +89,9 @@ class LocalHostingRepository extends HostingRepository {
     if (token == null || server == null) return;
     final connection = _syncConnection = _connect(server);
     final engine = SyncEngine(_store, connection.transport(token));
+    final media = connection.mediaTransport(token);
+    // Gambar dari perangkat lain diunduh saat pertama dibutuhkan.
+    _store.fetchMedia = (m) => data.ensureMediaLocal(_store, media, m);
     final scheduler = _scheduler = SyncScheduler(
       () async {
         _syncing = true;
@@ -104,7 +107,7 @@ class LocalHostingRepository extends HostingRepository {
           );
         }
         try {
-          return await data.runHostingCycle(engine);
+          return await data.runHostingCycle(engine, media: media);
         } finally {
           _syncing = false;
         }
@@ -148,6 +151,7 @@ class LocalHostingRepository extends HostingRepository {
     final scheduler = _scheduler;
     _scheduler = null;
     _store.afterWrite = null;
+    _store.fetchMedia = null;
     // Siklus yang sedang berjalan selesai dulu sebelum koneksi (dan
     // sesudahnya database) ditutup.
     await scheduler?.stop();

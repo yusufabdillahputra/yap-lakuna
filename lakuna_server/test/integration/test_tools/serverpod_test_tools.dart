@@ -170,6 +170,8 @@ class TestEndpoints {
 
   late final _JwtRefreshEndpoint jwtRefresh;
 
+  late final _MediaSyncEndpoint mediaSync;
+
   late final _ActivationEndpoint activation;
 
   late final _SyncEndpoint sync;
@@ -187,6 +189,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     jwtRefresh = _JwtRefreshEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    mediaSync = _MediaSyncEndpoint(
       endpoints,
       serializationManager,
     );
@@ -643,6 +649,122 @@ class _JwtRefreshEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iacs.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _MediaSyncEndpoint {
+  _MediaSyncEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<String?> uploadDescription(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+    _is.UuidValue mediaFileId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'mediaSync',
+            method: 'uploadDescription',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'mediaSync',
+          methodName: 'uploadDescription',
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'mediaFileId': mediaFileId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<bool> markUploaded(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+    _is.UuidValue mediaFileId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'mediaSync',
+            method: 'markUploaded',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'mediaSync',
+          methodName: 'markUploaded',
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'mediaFileId': mediaFileId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<Uri?> downloadUrl(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+    _is.UuidValue mediaFileId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'mediaSync',
+            method: 'downloadUrl',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'mediaSync',
+          methodName: 'downloadUrl',
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'mediaFileId': mediaFileId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<Uri?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -12,6 +12,7 @@ import 'staff_access.dart';
 import 'store.dart';
 import 'store_setup.dart';
 import 'sync/initial_upload.dart';
+import 'sync/media_sync.dart';
 import 'sync/sync_engine.dart';
 import 'sync/sync_transport.dart';
 import 'sync_state.dart';
@@ -391,8 +392,12 @@ Future<void> setSyncPaused(
 }
 
 /// Satu siklus sync versi hosting: berhenti bila dijeda, melanjutkan
-/// pemadatan yang terputus (aturan 15), lalu push dan pull.
-Future<SyncCycleResult> runHostingCycle(SyncEngine engine) async {
+/// pemadatan yang terputus (aturan 15), lalu push, pull, dan unggah berkas
+/// media.
+Future<SyncCycleResult> runHostingCycle(
+  SyncEngine engine, {
+  MediaTransport? media,
+}) async {
   final store = engine.store;
   final state = await loadHostingState(store);
   if (state.paused) {
@@ -426,6 +431,11 @@ Future<SyncCycleResult> runHostingCycle(SyncEngine engine) async {
     await prepareInitialUpload(store, serverNow: serverNow);
   }
   final result = await engine.runCycle();
+  // Berkas media setelah barisnya di-push (aturan 19); kegagalan diulang
+  // siklus berikutnya dan tidak mengubah hasil siklus.
+  if (media != null && result.outcome == SyncCycleOutcome.synced) {
+    await uploadPendingMedia(store, media);
+  }
   if (result.outcome == SyncCycleOutcome.synced &&
       result.pending == 0 &&
       await store.syncState(SyncStateKey.initialUploadAcked) != '1') {
@@ -453,6 +463,7 @@ const _hostingSessionKeys = [
   SyncStateKey.initialUpload,
   SyncStateKey.initialUploadCursor,
   SyncStateKey.initialUploadAcked,
+  SyncStateKey.mediaUploadCursor,
   SyncStateKey.restampHlc,
   SyncStateKey.pullCursor,
   SyncStateKey.pullParked,

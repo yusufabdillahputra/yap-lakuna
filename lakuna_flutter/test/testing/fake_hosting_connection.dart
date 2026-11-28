@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_flutter/data/services/serverpod_hosting.dart';
@@ -14,6 +16,7 @@ class FakeHostingConnection implements HostingConnection {
   /// Galat yang dilempar `joinWithPairingCode`.
   Object? joinFailure;
   String? transportToken;
+  String? mediaToken;
 
   @override
   Future<void> login({required String email, required String password}) async =>
@@ -88,6 +91,12 @@ class FakeHostingConnection implements HostingConnection {
   }
 
   @override
+  MediaTransport mediaTransport(String deviceToken) {
+    mediaToken = deviceToken;
+    return const _OfflineMedia();
+  }
+
+  @override
   void close() => closed = true;
 }
 
@@ -103,4 +112,27 @@ class _OfflineTransport implements SyncTransport {
 
   @override
   Future<SyncServerStatus> status() => throw const SyncOfflineException();
+}
+
+class _OfflineMedia implements MediaTransport {
+  const _OfflineMedia();
+
+  @override
+  Future<String?> uploadDescription(UuidValue mediaFileId) =>
+      throw const SyncOfflineException();
+
+  @override
+  Future<void> upload(String description, Uint8List bytes) =>
+      throw const SyncOfflineException();
+
+  @override
+  Future<bool> markUploaded(UuidValue mediaFileId) =>
+      throw const SyncOfflineException();
+
+  @override
+  Future<Uri?> downloadUrl(UuidValue mediaFileId) =>
+      throw const SyncOfflineException();
+
+  @override
+  Future<Uint8List> download(Uri url) => throw const SyncOfflineException();
 }

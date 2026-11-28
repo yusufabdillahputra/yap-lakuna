@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -625,7 +626,12 @@ class ProductPhotoInvalid implements Exception {
 String? _mediaPath(LakunaStore store, MediaFile media) {
   final path =
       '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}';
-  return File(path).existsSync() ? path : null;
+  if (File(path).existsSync()) return path;
+  // Versi hosting: foto dari perangkat lain diunduh di latar, tampil saat
+  // daftar dimuat lagi (F2-01 aturan 20).
+  final fetch = store.fetchMedia;
+  if (fetch != null) unawaited(fetch(media));
+  return null;
 }
 
 Future<Product> _activeProduct(

@@ -31,6 +31,10 @@ enum SyncStateKey {
   /// tidak ditampilkan lagi untuk perubahan sesudahnya (aturan 16).
   initialUploadAcked('initial_upload_acked'),
 
+  /// ID `media_files` terakhir yang berkasnya sudah diunggah atau dilewati
+  /// (aturan 19), urut ID.
+  mediaUploadCursor('media_upload_cursor'),
+
   /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
   initialUploadCursor('initial_upload_cursor'),
 
