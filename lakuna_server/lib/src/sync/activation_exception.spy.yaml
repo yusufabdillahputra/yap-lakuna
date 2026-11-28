@@ -1,0 +1,4 @@
+### Aktivasi atau pasang perangkat ditolak.
+exception: ActivationException
+fields:
+  reason: ActivationFailure

@@ -1,0 +1,12 @@
+### Alasan entri push ditolak (F2-01 aturan 1). `finalDocument` = isi
+### dokumen final diubah (aturan 7a).
+enum: SyncRejectReason
+serialized: byName
+values:
+  - tenant
+  - table
+  - device
+  - finalDocument
+  - unique
+  - dependency
+  - clock

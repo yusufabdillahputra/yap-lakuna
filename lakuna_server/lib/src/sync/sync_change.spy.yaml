@@ -1,0 +1,25 @@
+### Log perubahan server berurutan (F2-01). `id` = `seq` yang ditarik
+### perangkat lewat `sync.pull`. Hanya ada di server.
+class: SyncChange
+table: sync_changes
+database: server
+serverOnly: true
+fields:
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  ### Outlet baris bila tabelnya per outlet (dari payload); null = se-tenant.
+  outletId: UuidValue?, column=outlet_id
+  ### Nama tabel (`tableName` dipakai Serverpod).
+  entity: String, column=table_name
+  rowId: UuidValue, column=row_id
+  hlc: String
+  ### Perangkat asal; null untuk baris hasil gabung server (aturan 7b/8b),
+  ### yang ditarik semua perangkat termasuk pengirimnya.
+  originDeviceId: UuidValue?, column=origin_device_id
+  payloadJson: String, column=payload_json
+  receivedAt: DateTime, default=now, column=received_at
+indexes:
+  sync_changes_tenant_seq_idx:
+    fields: tenantId, id
+  sync_changes_row_hlc_idx:
+    fields: rowId, hlc
+    unique: true

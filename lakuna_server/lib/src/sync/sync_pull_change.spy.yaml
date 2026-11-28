@@ -1,0 +1,8 @@
+### Satu perubahan dari log server untuk `sync.pull`.
+class: SyncPullChange
+fields:
+  seq: int
+  tableName: String
+  rowId: UuidValue
+  payloadJson: String
+  hlc: String

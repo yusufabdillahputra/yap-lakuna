@@ -1,0 +1,5 @@
+### Balasan `sync.push`: hasil per entri, urut sama dengan permintaan.
+class: SyncPushReply
+fields:
+  results: List<SyncPushResult>
+  serverTime: DateTime

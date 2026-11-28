@@ -1,0 +1,14 @@
+### Akun pemilik (Serverpod auth) yang mengaktifkan tenant. Hanya ada di
+### server.
+class: TenantOwner
+table: tenant_owners
+database: server
+serverOnly: true
+fields:
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  authUserId: UuidValue, column=auth_user_id
+  createdAt: DateTime, default=now, column=created_at
+indexes:
+  tenant_owners_tenant_user_idx:
+    fields: tenantId, authUserId
+    unique: true

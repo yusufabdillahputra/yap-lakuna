@@ -1,0 +1,8 @@
+### Satu halaman `sync.pull` (maks 1.000 perubahan).
+class: SyncPullPage
+fields:
+  changes: List<SyncPullChange>
+  ### `seq` terakhir di halaman ini (atau `afterSeq` bila kosong).
+  nextSeq: int
+  hasMore: bool
+  serverTime: DateTime
