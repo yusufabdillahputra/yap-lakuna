@@ -5725,5 +5725,165 @@
   "webProblemStorageTitle": "Storage blocked",
   "webProblemStorageBody": "This browser does not allow storing data. Turn off private mode or use another browser.",
   "webProblemOtherTabTitle": "Lakuna is already open in another tab",
-  "webProblemOtherTabBody": "Use the tab that is already open, or close it and reload this page."
+  "webProblemOtherTabBody": "Use the tab that is already open, or close it and reload this page.",
+  "twoFactorRowTitle": "2-step verification",
+  "@twoFactorRowTitle": {
+    "placeholders": {}
+  },
+  "twoFactorOn": "On",
+  "@twoFactorOn": {
+    "placeholders": {}
+  },
+  "twoFactorOff": "Not set up",
+  "@twoFactorOff": {
+    "placeholders": {}
+  },
+  "twoFactorUnknown": "Status needs internet",
+  "@twoFactorUnknown": {
+    "placeholders": {}
+  },
+  "twoFactorRowBody": "Required to sign in to Lakuna on the web with the owner account.",
+  "@twoFactorRowBody": {
+    "placeholders": {}
+  },
+  "twoFactorEnable": "Turn on",
+  "@twoFactorEnable": {
+    "placeholders": {}
+  },
+  "twoFactorDisable": "Turn off",
+  "@twoFactorDisable": {
+    "placeholders": {}
+  },
+  "twoFactorReset": "Reset",
+  "@twoFactorReset": {
+    "placeholders": {}
+  },
+  "twoFactorDialogTitle": "2-step verification",
+  "@twoFactorDialogTitle": {
+    "placeholders": {}
+  },
+  "twoFactorPinBody": "Enter your PIN to continue.",
+  "@twoFactorPinBody": {
+    "placeholders": {}
+  },
+  "twoFactorPinLabel": "PIN",
+  "@twoFactorPinLabel": {
+    "placeholders": {}
+  },
+  "twoFactorAccountBody": "Sign in with the store owner account on the Lakuna server.",
+  "@twoFactorAccountBody": {
+    "placeholders": {}
+  },
+  "twoFactorEmail": "Email",
+  "@twoFactorEmail": {
+    "placeholders": {}
+  },
+  "twoFactorPassword": "Password",
+  "@twoFactorPassword": {
+    "placeholders": {}
+  },
+  "twoFactorScanBody": "Scan the QR code with an authenticator app (e.g. Google Authenticator, Microsoft Authenticator, Aegis), then type the 6-digit code it shows.",
+  "@twoFactorScanBody": {
+    "placeholders": {}
+  },
+  "twoFactorSecretLabel": "Can't scan? Type this key in the authenticator app:",
+  "@twoFactorSecretLabel": {
+    "placeholders": {}
+  },
+  "twoFactorCopy": "Copy",
+  "@twoFactorCopy": {
+    "placeholders": {}
+  },
+  "twoFactorCopied": "Copied",
+  "@twoFactorCopied": {
+    "placeholders": {}
+  },
+  "twoFactorCodeLabel": "6-digit code",
+  "@twoFactorCodeLabel": {
+    "placeholders": {}
+  },
+  "twoFactorBackupTitle": "Save your backup codes",
+  "@twoFactorBackupTitle": {
+    "placeholders": {}
+  },
+  "twoFactorBackupBody": "Each code can be used once to sign in if you lose your authenticator phone. They are shown only now: copy them or write them down somewhere safe.",
+  "@twoFactorBackupBody": {
+    "placeholders": {}
+  },
+  "twoFactorBackupCopy": "Copy all",
+  "@twoFactorBackupCopy": {
+    "placeholders": {}
+  },
+  "twoFactorBackupDone": "I've saved them",
+  "@twoFactorBackupDone": {
+    "placeholders": {}
+  },
+  "twoFactorDisableBody": "Type a code from the authenticator app or one of your backup codes.",
+  "@twoFactorDisableBody": {
+    "placeholders": {}
+  },
+  "twoFactorDisableCodeLabel": "Authenticator code or backup code",
+  "@twoFactorDisableCodeLabel": {
+    "placeholders": {}
+  },
+  "twoFactorDoneEnabled": "2-step verification is on. You can now sign in to Lakuna on the web.",
+  "@twoFactorDoneEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorDoneDisabled": "2-step verification is off. Web sign-in is unavailable until you turn it on again.",
+  "@twoFactorDoneDisabled": {
+    "placeholders": {}
+  },
+  "twoFactorAlreadyEnabled": "2-step verification is already on for this account.",
+  "@twoFactorAlreadyEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorNext": "Next",
+  "@twoFactorNext": {
+    "placeholders": {}
+  },
+  "twoFactorCancel": "Cancel",
+  "@twoFactorCancel": {
+    "placeholders": {}
+  },
+  "twoFactorClose": "Close",
+  "@twoFactorClose": {
+    "placeholders": {}
+  },
+  "twoFactorErrInvalid": "Wrong or already used code. Wait for the next code and try again.",
+  "@twoFactorErrInvalid": {
+    "placeholders": {}
+  },
+  "twoFactorErrLocked": "Too many wrong codes. Try again at {time}.",
+  "@twoFactorErrLocked": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "twoFactorErrKeyMissing": "The server is not set up for 2-step verification (TOTP_ENCRYPTION_KEY is empty). Contact the server admin.",
+  "@twoFactorErrKeyMissing": {
+    "placeholders": {}
+  },
+  "twoFactorErrNotEnabled": "2-step verification is not on. Turn it on from the Hosted version card in the cashier app.",
+  "@twoFactorErrNotEnabled": {
+    "placeholders": {}
+  },
+  "twoFactorErrNotOwner": "This account does not own a store on this server.",
+  "@twoFactorErrNotOwner": {
+    "placeholders": {}
+  },
+  "twoFactorErrNoTenant": "This account has no hosted store yet.",
+  "@twoFactorErrNoTenant": {
+    "placeholders": {}
+  },
+  "twoFactorErrSessionExpired": "Your sign-in session ended. Sign in again.",
+  "@twoFactorErrSessionExpired": {
+    "placeholders": {}
+  },
+  "hostingWrongCredentials": "Wrong email or password.",
+  "@hostingWrongCredentials": {
+    "placeholders": {}
+  },
+  "hostingTooManyAttempts": "Too many sign-in attempts. Try again in a few minutes.",
+  "@hostingTooManyAttempts": {
+    "placeholders": {}
+  }
 }

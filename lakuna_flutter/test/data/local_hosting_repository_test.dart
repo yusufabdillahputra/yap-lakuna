@@ -39,10 +39,12 @@ void main() {
   late LocalHostingRepository repo;
   late StaffProfile owner;
   final connections = <FakeHostingConnection>[];
+  Object? nextLoginFailure;
   final now = DateTime.utc(2026, 11, 28, 8);
 
   setUp(() async {
     connections.clear();
+    nextLoginFailure = null;
     dir = await Directory.systemTemp.createTemp('lakuna_hosting_repo_');
     Directory('${dir.path}/data').createSync();
     store = await LakunaStore.open('${dir.path}/data/lakuna.sqlite');
@@ -69,7 +71,7 @@ void main() {
       lakunaServerUrl: '',
       clock: () => now,
       connect: (uri) {
-        final c = FakeHostingConnection(uri);
+        final c = FakeHostingConnection(uri)..loginFailure = nextLoginFailure;
         connections.add(c);
         return c;
       },
@@ -164,6 +166,85 @@ void main() {
       expect(connections.last.calls, contains('pairing:token-aktivasi'));
     },
   );
+
+  group('verifikasi 2 langkah (F2-02 aturan 12–14)', () {
+    Future<void> activeHosting() async {
+      await HostingVault.of(store).writeToken('token-aktivasi');
+      await writeSyncState(
+        store.session,
+        SyncStateKey.serverUrl,
+        'https://sync.contoh.id',
+      );
+      await repo.start();
+    }
+
+    test('sebelum versi hosting aktif ditolak', () async {
+      expect(_err(await repo.twoFactorEnabled()), isA<HostingNotActive>());
+      expect(
+        _err(await repo.twoFactorSignIn(email: 'a@b.id', password: 'x')),
+        isA<HostingNotActive>(),
+      );
+    });
+
+    test('status lewat token perangkat; aktifkan lewat sesi akun yang '
+        'ditutup setelah selesai', () async {
+      await activeHosting();
+      expect(_ok(await repo.twoFactorEnabled()), isFalse);
+      expect(
+        connections.last.calls,
+        contains('twoFactorEnabled:token-aktivasi'),
+      );
+      expect(_err(await repo.beginTwoFactor()), isA<HostingNotActive>());
+
+      final before = connections.length;
+      expect(
+        _ok(
+          await repo.twoFactorSignIn(
+            email: 'ani@contoh.id',
+            password: 'rahasia123',
+          ),
+        ),
+        isFalse,
+      );
+      final account = connections[before];
+      expect(account.server.toString(), 'https://sync.contoh.id/');
+      expect(account.calls, contains('login:ani@contoh.id'));
+      _ok(await repo.beginTwoFactor());
+      expect(_ok(await repo.confirmTwoFactor('123456')), hasLength(8));
+      repo.endTwoFactor();
+      expect(account.closed, isTrue);
+      expect(
+        _err(await repo.confirmTwoFactor('123456')),
+        isA<HostingNotActive>(),
+      );
+    });
+
+    test('login gagal: koneksi ditutup dan tidak disimpan', () async {
+      await activeHosting();
+      nextLoginFailure = Exception('kata sandi salah');
+      final before = connections.length;
+      expect(
+        await repo.twoFactorSignIn(email: 'ani@contoh.id', password: 'salah'),
+        isA<Error<bool>>(),
+      );
+      expect(connections[before].closed, isTrue);
+      expect(_err(await repo.beginTwoFactor()), isA<HostingNotActive>());
+    });
+
+    test('tanpa sync:manage ditolak', () async {
+      await activeHosting();
+      session.current = cashier();
+      expect(
+        _err(
+          await repo.twoFactorSignIn(
+            email: 'ani@contoh.id',
+            password: 'rahasia123',
+          ),
+        ),
+        isA<NotPermitted>(),
+      );
+    });
+  });
 
   test('berhenti: unduhan gambar lewat server dilepas', () async {
     await HostingVault.of(store).writeToken('token-aktivasi');

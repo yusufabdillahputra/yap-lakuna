@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart'
-    show PairingOutlet, SyncServerStatus, UuidValue;
+    show PairingOutlet, SyncServerStatus, TotpEnrollment, UuidValue;
 import 'package:lakuna_data/lakuna_data.dart'
     show HostingState, UploadGroupProgress;
 
@@ -11,7 +11,10 @@ export 'package:lakuna_client/lakuna_client.dart'
         ActivationException,
         ActivationFailure,
         PairingOutlet,
-        SyncServerStatus;
+        SyncServerStatus,
+        TotpEnrollment,
+        WebAccessException,
+        WebAccessFailure;
 export 'package:lakuna_data/lakuna_data.dart'
     show
         HostingAlreadyActive,
@@ -144,6 +147,32 @@ abstract class HostingRepository extends ChangeNotifier {
   void syncNow();
 
   Future<Result<PairingCodeShare>> createPairingCode();
+
+  // --- Verifikasi 2 langkah pemilik (F2-02 aturan 12–14) -----------------
+
+  /// Status verifikasi 2 langkah pemilik toko ini, dari server dengan token
+  /// perangkat (baris di kartu). Melempar [HostingNotActive] bila versi
+  /// hosting belum aktif.
+  Future<Result<bool>> twoFactorEnabled();
+
+  /// Login akun pemilik di server toko ini (sesi hanya di memori sampai
+  /// [endTwoFactor]); membalas status verifikasi 2 langkah akun itu.
+  Future<Result<bool>> twoFactorSignIn({
+    required String email,
+    required String password,
+  });
+
+  /// Rahasia TOTP baru untuk QR (butuh [twoFactorSignIn]).
+  Future<Result<TotpEnrollment>> beginTwoFactor();
+
+  /// Konfirmasi dengan satu kode; membalas 8 kode cadangan.
+  Future<Result<List<String>>> confirmTwoFactor(String code);
+
+  /// Matikan dengan kode authenticator atau kode cadangan.
+  Future<Result<void>> disableTwoFactor(String code);
+
+  /// Menutup sesi akun pemilik dari [twoFactorSignIn].
+  void endTwoFactor();
 
   // --- Gabung (perangkat baru) -------------------------------------------
 

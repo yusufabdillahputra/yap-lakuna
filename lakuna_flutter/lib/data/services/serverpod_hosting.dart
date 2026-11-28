@@ -52,6 +52,17 @@ abstract interface class HostingConnection implements HostingClient {
 
   /// Unggah dan unduh berkas media dengan [deviceToken] (aturan 19–20).
   MediaTransport mediaTransport(String deviceToken);
+
+  // --- Verifikasi 2 langkah pemilik (F2-02 aturan 12–14) -----------------
+  // Butuh [login] lebih dulu, kecuali [twoFactorEnabled].
+
+  Future<bool> totpStatus();
+  Future<TotpEnrollment> totpBegin();
+  Future<List<String>> totpConfirm(String code);
+  Future<void> totpDisable(String code);
+
+  /// Status verifikasi 2 langkah pemilik tenant perangkat [deviceToken].
+  Future<bool> twoFactorEnabled(String deviceToken);
   void close();
 }
 
@@ -151,6 +162,24 @@ class ServerpodHosting implements HostingConnection {
       platform,
     ),
   );
+
+  @override
+  Future<bool> totpStatus() => _guard(() => client.totp.status());
+
+  @override
+  Future<TotpEnrollment> totpBegin() => _guard(() => client.totp.begin());
+
+  @override
+  Future<List<String>> totpConfirm(String code) =>
+      _guard(() => client.totp.confirm(code.trim()));
+
+  @override
+  Future<void> totpDisable(String code) =>
+      _guard(() => client.totp.disable(code.trim()));
+
+  @override
+  Future<bool> twoFactorEnabled(String deviceToken) =>
+      _guard(() => client.webAccess.twoFactorEnabled(deviceToken));
 
   /// Transport sync dengan [deviceToken].
   @override

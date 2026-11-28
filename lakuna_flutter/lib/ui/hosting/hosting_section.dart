@@ -13,6 +13,7 @@ import '../settings/settings_card.dart';
 import 'activation_view.dart';
 import 'hosting_texts.dart';
 import 'hosting_view_model.dart';
+import 'two_factor_view_model.dart';
 
 /// Bagian *Versi hosting* di Pengaturan (F2-01): kartu status, atau stepper
 /// aktivasi 2.1 saat *Aktifkan versi hosting* ditekan.
@@ -22,6 +23,8 @@ class HostingSection extends StatelessWidget {
     required this.viewModel,
     required this.onJoin,
     this.timezone,
+    this.twoFactor,
+    this.onTwoFactor,
   });
 
   final HostingViewModel viewModel;
@@ -29,6 +32,10 @@ class HostingSection extends StatelessWidget {
   /// Membuka dialog gabung (perangkat ini dipakai untuk toko lain).
   final VoidCallback onJoin;
   final String? timezone;
+
+  /// Baris *Verifikasi 2 langkah* (hanya pemilik, F2-02 aturan 12).
+  final TwoFactorStatusViewModel? twoFactor;
+  final Future<void> Function(TwoFactorMode mode)? onTwoFactor;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -39,6 +46,8 @@ class HostingSection extends StatelessWidget {
             viewModel: viewModel,
             onJoin: onJoin,
             timezone: timezone,
+            twoFactor: twoFactor,
+            onTwoFactor: onTwoFactor,
           ),
   );
 }
@@ -48,11 +57,15 @@ class _HostingCard extends StatelessWidget {
     required this.viewModel,
     required this.onJoin,
     this.timezone,
+    this.twoFactor,
+    this.onTwoFactor,
   });
 
   final HostingViewModel viewModel;
   final VoidCallback onJoin;
   final String? timezone;
+  final TwoFactorStatusViewModel? twoFactor;
+  final Future<void> Function(TwoFactorMode mode)? onTwoFactor;
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +183,8 @@ class _HostingCard extends StatelessWidget {
             style: muted,
           ),
           if (vm.uploading) UploadProgressList(progress: vm.progress),
+          if (twoFactor case final tf? when onTwoFactor != null)
+            TwoFactorRow(status: tf, onManage: onTwoFactor!),
           if (state.paused)
             FAlert(
               key: const ValueKey('hosting-paused'),
@@ -242,6 +257,106 @@ class _HostingCard extends StatelessWidget {
       await showPairingCode(context, value, timezone: timezone);
     }
   }
+}
+
+/// Baris *Verifikasi 2 langkah · Aktif/Belum aktif* dengan tombol atur.
+class TwoFactorRow extends StatelessWidget {
+  const TwoFactorRow({super.key, required this.status, required this.onManage});
+
+  final TwoFactorStatusViewModel status;
+  final Future<void> Function(TwoFactorMode mode) onManage;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: status,
+    builder: (context, _) {
+      final l10n = AppLocalizations.of(context);
+      final theme = context.theme;
+      final enabled = status.enabled;
+      final label = switch (enabled) {
+        true => l10n.twoFactorOn,
+        false => l10n.twoFactorOff,
+        null => status.load.running ? '…' : l10n.twoFactorUnknown,
+      };
+      return Column(
+        key: const ValueKey('two-factor-row'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          Row(
+            spacing: 8,
+            children: [
+              Icon(
+                enabled == true
+                    ? TablerIcons.shieldCheck
+                    : TablerIcons.shieldLock,
+                size: 18,
+                color: enabled == true
+                    ? theme.colors.primary
+                    : theme.colors.mutedForeground,
+              ),
+              Expanded(
+                child: Text(
+                  '${l10n.twoFactorRowTitle} · $label',
+                  key: const ValueKey('two-factor-status'),
+                  style: theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            l10n.twoFactorRowBody,
+            style: theme.typography.body.sm.copyWith(
+              color: theme.colors.mutedForeground,
+            ),
+          ),
+          if (enabled != null)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (!enabled)
+                  FButton(
+                    key: const ValueKey('two-factor-enable'),
+                    mainAxisSize: .min,
+                    onPress: () => onManage(TwoFactorMode.enable),
+                    prefix: const Icon(TablerIcons.shieldLock),
+                    child: Flexible(child: Text(l10n.twoFactorEnable)),
+                  )
+                else ...[
+                  FButton(
+                    key: const ValueKey('two-factor-reset'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: () => onManage(TwoFactorMode.reset),
+                    prefix: const Icon(TablerIcons.refresh),
+                    child: Flexible(child: Text(l10n.twoFactorReset)),
+                  ),
+                  FButton(
+                    key: const ValueKey('two-factor-disable'),
+                    variant: .outline,
+                    mainAxisSize: .min,
+                    onPress: () => onManage(TwoFactorMode.disable),
+                    child: Flexible(child: Text(l10n.twoFactorDisable)),
+                  ),
+                ],
+              ],
+            )
+          else if (status.offline)
+            FButton(
+              key: const ValueKey('two-factor-retry'),
+              variant: .outline,
+              mainAxisSize: .min,
+              onPress: status.load.execute,
+              prefix: const Icon(TablerIcons.refresh),
+              child: Text(l10n.webPreparingRetry),
+            ),
+        ],
+      );
+    },
+  );
 }
 
 /// Progres unggah per kelompok (langkah 3 dan kartu saat unggah berjalan).

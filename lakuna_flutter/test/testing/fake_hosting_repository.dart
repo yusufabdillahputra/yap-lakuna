@@ -200,4 +200,82 @@ class FakeHostingRepository extends HostingRepository {
     );
     return const Result.ok(null);
   }
+
+  // --- Verifikasi 2 langkah: kode `123456` benar, kode cadangan
+  // `AAAA-BBBB` benar, kata sandi `rahasia123` benar.
+
+  var twoFactorOn = false;
+  Exception? twoFactorStatusError;
+  var twoFactorSession = false;
+
+  @override
+  Future<Result<bool>> twoFactorEnabled() async {
+    calls.add('twoFactorEnabled');
+    final e = twoFactorStatusError;
+    if (e != null) return Result.error(e);
+    return Result.ok(twoFactorOn);
+  }
+
+  @override
+  Future<Result<bool>> twoFactorSignIn({
+    required String email,
+    required String password,
+  }) async {
+    calls.add('twoFactorSignIn:$email');
+    if (password != 'rahasia123') {
+      return Result.error(
+        loginError ?? const HostingNotPermitted(),
+      );
+    }
+    twoFactorSession = true;
+    return Result.ok(twoFactorOn);
+  }
+
+  @override
+  Future<Result<TotpEnrollment>> beginTwoFactor() async {
+    calls.add('beginTwoFactor');
+    if (twoFactorOn) {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpAlreadyEnabled),
+      );
+    }
+    return Result.ok(
+      TotpEnrollment(
+        secretBase32: 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+        otpauthUri:
+            'otpauth://totp/Lakuna:sari%40contoh.id?secret='
+            'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Lakuna',
+      ),
+    );
+  }
+
+  @override
+  Future<Result<List<String>>> confirmTwoFactor(String code) async {
+    calls.add('confirmTwoFactor:$code');
+    if (code != '123456') {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpInvalid),
+      );
+    }
+    twoFactorOn = true;
+    return Result.ok([for (var i = 1; i <= 8; i++) 'KODE-000$i']);
+  }
+
+  @override
+  Future<Result<void>> disableTwoFactor(String code) async {
+    calls.add('disableTwoFactor:$code');
+    if (code != '123456' && code != 'AAAA-BBBB') {
+      return Result.error(
+        WebAccessException(failure: WebAccessFailure.totpInvalid),
+      );
+    }
+    twoFactorOn = false;
+    return const Result.ok(null);
+  }
+
+  @override
+  void endTwoFactor() {
+    calls.add('endTwoFactor');
+    twoFactorSession = false;
+  }
 }

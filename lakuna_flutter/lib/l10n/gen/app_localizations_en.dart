@@ -9788,4 +9788,141 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webProblemOtherTabBody =>
       'Use the tab that is already open, or close it and reload this page.';
+
+  @override
+  String get twoFactorRowTitle => '2-step verification';
+
+  @override
+  String get twoFactorOn => 'On';
+
+  @override
+  String get twoFactorOff => 'Not set up';
+
+  @override
+  String get twoFactorUnknown => 'Status needs internet';
+
+  @override
+  String get twoFactorRowBody =>
+      'Required to sign in to Lakuna on the web with the owner account.';
+
+  @override
+  String get twoFactorEnable => 'Turn on';
+
+  @override
+  String get twoFactorDisable => 'Turn off';
+
+  @override
+  String get twoFactorReset => 'Reset';
+
+  @override
+  String get twoFactorDialogTitle => '2-step verification';
+
+  @override
+  String get twoFactorPinBody => 'Enter your PIN to continue.';
+
+  @override
+  String get twoFactorPinLabel => 'PIN';
+
+  @override
+  String get twoFactorAccountBody =>
+      'Sign in with the store owner account on the Lakuna server.';
+
+  @override
+  String get twoFactorEmail => 'Email';
+
+  @override
+  String get twoFactorPassword => 'Password';
+
+  @override
+  String get twoFactorScanBody =>
+      'Scan the QR code with an authenticator app (e.g. Google Authenticator, Microsoft Authenticator, Aegis), then type the 6-digit code it shows.';
+
+  @override
+  String get twoFactorSecretLabel =>
+      'Can\'t scan? Type this key in the authenticator app:';
+
+  @override
+  String get twoFactorCopy => 'Copy';
+
+  @override
+  String get twoFactorCopied => 'Copied';
+
+  @override
+  String get twoFactorCodeLabel => '6-digit code';
+
+  @override
+  String get twoFactorBackupTitle => 'Save your backup codes';
+
+  @override
+  String get twoFactorBackupBody =>
+      'Each code can be used once to sign in if you lose your authenticator phone. They are shown only now: copy them or write them down somewhere safe.';
+
+  @override
+  String get twoFactorBackupCopy => 'Copy all';
+
+  @override
+  String get twoFactorBackupDone => 'I\'ve saved them';
+
+  @override
+  String get twoFactorDisableBody =>
+      'Type a code from the authenticator app or one of your backup codes.';
+
+  @override
+  String get twoFactorDisableCodeLabel => 'Authenticator code or backup code';
+
+  @override
+  String get twoFactorDoneEnabled =>
+      '2-step verification is on. You can now sign in to Lakuna on the web.';
+
+  @override
+  String get twoFactorDoneDisabled =>
+      '2-step verification is off. Web sign-in is unavailable until you turn it on again.';
+
+  @override
+  String get twoFactorAlreadyEnabled =>
+      '2-step verification is already on for this account.';
+
+  @override
+  String get twoFactorNext => 'Next';
+
+  @override
+  String get twoFactorCancel => 'Cancel';
+
+  @override
+  String get twoFactorClose => 'Close';
+
+  @override
+  String get twoFactorErrInvalid =>
+      'Wrong or already used code. Wait for the next code and try again.';
+
+  @override
+  String twoFactorErrLocked(String time) {
+    return 'Too many wrong codes. Try again at $time.';
+  }
+
+  @override
+  String get twoFactorErrKeyMissing =>
+      'The server is not set up for 2-step verification (TOTP_ENCRYPTION_KEY is empty). Contact the server admin.';
+
+  @override
+  String get twoFactorErrNotEnabled =>
+      '2-step verification is not on. Turn it on from the Hosted version card in the cashier app.';
+
+  @override
+  String get twoFactorErrNotOwner =>
+      'This account does not own a store on this server.';
+
+  @override
+  String get twoFactorErrNoTenant => 'This account has no hosted store yet.';
+
+  @override
+  String get twoFactorErrSessionExpired =>
+      'Your sign-in session ended. Sign in again.';
+
+  @override
+  String get hostingWrongCredentials => 'Wrong email or password.';
+
+  @override
+  String get hostingTooManyAttempts =>
+      'Too many sign-in attempts. Try again in a few minutes.';
 }

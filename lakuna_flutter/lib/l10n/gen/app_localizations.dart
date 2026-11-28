@@ -16370,6 +16370,246 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pakai tab yang sudah terbuka, atau tutup tab itu lalu muat ulang halaman ini.'**
   String get webProblemOtherTabBody;
+
+  /// No description provided for @twoFactorRowTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah'**
+  String get twoFactorRowTitle;
+
+  /// No description provided for @twoFactorOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get twoFactorOn;
+
+  /// No description provided for @twoFactorOff.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum aktif'**
+  String get twoFactorOff;
+
+  /// No description provided for @twoFactorUnknown.
+  ///
+  /// In id, this message translates to:
+  /// **'Status butuh internet'**
+  String get twoFactorUnknown;
+
+  /// No description provided for @twoFactorRowBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Wajib untuk masuk ke Lakuna versi web dengan akun pemilik.'**
+  String get twoFactorRowBody;
+
+  /// No description provided for @twoFactorEnable.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan'**
+  String get twoFactorEnable;
+
+  /// No description provided for @twoFactorDisable.
+  ///
+  /// In id, this message translates to:
+  /// **'Nonaktifkan'**
+  String get twoFactorDisable;
+
+  /// No description provided for @twoFactorReset.
+  ///
+  /// In id, this message translates to:
+  /// **'Atur ulang'**
+  String get twoFactorReset;
+
+  /// No description provided for @twoFactorDialogTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah'**
+  String get twoFactorDialogTitle;
+
+  /// No description provided for @twoFactorPinBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan PIN Anda untuk melanjutkan.'**
+  String get twoFactorPinBody;
+
+  /// No description provided for @twoFactorPinLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'PIN'**
+  String get twoFactorPinLabel;
+
+  /// No description provided for @twoFactorAccountBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk dengan akun pemilik toko di server Lakuna.'**
+  String get twoFactorAccountBody;
+
+  /// No description provided for @twoFactorEmail.
+  ///
+  /// In id, this message translates to:
+  /// **'Email'**
+  String get twoFactorEmail;
+
+  /// No description provided for @twoFactorPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi'**
+  String get twoFactorPassword;
+
+  /// No description provided for @twoFactorScanBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pindai kode QR dengan aplikasi authenticator (mis. Google Authenticator, Microsoft Authenticator, Aegis), lalu ketik kode 6 angka yang muncul.'**
+  String get twoFactorScanBody;
+
+  /// No description provided for @twoFactorSecretLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak bisa memindai? Ketik kunci ini di aplikasi authenticator:'**
+  String get twoFactorSecretLabel;
+
+  /// No description provided for @twoFactorCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin'**
+  String get twoFactorCopy;
+
+  /// No description provided for @twoFactorCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Disalin'**
+  String get twoFactorCopied;
+
+  /// No description provided for @twoFactorCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode 6 angka'**
+  String get twoFactorCodeLabel;
+
+  /// No description provided for @twoFactorBackupTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan kode cadangan'**
+  String get twoFactorBackupTitle;
+
+  /// No description provided for @twoFactorBackupBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Setiap kode bisa dipakai sekali untuk masuk bila ponsel authenticator hilang. Kode ini hanya tampil sekarang: salin atau catat di tempat aman.'**
+  String get twoFactorBackupBody;
+
+  /// No description provided for @twoFactorBackupCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin semua'**
+  String get twoFactorBackupCopy;
+
+  /// No description provided for @twoFactorBackupDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah saya simpan'**
+  String get twoFactorBackupDone;
+
+  /// No description provided for @twoFactorDisableBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketik kode dari aplikasi authenticator atau salah satu kode cadangan.'**
+  String get twoFactorDisableBody;
+
+  /// No description provided for @twoFactorDisableCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode authenticator atau kode cadangan'**
+  String get twoFactorDisableCodeLabel;
+
+  /// No description provided for @twoFactorDoneEnabled.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah aktif. Sekarang Anda bisa masuk ke Lakuna versi web.'**
+  String get twoFactorDoneEnabled;
+
+  /// No description provided for @twoFactorDoneDisabled.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah dinonaktifkan. Login web tidak bisa dipakai sampai diaktifkan lagi.'**
+  String get twoFactorDoneDisabled;
+
+  /// No description provided for @twoFactorAlreadyEnabled.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah akun ini sudah aktif.'**
+  String get twoFactorAlreadyEnabled;
+
+  /// No description provided for @twoFactorNext.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut'**
+  String get twoFactorNext;
+
+  /// No description provided for @twoFactorCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get twoFactorCancel;
+
+  /// No description provided for @twoFactorClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get twoFactorClose;
+
+  /// No description provided for @twoFactorErrInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode salah atau sudah dipakai. Tunggu kode berikutnya lalu coba lagi.'**
+  String get twoFactorErrInvalid;
+
+  /// No description provided for @twoFactorErrLocked.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak kode salah. Coba lagi pukul {time}.'**
+  String twoFactorErrLocked(String time);
+
+  /// No description provided for @twoFactorErrKeyMissing.
+  ///
+  /// In id, this message translates to:
+  /// **'Server belum diatur untuk verifikasi 2 langkah (TOTP_ENCRYPTION_KEY kosong). Hubungi admin server.'**
+  String get twoFactorErrKeyMissing;
+
+  /// No description provided for @twoFactorErrNotEnabled.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi 2 langkah belum aktif. Aktifkan dari kartu Versi hosting di aplikasi kasir.'**
+  String get twoFactorErrNotEnabled;
+
+  /// No description provided for @twoFactorErrNotOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun ini bukan pemilik toko di server ini.'**
+  String get twoFactorErrNotOwner;
+
+  /// No description provided for @twoFactorErrNoTenant.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun ini belum punya toko versi hosting.'**
+  String get twoFactorErrNoTenant;
+
+  /// No description provided for @twoFactorErrSessionExpired.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi login berakhir. Masuk lagi.'**
+  String get twoFactorErrSessionExpired;
+
+  /// No description provided for @hostingWrongCredentials.
+  ///
+  /// In id, this message translates to:
+  /// **'Email atau kata sandi salah.'**
+  String get hostingWrongCredentials;
+
+  /// No description provided for @hostingTooManyAttempts.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak percobaan masuk. Coba lagi beberapa menit lagi.'**
+  String get hostingTooManyAttempts;
 }
 
 class _AppLocalizationsDelegate
