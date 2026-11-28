@@ -208,25 +208,10 @@ Future<void> rebuildStockLevels(LakunaStore store) =>
       final movements = await StockMovement.db.find(
         session,
         where: (m) => m.deletedAt.equals(null),
-        orderByList: (m) => [m.occurredAt, m.id],
+        orderByList: (m) => [m.occurredAt, m.hlc, m.id],
         transaction: tx,
       );
-      final levels = <(UuidValue, UuidValue), (Qty, Money)>{};
-      for (final m in movements) {
-        final key = (m.stockLocationId, m.variantId);
-        final (onHand, avg) = levels[key] ?? (Qty.zero, Money.zero);
-        final quantity = Qty(m.quantityMilli);
-        levels[key] = (
-          onHand + quantity,
-          levelAverageCost(
-            onHand: onHand,
-            avgCost: avg,
-            quantity: quantity,
-            unitCost: Money(m.unitCost),
-            sourceType: m.sourceType,
-          ),
-        );
-      }
+      final levels = _levelsFrom(movements);
       if (levels.isEmpty) return;
       await StockLevel.db.insert(session, [
         for (final MapEntry(key: (location, variant), value: (qty, avg))
@@ -239,3 +224,84 @@ Future<void> rebuildStockLevels(LakunaStore store) =>
           ),
       ], transaction: tx);
     });
+
+/// Membangun ulang `stock_levels` hanya untuk pasangan varian+lokasi
+/// [keys] (setelah pull, F2-01 aturan 17), urut `occurred_at` lalu `hlc`.
+/// Memakai [transaction] bila diberikan.
+Future<void> rebuildStockLevelsFor(
+  LakunaStore store,
+  Set<({UuidValue variantId, UuidValue locationId})> keys, {
+  Transaction? transaction,
+}) async {
+  if (keys.isEmpty) return;
+  Future<void> body(Transaction tx) async {
+    final session = store.session;
+    final variants = {for (final k in keys) k.variantId};
+    final levelsOld = await StockLevel.db.find(
+      session,
+      where: (l) => l.variantId.inSet(variants),
+      transaction: tx,
+    );
+    final stale = [
+      for (final l in levelsOld)
+        if (keys.contains((
+          variantId: l.variantId,
+          locationId: l.stockLocationId,
+        )))
+          l,
+    ];
+    if (stale.isNotEmpty) {
+      await StockLevel.db.delete(session, stale, transaction: tx);
+    }
+    final movements = await StockMovement.db.find(
+      session,
+      where: (m) => m.deletedAt.equals(null) & m.variantId.inSet(variants),
+      orderByList: (m) => [m.occurredAt, m.hlc, m.id],
+      transaction: tx,
+    );
+    final levels = _levelsFrom([
+      for (final m in movements)
+        if (keys.contains((
+          variantId: m.variantId,
+          locationId: m.stockLocationId,
+        )))
+          m,
+    ]);
+    if (levels.isEmpty) return;
+    await StockLevel.db.insert(session, [
+      for (final MapEntry(key: (location, variant), value: (qty, avg))
+          in levels.entries)
+        StockLevel(
+          stockLocationId: location,
+          variantId: variant,
+          quantityMilli: qty.milli,
+          avgCost: avg.value,
+        ),
+    ], transaction: tx);
+  }
+
+  if (transaction != null) return body(transaction);
+  return store.session.db.transaction(body);
+}
+
+Map<(UuidValue, UuidValue), (Qty, Money)> _levelsFrom(
+  List<StockMovement> movements,
+) {
+  final levels = <(UuidValue, UuidValue), (Qty, Money)>{};
+  for (final m in movements) {
+    final key = (m.stockLocationId, m.variantId);
+    final (onHand, avg) = levels[key] ?? (Qty.zero, Money.zero);
+    final quantity = Qty(m.quantityMilli);
+    levels[key] = (
+      onHand + quantity,
+      levelAverageCost(
+        onHand: onHand,
+        avgCost: avg,
+        quantity: quantity,
+        unitCost: Money(m.unitCost),
+        sourceType: m.sourceType,
+      ),
+    );
+  }
+  return levels;
+}
