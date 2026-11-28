@@ -67,6 +67,12 @@ Paket web di VPS menyusul di v0.172.0.
   `reports:view`), `DashboardViewModel` (`Command0 load`, `Command1
   exportExcel`, timer 60 detik), `MenuEntry.hostingOnly` +
   `hostingMenuOn`, `AppShell` ikut mendengarkan status hosting.
+- Perbaikan dari review sebelum rilis: pilihan cabang yang dibuat saat
+  muat ulang berkala berjalan tidak lagi hilang (muatan diulang untuk
+  pilihan terbaru, hasil lama dibuang); angka penjualan lokal tidak
+  menunggu `tenantStatus` (status perangkat dimuat terpisah); timer tidak
+  dibuat bila layar ditutup sebelum muatan pertama selesai; jam yang
+  returnya lebih besar dari penjualan (negatif) tidak merusak grafik.
 - Uji manual: perangkat Linux (Xvfb) dengan versi hosting aktif ke server
   lokal, data demo dua cabang (Pusat dan Kemang): pilih cabang, Unduh
   laporan (isi Excel diperiksa), tautan Stok minimum; terang, gelap,
