@@ -25,9 +25,7 @@ class LocalBackupRepository implements BackupRepository {
     DateTime Function()? clock,
     Directory? exportDirectory,
   }) : _clock = clock ?? DateTime.now,
-       _exports =
-           exportDirectory ??
-           Directory(p.join(Directory.systemTemp.path, 'lakuna-backup-ekspor'));
+       _exportOverride = exportDirectory;
 
   final LakunaStore _store;
   final StoreRepository _stores;
@@ -40,7 +38,12 @@ class LocalBackupRepository implements BackupRepository {
   /// (salinan penuh data toko) dihapus setiap kali backup baru dibuat; di
   /// ponsel berkas tidak dihapus segera karena aplikasi tujuan bagikan
   /// mungkin masih membacanya.
-  final Directory _exports;
+  // Dihitung saat pertama dipakai: `Directory.systemTemp` tidak ada di
+  // browser, dan versi web tidak memakai backup lokal (F2-02 aturan 9).
+  late final Directory _exports =
+      _exportOverride ??
+      Directory(p.join(Directory.systemTemp.path, 'lakuna-backup-ekspor'));
+  final Directory? _exportOverride;
 
   String get _dataDir => p.dirname(_store.path);
 

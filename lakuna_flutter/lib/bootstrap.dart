@@ -8,6 +8,7 @@ import 'data/repositories/backup_repository.dart';
 import 'data/repositories/local_backup_repository.dart';
 import 'data/services/backup_files.dart';
 import 'config/app_environment.dart';
+import 'config/app_platform.dart';
 import 'data/repositories/app_settings_repository.dart';
 import 'data/repositories/cash_drawer_repository.dart';
 import 'data/repositories/cashier_repository.dart';
@@ -53,6 +54,7 @@ import 'data/repositories/stock_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/services/auto_backup.dart';
 import 'data/services/receipt_printer.dart';
+import 'data/services/web_session_store.dart' show WebSessionLost;
 import 'routing/router.dart';
 import 'utils/result.dart';
 import 'ui/settings/app_settings_view_model.dart';
@@ -68,9 +70,12 @@ class AppInstance {
 }
 
 /// Membuka database di [databasePath] dan merangkai semua repositori.
-Future<AppInstance> bootstrap(String databasePath) async {
+Future<AppInstance> bootstrap(
+  String databasePath, {
+  AppPlatform platform = AppPlatform.current,
+}) async {
   final store = await LakunaStore.open(databasePath, isDebugMode: kDebugMode);
-  await finishRestore(store);
+  if (platform.supportsLocalBackup) await finishRestore(store);
   final environment = AppEnvironment(
     databasePath: databasePath,
     deviceId: store.deviceId.uuid,
@@ -80,10 +85,22 @@ Future<AppInstance> bootstrap(String databasePath) async {
   final settingsRepository = LocalAppSettingsRepository(preferences);
   final settings = AppSettingsViewModel(repository: settingsRepository);
   await settings.load.execute();
-  final storeRepository = LocalStoreRepository(store);
+  // Web: cabang pilihan diingat per tenant (F2-02 aturan 2a).
+  final storeRepository = LocalStoreRepository(
+    store,
+    preferences: platform.isWeb ? preferences : null,
+  );
   if (await storeRepository.load() case Error(:final error)) {
     // Wizard tetap tampil; galatnya dicatat agar bisa dilacak.
     debugPrint('Konteks toko gagal dimuat: $error');
+  }
+  // Web tidak pernah membuat toko baru: database sesi tanpa toko atau
+  // tanpa token berarti sesi hilang (F2-02 aturan 1).
+  if (platform.isWeb &&
+      (storeRepository.current == null ||
+          await tokenVaultOf(store).readToken() == null)) {
+    await store.close();
+    throw const WebSessionLost();
   }
   final sessionRepository = LocalSessionRepository(
     store,
@@ -203,8 +220,14 @@ Future<AppInstance> bootstrap(String databasePath) async {
     appVersion: appVersion,
   );
   await hostingRepository.start();
+  // Web: staf bertugas = pemilik tenant, tanpa PIN (F2-02 aturan 4).
+  if (platform.isWeb) {
+    if (storeRepository.current case final ctx?) {
+      sessionRepository.startOwnerSession(ctx);
+    }
+  }
   // Backup otomatis di desktop (F1-19d, F1-19e).
-  final autoBackup = autoBackupSupported
+  final autoBackup = platform.supportsLocalBackup && autoBackupSupported
       ? (AutoBackupScheduler(
           repository: backupRepository,
           folder: autoBackupDirectory,
@@ -221,6 +244,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
       providers: [
         Provider<LakunaStore>.value(value: store),
         Provider<AppEnvironment>.value(value: environment),
+        Provider<AppPlatform>.value(value: platform),
         Provider<AppSettingsRepository>.value(value: settingsRepository),
         ChangeNotifierProvider<AppSettingsViewModel>.value(value: settings),
         ChangeNotifierProvider<StoreRepository>.value(value: storeRepository),
@@ -285,6 +309,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
           backup: backupRepository,
           backupFiles: backupFiles,
           hosting: hostingRepository,
+          platform: platform,
         ),
       ),
     ),

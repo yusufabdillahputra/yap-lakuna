@@ -134,6 +134,10 @@ class KitchenPrinterViewModel extends ChangeNotifier {
 
   bool get supportsBluetooth => _printer.supportsBluetooth;
 
+  /// Printer langsung (jaringan atau Bluetooth) bisa dipakai di sini.
+  bool get supportsDirect =>
+      _printer.supportsNetwork || _printer.supportsBluetooth;
+
   /// Printer dapur tersimpan; `null` = sama dengan printer struk.
   KitchenPrinter? get kitchen => _kitchen;
 

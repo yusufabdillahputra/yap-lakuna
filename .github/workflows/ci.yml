@@ -158,6 +158,22 @@ jobs:
       - working-directory: lakuna_flutter
         run: flutter test
 
+  build-web:
+    name: Build web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Aset SQLite web cocok dengan pubspec.lock
+        run: sh tool/web_sqlite_assets.sh --check
+      - working-directory: lakuna_flutter
+        run: flutter build web --release --no-web-resources-cdn --base-href /app/
+      - name: Build web tanpa aset internet
+        run: sh tool/check_web_offline.sh lakuna_flutter/build/web
+
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest

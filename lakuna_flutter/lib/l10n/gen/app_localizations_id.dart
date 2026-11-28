@@ -9438,4 +9438,71 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get hostingUploadBackground => 'Lanjut di latar';
+
+  @override
+  String get webOutletPickerTitle => 'Pilih cabang';
+
+  @override
+  String webOutletPickerLabel(String name) {
+    return 'Cabang: $name';
+  }
+
+  @override
+  String get webOutletPickerCancel => 'Batal';
+
+  @override
+  String get webJoinTitle => 'Masuk ke toko versi hosting';
+
+  @override
+  String get webJoinBody =>
+      'Buat kode pasang di aplikasi kasir (Pengaturan › Versi hosting › Pasang perangkat), lalu tempel di sini. Browser ini menjadi perangkat back office toko.';
+
+  @override
+  String get webJoinServerLabel => 'Alamat server';
+
+  @override
+  String get webJoinCodeLabel => 'Kode pasang';
+
+  @override
+  String get webJoinSubmit => 'Masuk';
+
+  @override
+  String get webJoinNoOutlet => 'Toko ini belum punya cabang aktif.';
+
+  @override
+  String get webPreparingTitle => 'Menyiapkan data toko';
+
+  @override
+  String get webPreparingBody =>
+      'Data toko ditarik ke browser ini. Bila tab tertutup, proses dilanjutkan saat halaman dibuka lagi.';
+
+  @override
+  String webPreparingProgress(String done, String total) {
+    return '$done dari $total perubahan';
+  }
+
+  @override
+  String webPreparingCount(String done) {
+    return '$done perubahan diterima';
+  }
+
+  @override
+  String get webPreparingCancel => 'Batal';
+
+  @override
+  String get webPreparingRetry => 'Coba lagi';
+
+  @override
+  String get webProblemStorageTitle => 'Penyimpanan ditolak';
+
+  @override
+  String get webProblemStorageBody =>
+      'Browser ini tidak mengizinkan penyimpanan data. Matikan mode privat atau pakai browser lain.';
+
+  @override
+  String get webProblemOtherTabTitle => 'Lakuna sudah terbuka di tab lain';
+
+  @override
+  String get webProblemOtherTabBody =>
+      'Pakai tab yang sudah terbuka, atau tutup tab itu lalu muat ulang halaman ini.';
 }

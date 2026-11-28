@@ -8,9 +8,13 @@ void main() {
     final forbidden = RegExp(
       r'Image\.network|NetworkImage|google_fonts|package:http/',
     );
+    // Transport sync versi hosting memang memakai jaringan (unduh media
+    // dari server toko di browser, F2-02 aturan 9), bukan aset aplikasi.
+    const syncTransport = 'lib/data/services/serverpod_hosting.dart';
     final offenders = <String>[];
     for (final entity in Directory('lib').listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      if (entity.path == syncTransport) continue;
       final lines = entity.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
         if (forbidden.hasMatch(lines[i])) {

@@ -7,6 +7,100 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.169.0] - 2026-11-28
+
+Tahap 1 modul F2-02 (versi web dan dashboard): aplikasi Lakuna yang sama
+berjalan di browser sebagai perangkat back office toko versi hosting. Data
+toko disimpan di browser (SQLite di penyimpanan OPFS) dan tersinkron
+dengan server seperti perangkat kasir. Tahap ini masuk memakai kode pasang
+perangkat; login web pemilik dengan verifikasi 2 langkah menyusul di
+v0.170.0, dashboard semua cabang di v0.171.0, dan paket web di VPS di
+v0.172.0.
+
+### Ditambahkan
+
+- **Layar masuk web**: tempel kode pasang dari aplikasi kasir (Pengaturan
+  › Versi hosting › Pasang perangkat), boleh dalam bentuk
+  `<alamat>#<kode>`. Alamat server terisi asal halaman. Browser menjadi
+  perangkat web baru di toko.
+- **Menyiapkan data toko**: pull pertama ke browser dengan progres
+  "n dari m perubahan", tombol *Coba lagi* bila putus dan *Batal*.
+  Tab yang tertutup di tengah pull dilanjutkan dari kursor saat halaman
+  dibuka lagi, tanpa kode pasang dan tanpa perangkat baru.
+- **Pemilih cabang** di bilah atas web (toko dengan lebih dari satu
+  cabang). Stok, laporan, pembelian, dan pengaturan outlet bekerja pada
+  cabang terpilih; pilihan diingat per toko di browser. Nomor dokumen
+  dari web memakai kode cabang terpilih dan kode perangkat web, mis.
+  penyesuaian stok `SA-KMG-W01-…`.
+- **Kode perangkat web dari server**: `W01`, `W02`, … unik per toko.
+  Perangkat web berasal dari cabang tertua toko.
+- Pesan saat browser menolak penyimpanan (mode privat): "Browser ini
+  tidak mengizinkan penyimpanan data. Matikan mode privat atau pakai
+  browser lain." dan saat Lakuna sudah terbuka di tab lain (kunci Web
+  Locks agar database tidak dibuka dua kali).
+- Job CI **Build web** (`flutter build web --release
+  --no-web-resources-cdn --base-href /app/`) dengan cek tanpa aset
+  internet (`tool/check_web_offline.sh`) dan cek versi aset SQLite web
+  (`tool/web_sqlite_assets.sh --check`).
+
+### Diubah
+
+- Di web tidak ada menu dan modul Beranda **Kasir**, **Meja**, dan
+  **Sesi kasir**, juga *Ganti kasir* dan bagian *Data & backup*; rute itu
+  dialihkan ke Beranda. Pemilik langsung masuk tanpa PIN.
+- Struk PDF dan ekspor Excel di web diunduh browser. Di web printer struk
+  hanya *Dialog cetak* browser; printer jaringan, Bluetooth, dan printer
+  dapur/bar tidak ditawarkan.
+- Ganti cabang di web kembali ke Beranda cabang baru; halaman yang
+  terbuka dibuat ulang agar data cabang lama tidak terbawa.
+- Database sesi web yang kosong atau rusak (mis. penyimpanan browser
+  dihapus) membuang sesi dan menampilkan layar masuk lagi, bukan wizard
+  *Buat toko baru*.
+- Foto produk di web disimpan di memori tab dan diunduh lagi dari server
+  saat dibutuhkan; foto baru tetap disimpan sampai terunggah.
+- `index.html` dan `manifest.json` web: bahasa Indonesia, warna tema
+  Sky, tanpa komentar templat.
+- Balasan pull sync memuat `remaining` (sisa perubahan toko setelah
+  halaman itu) untuk progres.
+
+### Diperbaiki
+
+- Aplikasi web gagal dibuka ("Unsupported operation: _Namespace") karena
+  folder ekspor backup dihitung saat aplikasi mulai; kini dihitung saat
+  backup pertama dibuat.
+
+### Keamanan
+
+- Build web tidak memuat CanvasKit atau font cadangan dari Google: semua
+  aset dari server toko sendiri (`fontFallbackBaseUrl` lokal), tanpa
+  header COOP/COEP sehingga gambar dari domain media tetap bisa dimuat.
+- Kode perangkat `W` + angka dicadangkan untuk perangkat web; perangkat
+  kasir baru tidak bisa memakainya.
+- Gabung web dengan kode pasang membuka sesi pemilik tanpa PIN; ini
+  sementara untuk tahap 1. Build web belum disajikan di paket VPS sampai
+  login pemilik dengan verifikasi 2 langkah (v0.170.0) menggantikannya.
+
+### Catatan teknis
+
+- `AppPlatform` (`isWeb`, `supportsCashier`, `supportsLocalBackup`)
+  diteruskan ke router, menu, Beranda, dan bilah atas. `MenuEntry.deviceOnly`
+  menandai menu perangkat kasir.
+- `WebSessionStore` (localStorage): database sesi aktif, gabung tertunda,
+  antrean hapus database lama, `claim()` untuk kunci tab dan cek
+  penyimpanan. `WebJoinRepository` + `WebJoinViewModel` + `WebJoinApp`.
+- `lakuna_data`: `MediaBlobs` (berkas atau memori), `TokenVault` di
+  `sync_state` untuk web, `prepareWebSession` / `readWebSession` /
+  `joinHostingWeb`, `deleteWebDatabase` (OPFS + IndexedDB di web),
+  `loadStoreContext(outletId:)`. `lakuna_data` tidak lagi mengimpor
+  `dart:io` di jalur yang dipakai web.
+- Aset SQLite web (`sqlite3.wasm`, `db_worker.js`) dibuat
+  `tool/web_sqlite_assets.sh` dari versi di `pubspec.lock` dan
+  di-commit.
+- Uji manual: server lokal + perangkat Linux (Xvfb) membuat kode pasang,
+  Chromium (Playwright) masuk, pilih cabang, ubah nama produk, dan
+  perubahan tampil di perangkat Linux setelah sync; tab kedua, mode
+  gelap.
+
 ## [0.168.0] - 2026-11-28
 
 Tahap 5 Fase 2 (F2-01), tahap terakhir modul sync: paket server untuk VPS
@@ -9519,7 +9613,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.168.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.169.0...HEAD
+[0.169.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.168.0...v0.169.0
 [0.168.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...v0.168.0
 [0.167.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...v0.167.0
 [0.166.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...v0.166.0

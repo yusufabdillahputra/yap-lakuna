@@ -1,17 +1,23 @@
 import 'dart:typed_data';
-import 'dart:io';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_client/migrations/migration_registry.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:serverpod_database/serverpod_database.dart' hide Protocol;
 
+import 'platform/media_blobs.dart';
 import 'sync_state.dart';
 import 'sync_tx.dart';
 
 /// Database lokal Lakuna (SQLite di perangkat) beserta identitas perangkat.
 class LakunaStore {
-  LakunaStore._(this.session, this.deviceId, this._clock, this.path);
+  LakunaStore._(
+    this.session,
+    this.deviceId,
+    this._clock,
+    this.path,
+    this.media,
+  );
 
   /// Sesi database sisi klien Serverpod.
   final ClientDatabaseSession session;
@@ -27,15 +33,22 @@ class LakunaStore {
   /// Lokasi file database.
   final String path;
 
-  /// Folder berkas media (stiker QRIS, foto) di samping database.
-  String get mediaDirectory =>
-      '${File(path).parent.path}${Platform.pathSeparator}media';
+  /// Isi berkas media (stiker QRIS, foto): folder `media` di samping
+  /// database, atau cache memori di web (F2-02 aturan 8).
+  final MediaBlobs media;
+
+  /// Folder berkas media di samping database (hanya native).
+  String get mediaDirectory => switch (media) {
+    FileMediaBlobs(:final directory) => directory,
+    _ => throw UnsupportedError('Media perangkat ini tidak berupa folder'),
+  };
 
   /// Membuka (atau membuat) database di [path] dan menjalankan migrasi.
   static Future<LakunaStore> open(
     String path, {
     DateTime Function()? clock,
     bool isDebugMode = false,
+    MediaBlobs? media,
   }) async {
     final session = await ClientDatabaseSession.open(
       path,
@@ -54,7 +67,13 @@ class LakunaStore {
       await writeSyncState(session, SyncStateKey.deviceId, id, transaction: tx);
       return UuidValue.fromString(id);
     });
-    return LakunaStore._(session, deviceId, clock ?? DateTime.now, path);
+    return LakunaStore._(
+      session,
+      deviceId,
+      clock ?? DateTime.now,
+      path,
+      media ?? defaultMediaBlobs(path),
+    );
   }
 
   /// Dipanggil setelah setiap transaksi [write] berhasil (mis. penjadwal

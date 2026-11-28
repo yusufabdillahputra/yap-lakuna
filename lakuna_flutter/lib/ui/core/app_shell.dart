@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lakuna_client/lakuna_client.dart' show Outlet;
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../config/app_platform.dart';
 import '../../data/repositories/hosting_repository.dart';
 import '../../data/repositories/session_repository.dart';
+import '../../data/repositories/store_repository.dart';
+import '../../utils/result.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../login/login_view.dart' show roleLabel;
 import 'breakpoints.dart';
@@ -27,11 +31,19 @@ class AppShell extends StatelessWidget {
     this.canSwitch,
     this.hosting,
     this.timezone,
+    this.platform = AppPlatform.native,
+    this.store,
   });
 
   /// Versi hosting (F2-01): chip status menggantikan *Offline · data di
   /// perangkat ini* saat aktif.
   final HostingRepository? hosting;
+
+  /// Web menyembunyikan menu perangkat (F2-02 aturan 3).
+  final AppPlatform platform;
+
+  /// Toko untuk pemilih cabang di web (F2-02 aturan 2a).
+  final StoreRepository? store;
 
   /// Zona waktu cabang untuk jam *Tersinkron · 14.32*.
   final String? timezone;
@@ -79,7 +91,9 @@ class AppShell extends StatelessWidget {
                       : null,
                 ),
               ),
-              if (staff != null)
+              if (platform.isWeb && store != null)
+                _OutletPicker(store: store!, canSwitch: canSwitch),
+              if (staff != null && platform.supportsCashier)
                 _StaffSwitcher(
                   staff: staff,
                   // Tablet sempit: sidebar 200 px menyisakan sedikit ruang.
@@ -89,8 +103,8 @@ class AppShell extends StatelessWidget {
             ],
           );
           if (mobile) {
-            final items = mobileMenu(permissions);
-            final more = mobileMoreMenu(permissions);
+            final items = mobileMenu(permissions, platform: platform);
+            final more = mobileMoreMenu(permissions, platform: platform);
             final primary = items.indexWhere(_isSelected);
             final inMore = more.expand((g) => g.entries).any(_isSelected);
             return FScaffold(
@@ -125,7 +139,7 @@ class AppShell extends StatelessWidget {
           return FScaffold(
             header: header,
             sidebar: _Sidebar(
-              groups: visibleMenu(permissions),
+              groups: visibleMenu(permissions, platform: platform),
               compact: size == LayoutSize.tablet,
               isSelected: _isSelected,
             ),
@@ -184,6 +198,114 @@ class AppShell extends StatelessWidget {
                   ],
                 ],
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Pemilih cabang di bilah atas web (F2-02 aturan 2a): tampil bila tenant
+/// punya lebih dari satu cabang. Form yang belum disimpan ditanyakan
+/// lebih dulu lewat [canSwitch].
+class _OutletPicker extends StatefulWidget {
+  const _OutletPicker({required this.store, this.canSwitch});
+
+  final StoreRepository store;
+  final Future<bool> Function()? canSwitch;
+
+  @override
+  State<_OutletPicker> createState() => _OutletPickerState();
+}
+
+class _OutletPickerState extends State<_OutletPicker> {
+  var _outlets = const <Outlet>[];
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    final result = await widget.store.outlets();
+    if (!mounted) return;
+    if (result case Ok(:final value)) setState(() => _outlets = value);
+  }
+
+  Future<void> _pick() async {
+    final l10n = AppLocalizations.of(context);
+    final current = widget.store.current?.outlet.id;
+    final picked = await showFDialog<Outlet>(
+      context: context,
+      useRootNavigator: true,
+      builder: (context, style, animation) => FDialog(
+        animation: animation,
+        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+        builder: (context, style) => Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            key: const ValueKey('outlet-picker-dialog'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 8,
+            children: [
+              Text(
+                l10n.webOutletPickerTitle,
+                style: context.theme.typography.display.lg.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              for (final o in _outlets)
+                FTile(
+                  key: ValueKey('outlet-${o.code}'),
+                  title: Text(o.name),
+                  subtitle: Text(o.code),
+                  suffix: o.id == current
+                      ? const Icon(TablerIcons.check)
+                      : null,
+                  onPress: () => Navigator.of(context).pop(o),
+                ),
+              FButton(
+                variant: .outline,
+                onPress: () => Navigator.of(context).pop(),
+                child: Text(l10n.webOutletPickerCancel),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked == null || picked.id == current) return;
+    final canSwitch = widget.canSwitch;
+    if (canSwitch != null && !await canSwitch()) return;
+    final result = await widget.store.switchOutlet(picked.id);
+    // Halaman yang terbuka memegang data cabang lama: mulai lagi dari
+    // Beranda cabang baru.
+    if (result is Ok && mounted) context.go(Routes.home);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_outlets.length < 2) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: widget.store,
+      builder: (context, _) {
+        final name = widget.store.current?.outlet.name ?? '';
+        return Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Semantics(
+            label: l10n.webOutletPickerLabel(name),
+            child: FButton(
+              key: const ValueKey('outlet-picker'),
+              variant: .outline,
+              size: .sm,
+              mainAxisSize: .min,
+              prefix: const Icon(TablerIcons.buildingStore),
+              onPress: () => unawaited(_pick()),
+              child: Text(name, overflow: TextOverflow.ellipsis),
             ),
           ),
         );

@@ -43,6 +43,7 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 900),
     bool bluetooth = true,
+    bool network = true,
     FakeImagePicker? picker,
     List<ProductCategory> categories = const [],
   }) async {
@@ -52,8 +53,10 @@ void main() {
         defaultHeader: 'Jl. Melati No. 12',
       ),
     )..categories = categories;
-    final printer = FakeReceiptPrinter(supportsBluetooth: bluetooth)
-      ..paired = [rpp];
+    final printer = FakeReceiptPrinter(
+      supportsBluetooth: bluetooth,
+      supportsNetwork: network,
+    )..paired = [rpp];
     await pumpLakuna(
       tester,
       size: size,
@@ -131,6 +134,15 @@ void main() {
     await _tap(tester, 'printer-forget');
     expect(repo.printer, isNull);
     expect(find.text('Belum ada printer'), findsOneWidget);
+  });
+
+  testWidgets('web: hanya dialog cetak browser, tanpa printer jaringan dan '
+      'printer dapur (F2-02 aturan 9)', (tester) async {
+    await pump(tester, bluetooth: false, network: false);
+    expect(_key('printer-kind-network'), findsNothing);
+    expect(_key('printer-kind-bluetooth'), findsNothing);
+    expect(_key('printer-kind-system'), findsOneWidget);
+    expect(_key('kitchen-printer'), findsNothing);
   });
 
   testWidgets('ponsel tanpa Bluetooth: printer jaringan', (tester) async {

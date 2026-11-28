@@ -8,6 +8,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_domain/lakuna_domain.dart'
     show Permission, normalizeShortCode;
 
+import 'platform/token_vault.dart';
 import 'staff_access.dart';
 import 'store.dart';
 import 'store_setup.dart';
@@ -157,7 +158,7 @@ class HostingJoinIncomplete extends HostingException {
 /// Token perangkat versi hosting, disimpan di berkas di samping database
 /// (`hosting/device-token`, izin 600 di desktop) agar tidak ikut backup
 /// F1-19. Penyimpanan aman platform dicatat sebagai gap.
-class HostingVault {
+class HostingVault implements TokenVault {
   HostingVault(this.dataDir);
 
   factory HostingVault.of(LakunaStore store) =>
@@ -172,6 +173,7 @@ class HostingVault {
     '${Platform.pathSeparator}device-token',
   );
 
+  @override
   Future<String?> readToken() async {
     final file = _file;
     if (!file.existsSync()) return null;
@@ -179,6 +181,7 @@ class HostingVault {
     return token.isEmpty ? null : token;
   }
 
+  @override
   Future<void> writeToken(String token) async {
     final file = _file;
     await file.parent.create(recursive: true);
@@ -199,6 +202,7 @@ class HostingVault {
     }
   }
 
+  @override
   Future<void> deleteToken() async {
     final file = _file;
     if (file.existsSync()) await file.delete();
@@ -262,7 +266,7 @@ int compareVersions(String a, String b) {
 Future<HostingState> loadHostingState(LakunaStore store) async {
   final session = store.session;
   final serverUrl = await store.syncState(SyncStateKey.serverUrl);
-  final token = await HostingVault.of(store).readToken();
+  final token = await tokenVaultOf(store).readToken();
   final pending = await SyncOutboxEntry.db.count(
     session,
     where: (e) =>
@@ -341,7 +345,7 @@ Future<void> activateHosting(
     deviceCode: ctx.device.code,
   );
   // Token hanya dikirim sekali: simpan sebelum langkah lain.
-  await HostingVault.of(store).writeToken(result.deviceToken);
+  await tokenVaultOf(store).writeToken(result.deviceToken);
   await store.session.db.transaction((tx) async {
     await writeSyncState(
       store.session,
@@ -368,7 +372,7 @@ Future<String> createHostingPairingCode(
   required HostingClient client,
 }) async {
   await _requireSyncManager(store, ctx, staffId);
-  final token = await HostingVault.of(store).readToken();
+  final token = await tokenVaultOf(store).readToken();
   if (token == null || !(await loadHostingState(store)).active) {
     throw const HostingNotActive();
   }
@@ -455,7 +459,7 @@ Future<SyncCycleResult> runHostingCycle(
 /// outbox dan kursor di backup bisa basi, jadi perangkat dipasang ulang
 /// sebagai perangkat baru.
 Future<void> disableHosting(LakunaStore store) async {
-  await HostingVault.of(store).deleteToken();
+  await tokenVaultOf(store).deleteToken();
   await writeSyncState(store.session, SyncStateKey.serverUrl, '');
   // Aktivasi berikutnya (bisa ke server lain) mulai dari awal: outbox
   // dipadatkan ulang dan pull dari seq 0.

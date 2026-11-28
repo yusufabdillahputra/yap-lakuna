@@ -49,6 +49,10 @@ abstract class ReceiptPrinter {
   /// Printer Bluetooth bisa dipakai di perangkat ini (Android).
   bool get supportsBluetooth;
 
+  /// Printer jaringan (soket TCP) bisa dipakai; tidak di browser, yang
+  /// mencetak lewat dialog cetak (F2-02 aturan 9).
+  bool get supportsNetwork;
+
   /// Printer Bluetooth yang sudah dipasangkan di pengaturan perangkat.
   Future<List<PrinterSelection>> bluetoothPrinters();
 
@@ -214,6 +218,9 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
   @override
   bool get supportsBluetooth => _btSupported;
 
+  @override
+  bool get supportsNetwork => !kIsWeb;
+
   /// Izin dulu (memunculkan dialog izin), baru status Bluetooth.
   Future<void> _ready() async {
     if (!await _bt.requestPermission()) {
@@ -360,7 +367,8 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     Uint8List pdf, {
     required String fileName,
   }) async {
-    if (_mobile) {
+    // Web: browser mengunduh berkas (F2-02 aturan 9).
+    if (kIsWeb || _mobile) {
       await Printing.sharePdf(bytes: pdf, filename: fileName);
       return null;
     }

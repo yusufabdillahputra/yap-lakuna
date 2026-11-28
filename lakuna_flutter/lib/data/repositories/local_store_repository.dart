@@ -14,9 +14,13 @@ class LocalStoreRepository extends StoreRepository {
     this._store, {
     this._hasher = const CredentialHasher(),
     DevicePlatform? platform,
+    this._preferences,
   }) : _platform = platform ?? currentDevicePlatform();
 
   final LakunaStore _store;
+
+  /// Bila ada, cabang pilihan (web) diingat di sini (F2-02 aturan 2a).
+  final LocalPreferences? _preferences;
   final CredentialHasher _hasher;
   final DevicePlatform _platform;
   StoreContext? _current;
@@ -27,7 +31,17 @@ class LocalStoreRepository extends StoreRepository {
   @override
   Future<Result<StoreContext?>> load() async {
     try {
-      _current = await loadStoreContext(_store);
+      var ctx = await loadStoreContext(_store);
+      final preferences = _preferences;
+      if (ctx != null && preferences != null) {
+        final saved = tryUuid(
+          await preferences.get(_outletKey(ctx.tenant.id)) ?? '',
+        );
+        if (saved != null && saved != ctx.outlet.id) {
+          ctx = await loadStoreContext(_store, outletId: saved) ?? ctx;
+        }
+      }
+      _current = ctx;
       notifyListeners();
       return Result.ok(_current);
     } on Exception catch (e) {
@@ -73,7 +87,43 @@ class LocalStoreRepository extends StoreRepository {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<List<Outlet>>> outlets() async {
+    final ctx = _current;
+    if (ctx == null) return const Result.ok([]);
+    try {
+      return Result.ok(
+        await Outlet.db.find(
+          _store.session,
+          where: (o) =>
+              o.tenantId.equals(ctx.tenant.id) & o.deletedAt.equals(null),
+          orderBy: (o) => o.createdAt,
+        ),
+      );
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<StoreContext>> switchOutlet(UuidValue outletId) async {
+    final current = _current;
+    if (current == null) return Result.error(const OutletUnavailable());
+    try {
+      final ctx = await loadStoreContext(_store, outletId: outletId);
+      if (ctx == null) return Result.error(const OutletUnavailable());
+      await _preferences?.set(_outletKey(ctx.tenant.id), outletId.uuid);
+      _current = ctx;
+      notifyListeners();
+      return Result.ok(ctx);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
 }
+
+String _outletKey(UuidValue tenantId) => 'web.outlet.${tenantId.uuid}';
 
 /// Platform perangkat ini untuk kolom `devices.platform`.
 DevicePlatform currentDevicePlatform() {

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:http/http.dart' as http_pkg;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 
@@ -188,6 +190,17 @@ class _ServerpodMediaTransport implements MediaTransport {
 
   @override
   Future<Uint8List> download(Uri url) => _guard(() async {
+    if (kIsWeb) {
+      // Browser: unduh lewat fetch (domain media butuh CORS, F2-02
+      // aturan 25a).
+      final response = await http_pkg
+          .get(url)
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode != 200) {
+        throw HttpException('Unduh media ${response.statusCode}', uri: url);
+      }
+      return response.bodyBytes;
+    }
     final http = HttpClient()..connectionTimeout = const Duration(seconds: 30);
     try {
       final response = await (await http.getUrl(url)).close();
@@ -224,6 +237,7 @@ class _ServerpodSyncTransport implements SyncTransport {
 
 /// Platform perangkat ini untuk baris `devices` saat gabung.
 DevicePlatform currentDevicePlatform() {
+  if (kIsWeb) return DevicePlatform.web;
   if (Platform.isAndroid) return DevicePlatform.android;
   if (Platform.isIOS) return DevicePlatform.ios;
   if (Platform.isWindows) return DevicePlatform.windows;

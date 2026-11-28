@@ -63,6 +63,13 @@ class SyncEndpoint extends Endpoint {
       limit: pullPageSize + 1,
     );
     final page = rows.take(pullPageSize).toList();
+    final nextSeq = page.isEmpty ? afterSeq : page.last.id!;
+    final remaining = rows.length > pullPageSize
+        ? await SyncChange.db.count(
+            session,
+            where: (c) => c.tenantId.equals(auth.tenantId) & (c.id > nextSeq),
+          )
+        : 0;
     return SyncPullPage(
       changes: [
         for (final c in page)
@@ -75,8 +82,9 @@ class SyncEndpoint extends Endpoint {
               hlc: c.hlc,
             ),
       ],
-      nextSeq: page.isEmpty ? afterSeq : page.last.id!,
+      nextSeq: nextSeq,
       hasMore: rows.length > pullPageSize,
+      remaining: remaining,
       serverTime: DateTime.now().toUtc(),
     );
   }

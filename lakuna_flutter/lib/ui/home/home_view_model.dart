@@ -1,3 +1,5 @@
+import '../../config/app_platform.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart' show BusinessType;
 import 'package:lakuna_domain/lakuna_domain.dart';
@@ -61,6 +63,7 @@ class HomeViewModel extends ChangeNotifier {
     this._stock,
     this._dining,
     this._backup,
+    this._platform = AppPlatform.native,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now {
     load = Command0(_load)..addListener(notifyListeners);
@@ -72,6 +75,9 @@ class HomeViewModel extends ChangeNotifier {
   final StockRepository? _stock;
   final DiningRepository? _dining;
   final BackupRepository? _backup;
+
+  /// Web: modul perangkat kasir (Kasir, Meja, Kas laci) tidak tampil.
+  final AppPlatform _platform;
   final DateTime Function() _clock;
 
   late final Command0<void> load;
@@ -121,7 +127,9 @@ class HomeViewModel extends ChangeNotifier {
   List<MenuEntry> get modules => [
     for (final key in homeModuleKeys)
       if (menuEntryByKey(key) case final e?
-          when e.allows(_permissions) && (key != 'tables' || _showsTables))
+          when e.allows(_permissions) &&
+              e.availableOn(_platform) &&
+              (key != 'tables' || _showsTables))
         e,
   ];
 
@@ -211,7 +219,7 @@ class HomeViewModel extends ChangeNotifier {
           s.belowMinimum,
           (res) => _belowMinimum = _ok(res)?.length,
         ),
-      if (_dining case final d? when _showsTables)
+      if (_dining case final d? when _showsTables && _platform.supportsCashier)
         _source(d.pendingQrisCount, (res) => _pendingQris = _ok(res)),
       if (_backup case final b?
           when permissions.contains(

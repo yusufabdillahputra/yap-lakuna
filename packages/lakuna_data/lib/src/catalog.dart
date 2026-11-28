@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -11,6 +10,7 @@ import 'package:serverpod_database/serverpod_database.dart'
 import 'media.dart';
 import 'photo_shrink.dart';
 import 'modifier_admin.dart' show productModifierLinks;
+import 'platform/media_blobs.dart';
 import 'stock.dart';
 import 'store.dart';
 import 'sync_tx.dart';
@@ -623,10 +623,17 @@ class ProductPhotoInvalid implements Exception {
   String toString() => 'ProductPhotoInvalid(${reason.name})';
 }
 
+/// Awalan [ProductListItem.photoPath] untuk gambar yang hanya ada di cache
+/// memori (web, F2-02 aturan 8): sisa string adalah `storage_key`.
+const memoryMediaScheme = 'lakuna-media:';
+
 String? _mediaPath(LakunaStore store, MediaFile media) {
-  final path =
-      '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}';
-  if (File(path).existsSync()) return path;
+  final path = store.media.localPath(media.storageKey);
+  if (path != null) return path;
+  if (store.media case final MemoryMediaBlobs memory
+      when memory.containsSync(media.storageKey)) {
+    return '$memoryMediaScheme${media.storageKey}';
+  }
   // Versi hosting: foto dari perangkat lain diunduh di latar, tampil saat
   // daftar dimuat lagi (F2-01 aturan 20).
   final fetch = store.fetchMedia;

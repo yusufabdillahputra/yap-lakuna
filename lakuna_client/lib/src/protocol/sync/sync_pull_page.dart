@@ -21,6 +21,7 @@ abstract class SyncPullPage
     required this.changes,
     required this.nextSeq,
     required this.hasMore,
+    this.remaining,
     required this.serverTime,
   });
 
@@ -28,6 +29,7 @@ abstract class SyncPullPage
     required List<_i9i0xnu6.SyncPullChange> changes,
     required int nextSeq,
     required bool hasMore,
+    int? remaining,
     required DateTime serverTime,
   }) = _SyncPullPageImpl;
 
@@ -38,6 +40,7 @@ abstract class SyncPullPage
       ),
       nextSeq: jsonSerialization['nextSeq'] as int,
       hasMore: _isc.BoolJsonExtension.fromJson(jsonSerialization['hasMore']),
+      remaining: jsonSerialization['remaining'] as int?,
       serverTime: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['serverTime'],
       ),
@@ -51,6 +54,11 @@ abstract class SyncPullPage
 
   bool hasMore;
 
+  /// Jumlah perubahan tenant setelah `nextSeq` (termasuk milik perangkat
+  /// ini), untuk progres "n dari m" saat pull pertama (F2-02). `null` dari
+  /// server lama.
+  int? remaining;
+
   DateTime serverTime;
 
   /// Returns a shallow copy of this [SyncPullPage]
@@ -60,6 +68,7 @@ abstract class SyncPullPage
     List<_i9i0xnu6.SyncPullChange>? changes,
     int? nextSeq,
     bool? hasMore,
+    int? remaining,
     DateTime? serverTime,
   });
   @override
@@ -69,6 +78,7 @@ abstract class SyncPullPage
       'changes': changes.toJson(valueToJson: (v) => v.toJson()),
       'nextSeq': nextSeq,
       'hasMore': hasMore,
+      if (remaining != null) 'remaining': remaining,
       'serverTime': serverTime.toJson(),
     };
   }
@@ -80,6 +90,7 @@ abstract class SyncPullPage
       'changes': changes.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'nextSeq': nextSeq,
       'hasMore': hasMore,
+      if (remaining != null) 'remaining': remaining,
       'serverTime': serverTime.toJson(),
     };
   }
@@ -90,16 +101,20 @@ abstract class SyncPullPage
   }
 }
 
+class _Undefined {}
+
 class _SyncPullPageImpl extends SyncPullPage {
   _SyncPullPageImpl({
     required List<_i9i0xnu6.SyncPullChange> changes,
     required int nextSeq,
     required bool hasMore,
+    int? remaining,
     required DateTime serverTime,
   }) : super._(
          changes: changes,
          nextSeq: nextSeq,
          hasMore: hasMore,
+         remaining: remaining,
          serverTime: serverTime,
        );
 
@@ -111,12 +126,14 @@ class _SyncPullPageImpl extends SyncPullPage {
     List<_i9i0xnu6.SyncPullChange>? changes,
     int? nextSeq,
     bool? hasMore,
+    Object? remaining = _Undefined,
     DateTime? serverTime,
   }) {
     return SyncPullPage(
       changes: changes ?? this.changes.map((e0) => e0.copyWith()).toList(),
       nextSeq: nextSeq ?? this.nextSeq,
       hasMore: hasMore ?? this.hasMore,
+      remaining: remaining is int? ? remaining : this.remaining,
       serverTime: serverTime ?? this.serverTime,
     );
   }

@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' show sha256;
@@ -119,20 +118,20 @@ Future<_Upload> _uploadOne(
   MediaFile media,
   Duration timeout,
 ) async {
-  final file = _localFile(store, media);
+  final bytes = await store.media.read(media.storageKey);
   // Berkas dari perangkat lain yang belum diunduh tidak perlu diunggah.
-  if (!file.existsSync()) return _Upload.done;
+  if (bytes == null) return _Upload.done;
   try {
     final description = await transport
         .uploadDescription(media.id)
         .timeout(timeout);
     if (description == null) return _Upload.done;
-    await transport
-        .upload(description, await file.readAsBytes())
-        .timeout(timeout);
-    return await transport.markUploaded(media.id).timeout(timeout)
-        ? _Upload.done
-        : _Upload.failed;
+    await transport.upload(description, bytes).timeout(timeout);
+    if (!await transport.markUploaded(media.id).timeout(timeout)) {
+      return _Upload.failed;
+    }
+    await store.media.unpin(media.storageKey);
+    return _Upload.done;
   } on Object catch (e) {
     return isOfflineError(e) ? _Upload.offline : _Upload.failed;
   }
@@ -147,20 +146,14 @@ Future<Uint8List?> ensureMediaLocal(
   MediaFile media, {
   Duration transferTimeout = mediaTransferTimeout,
 }) async {
-  final file = _localFile(store, media);
-  if (file.existsSync()) return file.readAsBytes();
+  final local = await store.media.read(media.storageKey);
+  if (local != null) return local;
   try {
     final url = await transport.downloadUrl(media.id).timeout(transferTimeout);
     if (url == null) return null;
     final bytes = await transport.download(url).timeout(transferTimeout);
     if (sha256.convert(bytes).toString() != media.sha256) return null;
-    await file.parent.create(recursive: true);
-    // Nama sementara unik: gambar yang sama bisa diminta dua kali bersamaan.
-    final tmp = File(
-      '${file.path}.${DateTime.now().microsecondsSinceEpoch}.unduh',
-    );
-    await tmp.writeAsBytes(bytes, flush: true);
-    await tmp.rename(file.path);
+    await store.media.write(media.storageKey, bytes);
     return bytes;
   } on Object {
     return null;
@@ -228,6 +221,3 @@ class MediaFetcher {
     }
   }
 }
-
-File _localFile(LakunaStore store, MediaFile media) =>
-    File('${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}');

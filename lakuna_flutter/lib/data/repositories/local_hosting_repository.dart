@@ -8,13 +8,13 @@ import 'package:lakuna_data/lakuna_data.dart'
         HostingAlreadyActive,
         HostingNotActive,
         HostingState,
-        HostingVault,
         LakunaStore,
         SyncCycleOutcome,
         SyncCycleResult,
         SyncEngine,
         SyncScheduler,
-        UploadGroupProgress;
+        UploadGroupProgress,
+        tokenVaultOf;
 import 'package:lakuna_domain/lakuna_domain.dart' show Permission;
 import 'package:path/path.dart' as p;
 
@@ -84,7 +84,7 @@ class LocalHostingRepository extends HostingRepository {
       _scheduler!.syncNow();
       return;
     }
-    final token = await HostingVault.of(_store).readToken();
+    final token = await tokenVaultOf(_store).readToken();
     final server = data.parseServerUrl(state.serverUrl!);
     if (token == null || server == null) return;
     final connection = _syncConnection = _connect(server);

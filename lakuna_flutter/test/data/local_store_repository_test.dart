@@ -99,4 +99,67 @@ void main() {
     expect((result as Error).error, isA<SetupAlreadyDone>());
     expect(fresh.current, isNull);
   });
+
+  group('pemilih cabang web (F2-02 aturan 2a)', () {
+    test('daftar cabang, pindah, dan diingat setelah dimuat ulang', () async {
+      final ctx = (await repo.setup(_input()) as Ok<StoreContext>).value;
+      final kmg = await store.write((w) async {
+        final s = await w.stamp();
+        return w.insert(
+          Outlet(
+            tenantId: ctx.tenant.id,
+            code: 'KMG',
+            name: 'Cabang Kemang',
+            hlc: s.hlc.toString(),
+            originDeviceId: s.deviceId,
+          ),
+          s,
+        );
+      });
+      final preferences = LocalPreferences(store.session);
+      final web = LocalStoreRepository(
+        store,
+        hasher: const CredentialHasher.forTesting(),
+        preferences: preferences,
+      );
+      await web.load();
+      expect(web.current!.outlet.code, 'PST');
+      final outlets = (await web.outlets() as Ok<List<Outlet>>).value;
+      expect([for (final o in outlets) o.code], ['PST', 'KMG']);
+      var notified = 0;
+      web.addListener(() => notified++);
+      final switched = await web.switchOutlet(kmg.id);
+      expect((switched as Ok<StoreContext>).value.outlet.code, 'KMG');
+      expect(web.current!.outlet.code, 'KMG');
+      expect(web.current!.device.id, ctx.device.id);
+      expect(notified, 1);
+
+      final again = LocalStoreRepository(
+        store,
+        hasher: const CredentialHasher.forTesting(),
+        preferences: preferences,
+      );
+      await again.load();
+      expect(again.current!.outlet.code, 'KMG');
+    });
+
+    test(
+      'cabang tersimpan sudah dihapus: kembali ke cabang perangkat',
+      () async {
+        final ctx = (await repo.setup(_input()) as Ok<StoreContext>).value;
+        final preferences = LocalPreferences(store.session);
+        await preferences.set(
+          'web.outlet.${ctx.tenant.id.uuid}',
+          UuidValue.fromString(newId()).uuid,
+        );
+        final web = LocalStoreRepository(
+          store,
+          hasher: const CredentialHasher.forTesting(),
+          preferences: preferences,
+        );
+        await web.load();
+        expect(web.current!.outlet.code, 'PST');
+      },
+    );
+  });
 }

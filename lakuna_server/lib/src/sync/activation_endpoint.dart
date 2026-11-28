@@ -207,7 +207,7 @@ class ActivationEndpoint extends Endpoint {
   ) async {
     final now = DateTime.now().toUtc();
     final token = newDeviceToken();
-    final code = deviceCode.trim().toUpperCase();
+    final requested = deviceCode.trim().toUpperCase();
     final device = await session.db.transaction((tx) async {
       final pairing = await PairingCode.db.findFirstRow(
         session,
@@ -219,18 +219,38 @@ class ActivationEndpoint extends Endpoint {
       if (pairing == null) _fail(ActivationFailure.codeInvalid);
       if (pairing.usedAt != null) _fail(ActivationFailure.codeUsed);
       if (!pairing.expiresAt.isAfter(now)) _fail(ActivationFailure.codeExpired);
-      final outlet = await Outlet.db.findById(
-        session,
-        outletId,
-        transaction: tx,
-      );
+      // Perangkat web berasal dari cabang tertua tenant (F2-02 aturan 2);
+      // cabang lain dipilih di bilah atas web.
+      final outlet = platform == DevicePlatform.web
+          ? await Outlet.db.findFirstRow(
+              session,
+              where: (o) =>
+                  o.tenantId.equals(pairing.tenantId) &
+                  o.deletedAt.equals(null),
+              orderByList: (o) => [
+                o.createdAt.asc(),
+                o.id.asc(),
+              ],
+              transaction: tx,
+            )
+          : await Outlet.db.findById(session, outletId, transaction: tx);
       if (outlet == null || outlet.tenantId != pairing.tenantId) {
         _fail(ActivationFailure.outletUnknown);
       }
       await lockTenantChanges(session, tx, pairing.tenantId);
+      final String code;
+      if (platform == DevicePlatform.web) {
+        // Kode web dibuat server, unik per tenant (F2-02 aturan 2).
+        code = await nextWebDeviceCode(session, tx, pairing.tenantId);
+      } else {
+        if (isWebDeviceCode(requested)) {
+          _fail(ActivationFailure.deviceCodeTaken);
+        }
+        code = requested;
+      }
       final taken = await Device.db.count(
         session,
-        where: (d) => d.outletId.equals(outletId) & d.code.equals(code),
+        where: (d) => d.outletId.equals(outlet.id) & d.code.equals(code),
         transaction: tx,
       );
       if (taken > 0) _fail(ActivationFailure.deviceCodeTaken);
@@ -240,7 +260,7 @@ class ActivationEndpoint extends Endpoint {
         Device(
           id: const Uuid().v7obj(),
           tenantId: pairing.tenantId,
-          outletId: outletId,
+          outletId: outlet.id,
           code: code,
           name: deviceName.trim(),
           platform: platform,
@@ -254,7 +274,7 @@ class ActivationEndpoint extends Endpoint {
         session,
         SyncChange(
           tenantId: device.tenantId,
-          outletId: outletId,
+          outletId: outlet.id,
           entity: 'devices',
           rowId: device.id,
           hlc: hlc,
@@ -305,4 +325,29 @@ class ActivationEndpoint extends Endpoint {
 
   Never _fail(ActivationFailure reason) =>
       throw ActivationException(reason: reason);
+}
+
+/// Kode `W` + angka dicadangkan untuk perangkat web (F2-02 aturan 2).
+bool isWebDeviceCode(String code) => RegExp(r'^W\d+$').hasMatch(code);
+
+/// Kode perangkat web berikutnya di [tenantId]: `W01`, `W02`, … Pemanggil
+/// memegang kunci tenant ([lockTenantChanges]) sehingga dua login serentak
+/// tidak mendapat kode yang sama.
+Future<String> nextWebDeviceCode(
+  Session session,
+  Transaction tx,
+  UuidValue tenantId,
+) async {
+  final devices = await Device.db.find(
+    session,
+    where: (d) => d.tenantId.equals(tenantId),
+    transaction: tx,
+  );
+  var highest = 0;
+  for (final d in devices) {
+    if (!isWebDeviceCode(d.code)) continue;
+    final n = int.parse(d.code.substring(1));
+    if (n > highest) highest = n;
+  }
+  return 'W${(highest + 1).toString().padLeft(2, '0')}';
 }

@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:lakuna_data/lakuna_data.dart'
+    show LakunaStore, memoryMediaScheme;
 import 'package:lakuna_domain/lakuna_domain.dart';
+import 'package:provider/provider.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 
@@ -140,6 +143,13 @@ class ProductThumb extends StatelessWidget {
         cacheWidth: cache,
         errorBuilder: fallback,
       ),
+      (null, final path?) when path.startsWith(memoryMediaScheme) =>
+        _MemoryMediaImage(
+          storageKey: path.substring(memoryMediaScheme.length),
+          size: size,
+          cacheWidth: cache,
+          fallback: (context) => _initials(context, radius),
+        ),
       (null, final path?) => Image.file(
         File(path),
         width: size,
@@ -361,4 +371,56 @@ class SectionCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Gambar dari cache media memori (web, F2-02 aturan 8).
+class _MemoryMediaImage extends StatefulWidget {
+  const _MemoryMediaImage({
+    required this.storageKey,
+    required this.size,
+    required this.cacheWidth,
+    required this.fallback,
+  });
+
+  final String storageKey;
+  final double size;
+  final int cacheWidth;
+  final WidgetBuilder fallback;
+
+  @override
+  State<_MemoryMediaImage> createState() => _MemoryMediaImageState();
+}
+
+class _MemoryMediaImageState extends State<_MemoryMediaImage> {
+  Future<Uint8List?>? _bytes;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bytes != null) return;
+    LakunaStore? store;
+    try {
+      store = Provider.of<LakunaStore>(context, listen: false);
+    } on ProviderNotFoundException {
+      store = null;
+    }
+    _bytes = store?.media.read(widget.storageKey) ?? Future.value();
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder(
+    future: _bytes,
+    builder: (context, snapshot) {
+      final bytes = snapshot.data;
+      if (bytes == null) return widget.fallback(context);
+      return Image.memory(
+        bytes,
+        width: widget.size,
+        height: widget.size,
+        fit: BoxFit.cover,
+        cacheWidth: widget.cacheWidth,
+        errorBuilder: (context, _, _) => widget.fallback(context),
+      );
+    },
+  );
 }

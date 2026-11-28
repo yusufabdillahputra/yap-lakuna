@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 
 import 'bootstrap.dart';
 import 'config/app_environment.dart';
+import 'config/app_platform.dart';
+import 'data/services/web_session_store.dart';
 import 'l10n/gen/app_localizations.dart';
 
 /// Memuat ulang seluruh aplikasi (mis. setelah pulihkan backup, F1-19).
@@ -39,16 +41,40 @@ class LakunaRoot extends StatefulWidget {
     super.key,
     this.resolvePath = resolveDatabasePath,
     this.boot = bootstrap,
+    this.platform = AppPlatform.current,
+    this.webSessions,
+    this.webJoin,
   });
 
   final Future<String> Function() resolvePath;
   final Future<AppInstance> Function(String databasePath) boot;
+  final AppPlatform platform;
+
+  /// Sesi toko di browser (web saja); bawaan `localStorage`.
+  final WebSessionStore? webSessions;
+
+  /// Layar masuk ke toko versi hosting di web saat belum ada sesi
+  /// (F2-02 aturan 1). [onJoined] memulai ulang aplikasi.
+  final Widget Function(
+    BuildContext context,
+    WebSessionStore sessions,
+    Future<void> Function() onJoined,
+  )?
+  webJoin;
 
   @override
   State<LakunaRoot> createState() => _LakunaRootState();
 }
 
 class _LakunaRootState extends State<LakunaRoot> {
+  late final WebSessionStore _webSessions =
+      widget.webSessions ?? platformWebSessionStore();
+
+  /// Web tanpa sesi: tampilkan [LakunaRoot.webJoin].
+  var _needsJoin = false;
+
+  /// Web tidak bisa mulai di tab ini.
+  WebStartProblem? _problem;
   AppInstance? _instance;
   Object? _error;
   String? _path;
@@ -62,6 +88,7 @@ class _LakunaRootState extends State<LakunaRoot> {
   }
 
   Future<void> _start() async {
+    if (widget.platform.isWeb) return _startWeb();
     try {
       final path = _path ??= await widget.resolvePath();
       final dataDir = p.dirname(path);
@@ -95,6 +122,54 @@ class _LakunaRootState extends State<LakunaRoot> {
     }
   }
 
+  /// Web: hapus database sesi lama, lalu buka sesi aktif atau tampilkan
+  /// layar masuk (F2-02 aturan 6, 6a).
+  Future<void> _startWeb() async {
+    try {
+      final problem = await _webSessions.claim();
+      if (problem != null) {
+        if (!mounted) return;
+        setState(() => _problem = problem);
+        return;
+      }
+      await _webSessions.purgeStale();
+      final name = _webSessions.activeDatabase;
+      if (name == null) {
+        if (!mounted) return;
+        setState(() {
+          _needsJoin = true;
+          _error = null;
+        });
+        return;
+      }
+      _path = name;
+      final AppInstance instance;
+      try {
+        instance = await widget.boot(name);
+      } on WebSessionLost {
+        // Sesi dibuang (dihapus saat mulai berikutnya), masuk lagi.
+        await _webSessions.setActiveDatabase(null);
+        if (!mounted) return;
+        setState(() {
+          _needsJoin = true;
+          _error = null;
+        });
+        return;
+      }
+      if (!mounted) return;
+      setState(() {
+        _instance = instance;
+        _needsJoin = false;
+        _error = null;
+        _generation++;
+      });
+    } catch (e, st) {
+      debugPrint('Lakuna gagal mulai: $e\n$st');
+      if (!mounted) return;
+      setState(() => _error = e);
+    }
+  }
+
   Future<void> _restart() async {
     final old = _instance;
     setState(() => _instance = null);
@@ -113,6 +188,24 @@ class _LakunaRootState extends State<LakunaRoot> {
   Widget build(BuildContext context) {
     if (_error case final error?) {
       return StartupErrorView(error: error, path: _path);
+    }
+    if (_problem case final problem?) {
+      return WebStartProblemView(problem: problem);
+    }
+    if (_needsJoin) {
+      final join = widget.webJoin;
+      return KeyedSubtree(
+        key: ValueKey('web-join-$_generation'),
+        child: join == null
+            ? const SizedBox(key: ValueKey('web-join'))
+            : join(context, _webSessions, () async {
+                setState(() {
+                  _needsJoin = false;
+                  _generation++;
+                });
+                await _start();
+              }),
+      );
     }
     final instance = _instance;
     if (instance == null) {
@@ -136,14 +229,7 @@ class StartupErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locale = WidgetsBinding.instance.platformDispatcher.locale;
-    final l10n = lookupAppLocalizations(
-      AppLocalizations.supportedLocales.any(
-            (l) => l.languageCode == locale.languageCode,
-          )
-          ? Locale(locale.languageCode)
-          : const Locale('id'),
-    );
+    final l10n = _systemLocalizations();
     const ink = Color(0xFF18181B);
     const muted = Color(0xFF71717A);
     final details = [
@@ -198,6 +284,79 @@ class StartupErrorView extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Teks sesuai bahasa sistem, sebelum `MaterialApp` ada.
+AppLocalizations _systemLocalizations() {
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  return lookupAppLocalizations(
+    AppLocalizations.supportedLocales.any(
+          (l) => l.languageCode == locale.languageCode,
+        )
+        ? Locale(locale.languageCode)
+        : const Locale('id'),
+  );
+}
+
+/// Web tidak bisa dimulai di tab ini (F2-02 *Kasus tepi*): penyimpanan
+/// browser ditolak atau Lakuna sudah terbuka di tab lain.
+class WebStartProblemView extends StatelessWidget {
+  const WebStartProblemView({super.key, required this.problem});
+
+  final WebStartProblem problem;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = _systemLocalizations();
+    final (title, body) = switch (problem) {
+      WebStartProblem.storageUnavailable => (
+        l10n.webProblemStorageTitle,
+        l10n.webProblemStorageBody,
+      ),
+      WebStartProblem.otherTab => (
+        l10n.webProblemOtherTabTitle,
+        l10n.webProblemOtherTabBody,
+      ),
+    };
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: ColoredBox(
+        color: const Color(0xFFFFFFFF),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                key: ValueKey('web-problem-${problem.name}'),
+                mainAxisSize: MainAxisSize.min,
+                spacing: 12,
+                children: [
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF18181B),
+                    ),
+                  ),
+                  Text(
+                    body,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF52525B),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

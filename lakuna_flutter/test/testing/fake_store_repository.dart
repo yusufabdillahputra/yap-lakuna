@@ -81,4 +81,29 @@ class FakeStoreRepository extends StoreRepository {
     notifyListeners();
     return Result.ok(ctx);
   }
+
+  /// Cabang tenant untuk pemilih cabang web; bawaan cabang [current].
+  List<Outlet>? outletList;
+
+  @override
+  Future<Result<List<Outlet>>> outlets() async =>
+      Result.ok(outletList ?? [?_current?.outlet]);
+
+  @override
+  Future<Result<StoreContext>> switchOutlet(UuidValue outletId) async {
+    final ctx = _current;
+    final outlet = outletList?.where((o) => o.id == outletId).firstOrNull;
+    if (ctx == null || outlet == null) {
+      return Result.error(const OutletUnavailable());
+    }
+    final next = StoreContext(
+      tenant: ctx.tenant,
+      outlet: outlet,
+      device: ctx.device,
+      owner: ctx.owner,
+    );
+    _current = next;
+    notifyListeners();
+    return Result.ok(next);
+  }
 }

@@ -50,7 +50,11 @@ enum SyncStateKey {
 
   /// Perubahan pull yang belum bisa diterapkan (JSON daftar), dicoba lagi
   /// setiap siklus (aturan 2).
-  pullParked('pull_parked');
+  pullParked('pull_parked'),
+
+  /// Token perangkat web (F2-02 aturan 10): di browser token disimpan di
+  /// database sesi, bukan berkas.
+  webDeviceToken('web_device_token');
 
   const SyncStateKey(this.key);
   final String key;

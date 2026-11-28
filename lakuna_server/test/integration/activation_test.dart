@@ -263,6 +263,97 @@ void main() {
         expect(page.changes.single.rowId, r.deviceId);
       });
 
+      Future<String> pairingCode() => endpoints.activation.createPairingCode(
+        sessionBuilder,
+        first.deviceToken,
+      );
+
+      test('perangkat web mendapat kode W01, W02 dari server (F2-02 '
+          'aturan 2)', () async {
+        Future<ActivationResult> joinWeb(String code) =>
+            endpoints.activation.joinWithPairingCode(
+              sessionBuilder,
+              code,
+              outletId,
+              'K09',
+              'Browser',
+              DevicePlatform.web,
+            );
+        final a = await joinWeb(await pairingCode());
+        final b = await joinWeb(await pairingCode());
+        expect(a.deviceCode, 'W01');
+        expect(b.deviceCode, 'W02');
+        final session = sessionBuilder.build();
+        final device = (await Device.db.findById(session, b.deviceId))!;
+        expect(device.code, 'W02');
+        expect(device.platform, DevicePlatform.web);
+      });
+
+      test(
+        'perangkat web berasal dari cabang tertua tenant (aturan 2)',
+        () async {
+          final session = sessionBuilder.build();
+          final newer = UuidValue.fromString(
+            '01900000-0000-7000-8000-000000000013',
+          );
+          await Outlet.db.insertRow(
+            session,
+            Outlet(
+              id: newer,
+              tenantId: tenantId,
+              code: 'AAA',
+              name: 'Cabang Baru',
+              hlc: '0000000000000-0000-seed',
+              createdAt: DateTime.now().toUtc().add(const Duration(days: 1)),
+            ),
+          );
+          final r = await endpoints.activation.joinWithPairingCode(
+            sessionBuilder,
+            await pairingCode(),
+            newer,
+            'K09',
+            'Browser',
+            DevicePlatform.web,
+          );
+          final device = (await Device.db.findById(session, r.deviceId))!;
+          expect(device.outletId, outletId);
+        },
+      );
+
+      test('kode kasir lama W01 dilewati perangkat web', () async {
+        final session = sessionBuilder.build();
+        await Device.db.insertRow(
+          session,
+          Device(
+            id: UuidValue.fromString('01900000-0000-7000-8000-0000000000b1'),
+            tenantId: tenantId,
+            outletId: outletId,
+            code: 'W01',
+            name: 'Kasir lama',
+            platform: DevicePlatform.android,
+            createdAt: DateTime.utc(2026),
+            updatedAt: DateTime.utc(2026),
+            hlc: '0000000000000-0000-seed',
+          ),
+        );
+        final r = await endpoints.activation.joinWithPairingCode(
+          sessionBuilder,
+          await pairingCode(),
+          outletId,
+          'K09',
+          'Browser',
+          DevicePlatform.web,
+        );
+        expect(r.deviceCode, 'W02');
+      });
+
+      test('kode W01 dicadangkan untuk perangkat web', () async {
+        await expectLater(
+          join(await pairingCode(), code: 'w01'),
+          failsWith(ActivationFailure.deviceCodeTaken),
+        );
+      });
+
       test('pasang memegang kunci tenant seperti push (urutan seq)', () async {
         final pairing = await endpoints.activation.createPairingCode(
           sessionBuilder,
