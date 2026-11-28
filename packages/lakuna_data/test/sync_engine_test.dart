@@ -529,4 +529,7 @@ class _ShortReplyTransport implements SyncTransport {
 
   @override
   Future<SyncServerStatus> status() => inner.status();
+
+  @override
+  Future<TenantStatus> tenantStatus() => inner.tenantStatus();
 }

@@ -61,6 +61,16 @@ class FakeSyncTransport implements SyncTransport {
     );
   }
 
+  /// Balasan [tenantStatus].
+  TenantStatus? tenant;
+
+  @override
+  Future<TenantStatus> tenantStatus() async {
+    _check();
+    return tenant ??
+        TenantStatus(devices: [], openConflicts: 0, serverTime: serverTime);
+  }
+
   @override
   Future<SyncServerStatus> status() async {
     _check();

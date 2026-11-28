@@ -97,6 +97,7 @@ import 'stock/stock_adjustment_reason.dart' as _i5me420k;
 import 'sync/activation_exception.dart' as _iy6ejuvq;
 import 'sync/activation_failure.dart' as _i0htl0ka;
 import 'sync/activation_result.dart' as _itml89c3;
+import 'sync/device_status.dart' as _iepnlckt;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
 import 'sync/pairing_outlet.dart' as _icfz2sj4;
@@ -113,6 +114,7 @@ import 'sync/sync_request_exception.dart' as _iem4qssj;
 import 'sync/sync_result_kind.dart' as _if9conde;
 import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
+import 'sync/tenant_status.dart' as _i4a89tu6;
 import 'web_access/totp_enrollment.dart' as _i8e22xza;
 import 'web_access/web_access_exception.dart' as _iivbwcf5;
 import 'web_access/web_access_failure.dart' as _i9szp5fc;
@@ -192,6 +194,7 @@ export 'stock/stock_adjustment_reason.dart';
 export 'sync/activation_exception.dart';
 export 'sync/activation_failure.dart';
 export 'sync/activation_result.dart';
+export 'sync/device_status.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
 export 'sync/pairing_outlet.dart';
@@ -208,6 +211,7 @@ export 'sync/sync_request_exception.dart';
 export 'sync/sync_result_kind.dart';
 export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
+export 'sync/tenant_status.dart';
 export 'web_access/totp_enrollment.dart';
 export 'web_access/web_access_exception.dart';
 export 'web_access/web_access_failure.dart';
@@ -302,6 +306,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iy6ejuvq.ActivationException>,
           _isc.getType<_i0htl0ka.ActivationFailure>,
           _isc.getType<_itml89c3.ActivationResult>,
+          _isc.getType<_iepnlckt.DeviceStatus>,
           _isc.getType<_ierz52ew.LocalPreference>,
           _isc.getType<_imib010r.OutboxStatus>,
           _isc.getType<_icfz2sj4.PairingOutlet>,
@@ -318,6 +323,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_if9conde.SyncResultKind>,
           _isc.getType<_iog1z1ed.SyncServerStatus>,
           _isc.getType<_iwwr3hpi.SyncStateEntry>,
+          _isc.getType<_i4a89tu6.TenantStatus>,
           _isc.getType<_i8e22xza.TotpEnrollment>,
           _isc.getType<_iivbwcf5.WebAccessException>,
           _isc.getType<_i9szp5fc.WebAccessFailure>,
@@ -397,6 +403,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iy6ejuvq.ActivationException?>,
           _isc.getType<_i0htl0ka.ActivationFailure?>,
           _isc.getType<_itml89c3.ActivationResult?>,
+          _isc.getType<_iepnlckt.DeviceStatus?>,
           _isc.getType<_ierz52ew.LocalPreference?>,
           _isc.getType<_imib010r.OutboxStatus?>,
           _isc.getType<_icfz2sj4.PairingOutlet?>,
@@ -413,6 +420,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_if9conde.SyncResultKind?>,
           _isc.getType<_iog1z1ed.SyncServerStatus?>,
           _isc.getType<_iwwr3hpi.SyncStateEntry?>,
+          _isc.getType<_i4a89tu6.TenantStatus?>,
           _isc.getType<_i8e22xza.TotpEnrollment?>,
           _isc.getType<_iivbwcf5.WebAccessException?>,
           _isc.getType<_i9szp5fc.WebAccessFailure?>,
@@ -420,6 +428,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iqnq1hc4.WebTenant?>,
           _isc.getType<List<_i4xb7gek.SyncPullChange>>,
           _isc.getType<List<_i4jawf6o.SyncPushResult>>,
+          _isc.getType<List<_iepnlckt.DeviceStatus>>,
           _isc.getType<List<_i5ptjowb.PairingOutlet>>,
           _isc.getType<List<_ipv8demw.SyncPushEntry>>,
           _isc.getType<List<String>>,
@@ -504,6 +513,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           'ActivationException',
           'ActivationFailure',
           'ActivationResult',
+          'DeviceStatus',
           'LocalPreference',
           'OutboxStatus',
           'PairingOutlet',
@@ -520,6 +530,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           'SyncResultKind',
           'SyncServerStatus',
           'SyncStateEntry',
+          'TenantStatus',
           'TotpEnrollment',
           'WebAccessException',
           'WebAccessFailure',
@@ -9420,6 +9431,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _itml89c3.ActivationResult) {
       return _itml89c3.ActivationResult.fromJson(data) as T;
     }
+    if (t == _iepnlckt.DeviceStatus) {
+      return _iepnlckt.DeviceStatus.fromJson(data) as T;
+    }
     if (t == _ierz52ew.LocalPreference) {
       return _ierz52ew.LocalPreference.fromJson(data) as T;
     }
@@ -9467,6 +9481,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (t == _iwwr3hpi.SyncStateEntry) {
       return _iwwr3hpi.SyncStateEntry.fromJson(data) as T;
+    }
+    if (t == _i4a89tu6.TenantStatus) {
+      return _i4a89tu6.TenantStatus.fromJson(data) as T;
     }
     if (t == _i8e22xza.TotpEnrollment) {
       return _i8e22xza.TotpEnrollment.fromJson(data) as T;
@@ -9754,6 +9771,9 @@ class Protocol extends _isd.DatabaseSerializationManager
       return (data != null ? _itml89c3.ActivationResult.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iepnlckt.DeviceStatus?>()) {
+      return (data != null ? _iepnlckt.DeviceStatus.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_ierz52ew.LocalPreference?>()) {
       return (data != null ? _ierz52ew.LocalPreference.fromJson(data) : null)
           as T;
@@ -9817,6 +9837,9 @@ class Protocol extends _isd.DatabaseSerializationManager
       return (data != null ? _iwwr3hpi.SyncStateEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_i4a89tu6.TenantStatus?>()) {
+      return (data != null ? _i4a89tu6.TenantStatus.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i8e22xza.TotpEnrollment?>()) {
       return (data != null ? _i8e22xza.TotpEnrollment.fromJson(data) : null)
           as T;
@@ -9845,6 +9868,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == List<_i4jawf6o.SyncPushResult>) {
       return (data as List)
               .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iepnlckt.DeviceStatus>) {
+      return (data as List)
+              .map((e) => deserialize<_iepnlckt.DeviceStatus>(e))
               .toList()
           as T;
     }
@@ -9958,6 +9987,7 @@ class Protocol extends _isd.DatabaseSerializationManager
       _iy6ejuvq.ActivationException => 'ActivationException',
       _i0htl0ka.ActivationFailure => 'ActivationFailure',
       _itml89c3.ActivationResult => 'ActivationResult',
+      _iepnlckt.DeviceStatus => 'DeviceStatus',
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
       _icfz2sj4.PairingOutlet => 'PairingOutlet',
@@ -9974,6 +10004,7 @@ class Protocol extends _isd.DatabaseSerializationManager
       _if9conde.SyncResultKind => 'SyncResultKind',
       _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
+      _i4a89tu6.TenantStatus => 'TenantStatus',
       _i8e22xza.TotpEnrollment => 'TotpEnrollment',
       _iivbwcf5.WebAccessException => 'WebAccessException',
       _i9szp5fc.WebAccessFailure => 'WebAccessFailure',
@@ -10141,6 +10172,8 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'ActivationFailure';
       case _itml89c3.ActivationResult():
         return 'ActivationResult';
+      case _iepnlckt.DeviceStatus():
+        return 'DeviceStatus';
       case _ierz52ew.LocalPreference():
         return 'LocalPreference';
       case _imib010r.OutboxStatus():
@@ -10173,6 +10206,8 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'SyncServerStatus';
       case _iwwr3hpi.SyncStateEntry():
         return 'SyncStateEntry';
+      case _i4a89tu6.TenantStatus():
+        return 'TenantStatus';
       case _i8e22xza.TotpEnrollment():
         return 'TotpEnrollment';
       case _iivbwcf5.WebAccessException():
@@ -10427,6 +10462,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (dataClassName == 'ActivationResult') {
       return deserialize<_itml89c3.ActivationResult>(data['data']);
     }
+    if (dataClassName == 'DeviceStatus') {
+      return deserialize<_iepnlckt.DeviceStatus>(data['data']);
+    }
     if (dataClassName == 'LocalPreference') {
       return deserialize<_ierz52ew.LocalPreference>(data['data']);
     }
@@ -10474,6 +10512,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'SyncStateEntry') {
       return deserialize<_iwwr3hpi.SyncStateEntry>(data['data']);
+    }
+    if (dataClassName == 'TenantStatus') {
+      return deserialize<_i4a89tu6.TenantStatus>(data['data']);
     }
     if (dataClassName == 'TotpEnrollment') {
       return deserialize<_i8e22xza.TotpEnrollment>(data['data']);

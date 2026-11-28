@@ -257,5 +257,97 @@ void main() {
         expect(unknown.tenantKnown, isFalse);
       },
     );
+
+    group('tenantStatus (dashboard F2-02 tahap 3)', () {
+      final deviceW = UuidValue.fromString(
+        '01900000-0000-7000-8000-0000000000e1',
+      );
+      final deviceR = UuidValue.fromString(
+        '01900000-0000-7000-8000-0000000000f1',
+      );
+
+      setUp(() async {
+        final session = sessionBuilder.build();
+        for (final (id, code, platform, token, revoked) in [
+          (deviceW, 'W01', DevicePlatform.web, 'token-web-0123456', false),
+          (deviceR, 'K09', DevicePlatform.android, 'token-r-0123456', true),
+        ]) {
+          await Device.db.insertRow(
+            session,
+            Device(
+              id: id,
+              tenantId: tenantId,
+              outletId: outletId,
+              code: code,
+              name: code,
+              platform: platform,
+              hlc: seedHlc,
+            ),
+          );
+          await DeviceCredential.db.insertRow(
+            session,
+            DeviceCredential(
+              tenantId: tenantId,
+              deviceId: id,
+              tokenHash: secretHash(token),
+              revokedAt: revoked ? now : null,
+            ),
+          );
+        }
+        for (var i = 0; i < 3; i++) {
+          await SyncConflict.db.insertRow(
+            session,
+            SyncConflict(
+              tenantId: tenantId,
+              entity: 'staff_members',
+              rowId: UuidValue.fromString(
+                '01900000-0000-7000-8000-00000000c0${i}0',
+              ),
+              loserHlc: hlcOf(deviceA, i),
+              loserPayloadJson: '{}',
+              reason: 'lww',
+              resolvedAt: i == 0 ? now : null,
+            ),
+          );
+        }
+        await SyncConflict.db.insertRow(
+          session,
+          SyncConflict(
+            tenantId: otherTenantId,
+            entity: 'staff_members',
+            rowId: UuidValue.fromString('01900000-0000-7000-8000-00000000c0f0'),
+            loserHlc: hlcOf(deviceC, 1),
+            loserPayloadJson: '{}',
+            reason: 'lww',
+          ),
+        );
+      });
+
+      test('perangkat kasir aktif tenant ini saja, tanpa web dan dicabut; '
+          'konflik yang belum selesai', () async {
+        // Perangkat B sync lebih dulu; A belum pernah terlihat setelah seed.
+        await endpoints.sync.pull(sessionBuilder, tokenB, 0);
+        final status = await endpoints.sync.tenantStatus(
+          sessionBuilder,
+          tokenA,
+        );
+        expect(status.devices.map((d) => d.code), ['K01', 'K02']);
+        final a = status.devices.firstWhere((d) => d.deviceId == deviceA);
+        final b = status.devices.firstWhere((d) => d.deviceId == deviceB);
+        // Panggilan tenantStatus sendiri mencatat A terlihat.
+        expect(a.lastSeenAt, isNotNull);
+        expect(b.lastSeenAt, isNotNull);
+        expect(b.outletId, outletId);
+        expect(b.platform, DevicePlatform.linux);
+        expect(status.openConflicts, 2);
+      });
+
+      test('token salah: SyncAuthException', () async {
+        await expectLater(
+          endpoints.sync.tenantStatus(sessionBuilder, 'salah'),
+          throwsA(isA<SyncAuthException>()),
+        );
+      });
+    });
   });
 }

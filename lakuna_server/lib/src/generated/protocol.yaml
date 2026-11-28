@@ -25,6 +25,7 @@ activation:
 sync:
   - push:
   - pull:
+  - tenantStatus:
   - status:
 totp:
   - status:

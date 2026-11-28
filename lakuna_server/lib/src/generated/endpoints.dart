@@ -635,6 +635,25 @@ class Endpoints extends _is.EndpointDispatch {
                 params['afterSeq'],
               ),
         ),
+        'tenantStatus': _is.MethodConnector(
+          name: 'tenantStatus',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['sync'] as _imb49tzk.SyncEndpoint).tenantStatus(
+                    session,
+                    params['deviceToken'],
+                  ),
+        ),
         'status': _is.MethodConnector(
           name: 'status',
           params: {
