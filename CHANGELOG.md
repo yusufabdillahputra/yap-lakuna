@@ -90,6 +90,29 @@ di 0.168.0; sampai itu server dijalankan dari kode sumber.
   perubahan berikutnya cukup tampil sebagai *N perubahan menunggu*.
 - Header stepper aktivasi meluap di tablet sempit dan dialog kode pasang
   meluap di HP 360 px.
+- Aktivasi yang balasannya hilang (jaringan putus setelah server
+  menyimpan) kini bisa diulang dengan kode yang sama oleh pemilik yang sama
+  dalam 15 menit; sebelumnya kode dianggap terpakai dan toko terkunci dari
+  server.
+- Aktivasi yang gagal setelah token tersimpan (mis. disk penuh) tidak lagi
+  meninggalkan perangkat *aktif* tanpa sync; mencoba lagi melanjutkannya.
+- Gabung yang putus di tengah penarikan data dilanjutkan saat **Gabung**
+  ditekan lagi, tanpa memakai kode pasang lagi dan tanpa perangkat hantu.
+- Langkah *Unggah data* menampilkan alasan bila sync menunggu jaringan atau
+  ditolak, dan punya tombol **Lanjut di latar**.
+- Mematikan versi hosting (setelah pulihkan backup) kini mengulang unggah
+  data awal dan pull dari awal pada aktivasi berikutnya, termasuk ke server
+  baru.
+- Menutup atau memuat ulang aplikasi menunggu siklus sync yang sedang
+  berjalan selesai sebelum database ditutup.
+- Galat *versi hosting belum aktif* / *sudah aktif* punya teks sendiri.
+
+### Keamanan
+
+- Folder `hosting/` dibuat dengan izin 700 sebelum token ditulis (berkas
+  600), hanya di Linux/macOS; di Android/iOS folder data aplikasi sudah
+  terkurung dan iOS tidak boleh menjalankan `chmod`.
+- Aktivasi ulang mencabut token dari balasan yang hilang.
 
 ### Catatan teknis
 

@@ -9427,4 +9427,15 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get backupModeHostedBody =>
       'Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.';
+
+  @override
+  String get hostingErrorNotActive =>
+      'Versi hosting belum aktif di perangkat ini.';
+
+  @override
+  String get hostingErrorAlreadyActive =>
+      'Versi hosting sudah aktif di perangkat ini.';
+
+  @override
+  String get hostingUploadBackground => 'Lanjut di latar';
 }

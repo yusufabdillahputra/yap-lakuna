@@ -9710,4 +9710,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get backupModeHostedBody =>
       'Data syncs to the store\'s server. Backups are still useful as a spare copy; restoring a backup turns the hosted version off on this device.';
+
+  @override
+  String get hostingErrorNotActive =>
+      'The hosted version isn\'t active on this device.';
+
+  @override
+  String get hostingErrorAlreadyActive =>
+      'The hosted version is already active on this device.';
+
+  @override
+  String get hostingUploadBackground => 'Continue in background';
 }

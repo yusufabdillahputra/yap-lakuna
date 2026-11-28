@@ -181,9 +181,20 @@ class HostingVault {
   Future<void> writeToken(String token) async {
     final file = _file;
     await file.parent.create(recursive: true);
+    // Folder 700 lebih dulu agar berkas tidak pernah terbaca proses lain.
+    // Hanya desktop POSIX: iOS tidak boleh menjalankan proses dan aplikasi
+    // Android/iOS sudah terkurung di folder datanya sendiri.
+    await _chmod('700', file.parent.path);
     await file.writeAsString(token, flush: true);
-    if (!Platform.isWindows) {
-      await Process.run('chmod', ['600', file.path]);
+    await _chmod('600', file.path);
+  }
+
+  static Future<void> _chmod(String mode, String path) async {
+    if (!Platform.isLinux && !Platform.isMacOS) return;
+    try {
+      await Process.run('chmod', [mode, path]);
+    } on ProcessException {
+      // Izin berkas hanya lapisan tambahan; token tetap tersimpan.
     }
   }
 
@@ -430,8 +441,25 @@ Future<SyncCycleResult> runHostingCycle(SyncEngine engine) async {
 Future<void> disableHosting(LakunaStore store) async {
   await HostingVault.of(store).deleteToken();
   await writeSyncState(store.session, SyncStateKey.serverUrl, '');
-  await writeSyncState(store.session, SyncStateKey.initialUploadAcked, '');
+  // Aktivasi berikutnya (bisa ke server lain) mulai dari awal: outbox
+  // dipadatkan ulang dan pull dari seq 0.
+  await SyncStateEntry.db.deleteWhere(
+    store.session,
+    where: (t) => t.key.inSet({for (final k in _hostingSessionKeys) k.key}),
+  );
 }
+
+const _hostingSessionKeys = [
+  SyncStateKey.initialUpload,
+  SyncStateKey.initialUploadCursor,
+  SyncStateKey.initialUploadAcked,
+  SyncStateKey.restampHlc,
+  SyncStateKey.pullCursor,
+  SyncStateKey.pullParked,
+  SyncStateKey.syncPaused,
+  SyncStateKey.lastError,
+  SyncStateKey.lastSyncAt,
+];
 
 // --- Gabung lewat kode pasang (aturan 10, 10a) ------------------------------
 
@@ -472,27 +500,42 @@ Future<void> joinHosting({
   final staging = Directory(_pathJoin(dataDir, _joinDir));
   final dbName = databasePath.split(Platform.pathSeparator).last;
   await checkHostingServer(client, appVersion: appVersion);
-  await backupFirst();
-  if (staging.existsSync()) await staging.delete(recursive: true);
-  final result = await client.joinWithPairingCode(
-    pairingCode: pairingCode,
-    outletId: outletId,
-    deviceCode: deviceCode,
-    deviceName: deviceName,
-    platform: platform,
-  );
-  final joined = await openJoinedStore(
-    _pathJoin(staging.path, dbName),
-    deviceId: result.deviceId,
-    clock: clock,
-  );
+  final stagedDb = _pathJoin(staging.path, dbName);
+  final vault = HostingVault(staging.path);
+  // Gabung yang putus di tengah pull (kode sudah terpakai, perangkat sudah
+  // terdaftar di server) dilanjutkan dari kursornya, bukan pasang ulang.
+  final resume = await _resumableJoin(staging, stagedDb, vault, serverUrl);
+  final LakunaStore joined;
+  final String token;
+  if (resume != null) {
+    token = resume;
+    joined = await LakunaStore.open(stagedDb, clock: clock);
+  } else {
+    await backupFirst();
+    if (staging.existsSync()) await staging.delete(recursive: true);
+    final result = await client.joinWithPairingCode(
+      pairingCode: pairingCode,
+      outletId: outletId,
+      deviceCode: deviceCode,
+      deviceName: deviceName,
+      platform: platform,
+    );
+    token = result.deviceToken;
+    joined = await openJoinedStore(
+      stagedDb,
+      deviceId: result.deviceId,
+      clock: clock,
+    );
+    try {
+      await vault.writeToken(token);
+      await writeSyncState(joined.session, SyncStateKey.serverUrl, serverUrl);
+    } on Object {
+      await joined.close();
+      rethrow;
+    }
+  }
   try {
-    await HostingVault(staging.path).writeToken(result.deviceToken);
-    await writeSyncState(joined.session, SyncStateKey.serverUrl, serverUrl);
-    final cycle = await SyncEngine(
-      joined,
-      transport(result.deviceToken),
-    ).runCycle();
+    final cycle = await SyncEngine(joined, transport(token)).runCycle();
     if (cycle.outcome == SyncCycleOutcome.offline) {
       throw const SyncOfflineException();
     }
@@ -504,6 +547,32 @@ Future<void> joinHosting({
   }
   await File(_pathJoin(staging.path, _joinReady))
       .writeAsString(DateTime.now().toUtc().toIso8601String(), flush: true);
+}
+
+/// Token gabung yang belum selesai di [staging] untuk [serverUrl] yang
+/// sama, atau `null` bila gabung harus dimulai dari awal.
+Future<String?> _resumableJoin(
+  Directory staging,
+  String stagedDb,
+  HostingVault vault,
+  String serverUrl,
+) async {
+  if (!staging.existsSync() ||
+      File(_pathJoin(staging.path, _joinReady)).existsSync() ||
+      !File(stagedDb).existsSync()) {
+    return null;
+  }
+  final token = await vault.readToken();
+  if (token == null) return null;
+  final store = await LakunaStore.open(stagedDb);
+  try {
+    if (await store.syncState(SyncStateKey.serverUrl) != serverUrl) {
+      return null;
+    }
+  } finally {
+    await store.close();
+  }
+  return token;
 }
 
 /// Memasang database hasil [joinHosting] sebelum database dibuka. Data

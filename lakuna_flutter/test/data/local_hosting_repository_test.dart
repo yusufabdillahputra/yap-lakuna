@@ -107,6 +107,26 @@ void main() {
   );
 
   test(
+    'aktivasi terputus setelah token tersimpan: ulang menyalakan sync',
+    () async {
+      // Token dan alamat sudah tersimpan, tetapi langkah sesudahnya gagal
+      // (mis. disk penuh) sehingga sync belum menyala.
+      await HostingVault.of(store).writeToken('token-aktivasi');
+      await writeSyncState(
+        store.session,
+        SyncStateKey.serverUrl,
+        'https://sync.contoh.id',
+      );
+      expect(store.afterWrite, isNull);
+      _ok(
+        await repo.activate('sync.contoh.id', activationCode: 'KODE2345'),
+      );
+      expect(store.afterWrite, isNotNull);
+      expect(connections.last.transportToken, 'token-aktivasi');
+    },
+  );
+
+  test(
     'aktivasi: token di brankas, sync menyala, sesi pemilik ditutup',
     () async {
       _ok(await repo.checkServer('sync.contoh.id'));

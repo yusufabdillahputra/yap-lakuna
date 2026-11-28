@@ -6690,5 +6690,17 @@
   "backupModeHostedBody": "Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.",
   "@backupModeHostedBody": {
     "placeholders": {}
+  },
+  "hostingErrorNotActive": "Versi hosting belum aktif di perangkat ini.",
+  "@hostingErrorNotActive": {
+    "placeholders": {}
+  },
+  "hostingErrorAlreadyActive": "Versi hosting sudah aktif di perangkat ini.",
+  "@hostingErrorAlreadyActive": {
+    "placeholders": {}
+  },
+  "hostingUploadBackground": "Lanjut di latar",
+  "@hostingUploadBackground": {
+    "placeholders": {}
   }
 }

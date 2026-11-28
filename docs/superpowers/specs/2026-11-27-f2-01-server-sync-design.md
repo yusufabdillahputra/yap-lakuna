@@ -459,6 +459,9 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Mesin sync klien | — | Rilis v0.165.0 | `SyncEngine`, `SyncScheduler`, pemadatan outbox, unggah awal bisa dilanjutkan, parkir pull, `stock_levels` per varian. Belum dipasang di aplikasi (tahap 3). |
 | Aktivasi + pasang perangkat + chip status | 2.1 | Rilis v0.166.0 | Stepper 4 langkah, kartu Versi hosting, kode pasang + kode lengkap `<alamat>#<kode>`, gabung dari onboarding atau Pengaturan, chip 6 keadaan, sync otomatis setelah tulis. |
 | Token perangkat di penyimpanan aman platform | — | Belum | Tahap 3 memakai berkas izin 600 di folder data (bukan di database); Keychain/Keystore/libsecret menyusul. |
+| Pulihkan backup di toko dengan satu perangkat hosting | — | Belum | Memulihkan backup mematikan versi hosting; memasang ulang butuh kode pasang dari perangkat aktif. Kode pasang lewat login pemilik menyusul di F2-04. |
+| Ulang aktivasi setelah balasan hilang | — | Rilis v0.166.0 | Pemilik sama, kode sama, tenant + perangkat sama, ≤ 15 menit: token baru, token lama dicabut. |
+| Lanjutkan gabung yang putus | — | Sebagian | Dilanjutkan saat **Gabung** ditekan lagi; setelah aplikasi dimulai ulang kode sudah terpakai. |
 | Sync dijeda | — | Rilis v0.166.0 | Perluasan desain: chip *Sync dijeda (n)*, jeda bertahan setelah aplikasi dibuka ulang. |
 | Aset ke object storage | — | Belum | Tahap 4. |
 | Paket deploy VPS + panduan | — | Belum | Tahap 5; satu paket untuk server hosting Yusuf dan server sendiri toko. |

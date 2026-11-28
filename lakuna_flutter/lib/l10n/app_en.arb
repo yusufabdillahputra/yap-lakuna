@@ -5703,5 +5703,8 @@
   "syncChipAttention": "Needs attention",
   "syncChipClock": "Device clock is wrong",
   "backupModeHosted": "Hosted version · active",
-  "backupModeHostedBody": "Data syncs to the store's server. Backups are still useful as a spare copy; restoring a backup turns the hosted version off on this device."
+  "backupModeHostedBody": "Data syncs to the store's server. Backups are still useful as a spare copy; restoring a backup turns the hosted version off on this device.",
+  "hostingErrorNotActive": "The hosted version isn't active on this device.",
+  "hostingErrorAlreadyActive": "The hosted version is already active on this device.",
+  "hostingUploadBackground": "Continue in background"
 }

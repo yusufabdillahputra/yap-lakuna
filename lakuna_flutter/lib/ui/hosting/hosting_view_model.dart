@@ -135,9 +135,9 @@ class HostingViewModel extends ChangeNotifier {
     final result = await _repository.load();
     if (result case Ok(:final value)) {
       _state = value;
-      if (value.active && value.pending > 0 && !_activating) {
-        await _refreshProgress();
-      }
+      // Selalu dibaca ulang saat aktif: daftar unggah awal hilang begitu
+      // unggahan tuntas (perubahan menunggu 0).
+      if (value.active && !_activating) await _refreshProgress();
     }
     return result;
   }

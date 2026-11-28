@@ -16,6 +16,8 @@ String hostingErrorText(AppLocalizations l10n, Object error) => switch (error) {
   ),
   HostingNotPermitted() || NotPermitted() => l10n.hostingErrorNotPermitted,
   HostingJoinIncomplete() => l10n.joinIncomplete,
+  HostingNotActive() => l10n.hostingErrorNotActive,
+  HostingAlreadyActive() => l10n.hostingErrorAlreadyActive,
   ActivationException(:final reason) => switch (reason) {
     ActivationFailure.codeInvalid => l10n.hostingFailCodeInvalid,
     ActivationFailure.codeUsed => l10n.hostingFailCodeUsed,

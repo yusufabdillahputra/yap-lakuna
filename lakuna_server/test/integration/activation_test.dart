@@ -104,6 +104,64 @@ void main() {
       );
     });
 
+    test(
+      'ulang aktivasi dengan kode sama (balasan pertama hilang): token baru',
+      () async {
+        final c = await code();
+        final first = await activate(c);
+        final again = await activate(c);
+        expect(again.tenantId, tenantId);
+        expect(again.deviceToken, isNot(first.deviceToken));
+        final status = await endpoints.sync.status(
+          sessionBuilder,
+          again.deviceToken,
+        );
+        expect(status.tenantKnown, isTrue);
+        // Token dari balasan yang hilang tidak berlaku lagi.
+        final session = sessionBuilder.build();
+        final active = await DeviceCredential.db.find(
+          session,
+          where: (d) => d.revokedAt.equals(null),
+        );
+        expect(active.single.tokenHash, secretHash(again.deviceToken));
+      },
+    );
+
+    test('ulang aktivasi lewat 15 menit: kode sudah dipakai', () async {
+      final c = await code();
+      await activate(c);
+      final session = sessionBuilder.build();
+      final row = (await ActivationCode.db.find(session)).single;
+      await ActivationCode.db.updateRow(
+        session,
+        row.copyWith(
+          usedAt: DateTime.now().toUtc().subtract(const Duration(minutes: 16)),
+        ),
+      );
+      await expectLater(activate(c), failsWith(ActivationFailure.codeUsed));
+    });
+
+    test('ulang aktivasi oleh akun lain ditolak', () async {
+      final c = await code();
+      await activate(c);
+      await expectLater(
+        endpoints.activation.activateFirstDevice(
+          sessionBuilder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              '01900000-0000-7000-8000-00000000ff02',
+              {},
+            ),
+          ),
+          c,
+          tenantId,
+          deviceA,
+          'Toko Maju',
+          'K01',
+        ),
+        failsWith(ActivationFailure.codeUsed),
+      );
+    });
+
     test('kode aktivasi kedaluwarsa ditolak', () async {
       final c = await code(
         days: 1,

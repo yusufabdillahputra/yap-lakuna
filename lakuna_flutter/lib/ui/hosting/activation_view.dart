@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/hosting_repository.dart'
+    show SyncChipKind, SyncStatus;
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/breakpoints.dart';
@@ -468,6 +470,18 @@ class _UploadStep extends StatelessWidget {
           style: muted,
         ),
         if (started) UploadProgressList(progress: vm.progress),
+        // Siklus offline atau ditolak selama unggah: alasannya tampil di
+        // sini, bukan hanya di chip.
+        if (started && !paused)
+          if (vm.status case SyncStatus(
+            kind: SyncChipKind.attention || SyncChipKind.waiting,
+            :final error?,
+          ))
+            FAlert(
+              key: const ValueKey('hosting-upload-error'),
+              variant: error == 'network' ? .primary : .destructive,
+              title: Text(syncErrorText(l10n, error)),
+            ),
         Text(l10n.hostingUploadIntro, style: muted),
         if (vm.activate.result case Error(:final error))
           _error(l10n, error, 'hosting-activate-error'),
@@ -493,7 +507,15 @@ class _UploadStep extends StatelessWidget {
                     : const Icon(TablerIcons.cloudUpload),
                 child: Flexible(child: Text(l10n.hostingActivateNow)),
               ),
-            ] else
+            ] else ...[
+              FButton(
+                key: const ValueKey('hosting-upload-background'),
+                variant: .outline,
+                mainAxisSize: .min,
+                onPress: vm.finishActivation,
+                prefix: const Icon(TablerIcons.arrowRight),
+                child: Flexible(child: Text(l10n.hostingUploadBackground)),
+              ),
               FButton(
                 key: const ValueKey('hosting-upload-pause'),
                 variant: .outline,
@@ -510,6 +532,7 @@ class _UploadStep extends StatelessWidget {
                   ),
                 ),
               ),
+            ],
           ],
         ),
       ],

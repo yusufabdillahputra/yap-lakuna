@@ -50,6 +50,15 @@ void main() {
     expect(await Tenant.db.count(joined.session), 0);
   });
 
+  test('brankas token: folder 700 dan berkas 600 di Linux/macOS', () async {
+    final vault = HostingVault('${dir.path}/brankas');
+    await vault.writeToken('rahasia');
+    expect(await vault.readToken(), 'rahasia');
+    int mode(String path) => FileStat.statSync(path).mode & 0x1ff;
+    expect(mode('${dir.path}/brankas/hosting'), 0x1c0);
+    expect(mode('${dir.path}/brankas/hosting/device-token'), 0x180);
+  }, skip: Platform.isLinux || Platform.isMacOS ? false : 'hanya POSIX');
+
   test('perangkat gabungan menolak berkas database yang sudah ada', () async {
     await expectLater(
       openJoinedStore(
@@ -302,6 +311,38 @@ void main() {
       expect(await HostingVault.of(store).readToken(), isNull);
     });
 
+    test(
+      'mematikan versi hosting mengulang unggah awal di aktivasi berikutnya',
+      () async {
+        await activate();
+        final transport = FakeSyncTransport(serverTime: now);
+        await runHostingCycle(SyncEngine(store, transport));
+        expect(await store.syncState(SyncStateKey.initialUpload), 'done');
+        await disableHosting(store);
+        for (final key in [
+          SyncStateKey.initialUpload,
+          SyncStateKey.initialUploadCursor,
+          SyncStateKey.initialUploadAcked,
+          SyncStateKey.restampHlc,
+          SyncStateKey.pullCursor,
+          SyncStateKey.pullParked,
+          SyncStateKey.syncPaused,
+          SyncStateKey.lastError,
+          SyncStateKey.lastSyncAt,
+        ]) {
+          expect(await store.syncState(key), isNull, reason: key.key);
+        }
+        // Server baru: semua data diunggah lagi dari awal.
+        client = FakeHostingClient(serverTime: now);
+        await activate();
+        final pending = await SyncOutboxEntry.db.count(
+          store.session,
+          where: (e) => e.status.equals(OutboxStatus.pending),
+        );
+        expect(pending, greaterThan(0));
+      },
+    );
+
     group('gabung', () {
       late LakunaStore source;
       late Directory sourceDir;
@@ -421,6 +462,23 @@ void main() {
         await join(backup: () async {});
         expect(await applyPendingJoin(joinPath), isNotNull);
       });
+
+      test(
+        'gabung putus di tengah pull dilanjutkan tanpa memakai kode lagi',
+        () async {
+          transport.offline = true;
+          await expectLater(
+            join(backup: () async {}),
+            throwsA(isA<SyncOfflineException>()),
+          );
+          transport.offline = false;
+          // Kode pasang sudah terpakai di server: ulang tidak boleh pasang
+          // perangkat kedua (kode perangkat bentrok, perangkat hantu).
+          await join(backup: () async {});
+          expect(client.calls.where((c) => c == 'join'), hasLength(1));
+          expect(await applyPendingJoin(joinPath), isNotNull);
+        },
+      );
     });
   });
 }

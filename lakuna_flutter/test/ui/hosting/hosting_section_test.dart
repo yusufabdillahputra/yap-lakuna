@@ -106,6 +106,20 @@ void main() {
         await _tap(tester, 'hosting-upload-pause');
         expect(hosting.calls, contains('paused:false'));
 
+        // Siklus bermasalah selama unggah: alasannya tampil dan pengguna
+        // bisa melanjutkan di latar, tidak terjebak di langkah 3.
+        hosting.status = const SyncStatus(
+          kind: SyncChipKind.attention,
+          error: 'invalidToken',
+        );
+        await tester.pumpAndSettle();
+        expect(_key('hosting-upload-error'), findsOneWidget);
+        expect(find.textContaining('menolak token'), findsOneWidget);
+        expect(_key('hosting-upload-background'), findsOneWidget);
+        hosting.status = const SyncStatus(kind: SyncChipKind.syncing);
+        await tester.pumpAndSettle();
+        expect(_key('hosting-upload-error'), findsNothing);
+
         // Siklus yang menuntaskan unggah awal: progres kosong (data).
         hosting.progress = const [];
         await tester.pump(const Duration(seconds: 1));
@@ -368,6 +382,40 @@ void main() {
       await _tap(tester, 'sync-chip');
       expect(_key('hosting-section'), findsOneWidget);
       expect(find.textContaining('menolak token'), findsOneWidget);
+    });
+
+    testWidgets('daftar unggah awal hilang setelah unggah tuntas', (
+      tester,
+    ) async {
+      final hosting = FakeHostingRepository(
+        state: hostingState(
+          active: true,
+          serverUrl: 'https://sync.tokocontoh.id/',
+          pending: 6592,
+        ),
+        status: const SyncStatus(kind: SyncChipKind.syncing, pending: 6592),
+      )..progress = _progress(8410);
+      await pumpLakuna(
+        tester,
+        store: _jakarta(),
+        initialLocation: _hostingRoute,
+        hosting: hosting,
+      );
+      expect(_key('hosting-upload-progress'), findsOneWidget);
+      // Siklus menuntaskan unggah awal: tidak ada perubahan menunggu.
+      hosting
+        ..state = hostingState(
+          active: true,
+          serverUrl: 'https://sync.tokocontoh.id/',
+          lastSyncAt: DateTime.utc(2026, 11, 28, 7, 40),
+        )
+        ..progress = const [];
+      hosting.status = SyncStatus(
+        kind: SyncChipKind.synced,
+        lastSyncAt: DateTime.utc(2026, 11, 28, 7, 40),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('hosting-upload-progress'), findsNothing);
     });
 
     testWidgets('chip berganti saat status berubah', (tester) async {

@@ -5,6 +5,7 @@ import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart' as data;
 import 'package:lakuna_data/lakuna_data.dart'
     show
+        HostingAlreadyActive,
         HostingNotActive,
         HostingState,
         HostingVault,
@@ -144,9 +145,12 @@ class LocalHostingRepository extends HostingRepository {
 
   /// Menghentikan sync (saat aplikasi ditutup atau dimuat ulang).
   Future<void> stop() async {
-    _scheduler?.stop();
+    final scheduler = _scheduler;
     _scheduler = null;
     _store.afterWrite = null;
+    // Siklus yang sedang berjalan selesai dulu sebelum koneksi (dan
+    // sesudahnya database) ditutup.
+    await scheduler?.stop();
     _syncConnection?.close();
     _syncConnection = null;
     for (final c in _connections.values) {
@@ -244,18 +248,26 @@ class LocalHostingRepository extends HostingRepository {
     required String activationCode,
   }) => _manage((ctx, staff) async {
     final uri = _server(serverUrl);
-    await data.activateHosting(
-      _store,
-      ctx,
-      staffId: staff.id,
-      serverUrl: uri.toString(),
-      activationCode: activationCode,
-      client: _connection(serverUrl),
-      appVersion: _appVersion,
-    );
+    try {
+      await data.activateHosting(
+        _store,
+        ctx,
+        staffId: staff.id,
+        serverUrl: uri.toString(),
+        activationCode: activationCode,
+        client: _connection(serverUrl),
+        appVersion: _appVersion,
+      );
+    } on HostingAlreadyActive {
+      // Percobaan ulang setelah aktivasi terputus sesudah token tersimpan:
+      // siklus sync melanjutkan tanda hosted dan pemadatan (aturan 15).
+    } finally {
+      // Token sudah tersimpan walau langkah sesudahnya gagal: sync tetap
+      // dinyalakan agar perangkat tidak aktif tanpa sync.
+      if ((await data.loadHostingState(_store)).active) await start();
+    }
     // Sesi pemilik tidak dipakai lagi setelah perangkat punya token.
     _connections.remove(uri.toString())?.close();
-    await start();
   });
 
   @override

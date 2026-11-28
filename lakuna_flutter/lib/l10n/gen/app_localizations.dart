@@ -16238,6 +16238,24 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.'**
   String get backupModeHostedBody;
+
+  /// No description provided for @hostingErrorNotActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosting belum aktif di perangkat ini.'**
+  String get hostingErrorNotActive;
+
+  /// No description provided for @hostingErrorAlreadyActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosting sudah aktif di perangkat ini.'**
+  String get hostingErrorAlreadyActive;
+
+  /// No description provided for @hostingUploadBackground.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut di latar'**
+  String get hostingUploadBackground;
 }
 
 class _AppLocalizationsDelegate
