@@ -98,7 +98,8 @@ class SyncEndpoint extends Endpoint {
       serverVersion: serverVersion,
       protocolVersion: syncProtocolVersion,
       serverTime: DateTime.now().toUtc(),
-      tenantKnown: credential != null,
+      tenantKnown:
+          credential != null && !credentialExpired(credential, DateTime.now()),
     );
   }
 }

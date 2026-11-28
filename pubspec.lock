@@ -113,6 +113,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  cipherlib:
+    dependency: transitive
+    description:
+      name: cipherlib
+      sha256: "04e6c25e2740610f24b6fb3ba57fc878ca5e2b87d09248f3a19856b6f7c71e17"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.2"
   cli_config:
     dependency: transitive
     description:

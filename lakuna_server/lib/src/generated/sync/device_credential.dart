@@ -25,6 +25,7 @@ abstract class DeviceCredential
     DateTime? createdAt,
     this.lastSeenAt,
     this.revokedAt,
+    this.expiresAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   factory DeviceCredential({
@@ -35,6 +36,7 @@ abstract class DeviceCredential
     DateTime? createdAt,
     DateTime? lastSeenAt,
     DateTime? revokedAt,
+    DateTime? expiresAt,
   }) = _DeviceCredentialImpl;
 
   factory DeviceCredential.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -56,6 +58,9 @@ abstract class DeviceCredential
       revokedAt: jsonSerialization['revokedAt'] == null
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['revokedAt']),
+      expiresAt: jsonSerialization['expiresAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['expiresAt']),
     );
   }
 
@@ -78,6 +83,9 @@ abstract class DeviceCredential
 
   DateTime? revokedAt;
 
+  /// Batas berlaku token (perangkat web, F2-02 aturan 11); kosong = tanpa batas.
+  DateTime? expiresAt;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -92,6 +100,7 @@ abstract class DeviceCredential
     DateTime? createdAt,
     DateTime? lastSeenAt = const _is.$UndefinedDateTime(),
     DateTime? revokedAt = const _is.$UndefinedDateTime(),
+    DateTime? expiresAt = const _is.$UndefinedDateTime(),
   });
   @override
   Map<String, dynamic> toJson() {
@@ -104,6 +113,7 @@ abstract class DeviceCredential
       'createdAt': createdAt.toJson(),
       if (lastSeenAt != null) 'lastSeenAt': lastSeenAt?.toJson(),
       if (revokedAt != null) 'revokedAt': revokedAt?.toJson(),
+      if (expiresAt != null) 'expiresAt': expiresAt?.toJson(),
     };
   }
 
@@ -151,6 +161,7 @@ class _DeviceCredentialImpl extends DeviceCredential {
     DateTime? createdAt,
     DateTime? lastSeenAt,
     DateTime? revokedAt,
+    DateTime? expiresAt,
   }) : super._(
          id: id,
          tenantId: tenantId,
@@ -159,6 +170,7 @@ class _DeviceCredentialImpl extends DeviceCredential {
          createdAt: createdAt,
          lastSeenAt: lastSeenAt,
          revokedAt: revokedAt,
+         expiresAt: expiresAt,
        );
 
   /// Returns a shallow copy of this [DeviceCredential]
@@ -173,6 +185,7 @@ class _DeviceCredentialImpl extends DeviceCredential {
     DateTime? createdAt,
     DateTime? lastSeenAt = const _is.$UndefinedDateTime(),
     DateTime? revokedAt = const _is.$UndefinedDateTime(),
+    DateTime? expiresAt = const _is.$UndefinedDateTime(),
   }) {
     return DeviceCredential(
       id: id is int? ? id : this.id,
@@ -186,6 +199,9 @@ class _DeviceCredentialImpl extends DeviceCredential {
       revokedAt: revokedAt is _is.UndefinedSentinel
           ? this.revokedAt
           : revokedAt,
+      expiresAt: expiresAt is _is.UndefinedSentinel
+          ? this.expiresAt
+          : expiresAt,
     );
   }
 }
@@ -228,6 +244,12 @@ class DeviceCredentialUpdateTable
         table.revokedAt,
         value,
       );
+
+  _is.ColumnValue<DateTime, DateTime> expiresAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.expiresAt,
+        value,
+      );
 }
 
 class DeviceCredentialTable extends _is.Table<int?> {
@@ -265,6 +287,11 @@ class DeviceCredentialTable extends _is.Table<int?> {
       this,
       fieldName: 'revokedAt',
     );
+    expiresAt = _is.ColumnDateTime(
+      'expires_at',
+      this,
+      fieldName: 'expiresAt',
+    );
   }
 
   late final DeviceCredentialUpdateTable updateTable;
@@ -281,6 +308,9 @@ class DeviceCredentialTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime revokedAt;
 
+  /// Batas berlaku token (perangkat web, F2-02 aturan 11); kosong = tanpa batas.
+  late final _is.ColumnDateTime expiresAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -290,6 +320,7 @@ class DeviceCredentialTable extends _is.Table<int?> {
     createdAt,
     lastSeenAt,
     revokedAt,
+    expiresAt,
   ];
 }
 

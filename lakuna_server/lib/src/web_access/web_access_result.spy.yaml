@@ -1,0 +1,9 @@
+### Hasil login web: perangkat web baru tenant dan tokennya (dikirim sekali).
+class: WebAccessResult
+fields:
+  deviceToken: String
+  tenantId: UuidValue
+  deviceId: UuidValue
+  deviceCode: String
+  outletId: UuidValue
+  expiresAt: DateTime

@@ -1,0 +1,5 @@
+### Toko milik akun yang bisa dibuka di web (pilihan toko, aturan 13a).
+class: WebTenant
+fields:
+  tenantId: UuidValue
+  name: String

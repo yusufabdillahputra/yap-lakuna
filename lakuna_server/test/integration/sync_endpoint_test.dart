@@ -128,6 +128,38 @@ void main() {
       }
     });
 
+    test('token web lewat batas berlaku: SyncAuthException expired, '
+        'sebelum batas tetap jalan', () async {
+      const expired = 'token-web-expired-0123';
+      const fresh = 'token-web-fresh-01234';
+      for (final (token, expiresAt) in [
+        (expired, now.subtract(const Duration(minutes: 1))),
+        (fresh, now.add(const Duration(hours: 1))),
+      ]) {
+        await DeviceCredential.db.insertRow(
+          sessionBuilder.build(),
+          DeviceCredential(
+            tenantId: tenantId,
+            deviceId: deviceB,
+            tokenHash: secretHash(token),
+            expiresAt: expiresAt,
+          ),
+        );
+      }
+      await expectLater(
+        endpoints.sync.push(sessionBuilder, expired, []),
+        throwsA(
+          isA<SyncAuthException>().having((e) => e.reason, 'reason', 'expired'),
+        ),
+      );
+      await expectLater(
+        endpoints.sync.pull(sessionBuilder, expired, 0),
+        throwsA(isA<SyncAuthException>()),
+      );
+      final page = await endpoints.sync.pull(sessionBuilder, fresh, 0);
+      expect(page.changes, isA<List<SyncPullChange>>());
+    });
+
     test('push lalu pull dari perangkat lain, urut seq', () async {
       final entries = [
         for (var i = 1; i <= 3; i++) staff(tenantId, deviceA, i),

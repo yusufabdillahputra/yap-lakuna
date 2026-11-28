@@ -1,0 +1,5 @@
+### Rahasia TOTP baru yang belum dikonfirmasi, untuk QR dan teks salin.
+class: TotpEnrollment
+fields:
+  secretBase32: String
+  otpauthUri: String

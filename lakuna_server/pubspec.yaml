@@ -10,6 +10,7 @@ resolution: workspace
 
 dependencies:
   args: ^2.7.0
+  cipherlib: ^0.7.2
   lakuna_domain:
     path: ../packages/lakuna_domain
   mailer: ^7.3.0
