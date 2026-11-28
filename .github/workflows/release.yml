@@ -230,6 +230,7 @@ jobs:
       packages: write
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
+      DOCKER_BUILD_RECORD_UPLOAD: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -286,9 +287,12 @@ jobs:
       IOS_RESULT: ${{ needs.ios.result }}
     steps:
       - uses: actions/checkout@v4
+      # Hanya artefak installer: build image juga mengunggah catatan build
+      # `*.dockerbuild` yang tidak bisa diekstrak download-artifact.
       - uses: actions/download-artifact@v4
         with:
           path: dist
+          pattern: '{linux,windows,macos,android,ios}'
           merge-multiple: true
       - name: Catatan rilis dari CHANGELOG
         run: |

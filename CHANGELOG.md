@@ -90,7 +90,10 @@ toko dan server sendiri satu toko.
   menjawab, CLI admin membuat kode aktivasi, tes `backup.sh` dengan
   `pg_dump` tiruan di `lakuna_server/deploy/test/backup_test.sh`) dan
   `Build image Caddy` (`caddy validate` untuk domain produksi + media dan
-  untuk nilai bawaan uji lokal). Rilis: job `server-image` mendorong kedua image ke
+  untuk nilai bawaan uji lokal). Rilis hanya mengunduh artefak installer
+  (catatan build `*.dockerbuild` dari job image tidak bisa diekstrak
+  `download-artifact` dan menggagalkan rilis pertama 0.168.0), dan job
+  image tidak lagi mengunggah catatan build itu. Rilis: job `server-image` mendorong kedua image ke
   GHCR.
 - Uji lokal end-to-end: `docker compose up` (server, Postgres, Caddy,
   backup) sehat, `/readyz` 200 lewat Caddy, batas laju 429 setelah 30
