@@ -78,6 +78,10 @@ bool isOfflineError(Object e) =>
 /// 13).
 const _retriedReasons = ['dependency', 'clock'];
 
+/// Progres pull: [pulled] perubahan diterima di siklus ini, [remaining]
+/// sisa di server (`null` dari server lama).
+typedef PullProgress = void Function(int pulled, int? remaining);
+
 /// Mesin sync satu perangkat. Satu siklus pada satu waktu.
 class SyncEngine {
   SyncEngine(
@@ -94,11 +98,12 @@ class SyncEngine {
   Future<SyncCycleResult>? _running;
 
   /// Menjalankan satu siklus; bila siklus lain sedang jalan, menunggu
-  /// siklus itu saja.
-  Future<SyncCycleResult> runCycle() =>
-      _running ??= _cycle().whenComplete(() => _running = null);
+  /// siklus itu saja. [onPull] dipanggil setelah setiap halaman pull
+  /// (progres *Menyiapkan data toko* di web, F2-02).
+  Future<SyncCycleResult> runCycle({PullProgress? onPull}) =>
+      _running ??= _cycle(onPull).whenComplete(() => _running = null);
 
-  Future<SyncCycleResult> _cycle() async {
+  Future<SyncCycleResult> _cycle(PullProgress? onPull) async {
     String? error;
     var outcome = SyncCycleOutcome.synced;
     try {
@@ -107,7 +112,7 @@ class SyncEngine {
         await prepareInitialUpload(store, serverNow: status.serverTime);
       }
       error = await _push();
-      await _pull();
+      await _pull(onPull);
       final now = _clock().toUtc();
       await _write(SyncStateKey.lastSyncAt, now.toIso8601String());
     } on SyncAuthException catch (e) {
@@ -311,10 +316,11 @@ class SyncEngine {
 
   /// Pull sampai habis. Perubahan yang diparkir dicoba lagi setelah halaman
   /// pertama; kursor dan daftar parkir disimpan di transaksi yang sama.
-  Future<void> _pull() async {
+  Future<void> _pull(PullProgress? onPull) async {
     final session = store.session;
     var parked = await _parked();
     var first = true;
+    var pulled = 0;
     while (true) {
       final cursor =
           int.tryParse(await store.syncState(SyncStateKey.pullCursor) ?? '') ??
@@ -359,6 +365,8 @@ class SyncEngine {
         parked = failed;
       });
       first = false;
+      pulled += page.changes.length;
+      onPull?.call(pulled, page.remaining);
       if (!page.hasMore) break;
     }
   }

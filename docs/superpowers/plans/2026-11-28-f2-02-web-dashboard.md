@@ -129,15 +129,15 @@ Tugas 3 dan 6.
   aturan 8); `pinnedCount` masuk hitungan *belum terkirim* untuk
   `beforeunload` (aturan 7). Spec aturan 8 diperbarui.
 
-- [ ] Tes gagal: `MemoryMediaBlobs(maxBytes: 10)` tulis 4+4+4 byte → kunci
+- [x] Tes gagal: `MemoryMediaBlobs(maxBytes: 10)` tulis 4+4+4 byte → kunci
   pertama terbuang, dua terakhir ada; `read` memindah kunci ke paling baru;
   kunci `pinned` tidak terbuang walau melebihi batas, terbuang setelah
   `unpin` + tulis berikutnya; `StateTokenVault` tulis/baca/hapus lewat
   `sync_state`; `storeMediaFile` + `readMediaFile` dengan store ber-
   `MemoryMediaBlobs` mengembalikan bytes yang sama tanpa membuat folder
   `media`.
-- [ ] Jalankan `cd packages/lakuna_data && dart test test/media_blobs_test.dart test/token_vault_test.dart`: gagal.
-- [ ] Implementasi; `dart test` seluruh paket: lulus. Commit.
+- [x] Jalankan `cd packages/lakuna_data && dart test test/media_blobs_test.dart test/token_vault_test.dart`: gagal.
+- [x] Implementasi; `dart test` seluruh paket: lulus. Commit.
 
 ### Tugas 3: Sesi gabung web (tanpa staging) dan progres pull
 
@@ -147,7 +147,9 @@ Tugas 3 dan 6.
   hapus database sesi sesuai Tugas 1; versi io menghapus berkas
   `<nama>{,-wal,-shm,-journal}`).
 - Ubah: `lakuna_server/lib/src/sync/sync_pull_page.spy.yaml` (field
-  `headSeq: int?` = `seq` terbesar tenant saat pull), `sync_endpoint.dart`,
+  `remaining: int?` = jumlah perubahan tenant setelah `nextSeq`; `seq`
+  global lintas tenant jadi tidak bisa dipakai sebagai hitungan),
+  `sync_endpoint.dart`,
   `packages/lakuna_data/lib/src/sync/sync_engine.dart` (callback progres),
   `hosting.dart` (`openJoinedStore` tanpa `File` di web: cek ada/tidaknya
   lewat `sync_state` deviceId).
@@ -155,7 +157,7 @@ Tugas 3 dan 6.
   `lakuna_server/test/integration/sync_endpoint_test.dart` (headSeq).
 
 **Antarmuka (dihasilkan):**
-- `typedef PullProgress = void Function(int pulled, int? head);`
+- `typedef PullProgress = void Function(int pulled, int? remaining);`
 - `SyncEngine.runCycle({PullProgress? onPull})`.
 - `String webDatabaseName(UuidValue deviceId) => 'lakuna-${deviceId.uuid}.sqlite';`
 - `Future<LakunaStore> joinHostingWeb({required String databaseName, required UuidValue deviceId, required String deviceToken, required String serverUrl, required SyncTransport transport, PullProgress? onPull, DateTime Function()? clock})`
@@ -163,22 +165,23 @@ Tugas 3 dan 6.
   `serverUrl`, jalankan siklus sampai `hasMore` false; database yang sudah
   ada (lanjutan) memakai kursornya. Melempar `HostingJoinIncomplete` bila
   konteks toko belum lengkap, `SyncOfflineException` bila offline.
-  Mengembalikan store yang **tetap terbuka**.
+  Store ditutup sebelum kembali (`Future<void>`); aplikasi membukanya
+  saat dimulai ulang.
 - `Future<void> deleteWebDatabase(String name)`.
 
-- [ ] Tes gagal server: `pull` mengembalikan `headSeq` = seq terbesar
-  tenant (bukan perangkat lain tenant lain), juga saat halaman kosong.
-- [ ] Tes gagal data (transport palsu, 2.500 perubahan): `onPull` dipanggil
-  per halaman dengan `(1000, 2500)`, `(2000, 2500)`, `(2500, 2500)`;
+- [x] Tes gagal server: `pull` mengembalikan `remaining` per tenant, juga
+  saat halaman kosong.
+- [x] Tes gagal data (transport palsu, halaman 2): `onPull` dipanggil
+  per halaman dengan `(2, total-2)` … `(total, 0)`;
   hasil store punya `loadStoreContext` != null dan token di
   `StateTokenVault`.
-- [ ] Tes gagal (Fokus review 2): transport melempar offline setelah
+- [x] Tes gagal (Fokus review 2): transport melempar offline setelah
   halaman pertama → `SyncOfflineException`; panggil lagi dengan nama
-  database dan token yang sama → lanjut dari kursor 1000 (transport tidak
+  database dan token yang sama → lanjut dari kursor 2 (transport tidak
   menerima `afterSeq: 0` lagi), tanpa `joinWithPairingCode` baru.
-- [ ] Tes gagal: `deleteWebDatabase` versi io menghapus berkas dan
+- [x] Tes gagal: `deleteWebDatabase` versi io menghapus berkas dan
   sufiksnya.
-- [ ] `serverpod generate`, implementasi, tes server + data lulus. Commit.
+- [x] `serverpod generate`, implementasi, tes server + data lulus. Commit.
 
 ### Tugas 4: `AppPlatform`, menu dan rute web
 

@@ -289,8 +289,8 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 ## Kasus tepi
 
 - Pull pertama di browser lama (toko besar): layar *Menyiapkan data toko*
-  dengan progres "n dari m perubahan" (balasan pull diberi `headSeq`
-  server, field baru di `SyncPullPage`) dan tombol *Batal* (keluar).
+  dengan progres "n dari m perubahan" (balasan pull diberi `remaining`,
+  jumlah perubahan tenant setelah halaman itu, field baru di `SyncPullPage`) dan tombol *Batal* (keluar).
   Setiap login web menarik ulang seluruh log perubahan tenant dari awal;
   pull snapshot di server dicatat sebagai gap.
 - Browser privat / penyimpanan ditolak: pesan "Browser ini tidak

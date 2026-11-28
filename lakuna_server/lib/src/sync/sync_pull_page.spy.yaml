@@ -5,4 +5,8 @@ fields:
   ### `seq` terakhir di halaman ini (atau `afterSeq` bila kosong).
   nextSeq: int
   hasMore: bool
+  ### Jumlah perubahan tenant setelah `nextSeq` (termasuk milik perangkat
+  ### ini), untuk progres "n dari m" saat pull pertama (F2-02). `null` dari
+  ### server lama.
+  remaining: int?
   serverTime: DateTime

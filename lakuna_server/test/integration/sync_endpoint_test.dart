@@ -169,6 +169,11 @@ void main() {
       expect(b.changes, hasLength(1));
       final c = await endpoints.sync.pull(sessionBuilder, tokenC, 0);
       expect(c.changes, isEmpty);
+      // Sisa dihitung per tenant, bukan seluruh log server.
+      expect(b.remaining, 0);
+      final empty = await endpoints.sync.pull(sessionBuilder, tokenB, b.nextSeq);
+      expect(empty.changes, isEmpty);
+      expect(empty.remaining, 0);
     });
 
     test('1.001 perubahan: halaman 1.000 lalu 1', () async {
@@ -181,6 +186,8 @@ void main() {
       final first = await endpoints.sync.pull(sessionBuilder, tokenB, 0);
       expect(first.changes, hasLength(1000));
       expect(first.hasMore, isTrue);
+      // Sisa perubahan tenant setelah halaman ini (F2-02, progres pull).
+      expect(first.remaining, 1);
       final second = await endpoints.sync.pull(
         sessionBuilder,
         tokenB,
@@ -188,6 +195,7 @@ void main() {
       );
       expect(second.changes, hasLength(1));
       expect(second.hasMore, isFalse);
+      expect(second.remaining, 0);
     }, timeout: const Timeout(Duration(minutes: 3)));
 
     test('batch lebih dari 500 entri ditolak', () async {
