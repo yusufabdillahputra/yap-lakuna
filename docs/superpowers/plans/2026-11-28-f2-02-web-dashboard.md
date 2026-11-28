@@ -517,12 +517,12 @@ Tugas 3 dan 6.
 - `DateTime outletDayStart(DateTime nowUtc, String timezone)` memakai fungsi
   zona waktu yang sudah dipakai Laporan.
 
-- [ ] Tes gagal: rata-rata 100.001/3 → 33.333; 0 transaksi → 0; sumbu jam
+- [x] Tes gagal: rata-rata 100.001/3 → 33.333; 0 transaksi → 0; sumbu jam
   transaksi 06 dan 21 → 06–21, hanya 12 → 08–17; online 10:00 tepat
   online, 10:01 offline; stale `null` → true; terlaris menggabung 2 varian
   produk sama dan memotong ke 5; (Fokus review 4) `outletDayStart` untuk
   `Asia/Jayapura` pada 2026-11-28T15:30Z = 2026-11-29T00:00 WIT.
-- [ ] Implementasi, tes lulus. Commit.
+- [x] Implementasi, tes lulus. Commit.
 
 ### Tugas 13: Kueri dashboard multi-cabang (data)
 
@@ -538,11 +538,11 @@ Tugas 3 dan 6.
   disalin); terlaris 7 hari per outlet lalu digabung; di bawah minimum =
   varian dengan `min_stock_milli` dan stok lokasi outlet itu di bawahnya.
 
-- [ ] Tes gagal: 2 outlet beda zona, nota final + void + retur sebagian →
+- [x] Tes gagal: 2 outlet beda zona, nota final + void + retur sebagian →
   penjualan sama dengan Laporan outlet masing-masing hari itu; `outletId`
   membatasi satu outlet; nota tenant lain tidak terhitung; minimum per
   cabang dihitung terpisah.
-- [ ] Implementasi, tes `lakuna_data` seluruhnya lulus (Laporan tidak
+- [x] Implementasi, tes `lakuna_data` seluruhnya lulus (Laporan tidak
   berubah). Commit.
 
 ### Tugas 14: `sync.tenantStatus`
@@ -563,9 +563,9 @@ Tugas 3 dan 6.
   terbaru; konflik = `sync_conflicts` tenant `resolved_at` kosong.
 - `SyncTransport.tenantStatus()` → `Future<TenantStatus>`.
 
-- [ ] Tes gagal: 2 perangkat kasir + 1 web → 2 baris; perangkat dicabut
+- [x] Tes gagal: 2 perangkat kasir + 1 web → 2 baris; perangkat dicabut
   tidak muncul; tenant lain tidak muncul; 3 konflik, 1 selesai → 2.
-- [ ] `serverpod generate`, implementasi, tes lulus. Commit.
+- [x] `serverpod generate`, implementasi, tes lulus. Commit.
 
 ### Tugas 15: Layar dashboard 2.3, rilis 0.171.0
 
@@ -589,14 +589,14 @@ Tugas 3 dan 6.
   cabang*), `exportExcel()`. Status gagal (offline) → kartu perangkat
   "Status perangkat butuh internet", angka penjualan tetap tampil.
 
-- [ ] Tes gagal VM: total semua cabang = jumlah per outlet; pilih cabang
+- [x] Tes gagal VM: total semua cabang = jumlah per outlet; pilih cabang
   memfilter tabel/grafik/terlaris; poll memanggil `tenantStatus` lagi
   setelah 60 detik (fake async); offline → `devicesUnavailable`; *Perlu
   perhatian* kosong → `allClear`.
-- [ ] Tes gagal widget (1280 dan 390 px): kartu KPI, tabel *Per cabang hari
+- [x] Tes gagal widget (1280 dan 390 px): kartu KPI, tabel *Per cabang hari
   ini* dengan baris Total, *Semua beres*; menu *Dashboard semua cabang*
   hanya bila hosting aktif dan izin `reports:view`.
-- [ ] Implementasi, tes lulus; uji manual web + Xvfb (data demo 2 cabang),
+- [x] Implementasi, tes lulus; uji manual web + Xvfb (data demo 2 cabang),
   tangkapan layar terang/gelap/mobile.
 - [ ] Rilis 0.171.0: PR, CI, review, merge, cek aset.
 

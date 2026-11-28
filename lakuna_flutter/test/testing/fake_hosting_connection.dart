@@ -235,6 +235,9 @@ class _OfflineTransport implements SyncTransport {
 
   @override
   Future<SyncServerStatus> status() => throw const SyncOfflineException();
+
+  @override
+  Future<TenantStatus> tenantStatus() => throw const SyncOfflineException();
 }
 
 class _OfflineMedia implements MediaTransport {

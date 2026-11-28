@@ -99,6 +99,7 @@ import 'sync/activation_exception.dart' as _iy6ejuvq;
 import 'sync/activation_failure.dart' as _i0htl0ka;
 import 'sync/activation_result.dart' as _itml89c3;
 import 'sync/device_credential.dart' as _iluuoes9;
+import 'sync/device_status.dart' as _iepnlckt;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
 import 'sync/pairing_code.dart' as _iqcp5k4h;
@@ -119,6 +120,7 @@ import 'sync/sync_result_kind.dart' as _if9conde;
 import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
 import 'sync/tenant_owner.dart' as _ixgfksw5;
+import 'sync/tenant_status.dart' as _i4a89tu6;
 import 'web_access/owner_backup_code.dart' as _irfmwj9h;
 import 'web_access/owner_totp.dart' as _ib54y7c1;
 import 'web_access/totp_enrollment.dart' as _i8e22xza;
@@ -202,6 +204,7 @@ export 'sync/activation_exception.dart';
 export 'sync/activation_failure.dart';
 export 'sync/activation_result.dart';
 export 'sync/device_credential.dart';
+export 'sync/device_status.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
 export 'sync/pairing_code.dart';
@@ -222,6 +225,7 @@ export 'sync/sync_result_kind.dart';
 export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
 export 'sync/tenant_owner.dart';
+export 'sync/tenant_status.dart';
 export 'web_access/owner_backup_code.dart';
 export 'web_access/owner_totp.dart';
 export 'web_access/totp_enrollment.dart';
@@ -319,6 +323,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0htl0ka.ActivationFailure>,
           _is.getType<_itml89c3.ActivationResult>,
           _is.getType<_iluuoes9.DeviceCredential>,
+          _is.getType<_iepnlckt.DeviceStatus>,
           _is.getType<_ierz52ew.LocalPreference>,
           _is.getType<_imib010r.OutboxStatus>,
           _is.getType<_iqcp5k4h.PairingCode>,
@@ -339,6 +344,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iog1z1ed.SyncServerStatus>,
           _is.getType<_iwwr3hpi.SyncStateEntry>,
           _is.getType<_ixgfksw5.TenantOwner>,
+          _is.getType<_i4a89tu6.TenantStatus>,
           _is.getType<_irfmwj9h.OwnerBackupCode>,
           _is.getType<_ib54y7c1.OwnerTotp>,
           _is.getType<_i8e22xza.TotpEnrollment>,
@@ -422,6 +428,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0htl0ka.ActivationFailure?>,
           _is.getType<_itml89c3.ActivationResult?>,
           _is.getType<_iluuoes9.DeviceCredential?>,
+          _is.getType<_iepnlckt.DeviceStatus?>,
           _is.getType<_ierz52ew.LocalPreference?>,
           _is.getType<_imib010r.OutboxStatus?>,
           _is.getType<_iqcp5k4h.PairingCode?>,
@@ -442,6 +449,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iog1z1ed.SyncServerStatus?>,
           _is.getType<_iwwr3hpi.SyncStateEntry?>,
           _is.getType<_ixgfksw5.TenantOwner?>,
+          _is.getType<_i4a89tu6.TenantStatus?>,
           _is.getType<_irfmwj9h.OwnerBackupCode?>,
           _is.getType<_ib54y7c1.OwnerTotp?>,
           _is.getType<_i8e22xza.TotpEnrollment?>,
@@ -451,6 +459,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_iqnq1hc4.WebTenant?>,
           _is.getType<List<_i4xb7gek.SyncPullChange>>,
           _is.getType<List<_i4jawf6o.SyncPushResult>>,
+          _is.getType<List<_iepnlckt.DeviceStatus>>,
           _is.getType<List<_i0r4fwb4.PairingOutlet>>,
           _is.getType<List<_iybq0mvn.SyncPushEntry>>,
           _is.getType<List<String>>,
@@ -538,6 +547,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'ActivationFailure',
           'ActivationResult',
           'DeviceCredential',
+          'DeviceStatus',
           'LocalPreference',
           'OutboxStatus',
           'PairingCode',
@@ -558,6 +568,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'SyncServerStatus',
           'SyncStateEntry',
           'TenantOwner',
+          'TenantStatus',
           'OwnerBackupCode',
           'OwnerTotp',
           'TotpEnrollment',
@@ -9892,6 +9903,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _iluuoes9.DeviceCredential) {
       return _iluuoes9.DeviceCredential.fromJson(data) as T;
     }
+    if (t == _iepnlckt.DeviceStatus) {
+      return _iepnlckt.DeviceStatus.fromJson(data) as T;
+    }
     if (t == _ierz52ew.LocalPreference) {
       return _ierz52ew.LocalPreference.fromJson(data) as T;
     }
@@ -9951,6 +9965,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (t == _ixgfksw5.TenantOwner) {
       return _ixgfksw5.TenantOwner.fromJson(data) as T;
+    }
+    if (t == _i4a89tu6.TenantStatus) {
+      return _i4a89tu6.TenantStatus.fromJson(data) as T;
     }
     if (t == _irfmwj9h.OwnerBackupCode) {
       return _irfmwj9h.OwnerBackupCode.fromJson(data) as T;
@@ -10252,6 +10269,9 @@ class Protocol extends _is.DatabaseSerializationManager
       return (data != null ? _iluuoes9.DeviceCredential.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_iepnlckt.DeviceStatus?>()) {
+      return (data != null ? _iepnlckt.DeviceStatus.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_ierz52ew.LocalPreference?>()) {
       return (data != null ? _ierz52ew.LocalPreference.fromJson(data) : null)
           as T;
@@ -10327,6 +10347,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_ixgfksw5.TenantOwner?>()) {
       return (data != null ? _ixgfksw5.TenantOwner.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i4a89tu6.TenantStatus?>()) {
+      return (data != null ? _i4a89tu6.TenantStatus.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_irfmwj9h.OwnerBackupCode?>()) {
       return (data != null ? _irfmwj9h.OwnerBackupCode.fromJson(data) : null)
           as T;
@@ -10362,6 +10385,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == List<_i4jawf6o.SyncPushResult>) {
       return (data as List)
               .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iepnlckt.DeviceStatus>) {
+      return (data as List)
+              .map((e) => deserialize<_iepnlckt.DeviceStatus>(e))
               .toList()
           as T;
     }
@@ -10477,6 +10506,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _i0htl0ka.ActivationFailure => 'ActivationFailure',
       _itml89c3.ActivationResult => 'ActivationResult',
       _iluuoes9.DeviceCredential => 'DeviceCredential',
+      _iepnlckt.DeviceStatus => 'DeviceStatus',
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
       _iqcp5k4h.PairingCode => 'PairingCode',
@@ -10497,6 +10527,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
       _ixgfksw5.TenantOwner => 'TenantOwner',
+      _i4a89tu6.TenantStatus => 'TenantStatus',
       _irfmwj9h.OwnerBackupCode => 'OwnerBackupCode',
       _ib54y7c1.OwnerTotp => 'OwnerTotp',
       _i8e22xza.TotpEnrollment => 'TotpEnrollment',
@@ -10670,6 +10701,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'ActivationResult';
       case _iluuoes9.DeviceCredential():
         return 'DeviceCredential';
+      case _iepnlckt.DeviceStatus():
+        return 'DeviceStatus';
       case _ierz52ew.LocalPreference():
         return 'LocalPreference';
       case _imib010r.OutboxStatus():
@@ -10710,6 +10743,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'SyncStateEntry';
       case _ixgfksw5.TenantOwner():
         return 'TenantOwner';
+      case _i4a89tu6.TenantStatus():
+        return 'TenantStatus';
       case _irfmwj9h.OwnerBackupCode():
         return 'OwnerBackupCode';
       case _ib54y7c1.OwnerTotp():
@@ -10978,6 +11013,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'DeviceCredential') {
       return deserialize<_iluuoes9.DeviceCredential>(data['data']);
     }
+    if (dataClassName == 'DeviceStatus') {
+      return deserialize<_iepnlckt.DeviceStatus>(data['data']);
+    }
     if (dataClassName == 'LocalPreference') {
       return deserialize<_ierz52ew.LocalPreference>(data['data']);
     }
@@ -11037,6 +11075,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'TenantOwner') {
       return deserialize<_ixgfksw5.TenantOwner>(data['data']);
+    }
+    if (dataClassName == 'TenantStatus') {
+      return deserialize<_i4a89tu6.TenantStatus>(data['data']);
     }
     if (dataClassName == 'OwnerBackupCode') {
       return deserialize<_irfmwj9h.OwnerBackupCode>(data['data']);

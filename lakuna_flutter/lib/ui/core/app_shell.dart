@@ -34,7 +34,12 @@ class AppShell extends StatelessWidget {
     this.timezone,
     this.platform = AppPlatform.native,
     this.store,
+    this.hostedMenu = false,
   });
+
+  /// Menu khusus hosting (dashboard semua cabang) tersedia di aplikasi ini;
+  /// tampil bila [hostingMenuOn].
+  final bool hostedMenu;
 
   /// Versi hosting (F2-01): chip status menggantikan *Offline · data di
   /// perangkat ini* saat aktif.
@@ -81,9 +86,10 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListenableBuilder(
-      listenable: session,
+      listenable: Listenable.merge([session, ?hosting]),
       builder: (context, _) => LayoutBuilder(
         builder: (context, constraints) {
+          final hosted = hostedMenu && hostingMenuOn(platform, hosting);
           final size = LayoutSize.of(constraints.maxWidth);
           final mobile = size == LayoutSize.mobile;
           final staff = session.current;
@@ -126,8 +132,16 @@ class AppShell extends StatelessWidget {
             ],
           );
           if (mobile) {
-            final items = mobileMenu(permissions, platform: platform);
-            final more = mobileMoreMenu(permissions, platform: platform);
+            final items = mobileMenu(
+              permissions,
+              platform: platform,
+              hosted: hosted,
+            );
+            final more = mobileMoreMenu(
+              permissions,
+              platform: platform,
+              hosted: hosted,
+            );
             final primary = items.indexWhere(_isSelected);
             final inMore = more.expand((g) => g.entries).any(_isSelected);
             return FScaffold(
@@ -162,7 +176,11 @@ class AppShell extends StatelessWidget {
           return FScaffold(
             header: header,
             sidebar: _Sidebar(
-              groups: visibleMenu(permissions, platform: platform),
+              groups: visibleMenu(
+                permissions,
+                platform: platform,
+                hosted: hosted,
+              ),
               compact: size == LayoutSize.tablet,
               isSelected: _isSelected,
             ),

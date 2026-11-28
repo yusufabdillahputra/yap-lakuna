@@ -18,6 +18,7 @@ import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
 import 'data/repositories/hosting_repository.dart';
+import 'data/repositories/local_dashboard_repository.dart';
 import 'data/repositories/local_hosting_repository.dart';
 import 'data/repositories/local_dining_admin_repository.dart';
 import 'data/repositories/customers_repository.dart';
@@ -220,6 +221,13 @@ Future<AppInstance> bootstrap(
     appVersion: appVersion,
   );
   await hostingRepository.start();
+  // Dashboard semua cabang (F2-02 tahap 3) dari data tersinkron.
+  final dashboardRepository = LocalDashboardRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+    hosting: hostingRepository,
+  );
   // Web: staf bertugas = pemilik tenant, tanpa PIN (F2-02 aturan 4).
   if (platform.isWeb) {
     if (storeRepository.current case final ctx?) {
@@ -310,6 +318,7 @@ Future<AppInstance> bootstrap(
           backup: backupRepository,
           backupFiles: backupFiles,
           hosting: hostingRepository,
+          dashboard: dashboardRepository,
           platform: platform,
         ),
       ),

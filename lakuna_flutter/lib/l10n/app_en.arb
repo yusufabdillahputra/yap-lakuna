@@ -6061,5 +6061,295 @@
   "webResetErrPolicy": "The new password does not meet the server rules.",
   "@webResetErrPolicy": {
     "placeholders": {}
+  },
+  "menuDashboard": "All-outlet dashboard",
+  "@menuDashboard": {
+    "placeholders": {}
+  },
+  "dashboardTitle": "All-outlet dashboard",
+  "@dashboardTitle": {
+    "placeholders": {}
+  },
+  "dashboardSubtitle": "{date} · synced data from all devices",
+  "@dashboardSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardOutletLabel": "Outlet",
+  "@dashboardOutletLabel": {
+    "placeholders": {}
+  },
+  "dashboardOutletAll": "All outlets ({count})",
+  "@dashboardOutletAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDownload": "Download report",
+  "@dashboardDownload": {
+    "placeholders": {}
+  },
+  "dashboardLoadFailed": "Dashboard data could not be loaded.",
+  "@dashboardLoadFailed": {
+    "placeholders": {}
+  },
+  "dashboardKpiSales": "Sales today",
+  "@dashboardKpiSales": {
+    "placeholders": {}
+  },
+  "dashboardKpiSalesNote": "{transactions, plural, =1{1 transaction} other{{transactions} transactions}} · {outlets, plural, =1{1 outlet} other{{outlets} outlets}}",
+  "@dashboardKpiSalesNote": {
+    "placeholders": {
+      "transactions": {
+        "type": "int"
+      },
+      "outlets": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardKpiAverage": "Average per receipt",
+  "@dashboardKpiAverage": {
+    "placeholders": {}
+  },
+  "dashboardKpiAverageNote": "Sales divided by transactions",
+  "@dashboardKpiAverageNote": {
+    "placeholders": {}
+  },
+  "dashboardKpiDevices": "Devices online",
+  "@dashboardKpiDevices": {
+    "placeholders": {}
+  },
+  "dashboardDevicesAllOnline": "All devices online",
+  "@dashboardDevicesAllOnline": {
+    "placeholders": {}
+  },
+  "dashboardDevicesNone": "No cashier devices yet",
+  "@dashboardDevicesNone": {
+    "placeholders": {}
+  },
+  "dashboardDevicesStaleOne": "1 device last synced {ago}",
+  "@dashboardDevicesStaleOne": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardDevicesStaleMany": "{count, plural, =1{1 device not synced for over 1 hour} other{{count} devices not synced for over 1 hour}}",
+  "@dashboardDevicesStaleMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDevicesSomeOffline": "{count, plural, =1{1 device offline} other{{count} devices offline}}",
+  "@dashboardDevicesSomeOffline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDevicesUnavailable": "Device status needs internet",
+  "@dashboardDevicesUnavailable": {
+    "placeholders": {}
+  },
+  "dashboardKpiConflicts": "Sync conflicts",
+  "@dashboardKpiConflicts": {
+    "placeholders": {}
+  },
+  "dashboardConflictsReview": "Needs review",
+  "@dashboardConflictsReview": {
+    "placeholders": {}
+  },
+  "dashboardConflictsNone": "Nothing to review",
+  "@dashboardConflictsNone": {
+    "placeholders": {}
+  },
+  "dashboardTableTitle": "By outlet today",
+  "@dashboardTableTitle": {
+    "placeholders": {}
+  },
+  "dashboardColOutlet": "Outlet",
+  "@dashboardColOutlet": {
+    "placeholders": {}
+  },
+  "dashboardColSales": "Sales",
+  "@dashboardColSales": {
+    "placeholders": {}
+  },
+  "dashboardColTransactions": "Transactions",
+  "@dashboardColTransactions": {
+    "placeholders": {}
+  },
+  "dashboardColLastSync": "Last sync",
+  "@dashboardColLastSync": {
+    "placeholders": {}
+  },
+  "dashboardColStatus": "Status",
+  "@dashboardColStatus": {
+    "placeholders": {}
+  },
+  "dashboardOutletMeta": "{code} · {count, plural, =1{1 device} other{{count} devices}}",
+  "@dashboardOutletMeta": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardStatusOnline": "Online",
+  "@dashboardStatusOnline": {
+    "placeholders": {}
+  },
+  "dashboardStatusNoDevices": "No devices",
+  "@dashboardStatusNoDevices": {
+    "placeholders": {}
+  },
+  "dashboardTotal": "Total",
+  "@dashboardTotal": {
+    "placeholders": {}
+  },
+  "dashboardHourlyTitle": "Sales per hour · {scope}",
+  "@dashboardHourlyTitle": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardScopeAll": "all outlets",
+  "@dashboardScopeAll": {
+    "placeholders": {}
+  },
+  "dashboardHourlyEmpty": "No sales today yet.",
+  "@dashboardHourlyEmpty": {
+    "placeholders": {}
+  },
+  "dashboardTopTitle": "Best sellers this week",
+  "@dashboardTopTitle": {
+    "placeholders": {}
+  },
+  "dashboardTopSold": "{qty} sold",
+  "@dashboardTopSold": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTopEmpty": "No sales in the last 7 days.",
+  "@dashboardTopEmpty": {
+    "placeholders": {}
+  },
+  "dashboardAttentionTitle": "Needs attention",
+  "@dashboardAttentionTitle": {
+    "placeholders": {}
+  },
+  "dashboardAttentionConflicts": "{count, plural, =1{1 sync conflict awaiting review} other{{count} sync conflicts awaiting review}}",
+  "@dashboardAttentionConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAttentionDevice": "{device} · {outlet} last synced {ago}",
+  "@dashboardAttentionDevice": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAttentionDeviceNever": "{device} · {outlet} has never synced",
+  "@dashboardAttentionDeviceNever": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAttentionStock": "{count, plural, =1{1 product below minimum stock} other{{count} products below minimum stock}} · {outlet}",
+  "@dashboardAttentionStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAllClear": "All clear",
+  "@dashboardAllClear": {
+    "placeholders": {}
+  },
+  "dashboardAllClearNote": "No conflicts, lagging devices, or stock below minimum.",
+  "@dashboardAllClearNote": {
+    "placeholders": {}
+  },
+  "dashboardAgoNow": "just now",
+  "@dashboardAgoNow": {
+    "placeholders": {}
+  },
+  "dashboardAgoMinutes": "{count} min ago",
+  "@dashboardAgoMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoHours": "{count} h ago",
+  "@dashboardAgoHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoDays": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@dashboardAgoDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoNever": "never",
+  "@dashboardAgoNever": {
+    "placeholders": {}
+  },
+  "dashboardExportHour": "Hour",
+  "@dashboardExportHour": {
+    "placeholders": {}
+  },
+  "dashboardExportProduct": "Product",
+  "@dashboardExportProduct": {
+    "placeholders": {}
+  },
+  "dashboardExportSold": "Sold",
+  "@dashboardExportSold": {
+    "placeholders": {}
   }
 }

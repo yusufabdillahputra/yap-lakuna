@@ -10069,4 +10069,241 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webResetErrPolicy =>
       'The new password does not meet the server rules.';
+
+  @override
+  String get menuDashboard => 'All-outlet dashboard';
+
+  @override
+  String get dashboardTitle => 'All-outlet dashboard';
+
+  @override
+  String dashboardSubtitle(String date) {
+    return '$date · synced data from all devices';
+  }
+
+  @override
+  String get dashboardOutletLabel => 'Outlet';
+
+  @override
+  String dashboardOutletAll(int count) {
+    return 'All outlets ($count)';
+  }
+
+  @override
+  String get dashboardDownload => 'Download report';
+
+  @override
+  String get dashboardLoadFailed => 'Dashboard data could not be loaded.';
+
+  @override
+  String get dashboardKpiSales => 'Sales today';
+
+  @override
+  String dashboardKpiSalesNote(int transactions, int outlets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      transactions,
+      locale: localeName,
+      other: '$transactions transactions',
+      one: '1 transaction',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      outlets,
+      locale: localeName,
+      other: '$outlets outlets',
+      one: '1 outlet',
+    );
+    return '$_temp0 · $_temp1';
+  }
+
+  @override
+  String get dashboardKpiAverage => 'Average per receipt';
+
+  @override
+  String get dashboardKpiAverageNote => 'Sales divided by transactions';
+
+  @override
+  String get dashboardKpiDevices => 'Devices online';
+
+  @override
+  String get dashboardDevicesAllOnline => 'All devices online';
+
+  @override
+  String get dashboardDevicesNone => 'No cashier devices yet';
+
+  @override
+  String dashboardDevicesStaleOne(String ago) {
+    return '1 device last synced $ago';
+  }
+
+  @override
+  String dashboardDevicesStaleMany(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices not synced for over 1 hour',
+      one: '1 device not synced for over 1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dashboardDevicesSomeOffline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices offline',
+      one: '1 device offline',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardDevicesUnavailable => 'Device status needs internet';
+
+  @override
+  String get dashboardKpiConflicts => 'Sync conflicts';
+
+  @override
+  String get dashboardConflictsReview => 'Needs review';
+
+  @override
+  String get dashboardConflictsNone => 'Nothing to review';
+
+  @override
+  String get dashboardTableTitle => 'By outlet today';
+
+  @override
+  String get dashboardColOutlet => 'Outlet';
+
+  @override
+  String get dashboardColSales => 'Sales';
+
+  @override
+  String get dashboardColTransactions => 'Transactions';
+
+  @override
+  String get dashboardColLastSync => 'Last sync';
+
+  @override
+  String get dashboardColStatus => 'Status';
+
+  @override
+  String dashboardOutletMeta(String code, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devices',
+      one: '1 device',
+    );
+    return '$code · $_temp0';
+  }
+
+  @override
+  String get dashboardStatusOnline => 'Online';
+
+  @override
+  String get dashboardStatusNoDevices => 'No devices';
+
+  @override
+  String get dashboardTotal => 'Total';
+
+  @override
+  String dashboardHourlyTitle(String scope) {
+    return 'Sales per hour · $scope';
+  }
+
+  @override
+  String get dashboardScopeAll => 'all outlets';
+
+  @override
+  String get dashboardHourlyEmpty => 'No sales today yet.';
+
+  @override
+  String get dashboardTopTitle => 'Best sellers this week';
+
+  @override
+  String dashboardTopSold(String qty) {
+    return '$qty sold';
+  }
+
+  @override
+  String get dashboardTopEmpty => 'No sales in the last 7 days.';
+
+  @override
+  String get dashboardAttentionTitle => 'Needs attention';
+
+  @override
+  String dashboardAttentionConflicts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sync conflicts awaiting review',
+      one: '1 sync conflict awaiting review',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dashboardAttentionDevice(String device, String outlet, String ago) {
+    return '$device · $outlet last synced $ago';
+  }
+
+  @override
+  String dashboardAttentionDeviceNever(String device, String outlet) {
+    return '$device · $outlet has never synced';
+  }
+
+  @override
+  String dashboardAttentionStock(int count, String outlet) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products below minimum stock',
+      one: '1 product below minimum stock',
+    );
+    return '$_temp0 · $outlet';
+  }
+
+  @override
+  String get dashboardAllClear => 'All clear';
+
+  @override
+  String get dashboardAllClearNote =>
+      'No conflicts, lagging devices, or stock below minimum.';
+
+  @override
+  String get dashboardAgoNow => 'just now';
+
+  @override
+  String dashboardAgoMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String dashboardAgoHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String dashboardAgoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardAgoNever => 'never';
+
+  @override
+  String get dashboardExportHour => 'Hour';
+
+  @override
+  String get dashboardExportProduct => 'Product';
+
+  @override
+  String get dashboardExportSold => 'Sold';
 }

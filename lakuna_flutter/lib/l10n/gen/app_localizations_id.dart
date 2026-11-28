@@ -9787,4 +9787,193 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get webResetErrPolicy =>
       'Kata sandi baru belum memenuhi aturan server.';
+
+  @override
+  String get menuDashboard => 'Dashboard semua cabang';
+
+  @override
+  String get dashboardTitle => 'Dashboard semua cabang';
+
+  @override
+  String dashboardSubtitle(String date) {
+    return '$date · data tersinkron dari semua perangkat';
+  }
+
+  @override
+  String get dashboardOutletLabel => 'Cabang';
+
+  @override
+  String dashboardOutletAll(int count) {
+    return 'Semua cabang ($count)';
+  }
+
+  @override
+  String get dashboardDownload => 'Unduh laporan';
+
+  @override
+  String get dashboardLoadFailed => 'Data dashboard tidak bisa dimuat.';
+
+  @override
+  String get dashboardKpiSales => 'Penjualan hari ini';
+
+  @override
+  String dashboardKpiSalesNote(int transactions, int outlets) {
+    return '$transactions transaksi · $outlets cabang';
+  }
+
+  @override
+  String get dashboardKpiAverage => 'Rata-rata per nota';
+
+  @override
+  String get dashboardKpiAverageNote => 'Penjualan dibagi transaksi';
+
+  @override
+  String get dashboardKpiDevices => 'Perangkat online';
+
+  @override
+  String get dashboardDevicesAllOnline => 'Semua perangkat online';
+
+  @override
+  String get dashboardDevicesNone => 'Belum ada perangkat kasir';
+
+  @override
+  String dashboardDevicesStaleOne(String ago) {
+    return '1 perangkat terakhir sync $ago';
+  }
+
+  @override
+  String dashboardDevicesStaleMany(int count) {
+    return '$count perangkat belum sync lebih dari 1 jam';
+  }
+
+  @override
+  String dashboardDevicesSomeOffline(int count) {
+    return '$count perangkat offline';
+  }
+
+  @override
+  String get dashboardDevicesUnavailable => 'Status perangkat butuh internet';
+
+  @override
+  String get dashboardKpiConflicts => 'Konflik sync';
+
+  @override
+  String get dashboardConflictsReview => 'Perlu ditinjau';
+
+  @override
+  String get dashboardConflictsNone => 'Tidak ada yang perlu ditinjau';
+
+  @override
+  String get dashboardTableTitle => 'Per cabang hari ini';
+
+  @override
+  String get dashboardColOutlet => 'Cabang';
+
+  @override
+  String get dashboardColSales => 'Penjualan';
+
+  @override
+  String get dashboardColTransactions => 'Transaksi';
+
+  @override
+  String get dashboardColLastSync => 'Sync terakhir';
+
+  @override
+  String get dashboardColStatus => 'Status';
+
+  @override
+  String dashboardOutletMeta(String code, int count) {
+    return '$code · $count perangkat';
+  }
+
+  @override
+  String get dashboardStatusOnline => 'Online';
+
+  @override
+  String get dashboardStatusNoDevices => 'Tanpa perangkat';
+
+  @override
+  String get dashboardTotal => 'Total';
+
+  @override
+  String dashboardHourlyTitle(String scope) {
+    return 'Penjualan per jam · $scope';
+  }
+
+  @override
+  String get dashboardScopeAll => 'semua cabang';
+
+  @override
+  String get dashboardHourlyEmpty => 'Belum ada penjualan hari ini.';
+
+  @override
+  String get dashboardTopTitle => 'Terlaris minggu ini';
+
+  @override
+  String dashboardTopSold(String qty) {
+    return '$qty terjual';
+  }
+
+  @override
+  String get dashboardTopEmpty => 'Belum ada penjualan 7 hari terakhir.';
+
+  @override
+  String get dashboardAttentionTitle => 'Perlu perhatian';
+
+  @override
+  String dashboardAttentionConflicts(int count) {
+    return '$count konflik sync menunggu tinjauan';
+  }
+
+  @override
+  String dashboardAttentionDevice(String device, String outlet, String ago) {
+    return '$device · $outlet terakhir sync $ago';
+  }
+
+  @override
+  String dashboardAttentionDeviceNever(String device, String outlet) {
+    return '$device · $outlet belum pernah sync';
+  }
+
+  @override
+  String dashboardAttentionStock(int count, String outlet) {
+    return '$count produk di bawah stok minimum · $outlet';
+  }
+
+  @override
+  String get dashboardAllClear => 'Semua beres';
+
+  @override
+  String get dashboardAllClearNote =>
+      'Tidak ada konflik, perangkat tertinggal, atau stok di bawah minimum.';
+
+  @override
+  String get dashboardAgoNow => 'baru saja';
+
+  @override
+  String dashboardAgoMinutes(int count) {
+    return '$count menit lalu';
+  }
+
+  @override
+  String dashboardAgoHours(int count) {
+    return '$count jam lalu';
+  }
+
+  @override
+  String dashboardAgoDays(int count) {
+    return '$count hari lalu';
+  }
+
+  @override
+  String get dashboardAgoNever => 'belum pernah';
+
+  @override
+  String get dashboardExportHour => 'Jam';
+
+  @override
+  String get dashboardExportProduct => 'Produk';
+
+  @override
+  String get dashboardExportSold => 'Terjual';
 }

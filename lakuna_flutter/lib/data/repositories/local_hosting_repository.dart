@@ -343,6 +343,14 @@ class LocalHostingRepository extends HostingRepository {
       });
 
   @override
+  Future<Result<TenantStatus>> tenantStatus() => _guard(() async {
+    final connection = _syncConnection;
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) throw const HostingNotActive();
+    return connection.transport(token).tenantStatus();
+  });
+
+  @override
   Future<Result<bool>> twoFactorEnabled() => _guard(() async {
     final connection = _syncConnection;
     final token = await tokenVaultOf(_store).readToken();

@@ -26,6 +26,8 @@ import 'package:lakuna_client/src/protocol/sync/sync_push_reply.dart'
     as _ia4kk4ai;
 import 'package:lakuna_client/src/protocol/sync/sync_server_status.dart'
     as _ikbjecyu;
+import 'package:lakuna_client/src/protocol/sync/tenant_status.dart'
+    as _ibnnlqdd;
 import 'package:lakuna_client/src/protocol/web_access/totp_enrollment.dart'
     as _ib8bg96t;
 import 'package:lakuna_client/src/protocol/web_access/web_access_result.dart'
@@ -527,6 +529,16 @@ class EndpointSync extends _isc.EndpointRef {
       'afterSeq': afterSeq,
     },
   );
+
+  /// Perangkat kasir tenant [deviceToken] (punya kredensial yang belum
+  /// dicabut; perangkat web tidak ikut) dengan sync terakhirnya, dan jumlah
+  /// konflik yang belum diselesaikan. Untuk dashboard 2.3 (F2-02 tahap 3).
+  _ida.Future<_ibnnlqdd.TenantStatus> tenantStatus(String deviceToken) =>
+      caller.callServerEndpoint<_ibnnlqdd.TenantStatus>(
+        'sync',
+        'tenantStatus',
+        {'deviceToken': deviceToken},
+      );
 
   /// Versi server dan protokol; `tenantKnown` bila [deviceToken] aktif.
   _ida.Future<_ikbjecyu.SyncServerStatus> status(String? deviceToken) =>

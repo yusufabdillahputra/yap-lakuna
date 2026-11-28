@@ -27,6 +27,8 @@ import 'package:lakuna_server/src/generated/sync/sync_push_reply.dart'
     as _itxzb9nu;
 import 'package:lakuna_server/src/generated/sync/sync_server_status.dart'
     as _iyejqyi8;
+import 'package:lakuna_server/src/generated/sync/tenant_status.dart'
+    as _i08xum1v;
 import 'package:lakuna_server/src/generated/web_access/totp_enrollment.dart'
     as _i5iwcqb0;
 import 'package:lakuna_server/src/generated/web_access/web_access_result.dart'
@@ -1019,6 +1021,37 @@ class _SyncEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_i424ufkw.SyncPullPage>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i08xum1v.TenantStatus> tenantStatus(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'sync',
+            method: 'tenantStatus',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'sync',
+          methodName: 'tenantStatus',
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i08xum1v.TenantStatus>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

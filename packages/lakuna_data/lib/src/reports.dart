@@ -12,11 +12,13 @@ import 'purchases.dart' show purchaseCashSource;
 import 'sales.dart' show SessionSalesSummary, sessionSalesSummary;
 import 'shifts.dart' show shiftsById;
 import 'staff_access.dart';
+import 'stock_admin.dart' show belowMinimumStock;
 import 'stock.dart';
 import 'store.dart';
 import 'store_settings.dart' show loadSalesRules;
 import 'suppliers.dart';
 
+part 'dashboard.dart';
 part 'reports_extra.dart';
 
 /// Staf tanpa `reports:view` (F1-16).
@@ -165,10 +167,21 @@ ReportSaleLine _line(SaleItem i, {required bool withCost}) => ReportSaleLine(
 );
 
 class _Facts {
-  _Facts(this.sales, this.returns, this.variantIds, this.staffIds);
+  _Facts(
+    this.sales,
+    this.returns,
+    this.variantIds,
+    this.staffIds, {
+    required this.saleTimes,
+    required this.returnTimes,
+  });
 
   final List<ReportSale> sales;
   final List<ReportReturn> returns;
+
+  /// Waktu nota / retur (UTC), sejajar dengan [sales] / [returns].
+  final List<DateTime> saleTimes;
+  final List<DateTime> returnTimes;
   final Set<UuidValue> variantIds;
   final Set<UuidValue> staffIds;
 }
@@ -272,7 +285,9 @@ Future<_Facts> _facts(
   final variantIds = <UuidValue>{};
   final staffIds = <UuidValue>{};
   final reportSales = <ReportSale>[];
+  final saleTimes = <DateTime>[];
   for (final s in sales) {
+    saleTimes.add(s.soldAt);
     final lines = items[s.id] ?? const <SaleItem>[];
     variantIds.addAll(lines.map((i) => i.variantId));
     staffIds.add(s.staffId);
@@ -303,9 +318,11 @@ Future<_Facts> _facts(
     );
   }
   final reportReturns = <ReportReturn>[];
+  final returnTimes = <DateTime>[];
   for (final r in returnDocs) {
     final sale = saleById[r.saleId];
     if (sale == null) continue;
+    returnTimes.add(r.returnedAt);
     staffIds.add(sale.staffId);
     final lines = <ReportReturnLine>[];
     for (final ri in returnItems[r.id] ?? const <SaleReturnItem>[]) {
@@ -327,7 +344,14 @@ Future<_Facts> _facts(
       ),
     );
   }
-  return _Facts(reportSales, reportReturns, variantIds, staffIds);
+  return _Facts(
+    reportSales,
+    reportReturns,
+    variantIds,
+    staffIds,
+    saleTimes: saleTimes,
+    returnTimes: returnTimes,
+  );
 }
 
 Future<Money> _adjustmentValue(

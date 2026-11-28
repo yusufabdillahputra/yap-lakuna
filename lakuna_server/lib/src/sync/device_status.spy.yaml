@@ -1,0 +1,10 @@
+### Satu perangkat kasir tenant untuk kartu *Perangkat* di dashboard
+### (F2-02 tahap 3). `lastSeenAt` = sync terakhir yang dilihat server.
+class: DeviceStatus
+fields:
+  deviceId: UuidValue
+  outletId: UuidValue
+  code: String
+  name: String
+  platform: DevicePlatform
+  lastSeenAt: DateTime?

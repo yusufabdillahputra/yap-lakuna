@@ -1,0 +1,7 @@
+### Balasan `sync.tenantStatus`: perangkat kasir tenant token dan jumlah
+### konflik sync yang belum diselesaikan (dashboard 2.3, F2-02 tahap 3).
+class: TenantStatus
+fields:
+  devices: List<DeviceStatus>
+  openConflicts: int
+  serverTime: DateTime

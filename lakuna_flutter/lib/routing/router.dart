@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart' show Money, Permission;
 
+import '../data/repositories/dashboard_repository.dart';
 import '../data/repositories/hosting_repository.dart';
 import '../data/repositories/guide_repository.dart';
 import '../data/repositories/backup_repository.dart';
@@ -54,6 +55,7 @@ import '../ui/history/history_view.dart';
 import '../ui/purchases/purchase_detail_view.dart';
 import '../ui/purchases/purchases_view.dart';
 import '../ui/expenses/expenses_view.dart';
+import '../ui/dashboard/dashboard_view.dart';
 import '../ui/reports/reports_view.dart';
 import '../ui/users/my_account_view.dart';
 import '../ui/users/users_view.dart';
@@ -102,6 +104,7 @@ GoRouter createRouter({
   required ReceiptPrinter receiptPrinter,
   required BackupRepository backup,
   HostingRepository? hosting,
+  DashboardRepository? dashboard,
   ShiftsRepository? shifts,
   BackupFiles backupFiles = const PlatformBackupFiles(),
   GuideRepository? guide,
@@ -149,8 +152,10 @@ GoRouter createRouter({
         final key? => menuEntryByKey(key),
         null => menuEntryByPath(location),
       };
+      final hosted = dashboard != null && hostingMenuOn(platform, hosting);
       if (entry != null &&
-          (!entry.allows(staff.permissions) || !entry.availableOn(platform))) {
+          (!entry.allows(staff.permissions) ||
+              !entry.availableOn(platform, hosted: hosted))) {
         return Routes.home;
       }
       return null;
@@ -188,6 +193,7 @@ GoRouter createRouter({
             timezone: store.current?.outlet.timezone,
             platform: platform,
             store: store,
+            hostedMenu: dashboard != null,
             // Ganti cabang di web membuat ulang semua halaman (data cabang
             // lama tidak terbawa).
             child: KeyedSubtree(
@@ -618,6 +624,17 @@ GoRouter createRouter({
               exporter: exporter,
             ),
           ),
+          if (dashboard != null)
+            GoRoute(
+              path: Routes.dashboard,
+              builder: (context, state) => DashboardScreen(
+                repository: dashboard,
+                exporter: exporter,
+                permissions: session.current?.permissions ?? const {},
+                currentOutletId: store.current?.outlet.id.uuid,
+                timezone: store.current?.outlet.timezone,
+              ),
+            ),
           GoRoute(
             path: Routes.reports,
             builder: (context, state) => ReportsScreen(

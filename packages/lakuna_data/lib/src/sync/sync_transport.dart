@@ -11,4 +11,7 @@ abstract interface class SyncTransport {
 
   /// Versi server dan apakah token masih dikenal.
   Future<SyncServerStatus> status();
+
+  /// Perangkat kasir tenant dan konflik terbuka (dashboard F2-02 tahap 3).
+  Future<TenantStatus> tenantStatus();
 }

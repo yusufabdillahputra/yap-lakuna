@@ -89,6 +89,55 @@ class SyncEndpoint extends Endpoint {
     );
   }
 
+  /// Perangkat kasir tenant [deviceToken] (punya kredensial yang belum
+  /// dicabut; perangkat web tidak ikut) dengan sync terakhirnya, dan jumlah
+  /// konflik yang belum diselesaikan. Untuk dashboard 2.3 (F2-02 tahap 3).
+  Future<TenantStatus> tenantStatus(Session session, String deviceToken) async {
+    final auth = await authenticateDevice(session, deviceToken);
+    final credentials = await DeviceCredential.db.find(
+      session,
+      where: (c) => c.tenantId.equals(auth.tenantId) & c.revokedAt.equals(null),
+    );
+    final lastSeen = <UuidValue, DateTime?>{};
+    for (final c in credentials) {
+      final prev = lastSeen[c.deviceId];
+      final seen = c.lastSeenAt;
+      lastSeen[c.deviceId] =
+          prev == null || (seen != null && seen.isAfter(prev)) ? seen : prev;
+    }
+    final devices = lastSeen.isEmpty
+        ? const <Device>[]
+        : await Device.db.find(
+            session,
+            where: (d) =>
+                d.tenantId.equals(auth.tenantId) &
+                d.id.inSet(lastSeen.keys.toSet()) &
+                d.deletedAt.equals(null) &
+                d.platform.notEquals(DevicePlatform.web),
+            orderBy: (d) => d.code,
+          );
+    final conflicts = await SyncConflict.db.count(
+      session,
+      where: (c) =>
+          c.tenantId.equals(auth.tenantId) & c.resolvedAt.equals(null),
+    );
+    return TenantStatus(
+      devices: [
+        for (final d in devices)
+          DeviceStatus(
+            deviceId: d.id,
+            outletId: d.outletId,
+            code: d.code,
+            name: d.name,
+            platform: d.platform,
+            lastSeenAt: lastSeen[d.id],
+          ),
+      ],
+      openConflicts: conflicts,
+      serverTime: DateTime.now().toUtc(),
+    );
+  }
+
   /// Versi server dan protokol; `tenantKnown` bila [deviceToken] aktif.
   Future<SyncServerStatus> status(Session session, String? deviceToken) async {
     final credential = deviceToken == null

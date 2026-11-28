@@ -11,6 +11,7 @@ export 'src/catalog.dart';
 export 'src/credentials.dart';
 export 'src/customer.dart';
 export 'src/customer_import.dart';
+export 'src/dashboard.dart';
 export 'src/dining.dart';
 export 'src/device_token.dart';
 export 'src/discount.dart';

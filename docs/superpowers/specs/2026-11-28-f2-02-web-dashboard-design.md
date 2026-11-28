@@ -344,7 +344,10 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 | Sesi berakhir dan *Keluar* | — | Dirilis v0.170.0 | Token habis/dicabut → layar *Sesi berakhir* dengan jumlah perubahan belum terkirim; database dihapus setelah ditekan. *Keluar* sync dulu, lalu cabut token. Peringatan `beforeunload`. |
 | Pilihan bahasa layar login diingat | 2.2 | Belum | Kembali ke bahasa browser setiap kunjungan (belum ada database). |
 | Atur 2 langkah oleh manajer | — | Belum | Baris *Verifikasi 2 langkah* hanya untuk staf pemilik. |
-| Dashboard semua cabang | 2.3 | Belum | Tahap 3. |
+| Dashboard semua cabang | 2.3 | Dirilis v0.171.0 | Web dan perangkat dengan hosting aktif, izin `reports:view`. KPI, tabel per cabang + Total, per jam, terlaris 7 hari, *Perlu perhatian* / *Semua beres*, Excel. Status perangkat dari `sync.tenantStatus` tiap 60 detik. |
+| Tanda *F2* di menu | 2.3 | Tidak direncanakan | Tanda di kanvas adalah catatan fase desain, tidak berarti bagi staf toko. |
+| Tautan Stok minimum cabang lain | 2.3 | Belum | Layar Stok per cabang; baris cabang lain di *Perlu perhatian* tanpa tautan. |
+| Konflik sync ke layar F2-03 | 2.3 | Belum | Sementara ke kartu *Versi hosting*. |
 | Web di paket VPS | — | Belum | Tahap 4. |
 | Login web manajer | 2.2 | Belum | Hanya pemilik (akun email tenant). |
 | Kasir di web | — | Tidak direncanakan | Kasir tetap di perangkat dengan PIN. |

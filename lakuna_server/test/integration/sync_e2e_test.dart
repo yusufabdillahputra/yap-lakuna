@@ -63,6 +63,13 @@ class EndpointTransport implements d.SyncTransport {
   Future<c.SyncServerStatus> status() async => c.SyncServerStatus.fromJson(
     (await onServer(() => endpoints.sync.status(session, token))).toJson(),
   );
+
+  @override
+  Future<c.TenantStatus> tenantStatus() async => c.TenantStatus.fromJson(
+    (await onServer(
+      () => endpoints.sync.tenantStatus(session, token),
+    )).toJson(),
+  );
 }
 
 void main() {

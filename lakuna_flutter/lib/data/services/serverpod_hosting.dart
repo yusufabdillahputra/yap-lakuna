@@ -319,6 +319,10 @@ class _ServerpodSyncTransport implements SyncTransport {
   @override
   Future<SyncServerStatus> status() =>
       _guard(() => _client.sync.status(_token));
+
+  @override
+  Future<TenantStatus> tenantStatus() =>
+      _guard(() => _client.sync.tenantStatus(_token));
 }
 
 /// Platform perangkat ini untuk baris `devices` saat gabung.
