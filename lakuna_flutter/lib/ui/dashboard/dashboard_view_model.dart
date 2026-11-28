@@ -117,42 +117,72 @@ class DashboardViewModel extends ChangeNotifier {
 
   /// Memuat data lalu menyalakan muat ulang berkala.
   Future<void> start() async {
-    await load.execute();
-    _timer ??= _periodic(pollEvery, (_) => unawaited(_poll()));
+    await _reload();
+    if (_disposed) return;
+    _timer ??= _periodic(pollEvery, (_) => unawaited(_reload()));
   }
 
-  Future<void> _poll() async {
-    if (_disposed || load.running) return;
+  /// Muat ulang diminta saat muatan lain berjalan: diulang sesudahnya agar
+  /// pilihan cabang terbaru yang tampil (review I1).
+  var _reloadPending = false;
+
+  Future<void> _reload() async {
+    if (_disposed) return;
+    if (load.running) {
+      _reloadPending = true;
+      return;
+    }
     await load.execute();
+    while (_reloadPending && !_disposed) {
+      _reloadPending = false;
+      await load.execute();
+    }
   }
 
   Future<void> selectOutlet(String? outletId) async {
     if (outletId == _selected) return;
     _selected = outletId;
     notifyListeners();
-    await load.execute();
+    await _reload();
+  }
+
+  /// Status perangkat dimuat terpisah: angka penjualan lokal tidak menunggu
+  /// server yang lambat atau tak terjangkau (review I2).
+  var _statusLoading = false;
+
+  Future<void> _loadStatus() async {
+    if (_statusLoading) return;
+    _statusLoading = true;
+    try {
+      final result = await _repository.tenantStatus();
+      if (_disposed) return;
+      switch (result) {
+        case Ok(:final value):
+          _status = value;
+          _statusFailed = false;
+        case Error():
+          _statusFailed = true;
+      }
+      notifyListeners();
+    } finally {
+      _statusLoading = false;
+    }
   }
 
   Future<Result<void>> _load() async {
     final token = ++_loadToken;
     final selected = _selected;
-    final results = await Future.wait([
-      _repository.load(
-        outletId: selected == null ? null : UuidValue.fromString(selected),
-      ),
-      _repository.tenantStatus(),
-    ]);
-    if (token != _loadToken || _disposed) return const Result.ok(null);
-    switch (results[1]) {
-      case Ok(:final value):
-        _status = value as TenantStatus;
-        _statusFailed = false;
-      case Error():
-        _statusFailed = true;
+    unawaited(_loadStatus());
+    final result = await _repository.load(
+      outletId: selected == null ? null : UuidValue.fromString(selected),
+    );
+    // Pilihan cabang berubah selama memuat: hasil lama dibuang.
+    if (token != _loadToken || _disposed || selected != _selected) {
+      return const Result.ok(null);
     }
-    switch (results[0]) {
+    switch (result) {
       case Ok(:final value):
-        _data = value as DashboardData;
+        _data = value;
         return const Result.ok(null);
       case Error(:final error):
         return Result.error(error);

@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart' show TenantStatus;
+import 'package:lakuna_data/lakuna_data.dart' show DashboardData;
+import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:lakuna_flutter/data/repositories/hosting_repository.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
 
@@ -146,6 +148,35 @@ void main() {
       find.byKey(const ValueKey('dashboard-export-saved')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('jam dengan retur lebih besar dari penjualan (negatif): grafik '
+      'tetap tampil (review I4)', (tester) async {
+    final repo = dashboard()
+      ..data = (_) {
+        final d = sampleDashboard();
+        return DashboardData(
+          outlets: [
+            OutletDay(
+              outletId: pusatId,
+              sales: const Money(-40000),
+              transactions: 1,
+              hourly: hoursOf({8: -100000, 14: 60000}),
+            ),
+          ],
+          outletInfo: d.outletInfo,
+          top: d.top,
+          belowMinimum: const {},
+        );
+      };
+    await pumpLakuna(
+      tester,
+      hosting: hosted(),
+      dashboard: repo,
+      initialLocation: Routes.dashboard,
+    );
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('dashboard-hourly')), findsOneWidget);
   });
 
   group('menu Dashboard semua cabang', () {

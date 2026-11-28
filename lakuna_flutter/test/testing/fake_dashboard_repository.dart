@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart'
     show DashboardData, SyncOfflineException;
@@ -75,9 +77,14 @@ class FakeDashboardRepository implements DashboardRepository {
   /// Bila diisi, [load] memakai ini, bukan [sampleDashboard].
   DashboardData Function(String? outletId)? data;
 
+  /// Bila diisi, [load] / [tenantStatus] menunggu ini (server lambat).
+  Completer<void>? loadGate;
+  Completer<void>? statusGate;
+
   @override
   Future<Result<DashboardData>> load({UuidValue? outletId}) async {
     loads.add(outletId);
+    await loadGate?.future;
     final only = outletId?.uuid;
     return Result.ok((data ?? (id) => sampleDashboard(only: id))(only));
   }
@@ -85,6 +92,7 @@ class FakeDashboardRepository implements DashboardRepository {
   @override
   Future<Result<TenantStatus>> tenantStatus() async {
     statusCalls++;
+    await statusGate?.future;
     final s = status;
     return s == null
         ? const Result.error(SyncOfflineException())

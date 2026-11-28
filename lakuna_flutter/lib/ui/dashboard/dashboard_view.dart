@@ -748,9 +748,14 @@ class _Hourly extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.bottomCenter,
                                   child: FractionallySizedBox(
+                                    // Jam dengan retur > penjualan bernilai negatif: batang
+                                    // kosong, nilainya tetap di label dan Excel.
                                     heightFactor: max == 0
                                         ? 0
-                                        : hourly[h].value / max,
+                                        : (hourly[h].value / max).clamp(
+                                            0.0,
+                                            1.0,
+                                          ),
                                     widthFactor: 1,
                                     child: DecoratedBox(
                                       decoration: BoxDecoration(

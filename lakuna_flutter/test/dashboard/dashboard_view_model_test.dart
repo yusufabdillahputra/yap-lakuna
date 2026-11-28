@@ -198,4 +198,51 @@ void main() {
     expect(m.exportFileName(), 'dashboard-semua-cabang-261129.xlsx');
     m.dispose();
   });
+
+  test('pilih cabang saat muat berkala berjalan: hasil cabang baru menang '
+      '(review I1)', () async {
+    final m = vm();
+    await m.start();
+    repo.loadGate = Completer<void>();
+    ticker.tick!(_FakeTimer(ticker));
+    await pumpEventQueue();
+    expect(m.load.running, isTrue);
+    final picked = m.selectOutlet(timurId);
+    repo.loadGate!.complete();
+    repo.loadGate = null;
+    await picked;
+    await pumpEventQueue();
+    expect(repo.loads.last?.uuid, timurId);
+    expect(m.rows.map((r) => r.code), ['TMR']);
+    expect(m.totalSales, const Money(6000));
+    m.dispose();
+  });
+
+  test(
+    'angka penjualan tampil tanpa menunggu status perangkat (review I2)',
+    () async {
+      repo.statusGate = Completer<void>();
+      final m = vm();
+      await m.start();
+      expect(m.totalSales, const Money(36000));
+      expect(m.devicesUnavailable, isTrue);
+      expect(m.load.running, isFalse);
+      repo.statusGate!.complete();
+      await pumpEventQueue();
+      expect(m.devicesUnavailable, isFalse);
+      expect(m.devicesTotal, 3);
+      m.dispose();
+    },
+  );
+
+  test('dispose sebelum muatan pertama selesai: timer tidak dibuat '
+      '(review I3)', () async {
+    repo.loadGate = Completer<void>();
+    final m = vm();
+    final started = m.start();
+    m.dispose();
+    repo.loadGate!.complete();
+    await started;
+    expect(ticker.tick, isNull);
+  });
 }
