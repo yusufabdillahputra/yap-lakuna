@@ -9,3 +9,4 @@ values:
   - copiedDevice
   - notOwner
   - outletUnknown
+  - deviceCodeTaken

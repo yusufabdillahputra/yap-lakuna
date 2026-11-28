@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:serverpod_auth_idp_server/core.dart';
-import 'package:serverpod_auth_idp_server/providers/email.dart';
 
+import 'src/auth/smtp_email.dart';
 import 'src/cache_busting.dart';
 import 'src/generated/serverpod.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -22,15 +22,10 @@ void run(List<String> args) async {
       JwtConfigFromPasswords(),
     ],
     identityProviderBuilders: [
-      // Configure the email identity provider for email/password authentication.
-      // The default setup works with Serverpod Cloud without configuration. In
-      // development the verification codes are logged to the console, and in
-      // staging and production they are sent through the Serverpod Cloud email
-      // service. If you want to use a custom provider for sending emails, use
-      // `EmailIdpConfigFromPasswords`.
-      ServerpodCloudEmailIdpConfig(
-        appDisplayName: 'lakuna',
-      ),
+      // Email pemilik versi hosting (F2-01): kode verifikasi dikirim lewat
+      // SMTP dari passwords.yaml (smtpHost, smtpPort, smtpUser,
+      // smtpPassword, smtpFrom); tanpa SMTP kode dicatat di log server.
+      smtpEmailIdpConfig(),
     ],
   );
 

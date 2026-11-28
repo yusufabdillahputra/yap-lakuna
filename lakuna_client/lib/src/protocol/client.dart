@@ -12,6 +12,10 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
+import 'package:lakuna_client/src/protocol/organization/device_platform.dart'
+    as _ii07z3jj;
+import 'package:lakuna_client/src/protocol/sync/activation_result.dart'
+    as _imjtgolx;
 import 'package:lakuna_client/src/protocol/sync/sync_pull_page.dart'
     as _izun0ovl;
 import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
@@ -355,6 +359,67 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Aktivasi versi hosting dan pasang perangkat berikutnya (F2-01 aturan
+/// 9–11).
+/// {@category Endpoint}
+class EndpointActivation extends _isc.EndpointRef {
+  EndpointActivation(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'activation';
+
+  /// Perangkat pertama: memakai kode aktivasi dari admin server dan akun
+  /// pemilik yang sedang login. Server membuat tenant dengan ID dari
+  /// perangkat ([tenantId]) lalu menunggu unggahan data awal.
+  _ida.Future<_imjtgolx.ActivationResult> activateFirstDevice(
+    String activationCode,
+    _isc.UuidValue tenantId,
+    _isc.UuidValue deviceId,
+    String tenantName,
+    String deviceCode,
+  ) => caller.callServerEndpoint<_imjtgolx.ActivationResult>(
+    'activation',
+    'activateFirstDevice',
+    {
+      'activationCode': activationCode,
+      'tenantId': tenantId,
+      'deviceId': deviceId,
+      'tenantName': tenantName,
+      'deviceCode': deviceCode,
+    },
+  );
+
+  /// Kode pasang 8 huruf, berlaku [pairingCodeLifetime], dibuat dari
+  /// perangkat yang sudah aktif.
+  _ida.Future<String> createPairingCode(String deviceToken) =>
+      caller.callServerEndpoint<String>(
+        'activation',
+        'createPairingCode',
+        {'deviceToken': deviceToken},
+      );
+
+  /// Perangkat baru bergabung ke tenant kode pasang. Server membuat ID
+  /// perangkat baru (perangkat hasil salinan backup tidak pernah memakai ID
+  /// lama) beserta baris `devices` yang ditarik perangkat lain.
+  _ida.Future<_imjtgolx.ActivationResult> joinWithPairingCode(
+    String pairingCode,
+    _isc.UuidValue outletId,
+    String deviceCode,
+    String deviceName,
+    _ii07z3jj.DevicePlatform platform,
+  ) => caller.callServerEndpoint<_imjtgolx.ActivationResult>(
+    'activation',
+    'joinWithPairingCode',
+    {
+      'pairingCode': pairingCode,
+      'outletId': outletId,
+      'deviceCode': deviceCode,
+      'deviceName': deviceName,
+      'platform': platform,
+    },
+  );
+}
+
 /// Push/pull sync perangkat versi hosting (F2-01). Semua panggilan memakai
 /// token perangkat, bukan sesi staf.
 /// {@category Endpoint}
@@ -441,6 +506,7 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    activation = EndpointActivation(this);
     sync = EndpointSync(this);
     modules = Modules(this);
   }
@@ -448,6 +514,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointActivation activation;
 
   late final EndpointSync sync;
 
@@ -457,6 +525,7 @@ class Client extends _isc.ServerpodClientShared {
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'activation': activation,
     'sync': sync,
   };
 

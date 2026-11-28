@@ -9,10 +9,14 @@ environment:
 resolution: workspace
 
 dependencies:
+  args: ^2.7.0
   lakuna_domain:
     path: ../packages/lakuna_domain
+  mailer: ^7.3.0
+  postgres: ^3.5.20
   serverpod: 4.1.0
   serverpod_auth_idp_server: 4.1.0
+  serverpod_shared: 4.1.0
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

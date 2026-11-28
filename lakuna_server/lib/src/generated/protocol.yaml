@@ -13,6 +13,10 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+activation:
+  - activateFirstDevice:
+  - createPairingCode:
+  - joinWithPairingCode:
 sync:
   - push:
   - pull:

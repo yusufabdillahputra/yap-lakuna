@@ -20,7 +20,8 @@ enum ActivationFailure implements _isc.SerializableModel {
   tenantActive,
   copiedDevice,
   notOwner,
-  outletUnknown;
+  outletUnknown,
+  deviceCodeTaken;
 
   static ActivationFailure fromJson(String name) {
     switch (name) {
@@ -38,6 +39,8 @@ enum ActivationFailure implements _isc.SerializableModel {
         return ActivationFailure.notOwner;
       case 'outletUnknown':
         return ActivationFailure.outletUnknown;
+      case 'deviceCodeTaken':
+        return ActivationFailure.deviceCodeTaken;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "ActivationFailure"',

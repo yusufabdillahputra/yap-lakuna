@@ -10,6 +10,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_server/src/generated/organization/device_platform.dart'
+    as _iac4dvtg;
 import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
     as _iybq0mvn;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -19,6 +21,7 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
+import '../sync/activation_endpoint.dart' as _iy791v73;
 import '../sync/sync_endpoint.dart' as _imb49tzk;
 
 class Endpoints extends _is.EndpointDispatch {
@@ -35,6 +38,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'jwtRefresh',
+          null,
+        ),
+      'activation': _iy791v73.ActivationEndpoint()
+        ..initialize(
+          server,
+          'activation',
           null,
         ),
       'sync': _imb49tzk.SyncEndpoint()
@@ -334,6 +343,120 @@ class Endpoints extends _is.EndpointDispatch {
                       .refreshAccessToken(
                         session,
                         refreshToken: params['refreshToken'],
+                      ),
+        ),
+      },
+    );
+    connectors['activation'] = _is.EndpointConnector(
+      name: 'activation',
+      endpoint: endpoints['activation']!,
+      methodConnectors: {
+        'activateFirstDevice': _is.MethodConnector(
+          name: 'activateFirstDevice',
+          params: {
+            'activationCode': _is.ParameterDescription(
+              name: 'activationCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'tenantId': _is.ParameterDescription(
+              name: 'tenantId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'deviceId': _is.ParameterDescription(
+              name: 'deviceId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'tenantName': _is.ParameterDescription(
+              name: 'tenantName',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'deviceCode': _is.ParameterDescription(
+              name: 'deviceCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['activation'] as _iy791v73.ActivationEndpoint)
+                      .activateFirstDevice(
+                        session,
+                        params['activationCode'],
+                        params['tenantId'],
+                        params['deviceId'],
+                        params['tenantName'],
+                        params['deviceCode'],
+                      ),
+        ),
+        'createPairingCode': _is.MethodConnector(
+          name: 'createPairingCode',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['activation'] as _iy791v73.ActivationEndpoint)
+                      .createPairingCode(
+                        session,
+                        params['deviceToken'],
+                      ),
+        ),
+        'joinWithPairingCode': _is.MethodConnector(
+          name: 'joinWithPairingCode',
+          params: {
+            'pairingCode': _is.ParameterDescription(
+              name: 'pairingCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'outletId': _is.ParameterDescription(
+              name: 'outletId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'deviceCode': _is.ParameterDescription(
+              name: 'deviceCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'deviceName': _is.ParameterDescription(
+              name: 'deviceName',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'platform': _is.ParameterDescription(
+              name: 'platform',
+              type: _is.getType<_iac4dvtg.DevicePlatform>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['activation'] as _iy791v73.ActivationEndpoint)
+                      .joinWithPairingCode(
+                        session,
+                        params['pairingCode'],
+                        params['outletId'],
+                        params['deviceCode'],
+                        params['deviceName'],
+                        params['platform'],
                       ),
         ),
       },
