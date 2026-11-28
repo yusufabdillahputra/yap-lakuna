@@ -31,12 +31,13 @@ void main() {
     });
 
     Future<void> enable() async {
-      final e = await endpoints.totp.begin(owner);
+      final e = await endpoints.totp.begin(owner, ownerDeviceToken);
       secret = e.secretBase32;
       // Konfirmasi memakai langkah sebelumnya agar langkah sekarang dan
       // berikutnya masih bisa dipakai login.
       backupCodes = await endpoints.totp.confirm(
         owner,
+        ownerDeviceToken,
         codeFor(secret, offset: -1),
       );
     }
@@ -266,9 +267,10 @@ void main() {
         final session = sessionBuilder.build();
         setTotpKey(session, 'kunci-tes-totp');
         await seedOwner(session);
-        final e = await endpoints.totp.begin(owner);
+        final e = await endpoints.totp.begin(owner, ownerDeviceToken);
         await endpoints.totp.confirm(
           owner,
+          ownerDeviceToken,
           codeFor(e.secretBase32, offset: -1),
         );
         final code = codeFor(e.secretBase32, offset: 1);

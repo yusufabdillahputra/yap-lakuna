@@ -555,28 +555,43 @@ class EndpointTotp extends _isc.EndpointRef {
 
   /// Rahasia baru yang belum berlaku sampai [confirm]. Menimpa rahasia lama
   /// yang belum dikonfirmasi; ditolak bila TOTP sudah aktif.
-  _ida.Future<_ib8bg96t.TotpEnrollment> begin() =>
+  ///
+  /// [deviceToken] = token perangkat toko milik akun ini: kata sandi saja
+  /// tidak cukup untuk mengaktifkan verifikasi 2 langkah, karena siapa pun
+  /// yang mengaktifkannya bisa membuka toko di web (review C1).
+  _ida.Future<_ib8bg96t.TotpEnrollment> begin(String deviceToken) =>
       caller.callServerEndpoint<_ib8bg96t.TotpEnrollment>(
         'totp',
         'begin',
-        {},
+        {'deviceToken': deviceToken},
       );
 
   /// Mengonfirmasi rahasia dari [begin] dengan satu kode; membalas 8 kode
   /// cadangan (ditampilkan sekali, server menyimpan hash-nya).
-  _ida.Future<List<String>> confirm(String code) =>
-      caller.callServerEndpoint<List<String>>(
-        'totp',
-        'confirm',
-        {'code': code},
-      );
+  _ida.Future<List<String>> confirm(
+    String deviceToken,
+    String code,
+  ) => caller.callServerEndpoint<List<String>>(
+    'totp',
+    'confirm',
+    {
+      'deviceToken': deviceToken,
+      'code': code,
+    },
+  );
 
   /// Mematikan TOTP dengan kode authenticator atau kode cadangan (aturan
   /// 14); rahasia dan kode cadangan dihapus.
-  _ida.Future<void> disable(String code) => caller.callServerEndpoint<void>(
+  _ida.Future<void> disable(
+    String deviceToken,
+    String code,
+  ) => caller.callServerEndpoint<void>(
     'totp',
     'disable',
-    {'code': code},
+    {
+      'deviceToken': deviceToken,
+      'code': code,
+    },
   );
 }
 

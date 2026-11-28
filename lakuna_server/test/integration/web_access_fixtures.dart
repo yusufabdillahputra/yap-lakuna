@@ -1,5 +1,5 @@
 import 'package:lakuna_domain/lakuna_domain.dart'
-    show base32Decode, totpCode, totpStep;
+    show base32Decode, secretHash, totpCode, totpStep;
 import 'package:lakuna_server/src/generated/protocol.dart';
 import 'package:lakuna_server/src/web_access/totp_cipher.dart';
 import 'package:serverpod/serverpod.dart';
@@ -19,6 +19,11 @@ final newerOutletId = UuidValue.fromString(
   '01900000-0000-7000-8000-000000000011',
 );
 const seedHlc = '0000000000000-0000-seed';
+
+/// Token perangkat toko [tenantId] dan toko lain [otherTenantId]; 2FA hanya
+/// bisa diatur dari perangkat toko milik akun itu (review C1).
+const ownerDeviceToken = 'token-perangkat-toko-maju';
+const otherDeviceToken = 'token-perangkat-toko-lain';
 
 /// Kunci enkripsi TOTP untuk tes (kata sandi server diubah di memori).
 void setTotpKey(Session session, String? value) {
@@ -70,6 +75,19 @@ Future<void> seedOwner(Session session) async {
     session,
     TenantOwner(tenantId: tenantId, authUserId: UuidValue.fromString(ownerId)),
   );
+  for (final (tenant, token, device) in [
+    (tenantId, ownerDeviceToken, '01900000-0000-7000-8000-0000000000d1'),
+    (otherTenantId, otherDeviceToken, '01900000-0000-7000-8000-0000000000d2'),
+  ]) {
+    await DeviceCredential.db.insertRow(
+      session,
+      DeviceCredential(
+        tenantId: tenant,
+        deviceId: UuidValue.fromString(device),
+        tokenHash: secretHash(token),
+      ),
+    );
+  }
 }
 
 /// Kode TOTP rahasia [secretBase32] untuk langkah sekarang + [offset].

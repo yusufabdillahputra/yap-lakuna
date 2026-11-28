@@ -240,6 +240,14 @@ void main() {
       expect(account.calls, contains('login:ani@contoh.id'));
       _ok(await repo.beginTwoFactor());
       expect(_ok(await repo.confirmTwoFactor('123456')), hasLength(8));
+      _ok(await repo.disableTwoFactor('123456'));
+      // Server hanya menerima 2FA dari perangkat toko (review C1).
+      expect(account.calls, [
+        'login:ani@contoh.id',
+        'totpBegin:token-aktivasi',
+        'totpConfirm:token-aktivasi:123456',
+        'totpDisable:token-aktivasi:123456',
+      ]);
       repo.endTwoFactor();
       expect(account.closed, isTrue);
       expect(

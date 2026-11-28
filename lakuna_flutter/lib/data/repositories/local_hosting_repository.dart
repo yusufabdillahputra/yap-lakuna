@@ -360,25 +360,28 @@ class LocalHostingRepository extends HostingRepository {
     }
   });
 
+  /// Sesi akun dari [twoFactorSignIn] + token perangkat ini: server hanya
+  /// mengizinkan atur 2FA dari perangkat toko milik akun itu (review C1).
   Future<Result<T>> _withTwoFactor<T>(
-    Future<T> Function(HostingConnection c) body,
-  ) => _manage((ctx, staff) {
+    Future<T> Function(HostingConnection c, String deviceToken) body,
+  ) => _manage((ctx, staff) async {
     final connection = _twoFactor;
-    if (connection == null) throw const HostingNotActive();
-    return body(connection);
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) throw const HostingNotActive();
+    return body(connection, token);
   });
 
   @override
   Future<Result<TotpEnrollment>> beginTwoFactor() =>
-      _withTwoFactor((c) => c.totpBegin());
+      _withTwoFactor((c, token) => c.totpBegin(token));
 
   @override
   Future<Result<List<String>>> confirmTwoFactor(String code) =>
-      _withTwoFactor((c) => c.totpConfirm(code));
+      _withTwoFactor((c, token) => c.totpConfirm(token, code));
 
   @override
   Future<Result<void>> disableTwoFactor(String code) =>
-      _withTwoFactor((c) => c.totpDisable(code));
+      _withTwoFactor((c, token) => c.totpDisable(token, code));
 
   @override
   void endTwoFactor() {

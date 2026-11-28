@@ -1098,6 +1098,7 @@ class _TotpEndpoint {
 
   _ida.Future<_i5iwcqb0.TotpEnrollment> begin(
     _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1110,7 +1111,7 @@ class _TotpEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'totp',
           methodName: 'begin',
-          parameters: _ist.testObjectToJson({}),
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -1128,6 +1129,7 @@ class _TotpEndpoint {
 
   _ida.Future<List<String>> confirm(
     _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
     String code,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1141,7 +1143,10 @@ class _TotpEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'totp',
           methodName: 'confirm',
-          parameters: _ist.testObjectToJson({'code': code}),
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'code': code,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -1159,6 +1164,7 @@ class _TotpEndpoint {
 
   _ida.Future<void> disable(
     _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
     String code,
   ) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
@@ -1172,7 +1178,10 @@ class _TotpEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'totp',
           methodName: 'disable',
-          parameters: _ist.testObjectToJson({'code': code}),
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'code': code,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

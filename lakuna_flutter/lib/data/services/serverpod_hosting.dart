@@ -57,9 +57,10 @@ abstract interface class HostingConnection implements HostingClient {
   // Butuh [login] lebih dulu, kecuali [twoFactorEnabled].
 
   Future<bool> totpStatus();
-  Future<TotpEnrollment> totpBegin();
-  Future<List<String>> totpConfirm(String code);
-  Future<void> totpDisable(String code);
+  // Atur 2FA butuh token perangkat toko milik akun itu (review C1).
+  Future<TotpEnrollment> totpBegin(String deviceToken);
+  Future<List<String>> totpConfirm(String deviceToken, String code);
+  Future<void> totpDisable(String deviceToken, String code);
 
   /// Status verifikasi 2 langkah pemilik tenant perangkat [deviceToken].
   Future<bool> twoFactorEnabled(String deviceToken);
@@ -186,15 +187,16 @@ class ServerpodHosting implements HostingConnection {
   Future<bool> totpStatus() => _guard(() => client.totp.status());
 
   @override
-  Future<TotpEnrollment> totpBegin() => _guard(() => client.totp.begin());
+  Future<TotpEnrollment> totpBegin(String deviceToken) =>
+      _guard(() => client.totp.begin(deviceToken));
 
   @override
-  Future<List<String>> totpConfirm(String code) =>
-      _guard(() => client.totp.confirm(code.trim()));
+  Future<List<String>> totpConfirm(String deviceToken, String code) =>
+      _guard(() => client.totp.confirm(deviceToken, code.trim()));
 
   @override
-  Future<void> totpDisable(String code) =>
-      _guard(() => client.totp.disable(code.trim()));
+  Future<void> totpDisable(String deviceToken, String code) =>
+      _guard(() => client.totp.disable(deviceToken, code.trim()));
 
   @override
   Future<List<WebTenant>> webTenants() =>

@@ -9,6 +9,7 @@ import 'package:serverpod_auth_idp_server/providers/email.dart'
     show EmailAccount;
 
 import '../generated/protocol.dart';
+import '../sync/device_auth.dart' show authenticateDevice;
 import 'owner_totp_check.dart';
 
 /// Verifikasi 2 langkah akun pemilik untuk login web (F2-02 aturan 12–14),
@@ -28,8 +29,12 @@ class TotpEndpoint extends Endpoint {
 
   /// Rahasia baru yang belum berlaku sampai [confirm]. Menimpa rahasia lama
   /// yang belum dikonfirmasi; ditolak bila TOTP sudah aktif.
-  Future<TotpEnrollment> begin(Session session) async {
-    final user = await _owner(session);
+  ///
+  /// [deviceToken] = token perangkat toko milik akun ini: kata sandi saja
+  /// tidak cukup untuk mengaktifkan verifikasi 2 langkah, karena siapa pun
+  /// yang mengaktifkannya bisa membuka toko di web (review C1).
+  Future<TotpEnrollment> begin(Session session, String deviceToken) async {
+    final user = await _owner(session, deviceToken);
     final cipher = requireTotpCipher(session);
     final secret = newTotpSecret(Random.secure());
     final secretBase32 = base32Encode(secret);
@@ -75,8 +80,12 @@ class TotpEndpoint extends Endpoint {
 
   /// Mengonfirmasi rahasia dari [begin] dengan satu kode; membalas 8 kode
   /// cadangan (ditampilkan sekali, server menyimpan hash-nya).
-  Future<List<String>> confirm(Session session, String code) async {
-    final user = await _owner(session);
+  Future<List<String>> confirm(
+    Session session,
+    String deviceToken,
+    String code,
+  ) async {
+    final user = await _owner(session, deviceToken);
     final cipher = requireTotpCipher(session);
     final codes = newBackupCodes(Random.secure());
     await withOwnerSecondFactor<void>(
@@ -105,8 +114,12 @@ class TotpEndpoint extends Endpoint {
 
   /// Mematikan TOTP dengan kode authenticator atau kode cadangan (aturan
   /// 14); rahasia dan kode cadangan dihapus.
-  Future<void> disable(Session session, String code) async {
-    final user = await _owner(session);
+  Future<void> disable(
+    Session session,
+    String deviceToken,
+    String code,
+  ) async {
+    final user = await _owner(session, deviceToken);
     await withOwnerSecondFactor<void>(
       session,
       user,
@@ -129,12 +142,16 @@ class TotpEndpoint extends Endpoint {
 
   UuidValue _user(Session session) => session.authenticated!.authUserId;
 
-  /// Akun login yang tercatat sebagai pemilik minimal satu tenant.
-  Future<UuidValue> _owner(Session session) async {
+  /// Akun login yang tercatat sebagai pemilik tenant perangkat
+  /// [deviceToken]. Token salah atau kedaluwarsa melempar
+  /// [SyncAuthException] dari [authenticateDevice].
+  Future<UuidValue> _owner(Session session, String deviceToken) async {
     final user = _user(session);
+    final auth = await authenticateDevice(session, deviceToken);
     final owned = await TenantOwner.db.count(
       session,
-      where: (o) => o.authUserId.equals(user),
+      where: (o) =>
+          o.authUserId.equals(user) & o.tenantId.equals(auth.tenantId),
     );
     if (owned == 0) {
       throw WebAccessException(failure: WebAccessFailure.notOwner);

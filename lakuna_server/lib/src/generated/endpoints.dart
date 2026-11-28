@@ -671,17 +671,30 @@ class Endpoints extends _is.EndpointDispatch {
         ),
         'begin': _is.MethodConnector(
           name: 'begin',
-          params: {},
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['totp'] as _ibfvzck9.TotpEndpoint).begin(session),
+              ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).begin(
+                session,
+                params['deviceToken'],
+              ),
         ),
         'confirm': _is.MethodConnector(
           name: 'confirm',
           params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
             'code': _is.ParameterDescription(
               name: 'code',
               type: _is.getType<String>(),
@@ -694,12 +707,18 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).confirm(
                 session,
+                params['deviceToken'],
                 params['code'],
               ),
         ),
         'disable': _is.MethodConnector(
           name: 'disable',
           params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
             'code': _is.ParameterDescription(
               name: 'code',
               type: _is.getType<String>(),
@@ -712,6 +731,7 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['totp'] as _ibfvzck9.TotpEndpoint).disable(
                 session,
+                params['deviceToken'],
                 params['code'],
               ),
         ),

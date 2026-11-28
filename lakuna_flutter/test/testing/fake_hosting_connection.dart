@@ -117,9 +117,9 @@ class FakeHostingConnection implements HostingConnection {
   }
 
   @override
-  Future<TotpEnrollment> totpBegin() async {
+  Future<TotpEnrollment> totpBegin(String deviceToken) async {
     _needLogin();
-    calls.add('totpBegin');
+    calls.add('totpBegin:$deviceToken');
     return TotpEnrollment(
       secretBase32: 'JBSWY3DPEHPK3PXP',
       otpauthUri: 'otpauth://totp/Lakuna:a%40b.id?secret=JBSWY3DPEHPK3PXP',
@@ -127,9 +127,9 @@ class FakeHostingConnection implements HostingConnection {
   }
 
   @override
-  Future<List<String>> totpConfirm(String code) async {
+  Future<List<String>> totpConfirm(String deviceToken, String code) async {
     _needLogin();
-    calls.add('totpConfirm:$code');
+    calls.add('totpConfirm:$deviceToken:$code');
     if (code != '123456') {
       throw WebAccessException(failure: WebAccessFailure.totpInvalid);
     }
@@ -138,9 +138,9 @@ class FakeHostingConnection implements HostingConnection {
   }
 
   @override
-  Future<void> totpDisable(String code) async {
+  Future<void> totpDisable(String deviceToken, String code) async {
     _needLogin();
-    calls.add('totpDisable:$code');
+    calls.add('totpDisable:$deviceToken:$code');
     if (code != '123456' && code != 'AAAA-BBBB') {
       throw WebAccessException(failure: WebAccessFailure.totpInvalid);
     }
