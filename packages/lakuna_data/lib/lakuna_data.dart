@@ -18,6 +18,7 @@ export 'src/catalog.dart' hide writeProductInTx;
 export 'src/dining_admin.dart';
 export 'src/floor_plan.dart';
 export 'src/history.dart';
+export 'src/hosting.dart';
 export 'src/open_bill.dart';
 export 'src/parked_sales.dart';
 export 'src/preferences.dart';
