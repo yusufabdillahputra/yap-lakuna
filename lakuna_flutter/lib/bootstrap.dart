@@ -54,6 +54,7 @@ import 'data/repositories/stock_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/services/auto_backup.dart';
 import 'data/services/receipt_printer.dart';
+import 'data/services/web_session_store.dart' show WebSessionLost;
 import 'routing/router.dart';
 import 'utils/result.dart';
 import 'ui/settings/app_settings_view_model.dart';
@@ -92,6 +93,14 @@ Future<AppInstance> bootstrap(
   if (await storeRepository.load() case Error(:final error)) {
     // Wizard tetap tampil; galatnya dicatat agar bisa dilacak.
     debugPrint('Konteks toko gagal dimuat: $error');
+  }
+  // Web tidak pernah membuat toko baru: database sesi tanpa toko atau
+  // tanpa token berarti sesi hilang (F2-02 aturan 1).
+  if (platform.isWeb &&
+      (storeRepository.current == null ||
+          await tokenVaultOf(store).readToken() == null)) {
+    await store.close();
+    throw const WebSessionLost();
   }
   final sessionRepository = LocalSessionRepository(
     store,

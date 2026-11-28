@@ -72,6 +72,7 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
 
   bool get loaded => _config != null;
   bool get supportsBluetooth => _printer.supportsBluetooth;
+  bool get supportsNetwork => _printer.supportsNetwork;
 
   // --- Struk cabang ---
 
@@ -210,11 +211,15 @@ class ReceiptSettingsViewModel extends ChangeNotifier {
       forgetPrinter.running ||
       testPrint.running;
 
-  PrinterKind get _defaultKind =>
-      supportsBluetooth ? PrinterKind.bluetooth : PrinterKind.network;
+  PrinterKind get _defaultKind => supportsBluetooth
+      ? PrinterKind.bluetooth
+      : supportsNetwork
+      ? PrinterKind.network
+      : PrinterKind.system;
 
   void setKind(PrinterKind kind) {
     if (kind == PrinterKind.bluetooth && !supportsBluetooth) return;
+    if (kind == PrinterKind.network && !supportsNetwork) return;
     _kind = kind;
     _failure = null;
     _testSent = false;

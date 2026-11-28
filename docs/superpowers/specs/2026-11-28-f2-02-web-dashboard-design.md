@@ -333,6 +333,7 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 | Aplikasi jalan di browser | — | Dirilis v0.169.0 | Tahap 1: masuk dengan kode pasang perangkat (login web di tahap 2), pemilih cabang, kode perangkat W01 dari server, tab kedua dan mode privat ditolak dengan pesan. |
 | Ikon web Lakuna | — | Belum | `favicon.png` dan ikon manifest masih bawaan Flutter. |
 | Batal saat pull berjalan | — | Sebagian | Halaman dimuat ulang dan database dihapus; perangkat web di server tetap ada sampai F2-04 (cabut perangkat). |
+| Gabung web dengan kode pasang | — | Sementara | Tahap 1 saja: kode pasang membuka sesi pemilik tanpa PIN dan token tanpa batas waktu. Tahap 2 menggantinya dengan login pemilik + TOTP; build web tidak disajikan (paket VPS tahap 4) sebelum tahap 2 selesai. |
 | Menambah cabang dari aplikasi | — | Belum | Pemilih cabang hanya menampilkan cabang yang sudah ada di data toko. |
 | Login web + TOTP | 2.2 | Belum | Tahap 2. |
 | Dashboard semua cabang | 2.3 | Belum | Tahap 3. |

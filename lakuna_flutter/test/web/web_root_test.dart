@@ -63,6 +63,26 @@ void main() {
     expect(find.text('aplikasi'), findsOneWidget);
   });
 
+  testWidgets('database sesi kosong atau rusak (penyimpanan dihapus '
+      'browser): kembali ke layar masuk, bukan wizard toko baru', (
+    tester,
+  ) async {
+    final sessions = MemoryWebSessionStore(delete: (_) async {});
+    await sessions.setActiveDatabase('lakuna-abc.sqlite');
+    await tester.pumpWidget(
+      LakunaRoot(
+        platform: web,
+        webSessions: sessions,
+        resolvePath: () async => throw StateError('tidak dipakai di web'),
+        boot: (p) async => throw const WebSessionLost(),
+      ),
+    );
+    await settle(tester);
+    expect(find.byKey(const ValueKey('web-join')), findsOneWidget);
+    expect(sessions.activeDatabase, isNull);
+    expect(sessions.staleDatabases, ['lakuna-abc.sqlite']);
+  });
+
   for (final problem in WebStartProblem.values) {
     testWidgets('web tidak bisa mulai (${problem.name}): pesan, tanpa '
         'database', (tester) async {

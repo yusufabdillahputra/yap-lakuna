@@ -8,10 +8,16 @@ import 'package:pdf/pdf.dart' show PdfPageFormat;
 
 /// [ReceiptPrinter] palsu: mencatat cetakan dan PDF yang dibagikan.
 class FakeReceiptPrinter implements ReceiptPrinter {
-  FakeReceiptPrinter({this.supportsBluetooth = true});
+  FakeReceiptPrinter({
+    this.supportsBluetooth = true,
+    this.supportsNetwork = true,
+  });
 
   @override
   final bool supportsBluetooth;
+
+  @override
+  final bool supportsNetwork;
 
   List<PrinterSelection> paired = const [];
 

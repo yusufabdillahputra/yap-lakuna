@@ -143,7 +143,19 @@ class _LakunaRootState extends State<LakunaRoot> {
         return;
       }
       _path = name;
-      final instance = await widget.boot(name);
+      final AppInstance instance;
+      try {
+        instance = await widget.boot(name);
+      } on WebSessionLost {
+        // Sesi dibuang (dihapus saat mulai berikutnya), masuk lagi.
+        await _webSessions.setActiveDatabase(null);
+        if (!mounted) return;
+        setState(() {
+          _needsJoin = true;
+          _error = null;
+        });
+        return;
+      }
       if (!mounted) return;
       setState(() {
         _instance = instance;

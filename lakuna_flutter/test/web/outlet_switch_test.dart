@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 import 'package:lakuna_flutter/config/app_platform.dart';
+import 'package:lakuna_flutter/routing/routes.dart';
 
 import '../testing/app_harness.dart';
 import '../testing/fake_store_repository.dart';
@@ -41,6 +42,24 @@ void main() {
       find.descendant(of: picker, matching: find.text('Cabang Kemang')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('pindah cabang dari halaman Stok: kembali ke Beranda cabang '
+      'baru, isi halaman lama tidak dipakai', (tester) async {
+    final store = twoOutlets();
+    await pumpLakuna(
+      tester,
+      platform: web,
+      store: store,
+      initialLocation: Routes.stock,
+    );
+    expect(find.byKey(const ValueKey('home-greeting')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('outlet-picker')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('outlet-KMG')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('home-greeting')), findsOneWidget);
+    expect(find.textContaining('Cabang Kemang'), findsWidgets);
   });
 
   testWidgets('web: tanpa tombol Ganti kasir', (tester) async {

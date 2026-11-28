@@ -188,7 +188,12 @@ GoRouter createRouter({
             timezone: store.current?.outlet.timezone,
             platform: platform,
             store: store,
-            child: child,
+            // Ganti cabang di web membuat ulang semua halaman (data cabang
+            // lama tidak terbawa).
+            child: KeyedSubtree(
+              key: ValueKey(store.current?.outlet.id),
+              child: child,
+            ),
           ),
         ),
         routes: [

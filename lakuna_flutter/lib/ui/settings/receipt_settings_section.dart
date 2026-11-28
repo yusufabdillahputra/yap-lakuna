@@ -146,13 +146,15 @@ class ReceiptSettingsSection extends StatelessWidget {
                     title: Text(l10n.settingsSaveError),
                   ),
                 printerCard,
-                if (kitchen case final k?)
+                // Printer dapur/bar langsung (jaringan, Bluetooth) tidak ada
+                // di browser.
+                if (kitchen case final k? when k.supportsDirect)
                   KitchenPrinterCard(
                     viewModel: k,
                     staffName: staffName,
                     clock: clock,
                   ),
-                if (bar case final b?)
+                if (bar case final b? when b.supportsDirect)
                   KitchenPrinterCard(
                     viewModel: b,
                     staffName: staffName,
@@ -375,7 +377,8 @@ class _PrinterCard extends StatelessWidget {
             runSpacing: 8,
             children: [
               for (final kind in PrinterKind.values)
-                if (kind != PrinterKind.bluetooth || vm.supportsBluetooth)
+                if ((kind != PrinterKind.bluetooth || vm.supportsBluetooth) &&
+                    (kind != PrinterKind.network || vm.supportsNetwork))
                   ChoicePill(
                     key: ValueKey('printer-kind-${kind.name}'),
                     label: printerKindLabel(l10n, kind),
@@ -384,7 +387,7 @@ class _PrinterCard extends StatelessWidget {
                   ),
             ],
           ),
-          if (!vm.supportsBluetooth)
+          if (!vm.supportsBluetooth && vm.supportsNetwork)
             Text(
               l10n.printerBluetoothUnsupported,
               key: const ValueKey('printer-bt-unsupported'),

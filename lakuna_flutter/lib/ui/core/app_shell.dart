@@ -280,7 +280,10 @@ class _OutletPickerState extends State<_OutletPicker> {
     if (picked == null || picked.id == current) return;
     final canSwitch = widget.canSwitch;
     if (canSwitch != null && !await canSwitch()) return;
-    await widget.store.switchOutlet(picked.id);
+    final result = await widget.store.switchOutlet(picked.id);
+    // Halaman yang terbuka memegang data cabang lama: mulai lagi dari
+    // Beranda cabang baru.
+    if (result is Ok && mounted) context.go(Routes.home);
   }
 
   @override

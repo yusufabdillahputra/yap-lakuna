@@ -4,6 +4,16 @@ import 'web_session_store_io.dart'
     if (dart.library.js_interop) 'web_session_store_web.dart'
     as impl;
 
+/// Database sesi web tidak memuat toko (penyimpanan browser dihapus atau
+/// data rusak): sesi dibuang dan layar masuk tampil lagi, bukan wizard
+/// *Buat toko baru* (F2-02 aturan 1).
+class WebSessionLost implements Exception {
+  const WebSessionLost();
+
+  @override
+  String toString() => 'WebSessionLost';
+}
+
 /// Alasan aplikasi web tidak bisa dimulai di tab ini (F2-02 *Kasus tepi*).
 enum WebStartProblem {
   /// Browser menolak penyimpanan (mode privat atau kuota).
