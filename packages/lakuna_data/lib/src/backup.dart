@@ -9,6 +9,7 @@ import 'package:lakuna_client/migrations/migration_registry.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 
 import 'backup_crypto.dart';
+import 'hosting.dart' show disableHosting;
 import 'preferences.dart';
 import 'store.dart';
 import 'store_setup.dart';
@@ -650,6 +651,9 @@ Future<void> finishRestore(LakunaStore store) async {
   );
   final done = File(_join(dataDir, _restoreDone));
   if (!done.existsSync()) return;
+  // Outbox dan kursor di backup bisa basi: sync versi hosting dimatikan dan
+  // perangkat dipasang ulang sebagai perangkat baru (kasus tepi F2-01).
+  await disableHosting(store);
   final at = DateTime.tryParse(done.readAsStringSync().trim());
   if (at != null) {
     await LocalPreferences(store.session)

@@ -415,6 +415,26 @@ class Endpoints extends _is.EndpointDispatch {
                         params['deviceToken'],
                       ),
         ),
+        'pairingOutlets': _is.MethodConnector(
+          name: 'pairingOutlets',
+          params: {
+            'pairingCode': _is.ParameterDescription(
+              name: 'pairingCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['activation'] as _iy791v73.ActivationEndpoint)
+                      .pairingOutlets(
+                        session,
+                        params['pairingCode'],
+                      ),
+        ),
         'joinWithPairingCode': _is.MethodConnector(
           name: 'joinWithPairingCode',
           params: {

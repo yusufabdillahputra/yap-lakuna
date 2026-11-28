@@ -226,6 +226,58 @@ void main() {
         expect(await tenantLocks(), 1);
       });
 
+      test('cabang untuk kode pasang: hanya cabang aktif tenant', () async {
+        final session = sessionBuilder.build();
+        await Outlet.db.insertRow(
+          session,
+          Outlet(
+            id: UuidValue.fromString('01900000-0000-7000-8000-000000000011'),
+            tenantId: tenantId,
+            code: 'CB2',
+            name: 'Cabang Dua',
+            hlc: '0000000000000-0000-seed',
+          ),
+        );
+        await Outlet.db.insertRow(
+          session,
+          Outlet(
+            id: UuidValue.fromString('01900000-0000-7000-8000-000000000012'),
+            tenantId: tenantId,
+            code: 'LMA',
+            name: 'Cabang Lama',
+            hlc: '0000000000000-0000-seed',
+            deletedAt: DateTime.utc(2026),
+          ),
+        );
+        final pairing = await endpoints.activation.createPairingCode(
+          sessionBuilder,
+          first.deviceToken,
+        );
+        final outlets = await endpoints.activation.pairingOutlets(
+          sessionBuilder,
+          pairing.toLowerCase(),
+        );
+        expect([for (final o in outlets) o.code], ['CB2', 'PST']);
+        expect(outlets.last.id, outletId);
+        expect(outlets.last.name, 'Pusat');
+      });
+
+      test('cabang untuk kode pasang yang sudah dipakai ditolak', () async {
+        final pairing = await endpoints.activation.createPairingCode(
+          sessionBuilder,
+          first.deviceToken,
+        );
+        await join(pairing);
+        await expectLater(
+          endpoints.activation.pairingOutlets(sessionBuilder, pairing),
+          failsWith(ActivationFailure.codeUsed),
+        );
+        await expectLater(
+          endpoints.activation.pairingOutlets(sessionBuilder, 'ZZZZZZZZ'),
+          failsWith(ActivationFailure.codeInvalid),
+        );
+      });
+
       test('kode pasang hanya sekali pakai', () async {
         final pairing = await endpoints.activation.createPairingCode(
           sessionBuilder,

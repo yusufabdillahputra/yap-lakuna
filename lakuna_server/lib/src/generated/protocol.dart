@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_server/src/generated/sync/pairing_outlet.dart'
+    as _i0r4fwb4;
 import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
     as _iybq0mvn;
 import 'package:serverpod/protocol.dart' as _isp;
@@ -98,6 +100,7 @@ import 'sync/device_credential.dart' as _iluuoes9;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
 import 'sync/pairing_code.dart' as _iqcp5k4h;
+import 'sync/pairing_outlet.dart' as _icfz2sj4;
 import 'sync/sync_auth_exception.dart' as _i2s9l4f4;
 import 'sync/sync_change.dart' as _ieydannz;
 import 'sync/sync_conflict.dart' as _i0azdsf8;
@@ -193,6 +196,7 @@ export 'sync/device_credential.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
 export 'sync/pairing_code.dart';
+export 'sync/pairing_outlet.dart';
 export 'sync/sync_auth_exception.dart';
 export 'sync/sync_change.dart';
 export 'sync/sync_conflict.dart';
@@ -302,6 +306,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_ierz52ew.LocalPreference>,
           _is.getType<_imib010r.OutboxStatus>,
           _is.getType<_iqcp5k4h.PairingCode>,
+          _is.getType<_icfz2sj4.PairingOutlet>,
           _is.getType<_i2s9l4f4.SyncAuthException>,
           _is.getType<_ieydannz.SyncChange>,
           _is.getType<_i0azdsf8.SyncConflict>,
@@ -397,6 +402,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_ierz52ew.LocalPreference?>,
           _is.getType<_imib010r.OutboxStatus?>,
           _is.getType<_iqcp5k4h.PairingCode?>,
+          _is.getType<_icfz2sj4.PairingOutlet?>,
           _is.getType<_i2s9l4f4.SyncAuthException?>,
           _is.getType<_ieydannz.SyncChange?>,
           _is.getType<_i0azdsf8.SyncConflict?>,
@@ -415,6 +421,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_ixgfksw5.TenantOwner?>,
           _is.getType<List<_i4xb7gek.SyncPullChange>>,
           _is.getType<List<_i4jawf6o.SyncPushResult>>,
+          _is.getType<List<_i0r4fwb4.PairingOutlet>>,
           _is.getType<List<_iybq0mvn.SyncPushEntry>>,
         ],
         modules: const [
@@ -502,6 +509,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'LocalPreference',
           'OutboxStatus',
           'PairingCode',
+          'PairingOutlet',
           'SyncAuthException',
           'SyncChange',
           'SyncConflict',
@@ -9715,6 +9723,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _iqcp5k4h.PairingCode) {
       return _iqcp5k4h.PairingCode.fromJson(data) as T;
     }
+    if (t == _icfz2sj4.PairingOutlet) {
+      return _icfz2sj4.PairingOutlet.fromJson(data) as T;
+    }
     if (t == _i2s9l4f4.SyncAuthException) {
       return _i2s9l4f4.SyncAuthException.fromJson(data) as T;
     }
@@ -10052,6 +10063,10 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_iqcp5k4h.PairingCode?>()) {
       return (data != null ? _iqcp5k4h.PairingCode.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_icfz2sj4.PairingOutlet?>()) {
+      return (data != null ? _icfz2sj4.PairingOutlet.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_i2s9l4f4.SyncAuthException?>()) {
       return (data != null ? _i2s9l4f4.SyncAuthException.fromJson(data) : null)
           as T;
@@ -10122,6 +10137,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == List<_i4jawf6o.SyncPushResult>) {
       return (data as List)
               .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i0r4fwb4.PairingOutlet>) {
+      return (data as List)
+              .map((e) => deserialize<_i0r4fwb4.PairingOutlet>(e))
               .toList()
           as T;
     }
@@ -10225,6 +10246,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
       _iqcp5k4h.PairingCode => 'PairingCode',
+      _icfz2sj4.PairingOutlet => 'PairingOutlet',
       _i2s9l4f4.SyncAuthException => 'SyncAuthException',
       _ieydannz.SyncChange => 'SyncChange',
       _i0azdsf8.SyncConflict => 'SyncConflict',
@@ -10413,6 +10435,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'OutboxStatus';
       case _iqcp5k4h.PairingCode():
         return 'PairingCode';
+      case _icfz2sj4.PairingOutlet():
+        return 'PairingOutlet';
       case _i2s9l4f4.SyncAuthException():
         return 'SyncAuthException';
       case _ieydannz.SyncChange():
@@ -10707,6 +10731,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'PairingCode') {
       return deserialize<_iqcp5k4h.PairingCode>(data['data']);
+    }
+    if (dataClassName == 'PairingOutlet') {
+      return deserialize<_icfz2sj4.PairingOutlet>(data['data']);
     }
     if (dataClassName == 'SyncAuthException') {
       return deserialize<_i2s9l4f4.SyncAuthException>(data['data']);

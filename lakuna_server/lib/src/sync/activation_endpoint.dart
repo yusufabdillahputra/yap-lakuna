@@ -105,6 +105,33 @@ class ActivationEndpoint extends Endpoint {
     return code;
   }
 
+  /// Cabang aktif tenant kode pasang, urut kode, untuk dipilih perangkat
+  /// baru sebelum [joinWithPairingCode]. Kode tidak dipakai di sini.
+  Future<List<PairingOutlet>> pairingOutlets(
+    Session session,
+    String pairingCode,
+  ) async {
+    final now = DateTime.now().toUtc();
+    final pairing = await PairingCode.db.findFirstRow(
+      session,
+      where: (c) =>
+          c.codeHash.equals(secretHash(normalizeShortCode(pairingCode))),
+    );
+    if (pairing == null) _fail(ActivationFailure.codeInvalid);
+    if (pairing.usedAt != null) _fail(ActivationFailure.codeUsed);
+    if (!pairing.expiresAt.isAfter(now)) _fail(ActivationFailure.codeExpired);
+    final outlets = await Outlet.db.find(
+      session,
+      where: (o) =>
+          o.tenantId.equals(pairing.tenantId) & o.deletedAt.equals(null),
+      orderBy: (o) => o.code,
+    );
+    return [
+      for (final o in outlets)
+        PairingOutlet(id: o.id!, code: o.code, name: o.name),
+    ];
+  }
+
   /// Perangkat baru bergabung ke tenant kode pasang. Server membuat ID
   /// perangkat baru (perangkat hasil salinan backup tidak pernah memakai ID
   /// lama) beserta baris `devices` yang ditarik perangkat lain.

@@ -28,7 +28,9 @@ const pushBatchBytes = 1024 * 1024;
 /// Entri `acked` yang lebih tua dari ini dihapus dari outbox.
 const ackedRetention = Duration(days: 7);
 
-enum SyncCycleOutcome { synced, offline, attention }
+/// Hasil satu siklus. `paused` = *Jeda sync* aktif (aturan 16), tanpa
+/// memanggil server.
+enum SyncCycleOutcome { synced, offline, attention, paused }
 
 class SyncCycleResult {
   const SyncCycleResult({

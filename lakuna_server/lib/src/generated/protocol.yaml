@@ -16,6 +16,7 @@ jwtRefresh:
 activation:
   - activateFirstDevice:
   - createPairingCode:
+  - pairingOutlets:
   - joinWithPairingCode:
 sync:
   - push:
