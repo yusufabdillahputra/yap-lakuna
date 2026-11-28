@@ -1,7 +1,7 @@
 # F2-01 · Server sync & aktivasi hosting
 
 - **Fase:** 2 (modul 1)
-- **Status:** Tahap 1 (server) rilis v0.164.0; tahap 2–5 menyusul. Fondasi sudah ada sejak v0.1.0:
+- **Status:** Tahap 1 (server) rilis v0.164.0, tahap 2 (mesin sync perangkat) rilis v0.165.0; tahap 3–5 menyusul. Fondasi sudah ada sejak v0.1.0:
   kolom sync di setiap tabel, `sync_outbox` terisi di transaksi yang sama
   (`SyncTx`), HLC monoton di `sync_state`, ID UUIDv7 dibuat di perangkat.
 - **Layar desain:** 2.1 *Aktivasi versi hosting* (stepper), kartu *Versi
@@ -427,7 +427,7 @@ memastikan setiap model `database: all` ada di daftar itu.
 | --- | --- | --- | --- |
 | Kolom sync, outbox, HLC, UUIDv7 | F0 | Rilis v0.1.0 | Dipakai apa adanya. |
 | Endpoint push/pull + log perubahan | — | Rilis v0.164.0 | Juga aktivasi, kode pasang, CLI admin, email SMTP (server). |
-| Mesin sync klien | — | Belum | Tahap 2. |
+| Mesin sync klien | — | Rilis v0.165.0 | `SyncEngine`, `SyncScheduler`, pemadatan outbox, unggah awal bisa dilanjutkan, parkir pull, `stock_levels` per varian. Belum dipasang di aplikasi (tahap 3). |
 | Aktivasi + pasang perangkat + chip status | 2.1 | Belum | Tahap 3. |
 | Aset ke object storage | — | Belum | Tahap 4. |
 | Paket deploy VPS + panduan | — | Belum | Tahap 5; satu paket untuk server hosting Yusuf dan server sendiri toko. |
@@ -437,6 +437,9 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Baris isi baru di dokumen final | — | Rilis v0.164.0 | `sale_items`, `payments`, `purchase_items` baru dari perangkat lain untuk nota/pembelian final ditolak `final`; anak dari baris yang ditolak di batch yang sama ditolak `dependency` (aturan 7a, 8d). Pembaruan baris anak yang sudah ada (mis. QRIS `pending` → `paid`) tetap LWW: gap. |
 | Penjaga tenant di `ON CONFLICT` | — | Belum | Dua tenant yang berlomba menyisipkan ID sama (butuh UUID bocor); penerap sudah memeriksa tenant baris lama dan semua induk FK. |
 | Batas percobaan kode pasang/aktivasi | — | Belum | 31^8 kombinasi; batas laju di Caddy (tahap 5). |
+| Perubahan pull yang selalu gagal | — | Belum | Diparkir dan dicoba tiap siklus tanpa batas dan tanpa teks galat; entri `dependency` juga didorong ulang tanpa batas. Tinjauan di F2-03. |
+| Versi protokol saat pull | — | Belum | Tabel tak dikenal dilewati sementara kursor maju; tahap 3 menolak protokol lama sebelum sync. |
+| Void lokal yang belum terkirim | — | Belum | Pull dengan HLC lebih baru dan status lebih lemah sempat menimpa void lokal sampai push berikutnya digabung server. |
 | Gabung data dua tenant lokal | — | Tidak direncanakan | Perangkat yang bergabung memulai dari data server (aturan 10). |
 
 ## Kriteria selesai

@@ -7,6 +7,82 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.165.0] - 2026-11-28
+
+Tahap 2 Fase 2 (F2-01): mesin sync di perangkat. Paket data aplikasi kini
+bisa mengunggah data awal, mendorong outbox ke server, dan menarik
+perubahan perangkat lain. Layar aktivasi dan chip status baru dipasang di
+0.166.0, jadi pengguna belum melihat perubahan di aplikasi.
+
+### Ditambahkan
+
+- **Pemadatan outbox saat aktivasi** (`prepareInitialUpload`, aturan 15).
+  Riwayat outbox sejak instal diganti satu entri snapshot per baris, urut
+  dependensi tabel (tenant, cabang, perangkat, staf, master, dokumen,
+  ledger) dan kategori induk sebelum anaknya. Kursor disimpan di transaksi
+  yang sama dengan setiap potongan 500 baris, jadi aplikasi yang ditutup di
+  tengah jalan melanjutkan tanpa baris terlewat atau ganda. Bila jam
+  perangkat lebih dari 5 menit di depan server, baris dan snapshot
+  distempel ulang dengan HLC dari waktu server (aturan 13). Stempel ulang
+  memakai jamnya sendiri (`restamp_hlc`), jadi transaksi kasir di sela
+  potongan tidak menariknya kembali ke jam perangkat yang salah.
+- **Progres unggah per kelompok** (`initialUploadProgress`): toko &
+  pengguna, produk, pelanggan & supplier, penjualan, pembelian &
+  pengeluaran, stok, gambar.
+- **`SyncEngine`**: satu siklus = push lalu pull.
+  - Push urut `id` outbox, maks 500 entri atau 1 MB per batch. `applied`,
+    `stale`, `merged` → *acked*; `rejected` → *conflict* dengan alasannya.
+    Entri yang ditolak `dependency` atau `clock` (jam perangkat terlalu
+    maju) dicoba ulang sekali tiap siklus, alasan lain menunggu tinjauan
+    (F2-03). Selama masih ada penolakan `clock`, galatnya tetap `clock`. Entri *acked* lebih dari 7 hari dihapus.
+  - Balasan `stale`/`merged` menimpa baris lokal tanpa entri outbox baru;
+    pengaturan yang digabung ke baris server ber-ID lain menghapus baris
+    lokalnya.
+  - Pull sampai habis, LWW per baris dengan HLC, setiap perubahan di
+    savepoint sendiri, tanpa outbox. Perubahan yang gagal (mis. induk belum
+    ada) diparkir dan dicoba lagi tiap siklus; kursor tetap maju. Status
+    nota yang lebih kuat dari server tetap diambil walau HLC lokal lebih
+    baru.
+  - HLC perangkat dimajukan ke waktu server dan ke setiap HLC yang
+    diterima, termasuk baris server di balasan `stale`/`merged`.
+  - Perubahan yang diparkir tetap tersimpan walau pull lebih dari satu
+    halaman.
+  - Galat jaringan (soket, batas waktu, HTTP) menghasilkan *offline* tanpa
+    melempar; token tidak sah, permintaan ditolak, galat lokal (mis. data
+    rusak), atau balasan server yang jumlahnya tidak cocok menghasilkan
+    *perlu perhatian*.
+- **`SyncScheduler`**: siklus 2 detik setelah tulis terakhir, setiap 30
+  detik, *Sync sekarang*, dan backoff 5 detik sampai 5 menit saat offline
+  (berapa lama pun offline). Tidak pernah dua siklus bersamaan, dan galat
+  di satu siklus tidak menghentikan jadwal.
+- `markTenantHosted` (paket tenant jadi *hosted* lewat outbox sebelum
+  unggah) dan `openJoinedStore` (database baru untuk perangkat yang
+  bergabung, dengan ID perangkat dari server).
+
+### Diubah
+
+- `stock_levels` dibangun ulang dari pergerakan stok urut `occurred_at`,
+  lalu HLC, lalu ID (sebelumnya `occurred_at`, ID), dan bisa dibangun ulang
+  hanya untuk varian+lokasi yang tersentuh pull (`rebuildStockLevelsFor`).
+
+### Catatan teknis
+
+- Tabel sync di perangkat diakses generik lewat `SyncRowType<T>` (46 model;
+  tes memastikan namanya sama dengan `syncTables`).
+- Kunci `sync_state` baru: `server_url`, `device_token`, `initial_upload`,
+  `initial_upload_cursor`, `restamp_hlc`, `last_sync_at`, `last_error`,
+  `pull_parked`.
+- Tes end-to-end baru di `lakuna_server`: dua database SQLite perangkat +
+  server Postgres lewat endpoint sungguhan. Aktivasi A, pasang B, jual dan
+  retur offline di keduanya, lalu isi semua tabel sync dan `stock_levels`
+  sama di kedua perangkat. Void di B melawan retur sebagian di A berakhir
+  *voided* di kedua perangkat dan server, ke dua arah urutan.
+- Encoder nilai query Serverpod bersifat global per isolate, jadi tes
+  end-to-end memasang ulang encoder SQLite setelah setiap panggilan server.
+  Hanya di tes; server tidak pernah membuka SQLite.
+- `lakuna_server` mendapat dev-dependency `lakuna_client` dan `lakuna_data`;
+  `lakuna_data` mendapat dev-dependency `fake_async`.
+
 ## [0.164.0] - 2026-11-28
 
 Tahap 1 Fase 2 (F2-01): server Lakuna sekarang bisa menerima dan membagikan
@@ -9134,7 +9210,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...HEAD
+[0.165.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...v0.165.0
 [0.164.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...v0.164.0
 [0.163.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...v0.163.0
 [0.162.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...v0.162.0

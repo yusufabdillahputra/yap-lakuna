@@ -146,6 +146,7 @@ ulang riwayat.
 | v0.162.0 | Ekspor pratinjau import harga ke Excel (F1-07u) | #168 |
 | v0.163.0 | Setujui ulang diskon rupiah bila pesanan berkurang (F1-04j) | #169 |
 | v0.164.0 | Fase 2 tahap 1: server push/pull sync dan aktivasi hosting (F2-01) | #172 |
+| v0.165.0 | Fase 2 tahap 2: mesin sync di perangkat (F2-01) | #173 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).
