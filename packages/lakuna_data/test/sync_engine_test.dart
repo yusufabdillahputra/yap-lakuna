@@ -271,6 +271,108 @@ void main() {
     expect(server.pulls, 1);
   });
 
+  test(
+    'pull banyak halaman: perubahan parkir dari halaman awal tetap disimpan',
+    () async {
+      await engine.runCycle();
+      final p = (await Product.db.findById(store.session, productId))!;
+      final orphan = fromB(p, {'categoryId': newId(), 'name': 'Yatim'});
+      server.addChange('products', orphan);
+      final unit = (await MeasureUnit.db.find(store.session)).first;
+      server.addChange('units', fromB(unit, {'name': 'karung'}));
+      server.pageSize = 1;
+      final r = await engine.runCycle();
+      expect(r.conflicts, 1);
+      expect(await store.syncState(SyncStateKey.pullCursor), '2');
+      expect(
+        await store.syncState(SyncStateKey.pullParked),
+        contains(orphan['id']),
+      );
+    },
+  );
+
+  test(
+    'galat lokal (bukan jaringan) → perlu perhatian, bukan offline',
+    () async {
+      server.onPush = (e) => throw const FormatException('rusak');
+      final r = await engine.runCycle();
+      expect(r.outcome, SyncCycleOutcome.attention);
+      expect(r.error, 'local');
+    },
+  );
+
+  test(
+    'balasan push kurang dari entri → perlu perhatian tanpa melempar',
+    () async {
+      final short = _ShortReplyTransport(server);
+      final r = await SyncEngine(store, short).runCycle();
+      expect(r.outcome, SyncCycleOutcome.attention);
+      expect(r.error, 'local');
+    },
+  );
+
+  test(
+    'balasan stale memajukan HLC perangkat melewati HLC baris server',
+    () async {
+      await engine.runCycle();
+      now = now.add(const Duration(seconds: 5));
+      await archiveProduct(
+        store,
+        scope,
+        staffId: ctx.owner.id,
+        productId: productId,
+      );
+      final local = (await Product.db.findById(store.session, productId))!;
+      final ahead = Hlc(
+        now.add(const Duration(minutes: 4)).millisecondsSinceEpoch,
+        0,
+        deviceB.uuid,
+      );
+      server.onPush = (e) => e.tableName == 'products'
+          ? SyncPushResult(
+              rowId: e.rowId,
+              hlc: e.hlc,
+              kind: SyncResultKind.stale,
+              serverPayloadJson: jsonEncodeRow({
+                ...local.toJson(),
+                'hlc': ahead.toString(),
+              }),
+            )
+          : SyncPushResult(
+              rowId: e.rowId,
+              hlc: e.hlc,
+              kind: SyncResultKind.applied,
+            );
+      server.offline = false;
+      await engine.runCycle();
+      final last = Hlc.parse((await store.syncState(SyncStateKey.lastHlc))!);
+      expect(last > ahead, isTrue);
+    },
+  );
+
+  test('entri ditolak clock dicoba ulang dan galat clock bertahan', () async {
+    server.onPush = (e) =>
+        _reject(e, {'products': SyncRejectReason.clock}) ??
+        SyncPushResult(
+          rowId: e.rowId,
+          hlc: e.hlc,
+          kind: SyncResultKind.applied,
+        );
+    final first = await engine.runCycle();
+    expect(first.error, 'clock');
+    server.pushed.clear();
+    final second = await engine.runCycle();
+    expect(
+      [for (final b in server.pushed) ...b.map((e) => e.tableName)],
+      ['products'],
+    );
+    expect(second.error, 'clock');
+    server.onPush = null;
+    final third = await engine.runCycle();
+    expect(third.error, isNull);
+    expect(third.conflicts, 0);
+  });
+
   group('SyncScheduler', () {
     SyncCycleResult result(SyncCycleOutcome o) =>
         SyncCycleResult(outcome: o, pending: 0, conflicts: 0);
@@ -322,6 +424,40 @@ void main() {
       });
     });
 
+    test('offline lama: jeda tetap 5 detik sampai 5 menit (tanpa luapan)', () {
+      fakeAsync((async) {
+        final times = <Duration>[];
+        final s = SyncScheduler(() async {
+          times.add(async.elapsed);
+          return result(SyncCycleOutcome.offline);
+        });
+        s.start();
+        async.elapse(const Duration(hours: 10));
+        final gaps = [
+          for (var i = 1; i < times.length; i++)
+            (times[i] - times[i - 1]).inSeconds,
+        ];
+        expect(gaps.every((g) => g >= 5 && g <= 300), isTrue);
+        expect(times.length, lessThan(200));
+        s.stop();
+      });
+    });
+
+    test('run melempar: penjadwal tetap berjalan', () {
+      fakeAsync((async) {
+        var runs = 0;
+        final s = SyncScheduler(() async {
+          runs++;
+          if (runs == 1) throw StateError('bug');
+          return result(SyncCycleOutcome.synced);
+        });
+        s.start();
+        async.elapse(const Duration(minutes: 2));
+        expect(runs, greaterThan(1));
+        s.stop();
+      });
+    });
+
     test('offline: backoff eksponensial sampai 5 menit', () {
       fakeAsync((async) {
         final times = <Duration>[];
@@ -352,4 +488,22 @@ SyncPushResult? _reject(SyncPushEntry e, Map<String, SyncRejectReason> map) {
     kind: SyncResultKind.rejected,
     reason: reason,
   );
+}
+
+/// Transport yang membalas push dengan hasil lebih sedikit dari entri.
+class _ShortReplyTransport implements SyncTransport {
+  _ShortReplyTransport(this.inner);
+  final FakeSyncTransport inner;
+
+  @override
+  Future<SyncPushReply> push(List<SyncPushEntry> entries) async {
+    final r = await inner.push(entries);
+    return r.copyWith(results: r.results.take(1).toList());
+  }
+
+  @override
+  Future<SyncPullPage> pull(int afterSeq) => inner.pull(afterSeq);
+
+  @override
+  Future<SyncServerStatus> status() => inner.status();
 }

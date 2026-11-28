@@ -21,6 +21,10 @@ enum SyncStateKey {
   /// (aturan 13, 15).
   initialUpload('initial_upload'),
 
+  /// Jam stempel ulang pemadatan (aturan 13), terpisah dari `last_hlc` yang
+  /// tetap dimajukan tulisan kasir selama pemadatan.
+  restampHlc('restamp_hlc'),
+
   /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
   initialUploadCursor('initial_upload_cursor'),
 

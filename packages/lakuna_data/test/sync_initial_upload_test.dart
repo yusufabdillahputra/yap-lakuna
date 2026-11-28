@@ -199,6 +199,41 @@ void main() {
     },
   );
 
+  test(
+    'stempel ulang tidak ikut jam perangkat dari tulisan di sela pemadatan',
+    () async {
+      now = DateTime.utc(2026, 11, 29, 5);
+      for (var i = 0; i < 5; i++) {
+        await product('Kopi $i');
+      }
+      final serverNow = DateTime.utc(2026, 11, 28, 5);
+      final limit = serverNow.add(const Duration(minutes: 5));
+      var chunks = 0;
+      await prepareInitialUpload(
+        store,
+        serverNow: serverNow,
+        chunkSize: 2,
+        afterChunk: () async {
+          if (++chunks == 1) {
+            await createCategory(
+              store,
+              scope,
+              staffId: ctx.owner.id,
+              draft: const CategoryDraft(name: 'Di sela'),
+            );
+          }
+        },
+      );
+      final beyond = [
+        for (final e in await outbox())
+          if (Hlc.parse(e.hlc).millis > limit.millisecondsSinceEpoch) e,
+      ];
+      // Hanya entri tulisan di sela (jam perangkat salah) yang di depan.
+      expect(beyond.map((e) => e.entity).toSet(), {'categories'});
+      expect(beyond, hasLength(1));
+    },
+  );
+
   test('progres per kelompok menghitung entri acked', () async {
     await product('Teh');
     await prepareInitialUpload(store, serverNow: now);

@@ -4,6 +4,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show HttpException, SocketException;
 import 'dart:math' as math;
 
 import 'package:lakuna_client/lakuna_client.dart';
@@ -53,6 +54,28 @@ class SyncCycleResult {
   final String? error;
 }
 
+/// Dilempar transport bila server tidak terjangkau (jaringan putus, waktu
+/// habis). Galat lain dianggap masalah perangkat atau server.
+class SyncOfflineException implements Exception {
+  const SyncOfflineException([this.cause]);
+  final Object? cause;
+
+  @override
+  String toString() => 'SyncOfflineException($cause)';
+}
+
+/// `true` bila [e] berarti server tidak terjangkau.
+bool isOfflineError(Object e) =>
+    e is SyncOfflineException ||
+    e is SocketException ||
+    e is TimeoutException ||
+    e is HttpException;
+
+/// Alasan tolak yang dicoba ulang setiap siklus: induk yang belum ada
+/// (aturan 8d) dan HLC yang kelak tidak lagi di depan jam server (aturan
+/// 13).
+const _retriedReasons = ['dependency', 'clock'];
+
 /// Mesin sync satu perangkat. Satu siklus pada satu waktu.
 class SyncEngine {
   SyncEngine(
@@ -91,20 +114,34 @@ class SyncEngine {
     } on SyncRequestException catch (e) {
       outcome = SyncCycleOutcome.attention;
       error = e.reason;
-    } on Exception {
-      outcome = SyncCycleOutcome.offline;
-      error = 'network';
+    } on Object catch (e) {
+      if (isOfflineError(e)) {
+        outcome = SyncCycleOutcome.offline;
+        error = 'network';
+      } else {
+        // Galat di perangkat atau balasan server yang tidak sah: bukan
+        // jaringan, jadi tampil *Perlu perhatian* (bukan backoff diam).
+        outcome = SyncCycleOutcome.attention;
+        error = 'local';
+      }
     }
-    await _write(SyncStateKey.lastError, error ?? '');
-    final pending = await SyncOutboxEntry.db.count(
-      store.session,
-      where: (e) => e.status.equals(OutboxStatus.pending),
-    );
-    final rejected = await SyncOutboxEntry.db.count(
-      store.session,
-      where: (e) => e.status.equals(OutboxStatus.conflict),
-    );
-    final conflicts = rejected + (await _parked()).length;
+    var pending = 0;
+    var conflicts = 0;
+    try {
+      await _write(SyncStateKey.lastError, error ?? '');
+      pending = await SyncOutboxEntry.db.count(
+        store.session,
+        where: (e) => e.status.equals(OutboxStatus.pending),
+      );
+      final rejected = await SyncOutboxEntry.db.count(
+        store.session,
+        where: (e) => e.status.equals(OutboxStatus.conflict),
+      );
+      conflicts = rejected + (await _parked()).length;
+    } on Object {
+      outcome = SyncCycleOutcome.attention;
+      error ??= 'local';
+    }
     if (outcome == SyncCycleOutcome.synced &&
         (conflicts > 0 || error != null)) {
       outcome = SyncCycleOutcome.attention;
@@ -138,7 +175,7 @@ class SyncEngine {
             (e.id > after) &
             (e.status.equals(OutboxStatus.pending) |
                 (e.status.equals(OutboxStatus.conflict) &
-                    e.lastError.equals(SyncRejectReason.dependency.name))),
+                    e.lastError.inSet(_retriedReasons.toSet()))),
         orderBy: (e) => e.id,
         limit: batchSize,
       );
@@ -160,6 +197,12 @@ class SyncEngine {
             hlc: e.hlc,
           ),
       ]);
+      if (reply.results.length != batch.length) {
+        throw StateError(
+          'Balasan push berisi ${reply.results.length} hasil untuk '
+          '${batch.length} entri.',
+        );
+      }
       await session.db.transaction((tx) async {
         for (var i = 0; i < batch.length; i++) {
           final e = batch[i];
@@ -195,7 +238,13 @@ class SyncEngine {
           e.status.equals(OutboxStatus.acked) &
           (e.createdAt < _clock().toUtc().subtract(ackedRetention)),
     );
-    return error;
+    final clockRejected = await SyncOutboxEntry.db.count(
+      session,
+      where: (e) =>
+          e.status.equals(OutboxStatus.conflict) &
+          e.lastError.equals(SyncRejectReason.clock.name),
+    );
+    return clockRejected > 0 ? 'clock' : error;
   }
 
   /// Balasan `stale`/`merged`: baris server menimpa baris lokal tanpa
@@ -220,12 +269,19 @@ class SyncEngine {
         await rebuildStockLevelsFor(store, {key}, transaction: tx);
       }
       await savepoint.release();
+      final h = Hlc.tryParse(json['hlc'] as String? ?? '');
+      if (h != null) await _receiveHlc(tx, h);
     } on Object {
       await savepoint.rollback();
     }
   }
 
-  Future<void> _receive(Transaction tx, DateTime serverTime) async {
+  Future<void> _receive(Transaction tx, DateTime serverTime) =>
+      _receiveHlc(tx, Hlc(serverTime.millisecondsSinceEpoch, 0, 'server'));
+
+  /// Memajukan `last_hlc` melewati [remote] (HLC `receive`), agar edit
+  /// lokal berikutnya selalu menang atas baris yang baru diterima.
+  Future<void> _receiveHlc(Transaction tx, Hlc remote) async {
     final session = store.session;
     final last =
         Hlc.tryParse(
@@ -233,10 +289,7 @@ class SyncEngine {
               '',
         ) ??
         Hlc(0, 0, store.deviceId.uuid);
-    final next = last.receive(
-      Hlc(serverTime.millisecondsSinceEpoch, 0, 'server'),
-      _clock().millisecondsSinceEpoch,
-    );
+    final next = last.receive(remote, _clock().millisecondsSinceEpoch);
     await writeSyncState(
       session,
       SyncStateKey.lastHlc,
@@ -269,10 +322,14 @@ class SyncEngine {
         final fresh = await applyIncoming(store, tx, page.changes);
         var failed = fresh.failed;
         final touched = {...fresh.touchedStock};
-        if (first && parked.isNotEmpty) {
+        if (first) {
           final retry = await applyIncoming(store, tx, parked);
           failed = [...failed, ...retry.failed];
           touched.addAll(retry.touchedStock);
+        } else {
+          // Parkiran halaman sebelumnya ikut disimpan lagi (dan dicoba di
+          // bawah bila induknya datang di halaman ini).
+          failed = [...failed, ...parked];
         }
         // Induk bisa datang setelah anaknya di daftar yang sama.
         while (failed.isNotEmpty) {
@@ -370,20 +427,27 @@ class SyncScheduler {
     if (!_started || _running) return;
     _running = true;
     _again = false;
-    SyncCycleResult? result;
+    SyncCycleResult result;
     try {
       result = await run();
+    } on Object {
+      // Siklus tidak boleh menghentikan penjadwal; galatnya tampil sebagai
+      // *Perlu perhatian*.
+      result = const SyncCycleResult(
+        outcome: SyncCycleOutcome.attention,
+        pending: 0,
+        conflicts: 0,
+        error: 'local',
+      );
     } finally {
       _running = false;
     }
     onResult?.call(result);
     if (!_started) return;
     if (result.outcome == SyncCycleOutcome.offline) {
-      _failures++;
-      final seconds = math.min(
-        maxBackoff.inSeconds,
-        5 * math.pow(2, _failures - 1).toInt(),
-      );
+      // Eksponen dibatasi agar tidak meluap (5 detik × 2^6 > 5 menit).
+      _failures = math.min(_failures + 1, 7);
+      final seconds = math.min(maxBackoff.inSeconds, 5 << (_failures - 1));
       _schedule(Duration(seconds: seconds));
     } else {
       _failures = 0;

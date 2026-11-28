@@ -23,15 +23,18 @@ perubahan perangkat lain. Layar aktivasi dan chip status baru dipasang di
   yang sama dengan setiap potongan 500 baris, jadi aplikasi yang ditutup di
   tengah jalan melanjutkan tanpa baris terlewat atau ganda. Bila jam
   perangkat lebih dari 5 menit di depan server, baris dan snapshot
-  distempel ulang dengan HLC dari waktu server (aturan 13).
+  distempel ulang dengan HLC dari waktu server (aturan 13). Stempel ulang
+  memakai jamnya sendiri (`restamp_hlc`), jadi transaksi kasir di sela
+  potongan tidak menariknya kembali ke jam perangkat yang salah.
 - **Progres unggah per kelompok** (`initialUploadProgress`): toko &
   pengguna, produk, pelanggan & supplier, penjualan, pembelian &
   pengeluaran, stok, gambar.
 - **`SyncEngine`**: satu siklus = push lalu pull.
   - Push urut `id` outbox, maks 500 entri atau 1 MB per batch. `applied`,
     `stale`, `merged` → *acked*; `rejected` → *conflict* dengan alasannya.
-    Entri yang ditolak `dependency` dicoba ulang sekali tiap siklus, alasan
-    lain menunggu tinjauan (F2-03). Entri *acked* lebih dari 7 hari dihapus.
+    Entri yang ditolak `dependency` atau `clock` (jam perangkat terlalu
+    maju) dicoba ulang sekali tiap siklus, alasan lain menunggu tinjauan
+    (F2-03). Selama masih ada penolakan `clock`, galatnya tetap `clock`. Entri *acked* lebih dari 7 hari dihapus.
   - Balasan `stale`/`merged` menimpa baris lokal tanpa entri outbox baru;
     pengaturan yang digabung ke baris server ber-ID lain menghapus baris
     lokalnya.
@@ -41,12 +44,17 @@ perubahan perangkat lain. Layar aktivasi dan chip status baru dipasang di
     nota yang lebih kuat dari server tetap diambil walau HLC lokal lebih
     baru.
   - HLC perangkat dimajukan ke waktu server dan ke setiap HLC yang
-    diterima.
-  - Galat jaringan menghasilkan *offline* tanpa melempar; token tidak sah
-    atau permintaan ditolak menghasilkan *perlu perhatian*.
+    diterima, termasuk baris server di balasan `stale`/`merged`.
+  - Perubahan yang diparkir tetap tersimpan walau pull lebih dari satu
+    halaman.
+  - Galat jaringan (soket, batas waktu, HTTP) menghasilkan *offline* tanpa
+    melempar; token tidak sah, permintaan ditolak, galat lokal (mis. data
+    rusak), atau balasan server yang jumlahnya tidak cocok menghasilkan
+    *perlu perhatian*.
 - **`SyncScheduler`**: siklus 2 detik setelah tulis terakhir, setiap 30
-  detik, *Sync sekarang*, dan backoff 5 detik sampai 5 menit saat offline.
-  Tidak pernah dua siklus bersamaan.
+  detik, *Sync sekarang*, dan backoff 5 detik sampai 5 menit saat offline
+  (berapa lama pun offline). Tidak pernah dua siklus bersamaan, dan galat
+  di satu siklus tidak menghentikan jadwal.
 - `markTenantHosted` (paket tenant jadi *hosted* lewat outbox sebelum
   unggah) dan `openJoinedStore` (database baru untuk perangkat yang
   bergabung, dengan ID perangkat dari server).
@@ -62,7 +70,8 @@ perubahan perangkat lain. Layar aktivasi dan chip status baru dipasang di
 - Tabel sync di perangkat diakses generik lewat `SyncRowType<T>` (46 model;
   tes memastikan namanya sama dengan `syncTables`).
 - Kunci `sync_state` baru: `server_url`, `device_token`, `initial_upload`,
-  `initial_upload_cursor`, `last_sync_at`, `last_error`, `pull_parked`.
+  `initial_upload_cursor`, `restamp_hlc`, `last_sync_at`, `last_error`,
+  `pull_parked`.
 - Tes end-to-end baru di `lakuna_server`: dua database SQLite perangkat +
   server Postgres lewat endpoint sungguhan. Aktivasi A, pasang B, jual dan
   retur offline di keduanya, lalu isi semua tabel sync dan `stock_levels`

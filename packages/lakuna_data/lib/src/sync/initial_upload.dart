@@ -105,12 +105,20 @@ Future<void> _start(
   final limit = serverNow.add(_maxClockAhead).millisecondsSinceEpoch;
   final restamp = last != null && last.millis > limit;
   if (restamp) {
+    final start = Hlc(
+      serverNow.millisecondsSinceEpoch,
+      0,
+      store.deviceId.uuid,
+    ).toString();
+    // Jam pemadatan sendiri: tulisan kasir di antara potongan memajukan
+    // last_hlc ke jam perangkat yang terlalu maju.
     await writeSyncState(
       session,
-      SyncStateKey.lastHlc,
-      Hlc(serverNow.millisecondsSinceEpoch, 0, store.deviceId.uuid).toString(),
+      SyncStateKey.restampHlc,
+      start,
       transaction: tx,
     );
+    await writeSyncState(session, SyncStateKey.lastHlc, start, transaction: tx);
   }
   await writeSyncState(
     session,
@@ -178,7 +186,7 @@ Future<bool> _chunk(
       ? Hlc.parse(
           (await readSyncState(
             session,
-            SyncStateKey.lastHlc,
+            SyncStateKey.restampHlc,
             transaction: tx,
           ))!,
         )
@@ -212,10 +220,21 @@ Future<bool> _chunk(
   if (clock != null) {
     await writeSyncState(
       session,
-      SyncStateKey.lastHlc,
+      SyncStateKey.restampHlc,
       clock.toString(),
       transaction: tx,
     );
+    final last = Hlc.tryParse(
+      await readSyncState(session, SyncStateKey.lastHlc, transaction: tx) ?? '',
+    );
+    if (last == null || last.compareTo(clock) < 0) {
+      await writeSyncState(
+        session,
+        SyncStateKey.lastHlc,
+        clock.toString(),
+        transaction: tx,
+      );
+    }
   }
   final next = selfParent != null || rows.length < chunkSize
       ? '${index + 1}:'
