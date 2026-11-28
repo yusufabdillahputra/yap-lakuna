@@ -80,6 +80,8 @@ class WebJoinView extends StatefulWidget {
     required this.onJoined,
     this.initialServer = '',
     this.reload,
+    this.onCancelled,
+    this.onUseLogin,
   });
 
   final WebJoinRepository repository;
@@ -87,6 +89,13 @@ class WebJoinView extends StatefulWidget {
   final Future<void> Function() onJoined;
   final String initialServer;
   final Future<void> Function()? reload;
+
+  /// *Batal* di *Menyiapkan data toko* selesai (login web kembali ke
+  /// formulir masuk).
+  final VoidCallback? onCancelled;
+
+  /// Tautan *Masuk dengan akun pemilik* di bawah formulir kode pasang.
+  final VoidCallback? onUseLogin;
 
   @override
   State<WebJoinView> createState() => _WebJoinViewState();
@@ -123,7 +132,9 @@ class _WebJoinViewState extends State<WebJoinView> {
                 builder: (context, _) => FCard(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
-                    child: _vm.preparing ? _Preparing(vm: _vm) : _Form(vm: _vm),
+                    child: _vm.preparing
+                        ? _Preparing(vm: _vm, onCancelled: widget.onCancelled)
+                        : _Form(vm: _vm, onUseLogin: widget.onUseLogin),
                   ),
                 ),
               ),
@@ -141,9 +152,10 @@ String _errorText(AppLocalizations l10n, Exception error) => switch (error) {
 };
 
 class _Form extends StatelessWidget {
-  const _Form({required this.vm});
+  const _Form({required this.vm, this.onUseLogin});
 
   final WebJoinViewModel vm;
+  final VoidCallback? onUseLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -210,15 +222,24 @@ class _Form extends StatelessWidget {
               : const Icon(TablerIcons.login2),
           child: Text(l10n.webJoinSubmit),
         ),
+        if (onUseLogin case final onUseLogin?)
+          FButton(
+            key: const ValueKey('web-join-use-login'),
+            variant: .ghost,
+            size: .sm,
+            onPress: vm.busy ? null : onUseLogin,
+            child: Text(l10n.webLoginOwnerLink),
+          ),
       ],
     );
   }
 }
 
 class _Preparing extends StatelessWidget {
-  const _Preparing({required this.vm});
+  const _Preparing({required this.vm, this.onCancelled});
 
   final WebJoinViewModel vm;
+  final VoidCallback? onCancelled;
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +298,12 @@ class _Preparing extends StatelessWidget {
               key: const ValueKey('web-preparing-cancel'),
               variant: .outline,
               mainAxisSize: .min,
-              onPress: vm.cancel.running ? null : vm.cancel.execute,
+              onPress: vm.cancel.running
+                  ? null
+                  : () async {
+                      await vm.cancel.execute();
+                      if (!vm.preparing) onCancelled?.call();
+                    },
               child: Text(l10n.webPreparingCancel),
             ),
             if (error != null)

@@ -333,9 +333,12 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 | Aplikasi jalan di browser | — | Dirilis v0.169.0 | Tahap 1: masuk dengan kode pasang perangkat (login web di tahap 2), pemilih cabang, kode perangkat W01 dari server, tab kedua dan mode privat ditolak dengan pesan. |
 | Ikon web Lakuna | — | Belum | `favicon.png` dan ikon manifest masih bawaan Flutter. |
 | Batal saat pull berjalan | — | Sebagian | Halaman dimuat ulang dan database dihapus; perangkat web di server tetap ada sampai F2-04 (cabut perangkat). |
-| Gabung web dengan kode pasang | — | Sementara | Tahap 1 saja: kode pasang membuka sesi pemilik tanpa PIN dan token tanpa batas waktu. Tahap 2 menggantinya dengan login pemilik + TOTP; build web tidak disajikan (paket VPS tahap 4) sebelum tahap 2 selesai. |
+| Gabung web dengan kode pasang | — | Sebagian | Tetap ada lewat tautan *Pakai kode pasang* di layar login; token kode pasang masih tanpa batas waktu (token login web berumur 30 hari / 12 jam). |
 | Menambah cabang dari aplikasi | — | Belum | Pemilih cabang hanya menampilkan cabang yang sudah ada di data toko. |
-| Login web + TOTP | 2.2 | Belum | Tahap 2. |
+| Login web + TOTP | 2.2 | Dirilis v0.170.0 | Email + kata sandi pemilik, kode TOTP / cadangan, kunci 15 menit setelah 5 salah, *Ingat perangkat ini 30 hari*, *Lupa kata sandi?*, pilihan bahasa. Atur 2 langkah di kartu *Versi hosting*; admin `totp-reset`. |
+| Sesi berakhir dan *Keluar* | — | Dirilis v0.170.0 | Token habis/dicabut → layar *Sesi berakhir* dengan jumlah perubahan belum terkirim; database dihapus setelah ditekan. *Keluar* sync dulu, lalu cabut token. Peringatan `beforeunload`. |
+| Pilihan bahasa layar login diingat | 2.2 | Belum | Kembali ke bahasa browser setiap kunjungan (belum ada database). |
+| Atur 2 langkah oleh manajer | — | Belum | Baris *Verifikasi 2 langkah* hanya untuk staf pemilik. |
 | Dashboard semua cabang | 2.3 | Belum | Tahap 3. |
 | Web di paket VPS | — | Belum | Tahap 4. |
 | Login web manajer | 2.2 | Belum | Hanya pemilik (akun email tenant). |

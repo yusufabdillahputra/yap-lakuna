@@ -151,6 +151,7 @@ ulang riwayat.
 | v0.167.0 | Fase 2 tahap 4: gambar ke object storage, unduh saat dibutuhkan (F2-01) | #175 |
 | v0.168.0 | Fase 2 tahap 5: paket deploy server di VPS (F2-01) | #176 |
 | v0.169.0 | Versi web tahap 1: aplikasi di browser, gabung dengan kode pasang, pemilih cabang (F2-02) | #178 |
+| v0.170.0 | Versi web tahap 2: login pemilik + verifikasi 2 langkah, sesi berakhir, Keluar (F2-02) | #179 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).

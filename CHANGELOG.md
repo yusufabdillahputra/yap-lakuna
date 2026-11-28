@@ -7,6 +7,98 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.170.0] - 2026-11-28
+
+Tahap 2 modul F2-02 (versi web dan dashboard): pemilik toko masuk ke
+versi web dengan akun email + kata sandi dan verifikasi 2 langkah, tanpa
+kode pasang. Dashboard semua cabang menyusul di v0.171.0 dan paket web di
+VPS di v0.172.0.
+
+### Ditambahkan
+
+- **Layar login web 2.2**: dua kolom mulai 600 px (kolom Sky "Pantau
+  semua cabang dari mana saja." dengan lencana *Semua cabang*, *Data
+  tersinkron*, *Verifikasi 2 langkah*; kolom kanan *Masuk*), menumpuk di
+  ponsel. Email, kata sandi, *Ingat perangkat ini 30 hari* (bawaan
+  dicentang; tanpa centang sesi berlaku 12 jam), pilihan bahasa
+  Indonesia / English. Setelah kata sandi benar tampil kartu
+  *Verifikasi 2 langkah*: 6 angka dari aplikasi authenticator atau satu
+  kode cadangan, plus pilihan toko bila akun memiliki lebih dari satu
+  toko. Lalu *Menyiapkan data toko* seperti tahap 1.
+- **Lupa kata sandi?**: kode dikirim ke email akun, kata sandi baru
+  diketik dua kali (minimal 8 karakter).
+- **Verifikasi 2 langkah pemilik** di Pengaturan › Versi hosting
+  (perangkat kasir): baris *Verifikasi 2 langkah · Aktif / Belum aktif*
+  dengan *Aktifkan*, *Atur ulang*, *Nonaktifkan*. Alur: PIN pemilik →
+  akun pemilik → QR (atau rahasia teks yang bisa disalin) → kode 6 angka →
+  8 kode cadangan `XXXX-XXXX` (tombol *Salin*, *Sudah saya simpan*).
+- **Layar *Sesi berakhir***: token web habis atau dicabut menampilkan
+  alasannya dan, bila ada, "n perubahan belum terkirim akan hilang dari
+  browser ini." Database di browser baru dihapus setelah *Keluar
+  sekarang* / *Masuk lagi* ditekan.
+- **Menu *Keluar*** di bilah atas web: sync dulu; bila masih ada
+  perubahan belum terkirim, konfirmasi *Keluar dari browser ini?*. Token
+  web dicabut di server, lalu database di browser dihapus.
+- Peringatan browser saat tab ditutup atau dimuat ulang selama ada
+  perubahan belum terkirim.
+- Tautan *Pakai kode pasang* di layar login (gabung cara tahap 1) dan
+  *Masuk dengan akun pemilik* di layar kode pasang.
+- Server: endpoint `totp` (status, mulai, konfirmasi, nonaktifkan) dan
+  `webAccess` (`tenants`, `open`, `logout`, `twoFactorEnabled`). Admin
+  `totp-reset --email <email>` untuk pemilik yang kehilangan authenticator
+  dan kode cadangan.
+
+### Diubah
+
+- Web tanpa sesi kini membuka layar login pemilik, bukan formulir kode
+  pasang. Isian *Alamat server* hanya tampil di build web lepas
+  (`--dart-define=LAKUNA_WEB_STANDALONE=true`); build paket VPS memakai
+  asal halaman.
+- Token perangkat web berumur (`device_credentials.expires_at`); token
+  yang lewat batas ditolak sync dengan alasan `expired` dan tidak lagi
+  dihitung sebagai toko dikenal di `sync.status`. Token perangkat kasir
+  tetap tanpa batas.
+- Pesan galat versi hosting kini membedakan email/kata sandi salah dan
+  terlalu banyak percobaan masuk (juga di aktivasi langkah 2).
+
+### Keamanan
+
+- Login web hanya untuk akun pemilik toko (`tenant_owners`) yang sudah
+  mengaktifkan verifikasi 2 langkah.
+- TOTP RFC 6238 (SHA-1, 6 digit, 30 detik, rahasia 160 bit, jendela ±1
+  langkah); kode yang sama tidak bisa dipakai dua kali. 5 kode salah
+  mengunci 15 menit; pesan menyebut jam buka di zona waktu browser.
+  Dua permintaan paralel dengan kode yang sama: hanya satu yang berhasil
+  (baris `owner_totp` dikunci `FOR UPDATE`).
+- Rahasia TOTP disimpan terenkripsi AES-256-GCM dengan kunci server baru
+  `TOTP_ENCRYPTION_KEY` (`SERVERPOD_PASSWORD_totpEncryptionKey`); kode
+  cadangan disimpan sebagai HMAC-SHA256 dengan kunci yang sama dan
+  sekali pakai. Server tanpa kunci menolak pengaturan 2 langkah dengan
+  pesan jelas. Lihat `docs/server/vps.md` (enam rahasia).
+- *Keluar* mencabut hanya token web; token perangkat kasir tidak bisa
+  dicabut dari endpoint ini.
+- Caddy: `/totp/*` dan `/webAccess/*` masuk zona batas laju `auth`.
+
+### Catatan teknis
+
+- Migrasi `login-web`: tabel `owner_totp`, `owner_backup_codes`, kolom
+  `device_credentials.expires_at`.
+- `lakuna_domain/totp.dart`: `totpCode`, `matchTotp`, base32,
+  `otpauthUri`, kode cadangan (diuji dengan vektor RFC 6238).
+- Server: `TotpCipher` (cipherlib), `withOwnerSecondFactor` (hitungan
+  salah tersimpan walau permintaan gagal; perangkat web didaftarkan di
+  transaksi yang sama), `registerDevice` / `oldestOutlet` dipakai bersama
+  gabung kode pasang.
+- Aplikasi: `WebLoginRepository` + `WebLoginViewModel`
+  (`credentials → secondFactor → preparing`), `WebPasswordResetViewModel`,
+  `WebSessionGate` di `LakunaApp` (web), `AppRestart.signOut` /
+  `webSessions`, `WebSessionStore.setUnsentGuard` (`beforeunload`),
+  `HostingRepository.unsentChanges` / `logoutWeb`,
+  `TwoFactorViewModel` + dialog, `QrImage` (paket `barcode`).
+- Uji manual: server lokal + perangkat Linux (Xvfb) mengaktifkan
+  verifikasi 2 langkah dengan kode TOTP asli; Chromium (Playwright)
+  login, kode salah, kunci 15 menit, keluar; terang, gelap, ponsel.
+
 ## [0.169.0] - 2026-11-28
 
 Tahap 1 modul F2-02 (versi web dan dashboard): aplikasi Lakuna yang sama
@@ -9613,7 +9705,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.169.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.170.0...HEAD
+[0.170.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.169.0...v0.170.0
 [0.169.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.168.0...v0.169.0
 [0.168.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...v0.168.0
 [0.167.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...v0.167.0

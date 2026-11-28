@@ -84,6 +84,9 @@ class FakeWebJoinRepository implements WebJoinRepository, WebLoginRepository {
   final openCalls = <({String code, UuidValue tenantId, bool remember})>[];
   final resetCalls = <String>[];
 
+  /// Galat berikutnya dari [finishPasswordReset] (sekali pakai).
+  Exception? finishError;
+
   @override
   Future<Result<List<WebTenant>>> signIn(
     String serverUrl, {
@@ -148,6 +151,10 @@ class FakeWebJoinRepository implements WebJoinRepository, WebLoginRepository {
     required String password,
   }) async {
     resetCalls.add('finish:$token:$password');
+    if (finishError case final e?) {
+      finishError = null;
+      return Result.error(e);
+    }
     return const Result.ok(null);
   }
 
