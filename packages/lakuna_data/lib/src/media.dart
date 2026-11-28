@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' show sha256;
@@ -39,15 +38,8 @@ Future<MediaFile> storeMediaFile(
     transaction: w.transaction,
   );
   final key = '$hash.${header.extension}';
-  final file = File('${store.mediaDirectory}${Platform.pathSeparator}$key');
-  if (!file.existsSync()) {
-    await file.parent.create(recursive: true);
-    // Tulis ke berkas sementara dulu agar berkas setengah jadi tidak
-    // pernah terbaca sebagai gambar.
-    final tmp = File('${file.path}.tmp');
-    await tmp.writeAsBytes(bytes, flush: true);
-    await tmp.rename(file.path);
-  }
+  // Tersemat sampai terunggah (versi hosting di web, F2-02 aturan 8).
+  await store.media.write(key, bytes, pinned: true);
   if (existing != null) return existing;
   return w.insert(
     MediaFile(
@@ -82,10 +74,8 @@ Future<Uint8List?> readMediaFile(
   MediaFile media, {
   Duration wait = const Duration(seconds: 4),
 }) async {
-  final file = File(
-    '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}',
-  );
-  if (file.existsSync()) return file.readAsBytes();
+  final local = await store.media.read(media.storageKey);
+  if (local != null) return local;
   final fetch = store.fetchMedia;
   if (fetch == null) return null;
   return fetch(media).timeout(wait, onTimeout: () => null);

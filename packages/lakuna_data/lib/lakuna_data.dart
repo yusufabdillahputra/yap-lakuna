@@ -41,6 +41,8 @@ export 'src/sync/apply_incoming.dart' show applyIncoming, IncomingResult;
 export 'src/sync/initial_upload.dart';
 export 'src/sync/media_sync.dart';
 export 'src/sync/sync_engine.dart';
+export 'src/platform/media_blobs.dart';
+export 'src/platform/token_vault.dart';
 export 'src/sync/sync_rows.dart' show syncRowType, SyncRowType;
 export 'src/sync/sync_transport.dart';
 export 'src/sync_state.dart';
