@@ -128,7 +128,7 @@ class ActivationEndpoint extends Endpoint {
     );
     return [
       for (final o in outlets)
-        PairingOutlet(id: o.id!, code: o.code, name: o.name),
+        PairingOutlet(id: o.id, code: o.code, name: o.name),
     ];
   }
 

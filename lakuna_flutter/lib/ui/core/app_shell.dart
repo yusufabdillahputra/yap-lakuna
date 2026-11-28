@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../data/repositories/hosting_repository.dart';
 import '../../data/repositories/session_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../login/login_view.dart' show roleLabel;
 import 'breakpoints.dart';
 import 'menu.dart';
-import 'offline_badge.dart';
+import '../../routing/routes.dart';
+import '../hosting/sync_status_chip.dart';
 
 /// Kerangka aplikasi: bilah atas (dengan staf bertugas dan *Ganti kasir*),
 /// sidebar (tablet/desktop) atau navigasi bawah (mobile), dan isi halaman.
@@ -23,7 +25,16 @@ class AppShell extends StatelessWidget {
     required this.session,
     required this.child,
     this.canSwitch,
+    this.hosting,
+    this.timezone,
   });
+
+  /// Versi hosting (F2-01): chip status menggantikan *Offline · data di
+  /// perangkat ini* saat aktif.
+  final HostingRepository? hosting;
+
+  /// Zona waktu cabang untuk jam *Tersinkron · 14.32*.
+  final String? timezone;
 
   /// Jalur yang sedang dibuka, untuk menandai menu terpilih.
   final String location;
@@ -59,7 +70,14 @@ class AppShell extends StatelessWidget {
             title: Text(l10n.appTitle, overflow: TextOverflow.ellipsis),
             suffixes: [
               Center(
-                child: OfflineBadge(compact: size != LayoutSize.desktop),
+                child: SyncStatusChip(
+                  repository: hosting,
+                  compact: size != LayoutSize.desktop,
+                  timezone: timezone,
+                  onOpen: permissions.contains(Permission.syncManage)
+                      ? () => context.go('${Routes.settings}?bagian=hosting')
+                      : null,
+                ),
               ),
               if (staff != null)
                 _StaffSwitcher(

@@ -238,6 +238,33 @@ void main() {
       expect(transport.pushed, isNotEmpty);
     });
 
+    test(
+      'progres unggah awal selesai: perubahan baru tidak memunculkannya lagi',
+      () async {
+        await activate();
+        var progress = await initialUploadProgress(store);
+        expect(progress.any((g) => g.acked < g.total), isTrue);
+        final transport = FakeSyncTransport(serverTime: now);
+        final r = await runHostingCycle(SyncEngine(store, transport));
+        expect(r.outcome, SyncCycleOutcome.synced);
+        expect(r.pending, 0);
+        // Penjualan/perubahan setelah unggah awal: cukup *N perubahan
+        // menunggu*, bukan daftar unggah awal per kelompok lagi.
+        await addCashier();
+        progress = await initialUploadProgress(store);
+        expect(progress, isEmpty);
+      },
+    );
+
+    test('perangkat gabungan tidak menampilkan progres unggah awal', () async {
+      final joined = await openJoinedStore(
+        '${dir.path}/gabung/lakuna.sqlite',
+        deviceId: UuidValue.fromString('01900000-0000-7000-8000-0000000000b9'),
+      );
+      addTearDown(joined.close);
+      expect(await initialUploadProgress(joined), isEmpty);
+    });
+
     test('siklus melanjutkan pemadatan yang terputus', () async {
       await activate();
       // Seolah aplikasi ditutup sebelum pemadatan selesai.
@@ -262,7 +289,11 @@ void main() {
       final zip = '${dir.path}/b.zip';
       await createBackup(store, ctx, outPath: zip, appVersion: '0.166.0');
       final dataDir = File(store.path).parent.path;
-      await stageRestore(zip, dataDir: dataDir, knownVersions: lakunaSchemaVersions);
+      await stageRestore(
+        zip,
+        dataDir: dataDir,
+        knownVersions: lakunaSchemaVersions,
+      );
       await store.close();
       await applyPendingRestore(dataDir);
       store = await LakunaStore.open('$dataDir/lakuna.sqlite');

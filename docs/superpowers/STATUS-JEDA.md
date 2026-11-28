@@ -147,6 +147,7 @@ ulang riwayat.
 | v0.163.0 | Setujui ulang diskon rupiah bila pesanan berkurang (F1-04j) | #169 |
 | v0.164.0 | Fase 2 tahap 1: server push/pull sync dan aktivasi hosting (F2-01) | #172 |
 | v0.165.0 | Fase 2 tahap 2: mesin sync di perangkat (F2-01) | #173 |
+| v0.166.0 | Fase 2 tahap 3: aktivasi versi hosting, chip status sync, gabung perangkat (F2-01) | #174 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).

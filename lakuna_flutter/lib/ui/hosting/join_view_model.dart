@@ -31,10 +31,15 @@ class JoinViewModel extends ChangeNotifier {
   String get serverUrl => _server.trim();
   String get code => _code;
 
-  /// Naik setiap kode lengkap ditempel, agar isian alamat dan kode dibuat
-  /// ulang dengan nilai baru.
-  int _fillRevision = 0;
-  int get fillRevision => _fillRevision;
+  /// Naik saat kode lengkap di isian alamat mengisi isian kode, agar isian
+  /// kode dibuat ulang dengan nilai baru. Isian yang sedang diketik tidak
+  /// pernah dibuat ulang, jadi fokusnya tidak hilang.
+  int _codeRevision = 0;
+  int get codeRevision => _codeRevision;
+
+  /// Naik saat kode lengkap ditempel di isian kode dan mengisi alamat.
+  int _serverRevision = 0;
+  int get serverRevision => _serverRevision;
 
   List<PairingOutlet>? _outlets;
   List<PairingOutlet>? get outlets => _outlets;
@@ -66,13 +71,14 @@ class JoinViewModel extends ChangeNotifier {
 
   bool get busy => check.running || join.running || _staged;
 
-  /// Isian alamat: kode lengkap `<alamat>#<kode>` mengisi keduanya.
+  /// Isian alamat: kode lengkap `<alamat>#<kode>` mengisi keduanya. Isian
+  /// alamat tetap memuat teks yang diketik; [serverUrl] yang dipakai.
   void setServer(String value) {
     final parsed = parsePairingInput(value);
     if (value.contains('#') && parsed.serverUrl != null) {
       _server = parsed.serverUrl!;
       _code = parsed.code;
-      _fillRevision++;
+      _codeRevision++;
     } else {
       _server = value;
     }
@@ -83,7 +89,7 @@ class JoinViewModel extends ChangeNotifier {
     final parsed = parsePairingInput(value);
     if (parsed.serverUrl != null && value.contains('#')) {
       _server = parsed.serverUrl!;
-      _fillRevision++;
+      _serverRevision++;
     }
     _code = parsed.code;
     _resetCheck();

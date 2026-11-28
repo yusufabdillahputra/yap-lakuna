@@ -6946,25 +6946,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Restore failed. The data on this device was not changed.';
 
   @override
-  String get backupHostingTitle => 'Activate hosted version';
-
-  @override
-  String get backupHostingBody =>
-      'Sync all branches and devices to your store server.';
-
-  @override
-  String get backupHostingServer => 'Server address';
-
-  @override
-  String get backupHostingCode => 'Activation code';
-
-  @override
-  String get backupHostingConnect => 'Connect & upload data';
-
-  @override
-  String get backupHostingSoon => 'Available in the hosted version (phase 2).';
-
-  @override
   String get startupErrorTitle => 'Lakuna could not start';
 
   @override
@@ -9425,7 +9406,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The server can\'t be reached. Check the address and the internet connection.';
 
   @override
-  String get hostingErrorNotPermitted => 'Needs the Manage sync permission.';
+  String get hostingErrorNotPermitted => 'Needs the Sync & hosting permission.';
 
   @override
   String get hostingErrorLogin =>
@@ -9722,4 +9703,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncChipClock => 'Device clock is wrong';
+
+  @override
+  String get backupModeHosted => 'Hosted version · active';
+
+  @override
+  String get backupModeHostedBody =>
+      'Data syncs to the store\'s server. Backups are still useful as a spare copy; restoring a backup turns the hosted version off on this device.';
 }

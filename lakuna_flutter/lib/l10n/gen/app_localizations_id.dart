@@ -6825,25 +6825,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Pulihkan gagal. Data perangkat ini tidak berubah.';
 
   @override
-  String get backupHostingTitle => 'Aktifkan versi hosting';
-
-  @override
-  String get backupHostingBody =>
-      'Sinkronkan semua cabang dan perangkat ke server toko Anda.';
-
-  @override
-  String get backupHostingServer => 'Alamat server';
-
-  @override
-  String get backupHostingCode => 'Kode aktivasi';
-
-  @override
-  String get backupHostingConnect => 'Hubungkan & unggah data';
-
-  @override
-  String get backupHostingSoon => 'Tersedia di versi hosting (Fase 2).';
-
-  @override
   String get startupErrorTitle => 'Lakuna gagal dibuka';
 
   @override
@@ -9146,7 +9127,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Server tidak terjangkau. Periksa alamat dan koneksi internet.';
 
   @override
-  String get hostingErrorNotPermitted => 'Butuh izin Kelola sinkronisasi.';
+  String get hostingErrorNotPermitted => 'Butuh izin Sync & hosting.';
 
   @override
   String get hostingErrorLogin => 'Login gagal. Periksa email dan kata sandi.';
@@ -9439,4 +9420,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get syncChipClock => 'Jam perangkat tidak sesuai';
+
+  @override
+  String get backupModeHosted => 'Versi hosting · aktif';
+
+  @override
+  String get backupModeHostedBody =>
+      'Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.';
 }

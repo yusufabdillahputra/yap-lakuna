@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_domain/lakuna_domain.dart' show Money, Permission;
 
+import '../data/repositories/hosting_repository.dart';
 import '../data/repositories/guide_repository.dart';
 import '../data/repositories/backup_repository.dart';
 import '../data/repositories/cash_drawer_repository.dart';
@@ -99,6 +100,7 @@ GoRouter createRouter({
   required StoreSettingsRepository storeSettings,
   required ReceiptPrinter receiptPrinter,
   required BackupRepository backup,
+  HostingRepository? hosting,
   ShiftsRepository? shifts,
   BackupFiles backupFiles = const PlatformBackupFiles(),
   GuideRepository? guide,
@@ -157,6 +159,7 @@ GoRouter createRouter({
           settings: settings,
           backup: backup,
           backupFiles: backupFiles,
+          hosting: hosting,
           onBeforeSetup: (open) => importAfterSetup = open,
         ),
       ),
@@ -176,6 +179,8 @@ GoRouter createRouter({
             location: state.uri.path,
             session: session,
             canSwitch: leaveGuards.canLeaveAll,
+            hosting: hosting,
+            timezone: store.current?.outlet.timezone,
             child: child,
           ),
         ),
@@ -205,6 +210,7 @@ GoRouter createRouter({
               diningAdmin: diningAdmin,
               backup: backup,
               backupFiles: backupFiles,
+              hosting: hosting,
               initialSection: SettingsSection.fromQuery(
                 state.uri.queryParameters['bagian'],
               ),

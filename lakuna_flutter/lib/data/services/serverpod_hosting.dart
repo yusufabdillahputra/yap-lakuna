@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
 
 /// Galat jaringan dari klien Serverpod diubah menjadi
 /// [SyncOfflineException] agar mesin sync menampilkan *Menunggu jaringan*.
+/// `ClientException` paket http sudah dibungkus klien Serverpod menjadi
+/// [ServerpodClientNetworkException].
 Future<T> _guard<T>(Future<T> Function() call) async {
   try {
     return await call();
@@ -17,8 +18,6 @@ Future<T> _guard<T>(Future<T> Function() call) async {
   } on TimeoutException catch (e) {
     throw SyncOfflineException(e);
   } on HttpException catch (e) {
-    throw SyncOfflineException(e);
-  } on http.ClientException catch (e) {
     throw SyncOfflineException(e);
   } on ServerpodClientHttpException catch (e) {
     // Proksi atau server sedang dimulai ulang.
@@ -39,9 +38,19 @@ class _BearerAuth implements ClientAuthKeyProvider {
   }
 }
 
-/// Satu server versi hosting lewat klien Serverpod: aktivasi, akun pemilik,
-/// dan transport sync dengan token perangkat.
-class ServerpodHosting implements HostingClient {
+/// Koneksi ke satu server versi hosting: aktivasi, akun pemilik, dan
+/// transport sync dengan token perangkat. Versi palsu dipakai di tes.
+abstract interface class HostingConnection implements HostingClient {
+  Future<void> login({required String email, required String password});
+  Future<UuidValue> startRegistration(String email);
+  Future<String> verifyRegistration(UuidValue requestId, String code);
+  Future<void> finishRegistration(String token, String password);
+  SyncTransport transport(String deviceToken);
+  void close();
+}
+
+/// [HostingConnection] lewat klien Serverpod.
+class ServerpodHosting implements HostingConnection {
   ServerpodHosting(Uri server)
     : _auth = _BearerAuth(),
       client = Client(
@@ -57,8 +66,10 @@ class ServerpodHosting implements HostingClient {
   /// Sudah login sebagai akun pemilik (sesi hanya di memori).
   bool get signedIn => _auth.token != null;
 
+  @override
   void close() => client.close();
 
+  @override
   Future<void> login({required String email, required String password}) async {
     final auth = await _guard(
       () => client.emailIdp.login(email: email.trim(), password: password),
@@ -66,9 +77,11 @@ class ServerpodHosting implements HostingClient {
     _auth.token = auth.token;
   }
 
+  @override
   Future<UuidValue> startRegistration(String email) =>
       _guard(() => client.emailIdp.startRegistration(email: email.trim()));
 
+  @override
   Future<String> verifyRegistration(UuidValue requestId, String code) => _guard(
     () => client.emailIdp.verifyRegistrationCode(
       accountRequestId: requestId,
@@ -76,6 +89,7 @@ class ServerpodHosting implements HostingClient {
     ),
   );
 
+  @override
   Future<void> finishRegistration(String token, String password) async {
     final auth = await _guard(
       () => client.emailIdp.finishRegistration(
@@ -133,6 +147,7 @@ class ServerpodHosting implements HostingClient {
   );
 
   /// Transport sync dengan [deviceToken].
+  @override
   SyncTransport transport(String deviceToken) =>
       _ServerpodSyncTransport(client, deviceToken);
 }

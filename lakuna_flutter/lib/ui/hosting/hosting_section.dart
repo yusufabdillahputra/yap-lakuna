@@ -358,7 +358,8 @@ class _PairingCodeViewState extends State<_PairingCodeView> {
     final shown = code.length == 8
         ? '${code.substring(0, 4)} ${code.substring(4)}'
         : code;
-    return Padding(
+    // Layar sempit: isi dialog bisa lebih tinggi dari layar.
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         key: const ValueKey('hosting-pairing-dialog'),

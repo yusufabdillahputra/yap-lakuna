@@ -12050,42 +12050,6 @@ abstract class AppLocalizations {
   /// **'Pulihkan gagal. Data perangkat ini tidak berubah.'**
   String get backupRestoreFailed;
 
-  /// No description provided for @backupHostingTitle.
-  ///
-  /// In id, this message translates to:
-  /// **'Aktifkan versi hosting'**
-  String get backupHostingTitle;
-
-  /// No description provided for @backupHostingBody.
-  ///
-  /// In id, this message translates to:
-  /// **'Sinkronkan semua cabang dan perangkat ke server toko Anda.'**
-  String get backupHostingBody;
-
-  /// No description provided for @backupHostingServer.
-  ///
-  /// In id, this message translates to:
-  /// **'Alamat server'**
-  String get backupHostingServer;
-
-  /// No description provided for @backupHostingCode.
-  ///
-  /// In id, this message translates to:
-  /// **'Kode aktivasi'**
-  String get backupHostingCode;
-
-  /// No description provided for @backupHostingConnect.
-  ///
-  /// In id, this message translates to:
-  /// **'Hubungkan & unggah data'**
-  String get backupHostingConnect;
-
-  /// No description provided for @backupHostingSoon.
-  ///
-  /// In id, this message translates to:
-  /// **'Tersedia di versi hosting (Fase 2).'**
-  String get backupHostingSoon;
-
   /// No description provided for @startupErrorTitle.
   ///
   /// In id, this message translates to:
@@ -15750,7 +15714,7 @@ abstract class AppLocalizations {
   /// No description provided for @hostingErrorNotPermitted.
   ///
   /// In id, this message translates to:
-  /// **'Butuh izin Kelola sinkronisasi.'**
+  /// **'Butuh izin Sync & hosting.'**
   String get hostingErrorNotPermitted;
 
   /// No description provided for @hostingErrorLogin.
@@ -16262,6 +16226,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Jam perangkat tidak sesuai'**
   String get syncChipClock;
+
+  /// No description provided for @backupModeHosted.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosting · aktif'**
+  String get backupModeHosted;
+
+  /// No description provided for @backupModeHostedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.'**
+  String get backupModeHostedBody;
 }
 
 class _AppLocalizationsDelegate

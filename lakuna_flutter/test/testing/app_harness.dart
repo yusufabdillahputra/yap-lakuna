@@ -1,5 +1,6 @@
 import 'fake_backup_repository.dart';
 import 'fake_guide_repository.dart';
+import 'fake_hosting_repository.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,6 +72,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeBackupRepository? backup,
   FakeBackupFiles? backupFiles,
   GuideRepository? guide,
+  FakeHostingRepository? hosting,
   Future<void> Function()? restart,
   bool restoreFailed = false,
 }) async {
@@ -137,6 +139,7 @@ Future<AppSettingsViewModel> pumpLakuna(
                 backup ?? FakeBackupRepository(last: DateTime.now().toUtc()),
             backupFiles: backupFiles ?? FakeBackupFiles(),
             guide: guide ?? FakeGuideRepository(),
+            hosting: hosting,
             initialLocation: initialLocation,
           ),
         ),

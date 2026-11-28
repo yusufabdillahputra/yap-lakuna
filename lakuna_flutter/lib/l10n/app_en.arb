@@ -3696,12 +3696,6 @@
   "backupInvalid": "This file is not a complete Lakuna backup.",
   "backupTooNew": "This backup was made by a newer Lakuna version. Update the app first.",
   "backupRestoreFailed": "Restore failed. The data on this device was not changed.",
-  "backupHostingTitle": "Activate hosted version",
-  "backupHostingBody": "Sync all branches and devices to your store server.",
-  "backupHostingServer": "Server address",
-  "backupHostingCode": "Activation code",
-  "backupHostingConnect": "Connect & upload data",
-  "backupHostingSoon": "Available in the hosted version (phase 2).",
   "startupErrorTitle": "Lakuna could not start",
   "startupErrorBody": "The database on this device could not be opened. Your data was not deleted. Copy the details below and contact support.",
   "startupErrorPath": "Data location: {path}",
@@ -5622,7 +5616,7 @@
   "hostingErrorServerTooOld": "The server needs an update (version {version}).",
   "hostingErrorInvalidUrl": "Invalid server address. Use https://, except localhost for testing.",
   "hostingErrorOffline": "The server can't be reached. Check the address and the internet connection.",
-  "hostingErrorNotPermitted": "Needs the Manage sync permission.",
+  "hostingErrorNotPermitted": "Needs the Sync & hosting permission.",
   "hostingErrorLogin": "Sign-in failed. Check the email and password.",
   "hostingErrorRegistration": "Registration failed. Check the code from the email or request a new one.",
   "hostingErrorGeneric": "Failed: {error}",
@@ -5707,5 +5701,7 @@
   "syncChipWaiting": "Waiting for network ({count})",
   "syncChipPaused": "Sync paused ({count})",
   "syncChipAttention": "Needs attention",
-  "syncChipClock": "Device clock is wrong"
+  "syncChipClock": "Device clock is wrong",
+  "backupModeHosted": "Hosted version · active",
+  "backupModeHostedBody": "Data syncs to the store's server. Backups are still useful as a spare copy; restoring a backup turns the hosted version off on this device."
 }

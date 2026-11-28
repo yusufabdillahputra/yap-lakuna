@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lakuna_data/lakuna_data.dart'
-    show applyPendingRestore, undoRestore;
+    show applyPendingJoin, applyPendingRestore, undoRestore;
 import 'package:path/path.dart' as p;
 
 import 'bootstrap.dart';
@@ -65,6 +65,9 @@ class _LakunaRootState extends State<LakunaRoot> {
     try {
       final path = _path ??= await widget.resolvePath();
       final dataDir = p.dirname(path);
+      // Gabung versi hosting yang sudah ditarik (F2-01): database lama
+      // dipindah ke `sebelum-gabung-*`.
+      await applyPendingJoin(path);
       final kept = await applyPendingRestore(dataDir);
       AppInstance instance;
       var restoreFailed = false;

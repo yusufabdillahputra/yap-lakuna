@@ -71,6 +71,12 @@ Future<LakunaStore> openJoinedStore(
       'done',
       transaction: tx,
     );
+    await writeSyncState(
+      first.session,
+      SyncStateKey.initialUploadAcked,
+      '1',
+      transaction: tx,
+    );
   });
   await first.close();
   return LakunaStore.open(path, clock: clock);
@@ -408,7 +414,13 @@ Future<SyncCycleResult> runHostingCycle(SyncEngine engine) async {
     }
     await prepareInitialUpload(store, serverNow: serverNow);
   }
-  return engine.runCycle();
+  final result = await engine.runCycle();
+  if (result.outcome == SyncCycleOutcome.synced &&
+      result.pending == 0 &&
+      await store.syncState(SyncStateKey.initialUploadAcked) != '1') {
+    await writeSyncState(store.session, SyncStateKey.initialUploadAcked, '1');
+  }
+  return result;
 }
 
 /// Mematikan versi hosting di perangkat ini: token dihapus dan alamat
@@ -418,6 +430,7 @@ Future<SyncCycleResult> runHostingCycle(SyncEngine engine) async {
 Future<void> disableHosting(LakunaStore store) async {
   await HostingVault.of(store).deleteToken();
   await writeSyncState(store.session, SyncStateKey.serverUrl, '');
+  await writeSyncState(store.session, SyncStateKey.initialUploadAcked, '');
 }
 
 // --- Gabung lewat kode pasang (aturan 10, 10a) ------------------------------

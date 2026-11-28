@@ -7,6 +7,110 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.166.0] - 2026-11-28
+
+Tahap 3 Fase 2 (F2-01): versi hosting bisa diaktifkan dari aplikasi.
+Pemilik menghubungkan toko ke server (Server Lakuna atau server sendiri),
+data awal diunggah bertahap, sync berjalan otomatis, dan perangkat lain
+bergabung dengan kode pasang. Server untuk VPS (docker compose) menyusul
+di 0.168.0; sampai itu server dijalankan dari kode sumber.
+
+### Ditambahkan
+
+- **Pengaturan › Versi hosting** (izin *Sync & hosting*, bawaan pemilik).
+  Kartu *Belum aktif* dengan **Aktifkan versi hosting** dan **Gabung ke
+  toko yang sudah memakai hosting**; setelah aktif kartu menampilkan
+  *Aktif · server …*, waktu sync terakhir, jumlah perubahan menunggu,
+  **Sync sekarang**, **Jeda sync** / **Lanjutkan sync**, dan **Buat kode
+  pasang perangkat**. Galat dijelaskan per jenis: jam perangkat tidak
+  sesuai, server menolak token perangkat, server tidak bisa dihubungi.
+- **Stepper aktivasi 2.1** (4 langkah):
+  1. *Server & kode*: **Server Lakuna** (bila build membawa
+     `LAKUNA_HOSTING_URL`) atau **Server sendiri** dengan alamatnya, lalu
+     kode aktivasi dan **Periksa**. Alamat wajib https, kecuali
+     `localhost`/`127.0.0.1`/`10.0.2.2` untuk uji; alamat tanpa skema
+     dianggap https. Server dengan protokol lebih lama ditolak (*Server
+     perlu diperbarui*), server yang mensyaratkan aplikasi lebih baru juga
+     (*Perbarui aplikasi*).
+  2. *Login pemilik*: masuk dengan akun pemilik di server, atau **Daftar
+     akun baru** dengan kode verifikasi dari email dan kata sandi diketik
+     dua kali (minimal 8 karakter).
+  3. *Unggah data*: progres per kelompok (toko & pengguna, produk,
+     pelanggan & supplier, penjualan, pembelian & pengeluaran, stok,
+     gambar) dengan **Jeda unggahan** / **Lanjutkan unggahan**.
+  4. *Selesai*: ringkasan, lalu sync otomatis menyala.
+- **Chip status sync** di bilah atas menggantikan *Offline · data di
+  perangkat ini* saat aktif: *Tersinkron · 14.32*, *Menyinkronkan… (n)*,
+  *Menunggu jaringan (n)*, *Sync dijeda (n)*, *Perlu perhatian*, *Jam
+  perangkat tidak sesuai*. Di HP dan tablet hanya ikon dengan titik warna
+  (teks lewat tooltip dan pembaca layar). Pemilik bisa mengetuk chip untuk
+  membuka kartu Versi hosting.
+- **Sync otomatis**: siklus 2 detik setelah setiap tulis data, setiap 30
+  detik, dan **Sync sekarang**; dijalankan saat aplikasi dibuka bila
+  versi hosting aktif.
+- **Kode pasang perangkat**: kode 8 karakter (tampil `ABCD 2345`) dan kode
+  lengkap `https://alamat#ABCD2345` dengan **Salin kode lengkap**; berlaku
+  15 menit, sekali pakai, dan dialog menandai kode yang kedaluwarsa.
+- **Gabung ke toko yang memakai hosting** dari layar onboarding atau kartu
+  Versi hosting: tempel kode lengkap (alamat dan kode terisi sendiri),
+  **Periksa kode**, pilih cabang, isi kode perangkat (1–6 huruf/angka,
+  mis. `K02`) dan nama perangkat, lalu **Gabung**. Data toko ditarik penuh
+  dari server ke database baru, lalu aplikasi dimuat ulang. Bila database
+  lokal berisi penjualan, tampil peringatan jumlahnya; backup otomatis
+  dibuat di `backup-sebelum-gabung/` dan data lama dipindah ke
+  `sebelum-gabung-<YYMMDD-HHMM>/`.
+- Endpoint server `activation.pairingOutlets`: daftar cabang aktif tenant
+  untuk kode pasang yang masih berlaku.
+- Panduan: artikel *Versi hosting* (ID/EN) ditulis ulang untuk fitur yang
+  sudah tersedia, dengan tangkapan layar.
+
+### Diubah
+
+- Token perangkat tidak lagi disimpan di `sync_state` (kunci
+  `device_token` dihapus), tetapi di berkas `hosting/device-token` di
+  folder data dengan izin 600. Backup tidak membawa token, jadi dua
+  perangkat tidak pernah memakai token yang sama.
+- **Memulihkan backup mematikan versi hosting** di perangkat itu (token
+  dihapus, alamat server dikosongkan); aktifkan atau gabung lagi bila
+  perlu.
+- Kartu contoh *Aktifkan versi hosting* yang nonaktif di **Pengaturan ›
+  Data & backup** dihapus; fiturnya kini di bagian *Versi hosting*.
+
+### Diperbaiki
+
+- **Pengaturan › Data & backup** menulis *Gratis · offline* walau versi
+  hosting aktif; kini *Versi hosting · aktif* dengan penjelasan bahwa
+  memulihkan backup mematikan versi hosting di perangkat itu.
+- Menempel atau mengetik kode lengkap `https://alamat#KODE` di isian
+  alamat layar *Gabung* membuat isian kehilangan fokus di setiap huruf;
+  kini hanya isian kode yang diisi ulang.
+- Daftar progres unggah awal per kelompok muncul lagi di kartu Versi
+  hosting setiap ada perubahan baru (mis. setelah login atau penjualan),
+  dengan angka seperti *12 / 13*. Setelah unggah awal terkirim semua,
+  perubahan berikutnya cukup tampil sebagai *N perubahan menunggu*.
+- Header stepper aktivasi meluap di tablet sempit dan dialog kode pasang
+  meluap di HP 360 px.
+
+### Catatan teknis
+
+- `lakuna_data`: `hosting.dart` (`activateHosting`, `joinHosting`,
+  `applyPendingJoin`, `checkHostingServer`, `runHostingCycle`,
+  `setSyncPaused`, `HostingVault`, `parseServerUrl`, `parsePairingInput`),
+  `LakunaStore.afterWrite`, hasil siklus `paused`, kunci
+  `sync_state.sync_paused`.
+- `lakuna_flutter`: `HostingRepository` (+ `LocalHostingRepository`,
+  `FakeHostingRepository`), `ServerpodHosting` lewat antarmuka
+  `HostingConnection`, view model `HostingViewModel` dan `JoinViewModel`,
+  `applyPendingJoin` dijalankan sebelum `applyPendingRestore` saat start.
+- Kunci `sync_state.initial_upload_acked` (`1` setelah siklus pertama
+  yang tuntas tanpa perubahan menunggu; perangkat gabungan langsung `1`,
+  dikosongkan saat versi hosting dimatikan). `initialUploadProgress`
+  mengembalikan daftar kosong sesudahnya.
+- Dependensi `http` di aplikasi dihapus; galat jaringan sudah dibungkus
+  klien Serverpod.
+- Tes server: versi protokol sync server sama dengan yang diharapkan
+  aplikasi.
+
 ## [0.165.0] - 2026-11-28
 
 Tahap 2 Fase 2 (F2-01): mesin sync di perangkat. Paket data aplikasi kini
@@ -9210,7 +9314,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...HEAD
+[0.166.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...v0.166.0
 [0.165.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...v0.165.0
 [0.164.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...v0.164.0
 [0.163.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...v0.163.0

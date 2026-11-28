@@ -87,7 +87,7 @@ class _JoinHostingViewState extends State<JoinHostingView> {
                 ),
                 Text(l10n.joinIntro, style: muted),
                 FTextField(
-                  key: ValueKey('join-server-${vm.fillRevision}'),
+                  key: ValueKey('join-server-${vm.serverRevision}'),
                   label: Text(l10n.hostingServerUrlLabel),
                   hint: l10n.hostingServerUrlHint,
                   keyboardType: TextInputType.url,
@@ -99,7 +99,7 @@ class _JoinHostingViewState extends State<JoinHostingView> {
                   ),
                 ),
                 FTextField(
-                  key: ValueKey('join-code-${vm.fillRevision}'),
+                  key: ValueKey('join-code-${vm.codeRevision}'),
                   label: Text(l10n.joinCodeLabel),
                   autocorrect: false,
                   textCapitalization: TextCapitalization.characters,

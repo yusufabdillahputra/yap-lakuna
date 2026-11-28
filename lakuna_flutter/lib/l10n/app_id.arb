@@ -4243,12 +4243,6 @@
   "backupInvalid": "Berkas ini bukan backup Lakuna yang utuh.",
   "backupTooNew": "Backup ini dibuat versi Lakuna yang lebih baru. Perbarui aplikasi dulu.",
   "backupRestoreFailed": "Pulihkan gagal. Data perangkat ini tidak berubah.",
-  "backupHostingTitle": "Aktifkan versi hosting",
-  "backupHostingBody": "Sinkronkan semua cabang dan perangkat ke server toko Anda.",
-  "backupHostingServer": "Alamat server",
-  "backupHostingCode": "Kode aktivasi",
-  "backupHostingConnect": "Hubungkan & unggah data",
-  "backupHostingSoon": "Tersedia di versi hosting (Fase 2).",
   "startupErrorTitle": "Lakuna gagal dibuka",
   "startupErrorBody": "Database di perangkat ini tidak bisa dibuka. Data Anda tidak dihapus. Salin detail di bawah lalu hubungi dukungan.",
   "startupErrorPath": "Lokasi data: {path}",
@@ -6297,7 +6291,7 @@
   "@hostingErrorOffline": {
     "placeholders": {}
   },
-  "hostingErrorNotPermitted": "Butuh izin Kelola sinkronisasi.",
+  "hostingErrorNotPermitted": "Butuh izin Sync & hosting.",
   "@hostingErrorNotPermitted": {
     "placeholders": {}
   },
@@ -6687,6 +6681,14 @@
   },
   "syncChipClock": "Jam perangkat tidak sesuai",
   "@syncChipClock": {
+    "placeholders": {}
+  },
+  "backupModeHosted": "Versi hosting · aktif",
+  "@backupModeHosted": {
+    "placeholders": {}
+  },
+  "backupModeHostedBody": "Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.",
+  "@backupModeHostedBody": {
     "placeholders": {}
   }
 }

@@ -114,26 +114,40 @@ class _StepHeader extends StatelessWidget {
         ],
       );
     }
+    // Label boleh turun ke baris kedua agar empat langkah muat di kartu
+    // pengaturan selebar ~700 px.
     return Row(
       children: [
         for (final s in ActivationStep.values) ...[
           if (s.index > 0)
-            Expanded(
-              child: Container(
-                height: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                color: s.index <= step.index
-                    ? theme.colors.primary
-                    : theme.colors.border,
-              ),
+            Container(
+              width: 24,
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 6),
+              color: s.index <= step.index
+                  ? theme.colors.primary
+                  : theme.colors.border,
             ),
-          dot(s),
-          const SizedBox(width: 6),
-          Text(
-            _stepLabel(l10n, s),
-            key: s == step ? const ValueKey('hosting-step-title') : null,
-            style: theme.typography.body.sm.copyWith(
-              fontWeight: s == step ? FontWeight.w700 : FontWeight.w500,
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                dot(s),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    _stepLabel(l10n, s),
+                    key: s == step
+                        ? const ValueKey('hosting-step-title')
+                        : null,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.typography.body.sm.copyWith(
+                      fontWeight: s == step ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

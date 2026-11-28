@@ -7,6 +7,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import '../../app_root.dart';
 import '../../data/repositories/backup_repository.dart';
 import '../../data/repositories/dining_admin_repository.dart';
+import '../../data/repositories/hosting_repository.dart';
 import '../../data/repositories/payment_settings_repository.dart';
 import '../../data/repositories/receipt_settings_repository.dart';
 import '../../data/repositories/session_repository.dart';
@@ -18,6 +19,9 @@ import '../../data/services/image_file_picker.dart';
 import '../../data/services/receipt_printer.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../core/breakpoints.dart';
+import '../hosting/hosting_section.dart';
+import '../hosting/hosting_view_model.dart';
+import '../hosting/join_view.dart';
 import '../products/product_widgets.dart' show ChoicePill;
 import 'about_section.dart';
 import 'about_view_model.dart';
@@ -44,6 +48,7 @@ enum SettingsSection {
   taxes,
   rules,
   backup,
+  hosting,
   appearance,
   about;
 
@@ -73,6 +78,7 @@ class SettingsScreen extends StatefulWidget {
     required this.storeSettings,
     this.diningAdmin,
     this.backup,
+    this.hosting,
     this.backupFiles = const PlatformBackupFiles(),
     this.initialSection,
     this.licenses,
@@ -84,6 +90,9 @@ class SettingsScreen extends StatefulWidget {
   /// Data & backup (F1-19); hanya untuk staf dengan `backup:manage`.
   final BackupRepository? backup;
   final BackupFiles backupFiles;
+
+  /// Versi hosting (F2-01); hanya untuk staf dengan `sync:manage`.
+  final HostingRepository? hosting;
 
   /// Bagian yang dibuka pertama (bila boleh diakses staf).
   final SettingsSection? initialSection;
@@ -112,6 +121,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final bool _canBackup =
       widget.backup != null &&
       (widget.session.current?.can(Permission.backupManage) ?? false);
+  late final bool _canHosting =
+      widget.hosting != null &&
+      (widget.session.current?.can(Permission.syncManage) ?? false);
   late SettingsSection _section = switch (widget.initialSection) {
     final s? when _sections.contains(s) => s,
     _ => _canManage ? SettingsSection.business : SettingsSection.appearance,
@@ -127,6 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   KitchenPrinterViewModel? _bar;
   FnbRatesViewModel? _rates;
   BackupViewModel? _backup;
+  HostingViewModel? _hosting;
   late final _about = AboutViewModel(licenses: widget.licenses);
 
   @override
@@ -157,6 +170,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         )..load.execute();
       }
     }
+    if (_canHosting) {
+      _hosting = HostingViewModel(repository: widget.hosting!)..load.execute();
+    }
     if (_canBackup) {
       _backup = BackupViewModel(
         repository: widget.backup!,
@@ -185,6 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _bar?.dispose();
     _rates?.dispose();
     _backup?.dispose();
+    _hosting?.dispose();
     _about.dispose();
     super.dispose();
   }
@@ -197,6 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_rates != null) SettingsSection.taxes,
     if (_canManage) SettingsSection.rules,
     if (_canBackup) SettingsSection.backup,
+    if (_canHosting) SettingsSection.hosting,
     SettingsSection.appearance,
     SettingsSection.about,
   ];
@@ -209,6 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.receipt => l10n.settingsSectionReceipt,
     SettingsSection.taxes => l10n.settingsSectionTaxes,
     SettingsSection.backup => l10n.settingsSectionBackup,
+    SettingsSection.hosting => l10n.settingsSectionHosting,
     SettingsSection.appearance => l10n.settingsSectionAppearance,
     SettingsSection.about => l10n.settingsSectionAbout,
   };
@@ -221,6 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsSection.receipt => TablerIcons.receipt,
     SettingsSection.taxes => TablerIcons.percentage,
     SettingsSection.backup => TablerIcons.databaseExport,
+    SettingsSection.hosting => TablerIcons.cloud,
     SettingsSection.appearance => TablerIcons.palette,
     SettingsSection.about => TablerIcons.infoCircle,
   };
@@ -258,6 +278,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       SettingsSection.backup => BackupSection(
         viewModel: _backup!,
         timezone: widget.store.current?.outlet.timezone,
+        hosting: widget.hosting,
+      ),
+      SettingsSection.hosting => HostingSection(
+        viewModel: _hosting!,
+        timezone: widget.store.current?.outlet.timezone,
+        onJoin: () => showJoinHosting(
+          context,
+          repository: widget.hosting!,
+          restart: _restart,
+        ),
       ),
       SettingsSection.appearance => SettingsView(viewModel: widget.settings),
       SettingsSection.about => AboutSection(viewModel: _about),

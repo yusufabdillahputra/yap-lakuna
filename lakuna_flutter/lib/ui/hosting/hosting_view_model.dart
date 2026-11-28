@@ -152,6 +152,12 @@ class HostingViewModel extends ChangeNotifier {
   /// *acked*).
   bool get uploading => _progress.any((g) => g.acked < g.total);
 
+  /// Unggah awal tuntas: daftar kosong (sudah terkirim semua, lihat
+  /// `initialUploadProgress`) atau semua kelompok berisi sudah *acked*.
+  /// Semua total 0 = outbox baru dikosongkan pemadatan, belum tuntas.
+  bool get initialUploadDone =>
+      _progress.isEmpty || (_progress.any((g) => g.total > 0) && !uploading);
+
   // --- Stepper -----------------------------------------------------------
 
   void startActivation() {
@@ -323,7 +329,7 @@ class HostingViewModel extends ChangeNotifier {
     _poll?.cancel();
     _poll = Timer.periodic(progressInterval, (_) async {
       await _refreshProgress();
-      if (_progress.isNotEmpty && !uploading) {
+      if (initialUploadDone) {
         _poll?.cancel();
         _step = ActivationStep.done;
       }

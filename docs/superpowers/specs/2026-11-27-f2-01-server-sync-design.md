@@ -1,7 +1,7 @@
 # F2-01 · Server sync & aktivasi hosting
 
 - **Fase:** 2 (modul 1)
-- **Status:** Tahap 1 (server) rilis v0.164.0, tahap 2 (mesin sync perangkat) rilis v0.165.0; tahap 3–5 menyusul. Fondasi sudah ada sejak v0.1.0:
+- **Status:** Tahap 1 (server) rilis v0.164.0, tahap 2 (mesin sync perangkat) rilis v0.165.0, tahap 3 (aktivasi, chip status, gabung perangkat) rilis v0.166.0; tahap 4–5 menyusul. Fondasi sudah ada sejak v0.1.0:
   kolom sync di setiap tabel, `sync_outbox` terisi di transaksi yang sama
   (`SyncTx`), HLC monoton di `sync_state`, ID UUIDv7 dibuat di perangkat.
 - **Layar desain:** 2.1 *Aktivasi versi hosting* (stepper), kartu *Versi
@@ -126,6 +126,14 @@ ditarik dari server.
 aktif), *Tersinkron · 14.32*, *Menyinkronkan… (120)*, *Menunggu jaringan
 (35)*, *Perlu perhatian* (galat atau konflik; ketuk membuka kartu Versi
 hosting). Mobile: ikon saja dengan titik warna.
+
+*Perluasan (tahap 3):* chip keenam *Sync dijeda (n)* saat sync dijeda dari
+kartu Versi hosting (**Jeda sync** / **Lanjutkan sync**; di langkah 3
+tombolnya **Jeda unggahan**). Jeda tersimpan di `sync_state` dan berlaku
+setelah aplikasi dibuka ulang. Galat di kartu dijelaskan per jenis: jam
+perangkat tidak sesuai, server menolak token, server tidak bisa dihubungi.
+Layar onboarding mendapat kartu *Gabung ke toko yang sudah memakai
+hosting*; kartu Versi hosting yang belum aktif juga punya tombol itu.
 
 ## Aturan bisnis
 
@@ -361,10 +369,31 @@ Model baru di `lakuna_server/lib/src/sync/` (migrasi `--tag sync-server`):
 `database: server`). Tabel bisnis yang sudah ada (`database: all`) dipakai
 apa adanya di Postgres.
 
-Klien: kunci baru di `sync_state`: `server_url`, `device_token` (disimpan
-di penyimpanan aman platform bila tersedia; berkas terenkripsi di Linux),
-`last_seq`, `initial_upload`, `initial_upload_cursor`, `last_sync_at`,
-`last_error`, `pull_parked`. Tidak ada tabel klien baru.
+Klien: kunci baru di `sync_state`: `server_url`, `sync_paused`,
+`last_seq`, `initial_upload`, `initial_upload_cursor`,
+`initial_upload_acked`, `last_sync_at`, `last_error`, `pull_parked`.
+Tidak ada tabel klien baru.
+
+*Keputusan Claude (tahap 3):* progres per kelompok (aturan 16) hanya untuk
+unggah awal. `initial_upload_acked` menjadi `1` setelah siklus pertama yang
+tuntas tanpa perubahan menunggu (perangkat gabungan langsung `1`); sesudahnya
+perubahan baru cukup dihitung *N perubahan menunggu* di kartu dan chip.
+
+*Keputusan Claude (tahap 3):* token perangkat **tidak** disimpan di
+database, tetapi di berkas `<folder data>/hosting/device-token` (izin 600
+di Linux/macOS). Alasannya: backup F1-19 menyalin database, jadi token di
+database ikut terbawa ke perangkat lain dan membuat dua perangkat memakai
+satu token. Memulihkan backup mematikan versi hosting di perangkat itu
+(token dihapus, `server_url` dikosongkan). Penyimpanan aman platform
+(Keychain/Keystore/libsecret) dicatat sebagai gap.
+
+*Keputusan Claude (tahap 3):* gabung perangkat disiapkan di
+`<folder data>/gabung/` (database baru, data ditarik penuh dari server,
+konteks toko harus lengkap), lalu dipasang saat aplikasi dimuat ulang
+sebelum database dibuka. Data lama dipindah ke
+`<folder data>/sebelum-gabung-<YYMMDD-HHMM>/`. Pemasangan aman bila
+aplikasi mati di tengah. Daftar cabang untuk kode pasang diambil dari
+endpoint baru `activation.pairingOutlets` (kode diperiksa, belum dipakai).
 
 Daftar tabel sync dan urutan dependensinya ditulis sekali di
 `lakuna_domain` (`syncTables`) dan dipakai server serta klien; tes
@@ -428,7 +457,9 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Kolom sync, outbox, HLC, UUIDv7 | F0 | Rilis v0.1.0 | Dipakai apa adanya. |
 | Endpoint push/pull + log perubahan | — | Rilis v0.164.0 | Juga aktivasi, kode pasang, CLI admin, email SMTP (server). |
 | Mesin sync klien | — | Rilis v0.165.0 | `SyncEngine`, `SyncScheduler`, pemadatan outbox, unggah awal bisa dilanjutkan, parkir pull, `stock_levels` per varian. Belum dipasang di aplikasi (tahap 3). |
-| Aktivasi + pasang perangkat + chip status | 2.1 | Belum | Tahap 3. |
+| Aktivasi + pasang perangkat + chip status | 2.1 | Rilis v0.166.0 | Stepper 4 langkah, kartu Versi hosting, kode pasang + kode lengkap `<alamat>#<kode>`, gabung dari onboarding atau Pengaturan, chip 6 keadaan, sync otomatis setelah tulis. |
+| Token perangkat di penyimpanan aman platform | — | Belum | Tahap 3 memakai berkas izin 600 di folder data (bukan di database); Keychain/Keystore/libsecret menyusul. |
+| Sync dijeda | — | Rilis v0.166.0 | Perluasan desain: chip *Sync dijeda (n)*, jeda bertahan setelah aplikasi dibuka ulang. |
 | Aset ke object storage | — | Belum | Tahap 4. |
 | Paket deploy VPS + panduan | — | Belum | Tahap 5; satu paket untuk server hosting Yusuf dan server sendiri toko. |
 | Izin per aksi di server | — | Belum | Gap; perangkat sudah menjaga izin di repositori. |
@@ -438,7 +469,7 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Penjaga tenant di `ON CONFLICT` | — | Belum | Dua tenant yang berlomba menyisipkan ID sama (butuh UUID bocor); penerap sudah memeriksa tenant baris lama dan semua induk FK. |
 | Batas percobaan kode pasang/aktivasi | — | Belum | 31^8 kombinasi; batas laju di Caddy (tahap 5). |
 | Perubahan pull yang selalu gagal | — | Belum | Diparkir dan dicoba tiap siklus tanpa batas dan tanpa teks galat; entri `dependency` juga didorong ulang tanpa batas. Tinjauan di F2-03. |
-| Versi protokol saat pull | — | Belum | Tabel tak dikenal dilewati sementara kursor maju; tahap 3 menolak protokol lama sebelum sync. |
+| Versi protokol saat pull | — | Sebagian | Aktivasi, gabung, dan pemeriksaan kode pasang menolak server dengan protokol lebih lama atau lebih baru (rilis v0.166.0). Siklus sync berikutnya belum memeriksa ulang bila server diturunkan versinya setelah aktif. |
 | Void lokal yang belum terkirim | — | Belum | Pull dengan HLC lebih baru dan status lebih lemah sempat menimpa void lokal sampai push berikutnya digabung server. |
 | Gabung data dua tenant lokal | — | Tidak direncanakan | Perangkat yang bergabung memulai dari data server (aturan 10). |
 

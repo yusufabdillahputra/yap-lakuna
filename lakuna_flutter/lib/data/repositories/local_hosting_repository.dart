@@ -37,7 +37,7 @@ class LocalHostingRepository extends HostingRepository {
     required this._stores,
     required this._session,
     required this._appVersion,
-    ServerpodHosting Function(Uri server)? connect,
+    HostingConnection Function(Uri server)? connect,
     String? lakunaServerUrl = lakunaHostingUrl,
     DateTime Function()? clock,
   }) : _connect = connect ?? ServerpodHosting.new,
@@ -50,13 +50,13 @@ class LocalHostingRepository extends HostingRepository {
   final StoreRepository _stores;
   final SessionRepository _session;
   final String _appVersion;
-  final ServerpodHosting Function(Uri server) _connect;
+  final HostingConnection Function(Uri server) _connect;
   final String? _lakunaServerUrl;
   final DateTime Function() _clock;
 
   /// Koneksi per alamat selama aktivasi (sesi login pemilik di memori).
-  final _connections = <String, ServerpodHosting>{};
-  ServerpodHosting? _syncConnection;
+  final _connections = <String, HostingConnection>{};
+  HostingConnection? _syncConnection;
   SyncScheduler? _scheduler;
   SyncStatus _status = SyncStatus.local;
   var _syncing = false;
@@ -188,7 +188,7 @@ class LocalHostingRepository extends HostingRepository {
     return uri;
   }
 
-  ServerpodHosting _connection(String serverUrl) {
+  HostingConnection _connection(String serverUrl) {
     final uri = _server(serverUrl);
     return _connections[uri.toString()] ??= _connect(uri);
   }

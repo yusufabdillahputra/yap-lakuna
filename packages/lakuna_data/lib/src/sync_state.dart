@@ -27,6 +27,10 @@ enum SyncStateKey {
   /// tetap dimajukan tulisan kasir selama pemadatan.
   restampHlc('restamp_hlc'),
 
+  /// Unggah data awal sudah terkirim semua (`1`): progres per kelompok
+  /// tidak ditampilkan lagi untuk perubahan sesudahnya (aturan 16).
+  initialUploadAcked('initial_upload_acked'),
+
   /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
   initialUploadCursor('initial_upload_cursor'),
 
