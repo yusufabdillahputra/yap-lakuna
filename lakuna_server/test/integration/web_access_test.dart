@@ -1,4 +1,6 @@
+import 'package:lakuna_domain/lakuna_domain.dart' show secretHash;
 import 'package:lakuna_server/src/generated/protocol.dart';
+import 'package:serverpod/serverpod.dart' show UuidValue;
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
@@ -192,6 +194,40 @@ void main() {
       await expectLater(
         endpoints.webAccess.open(owner, codeFor(secret), otherTenantId, true),
         failsWith(WebAccessFailure.noTenant),
+      );
+    });
+
+    test('twoFactorEnabled dengan token perangkat: status TOTP pemilik '
+        'tenant', () async {
+      final session = sessionBuilder.build();
+      await DeviceCredential.db.insertRow(
+        session,
+        DeviceCredential(
+          tenantId: tenantId,
+          deviceId: UuidValue.fromString(
+            '01900000-0000-7000-8000-0000000000a1',
+          ),
+          tokenHash: secretHash('token-kasir-012345'),
+        ),
+      );
+      expect(
+        await endpoints.webAccess.twoFactorEnabled(
+          sessionBuilder,
+          'token-kasir-012345',
+        ),
+        isFalse,
+      );
+      await enable();
+      expect(
+        await endpoints.webAccess.twoFactorEnabled(
+          sessionBuilder,
+          'token-kasir-012345',
+        ),
+        isTrue,
+      );
+      await expectLater(
+        endpoints.webAccess.twoFactorEnabled(sessionBuilder, 'salah'),
+        throwsA(isA<SyncAuthException>()),
       );
     });
 

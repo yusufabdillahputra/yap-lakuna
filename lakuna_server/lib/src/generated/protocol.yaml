@@ -35,3 +35,4 @@ webAccess:
   - tenants:
   - open:
   - logout:
+  - twoFactorEnabled:

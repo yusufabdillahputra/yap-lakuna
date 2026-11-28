@@ -627,6 +627,15 @@ class EndpointWebAccess extends _isc.EndpointRef {
         'logout',
         {'deviceToken': deviceToken},
       );
+
+  /// `true` bila pemilik tenant perangkat [deviceToken] sudah mengaktifkan
+  /// verifikasi 2 langkah (baris di kartu *Versi hosting*).
+  _ida.Future<bool> twoFactorEnabled(String deviceToken) =>
+      caller.callServerEndpoint<bool>(
+        'webAccess',
+        'twoFactorEnabled',
+        {'deviceToken': deviceToken},
+      );
 }
 
 class Modules {

@@ -781,6 +781,25 @@ class Endpoints extends _is.EndpointDispatch {
                     params['deviceToken'],
                   ),
         ),
+        'twoFactorEnabled': _is.MethodConnector(
+          name: 'twoFactorEnabled',
+          params: {
+            'deviceToken': _is.ParameterDescription(
+              name: 'deviceToken',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['webAccess'] as _ij74wem3.WebAccessEndpoint)
+                  .twoFactorEnabled(
+                    session,
+                    params['deviceToken'],
+                  ),
+        ),
       },
     );
     modules['serverpod_auth_idp'] = _iais.Endpoints()

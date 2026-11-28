@@ -1296,4 +1296,35 @@ class _WebAccessEndpoint {
       }
     });
   }
+
+  _ida.Future<bool> twoFactorEnabled(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webAccess',
+            method: 'twoFactorEnabled',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'webAccess',
+          methodName: 'twoFactorEnabled',
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }

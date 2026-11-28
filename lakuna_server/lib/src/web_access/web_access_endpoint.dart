@@ -8,7 +8,7 @@ import '../generated/protocol.dart';
 import '../sync/activation_endpoint.dart'
     show nextWebDeviceCode, oldestOutlet, registerDevice;
 import '../sync/apply_change.dart' show lockTenantChanges;
-import '../sync/device_auth.dart' show findDeviceCredential;
+import '../sync/device_auth.dart' show authenticateDevice, findDeviceCredential;
 import 'owner_totp_check.dart';
 
 /// Umur token web bila *Ingat saya di browser ini* dicentang (aturan 11).
@@ -114,6 +114,24 @@ class WebAccessEndpoint extends Endpoint {
       session,
       credential.copyWith(revokedAt: DateTime.now().toUtc()),
     );
+  }
+
+  /// `true` bila pemilik tenant perangkat [deviceToken] sudah mengaktifkan
+  /// verifikasi 2 langkah (baris di kartu *Versi hosting*).
+  Future<bool> twoFactorEnabled(Session session, String deviceToken) async {
+    final auth = await authenticateDevice(session, deviceToken);
+    final owners = await TenantOwner.db.find(
+      session,
+      where: (o) => o.tenantId.equals(auth.tenantId),
+    );
+    if (owners.isEmpty) return false;
+    final enabled = await OwnerTotp.db.count(
+      session,
+      where: (t) =>
+          t.authUserId.inSet({for (final o in owners) o.authUserId}) &
+          t.confirmedAt.notEquals(null),
+    );
+    return enabled > 0;
   }
 
   UuidValue _user(Session session) =>
