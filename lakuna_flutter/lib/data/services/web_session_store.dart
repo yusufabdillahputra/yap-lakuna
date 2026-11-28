@@ -52,6 +52,10 @@ abstract interface class WebSessionStore {
   /// Menghapus semua [staleDatabases] (dipanggil sebelum database apa pun
   /// dibuka, sehingga penghapusan yang terputus diulang).
   Future<void> purgeStale();
+
+  /// Peringatan browser saat tab ditutup atau dimuat ulang selama ada
+  /// perubahan belum terkirim (`beforeunload`, F2-02 aturan 7).
+  void setUnsentGuard(bool enabled);
 }
 
 /// [WebSessionStore] di memori (tes dan aplikasi perangkat).
@@ -95,6 +99,12 @@ class MemoryWebSessionStore implements WebSessionStore {
     if (name != null && name == _pending) _pending = null;
     _active = name;
   }
+
+  /// Nilai terakhir [setUnsentGuard] (tes).
+  var unsentGuard = false;
+
+  @override
+  void setUnsentGuard(bool enabled) => unsentGuard = enabled;
 
   @override
   Future<void> purgeStale() async {

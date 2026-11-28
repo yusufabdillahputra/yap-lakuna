@@ -153,6 +153,72 @@ class FakeHostingConnection implements HostingConnection {
     return totpEnabled;
   }
 
+  /// Token yang dicabut lewat [webLogout].
+  final loggedOut = <String>[];
+
+  /// Galat berikutnya dari [webLogout] (sekali pakai).
+  Exception? webLogoutError;
+
+  @override
+  Future<List<WebTenant>> webTenants() async {
+    _needLogin();
+    calls.add('webTenants');
+    return [
+      WebTenant(
+        tenantId: UuidValue.fromString('01900000-0000-7000-8000-000000000001'),
+        name: 'Toko Bu Ani',
+      ),
+    ];
+  }
+
+  @override
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  }) async {
+    _needLogin();
+    calls.add('webOpen:$code:$remember');
+    if (code != '123456') {
+      throw WebAccessException(failure: WebAccessFailure.totpInvalid);
+    }
+    return WebAccessResult(
+      deviceToken: 'token-web',
+      tenantId: tenantId,
+      deviceId: UuidValue.fromString('01900000-0000-7000-8000-0000000000e1'),
+      deviceCode: 'W01',
+      outletId: UuidValue.fromString('01900000-0000-7000-8000-000000000010'),
+      expiresAt: DateTime.utc(2026, 12, 28),
+    );
+  }
+
+  @override
+  Future<void> webLogout(String deviceToken) async {
+    calls.add('webLogout:$deviceToken');
+    if (webLogoutError case final e?) {
+      webLogoutError = null;
+      throw e;
+    }
+    loggedOut.add(deviceToken);
+  }
+
+  @override
+  Future<UuidValue> startPasswordReset(String email) async {
+    calls.add('startPasswordReset:$email');
+    return UuidValue.fromString('01900000-0000-7000-8000-0000000000f1');
+  }
+
+  @override
+  Future<String> verifyPasswordReset(UuidValue requestId, String code) async {
+    calls.add('verifyPasswordReset:$code');
+    return 'token-reset';
+  }
+
+  @override
+  Future<void> finishPasswordReset(String token, String password) async {
+    calls.add('finishPasswordReset:$token');
+  }
+
   @override
   void close() => closed = true;
 }

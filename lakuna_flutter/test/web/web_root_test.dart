@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/app_root.dart';
@@ -107,6 +109,48 @@ void main() {
       expect(opened, isEmpty);
     });
   }
+
+  testWidgets('Keluar: database sesi dihapus setelah ditutup, peringatan '
+      'tutup tab mati, lalu layar masuk', (tester) async {
+    final deleted = <String>[];
+    final closed = <String>[];
+    final sessions = MemoryWebSessionStore(delete: (n) async => deleted.add(n));
+    await sessions.setActiveDatabase('lakuna-abc.sqlite');
+    sessions.setUnsentGuard(true);
+    AppRestart? root;
+    await tester.pumpWidget(
+      LakunaRoot(
+        platform: web,
+        webSessions: sessions,
+        resolvePath: () async => throw StateError('tidak dipakai di web'),
+        boot: (p) async => AppInstance(
+          close: () async {
+            // Dicatat: database belum dihapus selama masih terbuka.
+            closed.add('$p dihapus=${deleted.length}');
+          },
+          app: Builder(
+            builder: (context) {
+              root = AppRestart.maybeOf(context);
+              return const Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text('aplikasi'),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+    expect(find.text('aplikasi'), findsOneWidget);
+    expect(root?.webSessions, same(sessions));
+    unawaited(root!.signOut!());
+    await settle(tester);
+    expect(closed, ['lakuna-abc.sqlite dihapus=0']);
+    expect(deleted, ['lakuna-abc.sqlite']);
+    expect(sessions.activeDatabase, isNull);
+    expect(sessions.unsentGuard, isFalse);
+    expect(find.byKey(const ValueKey('web-join')), findsOneWidget);
+  });
 
   test('sesi diganti: database lama masuk antrean hapus', () async {
     final deleted = <String>[];

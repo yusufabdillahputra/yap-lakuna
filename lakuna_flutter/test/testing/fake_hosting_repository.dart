@@ -159,6 +159,23 @@ class FakeHostingRepository extends HostingRepository {
   @override
   void syncNow() => syncNowCalls++;
 
+  /// Balasan [unsentChanges]; [unsentAfterSync] dipakai bila `syncFirst`.
+  int unsent = 0;
+  int? unsentAfterSync;
+  var logoutWebCalls = 0;
+
+  @override
+  Future<Result<int>> unsentChanges({bool syncFirst = false}) async {
+    calls.add(syncFirst ? 'unsent:sync' : 'unsent');
+    return Result.ok(syncFirst ? (unsentAfterSync ?? unsent) : unsent);
+  }
+
+  @override
+  Future<Result<void>> logoutWeb() async {
+    logoutWebCalls++;
+    return const Result.ok(null);
+  }
+
   @override
   Future<Result<PairingCodeShare>> createPairingCode() async {
     calls.add('pairing');

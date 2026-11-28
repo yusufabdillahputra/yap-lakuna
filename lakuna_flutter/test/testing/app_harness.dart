@@ -9,6 +9,7 @@ import 'package:lakuna_flutter/app_root.dart';
 import 'package:lakuna_flutter/app.dart';
 import 'package:lakuna_flutter/data/repositories/guide_repository.dart';
 import 'package:lakuna_flutter/data/services/table_file.dart';
+import 'package:lakuna_flutter/data/services/web_session_store.dart';
 import 'package:lakuna_flutter/config/app_environment.dart';
 import 'package:lakuna_flutter/routing/router.dart';
 import 'package:lakuna_flutter/routing/routes.dart';
@@ -75,6 +76,8 @@ Future<AppSettingsViewModel> pumpLakuna(
   GuideRepository? guide,
   FakeHostingRepository? hosting,
   Future<void> Function()? restart,
+  Future<void> Function()? signOut,
+  WebSessionStore? webSessions,
   bool restoreFailed = false,
   AppPlatform platform = AppPlatform.native,
 }) async {
@@ -107,9 +110,12 @@ Future<AppSettingsViewModel> pumpLakuna(
       ],
       child: _MaybeRestart(
         restart: restart,
+        signOut: signOut,
+        webSessions: webSessions,
         restoreFailed: restoreFailed,
         child: LakunaApp(
           settings: settings,
+          webSession: platform.isWeb ? hosting : null,
           router: createRouter(
             settings: settings,
             store: storeRepository,
@@ -157,19 +163,29 @@ Future<AppSettingsViewModel> pumpLakuna(
 class _MaybeRestart extends StatelessWidget {
   const _MaybeRestart({
     required this.restart,
+    required this.signOut,
+    required this.webSessions,
     required this.restoreFailed,
     required this.child,
   });
 
   final Future<void> Function()? restart;
+  final Future<void> Function()? signOut;
+  final WebSessionStore? webSessions;
   final bool restoreFailed;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => restart == null && !restoreFailed
+  Widget build(BuildContext context) =>
+      restart == null &&
+          signOut == null &&
+          webSessions == null &&
+          !restoreFailed
       ? child
       : AppRestart(
           restart: restart ?? () async {},
+          signOut: signOut,
+          webSessions: webSessions,
           restoreFailed: restoreFailed,
           child: child,
         );

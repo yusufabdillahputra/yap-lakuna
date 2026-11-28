@@ -9642,4 +9642,149 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get hostingTooManyAttempts =>
       'Terlalu banyak percobaan masuk. Coba lagi beberapa menit lagi.';
+
+  @override
+  String get webSessionEndedTitle => 'Sesi berakhir';
+
+  @override
+  String get webSessionEndedExpired =>
+      'Sesi browser ini sudah habis. Masuk lagi dengan akun pemilik untuk melanjutkan.';
+
+  @override
+  String get webSessionEndedRevoked =>
+      'Server menolak sesi browser ini, mungkin karena sudah dikeluarkan dari perangkat lain.';
+
+  @override
+  String webUnsentChanges(String count) {
+    return '$count perubahan belum terkirim akan hilang dari browser ini.';
+  }
+
+  @override
+  String get webSignOutNow => 'Keluar sekarang';
+
+  @override
+  String get webSignInAgain => 'Masuk lagi';
+
+  @override
+  String get webLogout => 'Keluar';
+
+  @override
+  String get webLogoutConfirmTitle => 'Keluar dari browser ini?';
+
+  @override
+  String get webLogoutConfirmBody =>
+      'Sync belum berhasil mengirim semua perubahan. Periksa jaringan lalu coba lagi, atau keluar sekarang.';
+
+  @override
+  String get webLogoutCancel => 'Batal';
+
+  @override
+  String get webLoginHeadline => 'Pantau semua cabang dari mana saja.';
+
+  @override
+  String get webLoginTagline =>
+      'Penjualan, stok, dan laporan semua cabang di browser, tersinkron dengan kasir di toko.';
+
+  @override
+  String get webLoginBadgeBranches => 'Semua cabang';
+
+  @override
+  String get webLoginBadgeSync => 'Data tersinkron';
+
+  @override
+  String get webLoginBadgeSecure => 'Verifikasi 2 langkah';
+
+  @override
+  String get webLoginTitle => 'Masuk';
+
+  @override
+  String get webLoginBody =>
+      'Pakai akun pemilik yang dibuat saat mengaktifkan versi hosting.';
+
+  @override
+  String get webLoginEmail => 'Email';
+
+  @override
+  String get webLoginPassword => 'Kata sandi';
+
+  @override
+  String get webLoginRemember => 'Ingat perangkat ini 30 hari';
+
+  @override
+  String get webLoginForgot => 'Lupa kata sandi?';
+
+  @override
+  String get webLoginCodeTitle => 'Verifikasi 2 langkah';
+
+  @override
+  String get webLoginCodeBody =>
+      'Masukkan 6 angka dari aplikasi authenticator, atau satu kode cadangan.';
+
+  @override
+  String get webLoginCodeLabel => 'Kode verifikasi';
+
+  @override
+  String get webLoginTenantLabel => 'Toko';
+
+  @override
+  String get webLoginCodeSubmit => 'Verifikasi';
+
+  @override
+  String get webLoginBack => 'Kembali';
+
+  @override
+  String get webLoginNote =>
+      'Hanya pemilik toko yang bisa masuk dari browser. Kasir tetap memakai aplikasi di perangkat toko.';
+
+  @override
+  String get webLoginPairingLink => 'Pakai kode pasang';
+
+  @override
+  String get webLoginOwnerLink => 'Masuk dengan akun pemilik';
+
+  @override
+  String get webLoginLanguage => 'Bahasa';
+
+  @override
+  String get webResetTitle => 'Atur ulang kata sandi';
+
+  @override
+  String get webResetBody => 'Kode dikirim ke email akun pemilik.';
+
+  @override
+  String get webResetSend => 'Kirim kode';
+
+  @override
+  String webResetCodeBody(String email) {
+    return 'Masukkan kode yang dikirim ke $email, lalu kata sandi baru.';
+  }
+
+  @override
+  String get webResetCode => 'Kode dari email';
+
+  @override
+  String get webResetNewPassword => 'Kata sandi baru';
+
+  @override
+  String get webResetNewPasswordAgain => 'Ketik ulang kata sandi baru';
+
+  @override
+  String get webResetSave => 'Simpan kata sandi';
+
+  @override
+  String get webResetDone =>
+      'Kata sandi diganti. Masuk dengan kata sandi baru.';
+
+  @override
+  String get webResetErrInvalid => 'Kode salah.';
+
+  @override
+  String get webResetErrExpired => 'Kode sudah kedaluwarsa. Minta kode baru.';
+
+  @override
+  String get webResetErrTooMany => 'Terlalu banyak percobaan. Coba lagi nanti.';
+
+  @override
+  String get webResetErrPolicy =>
+      'Kata sandi baru belum memenuhi aturan server.';
 }

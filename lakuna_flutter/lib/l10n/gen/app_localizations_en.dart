@@ -9925,4 +9925,148 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hostingTooManyAttempts =>
       'Too many sign-in attempts. Try again in a few minutes.';
+
+  @override
+  String get webSessionEndedTitle => 'Session ended';
+
+  @override
+  String get webSessionEndedExpired =>
+      'This browser session has expired. Sign in again with the owner account to continue.';
+
+  @override
+  String get webSessionEndedRevoked =>
+      'The server rejected this browser session, perhaps because it was signed out elsewhere.';
+
+  @override
+  String webUnsentChanges(String count) {
+    return '$count unsent changes will be lost from this browser.';
+  }
+
+  @override
+  String get webSignOutNow => 'Sign out now';
+
+  @override
+  String get webSignInAgain => 'Sign in again';
+
+  @override
+  String get webLogout => 'Sign out';
+
+  @override
+  String get webLogoutConfirmTitle => 'Sign out of this browser?';
+
+  @override
+  String get webLogoutConfirmBody =>
+      'Sync could not send every change. Check the network and try again, or sign out now.';
+
+  @override
+  String get webLogoutCancel => 'Cancel';
+
+  @override
+  String get webLoginHeadline => 'Watch every branch from anywhere.';
+
+  @override
+  String get webLoginTagline =>
+      'Sales, stock and reports for every branch in your browser, synced with the cashiers in store.';
+
+  @override
+  String get webLoginBadgeBranches => 'All branches';
+
+  @override
+  String get webLoginBadgeSync => 'Synced data';
+
+  @override
+  String get webLoginBadgeSecure => 'Two-step verification';
+
+  @override
+  String get webLoginTitle => 'Sign in';
+
+  @override
+  String get webLoginBody =>
+      'Use the owner account created when hosting was activated.';
+
+  @override
+  String get webLoginEmail => 'Email';
+
+  @override
+  String get webLoginPassword => 'Password';
+
+  @override
+  String get webLoginRemember => 'Remember this device for 30 days';
+
+  @override
+  String get webLoginForgot => 'Forgot password?';
+
+  @override
+  String get webLoginCodeTitle => 'Two-step verification';
+
+  @override
+  String get webLoginCodeBody =>
+      'Enter the 6 digits from your authenticator app, or one backup code.';
+
+  @override
+  String get webLoginCodeLabel => 'Verification code';
+
+  @override
+  String get webLoginTenantLabel => 'Store';
+
+  @override
+  String get webLoginCodeSubmit => 'Verify';
+
+  @override
+  String get webLoginBack => 'Back';
+
+  @override
+  String get webLoginNote =>
+      'Only the store owner can sign in from a browser. Cashiers keep using the app on store devices.';
+
+  @override
+  String get webLoginPairingLink => 'Use a pairing code';
+
+  @override
+  String get webLoginOwnerLink => 'Sign in with the owner account';
+
+  @override
+  String get webLoginLanguage => 'Language';
+
+  @override
+  String get webResetTitle => 'Reset password';
+
+  @override
+  String get webResetBody => 'A code is sent to the owner account\'s email.';
+
+  @override
+  String get webResetSend => 'Send code';
+
+  @override
+  String webResetCodeBody(String email) {
+    return 'Enter the code sent to $email, then a new password.';
+  }
+
+  @override
+  String get webResetCode => 'Code from email';
+
+  @override
+  String get webResetNewPassword => 'New password';
+
+  @override
+  String get webResetNewPasswordAgain => 'Retype new password';
+
+  @override
+  String get webResetSave => 'Save password';
+
+  @override
+  String get webResetDone => 'Password changed. Sign in with the new password.';
+
+  @override
+  String get webResetErrInvalid => 'Wrong code.';
+
+  @override
+  String get webResetErrExpired => 'The code has expired. Request a new one.';
+
+  @override
+  String get webResetErrTooMany => 'Too many attempts. Try again later.';
+
+  @override
+  String get webResetErrPolicy =>
+      'The new password does not meet the server rules.';
 }

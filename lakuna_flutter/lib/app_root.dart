@@ -15,11 +15,21 @@ class AppRestart extends InheritedWidget {
   const AppRestart({
     super.key,
     required this.restart,
+    this.signOut,
+    this.webSessions,
     this.restoreFailed = false,
     required super.child,
   });
 
   final Future<void> Function() restart;
+
+  /// Web: keluar dari sesi toko di browser. Database sesi masuk antrean
+  /// hapus dan baru dihapus setelah ditutup, lalu layar masuk tampil
+  /// (F2-02 aturan 5). `null` di aplikasi perangkat.
+  final Future<void> Function()? signOut;
+
+  /// Web: sesi toko di browser (peringatan tutup tab, aturan 7).
+  final WebSessionStore? webSessions;
 
   /// Backup terakhir gagal dibuka setelah dipasang, jadi data lama
   /// dikembalikan (ditampilkan di Beranda).
@@ -170,6 +180,15 @@ class _LakunaRootState extends State<LakunaRoot> {
     }
   }
 
+  /// Keluar dari sesi web: database sesi menjadi *lama* (dihapus
+  /// [_startWeb] setelah database ditutup), lalu mulai ulang.
+  Future<void> _signOut() async {
+    _webSessions.setUnsentGuard(false);
+    await _webSessions.setPendingDatabase(null);
+    await _webSessions.setActiveDatabase(null);
+    await _restart();
+  }
+
   Future<void> _restart() async {
     final old = _instance;
     setState(() => _instance = null);
@@ -213,6 +232,8 @@ class _LakunaRootState extends State<LakunaRoot> {
     }
     return AppRestart(
       restart: _restart,
+      signOut: widget.platform.isWeb ? _signOut : null,
+      webSessions: widget.platform.isWeb ? _webSessions : null,
       restoreFailed: _restoreFailed,
       child: KeyedSubtree(key: ValueKey(_generation), child: instance.app),
     );

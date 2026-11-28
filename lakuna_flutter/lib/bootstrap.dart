@@ -283,6 +283,7 @@ Future<AppInstance> bootstrap(
       ],
       child: LakunaApp(
         settings: settings,
+        webSession: platform.isWeb ? hostingRepository : null,
         router: createRouter(
           settings: settings,
           store: storeRepository,

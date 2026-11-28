@@ -167,6 +167,35 @@ void main() {
     },
   );
 
+  group('sesi web (F2-02 aturan 5 dan 7)', () {
+    test('perubahan belum terkirim = outbox pending|sent + gambar tertahan; '
+        'Keluar mencabut token perangkat ini', () async {
+      await HostingVault.of(store).writeToken('token-web');
+      await writeSyncState(
+        store.session,
+        SyncStateKey.serverUrl,
+        'https://sync.contoh.id',
+      );
+      await repo.start();
+      final state = await loadHostingState(store);
+      expect(state.pending, greaterThan(0));
+      expect(_ok(await repo.unsentChanges()), state.pending);
+      // Server tak terjangkau: sync dicoba, jumlah tetap.
+      expect(_ok(await repo.unsentChanges(syncFirst: true)), state.pending);
+      expect(repo.status.kind, SyncChipKind.waiting);
+      expect(await repo.logoutWeb(), isA<Ok<void>>());
+      expect(connections.last.loggedOut, ['token-web']);
+    });
+
+    test(
+      'Keluar sebelum versi hosting aktif tidak menghubungi server',
+      () async {
+        expect(await repo.logoutWeb(), isA<Ok<void>>());
+        expect(connections, isEmpty);
+      },
+    );
+  });
+
   group('verifikasi 2 langkah (F2-02 aturan 12–14)', () {
     Future<void> activeHosting() async {
       await HostingVault.of(store).writeToken('token-aktivasi');

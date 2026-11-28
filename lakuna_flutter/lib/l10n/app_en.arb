@@ -5885,5 +5885,181 @@
   "hostingTooManyAttempts": "Too many sign-in attempts. Try again in a few minutes.",
   "@hostingTooManyAttempts": {
     "placeholders": {}
+  },
+  "webSessionEndedTitle": "Session ended",
+  "@webSessionEndedTitle": {
+    "placeholders": {}
+  },
+  "webSessionEndedExpired": "This browser session has expired. Sign in again with the owner account to continue.",
+  "@webSessionEndedExpired": {
+    "placeholders": {}
+  },
+  "webSessionEndedRevoked": "The server rejected this browser session, perhaps because it was signed out elsewhere.",
+  "@webSessionEndedRevoked": {
+    "placeholders": {}
+  },
+  "webUnsentChanges": "{count} unsent changes will be lost from this browser.",
+  "@webUnsentChanges": {
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "webSignOutNow": "Sign out now",
+  "@webSignOutNow": {
+    "placeholders": {}
+  },
+  "webSignInAgain": "Sign in again",
+  "@webSignInAgain": {
+    "placeholders": {}
+  },
+  "webLogout": "Sign out",
+  "@webLogout": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmTitle": "Sign out of this browser?",
+  "@webLogoutConfirmTitle": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmBody": "Sync could not send every change. Check the network and try again, or sign out now.",
+  "@webLogoutConfirmBody": {
+    "placeholders": {}
+  },
+  "webLogoutCancel": "Cancel",
+  "@webLogoutCancel": {
+    "placeholders": {}
+  },
+  "webLoginHeadline": "Watch every branch from anywhere.",
+  "@webLoginHeadline": {
+    "placeholders": {}
+  },
+  "webLoginTagline": "Sales, stock and reports for every branch in your browser, synced with the cashiers in store.",
+  "@webLoginTagline": {
+    "placeholders": {}
+  },
+  "webLoginBadgeBranches": "All branches",
+  "@webLoginBadgeBranches": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSync": "Synced data",
+  "@webLoginBadgeSync": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSecure": "Two-step verification",
+  "@webLoginBadgeSecure": {
+    "placeholders": {}
+  },
+  "webLoginTitle": "Sign in",
+  "@webLoginTitle": {
+    "placeholders": {}
+  },
+  "webLoginBody": "Use the owner account created when hosting was activated.",
+  "@webLoginBody": {
+    "placeholders": {}
+  },
+  "webLoginEmail": "Email",
+  "@webLoginEmail": {
+    "placeholders": {}
+  },
+  "webLoginPassword": "Password",
+  "@webLoginPassword": {
+    "placeholders": {}
+  },
+  "webLoginRemember": "Remember this device for 30 days",
+  "@webLoginRemember": {
+    "placeholders": {}
+  },
+  "webLoginForgot": "Forgot password?",
+  "@webLoginForgot": {
+    "placeholders": {}
+  },
+  "webLoginCodeTitle": "Two-step verification",
+  "@webLoginCodeTitle": {
+    "placeholders": {}
+  },
+  "webLoginCodeBody": "Enter the 6 digits from your authenticator app, or one backup code.",
+  "@webLoginCodeBody": {
+    "placeholders": {}
+  },
+  "webLoginCodeLabel": "Verification code",
+  "@webLoginCodeLabel": {
+    "placeholders": {}
+  },
+  "webLoginTenantLabel": "Store",
+  "@webLoginTenantLabel": {
+    "placeholders": {}
+  },
+  "webLoginCodeSubmit": "Verify",
+  "@webLoginCodeSubmit": {
+    "placeholders": {}
+  },
+  "webLoginBack": "Back",
+  "@webLoginBack": {
+    "placeholders": {}
+  },
+  "webLoginNote": "Only the store owner can sign in from a browser. Cashiers keep using the app on store devices.",
+  "@webLoginNote": {
+    "placeholders": {}
+  },
+  "webLoginPairingLink": "Use a pairing code",
+  "@webLoginPairingLink": {
+    "placeholders": {}
+  },
+  "webLoginOwnerLink": "Sign in with the owner account",
+  "@webLoginOwnerLink": {
+    "placeholders": {}
+  },
+  "webLoginLanguage": "Language",
+  "@webLoginLanguage": {
+    "placeholders": {}
+  },
+  "webResetTitle": "Reset password",
+  "@webResetTitle": {
+    "placeholders": {}
+  },
+  "webResetBody": "A code is sent to the owner account's email.",
+  "@webResetBody": {
+    "placeholders": {}
+  },
+  "webResetSend": "Send code",
+  "@webResetSend": {
+    "placeholders": {}
+  },
+  "webResetCodeBody": "Enter the code sent to {email}, then a new password.",
+  "@webResetCodeBody": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "webResetCode": "Code from email",
+  "@webResetCode": {
+    "placeholders": {}
+  },
+  "webResetNewPassword": "New password",
+  "@webResetNewPassword": {
+    "placeholders": {}
+  },
+  "webResetNewPasswordAgain": "Retype new password",
+  "@webResetNewPasswordAgain": {
+    "placeholders": {}
+  },
+  "webResetSave": "Save password",
+  "@webResetSave": {
+    "placeholders": {}
+  },
+  "webResetDone": "Password changed. Sign in with the new password.",
+  "@webResetDone": {
+    "placeholders": {}
+  },
+  "webResetErrInvalid": "Wrong code.",
+  "@webResetErrInvalid": {
+    "placeholders": {}
+  },
+  "webResetErrExpired": "The code has expired. Request a new one.",
+  "@webResetErrExpired": {
+    "placeholders": {}
+  },
+  "webResetErrTooMany": "Too many attempts. Try again later.",
+  "@webResetErrTooMany": {
+    "placeholders": {}
+  },
+  "webResetErrPolicy": "The new password does not meet the server rules.",
+  "@webResetErrPolicy": {
+    "placeholders": {}
   }
 }

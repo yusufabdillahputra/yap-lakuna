@@ -6953,5 +6953,181 @@
   "hostingTooManyAttempts": "Terlalu banyak percobaan masuk. Coba lagi beberapa menit lagi.",
   "@hostingTooManyAttempts": {
     "placeholders": {}
+  },
+  "webSessionEndedTitle": "Sesi berakhir",
+  "@webSessionEndedTitle": {
+    "placeholders": {}
+  },
+  "webSessionEndedExpired": "Sesi browser ini sudah habis. Masuk lagi dengan akun pemilik untuk melanjutkan.",
+  "@webSessionEndedExpired": {
+    "placeholders": {}
+  },
+  "webSessionEndedRevoked": "Server menolak sesi browser ini, mungkin karena sudah dikeluarkan dari perangkat lain.",
+  "@webSessionEndedRevoked": {
+    "placeholders": {}
+  },
+  "webUnsentChanges": "{count} perubahan belum terkirim akan hilang dari browser ini.",
+  "@webUnsentChanges": {
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "webSignOutNow": "Keluar sekarang",
+  "@webSignOutNow": {
+    "placeholders": {}
+  },
+  "webSignInAgain": "Masuk lagi",
+  "@webSignInAgain": {
+    "placeholders": {}
+  },
+  "webLogout": "Keluar",
+  "@webLogout": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmTitle": "Keluar dari browser ini?",
+  "@webLogoutConfirmTitle": {
+    "placeholders": {}
+  },
+  "webLogoutConfirmBody": "Sync belum berhasil mengirim semua perubahan. Periksa jaringan lalu coba lagi, atau keluar sekarang.",
+  "@webLogoutConfirmBody": {
+    "placeholders": {}
+  },
+  "webLogoutCancel": "Batal",
+  "@webLogoutCancel": {
+    "placeholders": {}
+  },
+  "webLoginHeadline": "Pantau semua cabang dari mana saja.",
+  "@webLoginHeadline": {
+    "placeholders": {}
+  },
+  "webLoginTagline": "Penjualan, stok, dan laporan semua cabang di browser, tersinkron dengan kasir di toko.",
+  "@webLoginTagline": {
+    "placeholders": {}
+  },
+  "webLoginBadgeBranches": "Semua cabang",
+  "@webLoginBadgeBranches": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSync": "Data tersinkron",
+  "@webLoginBadgeSync": {
+    "placeholders": {}
+  },
+  "webLoginBadgeSecure": "Verifikasi 2 langkah",
+  "@webLoginBadgeSecure": {
+    "placeholders": {}
+  },
+  "webLoginTitle": "Masuk",
+  "@webLoginTitle": {
+    "placeholders": {}
+  },
+  "webLoginBody": "Pakai akun pemilik yang dibuat saat mengaktifkan versi hosting.",
+  "@webLoginBody": {
+    "placeholders": {}
+  },
+  "webLoginEmail": "Email",
+  "@webLoginEmail": {
+    "placeholders": {}
+  },
+  "webLoginPassword": "Kata sandi",
+  "@webLoginPassword": {
+    "placeholders": {}
+  },
+  "webLoginRemember": "Ingat perangkat ini 30 hari",
+  "@webLoginRemember": {
+    "placeholders": {}
+  },
+  "webLoginForgot": "Lupa kata sandi?",
+  "@webLoginForgot": {
+    "placeholders": {}
+  },
+  "webLoginCodeTitle": "Verifikasi 2 langkah",
+  "@webLoginCodeTitle": {
+    "placeholders": {}
+  },
+  "webLoginCodeBody": "Masukkan 6 angka dari aplikasi authenticator, atau satu kode cadangan.",
+  "@webLoginCodeBody": {
+    "placeholders": {}
+  },
+  "webLoginCodeLabel": "Kode verifikasi",
+  "@webLoginCodeLabel": {
+    "placeholders": {}
+  },
+  "webLoginTenantLabel": "Toko",
+  "@webLoginTenantLabel": {
+    "placeholders": {}
+  },
+  "webLoginCodeSubmit": "Verifikasi",
+  "@webLoginCodeSubmit": {
+    "placeholders": {}
+  },
+  "webLoginBack": "Kembali",
+  "@webLoginBack": {
+    "placeholders": {}
+  },
+  "webLoginNote": "Hanya pemilik toko yang bisa masuk dari browser. Kasir tetap memakai aplikasi di perangkat toko.",
+  "@webLoginNote": {
+    "placeholders": {}
+  },
+  "webLoginPairingLink": "Pakai kode pasang",
+  "@webLoginPairingLink": {
+    "placeholders": {}
+  },
+  "webLoginOwnerLink": "Masuk dengan akun pemilik",
+  "@webLoginOwnerLink": {
+    "placeholders": {}
+  },
+  "webLoginLanguage": "Bahasa",
+  "@webLoginLanguage": {
+    "placeholders": {}
+  },
+  "webResetTitle": "Atur ulang kata sandi",
+  "@webResetTitle": {
+    "placeholders": {}
+  },
+  "webResetBody": "Kode dikirim ke email akun pemilik.",
+  "@webResetBody": {
+    "placeholders": {}
+  },
+  "webResetSend": "Kirim kode",
+  "@webResetSend": {
+    "placeholders": {}
+  },
+  "webResetCodeBody": "Masukkan kode yang dikirim ke {email}, lalu kata sandi baru.",
+  "@webResetCodeBody": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "webResetCode": "Kode dari email",
+  "@webResetCode": {
+    "placeholders": {}
+  },
+  "webResetNewPassword": "Kata sandi baru",
+  "@webResetNewPassword": {
+    "placeholders": {}
+  },
+  "webResetNewPasswordAgain": "Ketik ulang kata sandi baru",
+  "@webResetNewPasswordAgain": {
+    "placeholders": {}
+  },
+  "webResetSave": "Simpan kata sandi",
+  "@webResetSave": {
+    "placeholders": {}
+  },
+  "webResetDone": "Kata sandi diganti. Masuk dengan kata sandi baru.",
+  "@webResetDone": {
+    "placeholders": {}
+  },
+  "webResetErrInvalid": "Kode salah.",
+  "@webResetErrInvalid": {
+    "placeholders": {}
+  },
+  "webResetErrExpired": "Kode sudah kedaluwarsa. Minta kode baru.",
+  "@webResetErrExpired": {
+    "placeholders": {}
+  },
+  "webResetErrTooMany": "Terlalu banyak percobaan. Coba lagi nanti.",
+  "@webResetErrTooMany": {
+    "placeholders": {}
+  },
+  "webResetErrPolicy": "Kata sandi baru belum memenuhi aturan server.",
+  "@webResetErrPolicy": {
+    "placeholders": {}
   }
 }

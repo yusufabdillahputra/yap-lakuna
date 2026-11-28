@@ -63,6 +63,25 @@ abstract interface class HostingConnection implements HostingClient {
 
   /// Status verifikasi 2 langkah pemilik tenant perangkat [deviceToken].
   Future<bool> twoFactorEnabled(String deviceToken);
+
+  // --- Login web pemilik (F2-02 aturan 11–13a) ---------------------------
+
+  /// Toko milik akun yang login (butuh [login]).
+  Future<List<WebTenant>> webTenants();
+
+  /// Kode verifikasi → perangkat web baru (butuh [login]).
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  });
+
+  /// Mencabut token web [deviceToken] (*Keluar*).
+  Future<void> webLogout(String deviceToken);
+
+  Future<UuidValue> startPasswordReset(String email);
+  Future<String> verifyPasswordReset(UuidValue requestId, String code);
+  Future<void> finishPasswordReset(String token, String password);
   void close();
 }
 
@@ -176,6 +195,42 @@ class ServerpodHosting implements HostingConnection {
   @override
   Future<void> totpDisable(String code) =>
       _guard(() => client.totp.disable(code.trim()));
+
+  @override
+  Future<List<WebTenant>> webTenants() =>
+      _guard(() => client.webAccess.tenants());
+
+  @override
+  Future<WebAccessResult> webOpen({
+    required String code,
+    required UuidValue tenantId,
+    required bool remember,
+  }) => _guard(() => client.webAccess.open(code.trim(), tenantId, remember));
+
+  @override
+  Future<void> webLogout(String deviceToken) =>
+      _guard(() => client.webAccess.logout(deviceToken));
+
+  @override
+  Future<UuidValue> startPasswordReset(String email) =>
+      _guard(() => client.emailIdp.startPasswordReset(email: email.trim()));
+
+  @override
+  Future<String> verifyPasswordReset(UuidValue requestId, String code) =>
+      _guard(
+        () => client.emailIdp.verifyPasswordResetCode(
+          passwordResetRequestId: requestId,
+          verificationCode: code.trim(),
+        ),
+      );
+
+  @override
+  Future<void> finishPasswordReset(String token, String password) => _guard(
+    () => client.emailIdp.finishPasswordReset(
+      finishPasswordResetToken: token,
+      newPassword: password,
+    ),
+  );
 
   @override
   Future<bool> twoFactorEnabled(String deviceToken) =>

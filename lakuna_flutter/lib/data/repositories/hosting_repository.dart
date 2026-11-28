@@ -174,6 +174,17 @@ abstract class HostingRepository extends ChangeNotifier {
   /// Menutup sesi akun pemilik dari [twoFactorSignIn].
   void endTwoFactor();
 
+  // --- Sesi web (F2-02 aturan 5 dan 7) ------------------------------------
+
+  /// Perubahan yang belum sampai di server: outbox `pending|sent` ditambah
+  /// gambar unggahan yang belum terunggah. Di web semuanya hilang bila
+  /// database sesi dihapus. [syncFirst] menjalankan satu siklus sync dulu
+  /// (*Keluar* manual).
+  Future<Result<int>> unsentChanges({bool syncFirst = false});
+
+  /// Mencabut token web perangkat ini di server (*Keluar*).
+  Future<Result<void>> logoutWeb();
+
   // --- Gabung (perangkat baru) -------------------------------------------
 
   /// Cabang yang bisa dipilih untuk [code] di [serverUrl].

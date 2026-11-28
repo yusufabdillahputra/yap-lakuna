@@ -59,6 +59,9 @@ class LocalHostingRepository extends HostingRepository {
   final _connections = <String, HostingConnection>{};
   HostingConnection? _syncConnection;
 
+  /// Siklus sync perangkat ini (untuk sync sebelum *Keluar* di web).
+  Future<SyncCycleResult> Function()? _cycle;
+
   /// Koneksi dengan sesi akun pemilik untuk verifikasi 2 langkah.
   HostingConnection? _twoFactor;
   SyncScheduler? _scheduler;
@@ -96,6 +99,7 @@ class LocalHostingRepository extends HostingRepository {
     // Gambar dari perangkat lain diunduh saat pertama dibutuhkan: satu
     // unduhan per gambar, paling banyak 3 bersamaan, jeda setelah gagal.
     _store.fetchMedia = data.MediaFetcher(_store, media).fetch;
+    _cycle = () => data.runHostingCycle(engine, media: media);
     final scheduler = _scheduler = SyncScheduler(
       () async {
         _syncing = true;
@@ -154,6 +158,7 @@ class LocalHostingRepository extends HostingRepository {
   Future<void> stop() async {
     final scheduler = _scheduler;
     _scheduler = null;
+    _cycle = null;
     _store.afterWrite = null;
     _store.fetchMedia = null;
     // Siklus yang sedang berjalan selesai dulu sebelum koneksi (dan
@@ -389,6 +394,26 @@ class LocalHostingRepository extends HostingRepository {
     final connection = _connection(serverUrl);
     await data.checkHostingServer(connection, appVersion: _appVersion);
     return connection.pairingOutlets(code);
+  });
+
+  @override
+  Future<Result<int>> unsentChanges({bool syncFirst = false}) =>
+      _guard(() async {
+        final cycle = _cycle;
+        if (syncFirst && cycle != null) {
+          final result = await cycle();
+          _setStatus(_fromResult(result));
+        }
+        final state = await data.loadHostingState(_store);
+        return state.pending + _store.media.pinnedCount;
+      });
+
+  @override
+  Future<Result<void>> logoutWeb() => _guard(() async {
+    final connection = _syncConnection;
+    final token = await tokenVaultOf(_store).readToken();
+    if (connection == null || token == null) return;
+    await connection.webLogout(token);
   });
 
   @override
