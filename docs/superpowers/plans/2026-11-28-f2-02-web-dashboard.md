@@ -437,12 +437,12 @@ Tugas 3 dan 6.
   *Salin*, *Sudah saya simpan*). Status *Aktif* dengan *Nonaktifkan* /
   *Atur ulang*.
 
-- [ ] Tes gagal VM: langkah berurutan; kata sandi salah → galat di langkah
+- [x] Tes gagal VM: langkah berurutan; kata sandi salah → galat di langkah
   akun; kode salah → tetap di langkah kode dengan pesan; sukses →
   langkah kode cadangan berisi 8 kode; *Nonaktifkan* butuh kode.
-- [ ] Tes gagal widget: kartu *Versi hosting* aktif menampilkan baris
+- [x] Tes gagal widget: kartu *Versi hosting* aktif menampilkan baris
   *Verifikasi 2 langkah · Belum aktif* + tombol *Aktifkan*; QR tampil.
-- [ ] Implementasi, tes lulus; uji Xvfb dengan server lokal, tangkapan
+- [x] Implementasi, tes lulus; uji Xvfb dengan server lokal, tangkapan
   layar setiap langkah. Commit.
 
 ### Tugas 11: Layar login web 2.2, sesi web, rilis 0.170.0
