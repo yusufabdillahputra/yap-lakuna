@@ -171,7 +171,11 @@ void main() {
       expect(c.changes, isEmpty);
       // Sisa dihitung per tenant, bukan seluruh log server.
       expect(b.remaining, 0);
-      final empty = await endpoints.sync.pull(sessionBuilder, tokenB, b.nextSeq);
+      final empty = await endpoints.sync.pull(
+        sessionBuilder,
+        tokenB,
+        b.nextSeq,
+      );
       expect(empty.changes, isEmpty);
       expect(empty.remaining, 0);
     });
