@@ -7,6 +7,84 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.168.0] - 2026-11-28
+
+Tahap 5 Fase 2 (F2-01), tahap terakhir modul sync: paket server untuk VPS
+sendiri. Server sync Lakuna bisa dipasang di VPS (Hostinger, IDCloudhost,
+dan sejenisnya) dengan Docker: HTTPS otomatis, backup harian, dan object
+storage gambar opsional. Paket yang sama dipakai server hosting banyak
+toko dan server sendiri satu toko.
+
+### Ditambahkan
+
+- **Paket deploy VPS** di `lakuna_server/deploy/`: `docker-compose.yaml`
+  dengan layanan `server` (Lakuna, migrasi otomatis saat menyala),
+  `postgres` (PostgreSQL 16 dengan volume), `caddy` (HTTPS otomatis Let's
+  Encrypt untuk domain toko), `backup` (`pg_dump` saat menyala lalu tiap
+  24 jam, simpan `BACKUP_KEEP_DAYS` hari, bawaan 14), dan profil opsional
+  `s3` (object storage gambar SeaweedFS di VPS yang sama, bucket privat
+  dibuat otomatis). Contoh pengaturan `.env.example`: domain, email ACME,
+  lima rahasia server, SMTP, object storage, batas laju, tag image.
+- **Image Docker server** (`lakuna_server/Dockerfile`): server dan CLI
+  admin (`./bin/admin activation-code`) dikompilasi ke biner, image akhir
+  Alpine kecil dengan health check `/readyz`. Image Caddy dengan modul
+  batas laju (`lakuna_server/deploy/caddy/Dockerfile`).
+- **Image di GitHub Container Registry** setiap rilis:
+  `ghcr.io/yusufabdillahputra/lakuna-server` dan `lakuna-caddy` dengan tag
+  versi dan `latest`. VPS cukup `docker compose pull` tanpa build.
+- **Panduan server** `docs/server/vps.md`: *Pasang server sendiri* (sewa
+  VPS, DNS, isi `.env`, `docker compose up -d`, kode aktivasi pertama,
+  aktivasi dari aplikasi), *Admin server hosting* (kode aktivasi per toko,
+  pemantauan dengan query SQL, kuota disk, object storage), backup dan
+  pulihkan, pembaruan versi, dan tabel masalah umum.
+- Build rilis membawa alamat *Server Lakuna* dari variabel repo GitHub
+  `LAKUNA_HOSTING_URL` (boleh kosong: aplikasi hanya menawarkan *Server
+  sendiri*).
+- **Panduan › Versi hosting** dan README menunjuk ke panduan pasang
+  server (ID + EN).
+
+### Keamanan
+
+- Caddy membatasi permintaan per alamat IP: 30 per menit untuk aktivasi,
+  kode pasang, login, daftar pemilik, dan refresh token (`AUTH_RATE_LIMIT`),
+  600 per menit untuk sync dan gambar (`SYNC_RATE_LIMIT`). Lebih dari itu
+  dijawab HTTP 429.
+- Hanya port 80/443 yang dibuka; Postgres, server Insights (8081), web
+  server (8082), dan SeaweedFS tidak terbuka ke internet (gambar hanya
+  lewat `MEDIA_DOMAIN` dengan URL bertanda tangan).
+- Rahasia hanya di `.env` (diabaikan git) dan masuk ke server sebagai
+  variabel `SERVERPOD_PASSWORD_*`; compose menolak menyala bila rahasia
+  wajib kosong. Berkas backup ditulis dengan izin `600`.
+- Log container dibatasi 3 × 10 MB per layanan agar tidak memenuhi disk.
+
+### Catatan teknis
+
+- Dockerfile membangun workspace kecil (hanya `lakuna_server` dan
+  `lakuna_domain`, `dev_dependencies` dibuang) dengan `pubspec.lock` repo,
+  lalu `dart build cli` untuk `bin/main.dart` dan `bin/admin.dart`.
+  `Dockerfile.dockerignore` membatasi konteks build ke berkas yang perlu
+  dan tidak pernah menyalin `passwords.yaml` atau `deploy/.env`.
+- `LAKUNA_DOMAIN` hanya nama host; `LAKUNA_SCHEME` dan
+  `LAKUNA_PUBLIC_PORT` (bawaan `https`/443, untuk uji lokal
+  `http`/80) mengisi `SERVERPOD_API_SERVER_PUBLIC_*`.
+- Kode verifikasi pendaftaran tanpa SMTP tercatat di tabel `serverpod_log`
+  (log sesi tidak tampil di konsol mode produksi); panduan memberi query
+  untuk mengambilnya.
+- CI: job paralel `Build image server` (build image, `docker compose
+  config` dengan dan tanpa profil `s3`, server + Postgres menyala, `/readyz`
+  menjawab, CLI admin membuat kode aktivasi) dan `Build image Caddy`
+  (`caddy validate`). Rilis: job `server-image` mendorong kedua image ke
+  GHCR.
+- Uji lokal end-to-end: `docker compose up` (server, Postgres, Caddy,
+  backup) sehat, `/readyz` 200 lewat Caddy, batas laju 429 setelah 30
+  permintaan, `lakuna-backup once` membuat dump, aplikasi Linux di Xvfb
+  memeriksa server, mendaftar pemilik, aktivasi, dan mengunggah semua
+  data serta 3 gambar (*Tersinkron*); profil `s3`: unggah presigned PUT,
+  verifikasi, dan unduh presigned GET lewat Caddy ke SeaweedFS berhasil.
+- SeaweedFS dipakai karena image MinIO tidak lagi diterbitkan di Docker
+  Hub; server tetap bekerja dengan object storage S3-compatible lain
+  (IDCloudhost Object Storage, Cloudflare R2, Wasabi).
+
 ## [0.167.0] - 2026-11-28
 
 Tahap 4 Fase 2 (F2-01): gambar toko ikut tersinkron. Berkas gambar
@@ -9421,7 +9499,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.168.0...HEAD
+[0.168.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...v0.168.0
 [0.167.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...v0.167.0
 [0.166.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...v0.166.0
 [0.165.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...v0.165.0

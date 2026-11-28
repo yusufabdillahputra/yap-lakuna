@@ -6,7 +6,7 @@ The hosted version syncs the data of every branch and device to your store's own
 
 ## What you need
 
-- **Server address**, for example `https://sync.yourstore.id`. Choose *Lakuna server* if your app offers it, or *Own server* for a server on the store's VPS.
+- **Server address**, for example `https://sync.yourstore.id`. Choose *Lakuna server* if your app offers it, or *Own server* for a server on the store's VPS. Installing your own server is described in `docs/server/vps.md` in the Lakuna repository (Docker, automatic HTTPS, daily backups).
 - **Activation code** from the server operator (8 letters/digits, single use).
 - **Owner account** on the server: email and password. No account yet? Create one in step 2 with a verification code sent to your email.
 

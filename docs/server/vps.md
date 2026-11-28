@@ -287,4 +287,5 @@ menawarkan **Server sendiri**.
 | Kode verifikasi email tidak datang | Pengaturan SMTP; sementara ambil kode dari tabel `serverpod_log` (lihat langkah `.env`). |
 | *Terlalu banyak permintaan* (HTTP 429) | Batas laju Caddy per IP; naikkan `AUTH_RATE_LIMIT` / `SYNC_RATE_LIMIT` bila banyak kasir memakai satu IP (NAT kantor). |
 | Gambar tidak muncul di perangkat lain | `S3_ENDPOINT` harus bisa dibuka dari perangkat; `docker compose logs server s3`. |
+| `docker compose pull`: *unauthorized* / *denied* | Paket image di GHCR masih privat. Pemilik repo: GitHub › Packages › `lakuna-server` (dan `lakuna-caddy`) › Package settings › Change visibility › Public (sekali saja). Atau build di VPS dari salinan repo: `cd /opt/lakuna-src/lakuna_server/deploy && docker compose --env-file /opt/lakuna/.env build`, lalu `docker compose up -d` di `/opt/lakuna`. |
 | Disk penuh | `docker system df -v`, kurangi `BACKUP_KEEP_DAYS`, pindahkan gambar ke object storage, `docker image prune`. |
