@@ -133,6 +133,8 @@ void main() {
         checkHostingServer(client, appVersion: '0.166.0'),
         throwsA(isA<HostingAppTooOld>()),
       );
+      // Build lokal tanpa nomor versi tidak ditolak.
+      await checkHostingServer(client, appVersion: 'dev');
       client.minAppVersion = '0.166.0';
       final status = await checkHostingServer(client, appVersion: '0.166.0');
       expect(status.serverVersion, '0.166.0');

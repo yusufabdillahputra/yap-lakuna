@@ -9333,4 +9333,393 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupAutoLastYesterday => 'Last automatic backup yesterday';
+
+  @override
+  String get settingsSectionHosting => 'Hosted version';
+
+  @override
+  String get hostingInactiveTitle => 'Not active';
+
+  @override
+  String get hostingInactiveBody =>
+      'Data is stored on this device only. The hosted version syncs all data to a server so the store can be used on several devices and outlets.';
+
+  @override
+  String get hostingActivate => 'Activate hosted version';
+
+  @override
+  String get hostingJoinOther => 'Join a store that already uses hosting';
+
+  @override
+  String hostingActiveTitle(String server) {
+    return 'Active · server $server';
+  }
+
+  @override
+  String hostingLastSync(String time) {
+    return 'Last sync $time';
+  }
+
+  @override
+  String get hostingNeverSynced => 'Not synced yet';
+
+  @override
+  String hostingPending(int count) {
+    return '$count changes waiting';
+  }
+
+  @override
+  String hostingConflicts(int count) {
+    return '$count changes need review';
+  }
+
+  @override
+  String get hostingSyncNow => 'Sync now';
+
+  @override
+  String get hostingPairingCreate => 'Create device pairing code';
+
+  @override
+  String get hostingPause => 'Pause sync';
+
+  @override
+  String get hostingResume => 'Resume sync';
+
+  @override
+  String get hostingPausedNote =>
+      'Sync is paused. The cashier keeps working; changes are sent once sync resumes.';
+
+  @override
+  String get hostingErrorClock =>
+      'The device clock is wrong. Turn on automatic date and time, then sync again.';
+
+  @override
+  String get hostingErrorToken =>
+      'The server rejected this device token. Pair this device again as a new device.';
+
+  @override
+  String get hostingErrorNetwork =>
+      'The server can\'t be reached. Changes are sent once the connection is back.';
+
+  @override
+  String hostingErrorOther(String code) {
+    return 'The last sync failed ($code). Try Sync now.';
+  }
+
+  @override
+  String hostingErrorAppTooOld(String version) {
+    return 'Update the app: this server needs version $version or newer.';
+  }
+
+  @override
+  String hostingErrorServerTooOld(String version) {
+    return 'The server needs an update (version $version).';
+  }
+
+  @override
+  String get hostingErrorInvalidUrl =>
+      'Invalid server address. Use https://, except localhost for testing.';
+
+  @override
+  String get hostingErrorOffline =>
+      'The server can\'t be reached. Check the address and the internet connection.';
+
+  @override
+  String get hostingErrorNotPermitted => 'Needs the Manage sync permission.';
+
+  @override
+  String get hostingErrorLogin =>
+      'Sign-in failed. Check the email and password.';
+
+  @override
+  String get hostingErrorRegistration =>
+      'Registration failed. Check the code from the email or request a new one.';
+
+  @override
+  String hostingErrorGeneric(String error) {
+    return 'Failed: $error';
+  }
+
+  @override
+  String get hostingFailCodeInvalid => 'The server doesn\'t know this code.';
+
+  @override
+  String get hostingFailCodeUsed => 'The code has already been used.';
+
+  @override
+  String get hostingFailCodeExpired => 'The code has expired.';
+
+  @override
+  String get hostingFailTenantActive =>
+      'This store is already active on the server.';
+
+  @override
+  String get hostingFailCopiedDevice =>
+      'This device is a copy of another device.';
+
+  @override
+  String get hostingFailNotOwner => 'Sign in with the owner account first.';
+
+  @override
+  String get hostingFailOutletUnknown =>
+      'The server doesn\'t know this outlet.';
+
+  @override
+  String get hostingFailDeviceCodeTaken =>
+      'The device code is already used at that outlet.';
+
+  @override
+  String get hostingStepServer => 'Server & code';
+
+  @override
+  String get hostingStepOwner => 'Owner sign-in';
+
+  @override
+  String get hostingStepUpload => 'Upload data';
+
+  @override
+  String get hostingStepDone => 'Done';
+
+  @override
+  String get hostingServerLakuna => 'Lakuna server';
+
+  @override
+  String get hostingServerLakunaBody =>
+      'Run by the Lakuna team. Ask the Lakuna admin for an activation code.';
+
+  @override
+  String get hostingServerOwn => 'Own server';
+
+  @override
+  String get hostingServerOwnBody =>
+      'The store\'s own VPS server. Its admin creates the activation code.';
+
+  @override
+  String get hostingServerUrlLabel => 'Server address';
+
+  @override
+  String get hostingServerUrlHint => 'https://sync.yourstore.com';
+
+  @override
+  String get hostingActivationCodeLabel => 'Activation code';
+
+  @override
+  String get hostingCheck => 'Check';
+
+  @override
+  String hostingServerOk(String version) {
+    return 'Lakuna server $version is ready.';
+  }
+
+  @override
+  String get hostingNext => 'Next';
+
+  @override
+  String get hostingBack => 'Back';
+
+  @override
+  String get hostingCancel => 'Cancel';
+
+  @override
+  String get hostingOwnerIntro =>
+      'Sign in with the owner account on this server, or create a new one. This account is used for the all-outlet dashboard later.';
+
+  @override
+  String get hostingOwnerSignIn => 'Sign in';
+
+  @override
+  String get hostingOwnerRegister => 'Create an account';
+
+  @override
+  String get hostingEmail => 'Email';
+
+  @override
+  String get hostingPassword => 'Password';
+
+  @override
+  String get hostingPasswordRepeat => 'Repeat password';
+
+  @override
+  String get hostingPasswordMismatch => 'The passwords don\'t match.';
+
+  @override
+  String get hostingPasswordShort =>
+      'The password needs at least 8 characters.';
+
+  @override
+  String get hostingSendCode => 'Send code';
+
+  @override
+  String get hostingVerificationCode => 'Code from the email';
+
+  @override
+  String hostingCodeSent(String email) {
+    return 'A code was sent to $email.';
+  }
+
+  @override
+  String get hostingCreateAccount => 'Create account';
+
+  @override
+  String hostingSignedIn(String email) {
+    return 'Signed in as $email.';
+  }
+
+  @override
+  String get hostingActivateNow => 'Activate and upload data';
+
+  @override
+  String hostingServerLine(String server) {
+    return 'Server: $server · Postgres · images to object storage';
+  }
+
+  @override
+  String get hostingUploadIntro =>
+      'The cashier keeps working during this process. Data IDs are created on the device, so they don\'t change on the server, and the upload resumes if the connection drops.';
+
+  @override
+  String get hostingPauseUpload => 'Pause upload';
+
+  @override
+  String get hostingResumeUpload => 'Resume upload';
+
+  @override
+  String get hostingGroupStore => 'Store & users';
+
+  @override
+  String get hostingGroupCatalog => 'Products, variants & units';
+
+  @override
+  String get hostingGroupPartners => 'Customers & suppliers';
+
+  @override
+  String get hostingGroupSales => 'Sales transactions';
+
+  @override
+  String get hostingGroupPurchases => 'Purchases & expenses';
+
+  @override
+  String get hostingGroupStock => 'Stock movements';
+
+  @override
+  String get hostingGroupMedia => 'Images';
+
+  @override
+  String get hostingDoneTitle => 'Hosted version is active';
+
+  @override
+  String hostingDoneBody(String server) {
+    return 'All data is on the server $server. Sync runs automatically after every change and every 30 seconds.';
+  }
+
+  @override
+  String get hostingDoneClose => 'Done';
+
+  @override
+  String get hostingPairingTitle => 'Device pairing code';
+
+  @override
+  String get hostingPairingBody =>
+      'On the new device, choose Join a store that already uses hosting, then paste this full code.';
+
+  @override
+  String hostingPairingExpires(String time) {
+    return 'Valid until $time (15 minutes, single use).';
+  }
+
+  @override
+  String get hostingPairingExpired => 'The code has expired. Create a new one.';
+
+  @override
+  String get hostingPairingCopy => 'Copy full code';
+
+  @override
+  String get hostingPairingCopied => 'Full code copied.';
+
+  @override
+  String get hostingPairingClose => 'Close';
+
+  @override
+  String get joinTitle => 'Join a store that uses hosting';
+
+  @override
+  String get joinIntro =>
+      'Paste the full pairing code from an active device (address#code), or fill in the server address and the code.';
+
+  @override
+  String get joinCodeLabel => 'Pairing code';
+
+  @override
+  String get joinCheck => 'Check code';
+
+  @override
+  String get joinOutletLabel => 'Outlet';
+
+  @override
+  String get joinDeviceCode => 'Device code';
+
+  @override
+  String get joinDeviceName => 'Device name';
+
+  @override
+  String get joinDeviceNameHint => 'Till 2';
+
+  @override
+  String get joinDeviceCodeInvalid =>
+      'The device code is 1–6 letters or digits, e.g. K02.';
+
+  @override
+  String joinSalesWarning(int count) {
+    return 'This device has $count sales. Old data isn\'t merged: a backup is made automatically, then the database is replaced with the store data from the server.';
+  }
+
+  @override
+  String get joinReplaceNote =>
+      'This device will use the store data from the server. A new device ID and code are created when joining.';
+
+  @override
+  String get joinSubmit => 'Join';
+
+  @override
+  String get joinPulling => 'Downloading the store data from the server…';
+
+  @override
+  String get joinReopen => 'The store data is ready. Close and reopen the app.';
+
+  @override
+  String get joinIncomplete =>
+      'The store data on the server isn\'t complete yet. Try again shortly.';
+
+  @override
+  String get onboardingJoinHint =>
+      'Does your store already use the hosted version on another device?';
+
+  @override
+  String syncChipSynced(String time) {
+    return 'Synced · $time';
+  }
+
+  @override
+  String get syncChipSyncedNow => 'Synced';
+
+  @override
+  String syncChipSyncing(int count) {
+    return 'Syncing… ($count)';
+  }
+
+  @override
+  String syncChipWaiting(int count) {
+    return 'Waiting for network ($count)';
+  }
+
+  @override
+  String syncChipPaused(int count) {
+    return 'Sync paused ($count)';
+  }
+
+  @override
+  String get syncChipAttention => 'Needs attention';
+
+  @override
+  String get syncChipClock => 'Device clock is wrong';
 }

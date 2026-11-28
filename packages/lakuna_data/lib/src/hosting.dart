@@ -5,7 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:lakuna_client/lakuna_client.dart';
-import 'package:lakuna_domain/lakuna_domain.dart' show Permission;
+import 'package:lakuna_domain/lakuna_domain.dart'
+    show Permission, normalizeShortCode;
 
 import 'staff_access.dart';
 import 'store.dart';
@@ -215,7 +216,10 @@ Future<SyncServerStatus> checkHostingServer(
   }
   final min = status.minAppVersion;
   if (status.protocolVersion > syncProtocolVersion ||
-      (min != null && compareVersions(min, appVersion) > 0)) {
+      (min != null &&
+          // Build lokal (`dev`) dianggap terbaru.
+          RegExp(r'^\d').hasMatch(appVersion) &&
+          compareVersions(min, appVersion) > 0)) {
     throw HostingAppTooOld(min ?? status.serverVersion);
   }
   return status;
@@ -553,4 +557,45 @@ Future<String?> applyPendingJoin(String databasePath, {DateTime? now}) async {
 Future<void> _moveIfExists(FileSystemEntity from, String to) async {
   if (!from.existsSync()) return;
   await from.rename(to);
+}
+
+// --- Isian alamat server dan kode pasang --------------------------------------
+
+const _localHosts = {'localhost', '127.0.0.1', '::1', '10.0.2.2'};
+
+/// Alamat server dari isian pengguna (diakhiri `/`), atau `null` bila tidak
+/// sah. Tanpa skema dianggap `https`; `http` hanya untuk `localhost` (uji).
+Uri? parseServerUrl(String input) {
+  var text = input.trim();
+  if (text.isEmpty) return null;
+  if (!text.contains('://')) text = 'https://$text';
+  final uri = Uri.tryParse(text);
+  if (uri == null || uri.host.isEmpty || uri.userInfo.isNotEmpty) return null;
+  final local = _localHosts.contains(uri.host);
+  if (uri.scheme != 'https' && !(uri.scheme == 'http' && local)) return null;
+  final path = uri.path.endsWith('/') ? uri.path : '${uri.path}/';
+  return uri.replace(path: path, query: null, fragment: null);
+}
+
+/// Memisah *kode pasang lengkap* `<alamat>#<kode>`; kode dinormalkan
+/// (huruf besar, tanpa spasi atau strip).
+({String? serverUrl, String code}) parsePairingInput(String input) {
+  final text = input.trim();
+  final hash = text.lastIndexOf('#');
+  final looksLikeUrl = text.contains('://') || text.contains('.');
+  if (hash >= 0) {
+    final url = text.substring(0, hash).trim();
+    return (
+      serverUrl: url.isEmpty ? null : url,
+      code: normalizeShortCode(text.substring(hash + 1)),
+    );
+  }
+  if (looksLikeUrl) return (serverUrl: text, code: '');
+  return (serverUrl: null, code: normalizeShortCode(text));
+}
+
+/// Teks *kode pasang lengkap* untuk disalin ke perangkat baru.
+String pairingShareText(Uri server, String code) {
+  final s = server.toString();
+  return '${s.endsWith('/') ? s.substring(0, s.length - 1) : s}#$code';
 }
