@@ -3,6 +3,7 @@ import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../config/app_platform.dart';
+import '../../data/repositories/hosting_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 
@@ -16,6 +17,7 @@ class MenuEntry {
     this.permission,
     this.orPermission,
     this.deviceOnly = false,
+    this.hostingOnly = false,
   });
 
   final String key;
@@ -35,8 +37,12 @@ class MenuEntry {
   /// F2-02 aturan 3).
   final bool deviceOnly;
 
-  bool availableOn(AppPlatform platform) =>
-      !deviceOnly || platform.supportsCashier;
+  /// Hanya bila versi hosting aktif (web selalu): data semua cabang ada di
+  /// perangkat ini (dashboard F2-02 aturan 24).
+  final bool hostingOnly;
+
+  bool availableOn(AppPlatform platform, {bool hosted = false}) =>
+      (!deviceOnly || platform.supportsCashier) && (!hostingOnly || hosted);
 
   bool allows(Set<Permission> permissions) =>
       permission == null ||
@@ -62,6 +68,14 @@ final List<MenuGroup> appMenu = [
         icon: TablerIcons.home,
         label: (l) => l.menuHome,
         path: Routes.home,
+      ),
+      MenuEntry(
+        key: 'dashboard',
+        icon: TablerIcons.layoutDashboard,
+        label: (l) => l.menuDashboard,
+        path: Routes.dashboard,
+        permission: Permission.reportsView,
+        hostingOnly: true,
       ),
     ],
   ),
@@ -207,24 +221,35 @@ final List<MenuGroup> appMenu = [
   ),
 ];
 
+/// Menu khusus hosting ([MenuEntry.hostingOnly]) tampil: web selalu, aplikasi
+/// perangkat setelah versi hosting aktif.
+bool hostingMenuOn(AppPlatform platform, HostingRepository? hosting) =>
+    hosting != null &&
+    (platform.isWeb || hosting.status.kind != SyncChipKind.local);
+
 Iterable<MenuEntry> get allMenuEntries => appMenu.expand((g) => g.entries);
 
-bool _shows(MenuEntry e, Set<Permission> permissions, AppPlatform platform) =>
-    e.allows(permissions) && e.availableOn(platform);
+bool _shows(
+  MenuEntry e,
+  Set<Permission> permissions,
+  AppPlatform platform,
+  bool hosted,
+) => e.allows(permissions) && e.availableOn(platform, hosted: hosted);
 
 /// Menu yang boleh dilihat staf dengan [permissions] di [platform];
 /// kelompok kosong disembunyikan.
 List<MenuGroup> visibleMenu(
   Set<Permission> permissions, {
   AppPlatform platform = AppPlatform.native,
+  bool hosted = false,
 }) => [
   for (final group in appMenu)
-    if (group.entries.any((e) => _shows(e, permissions, platform)))
+    if (group.entries.any((e) => _shows(e, permissions, platform, hosted)))
       MenuGroup(
         label: group.label,
         entries: [
           for (final e in group.entries)
-            if (_shows(e, permissions, platform)) e,
+            if (_shows(e, permissions, platform, hosted)) e,
         ],
       ),
 ];
@@ -236,10 +261,11 @@ const _mobilePrimary = ['home', 'cashier', 'products', 'history'];
 List<MenuEntry> mobileMenu(
   Set<Permission> permissions, {
   AppPlatform platform = AppPlatform.native,
+  bool hosted = false,
 }) => [
   for (final key in _mobilePrimary)
     if (allMenuEntries.firstWhere((e) => e.key == key) case final e
-        when _shows(e, permissions, platform))
+        when _shows(e, permissions, platform, hosted))
       e,
 ];
 
@@ -248,8 +274,13 @@ List<MenuEntry> mobileMenu(
 List<MenuGroup> mobileMoreMenu(
   Set<Permission> permissions, {
   AppPlatform platform = AppPlatform.native,
+  bool hosted = false,
 }) => [
-  for (final group in visibleMenu(permissions, platform: platform))
+  for (final group in visibleMenu(
+    permissions,
+    platform: platform,
+    hosted: hosted,
+  ))
     if (group.entries.any((e) => !_mobilePrimary.contains(e.key)))
       MenuGroup(
         label: group.label,

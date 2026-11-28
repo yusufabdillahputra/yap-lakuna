@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
+import 'package:lakuna_client/lakuna_client.dart' show TenantStatus, UuidValue;
 import 'package:lakuna_flutter/data/repositories/hosting_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
 
@@ -203,6 +203,18 @@ class FakeHostingRepository extends HostingRepository {
 
   @override
   Future<Result<int>> localSales() async => Result.ok(sales);
+
+  /// Balasan [tenantStatus]; `null` = offline.
+  TenantStatus? tenant;
+
+  @override
+  Future<Result<TenantStatus>> tenantStatus() async {
+    calls.add('tenantStatus');
+    final t = tenant;
+    return t == null
+        ? const Result.error(SyncOfflineException())
+        : Result.ok(t);
+  }
 
   @override
   Future<Result<void>> join(

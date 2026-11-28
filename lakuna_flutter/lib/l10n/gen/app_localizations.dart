@@ -16874,6 +16874,318 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Kata sandi baru belum memenuhi aturan server.'**
   String get webResetErrPolicy;
+
+  /// No description provided for @menuDashboard.
+  ///
+  /// In id, this message translates to:
+  /// **'Dashboard semua cabang'**
+  String get menuDashboard;
+
+  /// No description provided for @dashboardTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Dashboard semua cabang'**
+  String get dashboardTitle;
+
+  /// No description provided for @dashboardSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'{date} · data tersinkron dari semua perangkat'**
+  String dashboardSubtitle(String date);
+
+  /// No description provided for @dashboardOutletLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang'**
+  String get dashboardOutletLabel;
+
+  /// No description provided for @dashboardOutletAll.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua cabang ({count})'**
+  String dashboardOutletAll(int count);
+
+  /// No description provided for @dashboardDownload.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh laporan'**
+  String get dashboardDownload;
+
+  /// No description provided for @dashboardLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data dashboard tidak bisa dimuat.'**
+  String get dashboardLoadFailed;
+
+  /// No description provided for @dashboardKpiSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan hari ini'**
+  String get dashboardKpiSales;
+
+  /// No description provided for @dashboardKpiSalesNote.
+  ///
+  /// In id, this message translates to:
+  /// **'{transactions} transaksi · {outlets} cabang'**
+  String dashboardKpiSalesNote(int transactions, int outlets);
+
+  /// No description provided for @dashboardKpiAverage.
+  ///
+  /// In id, this message translates to:
+  /// **'Rata-rata per nota'**
+  String get dashboardKpiAverage;
+
+  /// No description provided for @dashboardKpiAverageNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan dibagi transaksi'**
+  String get dashboardKpiAverageNote;
+
+  /// No description provided for @dashboardKpiDevices.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat online'**
+  String get dashboardKpiDevices;
+
+  /// No description provided for @dashboardDevicesAllOnline.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua perangkat online'**
+  String get dashboardDevicesAllOnline;
+
+  /// No description provided for @dashboardDevicesNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada perangkat kasir'**
+  String get dashboardDevicesNone;
+
+  /// No description provided for @dashboardDevicesStaleOne.
+  ///
+  /// In id, this message translates to:
+  /// **'1 perangkat terakhir sync {ago}'**
+  String dashboardDevicesStaleOne(String ago);
+
+  /// No description provided for @dashboardDevicesStaleMany.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} perangkat belum sync lebih dari 1 jam'**
+  String dashboardDevicesStaleMany(int count);
+
+  /// No description provided for @dashboardDevicesSomeOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} perangkat offline'**
+  String dashboardDevicesSomeOffline(int count);
+
+  /// No description provided for @dashboardDevicesUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Status perangkat butuh internet'**
+  String get dashboardDevicesUnavailable;
+
+  /// No description provided for @dashboardKpiConflicts.
+  ///
+  /// In id, this message translates to:
+  /// **'Konflik sync'**
+  String get dashboardKpiConflicts;
+
+  /// No description provided for @dashboardConflictsReview.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu ditinjau'**
+  String get dashboardConflictsReview;
+
+  /// No description provided for @dashboardConflictsNone.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada yang perlu ditinjau'**
+  String get dashboardConflictsNone;
+
+  /// No description provided for @dashboardTableTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Per cabang hari ini'**
+  String get dashboardTableTitle;
+
+  /// No description provided for @dashboardColOutlet.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang'**
+  String get dashboardColOutlet;
+
+  /// No description provided for @dashboardColSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan'**
+  String get dashboardColSales;
+
+  /// No description provided for @dashboardColTransactions.
+  ///
+  /// In id, this message translates to:
+  /// **'Transaksi'**
+  String get dashboardColTransactions;
+
+  /// No description provided for @dashboardColLastSync.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync terakhir'**
+  String get dashboardColLastSync;
+
+  /// No description provided for @dashboardColStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get dashboardColStatus;
+
+  /// No description provided for @dashboardOutletMeta.
+  ///
+  /// In id, this message translates to:
+  /// **'{code} · {count} perangkat'**
+  String dashboardOutletMeta(String code, int count);
+
+  /// No description provided for @dashboardStatusOnline.
+  ///
+  /// In id, this message translates to:
+  /// **'Online'**
+  String get dashboardStatusOnline;
+
+  /// No description provided for @dashboardStatusNoDevices.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanpa perangkat'**
+  String get dashboardStatusNoDevices;
+
+  /// No description provided for @dashboardTotal.
+  ///
+  /// In id, this message translates to:
+  /// **'Total'**
+  String get dashboardTotal;
+
+  /// No description provided for @dashboardHourlyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjualan per jam · {scope}'**
+  String dashboardHourlyTitle(String scope);
+
+  /// No description provided for @dashboardScopeAll.
+  ///
+  /// In id, this message translates to:
+  /// **'semua cabang'**
+  String get dashboardScopeAll;
+
+  /// No description provided for @dashboardHourlyEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada penjualan hari ini.'**
+  String get dashboardHourlyEmpty;
+
+  /// No description provided for @dashboardTopTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlaris minggu ini'**
+  String get dashboardTopTitle;
+
+  /// No description provided for @dashboardTopSold.
+  ///
+  /// In id, this message translates to:
+  /// **'{qty} terjual'**
+  String dashboardTopSold(String qty);
+
+  /// No description provided for @dashboardTopEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada penjualan 7 hari terakhir.'**
+  String get dashboardTopEmpty;
+
+  /// No description provided for @dashboardAttentionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu perhatian'**
+  String get dashboardAttentionTitle;
+
+  /// No description provided for @dashboardAttentionConflicts.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} konflik sync menunggu tinjauan'**
+  String dashboardAttentionConflicts(int count);
+
+  /// No description provided for @dashboardAttentionDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'{device} · {outlet} terakhir sync {ago}'**
+  String dashboardAttentionDevice(String device, String outlet, String ago);
+
+  /// No description provided for @dashboardAttentionDeviceNever.
+  ///
+  /// In id, this message translates to:
+  /// **'{device} · {outlet} belum pernah sync'**
+  String dashboardAttentionDeviceNever(String device, String outlet);
+
+  /// No description provided for @dashboardAttentionStock.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} produk di bawah stok minimum · {outlet}'**
+  String dashboardAttentionStock(int count, String outlet);
+
+  /// No description provided for @dashboardAllClear.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua beres'**
+  String get dashboardAllClear;
+
+  /// No description provided for @dashboardAllClearNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada konflik, perangkat tertinggal, atau stok di bawah minimum.'**
+  String get dashboardAllClearNote;
+
+  /// No description provided for @dashboardAgoNow.
+  ///
+  /// In id, this message translates to:
+  /// **'baru saja'**
+  String get dashboardAgoNow;
+
+  /// No description provided for @dashboardAgoMinutes.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} menit lalu'**
+  String dashboardAgoMinutes(int count);
+
+  /// No description provided for @dashboardAgoHours.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} jam lalu'**
+  String dashboardAgoHours(int count);
+
+  /// No description provided for @dashboardAgoDays.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} hari lalu'**
+  String dashboardAgoDays(int count);
+
+  /// No description provided for @dashboardAgoNever.
+  ///
+  /// In id, this message translates to:
+  /// **'belum pernah'**
+  String get dashboardAgoNever;
+
+  /// No description provided for @dashboardExportHour.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get dashboardExportHour;
+
+  /// No description provided for @dashboardExportProduct.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk'**
+  String get dashboardExportProduct;
+
+  /// No description provided for @dashboardExportSold.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjual'**
+  String get dashboardExportSold;
 }
 
 class _AppLocalizationsDelegate

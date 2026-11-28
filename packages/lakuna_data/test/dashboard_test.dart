@@ -196,6 +196,9 @@ void main() {
       );
       expect(one.outlets.map((o) => o.outletId), [timur.outletId.uuid]);
       expect(one.top.map((t) => t.name), ['Isi Pulsa']);
+      // Pilihan *Cabang* tetap berisi semua cabang tenant.
+      expect(one.outletInfo.keys, unorderedEquals(all.outletInfo.keys));
+      expect(one.outletInfo, hasLength(2));
     },
   );
 

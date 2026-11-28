@@ -23,6 +23,7 @@ import 'fake_catalog_repository.dart';
 import 'fake_customers_repository.dart';
 import 'fake_shifts_repository.dart';
 import 'fake_expenses_repository.dart';
+import 'fake_dashboard_repository.dart';
 import 'fake_reports_repository.dart';
 import 'fake_users_repository.dart';
 import 'fake_suppliers_repository.dart';
@@ -75,6 +76,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeBackupFiles? backupFiles,
   GuideRepository? guide,
   FakeHostingRepository? hosting,
+  FakeDashboardRepository? dashboard,
   Future<void> Function()? restart,
   Future<void> Function()? signOut,
   WebSessionStore? webSessions,
@@ -148,6 +150,7 @@ Future<AppSettingsViewModel> pumpLakuna(
             backupFiles: backupFiles ?? FakeBackupFiles(),
             guide: guide ?? FakeGuideRepository(),
             hosting: hosting,
+            dashboard: dashboard,
             initialLocation: initialLocation,
             platform: platform,
           ),

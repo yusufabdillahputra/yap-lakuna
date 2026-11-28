@@ -1,6 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:lakuna_client/lakuna_client.dart'
-    show PairingOutlet, SyncServerStatus, TotpEnrollment, UuidValue;
+    show
+        PairingOutlet,
+        SyncServerStatus,
+        TenantStatus,
+        TotpEnrollment,
+        UuidValue;
 import 'package:lakuna_data/lakuna_data.dart'
     show HostingState, UploadGroupProgress;
 
@@ -161,6 +166,10 @@ abstract class HostingRepository extends ChangeNotifier {
   /// perangkat (baris di kartu). Melempar [HostingNotActive] bila versi
   /// hosting belum aktif.
   Future<Result<bool>> twoFactorEnabled();
+
+  /// Perangkat kasir tenant dan konflik terbuka dari server (dashboard
+  /// F2-02 tahap 3); gagal bila belum aktif atau offline.
+  Future<Result<TenantStatus>> tenantStatus();
 
   /// Login akun pemilik di server toko ini (sesi hanya di memori sampai
   /// [endTwoFactor]); membalas status verifikasi 2 langkah akun itu.

@@ -116,6 +116,9 @@ abstract final class Routes {
   /// Pengeluaran (F1-15).
   static const expenses = '/pengeluaran';
 
+  /// Dashboard semua cabang (F2-02, layar 2.3).
+  static const dashboard = '/dashboard';
+
   /// Laporan & laba rugi (F1-16).
   static const reports = '/laporan';
 

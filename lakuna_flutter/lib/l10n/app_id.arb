@@ -7129,5 +7129,295 @@
   "webResetErrPolicy": "Kata sandi baru belum memenuhi aturan server.",
   "@webResetErrPolicy": {
     "placeholders": {}
+  },
+  "menuDashboard": "Dashboard semua cabang",
+  "@menuDashboard": {
+    "placeholders": {}
+  },
+  "dashboardTitle": "Dashboard semua cabang",
+  "@dashboardTitle": {
+    "placeholders": {}
+  },
+  "dashboardSubtitle": "{date} · data tersinkron dari semua perangkat",
+  "@dashboardSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardOutletLabel": "Cabang",
+  "@dashboardOutletLabel": {
+    "placeholders": {}
+  },
+  "dashboardOutletAll": "Semua cabang ({count})",
+  "@dashboardOutletAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDownload": "Unduh laporan",
+  "@dashboardDownload": {
+    "placeholders": {}
+  },
+  "dashboardLoadFailed": "Data dashboard tidak bisa dimuat.",
+  "@dashboardLoadFailed": {
+    "placeholders": {}
+  },
+  "dashboardKpiSales": "Penjualan hari ini",
+  "@dashboardKpiSales": {
+    "placeholders": {}
+  },
+  "dashboardKpiSalesNote": "{transactions} transaksi · {outlets} cabang",
+  "@dashboardKpiSalesNote": {
+    "placeholders": {
+      "transactions": {
+        "type": "int"
+      },
+      "outlets": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardKpiAverage": "Rata-rata per nota",
+  "@dashboardKpiAverage": {
+    "placeholders": {}
+  },
+  "dashboardKpiAverageNote": "Penjualan dibagi transaksi",
+  "@dashboardKpiAverageNote": {
+    "placeholders": {}
+  },
+  "dashboardKpiDevices": "Perangkat online",
+  "@dashboardKpiDevices": {
+    "placeholders": {}
+  },
+  "dashboardDevicesAllOnline": "Semua perangkat online",
+  "@dashboardDevicesAllOnline": {
+    "placeholders": {}
+  },
+  "dashboardDevicesNone": "Belum ada perangkat kasir",
+  "@dashboardDevicesNone": {
+    "placeholders": {}
+  },
+  "dashboardDevicesStaleOne": "1 perangkat terakhir sync {ago}",
+  "@dashboardDevicesStaleOne": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardDevicesStaleMany": "{count} perangkat belum sync lebih dari 1 jam",
+  "@dashboardDevicesStaleMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDevicesSomeOffline": "{count} perangkat offline",
+  "@dashboardDevicesSomeOffline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardDevicesUnavailable": "Status perangkat butuh internet",
+  "@dashboardDevicesUnavailable": {
+    "placeholders": {}
+  },
+  "dashboardKpiConflicts": "Konflik sync",
+  "@dashboardKpiConflicts": {
+    "placeholders": {}
+  },
+  "dashboardConflictsReview": "Perlu ditinjau",
+  "@dashboardConflictsReview": {
+    "placeholders": {}
+  },
+  "dashboardConflictsNone": "Tidak ada yang perlu ditinjau",
+  "@dashboardConflictsNone": {
+    "placeholders": {}
+  },
+  "dashboardTableTitle": "Per cabang hari ini",
+  "@dashboardTableTitle": {
+    "placeholders": {}
+  },
+  "dashboardColOutlet": "Cabang",
+  "@dashboardColOutlet": {
+    "placeholders": {}
+  },
+  "dashboardColSales": "Penjualan",
+  "@dashboardColSales": {
+    "placeholders": {}
+  },
+  "dashboardColTransactions": "Transaksi",
+  "@dashboardColTransactions": {
+    "placeholders": {}
+  },
+  "dashboardColLastSync": "Sync terakhir",
+  "@dashboardColLastSync": {
+    "placeholders": {}
+  },
+  "dashboardColStatus": "Status",
+  "@dashboardColStatus": {
+    "placeholders": {}
+  },
+  "dashboardOutletMeta": "{code} · {count} perangkat",
+  "@dashboardOutletMeta": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardStatusOnline": "Online",
+  "@dashboardStatusOnline": {
+    "placeholders": {}
+  },
+  "dashboardStatusNoDevices": "Tanpa perangkat",
+  "@dashboardStatusNoDevices": {
+    "placeholders": {}
+  },
+  "dashboardTotal": "Total",
+  "@dashboardTotal": {
+    "placeholders": {}
+  },
+  "dashboardHourlyTitle": "Penjualan per jam · {scope}",
+  "@dashboardHourlyTitle": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardScopeAll": "semua cabang",
+  "@dashboardScopeAll": {
+    "placeholders": {}
+  },
+  "dashboardHourlyEmpty": "Belum ada penjualan hari ini.",
+  "@dashboardHourlyEmpty": {
+    "placeholders": {}
+  },
+  "dashboardTopTitle": "Terlaris minggu ini",
+  "@dashboardTopTitle": {
+    "placeholders": {}
+  },
+  "dashboardTopSold": "{qty} terjual",
+  "@dashboardTopSold": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardTopEmpty": "Belum ada penjualan 7 hari terakhir.",
+  "@dashboardTopEmpty": {
+    "placeholders": {}
+  },
+  "dashboardAttentionTitle": "Perlu perhatian",
+  "@dashboardAttentionTitle": {
+    "placeholders": {}
+  },
+  "dashboardAttentionConflicts": "{count} konflik sync menunggu tinjauan",
+  "@dashboardAttentionConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAttentionDevice": "{device} · {outlet} terakhir sync {ago}",
+  "@dashboardAttentionDevice": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAttentionDeviceNever": "{device} · {outlet} belum pernah sync",
+  "@dashboardAttentionDeviceNever": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAttentionStock": "{count} produk di bawah stok minimum · {outlet}",
+  "@dashboardAttentionStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "outlet": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardAllClear": "Semua beres",
+  "@dashboardAllClear": {
+    "placeholders": {}
+  },
+  "dashboardAllClearNote": "Tidak ada konflik, perangkat tertinggal, atau stok di bawah minimum.",
+  "@dashboardAllClearNote": {
+    "placeholders": {}
+  },
+  "dashboardAgoNow": "baru saja",
+  "@dashboardAgoNow": {
+    "placeholders": {}
+  },
+  "dashboardAgoMinutes": "{count} menit lalu",
+  "@dashboardAgoMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoHours": "{count} jam lalu",
+  "@dashboardAgoHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoDays": "{count} hari lalu",
+  "@dashboardAgoDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardAgoNever": "belum pernah",
+  "@dashboardAgoNever": {
+    "placeholders": {}
+  },
+  "dashboardExportHour": "Jam",
+  "@dashboardExportHour": {
+    "placeholders": {}
+  },
+  "dashboardExportProduct": "Produk",
+  "@dashboardExportProduct": {
+    "placeholders": {}
+  },
+  "dashboardExportSold": "Terjual",
+  "@dashboardExportSold": {
+    "placeholders": {}
   }
 }

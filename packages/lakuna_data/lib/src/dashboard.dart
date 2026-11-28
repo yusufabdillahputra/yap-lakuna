@@ -5,7 +5,7 @@ part of 'reports.dart';
 class DashboardData {
   const DashboardData({
     required this.outlets,
-    required this.outletNames,
+    required this.outletInfo,
     required this.top,
     required this.belowMinimum,
   });
@@ -13,8 +13,8 @@ class DashboardData {
   /// Cabang tenant, urut kode.
   final List<OutletDay> outlets;
 
-  /// ID cabang (uuid) → nama.
-  final Map<String, String> outletNames;
+  /// ID cabang (uuid) → nama dan kode, semua cabang tenant.
+  final Map<String, ({String name, String code})> outletInfo;
 
   /// Produk terlaris 7 hari terakhir, digabung dari semua cabang terpilih.
   final List<({String productId, String name, Qty sold})> top;
@@ -34,12 +34,13 @@ Future<DashboardData> loadDashboard(
 }) async {
   final session = store.session;
   final tenant = await Tenant.db.findById(session, tenantId);
+  final tenantOutlets = await Outlet.db.find(
+    session,
+    where: (o) => o.tenantId.equals(tenantId) & o.deletedAt.equals(null),
+    orderBy: (o) => o.code,
+  );
   final outlets = [
-    for (final o in await Outlet.db.find(
-      session,
-      where: (o) => o.tenantId.equals(tenantId) & o.deletedAt.equals(null),
-      orderBy: (o) => o.code,
-    ))
+    for (final o in tenantOutlets)
       if (outletId == null || o.id == outletId) o,
   ];
   final days = <OutletDay>[];
@@ -121,7 +122,10 @@ Future<DashboardData> loadDashboard(
 
   return DashboardData(
     outlets: days,
-    outletNames: {for (final o in outlets) o.id.uuid: o.name},
+    // Semua cabang tenant, untuk pilihan *Cabang* walau satu terpilih.
+    outletInfo: {
+      for (final o in tenantOutlets) o.id.uuid: (name: o.name, code: o.code),
+    },
     top: topSellingProducts([
       for (final l in lines)
         if (l.qty.isPositive) l,
