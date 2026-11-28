@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart';
@@ -46,6 +47,9 @@ abstract interface class HostingConnection implements HostingClient {
   Future<String> verifyRegistration(UuidValue requestId, String code);
   Future<void> finishRegistration(String token, String password);
   SyncTransport transport(String deviceToken);
+
+  /// Unggah dan unduh berkas media dengan [deviceToken] (aturan 19–20).
+  MediaTransport mediaTransport(String deviceToken);
   void close();
 }
 
@@ -150,6 +154,53 @@ class ServerpodHosting implements HostingConnection {
   @override
   SyncTransport transport(String deviceToken) =>
       _ServerpodSyncTransport(client, deviceToken);
+
+  @override
+  MediaTransport mediaTransport(String deviceToken) =>
+      _ServerpodMediaTransport(client, deviceToken);
+}
+
+class _ServerpodMediaTransport implements MediaTransport {
+  _ServerpodMediaTransport(this._client, this._token);
+
+  final Client _client;
+  final String _token;
+
+  @override
+  Future<String?> uploadDescription(UuidValue mediaFileId) =>
+      _guard(() => _client.mediaSync.uploadDescription(_token, mediaFileId));
+
+  @override
+  Future<void> upload(String description, Uint8List bytes) => _guard(() async {
+    final ok = await FileUploader(
+      description,
+    ).uploadByteData(ByteData.sublistView(bytes));
+    if (!ok) throw const HttpException('Unggah media ditolak');
+  });
+
+  @override
+  Future<bool> markUploaded(UuidValue mediaFileId) =>
+      _guard(() => _client.mediaSync.markUploaded(_token, mediaFileId));
+
+  @override
+  Future<Uri?> downloadUrl(UuidValue mediaFileId) =>
+      _guard(() => _client.mediaSync.downloadUrl(_token, mediaFileId));
+
+  @override
+  Future<Uint8List> download(Uri url) => _guard(() async {
+    final http = HttpClient()..connectionTimeout = const Duration(seconds: 30);
+    try {
+      final response = await (await http.getUrl(url)).close();
+      if (response.statusCode != HttpStatus.ok) {
+        throw HttpException('Unduh media ${response.statusCode}', uri: url);
+      }
+      final builder = BytesBuilder(copy: false);
+      await response.forEach(builder.add);
+      return builder.takeBytes();
+    } finally {
+      http.close();
+    }
+  });
 }
 
 class _ServerpodSyncTransport implements SyncTransport {

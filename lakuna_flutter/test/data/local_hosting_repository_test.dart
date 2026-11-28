@@ -153,6 +153,9 @@ void main() {
       expect(connections.last.transportToken, 'token-aktivasi');
       expect(repo.status.kind, isNot(SyncChipKind.local));
       expect(store.afterWrite, isNotNull);
+      // Gambar perangkat lain diunduh lewat koneksi sync (aturan 20).
+      expect(store.fetchMedia, isNotNull);
+      expect(connections.last.mediaToken, 'token-aktivasi');
 
       final share = _ok(await repo.createPairingCode());
       expect(share.code, 'ABCD2345');
@@ -161,6 +164,19 @@ void main() {
       expect(connections.last.calls, contains('pairing:token-aktivasi'));
     },
   );
+
+  test('berhenti: unduhan gambar lewat server dilepas', () async {
+    await HostingVault.of(store).writeToken('token-aktivasi');
+    await writeSyncState(
+      store.session,
+      SyncStateKey.serverUrl,
+      'https://sync.contoh.id',
+    );
+    await repo.start();
+    expect(store.fetchMedia, isNotNull);
+    await repo.stop();
+    expect(store.fetchMedia, isNull);
+  });
 
   test('jeda dan lanjutkan sync', () async {
     _ok(await repo.activate('sync.contoh.id', activationCode: 'KODE2345'));

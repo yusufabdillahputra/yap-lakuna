@@ -13,6 +13,10 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+mediaSync:
+  - uploadDescription:
+  - markUploaded:
+  - downloadUrl:
 activation:
   - activateFirstDevice:
   - createPairingCode:

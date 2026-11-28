@@ -31,6 +31,14 @@ enum SyncStateKey {
   /// tidak ditampilkan lagi untuk perubahan sesudahnya (aturan 16).
   initialUploadAcked('initial_upload_acked'),
 
+  /// `rowid` lokal `media_files` terakhir yang berkasnya sudah diunggah,
+  /// dilewati, atau dicatat di [mediaUploadRetry] (aturan 19).
+  mediaUploadCursor('media_upload_cursor'),
+
+  /// ID baris media yang gagal diunggah (dipisah koma), dicoba lagi tiap
+  /// siklus.
+  mediaUploadRetry('media_upload_retry'),
+
   /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
   initialUploadCursor('initial_upload_cursor'),
 

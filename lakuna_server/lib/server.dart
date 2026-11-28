@@ -5,6 +5,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import 'src/auth/smtp_email.dart';
 import 'src/cache_busting.dart';
 import 'src/generated/serverpod.dart';
+import 'src/media/media_storage.dart';
 import 'src/web/routes/app_config_route.dart';
 
 /// The starting point of the Serverpod server.
@@ -79,11 +80,16 @@ void run(List<String> args) async {
     );
   }
 
-  // Penyimpanan berkas: sementara di database. Fase 2 (server VPS sendiri)
-  // akan memakai object storage S3-compatible lewat paket
-  // serverpod_cloud_storage_s3_compat. Lakuna tidak memakai Serverpod Cloud.
-  pod.addCloudStorage(DatabaseCloudStorage('private'));
-  pod.addCloudStorage(DatabaseCloudStorage('public'));
+  // Media toko (F2-01 aturan 19): MinIO/S3 bila s3Endpoint, s3AccessKey,
+  // s3SecretKey, dan s3Bucket diisi di passwords.yaml atau
+  // SERVERPOD_PASSWORD_<kunci>; selain itu di database. Lakuna tidak
+  // memakai Serverpod Cloud.
+  final s3 = S3Settings.fromPasswords({
+    for (final key in s3PasswordKeys) key: pod.getPassword(key),
+  });
+  for (final storage in mediaStorages(s3)) {
+    pod.addCloudStorage(storage);
+  }
 
   // Start the server.
   await pod.start();

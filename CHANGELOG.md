@@ -7,6 +7,90 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.167.0] - 2026-11-28
+
+Tahap 4 Fase 2 (F2-01): gambar toko ikut tersinkron. Berkas gambar
+diunggah ke penyimpanan server (database server, atau object storage
+S3-compatible seperti MinIO bila diatur) dan perangkat lain mengunduhnya
+saat pertama dibutuhkan. Paket server untuk VPS menyusul di 0.168.0.
+
+### Ditambahkan
+
+- **Unggah gambar ke server**: setelah siklus sync berhasil, perangkat
+  mengunggah berkas gambar yang barisnya sudah terkirim (foto produk, foto
+  faktur pembelian, foto bukti pengeluaran, bukti bayar hutang supplier,
+  stiker QRIS, logo struk, gambar denah) satu per satu lewat URL unggah
+  dari server, juga saat siklus berstatus *Perlu perhatian* karena ada
+  baris lain yang ditolak. Urutan unggah mengikuti urutan baris masuk ke
+  perangkat (bukan ID, yang bisa lebih besar dari perangkat berjam cepat),
+  jadi tidak ada gambar yang terlewat. Gambar yang ditolak server (mis.
+  barisnya belum diterima) dicatat dan dicoba lagi tiap siklus tanpa
+  menahan gambar sesudahnya; jaringan putus menghentikan unggahan sampai
+  siklus berikutnya. Gambar yang sama persis (hash sama) tidak diunggah
+  dua kali.
+- **Unduh gambar saat dibutuhkan**: perangkat yang bergabung atau menerima
+  data dari perangkat lain mengunduh gambar saat layar yang memakainya
+  dibuka (mis. rincian pembelian, kartu QRIS, denah), lalu menyimpannya di
+  folder `media/` di perangkat. Layar menunggu paling lama 4 detik, lalu
+  menampilkan gambar pengganti sementara unduhan lanjut di latar; kasir
+  dengan QRIS tidak tertahan jaringan lambat. Daftar produk memulai
+  unduhan di latar. Satu gambar hanya diunduh sekali walau diminta banyak
+  layar, paling banyak 3 unduhan bersamaan, dan gambar yang gagal baru
+  diminta lagi setelah 2 menit.
+- Unggahan dan unduhan yang macet lebih dari 2 menit dihentikan dan
+  dianggap offline (diulang siklus berikutnya), sehingga sync dan
+  penutupan aplikasi tidak ikut tertahan.
+- **Penyimpanan gambar di server**: tanpa pengaturan, berkas disimpan di
+  database Postgres server. Dengan kata sandi server `s3Endpoint`,
+  `s3AccessKey`, `s3SecretKey`, `s3Bucket` (opsional `s3Region`, bawaan
+  `us-east-1`), berkas privat disimpan di object storage S3-compatible
+  (MinIO, Cloudflare R2, Wasabi, dan sejenisnya) dengan unggahan presigned
+  PUT. Kunci berkas `<tenant_id>/<sha256>.<ext>`.
+- **Panduan › Versi hosting**: bagian *Foto dan gambar* (ID + EN).
+
+### Keamanan
+
+- Server hanya memberi URL unggah dan unduh untuk gambar milik tenant
+  perangkat yang meminta (token perangkat diperiksa setiap panggilan);
+  gambar tenant lain, gambar yang barisnya belum di-push, dan kunci berkas
+  di luar pola `<hex>.<ext>` ditolak. URL unduhan bersifat sementara.
+- Unduhan diperiksa sha256 terhadap baris `media_files`; berkas yang
+  berbeda dibuang dan layar menampilkan gambar pengganti.
+- Berkas unduhan ditulis ke berkas sementara unik lalu di-rename, sehingga
+  gambar setengah jadi tidak pernah terbaca.
+
+### Catatan teknis
+
+- Endpoint baru `mediaSync` (`uploadDescription`, `markUploaded`,
+  `downloadUrl`) di `lakuna_server/lib/src/media/`; storage `private`
+  memakai `DatabaseCloudStorage` atau `S3CompatCloudStorage`
+  (`serverpod_cloud_storage_s3_compat` 4.1.0, `CustomEndpointConfig`,
+  `PresignedPutUploadStrategy`). `markUploaded` mengembalikan `true` juga
+  bila berkas sudah terverifikasi sebelumnya.
+- `lakuna_data`: `MediaTransport`, `uploadPendingMedia` (kursor `rowid`
+  lokal di `sync_state.media_upload_cursor`, daftar coba ulang di
+  `media_upload_retry`), `ensureMediaLocal` (batas waktu total 2 menit
+  per langkah), `MediaFetcher` (unduhan per gambar dibagi, batas 3
+  bersamaan, jeda 2 menit setelah gagal), `readMediaFile(wait:)` 4 detik;
+  `runHostingCycle(engine, media:)` mengunggah gambar setelah push dan
+  pull tuntas, termasuk saat ada konflik. `LakunaStore.fetchMedia` dipakai `readMediaFile` dan daftar
+  produk bila berkas lokal belum ada; dipasang saat sync dinyalakan dan
+  dilepas saat dihentikan. `disableHosting` juga menghapus kursor dan
+  daftar coba ulang unggah gambar.
+- Aplikasi: `HostingConnection.mediaTransport` mengunggah lewat
+  `FileUploader` Serverpod dan mengunduh dengan `HttpClient` (batas waktu
+  sambungan 30 detik, status HTTP diperiksa; batas waktu total di
+  `lakuna_data`).
+- Tes baru: `lakuna_server/test/integration/media_sync_test.dart`,
+  `lakuna_server/test/unit/media_storage_test.dart`,
+  `packages/lakuna_data/test/media_sync_test.dart`, unduhan di latar di
+  `product_photo_test`, siklus dengan gambar di `hosting_test`, pasang dan
+  lepas `fetchMedia` di `local_hosting_repository_test`.
+- Uji manual dua perangkat (Xvfb + server lokal): perangkat A mengunggah 3
+  foto faktur (tersimpan terverifikasi di `serverpod_cloud_storage`),
+  perangkat B membuka pembelian dan dua foto fakturnya terunduh dengan
+  hash cocok lalu tampil.
+
 ## [0.166.0] - 2026-11-28
 
 Tahap 3 Fase 2 (F2-01): versi hosting bisa diaktifkan dari aplikasi.
@@ -9337,7 +9421,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.167.0...HEAD
+[0.167.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.166.0...v0.167.0
 [0.166.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.165.0...v0.166.0
 [0.165.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...v0.165.0
 [0.164.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...v0.164.0

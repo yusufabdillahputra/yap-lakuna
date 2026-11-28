@@ -463,7 +463,9 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Ulang aktivasi setelah balasan hilang | — | Rilis v0.166.0 | Pemilik sama, kode sama, tenant + perangkat sama, ≤ 15 menit: token baru, token lama dicabut. |
 | Lanjutkan gabung yang putus | — | Sebagian | Dilanjutkan saat **Gabung** ditekan lagi; setelah aplikasi dimulai ulang kode sudah terpakai. |
 | Sync dijeda | — | Rilis v0.166.0 | Perluasan desain: chip *Sync dijeda (n)*, jeda bertahan setelah aplikasi dibuka ulang. |
-| Aset ke object storage | — | Belum | Tahap 4. |
+| Aset ke object storage | — | Rilis v0.167.0 | Unggah per gambar setelah siklus tersinkron (kursor `media_upload_cursor`), unduh lazy dengan cek sha256; server memakai storage `private` di database atau S3-compatible (kata sandi `s3Endpoint`/`s3AccessKey`/`s3SecretKey`/`s3Bucket`). |
+| Gambar muncul tanpa membuka ulang layar | — | Belum | Daftar produk mengunduh di latar dan menampilkan placeholder sampai layar dimuat ulang. |
+| Hapus berkas gambar yatim di server | — | Belum | Berkas tetap di storage setelah baris `media_files` dihapus; pembersihan menyusul. |
 | Paket deploy VPS + panduan | — | Belum | Tahap 5; satu paket untuk server hosting Yusuf dan server sendiri toko. |
 | Izin per aksi di server | — | Belum | Gap; perangkat sudah menjaga izin di repositori. |
 | Pull per outlet | — | Belum | Modul ini menarik semua outlet tenant (aturan 2). |
