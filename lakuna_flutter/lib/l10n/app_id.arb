@@ -6176,5 +6176,517 @@
   "backupAutoLastYesterday": "Backup otomatis terakhir kemarin",
   "@backupAutoLastYesterday": {
     "placeholders": {}
+  },
+  "settingsSectionHosting": "Versi hosting",
+  "@settingsSectionHosting": {
+    "placeholders": {}
+  },
+  "hostingInactiveTitle": "Belum aktif",
+  "@hostingInactiveTitle": {
+    "placeholders": {}
+  },
+  "hostingInactiveBody": "Data hanya tersimpan di perangkat ini. Versi hosting menyinkronkan semua data ke server agar toko bisa dipakai di beberapa perangkat dan cabang.",
+  "@hostingInactiveBody": {
+    "placeholders": {}
+  },
+  "hostingActivate": "Aktifkan versi hosting",
+  "@hostingActivate": {
+    "placeholders": {}
+  },
+  "hostingJoinOther": "Gabung ke toko yang sudah memakai hosting",
+  "@hostingJoinOther": {
+    "placeholders": {}
+  },
+  "hostingActiveTitle": "Aktif · server {server}",
+  "@hostingActiveTitle": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingLastSync": "Sync terakhir {time}",
+  "@hostingLastSync": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingNeverSynced": "Belum pernah sync",
+  "@hostingNeverSynced": {
+    "placeholders": {}
+  },
+  "hostingPending": "{count} perubahan menunggu",
+  "@hostingPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hostingConflicts": "{count} perubahan perlu ditinjau",
+  "@hostingConflicts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hostingSyncNow": "Sync sekarang",
+  "@hostingSyncNow": {
+    "placeholders": {}
+  },
+  "hostingPairingCreate": "Buat kode pasang perangkat",
+  "@hostingPairingCreate": {
+    "placeholders": {}
+  },
+  "hostingPause": "Jeda sync",
+  "@hostingPause": {
+    "placeholders": {}
+  },
+  "hostingResume": "Lanjutkan sync",
+  "@hostingResume": {
+    "placeholders": {}
+  },
+  "hostingPausedNote": "Sync dijeda. Kasir tetap bisa dipakai; perubahan dikirim setelah sync dilanjutkan.",
+  "@hostingPausedNote": {
+    "placeholders": {}
+  },
+  "hostingErrorClock": "Jam perangkat tidak sesuai. Nyalakan tanggal dan jam otomatis, lalu sync lagi.",
+  "@hostingErrorClock": {
+    "placeholders": {}
+  },
+  "hostingErrorToken": "Server menolak token perangkat ini. Pasang ulang perangkat ini sebagai perangkat baru.",
+  "@hostingErrorToken": {
+    "placeholders": {}
+  },
+  "hostingErrorNetwork": "Server tidak terjangkau. Perubahan dikirim saat koneksi kembali.",
+  "@hostingErrorNetwork": {
+    "placeholders": {}
+  },
+  "hostingErrorOther": "Sync terakhir gagal ({code}). Coba Sync sekarang.",
+  "@hostingErrorOther": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingErrorAppTooOld": "Perbarui aplikasi: server ini meminta versi {version} atau lebih baru.",
+  "@hostingErrorAppTooOld": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingErrorServerTooOld": "Server perlu diperbarui (versi {version}).",
+  "@hostingErrorServerTooOld": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingErrorInvalidUrl": "Alamat server tidak sah. Gunakan https://, kecuali localhost untuk uji.",
+  "@hostingErrorInvalidUrl": {
+    "placeholders": {}
+  },
+  "hostingErrorOffline": "Server tidak terjangkau. Periksa alamat dan koneksi internet.",
+  "@hostingErrorOffline": {
+    "placeholders": {}
+  },
+  "hostingErrorNotPermitted": "Butuh izin Kelola sinkronisasi.",
+  "@hostingErrorNotPermitted": {
+    "placeholders": {}
+  },
+  "hostingErrorLogin": "Login gagal. Periksa email dan kata sandi.",
+  "@hostingErrorLogin": {
+    "placeholders": {}
+  },
+  "hostingErrorRegistration": "Pendaftaran gagal. Periksa kode dari email atau minta kode baru.",
+  "@hostingErrorRegistration": {
+    "placeholders": {}
+  },
+  "hostingErrorGeneric": "Gagal: {error}",
+  "@hostingErrorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingFailCodeInvalid": "Kode tidak dikenal server.",
+  "@hostingFailCodeInvalid": {
+    "placeholders": {}
+  },
+  "hostingFailCodeUsed": "Kode sudah dipakai.",
+  "@hostingFailCodeUsed": {
+    "placeholders": {}
+  },
+  "hostingFailCodeExpired": "Kode sudah kedaluwarsa.",
+  "@hostingFailCodeExpired": {
+    "placeholders": {}
+  },
+  "hostingFailTenantActive": "Toko ini sudah aktif di server.",
+  "@hostingFailTenantActive": {
+    "placeholders": {}
+  },
+  "hostingFailCopiedDevice": "Perangkat ini salinan dari perangkat lain.",
+  "@hostingFailCopiedDevice": {
+    "placeholders": {}
+  },
+  "hostingFailNotOwner": "Login akun pemilik dulu.",
+  "@hostingFailNotOwner": {
+    "placeholders": {}
+  },
+  "hostingFailOutletUnknown": "Cabang tidak dikenal server.",
+  "@hostingFailOutletUnknown": {
+    "placeholders": {}
+  },
+  "hostingFailDeviceCodeTaken": "Kode perangkat sudah dipakai di cabang itu.",
+  "@hostingFailDeviceCodeTaken": {
+    "placeholders": {}
+  },
+  "hostingStepServer": "Server & kode",
+  "@hostingStepServer": {
+    "placeholders": {}
+  },
+  "hostingStepOwner": "Login pemilik",
+  "@hostingStepOwner": {
+    "placeholders": {}
+  },
+  "hostingStepUpload": "Unggah data",
+  "@hostingStepUpload": {
+    "placeholders": {}
+  },
+  "hostingStepDone": "Selesai",
+  "@hostingStepDone": {
+    "placeholders": {}
+  },
+  "hostingServerLakuna": "Server Lakuna",
+  "@hostingServerLakuna": {
+    "placeholders": {}
+  },
+  "hostingServerLakunaBody": "Dikelola tim Lakuna. Minta kode aktivasi ke admin Lakuna.",
+  "@hostingServerLakunaBody": {
+    "placeholders": {}
+  },
+  "hostingServerOwn": "Server sendiri",
+  "@hostingServerOwn": {
+    "placeholders": {}
+  },
+  "hostingServerOwnBody": "Server toko di VPS sendiri. Kode aktivasi dibuat admin server itu.",
+  "@hostingServerOwnBody": {
+    "placeholders": {}
+  },
+  "hostingServerUrlLabel": "Alamat server",
+  "@hostingServerUrlLabel": {
+    "placeholders": {}
+  },
+  "hostingServerUrlHint": "https://sync.tokoanda.id",
+  "@hostingServerUrlHint": {
+    "placeholders": {}
+  },
+  "hostingActivationCodeLabel": "Kode aktivasi",
+  "@hostingActivationCodeLabel": {
+    "placeholders": {}
+  },
+  "hostingCheck": "Periksa",
+  "@hostingCheck": {
+    "placeholders": {}
+  },
+  "hostingServerOk": "Server Lakuna {version} siap.",
+  "@hostingServerOk": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingNext": "Lanjut",
+  "@hostingNext": {
+    "placeholders": {}
+  },
+  "hostingBack": "Kembali",
+  "@hostingBack": {
+    "placeholders": {}
+  },
+  "hostingCancel": "Batal",
+  "@hostingCancel": {
+    "placeholders": {}
+  },
+  "hostingOwnerIntro": "Masuk dengan akun pemilik di server ini, atau buat akun baru. Akun ini dipakai untuk dashboard semua cabang nanti.",
+  "@hostingOwnerIntro": {
+    "placeholders": {}
+  },
+  "hostingOwnerSignIn": "Masuk",
+  "@hostingOwnerSignIn": {
+    "placeholders": {}
+  },
+  "hostingOwnerRegister": "Daftar akun baru",
+  "@hostingOwnerRegister": {
+    "placeholders": {}
+  },
+  "hostingEmail": "Email",
+  "@hostingEmail": {
+    "placeholders": {}
+  },
+  "hostingPassword": "Kata sandi",
+  "@hostingPassword": {
+    "placeholders": {}
+  },
+  "hostingPasswordRepeat": "Ulangi kata sandi",
+  "@hostingPasswordRepeat": {
+    "placeholders": {}
+  },
+  "hostingPasswordMismatch": "Kata sandi tidak sama.",
+  "@hostingPasswordMismatch": {
+    "placeholders": {}
+  },
+  "hostingPasswordShort": "Kata sandi minimal 8 karakter.",
+  "@hostingPasswordShort": {
+    "placeholders": {}
+  },
+  "hostingSendCode": "Kirim kode",
+  "@hostingSendCode": {
+    "placeholders": {}
+  },
+  "hostingVerificationCode": "Kode dari email",
+  "@hostingVerificationCode": {
+    "placeholders": {}
+  },
+  "hostingCodeSent": "Kode dikirim ke {email}.",
+  "@hostingCodeSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingCreateAccount": "Buat akun",
+  "@hostingCreateAccount": {
+    "placeholders": {}
+  },
+  "hostingSignedIn": "Masuk sebagai {email}.",
+  "@hostingSignedIn": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingActivateNow": "Aktifkan dan unggah data",
+  "@hostingActivateNow": {
+    "placeholders": {}
+  },
+  "hostingServerLine": "Server: {server} · Postgres · gambar ke object storage",
+  "@hostingServerLine": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingUploadIntro": "Kasir tetap bisa dipakai selama proses ini. ID data dibuat di perangkat, jadi tidak diubah saat masuk server, dan unggahan dilanjutkan bila koneksi putus.",
+  "@hostingUploadIntro": {
+    "placeholders": {}
+  },
+  "hostingPauseUpload": "Jeda unggahan",
+  "@hostingPauseUpload": {
+    "placeholders": {}
+  },
+  "hostingResumeUpload": "Lanjutkan unggahan",
+  "@hostingResumeUpload": {
+    "placeholders": {}
+  },
+  "hostingGroupStore": "Toko & pengguna",
+  "@hostingGroupStore": {
+    "placeholders": {}
+  },
+  "hostingGroupCatalog": "Produk, varian & satuan",
+  "@hostingGroupCatalog": {
+    "placeholders": {}
+  },
+  "hostingGroupPartners": "Pelanggan & supplier",
+  "@hostingGroupPartners": {
+    "placeholders": {}
+  },
+  "hostingGroupSales": "Transaksi penjualan",
+  "@hostingGroupSales": {
+    "placeholders": {}
+  },
+  "hostingGroupPurchases": "Pembelian & pengeluaran",
+  "@hostingGroupPurchases": {
+    "placeholders": {}
+  },
+  "hostingGroupStock": "Pergerakan stok",
+  "@hostingGroupStock": {
+    "placeholders": {}
+  },
+  "hostingGroupMedia": "Gambar",
+  "@hostingGroupMedia": {
+    "placeholders": {}
+  },
+  "hostingDoneTitle": "Versi hosting aktif",
+  "@hostingDoneTitle": {
+    "placeholders": {}
+  },
+  "hostingDoneBody": "Semua data sudah di server {server}. Sync berjalan otomatis setiap ada perubahan dan setiap 30 detik.",
+  "@hostingDoneBody": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingDoneClose": "Selesai",
+  "@hostingDoneClose": {
+    "placeholders": {}
+  },
+  "hostingPairingTitle": "Kode pasang perangkat",
+  "@hostingPairingTitle": {
+    "placeholders": {}
+  },
+  "hostingPairingBody": "Di perangkat baru, pilih Gabung ke toko yang sudah memakai hosting, lalu tempel kode lengkap ini.",
+  "@hostingPairingBody": {
+    "placeholders": {}
+  },
+  "hostingPairingExpires": "Berlaku sampai {time} (15 menit, sekali pakai).",
+  "@hostingPairingExpires": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hostingPairingExpired": "Kode sudah kedaluwarsa. Buat kode baru.",
+  "@hostingPairingExpired": {
+    "placeholders": {}
+  },
+  "hostingPairingCopy": "Salin kode lengkap",
+  "@hostingPairingCopy": {
+    "placeholders": {}
+  },
+  "hostingPairingCopied": "Kode lengkap disalin.",
+  "@hostingPairingCopied": {
+    "placeholders": {}
+  },
+  "hostingPairingClose": "Tutup",
+  "@hostingPairingClose": {
+    "placeholders": {}
+  },
+  "joinTitle": "Gabung ke toko yang memakai hosting",
+  "@joinTitle": {
+    "placeholders": {}
+  },
+  "joinIntro": "Tempel kode pasang lengkap dari perangkat yang sudah aktif (alamat#kode), atau isi alamat server lalu kodenya.",
+  "@joinIntro": {
+    "placeholders": {}
+  },
+  "joinCodeLabel": "Kode pasang",
+  "@joinCodeLabel": {
+    "placeholders": {}
+  },
+  "joinCheck": "Periksa kode",
+  "@joinCheck": {
+    "placeholders": {}
+  },
+  "joinOutletLabel": "Cabang",
+  "@joinOutletLabel": {
+    "placeholders": {}
+  },
+  "joinDeviceCode": "Kode perangkat",
+  "@joinDeviceCode": {
+    "placeholders": {}
+  },
+  "joinDeviceName": "Nama perangkat",
+  "@joinDeviceName": {
+    "placeholders": {}
+  },
+  "joinDeviceNameHint": "Kasir 2",
+  "@joinDeviceNameHint": {
+    "placeholders": {}
+  },
+  "joinDeviceCodeInvalid": "Kode perangkat 1–6 huruf atau angka, mis. K02.",
+  "@joinDeviceCodeInvalid": {
+    "placeholders": {}
+  },
+  "joinSalesWarning": "Perangkat ini punya {count} penjualan. Data lama tidak digabung: backup dibuat otomatis, lalu database diganti data toko dari server.",
+  "@joinSalesWarning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinReplaceNote": "Perangkat ini memakai data toko dari server. ID dan kode perangkat baru dibuat saat bergabung.",
+  "@joinReplaceNote": {
+    "placeholders": {}
+  },
+  "joinSubmit": "Gabung",
+  "@joinSubmit": {
+    "placeholders": {}
+  },
+  "joinPulling": "Menarik data toko dari server…",
+  "@joinPulling": {
+    "placeholders": {}
+  },
+  "joinReopen": "Data toko siap. Tutup lalu buka lagi aplikasi.",
+  "@joinReopen": {
+    "placeholders": {}
+  },
+  "joinIncomplete": "Data toko di server belum lengkap. Coba lagi beberapa saat.",
+  "@joinIncomplete": {
+    "placeholders": {}
+  },
+  "onboardingJoinHint": "Toko Anda sudah memakai versi hosting di perangkat lain?",
+  "@onboardingJoinHint": {
+    "placeholders": {}
+  },
+  "syncChipSynced": "Tersinkron · {time}",
+  "@syncChipSynced": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "syncChipSyncedNow": "Tersinkron",
+  "@syncChipSyncedNow": {
+    "placeholders": {}
+  },
+  "syncChipSyncing": "Menyinkronkan… ({count})",
+  "@syncChipSyncing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncChipWaiting": "Menunggu jaringan ({count})",
+  "@syncChipWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncChipPaused": "Sync dijeda ({count})",
+  "@syncChipPaused": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncChipAttention": "Perlu perhatian",
+  "@syncChipAttention": {
+    "placeholders": {}
+  },
+  "syncChipClock": "Jam perangkat tidak sesuai",
+  "@syncChipClock": {
+    "placeholders": {}
   }
 }

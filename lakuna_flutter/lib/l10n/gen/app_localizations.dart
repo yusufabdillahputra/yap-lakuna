@@ -15608,6 +15608,660 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Backup otomatis terakhir kemarin'**
   String get backupAutoLastYesterday;
+
+  /// No description provided for @settingsSectionHosting.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosting'**
+  String get settingsSectionHosting;
+
+  /// No description provided for @hostingInactiveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum aktif'**
+  String get hostingInactiveTitle;
+
+  /// No description provided for @hostingInactiveBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data hanya tersimpan di perangkat ini. Versi hosting menyinkronkan semua data ke server agar toko bisa dipakai di beberapa perangkat dan cabang.'**
+  String get hostingInactiveBody;
+
+  /// No description provided for @hostingActivate.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan versi hosting'**
+  String get hostingActivate;
+
+  /// No description provided for @hostingJoinOther.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabung ke toko yang sudah memakai hosting'**
+  String get hostingJoinOther;
+
+  /// No description provided for @hostingActiveTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif · server {server}'**
+  String hostingActiveTitle(String server);
+
+  /// No description provided for @hostingLastSync.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync terakhir {time}'**
+  String hostingLastSync(String time);
+
+  /// No description provided for @hostingNeverSynced.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum pernah sync'**
+  String get hostingNeverSynced;
+
+  /// No description provided for @hostingPending.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} perubahan menunggu'**
+  String hostingPending(int count);
+
+  /// No description provided for @hostingConflicts.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} perubahan perlu ditinjau'**
+  String hostingConflicts(int count);
+
+  /// No description provided for @hostingSyncNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync sekarang'**
+  String get hostingSyncNow;
+
+  /// No description provided for @hostingPairingCreate.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat kode pasang perangkat'**
+  String get hostingPairingCreate;
+
+  /// No description provided for @hostingPause.
+  ///
+  /// In id, this message translates to:
+  /// **'Jeda sync'**
+  String get hostingPause;
+
+  /// No description provided for @hostingResume.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjutkan sync'**
+  String get hostingResume;
+
+  /// No description provided for @hostingPausedNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync dijeda. Kasir tetap bisa dipakai; perubahan dikirim setelah sync dilanjutkan.'**
+  String get hostingPausedNote;
+
+  /// No description provided for @hostingErrorClock.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam perangkat tidak sesuai. Nyalakan tanggal dan jam otomatis, lalu sync lagi.'**
+  String get hostingErrorClock;
+
+  /// No description provided for @hostingErrorToken.
+  ///
+  /// In id, this message translates to:
+  /// **'Server menolak token perangkat ini. Pasang ulang perangkat ini sebagai perangkat baru.'**
+  String get hostingErrorToken;
+
+  /// No description provided for @hostingErrorNetwork.
+  ///
+  /// In id, this message translates to:
+  /// **'Server tidak terjangkau. Perubahan dikirim saat koneksi kembali.'**
+  String get hostingErrorNetwork;
+
+  /// No description provided for @hostingErrorOther.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync terakhir gagal ({code}). Coba Sync sekarang.'**
+  String hostingErrorOther(String code);
+
+  /// No description provided for @hostingErrorAppTooOld.
+  ///
+  /// In id, this message translates to:
+  /// **'Perbarui aplikasi: server ini meminta versi {version} atau lebih baru.'**
+  String hostingErrorAppTooOld(String version);
+
+  /// No description provided for @hostingErrorServerTooOld.
+  ///
+  /// In id, this message translates to:
+  /// **'Server perlu diperbarui (versi {version}).'**
+  String hostingErrorServerTooOld(String version);
+
+  /// No description provided for @hostingErrorInvalidUrl.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat server tidak sah. Gunakan https://, kecuali localhost untuk uji.'**
+  String get hostingErrorInvalidUrl;
+
+  /// No description provided for @hostingErrorOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Server tidak terjangkau. Periksa alamat dan koneksi internet.'**
+  String get hostingErrorOffline;
+
+  /// No description provided for @hostingErrorNotPermitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Butuh izin Kelola sinkronisasi.'**
+  String get hostingErrorNotPermitted;
+
+  /// No description provided for @hostingErrorLogin.
+  ///
+  /// In id, this message translates to:
+  /// **'Login gagal. Periksa email dan kata sandi.'**
+  String get hostingErrorLogin;
+
+  /// No description provided for @hostingErrorRegistration.
+  ///
+  /// In id, this message translates to:
+  /// **'Pendaftaran gagal. Periksa kode dari email atau minta kode baru.'**
+  String get hostingErrorRegistration;
+
+  /// No description provided for @hostingErrorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal: {error}'**
+  String hostingErrorGeneric(String error);
+
+  /// No description provided for @hostingFailCodeInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode tidak dikenal server.'**
+  String get hostingFailCodeInvalid;
+
+  /// No description provided for @hostingFailCodeUsed.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode sudah dipakai.'**
+  String get hostingFailCodeUsed;
+
+  /// No description provided for @hostingFailCodeExpired.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode sudah kedaluwarsa.'**
+  String get hostingFailCodeExpired;
+
+  /// No description provided for @hostingFailTenantActive.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko ini sudah aktif di server.'**
+  String get hostingFailTenantActive;
+
+  /// No description provided for @hostingFailCopiedDevice.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat ini salinan dari perangkat lain.'**
+  String get hostingFailCopiedDevice;
+
+  /// No description provided for @hostingFailNotOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Login akun pemilik dulu.'**
+  String get hostingFailNotOwner;
+
+  /// No description provided for @hostingFailOutletUnknown.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang tidak dikenal server.'**
+  String get hostingFailOutletUnknown;
+
+  /// No description provided for @hostingFailDeviceCodeTaken.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode perangkat sudah dipakai di cabang itu.'**
+  String get hostingFailDeviceCodeTaken;
+
+  /// No description provided for @hostingStepServer.
+  ///
+  /// In id, this message translates to:
+  /// **'Server & kode'**
+  String get hostingStepServer;
+
+  /// No description provided for @hostingStepOwner.
+  ///
+  /// In id, this message translates to:
+  /// **'Login pemilik'**
+  String get hostingStepOwner;
+
+  /// No description provided for @hostingStepUpload.
+  ///
+  /// In id, this message translates to:
+  /// **'Unggah data'**
+  String get hostingStepUpload;
+
+  /// No description provided for @hostingStepDone.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get hostingStepDone;
+
+  /// No description provided for @hostingServerLakuna.
+  ///
+  /// In id, this message translates to:
+  /// **'Server Lakuna'**
+  String get hostingServerLakuna;
+
+  /// No description provided for @hostingServerLakunaBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Dikelola tim Lakuna. Minta kode aktivasi ke admin Lakuna.'**
+  String get hostingServerLakunaBody;
+
+  /// No description provided for @hostingServerOwn.
+  ///
+  /// In id, this message translates to:
+  /// **'Server sendiri'**
+  String get hostingServerOwn;
+
+  /// No description provided for @hostingServerOwnBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Server toko di VPS sendiri. Kode aktivasi dibuat admin server itu.'**
+  String get hostingServerOwnBody;
+
+  /// No description provided for @hostingServerUrlLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat server'**
+  String get hostingServerUrlLabel;
+
+  /// No description provided for @hostingServerUrlHint.
+  ///
+  /// In id, this message translates to:
+  /// **'https://sync.tokoanda.id'**
+  String get hostingServerUrlHint;
+
+  /// No description provided for @hostingActivationCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode aktivasi'**
+  String get hostingActivationCodeLabel;
+
+  /// No description provided for @hostingCheck.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa'**
+  String get hostingCheck;
+
+  /// No description provided for @hostingServerOk.
+  ///
+  /// In id, this message translates to:
+  /// **'Server Lakuna {version} siap.'**
+  String hostingServerOk(String version);
+
+  /// No description provided for @hostingNext.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut'**
+  String get hostingNext;
+
+  /// No description provided for @hostingBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali'**
+  String get hostingBack;
+
+  /// No description provided for @hostingCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get hostingCancel;
+
+  /// No description provided for @hostingOwnerIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk dengan akun pemilik di server ini, atau buat akun baru. Akun ini dipakai untuk dashboard semua cabang nanti.'**
+  String get hostingOwnerIntro;
+
+  /// No description provided for @hostingOwnerSignIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk'**
+  String get hostingOwnerSignIn;
+
+  /// No description provided for @hostingOwnerRegister.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar akun baru'**
+  String get hostingOwnerRegister;
+
+  /// No description provided for @hostingEmail.
+  ///
+  /// In id, this message translates to:
+  /// **'Email'**
+  String get hostingEmail;
+
+  /// No description provided for @hostingPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi'**
+  String get hostingPassword;
+
+  /// No description provided for @hostingPasswordRepeat.
+  ///
+  /// In id, this message translates to:
+  /// **'Ulangi kata sandi'**
+  String get hostingPasswordRepeat;
+
+  /// No description provided for @hostingPasswordMismatch.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi tidak sama.'**
+  String get hostingPasswordMismatch;
+
+  /// No description provided for @hostingPasswordShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi minimal 8 karakter.'**
+  String get hostingPasswordShort;
+
+  /// No description provided for @hostingSendCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim kode'**
+  String get hostingSendCode;
+
+  /// No description provided for @hostingVerificationCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode dari email'**
+  String get hostingVerificationCode;
+
+  /// No description provided for @hostingCodeSent.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode dikirim ke {email}.'**
+  String hostingCodeSent(String email);
+
+  /// No description provided for @hostingCreateAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat akun'**
+  String get hostingCreateAccount;
+
+  /// No description provided for @hostingSignedIn.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk sebagai {email}.'**
+  String hostingSignedIn(String email);
+
+  /// No description provided for @hostingActivateNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan dan unggah data'**
+  String get hostingActivateNow;
+
+  /// No description provided for @hostingServerLine.
+  ///
+  /// In id, this message translates to:
+  /// **'Server: {server} · Postgres · gambar ke object storage'**
+  String hostingServerLine(String server);
+
+  /// No description provided for @hostingUploadIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir tetap bisa dipakai selama proses ini. ID data dibuat di perangkat, jadi tidak diubah saat masuk server, dan unggahan dilanjutkan bila koneksi putus.'**
+  String get hostingUploadIntro;
+
+  /// No description provided for @hostingPauseUpload.
+  ///
+  /// In id, this message translates to:
+  /// **'Jeda unggahan'**
+  String get hostingPauseUpload;
+
+  /// No description provided for @hostingResumeUpload.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjutkan unggahan'**
+  String get hostingResumeUpload;
+
+  /// No description provided for @hostingGroupStore.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko & pengguna'**
+  String get hostingGroupStore;
+
+  /// No description provided for @hostingGroupCatalog.
+  ///
+  /// In id, this message translates to:
+  /// **'Produk, varian & satuan'**
+  String get hostingGroupCatalog;
+
+  /// No description provided for @hostingGroupPartners.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelanggan & supplier'**
+  String get hostingGroupPartners;
+
+  /// No description provided for @hostingGroupSales.
+  ///
+  /// In id, this message translates to:
+  /// **'Transaksi penjualan'**
+  String get hostingGroupSales;
+
+  /// No description provided for @hostingGroupPurchases.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembelian & pengeluaran'**
+  String get hostingGroupPurchases;
+
+  /// No description provided for @hostingGroupStock.
+  ///
+  /// In id, this message translates to:
+  /// **'Pergerakan stok'**
+  String get hostingGroupStock;
+
+  /// No description provided for @hostingGroupMedia.
+  ///
+  /// In id, this message translates to:
+  /// **'Gambar'**
+  String get hostingGroupMedia;
+
+  /// No description provided for @hostingDoneTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi hosting aktif'**
+  String get hostingDoneTitle;
+
+  /// No description provided for @hostingDoneBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua data sudah di server {server}. Sync berjalan otomatis setiap ada perubahan dan setiap 30 detik.'**
+  String hostingDoneBody(String server);
+
+  /// No description provided for @hostingDoneClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get hostingDoneClose;
+
+  /// No description provided for @hostingPairingTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode pasang perangkat'**
+  String get hostingPairingTitle;
+
+  /// No description provided for @hostingPairingBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Di perangkat baru, pilih Gabung ke toko yang sudah memakai hosting, lalu tempel kode lengkap ini.'**
+  String get hostingPairingBody;
+
+  /// No description provided for @hostingPairingExpires.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku sampai {time} (15 menit, sekali pakai).'**
+  String hostingPairingExpires(String time);
+
+  /// No description provided for @hostingPairingExpired.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode sudah kedaluwarsa. Buat kode baru.'**
+  String get hostingPairingExpired;
+
+  /// No description provided for @hostingPairingCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin kode lengkap'**
+  String get hostingPairingCopy;
+
+  /// No description provided for @hostingPairingCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode lengkap disalin.'**
+  String get hostingPairingCopied;
+
+  /// No description provided for @hostingPairingClose.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get hostingPairingClose;
+
+  /// No description provided for @joinTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabung ke toko yang memakai hosting'**
+  String get joinTitle;
+
+  /// No description provided for @joinIntro.
+  ///
+  /// In id, this message translates to:
+  /// **'Tempel kode pasang lengkap dari perangkat yang sudah aktif (alamat#kode), atau isi alamat server lalu kodenya.'**
+  String get joinIntro;
+
+  /// No description provided for @joinCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode pasang'**
+  String get joinCodeLabel;
+
+  /// No description provided for @joinCheck.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa kode'**
+  String get joinCheck;
+
+  /// No description provided for @joinOutletLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang'**
+  String get joinOutletLabel;
+
+  /// No description provided for @joinDeviceCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode perangkat'**
+  String get joinDeviceCode;
+
+  /// No description provided for @joinDeviceName.
+  ///
+  /// In id, this message translates to:
+  /// **'Nama perangkat'**
+  String get joinDeviceName;
+
+  /// No description provided for @joinDeviceNameHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasir 2'**
+  String get joinDeviceNameHint;
+
+  /// No description provided for @joinDeviceCodeInvalid.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode perangkat 1–6 huruf atau angka, mis. K02.'**
+  String get joinDeviceCodeInvalid;
+
+  /// No description provided for @joinSalesWarning.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat ini punya {count} penjualan. Data lama tidak digabung: backup dibuat otomatis, lalu database diganti data toko dari server.'**
+  String joinSalesWarning(int count);
+
+  /// No description provided for @joinReplaceNote.
+  ///
+  /// In id, this message translates to:
+  /// **'Perangkat ini memakai data toko dari server. ID dan kode perangkat baru dibuat saat bergabung.'**
+  String get joinReplaceNote;
+
+  /// No description provided for @joinSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Gabung'**
+  String get joinSubmit;
+
+  /// No description provided for @joinPulling.
+  ///
+  /// In id, this message translates to:
+  /// **'Menarik data toko dari server…'**
+  String get joinPulling;
+
+  /// No description provided for @joinReopen.
+  ///
+  /// In id, this message translates to:
+  /// **'Data toko siap. Tutup lalu buka lagi aplikasi.'**
+  String get joinReopen;
+
+  /// No description provided for @joinIncomplete.
+  ///
+  /// In id, this message translates to:
+  /// **'Data toko di server belum lengkap. Coba lagi beberapa saat.'**
+  String get joinIncomplete;
+
+  /// No description provided for @onboardingJoinHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko Anda sudah memakai versi hosting di perangkat lain?'**
+  String get onboardingJoinHint;
+
+  /// No description provided for @syncChipSynced.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersinkron · {time}'**
+  String syncChipSynced(String time);
+
+  /// No description provided for @syncChipSyncedNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersinkron'**
+  String get syncChipSyncedNow;
+
+  /// No description provided for @syncChipSyncing.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyinkronkan… ({count})'**
+  String syncChipSyncing(int count);
+
+  /// No description provided for @syncChipWaiting.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu jaringan ({count})'**
+  String syncChipWaiting(int count);
+
+  /// No description provided for @syncChipPaused.
+  ///
+  /// In id, this message translates to:
+  /// **'Sync dijeda ({count})'**
+  String syncChipPaused(int count);
+
+  /// No description provided for @syncChipAttention.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu perhatian'**
+  String get syncChipAttention;
+
+  /// No description provided for @syncChipClock.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam perangkat tidak sesuai'**
+  String get syncChipClock;
 }
 
 class _AppLocalizationsDelegate
