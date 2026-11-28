@@ -7,11 +7,14 @@ import 'package:forui/forui.dart';
 import 'package:lakuna_flutter/app_root.dart';
 import 'package:lakuna_flutter/bootstrap.dart' show AppInstance;
 import 'package:lakuna_flutter/data/repositories/backup_repository.dart';
+import 'package:lakuna_flutter/data/repositories/hosting_repository.dart'
+    show SyncChipKind, SyncStatus;
 import 'package:lakuna_flutter/routing/routes.dart';
 import 'package:lakuna_flutter/ui/settings/backup_section.dart';
 
 import '../../testing/app_harness.dart';
 import '../../testing/fake_backup_repository.dart';
+import '../../testing/fake_hosting_repository.dart';
 import '../../testing/fake_session_repository.dart';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
@@ -33,6 +36,25 @@ void main() {
     expect(formatFileSize(2 * 1024 * 1024 * 1024, decimal: '.'), '2 GB');
   });
 
+  testWidgets('versi hosting aktif: mode bukan lagi Gratis · offline', (
+    tester,
+  ) async {
+    final hosting = FakeHostingRepository(
+      status: const SyncStatus(kind: SyncChipKind.syncing, pending: 3),
+    );
+    await pumpLakuna(
+      tester,
+      initialLocation: Routes.settingsBackup,
+      backup: FakeBackupRepository(last: DateTime.utc(2026, 10, 1)),
+      backupFiles: FakeBackupFiles(),
+      hosting: hosting,
+    );
+    expect(_text(tester, 'backup-mode').data, 'Versi hosting · aktif');
+    hosting.status = SyncStatus.local;
+    await tester.pumpAndSettle();
+    expect(_text(tester, 'backup-mode').data, 'Gratis · offline');
+  });
+
   for (final size in [const Size(1440, 900), const Size(360, 740)]) {
     testWidgets('Data & backup (1.13) di ${size.width.toInt()} px', (
       tester,
@@ -49,7 +71,8 @@ void main() {
       expect(_key('backup-section'), findsOneWidget);
       expect(find.text('1240'), findsOneWidget);
       expect(find.text('18 MB'), findsOneWidget);
-      expect(_key('backup-hosting'), findsOneWidget);
+      // Kartu contoh versi hosting pindah ke bagian Versi hosting (F2-01).
+      expect(_key('backup-hosting'), findsNothing);
 
       await _tap(tester, 'backup-now');
       expect(files.delivered, ['lakuna-backup-PST-261104-1600.zip']);

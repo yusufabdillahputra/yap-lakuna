@@ -403,6 +403,29 @@ void main() {
       });
     });
 
+    test('stop menunggu siklus yang sedang berjalan selesai', () async {
+      final gate = Completer<void>();
+      var finished = false;
+      final s = SyncScheduler(() async {
+        await gate.future;
+        finished = true;
+        return result(SyncCycleOutcome.synced);
+      });
+      s.start();
+      await Future<void>.delayed(Duration.zero);
+      expect(s.isRunning, isTrue);
+      var stopped = false;
+      final stop = s.stop().then((_) => stopped = true);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(stopped, isFalse);
+      gate.complete();
+      await stop;
+      expect(finished, isTrue);
+      expect(stopped, isTrue);
+      // Tanpa siklus berjalan: langsung selesai.
+      await s.stop();
+    });
+
     test('debounce 2 detik setelah tulis, lalu tiap 30 detik', () {
       fakeAsync((async) {
         var runs = 0;

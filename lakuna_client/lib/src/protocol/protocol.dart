@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_client/src/protocol/sync/pairing_outlet.dart'
+    as _i5ptjowb;
 import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
     as _ipv8demw;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -95,6 +97,7 @@ import 'sync/activation_failure.dart' as _i0htl0ka;
 import 'sync/activation_result.dart' as _itml89c3;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
+import 'sync/pairing_outlet.dart' as _icfz2sj4;
 import 'sync/sync_auth_exception.dart' as _i2s9l4f4;
 import 'sync/sync_op.dart' as _ipjkwoxz;
 import 'sync/sync_outbox_entry.dart' as _ikzi06kl;
@@ -184,6 +187,7 @@ export 'sync/activation_failure.dart';
 export 'sync/activation_result.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
+export 'sync/pairing_outlet.dart';
 export 'sync/sync_auth_exception.dart';
 export 'sync/sync_op.dart';
 export 'sync/sync_outbox_entry.dart';
@@ -288,6 +292,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_itml89c3.ActivationResult>,
           _isc.getType<_ierz52ew.LocalPreference>,
           _isc.getType<_imib010r.OutboxStatus>,
+          _isc.getType<_icfz2sj4.PairingOutlet>,
           _isc.getType<_i2s9l4f4.SyncAuthException>,
           _isc.getType<_ipjkwoxz.SyncOp>,
           _isc.getType<_ikzi06kl.SyncOutboxEntry>,
@@ -377,6 +382,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_itml89c3.ActivationResult?>,
           _isc.getType<_ierz52ew.LocalPreference?>,
           _isc.getType<_imib010r.OutboxStatus?>,
+          _isc.getType<_icfz2sj4.PairingOutlet?>,
           _isc.getType<_i2s9l4f4.SyncAuthException?>,
           _isc.getType<_ipjkwoxz.SyncOp?>,
           _isc.getType<_ikzi06kl.SyncOutboxEntry?>,
@@ -392,6 +398,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_iwwr3hpi.SyncStateEntry?>,
           _isc.getType<List<_i4xb7gek.SyncPullChange>>,
           _isc.getType<List<_i4jawf6o.SyncPushResult>>,
+          _isc.getType<List<_i5ptjowb.PairingOutlet>>,
           _isc.getType<List<_ipv8demw.SyncPushEntry>>,
         ],
         modules: const [
@@ -475,6 +482,7 @@ class Protocol extends _isd.DatabaseSerializationManager
           'ActivationResult',
           'LocalPreference',
           'OutboxStatus',
+          'PairingOutlet',
           'SyncAuthException',
           'SyncOp',
           'SyncOutboxEntry',
@@ -9389,6 +9397,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _imib010r.OutboxStatus) {
       return _imib010r.OutboxStatus.fromJson(data) as T;
     }
+    if (t == _icfz2sj4.PairingOutlet) {
+      return _icfz2sj4.PairingOutlet.fromJson(data) as T;
+    }
     if (t == _i2s9l4f4.SyncAuthException) {
       return _i2s9l4f4.SyncAuthException.fromJson(data) as T;
     }
@@ -9706,6 +9717,10 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _isc.getType<_imib010r.OutboxStatus?>()) {
       return (data != null ? _imib010r.OutboxStatus.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_icfz2sj4.PairingOutlet?>()) {
+      return (data != null ? _icfz2sj4.PairingOutlet.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_i2s9l4f4.SyncAuthException?>()) {
       return (data != null ? _i2s9l4f4.SyncAuthException.fromJson(data) : null)
           as T;
@@ -9767,6 +9782,12 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == List<_i4jawf6o.SyncPushResult>) {
       return (data as List)
               .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i5ptjowb.PairingOutlet>) {
+      return (data as List)
+              .map((e) => deserialize<_i5ptjowb.PairingOutlet>(e))
               .toList()
           as T;
     }
@@ -9867,6 +9888,7 @@ class Protocol extends _isd.DatabaseSerializationManager
       _itml89c3.ActivationResult => 'ActivationResult',
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
+      _icfz2sj4.PairingOutlet => 'PairingOutlet',
       _i2s9l4f4.SyncAuthException => 'SyncAuthException',
       _ipjkwoxz.SyncOp => 'SyncOp',
       _ikzi06kl.SyncOutboxEntry => 'SyncOutboxEntry',
@@ -10046,6 +10068,8 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'LocalPreference';
       case _imib010r.OutboxStatus():
         return 'OutboxStatus';
+      case _icfz2sj4.PairingOutlet():
+        return 'PairingOutlet';
       case _i2s9l4f4.SyncAuthException():
         return 'SyncAuthException';
       case _ipjkwoxz.SyncOp():
@@ -10321,6 +10345,9 @@ class Protocol extends _isd.DatabaseSerializationManager
     }
     if (dataClassName == 'OutboxStatus') {
       return deserialize<_imib010r.OutboxStatus>(data['data']);
+    }
+    if (dataClassName == 'PairingOutlet') {
+      return deserialize<_icfz2sj4.PairingOutlet>(data['data']);
     }
     if (dataClassName == 'SyncAuthException') {
       return deserialize<_i2s9l4f4.SyncAuthException>(data['data']);

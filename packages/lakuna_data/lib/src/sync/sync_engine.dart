@@ -28,7 +28,9 @@ const pushBatchBytes = 1024 * 1024;
 /// Entri `acked` yang lebih tua dari ini dihapus dari outbox.
 const ackedRetention = Duration(days: 7);
 
-enum SyncCycleOutcome { synced, offline, attention }
+/// Hasil satu siklus. `paused` = *Jeda sync* aktif (aturan 16), tanpa
+/// memanggil server.
+enum SyncCycleOutcome { synced, offline, attention, paused }
 
 class SyncCycleResult {
   const SyncCycleResult({
@@ -384,6 +386,7 @@ class SyncScheduler {
   bool _running = false;
   bool _again = false;
   int _failures = 0;
+  Completer<void>? _current;
 
   bool get isRunning => _running;
 
@@ -392,10 +395,13 @@ class SyncScheduler {
     _schedule(Duration.zero);
   }
 
-  void stop() {
+  /// Menghentikan penjadwal; selesai setelah siklus yang sedang berjalan
+  /// selesai, agar database dan koneksi aman ditutup sesudahnya.
+  Future<void> stop() async {
     _started = false;
     _timer?.cancel();
     _timer = null;
+    await _current?.future;
   }
 
   /// Dipanggil setelah setiap tulis data bisnis.
@@ -427,6 +433,7 @@ class SyncScheduler {
     if (!_started || _running) return;
     _running = true;
     _again = false;
+    final current = _current = Completer<void>();
     SyncCycleResult result;
     try {
       result = await run();
@@ -441,6 +448,8 @@ class SyncScheduler {
       );
     } finally {
       _running = false;
+      _current = null;
+      current.complete();
     }
     onResult?.call(result);
     if (!_started) return;

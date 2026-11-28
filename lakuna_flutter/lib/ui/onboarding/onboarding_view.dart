@@ -21,6 +21,8 @@ import '../settings/appearance_tiles.dart';
 import '../../utils/result.dart';
 import 'onboarding_view_model.dart';
 import 'setup_restore_dialog.dart';
+import '../hosting/join_view.dart';
+import '../../data/repositories/hosting_repository.dart';
 
 /// Layar 1.1 Setup toko pertama. Memiliki [OnboardingViewModel] sendiri
 /// agar isian tidak hilang saat router membangun ulang rute.
@@ -32,10 +34,15 @@ class OnboardingScreen extends StatefulWidget {
     required this.settings,
     this.backup,
     this.backupFiles = const PlatformBackupFiles(),
+    this.hosting,
     this.onBeforeSetup,
   });
 
   final StoreRepository repository;
+
+  /// *Gabung ke toko yang sudah memakai hosting* (F2-01); `null` = kartu
+  /// disembunyikan.
+  final HostingRepository? hosting;
 
   /// `true` = buka import produk setelah toko dibuat (F1-01b).
   final ValueChanged<bool>? onBeforeSetup;
@@ -76,6 +83,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       null => null,
     },
+    onJoin: switch (widget.hosting) {
+      final hosting? => () => showJoinHosting(
+        context,
+        repository: hosting,
+        restart: AppRestart.maybeOf(context)?.restart,
+      ),
+      null => null,
+    },
   );
 }
 
@@ -87,6 +102,7 @@ class OnboardingView extends StatelessWidget {
     required this.viewModel,
     required this.settings,
     this.onRestore,
+    this.onJoin,
   });
 
   final OnboardingViewModel viewModel;
@@ -94,6 +110,9 @@ class OnboardingView extends StatelessWidget {
 
   /// Membuka *Pulihkan dari backup* (F1-19b).
   final VoidCallback? onRestore;
+
+  /// Membuka *Gabung ke toko yang sudah memakai hosting* (F2-01).
+  final VoidCallback? onJoin;
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +131,7 @@ class OnboardingView extends StatelessWidget {
                 settings: settings,
                 mobile: mobile,
                 onRestore: onRestore,
+                onJoin: onJoin,
               );
               if (mobile) return main;
               return Row(
@@ -277,9 +297,11 @@ class _MainArea extends StatelessWidget {
     required this.settings,
     required this.mobile,
     this.onRestore,
+    this.onJoin,
   });
 
   final VoidCallback? onRestore;
+  final VoidCallback? onJoin;
 
   final OnboardingViewModel viewModel;
   final AppSettingsViewModel settings;
@@ -356,6 +378,7 @@ class _MainArea extends StatelessWidget {
                       AppearanceTiles(viewModel: settings),
                       if (onRestore case final restore?)
                         _RestoreCard(onPress: restore),
+                      if (onJoin case final join?) _JoinCard(onPress: join),
                     ],
                   ),
                   OnboardingStep.business => _BusinessStep(
@@ -409,6 +432,49 @@ class _RestoreCard extends StatelessWidget {
               onPress: onPress,
               prefix: const Icon(TablerIcons.restore),
               child: Flexible(child: Text(l10n.onboardingRestoreAction)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Perangkat berikutnya untuk toko versi hosting (F2-01 aturan 10).
+class _JoinCard extends StatelessWidget {
+  const _JoinCard({required this.onPress});
+
+  final VoidCallback onPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = context.theme;
+    return DecoratedBox(
+      key: const ValueKey('onboarding-join-card'),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colors.border),
+        borderRadius: theme.style.borderRadius.lg,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: [
+            Text(
+              l10n.onboardingJoinHint,
+              style: theme.typography.body.sm.copyWith(
+                color: theme.colors.mutedForeground,
+              ),
+            ),
+            FButton(
+              key: const ValueKey('onboarding-join'),
+              variant: .outline,
+              mainAxisSize: .min,
+              onPress: onPress,
+              prefix: const Icon(TablerIcons.devicesPlus),
+              child: Flexible(child: Text(l10n.hostingJoinOther)),
             ),
           ],
         ),

@@ -1,0 +1,7 @@
+### Cabang yang bisa dipilih perangkat baru saat memakai kode pasang
+### (F2-01, layar gabung).
+class: PairingOutlet
+fields:
+  id: UuidValue
+  code: String
+  name: String

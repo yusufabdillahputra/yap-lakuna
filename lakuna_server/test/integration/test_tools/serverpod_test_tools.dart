@@ -17,6 +17,8 @@ import 'package:lakuna_server/src/generated/organization/device_platform.dart'
     as _iac4dvtg;
 import 'package:lakuna_server/src/generated/sync/activation_result.dart'
     as _ihanej1j;
+import 'package:lakuna_server/src/generated/sync/pairing_outlet.dart'
+    as _i0r4fwb4;
 import 'package:lakuna_server/src/generated/sync/sync_pull_page.dart'
     as _i424ufkw;
 import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
@@ -724,6 +726,37 @@ class _ActivationEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_i0r4fwb4.PairingOutlet>> pairingOutlets(
+    _ist.TestSessionBuilder sessionBuilder,
+    String pairingCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'activation',
+            method: 'pairingOutlets',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'activation',
+          methodName: 'pairingOutlets',
+          parameters: _ist.testObjectToJson({'pairingCode': pairingCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i0r4fwb4.PairingOutlet>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

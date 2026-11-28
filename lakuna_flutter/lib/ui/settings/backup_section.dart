@@ -10,6 +10,7 @@ import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../../data/repositories/backup_repository.dart';
 import '../../data/services/backup_files.dart';
+import '../../data/repositories/hosting_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../utils/result.dart';
 import '../core/format.dart';
@@ -37,14 +38,22 @@ String formatFileSize(int bytes, {String decimal = ','}) {
 
 /// Bagian *Data & backup* di Pengaturan (1.13 / 1.26, F1-19).
 class BackupSection extends StatelessWidget {
-  const BackupSection({super.key, required this.viewModel, this.timezone});
+  const BackupSection({
+    super.key,
+    required this.viewModel,
+    this.timezone,
+    this.hosting,
+  });
 
   final BackupViewModel viewModel;
   final String? timezone;
 
+  /// Versi hosting (F2-01): bila aktif, mode tidak lagi *Gratis · offline*.
+  final HostingRepository? hosting;
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: viewModel,
+    listenable: Listenable.merge([viewModel, ?hosting]),
     builder: (context, _) => _build(context),
   );
 
@@ -57,6 +66,8 @@ class BackupSection extends StatelessWidget {
     );
     final stats = vm.stats;
     final days = vm.daysSinceBackup;
+    final hosted =
+        (hosting?.status.kind ?? SyncChipKind.local) != SyncChipKind.local;
     final busy =
         vm.backupNow.running ||
         vm.pickRestore.running ||
@@ -86,13 +97,18 @@ class BackupSection extends StatelessWidget {
                     children: [
                       Text(l10n.backupModeLabel, style: muted),
                       Text(
-                        l10n.backupModeFree,
+                        hosted ? l10n.backupModeHosted : l10n.backupModeFree,
                         key: const ValueKey('backup-mode'),
                         style: theme.typography.body.md.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      Text(l10n.backupModeBody, style: muted),
+                      Text(
+                        hosted
+                            ? l10n.backupModeHostedBody
+                            : l10n.backupModeBody,
+                        style: muted,
+                      ),
                     ],
                   ),
                 ),
@@ -214,7 +230,6 @@ class BackupSection extends StatelessWidget {
             manifest: m,
             timezone: timezone,
           ),
-        const _HostingCard(),
       ],
     );
   }
@@ -706,48 +721,6 @@ class _RestorePanel extends StatelessWidget {
                 child: Flexible(child: Text(l10n.backupRestoreConfirm)),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HostingCard extends StatelessWidget {
-  const _HostingCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = context.theme;
-    return SettingsCard(
-      key: const ValueKey('backup-hosting'),
-      title: l10n.backupHostingTitle,
-      subtitle: l10n.backupHostingBody,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 12,
-        children: [
-          FTextField(
-            label: Text(l10n.backupHostingServer),
-            enabled: false,
-            hint: 'https://',
-          ),
-          FTextField(label: Text(l10n.backupHostingCode), enabled: false),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FButton(
-              variant: .outline,
-              mainAxisSize: .min,
-              onPress: null,
-              child: Flexible(child: Text(l10n.backupHostingConnect)),
-            ),
-          ),
-          Text(
-            l10n.backupHostingSoon,
-            style: theme.typography.body.xs.copyWith(
-              color: theme.colors.mutedForeground,
-            ),
           ),
         ],
       ),

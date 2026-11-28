@@ -271,10 +271,15 @@ List<TableRow<UuidValue?>> _parentsFirst(
   return out;
 }
 
-/// Progres unggah per kelompok dari isi outbox (aturan 16).
+/// Progres unggah per kelompok dari isi outbox (aturan 16); kosong setelah
+/// unggah awal terkirim semua.
 Future<List<UploadGroupProgress>> initialUploadProgress(
   LakunaStore store,
 ) async {
+  // Sesudah unggah awal, perubahan baru cukup dihitung *menunggu*.
+  if (await store.syncState(SyncStateKey.initialUploadAcked) == '1') {
+    return const [];
+  }
   final rows = await store.session.db.unsafeQuery(
     'SELECT table_name, status, COUNT(*) FROM sync_outbox '
     'GROUP BY table_name, status',

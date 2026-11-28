@@ -56,9 +56,16 @@ class LakunaStore {
     return LakunaStore._(session, deviceId, clock ?? DateTime.now, path);
   }
 
+  /// Dipanggil setelah setiap transaksi [write] berhasil (mis. penjadwal
+  /// sync versi hosting, F2-01).
+  void Function()? afterWrite;
+
   /// Menjalankan [body] dalam satu transaksi tulis yang tercatat di outbox.
-  Future<R> write<R>(Future<R> Function(SyncTx w) body, {UuidValue? actor}) {
-    return session.db.transaction(
+  Future<R> write<R>(
+    Future<R> Function(SyncTx w) body, {
+    UuidValue? actor,
+  }) async {
+    final result = await session.db.transaction(
       (tx) => body(
         SyncTx(
           session: session,
@@ -69,6 +76,8 @@ class LakunaStore {
         ),
       ),
     );
+    afterWrite?.call();
+    return result;
   }
 
   Future<String?> syncState(SyncStateKey key) => readSyncState(session, key);

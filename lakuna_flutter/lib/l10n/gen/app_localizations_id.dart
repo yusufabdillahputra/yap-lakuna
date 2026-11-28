@@ -6825,25 +6825,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Pulihkan gagal. Data perangkat ini tidak berubah.';
 
   @override
-  String get backupHostingTitle => 'Aktifkan versi hosting';
-
-  @override
-  String get backupHostingBody =>
-      'Sinkronkan semua cabang dan perangkat ke server toko Anda.';
-
-  @override
-  String get backupHostingServer => 'Alamat server';
-
-  @override
-  String get backupHostingCode => 'Kode aktivasi';
-
-  @override
-  String get backupHostingConnect => 'Hubungkan & unggah data';
-
-  @override
-  String get backupHostingSoon => 'Tersedia di versi hosting (Fase 2).';
-
-  @override
   String get startupErrorTitle => 'Lakuna gagal dibuka';
 
   @override
@@ -9054,4 +9035,407 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get backupAutoLastYesterday => 'Backup otomatis terakhir kemarin';
+
+  @override
+  String get settingsSectionHosting => 'Versi hosting';
+
+  @override
+  String get hostingInactiveTitle => 'Belum aktif';
+
+  @override
+  String get hostingInactiveBody =>
+      'Data hanya tersimpan di perangkat ini. Versi hosting menyinkronkan semua data ke server agar toko bisa dipakai di beberapa perangkat dan cabang.';
+
+  @override
+  String get hostingActivate => 'Aktifkan versi hosting';
+
+  @override
+  String get hostingJoinOther => 'Gabung ke toko yang sudah memakai hosting';
+
+  @override
+  String hostingActiveTitle(String server) {
+    return 'Aktif · server $server';
+  }
+
+  @override
+  String hostingLastSync(String time) {
+    return 'Sync terakhir $time';
+  }
+
+  @override
+  String get hostingNeverSynced => 'Belum pernah sync';
+
+  @override
+  String hostingPending(int count) {
+    return '$count perubahan menunggu';
+  }
+
+  @override
+  String hostingConflicts(int count) {
+    return '$count perubahan perlu ditinjau';
+  }
+
+  @override
+  String get hostingSyncNow => 'Sync sekarang';
+
+  @override
+  String get hostingPairingCreate => 'Buat kode pasang perangkat';
+
+  @override
+  String get hostingPause => 'Jeda sync';
+
+  @override
+  String get hostingResume => 'Lanjutkan sync';
+
+  @override
+  String get hostingPausedNote =>
+      'Sync dijeda. Kasir tetap bisa dipakai; perubahan dikirim setelah sync dilanjutkan.';
+
+  @override
+  String get hostingErrorClock =>
+      'Jam perangkat tidak sesuai. Nyalakan tanggal dan jam otomatis, lalu sync lagi.';
+
+  @override
+  String get hostingErrorToken =>
+      'Server menolak token perangkat ini. Pasang ulang perangkat ini sebagai perangkat baru.';
+
+  @override
+  String get hostingErrorNetwork =>
+      'Server tidak terjangkau. Perubahan dikirim saat koneksi kembali.';
+
+  @override
+  String hostingErrorOther(String code) {
+    return 'Sync terakhir gagal ($code). Coba Sync sekarang.';
+  }
+
+  @override
+  String hostingErrorAppTooOld(String version) {
+    return 'Perbarui aplikasi: server ini meminta versi $version atau lebih baru.';
+  }
+
+  @override
+  String hostingErrorServerTooOld(String version) {
+    return 'Server perlu diperbarui (versi $version).';
+  }
+
+  @override
+  String get hostingErrorInvalidUrl =>
+      'Alamat server tidak sah. Gunakan https://, kecuali localhost untuk uji.';
+
+  @override
+  String get hostingErrorOffline =>
+      'Server tidak terjangkau. Periksa alamat dan koneksi internet.';
+
+  @override
+  String get hostingErrorNotPermitted => 'Butuh izin Sync & hosting.';
+
+  @override
+  String get hostingErrorLogin => 'Login gagal. Periksa email dan kata sandi.';
+
+  @override
+  String get hostingErrorRegistration =>
+      'Pendaftaran gagal. Periksa kode dari email atau minta kode baru.';
+
+  @override
+  String hostingErrorGeneric(String error) {
+    return 'Gagal: $error';
+  }
+
+  @override
+  String get hostingFailCodeInvalid => 'Kode tidak dikenal server.';
+
+  @override
+  String get hostingFailCodeUsed => 'Kode sudah dipakai.';
+
+  @override
+  String get hostingFailCodeExpired => 'Kode sudah kedaluwarsa.';
+
+  @override
+  String get hostingFailTenantActive => 'Toko ini sudah aktif di server.';
+
+  @override
+  String get hostingFailCopiedDevice =>
+      'Perangkat ini salinan dari perangkat lain.';
+
+  @override
+  String get hostingFailNotOwner => 'Login akun pemilik dulu.';
+
+  @override
+  String get hostingFailOutletUnknown => 'Cabang tidak dikenal server.';
+
+  @override
+  String get hostingFailDeviceCodeTaken =>
+      'Kode perangkat sudah dipakai di cabang itu.';
+
+  @override
+  String get hostingStepServer => 'Server & kode';
+
+  @override
+  String get hostingStepOwner => 'Login pemilik';
+
+  @override
+  String get hostingStepUpload => 'Unggah data';
+
+  @override
+  String get hostingStepDone => 'Selesai';
+
+  @override
+  String get hostingServerLakuna => 'Server Lakuna';
+
+  @override
+  String get hostingServerLakunaBody =>
+      'Dikelola tim Lakuna. Minta kode aktivasi ke admin Lakuna.';
+
+  @override
+  String get hostingServerOwn => 'Server sendiri';
+
+  @override
+  String get hostingServerOwnBody =>
+      'Server toko di VPS sendiri. Kode aktivasi dibuat admin server itu.';
+
+  @override
+  String get hostingServerUrlLabel => 'Alamat server';
+
+  @override
+  String get hostingServerUrlHint => 'https://sync.tokoanda.id';
+
+  @override
+  String get hostingActivationCodeLabel => 'Kode aktivasi';
+
+  @override
+  String get hostingCheck => 'Periksa';
+
+  @override
+  String hostingServerOk(String version) {
+    return 'Server Lakuna $version siap.';
+  }
+
+  @override
+  String get hostingNext => 'Lanjut';
+
+  @override
+  String get hostingBack => 'Kembali';
+
+  @override
+  String get hostingCancel => 'Batal';
+
+  @override
+  String get hostingOwnerIntro =>
+      'Masuk dengan akun pemilik di server ini, atau buat akun baru. Akun ini dipakai untuk dashboard semua cabang nanti.';
+
+  @override
+  String get hostingOwnerSignIn => 'Masuk';
+
+  @override
+  String get hostingOwnerRegister => 'Daftar akun baru';
+
+  @override
+  String get hostingEmail => 'Email';
+
+  @override
+  String get hostingPassword => 'Kata sandi';
+
+  @override
+  String get hostingPasswordRepeat => 'Ulangi kata sandi';
+
+  @override
+  String get hostingPasswordMismatch => 'Kata sandi tidak sama.';
+
+  @override
+  String get hostingPasswordShort => 'Kata sandi minimal 8 karakter.';
+
+  @override
+  String get hostingSendCode => 'Kirim kode';
+
+  @override
+  String get hostingVerificationCode => 'Kode dari email';
+
+  @override
+  String hostingCodeSent(String email) {
+    return 'Kode dikirim ke $email.';
+  }
+
+  @override
+  String get hostingCreateAccount => 'Buat akun';
+
+  @override
+  String hostingSignedIn(String email) {
+    return 'Masuk sebagai $email.';
+  }
+
+  @override
+  String get hostingActivateNow => 'Aktifkan dan unggah data';
+
+  @override
+  String hostingServerLine(String server) {
+    return 'Server: $server · Postgres · gambar ke object storage';
+  }
+
+  @override
+  String get hostingUploadIntro =>
+      'Kasir tetap bisa dipakai selama proses ini. ID data dibuat di perangkat, jadi tidak diubah saat masuk server, dan unggahan dilanjutkan bila koneksi putus.';
+
+  @override
+  String get hostingPauseUpload => 'Jeda unggahan';
+
+  @override
+  String get hostingResumeUpload => 'Lanjutkan unggahan';
+
+  @override
+  String get hostingGroupStore => 'Toko & pengguna';
+
+  @override
+  String get hostingGroupCatalog => 'Produk, varian & satuan';
+
+  @override
+  String get hostingGroupPartners => 'Pelanggan & supplier';
+
+  @override
+  String get hostingGroupSales => 'Transaksi penjualan';
+
+  @override
+  String get hostingGroupPurchases => 'Pembelian & pengeluaran';
+
+  @override
+  String get hostingGroupStock => 'Pergerakan stok';
+
+  @override
+  String get hostingGroupMedia => 'Gambar';
+
+  @override
+  String get hostingDoneTitle => 'Versi hosting aktif';
+
+  @override
+  String hostingDoneBody(String server) {
+    return 'Semua data sudah di server $server. Sync berjalan otomatis setiap ada perubahan dan setiap 30 detik.';
+  }
+
+  @override
+  String get hostingDoneClose => 'Selesai';
+
+  @override
+  String get hostingPairingTitle => 'Kode pasang perangkat';
+
+  @override
+  String get hostingPairingBody =>
+      'Di perangkat baru, pilih Gabung ke toko yang sudah memakai hosting, lalu tempel kode lengkap ini.';
+
+  @override
+  String hostingPairingExpires(String time) {
+    return 'Berlaku sampai $time (15 menit, sekali pakai).';
+  }
+
+  @override
+  String get hostingPairingExpired => 'Kode sudah kedaluwarsa. Buat kode baru.';
+
+  @override
+  String get hostingPairingCopy => 'Salin kode lengkap';
+
+  @override
+  String get hostingPairingCopied => 'Kode lengkap disalin.';
+
+  @override
+  String get hostingPairingClose => 'Tutup';
+
+  @override
+  String get joinTitle => 'Gabung ke toko yang memakai hosting';
+
+  @override
+  String get joinIntro =>
+      'Tempel kode pasang lengkap dari perangkat yang sudah aktif (alamat#kode), atau isi alamat server lalu kodenya.';
+
+  @override
+  String get joinCodeLabel => 'Kode pasang';
+
+  @override
+  String get joinCheck => 'Periksa kode';
+
+  @override
+  String get joinOutletLabel => 'Cabang';
+
+  @override
+  String get joinDeviceCode => 'Kode perangkat';
+
+  @override
+  String get joinDeviceName => 'Nama perangkat';
+
+  @override
+  String get joinDeviceNameHint => 'Kasir 2';
+
+  @override
+  String get joinDeviceCodeInvalid =>
+      'Kode perangkat 1–6 huruf atau angka, mis. K02.';
+
+  @override
+  String joinSalesWarning(int count) {
+    return 'Perangkat ini punya $count penjualan. Data lama tidak digabung: backup dibuat otomatis, lalu database diganti data toko dari server.';
+  }
+
+  @override
+  String get joinReplaceNote =>
+      'Perangkat ini memakai data toko dari server. ID dan kode perangkat baru dibuat saat bergabung.';
+
+  @override
+  String get joinSubmit => 'Gabung';
+
+  @override
+  String get joinPulling => 'Menarik data toko dari server…';
+
+  @override
+  String get joinReopen => 'Data toko siap. Tutup lalu buka lagi aplikasi.';
+
+  @override
+  String get joinIncomplete =>
+      'Data toko di server belum lengkap. Coba lagi beberapa saat.';
+
+  @override
+  String get onboardingJoinHint =>
+      'Toko Anda sudah memakai versi hosting di perangkat lain?';
+
+  @override
+  String syncChipSynced(String time) {
+    return 'Tersinkron · $time';
+  }
+
+  @override
+  String get syncChipSyncedNow => 'Tersinkron';
+
+  @override
+  String syncChipSyncing(int count) {
+    return 'Menyinkronkan… ($count)';
+  }
+
+  @override
+  String syncChipWaiting(int count) {
+    return 'Menunggu jaringan ($count)';
+  }
+
+  @override
+  String syncChipPaused(int count) {
+    return 'Sync dijeda ($count)';
+  }
+
+  @override
+  String get syncChipAttention => 'Perlu perhatian';
+
+  @override
+  String get syncChipClock => 'Jam perangkat tidak sesuai';
+
+  @override
+  String get backupModeHosted => 'Versi hosting · aktif';
+
+  @override
+  String get backupModeHostedBody =>
+      'Data tersinkron ke server toko. Backup tetap berguna sebagai salinan cadangan; memulihkan backup mematikan versi hosting di perangkat ini.';
+
+  @override
+  String get hostingErrorNotActive =>
+      'Versi hosting belum aktif di perangkat ini.';
+
+  @override
+  String get hostingErrorAlreadyActive =>
+      'Versi hosting sudah aktif di perangkat ini.';
+
+  @override
+  String get hostingUploadBackground => 'Lanjut di latar';
 }

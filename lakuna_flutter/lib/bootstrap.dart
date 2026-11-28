@@ -16,6 +16,8 @@ import 'data/repositories/dining_repository.dart';
 import 'data/repositories/local_app_settings_repository.dart';
 import 'data/repositories/local_cash_drawer_repository.dart';
 import 'data/repositories/local_cashier_repository.dart';
+import 'data/repositories/hosting_repository.dart';
+import 'data/repositories/local_hosting_repository.dart';
 import 'data/repositories/local_dining_admin_repository.dart';
 import 'data/repositories/customers_repository.dart';
 import 'data/repositories/expenses_repository.dart';
@@ -193,6 +195,14 @@ Future<AppInstance> bootstrap(String databasePath) async {
     appVersion: appVersion,
   );
   const backupFiles = PlatformBackupFiles();
+  // Versi hosting (F2-01): sync otomatis menyala bila sudah aktif.
+  final hostingRepository = LocalHostingRepository(
+    store,
+    stores: storeRepository,
+    session: sessionRepository,
+    appVersion: appVersion,
+  );
+  await hostingRepository.start();
   // Backup otomatis di desktop (F1-19d, F1-19e).
   final autoBackup = autoBackupSupported
       ? (AutoBackupScheduler(
@@ -204,6 +214,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
   return AppInstance(
     close: () async {
       await autoBackup?.dispose();
+      await hostingRepository.stop();
       await store.close();
     },
     app: MultiProvider(
@@ -242,6 +253,9 @@ Future<AppInstance> bootstrap(String databasePath) async {
         Provider<ReceiptPrinter>.value(value: receiptPrinter),
         Provider<BackupRepository>.value(value: backupRepository),
         Provider<BackupFiles>.value(value: backupFiles),
+        ChangeNotifierProvider<HostingRepository>.value(
+          value: hostingRepository,
+        ),
       ],
       child: LakunaApp(
         settings: settings,
@@ -270,6 +284,7 @@ Future<AppInstance> bootstrap(String databasePath) async {
           receiptPrinter: receiptPrinter,
           backup: backupRepository,
           backupFiles: backupFiles,
+          hosting: hostingRepository,
         ),
       ),
     ),

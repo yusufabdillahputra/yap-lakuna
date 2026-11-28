@@ -16,6 +16,8 @@ import 'package:lakuna_client/src/protocol/organization/device_platform.dart'
     as _ii07z3jj;
 import 'package:lakuna_client/src/protocol/sync/activation_result.dart'
     as _imjtgolx;
+import 'package:lakuna_client/src/protocol/sync/pairing_outlet.dart'
+    as _i5ptjowb;
 import 'package:lakuna_client/src/protocol/sync/sync_pull_page.dart'
     as _izun0ovl;
 import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
@@ -397,6 +399,16 @@ class EndpointActivation extends _isc.EndpointRef {
         'createPairingCode',
         {'deviceToken': deviceToken},
       );
+
+  /// Cabang aktif tenant kode pasang, urut kode, untuk dipilih perangkat
+  /// baru sebelum [joinWithPairingCode]. Kode tidak dipakai di sini.
+  _ida.Future<List<_i5ptjowb.PairingOutlet>> pairingOutlets(
+    String pairingCode,
+  ) => caller.callServerEndpoint<List<_i5ptjowb.PairingOutlet>>(
+    'activation',
+    'pairingOutlets',
+    {'pairingCode': pairingCode},
+  );
 
   /// Perangkat baru bergabung ke tenant kode pasang. Server membuat ID
   /// perangkat baru (perangkat hasil salinan backup tidak pernah memakai ID

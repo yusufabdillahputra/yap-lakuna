@@ -14,8 +14,10 @@ enum SyncStateKey {
   /// Alamat server versi hosting (F2-01).
   serverUrl('server_url'),
 
-  /// Token perangkat dari aktivasi atau pasang (F2-01 aturan 11).
-  deviceToken('device_token'),
+  /// *Jeda sync* (`1`): siklus tidak memanggil server sampai dilanjutkan
+  /// (aturan 16). Token perangkat tidak disimpan di database, lihat
+  /// `HostingVault`.
+  syncPaused('sync_paused'),
 
   /// Unggah data awal: `pending`/`restamp` (sedang dipadatkan) atau `done`
   /// (aturan 13, 15).
@@ -24,6 +26,10 @@ enum SyncStateKey {
   /// Jam stempel ulang pemadatan (aturan 13), terpisah dari `last_hlc` yang
   /// tetap dimajukan tulisan kasir selama pemadatan.
   restampHlc('restamp_hlc'),
+
+  /// Unggah data awal sudah terkirim semua (`1`): progres per kelompok
+  /// tidak ditampilkan lagi untuk perubahan sesudahnya (aturan 16).
+  initialUploadAcked('initial_upload_acked'),
 
   /// Posisi pemadatan: `<indeks tabel syncTables>:<ID terakhir>`.
   initialUploadCursor('initial_upload_cursor'),
