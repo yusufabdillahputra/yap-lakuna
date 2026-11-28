@@ -143,6 +143,9 @@ void main() {
     await settle(tester);
     expect(find.text('aplikasi'), findsOneWidget);
     expect(root?.webSessions, same(sessions));
+    // Dua panggilan bersamaan (mis. layar Sesi berakhir + menu Keluar)
+    // menutup dan menghapus database sekali saja (review I2).
+    unawaited(root!.signOut!());
     unawaited(root!.signOut!());
     await settle(tester);
     expect(closed, ['lakuna-abc.sqlite dihapus=0']);

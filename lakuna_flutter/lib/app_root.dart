@@ -180,9 +180,16 @@ class _LakunaRootState extends State<LakunaRoot> {
     }
   }
 
+  /// [_signOut] yang sedang berjalan; panggilan kedua menunggu yang sama
+  /// agar database tidak dihapus selagi masih ditutup (review I2).
+  Future<void>? _signingOut;
+
   /// Keluar dari sesi web: database sesi menjadi *lama* (dihapus
   /// [_startWeb] setelah database ditutup), lalu mulai ulang.
-  Future<void> _signOut() async {
+  Future<void> _signOut() =>
+      _signingOut ??= _signOutOnce().whenComplete(() => _signingOut = null);
+
+  Future<void> _signOutOnce() async {
     _webSessions.setUnsentGuard(false);
     await _webSessions.setPendingDatabase(null);
     await _webSessions.setActiveDatabase(null);

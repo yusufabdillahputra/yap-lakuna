@@ -205,7 +205,19 @@ class _WebSessionEndedViewState extends State<WebSessionEndedView> {
 Future<void> signOutWeb(
   BuildContext context, {
   required HostingRepository hosting,
-}) async {
+}) => _signingOutWeb[hosting] ??= _signOutWeb(
+  context,
+  hosting,
+).whenComplete(() => _signingOutWeb[hosting] = null);
+
+/// *Keluar* yang sedang berjalan per repositori: tombol yang ditekan dua
+/// kali tidak keluar dua kali (review I2).
+final _signingOutWeb = Expando<Future<void>>();
+
+Future<void> _signOutWeb(
+  BuildContext context,
+  HostingRepository hosting,
+) async {
   final signOut = AppRestart.maybeOf(context)?.signOut;
   if (signOut == null) return;
   final unsent = switch (await hosting.unsentChanges(syncFirst: true)) {
@@ -218,6 +230,8 @@ Future<void> signOutWeb(
     if (!confirmed) return;
   }
   await hosting.logoutWeb();
+  // Layar sudah diganti (mis. sesi lain dimulai): jangan akhiri sesi itu.
+  if (!context.mounted) return;
   await signOut();
 }
 

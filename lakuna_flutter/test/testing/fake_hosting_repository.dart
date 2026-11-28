@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart' show UuidValue;
 import 'package:lakuna_flutter/data/repositories/hosting_repository.dart';
 import 'package:lakuna_flutter/utils/result.dart';
@@ -170,9 +172,13 @@ class FakeHostingRepository extends HostingRepository {
     return Result.ok(syncFirst ? (unsentAfterSync ?? unsent) : unsent);
   }
 
+  /// Bila diisi, [logoutWeb] menunggu sampai selesai (server lambat).
+  Completer<void>? logoutGate;
+
   @override
   Future<Result<void>> logoutWeb() async {
     logoutWebCalls++;
+    await logoutGate?.future;
     return const Result.ok(null);
   }
 

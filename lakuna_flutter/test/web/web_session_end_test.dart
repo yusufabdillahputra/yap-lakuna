@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lakuna_flutter/config/app_platform.dart';
@@ -152,6 +154,28 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('web-logout')));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('web-logout-confirm')), findsNothing);
+      expect(hosting.logoutWebCalls, 1);
+      expect(signedOut, 1);
+    });
+
+    testWidgets('Keluar ditekan dua kali saat server lambat: keluar sekali '
+        '(review I2)', (tester) async {
+      final hosting = FakeHostingRepository(
+        state: hostingState(active: true, serverUrl: 'https://toko.contoh.id'),
+      )..logoutGate = Completer<void>();
+      var signedOut = 0;
+      await pumpLakuna(
+        tester,
+        platform: web,
+        hosting: hosting,
+        signOut: () async => signedOut++,
+      );
+      await tester.tap(find.byKey(const ValueKey('web-logout')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('web-logout')));
+      await tester.pump();
+      hosting.logoutGate!.complete();
+      await tester.pumpAndSettle();
       expect(hosting.logoutWebCalls, 1);
       expect(signedOut, 1);
     });
