@@ -219,11 +219,21 @@ class ActivationEndpoint extends Endpoint {
       if (pairing == null) _fail(ActivationFailure.codeInvalid);
       if (pairing.usedAt != null) _fail(ActivationFailure.codeUsed);
       if (!pairing.expiresAt.isAfter(now)) _fail(ActivationFailure.codeExpired);
-      final outlet = await Outlet.db.findById(
-        session,
-        outletId,
-        transaction: tx,
-      );
+      // Perangkat web berasal dari cabang tertua tenant (F2-02 aturan 2);
+      // cabang lain dipilih di bilah atas web.
+      final outlet = platform == DevicePlatform.web
+          ? await Outlet.db.findFirstRow(
+              session,
+              where: (o) =>
+                  o.tenantId.equals(pairing.tenantId) &
+                  o.deletedAt.equals(null),
+              orderByList: (o) => [
+                o.createdAt.asc(),
+                o.id.asc(),
+              ],
+              transaction: tx,
+            )
+          : await Outlet.db.findById(session, outletId, transaction: tx);
       if (outlet == null || outlet.tenantId != pairing.tenantId) {
         _fail(ActivationFailure.outletUnknown);
       }
@@ -240,7 +250,7 @@ class ActivationEndpoint extends Endpoint {
       }
       final taken = await Device.db.count(
         session,
-        where: (d) => d.outletId.equals(outletId) & d.code.equals(code),
+        where: (d) => d.outletId.equals(outlet.id) & d.code.equals(code),
         transaction: tx,
       );
       if (taken > 0) _fail(ActivationFailure.deviceCodeTaken);
@@ -250,7 +260,7 @@ class ActivationEndpoint extends Endpoint {
         Device(
           id: const Uuid().v7obj(),
           tenantId: pairing.tenantId,
-          outletId: outletId,
+          outletId: outlet.id,
           code: code,
           name: deviceName.trim(),
           platform: platform,
@@ -264,7 +274,7 @@ class ActivationEndpoint extends Endpoint {
         session,
         SyncChange(
           tenantId: device.tenantId,
-          outletId: outletId,
+          outletId: outlet.id,
           entity: 'devices',
           rowId: device.id,
           hlc: hlc,

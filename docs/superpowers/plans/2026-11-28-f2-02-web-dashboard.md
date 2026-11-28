@@ -212,14 +212,14 @@ Tugas 3 dan 6.
 - Di web, setelah store terbuka, `SessionRepository.startOwnerSession`
   dijalankan otomatis (aturan 4); `Routes.login` (PIN) dialihkan ke Beranda.
 
-- [ ] Tes gagal: router dengan `AppPlatform(isWeb: true)` dan staf pemilik
+- [x] Tes gagal: router dengan `AppPlatform(isWeb: true)` dan staf pemilik
   → menu tanpa Kasir/Meja/Kas laci; `go('/kasir')` dan `go('/meja/denah')`
   berakhir di `/`; Pengaturan tanpa bagian *Data & backup* dan printer
   Bluetooth; dengan `isWeb: false` perilaku lama tetap (tes yang ada).
-- [ ] Tes gagal: `LakunaRoot` web tanpa sesi aktif menampilkan
+- [x] Tes gagal: `LakunaRoot` web tanpa sesi aktif menampilkan
   `ValueKey('web-join')`; dengan sesi aktif memanggil `boot` dengan nama
   database dari `WebSessionStore`.
-- [ ] Implementasi; `flutter test` seluruhnya lulus;
+- [x] Implementasi; `flutter test` seluruhnya lulus;
   `flutter build web --debug --no-web-resources-cdn` berhasil. Commit.
 
 ### Tugas 5: Pemilih cabang di web
@@ -244,14 +244,14 @@ Tugas 3 dan 6.
   `platform.isWeb` dan outlet > 1; pindah cabang menanyakan form yang belum
   disimpan lewat `canSwitch` yang sudah ada.
 
-- [ ] Tes gagal data: tenant 2 outlet (PST, KMG), perangkat web outlet PST;
+- [x] Tes gagal data: tenant 2 outlet (PST, KMG), perangkat web outlet PST;
   `loadStoreContext(outletId: KMG)` → outlet KMG, device web sama;
   outlet tenant lain → `null`.
-- [ ] Tes gagal (Fokus review 5): setelah `switchOutlet(KMG)`, penyesuaian
+- [x] Tes gagal (Fokus review 5): setelah `switchOutlet(KMG)`, penyesuaian
   stok dari web bernomor `SA-KMG-W01-…` dan stoknya di lokasi KMG.
-- [ ] Tes gagal widget: pemilih tampil hanya di web dengan 2 outlet; pilihan
+- [x] Tes gagal widget: pemilih tampil hanya di web dengan 2 outlet; pilihan
   bertahan setelah `load()` ulang.
-- [ ] Implementasi, tes lulus. Commit.
+- [x] Implementasi, tes lulus. Commit.
 
 ### Tugas 6: Gabung web, build CI, rilis 0.169.0
 
@@ -278,15 +278,15 @@ Tugas 3 dan 6.
   `navigator.locks` di versi web `WebSessionStore.acquireTabLock()`; versi
   io selalu berhasil).
 
-- [ ] Tes gagal server: dua perangkat web di tenant 2 outlet → `W01`, `W02`;
+- [x] Tes gagal server: dua perangkat web di tenant 2 outlet → `W01`, `W02`;
   kode kasir `W01` dari aplikasi lama tidak membuat bentrok (unik per
   outlet tetap berlaku untuk perangkat biasa).
-- [ ] Tes gagal VM: kode pasang sah → status `preparing` dengan progres,
+- [x] Tes gagal VM: kode pasang sah → status `preparing` dengan progres,
   lalu `done` dan `setActiveDatabase(lakuna-<id>.sqlite)`; offline →
   pesan galat dan bisa ulang; *Batal* → `deleteWebDatabase` dan
   `setActiveDatabase(null)`.
-- [ ] Implementasi, `flutter test` lulus, build web release lulus.
-- [ ] Uji manual: server lokal (Postgres 5433 + `lakuna_server`), perangkat
+- [x] Implementasi, `flutter test` lulus, build web release lulus.
+- [x] Uji manual: server lokal (Postgres 5433 + `lakuna_server`), perangkat
   Linux Xvfb membuat kode pasang, Chromium Playwright membuka build web,
   gabung, Beranda + Produk + pemilih cabang; ubah harga produk di web →
   tampil di perangkat Linux setelah sync. Tangkapan layar terang dan gelap

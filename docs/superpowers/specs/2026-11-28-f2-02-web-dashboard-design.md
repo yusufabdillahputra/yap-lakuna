@@ -1,7 +1,7 @@
 # F2-02 · Versi web: login & dashboard semua cabang
 
 - **Fase:** 2 (modul 2)
-- **Status:** Spec + rencana (4 tahap, v0.169.0–v0.172.0). Belum ada kode.
+- **Status:** Tahap 1 dirilis v0.169.0; tahap 2–4 (v0.170.0–v0.172.0) berjalan.
 - **Layar desain:** 2.2 *Login web* (`F2-Login-Web`), 2.3 *Dashboard semua
   cabang · web* (`F2-Dashboard-Web`, juga versi gelap) di kanvas
   [Desain UI Lakuna](https://claude.ai/artifact/SEm5SPjepvhVKviYxdz525).
@@ -330,7 +330,10 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 
 | Topik | Desain | Status | Catatan |
 | --- | --- | --- | --- |
-| Aplikasi jalan di browser | — | Belum | Tahap 1. |
+| Aplikasi jalan di browser | — | Dirilis v0.169.0 | Tahap 1: masuk dengan kode pasang perangkat (login web di tahap 2), pemilih cabang, kode perangkat W01 dari server, tab kedua dan mode privat ditolak dengan pesan. |
+| Ikon web Lakuna | — | Belum | `favicon.png` dan ikon manifest masih bawaan Flutter. |
+| Batal saat pull berjalan | — | Sebagian | Halaman dimuat ulang dan database dihapus; perangkat web di server tetap ada sampai F2-04 (cabut perangkat). |
+| Menambah cabang dari aplikasi | — | Belum | Pemilih cabang hanya menampilkan cabang yang sudah ada di data toko. |
 | Login web + TOTP | 2.2 | Belum | Tahap 2. |
 | Dashboard semua cabang | 2.3 | Belum | Tahap 3. |
 | Web di paket VPS | — | Belum | Tahap 4. |

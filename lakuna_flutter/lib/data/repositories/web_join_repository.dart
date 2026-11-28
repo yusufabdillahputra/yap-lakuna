@@ -34,10 +34,9 @@ abstract interface class WebJoinRepository {
 /// [WebJoinRepository] lewat klien Serverpod.
 class RemoteWebJoinRepository implements WebJoinRepository {
   RemoteWebJoinRepository({
-    required String appVersion,
+    required this._appVersion,
     HostingConnection Function(Uri server)? connect,
-  }) : _appVersion = appVersion,
-       _connect = connect ?? ServerpodHosting.new;
+  }) : _connect = connect ?? ServerpodHosting.new;
 
   final String _appVersion;
   final HostingConnection Function(Uri server) _connect;

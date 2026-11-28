@@ -25,6 +25,13 @@ void main() {
     }
   });
 
+  testWidgets('web: modul Beranda tanpa Kasir dan Meja', (tester) async {
+    await pumpLakuna(tester, platform: web);
+    expect(find.byKey(const ValueKey('home-module-products')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-module-cashier')), findsNothing);
+    expect(find.byKey(const ValueKey('home-module-tables')), findsNothing);
+  });
+
   testWidgets('web mobile: navigasi bawah tanpa Kasir', (tester) async {
     await pumpLakuna(tester, platform: web, size: const Size(390, 844));
     expect(find.byKey(const ValueKey('nav-cashier')), findsNothing);

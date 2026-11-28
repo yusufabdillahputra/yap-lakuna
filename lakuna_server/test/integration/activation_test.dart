@@ -289,6 +289,37 @@ void main() {
         expect(device.platform, DevicePlatform.web);
       });
 
+      test(
+        'perangkat web berasal dari cabang tertua tenant (aturan 2)',
+        () async {
+          final session = sessionBuilder.build();
+          final newer = UuidValue.fromString(
+            '01900000-0000-7000-8000-000000000013',
+          );
+          await Outlet.db.insertRow(
+            session,
+            Outlet(
+              id: newer,
+              tenantId: tenantId,
+              code: 'AAA',
+              name: 'Cabang Baru',
+              hlc: '0000000000000-0000-seed',
+              createdAt: DateTime.now().toUtc().add(const Duration(days: 1)),
+            ),
+          );
+          final r = await endpoints.activation.joinWithPairingCode(
+            sessionBuilder,
+            await pairingCode(),
+            newer,
+            'K09',
+            'Browser',
+            DevicePlatform.web,
+          );
+          final device = (await Device.db.findById(session, r.deviceId))!;
+          expect(device.outletId, outletId);
+        },
+      );
+
       test('kode kasir lama W01 dilewati perangkat web', () async {
         final session = sessionBuilder.build();
         await Device.db.insertRow(

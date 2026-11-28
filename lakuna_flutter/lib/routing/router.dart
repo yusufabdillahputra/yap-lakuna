@@ -201,6 +201,7 @@ GoRouter createRouter({
               stock: stock,
               dining: dining,
               backup: localBackup,
+              platform: platform,
             ),
           ),
           GoRoute(

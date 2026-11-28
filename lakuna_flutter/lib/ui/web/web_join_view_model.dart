@@ -17,13 +17,12 @@ class WebJoinNoOutlet implements Exception {
 /// dilanjutkan dari kursor tanpa kode pasang baru.
 class WebJoinViewModel extends ChangeNotifier {
   WebJoinViewModel({
-    required WebJoinRepository repository,
+    required this._repository,
     required WebSessionStore sessions,
-    required Future<void> Function() onJoined,
+    required this._onJoined,
     String initialServer = '',
-  }) : _repository = repository,
-       _sessions = sessions,
-       _onJoined = onJoined,
+    this._reload,
+  }) : _sessions = sessions,
        _server = initialServer {
     start = Command0(_start)..addListener(notifyListeners);
     cancel = Command0(_cancel)..addListener(notifyListeners);
@@ -34,6 +33,10 @@ class WebJoinViewModel extends ChangeNotifier {
   final WebJoinRepository _repository;
   final WebSessionStore _sessions;
   final Future<void> Function() _onJoined;
+  final Future<void> Function()? _reload;
+
+  /// Batal ditekan saat pull berjalan: hasil pull diabaikan.
+  var _cancelled = false;
 
   /// Masuk: daftarkan perangkat (bila belum) lalu tarik data.
   late final Command0<void> start;
@@ -145,6 +148,7 @@ class WebJoinViewModel extends ChangeNotifier {
         notifyListeners();
       },
     );
+    if (_cancelled) return const Result.ok(null);
     if (pulled is Error<void>) return pulled;
     await _sessions.setActiveDatabase(database);
     await _onJoined();
@@ -154,6 +158,15 @@ class WebJoinViewModel extends ChangeNotifier {
   Future<Result<void>> _cancel() async {
     final database = _database;
     if (database == null) return const Result.ok(null);
+    final reload = _reload;
+    if (start.running && reload != null) {
+      // Database masih terbuka oleh pull: tandai untuk dihapus saat
+      // halaman dimuat ulang (purgeStale), lalu muat ulang.
+      _cancelled = true;
+      await _sessions.setPendingDatabase(null);
+      await reload();
+      return const Result.ok(null);
+    }
     final result = await _repository.discard(database);
     await _sessions.setPendingDatabase(null);
     _database = null;

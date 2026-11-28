@@ -1,3 +1,5 @@
+import '../../config/app_platform.dart';
+
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +34,7 @@ class HomeView extends StatefulWidget {
     this.dining,
     this.backup,
     this.clock,
+    this.platform = AppPlatform.native,
   });
 
   final StoreRepository store;
@@ -41,6 +44,7 @@ class HomeView extends StatefulWidget {
   final DiningRepository? dining;
   final BackupRepository? backup;
   final DateTime Function()? clock;
+  final AppPlatform platform;
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -54,6 +58,7 @@ class _HomeViewState extends State<HomeView> {
     stock: widget.stock,
     dining: widget.dining,
     backup: widget.backup,
+    platform: widget.platform,
     clock: widget.clock,
   )..load.execute();
 

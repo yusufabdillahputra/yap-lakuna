@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lakuna_data/lakuna_data.dart' show SyncOfflineException;
+import 'package:lakuna_data/lakuna_data.dart'
+    show PullProgress, SyncOfflineException;
 import 'package:lakuna_flutter/data/services/web_session_store.dart';
 import 'package:lakuna_flutter/ui/web/web_join_view_model.dart';
 import 'package:lakuna_flutter/utils/result.dart';
@@ -108,4 +111,41 @@ void main() {
     expect(repo.registerCalls, isEmpty);
     expect(vm.preparing, isFalse);
   });
+
+  test('Batal saat pull berjalan: sesi masuk antrean hapus, halaman '
+      'dimuat ulang', () async {
+    final release = Completer<void>();
+    final slow = _BlockingRepository(release);
+    var reloads = 0;
+    final vm = WebJoinViewModel(
+      repository: slow,
+      sessions: sessions,
+      onJoined: () async => joined++,
+      initialServer: 'https://toko.contoh.id',
+      reload: () async => reloads++,
+    );
+    vm.setCode('ABCD2345');
+    final running = vm.start.execute();
+    await Future<void>.delayed(Duration.zero);
+    expect(vm.start.running, isTrue);
+    await vm.cancel.execute();
+    expect(reloads, 1);
+    expect(sessions.pendingDatabase, isNull);
+    expect(sessions.staleDatabases, ['lakuna-web.sqlite']);
+    release.complete();
+    await running;
+    expect(sessions.activeDatabase, isNull);
+    expect(joined, 0);
+  });
+}
+
+class _BlockingRepository extends FakeWebJoinRepository {
+  _BlockingRepository(this.release);
+  final Completer<void> release;
+
+  @override
+  Future<Result<void>> pull(String database, {PullProgress? onPull}) async {
+    await release.future;
+    return const Result.ok(null);
+  }
 }
