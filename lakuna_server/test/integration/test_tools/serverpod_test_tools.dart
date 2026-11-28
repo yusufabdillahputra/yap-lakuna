@@ -27,6 +27,12 @@ import 'package:lakuna_server/src/generated/sync/sync_push_reply.dart'
     as _itxzb9nu;
 import 'package:lakuna_server/src/generated/sync/sync_server_status.dart'
     as _iyejqyi8;
+import 'package:lakuna_server/src/generated/web_access/totp_enrollment.dart'
+    as _i5iwcqb0;
+import 'package:lakuna_server/src/generated/web_access/web_access_result.dart'
+    as _iq91vp7j;
+import 'package:lakuna_server/src/generated/web_access/web_tenant.dart'
+    as _iw5pnrx0;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -175,6 +181,10 @@ class TestEndpoints {
   late final _ActivationEndpoint activation;
 
   late final _SyncEndpoint sync;
+
+  late final _TotpEndpoint totp;
+
+  late final _WebAccessEndpoint webAccess;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -201,6 +211,14 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     sync = _SyncEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    totp = _TotpEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    webAccess = _WebAccessEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1032,6 +1050,246 @@ class _SyncEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iyejqyi8.SyncServerStatus>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _TotpEndpoint {
+  _TotpEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<bool> status(_ist.TestSessionBuilder sessionBuilder) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'totp',
+            method: 'status',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'totp',
+          methodName: 'status',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<bool>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i5iwcqb0.TotpEnrollment> begin(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'totp',
+            method: 'begin',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'totp',
+          methodName: 'begin',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5iwcqb0.TotpEnrollment>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<String>> confirm(
+    _ist.TestSessionBuilder sessionBuilder,
+    String code,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'totp',
+            method: 'confirm',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'totp',
+          methodName: 'confirm',
+          parameters: _ist.testObjectToJson({'code': code}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<String>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> disable(
+    _ist.TestSessionBuilder sessionBuilder,
+    String code,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'totp',
+            method: 'disable',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'totp',
+          methodName: 'disable',
+          parameters: _ist.testObjectToJson({'code': code}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _WebAccessEndpoint {
+  _WebAccessEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<List<_iw5pnrx0.WebTenant>> tenants(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webAccess',
+            method: 'tenants',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'webAccess',
+          methodName: 'tenants',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iw5pnrx0.WebTenant>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iq91vp7j.WebAccessResult> open(
+    _ist.TestSessionBuilder sessionBuilder,
+    String code,
+    _is.UuidValue tenantId,
+    bool remember,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webAccess',
+            method: 'open',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'webAccess',
+          methodName: 'open',
+          parameters: _ist.testObjectToJson({
+            'code': code,
+            'tenantId': tenantId,
+            'remember': remember,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iq91vp7j.WebAccessResult>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> logout(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webAccess',
+            method: 'logout',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'webAccess',
+          methodName: 'logout',
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

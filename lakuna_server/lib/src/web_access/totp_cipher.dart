@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cipherlib/cipherlib.dart' show AES;
 import 'package:cipherlib/random.dart' show randomBytes;
-import 'package:cipherlib/hashlib.dart' show sha256;
+import 'package:cipherlib/hashlib.dart' show HMAConBlockHashBase, sha256;
 import 'package:serverpod/serverpod.dart';
 
 /// Kunci kata sandi server untuk mengenkripsi rahasia TOTP pemilik
@@ -34,6 +34,11 @@ class TotpCipher {
     final sealed = AES(_key).gcm(nonce).encrypt(secret);
     return base64.encode([...nonce, ...sealed]);
   }
+
+  /// Hash kode cadangan (HMAC-SHA256 berkunci kata sandi server), agar
+  /// kode 40 bit tidak bisa ditebak dari salinan database saja.
+  String backupCodeHash(String normalizedCode) =>
+      sha256.hmac.by(_key).convert(utf8.encode(normalizedCode)).hex();
 
   /// Melempar bila teks diubah atau kunci berbeda.
   List<int> decrypt(String sealed) {

@@ -15,6 +15,8 @@ import 'package:lakuna_server/src/generated/sync/pairing_outlet.dart'
     as _i0r4fwb4;
 import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
     as _iybq0mvn;
+import 'package:lakuna_server/src/generated/web_access/web_tenant.dart'
+    as _iw5pnrx0;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -451,6 +453,8 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<List<_i4jawf6o.SyncPushResult>>,
           _is.getType<List<_i0r4fwb4.PairingOutlet>>,
           _is.getType<List<_iybq0mvn.SyncPushEntry>>,
+          _is.getType<List<String>>,
+          _is.getType<List<_iw5pnrx0.WebTenant>>,
         ],
         modules: const [
           _iais.Protocol.new,
@@ -10370,6 +10374,15 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == List<_iybq0mvn.SyncPushEntry>) {
       return (data as List)
               .map((e) => deserialize<_iybq0mvn.SyncPushEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_iw5pnrx0.WebTenant>) {
+      return (data as List)
+              .map((e) => deserialize<_iw5pnrx0.WebTenant>(e))
               .toList()
           as T;
     }

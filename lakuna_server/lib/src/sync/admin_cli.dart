@@ -38,19 +38,38 @@ class ActivationCodeCommand extends AdminCommand {
   final int days;
 }
 
+/// Menghapus verifikasi 2 langkah akun [email] (F2-02 aturan 14a).
+class TotpResetCommand extends AdminCommand {
+  const TotpResetCommand({required this.email, required String mode})
+    : super(mode);
+
+  final String email;
+}
+
 const adminUsage = '''
 Pemakaian:
   lakuna-admin activation-code --note "<nama toko>" [--days 30] [--mode production]
+  lakuna-admin totp-reset --email <email pemilik> [--mode production]
 
-Membuat kode aktivasi sekali pakai untuk versi hosting. Kode hanya tampil
-sekali; berikan ke pemilik toko untuk langkah 1 Aktivasi versi hosting.''';
+activation-code membuat kode aktivasi sekali pakai untuk versi hosting.
+Kode hanya tampil sekali; berikan ke pemilik toko untuk langkah 1 Aktivasi
+versi hosting.
+
+totp-reset menghapus verifikasi 2 langkah (authenticator dan kode
+cadangan) akun pemilik yang kehilangan keduanya. Pemilik lalu
+mengaktifkannya ulang dari kartu Versi hosting di aplikasi.''';
 
 AdminCommand parseAdminCommand(List<String> args) {
   final activation = ArgParser()
     ..addOption('note', help: 'Catatan, mis. nama toko pemesan.')
     ..addOption('days', defaultsTo: '30')
     ..addOption('mode', defaultsTo: 'production');
-  final parser = ArgParser()..addCommand('activation-code', activation);
+  final totpReset = ArgParser()
+    ..addOption('email', help: 'Email akun pemilik.')
+    ..addOption('mode', defaultsTo: 'production');
+  final parser = ArgParser()
+    ..addCommand('activation-code', activation)
+    ..addCommand('totp-reset', totpReset);
   final ArgResults parsed;
   try {
     parsed = parser.parse(args);
@@ -59,6 +78,13 @@ AdminCommand parseAdminCommand(List<String> args) {
   }
   final command = parsed.command;
   if (command == null) throw AdminUsageException(adminUsage);
+  if (command.name == 'totp-reset') {
+    final email = (command.option('email') ?? '').trim().toLowerCase();
+    if (!RegExp(r'^[^@\s]+@[^@\s]+$').hasMatch(email)) {
+      throw AdminUsageException('--email wajib diisi.\n\n$adminUsage');
+    }
+    return TotpResetCommand(email: email, mode: command.option('mode')!);
+  }
   final note = (command.option('note') ?? '').trim();
   final days = int.tryParse(command.option('days')!) ?? 0;
   if (note.isEmpty) {
@@ -127,6 +153,28 @@ Future<String> runAdminCommand(
         return 'Kode aktivasi untuk "$note" (berlaku $days hari):\n\n'
             '    $shown\n\n'
             'Kode hanya tampil sekali.';
+      case TotpResetCommand(:final email):
+        return await connection.runTx((tx) async {
+          final users = await tx.execute(
+            pg.Sql.named(
+              'SELECT "authUserId" FROM serverpod_auth_idp_email_account '
+              'WHERE lower(email) = @email',
+            ),
+            parameters: {'email': email},
+          );
+          if (users.isEmpty) {
+            throw AdminUsageException('Akun dengan email $email tidak ada.');
+          }
+          final userId = users.first.first;
+          for (final table in ['owner_backup_codes', 'owner_totp']) {
+            await tx.execute(
+              pg.Sql.named('DELETE FROM $table WHERE auth_user_id = @user'),
+              parameters: {'user': userId},
+            );
+          }
+          return 'Verifikasi 2 langkah $email dihapus. Pemilik bisa '
+              'mengaktifkannya ulang dari kartu Versi hosting di aplikasi.';
+        });
     }
   } finally {
     await connection.close();

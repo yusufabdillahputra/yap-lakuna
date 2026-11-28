@@ -15,6 +15,8 @@ import 'package:lakuna_client/src/protocol/sync/pairing_outlet.dart'
     as _i5ptjowb;
 import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
     as _ipv8demw;
+import 'package:lakuna_client/src/protocol/web_access/web_tenant.dart'
+    as _ib69tvb5;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -420,6 +422,8 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<List<_i4jawf6o.SyncPushResult>>,
           _isc.getType<List<_i5ptjowb.PairingOutlet>>,
           _isc.getType<List<_ipv8demw.SyncPushEntry>>,
+          _isc.getType<List<String>>,
+          _isc.getType<List<_ib69tvb5.WebTenant>>,
         ],
         modules: const [
           _iaic.Protocol.new,
@@ -9853,6 +9857,15 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == List<_ipv8demw.SyncPushEntry>) {
       return (data as List)
               .map((e) => deserialize<_ipv8demw.SyncPushEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_ib69tvb5.WebTenant>) {
+      return (data as List)
+              .map((e) => deserialize<_ib69tvb5.WebTenant>(e))
               .toList()
           as T;
     }
