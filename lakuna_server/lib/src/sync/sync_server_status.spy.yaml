@@ -1,0 +1,9 @@
+### Balasan `sync.status`: versi server, versi protokol sync, dan apakah
+### tenant token sudah dikenal.
+class: SyncServerStatus
+fields:
+  serverVersion: String
+  protocolVersion: int
+  minAppVersion: String?
+  serverTime: DateTime
+  tenantKnown: bool

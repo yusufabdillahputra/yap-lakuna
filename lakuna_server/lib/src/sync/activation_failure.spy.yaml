@@ -1,0 +1,12 @@
+### Alasan aktivasi atau pasang perangkat gagal (F2-01 aturan 9–11).
+enum: ActivationFailure
+serialized: byName
+values:
+  - codeInvalid
+  - codeUsed
+  - codeExpired
+  - tenantActive
+  - copiedDevice
+  - notOwner
+  - outletUnknown
+  - deviceCodeTaken

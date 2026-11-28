@@ -23,6 +23,7 @@ paket masing-masing.
 | `zxing2` (membaca QR stiker QRIS, offline) | BSD-3-Clause |
 | Paket klien Serverpod yang ikut di aplikasi (`serverpod_client`, `serverpod_database`, dll.) | BSD-3-Clause |
 | Paket server `serverpod` (hanya di `lakuna_server`, tidak ikut di aplikasi) | Server Side Public License v1 |
+| `mailer` (email SMTP server), `postgres` (perintah admin server); hanya di `lakuna_server` | MIT, BSD-3-Clause |
 | Flutter dan Dart SDK | BSD-3-Clause |
 
 Catatan SSPL: menurut README Serverpod, server boleh di-host tanpa batasan

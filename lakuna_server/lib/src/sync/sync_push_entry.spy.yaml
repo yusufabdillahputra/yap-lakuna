@@ -1,0 +1,9 @@
+### Satu entri outbox yang didorong perangkat ke `sync.push`.
+class: SyncPushEntry
+fields:
+  tableName: String
+  rowId: UuidValue
+  op: SyncOp
+  ### Baris utuh, kunci nama field Dart (`toJson` model).
+  payloadJson: String
+  hlc: String

@@ -1,0 +1,19 @@
+### Kode aktivasi sekali pakai yang dibuat admin server lewat CLI
+### (`lakuna-admin activation-code`). Hanya ada di server; yang disimpan
+### hash-nya.
+class: ActivationCode
+table: activation_codes
+database: server
+serverOnly: true
+fields:
+  codeHash: String, column=code_hash
+  ### Catatan admin, mis. nama toko pemesan.
+  note: String
+  createdAt: DateTime, default=now, column=created_at
+  expiresAt: DateTime, column=expires_at
+  usedAt: DateTime?, column=used_at
+  tenantId: UuidValue?, column=tenant_id
+indexes:
+  activation_codes_code_idx:
+    fields: codeHash
+    unique: true

@@ -1,0 +1,8 @@
+### Hasil satu entri push (F2-01 aturan 1).
+enum: SyncResultKind
+serialized: byName
+values:
+  - applied
+  - stale
+  - merged
+  - rejected

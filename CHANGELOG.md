@@ -7,6 +7,90 @@ mengikuti [Semantic Versioning](https://semver.org/lang/id/). Selama versi
 
 ## [Unreleased]
 
+## [0.164.0] - 2026-11-28
+
+Tahap 1 Fase 2 (F2-01): server Lakuna sekarang bisa menerima dan membagikan
+data perangkat. Aplikasi kasir belum memakainya; mesin sync di perangkat
+menyusul di 0.165.0 dan layar aktivasi di 0.166.0. Tidak ada perubahan di
+aplikasi untuk pengguna Fase 1.
+
+### Ditambahkan
+
+- **Endpoint `sync.push`.** Perangkat mendorong isi outbox (maks 500 entri
+  per batch, permintaan sampai 4 MB). Setiap entri diterapkan di savepoint
+  sendiri dalam satu transaksi dan dibalas per entri: *applied*, *stale*
+  (baris server lebih baru, balasan memuat baris server), *merged*, atau
+  *rejected* dengan alasan `tenant`, `table`, `device`, `finalDocument`,
+  `unique`, `dependency`, atau `clock`. Kirim ulang entri yang sama aman.
+- **Aturan konflik.** Pemenang per baris = HLC terbesar. Nota, pembelian
+  yang sudah diterima, pembayaran piutang, pengeluaran, dan mutasi kas
+  tidak boleh diubah isinya setelah final (hanya status dan kolom void).
+  Status nota digabung monoton: void menang atas retur, retur atas lunas,
+  ke dua arah urutan tiba; baris hasil gabung mendapat HLC server agar
+  semua perangkat ikut. Pengaturan dengan kunci sama dari dua perangkat
+  digabung ke satu baris. Induk yang ditolak membuat anaknya ditolak
+  `dependency`, entri lain di batch tetap masuk. Baris yang kalah atau
+  ditolak dicatat di `sync_conflicts` untuk ditinjau nanti (F2-03).
+- **Endpoint `sync.pull`.** Perangkat menarik perubahan tenant-nya urut
+  `seq`, 1.000 per halaman, tanpa perubahannya sendiri.
+- **Endpoint `sync.status`.** Versi server, versi protokol sync (1), dan
+  apakah token perangkat dikenal.
+- **Aktivasi versi hosting** (`activation`): perangkat pertama memakai kode
+  aktivasi sekali pakai dan akun pemilik; server membuat tenant dengan ID
+  yang sama dan paket *hosted*, lalu memberi token perangkat. Perangkat yang
+  sudah aktif membuat kode pasang 8 huruf (15 menit, sekali pakai);
+  perangkat baru bergabung dengan kode itu dan selalu mendapat ID perangkat
+  baru dari server.
+- **Perintah admin server** `dart bin/admin.dart activation-code --note
+  "Toko Ani" [--days 30]` mencetak kode aktivasi (`XXXX-XXXX`) sekali.
+- **Email kode verifikasi lewat SMTP** dari `passwords.yaml` (`smtpHost`,
+  `smtpPort`, `smtpUser`, `smtpPassword`, `smtpFrom`). Tanpa SMTP, kode
+  dicatat di log server.
+
+### Diubah
+
+- Email akun pemilik tidak lagi dikirim lewat layanan Serverpod Cloud
+  (server berjalan di VPS sendiri).
+- Batas ukuran permintaan server naik dari 512 KB ke 4 MB.
+
+### Keamanan
+
+- Token perangkat 256 bit acak; server hanya menyimpan hash SHA-256 token,
+  kode aktivasi, dan kode pasang. Token yang dicabut ditolak.
+- Perangkat hasil salinan backup (ID perangkat yang sudah punya token
+  aktif) tidak bisa diaktifkan lagi, juga bila salinan itu membawa tenant
+  yang sama (pesan *salinan*, bukan *tenant sudah aktif*). HLC lebih dari
+  5 menit di depan jam server ditolak.
+- Setiap kolom rujukan (FK) baris yang di-push diperiksa: induk milik
+  tenant lain ditolak `tenant`, jadi perangkat satu tenant tidak bisa
+  menautkan barisnya ke cabang atau nota tenant lain.
+- Item, pembayaran, dan item pembelian **baru** dari perangkat lain untuk
+  nota/pembelian yang sudah final ditolak `final`; baris yang merujuk baris
+  yang ditolak di batch yang sama ditolak `dependency`.
+- Payload rusak (nilai kosong untuk kolom wajib, waktu atau UUID tidak sah)
+  hanya menolak entri itu (`table`), batch lain tetap diterapkan.
+- Pasang perangkat memakai kunci tenant yang sama dengan push, sehingga
+  pull tidak pernah melompati baris perangkat baru.
+
+### Catatan teknis
+
+- `lakuna_domain`: `syncTables` (46 tabel bisnis urut dependensi),
+  `FinalStatusRule`, `mergeSaleStatus`/`mergePurchaseStatus`,
+  `newDeviceToken`, `secretHash`, `newShortCode`. Tes server memastikan
+  daftar sama dengan tabel Postgres dan relasi FK model, serta nama field
+  = camelCase nama kolom.
+- Migrasi server `sync-server`: tabel `sync_changes`, `sync_conflicts`,
+  `device_credentials`, `pairing_codes`, `activation_codes`,
+  `tenant_owners` (`database: server`, `serverOnly`). Tidak ada migrasi di
+  perangkat.
+- Penerap generik `applyPushEntry` menulis lewat `jsonb_populate_record`;
+  kunci payload yang hilang = `null` untuk kolom boleh kosong dan nilai
+  default untuk kolom wajib (aplikasi versi lama). Push memegang kunci
+  advisory per tenant agar urutan commit sama dengan `seq`.
+- `lakuna_server` kini bergantung pada `lakuna_domain`, `mailer`,
+  `postgres`, `args`, dan `serverpod_shared`. CI memeriksa format folder
+  `lakuna_server/lib/src/sync`, `bin`, dan tes server.
+
 ## [0.163.0] - 2026-11-27
 
 Diskon rupiah di bill meja tidak lagi diam-diam membesar persentasenya saat
@@ -9050,7 +9134,8 @@ sinkronisasi, dan kerangka aplikasi dengan tema Forui `conhcc`.
 - Tes integrasi server memakai PostgreSQL tertanam Serverpod dan berjalan di
   CI.
 
-[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...HEAD
+[Unreleased]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.164.0...HEAD
+[0.164.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.163.0...v0.164.0
 [0.163.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.162.0...v0.163.0
 [0.162.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.161.0...v0.162.0
 [0.161.0]: https://github.com/yusufabdillahputra/yap-lakuna/compare/v0.160.0...v0.161.0

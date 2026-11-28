@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_client/src/protocol/sync/sync_push_entry.dart'
+    as _ipv8demw;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -88,10 +90,23 @@ import 'sales/split_mode.dart' as _iesw84sv;
 import 'stock/stock_adjustment.dart' as _i7xu84a6;
 import 'stock/stock_adjustment_item.dart' as _iuqt5pmc;
 import 'stock/stock_adjustment_reason.dart' as _i5me420k;
+import 'sync/activation_exception.dart' as _iy6ejuvq;
+import 'sync/activation_failure.dart' as _i0htl0ka;
+import 'sync/activation_result.dart' as _itml89c3;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
+import 'sync/sync_auth_exception.dart' as _i2s9l4f4;
 import 'sync/sync_op.dart' as _ipjkwoxz;
 import 'sync/sync_outbox_entry.dart' as _ikzi06kl;
+import 'sync/sync_pull_change.dart' as _i4xb7gek;
+import 'sync/sync_pull_page.dart' as _itpgwai8;
+import 'sync/sync_push_entry.dart' as _iw6hqtxz;
+import 'sync/sync_push_reply.dart' as _i5h2p3kl;
+import 'sync/sync_push_result.dart' as _i4jawf6o;
+import 'sync/sync_reject_reason.dart' as _iz3ys7vh;
+import 'sync/sync_request_exception.dart' as _iem4qssj;
+import 'sync/sync_result_kind.dart' as _if9conde;
+import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
 export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
@@ -164,10 +179,23 @@ export 'sales/split_mode.dart';
 export 'stock/stock_adjustment.dart';
 export 'stock/stock_adjustment_item.dart';
 export 'stock/stock_adjustment_reason.dart';
+export 'sync/activation_exception.dart';
+export 'sync/activation_failure.dart';
+export 'sync/activation_result.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
+export 'sync/sync_auth_exception.dart';
 export 'sync/sync_op.dart';
 export 'sync/sync_outbox_entry.dart';
+export 'sync/sync_pull_change.dart';
+export 'sync/sync_pull_page.dart';
+export 'sync/sync_push_entry.dart';
+export 'sync/sync_push_reply.dart';
+export 'sync/sync_push_result.dart';
+export 'sync/sync_reject_reason.dart';
+export 'sync/sync_request_exception.dart';
+export 'sync/sync_result_kind.dart';
+export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
 export 'client.dart';
 
@@ -255,10 +283,23 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i7xu84a6.StockAdjustment>,
           _isc.getType<_iuqt5pmc.StockAdjustmentItem>,
           _isc.getType<_i5me420k.StockAdjustmentReason>,
+          _isc.getType<_iy6ejuvq.ActivationException>,
+          _isc.getType<_i0htl0ka.ActivationFailure>,
+          _isc.getType<_itml89c3.ActivationResult>,
           _isc.getType<_ierz52ew.LocalPreference>,
           _isc.getType<_imib010r.OutboxStatus>,
+          _isc.getType<_i2s9l4f4.SyncAuthException>,
           _isc.getType<_ipjkwoxz.SyncOp>,
           _isc.getType<_ikzi06kl.SyncOutboxEntry>,
+          _isc.getType<_i4xb7gek.SyncPullChange>,
+          _isc.getType<_itpgwai8.SyncPullPage>,
+          _isc.getType<_iw6hqtxz.SyncPushEntry>,
+          _isc.getType<_i5h2p3kl.SyncPushReply>,
+          _isc.getType<_i4jawf6o.SyncPushResult>,
+          _isc.getType<_iz3ys7vh.SyncRejectReason>,
+          _isc.getType<_iem4qssj.SyncRequestException>,
+          _isc.getType<_if9conde.SyncResultKind>,
+          _isc.getType<_iog1z1ed.SyncServerStatus>,
           _isc.getType<_iwwr3hpi.SyncStateEntry>,
           _isc.getType<_i728pu70.CashDirection?>,
           _isc.getType<_iepnwe9z.CashMovement?>,
@@ -331,11 +372,27 @@ class Protocol extends _isd.DatabaseSerializationManager
           _isc.getType<_i7xu84a6.StockAdjustment?>,
           _isc.getType<_iuqt5pmc.StockAdjustmentItem?>,
           _isc.getType<_i5me420k.StockAdjustmentReason?>,
+          _isc.getType<_iy6ejuvq.ActivationException?>,
+          _isc.getType<_i0htl0ka.ActivationFailure?>,
+          _isc.getType<_itml89c3.ActivationResult?>,
           _isc.getType<_ierz52ew.LocalPreference?>,
           _isc.getType<_imib010r.OutboxStatus?>,
+          _isc.getType<_i2s9l4f4.SyncAuthException?>,
           _isc.getType<_ipjkwoxz.SyncOp?>,
           _isc.getType<_ikzi06kl.SyncOutboxEntry?>,
+          _isc.getType<_i4xb7gek.SyncPullChange?>,
+          _isc.getType<_itpgwai8.SyncPullPage?>,
+          _isc.getType<_iw6hqtxz.SyncPushEntry?>,
+          _isc.getType<_i5h2p3kl.SyncPushReply?>,
+          _isc.getType<_i4jawf6o.SyncPushResult?>,
+          _isc.getType<_iz3ys7vh.SyncRejectReason?>,
+          _isc.getType<_iem4qssj.SyncRequestException?>,
+          _isc.getType<_if9conde.SyncResultKind?>,
+          _isc.getType<_iog1z1ed.SyncServerStatus?>,
           _isc.getType<_iwwr3hpi.SyncStateEntry?>,
+          _isc.getType<List<_i4xb7gek.SyncPullChange>>,
+          _isc.getType<List<_i4jawf6o.SyncPushResult>>,
+          _isc.getType<List<_ipv8demw.SyncPushEntry>>,
         ],
         modules: const [
           _iaic.Protocol.new,
@@ -413,10 +470,23 @@ class Protocol extends _isd.DatabaseSerializationManager
           'StockAdjustment',
           'StockAdjustmentItem',
           'StockAdjustmentReason',
+          'ActivationException',
+          'ActivationFailure',
+          'ActivationResult',
           'LocalPreference',
           'OutboxStatus',
+          'SyncAuthException',
           'SyncOp',
           'SyncOutboxEntry',
+          'SyncPullChange',
+          'SyncPullPage',
+          'SyncPushEntry',
+          'SyncPushReply',
+          'SyncPushResult',
+          'SyncRejectReason',
+          'SyncRequestException',
+          'SyncResultKind',
+          'SyncServerStatus',
           'SyncStateEntry',
         ],
       );
@@ -9304,17 +9374,56 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (t == _i5me420k.StockAdjustmentReason) {
       return _i5me420k.StockAdjustmentReason.fromJson(data) as T;
     }
+    if (t == _iy6ejuvq.ActivationException) {
+      return _iy6ejuvq.ActivationException.fromJson(data) as T;
+    }
+    if (t == _i0htl0ka.ActivationFailure) {
+      return _i0htl0ka.ActivationFailure.fromJson(data) as T;
+    }
+    if (t == _itml89c3.ActivationResult) {
+      return _itml89c3.ActivationResult.fromJson(data) as T;
+    }
     if (t == _ierz52ew.LocalPreference) {
       return _ierz52ew.LocalPreference.fromJson(data) as T;
     }
     if (t == _imib010r.OutboxStatus) {
       return _imib010r.OutboxStatus.fromJson(data) as T;
     }
+    if (t == _i2s9l4f4.SyncAuthException) {
+      return _i2s9l4f4.SyncAuthException.fromJson(data) as T;
+    }
     if (t == _ipjkwoxz.SyncOp) {
       return _ipjkwoxz.SyncOp.fromJson(data) as T;
     }
     if (t == _ikzi06kl.SyncOutboxEntry) {
       return _ikzi06kl.SyncOutboxEntry.fromJson(data) as T;
+    }
+    if (t == _i4xb7gek.SyncPullChange) {
+      return _i4xb7gek.SyncPullChange.fromJson(data) as T;
+    }
+    if (t == _itpgwai8.SyncPullPage) {
+      return _itpgwai8.SyncPullPage.fromJson(data) as T;
+    }
+    if (t == _iw6hqtxz.SyncPushEntry) {
+      return _iw6hqtxz.SyncPushEntry.fromJson(data) as T;
+    }
+    if (t == _i5h2p3kl.SyncPushReply) {
+      return _i5h2p3kl.SyncPushReply.fromJson(data) as T;
+    }
+    if (t == _i4jawf6o.SyncPushResult) {
+      return _i4jawf6o.SyncPushResult.fromJson(data) as T;
+    }
+    if (t == _iz3ys7vh.SyncRejectReason) {
+      return _iz3ys7vh.SyncRejectReason.fromJson(data) as T;
+    }
+    if (t == _iem4qssj.SyncRequestException) {
+      return _iem4qssj.SyncRequestException.fromJson(data) as T;
+    }
+    if (t == _if9conde.SyncResultKind) {
+      return _if9conde.SyncResultKind.fromJson(data) as T;
+    }
+    if (t == _iog1z1ed.SyncServerStatus) {
+      return _iog1z1ed.SyncServerStatus.fromJson(data) as T;
     }
     if (t == _iwwr3hpi.SyncStateEntry) {
       return _iwwr3hpi.SyncStateEntry.fromJson(data) as T;
@@ -9576,12 +9685,30 @@ class Protocol extends _isd.DatabaseSerializationManager
               : null)
           as T;
     }
+    if (t == _isc.getType<_iy6ejuvq.ActivationException?>()) {
+      return (data != null
+              ? _iy6ejuvq.ActivationException.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i0htl0ka.ActivationFailure?>()) {
+      return (data != null ? _i0htl0ka.ActivationFailure.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_itml89c3.ActivationResult?>()) {
+      return (data != null ? _itml89c3.ActivationResult.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_ierz52ew.LocalPreference?>()) {
       return (data != null ? _ierz52ew.LocalPreference.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_imib010r.OutboxStatus?>()) {
       return (data != null ? _imib010r.OutboxStatus.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i2s9l4f4.SyncAuthException?>()) {
+      return (data != null ? _i2s9l4f4.SyncAuthException.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_ipjkwoxz.SyncOp?>()) {
       return (data != null ? _ipjkwoxz.SyncOp.fromJson(data) : null) as T;
@@ -9590,8 +9717,63 @@ class Protocol extends _isd.DatabaseSerializationManager
       return (data != null ? _ikzi06kl.SyncOutboxEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_i4xb7gek.SyncPullChange?>()) {
+      return (data != null ? _i4xb7gek.SyncPullChange.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_itpgwai8.SyncPullPage?>()) {
+      return (data != null ? _itpgwai8.SyncPullPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iw6hqtxz.SyncPushEntry?>()) {
+      return (data != null ? _iw6hqtxz.SyncPushEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5h2p3kl.SyncPushReply?>()) {
+      return (data != null ? _i5h2p3kl.SyncPushReply.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i4jawf6o.SyncPushResult?>()) {
+      return (data != null ? _i4jawf6o.SyncPushResult.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iz3ys7vh.SyncRejectReason?>()) {
+      return (data != null ? _iz3ys7vh.SyncRejectReason.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iem4qssj.SyncRequestException?>()) {
+      return (data != null
+              ? _iem4qssj.SyncRequestException.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_if9conde.SyncResultKind?>()) {
+      return (data != null ? _if9conde.SyncResultKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iog1z1ed.SyncServerStatus?>()) {
+      return (data != null ? _iog1z1ed.SyncServerStatus.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iwwr3hpi.SyncStateEntry?>()) {
       return (data != null ? _iwwr3hpi.SyncStateEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == List<_i4xb7gek.SyncPullChange>) {
+      return (data as List)
+              .map((e) => deserialize<_i4xb7gek.SyncPullChange>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i4jawf6o.SyncPushResult>) {
+      return (data as List)
+              .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ipv8demw.SyncPushEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_ipv8demw.SyncPushEntry>(e))
+              .toList()
           as T;
     }
     final modules = deserializationMetadata.modulesForDeserialization(
@@ -9680,10 +9862,23 @@ class Protocol extends _isd.DatabaseSerializationManager
       _i7xu84a6.StockAdjustment => 'StockAdjustment',
       _iuqt5pmc.StockAdjustmentItem => 'StockAdjustmentItem',
       _i5me420k.StockAdjustmentReason => 'StockAdjustmentReason',
+      _iy6ejuvq.ActivationException => 'ActivationException',
+      _i0htl0ka.ActivationFailure => 'ActivationFailure',
+      _itml89c3.ActivationResult => 'ActivationResult',
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
+      _i2s9l4f4.SyncAuthException => 'SyncAuthException',
       _ipjkwoxz.SyncOp => 'SyncOp',
       _ikzi06kl.SyncOutboxEntry => 'SyncOutboxEntry',
+      _i4xb7gek.SyncPullChange => 'SyncPullChange',
+      _itpgwai8.SyncPullPage => 'SyncPullPage',
+      _iw6hqtxz.SyncPushEntry => 'SyncPushEntry',
+      _i5h2p3kl.SyncPushReply => 'SyncPushReply',
+      _i4jawf6o.SyncPushResult => 'SyncPushResult',
+      _iz3ys7vh.SyncRejectReason => 'SyncRejectReason',
+      _iem4qssj.SyncRequestException => 'SyncRequestException',
+      _if9conde.SyncResultKind => 'SyncResultKind',
+      _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
       _ => null,
     };
@@ -9841,14 +10036,40 @@ class Protocol extends _isd.DatabaseSerializationManager
         return 'StockAdjustmentItem';
       case _i5me420k.StockAdjustmentReason():
         return 'StockAdjustmentReason';
+      case _iy6ejuvq.ActivationException():
+        return 'ActivationException';
+      case _i0htl0ka.ActivationFailure():
+        return 'ActivationFailure';
+      case _itml89c3.ActivationResult():
+        return 'ActivationResult';
       case _ierz52ew.LocalPreference():
         return 'LocalPreference';
       case _imib010r.OutboxStatus():
         return 'OutboxStatus';
+      case _i2s9l4f4.SyncAuthException():
+        return 'SyncAuthException';
       case _ipjkwoxz.SyncOp():
         return 'SyncOp';
       case _ikzi06kl.SyncOutboxEntry():
         return 'SyncOutboxEntry';
+      case _i4xb7gek.SyncPullChange():
+        return 'SyncPullChange';
+      case _itpgwai8.SyncPullPage():
+        return 'SyncPullPage';
+      case _iw6hqtxz.SyncPushEntry():
+        return 'SyncPushEntry';
+      case _i5h2p3kl.SyncPushReply():
+        return 'SyncPushReply';
+      case _i4jawf6o.SyncPushResult():
+        return 'SyncPushResult';
+      case _iz3ys7vh.SyncRejectReason():
+        return 'SyncRejectReason';
+      case _iem4qssj.SyncRequestException():
+        return 'SyncRequestException';
+      case _if9conde.SyncResultKind():
+        return 'SyncResultKind';
+      case _iog1z1ed.SyncServerStatus():
+        return 'SyncServerStatus';
       case _iwwr3hpi.SyncStateEntry():
         return 'SyncStateEntry';
     }
@@ -10086,17 +10307,56 @@ class Protocol extends _isd.DatabaseSerializationManager
     if (dataClassName == 'StockAdjustmentReason') {
       return deserialize<_i5me420k.StockAdjustmentReason>(data['data']);
     }
+    if (dataClassName == 'ActivationException') {
+      return deserialize<_iy6ejuvq.ActivationException>(data['data']);
+    }
+    if (dataClassName == 'ActivationFailure') {
+      return deserialize<_i0htl0ka.ActivationFailure>(data['data']);
+    }
+    if (dataClassName == 'ActivationResult') {
+      return deserialize<_itml89c3.ActivationResult>(data['data']);
+    }
     if (dataClassName == 'LocalPreference') {
       return deserialize<_ierz52ew.LocalPreference>(data['data']);
     }
     if (dataClassName == 'OutboxStatus') {
       return deserialize<_imib010r.OutboxStatus>(data['data']);
     }
+    if (dataClassName == 'SyncAuthException') {
+      return deserialize<_i2s9l4f4.SyncAuthException>(data['data']);
+    }
     if (dataClassName == 'SyncOp') {
       return deserialize<_ipjkwoxz.SyncOp>(data['data']);
     }
     if (dataClassName == 'SyncOutboxEntry') {
       return deserialize<_ikzi06kl.SyncOutboxEntry>(data['data']);
+    }
+    if (dataClassName == 'SyncPullChange') {
+      return deserialize<_i4xb7gek.SyncPullChange>(data['data']);
+    }
+    if (dataClassName == 'SyncPullPage') {
+      return deserialize<_itpgwai8.SyncPullPage>(data['data']);
+    }
+    if (dataClassName == 'SyncPushEntry') {
+      return deserialize<_iw6hqtxz.SyncPushEntry>(data['data']);
+    }
+    if (dataClassName == 'SyncPushReply') {
+      return deserialize<_i5h2p3kl.SyncPushReply>(data['data']);
+    }
+    if (dataClassName == 'SyncPushResult') {
+      return deserialize<_i4jawf6o.SyncPushResult>(data['data']);
+    }
+    if (dataClassName == 'SyncRejectReason') {
+      return deserialize<_iz3ys7vh.SyncRejectReason>(data['data']);
+    }
+    if (dataClassName == 'SyncRequestException') {
+      return deserialize<_iem4qssj.SyncRequestException>(data['data']);
+    }
+    if (dataClassName == 'SyncResultKind') {
+      return deserialize<_if9conde.SyncResultKind>(data['data']);
+    }
+    if (dataClassName == 'SyncServerStatus') {
+      return deserialize<_iog1z1ed.SyncServerStatus>(data['data']);
     }
     if (dataClassName == 'SyncStateEntry') {
       return deserialize<_iwwr3hpi.SyncStateEntry>(data['data']);

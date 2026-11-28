@@ -1,0 +1,8 @@
+### Hasil aktivasi perangkat pertama atau pasang perangkat berikutnya.
+### `deviceToken` hanya dikirim sekali; server menyimpan hash-nya.
+class: ActivationResult
+fields:
+  deviceToken: String
+  tenantId: UuidValue
+  deviceId: UuidValue
+  deviceCode: String

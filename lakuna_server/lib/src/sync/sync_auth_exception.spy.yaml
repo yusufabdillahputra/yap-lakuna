@@ -1,0 +1,4 @@
+### Token perangkat tidak valid atau sudah dicabut.
+exception: SyncAuthException
+fields:
+  reason: String

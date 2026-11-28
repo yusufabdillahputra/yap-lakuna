@@ -13,6 +13,18 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
+import 'package:lakuna_server/src/generated/organization/device_platform.dart'
+    as _iac4dvtg;
+import 'package:lakuna_server/src/generated/sync/activation_result.dart'
+    as _ihanej1j;
+import 'package:lakuna_server/src/generated/sync/sync_pull_page.dart'
+    as _i424ufkw;
+import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
+    as _iybq0mvn;
+import 'package:lakuna_server/src/generated/sync/sync_push_reply.dart'
+    as _itxzb9nu;
+import 'package:lakuna_server/src/generated/sync/sync_server_status.dart'
+    as _iyejqyi8;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -155,6 +167,10 @@ class TestEndpoints {
   late final _EmailIdpEndpoint emailIdp;
 
   late final _JwtRefreshEndpoint jwtRefresh;
+
+  late final _ActivationEndpoint activation;
+
+  late final _SyncEndpoint sync;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -169,6 +185,14 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     jwtRefresh = _JwtRefreshEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    activation = _ActivationEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    sync = _SyncEndpoint(
       endpoints,
       serializationManager,
     );
@@ -617,6 +641,242 @@ class _JwtRefreshEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iacs.AuthSuccess>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _ActivationEndpoint {
+  _ActivationEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_ihanej1j.ActivationResult> activateFirstDevice(
+    _ist.TestSessionBuilder sessionBuilder,
+    String activationCode,
+    _is.UuidValue tenantId,
+    _is.UuidValue deviceId,
+    String tenantName,
+    String deviceCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'activation',
+            method: 'activateFirstDevice',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'activation',
+          methodName: 'activateFirstDevice',
+          parameters: _ist.testObjectToJson({
+            'activationCode': activationCode,
+            'tenantId': tenantId,
+            'deviceId': deviceId,
+            'tenantName': tenantName,
+            'deviceCode': deviceCode,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ihanej1j.ActivationResult>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> createPairingCode(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'activation',
+            method: 'createPairingCode',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'activation',
+          methodName: 'createPairingCode',
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_ihanej1j.ActivationResult> joinWithPairingCode(
+    _ist.TestSessionBuilder sessionBuilder,
+    String pairingCode,
+    _is.UuidValue outletId,
+    String deviceCode,
+    String deviceName,
+    _iac4dvtg.DevicePlatform platform,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'activation',
+            method: 'joinWithPairingCode',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'activation',
+          methodName: 'joinWithPairingCode',
+          parameters: _ist.testObjectToJson({
+            'pairingCode': pairingCode,
+            'outletId': outletId,
+            'deviceCode': deviceCode,
+            'deviceName': deviceName,
+            'platform': platform,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ihanej1j.ActivationResult>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _SyncEndpoint {
+  _SyncEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_itxzb9nu.SyncPushReply> push(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+    List<_iybq0mvn.SyncPushEntry> entries,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'sync',
+            method: 'push',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'sync',
+          methodName: 'push',
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'entries': entries,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_itxzb9nu.SyncPushReply>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i424ufkw.SyncPullPage> pull(
+    _ist.TestSessionBuilder sessionBuilder,
+    String deviceToken,
+    int afterSeq,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'sync',
+            method: 'pull',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'sync',
+          methodName: 'pull',
+          parameters: _ist.testObjectToJson({
+            'deviceToken': deviceToken,
+            'afterSeq': afterSeq,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i424ufkw.SyncPullPage>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iyejqyi8.SyncServerStatus> status(
+    _ist.TestSessionBuilder sessionBuilder,
+    String? deviceToken,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'sync',
+            method: 'status',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'sync',
+          methodName: 'status',
+          parameters: _ist.testObjectToJson({'deviceToken': deviceToken}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iyejqyi8.SyncServerStatus>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

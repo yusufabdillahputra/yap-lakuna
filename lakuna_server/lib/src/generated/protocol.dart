@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:lakuna_server/src/generated/sync/sync_push_entry.dart'
+    as _iybq0mvn;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -88,11 +90,30 @@ import 'sales/split_mode.dart' as _iesw84sv;
 import 'stock/stock_adjustment.dart' as _i7xu84a6;
 import 'stock/stock_adjustment_item.dart' as _iuqt5pmc;
 import 'stock/stock_adjustment_reason.dart' as _i5me420k;
+import 'sync/activation_code.dart' as _i96gk1zh;
+import 'sync/activation_exception.dart' as _iy6ejuvq;
+import 'sync/activation_failure.dart' as _i0htl0ka;
+import 'sync/activation_result.dart' as _itml89c3;
+import 'sync/device_credential.dart' as _iluuoes9;
 import 'sync/local_preference.dart' as _ierz52ew;
 import 'sync/outbox_status.dart' as _imib010r;
+import 'sync/pairing_code.dart' as _iqcp5k4h;
+import 'sync/sync_auth_exception.dart' as _i2s9l4f4;
+import 'sync/sync_change.dart' as _ieydannz;
+import 'sync/sync_conflict.dart' as _i0azdsf8;
 import 'sync/sync_op.dart' as _ipjkwoxz;
 import 'sync/sync_outbox_entry.dart' as _ikzi06kl;
+import 'sync/sync_pull_change.dart' as _i4xb7gek;
+import 'sync/sync_pull_page.dart' as _itpgwai8;
+import 'sync/sync_push_entry.dart' as _iw6hqtxz;
+import 'sync/sync_push_reply.dart' as _i5h2p3kl;
+import 'sync/sync_push_result.dart' as _i4jawf6o;
+import 'sync/sync_reject_reason.dart' as _iz3ys7vh;
+import 'sync/sync_request_exception.dart' as _iem4qssj;
+import 'sync/sync_result_kind.dart' as _if9conde;
+import 'sync/sync_server_status.dart' as _iog1z1ed;
 import 'sync/sync_state_entry.dart' as _iwwr3hpi;
+import 'sync/tenant_owner.dart' as _ixgfksw5;
 export 'cash/cash_direction.dart';
 export 'cash/cash_movement.dart';
 export 'cash/cash_session.dart';
@@ -164,11 +185,30 @@ export 'sales/split_mode.dart';
 export 'stock/stock_adjustment.dart';
 export 'stock/stock_adjustment_item.dart';
 export 'stock/stock_adjustment_reason.dart';
+export 'sync/activation_code.dart';
+export 'sync/activation_exception.dart';
+export 'sync/activation_failure.dart';
+export 'sync/activation_result.dart';
+export 'sync/device_credential.dart';
 export 'sync/local_preference.dart';
 export 'sync/outbox_status.dart';
+export 'sync/pairing_code.dart';
+export 'sync/sync_auth_exception.dart';
+export 'sync/sync_change.dart';
+export 'sync/sync_conflict.dart';
 export 'sync/sync_op.dart';
 export 'sync/sync_outbox_entry.dart';
+export 'sync/sync_pull_change.dart';
+export 'sync/sync_pull_page.dart';
+export 'sync/sync_push_entry.dart';
+export 'sync/sync_push_reply.dart';
+export 'sync/sync_push_result.dart';
+export 'sync/sync_reject_reason.dart';
+export 'sync/sync_request_exception.dart';
+export 'sync/sync_result_kind.dart';
+export 'sync/sync_server_status.dart';
 export 'sync/sync_state_entry.dart';
+export 'sync/tenant_owner.dart';
 
 class Protocol extends _is.DatabaseSerializationManager
     implements _is.DatabaseProtocolDeserializationProvider {
@@ -254,11 +294,30 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i7xu84a6.StockAdjustment>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem>,
           _is.getType<_i5me420k.StockAdjustmentReason>,
+          _is.getType<_i96gk1zh.ActivationCode>,
+          _is.getType<_iy6ejuvq.ActivationException>,
+          _is.getType<_i0htl0ka.ActivationFailure>,
+          _is.getType<_itml89c3.ActivationResult>,
+          _is.getType<_iluuoes9.DeviceCredential>,
           _is.getType<_ierz52ew.LocalPreference>,
           _is.getType<_imib010r.OutboxStatus>,
+          _is.getType<_iqcp5k4h.PairingCode>,
+          _is.getType<_i2s9l4f4.SyncAuthException>,
+          _is.getType<_ieydannz.SyncChange>,
+          _is.getType<_i0azdsf8.SyncConflict>,
           _is.getType<_ipjkwoxz.SyncOp>,
           _is.getType<_ikzi06kl.SyncOutboxEntry>,
+          _is.getType<_i4xb7gek.SyncPullChange>,
+          _is.getType<_itpgwai8.SyncPullPage>,
+          _is.getType<_iw6hqtxz.SyncPushEntry>,
+          _is.getType<_i5h2p3kl.SyncPushReply>,
+          _is.getType<_i4jawf6o.SyncPushResult>,
+          _is.getType<_iz3ys7vh.SyncRejectReason>,
+          _is.getType<_iem4qssj.SyncRequestException>,
+          _is.getType<_if9conde.SyncResultKind>,
+          _is.getType<_iog1z1ed.SyncServerStatus>,
           _is.getType<_iwwr3hpi.SyncStateEntry>,
+          _is.getType<_ixgfksw5.TenantOwner>,
           _is.getType<_i728pu70.CashDirection?>,
           _is.getType<_iepnwe9z.CashMovement?>,
           _is.getType<_iepiq7d7.CashSession?>,
@@ -330,11 +389,33 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i7xu84a6.StockAdjustment?>,
           _is.getType<_iuqt5pmc.StockAdjustmentItem?>,
           _is.getType<_i5me420k.StockAdjustmentReason?>,
+          _is.getType<_i96gk1zh.ActivationCode?>,
+          _is.getType<_iy6ejuvq.ActivationException?>,
+          _is.getType<_i0htl0ka.ActivationFailure?>,
+          _is.getType<_itml89c3.ActivationResult?>,
+          _is.getType<_iluuoes9.DeviceCredential?>,
           _is.getType<_ierz52ew.LocalPreference?>,
           _is.getType<_imib010r.OutboxStatus?>,
+          _is.getType<_iqcp5k4h.PairingCode?>,
+          _is.getType<_i2s9l4f4.SyncAuthException?>,
+          _is.getType<_ieydannz.SyncChange?>,
+          _is.getType<_i0azdsf8.SyncConflict?>,
           _is.getType<_ipjkwoxz.SyncOp?>,
           _is.getType<_ikzi06kl.SyncOutboxEntry?>,
+          _is.getType<_i4xb7gek.SyncPullChange?>,
+          _is.getType<_itpgwai8.SyncPullPage?>,
+          _is.getType<_iw6hqtxz.SyncPushEntry?>,
+          _is.getType<_i5h2p3kl.SyncPushReply?>,
+          _is.getType<_i4jawf6o.SyncPushResult?>,
+          _is.getType<_iz3ys7vh.SyncRejectReason?>,
+          _is.getType<_iem4qssj.SyncRequestException?>,
+          _is.getType<_if9conde.SyncResultKind?>,
+          _is.getType<_iog1z1ed.SyncServerStatus?>,
           _is.getType<_iwwr3hpi.SyncStateEntry?>,
+          _is.getType<_ixgfksw5.TenantOwner?>,
+          _is.getType<List<_i4xb7gek.SyncPullChange>>,
+          _is.getType<List<_i4jawf6o.SyncPushResult>>,
+          _is.getType<List<_iybq0mvn.SyncPushEntry>>,
         ],
         modules: const [
           _iais.Protocol.new,
@@ -413,15 +494,103 @@ class Protocol extends _is.DatabaseSerializationManager
           'StockAdjustment',
           'StockAdjustmentItem',
           'StockAdjustmentReason',
+          'ActivationCode',
+          'ActivationException',
+          'ActivationFailure',
+          'ActivationResult',
+          'DeviceCredential',
           'LocalPreference',
           'OutboxStatus',
+          'PairingCode',
+          'SyncAuthException',
+          'SyncChange',
+          'SyncConflict',
           'SyncOp',
           'SyncOutboxEntry',
+          'SyncPullChange',
+          'SyncPullPage',
+          'SyncPushEntry',
+          'SyncPushReply',
+          'SyncPushResult',
+          'SyncRejectReason',
+          'SyncRequestException',
+          'SyncResultKind',
+          'SyncServerStatus',
           'SyncStateEntry',
+          'TenantOwner',
         ],
       );
 
   static List<_isp.TableDefinition> get targetTableDefinitions => [
+    _isp.TableDefinition(
+      name: 'activation_codes',
+      dartName: 'ActivationCode',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'code_hash',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'expires_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'used_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'activation_codes_code_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'code_hash',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     _isp.TableDefinition(
       name: 'cash_movements',
       dartName: 'CashMovement',
@@ -1781,6 +1950,99 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'cash_session_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'device_credentials',
+      dartName: 'DeviceCredential',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'token_hash',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'last_seen_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'revoked_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'device_credentials_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'device_credentials_token_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'token_hash',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'device_credentials_device_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'device_id',
             ),
           ],
           type: 'btree',
@@ -3619,6 +3881,86 @@ class Protocol extends _is.DatabaseSerializationManager
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'code',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'pairing_codes',
+      dartName: 'PairingCode',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'code_hash',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_by_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'expires_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'used_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'pairing_codes_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'pairing_codes_code_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'code_hash',
             ),
           ],
           type: 'btree',
@@ -8619,6 +8961,293 @@ class Protocol extends _is.DatabaseSerializationManager
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'sync_changes',
+      dartName: 'SyncChange',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'outlet_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'table_name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'row_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'origin_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'payload_json',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'received_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sync_changes_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sync_changes_tenant_seq_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'sync_changes_row_hlc_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'row_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'hlc',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'sync_conflicts',
+      dartName: 'SyncConflict',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'table_name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'row_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'winner_hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'loser_hlc',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'loser_device_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: true,
+          dartType: 'UuidValue?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'loser_payload_json',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reason',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'resolved_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'sync_conflicts_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sync_conflicts_tenant_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'created_at',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'tenant_owners',
+      dartName: 'TenantOwner',
+      schema: 'public',
+      module: 'lakuna',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tenant_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'auth_user_id',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'created_at',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'tenant_owners_fk_0',
+          columns: ['tenant_id'],
+          referenceTable: 'tenants',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'tenant_owners_tenant_user_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'tenant_id',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'auth_user_id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'tenants',
       dartName: 'Tenant',
       schema: 'public',
@@ -9062,11 +9691,38 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _i5me420k.StockAdjustmentReason) {
       return _i5me420k.StockAdjustmentReason.fromJson(data) as T;
     }
+    if (t == _i96gk1zh.ActivationCode) {
+      return _i96gk1zh.ActivationCode.fromJson(data) as T;
+    }
+    if (t == _iy6ejuvq.ActivationException) {
+      return _iy6ejuvq.ActivationException.fromJson(data) as T;
+    }
+    if (t == _i0htl0ka.ActivationFailure) {
+      return _i0htl0ka.ActivationFailure.fromJson(data) as T;
+    }
+    if (t == _itml89c3.ActivationResult) {
+      return _itml89c3.ActivationResult.fromJson(data) as T;
+    }
+    if (t == _iluuoes9.DeviceCredential) {
+      return _iluuoes9.DeviceCredential.fromJson(data) as T;
+    }
     if (t == _ierz52ew.LocalPreference) {
       return _ierz52ew.LocalPreference.fromJson(data) as T;
     }
     if (t == _imib010r.OutboxStatus) {
       return _imib010r.OutboxStatus.fromJson(data) as T;
+    }
+    if (t == _iqcp5k4h.PairingCode) {
+      return _iqcp5k4h.PairingCode.fromJson(data) as T;
+    }
+    if (t == _i2s9l4f4.SyncAuthException) {
+      return _i2s9l4f4.SyncAuthException.fromJson(data) as T;
+    }
+    if (t == _ieydannz.SyncChange) {
+      return _ieydannz.SyncChange.fromJson(data) as T;
+    }
+    if (t == _i0azdsf8.SyncConflict) {
+      return _i0azdsf8.SyncConflict.fromJson(data) as T;
     }
     if (t == _ipjkwoxz.SyncOp) {
       return _ipjkwoxz.SyncOp.fromJson(data) as T;
@@ -9074,8 +9730,38 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _ikzi06kl.SyncOutboxEntry) {
       return _ikzi06kl.SyncOutboxEntry.fromJson(data) as T;
     }
+    if (t == _i4xb7gek.SyncPullChange) {
+      return _i4xb7gek.SyncPullChange.fromJson(data) as T;
+    }
+    if (t == _itpgwai8.SyncPullPage) {
+      return _itpgwai8.SyncPullPage.fromJson(data) as T;
+    }
+    if (t == _iw6hqtxz.SyncPushEntry) {
+      return _iw6hqtxz.SyncPushEntry.fromJson(data) as T;
+    }
+    if (t == _i5h2p3kl.SyncPushReply) {
+      return _i5h2p3kl.SyncPushReply.fromJson(data) as T;
+    }
+    if (t == _i4jawf6o.SyncPushResult) {
+      return _i4jawf6o.SyncPushResult.fromJson(data) as T;
+    }
+    if (t == _iz3ys7vh.SyncRejectReason) {
+      return _iz3ys7vh.SyncRejectReason.fromJson(data) as T;
+    }
+    if (t == _iem4qssj.SyncRequestException) {
+      return _iem4qssj.SyncRequestException.fromJson(data) as T;
+    }
+    if (t == _if9conde.SyncResultKind) {
+      return _if9conde.SyncResultKind.fromJson(data) as T;
+    }
+    if (t == _iog1z1ed.SyncServerStatus) {
+      return _iog1z1ed.SyncServerStatus.fromJson(data) as T;
+    }
     if (t == _iwwr3hpi.SyncStateEntry) {
       return _iwwr3hpi.SyncStateEntry.fromJson(data) as T;
+    }
+    if (t == _ixgfksw5.TenantOwner) {
+      return _ixgfksw5.TenantOwner.fromJson(data) as T;
     }
     if (t == _is.getType<_i728pu70.CashDirection?>()) {
       return (data != null ? _i728pu70.CashDirection.fromJson(data) : null)
@@ -9334,12 +10020,47 @@ class Protocol extends _is.DatabaseSerializationManager
               : null)
           as T;
     }
+    if (t == _is.getType<_i96gk1zh.ActivationCode?>()) {
+      return (data != null ? _i96gk1zh.ActivationCode.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iy6ejuvq.ActivationException?>()) {
+      return (data != null
+              ? _iy6ejuvq.ActivationException.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i0htl0ka.ActivationFailure?>()) {
+      return (data != null ? _i0htl0ka.ActivationFailure.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_itml89c3.ActivationResult?>()) {
+      return (data != null ? _itml89c3.ActivationResult.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iluuoes9.DeviceCredential?>()) {
+      return (data != null ? _iluuoes9.DeviceCredential.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_ierz52ew.LocalPreference?>()) {
       return (data != null ? _ierz52ew.LocalPreference.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_imib010r.OutboxStatus?>()) {
       return (data != null ? _imib010r.OutboxStatus.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iqcp5k4h.PairingCode?>()) {
+      return (data != null ? _iqcp5k4h.PairingCode.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i2s9l4f4.SyncAuthException?>()) {
+      return (data != null ? _i2s9l4f4.SyncAuthException.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ieydannz.SyncChange?>()) {
+      return (data != null ? _ieydannz.SyncChange.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i0azdsf8.SyncConflict?>()) {
+      return (data != null ? _i0azdsf8.SyncConflict.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_ipjkwoxz.SyncOp?>()) {
       return (data != null ? _ipjkwoxz.SyncOp.fromJson(data) : null) as T;
@@ -9348,8 +10069,66 @@ class Protocol extends _is.DatabaseSerializationManager
       return (data != null ? _ikzi06kl.SyncOutboxEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i4xb7gek.SyncPullChange?>()) {
+      return (data != null ? _i4xb7gek.SyncPullChange.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_itpgwai8.SyncPullPage?>()) {
+      return (data != null ? _itpgwai8.SyncPullPage.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iw6hqtxz.SyncPushEntry?>()) {
+      return (data != null ? _iw6hqtxz.SyncPushEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i5h2p3kl.SyncPushReply?>()) {
+      return (data != null ? _i5h2p3kl.SyncPushReply.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i4jawf6o.SyncPushResult?>()) {
+      return (data != null ? _i4jawf6o.SyncPushResult.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iz3ys7vh.SyncRejectReason?>()) {
+      return (data != null ? _iz3ys7vh.SyncRejectReason.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iem4qssj.SyncRequestException?>()) {
+      return (data != null
+              ? _iem4qssj.SyncRequestException.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_if9conde.SyncResultKind?>()) {
+      return (data != null ? _if9conde.SyncResultKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iog1z1ed.SyncServerStatus?>()) {
+      return (data != null ? _iog1z1ed.SyncServerStatus.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iwwr3hpi.SyncStateEntry?>()) {
       return (data != null ? _iwwr3hpi.SyncStateEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ixgfksw5.TenantOwner?>()) {
+      return (data != null ? _ixgfksw5.TenantOwner.fromJson(data) : null) as T;
+    }
+    if (t == List<_i4xb7gek.SyncPullChange>) {
+      return (data as List)
+              .map((e) => deserialize<_i4xb7gek.SyncPullChange>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i4jawf6o.SyncPushResult>) {
+      return (data as List)
+              .map((e) => deserialize<_i4jawf6o.SyncPushResult>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iybq0mvn.SyncPushEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_iybq0mvn.SyncPushEntry>(e))
+              .toList()
           as T;
     }
     final modules = deserializationMetadata.modulesForDeserialization(
@@ -9438,11 +10217,30 @@ class Protocol extends _is.DatabaseSerializationManager
       _i7xu84a6.StockAdjustment => 'StockAdjustment',
       _iuqt5pmc.StockAdjustmentItem => 'StockAdjustmentItem',
       _i5me420k.StockAdjustmentReason => 'StockAdjustmentReason',
+      _i96gk1zh.ActivationCode => 'ActivationCode',
+      _iy6ejuvq.ActivationException => 'ActivationException',
+      _i0htl0ka.ActivationFailure => 'ActivationFailure',
+      _itml89c3.ActivationResult => 'ActivationResult',
+      _iluuoes9.DeviceCredential => 'DeviceCredential',
       _ierz52ew.LocalPreference => 'LocalPreference',
       _imib010r.OutboxStatus => 'OutboxStatus',
+      _iqcp5k4h.PairingCode => 'PairingCode',
+      _i2s9l4f4.SyncAuthException => 'SyncAuthException',
+      _ieydannz.SyncChange => 'SyncChange',
+      _i0azdsf8.SyncConflict => 'SyncConflict',
       _ipjkwoxz.SyncOp => 'SyncOp',
       _ikzi06kl.SyncOutboxEntry => 'SyncOutboxEntry',
+      _i4xb7gek.SyncPullChange => 'SyncPullChange',
+      _itpgwai8.SyncPullPage => 'SyncPullPage',
+      _iw6hqtxz.SyncPushEntry => 'SyncPushEntry',
+      _i5h2p3kl.SyncPushReply => 'SyncPushReply',
+      _i4jawf6o.SyncPushResult => 'SyncPushResult',
+      _iz3ys7vh.SyncRejectReason => 'SyncRejectReason',
+      _iem4qssj.SyncRequestException => 'SyncRequestException',
+      _if9conde.SyncResultKind => 'SyncResultKind',
+      _iog1z1ed.SyncServerStatus => 'SyncServerStatus',
       _iwwr3hpi.SyncStateEntry => 'SyncStateEntry',
+      _ixgfksw5.TenantOwner => 'TenantOwner',
       _ => null,
     };
   }
@@ -9599,16 +10397,54 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'StockAdjustmentItem';
       case _i5me420k.StockAdjustmentReason():
         return 'StockAdjustmentReason';
+      case _i96gk1zh.ActivationCode():
+        return 'ActivationCode';
+      case _iy6ejuvq.ActivationException():
+        return 'ActivationException';
+      case _i0htl0ka.ActivationFailure():
+        return 'ActivationFailure';
+      case _itml89c3.ActivationResult():
+        return 'ActivationResult';
+      case _iluuoes9.DeviceCredential():
+        return 'DeviceCredential';
       case _ierz52ew.LocalPreference():
         return 'LocalPreference';
       case _imib010r.OutboxStatus():
         return 'OutboxStatus';
+      case _iqcp5k4h.PairingCode():
+        return 'PairingCode';
+      case _i2s9l4f4.SyncAuthException():
+        return 'SyncAuthException';
+      case _ieydannz.SyncChange():
+        return 'SyncChange';
+      case _i0azdsf8.SyncConflict():
+        return 'SyncConflict';
       case _ipjkwoxz.SyncOp():
         return 'SyncOp';
       case _ikzi06kl.SyncOutboxEntry():
         return 'SyncOutboxEntry';
+      case _i4xb7gek.SyncPullChange():
+        return 'SyncPullChange';
+      case _itpgwai8.SyncPullPage():
+        return 'SyncPullPage';
+      case _iw6hqtxz.SyncPushEntry():
+        return 'SyncPushEntry';
+      case _i5h2p3kl.SyncPushReply():
+        return 'SyncPushReply';
+      case _i4jawf6o.SyncPushResult():
+        return 'SyncPushResult';
+      case _iz3ys7vh.SyncRejectReason():
+        return 'SyncRejectReason';
+      case _iem4qssj.SyncRequestException():
+        return 'SyncRequestException';
+      case _if9conde.SyncResultKind():
+        return 'SyncResultKind';
+      case _iog1z1ed.SyncServerStatus():
+        return 'SyncServerStatus';
       case _iwwr3hpi.SyncStateEntry():
         return 'SyncStateEntry';
+      case _ixgfksw5.TenantOwner():
+        return 'TenantOwner';
     }
     className = _iais.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -9848,11 +10684,38 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'StockAdjustmentReason') {
       return deserialize<_i5me420k.StockAdjustmentReason>(data['data']);
     }
+    if (dataClassName == 'ActivationCode') {
+      return deserialize<_i96gk1zh.ActivationCode>(data['data']);
+    }
+    if (dataClassName == 'ActivationException') {
+      return deserialize<_iy6ejuvq.ActivationException>(data['data']);
+    }
+    if (dataClassName == 'ActivationFailure') {
+      return deserialize<_i0htl0ka.ActivationFailure>(data['data']);
+    }
+    if (dataClassName == 'ActivationResult') {
+      return deserialize<_itml89c3.ActivationResult>(data['data']);
+    }
+    if (dataClassName == 'DeviceCredential') {
+      return deserialize<_iluuoes9.DeviceCredential>(data['data']);
+    }
     if (dataClassName == 'LocalPreference') {
       return deserialize<_ierz52ew.LocalPreference>(data['data']);
     }
     if (dataClassName == 'OutboxStatus') {
       return deserialize<_imib010r.OutboxStatus>(data['data']);
+    }
+    if (dataClassName == 'PairingCode') {
+      return deserialize<_iqcp5k4h.PairingCode>(data['data']);
+    }
+    if (dataClassName == 'SyncAuthException') {
+      return deserialize<_i2s9l4f4.SyncAuthException>(data['data']);
+    }
+    if (dataClassName == 'SyncChange') {
+      return deserialize<_ieydannz.SyncChange>(data['data']);
+    }
+    if (dataClassName == 'SyncConflict') {
+      return deserialize<_i0azdsf8.SyncConflict>(data['data']);
     }
     if (dataClassName == 'SyncOp') {
       return deserialize<_ipjkwoxz.SyncOp>(data['data']);
@@ -9860,8 +10723,38 @@ class Protocol extends _is.DatabaseSerializationManager
     if (dataClassName == 'SyncOutboxEntry') {
       return deserialize<_ikzi06kl.SyncOutboxEntry>(data['data']);
     }
+    if (dataClassName == 'SyncPullChange') {
+      return deserialize<_i4xb7gek.SyncPullChange>(data['data']);
+    }
+    if (dataClassName == 'SyncPullPage') {
+      return deserialize<_itpgwai8.SyncPullPage>(data['data']);
+    }
+    if (dataClassName == 'SyncPushEntry') {
+      return deserialize<_iw6hqtxz.SyncPushEntry>(data['data']);
+    }
+    if (dataClassName == 'SyncPushReply') {
+      return deserialize<_i5h2p3kl.SyncPushReply>(data['data']);
+    }
+    if (dataClassName == 'SyncPushResult') {
+      return deserialize<_i4jawf6o.SyncPushResult>(data['data']);
+    }
+    if (dataClassName == 'SyncRejectReason') {
+      return deserialize<_iz3ys7vh.SyncRejectReason>(data['data']);
+    }
+    if (dataClassName == 'SyncRequestException') {
+      return deserialize<_iem4qssj.SyncRequestException>(data['data']);
+    }
+    if (dataClassName == 'SyncResultKind') {
+      return deserialize<_if9conde.SyncResultKind>(data['data']);
+    }
+    if (dataClassName == 'SyncServerStatus') {
+      return deserialize<_iog1z1ed.SyncServerStatus>(data['data']);
+    }
     if (dataClassName == 'SyncStateEntry') {
       return deserialize<_iwwr3hpi.SyncStateEntry>(data['data']);
+    }
+    if (dataClassName == 'TenantOwner') {
+      return deserialize<_ixgfksw5.TenantOwner>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       return _iais.Protocol().deserializeByClassName({
@@ -10002,6 +10895,18 @@ class Protocol extends _is.DatabaseSerializationManager
         return _i7xu84a6.StockAdjustment.t;
       case _iuqt5pmc.StockAdjustmentItem:
         return _iuqt5pmc.StockAdjustmentItem.t;
+      case _i96gk1zh.ActivationCode:
+        return _i96gk1zh.ActivationCode.t;
+      case _iluuoes9.DeviceCredential:
+        return _iluuoes9.DeviceCredential.t;
+      case _iqcp5k4h.PairingCode:
+        return _iqcp5k4h.PairingCode.t;
+      case _ieydannz.SyncChange:
+        return _ieydannz.SyncChange.t;
+      case _i0azdsf8.SyncConflict:
+        return _i0azdsf8.SyncConflict.t;
+      case _ixgfksw5.TenantOwner:
+        return _ixgfksw5.TenantOwner.t;
     }
     return null;
   }

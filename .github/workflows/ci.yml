@@ -39,7 +39,8 @@ jobs:
             lakuna_flutter/lib/main.dart lakuna_flutter/lib/app.dart \
             lakuna_flutter/lib/config lakuna_flutter/lib/data lakuna_flutter/lib/routing \
             lakuna_flutter/lib/ui lakuna_flutter/lib/utils lakuna_flutter/test \
-            lakuna_server/lib/server.dart lakuna_server/test/integration/organization_test.dart
+            lakuna_server/lib/server.dart lakuna_server/lib/src/sync lakuna_server/bin \
+            lakuna_server/test/unit lakuna_server/test/integration/*_test.dart
 
   version:
     name: Versi & nomor build

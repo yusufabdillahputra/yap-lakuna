@@ -1,0 +1,5 @@
+### Permintaan sync tidak sah, mis. batch push lebih dari 500 entri
+### (`batchTooLarge`).
+exception: SyncRequestException
+fields:
+  reason: String

@@ -1,0 +1,17 @@
+### Kode pasang perangkat (8 karakter, 15 menit, sekali pakai). Hanya ada
+### di server; yang disimpan hash-nya.
+class: PairingCode
+table: pairing_codes
+database: server
+serverOnly: true
+fields:
+  tenantId: UuidValue, relation(parent=tenants, onDelete=Restrict), column=tenant_id
+  codeHash: String, column=code_hash
+  createdByDeviceId: UuidValue, column=created_by_device_id
+  createdAt: DateTime, default=now, column=created_at
+  expiresAt: DateTime, column=expires_at
+  usedAt: DateTime?, column=used_at
+indexes:
+  pairing_codes_code_idx:
+    fields: codeHash
+    unique: true

@@ -1,0 +1,9 @@
+### Hasil satu entri push. `serverPayloadJson` berisi baris server untuk
+### `stale` dan `merged`.
+class: SyncPushResult
+fields:
+  rowId: UuidValue
+  hlc: String
+  kind: SyncResultKind
+  reason: SyncRejectReason?
+  serverPayloadJson: String?
