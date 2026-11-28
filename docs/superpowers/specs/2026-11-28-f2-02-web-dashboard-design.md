@@ -147,13 +147,18 @@ Empat tahap, masing-masing satu rilis:
    menolak token (`SyncAuthException`), aplikasi menghapus database browser
    dan kembali ke login. *Keluar* mencabut token di server lalu menghapus
    database browser. Token web tidak diperpanjang otomatis.
-6. Database browser disimpan per asal (origin) di penyimpanan browser
-   (OPFS bila tersedia, IndexedDB bila tidak, dipilih `sqlite_async`).
+6. Database browser disimpan per asal (origin) di penyimpanan browser.
    Satu browser = satu sesi toko. Setiap sesi memakai nama database baru
-   (`lakuna-<deviceId>.sqlite`) yang dicatat di `localStorage`; database
-   sesi lama dihapus saat keluar/habis atau, bila penghapusan belum
-   didukung `serverpod_database`, saat login berikutnya (spike tahap 1
-   menentukan caranya; letak `sqlite3.wasm`/worker harus jalan di `/app/`).
+   (`lakuna-<deviceId>.sqlite`) yang dicatat di `localStorage`.
+   *Hasil spike tahap 1 (Chromium):* `sqlite3_web` memakai OPFS
+   (`drift_db/<nama>`) tanpa header COOP/COEP, data bertahan setelah muat
+   ulang, dan `sqlite3.wasm` + `db_worker.js` (dibundel di `web/`, dibuat
+   `tool/web_sqlite_assets.sh`) termuat dari subpath `/app/`. Database sesi
+   dihapus setelah ditutup dengan menghapus folder OPFS `drift_db/<nama>`
+   dan database IndexedDB bernama sama (cadangan). Nama database yang harus
+   dihapus dicatat di `localStorage` lebih dulu dan dihapus saat aplikasi
+   dimulai sebelum database apa pun dibuka, sehingga penghapusan yang
+   terputus diulang.
 6a. Gabung di web tidak memakai database staging + tukar saat mulai ulang
    (`gabung/` F2-01): database sesi baru langsung diisi pull, lalu aplikasi
    pindah ke layar utama.
@@ -250,16 +255,15 @@ Empat tahap, masing-masing satu rilis:
 ### Web di paket VPS
 
 25. Caddy menyajikan build web di `/app/` (SPA: rute tak dikenal ke
-    `/app/index.html`) dengan header `Cross-Origin-Opener-Policy:
-    same-origin` dan `Cross-Origin-Embedder-Policy: require-corp` agar
-    SQLite wasm bisa memakai OPFS. Aplikasi web memakai asal yang sama
-    sebagai alamat server, jadi tidak perlu CORS.
+    `/app/index.html`, `index.html` tanpa cache). Header COOP/COEP tidak
+    dipasang: spike tahap 1 menunjukkan SQLite wasm memakai OPFS tanpa
+    keduanya, dan COEP akan memblokir gambar dari domain media. Aplikasi
+    web memakai asal yang sama sebagai alamat server, jadi tidak perlu CORS.
 25a. Gambar di object storage (profil `s3`, domain `MEDIA_DOMAIN`) berasal
     lain: situs media di Caddy menambah `Access-Control-Allow-Origin:
-    https://<LAKUNA_DOMAIN>`, metode GET/PUT, header `Content-Type`, dan
-    `Cross-Origin-Resource-Policy: cross-origin` agar unduh dan unggah
-    presigned dari web tidak diblokir COEP/CORS. Penyedia S3 lain perlu
-    aturan CORS yang sama (panduan).
+    https://<LAKUNA_DOMAIN>`, metode GET/PUT, header `Content-Type`, agar
+    unduh dan unggah presigned dari web tidak diblokir CORS. Penyedia S3 lain
+    perlu aturan CORS yang sama (panduan).
 25b. Endpoint `webAccess` masuk zona batas laju `auth` Caddy.
 26. `https://<domain>/` (tanpa path) mengalihkan ke `/app/`. Endpoint API
     tetap di path yang sama (POST `/<endpoint>/<method>`), `/readyz` tetap.

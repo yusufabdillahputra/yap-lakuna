@@ -80,20 +80,20 @@ Tugas 3 dan 6.
   `sqlite3` yang sama, `db_worker.js` dari
   `sqlite_async/lib/src/web/worker/worker.dart` lewat `dart compile js -O4`).
 
-- [ ] Build web debug, sajikan `build/web` dengan header COOP/COEP
+- [x] Build web debug, sajikan `build/web` dengan header COOP/COEP
   (`/tmp/claude-0/webtest/serve.py`), buka di Chromium Playwright:
   `LakunaStore.open('lakuna-spike.sqlite')` berhasil, tulis lalu muat ulang
   halaman → data tetap ada. Catat implementasi yang dipilih (OPFS /
   IndexedDB) dari log `sqlite3_web`.
-- [ ] Uji tanpa COOP/COEP: masih jalan (fallback IndexedDB)? Catat.
-- [ ] Cari cara menghapus database sesi: `sqlite3_web` `deleteDatabase`
+- [x] Uji tanpa COOP/COEP: masih jalan (fallback IndexedDB)? Catat.
+- [x] Cari cara menghapus database sesi: `sqlite3_web` `deleteDatabase`
   lewat `WebSqlite.open(...).deleteDatabase(name, storage)` atau hapus
   OPFS/IndexedDB langsung dari JS. Hasilkan keputusan:
   `Future<void> deleteWebDatabase(String name)`.
-- [ ] Uji build disajikan dari subpath `/app/` (`<base href="/app/">`):
+- [x] Uji build disajikan dari subpath `/app/` (`<base href="/app/">`):
   wasm dan worker termuat (URI relatif bawaan `sqlite3.wasm` /
   `db_worker.js`).
-- [ ] Perbarui spec aturan 6 dengan hasil spike. Commit aset + skrip + spec.
+- [x] Perbarui spec aturan 6 dengan hasil spike. Commit aset + skrip + spec.
 
 ### Tugas 2: Media dan token tanpa berkas
 
@@ -603,9 +603,9 @@ Tugas 3 dan 6.
 
 **Berkas:**
 - Ubah: `lakuna_server/deploy/Caddyfile` (`/` → `/app/`; `handle_path /app/*`
-  file server dengan `try_files {path} /index.html`, header COOP
-  `same-origin` + COEP `require-corp` + `Cache-Control` untuk
-  `index.html` `no-cache`; situs media + CORS/CORP aturan 25a),
+  file server dengan `try_files {path} /index.html`, `Cache-Control`
+  `no-cache` untuk `index.html`, tanpa COOP/COEP (hasil spike); situs
+  media + CORS aturan 25a),
   `lakuna_server/deploy/caddy/Dockerfile` (salin build web dari tahap build
   Flutter atau dari artefak `web`), `.github/workflows/release.yml` (job
   `web`: `flutter build web --release --no-web-resources-cdn --base-href /app/`,
@@ -613,7 +613,7 @@ Tugas 3 dan 6.
   Caddyfile yang baru), `docker-compose.build.yaml`.
 - Tes: `lakuna_server/deploy/test/caddy_web_test.sh` (Caddy lokal + `curl`:
   `/` 30x ke `/app/`, `/app/produk` mengembalikan `index.html`, header
-  COOP/COEP ada, `/sync/status` tetap ke server, preflight `OPTIONS` situs
+  tanpa COEP, `/sync/status` tetap ke server, preflight `OPTIONS` situs
   media dengan `Origin` domain utama mendapat `Access-Control-Allow-Origin`).
 
 - [ ] Tes gagal skrip (Caddyfile lama), jalankan `sh lakuna_server/deploy/test/caddy_web_test.sh`: gagal.
