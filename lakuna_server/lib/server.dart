@@ -80,7 +80,7 @@ void run(List<String> args) async {
     );
   }
 
-  // Media toko (F2-01 aturan 19): MinIO/S3 bila s3Endpoint, s3AccessKey,
+  // Media toko (F2-01 aturan 19): S3-compatible bila s3Endpoint, s3AccessKey,
   // s3SecretKey, dan s3Bucket diisi di passwords.yaml atau
   // SERVERPOD_PASSWORD_<kunci>; selain itu di database. Lakuna tidak
   // memakai Serverpod Cloud.

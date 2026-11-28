@@ -222,3 +222,47 @@ jobs:
           cache: true
       - working-directory: lakuna_flutter
         run: flutter build ios --release --no-codesign
+
+  build-server-image:
+    name: Build image server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f lakuna_server/Dockerfile -t lakuna-server:ci .
+      - name: Server menyala dengan Postgres (docker compose)
+        working-directory: lakuna_server/deploy
+        env:
+          LAKUNA_SERVER_IMAGE: lakuna-server:ci
+        run: |
+          {
+            printf "LAKUNA_DOMAIN=localhost\nLAKUNA_SCHEME=http\nLAKUNA_PUBLIC_PORT=80\nACME_EMAIL=ci@contoh.id\n"
+            for k in POSTGRES_PASSWORD SERVICE_SECRET EMAIL_SECRET_HASH_PEPPER \
+              JWT_HMAC_SHA512_PRIVATE_KEY JWT_REFRESH_TOKEN_HASH_PEPPER; do
+              echo "$k=$(openssl rand -hex 24)"
+            done
+          } > .env
+          docker compose config -q
+          docker compose --profile s3 config -q
+          docker compose up -d --no-build server postgres
+          for i in $(seq 1 60); do
+            if docker compose exec -T server wget -q -O - http://127.0.0.1:8080/readyz; then
+              echo; echo "server siap"; break
+            fi
+            sleep 3
+          done
+          docker compose exec -T server wget -q -O - http://127.0.0.1:8080/readyz
+          docker compose exec -T server ./bin/admin activation-code --note CI | grep -E '^ *[A-Z0-9]{4}-[A-Z0-9]{4}$'
+          docker compose down -v
+
+  build-caddy-image:
+    name: Build image Caddy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t lakuna-caddy:ci lakuna_server/deploy/caddy
+      - name: Caddyfile sah
+        run: |
+          docker run --rm -e LAKUNA_DOMAIN=sync.contoh.id -e LAKUNA_SCHEME=https \
+            -e ACME_EMAIL=ci@contoh.id -e MEDIA_DOMAIN=media.contoh.id \
+            -v "$PWD/lakuna_server/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            lakuna-caddy:ci caddy validate --config /etc/caddy/Caddyfile

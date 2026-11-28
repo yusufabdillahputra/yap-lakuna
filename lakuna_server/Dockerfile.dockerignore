@@ -1,0 +1,11 @@
+# Konteks build image server: hanya yang dibutuhkan Dockerfile.
+**
+!pubspec.lock
+!packages/lakuna_domain/**
+!lakuna_server/**
+**/.dart_tool
+**/build
+lakuna_server/.serverpod
+lakuna_server/test
+lakuna_server/config/passwords.yaml
+lakuna_server/deploy/.env
