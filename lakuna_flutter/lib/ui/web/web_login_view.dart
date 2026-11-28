@@ -331,7 +331,11 @@ class _Hero extends StatelessWidget {
                               : wide
                               ? theme.typography.display.xl2
                               : theme.typography.display.xl)
-                          .copyWith(color: ink, fontWeight: FontWeight.w700),
+                          .copyWith(
+                            color: ink,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                          ),
                 ),
                 if (wide)
                   Text(
@@ -390,7 +394,7 @@ class _LanguagePicker extends StatelessWidget {
             variant: current == code ? .secondary : .ghost,
             size: .sm,
             mainAxisSize: .min,
-            onPress: current == code ? null : () => onLocale(Locale(code)),
+            onPress: () => onLocale(Locale(code)),
             child: Text(label),
           ),
       ],
@@ -604,7 +608,11 @@ class _SecondFactorCard extends StatelessWidget {
               autofocus: true,
               keyboardType: TextInputType.visiblePassword,
               autofillHints: const [AutofillHints.oneTimeCode],
-              enabled: !vm.busy,
+              // Tetap aktif saat memeriksa: isian yang dinonaktifkan
+              // kehilangan fokus, padahal kode berikutnya diketik di sini.
+              // Enter tidak melepas fokus: bila kode salah, kode berikutnya
+              // langsung diketik di sini.
+              onEditingComplete: () {},
               onSubmit: (_) {
                 if (vm.canSubmitCode) vm.submitCode.execute();
               },

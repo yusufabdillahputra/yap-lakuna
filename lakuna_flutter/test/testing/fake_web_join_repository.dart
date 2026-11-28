@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:lakuna_client/lakuna_client.dart';
 import 'package:lakuna_data/lakuna_data.dart' show PullProgress;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -80,6 +82,9 @@ class FakeWebJoinRepository implements WebJoinRepository, WebLoginRepository {
   /// Galat berikutnya dari [signIn] / [open] (sekali pakai).
   Exception? signInError;
   Exception? openError;
+
+  /// Bila diisi, [open] menunggu ini (permintaan lambat).
+  Completer<void>? openGate;
   final signInCalls = <(String, String, String)>[];
   final openCalls = <({String code, UuidValue tenantId, bool remember})>[];
   final resetCalls = <String>[];
@@ -109,6 +114,7 @@ class FakeWebJoinRepository implements WebJoinRepository, WebLoginRepository {
     required bool remember,
   }) async {
     openCalls.add((code: code, tenantId: tenantId, remember: remember));
+    await openGate?.future;
     if (openError case final e?) {
       openError = null;
       return Result.error(e);

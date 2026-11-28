@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
@@ -133,13 +135,22 @@ void main() {
     await signIn(tester);
     await tester.enterText(field('web-login-code'), '000000');
     await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('web-login-code-submit')));
+    repo.openGate = Completer<void>();
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    await tester.pump();
+    repo.openGate!.complete();
     await tester.pumpAndSettle();
     expect(
       find.text('Terlalu banyak kode salah. Coba lagi pukul 09.15.'),
       findsOneWidget,
     );
     expect(sessions.pendingDatabase, isNull);
+    // Kode berikutnya bisa langsung diketik tanpa klik isian lagi.
+    expect(
+      tester.widget<EditableText>(field('web-login-code')).focusNode.hasFocus,
+      isTrue,
+    );
   });
 
   testWidgets('verifikasi 2 langkah belum aktif: petunjuk di langkah 1', (
