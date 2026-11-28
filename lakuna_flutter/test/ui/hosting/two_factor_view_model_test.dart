@@ -114,6 +114,38 @@ void main() {
     expect(m.enrollment, isNotNull);
   });
 
+  test('atur ulang dibatalkan setelah nonaktif: kartu dimuat ulang '
+      '(review I4)', () async {
+    hosting.twoFactorOn = true;
+    final m = vm(mode: TwoFactorMode.reset);
+    await throughAccount(m);
+    expect(m.serverChanged, isFalse);
+    m.setCode('123456');
+    await m.submitDisable.execute();
+    expect(m.step, TwoFactorStep.enroll);
+    expect(m.serverChanged, isTrue);
+  });
+
+  test('atur ulang: QR baru gagal dimuat → coba lagi tanpa menonaktifkan '
+      'ulang (review I4)', () async {
+    hosting.twoFactorOn = true;
+    final m = vm(mode: TwoFactorMode.reset);
+    await throughAccount(m);
+    m.setCode('123456');
+    hosting.beginError = Exception('offline');
+    await m.submitDisable.execute();
+    expect(m.submitDisable.error, isTrue);
+    expect(m.step, TwoFactorStep.disable);
+    expect(m.serverChanged, isTrue);
+    expect(m.canSubmitDisable, isTrue);
+    await m.submitDisable.execute();
+    expect(m.step, TwoFactorStep.enroll);
+    expect(
+      hosting.calls.where((c) => c.startsWith('disableTwoFactor')),
+      hasLength(1),
+    );
+  });
+
   test('aktifkan padahal di server sudah aktif: langsung selesai', () async {
     hosting.twoFactorOn = true;
     final m = vm();

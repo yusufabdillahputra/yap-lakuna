@@ -63,10 +63,7 @@ class _TwoFactorDialogState extends State<_TwoFactorDialog> {
     super.dispose();
   }
 
-  void _close() => Navigator.of(context).pop(
-    _vm.step == TwoFactorStep.done && !_vm.alreadyEnabled ||
-        _vm.step == TwoFactorStep.backupCodes,
-  );
+  void _close() => Navigator.of(context).pop(_vm.serverChanged);
 
   Future<void> _copy(String text) async {
     await Clipboard.setData(ClipboardData(text: text));

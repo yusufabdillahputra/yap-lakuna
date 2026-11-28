@@ -254,9 +254,16 @@ class FakeHostingRepository extends HostingRepository {
     return Result.ok(twoFactorOn);
   }
 
+  /// Galat berikutnya dari [beginTwoFactor] (sekali pakai).
+  Exception? beginError;
+
   @override
   Future<Result<TotpEnrollment>> beginTwoFactor() async {
     calls.add('beginTwoFactor');
+    if (beginError case final e?) {
+      beginError = null;
+      return Result.error(e);
+    }
     if (twoFactorOn) {
       return Result.error(
         WebAccessException(failure: WebAccessFailure.totpAlreadyEnabled),

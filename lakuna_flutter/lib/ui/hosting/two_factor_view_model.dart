@@ -92,6 +92,14 @@ class TwoFactorViewModel extends ChangeNotifier {
   var _alreadyEnabled = false;
   bool get alreadyEnabled => _alreadyEnabled;
 
+  /// TOTP sudah dinonaktifkan di server pada dialog ini (langkah pertama
+  /// *Atur ulang* tidak diulang bila QR baru gagal dimuat).
+  var _disabled = false;
+
+  /// Status di server berubah lewat dialog ini: kartu harus dimuat ulang
+  /// walau dialog ditutup sebelum selesai (review I4).
+  bool get serverChanged => _disabled || _backupCodes.isNotEmpty;
+
   /// Naik setiap langkah berganti agar isian kode dibuat baru (kosong).
   int _revision = 0;
   int get revision => _revision;
@@ -189,8 +197,11 @@ class TwoFactorViewModel extends ChangeNotifier {
   }
 
   Future<Result<void>> _submitDisable() async {
-    final result = await _hosting.disableTwoFactor(_normalized(_code));
-    if (result is Error) return result;
+    if (!_disabled) {
+      final result = await _hosting.disableTwoFactor(_normalized(_code));
+      if (result is Error) return result;
+      _disabled = true;
+    }
     if (mode == TwoFactorMode.reset) return _begin();
     _go(TwoFactorStep.done);
     return const Result.ok(null);
