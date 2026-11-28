@@ -48,7 +48,14 @@ v0.172.0.
 - Di web tidak ada menu dan modul Beranda **Kasir**, **Meja**, dan
   **Sesi kasir**, juga *Ganti kasir* dan bagian *Data & backup*; rute itu
   dialihkan ke Beranda. Pemilik langsung masuk tanpa PIN.
-- Struk PDF dan ekspor Excel di web diunduh browser.
+- Struk PDF dan ekspor Excel di web diunduh browser. Di web printer struk
+  hanya *Dialog cetak* browser; printer jaringan, Bluetooth, dan printer
+  dapur/bar tidak ditawarkan.
+- Ganti cabang di web kembali ke Beranda cabang baru; halaman yang
+  terbuka dibuat ulang agar data cabang lama tidak terbawa.
+- Database sesi web yang kosong atau rusak (mis. penyimpanan browser
+  dihapus) membuang sesi dan menampilkan layar masuk lagi, bukan wizard
+  *Buat toko baru*.
 - Foto produk di web disimpan di memori tab dan diunduh lagi dari server
   saat dibutuhkan; foto baru tetap disimpan sampai terunggah.
 - `index.html` dan `manifest.json` web: bahasa Indonesia, warna tema
@@ -69,6 +76,9 @@ v0.172.0.
   header COOP/COEP sehingga gambar dari domain media tetap bisa dimuat.
 - Kode perangkat `W` + angka dicadangkan untuk perangkat web; perangkat
   kasir baru tidak bisa memakainya.
+- Gabung web dengan kode pasang membuka sesi pemilik tanpa PIN; ini
+  sementara untuk tahap 1. Build web belum disajikan di paket VPS sampai
+  login pemilik dengan verifikasi 2 langkah (v0.170.0) menggantikannya.
 
 ### Catatan teknis
 
