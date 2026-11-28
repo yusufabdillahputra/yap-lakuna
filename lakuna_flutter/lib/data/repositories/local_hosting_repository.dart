@@ -90,8 +90,9 @@ class LocalHostingRepository extends HostingRepository {
     final connection = _syncConnection = _connect(server);
     final engine = SyncEngine(_store, connection.transport(token));
     final media = connection.mediaTransport(token);
-    // Gambar dari perangkat lain diunduh saat pertama dibutuhkan.
-    _store.fetchMedia = (m) => data.ensureMediaLocal(_store, media, m);
+    // Gambar dari perangkat lain diunduh saat pertama dibutuhkan: satu
+    // unduhan per gambar, paling banyak 3 bersamaan, jeda setelah gagal.
+    _store.fetchMedia = data.MediaFetcher(_store, media).fetch;
     final scheduler = _scheduler = SyncScheduler(
       () async {
         _syncing = true;

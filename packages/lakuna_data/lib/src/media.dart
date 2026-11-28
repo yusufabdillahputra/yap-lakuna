@@ -74,13 +74,21 @@ Future<MediaFile> storeMediaFile(
 
 /// Isi berkas [media], `null` bila berkasnya belum ada di perangkat ini
 /// (mis. baru tersinkron dari perangkat lain) dan tidak bisa diambil lewat
-/// [LakunaStore.fetchMedia].
-Future<Uint8List?> readMediaFile(LakunaStore store, MediaFile media) async {
+/// [LakunaStore.fetchMedia] dalam [wait]. Unduhan yang lebih lama tetap
+/// berjalan di latar, jadi layar (mis. kasir dengan QRIS) tidak tertahan
+/// jaringan lambat dan gambar tampil saat dibuka lagi.
+Future<Uint8List?> readMediaFile(
+  LakunaStore store,
+  MediaFile media, {
+  Duration wait = const Duration(seconds: 4),
+}) async {
   final file = File(
     '${store.mediaDirectory}${Platform.pathSeparator}${media.storageKey}',
   );
   if (file.existsSync()) return file.readAsBytes();
-  return store.fetchMedia?.call(media);
+  final fetch = store.fetchMedia;
+  if (fetch == null) return null;
+  return fetch(media).timeout(wait, onTimeout: () => null);
 }
 
 String _baseName(String name) {

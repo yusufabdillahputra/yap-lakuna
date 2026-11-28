@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -26,7 +27,11 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  Future<MediaFile> addMedia(List<int> content, {bool local = true}) async {
+  Future<MediaFile> addMedia(
+    List<int> content, {
+    bool local = true,
+    UuidValue? id,
+  }) async {
     final bytes = Uint8List.fromList(content);
     final hash = sha256.convert(bytes).toString();
     final key = '$hash.png';
@@ -39,6 +44,7 @@ void main() {
       final s = await w.stamp();
       return w.insert(
         MediaFile(
+          id: id,
           tenantId: ctx.tenant.id,
           kind: MediaKind.productPhoto,
           fileName: 'foto.png',
@@ -73,24 +79,61 @@ void main() {
       await uploadPendingMedia(store, server);
       expect(server.uploads, ['${ctx.tenant.id.uuid}/${a.storageKey}']);
       // Siklus berikutnya tidak memeriksa ulang yang sudah terunggah.
-      server.offline = true;
+      final calls = server.calls;
       await uploadPendingMedia(store, server);
+      expect(server.calls, calls);
     },
   );
 
-  test(
-    'baris media belum di-push: berhenti, dicoba siklus berikutnya',
-    () async {
-      final a = await addMedia([4, 5]);
-      final b = await addMedia([6, 7]);
-      pushed(a);
-      await uploadPendingMedia(store, server);
-      expect(server.uploads, hasLength(1));
-      pushed(b);
-      await uploadPendingMedia(store, server);
-      expect(server.uploads, hasLength(2));
-    },
-  );
+  String path(MediaFile m) => '${ctx.tenant.id.uuid}/${m.storageKey}';
+
+  test('baris media belum di-push tidak menahan berkas sesudahnya; '
+      'dicoba lagi siklus berikutnya', () async {
+    final a = await addMedia([4, 5]);
+    final b = await addMedia([6, 7]);
+    pushed(b);
+    await uploadPendingMedia(store, server);
+    expect(server.uploads, [path(b)]);
+    pushed(a);
+    await uploadPendingMedia(store, server);
+    expect(server.uploads, [path(b), path(a)]);
+    // Tuntas: tidak ada yang dicoba lagi.
+    final calls = server.calls;
+    await uploadPendingMedia(store, server);
+    expect(server.calls, calls);
+  });
+
+  test('berkas lokal dengan ID lebih kecil dari baris tarikan (jam perangkat '
+      'lain lebih cepat) tetap diunggah', () async {
+    // Baris dari perangkat lain dengan jam 1 jam lebih cepat.
+    final ahead = await addMedia(
+      [3, 3],
+      local: false,
+      id: _uuidV7At(DateTime.now().add(const Duration(hours: 1))),
+    );
+    pushed(ahead);
+    await uploadPendingMedia(store, server);
+    final local = await addMedia([4, 4]);
+    expect(local.id.uuid.compareTo(ahead.id.uuid), lessThan(0));
+    pushed(local);
+    await uploadPendingMedia(store, server);
+    expect(server.uploads, [path(local)]);
+  });
+
+  test('unggahan macet dihentikan batas waktu, dicoba lagi', () async {
+    final a = await addMedia([2, 2]);
+    pushed(a);
+    server.stall = true;
+    await uploadPendingMedia(
+      store,
+      server,
+      transferTimeout: const Duration(milliseconds: 50),
+    );
+    expect(server.uploads, isEmpty);
+    server.stall = false;
+    await uploadPendingMedia(store, server);
+    expect(server.uploads, [path(a)]);
+  });
 
   test('offline saat unggah: tidak melempar, dicoba lagi', () async {
     final a = await addMedia([8]);
@@ -128,6 +171,90 @@ void main() {
     );
   });
 
+  test('unduhan macet dihentikan batas waktu: placeholder', () async {
+    final remote = await addMedia([6, 6], local: false);
+    pushed(remote);
+    server.files[path(remote)] = Uint8List.fromList([6, 6]);
+    server.stall = true;
+    expect(
+      await ensureMediaLocal(
+        store,
+        server,
+        remote,
+        transferTimeout: const Duration(milliseconds: 50),
+      ),
+      isNull,
+    );
+  });
+
+  test('layar tidak menunggu unduhan lama: placeholder dulu', () async {
+    final remote = await addMedia([8, 8], local: false);
+    store.fetchMedia = (_) => Completer<Uint8List?>().future;
+    final watch = Stopwatch()..start();
+    expect(
+      await readMediaFile(
+        store,
+        remote,
+        wait: const Duration(milliseconds: 50),
+      ),
+      isNull,
+    );
+    expect(watch.elapsed, lessThan(const Duration(seconds: 2)));
+  });
+
+  group('MediaFetcher', () {
+    test('permintaan bersamaan untuk gambar sama: satu unduhan', () async {
+      final bytes = Uint8List.fromList([1, 1, 1]);
+      final remote = await addMedia(bytes, local: false);
+      pushed(remote);
+      server.files[path(remote)] = bytes;
+      final fetcher = MediaFetcher(store, server);
+      final results = await Future.wait([
+        fetcher.fetch(remote),
+        fetcher.fetch(remote),
+        fetcher.fetch(remote),
+      ]);
+      expect(results, everyElement(bytes));
+      expect(server.downloadUrls, 1);
+    });
+
+    test('gagal: tidak diminta lagi sebelum jeda habis', () async {
+      var now = DateTime.utc(2026, 11, 28, 8);
+      final remote = await addMedia([2, 3], local: false);
+      pushed(remote);
+      final fetcher = MediaFetcher(
+        store,
+        server,
+        retryAfter: const Duration(minutes: 2),
+        clock: () => now,
+      );
+      expect(await fetcher.fetch(remote), isNull);
+      expect(await fetcher.fetch(remote), isNull);
+      expect(server.downloadUrls, 1);
+      now = now.add(const Duration(minutes: 3));
+      server.files[path(remote)] = Uint8List.fromList([2, 3]);
+      expect(await fetcher.fetch(remote), [2, 3]);
+      expect(server.downloadUrls, 2);
+    });
+
+    test('daftar besar: paling banyak 3 unduhan bersamaan', () async {
+      final media = [
+        for (var i = 0; i < 8; i++) await addMedia([40 + i], local: false),
+      ];
+      for (final m in media) {
+        pushed(m);
+        server.files[path(m)] = Uint8List.fromList([40 + media.indexOf(m)]);
+      }
+      server.stall = true;
+      final fetcher = MediaFetcher(store, server);
+      for (final m in media) {
+        unawaited(fetcher.fetch(m));
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(server.downloadUrls, 3);
+    });
+  });
+
   test('belum diunggah perangkat asal atau offline: placeholder', () async {
     final remote = await addMedia([7, 7], local: false);
     pushed(remote);
@@ -135,4 +262,12 @@ void main() {
     server.offline = true;
     expect(await ensureMediaLocal(store, server, remote), isNull);
   });
+}
+
+/// UUID v7 dengan cap waktu [at] (48 bit pertama).
+UuidValue _uuidV7At(DateTime at) {
+  final hex = at.millisecondsSinceEpoch.toRadixString(16).padLeft(12, '0');
+  return UuidValue.fromString(
+    '${hex.substring(0, 8)}-${hex.substring(8)}-7000-8000-000000000001',
+  );
 }

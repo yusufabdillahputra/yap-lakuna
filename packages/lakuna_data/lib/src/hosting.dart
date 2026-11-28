@@ -432,8 +432,14 @@ Future<SyncCycleResult> runHostingCycle(
   }
   final result = await engine.runCycle();
   // Berkas media setelah barisnya di-push (aturan 19); kegagalan diulang
-  // siklus berikutnya dan tidak mengubah hasil siklus.
-  if (media != null && result.outcome == SyncCycleOutcome.synced) {
+  // siklus berikutnya dan tidak mengubah hasil siklus. Push dan pull yang
+  // tuntas dengan baris ditolak (*Perlu perhatian*) tetap mengunggah agar
+  // satu konflik tidak menahan semua gambar.
+  final pushedAndPulled =
+      result.outcome == SyncCycleOutcome.synced ||
+      (result.outcome == SyncCycleOutcome.attention &&
+          (result.error == null || result.error == 'clock'));
+  if (media != null && pushedAndPulled) {
     await uploadPendingMedia(store, media);
   }
   if (result.outcome == SyncCycleOutcome.synced &&
@@ -464,6 +470,7 @@ const _hostingSessionKeys = [
   SyncStateKey.initialUploadCursor,
   SyncStateKey.initialUploadAcked,
   SyncStateKey.mediaUploadCursor,
+  SyncStateKey.mediaUploadRetry,
   SyncStateKey.restampHlc,
   SyncStateKey.pullCursor,
   SyncStateKey.pullParked,

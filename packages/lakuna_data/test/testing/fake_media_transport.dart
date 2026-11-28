@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -15,6 +16,15 @@ class FakeMediaTransport implements MediaTransport {
   Uint8List? corrupt;
   bool offline = false;
 
+  /// Unduhan dan unggahan tidak pernah selesai (koneksi macet).
+  bool stall = false;
+
+  /// Jumlah semua panggilan ke server.
+  int calls = 0;
+
+  /// Jumlah permintaan URL unduh.
+  int downloadUrls = 0;
+
   String _path(UuidValue id) {
     final m = rows[id];
     if (m == null) throw SyncRequestException(reason: 'mediaUnknown');
@@ -22,7 +32,12 @@ class FakeMediaTransport implements MediaTransport {
   }
 
   void _net() {
+    calls++;
     if (offline) throw const SocketException('tidak ada jaringan');
+  }
+
+  Future<void> _stall() async {
+    if (stall) await Completer<void>().future;
   }
 
   @override
@@ -35,6 +50,7 @@ class FakeMediaTransport implements MediaTransport {
   @override
   Future<void> upload(String description, Uint8List bytes) async {
     _net();
+    await _stall();
     uploads.add(description);
     files[description] = bytes;
   }
@@ -48,6 +64,7 @@ class FakeMediaTransport implements MediaTransport {
   @override
   Future<Uri?> downloadUrl(UuidValue mediaFileId) async {
     _net();
+    downloadUrls++;
     final path = _path(mediaFileId);
     return files.containsKey(path)
         ? Uri.parse('https://s3.contoh/$path')
@@ -57,6 +74,7 @@ class FakeMediaTransport implements MediaTransport {
   @override
   Future<Uint8List> download(Uri url) async {
     _net();
+    await _stall();
     return corrupt ?? files[url.path.substring(1)]!;
   }
 }

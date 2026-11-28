@@ -20,14 +20,26 @@ saat pertama dibutuhkan. Paket server untuk VPS menyusul di 0.168.0.
   mengunggah berkas gambar yang barisnya sudah terkirim (foto produk, foto
   faktur pembelian, foto bukti pengeluaran, bukti bayar hutang supplier,
   stiker QRIS, logo struk, gambar denah) satu per satu lewat URL unggah
-  dari server. Kemajuan disimpan, jadi unggahan berlanjut dari gambar
-  terakhir setelah offline atau aplikasi ditutup. Gambar yang sama persis
-  (hash sama) tidak diunggah dua kali.
+  dari server, juga saat siklus berstatus *Perlu perhatian* karena ada
+  baris lain yang ditolak. Urutan unggah mengikuti urutan baris masuk ke
+  perangkat (bukan ID, yang bisa lebih besar dari perangkat berjam cepat),
+  jadi tidak ada gambar yang terlewat. Gambar yang ditolak server (mis.
+  barisnya belum diterima) dicatat dan dicoba lagi tiap siklus tanpa
+  menahan gambar sesudahnya; jaringan putus menghentikan unggahan sampai
+  siklus berikutnya. Gambar yang sama persis (hash sama) tidak diunggah
+  dua kali.
 - **Unduh gambar saat dibutuhkan**: perangkat yang bergabung atau menerima
   data dari perangkat lain mengunduh gambar saat layar yang memakainya
   dibuka (mis. rincian pembelian, kartu QRIS, denah), lalu menyimpannya di
-  folder `media/` di perangkat. Daftar produk memulai unduhan di latar dan
-  menampilkan gambar pengganti sampai berkasnya ada.
+  folder `media/` di perangkat. Layar menunggu paling lama 4 detik, lalu
+  menampilkan gambar pengganti sementara unduhan lanjut di latar; kasir
+  dengan QRIS tidak tertahan jaringan lambat. Daftar produk memulai
+  unduhan di latar. Satu gambar hanya diunduh sekali walau diminta banyak
+  layar, paling banyak 3 unduhan bersamaan, dan gambar yang gagal baru
+  diminta lagi setelah 2 menit.
+- Unggahan dan unduhan yang macet lebih dari 2 menit dihentikan dan
+  dianggap offline (diulang siklus berikutnya), sehingga sync dan
+  penutupan aplikasi tidak ikut tertahan.
 - **Penyimpanan gambar di server**: tanpa pengaturan, berkas disimpan di
   database Postgres server. Dengan kata sandi server `s3Endpoint`,
   `s3AccessKey`, `s3SecretKey`, `s3Bucket` (opsional `s3Region`, bawaan
@@ -55,16 +67,20 @@ saat pertama dibutuhkan. Paket server untuk VPS menyusul di 0.168.0.
   (`serverpod_cloud_storage_s3_compat` 4.1.0, `CustomEndpointConfig`,
   `PresignedPutUploadStrategy`). `markUploaded` mengembalikan `true` juga
   bila berkas sudah terverifikasi sebelumnya.
-- `lakuna_data`: `MediaTransport`, `uploadPendingMedia` (kursor
-  `media_upload_cursor` di `sync_state`, urut ID), `ensureMediaLocal`;
-  `runHostingCycle(engine, media:)` mengunggah gambar setelah siklus
-  tersinkron. `LakunaStore.fetchMedia` dipakai `readMediaFile` dan daftar
+- `lakuna_data`: `MediaTransport`, `uploadPendingMedia` (kursor `rowid`
+  lokal di `sync_state.media_upload_cursor`, daftar coba ulang di
+  `media_upload_retry`), `ensureMediaLocal` (batas waktu total 2 menit
+  per langkah), `MediaFetcher` (unduhan per gambar dibagi, batas 3
+  bersamaan, jeda 2 menit setelah gagal), `readMediaFile(wait:)` 4 detik;
+  `runHostingCycle(engine, media:)` mengunggah gambar setelah push dan
+  pull tuntas, termasuk saat ada konflik. `LakunaStore.fetchMedia` dipakai `readMediaFile` dan daftar
   produk bila berkas lokal belum ada; dipasang saat sync dinyalakan dan
-  dilepas saat dihentikan. `disableHosting` juga menghapus kursor unggah
-  gambar.
+  dilepas saat dihentikan. `disableHosting` juga menghapus kursor dan
+  daftar coba ulang unggah gambar.
 - Aplikasi: `HostingConnection.mediaTransport` mengunggah lewat
   `FileUploader` Serverpod dan mengunduh dengan `HttpClient` (batas waktu
-  30 detik, status HTTP diperiksa).
+  sambungan 30 detik, status HTTP diperiksa; batas waktu total di
+  `lakuna_data`).
 - Tes baru: `lakuna_server/test/integration/media_sync_test.dart`,
   `lakuna_server/test/unit/media_storage_test.dart`,
   `packages/lakuna_data/test/media_sync_test.dart`, unduhan di latar di

@@ -52,9 +52,9 @@ Setelah aktif, kartu menampilkan server, waktu sync terakhir, dan jumlah perubah
 
 ## Foto dan gambar
 
-Semua gambar toko ikut tersinkron: foto produk, foto faktur pembelian, foto bukti pengeluaran, bukti bayar hutang supplier, stiker QRIS, logo struk, dan gambar denah. Setelah datanya terkirim, berkas gambar diunggah ke penyimpanan server satu per satu; gambar yang sama persis tidak diunggah dua kali. Perangkat lain mengunduh gambar saat pertama kali dibutuhkan, misalnya saat produk atau pembelian itu dibuka, lalu menyimpannya di perangkat.
+Semua gambar toko ikut tersinkron: foto produk, foto faktur pembelian, foto bukti pengeluaran, bukti bayar hutang supplier, stiker QRIS, logo struk, dan gambar denah. Setelah datanya terkirim (juga bila ada data lain yang perlu perhatian), berkas gambar diunggah ke penyimpanan server satu per satu; gambar yang sama persis tidak diunggah dua kali. Perangkat lain mengunduh gambar saat pertama kali dibutuhkan, misalnya saat produk atau pembelian itu dibuka, lalu menyimpannya di perangkat.
 
-Selama gambar belum terunduh (perangkat offline, atau perangkat asal belum mengunggahnya), tampil gambar pengganti. Setelah gambar terunduh, gambar asli tampil saat layar itu dibuka lagi. Unduhan diperiksa keasliannya; berkas yang rusak di jalan dibuang dan dicoba lagi nanti.
+Selama gambar belum terunduh (perangkat offline, atau perangkat asal belum mengunggahnya), tampil gambar pengganti. Gambar yang terunduh dalam beberapa detik langsung tampil; bila lebih lama, gambar asli tampil saat layar itu dibuka lagi. Gambar yang gagal diunduh dicoba lagi setelah sekitar 2 menit. Unduhan diperiksa keasliannya; berkas yang rusak di jalan dibuang dan dicoba lagi nanti. Unggahan atau unduhan yang macet lebih dari 2 menit dihentikan dan diulang di siklus sync berikutnya.
 
 ## Bila ada masalah
 

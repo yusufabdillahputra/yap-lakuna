@@ -319,6 +319,70 @@ void main() {
       expect(mediaServer.uploads, ['${ctx.tenant.id.uuid}/$key']);
     });
 
+    test(
+      'baris lain ditolak (Perlu perhatian): berkas media tetap diunggah',
+      () async {
+        await activate();
+        Future<MediaFile> addMedia(List<int> content) async {
+          final bytes = Uint8List.fromList(content);
+          final hash = sha256.convert(bytes).toString();
+          File('${store.mediaDirectory}/$hash.png')
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(bytes);
+          return store.write(actor: ctx.owner.id, (w) async {
+            final s = await w.stamp();
+            return w.insert(
+              MediaFile(
+                tenantId: ctx.tenant.id,
+                kind: MediaKind.productPhoto,
+                fileName: 'foto.png',
+                mimeType: 'image/png',
+                sizeBytes: bytes.length,
+                sha256: hash,
+                width: 1,
+                height: 1,
+                storageKey: '$hash.png',
+                createdAt: s.now,
+                updatedAt: s.now,
+                createdBy: s.actor,
+                updatedBy: s.actor,
+                hlc: s.hlc.toString(),
+                originDeviceId: s.deviceId,
+              ),
+              s,
+            );
+          });
+        }
+
+        final rejected = await addMedia([7, 7, 7]);
+        final media = await addMedia([4, 5, 6]);
+        final transport = FakeSyncTransport(serverTime: now)
+          ..onPush = (e) => e.rowId == rejected.id
+              ? SyncPushResult(
+                  rowId: e.rowId,
+                  hlc: e.hlc,
+                  kind: SyncResultKind.rejected,
+                  reason: SyncRejectReason.unique,
+                )
+              : SyncPushResult(
+                  rowId: e.rowId,
+                  hlc: e.hlc,
+                  kind: SyncResultKind.applied,
+                );
+        final mediaServer = FakeMediaTransport(ctx.tenant.id)
+          ..rows[media.id] = media;
+        final r = await runHostingCycle(
+          SyncEngine(store, transport),
+          media: mediaServer,
+        );
+        expect(r.outcome, SyncCycleOutcome.attention);
+        expect(r.conflicts, 1);
+        expect(mediaServer.uploads, [
+          '${ctx.tenant.id.uuid}/${media.storageKey}',
+        ]);
+      },
+    );
+
     test('siklus melanjutkan pemadatan yang terputus', () async {
       await activate();
       // Seolah aplikasi ditutup sebelum pemadatan selesai.
