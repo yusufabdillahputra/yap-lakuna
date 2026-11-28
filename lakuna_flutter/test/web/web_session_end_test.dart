@@ -86,12 +86,20 @@ void main() {
       webSessions: sessions,
     );
     expect(sessions.unsentGuard, isFalse);
-    hosting.status = const SyncStatus(kind: SyncChipKind.syncing, pending: 2);
+    hosting.status = const SyncStatus(
+      kind: SyncChipKind.syncing,
+      pending: 2,
+      unsent: 2,
+    );
     await tester.pump();
     expect(sessions.unsentGuard, isTrue);
     hosting.status = const SyncStatus(kind: SyncChipKind.synced);
     await tester.pump();
     expect(sessions.unsentGuard, isFalse);
+    // Baris gambar sudah terkirim, berkasnya belum (review I1).
+    hosting.status = const SyncStatus(kind: SyncChipKind.synced, unsent: 1);
+    await tester.pump();
+    expect(sessions.unsentGuard, isTrue);
   });
 
   group('menu Keluar di web', () {

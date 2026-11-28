@@ -57,7 +57,7 @@ class _WebSessionGateState extends State<WebSessionGate> {
   void _onStatus() {
     if (!mounted) return;
     final status = widget.hosting.status;
-    final guard = status.pending > 0;
+    final guard = status.unsent > 0;
     if (guard != _guard) {
       _guard = guard;
       AppRestart.maybeOf(context)?.webSessions?.setUnsentGuard(guard);
@@ -76,7 +76,7 @@ class _WebSessionGateState extends State<WebSessionGate> {
       () => _unsent = switch (result) {
         Ok(:final value) => value,
         // Tidak bisa dihitung: anggap ada, agar peringatan tetap tampil.
-        Error() => widget.hosting.status.pending,
+        Error() => widget.hosting.status.unsent,
       },
     );
   }
@@ -210,7 +210,7 @@ Future<void> signOutWeb(
   if (signOut == null) return;
   final unsent = switch (await hosting.unsentChanges(syncFirst: true)) {
     Ok(:final value) => value,
-    Error() => hosting.status.pending,
+    Error() => hosting.status.unsent,
   };
   if (unsent > 0) {
     if (!context.mounted) return;

@@ -183,6 +183,15 @@ void main() {
       // Server tak terjangkau: sync dicoba, jumlah tetap.
       expect(_ok(await repo.unsentChanges(syncFirst: true)), state.pending);
       expect(repo.status.kind, SyncChipKind.waiting);
+      // Status ikut membawa jumlahnya untuk peringatan tutup tab (review I1).
+      expect(repo.status.unsent, state.pending);
+      // Entri konflik juga belum ada di server (review I3).
+      final all = await SyncOutboxEntry.db.find(store.session);
+      await SyncOutboxEntry.db.update(store.session, [
+        for (final e in all)
+          e.copyWith(status: OutboxStatus.conflict, lastError: 'dependency'),
+      ]);
+      expect(_ok(await repo.unsentChanges()), all.length);
       expect(await repo.logoutWeb(), isA<Ok<void>>());
       expect(connections.last.loggedOut, ['token-web']);
     });

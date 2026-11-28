@@ -66,6 +66,9 @@ class LocalHostingRepository extends HostingRepository {
   HostingConnection? _twoFactor;
   SyncScheduler? _scheduler;
   SyncStatus _status = SyncStatus.local;
+
+  /// [data.countUnsentChanges] setelah siklus terakhir (untuk [SyncStatus]).
+  var _unsent = 0;
   var _syncing = false;
   var _disposed = false;
 
@@ -85,6 +88,7 @@ class LocalHostingRepository extends HostingRepository {
       _setStatus(SyncStatus.local);
       return;
     }
+    _unsent = await data.countUnsentChanges(_store);
     _setStatus(_fromState(state, SyncChipKind.syncing));
     if (_scheduler != null) {
       _scheduler!.syncNow();
@@ -99,7 +103,11 @@ class LocalHostingRepository extends HostingRepository {
     // Gambar dari perangkat lain diunduh saat pertama dibutuhkan: satu
     // unduhan per gambar, paling banyak 3 bersamaan, jeda setelah gagal.
     _store.fetchMedia = data.MediaFetcher(_store, media).fetch;
-    _cycle = () => data.runHostingCycle(engine, media: media);
+    _cycle = () async {
+      final result = await data.runHostingCycle(engine, media: media);
+      _unsent = await data.countUnsentChanges(_store);
+      return result;
+    };
     final scheduler = _scheduler = SyncScheduler(
       () async {
         _syncing = true;
@@ -110,12 +118,13 @@ class LocalHostingRepository extends HostingRepository {
               kind: SyncChipKind.syncing,
               pending: _status.pending,
               conflicts: _status.conflicts,
+              unsent: _status.unsent,
               lastSyncAt: _status.lastSyncAt,
             ),
           );
         }
         try {
-          return await data.runHostingCycle(engine, media: media);
+          return await _cycle!();
         } finally {
           _syncing = false;
         }
@@ -130,6 +139,7 @@ class LocalHostingRepository extends HostingRepository {
     kind: s.paused ? SyncChipKind.paused : kind,
     pending: s.pending,
     conflicts: s.conflicts,
+    unsent: _unsent,
     lastSyncAt: s.lastSyncAt,
     error: s.lastError,
   );
@@ -144,6 +154,7 @@ class LocalHostingRepository extends HostingRepository {
     },
     pending: r.pending,
     conflicts: r.conflicts,
+    unsent: _unsent,
     lastSyncAt: r.at,
     error: r.error,
   );
@@ -407,8 +418,7 @@ class LocalHostingRepository extends HostingRepository {
           final result = await cycle();
           _setStatus(_fromResult(result));
         }
-        final state = await data.loadHostingState(_store);
-        return state.pending + _store.media.pinnedCount;
+        return _unsent = await data.countUnsentChanges(_store);
       });
 
   @override

@@ -56,6 +56,7 @@ class SyncStatus {
     required this.kind,
     this.pending = 0,
     this.conflicts = 0,
+    this.unsent = 0,
     this.lastSyncAt,
     this.error,
   });
@@ -65,6 +66,10 @@ class SyncStatus {
   final SyncChipKind kind;
   final int pending;
   final int conflicts;
+
+  /// Perubahan yang belum ada di server (outbox belum `acked` + gambar
+  /// belum terunggah); di web hilang bila tab ditutup (F2-02 aturan 7–8).
+  final int unsent;
   final DateTime? lastSyncAt;
 
   /// Kode galat terakhir (`clock`, `invalidToken`, `network`, `local`, ...).
@@ -76,11 +81,13 @@ class SyncStatus {
       other.kind == kind &&
       other.pending == pending &&
       other.conflicts == conflicts &&
+      other.unsent == unsent &&
       other.lastSyncAt == lastSyncAt &&
       other.error == error;
 
   @override
-  int get hashCode => Object.hash(kind, pending, conflicts, lastSyncAt, error);
+  int get hashCode =>
+      Object.hash(kind, pending, conflicts, unsent, lastSyncAt, error);
 }
 
 /// Isian kode pasang yang ditampilkan di perangkat lama.
