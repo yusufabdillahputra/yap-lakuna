@@ -165,7 +165,9 @@ Empat tahap, masing-masing satu rilis:
 7. Tulis dari web memakai `LakunaStore.write` + outbox yang sama; sync
    web berjalan saat tab terbuka dan langsung setelah setiap tulis.
    Menutup tab dengan perubahan belum terkirim memunculkan konfirmasi
-   browser (`beforeunload`).
+   browser (`beforeunload`). *Perubahan belum terkirim* = entri outbox
+   yang belum diterima server (termasuk konflik yang dikirim ulang atau
+   menunggu) + gambar tersemat (aturan 8).
 
 ### Layanan berbasis berkas di web
 
@@ -196,7 +198,10 @@ Empat tahap, masing-masing satu rilis:
     digit, 30 detik, 160 bit), aplikasi menampilkan kode QR
     `otpauth://totp/Lakuna:<email>?secret=…&issuer=Lakuna` dan rahasia
     teks, pemilik memasukkan satu kode untuk mengonfirmasi. Sebelum
-    dikonfirmasi rahasia tidak berlaku. Login web akun tanpa TOTP aktif
+    dikonfirmasi rahasia tidak berlaku. *Keputusan review:* server hanya
+    menerima mulai / konfirmasi / nonaktifkan TOTP bersama token perangkat
+    tenant yang dimiliki akun itu, jadi email + kata sandi saja (mis. bocor)
+    tidak cukup untuk mengaktifkan 2 langkah lalu membuka toko di web. Login web akun tanpa TOTP aktif
     ditolak dengan petunjuk mengaktifkannya di aplikasi.
 13. Kode TOTP diterima untuk langkah waktu sekarang ±1; kode yang sudah
     dipakai (langkah yang sama) ditolak. Lima kode salah berturut-turut
@@ -345,6 +350,9 @@ Sama dengan aplikasi. Dashboard: `reports:view`. Pengaturan TOTP: pemilik
 | Kasir di web | — | Tidak direncanakan | Kasir tetap di perangkat dengan PIN. |
 | Item menu F2-03–05 | 2.3 | Belum | Muncul bersama modulnya. |
 | Pull snapshot untuk perangkat baru | — | Belum | Login web menarik seluruh log perubahan tenant. |
+| Kunci TOTP bertingkat | — | Belum | Setiap 5 kode salah mengunci 15 menit lalu hitungan mulai lagi; belum ada kunci yang makin lama atau pemberitahuan ke pemilik. |
+| Cabut token web hasil kode pasang | — | Belum | *Keluar* hanya mencabut token login web (berumur); token perangkat web dari kode pasang tetap berlaku sampai F2-04. Token web juga masih bisa membuat kode pasang. |
+| Sesi akun pemilik di tab web | — | Sebagian | Koneksi akun setelah login web tetap di memori tab sampai tab ditutup. |
 
 ## Kriteria selesai
 

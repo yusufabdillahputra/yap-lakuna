@@ -40,7 +40,9 @@ VPS di v0.172.0.
   perubahan belum terkirim, konfirmasi *Keluar dari browser ini?*. Token
   web dicabut di server, lalu database di browser dihapus.
 - Peringatan browser saat tab ditutup atau dimuat ulang selama ada
-  perubahan belum terkirim.
+  perubahan belum terkirim. Yang dihitung: perubahan yang belum diterima
+  server (termasuk yang tertahan konflik) dan gambar yang belum
+  terunggah.
 - Tautan *Pakai kode pasang* di layar login (gabung cara tahap 1) dan
   *Masuk dengan akun pemilik* di layar kode pasang.
 - Server: endpoint `totp` (status, mulai, konfirmasi, nonaktifkan) dan
@@ -65,6 +67,11 @@ VPS di v0.172.0.
 
 - Login web hanya untuk akun pemilik toko (`tenant_owners`) yang sudah
   mengaktifkan verifikasi 2 langkah.
+- Verifikasi 2 langkah hanya bisa diaktifkan, diatur ulang, atau
+  dinonaktifkan dari perangkat toko yang sudah aktif: server meminta token
+  perangkat tenant milik akun itu, jadi kata sandi yang bocor saja tidak
+  cukup untuk memasang authenticator lain lalu masuk ke web (temuan
+  review).
 - TOTP RFC 6238 (SHA-1, 6 digit, 30 detik, rahasia 160 bit, jendela ±1
   langkah); kode yang sama tidak bisa dipakai dua kali. 5 kode salah
   mengunci 15 menit; pesan menyebut jam buka di zona waktu browser.
@@ -95,6 +102,13 @@ VPS di v0.172.0.
   `webSessions`, `WebSessionStore.setUnsentGuard` (`beforeunload`),
   `HostingRepository.unsentChanges` / `logoutWeb`,
   `TwoFactorViewModel` + dialog, `QrImage` (paket `barcode`).
+- Perbaikan dari review sebelum rilis: `totp.begin/confirm/disable`
+  menerima token perangkat; `countUnsentChanges` (outbox belum `acked` +
+  gambar tersemat) dipakai `SyncStatus.unsent`, peringatan tutup tab, dan
+  layar *Sesi berakhir*; *Keluar* yang ditekan dua kali berjalan sekali
+  (database tidak dihapus selagi ditutup); *Atur ulang* 2 langkah yang
+  dibatalkan setelah langkah nonaktif memuat ulang kartu, dan QR baru yang
+  gagal dimuat dicoba lagi tanpa menonaktifkan ulang.
 - Uji manual: server lokal + perangkat Linux (Xvfb) mengaktifkan
   verifikasi 2 langkah dengan kode TOTP asli; Chromium (Playwright)
   login, kode salah, kunci 15 menit, keluar; terang, gelap, ponsel.
