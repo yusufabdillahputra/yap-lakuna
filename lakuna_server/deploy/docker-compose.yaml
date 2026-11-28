@@ -37,9 +37,6 @@ x-logging: &logging
 services:
   server:
     image: ${LAKUNA_SERVER_IMAGE:-ghcr.io/yusufabdillahputra/lakuna-server:latest}
-    build:
-      context: ../..
-      dockerfile: lakuna_server/Dockerfile
     restart: unless-stopped
     logging: *logging
     depends_on:
@@ -78,8 +75,6 @@ services:
 
   caddy:
     image: ${LAKUNA_CADDY_IMAGE:-ghcr.io/yusufabdillahputra/lakuna-caddy:latest}
-    build:
-      context: caddy
     restart: unless-stopped
     logging: *logging
     depends_on:
@@ -134,6 +129,8 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >-
+        [ -n "$$S3_ACCESS_KEY" ] && [ -n "$$S3_SECRET_KEY" ] ||
+        { echo "isi S3_ACCESS_KEY dan S3_SECRET_KEY di .env" >&2; exit 1; } &&
         mkdir -p /etc/seaweedfs &&
         printf '{"identities":[{"name":"lakuna","credentials":[{"accessKey":"%s","secretKey":"%s"}],"actions":["Admin","Read","Write","List","Tagging"]}]}'
         "$$S3_ACCESS_KEY" "$$S3_SECRET_KEY" > /etc/seaweedfs/s3.json &&

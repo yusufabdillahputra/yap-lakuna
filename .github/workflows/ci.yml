@@ -229,6 +229,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f lakuna_server/Dockerfile -t lakuna-server:ci .
+      - name: Tes skrip backup (pg_dump tiruan)
+        run: docker run --rm -v "$PWD/lakuna_server/deploy:/d:ro" postgres:16-alpine sh /d/test/backup_test.sh
       - name: Server menyala dengan Postgres (docker compose)
         working-directory: lakuna_server/deploy
         env:
@@ -243,7 +245,7 @@ jobs:
           } > .env
           docker compose config -q
           docker compose --profile s3 config -q
-          docker compose up -d --no-build server postgres
+          docker compose up -d server postgres
           for i in $(seq 1 60); do
             if docker compose exec -T server wget -q -O - http://127.0.0.1:8080/readyz; then
               echo; echo "server siap"; break
@@ -264,5 +266,10 @@ jobs:
         run: |
           docker run --rm -e LAKUNA_DOMAIN=sync.contoh.id -e LAKUNA_SCHEME=https \
             -e ACME_EMAIL=ci@contoh.id -e MEDIA_DOMAIN=media.contoh.id \
+            -v "$PWD/lakuna_server/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            lakuna-caddy:ci caddy validate --config /etc/caddy/Caddyfile
+          # Nilai bawaan compose: tanpa object storage, dan uji lokal http.
+          docker run --rm -e LAKUNA_DOMAIN=localhost -e LAKUNA_SCHEME=http \
+            -e ACME_EMAIL=ci@contoh.id -e MEDIA_DOMAIN=http://media.invalid \
             -v "$PWD/lakuna_server/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
             lakuna-caddy:ci caddy validate --config /etc/caddy/Caddyfile

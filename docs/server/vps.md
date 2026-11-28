@@ -14,6 +14,7 @@ Isi paket ada di [`lakuna_server/deploy/`](../../lakuna_server/deploy):
 | Berkas | Isi |
 | --- | --- |
 | `docker-compose.yaml` | Layanan `server` (Lakuna), `postgres` (database), `caddy` (HTTPS otomatis + batas laju), `backup` (pg_dump harian), dan `s3` (object storage gambar SeaweedFS, opsional, profil `s3`). |
+| `docker-compose.build.yaml` | Tambahan untuk build image sendiri dari salinan repo (bila tidak menarik dari GHCR). |
 | `Caddyfile` | HTTPS Let's Encrypt untuk domain server, batas permintaan per IP untuk aktivasi/kode pasang/login dan sync. |
 | `.env.example` | Contoh pengaturan: domain, rahasia, SMTP, object storage. |
 | `backup.sh` | Skrip backup yang dipakai layanan `backup`. |
@@ -41,7 +42,9 @@ Langkah untuk satu toko, dari nol.
 1. Sewa VPS dengan sistem operasi Ubuntu 24.04. Catat **alamat IP** dan
    kata sandi root dari panel penyedia.
 2. Di pengelola DNS domain, buat **A record**: nama `sync` (atau nama
-   lain), nilai = IP VPS. Bila VPS punya IPv6, buat juga **AAAA record**.
+   lain), nilai = IP VPS. **Jangan buat AAAA record** (IPv6) untuk domain ini: jaringan Docker paket ini
+   hanya IPv4, dan lewat IPv6 semua pengguna terlihat satu alamat sehingga batas
+   laju per IP tidak adil. Hapus AAAA record bila penyedia membuatnya otomatis.
    Tunggu beberapa menit sampai `ping sync.tokoanda.id` menjawab dari IP
    VPS.
 
@@ -64,7 +67,9 @@ ufw allow OpenSSH && ufw allow 80/tcp && ufw allow 443/tcp && ufw allow 443/udp 
 ### 3. Ambil paket deploy
 
 ```bash
-git clone --depth 1 https://github.com/yusufabdillahputra/yap-lakuna.git /opt/lakuna-src
+# Ganti v0.168.0 dengan rilis terbaru (halaman Releases), agar berkas paket
+# sama dengan image server.
+git clone --depth 1 --branch v0.168.0 https://github.com/yusufabdillahputra/yap-lakuna.git /opt/lakuna-src
 cp -r /opt/lakuna-src/lakuna_server/deploy /opt/lakuna
 cd /opt/lakuna
 cp .env.example .env
@@ -99,8 +104,9 @@ Buka `nano .env` dan isi:
 
 > **Simpan `.env` baik-baik.** Rahasia JWT dan pepper tidak boleh berubah
 > setelah server dipakai: mengubahnya membuat semua login pemilik dan kode
-> verifikasi yang sedang berjalan tidak berlaku. `POSTGRES_PASSWORD` hanya
-> dipakai saat database pertama kali dibuat.
+> verifikasi yang sedang berjalan tidak berlaku. `POSTGRES_PASSWORD` juga
+> jangan diubah: database dibuat dengan kata sandi itu saat pertama menyala,
+> dan server serta backup memakainya untuk masuk.
 
 ### 5. Nyalakan
 
@@ -205,7 +211,9 @@ toko lebih hemat memakai object storage S3-compatible:
   S3_BUCKET=lakuna-media
   ```
 
-  Jalankan `docker compose --profile s3 up -d`. Layanan `s3-init` membuat
+  Tambahkan juga `COMPOSE_PROFILES=s3` di `.env` agar setiap `docker compose
+  pull/up/down` ikut menyertakan SeaweedFS, lalu jalankan
+  `docker compose up -d`. Layanan `s3-init` membuat
   bucket privat otomatis (aman dijalankan ulang). Caddy membuka
   `MEDIA_DOMAIN` dengan HTTPS dan meneruskannya ke SeaweedFS.
 - **Object storage penyedia** (IDCloudhost Object Storage, Cloudflare R2,
@@ -228,10 +236,10 @@ volume `backups`, dan menghapus backup yang lebih tua dari
 
 ```bash
 # Backup sekarang
-docker compose exec backup lakuna-backup once
+docker compose exec backup sh /usr/local/bin/lakuna-backup once
 # Daftar backup
 docker compose exec backup ls -lh /backups
-# Salin backup terbaru ke folder VPS (lalu unduh dengan scp/rsync)
+# Salin semua backup ke folder VPS (lalu unduh dengan scp/rsync)
 docker compose cp backup:/backups ./backups-$(date +%F)
 ```
 
@@ -244,7 +252,8 @@ Pulihkan ke server (data server saat ini **diganti**):
 
 ```bash
 docker compose stop server
-docker compose cp ./lakuna-20261201-020000.dump postgres:/tmp/pulih.dump
+# Pilih berkas dari folder salinan di atas, mis. ./backups-2026-12-01/
+docker compose cp ./backups-2026-12-01/lakuna-20261201-020000.dump postgres:/tmp/pulih.dump
 docker compose exec postgres pg_restore -U lakuna -d lakuna --clean --if-exists /tmp/pulih.dump
 docker compose start server
 ```
@@ -259,7 +268,7 @@ baru menolak server yang lebih lama (*Server perlu diperbarui*).
 
 ```bash
 cd /opt/lakuna
-docker compose exec backup lakuna-backup once   # jaga-jaga
+docker compose exec backup sh /usr/local/bin/lakuna-backup once   # jaga-jaga
 docker compose pull
 docker compose up -d
 docker compose logs --since 5m server           # migrasi diterapkan otomatis
@@ -268,7 +277,8 @@ docker compose logs --since 5m server           # migrasi diterapkan otomatis
 Untuk mengunci versi, isi `LAKUNA_SERVER_IMAGE=ghcr.io/yusufabdillahputra/lakuna-server:0.168.0`
 (dan `LAKUNA_CADDY_IMAGE` sejenis) di `.env`. Bila berkas paket
 (`docker-compose.yaml`, `Caddyfile`) berubah di rilis baru, ambil ulang:
-`git -C /opt/lakuna-src pull` lalu salin berkas yang berubah ke
+`git -C /opt/lakuna-src fetch --depth 1 origin tag vX.Y.Z` lalu
+`git -C /opt/lakuna-src checkout vX.Y.Z`, dan salin berkas yang berubah ke
 `/opt/lakuna` (jangan timpa `.env`).
 
 ## Rilis aplikasi dengan Server Lakuna
@@ -287,5 +297,6 @@ menawarkan **Server sendiri**.
 | Kode verifikasi email tidak datang | Pengaturan SMTP; sementara ambil kode dari tabel `serverpod_log` (lihat langkah `.env`). |
 | *Terlalu banyak permintaan* (HTTP 429) | Batas laju Caddy per IP; naikkan `AUTH_RATE_LIMIT` / `SYNC_RATE_LIMIT` bila banyak kasir memakai satu IP (NAT kantor). |
 | Gambar tidak muncul di perangkat lain | `S3_ENDPOINT` harus bisa dibuka dari perangkat; `docker compose logs server s3`. |
-| `docker compose pull`: *unauthorized* / *denied* | Paket image di GHCR masih privat. Pemilik repo: GitHub › Packages › `lakuna-server` (dan `lakuna-caddy`) › Package settings › Change visibility › Public (sekali saja). Atau build di VPS dari salinan repo: `cd /opt/lakuna-src/lakuna_server/deploy && docker compose --env-file /opt/lakuna/.env build`, lalu `docker compose up -d` di `/opt/lakuna`. |
+| `docker compose pull`: *unauthorized* / *denied* | Paket image di GHCR masih privat. Pemilik repo: GitHub › Packages › `lakuna-server` (dan `lakuna-caddy`) › Package settings › Change visibility › Public (sekali saja). Atau build di VPS dari salinan repo: `cd /opt/lakuna-src/lakuna_server/deploy && docker compose --env-file /opt/lakuna/.env -f docker-compose.yaml -f docker-compose.build.yaml build`, lalu `docker compose up -d` di `/opt/lakuna`. |
+| Backup gagal | `docker compose logs backup` (baris `backup gagal`). Backup lama tidak dihapus selama backup baru gagal. |
 | Disk penuh | `docker system df -v`, kurangi `BACKUP_KEEP_DAYS`, pindahkan gambar ke object storage, `docker image prune`. |

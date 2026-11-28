@@ -8,4 +8,6 @@
 lakuna_server/.serverpod
 lakuna_server/test
 lakuna_server/config/passwords.yaml
+lakuna_server/config/*.json
+lakuna_server/deploy
 lakuna_server/deploy/.env

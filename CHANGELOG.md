@@ -25,13 +25,19 @@ toko dan server sendiri satu toko.
   `s3` (object storage gambar SeaweedFS di VPS yang sama, bucket privat
   dibuat otomatis). Contoh pengaturan `.env.example`: domain, email ACME,
   lima rahasia server, SMTP, object storage, batas laju, tag image.
+  `docker-compose.build.yaml` untuk build image sendiri dari salinan repo
+  (mis. VPS ARM). `COMPOSE_PROFILES=s3` di `.env` menyertakan SeaweedFS
+  di setiap `pull`/`up`/`down`.
 - **Image Docker server** (`lakuna_server/Dockerfile`): server dan CLI
   admin (`./bin/admin activation-code`) dikompilasi ke biner, image akhir
   Alpine kecil dengan health check `/readyz`. Image Caddy dengan modul
   batas laju (`lakuna_server/deploy/caddy/Dockerfile`).
 - **Image di GitHub Container Registry** setiap rilis:
   `ghcr.io/yusufabdillahputra/lakuna-server` dan `lakuna-caddy` dengan tag
-  versi dan `latest`. VPS cukup `docker compose pull` tanpa build.
+  versi dan `latest`. VPS cukup `docker compose pull` tanpa build. Rilis
+  GitHub baru terbit setelah kedua image terdorong, dan `latest` baru
+  dipindah setelah rilis terbit. Rilis memberi peringatan bila paket GHCR
+  masih privat (VPS tidak bisa menarik tanpa login).
 - **Panduan server** `docs/server/vps.md`: *Pasang server sendiri* (sewa
   VPS, DNS, isi `.env`, `docker compose up -d`, kode aktivasi pertama,
   aktivasi dari aplikasi), *Admin server hosting* (kode aktivasi per toko,
@@ -56,6 +62,15 @@ toko dan server sendiri satu toko.
   variabel `SERVERPOD_PASSWORD_*`; compose menolak menyala bila rahasia
   wajib kosong. Berkas backup ditulis dengan izin `600`.
 - Log container dibatasi 3 × 10 MB per layanan agar tidak memenuhi disk.
+- Backup lama hanya dihapus setelah backup baru berhasil: pg_dump yang
+  gagal (database mati, disk penuh) tidak menghasilkan berkas setengah
+  jadi dan tidak menghabiskan backup yang masih baik. Sisa `.tmp` dibuang.
+- SeaweedFS menolak menyala bila kunci `S3_ACCESS_KEY`/`S3_SECRET_KEY`
+  kosong. Konteks build image tidak menyalin `config/*.json` (mis. kunci
+  layanan) maupun folder `deploy/`.
+- Panduan meminta domain tanpa AAAA record (IPv6): jaringan Docker paket
+  ini hanya IPv4, dan lewat IPv6 semua pengguna tampak satu alamat bagi
+  batas laju.
 
 ### Catatan teknis
 
@@ -72,8 +87,10 @@ toko dan server sendiri satu toko.
   untuk mengambilnya.
 - CI: job paralel `Build image server` (build image, `docker compose
   config` dengan dan tanpa profil `s3`, server + Postgres menyala, `/readyz`
-  menjawab, CLI admin membuat kode aktivasi) dan `Build image Caddy`
-  (`caddy validate`). Rilis: job `server-image` mendorong kedua image ke
+  menjawab, CLI admin membuat kode aktivasi, tes `backup.sh` dengan
+  `pg_dump` tiruan di `lakuna_server/deploy/test/backup_test.sh`) dan
+  `Build image Caddy` (`caddy validate` untuk domain produksi + media dan
+  untuk nilai bawaan uji lokal). Rilis: job `server-image` mendorong kedua image ke
   GHCR.
 - Uji lokal end-to-end: `docker compose up` (server, Postgres, Caddy,
   backup) sehat, `/readyz` 200 lewat Caddy, batas laju 429 setelah 30

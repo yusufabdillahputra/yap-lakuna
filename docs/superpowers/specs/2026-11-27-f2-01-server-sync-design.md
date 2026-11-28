@@ -468,6 +468,8 @@ memastikan setiap model `database: all` ada di daftar itu.
 | Hapus berkas gambar yatim di server | — | Belum | Berkas tetap di storage setelah baris `media_files` dihapus; pembersihan menyusul. |
 | Paket deploy VPS + panduan | — | Rilis v0.168.0 | `lakuna_server/deploy/` (server, Postgres 16, Caddy HTTPS + batas laju, backup `pg_dump` harian, profil `s3` SeaweedFS), image GHCR `lakuna-server` dan `lakuna-caddy` per rilis, panduan `docs/server/vps.md` (server hosting banyak toko + server sendiri satu toko). |
 | Backup di luar VPS | — | Belum | Backup harian hanya di volume `backups`; salinan ke luar VPS masih langkah manual. |
+| IPv6 di paket VPS | — | Belum | Jaringan compose hanya IPv4; panduan meminta tanpa AAAA record agar batas laju per IP tetap benar. |
+| Image ARM (arm64) | — | Belum | Image GHCR hanya linux/amd64; VPS ARM perlu build sendiri (`docker-compose.build.yaml`). |
 | Izin per aksi di server | — | Belum | Gap; perangkat sudah menjaga izin di repositori. |
 | Pull per outlet | — | Belum | Modul ini menarik semua outlet tenant (aturan 2). |
 | Keunikan tingkat aplikasi di server | — | Belum | Duplikat SKU/nama dari dua perangkat dilaporkan di F2-03 (aturan 8c). |
