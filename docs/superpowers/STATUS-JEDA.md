@@ -149,6 +149,7 @@ ulang riwayat.
 | v0.165.0 | Fase 2 tahap 2: mesin sync di perangkat (F2-01) | #173 |
 | v0.166.0 | Fase 2 tahap 3: aktivasi versi hosting, chip status sync, gabung perangkat (F2-01) | #174 |
 | v0.167.0 | Fase 2 tahap 4: gambar ke object storage, unduh saat dibutuhkan (F2-01) | #175 |
+| v0.168.0 | Fase 2 tahap 5: paket deploy server di VPS (F2-01) | #176 |
 
 Semua modul Fase 1 di `specs/README.md` sudah dirilis. Yang tersisa adalah
 gap per modul (tabel **Status & gap** di tiap spec, cari `| Belum |`).

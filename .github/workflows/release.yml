@@ -19,6 +19,9 @@ permissions:
 
 env:
   FLUTTER_VERSION: '3.47.9'
+  # Alamat *Server Lakuna* yang dibawa aplikasi (variabel repo, boleh
+  # kosong: aplikasi hanya menawarkan *Server sendiri*).
+  LAKUNA_HOSTING_URL: ${{ vars.LAKUNA_HOSTING_URL }}
 
 jobs:
   prepare:
@@ -53,7 +56,7 @@ jobs:
         run: >-
           flutter build linux --release
           --build-name "$VERSION" --build-number "$BUILD"
-          --dart-define=LAKUNA_VERSION="$VERSION"
+          --dart-define=LAKUNA_VERSION="$VERSION" --dart-define=LAKUNA_HOSTING_URL="$LAKUNA_HOSTING_URL"
       - run: tools/packaging/linux/build-deb.sh "$VERSION" lakuna_flutter/build/linux/x64/release/bundle dist
       - uses: actions/upload-artifact@v4
         with:
@@ -80,7 +83,7 @@ jobs:
         run: >-
           flutter build windows --release
           --build-name "$VERSION" --build-number "$BUILD"
-          --dart-define=LAKUNA_VERSION="$VERSION"
+          --dart-define=LAKUNA_VERSION="$VERSION" --dart-define=LAKUNA_HOSTING_URL="$LAKUNA_HOSTING_URL"
       - name: Pasang Inno Setup dan WiX
         shell: pwsh
         run: |
@@ -125,7 +128,7 @@ jobs:
         run: >-
           flutter build macos --release
           --build-name "$VERSION" --build-number "$BUILD"
-          --dart-define=LAKUNA_VERSION="$VERSION"
+          --dart-define=LAKUNA_VERSION="$VERSION" --dart-define=LAKUNA_HOSTING_URL="$LAKUNA_HOSTING_URL"
       - run: tools/packaging/macos/build-dmg.sh "$VERSION" lakuna_flutter/build/macos/Build/Products/Release/Lakuna.app dist
       - uses: actions/upload-artifact@v4
         with:
@@ -174,7 +177,7 @@ jobs:
       - name: Build APK dan AAB
         working-directory: lakuna_flutter
         run: |
-          args=(--release --build-name "$VERSION" --build-number "$BUILD" --dart-define=LAKUNA_VERSION="$VERSION")
+          args=(--release --build-name "$VERSION" --build-number "$BUILD" --dart-define=LAKUNA_VERSION="$VERSION" --dart-define=LAKUNA_HOSTING_URL="$LAKUNA_HOSTING_URL")
           flutter build apk "${args[@]}"
           flutter build appbundle "${args[@]}"
       - run: |
@@ -205,7 +208,7 @@ jobs:
         run: >-
           flutter build ios --release --no-codesign
           --build-name "$VERSION" --build-number "$BUILD"
-          --dart-define=LAKUNA_VERSION="$VERSION"
+          --dart-define=LAKUNA_VERSION="$VERSION" --dart-define=LAKUNA_HOSTING_URL="$LAKUNA_HOSTING_URL"
       - run: |
           stage="$(mktemp -d)"
           mkdir -p "$stage/Payload" dist
@@ -217,9 +220,52 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  server-image:
+    name: Image server + Caddy (GHCR)
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Nama image (huruf kecil)
+        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: lakuna_server/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/lakuna-server:${{ env.VERSION }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: lakuna_server/deploy/caddy
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/lakuna-caddy:${{ env.VERSION }}
+      # VPS menarik image tanpa login: paket GHCR harus publik (sekali,
+      # Package settings › Change visibility). Peringatan, bukan gagal.
+      - name: Image bisa ditarik tanpa login
+        run: |
+          docker logout ghcr.io
+          for img in lakuna-server lakuna-caddy; do
+            docker manifest inspect "ghcr.io/$OWNER/$img:$VERSION" > /dev/null ||
+              echo "::warning::ghcr.io/$OWNER/$img masih privat; jadikan publik di Package settings"
+          done
+
   publish:
     name: Tag + GitHub Release
-    needs: [prepare, linux, windows, macos, android, ios]
+    needs: [prepare, linux, windows, macos, android, ios, server-image]
     # Runner macOS GitHub-hosted kadang tidak pernah didapat (job batal);
     # rilis tetap terbit bila Linux, Windows, dan Android berhasil, dengan
     # catatan installer Apple yang menyusul.
@@ -227,10 +273,12 @@ jobs:
       always() && needs.prepare.outputs.release == 'true' &&
       needs.linux.result == 'success' &&
       needs.windows.result == 'success' &&
-      needs.android.result == 'success'
+      needs.android.result == 'success' &&
+      needs.server-image.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
       GH_TOKEN: ${{ github.token }}
@@ -279,3 +327,17 @@ jobs:
             --title "Lakuna v$VERSION" \
             --notes-file notes.md \
             "${flags[@]}"
+      # `latest` baru dipindah setelah rilis terbit, agar selalu sama
+      # dengan rilis GitHub terbaru.
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Image server + Caddy → latest
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          for img in lakuna-server lakuna-caddy; do
+            docker buildx imagetools create \
+              -t "ghcr.io/$owner/$img:latest" "ghcr.io/$owner/$img:$VERSION"
+          done

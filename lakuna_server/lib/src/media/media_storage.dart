@@ -1,5 +1,5 @@
 /// Penyimpanan berkas media server (F2-01 aturan 19): object storage
-/// S3-compatible (MinIO di paket VPS, atau S3 penyedia) bila diatur, atau
+/// S3-compatible (SeaweedFS di paket VPS, atau S3 penyedia) bila diatur, atau
 /// database Postgres bila tidak (pengembangan, tes, server kecil).
 library;
 
@@ -74,7 +74,7 @@ List<CloudStorage> mediaStorages(S3Settings? s3) => [
       public: false,
       endpoints: CustomEndpointConfig(
         baseUri: s3.endpoint,
-        serviceName: 'MinIO/S3',
+        serviceName: 'S3-compatible',
       ),
       uploadStrategy: PresignedPutUploadStrategy(),
     ),

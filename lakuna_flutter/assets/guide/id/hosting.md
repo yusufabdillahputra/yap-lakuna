@@ -6,7 +6,7 @@ Versi hosting menyinkronkan data semua cabang dan perangkat ke server toko Anda 
 
 ## Yang perlu disiapkan
 
-- **Alamat server**, misalnya `https://sync.tokoanda.id`. Pilih *Server Lakuna* bila tersedia di aplikasi Anda, atau *Server sendiri* untuk server di VPS toko.
+- **Alamat server**, misalnya `https://sync.tokoanda.id`. Pilih *Server Lakuna* bila tersedia di aplikasi Anda, atau *Server sendiri* untuk server di VPS toko. Cara memasang server sendiri ada di `docs/server/vps.md` di repositori Lakuna (Docker, HTTPS otomatis, backup harian).
 - **Kode aktivasi** dari pengelola server (8 huruf/angka, berlaku sekali).
 - **Akun pemilik** di server: email dan kata sandi. Belum punya? Buat di langkah 2 dengan kode verifikasi yang dikirim ke email.
 

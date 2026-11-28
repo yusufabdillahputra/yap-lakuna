@@ -40,6 +40,7 @@ Windows (`.exe`, `.msi`), Linux (`.deb`), macOS (`.dmg`), Android (`.apk`,
 | `packages/lakuna_domain/` | Aturan bisnis Dart murni (uang, jumlah, izin, nomor nota) |
 | `packages/lakuna_data/` | Database lokal dan outbox sinkronisasi |
 | `docs/superpowers/` | Spec dan rencana per modul |
+| `docs/server/vps.md` | Memasang server sync di VPS sendiri (Docker) |
 | `tools/packaging/` | Skrip pembuat installer |
 
 ## Mengembangkan

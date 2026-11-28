@@ -1,0 +1,162 @@
+# Paket deploy server Lakuna untuk VPS (F2-01 tahap 5).
+# Panduan lengkap: docs/server/vps.md
+#
+#   cp .env.example .env    # isi domain dan rahasia
+#   docker compose up -d    # server, Postgres, Caddy (HTTPS), backup harian
+#   docker compose --profile s3 up -d      # + object storage gambar (opsional)
+#
+# Satu paket yang sama dipakai server hosting (banyak toko) dan server
+# sendiri satu toko; bedanya hanya jumlah kode aktivasi yang dibuat.
+
+name: lakuna
+
+x-server-passwords: &server-passwords
+  SERVERPOD_PASSWORD_database: ${POSTGRES_PASSWORD:?isi POSTGRES_PASSWORD di .env}
+  SERVERPOD_PASSWORD_serviceSecret: ${SERVICE_SECRET:?isi SERVICE_SECRET di .env}
+  SERVERPOD_PASSWORD_emailSecretHashPepper: ${EMAIL_SECRET_HASH_PEPPER:?isi EMAIL_SECRET_HASH_PEPPER di .env}
+  SERVERPOD_PASSWORD_jwtHmacSha512PrivateKey: ${JWT_HMAC_SHA512_PRIVATE_KEY:?isi JWT_HMAC_SHA512_PRIVATE_KEY di .env}
+  SERVERPOD_PASSWORD_jwtRefreshTokenHashPepper: ${JWT_REFRESH_TOKEN_HASH_PEPPER:?isi JWT_REFRESH_TOKEN_HASH_PEPPER di .env}
+  SERVERPOD_PASSWORD_smtpHost: ${SMTP_HOST:-}
+  SERVERPOD_PASSWORD_smtpPort: ${SMTP_PORT:-}
+  SERVERPOD_PASSWORD_smtpUser: ${SMTP_USER:-}
+  SERVERPOD_PASSWORD_smtpPassword: ${SMTP_PASSWORD:-}
+  SERVERPOD_PASSWORD_smtpFrom: ${SMTP_FROM:-}
+  SERVERPOD_PASSWORD_s3Endpoint: ${S3_ENDPOINT:-}
+  SERVERPOD_PASSWORD_s3AccessKey: ${S3_ACCESS_KEY:-}
+  SERVERPOD_PASSWORD_s3SecretKey: ${S3_SECRET_KEY:-}
+  SERVERPOD_PASSWORD_s3Bucket: ${S3_BUCKET:-}
+  SERVERPOD_PASSWORD_s3Region: ${S3_REGION:-}
+
+# Log container dibatasi agar tidak memenuhi disk VPS.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  server:
+    image: ${LAKUNA_SERVER_IMAGE:-ghcr.io/yusufabdillahputra/lakuna-server:latest}
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *server-passwords
+      runmode: production
+      SERVERPOD_API_SERVER_PUBLIC_HOST: ${LAKUNA_DOMAIN:?isi LAKUNA_DOMAIN di .env}
+      SERVERPOD_API_SERVER_PUBLIC_PORT: ${LAKUNA_PUBLIC_PORT:-443}
+      SERVERPOD_API_SERVER_PUBLIC_SCHEME: ${LAKUNA_SCHEME:-https}
+      SERVERPOD_DATABASE_HOST: postgres
+      SERVERPOD_DATABASE_PORT: "5432"
+      SERVERPOD_DATABASE_NAME: lakuna
+      SERVERPOD_DATABASE_USER: lakuna
+      SERVERPOD_DATABASE_REQUIRE_SSL: "false"
+    # Tidak ada port yang dibuka ke luar; lalu lintas lewat Caddy.
+    expose:
+      - "8080"
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: lakuna
+      POSTGRES_USER: lakuna
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?isi POSTGRES_PASSWORD di .env}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lakuna -d lakuna"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  caddy:
+    image: ${LAKUNA_CADDY_IMAGE:-ghcr.io/yusufabdillahputra/lakuna-caddy:latest}
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      LAKUNA_DOMAIN: ${LAKUNA_DOMAIN}
+      LAKUNA_SCHEME: ${LAKUNA_SCHEME:-https}
+      # Tanpa MEDIA_DOMAIN situs object storage hanya nama tiruan http.
+      MEDIA_DOMAIN: ${MEDIA_DOMAIN:-http://media.invalid}
+      ACME_EMAIL: ${ACME_EMAIL:?isi ACME_EMAIL di .env}
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-30}
+      SYNC_RATE_LIMIT: ${SYNC_RATE_LIMIT:-600}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Backup harian pg_dump ke volume `backups` (disimpan BACKUP_KEEP_DAYS
+  # hari). Salin ke luar VPS secara berkala, lihat docs/server/vps.md.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: lakuna
+      PGDATABASE: lakuna
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - backups:/backups
+      - ./backup.sh:/usr/local/bin/lakuna-backup:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/lakuna-backup", "loop"]
+
+  # Object storage S3-compatible untuk gambar (opsional, profil `s3`):
+  # SeaweedFS. Tanpa profil ini gambar disimpan di database Postgres.
+  s3:
+    profiles: ["s3"]
+    image: chrislusf/seaweedfs:3.97
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        [ -n "$$S3_ACCESS_KEY" ] && [ -n "$$S3_SECRET_KEY" ] ||
+        { echo "isi S3_ACCESS_KEY dan S3_SECRET_KEY di .env" >&2; exit 1; } &&
+        mkdir -p /etc/seaweedfs &&
+        printf '{"identities":[{"name":"lakuna","credentials":[{"accessKey":"%s","secretKey":"%s"}],"actions":["Admin","Read","Write","List","Tagging"]}]}'
+        "$$S3_ACCESS_KEY" "$$S3_SECRET_KEY" > /etc/seaweedfs/s3.json &&
+        exec weed server -dir=/data -volume.max=0 -s3 -s3.port=8333
+        -s3.config=/etc/seaweedfs/s3.json
+    volumes:
+      - s3:/data
+
+  # Membuat bucket privat sekali saat profil s3 dinyalakan.
+  s3-init:
+    profiles: ["s3"]
+    image: chrislusf/seaweedfs:3.97
+    depends_on:
+      - s3
+    environment:
+      S3_BUCKET: ${S3_BUCKET:-lakuna-media}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        until echo "s3.bucket.create -name $$S3_BUCKET" |
+        weed shell -master=s3:9333 -filer=s3:8888 2>&1 | grep -q "created bucket";
+        do sleep 3; done; echo "bucket $$S3_BUCKET siap"
+
+volumes:
+  postgres:
+  backups:
+  caddy_data:
+  caddy_config:
+  s3:

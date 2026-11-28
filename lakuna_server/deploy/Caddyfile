@@ -1,0 +1,44 @@
+# Caddy di depan server Lakuna: HTTPS otomatis (Let's Encrypt) untuk
+# LAKUNA_DOMAIN, batas laju untuk aktivasi/kode pasang/login, dan
+# (opsional) MEDIA_DOMAIN untuk object storage gambar (profil s3).
+{
+	email {$ACME_EMAIL}
+	order rate_limit before reverse_proxy
+}
+
+{$LAKUNA_SCHEME:https}://{$LAKUNA_DOMAIN} {
+	encode zstd gzip
+
+	# Aktivasi, kode pasang, dan login/daftar pemilik: per alamat IP.
+	@auth path /activation/* /emailIdp/* /jwtRefresh/*
+	rate_limit @auth {
+		zone auth {
+			key {remote_host}
+			events {$AUTH_RATE_LIMIT:30}
+			window 1m
+		}
+	}
+
+	# Sync dan media: batas longgar agar satu perangkat rusak tidak
+	# membanjiri server.
+	rate_limit {
+		zone sync {
+			key {remote_host}
+			events {$SYNC_RATE_LIMIT:600}
+			window 1m
+		}
+	}
+
+	# Insights (8081) dan web (8082) tidak dibuka.
+	reverse_proxy server:8080
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Aktif hanya bila MEDIA_DOMAIN diisi (profil s3).
+{$MEDIA_DOMAIN} {
+	reverse_proxy s3:8333
+}

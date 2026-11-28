@@ -1,0 +1,11 @@
+# Build image di mesin sendiri (dari salinan repo), bukan menarik dari GHCR:
+#   cd <repo>/lakuna_server/deploy
+#   docker compose -f docker-compose.yaml -f docker-compose.build.yaml build
+services:
+  server:
+    build:
+      context: ../..
+      dockerfile: lakuna_server/Dockerfile
+  caddy:
+    build:
+      context: caddy
