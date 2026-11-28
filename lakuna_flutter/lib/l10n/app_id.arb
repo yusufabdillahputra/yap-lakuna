@@ -6702,5 +6702,96 @@
   "hostingUploadBackground": "Lanjut di latar",
   "@hostingUploadBackground": {
     "placeholders": {}
+  },
+  "webOutletPickerTitle": "Pilih cabang",
+  "@webOutletPickerTitle": {
+    "placeholders": {}
+  },
+  "webOutletPickerLabel": "Cabang: {name}",
+  "@webOutletPickerLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "webOutletPickerCancel": "Batal",
+  "@webOutletPickerCancel": {
+    "placeholders": {}
+  },
+  "webJoinTitle": "Masuk ke toko versi hosting",
+  "@webJoinTitle": {
+    "placeholders": {}
+  },
+  "webJoinBody": "Buat kode pasang di aplikasi kasir (Pengaturan › Versi hosting › Pasang perangkat), lalu tempel di sini. Browser ini menjadi perangkat back office toko.",
+  "@webJoinBody": {
+    "placeholders": {}
+  },
+  "webJoinServerLabel": "Alamat server",
+  "@webJoinServerLabel": {
+    "placeholders": {}
+  },
+  "webJoinCodeLabel": "Kode pasang",
+  "@webJoinCodeLabel": {
+    "placeholders": {}
+  },
+  "webJoinSubmit": "Masuk",
+  "@webJoinSubmit": {
+    "placeholders": {}
+  },
+  "webJoinNoOutlet": "Toko ini belum punya cabang aktif.",
+  "@webJoinNoOutlet": {
+    "placeholders": {}
+  },
+  "webPreparingTitle": "Menyiapkan data toko",
+  "@webPreparingTitle": {
+    "placeholders": {}
+  },
+  "webPreparingBody": "Data toko ditarik ke browser ini. Bila tab tertutup, proses dilanjutkan saat halaman dibuka lagi.",
+  "@webPreparingBody": {
+    "placeholders": {}
+  },
+  "webPreparingProgress": "{done} dari {total} perubahan",
+  "@webPreparingProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "webPreparingCount": "{done} perubahan diterima",
+  "@webPreparingCount": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "webPreparingCancel": "Batal",
+  "@webPreparingCancel": {
+    "placeholders": {}
+  },
+  "webPreparingRetry": "Coba lagi",
+  "@webPreparingRetry": {
+    "placeholders": {}
+  },
+  "webProblemStorageTitle": "Penyimpanan ditolak",
+  "@webProblemStorageTitle": {
+    "placeholders": {}
+  },
+  "webProblemStorageBody": "Browser ini tidak mengizinkan penyimpanan data. Matikan mode privat atau pakai browser lain.",
+  "@webProblemStorageBody": {
+    "placeholders": {}
+  },
+  "webProblemOtherTabTitle": "Lakuna sudah terbuka di tab lain",
+  "@webProblemOtherTabTitle": {
+    "placeholders": {}
+  },
+  "webProblemOtherTabBody": "Pakai tab yang sudah terbuka, atau tutup tab itu lalu muat ulang halaman ini.",
+  "@webProblemOtherTabBody": {
+    "placeholders": {}
   }
 }

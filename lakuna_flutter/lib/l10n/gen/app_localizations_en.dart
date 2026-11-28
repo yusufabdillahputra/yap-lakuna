@@ -9721,4 +9721,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hostingUploadBackground => 'Continue in background';
+
+  @override
+  String get webOutletPickerTitle => 'Choose branch';
+
+  @override
+  String webOutletPickerLabel(String name) {
+    return 'Branch: $name';
+  }
+
+  @override
+  String get webOutletPickerCancel => 'Cancel';
+
+  @override
+  String get webJoinTitle => 'Open your hosted store';
+
+  @override
+  String get webJoinBody =>
+      'Create a pairing code in the cashier app (Settings › Hosted version › Pair a device), then paste it here. This browser becomes a back-office device of the store.';
+
+  @override
+  String get webJoinServerLabel => 'Server address';
+
+  @override
+  String get webJoinCodeLabel => 'Pairing code';
+
+  @override
+  String get webJoinSubmit => 'Open store';
+
+  @override
+  String get webJoinNoOutlet => 'This store has no active outlet yet.';
+
+  @override
+  String get webPreparingTitle => 'Preparing store data';
+
+  @override
+  String get webPreparingBody =>
+      'Store data is being downloaded to this browser. If the tab closes, it continues when the page is opened again.';
+
+  @override
+  String webPreparingProgress(String done, String total) {
+    return '$done of $total changes';
+  }
+
+  @override
+  String webPreparingCount(String done) {
+    return '$done changes received';
+  }
+
+  @override
+  String get webPreparingCancel => 'Cancel';
+
+  @override
+  String get webPreparingRetry => 'Try again';
+
+  @override
+  String get webProblemStorageTitle => 'Storage blocked';
+
+  @override
+  String get webProblemStorageBody =>
+      'This browser does not allow storing data. Turn off private mode or use another browser.';
+
+  @override
+  String get webProblemOtherTabTitle => 'Lakuna is already open in another tab';
+
+  @override
+  String get webProblemOtherTabBody =>
+      'Use the tab that is already open, or close it and reload this page.';
 }

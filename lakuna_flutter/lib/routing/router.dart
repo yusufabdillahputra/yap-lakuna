@@ -70,6 +70,7 @@ import '../ui/settings/app_settings_view_model.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/stock/stock_view.dart';
 import '../ui/stock/stock_view_model.dart' show StockTab;
+import '../config/app_platform.dart';
 import 'routes.dart';
 
 /// Router aplikasi:
@@ -108,7 +109,10 @@ GoRouter createRouter({
   SpreadsheetExporter exporter = const PlatformSpreadsheetExporter(),
   TableFilePicker tablePicker = const FileSelectorTablePicker(),
   String initialLocation = Routes.home,
+  AppPlatform platform = AppPlatform.native,
 }) {
+  // Web tidak punya backup lokal (F2-02 aturan 9).
+  final localBackup = platform.supportsLocalBackup ? backup : null;
   final guideRepository = guide ?? AssetGuideRepository();
   // Keranjang kasir retail bertahan saat pindah menu (F1-04c).
   final cartDraft = CartDraft(session);
@@ -145,7 +149,8 @@ GoRouter createRouter({
         final key? => menuEntryByKey(key),
         null => menuEntryByPath(location),
       };
-      if (entry != null && !entry.allows(staff.permissions)) {
+      if (entry != null &&
+          (!entry.allows(staff.permissions) || !entry.availableOn(platform))) {
         return Routes.home;
       }
       return null;
@@ -181,6 +186,8 @@ GoRouter createRouter({
             canSwitch: leaveGuards.canLeaveAll,
             hosting: hosting,
             timezone: store.current?.outlet.timezone,
+            platform: platform,
+            store: store,
             child: child,
           ),
         ),
@@ -193,7 +200,7 @@ GoRouter createRouter({
               reports: reports,
               stock: stock,
               dining: dining,
-              backup: backup,
+              backup: localBackup,
             ),
           ),
           GoRoute(
@@ -208,7 +215,7 @@ GoRouter createRouter({
               session: session,
               store: store,
               diningAdmin: diningAdmin,
-              backup: backup,
+              backup: localBackup,
               backupFiles: backupFiles,
               hosting: hosting,
               initialSection: SettingsSection.fromQuery(

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:lakuna_domain/lakuna_domain.dart';
 import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
+import '../../config/app_platform.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../routing/routes.dart';
 
@@ -14,6 +15,7 @@ class MenuEntry {
     required this.path,
     this.permission,
     this.orPermission,
+    this.deviceOnly = false,
   });
 
   final String key;
@@ -28,6 +30,13 @@ class MenuEntry {
   /// Izin pengganti [permission] (mis. Riwayat: `sales:create` atau
   /// `reports:view`).
   final Permission? orPermission;
+
+  /// Hanya di aplikasi perangkat, tidak di web (kasir, meja, sesi kasir;
+  /// F2-02 aturan 3).
+  final bool deviceOnly;
+
+  bool availableOn(AppPlatform platform) =>
+      !deviceOnly || platform.supportsCashier;
 
   bool allows(Set<Permission> permissions) =>
       permission == null ||
@@ -65,6 +74,7 @@ final List<MenuGroup> appMenu = [
         label: (l) => l.menuCashier,
         path: Routes.cashier,
         permission: Permission.salesCreate,
+        deviceOnly: true,
       ),
       MenuEntry(
         key: 'tables',
@@ -72,6 +82,7 @@ final List<MenuGroup> appMenu = [
         label: (l) => l.menuTables,
         path: Routes.tables,
         permission: Permission.openBillsManage,
+        deviceOnly: true,
       ),
       MenuEntry(
         key: 'cash_session',
@@ -79,6 +90,7 @@ final List<MenuGroup> appMenu = [
         label: (l) => l.menuCashSession,
         path: Routes.cashSession,
         permission: Permission.cashSessionOpen,
+        deviceOnly: true,
       ),
       MenuEntry(
         key: 'history',
@@ -197,16 +209,22 @@ final List<MenuGroup> appMenu = [
 
 Iterable<MenuEntry> get allMenuEntries => appMenu.expand((g) => g.entries);
 
-/// Menu yang boleh dilihat staf dengan [permissions]; kelompok kosong
-/// disembunyikan.
-List<MenuGroup> visibleMenu(Set<Permission> permissions) => [
+bool _shows(MenuEntry e, Set<Permission> permissions, AppPlatform platform) =>
+    e.allows(permissions) && e.availableOn(platform);
+
+/// Menu yang boleh dilihat staf dengan [permissions] di [platform];
+/// kelompok kosong disembunyikan.
+List<MenuGroup> visibleMenu(
+  Set<Permission> permissions, {
+  AppPlatform platform = AppPlatform.native,
+}) => [
   for (final group in appMenu)
-    if (group.entries.any((e) => e.allows(permissions)))
+    if (group.entries.any((e) => _shows(e, permissions, platform)))
       MenuGroup(
         label: group.label,
         entries: [
           for (final e in group.entries)
-            if (e.allows(permissions)) e,
+            if (_shows(e, permissions, platform)) e,
         ],
       ),
 ];
@@ -215,17 +233,23 @@ List<MenuGroup> visibleMenu(Set<Permission> permissions) => [
 /// Riwayat), disaring izin. Sisanya ada di *Lainnya* ([mobileMoreMenu]).
 const _mobilePrimary = ['home', 'cashier', 'products', 'history'];
 
-List<MenuEntry> mobileMenu(Set<Permission> permissions) => [
+List<MenuEntry> mobileMenu(
+  Set<Permission> permissions, {
+  AppPlatform platform = AppPlatform.native,
+}) => [
   for (final key in _mobilePrimary)
     if (allMenuEntries.firstWhere((e) => e.key == key) case final e
-        when e.allows(permissions))
+        when _shows(e, permissions, platform))
       e,
 ];
 
 /// Menu *Lainnya* di mobile: entri yang boleh dilihat tetapi tidak ada di
 /// navigasi bawah, per kelompok.
-List<MenuGroup> mobileMoreMenu(Set<Permission> permissions) => [
-  for (final group in visibleMenu(permissions))
+List<MenuGroup> mobileMoreMenu(
+  Set<Permission> permissions, {
+  AppPlatform platform = AppPlatform.native,
+}) => [
+  for (final group in visibleMenu(permissions, platform: platform))
     if (group.entries.any((e) => !_mobilePrimary.contains(e.key)))
       MenuGroup(
         label: group.label,

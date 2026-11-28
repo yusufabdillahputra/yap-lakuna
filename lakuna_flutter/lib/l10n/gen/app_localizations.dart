@@ -16256,6 +16256,120 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Lanjut di latar'**
   String get hostingUploadBackground;
+
+  /// No description provided for @webOutletPickerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih cabang'**
+  String get webOutletPickerTitle;
+
+  /// No description provided for @webOutletPickerLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Cabang: {name}'**
+  String webOutletPickerLabel(String name);
+
+  /// No description provided for @webOutletPickerCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get webOutletPickerCancel;
+
+  /// No description provided for @webJoinTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk ke toko versi hosting'**
+  String get webJoinTitle;
+
+  /// No description provided for @webJoinBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat kode pasang di aplikasi kasir (Pengaturan › Versi hosting › Pasang perangkat), lalu tempel di sini. Browser ini menjadi perangkat back office toko.'**
+  String get webJoinBody;
+
+  /// No description provided for @webJoinServerLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alamat server'**
+  String get webJoinServerLabel;
+
+  /// No description provided for @webJoinCodeLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kode pasang'**
+  String get webJoinCodeLabel;
+
+  /// No description provided for @webJoinSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Masuk'**
+  String get webJoinSubmit;
+
+  /// No description provided for @webJoinNoOutlet.
+  ///
+  /// In id, this message translates to:
+  /// **'Toko ini belum punya cabang aktif.'**
+  String get webJoinNoOutlet;
+
+  /// No description provided for @webPreparingTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyiapkan data toko'**
+  String get webPreparingTitle;
+
+  /// No description provided for @webPreparingBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Data toko ditarik ke browser ini. Bila tab tertutup, proses dilanjutkan saat halaman dibuka lagi.'**
+  String get webPreparingBody;
+
+  /// No description provided for @webPreparingProgress.
+  ///
+  /// In id, this message translates to:
+  /// **'{done} dari {total} perubahan'**
+  String webPreparingProgress(String done, String total);
+
+  /// No description provided for @webPreparingCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{done} perubahan diterima'**
+  String webPreparingCount(String done);
+
+  /// No description provided for @webPreparingCancel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get webPreparingCancel;
+
+  /// No description provided for @webPreparingRetry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get webPreparingRetry;
+
+  /// No description provided for @webProblemStorageTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penyimpanan ditolak'**
+  String get webProblemStorageTitle;
+
+  /// No description provided for @webProblemStorageBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Browser ini tidak mengizinkan penyimpanan data. Matikan mode privat atau pakai browser lain.'**
+  String get webProblemStorageBody;
+
+  /// No description provided for @webProblemOtherTabTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Lakuna sudah terbuka di tab lain'**
+  String get webProblemOtherTabTitle;
+
+  /// No description provided for @webProblemOtherTabBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Pakai tab yang sudah terbuka, atau tutup tab itu lalu muat ulang halaman ini.'**
+  String get webProblemOtherTabBody;
 }
 
 class _AppLocalizationsDelegate

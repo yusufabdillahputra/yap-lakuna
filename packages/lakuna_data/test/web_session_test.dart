@@ -125,6 +125,24 @@ void main() {
     },
   );
 
+  test('sesi web disiapkan lalu dibaca lagi setelah tab ditutup '
+      '(Fokus review 2)', () async {
+    expect(await readWebSession(path()), isNull);
+    await prepareWebSession(
+      databasePath: path(),
+      deviceId: webDeviceId,
+      deviceToken: 'token-web',
+      serverUrl: 'https://toko.contoh.id/',
+    );
+    final session = (await readWebSession(path()))!;
+    expect(session.deviceId, webDeviceId);
+    expect(session.deviceToken, 'token-web');
+    expect(session.serverUrl, 'https://toko.contoh.id/');
+    // Pull pertama memakai kredensial yang sama, tanpa perangkat baru.
+    await join();
+    expect((await readWebSession(path()))!.deviceToken, 'token-web');
+  });
+
   test('deleteWebDatabase (native) menghapus berkas dan sufiksnya', () async {
     await join();
     for (final suffix in ['-wal', '-shm', '-journal']) {

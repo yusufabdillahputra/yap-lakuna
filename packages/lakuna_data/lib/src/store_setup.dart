@@ -50,7 +50,13 @@ class SetupInvalid implements Exception {
 const defaultStockLocationName = 'Etalase';
 
 /// Memuat konteks toko, atau `null` bila setup belum dilakukan.
-Future<StoreContext?> loadStoreContext(LakunaStore store) async {
+///
+/// [outletId] (pemilih cabang di web, F2-02 aturan 2a) memakai cabang itu
+/// bila aktif di tenant yang sama; perangkat tetap perangkat ini.
+Future<StoreContext?> loadStoreContext(
+  LakunaStore store, {
+  UuidValue? outletId,
+}) async {
   final session = store.session;
   final tenant = await Tenant.db.findFirstRow(
     session,
@@ -60,7 +66,12 @@ Future<StoreContext?> loadStoreContext(LakunaStore store) async {
   if (tenant == null) return null;
   final device = await Device.db.findById(session, store.deviceId);
   if (device == null || device.tenantId != tenant.id) return null;
-  final outlet = await Outlet.db.findById(session, device.outletId);
+  final outlet = await Outlet.db.findById(session, outletId ?? device.outletId);
+  if (outlet == null ||
+      outlet.tenantId != tenant.id ||
+      outlet.deletedAt != null) {
+    return null;
+  }
   final owner = await StaffMember.db.findFirstRow(
     session,
     where: (s) =>
@@ -69,7 +80,7 @@ Future<StoreContext?> loadStoreContext(LakunaStore store) async {
         s.deletedAt.equals(null),
     orderBy: (s) => s.createdAt,
   );
-  if (outlet == null || owner == null) return null;
+  if (owner == null) return null;
   return StoreContext(
     tenant: tenant,
     outlet: outlet,

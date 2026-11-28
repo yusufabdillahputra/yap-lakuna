@@ -360,7 +360,8 @@ class PlatformReceiptPrinter implements ReceiptPrinter {
     Uint8List pdf, {
     required String fileName,
   }) async {
-    if (_mobile) {
+    // Web: browser mengunduh berkas (F2-02 aturan 9).
+    if (kIsWeb || _mobile) {
       await Printing.sharePdf(bytes: pdf, filename: fileName);
       return null;
     }

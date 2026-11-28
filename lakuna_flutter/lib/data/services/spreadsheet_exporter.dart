@@ -195,7 +195,8 @@ class PlatformSpreadsheetExporter implements SpreadsheetExporter {
 
   @override
   Future<String?> save(Uint8List bytes, {required String fileName}) async {
-    if (_mobile) {
+    // Web: share_plus mengunduh berkas lewat browser (F2-02 aturan 9).
+    if (kIsWeb || _mobile) {
       await SharePlus.instance.share(
         ShareParams(
           files: [

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart' as p;
 
 import '../../utils/result.dart';
@@ -13,7 +14,7 @@ Future<Directory> autoBackupDirectory() async =>
 
 /// Apakah backup otomatis didukung di platform ini (desktop saja, F1-19d).
 bool get autoBackupSupported =>
-    Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+    !kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS);
 
 /// Menjalankan backup otomatis (F1-19d): pemeriksaan pertama [firstCheck]
 /// setelah [start], lalu setiap [period]; backup dibuat bila sakelar

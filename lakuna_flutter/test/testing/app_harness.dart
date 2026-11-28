@@ -4,6 +4,7 @@ import 'fake_hosting_repository.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_flutter/config/app_platform.dart';
 import 'package:lakuna_flutter/app_root.dart';
 import 'package:lakuna_flutter/app.dart';
 import 'package:lakuna_flutter/data/repositories/guide_repository.dart';
@@ -75,6 +76,7 @@ Future<AppSettingsViewModel> pumpLakuna(
   FakeHostingRepository? hosting,
   Future<void> Function()? restart,
   bool restoreFailed = false,
+  AppPlatform platform = AppPlatform.native,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -141,6 +143,7 @@ Future<AppSettingsViewModel> pumpLakuna(
             guide: guide ?? FakeGuideRepository(),
             hosting: hosting,
             initialLocation: initialLocation,
+            platform: platform,
           ),
         ),
       ),

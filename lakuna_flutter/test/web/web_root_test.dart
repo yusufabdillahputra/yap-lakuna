@@ -1,0 +1,102 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lakuna_flutter/app_root.dart';
+import 'package:lakuna_flutter/bootstrap.dart';
+import 'package:lakuna_flutter/config/app_platform.dart';
+import 'package:lakuna_flutter/data/services/web_session_store.dart';
+
+void main() {
+  const web = AppPlatform(isWeb: true);
+
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 20; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+  }
+
+  testWidgets('web tanpa sesi: layar gabung, database tidak dibuka', (
+    tester,
+  ) async {
+    final opened = <String>[];
+    await tester.pumpWidget(
+      LakunaRoot(
+        platform: web,
+        webSessions: MemoryWebSessionStore(),
+        resolvePath: () async => throw StateError('tidak dipakai di web'),
+        boot: (p) async {
+          opened.add(p);
+          throw StateError('tidak boleh dibuka');
+        },
+      ),
+    );
+    await settle(tester);
+    expect(find.byKey(const ValueKey('web-join')), findsOneWidget);
+    expect(opened, isEmpty);
+  });
+
+  testWidgets('web dengan sesi: membuka database sesi itu', (tester) async {
+    final sessions = MemoryWebSessionStore();
+    await sessions.setActiveDatabase('lakuna-abc.sqlite');
+    final opened = <String>[];
+    await tester.pumpWidget(
+      LakunaRoot(
+        platform: web,
+        webSessions: sessions,
+        resolvePath: () async => throw StateError('tidak dipakai di web'),
+        boot: (p) async {
+          opened.add(p);
+          return AppInstance(
+            close: () async {},
+            app: const Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text('aplikasi'),
+            ),
+          );
+        },
+      ),
+    );
+    await settle(tester);
+    expect(opened, ['lakuna-abc.sqlite']);
+    expect(find.text('aplikasi'), findsOneWidget);
+  });
+
+  for (final problem in WebStartProblem.values) {
+    testWidgets('web tidak bisa mulai (${problem.name}): pesan, tanpa '
+        'database', (tester) async {
+      final opened = <String>[];
+      await tester.pumpWidget(
+        LakunaRoot(
+          platform: web,
+          webSessions: MemoryWebSessionStore(problem: problem)
+            ..setActiveDatabase('lakuna-abc.sqlite'),
+          resolvePath: () async => throw StateError('tidak dipakai di web'),
+          boot: (p) async {
+            opened.add(p);
+            throw StateError('tidak boleh dibuka');
+          },
+        ),
+      );
+      await settle(tester);
+      expect(
+        find.byKey(ValueKey('web-problem-${problem.name}')),
+        findsOneWidget,
+      );
+      expect(opened, isEmpty);
+    });
+  }
+
+  test('sesi diganti: database lama masuk antrean hapus', () async {
+    final deleted = <String>[];
+    final sessions = MemoryWebSessionStore(delete: (n) async => deleted.add(n));
+    await sessions.setActiveDatabase('lama.sqlite');
+    await sessions.setActiveDatabase(null);
+    expect(sessions.activeDatabase, isNull);
+    expect(sessions.staleDatabases, ['lama.sqlite']);
+    await sessions.purgeStale();
+    expect(deleted, ['lama.sqlite']);
+    expect(sessions.staleDatabases, isEmpty);
+  });
+}
